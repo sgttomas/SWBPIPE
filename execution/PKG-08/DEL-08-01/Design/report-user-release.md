@@ -80,6 +80,20 @@ decision, on exact-route results.
   negative fixtures (S5a, S5b, §2.8, §6). The general entries' precedence now
   keeps `wire::assemble_wire_request`'s own earlier checks (N2, §2.8).
   Appendix A is unchanged, and all fourteen Olds still count 1 (§7).
+- **Codex round 4 at revision 4 (`3d2f35911b`: no blocking, one should-fix,
+  three non-blocking; A1-A14 pass).** A macro could still hide a production
+  module or build a call path that the token screen cannot see (S5c, S5d), and
+  a declarative macro from outside the four crates could emit a call without
+  naming it (N4). The reach scan now fails closed on macros. A production
+  macro definition is a finding unless it is on an allow-list pinned by the
+  SHA-256 of its source text; only `app_invoke_handler` is listed. A macro
+  invocation, attribute or derive is a finding unless it is on a list derived
+  from the basis source, and imports cannot rebind a listed name. The scan's
+  module traversal therefore sees every production `mod` (S5c, S5d, N4, §2.8,
+  §6). The general entries' precedence now names `check_request_in`'s own
+  cardinality checks (N2a, §2.8). §2.4's reason for digesting in the worker
+  names the parsed result copy (N3). Appendix A is unchanged, and all
+  fourteen Olds still count 1 (§7).
 
 ## 0. Rulings
 
@@ -773,7 +787,12 @@ user-visible condition is the same; native admission now enforces it.
 **Why the worker, not the host.** The host never materializes the model, and
 the bytes it receives are not RFC 8785 (§1). A host-side digest would need the
 host to parse the result, which needs a new lease and changes the custody
-design. The worker already holds both values.
+design. The worker already holds the model value it materialized for the
+solve, and the result bytes it delivers. For `d_S` it parses those bytes back
+into one transient copy, inside the result text's ingress materialization
+bound (above), and drops it before the frames are sent. So the host side of
+the solve needs no new parse and no new lease (Codex round 4 at revision 4,
+N3).
 
 ### 2.5 Native admission on route 010
 
@@ -1391,10 +1410,10 @@ these holds:
    (`lib.rs:204`) are the public entries that the runner, route 009's bridge
    (`report_package_bridge::assemble_request`) and the tests call. Each
    refuses any marker with `REPORT-PACKAGE-USER-RELEASE-NOT-ADMITTED`. The
-   first two refuse in `check_request_in`, after item 0 and
-   `check_runner_profile` and before the user-released exact check (the
-   order is under "exact routes" above); the writer refuses before it
-   renders.
+   first two refuse in `check_request_in`, after its two cardinality checks,
+   item 0 and `check_runner_profile`, and before the user-released exact
+   check (the order is under "exact routes" above); the writer refuses before
+   it renders.
    - **What runs before `check_request_in` (Codex round 3 at revision 4,
      N2).** `bindings::check_request` goes straight to `check_request_in`
      (`bindings.rs:350`). `wire::assemble_wire_request` reaches it through
@@ -1403,17 +1422,26 @@ these holds:
      object-form check (`:376-381`), which refuses a positional report with
      its own diagnostic, and the audit-manifest conversion (`:382`).
      So a marker request whose report is in positional form, or whose audit
-     manifest does not convert, gets that diagnostic first at this entry. The
-     marker refusal and the precedence below apply to the requests that reach
-     `check_request_in`. Either way the request is refused and nothing is
-     built.
+     manifest does not convert, gets that diagnostic first at this entry.
+   - **What runs first inside `check_request_in` (Codex round 4 at revision
+     4, N2a).** Reaching `check_request_in` does not by itself give the
+     marker refusal precedence. Its two cardinality checks run first,
+     unchanged from the basis (`bindings.rs:361-365`): exactly one result
+     document, and one source result per result document. A marker request
+     that fails either gets that diagnostic, whatever its document, and at
+     `bindings::check_request` it gets it even before item 0. The marker
+     refusal and the precedence below apply to the requests that reach
+     `check_request_in` and pass those two checks. Either way the request is
+     refused and nothing is built.
    - **Precedence for an exact document (Codex round 2 at revision 4, S6).**
      A user-release request whose result document is exact never gets
      `REPORT-USER-RELEASE-EXACT-ROUTE-NOT-ADMITTED` at a general entry:
      - at `wire::assemble_wire_request` and `bindings::check_request`, it gets
        item 0's own refusal if its identity is outside the admitted set, and
-       otherwise, once it reaches `check_request_in` (above),
-       `REPORT-PACKAGE-USER-RELEASE-NOT-ADMITTED`. With the runner
+       otherwise, once it reaches `check_request_in` and passes its two
+       cardinality checks (above), `REPORT-PACKAGE-USER-RELEASE-NOT-ADMITTED`.
+       At `bindings::check_request` the cardinality checks come before item
+       0, so a request that fails one gets that diagnostic instead. With the runner
        profile and a record it gets W-11's
        `REPORT-PACKAGE-EXACT-RUNNER-PROFILE` first, since that check runs
        directly after item 0 as W-11 placed it;
@@ -1523,7 +1551,9 @@ with `syn::visit::Visit`.
   non-test `cfg` (below). Its scope tracking would also be a hand-written Rust
   lexer, the kind of rule that let S5a through. A parsed tree gives lexical
   scope directly, and it treats cfg-gated code as production with no
-  exception list.
+  exception list. The macro lists below (Codex round 4) are allow-lists too,
+  but they cover only macros, which no parser can see into; scope still
+  comes from the tree.
 
 *Which source is production.*
 - **Roots.** The roots are each crate's `src/lib.rs`, plus `src-tauri`'s
@@ -1558,13 +1588,172 @@ with `syn::visit::Visit`.
   - a production file that does not parse.
 
   So no production Rust, generated or external, reaches these crates through
-  a path the scan does not read.
+  a path the scan does not read, except through macro expansion, which the
+  next rules close.
+
+*Macros (Codex round 4 at revision 4, S5c, S5d, N4).* `syn` leaves a macro's
+body and arguments as tokens, and the scan does not expand macros. Screening
+those tokens for scanned names is not enough:
+- **S5c.** A macro can emit a `mod`. For example,
+  `macro_rules! load_escape { () => { pub mod escape; }; } load_escape!();` in
+  `report_package/src/lib.rs` loads an `escape.rs` that the module traversal
+  never reads.
+- **S5d.** A macro can build a call path from its parameters. For example,
+  `macro_rules! build { ($r:ident, $i:expr) => { $r::render_calculation_report($i) }; }`
+  invoked as `build!(open_pipe_stress_report_renderer, input)` in `src-tauri`.
+  Neither token stream holds the qualified sequence that the `src-tauri`
+  rule matches, and the bare name is not matched there.
+- **N4.** A declarative macro defined outside the four crates can emit a
+  call without the name appearing in the invocation.
+
+So the scan limits which macros may exist and which may be invoked, in the
+production source of the four crates. Each rule below is a finding when
+broken.
+1. **Definitions.** No `macro_rules!` item and no `macro` (2.0) item, except
+   one on the allow-list. An entry names the file and the macro, and pins the
+   SHA-256 of its source text: the file's bytes from the `macro_rules` token
+   through the closing delimiter, located by the item's span. A change to any
+   token, comment or whitespace in those bytes fails the scan until the macro
+   is reviewed again and its pin is replaced. An entry is admitted only if
+   its text holds no `mod` token, no `$` parameter followed by `::`, and no
+   scanned name other than one the name rules below allow. The list has one
+   entry:
+   - `app_invoke_handler`, `apps/desktop/src-tauri/src/lib.rs:5018-5081`
+     (2,455 bytes, LF line ends, ending at the closing `}`), SHA-256
+     `45c3d325100524094e8e57c33a3a1d13e12abb5cdf2abfed51224be5adbe1ed1`.
+     It holds no `mod`. Its one parameter, `$extra:path`, is used only as a
+     whole handler entry (`$(, $extra)*`), never before `::`. Its one scanned
+     name is the Tauri command's bare `render_calculation_report` (`:5076`),
+     which the `src-tauri` rule does not match.
+
+   Also findings: `#[macro_export]` and `#[macro_use]` anywhere, and any
+   item that `syn` gives as `Item::Verbatim`, which is how it gives a
+   `macro` (2.0) item. No `macro` item exists at the basis. That `syn` gives
+   no other basis item as `Item::Verbatim` is confirmed by the first scan
+   run, in (r2c).
+2. **Function-like invocations.** Every macro invocation must be on the list
+   below, by the path as written. This covers every position: item,
+   statement, expression, pattern and type, and an invocation inside another
+   macro's tokens, such as the `tauri::generate_handler!` in
+   `app_invoke_handler`. The list was derived from the basis's production
+   source, so the rule fails nothing today. The counts are from a search of
+   that source with comments, strings and `#[cfg(test)]` items left out, not
+   from a scan run:
+   - **`std` macros, bare:** `format!` (871: `src-tauri` 627,
+     `report_package` 145, `report_renderer` 81, `pdf_emitter` 18), `vec!`
+     (110), `format_args!` (71), `matches!` (33), `write!` (14), `eprintln!`
+     (14), `include_str!` (8, restricted above), `assert!` (5),
+     `unreachable!` (5), `debug_assert!` (4), `println!` (1, `main.rs:10`),
+     `debug_assert_ne!` (1, `memory_pool.rs:477`), `panic!` (1,
+     `schema_eval.rs:170`) and `env!` (1, `handoff_package.rs:1400`);
+   - **external, bare, imported by name:** `json!` (101, from
+     `serde_json`) and `params!` (73, from `rusqlite`);
+   - **external, by path:** `serde_json::json!` (2, `native_smoke.rs:152,165`),
+     `rusqlite::params!` (2, `stored_read.rs:398,409`),
+     `serde::forward_to_deserialize_any!` (3,
+     `command_ingress.rs:408,491,564`), `tauri::generate_handler!` (1,
+     `lib.rs:5020`) and `tauri::generate_context!` (1, `lib.rs:5108`);
+   - **local:** `app_invoke_handler!` (2, `lib.rs:5094,5096`).
+
+   `thread_local!` occurs twice, but both are `#[cfg(test)]` items
+   (`schema_eval.rs:750-751`, `handoff_package_publish.rs:826-827`), so it
+   is not listed.
+3. **Attributes and derives.** Every attribute's path, outer or inner, must
+   be one of these:
+   - built in: `cfg`, `cfg_attr`, `allow`, `inline`, `cold`,
+     `global_allocator`, `derive`, and `doc` (doc comments). The attributes a
+     `cfg_attr` applies are checked against this list too. At the basis each
+     one is an `allow(dead_code)`;
+   - derive helpers, which emit nothing themselves: `default` (the `Default`
+     derive's variant marker) and `serde`, with only the keys used at the
+     basis: `default` with no value, `deny_unknown_fields`, `flatten`,
+     `rename`, `rename_all`, `skip`, `skip_serializing_if`, `tag` and
+     `untagged`. Other keys, such as `with`, `serialize_with`,
+     `deserialize_with`, `default = "…"`, `from`, `try_from`, `into` and
+     `getter`, make the derive call a function named in a string literal,
+     which the name screen does not read. `skip_serializing_if` names one too,
+     so its value must be one of the two at the basis: `"Option::is_none"`
+     (`report_renderer/src/lib.rs:147,258,260`) or `"std::ops::Not::not"`
+     (`:302`);
+   - one attribute macro, `tauri::command` (67, all in `src-tauri`, none with
+     arguments). It emits a wrapper that calls only the function it marks.
+     It may mark no function with a scanned name, except the Tauri command
+     `render_calculation_report` (`lib.rs:1568-1569`).
+
+   A derive must be one of `Clone`, `Copy`, `Debug`, `Default`, `Eq`,
+   `PartialEq`, `Ord` and `PartialOrd` from `std`, or `Serialize` and
+   `Deserialize` from `serde`, written bare. Those are all the derives at the
+   basis.
+4. **Imports cannot rebind a listed name.** A bare name resolves through
+   imports, so these are findings too:
+   - any `extern crate`, and any glob import (there is none in production at
+     the basis);
+   - a `use` whose bound name, its last segment or its `as` alias, equals a
+     listed bare macro or derive name, or the first segment of a listed path
+     (`serde`, `serde_json`, `rusqlite`, `tauri`), unless it imports that
+     item from its listed source. At the basis these are
+     `use serde_json::{json, …}`, `use rusqlite::{params, …}` and
+     `use serde::{Serialize, Deserialize}` or one of the two, and none binds
+     a crate root under another name.
+
+*Why the listed macros emit no scanned call and no `mod`.* Each one emits
+code made only from its own tokens and its own crate's internals:
+- the formatting and assertion macros (`format!`, `format_args!`, `write!`,
+  `eprintln!`, `println!`, `assert!`, `debug_assert!`, `debug_assert_ne!`,
+  `panic!`, `unreachable!`) expand to `core::fmt` calls over their argument
+  expressions. Those reach only `Display` and `Debug` impls. An impl in the
+  four crates is a `fn` the scan reads like any other, and no other crate can
+  call the renderer, since only these crates depend on it (asserted below);
+- `vec!` moves its argument expressions into a vector, and `matches!` is a
+  `match` on its expression with its pattern. `env!` and `include_str!`
+  expand to a string literal;
+- `json!` builds a `serde_json::Value`, and `params!` a slice of references
+  to its argument expressions. Any expression in either is written in the
+  invocation's tokens, which the name screen reads;
+- `serde::forward_to_deserialize_any!` emits `Deserializer` methods in the
+  impl it is written in, each forwarding to `self.deserialize_any`;
+- `tauri::generate_handler!` emits a dispatcher that calls each listed
+  command through the wrapper that `tauri::command` made for it. Every
+  command it calls is named in its tokens, inside `app_invoke_handler` or in
+  that macro's `native_smoke::…` arguments, and so is screened;
+- `tauri::generate_context!` reads `tauri.conf.json` and the frontend
+  assets at build time and emits the app's context. It names no function of
+  these crates;
+- `app_invoke_handler!` is pinned by its hash (rule 1);
+- the derives emit trait impls over the type's fields, which call the
+  fields' own impls and, through `serde` keys, only the two
+  `skip_serializing_if` paths above.
+
+*What this closes.*
+- **S5c.** The only macro that may be defined is `app_invoke_handler`, which
+  holds no `mod`, and no listed invocation emits one. So every production
+  `mod` is a `syn` item, and the module traversal above sees every
+  production file.
+- **S5d.** No new macro can be defined, so none can build a path from its
+  parameters. The one listed has no `$` parameter before `::`, and its
+  `$extra` is a whole path written in the invocation, where the screen reads
+  it.
+- **N4.** A macro defined outside the four crates may be invoked only if it
+  is listed, and no listed one emits a call to a function it is not given.
+- **What remains.** The listed external macros are trusted to do what the
+  versions in the lock do. `tauri::command`, `tauri::generate_handler!`,
+  `tauri::generate_context!` and the `serde` derives are procedural, and
+  `json!`, `params!` and `forward_to_deserialize_any!` are declarative. If a
+  version of one emitted a call to a scanned function not named in its
+  input, the scan would not see it. None of today's does, and changing one
+  of those dependencies is reviewed as a change to this boundary.
+
+The module traversal and the name, scope and call rules below therefore rely
+on every production `mod` and every production call being visible to `syn`,
+apart from what the listed macros emit.
 
 *What the four crates hold today* (at the basis). Each form above was
 searched for in the basis source. The scan itself is not yet built, so this
 was a search, not a scan run:
 - **`macro_rules!`.** One in production: `app_invoke_handler`
-  (`src-tauri/src/lib.rs:5018-5081`).
+  (`src-tauri/src/lib.rs:5018-5081`), the one allow-list entry (macro rule
+  1 above). No crate has a `macro` (2.0) item, `#[macro_export]` or
+  `#[macro_use]`.
   - Its handler list names the Tauri command `render_calculation_report`
     bare (`:5076`). The `src-tauri` rule below does not match the bare name,
     so the macro holds no matched name.
@@ -1591,7 +1780,8 @@ was a search, not a scan run:
   inline module outside a root is `mac`. No crate has a subdirectory under
   `src`.
 
-So the rules hold at the basis with no allow-list and no hash.
+So the rules hold at the basis. The only allow-lists are the macro lists
+above, each derived from the basis source.
 
 *Scanned names and how they are matched.* The scanned names are:
 - the six document functions: `render_calculation_report`,
@@ -1728,8 +1918,10 @@ function's own name, whatever path comes before it.
   and `report_package`'s, and only `report_package`'s depends on
   `open_pipe_stress_pdf_emitter`.
 
-A new caller, re-export, dependent, module path or included file fails the
-scan, so changing one is reviewed as a change to this boundary.
+A new caller, re-export, dependent, module path, included file, macro
+definition, macro invocation, attribute or derive outside the lists, or a
+changed `app_invoke_handler`, fails the scan, so changing one is reviewed as a
+change to this boundary.
 
 *What the scan does not establish.*
 - **Code that does not call the functions.** The scan pins the calls of the
@@ -1742,11 +1934,14 @@ scan, so changing one is reviewed as a change to this boundary.
   renderer or the producer.
 - **Macro expansion.** The scan reads source as written and does not expand
   macros. Every macro's tokens are screened, so no macro can carry a scanned
-  name that is written in it. A procedural macro could still emit a call to a
-  scanned function without that name in its input, for example by building
-  the identifier from parts. That is outside the scan in the same way, and
-  adding such a macro to these crates is reviewed as a change to this
-  boundary.
+  name that is written in it. Beyond that, only the listed macros may be
+  defined or invoked (*Macros* above), so no local macro and no unlisted
+  external macro, declarative or procedural, can emit a `mod` or a call. What
+  remains is a listed external macro whose version emitted a call to a
+  scanned function not named in its input, for example by building the
+  identifier from parts. The scan would not see it. None of today's does
+  (Codex round 4 at revision 4, N4), and a change to one of those
+  dependencies is reviewed as a change to this boundary.
 - **W-11's scan.** W-11's forwarding-graph scan keeps its line rules for the
   admitted set, which is W-11's own claim. This design relies on that scan
   for no reach claim, since the reach scan pins the producer's internal
@@ -1763,7 +1958,7 @@ checked:
 | The runner's `export-results` | refusal 1, before the producer |
 | Route 009's save (`report_package_bridge::assemble_request`) | native step 3 (`REPORT-USER-RELEASE-NOT-THIS-ROUTE`), then refusal 2 |
 | The producer's public entries called from any other crate | refusal 2 |
-| Renderer and PDF calls inside `report_package` and `pdf_emitter`: `pdf_emitter`'s public functions (`emit_calculation_report_pdf`, `pdf_from_render`, `assemble_full_report_package`, `pdf_emitter/src/lib.rs:129,138,194`) and the renderer's `render_calculation_report` and `assemble_report_sections` | the reach scan's rows. Only `report_package` depends on `pdf_emitter`. Inside `pdf_emitter` the renderer is called only from `emit_calculation_report_pdf` and `assemble_full_report_package`, the first has no caller, and the second is called only by `report_package`'s writer. The writer is reached only from `assemble_report_package_container` (refusal 2) and `wire::assemble_wire_request_in`, which forwards refusal 2 or the admitting entry. The scan reads every production file of the four crates as parsed Rust and attributes each name to its lexical scope. In that source each scanned name occurs only at its definition and as a direct call by an allowed caller that is the call's innermost scope owner. No `use`, re-export, function value, trait object, generic argument, closure, nested item or macro names one. This covers the calls of the functions named, as written. New code that builds a document without them, and a procedural macro that would make a call without naming it, are outside the scan (above) |
+| Renderer and PDF calls inside `report_package` and `pdf_emitter`: `pdf_emitter`'s public functions (`emit_calculation_report_pdf`, `pdf_from_render`, `assemble_full_report_package`, `pdf_emitter/src/lib.rs:129,138,194`) and the renderer's `render_calculation_report` and `assemble_report_sections` | the reach scan's rows. Only `report_package` depends on `pdf_emitter`. Inside `pdf_emitter` the renderer is called only from `emit_calculation_report_pdf` and `assemble_full_report_package`, the first has no caller, and the second is called only by `report_package`'s writer. The writer is reached only from `assemble_report_package_container` (refusal 2) and `wire::assemble_wire_request_in`, which forwards refusal 2 or the admitting entry. The scan reads every production file of the four crates as parsed Rust and attributes each name to its lexical scope. In that source each scanned name occurs only at its definition and as a direct call by an allowed caller that is the call's innermost scope owner. No `use`, re-export, function value, trait object, generic argument, closure, nested item or macro names one, and only the listed macros may be defined or invoked. This covers the calls of the functions named, as written. New code that builds a document without them, and a listed external macro whose version would make a call without naming it (none of today's does), are outside the scan (above) |
 | The render command, pressure-free branch (`render_calculation_report_value`) | the render-command refusal below |
 | The render command, exact branch | `check_exact_render_context` (`report_render_exact.rs:139-147`) admits `local_private` only; a record under `local_private` is refused by the render-command refusal below |
 | Route 010 | the admitting entry, after native steps 1-8 |
@@ -2563,9 +2758,64 @@ leaves the sandbox directory empty, with no picker request.
       holds it.
     - **A method call by the scanned name:** `input.assemble_full_report_package()`
       in any function.
+
+    Codex round 4 at revision 4 (S5c, S5d, N4) adds the cases below (§2.8,
+    *Macros*). Each must be a finding unless it is marked as passing:
+    - **A macro that loads a module** (S5c), in `report_package`'s `lib.rs`:
+      `macro_rules! load_escape { () => { pub mod escape; }; } load_escape!();`,
+      with an invented `escape.rs` holding
+      `pub fn forward(input: &crate::renderer::RenderableReportInput) -> crate::pdf::FullReportPackageOutcome { crate::pdf::assemble_full_report_package(input) }`.
+      The findings are the unlisted definition and the unlisted invocation.
+    - **A parameterized path** (S5d), in `src-tauri`:
+      `macro_rules! build { ($r:ident, $i:expr) => { $r::render_calculation_report($i) }; }`,
+      invoked as `build!(open_pipe_stress_report_renderer, input)` in a new
+      function. The findings are the definition and the invocation.
+    - **An unlisted external declarative macro** (N4), from an invented
+      dependency `forwarder`, in `report_package`:
+      - `forwarder::emit!(input)` in a new function;
+      - `use forwarder::emit;` with `emit!(input)`;
+      - `use forwarder::emit as json;` with `json!(input)`, whose `use` is the
+        finding (import rule), and the same with `as format`;
+      - `#[macro_use] extern crate forwarder;`.
+    - **A new local macro without a scanned name:**
+      `macro_rules! twice { ($e:expr) => { ($e, $e) }; }` in `pdf_emitter`,
+      with and without an invocation, and the same as a `macro` (2.0) item.
+    - **A changed `app_invoke_handler`:**
+      - one token changed: a handler entry added, removed or renamed;
+      - whitespace or a comment changed inside it, which the pin also
+        covers;
+      - the basis text unchanged but moved to another `src-tauri` file, or
+        defined twice.
+    - **Unlisted attributes and derives:**
+      - an attribute macro `#[forwarder::instrument]` on a function in
+        `report_package`;
+      - `#[tauri::command]` on a `src-tauri` function named
+        `assemble_user_released_request`;
+      - `#[serde(serialize_with = "forward")]` on a field, and
+        `skip_serializing_if = "forward"`;
+      - `#[derive(forwarder::Forward)]`, and `#[derive(Hash)]`, which is
+        harmless but not on the list;
+      - `#[cfg_attr(not(test), forwarder::instrument)]`.
+    - **Passing cases for today's macros.** Each of these must pass:
+      - a function that invokes each listed `std` macro once, with arguments
+        that hold no scanned name;
+      - bare `json!` and `params!` under `use serde_json::json;` and
+        `use rusqlite::params;`, and the qualified `serde_json::json!` and
+        `rusqlite::params!`;
+      - `serde::forward_to_deserialize_any!` inside a `Deserializer` impl;
+      - the basis text of `app_invoke_handler`, byte for byte, with its two
+        invocations from `run` (without arguments, and with the
+        `native_smoke::…` list), and `tauri::generate_context!`;
+      - `#[tauri::command]` on an ordinary command;
+      - each listed derive, the basis `serde` keys with both
+        `skip_serializing_if` values, `#[default]`, and
+        `#[cfg_attr(not(test), allow(dead_code))]`;
+      - a `#[cfg(test)] thread_local!` item, and a `#[cfg(test)]` module that
+        defines its own `macro_rules!`, as `command_ingress.rs` does.
     - **Passing cases.** Each of these must pass:
-      - the basis shape of `app_invoke_handler`, a `src-tauri` `macro_rules!`
-        whose tokens name the bare Tauri command `render_calculation_report`;
+      - the basis text of `app_invoke_handler`, a `src-tauri` `macro_rules!`
+        whose tokens name the bare Tauri command `render_calculation_report`
+        and whose pin matches;
       - an `include_str!` of a `.json` file;
       - a `#[cfg(test)]` item, inline module or outlined module that holds any
         of the calls above;
@@ -2924,6 +3174,41 @@ leaves the sandbox directory empty, with no picker request.
     `check_request_in`, and keeps those earlier checks (§2.8, refusal 2).
   - Appendix A: every Old was re-checked with `count == 1` at `2e4748eada`.
     All fourteen count 1 at their cited lines, and no Old or New changed.
+- Round 4 at revision 4 (Codex, `3d2f35911b`; no blocking, A1-A14 pass; the
+  parsed ownership, cfg handling, `syn` features and versions and §2.4's
+  `d_S` basis confirmed):
+  - S5c, a macro that emits a `mod`, and S5d, a macro that builds a call path
+    from parameters: the reach scan now fails closed on macros instead of
+    adding one more token pattern. In the four crates' production source a
+    `macro_rules!` or `macro` item is a finding unless it is on an allow-list
+    pinned by the SHA-256 of its source text. The list has only
+    `app_invoke_handler` (`lib.rs:5018-5081`), which holds no `mod`, no `$`
+    parameter before `::` and no matched name; a search of the basis found
+    no other production definition. A function-like invocation, attribute or
+    derive is a finding unless it is on a list derived from the basis
+    production source, and imports cannot rebind a listed name. So no macro
+    can emit a `mod` the traversal misses, and none can build a path (§2.8,
+    *Macros*).
+  - N4, external declarative macros: only the listed ones may be invoked
+    (`json!`, `params!`, `forward_to_deserialize_any!`), and each emits code
+    made of its own tokens and its crate's internals. The stated limit now
+    names only what remains: a listed external macro, procedural or
+    declarative, whose version emitted an unnamed call. None of today's
+    does, and changing one of those dependencies is reviewed as a change to
+    this boundary (§2.8, "What the scan does not establish").
+  - The fixtures: S5c's `load_escape!`, S5d's parameterized path, an
+    unlisted external macro (also imported under a listed name), a new local
+    macro, a changed `app_invoke_handler`, unlisted attributes, `serde` keys
+    and derives, and passing cases for every listed macro (§6, "Reach scan").
+  - N2a, precedence inside `check_request_in`: its two cardinality checks
+    (`bindings.rs:361-365`) run before item 0 and the marker refusal. A
+    marker request that fails one gets that diagnostic, and the precedence
+    now applies to requests that pass them (§2.8, refusal 2).
+  - N3, §2.4's reason for the worker: the worker holds the model value and
+    the delivered result bytes, and parses the bytes back into one transient
+    copy for `d_S`, inside the result text's ingress bound.
+  - Appendix A: every Old was re-checked with `count == 1` at `2e4748eada`.
+    All fourteen count 1 at their cited lines, and no Old or New changed.
 
 **Open.** None. Every decision this design rests on is settled.
 
@@ -2934,13 +3219,13 @@ leaves the sandbox directory empty, with no picker request.
 | **(r1) Vocabulary and redaction** | The context, reason codes and route id in TypeScript, Python, the Rust mirror and the schema; the decision order of §3.2 (steps 10-13); the flag assertion; the local-first rule; the user-release projector (nearest-metadata labelling; unused until r3); corpus cases, the pinned-digest tests and `existing_contexts_preserve_raw_intent_named_members`. No route uses the context. | M (~650 lines with tests) | Data boundary (vocabulary only) |
 | **(r2a) Solve attestation** | The worker's streamed digests, the `ATST` frame, the registry table, clearing and bounds, the memory-budget text with the digest passes' transient pieces (§2.4), its measurement and the allocation checks, tests. No rule-check attestation. | S (~450) | Data boundary; DEL-04-07 memory accounting; no priced file |
 | **(r2b) Derivation and refusals** | `report_package::user_release`: Rust builders of the input manifest, the document base and origin, the minimal renderer input, and the audit and top-level members; the library rules 1-3 of §2.7, including the legacy hanger form, its embedded-JSON parse and lease, in `src-tauri` beside `export_disposition_screen`; the rule-pack and private-class rules (library rule 1 counting a non-object `library_ref` by its own detector at both layers, `library_ref_member_sites` and `libraryRefMemberSites`); the run-record checks (Record Run's, factored); the derivation's use of the shared display, row-checksum, unit-summary and diagnostics functions (§2.6); the derivation vectors and their vitest and Rust parity, `user_release_display_rule` among them; `user_release_legacy_hanger_selection_refused`. | M (~1.07k) | **Data boundary** (what may be shared) |
-| **(r2c) Record, renderer, producer, writer, reader, native** | `UserReleaseRecord`; context and blocking codes; the renderer's user-released class rule for provenance records (§2.6); notice and rows in HTML and PDF; producer items 8 and 10, the profile, the handoff rule and the exact-route refusal after item 0; writer manifest, content binding, notes and member rule; reader checks, cardinality, the pressure-free-only check and refusal; native route-010 branch (§2.5 steps 1-10, step 2a included) with the run-record text and the outer command's route-aware `ingress_lease_bytes`; the render-command refusal of the context and of a record; the user-release markers' refusals in the runner's `export-results` and the producer's general entries, the one admitting entry `user_release::assemble_derived` with its bridge function, and `user_release_reach_scan` with its pinned `syn` and `proc-macro2` dev-dependencies (§2.8); the Rust tests of §6, `user_release_exact_route_refused`, `user_release_runner_refused` (with its CLI pytest) and `user_release_render_admits_only_the_user_released_class` among them. The desktop does not offer it yet. | M-L (~1.75k) | **Persistence** (manifest, member set and reader) and **data boundary** (native admission) |
+| **(r2c) Record, renderer, producer, writer, reader, native** | `UserReleaseRecord`; context and blocking codes; the renderer's user-released class rule for provenance records (§2.6); notice and rows in HTML and PDF; producer items 8 and 10, the profile, the handoff rule and the exact-route refusal after item 0; writer manifest, content binding, notes and member rule; reader checks, cardinality, the pressure-free-only check and refusal; native route-010 branch (§2.5 steps 1-10, step 2a included) with the run-record text and the outer command's route-aware `ingress_lease_bytes`; the render-command refusal of the context and of a record; the user-release markers' refusals in the runner's `export-results` and the producer's general entries, the one admitting entry `user_release::assemble_derived` with its bridge function, and `user_release_reach_scan` with its pinned `syn` and `proc-macro2` dev-dependencies, its macro, attribute, derive and import rules and the `app_invoke_handler` pin (§2.8); the Rust tests of §6, `user_release_exact_route_refused`, `user_release_runner_refused` (with its CLI pytest) and `user_release_render_admits_only_the_user_released_class` among them. The desktop does not offer it yet. | M-L (~1.84k) | **Persistence** (manifest, member set and reader) and **data boundary** (native admission) |
 | **(r3) Desktop** | Dialog, panel button, menu item (webview and native menu), session wiring and modal guard, the route-010 builders, the user-release cell and the dialog's exact-route line (§2.2), the early reference check (the three rules of §2.7), the dialog's reliance line, save-service evidence and the run-record text, receipt display, vitest (the webview cases of `user_release_exact_route_refused` included), native smoke step. | M (~930) | Data boundary (webview evidence) and file output |
 
 The order is (r1), then (r2a) and (r2b) in either order or together, then
 (r2c), then (r3). (r2c) needs (r2a) and (r2b) in its ancestry; (r3) offers the
 user release and needs (r2c). (r2c) and (r3) may land as one PR if review
-prefers. The total is about 4.85k lines (4.1k at revision 2; the legacy
+prefers. The total is about 4.94k lines (4.1k at revision 2; the legacy
 detector, its regressions and the allocation checks add about 250; revision 4's
 exact-route refusal, the renderer's user-released class rule and their regressions
 add about 110; Codex round 1 at revision 4 adds about 140 for the runner and
@@ -2949,7 +3234,9 @@ non-object `library_ref` detectors; Codex round 2 at revision 4 adds about
 80 for the reach scan's extension, its negative fixtures and the admitting
 entry's preflight; Codex round 3 at revision 4 adds about 150 for the parsed
 reach scan's module resolution, scope attribution and token screening, the
-two dev-dependencies' lock edges and the added fixtures), down from about 5.8k for revision 1's
+two dev-dependencies' lock edges and the added fixtures; Codex round 4 at
+revision 4 adds about 90 for the macro, attribute, derive and import rules,
+the `app_invoke_handler` pin and their fixtures), down from about 5.8k for revision 1's
 full scope. The savings are:
 - the builder mirrors (no component, hanger or rule-pack entries, no handoff
   sections, no analysis-record rebuild);
@@ -3112,7 +3399,7 @@ change's edit.
 
 Each Old is copied byte-exact from its file. At revision 4 each was re-checked
 with a Python `count == 1` against main `2e4748eada`, the design's basis, and
-again after Codex rounds 1, 2 and 3 at revision 4: all fourteen count 1, at the lines
+again after Codex rounds 1, 2, 3 and 4 at revision 4: all fourteen count 1, at the lines
 below. Line
 numbers are where the Old begins. In an Old or New, `\n` stands for a line break
 and `\"` for a quotation mark inside the quoted text. These drafts go to Codex
@@ -3174,6 +3461,10 @@ clause stays exactly true once the admitting entry's preflight is in place
 (§7, S6).
 
 **After Codex round 3 at revision 4.** No Old or New changed. All fourteen
+Olds were counted again at `2e4748eada`, and each counts 1 at its cited line
+(§7).
+
+**After Codex round 4 at revision 4.** No Old or New changed. All fourteen
 Olds were counted again at `2e4748eada`, and each counts 1 at its cited line
 (§7).
 
