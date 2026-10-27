@@ -90,19 +90,29 @@ split starts from P_k. The planner predicts S_k with the applier's own operation
 order. Rust does not contract floating-point operations, and JavaScript numbers
 are binary64, so the prediction is exact. The engine test checks it.
 
-**Error statement.** Let u = 2⁻⁵³ and x* = A + (B − A)k/N exactly. Then
+**Error statement.** Let u = 2⁻⁵³ and x* = A + (B − A)k/N exactly. To first
+order in u, with every intermediate in the normal range or zero:
 
 ```
-|P_k − x*| ≤ u·|x*| + 3u·|B − A|·(k/N)     (to first order in u)
+|P_k − x*| ≤ u·|x*| + 3u·|B − A|·(k/N)
 ```
+
+This is a first-order estimate, not an unconditional binary64 inequality. When the
+product or the sum falls below the normal range, each such operation adds at
+most 2⁻¹⁰⁷⁵ absolute in place of its relative term, so at most 2⁻¹⁰⁷⁴ in all.
+A subnormal B − A is exact, and k/N ≥ 1/100 is normal. An overflow is refused as
+non-finite. P_k is not claimed to be correctly rounded, even when B − A is exact,
+because the product is rounded before the sum. With A = 6.9705855667666725,
+B = −2.5521381070139633, N = 8 and k = 7, P = −1.3617976477913842, while the
+correctly rounded interpolation is −1.3617976477913838. The engine test pins
+the stored value to the formula's result.
 
 This bound is the same for every k. A repeated addition of a fixed step
 (A + step + step + …) carries up to k roundings to node k. The applier's chained
 split S_k carries every earlier node's rounding into the next. The per-k formula
 is not always the nearer of the two to x* for a given node. With A = 1.25,
 B = −3.7 and N = 6, P_2 = −0.3999999999999999 and S_2 = −0.4. Its bound,
-however, does not grow along the run. When B − A is exact and N is a power of two,
-P_k is correctly rounded.
+however, does not grow along the run.
 
 No value is rounded to a display precision. The preview shows each coordinate in
 ECMAScript's shortest round-trip form, which parses back to the same double. The
@@ -119,7 +129,13 @@ is queued while any refusal stands, and the first reason is shown:
   and provenance must be present. First and step must be whole numbers.
 - **`record_shape`** (`:128`). The pipe and its end nodes must have exactly the
   members the split understands, with finite numbers, and section quantities must
-  each carry a value and a unit.
+  each carry a value and a unit. With it comes `validate_corrosion_allowance`
+  (`section_bindings.rs:89`). When the section has `corrosion_allowance`, the
+  allowance, the wall and the mill tolerance (0 when absent or null) are each
+  converted to metres by the engine. Then mill < 0 or mill ≥ wall refuses, and so
+  does allowance < 0 or mill + allowance ≥ wall. The planner uses the applier's
+  messages, and the engine test checks that the engine gives the same message
+  and outcome.
 - **`attachments` with split = true** (`:293`). Anything outside the model-data
   collections that names the piece blocks the split. That includes a support or a
   pipe load that names the pipe, wind exposure, pressure regions, and a realized
@@ -134,10 +150,7 @@ is queued while any refusal stands, and the first reason is shown:
   parallel to it.
 - **`metadata` and `global_ids`** (`:215`, `:197`): the id rules in §2.1.
 
-The applier's corrosion-allowance wall rule (`section_bindings.rs:89`) is not
-repeated. A source pipe that breaks it is refused by the engine at Validate,
-as the existing single split is. Validate and Apply in Batch review still judge
-every operation.
+Validate and Apply in Batch review still judge every operation.
 
 ### 2.4 Preview
 
@@ -183,8 +196,10 @@ All in binary64, round to nearest, in this order:
 
 ```
 Ls   = c(L)                       c = the engine's convert_for_dimension, entry unit → project length unit
-|d|  = sqrt(dx·dx + dy·dy + dz·dz)   evaluated left to right; sqrt is correctly rounded
-u_i  = d_i / |d|
+s    = max(|dx|, |dy|, |dz|)      exact; refused unless finite and > 0
+e_i  = d_i / s                    one rounding each; the largest |e_i| is exactly 1
+n    = sqrt(ex·ex + ey·ey + ez·ez)   left to right; n in [1, √3]; sqrt correctly rounded
+u_i  = e_i / n                    one rounding each
 vector: Δ_i  = Ls · u_i
 angle:  θr   = c(θ) to rad;  Δ_i = (Ls · cos θr) · h_i on the horizontal axes;  Δ_up = s_up · (Ls · sin θr)
 slope:  Δ_i  = Ls · h_i on the horizontal axes;  Δ_up = s_up · s_sense · (Ls / n)
@@ -210,8 +225,16 @@ end_i = start_i + Δ_i,  then −0 becomes +0
 - **Exact cases.** An axis direction gives ±Ls exactly. A slope along an axis
   gives (R, R/n), with one rounding in the division. The tests pin
   (12, −1/4) for 12 ft at 1 in 48.
-- **Error.** The vector method is within about 4u relative per increment, plus
-  one rounding in the sum. The angle method adds the runtime's trigonometric
+- **Conversion c.** It is the identity, exactly, when the units are the same.
+  Otherwise, for length and angle (offset 0), it is
+  c(v) = (v · f_e + 0) / f_s, with two roundings and binary64 factors f_e and
+  f_s (`core/units/src/lib.rs:714-720`).
+- **Scaled normalization.** Dividing by the largest component first means no
+  square overflows, and any square that underflows is below 2⁻¹⁰⁷⁴ against a
+  sum of at least 1. For any finite nonzero d, |‖u‖ − 1| ≤ 3u to first order.
+  A direction with an axis component only gives u = ±1 exactly.
+- **Error.** Each vector-method increment is within about 4u relative of
+  Ls·d_i/|d|, plus one rounding in the sum. The angle method adds the runtime's trigonometric
   error and the angle conversion's rounding. The slope method has one rounding
   in R/n and, for a non-axis h, one in each product.
 - **−0.** JSON cannot carry −0, so every computed coordinate is normalized with
@@ -286,14 +309,24 @@ saved: the model stores the node coordinates computed below."
     one Undo restores the model hash;
   - a −0 end coordinate;
   - the planner's refusal names the same references as the engine's
-    `OP-GEOMETRY-ATTACHMENT-UNSUPPORTED` for the same single split.
+    `OP-GEOMETRY-ATTACHMENT-UNSUPPORTED` for the same single split;
+  - node k equals what one separate engine split of the original pipe at k/N
+    stores, for k = 1 … 6;
+  - the correct-rounding counter-example stores the formula's value;
+  - a piece that rounds onto an end node is refused, as the engine refuses that
+    single split;
+  - the corrosion and effective-wall rule: the planner and the engine agree on
+    four refusals and one acceptance, with mixed mm and in.
 - `geometry-tools/directionArithmetic.test.ts`:
   - the slope, angle and vector conversions against independent hand values,
     exact where the arithmetic is exact and within one ulp for √2 and the
     trigonometric cases;
   - units through the engine;
   - −0;
-  - the refusals: no up direction, a non-horizontal h, no sense, ±90°.
+  - the refusals: no up direction, a non-horizontal h, no sense, ±90°;
+  - all six up directions for the angle and slope methods;
+  - unit length within the bound for tiny (1e-162), huge (1e160) and
+    mixed-scale directions.
 - `geometry-tools/directionEntry.session.test.tsx`, through the wasm engine:
   - a new route end and a reconnect point are stored bit-identical to the computed
     point, with lengths in inches and metres in a ft project;
