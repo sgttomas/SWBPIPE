@@ -18,7 +18,11 @@
 //!   targets are as allow-listed) it follows every `mod` item, outlined and
 //!   inline, and resolves the files itself. An item is test-only when one of its outer
 //!   attributes is exactly `#[cfg(test)]`; every other item, whatever its
-//!   `cfg`, is production. A `#[path]` on a production `mod`, a `cfg_attr`
+//!   `cfg`, is production. In the three reporting crates test-only items and
+//!   test modules are read under the construction, literal and naming rules,
+//!   the one allow-listed proof-writing test excepted ([`TEST_PROOF_ITEMS`];
+//!   code review r6 at #1682); in `src-tauri`, where neither proof type can
+//!   be named, they are not read. A `#[path]` on a production `mod`, a `cfg_attr`
 //!   applying `path` at any depth and under any predicate (refused, not
 //!   followed: the scan does not evaluate predicates), any `include!`, an
 //!   `include_str!` that is not one string literal or names a `.rs` file,
@@ -95,6 +99,15 @@
 //!   are refused by any path, invoked or imported, with `include_str!`
 //!   admitted only bare.
 //!
+//! - **Build configuration** (code review r6 at #1682, [`build_configuration`]).
+//!   The desktop shell's resolved graph (`cargo metadata --offline --locked
+//!   --filter-platform host-tuple`) holds each reporting package exactly
+//!   once, from the directory the scan read, and only crates.io and
+//!   repository paths; the headless runner declares `report_package` at that
+//!   directory; no `.cargo/config(.toml)` is in the repository tree
+//!   ([`CARGO_CONFIGS`], empty); and no checked manifest names `patch` or
+//!   `replace`.
+//!
 //! What it does not establish: code that builds a document without calling
 //! the scanned functions, and a listed external macro whose version would
 //! emit a call without naming it (§2.8, "What the scan does not
@@ -102,7 +115,7 @@
 
 use proc_macro2::{Span, TokenStream, TokenTree};
 use std::collections::{BTreeMap, BTreeSet};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use syn::visit::{self, Visit};
 
 /// The four crates: (key, source root, manifest).
@@ -181,6 +194,25 @@ const DERIVED_FILE: &str = "report_package/src/user_release.rs";
 /// (Codex round 2 at #1682, P2): an associated type it assigns `Self` names
 /// the type under another path, which a struct literal could then construct.
 const DERIVED_TRAIT_IMPLS: [&str; 0] = [];
+
+/// The test-only items that construct the proof, by file and item path
+/// ([`FileScan::test_key`]), each with its reason (code review r6 at #1682;
+/// §2.8, "Test-only items"). Each writes exactly one `DerivedUserRelease`
+/// literal and one `ProducerEntry::UserRelease` construction; any other
+/// test-only item that writes either is a finding, and so is a listed item
+/// that no longer writes exactly one of each.
+pub(crate) const TEST_PROOF_ITEMS: [(&str, &str, &str); 1] = [(
+    "report_package/src/user_release.rs",
+    "tests::check_request_refuses_markers_and_the_entry_binds_its_form",
+    // Reason: the unit test of `bindings::check_request_in` under the
+    // user-release entry (§2.8 refusal 2 and item 8, the handoff rule) needs
+    // that entry, and so a proof, for requests the test edits so that the
+    // check refuses them; `check_derived` would refuse to derive a proof for
+    // them, so the test writes one. It is compiled only into the crate's own
+    // unit-test binary: a dependency build with `cfg(test)` fails to compile
+    // (the crate root's `CARGO_PRIMARY_PACKAGE` guard).
+    "check_request_in's own unit test needs the user-release entry for requests it edits to be refused, which check_derived would not derive",
+)];
 
 /// The type aliases admitted in `DerivedUserRelease`'s defining subtree
 /// (item, block, impl and trait `type` declarations, in any position), by
@@ -375,6 +407,12 @@ fn is_root_forbid(attr: &syn::Attribute) -> bool {
 
 /// The attribute paths admitted (§2.8 macro rule 3).
 const ATTRIBUTES: [&str; 11] = ["cfg", "cfg_attr", "allow", "inline", "cold", "global_allocator", "derive", "doc", "default", "serde", "tauri::command"];
+/// The attributes a test-only item may carry besides [`ATTRIBUTES`] (code
+/// review r6 at #1682): the standard test harness's own.
+const TEST_ATTRIBUTES: [&str; 3] = ["test", "should_panic", "ignore"];
+/// The derives a test-only item may write besides [`DERIVES`]: the same two
+/// `serde` derives by their crate path (code review r6 at #1682).
+const TEST_DERIVES: [&str; 2] = ["serde::Serialize", "serde::Deserialize"];
 /// The derives admitted, written bare.
 const DERIVES: [&str; 10] = ["Clone", "Copy", "Debug", "Default", "Eq", "PartialEq", "Ord", "PartialOrd", "Serialize", "Deserialize"];
 /// The `serde` keys admitted without a value, and with one.
@@ -435,17 +473,23 @@ struct Occurrence {
     line: usize,
     kind: Kind,
     owner: Owner,
+    /// In a test-only item ([`is_test_only`]): the item's path in its file
+    /// ([`FileScan::test_key`]).
+    test: Option<String>,
 }
 
 /// The sources the scan reads: crate files by `<crate key>/...` path, each
 /// crate's Cargo targets and build-dependency names as Cargo itself reports
-/// them ([`cargo_crate`]), and whether it has a `src/bin` directory.
+/// them ([`cargo_crate`]), whether it has a `src/bin` directory, and the
+/// canonical directory each crate was read from (code review r6 at #1682:
+/// the resolved reporting packages must be these, [`build_configuration`]).
 #[derive(Clone, Default)]
 pub(crate) struct Sources {
     pub(crate) files: BTreeMap<String, String>,
     pub(crate) targets: BTreeMap<String, Vec<CrateTarget>>,
     pub(crate) build_dependencies: BTreeMap<String, BTreeSet<String>>,
     pub(crate) bin_dirs: BTreeSet<String>,
+    pub(crate) crate_dirs: BTreeMap<String, PathBuf>,
 }
 
 /// One Cargo target of a scanned crate, from `cargo metadata`: its kinds
@@ -606,14 +650,15 @@ struct FileScan<'a> {
     text: &'a str,
     findings: &'a mut Vec<String>,
     occurrences: &'a mut Vec<Occurrence>,
-    /// Outlined modules to resolve: (declaring file, inline module path, name, line).
-    modules: &'a mut Vec<(String, Vec<String>, String, usize)>,
+    /// Outlined modules to resolve: (declaring file, inline module path, name,
+    /// line, whether the module is test-only).
+    modules: &'a mut Vec<(String, Vec<String>, String, usize, bool)>,
     owners: Vec<Owner>,
     inline: Vec<String>,
     /// Entry arguments seen at calls of the producer internals: (callee, caller owner, entry, line).
     entries: &'a mut Vec<(String, Owner, Option<Entry>, String, usize)>,
-    /// `UserRelease` constructions: (owner, file, line).
-    constructions: &'a mut Vec<(Owner, String, usize)>,
+    /// `UserRelease` constructions: (owner, file, line, test-only item).
+    constructions: &'a mut Vec<(Owner, String, usize, Option<String>)>,
     /// Admitted macro definitions seen: (file, name).
     macros: &'a mut Vec<(String, String)>,
     /// For each enclosing `impl`, its self type ([`ImplSelf`]): a
@@ -631,6 +676,11 @@ struct FileScan<'a> {
     /// Visiting a listed macro's parsed tokens ([`parse_listed_macro`]): the
     /// findings say so.
     in_macro: bool,
+    /// Inside a test-only item ([`is_test_only`]), or a file only a test-only
+    /// module loads (code review r6 at #1682): the construction, literal and
+    /// naming rules apply; the rules that only govern production code's
+    /// shape do not ([`Self::production_finding`]).
+    test_only: bool,
 }
 
 impl FileScan<'_> {
@@ -697,6 +747,45 @@ impl FileScan<'_> {
         self.findings.push(format!("{}:{line}: {what}", self.file));
     }
 
+    /// A finding of a rule that governs only production code's shape: the
+    /// invocation, attribute, import and macro-definition allow-lists, and
+    /// the call and entry-argument rules. A test-only item is held to the
+    /// construction, literal and naming rules instead (code review r6 at
+    /// #1682; §2.8, "Test-only items"), so these are not findings there.
+    fn production_finding(&mut self, line: usize, what: impl std::fmt::Display) {
+        if !self.test_only {
+            self.finding(line, what);
+        }
+    }
+
+    /// The test-only item being read, as its path in the file: the inline
+    /// modules, then the innermost scope owner's name (`tests::forge`), or
+    /// `None` in production code.
+    fn test_key(&self) -> Option<String> {
+        if !self.test_only {
+            return None;
+        }
+        let owner = match self.owner() {
+            Owner::Fn(name) | Owner::Method(name) => name,
+            other => format!("{other:?}"),
+        };
+        Some(self.inline.iter().cloned().chain(std::iter::once(owner)).collect::<Vec<_>>().join("::"))
+    }
+
+    /// A construction of `ProducerEntry::UserRelease` here, by `owner`.
+    fn construction(&mut self, owner: Owner, line: usize) {
+        let test = self.test_key();
+        self.constructions.push((owner, self.file.clone(), line, test));
+    }
+
+    /// Visits `body` as a test-only item (code review r6 at #1682): no longer
+    /// skipped, it is read under the construction, literal and naming rules.
+    fn as_test_only(&mut self, body: impl FnOnce(&mut Self)) {
+        let outer = std::mem::replace(&mut self.test_only, true);
+        body(self);
+        self.test_only = outer;
+    }
+
     /// Whether `name` is a scanned name matched bare in this crate.
     fn scanned_bare(&self, name: &str) -> bool {
         let scanned = ROWS.iter().any(|(function, _, _)| *function == name) || name == DERIVED;
@@ -705,7 +794,14 @@ impl FileScan<'_> {
 
     fn record(&mut self, name: &str, line: usize, kind: Kind) {
         let owner = self.owner();
-        self.occurrences.push(Occurrence { name: name.to_string(), file: self.file.clone(), line, kind, owner });
+        // Code review r6 at #1682: in a test-only item only the occurrences of
+        // `DerivedUserRelease` and the definitions of a scanned function are
+        // read; its calls are a test's own (§2.8, "Test-only items").
+        if self.test_only && name != DERIVED && kind != Kind::Definition {
+            return;
+        }
+        let test = self.test_key();
+        self.occurrences.push(Occurrence { name: name.to_string(), file: self.file.clone(), line, kind, owner, test });
     }
 
     fn with_owner(&mut self, owner: Owner, body: impl FnOnce(&mut Self)) {
@@ -763,7 +859,7 @@ impl FileScan<'_> {
                         }
                     }
                     if name == "UserRelease" {
-                        self.constructions.push((Owner::Macro, self.file.clone(), line));
+                        self.construction(Owner::Macro, line);
                     }
                     // An item that binds a name, in tokens the scan does not
                     // parse (code review r4 at #1682): a `mod`, `use`,
@@ -831,7 +927,7 @@ impl FileScan<'_> {
             self.finding(line, "a cfg_attr that applies #[path]");
             return;
         }
-        if !ATTRIBUTES.contains(&path.as_str()) {
+        if !ATTRIBUTES.contains(&path.as_str()) && !(self.test_only && TEST_ATTRIBUTES.contains(&path.as_str())) {
             let via = if through { " (through cfg_attr)" } else { "" };
             self.finding(line, format!("the attribute #[{path}]{via} is not on the attribute list"));
             return;
@@ -844,7 +940,7 @@ impl FileScan<'_> {
                     Ok(derives) => {
                         for derive in derives {
                             let name = path_text(&derive);
-                            if !DERIVES.contains(&name.as_str()) {
+                            if !DERIVES.contains(&name.as_str()) && !(self.test_only && TEST_DERIVES.contains(&name.as_str())) {
                                 self.finding(line, format!("the derive {name} is not on the derive list"));
                             }
                         }
@@ -922,9 +1018,20 @@ impl FileScan<'_> {
         let subtree = in_defining_module(&self.file);
         let listed = SUBTREE_MACROS.contains(&path.as_str());
         if subtree && !listed {
-            self.finding(line, format!("the macro {path}! in the defining module of {DERIVED} is not on its parsed-macro list"));
+            self.production_finding(line, format!("the macro {path}! in the defining module of {DERIVED} is not on its parsed-macro list"));
         }
-        let parsed = if (subtree && listed) || path == "matches" { parse_listed_macro(&path, &mac.tokens) } else { None };
+        // In a test-only item of the defining subtree (code review r6 at
+        // #1682) an unlisted macro's tokens (`assert_eq!`, `assert!`) are
+        // parsed as comma-separated expressions and visited as code; tokens
+        // that do not parse so are screened, and a brace group in them there
+        // is a finding.
+        let parsed = if (subtree && listed) || path == "matches" {
+            parse_listed_macro(&path, &mac.tokens)
+        } else if subtree && self.test_only {
+            parse_listed_macro("format", &mac.tokens)
+        } else {
+            None
+        };
         match parsed {
             Some(body) => self.with_owner(Owner::Macro, |scan| {
                 let outer = std::mem::replace(&mut scan.in_macro, true);
@@ -942,7 +1049,7 @@ impl FileScan<'_> {
             None => {
                 if path == "matches" {
                     self.finding(line, "a matches! that does not parse as an expression, a pattern and a guard");
-                } else if subtree && listed {
+                } else if subtree && (listed || self.test_only) {
                     self.finding(line, format!("the tokens of {path}! do not parse by its grammar, in the defining module of {DERIVED}"));
                 }
                 self.with_owner(Owner::Macro, |scan| scan.screen_tokens(&mac.tokens, true));
@@ -961,7 +1068,7 @@ impl FileScan<'_> {
     /// list.
     fn check_invocation_path(&mut self, path: &str, tokens: &TokenStream, line: usize) {
         if !MACRO_INVOCATIONS.contains(&path) {
-            self.finding(line, format!("the macro {path}! is not on the invocation list"));
+            self.production_finding(line, format!("the macro {path}! is not on the invocation list"));
         }
         let last = path.rsplit("::").next().unwrap_or(path);
         match last {
@@ -1073,7 +1180,7 @@ impl FileScan<'_> {
                 }
             }
             (Some(_), _) => self.finding(line, format!("the macro {name} differs from its pinned text (review it and replace its pin)")),
-            (None, _) => self.finding(line, format!("the macro definition {name} is not on the allow-list")),
+            (None, _) => self.production_finding(line, format!("the macro definition {name} is not on the allow-list")),
         }
         self.with_owner(Owner::Macro, |scan| scan.screen_tokens(&item.mac.tokens, true));
     }
@@ -1112,7 +1219,7 @@ impl FileScan<'_> {
         for (path, rename, glob) in bound {
             let joined = path.join("::");
             if glob {
-                self.finding(line, format!("a glob import of {joined}"));
+                self.production_finding(line, format!("a glob import of {joined}"));
                 continue;
             }
             let last = path.last().cloned().unwrap_or_default();
@@ -1134,11 +1241,11 @@ impl FileScan<'_> {
                 // list of today's.
                 if let Some(rename) = &rename {
                     if !USE_RENAMES.contains(&(joined.as_str(), rename.as_str())) {
-                        self.finding(line, format!("the import {joined} as {rename}, a rename not on the rename allow-list"));
+                        self.production_finding(line, format!("the import {joined} as {rename}, a rename not on the rename allow-list"));
                     }
                 }
                 if public && !PUBLIC_USES.contains(&(self.file.as_str(), joined.as_str())) {
-                    self.finding(line, format!("a non-private use of {joined}, which is not on the re-export allow-list"));
+                    self.production_finding(line, format!("a non-private use of {joined}, which is not on the re-export allow-list"));
                 }
             }
             let from_source = LISTED_IMPORTS.iter().any(|(bound_name, source)| *bound_name == name && *source == joined && rename.is_none())
@@ -1160,16 +1267,16 @@ impl FileScan<'_> {
                     let crate_itself = resolved.len() == 1 || (resolved.len() == 2 && last == "self");
                     let alias = if renderer { "renderer" } else { "pdf" };
                     if (renderer || pdf) && crate_itself && name != alias {
-                        self.finding(line, format!("the import {joined} binds the renderer or PDF crate as {name}"));
+                        self.production_finding(line, format!("the import {joined} binds the renderer or PDF crate as {name}"));
                     }
                     let exception = joined == format!("{RENDERER_CRATE}::serde_error_kind") && rename.is_none();
                     if public && (renderer || pdf) && !exception {
-                        self.finding(line, format!("a {} use of {joined} re-exports the renderer or PDF crate", "non-private"));
+                        self.production_finding(line, format!("a {} use of {joined} re-exports the renderer or PDF crate", "non-private"));
                     }
                 }
                 "src-tauri" => {
                     if names_crate(RENDERER_CRATE) || names_crate(PDF_CRATE) || path.iter().any(|segment| ROWS.iter().any(|(function, _, _)| function == segment)) {
-                        self.finding(line, format!("src-tauri imports {joined}"));
+                        self.production_finding(line, format!("src-tauri imports {joined}"));
                     }
                 }
                 _ => {}
@@ -1232,7 +1339,10 @@ impl<'ast> Visit<'ast> for FileScan<'_> {
             syn::Item::Use(i) => &i.attrs,
             _ => &[],
         };
-        if is_test_only(attrs) {
+        if is_test_only(attrs) && !self.test_only {
+            if self.is_core() {
+                self.as_test_only(|scan| scan.visit_item(item));
+            }
             return;
         }
         match item {
@@ -1279,7 +1389,7 @@ impl<'ast> Visit<'ast> for FileScan<'_> {
                 }
                 self.inline.pop();
             }
-            None => self.modules.push((self.file.clone(), self.inline.clone(), name, line)),
+            None => self.modules.push((self.file.clone(), self.inline.clone(), name, line, self.test_only)),
         }
     }
 
@@ -1321,7 +1431,11 @@ impl<'ast> Visit<'ast> for FileScan<'_> {
             }
             _ => &[],
         };
-        if !is_test_only(attrs) {
+        if is_test_only(attrs) && !self.test_only {
+            if self.is_core() {
+                self.as_test_only(|scan| visit::visit_impl_item(scan, item));
+            }
+        } else {
             visit::visit_impl_item(self, item);
         }
     }
@@ -1346,7 +1460,10 @@ impl<'ast> Visit<'ast> for FileScan<'_> {
     }
 
     fn visit_trait_item_fn(&mut self, function: &'ast syn::TraitItemFn) {
-        if is_test_only(&function.attrs) {
+        if is_test_only(&function.attrs) && !self.test_only {
+            if self.is_core() {
+                self.as_test_only(|scan| scan.visit_trait_item_fn(function));
+            }
             return;
         }
         self.check_attributes(&function.attrs);
@@ -1435,11 +1552,10 @@ impl<'ast> Visit<'ast> for FileScan<'_> {
                 }
             }
             for member in &item.items {
+                // A test-only one included (code review r6 at #1682).
                 if let syn::ImplItem::Type(assoc) = member {
-                    if !is_test_only(&assoc.attrs) {
-                        let assigned = if matches!(&assoc.ty, syn::Type::Path(path) if path.qself.is_none() && path.path.is_ident("Self")) { "Self" } else { "a type" };
-                        self.finding(line_of(assoc.ident.span()), format!("the associated type {} assigned {assigned} in an impl for {DERIVED}", ident_text(&assoc.ident)));
-                    }
+                    let assigned = if matches!(&assoc.ty, syn::Type::Path(path) if path.qself.is_none() && path.path.is_ident("Self")) { "Self" } else { "a type" };
+                    self.finding(line_of(assoc.ident.span()), format!("the associated type {} assigned {assigned} in an impl for {DERIVED}", ident_text(&assoc.ident)));
                 }
             }
         }
@@ -1522,14 +1638,14 @@ impl<'ast> Visit<'ast> for FileScan<'_> {
                 consumed = true;
             } else if let Some(name) = self.scanned_in_path(&path.path) {
                 self.record(&name, line, Kind::Call);
-                if ENTRY_RULES.iter().any(|(callee, _, _)| *callee == name) {
+                if !self.test_only && ENTRY_RULES.iter().any(|(callee, _, _)| *callee == name) {
                     let (entry, text) = Self::entry_of(&call.args);
                     let owner = self.owner();
                     self.entries.push((name.clone(), owner, entry, text, line));
                 }
                 consumed = true;
             } else if path.path.segments.last().is_some_and(|segment| ident_text(&segment.ident) == "UserRelease") {
-                self.constructions.push((self.owner(), self.file.clone(), line));
+                self.construction(self.owner(), line);
                 consumed = true;
             }
             if consumed {
@@ -1553,7 +1669,7 @@ impl<'ast> Visit<'ast> for FileScan<'_> {
     fn visit_expr_path(&mut self, path: &'ast syn::ExprPath) {
         if path.path.segments.last().is_some_and(|segment| ident_text(&segment.ident) == "UserRelease") {
             let line = path.path.segments.last().map_or(0, |segment| line_of(segment.ident.span()));
-            self.constructions.push((self.owner(), self.file.clone(), line));
+            self.construction(self.owner(), line);
         }
         visit::visit_expr_path(self, path);
     }
@@ -1564,7 +1680,7 @@ impl<'ast> Visit<'ast> for FileScan<'_> {
         // `ProducerEntry::UserRelease { 0: derived }` constructs one, as its
         // call form does (Codex round 2 at #1682, P2).
         if last == "UserRelease" {
-            self.constructions.push((self.owner(), self.file.clone(), line));
+            self.construction(self.owner(), line);
         }
         if in_defining_module(&self.file) {
             self.check_literal_path(literal.qself.as_ref(), &literal.path, line);
@@ -1895,6 +2011,13 @@ pub(crate) fn scan(sources: &Sources) -> Vec<String> {
 
 /// [`scan`], with the production files it read.
 pub(crate) fn scan_reading(sources: &Sources) -> (Vec<String>, BTreeSet<String>) {
+    let (findings, production, _) = scan_reading_all(sources);
+    (findings, production)
+}
+
+/// [`scan`], with the production files it read and the files it read only
+/// as test-only modules (code review r6 at #1682).
+pub(crate) fn scan_reading_all(sources: &Sources) -> (Vec<String>, BTreeSet<String>, BTreeSet<String>) {
     let mut findings = Vec::new();
     // Targets, as Cargo reports them (code review r5 at #1682): exactly the
     // allow-listed set, the library of each reporting crate at its expected
@@ -1948,10 +2071,13 @@ pub(crate) fn scan_reading(sources: &Sources) -> (Vec<String>, BTreeSet<String>)
     let mut macros = Vec::new();
     let mut type_names = TypeNames::default();
     let mut plain_literals = Vec::new();
-    let mut queue: Vec<String> = roots.iter().rev().cloned().collect();
+    // Each file is read once as production and once as a test-only module,
+    // as its declarations load it.
+    let mut queue: Vec<(String, bool)> = roots.iter().rev().map(|root| (root.clone(), false)).collect();
     let mut read: BTreeSet<String> = BTreeSet::new();
-    while let Some(file) = queue.pop() {
-        if !read.insert(file.clone()) {
+    let mut test_read: BTreeSet<String> = BTreeSet::new();
+    while let Some((file, test_only)) = queue.pop() {
+        if !(if test_only { &mut test_read } else { &mut read }).insert(file.clone()) {
             continue;
         }
         let Some(text) = sources.files.get(&file) else {
@@ -1982,6 +2108,7 @@ pub(crate) fn scan_reading(sources: &Sources) -> (Vec<String>, BTreeSet<String>)
             plain_literals: &mut plain_literals,
             in_type_alias: false,
             in_macro: false,
+            test_only,
         };
         if scan.is_core() {
             scan.token_rules();
@@ -2003,9 +2130,9 @@ pub(crate) fn scan_reading(sources: &Sources) -> (Vec<String>, BTreeSet<String>)
         for item in &parsed.items {
             scan.visit_item(item);
         }
-        for (declaring, inline, name, line) in modules {
+        for (declaring, inline, name, line, test_module) in modules {
             match module_file(&sources.files, &roots, &declaring, &inline, &name) {
-                Ok(next) => queue.push(next),
+                Ok(next) => queue.push((next, test_module)),
                 Err(error) => findings.push(format!("{error} (line {line})")),
             }
         }
@@ -2021,9 +2148,26 @@ pub(crate) fn scan_reading(sources: &Sources) -> (Vec<String>, BTreeSet<String>)
     // The rule over every occurrence of a scanned name.
     let mut calls: BTreeMap<(&str, String, String), usize> = BTreeMap::new();
     let mut definitions: BTreeMap<String, usize> = BTreeMap::new();
+    // Test-only items (code review r6 at #1682): a `DerivedUserRelease`
+    // literal only in an item on [`TEST_PROOF_ITEMS`], exactly once; any other
+    // name of it but a type, and any definition of it or of a scanned
+    // function, is a finding.
+    let mut test_literals: BTreeMap<(String, String), usize> = BTreeMap::new();
     for occurrence in &occurrences {
-        let Occurrence { name, file, line, kind, owner } = occurrence;
+        let Occurrence { name, file, line, kind, owner, test } = occurrence;
         let at = format!("{file}:{line}");
+        if let Some(item) = test {
+            match kind {
+                Kind::TypeUse if name == DERIVED => {}
+                Kind::Literal if TEST_PROOF_ITEMS.iter().any(|(listed_file, listed, _)| listed_file == file && listed == item) => {
+                    *test_literals.entry((file.clone(), item.clone())).or_default() += 1;
+                }
+                Kind::Literal => findings.push(format!("{at}: a {DERIVED} literal in the test-only item {item}, which is not on the test allow-list")),
+                Kind::Definition => findings.push(format!("{at}: {name} is defined again in a test-only item")),
+                other => findings.push(format!("{at}: {name} {} in the test-only item {item}", describe(other))),
+            }
+            continue;
+        }
         if name == DERIVED {
             match kind {
                 Kind::Definition if file == DERIVED_FILE => *definitions.entry(name.clone()).or_default() += 1,
@@ -2061,7 +2205,7 @@ pub(crate) fn scan_reading(sources: &Sources) -> (Vec<String>, BTreeSet<String>)
     if definitions.get(DERIVED).copied().unwrap_or(0) != 1 {
         findings.push(format!("{DERIVED_FILE}: {DERIVED} is not defined there exactly once"));
     }
-    if !occurrences.iter().any(|occurrence| occurrence.name == DERIVED && occurrence.kind == Kind::Literal) {
+    if !occurrences.iter().any(|occurrence| occurrence.name == DERIVED && occurrence.kind == Kind::Literal && occurrence.test.is_none()) {
         findings.push(format!("{DERIVED_FILE}: check_derived constructs no {DERIVED}"));
     }
     // Each pinned macro is defined exactly once.
@@ -2082,13 +2226,29 @@ pub(crate) fn scan_reading(sources: &Sources) -> (Vec<String>, BTreeSet<String>)
             findings.push(format!("line {line}: {caller} passes {text} to {callee} (expected {expected:?})"));
         }
     }
-    // UserRelease is constructed only in assemble_derived.
-    for (owner, file, line) in &constructions {
-        if !(file == "report_package/src/user_release.rs" && *owner == Owner::Fn("assemble_derived".to_string())) {
+    // UserRelease is constructed only in assemble_derived, and in a test-only
+    // item only on [`TEST_PROOF_ITEMS`], exactly once (code review r6 at #1682).
+    let mut test_constructions: BTreeMap<(String, String), usize> = BTreeMap::new();
+    for (owner, file, line, test) in &constructions {
+        if let Some(item) = test {
+            if TEST_PROOF_ITEMS.iter().any(|(listed_file, listed, _)| listed_file == file && listed == item) {
+                *test_constructions.entry((file.clone(), item.clone())).or_default() += 1;
+            } else {
+                findings.push(format!("{file}:{line}: ProducerEntry::UserRelease is constructed in the test-only item {item}, which is not on the test allow-list"));
+            }
+        } else if !(file == "report_package/src/user_release.rs" && *owner == Owner::Fn("assemble_derived".to_string())) {
             findings.push(format!("{file}:{line}: ProducerEntry::UserRelease is constructed outside assemble_derived ({owner:?})"));
         }
     }
-    (findings, read)
+    for (file, item, _) in TEST_PROOF_ITEMS {
+        let key = (file.to_string(), item.to_string());
+        let literals = test_literals.get(&key).copied().unwrap_or(0);
+        let entries = test_constructions.get(&key).copied().unwrap_or(0);
+        if literals != 1 || entries != 1 {
+            findings.push(format!("{file}: the allow-listed test-only item {item} writes {literals} {DERIVED} literals and {entries} ProducerEntry::UserRelease constructions, not exactly one of each"));
+        }
+    }
+    (findings, read, test_read)
 }
 
 fn describe(kind: &Kind) -> String {
@@ -2137,6 +2297,7 @@ pub(crate) fn crate_sources(key: &str, crate_dir: &Path, sources: &mut Sources) 
         }
     }
     read_dir(&crate_dir.join("src"), &format!("{key}/src"), &mut sources.files);
+    sources.crate_dirs.insert(key.to_string(), std::fs::canonicalize(crate_dir).unwrap_or_else(|error| panic!("{}: {error}", crate_dir.display())));
     if crate_dir.join("src/bin").is_dir() {
         sources.bin_dirs.insert(key.to_string());
     }
@@ -2200,4 +2361,270 @@ pub(crate) fn cargo_crate(key: &str, crate_dir: &Path) -> Result<(Vec<CrateTarge
         .map(|dependency| dependency["name"].as_str().unwrap_or("?").to_string())
         .collect();
     Ok((targets, build_dependencies))
+}
+
+/// The consumers of the reporting crates whose Cargo resolution is checked
+/// (code review r6 at #1682), as (key, project-relative directory, how):
+/// the desktop shell, by its full resolved graph, and the headless runner,
+/// which depends on `report_package`, by Cargo's reading of its declared
+/// dependency. The runner's full graph is not resolved: its lock holds
+/// registry versions the desktop's does not, so an offline resolve of it
+/// fails where only the desktop's dependencies are fetched (the hosted
+/// desktop Rust job).
+pub(crate) const CONSUMERS: [(&str, &str, Resolution); 2] =
+    [("src-tauri", "apps/desktop/src-tauri", Resolution::Graph), ("headless", "core/runner/headless", Resolution::Declared)];
+
+/// How a consumer's reporting packages are established ([`CONSUMERS`]).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum Resolution {
+    /// `cargo metadata --offline --locked --filter-platform host-tuple` with
+    /// dependencies, run in the consumer's directory: the packages Cargo
+    /// resolves, `.cargo` `paths` overrides, `[patch]` and `[replace]`
+    /// applied ([`resolved_identities`]).
+    Graph,
+    /// `cargo metadata --offline --locked --no-deps`: the path Cargo reads
+    /// for each declared reporting dependency ([`declared_identities`]).
+    Declared,
+}
+
+/// The reporting packages, by Cargo package name, with their crate key in
+/// [`CRATES`]: each must resolve to exactly one package, from the directory
+/// the scan read ([`Sources::crate_dirs`]).
+pub(crate) const REPORTING_PACKAGES: [(&str, &str); 3] = [(PACKAGE_CRATE, "report_package"), (RENDERER_CRATE, "report_renderer"), (PDF_CRATE, "pdf_emitter")];
+
+/// The Cargo configuration files admitted in the repository tree, by path
+/// from the repository root: none exist today (code review r6 at #1682).
+/// Cargo reads `.cargo/config` and `.cargo/config.toml` in the directory it
+/// runs in and in every ancestor; one in the tree could add a `paths`
+/// override, `[patch]`, `rustflags` (`--cfg test`) or a source replacement.
+pub(crate) const CARGO_CONFIGS: [&str; 0] = [];
+
+/// The source of every registry package a consumer may resolve.
+const CRATES_IO: &str = "registry+https://github.com/rust-lang/crates.io-index";
+
+/// The build-configuration findings for the real tree (code review r6 at
+/// #1682): any Cargo configuration file in the repository tree
+/// ([`cargo_configs`]); a `[patch]` or `[replace]` in a consumer's or
+/// reporting crate's manifest ([`manifest_overrides`]); and each consumer's
+/// reporting packages ([`CONSUMERS`]) against the directories `sources` was
+/// read from. Empty when the configuration holds.
+pub(crate) fn build_configuration(sources: &Sources, project: &Path) -> Vec<String> {
+    let mut findings = Vec::new();
+    let repository = match std::fs::canonicalize(project.join("../..")) {
+        Ok(repository) if repository.join("AGENTS.md").is_file() && repository.join("projects").is_dir() => repository,
+        _ => return vec![format!("{}: the repository root above the project is not found", project.display())],
+    };
+    findings.extend(cargo_configs(&repository));
+    let expected = match expected_manifests(sources) {
+        Ok(expected) => expected,
+        Err(error) => return [findings, vec![error]].concat(),
+    };
+    let mut manifests: Vec<(String, PathBuf)> = CONSUMERS.iter().map(|(key, dir, _)| (key.to_string(), project.join(dir).join("Cargo.toml"))).collect();
+    manifests.extend(expected.iter().map(|(name, manifest)| (name.clone(), manifest.clone())));
+    for (label, manifest) in manifests {
+        match std::fs::read_to_string(&manifest) {
+            Ok(text) => findings.extend(manifest_overrides(&label, &text)),
+            Err(error) => findings.push(format!("{label}: {}: {error}", manifest.display())),
+        }
+    }
+    for (key, dir, resolution) in CONSUMERS {
+        let dir = project.join(dir);
+        findings.extend(match resolution {
+            Resolution::Graph => resolved_identities(key, &dir, &expected, &[repository.clone()]),
+            Resolution::Declared => declared_identities(key, &dir, &expected),
+        });
+    }
+    findings
+}
+
+/// Each reporting package's expected manifest: `Cargo.toml` in the
+/// canonical directory the scan read it from.
+pub(crate) fn expected_manifests(sources: &Sources) -> Result<BTreeMap<String, PathBuf>, String> {
+    REPORTING_PACKAGES
+        .iter()
+        .map(|(name, key)| {
+            let dir = sources.crate_dirs.get(*key).ok_or_else(|| format!("{key}: the scan read no directory for it"))?;
+            Ok((name.to_string(), dir.join("Cargo.toml")))
+        })
+        .collect()
+}
+
+/// Every `.cargo/config` and `.cargo/config.toml` under `root` (code review
+/// r6 at #1682), at any depth, `.git` aside and symbolic links to
+/// directories not followed, that is not on [`CARGO_CONFIGS`]: each a
+/// finding. A directory that cannot be read is a finding too.
+pub(crate) fn cargo_configs(root: &Path) -> Vec<String> {
+    fn walk(dir: &Path, root: &Path, out: &mut Vec<String>) {
+        for name in ["config", "config.toml"] {
+            let candidate = dir.join(".cargo").join(name);
+            if candidate.symlink_metadata().is_ok() {
+                let relative = candidate.strip_prefix(root).map_or_else(|_| candidate.display().to_string(), |path| path.to_string_lossy().replace('\\', "/"));
+                if !CARGO_CONFIGS.contains(&relative.as_str()) {
+                    out.push(format!("the Cargo configuration {relative} is in the repository tree and not on the allow-list"));
+                }
+            }
+        }
+        let entries = match std::fs::read_dir(dir) {
+            Ok(entries) => entries,
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound && dir != root => return,
+            Err(error) => {
+                out.push(format!("{}: the directory cannot be read for Cargo configuration ({error})", dir.display()));
+                return;
+            }
+        };
+        let mut children: Vec<PathBuf> = entries.filter_map(|entry| entry.ok().map(|entry| entry.path())).collect();
+        children.sort();
+        for child in children {
+            if child.file_name().is_some_and(|name| name == ".git") {
+                continue;
+            }
+            if child.symlink_metadata().is_ok_and(|metadata| metadata.is_dir()) {
+                walk(&child, root, out);
+            }
+        }
+    }
+    let mut out = Vec::new();
+    walk(root, root, &mut out);
+    out
+}
+
+/// A manifest's `[patch]` and `[replace]` (code review r6 at #1682), found
+/// without a TOML parser and failing closed: any `patch` or `replace`, in any
+/// case and anywhere in the text (a table header, a dotted or quoted key, an
+/// inline table, a comment), and any `\u` or `\U` escape (which could spell
+/// one in a quoted key), is a finding. None of the checked manifests holds
+/// either today. An override that takes effect also changes the resolved
+/// identities ([`resolved_identities`]).
+pub(crate) fn manifest_overrides(label: &str, text: &str) -> Vec<String> {
+    let lower = text.to_lowercase();
+    let mut findings = Vec::new();
+    for word in ["patch", "replace"] {
+        if lower.contains(word) {
+            findings.push(format!("{label}: the manifest names {word}, which could be a [{word}] section"));
+        }
+    }
+    if text.contains("\\u") || text.contains("\\U") {
+        findings.push(format!("{label}: the manifest holds a unicode escape, which could spell a [patch] or [replace] key"));
+    }
+    findings
+}
+
+/// The Cargo used to read metadata: the one running this test.
+fn cargo() -> std::ffi::OsString {
+    std::env::var_os("CARGO").unwrap_or_else(|| env!("CARGO").into())
+}
+
+/// The canonical form of a path Cargo reports, or the path itself.
+fn canonical(path: &str) -> PathBuf {
+    std::fs::canonicalize(path).unwrap_or_else(|_| PathBuf::from(path))
+}
+
+/// A consumer's resolved reporting packages (code review r6 at #1682), by
+/// `cargo metadata --format-version 1 --offline --locked --filter-platform
+/// host-tuple` with dependencies, run in the consumer's directory so that
+/// Cargo reads the configuration a build there reads: each name in
+/// `expected` resolves to exactly one package, whose canonical manifest is
+/// the expected one; the resolve's root is the consumer; and every package
+/// comes from crates.io or from a path under one of `roots`. A `paths`
+/// override, `[patch]`, `[replace]` or source override that moves a package
+/// is a finding, and so is metadata that cannot be read.
+pub(crate) fn resolved_identities(key: &str, consumer_dir: &Path, expected: &BTreeMap<String, PathBuf>, roots: &[PathBuf]) -> Vec<String> {
+    let manifest = consumer_dir.join("Cargo.toml");
+    let output = std::process::Command::new(cargo())
+        .args(["metadata", "--format-version", "1", "--offline", "--locked", "--filter-platform", "host-tuple", "--manifest-path"])
+        .arg(&manifest)
+        .current_dir(consumer_dir)
+        .output();
+    let output = match output {
+        Ok(output) if output.status.success() => output,
+        Ok(output) => return vec![format!("{key}: cargo metadata failed: {}", String::from_utf8_lossy(&output.stderr).trim())],
+        Err(error) => return vec![format!("{key}: cargo metadata did not run: {error}")],
+    };
+    let metadata: serde_json::Value = match serde_json::from_slice(&output.stdout) {
+        Ok(metadata) => metadata,
+        Err(error) => return vec![format!("{key}: cargo metadata output: {error}")],
+    };
+    let mut findings = Vec::new();
+    let Some(packages) = metadata["packages"].as_array() else { return vec![format!("{key}: cargo metadata reports no packages")] };
+    let root_id = metadata["resolve"]["root"].as_str().unwrap_or_default();
+    let consumer = canonical(&manifest.to_string_lossy());
+    let root_manifest = packages.iter().find(|package| package["id"].as_str() == Some(root_id)).and_then(|package| package["manifest_path"].as_str()).map(canonical);
+    if root_manifest.as_ref() != Some(&consumer) {
+        findings.push(format!("{key}: the resolve's root is {root_manifest:?}, not {}", consumer.display()));
+    }
+    let resolved: BTreeSet<&str> = metadata["resolve"]["nodes"].as_array().into_iter().flatten().filter_map(|node| node["id"].as_str()).collect();
+    for (name, manifest) in expected {
+        let found: Vec<&serde_json::Value> = packages.iter().filter(|package| package["name"].as_str() == Some(name)).collect();
+        match found.as_slice() {
+            [package] => {
+                let at = package["manifest_path"].as_str().map(canonical);
+                if at.as_ref() != Some(manifest) {
+                    findings.push(format!("{key}: {name} resolves to {}, not {}, the crate the scan read", at.map_or("no manifest".to_string(), |at| at.display().to_string()), manifest.display()));
+                }
+                if !package["source"].is_null() {
+                    findings.push(format!("{key}: {name} resolves from the source {}, not a path", package["source"]));
+                }
+                if !package["id"].as_str().is_some_and(|id| resolved.contains(id)) {
+                    findings.push(format!("{key}: {name} is not in the resolved graph"));
+                }
+            }
+            _ => findings.push(format!("{key}: {name} resolves to {} packages, not exactly one", found.len())),
+        }
+    }
+    for package in packages {
+        let name = package["name"].as_str().unwrap_or("?");
+        match package["source"].as_str() {
+            Some(CRATES_IO) => {}
+            Some(other) => findings.push(format!("{key}: the package {name} comes from {other}, not crates.io or a path in the repository")),
+            None => {
+                let at = package["manifest_path"].as_str().map(canonical);
+                if !at.as_ref().is_some_and(|at| roots.iter().any(|root| at.starts_with(root))) {
+                    findings.push(format!("{key}: the path package {name} at {at:?} is outside the repository"));
+                }
+            }
+        }
+    }
+    findings
+}
+
+/// A consumer's declared reporting dependencies (code review r6 at #1682),
+/// by `cargo metadata --format-version 1 --offline --locked --no-deps`:
+/// Cargo's reading of the manifest, which needs no download. Each declared
+/// dependency named in `expected` is a path dependency on the expected
+/// crate's directory, and at least one is declared.
+pub(crate) fn declared_identities(key: &str, consumer_dir: &Path, expected: &BTreeMap<String, PathBuf>) -> Vec<String> {
+    let manifest = consumer_dir.join("Cargo.toml");
+    let output = std::process::Command::new(cargo())
+        .args(["metadata", "--format-version", "1", "--offline", "--locked", "--no-deps", "--manifest-path"])
+        .arg(&manifest)
+        .current_dir(consumer_dir)
+        .output();
+    let output = match output {
+        Ok(output) if output.status.success() => output,
+        Ok(output) => return vec![format!("{key}: cargo metadata failed: {}", String::from_utf8_lossy(&output.stderr).trim())],
+        Err(error) => return vec![format!("{key}: cargo metadata did not run: {error}")],
+    };
+    let metadata: serde_json::Value = match serde_json::from_slice(&output.stdout) {
+        Ok(metadata) => metadata,
+        Err(error) => return vec![format!("{key}: cargo metadata output: {error}")],
+    };
+    let consumer = canonical(&manifest.to_string_lossy());
+    let Some(package) = metadata["packages"].as_array().into_iter().flatten().find(|package| package["manifest_path"].as_str().map(canonical).as_ref() == Some(&consumer)) else {
+        return vec![format!("{key}: cargo metadata reports no package for {}", consumer.display())];
+    };
+    let mut findings = Vec::new();
+    let mut declared = 0;
+    for dependency in package["dependencies"].as_array().into_iter().flatten() {
+        let name = dependency["name"].as_str().unwrap_or("?");
+        let Some(manifest) = expected.get(name) else { continue };
+        declared += 1;
+        let at = dependency["path"].as_str().map(|path| canonical(path).join("Cargo.toml"));
+        if at.as_ref() != Some(manifest) {
+            findings.push(format!("{key}: the dependency {name} is declared at {at:?}, not {}, the crate the scan read", manifest.display()));
+        }
+    }
+    if declared == 0 {
+        findings.push(format!("{key}: declares no reporting dependency"));
+    }
+    findings
 }

@@ -45,6 +45,15 @@
 
 #![forbid(unsafe_code)]
 
+// Code review r6 at #1682 (DEL-08-01 Design `report-user-release.md` §2.8,
+// "Threat model"): this crate's `#[cfg(test)]` items compile only into its
+// own unit-test binary. Cargo sets `CARGO_PRIMARY_PACKAGE` only for a package
+// the command selected (as `cargo test` selects this one), never for a
+// dependency, so a build that sets `--cfg test` for this crate as a
+// dependency of a product fails to compile here.
+#[cfg(test)]
+const _: () = assert!(option_env!("CARGO_PRIMARY_PACKAGE").is_some(), "cfg(test) is set for this reporting crate as a dependency (DEL-08-01 Design section 2.8)");
+
 use open_pipe_stress_audit_manifest as audit;
 use open_pipe_stress_canonical_json::canonical_json;
 use open_pipe_stress_pdf_emitter as pdf;

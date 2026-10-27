@@ -2,7 +2,10 @@
 //! `report-user-release.md` §2.8, §6). Standard claim fence applies (claims
 //! taxonomy per DEC-081).
 
-use crate::user_release_reach_scan::{cargo_crate, crate_sources, project_sources, scan, scan_reading, CrateTarget, Sources, BUILD_DEPENDENCIES, CRATES, TARGETS};
+use crate::user_release_reach_scan::{
+    build_configuration, cargo_configs, cargo_crate, crate_sources, expected_manifests, manifest_overrides, project_sources, resolved_identities, scan, scan_reading, scan_reading_all, CrateTarget, Sources,
+    BUILD_DEPENDENCIES, CONSUMERS, CRATES, REPORTING_PACKAGES, TARGETS, TEST_PROOF_ITEMS,
+};
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::Path;
 
@@ -14,6 +17,10 @@ fn project() -> std::path::PathBuf {
 fn user_release_reach_scan() {
     let sources = project_sources(&project());
     let findings = scan(&sources);
+    assert!(findings.is_empty(), "{findings:#?}");
+    // Code review r6 at #1682: the build configuration under which the
+    // scanned sources are the ones built.
+    let findings = build_configuration(&sources, &project());
     assert!(findings.is_empty(), "{findings:#?}");
 }
 
@@ -318,7 +325,8 @@ pub fn assemble_derived(request: Value) -> Result<ReportPackageContainerOutcome,
 }
 #[cfg(test)]
 mod tests {
-    fn literal() -> super::DerivedUserRelease { super::DerivedUserRelease { _derived: () } }
+    use super::*;
+    fn check_request_refuses_markers_and_the_entry_binds_its_form() { let _entry = ProducerEntry::UserRelease(DerivedUserRelease { _derived: () }); }
 }
 "),
     );
@@ -384,7 +392,7 @@ fn admit_user_released(request: Value) -> Result<Outcome, String> {
         })
         .collect();
     let build_dependencies = BUILD_DEPENDENCIES.iter().map(|(key, names)| (key.to_string(), names.iter().map(|name| name.to_string()).collect())).collect();
-    Sources { files, targets, build_dependencies, bin_dirs: BTreeSet::new() }
+    Sources { files, targets, build_dependencies, bin_dirs: BTreeSet::new(), crate_dirs: BTreeMap::new() }
 }
 
 /// `invented()` with one exact edit (`old` must occur once in `file`).
@@ -762,7 +770,8 @@ fn user_release_reach_scan_admits_the_listed_forms() {
         ("an include_str! of a .json file", appended(LIB, "const S: &str = include_str!(\"../schema.json\");\n")),
         ("a #[cfg(test)] item holding a call", appended(LIB, "#[cfg(test)]\nfn t(i: &I) { pdf::assemble_full_report_package(i); renderer::render_calculation_report(i); }\n")),
         ("a ProducerEntry::UserRelease(_) pattern in check_request_in", invented()),
-        ("a test-only outlined module", appended(LIB, "#[cfg(test)]\nmod witness_tests;\n")),
+        // Read since code review r6 at #1682, under the test-only rules.
+        ("a test-only outlined module", with_file_text("report_package/src/witness_tests.rs", "use super::*;\nfn w(i: &I) { pdf::assemble_full_report_package(i); assert_eq!(1, 1); }\n", appended(LIB, "#[cfg(test)]\nmod witness_tests;\n"))),
         // Codex round 1 at #1682 (P2): the normalized spellings of admitted forms.
         ("listed macros and an attribute behind a leading ::", appended(TAURI, "#[::tauri::command]\nfn rooted() { let _ = ::serde_json::json!({}); }\n")),
         ("the local Tauri command through crate::", appended(TAURI, "fn again(input: Value) -> Result<Value, String> { crate::render_calculation_report(input) }\n")),
@@ -1243,6 +1252,306 @@ fn cargo_targets_in_scratch_copies() {
         let findings = scratch.scan(key);
         for expected in &expected {
             assert!(findings.iter().any(|finding| finding.contains(expected.as_str())), "{case}: expected {expected:?} in {findings:#?}");
+        }
+    }
+}
+
+/// Code review r6 at #1682 (P2, `cfg(test)`): a `#[cfg(test)]` item in the
+/// reporting crates is read under the construction, literal and naming
+/// rules. The reviewer's repro on the real sources, its `cfg_attr(test, …)`
+/// variants and the other forms of the class are each findings; the one
+/// allow-listed test item, and test-only modules, are read.
+#[test]
+fn the_real_sources_find_the_review_r6_test_only_forms() {
+    const FORGE: &str = "#[cfg(test)]\npub fn forge() -> bool { ProducerEntry::UserRelease(DerivedUserRelease { _derived: () }).is_user_release() }\n";
+    let base = project_sources(&project());
+    let cases: [(&str, &str, &[&str]); 12] = [
+        (
+            "report_package/src/user_release.rs",
+            FORGE,
+            &[
+                "ProducerEntry::UserRelease is constructed in the test-only item forge, which is not on the test allow-list",
+                "a DerivedUserRelease literal in the test-only item forge, which is not on the test allow-list",
+            ],
+        ),
+        // `cfg_attr(test, …)` variants: alongside `cfg(test)`, and an item
+        // compiled only under `test` without `cfg(test)` (read as production).
+        (
+            "report_package/src/user_release.rs",
+            "#[cfg_attr(test, allow(dead_code))]\n#[cfg(test)]\npub fn forge() -> bool { ProducerEntry::UserRelease(DerivedUserRelease { _derived: () }).is_user_release() }\n",
+            &["ProducerEntry::UserRelease is constructed in the test-only item forge", "a DerivedUserRelease literal in the test-only item forge"],
+        ),
+        (
+            "report_package/src/user_release.rs",
+            "#[cfg_attr(not(test), cfg(any()))]\npub fn forge() -> bool { ProducerEntry::UserRelease(DerivedUserRelease { _derived: () }).is_user_release() }\n",
+            &["ProducerEntry::UserRelease is constructed outside assemble_derived (Fn(\"forge\"))", "a DerivedUserRelease literal outside check_derived"],
+        ),
+        (
+            "report_package/src/user_release.rs",
+            "#[cfg(test)]\nmod forged {\n    #[cfg_attr(test, inline)]\n    pub fn forge() -> super::ProducerEntry { super::ProducerEntry::UserRelease(super::DerivedUserRelease { _derived: () }) }\n}\n",
+            &["ProducerEntry::UserRelease is constructed in the test-only item forged::forge", "a struct literal of super::DerivedUserRelease in the defining module"],
+        ),
+        // A test-only redefinition of check_derived (its production one
+        // under `cfg(not(test))`), a literal in it included.
+        (
+            "report_package/src/user_release.rs",
+            "#[cfg(test)]\nfn check_derived() -> Result<DerivedUserRelease, String> { Ok(DerivedUserRelease { _derived: () }) }\n",
+            &["check_derived is defined again in a test-only item", "a DerivedUserRelease literal in the test-only item check_derived"],
+        ),
+        // The literal through a test-only alias, a Self literal, an
+        // associated type, a trait impl and a macro's tokens.
+        ("report_package/src/user_release.rs", "#[cfg(test)]\ntype D = DerivedUserRelease;\n", &["the type alias D in the defining module of DerivedUserRelease"]),
+        (
+            "report_package/src/user_release.rs",
+            "#[cfg(test)]\nimpl DerivedUserRelease { fn forge() -> Self { Self { _derived: () } } }\n",
+            &["a DerivedUserRelease literal in the test-only item forge"],
+        ),
+        (
+            "report_package/src/user_release.rs",
+            "#[cfg(test)]\nimpl Default for DerivedUserRelease { fn default() -> Self { Self { _derived: () } } }\n",
+            &["an impl of the trait Default for DerivedUserRelease", "a DerivedUserRelease literal in the test-only item default"],
+        ),
+        (
+            "report_package/src/user_release.rs",
+            "#[cfg(test)]\nfn forge() -> bool { assert!(ProducerEntry::UserRelease(DerivedUserRelease { _derived: () }).is_user_release()); true }\n",
+            &["ProducerEntry::UserRelease is constructed in the test-only item Macro", "a DerivedUserRelease literal in the test-only item Macro"],
+        ),
+        // A test module elsewhere in the crate, and its outlined file.
+        ("report_package/src/wire.rs", "#[cfg(test)]\nmod forged {\n    fn f(d: crate::user_release::DerivedUserRelease) { let _ = crate::user_release::ProducerEntry::UserRelease(d); }\n}\n", &["ProducerEntry::UserRelease is constructed in the test-only item forged::f"]),
+        ("report_package/src/lib.rs", "#[cfg(test)]\nmod forged_tests;\n", &["ProducerEntry::UserRelease is constructed in the test-only item f"]),
+        // A test-only include! is refused as in production.
+        ("report_package/src/user_release.rs", "#[cfg(test)]\nfn forge() { include!(\"forge.rs\"); }\n", &["include! brings in source the scan does not read"]),
+    ];
+    for (file, text, expected) in cases {
+        let mut sources = base.clone();
+        sources.files.get_mut(file).unwrap().push_str(text);
+        sources.files.insert("report_package/src/forged_tests.rs".to_string(), "fn f(d: crate::user_release::DerivedUserRelease) { let _ = crate::user_release::ProducerEntry::UserRelease(d); }\n".to_string());
+        let findings = scan(&sources);
+        for expected in expected {
+            assert!(findings.iter().any(|finding| finding.contains(expected)), "{file}: expected {expected:?} in {findings:#?}");
+        }
+    }
+    // The real sources: the allow-listed item writes exactly one of each,
+    // and the test-only modules are read.
+    assert_eq!(TEST_PROOF_ITEMS.len(), 1);
+    let (findings, production, test_only) = scan_reading_all(&base);
+    assert!(findings.is_empty(), "{findings:#?}");
+    for file in ["report_package/src/admitted_tests.rs", "report_package/src/forwarding_graph_scan.rs", "report_package/src/exact_package_witness_tests.rs"] {
+        assert!(test_only.contains(file) && !production.contains(file), "{file}: {test_only:?}");
+    }
+    // Removing the allow-listed item's construction, or adding a second one
+    // to it, is a finding.
+    let user_release = &base.files["report_package/src/user_release.rs"];
+    let line = "        let entry = ProducerEntry::UserRelease(DerivedUserRelease { _derived: () });\n";
+    assert_eq!(user_release.matches(line).count(), 1);
+    for edit in ["        let entry = ProducerEntry::General;\n".to_string(), format!("{line}{}", line.replace("let entry", "let _again"))] {
+        let mut sources = base.clone();
+        sources.files.insert("report_package/src/user_release.rs".to_string(), user_release.replacen(line, &edit, 1));
+        let findings = scan(&sources);
+        assert!(findings.iter().any(|finding| finding.contains("not exactly one of each")), "{edit}: {findings:#?}");
+    }
+}
+
+/// Code review r6 at #1682 (P2, `cfg(test)`), on a scratch copy that Cargo
+/// reads: the reviewer's `#[cfg(test)]` constructor in `user_release.rs` is
+/// a finding there too.
+#[test]
+fn the_review_r6_test_only_constructor_in_a_scratch_copy() {
+    let scratch = ScratchCrate::of("report_package");
+    let text = std::fs::read_to_string(scratch.dir.join("src/user_release.rs")).unwrap();
+    scratch.write(
+        "src/user_release.rs",
+        &format!("{text}#[cfg(test)]\npub fn forge() -> bool {{ ProducerEntry::UserRelease(DerivedUserRelease {{ _derived: () }}).is_user_release() }}\n"),
+    );
+    let findings = scratch.scan("report_package");
+    assert!(findings.iter().any(|finding| finding.contains("constructed in the test-only item forge")), "{findings:#?}");
+    assert!(findings.iter().any(|finding| finding.contains("literal in the test-only item forge")), "{findings:#?}");
+}
+
+/// A scratch tree for the build-configuration fixtures, removed on drop.
+struct ScratchTree {
+    base: std::path::PathBuf,
+}
+
+impl ScratchTree {
+    fn new() -> ScratchTree {
+        static NEXT: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
+        let number = NEXT.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+        let base = std::env::temp_dir().join(format!("swbpipe-reach-config-{}-{number}", std::process::id()));
+        std::fs::create_dir_all(&base).unwrap();
+        ScratchTree { base: std::fs::canonicalize(base).unwrap() }
+    }
+
+    fn write(&self, path: &str, text: &str) {
+        let path = self.base.join(path);
+        std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+        std::fs::write(path, text).unwrap();
+    }
+
+    /// A copy of a real crate's manifest (relative `path`s made absolute,
+    /// to the real crates), its lock, and `files` (copied, or the given
+    /// text), at `to`.
+    fn crate_copy(&self, from: &str, to: &str, files: &[(&str, Option<&str>)]) -> std::path::PathBuf {
+        let source = std::fs::canonicalize(project().join(from)).unwrap();
+        let manifest = std::fs::read_to_string(source.join("Cargo.toml")).unwrap();
+        let mut rewritten = String::new();
+        for line in manifest.lines() {
+            match line.split_once("path = \"../") {
+                Some((head, rest)) => {
+                    let (relative, tail) = rest.split_once('"').unwrap();
+                    let absolute = std::fs::canonicalize(source.join(format!("../{relative}"))).unwrap();
+                    rewritten.push_str(&format!("{head}path = \"{}\"{tail}\n", absolute.display()));
+                }
+                None => {
+                    rewritten.push_str(line);
+                    rewritten.push('\n');
+                }
+            }
+        }
+        self.write(&format!("{to}/Cargo.toml"), &rewritten);
+        std::fs::copy(source.join("Cargo.lock"), self.base.join(to).join("Cargo.lock")).unwrap();
+        for (file, text) in files {
+            match text {
+                Some(text) => self.write(&format!("{to}/{file}"), text),
+                None => self.write(&format!("{to}/{file}"), &std::fs::read_to_string(source.join(file)).unwrap()),
+            }
+        }
+        self.base.join(to)
+    }
+
+    /// The desktop shell's manifest and lock, with stand-in target files:
+    /// a consumer Cargo resolves as it resolves `src-tauri`.
+    fn desktop_consumer(&self, to: &str) -> std::path::PathBuf {
+        self.crate_copy("apps/desktop/src-tauri", to, &[("src/lib.rs", Some("\n")), ("src/main.rs", Some("fn main() {}\n")), ("build.rs", Some("fn main() {}\n"))])
+    }
+}
+
+impl Drop for ScratchTree {
+    fn drop(&mut self) {
+        let _ = std::fs::remove_dir_all(&self.base);
+    }
+}
+
+/// Code review r6 at #1682 (P2, resolved identities), on the real tree:
+/// every consumer resolves each reporting package to the directory the scan
+/// read, no Cargo configuration is in the repository, and no checked
+/// manifest holds `[patch]` or `[replace]`.
+#[test]
+fn the_build_configuration_resolves_the_scanned_crates() {
+    let project = project();
+    let sources = project_sources(&project);
+    let findings = build_configuration(&sources, &project);
+    assert!(findings.is_empty(), "{findings:#?}");
+    let expected = expected_manifests(&sources).unwrap();
+    for (name, key) in REPORTING_PACKAGES {
+        let root = CRATES.iter().find(|(crate_key, _)| *crate_key == key).unwrap().1;
+        assert_eq!(expected[name], std::fs::canonicalize(project.join(root)).unwrap().join("Cargo.toml"), "{name}");
+    }
+    assert_eq!(CONSUMERS.map(|(key, _, _)| key), ["src-tauri", "headless"]);
+    let repository = std::fs::canonicalize(project.join("../..")).unwrap();
+    assert!(cargo_configs(&repository).is_empty());
+    let consumer = std::fs::canonicalize(project.join("apps/desktop/src-tauri")).unwrap();
+    assert!(resolved_identities("src-tauri", &consumer, &expected, &[repository.clone()]).is_empty());
+    // Outside the repository, the real crates are path packages elsewhere.
+    let elsewhere = resolved_identities("src-tauri", &consumer, &expected, &[std::env::temp_dir()]);
+    assert!(elsewhere.iter().any(|finding| finding.contains("is outside the repository")), "{elsewhere:#?}");
+}
+
+/// Code review r6 at #1682 (P2, resolved identities), on scratch trees that
+/// Cargo reads: the reviewer's `paths` override of `report_package` with a
+/// forging copy, a `[patch]` and a `[replace]` in the consumer's manifest,
+/// and `.cargo/config(.toml)` files in the tree are each findings; an
+/// unedited consumer copy passes.
+#[test]
+fn the_build_configuration_finds_the_review_r6_overrides() {
+    let project = project();
+    let sources = project_sources(&project);
+    let expected = expected_manifests(&sources).unwrap();
+    let repository = std::fs::canonicalize(project.join("../..")).unwrap();
+
+    // An unedited consumer copy resolves the real crates.
+    let tree = ScratchTree::new();
+    let consumer = tree.desktop_consumer("consumer");
+    let findings = resolved_identities("copy", &consumer, &expected, &[repository.clone(), tree.base.clone()]);
+    assert!(findings.is_empty(), "{findings:#?}");
+    assert!(cargo_configs(&tree.base).is_empty());
+
+    // The reviewer's repro: report_package copied outside the scanned tree,
+    // its forbid dropped, a forge() that zeroes DerivedUserRelease with
+    // unsafe, and a `paths` override in the consumer's .cargo/config.toml.
+    let tree = ScratchTree::new();
+    let consumer = tree.desktop_consumer("consumer");
+    let replacement = tree.crate_copy("core/reporting/report_package", "substitute/report_package", &[]);
+    let real = std::fs::canonicalize(project.join("core/reporting/report_package/src")).unwrap();
+    copy_dir(&real, &replacement.join("src"));
+    let lib = std::fs::read_to_string(replacement.join("src/lib.rs")).unwrap();
+    std::fs::write(replacement.join("src/lib.rs"), lib.replacen("#![forbid(unsafe_code)]\n", "", 1)).unwrap();
+    let user_release = std::fs::read_to_string(replacement.join("src/user_release.rs")).unwrap();
+    std::fs::write(
+        replacement.join("src/user_release.rs"),
+        format!("{user_release}pub fn forge() -> bool {{ let derived: DerivedUserRelease = unsafe {{ std::mem::zeroed() }}; ProducerEntry::UserRelease(derived).is_user_release() }}\n"),
+    )
+    .unwrap();
+    tree.write("consumer/.cargo/config.toml", &format!("paths = [\"{}\"]\n", replacement.display()));
+    let findings = resolved_identities("copy", &consumer, &expected, &[repository.clone(), tree.base.clone()]);
+    let moved = format!("copy: open_pipe_stress_report_package resolves to {}, not {}", replacement.join("Cargo.toml").display(), expected["open_pipe_stress_report_package"].display());
+    assert!(findings.iter().any(|finding| finding.starts_with(&moved)), "{moved}: {findings:#?}");
+    let configs = cargo_configs(&tree.base);
+    assert_eq!(configs, ["the Cargo configuration consumer/.cargo/config.toml is in the repository tree and not on the allow-list"]);
+    // The scan of the in-repository sources alone finds nothing: the
+    // identity check is what ties the build to them.
+    assert!(scan(&sources).is_empty());
+
+    // [patch] and [replace] in the consumer's manifest.
+    for (section, word) in [
+        (format!("\n[patch.crates-io]\nopen_pipe_stress_report_package = {{ path = \"{}\" }}\n", replacement.display()), "patch"),
+        (format!("\n[replace]\n\"open_pipe_stress_report_package:0.1.0\" = {{ path = \"{}\" }}\n", replacement.display()), "replace"),
+    ] {
+        let tree = ScratchTree::new();
+        let consumer = tree.desktop_consumer("consumer");
+        let manifest = std::fs::read_to_string(consumer.join("Cargo.toml")).unwrap();
+        let edited = format!("{manifest}{section}");
+        std::fs::write(consumer.join("Cargo.toml"), &edited).unwrap();
+        let findings = manifest_overrides("copy", &edited);
+        assert_eq!(findings, [format!("copy: the manifest names {word}, which could be a [{word}] section")]);
+    }
+    for (text, count) in [
+        ("[ patch . 'crates-io' ]\n", 1),
+        ("[\"Patch\".crates-io]\n", 1),
+        ("patch.crates-io.serde = { path = \"x\" }\n", 1),
+        ("[\"\\u0070atch\".crates-io]\n", 1),
+        ("[package]\nname = \"x\"\n", 0),
+    ] {
+        assert_eq!(manifest_overrides("text", text).len(), count, "{text}");
+    }
+    for (label, manifest) in CONSUMERS.iter().map(|(key, dir, _)| (key.to_string(), project.join(dir).join("Cargo.toml"))).chain(expected.iter().map(|(name, manifest)| (name.clone(), manifest.clone()))) {
+        assert!(manifest_overrides(&label, &std::fs::read_to_string(manifest).unwrap()).is_empty(), "{label}");
+    }
+
+    // .cargo/config.toml and .cargo/config anywhere in the tree, a crate's
+    // ancestor directory included.
+    let tree = ScratchTree::new();
+    tree.write("projects/p/.cargo/config.toml", "[build]\nrustflags = [\"--cfg\", \"test\"]\n");
+    tree.write(".cargo/config", "\n");
+    tree.write("projects/p/core/crate/src/lib.rs", "\n");
+    assert_eq!(
+        cargo_configs(&tree.base),
+        [
+            "the Cargo configuration .cargo/config is in the repository tree and not on the allow-list",
+            "the Cargo configuration projects/p/.cargo/config.toml is in the repository tree and not on the allow-list",
+        ]
+    );
+}
+
+fn copy_dir(from: &Path, to: &Path) {
+    std::fs::create_dir_all(to).unwrap();
+    for entry in std::fs::read_dir(from).unwrap() {
+        let path = entry.unwrap().path();
+        let target = to.join(path.file_name().unwrap());
+        if path.is_dir() {
+            copy_dir(&path, &target);
+        } else {
+            std::fs::copy(&path, &target).unwrap();
         }
     }
 }
