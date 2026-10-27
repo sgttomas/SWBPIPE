@@ -3,7 +3,7 @@
 //! taxonomy per DEC-081).
 
 use crate::user_release_reach_scan::{
-    build_configuration, cargo_configs, cargo_crate, crate_sources, expected_manifests, manifest_overrides, project_sources, resolved_identities, scan, scan_reading, scan_reading_all, CrateTarget, Sources,
+    build_configuration, cargo_configs, cargo_crate, crate_sources, expected_manifests, manifest_overrides, project_sources, repository_root, resolved_identities, scan, scan_reading, scan_reading_all, CrateTarget, Sources,
     BUILD_DEPENDENCIES, CONSUMERS, CRATES, REPORTING_PACKAGES, TARGETS, TEST_PROOF_ITEMS,
 };
 use std::collections::{BTreeMap, BTreeSet};
@@ -1448,7 +1448,7 @@ fn the_build_configuration_resolves_the_scanned_crates() {
         assert_eq!(expected[name], std::fs::canonicalize(project.join(root)).unwrap().join("Cargo.toml"), "{name}");
     }
     assert_eq!(CONSUMERS.map(|(key, _, _)| key), ["src-tauri", "headless"]);
-    let repository = std::fs::canonicalize(project.join("../..")).unwrap();
+    let repository = repository_root(&project).unwrap();
     assert!(cargo_configs(&repository).is_empty());
     let consumer = std::fs::canonicalize(project.join("apps/desktop/src-tauri")).unwrap();
     assert!(resolved_identities("src-tauri", &consumer, &expected, &[repository.clone()]).is_empty());
@@ -1467,7 +1467,7 @@ fn the_build_configuration_finds_the_review_r6_overrides() {
     let project = project();
     let sources = project_sources(&project);
     let expected = expected_manifests(&sources).unwrap();
-    let repository = std::fs::canonicalize(project.join("../..")).unwrap();
+    let repository = repository_root(&project).unwrap();
 
     // An unedited consumer copy resolves the real crates.
     let tree = ScratchTree::new();
@@ -1524,7 +1524,7 @@ fn the_build_configuration_finds_the_review_r6_overrides() {
     ] {
         assert_eq!(manifest_overrides("text", text).len(), count, "{text}");
     }
-    for (label, manifest) in CONSUMERS.iter().map(|(key, dir, _)| (key.to_string(), project.join(dir).join("Cargo.toml"))).chain(expected.iter().map(|(name, manifest)| (name.clone(), manifest.clone()))) {
+    for (label, manifest) in CONSUMERS.iter().map(|(key, manifest, _)| (key.to_string(), project.join(manifest))).chain(expected.iter().map(|(name, manifest)| (name.clone(), manifest.clone()))) {
         assert!(manifest_overrides(&label, &std::fs::read_to_string(manifest).unwrap()).is_empty(), "{label}");
     }
 

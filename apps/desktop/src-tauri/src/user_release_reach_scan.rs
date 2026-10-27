@@ -2364,7 +2364,7 @@ pub(crate) fn cargo_crate(key: &str, crate_dir: &Path) -> Result<(Vec<CrateTarge
 }
 
 /// The consumers of the reporting crates whose Cargo resolution is checked
-/// (code review r6 at #1682), as (key, project-relative directory, how):
+/// (code review r6 at #1682), as (key, project-relative manifest, how):
 /// the desktop shell, by its full resolved graph, and the headless runner,
 /// which depends on `report_package`, by Cargo's reading of its declared
 /// dependency. The runner's full graph is not resolved: its lock holds
@@ -2372,7 +2372,14 @@ pub(crate) fn cargo_crate(key: &str, crate_dir: &Path) -> Result<(Vec<CrateTarge
 /// fails where only the desktop's dependencies are fetched (the hosted
 /// desktop Rust job).
 pub(crate) const CONSUMERS: [(&str, &str, Resolution); 2] =
-    [("src-tauri", "apps/desktop/src-tauri", Resolution::Graph), ("headless", "core/runner/headless", Resolution::Declared)];
+    [("src-tauri", "apps/desktop/src-tauri/Cargo.toml", Resolution::Graph), ("headless", "core/runner/headless/Cargo.toml", Resolution::Declared)];
+
+/// The repository root: the directory two above the project
+/// (`projects/chirality-piping`), canonical.
+pub(crate) fn repository_root(project: &Path) -> Option<PathBuf> {
+    let root = std::fs::canonicalize(project).ok()?.parent()?.parent()?.to_path_buf();
+    (root.join("AGENTS.md").is_file() && root.join("projects").is_dir()).then_some(root)
+}
 
 /// How a consumer's reporting packages are established ([`CONSUMERS`]).
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -2410,16 +2417,15 @@ const CRATES_IO: &str = "registry+https://github.com/rust-lang/crates.io-index";
 /// read from. Empty when the configuration holds.
 pub(crate) fn build_configuration(sources: &Sources, project: &Path) -> Vec<String> {
     let mut findings = Vec::new();
-    let repository = match std::fs::canonicalize(project.join("../..")) {
-        Ok(repository) if repository.join("AGENTS.md").is_file() && repository.join("projects").is_dir() => repository,
-        _ => return vec![format!("{}: the repository root above the project is not found", project.display())],
+    let Some(repository) = repository_root(project) else {
+        return vec![format!("{}: the repository root above the project is not found", project.display())];
     };
     findings.extend(cargo_configs(&repository));
     let expected = match expected_manifests(sources) {
         Ok(expected) => expected,
         Err(error) => return [findings, vec![error]].concat(),
     };
-    let mut manifests: Vec<(String, PathBuf)> = CONSUMERS.iter().map(|(key, dir, _)| (key.to_string(), project.join(dir).join("Cargo.toml"))).collect();
+    let mut manifests: Vec<(String, PathBuf)> = CONSUMERS.iter().map(|(key, manifest, _)| (key.to_string(), project.join(manifest))).collect();
     manifests.extend(expected.iter().map(|(name, manifest)| (name.clone(), manifest.clone())));
     for (label, manifest) in manifests {
         match std::fs::read_to_string(&manifest) {
@@ -2427,11 +2433,15 @@ pub(crate) fn build_configuration(sources: &Sources, project: &Path) -> Vec<Stri
             Err(error) => findings.push(format!("{label}: {}: {error}", manifest.display())),
         }
     }
-    for (key, dir, resolution) in CONSUMERS {
-        let dir = project.join(dir);
+    for (key, manifest, resolution) in CONSUMERS {
+        let manifest = project.join(manifest);
+        let Some(dir) = manifest.parent() else {
+            findings.push(format!("{key}: {} has no directory", manifest.display()));
+            continue;
+        };
         findings.extend(match resolution {
-            Resolution::Graph => resolved_identities(key, &dir, &expected, &[repository.clone()]),
-            Resolution::Declared => declared_identities(key, &dir, &expected),
+            Resolution::Graph => resolved_identities(key, dir, &expected, &[repository.clone()]),
+            Resolution::Declared => declared_identities(key, dir, &expected),
         });
     }
     findings
