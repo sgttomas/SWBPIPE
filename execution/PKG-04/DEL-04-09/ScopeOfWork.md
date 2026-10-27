@@ -212,6 +212,7 @@ Nothing in these commitments bounds modelling, input or physical error. The inte
   - The modal product texts are pinned by maintained tests and reviewed against `docs/claims_registry.md`, and the claims-language lint (GEN-13) passes over the desktop texts.
   - Each committed reference package has its refutation record.
   - Each transcribed published-benchmark fixture has a complete provenance record, with its report's rights statement and distribution terms and a list of what was excluded; no fixture exists from a held report.
+
 ### Published benchmark
 
 - **REQ-010** — *A published piping benchmark.* Before FR-SOL-016 is reported complete, at least one published piping benchmark with recorded redistribution evidence (REQ-009) is compared with the product, after M1b, and the comparison is recorded as comparison evidence, not exact verification. Until a redistributable benchmark exists, FR-SOL-016 stays partial.
