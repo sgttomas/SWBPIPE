@@ -117,7 +117,12 @@
 //!   ([`CARGO_CONFIGS`], empty); and no checked manifest names `patch` or
 //!   `replace`. Since code review r7, no in-repository package of the
 //!   consumers' graphs but `src-tauri` runs a build script and depends on a
-//!   reporting crate ([`in_repo_build_scripts`]).
+//!   reporting crate ([`in_repo_build_scripts`]). Since code review r8, the
+//!   packages that depend on each reporting package are exactly the allowed
+//!   ones ([`REPORTING_DEPENDENTS`]), by name and canonical manifest, as
+//!   Cargo reports the dependencies of every package in the project and of
+//!   every path dependency reachable from them ([`in_repo_packages`]), and
+//!   in the shell's resolved graph; no manifest text is matched for this.
 //!
 //! What it does not establish: code that builds a document without calling
 //! the scanned functions, and a listed external macro whose version would
@@ -2707,6 +2712,29 @@ pub(crate) enum Resolution {
 /// the scan read ([`Sources::crate_dirs`]).
 pub(crate) const REPORTING_PACKAGES: [(&str, &str); 3] = [(PACKAGE_CRATE, "report_package"), (RENDERER_CRATE, "report_renderer"), (PDF_CRATE, "pdf_emitter")];
 
+/// The desktop shell's and the headless runner's Cargo package names.
+const SHELL_PACKAGE: &str = "openpipestress-desktop";
+const RUNNER_PACKAGE: &str = "open_pipe_stress_headless_runner";
+
+/// The packages allowed to depend on each reporting package, by Cargo
+/// package name, exactly (code review r8 at #1682; §2.8, "Dependents"). Each
+/// is identified by its name and its canonical manifest
+/// ([`dependent_locations`]): a reporting package's is the `Cargo.toml` the
+/// scan read, and the others' are in [`DEPENDENT_MANIFESTS`]. Any other
+/// package that depends on a reporting package, under any spelling of the
+/// key, rename and dependency kind, is a finding, and so is a listed
+/// dependent that no longer depends on it ([`dependent_findings`]).
+pub(crate) const REPORTING_DEPENDENTS: [(&str, &[&str]); 3] =
+    [(PACKAGE_CRATE, &[SHELL_PACKAGE, RUNNER_PACKAGE]), (RENDERER_CRATE, &[SHELL_PACKAGE, PDF_CRATE, PACKAGE_CRATE]), (PDF_CRATE, &[PACKAGE_CRATE])];
+
+/// The allowed dependents that are not reporting packages, with their
+/// project-relative manifests: the two consumers ([`CONSUMERS`]).
+pub(crate) const DEPENDENT_MANIFESTS: [(&str, &str); 2] = [(SHELL_PACKAGE, CONSUMERS[0].1), (RUNNER_PACKAGE, CONSUMERS[1].1)];
+
+/// For each reporting package, by Cargo package name, the packages that
+/// depend on it: (package name, canonical manifest).
+pub(crate) type Dependents = BTreeMap<String, BTreeSet<(String, PathBuf)>>;
+
 /// The Cargo configuration files admitted in the repository tree, by path
 /// from the repository root: none exist today (code review r6 at #1682).
 /// Cargo reads `.cargo/config` and `.cargo/config.toml` in the directory it
@@ -2720,9 +2748,13 @@ const CRATES_IO: &str = "registry+https://github.com/rust-lang/crates.io-index";
 /// The build-configuration findings for the real tree (code review r6 at
 /// #1682): any Cargo configuration file in the repository tree
 /// ([`cargo_configs`]); a `[patch]` or `[replace]` in a consumer's or
-/// reporting crate's manifest ([`manifest_overrides`]); and each consumer's
+/// reporting crate's manifest ([`manifest_overrides`]); each consumer's
 /// reporting packages ([`CONSUMERS`]) against the directories `sources` was
-/// read from. Empty when the configuration holds.
+/// read from; and, since code review r8, each reporting package's
+/// dependents, from Cargo's metadata of every package in the project and of
+/// the path dependencies reachable from them, against the exact allow-list
+/// ([`REPORTING_DEPENDENTS`], [`in_repo_packages`]). Empty when the
+/// configuration holds.
 pub(crate) fn build_configuration(sources: &Sources, project: &Path) -> Vec<String> {
     let mut findings = Vec::new();
     let Some(repository) = repository_root(project) else {
@@ -2741,6 +2773,18 @@ pub(crate) fn build_configuration(sources: &Sources, project: &Path) -> Vec<Stri
             Err(error) => findings.push(format!("{label}: {}: {error}", manifest.display())),
         }
     }
+    // Code review r8 at #1682: the dependents of each reporting package, as
+    // Cargo reads every package in the project and every path dependency
+    // reachable from them; the allow-list is exact.
+    let allowed = allowed_dependents(&dependent_locations(project, &expected)).unwrap_or_else(|error| {
+        findings.push(error);
+        Dependents::new()
+    });
+    let (project_manifests, unreadable) = project_manifests(project);
+    findings.extend(unreadable);
+    let packages = in_repo_packages(&project_manifests, &expected);
+    findings.extend(packages.findings);
+    findings.extend(dependent_findings(&packages.dependents, &allowed));
     for (key, manifest, resolution) in CONSUMERS {
         let manifest = project.join(manifest);
         let Some(dir) = manifest.parent() else {
@@ -2748,7 +2792,7 @@ pub(crate) fn build_configuration(sources: &Sources, project: &Path) -> Vec<Stri
             continue;
         };
         findings.extend(match resolution {
-            Resolution::Graph => resolved_identities(key, dir, &expected, &[repository.clone()]),
+            Resolution::Graph => resolved_identities(key, dir, &expected, &[repository.clone()], &allowed),
             Resolution::Declared => declared_identities(key, dir, &expected),
         });
     }
@@ -2959,8 +3003,10 @@ fn canonical(path: &str) -> PathBuf {
 /// the expected one; the resolve's root is the consumer; and every package
 /// comes from crates.io or from a path under one of `roots`. A `paths`
 /// override, `[patch]`, `[replace]` or source override that moves a package
-/// is a finding, and so is metadata that cannot be read.
-pub(crate) fn resolved_identities(key: &str, consumer_dir: &Path, expected: &BTreeMap<String, PathBuf>, roots: &[PathBuf]) -> Vec<String> {
+/// is a finding, and so is metadata that cannot be read. Since code review
+/// r8, every package of the graph that depends on a reporting package must
+/// be on its allowed list (`allowed`; [`REPORTING_DEPENDENTS`]).
+pub(crate) fn resolved_identities(key: &str, consumer_dir: &Path, expected: &BTreeMap<String, PathBuf>, roots: &[PathBuf], allowed: &Dependents) -> Vec<String> {
     let manifest = consumer_dir.join("Cargo.toml");
     let output = std::process::Command::new(cargo())
         .args(["metadata", "--format-version", "1", "--offline", "--locked", "--filter-platform", "host-tuple", "--manifest-path"])
@@ -3016,6 +3062,7 @@ pub(crate) fn resolved_identities(key: &str, consumer_dir: &Path, expected: &BTr
             }
         }
     }
+    findings.extend(graph_dependent_findings(key, &metadata, expected, allowed));
     findings
 }
 
@@ -3059,4 +3106,229 @@ pub(crate) fn declared_identities(key: &str, consumer_dir: &Path, expected: &BTr
         findings.push(format!("{key}: declares no reporting dependency"));
     }
     findings
+}
+
+/// Each allowed dependent's canonical manifest, by package name (code review
+/// r8 at #1682): the reporting packages' from `expected`, the others' under
+/// `project` ([`DEPENDENT_MANIFESTS`]).
+pub(crate) fn dependent_locations(project: &Path, expected: &BTreeMap<String, PathBuf>) -> BTreeMap<String, PathBuf> {
+    let mut locations = expected.clone();
+    for (name, manifest) in DEPENDENT_MANIFESTS {
+        locations.insert(name.to_string(), canonical(&project.join(manifest).to_string_lossy()));
+    }
+    locations
+}
+
+/// The allowed dependents ([`REPORTING_DEPENDENTS`]), each at its manifest
+/// in `locations` ([`dependent_locations`]).
+pub(crate) fn allowed_dependents(locations: &BTreeMap<String, PathBuf>) -> Result<Dependents, String> {
+    REPORTING_DEPENDENTS
+        .iter()
+        .map(|(reporting, dependents)| {
+            let set = dependents
+                .iter()
+                .map(|name| locations.get(*name).map(|manifest| (name.to_string(), manifest.clone())).ok_or_else(|| format!("the allowed dependent {name} of {reporting} has no manifest")))
+                .collect::<Result<BTreeSet<_>, String>>()?;
+            Ok((reporting.to_string(), set))
+        })
+        .collect()
+}
+
+/// Every file named `Cargo.toml` (in any case) under `project`, at any depth
+/// (code review r8 at #1682), `.git` aside and symbolic links to directories
+/// not followed, with a finding for each directory or entry that cannot be
+/// read. `target` and `node_modules` are not skipped: a package there is
+/// read like any other.
+pub(crate) fn project_manifests(project: &Path) -> (Vec<PathBuf>, Vec<String>) {
+    fn walk(dir: &Path, out: &mut Vec<PathBuf>, findings: &mut Vec<String>) {
+        let entries = match std::fs::read_dir(dir) {
+            Ok(entries) => entries,
+            Err(error) => {
+                findings.push(format!("{}: the directory cannot be read for Cargo manifests ({error})", dir.display()));
+                return;
+            }
+        };
+        let mut children = Vec::new();
+        for entry in entries {
+            match entry {
+                Ok(entry) => children.push(entry.path()),
+                Err(error) => findings.push(format!("{}: an entry cannot be read for Cargo manifests ({error})", dir.display())),
+            }
+        }
+        children.sort();
+        for child in children {
+            let name = child.file_name().map(|name| name.to_string_lossy().to_string()).unwrap_or_default();
+            if name == ".git" {
+                continue;
+            }
+            match child.symlink_metadata() {
+                Ok(metadata) if metadata.is_dir() => walk(&child, out, findings),
+                Ok(_) if name.eq_ignore_ascii_case("Cargo.toml") => out.push(child),
+                Ok(_) => {}
+                Err(error) => findings.push(format!("{}: cannot be read for Cargo manifests ({error})", child.display())),
+            }
+        }
+    }
+    let mut manifests = Vec::new();
+    let mut findings = Vec::new();
+    walk(project, &mut manifests, &mut findings);
+    (manifests, findings)
+}
+
+/// What Cargo reports for the in-repository packages ([`in_repo_packages`]).
+#[derive(Debug, Default)]
+pub(crate) struct InRepoPackages {
+    /// Each package read, by canonical manifest, with its name.
+    pub(crate) packages: BTreeMap<PathBuf, String>,
+    /// Each reporting package's dependents among them.
+    pub(crate) dependents: Dependents,
+    /// Each manifest whose metadata Cargo did not give: a finding.
+    pub(crate) findings: Vec<String>,
+}
+
+/// The packages of `manifests` and of every path dependency reachable from
+/// them, and which of them depend on a reporting package (code review r8 at
+/// #1682; §2.8, "Dependents"). Each manifest is read by `cargo metadata
+/// --format-version 1 --offline --locked --no-deps --manifest-path`, run in
+/// its directory, which needs no download; every package it reports (a
+/// workspace's members included) is taken, and each of its dependencies'
+/// `path`s is followed. A dependency is on a reporting package when Cargo
+/// reports its package name (`dependencies[].name`, the normalized package
+/// name whatever the key's quoting, dotting or `rename`) as one, or its path
+/// as one's directory; every kind (normal, `dev`, `build`) and every
+/// platform `target` counts. Metadata that Cargo does not give, for a
+/// manifest that is not a package nor a workspace's root, is a finding,
+/// never a skip.
+pub(crate) fn in_repo_packages(manifests: &[PathBuf], expected: &BTreeMap<String, PathBuf>) -> InRepoPackages {
+    let by_manifest: BTreeMap<&PathBuf, &String> = expected.iter().map(|(name, manifest)| (manifest, name)).collect();
+    let mut out = InRepoPackages::default();
+    let mut read = BTreeSet::new();
+    let mut queue: Vec<PathBuf> = manifests.iter().rev().map(|manifest| canonical(&manifest.to_string_lossy())).collect();
+    while let Some(manifest) = queue.pop() {
+        if out.packages.contains_key(&manifest) || !read.insert(manifest.clone()) {
+            continue;
+        }
+        let Some(dir) = manifest.parent() else {
+            out.findings.push(format!("{}: the manifest has no directory", manifest.display()));
+            continue;
+        };
+        let output = std::process::Command::new(cargo())
+            .args(["metadata", "--format-version", "1", "--offline", "--locked", "--no-deps", "--manifest-path"])
+            .arg(&manifest)
+            .current_dir(dir)
+            .output();
+        let output = match output {
+            Ok(output) if output.status.success() => output,
+            Ok(output) => {
+                out.findings.push(format!("{}: cargo metadata --offline --locked --no-deps failed, so its dependencies are unknown: {}", manifest.display(), String::from_utf8_lossy(&output.stderr).trim()));
+                continue;
+            }
+            Err(error) => {
+                out.findings.push(format!("{}: cargo metadata did not run: {error}", manifest.display()));
+                continue;
+            }
+        };
+        let metadata: serde_json::Value = match serde_json::from_slice(&output.stdout) {
+            Ok(metadata) => metadata,
+            Err(error) => {
+                out.findings.push(format!("{}: cargo metadata output: {error}", manifest.display()));
+                continue;
+            }
+        };
+        let mut reported = false;
+        for package in metadata["packages"].as_array().into_iter().flatten() {
+            let Some(at) = package["manifest_path"].as_str().map(canonical) else {
+                out.findings.push(format!("{}: cargo metadata reports a package without a manifest", manifest.display()));
+                continue;
+            };
+            reported |= at == manifest;
+            if out.packages.contains_key(&at) {
+                continue;
+            }
+            let name = package["name"].as_str().unwrap_or("?").to_string();
+            out.packages.insert(at.clone(), name.clone());
+            let Some(dependencies) = package["dependencies"].as_array() else {
+                out.findings.push(format!("{}: cargo metadata reports {name} without dependencies", at.display()));
+                continue;
+            };
+            for dependency in dependencies {
+                let mut reporting = BTreeSet::new();
+                let dependency_name = dependency["name"].as_str().unwrap_or("?");
+                if expected.contains_key(dependency_name) {
+                    reporting.insert(dependency_name.to_string());
+                }
+                if let Some(path) = dependency["path"].as_str() {
+                    let next = canonical(path).join("Cargo.toml");
+                    if let Some(name) = by_manifest.get(&next) {
+                        reporting.insert(name.to_string());
+                    }
+                    queue.push(next);
+                }
+                for reporting in reporting {
+                    out.dependents.entry(reporting).or_default().insert((name.clone(), at.clone()));
+                }
+            }
+        }
+        let workspace_root = metadata["workspace_root"].as_str().map(canonical);
+        if !reported && workspace_root.as_deref() != Some(dir) {
+            out.findings.push(format!("{}: cargo metadata reports neither a package for it nor it as a workspace's root", manifest.display()));
+        }
+    }
+    out
+}
+
+/// A finding for each package that depends on a reporting package and is
+/// not on its allowed list, and for each allowed dependent that does not
+/// depend on it (code review r8 at #1682): the lists are exact.
+pub(crate) fn dependent_findings(found: &Dependents, allowed: &Dependents) -> Vec<String> {
+    let empty = BTreeSet::new();
+    let mut findings = Vec::new();
+    for reporting in found.keys().chain(allowed.keys()).collect::<BTreeSet<_>>() {
+        let found = found.get(reporting).unwrap_or(&empty);
+        let allowed = allowed.get(reporting).unwrap_or(&empty);
+        for (name, manifest) in found.difference(allowed) {
+            findings.push(format!("the package {name} ({}) depends on {reporting} and is not on its allowed dependent list", manifest.display()));
+        }
+        for (name, manifest) in allowed.difference(found) {
+            findings.push(format!("the allowed dependent {name} ({}) of {reporting} does not depend on it, as Cargo reports; the list is exact", manifest.display()));
+        }
+    }
+    findings
+}
+
+/// The dependents of the reporting packages in a resolved graph (code
+/// review r8 at #1682), by `resolve.nodes[].dependencies` and `deps[].pkg`:
+/// a finding for each package, from any source, that depends on one and is
+/// not on its allowed list.
+fn graph_dependent_findings(key: &str, metadata: &serde_json::Value, expected: &BTreeMap<String, PathBuf>, allowed: &Dependents) -> Vec<String> {
+    let packages: BTreeMap<&str, &serde_json::Value> = metadata["packages"].as_array().into_iter().flatten().filter_map(|package| package["id"].as_str().map(|id| (id, package))).collect();
+    let manifest_of = |package: &serde_json::Value| package["manifest_path"].as_str().map(canonical);
+    let reporting: BTreeMap<&str, String> = packages
+        .iter()
+        .filter_map(|(id, package)| {
+            let name = package["name"].as_str().unwrap_or("?");
+            if expected.contains_key(name) {
+                return Some((*id, name.to_string()));
+            }
+            let at = manifest_of(package)?;
+            expected.iter().find(|(_, manifest)| **manifest == at).map(|(name, _)| (*id, name.clone()))
+        })
+        .collect();
+    let empty = BTreeSet::new();
+    let mut findings = BTreeSet::new();
+    for node in metadata["resolve"]["nodes"].as_array().into_iter().flatten() {
+        let id = node["id"].as_str().unwrap_or("?");
+        let mut on: BTreeSet<&str> = node["dependencies"].as_array().into_iter().flatten().filter_map(|dependency| dependency.as_str()).collect();
+        on.extend(node["deps"].as_array().into_iter().flatten().filter_map(|dependency| dependency["pkg"].as_str()));
+        for dependency in on {
+            let Some(reporting) = reporting.get(dependency) else { continue };
+            let package = packages.get(id);
+            let name = package.and_then(|package| package["name"].as_str()).unwrap_or(id).to_string();
+            let at = package.and_then(|package| manifest_of(package)).unwrap_or_default();
+            if !allowed.get(reporting).unwrap_or(&empty).contains(&(name.clone(), at.clone())) {
+                findings.insert(format!("{key}: in the resolved graph, the package {name} ({}) depends on {reporting} and is not on its allowed dependent list", at.display()));
+            }
+        }
+    }
+    findings.into_iter().collect()
 }

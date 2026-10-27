@@ -3,8 +3,9 @@
 //! taxonomy per DEC-081).
 
 use crate::user_release_reach_scan::{
-    build_configuration, build_script_findings, cargo_configs, cargo_crate, crate_sources, expected_manifests, in_repo_build_scripts, manifest_overrides, path_module_key, project_sources, repository_root, resolved_identities, scan, scan_reading,
-    scan_reading_all, CrateTarget, Sources, BUILD_DEPENDENCIES, BUILD_SCRIPTS, CONSUMERS, CRATES, REPORTING_PACKAGES, SHELL_DEPENDENCIES, SHELL_TEST_CALLERS, TARGETS, TEST_PROOF_ITEMS,
+    allowed_dependents, build_configuration, build_script_findings, cargo_configs, cargo_crate, crate_sources, dependent_findings, dependent_locations, expected_manifests, in_repo_build_scripts, in_repo_packages, manifest_overrides, path_module_key,
+    project_manifests, project_sources, repository_root, resolved_identities, scan, scan_reading, scan_reading_all, CrateTarget, Dependents, Sources, BUILD_DEPENDENCIES, BUILD_SCRIPTS, CONSUMERS, CRATES, DEPENDENT_MANIFESTS,
+    REPORTING_DEPENDENTS, REPORTING_PACKAGES, SHELL_DEPENDENCIES, SHELL_TEST_CALLERS, TARGETS, TEST_PROOF_ITEMS,
 };
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::Path;
@@ -58,47 +59,61 @@ fn the_scan_reads_the_production_files() {
     }
 }
 
-/// Also asserted (§2.8): the manifests that depend on the renderer are
-/// exactly `src-tauri`'s, `pdf_emitter`'s and `report_package`'s, of which
-/// only `report_package`'s depends on `pdf_emitter`. That no source under the
-/// headless runner names the admitting entry or the bridge function is the
-/// runner's own test (`core/runner/headless/tests/user_release_runner_refused.rs`),
-/// so this crate's tests read no runner source.
+/// Also asserted (§2.8, "Dependents"; code review r8 at #1682): the
+/// packages that depend on each reporting package are exactly the allowed
+/// ones, by package name and canonical manifest, as Cargo reports every
+/// package in the project and every path dependency reachable from them:
+/// `report_package`'s are `src-tauri` and the headless runner, the
+/// renderer's are `src-tauri`, `pdf_emitter` and `report_package`, and
+/// `pdf_emitter`'s is `report_package`. No manifest text is matched (the
+/// round-8 repro was a quoted key). That no source under the headless runner
+/// names the admitting entry or the bridge function is the runner's own test
+/// (`core/runner/headless/tests/user_release_runner_refused.rs`), so this
+/// crate's tests read no runner source.
 #[test]
-fn only_the_three_crates_depend_on_the_renderer() {
-    fn walk(dir: &Path, out: &mut Vec<std::path::PathBuf>, wanted: &dyn Fn(&Path) -> bool) {
-        let Ok(entries) = std::fs::read_dir(dir) else { return };
-        let mut entries: Vec<_> = entries.map(|entry| entry.unwrap().path()).collect();
-        entries.sort();
-        for path in entries {
-            let name = path.file_name().unwrap().to_string_lossy().to_string();
-            if path.is_dir() {
-                if !matches!(name.as_str(), "target" | "node_modules" | ".git" | "dist") && !name.starts_with('.') {
-                    walk(&path, out, wanted);
-                }
-            } else if wanted(&path) {
-                out.push(path);
-            }
-        }
-    }
+fn only_the_allowed_packages_depend_on_the_reporting_crates() {
     let project = project();
-    let mut manifests = Vec::new();
-    walk(&project, &mut manifests, &|path| path.file_name().is_some_and(|name| name == "Cargo.toml"));
-    let dependents = |krate: &str| -> BTreeSet<String> {
-        manifests
-            .iter()
-            .filter(|path| {
-                let text = std::fs::read_to_string(path).unwrap();
-                text.lines().any(|line| line.trim_start().starts_with(&format!("{krate} ")) || line.trim_start().starts_with(&format!("{krate}=")))
-            })
-            .map(|path| path.parent().unwrap().strip_prefix(&project).unwrap().to_string_lossy().replace('\\', "/"))
-            .collect()
-    };
-    assert_eq!(
-        dependents("open_pipe_stress_report_renderer"),
-        BTreeSet::from(["apps/desktop/src-tauri".to_string(), "core/reporting/pdf_emitter".to_string(), "core/reporting/report_package".to_string()])
-    );
-    assert_eq!(dependents("open_pipe_stress_pdf_emitter"), BTreeSet::from(["core/reporting/report_package".to_string()]));
+    let sources = project_sources(&project);
+    let expected = expected_manifests(&sources).unwrap();
+    let locations = dependent_locations(&project, &expected);
+    let allowed = allowed_dependents(&locations).unwrap();
+    let at = |manifest: &str| std::fs::canonicalize(project.join(manifest)).unwrap();
+    let pair = |name: &str, manifest: &str| (name.to_string(), at(manifest));
+    let shell = pair("openpipestress-desktop", "apps/desktop/src-tauri/Cargo.toml");
+    let runner = pair("open_pipe_stress_headless_runner", "core/runner/headless/Cargo.toml");
+    let package = pair("open_pipe_stress_report_package", "core/reporting/report_package/Cargo.toml");
+    let pdf = pair("open_pipe_stress_pdf_emitter", "core/reporting/pdf_emitter/Cargo.toml");
+    let exact: Dependents = BTreeMap::from([
+        ("open_pipe_stress_report_package".to_string(), BTreeSet::from([shell.clone(), runner.clone()])),
+        ("open_pipe_stress_report_renderer".to_string(), BTreeSet::from([shell.clone(), pdf.clone(), package.clone()])),
+        ("open_pipe_stress_pdf_emitter".to_string(), BTreeSet::from([package.clone()])),
+    ]);
+    assert_eq!(allowed, exact);
+    assert_eq!(REPORTING_DEPENDENTS.len(), REPORTING_PACKAGES.len());
+    assert_eq!(DEPENDENT_MANIFESTS, [("openpipestress-desktop", CONSUMERS[0].1), ("open_pipe_stress_headless_runner", CONSUMERS[1].1)]);
+    // Every manifest in the project is read by Cargo, and the found
+    // dependents are exactly the allowed ones.
+    let (manifests, unreadable) = project_manifests(&project);
+    assert!(unreadable.is_empty(), "{unreadable:#?}");
+    let read = in_repo_packages(&manifests, &expected);
+    assert!(read.findings.is_empty(), "{:#?}", read.findings);
+    assert_eq!(read.dependents, exact);
+    assert!(dependent_findings(&read.dependents, &allowed).is_empty());
+    for manifest in &manifests {
+        assert!(read.packages.contains_key(&std::fs::canonicalize(manifest).unwrap()), "{} is not a package Cargo reported", manifest.display());
+    }
+    for (_, manifest) in exact.values().flatten() {
+        assert!(read.packages.contains_key(manifest), "{}", manifest.display());
+    }
+    // The shell's resolved graph agrees.
+    let repository = repository_root(&project).unwrap();
+    assert!(resolved_identities("src-tauri", &at("apps/desktop/src-tauri"), &expected, &[repository], &allowed).is_empty());
+    // A missing allowed dependent is a finding too: the list is exact.
+    let mut fewer = read.dependents.clone();
+    fewer.get_mut("open_pipe_stress_pdf_emitter").unwrap().clear();
+    let findings = dependent_findings(&fewer, &allowed);
+    assert_eq!(findings.len(), 1, "{findings:#?}");
+    assert!(findings[0].starts_with("the allowed dependent open_pipe_stress_report_package (") && findings[0].ends_with("of open_pipe_stress_pdf_emitter does not depend on it, as Cargo reports; the list is exact"), "{findings:#?}");
 }
 
 /// Codex rounds 1 and 2 at #1682 (P2s): the forms Codex found escaping on the
@@ -1465,9 +1480,10 @@ fn the_build_configuration_resolves_the_scanned_crates() {
     let repository = repository_root(&project).unwrap();
     assert!(cargo_configs(&repository).is_empty());
     let consumer = std::fs::canonicalize(project.join("apps/desktop/src-tauri")).unwrap();
-    assert!(resolved_identities("src-tauri", &consumer, &expected, &[repository.clone()]).is_empty());
+    let allowed = allowed_dependents(&dependent_locations(&project, &expected)).unwrap();
+    assert!(resolved_identities("src-tauri", &consumer, &expected, &[repository.clone()], &allowed).is_empty());
     // Outside the repository, the real crates are path packages elsewhere.
-    let elsewhere = resolved_identities("src-tauri", &consumer, &expected, &[std::env::temp_dir()]);
+    let elsewhere = resolved_identities("src-tauri", &consumer, &expected, &[std::env::temp_dir()], &allowed);
     assert!(elsewhere.iter().any(|finding| finding.contains("is outside the repository")), "{elsewhere:#?}");
 }
 
@@ -1486,7 +1502,8 @@ fn the_build_configuration_finds_the_review_r6_overrides() {
     // An unedited consumer copy resolves the real crates.
     let tree = ScratchTree::new();
     let consumer = tree.desktop_consumer("consumer");
-    let findings = resolved_identities("copy", &consumer, &expected, &[repository.clone(), tree.base.clone()]);
+    let allowed = copy_allowed(&project, &expected, &consumer);
+    let findings = resolved_identities("copy", &consumer, &expected, &[repository.clone(), tree.base.clone()], &allowed);
     assert!(findings.is_empty(), "{findings:#?}");
     assert!(cargo_configs(&tree.base).is_empty());
 
@@ -1507,7 +1524,7 @@ fn the_build_configuration_finds_the_review_r6_overrides() {
     )
     .unwrap();
     tree.write("consumer/.cargo/config.toml", &format!("paths = [\"{}\"]\n", replacement.display()));
-    let findings = resolved_identities("copy", &consumer, &expected, &[repository.clone(), tree.base.clone()]);
+    let findings = resolved_identities("copy", &consumer, &expected, &[repository.clone(), tree.base.clone()], &copy_allowed(&project, &expected, &consumer));
     let moved = format!("copy: open_pipe_stress_report_package resolves to {}, not {}", replacement.join("Cargo.toml").display(), expected["open_pipe_stress_report_package"].display());
     assert!(findings.iter().any(|finding| finding.starts_with(&moved)), "{moved}: {findings:#?}");
     let configs = cargo_configs(&tree.base);
@@ -1555,6 +1572,13 @@ fn the_build_configuration_finds_the_review_r6_overrides() {
             "the Cargo configuration projects/p/.cargo/config.toml is in the repository tree and not on the allow-list",
         ]
     );
+}
+
+/// The allowed dependents with the shell read from the copy at `consumer`.
+fn copy_allowed(project: &Path, expected: &BTreeMap<String, std::path::PathBuf>, consumer: &Path) -> Dependents {
+    let mut locations = dependent_locations(project, expected);
+    locations.insert("openpipestress-desktop".to_string(), consumer.join("Cargo.toml"));
+    allowed_dependents(&locations).unwrap()
 }
 
 fn copy_dir(from: &Path, to: &Path) {
@@ -1892,4 +1916,153 @@ fn the_in_repository_build_scripts_are_known() {
     let findings = build_script_findings(&scripts, &shell);
     assert_eq!(findings.len(), 1, "{findings:#?}");
     assert!(findings[0].starts_with("the in-repository package r7_helper runs the build script") && findings[0].contains("depends on a reporting crate"), "{findings:#?}");
+}
+
+// --- Code review r8 at #1682 -------------------------------------------------
+
+/// The reviewer's round-8 library addition to the headless runner: a
+/// renderer call through a crate alias.
+const R8_CALLER: &str = "use open_pipe_stress_report_renderer as r;\npub fn r8(i: &r::RenderableReportInput) -> r::RenderOutcome { r::render_calculation_report(i) }\n";
+
+/// A scratch project that Cargo reads, laid out like the real one: copies of
+/// the shell (stand-in sources) and the headless runner (its sources), their
+/// path dependencies made absolute to the real crates, so that the allowed
+/// dependents at the copies' locations are today's set. `edit` changes the
+/// runner copy's manifest text. Returns the project and the runner copy's
+/// canonical manifest.
+fn dependent_project(tree: &ScratchTree, edit: &dyn Fn(&str) -> String, caller: bool) -> (std::path::PathBuf, std::path::PathBuf) {
+    tree.desktop_consumer("project/apps/desktop/src-tauri");
+    // The runner's directory from its manifest's path, so that no literal
+    // here names the runner's sources (hosted CI routes desktop Rust by the
+    // project paths its literals name).
+    let runner_dir = Path::new(CONSUMERS[1].1).parent().unwrap().to_str().unwrap();
+    let runner = tree.crate_copy(runner_dir, &format!("project/{runner_dir}"), &[]);
+    copy_dir(&project().join(runner_dir).join("src"), &runner.join("src"));
+    let manifest = std::fs::read_to_string(runner.join("Cargo.toml")).unwrap();
+    std::fs::write(runner.join("Cargo.toml"), edit(&manifest)).unwrap();
+    if caller {
+        let lib = std::fs::read_to_string(runner.join("src/lib.rs")).unwrap();
+        std::fs::write(runner.join("src/lib.rs"), format!("{lib}{R8_CALLER}")).unwrap();
+    }
+    (tree.base.join("project"), runner.join("Cargo.toml"))
+}
+
+/// The dependent findings for a scratch project: its manifests and their
+/// reachable path dependencies read by Cargo, against the allowed set at its
+/// own locations.
+fn dependents_in(project: &Path, expected: &BTreeMap<String, std::path::PathBuf>) -> (Dependents, Vec<String>) {
+    let (manifests, unreadable) = project_manifests(project);
+    assert!(unreadable.is_empty(), "{unreadable:#?}");
+    let read = in_repo_packages(&manifests, expected);
+    let allowed = allowed_dependents(&dependent_locations(project, expected)).unwrap();
+    (read.dependents.clone(), [read.findings, dependent_findings(&read.dependents, &allowed)].concat())
+}
+
+/// Code review r8 at #1682 (P2, INSIDE), on scratch copies Cargo reads: each
+/// spelling of a dependency on the renderer added to the headless runner
+/// (the reviewer's quoted key in `[dependencies]` with the library call, a
+/// quoted key under `[dev-dependencies]` and `[build-dependencies]`, a
+/// `[target.'cfg(unix)'.dependencies]` entry, dotted keys, a rename, and a
+/// path to the renderer under another package name) is exactly one finding;
+/// a root-level dotted key in a new package is one for that package; the
+/// unedited copies, today's dependents, pass.
+#[test]
+fn every_spelling_of_a_new_dependent_is_a_finding() {
+    let expected = expected_manifests(&project_sources(&project())).unwrap();
+    let renderer = expected["open_pipe_stress_report_renderer"].parent().unwrap().display().to_string();
+    let entry = |key: &str| format!("{key} = {{ path = \"{renderer}\" }}\n");
+    let under_dependencies = |line: String| move |manifest: &str| {
+        assert_eq!(manifest.matches("\n[dependencies]\n").count(), 1);
+        manifest.replacen("\n[dependencies]\n", &format!("\n[dependencies]\n{line}"), 1)
+    };
+    let appended = |text: String| move |manifest: &str| format!("{manifest}{text}");
+
+    // Today's dependents pass, read from the copies.
+    let tree = ScratchTree::new();
+    let (project, _) = dependent_project(&tree, &|manifest: &str| manifest.to_string(), false);
+    let (found, findings) = dependents_in(&project, &expected);
+    assert!(findings.is_empty(), "{findings:#?}");
+    assert_eq!(found["open_pipe_stress_report_package"].iter().map(|(name, _)| name.as_str()).collect::<Vec<_>>(), ["open_pipe_stress_headless_runner", "openpipestress-desktop"]);
+    assert_eq!(found["open_pipe_stress_report_renderer"].len(), 3);
+    assert_eq!(found["open_pipe_stress_pdf_emitter"].len(), 1);
+
+    let cases: Vec<(&str, Box<dyn Fn(&str) -> String>, bool)> = vec![
+        ("the reviewer's quoted key", Box::new(under_dependencies(entry("\"open_pipe_stress_report_renderer\""))), true),
+        ("a quoted key under [dev-dependencies]", Box::new(appended(format!("\n[dev-dependencies]\n{}", entry("\"open_pipe_stress_report_renderer\"")))), false),
+        ("a quoted key under [build-dependencies]", Box::new(appended(format!("\n[build-dependencies]\n{}", entry("\"open_pipe_stress_report_renderer\"")))), false),
+        ("a [target.'cfg(unix)'.dependencies] entry", Box::new(appended(format!("\n[target.'cfg(unix)'.dependencies]\n{}", entry("open_pipe_stress_report_renderer")))), false),
+        ("a dotted key in [dependencies]", Box::new(under_dependencies(format!("open_pipe_stress_report_renderer.path = \"{renderer}\"\n"))), false),
+        ("a dotted key under a target table", Box::new(appended(format!("\n[target.'cfg(unix)']\ndependencies.open_pipe_stress_report_renderer.path = \"{renderer}\"\n"))), false),
+        ("a renamed dependency", Box::new(under_dependencies(format!("r = {{ package = \"open_pipe_stress_report_renderer\", path = \"{renderer}\" }}\n"))), true),
+        ("a quoted, single-quoted rename", Box::new(under_dependencies(format!("'r' = {{ \"package\" = \"open_pipe_stress_report_renderer\", path = '{renderer}' }}\n"))), false),
+    ];
+    for (case, edit, caller) in cases {
+        let tree = ScratchTree::new();
+        let (project, runner) = dependent_project(&tree, &*edit, caller);
+        let (_, findings) = dependents_in(&project, &expected);
+        assert_eq!(
+            findings,
+            [format!("the package open_pipe_stress_headless_runner ({}) depends on open_pipe_stress_report_renderer and is not on its allowed dependent list", std::fs::canonicalize(&runner).unwrap().display())],
+            "{case}"
+        );
+    }
+
+    // A path to the renderer under another package name: Cargo does not
+    // resolve it, but the path identifies it.
+    let tree = ScratchTree::new();
+    let (project, runner) = dependent_project(&tree, &under_dependencies(format!("r = {{ package = \"r8_not_the_renderer\", path = \"{renderer}\" }}\n")), false);
+    let (_, findings) = dependents_in(&project, &expected);
+    assert!(
+        findings.iter().any(|finding| finding.starts_with(&format!("the package open_pipe_stress_headless_runner ({}) depends on open_pipe_stress_report_renderer", std::fs::canonicalize(&runner).unwrap().display()))),
+        "{findings:#?}"
+    );
+
+    // The literal root-level dotted form, in a new package of the project.
+    let tree = ScratchTree::new();
+    let (project, _) = dependent_project(&tree, &|manifest: &str| manifest.to_string(), false);
+    tree.write("project/core/r8_dotted/Cargo.toml", &format!("dependencies.open_pipe_stress_report_renderer.path = \"{renderer}\"\n\n[package]\nname = \"r8_dotted\"\nversion = \"0.1.0\"\nedition = \"2021\"\n"));
+    tree.write("project/core/r8_dotted/src/lib.rs", R8_CALLER);
+    let (_, findings) = dependents_in(&project, &expected);
+    let dotted = std::fs::canonicalize(project.join("core/r8_dotted/Cargo.toml")).unwrap();
+    assert_eq!(findings, [format!("the package r8_dotted ({}) depends on open_pipe_stress_report_renderer and is not on its allowed dependent list", dotted.display())]);
+
+    // A manifest Cargo cannot read is a finding, not a skip.
+    let tree = ScratchTree::new();
+    let (project, _) = dependent_project(&tree, &|manifest: &str| manifest.to_string(), false);
+    tree.write("project/core/r8_broken/Cargo.toml", "[package]\nname = \"r8_broken\"\n[dependencies\n");
+    let (_, findings) = dependents_in(&project, &expected);
+    assert_eq!(findings.len(), 1, "{findings:#?}");
+    assert!(findings[0].contains("r8_broken/Cargo.toml: cargo metadata --offline --locked --no-deps failed, so its dependencies are unknown"), "{findings:#?}");
+}
+
+/// Code review r8 at #1682: a package outside the project that a project
+/// package reaches by a path dependency, and that depends on the renderer by
+/// a quoted key, is a finding in the walk and in the shell's resolved graph;
+/// the copy's lock is updated offline first, as a build would need.
+#[test]
+fn a_reachable_dependent_outside_the_project_is_a_finding() {
+    let real = project();
+    let expected = expected_manifests(&project_sources(&real)).unwrap();
+    let renderer = expected["open_pipe_stress_report_renderer"].parent().unwrap().display().to_string();
+    let tree = ScratchTree::new();
+    let (project, _) = dependent_project(&tree, &|manifest: &str| manifest.to_string(), false);
+    tree.write("outside/helper/Cargo.toml", &format!("[package]\nname = \"r8_helper\"\nversion = \"0.1.0\"\nedition = \"2021\"\n\n[dependencies]\n\"open_pipe_stress_report_renderer\" = {{ path = \"{renderer}\" }}\n"));
+    tree.write("outside/helper/src/lib.rs", R8_CALLER);
+    let shell = project.join("apps/desktop/src-tauri");
+    let manifest = std::fs::read_to_string(shell.join("Cargo.toml")).unwrap();
+    assert_eq!(manifest.matches("\n[dependencies]\n").count(), 1);
+    let helper = tree.base.join("outside/helper");
+    std::fs::write(shell.join("Cargo.toml"), manifest.replacen("\n[dependencies]\n", &format!("\n[dependencies]\n\"r8_helper\" = {{ path = \"{}\" }}\n", helper.display()), 1)).unwrap();
+    let helper_manifest = std::fs::canonicalize(helper.join("Cargo.toml")).unwrap();
+    let expected_finding = format!("the package r8_helper ({}) depends on open_pipe_stress_report_renderer and is not on its allowed dependent list", helper_manifest.display());
+    let (_, findings) = dependents_in(&project, &expected);
+    assert_eq!(findings, [expected_finding.clone()]);
+    // The resolved graph, after an offline lock update.
+    let cargo = std::env::var_os("CARGO").unwrap_or_else(|| env!("CARGO").into());
+    let status = std::process::Command::new(cargo).args(["metadata", "--format-version", "1", "--offline", "--manifest-path"]).arg(shell.join("Cargo.toml")).current_dir(&shell).stdout(std::process::Stdio::null()).status().unwrap();
+    assert!(status.success());
+    let allowed = allowed_dependents(&dependent_locations(&project, &expected)).unwrap();
+    let repository = repository_root(&real).unwrap();
+    let findings = resolved_identities("copy", &std::fs::canonicalize(&shell).unwrap(), &expected, &[repository, tree.base.clone()], &allowed);
+    assert_eq!(findings, [format!("copy: in the resolved graph, {expected_finding}")]);
 }
