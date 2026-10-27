@@ -91,16 +91,29 @@ struct ContractClassification {
     finding_severity: Option<&'static str>,
 }
 
+/// The user-released export context (DEL-08-01 Design `report-user-release.md`
+/// §3.1).  No runner route uses it; the mirror carries its decision rule so the
+/// shared corpus holds.
+#[cfg(test)]
+const USER_RELEASED_REPORT_CONTEXT: &str = "user_released_report";
+
 /// Mirror the existing core contract's item classification without adding
 /// filesystem, transport, or side-effect behavior.  The runner route uses a
 /// fixed local/private projection; the canonical corpus test below pins the
 /// vocabulary and precedence rules shared with Python and TypeScript.
+/// `wrapper_release_intent` is admitted only in the user-released context
+/// (the flag assertion, §3.3), and payload-carried intent is never read there.
 #[cfg(test)]
 fn classify_contract_item(
     item: &Map<String, Value>,
     export_context: &str,
     wrapper_intent: bool,
+    wrapper_release_intent: bool,
 ) -> ContractClassification {
+    assert!(
+        !wrapper_release_intent || export_context == USER_RELEASED_REPORT_CONTEXT,
+        "explicit user-release intent is admitted only in the {USER_RELEASED_REPORT_CONTEXT} context, not in {export_context}"
+    );
     let unsafe_present = PAYLOAD_KEYS
         .iter()
         .chain(SECRET_KEYS.iter())
@@ -187,6 +200,40 @@ fn classify_contract_item(
         || matches!(review_text, "quarantined" | "rejected")
     {
         ("block_export", "PROTECTED_CONTENT_BLOCKED")
+    } else if export_context == USER_RELEASED_REPORT_CONTEXT {
+        // Steps 10-13 of §3.2, before any unknown-metadata branch.
+        if matches!(
+            privacy_text,
+            Some("private_material_data")
+                | Some("private_component_data")
+                | Some("private_rule_pack_data")
+                | Some("owner_standard_data")
+                | Some("company_design_basis_data")
+                | Some("path_data")
+                | Some("secret_like_data")
+        ) {
+            ("redact_value", "PRIVATE_DATA_REDACTED")
+        } else if privacy_text == Some("private_project_data") {
+            if wrapper_release_intent {
+                ("warning_only", "USER_RELEASED_PROJECT_DATA")
+            } else {
+                ("block_export", "USER_RELEASE_INTENT_REQUIRED")
+            }
+        } else if matches!(
+            privacy_text,
+            Some("public") | Some("public_metadata") | Some("invented_public_example")
+        ) && matches!(
+            redistribution_text,
+            Some("public_permissive") | Some("invented_non_engineering_example")
+        ) {
+            if privacy_text == Some("invented_public_example") {
+                ("include", "SAFE_INVENTED_PUBLIC_EXAMPLE")
+            } else {
+                ("include", "SAFE_PUBLIC_METADATA")
+            }
+        } else {
+            ("block_export", "USER_RELEASE_VALUE_UNBOUND")
+        }
     } else if !metadata_present {
         (unknown_action, "MISSING_METADATA_REDACTED")
     } else if matches!(redistribution_text, None | Some("unknown") | Some("TBD")) {
@@ -228,10 +275,13 @@ fn classify_contract_item(
         "PRIVATE_DATA_REDACTED"
         | "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"
         | "LOCAL_PRIVATE_INTENT_REQUIRED"
-        | "SECRET_MATERIAL_BLOCKED" => Some("PRIVATE_DATA_WARNING"),
+        | "SECRET_MATERIAL_BLOCKED"
+        | "USER_RELEASED_PROJECT_DATA"
+        | "USER_RELEASE_INTENT_REQUIRED" => Some("PRIVATE_DATA_WARNING"),
         "UNKNOWN_PROVENANCE_WARNING"
         | "REDISTRIBUTION_STATUS_UNKNOWN"
-        | "MISSING_METADATA_REDACTED" => Some("PROVENANCE_WARNING"),
+        | "MISSING_METADATA_REDACTED"
+        | "USER_RELEASE_VALUE_UNBOUND" => Some("PROVENANCE_WARNING"),
         "PROTECTED_CONTENT_BLOCKED" => Some("IP_BOUNDARY_WARNING"),
         "PROFESSIONAL_BOUNDARY_BLOCKED" => Some("PROFESSIONAL_BOUNDARY_WARNING"),
         _ => Some("STORAGE_BOUNDARY_WARNING"),
@@ -711,8 +761,14 @@ mod tests {
             let explicit_intent = case["explicit_local_private_intent"]
                 .as_bool()
                 .expect("intent bool");
+            // Only the user-release cases carry the member; every other case is
+            // decided without release intent, as before.
+            let release_intent = match case.get("explicit_user_release_intent") {
+                None => false,
+                Some(value) => value.as_bool().expect("release intent bool"),
+            };
             let expected = case["expected"].as_object().expect("expected object");
-            let actual = classify_contract_item(item, context, explicit_intent);
+            let actual = classify_contract_item(item, context, explicit_intent, release_intent);
             assert_eq!(
                 actual.action,
                 expected["action"].as_str().expect("expected action"),
@@ -745,5 +801,50 @@ mod tests {
                 );
             }
         }
+    }
+
+    #[test]
+    fn user_release_intent_cannot_enable_export_in_another_context() {
+        let item = json!({
+            "field_id": "invented.private",
+            "privacy_classification": "private_project_data",
+            "redistribution_status": "private_only",
+            "review_status": "accepted",
+            "value": "Invented private value"
+        });
+        let item = item.as_object().expect("object");
+        for context in [
+            "public_report",
+            "public_example",
+            "shared_model",
+            "downstream_tool",
+            "local_private",
+        ] {
+            let refused = std::panic::catch_unwind(|| classify_contract_item(item, context, true, true));
+            assert!(refused.is_err(), "release intent must be refused in {context}");
+        }
+        let released = classify_contract_item(item, USER_RELEASED_REPORT_CONTEXT, false, true);
+        assert_eq!(released.action, "warning_only");
+        assert_eq!(released.reason_code, "USER_RELEASED_PROJECT_DATA");
+    }
+
+    #[test]
+    fn payload_carried_intent_grants_nothing_in_the_user_released_context() {
+        let item = json!({
+            "field_id": "invented.private",
+            "privacy_classification": "private_project_data",
+            "redistribution_status": "private_only",
+            "local_private_intent": true,
+            "explicit_local_private_intent": true,
+            "user_intent": true,
+            "user_release_intent": true,
+            "explicit_user_release_intent": true,
+            "export_policy": {"explicit_local_private_intent": true, "user_release_intent": true},
+            "value": "Invented private value"
+        });
+        let blocked =
+            classify_contract_item(item.as_object().expect("object"), USER_RELEASED_REPORT_CONTEXT, true, false);
+        assert_eq!(blocked.action, "block_export");
+        assert_eq!(blocked.reason_code, "USER_RELEASE_INTENT_REQUIRED");
     }
 }

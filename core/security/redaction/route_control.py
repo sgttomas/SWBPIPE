@@ -13,9 +13,17 @@ import copy
 
 from core.security.local_first_storage import enforce_local_first_route
 
-from .controls import RedactionDecision, RedactionFinding, redact_export_payload
+from .controls import (
+    RedactionDecision,
+    RedactionFinding,
+    assert_user_release_intent_context,
+    redact_export_payload,
+)
 
 
+# The strip list is not widened for the user release (DEL-08-01 Design
+# `report-user-release.md` §3.3): release intent is read only from the wrapper's
+# argument, so a payload member named like it grants nothing and stays raw content.
 INTENT_KEYS = {
     "local_private_intent",
     "explicit_local_private_intent",
@@ -87,20 +95,25 @@ def control_route_export(
     explicit_local_private_intent: bool = False,
     require_lossless_materialization: bool = False,
     source_findings: Sequence[Mapping[str, Any]] = (),
+    explicit_user_release_intent: bool = False,
 ) -> ControlledExport:
     """Return a controlled copy for one fixed-context route.
 
     ``route_id`` is recorded in projected field identifiers and is not a
     caller-selectable policy input.  Final wrappers hard-code it together
-    with ``export_context``.
+    with ``export_context``.  User-release intent with any context other than
+    ``user_released_report`` raises, so it cannot enable export elsewhere.
     """
 
+    assert_user_release_intent_context(export_context, explicit_user_release_intent)
     normalized_local_private_intent = explicit_local_private_intent is True
+    normalized_release_intent = explicit_user_release_intent is True
     source = copy.deepcopy(payload)
     local_first = enforce_local_first_route(
         route_id=route_id,
         export_context=export_context,
         explicit_local_private_intent=normalized_local_private_intent,
+        explicit_user_release_intent=normalized_release_intent,
     )
     source_findings_copy = tuple(copy.deepcopy(dict(item)) for item in source_findings)
     source_blocking_count = sum(
@@ -117,6 +130,7 @@ def control_route_export(
         projected,
         export_context=export_context,
         explicit_local_private_intent=normalized_local_private_intent,
+        explicit_user_release_intent=normalized_release_intent,
     )
     destructive = any(
         decision.action in {"redact_value", "redact_field", "omit_field", "block_export"}

@@ -2,6 +2,7 @@
 """Checks for DEL-12-02 redaction/export controls using invented fixtures."""
 
 import copy
+import hashlib
 import json
 from pathlib import Path
 import sys
@@ -840,6 +841,7 @@ def test_shared_parity_fixture_matches_core_decisions():
             case["item"],
             export_context=case["export_context"],
             explicit_local_private_intent=case["explicit_local_private_intent"],
+            explicit_user_release_intent=case.get("explicit_user_release_intent", False),
         )
         assert case["item"] == original_item, f"{case_id}: classification mutated the item"
         assert decision.action == expected["action"], case_id
@@ -851,6 +853,7 @@ def test_shared_parity_fixture_matches_core_decisions():
             {"item": case["item"]},
             export_context=case["export_context"],
             explicit_local_private_intent=case["explicit_local_private_intent"],
+            explicit_user_release_intent=case.get("explicit_user_release_intent", False),
         )
         if expected["finding"] is None:
             assert not result.findings, case_id
@@ -888,11 +891,323 @@ def test_changed_files_do_not_embed_disallowed_example_content():
         PARITY_FIXTURE_PATH,
         ROOT / "core" / "security" / "redaction" / "__init__.py",
         ROOT / "core" / "security" / "redaction" / "controls.py",
+        ROOT / "core" / "security" / "redaction" / "route_control.py",
+        ROOT / "core" / "security" / "local_first_storage" / "route_control.py",
         Path(__file__),
     ]
     combined = "\n".join(path.read_text(encoding="utf-8") for path in changed_files)
     for forbidden in FORBIDDEN_CHANGED_FILE_TERMS:
         assert forbidden not in combined
+
+
+# W-18b (r1), DEL-08-01 Design `report-user-release.md` §3 and §6: the user-released
+# context.  Twins of the vitest checks in `redactionExportControls.test.ts`.
+
+EXISTING_CONTEXTS = (
+    "public_report",
+    "public_example",
+    "shared_model",
+    "downstream_tool",
+    "local_private",
+)
+USER_RELEASED_REPORT = "user_released_report"
+USER_RELEASE_ROUTE = "DREP-PACKAGE-USER-RELEASE-010"
+EXISTING_CASE_COUNT = 23
+EXISTING_CASES_SHA256 = "1ad77bb8ba548ee5b9cc018a26493f73797df4751316cc1c335327b91afd142f"
+NON_PROJECT_PRIVATE_CLASSES = PRIVATE_CLASSES - {"private_project_data"}
+REQUEST_FIXTURE_PATH = (
+    ROOT
+    / "fixtures"
+    / "reports"
+    / "invented"
+    / "exact_report_package_requests"
+    / "pressure_source_1.json"
+)
+
+
+def canonical_text(value):
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+
+
+def private_item(**extra):
+    item = {
+        "field_id": "invented.project.name",
+        "field_class": "project",
+        "privacy_classification": "private_project_data",
+        "redistribution_status": "private_only",
+        "review_status": "accepted",
+        "value": "Invented Released Project A",
+    }
+    item.update(extra)
+    return item
+
+
+def test_existing_corpus_cases_are_pinned_unchanged():
+    """Owner property 2: editing an existing expectation fails."""
+
+    corpus = load_json(PARITY_FIXTURE_PATH)
+    existing = [case for case in corpus["cases"] if "explicit_user_release_intent" not in case]
+    assert len(existing) == EXISTING_CASE_COUNT
+    assert all(case["export_context"] in EXISTING_CONTEXTS for case in existing)
+    digest = hashlib.sha256(canonical_text(existing).encode("utf-8")).hexdigest()
+    assert digest == EXISTING_CASES_SHA256
+
+
+def test_user_release_cases_carry_the_release_intent_only_in_the_new_context():
+    corpus = load_json(PARITY_FIXTURE_PATH)
+    added = [case for case in corpus["cases"] if "explicit_user_release_intent" in case]
+    assert added
+    assert all(isinstance(case["explicit_user_release_intent"], bool) for case in added)
+    assert all(
+        case["explicit_user_release_intent"] is False
+        or case["export_context"] == USER_RELEASED_REPORT
+        for case in added
+    )
+    assert {
+        "USER_RELEASED_PROJECT_DATA",
+        "USER_RELEASE_INTENT_REQUIRED",
+        "USER_RELEASE_VALUE_UNBOUND",
+    } <= {case["expected"]["reason_code"] for case in added}
+
+
+def test_schema_vocabulary_adds_the_user_released_context_and_reasons():
+    schema = load_json(SCHEMA_PATH)
+    assert USER_RELEASED_REPORT in enum_at(schema, "ExportContext")
+    assert {
+        "USER_RELEASED_PROJECT_DATA",
+        "USER_RELEASE_INTENT_REQUIRED",
+        "USER_RELEASE_VALUE_UNBOUND",
+    } <= enum_at(schema, "ReasonCode")
+
+
+def test_release_intent_cannot_enable_export_in_another_context():
+    """Owner property 1: the flag raises with every corpus item in each existing context."""
+
+    corpus = load_json(PARITY_FIXTURE_PATH)
+    for case in corpus["cases"]:
+        for context in EXISTING_CONTEXTS:
+            with pytest.raises(ValueError, match="admitted only in the user_released_report"):
+                classify_export_item(
+                    case["item"], export_context=context, explicit_user_release_intent=True
+                )
+            with pytest.raises(ValueError, match="admitted only in the user_released_report"):
+                redact_export_payload(
+                    {"item": case["item"]},
+                    export_context=context,
+                    explicit_user_release_intent=True,
+                )
+            for route_id in ("DREP-PACKAGE-SAVE-009", USER_RELEASE_ROUTE):
+                with pytest.raises(ValueError, match="admitted only in the user_released_report"):
+                    control_route_export(
+                        {"item": case["item"]},
+                        route_id=route_id,
+                        export_context=context,
+                        explicit_user_release_intent=True,
+                    )
+
+
+def test_absent_or_false_release_intent_is_inert_in_existing_contexts():
+    for context in EXISTING_CONTEXTS:
+        without = redact_export_payload(
+            {"item": private_item()},
+            export_context=context,
+            explicit_local_private_intent=True,
+        )
+        with_false = redact_export_payload(
+            {"item": private_item()},
+            export_context=context,
+            explicit_local_private_intent=True,
+            explicit_user_release_intent=False,
+        )
+        assert with_false == without
+
+
+def test_payload_carried_intent_grants_nothing_in_the_user_released_context():
+    carried = {
+        "user_release_intent": True,
+        "explicit_user_release_intent": True,
+        "local_private_intent": True,
+        "explicit_local_private_intent": True,
+        "user_intent": True,
+    }
+    payload = {
+        "item": private_item(**carried, export_policy=dict(carried)),
+        "nested": {"deeper": [{"item": private_item(**carried)}]},
+    }
+    result = redact_export_payload(
+        payload,
+        export_context=USER_RELEASED_REPORT,
+        explicit_local_private_intent=True,
+    )
+    assert result.blocked is True
+    assert len(result.decisions) == 2
+    assert {decision.reason_code for decision in result.decisions} == {
+        "USER_RELEASE_INTENT_REQUIRED"
+    }
+
+
+@pytest.mark.parametrize("privacy", sorted(NON_PROJECT_PRIVATE_CLASSES))
+@pytest.mark.parametrize(
+    "redistribution",
+    ("public_permissive", "invented_non_engineering_example", "private_only", "unknown", "TBD", None, "absent"),
+)
+def test_user_released_context_redacts_non_project_private_classes(privacy, redistribution):
+    item = {"field_id": "invented.private", "privacy_classification": privacy, "value": 4.2}
+    if redistribution != "absent":
+        item["redistribution_status"] = redistribution
+    decision = classify_export_item(
+        item, export_context=USER_RELEASED_REPORT, explicit_user_release_intent=True
+    )
+    assert (decision.action, decision.reason_code) == ("redact_value", "PRIVATE_DATA_REDACTED")
+
+
+def test_user_released_context_decides_by_steps_10_to_13_before_unknown_branches():
+    def decide(item, intent):
+        return classify_export_item(
+            item, export_context=USER_RELEASED_REPORT, explicit_user_release_intent=intent
+        )
+
+    step10 = {"field_id": "x", "privacy_classification": "private_rule_pack_data", "redistribution_status": "unknown", "value": 1}
+    assert classify_export_item(step10, export_context="public_report").reason_code == "REDISTRIBUTION_STATUS_UNKNOWN"
+    assert decide(step10, True).reason_code == "PRIVATE_DATA_REDACTED"
+
+    step11 = {"field_id": "x", "privacy_classification": "private_project_data", "redistribution_status": None, "value": 1}
+    assert classify_export_item(step11, export_context="public_report").reason_code == "REDISTRIBUTION_STATUS_UNKNOWN"
+    assert (decide(step11, True).action, decide(step11, True).reason_code) == ("warning_only", "USER_RELEASED_PROJECT_DATA")
+    assert (decide(step11, False).action, decide(step11, False).reason_code) == ("block_export", "USER_RELEASE_INTENT_REQUIRED")
+
+    missing = {"field_id": "x", "value": 1}
+    assert classify_export_item(missing, export_context="local_private").action == "warning_only"
+    assert (decide(missing, True).action, decide(missing, True).reason_code) == ("block_export", "USER_RELEASE_VALUE_UNBOUND")
+
+    for extra in (
+        {"privacy_classification": "protected_suspected"},
+        {"redistribution_status": "protected_suspected"},
+        {"review_status": "quarantined"},
+        {"review_status": "rejected"},
+    ):
+        assert decide(private_item(**extra), True).reason_code == "PROTECTED_CONTENT_BLOCKED"
+
+
+def test_user_release_local_first_admission_requires_route_010_and_wrapper_intent():
+    from core.security.local_first_storage.route_control import (
+        GOVERNED_LOCAL_FIRST_ROUTE_IDS,
+        enforce_local_first_route,
+    )
+
+    assert USER_RELEASE_ROUTE in GOVERNED_LOCAL_FIRST_ROUTE_IDS
+    allowed = enforce_local_first_route(
+        route_id=USER_RELEASE_ROUTE,
+        export_context=USER_RELEASED_REPORT,
+        explicit_user_release_intent=True,
+    ).as_schema_dict()
+    assert allowed == {
+        "route_id": USER_RELEASE_ROUTE,
+        "export_context": USER_RELEASED_REPORT,
+        "storage_context": "private_report",
+        "action": "include_metadata_only",
+        "reason_code": "USER_RELEASE_METADATA_ALLOWED",
+        "blocked": False,
+        "metadata_only": True,
+        "explicit_local_private_intent": False,
+        "explicit_user_release_intent": True,
+    }
+    for intent in (False, "true", 1, None):
+        refused = enforce_local_first_route(
+            route_id=USER_RELEASE_ROUTE,
+            export_context=USER_RELEASED_REPORT,
+            explicit_local_private_intent=True,
+            explicit_user_release_intent=intent,
+        )
+        assert refused.blocked is True
+        assert refused.reason_code == "USER_RELEASE_INTENT_REQUIRED"
+        assert refused.explicit_user_release_intent is False
+    for route_id in ("DREP-PACKAGE-SAVE-009", "DREP-IPC-003", "DREP-HTML-SAVE-005", "DOTH-JSON-001"):
+        refused = enforce_local_first_route(
+            route_id=route_id,
+            export_context=USER_RELEASED_REPORT,
+            explicit_user_release_intent=True,
+        )
+        assert (refused.blocked, refused.reason_code) == (True, "USER_RELEASE_ROUTE_REQUIRED")
+        assert refused.storage_context == "private_report"
+    for context in EXISTING_CONTEXTS:
+        refused = enforce_local_first_route(
+            route_id=USER_RELEASE_ROUTE,
+            export_context=context,
+            explicit_local_private_intent=True,
+            explicit_user_release_intent=True,
+        )
+        assert (refused.blocked, refused.reason_code) == (True, "USER_RELEASE_ROUTE_REQUIRED")
+        assert refused.storage_context == context
+
+
+def test_existing_route_local_first_evidence_keeps_its_exact_members():
+    from core.security.local_first_storage.route_control import enforce_local_first_route
+
+    for context in EXISTING_CONTEXTS:
+        for intent in (False, True):
+            evidence = enforce_local_first_route(
+                route_id="DREP-PACKAGE-SAVE-009",
+                export_context=context,
+                explicit_local_private_intent=True,
+                explicit_user_release_intent=intent,
+            ).as_schema_dict()
+            assert list(evidence) == [
+                "route_id",
+                "export_context",
+                "storage_context",
+                "action",
+                "reason_code",
+                "blocked",
+                "metadata_only",
+                "explicit_local_private_intent",
+            ]
+            assert evidence["storage_context"] == context
+
+
+def _request_with_raw_release_members():
+    request = copy.deepcopy(load_json(REQUEST_FIXTURE_PATH)["request"])
+    rows = request["result_documents"][0]["result_envelope"]["result_sets"][0]["values"]
+    row = next(item for item in rows if isinstance(item.get("metadata"), dict))
+    row["metadata"]["user_release_intent"] = True
+    row["metadata"]["explicit_user_release_intent"] = True
+    section = request["state_comparison_handoff_records"][0]["sections"]["state_run_sections"][0]
+    section["user_release_intent"] = "explicit"
+    section["explicit_user_release_intent"] = True
+    return request
+
+
+@pytest.mark.parametrize("route_id", ("DREP-PACKAGE-SAVE-009", "DREP-IPC-003"))
+def test_existing_contexts_preserve_raw_intent_named_members(route_id):
+    """Raw members named like the release intent stay content, byte for byte (§3.3)."""
+
+    request = _request_with_raw_release_members()
+    before = canonical_text(request)
+    controlled = control_route_export(
+        request,
+        route_id=route_id,
+        export_context="local_private",
+        explicit_local_private_intent=True,
+        require_lossless_materialization=True,
+    )
+    assert controlled.blocked is False
+    assert controlled.summary["materialization_withheld"] is False
+    assert canonical_text(controlled.payload) == before
+    assert canonical_text(request) == before
+    assert "explicit_user_release_intent" not in controlled.summary["local_first"]
+
+
+def test_existing_html_route_preserves_raw_intent_named_text():
+    html = '<!doctype html><p data-user_release_intent="true">explicit_user_release_intent: true</p>'
+    controlled = control_route_export(
+        html,
+        route_id="DREP-HTML-SAVE-005",
+        export_context="local_private",
+        explicit_local_private_intent=True,
+        require_lossless_materialization=True,
+    )
+    assert controlled.blocked is False
+    assert controlled.payload == html
 
 
 if __name__ == "__main__":

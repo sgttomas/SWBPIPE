@@ -63,6 +63,13 @@ blocking behavior.
 | `shared_model` | Redact private project, material, component, rule-pack, owner-standard, design-basis, path, and secret-like data unless metadata supports sharing. |
 | `downstream_tool` | Redact unresolved or private values unless explicit metadata supports the handoff. |
 | `local_private` | Retain private values only when explicit local/private user intent is recorded; emit warning findings. |
+| `user_released_report` | A report of the user's own session in which the user releases their own project data for sharing, for that one report, with their statement that they hold the redistribution right (`docs/IP_AND_DATA_BOUNDARY.md` §6). Admitted only on route `DREP-PACKAGE-USER-RELEASE-010` with the wrapper's user-release intent. After the professional-claim, network, SQL, storage-bypass, secret, payload, concrete-path, protected and quarantined/rejected checks, which apply unchanged, it decides in this order and returns: (10) a private class other than `private_project_data` is redacted (`PRIVATE_DATA_REDACTED`) whatever its redistribution status, so a lossless route withholds it; (11) `private_project_data`, whatever its redistribution status, is retained with a `USER_RELEASED_PROJECT_DATA` warning only with the wrapper's user-release intent, else blocks (`USER_RELEASE_INTENT_REQUIRED`); (12) public metadata and invented public examples are included; (13) anything else, including missing, unknown, `TBD` or unrecognized metadata, blocks (`USER_RELEASE_VALUE_UNBOUND`), never warning-only. Payload-carried intent of any name is not read. |
+
+The five existing contexts keep every decision on every input, and the
+release intent cannot enable export in them: the controls refuse
+`explicit_user_release_intent` with any context other than
+`user_released_report` (DEL-08-01 Design `report-user-release.md` §3). No
+route uses `user_released_report` yet.
 
 ## Protected Classes
 
@@ -161,6 +168,19 @@ value-bearing leaf, removes top-level and nested `local_private_intent`,
 route's fixed context and wrapper-owned intent. Source-carried intent therefore
 cannot grant export authority. The projector materializes only the controlled
 copy and preserves the source object byte/deep-equal.
+
+User-release intent comes only from the wrapper's argument
+(`explicitUserReleaseIntent` / `explicit_user_release_intent`), never from the
+payload. The strip list above is unchanged: a payload member named
+`user_release_intent` or `explicit_user_release_intent` grants nothing, so it is
+not stripped, and in every existing context and route it is raw content,
+preserved byte for byte. The user-release route `DREP-PACKAGE-USER-RELEASE-010`
+has its own projector (`controlUserReleasedReportPackageRequest`), which labels
+each leaf of the request and the model with the privacy and redistribution of
+its nearest enclosing object that states them, else `private_project_data` /
+`private_only`, with no path-token labelling; it is lossless, and its
+local-first admission holds the route metadata under the existing
+`private_report` storage context.
 
 The frozen route set covers Python JSON/downstream/specialized-format writers,
 both Rust headless runners, report DOM/JSON/render-IPC/HTML/save/print/lint,
