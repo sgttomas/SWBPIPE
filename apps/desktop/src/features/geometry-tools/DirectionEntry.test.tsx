@@ -3,7 +3,10 @@
  * create_node operation emits, bit for bit; nothing is assumed (no up direction, no slope). */
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { computeModelHash } from "../../services/hashService";
+import { applyOperationBatch } from "../../services/operationBatchService";
 import { splitPartsModel } from "../../test-support/splitPartsModel";
+import { computeDirectionEnd, emptyDirectionDraft, type DirectionDraft } from "./directionArithmetic";
 import { chooseVirtualMultiTarget } from "../../test-support/workspaceTestControls";
 import { GeometryToolsPanel } from "./GeometryToolsPanel";
 
@@ -68,5 +71,39 @@ describe("end point from a slope in the reconnect form", () => {
     chooseVirtualMultiTarget("geometry-source-pipes", "pipe:H");
     fireEvent.click(screen.getByLabelText("To a new point"));
     expect(screen.getByText("Choose the source pipe and which end moves; the end that stays is the start.")).toBeInTheDocument();
+  });
+
+  // Displayed = emitted = stored = computed, per component with Object.is. "Displayed" is the
+  // rendered readout text and the New point fields it fills; "emitted" is the queued create_node;
+  // "stored" is the model the wasm engine applies; "computed" is the arithmetic, independently.
+  const angle: DirectionDraft = { ...emptyDirectionDraft("m"), mode: "angle", length: "2.71", direction: { x: "0", y: "1", z: "0" }, up: "+z", angle: "7.5", angleUnit: "deg" };
+  const slope: DirectionDraft = { ...emptyDirectionDraft("in"), mode: "slope", length: "137.3", direction: { x: "3", y: "-1", z: "0" }, up: "+z", slopeN: "96", slopeSense: "falls" };
+  it.each([["angle", angle], ["slope", slope]] as const)("%s: displayed, emitted and stored coordinates are bit-identical (wasm)", async (_name, entry) => {
+    const { model, onQueueBatch } = openReconnect();
+    enter(`${P}: Entry method`, entry.mode);
+    enter(entry.mode === "slope" ? `${P}: Horizontal run` : `${P}: Length along the element`, entry.length);
+    enter(`${P}: Length unit`, entry.lengthUnit);
+    for (const axis of ["X", "Y", "Z"] as const) enter(`${P}: Horizontal direction ${axis}`, entry.direction[axis.toLowerCase() as "x" | "y" | "z"]);
+    enter(`${P}: Up direction`, entry.up);
+    if (entry.mode === "angle") { enter(`${P}: Angle from the horizontal (positive rises)`, entry.angle); enter(`${P}: Angle unit`, entry.angleUnit); }
+    else { enter(`${P}: Slope 1 in n: rise or fall over the horizontal run, n`, entry.slopeN); enter(`${P}: Along the horizontal direction the line`, entry.slopeSense); }
+    const use = screen.getByRole("button", { name: "Use these coordinates for the reconnect point" });
+    await waitFor(() => expect(use).toBeEnabled());
+    const [, ...readout] = /X (\S+), Y (\S+), Z (\S+)$/.exec(screen.getByLabelText(`${P}: Computed end point`).textContent!)!;
+    fireEvent.click(use);
+    const fields = (["X", "Y", "Z"] as const).map((axis) => (screen.getByLabelText(`New point ${axis}`) as HTMLInputElement).value);
+    for (const [kind, value] of [["ID", "node:R1"], ["label", "R1"], ["provenance", "invented"]]) enter(`New node ${kind}`, value);
+    fireEvent.click(screen.getByRole("button", { name: "Queue geometry batch" }));
+    await waitFor(() => expect(onQueueBatch).toHaveBeenCalledOnce());
+    const batch = onQueueBatch.mock.calls[0][0];
+    const emitted = JSON.parse(batch.operations[0].change.after).position;
+    const outcome = await applyOperationBatch(model, batch, await computeModelHash(model));
+    expect(outcome.validation.application_status, JSON.stringify(outcome.diagnostics)).toBe("applied_to_session_model");
+    const stored = outcome.applied_model!.nodes.find((n) => n.id === "node:R1")!.position;
+    const computed = (await computeDirectionEnd(entry, model.nodes.find((n) => n.id === "node:D")!.position, "ft")).position;
+    (["x", "y", "z"] as const).forEach((axis, i) => {
+      const values = [Number(readout[i]), Number(fields[i]), emitted[axis], stored[axis]];
+      expect(values.map((value) => Object.is(value, computed[axis])), `${axis}: ${values.join(" / ")} vs ${computed[axis]}`).toEqual([true, true, true, true]);
+    });
   });
 });

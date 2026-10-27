@@ -190,71 +190,62 @@ global direction is up (±X, ±Y or ±Z). There is no default. The angle and slo
 methods are refused until it is stated. The horizontal direction must have an
 exactly zero component on that axis.
 
-### 3.2 The arithmetic
+### 3.2 Conversion rules
 
-All in binary64, round to nearest, in this order:
+These rules are binary64, round to nearest, evaluated left to right, with
+u = 2⁻⁵³.
 
-```
-Ls   = c(L)                       c = the engine's convert_for_dimension, entry unit → project length unit
-s    = max(|dx|, |dy|, |dz|)      exact; refused unless finite and > 0
-e_i  = d_i / s                    one rounding each; the largest |e_i| is exactly 1
-n    = sqrt(ex·ex + ey·ey + ez·ez)   left to right; n in [1, √3]; sqrt correctly rounded
-u_i  = e_i / n                    one rounding each
-vector: Δ_i  = Ls · u_i
-angle:  θr   = c(θ) to rad;  Δ_i = (Ls · cos θr) · h_i on the horizontal axes;  Δ_up = s_up · (Ls · sin θr)
-slope:  Δ_i  = Ls · h_i on the horizontal axes;  Δ_up = s_up · s_sense · (Ls / n)
-end_i = start_i + Δ_i,  then −0 becomes +0
-```
+- **Length.** Same unit: v, exactly. Otherwise use `convert_for_dimension`:
+  fl(fl(v·f_e)+0−offset_s)/f_s, with offset 0, which is exact. This has up to
+  two inexact roundings, in the multiplication and the division.
+- **Direction.**
+  - s=max|d_i|, exact. Refuse unless it is finite and >0.
+  - e_i=fl(d_i/s).
+  - n=sqrt(fl(fl(fl(ex²)+fl(ey²))+fl(ez²))).
+  - u_i=fl(e_i/n).
+  - |‖u‖−1|≤3u, to first order. This bounds the norm only: underflow can zero a
+    tiny component.
+- **Angle.** θr=c(θ→rad), with |θr|<fl(π/2). H=fl(Ls·cos θr), V=fl(Ls·sin θr).
+  Δ_h=fl(H·h_i), Δ_up=s_up·V. cos and sin are runtime-defined, so no
+  cross-runtime ulp equality is claimed.
+- **Slope** ("1 in n" over the horizontal run). Δ_h=fl(Ls·h_i),
+  Δ_up=s_up·s_sense·fl(Ls/n). The signs are exact.
+- **End point.** end_i=fl(start_i+Δ_i), one rounding. Conversion comes before
+  addition, and there is no display rounding.
+- **−0.** x===0?0:x on every stored coordinate.
+- **Split.** P_k=A+(B−A)·(k/N) per component, which is what one engine split at
+  k/N stores. It is not correctly rounded. Its bound is first order in the
+  normal range, plus 2⁻¹⁰⁷⁴ absolute if a subnormal appears.
+- **Up direction.** The user picks the up direction. There is no default, and
+  nothing is saved.
 
-- s_up and s_sense are ±1, so the multiplications by them are exact. For a
-  slope, s_sense is applied first, to Ls / n, and s_up second. The
-  vertical increment is never mixed with a horizontal term.
-- **Conversion before addition**, as in B1 (DEL-07-02 `run-sheet-entry.md`
-  §6.2). The length is converted once, through the engine's display-conversion
-  facade (`display_units.rs` → `convert_for_dimension`, `core/units/src/lib.rs:917`).
-  The aid never holds a factor. The start is the stored position in the project
-  unit.
-- **Trigonometry.** cos and sin are the runtime's `Math.cos` and `Math.sin`.
-  ECMAScript leaves their last bit to the implementation, so a value may differ by
-  an ulp between the test runtime and the desktop shell's web view. The computed
-  value is the value shown and the value written, so the claim is
-  displayed = emitted = stored. It is not a cross-runtime claim.
-  - 90° converts to exactly fl(π/2), so the angle must satisfy |θr| < fl(π/2).
-    A vertical element is entered as a direction vector, which gives exactly
-    ±L on the axis.
-  - 0 rad gives an exactly horizontal element.
-- **Exact cases.** An axis direction gives ±Ls exactly. A slope along an axis
-  gives (R, R/n), with one rounding in the division. The tests pin
-  (12, −1/4) for 12 ft at 1 in 48.
-- **Conversion c.** It is the identity, exactly, when the units are the same.
-  Otherwise, for length and angle (offset 0), it is
-  c(v) = ((v · f_e + 0) − 0) / f_s (`core/units/src/lib.rs:714-720`), with
-  binary64 factors f_e and f_s.
-  - There are up to two inexact roundings: the multiplication and the division.
-  - Adding the source's zero offset is exact, except that it canonicalizes a
-    signed zero (−0 + 0 = +0).
-  - Subtracting the destination's zero offset before dividing is also exact.
-- **Scaled normalization.** Dividing by the largest component first means no
-  square overflows, and any square that underflows is below 2⁻¹⁰⁷⁴ against a
-  sum of at least 1. Such underflowing small components do not materially
-  affect the norm. For any finite nonzero d, |‖u‖ − 1| ≤ 3u to first order.
-  This bound is on the norm, not on each component's relative accuracy. A
-  direction with an axis component only gives u = ±1 exactly.
-- **Error.** When nothing underflows in the normalization or the
-  multiplication, each vector-method increment is within about 4u relative of
-  Ls·d_i/|d|, plus one rounding in the sum.
-  - A component can underflow when it is far smaller than the largest one. Its
-    increment then carries an absolute error of up to about Ls · 2⁻¹⁰⁷⁴, and
-    can be 0. For example, d = (1e-200, 1e200, 0) and Ls = 1e200 give an X
-    increment of 0, where the ideal value is about 1e-200.
-  - The same holds for h in the angle and slope methods. The angle method adds the runtime's trigonometric
-  error and the angle conversion's rounding. The slope method has one rounding
-  in R/n and, for a non-axis h, one in each product.
-- **−0.** JSON cannot carry −0, so every computed end-point coordinate is
-  normalized with `x === 0 ? 0 : x` before it is shown or used. −0 arises, for
-  example, from a start coordinate of −0 plus a −0 increment. The returned
-  increments Δ are not normalized and can keep −0; only end points are shown
-  or emitted.
+Notes, which add to the rules above without restating them:
+- **Vector method.** Δ_i=fl(Ls·u_i). A direction along one axis gives
+  u=±1 and Δ=±Ls exactly.
+- **Where the conversion lives.** Ls=c(L) is computed through the engine's
+  display-conversion facade (`display_units.rs`, which calls
+  `convert_for_dimension` at `core/units/src/lib.rs:917`, with transforms at
+  `:714-720`). The aid never holds a factor. The rule matches B1 (DEL-07-02
+  `run-sheet-entry.md` §6.2). The start is the stored position in the project
+  unit. Adding the zero offset turns −0 into +0, as signed-zero
+  canonicalization.
+- **Signs.** For a slope, s_sense is applied first, to fl(Ls/n), and s_up
+  second. The vertical increment is never mixed with a horizontal term. h is
+  the horizontal direction, normalized by the direction rule; its up
+  component must be exactly 0.
+- **The angle limit.** 90° converts to exactly fl(π/2), so it is refused, and a
+  vertical element is entered as a direction vector instead. 0 rad gives an
+  exactly horizontal element.
+- **Accuracy per component.** When nothing underflows in the normalization or
+  the multiplication, each increment is within about 4u relative of its ideal
+  value. A component far smaller than the largest one can underflow. It then
+  carries an absolute error of up to about Ls·2⁻¹⁰⁷⁴ and can be 0. For example,
+  d = (1e-200, 1e200, 0) with Ls = 1e200 gives an X increment of 0. The angle
+  method adds the runtime's trigonometric error and the angle conversion.
+- **What the −0 rule covers.** It applies to end points, which are the only
+  values shown, emitted or stored. The returned increments Δ can keep −0.
+- **Pinned case.** 12 ft at 1 in 48 is (12, −1/4) exactly.
+- **The split.** The derivation and the counter-example are in §2.2.
 
 ### 3.3 Displayed equals emitted
 
@@ -348,7 +339,11 @@ saved: the model stores the node coordinates computed below."
   - a −0 case;
   - Undo.
 - `geometry-tools/DirectionEntry.test.tsx` and `SplitIntoPartsPanel.test.tsx`:
-  - displayed = emitted;
+  - displayed, emitted and stored are bit-identical, checked with `Object.is` per
+    component through the wasm engine, for the angle, the slope and the split.
+    "Displayed" is the rendered readout and fields, or the preview table cells.
+    "Emitted" is the queued batch. "Stored" is the applied model. A display that
+    rounds fails these tests;
   - nothing is assumed;
   - nothing is queued on a refusal or a model change;
   - focus on open.

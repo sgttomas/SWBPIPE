@@ -3,7 +3,8 @@
  * one batch; a refusal or a model change queues nothing; an open request moves focus. */
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { canonicalJsonString } from "../../services/hashService";
+import { canonicalJsonString, computeModelHash } from "../../services/hashService";
+import { applyOperationBatch } from "../../services/operationBatchService";
 import { splitPartsModel } from "../../test-support/splitPartsModel";
 import { chooseVirtualTarget } from "../../test-support/workspaceTestControls";
 import { SplitIntoPartsPanel } from "./SplitIntoPartsPanel";
@@ -79,5 +80,49 @@ describe("Split into equal parts panel", () => {
     rerender(<SplitIntoPartsPanel model={splitPartsModel()} onQueueBatch={vi.fn()} openRequest={{ pipeId: "pipe:H", serial: 1 }} />);
     await waitFor(() => expect(screen.getByLabelText("Number of equal parts")).toHaveFocus());
     expect(screen.getByTestId("split-parts-pipe").querySelector(".virtual-target-picker-current")).toHaveTextContent("pipe:H");
+  });
+
+  // Displayed = emitted = stored = stated, per component with Object.is. "Displayed" is the
+  // preview table's cell text; "emitted" is the queued batch (each split's applier position,
+  // overridden by any set_field placement); "stored" is the wasm engine's applied model;
+  // "stated" is A + (B − A)·(k/N), written out independently.
+  it("displayed, emitted and stored split coordinates are bit-identical (wasm)", async () => {
+    const model = splitPartsModel();
+    const onQueueBatch = vi.fn();
+    render(<SplitIntoPartsPanel model={model} onQueueBatch={onQueueBatch} />);
+    chooseVirtualTarget("split-parts-pipe", "pipe:S");
+    fill("7");
+    const rows = within(await screen.findByTestId("split-parts-nodes")).getAllByRole("row").slice(1);
+    const displayed = new Map(rows.map((row) => { const cells = [...row.children].map((cell) => cell.textContent!); return [cells[1], cells.slice(3, 6).map(Number)]; }));
+    await waitFor(() => expect(screen.getByTestId("split-parts-queue")).toBeEnabled());
+    fireEvent.click(screen.getByTestId("split-parts-queue"));
+    await waitFor(() => expect(onQueueBatch).toHaveBeenCalledOnce());
+    const batch = onQueueBatch.mock.calls[0][0];
+    const outcome = await applyOperationBatch(model, batch, await computeModelHash(model));
+    expect(outcome.validation.application_status, JSON.stringify(outcome.diagnostics)).toBe("applied_to_session_model");
+    const a = model.nodes.find((n) => n.id === "node:A")!.position;
+    const b = model.nodes.find((n) => n.id === "node:B")!.position;
+    const axes = ["x", "y", "z"] as const;
+    // Emitted: what the batch writes. Split k stores prev + (B − prev) · fraction (the applier's
+    // `split`, from the batch's own fraction); a set_field placement then overrides a component.
+    let previous = { ...a };
+    const splits = batch.operations.filter((op: { change: { change_kind: string } }) => op.change.change_kind === "split_pipe_run");
+    expect(splits).toHaveLength(6);
+    for (let k = 1; k < 7; k++) {
+      const id = `node:S${k * 10}`;
+      const fraction = JSON.parse(splits[k - 1].change.after).fraction as number;
+      const emitted = { x: 0, y: 0, z: 0 };
+      for (const axis of axes) emitted[axis] = previous[axis] + (b[axis] - previous[axis]) * fraction;
+      for (const op of batch.operations.filter((item: { target: { ref: string }; change: { change_kind: string } }) => item.target.ref === id && item.change.change_kind === "set_field")) {
+        emitted[op.change.field_path.replace("position.", "") as "x" | "y" | "z"] = JSON.parse(op.change.after).value;
+      }
+      const stored = outcome.applied_model!.nodes.find((n) => n.id === id)!.position;
+      axes.forEach((axis, i) => {
+        const stated = a[axis] + (b[axis] - a[axis]) * (k / 7);
+        const values = [displayed.get(id)![i], emitted[axis], stored[axis]];
+        expect(values.map((value) => Object.is(value, stated)), `${id} ${axis}: ${values.join(" / ")} vs ${stated}`).toEqual([true, true, true]);
+      });
+      previous = emitted;
+    }
   });
 });
