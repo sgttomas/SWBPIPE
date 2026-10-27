@@ -1,0 +1,170 @@
+// B8: a selection made on one surface (the viewport, the tree, the grid, a result row) is
+// shown on the others. The shared selection already highlights every surface; these tests
+// cover the reveal: the tree opens and scrolls to the selected row, the grid scrolls to it,
+// and the results table can follow the selected entity. Invented fixtures only.
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import type { EntityRef, MechanicsResult, PreviewModel } from "../../types";
+import { ModelTree } from "../model-tree/ModelTree";
+import { ResultsPanel } from "../results/ResultsPanel";
+import { currentCarrierHeader } from "../../test-support/currentCarrierHeader";
+import { entityKey } from "./selectionState";
+
+function nodesModel(count: number, pipes = 1): PreviewModel {
+  const nodes = Array.from({ length: count }, (_, index) => ({
+    id: `n/${index}`, label: `Node ${index}`, position: { x: index, y: 0, z: 0 }, provenance: "invented"
+  }));
+  const pipeSegments = Array.from({ length: pipes }, (_, index) => ({
+    id: `p/${index}`, label: `Pipe ${index}`, from: `n/${index}`, to: `n/${index + 1}`, section: {}, material: "", provenance: "invented"
+  }));
+  return {
+    project: { id: "p", name: "Invented", description: "", units: { length: "m", angle: "rad" } },
+    schema_version: "0.2.0",
+    analysis_status: { mechanics: "NOT_RUN", rule_check: "NOT_RUN", professional_acceptance: "NOT_REVIEWED" },
+    materials: [], sections: [], nodes, pipe_segments: pipeSegments,
+    supports: [], components: [], load_cases: [], combinations: [], diagnostics: []
+  } as unknown as PreviewModel;
+}
+
+function tree(model: PreviewModel, selection: EntityRef, onFocusChange = vi.fn()) {
+  return <ModelTree model={model} onSelect={vi.fn()} onFocusChange={onFocusChange} selection={selection} />;
+}
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
+
+describe("the tree reveals a selection made elsewhere", () => {
+  it("scrolls a far row into view and makes it the tree's current row", () => {
+    const model = nodesModel(160);
+    const onFocusChange = vi.fn();
+    const view = render(tree(model, { type: "node", id: "n/0" }, onFocusChange));
+    const list = screen.getByTestId("model-tree-virtual");
+    expect(list.scrollTop).toBe(0);
+    expect(within(list).queryByTestId("tree-row-node-n%2F150")).toBeNull();
+
+    view.rerender(tree(model, { type: "node", id: "n/150" }, onFocusChange));
+
+    expect(list.scrollTop).toBeGreaterThan(0);
+    expect(within(list).getByTestId("tree-row-node-n%2F150")).toHaveClass("focused");
+    expect(within(list).getByTestId("tree-row-node-n%2F150")).toHaveAttribute("aria-selected", "true");
+    expect(onFocusChange).toHaveBeenLastCalledWith(entityKey({ type: "node", id: "n/150" }));
+    // Reveal never moves DOM focus.
+    expect(document.activeElement).toBe(document.body);
+  });
+
+  it("opens a collapsed group to show the selected row", () => {
+    const model = nodesModel(4);
+    const view = render(tree(model, { type: "node", id: "n/0" }));
+    const nodesGroup = screen.getAllByRole("treeitem").find((row) => row.textContent?.includes("Nodes") && row.hasAttribute("aria-expanded"))!;
+    fireEvent.click(nodesGroup);
+    expect(nodesGroup).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByTestId("tree-row-node-n%2F2")).toBeNull();
+    act(() => (document.activeElement as HTMLElement | null)?.blur());
+
+    view.rerender(tree(model, { type: "node", id: "n/2" }));
+
+    expect(screen.getByTestId("tree-row-node-n%2F2")).toHaveClass("focused");
+    expect(screen.getAllByRole("treeitem").find((row) => row.textContent?.includes("Nodes") && row.hasAttribute("aria-expanded")))
+      .toHaveAttribute("aria-expanded", "true");
+  });
+
+  it("leaves the tree's position alone while focus is in the tree", () => {
+    const model = nodesModel(160);
+    const view = render(tree(model, { type: "node", id: "n/0" }));
+    const list = screen.getByTestId("model-tree-virtual");
+    act(() => list.focus());
+
+    view.rerender(tree(model, { type: "node", id: "n/150" }));
+
+    expect(list.scrollTop).toBe(0);
+    expect(within(list).queryByTestId("tree-row-node-n%2F150")).toBeNull();
+  });
+});
+
+describe("the grid reveals a selection made elsewhere", () => {
+  it("scrolls the node table to the selected row without moving focus", () => {
+    const model = nodesModel(160);
+    const view = render(tree(model, { type: "node", id: "n/0" }));
+    fireEvent.click(screen.getByTestId("layout-mode-grid"));
+    act(() => (document.activeElement as HTMLElement | null)?.blur());
+    const rows = screen.getAllByTestId("engineering-table-rows")[0];
+    expect(rows.scrollTop).toBe(0);
+
+    view.rerender(tree(model, { type: "node", id: "n/150" }));
+
+    expect(rows.scrollTop).toBeGreaterThan(0);
+    const selected = within(rows).getAllByRole("row").filter((row) => row.getAttribute("aria-selected") === "true");
+    expect(selected).toHaveLength(1);
+    expect(selected[0].textContent).toContain("n/150");
+    expect(document.activeElement).toBe(document.body);
+  });
+
+  it("scrolls a bulk family's selected row into view", () => {
+    const model = nodesModel(6, 5);
+    const scrolled: Element[] = [];
+    Object.defineProperty(Element.prototype, "scrollIntoView", {
+      configurable: true, writable: true, value: function (this: Element) { scrolled.push(this); }
+    });
+    try {
+      const view = render(tree(model, { type: "pipe", id: "p/0" }));
+      fireEvent.click(screen.getByTestId("layout-mode-grid"));
+      act(() => (document.activeElement as HTMLElement | null)?.blur());
+      scrolled.length = 0;
+
+      view.rerender(tree(model, { type: "pipe", id: "p/4" }));
+
+      const row = screen.getByTestId("entity-grid-row-pipe-p-4").closest("tr")!;
+      expect(row).toHaveClass("active");
+      expect(scrolled).toContain(row);
+    } finally {
+      delete (Element.prototype as { scrollIntoView?: unknown }).scrollIntoView;
+    }
+  });
+});
+
+describe("the results table follows the selected entity", () => {
+  const result = {
+    ...currentCarrierHeader(), run_id: "invented", model_ref: "invented",
+    status: { mechanics: "MECHANICS_SOLVED", rule_check: "RULE_INPUTS_INCOMPLETE", professional_acceptance: "NOT_PROVIDED" },
+    summary: {}, diagnostics: [],
+    results: [
+      { id: "r:a", kind: "global_nodal_rotation_x", value: 0.1, unit: "rad", entity_ref: "node:A" },
+      { id: "r:b", kind: "global_nodal_rotation_x", value: 0.2, unit: "rad", entity_ref: "node:B" },
+      { id: "r:b2", kind: "global_nodal_rotation_y", value: 0.3, unit: "rad", entity_ref: "node:B" }
+    ]
+  } as unknown as MechanicsResult;
+  const panel = (selectedEntity: EntityRef | null) => (
+    <ResultsPanel result={result} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} selectedEntity={selectedEntity} />
+  );
+
+  it("shows only the selected entity's rows while the toggle is on, and follows a new selection", () => {
+    const view = render(panel({ type: "node", id: "node:A" }));
+    const toggle = screen.getByTestId("result-selection-only");
+    expect(toggle).toHaveAttribute("aria-pressed", "false");
+    expect(screen.getByTestId("result-row-r:b")).toBeInTheDocument();
+
+    // Keyboard: the toggle is a native button, reachable by Tab and pressed with Enter or Space.
+    toggle.focus();
+    expect(document.activeElement).toBe(toggle);
+    fireEvent.click(toggle);
+    expect(toggle).toHaveAttribute("aria-pressed", "true");
+    expect(toggle.textContent).toContain("node:A");
+    expect(screen.getByTestId("result-row-r:a")).toBeInTheDocument();
+    expect(screen.queryByTestId("result-row-r:b")).toBeNull();
+
+    view.rerender(panel({ type: "node", id: "node:B" }));
+    expect(screen.queryByTestId("result-row-r:a")).toBeNull();
+    expect(screen.getByTestId("result-row-r:b")).toBeInTheDocument();
+    expect(screen.getByTestId("result-row-r:b2")).toBeInTheDocument();
+    expect(screen.getByTestId("result-filter-summary").textContent).toContain("2 of 3");
+
+    fireEvent.click(toggle);
+    expect(screen.getByTestId("result-row-r:a")).toBeInTheDocument();
+  });
+
+  it("is unavailable without a selected model entity", () => {
+    render(panel({ type: "project", id: "p" }));
+    expect(screen.getByTestId("result-selection-only")).toBeDisabled();
+  });
+});

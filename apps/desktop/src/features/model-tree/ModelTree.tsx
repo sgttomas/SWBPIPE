@@ -2,7 +2,7 @@ import { QuantityReadout } from "../display-units";
 import { Anchor, Box, CircleDot, GitBranch, ListTree, Search, SquareStack, Table2, Waypoints, X, Zap } from "lucide-react";
 import type React from "react";
 import { createPortal } from "react-dom";
-import { useContext, useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { useContext, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import type { EditorOperationIntent, EditorOperationObjectType, EntityRef, PreviewModel } from "../../types";
 import { entityKey, type EntityKey, type OrderedSelectionState, type SelectionModifiers } from "../workspace/selectionState";
 import { modelIndexFor, type ModelIndex } from "../workspace/modelIndex";
@@ -119,6 +119,33 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
     onFocusChange(fallback?.kind === "entity" ? entityKey(fallback.item) : null);
   }, [focusedTreeKey, onFocusChange, selectionState?.focusKey, treeRows]);
 
+  // A selection made outside the tree (the viewport, the grid, a result row) is
+  // revealed here: its group opens and its row becomes the tree's current row,
+  // which the list scrolls into view. Neither DOM focus nor the selection moves.
+  // A selection made while focus is in the tree is the tree's own and is left.
+  const treeRootRef = useRef<HTMLDivElement>(null);
+  const primarySelectionKey = selectionState ? selectionState.primaryKey : entityKey(selection);
+  const revealedSelectionKey = useRef(primarySelectionKey);
+  useEffect(() => {
+    if (revealedSelectionKey.current === primarySelectionKey) return;
+    revealedSelectionKey.current = primarySelectionKey;
+    if (!primarySelectionKey || layoutMode !== "tree") return;
+    if (treeRootRef.current?.contains(document.activeElement)) return;
+    // Under a filter only a matching entity has a row to reveal.
+    const filtering = Boolean(filterText.trim());
+    const shown = filtering ? filteredTree : tree;
+    const group = shown.groups.find((candidate) => candidate.items.some((item) => entityKey(item) === primarySelectionKey));
+    const projectRow = shown.project && entityKey(shown.project) === primarySelectionKey;
+    if (!group && !projectRow) return;
+    if (group && filtering && filteredCollapsedGroups.has(group.title)) {
+      setFilteredCollapsedGroups((current) => { const next = new Set(current); next.delete(group.title); return next; });
+    } else if (group && !filtering && !expandedGroups.has(group.title)) {
+      setExpandedGroups((current) => new Set(current).add(group.title));
+    }
+    setFocusedTreeKey(primarySelectionKey);
+    onFocusChange(primarySelectionKey);
+  }, [primarySelectionKey]);
+
   useEffect(() => {
     if (layoutMode === "grid") {
       setGridEntityType(gridEntityTypeFromSelection(selection));
@@ -156,7 +183,7 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
 
   return (
     <TableChromeContext.Provider value={{ target: columnTarget, owner: chromeOwner, setOwner: setChromeOwner }}>
-    <div className="panel model-tree" data-bounded-grid={boundedGrid && layoutMode === "grid"} data-compact-grid={compactGrid && layoutMode === "grid"} aria-label="Model tree"
+    <div className="panel model-tree" ref={treeRootRef} data-bounded-grid={boundedGrid && layoutMode === "grid"} data-compact-grid={compactGrid && layoutMode === "grid"} aria-label="Model tree"
       onKeyDown={(event) => {
         if (event.key === "Escape" && !event.defaultPrevented && closeCompactDetails(true)) { event.preventDefault(); event.stopPropagation(); }
       }}
@@ -832,6 +859,20 @@ function EntityGrid({
   );
   const queueDisabled = !onQueueIntent || changedCells.length === 0;
   const virtualGrid = visibleRows.length >= 100;
+  // A selection made outside the grid is scrolled into view in this family's
+  // rows (the node, material and section tables reveal their own). Focus in
+  // the grid keeps its position.
+  const bulkScrollRef = useRef<HTMLDivElement>(null);
+  const selectedGridIndex = visibleRows.findIndex((row) => row.type === selection.type && row.id === selection.id);
+  const revealedGridSelection = useRef(entityKey(selection));
+  useLayoutEffect(() => {
+    const key = entityKey(selection);
+    if (revealedGridSelection.current === key) return;
+    revealedGridSelection.current = key;
+    const host = bulkScrollRef.current;
+    if (virtualGrid || !host || host.contains(document.activeElement)) return;
+    host.querySelector<HTMLElement>("tbody tr.active")?.scrollIntoView?.({ block: "nearest", inline: "nearest" });
+  }, [selection.id, selection.type, virtualGrid]);
 
   useEffect(() => {
     setQueuedMessage("");
@@ -997,7 +1038,7 @@ function EntityGrid({
           active={reviewVisible && entityType === "sections"} bounded={bounded} compact={compact} density={density} filter={filterText} selection={selection}
           onSelect={onSelect} updateCell={updateCell} resetEditsKey={sectionReviewReset} />
       </div>
-      {!commonFamily ? <div className="entity-grid-scroll" role="region" aria-label="Editable model entity table">
+      {!commonFamily ? <div className="entity-grid-scroll" ref={bulkScrollRef} role="region" aria-label="Editable model entity table">
         {virtualGrid ? (
           <div className="entity-grid-virtual-table" role="table" aria-label={`${entityType} editable grid`} data-testid={`entity-grid-table-${entityType}`}>
             <div className="entity-grid-virtual-row header" role="row" style={{ gridTemplateColumns: `minmax(100px, 1fr) repeat(${columns.length}, minmax(120px, 1fr))` }}>
@@ -1010,6 +1051,7 @@ function EntityGrid({
               itemKey={(row) => `${row.type}:${row.id}`}
               items={visibleRows}
               pinIndex={focusedGridIndex === -1 ? null : focusedGridIndex}
+              activeIndex={selectedGridIndex === -1 ? null : selectedGridIndex}
               renderItem={(row) => (
                 <div
                   className={`entity-grid-virtual-row${selection.type === row.type && selection.id === row.id ? " active" : ""}`}

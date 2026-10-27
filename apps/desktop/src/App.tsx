@@ -680,6 +680,7 @@ function AppSession() {
                 analysisRun={analysisRun}
                 selectedResultId={selectedReviewTarget?.target_type === "result" ? selectedReviewTarget.id : null}
                 onSelectResult={handleSelectResult}
+                selectedEntity={selection}
                 numericalHealth={numericalHealth}
                 resolveCauseLocation={(location) => resolveLocatedCauseSelection(model, location)}
                 onSelectCauseLocation={(entity) => handleSelectEntity(entity)}

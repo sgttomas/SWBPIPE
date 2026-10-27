@@ -265,3 +265,4 @@ checks:
 - apps/desktop/src/features/viewport/viewportResultColour.test.ts
 - apps/desktop/src/features/viewport/PipeViewport.overlays.test.tsx
 - apps/desktop/e2e/result-overlays.spec.ts
+- apps/desktop/src/features/workspace/selectionReveal.test.tsx

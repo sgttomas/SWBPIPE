@@ -56,7 +56,8 @@ export function ResultsPanel({
   numericalHealth,
   resolveCauseLocation,
   onSelectCauseLocation,
-  onShowDiagnostic
+  onShowDiagnostic,
+  selectedEntity = null
 }: {
   result: MechanicsResult | null;
   knowledge: DesignKnowledge | null;
@@ -69,8 +70,14 @@ export function ResultsPanel({
   resolveCauseLocation?: (location: NumericalHealthLocation) => EntityRef | null;
   onSelectCauseLocation?: (entity: EntityRef) => void;
   onShowDiagnostic?: (diagnosticId: string) => void;
+  /** The workspace's primary selection. With "Selected entity only" on, the
+   * table shows only the rows stated for it. */
+  selectedEntity?: EntityRef | null;
 }) {
   const [filterText, setFilterText] = useState("");
+  const [selectionOnly, setSelectionOnly] = useState(false);
+  const selectionEntityId = selectedEntity && selectedEntity.type !== "project" ? selectedEntity.id : null;
+  const selectionFilterId = selectionOnly ? selectionEntityId : null;
   const [familyFilter, setFamilyFilter] = useState<ResultFamilyFilter>("all");
   // The page is the user's position in one run's rows, held with that run's id.
   // Any other run reads as page 1 in the very render that first shows it. A
@@ -92,10 +99,10 @@ export function ResultsPanel({
     () => (result && labels ? countResultFamilies(result.results, labels) : EMPTY_RESULT_FAMILY_COUNTS),
     [result, labels]
   );
-  const filteredResults = useMemo(
-    () => (result && labels ? filterResults(result.results, filterText, familyFilter, labels) : []),
-    [familyFilter, filterText, result, labels]
-  );
+  const filteredResults = useMemo(() => {
+    const rows = result && labels ? filterResults(result.results, filterText, familyFilter, labels) : [];
+    return selectionFilterId === null ? rows : rows.filter((item) => item.entity_ref === selectionFilterId);
+  }, [familyFilter, filterText, result, labels, selectionFilterId]);
   const page = useMemo(
     () => paginateResults(filteredResults, pageIndex, pageSize),
     [filteredResults, pageIndex, pageSize]
@@ -114,6 +121,10 @@ export function ResultsPanel({
   useEffect(() => {
     setPageIndex((current) => Math.min(current, page.pageCount - 1));
   }, [page.pageCount]);
+  // A new selected entity starts its rows at page 1.
+  useEffect(() => {
+    if (selectionFilterId !== null) setPageIndex(0);
+  }, [selectionFilterId]);
 
   function handleFilterChange(value: string) {
     setFilterText(value);
@@ -157,6 +168,9 @@ export function ResultsPanel({
             onPageSizeChange={handlePageSizeChange}
             onPreviousPage={() => setPageIndex((current) => Math.max(0, current - 1))}
             onNextPage={() => setPageIndex((current) => Math.min(page.pageCount - 1, current + 1))}
+            selectionEntityId={selectionEntityId}
+            selectionOnly={selectionOnly}
+            onSelectionOnlyChange={(value) => { setSelectionOnly(value); setPageIndex(0); }}
           />
           <ResultDetail interpretation={interpretation} result={result} />
           <GoverningRatioState ratioCount={0} />
@@ -289,7 +303,10 @@ function ResultControls({
   onFilterChange,
   onPageSizeChange,
   onPreviousPage,
-  onNextPage
+  onNextPage,
+  selectionEntityId,
+  selectionOnly,
+  onSelectionOnlyChange
 }: {
   familyCounts: ResultFamilyCounts;
   familyFilter: ResultFamilyFilter;
@@ -304,6 +321,9 @@ function ResultControls({
   onPageSizeChange: (value: number) => void;
   onPreviousPage: () => void;
   onNextPage: () => void;
+  selectionEntityId: string | null;
+  selectionOnly: boolean;
+  onSelectionOnlyChange: (value: boolean) => void;
 }) {
   const visibleFamilyOptions = RESULT_FAMILY_OPTIONS.filter(
     (option) => option.id === "all" || familyCounts[option.id as ResultFamily] > 0
@@ -362,6 +382,17 @@ function ResultControls({
           type="button"
         >
           <X size={14} aria-hidden="true" />
+        </button>
+        <button
+          aria-pressed={selectionOnly}
+          className={selectionOnly ? "result-family-active" : undefined}
+          data-testid="result-selection-only"
+          disabled={!selectionEntityId && !selectionOnly}
+          onClick={() => onSelectionOnlyChange(!selectionOnly)}
+          title={selectionEntityId ? `Show only the rows stated for ${selectionEntityId}; the table follows the selection` : "Select a model entity to show its rows"}
+          type="button"
+        >
+          Selected entity only{selectionOnly ? `: ${selectionEntityId ?? "none selected"}` : ""}
         </button>
       </div>
       <div className="result-page-row" aria-label="Result page controls">

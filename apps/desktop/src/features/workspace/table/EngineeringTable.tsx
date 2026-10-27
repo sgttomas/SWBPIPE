@@ -117,6 +117,21 @@ export function EngineeringTable(props: Props) {
     : !edit && viewRows[0] && columns[0] ? { rowKey: viewRows[0].key, columnKey: columns[0].key } : null;
   const active = edit?.captured ?? rovingFocus;
   const activeIndex = active ? viewRows.findIndex((row) => row.key === active.rowKey) : null;
+  // A selection made outside the table (the viewport, the tree, a result row)
+  // becomes the table's current row, which the list scrolls into view. DOM focus
+  // and the selection stay where they are; focus or an edit in the table keeps
+  // the table's own position.
+  const revealedSelectionKey = useRef(selectedKey);
+  useLayoutEffect(() => {
+    if (revealedSelectionKey.current === selectedKey) return;
+    revealedSelectionKey.current = selectedKey;
+    if (editRef.current || root.current?.contains(document.activeElement)) return;
+    if (!viewRows.some((row) => row.key === selectedKey)) return;
+    const columnKey = focused && columns.some((column) => column.key === focused.columnKey) ? focused.columnKey : columns[0]?.key;
+    if (!columnKey) return;
+    setFocused({ rowKey: selectedKey, columnKey });
+    setReveal((value) => value + 1);
+  }, [selectedKey]);
   const minimums = [130, ...columns.map((column) => column.minWidth ?? (column.kind === "text" ? 150 : review ? 160 : 90))];
   const weights = [1.4, ...columns.map((column) => column.minWidth ? 1 : column.kind === "text" ? 1.5 : 1)];
   const geometry = useTableGeometry(root, minimums, weights, Boolean(props.compact), surfaceActive, `${viewRows.length}:${body.height}:${density}:${JSON.stringify(columns.map(({ label, unit }) => [label, unit]))}`);
