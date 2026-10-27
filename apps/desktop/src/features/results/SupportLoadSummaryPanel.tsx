@@ -38,6 +38,9 @@ export type SupportLoadSummaryPanelProps = Readonly<{
   standing: ResultOverlayStanding | null | undefined;
   /** When this names a support of the model (for example the session's selection), the panel shows it. */
   focusSupportId?: string | null;
+  /** A request count: each new value shows `focusSupportId` again, even when it is unchanged and
+   * the user has stepped to another support (A6's "Show support load summary"). */
+  focusRequest?: number;
   /** A prefix for the panel's test ids, so two embeddings stay distinct. */
   testIdPrefix?: string;
 }>;
@@ -83,21 +86,22 @@ function exclusionText(summary: SupportLoadSummary): string {
   return parts.length > 0 ? `${base}; not included: ${parts.join(", ")}.` : `${base}.`;
 }
 
-export function SupportLoadSummaryPanel({ model, result, standing, focusSupportId = null, testIdPrefix = "support-load" }: SupportLoadSummaryPanelProps) {
+export function SupportLoadSummaryPanel({ model, result, standing, focusSupportId = null, focusRequest = 0, testIdPrefix = "support-load" }: SupportLoadSummaryPanelProps) {
   const summaries = useMemo(() => buildSupportLoadSummaries({ model, result, standing }), [model, result, standing]);
   const supports = summaries.supports;
   const [chosenId, setChosenId] = useState<string | null>(null);
   // A focused support (the session's selection) moves the panel to it once each time the focus
-  // changes; a new result or standing does not undo the user's stepping.
+  // or the focus request changes; a new result or standing does not undo the user's stepping.
+  const focusKey = focusSupportId ? JSON.stringify([focusSupportId, focusRequest]) : null;
   const appliedFocus = useRef<string | null>(null);
   useEffect(() => {
-    if (focusSupportId === appliedFocus.current) return;
-    if (!focusSupportId) appliedFocus.current = null;
+    if (focusKey === appliedFocus.current) return;
+    if (!focusKey) appliedFocus.current = null;
     else if (supports.some((item) => item.supportId === focusSupportId)) {
-      appliedFocus.current = focusSupportId;
+      appliedFocus.current = focusKey;
       setChosenId(focusSupportId);
     }
-  }, [focusSupportId, supports]);
+  }, [focusKey, focusSupportId, supports]);
   const index = Math.max(0, supports.findIndex((item) => item.supportId === chosenId));
   const summary = supports[index] ?? null;
   const step = (delta: number) => {
