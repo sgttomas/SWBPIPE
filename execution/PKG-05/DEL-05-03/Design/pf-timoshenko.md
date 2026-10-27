@@ -1,6 +1,6 @@
 # Opt-in Timoshenko straight members on the pressure-free route
 
-**Status: approved to build after Codex round 2 (Agent 0, 2026-10-27), with the rulings recorded below; not built.** The owner's steer of 2026-10-27 (#1662) asks for an app "on par with or considered superior to CAEPIPE and other industry standard applications... in terms of the modelling characteristics". Agent 0 adopted this unit under it: an explicit, opt-in choice of transverse shear deformation for straight members on the pressure-free (PF) route. The default stays Euler–Bernoulli, and every existing document, result, table hash and recorded run stays byte-identical. The unit reuses the exact route's Timoshenko element and shear-factor definition (D-6, [section-bases-and-timoshenko.md](section-bases-and-timoshenko.md) §3). Here, "the exact route" means documents with `pressure_contract`, and "PF" means documents without it. Codex rounds 1 (`b272696f71`), 2 (`6f2fcf675e`) and 3 (`9be7209fa4`) reviewed earlier drafts; this text answers their findings.
+**Status: approved to build after Codex round 2 (Agent 0, 2026-10-27), with the rulings recorded below; not built.** The owner's steer of 2026-10-27 (#1662) asks for an app "on par with or considered superior to CAEPIPE and other industry standard applications... in terms of the modelling characteristics". Agent 0 adopted this unit under it: an explicit, opt-in choice of transverse shear deformation for straight members on the pressure-free (PF) route. The default stays Euler–Bernoulli, and every existing document, result, table hash and recorded run stays byte-identical. The unit reuses the exact route's Timoshenko element and shear-factor definition (D-6, [section-bases-and-timoshenko.md](section-bases-and-timoshenko.md) §3). Here, "the exact route" means documents with `pressure_contract`, and "PF" means documents without it. Codex rounds 1 (`b272696f71`), 2 (`6f2fcf675e`), 3 (`9be7209fa4`) and 4 (`1f1a2ab30c`) reviewed earlier drafts; this text answers their findings.
 
 The CAEPIPE correlation pilot (DEL-17-05 Design `caepipe-correlation-pilot.md` §7) classified the SWBPIPE–CAEPIPE differences in seven of its eight cases as shear-deformation differences (`dd-shear-deformation`). Only hand calculations are public. CAEPIPE's shear factor for steel pipe is not established (CQ-17-01-010 is open). This unit gives PF the same element and factor definition as the exact route; it does not adopt CAEPIPE's factor.
 
@@ -24,7 +24,7 @@ The CAEPIPE correlation pilot (DEL-17-05 Design `caepipe-correlation-pilot.md` �
     - **Admission follows consumption.** PF first builds the model on the base materials (`lib.rs` ~2956), then rebuilds per selected basis (~3160). A base build whose moduli no published case consumes must not impose the factor check. Otherwise base E = 210 GPa and G = 60 GPa (ν = 0.75) would block a document whose every case selects E = 200 GPa and G = 80 GPa (ν = 0.25).
       - **Construction boundary.** The set of consumed bases is known from the document's case temperature selections before any build.
         - If a case consumes the base basis, the seed build (basis state zero) forms its straight members as Timoshenko on the base moduli. A factor failure there is a blocking diagnostic naming that case and the base basis, as for any consumed basis.
-        - If no case consumes the base basis, the seed build forms every member Euler–Bernoulli. It is complete for the shared topology and model diagnostics (`lib.rs` ~2956–2965) and is never solved, published or used as a basis, so no factor is formed for it.
+        - If no case consumes the base basis, the seed build forms every member Euler–Bernoulli. It is complete for the shared topology and model diagnostics (`lib.rs` ~2956–2965), and its stiffness is assembled as main does (~3034, `assemble_basis_stiffness`). It is never solved for a published case and never selected as a basis, so no factor is formed for it. Later seed reuse (`preview_physics::render`) reads only topology, supports and member metadata.
         - Each consumed basis's rebuild (~3160) forms its Timoshenko members on its own moduli. Its factor failures and ν warnings are local to that basis and are emitted only for the cases that select it.
         - No solved member ever takes a fallback factor or an Euler–Bernoulli leaf in place of a failed Timoshenko one.
       - Regressions cover a named-point selection and an interpolated selection with an out-of-range base ν, both with a nonlinear support; a document whose cases consume both the base and a selected basis; and an out-of-range selected ν, which is blocked by name.
@@ -73,7 +73,18 @@ Changing the preview-physics-2 table would move its hash. Every recorded run bou
     - the diagnostic, in the report's diagnostics section, which the desktop already copies (`renderableReportInput.ts` ~165);
     - the Timoshenko identity's limitation 0, among the producer limitations. The desktop copies those today only for exact results (~884); it gains the PF Timoshenko identity, and only that identity, so Euler–Bernoulli report bytes are unchanged.
 
-    Both are bound to the result's source digest as other copied diagnostics and limitations are.
+    **Source binding on PF.** The existing producer-limitation and diagnostic bindings are exact-only:
+    - the desktop's `exactReportSections.ts` ~127 and `exactReportLimitations.ts` ~110 (a closed, digest-keyed statement table);
+    - `report_package/src/bindings.rs` ~679, which compares report diagnostics with the source only for exact documents;
+    - `exact_sections.rs` ~331;
+    - native `report_render_exact.rs` ~108, which binds only when `exact_route` is present.
+
+    So the PF Timoshenko identity gets its own projection rather than a widened exact branch. A PF section carries the identity's limitation 0 and the arc diagnostic.
+    - The package (`bindings.rs`) compares that section's limitation and the arc diagnostic, text and references, with the delivered result's envelope, for the PF Timoshenko identity only.
+    - The native renderer binds the section to the result's source digest the same way it binds exact sections.
+    - Euler–Bernoulli PF reports take neither path, so their bytes and checks are unchanged.
+
+    Regressions: removing or altering the limitation, the diagnostic's text or its references in the report, while keeping the result, is refused at packaging and at native render.
   - **Regressions:** a model with realized arcs (the diagnostic, its references and message, the report text); a model without (absence); and a model with more than 32 arcs (the bound and the count).
 - **Identity-aware bindings.** Today one identity per route is assumed in several places. Each becomes keyed by the envelope's `semantic_contract_id`, with the route's admitted set {preview-physics-2, preview-physics-timoshenko-1}:
   - `reader_verdict.rs` ~122/~553, which selects a binding by route name;
@@ -81,11 +92,22 @@ Changing the preview-physics-2 table would move its hash. Every recorded run bou
   - `StressNeutralExportPanel.tsx` ~925 (one table filename per route);
   - `contractBindings.ts` (test expectations);
   - `result_export/src/derivative.rs` ~158 (the allowlist that copies contract evidence);
-  - fresh-result admission: the desktop's `knownSemanticLimitations.ts` ~18/~86, which feeds the Current result (`resultsSessionState.ts` ~49), and its Rust and Python counterparts, `semantic_contract.rs` ~662 and `core/analysis_runs/compatibility.py` ~521;
+  - fresh-result admission: the desktop's `knownSemanticLimitations.ts` ~18/~86 and its shared constant `numericalResultQuality.ts` ~18, which feeds the Current result (`resultsSessionState.ts` ~49), and its Rust and Python counterparts, `semantic_contract.rs` ~662 and `core/analysis_runs/compatibility.py` ~521;
   - the Python stress-neutral package: `core/handoff/stress_neutral/package.py` ~99/~103 (supported methods and preview evidence namespaces, used at construction ~434 and transport ~128);
   - report packaging: `report_package/src/document_form.rs` ~19 and the desktop's `reportPackageRequest.ts` ~57.
 
   **Inventory guard.** These sites were found across three review rounds. So the build adds a test that scans Rust, Python, TypeScript and schema sources for the preview-physics-2 identity string, table filename and profile. It fails on any occurrence that is not on a reviewed list, each entry marked either "admits both identities" or "Euler–Bernoulli only, by design" with its reason. A later site that names one identity cannot be missed silently.
+  - The scan covers the identity string, table filename, profile, the table's hash literal and limitation 0's text.
+  - The reviewed list also enumerates the symbol-only gates that carry no literal, from Codex round 4's inventory:
+    - `knownSemanticLimitations.ts`;
+    - `reader_verdict.rs` (~58, ~108, ~122, ~250, ~553) and `semantic_contract.rs` (~513–662);
+    - `derivative.rs` ~158;
+    - both `compatibility.py`;
+    - `package.py`;
+    - `document_form.rs` and `reportPackageRequest.ts`;
+    - the desktop's record-table and export-table maps;
+    - the report bindings above.
+  - A label on the list proves nothing by itself. Each "admits both" entry is exercised by a round-trip test below that fails if the gate refuses the Timoshenko identity.
 
   The producer selects the identity for both successful and blocked PF envelopes (`lib.rs` ~1293, ~3417, ~14601).
 - **Readers.**
