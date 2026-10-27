@@ -608,4 +608,7 @@ ripple lands joins 0.8.0 through Agent 0.
   re-registered in §8.26 ("The shear-model member"), 92 coefficients higher and
   the merged check +98,134 B; the tightest native headroom is still positive
   (merged dense W3, +2,361,079,335 B). The member's decoder builds no value.
-  AC-004's earlier 6/6 is superseded and is re-run on this build.
+  The six AC-004 stack witnesses passed 6/6 on this build, at head
+  `c83cf828cc` (registered source `95aacdf852`), under the exclusive lane, by
+  `python3 tools/release/check_release_readiness.py --profile stack-witnesses
+  --execute`. This is test evidence, not an acceptance.
