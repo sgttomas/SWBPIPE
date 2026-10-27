@@ -42,10 +42,23 @@
   }
   const treeRow = (projectId) => byTestId(`tree-row-project-${encodeURIComponent(projectId)}`);
   const message = () => text("local-project-message") ?? "";
+  // Choosing the page that is already open closes it (View menu), so the command
+  // is sent only when the section is not shown; then the wait is for it to show.
+  // Sending it regardless raced: right after a second choice of an open page the
+  // wait passed only if its first sample ran before the close was drawn, and
+  // otherwise timed out (DEL-07-11 Design `model-document-open-and-native-smoke.md`).
+  const sectionShown = (section) => {
+    const element = byTestId(`workspace-section-${section}`);
+    return Boolean(element && element.offsetParent !== null);
+  };
   async function showSection(section) {
+    if (sectionShown(section)) {
+      await log(`show section ${section} (already shown)`);
+      return;
+    }
     await log(`show section ${section}`);
     await menu(`view.section.${section}`);
-    await waitFor(`section ${section}`, () => byTestId(`workspace-section-${section}`)?.offsetParent !== null);
+    await waitFor(`section ${section}`, () => sectionShown(section));
   }
 
   // File > Open Model Document…, answering the chooser with `path`.
@@ -849,7 +862,7 @@
   // Under the driver's node test only: hand over the helpers instead of running.
   const testHooks = globalThis.__SWBPIPE_NATIVE_SMOKE_DRIVER_TEST__;
   if (testHooks) {
-    Object.assign(testHooks, { waitFor, waitForSolve, solveDone, solveJobDiagnostics, composeSolveDiagnostics, awaitBlankProject });
+    Object.assign(testHooks, { waitFor, waitForSolve, solveDone, solveJobDiagnostics, composeSolveDiagnostics, awaitBlankProject, showSection });
     return;
   }
 

@@ -10,7 +10,7 @@ import vm from "node:vm";
 
 const source = readFileSync(new URL("./driver.js", import.meta.url), "utf8");
 
-function load({ shown = {}, record = null, pool = null, poolError = null, projectRows = [] } = {}) {
+function load({ shown = {}, record = null, pool = null, poolError = null, projectRows = [], onMenu = null } = {}) {
   const logs = [];
   const elements = new Map(Object.entries(shown).map(([id, value]) => [id, { textContent: value, getAttribute: () => null }]));
   // The model tree's project rows, `tree-row-project-<encoded id>`, in order; the
@@ -27,6 +27,7 @@ function load({ shown = {}, record = null, pool = null, poolError = null, projec
   const invoke = async (command, args) => {
     if (command === "native_smoke_log") { logs.push(args.line); return null; }
     if (command === "get_memory_pool_status") { if (poolError) throw new Error(poolError); return pool; }
+    if (command === "native_smoke_menu" && onMenu) { onMenu(args.commandId); return null; }
     throw new Error(`unexpected command ${command}`);
   };
   const hooks = {};
@@ -191,4 +192,44 @@ test("a blank create that failed ends the wait at once with its message; one tha
   const superseded = load({ shown: { "local-project-message": "Opened model document exact_pressure_authoring_model.json." }, projectRows: [previous] });
   await assert.rejects(superseded.hooks.awaitBlankProject(previous, 150),
     { message: `timed out after 150 ms waiting for blank project in the tree in place of ${previous}; message="Opened model document exact_pressure_authoring_model.json."; tree projects=["${previous}"]` });
+});
+
+// Run 1 of the A2 smoke at 594e437a09 (#1668): after the exact-route solve the driver
+// chose View > Report twice in a row. Choosing the open page again closes it, so the
+// second wait passed only when its first sample ran before the close was drawn; that
+// run's did not, and it timed out after 120 s.
+function sectionWindow(open) {
+  const sections = new Map(["results", "report"].map((id) => [id, { textContent: "", getAttribute: () => null, offsetParent: null }]));
+  const sent = [];
+  const show = (id) => { for (const [key, element] of sections) element.offsetParent = key === id ? {} : null; };
+  show(open);
+  // The product's View > section command: a closed page opens, the open page closes.
+  const onMenu = (commandId) => {
+    sent.push(commandId);
+    const id = commandId.slice("view.section.".length);
+    show(sections.get(id).offsetParent === null ? id : null);
+  };
+  const { hooks, elements, logs } = load({ onMenu });
+  for (const [id, element] of sections) elements.set(`workspace-section-${id}`, element);
+  return { hooks, sections, sent, logs };
+}
+
+test("showing a section that is already shown sends no command, so the open page is not closed", async () => {
+  const { hooks, sections, sent, logs } = sectionWindow("results");
+  await hooks.showSection("report");
+  await hooks.showSection("report");
+  assert.deepEqual(sent, ["view.section.report"]);
+  assert.notEqual(sections.get("report").offsetParent, null);
+  assert.deepEqual(logs, ["show section report", "show section report (already shown)"]);
+});
+
+test("showing a hidden section sends the command and waits until the section shows", async () => {
+  const sent = [];
+  const element = { textContent: "", getAttribute: () => null, offsetParent: null };
+  const { hooks, elements } = load({ onMenu: (commandId) => { sent.push(commandId); setTimeout(() => { element.offsetParent = {}; }, 250); } });
+  elements.set("workspace-section-report", element);
+  const started = Date.now();
+  await hooks.showSection("report");
+  assert.ok(Date.now() - started >= 200);
+  assert.deepEqual(sent, ["view.section.report"]);
 });

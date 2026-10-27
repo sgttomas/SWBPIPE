@@ -202,6 +202,18 @@ A6 passes the same three inputs it already has for the overlays. A key-results h
 embedding sets `testIdPrefix` so that two instances stay distinct. Every output is frozen and
 deterministic for its inputs.
 
+**Render cost.** The panel derives once per identity of (`model`, `result`, `standing`)
+(`useMemo`). App passes the memoized `viewportResultStanding`, so the session's focus, stepping and
+unrelated renders reuse the derivation. An embedding should pass stable identities too. The
+derivation visits the result rows twice, once for the cases and once to index them by support and
+node, and then visits each support's cases: O(R + S × C). Only the chosen support's table is
+rendered, about 15 cells per case. In App the panel sits in the Results section. While that
+section is dormant, the section's memo does not re-render it. On the native smoke's exact-route
+model (1 support, 2 load cases, 297 rows in the committed producer bytes) a jsdom count gave 1
+derivation and 2 panel renders through solve, Results, a result-filter edit and Report. The panel
+had 213 elements, 75 of them cells, in a 2,465-element document. So the panel is rendered
+eagerly, with no disclosure or deferral.
+
 ## 7. Claims fence
 
 The panel lists emitted rows and their arithmetic extremes. It records and implies no acceptance,
@@ -222,6 +234,9 @@ allowable, and it compares nothing with a limit.
   display rule and header units; a withheld row with no values and the exclusion note; the
   ineligible state; stepping by button, Alt+Arrow and select, with no wrap; following a focused
   support; and the unavailable state under a custom test-id prefix.
+- `apps/desktop/src/features/results/SupportLoadSummaryPanel.derivation.test.tsx` counts
+  derivations. There is one per input identity, none for a focus change, a test-id prefix or
+  stepping, and one more for each new model, result or standing.
 
 ## 9. Remaining items
 
