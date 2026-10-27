@@ -446,4 +446,40 @@ describe("the report input the package carries", () => {
     });
     expect(JSON.stringify(session)).toBe(before);
   });
+
+  // Report-content correction (2026-10-27): the solver reads `spring_hanger` as a variable spring
+  // hanger (`is_variable_spring_hanger`, core/product_physics/src/lib.rs), so the report input the
+  // HTML/PDF renderer and the local-private package read carries its hanger value and provenance,
+  // by hanger type or by family alone.
+  it("carries a spring_hanger support's hanger value and provenance", async () => {
+    for (const spelling of ["hanger_type", "family"] as const) {
+      const model = structuredClone(demoModel) as PreviewModel;
+      const hanger = model.supports.find((support) => support.id === "support:SH-140")!;
+      hanger.family = "spring_hanger";
+      if (spelling === "hanger_type") hanger.hanger!.hanger_type = "spring_hanger";
+      else delete hanger.hanger!.hanger_type;
+      const session = await syntheticPreviewSession(model);
+      const report = await buildRenderableReportInput({ ...session, projectSummary: null, renderContext: { exportContext: "local_private", generatedAt: null } });
+      const sections = report.report_sections;
+      expect(sections.user_supplied_values.filter((item) => item.value_id.startsWith("spring-hanger:")).map((item) => item.value_id).sort())
+        .toEqual(["spring-hanger:support:CE-120", "spring-hanger:support:SH-140"]);
+      expect(sections.user_supplied_values.find((item) => item.value_id === "spring-hanger:support:SH-140")).toMatchObject({
+        value_category: "spring_hanger:spring_hanger",
+        source: { ref_type: "support", ref_id: "support:SH-140" },
+        quantity: { magnitude: 390, unit: "N", dimension: "force" }, required_for: ["reporting", "human_review"], missing_data_finding: false
+      });
+      const note = sections.provenance_notes.find((item) => item.source_name === "Invented variable spring hanger spring-hanger provenance");
+      expect(note?.source_location).toContain("support.family=spring_hanger");
+      expect(note?.source_location).toContain("hanger.source_reference=invented_user_entered_spring_hanger_values_no_catalog");
+    }
+    // ...and its missing provenance is reported, as for the other spellings.
+    const model = structuredClone(demoModel) as PreviewModel;
+    const hanger = model.supports.find((support) => support.id === "support:SH-140")!;
+    hanger.family = "spring_hanger";
+    hanger.hanger!.hanger_type = "spring_hanger";
+    hanger.provenance = "";
+    const report = await buildRenderableReportInput({ ...(await syntheticPreviewSession(model)), projectSummary: null, renderContext: { exportContext: "local_private", generatedAt: null } });
+    expect(report.report_sections.diagnostics.filter((item) => item.code === "SPRING_HANGER_PROVENANCE_MISSING").map((item) => item.affected_object.ref_id)).toEqual(["support:SH-140"]);
+    expect(report.report_sections.user_supplied_values.find((item) => item.value_id === "spring-hanger:support:SH-140")?.missing_data_finding).toBe(true);
+  });
 });
