@@ -647,7 +647,8 @@ def test_carrier_branches_are_the_current_identities():
     publication is carried on pressure-2's (or pressure-source-1's) branch, whose evidence is PressureContractEvidence."""
     ids = [branch["properties"]["producer"]["properties"]["semantic_contract_id"]["const"]
            for branch in envelope_branches(schema("results.v0.3.schema.yaml"))]
-    assert ids == [PRESSURE_SOURCE_ID, PREVIEW_ID, PRESSURE_ID,
+    # PF Timoshenko (DEL-05-03 pf-timoshenko.md §4): its branch follows preview-physics-2's.
+    assert ids == [PRESSURE_SOURCE_ID, PREVIEW_ID, "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1", PRESSURE_ID,
                    "openpipestress.result_semantics/0.3.0/preview-physics-retained-1",
                    "openpipestress.result_semantics/0.3.0/physics-retained-1"]
     results = schema("results.v0.3.schema.yaml")["$defs"]["ResultEnvelope"]
