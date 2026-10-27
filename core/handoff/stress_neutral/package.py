@@ -21,7 +21,7 @@ from core.analysis_runs.compatibility import (
     _source_contract, _semantic, validate_analysis_run_v0_3,
     _source_basis_reference, _source_reference_text,
     _validate_source_reference_fields, PRESSURE_CONTRACT_ID,
-    PRESSURE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID,
+    PRESSURE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID,
 )
 
 REQUIRED_SOURCE_BASIS_REFS = {
@@ -96,11 +96,13 @@ MEMBERS = ["manifest.json", "stress_neutral_results.csv", "result_rows.json", "u
 # B7b (A4/A5): the current exact identities, pressure-2 and pressure-source-1, take over the retired v2 identities'
 # packages (physics-1, physics-source-1, load-reference-1, load-reference-source-1, which the Rust reader refuses by
 # name). A load/reference-state model publishes either with contract_evidence.load_reference_states.
-SUPPORTED_METHODS = {PRESSURE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID}
+SUPPORTED_METHODS = {PRESSURE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID,
+                     PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID}
 PHYSICAL_METHODS = {PRESSURE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID}
 RECEIPT_METHODS = {PRESSURE_SOURCE_CONTRACT_ID}
-# preview-physics-2 retains its closed preview statement; no receipt namespace.
-PREVIEW_METHODS = {PREVIEW_PHYSICS_CONTRACT_ID}
+# preview-physics-2 retains its closed preview statement; no receipt namespace. The pressure-free Timoshenko
+# identity (DEL-05-03 pf-timoshenko.md §4) carries the same statement under its own table.
+PREVIEW_METHODS = {PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID}
 
 
 def _method_namespaces(contract_id: str) -> set[str]:

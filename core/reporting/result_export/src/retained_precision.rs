@@ -6675,7 +6675,9 @@ fn preview_physics_transport_metadata(p: &Value) -> Result<(), String> {
     };
     let number = |v: &Value| v.as_f64().filter(|_| v.is_number());
     let safe_integer = |v: &Value| number(v).filter(|n| n.fract() == 0.0 && n.abs() <= SAFE as f64);
-    let table = crate::semantic_contract::preview_physics_contract();
+    // pf-timoshenko.md §4: either complete preview identity, selected by the source's
+    // identity (the retained projection names preview-physics-2, its base).
+    let (table, profile) = crate::semantic_contract::preview_physics_identity_of(p);
     demand(
         p.get("source_block_recovery").is_none() && p.get("carrier_evidence").is_none(),
         "unsupported source namespace",
@@ -6686,7 +6688,7 @@ fn preview_physics_transport_metadata(p: &Value) -> Result<(), String> {
         "formulation basis",
     )?;
     demand(
-        f["profile_id"] == "product_preview_mechanics_v1"
+        f["profile_id"] == profile
             && f["limitations"].is_array()
             && f["limitations"] == table["supported_profile_limitations"],
         "formulation profile or limitations",

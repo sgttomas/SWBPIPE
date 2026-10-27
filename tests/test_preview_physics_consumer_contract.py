@@ -170,7 +170,9 @@ def test_table_identity_and_registry():
     # b7-plan's pressure-source join: plus pressure-source-1.
     # B4/D1 (b): minus the retired source-blocks-1.
     # B7b: minus the four retired exact v2 identities, plus the exact successor pressure-2.
-    assert FRESH_CONTRACT_IDS == {PREVIEW_PHYSICS_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, PRESSURE_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID}
+    # DEL-05-03 pf-timoshenko.md §4: plus the pressure-free Timoshenko identity.
+    assert FRESH_CONTRACT_IDS == {PREVIEW_PHYSICS_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, PRESSURE_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID,
+                                  "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1"}
     assert not is_fresh_contract_id(RETIRED_PRECISION_CONTRACT_ID) and is_fresh_contract_id(PREVIEW_PHYSICS_CONTRACT_ID)
     assert not any(is_fresh_contract_id(identity) for identity in (RETIRED_PHYSICS_ID, RETIRED_LOAD_REFERENCE_ID))
 

@@ -517,6 +517,11 @@ def recorded_run_semantic_binding(recorded: Any, contract_id: str, contract_hash
 PREVIEW_PHYSICS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-2"
 PREVIEW_PHYSICS_CONTRACT_SHA256 = "5a6630d9157ad1f4232c558d0cd57414677add8d1c95cc0a5d19a2579fb3a05b"
 _PREVIEW_PHYSICS_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_preview_physics_2.json"
+# DEL-05-03 Design pf-timoshenko.md §4: the pressure-free Timoshenko identity, beside preview-physics-2 on the
+# preview-physics route. Its own table and hash; preview-physics-2's are unchanged, so existing records stay compatible.
+PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1"
+PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_SHA256 = "94538daa46b4795550a8c9e6b4ec05d8eb40d5be34b78c1a630613dc7ae2732f"
+_PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_preview_physics_timoshenko_1.json"
 # U6b (D-U6-6; D2 4.7 S-1, 4.9.6): the F2a preview successor. Its statements are
 # checked only by the accepted reader (`retained_precision`), and its standing
 # comes only from that reader's verified receipt (D1 5 item 3).
@@ -538,7 +543,7 @@ ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN = "ANALYSIS_RETAINED_PRECISION_D
 RULE_QUANTITY_BELOW_VERIFIED_FLOOR = "RULE_QUANTITY_BELOW_VERIFIED_FLOOR"
 RULE_QUANTITY_NOT_COVERED = "RULE_QUANTITY_NOT_COVERED"
 # Static fresh-publication identities (S1 §10; Rust `FRESH_IDENTITIES`); no route predicate.
-FRESH_CONTRACT_IDS = frozenset({PREVIEW_PHYSICS_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID,
+FRESH_CONTRACT_IDS = frozenset({PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID,
                                 # T4-U2: pressure-2 (`3.0.0/exact_pressure_v3`).
                                 PRESSURE_CONTRACT_ID,
                                 # U6b (D-U6-6): membership is not standing.
@@ -546,6 +551,7 @@ FRESH_CONTRACT_IDS = frozenset({PREVIEW_PHYSICS_CONTRACT_ID, PRESSURE_SOURCE_CON
 # Every current-record identity, which the 0.3 AnalysisRun builder and validator admit (B7b: pressure-2 and
 # pressure-source-1 in place of the retired v2 identities).
 CURRENT_RECORD_CONTRACT_IDS = frozenset({PRESSURE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID,
+                                         PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID,
                                          PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, PHYSICS_RETAINED_CONTRACT_ID})
 # The identities whose record carries the received source_block_recovery and contract_evidence.
 SOURCE_RECORD_CONTRACT_IDS = frozenset({PRESSURE_SOURCE_CONTRACT_ID})
@@ -556,6 +562,7 @@ _TRANSPORTED = ("schema_version", "producer", "numerical_quality", "formulation_
 # Each table a route binds, by identity: the reader's binding `{id, sha256}` must name one of these.
 _TABLES = {PRESSURE_SOURCE_CONTRACT_ID: (PRESSURE_SOURCE_CONTRACT_SHA256, _PRESSURE_SOURCE_CONTRACT_PATH),
            PREVIEW_PHYSICS_CONTRACT_ID: (PREVIEW_PHYSICS_CONTRACT_SHA256, _PREVIEW_PHYSICS_CONTRACT_PATH),
+           PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID: (PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_SHA256, _PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_PATH),
            PRESSURE_CONTRACT_ID: (PRESSURE_CONTRACT_SHA256, _PRESSURE_CONTRACT_PATH),
            **RETAINED_CONTRACTS}
 

@@ -501,12 +501,14 @@ fn a_stored_precision_1_result_is_refused_by_name() {
     }
     // The current fresh set: preview-physics-2, the exact contract's pressure-2
     // (T4-U2, with its export chain) and joined pressure-source-1 (b7-plan D1),
-    // and T3's F2a preview successor (U6a, D-U6-6: membership is not standing);
+    // and T3's F2a preview successor (U6a, D-U6-6: membership is not standing),
+    // and the pressure-free Timoshenko identity (DEL-05-03 pf-timoshenko.md §4);
     // nothing else is fresh.
     let mut fresh: Vec<&str> = s::FRESH_IDENTITIES.to_vec();
     fresh.sort_unstable();
     let mut expected = vec![
         s::PREVIEW_PHYSICS_ID,
+        s::PREVIEW_PHYSICS_TIMOSHENKO_ID,
         s::PRESSURE_SOURCE_ID,
         s::PREVIEW_PHYSICS_RETAINED_ID,
         s::PRESSURE_ID,
