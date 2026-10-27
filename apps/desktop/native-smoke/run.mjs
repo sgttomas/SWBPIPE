@@ -350,6 +350,14 @@ function checkObservation(prefix, seen, want, modelHash, supportCount) {
       ? extremes.cases_chosen > 0 && extremes.rows > 0 && extremes.rows <= 50 && extremes.cells_per_row.every((count) => count === 12)
         && /^Nodes 1–\d+ of \d+$/.test(extremes.page ?? "") && !extremes.no_case
       : extremes.no_case && extremes.cases_chosen === 0 && extremes.cases_disabled === extremes.cases), extremes && { ...extremes, cells_per_row: [...new Set(extremes.cells_per_row)] });
+  // A9 (DEL-07-05 Design weight-cog-summary.md): structure only. With an entered gravity the summary
+  // either lists its three category rows, with a centre of gravity or the reason none is formed, and
+  // either every pipe counted or the pipes not counted; or it states the generator's refusal.
+  const weight = seen.weight_summary;
+  check(`${prefix}: weight summary lists pipes, components and total with a centre of gravity or its absence, or states a refusal`,
+    weight && weight.scopes >= 1 && !weight.error && (weight.table
+      ? weight.rows === 3 && (weight.cog_cells === 3) !== weight.no_cog && weight.not_counted !== weight.all_counted && !weight.unavailable
+      : weight.unavailable), weight);
 }
 // A3: after the demo pack's rule checks (every outcome RULE_INPUTS_INCOMPLETE), the table opens on
 // the pack's category in ratio mode and lists every outcome pinned as incomplete (FR-RULE-003).

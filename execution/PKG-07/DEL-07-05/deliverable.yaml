@@ -224,6 +224,19 @@ needs:
     status and reads no rule-pack value into any output.
   gating: false
   evidence: execution/PKG-07/DEL-07-05/Design/stress-ratio-table.md
+- from: DEL-05-01
+  condition: >-
+    The weight and centre-of-gravity summary (survey item A9) reads the
+    self-weight generator's plan evidence (`generateSelfWeightPlan`, the
+    `self_weight_wasm` engine or the native command): per pipe, the
+    `pipe_mass_per_length_times_explicit_axis_acceleration/v2` record with its
+    generated N/m intensity and the contents and insulation flags; per mapped
+    component, the `component_weight_at_center_of_gravity_global_offset/v1`
+    record with `weight_N`, `component_node`, `omitted_pipe_id` and
+    `center_of_gravity_m`; and the component-weight-not-applied warnings. The
+    plan is read, never queued or applied, and the summary computes no mass.
+  gating: false
+  evidence: execution/PKG-07/DEL-07-05/Design/weight-cog-summary.md
 code_paths:
 - apps/desktop/package.json
 - apps/desktop/src/App.test.tsx
@@ -274,6 +287,8 @@ code_paths:
 - apps/desktop/src/features/results/StressRatioTablePanel.tsx
 - apps/desktop/src/features/results/displacementExtremes.ts
 - apps/desktop/src/features/results/DisplacementExtremesPanel.tsx
+- apps/desktop/src/features/results/weightSummary.ts
+- apps/desktop/src/features/results/WeightSummaryPanel.tsx
 - apps/desktop/src/features/report/springHangerSupport.ts
 checks:
 - apps/desktop/src/features/results/ResultsPanel.test.tsx
@@ -311,4 +326,6 @@ checks:
 - apps/desktop/src/features/results/displacementExtremes.test.ts
 - apps/desktop/src/features/results/DisplacementExtremesPanel.test.tsx
 - apps/desktop/src/features/results/DisplacementExtremesPanel.derivation.test.tsx
+- apps/desktop/src/features/results/weightSummary.test.ts
+- apps/desktop/src/features/results/WeightSummaryPanel.test.tsx
 - apps/desktop/src/features/report/springHangerSupport.test.ts
