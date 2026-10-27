@@ -155,7 +155,7 @@ describe("on-demand model checks", () => {
     expect(slots).not.toHaveBeenCalled();
     // 4,000 assumptions naming missing entities: the slot findings are listed within the bound and the rest counted.
     const flooded = clone(model) as PreviewModel & { unresolved_assumptions?: unknown[] };
-    flooded.unresolved_assumptions = Array.from({ length: 4000 }, (_, i) => ({ assumption_id: `assumption:review-${i}`, kind: "assumption", status: "unresolved", statement: "Invented probe", affected_refs: ["missing:" + "x".repeat(600)] }));
+    flooded.unresolved_assumptions = Array.from({ length: 4000 }, (_, i) => ({ assumption_id: `assumption:review-${i}`, kind: "assumption" as const, status: "unresolved" as const, statement: "Invented probe", affected_refs: ["missing:" + "x".repeat(600)] }));
     const run = await runModelChecks(flooded);
     expect(utf8ByteLength(JSON.stringify(run.findings.map((item) => item.diagnostic)))).toBeLessThanOrEqual(1024 * 1024 + 512);
     expect(run.notShown.slots).toBeGreaterThan(0);

@@ -59,14 +59,14 @@ export const MODEL_CHECKS_INPUT_TOO_LARGE = "MODEL-CHECKS-INPUT-TOO-LARGE";
 /** The report's bound on serialized findings (`operation_applier::MODEL_CHECKS_MAX_RESPONSE_BYTES`). */
 export const MODEL_CHECKS_MAX_RESPONSE_BYTES = 1024 * 1024;
 
-type ValidatorFinding = { code: string; severity: string; path: string; message: string; affected_refs?: string[]; truncated?: boolean };
 
 type ModelChecksReport = {
   document_kind?: string;
   checked?: boolean;
   diagnostics?: Array<Diagnostic & { truncated?: boolean }>;
   diagnostics_not_shown?: number;
-  slot_findings?: ValidatorFinding[];
+  /** The slot findings, already in the Diagnostics list's shape (id, code, severity, message, affected_refs, source, path). */
+  slot_findings?: Array<Diagnostic & { path?: string; truncated?: boolean }>;
   slot_findings_not_shown?: number;
   refusal?: string;
   refusal_truncated?: boolean;
@@ -141,7 +141,7 @@ export async function engineModelChecks(model: PreviewModel): Promise<EngineChec
   if (typeof report.checked !== "boolean" || !Array.isArray(report.diagnostics) || !Array.isArray(report.slot_findings)) {
     return unavailable("The model checks returned a report the desktop cannot read.");
   }
-  const slots = slotDiagnostics(report.slot_findings);
+  const slots = report.slot_findings.map((item) => ({ ...item, source: item.source ?? DOCUMENT_VALIDATOR_SOURCE }));
   const solve = report.diagnostics.map((item) => ({ ...item, source: item.source ?? SOLVE_CHECKS_SOURCE }));
   const bytes = [...report.diagnostics, ...report.slot_findings].reduce((total, item) => total + utf8ByteLength(JSON.stringify(item)) + 1, 0);
   const notShown = {
@@ -152,19 +152,6 @@ export async function engineModelChecks(model: PreviewModel): Promise<EngineChec
     ? { kind: "checked" }
     : { kind: "refused", refusal: report.refusal ?? "the solve could not read the model" };
   return { outcome, solve, slots, notShown, bytes };
-}
-
-/** The validator's findings as the Diagnostics list shows them (`modelDocumentDiagnostics`). */
-function slotDiagnostics(findings: readonly ValidatorFinding[]): Diagnostic[] {
-  return findings.map((finding, index) => ({
-    id: `model-document:${finding.code}:${finding.path || "document"}:${index}`,
-    code: finding.code,
-    severity: finding.severity === "blocking" ? "blocking" : "warning",
-    message: finding.path ? `${finding.message} (at ${finding.path})` : finding.message,
-    affected_refs: finding.affected_refs ?? [],
-    source: DOCUMENT_VALIDATOR_SOURCE,
-    ...(finding.truncated ? { truncated: true } : {})
-  }) as Diagnostic);
 }
 
 function entityFor(model: PreviewModel, diagnostic: Diagnostic): EntityRef | null {

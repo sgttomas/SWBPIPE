@@ -70,10 +70,30 @@ pub fn model_checks_owned(model: Value) -> Value {
             report.insert("diagnostics_not_shown".to_string(), json!(0));
         }
     }
-    let (shown, not_shown) = budget.list(slots.into_iter().map(|finding| serde_json::to_value(finding).ok()));
+    let (shown, not_shown) = budget.list(slots.into_iter().enumerate().map(|(index, finding)| Some(slot_diagnostic(index, finding))));
     report.insert("slot_findings".to_string(), Value::Array(shown));
     report.insert("slot_findings_not_shown".to_string(), json!(not_shown));
     Value::Object(report)
+}
+
+/// Where the slot findings come from, as the desktop's Diagnostics list names it.
+pub const DOCUMENT_VALIDATOR_SOURCE: &str = "core/model_operations/operation_applier/src/document_validator.rs";
+
+/// A slot finding in the shape the desktop lists it (`modelDocumentDiagnostics`):
+/// its id from its code, path and position, its message with the path, and the
+/// validator as its source, so the bound counts what is shown.
+fn slot_diagnostic(index: usize, finding: crate::document_validator::DocumentDiagnostic) -> Value {
+    let path = if finding.path.is_empty() { "document".to_string() } else { finding.path.clone() };
+    let message = if finding.path.is_empty() { finding.message } else { format!("{} (at {})", finding.message, finding.path) };
+    json!({
+        "id": format!("model-document:{}:{path}:{index}", finding.code),
+        "code": finding.code,
+        "severity": if finding.severity == "blocking" { "blocking" } else { "warning" },
+        "message": message,
+        "affected_refs": finding.affected_refs,
+        "source": DOCUMENT_VALIDATOR_SOURCE,
+        "path": finding.path,
+    })
 }
 
 /// The serialized bytes the report may still carry.

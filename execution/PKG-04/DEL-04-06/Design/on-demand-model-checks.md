@@ -36,8 +36,10 @@ associated function of the already-exported request type,
 `validation.rs` is not a retained-pricing owner source, so `lib.rs` and every
 other owner source stay byte-identical to main, and the module reaches the
 crate root's private checks as any module of the crate does. Nothing on the
-solve or retained route calls it. The retained-pricing tool's run and
-comparison for this placement are reported with the PR.
+solve or retained route calls it. The retained-pricing tool prices this
+placement (at `769bf8c30f`) with exit 0, and its tree compares `a_le_b` and
+identical to main's (`a40bf2a63e`, whose priced crates main has not changed
+since) but for the basis line.
 
 The drift guard is `core/product_physics/tests/model_checks_runtime.rs`. It
 solves each of 15 invented models in both solver modes, including the bundled

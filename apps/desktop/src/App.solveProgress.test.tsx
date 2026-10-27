@@ -129,10 +129,12 @@ it("review round 2: first deferred start exposes Starting and Cancel", async () 
   act(() => nativeMenuCommand("analyze.run"));
   await waitFor(() => expect(starts).toBe(1));
   const panel=screen.queryByTestId("solve-progress-panel");
-  const cancel=screen.queryByTestId("solve-progress-cancel");
+  // Read before the receipt arrives: afterwards the panel follows the job.
+  const state=panel?.getAttribute("data-state");
+  const cancelDisabled=screen.queryByTestId("solve-progress-cancel")?.getAttribute("aria-disabled");
   // Finish the outstanding native promise even if the expectation below fails.
   await act(async () => {release({job_id:"review-first",backend_cancellation_token:"review-token-first",state:"queued",cancellation_scope:"worker_process_terminated"});});
   expect(panel).not.toBeNull();
-  expect(panel).toHaveAttribute("data-state", "starting");
-  expect(cancel).toHaveAttribute("aria-disabled", "false");
+  expect(state).toBe("starting");
+  expect(cancelDisabled).toBe("false");
 });

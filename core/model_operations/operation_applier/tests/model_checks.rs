@@ -50,7 +50,9 @@ fn a_model_the_solve_cannot_read_is_reported_unchecked_with_its_refusal() {
     assert_eq!(report["checked"], false);
     let solve = run_linear_static_preview_value_with_mode(json!({"model": model, "materials": []}), PreviewSolverMode::SparseInteractive).err().unwrap();
     assert_eq!(report["refusal"], json!(solve));
-    assert!(report.get("diagnostics").is_none());
+    // No solve finding; the slot checks still ran.
+    assert_eq!(report["diagnostics"], json!([]));
+    assert!(report["slot_findings"].is_array());
 }
 
 // Codex reviews r1 and r2 of #1665: the report is bounded whatever the model;
