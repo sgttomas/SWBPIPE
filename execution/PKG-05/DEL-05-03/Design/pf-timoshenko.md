@@ -199,7 +199,7 @@ Changing the preview-physics-2 table would move its hash. Every recorded run bou
   - `section-and-shear-decisions.md` §D-6 (a PF paragraph pointing here);
   - `section-bases-and-timoshenko.md` line 3;
   - DEL-04-07 `deliverable.yaml`'s kernel line;
-  - `docs/COMPLETENESS_MAP.md` FR-SOL-003 ("PF Euler–Bernoulli; EX adds Timoshenko" → PF opt-in);
+  - the `docs/COMPLETENESS_MAP.md` FR-SOL-003 row ("PF Euler–Bernoulli; EX adds Timoshenko" → PF opt-in), sent to Agent 0 for W-17 (#1642) to reconcile, not edited here (Agent 0, 2026-10-27);
   - FK `README.md` line 14, which still says the W1 element stays Euler–Bernoulli although O4 forms Timoshenko on route E.
 
 ## 8. Open
