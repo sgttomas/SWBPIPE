@@ -602,3 +602,10 @@ ripple lands joins 0.8.0 through Agent 0.
   zero on D1 (M08-VZ), and the offset check to read the tolerance after its
   first pass. The four reviewed inputs above move, and the successors and the
   synthetic bases were regenerated on the registered build.
+- **D3 with `model_settings.shear_model` (§1.1).** The member's refusal is a
+  second blocking diagnostic in `validate_model_settings`, reachable on D1 as
+  the tolerance's is, so coefficients move: re-priced at `642e9737e4` and
+  re-registered in §8.26 ("The shear-model member"), 92 coefficients higher and
+  the merged check +98,134 B; the tightest native headroom is still positive
+  (merged dense W3, +2,361,079,335 B). The member's decoder builds no value.
+  AC-004's earlier 6/6 is superseded and is re-run on this build.

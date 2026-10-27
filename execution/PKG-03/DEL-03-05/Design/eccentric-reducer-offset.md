@@ -691,6 +691,9 @@ higher or lower), and so is each point's tree. Four adjustments were needed:
 The six AC-004 stack witnesses passed 6/6 in the registered build at
 `99005d9745` under the exclusive lane (`check_release_readiness.py --profile
 stack-witnesses --execute`; DEL-04-08 `retained-pricing-rules.md` §8.26).
+That run is superseded: model document 0.8.0's shear-model member re-registers
+the profile (§8.26, "The shear-model member"), and AC-004 is re-run on that
+build.
 
 ## 9. Precision and detail matters
 
