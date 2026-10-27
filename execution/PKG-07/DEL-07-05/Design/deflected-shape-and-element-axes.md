@@ -57,8 +57,9 @@ The controls are in `DeflectedShapeControls.tsx`. The builder is
   values.
 - **Statement.** The canvas, the popover summary and the popover explanation
   state the magnification drawn, which is the stated factor times the phase.
-  At a partial phase both are named, for example "Deformed ×25, 25% of ×100 ·
-  case". At a partial phase only, the boundary string adds `phase=` and
+  At a partial phase the canvas and explanation name both factors, for example
+  "Deformed ×25, 25% of ×100 · case"; the popover summary shows the drawn
+  factor. At a partial phase only, the boundary string adds `phase=` and
   `drawn_factor=`; at phase 1 it states the factor alone. A normalized drawing
   names its basis: the chosen case, or "governing case per node". The readout
   keeps the emitted maximum with its unit at every factor and phase.

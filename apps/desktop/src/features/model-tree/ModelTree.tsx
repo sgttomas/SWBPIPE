@@ -122,29 +122,38 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
   // A selection made outside the tree (the viewport, the grid, a result row) is
   // revealed here: its group opens and its row becomes the tree's current row,
   // which the list scrolls into view. Neither DOM focus nor the selection moves.
-  // A selection made while focus is in the tree is the tree's own and is left.
+  // A selection made while focus is in the tree list is the tree's own and is
+  // left. The request is kept while the Tree layout is hidden, or while a filter
+  // hides the row, and done when the row can be shown.
   const treeRootRef = useRef<HTMLDivElement>(null);
   const primarySelectionKey = selectionState ? selectionState.primaryKey : entityKey(selection);
   const revealedSelectionKey = useRef(primarySelectionKey);
-  useEffect(() => {
+  const pendingTreeReveal = useRef<string | null>(null);
+  const focusInTreeList = () => Boolean(treeRootRef.current?.querySelector('[role="tree"]')?.contains(document.activeElement));
+  useLayoutEffect(() => {
     if (revealedSelectionKey.current === primarySelectionKey) return;
     revealedSelectionKey.current = primarySelectionKey;
-    if (!primarySelectionKey || layoutMode !== "tree") return;
-    if (treeRootRef.current?.contains(document.activeElement)) return;
+    pendingTreeReveal.current = primarySelectionKey && !focusInTreeList() ? primarySelectionKey : null;
+  }, [primarySelectionKey]);
+  useLayoutEffect(() => {
+    const key = pendingTreeReveal.current;
+    if (key === null || layoutMode !== "tree") return;
     // Under a filter only a matching entity has a row to reveal.
     const filtering = Boolean(filterText.trim());
     const shown = filtering ? filteredTree : tree;
-    const group = shown.groups.find((candidate) => candidate.items.some((item) => entityKey(item) === primarySelectionKey));
-    const projectRow = shown.project && entityKey(shown.project) === primarySelectionKey;
+    const group = shown.groups.find((candidate) => candidate.items.some((item) => entityKey(item) === key));
+    const projectRow = shown.project && entityKey(shown.project) === key;
     if (!group && !projectRow) return;
+    pendingTreeReveal.current = null;
+    if (focusInTreeList()) return;
     if (group && filtering && filteredCollapsedGroups.has(group.title)) {
       setFilteredCollapsedGroups((current) => { const next = new Set(current); next.delete(group.title); return next; });
     } else if (group && !filtering && !expandedGroups.has(group.title)) {
       setExpandedGroups((current) => new Set(current).add(group.title));
     }
-    setFocusedTreeKey(primarySelectionKey);
-    onFocusChange(primarySelectionKey);
-  }, [primarySelectionKey]);
+    setFocusedTreeKey(key);
+    onFocusChange(key as EntityKey);
+  });
 
   useEffect(() => {
     if (layoutMode === "grid") {
@@ -863,9 +872,11 @@ function EntityGrid({
   // rows (the node, material and section tables reveal their own). The reveal
   // is held as pending until this family's list holds the selected row, so a
   // grid opened after the selection, or a family the selection switches to,
-  // still reveals it. Focus in the grid (an edit, or a row control) keeps its
-  // position: it drops the pending reveal. The virtual list is asked once, by a
-  // one-shot index cleared after it has scrolled.
+  // still reveals it. The request is also kept while the grid is hidden (the
+  // Tree layout), and done when the grid is shown: a hidden list cannot scroll.
+  // Focus in the grid (an edit, or a row control) keeps its position: it drops
+  // the pending reveal. The virtual list is asked once, by a one-shot index
+  // cleared after it has scrolled.
   const gridRootRef = useRef<HTMLElement>(null);
   const bulkScrollRef = useRef<HTMLDivElement>(null);
   const [virtualReveal, setVirtualReveal] = useState<number | null>(null);
@@ -882,7 +893,7 @@ function EntityGrid({
     if (key === null || commonFamily) return;
     const index = visibleRows.findIndex((row) => entityKey({ type: row.type, id: row.id }) === key);
     const host = bulkScrollRef.current;
-    if (index < 0 || !host) return;
+    if (index < 0 || !host || host.closest("[hidden], [inert]")) return;
     pendingGridReveal.current = null;
     if (host.contains(document.activeElement)) return;
     if (virtualGrid) setVirtualReveal(index);

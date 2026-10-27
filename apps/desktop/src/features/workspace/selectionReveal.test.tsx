@@ -3,7 +3,7 @@
 // cover the reveal: the tree opens and scrolls to the selected row, the grid scrolls to it,
 // and the results table can follow the selected entity. Invented fixtures only.
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { EntityRef, MechanicsResult, PreviewModel } from "../../types";
 import { ModelTree } from "../model-tree/ModelTree";
 import { ResultsPanel } from "../results/ResultsPanel";
@@ -184,6 +184,73 @@ describe("the virtual bulk grid (review r1, #1667)", () => {
     view.rerender(pipeGrid("p/150"));
     expect(list.scrollTop).toBe(0);
     expect(document.activeElement).toBe(input);
+  });
+});
+
+// Review r3 (#1667): a reveal asked for while its surface is hidden is done when the surface is
+// shown. jsdom does no layout and stores any scrollTop; a browser does not scroll an element under
+// [hidden] (display: none). These tests restore that browser behaviour for the duration.
+describe("a reveal asked for while the surface is hidden", () => {
+  const native = Object.getOwnPropertyDescriptor(Element.prototype, "scrollTop")!;
+  beforeEach(() => {
+    Object.defineProperty(Element.prototype, "scrollTop", {
+      configurable: true,
+      get(this: Element) { return native.get!.call(this); },
+      set(this: Element, value: number) { if (!this.closest("[hidden]")) native.set!.call(this, value); }
+    });
+  });
+  afterEach(() => {
+    Object.defineProperty(Element.prototype, "scrollTop", native);
+  });
+  const model = nodesModel(161, 160);
+  const show = (layout: "grid" | "tree") => {
+    fireEvent.click(screen.getByTestId(`layout-mode-${layout}`));
+    act(() => (document.activeElement as HTMLElement | null)?.blur());
+  };
+
+  it("reveals in the pipe grid a selection made while the Tree layout was shown", () => {
+    const view = render(tree(model, { type: "pipe", id: "p/0" }));
+    show("grid");
+    show("tree");
+    view.rerender(tree(model, { type: "pipe", id: "p/150" }));
+    show("grid");
+    expect(screen.getByTestId("entity-grid-virtual-rows").scrollTop).toBeGreaterThan(0);
+    expect(screen.getByTestId("entity-grid-row-pipe-p-150")).toBeInTheDocument();
+  });
+
+  it("reveals a selection a filter hid, once the filter is cleared with the grid closed and the grid reopens", () => {
+    const view = render(tree(model, { type: "pipe", id: "p/0" }));
+    show("grid");
+    fireEvent.change(screen.getByTestId("model-tree-filter-input"), { target: { value: "p/0" } });
+    act(() => (document.activeElement as HTMLElement | null)?.blur());
+    view.rerender(tree(model, { type: "pipe", id: "p/150" }));
+    show("tree");
+    fireEvent.change(screen.getByTestId("model-tree-filter-input"), { target: { value: "" } });
+    act(() => (document.activeElement as HTMLElement | null)?.blur());
+    show("grid");
+    expect(screen.getByTestId("entity-grid-virtual-rows").scrollTop).toBeGreaterThan(0);
+    expect(screen.getByTestId("entity-grid-row-pipe-p-150")).toBeInTheDocument();
+  });
+
+  it("reveals in the node table a selection made while the Tree layout was shown", () => {
+    const view = render(tree(model, { type: "node", id: "n/0" }));
+    show("grid");
+    show("tree");
+    view.rerender(tree(model, { type: "node", id: "n/150" }));
+    show("grid");
+    const rows = screen.getAllByTestId("engineering-table-rows")[0];
+    expect(rows.scrollTop).toBeGreaterThan(0);
+    expect(within(rows).getAllByRole("row").some((row) => row.getAttribute("aria-selected") === "true" && row.textContent?.includes("n/150"))).toBe(true);
+  });
+
+  it("reveals in the tree a selection made while the Grid layout was shown", () => {
+    const view = render(tree(model, { type: "node", id: "n/0" }));
+    show("grid");
+    view.rerender(tree(model, { type: "node", id: "n/150" }));
+    show("tree");
+    const list = screen.getByTestId("model-tree-virtual");
+    expect(list.scrollTop).toBeGreaterThan(0);
+    expect(within(list).getByTestId("tree-row-node-n%2F150")).toHaveClass("focused");
   });
 });
 
