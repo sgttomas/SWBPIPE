@@ -1014,6 +1014,15 @@ Then each command finishes its own checks:
   (`check_manifest_model`, `:502`). The host then re-derives, from the bound
   source and with the functions item 9 uses (§3.5):
   - the result rows (`expected_report_result_rows`);
+  - the rows' references and full-precision checksums
+    (`check_report_result_refs`, item 5's), since the displayed rows are
+    rounded (§3.7) and two sources can display the same rows
+    (`REPORT-EXACT-SECTIONS-MISMATCH: result_export_refs`);
+  - the unit display summary (`check_unit_display_summary`, item 5's): the
+    storage convention, the display policy whose statement the renderer
+    prints, `conversion_performed` exactly when a displayed value is stored
+    in `Pa`, and the stored result units
+    (`REPORT-EXACT-SECTIONS-MISMATCH: unit_display_summary`);
   - the exact limitation entries and the profile reference;
   - the `exact_route` section (`expected_exact_route_core`), with
     `model_sha256`, `native_job_id` and `received_bytes_sha256` from steps 2-5.
@@ -1108,7 +1117,8 @@ Three presentation changes from the owner's review of the §5.5 evidence. They
 are in the shared renderer (or, for the display rule, in the shared row and
 headline projections), so the HTML and the PDF, the native render and the
 package carry them alike, on the exact and the pressure-free route. No input,
-schema, section, package member, binding or identifier changes.
+schema, section, package member or identifier changes. The native exact
+render gains two bindings for the display rule (below, and §3.6).
 
 - **Diagnostic evidence (item 1).** In the Diagnostics table of "Warnings,
   Assumptions, And Provenance", a diagnostic whose code begins
@@ -1137,6 +1147,30 @@ schema, section, package member, binding or identifier changes.
   Stored values and units are unchanged; the stored units are listed as
   Result units in the Model Input Summary." A report declaring another policy
   (the older invented fixtures) states none, so its bytes are unchanged.
+  The renderer prints what the report declares, so the bound paths check the
+  declaration against the source (Codex review round 1 of #1655):
+  - *The rounded rows.* Two sources whose values differ below the sixth
+    significant digit display the same rows, so the rows alone no longer
+    bind the report to its source. The package's item 5 already binds each
+    row's reference and full-precision checksum
+    (`calculation_report.result_export_refs`) to the source row; the native
+    exact render now applies the same check (`check_report_result_refs`) to
+    the delivered source after the rows (§3.6). The same-run substitute
+    (§5.5, one nodal rotation changed by a relative 1e-6) displays the
+    genuine rows and is refused by it, with or without the genuine
+    received-result checksum.
+  - *The policy and `conversion_performed`.* The package's item 5 requires
+    the policy text and derives `conversion_performed` from the source; the
+    native exact render now applies the same check
+    (`check_unit_display_summary`), so an exact report cannot show MPa values
+    under `conversion_performed: false` or drop the statement under another
+    policy.
+  - *The pressure-free render* is route-blind (§3.6, "A route-blind input"):
+    it receives no source, so neither its rows nor its display summary are
+    bound when it renders, as before this slice; the package binds both when
+    it is saved. The report JSON packet (`ReportPanel.tsx`) is not rendered
+    and keeps its own disclosure (`report-package-current-results.md` §2.3
+    item 5).
 - **Run name (item 2, presentation).** The product producer names every
   desktop solve `run:preview-linear-static-001`
   (`core/product_physics/src/lib.rs` `run_id`), and report, result and
@@ -1701,8 +1735,10 @@ differences, each fail-closed:
   45,915,728 when the test runs alone, 40,620,336 in the crate's full test
   run (the render's 6,642,400 within 12,099,728); DEL-04-07
   `memory-budget-decision.md` records them. After the readability slice
-  (§3.7), run alone: the save 40,416,304 within 110,841,136 and the render
-  6,637,888 within 12,097,520.
+  (§3.7) and its native display-rule bindings, with the test run alone in
+  a fresh process: the save 45,711,696 within 110,841,136 and the render
+  6,637,888 within 12,097,520; in the crate's full test run, the save
+  40,416,304 and the render 6,076,848.
 - **Readability items (observations on the §5.5 evidence).** Under the
   owner's ruling on the evidence (§0, option A), item 4's standing line is
   fixed in #1648 (below). Items 1-3 are built in the readability slice that
@@ -1755,7 +1791,12 @@ differences, each fail-closed:
      it under the owner's delegation of 2026-10-26
      (`report-package-current-results.md` §2.3 item 5, display resolution;
      §3.3, §3.7). The headline above now reads 41.3549 MPa, the row
-     28.4629 MPa;
+     28.4629 MPa. Codex review round 1 of #1655 found that the native exact
+     render then accepted a report whose rounded rows matched the delivered
+     source while its row checksums were another source's, and a report
+     whose display policy or `conversion_performed` was not the source's;
+     the render now binds both with the package's item 5 checks (§3.6,
+     §3.7);
   4. the pressure-source-1 example (synthetic n05) shows 0 Pa for both
      headlines, and its standing line says "integrity checked" while
      Diagnostics carries `NUMERICAL_INTEGRITY_SENSITIVE`. **New:** the standing
@@ -1869,7 +1910,19 @@ differences, each fail-closed:
   `the_stored_data_members_keep_their_bytes` (the audit manifest, result
   export and handoff members keep their `1ee5d0e5dc` hashes; only the
   rendered members and the manifest change); the native per-shape test
-  checks the three texts in the native render and the saved package.
+  checks the three texts in the native render and the saved package. The
+  native display-rule bindings (§3.7; Codex review round 1 of #1655), on
+  pressure-2 straight and pressure-source-1 (`report_render_exact_tests.rs`):
+  `the_render_binds_the_rows_full_precision_checksums_on_both_identities`
+  (a row checksum, two exchanged, a reference and a removed entry, with the
+  displayed rows unchanged, refuse with
+  `REPORT-EXACT-SECTIONS-MISMATCH: result_export_refs`) and
+  `the_render_binds_the_display_policy_and_conversion_on_both_identities`
+  (`conversion_performed` false, the earlier policy with and without it, and
+  another result unit refuse with
+  `REPORT-EXACT-SECTIONS-MISMATCH: unit_display_summary` at the render and
+  with the matching `REPORT-PACKAGE-BINDING-MISMATCH` at the save; the
+  genuine report renders with the statement).
 - Rust integration (`core/reporting/report_package/tests/report_rows_parity.rs`,
   a new `tests/exact_sections_parity.rs`):
   - the suffix rule;
@@ -1948,8 +2001,12 @@ differences, each fail-closed:
   1. the substitute with the genuine result text, with
      `REPORT-EXACT-SOURCE-NOT-DELIVERED: result` at step 5. A variant keeps
      the genuine `exact_route` binding and is refused at the save's source
-     equality and, as `REPORT-EXACT-SECTIONS-MISMATCH`, at the render's
-     re-derivation;
+     equality and, as `REPORT-EXACT-SECTIONS-MISMATCH: result_export_refs`,
+     at the render's re-derivation: its displayed rows equal the genuine
+     rows at six significant digits (§3.7), and its substituted row's
+     checksum is not the delivered row's. The same refusal holds when the
+     variant also carries the genuine received-result checksum (Codex
+     review round 1 of #1655);
   2. the substitute with its own text as `exact_result_text`, with the same
      code at step 2, because its SHA-256 is not the delivered bytes';
   3. a substituted model (one support stiffness changed, with the model,

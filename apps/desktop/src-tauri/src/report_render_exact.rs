@@ -30,9 +30,10 @@
 //! source natively before it is rendered: the named job's custody, the
 //! resubmitted result, intake and input-manifest texts against the digests
 //! the host recorded, a priced parse under the command's lease, the native
-//! reader's eligible standing, and the re-derivation of the rows, the exact
-//! limitation entries and the `exact_route` section from the delivered result
-//! with the report package's own functions (`exact_source_binding.rs`). An
+//! reader's eligible standing, and the re-derivation of the rows, their
+//! references and full-precision checksums, the unit display summary, the
+//! exact limitation entries and the `exact_route` section from the delivered
+//! result with the report package's own functions (`exact_source_binding.rs`). An
 //! input that carries the texts without `exact_route` refuses. Standard claim
 //! fence applies (claims taxonomy per DEC-081).
 
@@ -41,7 +42,7 @@ use crate::exact_source_binding::{self as binding, sections_mismatch, ExactRefus
 use crate::memory_pool::Lease;
 use crate::report_package_save::{MAX_INPUT_MANIFEST_TEXT_BYTES, MAX_MODEL_TEXT_BYTES, MAX_REQUEST_TEXT_BYTES, TOO_LARGE};
 use crate::solve_jobs::SolveJobRegistry;
-use open_pipe_stress_report_package::bindings::expected_report_result_rows;
+use open_pipe_stress_report_package::bindings::{check_report_result_refs, check_unit_display_summary, expected_report_result_rows};
 use open_pipe_stress_report_package::exact_sections::{check_exact_limitation_entries, expected_exact_limitations, expected_exact_route_core};
 use open_pipe_stress_result_export::semantic_contract::{PHYSICS_RETAINED_ID, PRESSURE_ID, PRESSURE_SOURCE_ID};
 use serde_json::Value;
@@ -195,8 +196,9 @@ fn check_render_text_sizes(texts: &ExactRenderTexts) -> Result<(), String> {
 }
 
 /// The native source binding of an exact render (§3.6): steps 1-5, then the
-/// input manifest and the re-derivation of the rows, the exact limitation
-/// entries and the `exact_route` section from the delivered result. Refuses
+/// input manifest and the re-derivation of the rows, their references and
+/// checksums, the unit display summary, the exact limitation entries and the
+/// `exact_route` section from the delivered result. Refuses
 /// with the first difference; the renderer's own checks (§3.2, §3.5) follow.
 fn bind_exact_render_input(
     input: &Value,
@@ -232,10 +234,14 @@ fn bind_exact_render_input(
     rederive(input, &bound.source, &bound.model_sha256, &digests).map_err(|section| refused(sections_mismatch(&section)))
 }
 
-/// The re-derivation (§3.6) with the functions the package's item 9 uses: the
-/// result rows, exactly (an exact report carries no numerical-health line, so
-/// no row is admitted that the delivered result does not derive), the exact
-/// limitation entries with the profile reference, and the `exact_route`
+/// The re-derivation (§3.6) with the functions the package's items 5, 6 and 9
+/// use: the result rows, exactly (an exact report carries no numerical-health
+/// line, so no row is admitted that the delivered result does not derive);
+/// the rows' references and full-precision checksums, since the displayed
+/// rows are rounded (§3.7) and two sources can display the same rows; the
+/// unit display summary, so the display policy, its statement and
+/// `conversion_performed` are the delivered source's (§3.7); the exact
+/// limitation entries with the profile reference; and the `exact_route`
 /// section. `input_manifest_ref` and
 /// `derivative_sha256` are checked for form here and against the report's own
 /// records by the renderer (§3.2). `Err` names the section.
@@ -245,6 +251,8 @@ fn rederive(input: &Value, source: &Value, model_sha256: &str, digests: &crate::
     if found != rows.as_slice() {
         return Err("result_rows".to_string());
     }
+    check_report_result_refs(input, source).map_err(|_| "result_export_refs".to_string())?;
+    check_unit_display_summary(input, source).map_err(|_| "unit_display_summary".to_string())?;
     let core = expected_exact_route_core(source).map_err(|_| "exact_route".to_string())?;
     let route = &input["exact_route"];
     let admission = &route["admission"];

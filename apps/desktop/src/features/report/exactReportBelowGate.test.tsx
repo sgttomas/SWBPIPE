@@ -516,11 +516,12 @@ async function substituteRequest(genuine: Json) {
   // A nodal rotation row, which no section-basis pair or magnitude row repeats.
   const target = raw.results.findIndex((row: Json) => row.kind === "global_nodal_rotation_x" && row.value !== 0);
   expect(target).toBeGreaterThanOrEqual(0);
-  // A relative change of 1e-3 shows at the report's six-significant-digit display
-  // (`reportQuantityDisplay.ts`), so the substitute's displayed row differs from the genuine
-  // row and the native render's row re-derivation refuses it; a change of 1e-6 (the factor
-  // before the display rule) is no longer visible in the displayed rows.
-  raw.results[target].value = raw.results[target].value * (1 + 1e-3);
+  // A relative change of 1e-6, below the report's six-significant-digit display
+  // (`reportQuantityDisplay.ts`): the substitute displays the same rows as the genuine result,
+  // so the native render refuses it by the rows' full-precision checksums
+  // (`REPORT-EXACT-SECTIONS-MISMATCH: result_export_refs`; Codex review round 1 of #1655),
+  // not by the displayed rows.
+  raw.results[target].value = raw.results[target].value * (1 + 1e-6);
   const session = await solve(item, solveBytes(raw), "invented-w11b-substitute-job");
   expect(numericalResultStanding(session.result, session.model).eligible).toBe(true);
   const request = await buildReportPackageRequest(packageInput(session)) as Json;
@@ -584,6 +585,11 @@ describe("the witness requests (§5.5)", () => {
     const substitute = await substituteRequest(straight);
     expect(await canonicalSha256Hex(substitute.request.source_results[0])).not.toBe(await canonicalSha256Hex(straight.source_results[0]));
     expect(substitute.request.report.exact_route.admission.received_result_sha256).not.toBe(straight.report.exact_route.admission.received_result_sha256);
+    // The rounding collision the native render's checksum binding refuses: the displayed rows
+    // are the genuine ones, and the substituted row's full-precision checksum is not.
+    expect(substitute.request.report.result_rows).toEqual(straight.report.result_rows);
+    const substitutedRef = (request: Json) => request.report.calculation_report.result_export_refs.find((entry: Json) => entry.ref.ref_id === substitute.row);
+    expect(substitutedRef(substitute.request).checksum.value).not.toBe(substitutedRef(straight).checksum.value);
     // The substitute is committed as leaf replacements over the straight witness's request
     // (Codex r1 finding 5); the overlay reproduces it exactly.
     expect(substitute.session.intakeText).toBe(JSON.parse(files[0][1]).exact_intake_text);

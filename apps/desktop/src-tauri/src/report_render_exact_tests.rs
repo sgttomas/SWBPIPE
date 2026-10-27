@@ -1482,8 +1482,22 @@ mod direct_native {
         let (code, message) = save_code(&live, save_args(&variant, &w, &w.model, Some(&w.result), Some(&w.intake)));
         assert_eq!(code, SOURCE_NOT_DELIVERED, "{message}");
         assert!(message.contains("/request/source_results/0"), "{message}");
-        let refused = refusal_text(production_render_on(&live, &render_args(&variant["report"], Some(&w.result), Some(&w.intake), Some(&canonical_json(&w.manifest)))));
-        assert_eq!(refused, format!("{SECTIONS_MISMATCH}: result_rows"));
+        // The substitute's row differs from the genuine row by a relative 1e-6, so at
+        // the report's six significant digits (§3.7) both display the same rows; the
+        // render refuses it by the rows' full-precision checksums (Codex review
+        // round 1 of #1655), not by the displayed rows.
+        assert_eq!(variant["report"]["result_rows"], genuine["report"]["result_rows"], "the displayed rows coincide");
+        let manifest = canonical_json(&w.manifest);
+        let refused = refusal_text(production_render_on(&live, &render_args(&variant["report"], Some(&w.result), Some(&w.intake), Some(&manifest))));
+        assert_eq!(refused, format!("{SECTIONS_MISMATCH}: result_export_refs"));
+        // The same variant with the genuine received-result checksum as well (Codex's
+        // reproduction): the renderer's admission comparison then passes, and the
+        // rows' checksums still refuse it; the save refuses it at the source.
+        variant["report"]["calculation_report"]["audit_manifest_refs"][1]["checksum"] = genuine["report"]["calculation_report"]["audit_manifest_refs"][1]["checksum"].clone();
+        let refused = refusal_text(production_render_on(&live, &render_args(&variant["report"], Some(&w.result), Some(&w.intake), Some(&manifest))));
+        assert_eq!(refused, format!("{SECTIONS_MISMATCH}: result_export_refs"));
+        let (code, message) = save_code(&live, save_args(&variant, &w, &w.model, Some(&w.result), Some(&w.intake)));
+        assert_eq!(code, SOURCE_NOT_DELIVERED, "{message}");
         // 2. With its own text: step 2.
         let own = serde_json::to_string(&substitute.request["source_results"][0]).unwrap();
         let (code, message) = save_code(&live, save_args(&request, &w, &w.model, Some(&own), Some(&w.intake)));
@@ -1609,6 +1623,86 @@ mod direct_native {
         assert_eq!(refused, format!("{SECTIONS_MISMATCH}: exact_route"));
         let refused = refusal_text(production_render_on(&live, &render_args(&pressure_free_input(), Some(&w.result), None, None)));
         assert_eq!(refused, format!("{SECTIONS_MISMATCH}: exact_route"));
+    }
+
+    /// The rows' full-precision binding on both identities (§3.7; Codex review
+    /// round 1 of #1655): the displayed rows are rounded, so the render binds
+    /// each row's reference and checksum to the delivered source. A checksum,
+    /// a reference or the entry count that is not the delivered source's
+    /// refuses natively, with the displayed rows unchanged.
+    #[test]
+    fn the_render_binds_the_rows_full_precision_checksums_on_both_identities() {
+        for (name, text) in [("pressure_2_straight", STRAIGHT), ("pressure_source_1", SOURCE_1)] {
+            let w = witness(text);
+            let live = live(&w);
+            let manifest = canonical_json(&w.manifest);
+            let genuine = bound(&w.request, &live.job)["report"].clone();
+            let edits: Vec<(&str, Box<dyn Fn(&mut Value)>)> = vec![
+                ("a row checksum", Box::new(|input: &mut Value| input["calculation_report"]["result_export_refs"][1]["checksum"]["value"] = json!("0".repeat(64)))),
+                ("two row checksums exchanged", Box::new(|input: &mut Value| {
+                    let refs = input["calculation_report"]["result_export_refs"].as_array_mut().unwrap();
+                    let (first, second) = (refs[0]["checksum"]["value"].clone(), refs[1]["checksum"]["value"].clone());
+                    refs[0]["checksum"]["value"] = second;
+                    refs[1]["checksum"]["value"] = first;
+                })),
+                ("a row reference", Box::new(|input: &mut Value| input["calculation_report"]["result_export_refs"][0]["ref"]["ref_id"] = json!("result:invented"))),
+                ("a row reference removed", Box::new(|input: &mut Value| { input["calculation_report"]["result_export_refs"].as_array_mut().unwrap().pop(); })),
+            ];
+            for (label, edit) in edits {
+                let mut input = genuine.clone();
+                edit(&mut input);
+                assert_eq!(input["result_rows"], genuine["result_rows"], "{name}: {label}");
+                let refused = refusal_text(production_render_on(&live, &render_args(&input, Some(&w.result), Some(&w.intake), Some(&manifest))));
+                assert_eq!(refused, format!("{SECTIONS_MISMATCH}: result_export_refs"), "{name}: {label}");
+            }
+        }
+    }
+
+    /// The display policy and `conversion_performed` on both identities (§3.7;
+    /// Codex review round 1 of #1655): the render requires the report's unit
+    /// display summary to be the delivered source's, by the package's own
+    /// check, so it neither shows MPa values under a false
+    /// `conversion_performed` nor drops the display rule statement under
+    /// another policy. The save refuses both.
+    #[test]
+    fn the_render_binds_the_display_policy_and_conversion_on_both_identities() {
+        const OLD_POLICY: &str = "display result-row values with their explicit units; no report-time conversion";
+        for (name, text) in [("pressure_2_straight", STRAIGHT), ("pressure_source_1", SOURCE_1)] {
+            let w = witness(text);
+            let live = live(&w);
+            let manifest = canonical_json(&w.manifest);
+            let genuine = bound(&w.request, &live.job);
+            let display = &genuine["report"]["calculation_report"]["model_input_summary"]["unit_display_summary"];
+            // Both witnesses display their Pa headlines in MPa.
+            assert_eq!(display["conversion_performed"], json!(true), "{name}");
+            assert_eq!(display["quantity_display_policy"], json!(open_pipe_stress_report_renderer::QUANTITY_DISPLAY_POLICY), "{name}");
+            let edits: Vec<(&str, Box<dyn Fn(&mut Value)>, &str)> = vec![
+                ("conversion_performed false", Box::new(|summary: &mut Value| summary["conversion_performed"] = json!(false)), "unit display conversion_performed"),
+                (
+                    "the earlier policy, conversion_performed false",
+                    Box::new(|summary: &mut Value| {
+                        summary["quantity_display_policy"] = json!(OLD_POLICY);
+                        summary["conversion_performed"] = json!(false);
+                    }),
+                    "unit display quantity_display_policy",
+                ),
+                ("the earlier policy", Box::new(|summary: &mut Value| summary["quantity_display_policy"] = json!(OLD_POLICY)), "unit display quantity_display_policy"),
+                ("another result unit", Box::new(|summary: &mut Value| summary["result_units"] = json!(["MPa"])), "unit display result_units"),
+            ];
+            for (label, edit, save_detail) in edits {
+                let mut request = genuine.clone();
+                edit(&mut request["report"]["calculation_report"]["model_input_summary"]["unit_display_summary"]);
+                let refused = refusal_text(production_render_on(&live, &render_args(&request["report"], Some(&w.result), Some(&w.intake), Some(&manifest))));
+                assert_eq!(refused, format!("{SECTIONS_MISMATCH}: unit_display_summary"), "{name}: {label}");
+                let (code, message) = save_code(&live, save_args(&request, &w, &w.model, Some(&w.result), Some(&w.intake)));
+                assert_eq!((code.as_str(), message.as_str()), ("REPORT-PACKAGE-BINDING-MISMATCH", format!("REPORT-PACKAGE-BINDING-MISMATCH: {save_detail}").as_str()), "{name}: {label}");
+            }
+            // The genuine summary renders with the statement and MPa values.
+            let rendered = production_render_on(&live, &genuine_render_args(&w, &live.job)).expect("the genuine input renders");
+            assert_eq!(rendered["export_blocked"], json!(false), "{name}: {}", rendered["blocking_reasons"]);
+            let html = rendered["html"].as_str().unwrap();
+            assert!(html.contains(open_pipe_stress_report_renderer::DISPLAY_RULE_STATEMENT) && html.contains(" MPa</"), "{name}");
+        }
     }
 
     #[test]

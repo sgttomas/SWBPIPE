@@ -503,14 +503,15 @@ each with a named `REPORT-PACKAGE-…` code:
      `apps/desktop/src/features/report/reportResultRows.ts` and called by
      `buildRenderableReportInput`. The value text is JavaScript's own
      `${value}`, then the display rule above, implemented identically in
-     both helpers (`reportQuantityDisplay.ts`).
+     both helpers. The TypeScript rule is `reportQuantityDisplay.ts`.
    - **Rust.** `report_package::bindings::expected_report_result_rows(source)`
      is used by the producer check and by the fixture generator. The value text
      is `open_pipe_stress_canonical_json::canonical_number`
      (`canonical_json/src/lib.rs:400`), the ECMAScript Number-to-String form,
      after `guard_json`, never Rust's `Display`, whose exponent and
      negative-zero text differ; then the display rule above, implemented
-     identically in both helpers (`report_package::quantity_display`).
+     identically in both helpers. The Rust rule is
+     `report_package::quantity_display`.
 
    **Row parity.** Both helpers are checked against the same committed
    vectors, `fixtures/reports/invented/report_result_rows_parity.json` (input
