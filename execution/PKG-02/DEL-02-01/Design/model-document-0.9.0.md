@@ -2,10 +2,11 @@
 
 **Basis:** main `ad03de4a0c` (2026-10-27). Design only; no product code.
 
-**Status:** revision 3, after Codex design reviews r1 (on `22dc6edcbd`: no P1;
-four P2s and the OC-3, OC-5 and OC-7 conditions) and r2 (on `a87d8df6b8`: the
-canonical decimal, the rounding width and the zero result), all resolved here,
-for Agent 0's decisions (§6) before any implementation.
+**Status:** revision 4, after Codex design reviews r1 (on `22dc6edcbd`: no P1;
+four P2s and the OC-3, OC-5 and OC-7 conditions), r2 (on `a87d8df6b8`: the
+canonical decimal, the rounding width and the zero result) and r3 (on
+`9bf77e607c`: "Ready for Agent 0", with two P3s), all resolved here, for Agent
+0's decisions (§6) before any implementation.
 Survey item C1 (operating-condition sets) with the solver lane's two 0.9.0
 members. Risk class: persistence and numerical meaning, so every build slice
 takes targeted regression checks and independent scrutiny by a separate agent
@@ -265,8 +266,8 @@ lowering) give the same bits. No step uses a language's float formatter.
   minus that of 20.1 is 0.19999999999999928…, not 0.2. Every decimal with at
   most 15 significant digits is recovered exactly by the rule below (binary64
   keeps 15 decimal digits), so for typed values the operand is what the user
-  typed, whatever the tie rule. The tie rule matters only for 17-digit values,
-  and it is fixed here because Rust's formatter and Python's or JavaScript's
+  typed, whatever the tie rule. The tie rule matters only for 16- or 17-digit
+  values (the regression's 7814407348632812 has 16), and it is fixed here because Rust's formatter and Python's or JavaScript's
   disagree on them.
   1. **Binary pre-gate.** v = 0 gives the decimal 0. Otherwise v must satisfy
      2^−80 ≤ |v| ≤ 2^20 (outside it,
@@ -282,8 +283,11 @@ lowering) give the same bits. No step uses a language's float formatter.
      |v|: below by half the lower gap and above by half the upper gap. The upper
      gap is 2^E; the lower gap is 2^E, or 2^(E−1) when B = 2^52. X must lie
      strictly inside, or on an end only when B is even (the parser's
-     ties-to-even). Comparisons are made on integers after multiplying by
-     2^(1−E)·10^max(0, −q).
+     ties-to-even). Comparisons, including "closer" in step 4, are made on
+     integers after multiplying by S = 2^(2−E)·10^max(0, −q): then |v|·S = 4B·10^max(0,−q),
+     X·S, and each half gap times S (2·10^max(0,−q) for 2^E, 10^max(0,−q) for
+     2^(E−1)) are all integers, including the B = 2^52 lower end (for v = 2^19
+     and q ≥ 0, the lower end is 4B − 1, not 2^53 − ½).
   4. **Choice.** The first n with a round-tripping candidate decides. If both
      candidates round-trip, take the one closer to |v|; if they are equally
      close, take the even d. This is the rule of Python's `repr` and of
@@ -291,7 +295,7 @@ lowering) give the same bits. No step uses a language's float formatter.
      candidate on such ties.
   5. **Form.** Strip trailing zeros: |v|'s decimal is m·10^e with m not divisible
      by 10; restore the sign. Bound: d < 10^17, 10^(−q) ≤ 10^41 and
-     2^(1−E) ≤ 2^133, so every integer of this stage is below 2^192.
+     2^(2−E) ≤ 2^134, so every integer of this stage is below 2^192.
 - **Admitted operand range.** After the pre-gate, |v| ≤ 10^6 in its own unit
   and e ≥ −24. The pre-gate only bounds the work and excludes nothing this
   range admits: any v with |v| ≤ 10^6 and e ≥ −24 lies within [2^−80, 2^20]. Typed values (350.1, 20.3, 1e-5) are inside it. Every absolute
@@ -325,7 +329,7 @@ lowering) give the same bits. No step uses a language's float formatter.
   range. Ties-to-even is stated for completeness.
 - **`exact_kelvin` is not used and not changed.** It takes the decimal from
   Rust's formatter (`format!("{value:e}")`), which differs from the canonical
-  decimal on 17-digit ties (the `0x3f80010000000000` regression), and it uses
+  decimal on 16- or 17-digit ties (the `0x3f80010000000000` regression), and it uses
   bounded `i128` rationals. C1's lowering uses only the rule above. The EX
   route's temperature identity therefore keeps its own decimal on such ties.
   Whether to align it with the canonical decimal is a separate numerical change
@@ -821,7 +825,7 @@ per-element temperatures into condition sets (DEL-17-04).
 | OC-2 | **Stored or read-resolved** | (a) Assignment stored explicitly per pipe; inheritance in authoring tools (§1.4). (b) Values resolved at read by the lowering, not generated into cases | (a) Re-assigning a line is a bulk change; no topology rule is needed. Read-time inheritance would need a "run" or evaluated `lines[]` rule, ambiguous at tees. (b) One source of truth; authoring-time generation would duplicate values in every case and need a staleness check like self-weight's. |
 | OC-3 | **Coexistence with per-case values** | Exclusive per case for temperature, pressure and wind exposure; added weight additive (§1.7) | A case cannot mix condition and hand-typed temperatures; per-pipe exceptions are made with another set. Precedence would override stated values without a trace. |
 | OC-4 | **0.8.0 documents** | Retired, refused by name, nothing migrated (§3.2) | Same burden as at 0.8.0: users re-author by changing the token, using the recovery export for stored projects. A desktop rewrite action is migration code and changes DEL-02-05 CLM-003, an owner decision. |
-| OC-5 | **PF temperature basis: a new numerical policy for Agent 0's approval** | Absolute condition temperatures, the set's installation temperature, each operand read as its canonical decimal (the typed decimal for values of up to 15 significant digits; ties to the even digit), exact difference rounded once in kelvin within §1.5.1's range (§1.5, §1.8) | The twin carries 0.2, not 0.19999999999998863; equivalence is to the twin, not to today's absolute-temperature conversion route, so a per-case ΔT formed through the unit route (as 0.8.0-era documents carry) can differ by ulps from the condition route for the same temperatures. Needs a new canonical-decimal stage and a correctly rounded conversion on 256-bit integers, with the E3 reference; the EX route's `exact_kelvin` keeps the formatter's decimal on 17-digit ties unless DEL-04-07 aligns it. Alternatives: the units crate's `temperature_difference` (no new numerics; last-bit differences from the decimal ΔT, e.g. 0.19999999999998863 for 0.2); or storing ΔT in the condition (no arithmetic, but not an operating temperature, and EX needs absolutes). A model-level installation temperature in place of the per-set one is smaller but cannot express lines installed at different temperatures. |
+| OC-5 | **PF temperature basis: a new numerical policy for Agent 0's approval** | Absolute condition temperatures, the set's installation temperature, each operand read as its canonical decimal (the typed decimal for values of up to 15 significant digits; ties to the even digit), exact difference rounded once in kelvin within §1.5.1's range (§1.5, §1.8) | The twin carries 0.2, not 0.19999999999998863; equivalence is to the twin, not to today's absolute-temperature conversion route, so a per-case ΔT formed through the unit route (as 0.8.0-era documents carry) can differ by ulps from the condition route for the same temperatures. Needs a new canonical-decimal stage and a correctly rounded conversion on 256-bit integers, with the E3 reference; the EX route's `exact_kelvin` keeps the formatter's decimal on 16- or 17-digit ties unless DEL-04-07 aligns it. Alternatives: the units crate's `temperature_difference` (no new numerics; last-bit differences from the decimal ΔT, e.g. 0.19999999999998863 for 0.2); or storing ΔT in the condition (no arithmetic, but not an operating temperature, and EX needs absolutes). A model-level installation temperature in place of the per-set one is smaller but cannot express lines installed at different temperatures. |
 | OC-6 | **Key form** | String keys (REQ-02-01-03) | Typos are caught as `OPERATING_CONDITION_KEY_MISSING` at solve, not at entry. An integer index k is positional; a model-level key registry adds a member and catches typos earlier. |
 | OC-7 | **Members read by no solve in 0.9.0** | Carry per-condition `contents_density` with its case key (refused at solve), `design`, `peak`, `snow_ice` and `wave` now, each visibly labelled "not used by the solve in 0.9.0" wherever shown (§1.2) | Avoids a 0.10.0 step when their consumers come; the format is fixed before those consumers are designed. Omitting them keeps 0.9.0 smaller, and each later adoption is a version step that strands projects again. |
 | OC-8 | **A pipe without a set in a case that uses conditions** | Refuse the case by name | Every pipe needs a set (an ambient pipe states its temperature). Skipping would be a silent zero. |
