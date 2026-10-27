@@ -726,13 +726,16 @@ describe("run sheet S1: numbering terminates (r1 P2-2)", () => {
   }, 5000);
   it("a long run of reserved ids stops at the stated search limit", () => {
     const settings = DEFAULT_NUMBERING;
-    const ids = Array.from({ length: MAX_NUMBER_SEARCH + 5 }, (_, i) => `node:N${10 + 10 * i}`);
+    // The stated limit, written here so the reserved run does not depend on the module's constant.
+    const LIMIT = 10_000;
+    const ids = Array.from({ length: LIMIT + 5 }, (_, i) => `node:N${10 + 10 * i}`);
     const state = assignRowNumber(initialIdState(settings), settings, "r1", new LookupBudget(ids));
     expect(state.assigned.r1).toBeUndefined();
     expect(refusalOf(state, "r1")).toBe(MESSAGES.numberingSearchLimit);
     // Just inside the limit, the number is found.
-    const inside = assignRowNumber(initialIdState(settings), settings, "r2", new LookupBudget(ids.slice(0, MAX_NUMBER_SEARCH - 1)));
-    expect(inside.assigned.r2).toBe(10 + 10 * (MAX_NUMBER_SEARCH - 1));
+    const inside = assignRowNumber(initialIdState(settings), settings, "r2", new LookupBudget(ids.slice(0, LIMIT - 1)));
+    expect(inside.assigned.r2).toBe(10 + 10 * (LIMIT - 1));
+    expect(MAX_NUMBER_SEARCH).toBe(LIMIT);
   }, 5000);
   it("the resolver refuses invalid numbering at the sheet and shows a row's numbering refusal", () => {
     const input = sheet([startE, { key: "r2", dx: "1", ...ELEMENT }], { numbering: { step: 0 } });
