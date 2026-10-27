@@ -513,3 +513,10 @@ ripple lands joins 0.8.0 through Agent 0.
   ledger case copies the regenerated mixed source's functional-plan hash, so its
   base reader outcome stays the named refusal.
 
+- **D3 (§7).** Priced and registered with the offset as DEL-04-08
+  `retained-pricing-rules.md` §8.26, on main `289bd8d546`. `compare` against
+  main's registered tree is `identical_but_basis` (1,586 coefficients), as §7
+  expected. It needed `validate_profile`'s two formatted version texts to be
+  zero on D1 (M08-VZ), and the offset check to read the tolerance after its
+  first pass. The four reviewed inputs above move, and the successors and the
+  synthetic bases were regenerated on the registered build.

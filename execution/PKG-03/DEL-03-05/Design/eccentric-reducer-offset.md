@@ -669,6 +669,25 @@ They include `retained_wire.rs` and `pressure_runtime.rs` for review.
 - **Witnesses.** The AC-004 stack witnesses run under an exclusive lane
   granted by Agent 0.
 
+**As priced** (DEL-04-08 `retained-pricing-rules.md` §8.26, with the 0.8.0
+ripple, on main `289bd8d546`). The hypothesis held: `compare` against main's
+registered tree is `identical_but_basis` (1,586 coefficients equal, none
+higher or lower), and so is each point's tree. Four adjustments were needed:
+- Both entry points read the node-proximity tolerance after the first pass,
+  not before the call (`lib.rs` no longer reads it). Read before, the two
+  added accessor calls would have priced the accessor's five error texts
+  twice more, 6,392 B on each route. The behaviour is unchanged: an unadmitted
+  tolerance is refused by `validate_model_settings`, and the check does not
+  run on it.
+- `validate_profile`'s two version texts, which now format the shared
+  constant, are unreachable on D1 (M08-VZ); priced as reached they would
+  add 1,980 B on route L and 8,910 B on route E.
+- `arc_evidence`'s `min`/`max` receivers are f64, not the certified
+  publication's private helpers (W15C-CG).
+- Both entry points' work after the first pass is zero on D1 by P2: the
+  topology, the judgement, the tolerance read, their loops and texts
+  (W15C-NO, W15C-L1, W15C-ID). The SD-NR key-loop bound is 32.
+
 ## 9. Precision and detail matters
 
 Each entry is HELP_HUMAN, 2026-10-26, under the owner's delegation (LOOP_INIT,
