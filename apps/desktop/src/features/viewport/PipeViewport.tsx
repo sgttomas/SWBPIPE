@@ -107,7 +107,8 @@ import {
   type ViewportRendererInfo
 } from "./viewportResource";
 import { createFigureMaterial, figureEdgeOutlineFor } from "./viewportFigureMaterial";
-import { buildDeformationOverlay, buildRotationOverlay, rotationGlyphAnchors } from "./deformationOverlay";
+import { buildDeformationOverlay, buildRotationOverlay, deformationAtPhase, rotationGlyphAnchors } from "./deformationOverlay";
+import { DEFLECTION_PHASE_STEPS, DeflectedShapeControls, deflectionLabel, formatFactor } from "./DeflectedShapeControls";
 import { instancedRotationGlyphMeshes, type RotationGlyphPlacement } from "./viewportRotationGlyph";
 import {
   availableResultColourQuantities,
@@ -218,6 +219,24 @@ export type ViewportExposureInteraction = "measurement" | "box-selection";
 type ViewportCommandType = "create_node" | "connect_pipe_run" | "insert_component_symbol";
 type ViewPreset = "iso" | "front" | "top";
 const VIEWPORT_DIMENSIONLESS_UNIT_VALIDATION_STATUS = "not_required_dimensionless";
+/** One full undeformed-deformed-undeformed animation cycle, and the step between drawn phases. */
+const DEFLECTION_CYCLE_MS = 2400;
+const DEFLECTION_STEP_MS = 100;
+
+/** The platform's reduced-motion preference, followed while it changes. */
+function usePrefersReducedMotion(): boolean {
+  const query = "(prefers-reduced-motion: reduce)";
+  const read = () => typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia(query).matches;
+  const [reduced, setReduced] = useState(read);
+  useEffect(() => {
+    if (typeof window.matchMedia !== "function") return;
+    const media = window.matchMedia(query);
+    const update = () => setReduced(media.matches);
+    media.addEventListener?.("change", update);
+    return () => media.removeEventListener?.("change", update);
+  }, []);
+  return reduced;
+}
 
 type ViewportSelectionTarget = {
   ref: EntityRef;
@@ -466,6 +485,14 @@ export function PipeViewport({
   const [reactionsOn, setReactionsOn] = useState(false);
   const [overlayQuantityId, setOverlayQuantityId] = useState<string | null>(null);
   const [overlayCaseKey, setOverlayCaseKey] = useState<string | null>(null);
+  // Deflected-shape controls (A5): session view state, never persisted and never model data.
+  // The case is null for each node's governing row (the normalized drawing); the factor is
+  // null for the case's default; the phase runs from 0 (undeformed) to 1 (deformed).
+  const [deflectionCaseKey, setDeflectionCaseKey] = useState<string | null>(null);
+  const [deflectionFactor, setDeflectionFactor] = useState<number | null>(null);
+  const [undeformedGhost, setUndeformedGhost] = useState(false);
+  const [deflectionPlaying, setDeflectionPlaying] = useState(false);
+  const [deflectionPhase, setDeflectionPhase] = useState(1);
   const [boxSelectActive, setBoxSelectActive] = useState(false);
   const [boxSelectionFilter, setBoxSelectionFilter] = useState<BoxSelectionFilter>("all");
   const [boxRect, setBoxRect] = useState<{ left: number; top: number; right: number; bottom: number } | null>(null);
@@ -615,10 +642,23 @@ export function PipeViewport({
     inspectorSelection: selection,
     selectionPublication
   };
-  const deformation = useMemo(() => buildDeformationOverlay(model, result), [model, result]);
-  const rotation = useMemo(() => buildRotationOverlay(model, result), [model, result]);
   // Derived when the model, result, standing, case or quantity changes; never per frame.
   const overlayCases = useMemo(() => resultOverlayCases(model, result), [model, result]);
+  const deflectionCase = overlayCases.find((item) => item.key === deflectionCaseKey) ?? null;
+  const modelExtent = useMemo(() => {
+    const bounds = activeModelIndex.geometryBounds;
+    return bounds ? Math.max(bounds.max.x - bounds.min.x, bounds.max.y - bounds.min.y, bounds.max.z - bounds.min.z) : null;
+  }, [activeModelIndex]);
+  const fullDeformation = useMemo(() => buildDeformationOverlay(model, result, {
+    basisKey: deflectionCase?.key ?? null,
+    scale: deflectionCase ? { mode: "factor", factor: deflectionFactor } : { mode: "normalized" },
+    modelLengthUnit: model.project.units.length ?? null,
+    modelExtent
+  }), [deflectionCase, deflectionFactor, model, modelExtent, result]);
+  const deflectionAnimatable = fullDeformation.state === "available" && fullDeformation.scale.mode === "factor";
+  const drawnPhase = deflectionAnimatable ? deflectionPhase : 1;
+  const deformation = useMemo(() => deformationAtPhase(model, fullDeformation, drawnPhase), [drawnPhase, fullDeformation, model]);
+  const rotation = useMemo(() => buildRotationOverlay(model, result, { basisKey: deflectionCase?.key ?? null }), [deflectionCase, model, result]);
   const overlayQuantities = useMemo(() => availableResultColourQuantities(model, result), [model, result]);
   const overlayCase = overlayCases.find((item) => item.key === overlayCaseKey) ?? overlayCases[0] ?? null;
   const overlayQuantity = overlayQuantities.find((item) => item.id === overlayQuantityId) ?? overlayQuantities[0] ?? null;
@@ -1458,6 +1498,34 @@ export function PipeViewport({
     viewportResourceRef.current?.setVisibilityPresentation(hiddenKeys, dimmedKeys);
   }, [activeModelIndex.generation, hiddenKeys, dimmedKeys]);
 
+  // The undeformed ghost dims the model layer while a deformed shape is drawn.
+  const undeformedGhostKeys = useMemo(() => {
+    if (!undeformedGhost || deformation.state !== "available") return new Set<EntityKey>();
+    return new Set([...activeModelIndex.entities].flatMap(([key, indexed]) =>
+      indexed.ref.type === "pipe" || indexed.ref.type === "node" || indexed.ref.type === "support" || indexed.ref.type === "component" ? [key] : []));
+  }, [activeModelIndex, deformation.state, undeformedGhost]);
+  useEffect(() => {
+    viewportResourceRef.current?.setUndeformedGhostPresentation(undeformedGhostKeys);
+  }, [undeformedGhostKeys]);
+
+  // The animation oscillates the drawn phase from 0 to 1 and back, one case at the stated
+  // factor (design system 6.8). It runs only while asked, and stops at the full deflection.
+  const reducedMotion = usePrefersReducedMotion();
+  useEffect(() => {
+    if (!deflectionPlaying) return;
+    if (!deflectionAnimatable || reducedMotion) {
+      setDeflectionPlaying(false);
+      setDeflectionPhase(1);
+      return;
+    }
+    const started = performance.now();
+    const timer = window.setInterval(() => {
+      const cycle = ((performance.now() - started) % DEFLECTION_CYCLE_MS) / DEFLECTION_CYCLE_MS;
+      setDeflectionPhase(Math.round(((1 - Math.cos(2 * Math.PI * cycle)) / 2) * DEFLECTION_PHASE_STEPS) / DEFLECTION_PHASE_STEPS);
+    }, DEFLECTION_STEP_MS);
+    return () => window.clearInterval(timer);
+  }, [deflectionAnimatable, deflectionPlaying, reducedMotion]);
+
   useLayoutEffect(() => {
     if (!viewCommandRef) return;
     viewCommandRef.current = dispatchViewportViewCommand;
@@ -2265,11 +2333,27 @@ export function PipeViewport({
           aria-label="Viewport deformation overlay status"
           data-testid="viewport-deformation-status"
         >
-          <summary>{deformation.state === "available" ? "Deformation · normalized" : deformation.state === "blocked" ? "Deformation · blocked" : "Deformation · unavailable"}</summary>
+          <summary>{deformation.state === "available" ? (deformation.scale.mode === "factor" ? `Deformation · ×${formatFactor(deformation.scale.factor)}` : "Deformation · normalized") : deformation.state === "blocked" ? "Deformation · blocked" : "Deformation · unavailable"}</summary>
           <div><strong data-testid="viewport-deformation-summary">{deformation.maximum ? <>available; nodes={deformation.nodeCount}; max=<QuantityReadout quantity={{ ...deformation.maximum, dimension_id: "length" }} /></> : deformation.summary}</strong>
           <small data-testid="viewport-deformation-boundary">{deformation.boundary}</small>{" "}
           <small data-testid="viewport-rotation-summary">rotation: {rotation.maximum ? <>available; nodes={rotation.nodeCount}; drawn={rotation.drawnCount}; max |component|=<QuantityReadout quantity={{ ...rotation.maximum, dimension_id: "angle" }} /></> : rotation.summary}</small>{" "}
-          <small data-testid="viewport-rotation-boundary">{rotation.boundary}</small></div>
+          <small data-testid="viewport-rotation-boundary">{rotation.boundary}</small>
+          {result ? (
+            <DeflectedShapeControls
+              cases={overlayCases}
+              caseKey={deflectionCase?.key ?? null}
+              onCaseChange={(key) => { setDeflectionCaseKey(key); setDeflectionFactor(null); setDeflectionPhase(1); }}
+              deformation={fullDeformation}
+              onFactorChange={setDeflectionFactor}
+              ghost={undeformedGhost}
+              onGhostChange={setUndeformedGhost}
+              playing={deflectionPlaying}
+              onPlayingChange={(playing) => { setDeflectionPlaying(playing); if (!playing) setDeflectionPhase(1); }}
+              phase={drawnPhase}
+              onPhaseChange={(phase) => { setDeflectionPlaying(false); setDeflectionPhase(phase); }}
+              reducedMotion={reducedMotion}
+            />
+          ) : null}</div>
         </details>
         <div className="viewport-display-toggles" role="group" aria-label="Viewport display toggles">
           <button
@@ -2480,6 +2564,11 @@ export function PipeViewport({
             standing={resultStanding}
             focus={overlayFocus(hoveredEntityKey, selection)}
           />
+        ) : null}
+        {deformation.state === "available" ? (
+          <div className="viewport-deflection-label" data-testid="viewport-deflection-label">
+            {deflectionLabel(fullDeformation, deflectionCase?.label ?? null)}
+          </div>
         ) : null}
         <div className="viewport-scale-bar" data-testid="viewport-scale-bar">
           <QuantityReadout quantity={{ value: 1, unit: defaultLengthUnit, dimension_id: "length" }} />
