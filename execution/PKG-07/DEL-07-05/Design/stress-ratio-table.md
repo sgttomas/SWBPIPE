@@ -123,14 +123,14 @@ magnitude otherwise." A ratio is formed only when, in this order of checks:
 The reason for each condition is the ratio's one reading. With both values positive, a ratio
 above 1 means the computed value is past the limit in either direction: above an upper bound or
 below a lower one. So upper- and lower-bound ratios rank together, largest first, toward the side
-the user's relation does not admit. Under a lower bound the computed value is the divisor: zero leaves no
-quotient, and a negative value gives a negative ratio that would rank a value below the limit as
-the least critical, so neither forms one. A limit at or below zero forms none in either direction,
-following the upper bound's precedent: a zero limit leaves no upper-bound quotient and makes every
-lower-bound one 0, and a negative limit reverses the quotients' order against the margin to the
-limit. The divisor is checked before the limit, so a lower bound with both at or below zero reads
-as the computed value. An underflowing quotient (a computed value far above a lower-bound limit) is
-a finite ratio and is formed.
+the user's relation does not admit. Under a lower bound the computed value is the divisor: zero
+leaves no quotient, and a negative value gives a negative ratio that would rank a value below the
+limit as the least critical, so neither forms one. A limit at or below zero forms none in either
+direction, following the upper bound's precedent: a zero limit leaves no upper-bound quotient and
+makes every lower-bound one 0, and a negative limit reverses the quotients' order against the
+margin to the limit. The divisor is checked before the limit, so a lower bound with both at or
+below zero reads as the computed value. An underflowing quotient (a computed value far above a
+lower-bound limit) is a finite ratio and is formed.
 
 Each ratio row states its direction (§7): "Upper bound: computed ÷ limit" or "Lower bound: limit ÷
 computed". The ratio is arithmetic on the user's own outcome and qualifies nothing. The status
@@ -215,9 +215,9 @@ one order. An admitted outcome with no ratio (a predicate check, a missing or no
 units that differ, a computed value or limit that is not positive, a quotient that is not finite)
 is not ranked by a number it does not have and is not compared with the ratio threshold. It is
 listed after the ranked rows, in run order, with its reason, and never hidden. Stress mode ranks
-it by magnitude with every other admitted outcome that has a computed value, which is the "rank
-by magnitude otherwise" of §3.1's decision; ratios and magnitudes are never mixed in one order,
-since a ratio has no unit. Incomplete and withheld outcomes stay pinned in either mode.
+it by magnitude with every other admitted outcome that has a computed value; the table reads the
+decision's "rank by magnitude otherwise" (§3.1) this way. Ratios and magnitudes are never mixed in
+one order, since a ratio has no unit. Incomplete and withheld outcomes stay pinned in either mode.
 
 **Ties.** Equal keys put a failed outcome before a checked one, and then keep source order (run
 order for outcomes, result-row order for stress rows). 0 and -0 tie.
@@ -336,8 +336,8 @@ output is frozen and deterministic for its inputs. The panel derives once per id
 The panel lists emitted stresses and the user's rule-check outcomes, sorted and filtered. A ratio
 is the user's computed value divided by the user's limit. The status is the rule check's own
 report, and the panel adds no pass or fail. Under a lower bound the ratio is the user's limit
-divided by the user's computed value; its direction is stated. Incomplete outcomes are never shown, sorted or hidden as
-passing. The panel supplies no allowable, records or implies no acceptance, issuance or compliance,
+divided by the user's computed value; its direction is stated. Incomplete outcomes are never
+shown, sorted or hidden as passing. The panel supplies no allowable, records or implies no acceptance, issuance or compliance,
 and writes nothing.
 
 ## 10. Tests
@@ -353,7 +353,8 @@ and writes nothing.
   status beside a ratio of 1 at the `greater_than` and `greater_than_or_equal` boundary; mixed
   upper and lower outcomes sorted together in ratio and stress modes; the threshold across
   directions); the upper-bound outputs pinned by digest to the code before the lower-bound ratio
-  (`outcomeRatio` over a grid of relations and values, and a run's tables, views and pages); incomplete outcomes pinned under every threshold, mode and sort;
+  (`outcomeRatio` over a grid of relations and values, and a run's tables, views and pages);
+  incomplete outcomes pinned under every threshold, mode and sort;
   withheld outcomes pinned with no status; failed outcomes never hidden, and listed on every page at
   their rank in either mode; the incomplete reason built from structured fields, with no number
   from a finding's message, no subject for a withheld row, and no status token in an admitted
@@ -372,7 +373,8 @@ and writes nothing.
   an admitted row's reason; a failed outcome kept on the page when switching to stress moves it past 50; highlight by
   click and keyboard; the selected-row mark; the Direction column, its labels and the ratio titles
   for both directions, with a lower-bound row that forms no ratio; "Show 50 more" with the listed
-  count; source-order labels for mixed units; a custom test-id prefix; one derivation per input identity.
+  count; source-order labels for mixed units; a custom test-id prefix; one derivation per input
+  identity.
 - Native smoke (`apps/desktop/native-smoke/driver.js`, `run.mjs`): structure only, no values, and
   the committed `expected.json` is unchanged. After each solve, with no run held, the table lists
   emitted stress kinds in stress mode with ratio disabled. After the bundled invented pack's rule
