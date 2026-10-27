@@ -653,9 +653,17 @@ solver produced. There is no rule-check attestation under R.
 - before the solve, over the model value the worker has already materialized
   (`ordinary_solve`, `solve_worker.rs:467-472`): `d_M`, the SHA-256 of
   `checked_v1_domain_canonical("openpipestress.user_release.solved_model.v1", model)`;
-- after `run_linear_static_preview_value_with_mode` returns the result value
-  (unchanged), and before it is serialized: `d_S`, the same over
-  `"openpipestress.user_release.solved_result.v1"` and the result value.
+- after the unchanged solve wrapper has produced the result bytes the worker
+  delivers: `d_S`, the same over `"openpipestress.user_release.solved_result.v1"`
+  and the value parsed back from those exact bytes. The parsed value is dropped
+  before the frames are sent. (Revision 4, slice r2a, #1664:
+  `run_linear_static_preview_value_with_mode` returns a typed
+  `MechanicsEnvelope`, not a `Value`, so there is no result value to digest
+  before serialization. Parsing the delivered bytes back digests what the
+  webview receives, which is the round trip the equality argument below relies
+  on. `serde_json::to_value` before serializing would also hold a full copy,
+  without existing pricing; a streaming typed writer would change priced source,
+  so neither is used.)
 
 Each digest streams through `ByteSink` into a SHA-256 hasher, so no canonical
 text is held. If the checked profile refuses either value, the worker sends no
@@ -713,7 +721,11 @@ user-visible condition is the same; native admission now enforces it.
   `solve_worker.rs:1037-1090`), and
   the protocol text of `solve_worker.rs:10-25`.
 - **DEL-04-07 memory accounting:**
-  - The worker's two passes allocate only transient pieces in its counted
+  - The `d_S` pass holds one parsed copy of the delivered result while it
+    runs, within the result text's ingress materialization bound
+    (`ingress::prescan`); on the bundled demo the worker's counted peak goes
+    from 3,936,832 to 4,842,992 bytes, with the grant unchanged (#1664).
+  - Beyond that copy, the worker's two passes allocate only transient pieces in its counted
     heap; no canonical text is held. The pieces live at once are (Codex
     round 3, non-blocking):
     - one key vector per object on the current traversal path:
