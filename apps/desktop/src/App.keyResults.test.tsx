@@ -125,4 +125,58 @@ describe("the key-results panel in the app", () => {
     expect(screen.getByTestId("workspace-undo")).toBeDisabled();
     expect(screen.queryByTestId("project-edited")).toBeNull();
   }, 90_000);
+
+  it("through the app: R says the pack is absent and colours nothing, S shows the anchor in A2, C says the linear result has no support state", async () => {
+    await installPreviewReplay();
+    render(<App />);
+    await screen.findByTestId("workspace-toolbar");
+    await solve();
+    await waitFor(() => expect(screen.getByTestId("status-pill-mechanics")).toHaveAttribute("title", "MECHANICS_SOLVED"), { timeout: 30_000 });
+    const panel = await screen.findByTestId("key-results-panel");
+    nativeMenuCommand("view.close-panels");
+
+    within(panel).getByTestId("key-results-ratio").focus();
+    fireEvent.keyDown(document.activeElement!, { key: "r" });
+    expect(within(panel).getByTestId("key-results-ratio-note")).toHaveAttribute("data-ratio-state", "absent");
+    expect(within(panel).getByTestId("key-results-status")).toHaveTextContent("No rule pack");
+    expect(screen.getByTestId("toggle-viewport-result-colour")).toHaveAttribute("aria-pressed", "false");
+
+    fireEvent.keyDown(document.activeElement!, { key: "c" });
+    expect(within(panel).getByTestId("key-results-status")).toHaveTextContent("no nonlinear support state");
+
+    fireEvent.keyDown(document.activeElement!, { key: "s" });
+    expect(screen.getByTestId("status-selection")).toHaveTextContent("support: support:fixture-root");
+    expect(screen.getByTestId("rail-stage-results")).toHaveAttribute("aria-current", "page");
+    expect(within(screen.getByTestId("workspace-section-results")).getByTestId("support-load-select")).toHaveValue("support:fixture-root");
+    expect(screen.getByTestId("workspace-undo")).toBeDisabled();
+  }, 90_000);
+
+  it("reopens after every solve once the user asks for it, for this session", async () => {
+    await installPreviewReplay();
+    render(<App />);
+    await screen.findByTestId("workspace-toolbar");
+    await solve();
+    await waitFor(() => expect(screen.getByTestId("status-pill-mechanics")).toHaveAttribute("title", "MECHANICS_SOLVED"), { timeout: 30_000 });
+    fireEvent.click(await screen.findByTestId("key-results-every-solve"));
+    fireEvent.click(screen.getByTestId("key-results-close"));
+    expect(screen.queryByTestId("key-results-panel")).toBeNull();
+    await solve();
+    await waitFor(() => expect(screen.getByTestId("key-results-panel")).toBeInTheDocument(), { timeout: 30_000 });
+    expect(screen.getByTestId("key-results-every-solve")).toBeChecked();
+  }, 90_000);
+});
+
+describe("the key-results panel from the browser menu", () => {
+  it("opens and closes from View > Key Results, and says there is no result yet", async () => {
+    render(<App />);
+    await screen.findByTestId("app-menu-bar");
+    fireEvent.click(screen.getByTestId("menu-view"));
+    fireEvent.click(screen.getByTestId("menu-item-view.key-results"));
+    const panel = screen.getByTestId("key-results-panel");
+    expect(panel).toHaveAttribute("data-state", "no_result");
+    expect(within(panel).getByTestId("key-results-deflection")).toHaveAttribute("aria-disabled", "true");
+    fireEvent.click(screen.getByTestId("menu-view"));
+    fireEvent.click(screen.getByTestId("menu-item-view.key-results"));
+    expect(screen.queryByTestId("key-results-panel")).toBeNull();
+  });
 });

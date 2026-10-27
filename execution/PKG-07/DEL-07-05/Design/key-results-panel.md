@@ -24,7 +24,8 @@ The sources are:
 - `KeyResultsPanel.tsx`: the panel.
 - `useKeyResultsSession.ts`: the open state, the auto-open effect and the action wiring.
 - `features/viewport/viewportSelection.ts` and `PipeViewport.tsx`: two view commands.
-- `ResultsPanel.tsx`: the `viewRequest` prop.
+- `ResultsPanel.tsx`: the `viewRequest` prop, its exact kind filter and its withheld marks.
+- `SupportLoadSummaryPanel.tsx`: the `focusRequest` prop.
 - `App.tsx`: mounting, the Results section's opener and the browser View menu item.
 
 ## 2. What is offered, and the state each action sets
@@ -38,8 +39,8 @@ Choosing in a select sets nothing by itself.
 |---|---|---|---|---|
 | Show ratio contour | R | Stress category of the user's rule-check run | Viewport `show-result-colour` command: result colour on, quantity `rule-ratio:<category>`, case | The Result colour toggle, then the legend's quantity and case selectors (A4) |
 | Show deflected shape | D | A load case or combination of the result | Viewport `show-deflected-shape` command: the deformation case, with the factor back to its default and the phase at 1 | The deformation popover's case selector (A5) |
-| Show support load summary | S | An anchor or equipment connection | The session's selection of that support (`handleSelectEntity`), and the Results section | A click on the support; the A2 panel follows `focusSupportId` |
-| Show contact and lift-off state | C | none | The results table's filter: text `nonlinear_support_active_set_state_code`, every other filter at its default; the Results section | Typing the kind in the table's filter (A1 then steps it case by case) |
+| Show support load summary | S | An anchor or equipment connection | The session's selection of that support (`handleSelectEntity`), a new A2 focus request, and the Results section | A click on the support; the A2 panel follows `focusSupportId`, and each new `focusRequest` shows it again, even when the user stepped A2 to another support meanwhile |
+| Show contact and lift-off state | C | none | The results table's exact kind filter `nonlinear_support_active_set_state_code` (stated above the table, with "Show all kinds"), every other filter at its default, and a withheld mark on each row the standing withholds; the Results section | The table's family and text filters, narrowed to one kind (A1 then steps it case by case) |
 | Results table | T | none | The Results section, with the table scrolled into view | The Results stage tab |
 | Stress and ratio table | A | none | The Results section, with the A3 panel scrolled into view | as above |
 | Displacement extremes | X | none | The Results section, with the A8 panel scrolled into view | as above |
@@ -60,7 +61,8 @@ Choosing in a select sets nothing by itself.
 - **Support contact and lift-off.** The product emits one `nonlinear_support_active_set_state_code`
   row per nonlinear support and case (DEL-04-04's classifier through DEL-04-07's loop). Each row
   states its own meaning: "0=inactive, 1=active, 2=sticking, 3=sliding". The panel only counts the
-  rows and cases. The results table shows them, with their standing badges, and the A1 navigator
+  rows and cases. The results table shows exactly the rows of that kind (a row that merely mentions
+  the kind in its id or metadata is not one), with their standing badges, and the A1 navigator
   steps them case by case. A linear result has none, and the action says so.
 - **Revealing a panel** scrolls it into view (`scrollIntoView`, nearest edge), once laid out
   (`surfaceReveal.ts`). Focus stays on the key-results button that was pressed, so the next key
@@ -134,9 +136,18 @@ that view's rules.
   on range envelopes. The stress and ratio table lists it.
 - **Numerical standing.** The panel states the result's standing as the results panel does: the
   numerical health headline and output sentence, or "Withheld: the result's numerical standing does
-  not admit it.". The view actions stay available. The viewport, A2, A3 and the results table
-  withhold the values themselves (`overlayMayShowRow`, `resultStanding.ts`), so a withheld view shows
-  "held", never a value.
+  not admit it.". The view actions stay available. The viewport, A2 and A3 withhold the values
+  themselves (`overlayMayShowRow`, `resultStanding.ts`), so their withheld views show "held" or the
+  withheld reason, never a value.
+- **The results table is the exception.** It lists every emitted row with its stated value, as it
+  always has, and badges a row only by its case's numerical-health state; a combination without a
+  health state gets no badge. So "Show contact and lift-off state" also marks each support-state row
+  that the overlays' rule withholds, with the reason A2 and A3 give for its case
+  (`withheldSupportStateRows`, `caseWithheldReason`): for example "Withheld: numerical health
+  sensitive." or "Withheld: this case has no numerical health state.". The mark is the request's,
+  so it holds while the kind filter does. The stated value stays in the row beside the mark: the
+  table does not hide values, and the panel neither replaces nor forms one. Rows reached through
+  the table's own filters rather than through the panel carry only the table's own badges.
 - **No result, a reopened run, mechanics not solved.** The panel says which. The four view actions
   are marked unavailable with that reason. The tables and "Back to editing" stay available.
 - **Output policy.** The panel is a view, not an output surface. It has no `outputPolicy.ts`
@@ -204,9 +215,17 @@ while open.
   - no operation is queued;
   - the model and result are unchanged.
 - `ResultsPanel.keyResults.test.tsx` covers the table request:
-  - only the support-state rows of every case are shown, with no selection;
-  - a request is applied once, so the user's own filter then stands;
+  - exactly the support-state rows of every case are shown, with no selection, and a row whose id
+    and metadata contain the kind is not;
+  - withheld rows of a sensitive case and of a combination without a health state are marked with
+    their reasons, and no other row is;
+  - a request is applied once, so the user's own choice then stands;
   - a request for another run is ignored.
+- `useKeyResultsSession.test.tsx` covers the wiring: each "Show support load summary" is a new A2
+  request, for the same support too, and the contact request carries the exact kind and the
+  withheld rows.
+- `SupportLoadSummaryPanel.focusRequest.test.tsx` covers A2: after the user steps away, a new
+  request shows the requested support again, and a re-render with the same request does not.
 - `apps/desktop/src/App.keyResults.test.tsx` covers the app on a replayed solve of the invented
   preview model:
   - the first solve opens the panel while focus and text stay in the palette's search field;
@@ -216,6 +235,10 @@ while open.
   - the D key sets the viewport's deformation case;
   - the table action enters the Results stage with focus kept in the panel;
   - E returns to the Model stage with focus on its rail button;
+  - R states the absent pack and leaves result colour off, C states that the linear result has no
+    support state, and S selects the anchor, enters Results and shows it in A2;
+  - "Open after every solve" reopens the panel on the next solve;
+  - View › Key Results opens and closes it in the browser menu, with no result yet;
   - the undo control stays disabled and the model unedited.
 
 The A2, A3, A4, A5 and A1 suites are unchanged and still pass.

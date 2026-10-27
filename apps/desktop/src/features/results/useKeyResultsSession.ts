@@ -12,7 +12,8 @@ import type { WorkspaceSectionId } from "../workspace/workspaceSections";
 import { canSurfaceRevealNow } from "../workspace/surfaceReveal";
 import type { KeyResultsTable } from "./KeyResultsPanel";
 import type { ResultsViewRequest } from "./ResultsPanel";
-import { KEY_RESULTS_AUTO_OPEN_START, SUPPORT_STATE_ROW_KIND, keyResultsAutoOpen } from "./keyResults";
+import { KEY_RESULTS_AUTO_OPEN_START, SUPPORT_STATE_ROW_KIND, keyResultsAutoOpen, withheldSupportStateRows } from "./keyResults";
+import type { ResultOverlayStanding } from "./numericalHealth";
 
 /** The Results section's panels the actions reveal, by their default test ids. */
 export const KEY_RESULTS_REVEAL_TARGETS: Readonly<Record<KeyResultsTable | "support", string>> = Object.freeze({
@@ -24,6 +25,8 @@ export const KEY_RESULTS_REVEAL_TARGETS: Readonly<Record<KeyResultsTable | "supp
 
 export function useKeyResultsSession(input: {
   result: MechanicsResult | null;
+  /** App's `viewportResultStanding`: marks the support-state rows it withholds. */
+  standing: ResultOverlayStanding | null | undefined;
   historical: boolean;
   setActiveSection: (section: WorkspaceSectionId | null) => void;
   selectEntity: (entity: EntityRef) => void;
@@ -35,6 +38,9 @@ export function useKeyResultsSession(input: {
   const [open, setOpen] = useState(false);
   const [everySolve, setEverySolve] = useState(false);
   const [resultsRequest, setResultsRequest] = useState<ResultsViewRequest | null>(null);
+  /** Counts "Show support load summary" requests, so A2 shows the support each time, even when
+   * the session's selection is unchanged and the user stepped A2 to another support meanwhile. */
+  const [supportRequest, setSupportRequest] = useState(0);
   const [reveal, setReveal] = useState<{ testId: string; serial: number } | null>(null);
   const serial = useRef(0);
   const panelRef = useRef<HTMLElement | null>(null);
@@ -89,6 +95,7 @@ export function useKeyResultsSession(input: {
     everySolve,
     setEverySolve,
     panelRef,
+    supportRequest,
     /** For the results table: a request for the current run only. */
     resultsRequest: resultsRequest && result && resultsRequest.runId === result.run_id ? resultsRequest : null,
     actions: {
@@ -96,12 +103,13 @@ export function useKeyResultsSession(input: {
       onShowDeflectedShape: (caseKey: string) => input.viewCommandRef.current?.({ type: "show-deflected-shape", caseKey }),
       onShowSupport: (supportId: string) => {
         input.selectEntity({ type: "support", id: supportId });
+        setSupportRequest((count) => count + 1);
         revealInResults(KEY_RESULTS_REVEAL_TARGETS.support);
       },
       onShowContactStatus: () => {
         if (!result) return;
         serial.current += 1;
-        setResultsRequest({ serial: serial.current, runId: result.run_id, filterText: SUPPORT_STATE_ROW_KIND });
+        setResultsRequest({ serial: serial.current, runId: result.run_id, kind: SUPPORT_STATE_ROW_KIND, withheld: withheldSupportStateRows(result, input.standing) });
         revealInResults(KEY_RESULTS_REVEAL_TARGETS.results);
       },
       onOpenTable: (table: KeyResultsTable) => revealInResults(KEY_RESULTS_REVEAL_TARGETS[table]),

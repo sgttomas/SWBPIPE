@@ -339,6 +339,7 @@ function AppSession() {
   // rule and actions, each through an existing setter. The rule-check run follows the A3 rule.
   const keyResults = useKeyResultsSession({
     result,
+    standing: viewportResultStanding,
     historical: historicalRun !== null,
     setActiveSection,
     selectEntity: (entity) => { handleSelectEntity(entity); },
@@ -728,6 +729,7 @@ function AppSession() {
                   result={result}
                   standing={viewportResultStanding}
                   focusSupportId={selection.type === "support" ? selection.id : null}
+                  focusRequest={keyResults.supportRequest}
                 />
               )}
               {historicalRun ? null : (

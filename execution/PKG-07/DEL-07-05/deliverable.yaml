@@ -366,3 +366,5 @@ checks:
 - apps/desktop/src/features/results/ResultsPanel.keyResults.test.tsx
 - apps/desktop/src/features/viewport/PipeViewport.keyResults.test.tsx
 - apps/desktop/src/App.keyResults.test.tsx
+- apps/desktop/src/features/results/useKeyResultsSession.test.tsx
+- apps/desktop/src/features/results/SupportLoadSummaryPanel.focusRequest.test.tsx

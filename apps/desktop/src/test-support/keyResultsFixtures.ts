@@ -14,6 +14,8 @@ type Row = MechanicsResult["results"][number];
 export const L1 = { ref_type: "load_case", ref_id: "load:L-1" } as const;
 export const L2 = { ref_type: "load_case", ref_id: "load:L-2" } as const;
 export const RANGE = { ref_type: "combination", ref_id: "comb:R" } as const;
+/** A combination the invented health view states no state for, so the standing withholds it. */
+export const COMBINED = { ref_type: "combination", ref_id: "comb:C" } as const;
 type Basis = typeof L1 | typeof L2 | typeof RANGE;
 
 export function keyModel(options: { rulePackRefs?: number } = {}): PreviewModel {

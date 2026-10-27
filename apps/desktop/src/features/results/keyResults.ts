@@ -21,7 +21,8 @@ import {
 } from "../viewport/resultColourOverlay";
 import type { ResultOverlayStanding } from "./numericalHealth";
 import { buildStressRatioTable, type StressRatioGroup } from "./stressRatioTable";
-import { SUPPORT_LOAD_WITHHELD_NOT_ELIGIBLE, buildSupportLoadSummaries } from "./supportLoadSummary";
+import { SUPPORT_LOAD_WITHHELD_NOT_ELIGIBLE, buildSupportLoadSummaries, caseWithheldReason } from "./supportLoadSummary";
+import { overlayMayShowRow } from "./numericalHealth";
 import { rowCaseKey } from "./resultsNavigator";
 
 type ResultRow = MechanicsResult["results"][number];
@@ -215,6 +216,19 @@ function keySupports(model: PreviewModel, result: MechanicsResult, standing: Res
     return parts.length > 0 ? [Object.freeze({ supportId: summary.supportId, label: summary.label, text: `${summary.label} (${parts.join(", ")})` })] : [];
   });
   return Object.freeze({ reason: items.length > 0 ? null : KEY_SUPPORTS_NONE, items: Object.freeze(items) });
+}
+
+/**
+ * The support-state rows the numerical standing withholds, each with the reason the A2 and A3
+ * panels give for its case (`caseWithheldReason`): the overlays' rule (`overlayMayShowRow`), so a
+ * row of a case or combination with no admitted health state is marked, never shown as plain.
+ */
+export function withheldSupportStateRows(result: MechanicsResult, standing: ResultOverlayStanding | null | undefined): Readonly<Record<string, string>> {
+  const marks: Record<string, string> = {};
+  for (const row of result.results) {
+    if (row.kind === SUPPORT_STATE_ROW_KIND && !overlayMayShowRow(standing, row)) marks[row.id] = caseWithheldReason(standing, row.basis_ref ?? null);
+  }
+  return Object.freeze(marks);
 }
 
 function supportStateCounts(rows: readonly ResultRow[]): KeyResults["contact"] {
