@@ -19,6 +19,18 @@ from typing import Any, Mapping, Sequence
 
 SCHEMA_VERSION = "0.1.0"
 DOCUMENT_KIND = "openpipestress.project_persistence"
+# Model document 0.8.0 (DEL-02-01 Design model-document-0.8.0.md §3.1, §3.3): the model payload's version is the
+# desktop's. A retired model document (0.7.0 and older) is refused by name on validate, create, save and open, with
+# the desktop's code and text (src-tauri `refuse_model_document`: the retired message, then RETIRED_PROJECT_RUNS_NOTE).
+# Nothing is migrated. The project's recorded runs are not gated here (owner ruling "0.8.0 a2").
+MODEL_VERSION = "0.8.0"
+RETIRED_MODEL_VERSIONS = ("0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0")
+MODEL_SCHEMA_VERSION_RETIRED = "MODEL_SCHEMA_VERSION_RETIRED"
+RETIRED_PROJECT_RUNS_NOTE = (
+    "Recorded runs keep their own format and existing read and compare behaviour; this change adds no "
+    "model-document-version gate for recorded runs. Existing integrity checks and retained-precision/source-reader "
+    "restrictions still apply. Run history is listed for the active project's id, so this project's runs are reached "
+    "through a current project with the same project id, and run comparison keeps its eligibility rules.")
 PROJECT_SCHEMA_REF = "schemas/project_persistence.schema.yaml"
 MODEL_SCHEMA_REF = "schemas/model.schema.yaml"
 MODEL_STATE_SCHEMA_REF = "schemas/model_state.schema.json"
@@ -204,6 +216,10 @@ def validate_project_persistence_envelope(envelope: Mapping[str, Any]) -> list[d
 
     if not project.get("model_payload"):
         diagnostics.append(_diagnostic("PERSISTENCE_MODEL_PAYLOAD_MISSING", "SCHEMA_VALIDATION", "project.model_payload"))
+    else:
+        refusal = model_payload_version_refusal(project.get("model_payload"))
+        if refusal is not None:
+            diagnostics.append(refusal)
 
     if not _valid_private_data(project.get("private_data")):
         diagnostics.append(_diagnostic("PERSISTENCE_PRIVATE_DATA_BOUNDARY_INVALID", "PRIVATE_DATA", "project.private_data"))
@@ -235,6 +251,20 @@ def validate_project_persistence_envelope(envelope: Mapping[str, Any]) -> list[d
             diagnostics.append(_diagnostic("PERSISTENCE_HASH_MANIFEST_MISMATCH", "SCHEMA_VALIDATION", "hash.hash_manifest"))
 
     return sorted(diagnostics, key=canonical_json)
+
+
+def model_payload_version_refusal(model_payload: Any) -> dict[str, Any] | None:
+    """The named refusal of a retired model document, as the desktop states it; None for any other payload."""
+
+    version = model_payload.get("schema_version") if isinstance(model_payload, Mapping) else None
+    if version not in RETIRED_MODEL_VERSIONS:
+        return None
+    diagnostic = _diagnostic(MODEL_SCHEMA_VERSION_RETIRED, "SCHEMA_VALIDATION", "project.model_payload.schema_version")
+    diagnostic["message"] = (
+        f"{MODEL_SCHEMA_VERSION_RETIRED}: model document {version} is retired; re-author it as model document "
+        f"{MODEL_VERSION} (a pressure-free model omits pressure_contract). Nothing is migrated. {RETIRED_PROJECT_RUNS_NOTE}")
+    diagnostic["remediation"] = f"Re-author the model as model document {MODEL_VERSION}; nothing is migrated."
+    return diagnostic
 
 
 def canonical_json(value: Any) -> str:

@@ -2,6 +2,7 @@
 """Focused tests for TP-PER-01 project persistence service behavior."""
 
 import json
+import re
 import sys
 from copy import deepcopy
 from hashlib import sha256
@@ -680,3 +681,66 @@ def test_persistence_schema_rejects_payload_outside_the_model_document_format():
         assert "dimension" in str(exc)
     else:
         raise AssertionError("A model payload outside the model document format was accepted.")
+
+
+# Model document 0.8.0 (DEL-02-01 Design model-document-0.8.0.md §3.1, §3.3): a project whose model payload is a
+# retired model document is refused by name on validate, create, save and open, with the desktop's code and text
+# (src-tauri refuse_model_document: the retired message, then the recorded-runs note). The model is the committed
+# 0.7.0 handoff control's.
+_RETIRED_MODEL = ROOT / "fixtures/handoff/retired_0_7_0_witness.swbhandoff/model/model.json"
+_RETIRED_TEXT = ("MODEL_SCHEMA_VERSION_RETIRED: model document 0.7.0 is retired; re-author it as model document 0.8.0 "
+                 "(a pressure-free model omits pressure_contract). Nothing is migrated. Recorded runs keep their own format "
+                 "and existing read and compare behaviour; this change adds no model-document-version gate for recorded runs. "
+                 "Existing integrity checks and retained-precision/source-reader restrictions still apply. Run history is "
+                 "listed for the active project's id, so this project's runs are reached through a current project with the "
+                 "same project id, and run comparison keeps its eligibility rules.")
+
+
+def _retired_envelope(version="0.7.0"):
+    model = json.loads(_RETIRED_MODEL.read_text())
+    model["schema_version"] = version
+    return build_project_persistence_envelope(
+        project_id=model["project"]["id"], project_name="Invented retired project", model_payload=model,
+        model_state_refs=[{"object_type": "model_state", "ref": "state:retired"}],
+        analysis_run_refs=[{"object_type": "analysis_run", "ref": "run:retired"}],
+        result_envelope_refs=[{"object_type": "result_envelope", "ref": "result:retired"}],
+        result_refs=[{"object_type": "result", "ref": "rows:retired"}])
+
+
+def _refusals(diagnostics):
+    return [(d["code"], d["severity"], d["message"]) for d in diagnostics if d["code"] == "MODEL_SCHEMA_VERSION_RETIRED"]
+
+
+def test_a_retired_model_payload_is_refused_by_name_on_validate():
+    assert _refusals(validate_project_persistence_envelope(_retired_envelope())) == [("MODEL_SCHEMA_VERSION_RETIRED", "blocking", _RETIRED_TEXT)]
+    assert _refusals(validate_project_persistence_envelope(_retired_envelope("0.8.0"))) == []
+
+
+def test_a_retired_model_payload_is_refused_on_create_and_save_and_nothing_is_written(tmp_path):
+    for action in (create_project_store, save_project_store):
+        store = tmp_path / f"{action.__name__}.sqlite3"
+        outcome = action(store, _retired_envelope())
+        assert _refusals(outcome["diagnostics"]) == [("MODEL_SCHEMA_VERSION_RETIRED", "blocking", _RETIRED_TEXT)]
+        assert "hash_manifest" not in outcome
+        assert open_project_store(store)["envelope"] is None
+
+
+def test_a_store_holding_a_retired_model_payload_is_refused_on_open(tmp_path, monkeypatch):
+    from core.project_persistence import service
+    store = tmp_path / "written-before.sqlite3"
+    # A store written before the ripple: the save that wrote it had no model-version gate.
+    with monkeypatch.context() as patched:
+        patched.setattr(service, "model_payload_version_refusal", lambda model_payload: None)
+        assert save_project_store(store, _retired_envelope())["diagnostics"] == []
+    opened = open_project_store(store)
+    assert _refusals(opened["diagnostics"]) == [("MODEL_SCHEMA_VERSION_RETIRED", "blocking", _RETIRED_TEXT)]
+
+
+def test_the_persistence_refusal_text_is_the_desktop_s():
+    from core.project_persistence import service
+    rust_format = (ROOT / "core/product_physics/src/model_format.rs").read_text()
+    desktop = (ROOT / "apps/desktop/src-tauri/src/model_document_version.rs").read_text()
+    assert f'pub const MODEL_SCHEMA_VERSION: &str = "{service.MODEL_VERSION}";' in rust_format
+    retired = re.findall(r'"(0\.\d+\.\d+)"', re.search(r"pub const RETIRED_MODEL_SCHEMA_VERSIONS[^=]*=\s*\[([^\]]*)\]", rust_format).group(1))
+    assert list(service.RETIRED_MODEL_VERSIONS) == retired
+    assert f'pub const RETIRED_PROJECT_RUNS_NOTE: &str = "{service.RETIRED_PROJECT_RUNS_NOTE}";' in desktop
