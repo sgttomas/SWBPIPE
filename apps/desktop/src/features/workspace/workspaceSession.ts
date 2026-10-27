@@ -1381,8 +1381,13 @@ export function useWorkspaceSession() {
       }
       if (!registered()) throw new Error("The batch was withdrawn from the review queue; its result was discarded.");
       if (!apply) registration.validated = { fingerprint, outcome };
-      setBatchOutcomes((current) => ({ ...current, [entry.key]: outcome }));
-      if (!apply || outcome.validation.application_status !== "applied_to_session_model") return;
+      // A validation, or an apply that did not apply, is shown at once. An
+      // applied outcome is published only with its model, below, so a failed
+      // preparation keeps the earlier preview and its Apply gate.
+      if (!apply || outcome.validation.application_status !== "applied_to_session_model") {
+        setBatchOutcomes((current) => ({ ...current, [entry.key]: outcome }));
+        return;
+      }
       if (!outcome.applied_model || !outcome.acceptance || outcome.simulation_disposition !== "committed_as_one_batch") {
         throw new Error("The batch did not return a complete application receipt; the model was not changed.");
       }
@@ -1426,6 +1431,7 @@ export function useWorkspaceSession() {
 
       // Publish: one synchronous block of state setters and session-owned ref
       // writes; nothing here throws.
+      setBatchOutcomes((current) => ({ ...current, [entry.key]: outcome }));
       setUndoStack((current) => [checkpoint, ...current].slice(0, 25));
       setRedoStack([]);
       setBatchReceipts((current) => [...current, batchReceipt]);

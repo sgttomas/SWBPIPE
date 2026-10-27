@@ -4,9 +4,11 @@
  * queued; a failure of an external callback after publication is reported and
  * does not roll the published batch back. The session runs the actual wasm
  * engine on an invented inline model. */
-import { act, renderHook, waitFor } from "@testing-library/react";
+import { act, render, renderHook, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as previewService from "../../services/previewService";
+import { BatchReviewPanel } from "../toolkit/BatchReviewPanel";
+import { buildReconnectBatch, emptyGeometryDraft } from "../geometry-tools/geometryDraft";
 import * as sessionModel from "./sessionModel";
 import { buildGridOperationIntent, type GridColumn } from "./table/modelTableAdapter";
 import { useWorkspaceSession } from "./workspaceSession";
@@ -36,8 +38,37 @@ async function queueCoordinate(result: Session, batchId: string, value: string, 
   return result.current.operations.queuedBatches.find((entry) => entry.batch.batch_id === batchId)!;
 }
 
-async function apply(result: Session, entry: Session["current"]["operations"]["queuedBatches"][number]) {
+type Queued = Session["current"]["operations"]["queuedBatches"][number];
+
+async function apply(result: Session, entry: Queued) {
   await act(async () => { await result.current.operations.handleRunOperationBatch(entry, true); });
+}
+
+async function validate(result: Session, entry: Queued) {
+  await act(async () => { await result.current.operations.handleRunOperationBatch(entry, false); });
+  const outcome = result.current.operations.batchOutcomes[entry.key];
+  expect(outcome.mode).toBe("validate_only");
+  expect(outcome.validation.batch_validation_status).toBe("passed");
+  return structuredClone(outcome);
+}
+
+const queued = (result: Session, key: string) => result.current.operations.queuedBatches.find((entry) => entry.key === key)!;
+
+/** The identity hash of a model commit fails only for the model `applied` recognises. */
+function failIdentityHashFor(applied: (model: PreviewModel) => boolean) {
+  const identityHash = sessionModel.uiModelIdentityHash;
+  return vi.spyOn(sessionModel, "uiModelIdentityHash").mockImplementation((model) => {
+    if (applied(model)) throw new Error("injected identity-hash failure");
+    return identityHash(model);
+  });
+}
+
+/** The batch review panel as App renders it from the session. */
+function renderBatchReview(result: Session) {
+  const operations = result.current.operations;
+  return render(<BatchReviewPanel batches={operations.queuedBatches} outcomes={operations.batchOutcomes} receipts={operations.batchReceipts}
+    revision={result.current.model.modelRevision.current} busy={operations.operationBusy} message={operations.batchMessage}
+    onClear={vi.fn()} onValidate={vi.fn()} onApply={vi.fn()} />);
 }
 
 /** Applies one batch, then undoes it, so a redo entry exists for the next apply to clear. */
@@ -68,28 +99,57 @@ describe("batch apply: Prepare -> Publish -> Notify", () => {
     const result = await session();
     await withRedoEntry(result);
     const entry = await queueCoordinate(result, "batch:second", "2.5", 2);
+    const validated = await validate(result, entry);
     const before = historySnapshot(result);
     // The UI identity hash of the applied model is part of the model commit's
     // own fallible work; it fails only for the model this batch returns.
-    const identityHash = sessionModel.uiModelIdentityHash;
-    vi.spyOn(sessionModel, "uiModelIdentityHash").mockImplementation((model) => {
-      if (model.nodes[2]?.position.y === 2.5) throw new Error("injected identity-hash failure");
-      return identityHash(model);
-    });
+    const failure = failIdentityHashFor((model) => model.nodes[2]?.position.y === 2.5);
 
-    await apply(result, entry);
+    await apply(result, queued(result, entry.key));
 
     expect(historySnapshot(result)).toEqual(before);
     expect(result.current.operations.batchMessage).toBe("Batch request failed: Error: injected identity-hash failure");
-    expect(result.current.operations.queuedBatches.map((queued) => queued.key)).toContain(entry.key);
+    expect(result.current.operations.queuedBatches.map((candidate) => candidate.key)).toContain(entry.key);
+    // The earlier preview stands; no applied outcome was published.
+    expect(result.current.operations.batchOutcomes[entry.key]).toEqual(validated);
 
-    vi.mocked(sessionModel.uiModelIdentityHash).mockRestore();
-    await apply(result, result.current.operations.queuedBatches.find((queued) => queued.key === entry.key)!);
+    failure.mockRestore();
+    await apply(result, queued(result, entry.key));
     expect(result.current.model.model!.nodes[2].position.y).toBe(2.5);
     expect(result.current.operations.undoStack).toHaveLength(1);
     expect(result.current.operations.redoStack).toHaveLength(0);
     expect(result.current.operations.batchMessage).toBe(APPLIED);
     expect(result.current.operations.queuedBatches.map((queued) => queued.key)).not.toContain(entry.key);
+  });
+
+  it("after a failed preparation a reconnect batch keeps its preview, Apply stays enabled and a retry applies", async () => {
+    const result = await session();
+    const basis = structuredClone(result.current.model.model!);
+    const draft = { ...emptyGeometryDraft(), action: "reconnect" as const, pipeRefs: ["pipe:P"], reconnectEnd: "to" as const, targetNode: "node:C", yReference: { x: "0", y: "0", z: "1" } };
+    await act(async () => { await result.current.operations.handleQueueOperationBatch(await buildReconnectBatch(basis, draft, "batch:reconnect")); });
+    const entry = result.current.operations.queuedBatches[0];
+    expect(entry.requiresPreview).toBe(true);
+    const validated = await validate(result, entry);
+    const failure = failIdentityHashFor((model) => model.pipe_segments.find((pipe) => pipe.id === "pipe:P")?.to === "node:C");
+
+    await apply(result, queued(result, entry.key));
+
+    expect(result.current.model.model).toEqual(basis);
+    expect(result.current.operations.undoStack).toHaveLength(0);
+    expect(result.current.operations.batchReceipts).toHaveLength(0);
+    expect(result.current.operations.batchMessage).toBe("Batch request failed: Error: injected identity-hash failure");
+    expect(result.current.operations.batchOutcomes[entry.key]).toEqual(validated);
+    const panel = renderBatchReview(result);
+    expect((screen.getByTestId(`apply-batch-${entry.key}`) as HTMLButtonElement).disabled).toBe(false);
+    expect(screen.getByTestId(`batch-${entry.key}`).textContent).not.toContain("Applied as one batch.");
+    panel.unmount();
+
+    failure.mockRestore();
+    await apply(result, queued(result, entry.key));
+    expect(result.current.model.model!.pipe_segments.find((pipe) => pipe.id === "pipe:P")!.to).toBe("node:C");
+    expect(result.current.operations.undoStack).toHaveLength(1);
+    expect(result.current.operations.batchOutcomes[entry.key].validation.application_status).toBe("applied_to_session_model");
+    expect(result.current.operations.batchMessage).toBe(APPLIED);
   });
 
   it("a viewport callback failure after publication is reported; the model and history advance and are not rolled back", async () => {
