@@ -1702,19 +1702,19 @@ with `syn::visit::Visit`.
   `#[cfg(feature = "native-smoke")]`, `#[cfg(target_os = "macos")]` and
   `#[cfg(any(test, …))]`, and an item gated only through a `cfg_attr` or an
   inner `#![cfg(…)]`.
-  In the three reporting crates, test-only items, test modules included,
-  outlined or inline, are read under the test-only rules (*Build
-  configuration* below; code review r6 at #1682). In `src-tauri` they are
-  not read: neither `DerivedUserRelease` nor `ProducerEntry` can be named
-  outside `report_package`, where both are `pub(crate)`, and the compiler
-  enforces that whatever `cfg` is set. Statements and expressions are read
-  whatever their attributes.
+  In all four crates, test-only items, test modules included, outlined or
+  inline, are read under the test-only rules (*Build configuration* below):
+  the reporting crates' since code review r6 at #1682, `src-tauri`'s since
+  code review r7, where they are also held to the caller-graph and
+  renderer-call rules. Statements and expressions are read whatever their
+  attributes.
 - **Files.** A file is production when any production declaration loads it,
-  whatever test declarations also name it. In the reporting crates a file
-  named only by test declarations is read as a test-only module; in
-  `src-tauri` it is not read.
+  whatever test declarations also name it. A file named only by test
+  declarations is read as a test-only module of the crate that compiles it.
 - **Forbidden in production.** Each of these is a finding:
-  - a `#[path = …]` on a `mod`;
+  - a `#[path = …]` on a `mod`. The one exception is a `src-tauri` test
+    module's (code review r7 at #1682; *Build configuration* below), which
+    is followed instead;
   - a `cfg_attr` that applies `path`, at any depth of nested `cfg_attr`s and
     whatever its predicate. The scan does not evaluate predicates, so it
     cannot know which file such a module loads; it refuses the attribute
@@ -2206,7 +2206,8 @@ manifest's spelling, decides what each crate builds:
     `emit`;
   - `src-tauri`: the library (`staticlib`, `cdylib`, `rlib`) from
     `src/lib.rs`, the app binary from `src/main.rs`, which the scan reads as
-    a crate root, and the build script `build.rs` (`tauri_build::build()`).
+    a crate root, and the build script `build.rs` (`tauri_build::build()`),
+    pinned by content since code review r7 (*Build configuration* below).
   Each reporting crate's one library target must come from its `src/lib.rs`;
   the scan reads the reported file as the root, so a different one is both a
   finding and the file actually read. Any other target, a binary, example,
@@ -2228,7 +2229,8 @@ manifest's spelling, decides what each crate builds:
   release only as `src-tauri` does, through `assemble_derived` and its
   checks. `src-tauri`'s binary is read by the scan as a root, and its build
   script can link only `tauri-build` and produces no source the scanned
-  crates include (`include!` is refused).
+  crates include (`include!` is refused). What that script emits is fixed by
+  its content pin (*Build configuration*, "Build scripts").
 - **Fixtures.** Each repro is run on a scratch copy of a real crate, so
   Cargo itself reads the edited layout: the `[ lib ]` alternate path, the
   commented `path` line, `src/main.rs` in each reporting crate,
@@ -2319,15 +2321,97 @@ build configuration as well as the sources:
   writes one. The listed item must write exactly one literal and one
   construction. Any other test-only item that writes either is a finding,
   and so is a listed item that no longer writes exactly one of each.
+- **`src-tauri`'s test-only items (code review r7 at #1682).** A repository
+  build script could set `cfg(test)` for the shell itself: with
+  `cargo:rustc-cfg=test` in `src-tauri/build.rs`, `syn` and `proc-macro2`
+  moved to normal dependencies and a `#[cfg(test)]` function calling the
+  renderer beside a public function calling it, a normal locked build
+  succeeded and the scan, which then skipped the shell's test-only items,
+  returned nothing. Unlike the reporting crates, the shell is the primary
+  package of a product build, so no root guard stops that. Its test-only
+  items, test modules included, are now read under the reporting crates'
+  test-only rules and, in addition, these:
+  - **Caller graph and renderer calls.** Every occurrence of a scanned name
+    in a shell test-only item is a finding: a call, a definition, a value,
+    an import, or the name in a macro's or an attribute's tokens. That
+    covers the renderer's pair through any prefix but `crate`, `self` or
+    `super`, the PDF crate's functions, the producer's internals, and
+    `assemble_derived` and `assemble_user_released_request`. The allow-list
+    of test callers (`SHELL_TEST_CALLERS`) is empty: the shell's tests
+    render through `render_calculation_report_value` and the save command,
+    and name none of these.
+  - **Imports.** An import naming the renderer or PDF crate may bind only
+    another of its items by name. A glob, a binding of the crate itself (a
+    rename or `self`) and an import of the pair are findings, so the pair is
+    named only through a path the scan reads.
+  - **Macro definitions.** A shell test-only macro could join a renderer
+    path from fragments the token screen does not join
+    (`open_pipe_stress_report_renderer::$f`). Each is pinned by its text's
+    SHA-256, as `app_invoke_handler` is (`SHELL_TEST_MACROS`). Today's two
+    are `command_ingress.rs`'s `probe_scalars` and `probe_unsupported`, the
+    ingress tests' serde probe: each declares one `Deserializer` method per
+    listed name and names no path. Any other definition, or a change to
+    either, is a finding until reviewed and re-pinned.
+  - **`#[path]`.** The shell's test modules load five files by `#[path]`:
+    `analysis_runs_tests.rs`, `rule_solver_selection_tests.rs` and
+    `user_release_admission_tests.rs` beside their parents, and
+    `report_package`'s `src/forwarding_graph_scan.rs` and
+    `tests/common/package_basis.rs`. A shell test module's one
+    `#[path = "<literal>"]`, on an outlined module outside any inline
+    module, is followed: the literal is resolved from the declaring file's
+    directory, as Rust does, and must lead into one of the four crates. The
+    file is read as the shell's test code, whichever crate's tree holds it.
+    Any other `#[path]` (an absolute, a non-literal or an inline module's),
+    a file outside the four crates, and an outlined module declared in a
+    path-loaded file are findings.
+  - **Listed forms.** `#[track_caller]` is admitted on shell test items
+    (today's test helpers carry it; it moves only a panic's reported
+    location). One `include_str!` of a `.rs` file is admitted:
+    `solve_attestation.rs`'s test reads its own module's text as a string, to
+    assert what the production part names. `include_str!` yields a string
+    and brings in no code. Any other `.rs` argument is still a finding.
+- **Build scripts (code review r7 at #1682).** A build script's
+  `cargo:rustc-cfg` sets a `cfg` for its own package's crates. So:
+  - `src-tauri/build.rs` is pinned by content, as `app_invoke_handler` is:
+    2,078 B, SHA-256 `b803655933381e84626d8277ee6816d14a2db58634a52e70b7404419f14318f8`
+    (`BUILD_SCRIPTS`). Any change to it is a finding until reviewed and
+    re-pinned, whatever `cfg` it would emit: `test`, a feature or any
+    other name. A build script of any scanned crate not on the pin list is
+    a finding too. The reporting crates have none: the target pin
+    (*Cargo targets*) already refuses one, and a fixture adds one to confirm
+    both findings.
+  - The other in-repository build scripts are checked by package. The test
+    follows each consumer's path dependencies, of every kind, with `cargo
+    metadata --offline --locked --no-deps` per manifest, which needs no
+    download. A registry package cannot depend on a repository path. Today
+    there are two build scripts: `src-tauri`'s, which is pinned, and
+    `core/product_physics/build.rs`, which emits only `cargo:rustc-env`
+    lines. `product_physics` depends on no reporting crate, so a `cfg` its
+    script set could not reach code that names a scanned function. Any
+    other in-repository package that runs a build script and is, or
+    depends on, a reporting crate is a finding. The pin is by package
+    rather than by content, so `product_physics`'s script, which other
+    work edits often, needs no re-pin here.
+  - **Dependency sets.** Moving `syn` and `proc-macro2` to normal
+    dependencies was not caught before. `src-tauri`'s normal and
+    development dependencies are now pinned exactly, from the same
+    per-crate `cargo metadata`, as `<kind> <package>`, with any rename and
+    platform (`SHELL_DEPENDENCIES`, 22 entries). The parser crates are
+    development dependencies only. Any move, addition, removal or rename is
+    a finding.
 - **`cfg(test)` in product builds.** Two compile-time guards hold on the
   toolchain the hosted jobs pin (Rust 1.97.1, through
   `dtolnay/rust-toolchain`; the repository has no `rust-toolchain` file).
   - **Crate-root guard.** Each reporting crate's root carries
     `#[cfg(test)] const _: () = assert!(option_env!("CARGO_PRIMARY_PACKAGE").is_some(), …)`.
-    Cargo sets `CARGO_PRIMARY_PACKAGE` only for a package the command
-    selected, as `cargo test` selects the crate under test, and never for a
-    dependency. A build that sets `cfg(test)` for a reporting crate compiled
-    as a dependency of the shell or the runner therefore fails to compile.
+    Cargo sets `CARGO_PRIMARY_PACKAGE` for each package the command
+    selects, as `cargo test` selects the crate under test, including one
+    that another selected package also depends on. It does not set it for a
+    package built only as a dependency (corrected in code review r7 at
+    #1682). A build that sets `cfg(test)` for a reporting crate compiled
+    only as a dependency of the shell or the runner therefore fails to
+    compile. One that also selects that crate on the command line does not:
+    that is a recorded reliance (*Threat model*).
     This was confirmed on 1.97.1: a wrapper adding `--cfg test` to the
     renderer, or to `pdf_emitter`, as a dependency fails with E0080. The same
     `pdf_emitter` build selected with `-p` compiles. So the guard does not
@@ -2340,11 +2424,19 @@ build configuration as well as the sources:
     `CARGO_ENCODED_RUSTFLAGS`, `build.rustflags` or `target.*.rustflags`. A
     probe with the same logic stopped under `RUSTFLAGS='--cfg test'`, while
     third-party crates such as `memchr` already fail to compile under that
-    flag.
+    flag. Since code review r7 the script also refuses a set
+    `CARGO_CFG_TEST`. A probe build script on the same Cargo found it set
+    under `RUSTFLAGS='--cfg test'`, under `build.rustflags`, and under an
+    `@file` argument file holding `--cfg test`, which the flag parser does
+    not read. It was unset for `cargo build`, `cargo test` and `cargo rustc
+    -- --cfg test`. A build script cannot see a `cargo:rustc-cfg` it emits
+    itself, so that case rests on the content pin above.
   - **Reliance.** Neither guard sees flags that a `RUSTC_WRAPPER` adds, or
     extra arguments that `cargo rustc` passes to the shell's own crate. The
     design therefore relies on product builds not enabling `cfg(test)`
-    through flags or configuration.
+    through flags or configuration. Since code review r7 the shell's own
+    test-only items are read under the caller-graph rules, so in such a
+    build the shell's test code would not reach the renderer either.
   - **Hosted CI.** The hosted CI's Cargo settings are set in
     `.github/workflows/piping-desktop-e2e.yml`,
     `.github/workflows/shared-build-cache.yml` and
@@ -2377,6 +2469,34 @@ build configuration as well as the sources:
     duplicating the allow-listed construction is also a finding.
   - **Passing:** an unedited consumer copy, the real tree's configuration,
     and the real five manifests.
+  - **Code review r7 at #1682, on scratch copies of `src-tauri` that Cargo
+    reads:** the reviewer's full repro gives the pin, dependency and
+    test-caller findings. Each part alone gives only its own: the
+    `cargo:rustc-cfg=test` line, the move of `syn` and `proc-macro2`, and
+    the test-only caller. The unedited copy passes.
+  - **Build scripts, on the real sources:** `cargo:rustc-cfg=test`,
+    `cargo::rustc-cfg=test`, other names (`r7`, a feature, `desktop`) and a
+    comment each change the pin. An unread script, and a reporting crate's
+    script (with both its target and pin findings), are findings. In-repo
+    packages Cargo reads: a path dependency whose build script emits
+    `cargo:rustc-cfg=test` and that depends on `report_package` is a
+    finding, and one that depends on no reporting crate is not.
+  - **Dependency sets:** each parser crate moved to normal dependencies, an
+    added PDF crate dependency and a renamed dependency.
+  - **Shell test-only forms, on the real sources:** a call through a crate
+    alias, a glob of the renderer, an import of the pair, a crate binding,
+    the pair as a value and in `assert!` tokens, a test-only macro joining
+    the renderer path, a test-only redefinition of an allowed caller, an
+    outlined test file, a `#[path]` test file in `src-tauri` and in
+    `report_package`'s tree, and calls of the bridge function and of
+    `assemble_derived`. These are refused too: a `#[path]` outside the four
+    crates, an absolute one, one in an inline module, an outlined module in
+    a path-loaded file, `include!`, an unlisted `.rs` `include_str!`, a
+    changed pinned test macro and an unlisted one.
+  - **Passing:** ordinary shell test code (renderer items by name, the
+    shell's own render function, `#[track_caller]`), the real tree, with
+    every shell test module and both `#[path]` files from `report_package`
+    read, and today's two in-repository build scripts.
 
 *Threat model.* The scan establishes this: under the repository's own build
 configuration, the reporting crates are built from the checked-in sources
@@ -2388,13 +2508,20 @@ resolves. It relies on four things:
 - reviewed locked dependencies;
 - no manifest-level renames.
 
+Findings outside the model are recorded in this list with one line of
+reasoning (the round-7 convergence rule):
+- The primary-package guard permits a reporting dependency also explicitly selected by the Cargo command; product builds therefore rely on no tooling injecting `cfg(test)`. (Code review r7 at #1682, P3.)
+
 Tampering with the build environment outside the repository is out of
 scope, because CI builds the reviewed artifact from the repository alone.
 
 The real-source scan finds nothing under these rules. Beyond today's renames
-and re-exports, only one allow-list entry was needed: the one test-only
-proof item. The only production-code changes were the three crate-root
-attributes, their `cfg(test)` guards and the shell's build-script guard.
+and re-exports, these allow-list entries were needed: the one test-only
+proof item; since code review r7, the shell's two pinned test macros, its
+one `.rs` `include_str!` and `#[track_caller]`. The shell's test-caller list
+is empty. The only production-code changes were the three crate-root
+attributes, their `cfg(test)` guards and the shell's build-script guard,
+which since r7 also refuses `CARGO_CFG_TEST` and is pinned by content.
 What the scan does not
 attempt to model, and refuses instead: macro expansion (beyond the listed
 macros' input grammars), name resolution beyond the crate-wide inventory of
