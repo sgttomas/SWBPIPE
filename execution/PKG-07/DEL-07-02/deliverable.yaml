@@ -199,3 +199,4 @@ checks:
 - apps/desktop/e2e/b4-table-editing.spec.ts
 - apps/desktop/e2e/b4-sections.spec.ts
 - apps/desktop/src/features/model-data/modelData.test.tsx
+- apps/desktop/src/features/workspace/selectionReveal.test.tsx

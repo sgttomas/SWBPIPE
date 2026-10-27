@@ -8,6 +8,7 @@ import type { RuleCheckOutcome, RuleCheckStatus } from "../../services/ruleCheck
 import type { ResultOverlayStanding } from "./numericalHealth";
 import { SUPPORT_LOAD_WITHHELD_NO_HEALTH, SUPPORT_LOAD_WITHHELD_NOT_ELIGIBLE, supportLoadWithheldStateText } from "./supportLoadSummary";
 import {
+  INCOMPLETE_MESSAGES_NOTE,
   INCOMPLETE_NO_REASON,
   RATIO_NOTE_LIMIT_NOT_POSITIVE,
   RATIO_NOTE_LOWER_BOUND,
@@ -20,10 +21,14 @@ import {
   STRESS_RATIO_NOTHING,
   STRESS_RATIO_RUN_NO_OUTCOMES,
   STRESS_RATIO_RUN_NOT_THIS_RESULT,
+  SUBJECT_NOT_SHOWN,
+  SUBJECT_UNDECLARED_STATUS,
   THRESHOLD_INVALID_NOTE,
   buildStressRatioTable,
   ratioNoteUnitsDiffer,
+  incompleteReason,
   stressRatioLocationText,
+  stressRatioPage,
   stressRatioRunText,
   stressRatioView,
   thresholdInStoredUnit,
@@ -42,6 +47,7 @@ type Row = MechanicsResult["results"][number];
 const L1 = { ref_type: "load_case", ref_id: "load:L-1" } as const;
 const L2 = { ref_type: "load_case", ref_id: "load:L-2" } as const;
 const PASSING = healthStanding({ eligible: true });
+const SENSITIVE_L1 = healthStanding({ eligible: true, states: { "load:L-1": "sensitive", "load:L-2": "checks_passed" } });
 const SENSITIVE_L2 = healthStanding({ eligible: true, states: { "load:L-1": "checks_passed", "load:L-2": "sensitive" } });
 
 const station = (location: string, component = "sigma_plus", basis = "invented") =>
@@ -287,7 +293,7 @@ describe("stress ratio table: rule-check outcomes", () => {
   it("sorts by ratio, pins the incomplete outcome with its reason and keeps the failed one first", () => {
     const shown = view(table(stressRows(), PASSING, run(outcomes())), "rule:cat_a");
     expect(shown.pinned.map((item) => item.outcome!.status)).toEqual(["RULE_INPUTS_INCOMPLETE"]);
-    expect(shown.pinned[0].outcome!.incompleteReason).toBe("Missing input: in_p1. RULE_SOLVER_RESULT_ROW_MISSING (in_p1): no row matched");
+    expect(shown.pinned[0].outcome!.incompleteReason).toBe(`Missing input: in_p1. Completeness finding RULE_SOLVER_RESULT_ROW_MISSING (in_p1). ${INCOMPLETE_MESSAGES_NOTE}`);
     expect(shown.pinned[0].outcome!.ratio).toBeNull();
     expect(shown.ranked.map((item) => [item.row.outcome!.checkId, item.row.case?.basis.ref_id, item.key])).toEqual([
       ["chk_p2", "load:L-1", 1.2], ["chk_p2", "load:L-2", 0.5], ["chk_p1", "load:L-1", 0.4]
@@ -437,6 +443,105 @@ describe("stress ratio table: rule-check outcomes", () => {
     expect(only.caseLabel).toBe("No load case or combination");
     expect(only.outcome!.incompleteReason).toBe(INCOMPLETE_NO_REASON);
     expect(view(built, "rule:cat_a").pinned).toEqual([only]);
+  });
+
+  it("builds an incomplete reason from structured fields only, never from a finding's message", () => {
+    const numeric = bound(undefined, {
+      status: "RULE_INPUTS_INCOMPLETE",
+      completeness_findings: [{ code: "RULE_SOLVER_RESULT_ROW_MISSING", severity: "blocking", subject_id: "in_p1", message: "no row matched at 0.25" }],
+      evaluator_findings: [{ code: "TableOutOfRange", severity: "blocking", subject_id: "chk_p1", message: "table argument 123456789.5 is outside the table range [0, 100]; the lookup is not clamped" }],
+      diagnostic_codes: ["RULE_DIAG_7"]
+    });
+    const reason = incompleteReason(numeric, "admitted");
+    expect(reason).toBe(`Missing input: in_p1. Completeness finding RULE_SOLVER_RESULT_ROW_MISSING (in_p1). Evaluator finding TableOutOfRange (chk_p1). ${INCOMPLETE_MESSAGES_NOTE}`);
+    // A withheld row's reason keeps the codes and missing inputs but no subject (§3.2).
+    const withheldReason = incompleteReason(numeric, "withheld");
+    expect(withheldReason).toBe(`Missing input: in_p1. Completeness finding RULE_SOLVER_RESULT_ROW_MISSING. Evaluator finding TableOutOfRange. ${INCOMPLETE_MESSAGES_NOTE}`);
+    for (const fragment of ["123456789", "0.25", "100", "table argument", "no row matched"]) {
+      expect(reason).not.toContain(fragment);
+      expect(withheldReason).not.toContain(fragment);
+    }
+    const pinnedReason = (standing: ResultOverlayStanding) => view(table(stressRows(), standing, run([numeric])), "rule:cat_a").pinned[0].outcome!.incompleteReason;
+    expect(pinnedReason(PASSING)).toBe(reason);
+    expect(pinnedReason(SENSITIVE_L1)).toBe(withheldReason);
+    for (const standing of ["admitted", "withheld"] as const) {
+      expect(incompleteReason(outcome("chk_p1", "cat_a", L1, "RULE_INPUTS_INCOMPLETE", { diagnostic_codes: ["RULE_DIAG_7", "RULE_DIAG_8"] }), standing)).toBe("RULE_DIAG_7, RULE_DIAG_8");
+    }
+  });
+
+  describe("a downgraded check's undeclared status in a finding subject (§3.2)", () => {
+    const STATUS_TOKENS = ["USER_RULE_FAILED", "USER_RULE_CHECKED"] as const;
+    // The runner's `enforce_declared`: the evaluated status as the subject, the outcome incomplete.
+    const downgraded = (evaluated: string) => bound(undefined, {
+      status: "RULE_INPUTS_INCOMPLETE",
+      computed_value: quantity(2), limit_value: quantity(1),
+      evaluator_findings: [{ code: "STATUS_NOT_DECLARED", severity: "blocking", subject_id: evaluated, message: "computed status is not in the check's declared result_statuses" }]
+    });
+
+    for (const evaluated of STATUS_TOKENS) {
+      for (const mode of ["ratio", "stress"] as const) {
+        it(`${evaluated}, ${mode} mode: withheld shows no subject; admitted shows "${SUBJECT_UNDECLARED_STATUS}"`, () => {
+          const withheld = view(table(stressRows(), SENSITIVE_L1, run([downgraded(evaluated)])), "rule:cat_a", mode).pinned[0];
+          expect(withheld.standing).toBe("withheld");
+          expect(withheld.outcome!.status).toBe("RULE_INPUTS_INCOMPLETE");
+          expect(withheld.outcome!.incompleteReason).toBe(`Missing input: in_p1. Evaluator finding STATUS_NOT_DECLARED. ${INCOMPLETE_MESSAGES_NOTE}`);
+          expect(withheld.outcome!.computed).toBeNull();
+          expect(JSON.stringify(withheld)).not.toMatch(/USER_RULE_(FAILED|CHECKED)/);
+
+          const admitted = view(table(stressRows(), PASSING, run([downgraded(evaluated)])), "rule:cat_a", mode).pinned[0];
+          expect(admitted.standing).toBe("admitted");
+          expect(admitted.outcome!.status).toBe("RULE_INPUTS_INCOMPLETE");
+          expect(admitted.outcome!.incompleteReason).toBe(`Missing input: in_p1. Evaluator finding STATUS_NOT_DECLARED (${SUBJECT_UNDECLARED_STATUS}). ${INCOMPLETE_MESSAGES_NOTE}`);
+          expect(admitted.outcome!.incompleteReason).not.toMatch(/USER_RULE_(FAILED|CHECKED)/);
+        });
+      }
+    }
+
+    it("never echoes a subject that contains a status token, in any case and under any code", () => {
+      const subjects = ["USER_RULE_FAILED", "user_rule_checked", "chk_USER_RULE_FAILED_1", "RULE_INPUTS_INCOMPLETE"];
+      for (const subject of subjects) {
+        const item = bound(undefined, {
+          status: "RULE_INPUTS_INCOMPLETE",
+          completeness_findings: [{ code: "RULE_INPUT_MISSING", severity: "blocking", subject_id: subject, message: "" }],
+          evaluator_findings: [{ code: "STATUS_NOT_DECLARED", severity: "blocking", subject_id: subject, message: "" }]
+        });
+        const admitted = incompleteReason(item, "admitted");
+        expect(admitted).toBe(`Missing input: in_p1. Completeness finding RULE_INPUT_MISSING (${SUBJECT_NOT_SHOWN}). Evaluator finding STATUS_NOT_DECLARED (${SUBJECT_UNDECLARED_STATUS}). ${INCOMPLETE_MESSAGES_NOTE}`);
+        expect(admitted.toUpperCase()).not.toContain(subject.toUpperCase());
+        expect(incompleteReason(item, "withheld")).toBe(`Missing input: in_p1. Completeness finding RULE_INPUT_MISSING. Evaluator finding STATUS_NOT_DECLARED. ${INCOMPLETE_MESSAGES_NOTE}`);
+      }
+      // Other subjects stay for an admitted row.
+      const plain = bound(undefined, { status: "RULE_INPUTS_INCOMPLETE", evaluator_findings: [{ code: "STATUS_NOT_DECLARED", severity: "blocking", subject_id: "chk_p1", message: "" }] });
+      expect(incompleteReason(plain, "admitted")).toContain("Evaluator finding STATUS_NOT_DECLARED (chk_p1).");
+    });
+  });
+
+  it("lists a failed outcome on every page at its rank, in either mode, past the page length", () => {
+    // Fifty checked outcomes with computed -100 .. -149 against a limit of 1, and one failed 2 / 1.
+    const checked = (count: number) => Array.from({ length: count }, (_, index) =>
+      outcome(`chk_${index}`, "cat_a", L1, "USER_RULE_CHECKED", { computed_value: quantity(-100 - index), limit_value: quantity(1) }));
+    const failed = outcome("chk_failed", "cat_a", L1, "USER_RULE_FAILED", { computed_value: quantity(2), limit_value: quantity(1) });
+    const failedKey = JSON.stringify(["chk_failed", "load_case", "load:L-1"]);
+    for (const count of [50, 57]) {
+      const built = table(stressRows(), PASSING, run([...checked(count), failed]));
+      const byRatio = stressRatioPage(view(built, "rule:cat_a", "ratio"), 50);
+      expect(byRatio.ranked[0]).toMatchObject({ rank: 1 });
+      expect(byRatio.ranked[0].row.key).toBe(failedKey);
+      const byStress = stressRatioPage(view(built, "rule:cat_a", "stress"), 50);
+      expect(byStress.ranked.map((item) => item.row.key)).toContain(failedKey);
+      expect(byStress.ranked.at(-1)).toMatchObject({ rank: count + 1 });
+      expect(byStress.ranked.at(-1)!.row.key).toBe(failedKey);
+      expect(byStress.ranked).toHaveLength(51);
+      expect(byStress.notListedCount).toBe(count - 50);
+      expect(byStress.listedCount).toBe(51);
+      // A threshold above every value and a page of one keep it too.
+      const narrow = stressRatioPage(view(built, "rule:cat_a", "stress", "1000"), 1);
+      expect(narrow.ranked.map((item) => [item.row.key, item.rank])).toEqual([[failedKey, 1]]);
+      expect(narrow.notListedCount).toBe(0);
+      const paged = stressRatioPage(view(built, "rule:cat_a", "ratio"), 1);
+      expect(paged.ranked.map((item) => item.rank)).toEqual([1, 2]);
+      expect(paged.notListedCount).toBe(count - 1);
+    }
   });
 
   it("does not use a run that binds a row this result does not hold", () => {

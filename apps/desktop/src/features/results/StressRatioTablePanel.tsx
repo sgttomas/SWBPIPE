@@ -20,9 +20,11 @@ import {
   THRESHOLD_INVALID_NOTE,
   buildStressRatioTable,
   stressRatioLocationText,
+  stressRatioPage,
   stressRatioView,
   type StressRatioGroup,
   type StressRatioMode,
+  type StressRatioPage,
   type StressRatioRow,
   type StressRatioTable,
   type StressRatioTarget,
@@ -33,7 +35,7 @@ import {
 export const STRESS_RATIO_TITLE = "Stress and Ratio Table";
 export const STRESS_RATIO_PAGE = 50;
 export const STRESS_RATIO_PINNED_TEXT =
-  "Incomplete and withheld checks are listed first. They are never sorted, and the threshold never hides them, nor a failed check.";
+  "Incomplete and withheld checks are listed first. They are never sorted, and the threshold never hides them. A failed check is listed at its rank on every page, and the threshold never hides it.";
 export const STRESS_RATIO_BOUNDARY_TEXT =
   "Ratios, limits and statuses are your rule pack's own outcomes, shown in this session only. The product supplies no allowable; this table sorts and filters what is stated and qualifies nothing.";
 export const STRESS_RATIO_KEY_TEXT: Readonly<Record<"ratio" | "rule_stress" | "emitted_stress", string>> = Object.freeze({
@@ -41,6 +43,24 @@ export const STRESS_RATIO_KEY_TEXT: Readonly<Record<"ratio" | "rule_stress" | "e
   rule_stress: "Sorted by the magnitude of your rule's computed value, largest first.",
   emitted_stress: "Sorted by the magnitude of the emitted stress, largest first; values are shown signed."
 });
+/** The key's text when the keyed rows' units differ and the rows keep source order (§5, Units). */
+export const STRESS_RATIO_KEY_TEXT_UNSORTED: Readonly<Record<"rule_stress" | "emitted_stress", string>> = Object.freeze({
+  rule_stress: "Your rule's computed values, in run order: their units differ, so they are not sorted.",
+  emitted_stress: "Emitted stresses, in result-row order: their units differ, so they are not sorted; values are shown signed."
+});
+
+function keyText(view: StressRatioView, group: StressRatioGroup): string {
+  if (view.mode === "ratio") return STRESS_RATIO_KEY_TEXT.ratio;
+  const source = group.source === "rule_category" ? "rule_stress" : "emitted_stress";
+  return view.sorted ? STRESS_RATIO_KEY_TEXT[source] : STRESS_RATIO_KEY_TEXT_UNSORTED[source];
+}
+
+/** The polite live line: rows listed on this page, rows hidden by the threshold, rows a later page lists. */
+export function stressRatioSummaryText(view: StressRatioView, page: StressRatioPage): string {
+  const hidden = view.hiddenCount > 0 ? `; ${view.hiddenCount} below the threshold hidden` : "";
+  const later = page.notListedCount > 0 ? `; ${page.notListedCount} more not yet listed` : "";
+  return `Showing ${page.listedCount} of ${view.totalCount} rows${hidden}${later}.`;
+}
 export const RATIO_DISABLED_NO_RUN = "No rule-check run in this session";
 export const RATIO_DISABLED_EMITTED = "Emitted stress: no rule outcome";
 
@@ -100,6 +120,7 @@ export function StressRatioTablePanel({
   );
   // A new category, mode or threshold lists from the top again.
   useEffect(() => setLimit(STRESS_RATIO_PAGE), [group?.id, view?.mode, thresholds]);
+  const page = useMemo(() => (view ? stressRatioPage(view, limit) : null), [view, limit]);
   const tid = (suffix: string) => `${testIdPrefix}-${suffix}`;
   const health = standing?.health ?? null;
 
@@ -107,7 +128,7 @@ export function StressRatioTablePanel({
     <section className="result-detail-panel stress-ratio-table" aria-label="Stress and ratio table" data-testid={tid("panel")}>
       <h3>{STRESS_RATIO_TITLE}</h3>
       <p data-testid={tid("run")}>{table.run.note}</p>
-      {table.state === "unavailable" || !group || !view ? (
+      {table.state === "unavailable" || !group || !view || !page ? (
         <p className="muted" data-testid={tid("unavailable")}>{table.reason ?? "Nothing to list"}</p>
       ) : (
         <>
@@ -122,16 +143,12 @@ export function StressRatioTablePanel({
             tid={tid}
           />
           {health ? <p data-testid={tid("standing")}>{health.headline}{health.outputSentence ? `. ${health.outputSentence}` : ""}</p> : null}
-          <small data-testid={tid("key")}>
-            {view.mode === "ratio" ? STRESS_RATIO_KEY_TEXT.ratio : group.source === "rule_category" ? STRESS_RATIO_KEY_TEXT.rule_stress : STRESS_RATIO_KEY_TEXT.emitted_stress}
-          </small>
+          <small data-testid={tid("key")}>{keyText(view, group)}</small>
           {view.unitNote ? <p data-testid={tid("unit-note")}>{view.unitNote}</p> : null}
           {group.source === "rule_category" ? <small data-testid={tid("pinned-note")}>{STRESS_RATIO_PINNED_TEXT}</small> : null}
-          <RowsTable group={group} view={view} limit={limit} selectedResultId={selectedResultId} onSelectLocation={onSelectLocation} tid={tid} />
-          <p aria-live="polite" data-testid={tid("summary")}>
-            Showing {view.shownCount} of {view.totalCount} rows{view.hiddenCount > 0 ? `; ${view.hiddenCount} below the threshold hidden` : ""}.
-          </p>
-          {view.ranked.filter((item) => !item.hidden).length > limit ? (
+          <RowsTable group={group} view={view} page={page} selectedResultId={selectedResultId} onSelectLocation={onSelectLocation} tid={tid} />
+          <p aria-live="polite" data-testid={tid("summary")}>{stressRatioSummaryText(view, page)}</p>
+          {page.notListedCount > 0 ? (
             <button type="button" data-testid={tid("more")} onClick={() => setLimit((current) => current + STRESS_RATIO_PAGE)}>
               Show {STRESS_RATIO_PAGE} more
             </button>
@@ -218,16 +235,17 @@ function Controls({ table, group, view, threshold, onGroup, onMode, onThreshold,
   );
 }
 
-function RowsTable({ group, view, limit, selectedResultId, onSelectLocation, tid }: {
+function RowsTable({ group, view, page, selectedResultId, onSelectLocation, tid }: {
   group: StressRatioGroup;
   view: StressRatioView;
-  limit: number;
+  page: StressRatioPage;
   selectedResultId: string | null;
   onSelectLocation?: (target: StressRatioTarget) => void;
   tid: (suffix: string) => string;
 }) {
   const rule = group.source === "rule_category";
-  const shown = view.ranked.filter((item) => !item.hidden).slice(0, limit);
+  // Failed outcomes are listed at their rank on every page (`stressRatioPage`, §7).
+  const shown = page.ranked;
   const listed = [...view.pinned, ...shown.map((item) => item.row), ...view.unranked];
   const stressUnit = sharedUnit(listed.map((row) => row.stress));
   const computedUnit = sharedUnit(listed.map((row) => row.outcome?.computed ?? null));
@@ -235,12 +253,13 @@ function RowsTable({ group, view, limit, selectedResultId, onSelectLocation, tid
   const valueColumns = rule ? 2 : 1;
   const keyLabel = !rule ? "stress magnitude" : view.mode === "ratio" ? "ratio" : "computed value magnitude";
   const sort = view.sorted ? "descending" : "none";
+  const tableLabel = view.sorted ? `${group.label}: sorted by ${keyLabel}` : `${group.label}: in source order, ${keyLabel} not sorted (units differ)`;
   return (
     <div className="stress-ratio-table-scroll">
-      <table aria-label={`${group.label}: sorted by ${keyLabel}`} data-testid={tid("table")} data-group={group.id}>
+      <table aria-label={tableLabel} data-testid={tid("table")} data-group={group.id}>
         <thead>
           <tr>
-            <th scope="col">Rank</th>
+            <th scope="col">{view.sorted ? "Rank" : "Position"}</th>
             <th scope="col">Location</th>
             <th scope="col">Case</th>
             {rule ? <><th scope="col">Check</th><th scope="col">Status</th></> : null}
@@ -264,8 +283,8 @@ function RowsTable({ group, view, limit, selectedResultId, onSelectLocation, tid
           {view.pinned.map((row) => (
             <PinnedRow key={row.key} row={row} valueColumns={valueColumns} selectedResultId={selectedResultId} onSelectLocation={onSelectLocation} tid={tid} />
           ))}
-          {shown.map((item, index) => (
-            <Row key={item.row.key} row={item.row} rank={index + 1} part="ranked" mode={view.mode} rule={rule}
+          {shown.map((item) => (
+            <Row key={item.row.key} row={item.row} rank={item.rank} part="ranked" mode={view.mode} rule={rule}
               units={{ stress: stressUnit, computed: computedUnit, limit: limitUnit }}
               selectedResultId={selectedResultId} onSelectLocation={onSelectLocation} tid={tid} />
           ))}
@@ -292,13 +311,16 @@ function LocationCell({ row, onSelectLocation }: { row: StressRatioRow; onSelect
   );
 }
 
+/** A withheld row carries no pass or fail status in any attribute (§4); an incomplete status is
+ * always stated. */
 function rowAttributes(row: StressRatioRow, part: string, selectedResultId: string | null, tid: (suffix: string) => string) {
   const selected = selectedResultId !== null && row.target.resultId === selectedResultId;
+  const status = row.outcome?.status;
   return {
     "data-testid": tid(`row-${row.key}`),
     "data-part": part,
     "data-standing": row.standing,
-    "data-status": row.outcome?.status,
+    "data-status": row.standing === "admitted" || status === "RULE_INPUTS_INCOMPLETE" ? status : undefined,
     "aria-current": selected ? ("true" as const) : undefined,
     className: selected ? "selected-result-row" : undefined
   };

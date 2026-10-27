@@ -91,6 +91,9 @@ export type StressRatioOutcome = Readonly<{
   incompleteReason: string | null;
 }>;
 
+/** Whether the numerical standing admits a row's values (§4). */
+export type StressRatioStanding = "admitted" | "withheld";
+
 export type StressRatioRow = Readonly<{
   /** The result-row id (stress row) or the outcome identity. */
   key: string;
@@ -100,7 +103,7 @@ export type StressRatioRow = Readonly<{
   caseLabel: string;
   locations: readonly StressRatioLocation[];
   target: StressRatioTarget;
-  standing: "admitted" | "withheld";
+  standing: StressRatioStanding;
   withheldReason: string | null;
   /** An emitted stress row's value (admitted rows only). */
   stress: Readonly<StressRatioValue & { resultId: string }> | null;
@@ -151,6 +154,23 @@ export function ratioNoteUnitsDiffer(computed: string, limit: string): string {
   return `Computed value and limit in different units (${computed}, ${limit}); no ratio is formed`;
 }
 export const INCOMPLETE_NO_REASON = "The run states no reason.";
+/** Said after the findings: their messages are the runner's free text and are not shown here (§3.2). */
+export const INCOMPLETE_MESSAGES_NOTE = "The findings' messages are shown with the rule-check run.";
+/** Shown in place of a `STATUS_NOT_DECLARED` finding's subject, which is the evaluated status the
+ * pack did not declare (§3.2). */
+export const SUBJECT_UNDECLARED_STATUS = "undeclared status";
+/** Shown in place of any other finding subject that reads as a rule-check status (§3.2). */
+export const SUBJECT_NOT_SHOWN = "subject not shown";
+
+/** The rule-check runner's whole status vocabulary (`RuleCheckStatus` in
+ * `core/rules/rule_check_runner`): the only values it emits as an outcome status, and so the only
+ * pass or fail tokens a finding subject can carry. Keyed by the type, so a new status must be listed. */
+const RULE_CHECK_STATUS_TOKENS: readonly string[] = Object.freeze(Object.keys({
+  RULE_INPUTS_INCOMPLETE: true,
+  USER_RULE_CHECKED: true,
+  USER_RULE_FAILED: true
+} satisfies Record<RuleCheckStatus, true>));
+const STATUS_NOT_DECLARED = "STATUS_NOT_DECLARED";
 
 const UPPER_BOUND_RELATIONS = new Set(["less_than", "less_than_or_equal"]);
 const LOWER_BOUND_RELATIONS = new Set(["greater_than", "greater_than_or_equal"]);
@@ -288,14 +308,33 @@ export function outcomeRatio(outcome: Pick<RuleCheckOutcome, "acceptability_rela
   return Number.isFinite(ratio) ? { ratio, note: null } : { ratio: null, note: RATIO_NOTE_NOT_FINITE };
 }
 
-/** §3.2: the missing inputs, then the run's findings, else its diagnostic codes. */
-export function incompleteReason(outcome: RuleCheckOutcome): string {
+/** §3.2: a finding subject as shown for an admitted row. The runner puts the evaluated status in
+ * a `STATUS_NOT_DECLARED` finding's subject before downgrading the outcome to incomplete, so a
+ * subject that contains a status token (in any case) is never echoed. */
+function shownSubject(finding: { code: string; subject_id: string }): string {
+  const subject = finding.subject_id.toUpperCase();
+  if (!RULE_CHECK_STATUS_TOKENS.some((token) => subject.includes(token))) return finding.subject_id;
+  return finding.code === STATUS_NOT_DECLARED ? SUBJECT_UNDECLARED_STATUS : SUBJECT_NOT_SHOWN;
+}
+
+/** §3.2: the missing inputs, then the run's findings by kind, code and subject, else its diagnostic
+ * codes. Built from structured fields only: a finding's message is the runner's free text and can
+ * carry a quantity (a table argument, a bound) with no unit to display it by, so it is never copied
+ * here, whatever the row's standing. A withheld row's findings carry no subject at all, and an
+ * admitted row's never echo a status token (`shownSubject`): a subject can carry the evaluated pass
+ * or fail status of a downgraded check. */
+export function incompleteReason(outcome: RuleCheckOutcome, standing: StressRatioStanding): string {
   const parts: string[] = [];
   const missing = outcome.bound_inputs.filter((input) => !input.supplied).map((input) => input.input_id);
   if (missing.length > 0) parts.push(`Missing input${missing.length === 1 ? "" : "s"}: ${missing.join(", ")}.`);
-  for (const finding of [...outcome.completeness_findings, ...outcome.evaluator_findings]) {
-    parts.push(`${finding.code} (${finding.subject_id}): ${finding.message}`);
-  }
+  const finding = (kind: string, item: { code: string; subject_id: string }) =>
+    standing === "withheld" ? `${kind} finding ${item.code}.` : `${kind} finding ${item.code} (${shownSubject(item)}).`;
+  const findings = [
+    ...outcome.completeness_findings.map((item) => finding("Completeness", item)),
+    ...outcome.evaluator_findings.map((item) => finding("Evaluator", item))
+  ];
+  parts.push(...findings);
+  if (findings.length > 0) parts.push(INCOMPLETE_MESSAGES_NOTE);
   if (parts.length === 0 && outcome.diagnostic_codes.length > 0) parts.push(outcome.diagnostic_codes.join(", "));
   return parts.length > 0 ? parts.join(" ") : INCOMPLETE_NO_REASON;
 }
@@ -344,7 +383,7 @@ function ruleGroups(
       limit: showValues ? valueOf(outcome.limit_value) : null,
       ratio,
       ratioNote: note,
-      incompleteReason: incomplete ? incompleteReason(outcome) : null
+      incompleteReason: incomplete ? incompleteReason(outcome, admitted ? "admitted" : "withheld") : null
     });
     const rows = byCategory.get(category) ?? [];
     byCategory.set(category, rows);
@@ -479,6 +518,12 @@ function keyOf(row: StressRatioRow, mode: StressRatioMode): { key: number; unit:
   return outcome.computed ? { key: Math.abs(outcome.computed.value), unit: outcome.computed.unit } : null;
 }
 
+/** Only a ranked stress row, or a ranked outcome the rule check reports as checked, can be hidden
+ * by the threshold or left to a later page. A failed outcome never is. */
+function mayBeOmitted(row: StressRatioRow): boolean {
+  return row.stress !== null || row.outcome?.status === "USER_RULE_CHECKED";
+}
+
 const STATUS_RANK: Readonly<Record<string, number>> = Object.freeze({ USER_RULE_FAILED: 0, USER_RULE_CHECKED: 1 });
 
 /** The view of one group under a mode and a threshold text (§5). Pure; frozen. */
@@ -513,12 +558,10 @@ export function stressRatioView(group: StressRatioGroup, options: { mode: Stress
     const value = thresholdInStoredUnit(text, keyUnit);
     threshold = value === null ? Object.freeze({ state: "invalid", text }) : Object.freeze({ state: "applied", text, value });
   }
-  // Only a ranked stress row, or a ranked outcome the rule check reports as checked, can be hidden.
-  const hideable = (row: StressRatioRow) => row.stress !== null || row.outcome?.status === "USER_RULE_CHECKED";
   const ranked = ordered.map((item) => Object.freeze({
     row: item.row,
     key: item.key,
-    hidden: threshold.state === "applied" && hideable(item.row) && item.key < threshold.value
+    hidden: threshold.state === "applied" && mayBeOmitted(item.row) && item.key < threshold.value
   }));
   const hiddenCount = ranked.filter((item) => item.hidden).length;
   const withheldRowCount = group.withheldCases.reduce((sum, item) => sum + item.rowCount, 0);
@@ -536,4 +579,36 @@ export function stressRatioView(group: StressRatioGroup, options: { mode: Stress
     shownCount: totalCount - hiddenCount,
     totalCount
   });
+}
+
+// --- The page (§7) ---------------------------------------------------------------------------
+
+export type StressRatioPage = Readonly<{
+  /** The ranked rows listed, each with its rank: its position among the rows at or above the
+   * threshold, so a failed outcome listed beyond the page keeps its own rank. */
+  ranked: readonly Readonly<{ row: StressRatioRow; rank: number }>[];
+  /** Rows listed: pinned (and withheld stress rows), the listed ranked rows and the not-ranked rows. */
+  listedCount: number;
+  /** Rows at or above the threshold that a later page lists. */
+  notListedCount: number;
+}>;
+
+/** The ranked rows one page lists: the first `limit` stress rows or checked outcomes at or above the
+ * threshold, and every failed outcome at its rank whatever its position, the mode, the threshold or
+ * the page length (FR-RULE-003 keeps incomplete ones pinned; this keeps failed ones listed). */
+export function stressRatioPage(view: StressRatioView, limit: number): StressRatioPage {
+  const ranked: Array<Readonly<{ row: StressRatioRow; rank: number }>> = [];
+  let paged = 0;
+  let notListedCount = 0;
+  view.ranked.filter((item) => !item.hidden).forEach((item, index) => {
+    if (mayBeOmitted(item.row)) {
+      paged += 1;
+      if (paged > limit) {
+        notListedCount += 1;
+        return;
+      }
+    }
+    ranked.push(Object.freeze({ row: item.row, rank: index + 1 }));
+  });
+  return Object.freeze({ ranked: Object.freeze(ranked), listedCount: view.shownCount - notListedCount, notListedCount });
 }

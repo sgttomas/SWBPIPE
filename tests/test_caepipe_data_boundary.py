@@ -43,7 +43,8 @@ FORBIDDEN_HARNESS_FILES = {"Invoke-CaepipeRoundTrip.ps1", "round_trip.lock"}
 # Artefacts of the private exchange layers (Design §5): CAEPIPE output or derived from it.
 PRIVATE_LAYER_NAMES = {"caepipe_results.json", "parser_diagnostics.json", "comparison.json", "run_record.json",
                        "guest_log.json", "guest_stdout.txt", "guest_stderr.txt", "case_manifest.json",
-                       "import_outcome.json"}
+                       "import_outcome.json", "export_guest_log.json", "export_guest_stdout.txt",
+                       "export_guest_stderr.txt"}
 # The private MBF import regression's outcome record (tests/test_caepipe_private_mbf_import.py).
 IMPORT_OUTCOME_KIND = "swbpipe.caepipe_mbf_import_outcome"
 PRIVATE_DOCUMENT_KINDS = {PARSED_CSV_KIND, PARSER_DIAGNOSTICS_KIND, COMPARISON_RECORD_KIND, SERIES_RECORD_KIND,
