@@ -455,13 +455,14 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // current_header v2 re-author text changed its model version token (0.7.0 -> 0.8.0,
             // same length); the closed `b7b_current_table_tests` module and E14 are byte-identical.
             // Re-audited for PF Timoshenko (DEL-05-03 pf-timoshenko.md §4), on the merged halves
-            // against main 187b67bb6b: the closed `b7b_current_table_tests` module is byte-identical;
-            // the inspected production's `current_header`, `for_source` and FRESH_IDENTITIES admit
-            // preview-physics-timoshenko-1 beside preview-physics-2 (identity dispatch, its profile and
-            // its table); the closed E14 module's test-only table list gains that table. No include,
-            // path module, static or OnceLock entered the suffix; the Timoshenko table's one include
-            // is in the inspected prefix, parsed only for a source of that identity.
-            complete_suffix_sha256: "5be6af0159e12fedce3ed127df261e3a500530dfe40a66c9d14961fbec4bf1a0",
+            // against main 187b67bb6b: only the inspected production after the resume changed
+            // (`current_header`, `for_source` and FRESH_IDENTITIES dispatch preview-physics-timoshenko-1
+            // beside preview-physics-2: its profile and its table). The closed `b7b_current_table_tests`
+            // and E14 modules are main's, byte for byte; the Timoshenko table's E14 check is in
+            // result_export's tests/preview_timoshenko_identity.rs. No include, path module, static or
+            // OnceLock entered the suffix; the Timoshenko table's one include is in the inspected prefix,
+            // parsed only for a source of that identity. This re-pin is registered at #1663's D3 turn.
+            complete_suffix_sha256: "0d01d7e25d89e3214322197da2bbf26e6cd76bdcc09783c4a25a14971343ee79",
             production_resume: Some("/// Header dispatch only; canonical envelopes have no raw rows. This does not"),
             trailing_test: Some(SEMANTIC_E14_TEST_ITEM),
         })),

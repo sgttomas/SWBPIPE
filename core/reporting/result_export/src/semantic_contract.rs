@@ -1058,8 +1058,7 @@ mod e14_tests {
             "metadata":{"component":"sparse_live_path","coordinate_system":"reduced_system","location":"load_case",
                 "basis":"retired","sign_convention":"retired"}});
         let tables = [preview_physics_retained_contract(), physics_retained_contract(),
-            pressure_rows_contract(), preview_physics_contract(), preview_physics_timoshenko_contract(),
-            pressure_source_contract()];
+            pressure_rows_contract(), preview_physics_contract(), pressure_source_contract()];
         for table in tables {
             assert!(table["rows"].as_array().unwrap().iter().all(|r| r["kind"] != row["kind"]), "{}", table["semantic_contract_id"]);
             assert_eq!(signature_in(table, &row).ok().flatten(), None, "{}", table["semantic_contract_id"]);
