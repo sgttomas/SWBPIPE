@@ -270,6 +270,30 @@
     };
   }
 
+  // A9 (DEL-07-05 Design weight-cog-summary.md): the weight summary is model data, computed on
+  // request with an entered gravity (an invented smoke input; no value is read or pinned).
+  async function weightSummaryStructure() {
+    if (!byTestId("weight-summary-panel")) return null;
+    fillAny("weight-summary-gravity-value", "-9.8");
+    fillAny("weight-summary-gravity-unit", "m/s^2");
+    fillAny("weight-summary-gravity-axis", "global_z");
+    click("weight-summary-compute");
+    await waitFor("weight summary", () => !byTestId("weight-summary-pending")
+      && (byTestId("weight-summary-summary") || byTestId("weight-summary-unavailable") || byTestId("weight-summary-error")));
+    const table = byTestId("weight-summary-table");
+    return {
+      scopes: byTestId("weight-summary-scope")?.options.length ?? 0,
+      table: Boolean(table),
+      rows: table ? table.querySelectorAll("tbody tr").length : 0,
+      cog_cells: ["x", "y", "z"].filter((axis) => byTestId(`weight-summary-cog-${axis}`)).length,
+      no_cog: Boolean(byTestId("weight-summary-no-cog")),
+      not_counted: Boolean(byTestId("weight-summary-not-counted")),
+      all_counted: Boolean(byTestId("weight-summary-all-counted")),
+      unavailable: Boolean(byTestId("weight-summary-unavailable")),
+      error: text("weight-summary-error")
+    };
+  }
+
   async function observe(label, projectId, probe) {
     await showSection("results");
     const standing = await waitFor("result standing", () => text("numerical-result-standing"));
@@ -311,7 +335,8 @@
         };
       })(),
       stress_ratio: stressRatioStructure(),
-      displacement_extremes: displacementExtremesStructure()
+      displacement_extremes: displacementExtremesStructure(),
+      weight_summary: await weightSummaryStructure()
     };
     if (probe) fill("result-filter-input", "");
     await log(`${label}: ${JSON.stringify(observation)}`);
