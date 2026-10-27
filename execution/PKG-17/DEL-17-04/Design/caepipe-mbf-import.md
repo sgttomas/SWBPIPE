@@ -1185,8 +1185,9 @@ The test is `tests/test_caepipe_private_mbf_import.py`.
   no exported MBF.
 - **Inputs per case.** `cases/<id>/caepipe_out/exported.mbf` is the file CAEPIPE's MBF
   export wrote after importing the case's writer MBF. It is CAEPIPE output, private.
-  Producing it is a guest step that does not yet exist. The owner can export it by hand,
-  or DEL-17-05's harness can gain the step (owner choice O-4).
+  DEL-17-05's harness writes it with its export step (`run_pilot --export-mbf` or
+  `--export-only`, DEL-17-05 Design §3, §5), bound to the case's solve by hash. The
+  owner can also export it by hand (O-4).
 - **Run.** The test imports the exported file as unbound. It asks for `rebind_by_node_number`, so every rebound id is marked unconfirmed
   (§15). It supplies the case's `project_invented` material declaration, then compares the
   canonical forms against the case's SWBPIPE model.
