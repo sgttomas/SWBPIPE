@@ -2143,13 +2143,17 @@ design gives that authority only to the wrapper
 4. storage bypass → `block_export`;
 5. secret material → `block_export`;
 6. contained payload → `block_export` / `PAYLOAD_METADATA_ONLY_REQUIRED`;
-7. concrete path → `redact_value` / `CONCRETE_PATH_REDACTED`;
+7. concrete path → `redact_value` / `CONCRETE_PATH_REDACTED`, decided last:
+   since the DEL-12-02 input contract (HELP_HUMAN, 2026-10-27) it applies only
+   when no other step blocks, so it never turns a block of steps 8-13 or of
+   the existing contexts' sequence into a redaction
+   (`docs/security/redaction_export_controls.md`, Input Contract);
 8. privacy or redistribution `protected_suspected` → `block_export` /
    `PROTECTED_CONTENT_BLOCKED`;
 9. review status `quarantined` or `rejected` → `block_export` /
    `PROTECTED_CONTENT_BLOCKED`.
 
-Steps 1-9 are today's, unchanged, for every context. Then, **only when the
+Steps 1-9 are the same for every context. Then, **only when the
 context is `user_released_report`**, steps 10-13 decide and return, before any
 unknown-metadata branch:
 

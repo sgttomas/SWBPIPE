@@ -168,8 +168,11 @@ fn classify_contract_item(
     };
     let privacy = stated_or_provenance("privacy_classification");
     let redistribution = stated_or_provenance("redistribution_status");
+    // A review status that is not a string reads as `unknown` and gives way to the
+    // provenance's (input contract); a non-string privacy or redistribution stays a stated
+    // label that matches no class.
     let review = match item.get("review_status") {
-        Some(value) if !value.is_null() && value.as_str() != Some("unknown") => Some(value),
+        Some(value) if value.as_str().is_some_and(|text| text != "unknown") => Some(value),
         own => provenance.map_or(own, |value| value.get("review_status")),
     };
     // Payload-carried local-private intent is not read in the user-released context
@@ -179,14 +182,14 @@ fn classify_contract_item(
     } else {
         let item_intent = INTENT_KEYS
             .iter()
-            .find_map(|key| item.get(*key).map(truthy))
+            .find_map(|key| item.get(*key).map(intent_flag))
             .or_else(|| {
                 item.get("export_policy")
                     .and_then(Value::as_object)
                     .and_then(|policy| {
                         INTENT_KEYS
                             .iter()
-                            .find_map(|key| policy.get(*key).map(truthy))
+                            .find_map(|key| policy.get(*key).map(intent_flag))
                     })
             });
         match item_intent {
@@ -212,14 +215,14 @@ fn classify_contract_item(
     };
     let review_text = review.and_then(Value::as_str).unwrap_or("unknown");
 
-    let contains_payload = truthy_option(item.get("contains_payload"))
-        || truthy_option(item.get("payload_present"))
+    let contains_payload = blocking_flag_option(item.get("contains_payload"))
+        || blocking_flag_option(item.get("payload_present"))
         || PAYLOAD_KEYS.iter().any(|key| item.contains_key(*key));
-    let secret_present = truthy_option(item.get("secret_material_present"))
+    let secret_present = blocking_flag_option(item.get("secret_material_present"))
         || SECRET_KEYS.iter().any(|key| item.contains_key(*key));
-    let cloud_present = truthy_option(item.get("cloud_or_network_reference"))
+    let cloud_present = blocking_flag_option(item.get("cloud_or_network_reference"))
         || CLOUD_KEYS.iter().any(|key| item.contains_key(*key));
-    let sql_present = truthy_option(item.get("direct_sql_access"))
+    let sql_present = blocking_flag_option(item.get("direct_sql_access"))
         || SQL_KEYS.iter().any(|key| item.contains_key(*key));
     let storage_bypass = [
         "storage_bypass",
@@ -228,8 +231,8 @@ fn classify_contract_item(
         "application_service_bypass",
     ]
     .iter()
-    .any(|key| truthy_option(item.get(*key)));
-    let path_present = truthy_option(item.get("concrete_path_present"))
+    .any(|key| blocking_flag_option(item.get(*key)));
+    let path_present = blocking_flag_option(item.get("concrete_path_present"))
         || PATH_KEYS.iter().any(|key| item.contains_key(*key));
 
     let unknown_action = if export_context == "local_private" {
@@ -237,7 +240,7 @@ fn classify_contract_item(
     } else {
         "redact_value"
     };
-    let (action, reason) = if truthy_option(item.get("professional_claim")) {
+    let (decided_action, decided_reason) = if professional_claim(item.get("professional_claim")) {
         ("block_export", "PROFESSIONAL_BOUNDARY_BLOCKED")
     } else if cloud_present {
         ("block_export", "CLOUD_OR_NETWORK_REFERENCE_BLOCKED")
@@ -249,8 +252,6 @@ fn classify_contract_item(
         ("block_export", "SECRET_MATERIAL_BLOCKED")
     } else if contains_payload {
         ("block_export", "PAYLOAD_METADATA_ONLY_REQUIRED")
-    } else if path_present {
-        ("redact_value", "CONCRETE_PATH_REDACTED")
     } else if privacy_text == Some("protected_suspected")
         || redistribution_text == Some("protected_suspected")
         || matches!(review_text, "quarantined" | "rejected")
@@ -310,6 +311,14 @@ fn classify_contract_item(
     } else {
         (unknown_action, "UNKNOWN_PROVENANCE_WARNING")
     };
+    // A concrete path redacts only what would not block (input contract, 2026-10-27): it
+    // never turns a protected, quarantined/rejected, intent or user-release block into a
+    // redaction.
+    let (action, reason) = if path_present && decided_action != "block_export" {
+        ("redact_value", "CONCRETE_PATH_REDACTED")
+    } else {
+        (decided_action, decided_reason)
+    };
     let finding_class = match reason {
         "SAFE_PUBLIC_METADATA" | "SAFE_INVENTED_PUBLIC_EXAMPLE" => None,
         "PRIVATE_DATA_REDACTED"
@@ -352,22 +361,76 @@ fn unknown_label(value: Option<&Value>) -> bool {
     }
 }
 
+// Input contract (docs/security/redaction_export_controls.md, "Input contract"; HELP_HUMAN
+// ruling 2026-10-27).  The flag strings all three implementations recognize, after trimming
+// and lowercasing; identical in core/security/redaction/controls.py and
+// redactionExportControls.ts.
 #[cfg(test)]
-fn truthy_option(value: Option<&Value>) -> bool {
-    value.map(truthy).unwrap_or(false)
+const RECOGNIZED_FLAG_STRINGS: [&str; 6] = [
+    "true",
+    "yes",
+    "explicit",
+    "present",
+    "local_private",
+    "explicit_local_private",
+];
+/// Trimmed from an intent flag: ASCII whitespace only, U+0009-U+000D and U+0020.
+#[cfg(test)]
+const INTENT_FLAG_TRIM: [char; 6] = ['\u{9}', '\u{a}', '\u{b}', '\u{c}', '\u{d}', '\u{20}'];
+/// Trimmed from a blocking flag: the union of what Rust's `str::trim`, Python's
+/// `str.strip()` (core/security/redaction/controls.py) and JavaScript's
+/// `String.prototype.trim` (redactionExportControls.ts) removed before the contract, so no
+/// implementation reads a blocking flag as unset where it read it as set.  The same code
+/// points as `BLOCKING_FLAG_TRIM` there.
+#[cfg(test)]
+const BLOCKING_FLAG_TRIM: [char; 30] = [
+    '\u{9}', '\u{a}', '\u{b}', '\u{c}', '\u{d}', '\u{1c}', '\u{1d}', '\u{1e}', '\u{1f}', '\u{20}',
+    '\u{85}', '\u{a0}', '\u{1680}', '\u{2000}', '\u{2001}', '\u{2002}', '\u{2003}', '\u{2004}',
+    '\u{2005}', '\u{2006}', '\u{2007}', '\u{2008}', '\u{2009}', '\u{200a}', '\u{2028}', '\u{2029}',
+    '\u{202f}', '\u{205f}', '\u{3000}', '\u{feff}',
+];
+
+#[cfg(test)]
+fn recognized_flag_string(text: &str) -> bool {
+    RECOGNIZED_FLAG_STRINGS.contains(&text.to_ascii_lowercase().as_str())
 }
 
 #[cfg(test)]
-fn truthy(value: &Value) -> bool {
+fn blocking_flag_option(value: Option<&Value>) -> bool {
+    value.map(blocking_flag).unwrap_or(false)
+}
+
+/// A blocking flag is set by `true`, a non-zero number, or a recognized string after
+/// trimming `BLOCKING_FLAG_TRIM` (input contract).
+#[cfg(test)]
+fn blocking_flag(value: &Value) -> bool {
     match value {
         Value::Bool(value) => *value,
-        Value::String(value) => matches!(
-            value.trim().to_ascii_lowercase().as_str(),
-            "true" | "yes" | "explicit" | "present" | "local_private" | "explicit_local_private"
-        ),
+        Value::String(value) => {
+            recognized_flag_string(value.trim_matches(|c| BLOCKING_FLAG_TRIM.contains(&c)))
+        }
         Value::Null | Value::Array(_) | Value::Object(_) => false,
         Value::Number(value) => value.as_f64().map(|number| number != 0.0).unwrap_or(false),
     }
+}
+
+/// An intent flag is set only by `true` or a recognized string after trimming ASCII
+/// whitespace (input contract); a number, an array or an object is not intent.
+#[cfg(test)]
+fn intent_flag(value: &Value) -> bool {
+    match value {
+        Value::Bool(value) => *value,
+        Value::String(value) => {
+            recognized_flag_string(value.trim_matches(|c| INTENT_FLAG_TRIM.contains(&c)))
+        }
+        _ => false,
+    }
+}
+
+/// A professional claim blocks unless it is absent, null or `false` (input contract).
+#[cfg(test)]
+fn professional_claim(value: Option<&Value>) -> bool {
+    !matches!(value, None | Some(Value::Null) | Some(Value::Bool(false)))
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -908,10 +971,17 @@ mod tests {
                                 let quarantined = review.as_str() == Some("quarantined");
                                 let mut provenance = Map::from_iter([
                                     ("privacy_classification".to_string(), json!("public")),
-                                    ("redistribution_status".to_string(), json!("public_permissive")),
+                                    (
+                                        "redistribution_status".to_string(),
+                                        json!("public_permissive"),
+                                    ),
                                     (
                                         "review_status".to_string(),
-                                        json!(if quarantined { "quarantined" } else { "accepted" }),
+                                        json!(if quarantined {
+                                            "quarantined"
+                                        } else {
+                                            "accepted"
+                                        }),
                                     ),
                                 ]);
                                 put(&mut provenance, "redistribution_status", &redistribution);
@@ -984,22 +1054,51 @@ mod tests {
     }
 
     fn frozen_column(frozen: &Value, name: &str) -> Vec<String> {
-        let alphabet: Vec<char> = frozen["alphabet"].as_str().expect("alphabet").chars().collect();
+        let alphabet: Vec<char> = frozen["alphabet"]
+            .as_str()
+            .expect("alphabet")
+            .chars()
+            .collect();
         let codes = frozen["codes"].as_array().expect("codes");
         frozen["decisions"][name]
             .as_array()
             .expect("decision column")
             .iter()
-            .flat_map(|line| line.as_str().expect("decision line").chars().collect::<Vec<_>>())
+            .flat_map(|line| {
+                line.as_str()
+                    .expect("decision line")
+                    .chars()
+                    .collect::<Vec<_>>()
+            })
             .map(|symbol| {
-                let index = alphabet.iter().position(|known| *known == symbol).expect("symbol");
+                let index = alphabet
+                    .iter()
+                    .position(|known| *known == symbol)
+                    .expect("symbol");
                 codes[index].as_str().expect("code").to_string()
             })
             .collect()
     }
 
-    #[test]
-    fn frozen_rust_sweep_column_is_the_current_mirror() {
+    /// "Less strict" is this total order on the classifier's actions, least to most strict.
+    /// `redact_value` sits above `warning_only` by the existing contracts: `warning_only`
+    /// keeps the item with its value and is the unknown-metadata action only in
+    /// `local_private`, while `redact_value` replaces `value` and `text` and is that action
+    /// in every public or shared context.  The classifier produces no `redact_field` or
+    /// `omit_field`.
+    const ACTION_ORDER: [&str; 4] = ["include", "warning_only", "redact_value", "block_export"];
+    const BEFORE_COLUMNS: [&str; 3] = ["python_before", "typescript_before", "rust_before"];
+    const RAISED: &str = "raised/TypeError";
+
+    fn strictness(code: &str) -> usize {
+        let action = code.split('/').next().expect("action");
+        ACTION_ORDER
+            .iter()
+            .position(|known| *known == action)
+            .unwrap_or_else(|| panic!("unordered action in {code}"))
+    }
+
+    fn sweep_fixtures() -> (Vec<SweepCase>, Value) {
         let spec = sweep_json(include_str!(
             "../../../../fixtures/redaction_export_controls/input_contract_sweep.json"
         ));
@@ -1008,14 +1107,112 @@ mod tests {
         ));
         let cases = expand_sweep(&spec);
         assert_eq!(cases.len(), SWEEP_CASE_COUNT);
-        assert!(cases.iter().all(|case| matches!(case.family, "labels" | "flags" | "claims")));
-        let decided: Vec<String> = cases.iter().map(sweep_decision).collect();
-        let expected = frozen_column(&frozen, "rust_before");
-        assert_eq!(expected.len(), SWEEP_CASE_COUNT);
-        let mismatches: Vec<usize> = (0..SWEEP_CASE_COUNT)
-            .filter(|index| decided[*index] != expected[*index])
+        assert_eq!(frozen["case_count"].as_u64(), Some(SWEEP_CASE_COUNT as u64));
+        assert_eq!(frozen["action_order"], json!(ACTION_ORDER));
+        assert!(cases
+            .iter()
+            .all(|case| matches!(case.family, "labels" | "flags" | "claims")));
+        (cases, frozen)
+    }
+
+    /// The ruling's proof obligation: every sweep case's decision is at least as strict as
+    /// each implementation's frozen pre-contract decision.  Python's former TypeError on an
+    /// array or object label is no decision; the case is held to the TypeScript and Rust
+    /// columns.
+    #[test]
+    fn sweep_decides_no_case_less_strictly_than_any_frozen_pre_contract_decision() {
+        let (cases, frozen) = sweep_fixtures();
+        let before: Vec<(&str, Vec<String>)> = BEFORE_COLUMNS
+            .iter()
+            .map(|name| (*name, frozen_column(&frozen, name)))
             .collect();
-        assert!(mismatches.is_empty(), "{} mismatches, first {:?}", mismatches.len(), &mismatches[..mismatches.len().min(5)]);
+        let mut looser = Vec::new();
+        for (index, case) in cases.iter().enumerate() {
+            let decided = sweep_decision(case);
+            for (name, column) in &before {
+                assert_eq!(column.len(), SWEEP_CASE_COUNT, "{name}");
+                if column[index] != RAISED && strictness(&decided) < strictness(&column[index]) {
+                    looser.push((index, *name, column[index].clone(), decided.clone()));
+                }
+            }
+        }
+        assert!(
+            looser.is_empty(),
+            "{} looser, first {:?}",
+            looser.len(),
+            looser.first()
+        );
+    }
+
+    /// With the pytest and vitest twins, the three implementations agree case for case.
+    #[test]
+    fn sweep_gives_the_contract_decision_for_every_case() {
+        let (cases, frozen) = sweep_fixtures();
+        let contract = frozen_column(&frozen, "contract");
+        assert_eq!(contract.len(), SWEEP_CASE_COUNT);
+        let mismatches: Vec<usize> = (0..SWEEP_CASE_COUNT)
+            .filter(|index| sweep_decision(&cases[*index]) != contract[*index])
+            .collect();
+        assert!(
+            mismatches.is_empty(),
+            "{} mismatches, first {:?}",
+            mismatches.len(),
+            &mismatches[..mismatches.len().min(5)]
+        );
+    }
+
+    /// Named regressions (HELP_HUMAN ruling 2026-10-27).  The per-row cases of the (a'),
+    /// (b') and (c) tables are the `input-contract-*` cases of the shared corpus, decided by
+    /// `canonical_parity_corpus_matches_rust_contract_mirror` and its two twins.
+    #[test]
+    fn input_contract_corpus_cases_are_present_and_outside_the_pinned_original_cases() {
+        let corpus: Value = serde_json::from_str(include_str!(
+            "../../../../fixtures/redaction_export_controls/cases.json"
+        ))
+        .expect("shared redaction corpus must remain valid JSON");
+        let cases = corpus["cases"].as_array().expect("cases array");
+        let added: Vec<&Value> = cases
+            .iter()
+            .filter(|case| {
+                case["case_id"]
+                    .as_str()
+                    .is_some_and(|id| id.starts_with("input-contract-"))
+            })
+            .collect();
+        assert_eq!(added.len(), 49);
+        assert!(added
+            .iter()
+            .all(|case| case.get("explicit_user_release_intent").is_some()));
+        assert!(cases[cases.len() - 49..].iter().eq(added.into_iter()));
+    }
+
+    /// Before the reorder `concrete_path_present: true` returned `redact_value` /
+    /// `CONCRETE_PATH_REDACTED` ahead of the protected-content block, in every context.
+    #[test]
+    fn concrete_path_never_turns_a_protected_block_into_a_redaction() {
+        let item = json!({
+            "field_id": "invented.input_contract.path_protected",
+            "concrete_path_present": true,
+            "privacy_classification": "protected_suspected",
+            "redistribution_status": "public_permissive",
+            "value": "Invented placeholder value"
+        });
+        for context in [
+            "public_report",
+            "public_example",
+            "shared_model",
+            "downstream_tool",
+            "local_private",
+            USER_RELEASED_REPORT_CONTEXT,
+        ] {
+            let decided =
+                classify_contract_item(item.as_object().expect("object"), context, false, false);
+            assert_eq!(
+                (decided.action, decided.reason_code),
+                ("block_export", "PROTECTED_CONTENT_BLOCKED"),
+                "{context}"
+            );
+        }
     }
 
     #[test]

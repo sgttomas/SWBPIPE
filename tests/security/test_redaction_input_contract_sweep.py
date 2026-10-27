@@ -15,7 +15,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
-from core.security.redaction import classify_export_item  # noqa: E402
+from core.security.redaction import classify_export_item, control_route_export  # noqa: E402
 
 FIXTURE_DIR = ROOT / "fixtures" / "redaction_export_controls"
 SWEEP_PATH = FIXTURE_DIR / "input_contract_sweep.json"
@@ -113,16 +113,116 @@ def decoded_column(frozen, name):
     return [codes[alphabet.index(symbol)] for symbol in "".join(frozen["decisions"][name])]
 
 
+# "Less strict" is this total order on the classifier's actions, least to most strict.
+# `redact_value` sits above `warning_only` by the existing code: `warning_only` returns the
+# item with its value (`_apply_action`) and is the unknown-metadata action only in
+# `local_private`, while `redact_value` replaces `value` and `text` with `[REDACTED]`, drops
+# the unsafe detail keys, and is that action in every public or shared context.  The
+# classifier produces no `redact_field` or `omit_field`.
+ACTION_ORDER = ("include", "warning_only", "redact_value", "block_export")
+BEFORE_COLUMNS = ("python_before", "typescript_before", "rust_before")
+RAISED = "raised/TypeError"
+
+
+def strictness(code):
+    return ACTION_ORDER.index(code.split("/", 1)[0])
+
+
 def test_sweep_expands_to_the_pinned_case_count():
     cases = expand_sweep(load_json(SWEEP_PATH))
     assert len(cases) == CASE_COUNT
-    assert load_json(DECISIONS_PATH)["case_count"] == CASE_COUNT
+    frozen = load_json(DECISIONS_PATH)
+    assert frozen["case_count"] == CASE_COUNT
+    assert tuple(frozen["action_order"]) == ACTION_ORDER
+    for name in (*BEFORE_COLUMNS, "contract"):
+        assert len(decoded_column(frozen, name)) == CASE_COUNT, name
 
 
-def test_frozen_python_column_is_the_current_classifier():
+def test_no_case_is_decided_less_strictly_than_before_in_any_implementation():
+    """The ruling's proof obligation: every case's decision is at least as strict as each
+    implementation's frozen pre-contract decision.  Python's former TypeError on an array or
+    object label is no decision; the case is held to the TypeScript and Rust columns."""
+
     frozen = load_json(DECISIONS_PATH)
     cases = expand_sweep(load_json(SWEEP_PATH))
-    expected = decoded_column(frozen, "python_before")
-    assert len(expected) == len(cases)
-    mismatches = [index for index, case in enumerate(cases) if decide(case) != expected[index]]
+    before = {name: decoded_column(frozen, name) for name in BEFORE_COLUMNS}
+    looser = []
+    for index, case in enumerate(cases):
+        decided = decide(case)
+        assert decided != RAISED, index
+        for name, column in before.items():
+            if column[index] != RAISED and strictness(decided) < strictness(column[index]):
+                looser.append((index, name, column[index], decided))
+    assert looser == []
+
+
+def test_python_gives_the_contract_decision_for_every_case():
+    """With the vitest and cargo twins, the three implementations agree case for case."""
+
+    frozen = load_json(DECISIONS_PATH)
+    cases = expand_sweep(load_json(SWEEP_PATH))
+    contract = decoded_column(frozen, "contract")
+    mismatches = [index for index, case in enumerate(cases) if decide(case) != contract[index]]
     assert mismatches == []
+
+
+# Named regressions (HELP_HUMAN ruling 2026-10-27).  The per-row cases of the (a'), (b')
+# and (c) tables are the `input-contract-*` cases of the shared corpus `cases.json`,
+# decided by all three suites.
+
+INPUT_CONTRACT_CORPUS_CASES = 49
+
+
+def test_input_contract_corpus_cases_are_present_and_outside_the_pinned_original_cases():
+    corpus = load_json(FIXTURE_DIR / "cases.json")
+    added = [case for case in corpus["cases"] if case["case_id"].startswith("input-contract-")]
+    assert len(added) == INPUT_CONTRACT_CORPUS_CASES
+    assert all("explicit_user_release_intent" in case for case in added)
+    assert corpus["cases"][-INPUT_CONTRACT_CORPUS_CASES:] == added
+
+
+def test_route_projector_reads_an_array_label_as_no_public_basis():
+    """TypeScript's route projector read ``String(["public"])`` as a public basis and
+    included the sibling value; Python raised TypeError.  Both now redact it."""
+
+    payload = {
+        "record": {
+            "privacy_classification": ["public"],
+            "redistribution_status": ["public_permissive"],
+            "note": "Invented placeholder note",
+        }
+    }
+    controlled = control_route_export(
+        payload, route_id="DREP-JSON-002", export_context="public_report"
+    )
+    note = [decision for decision in controlled.decisions if decision.path.endswith("note")]
+    assert [(decision.action, decision.reason_code) for decision in note] == [
+        ("redact_value", "REDISTRIBUTION_STATUS_UNKNOWN")
+    ]
+    assert controlled.payload["record"]["note"] == "[REDACTED]"
+
+
+def test_concrete_path_never_turns_a_protected_block_into_a_redaction():
+    """Before the reorder, ``concrete_path_present: true`` returned ``redact_value`` /
+    ``CONCRETE_PATH_REDACTED`` ahead of the protected-content block, in every context."""
+
+    item = {
+        "field_id": "invented.input_contract.path_protected",
+        "concrete_path_present": True,
+        "privacy_classification": "protected_suspected",
+        "redistribution_status": "public_permissive",
+        "value": "Invented placeholder value",
+    }
+    for context in (
+        "public_report",
+        "public_example",
+        "shared_model",
+        "downstream_tool",
+        "local_private",
+        "user_released_report",
+    ):
+        decision = classify_export_item(item, export_context=context)
+        assert (decision.action, decision.reason_code) == (
+            "block_export",
+            "PROTECTED_CONTENT_BLOCKED",
+        ), context
