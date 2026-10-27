@@ -594,7 +594,7 @@ def test_round_trip_records_route_and_never_runs_a_real_prlctl(tmp_path):
     assert "-File \"Z:\\invented\\_harness\\Invoke-CaepipeRoundTrip.ps1\"" in calls[1][6]
     assert record_["route"] == "csv_from_gui_print"
     assert record_["command_shape"]["gui_print_fallback"] == {
-        **record_["command_shape"]["gui_print_fallback"], "used": True, "label": "trial_build_workaround"}
+        **record_["command_shape"]["gui_print_fallback"], "used": True, "label": "print_to_file_fallback"}
     assert record_["mbf"]["sha256"] == MBF_SHA
     case_dir = config.exchange_root / "cases" / "cpc-x"
     assert (case_dir / "caepipe_in" / "model.mbf").read_bytes() == b"INVENTED\r\nMBF\r\n"
@@ -857,6 +857,9 @@ def test_offline_bound_csv_is_compared_and_stdout_carries_status_only(tmp_path, 
                      "cases/cpc-01-cantilever-force/comparison/comparison.json"]
     stored = json.loads((paths["comparison"] / "comparison.json").read_text(encoding="utf-8"))
     assert "by_outcome" in stored["summary"]
+    id_map = json.loads((paths["caepipe_in"] / "id_map.json").read_text(encoding="utf-8"))
+    assert id_map["mbf_sha256"] == sha  # binds the sidecar to the MBF bytes for the importer
+    assert {"node_map", "element_map", "support_map", "load_map", "material_map"} <= set(id_map)
 
 
 # --------------------------------------------------------------------------
@@ -951,7 +954,7 @@ def test_l_bend_and_branch_hand_calcs_satisfy_equilibrium():
 PRINT_RESOLUTION = {"rel": 1e-6, "abs": {"m": 5e-7, "rad": 8.7266e-7, "N": 0.5, "N*m": 0.5}}
 
 
-def test_case_files_render_within_the_evaluation_row_limit_and_match_hand_calcs():
+def test_case_files_render_within_the_configured_layout_row_threshold_and_match_hand_calcs():
     paths = sorted(CASES_DIR.glob("*.json"))
     assert [path.stem for path in paths] == sorted(hand_calcs.HAND_CALCS)
     for path in paths:

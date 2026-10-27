@@ -48,6 +48,19 @@
 //! held. The native render and
 //! save of an exact-route report bind resubmitted texts to them.
 //!
+//! Attestation table (W-18b (r2a), DEL-08-01 Design `report-user-release.md`
+//! §2.4): separately from the custody digests, publication of a result whose
+//! worker sent an attested `ATST` frame records `{job, solver mode, d_M, d_S}`
+//! (the SHA-256 of the checked canonical model and result values, under their
+//! user-release domains, [`crate::solve_attestation`]) in a bounded session
+//! table of the [`crate::solve_attestation::MAX_ATTESTED_SOLVES`] (32) most recent attested solves, evicting
+//! the oldest. It lives inline in the job table (a fixed ring under 8 KiB, no
+//! lease), is not pruned with a record and not released with custody or by
+//! `dispose_result`; [`SolveJobRegistry::dispose_all_results`] (page load)
+//! clears it. It is never persisted and never sent to the webview:
+//! [`SolveJobRegistry::holds_attested_solve`] answers only whether an entry
+//! with given digests and mode is held, for the user-release route's admission.
+//!
 //! Locks: the registry lock may be held while taking the pool lock (lease
 //! drop/grow) or a worker's control lock (kill); the pool never calls back
 //! into the registry under its lock, and the supervisor never takes the
@@ -59,6 +72,7 @@ use crate::memory_pool::{
     JobCounts, Lease, LeasePurpose, MemoryPool, PoolStatus, ResampleStop, ResourceRefusal, WaitOutcome, MAX_QUEUED_JOBS,
     MAX_RETAINED_RESULTS, MAX_TERMINAL_RECORDS, MAX_WEBVIEW_CUSTODY_RESULTS,
 };
+use crate::solve_attestation::{AttestationTable, SolveAttestation};
 use crate::solve_worker::{
     CurrentExeLauncher, SupervisorHooks, WorkerControl, WorkerLauncher, WorkerOutcome, WorkerTask, WorkerTerms, PROCESS_RESERVE_BYTES,
 };
@@ -277,6 +291,8 @@ struct SolveJobRecord {
 struct SolveJobTable {
     next_job_number: u64,
     records: HashMap<String, SolveJobRecord>,
+    /// The most recent attested solves (§2.4), apart from the records.
+    attested: AttestationTable,
 }
 
 impl SolveJobTable {
@@ -681,7 +697,7 @@ impl SolveJobRegistry {
         drop(grant);
         match outcome {
             Err(payload) => Err(ModelChecksError::Failed(format!("MODEL-CHECKS-PANICKED: {}", crate::solve_worker::panic_message(payload.as_ref())))),
-            Ok(WorkerOutcome::Completed { result, lease }) => Ok(ModelChecksOutput {
+            Ok(WorkerOutcome::Completed { result, lease, .. }) => Ok(ModelChecksOutput {
                 report: result,
                 lease,
                 peak_grant_bytes: hooks.peak_grant,
@@ -793,11 +809,11 @@ impl SolveJobRegistry {
                     record.error_message = Some(format!("PREVIEW-SOLVE-PANICKED: {message}"));
                 });
             }
-            Ok(WorkerOutcome::Completed { result, lease }) => match String::from_utf8(result) {
+            Ok(WorkerOutcome::Completed { result, lease, attestation }) => match String::from_utf8(result) {
                 Ok(result) => {
                     // Hashed in place, before publication takes the registry lock (§3.6).
                     let result_sha256 = sha256_in_place(result.as_bytes());
-                    self.publish(&job_id, result, lease, result_sha256)
+                    self.publish(&job_id, result, lease, result_sha256, attestation.map(|a| (mode, a)))
                 }
                 Err(_) => {
                     drop(lease);
@@ -829,8 +845,16 @@ impl SolveJobRegistry {
     }
 
     /// Retains a finished result under its result lease, unless the job was
-    /// cancelled or retention is full (both drop it).
-    fn publish(&self, job_id: &str, result: String, lease: Lease, result_sha256: [u8; 32]) {
+    /// cancelled or retention is full (both drop it). A retained result's
+    /// attestation, if its worker sent one, enters the attestation table.
+    fn publish(
+        &self,
+        job_id: &str,
+        result: String,
+        lease: Lease,
+        result_sha256: [u8; 32],
+        attestation: Option<(PreviewSolverMode, SolveAttestation)>,
+    ) {
         let mut table = self.table();
         let retained = table.counts().retained;
         let Some(record) = table.records.get_mut(job_id) else { return };
@@ -864,7 +888,22 @@ impl SolveJobRegistry {
         if let Some(digests) = record.digests.as_mut() {
             digests.result_sha256 = Some(result_sha256);
         }
+        let number = record.number;
+        if let Some((mode, attestation)) = attestation {
+            table.attested.record(number, mode, attestation);
+        }
         table.prune();
+    }
+
+    /// Whether this session's solver produced, in `solver_mode`, an attested
+    /// solve with these digests (`d_M`, `d_S`) among the
+    /// [`crate::solve_attestation::MAX_ATTESTED_SOLVES`] most recent since the last session reset. For
+    /// the user-release route's native admission (DEL-08-01 Design
+    /// `report-user-release.md` §2.5 step 7), which computes the digests with
+    /// [`SolveAttestation::of`]. Returns no digest and no job.
+    #[cfg_attr(not(test), allow(dead_code))]
+    pub(crate) fn holds_attested_solve(&self, solver_mode: PreviewSolverMode, attestation: &SolveAttestation) -> bool {
+        self.table().attested.holds(solver_mode, attestation)
     }
 
     /// The job's custody digests (§3.6), a copy, only while its result is
@@ -1011,6 +1050,8 @@ impl SolveJobRegistry {
                 released.push((result, lease));
             }
         }
+        // The attestation table goes with the session (§2.4).
+        table.attested.clear();
         let receipt = SolveResultsDisposal {
             released_results: released.len(),
             released_bytes: released.iter().filter_map(|(_, lease)| lease.as_ref()).map(Lease::bytes).sum(),
@@ -2239,5 +2280,127 @@ mod tests {
             other => panic!("expected a typed worker refusal at the budget, got {other:?}"),
         }
         assert_eq!((registry.pool().reserved_total(), registry.pool().running_workers()), (0, 0));
+    }
+
+    // --- W-18b (r2a): the attestation table (DEL-08-01 Design `report-user-release.md` §2.4) ---
+
+    use crate::solve_attestation::MAX_ATTESTED_SOLVES;
+    use crate::solve_worker::tests::scripted_attestation;
+
+    fn hex(bytes: &[u8]) -> String {
+        bytes.iter().map(|b| format!("{b:02x}")).collect()
+    }
+
+    /// Publication records an attested solve; the table keeps the 32 most
+    /// recent, evicting the oldest, outlives custody (`dispose_result`) and
+    /// the record's pruning, records nothing for an unattested or cancelled
+    /// job, and is cleared by `dispose_all_results`.
+    #[test]
+    fn the_attestation_table_is_bounded_outlives_custody_and_clears_on_reset() {
+        let host = ScriptedHost::normal();
+        let (registry, gate) = gated(&host);
+        let mode = PreviewSolverMode::SparseInteractive;
+        let total = MAX_ATTESTED_SOLVES + 3;
+        let mut first_job = String::new();
+        for index in 0..total {
+            let receipt = registry.start(MODEL, None).unwrap();
+            gate.wait_started(index + 1);
+            gate.release(&format!("attested:{{\"n\":{index}}}"));
+            assert_eq!(wait_terminal(&registry, &receipt.job_id).state, "completed");
+            assert_eq!(registry.take_result(&receipt.job_id).unwrap(), format!("{{\"n\":{index}}}").as_bytes());
+            // Custody ends; the attestation stays (not released with custody).
+            registry.dispose_result(&receipt.job_id).unwrap();
+            if index == 0 {
+                first_job = receipt.job_id;
+            }
+        }
+        let held = |index: usize| registry.holds_attested_solve(mode, &scripted_attestation(&format!("{{\"n\":{index}}}")));
+        assert!((0..3).all(|index| !held(index)), "the three oldest were evicted");
+        assert!((3..total).all(held), "the 32 most recent are held after their custody ended");
+        assert!(!registry.holds_attested_solve(PreviewSolverMode::DenseScrutiny, &scripted_attestation("{\"n\":5}")), "another mode");
+        let numbers = registry.table().attested.job_numbers();
+        assert_eq!(numbers.len(), MAX_ATTESTED_SOLVES);
+        assert_eq!(numbers.first(), Some(&4), "job numbers start at 1; the first three were evicted");
+
+        // Not pruned with its record: the records age out, the entry stays.
+        for _ in 0..(MAX_TERMINAL_RECORDS + 10) {
+            let receipt = registry.start(MODEL, None).unwrap();
+            gate.release("err:failed");
+            assert_eq!(wait_terminal(&registry, &receipt.job_id).state, "failed");
+        }
+        assert!(registry.status(&first_job).is_err(), "the oldest records were pruned");
+        assert!(held(total - 1), "unattested and failed jobs record nothing and evict nothing");
+        assert_eq!(registry.table().attested.job_numbers(), numbers);
+
+        // A job cancelled before publication records nothing.
+        let receipt = registry.start(MODEL, None).unwrap();
+        gate.wait_started(total + MAX_TERMINAL_RECORDS + 11);
+        assert!(registry.cancel(&receipt.job_id, &receipt.backend_cancellation_token).unwrap().accepted);
+        assert_eq!(wait_terminal(&registry, &receipt.job_id).state, "cancelled");
+        assert_eq!(registry.table().attested.job_numbers(), numbers);
+
+        // Session reset clears it.
+        registry.dispose_all_results();
+        assert!((0..total).all(|index| !held(index)));
+        assert!(registry.table().attested.job_numbers().is_empty());
+        assert_eq!(registry.pool().reserved_total(), 0);
+    }
+
+    /// §2.4 and §6: the solved demo's `d_M` and `d_S` equal the digests that
+    /// admission computes over the session model and the received result
+    /// after the webview round trip (parse, RFC 8785 text, native parse), in
+    /// both modes; another mode, a result with one added annotation and
+    /// another model are not held. Nothing the webview receives carries a
+    /// digest.
+    #[test]
+    fn the_solved_demos_attestation_matches_admissions_digests_after_the_round_trip() {
+        use open_pipe_stress_canonical_json::canonical_json;
+        let registry = real_registry(ScriptedHost::normal());
+        let model = crate::load_preview_model().unwrap();
+        let body = serde_json::to_vec(&model).unwrap();
+        let round_trip = |value: &serde_json::Value| -> serde_json::Value { serde_json::from_str(&canonical_json(value)).unwrap() };
+        for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+            let receipt = registry.start(&body, Some(mode.as_str())).unwrap();
+            let status = wait_terminal(&registry, &receipt.job_id);
+            assert_eq!(status.state, "completed", "{status:?}");
+            let bytes = registry.take_result(&receipt.job_id).unwrap();
+            // The webview parses the producer's bytes and writes the session
+            // model and the result into the request's RFC 8785 text; admission parses it.
+            let received: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
+            let (session_model, source) = (round_trip(&model), round_trip(&received));
+            let at_admission = SolveAttestation::of(&session_model, &source).expect("the demo is within the checked profile");
+            assert!(registry.holds_attested_solve(mode, &at_admission), "{mode:?}");
+            let other = match mode {
+                PreviewSolverMode::SparseInteractive => PreviewSolverMode::DenseScrutiny,
+                PreviewSolverMode::DenseScrutiny => PreviewSolverMode::SparseInteractive,
+            };
+            if mode == PreviewSolverMode::SparseInteractive {
+                assert!(!registry.holds_attested_solve(other, &at_admission), "mode mismatch");
+            }
+            // An annotation added only in the request is not attested.
+            let mut annotated = source.clone();
+            let row = annotated["results"].as_array_mut().and_then(|rows| rows.first_mut()).expect("the demo has result rows");
+            row.as_object_mut().unwrap().insert("x_annotation".into(), serde_json::json!("invented"));
+            assert!(!registry.holds_attested_solve(mode, &SolveAttestation::of(&session_model, &annotated).unwrap()));
+            let mut other_model = session_model.clone();
+            other_model.as_object_mut().unwrap().insert("x_other".into(), serde_json::json!(1));
+            assert!(!registry.holds_attested_solve(mode, &SolveAttestation::of(&other_model, &source).unwrap()));
+            // Never sent to the webview: no receipt, status or disposal carries a digest.
+            let disposal = registry.dispose_result(&receipt.job_id).unwrap();
+            let sent = [
+                serde_json::to_string(&receipt).unwrap(),
+                serde_json::to_string(&registry.status(&receipt.job_id).unwrap()).unwrap(),
+                serde_json::to_string(&disposal).unwrap(),
+                serde_json::to_string(&registry.pool_status()).unwrap(),
+            ];
+            for digest in [at_admission.model_sha256, at_admission.result_sha256] {
+                assert!(sent.iter().all(|text| !text.contains(&hex(&digest))));
+            }
+            assert!(registry.holds_attested_solve(mode, &at_admission), "not released with custody");
+        }
+        let reset = registry.dispose_all_results();
+        assert_eq!(reset.released_results, 0);
+        assert!(registry.table().attested.job_numbers().is_empty());
+        assert_eq!(registry.pool().reserved_total(), 0);
     }
 }

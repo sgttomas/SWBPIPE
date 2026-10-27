@@ -2895,6 +2895,34 @@ fieldset.viewport-intent-controls {
   overflow-wrap: anywhere;
 }
 
+/* A2: the per-support load summary (DEL-07-05 Design `support-load-summary.md` §5). */
+.support-load-stepper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.support-load-table-scroll {
+  overflow: auto;
+}
+
+.support-load-summary td,
+.support-load-summary th[scope="col"] {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.support-load-summary td[colspan] {
+  text-align: left;
+  white-space: normal;
+}
+
+.support-load-extremes th,
+.support-load-extremes td {
+  border-top: 1px solid #c9d2ce;
+}
+
 .endpoint-pair {
   display: grid;
   gap: 6px;

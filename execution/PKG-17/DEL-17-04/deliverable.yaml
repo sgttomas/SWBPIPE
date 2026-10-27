@@ -109,6 +109,9 @@ code_paths:
 checks:
 - tests/test_caepipe_mbf_export_package.py
 - tests/test_caepipe_mbf_si_writer.py
+- tests/test_caepipe_mbf_importer.py
+- tests/test_caepipe_mbf_round_trip.py
+- tests/test_caepipe_private_mbf_import.py
 - apps/desktop/src/features/results/loadReferenceOutputRefusal.test.tsx
 - apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx
 - apps/desktop/src/App.test.tsx
