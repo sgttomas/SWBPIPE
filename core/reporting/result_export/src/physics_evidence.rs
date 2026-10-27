@@ -56,6 +56,26 @@ pub(crate) const REGION_KEYS: &[&str] = &[
     "result_ids",
 ];
 
+/// W-16 slice c (§2): the exact mass method (PP `self_weight::EXACT_MASS_METHOD`).
+pub(crate) const EXACT_MASS_METHOD: &str = "source_od_nominal_wall_pressure_bore_areas/v1";
+
+/// W-16 slice c (§2): a case's `equivalent_static` record is closed, names the
+/// exact route's D-5 mass method, and lists at least one generated primitive,
+/// each once, each in the case's generated namespace (`<case>:generated:`).
+pub(crate) fn equivalent_static_record(case_id: &str, record: &Value) -> Check {
+    require(keys(record, &["mass_method", "generated_load_ids"]), "EQUIVALENT_STATIC_SHAPE")?;
+    require(record["mass_method"] == EXACT_MASS_METHOD, "EQUIVALENT_STATIC_MASS_METHOD")?;
+    let ids = array(&record["generated_load_ids"])?;
+    require(!ids.is_empty(), "EQUIVALENT_STATIC_SHAPE")?;
+    let prefix = format!("{case_id}:generated:");
+    let mut seen = HashSet::new();
+    for id in ids {
+        let id = text(id)?;
+        require(id.starts_with(&prefix) && seen.insert(id), "EQUIVALENT_STATIC_LOAD_IDS")?;
+    }
+    Ok(())
+}
+
 fn require(ok: bool, code: &str) -> Check {
     if ok {
         Ok(())
@@ -362,7 +382,19 @@ fn physical_row(
 
 /// The current ordinary pressure reader. An authored load/reference-state
 /// group receives its closed pre-pass before the pressure evidence checks.
+/// W-16 slice b (DEL-05-02 Design `exact-combinations.md` §6): a document with
+/// a load combination takes these direct-case checks on its view without the
+/// combination rows and record, then the combination pass on the whole
+/// document (`exact_combination_evidence`).
 pub fn validate_pressure_evidence(source: &Value) -> Check {
+    if crate::exact_combination_evidence::present(source) {
+        let view = crate::exact_combination_evidence::direct_view(source)?;
+        validate_direct_pressure_evidence(&view)?;
+        return crate::exact_combination_evidence::validate(source);
+    }
+    validate_direct_pressure_evidence(source)
+}
+fn validate_direct_pressure_evidence(source: &Value) -> Check {
     if source["contract_evidence"]
         .get("load_reference_states")
         .is_some()
@@ -495,6 +527,13 @@ pub(crate) fn validate_physics_evidence_in(
         // never on the pressure-source-1 composite.
         let directional = case.get("intensified_measures").is_some();
         require(!directional || (!composite && case["intensified_measures"].as_array().is_some_and(|a| !a.is_empty())), "CASE_SHAPE")?;
+        // W-16 slice c (DEL-05-01 Design `exact-equivalent-static.md` §2): a
+        // generating case's closed record; never on a selected retained case.
+        let generation = case.get("equivalent_static").is_some();
+        if generation {
+            equivalent_static_record(case_id, &case["equivalent_static"])?;
+            require(!composite || case["recovery_method"] != "retained_source_blocks_exact_v1", "CASE_SHAPE")?;
+        }
         require(
             keys(
                 case,
@@ -512,6 +551,7 @@ pub(crate) fn validate_physics_evidence_in(
                 .copied()
                 .chain(composite.then_some("recovery_method"))
                 .chain(directional.then_some("intensified_measures"))
+                .chain(generation.then_some("equivalent_static"))
                 .collect::<Vec<_>>()
                 .as_slice(),
             ),
