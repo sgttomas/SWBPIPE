@@ -188,7 +188,7 @@ class, the evidence, and the deliverables. Paths are under
 | FR-SOL-013 (522) | Should | D | `frame_kernel/src/connector.rs`, `tie_rod.rs`, `joint.rs:727`; `tests/connector_pp_paths.rs` | DEL-03-06 | EX only. `movement_limit` is normalized, not enforced (PP `lib.rs:9378`). |
 | FR-SOL-014 (523) | Should | P | `core/solver/nonlinear_supports`; `references/kd5_nonlinear`; the native demo converges | DEL-04-04, DEL-04-07, DEL-09-03 | PF only. Rotational gap and friction refused (`validation.rs:88,100`). |
 | FR-SOL-015 (524) | Must | D | `NUMERICAL_INTEGRITY_*` (PP `lib.rs:1198-1230`); health indicator `operation_applier/src/numerical_health.rs`, `ResultsPanel.tsx:97-130`, status bar and Solve panel, with tests (#1544). Observed natively on both routes (§5) | DEL-04-06, DEL-05-04, DEL-07-05 | |
-| FR-SOL-016 (527) | Should | P | Not built. Scope re-entered by SCA-013 (2026-10-27); governing design DEL-04-09 `Design/modal-analysis.md` | DEL-04-09 | Modal analysis only; response spectrum and time history stay deferred (DEC-078). Row added after the basis. |
+| FR-SOL-016 (527) | Should | P | Not built. Scope re-entered by SCA-013 (2026-10-27); governing design DEL-04-09 `Design/modal-analysis.md` | DEL-04-09 | Modal analysis only; response spectrum and time history stay deferred (DEC-078). Stays P, whatever M1a to M3 deliver, until at least one published piping benchmark with recorded redistribution evidence is compared (DEL-04-09 REQ-010). Row added after the basis. |
 | §12.3 reducers (no row before) | — | P | No eccentric offset vector in `core/product_physics/src` | DEL-03-05 | Part of W-15. |
 | §12.5 load types (no row before) | — | P | Wind, seismic and hydrotest categories (PP `lib.rs:14333-14335`) | DEL-05-01 | EX refuses `equivalent_static`. Imposed rotations and nozzle movement are built on PF (support-targeted primitives, stage 1, no nonlinear supports) and on EX (`boundary_motion`); see FR-SOL-006. |
 | §12.8 near-duplicate nodes (775) | — | D | W-8 with #1574: `NODE_COINCIDENT`, `NODE_NEAR_DUPLICATE` within an absolute tolerance, 5 mm unless `model_settings.node_proximity_tolerance` sets another (`topology.rs:148,281`; read through `PreviewModel::node_proximity_tolerance_m`); a malformed value is refused by name (`validation.rs` `validate_model_settings`); tests `topology_checks_runtime.rs:143,182,193`. The desktop's Project page sets and resets it (`ModelSettingsSection.tsx`; applier `set_model_setting`/`clear_model_setting`, `model_settings_authoring.rs`); through-solve tests `operation_applier/tests/model_settings_authoring.rs`, src-tauri `a_tolerance_set_through_the_apply_command_changes_which_nodes_warn` | DEL-04-06, DEL-02-01 | REQ-04-06-012 (owner) is met on both routes, and a desktop user can see the effective value ("5 mm (default)") and change it. |
@@ -259,8 +259,8 @@ the webview has no network policy.
 ### 2.7 Class counts, MVP (PRD §23) and milestones (§24)
 
 **Class counts.** The #1539 map at `7a780551f0` had 48 P, 28 D, 3 O and no R.
-This map has 36 P, 41 D (including one bounded and one at repository level), 8 O and no R:
-- **P → D (11):** FR-GUI-001 (#1556), FR-GUI-004 (#1563), FR-KNOW-002 (#1559),
+The outcome tables contain 35 P, 42 D (including one bounded and one at repository level), 8 O and no R, 85 rows in all, counting this map's FR-SOL-016 row:
+- **P → D (12):** FR-RULE-001 (rule-pack format 0.5.0, #1629, after the basis), FR-GUI-001 (#1556), FR-GUI-004 (#1563), FR-KNOW-002 (#1559),
   §10.1 step 1 (#1569), the R2 exit (W-4, #1582, after the basis), §12.8
   near-duplicate nodes (the desktop tolerance control, after the basis),
   FR-CMP-002 (W-12 S2, #1596, with its rule-pack references from #1602),
@@ -558,7 +558,7 @@ targeted regression checks and independent scrutiny (Root `AGENTS.md`).
 | W-15 c | Eccentric reducer offset with the 0.8.0 model document (§12.3) | S–M | numerical + schema | heavy, scrutiny | #1604, #1608; the 0.8.0 coordination after slice a's D3 turn | No |
 | W-16 | Combinations on EX (FR-SOL-009); imposed displacement on PF, stage 1 linear, then stage 2 with nonlinear supports (FR-SOL-006, owner's row-2 ruling; its PF benchmarks also close FR-SOL-002); `equivalent_static` on EX (§12.5) | M | numerical | heavy, scrutiny | — | No |
 | W-18 (new) | Report package for current results (FR-REP-001; formerly `REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE`), and a shareable report path if any (provenance is hard-coded private). Slice (a), the Rust 2.0.0 producer, reader and runner witness, is on main (#1597); slice (b1), native admission and disposition screening of the save (`report_package_save.rs`, shared `export_disposition_screen.rs`), replaces its native hold; slice (b2), the desktop opening (`reportPackageRequest.ts`, the split save service, the solve/rule-check rule-pack agreement and a native smoke step), saves a local private package for a Current pressure-free result, and exact routes stay refused (DEL-08-01 Design `report-package-current-results.md` §6) | M | desktop + Rust | heavy | W-3 | Shareable path decided (owner, 2026-10-24, option B: a per-report user release, W-18b, after (a)–(b2)) |
-| F1 | Modal analysis (FR-SOL-016, DEL-04-09, SCA-013): M1a, mass on the self-weight basis; M1b, the dense path; M2, the sparse path with Sturm and inertia checks; M3, the modes table, mode-shape view and report section (DEL-04-09 Design `modal-analysis.md` §6) | L | numerical + desktop | heavy, scrutiny | PF Timoshenko (#1663) in review; D3 runs on Agent 0's go | No: decided by HELP_HUMAN under the owner's delegation (SCA-013) |
+| F1 | Modal analysis (FR-SOL-016, DEL-04-09, SCA-013): M1a, mass on the self-weight basis; M1b, the dense path; M2, the sparse path with Sturm and inertia checks; M3, the modes table, mode-shape view and report section (DEL-04-09 Design `modal-analysis.md` §6) | L | numerical + desktop | heavy, scrutiny | PF Timoshenko (#1663) in review; D3 runs on Agent 0's go; DEL-02-02's modal unit families before M1b; FR-SOL-016 completes only with a published piping benchmark that has its own redistribution evidence, after M1b (REQ-010) | No: decided by HELP_HUMAN under the owner's delegation (SCA-013). Any report held for uncertain rights goes to the owner's review |
 | — | One mass basis. (a) PF seismic equivalent-static mass alignment to D-5, deferred (Agent 0, 2026-10-27; DEL-05-01 Design `exact-equivalent-static.md`, W-16c). (b) Beside it, a finding (Agent 0, 2026-10-27): PF seismic generation forms its mass with `compute_pipe_mass_per_length` (PP `lib.rs:10293`: π/4·(OD² − ID²) over every pipe, with no component-weight substitution), while self-weight and F1 use `stable_mass_per_length` (`self_weight.rs:731`: the annulus source areas, with rigid-family component weights replacing the mapped member's). Both should reconcile on one mass basis | S–M | numerical | heavy, scrutiny | W-16c; F1 M1a | No action in F1 (DEL-04-09 Design §2.1) |
 | W-14 | Design-knowledge entry and constraint validation | — | — | — | — | Deferred to v0.2 (OD-3) |
 
@@ -580,7 +580,9 @@ at `8a8a8b2584`. Codex then spot-checked a sample of placements independently
 (§6). `python3 -m tools.deliverables --project projects/chirality-piping check`
 reported no structural errors and one cycle, a strongly connected group of nine
 deliverables (DEL-04-07, DEL-04-08, DEL-05-02, DEL-08-01, DEL-08-04, DEL-08-05,
-DEL-09-05, DEL-10-04, DEL-10-05). The same cycle exists at `7a780551f0`.
+DEL-09-05, DEL-10-04, DEL-10-05). The same cycle exists at `7a780551f0`. After
+the basis, SCA-013's DEL-04-09 declarations bring DEL-04-09 and DEL-04-05 into
+it, and the group has 11 members (DEL-04-09 Design §6).
 
 **Native smoke at `8a8a8b2584`.** A fresh build in a heavy-work tree through
 `t3_slot.sh`, then `node apps/desktop/native-smoke/run.mjs --skip-build`. 73 of
