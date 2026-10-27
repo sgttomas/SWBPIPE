@@ -47,7 +47,8 @@ use b1_sq_inputs as inputs;
 // W-16 slice a (§8.23): +2,507,429 B in both modes from 6,557,144,094 and 6,616,275,438.
 // Unit factor-sum gate (§8.24): +513 B in both modes from 6,559,651,523 and 6,618,782,867.
 // Model document 0.8.0's shear-model member (§8.26): +54,124 B in both modes from 6,559,652,036 and 6,618,783,380.
-const W1_PHASE_BYTES: [u64; 2] = [6_559_706_160, 6_618_837_504];
+// W-16 slices b and c (§8.27): -193,810 B in both modes from 6,559,706,160 and 6,618,837,504.
+const W1_PHASE_BYTES: [u64; 2] = [6_559_512_350, 6_618_643_694];
 /// The profile's in-build maximum over every phase (E_mov,max, without R; W3 in both modes),
 /// the bound once a run has done W1 work (a registered build, G6). W-8 topology warnings D3 at
 /// 34e96d6b17 (retained-pricing-rules.md §8.16): +219,136 B in both modes from the pre-0.4
@@ -61,7 +62,8 @@ const W1_PHASE_BYTES: [u64; 2] = [6_559_706_160, 6_618_837_504];
 // W-16 slice a (§8.23): +2,883,013 B in both modes from 8,852,901,785 and 8,912,033,129.
 // Unit factor-sum gate (§8.24): +513 B in both modes from 8,855,784,798 and 8,914,916,142.
 // Model document 0.8.0's shear-model member (§8.26): +98,070 B in both modes from 8,855,785,311 and 8,914,916,655.
-const MAX_PHASE_BYTES: [u64; 2] = [8_855_883_381, 8_915_014_725];
+// W-16 slices b and c (§8.27): -193,810 B in both modes from 8,855,883,381 and 8,915,014,725.
+const MAX_PHASE_BYTES: [u64; 2] = [8_855_689_571, 8_914_820_915];
 /// The abort cap: above E_mov,max + R at M and within T3's host allowance (PLAN_v2 §3.5).
 const CAP_BYTES: usize = 16 << 30;
 /// The N1 notice's fixed text (lib.rs `RETAINED_UNAVAILABLE_NOTICE`), as the base publication shows it.

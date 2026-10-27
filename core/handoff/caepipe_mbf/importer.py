@@ -178,9 +178,8 @@ _ROW_KEY_LETTERS = "KMPJXYZBH"
 _XYZ = lambda base: {base + axis for axis in _AXES}  # noqa: E731 - axis-suffixed comment names
 _DOCUMENTED_REFUSED_COMMENTS = {
     "MBF-IMPORT-SUPPORT-UNSUPPORTED": {
-        "AXIAL", "CLD", "CNOD", "CS", "DV", "E", "FREE", *_XYZ("FREE"), "G", "GGAP", "GRA1", "GRA2", "GRB1",
-        "GRB2", "GRB3", "GRC1", "GRC2", "HTYP", "K", "KR", "LS", "MLV", "MU", "NOD", "NOZZLE", "NTHK", "ROTK",
-        "SHEARY", "SHEARZ", "SPIDER", "SR", "STIFF", "TRAK", "US", "VOD", "VTHK", "VS"},
+        "CLD", "CNOD", "CS", "E", "FREE", *_XYZ("FREE"), "GRA1", "GRA2", "GRB1", "GRB2", "GRB3", "GRC1", "GRC2",
+        "HTYP", "MLV", "NOD", "NOZZLE", "NTHK", "SPIDER", "SR", "US", "VOD", "VTHK", "VS"},
     "MBF-IMPORT-DISPLACEMENT-UNSUPPORTED": {
         "LD", *{f"DIS{n}" for n in range(2, 11)}, *{f"ROT{n}" for n in range(2, 11)}, "DISD", "ROTD", "SETT",
         "STRO", "SEIS", "SEIS2", "SEIS3", "SERO", "SERO2", "SERO3", *{f"WIND{n}" for n in range(1, 5)},
@@ -205,8 +204,35 @@ _ROTATION_NAMES = {"ROT": None, **{f"ROT{axis}": index for index, axis in enumer
 _FIXD_NAMES = {"FIXD": None, "F": None, **{f"FIXD{axis}": index for index, axis in enumerate(_AXES)},
                **{f"F{axis}": index for index, axis in enumerate(_AXES)}}
 _FIXR_NAMES = {"FIXR": None, **{f"FIXR{axis}": index for index, axis in enumerate(_AXES)}}
+# Guides, limit stops, skewed restraints and flexible anchors (Design §12, tranche 3; Format of .MBF, comment list).
+# A row carries at most one support type, and its data comments belong to it: GGAP to a guide, MU and STIFF to a guide
+# or limit stop, DV to a limit stop or skewed restraint. TRAK and ROTK are a flexible anchor's (KA) stiffnesses.
+_SUPPORT_TYPES = {"G": "guide", "LS": "stop", "K": "skew"}
+_SUPPORT_DATA = {"GGAP": ("G",), "MU": ("G", "LS"), "STIFF": ("G", "LS"), "DV": ("LS", "K")}
+_SUPPORT_NAMES = {"G": "a guide (G)", "LS": "a limit stop (LS)", "K": "a skewed restraint (K)"}
+# Support comments whose meaning the public manual leaves open (TBD-17-04-010, Design §20.1).
+_TBD_010_COMMENTS = {
+    "AXIAL": "AXIAL sets a limit stop along its element's local x, but no public page says which element's axes a "
+             "limit stop takes",
+    "SHEARY": "SHEARY sets a limit stop along its element's local y, but no public page says which element's axes a "
+              "limit stop takes",
+    "SHEARZ": "SHEARZ sets a limit stop along its element's local z, but no public page says which element's axes a "
+              "limit stop takes",
+    "KR": "KR, a rotational stiffness, is in in-lb/deg or N-m/deg on the Format of .MBF page and in inch-lb/radian "
+          "on the technical reference's Anchor page; its unit is open"}
+_ANCHOR_STIFFNESS = ("TRAK", "ROTK")
+SPRING_FAMILY = "spring"
+# A stiffness (TRAK, STIFF, K) is in N/mm in SI files and lb/in in English files (Format of .MBF, TRAK, STIFF, K); it
+# keeps that unit, which the units catalog reads to N/m by its binary64 factor (core/units: N/mm 1000; lbf/in
+# POUND_FORCE_IN_NEWTONS / INCH_IN_METERS).
+STIFFNESS_UNIT = {True: "N/mm", False: "lbf/in"}
+_N_PER_M_PER_UNIT = {"N/mm": 1000.0, "lbf/in": 4.448_221_615_260_5 / 0.0254}
+# The solve reads a document under the checked-JSON profile openpipestress_jcs_ijson_v1 (canonical_json
+# MAX_SAFE_INTEGER and `validate_checked_value`): no integer, and no integral float, beyond 2^53 - 1 in magnitude.
+MAX_SAFE_INTEGER = 9_007_199_254_740_991
 _DOCUMENTED_COMMENTS = {*_FORCE_NAMES, *_MOMENT_NAMES, *_DISPLACEMENT_NAMES, *_ROTATION_NAMES, *_FIXD_NAMES,
-                        *_FIXR_NAMES, "FLC", "FF", "LA", "TAG", "LTAG",
+                        *_FIXR_NAMES, "FLC", "FF", "LA", "TAG", "LTAG", *_SUPPORT_TYPES, *_SUPPORT_DATA,
+                        *_TBD_010_COMMENTS, *_ANCHOR_STIFFNESS,
                         *(name for names in _DOCUMENTED_REFUSED_COMMENTS.values() for name in names)}
 _INCH_MARKS = ('"', "\u201d")
 _FOOT_SEPARATORS = ("'", "\u2019", "-")
@@ -722,15 +748,20 @@ _BAD = object()
 
 
 def runtime_support_findings(supports: Iterable[tuple[str, str, str | None, list[str]]]) -> list[tuple[str, str]]:
-    """What the solve refuses among rigid supports (support_id, node, family, DOFs), in model order, as
+    """What the solve refuses among supports (support_id, node, family, DOFs), in model order, as
     (support_id, reason): product_physics `rigid_linear_support_from_preview` infers an absent family as anchor with
     six DOFs and as guide otherwise, and linear_supports `prepare_rigid_support` requires at least one DOF, admits
     any DOF for an anchor, translations only for a guide or line stop, UZ only for a vertical support, and refuses a
-    DOF already restrained at the node (SUPPORT_INPUT_INVALID)."""
+    DOF already restrained at the node (SUPPORT_INPUT_INVALID). A spring (`prepare_spring`) acts on one DOF and
+    restrains none; the importer and the writer give it exactly one, the DOF its stiffness names."""
     allowed = {"anchor": DOFS, "guide": DOFS[:3], "line_stop": DOFS[:3], "vertical_support": ("UZ",)}
     restrained: set[tuple[str, str]] = set()
     found = []
     for support_id, node, family, dofs in supports:
+        if family == SPRING_FAMILY:
+            if len(dofs) != 1:
+                found.append((support_id, "a spring acts on exactly one DOF"))
+            continue
         family = family if family in _RIGID_FAMILIES else ("anchor" if len(dofs) == len(DOFS) else "guide")
         if not dofs:
             found.append((support_id, "a rigid support restrains no DOF"))
@@ -963,8 +994,9 @@ class _SidecarParser:
 
     def support(self, value: Any, path: str) -> Any:
         common = {"node": self.text, "restrained": self.items(self.choice(DOFS))}
-        if self.current:
-            entry = self.record(value, path, {**common, "family": self.choice(_RIGID_FAMILIES),
+        if self.current:  # format 3 also records springs (Design §12, tranche 3); format 2 the rigid families only
+            families = (*_RIGID_FAMILIES, SPRING_FAMILY) if self.format_number == SIDECAR_FORMAT else _RIGID_FAMILIES
+            entry = self.record(value, path, {**common, "family": self.choice(families),
                                               "family_authored": self.flag})
         else:
             entry = self.record(value, path, {**common, "caepipe_kind": self.choice(("anchor", "restraint"))},
@@ -975,6 +1007,12 @@ class _SidecarParser:
             return self.fail(f"{path}.restrained", "repeats a DOF")
         if entry.get("family") == "anchor" and len(entry["restrained"]) != len(DOFS):
             return self.fail(f"{path}.family", "an anchor restrains all six DOFs, as the writer exports it")
+        if entry.get("family") == SPRING_FAMILY:
+            if len(entry["restrained"]) != 1 or entry["restrained"][0] not in DOFS[:3]:
+                return self.fail(f"{path}.restrained", "a spring acts on exactly one translation, as the writer "
+                                 "exports it (a flexible anchor's TRAK)")
+            if entry.get("family_authored") is not True:
+                return self.fail(f"{path}.family_authored", "a spring's family is authored: the solve infers none")
         inferred = "anchor" if len(entry["restrained"]) == len(DOFS) else "guide"
         if self.current and entry.get("family_authored") is False and entry.get("family") != inferred:
             return self.fail(f"{path}.family", f"an unauthored family is the solve's inference, {inferred}")
@@ -1079,6 +1117,8 @@ class _SidecarParser:
             self.fail("sidecar", "must be an object")
             return None
         self.current = "sidecar_format" in sidecar
+        self.format_number = sidecar["sidecar_format"] if self.current and type(sidecar["sidecar_format"]) is int \
+            else None
         if self.current:  # every map but section_map (the MBF's), the digest and the format; format 3 its self-digest
             current = {name: parse for name, parse in maps.items() if name != "section_map"}
             current.update(mbf_sha256=self.digest, sidecar_format=self.format)
@@ -2185,9 +2225,47 @@ class _Importer:
                             for a, b, start, end in self.straight_ends()}
             raise _Refused
         model, id_map = self.assemble()
+        self.checked_json_domain(model)
+        if self.has_errors():
+            raise _Refused
         if self.bound and self.sidecar_current:
             self.regeneration_identity(model, id_map)
         return model, id_map
+
+    def checked_json_domain(self, model: dict[str, Any]) -> None:
+        """Design §9.4 guard map: every number of the emitted document lies in the checked-JSON numeric domain the
+        solve reads it under (canonical_json `validate_checked_value`, profile openpipestress_jcs_ijson_v1): an
+        integer within +-(2^53 - 1) (CHECKED-JSON-UNSAFE-INTEGER), a finite number (CHECKED-JSON-NON-FINITE), and no
+        integral float beyond 2^53 - 1 (CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT). The importer writes each number as
+        Python's json writes it: a float with a fraction or exponent mark, which the reader parses as f64, and an int
+        as an integer. A number outside the domain is refused by name at its JSON path, never changed or dropped."""
+        def walk(value: Any, path: str, line: int) -> None:
+            if isinstance(value, dict):
+                provenance = value.get("provenance")
+                found = re.search(r", line (\d+)\Z", provenance) if isinstance(provenance, str) else None
+                line = int(found.group(1)) if found else line
+                for key, item in value.items():
+                    walk(item, f"{path}.{key}" if path else key, line)
+            elif isinstance(value, list):
+                for index, item in enumerate(value):
+                    key = item.get("id") if isinstance(item, dict) and isinstance(item.get("id"), str) else index
+                    walk(item, f"{path}[{key}]", line)
+            elif isinstance(value, bool) or not isinstance(value, (int, float)):
+                return
+            elif isinstance(value, int) and abs(value) > MAX_SAFE_INTEGER:
+                self.refuse("MBF-IMPORT-VALUE-UNREPRESENTABLE", line, path,
+                            f"{path} is an integer beyond +-(2^53 - 1), which the solve's checked-JSON reader refuses "
+                            "(CHECKED-JSON-UNSAFE-INTEGER)")
+            elif isinstance(value, float) and not math.isfinite(value):
+                self.refuse("MBF-IMPORT-VALUE-UNREPRESENTABLE", line, path,
+                            f"{path} is not finite, which the solve's checked-JSON reader refuses "
+                            "(CHECKED-JSON-NON-FINITE)")
+            elif isinstance(value, float) and value.is_integer() and abs(value) > MAX_SAFE_INTEGER:
+                self.refuse("MBF-IMPORT-VALUE-UNREPRESENTABLE", line, path,
+                            f"{path} is the integral value {value!r} beyond 2^53 - 1, which the solve's checked-JSON "
+                            "reader refuses (CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT)")
+
+        walk(model, "", 0)
 
     def regeneration_identity(self, model: dict[str, Any], id_map: dict[str, Any]) -> None:
         """The exact-digest route's guard of record (Design §14, VER-002 r13): the writer regenerates the sidecar
@@ -2385,7 +2463,7 @@ class _Importer:
     def node_record(self, number: int) -> dict[str, Any]:
         return self.node_data.setdefault(number, {
             "anchor": [], "la": [], "fixd": {}, "fixr": {}, "forces": {}, "moments": {}, "disp": {}, "rot": {},
-            "tag": [], "comment_lines": [], "load_lines": []})
+            "tag": [], "comment_lines": [], "load_lines": [], "supports": [], "trak": [], "rotk": []})
 
     def comment_values(self, name: str, args: str | None, value: str | None, axis: int | None, line: int,
                        location: str, *, flag: bool = False) -> dict[int, Num] | None:
@@ -2423,6 +2501,7 @@ class _Importer:
             record["anchor"].append(row.line)
         flc: tuple[int, Num | None] | None = None
         loads: list[tuple[str, dict[int, Num], int]] = []
+        support_data: dict[str, tuple[str | None, str | None, int, str]] = {}
         for line, text in row.comments:
             where = f"{location} comment {text.split('=')[0].split('(')[0] or '?'}"
             if text.startswith("L=") or text == "L":
@@ -2493,6 +2572,15 @@ class _Importer:
                                 "an anchor in local axes (LA=1) is not read")
                 elif number is not None:
                     record["la"].append(line)
+            elif name in _SUPPORT_TYPES or name in _SUPPORT_DATA or name in _TBD_010_COMMENTS:
+                if name in support_data:
+                    self.refuse("MBF-IMPORT-COMMENT-INVALID", line, where, f"{name} is repeated on one row")
+                else:
+                    support_data[name] = (value, args, line, where)
+            elif name in _ANCHOR_STIFFNESS:
+                values = self.comment_values(name, args, value, None, line, where)
+                if values is not None:  # magnitudes per axis: they move with their axes, as restraint flags do
+                    record[name.lower()].append((self.to_swb(values, signed=False), line))
             elif name == "TAG":
                 record["tag"].append(((value or "").strip(), line))
             elif name == "LTAG":
@@ -2503,7 +2591,7 @@ class _Importer:
                     self.refuse("MBF-IMPORT-COMMENT-UNKNOWN", line, where,
                                 f"comment {name} is not in the documented comment list")
                 else:
-                    self.refuse(code, line, where, f"comment {name} is not read in tranche 1")
+                    self.refuse(code, line, where, f"comment {name} is not read by this profile (Design §12 to §14)")
         for kind, values, line in loads:
             if flc is None:
                 if not self.convention(f"a {'force' if kind == 'forces' else 'moment'} without FLC", line,
@@ -2517,12 +2605,121 @@ class _Importer:
             record["load_lines"].append(line)
         if flc is not None and not loads:
             self.refuse("MBF-IMPORT-COMMENT-INVALID", flc[0], f"{location} comment FLC", "FLC without FOR or MOM")
+        if support_data:
+            self.row_supports(record, support_data, location)
+
+    def errors(self) -> int:
+        return sum(item["severity"] == "error" for item in self.diagnostics)
+
+    def single_value(self, name: str, entry: tuple[str | None, str | None, int, str]) -> Num | None:
+        value, args, line, where = entry
+        if args is not None or value is None:
+            self.refuse("MBF-IMPORT-COMMENT-INVALID", line, where, f"{name} takes one value, as {name}=value")
+            return None
+        return self.real(value, line, where)
+
+    def row_supports(self, record: dict[str, Any], data: dict[str, tuple[str | None, str | None, int, str]],
+                     location: str) -> None:
+        """Design §12, tranche 3: the guide (G), limit stop (LS) or skewed restraint (K) one row carries, with its data
+        comments. Each is read only rigid and axis-aligned, or as a spring along one global axis; gaps, friction and
+        skewed directions are refused by name."""
+        start = self.errors()
+        for name in sorted(data.keys() & _TBD_010_COMMENTS):
+            self.refuse("MBF-IMPORT-TBD-17-04-010", data[name][2], data[name][3], _TBD_010_COMMENTS[name])
+        kinds = [name for name in _SUPPORT_TYPES if name in data]
+        if len(kinds) > 1:
+            self.refuse("MBF-IMPORT-SUPPORT-UNSUPPORTED", data[kinds[1]][2], location,
+                        f"{' and '.join(kinds)} on one row: a row carries one guide (G), limit stop (LS) or skewed "
+                        "restraint (K), and its other comments are that support's data")
+            return
+        kind = kinds[0] if kinds else None
+        for name, readers in _SUPPORT_DATA.items():
+            if name in data and kind not in readers:
+                self.refuse("MBF-IMPORT-SUPPORT-UNSUPPORTED", data[name][2], data[name][3],
+                            f"{name} is read only as the data of {' or '.join(_SUPPORT_NAMES[r] for r in readers)} "
+                            "on its row")
+        if kind is None or self.errors() > start:
+            return
+        value, args, line, where = data[kind]
+        stiffness: Num | None = None
+        axis: int | None = None
+        if "GGAP" in data:
+            gap = self.single_value("GGAP", data["GGAP"])
+            if gap is not None and gap.exact != 0:
+                self.refuse("MBF-IMPORT-SUPPORT-UNSUPPORTED", data["GGAP"][2], data["GGAP"][3],
+                            "a guide gap (GGAP) is a clearance the pipe closes before the guide acts, symmetric about "
+                            "the guide axis: SWBPIPE has no support member for it; only GGAP=0 is read")
+        if "MU" in data:
+            mu = self.single_value("MU", data["MU"])
+            if mu is not None and mu.exact < 0:
+                self.refuse("MBF-IMPORT-VALUE-OUT-OF-RANGE", data["MU"][2], data["MU"][3],
+                            "a friction coefficient is not negative")
+            elif mu is not None and mu.exact != 0:
+                self.refuse("MBF-IMPORT-SUPPORT-UNSUPPORTED", data["MU"][2], data["MU"][3],
+                            "a friction coefficient (MU) makes the support nonlinear, its friction opposing motion "
+                            "normal to the restraint; only MU=0 is read")
+        if "STIFF" in data:
+            stiffness = self.single_value("STIFF", data["STIFF"])
+            if stiffness is not None and not stiffness.exact > 0:
+                self.refuse("MBF-IMPORT-VALUE-OUT-OF-RANGE", data["STIFF"][2], data["STIFF"][3],
+                            "a stiffness (STIFF) must be positive; without STIFF the support is rigid")
+        if "DV" in data:
+            dv_value, dv_args, dv_line, dv_where = data["DV"]
+            components = self.comment_values("DV", dv_args, dv_value, None, dv_line, dv_where)
+            if components is not None:
+                along = [index for index, number in self.to_swb(components).items() if number.exact != 0]
+                if not along:
+                    self.refuse("MBF-IMPORT-COMMENT-INVALID", dv_line, dv_where, "DV(0,0,0) names no direction")
+                elif len(along) > 1:
+                    self.refuse("MBF-IMPORT-SUPPORT-UNSUPPORTED", dv_line, dv_where,
+                                "a direction vector off the global axes is a skewed restraint direction; SWBPIPE's "
+                                "supports restrain global DOFs only")
+                else:
+                    axis = along[0]
+        if kind == "G":
+            if value is not None or args is not None:
+                self.refuse("MBF-IMPORT-COMMENT-INVALID", line, where, "G takes no value")
+        elif kind == "LS":
+            parts = split_fields(args) if args is not None else None
+            if parts is None or len(parts) != 2:
+                self.refuse("MBF-IMPORT-COMMENT-INVALID", line, where,
+                            "LS needs its two limits, LS(lower,upper)")
+            else:
+                for label, part in zip(("lower", "upper"), parts):
+                    if part == "":
+                        self.refuse("MBF-IMPORT-SUPPORT-UNSUPPORTED", line, f"{where} {label}",
+                                    f"a blank {label} limit leaves that side free: a one-way restraint, which is "
+                                    "nonlinear; only LS(0,0), stopped both ways at the undeflected position, is read")
+                        continue
+                    limit = self.real(part, line, f"{where} {label}")
+                    if limit is not None and limit.exact != 0:
+                        self.refuse("MBF-IMPORT-SUPPORT-UNSUPPORTED", line, f"{where} {label}",
+                                    f"a non-zero {label} limit is a gap the node moves through freely before the stop "
+                                    "acts, which is nonlinear; only LS(0,0) is read")
+            if "DV" not in data:
+                self.refuse("MBF-IMPORT-TBD-17-04-010", line, where,
+                            "a limit stop without DV: the Format of .MBF page documents no default direction")
+        else:
+            stiffness = self.single_value("K", data["K"])
+            if stiffness is not None and not stiffness.exact > 0:
+                self.refuse("MBF-IMPORT-VALUE-OUT-OF-RANGE", line, where, "a skewed restraint's stiffness K must be "
+                            "positive")
+            if "DV" not in data:
+                self.refuse("MBF-IMPORT-SUPPORT-UNSUPPORTED", line, where,
+                            "a skewed restraint needs its direction DV (a connected node, CNOD, is not read)")
+        if self.errors() == start:
+            record["supports"].append({"kind": _SUPPORT_TYPES[kind], "line": line, "axis": axis,
+                                       "stiffness": stiffness})
 
     def check_supports(self) -> None:
         for number, record in self.node_data.items():
             location = f"node {number}"
             if record["la"] and not record["anchor"]:
                 self.refuse("MBF-IMPORT-SUPPORT-UNSUPPORTED", record["la"][0], location, "LA is read only with KA")
+            self.check_flexible_anchor(number, record)
+            for support in record["supports"]:
+                if support["kind"] == "guide":
+                    support["axis"] = self.guide_axis(number, support["line"])
             for key in ("disp", "rot"):
                 if record[key] and not record["anchor"]:
                     line = min(line for items in record[key].values() for _, line in items)
@@ -2533,6 +2730,71 @@ class _Importer:
                 if lines:
                     self.refuse("MBF-IMPORT-BEND-UNSUPPORTED", min(lines), location,
                                 "a location row, support or load at a tangent-intersection node is not read")
+
+    def check_flexible_anchor(self, number: int, record: dict[str, Any]) -> None:
+        """Design §12, tranche 3: KA with TRAK(kx,ky,kz) and ROTK(kxx,kyy,kzz) is a flexible anchor, one stiffness per
+        global DOF; 0 leaves the DOF free (documented: technical reference, Anchor). Its translational stiffnesses
+        become springs; ROTK is read only as all zero, its unit being open (TBD-17-04-010)."""
+        location = f"node {number}"
+        for name in _ANCHOR_STIFFNESS:
+            items = record[name.lower()]
+            if len(items) > 1:
+                self.refuse("MBF-IMPORT-COMMENT-INVALID", items[1][1], f"{location} {name}",
+                            f"{name} is given twice at node {number}")
+            if items and not record["anchor"]:
+                self.refuse("MBF-IMPORT-SUPPORT-UNSUPPORTED", items[0][1], f"{location} {name}",
+                            f"{name} is an anchor's stiffness and is read only with KA")
+        if not record["anchor"] or not (record["trak"] or record["rotk"]):
+            return
+        line = record["anchor"][0]
+        if not (record["trak"] and record["rotk"]):
+            self.refuse("MBF-IMPORT-TBD-17-04-010", line, location,
+                        "a flexible anchor needs both TRAK and ROTK: no public page says whether the DOFs of an absent "
+                        "one stay rigid or are free")
+            return
+        trak, rotk = record["trak"][0][0], record["rotk"][0][0]
+        if any(value.exact < 0 for value in (*trak.values(), *rotk.values())):
+            self.refuse("MBF-IMPORT-VALUE-OUT-OF-RANGE", line, location, "an anchor stiffness is not negative")
+        elif any(value.exact != 0 for value in rotk.values()):
+            self.refuse("MBF-IMPORT-TBD-17-04-010", record["rotk"][0][1], f"{location} ROTK",
+                        "a non-zero ROTK: its unit is in-lb/deg or N-m/deg on the Format of .MBF page and inch-lb/radian "
+                        "on the technical reference's Anchor page, so it is open; ROTK(0,0,0), free rotations, is read")
+        elif all(value.exact == 0 for value in trak.values()):
+            self.refuse("MBF-IMPORT-SUPPORT-UNSUPPORTED", line, location,
+                        f"the flexible anchor at node {number} has no stiffness in any DOF and restrains nothing")
+        if record["fixd"] or record["fixr"] or record["supports"]:
+            self.refuse("MBF-IMPORT-SUPPORT-UNSUPPORTED", line, location,
+                        "a flexible anchor (KA with TRAK and ROTK) is read alone at its node: no public page says how "
+                        "it combines with another restraint there")
+        for key in ("disp", "rot"):
+            if record[key]:
+                moved = min(line for items in record[key].values() for _, line in items)
+                self.refuse("MBF-IMPORT-DISPLACEMENT-UNSUPPORTED", moved, location,
+                            "a specified displacement at a flexible anchor moves the ground end of its springs; "
+                            "SWBPIPE's imposed displacement is a rigid prescribed DOF")
+
+    def guide_axis(self, number: int, line: int) -> int | None:
+        """The global axis of the element whose local axes a guide at `number` takes: the preceding element, or with
+        none the following one (documented: technical reference, Guide). The guide restrains that element's local y
+        and z; it is read only when the element lies exactly along a global axis, whose two lateral translations are
+        then exactly those."""
+        location = f"node {number} G"
+        before = [element for element in self.elements if element.end == number]
+        after = [element for element in self.elements if element.start == number]
+        if not before and len(after) != 1:
+            self.refuse("MBF-IMPORT-SUPPORT-UNSUPPORTED", line, location,
+                        f"node {number} has no preceding element and {len(after)} following ones, so the guide's "
+                        "element is not determined")
+            return None
+        element = (before or after)[0]
+        start, end = self.nodes[element.start]["exact"], self.nodes[element.end]["exact"]
+        along = [index for index in range(3) if end[index] != start[index]]
+        if len(along) != 1:
+            self.refuse("MBF-IMPORT-SUPPORT-UNSUPPORTED", line, location,
+                        f"the guide's element, {element.start} to {element.end}, does not lie along a global axis, so "
+                        "its lateral directions are skewed; SWBPIPE's supports restrain global DOFs only")
+            return None
+        return along[0]
 
     # -- §11 bends ---------------------------------------------------------------
     def resolve_bends(self) -> None:
@@ -3085,18 +3347,67 @@ class _Importer:
         for swb_id, entry in self.maps.get("support_map", {}).items():
             sidecar_by_node.setdefault(entry["node"], []).append((swb_id, entry))
         matched_sidecar: set[str] = set()
+        stiffness_unit = STIFFNESS_UNIT[self.si]
         for number in self.node_order:
             record = self.node_data.get(number)
             if record is None:
                 continue
             name = str(number)
-            imported: list[tuple[str, list[str], str | None, int]] = []
-            if record["anchor"]:
-                imported.append((f"support:{name}", list(DOFS), "anchor", record["anchor"][0]))
+            # (id, DOFs, family, line, label): an anchor, a restraint, a guide, limit stops, then springs (§10.4, §12)
+            imported: list[tuple[str, list[str], str | None, int, str]] = []
+            springs: dict[str, tuple[Num, int]] = {}
+
+            def add(item: tuple[str, list[str], str | None, int, str], what: str) -> None:
+                if any(existing[0] == item[0] for existing in imported):
+                    self.refuse("MBF-IMPORT-SUPPORT-UNSUPPORTED", item[3], f"node {name}",
+                                f"a second {what} at node {name} is not read")
+                else:
+                    imported.append(item)
+
+            def spring(dof: str, stiffness: Num, line: int, what: str) -> None:
+                if dof in springs:
+                    self.refuse("MBF-IMPORT-SUPPORT-UNSUPPORTED", line, f"node {name}",
+                                f"{what} adds a second spring on {dof} at node {name}, which is not read")
+                else:
+                    springs[dof] = (stiffness, line)
+
+            flexible = bool(record["anchor"] and record["trak"])
+            if record["anchor"] and not flexible:
+                imported.append((f"support:{name}", list(DOFS), "anchor", record["anchor"][0], "anchor"))
+            if flexible:
+                for axis, stiffness in sorted(record["trak"][0][0].items()):
+                    if stiffness.exact != 0:
+                        spring(DOFS[axis], stiffness, record["anchor"][0], "TRAK")
             dofs = [DOFS[axis] for axis in sorted(record["fixd"])] + [DOFS[3 + axis] for axis in sorted(record["fixr"])]
             if dofs:
                 line = min(list(record["fixd"].values()) + list(record["fixr"].values()))
-                imported.append((f"support:{name}-restraint", dofs, None, line))
+                imported.append((f"support:{name}-restraint", dofs, None, line, "restraint"))
+            for item in record["supports"]:
+                axis, line, stiffness = item["axis"], item["line"], item["stiffness"]
+                if item["kind"] == "guide":  # restrains its element's two lateral translations (§12)
+                    lateral = [DOFS[index] for index in range(3) if index != axis]
+                    if stiffness is None:
+                        add((f"support:{name}-guide", lateral, "guide", line, "guide"), "guide")
+                    for dof in lateral if stiffness is not None else ():
+                        spring(dof, stiffness, line, "a flexible guide (G with STIFF)")
+                elif item["kind"] == "stop":
+                    if stiffness is None:
+                        add((f"support:{name}-stop-{'xyz'[axis]}", [DOFS[axis]], "line_stop", line, "limit stop"),
+                            f"limit stop along {'xyz'[axis]}")
+                    else:
+                        spring(DOFS[axis], stiffness, line, "a flexible limit stop (LS with STIFF)")
+                else:
+                    spring(DOFS[axis], stiffness, line, "a skewed restraint (K)")
+            rigid = set().union(*(set(item[1]) for item in imported))
+            for dof, (_, line) in springs.items():
+                if dof in rigid:
+                    self.refuse("MBF-IMPORT-SUPPORT-UNSUPPORTED", line, f"node {name}",
+                                f"a spring on {dof} at node {name}, which a rigid support there already restrains, is "
+                                "not read")
+            for dof in DOFS:
+                if dof in springs:
+                    imported.append((f"support:{name}-spring-{dof.lower()}", [dof], SPRING_FAMILY, springs[dof][1],
+                                     "spring"))
             tags = record["tag"]
             if not imported:
                 for _, line in tags:
@@ -3111,11 +3422,15 @@ class _Importer:
                             f"the bound sidecar records no support at node {name}, which the file supports")
                 continue
             if restored:
-                wanted = set().union(*(set(dofs) for _, dofs, _, _ in imported))
-                given = set().union(*(set(entry["restrained"]) for _, entry in restored))
-                if wanted != given:
+                wanted = set().union(*(set(dofs) for _, dofs, family, _, _ in imported if family != SPRING_FAMILY))
+                given = set().union(*(set(entry["restrained"]) for _, entry in restored
+                                      if entry.get("family") != SPRING_FAMILY))
+                given_springs = sorted(dof for _, entry in restored if entry.get("family") == SPRING_FAMILY
+                                       for dof in entry["restrained"])
+                if wanted != given or given_springs != sorted(springs):
                     self.refuse("MBF-IMPORT-SIDECAR-CONFLICT", line, f"node {name}",
-                                f"the sidecar's supports at node {name} restrain other DOFs than the MBF")
+                                f"the sidecar's supports at node {name} restrain other DOFs, or carry springs on other "
+                                "DOFs, than the MBF")
                     continue
                 entries = []
                 for swb_id, entry in restored:
@@ -3124,7 +3439,8 @@ class _Importer:
                     if "family" not in entry:
                         self.listed("approximated", "MBF-IMPORT-ID-UNRECOVERABLE", line, f"support_map[{swb_id}]",
                                     f"the sidecar entry for {swb_id} carries no family, which is not recoverable")
-                    entries.append((swb_id, [dof for dof in DOFS if dof in entry["restrained"]], family))
+                    label = ("spring" if family == SPRING_FAMILY else "anchor" if family == "anchor" else "restraint")
+                    entries.append((swb_id, [dof for dof in DOFS if dof in entry["restrained"]], family, label, line))
                     kind = "anchor" if record["anchor"] else "restraint"
                     if self.bound and not self.sidecar_current and entry["caepipe_kind"] != kind:
                         self.refuse("MBF-IMPORT-SIDECAR-CONFLICT", line, f"support_map[{swb_id}].caepipe_kind",
@@ -3134,16 +3450,24 @@ class _Importer:
                     if self.rebound:
                         self.unconfirmed.append(swb_id)
             else:
-                entries = [(swb_id, dofs, family) for swb_id, dofs, family, _ in imported]
-            for swb_id, dofs, family in entries:
+                entries = [(swb_id, dofs, family, label, own) for swb_id, dofs, family, own, label in imported]
+            for swb_id, dofs, family, label, own in entries:
                 claim(swb_id, f"support at node {name}", line)
-                self.support_lines[swb_id] = line
-                support: dict[str, Any] = {"id": swb_id, "label": tags[0][0] if tags else
-                                           f"{'anchor' if family == 'anchor' else 'restraint'} at {name}",
+                self.support_lines[swb_id] = own
+                support: dict[str, Any] = {"id": swb_id, "label": tags[0][0] if tags else f"{label} at {name}",
                                            "node": node_id[name], "restraints": dofs,
                                            "provenance": provenance(line)}
                 if family is not None:
                     support["family"] = family
+                if family == SPRING_FAMILY:
+                    stiffness, spring_line = springs[dofs[0]]
+                    if not (math.isfinite(stiffness.value * _N_PER_M_PER_UNIT[stiffness_unit])
+                            and stiffness.value * _N_PER_M_PER_UNIT[stiffness_unit] > 0):
+                        self.refuse("MBF-IMPORT-VALUE-UNREPRESENTABLE", spring_line, swb_id,
+                                    f"the stiffness of {swb_id} is outside the binary64 range in N/m, as the solve "
+                                    "reads it")
+                    support["stiffness"] = {"dof": dofs[0], "value": {"value": stiffness.value,
+                                                                      "unit": stiffness_unit}}
                 supports.append(support)
                 ids.append((swb_id, dofs))
             support_ids[number] = ids
@@ -3925,6 +4249,27 @@ class _Importer:
                                 "written as absent" + (", except the corrosion allowance under pressure."
                                                        if self.pressure_notes else "."))
         self.assumptions.extend(self.pressure_notes)
+        kinds = {item["kind"] for record in self.node_data.values() for item in record["supports"]}
+        flexible = any(record["anchor"] and record["trak"] for record in self.node_data.values())
+        unit = STIFFNESS_UNIT[self.si]
+        for kind, note in (
+                ("guide", "A guide (G) restrains the two global translations lateral to the element whose local axes "
+                          "it takes, the preceding element or else the following one (technical reference, Guide), "
+                          "which lies along a global axis: rigid, or with STIFF a spring on each."),
+                ("stop", "A limit stop LS(0,0) along an axis-aligned DV is stopped both ways at its undeflected "
+                         "position (technical reference, Limit Stop): a rigid line stop on that DOF, or with STIFF a "
+                         "spring."),
+                ("skew", "A skewed restraint K along an axis-aligned DV is a two-way spring on that DOF (technical "
+                         "reference, Skewed Restraint).")):
+            if kind in kinds:
+                self.assumptions.append(note)
+        if flexible:
+            self.assumptions.append("A flexible anchor (KA with TRAK and ROTK(0,0,0)) is a spring on each translation "
+                                    "with a non-zero stiffness; a zero stiffness leaves its DOF free (technical "
+                                    "reference, Anchor).")
+        if kinds - {"guide"} or flexible or any(item["stiffness"] is not None for record in self.node_data.values()
+                                                for item in record["supports"]):
+            self.assumptions.append(f"Spring stiffnesses keep their MBF unit, {unit}.")
         if ("gravity", "the earth gravity setting") in self.used_conventions:
             self.used_conventions.discard(("gravity", "the earth gravity setting"))
             self.assumptions.append("OPMISC gives earth gravity (the export's default setting 386.4 with direction "

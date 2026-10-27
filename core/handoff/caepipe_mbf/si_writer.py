@@ -88,6 +88,10 @@ _STRESS_TO_MPA["psi"] = NORMALIZATION["psi"][0]
 _FORCE_TO_N["lbf"] = NORMALIZATION["lbf"][0]
 _MOMENT_TO_NM.update({"lbf*in": NORMALIZATION["lbf*in"][0], "lbf*ft": NORMALIZATION["lbf*ft"][0]})
 _FORCE_PER_LENGTH_TO_N_PER_M["lbf/in"] = NORMALIZATION["lbf/in"][0]
+# A spring's linear stiffness (core/units LinearStiffness, which reads force-per-length symbols) in N/mm, the unit of
+# a flexible anchor's TRAK in SI files (Format of .MBF, TRAK).
+_STIFFNESS_TO_N_PER_MM: dict[str, int | Fraction] = {"N/m": -3, "N/mm": 0, "kN/m": 0, "kN/mm": 3,
+                                                      "lbf/in": NORMALIZATION["lbf/in"][0] / 1000}
 _EXPANSION_TO_PER_C["1/degF"] = NORMALIZATION["1/degF"][0]
 _TEMPERATURE_INTERVAL_TO_C["degF"] = NORMALIZATION["degF"][0]
 # Pressure regions become LOADS Pressure 1 in bar (Format of .MBF, LOADS, SI): 1 bar = 1e5 Pa exactly, and psi by
@@ -387,6 +391,7 @@ class _Writer:
         self.node_restraints: dict[str, set[str]] = {}
         self.node_supports: dict[str, list[str]] = {}
         self.supports: dict[str, dict[str, Any]] = {}
+        self.node_springs: dict[str, dict[str, float]] = {}  # node -> translational DOF -> stiffness in N/mm
         self.case_labels: dict[str, str] = {}
         self.forces: dict[str, list[float]] = {}
         self.moments: dict[str, list[float]] = {}
@@ -929,11 +934,14 @@ class _Writer:
                 self.diag("MBF-SI-REFERENCE-UNRESOLVED", "error", entity, f"{entity} is at unknown node {node!r}")
                 continue
             family = support.get("family")
+            if family == "spring" and support.get("hanger") is None and support.get("nonlinear") is None:
+                self.read_spring(support, entity, node)
+                continue
             special = [name for name in ("stiffness", "hanger", "nonlinear") if support.get(name) is not None]
             if family not in _RIGID_FAMILIES or special:
                 what = f"family {family!r}" if family not in _RIGID_FAMILIES else ", ".join(special)
                 self.refuse("MBF-SI-SUPPORT-UNSUPPORTED", entity,
-                            f"{entity} ({what}) is not a rigid restraint; springs, hangers and nonlinear or "
+                            f"{entity} ({what}) is not a rigid restraint or a spring; hangers and nonlinear or "
                             "gapped supports are not exported by the pilot writer")
                 continue
             restraints = support.get("restraints")
@@ -968,6 +976,47 @@ class _Writer:
                                 "without being a full anchor; the target tool does not accept "
                                 "rotational restraints (FIXR) in an imported MBF, so partial rotational restraints are "
                                 "not exported")
+
+        for node in sorted(set(self.node_springs) & set(self.node_restraints)):
+            self.refuse("MBF-SI-SUPPORT-UNSUPPORTED", f"node:{node}",
+                        f"node {node!r} carries springs and rigid restraints; a spring is written as a flexible "
+                        "anchor (KA with TRAK), which the importer reads alone at its node")
+
+    def read_spring(self, support: Mapping[str, Any], entity: str, node: str) -> None:
+        """A spring support (Design §12, tranche 3): one translational DOF, named by its stiffness and its restraint
+        list alike, with a positive stiffness. It is written as a flexible anchor KA,TRAK(kx,ky,kz),ROTK(0,0,0) in
+        N/mm; a zero TRAK component leaves its DOF free (technical reference, Anchor). Rotational springs are not
+        written: ROTK's unit is open (TBD-17-04-010)."""
+        stiffness = support.get("stiffness")
+        restraints = support.get("restraints")
+        if not isinstance(stiffness, Mapping) or not isinstance(restraints, list):
+            self.invalid(entity, f"{entity} is a spring and needs a stiffness and a restraints list")
+            return
+        dof = _DOF_TOKENS.get(stiffness.get("dof")) if isinstance(stiffness.get("dof"), str) else None
+        tokens = [_DOF_TOKENS.get(token) if isinstance(token, str) else None for token in restraints]
+        if dof is None or tokens != [dof]:
+            self.refuse("MBF-SI-SUPPORT-UNSUPPORTED", entity,
+                        f"{entity} is a spring whose restraints and stiffness must name the same single DOF")
+            return
+        if dof not in DOFS[:3]:
+            self.refuse("MBF-SI-SUPPORT-UNSUPPORTED", entity,
+                        f"{entity} is a rotational spring ({dof}); ROTK's unit is open (TBD-17-04-010), so only "
+                        "translational springs are written")
+            return
+        value = self.quantity(stiffness.get("value"), _STIFFNESS_TO_N_PER_MM, "N/mm", entity, "stiffness")
+        if value is None:
+            return
+        if not value > 0:
+            self.diag("MBF-SI-VALUE-OUT-OF-RANGE", "error", entity,
+                      f"{entity} stiffness must be positive (the solve refuses a spring without one)")
+            return
+        springs = self.node_springs.setdefault(node, {})
+        if dof in springs:
+            self.refuse("MBF-SI-SUPPORT-UNSUPPORTED", entity,
+                        f"{entity} is a second spring on {dof} at node {node!r}; TRAK carries one stiffness per DOF")
+            return
+        springs[dof] = value
+        self.supports[support["id"]] = {"node": node, "dofs": {dof}, "family": "spring"}
 
     def is_anchor(self, node: Any) -> bool:
         return isinstance(node, str) and len(self.node_restraints.get(node, ())) == 6
@@ -1458,7 +1507,7 @@ class _Writer:
             if bend is not None:
                 fields.append("KI")
                 comments.append(f"FF={_num(bend['k'])}")
-            if row["new"] and self.is_anchor(node):
+            if row["new"] and (self.is_anchor(node) or node in self.node_springs):
                 fields.append("KA")
             pipe_id = row["element"] if row["kind"] == "T" else (first_element if index == 0 else None)
             if pipe_id is not None:
@@ -1516,7 +1565,8 @@ class _Writer:
         for support_id, support in self.supports.items():
             support_map[support_id] = {
                 "node": node_map[support["node"]],
-                "caepipe_kind": "anchor" if self.is_anchor(support["node"]) else "restraint",
+                "caepipe_kind": ("anchor" if self.is_anchor(support["node"]) or support["family"] == "spring"
+                                 else "restraint"),
                 "restrained": [dof for dof in DOFS if dof in support["dofs"]],
                 # the effective family: the authored one, or the solve's inference (anchor with six DOFs, else guide)
                 "family": support["family"] or ("anchor" if len(support["dofs"]) == len(DOFS) else "guide"),
@@ -1574,12 +1624,13 @@ class _Writer:
         except SidecarNotCanonical as error:
             self.invalid(error.path, f"the sidecar's {error.path} {error.reason}; the sidecar has no self-digest")
             return self.refused()
-        if self.contract is not None and self.regenerating is None and not self.survives_reimport(result):
+        # The preflight is total (Design §14): every export but the regeneration route's, whose caller is the import.
+        if self.regenerating is None and not self.survives_reimport(result):
             return self.refused()
         return result
 
     def survives_reimport(self, result: MbfSiResult) -> bool:
-        """Design §9.4: the exact-pressure export as the printed MBF gives it back. The writer's own bound re-import
+        """Design §9.4, §12 and §14: every export as the printed MBF gives it back. The writer's own bound re-import
         reads the printed values exactly as an import will (positions summed from the printed offsets, bend tangent
         nodes rebuilt, OD and wall as printed) and applies the exact route's whole-region checks to the restored
         regions in their declared order. The export stands only if that re-import succeeds completely and checks
@@ -1610,7 +1661,8 @@ class _Writer:
                 self.refuse("MBF-SI-PREFLIGHT-REFUSED", item["location"] or "MBF",
                             f"the bound re-import of this MBF refuses it ({item['code']} at {item['location']}, line "
                             f"{item['line']}): {item['message']}")
-        if back.status == "imported" and back.summary.get("pressure_regions") != len(self.regions):
+        if (back.status == "imported" and self.contract is not None
+                and back.summary.get("pressure_regions") != len(self.regions)):
             self.refuse("MBF-SI-PREFLIGHT-REFUSED", "pressure_map",
                         f"the bound re-import restored {back.summary.get('pressure_regions')} pressure regions, not "
                         f"the {len(self.regions)} written; the region checks did not cover every region")
@@ -1620,6 +1672,10 @@ class _Writer:
 
     def node_comments(self, node: str) -> list[str]:
         comments = []
+        springs = self.node_springs.get(node)
+        if springs:  # a flexible anchor: one stiffness per translation, 0 free; rotations free
+            comments.append("TRAK({})".format(",".join(_num(springs.get(dof, 0.0)) for dof in DOFS[:3])))
+            comments.append("ROTK(0,0,0)")
         restrained = self.node_restraints.get(node, set())
         if restrained and not self.is_anchor(node):
             translations = [1 if dof in restrained else 0 for dof in DOFS[:3]]
@@ -1654,6 +1710,10 @@ class _Writer:
             + " and specific gravity 0 (empty pipe); Temperature 1 = reference "
             "temperature + the element's SWBPIPE thermal change (summed when several primitives act on one element).",
         ]
+        if self.node_springs:
+            notes.append("Spring supports are written as flexible anchors KA,TRAK(kx,ky,kz),ROTK(0,0,0), stiffness "
+                         "in N/mm; a zero component leaves its DOF free and ROTK(0,0,0) leaves rotations free "
+                         "(technical reference, Anchor).")
         if self.pipe_pressure:
             notes.append(f"OPPRES is written {OPPRES_LINE}: PD/4t, Bourdon effect off, pressure correction for bends "
                          "off, peak pressure factor 1. SWBPIPE's exact pressure route models neither effect (DEL-04-07 "

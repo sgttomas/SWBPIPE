@@ -306,6 +306,10 @@ fn build_corpus() -> Vec<Input> {
         let path = format!("core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-{mode}.raw.json");
         base(&mut inputs, format!("load_reference_fallback_uz-{mode}"), read(&path), Some(fallback.clone()), None);
     }
+    // W-16 slice b: the shared pressure-2 combination corpus, each envelope with its model.
+    for case in read("fixtures/results/pressure_v3_combination_reader_corpus.json")["cases"].as_array().unwrap() {
+        base(&mut inputs, format!("combination/{}", case["label"].as_str().unwrap()), case["envelope"].clone(), Some(case["model"].clone()), None);
+    }
     // The shared tamper vector (preview-physics).
     let vector = read("fixtures/results/preview_physics_tamper_vector.json");
     for variant in vector["variants"].as_array().unwrap() {

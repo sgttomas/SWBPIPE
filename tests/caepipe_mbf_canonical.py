@@ -273,10 +273,14 @@ def canonical(model: Mapping[str, Any], names: Mapping[str, str], case_kinds: Ma
     for support in model["supports"]:
         node = names[support["node"]]
         dofs = {_DOF_TOKEN[token] for token in support["restraints"]}
-        restrained.setdefault(node, set()).update(dofs)
         supports[support["id"]] = node
         if oriented:
             out.sets[("support", support["id"])] = (node, frozenset(dofs))
+        if support.get("family") == "spring":  # a spring restrains nothing; its stiffness per node and DOF, in N/m
+            key = ("spring", node, _DOF_TOKEN[support["stiffness"]["dof"]])
+            out.values[key] = out.values.get(key, 0.0) + si(support["stiffness"]["value"])
+            continue
+        restrained.setdefault(node, set()).update(dofs)
     for node, dofs in restrained.items():
         out.sets[("restraints", node)] = frozenset(dofs)
     for component in model.get("components") or []:
@@ -420,6 +424,12 @@ def bounds(model: Mapping[str, Any], writer: Any, printed: Printed, names: Mappi
                 if comment.startswith(code):
                     for axis, value in enumerate(comment[len(code):-1].split(",")):
                         comment_values[(category, row["node"], axis)] = value
+    # Spring stiffnesses: printed directly in N/mm, the flexible anchor's TRAK component on the node's row.
+    for row in printed.rows:
+        for comment in row["comments"]:
+            if comment.startswith("TRAK("):
+                for axis, value in enumerate(comment[len("TRAK("):-1].split(",")):
+                    out[("spring", row["node"], DOFS[axis])] = printed_bound(value, 1e3)
     for key, value in reference.values.items():
         if key[0] != "load" or key[2] not in ("concentrated_force", "concentrated_moment", "imposed_displacement"):
             continue

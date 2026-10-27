@@ -1444,9 +1444,530 @@
               }
             ]
           }
+        },
+        "equivalent_static": {
+          "$ref": "#/$defs/PressureExactEquivalentStatic"
         }
       },
       "description": "pressure-2 exact case: the base common E/nu materials, or resolved per-member materials under the load/reference-state group. The RHS terms add the bend's removed caps and the junction remainder."
+    },
+    "PressureExactEquivalentStatic": {
+      "description": "W-16 slice c (DEL-05-01 Design exact-equivalent-static.md section 2): present exactly on a case with equivalent_static generation; the route's D-5 mass method and the ids of the generated primitives, in generation order.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mass_method",
+        "generated_load_ids"
+      ],
+      "properties": {
+        "mass_method": {
+          "const": "source_od_nominal_wall_pressure_bore_areas/v1"
+        },
+        "generated_load_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "PressureExactCombination": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "W-16 slice b (DEL-05-02 Design exact-combinations.md section 6): one model-authored load combination on the exact route, derived from case results: its complete expression, its operands' standing and numerical findings, the gate outcome, the published rows with their operand source rows, the pressure_free_operand_recovery witnesses, the missing sources and the withheld rows with reasons, and the source-recovery exclusion. Closed shape only; the combination pass of the reader re-derives every member.",
+      "required": [
+        "combination_id",
+        "basis",
+        "expression",
+        "operands",
+        "gate",
+        "rows",
+        "recoveries",
+        "missing_sources",
+        "withheld",
+        "standing",
+        "source_recovery"
+      ],
+      "properties": {
+        "combination_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "basis": {
+          "enum": [
+            "mechanics",
+            "result_state_subtraction",
+            "range_envelope"
+          ]
+        },
+        "expression": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "terms"
+              ],
+              "properties": {
+                "terms": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "load_case_id",
+                      "factor"
+                    ],
+                    "properties": {
+                      "load_case_id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "factor": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "minuend_id",
+                "subtrahend_id"
+              ],
+              "properties": {
+                "minuend_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "subtrahend_id": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "operand_ids",
+                "mode"
+              ],
+              "properties": {
+                "operand_ids": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "mode": {
+                  "enum": [
+                    "min",
+                    "max",
+                    "min_abs",
+                    "max_abs"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "operands": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "load_case_id",
+              "modulus_basis_ref",
+              "modulus_basis_temperature",
+              "numerical_quality"
+            ],
+            "properties": {
+              "load_case_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "modulus_basis_ref": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "modulus_basis_temperature": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "value",
+                      "unit"
+                    ],
+                    "properties": {
+                      "value": {
+                        "type": "number"
+                      },
+                      "unit": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "numerical_quality": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "basis_ref",
+                  "structural_status",
+                  "solve_quality",
+                  "model_matrix_fidelity",
+                  "accuracy_evidence",
+                  "evidence_refs"
+                ],
+                "properties": {
+                  "basis_ref": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "ref_type",
+                      "ref_id"
+                    ],
+                    "properties": {
+                      "ref_type": {
+                        "const": "load_case"
+                      },
+                      "ref_id": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  },
+                  "structural_status": {
+                    "enum": [
+                      "passive_model_basis",
+                      "physical_mechanism_witnessed",
+                      "negative_energy_witnessed",
+                      "numerically_unresolved"
+                    ]
+                  },
+                  "solve_quality": {
+                    "enum": [
+                      "not_assessed",
+                      "checks_passed",
+                      "sensitive",
+                      "unresolved",
+                      "failed"
+                    ]
+                  },
+                  "model_matrix_fidelity": {
+                    "enum": [
+                      "represented_equations_retained",
+                      "assembly_loss_detected",
+                      "assembly_uncertainty",
+                      "not_assessed"
+                    ]
+                  },
+                  "accuracy_evidence": {
+                    "enum": [
+                      "not_claimed",
+                      "reference_verified",
+                      "unresolved"
+                    ]
+                  },
+                  "evidence_refs": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "gate": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "withheld",
+                "reason"
+              ],
+              "properties": {
+                "withheld": {
+                  "const": false
+                },
+                "reason": {
+                  "type": "null"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "withheld",
+                "reason"
+              ],
+              "properties": {
+                "withheld": {
+                  "const": true
+                },
+                "reason": {
+                  "enum": [
+                    "COMBINATION_MODULUS_BASIS_MIXED",
+                    "COMBINATION_RESOLVED_STIFFNESS_MIXED",
+                    "COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "result_id",
+              "sources"
+            ],
+            "properties": {
+              "result_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "sources": {
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "load_case_id",
+                        "result_id"
+                      ],
+                      "properties": {
+                        "load_case_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "result_id": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "load_case_id",
+                        "recovery_index"
+                      ],
+                      "properties": {
+                        "load_case_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "recovery_index": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "recoveries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "load_case_id",
+              "pipe_id",
+              "kind",
+              "component",
+              "location",
+              "section_basis",
+              "method",
+              "source_result_id",
+              "sign",
+              "area_m2",
+              "rounding",
+              "value"
+            ],
+            "properties": {
+              "load_case_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "pipe_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "kind": {
+                "enum": [
+                  "pipe_wall_endpoint_action_v2",
+                  "pipe_wall_axial_force_v2",
+                  "pipe_effective_axial_force_v2",
+                  "pipe_axial_membrane_stress_v2",
+                  "pipe_lame_radial_stress_v2",
+                  "pipe_lame_hoop_stress_v2",
+                  "pipe_toroidal_membrane_hoop_stress_v1",
+                  "pipe_toroidal_radial_surface_stress_v1"
+                ]
+              },
+              "component": {
+                "type": "string",
+                "minLength": 1
+              },
+              "location": {
+                "type": "string",
+                "minLength": 1
+              },
+              "section_basis": {
+                "oneOf": [
+                  {
+                    "enum": [
+                      "nominal_section",
+                      "reduced_section"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "method": {
+                "const": "pressure_free_operand_recovery"
+              },
+              "source_result_id": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "sign": {
+                "enum": [
+                  "negated",
+                  "unchanged",
+                  "none"
+                ]
+              },
+              "area_m2": {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "rounding": {
+                "enum": [
+                  "none",
+                  "one_binary64_division"
+                ]
+              },
+              "value": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "missing_sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "source_result_id",
+              "missing_load_case_ids"
+            ],
+            "properties": {
+              "source_result_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "missing_load_case_ids": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          }
+        },
+        "withheld": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "reason"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "reason": {
+                "enum": [
+                  "tie-rod row",
+                  "row missing key fields",
+                  "dimensionless row",
+                  "load-case algebra refused",
+                  "source support row missing in an operand case"
+                ]
+              }
+            }
+          }
+        },
+        "standing": {
+          "const": "derived_from_case_results"
+        },
+        "source_recovery": {
+          "const": "excluded: a document with a load combination attempts no retained-source recovery for any of its cases, primitive cases included; every case publishes ordinary structural recovery"
+        }
+      }
     },
     "PressureConnectorRecord": {
       "type": "object",
@@ -1792,7 +2313,7 @@
     "PressureContractEvidence": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Raw producer contract_evidence for pressure-2 (3.0.0/exact_pressure_v3): pressure regions including realized arcs, connector records and exact cases; a model carrying the load/reference-state group also publishes load_reference_states (load_reference_state.schema.json LoadReferenceStateRecord). Carriers preserve it verbatim. Closed shape only; cross-binding is executable reader validation.",
+      "description": "Raw producer contract_evidence for pressure-2 (3.0.0/exact_pressure_v3): pressure regions including realized arcs, connector records and exact cases; a model carrying the load/reference-state group also publishes load_reference_states (load_reference_state.schema.json LoadReferenceStateRecord), and a model with a load combination publishes exact_combinations (W-16 slice b; omitted otherwise). Carriers preserve it verbatim. Closed shape only; cross-binding is executable reader validation.",
       "required": [
         "pressure",
         "connector",
@@ -1821,6 +2342,13 @@
           "type": "array",
           "items": {
             "$ref": "load_reference_state.schema.json#/$defs/LoadReferenceStateRecord"
+          }
+        },
+        "exact_combinations": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/PressureExactCombination"
           }
         }
       }

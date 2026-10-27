@@ -230,6 +230,8 @@ type Props = {
   onClearVisibility?: () => void;
   onViewportInteractionStart?: (interaction: ViewportExposureInteraction) => void;
   onQueueIntent?: (intent: EditorOperationIntent) => void;
+  /** Opens Bulk change on the selection, for the menus' Change selected… (B2). */
+  onChangeSelected?: () => void;
   /** An operation is validating or applying (the inspector's Remove panel waits for it). */
   operationBusy?: boolean;
   onBoxSelection?: (
@@ -438,6 +440,7 @@ export function PipeViewport({
   onClearVisibility = () => {},
   onViewportInteractionStart = () => {},
   onQueueIntent,
+  onChangeSelected,
   operationBusy = false,
   onBoxSelection = () => Object.freeze({ orderedKeys: [], primaryKey: null, rangeAnchorKey: null, focusKey: null, preparationEpoch: 0 }),
   onSelect,
@@ -2428,6 +2431,22 @@ export function PipeViewport({
       setViewCommandStatus(`${visibilitySelectionKeys.length} selected item${visibilitySelectionKeys.length === 1 ? "" : "s"} isolated; other shown geometry is dimmed to 20%.`);
       return;
     }
+    if (command.type === "show-result-colour") {
+      // As the Result colour toggle turned on, then the legend's quantity and case selectors.
+      setResultColourOn(true);
+      setOverlayQuantityId(command.quantityId);
+      setOverlayCaseKey(command.caseKey);
+      setViewCommandStatus("Result colour shown.");
+      return;
+    }
+    if (command.type === "show-deflected-shape") {
+      // As the deformation popover's case selector (`DeflectedShapeControls` onCaseChange).
+      setDeflectionCaseKey(command.caseKey);
+      setDeflectionFactor(null);
+      setDeflectionPhase(1);
+      setViewCommandStatus("Deflected shape case chosen.");
+      return;
+    }
     if (command.type === "show-all") {
       onClearVisibility();
       setViewCommandStatus("All eligible model geometry shown.");
@@ -2452,7 +2471,8 @@ export function PipeViewport({
     viewportShortcuts: true,
     fitSelectionAvailable: Boolean(fitSelectionBounds),
     operationBusy,
-    onQueueIntent
+    onQueueIntent,
+    onChangeSelected
   };
 
   function openEntityMenu(target: EntityRef, request: ContextMenuRequest) {
