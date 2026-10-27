@@ -195,7 +195,11 @@ pub(super) fn attach_last(ledger: &mut LoadLedger, source: Summand) {
     attach(ledger, ledger.term_count() - 1, vec![source]);
 }
 
-fn mass(section: &PipeSectionInput) -> MassPrimitive {
+/// The generator's mass operands of a section. W-16 slice c (DEL-05-01
+/// Design `exact-equivalent-static.md` §2): on the exact route the section's
+/// authored `Some(c_a)` (zero included) selects the D-5 basis the generator
+/// used (`self_weight::EXACT_MASS_METHOD`); the preview route keeps `None`.
+fn mass(section: &PipeSectionInput, exact: bool) -> MassPrimitive {
     MassPrimitive {
         outer_diameter: section.outside_diameter.value,
         wall_thickness: section.wall_thickness.value,
@@ -207,9 +211,11 @@ fn mass(section: &PipeSectionInput) -> MassPrimitive {
             .as_ref()
             .map_or(0.0, |q| q.value),
         insulation_density: section.insulation_density.as_ref().map_or(0.0, |q| q.value),
-        // Equivalent-static generation stays on the preview mass basis (and
-        // is refused on the exact route).
-        corrosion_allowance: None,
+        corrosion_allowance: if exact {
+            section.corrosion_allowance.as_ref().map(|q| q.value)
+        } else {
+            None
+        },
     }
 }
 pub(super) fn intensity(
@@ -230,11 +236,11 @@ pub(super) fn intensity(
     let pipe = &model.pipe_segments[load.element_index];
     let factored = source_factor(model, case_id, &load.load_id);
     if let Some(case) = model.load_cases.iter().find(|case| case.id == case_id) {
+        // W-16 slice c (§2): dispatch to the generator's operands only for a
+        // load the generation produced; an authored id resembling the
+        // generated prefix stays authored.
         if let Some(generation) = &case.equivalent_static {
-            if load
-                .load_id
-                .starts_with(&format!("{case_id}:generated:seismic:"))
-            {
+            if is_generated_equivalent_static_load(case, &load.load_id, Some("seismic")) {
                 if let Some(seismic) = &generation.seismic {
                     let coefficient = [
                         &seismic.g_factor_x,
@@ -244,7 +250,7 @@ pub(super) fn intensity(
                         .as_ref()
                         .map_or(f64::NAN, |q| q.value);
                     return IntensityPrimitive::Seismic {
-                        mass: mass(&pipe.section),
+                        mass: mass(&pipe.section, pressure_runtime::is_exact(model)),
                         coefficient,
                         gravity: seismic
                             .gravity_acceleration
@@ -254,10 +260,7 @@ pub(super) fn intensity(
                     };
                 }
             }
-            if load
-                .load_id
-                .starts_with(&format!("{case_id}:generated:wind:"))
-            {
+            if is_generated_equivalent_static_load(case, &load.load_id, Some("wind")) {
                 if let Some(wind) = &generation.wind {
                     return IntensityPrimitive::Wind {
                         pressure: wind.pressure.as_ref().map_or(f64::NAN, |q| q.value),

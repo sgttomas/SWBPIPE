@@ -346,7 +346,14 @@ function setFieldIntent(objectType: "Element" | "Component", ref: string, fieldP
     change: { change_id: `change:bulk-${token}`, change_kind: "set_field", field_label: label, field_path: fieldPath, before, after, unit, dimension, source_note: sourceNote },
     validation: { schema_validation: "not_run", constraint_validation: "not_run", unit_validation: dimension === "dimensionless" ? "not_required_dimensionless" : "not_run", diff_preview_status: "not_generated", application_status: "not_applied" },
     audit_boundary: { mutation_route: "structured_operations_only", direct_model_mutation_allowed: false, requires_user_acceptance: true, mutates_accepted_model_state: false },
-    professional_boundary: { human_review_required: true, software_makes_compliance_claim: false, software_makes_certification_claim: false, software_makes_sealing_claim: false, software_makes_approval_claim: false, software_makes_authentication_claim: false },
+    professional_boundary: {
+      human_review_required: true,
+      software_makes_compliance_claim: false,
+      software_makes_certification_claim: false,
+      software_makes_sealing_claim: false,
+      software_makes_approval_claim: false,
+      software_makes_authentication_claim: false
+    },
     rationale: `Bulk change: ${requestText}; requires validation and review before application.`
   };
 }

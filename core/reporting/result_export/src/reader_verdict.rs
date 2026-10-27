@@ -253,7 +253,10 @@ pub fn validate(reader: &str, source: &Value, model: Option<&Value>, invocation:
         // Current pressure-2 reader, then G2's model checks,
         // which read only the cases, members, connectors and support rows.
         "pressure" => checked(sc::validate_pressure_evidence(source).and_then(|()| {
-            model.map_or(Ok(()), |m| physics_model_checks(source, m).and_then(|()| crate::u4b_evidence::exact_model_checks(source, m)))
+            // W-16 slice b (§6): the combination records bound to the model's
+            // combinations and its operands' modulus selections.
+            model.map_or(Ok(()), |m| physics_model_checks(source, m).and_then(|()| crate::u4b_evidence::exact_model_checks(source, m))
+                .and_then(|()| crate::exact_combination_evidence::model_checks(source, m)))
         })),
         "pressure-source" => {
             let contract = crate::physics_source::SourceContract::PressureV3;

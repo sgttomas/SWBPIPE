@@ -44,16 +44,19 @@ SOURCES = {
 # caller.
 # Model document 0.8.0 D3 (§8.26): every lib.rs owner, site and caller moves with unchanged text (+21 to the case solve,
 # +36 after it); no owner gains a caller.
+# W-16 slice b/c D3 (§8.27): every lib.rs owner, site and caller moves with unchanged text (+28 to the case solve, +193
+# after it: the hoisted connector evidence, the combination and equivalent-static records and their helpers); no owner
+# gains a caller.
 SITES = [
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 11664,
+    "line": 11857,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:11622:exact_straight_summary_extrema",
-    "short": "lib.rs:11664",
-    "from": "lib.rs:11622:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:11815:exact_straight_summary_extrema",
+    "short": "lib.rs:11857",
+    "from": "lib.rs:11815:exact_straight_summary_extrema",
     "parents": [
-      "core/product_physics/src/lib.rs:5044:solve_prepared_load_case",
+      "core/product_physics/src/lib.rs:5072:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
       "core/product_physics/src/membrane_publication_range.rs:243:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
       'core/product_physics/src/retained_product.rs:6191:prepared_maxima'
@@ -61,13 +64,13 @@ SITES = [
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 11670,
+    "line": 11863,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:11622:exact_straight_summary_extrema",
-    "short": "lib.rs:11670",
-    "from": "lib.rs:11622:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:11815:exact_straight_summary_extrema",
+    "short": "lib.rs:11863",
+    "from": "lib.rs:11815:exact_straight_summary_extrema",
     "parents": [
-      "core/product_physics/src/lib.rs:5044:solve_prepared_load_case",
+      "core/product_physics/src/lib.rs:5072:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
       "core/product_physics/src/membrane_publication_range.rs:243:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
       'core/product_physics/src/retained_product.rs:6191:prepared_maxima'
@@ -75,13 +78,13 @@ SITES = [
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 12333,
+    "line": 12526,
     "kind": "to_string",
-    "owner": "core/product_physics/src/lib.rs:12314:recover_curved_bend_local_forces",
-    "short": "lib.rs:12333",
-    "from": "lib.rs:12314:recover_curved_bend_local_forces",
+    "owner": "core/product_physics/src/lib.rs:12507:recover_curved_bend_local_forces",
+    "short": "lib.rs:12526",
+    "from": "lib.rs:12507:recover_curved_bend_local_forces",
     "parents": [
-      "core/product_physics/src/lib.rs:5044:solve_prepared_load_case"
+      "core/product_physics/src/lib.rs:5072:solve_prepared_load_case"
     ]
   },
   {
@@ -155,7 +158,10 @@ MODE_SOURCE = {
            "8e2d83e55c6ea57935ecc58fe87619d240b079de80b5f9daf13deda07252cc1c",
            # Model document 0.8.0 D3 (§8.26): the same _X emitter, with retained_w1 carried to lib.rs:3879 (its only
            # difference from 8e2d83e5…).
-           "89c969952ff197bc2024e58cd9e24c925a6adff6b870c1346c4ba9eccf76297f"},
+           "89c969952ff197bc2024e58cd9e24c925a6adff6b870c1346c4ba9eccf76297f",
+           # W-16 slices b and c D3 (§8.27): the same _X emitter, with retained_w1 carried to lib.rs:3907 (its only
+           # difference from 89c96995…).
+           "bd33a1027f4df2dfdb441976f3491243dbfa70f1cf3c8aff888abe93de6479ad"},
 }
 
 

@@ -24,6 +24,9 @@ export type MenuCommandId =
   | "view.issues"
   | "view.audit"
   | "view.close-panels"
+  // A6 key results: the browser menu's route. The native menu has no item for it yet, so it is
+  // not in NATIVE_MENU_COMMAND_IDS, and App handles it before the session's runMenuCommand.
+  | "view.key-results"
   | `view.section.${WorkspaceSectionId}`
   | ShellMenuCommandId
   | "insert.node"

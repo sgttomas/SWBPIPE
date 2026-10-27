@@ -61,6 +61,10 @@ const EMPTY_RESULT_FAMILY_COUNTS: ResultFamilyCounts = {
 };
 const RESULT_UNIT_DISPLAY_ORDER = ["MPa", "N", "N*m", "mm", "rad"];
 
+/** A view of the results table another surface asks for (A6): the rows of one exact kind for one
+ * run, with the rows the asking surface's standing withholds and its reason for each. */
+export type ResultsViewRequest = Readonly<{ serial: number; runId: string; kind: string; withheld: Readonly<Record<string, string>> }>;
+
 export function ResultsPanel({
   result,
   knowledge,
@@ -71,7 +75,8 @@ export function ResultsPanel({
   resolveCauseLocation,
   onSelectCauseLocation,
   onShowDiagnostic,
-  selectedEntity = null
+  selectedEntity = null,
+  viewRequest = null
 }: {
   result: MechanicsResult | null;
   knowledge: DesignKnowledge | null;
@@ -87,6 +92,10 @@ export function ResultsPanel({
   /** The workspace's primary selection. With "Selected entity only" on, the
    * table shows only the rows stated for it. */
   selectedEntity?: EntityRef | null;
+  /** A6 (Design `key-results-panel.md` §2): once per `serial`, for the run it names, shows only the
+   * rows of exactly `kind`, marks the rows it lists as withheld, and returns every other filter to its
+   * default. A request for another run is ignored. The user clears the kind filter. */
+  viewRequest?: ResultsViewRequest | null;
 }) {
   const [filterText, setFilterText] = useState("");
   const [selectionOnly, setSelectionOnly] = useState(false);
@@ -112,6 +121,10 @@ export function ResultsPanel({
     });
   }
   const [pageSize, setPageSize] = useState<number>(DEFAULT_RESULT_PAGE_SIZE);
+  const [appliedRequest, setAppliedRequest] = useState<number | null>(null);
+  // Held with the run it was asked for, as the page is: another run shows every kind.
+  const [requestedKind, setKindFilter] = useState<{ runId: string; kind: string; withheld: Readonly<Record<string, string>> } | null>(null);
+  const kindFilter = requestedKind && requestedKind.runId === (result?.run_id ?? null) ? requestedKind : null;
   // One reading of the source's row semantics per result, for every row.
   const labels = useMemo(() => (result ? semanticLabels(result) : null), [result]);
   const familyCounts = useMemo(
@@ -124,11 +137,23 @@ export function ResultsPanel({
   // state, so it does not change with the other filters; a run without the chosen case shows all.
   const cases = useMemo(() => (result ? navigatorCases(result.results) : []), [result]);
   const [caseFilter, setCaseFilter] = useState<string>(ALL_CASES);
+  // Applied during render, as a filter change would be, so the first render that shows the
+  // request already shows its rows.
+  if (viewRequest && viewRequest.serial !== appliedRequest && viewRequest.runId === runId) {
+    setAppliedRequest(viewRequest.serial);
+    setKindFilter({ runId: viewRequest.runId, kind: viewRequest.kind, withheld: viewRequest.withheld });
+    setFilterText("");
+    setFamilyFilter("all");
+    setCaseFilter(ALL_CASES);
+    setFrameFilter(ALL_FRAMES);
+    setSelectionOnly(false);
+    setPagePosition({ runId, index: 0 });
+  }
   const activeCase = caseFilter !== ALL_CASES && cases.some((item) => item.key === caseFilter) ? caseFilter : ALL_CASES;
   // The rows every filter but "Selected entity only" admits: the navigator's supports and elements.
   const navigatorRows = useMemo(
-    () => (result && labels ? rowsUnderFilters(result.results, labels, { filterText, familyFilter, frame: activeFrame, caseKey: activeCase }) : []),
-    [activeCase, activeFrame, familyFilter, filterText, result, labels]
+    () => (result && labels ? rowsUnderFilters(result.results, labels, { filterText, familyFilter, frame: activeFrame, caseKey: activeCase, kind: kindFilter?.kind ?? null }) : []),
+    [activeCase, activeFrame, familyFilter, filterText, result, labels, kindFilter]
   );
   const filteredResults = useMemo(() => {
     if (selectionOnlyWithoutEntity) return [];
@@ -225,7 +250,7 @@ export function ResultsPanel({
   }
 
   function rowsFor(family: ResultFamilyFilter, caseKey: string) {
-    return result && labels ? rowsUnderFilters(result.results, labels, { filterText, familyFilter: family, frame: activeFrame, caseKey }) : [];
+    return result && labels ? rowsUnderFilters(result.results, labels, { filterText, familyFilter: family, frame: activeFrame, caseKey, kind: kindFilter?.kind ?? null }) : [];
   }
 
   function chooseCase(caseKey: string, focus: NavigatorStep | null = null) {
@@ -307,6 +332,12 @@ export function ResultsPanel({
             frameFilter={activeFrame}
             onFrameFilterChange={(value) => { setFrameFilter(value); setPageIndex(0); }}
           />
+          {kindFilter ? (
+            <p className="results-kind-filter" data-testid="results-kind-filter">
+              Showing only rows of kind <code>{kindFilter.kind}</code>.{" "}
+              <button type="button" data-testid="results-kind-filter-clear" onClick={() => { setKindFilter(null); setPageIndex(0); }}>Show all kinds</button>
+            </p>
+          ) : null}
           <ResultsNavigator
             kinds={kindIds}
             kind={familyFilter}
@@ -362,7 +393,7 @@ export function ResultsPanel({
                           }}
                           tabIndex={0}
                         >
-                          <td>{item.id}<small> {labels!.category(item)}</small>{labelSource && resultRowLabel(item, labelSource) ? <small data-testid={`result-row-label-${item.id}`}> {resultRowLabel(item, labelSource)}</small> : null}<RowHealthBadge health={health} item={item} />{item.component_body ? <small data-testid={`result-row-component-body-${item.id}`}> reference section of component body {item.component_body.component_ref}</small> : null}</td>
+                          <td>{item.id}<small> {labels!.category(item)}</small>{labelSource && resultRowLabel(item, labelSource) ? <small data-testid={`result-row-label-${item.id}`}> {resultRowLabel(item, labelSource)}</small> : null}<RowHealthBadge health={health} item={item} />{kindFilter?.withheld[item.id] ? <small data-testid={`result-row-withheld-${item.id}`}> {kindFilter.withheld[item.id]}</small> : null}{item.component_body ? <small data-testid={`result-row-component-body-${item.id}`}> reference section of component body {item.component_body.component_ref}</small> : null}</td>
                           <td>{item.entity_ref}</td>
                           <td>{item.metadata?.location ?? "summary"}</td>
                           <td data-testid={`result-row-frame-${item.id}`}>{frameLabel(resultFrame(item))}</td>
@@ -889,9 +920,10 @@ function ResultsNavigator({
 function rowsUnderFilters(
   rows: MechanicsResult["results"],
   labels: RowLabels,
-  filters: Readonly<{ filterText: string; familyFilter: ResultFamilyFilter; frame: string; caseKey: string }>
+  filters: Readonly<{ filterText: string; familyFilter: ResultFamilyFilter; frame: string; caseKey: string; kind?: string | null }>
 ): MechanicsResult["results"] {
   return filterResults(rows, filters.filterText, filters.familyFilter, labels).filter((item) =>
+    (!filters.kind || item.kind === filters.kind) &&
     (filters.frame === ALL_FRAMES || resultFrame(item) === filters.frame) &&
     (filters.caseKey === ALL_CASES || rowCaseKey(item) === filters.caseKey));
 }
