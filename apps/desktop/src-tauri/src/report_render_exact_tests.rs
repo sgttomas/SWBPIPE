@@ -1919,11 +1919,16 @@ mod direct_native {
     fn a_growth_above_the_budget_refuses_with_ingress_exceeds_budget() {
         let w = witness(STRAIGHT);
         let live = live_on(ScriptedHost::normal(), &w.intake, &w.mode, &w.result);
-        let (mut decoded, mut lease) = admit_json(&live.registry, "render_calculation_report", ArgsDecoding::Moved, &genuine_render_args(&w, &live.job)).unwrap();
-        let admitted_bytes = lease.bytes();
+        let args = genuine_render_args(&w, &live.job);
+        // A lease's growth is bounded by the budget it was admitted under, so
+        // the budget is set before the admission: once to learn the ingress
+        // lease, then again at exactly that lease.
+        let admitted_bytes = admit_json(&live.registry, "render_calculation_report", ArgsDecoding::Moved, &args).unwrap().1.bytes();
         let growth = exact_render_growth_bytes(&w.result, &w.intake, &canonical_json(&w.manifest)).unwrap();
         let (pool_bytes, _) = live.registry.pool().settings();
         live.registry.configure_pool(pool_bytes, admitted_bytes, false).unwrap();
+        let (mut decoded, mut lease) = admit_json(&live.registry, "render_calculation_report", ArgsDecoding::Moved, &args).unwrap();
+        assert_eq!(lease.bytes(), admitted_bytes);
         match crate::render_calculation_report_args(&mut decoded, &live.registry, &mut lease) {
             Err(CommandError::Ingress(crate::solve_jobs::SolveJobError::ResourceUnavailable { refusal, .. })) => assert_eq!(
                 refusal,
