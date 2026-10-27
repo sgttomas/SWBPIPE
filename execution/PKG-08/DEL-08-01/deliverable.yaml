@@ -351,6 +351,15 @@ code_paths:
 - fixtures/reports/invented/report_quantity_display_parity.json
 # Diagnostics binding (Design exact-route-report-sections.md §3.6, §6.3 item 4): the projection's parity vectors.
 - fixtures/reports/invented/report_diagnostics_parity.json
+# W-18b slice (r2b) (Design report-user-release.md §2.6, §2.7): the derivation, its vectors, and route 010's
+# library, rule-pack, private-class and run-record refusals.
+- core/reporting/report_package/src/user_release.rs
+- fixtures/reports/invented/user_release_derivation_vectors.json
+- apps/desktop/src-tauri/src/user_release_admission.rs
+- apps/desktop/src-tauri/src/export_disposition_screen.rs
+- apps/desktop/src-tauri/src/analysis_runs.rs
+- apps/desktop/src/services/libraryImportService.ts
+- fixtures/model_document/library_ref_member_sites.json
 checks:
 - core/reporting/report_package/tests/container.rs
 - core/reporting/report_package/tests/reader.rs
@@ -388,3 +397,8 @@ checks:
 - apps/desktop/src/features/report/reportQuantityDisplay.parity.test.ts
 - core/reporting/report_package/tests/report_diagnostics_parity.rs
 - apps/desktop/src/features/report/reportDiagnostics.parity.test.ts
+# W-18b slice (r2b): the derivation vectors' parity, the legacy-form and library-reference regressions.
+- core/reporting/report_package/tests/user_release_derivation.rs
+- apps/desktop/src/features/report/userReleaseDerivation.parity.test.ts
+- apps/desktop/src-tauri/src/user_release_admission_tests.rs
+- apps/desktop/src/services/libraryRefSites.test.ts

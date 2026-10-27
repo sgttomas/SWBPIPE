@@ -514,6 +514,46 @@ pub(crate) fn library_ref_sites(document: &Value) -> Vec<(String, &Map<String, V
     sites
 }
 
+/// One member named `library_ref` of a model document, whatever its value
+/// ([`library_ref_member_sites`]).
+pub(crate) struct LibraryRefMember<'a> {
+    /// The member's JSON pointer.
+    pub(crate) pointer: String,
+    /// The reference when the member is an object; `None` for `null`, a
+    /// string, a number, a boolean or an array (a positional record among them).
+    pub(crate) reference: Option<&'a Map<String, Value>>,
+}
+
+/// Every member named `library_ref` of a model document, in the one walk's
+/// order, whatever its value: each `DocumentSite::LibraryRef` and each
+/// `DocumentSite::NotAnObject { member: "library_ref", .. }` (W-18b library
+/// rule 1, DEL-08-01 Design `report-user-release.md` §2.7). It is its own
+/// detector: [`library_ref_sites`] keeps the objects only, unchanged (Record
+/// Run's revision and `fixtures/model_document/library_ref_sites.json` keep
+/// their meaning). Pinned with the webview's `libraryRefMemberSites` to
+/// `fixtures/model_document/library_ref_member_sites.json`.
+pub(crate) fn library_ref_member_sites(document: &Value) -> Vec<LibraryRefMember<'_>> {
+    let mut sites = Vec::new();
+    walk_document(document, "", PathStyle::Pointer, &mut |site, at| match site {
+        DocumentSite::LibraryRef(reference) => sites.push(LibraryRefMember { pointer: at.to_string(), reference: Some(reference) }),
+        DocumentSite::NotAnObject { member: "library_ref", .. } => sites.push(LibraryRefMember { pointer: at.to_string(), reference: None }),
+        _ => {}
+    });
+    sites
+}
+
+/// The JSON pointer of every `rule_pack_refs[]` entry the one walk visits,
+/// object or not, and of every `rule_pack_refs` member that is not a list
+/// (W-18b's rule-pack rule, DEL-08-01 Design `report-user-release.md` §2.7).
+pub(crate) fn rule_pack_ref_member_sites(document: &Value) -> Vec<String> {
+    let mut sites = Vec::new();
+    walk_document(document, "", PathStyle::Pointer, &mut |site, at| match site {
+        DocumentSite::RulePackRef { .. } | DocumentSite::NotAnObject { member: "rule_pack_refs[]" | "rule_pack_refs", .. } => sites.push(at.to_string()),
+        _ => {}
+    });
+    sites
+}
+
 /// W-6a's store-resolved screen (`model_document_save`
 /// `screen_model_document_dispositions`) over any parsed value (W-18 slice
 /// (b1): the report package's request and model): paths start at `root` in
@@ -963,6 +1003,54 @@ mod tests {
             .collect();
         expected.sort_by(by_path);
         assert_eq!(walked, expected);
+    }
+
+    /// W-18b library rule 1's detector alone, with no disposition screen
+    /// (DEL-08-01 Design `report-user-release.md` §2.7, §6): every member
+    /// named `library_ref`, whatever its value, with its pointer, in the walk's
+    /// order, as the webview's `libraryRefMemberSites` finds it. The
+    /// object-only walk still finds the objects alone.
+    #[test]
+    fn library_ref_member_walk_matches_the_shared_member_table() {
+        let table: Value = serde_json::from_str(include_str!("../../../../fixtures/model_document/library_ref_member_sites.json")).unwrap();
+        let kind = |member: &LibraryRefMember<'_>, document: &Value| match member.reference {
+            Some(_) => "object",
+            None => match document.pointer(&member.pointer).unwrap() {
+                Value::Null => "null",
+                Value::Bool(_) => "boolean",
+                Value::Number(_) => "number",
+                Value::String(_) => "string",
+                Value::Array(_) => "array",
+                Value::Object(_) => unreachable!("an object member is a reference"),
+            },
+        };
+        let document = &table["document"];
+        let found: Vec<Value> = library_ref_member_sites(document).iter().map(|member| json!({"pointer": member.pointer, "kind": kind(member, document)})).collect();
+        assert_eq!(Value::Array(found), table["sites"]);
+        for kind in ["object", "null", "string", "number", "boolean", "array"] {
+            assert!(table["sites"].as_array().unwrap().iter().any(|site| site["kind"] == kind), "the table covers a {kind} member");
+        }
+        let objects: Vec<String> = library_ref_sites(document).into_iter().map(|(path, _)| path).collect();
+        assert_eq!(objects.len(), table["sites"].as_array().unwrap().iter().filter(|site| site["kind"] == "object").count());
+        // The disposition screen still refuses each non-object member as malformed, on its own.
+        let mut screen = DispositionScreen { style: PathStyle::Pointer, ..DispositionScreen::default() };
+        screen.walk(document, "");
+        let malformed: Vec<&str> =
+            screen.blocking.iter().filter(|item| item.code == DISPOSITION_RECORD_MALFORMED && item.path.ends_with("/library_ref")).map(|item| item.path.as_str()).collect();
+        let non_objects: Vec<&str> =
+            table["sites"].as_array().unwrap().iter().filter(|site| site["kind"] != "object").map(|site| site["pointer"].as_str().unwrap()).collect();
+        assert_eq!(malformed, non_objects);
+    }
+
+    #[test]
+    fn rule_pack_ref_member_sites_names_every_entry_object_or_not() {
+        let document = json!({
+            "rule_pack_refs": [{"rule_pack_id": "invented-pack"}, "positional", null],
+            "nested": {"rule_pack_refs": "not a list"},
+            "empty": {"rule_pack_refs": []}
+        });
+        assert_eq!(rule_pack_ref_member_sites(&document), vec!["/nested/rule_pack_refs", "/rule_pack_refs/0", "/rule_pack_refs/1", "/rule_pack_refs/2"]);
+        assert!(rule_pack_ref_member_sites(&json!({"rule_pack_refs": [], "project": {"id": "p"}})).is_empty());
     }
 
     // --- #1641 Codex r2 P2-a: the structural walks' paths -------------------
