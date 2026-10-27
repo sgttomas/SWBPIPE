@@ -511,18 +511,32 @@ pub(super) fn physical_source_built(
         .keys()
         .map(String::as_str)
         .collect();
-    if keys
-        != BTreeSet::from([
-            "load_case_id",
-            "profile_mode",
-            "material_basis",
-            "pressure_rhs_assembly",
-            "pipe_sections",
-            "pipe_stress_extrema",
-            "stress_maximum_coverage",
-            "pipe_materials",
-            "recovery_method",
-        ])
+    let mut expected_keys = BTreeSet::from([
+        "load_case_id",
+        "profile_mode",
+        "material_basis",
+        "pressure_rhs_assembly",
+        "pipe_sections",
+        "pipe_stress_extrema",
+        "stress_maximum_coverage",
+        "pipe_materials",
+        "recovery_method",
+    ]);
+    // W-16 slice c (DEL-05-01 Design `exact-equivalent-static.md` §2): a
+    // generating case (always an ordinary companion: source recovery declines
+    // the generation) carries its closed record, re-formed here from the
+    // captured model's own generation.
+    if case.equivalent_static.is_some() {
+        expected_keys.insert("equivalent_static");
+        let mut scratch = Vec::new();
+        let loads = crate::build_load_case_primitive_loads(model, case, &mut scratch);
+        if crate::has_blocking(&scratch)
+            || evidence["equivalent_static"] != crate::exact_equivalent_static_record(case, &loads)
+        {
+            return Err(bad("physical equivalent-static generation binding"));
+        }
+    }
+    if keys != expected_keys
         || evidence["load_case_id"] != case_id
         || evidence["profile_mode"] != context.profile_mode()
         || evidence["recovery_method"] != expected_method

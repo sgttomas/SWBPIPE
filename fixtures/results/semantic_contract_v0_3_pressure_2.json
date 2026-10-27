@@ -2276,16 +2276,96 @@
   "contract_evidence_policy": "closed_finite_case_member_material_geometry_region_result_and_extrema_binding_with_load_reference_state_binding_on_0_4_0_v1",
   "supported_profile_limitations": [
     "The independently resident ordinary pressure table contains the inherited physical row vocabulary and objective connector rows, including the two scalar pressure-force and effective-axial-force signatures pe_x and s_x and the tie-rod force signature t_r. Its vocabulary and row bases are bound by its current reviewed hash; the independent source table retains its source-only family.",
-    "Admitted families under current model 0.8.0 and 3.0.0/exact_pressure_v3: straight circular members, realized curved bends inside tangent-continuous pressure regions, linear restraints or springs, objective connectors replacing one straight span, untied or with explicit bilateral linear elastic tie rods (explicit_axial_rods_v1), and valve, flange, reducer, rigid and specialty components solved as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section, not a body stress; a reducer whose mapped member belongs to a pressure region is refused by name (EXACT_PRESSURE_REDUCER_IN_REGION), since its bore-change thrust is not modelled. A constant-effective-area joint is admitted only under its closed pressure model and explicit one-region participation; every other family is refused by name.",
+    "Admitted families under current model 0.8.0 and 3.0.0/exact_pressure_v3: straight circular members, realized curved bends inside tangent-continuous pressure regions, linear restraints or springs, objective connectors replacing one straight span, untied or with explicit bilateral linear elastic tie rods (explicit_axial_rods_v1), and valve, flange, reducer, rigid and specialty components solved as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section, not a body stress; a reducer whose mapped member belongs to a pressure region is refused by name (EXACT_PRESSURE_REDUCER_IN_REGION), since its bore-change thrust is not modelled. A constant-effective-area joint is admitted only under its closed pressure model and explicit one-region participation; every other component or support family is refused by name. DEC-068 equivalent-static generation is admitted on documents without the load/reference-state group, and load combinations as combination_policy states.",
     "Realized arcs (T4-U2): each owns the term K_b*u_free(eps_p) - c_b with eps_p = (1-2nu)pAi/(E As); N_w = N_el + pAi and S = N_el; end rows act along the arc end tangents; bend-adjacent direction changes up to alpha_tan = 1e-3 rad are carried by the remainder pAi(t_in - t_out); on arcs the hoop is the toroidal membrane cut average (bore_load_transferred_toroidal_membrane_v1) and the radial values are -p at the bore and 0 outside, published where R > r_o, the transverse shear is the straight-annulus Saint-Venant field driven by the tangent-frame shears (local_straight_annulus_on_arc), and the normal-stress maximum is bounded along the arc and enters the per-basis headline; on realized arcs with directional SIFs, intensified bending is hypot(i_ip*Mz, i_op*My)/Z in the tangent frame, with its along-arc maximum, never combined. Input review rows (a bend's flexibility, a hanger's inputs) are model scoped and carry no load case.",
     "Objective connector rows bind through their entity_ref to the received connector record and stable row basis. A constant-effective-area joint carries pAe separately, and its effective axial force S = g_x + sum T_r (n_r.Q_x) - Pe is published with each tie-rod force, also on a connector with rods whatever its pressure model; its faces must be straight, coaxial, equal-bore members of one pressure region with zero attachment offsets. Connector rows remain outside the straight-member recovery bound; finite rotation, follower loads, temperature laws, ideal or tension-only ties, stops and stability are not represented.",
     "Signed internal differential pressure; external-pressure stability and collapse are not assessed.",
     "Steady-flow momentum and transient loads, Bourdon opening, pressure stiffening of flexibility and stress intensification, and ovalization are not modelled.",
-    "Direct load cases only; derived combinations and state differences are unsupported.",
+    "Load combinations over the primitive load cases (mechanics, result-state subtraction and range envelopes) are derived from case results (combination_policy): rows pair by kind, unit, entity, station, frame, component and section basis; a member outside every pressure region of an operand case takes its pressure-free operand values (pressure_free_operand_recovery); mechanics combinations are withheld for mixed modulus bases, mixed resolved member stiffness, or a nonzero installed connector or tie-rod reference with factors whose exact sum is not within 64 epsilon of 1; tie-rod rows are withheld by name; maxima, section extremes and intensified measures are not combined. Combination rows carry no numerical check of their own and never count towards numerical eligibility, and a document with a combination attempts no retained-source recovery.",
     "On every member the section normal-stress extremes are Nw/As \u00b1 hypot(My,Mz)/Z (N/A off the pressure family) at each station and basis, and the transverse shear maximum is the straight-annulus Saint-Venant value with the member's authored nu; neither is a code or equivalent stress.",
     "Normal-stress maxima are bounded elastic normal stress, not code or equivalent stress.",
     "Component bodies (W-15): the stress rows, stress extrema and maximum rows of a member solved with a valve, flange, reducer, rigid or specialty component's DEC-045 stiffness scale carry component_body {component_ref, stiffness_scale, section_role: reference_pipe_section}; they are stresses of the mapped pipe section as a reference section, not of the component body. Each stress-maximum coverage entry lists component_body_pipe_ids, the case maxima and headlines range over the other members, and a rule bound to a body row is RULE_INPUTS_INCOMPLETE (COMPONENT_BODY_REFERENCE_SECTION).",
     "Source evidence and numerical standing do not authenticate a producer or grant engineering acceptance."
   ],
+  "combination_policy": {
+    "policy_id": "PRESSURE-2-COMBINATION-v1",
+    "operands": "primitive load cases only; a combination is never an operand",
+    "pairing": "rows pair by a typed structural key from their structured fields: kind, unit, entity reference, station (location), frame (coordinate system), component and section basis (the metadata basis suffix); row ids are never parsed; a key carried by more than one row of an operand case cannot pair",
+    "mechanics_gates": [
+      {
+        "code": "COMBINATION_MODULUS_BASIS_MIXED",
+        "condition": "the mechanics operands have different modulus-basis keys"
+      },
+      {
+        "code": "COMBINATION_RESOLVED_STIFFNESS_MIXED",
+        "condition": "some member's resolved stiffness differs between the operands: its selected E/nu/G and material, its property-temperature selection, or its section bases, shear model and Timoshenko shear area"
+      },
+      {
+        "code": "COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE",
+        "condition": "the model has a connector or tie rod whose raw installed reference (q_ref, a null-space reference included, or the rod's reference extension) is nonzero, and a factor is not finite or |sum(factors) - 1| > 64*epsilon, with sum(factors) the exact sum of the binary64 factors, compared exactly and inclusively and not scaled by sum(|factors|)"
+      }
+    ],
+    "gate_precedence": "first gate in list order supplies the single withheld reason",
+    "gated_forms": [
+      "mechanics"
+    ],
+    "linear_state_kinds": [
+      "global_nodal_displacement_x",
+      "global_nodal_displacement_y",
+      "global_nodal_displacement_z",
+      "global_nodal_rotation_x",
+      "global_nodal_rotation_y",
+      "global_nodal_rotation_z",
+      "element_local_axial_force",
+      "element_local_shear_force_y",
+      "element_local_shear_force_z",
+      "element_local_torsional_moment",
+      "element_local_bending_moment_y",
+      "element_local_bending_moment_z",
+      "element_local_axial_normal_stress",
+      "element_local_bending_normal_stress_y",
+      "element_local_bending_normal_stress_z",
+      "element_local_torsional_shear_stress",
+      "pipe_section_pressure_hoop_stress",
+      "pipe_section_pressure_longitudinal_stress",
+      "support_reaction_component_v2",
+      "constant_effort_support_applied_load",
+      "element_global_end_force_v1",
+      "element_global_end_moment_v1",
+      "pipe_wall_endpoint_action_v2",
+      "pipe_wall_axial_force_v2",
+      "pipe_effective_axial_force_v2",
+      "pipe_axial_membrane_stress_v2",
+      "pipe_lame_radial_stress_v2",
+      "pipe_lame_hoop_stress_v2",
+      "pipe_toroidal_membrane_hoop_stress_v1",
+      "pipe_toroidal_radial_surface_stress_v1",
+      "connector_generalized_translation_v1",
+      "connector_generalized_rotation_v1",
+      "connector_generalized_force_v1",
+      "connector_generalized_moment_v1",
+      "connector_endpoint_force_v1",
+      "connector_endpoint_moment_v1",
+      "connector_pressure_force_v1",
+      "connector_effective_axial_force_v1",
+      "connector_tie_rod_force_v1"
+    ],
+    "recomputed_magnitude_kinds": [
+      "displacement_magnitude",
+      "support_reaction_force_magnitude_v2",
+      "support_reaction_moment_magnitude_v2"
+    ],
+    "withheld_by_name": [
+      "connector_tie_rod_force_v1"
+    ],
+    "pressure_free_operand_recovery": "an operand case that lacks a pressure-family row of a member published in that case and lying in none of its pressure regions takes the value at p = 0: Lame and toroidal hoop and radial stresses are exactly zero; wall and effective axial force are N, the negated element_local_axial_force end row at end_i and the matching row elsewhere; the wall end action is the end row itself; the axial membrane stress is N divided once by the basis's published area leaf; each recovered value is a witness in exact_combinations",
+    "missing_source": "any other absent operand row omits the combined row under LOAD_COMBINATION_SOURCE_RESULT_MISSING; a support group publishes whole or not at all; a support group that cannot be formed, an algebra-refused, dimensionless or key-incomplete row and every tie-rod row are named in one bounded LOAD_COMBINATION_ROW_WITHHELD warning per combination",
+    "stress_metadata": "a combined stress row keeps its operand rows' metadata basis, recovery token and section-basis suffix, and so its signature; every other combined row takes the expression's basis; every combined row takes the expression's sign convention",
+    "result_state_subtraction": "signed difference of solved states over linear_state_kinds, with recomputed magnitudes; a signed difference of solved states, not an equilibrium state",
+    "range_envelope": "mode selection per row over linear_state_kinds and recomputed_magnitude_kinds, ties to the smallest operand id; not a simultaneous state",
+    "standing": "derived from case results: no numerical check of its own; each operand's standing and numerical findings are stated in exact_combinations; combination rows never count towards numerical eligibility, headlines or maxima",
+    "source_recovery": "a document with a combination attempts no retained-source recovery for any case, primitive cases included",
+    "never_combined": "every other kind, including pipe_elastic_normal_stress_maximum_v2, the section extremes, transverse shear maxima, directional intensified measures, nonlinear support kinds, reviews, records, counts, codes and residuals; a combination's own combination_modulus_basis_record is published"
+  },
   "source_basis_signature_policy": "where_declared_require_exact_metadata_basis_in_addition_to_kind_unit_component"
 }

@@ -278,22 +278,26 @@ fn current_inputs_table_and_schema_are_pinned() {
     // warnings, DEL-04-07 Design pressure-contract.md "Load cases that apply nothing");
     // W-7 global end rows added; no other number moved (connected +48 rows, pressure +24 rows).
     // W-15 (DEL-03-05): again for the pressure-2 identity limitation (identity bytes only).
+    // W-16 slice c (DEL-05-01 exact-equivalent-static.md §4): again for the applied-loads limitation
+    // (its generated equivalent-static refusal sentence only).
+    // W-16 slice b (DEL-05-02 exact-combinations.md §7): again for the pressure-2 identity
+    // limitation (identity bytes only).
     for (name, digest) in [
         (
             "connected-sparse",
-            "39ad0082a313e042eb0c26bab499bf1ed6b364d5ce0e97cc85d9e8e7cc05a332",
+            "ab8fd5d28c967c89aae6a451f6f8f8e6459249e82a38cf0fb696ca36dd9ad9e7",
         ),
         (
             "connected-dense",
-            "f576755134a8f487255b194d2c27ac51717b4a77de4301e4db79791392e6de32",
+            "f421cd4ce3a09bede06bbd5e0efa4b8e3197219940e1d1de4cb75dd0a3516daf",
         ),
         (
             "pressure-sparse",
-            "41d7afc0da0df6d6bcca598dc75bbbf28da8c1af4b643a262abcffb6dccce373",
+            "3e70d65fa846411decbb2c534cb6e1a4e9e3a8a31f37bf391873cdeafd5137bb",
         ),
         (
             "pressure-dense",
-            "b2a25f63d524bd11ddd8195dc6077843f768416b6663a310ed24f33effc3be1a",
+            "279c845930411a0d024c083213b692f22a7d9aa61ca66df6d63cd42bd8639c2a",
         ),
     ] {
         assert_eq!(sha(source_text(name).as_bytes()), digest, "{name}");

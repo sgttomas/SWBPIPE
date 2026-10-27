@@ -41,6 +41,7 @@ import math
 from pathlib import Path, PurePosixPath
 import platform
 import re
+import struct
 import subprocess
 import sys
 
@@ -85,7 +86,7 @@ TABLE = 'fixtures/results/semantic_contract_v0_3_pressure_2.json'
 # resident table; the former pin 07a6a308... named the table before its re-issue. T4-U6 (D-5, §2.4) re-issued it
 # with one stress signature per (recovery token x section basis): 106 signatures, 59 kinds (B7b's was a4e3bf2c...);
 # T4-U5b added the tie-rod force and T4-U4b (§2.2) the new per-basis kinds: 129 signatures, 66 kinds.
-TABLE_SHA256 = 'a47626ed51791f984fbc07630732a046f8090ff645efdb56e73a284110e9c80c'
+TABLE_SHA256 = 'be61c6ea828797ad5664d06a2c835b28deffaff07cc33fec6bb4d48a8fcb0919'
 # The owned reader is the Rust product reader of pressure-2 (owner, 2026-10-10:
 # "move to one product reader in Rust"): `validate_pressure_evidence` (an envelope
 # carrying the load/reference-state group takes its pre-pass), reached through
@@ -600,6 +601,51 @@ def unwrap(raw: bytes, request: dict, mode: str, *, limit: int = LIMIT) -> tuple
     return mechanics, rows
 
 
+def combination_binding(mechanics: dict, model: dict) -> None:
+    """W-16 slice b (DEL-05-02 exact-combinations.md §6): the raw combination records and rows are exactly the bound
+    input's combinations. One record per input combination, in input order (an absent or null ``combinations`` is
+    none), each with the input's id, basis, complete expression (terms with their factors bit for bit, the
+    subtraction's operands, or the envelope's operands and mode) and its operands' modulus-basis references; a
+    combination row names a bound combination. The operands' selection temperatures, which the producer records
+    normalized, are bound by the owned reader, which receives the bound model (``consistency_observation``)."""
+    combinations = model.get('combinations')
+    combinations = [] if combinations is None else combinations
+    require(type(combinations) is list and all(type(c) is dict for c in combinations), 'bound input combinations invalid')
+    records = (mechanics.get('contract_evidence') or {}).get('exact_combinations') or []
+    require(type(records) is list and len(records) == len(combinations), 'raw combination records differ from the bound input')
+    cases = {c.get('id'): c for c in model.get('load_cases') or [] if type(c) is dict}
+    for record, combination in zip(records, combinations):
+        require(type(record) is dict and record.get('combination_id') == combination.get('id')
+                and record.get('basis') == combination.get('basis'), 'raw combination records differ from the bound input')
+        basis = combination.get('basis')
+        if basis == 'mechanics':
+            expression = {'terms': [{'load_case_id': t.get('load_case'), 'factor': t.get('factor')} for t in combination.get('terms') or []]}
+        elif basis == 'result_state_subtraction':
+            expression = {'minuend_id': combination.get('minuend_id'), 'subtrahend_id': combination.get('subtrahend_id')}
+        else:
+            expression = {'operand_ids': combination.get('operand_ids'), 'mode': combination.get('mode')}
+        require(_same_bits(record.get('expression'), expression), 'raw combination expression differs from the bound input')
+        for operand in record.get('operands') or []:
+            case = cases.get(operand.get('load_case_id')) if type(operand) is dict else None
+            require(case is not None and operand.get('modulus_basis_ref') == case.get('modulus_basis_ref'),
+                    'raw combination operand selection differs from the bound input')
+    combined = {row['basis_ref']['ref_id'] for row in mechanics['results']
+                if 'basis_ref' in row and row['basis_ref'].get('ref_type') == 'combination'}
+    require(combined <= {c.get('id') for c in combinations}, 'raw rows carry combinations outside the bound input')
+
+
+def _same_bits(a, b) -> bool:
+    """Equal values with every float bit for bit (1.3 is not 1.3000000000000003; -0.0 is not 0.0)."""
+    if isinstance(a, float) or isinstance(b, float):
+        return isinstance(a, (int, float)) and isinstance(b, (int, float)) and not isinstance(a, bool) and not isinstance(b, bool) \
+            and struct.pack('>d', float(a)) == struct.pack('>d', float(b))
+    if isinstance(a, dict) and isinstance(b, dict):
+        return a.keys() == b.keys() and all(_same_bits(a[k], b[k]) for k in a)
+    if isinstance(a, list) and isinstance(b, list):
+        return len(a) == len(b) and all(_same_bits(x, y) for x, y in zip(a, b))
+    return a == b
+
+
 def numerical_standing(mechanics: dict, request_cases: list[str]) -> dict:
     """Observed standing, reported separately. Missing/unknown values raise."""
     quality = mechanics['numerical_quality']
@@ -727,8 +773,12 @@ def structural_checks(mechanics: dict, prepared: dict, mode: str, standing: dict
         wanted = sorted(prepared['request_cases'])
         exact = sorted(case.get('load_case_id') for case in evidence['exact_cases'])
         require(exact == wanted, 'raw load cases differ from the bound input (substitution)')
-        foreign = sorted({row['basis_ref']['ref_id'] for row in mechanics['results'] if 'basis_ref' in row} - set(wanted))
+        # W-16 slice b (DEL-05-02 exact-combinations.md §6): a combination row names a combination of the
+        # bound input; the document's combination records are exactly the input's combinations.
+        foreign = sorted({row['basis_ref']['ref_id'] for row in mechanics['results']
+                          if 'basis_ref' in row and row['basis_ref'].get('ref_type') != 'combination'} - set(wanted))
         require(not foreign, 'raw rows carry load cases outside the bound input')
+        combination_binding(mechanics, request['solve']['preview_model']['model'])
         details.update(model_ref=mechanics['model_ref'], request_id=request['request']['request_id'], load_cases=wanted)
 
     def contract(details):
@@ -847,7 +897,7 @@ def load_binding(project: Path, binding_path: Path, expected_sha256: str, *, req
 
 
 def consistency_observation(raw: dict, binding: dict, directory: Path, *, input_limit: int = LIMIT,
-                            timeout_seconds: float = 60) -> dict:
+                            timeout_seconds: float = 60, model: dict | None = None) -> dict:
     """Take the Rust product reader's verdict on the parsed snapshot (`openpipestress-runner read pressure`).
 
     The reader input is a derived parsed snapshot, not the runner's stdout bytes. A
@@ -855,7 +905,10 @@ def consistency_observation(raw: dict, binding: dict, directory: Path, *, input_
     reader executable is identified by its digest only, not as built from the bound sources.
     """
     require(raw.get('schema_version') == '0.2.0' and raw.get('producer') == PRODUCER, 'pressure-2 raw/producer dispatch mismatch')
-    request_bytes = json.dumps({'source': raw}, ensure_ascii=True, separators=(',', ':'), allow_nan=False).encode()
+    # W-16 slice b: with the bound model, the reader also binds the combination records to the input's
+    # combinations and their operands' modulus selections (`exact_combination_evidence::model_checks`).
+    reader_input = {'source': raw} if model is None else {'source': raw, 'model': model}
+    request_bytes = json.dumps(reader_input, ensure_ascii=True, separators=(',', ':'), allow_nan=False).encode()
     require(type(input_limit) is int and 0 < input_limit <= MAX_OUTPUT_LIMIT and len(request_bytes) <= input_limit, 'reader input limit')
     require(bounded(binding['binding_path'], binding['binding_sha256']) == binding['binding_bytes'], 'binding changed before reader')
     for row in binding['binding']['files']:
@@ -942,7 +995,8 @@ def observe_case(case_ledger, prepared, stdout_bytes, mode, reader_binding, outp
     reader, reader_error = None, None
     try:
         reader = consistency_observation(mechanics, reader_binding, output_dir / f'{prefix}-reader',
-                                         input_limit=output_limit_bytes, timeout_seconds=timeout_seconds)
+                                         input_limit=output_limit_bytes, timeout_seconds=timeout_seconds,
+                                         model=prepared['request']['solve']['preview_model']['model'])
     except (ValueError, KeyError, TypeError, OSError) as exc:
         reader_error = str(exc)
     finally:

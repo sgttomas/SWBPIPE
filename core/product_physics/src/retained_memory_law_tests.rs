@@ -768,7 +768,7 @@ fn pressure_schema_is_the_only_nonresident_binding() {
     let schema_hash = format!("{:x}", Sha256::digest(schema_bytes));
     // B7b A5: the result schema takes v3 only. T4-U6 (462b777b22): it carries the D-5
     // geometry, per-basis records and limitations (reviewed input #10, re-bound at D3).
-    assert_eq!(schema_hash, "c35353167313f227fd90a5ef2332a80ff05f3f6dc15e1da9c0396eff90cd1779");
+    assert_eq!(schema_hash, "ce085117a3501ecc87e08afa478e187c770cc11057b9d9c637022c8ec3fea9b9");
     let compiled = COMPILED_REVIEWED_INPUTS.expect("build.rs sets all current inputs");
     let tokens: Vec<_> = compiled.split(';').collect();
     assert_eq!(tokens.len(), build_identity::REVIEWED_INPUT_COUNT + 1);
@@ -830,17 +830,17 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
     // records these bytes.
     const REVIEWED: [&str; build_identity::REVIEWED_INPUT_COUNT] = [
         "e27b28f710ea6b9cc26bb14d0de53c64c2504c5dde17cbf0acc50dfac9220a11",
-        "6bfa5ec9f0a7a4213c17ab3c1cbaef0780d0cec303ae3a950a407f0ba0f28c7a",
+        "ae45b97742fd463866d8f231004f2053834d5bd413a1430e766f24516d3569ac",
         "73bebc5fb562b7f519c7d59be8e7830f98b21ce29fa0b7c017e43426f50cfcaa",
         "a056c395e27f964c842a1347db689eb24377d0b5a79a3b954435105a2c422d08",
         "7d59a8e7fa7b3b997d3809bd90b7efbdda6c91ad46c0fbe31420f11dc4350520",
         "5a6630d9157ad1f4232c558d0cd57414677add8d1c95cc0a5d19a2579fb3a05b",
         "fe371e07cd727154235f3725eeeef393ad0a433f0e8c98656f98468940d9aea2",
         "c7bcf0ceb82372fbf5f9958446ffe3f9c1ca3eb2384c47663514d21f89a885bb",
-        "cb68467ede05cf7aeedca8951f4d8e2ba242ceb9a3efad7b93255be35df244ab",
+        "33cc0c4dc1d7dea07e14c16e07f4ee3f93cc2f84e4dd0494e232397d4e3861c1",
         "609a4e92ac19de0f5a1dd067dab64b4abeb7b3b70511e2095455f1d000d28e2c",
-        "c35353167313f227fd90a5ef2332a80ff05f3f6dc15e1da9c0396eff90cd1779",
-        "a47626ed51791f984fbc07630732a046f8090ff645efdb56e73a284110e9c80c",
+        "ce085117a3501ecc87e08afa478e187c770cc11057b9d9c637022c8ec3fea9b9",
+        "be61c6ea828797ad5664d06a2c835b28deffaff07cc33fec6bb4d48a8fcb0919",
     ];
     // The same files, read here at compile time (test-only), by the sha2 dependency.
     let files: [&[u8]; build_identity::REVIEWED_INPUT_COUNT] = [
@@ -1848,6 +1848,12 @@ fn profile_in_build_record() {
 }
 /// The build identity of the pinned profile record (the qualified dev/test build of G6).
 pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
+/// W-16 slices b and c at 3493838a8b (retained-pricing-rules.md §8.27): from the shear-model member's
+/// record below, the certified producer's two generated-id prefix formats, now behind the case's
+/// generation (W16C-ES), leave TAV_W and TAV_X (-223,488 B) and the shorter identity text and longer
+/// load/reference-state limitation add +690 B (-222,798 B each); the pressure-2 table and the
+/// source-recovery schema raise STATICS by 6,332 B + 18 Node(String,Value) + 294 s(Value) (+28,988 B
+/// here), so every phase falls by 193,810 B in both modes; W3 is still the maximum.
 /// Model document 0.8.0's shear-model member at 642e9737e4 (retained-pricing-rules.md §8.26, "The
 /// shear-model member"): from the unit factor-sum gate's record below (unchanged by §8.25 and §8.26's
 /// first registration), validate_model_settings' second blocking diagnostic and its three texts (SM-MS,
@@ -1916,8 +1922,8 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 /// second ordinary span. The build identity, atoms and native values are unchanged; reviewed-input
 /// registration is separate below.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_559_706_160, 6_901_700_721, 8_855_883_381, 8_644_043_808, 7_722_072_035, 8_607_308_868, 7_338_709_530, 7_011_999_406],
-    [6_618_837_504, 6_960_832_065, 8_915_014_725, 8_703_175_152, 7_781_203_379, 8_666_440_212, 7_397_840_874, 7_071_130_750],
+    [6_559_512_350, 6_901_506_911, 8_855_689_571, 8_643_849_998, 7_721_878_225, 8_607_115_058, 7_338_515_720, 7_011_805_596],
+    [6_618_643_694, 6_960_638_255, 8_914_820_915, 8_702_981_342, 7_781_009_569, 8_666_246_402, 7_397_647_064, 7_070_936_940],
 ];
 
 #[test]
