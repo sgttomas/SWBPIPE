@@ -26,16 +26,9 @@ fn template(text: &str) -> Value {
     serde_json::from_str(text).unwrap()
 }
 
-/// The one-way template, with the solver seed its frozen form lacks (see
-/// `pf_timoshenko_references.rs`, "Two request-authoring defects").
+/// The one-way template, as committed (its nonlinear support carries its `initial_state`).
 fn one_way() -> Value {
-    let mut request = template(ONE_WAY);
-    for support in request["model"]["supports"].as_array_mut().unwrap() {
-        if let Some(nonlinear) = support.get_mut("nonlinear") {
-            nonlinear["initial_state"] = json!("inactive");
-        }
-    }
-    request
+    template(ONE_WAY)
 }
 
 fn euler_bernoulli(request: &Value) -> Value {
