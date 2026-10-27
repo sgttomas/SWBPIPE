@@ -2133,8 +2133,34 @@
                   "ordinary_dense_structural_v1",
                   "ordinary_sparse_structural_v1"
                 ]
+              },
+              "equivalent_static": {
+                "$ref": "#/$defs/pressure_source_equivalent_static"
               }
             }
+          }
+        }
+      }
+    },
+    "pressure_source_equivalent_static": {
+      "description": "W-16 slice c (DEL-05-01 Design exact-equivalent-static.md section 2): an ordinary companion case with equivalent_static generation carries its closed record (results_pressure_2 PressureExactEquivalentStatic): the route's D-5 mass method and the ids of the generated primitives, in generation order. A selected retained-source case never has one.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mass_method",
+        "generated_load_ids"
+      ],
+      "properties": {
+        "mass_method": {
+          "const": "source_od_nominal_wall_pressure_bore_areas/v1"
+        },
+        "generated_load_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
           }
         }
       }

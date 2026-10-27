@@ -238,6 +238,38 @@ assert W15_IDENTITY_OLD.count("connector limitations state. ") == 1 and W15_IDEN
 W15_IDENTITY_MOVED = frozenset({"w1_member_route_e_baseline_sparse_interactive", "w1_member_route_e_baseline_dense_scrutiny",
                                 "o4_w1e_sparse_interactive", "o4_w1e_dense_scrutiny", "o4_w1e_mixed_sparse_interactive",
                                 "o4_w1e_unavailable_sparse_interactive"})
+# W-16 slice c (DEL-05-01 Design exact-equivalent-static.md §4): the load/reference-state limitation on applied
+# loads gains the refusal of generated equivalent-static loads. Every load/reference-state envelope and the
+# carriers holding its formulation basis restate it, at that one limitation, exactly old -> new; everything else
+# they differ by is the hashes binding it. The files W-7 regenerated that state it are W16C_MOVED.
+W16C_LIMITATION_OLD = (
+    "Ordinary applied loads are exactly the case's declared source ledger with explicit factors; unreferenced "
+    "stored primitives are excluded. Hydrostatic head, contents-weight state and per-case mass selection are not "
+    "provided."
+)
+W16C_LIMITATION_NEW = (W16C_LIMITATION_OLD + " Generated equivalent-static (seismic or wind) loads have no ledger class "
+                       "and are refused by name (EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED).")
+W16C_MOVED = frozenset(
+    ("core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-dense_scrutiny.raw.json",
+     "core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-sparse_interactive.raw.json",
+     *(f"fixtures/product_preview/pressure/load_reference/{name}-{mode}.raw.json"
+       for name in ("connected", "pressure") for mode in ("dense_scrutiny", "sparse_interactive")),
+     "fixtures/results/pressure_v3_arc_reader_corpus.json",
+     "fixtures/results/pressure_v3_connector_reader_corpus.json",
+     "fixtures/results/pressure_v3_straight_reader_corpus.json",
+     *(f"fixtures/results/pressure_load_state_{name}_{short}.{kind}.json"
+       for name in ("connected", "pressure") for short in ("dense", "sparse") for kind in ("document", "stress_neutral"))))
+# W-16 slice b (DEL-05-02 Design exact-combinations.md §7): the pressure-2 identity limitation no longer
+# names combinations or equivalent-static generation among the refused families. Every pressure-2 envelope and
+# the carriers holding its formulation basis restate it at that one field, exactly W16B_IDENTITY_FROM ->
+# W16B_IDENTITY_NEW; everything else they differ by is the hashes binding it.
+W16B_IDENTITY_TAIL_OLD = ("Every other component, support, combination or equivalent-static family is refused by name "
+                          "(EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.")
+W16B_IDENTITY_TAIL_NEW = ("Every other component or support family is refused by name "
+                          "(EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.")
+W16B_IDENTITY_FROM = W15_IDENTITY_NEW
+W16B_IDENTITY_NEW = W16B_IDENTITY_FROM.replace(W16B_IDENTITY_TAIL_OLD, W16B_IDENTITY_TAIL_NEW)
+assert W16B_IDENTITY_FROM.count(W16B_IDENTITY_TAIL_OLD) == 1 and W16B_IDENTITY_FROM.endswith(W16B_IDENTITY_TAIL_OLD)
 # W-16 slice a: main at the merge base of its regeneration (W-7's corpus check and its refusal
 # tests read the corpus there; the W-16 check binds the committed corpus to it), and the preview
 # LIMITATIONS[1] sentence, old and new.
@@ -250,6 +282,12 @@ W16_LIMITATION = (
 # it) on top of W-15c's merge of main b4b26cdd82; the W-16 and W-7 checks read the files there, before
 # that regeneration, whose own evidence is the numerical-leaf comparison (token and digests only).
 W15C_BASE = "71300752ab86b86c568c24e308eb5a45761c924a"
+# W-16 slices b and c regenerated their files on the same main (b4b26cdd82), in parallel with W-15c; the two
+# changed no file in common. Before merging model document 0.8.0, the W-16 slices' head was W16BC_BASE, so the
+# W-16 and W-7 checks read a file W-16 b/c changed there, and every other file at W15C_BASE: together, the
+# merged tree before 0.8.0's regeneration (token and digests, the numerical-leaf comparison's evidence).
+W16BC_PRE_080_MAIN = "b4b26cdd82a195342ee4dea2be0d4a99b8ffab67"
+W16BC_BASE = "471ea86a7ff849baed50a0032202ff4708829df1"
 
 # The minimal old -> new segments of §3.3's three whole strings (the rest of
 # each string is unchanged); the whole strings are pinned in
@@ -393,9 +431,17 @@ def s1b_base_text(name: str) -> str:
 
 
 def w15c_base_text(name: str) -> str:
-    """A file's bytes at the W-15c base, before model document 0.8.0 regenerated it."""
+    """A file's bytes before model document 0.8.0 regenerated it: at W16BC_BASE for a file the W-16 slices b and
+    c changed, otherwise at the W-15c base."""
+    path = f"projects/chirality-piping/{name}"
+    w16bc = subprocess.run(["git", "diff", "--quiet", W16BC_PRE_080_MAIN, W16BC_BASE, "--", path],
+                           cwd=REPOSITORY, capture_output=True).returncode
+    assert w16bc in (0, 1), (name, "git diff")
+    if w16bc:
+        assert not subprocess.run(["git", "diff", "--quiet", W16BC_PRE_080_MAIN, W15C_BASE, "--", path],
+                                  cwd=REPOSITORY, capture_output=True).returncode, (name, "changed on both sides")
     return subprocess.run(
-        ["git", "show", f"{W15C_BASE}:projects/chirality-piping/{name}"],
+        ["git", "show", f"{W16BC_BASE if w16bc else W15C_BASE}:{path}"],
         cwd=REPOSITORY, check=True, capture_output=True, text=True,
     ).stdout
 
@@ -800,6 +846,34 @@ def _w15_identity_old(value, restored, path=()):
     return value
 
 
+def _w16b_identity_old(value, restored, path=()):
+    """`value` with every W-16 slice b identity field put back to W-15's text (counted in `restored`). A field is a
+    formulation basis's first limitation holding exactly W16B_IDENTITY_NEW; the new text anywhere else is left in
+    place, so it fails the classification that follows."""
+    if isinstance(value, Obj):
+        return Obj((k, _w16b_identity_old(v, restored, path + (k,))) for k, v in value)
+    if isinstance(value, list):
+        return [_w16b_identity_old(v, restored, path + (i,)) for i, v in enumerate(value)]
+    if value == W16B_IDENTITY_NEW and path[-3:] == ("formulation_basis", "limitations", 0):
+        restored.append(path)
+        return W16B_IDENTITY_FROM
+    return value
+
+
+def _w16c_limitation_old(value, restored, path=()):
+    """`value` with every W-16 slice c limitation put back to the old text (counted in `restored`). A field is a
+    formulation basis's limitation holding exactly W16C_LIMITATION_NEW; the new sentence anywhere else is left in
+    place, so it fails the classification that follows."""
+    if isinstance(value, Obj):
+        return Obj((k, _w16c_limitation_old(v, restored, path + (k,))) for k, v in value)
+    if isinstance(value, list):
+        return [_w16c_limitation_old(v, restored, path + (i,)) for i, v in enumerate(value)]
+    if value == W16C_LIMITATION_NEW and len(path) >= 3 and path[-3:-1] == ("formulation_basis", "limitations"):
+        restored.append(path)
+        return W16C_LIMITATION_OLD
+    return value
+
+
 def _silent_drop_restored(key, entry):
     """The entry with its request's `diagnostics` member renamed back to `unknown_depth_witness`,
     in that member's original (sorted, last) position; asserts the member moved exactly so."""
@@ -1038,11 +1112,32 @@ def _states_w16_old(value) -> bool:
     return isinstance(value, str) and value == W16_LIMITATION[0]
 
 
+def _w16b_restated(value, path=()):
+    """`value` with every W-15 identity field (a formulation basis's first limitation holding exactly
+    W16B_IDENTITY_FROM) restated to W16B_IDENTITY_NEW; the text anywhere else is left in place."""
+    if isinstance(value, Obj):
+        return Obj([(k, _w16b_restated(v, path + (k,))) for k, v in value])
+    if isinstance(value, list):
+        return [_w16b_restated(v, path + (i,)) for i, v in enumerate(value)]
+    if (isinstance(value, str) and not isinstance(value, Token) and value == W16B_IDENTITY_FROM
+            and path[-3:] == ("formulation_basis", "limitations", 0)):
+        return W16B_IDENTITY_NEW
+    return value
+
+
+def _states_w16b_from(value) -> bool:
+    if isinstance(value, list):
+        return any(_states_w16b_from(v[1] if isinstance(value, Obj) else v) for v in value)
+    return isinstance(value, str) and value == W16B_IDENTITY_FROM
+
+
 def test_o4_text_only_envelope_diff_retained_corpus_moves_since_main_are_the_w16_limitation(current=None):
     """W-16 slice a: the committed retained corpus against main's bytes at `W16_BASE`. The same entries
     in the same order; an entry moves exactly where its base stated the old LIMITATIONS[1] sentence,
     and with that sentence restated it differs only by binding hashes (no number, status, class, work
-    counter or other text); every other entry and member is unchanged."""
+    counter or other text); every other entry and member is unchanged. W-16 slice b: an entry also moves
+    exactly where its base stated W-15's pressure-2 identity (the six route-E exact bases), and with the
+    identity field restated it differs only by binding hashes."""
     base = _w16_base_corpus()
     now = w15c_base_text(RETAINED_CORPUS) if current is None else current
     for member in ("cases", "mutations", "must_pass"):
@@ -1051,11 +1146,11 @@ def test_o4_text_only_envelope_diff_retained_corpus_moves_since_main_are_the_w16
         assert [k for k, _ in after] == [k for k, _ in before], (member, "entries or order")
         known = dict(before)
         moved = {k for k, entry in after if classify(known[k], entry)}
-        stating = {k for k, entry in before if _states_w16_old(entry)}
+        stating = {k for k, entry in before if _states_w16_old(entry) or _states_w16b_from(entry)}
         assert moved == stating, (member, sorted(moved ^ stating))
         for key, entry in after:
             if key in moved:
-                leaves = classify(_w16_restated(known[key]), entry)
+                leaves = classify(_w16b_restated(_w16_restated(known[key])), entry)
                 assert all(kind == "hash" for kind, _ in leaves), (member, key, "beyond the sentence and binding hashes", leaves)
     before, after = dict(load(base)), dict(load(now))
     assert list(before) == list(after)
@@ -1405,10 +1500,19 @@ def test_o4_text_only_envelope_diff_w7_moves_only_added_global_end_rows(current=
         derived = name in W7_DERIVED
         # W-15 (DEL-03-05) on W-7: the exact envelopes and their carriers also restate the pressure-2 identity, at
         # each formulation basis's first limitation, exactly old -> new.
+        # W-16 slice b: and again at the same field (combinations and equivalent-static leave the refused list).
+        w16b = []
+        after = _w16b_identity_old(after, w16b)
+        assert bool(w16b) != name.endswith(".analysis_run.json"), (name, "the W-16 slice b identity field")
         w15 = []
         after = _w15_identity_old(after, w15)
         # An AnalysisRun record binds its document by digest and carries no formulation basis.
         assert bool(w15) != name.endswith(".analysis_run.json"), (name, "the W-15 identity field")
+        # W-16 slice c: the load/reference-state envelopes and their carriers restate the applied-loads
+        # limitation, exactly old -> new.
+        w16c = []
+        after = _w16c_limitation_old(after, w16c)
+        assert bool(w16c) == (name in W16C_MOVED), (name, "the W-16 slice c limitation", w16c[:2])
         removed_before, removed = [], []
         before = _without_w7(before, removed_before, derived)
         after = _without_w7(after, removed, derived)
@@ -1431,6 +1535,12 @@ def test_o4_text_only_envelope_diff_w7_moves_only_added_global_end_rows(current=
         if not found:
             continue
         public = dict(dict(b)["public"])
+        # W-16 slice b: the pressure-source-1 identity is restated too, so a source publication's envelope
+        # digest moves (and nothing else of it).
+        if public["identity"].endswith("/pressure-source-1"):
+            assert public["outcome"] == "source_published", (W7_J7, dict(b)["id"])
+            assert {(kind, path) for kind, path in found} <= {("hash", "/public/envelope_sha256")}, (W7_J7, dict(b)["id"], found)
+            continue
         assert public["identity"].endswith("/pressure-2"), (W7_J7, dict(b)["id"])
         # W-15 (DEL-03-05) on W-7: every pressure-2 envelope restates the identity, so a refused one's envelope
         # digest moves too; only an ordinary publication's results digest (W-7's rows) may move with it.
@@ -1440,6 +1550,33 @@ def test_o4_text_only_envelope_diff_w7_moves_only_added_global_end_rows(current=
         else:
             assert public["outcome"] == "refused_blocking", (W7_J7, dict(b)["id"])
         assert {(kind, path) for kind, path in found} <= allowed, (W7_J7, dict(b)["id"], found)
+
+
+def test_o4_text_only_envelope_diff_w16c_limitation_exception_is_its_one_sentence():
+    """W-16 slice c's exception admits the restated sentence only as a whole formulation-basis limitation: the
+    added sentence planted in another limitation of a moved carrier fails at that file."""
+    name = next(n for n in W7_ENVELOPES if n in W16C_MOVED and n.endswith(".raw.json"))
+    text = (PROJECT / name).read_text()
+    assert W16C_LIMITATION_NEW in text
+    added = W16C_LIMITATION_NEW[len(W16C_LIMITATION_OLD):]
+    history = "History is independent equilibrium only; no installation, contact, friction or predecessor history is represented."
+    assert text.count(json.dumps(history)) == 1
+    mutant = text.replace(json.dumps(history), json.dumps(history + added))
+    with pytest.raises(AssertionError, match=re.escape(name)):
+        test_o4_text_only_envelope_diff_w7_moves_only_added_global_end_rows(current={name: mutant})
+
+
+def test_o4_text_only_envelope_diff_w16b_identity_exception_is_its_one_field():
+    """W-16 slice b's exception admits the restated identity only at a formulation basis's first limitation: the
+    new identity planted as another limitation of a moved carrier fails at that file."""
+    name = next(n for n in W7_ENVELOPES if n.endswith(".raw.json"))
+    text = (PROJECT / name).read_text()
+    assert json.dumps(W16B_IDENTITY_NEW, ensure_ascii=False) in text and W16B_IDENTITY_TAIL_OLD not in text
+    history = "History is independent equilibrium only; no installation, contact, friction or predecessor history is represented."
+    assert text.count(json.dumps(history)) == 1
+    mutant = text.replace(json.dumps(history), json.dumps(W16B_IDENTITY_NEW, ensure_ascii=False))
+    with pytest.raises(AssertionError, match=re.escape(name)):
+        test_o4_text_only_envelope_diff_w7_moves_only_added_global_end_rows(current={name: mutant})
 
 
 def test_o4_text_only_envelope_diff_w7_enumeration_refuses_other_moves():

@@ -91,9 +91,9 @@ pub(crate) fn pressure_v3_formulation_basis_with_source(
     // parenthesis, and the section-bases sentences follow the sentence that
     // names the admitted families.
     let identity = if selected {
-        "3.0.0/exact_pressure_v3 under pressure-source-1 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; an expansion joint authored as an objective connector is admitted only as the connector limitation states. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. The selected retained-source response uses the contract's shear model and publishes its stress rows on both section bases. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
+        "3.0.0/exact_pressure_v3 under pressure-source-1 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; an expansion joint authored as an objective connector is admitted only as the connector limitation states. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. The selected retained-source response uses the contract's shear model and publishes its stress rows on both section bases. Every other component or support family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
     } else {
-        "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers only when their mapped member lies outside every pressure region (EXACT_PRESSURE_REDUCER_IN_REGION otherwise). Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
+        "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers only when their mapped member lies outside every pressure region (EXACT_PRESSURE_REDUCER_IN_REGION otherwise). Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component or support family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
     };
     let source = if selected {
         "Every member section declares its corrosion allowance and the contract declares its shear model. This pressure-source-1 envelope carries a selected retained-source response. The source family is straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. Other cases keep their ordinary recovery and standing. No code compliance or professional acceptance is produced, and actual numerical admission remains separate."
@@ -115,7 +115,7 @@ pub(crate) fn pressure_v3_formulation_basis_with_source(
             "One resolved case per load case supplies each member's selected E/nu with derived G, actual/selected/installation temperatures and explicit expansion definition; each case is solved independently.".to_string(),
             "Thermal and fit reference strain compose as lambda_fit*lambda_thermal-1 and enter once as an axial eigenstrain; uniform member temperature only, no gradients, finite strain, inelasticity or fit-up joints.".to_string(),
             "Global rigid support translations/rotations are prescribed absolute boundary values through the partitioned solve; reactions come from the unreduced equations. Spring base motion, device preload/reference, inactive or locked supports are not provided.".to_string(),
-            "Ordinary applied loads are exactly the case's declared source ledger with explicit factors; unreferenced stored primitives are excluded. Hydrostatic head, contents-weight state and per-case mass selection are not provided.".to_string(),
+            "Ordinary applied loads are exactly the case's declared source ledger with explicit factors; unreferenced stored primitives are excluded. Hydrostatic head, contents-weight state and per-case mass selection are not provided. Generated equivalent-static (seismic or wind) loads have no ledger class and are refused by name (EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED).".to_string(),
             "History is independent equilibrium only; no installation, contact, friction or predecessor history is represented.".to_string(),
         ]);
     }
@@ -124,6 +124,21 @@ pub(crate) fn pressure_v3_formulation_basis_with_source(
     }
     FormulationBasis { profile_id: PRESSURE_PROFILE_ID.to_string(), limitations }
 }
+
+/// W-16 slice c (DEL-05-01 Design `exact-equivalent-static.md` §3): a case's
+/// `equivalent_static` on a load/reference-state document. Generated loads
+/// have no ledger class there, so they are refused for every authored case,
+/// listed in the group or not, before the effective cases are selected.
+pub(crate) const EQUIVALENT_STATIC_LOAD_STATE: &str = "EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED";
+/// The static text of [`EQUIVALENT_STATIC_LOAD_STATE`].
+pub(crate) const EQUIVALENT_STATIC_LOAD_STATE_TEXT: &str = "equivalent_static generation is not provided on a load/reference-state document: a case's applied loads there are exactly its declared source ledger, and generated seismic or wind loads have no ledger class; the exact route refuses the generation rather than apply loads outside the ledger";
+/// W-16 slice c (§3): a wind marking of a proper fraction of a straight span
+/// on a document selecting `timoshenko_annulus_energy_v1`. Neither formation
+/// path bounds a Timoshenko partial-span uniform load, so it is refused.
+pub(crate) const EQUIVALENT_STATIC_PARTIAL_SPAN_TIMOSHENKO: &str =
+    "EXACT_EQUIVALENT_STATIC_PARTIAL_SPAN_TIMOSHENKO_UNSUPPORTED";
+/// The static text of [`EQUIVALENT_STATIC_PARTIAL_SPAN_TIMOSHENKO`].
+pub(crate) const EQUIVALENT_STATIC_PARTIAL_SPAN_TIMOSHENKO_TEXT: &str = "a wind marking of part of a straight span is not provided under shear_model timoshenko_annulus_energy_v1: no formation of a partial-span uniform load on a Timoshenko member is available; mark the whole span (exactly [0, 1] or exposed_pipe_refs), model the exposed part as its own pipe, or select euler_bernoulli";
 
 /// Every object family the exact route can meet besides its straight base.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -257,8 +272,9 @@ pub(crate) enum Admission {
     Refused { code: &'static str, message: &'static str },
 }
 
-/// The current admission table: the objective connector, the realized bend
-/// and the rigid family are admitted with their integrated mechanics.
+/// The current admission table: the objective connector, the realized bend,
+/// the rigid family, equivalent-static generation and load combinations are
+/// admitted with their integrated mechanics.
 pub(crate) fn admission(contract: ExactContract, family: ExactFamily) -> Admission {
     match (contract, family) {
         // W-15 (DEL-03-05 Design `rigid-component-stiffness-scaling.md` §2.7):
@@ -277,6 +293,15 @@ pub(crate) fn admission(contract: ExactContract, family: ExactFamily) -> Admissi
         // T4-U2: a realized curved bend on v3, with its member-owned pressure
         // term, chain topology and arc recovery (`bend_pressure`).
         (ExactContract::PressureV3, ExactFamily::RealizedBend) => Admission::Admitted,
+        // W-16 slice c (DEL-05-01 Design `exact-equivalent-static.md`): a
+        // case's DEC-068 seismic or wind generation on a plain v3 document,
+        // on the route's D-5 mass basis; load/reference-state documents,
+        // Timoshenko partial spans and replaced spans keep named refusals.
+        (ExactContract::PressureV3, ExactFamily::EquivalentStatic) => Admission::Admitted,
+        // W-16 slice b (DEL-05-02 Design `exact-combinations.md`): model-authored
+        // combinations over the primitive cases, formed from their published
+        // rows (`exact_combinations`); the retained sub-route keeps refusing them.
+        (ExactContract::PressureV3, ExactFamily::Combination) => Admission::Admitted,
         (ExactContract::PressureV3, _) => Admission::Refused {
             code: FAMILY_NOT_ADMITTED,
             message: family.v3_refusal(),
@@ -378,13 +403,14 @@ mod tests {
     ];
 
     #[test]
-    fn only_the_connector_the_realized_bend_and_the_rigid_family_are_admitted_and_each_v3_refusal_names_its_family() {
+    fn only_the_connector_the_realized_bend_the_rigid_family_equivalent_static_and_combinations_are_admitted_and_each_v3_refusal_names_its_family() {
         for family in ALL {
             match admission(ExactContract::PressureV3, family) {
                 Admission::Admitted
                     if matches!(family, ExactFamily::ObjectiveConnector | ExactFamily::RealizedBend
                         | ExactFamily::Valve | ExactFamily::Flange | ExactFamily::Reducer
-                        | ExactFamily::RigidComponent) => {}
+                        | ExactFamily::RigidComponent | ExactFamily::EquivalentStatic
+                        | ExactFamily::Combination) => {}
                 // T4-U2 (D-2): a chord bend is never admitted; its text asks
                 // the user to realize the bend.
                 Admission::Refused { code, message } if family == ExactFamily::GeometryOnlyBend => {

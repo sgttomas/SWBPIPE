@@ -227,6 +227,9 @@ def corpus_inputs(route_of: Callable[[Any], str | None], domain_hash: Callable[[
     for mode in MODES:
         base(f"load_reference_fallback_uz-{mode}", read(f"core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-{mode}.raw.json"),
              deepcopy(fallback), None)
+    # W-16 slice b: the shared pressure-2 combination corpus, each envelope with its model.
+    for case in read("fixtures/results/pressure_v3_combination_reader_corpus.json")["cases"]:
+        base(f"combination/{case['label']}", case["envelope"], deepcopy(case["model"]), None)
 
     def unreachable(_name: str) -> Any:
         raise AssertionError("graft outside a mutation file")

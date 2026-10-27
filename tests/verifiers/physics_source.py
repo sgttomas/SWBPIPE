@@ -249,6 +249,10 @@ def _validate_transport_metadata(source: Mapping[str, Any], source_contract: Sou
         cid = case["load_case_id"]
         pressure = [p for p in evidence["pressure"] if p["load_case_id"] == cid]
         _require(case["recovery_method"] == record["selected_method"], "RECOVERY_METHOD")
+        # W-16 slice c (§2): Rust `physics_source`: a selected case never carries a generation record.
+        if "equivalent_static" in case:
+            _require(record["selected_method"] != EXACT, "SOURCE_EQUIVALENT_STATIC")
+            physical.equivalent_static_record(cid, case["equivalent_static"])
         # O4 (§3.4): each section entry's nominal section, reduced section and beam theory are their D-5 and
         # Timoshenko rederivation from its captured authored values and the case's nu, and the case's straight
         # members share one shear model. Coincident bases remain bit-equal; distinct bases are admitted.
