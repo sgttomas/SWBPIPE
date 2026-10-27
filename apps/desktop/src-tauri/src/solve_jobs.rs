@@ -776,7 +776,8 @@ impl SolveJobRegistry {
     /// queue wait (`wait_acquire`: the worker count limit, the pool and a fresh
     /// headroom verdict at each attempt), for at most [`MODEL_CHECKS_START_WAIT`],
     /// after which the last queue reason stands as its typed refusal; its grant
-    /// grows on demand up to the per-invocation budget, and
+    /// grows on demand up to the budget the check was admitted under
+    /// (`max_grant`, as a queued solve's worker), and
     /// its report's bytes come back in a result lease, which the caller holds
     /// until it has sent them.
     pub(crate) fn run_model_checks(&self, input: ModelChecksInput) -> Result<ModelChecksOutput, ModelChecksError> {
@@ -784,9 +785,12 @@ impl SolveJobRegistry {
         let control = check.control.clone();
         let deadline = Instant::now() + MODEL_CHECKS_START_WAIT;
         let mut queued: Option<ResourceRefusal> = None;
+        // As a solve's worker: bounded by the budget the check was admitted
+        // under (`max_grant`), not the budget when it leaves the queue.
         let waited = self.pool.wait_acquire(
             start_grant,
             LeasePurpose::Worker,
+            Some(max_grant),
             &|| control.cancelled() || Instant::now() >= deadline,
             &mut |reason| queued = Some(reason.clone()),
         );
@@ -2407,6 +2411,31 @@ mod tests {
             ),
             other => panic!("expected a typed worker refusal at the budget, got {other:?}"),
         }
+        assert_eq!((registry.pool().reserved_total(), registry.pool().running_workers()), (0, 0));
+    }
+
+    /// With #1676's budget rule: a check that waits for a worker slot keeps the
+    /// budget it was admitted under, as a queued solve does. Lowered to just
+    /// above the starting grant while it waits, the 64-pipe check still grows
+    /// past the lowered budget to its report, within the admitted one.
+    #[test]
+    fn a_check_admitted_before_a_budget_change_keeps_its_budget() {
+        let host = ScriptedHost::normal();
+        let registry = registry(&host, TestLauncher::solve());
+        let pool_bytes = registry.pool().settings().0;
+        registry.configure_pool(pool_bytes, 12 * GIB, false).unwrap();
+        registry.pool().set_max_running_workers(0);
+        let input = registry.admit_model_checks(&checks_body(&fan_out_model(64))).unwrap();
+        let lowered = input.start_grant + 8 * (1 << 20);
+        let waiting = {
+            let registry = registry.clone();
+            std::thread::spawn(move || registry.run_model_checks(input))
+        };
+        registry.configure_pool(pool_bytes, lowered, false).unwrap();
+        registry.pool().set_max_running_workers(1);
+        let output = joined(waiting).expect("the check keeps its admitted budget");
+        assert!(lowered < output.peak_grant_bytes && output.peak_grant_bytes <= 12 * GIB, "peak grant {} lowered budget {lowered}", output.peak_grant_bytes);
+        drop(output);
         assert_eq!((registry.pool().reserved_total(), registry.pool().running_workers()), (0, 0));
     }
 

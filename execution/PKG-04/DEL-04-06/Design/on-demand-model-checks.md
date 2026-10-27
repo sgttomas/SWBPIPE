@@ -92,7 +92,7 @@ hard-coded model-version fixtures follow the 0.8.0 documents.
     a starting grant within the per-invocation budget) before this process
     copies it, and the checks run in a capped worker process
     (`solve_worker.rs` task `ModelChecks`) whose grant grows on demand up to
-    the budget. Their working memory therefore stays within the pool and the
+    the budget it was admitted under. Their working memory therefore stays within the pool and the
     budget whatever the model's shape, including the load-state fan-out Codex
     found in review r2. A refusal at intake, at the starting grant or while
     the worker runs leaves the checks not run, and the panel names it. The
