@@ -91,22 +91,53 @@ Every value is a stored value with its stored unit, unchanged.
 - **Outcome row:** the outcome identity (`ruleCheckOutcomeIdentity`), the check, the case, the
   status, the relation, the computed value and the limit (each with its unit), the ratio or the
   reason none is formed, the locations, the highlight target, the incomplete reason and its standing.
+  The ratio's direction is the relation's (`ratioDirection(relation)`: `upper`, `lower` or none),
+  so the row carries no second field for it.
 
 ### 3.1 The ratio
 
-The ratio is `computed_value ÷ limit_value` of the outcome, formed only when:
+The ratio is arithmetic on the outcome's own computed value and limit, in the direction of its
+relation:
 
-1. the relation is an upper bound, `less_than` or `less_than_or_equal` (the runner's default);
-2. both values are present and finite;
-3. both are stated in one unit (`unit_ref`) and dimension; values are not converted;
-4. the limit is greater than zero.
+- **Upper bound** (`less_than`, `less_than_or_equal`, the runner's default):
+  `computed_value ÷ limit_value`.
+- **Lower bound** (`greater_than`, `greater_than_or_equal`): `limit_value ÷ computed_value`.
 
-Otherwise the row says why no ratio is formed: a lower-bound relation (`greater_than`,
-`greater_than_or_equal`), a predicate check (`formula_predicate`), a missing value, units that
-differ, or a limit that is not positive. For an upper-bound relation and a positive limit, the
-ratio exceeds 1 exactly when the computed value exceeds the limit, so it ranks outcomes in the
-direction of the user's rule. The status shown is always the runner's own. The ratio does not
-re-derive it. A rounded ratio of 1 can sit beside either status.
+HELP_HUMAN decided the lower bound on 2026-10-27: "Lower-bound ratio ranking decided: for a
+greater-than relation, ratio = limit ÷ computed, same unit and dimension, positive computed value,
+finite quotient; ratio > 1 means failure in both directions; label each ratio's direction; rank by
+magnitude otherwise." A ratio is formed only when, in this order of checks:
+
+1. the relation is an upper or a lower bound (a `formula_predicate` check says "Predicate check; no
+   ratio is formed", and any other relation gives the note of 2);
+2. both values are present and finite ("No computed value or limit; no ratio is formed"); a value
+   that is not finite is no value, as in the computed and limit cells;
+3. both are stated in one unit (`unit_ref`) and dimension; values are not converted ("Computed
+   value and limit in different units (…, …); no ratio is formed");
+4. under a lower bound, the computed value is greater than zero ("Computed value is not positive;
+   no lower-bound ratio is formed");
+5. the limit is greater than zero ("Limit is not positive; no ratio is formed");
+6. the quotient is finite ("Ratio is not finite; none is formed"), as when a tiny computed value
+   divides a large lower-bound limit.
+
+The reason for each condition is the ratio's one reading. With both values positive, a ratio
+above 1 means the computed value is past the limit in either direction: above an upper bound or
+below a lower one. So upper- and lower-bound ratios rank together, largest first, toward the side
+the user's relation does not admit. Under a lower bound the computed value is the divisor: zero leaves no
+quotient, and a negative value gives a negative ratio that would rank a value below the limit as
+the least critical, so neither forms one. A limit at or below zero forms none in either direction,
+following the upper bound's precedent: a zero limit leaves no upper-bound quotient and makes every
+lower-bound one 0, and a negative limit reverses the quotients' order against the margin to the
+limit. The divisor is checked before the limit, so a lower bound with both at or below zero reads
+as the computed value. An underflowing quotient (a computed value far above a lower-bound limit) is
+a finite ratio and is formed.
+
+Each ratio row states its direction (§7): "Upper bound: computed ÷ limit" or "Lower bound: limit ÷
+computed". The ratio is arithmetic on the user's own outcome and qualifies nothing. The status
+shown is always the runner's own, and the ratio does not re-derive it. Division rounds
+monotonically, so a ratio above 1 always has its computed value past the limit, but a ratio of 1
+(exact or rounded) can sit beside either status: at computed = limit, `greater_than` and
+`less_than` do not hold while `greater_than_or_equal` and `less_than_or_equal` do.
 
 ### 3.2 Incomplete reason
 
@@ -175,8 +206,18 @@ shown in this order:
 3. **Not ranked.** Admitted outcomes with no key (no ratio formed in ratio mode, no computed value
    in stress mode), in run order. They are never hidden.
 
-**Keys.** Ratio mode: the ratio. Stress mode for a rule group: the magnitude of the computed value.
-Stress group: the magnitude of the stored value; the cell shows the signed value.
+**Keys.** Ratio mode: the ratio, whatever its direction (§3.1). Stress mode for a rule group: the
+magnitude of the computed value, whatever the relation. Stress group: the magnitude of the stored
+value; the cell shows the signed value.
+
+**Mixed relations.** In ratio mode a rule group's upper- and lower-bound ratios rank together in
+one order. An admitted outcome with no ratio (a predicate check, a missing or non-finite value,
+units that differ, a computed value or limit that is not positive, a quotient that is not finite)
+is not ranked by a number it does not have and is not compared with the ratio threshold. It is
+listed after the ranked rows, in run order, with its reason, and never hidden. Stress mode ranks
+it by magnitude with every other admitted outcome that has a computed value, which is the "rank
+by magnitude otherwise" of §3.1's decision; ratios and magnitudes are never mixed in one order,
+since a ratio has no unit. Incomplete and withheld outcomes stay pinned in either mode.
 
 **Ties.** Equal keys put a failed outcome before a checked one, and then keep source order (run
 order for outcomes, result-row order for stress rows). 0 and -0 tie.
@@ -191,12 +232,14 @@ table's label reads "{group}: in source order, {key} not sorted (units differ)",
 **Threshold.** The user enters a number. A row is shown when its key is at or above it (≥). In
 stress mode the number is in the display unit (MPa for a value stored in Pa), and it is converted to
 the stored unit by a decimal shift of the entered text (1 MPa = 10^6 Pa), then compared with the
-stored value. The threshold hides only ranked stress rows and ranked outcomes the rule check reports
+stored value. In ratio mode it is a ratio and applies to upper- and lower-bound ratios alike. The
+threshold hides only ranked stress rows and ranked outcomes the rule check reports
 as `USER_RULE_CHECKED`. It never hides an incomplete, withheld, failed or not-ranked row. Text that
 is not a number applies no threshold, and the view says so. The view counts the rows hidden by the
 threshold, and the panel states it.
 
-**Toggle.** A rule group offers ratio and stress. Ratio mode shows the ratio and the relation.
+**Toggle.** A rule group offers ratio and stress. Ratio mode shows the ratio, its direction and
+the relation.
 Stress mode shows the computed value and the limit. A stress group offers stress only, and the
 ratio choice is disabled with its reason: "No rule-check run in this session" or "Emitted stress:
 no rule outcome". Each mode keeps its own threshold text.
@@ -240,9 +283,18 @@ below A2's panel and is hidden while a reopened historical run is shown, as A2's
   hidden; j more not yet listed." Here n counts the rows this page lists, m all rows of the group,
   k the rows the threshold hides and j the rows at or above the threshold that a later page lists.
   The last two clauses appear only when not zero. An empty cell reads "none" to a screen reader.
+- **Direction.** In ratio mode a Direction column follows the Ratio column. A ratio row reads
+  "Upper bound: computed ÷ limit" or "Lower bound: limit ÷ computed", and a row with no ratio reads
+  "none" to a screen reader. The ratio's title names the same formula ("1.5 (computed ÷ limit;
+  {identity})" or "2.33333 (limit ÷ computed; {identity})"). A pinned row's reason spans the
+  ratio, direction and relation columns.
 - **Context lines.** The numerical health header and output sentence when present, the run line
   (pack id and outcome count, or that no run is held), the key's definition, and the boundary
-  sentence.
+  sentence. The ratio key reads: "Ratio = your rule's computed value ÷ its limit under a less-than
+  relation, or its limit ÷ its computed value under a greater-than relation; the Direction column
+  says which. It is formed only with both in one unit, a positive limit and, under greater-than, a
+  positive computed value. In either direction a ratio above 1 means the computed value is past
+  your limit. Largest first."
 
 ## 8. Composition contract (A6)
 
@@ -283,7 +335,8 @@ output is frozen and deterministic for its inputs. The panel derives once per id
 
 The panel lists emitted stresses and the user's rule-check outcomes, sorted and filtered. A ratio
 is the user's computed value divided by the user's limit. The status is the rule check's own
-report, and the panel adds no pass or fail. Incomplete outcomes are never shown, sorted or hidden as
+report, and the panel adds no pass or fail. Under a lower bound the ratio is the user's limit
+divided by the user's computed value; its direction is stated. Incomplete outcomes are never shown, sorted or hidden as
 passing. The panel supplies no allowable, records or implies no acceptance, issuance or compliance,
 and writes nothing.
 
@@ -294,7 +347,13 @@ and writes nothing.
   (and 0 against -0); envelope rows labelled; mixed units unsorted with the threshold disabled; the
   MPa threshold against Pa rows by decimal shift; withheld rows under mixed standing (a sensitive
   case, ineligible standing, no health view); rule groups by category in pack order; the ratio and
-  each reason none is formed; incomplete outcomes pinned under every threshold, mode and sort;
+  each reason none is formed; the lower-bound ratio (each relation's direction; limit ÷ computed
+  under both relations; zero, -0, negative, NaN and ±Infinity computed values; zero, negative and
+  non-finite limits; units and dimensions that differ; overflowing and underflowing quotients; the
+  status beside a ratio of 1 at the `greater_than` and `greater_than_or_equal` boundary; mixed
+  upper and lower outcomes sorted together in ratio and stress modes; the threshold across
+  directions); the upper-bound outputs pinned by digest to the code before the lower-bound ratio
+  (`outcomeRatio` over a grid of relations and values, and a run's tables, views and pages); incomplete outcomes pinned under every threshold, mode and sort;
   withheld outcomes pinned with no status; failed outcomes never hidden, and listed on every page at
   their rank in either mode; the incomplete reason built from structured fields, with no number
   from a finding's message, no subject for a withheld row, and no status token in an admitted
@@ -311,8 +370,9 @@ and writes nothing.
   `USER_RULE_CHECKED`) in both modes, no status token in a withheld row's text, attributes, titles
   or accessible names, with its incomplete status and cause stated, and "(undeclared status)" in
   an admitted row's reason; a failed outcome kept on the page when switching to stress moves it past 50; highlight by
-  click and keyboard; the selected-row mark; "Show 50 more" with the listed count; source-order
-  labels for mixed units; a custom test-id prefix; one derivation per input identity.
+  click and keyboard; the selected-row mark; the Direction column, its labels and the ratio titles
+  for both directions, with a lower-bound row that forms no ratio; "Show 50 more" with the listed
+  count; source-order labels for mixed units; a custom test-id prefix; one derivation per input identity.
 - Native smoke (`apps/desktop/native-smoke/driver.js`, `run.mjs`): structure only, no values, and
   the committed `expected.json` is unchanged. After each solve, with no run held, the table lists
   emitted stress kinds in stress mode with ratio disabled. After the bundled invented pack's rule
@@ -325,5 +385,3 @@ and writes nothing.
 - **Writing outcomes and ratios into a report** (W-18b).
 - **A case filter** and stepping by case (A1's navigator may supply it).
 - **Display units.** The panel could follow the session's display-unit preference, as A2 could.
-- **Lower-bound ratios.** A lower-bound relation could rank by limit ÷ computed. That is a
-  choice of meaning, so no ratio is formed today.
