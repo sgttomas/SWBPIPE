@@ -4373,3 +4373,33 @@ body { min-width: 760px; min-height: 540px; }
   font-size: var(--type-size-caption);
   overflow-wrap: anywhere;
 }
+
+/* Solve progress panel (DEL-07-07 Design `solve-progress-panel.md`): a raised
+   card over the workspace's bottom-right corner, above the status bar. */
+.solve-progress-panel {
+  position: fixed;
+  z-index: 55;
+  right: var(--space-5);
+  bottom: calc(var(--layout-statusBar) + var(--space-4));
+  display: grid;
+  gap: var(--space-3);
+  box-sizing: border-box;
+  width: min(420px, calc(100vw - 2 * var(--space-5)));
+  max-height: min(60vh, 520px);
+  overflow: auto;
+  padding: var(--space-4) var(--space-5);
+  color: var(--ui-text);
+  background: var(--surface-raised);
+  border: 1px solid var(--ui-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--elevation-2);
+  font-size: var(--type-size-chip);
+}
+.solve-progress-header { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); }
+.solve-progress-header h2 { margin: 0; font-size: var(--type-size-caption); }
+.solve-progress-header code { overflow: hidden; color: var(--ui-muted); text-overflow: ellipsis; white-space: nowrap; }
+.solve-progress-state { display: grid; gap: var(--space-1); margin: 0; overflow-wrap: anywhere; }
+.solve-progress-basis, .solve-progress-line { margin: 0; color: var(--ui-muted); overflow-wrap: anywhere; }
+.solve-progress-events { display: grid; gap: var(--space-2); margin: 0; padding-inline-start: var(--space-5); overflow-wrap: anywhere; }
+.solve-progress-actions { display: flex; justify-content: flex-end; gap: var(--space-3); }
+.solve-progress-actions [aria-disabled="true"] { opacity: 0.6; cursor: default; }

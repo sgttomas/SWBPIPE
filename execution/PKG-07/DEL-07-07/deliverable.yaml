@@ -236,6 +236,8 @@ code_paths:
 - apps/desktop/src/features/diagnostics/**
 checks:
 - apps/desktop/src/features/solve/SolvePanel.test.tsx
+- apps/desktop/src/features/solve/SolveProgressPanel.test.tsx
+- apps/desktop/src/App.solveProgress.test.tsx
 - apps/desktop/src/features/workspace/solveJobResource.session.test.tsx
 - apps/desktop/src/features/workspace/exactSessionSolve.session.test.tsx
 - apps/desktop/src/features/workspace/solveJobAudit.test.ts

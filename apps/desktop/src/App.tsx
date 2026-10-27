@@ -121,6 +121,7 @@ import { SecretPrivateLibraryPanel } from "./features/secret-private-library/Sec
 import { SecurityThreatModelPanel } from "./features/security-threat-model/SecurityThreatModelPanel";
 import { HistoricalRunPanel } from "./features/results/HistoricalRunContext";
 import { SolvePanel } from "./features/solve/SolvePanel";
+import { SolveProgressPanel } from "./features/solve/SolveProgressPanel";
 import { StressNeutralExportPanel } from "./features/stress-neutral/StressNeutralExportPanel";
 import { TelemetryBoundaryPanel } from "./features/telemetry/TelemetryBoundaryPanel";
 import { ValidationEvidencePanel } from "./features/validation-evidence/ValidationEvidencePanel";
@@ -1111,6 +1112,7 @@ function AppSession() {
         <AgentStrip />
       </div>
 
+      <SolveProgressPanel solveJob={solveJob} running={running} onCancel={handleCancelRun} />
       <ShellStatusBar issueCount={issueCount} />
 
       {auditDrawerOpen ? (
