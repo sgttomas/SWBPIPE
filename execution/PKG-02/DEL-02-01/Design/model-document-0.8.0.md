@@ -56,8 +56,9 @@ relative to `projects/chirality-piping/`.
 
 ## 1. Version 0.8.0
 
-0.8.0 is 0.7.0 plus one optional member, `eccentric_offset`, on the component
-`geometry` record: a `VectorQuantity` `{x, y, z, unit}` of a length unit.
+0.8.0 is 0.7.0 plus two optional members: `geometry.eccentric_offset` on a
+component, a `VectorQuantity` `{x, y, z, unit}` of a length unit; and
+`model_settings.shear_model`, the beam-theory choice described in §1.1.
 - A 0.7.0 document whose version string alone is changed is a valid 0.8.0
   document with the same meaning.
 - The solve reads the member only on a `reducer`, and only to check it against
@@ -269,7 +270,7 @@ This is the first version step since W-12's saved states and recorded runs
     (`u4b_evidence.rs` :478, :508; `reader_verdict.rs` :138) have no general
     model-version gate.
 
-  Both stay as they are. 0.8.0 is purely additive (one optional member,
+  Both stay as they are. 0.8.0 is purely additive (two optional members,
   absent from every 0.7.0 document), so a 0.7.0 run's results mean what they
   meant.
 - **The recorded table basis (Codex r6, F1).** The ripple's token edit moved
@@ -311,7 +312,7 @@ browser-preview store) append the practical limit:
 
 **The user guide** (`docs/user_guide`, the section on opening projects) gains:
 
-> **Projects saved before model document 0.8.0.** Model document 0.8.0 adds a reducer's optional eccentric offset. The desktop opens only the current model-document version, so a project or saved model state stored at 0.7.0 is refused by name when you open it, and nothing is migrated. A 0.7.0 document whose `schema_version` alone is changed to 0.8.0 has the same meaning in 0.8.0; making that change is your re-authoring step. Recorded runs keep their own format and existing read and compare behaviour; this change adds no model-document-version gate for recorded runs. Existing integrity checks and retained-precision/source-reader restrictions still apply. Run history is listed for the active project's id, so the runs of an older project are reached only through a current (0.8.0) project with the same project id. Comparing an older run with a newer one keeps the usual eligibility rules.
+> **Projects saved before model document 0.8.0.** Model document 0.8.0 adds a reducer's optional eccentric offset and the optional `model_settings.shear_model` beam-theory choice (§1.1 of DEL-02-01 Design `model-document-0.8.0.md`). The desktop opens only the current model-document version, so a project or saved model state stored at 0.7.0 is refused by name when you open it, and nothing is migrated. A 0.7.0 document whose `schema_version` alone is changed to 0.8.0 has the same meaning in 0.8.0; making that change is your re-authoring step. Recorded runs keep their own format and existing read and compare behaviour; this change adds no model-document-version gate for recorded runs. Existing integrity checks and retained-precision/source-reader restrictions still apply. Run history is listed for the active project's id, so the runs of an older project are reached only through a current (0.8.0) project with the same project id. Comparing an older run with a newer one keeps the usual eligibility rules.
 
 **Test plan** (with the ripple, through the desktop entry path, not only the
 Rust read):
@@ -480,9 +481,11 @@ rebound to the new digests.
 
 ## 8. Authoring
 
-The applier, adoption checks, library apply, inspector and report are covered
-in DEL-03-05 Design §4. The document validator gains no rule: it does not
-validate component geometry.
+The offset's applier, adoption checks, library apply, inspector and report are
+covered in DEL-03-05 Design §4. The document validator does not validate
+component geometry. For `model_settings.shear_model`, §1.1 adds the named
+value and pressure-contract checks; on a pressure-free document, the validator admits Timoshenko as schema-valid
+and the solve and applier refuse it during the 0.8.0 interim.
 
 ## 9. `apps/desktop/native-smoke/expected.json`
 
@@ -543,7 +546,7 @@ replaces only the quoted text.
 4. **DEL-02-01 ScopeOfWork line 93** (current-implementation wording, under
    the owner's grant of 2026-10-23, after independent review)
    - **Old:** `` Current implementation (S1a and S1b, 2026-10-23; Design `Design/model-document-0.7.0.md` §2-§4): `schemas/model.schema.yaml` describes the desktop's model document, `document_kind` `openpipestress.product_preview.model` at version `0.7.0` (owner OD-4, 2026-10-23: the desktop's model document is canonical; 0.6.0 and older are refused by name). ``
-   - **New:** `` Current implementation (S1a and S1b, 2026-10-23, and W-15 slice c; Design `Design/model-document-0.7.0.md` §2-§4 and `Design/model-document-0.8.0.md`): `schemas/model.schema.yaml` describes the desktop's model document, `document_kind` `openpipestress.product_preview.model` at version `0.8.0` (owner OD-4, 2026-10-23: the desktop's model document is canonical; 0.7.0 and older are refused by name). 0.8.0 adds the reducer's optional `geometry.eccentric_offset` (DEL-03-05 Design `eccentric-reducer-offset.md`). ``
+   - **New:** `` Current implementation (S1a and S1b, 2026-10-23, and W-15 slice c; Design `Design/model-document-0.7.0.md` §2-§4 and `Design/model-document-0.8.0.md`): `schemas/model.schema.yaml` describes the desktop's model document, `document_kind` `openpipestress.product_preview.model` at version `0.8.0` (owner OD-4, 2026-10-23: the desktop's model document is canonical; the desktop open/save and mechanics solve paths refuse 0.7.0 and older by name). 0.8.0 adds the reducer's optional `geometry.eccentric_offset` (DEL-03-05 Design `eccentric-reducer-offset.md`) and the optional `model_settings.shear_model` (Design `model-document-0.8.0.md` §1.1). ``
 5. **Reconciliation pointers** (not commitments):
    - the `deliverable.yaml` conditions DEL-02-05:128, DEL-04-07:7,
      DEL-10-05:48 and DEL-12-01:98;
