@@ -52,7 +52,8 @@ import {
 import type { BlankProjectKind, BlankProjectUnitsRequest } from "../project-units/ProjectUnitsDialog";
 import { modelFileRefusalMessage, modelFileWarningSuffix, openModelDocumentFile } from "../../services/modelDocumentFile";
 import { checkModelLibraryRefs, modelLibraryRefs } from "../../services/libraryImportService";
-import { publishLibraryRefFindings } from "../library/libraryRefFindings";
+import { currentLibraryRefFindings, libraryRefDiagnostics, publishLibraryRefFindings } from "../library/libraryRefFindings";
+import { cancelNativeModelChecks, runModelChecks, type ModelCheckRun } from "../diagnostics/modelChecks";
 import { modelDocumentSlotValidation } from "../model-file/modelDocumentShape";
 import {
   keptStoredProjectMessage,
@@ -3061,6 +3062,41 @@ export function useWorkspaceSession() {
     }
   }
 
+  // B11 on-demand model checks (DEL-04-06 Design `on-demand-model-checks.md`):
+  // the session's last run, shown in the Issues drawer. The checks read the
+  // model as it stands and never change it.
+  // In the app the solve's checks run natively under the memory pool, so a run
+  // is asynchronous: a later request (or a new project session) supersedes it.
+  const [modelCheckRun, setModelCheckRun] = useState<ModelCheckRun | null>(null);
+  const [modelCheckBusy, setModelCheckBusy] = useState(false);
+  const modelCheckRequest = useRef(0);
+  // Whether the latest request is a native check still in progress.
+  const nativeModelCheckInFlight = useRef(false);
+  // A new project session retires a run in progress and the last run's list
+  // (Codex review r2 of #1665): neither describes the new session's model.
+  // A native check in progress is cancelled, so its worker's grant is
+  // released (Codex review r3).
+  useEffect(() => {
+    modelCheckRequest.current += 1;
+    if (nativeModelCheckInFlight.current) void cancelNativeModelChecks();
+    nativeModelCheckInFlight.current = false;
+    setModelCheckBusy(false);
+    setModelCheckRun(null);
+  }, [projectSessionGeneration]);
+  async function handleRunModelChecks() {
+    if (!model) return;
+    const request = ++modelCheckRequest.current;
+    const generation = projectSessionGenerationRef.current;
+    setIssuesDrawerOpen(true);
+    setModelCheckBusy(true);
+    nativeModelCheckInFlight.current = isTauriRuntime();
+    const run = await runModelChecks(model, () => libraryRefDiagnostics(currentLibraryRefFindings(model)));
+    if (request !== modelCheckRequest.current || generation !== projectSessionGenerationRef.current) return;
+    nativeModelCheckInFlight.current = false;
+    setModelCheckBusy(false);
+    setModelCheckRun(run);
+  }
+
   // Single command sink for both the in-DOM menu bar (tested) and the native
   // macOS menu bar (Tauri shell only). View commands summon/dismiss workspace
   // sections and toggle the tree/inspector rails; the spatial core (tree |
@@ -3145,6 +3181,9 @@ export function useWorkspaceSession() {
         break;
       case "analyze.rule-checks":
         setActiveSection("solve");
+        break;
+      case "analyze.check-model":
+        void handleRunModelChecks();
         break;
       default: {
         const prefix = "view.section.";
@@ -3427,6 +3466,13 @@ export function useWorkspaceSession() {
       if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current || handoffSaveDialogOpenRef.current) return;
       if ((!event.metaKey && !event.ctrlKey) || event.altKey || event.defaultPrevented) return;
       const key = event.key.toLowerCase();
+      // ⇧⌘M runs the model checks (Analyze → Check Model). AppKit owns it in the
+      // native runtime, where the menu item carries the same accelerator.
+      if (key === "m" && event.shiftKey && !isTauriRuntime()) {
+        event.preventDefault();
+        runMenuCommandRef.current("analyze.check-model");
+        return;
+      }
       if (key === "z") {
         const target = event.target instanceof HTMLElement ? event.target : document.activeElement;
         if (target instanceof HTMLElement && (target.isContentEditable || target.closest('input, textarea, [contenteditable="true"], [contenteditable=""]'))) return;
@@ -3690,6 +3736,9 @@ export function useWorkspaceSession() {
       reviewDetailsOpen, setReviewDetailsOpen,
       auditDrawerOpen, setAuditDrawerOpen,
       issuesDrawerOpen, setIssuesDrawerOpen,
+      modelCheckRun,
+      modelCheckBusy,
+      handleRunModelChecks,
       stageSurface,
       stageViewMemory, setStageViewMemory,
       narrowWindow,
