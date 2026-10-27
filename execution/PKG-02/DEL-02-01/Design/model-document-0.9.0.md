@@ -5,8 +5,9 @@
 **Status:** revision 4, after Codex design reviews r1 (on `22dc6edcbd`: no P1;
 four P2s and the OC-3, OC-5 and OC-7 conditions), r2 (on `a87d8df6b8`: the
 canonical decimal, the rounding width and the zero result) and r3 (on
-`9bf77e607c`: "Ready for Agent 0", with two P3s), all resolved here, for Agent
-0's decisions (§6) before any implementation.
+`9bf77e607c`: "Ready for Agent 0", with two P3s), all resolved. Agent 0 decided
+OC-1 to OC-9 and ND-1 under the owner's 2026-10-27 delegation (#1703), adopted
+as recommended (§6). Design only; no product code yet.
 Survey item C1 (operating-condition sets) with the solver lane's two 0.9.0
 members. Risk class: persistence and numerical meaning, so every build slice
 takes targeted regression checks and independent scrutiny by a separate agent
@@ -39,6 +40,8 @@ acceptance, issuance or release; those are the owner's acts.
   §2.2.
 - **Agent 0, B1 O7:** the run sheet's operating-condition column is deferred to
   C1, and C1 carries it (§4.1).
+- **Agent 0, 2026-10-27, #1703** (owner's delegation): OC-1 to OC-9 and ND-1
+  adopted as recommended, with the notes on OC-4, OC-5 and OC-7 (§6).
 - **Brief for this design (Agent 0 through the manager):** all 0.9.0 members in
   one version step; `load_cases[].kind` token `operating` is desktop vocabulary
   with no schema change; the element assignment is preferably stored explicitly.
@@ -425,7 +428,8 @@ two authored temperatures, rounded once.
   differ in its last bits. Example: 212 degF − 70 degF gives 78.88888888888889 K
   here and 78.88888888888886 K by the binary64 affine route.
 
-**This is a new numerical policy for Agent 0 to approve (OC-5).** No product
+**This is a new numerical policy (OC-5), adopted by Agent 0 for the conditions
+route (owner's 2026-10-27 delegation, #1703).** No product
 path today forms a temperature difference from two absolute temperatures on the
 PF route. The twin carries RN(exact difference) in kelvin: 0.2, not
 0.19999999999998863. The equivalence is to that twin, not to today's
@@ -435,6 +439,20 @@ temperatures, a per-case ΔT that a user formed through the unit route, as an
 0.8.0-era document would carry, can differ by a few ulps from the 0.9.0
 condition route's ΔT, and so can the results that follow from it. A typed
 decimal ΔT in K or degC matches exactly; a typed degF or degR ΔT may not.
+
+**Disclosure: the degF/degR cross-route difference.** A ΔT typed in degF or
+degR is unchanged by 0.9.0: it still passes today's interval conversion
+(value × fl(5/9)), so no existing result moves. The same temperature change
+reached through conditions is rounded once from the exact value. Example: a
+typed 7 degF ΔT gives 3.8888888888888893 K (`400f1c71c71c71c8`), while
+77 degF − 70 degF through conditions gives 3.888888888888889 K
+(`400f1c71c71c71c7`), one ulp apart. DEL-05-01 Design
+`thermal-temperature-change.md` carries the same disclosure.
+
+**Remaining item: make typed degF/degR interval conversion correctly rounded.**
+Not done now, because it would move existing results; any effect on
+`apps/desktop/native-smoke/expected.json` or other frozen references is the
+owner's to decide.
 
 **Tests** (S2; each fails before the change it guards):
 - **E1, structure.** For each fixture, the lowered model equals the decoded
@@ -801,7 +819,7 @@ any later one must transform it exactly or refuse.
 | Slice | Content | Checks and review gates |
 |---|---|---|
 | **S1. The 0.9.0 version step** | Every 0.9.0 member at once: schema, closed wire, validator, all document-level codes, interim solve refusals (`condition_use`, skew `direction`, `difference_basis`), axis-aligned `direction` on today's path, geometry operations carrying `condition_set_ref`, the version constants in all four implementations, the table, the ripple, reader classification, user guide, D3 and registration | `version_states.json` on the applier, src-tauri, TS and Python; refusal on every 0.8.0 §3.1 surface; ruling a2 and the recorded table basis; annotated equivalence (E5) and axis `direction` equivalence (twin without `direction`, byte for byte, both modes, including d = −e_x, d = (2,0,0), and d = (0,3,0) on a UX record, which solves as its UY twin); leaf comparison; literal guard; D3 `price`, `compare`, `generate --check`; AC-004 witnesses under the exclusive lane; native smoke compared with main; `piping-pytest`, `desktop-test`, affected crates, hosted `harness`. Independent review of the ripple and the registration. |
-| **S2. PF resolution** | Temperature, added weight and wind exposure resolution (§1.5); the correctly rounded ΔT; removal of `LOAD_CASE_CONDITION_USE_UNSUPPORTED`; retained-route placement or decline; wasm preview export | E1–E7; the Python reference table; D3 if D1-reachable code moves. Independent numerical scrutiny by a separate agent of ΔT, order and the twin. |
+| **S2. PF resolution** | Temperature, added weight and wind exposure resolution (§1.5); the correctly rounded ΔT; removal of `LOAD_CASE_CONDITION_USE_UNSUPPORTED`; retained-route placement or decline; wasm preview export | E1–E7; the Python reference table; D3 if D1-reachable code moves. The PR states explicitly that typed ΔT is unchanged (OC-5 as decided): a test shows every frozen reference (SHA-bound requests, the reader corpora, the retained successors and `expected.json`'s inputs) solves byte-identically before and after, and `expected.json` is not edited. Independent numerical scrutiny by a separate agent of ΔT, order and the twin. |
 | **S3a. Applier authoring** | §4.2's operations; reference guards; bend and split rules | One regression per operation and refusal; save and reopen byte for byte; contract corpus additions. Persistence review. |
 | **S3b. Desktop** | Condition-set manager, inspector field, bulk change, load-manager control, support direction, the run-sheet column (with B1's slice if B1 has not landed) | `desktop-test`; run-sheet inheritance and projection tests; native smoke where open/save changes. |
 | **S4. EX resolution** | Region pressure and `operating_temperature` from conditions, `load_sources` entries, removal of the EX interim refusal; designed with DEL-04-07 | Its own design check, D3, and independent scrutiny. |
@@ -817,19 +835,22 @@ Merging S1 and S2 is OC-9.
 their interim refusals; the contents-density consumer; a CAEPIPE MBF import of
 per-element temperatures into condition sets (DEL-17-04).
 
-## 6. Open choices for Agent 0
+## 6. Decisions (Agent 0)
 
-| # | Choice | Recommendation | Consequence |
+OC-1 to OC-9 and ND-1 were decided by Agent 0 under the owner's 2026-10-27
+delegation (#1703) and adopted as recommended. The reasons are kept.
+
+| # | Choice | Decision (recommendation) | Consequence |
 |---|---|---|---|
-| OC-1 | **Names** | `condition_sets[]` with `conditions[].key`; `pipe_segments[].condition_set_ref` (parallel to `section_ref`); `load_cases[].condition_use` | Names freeze at S1. "Operating" is avoided in the record names because design, peak and hydrotest conditions are not all operating; the alternative `operating_condition_sets` / `condition_refs` costs nothing now and a version step later. |
-| OC-2 | **Stored or read-resolved** | (a) Assignment stored explicitly per pipe; inheritance in authoring tools (§1.4). (b) Values resolved at read by the lowering, not generated into cases | (a) Re-assigning a line is a bulk change; no topology rule is needed. Read-time inheritance would need a "run" or evaluated `lines[]` rule, ambiguous at tees. (b) One source of truth; authoring-time generation would duplicate values in every case and need a staleness check like self-weight's. |
-| OC-3 | **Coexistence with per-case values** | Exclusive per case for temperature, pressure and wind exposure; added weight additive (§1.7) | A case cannot mix condition and hand-typed temperatures; per-pipe exceptions are made with another set. Precedence would override stated values without a trace. |
-| OC-4 | **0.8.0 documents** | Retired, refused by name, nothing migrated (§3.2) | Same burden as at 0.8.0: users re-author by changing the token, using the recovery export for stored projects. A desktop rewrite action is migration code and changes DEL-02-05 CLM-003, an owner decision. |
-| OC-5 | **PF temperature basis: a new numerical policy for Agent 0's approval** | Absolute condition temperatures, the set's installation temperature, each operand read as its canonical decimal (the typed decimal for values of up to 15 significant digits; ties to the even digit), exact difference rounded once in kelvin within §1.5.1's range (§1.5, §1.8) | The twin carries 0.2, not 0.19999999999998863; equivalence is to the twin, not to today's absolute-temperature conversion route, so a per-case ΔT formed through the unit route (as 0.8.0-era documents carry) can differ by ulps from the condition route for the same temperatures. Needs a new canonical-decimal stage and a correctly rounded conversion on 256-bit integers, with the E3 reference; the EX route's `exact_kelvin` keeps the formatter's decimal on 16- or 17-digit ties unless DEL-04-07 aligns it. Alternatives: the units crate's `temperature_difference` (no new numerics; last-bit differences from the decimal ΔT, e.g. 0.19999999999998863 for 0.2); or storing ΔT in the condition (no arithmetic, but not an operating temperature, and EX needs absolutes). A model-level installation temperature in place of the per-set one is smaller but cannot express lines installed at different temperatures. |
-| OC-6 | **Key form** | String keys (REQ-02-01-03) | Typos are caught as `OPERATING_CONDITION_KEY_MISSING` at solve, not at entry. An integer index k is positional; a model-level key registry adds a member and catches typos earlier. |
-| OC-7 | **Members read by no solve in 0.9.0** | Carry per-condition `contents_density` with its case key (refused at solve), `design`, `peak`, `snow_ice` and `wave` now, each visibly labelled "not used by the solve in 0.9.0" wherever shown (§1.2) | Avoids a 0.10.0 step when their consumers come; the format is fixed before those consumers are designed. Omitting them keeps 0.9.0 smaller, and each later adoption is a version step that strands projects again. |
-| OC-8 | **A pipe without a set in a case that uses conditions** | Refuse the case by name | Every pipe needs a set (an ambient pipe states its temperature). Skipping would be a silent zero. |
-| OC-9 | **S1 and S2 separate** | Separate, with the interim refusal | Two reviewable steps and one more D3 turn if S2 moves D1-reachable code. Merging gives one turn and one larger review. |
+| OC-1 | **Names** | Decided by Agent 0 (owner's 2026-10-27 delegation, #1703): adopted as recommended. `condition_sets[]` with `conditions[].key`; `pipe_segments[].condition_set_ref` (parallel to `section_ref`); `load_cases[].condition_use` | Names freeze at S1. "Operating" is avoided in the record names because design, peak and hydrotest conditions are not all operating; the alternative `operating_condition_sets` / `condition_refs` costs nothing now and a version step later. |
+| OC-2 | **Stored or read-resolved** | Decided by Agent 0 (owner's 2026-10-27 delegation, #1703): adopted as recommended. (a) Assignment stored explicitly per pipe; inheritance in authoring tools (§1.4). (b) Values resolved at read by the lowering, not generated into cases | (a) Re-assigning a line is a bulk change; no topology rule is needed. Read-time inheritance would need a "run" or evaluated `lines[]` rule, ambiguous at tees. (b) One source of truth; authoring-time generation would duplicate values in every case and need a staleness check like self-weight's. |
+| OC-3 | **Coexistence with per-case values** | Decided by Agent 0 (owner's 2026-10-27 delegation, #1703): adopted as recommended. Exclusive per case for temperature, pressure and wind exposure; added weight additive (§1.7) | A case cannot mix condition and hand-typed temperatures; per-pipe exceptions are made with another set. Precedence would override stated values without a trace. |
+| OC-4 | **0.8.0 documents** | Decided by Agent 0 (owner's 2026-10-27 delegation, #1703): adopted as recommended. Retired, refused by name, nothing migrated (§3.2) | Same burden as at 0.8.0: users re-author by changing the token, using the recovery export for stored projects. A desktop rewrite action is migration code and changes DEL-02-05 CLM-003, an owner decision. |
+| OC-5 | **PF temperature basis: a new numerical policy for Agent 0's approval** | Decided by Agent 0 (owner's 2026-10-27 delegation, #1703): adopted as recommended. Absolute condition temperatures, the set's installation temperature, each operand read as its canonical decimal (the typed decimal for values of up to 15 significant digits; ties to the even digit), exact difference rounded once in kelvin within §1.5.1's range (§1.5, §1.8) | The twin carries 0.2, not 0.19999999999998863; equivalence is to the twin, not to today's absolute-temperature conversion route, so a per-case ΔT formed through the unit route (as 0.8.0-era documents carry) can differ by ulps from the condition route for the same temperatures. Needs a new canonical-decimal stage and a correctly rounded conversion on 256-bit integers, with the E3 reference; the EX route's `exact_kelvin` keeps the formatter's decimal on 16- or 17-digit ties unless DEL-04-07 aligns it. Alternatives: the units crate's `temperature_difference` (no new numerics; last-bit differences from the decimal ΔT, e.g. 0.19999999999998863 for 0.2); or storing ΔT in the condition (no arithmetic, but not an operating temperature, and EX needs absolutes). A model-level installation temperature in place of the per-set one is smaller but cannot express lines installed at different temperatures. |
+| OC-6 | **Key form** | Decided by Agent 0 (owner's 2026-10-27 delegation, #1703): adopted as recommended. String keys (REQ-02-01-03) | Typos are caught as `OPERATING_CONDITION_KEY_MISSING` at solve, not at entry. An integer index k is positional; a model-level key registry adds a member and catches typos earlier. |
+| OC-7 | **Members read by no solve in 0.9.0** | Decided by Agent 0 (owner's 2026-10-27 delegation, #1703): adopted as recommended. Carry per-condition `contents_density` with its case key (refused at solve), `design`, `peak`, `snow_ice` and `wave` now, each visibly labelled "not used by the solve in 0.9.0" wherever shown (§1.2) | Avoids a 0.10.0 step when their consumers come; the format is fixed before those consumers are designed. Omitting them keeps 0.9.0 smaller, and each later adoption is a version step that strands projects again. |
+| OC-8 | **A pipe without a set in a case that uses conditions** | Decided by Agent 0 (owner's 2026-10-27 delegation, #1703): adopted as recommended. Refuse the case by name | Every pipe needs a set (an ambient pipe states its temperature). Skipping would be a silent zero. |
+| OC-9 | **S1 and S2 separate** | Decided by Agent 0 (owner's 2026-10-27 delegation, #1703): adopted as recommended. Separate, with the interim refusal | Two reviewable steps and one more D3 turn if S2 moves D1-reachable code. Merging gives one turn and one larger review. |
 
 **A further decision, not part of R-7 (ND-1).** Codex r1 found that an earlier
 revision refused a d with a zero component on the record's DOF axis
@@ -837,9 +858,26 @@ revision refused a d with a zero component on the record's DOF axis
 removed, and `direction` is carried as decided (§2.1). Agent 0 may add it as a
 separate rule:
 
-| # | Choice | Recommendation | Consequence |
+| # | Choice | Decision (recommendation) | Consequence |
 |---|---|---|---|
-| ND-1 | **Tie the DOF token to d** by refusing a d whose component on the record's DOF axis is zero | Do not adopt; keep R-7 as decided | Not adopting: d governs, the token only marks the record translational, and an axis-aligned d on another axis lowers to the record on d's axis (a UX spring with d = (0,3,4) is admitted; one with d = (0,3,0) solves as a UY spring). The inspector shows d as governing. Adopting: the token and d never disagree, so a reader of the token alone is never misled, at the cost of refusing records R-7 admits. |
+| ND-1 | **Tie the DOF token to d** by refusing a d whose component on the record's DOF axis is zero | Decided by Agent 0 (owner's 2026-10-27 delegation, #1703): adopted as recommended. Do not adopt; keep R-7 as decided | Not adopting: d governs, the token only marks the record translational, and an axis-aligned d on another axis lowers to the record on d's axis (a UX spring with d = (0,3,4) is admitted; one with d = (0,3,0) solves as a UY spring). The inspector shows d as governing. Adopting: the token and d never disagree, so a reader of the token alone is never misled, at the cost of refusing records R-7 admits. |
+
+**Notes on the decisions (Agent 0, #1703):**
+- **OC-4** follows the owner's own precedent for 0.8.0 ("R-c1 A, 0.8.0 a2").
+  Any rewrite or migration action remains the owner's call, through DEL-02-05's
+  commitment that no migration code is kept (CLM-003).
+- **OC-5** is adopted for the conditions route only. Typed ΔT stays exactly as
+  today, so no existing result or `expected.json` moves; S2's PR confirms this
+  with a test over every frozen reference (§5). The degF/degR cross-route
+  difference is disclosed (§1.8; typed 7 degF → 3.8888888888888893 K; 77 − 70
+  degF through conditions → 3.888888888888889 K), here and in DEL-05-01 Design
+  `thermal-temperature-change.md`. Remaining item: make typed degF/degR interval
+  conversion correctly rounded; deferred because it would move existing results,
+  and any `expected.json` effect is the owner's.
+- **OC-7** is accepted because a case's `condition_use.contents_density` is
+  refused by name (`LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED`), so nothing
+  silently drops contents weight. That refusal stays until contents resolution
+  is designed.
 
 ## 7. Proposed ScopeOfWork text (not applied)
 
@@ -857,7 +895,7 @@ wording is applied with the slice that makes it true.
    - **Old:** `` Current implementation (S1a and S1b, 2026-10-23, and W-15 slice c; Design `Design/model-document-0.7.0.md` §2-§4 and `Design/model-document-0.8.0.md`): `schemas/model.schema.yaml` describes the desktop's model document, `document_kind` `openpipestress.product_preview.model` at version `0.8.0` (owner OD-4, 2026-10-23: the desktop's model document is canonical; the desktop open/save and mechanics solve paths refuse 0.7.0 and older by name). 0.8.0 adds ``
    - **New:** `` Current implementation (S1a and S1b, 2026-10-23, W-15 slice c, and the 0.9.0 step; Design `Design/model-document-0.7.0.md` §2-§4, `Design/model-document-0.8.0.md` and `Design/model-document-0.9.0.md`): `schemas/model.schema.yaml` describes the desktop's model document, `document_kind` `openpipestress.product_preview.model` at version `0.9.0` (owner OD-4, 2026-10-23: the desktop's model document is canonical; the desktop open/save and mechanics solve paths refuse 0.8.0 and older by name). 0.9.0 adds the optional `condition_sets`, a pipe segment's `condition_set_ref`, a load case's `condition_use`, a single-DOF support's `direction` and a result-state subtraction's `difference_basis` (Design `model-document-0.9.0.md` §1-§2). 0.8.0 adds ``
 3. **New commitment, inserted after the DEL-02-01:1 bullet (anchor `- **DEL-02-01:1** —`, 1 occurrence).**
-   - **New:** `- **DEL-02-01:2** — Model document 0.9.0 (survey item C1 with the solver lane's direction and difference basis; Agent 0, <date>). Carry operating-condition sets, the per-pipe set reference, the load case's condition use, a single-DOF support's direction and a subtraction's difference basis in one version step under the one-version rule; 0.8.0 is retired and refused by name, and nothing is migrated. The document stores each pipe's set explicitly; inheritance along a run belongs to authoring tools. A case's condition use resolves at read into the per-case records the existing solve consumes, and a document solves exactly as its resolved twin except for the identities bound to the authored document. A missing set, condition or value refuses the case by name; nothing is defaulted. Design: Design/model-document-0.9.0.md. Implementation, D3 registration and tests remain open.`
+   - **New:** `- **DEL-02-01:2** — Model document 0.9.0 (survey item C1 with the solver lane's direction and difference basis; Agent 0, 2026-10-27). Carry operating-condition sets, the per-pipe set reference, the load case's condition use, a single-DOF support's direction and a subtraction's difference basis in one version step under the one-version rule; 0.8.0 is retired and refused by name, and nothing is migrated. The document stores each pipe's set explicitly; inheritance along a run belongs to authoring tools. A case's condition use resolves at read into the per-case records the existing solve consumes, and a document solves exactly as its resolved twin except for the identities bound to the authored document. A missing set, condition or value refuses the case by name; nothing is defaulted. Design: Design/model-document-0.9.0.md. Implementation, D3 registration and tests remain open.`
 
 ### 7.2 DEL-05-01 (`execution/PKG-05/DEL-05-01/ScopeOfWork.md`)
 
@@ -886,7 +924,7 @@ wording is applied with the slice that makes it true.
 ### 7.5 Version-token text (at S1's merge; no commitment changes in substance)
 
 - **DEL-02-05** (5 edits): line 33 `` `0.8.0`, defined by DEL-02-01 Design `model-document-0.7.0.md` and `model-document-0.8.0.md` under the owner's OD-4 ruling (2026-10-23) and W-15 slice c (OD-2), `` → `` `0.9.0`, defined by DEL-02-01 Design `model-document-0.7.0.md`, `model-document-0.8.0.md` and `model-document-0.9.0.md` under the owner's OD-4 ruling (2026-10-23), W-15 slice c (OD-2) and the 0.9.0 step, `` (1); line 34 `` `0.6.0` and `0.7.0` are retired `` → `` `0.6.0`, `0.7.0` and `0.8.0` are retired `` (1); line 35 `` `current` for exactly `0.8.0`; `retired_schema` for any other parsed version not above `0.8.0` `` → the same with `0.9.0` (1 occurrence, 2 tokens); line 38 `` Current code: `0.8.0` is `` → `` Current code: `0.9.0` is `` (1) and `` Current implementation (W-15 slice c, #1649): `RETIRED_MODEL_SCHEMA_VERSIONS` in `model_format.rs` names `0.1.0`, `0.2.0`, `0.3.0`, `0.4.0`, `0.5.0`, `0.6.0` and `0.7.0`, and the `model_document_version.rs` tests refuse all seven by name. `` → `` Current implementation (the 0.9.0 step, #<PR>): `RETIRED_MODEL_SCHEMA_VERSIONS` in `model_format.rs` names `0.1.0`, `0.2.0`, `0.3.0`, `0.4.0`, `0.5.0`, `0.6.0`, `0.7.0` and `0.8.0`, and the `model_document_version.rs` tests refuse all eight by name. `` (1); line 180 `` only `0.8.0` reports `current` `` → `` only `0.9.0` reports `current` `` (1). Line 36 (the dated ruling) is unchanged.
-- **DEL-04-08:** `current model 0.8.0` → `current model 0.9.0` (3 occurrences: lines 108, 122, 262). TBD-002's held sentence is unchanged.
+- **DEL-04-08** (3 edits, each anchor 1 occurrence): line 108 `` current model 0.8.0 with the explicit `3.0.0/exact_pressure_v3` contract; `` → `` current model 0.9.0 with the explicit `3.0.0/exact_pressure_v3` contract; ``; line 122 `` current model 0.8.0 with the `3.0.0/exact_pressure_v3` contract; `` → `` current model 0.9.0 with the `3.0.0/exact_pressure_v3` contract; ``; line 262 `DEF-E and the code admit current model 0.8.0 with` → `DEF-E and the code admit current model 0.9.0 with`. TBD-002's held sentence is unchanged.
 - **DEL-03-01** line 145: `` is `0.8.0` and `0.1.0`–`0.7.0` are refused by name `` → `` is `0.9.0` and `0.1.0`–`0.8.0` are refused by name `` (1).
 - **Unchanged:** DEL-03-05 line 56 ("model document 0.8.0" names the version that introduced the slot).
 
@@ -895,6 +933,36 @@ wording is applied with the slice that makes it true.
 1b and skew-kernel designs. Reconciliation pointers (not commitments): the
 `deliverable.yaml` conditions that name the current version, `b7-plan.md`
 "Current model format", `RELEASE_NOTES_v0.1.0_DRAFT.md` and `docs/user_guide`.
+
+### 7.6 Exact wording files
+
+The exact Old and New texts of §7.1-§7.5's long items are kept, one file per
+item, in the session scratch `scratch/w17-c1/` beside the repository (not
+committed); `.old.txt` is the exact anchor and `.new.txt` the exact replacement
+or inserted bullet, with no trailing newline. Only the line-33 pair of
+DEL-02-05 ends with a space, which is mid-line on main. Every Old anchor was
+counted on main `66a83a2b68`: each occurs once.
+
+| File | sha256 |
+|---|---|
+| `DEL-02-01_item1_CLM-006-line84.new.txt` | `1771d186c6720678051ca855edd3601d9a33df4ff774fae76b7f1c4166a42dd0` |
+| `DEL-02-01_item1_CLM-006-line84.old.txt` | `082b2cb1d8e1a4062446629c73c8dcde4a07b4bdb7f80d5212ef91cfede48775` |
+| `DEL-02-01_item2_CLM-006-line93.new.txt` | `dfec0d40c591755ea35af2b5dee6a94b30b734a5be5a9e105617776861611eb3` |
+| `DEL-02-01_item2_CLM-006-line93.old.txt` | `e250fcf6ae5a7770ec018398c79eca84c3aad4478982714477b1008ef01ea34a` |
+| `DEL-02-01_item3_new-DEL-02-01-2.new.txt` | `b0d0cdc7da8bdb528e95bb8fb0e960dfaa5e9300e081631bc3c6c4f8bafae696` |
+| `DEL-02-05_item1_line33.new.txt` | `731450d776bbc7aa9860448b773e08cb37b08605c90a4044a8f45b51a28593f7` |
+| `DEL-02-05_item1_line33.old.txt` | `2fc4282167e8ac92fea390b485b1f5018d3427f2a0e1e689c4a8fa10f07eee72` |
+| `DEL-02-05_item4b_line38.new.txt` | `20488c46240381ddff6a622d41e26e325ba4f2a325144031e04108e91804d173` |
+| `DEL-02-05_item4b_line38.old.txt` | `c2776d22b75cf59cebeab46d865cc35f6f0ee7532e3d639493000caef43b69bf` |
+| `DEL-05-01_item1_CLM-006-thermal.new.txt` | `5f8d5d13e49993d22cc8c76048ecd1167f19c5f1fb4dee0316923e4739fe54de` |
+| `DEL-05-01_item1_CLM-006-thermal.old.txt` | `9e123a80f3b349537cdb762f7ac7b7ca5d6995871843d7536c6c3bec6833dfb6` |
+| `DEL-05-01_item2_new-DEL-05-01-2.new.txt` | `ab7c8ce6f55bc441482d33be1e3baf989c87368aa4d2ce0425f4af4e59ec6e14` |
+| `DEL-07-02_item1_DEL-07-02-13.new.txt` | `f4c5db6e32922157270a07525ba43a6af021d2c3d08fa98a1676d111b8375d1d` |
+| `DEL-07-02_item1_DEL-07-02-13.old.txt` | `b1310542f920071276685af6eeb546b8b4aeb2d8c461c22f62d3fc0a2dc5d71f` |
+| `DEL-07-02_item2_DEL-07-02-14.new.txt` | `f7dec8ef44a9b85ec6fa227eb3384bf7c11a9ad52b5cf4541ffc25b9358cdeaf` |
+| `DEL-07-02_item2_DEL-07-02-14.old.txt` | `a04025f025486854e798ec3fd1a17d0f41b706c5ad002d1a521edbb74d12e7ab` |
+| `DEL-07-02_item3_new-DEL-07-02-15.new.txt` | `9c56ec280858af1413b28ffb11761d4723268bf8bd5b42ceb5728d30c3cd60f9` |
+| `DEL-07-03_item1_new-DEL-07-03-5.new.txt` | `27a775b10aba47a4aa29bf9101858cab1acacbfee99ae11b106cdd884c5ef80b` |
 
 ## 8. Coordination
 
