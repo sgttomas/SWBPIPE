@@ -5,8 +5,8 @@
 //! the limitation, or the diagnostic's text or references, while keeping the
 //! result, is refused. Euler–Bernoulli reports carry no such entry.
 //!
-//! The Timoshenko source is a TRANSFORMED STAND-IN until the product publishes
-//! one: the committed DEL-10-05 witness source with the identity, the profile and
+//! Most cases use a TRANSFORMED STAND-IN (the last packages the product's own
+//! result with a realized arc): the committed DEL-10-05 witness source with the identity, the profile and
 //! limitation 0 swapped, plus a hand-built arc diagnostic, from which the shared
 //! basis builder derives the document. All data invented. Standard claim fence
 //! applies (claims taxonomy per DEC-081).
@@ -48,13 +48,17 @@ fn timoshenko(source: &mut Value) {
 /// technical-preview entry and the source's diagnostics; with `projection`, the
 /// Timoshenko limitation entry too.
 fn request(edit_source: impl FnOnce(&mut Value), projection: bool) -> Value {
+    let mut source = runner()["source_results"][0].clone();
+    edit_source(&mut source);
+    request_of(serde_json::from_str(MODEL).unwrap(), source, projection)
+}
+
+/// The desktop basis over `source`, solved from `model` (as [`request`]).
+fn request_of(model: Value, source: Value, projection: bool) -> Value {
     let runner = runner();
-    let model: Value = serde_json::from_str(MODEL).unwrap();
     let manifest: Value = serde_json::from_str(INPUT_MANIFEST).unwrap();
     let manifest_id = runner["audit_manifest"]["input_manifest_hash"]["payload_ref"].as_str().unwrap().to_string();
     let solver = &runner["audit_manifest"]["solver_version"];
-    let mut source = runner["source_results"][0].clone();
-    edit_source(&mut source);
     let inputs = Inputs {
         model: &model,
         source: &source,
@@ -194,4 +198,38 @@ fn a_mixed_identity_source_is_refused_at_its_reading() {
     request["source_results"][0]["formulation_basis"]["limitations"][0] =
         json!("Small-displacement, linear-elastic Euler-Bernoulli frame preview; numerical integrity does not establish physical correctness.");
     refused(&request, SOURCE_INVALID, "mixed source");
+}
+
+/// The product's own Timoshenko result with a realized arc (the frozen
+/// `PFT-ARC-TIP-TIMOSHENKO` request, sparse; `core/product_physics/tests/pf_timoshenko_envelopes.rs`
+/// keeps it current) and its request's model.
+fn product_arc() -> (Value, Value) {
+    let source = serde_json::from_str(include_str!("../../../../fixtures/results/preview_physics_timoshenko_arc_sparse.json")).unwrap();
+    let request: Value = serde_json::from_str(include_str!(
+        "../../../../validation/references/pf_timoshenko/requests/PFT-ARC-TIP-TIMOSHENKO.request.json"
+    ))
+    .unwrap();
+    (request["model"].clone(), source)
+}
+
+/// The product's result packages with its projection, and its arc disclosure is
+/// bound, text and references; without the projection it is refused.
+#[test]
+fn the_products_timoshenko_result_with_a_realized_arc_packages_its_projection() {
+    let (model, source) = product_arc();
+    let arc = source["diagnostics"].as_array().unwrap().iter().find(|d| d["code"] == REALIZED_ARCS_DIAGNOSTIC).unwrap().clone();
+    let request = request_of(model, source, true);
+    let outcome = assemble(&request).unwrap_or_else(|error| panic!("refused: {error}"));
+    assert!(!outcome.export_blocked, "{:?}", outcome.blocking_reasons);
+    let index = arc_index(&request);
+    let diagnostics = &request["report"]["report_sections"]["diagnostics"];
+    assert_eq!(diagnostics[index]["message"], arc["message"]);
+    assert_eq!(diagnostics[index]["affected_object"]["ref_id"], "pipe:BC");
+    assert_eq!(request["report"]["report_sections"]["limitations"][1]["statement"], preview_physics_timoshenko_contract()["supported_profile_limitations"][0]);
+    let text = edited(&request, |sections| { sections["diagnostics"][index]["message"] = json!("no realized arcs"); });
+    refused(&text, PF_TIMOSHENKO_SECTIONS_MISMATCH, "the product's arc text altered");
+    let refs = edited(&request, |sections| { sections["diagnostics"][index]["affected_object"]["ref_id"] = json!("pipe:other"); });
+    refused(&refs, PF_TIMOSHENKO_SECTIONS_MISMATCH, "the product's arc references altered");
+    let (model, source) = product_arc();
+    refused(&request_of(model, source, false), PF_TIMOSHENKO_SECTIONS_MISMATCH, "the product's result without the projection");
 }

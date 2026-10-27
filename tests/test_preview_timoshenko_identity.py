@@ -10,7 +10,7 @@ The Python mirrors of the readers (`tests/verifiers`) and the product's Rust-rou
 - bindings are keyed by `semantic_contract_id`; preview-physics-2's table bytes and hash are unchanged, so existing
   records and fixtures stay compatible.
 
-Until the product publishes one, the Timoshenko sources here are TRANSFORMED STAND-INS: committed Euler-Bernoulli
+Most Timoshenko sources here are TRANSFORMED STAND-INS (the last tests read the product's own envelopes): committed Euler-Bernoulli
 producer envelopes with the identity, the profile and limitation 0 swapped (`timoshenko_of`). Their rows are
 Euler-Bernoulli values; these tests read identity, not mechanics.
 """
@@ -174,3 +174,79 @@ def test_product_analysis_run_records_the_timoshenko_binding(name):
     with pytest.raises(ValueError):
         validate_analysis_run_v0_3(record, eb(name))
     assert build_analysis_run_v0_3 is not None
+
+
+# The product's own Timoshenko envelopes (core/product_physics/tests/pf_timoshenko_envelopes.rs keeps them current),
+# with the frozen requests' models: a straight solve, a solve with a realized arc and its disclosure, and a blocked
+# partial-span refusal.
+REQUESTS = PROJECT / "validation/references/pf_timoshenko/requests"
+PRODUCT = {
+    "straight": "PFT-SB-L1-CM0-TIMOSHENKO",
+    "arc": "PFT-ARC-TIP-TIMOSHENKO",
+    "partial_span_blocked": "PFT-SB-L1-CM0-TIMOSHENKO",
+}
+
+
+def product_envelope(name: str) -> tuple[dict, dict]:
+    source = _json(RESULTS / f"preview_physics_timoshenko_{name}_sparse.json")
+    model_ = _json(REQUESTS / f"{PRODUCT[name]}.request.json")["model"]
+    assert model_["model_settings"] == {"shear_model": "timoshenko_annulus_energy_v1"}
+    return source, model_
+
+
+@pytest.mark.parametrize("name", ["straight", "arc"])
+def test_product_timoshenko_output_reads_records_and_packages(name):
+    from core.analysis_runs.compatibility import validate_analysis_run_v0_3, verify_analysis_run_record
+    from core.analysis_runs import compatibility as product
+    from core.handoff.stress_neutral import package as sn
+    from schema_validation import validate_instance
+    from test_stress_neutral_physics_source import arguments
+    from tests.test_preview_physics_consumer_contract import build
+    source, model_ = product_envelope(name)
+    original = deepcopy(source)
+    assert source["producer"]["semantic_contract_id"] == TIMOSHENKO_ID
+    arcs = [d for d in source["diagnostics"] if d["code"] == "PF_TIMOSHENKO_REALIZED_ARCS_EULER_BERNOULLI"]
+    assert len(arcs) == (name == "arc")
+    ppe.validate_preview_physics_evidence(source)
+    ppe.validate_transport_metadata(source)
+    assert rv.validate("preview-physics", source, model_) == {"ok": True}
+    unselected = {k: v for k, v in model_.items() if k != "model_settings"}
+    assert rv.validate("preview-physics", source, unselected)["error"]["code"] == rv.SHEAR_MODEL_IDENTITY
+    assert product.standing_reason(source) is None
+    assert product.numerical_use_standing(source, [c["basis_ref"] for c in source["numerical_quality"]["cases"]]) == "numerically_eligible"
+    # AnalysisRun: recorded under the Timoshenko binding, and read back compatible.
+    record = build(source)
+    assert record["analysis_run"]["reproducibility"]["semantic_contract"] == {"id": TIMOSHENKO_ID, "sha256": TIMOSHENKO_SHA256}
+    validate_analysis_run_v0_3(record, source)
+    assert verify_analysis_run_record(record) == "match"
+    validate_instance(_json(PROJECT / "schemas/analysis_run.schema.json"), record, instance_label=name)
+    # The stress-neutral package: constructed, schema-valid and validated against its source and record.
+    packet = sn.build_stress_neutral_export_package(source_envelope=source, analysis_record=record, **arguments(source, record))
+    assert packet["semantic_contract"] == {"id": TIMOSHENKO_ID, "sha256": TIMOSHENKO_SHA256}
+    assert packet["contract_evidence"] == source["contract_evidence"]
+    validate_instance(_json(PROJECT / "schemas/stress_neutral_export.schema.json"), packet, instance_label=name)
+    sn.validate_stress_neutral_export_package(packet, source_envelope=source, analysis_record=record)
+    members = sn.materialized_members(packet)
+    assert sn.reconstruct_materialized_members(members, source_envelope=source, analysis_record=record) == packet
+    assert source == original
+
+
+def test_product_blocked_timoshenko_envelope_is_read_under_its_identity():
+    from core.analysis_runs.compatibility import validate_analysis_run_v0_3, verify_analysis_run_record
+    from core.analysis_runs import compatibility as product
+    from tests.test_preview_physics_consumer_contract import build
+    source, model_ = product_envelope("partial_span_blocked")
+    assert source["producer"]["semantic_contract_id"] == TIMOSHENKO_ID
+    assert source["formulation_basis"] == {"profile_id": TIMOSHENKO_PROFILE, "limitations": list(ppe.TIMOSHENKO_LIMITATIONS)}
+    assert source["status"]["mechanics"] == "MODEL_INCOMPLETE" and source["results"] == []
+    assert [d["code"] for d in source["diagnostics"] if d["severity"] == "blocking"] == ["PF_TIMOSHENKO_PARTIAL_SPAN_UNSUPPORTED"]
+    assert source["contract_evidence"] == {"preview_cases": [], "combination_gates": []}
+    ppe.validate_preview_physics_evidence(source)
+    assert vc._source_contract(source)[:2] == (TIMOSHENKO_ID, TIMOSHENKO_SHA256)
+    assert product._source_contract(source)[:2] == (TIMOSHENKO_ID, TIMOSHENKO_SHA256)
+    assert rv.dispatch(source, model_)["binding"] == {"id": TIMOSHENKO_ID, "sha256": TIMOSHENKO_SHA256}
+    assert product.numerical_use_standing(source, [c["basis_ref"] for c in source["numerical_quality"]["cases"]]) == "needs_recompute"
+    record = build(source)
+    assert record["analysis_run"]["reproducibility"]["semantic_contract"] == {"id": TIMOSHENKO_ID, "sha256": TIMOSHENKO_SHA256}
+    validate_analysis_run_v0_3(record, source)
+    assert verify_analysis_run_record(record) == "match"

@@ -4,7 +4,7 @@
 //! limitation array together) and refuse a mixed array; model-bound readers refuse a
 //! crossed pair; bindings are keyed by `semantic_contract_id`.
 //!
-//! Until the product publishes a Timoshenko envelope, the Timoshenko sources here are
+//! Apart from the product's own envelopes (the last test), the Timoshenko sources here are
 //! **transformed stand-ins**: committed Euler–Bernoulli producer envelopes with the
 //! identity, the profile and limitation 0 swapped (`timoshenko_of`). Their rows are
 //! Euler–Bernoulli values; these tests read identity, not mechanics.
@@ -203,4 +203,58 @@ fn a_blocked_timoshenko_envelope_is_read_under_its_identity() {
     let d = rv::dispatch(&blocked, None, None);
     assert_eq!(d["binding"]["id"], s::PREVIEW_PHYSICS_TIMOSHENKO_ID);
     assert!(d["standing"]["findings"].as_array().unwrap().iter().any(|f| f == "MECHANICS_NOT_SOLVED"));
+}
+
+/// The product's own Timoshenko envelopes (`pf_timoshenko_envelopes.rs` keeps them
+/// current) through every reader above, bound to the frozen requests' models: a
+/// straight solve, a solve with a realized arc and its disclosure, and a blocked
+/// partial-span refusal.
+const PRODUCT: [(&str, &str, &str); 3] = [
+    ("straight", include_str!("../../../../fixtures/results/preview_physics_timoshenko_straight_sparse.json"),
+        include_str!("../../../../validation/references/pf_timoshenko/requests/PFT-SB-L1-CM0-TIMOSHENKO.request.json")),
+    ("arc", include_str!("../../../../fixtures/results/preview_physics_timoshenko_arc_sparse.json"),
+        include_str!("../../../../validation/references/pf_timoshenko/requests/PFT-ARC-TIP-TIMOSHENKO.request.json")),
+    ("partial_span_blocked", include_str!("../../../../fixtures/results/preview_physics_timoshenko_partial_span_blocked_sparse.json"),
+        include_str!("../../../../validation/references/pf_timoshenko/requests/PFT-SB-L1-CM0-TIMOSHENKO.request.json")),
+];
+
+#[test]
+fn the_products_timoshenko_envelopes_are_read_and_exported_under_their_identity() {
+    for (name, text, request) in PRODUCT {
+        let source = parse(text);
+        let model = parse(request)["model"].clone();
+        assert_eq!(model["model_settings"]["shear_model"], "timoshenko_annulus_energy_v1", "{name}");
+        assert_eq!(source["producer"]["semantic_contract_id"], s::PREVIEW_PHYSICS_TIMOSHENKO_ID, "{name}");
+        let (table, _) = s::for_source(&source).unwrap_or_else(|e| panic!("{name}: {e}"));
+        assert_eq!(table["semantic_contract_id"], s::PREVIEW_PHYSICS_TIMOSHENKO_ID, "{name}");
+        s::validate_preview_physics_evidence(&source).unwrap_or_else(|e| panic!("{name}: {e}"));
+        rp::validate_preview_physics_transport_metadata(&source).unwrap_or_else(|e| panic!("{name}: {e}"));
+        let d = rv::dispatch(&source, Some(&model), None);
+        assert_eq!(d["binding"], json!({"id": s::PREVIEW_PHYSICS_TIMOSHENKO_ID, "sha256": s::PREVIEW_PHYSICS_TIMOSHENKO_SHA256}), "{name}");
+        // The model-bound crossed pair: the same envelope on the model without the selection.
+        let mut absent = model.clone();
+        absent.as_object_mut().unwrap().remove("model_settings");
+        assert_eq!(rv::validate("preview-physics", &source, Some(&absent), None)["error"]["code"], rv::SHEAR_MODEL_IDENTITY, "{name}");
+        if name == "partial_span_blocked" {
+            assert_eq!(source["status"]["mechanics"], "MODEL_INCOMPLETE");
+            assert!(d["standing"]["findings"].as_array().unwrap().iter().any(|f| f == "MECHANICS_NOT_SOLVED"), "{d}");
+            assert!(source["diagnostics"].as_array().unwrap().iter().any(|x| x["code"] == "PF_TIMOSHENKO_PARTIAL_SPAN_UNSUPPORTED"));
+            continue;
+        }
+        assert_eq!(rv::validate("preview-physics", &source, Some(&model), None), json!({"ok": true}), "{name}");
+        assert_eq!(rv::standing(&source, Some(&model), None)["findings"], json!([]), "{name}");
+        assert_eq!(s::numerical_use_standing(&source, &bases(&source)), "numerically_eligible", "{name}");
+        let arcs = source["diagnostics"].as_array().unwrap().iter().filter(|x| x["code"] == "PF_TIMOSHENKO_REALIZED_ARCS_EULER_BERNOULLI").count();
+        assert_eq!(arcs, usize::from(name == "arc"), "{name}");
+        // The result export: the derivative keeps the identity, the evidence and the formulation basis,
+        // whose limitation 0 states the realized-arc rule. It carries none of the product's diagnostics
+        // (for either identity); the named arc disclosure reaches the report (`pf_timoshenko_package.rs`).
+        let doc = derive(&source).unwrap_or_else(|e| panic!("{name}: {e}"));
+        let envelope = &doc["result_envelope"];
+        assert_eq!(envelope["semantic_contract_ref"], json!({"ref_type": "semantic_contract", "ref_id": s::PREVIEW_PHYSICS_TIMOSHENKO_ID}));
+        assert_eq!(envelope["formulation_basis"], source["formulation_basis"], "{name}");
+        assert_eq!(envelope["contract_evidence"], source["contract_evidence"], "{name}");
+        let reloaded: Value = serde_json::from_slice(&serde_json::to_vec(&doc).unwrap()).unwrap();
+        d::validate_document(&reloaded, &source).unwrap_or_else(|e| panic!("{name}: {e}"));
+    }
 }

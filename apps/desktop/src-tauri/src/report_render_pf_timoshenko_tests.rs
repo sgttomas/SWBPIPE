@@ -7,10 +7,10 @@
 //! result (its texts resubmitted), is refused; Euler–Bernoulli inputs render as
 //! before.
 //!
-//! The Timoshenko source is a TRANSFORMED STAND-IN until the product publishes
-//! one: the committed DEL-10-05 witness source with the identity, the profile
-//! and limitation 0 swapped, plus a hand-built arc diagnostic; its model selects
-//! `timoshenko_annulus_energy_v1`. Every id is invented.
+//! Most cases use a TRANSFORMED STAND-IN: the committed DEL-10-05 witness source
+//! with the identity, the profile and limitation 0 swapped, plus a hand-built arc
+//! diagnostic; its model selects `timoshenko_annulus_energy_v1`. The last renders
+//! the product's own result with a realized arc. Every id is invented.
 
 use crate::command_ingress::test_support::admit_json;
 use crate::command_ingress::{ArgsDecoding, CommandError};
@@ -62,8 +62,12 @@ fn timoshenko_source() -> Value {
 fn case(shear_model: &str) -> Case {
     let mut model = model();
     model["model_settings"] = json!({"shear_model": shear_model});
+    case_of(model, timoshenko_source())
+}
+
+/// The coherent render input over `source`, delivered from `model`.
+fn case_of(model: Value, source: Value) -> Case {
     let manifest = input_manifest(&model, json!([]));
-    let source = timoshenko_source();
     let request = desktop_request_from(&model, &manifest, &source);
     let result = serde_json::to_string(&source).unwrap();
     let intake = canonical_json(&model);
@@ -178,4 +182,38 @@ fn a_crossed_model_is_not_eligible_at_the_native_binding() {
     // The same Timoshenko result delivered from a model that does not select Timoshenko.
     let case = case("euler_bernoulli");
     refused(&case, &case.input, true, STANDING_NOT_ELIGIBLE, "crossed pair");
+}
+
+/// The product's own Timoshenko result with a realized arc (the frozen
+/// `PFT-ARC-TIP-TIMOSHENKO` request, sparse; `pf_timoshenko_envelopes.rs` keeps it
+/// current), delivered from its request's model: the native render binds its
+/// limitation 0 and the product's arc disclosure, text and references.
+const PRODUCT_ARC: &str = include_str!("../../../../fixtures/results/preview_physics_timoshenko_arc_sparse.json");
+const PRODUCT_ARC_REQUEST: &str =
+    include_str!("../../../../validation/references/pf_timoshenko/requests/PFT-ARC-TIP-TIMOSHENKO.request.json");
+
+#[test]
+fn the_products_timoshenko_result_with_a_realized_arc_renders_its_projection() {
+    let source: Value = serde_json::from_str(PRODUCT_ARC).unwrap();
+    let mut model = serde_json::from_str::<Value>(PRODUCT_ARC_REQUEST).unwrap()["model"].clone();
+    // The display name the desktop's report title reads (the request carries none); the solved
+    // members, and so the delivered result's binding, are the request's.
+    model["project"]["name"] = json!("PFT-ARC-TIP-TIMOSHENKO");
+    let arc = source["diagnostics"].as_array().unwrap().iter().find(|d| d["code"] == REALIZED_ARCS_DIAGNOSTIC).unwrap().clone();
+    assert_eq!(arc["affected_refs"], json!(["pipe:BC"]));
+    let case = case_of(model, source);
+    let rendered = render(&case, &case.input, true).unwrap_or_else(|error| panic!("{error:?}"));
+    assert_eq!(rendered["export_blocked"], json!(false), "{}", rendered["blocking_reasons"]);
+    let html = rendered["html"].as_str().unwrap();
+    let limitation = open_pipe_stress_report_renderer::escape_html(preview_physics_timoshenko_contract()["supported_profile_limitations"][0].as_str().unwrap());
+    assert!(html.contains(&limitation), "the identity's limitation 0 is rendered");
+    assert!(html.contains(&open_pipe_stress_report_renderer::escape_html(arc["message"].as_str().unwrap())));
+    let index = arc_index(&case.input);
+    assert_eq!(case.input["report_sections"]["diagnostics"][index]["affected_object"]["ref_id"], "pipe:BC");
+    let mut text = case.input.clone();
+    text["report_sections"]["diagnostics"][index]["message"] = json!("no realized arcs");
+    refused(&case, &text, true, SECTIONS_MISMATCH, "the product's arc text altered");
+    let mut removed = case.input.clone();
+    removed["report_sections"]["limitations"].as_array_mut().unwrap().pop();
+    refused(&case, &removed, true, SECTIONS_MISMATCH, "the product's limitation removed");
 }
