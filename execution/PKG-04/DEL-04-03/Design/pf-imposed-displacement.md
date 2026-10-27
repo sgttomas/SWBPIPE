@@ -97,10 +97,10 @@ withholds the whole document's results: the blocked envelope has `results: []`
 | Code (blocking) | When |
 |---|---|
 | `IMPOSED_DISPLACEMENT_SUPPORT_UNKNOWN` | the target support does not exist |
-| `IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID` | the target is a spring, a variable spring hanger, a nonlinear device or a constant-effort device |
-| `IMPOSED_DISPLACEMENT_DOF_UNRESTRAINED` | the DOF is not among the target's rigid restraints |
+| `IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID` | the target is a constant-effort device (a nonlinear field included). Until R-c, spring-family records without a nonlinear field remain refused on every DOF; those with a nonlinear field remain refused on their spring axis and nonlinear DOF. These targets receive `IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID`. Under stage 2 (`pf-nonlinear-imposed-motion.md`) a nonlinear record's own DOF moves its ground (R-b) and its rigid restraints take base values (R-d) |
+| `IMPOSED_DISPLACEMENT_DOF_UNRESTRAINED` | the target is a rigid record (no spring family, constant-effort device or nonlinear field) and the DOF is not among its rigid restraints. A non-acting DOF on a nonlinear record receives `IMPOSED_DISPLACEMENT_NONLINEAR_DOF_MISMATCH`. |
 | `IMPOSED_DISPLACEMENT_DOF_MISMATCH` | `target.dof` and `direction` disagree, or a DOF token is invalid |
-| `IMPOSED_DISPLACEMENT_DOF_DUPLICATE` | two primitives in one case prescribe one global DOF, even with equal values. No map insertion may overwrite another. |
+| `IMPOSED_DISPLACEMENT_DOF_DUPLICATE` | two primitives in one case address one base, even with equal values. Duplicates are checked per base: (node, DOF) for rigid targets and (support, DOF) for spring and nonlinear targets. No map insertion may overwrite another. |
 | `IMPOSED_DISPLACEMENT_COINCIDENT_RESTRAINT` | another rigid restraint holds the same global node DOF |
 | `IMPOSED_DISPLACEMENT_WITH_NONLINEAR_SUPPORTS` | retired by stage 2's R-a (`pf-nonlinear-imposed-motion.md`); it refused any motion primitive, including a zero one, in a model with a nonlinear support |
 | `IMPOSED_DISPLACEMENT_DIMENSION_INVALID` | the dimension does not match the DOF, the unit is incompatible, or the magnitude is not finite. This named check runs ahead of the generic unit checks (`validation.rs` ~909), so a test of an incompatible unit asserts this code. |

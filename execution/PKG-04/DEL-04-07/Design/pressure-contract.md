@@ -292,7 +292,7 @@ only route" statement is made.
   The desktop `imposed_displacement` primitive solves where supported and is
   refused with a named, readable reason elsewhere. Priced change: D3
   re-registration with independent review.
-- **Stage 2:** imposed motion in a model with nonlinear supports, in two
+- **Stage 2:** imposed motion in a model with nonlinear supports, in
   separable parts. (R-a) Rigid anchors and restraints carry stage-1 primitives
   as nonzero base prescribed values in the nonlinear active-set loop and its
   K-D5 confirmation; every nonlinear support's ground stays fixed. (R-b) A
@@ -300,7 +300,9 @@ only route" statement is made.
   closure, lift-off and friction slip are measured on the displacement relative
   to the moved ground, and an active or sticking state prescribes the moved
   ground (plus or minus the clearance for a gap). Linear springs with a moving
-  base stay refused. Design: DEL-04-03 `Design/pf-nonlinear-imposed-motion.md`,
+  base stay refused until R-c lands. (R-d) A primitive on a mixed nonlinear
+  record's rigid restraint prescribes that restraint's base value. Design:
+  DEL-04-03 `Design/pf-nonlinear-imposed-motion.md`,
   with dual numerical review and its own benchmarks; R-b may land as a later
   slice.
 Stage 1 is built (W-16 slice a; DEL-04-03 Design `pf-imposed-displacement.md`).
@@ -325,9 +327,11 @@ confirmation checks the loop's prescribed map against the case's motion bit
 for bit. `IMPOSED_DISPLACEMENT_WITH_NONLINEAR_SUPPORTS` is retired; the R-b
 refusals are `IMPOSED_DISPLACEMENT_NONLINEAR_DOF_MISMATCH`,
 `IMPOSED_DISPLACEMENT_GAP_CLOSURE_INEXACT` and the extended
-`IMPOSED_DISPLACEMENT_COINCIDENT_RESTRAINT`. Still refused and open
-(`IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID`): the base of a linear spring and
-the rigid restraints of a mixed nonlinear record. Evidence:
+`IMPOSED_DISPLACEMENT_COINCIDENT_RESTRAINT`. A primitive on a mixed nonlinear
+record's rigid restraint prescribes that restraint's base value (R-d). Still
+refused (`IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID`): a constant-effort record,
+a nonlinear field included, and, until R-c lands, the base of a linear
+spring. Evidence:
 `core/product_physics/src/w16_nonlinear_motion_tests.rs` against
-`validation/references/w16_nonlinear_motion/` (A-1 to A-3, B-1 to B-3 and the
-rigid-translation property, both modes).
+`validation/references/w16_nonlinear_motion/` (A-1 to A-3, B-1 to B-3, D-1,
+D-3 and the rigid-translation property, both modes).
