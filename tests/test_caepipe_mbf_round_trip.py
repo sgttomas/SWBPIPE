@@ -20,6 +20,7 @@ import json
 import math
 import os
 import random
+import subprocess
 from pathlib import Path
 import sys
 from typing import Any
@@ -44,6 +45,7 @@ from schema_validation import JsonSchemaDependencyMissing, _skip_or_note_missing
 from test_model_schema import desktop_entity_requirements  # noqa: E402
 import test_caepipe_mbf_si_writer as writer_tests  # noqa: E402
 import test_caepipe_mbf_importer as importer_tests  # noqa: E402
+from tools.caepipe_correlation import run_pilot  # noqa: E402
 from tools.caepipe_correlation.run_pilot import load_cases, solve_swbpipe  # noqa: E402
 
 
@@ -150,6 +152,7 @@ def models() -> dict[str, tuple[dict, str, float]]:
         "pressure-l-pa": (writer_tests.pressurized_l(), "PRESSURE L", 20.0),
         "pressure-tee-bar": (writer_tests.pressurized_tee(), "PRESSURE TEE", 20.0),
         "pressure-us-psi": (writer_tests.pressurized_us_cantilever(), "PRESSURE US", 20.0),
+        "writer-springs": (writer_tests.sprung_cantilever(), "SPRING", 20.0),
         "z-vertical-si": (z_import(Z_VERTICAL_SI).model, "Z VERTICAL SI", 20.0),
         "z-vertical-english": (z_import(Z_VERTICAL_ENGLISH).model, "Z VERTICAL ENGLISH", 20.0),
     })
@@ -328,13 +331,19 @@ def test_summed_primitives_are_many_to_one_and_reported():
     assert found is not None and found[0] in reported(trip.bound)
 
 
-def test_a_merged_anchor_split_the_solve_refuses_is_not_restored():
+def test_a_merged_anchor_split_the_solve_refuses_is_not_restored(monkeypatch):
     # The writer writes two rigid supports at one node, translations T and rotations R, as one KA row. With no
     # family the solve reads R as a guide (fewer than six DOFs), which restrains translations only, so it refuses the
-    # source model (SUPPORT_INPUT_INVALID); the bound import refuses the split by name rather than restore it.
+    # source model (SUPPORT_INPUT_INVALID); the bound import refuses the split by name rather than restore it. The
+    # writer's total preflight refuses the export for that reason (VER-002 r3); it is bypassed here to reach the import.
     model = writer_tests.cantilever()
     model["supports"] = [{"id": "T", "node": "N0", "restraints": ["UX", "UY", "UZ"], "family": None},
                          {"id": "R", "node": "N0", "restraints": ["RX", "RY", "RZ"]}]
+    refused = render_caepipe_mbf_si(model, title="SPLIT")
+    assert refused.status == "refused" and {item["code"] for item in refused.diagnostics
+                                            if item["severity"] == "error"} == {"MBF-SI-PREFLIGHT-REFUSED"}
+    from core.handoff.caepipe_mbf import si_writer
+    monkeypatch.setattr(si_writer._Writer, "survives_reimport", lambda self, result: True)
     trip = Trip("split", model, "SPLIT", 20.0)
     assert "KA" in trip.text.split("\r\n")[trip.text.split("\r\n").index("LAYOUT") + 1]
     assert refusals(trip.bound) == {("MBF-IMPORT-SIDECAR-INVALID", "support_map[R]")}
@@ -1558,8 +1567,13 @@ def sidecar_replacements(sidecar: dict, data: bytes) -> list[tuple[str, dict, st
                "y_reference_authored"]))
     for swb_id, entry in sidecar["support_map"].items():
         at(f"support_map[{swb_id}].node", "refused", lambda s, k=swb_id: s["support_map"][k].update(node="99"))
+        other = ["UX"] if entry["restrained"] != ["UX"] else ["UZ"]
         at(f"support_map[{swb_id}].restrained", "refused",
-           lambda s, k=swb_id: s["support_map"][k].update(restrained=["UX"]))
+           lambda s, k=swb_id, v=other: s["support_map"][k].update(restrained=v))
+        # A spring (format 3) and a rigid support each read as the other kind: the MBF's springs and rigid DOFs differ.
+        if sidecar.get("sidecar_format") == 3 and len(entry["restrained"]) == 1:
+            at(f"support_map[{swb_id}].family", "refused", lambda s, k=swb_id, v=entry["family"]: s["support_map"][
+                k].update(family="line_stop" if v == "spring" else "spring", family_authored=True))
         inferred = "anchor" if len(entry["restrained"]) == 6 else "guide"
         if not entry["family_authored"]:
             at(f"support_map[{swb_id}].family", "refused",
@@ -1656,8 +1670,10 @@ def summed_model() -> dict:
 
 
 MUTATION_BASES = {"pressurized": lambda: writer_tests.pressurized_l(), "pressure-free": lambda: writer_tests.bent_l(),
-                  "summed": summed_model,
+                  "summed": summed_model, "springs": lambda: writer_tests.sprung_cantilever(),
                   "contract-only": contract_only_model, "authored-orientation": authored_orientation_model}
+# Bases without a pressure contract. Every base's export runs the preflight, which is total (VER-002 r3).
+PRESSURE_FREE_BASES = ("pressure-free", "summed", "springs")
 
 
 @pytest.mark.parametrize("base_model", sorted(MUTATION_BASES))
@@ -1699,7 +1715,7 @@ def test_every_mutated_sidecar_is_refused_by_name_or_restores_the_same_model(bas
     regenerated = regenerated_from(expected)
     summed = groups(expected)  # only these identities are set aside; every field of their entries is compared
     assert bool(summed) == (base_model == "summed") and set_aside(expected) == reported(expected)
-    assert bool(expected.model.get("pressure_contract")) == (base_model not in ("pressure-free", "summed"))
+    assert bool(expected.model.get("pressure_contract")) == (base_model not in PRESSURE_FREE_BASES)
     unbound = run(None, "unbound")  # a digest that is not this file's leaves the sidecar unapplied (§15)
     assert unbound.status == "imported", unbound.diagnostics
     mutations = sidecar_mutations(base)
@@ -1765,7 +1781,7 @@ def test_every_mutated_sidecar_is_refused_by_name_or_restores_the_same_model(bas
             outcomes["equal"] += 1
             pytest.fail(f"{label} imported bound")
         if "writer" not in captured or not label.split("/")[0].split(":")[0].endswith("_map"):
-            continue  # the preflight runs with pressure, binds its own text by its own hash and reads only the maps
+            continue  # the preflight binds its own text by its own hash and reads only the maps
         writer, result = captured["writer"], captured["result"]
         writer.diagnostics[:], writer.loss[:] = list(captured["diagnostics"]), list(captured["loss"])
         maps = {key: value for key, value in sidecar.items() if key != "mbf_sha256"}
@@ -1777,7 +1793,7 @@ def test_every_mutated_sidecar_is_refused_by_name_or_restores_the_same_model(bas
             assert not survives and refusals_ and all(code.startswith("MBF-SI-") for code in refusals_), label
         else:
             assert survives, label
-    assert ("writer" in captured) == (base_model not in ("pressure-free", "summed"))
+    assert "writer" in captured
     assert len(mutations) > 300 and outcomes["refused"] > 0, outcomes
     # VER-002 r12, r13: each field set to a different well-formed value. A value the MBF or a derivation determines
     # must agree with it, and the regeneration identity alone refuses it too. A value the writer copies from the model
@@ -2174,7 +2190,7 @@ def test_every_comparison_model_regenerates_its_sidecar_identically_or_with_iden
         if groups(trip.bound):
             excluded_models.add(name)
     assert excluded_models == {"writer-cancelling-forces"}
-    assert len(REVERSIBLE) == 22
+    assert len(REVERSIBLE) == 23  # tranche 3 added writer-springs
 
 
 def test_a_straight_recorded_as_a_bend_is_refused_on_both_routes():
@@ -2319,7 +2335,7 @@ def test_a_declared_origin_other_than_the_recorded_one_is_refused():
 
 
 # --- VER-002 r14: a summed primitive's entries are compared but for its identity ------------------------------------
-def test_a_restored_id_that_a_summed_primitive_would_also_take_is_refused():
+def test_a_restored_id_that_a_summed_primitive_would_also_take_is_refused(monkeypatch):
     # Codex VER-002 r14 (finding 1): with a second Y force on the tip and a +500 N X force named
     # load:concentrated_force:N1:global_y, the MBF prints FOR(500,-7000,0). The X primitive restores that id and the
     # summed Y primitive forms it too: two primitives under one id, which the solve refuses (DUPLICATE_ID). The
@@ -2328,7 +2344,10 @@ def test_a_restored_id_that_a_summed_primitive_would_also_take_is_refused():
     model["load_cases"][0]["primitive_loads"] += [
         writer_tests.force("tip2", "N1", "global_y", -1000.0),
         writer_tests.force("load:concentrated_force:N1:global_y", "N1", "global_x", 500.0)]
-    data, sidecar = bound_parts(model)
+    refused = render_caepipe_mbf_si(model, title="GUARD")  # the total preflight refuses it (VER-002 r3)
+    assert any(item["code"] == "MBF-SI-PREFLIGHT-REFUSED" and "DUPLICATE_ID" in item["message"]
+               for item in refused.diagnostics)
+    data, sidecar = bound_parts(model, monkeypatch)  # the preflight bypassed, to reach the import
     assert "CFOR(500,-7000,0)" in data.decode()
     result = import_caepipe_mbf(data, sidecar=sidecar, material_provenance=INVENTED, source_label="collision")
     assert refusals(result) == {("MBF-IMPORT-SIDECAR-CONFLICT",
@@ -2799,3 +2818,107 @@ def test_the_companion_digest_backfills_only_a_legacy_sidecar(tmp_path):
     (tmp_path / "legacy" / "mbf_render.json").write_text('{"mbf_sha256": "0", "mbf_sha256": "1"}', encoding="utf-8")
     with pytest.raises(importer_module.SidecarJsonInvalid):
         importer_module.load_sidecar(tmp_path / "legacy" / "id_map.json")
+
+
+# --- tranche 3: imported guides, limit stops and springs solve as hand-derived (Design §12) ---------------------------
+def support_force(output, support_id: str, component: str = "Fy") -> float:
+    """The solve's one reaction component of `support_id`, in N."""
+    values = [row["value"] * SI_RESULT[row["unit"]] for row in output["payload"]["mechanics_envelope"]["results"]
+              if row.get("kind") == "support_reaction_component_v2" and row.get("entity_ref") == support_id
+              and (row.get("metadata") or {}).get("component") == component]
+    assert len(values) == 1, (support_id, component, values)
+    return values[0]
+
+
+def solved(rows: tuple[str, ...]) -> tuple[dict, dict]:
+    result = importer_tests.run(importer_tests.mbf(*rows))
+    assert result.status == "imported", result.diagnostics
+    _, output, error = solve_swbpipe(runner_binary(), {"case_id": "tranche-3", "model": result.model})
+    assert error == "", error
+    return result.model, output
+
+
+# The invented section and material of importer_tests.mbf: OD 168.3 mm, wall 7.11 mm, E 200000 MPa, no weight.
+SECOND_MOMENT = math.pi / 64 * (0.1683 ** 4 - (0.1683 - 2 * 0.00711) ** 4)  # m^4
+MODULUS = 200000e6  # Pa
+
+
+@pytest.mark.parametrize("prop, support_id", [("G", "support:30-guide"), ("LS(0,0),DV(0,-1,0)", "support:30-stop-y")])
+def test_an_imported_rigid_guide_or_limit_stop_props_a_cantilever_as_hand_derived(prop, support_id):
+    # Fixed at node 10, propped at 30 (3 m), 6000 N down at midspan node 20: the prop carries 5P/16 = 1875 N
+    # (Euler-Bernoulli, which a pressure-free document solves with). The guide's element runs along X, so it
+    # restrains UY and UZ; the limit stop restrains UY. Neither restrains a rotation.
+    model, output = solved(("F10,KA,MM1,PP1,CL=L1", "T20,X1500,CFOR(0,-6000,0),FLC=1", f"T30,X1500,C{prop}"))
+    assert next(item for item in model["supports"] if item["id"] == support_id)
+    assert abs(support_force(output, support_id)) == pytest.approx(1875.0, rel=1e-9)
+
+
+def test_an_imported_spring_shares_a_tip_load_with_the_cantilever_as_hand_derived():
+    # A 3 m cantilever with a skewed restraint K = 500 N/mm along Y at its tip and 6000 N down there: the tip
+    # deflects F / (3EI/L^3 + k), and the spring carries k / (3EI/L^3 + k) of the load. The flexible anchor's TRAK
+    # gives the same spring.
+    beam = 3 * MODULUS * SECOND_MOMENT / 3.0 ** 3
+    expected = 6000.0 * 5e5 / (beam + 5e5)
+    for row, support_id in (("T20,X3000,CK=500,DV(0,1,0),FOR(0,-6000,0),FLC=1", "support:20-spring-uy"),
+                            ("T20,X3000,KA,CTRAK(0,500,0),ROTK(0,0,0),FOR(0,-6000,0),FLC=1", "support:20-spring-uy")):
+        model, output = solved(("F10,KA,MM1,PP1,CL=L1", row))
+        assert next(item for item in model["supports"] if item["id"] == support_id)["stiffness"]["value"] == {
+            "value": 500.0, "unit": "N/mm"}
+        assert abs(support_force(output, support_id)) == pytest.approx(expected, rel=1e-9)
+        assert abs(support_force(output, "support:10")) == pytest.approx(6000.0 - expected, rel=1e-9)
+
+
+def test_a_format_3_spring_entry_is_held_to_its_vocabulary_and_format_2_admits_none():
+    # The parser (Design §15): a spring acts on exactly one translation with an authored family, and only format 3
+    # records springs; format 2 sidecars keep their rigid vocabulary unchanged.
+    trip = Trip("springs", writer_tests.sprung_cantilever(), "SPRING", 20.0)
+    assert trip.bound.status == "imported", trip.bound.diagnostics
+    key = "spring:N1:y"
+    for change, path in (
+            (lambda entry: entry.update(restrained=["UY", "UZ"]), f"support_map[{key}].restrained"),
+            (lambda entry: entry.update(restrained=["RY"]), f"support_map[{key}].restrained"),
+            (lambda entry: entry.update(family_authored=False), f"support_map[{key}].family_authored")):
+        sidecar = deepcopy(trip.sidecar)
+        change(sidecar["support_map"][key])
+        result = import_caepipe_mbf(trip.data, sidecar=sidecar, material_provenance=INVENTED, source_label="spring")
+        assert (("MBF-IMPORT-SIDECAR-INVALID", path) in refusals(result)), result.diagnostics
+    format_2 = {key: value for key, value in deepcopy(trip.sidecar).items() if key != "sidecar_sha256"}
+    format_2["sidecar_format"] = 2
+    result = import_as_given(trip.data, sidecar=format_2, material_provenance=INVENTED, source_label="spring")
+    assert ("MBF-IMPORT-SIDECAR-INVALID", f"support_map[{key}].family") in refusals(result)
+
+
+def runner_text(model: dict) -> str:
+    """The runner's whole answer (stdout and stderr) to a solve of `model`, for its named refusal."""
+    body = {"request": run_pilot.runner_request("tranche-3"), "solve": {"preview_model": {"model": model,
+                                                                                          "materials": []}}}
+    completed = subprocess.run([runner_binary(), "solve", "--explicit-local-private-intent", "--input", "-"],
+                               input=json.dumps(body), capture_output=True, text=True, check=False)
+    return completed.stdout + completed.stderr
+
+
+TIP_SPRING = ("F10,KA,MM1,PP1,CL=L1", "T20,X3000,CK={},DV(0,1,0),FOR(0,-6000,0),FLC=1")
+
+
+def test_a_negligible_spring_is_imported_and_refused_by_name_by_the_solve():
+    # VER-002 r2 (tranche 3), classified with the guard map's solve-time arithmetic row (Design §9.4, §12): a
+    # stiffness negligible against the assembled stiffness is the file's, and the solve refuses it by name when its
+    # assembly absorbs the spring. The import keeps the spring as written; no bound is applied.
+    result = importer_tests.run(importer_tests.mbf(*(row.format("1e-300") for row in TIP_SPRING)))
+    assert result.status == "imported", result.diagnostics
+    spring = next(item for item in result.model["supports"] if item["id"] == "support:20-spring-uy")
+    assert spring["stiffness"]["value"] == {"value": 1e-300, "unit": "N/mm"}
+    _, _, error = solve_swbpipe(runner_binary(), {"case_id": "tranche-3", "model": result.model})
+    assert error != ""
+    assert "NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED" in runner_text(result.model)
+
+
+def test_the_checked_json_guard_is_the_solves_own_refusal(monkeypatch):
+    # Without the import's guard, k = 1e20 N/mm imports and the solve refuses the document as
+    # CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT; with it, the import refuses it by name first (Design §9.4 guard map).
+    data = importer_tests.mbf(*(row.format("1e20") for row in TIP_SPRING))
+    assert importer_tests.run(data).status == "refused"
+    monkeypatch.setattr(importer_module._Importer, "checked_json_domain", lambda self, model: None)
+    unguarded = importer_tests.run(data)
+    assert unguarded.status == "imported", unguarded.diagnostics
+    assert "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT" in runner_text(unguarded.model)

@@ -383,11 +383,114 @@ def test_temperature_dependent_material_is_refused():
                    "material:mat:CS")
 
 
-def test_spring_support_is_refused():
+def test_hanger_support_is_refused():
+    # Hangers stay refused (Design §12): a hanger's loads act by case, which no SWBPIPE member carries.
     model = cantilever()
-    model["supports"].append({"id": "spring:N1", "node": "N1", "family": "spring", "restraints": ["UY"],
-                              "stiffness": {"dof": "UY", "value": q(1.0e6, "N/m")}})
-    assert_refused(render_caepipe_mbf_si(model, title="S"), "MBF-SI-SUPPORT-UNSUPPORTED", "support:spring:N1")
+    model["supports"].append({"id": "hanger:N1", "node": "N1", "family": "spring_hanger", "restraints": ["UY"],
+                              "hanger": {"hanger_type": "spring_hanger",
+                                         "stiffness": {"dof": "UY", "value": q(1.0e6, "N/m")}}})
+    assert_refused(render_caepipe_mbf_si(model, title="S"), "MBF-SI-SUPPORT-UNSUPPORTED", "support:hanger:N1")
+
+
+def spring(support_id, node_id, dof, value, unit="N/m", restraints=None):
+    return {"id": support_id, "node": node_id, "family": "spring", "restraints": restraints or [dof],
+            "stiffness": {"dof": dof, "value": q(value, unit)}}
+
+
+def sprung_cantilever():
+    """The invented cantilever with a spring on each translation at its tip: UY 250000 N/m, UX 1.5 lbf/in."""
+    model = cantilever("mm")
+    model["supports"] += [spring("spring:N1:y", "N1", "UY", 250000.0), spring("spring:N1:x", "N1", "UX", 1.5, "lbf/in")]
+    return model
+
+
+def test_a_spring_is_written_as_a_flexible_anchor():
+    # Hand-derived: 250000 N/m = 250 N/mm (10^-3 exactly); 1.5 lbf/in = 1.5 x 4.4482216152605 N / 25.4 mm
+    # = 0.262690252869714... N/mm, printed to 10 significant digits. UZ has no spring: 0, free; rotations free.
+    result = render_caepipe_mbf_si(sprung_cantilever(), title="SPRING")
+    assert result.status == "written", result.diagnostics
+    assert "T20,KA,X3000,CTRAK(0.2626902529,250,0),ROTK(0,0,0),FOR(0,-6000,0)\r\n" in result.text
+    assert result.support_map["spring:N1:y"] == {"node": "20", "caepipe_kind": "anchor", "restrained": ["UY"],
+                                                 "family": "spring", "family_authored": True}
+    assert "1 lbf/in" in next(item["message"] for item in result.diagnostics
+                              if item["code"] == "MBF-SI-UNITS-NORMALIZED")
+    assert any(note.startswith("Spring supports are written as flexible anchors") for note in result.assumptions)
+
+
+@pytest.mark.parametrize("change, code, fragment", [
+    (lambda m: m["supports"].append(spring("rx", "N1", "RX", 5.0, "N*m/rad")), "MBF-SI-SUPPORT-UNSUPPORTED",
+     "rotational spring"),
+    (lambda m: m["supports"].append(spring("y2", "N1", "UY", 5.0)), "MBF-SI-SUPPORT-UNSUPPORTED", "second spring"),
+    (lambda m: m["supports"].append({"id": "r", "node": "N1", "restraints": ["UZ"]}), "MBF-SI-SUPPORT-UNSUPPORTED",
+     "springs and rigid restraints"),
+    (lambda m: m["supports"].append(spring("z0", "N1", "UZ", 0.0)), "MBF-SI-VALUE-OUT-OF-RANGE", "positive"),
+    (lambda m: m["supports"].append(spring("zz", "N1", "UZ", 5.0, restraints=["UZ", "UX"])),
+     "MBF-SI-SUPPORT-UNSUPPORTED", "same single DOF"),
+    (lambda m: m["supports"].append(spring("zu", "N1", "UZ", 5.0, "N*m/rad")), "MBF-SI-UNIT-UNSUPPORTED", "stiffness"),
+    (lambda m: m["supports"].append({"id": "zs", "node": "N1", "family": "spring", "restraints": ["UZ"]}),
+     "MBF-SI-INPUT-INVALID", "needs a stiffness"),
+    (lambda m: m["load_cases"].append({"id": "case:move", "primitive_loads": [
+        {"id": "dy", "category": "imposed_displacement", "target": {"type": "support", "support": "spring:N1:y",
+                                                                    "dof": "UY"},
+         "direction": "UY", "magnitude": q(1.0, "mm"), "dimension": "displacement"}]}),
+     "MBF-SI-IMPOSED-DISPLACEMENT-UNSUPPORTED", "anchor"),
+])
+def test_springs_the_writer_does_not_write_are_refused_by_name(change, code, fragment):
+    model = sprung_cantilever()
+    change(model)
+    assert_refused(render_caepipe_mbf_si(model, title="S"), code, fragment)
+
+
+def test_a_spring_export_is_checked_by_its_own_bound_reimport(monkeypatch):
+    # The preflight runs for every spring export (Design §12). 1e306 N/mm prints as 1e+306, which the solve reads as
+    # 1e309 N/m: the re-import refuses it (MBF-IMPORT-VALUE-UNREPRESENTABLE), so the export is refused by name.
+    model = cantilever("mm")
+    model["supports"].append(spring("huge", "N1", "UY", 1e306, "N/mm"))
+    assert_refused(render_caepipe_mbf_si(model, title="S"), "MBF-SI-PREFLIGHT-REFUSED",
+                   "MBF-IMPORT-VALUE-UNREPRESENTABLE")
+    # 1e20 N/mm is finite in N/m, but the re-import refuses it as outside the solve's checked-JSON domain
+    # (VER-002 r2): the preflight inherits that refusal.
+    model["supports"][-1] = spring("huge", "N1", "UY", 1e20, "N/mm")
+    assert_refused(render_caepipe_mbf_si(model, title="S"), "MBF-SI-PREFLIGHT-REFUSED",
+                   "MBF-IMPORT-VALUE-UNREPRESENTABLE", "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT")
+    calls = []
+    from core.handoff.caepipe_mbf import si_writer
+    original = si_writer._Writer.survives_reimport
+    monkeypatch.setattr(si_writer._Writer, "survives_reimport",
+                        lambda self, result: calls.append(result.status) or original(self, result))
+    assert render_caepipe_mbf_si(sprung_cantilever(), title="SPRING").status == "written"
+    assert calls == ["written"]
+    assert render_caepipe_mbf_si(cantilever(), title="PLAIN").status == "written"
+    assert calls == ["written", "written"]  # the preflight is total (Design §14, VER-002 r3)
+
+
+def test_the_preflight_is_total_and_refuses_what_printing_or_normalization_breaks(monkeypatch):
+    # VER-002 r3: every export but the regeneration route's is checked by its own bound re-import, whatever it holds.
+    from core.handoff.caepipe_mbf import si_writer
+    from core.handoff.caepipe_mbf.importer import import_caepipe_mbf
+    # A pressure-free, spring-free export passes it, and its text is unchanged by it.
+    calls = []
+    original = si_writer._Writer.survives_reimport
+    monkeypatch.setattr(si_writer._Writer, "survives_reimport",
+                        lambda self, result: calls.append(result.text) or original(self, result))
+    plain = render_caepipe_mbf_si(cantilever(), title="PLAIN")
+    assert plain.status == "written" and calls == [plain.text]
+    # Printing crosses the checked-JSON boundary: 2^53 - 1 N imports, but prints to 10 significant digits as
+    # 9.007199255e+15, an integral float beyond 2^53 - 1, which the re-import refuses.
+    imported = import_caepipe_mbf(
+        b"INVENTED BOUNDARY\r\nVERSION\r\n15.10\r\nOPTIONS\r\nHGRA,SI\r\nOPTEMP\r\n20\r\nMATERIAL\r\n"
+        b"M1,0,0.3,1,1,CS,invented steel\r\nM1,20,200000,1.2e-05\r\nPIPE\r\nP1,168.3,7.11,0,0,0,0,0,0\r\nLOADS\r\n"
+        b"L1,20,0,0\r\nLAYOUT\r\nF10,KA,MM1,PP1,CL=L1\r\nT20,X3000,CFOR(0,9007199254740991,0),FLC=1\r\n",
+        material_provenance={"*": {"origin": "project_invented", "source_name": "invented writer test"}},
+        source_label="boundary")
+    assert imported.status == "imported", imported.diagnostics
+    assert_refused(render_caepipe_mbf_si(imported.model, title="BOUNDARY"), "MBF-SI-PREFLIGHT-REFUSED",
+                   "MBF-IMPORT-VALUE-UNREPRESENTABLE", "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT")
+    # Unit normalization crosses it: 1e14 kN, within the domain, is written as 1e17 N, beyond it.
+    model = cantilever()
+    model["load_cases"][0]["primitive_loads"] = [force("tip", "N1", "global_y", -1e14, "kN")]
+    assert_refused(render_caepipe_mbf_si(model, title="KN"), "MBF-SI-PREFLIGHT-REFUSED",
+                   "MBF-IMPORT-VALUE-UNREPRESENTABLE", "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT")
 
 
 def test_bend_component_is_refused():
@@ -468,11 +571,17 @@ def test_partial_rotational_restraint_is_refused_for_the_target_build():
     assert_refused(result, "MBF-SI-SUPPORT-UNSUPPORTED", "support:R4", "rotational restraints", "FIXR")
 
 
-def test_full_six_dof_restraint_from_two_supports_is_an_anchor_not_a_rotational_restraint():
+def test_full_six_dof_restraint_from_two_supports_is_an_anchor_not_a_rotational_restraint(monkeypatch):
     model = cantilever()
     model["supports"] = [{"id": "T", "node": "N0", "restraints": ["UX", "UY", "UZ"]},
                          {"id": "R", "node": "N0", "restraints": ["RX", "RY", "RZ"]}]
-    result = render_caepipe_mbf_si(model, title="SPLIT")
+    # The solve reads the family-less R as a guide, which restrains no rotation (SUPPORT_INPUT_INVALID): the bound
+    # re-import refuses its split, so the total preflight refuses the export by name (VER-002 r3).
+    assert_refused(render_caepipe_mbf_si(model, title="SPLIT"), "MBF-SI-PREFLIGHT-REFUSED", "support_map[R]",
+                   "SUPPORT_INPUT_INVALID")
+    from core.handoff.caepipe_mbf import si_writer
+    monkeypatch.setattr(si_writer._Writer, "survives_reimport", lambda self, result: True)
+    result = render_caepipe_mbf_si(model, title="SPLIT")  # the rendering itself: one KA row, no FIXR
     assert result.status == "written", result.diagnostics
     assert result.text.split("\r\n")[16] == "F10,KA,MM1,PP1,CL=L1"
 
@@ -710,14 +819,17 @@ def test_same_target_loads_are_summed_exactly_before_one_rounding():
     result = render_caepipe_mbf_si(cancelling_cantilever(), title="CANCEL")
     assert result.status == "written", result.diagnostics
     assert "T20,X3048,CFOR(0,0.004448221615,0)" in result.text.split("\r\n")
-    # The same holds for thermal changes summed on one element: 100 + 1e-12 - 100 C = 1e-12 C.
+    # The same holds for thermal changes summed on one element: 100 + 1e-12 - 100 C = 1e-12 C. At a 0 C reference,
+    # T1 prints as 1e-12; a binary64 running sum would print 9.947598301e-13. (At 20 C, T1 = 20 + 1e-12 prints as 20:
+    # the thermal case vanishes from the file but not from the sidecar, which the total preflight refuses.)
     model = cantilever()
     model["load_cases"] = [{"id": "case:th", "primitive_loads": [
         {"id": f"t{index}", "category": "thermal", "target": {"type": "element", "pipe": "S1"}, "direction": "global_x",
          "magnitude": q(value, "degC"), "dimension": "temperature_interval"} for index, value in enumerate((100.0, 1e-12, -100.0))]}]
-    result = render_caepipe_mbf_si(model, title="DT")
+    result = render_caepipe_mbf_si(model, title="DT", reference_temperature_c=0.0)
     assert result.status == "written", result.diagnostics
-    assert "L1,20,0,0" in result.text.split("\r\n")  # T1 = 20 + 1e-12 prints as 20
+    assert "L1,1e-12,0,0" in result.text.split("\r\n")
+    assert_refused(render_caepipe_mbf_si(model, title="DT"), "MBF-SI-PREFLIGHT-REFUSED", "load_case_map")
 
 
 def test_a_normalized_value_that_overflows_or_underflows_is_refused_by_name():

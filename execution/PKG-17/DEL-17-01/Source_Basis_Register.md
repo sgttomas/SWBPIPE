@@ -46,6 +46,12 @@ cited.
 | CAEPIPE-FORCE | `https://docs.sstcae.com/tech_manual/force.htm` (technical reference, `Force`; case-membership semantics only) | `https://web.archive.org/web/20251114212139/https://www.sstusa.com/docs/tech_manual/force.htm`, 2025-11-14 |
 | CAEPIPE-ANALYSIS | `https://docs.sstcae.com/users_manual/analysis.htm` (`Analysis`; analysis-option semantics only: number of thermal loads, gravitational acceleration and direction) | `https://web.archive.org/web/20251114203205/https://www.sstusa.com/docs/users_manual/analysis.htm`, 2025-11-14 |
 | CAEPIPE-LOCAL-AXES | `https://docs.sstcae.com/tech_manual/local_coordinate_system.htm` (technical reference, `Local Coordinate System`; pipe local-axis convention only) | `https://web.archive.org/web/20251112192726/https://www.sstusa.com/docs/tech_manual/local_coordinate_system.htm`, 2025-11-12 |
+| CAEPIPE-GUIDE | `https://docs.sstcae.com/tech_manual/guide.htm` (technical reference, `Guide`; support-type semantics only) | Not checked |
+| CAEPIPE-LIMIT-STOP | `https://docs.sstcae.com/tech_manual/limit_stop.htm` (technical reference, `Limit Stop`; support-type semantics only) | Not checked |
+| CAEPIPE-ANCHOR | `https://docs.sstcae.com/tech_manual/anchor.htm` (technical reference, `Anchor`; support-type semantics only) | Not checked |
+| CAEPIPE-SKEWED-RESTRAINT | `https://docs.sstcae.com/tech_manual/skewed_restraint.htm` (technical reference, `Skewed Restraint`; support-type semantics only) | Not checked |
+| CAEPIPE-HANGER | `https://docs.sstcae.com/tech_manual/hanger.htm` (technical reference, `Hanger`; support-type semantics only) | Not checked |
+| CAEPIPE-MATERIAL | `https://docs.sstcae.com/tech_manual/material.htm` (technical reference, `Material`; material-property semantics only) | Not checked |
 | CAEPIPE-PCF | Not yet checked under `docs.sstcae.com`; not used by the correlation pilot. | Not checked |
 
 ## Accepted Project References
