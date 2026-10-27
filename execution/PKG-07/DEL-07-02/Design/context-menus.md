@@ -11,8 +11,9 @@ One menu component (`features/workspace/contextMenu/ContextMenu.tsx`) and one
 set of entity commands (`EntityContextMenu.tsx`) serve:
 
 - **The viewport.** A label target, and the canvas. On the canvas a secondary
-  press released within 4 CSS px of where it began opens the menu, so a
-  right-drag still pans. The entity under the pointer is the target; with
+  press opens the menu on release only if the pointer never went more than
+  4 CSS px from where it began, so a right-drag still pans, even one that
+  comes back. The entity under the pointer is the target; with
   none, the primary selection is. jsdom has no WebGL, so the tests cover the
   canvas menu with no pick.
 - **The model tree.** Entity rows. Group rows have no entity commands and open
@@ -42,7 +43,10 @@ H and I shortcuts act only while focus is in the viewport, so the menu shows
 them only there. A viewport command is unavailable while no viewport is
 mounted. While the Table view is shown the viewport is mounted but not
 displayed; Hide, Isolate and Show all still apply there, and the tree shows
-the hidden state. The removal builders moved unchanged from
+the hidden state. The other routes stay available in their own views. In the
+Table view the viewport toolbar is not shown, so the tree's menu is then the
+only route to Hide selected, Isolate selected and Fit selection. The removal
+builders moved unchanged from
 `PropertyInspector.tsx`; their `source_ref` still names the inspector, because
 the intent is the same intent, whichever surface queues it.
 
@@ -82,6 +86,14 @@ the existing commands' own where they have one:
   disabled with "This acts on the selection, which does not include ⟨id⟩.
   Select it first."
 - A table cell's right-click also makes that cell the table's current cell.
+- A selection made elsewhere while a table's menu is open does not move that
+  table's current cell. Focus coming back to the cell therefore does not
+  select its row again.
+- Each right-click selection is subject to the surface's existing guards. For
+  example, the viewport selects nothing while a draft review is busy.
+- Opening a menu runs no command. A direct-cell edit still applies when focus
+  leaves its editor, as it always has; opening a menu on another cell moves
+  focus too.
 
 ## Keyboard
 
@@ -96,12 +108,32 @@ the existing commands' own where they have one:
 - ArrowDown and ArrowUp move and wrap, Home and End go to the ends, and a
   printable character moves to the next item starting with it. Disabled items
   are visited.
-- Enter or Space runs the item. Escape, Tab, Shift+F10 or the ContextMenu key
+- Enter or Space runs the item. Escape, Shift+F10 or the ContextMenu key
   closes the menu.
-- Running an item or closing from the keyboard returns focus to the element
-  the menu was opened from: the tree list, the cell, the row header, the label
-  or the canvas. The menu closes before the item runs, so an item that moves
-  focus (Edit cell opens the editor) keeps it.
+- Tab and Shift+Tab close the menu and move focus to the tab stop after or
+  before the element the menu was opened from, as Tab from that element would.
+  Neither key reaches the surface below.
+- An item runs in the same update that closes the menu, and focus is judged
+  afterwards (`recoverMenuFocus`):
+  - An item that placed focus keeps it. For example, Edit cell opens the
+    editor.
+  - Otherwise focus returns to the element the menu was opened from, if it is
+    still connected and shown: the tree list, the cell, the row header, the
+    label or the canvas.
+  - Otherwise it goes to the surface's current equivalent or stable place:
+    - for a viewport label, the same entity's label, then the canvas;
+    - for a bulk-grid row, the same row's ID button, then the first row's;
+    - for a table, the same cell or row header, then the table's footer, as a
+      removed edit row does.
+  - When the whole surface is hidden, focus goes to the first shown focusable
+    element in the surface's nearest shown ancestor. This happens when queuing
+    a removal opens Pending changes in the tree's pane, and focus then goes to
+    that page.
+- Escape uses the same order, so a row removed while its menu was open sends
+  focus to the table's footer.
+- "Shown" is the reveal helper's test (`canSurfaceRevealNow`). jsdom does no
+  layout, so the tests model it (`test-support/modelledVisibility.ts`). The
+  review's Chromium probes cover the browser.
 - A pointer press outside, a window resize or the window losing focus closes
   the menu and leaves focus where the user put it.
 - While the menu is open, it takes every key, and none reaches the tree, the
@@ -117,13 +149,25 @@ the existing commands' own where they have one:
   - the tree, the bulk grid and the engineering tables;
   - routing to the viewport command, the inspector's intents and the table's
     edit and sort;
-  - focus return and the selection rule.
-- `features/viewport/PipeViewport.contextMenu.test.tsx`: labels and the canvas,
-  and the toolbar's own Hide and Isolate results.
+  - focus return, Tab traversal and the selection rule.
+- `features/workspace/table/EngineeringTable.contextMenu.test.tsx`: a row
+  removed while its menu is open, and a selection made elsewhere while it is
+  open.
+- `features/viewport/PipeViewport.contextMenu.test.tsx`:
+  - labels and the canvas;
+  - the toolbar's own Hide and Isolate results;
+  - focus on the canvas after Hide removes the label;
+  - the out-and-back right-drag.
 - `App.contextMenu.test.tsx`: through the shell, from the tree to the mounted
-  viewport's Hide and Show all, and to the pending-changes queue.
+  viewport's Hide and Show all, and to the pending-changes queue, with focus on
+  that page afterwards.
 
-With the surface wiring reverted, 22 of the 23 surface tests fail. The one
-that passes checks that a group row opens no menu.
+With the surface wiring reverted, 22 of the first 23 surface tests fail. The
+one that passes checks that a group row opens no menu. With the menu, viewport,
+table and tree sources as they were at #1679's first revision, 11 tests fail.
+These are 10 of the 12 focus, Tab and drag tests added since, and the
+bulk-grid test, whose Tab expectation changed. The two that still pass check
+behaviour that held before: focus returns to an invoker that is still shown,
+and stays where a command put it.
 
-Browser and native checks of the menus remain open.
+Native checks of the menus remain open.

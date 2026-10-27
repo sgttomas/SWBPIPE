@@ -5,6 +5,9 @@ const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("./test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 
 import { App } from "./App";
+import { useModelledVisibility } from "./test-support/modelledVisibility";
+
+useModelledVisibility();
 
 // B9 through the product: the tree's context menu reaches the mounted viewport's own view
 // commands through the shell (App passes the viewport's dispatcher to the tree), and its
@@ -57,5 +60,19 @@ describe("the tree context menu in the shell", () => {
     const queued = await within(screen.getByTestId("workspace-section-operations")).findByTestId("operation-apply-row-editor-intent-1");
     expect(queued).toHaveTextContent("not_present");
     expect(within(screen.getByTestId("workspace-section-operations")).getByTestId("operation-apply-summary")).toHaveTextContent("1 queued; 0 applied");
+  });
+
+  it("from the keyboard, queuing a removal hides the tree and moves focus to the Pending changes page that replaced it", async () => {
+    await renderShell();
+    const tree = screen.getByTestId("model-tree-virtual");
+    fireEvent.contextMenu(firstPipeRow());
+    const menu = await screen.findByRole("menu");
+    fireEvent.keyDown(menu, { key: "End" });
+    fireEvent.keyDown(menu, { key: "Enter" });
+    await within(screen.getByTestId("workspace-section-operations")).findByTestId("operation-apply-row-editor-intent-1");
+    expect(tree.closest(".inactive")).not.toBeNull();
+    expect(document.activeElement).not.toBe(document.body);
+    expect(document.activeElement?.closest(".inactive")).toBeNull();
+    expect(screen.getByTestId("workspace-section-operations")).toHaveFocus();
   });
 });

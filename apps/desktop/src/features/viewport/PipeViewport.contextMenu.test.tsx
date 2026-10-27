@@ -4,6 +4,7 @@
 // command. Uses the bundled invented reference model; jsdom has no WebGL, so the canvas picks
 // nothing and the canvas menu is the primary selection's.
 import { createEvent, fireEvent, render, screen, within } from "@testing-library/react";
+import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { loadBundledMechanicsReference } from "../../services/previewService";
 import type { EditorOperationIntent, EntityRef, PreviewModel } from "../../types";
@@ -11,6 +12,9 @@ import { DisplayUnitsProvider } from "../display-units";
 import { buildDeleteSupportIntent } from "../model-tree/removalIntents";
 import { entityKey, singletonSelection, type EntityKey } from "../workspace/selectionState";
 import { PipeViewport } from "./PipeViewport";
+import { useModelledVisibility } from "../../test-support/modelledVisibility";
+
+useModelledVisibility();
 
 function mount(model: PreviewModel, selection: EntityRef) {
   const onSelect = vi.fn((ref: EntityRef) => singletonSelection(ref));
@@ -27,7 +31,7 @@ function mount(model: PreviewModel, selection: EntityRef) {
 }
 
 // jsdom has no PointerEvent: it dispatches a plain Event, so the pointer fields are set here.
-function pointer(kind: "pointerDown" | "pointerUp", target: Element, fields: { button: number; pointerId: number; clientX: number; clientY: number }) {
+function pointer(kind: "pointerDown" | "pointerMove" | "pointerUp", target: Element, fields: { button: number; pointerId: number; clientX: number; clientY: number }) {
   const event = createEvent[kind](target);
   for (const [key, value] of Object.entries(fields)) Object.defineProperty(event, key, { value });
   fireEvent(target, event);
@@ -126,5 +130,42 @@ describe("the viewport context menu", () => {
     fireEvent.click(menuItem("queue-removal"));
     expect(onQueueIntent).toHaveBeenCalledExactlyOnceWith(buildDeleteSupportIntent(support, model));
     expect(model).toEqual(before);
+  });
+
+  it("after Hide removes the invoking label, puts focus on the canvas, not the page", async () => {
+    const { model } = await loadBundledMechanicsReference();
+    const pipe = model.pipe_segments[0];
+    function Harness() {
+      const [hidden, setHidden] = useState<ReadonlySet<EntityKey>>(new Set());
+      return (
+        <DisplayUnitsProvider>
+          <PipeViewport model={model} result={null} selection={{ type: "pipe", id: pipe.id }} explicitHiddenKeys={hidden} hiddenKeys={hidden}
+            onHiddenKeysChange={setHidden} onSelect={(ref) => singletonSelection(ref)} />
+        </DisplayUnitsProvider>
+      );
+    }
+    render(<Harness />);
+    const target = label(pipe.id);
+    target.focus();
+    fireEvent.keyDown(target, { key: "F10", shiftKey: true });
+    fireEvent.keyDown(screen.getByRole("menu"), { key: "Enter" });
+    expect(target.isConnected).toBe(false);
+    expect(screen.getByTestId("viewport-canvas")).toHaveFocus();
+  });
+
+  it("on the canvas, a right-drag that goes beyond 4 px and comes back does not open the menu", async () => {
+    const { model } = await loadBundledMechanicsReference();
+    mount(model, { type: "pipe", id: model.pipe_segments[0].id });
+    const canvas = screen.getByTestId("viewport-canvas");
+    pointer("pointerDown", canvas, { button: 2, pointerId: 1, clientX: 10, clientY: 10 });
+    pointer("pointerMove", canvas, { button: 2, pointerId: 1, clientX: 60, clientY: 10 });
+    pointer("pointerMove", canvas, { button: 2, pointerId: 1, clientX: 11, clientY: 10 });
+    pointer("pointerUp", canvas, { button: 2, pointerId: 1, clientX: 10, clientY: 10 });
+    expect(screen.queryByRole("menu")).toBeNull();
+    // A press that stays within 4 px throughout still opens it.
+    pointer("pointerDown", canvas, { button: 2, pointerId: 1, clientX: 10, clientY: 10 });
+    pointer("pointerMove", canvas, { button: 2, pointerId: 1, clientX: 14, clientY: 10 });
+    pointer("pointerUp", canvas, { button: 2, pointerId: 1, clientX: 10, clientY: 10 });
+    expect(screen.getByRole("menu")).toBeInTheDocument();
   });
 });

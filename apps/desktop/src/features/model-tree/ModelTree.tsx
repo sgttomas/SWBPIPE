@@ -871,12 +871,20 @@ function EntityGrid({
     const target: EntityRef = { type: row.type, id: row.id };
     if (!isSelected(entityKey(target))) onSelect(target);
     const header = event.currentTarget.querySelector<HTMLElement>("[data-grid-row-header]");
-    setRowMenu({ target, request: pointerMenuRequest(event, header), serial: ++rowMenuSerial.current });
+    setRowMenu({ target, request: pointerMenuRequest(event, header, rowMenuFallbacks(row)), serial: ++rowMenuSerial.current });
   }
   function rowHeaderKeyDown(event: React.KeyboardEvent<HTMLButtonElement>, row: GridRow) {
     if (!isContextMenuKey(event)) return;
     event.preventDefault();
-    setRowMenu({ target: { type: row.type, id: row.id }, request: keyboardMenuRequest(event.currentTarget), serial: ++rowMenuSerial.current });
+    setRowMenu({ target: { type: row.type, id: row.id }, request: keyboardMenuRequest(event.currentTarget, event.currentTarget, rowMenuFallbacks(row)), serial: ++rowMenuSerial.current });
+  }
+  /** The same row's current ID button, then the first shown row's. */
+  function rowMenuFallbacks(row: GridRow) {
+    const testId = `entity-grid-row-${safeToken(row.type)}-${safeToken(row.id)}`;
+    return () => {
+      const headers = [...(gridRootRef.current?.querySelectorAll<HTMLElement>("[data-grid-row-header]") ?? [])];
+      return [headers.find((element) => element.dataset.testid === testId), ...headers];
+    };
   }
   // W-17 §7.3, §7.6: composed column defaults are checked against the DEC-018 catalog,
   // as in the property inspector; until it loads (or in the browser preview) they stay unchecked.

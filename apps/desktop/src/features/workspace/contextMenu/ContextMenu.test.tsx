@@ -1,15 +1,20 @@
 // B9: the shared context menu's WAI-ARIA menu behaviour: opening from the keyboard, Arrow,
-// Home, End, Enter, Space, Escape and Tab, type-ahead, disabled items with their reasons, and
-// focus returning to the invoking element.
+// Home, End, Enter, Space, Escape and Tab, type-ahead, disabled items with their reasons,
+// focus returning to the invoking element, and focus recovery when a command hides or removes
+// that element.
 import { fireEvent, render, screen } from "@testing-library/react";
 import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { ContextMenu, isContextMenuKey, keyboardMenuRequest, type ContextMenuEntry, type ContextMenuRequest } from "./ContextMenu";
+import { useModelledVisibility } from "../../../test-support/modelledVisibility";
+
+useModelledVisibility();
 
 function Harness({ entries }: { entries: readonly ContextMenuEntry[] }) {
   const [request, setRequest] = useState<ContextMenuRequest | null>(null);
   return (
     <>
+      <button type="button" data-testid="before">Before</button>
       <button type="button" data-testid="invoker" onKeyDown={(event) => {
         if (!isContextMenuKey(event)) return;
         event.preventDefault();
@@ -115,21 +120,36 @@ describe("the context menu", () => {
     expect(screen.getByRole("menu")).toBeInTheDocument();
   });
 
-  it("closes on Escape or Tab with focus back on the invoker, and keeps keys from the surface below", () => {
+  it("closes on Escape with focus back on the invoker, and keeps keys from the surface below", () => {
     const surfaceKeys = vi.fn();
     render(<div onKeyDown={surfaceKeys}><Harness entries={entries().list} /></div>);
     const invoker = open();
     surfaceKeys.mockClear();
     fireEvent.keyDown(screen.getByRole("menu"), { key: "h" });
     fireEvent.keyDown(screen.getByRole("menu"), { key: "ArrowDown" });
-    expect(surfaceKeys).not.toHaveBeenCalled();
     fireEvent.keyDown(screen.getByRole("menu"), { key: "Escape" });
+    expect(surfaceKeys).not.toHaveBeenCalled();
     expect(screen.queryByRole("menu")).toBeNull();
     expect(invoker).toHaveFocus();
+  });
+
+  it("closes on Tab and moves to the tab stop after the invoker, and on Shift+Tab to the one before", () => {
+    const surfaceKeys = vi.fn();
+    const { list, run } = entries();
+    render(<div onKeyDown={surfaceKeys}><Harness entries={list} /></div>);
     open();
-    fireEvent.keyDown(screen.getByRole("menu"), { key: "Tab" });
+    surfaceKeys.mockClear();
+    const tab = fireEvent.keyDown(screen.getByRole("menu"), { key: "Tab" });
+    expect(tab).toBe(false);
     expect(screen.queryByRole("menu")).toBeNull();
-    expect(invoker).toHaveFocus();
+    expect(screen.getByTestId("elsewhere")).toHaveFocus();
+    open();
+    surfaceKeys.mockClear();
+    fireEvent.keyDown(screen.getByRole("menu"), { key: "Tab", shiftKey: true });
+    expect(screen.queryByRole("menu")).toBeNull();
+    expect(screen.getByTestId("before")).toHaveFocus();
+    expect(surfaceKeys).not.toHaveBeenCalled();
+    expect(run).not.toHaveBeenCalled();
   });
 
   it("closes on a pointer press outside without taking focus back", () => {
@@ -149,5 +169,76 @@ describe("the context menu", () => {
     fireEvent.click(item("fit"));
     expect(run).toHaveBeenCalledWith("fit");
     expect(screen.queryByRole("menu")).toBeNull();
+  });
+});
+
+// A surface that a command can change: the invoker can be hidden or removed, and the surface
+// names its equivalents and stable places as the menu request's fallbacks.
+function Surface({ effect, fallbacks = true }: { effect: "remove" | "hide" | "hide-surface" | "focus-editor" | "none"; fallbacks?: boolean }) {
+  const [request, setRequest] = useState<ContextMenuRequest | null>(null);
+  const [state, setState] = useState<"shown" | "removed" | "hidden" | "surface-hidden" | "editing">("shown");
+  const run = () => setState(effect === "remove" ? "removed" : effect === "hide" ? "hidden" : effect === "hide-surface" ? "surface-hidden" : effect === "focus-editor" ? "editing" : "shown");
+  return (
+    <div data-testid="page">
+      <div data-testid="surface" className={state === "surface-hidden" ? "inactive" : undefined}>
+        {state === "removed" ? null : (
+          <button type="button" data-testid="row" hidden={state === "hidden"} onKeyDown={(event) => {
+            if (!isContextMenuKey(event)) return;
+            event.preventDefault();
+            setRequest(keyboardMenuRequest(event.currentTarget, event.currentTarget, fallbacks ? () => [document.querySelector<HTMLElement>('[data-testid="row"]'), document.querySelector<HTMLElement>('[data-testid="container"]')] : undefined));
+          }}>Row</button>
+        )}
+        <div data-testid="container" tabIndex={-1}>Container</div>
+        {state === "editing" ? <input aria-label="Editor" autoFocus /> : null}
+      </div>
+      <section data-testid="replacement" tabIndex={-1}>Replacement page</section>
+      {request ? <ContextMenu label="Commands" entries={[{ kind: "command", id: "act", label: "Act", run }]} request={request} onClose={() => setRequest(null)} /> : null}
+    </div>
+  );
+}
+
+function openRowMenu() {
+  const row = screen.getByTestId("row");
+  row.focus();
+  fireEvent.keyDown(row, { key: "F10", shiftKey: true });
+  return row;
+}
+
+describe("focus after a command changes the invoking surface", () => {
+  it("returns to the invoker when it is still shown", () => {
+    render(<Surface effect="none" />);
+    const row = openRowMenu();
+    fireEvent.keyDown(screen.getByRole("menu"), { key: "Enter" });
+    expect(row).toHaveFocus();
+  });
+
+  it.each(["remove", "hide"] as const)("goes to the surface's stable place when the command %ss the invoker", (effect) => {
+    render(<Surface effect={effect} />);
+    openRowMenu();
+    fireEvent.keyDown(screen.getByRole("menu"), { key: "Enter" });
+    expect(document.activeElement).not.toBe(document.body);
+    expect(screen.getByTestId("container")).toHaveFocus();
+  });
+
+  it("goes to the shown region that replaced a hidden surface", () => {
+    render(<Surface effect="hide-surface" />);
+    openRowMenu();
+    fireEvent.keyDown(screen.getByRole("menu"), { key: "Enter" });
+    expect(screen.getByTestId("replacement")).toHaveFocus();
+  });
+
+  it("leaves focus where the command put it", () => {
+    render(<Surface effect="focus-editor" />);
+    openRowMenu();
+    fireEvent.keyDown(screen.getByRole("menu"), { key: "Enter" });
+    expect(screen.getByRole("textbox", { name: "Editor" })).toHaveFocus();
+  });
+
+  it("on Escape after the invoker was removed while the menu was open, goes to the stable place", () => {
+    const view = render(<Surface effect="none" />);
+    openRowMenu();
+    view.getByTestId("row").remove();
+    fireEvent.keyDown(screen.getByRole("menu"), { key: "Escape" });
+    expect(screen.getByTestId("container")).toHaveFocus();
   });
 });

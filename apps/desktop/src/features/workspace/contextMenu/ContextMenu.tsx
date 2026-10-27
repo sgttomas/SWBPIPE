@@ -1,12 +1,14 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
-import { createPortal } from "react-dom";
+import { createPortal, flushSync } from "react-dom";
+import { canSurfaceRevealNow } from "../surfaceReveal";
 
 // B9: one context menu for the viewport, the tree and the grids. It lists commands that
 // already exist elsewhere (the menu bar, a toolbar, the inspector, a shortcut); each entry
 // runs that command's own handler. WAI-ARIA menu semantics: role="menu" with menuitems, the
 // first item focused on open, Arrow keys, Home and End to move, Enter or Space to act,
-// Escape or Tab to close. A disabled item stays focusable (aria-disabled) and states why.
-// Focus returns to the invoking element when the menu closes from the keyboard or by an item.
+// Escape to close, Tab and Shift+Tab to close and move to the next or previous tab stop. A
+// disabled item stays focusable (aria-disabled) and states why. An item runs first; focus is
+// then recovered only if the command left it nowhere (see `recoverMenuFocus`).
 
 export type ContextMenuCommand = Readonly<{
   kind: "command";
@@ -21,8 +23,16 @@ export type ContextMenuCommand = Readonly<{
 export type ContextMenuEntry = ContextMenuCommand | Readonly<{ kind: "separator"; id: string }>;
 
 export type ContextMenuAnchor = Readonly<{ x: number; y: number }>;
-/** Where the menu opens and which element takes focus back when it closes. */
-export type ContextMenuRequest = Readonly<{ anchor: ContextMenuAnchor; returnFocus: HTMLElement | null }>;
+/**
+ * Where the menu opens, which element takes focus back when it closes, and, for when that
+ * element is gone or no longer shown, the surface's current equivalents and stable places
+ * (the same entity's row or label, the tree, the table footer, the canvas), in order.
+ */
+export type ContextMenuRequest = Readonly<{
+  anchor: ContextMenuAnchor;
+  returnFocus: HTMLElement | null;
+  fallbacks?: () => ReadonlyArray<HTMLElement | null | undefined>;
+}>;
 
 /** Shift+F10 or the ContextMenu key: the keyboard's way to open a context menu. */
 export function isContextMenuKey(event: Pick<KeyboardEvent, "key" | "shiftKey" | "ctrlKey" | "metaKey" | "altKey">): boolean {
@@ -31,13 +41,62 @@ export function isContextMenuKey(event: Pick<KeyboardEvent, "key" | "shiftKey" |
 }
 
 /** A keyboard-opened menu sits at the invoking element's lower-left corner. */
-export function keyboardMenuRequest(element: HTMLElement, returnFocus: HTMLElement | null = element): ContextMenuRequest {
+export function keyboardMenuRequest(element: HTMLElement, returnFocus: HTMLElement | null = element, fallbacks?: ContextMenuRequest["fallbacks"]): ContextMenuRequest {
   const rect = element.getBoundingClientRect();
-  return { anchor: { x: rect.left, y: rect.bottom }, returnFocus };
+  return { anchor: { x: rect.left, y: rect.bottom }, returnFocus, fallbacks };
 }
 
-export function pointerMenuRequest(event: { clientX: number; clientY: number }, returnFocus: HTMLElement | null): ContextMenuRequest {
-  return { anchor: { x: event.clientX, y: event.clientY }, returnFocus };
+export function pointerMenuRequest(event: { clientX: number; clientY: number }, returnFocus: HTMLElement | null, fallbacks?: ContextMenuRequest["fallbacks"]): ContextMenuRequest {
+  return { anchor: { x: event.clientX, y: event.clientY }, returnFocus, fallbacks };
+}
+
+const TABBABLE = 'a[href], button, input, select, textarea, summary, [tabindex], [contenteditable]:not([contenteditable="false"])';
+
+/** Shown, connected and able to take focus. */
+function focusable(element: Element | null | undefined): element is HTMLElement {
+  return element instanceof HTMLElement && canSurfaceRevealNow(element) && !(element as HTMLButtonElement).disabled;
+}
+
+function tryFocus(element: HTMLElement): boolean {
+  element.focus();
+  return document.activeElement === element;
+}
+
+/** The candidates in order: the invoker, then the surface's equivalents and stable places. */
+function candidates(request: ContextMenuRequest): HTMLElement[] {
+  return [request.returnFocus, ...(request.fallbacks?.() ?? [])].filter((element): element is HTMLElement => element instanceof HTMLElement);
+}
+
+/**
+ * Puts focus back after the menu closed and its command ran. A command that placed focus
+ * itself (an editor) keeps it. Otherwise focus goes to the first candidate still connected
+ * and shown. When none is (the command hid the whole surface, as queuing a removal opens the
+ * Pending changes page in the tree's pane), it goes to the first shown focusable element in
+ * the nearest shown ancestor of the surface: the page that replaced it.
+ */
+export function recoverMenuFocus(request: ContextMenuRequest): HTMLElement | null {
+  const active = document.activeElement;
+  if (active instanceof HTMLElement && active !== document.body && active.isConnected) return active;
+  const list = candidates(request);
+  for (const element of list) if (focusable(element) && tryFocus(element)) return element;
+  const start = list.find((element) => element.isConnected);
+  for (let ancestor = start?.parentElement ?? null; ancestor; ancestor = ancestor.parentElement) {
+    if (!canSurfaceRevealNow(ancestor)) continue;
+    if (ancestor.hasAttribute("tabindex") && tryFocus(ancestor)) return ancestor;
+    for (const element of ancestor.querySelectorAll<HTMLElement>("[tabindex]")) {
+      if (focusable(element) && tryFocus(element)) return element;
+    }
+  }
+  return null;
+}
+
+/** The tab stop after (or before) the invoker, as Tab would have moved from it. */
+export function adjacentTabStop(reference: HTMLElement, backward: boolean, exclude: Element | null): HTMLElement | null {
+  const stops = [...document.querySelectorAll<HTMLElement>(TABBABLE)].filter((element) =>
+    element.tabIndex >= 0 && focusable(element) && !exclude?.contains(element) && element !== reference && !reference.contains(element)
+  );
+  const follows = (element: HTMLElement) => Boolean(reference.compareDocumentPosition(element) & Node.DOCUMENT_POSITION_FOLLOWING);
+  return backward ? [...stops].reverse().find((element) => !follows(element)) ?? null : stops.find(follows) ?? null;
 }
 
 const VIEWPORT_MARGIN = 4;
@@ -58,12 +117,29 @@ export function ContextMenu({ label, entries, request, onClose, testId = "contex
   const latest = useRef({ onClose, request });
   latest.current = { onClose, request };
 
-  function close(restoreFocus: boolean) {
+  /** Removes the menu now (and runs `then` in the same commit), so that focus can be judged after. */
+  function dismiss(then?: () => void) {
     if (closed.current) return;
     closed.current = true;
-    latest.current.onClose();
-    const target = latest.current.request.returnFocus;
-    if (restoreFocus && target?.isConnected) target.focus();
+    flushSync(() => {
+      latest.current.onClose();
+      then?.();
+    });
+  }
+
+  function close(restoreFocus: boolean) {
+    if (closed.current) return;
+    dismiss();
+    if (restoreFocus) recoverMenuFocus(latest.current.request);
+  }
+
+  function tabAway(backward: boolean) {
+    const request = latest.current.request;
+    const menu = menuRef.current;
+    dismiss();
+    const reference = candidates(request).find((element) => element.isConnected) ?? null;
+    const next = reference ? adjacentTabStop(reference, backward, menu) : null;
+    if (!next || !tryFocus(next)) recoverMenuFocus(request);
   }
 
   // Keep the menu inside the window.
@@ -92,22 +168,24 @@ export function ContextMenu({ label, entries, request, onClose, testId = "contex
       if (event.target instanceof Node && menuRef.current?.contains(event.target)) return;
       close(false);
     };
-    const dismiss = () => close(false);
+    const leave = () => close(false);
     document.addEventListener("pointerdown", outside, true);
-    window.addEventListener("resize", dismiss);
-    window.addEventListener("blur", dismiss);
+    window.addEventListener("resize", leave);
+    window.addEventListener("blur", leave);
     return () => {
       document.removeEventListener("pointerdown", outside, true);
-      window.removeEventListener("resize", dismiss);
-      window.removeEventListener("blur", dismiss);
+      window.removeEventListener("resize", leave);
+      window.removeEventListener("blur", leave);
     };
   }, []);
 
   function activate(command: ContextMenuCommand) {
-    if (command.disabled) return;
-    // Close and restore focus first, so a command that moves focus (an editor) keeps it.
-    close(true);
-    command.run();
+    if (command.disabled || closed.current) return;
+    // Close and run in one commit, then recover focus only if the command left it nowhere:
+    // a command that moves focus (an editor) keeps it, and one that hides or removes the
+    // invoker sends it to the surface's equivalent or a stable place.
+    dismiss(() => command.run());
+    recoverMenuFocus(latest.current.request);
   }
 
   function move(step: number | "first" | "last") {
@@ -126,7 +204,8 @@ export function ContextMenu({ label, entries, request, onClose, testId = "contex
     else if (event.key === "Home") move("first");
     else if (event.key === "End") move("last");
     else if (event.key === "Enter" || event.key === " ") { if (command) activate(command); }
-    else if (event.key === "Escape" || event.key === "Tab" || isContextMenuKey(event)) close(true);
+    else if (event.key === "Tab") tabAway(event.shiftKey);
+    else if (event.key === "Escape" || isContextMenuKey(event)) close(true);
     else if (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
       // Type-ahead: the next item whose label starts with the typed character.
       const start = Math.max(0, commands.findIndex((candidate) => candidate.id === currentActive));

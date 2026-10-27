@@ -597,7 +597,7 @@ export function PipeViewport({
   // opens it on the focused label or, from the canvas, on the primary selection.
   const [entityMenu, setEntityMenu] = useState<{ target: EntityRef; request: ContextMenuRequest; serial: number } | null>(null);
   const entityMenuSerialRef = useRef(0);
-  const secondaryPressRef = useRef<{ pointerId: number; x: number; y: number } | null>(null);
+  const secondaryPressRef = useRef<{ pointerId: number; x: number; y: number; moved: boolean } | null>(null);
   useEffect(() => {
     setHoveredEntityKey((current) => current && !hiddenKeys.has(current) ? current : null);
   }, [activeModelIndex.sessionGeneration, hiddenKeys]);
@@ -1879,7 +1879,8 @@ export function PipeViewport({
       secondaryPressRef.current = {
         pointerId: finitePointerEventNumber(event.pointerId, 1),
         x: finitePointerEventNumber(event.clientX, 0),
-        y: finitePointerEventNumber(event.clientY, 0)
+        y: finitePointerEventNumber(event.clientY, 0),
+        moved: false
       };
       return;
     }
@@ -1943,6 +1944,12 @@ export function PipeViewport({
   }
 
   function handleViewportPointerMove(event: ReactPointerEvent<HTMLDivElement>) {
+    // A secondary press that ever travels beyond 4 CSS px is a pan, even if it comes back.
+    const secondary = secondaryPressRef.current;
+    if (secondary && !secondary.moved && secondary.pointerId === finitePointerEventNumber(event.pointerId, 1) &&
+      Math.hypot(finitePointerEventNumber(event.clientX, 0) - secondary.x, finitePointerEventNumber(event.clientY, 0) - secondary.y) > 4) {
+      secondary.moved = true;
+    }
     const boxCandidate = boxGestureRef.current;
     if (boxCandidate && boxCandidate.pointerId === finitePointerEventNumber(event.pointerId, 1)) {
       if (!boxCandidateIsCurrent(boxCandidate.context)) {
@@ -2404,6 +2411,15 @@ export function PipeViewport({
     publishSelectionAction(onSelect(ref), inputKind, null);
   }
 
+  /** A label's menu falls back to the same entity's current label, then to the canvas. */
+  function labelMenuFallbacks(ref: EntityRef) {
+    const key = entityKey(ref);
+    return () => [
+      [...(selectionLayerRef.current?.querySelectorAll<HTMLElement>("[data-entity-key]") ?? [])].find((element) => element.dataset.entityKey === key),
+      hostRef.current
+    ];
+  }
+
   function primarySelectionRef(): EntityRef {
     return (primarySelectionKey ? entityRefFromKey(primarySelectionKey) : null) ?? selection;
   }
@@ -2414,7 +2430,7 @@ export function PipeViewport({
     const x = finitePointerEventNumber(event.clientX, 0);
     const y = finitePointerEventNumber(event.clientY, 0);
     // A right-drag pans the camera; only a press released in place opens the menu.
-    if (!press || press.pointerId !== finitePointerEventNumber(event.pointerId, 1) || Math.hypot(x - press.x, y - press.y) > 4) return;
+    if (!press || press.moved || press.pointerId !== finitePointerEventNumber(event.pointerId, 1) || Math.hypot(x - press.x, y - press.y) > 4) return;
     const picked = pickRef.current?.({ clientX: x, clientY: y }) ?? null;
     if (picked) selectForContextMenu(picked, "pointer");
     openEntityMenu(picked ?? primarySelectionRef(), pointerMenuRequest({ clientX: x, clientY: y }, hostRef.current));
@@ -2646,12 +2662,12 @@ export function PipeViewport({
                   onContextMenu={(event) => {
                     event.preventDefault();
                     selectForContextMenu(target.ref, "label");
-                    openEntityMenu(target.ref, pointerMenuRequest(event, event.currentTarget));
+                    openEntityMenu(target.ref, pointerMenuRequest(event, event.currentTarget, labelMenuFallbacks(target.ref)));
                   }}
                   onKeyDown={(event) => {
                     if (!isContextMenuKey(event)) return;
                     event.preventDefault();
-                    openEntityMenu(target.ref, keyboardMenuRequest(event.currentTarget));
+                    openEntityMenu(target.ref, keyboardMenuRequest(event.currentTarget, event.currentTarget, labelMenuFallbacks(target.ref)));
                   }}
                   style={{
                     left: `${target.screen.x}%`,

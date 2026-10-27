@@ -12,6 +12,9 @@ import type { ViewportViewCommand } from "../viewport/viewportSelection";
 import { entityKey, singletonSelection, type OrderedSelectionState } from "../workspace/selectionState";
 import { ModelTree } from "./ModelTree";
 import { PropertyInspector } from "./PropertyInspector";
+import { useModelledVisibility } from "../../test-support/modelledVisibility";
+
+useModelledVisibility();
 
 afterEach(cleanup);
 
@@ -216,8 +219,9 @@ describe("the bulk grid row context menu", () => {
     expect(onSelect).not.toHaveBeenCalled();
     // pipe:AB is not selected here (node:A is): the commands say so.
     expect(menuItem(menu, "hide-selection")).toHaveAccessibleDescription("This acts on the selection, which does not include pipe:AB. Select it first.");
+    // Tab leaves the menu for the tab stop after the ID button, as Tab from it would.
     fireEvent.keyDown(menu, { key: "Tab" });
-    expect(header).toHaveFocus();
+    expect(screen.getByTestId("entity-grid-input-pipe:AB-label")).toHaveFocus();
     expect(viewCommand).not.toHaveBeenCalled();
   });
 });

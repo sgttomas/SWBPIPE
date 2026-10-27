@@ -205,3 +205,4 @@ checks:
 - apps/desktop/src/features/workspace/contextMenu/ContextMenu.test.tsx
 - apps/desktop/src/features/workspace/contextMenu/EntityContextMenu.test.tsx
 - apps/desktop/src/App.contextMenu.test.tsx
+- apps/desktop/src/features/workspace/table/EngineeringTable.contextMenu.test.tsx

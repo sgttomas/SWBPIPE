@@ -93,6 +93,7 @@ export function EngineeringTable(props: Props) {
     selectionOwnership.current = { key: selectedKey, revision: selectionOwnership.current.revision + 1 };
   }
   const focusRequest = useRef<CellAddress | null>(null);
+  const menuOpen = useRef(false);
   const editorFocusRequest = useRef<{ token: number; generation: string; owner: Element | null; selectionRevision: number } | null>(null);
   const ownedCellElement = useRef<{ element: HTMLElement; selectionRevision: number } | null>(null);
   // A completed label edit can disappear on a later canonical publication.
@@ -115,6 +116,7 @@ export function EngineeringTable(props: Props) {
   // cell or row header and never changes the selection.
   const [menu, setMenu] = useState<{ rowKey: EntityKey; columnKey: string | null; request: ContextMenuRequest; serial: number } | null>(null);
   const menuSerial = useRef(0);
+  menuOpen.current = Boolean(menu);
   const menuContext = useContext(TableContextMenuContext);
   const renderContextMenu = props.contextMenu ?? menuContext?.contextMenu;
   const isRowSelected = props.isRowSelected ?? menuContext?.isRowSelected ?? ((key: EntityKey) => key === selectedKey);
@@ -133,6 +135,16 @@ export function EngineeringTable(props: Props) {
       { kind: "command", id: "clear-sort", label: "Clear sort", disabled: !sort, reason: sort ? null : "The table is not sorted.", run: () => setSort(null) }
     ];
   }
+  /** The same cell or row header as now rendered, then the table's footer, as an edit's removed row does. */
+  function menuFallbacks(rowKey: EntityKey, columnKey: string | null) {
+    return () => [
+      [...(root.current?.querySelectorAll<HTMLElement>(columnKey === null ? '[role="rowheader"] button' : "[data-table-cell]") ?? [])]
+        .find((element) => columnKey === null ? element.closest('[role="row"]')?.querySelector<HTMLElement>("[data-row-key]")?.dataset.rowKey === rowKey
+          : element.dataset.rowKey === rowKey && element.dataset.columnKey === columnKey),
+      footer.current,
+      root.current
+    ];
+  }
   function openMenu(rowKey: EntityKey, columnKey: string | null, request: ContextMenuRequest) {
     if (!renderContextMenu && cellCommands(rowKey, columnKey).length === 0) return;
     setMenu({ rowKey, columnKey, request, serial: ++menuSerial.current });
@@ -141,12 +153,12 @@ export function EngineeringTable(props: Props) {
     event.preventDefault();
     if (!isRowSelected(rowKey)) onSelect(rowKey);
     if (columnKey !== null && !editRef.current) setFocused({ rowKey, columnKey });
-    openMenu(rowKey, columnKey, pointerMenuRequest(event, event.currentTarget));
+    openMenu(rowKey, columnKey, pointerMenuRequest(event, event.currentTarget, menuFallbacks(rowKey, columnKey)));
   }
   function keyboardMenu(event: KeyboardEvent<HTMLElement>, rowKey: EntityKey, columnKey: string | null): boolean {
     if (!isContextMenuKey(event)) return false;
     event.preventDefault(); event.stopPropagation();
-    openMenu(rowKey, columnKey, keyboardMenuRequest(event.currentTarget));
+    openMenu(rowKey, columnKey, keyboardMenuRequest(event.currentTarget, event.currentTarget, menuFallbacks(rowKey, columnKey)));
     return true;
   }
 
@@ -188,7 +200,8 @@ export function EngineeringTable(props: Props) {
   useLayoutEffect(() => {
     if (revealedSelectionKey.current === selectedKey) return;
     revealedSelectionKey.current = selectedKey;
-    pendingSelectionReveal.current = editRef.current || root.current?.contains(document.activeElement) ? null : selectedKey;
+    // Focus in this table's open context menu belongs to the table: its focus comes back here.
+    pendingSelectionReveal.current = editRef.current || menuOpen.current || root.current?.contains(document.activeElement) ? null : selectedKey;
   }, [selectedKey]);
   useLayoutEffect(() => {
     const key = pendingSelectionReveal.current;
