@@ -41,15 +41,19 @@ PRIVATE_LAYER_NAMES = {"caepipe_results.json", "parser_diagnostics.json", "compa
                        "guest_log.json", "guest_stdout.txt", "guest_stderr.txt", "case_manifest.json"}
 PRIVATE_DOCUMENT_KINDS = {PARSED_CSV_KIND, PARSER_DIAGNOSTICS_KIND, COMPARISON_RECORD_KIND, SERIES_RECORD_KIND,
                           RUN_RECORD_KIND, MANIFEST_KIND}
-SECTION_TITLES = (
-    "Loads on Anchors in Global Coordinates",
-    "Loads on Anchors in Local Coordinates",
-    "Element forces in global coordinates",
-    "Pipe element forces (local)",
-    "Loads on restraints",
-    ": Displacements",
-    "Min/Max Displacements",
-)
+# The target tool's output markers: the leading label of its results files and its section titles.
+OUTPUT_MARKERS = {
+    "file_label": b"Caepipe",
+    "section_titles": (
+        "Loads on Anchors in Global Coordinates",
+        "Loads on Anchors in Local Coordinates",
+        "Element forces in global coordinates",
+        "Pipe element forces (local)",
+        "Loads on restraints",
+        ": Displacements",
+        "Min/Max Displacements",
+    ),
+}
 
 
 def repository_files() -> tuple[Path, list[str]]:
@@ -155,7 +159,7 @@ def test_caepipe_headed_files_are_declared_invented():
                 head = handle.read(16)
         except (IsADirectoryError, FileNotFoundError, PermissionError):
             continue
-        if not head.lstrip(b"\xef\xbb\xbf").startswith(b"Caepipe"):
+        if not head.lstrip(b"\xef\xbb\xbf").startswith(OUTPUT_MARKERS["file_label"]):
             continue
         if not declared_invented(path):
             offending.append(name)
@@ -170,7 +174,7 @@ def test_no_caepipe_section_titles_under_the_public_case_folder():
         if not name.startswith(prefix):
             continue
         text = (repo / name).read_text(encoding="utf-8", errors="replace")
-        offending.extend(f"{name}: {title}" for title in SECTION_TITLES if title in text)
+        offending.extend(f"{name}: {title}" for title in OUTPUT_MARKERS["section_titles"] if title in text)
     assert offending == []
 
 
