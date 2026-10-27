@@ -1702,11 +1702,17 @@ with `syn::visit::Visit`.
   `#[cfg(feature = "native-smoke")]`, `#[cfg(target_os = "macos")]` and
   `#[cfg(any(test, …))]`, and an item gated only through a `cfg_attr` or an
   inner `#![cfg(…)]`.
-  Test-only items are not read; that includes test modules, outlined or
-  inline. Statements and expressions are read whatever their attributes.
+  In the three reporting crates, test-only items, test modules included,
+  outlined or inline, are read under the test-only rules (*Build
+  configuration* below; code review r6 at #1682). In `src-tauri` they are
+  not read: neither `DerivedUserRelease` nor `ProducerEntry` can be named
+  outside `report_package`, where both are `pub(crate)`, and the compiler
+  enforces that whatever `cfg` is set. Statements and expressions are read
+  whatever their attributes.
 - **Files.** A file is production when any production declaration loads it,
-  whatever test declarations also name it. A file named only by test
-  declarations is not read.
+  whatever test declarations also name it. In the reporting crates a file
+  named only by test declarations is read as a test-only module; in
+  `src-tauri` it is not read.
 - **Forbidden in production.** Each of these is a finding:
   - a `#[path = …]` on a `mod`;
   - a `cfg_attr` that applies `path`, at any depth of nested `cfg_attr`s and
@@ -2163,11 +2169,13 @@ modelling:
   are exactly the allow-lists, and no module, binding or macro definition
   takes a reserved name.
 
-*Cargo targets (code review r5 at #1682).* The `forbid` attribute and the
-scan govern one crate each: a crate's library root, every module it loads
-and its unit-test modules (`#[cfg(test)]` modules compiled into the
-library's own test build, under the same root lint). Cargo builds other
-crates from the same package: integration tests, benches, examples,
+*Cargo targets (code review r5 at #1682).* The root `forbid` attribute
+governs one crate: the library root, every module it loads, and its
+unit-test modules (`#[cfg(test)]` modules compiled into the library's own
+test build, under the same root lint). The scan reads that crate's
+production source under the production rules and, since code review r6, its
+`#[cfg(test)]` items under the test-only rules (*Build configuration*
+below). Cargo builds other crates from the same package: integration tests, benches, examples,
 binaries, build scripts and proc-macro libraries are separate crates, with
 their own roots, and none inherits the library root's lint. Two forms
 compiled and gave no finding: a manifest naming another library root (`[ lib ]`
@@ -2230,9 +2238,164 @@ manifest's spelling, decides what each crate builds:
   copies pass. A nested module's `#![forbid(unsafe_code)]` is a finding on
   the invented and the real sources.
 
-The real-source scan finds nothing under these rules; no rule needed an
-allow-list entry beyond today's renames and re-exports or a change to
-production code other than the three crate-root attributes. What the scan does not
+*Build configuration (code review r6 at #1682).* The scan reads the
+checked-in sources of the four crates. Two build inputs could still make a
+build compile other code: a consumer could resolve a reporting package from
+somewhere else (a `.cargo` `paths` override, `[patch]`, `[replace]` or a
+source override), so that the scanner returns no finding for code it never
+read; and a build that sets `cfg(test)` compiles the test-only items, which
+the scan skipped. Each was a compiled repro. The scan's test now checks the
+build configuration as well as the sources:
+- **Resolved identities.** For the desktop shell, the test runs `cargo
+  metadata --format-version 1 --offline --locked --filter-platform
+  host-tuple` with dependencies, in the crate's own directory, so that Cargo
+  reads the configuration a build there reads. Each of `report_package`,
+  `report_renderer` and `pdf_emitter` must resolve to exactly one package,
+  from a path, in the resolved graph, whose canonical manifest is the
+  `Cargo.toml` of the directory the scan read. The resolve's root must be
+  the shell itself, and every package must come from crates.io or from a
+  path inside the repository. A `paths` override, `[patch]`, `[replace]` or
+  source override that moves a reporting package is then a finding. The
+  platform filter is what lets this run offline where only the shell's own
+  dependencies have been fetched, as in the hosted desktop Rust job:
+  unfiltered metadata needs every platform's packages, and without them it
+  fails offline. The headless runner also depends on `report_package`, but
+  its lock holds registry versions the shell's does not, so an offline
+  resolve of its graph fails in that job. For the runner, the test instead
+  reads Cargo's own view of its manifest (`cargo metadata --offline --locked
+  --no-deps`), which needs no download: its declared `report_package`
+  dependency must be a path to the directory the scan read. That check does
+  not see a `paths` override. Such an override would have to be in a Cargo
+  configuration file, which the next rule refuses inside the repository.
+  On today's graph each reporting package resolves once, to the directory
+  the scan read; 32 packages come from paths in the repository and the rest
+  from crates.io.
+- **Cargo configuration.** Cargo reads `.cargo/config` and
+  `.cargo/config.toml` in the directory it runs in and in every ancestor
+  directory. Such a file anywhere in the repository tree is a finding,
+  unless it is on an allow-list of today's files, which is empty. `.git` is
+  skipped, and symbolic links to directories are not followed.
+- **`[patch]` and `[replace]`.** These are checked in the manifests of both
+  consumers and the three reporting crates without a TOML parser:
+  - any `patch` or `replace`, in any case and anywhere in the text, is a
+    finding;
+  - so is any `\u` or `\U` escape, which could spell one in a quoted key.
+  None of the five manifests holds either today. `src-tauri`'s lock does
+  hold a TOML crate, but parsing with it would mean a new dependency edge,
+  so it is not used. An override that takes effect also moves the resolved
+  identities above.
+- **Test-only items.** In the three reporting crates, `#[cfg(test)]` items
+  and test modules, inline or outlined, are no longer skipped. They are read
+  under the rules that keep the proof unforgeable:
+  - **Construction and literal rules.** Constructions of
+    `ProducerEntry::UserRelease` in any form, `DerivedUserRelease` literals
+    (`Self` in an impl for it included), every other occurrence of
+    `DerivedUserRelease` but a type, and the literal-path rules of the
+    defining subtree all apply.
+  - **Naming rules.** Each of these is a finding: a type alias in the
+    defining subtree, a trait impl or associated type for
+    `DerivedUserRelease`, a test-only redefinition of a scanned function, an
+    import of `UserRelease`, a reserved macro-path name, `include!`,
+    `include_bytes!` and `concat_idents!`, a `#[path]`, a `Verbatim` node,
+    and `unsafe`.
+  - **Relaxed rules.** These govern only production code's shape: the
+    invocation, attribute, derive, import and macro-definition allow-lists,
+    and the call and entry-argument rules. In a test-only item:
+    - the test harness's `#[test]`, `#[should_panic]` and `#[ignore]` are
+      admitted, with the two `serde` derives by their crate path;
+    - glob and renamed imports and local macros are allowed;
+    - calls of the scanned functions are a test's own and are not counted;
+    - in the defining subtree, an unlisted macro's tokens (`assert_eq!`)
+      are parsed as expressions and visited as code, and tokens that do not
+      parse so are screened, a brace group among them being a finding.
+
+  The test allow-list (`TEST_PROOF_ITEMS`) names each test-only item that
+  constructs the proof, with its reason. It holds one item today:
+  `report_package/src/user_release.rs`,
+  `tests::check_request_refuses_markers_and_the_entry_binds_its_form`. That
+  test drives `bindings::check_request_in` under the user-release entry,
+  over requests it edits so that the check must refuse them, and
+  `check_derived` would not derive a proof for those requests, so the test
+  writes one. The listed item must write exactly one literal and one
+  construction. Any other test-only item that writes either is a finding,
+  and so is a listed item that no longer writes exactly one of each.
+- **`cfg(test)` in product builds.** Two compile-time guards hold on the
+  toolchain the hosted jobs pin (Rust 1.97.1, through
+  `dtolnay/rust-toolchain`; the repository has no `rust-toolchain` file).
+  - **Crate-root guard.** Each reporting crate's root carries
+    `#[cfg(test)] const _: () = assert!(option_env!("CARGO_PRIMARY_PACKAGE").is_some(), …)`.
+    Cargo sets `CARGO_PRIMARY_PACKAGE` only for a package the command
+    selected, as `cargo test` selects the crate under test, and never for a
+    dependency. A build that sets `cfg(test)` for a reporting crate compiled
+    as a dependency of the shell or the runner therefore fails to compile.
+    This was confirmed on 1.97.1: a wrapper adding `--cfg test` to the
+    renderer, or to `pdf_emitter`, as a dependency fails with E0080. The same
+    `pdf_emitter` build selected with `-p` compiles. So the guard does not
+    cover a crate built on its own, such as the reviewer's `cargo rustc
+    --lib -- --cfg test`. That library is not what a product build links,
+    and the scan finds its test-only constructor.
+  - **Build-script guard.** `src-tauri/build.rs` refuses any `--cfg test`
+    in `CARGO_ENCODED_RUSTFLAGS`. Cargo passes the rustflags it compiles the
+    package with in that variable, whether they come from `RUSTFLAGS`,
+    `CARGO_ENCODED_RUSTFLAGS`, `build.rustflags` or `target.*.rustflags`. A
+    probe with the same logic stopped under `RUSTFLAGS='--cfg test'`, while
+    third-party crates such as `memchr` already fail to compile under that
+    flag.
+  - **Reliance.** Neither guard sees flags that a `RUSTC_WRAPPER` adds, or
+    extra arguments that `cargo rustc` passes to the shell's own crate. The
+    design therefore relies on product builds not enabling `cfg(test)`
+    through flags or configuration.
+  - **Hosted CI.** The hosted CI's Cargo settings are set in
+    `.github/workflows/piping-desktop-e2e.yml`,
+    `.github/workflows/shared-build-cache.yml` and
+    `.github/actions/setup-piping-e2e/action.yml`:
+    - the workflow and job `env` blocks set `CI`, `PLAYWRIGHT_*`,
+      `CARGO_INCREMENTAL` and `CARGO_BUILD_JOBS`;
+    - the desktop Rust job runs `cargo test --locked --manifest-path
+      apps/desktop/src-tauri/Cargo.toml`.
+
+    None of them sets `RUSTFLAGS`, `CARGO_ENCODED_RUSTFLAGS`,
+    `CARGO_*_RUSTFLAGS`, `--cfg` or `--config`.
+- **Fixtures.** Each repro is run on scratch trees that Cargo reads:
+  - **The reviewer's `paths` repro:** a forging copy of `report_package`
+    with its `forbid` dropped, outside the scanned tree, and a `paths`
+    override in a desktop-shell consumer's `.cargo/config.toml`. It gives
+    the identity finding and the configuration finding; the source scan
+    alone still returns none.
+  - **Manifest sections:** a `[patch.crates-io]` and a `[replace]` in the
+    consumer's manifest, plus spaced, quoted, capitalized, dotted and
+    escaped spellings.
+  - **Configuration files:** `.cargo/config` and `.cargo/config.toml` in a
+    repository tree, one of them in a crate's ancestor directory.
+  - **The reviewer's `#[cfg(test)]` constructor:** on the real sources and
+    on a scratch crate copy.
+  - **`cfg_attr(test, …)` variants:** alongside `#[cfg(test)]`, and
+    `cfg_attr(not(test), cfg(any()))`, which is read as production.
+  - **Other test-only forms:** a module, a redefinition of `check_derived`,
+    an alias, a `Self` literal, a `Default` impl, `assert!` tokens, another
+    file's test module, an outlined test file and `include!`. Removing or
+    duplicating the allow-listed construction is also a finding.
+  - **Passing:** an unedited consumer copy, the real tree's configuration,
+    and the real five manifests.
+
+*Threat model.* The scan establishes this: under the repository's own build
+configuration, the reporting crates are built from the checked-in sources
+the scan read, with the targets it pins and the package identities it
+resolves. It relies on four things:
+- no developer-local Cargo configuration outside the repository (a
+  `$CARGO_HOME` or ancestor `.cargo/config.toml`, or `--config`);
+- no `RUSTFLAGS` `--cfg` in product builds;
+- reviewed locked dependencies;
+- no manifest-level renames.
+
+Tampering with the build environment outside the repository is out of
+scope, because CI builds the reviewed artifact from the repository alone.
+
+The real-source scan finds nothing under these rules. Beyond today's renames
+and re-exports, only one allow-list entry was needed: the one test-only
+proof item. The only production-code changes were the three crate-root
+attributes, their `cfg(test)` guards and the shell's build-script guard.
+What the scan does not
 attempt to model, and refuses instead: macro expansion (beyond the listed
 macros' input grammars), name resolution beyond the crate-wide inventory of
 struct and alias names, type inference, constant evaluation and `cfg`
