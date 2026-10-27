@@ -29,7 +29,8 @@ import { DisabledReason } from "./DisabledReason";
 const VIEW_ICONS: Record<ShellView, typeof Table2> = { table: Table2, model: Box, both: Columns2 };
 
 /**
- * The toolbar band (specification §5.5): wordmark, project name, Undo and Redo,
+ * The toolbar band (specification §5.5): wordmark, project name, Undo and Redo
+ * with the alert of a failed undo or redo,
  * the view switch, Run, the Issues count, the two panel toggles, the display
  * units and the palette field. Every control here maps to a session handler;
  * none mutates the model by itself. `children` is the one palette surface.
@@ -37,7 +38,7 @@ const VIEW_ICONS: Record<ShellView, typeof Table2> = { table: Table2, model: Box
 export function ShellToolbar({ issueCount, children }: { issueCount: number; children: ReactNode }) {
   const { model } = useSessionModel();
   const { projectSummary, modelEdited } = useSessionProject();
-  const { undoStack, redoStack, operationBusy, handleUndoSessionModelEdit, handleRedoSessionModelEdit } = useSessionOperations();
+  const { undoStack, redoStack, operationBusy, historyFailure, handleUndoSessionModelEdit, handleRedoSessionModelEdit } = useSessionOperations();
   const { running, handleRun, handleCancelRun } = useSessionResults();
   const {
     activeSection,
@@ -73,6 +74,7 @@ export function ShellToolbar({ issueCount, children }: { issueCount: number; chi
       <div className="shell-toolbar-group" role="group" aria-label="Editing tools">
         <button type="button" className="shell-icon-button" data-testid="workspace-undo" aria-label="Undo model edit" disabled={!canUndo} onClick={handleUndoSessionModelEdit} title={canUndo ? "Undo (⌘Z)" : "Nothing to undo"}><Undo2 size={16} aria-hidden="true" /></button>
         <button type="button" className="shell-icon-button" data-testid="workspace-redo" aria-label="Redo model edit" disabled={!canRedo} onClick={handleRedoSessionModelEdit} title={canRedo ? "Redo (⇧⌘Z)" : "Nothing to redo"}><Redo2 size={16} aria-hidden="true" /></button>
+        {historyFailure ? <span className="shell-history-failure" role="alert" data-testid="workspace-history-failure" title={historyFailure}>{historyFailure}</span> : null}
         <button type="button" className="shell-icon-button shell-select-tool" data-testid="workspace-select" aria-pressed={armedCreationTool === null} onClick={() => handleArmCreationTool(null)} title="Select (⎋)"><MousePointer2 size={16} aria-hidden="true" /><span className="shell-toolbar-label">Select</span></button>
       </div>
       <div className="shell-view-switch" role="group" aria-label="View">

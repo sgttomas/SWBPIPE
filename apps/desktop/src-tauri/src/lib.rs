@@ -58,7 +58,7 @@ use std::{
     sync::Arc,
     time::{SystemTime, UNIX_EPOCH},
 };
-use tauri::menu::{CheckMenuItemBuilder, MenuBuilder, MenuItemKind, SubmenuBuilder};
+use tauri::menu::{CheckMenuItemBuilder, MenuBuilder, MenuItemBuilder, MenuItemKind, SubmenuBuilder};
 use tauri::{AppHandle, Manager};
 use tauri_plugin_dialog::DialogExt;
 
@@ -2250,6 +2250,66 @@ fn convert_display_quantities(
 fn convert_display_quantities_args(args: &mut Args) -> Result<Value, CommandError<NoCommandError>> {
     let input = args.value("input")?;
     Ok(open_pipe_stress_operation_applier::convert_display_quantities(&input))
+}
+
+/// B11 on-demand model checks (DEL-04-06 Design `on-demand-model-checks.md`;
+/// DEL-04-07 `memory-budget-decision.md`, "On-demand model checks"): `{model}`
+/// as a raw `args-json-v1` body, admitted as a solve is (the intake lease, the
+/// worker's starting grant within the per-invocation budget) and checked in a
+/// capped worker process whose grant grows on demand up to that budget, so its
+/// working memory, whatever the model's shape, is held to the pool and the
+/// budget. The worker returns the bounded report (`operation_applier::
+/// model_checks_owned`), which is sent while its result lease is held. Nothing
+/// is solved and the model is not written.
+#[tauri::command]
+async fn check_preview_model(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError> {
+    let input = admit_model_checks_body(&registry, invoke.body(), invoke.headers())?;
+    let registry = registry.inner().clone();
+    tauri::async_runtime::spawn_blocking(move || model_checks_response(&registry, input))
+        .await
+        .unwrap_or_else(|_| Err(CommandError::Command("MODEL-CHECKS-WORKER-FAILED: the model checks' supervisor did not complete.".to_string())))
+}
+
+/// The intake of [`check_preview_model`] on a body and headers (testable without Tauri).
+fn admit_model_checks_body(
+    registry: &SolveJobRegistry,
+    body: &tauri::ipc::InvokeBody,
+    headers: &tauri::http::HeaderMap,
+) -> Result<solve_jobs::ModelChecksInput, CommandError> {
+    let raw = command_ingress::raw_args_body(body, headers, "check_preview_model")?;
+    Ok(registry.admit_model_checks(raw)?)
+}
+
+/// The worker's report as the command's JSON response, sent while its result lease is held.
+fn model_checks_response(registry: &SolveJobRegistry, input: solve_jobs::ModelChecksInput) -> Result<tauri::ipc::Response, CommandError> {
+    match registry.run_model_checks(input) {
+        Ok(solve_jobs::ModelChecksOutput { report, lease, .. }) => {
+            let text = String::from_utf8(report)
+                .map_err(|_| CommandError::Command("MODEL-CHECKS-REPORT-INVALID: the worker's report is not UTF-8.".to_string()))?;
+            let response = tauri::ipc::Response::new(text);
+            drop(lease);
+            Ok(response)
+        }
+        Err(solve_jobs::ModelChecksError::Unavailable(error)) => Err(CommandError::Ingress(error)),
+        Err(solve_jobs::ModelChecksError::Failed(message)) => Err(CommandError::Command(message)),
+        Err(solve_jobs::ModelChecksError::Cancelled) => Err(CommandError::Command(
+            "MODEL-CHECKS-CANCELLED: the check was cancelled before it reported; its worker was stopped.".to_string(),
+        )),
+    }
+}
+
+/// Cancels the on-demand model check in progress, if any: the desktop calls it
+/// when the project session changes, which retires the check's request. A
+/// check waiting for its starting grant stops waiting; a running check's
+/// worker is killed and its grant released after the reap, as a cancelled
+/// solve's is. A newer check and a session reset cancel it the same way.
+/// Returns whether a check was in progress.
+#[tauri::command]
+fn cancel_model_checks(registry: tauri::State<'_, SolveJobRegistry>) -> bool {
+    registry.cancel_model_checks()
 }
 
 #[tauri::command]
@@ -4588,11 +4648,17 @@ fn build_app_menu<R: tauri::Runtime>(
         .text("insert.load", "Load Case")
         .build()?;
 
+    // B11: Check Model runs the model's existing checks on demand (DEL-04-06
+    // Design `on-demand-model-checks.md`); ⇧⌘M, as the in-app menu shows it.
+    let check_model = MenuItemBuilder::with_id("analyze.check-model", "Check Model")
+        .accelerator("CmdOrCtrl+Shift+M")
+        .build(handle)?;
     let analyze = SubmenuBuilder::new(handle, "Analyze")
         .text("analyze.run", "Run Mechanics Preview")
         .text("analyze.cancel", "Cancel Run")
         .separator()
         .text("analyze.rule-checks", "Rule Checks")
+        .item(&check_model)
         .build()?;
 
     MenuBuilder::new(handle)
@@ -5056,6 +5122,8 @@ macro_rules! app_invoke_handler {
             apply_model_operation_batch,
             get_unit_catalog,
             convert_display_quantities,
+            check_preview_model,
+            cancel_model_checks,
             get_local_storage_capability,
             create_local_project,
             open_local_project,

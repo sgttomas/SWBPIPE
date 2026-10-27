@@ -36,6 +36,11 @@ pub use retained_semantics_binding::retained_precision_semantics_json;
 mod load_state_authoring;
 mod numerical_health;
 pub use numerical_health::numerical_health_json;
+mod model_checks;
+pub use model_checks::{
+    model_checks, model_checks_owned, model_checks_text, MODEL_CHECKS_DOCUMENT_KIND, MODEL_CHECKS_INPUT_TOO_LARGE,
+    MODEL_CHECKS_MAX_BROWSER_INPUT_BYTES, MODEL_CHECKS_MAX_RESPONSE_BYTES, MODEL_CHECKS_MAX_TEXT_BYTES,
+};
 mod pressure_authoring;
 mod joint_pressure_authoring;
 mod section_bindings;
@@ -1108,6 +1113,19 @@ mod wasm_api {
         match parse_input("model", model_json) {
             Ok(model) => super::document_validator::validation_report(&model).to_string(),
             Err(error) => error,
+        }
+    }
+
+    /// B11 on-demand model checks (DEL-04-06 Design `on-demand-model-checks.md`):
+    /// the solve's own checks before stiffness formation, without solving.
+    /// Returns `model_checks_text`'s bounded report as JSON text: a model text
+    /// above the browser bound is refused unparsed, and a text that is not JSON
+    /// returns the input-error envelope.
+    #[wasm_bindgen]
+    pub fn model_checks_json(model_json: &str) -> String {
+        match super::model_checks_text(model_json) {
+            Ok(report) => report.to_string(),
+            Err(error) => input_error("model", error.to_string()),
         }
     }
 

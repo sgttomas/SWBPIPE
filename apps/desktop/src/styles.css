@@ -1377,6 +1377,23 @@ button:focus-visible {
 .viewport-result-scale-ticks { display: flex; flex-direction: column; justify-content: space-between; margin: -6px 0; padding: 0; list-style: none; }
 .viewport-legend-no-value { display: flex; align-items: center; gap: 6px; }
 .viewport-result-no-value-swatch { flex: 0 0 auto; width: 12px; height: 12px; border-radius: 2px; background: var(--canvas-unsolved); opacity: 0.6; }
+/* The result contour (A4): its controls in the legend, and the numbers drawn on the canvas in the
+   canvas label tokens of both themes. */
+.viewport-contour-controls { margin: 4px 0; }
+.viewport-legend-threshold { display: flex; align-items: center; gap: 6px; }
+.viewport-legend-threshold input[type="text"] { width: 72px; min-width: 0; font-size: 11px; }
+.viewport-value-labels { position: absolute; inset: 0; z-index: 2; overflow: hidden; pointer-events: none; }
+.viewport-value-label {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  padding: 1px 4px;
+  border-radius: 3px;
+  color: var(--canvas-label);
+  background: var(--canvas-labelBg);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
 
 .viewport-deformation-status {
   display: grid;
@@ -2913,6 +2930,39 @@ fieldset.viewport-intent-controls {
   overflow-wrap: anywhere;
 }
 
+/* A1: the results navigator (DEL-07-05 Design `results-navigator.md` §2). An end's button stays
+   focusable (aria-disabled), so it is dimmed here rather than by :disabled. */
+.results-navigator-axis {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.results-navigator-axis-label {
+  min-width: 112px;
+  color: #65716c;
+  font-size: 11px;
+}
+
+.results-navigator-axis button {
+  display: inline-grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 1px solid #c8d0cb;
+  border-radius: 4px;
+  color: #25312f;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.results-navigator-axis button[aria-disabled="true"] {
+  color: #9aa39f;
+  cursor: not-allowed;
+}
+
 /* A2: the per-support load summary (DEL-07-05 Design `support-load-summary.md` §5). */
 .support-load-stepper {
   display: flex;
@@ -4044,6 +4094,7 @@ body { min-width: 760px; min-height: 540px; }
 .app-shell .shell-toolbar-identity { display: flex; align-items: baseline; gap: var(--space-3); min-width: 0; flex: 0 1 auto; }
 .app-shell .shell-wordmark { margin: 0; font-size: var(--type-size-body); font-weight: 500; letter-spacing: 0.04em; color: var(--ui-muted); }
 .app-shell .shell-project-name { margin: 0; max-width: 220px; overflow: hidden; color: var(--ui-text); font-size: var(--type-size-body); text-overflow: ellipsis; white-space: nowrap; }
+.app-shell .shell-history-failure { max-width: 260px; overflow: hidden; padding: 0 var(--space-1); border: 1px solid var(--ui-error-border); border-radius: 4px; background: var(--ui-error-surface); color: var(--ui-error-text); font-size: var(--type-size-body); text-overflow: ellipsis; white-space: nowrap; }
 .app-shell .shell-toolbar-group, .app-shell .shell-view-switch, .app-shell .shell-toolbar-centre { display: flex; align-items: center; gap: var(--space-1); flex: 0 0 auto; }
 .app-shell .shell-toolbar-centre { flex: 1 1 auto; justify-content: center; gap: var(--space-3); }
 .app-shell .shell-toolbar button, .app-shell .shell-appearance > summary {
@@ -4538,6 +4589,44 @@ body { min-width: 760px; min-height: 540px; }
   overflow-wrap: anywhere;
 }
 
+/* Solve progress panel (DEL-07-07 Design `solve-progress-panel.md`): a raised
+   card over the workspace's bottom-right corner, above the status bar. */
+.solve-progress-panel {
+  position: fixed;
+  z-index: 55;
+  right: var(--space-5);
+  bottom: calc(var(--layout-statusBar) + var(--space-4));
+  display: grid;
+  gap: var(--space-3);
+  box-sizing: border-box;
+  width: min(420px, calc(100vw - 2 * var(--space-5)));
+  max-height: min(60vh, 520px);
+  overflow: auto;
+  padding: var(--space-4) var(--space-5);
+  color: var(--ui-text);
+  background: var(--surface-raised);
+  border: 1px solid var(--ui-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--elevation-2);
+  font-size: var(--type-size-chip);
+}
+.solve-progress-header { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); }
+.solve-progress-header h2 { margin: 0; font-size: var(--type-size-caption); }
+.solve-progress-header code { overflow: hidden; color: var(--ui-muted); text-overflow: ellipsis; white-space: nowrap; }
+.solve-progress-state { display: grid; gap: var(--space-1); margin: 0; overflow-wrap: anywhere; }
+.solve-progress-basis, .solve-progress-line { margin: 0; color: var(--ui-muted); overflow-wrap: anywhere; }
+.solve-progress-events { display: grid; gap: var(--space-2); margin: 0; padding-inline-start: var(--space-5); overflow-wrap: anywhere; }
+.solve-progress-actions { display: flex; justify-content: flex-end; gap: var(--space-3); }
+.solve-progress-actions [aria-disabled="true"] { opacity: 0.6; cursor: default; }
+
+/* On-demand model checks (DEL-04-06 Design `on-demand-model-checks.md`). */
+.model-checks-actions { display: flex; align-items: center; gap: var(--space-3); }
+.model-checks-list { display: grid; gap: var(--space-3); margin: 0; padding: 0; list-style: none; }
+.model-checks-list ul { display: grid; gap: var(--space-2); margin: var(--space-2) 0 0; padding: 0; list-style: none; }
+.model-checks-list button.diagnostic { width: 100%; text-align: start; }
+.model-checks-list button[aria-disabled="true"] { cursor: default; }
+.app-menu-item .app-menu-shortcut { margin-inline-start: auto; padding-inline-start: var(--space-4); color: var(--ui-muted); font: inherit; }
+
 /* B9: the entity and cell context menu (ContextMenu.tsx). It is portalled to the shell, so it
    takes the shell's tokens, with the base tokens where it opens outside the shell. */
 .context-menu {
@@ -4556,3 +4645,39 @@ body { min-width: 760px; min-height: 540px; }
 .context-menu-shortcut { font-family: var(--font-mono); font-size: var(--type-size-caption); color: inherit; }
 .context-menu-reason { grid-column: 1 / -1; font-size: var(--type-size-caption); color: var(--ui-disabled-text, #667680); white-space: normal; }
 .context-menu-separator { height: 1px; margin: var(--space-2) var(--space-1); background: var(--ui-divider, var(--border-hairline)); }
+
+/* Key results (A6; DEL-07-05 Design `key-results-panel.md` §5): a raised card over the
+   workspace's top-right corner, below the toolbar, clear of the solve progress card. */
+.key-results-panel {
+  position: fixed;
+  z-index: 54;
+  top: calc(var(--layout-toolbar) + var(--space-5));
+  right: var(--space-5);
+  display: grid;
+  gap: var(--space-3);
+  box-sizing: border-box;
+  width: min(340px, calc(100vw - 2 * var(--space-5)));
+  max-height: min(56vh, 560px);
+  overflow: auto;
+  padding: var(--space-4) var(--space-5);
+  color: var(--ui-text);
+  background: var(--surface-raised);
+  border: 1px solid var(--ui-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--elevation-2);
+  font-size: var(--type-size-chip);
+}
+.key-results-header { display: flex; align-items: center; gap: var(--space-3); }
+.key-results-header h2 { margin: 0; font-size: var(--type-size-caption); }
+.key-results-header code { flex: 1; overflow: hidden; color: var(--ui-muted); text-overflow: ellipsis; white-space: nowrap; }
+.key-results-group { display: grid; gap: var(--space-2); }
+.key-results-group h3 { margin: 0; font-size: var(--type-size-caption); }
+.key-results-line { margin: 0; overflow-wrap: anywhere; }
+.key-results-incomplete { font-weight: 600; }
+.key-results-boundary, .key-results-reason { color: var(--ui-muted); overflow-wrap: anywhere; }
+.key-results-choice { display: grid; gap: var(--space-1); }
+.key-results-choice select { min-width: 0; }
+.key-results-action { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); text-align: start; }
+.key-results-action kbd { color: var(--ui-muted); font-family: var(--font-mono); font-size: var(--type-size-caption); }
+.key-results-action[aria-disabled="true"] { opacity: 0.6; cursor: default; }
+.key-results-every-solve { display: flex; align-items: center; gap: var(--space-2); }

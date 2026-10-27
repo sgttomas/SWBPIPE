@@ -383,11 +383,114 @@ def test_temperature_dependent_material_is_refused():
                    "material:mat:CS")
 
 
-def test_spring_support_is_refused():
+def test_hanger_support_is_refused():
+    # Hangers stay refused (Design §12): a hanger's loads act by case, which no SWBPIPE member carries.
     model = cantilever()
-    model["supports"].append({"id": "spring:N1", "node": "N1", "family": "spring", "restraints": ["UY"],
-                              "stiffness": {"dof": "UY", "value": q(1.0e6, "N/m")}})
-    assert_refused(render_caepipe_mbf_si(model, title="S"), "MBF-SI-SUPPORT-UNSUPPORTED", "support:spring:N1")
+    model["supports"].append({"id": "hanger:N1", "node": "N1", "family": "spring_hanger", "restraints": ["UY"],
+                              "hanger": {"hanger_type": "spring_hanger",
+                                         "stiffness": {"dof": "UY", "value": q(1.0e6, "N/m")}}})
+    assert_refused(render_caepipe_mbf_si(model, title="S"), "MBF-SI-SUPPORT-UNSUPPORTED", "support:hanger:N1")
+
+
+def spring(support_id, node_id, dof, value, unit="N/m", restraints=None):
+    return {"id": support_id, "node": node_id, "family": "spring", "restraints": restraints or [dof],
+            "stiffness": {"dof": dof, "value": q(value, unit)}}
+
+
+def sprung_cantilever():
+    """The invented cantilever with a spring on each translation at its tip: UY 250000 N/m, UX 1.5 lbf/in."""
+    model = cantilever("mm")
+    model["supports"] += [spring("spring:N1:y", "N1", "UY", 250000.0), spring("spring:N1:x", "N1", "UX", 1.5, "lbf/in")]
+    return model
+
+
+def test_a_spring_is_written_as_a_flexible_anchor():
+    # Hand-derived: 250000 N/m = 250 N/mm (10^-3 exactly); 1.5 lbf/in = 1.5 x 4.4482216152605 N / 25.4 mm
+    # = 0.262690252869714... N/mm, printed to 10 significant digits. UZ has no spring: 0, free; rotations free.
+    result = render_caepipe_mbf_si(sprung_cantilever(), title="SPRING")
+    assert result.status == "written", result.diagnostics
+    assert "T20,KA,X3000,CTRAK(0.2626902529,250,0),ROTK(0,0,0),FOR(0,-6000,0)\r\n" in result.text
+    assert result.support_map["spring:N1:y"] == {"node": "20", "caepipe_kind": "anchor", "restrained": ["UY"],
+                                                 "family": "spring", "family_authored": True}
+    assert "1 lbf/in" in next(item["message"] for item in result.diagnostics
+                              if item["code"] == "MBF-SI-UNITS-NORMALIZED")
+    assert any(note.startswith("Spring supports are written as flexible anchors") for note in result.assumptions)
+
+
+@pytest.mark.parametrize("change, code, fragment", [
+    (lambda m: m["supports"].append(spring("rx", "N1", "RX", 5.0, "N*m/rad")), "MBF-SI-SUPPORT-UNSUPPORTED",
+     "rotational spring"),
+    (lambda m: m["supports"].append(spring("y2", "N1", "UY", 5.0)), "MBF-SI-SUPPORT-UNSUPPORTED", "second spring"),
+    (lambda m: m["supports"].append({"id": "r", "node": "N1", "restraints": ["UZ"]}), "MBF-SI-SUPPORT-UNSUPPORTED",
+     "springs and rigid restraints"),
+    (lambda m: m["supports"].append(spring("z0", "N1", "UZ", 0.0)), "MBF-SI-VALUE-OUT-OF-RANGE", "positive"),
+    (lambda m: m["supports"].append(spring("zz", "N1", "UZ", 5.0, restraints=["UZ", "UX"])),
+     "MBF-SI-SUPPORT-UNSUPPORTED", "same single DOF"),
+    (lambda m: m["supports"].append(spring("zu", "N1", "UZ", 5.0, "N*m/rad")), "MBF-SI-UNIT-UNSUPPORTED", "stiffness"),
+    (lambda m: m["supports"].append({"id": "zs", "node": "N1", "family": "spring", "restraints": ["UZ"]}),
+     "MBF-SI-INPUT-INVALID", "needs a stiffness"),
+    (lambda m: m["load_cases"].append({"id": "case:move", "primitive_loads": [
+        {"id": "dy", "category": "imposed_displacement", "target": {"type": "support", "support": "spring:N1:y",
+                                                                    "dof": "UY"},
+         "direction": "UY", "magnitude": q(1.0, "mm"), "dimension": "displacement"}]}),
+     "MBF-SI-IMPOSED-DISPLACEMENT-UNSUPPORTED", "anchor"),
+])
+def test_springs_the_writer_does_not_write_are_refused_by_name(change, code, fragment):
+    model = sprung_cantilever()
+    change(model)
+    assert_refused(render_caepipe_mbf_si(model, title="S"), code, fragment)
+
+
+def test_a_spring_export_is_checked_by_its_own_bound_reimport(monkeypatch):
+    # The preflight runs for every spring export (Design §12). 1e306 N/mm prints as 1e+306, which the solve reads as
+    # 1e309 N/m: the re-import refuses it (MBF-IMPORT-VALUE-UNREPRESENTABLE), so the export is refused by name.
+    model = cantilever("mm")
+    model["supports"].append(spring("huge", "N1", "UY", 1e306, "N/mm"))
+    assert_refused(render_caepipe_mbf_si(model, title="S"), "MBF-SI-PREFLIGHT-REFUSED",
+                   "MBF-IMPORT-VALUE-UNREPRESENTABLE")
+    # 1e20 N/mm is finite in N/m, but the re-import refuses it as outside the solve's checked-JSON domain
+    # (VER-002 r2): the preflight inherits that refusal.
+    model["supports"][-1] = spring("huge", "N1", "UY", 1e20, "N/mm")
+    assert_refused(render_caepipe_mbf_si(model, title="S"), "MBF-SI-PREFLIGHT-REFUSED",
+                   "MBF-IMPORT-VALUE-UNREPRESENTABLE", "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT")
+    calls = []
+    from core.handoff.caepipe_mbf import si_writer
+    original = si_writer._Writer.survives_reimport
+    monkeypatch.setattr(si_writer._Writer, "survives_reimport",
+                        lambda self, result: calls.append(result.status) or original(self, result))
+    assert render_caepipe_mbf_si(sprung_cantilever(), title="SPRING").status == "written"
+    assert calls == ["written"]
+    assert render_caepipe_mbf_si(cantilever(), title="PLAIN").status == "written"
+    assert calls == ["written", "written"]  # the preflight is total (Design §14, VER-002 r3)
+
+
+def test_the_preflight_is_total_and_refuses_what_printing_or_normalization_breaks(monkeypatch):
+    # VER-002 r3: every export but the regeneration route's is checked by its own bound re-import, whatever it holds.
+    from core.handoff.caepipe_mbf import si_writer
+    from core.handoff.caepipe_mbf.importer import import_caepipe_mbf
+    # A pressure-free, spring-free export passes it, and its text is unchanged by it.
+    calls = []
+    original = si_writer._Writer.survives_reimport
+    monkeypatch.setattr(si_writer._Writer, "survives_reimport",
+                        lambda self, result: calls.append(result.text) or original(self, result))
+    plain = render_caepipe_mbf_si(cantilever(), title="PLAIN")
+    assert plain.status == "written" and calls == [plain.text]
+    # Printing crosses the checked-JSON boundary: 2^53 - 1 N imports, but prints to 10 significant digits as
+    # 9.007199255e+15, an integral float beyond 2^53 - 1, which the re-import refuses.
+    imported = import_caepipe_mbf(
+        b"INVENTED BOUNDARY\r\nVERSION\r\n15.10\r\nOPTIONS\r\nHGRA,SI\r\nOPTEMP\r\n20\r\nMATERIAL\r\n"
+        b"M1,0,0.3,1,1,CS,invented steel\r\nM1,20,200000,1.2e-05\r\nPIPE\r\nP1,168.3,7.11,0,0,0,0,0,0\r\nLOADS\r\n"
+        b"L1,20,0,0\r\nLAYOUT\r\nF10,KA,MM1,PP1,CL=L1\r\nT20,X3000,CFOR(0,9007199254740991,0),FLC=1\r\n",
+        material_provenance={"*": {"origin": "project_invented", "source_name": "invented writer test"}},
+        source_label="boundary")
+    assert imported.status == "imported", imported.diagnostics
+    assert_refused(render_caepipe_mbf_si(imported.model, title="BOUNDARY"), "MBF-SI-PREFLIGHT-REFUSED",
+                   "MBF-IMPORT-VALUE-UNREPRESENTABLE", "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT")
+    # Unit normalization crosses it: 1e14 kN, within the domain, is written as 1e17 N, beyond it.
+    model = cantilever()
+    model["load_cases"][0]["primitive_loads"] = [force("tip", "N1", "global_y", -1e14, "kN")]
+    assert_refused(render_caepipe_mbf_si(model, title="KN"), "MBF-SI-PREFLIGHT-REFUSED",
+                   "MBF-IMPORT-VALUE-UNREPRESENTABLE", "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT")
 
 
 def test_bend_component_is_refused():
@@ -468,11 +571,17 @@ def test_partial_rotational_restraint_is_refused_for_the_target_build():
     assert_refused(result, "MBF-SI-SUPPORT-UNSUPPORTED", "support:R4", "rotational restraints", "FIXR")
 
 
-def test_full_six_dof_restraint_from_two_supports_is_an_anchor_not_a_rotational_restraint():
+def test_full_six_dof_restraint_from_two_supports_is_an_anchor_not_a_rotational_restraint(monkeypatch):
     model = cantilever()
     model["supports"] = [{"id": "T", "node": "N0", "restraints": ["UX", "UY", "UZ"]},
                          {"id": "R", "node": "N0", "restraints": ["RX", "RY", "RZ"]}]
-    result = render_caepipe_mbf_si(model, title="SPLIT")
+    # The solve reads the family-less R as a guide, which restrains no rotation (SUPPORT_INPUT_INVALID): the bound
+    # re-import refuses its split, so the total preflight refuses the export by name (VER-002 r3).
+    assert_refused(render_caepipe_mbf_si(model, title="SPLIT"), "MBF-SI-PREFLIGHT-REFUSED", "support_map[R]",
+                   "SUPPORT_INPUT_INVALID")
+    from core.handoff.caepipe_mbf import si_writer
+    monkeypatch.setattr(si_writer._Writer, "survives_reimport", lambda self, result: True)
+    result = render_caepipe_mbf_si(model, title="SPLIT")  # the rendering itself: one KA row, no FIXR
     assert result.status == "written", result.diagnostics
     assert result.text.split("\r\n")[16] == "F10,KA,MM1,PP1,CL=L1"
 
@@ -641,9 +750,12 @@ def test_support_map_records_each_support_family():
     model["supports"][0]["family"] = "anchor"
     result = render_caepipe_mbf_si(model, title="FAMILY")
     assert result.status == "written", result.diagnostics
-    assert result.support_map["A1"]["family"] == "anchor"
-    assert result.support_map["A3"]["family"] is None  # authored without a family
-    assert result.support_map["R4"]["family"] is None
+    # The effective family (Design §15, format 2): the authored one, or the solve's inference, with the flag.
+    assert (result.support_map["A1"]["family"], result.support_map["A1"]["family_authored"]) == ("anchor", True)
+    assert (result.support_map["A3"]["family"], result.support_map["A3"]["family_authored"]) == ("anchor", False)
+    restraints = result.support_map["R4"]["restrained"]
+    assert len(restraints) < 6  # fewer than six DOFs and no family: the solve's guide
+    assert (result.support_map["R4"]["family"], result.support_map["R4"]["family_authored"]) == ("guide", False)
 
 
 def test_load_map_records_each_primitive_direction():
@@ -661,7 +773,8 @@ def test_material_map_origin_only_from_affirmative_provenance():
             model["materials"][0]["provenance_record"] = record
         result = render_caepipe_mbf_si(model, title="ORIGIN")
         assert result.status == "written", result.diagnostics
-        return result.material_map["M1"].get("origin")
+        found = result.material_map["M1"]["origin"]
+        return None if found == "undeclared" else found  # format 2 records "undeclared", never null
 
     invented = {"source_name": "invented", "contributor_certification": "invented non-engineering example",
                 "redistribution_status": "public_permissive"}
@@ -706,14 +819,17 @@ def test_same_target_loads_are_summed_exactly_before_one_rounding():
     result = render_caepipe_mbf_si(cancelling_cantilever(), title="CANCEL")
     assert result.status == "written", result.diagnostics
     assert "T20,X3048,CFOR(0,0.004448221615,0)" in result.text.split("\r\n")
-    # The same holds for thermal changes summed on one element: 100 + 1e-12 - 100 C = 1e-12 C.
+    # The same holds for thermal changes summed on one element: 100 + 1e-12 - 100 C = 1e-12 C. At a 0 C reference,
+    # T1 prints as 1e-12; a binary64 running sum would print 9.947598301e-13. (At 20 C, T1 = 20 + 1e-12 prints as 20:
+    # the thermal case vanishes from the file but not from the sidecar, which the total preflight refuses.)
     model = cantilever()
     model["load_cases"] = [{"id": "case:th", "primitive_loads": [
         {"id": f"t{index}", "category": "thermal", "target": {"type": "element", "pipe": "S1"}, "direction": "global_x",
          "magnitude": q(value, "degC"), "dimension": "temperature_interval"} for index, value in enumerate((100.0, 1e-12, -100.0))]}]
-    result = render_caepipe_mbf_si(model, title="DT")
+    result = render_caepipe_mbf_si(model, title="DT", reference_temperature_c=0.0)
     assert result.status == "written", result.diagnostics
-    assert "L1,20,0,0" in result.text.split("\r\n")  # T1 = 20 + 1e-12 prints as 20
+    assert "L1,1e-12,0,0" in result.text.split("\r\n")
+    assert_refused(render_caepipe_mbf_si(model, title="DT"), "MBF-SI-PREFLIGHT-REFUSED", "load_case_map")
 
 
 def test_a_normalized_value_that_overflows_or_underflows_is_refused_by_name():
@@ -796,3 +912,154 @@ def test_a_tangent_intersection_beyond_binary64_is_refused():
     assert result.status == "refused"
     assert any(item["code"] == "MBF-SI-VALUE-OUT-OF-RANGE" and "tangent intersection" in item["message"]
                for item in result.diagnostics)
+
+
+# --- pressure (Design §9.4, tranche 2) -----------------------------------------------------------------------------
+EXACT = {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"}
+
+
+def region(region_id, members, value, unit, ends, closures=("transfers_to_wall", "transfers_to_wall")):
+    return {"id": region_id, "member_pipe_ids": list(members), "pressure_basis": "internal_differential_zero_external_v1",
+            "pressure": q(value, unit), "provenance": "invented pressure for this test",
+            "terminals": [{"node_ref": node_id, "closure_transfer": closure, "provenance": "invented closure for this test"}
+                          for node_id, closure in zip(ends, closures)]}
+
+
+def exact(model):
+    """`model` under the exact pressure contract: an E/nu material basis, explicit zero corrosion allowances and an
+    explicit (empty) region list on every case."""
+    model = deepcopy(model)
+    model["pressure_contract"] = dict(EXACT)
+    for material in model["materials"]:
+        material["constitutive_basis"] = "homogeneous_isotropic_E_nu_v1"
+        if material.get("poisson_ratio") is None:
+            material["poisson_ratio"] = q(0.25, "1")  # E / (2G) - 1 for the shell material
+        material.pop("shear_modulus", None)
+    for item in model["pipe_segments"]:
+        item["section"]["corrosion_allowance"] = q(0.0, item["section"]["wall_thickness"]["unit"])
+    for case in model["load_cases"]:
+        case.setdefault("pressure_regions", [])
+    return model
+
+
+def pressurized_l(value=2.5e6, unit="Pa", shear="euler_bernoulli"):
+    """Invented: the bent L with one region over S1, the bend and S2 in a pressure-only case."""
+    model = exact(bent_l())
+    model["pressure_contract"]["shear_model"] = shear
+    model["load_cases"].insert(0, {"id": "case:p", "primitive_loads": [], "pressure_regions": [
+        region("region:L", ("S1", "BEND", "S2"), value, unit, ("A", "B"))]})
+    return model
+
+
+def pressurized_tee():
+    """Invented tee in mm with three anchored legs, one region per leg at 10 bar, and a separately supported end."""
+    model = exact(branched())
+    model["supports"] = [{"id": f"A{n}", "node": f"N{n}", "restraints": list(SIX)} for n in (1, 3, 4)]
+    model["load_cases"] = [
+        {"id": "case:sus", "primitive_loads": [force("f2", "N2", "global_y", -2500.0)], "pressure_regions": [
+            region("region:west", ("P1",), 10.0, "bar", ("N1", "N2")),
+            region("region:east", ("P2",), 10.0, "bar", ("N2", "N3")),
+            region("region:branch", ("P3",), 10.0, "bar", ("N2", "N4"),
+                   ("transfers_to_wall", "separately_supported_or_compensated"))]},
+        {"id": "case:th", "primitive_loads": [
+            {"id": "t1", "category": "thermal", "target": {"type": "element", "pipe": "P1"}, "direction": "global_x",
+             "magnitude": q(80.0, "degC"), "dimension": "temperature_interval"}], "pressure_regions": []}]
+    model["combinations"] = []
+    return model
+
+
+def pressurized_us_cantilever():
+    """Invented US-customary cantilever with 150 psi over S1, capped at its free end."""
+    model = exact(us_customary_cantilever())
+    model["load_cases"][0]["pressure_regions"] = [region("region:S1", ("S1",), 150.0, "psi", ("N0", "N1"))]
+    return model
+
+
+def test_a_pressure_region_is_written_as_pressure_1_in_bar():
+    result = render_caepipe_mbf_si(pressurized_l(), title="PRESSURE L")
+    assert result.status == "written", result.diagnostics
+    lines = result.text.split("\r\n")
+    assert lines[lines.index("OPPRES") + 1] == "0,0,0,1,0" and lines.index("OPPRES") == lines.index("OPTEMP") + 2
+    assert lines[lines.index("LOADS") + 1] == "L1,120,25,0"  # 2.5e6 Pa = 25 bar; T1 = 20 + 100
+    assert result.load_case_map == {"case:p": "Sustained (W+P)", "case:th": "Expansion (T1)"}
+    assert result.pressure_map == {"contract": {"version": "3.0.0", "mode": "exact_pressure_v3"},
+                                   "shear_model": EXACT["shear_model"], "regions": [
+        {"id": "region:L", "members": ["S1", "BEND", "S2"], "pressure_bar": 25.0,
+         "provenance": "invented pressure for this test",
+         "terminals": [{"node_ref": node_id, "closure_transfer": "transfers_to_wall",
+                        "provenance": "invented closure for this test"} for node_id in ("A", "B")]}]}
+    assert codes(result, "warning") >= {"MBF-SI-SHEAR-MODEL-NOT-EXPORTED"}
+    notes = " ".join(result.assumptions)
+    assert "1 bar = 1e5 Pa exactly" in notes and "pressure_map" in notes and "OPPRES is written 0,0,0,1,0" in notes
+    assert result.to_dict()["pressure_map"] == result.pressure_map
+
+
+@pytest.mark.parametrize("value, unit, printed", [
+    (2.5e6, "Pa", "25"), (1.5, "MPa", "15"), (300.0, "kPa", "3"), (12.5, "bar", "12.5"),
+    # 100 psi = 100 x 4.4482216152605 N / 645.16 mm^2 = 444.82216152605 / 64.516 bar = 6.8947572931683...bar.
+    (100.0, "psi", "6.894757293"),
+])
+def test_each_pressure_unit_becomes_bar_by_its_definition(value, unit, printed):
+    result = render_caepipe_mbf_si(pressurized_l(value, unit), title="P")
+    assert result.text.split("\r\n")[result.text.split("\r\n").index("LOADS") + 1] == f"L1,120,{printed},0"
+    exact_bar = Fraction(value) * {"Pa": Fraction(1, 10**5), "MPa": 10, "kPa": Fraction(1, 100), "bar": 1,
+                                   "psi": Fraction("4.4482216152605") / Fraction("0.00064516") / 10**5}[unit]
+    assert result.pressure_map["regions"][0]["pressure_bar"] == float(exact_bar)
+    if unit == "psi":
+        assert exact_bar == Fraction("444.82216152605") / Fraction("64.516")
+        assert "MBF-SI-UNITS-NORMALIZED" in codes(result, "info")
+
+
+def test_unpressurized_elements_and_models_write_pressure_0_and_no_oppres():
+    tee = render_caepipe_mbf_si(pressurized_tee(), title="TEE")
+    assert tee.status == "written", tee.diagnostics
+    lines = tee.text.split("\r\n")
+    assert lines[lines.index("LOADS") + 1:lines.index("LAYOUT")] == ["L1,100,10,0", "L2,20,10,0"]
+    plain = render_caepipe_mbf_si(cantilever(), title="PLAIN")
+    assert "OPPRES" not in plain.text.split("\r\n")
+    assert plain.pressure_map == {"contract": "none", "shear_model": "euler_bernoulli", "regions": []}
+    no_regions = exact(cantilever())  # the contract alone: Pressure 1 = 0 everywhere, the contract in the sidecar
+    result = render_caepipe_mbf_si(no_regions, title="CONTRACT ONLY")
+    assert "OPPRES" not in result.text.split("\r\n")
+    assert result.pressure_map == {"contract": {"version": "3.0.0", "mode": "exact_pressure_v3"},
+                                   "shear_model": EXACT["shear_model"], "regions": []}
+
+
+def test_pressure_refusals_and_omissions():
+    thermal = pressurized_l()
+    regions = thermal["load_cases"].pop(0)["pressure_regions"]
+    thermal["load_cases"][0]["pressure_regions"] = regions
+    assert_refused(render_caepipe_mbf_si(thermal, title="P"), "MBF-SI-PRESSURE-CASE-UNSUPPORTED", "Expansion (T1)")
+    assert_refused(render_caepipe_mbf_si(pressurized_l(-1.0e5), title="P"), "MBF-SI-PRESSURE-UNSUPPORTED", "negative")
+    zero = render_caepipe_mbf_si(pressurized_l(0.0), title="P")
+    assert "MBF-SI-PRESSURE-REGION-ZERO" in codes(zero, "warning") and "OPPRES" not in zero.text.split("\r\n")
+    no_contract = pressurized_l()
+    del no_contract["pressure_contract"]
+    assert_refused(render_caepipe_mbf_si(no_contract, title="P"), "MBF-SI-PRESSURE-UNSUPPORTED",
+                   "without the exact pressure contract")
+    old = pressurized_l()
+    old["pressure_contract"]["version"] = "2.0.0"
+    assert_refused(render_caepipe_mbf_si(old, title="P"), "MBF-SI-PRESSURE-UNSUPPORTED", "3.0.0/exact_pressure_v3")
+    joint = pressurized_l()
+    joint["load_cases"][0]["pressure_regions"][0]["member_connector_ids"] = ["joint:1"]
+    assert_refused(render_caepipe_mbf_si(joint, title="P"), "MBF-SI-PRESSURE-UNSUPPORTED", "connectors")
+    split = pressurized_l()
+    split["load_cases"][0]["pressure_regions"][0]["member_pipe_ids"] = ["BEND", "S2"]
+    assert_refused(render_caepipe_mbf_si(split, title="P"), "MBF-SI-BEND-UNSUPPORTED", "temperature or pressure")
+    unclosed = pressurized_l()
+    unclosed["load_cases"][0]["pressure_regions"][0]["terminals"][1]["closure_transfer"] = None
+    assert_refused(render_caepipe_mbf_si(unclosed, title="P"), "MBF-SI-INPUT-INVALID", "closure transfer")
+
+
+def test_an_exact_pressure_section_without_an_allowance_is_refused_not_written_as_zero():
+    # VER-002 r2 item 2: the solve refuses such a model (EXACT_PRESSURE_CORROSION_ALLOWANCE_REQUIRED); writing the
+    # MBF's 0 and importing it back would author an allowance and solve.
+    for pipe_id in ("S2", "S1"):
+        model = pressurized_l()
+        del next(item for item in model["pipe_segments"] if item["id"] == pipe_id)["section"]["corrosion_allowance"]
+        assert_refused(render_caepipe_mbf_si(model, title="P"), "MBF-SI-CORROSION-ALLOWANCE-MISSING", f"pipe:{pipe_id}")
+    contract_only = exact(cantilever())  # the contract without regions needs it too
+    del contract_only["pipe_segments"][0]["section"]["corrosion_allowance"]
+    assert_refused(render_caepipe_mbf_si(contract_only, title="P"), "MBF-SI-CORROSION-ALLOWANCE-MISSING")
+    plain = cantilever()  # no contract: no allowance needed
+    assert render_caepipe_mbf_si(plain, title="P").status == "written"

@@ -201,7 +201,7 @@ This Scope of Work defines `DEL-05-01` in service of project scope [SOW-013] and
 > | REQ-05-01-005 | Unit tests cover missing targets, missing magnitudes, invalid targets, invalid dimensions, invalid directions, invalid spans/connectivity, invalid physical properties, non-finite inputs, and blocked outputs. |
 > | REQ-05-01-006 | Unit tests cover conversion from primitive-load findings and load-case assembly findings into diagnostic records with provenance. |
 > | REQ-05-01-007 | Unit tests cover load-case schema binding, schema load-type mapping, sorted load IDs, missing metadata, duplicate IDs, empty loads, and mixed-category rejection. |
-> | REQ-05-01-008 | Unit tests cover wind/seismic/occasional explicit equivalent mechanics loads, required equivalent-static basis/provenance refs, and rejection of acceleration/dynamic-placeholder dimensions. |
+> | REQ-05-01-008 | Unit tests cover wind/seismic/occasional explicit equivalent mechanics loads, required equivalent-static basis/provenance refs, DEC-068 seismic/wind generation from explicit user inputs on PF and eligible EX documents, route-specific seismic mass, EX generated-primitive evidence binding, the named unsupported boundaries in Design/exact-equivalent-static.md, and rejection of acceleration/dynamic-placeholder dimensions. |
 > | REQ-05-01-009 | Verification uses the source-bound primitive-load suite (`cargo test --manifest-path core/loads/primitive_loads/Cargo.toml --locked`); counts and outcomes belong to the corresponding run record. Broader release gates remain under project validation/review authority. |
 > | REQ-05-01-010 | Unit tests cover missing provenance rejection for boundary records and diagnostic records. |
 > | REQ-05-01-011 | Unit tests cover lumped nodal splitting, accepted translational directions, unsupported pressure/thermal/dynamic inputs, missing/invalid spans, invalid indices, and unchanged base `prepare_loads` behavior. |
@@ -281,7 +281,7 @@ This Scope of Work defines `DEL-05-01` in service of project scope [SOW-013] and
 > | Unit/boundary metadata check | Documents preserve explicit unit/dimension/provenance/hash-ref boundaries and do not claim conversion constants. |
 > | Load-case record check | Documents describe single-category primitive load-case records and keep mixed-category algebra in DEL-05-02. |
 > | Diagnostic bridge check | Documents describe local diagnostic bridge records without claiming a shared enum or final result-envelope/API implementation. |
-> | Equivalent-static check | Documents limit wind, seismic, and occasional equivalent-static handling to explicit mechanics loads with caller-supplied basis/provenance refs and no dynamic procedure generation. |
+> | Equivalent-static check | Documents describe wind, seismic, and occasional equivalent-static handling as explicit mechanics loads with caller-supplied basis/provenance refs, including DEC-068 seismic/wind generation from explicit user inputs and the model's mass/geometry under the documented route-specific mass bases and named unsupported boundaries; no dynamic procedure generation is provided. |
 > | Lumping check | Documents limit lumping to explicit translational/global `ForcePerLength` element loads with caller-supplied spans/connectivity. |
 > | Axial-effect check | Documents limit axial effects to thermal and pressure mechanics helpers from caller-supplied properties without code stress/compliance claims. |
 > | Test check | `cargo test --manifest-path core/loads/primitive_loads/Cargo.toml` passes or any failure is recorded with boundaries. |

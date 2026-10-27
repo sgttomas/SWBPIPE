@@ -39,6 +39,9 @@ export function useOperationsSessionState() {
   const batchSequence = useRef(0);
   const [operationBusy, setOperationBusy] = useState(false);
   const [operationMessage, setOperationMessage] = useState<string | null>(null);
+  // An undo or redo failure, shown in the toolbar beside Undo and Redo: the
+  // operation message is visible only in Operations -> Review.
+  const [historyFailure, setHistoryFailure] = useState<string | null>(null);
   const [operationEngineStatus, setOperationEngineStatus] = useState<OperationEngineStatus>(() =>
     initialOperationEngineStatus()
   );
@@ -64,6 +67,7 @@ export function useOperationsSessionState() {
     batchSequence,
     operationBusy, setOperationBusy,
     operationMessage, setOperationMessage,
+    historyFailure, setHistoryFailure,
     operationEngineStatus, setOperationEngineStatus,
     intentSequence,
     operationRequest,

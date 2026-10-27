@@ -13,6 +13,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from fractions import Fraction
+import hashlib
+import json
 import math
 from typing import Any, Mapping
 
@@ -26,6 +28,8 @@ EXCLUDED_LOSSES = (
     "zero-valued primitives (dropped)",
     "absent versus zero expansion coefficient, and absent versus zero section fields",
     "combinations (not exported)",
+    "pressure-region ids and region provenance (bound imports restore the ids from the sidecar's pressure_map; "
+    "regions are compared by their member pipes, terminals with closure transfer, and pressure)",
 )
 __doc__ += "".join(f"\n- {item}" for item in EXCLUDED_LOSSES) + "\n"
 
@@ -36,7 +40,7 @@ _TO_SI = {
     "N": 1.0, "kN": 1e3, "lbf": 4.4482216152605,
     "N*m": 1.0, "kN*m": 1e3, "lbf*in": 4.4482216152605 * 0.0254, "lbf*ft": 4.4482216152605 * 0.3048,
     "N/m": 1.0, "N/mm": 1e3, "kN/m": 1e3, "kN/mm": 1e6, "lbf/in": 4.4482216152605 / 0.0254,
-    "Pa": 1.0, "kPa": 1e3, "MPa": 1e6, "GPa": 1e9, "psi": 4.4482216152605 / 0.00064516,
+    "Pa": 1.0, "kPa": 1e3, "MPa": 1e6, "GPa": 1e9, "bar": 1e5, "psi": 4.4482216152605 / 0.00064516,
     "1/K": 1.0, "1/degC": 1.0, "1/degF": 1.8, "K": 1.0, "degC": 1.0, "C": 1.0, "degF": 5.0 / 9.0,
     "rad": 1.0, "deg": math.pi / 180.0, "1": 1.0, "none": 1.0,
 }
@@ -51,11 +55,35 @@ _TO_SI_EXACT = {
     "lbf/in": Fraction("4.4482216152605") / Fraction("0.0254"),
     "K": Fraction(1), "degC": Fraction(1), "C": Fraction(1), "degF": Fraction(5, 9),
     "rad": Fraction(1), "deg": Fraction(math.pi) / 180,
+    "Pa": Fraction(1), "kPa": Fraction(1000), "MPa": Fraction(10**6), "bar": Fraction(10**5),
+    "psi": Fraction("4.4482216152605") / Fraction("0.0254") ** 2,
 }
 _DOF_TOKEN = {**{dof: dof for dof in DOFS}, **{dof.lower(): dof for dof in DOFS},
               **{dof[0] + dof[1].lower(): dof for dof in DOFS}}
 _AXIS = {"global_x": 0, "global_y": 1, "global_z": 2, "GLOBAL_X": 0, "GLOBAL_Y": 1, "GLOBAL_Z": 2,
          "RX": 0, "RY": 1, "RZ": 2, "rotation_x": 0, "rotation_y": 1, "rotation_z": 2}
+
+
+def rotate_z_vertical(vector):
+    """A Z-vertical file's global (X, Y, Z) in SWBPIPE's Y-vertical axes, (X, Z, -Y): the rotation by -90 degrees
+    about X that takes +Z to +y (Design §5.1). Exact for rationals and for binary64 alike."""
+    x, y, z = vector
+    return (x, z, -y)
+
+
+def printed_positions(text: str) -> dict[str, tuple[Fraction, Fraction, Fraction]]:
+    """The exact rational position of every From/To node of a printed SI MBF, in the file's axes, summed along
+    each run from its printed start coordinates and offsets (no absolute markers, no bends)."""
+    position: dict[str, tuple[Fraction, Fraction, Fraction]] = {}
+    current = None
+    for row in read_printed(text).rows:
+        given = [Fraction(row["axes"][axis]) if axis in row["axes"] else Fraction(0) for axis in range(3)]
+        if row["kind"] == "F":
+            position.setdefault(row["node"], tuple(given))
+        else:
+            position[row["node"]] = tuple(position[current][axis] + given[axis] for axis in range(3))
+        current = row["node"]
+    return position
 
 
 def si(quantity: Mapping[str, Any]) -> float:
@@ -89,6 +117,7 @@ class Printed:
     materials: dict[str, dict[str, str]]
     sections: dict[str, tuple[str, str]]
     loads: dict[str, str]
+    pressures: dict[str, str]
     node_bound: dict[str, list[float]]  # CAEPIPE name -> per-axis absolute bound, metres
     coordinate_max_mm: float
     rows: list[dict[str, Any]] = field(default_factory=list)
@@ -109,9 +138,9 @@ def _fields(line: str) -> list[str]:
 
 def read_printed(text: str) -> Printed:
     lines = text.split("\r\n")
-    section, materials, sections, loads, rows = None, {}, {}, {}, []
+    section, materials, sections, loads, pressures, rows = None, {}, {}, {}, {}, []
     t_ref = "0"
-    keywords = {"VERSION", "OPTIONS", "OPTEMP", "MATERIAL", "PIPE", "LOADS", "LAYOUT"}
+    keywords = {"VERSION", "OPTIONS", "OPTEMP", "OPPRES", "OPMISC", "MATERIAL", "PIPE", "LOADS", "LAYOUT"}
     for line in lines[1:]:
         if line in keywords:
             section = line
@@ -132,6 +161,7 @@ def read_printed(text: str) -> Printed:
             sections[fields[0]] = (fields[1], fields[2])
         elif section == "LOADS":
             loads[fields[0]] = fields[1]
+            pressures[fields[0]] = fields[2]
         elif section == "LAYOUT":
             row: dict[str, Any] = {"kind": fields[0][0], "node": fields[0][1:], "axes": {}, "radius": None,
                                    "M": None, "P": None, "L": None, "comments": []}
@@ -163,7 +193,7 @@ def read_printed(text: str) -> Printed:
             position[row["node"]] = [base[axis] + float(row["axes"].get(axis, "0")) for axis in range(3)]
             current = row["node"]
         coordinate_max = max([coordinate_max, *map(abs, position[row["node"]])])
-    printed = Printed(t_ref, materials, sections, loads, {}, coordinate_max, rows)
+    printed = Printed(t_ref, materials, sections, loads, pressures, {}, coordinate_max, rows)
     # Node coordinates (Design §18.2): along the path from its run start, per axis, the sum of
     # delta(p) + 2 eps C over the printed start coordinate and every printed offset, plus 4 eps C for the import.
     c_eps = 2 * EPS * coordinate_max
@@ -243,10 +273,14 @@ def canonical(model: Mapping[str, Any], names: Mapping[str, str], case_kinds: Ma
     for support in model["supports"]:
         node = names[support["node"]]
         dofs = {_DOF_TOKEN[token] for token in support["restraints"]}
-        restrained.setdefault(node, set()).update(dofs)
         supports[support["id"]] = node
         if oriented:
             out.sets[("support", support["id"])] = (node, frozenset(dofs))
+        if support.get("family") == "spring":  # a spring restrains nothing; its stiffness per node and DOF, in N/m
+            key = ("spring", node, _DOF_TOKEN[support["stiffness"]["dof"]])
+            out.values[key] = out.values.get(key, 0.0) + si(support["stiffness"]["value"])
+            continue
+        restrained.setdefault(node, set()).update(dofs)
     for node, dofs in restrained.items():
         out.sets[("restraints", node)] = frozenset(dofs)
     for component in model.get("components") or []:
@@ -262,9 +296,20 @@ def canonical(model: Mapping[str, Any], names: Mapping[str, str], case_kinds: Ma
             out.values[("bend", key, "k")] = si(modifiers["flexibility_factor_user_value"])
         out.sets[("bend", key, "plane")] = direction
         out.sets[("bend", key, "node")] = names[component["node"]]
+    if model.get("pressure_contract") is not None:
+        contract = model["pressure_contract"]
+        out.sets[("pressure_contract",)] = (contract["version"], contract["mode"], contract["shear_model"])
     sums: dict[tuple, Fraction] = {}
     for case in model.get("load_cases") or []:
         kind = case_kinds[case["id"]]
+        for region in case.get("pressure_regions") or []:
+            # A region by its member pipes; its terminals (CAEPIPE name, closure transfer) and pressure in Pa.
+            members = frozenset(pipes[pipe_id] for pipe_id in region["member_pipe_ids"])
+            terminals = tuple((names[item["node_ref"]], item["closure_transfer"]) for item in region["terminals"])
+            out.sets[("region", kind, members)] = (terminals if oriented else frozenset(terminals),
+                                                  region["pressure_basis"])
+            pressure = region["pressure"]
+            out.values[("pressure", kind, members)] = float(Fraction(pressure["value"]) * _TO_SI_EXACT[pressure["unit"]])
         for load in case.get("primitive_loads") or []:
             value = Fraction(load["magnitude"]["value"]) * _TO_SI_EXACT[load["magnitude"]["unit"]]
             target = load["target"]
@@ -363,6 +408,9 @@ def bounds(model: Mapping[str, Any], writer: Any, printed: Printed, names: Mappi
                 if load_key[:3] == ("load", "sustained", "weight") and load_key[3] == key:
                     out[load_key] = weight_relative * abs(value)
         load_name = entry["load"]
+        for region_key in reference.values:  # Pressure 1, printed directly in bar
+            if region_key[0] == "pressure" and key in region_key[2]:
+                out[region_key] = printed_bound(printed.pressures[load_name], 1e5)
         t1 = printed.loads[load_name]
         for load_key in reference.values:
             if load_key[:3] == ("load", "expansion", "thermal") and load_key[3] == key:
@@ -376,6 +424,12 @@ def bounds(model: Mapping[str, Any], writer: Any, printed: Printed, names: Mappi
                 if comment.startswith(code):
                     for axis, value in enumerate(comment[len(code):-1].split(",")):
                         comment_values[(category, row["node"], axis)] = value
+    # Spring stiffnesses: printed directly in N/mm, the flexible anchor's TRAK component on the node's row.
+    for row in printed.rows:
+        for comment in row["comments"]:
+            if comment.startswith("TRAK("):
+                for axis, value in enumerate(comment[len("TRAK("):-1].split(",")):
+                    out[("spring", row["node"], DOFS[axis])] = printed_bound(value, 1e3)
     for key, value in reference.values.items():
         if key[0] != "load" or key[2] not in ("concentrated_force", "concentrated_moment", "imposed_displacement"):
             continue
@@ -462,6 +516,8 @@ def compare(reference: Canonical, imported: Canonical, limits: Mapping[tuple, fl
 
 
 def _unoriented_key(key: tuple) -> tuple:
+    if key[0] in ("region", "pressure"):
+        return key[:2] + (frozenset(tuple(sorted(member)) for member in key[2]),)
     if key[0] in ("pipe", "bend"):
         return (key[0], tuple(sorted(key[1])), *key[2:])
     if key[0] == "load" and isinstance(key[3], tuple):
@@ -471,6 +527,89 @@ def _unoriented_key(key: tuple) -> tuple:
 
 def unoriented(form: Canonical, limits: Mapping[tuple, float]) -> tuple[Canonical, dict[tuple, float]]:
     """A canonical form and its bounds with pipe ends unordered and per-support identities dropped (unbound)."""
+    def unordered(key: tuple, value: Any) -> Any:
+        return (frozenset(value[0]), value[1]) if key[0] == "region" else value
+
     return (Canonical({_unoriented_key(key): value for key, value in form.values.items()},
-                      {_unoriented_key(key): value for key, value in form.sets.items() if key[0] != "support"}),
+                      {_unoriented_key(key): unordered(key, value) for key, value in form.sets.items()
+                       if key[0] != "support"}),
             {_unoriented_key(key): value for key, value in limits.items()})
+
+
+# --- the sidecar's self-digest (Design §15), written independently of si_writer.sidecar_canonical_bytes ---------------
+SELF_DIGEST_KEY = "sidecar_sha256"
+
+
+def jcs_number(value: float) -> str:
+    """RFC 8785's form of a finite binary64: the fewest significant digits p whose correctly rounded p-digit form
+    reads back as `value` (the nearest p-digit decimal reads back whenever any does), placed by ECMAScript's rules."""
+    if value == 0:
+        return "0"
+    magnitude = abs(value)
+    text = next(text for text in (f"{magnitude:.{p}e}" for p in range(17)) if float(text) == magnitude)
+    mantissa, exponent = text.split("e")
+    digits, n = mantissa.replace(".", "").rstrip("0"), int(exponent) + 1  # value = 0.digits x 10^n
+    k = len(digits)
+    if k <= n <= 21:
+        body = digits + "0" * (n - k)
+    elif 0 < n <= 21:
+        body = f"{digits[:n]}.{digits[n:]}"
+    elif -6 < n <= 0:
+        body = "0." + "0" * -n + digits
+    else:
+        body = f"{digits[0]}{'.' + digits[1:] if k > 1 else ''}e{n - 1:+d}"
+    return ("-" if value < 0 else "") + body
+
+
+def jcs(value: Any) -> str:
+    """RFC 8785 (JCS) text of a JSON value; ValueError where it has none."""
+    if value is None or isinstance(value, bool):
+        return json.dumps(value)
+    if isinstance(value, int):
+        try:
+            number = float(value)
+        except OverflowError:
+            number = math.nan
+        if number != value:
+            raise ValueError(f"{value!r} is not exactly a binary64")
+        return jcs_number(number)
+    if isinstance(value, float):
+        if not math.isfinite(value):
+            raise ValueError(f"{value!r} is not finite")
+        return jcs_number(value)
+    if isinstance(value, str):
+        # Python's json escapes what RFC 8785 escapes, and as it does: quote, backslash, the five short forms, and
+        # the other controls below U+0020 as lowercase \u00xx; nothing else.
+        text = json.dumps(value, ensure_ascii=False)
+        text.encode("utf-8")  # a lone surrogate raises
+        return text
+    if isinstance(value, list):
+        return "[" + ",".join(jcs(item) for item in value) + "]"
+    if isinstance(value, dict):
+        if not all(isinstance(key, str) for key in value):
+            raise ValueError("a key is not a string")
+        def units(key: str) -> list[int]:  # UTF-16 code units, the order RFC 8785 sorts by
+            data = key.encode("utf-16-be")
+            return [int.from_bytes(data[i:i + 2], "big") for i in range(0, len(data), 2)]
+        return "{" + ",".join(f"{jcs(key)}:{jcs(value[key])}" for key in sorted(value, key=units)) + "}"
+    raise ValueError(f"{type(value).__name__} is not a JSON value")
+
+
+def self_digest(sidecar: Mapping[str, Any]) -> str:
+    """The SHA-256 of the RFC 8785 UTF-8 text of `sidecar` without its self-digest."""
+    return hashlib.sha256(jcs({key: value for key, value in sidecar.items() if key != SELF_DIGEST_KEY})
+                          .encode("utf-8")).hexdigest()
+
+
+def redigested(sidecar: Any) -> Any:
+    """`sidecar` as a deliberate editor leaves it (Design §15): one carrying a well-formed self-digest gets the
+    digest of its content as it now stands, so an edit reaches the guards behind the self-digest; any other (no
+    digest, a malformed one, or content with no canonical form, which the importer refuses by path) is unchanged."""
+    if not isinstance(sidecar, dict) or not (isinstance(sidecar.get(SELF_DIGEST_KEY), str)
+                                             and len(sidecar[SELF_DIGEST_KEY]) == 64
+                                             and set(sidecar[SELF_DIGEST_KEY]) <= set("0123456789abcdef")):
+        return sidecar
+    try:
+        return {**sidecar, SELF_DIGEST_KEY: self_digest(sidecar)}
+    except (ValueError, UnicodeEncodeError, RecursionError):
+        return sidecar
