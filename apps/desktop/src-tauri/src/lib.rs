@@ -81,7 +81,9 @@ async fn save_report_package(
     let (request, mut lease) = decode_report_package_save(&registry, invoke.body(), invoke.headers())?;
     // The lease is held through the growth, admission (which may grow it,
     // W-18b route 010), the save dialog, the write, the route's one exit and
-    // the response. Every later outcome leaves through that exit
+    // the response, except after a worker panic: its unwind drops the lease
+    // moved into the worker, and the fixed worker-failure error leaves with
+    // none. Every later outcome leaves through that exit
     // (`report_package_save::SaveRoute::exit`): route 010's refusals bounded,
     // whatever stage refused, and route 009's unchanged.
     let route = report_package_save::SaveRoute::of(&request);

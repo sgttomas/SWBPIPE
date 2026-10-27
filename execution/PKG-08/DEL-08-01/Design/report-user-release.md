@@ -906,10 +906,15 @@ refusal output has a fixed bound:
   within these bounds is unchanged. The bound applies to the whole command
   error, whatever stage refused: the outer command's pricing, admission, the
   save dialog, the custody recheck, the atomic writer and the worker. The
-  save command returns every outcome through one exit while its lease is
-  held (`report_package_save::SaveRoute::exit`), and only that exit makes
-  the command's error type (`SaveCommandError`), so no stage can return
-  around it. Route 009 leaves the same exit unchanged, byte for byte. The
+  save command returns every outcome through one exit
+  (`report_package_save::SaveRoute::exit`), and only that exit makes the
+  command's error type (`SaveCommandError`), so no stage can return around
+  it. The lease is held through that exit for every outcome but one: when
+  the blocking worker panics, the unwind drops the lease moved into it, and
+  the command builds the fixed worker-failure error
+  (`REPORT-PACKAGE-SAVE-WORKER-FAILED`, `save_report_package_decoded` in
+  `lib.rs`) with no lease to return. That error still leaves through the
+  exit, and its text is fixed and within the bound. Route 009 leaves the same exit unchanged, byte for byte. The
   ingress layer's own errors (a refused lease or growth, an argument that
   does not decode) and an unserializable response are every command's, of
   fixed form (DEL-04-07), and the exit leaves them unchanged. Codex's repro,
