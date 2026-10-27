@@ -36,7 +36,8 @@ PACKAGE = "core/reporting/report_package/tests/pf_timoshenko_package.rs"
 NATIVE = "apps/desktop/src-tauri/src/report_render_pf_timoshenko_tests.rs"
 DESKTOP = "apps/desktop/src/features/results/pfTimoshenkoIdentity.test.tsx"
 TABLES = "tests/test_semantic_contract_tables.py"
-PRODUCT = "the product half (core/product_physics), reviewed when the halves merge"
+PRODUCT_REFERENCES = "core/product_physics/tests/pf_timoshenko_references.rs"
+PRODUCT_RUNTIME = "core/product_physics/tests/pf_timoshenko_runtime.rs"
 
 # Literal sites: path -> (needles, class, reason, Timoshenko marker or None, exercised by).
 LITERAL_SITES = {
@@ -74,11 +75,19 @@ LITERAL_SITES = {
     "apps/desktop/src-tauri/src/lib.rs": (
         {"id", "profile"}, EB_ONLY, "test modules only: Euler-Bernoulli policy and solve fixtures", None, None),
     "core/product_physics/src/lib.rs": (
-        {"id", "profile"}, EB_ONLY, f"the producer's Euler-Bernoulli identity and its tests; the identity selection is {PRODUCT}", None, None),
+        {"id", "profile"}, EB_ONLY,
+        "preview_formulation_basis(), the route's pre-publication basis, which every PF envelope (solved and blocked) "
+        "replaces with pf_timoshenko::formulation_basis; the identity literal is in a test of an Euler-Bernoulli solve. "
+        "The producer sites themselves are a symbol gate below", None, None),
     "core/product_physics/src/preview_physics.rs": (
-        {"id", "table", "profile", "lim0"}, EB_ONLY, f"the producer's Euler-Bernoulli constants; the identity selection is {PRODUCT}", None, None),
+        {"id", "table", "profile", "lim0"}, EB_ONLY,
+        "the Euler-Bernoulli identity's own constants and its table test; pf_timoshenko.rs derives the Timoshenko "
+        "identity from them (its own id, profile and limitation 0) and selects between the two", None, None),
     "core/product_physics/src/build_identity.rs": (
-        {"table"}, EB_ONLY, f"the build identity's registered inputs; whether the Timoshenko table joins them is {PRODUCT}", None, None),
+        {"table"}, EB_ONLY,
+        "the retained profile's reviewed inputs, the reader statics route L parses; route L declines a Timoshenko "
+        "document at D1, and the readers parse the Timoshenko table only for a source of that identity, so it is no "
+        "route-L resident. Adding it would make the registered retained profile Stale (design §6, D3 pricing)", None, None),
     "core/product_physics/src/retained_memory.rs": (
         {"table", "hash"}, EB_ONLY, "the registered retained-memory profile's reviewed inputs (route L; S5's D3 registration owns them)", None, None),
     "tools/validation/qualification_gate.py": (
@@ -89,6 +98,14 @@ LITERAL_SITES = {
 
 # Symbol-only gates (no literal): path -> (symbols the file must name, class, reason, Timoshenko marker or None, exercised by).
 SYMBOL_GATES = {
+    "core/product_physics/src/pf_timoshenko.rs": (
+        ("fn semantic_contract_id", "fn formulation_basis"), BOTH,
+        "the producer's identity selection: preview-physics-2's, or the Timoshenko identity for a PF document selecting it",
+        "preview-physics-timoshenko-1", PRODUCT_REFERENCES),
+    "core/product_physics/src/lib.rs": (
+        ("pf_timoshenko::semantic_contract_id(model)", "pf_timoshenko::formulation_basis(&model)"), BOTH,
+        "the producer sites: mechanics_producer_for_model and the solved and blocked envelopes' published basis",
+        "pf_timoshenko::", PRODUCT_RUNTIME),
     "core/reporting/result_export/src/reader_verdict.rs": (
         ("BINDINGS", "fn route", "fn binding_of", "fn bind_preview_shear_model"), BOTH,
         "the route's bindings by semantic_contract_id; the model-bound crossed-pair refusal", "PREVIEW_PHYSICS_TIMOSHENKO_ID", RUST_READERS),
