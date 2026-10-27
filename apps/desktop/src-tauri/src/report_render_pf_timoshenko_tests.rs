@@ -47,9 +47,12 @@ fn timoshenko_source() -> Value {
     source["producer"]["semantic_contract_id"] = json!(PREVIEW_PHYSICS_TIMOSHENKO_ID);
     source["formulation_basis"]["profile_id"] = json!(PREVIEW_PHYSICS_TIMOSHENKO_PROFILE);
     source["formulation_basis"]["limitations"] = preview_physics_timoshenko_contract()["supported_profile_limitations"].clone();
+    // The producer's own diagnostic source, from the witness's product diagnostics (a path
+    // literal here would read as a desktop reference to the whole product crate).
+    let producer = source["diagnostics"][0]["source"].clone();
     source["diagnostics"].as_array_mut().unwrap().push(json!({
         "id": "diagnostic:preview-physics:pf-timoshenko:realized-arcs", "code": REALIZED_ARCS_DIAGNOSTIC,
-        "severity": "info", "message": ARC_MESSAGE, "source": "core/product_physics", "affected_refs": ["pipe:fixture-span"]}));
+        "severity": "info", "message": ARC_MESSAGE, "source": producer, "affected_refs": ["pipe:fixture-span"]}));
     source
 }
 
