@@ -1682,10 +1682,12 @@ with `syn::visit::Visit`.
   comes from the tree.
 
 *Which source is production.*
-- **Roots.** The roots are each crate's `src/lib.rs`, plus `src-tauri`'s
-  `src/main.rs`. The scan reads the four manifests. It fails if a `[lib]`
-  names a path other than `src/lib.rs`, if a manifest declares a `[[bin]]`
-  target, or if a crate has a `src/bin` directory. None does at the basis.
+- **Roots.** The roots are the files Cargo itself reports as each crate's
+  library and binary targets (*Cargo targets* below): today each crate's
+  `src/lib.rs`, plus `src-tauri`'s `src/main.rs`. The scan reads from the
+  reported files, not an assumed `src/lib.rs`, and the target set is pinned,
+  so another library root or any added binary is a finding. A crate with a
+  `src/bin` directory is also a finding. None has one at the basis.
 - **Modules.** From each root the scan follows every `mod` item, outlined
   (`mod name;`) and inline. It resolves the files itself, by Rust's rules:
   - `name.rs` or `name/mod.rs` beside a root or `mod.rs` file;
@@ -2095,10 +2097,14 @@ modelling:
   arguments and in included files (both repros, and `format!`, `assert!`
   and `vec!` forms, fail to compile), and no inner `#[allow(unsafe_code)]`
   can lift it (E0453). None of the three crates had `unsafe` code, so each
-  builds unchanged. The scan requires that exact inner attribute at each of
-  the three roots: its absence, or any other form (another lint added,
-  `deny`, through `cfg_attr`, or as an outer attribute), is a finding, and a
-  `forbid` anywhere else is not on the attribute list. The token rule also
+  builds unchanged. The scan requires that exact inner attribute among the
+  root file's own attributes (`syn::File.attrs`) of the library root Cargo
+  reports for each of the three crates: its absence, or any other form
+  (another lint added, `deny`, through `cfg_attr`, or as an outer
+  attribute), is a finding, and a `forbid` anywhere else is not on the
+  attribute list. That includes an inner `#![forbid]` in a nested module,
+  inline or in its own file (code review r5 at #1682): only the crate-root
+  position is admitted. The token rule also
   finds every `unsafe` keyword in the three crates' read files, in any
   position, and the parsed-tree `unsafe` findings stay.
   Without `unsafe`, nothing in these crates' dependencies can build either
@@ -2156,6 +2162,73 @@ modelling:
   None of these rules hit the real sources: today's renames and re-exports
   are exactly the allow-lists, and no module, binding or macro definition
   takes a reserved name.
+
+*Cargo targets (code review r5 at #1682).* The `forbid` attribute and the
+scan govern one crate each: a crate's library root, every module it loads
+and its unit-test modules (`#[cfg(test)]` modules compiled into the
+library's own test build, under the same root lint). Cargo builds other
+crates from the same package: integration tests, benches, examples,
+binaries, build scripts and proc-macro libraries are separate crates, with
+their own roots, and none inherits the library root's lint. Two forms
+compiled and gave no finding: a manifest naming another library root (`[ lib ]`
+with spaces, or a `path` line followed by a comment holding
+`"src/lib.rs"`) slipped past a guard that matched the manifest's spelling,
+so the scan read a `src/lib.rs` Cargo did not build; and an automatically
+discovered `report_renderer/src/main.rs` built a binary the scan never
+read and the library's `forbid` did not govern. So Cargo, not the
+manifest's spelling, decides what each crate builds:
+- **The target set, from Cargo.** The scan's test runs `cargo metadata
+  --format-version 1 --offline --locked --no-deps --manifest-path …` for
+  each of the four crates, with the `cargo` that runs the test, and requires
+  each crate's reported targets to be exactly the allow-listed set, by kind,
+  name and source file. Cargo's report includes what it discovers on its own
+  (`src/main.rs`, `src/bin/`, `examples/`, `benches/`, `tests/`, `build.rs`)
+  and whatever the `auto*` keys and `[[bin]]`, `[[example]]`, `[[test]]`,
+  `[[bench]]` and `[lib]` sections say, so no spelling is interpreted by the
+  scan. The allowed sets:
+  - `report_package`: the library from `src/lib.rs`, and the integration
+    tests `container`, `current_result_package`, `exact_sections_parity`,
+    `quantity_display_parity`, `reader`, `reader_allocation`,
+    `report_diagnostics_parity`, `report_rows_parity`, `schema_eval`,
+    `user_release_derivation` and `user_release_package`, each from
+    `tests/<name>.rs`;
+  - `report_renderer`: the library from `src/lib.rs`, and the integration
+    tests `object_form` and `render`;
+  - `pdf_emitter`: the library from `src/lib.rs`, and the integration test
+    `emit`;
+  - `src-tauri`: the library (`staticlib`, `cdylib`, `rlib`) from
+    `src/lib.rs`, the app binary from `src/main.rs`, which the scan reads as
+    a crate root, and the build script `build.rs` (`tauri_build::build()`).
+  Each reporting crate's one library target must come from its `src/lib.rs`;
+  the scan reads the reported file as the root, so a different one is both a
+  finding and the file actually read. Any other target, a binary, example,
+  bench, build script, proc-macro library or integration test not on the
+  list, whether discovered or declared, is a finding, so adding one is
+  reviewed as a change to this boundary. The build-dependencies are pinned
+  as well: `src-tauri`'s only one is `tauri-build`, and the reporting crates
+  have none.
+- **Why the allowed separate crates cannot reach the proof types.** The
+  reporting crates have no binary, example, bench, build script or
+  proc-macro target; the only separate crates are the allow-listed
+  integration tests. They are not linked into any product binary, and they
+  link the library as an external crate, so they see only its public items.
+  `DerivedUserRelease` and `ProducerEntry` are `pub(crate)`, and no public
+  item's signature carries either, so an integration test cannot name, build
+  or receive one, with or without `unsafe` (`reader_allocation` uses
+  `unsafe` for its counting allocator, which is why the lint is not assumed
+  there). Through the public interface an integration test reaches the user
+  release only as `src-tauri` does, through `assemble_derived` and its
+  checks. `src-tauri`'s binary is read by the scan as a root, and its build
+  script can link only `tauri-build` and produces no source the scanned
+  crates include (`include!` is refused).
+- **Fixtures.** Each repro is run on a scratch copy of a real crate, so
+  Cargo itself reads the edited layout: the `[ lib ]` alternate path, the
+  commented `path` line, `src/main.rs` in each reporting crate,
+  `src/bin/x.rs`, `build.rs`, `benches/x.rs`, a `[[bin]]` and an
+  `[[example]]` entry, `autobins = true` with a binary, a proc-macro
+  library and an unexpected `tests/x.rs` are each findings, and the unedited
+  copies pass. A nested module's `#![forbid(unsafe_code)]` is a finding on
+  the invented and the real sources.
 
 The real-source scan finds nothing under these rules; no rule needed an
 allow-list entry beyond today's renames and re-exports or a change to
