@@ -867,12 +867,16 @@ refusal output has a fixed bound:
   per value, the store-resolved screen's first own-site finding
   (`provenance_record`, `rule_pack_refs[]` and non-object members). Each
   first finding is the collecting screen's first entry, word for word
-  (`first_findings_match_the_collecting_screens`). Its walks hold their path
-  on their own stack frames or in one buffer sized before the walk, so they
-  allocate nothing per level or per finding, and only the reported finding's
-  pointer is built. The library, rule-pack and private-class rules and the
-  derivation's comparison (§2.6) stop at their first site in the same way,
-  and their messages are written into buffers sized before they are written.
+  (`first_findings_match_the_collecting_screens`). The structural screens
+  retain their first finding and walk the rest of the value without
+  building another, because they share their walks with the collecting
+  screens; the store-resolved screen's walk stops at its first finding. Its
+  walks hold their path on their own stack frames or in one buffer sized
+  before the walk, so they allocate nothing per level or per finding, and
+  only the reported finding's pointer is built. The library, rule-pack and
+  private-class rules and the derivation's comparison (§2.6) stop at their
+  first site, and their messages are written into buffers sized before they
+  are written.
   The derivation's refusal builds only the 240 characters of the pointer it
   shows. The run-record check's messages are fixed texts, hashes and
   identities cut to 160 characters. The rule-pack agreement's refusal names
@@ -885,25 +889,48 @@ refusal output has a fixed bound:
   store holds, so the store's verdict could never admit anything here. Its
   reads are memory the route's lease does not price. Route 009 still
   resolves every reference in the store.
-- **A bounded refusal.** A route-010 admission refusal carries one
-  diagnostic. Its path is the finding's JSON pointer when that is at most
-  1,024 bytes. Otherwise it is the nearest enclosing pointer within 1,024
-  bytes, and the message gives the full pointer's length. The diagnostic's
-  message and the refusal's message are each at most 2,048 bytes; a longer
-  one keeps its head and tail around a note of the bytes elided. The code is
-  at most 128 bytes (`report_package_save::bound_route_010_refusal`). A
-  refusal within these bounds is unchanged.
+- **A bounded refusal, at every stage (Codex round 2 at #1682, P2).** A
+  route-010 refusal carries at most one diagnostic: an admission refusal
+  carries its first finding, and a producer, bridge, save-dialog or
+  atomic-writer error carries none. Its path is the finding's JSON pointer
+  when that is at most 1,024 bytes. Otherwise it is the nearest enclosing
+  pointer within 1,024 bytes, and the message gives the full pointer's
+  length. The diagnostic's message and the refusal's message are each at
+  most 2,048 bytes. The codes (the refusal's, the cleanup code and the
+  diagnostic's) are each at most 128 bytes. The stage, the OS error kind and
+  the path containment class are each at most 128 bytes, the selected
+  basename at most 256 bytes, and the cleanup message (an OS error's text)
+  and the limitation each at most 512 bytes. A longer string keeps its head
+  and tail around a note of the bytes elided, so a basename keeps its
+  extension (`report_package_save::bound_route_010_refusal`). A refusal
+  within these bounds is unchanged. The bound applies to the whole command
+  error, whatever stage refused: the outer command's pricing, admission, the
+  save dialog, the custody recheck, the atomic writer and the worker. The
+  save command returns every outcome through one exit while its lease is
+  held (`report_package_save::SaveRoute::exit`), and only that exit makes
+  the command's error type (`SaveCommandError`), so no stage can return
+  around it. Route 009 leaves the same exit unchanged, byte for byte. The
+  ingress layer's own errors (a refused lease or growth, an argument that
+  does not decode) and an unserializable response are every command's, of
+  fixed form (DEL-04-07), and the exit leaves them unchanged. Codex's repro,
+  a 50,000-byte basename that the production atomic writer refuses before
+  writing anything, held 50,407 bytes of strings. It now holds 621
+  (`route_010_atomic_writer_refusals_leave_bounded`). Every form of the
+  error, built at its largest from characters JSON escapes to six bytes, is
+  within the bound below
+  (`every_route_010_error_form_leaves_within_its_bound`).
 - **The response.** An admitted save's receipt is serialized under the held
   lease. On route 010 it carries no warnings, its member summaries are the
   package's fixed members, and its other fields are the checked evidence's
   constants and hashes. A refusal is returned as the command's error. Tauri
   converts it to its IPC value after the command returns and its lease is
   released, so those bytes are priced by no lease. On route 010 they are the
-  bounded refusal's strings: at most 6,000 bytes of text (the code, the
-  stage, the one diagnostic and the joined message, and the fixed path and
-  limitation notes), and at most 36,000 bytes once JSON-escaped (an escape
-  is at most six bytes per character). Those
-  bytes are the unpriced residual of a route-010 refusal. Route 009's
+  bounded refusal's strings: at most 7,168 bytes of text, the sum of the
+  bounds above (`ROUTE_010_REFUSAL_TEXT_BYTES`), and at most 43,520 bytes
+  serialized (`ROUTE_010_REFUSAL_JSON_BYTES`: an escape is at most six bytes
+  per byte of text, and the member names, the OS error code and the
+  punctuation take less than 512 bytes). Those bytes are the unpriced
+  residual of a route-010 refusal. Route 009's
   refusals keep their every finding (pinned byte for byte by
   `route_009_refusals_of_many_findings_are_unchanged`), as DEL-04-07's
   residual records.
@@ -1019,8 +1046,8 @@ need none (`report_package/src/wire.rs:46-55`).
 10. **Unchanged, on both routes:**
     - the object-form check (`:715-722`);
     - the disposition screens' rules and order (`screen_content`,
-      `:524-560`); route 010 stops at the first finding and reads no library
-      store ("Refusals on route 010" above);
+      `:524-560`); route 010 refuses at the first finding and reads no
+      library store ("Refusals on route 010" above);
     - the rule-pack agreement (`:684-700`), whose two sides are both empty on
       route 010 after step 5;
     - the shared producer's checks (§2.8). Route 009 reaches them through the

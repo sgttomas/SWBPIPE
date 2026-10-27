@@ -670,9 +670,12 @@ pub(crate) fn first_rule_pack_ref_member_site(document: &Value) -> Option<String
 // --- Route 010's bounded screen (W-18b; Codex round 1 at #1682, P1) ---------
 //
 // Route `DREP-PACKAGE-USER-RELEASE-010` screens the same values with the same
-// rules as the screens above, in their order, but stops at the first finding
-// and builds only that finding's pointer: its walks allocate nothing per level
-// and nothing per finding, so the refusal's memory is bounded by one pointer,
+// rules as the screens above, in their order, but refuses at the first
+// finding and builds only that finding's pointer. The structural walks, which
+// the collecting screens share, retain the first finding and walk on without
+// building another; the document-site walk stops at its first finding. The
+// walks allocate nothing per level and nothing per finding, so the refusal's
+// memory is bounded by one pointer,
 // which the route's ingress lease prices (DEL-08-01 Design
 // `report-user-release.md` §2.5, "Refusals on route 010"). Every other caller
 // keeps the collecting screens unchanged.

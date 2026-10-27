@@ -69,9 +69,11 @@
 //! reaches the producer only through its one admitting entry, which derives
 //! the whole request (`report_package_bridge::assemble_user_released_request`).
 //! Route 010's checks refuse at their first finding: its disposition screen
-//! applies the same rules in the same order but stops at the first finding
-//! and reads no library store, and every route-010 refusal carries one
-//! bounded diagnostic (`bound_route_010_refusal`; Codex round 1 at #1682).
+//! applies the same rules in the same order, refuses at the first finding
+//! and reads no library store, and every route-010 refusal carries at most
+//! one diagnostic and leaves the command bounded, whatever stage refused
+//! (`SaveRoute::exit`, `bound_route_010_refusal`; Codex rounds 1 and 2 at
+//! #1682).
 //! Route 009 refuses a user-release record (`REPORT-USER-RELEASE-NOT-THIS-ROUTE`)
 //! and reaches the producer through the general entry, which refuses every
 //! user-release marker. A user release is the user's statement about rights
@@ -88,7 +90,7 @@
 //! taxonomy per DEC-081).
 
 use crate::atomic_report_package_save::{self, AtomicSaveError};
-use crate::command_ingress::{report_package_request_parse_bytes, text_parse_bytes, Args, ArgsDecoding, ValueDecoder};
+use crate::command_ingress::{report_package_request_parse_bytes, text_parse_bytes, Args, ArgsDecoding, CommandError, ValueDecoder};
 use crate::model_document_file::MAX_MODEL_DOCUMENT_BYTES;
 use crate::export_disposition_screen::{
     first_document_site_finding, first_library_ref_object, first_structural_finding, malformed_values, screen_dispositions_in, screen_value,
@@ -150,13 +152,45 @@ pub use crate::export_disposition_screen::PROTECTED_CONTENT_BLOCKED;
 
 /// Route 010's refusal bounds (W-18b, DEL-08-01 Design `report-user-release.md`
 /// §2.5, "Refusals on route 010"; Codex round 1 at #1682, P1): a route-010
-/// refusal carries one diagnostic, whose path is at most this many bytes (the
-/// finding's JSON pointer, or its nearest enclosing pointer within that
-/// length) ...
+/// refusal carries at most one diagnostic, whose path is at most this many
+/// bytes (the finding's JSON pointer, or its nearest enclosing pointer within
+/// that length) ...
 pub(crate) const ROUTE_010_PATH_BYTES: usize = 1024;
 /// ... and whose message is at most this many bytes (a longer one keeps its
 /// head and its tail around an elision note).
 pub(crate) const ROUTE_010_DETAIL_BYTES: usize = 2048;
+/// ... and its other strings, at every stage (admission, the save dialog, the
+/// atomic writer; Codex round 2 at #1682, P2): the stage, the OS error kind
+/// and the path containment class at most this many bytes, ...
+pub(crate) const ROUTE_010_LABEL_BYTES: usize = 128;
+/// ... the selected file's basename at most this many (head and tail kept, so
+/// its extension shows), ...
+pub(crate) const ROUTE_010_BASENAME_BYTES: usize = 256;
+/// ... and the cleanup message and the limitation at most this many.
+pub(crate) const ROUTE_010_NOTE_BYTES: usize = 512;
+/// The most bytes of text a route-010 refusal holds, every string field
+/// counted at its bound: the code, the stage, the message, the OS error kind,
+/// the cleanup code and message, the basename, the path containment class and
+/// the limitation, and its one diagnostic's code, path and message (the OS
+/// error code is a number).
+#[cfg_attr(not(test), allow(dead_code))]
+pub(crate) const ROUTE_010_REFUSAL_TEXT_BYTES: usize = ROUTE_010_CODE_BYTES
+    + ROUTE_010_LABEL_BYTES
+    + ROUTE_010_DETAIL_BYTES
+    + ROUTE_010_LABEL_BYTES
+    + ROUTE_010_CODE_BYTES
+    + ROUTE_010_NOTE_BYTES
+    + ROUTE_010_BASENAME_BYTES
+    + ROUTE_010_LABEL_BYTES
+    + ROUTE_010_NOTE_BYTES
+    + ROUTE_010_CODE_BYTES
+    + ROUTE_010_PATH_BYTES
+    + ROUTE_010_DETAIL_BYTES;
+/// The most bytes a route-010 refusal serializes to as JSON: each byte of text
+/// escapes to at most six (`\u0001`), and the member names, the OS error code
+/// and the punctuation take less than 512 bytes.
+#[cfg_attr(not(test), allow(dead_code))]
+pub(crate) const ROUTE_010_REFUSAL_JSON_BYTES: usize = 6 * ROUTE_010_REFUSAL_TEXT_BYTES + 512;
 
 /// The largest request text admitted. The request carries the report input,
 /// the result document, its source carrier and the handoff records, each a
@@ -1137,9 +1171,10 @@ impl From<ReportPackageSaveCommandError> for SaveRefusal {
 /// admitting producer entry, through
 /// [`report_package_bridge::assemble_user_released_request`].
 ///
-/// A route-010 refusal is bounded ([`bound_route_010_refusal`]): one
-/// diagnostic, its path and message within [`ROUTE_010_PATH_BYTES`] and
-/// [`ROUTE_010_DETAIL_BYTES`]. Route 009's refusals are unchanged.
+/// A route-010 refusal leaves bounded ([`SaveRoute::bounded`]). The command
+/// itself does not call this: it admits and saves through
+/// [`save_report_package_session`] and returns through [`SaveRoute::exit`].
+#[cfg_attr(not(test), allow(dead_code))]
 pub fn admit_report_package_session(
     request: ReportPackageSaveRequest,
     software: &ExpectedSoftware,
@@ -1147,26 +1182,120 @@ pub fn admit_report_package_session(
     custody: &CustodyLookup<'_>,
     session: Option<&mut UserReleaseSession<'_>>,
 ) -> Result<AdmittedReportPackage, SaveRefusal> {
-    let user_release_route = request.screening.route_id == REPORT_PACKAGE_USER_RELEASE_ROUTE_ID;
-    let admitted = admit_both_routes(request, software, lookup, custody, session);
-    match admitted {
-        Err(SaveRefusal::Command(error)) if user_release_route => Err(SaveRefusal::Command(bound_route_010_refusal(error))),
+    let route = SaveRoute::of(&request);
+    admit_both_routes(request, software, lookup, custody, session).map_err(|refusal| match refusal {
+        SaveRefusal::Command(error) => SaveRefusal::Command(route.bounded(error)),
         other => other,
+    })
+}
+
+/// The save command after its arguments are decoded and its lease has grown
+/// ([`ingress_lease_bytes`]): the admission of both routes, with the session,
+/// then the save dialog and the atomic write
+/// ([`save_admitted_report_package_in`]). Its refusals are not yet bounded:
+/// the command returns every outcome through [`SaveRoute::exit`].
+pub fn save_report_package_session(
+    request: ReportPackageSaveRequest,
+    software: &ExpectedSoftware,
+    lookup: &mut LibraryLookup<'_>,
+    custody: &CustodyLookup<'_>,
+    session: &mut UserReleaseSession<'_>,
+    choose: impl FnOnce(&str) -> Option<Result<PathBuf, String>>,
+) -> Result<ReportPackageSaveReceipt, SaveRefusal> {
+    let admitted = admit_both_routes(request, software, lookup, custody, Some(session))?;
+    Ok(save_admitted_report_package_in(admitted, custody, choose)?)
+}
+
+/// The route a save command's outcome leaves under, read from the screening
+/// evidence's route id (§2.5 step 1), as admission selects its branch.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum SaveRoute {
+    /// Route `DREP-PACKAGE-SAVE-009` (and any other id, which admission
+    /// refuses): its refusals leave unchanged.
+    LocalPrivate,
+    /// Route `DREP-PACKAGE-USER-RELEASE-010`: its refusals leave bounded.
+    UserRelease,
+}
+
+/// The save command's error as the command returns it (W-18b, DEL-08-01
+/// Design `report-user-release.md` §2.5, "Refusals on route 010"; Codex round
+/// 2 at #1682, P2). Only [`SaveRoute::exit`] makes one, so every command
+/// error of the save leaves through that one step, whatever stage refused:
+/// the outer command's pricing, admission, the save dialog, the custody
+/// recheck, the atomic writer or the worker. It serializes as the error it
+/// holds, byte for byte.
+#[derive(Debug)]
+pub struct SaveCommandError(ReportPackageSaveCommandError);
+
+impl Serialize for SaveCommandError {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        self.0.serialize(serializer)
+    }
+}
+
+impl SaveCommandError {
+    /// The error it holds, for its regressions.
+    #[cfg(test)]
+    pub(crate) fn error(&self) -> &ReportPackageSaveCommandError {
+        &self.0
+    }
+}
+
+impl SaveRoute {
+    pub fn of(request: &ReportPackageSaveRequest) -> Self {
+        if request.screening.route_id == REPORT_PACKAGE_USER_RELEASE_ROUTE_ID {
+            Self::UserRelease
+        } else {
+            Self::LocalPrivate
+        }
+    }
+
+    /// `error` as this route returns it: route 010's within its bounds
+    /// ([`bound_route_010_refusal`]), route 009's unchanged.
+    fn bounded(self, error: ReportPackageSaveCommandError) -> ReportPackageSaveCommandError {
+        match self {
+            Self::LocalPrivate => error,
+            Self::UserRelease => bound_route_010_refusal(error),
+        }
+    }
+
+    /// The save command's one exit, while its lease is held: its own error
+    /// ([`CommandError::Command`]) leaves bounded on route 010 and unchanged
+    /// on route 009. The ingress layer's errors ([`CommandError::Ingress`]:
+    /// a refused lease or growth, an argument that does not decode) and a
+    /// response that could not be serialized ([`CommandError::Response`])
+    /// are every command's own, of fixed form (DEL-04-07), and leave
+    /// unchanged.
+    pub(crate) fn exit<T>(self, outcome: Result<T, CommandError<ReportPackageSaveCommandError>>) -> Result<T, CommandError<SaveCommandError>> {
+        outcome.map_err(|error| match error {
+            CommandError::Command(error) => CommandError::Command(SaveCommandError(self.bounded(error))),
+            CommandError::Ingress(error) => CommandError::Ingress(error),
+            CommandError::Response(error) => CommandError::Response(error),
+        })
     }
 }
 
 /// The most bytes a route-010 refusal's code keeps (codes are short
 /// constants; a producer message without a `CODE:` prefix names its whole
-/// text as its code).
+/// text as its code), and its cleanup code's and its diagnostic's code.
 const ROUTE_010_CODE_BYTES: usize = 128;
 
-/// The most a bounded route-010 refusal's own strings hold (its code, stage,
-/// one diagnostic's code, path and message, and the joined message, with the
-/// elision notes), each counted at its allocation envelope: what bounding a
-/// refusal adds to the refusal it replaces, which route 010's refusal
-/// formatting allowance prices
+/// The most a bounded route-010 refusal's own strings hold (every string
+/// field within its bound, at most [`ROUTE_010_REFUSAL_TEXT_BYTES`], and the
+/// joined message and elision notes built on the way), each counted at its
+/// allocation envelope: what bounding a refusal adds to the refusal it
+/// replaces, which route 010's refusal formatting allowance prices
 /// (`user_release_admission::refusal_formatting_bytes`).
 pub(crate) const ROUTE_010_BOUNDED_REFUSAL_BYTES: u64 = 4 * 16 * 1024;
+
+/// `text` within `limit` bytes, moved when it fits ([`elided`] otherwise).
+fn kept(text: String, limit: usize) -> String {
+    if text.len() <= limit {
+        text
+    } else {
+        elided(&text, limit)
+    }
+}
 
 /// `text` within `limit` bytes: unchanged when it fits, else its head and tail
 /// (each cut at a character boundary) around a note of the bytes elided.
@@ -1193,7 +1322,8 @@ fn elided(text: &str, limit: usize) -> String {
 
 /// A route-010 refusal within its bounds (W-18b, DEL-08-01 Design
 /// `report-user-release.md` §2.5, "Refusals on route 010"; Codex round 1 at
-/// #1682, P1), so the response the command returns has a fixed bound:
+/// #1682, P1, and round 2, P2), so the error the command returns has a fixed
+/// bound, [`ROUTE_010_REFUSAL_TEXT_BYTES`] of text, whatever stage refused:
 /// - at most one diagnostic, the first (route 010's checks refuse at their
 ///   first finding, so there is never a second); a refusal whose first
 ///   finding had followers says how many;
@@ -1202,21 +1332,35 @@ fn elided(text: &str, limit: usize) -> String {
 ///   that length (a pointer of an ancestor of the finding), with the full
 ///   pointer's length in the message;
 /// - its message and the refusal's own message within
-///   [`ROUTE_010_DETAIL_BYTES`] (head and tail kept, [`elided`]), the code
-///   within [`ROUTE_010_CODE_BYTES`].
+///   [`ROUTE_010_DETAIL_BYTES`] (head and tail kept, [`elided`]), the code,
+///   the cleanup code and the diagnostic's code within [`ROUTE_010_CODE_BYTES`];
+/// - the stage, the OS error kind and the path containment class within
+///   [`ROUTE_010_LABEL_BYTES`], the selected basename within
+///   [`ROUTE_010_BASENAME_BYTES`], and the cleanup message (an OS error's
+///   text) and the limitation within [`ROUTE_010_NOTE_BYTES`], each head and
+///   tail kept.
 ///
 /// A refusal already within its bounds is returned unchanged, so every
 /// route-010 refusal of an ordinary request reads as before.
 fn bound_route_010_refusal(error: ReportPackageSaveCommandError) -> ReportPackageSaveCommandError {
     let within = |error: &ReportPackageSaveCommandError| {
+        let optional = |text: &Option<String>, limit: usize| text.as_ref().is_none_or(|text| text.len() <= limit);
         error.code.len() <= ROUTE_010_CODE_BYTES
+            && error.stage.len() <= ROUTE_010_LABEL_BYTES
             && error.message.len() <= ROUTE_010_DETAIL_BYTES
+            && optional(&error.os_error_kind, ROUTE_010_LABEL_BYTES)
+            && optional(&error.cleanup_code, ROUTE_010_CODE_BYTES)
+            && optional(&error.cleanup_message, ROUTE_010_NOTE_BYTES)
+            && error.selected_basename.len() <= ROUTE_010_BASENAME_BYTES
+            && error.path_containment.len() <= ROUTE_010_LABEL_BYTES
+            && error.limitation.len() <= ROUTE_010_NOTE_BYTES
             && error.diagnostics.len() <= 1
             && error.diagnostics.iter().all(|item| item.code.len() <= ROUTE_010_CODE_BYTES && item.path.len() <= ROUTE_010_PATH_BYTES && item.message.len() <= ROUTE_010_DETAIL_BYTES)
     };
     if within(&error) {
         return error;
     }
+    // Every field is named, so a field added to the error must be bounded here.
     let ReportPackageSaveCommandError {
         code,
         stage,
@@ -1230,13 +1374,12 @@ fn bound_route_010_refusal(error: ReportPackageSaveCommandError) -> ReportPackag
         limitation,
         mut diagnostics,
     } = error;
-    let code = elided(&code, ROUTE_010_CODE_BYTES);
     let followers = diagnostics.len().saturating_sub(1);
     diagnostics.truncate(1);
     let bounded = diagnostics.pop().map(|item| {
         let mut note = String::new();
         let path = if item.path.len() <= ROUTE_010_PATH_BYTES {
-            item.path.clone()
+            item.path
         } else {
             // A `/` in a JSON pointer always separates tokens (`~1` escapes
             // one in a key), so the text before one is an ancestor's pointer.
@@ -1252,23 +1395,23 @@ fn bound_route_010_refusal(error: ReportPackageSaveCommandError) -> ReportPackag
         let mut message = String::with_capacity(detail.len() + note.len());
         message.push_str(&detail);
         message.push_str(&note);
-        Diagnostic { code: elided(&item.code, ROUTE_010_CODE_BYTES), path, message }
+        Diagnostic { code: kept(item.code, ROUTE_010_CODE_BYTES), path, message }
     });
     let (message, diagnostics) = match bounded {
-        Some(item) => (elided(&joined_message(&item.code, &item.path, &item.message), ROUTE_010_DETAIL_BYTES), vec![item]),
-        None => (elided(&message, ROUTE_010_DETAIL_BYTES), Vec::new()),
+        Some(item) => (kept(joined_message(&item.code, &item.path, &item.message), ROUTE_010_DETAIL_BYTES), vec![item]),
+        None => (kept(message, ROUTE_010_DETAIL_BYTES), Vec::new()),
     };
     ReportPackageSaveCommandError {
-        code,
-        stage,
+        code: kept(code, ROUTE_010_CODE_BYTES),
+        stage: kept(stage, ROUTE_010_LABEL_BYTES),
         message,
-        os_error_kind,
+        os_error_kind: os_error_kind.map(|text| kept(text, ROUTE_010_LABEL_BYTES)),
         os_error_code,
-        cleanup_code,
-        cleanup_message,
-        selected_basename,
-        path_containment,
-        limitation,
+        cleanup_code: cleanup_code.map(|text| kept(text, ROUTE_010_CODE_BYTES)),
+        cleanup_message: cleanup_message.map(|text| kept(text, ROUTE_010_NOTE_BYTES)),
+        selected_basename: kept(selected_basename, ROUTE_010_BASENAME_BYTES),
+        path_containment: kept(path_containment, ROUTE_010_LABEL_BYTES),
+        limitation: kept(limitation, ROUTE_010_NOTE_BYTES),
         diagnostics,
     }
 }

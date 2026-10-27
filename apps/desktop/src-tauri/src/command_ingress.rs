@@ -58,8 +58,9 @@
 //! before the command runs are not ours to price (as for the solve start). A
 //! command's error is converted by Tauri after the command returns and its
 //! lease is released; route `DREP-PACKAGE-USER-RELEASE-010`'s refusals are
-//! bounded to one diagnostic of fixed size for that reason
-//! (`report_package_save::bound_route_010_refusal`).
+//! bounded to at most one diagnostic and a fixed size, at every stage, for
+//! that reason: the save command returns every outcome through one exit
+//! (`report_package_save::SaveRoute::exit`).
 
 use crate::ingress::{self, allocation_envelope, FieldRegion, IngressBound, RegionField, RegionStruct};
 use crate::memory_pool::{Lease, ResourceRefusal};

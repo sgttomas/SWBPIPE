@@ -772,6 +772,286 @@ fn route_009_refusals_of_many_findings_are_unchanged() {
     }
 }
 
+// --- Every route-010 refusal leaves bounded (Codex round 2 at #1682, P2) ----
+
+/// Each string field of a save error, with its route-010 bound: the error is
+/// destructured whole, so a field added to it fails to compile here until it
+/// is bounded and listed.
+fn string_fields(error: &crate::report_package_save::ReportPackageSaveCommandError) -> Vec<(&'static str, usize, usize)> {
+    use crate::report_package_save::{
+        ReportPackageSaveCommandError, ROUTE_010_BASENAME_BYTES, ROUTE_010_DETAIL_BYTES, ROUTE_010_LABEL_BYTES, ROUTE_010_NOTE_BYTES, ROUTE_010_PATH_BYTES,
+    };
+    let ReportPackageSaveCommandError {
+        code,
+        stage,
+        message,
+        os_error_kind,
+        os_error_code: _,
+        cleanup_code,
+        cleanup_message,
+        selected_basename,
+        path_containment,
+        limitation,
+        diagnostics,
+    } = error;
+    let optional = |text: &Option<String>| text.as_ref().map_or(0, String::len);
+    let mut fields = vec![
+        ("code", code.len(), 128),
+        ("stage", stage.len(), ROUTE_010_LABEL_BYTES),
+        ("message", message.len(), ROUTE_010_DETAIL_BYTES),
+        ("os_error_kind", optional(os_error_kind), ROUTE_010_LABEL_BYTES),
+        ("cleanup_code", optional(cleanup_code), 128),
+        ("cleanup_message", optional(cleanup_message), ROUTE_010_NOTE_BYTES),
+        ("selected_basename", selected_basename.len(), ROUTE_010_BASENAME_BYTES),
+        ("path_containment", path_containment.len(), ROUTE_010_LABEL_BYTES),
+        ("limitation", limitation.len(), ROUTE_010_NOTE_BYTES),
+    ];
+    for item in diagnostics {
+        fields.push(("diagnostic code", item.code.len(), 128));
+        fields.push(("diagnostic path", item.path.len(), ROUTE_010_PATH_BYTES));
+        fields.push(("diagnostic message", item.message.len(), ROUTE_010_DETAIL_BYTES));
+    }
+    fields
+}
+
+/// `error` as the save command returns it on route 010 (`SaveRoute::exit`),
+/// checked against every bound: at most one diagnostic, each string field
+/// within its bound, the text within `ROUTE_010_REFUSAL_TEXT_BYTES` and the
+/// serialized command error within `ROUTE_010_REFUSAL_JSON_BYTES`. Returns
+/// the bounded error's serialized command error.
+#[track_caller]
+fn leaves_bounded(name: &str, error: crate::report_package_save::ReportPackageSaveCommandError) -> (String, crate::report_package_save::ReportPackageSaveCommandError) {
+    use crate::command_ingress::CommandError;
+    use crate::report_package_save::{SaveRoute, ROUTE_010_REFUSAL_JSON_BYTES, ROUTE_010_REFUSAL_TEXT_BYTES};
+    let outcome: Result<(), _> = SaveRoute::UserRelease.exit(Err(CommandError::Command(error)));
+    let Err(exited) = outcome else { unreachable!() };
+    let serialized = serde_json::to_string(&exited).unwrap();
+    let CommandError::Command(exited) = exited else { panic!("{name}: the save's own error left as another kind") };
+    let bounded = exited.error();
+    assert!(bounded.diagnostics.len() <= 1, "{name}: {} diagnostics", bounded.diagnostics.len());
+    let fields = string_fields(bounded);
+    for (field, length, bound) in &fields {
+        assert!(length <= bound, "{name}: {field} is {length} B, above {bound} B");
+    }
+    let text: usize = fields.iter().map(|(_, length, _)| length).sum();
+    assert!(text <= ROUTE_010_REFUSAL_TEXT_BYTES, "{name}: {text} B of text");
+    assert!(serialized.len() <= ROUTE_010_REFUSAL_JSON_BYTES, "{name}: serialized {} B", serialized.len());
+    assert_eq!(serialized, serde_json::to_string(bounded).unwrap(), "{name}: the command error serializes as the save error it holds");
+    eprintln!("route 010, {name}: {text} B of text, {} B serialized", serialized.len());
+    let bounded = serde_json::from_str::<Value>(&serialized).unwrap();
+    (serialized, rebuilt(&bounded))
+}
+
+/// A save error read back from its serialized form (for comparing fields).
+fn rebuilt(value: &Value) -> crate::report_package_save::ReportPackageSaveCommandError {
+    let text = |key: &str| value[key].as_str().map(str::to_string);
+    crate::report_package_save::ReportPackageSaveCommandError {
+        code: text("code").unwrap(),
+        stage: text("stage").unwrap(),
+        message: text("message").unwrap(),
+        os_error_kind: text("os_error_kind"),
+        os_error_code: value["os_error_code"].as_i64().map(|code| code as i32),
+        cleanup_code: text("cleanup_code"),
+        cleanup_message: text("cleanup_message"),
+        selected_basename: text("selected_basename").unwrap(),
+        path_containment: text("path_containment").unwrap(),
+        limitation: text("limitation").unwrap(),
+        diagnostics: value["diagnostics"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|item| crate::export_disposition_screen::DispositionDiagnostic {
+                code: item["code"].as_str().unwrap().to_string(),
+                path: item["path"].as_str().unwrap().to_string(),
+                message: item["message"].as_str().unwrap().to_string(),
+            })
+            .collect(),
+    }
+}
+
+/// Route 009 returns `error` through the same exit unchanged, byte for byte.
+#[track_caller]
+fn route_009_leaves_unchanged(name: &str, error: crate::report_package_save::ReportPackageSaveCommandError) {
+    use crate::command_ingress::CommandError;
+    let before = serde_json::to_string(&error).unwrap();
+    let outcome: Result<(), _> = crate::report_package_save::SaveRoute::LocalPrivate.exit(Err(CommandError::Command(error)));
+    let after = serde_json::to_string(&outcome.unwrap_err()).unwrap();
+    assert_eq!(after, before, "{name}: route 009's error changed");
+}
+
+/// Codex round 2 at #1682 (P2): the refusal bound covered admission only, so
+/// an error of the save dialog or of the atomic writer left whole. Codex's
+/// repro, against the production atomic writer: a 50,000-byte basename under
+/// `/tmp`, refused before any file is written, kept 50,407 bytes of strings
+/// (50,588 serialized). Through the route's one exit it is bounded, the
+/// basename keeping its head and its extension; route 009 returns it
+/// unchanged.
+#[test]
+fn route_010_atomic_writer_refusals_leave_bounded() {
+    let destination = std::path::PathBuf::from(format!("/tmp/{}.opsproj", "x".repeat(50_000)));
+    let unbounded = || crate::report_package_save::ReportPackageSaveCommandError::from(crate::atomic_report_package_save::atomic_save_bytes(&destination, b"").unwrap_err());
+    let error = unbounded();
+    let strings: usize = string_fields(&error).iter().map(|(_, length, _)| length).sum();
+    eprintln!("Codex's repro, unbounded: {strings} B of strings, {} B serialized", serde_json::to_string(&error).unwrap().len());
+    assert!(strings > 50_000, "{strings}");
+    assert!(!destination.exists());
+    let (_, bounded) = leaves_bounded("Codex's repro", error);
+    assert!(bounded.selected_basename.starts_with("xxxx") && bounded.selected_basename.ends_with("xxxx.opsproj"), "{}", bounded.selected_basename);
+    assert!(bounded.selected_basename.contains("bytes elided"), "{}", bounded.selected_basename);
+    let original = unbounded();
+    assert_eq!((bounded.code.as_str(), bounded.stage.as_str(), bounded.os_error_code), (original.code.as_str(), original.stage.as_str(), original.os_error_code));
+    route_009_leaves_unchanged("Codex's repro", unbounded());
+}
+
+/// A long OS error (Codex round 2 at #1682, P2): the writer's message is the
+/// OS error's text and its cleanup message another's, and either may be long;
+/// every string field the writer fills is bounded on route 010, and route 009
+/// returns it unchanged.
+#[test]
+fn route_010_long_os_errors_leave_bounded() {
+    let long = |unit: &str, count: usize| unit.repeat(count);
+    let error = || {
+        crate::report_package_save::ReportPackageSaveCommandError::from(crate::atomic_report_package_save::AtomicSaveError {
+            code: format!("REPORT-PACKAGE-{}", long("C", 1_000)),
+            stage: long("s", 1_000),
+            message: format!("{} (os error 5)", long("é", 30_000)),
+            os_error_kind: Some(long("K", 1_000)),
+            os_error_code: Some(5),
+            cleanup_code: Some(long("D", 1_000)),
+            cleanup_message: Some(long("\u{1}", 30_000)),
+            selected_basename: format!("{}.opsproj", long("名", 20_000)),
+            path_containment: long("p", 1_000),
+            limitation: long("l", 30_000),
+        })
+    };
+    let (_, bounded) = leaves_bounded("a long OS error", error());
+    assert!(bounded.message.ends_with("(os error 5)") && bounded.selected_basename.ends_with(".opsproj"), "{} {}", bounded.message, bounded.selected_basename);
+    assert_eq!(bounded.os_error_code, Some(5));
+    route_009_leaves_unchanged("a long OS error", error());
+}
+
+/// The save dialog's refusals on route 010 (Codex round 2 at #1682, P2),
+/// through the command's admission and save (`save_report_package_session`)
+/// and its one exit: an unusable path whose text is long, and a chosen path
+/// with a long basename, which the production atomic writer refuses before
+/// any file is written. Route 009's form of each is unchanged by the exit.
+#[test]
+fn route_010_picker_refusals_leave_bounded() {
+    use crate::report_package_save::{save_report_package_session, SaveRefusal, PICKER_PATH_INVALID};
+    let basis = basis();
+    let dir = sandbox("user-release-picker");
+    let long_name = dir.join(format!("{}.opsproj", "名".repeat(20_000)));
+    let picks: Vec<(&str, Box<dyn Fn() -> Option<Result<std::path::PathBuf, String>>>)> = vec![
+        ("an unusable path with a long text", Box::new(|| Some(Err(format!("{} is not a file path", "y".repeat(50_000)))))),
+        ("a picked path with a long basename", Box::new(|| Some(Ok(long_name.clone())))),
+    ];
+    for (name, pick) in picks {
+        let (registry, mut lease) = basis.session(PreviewSolverMode::SparseInteractive);
+        let mut session = UserReleaseSession { registry: &registry, lease: &mut lease };
+        let outcome = save_report_package_session(basis.args(), &software(), &mut no_store, &crate::report_package_save::no_custody, &mut session, |_| pick());
+        let error = match outcome {
+            Err(SaveRefusal::Command(error)) => error,
+            other => panic!("{name}: {:?}", other.map(|receipt| receipt.outcome)),
+        };
+        let unbounded = serde_json::to_string(&error).unwrap().len();
+        assert!(unbounded > crate::report_package_save::ROUTE_010_REFUSAL_JSON_BYTES / 2, "{name}: {unbounded} B");
+        let same = rebuilt(&serde_json::to_value(&error).unwrap());
+        let (_, bounded) = leaves_bounded(name, error);
+        if name.starts_with("an unusable") {
+            assert_eq!(bounded.code, PICKER_PATH_INVALID);
+            assert!(bounded.message.starts_with(&format!("{PICKER_PATH_INVALID}: yyy")) && bounded.message.ends_with("is not a file path"), "{}", bounded.message);
+        } else {
+            assert!(bounded.code.starts_with("REPORT-PACKAGE-"), "{}", bounded.code);
+            assert!(bounded.selected_basename.ends_with(".opsproj"), "{}", bounded.selected_basename);
+        }
+        route_009_leaves_unchanged(name, same);
+    }
+    assert_eq!(std::fs::read_dir(&dir).unwrap().count(), 0, "nothing was written");
+}
+
+/// Every form of the save command's error, at its largest, leaves route 010
+/// within the stated bounds (Codex round 2 at #1682, P2): the command error's
+/// every variant is enumerated (a variant added fails to compile here), and
+/// the save's own error is built by each of its constructors (a
+/// multi-finding refusal, one coded finding, a producer or bridge message,
+/// the atomic writer's error) and as a literal with every string field large
+/// and of characters JSON escapes to six bytes. Bounding allocates within
+/// `ROUTE_010_BOUNDED_REFUSAL_BYTES`, which route 010's refusal formatting
+/// allowance prices.
+#[test]
+fn every_route_010_error_form_leaves_within_its_bound() {
+    use crate::command_ingress::CommandError;
+    use crate::export_disposition_screen::DispositionDiagnostic;
+    use crate::report_package_save::{ReportPackageSaveCommandError, SaveRoute, ROUTE_010_BOUNDED_REFUSAL_BYTES};
+    let escaped = |count: usize| "\u{1}".repeat(count);
+    let item = |count: usize| DispositionDiagnostic { code: escaped(count), path: format!("/model/{}", escaped(count)), message: escaped(count) };
+    let forms: Vec<(&str, Box<dyn Fn() -> ReportPackageSaveCommandError>)> = vec![
+        ("refused, three large findings", Box::new(move || ReportPackageSaveCommandError::refused(vec![item(40_000), item(40_000), item(40_000)]))),
+        ("refused, no finding", Box::new(|| ReportPackageSaveCommandError::refused(Vec::new()))),
+        ("one coded finding", Box::new(move || crate::report_package_save::coded_for_tests(&format!("/model/{}", escaped(40_000)), &format!("{}: {}", escaped(40_000), escaped(40_000))))),
+        ("a producer or bridge message", Box::new(move || ReportPackageSaveCommandError::bridge(format!("{}: {}", escaped(40_000), escaped(40_000))))),
+        (
+            "the atomic writer's error",
+            Box::new(move || {
+                ReportPackageSaveCommandError::from(crate::atomic_report_package_save::AtomicSaveError {
+                    code: escaped(40_000),
+                    stage: escaped(40_000),
+                    message: escaped(40_000),
+                    os_error_kind: Some(escaped(40_000)),
+                    os_error_code: Some(i32::MIN),
+                    cleanup_code: Some(escaped(40_000)),
+                    cleanup_message: Some(escaped(40_000)),
+                    selected_basename: escaped(40_000),
+                    path_containment: escaped(40_000),
+                    limitation: escaped(40_000),
+                })
+            }),
+        ),
+        (
+            "every field large",
+            Box::new(move || ReportPackageSaveCommandError {
+                code: escaped(40_000),
+                stage: escaped(40_000),
+                message: escaped(40_000),
+                os_error_kind: Some(escaped(40_000)),
+                os_error_code: Some(i32::MIN),
+                cleanup_code: Some(escaped(40_000)),
+                cleanup_message: Some(escaped(40_000)),
+                selected_basename: escaped(40_000),
+                path_containment: escaped(40_000),
+                limitation: escaped(40_000),
+                diagnostics: vec![item(40_000), item(40_000)],
+            }),
+        ),
+    ];
+    let mut largest = 0;
+    for (name, form) in &forms {
+        let (serialized, _) = leaves_bounded(name, form());
+        largest = largest.max(serialized.len());
+        let error = form();
+        let (_, measured) = crate::ingress::counting::measure(|| SaveRoute::UserRelease.exit::<()>(Err(CommandError::Command(error))));
+        assert!(measured.peak_priced <= ROUTE_010_BOUNDED_REFUSAL_BYTES, "{name}: bounding peaked at {} B", measured.peak_priced);
+        route_009_leaves_unchanged(name, form());
+    }
+    eprintln!("the largest route-010 command error: {largest} B serialized");
+    // The other variants are the ingress layer's and the response's, the same
+    // on every route; the exit leaves them unchanged.
+    let registry = registry(ScriptedHost::normal());
+    let others: Vec<CommandError<ReportPackageSaveCommandError>> = vec![
+        CommandError::Ingress(registry.refuse(crate::memory_pool::ResourceRefusal::IngressExceedsBudget { required_bytes: u64::MAX, budget_bytes: u64::MAX })),
+        CommandError::Response("invented response error".to_string()),
+    ];
+    for other in others {
+        let before = serde_json::to_string(&other).unwrap();
+        let after = SaveRoute::UserRelease.exit::<()>(Err(other)).unwrap_err();
+        assert_eq!(serde_json::to_string(&after).unwrap(), before);
+        match after {
+            CommandError::Ingress(_) | CommandError::Response(_) => {}
+            CommandError::Command(_) => panic!("an ingress or response error left as the save's own"),
+        }
+    }
+}
+
 // --- The render command (§2.8) ----------------------------------------------
 
 /// The render command refuses, before it decodes, a pressure-free input under

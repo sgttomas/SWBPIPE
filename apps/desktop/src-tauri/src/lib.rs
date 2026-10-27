@@ -76,40 +76,71 @@ async fn save_report_package(
     app: AppHandle,
     invoke: tauri::ipc::Request<'_>,
     registry: tauri::State<'_, SolveJobRegistry>,
-) -> Result<tauri::ipc::Response, CommandError<ReportPackageSaveCommandError>> {
-    // The lease is held through admission (which may grow it, W-18b route
-    // 010), the save dialog, the write and the response.
-    let (request, lease) = admit_report_package_save(&registry, invoke.body(), invoke.headers())?;
-    let (outcome, lease) = save_report_package_decoded(app, request, lease, registry.inner().clone()).await;
-    let response = respond(outcome);
+) -> Result<tauri::ipc::Response, CommandError<report_package_save::SaveCommandError>> {
+    // Before the route is known, only the ingress layer refuses.
+    let (request, mut lease) = decode_report_package_save(&registry, invoke.body(), invoke.headers())?;
+    // The lease is held through the growth, admission (which may grow it,
+    // W-18b route 010), the save dialog, the write, the route's one exit and
+    // the response. Every later outcome leaves through that exit
+    // (`report_package_save::SaveRoute::exit`): route 010's refusals bounded,
+    // whatever stage refused, and route 009's unchanged.
+    let route = report_package_save::SaveRoute::of(&request);
+    let (outcome, lease) = match grow_report_package_save_lease(&registry, &request, &mut lease) {
+        Ok(()) => save_report_package_decoded(app, request, lease, registry.inner().clone()).await,
+        Err(error) => (Err(error), Some(lease)),
+    };
+    let response = respond(route.exit(outcome));
     drop(lease);
     response
 }
 
-/// The save's ingress: the arguments (the canonical texts and two structs of
-/// scalars) moved out of the admitted body, then the evidence, the size caps
-/// and the priced parse of the texts, by which the lease grows before any is
-/// parsed (DEL-08-01 Design `report-package-current-results.md` §2.6 items
-/// 1-3), within the per-invocation budget (`memory_pool::Lease::grow_to`).
-/// The growth is route-aware (`report_package_save::ingress_lease_bytes`;
-/// W-18b, DEL-08-01 Design `report-user-release.md` §2.5, "The outer
-/// command"): route 010 refuses the exact texts before they are priced.
+/// The save's arguments (the canonical texts and two structs of scalars),
+/// moved out of the admitted body.
+fn decode_report_package_save(
+    registry: &SolveJobRegistry,
+    body: &tauri::ipc::InvokeBody,
+    headers: &tauri::http::HeaderMap,
+) -> Result<(report_package_save::ReportPackageSaveRequest, memory_pool::Lease), solve_jobs::SolveJobError> {
+    let (mut args, lease) = command_ingress::admit_body(registry, body, headers, "save_report_package", ArgsDecoding::Moved)?;
+    let request = report_package_save::save_report_package_args(&mut args)?;
+    drop(args);
+    Ok((request, lease))
+}
+
+/// The evidence, the size caps and the priced parse of the texts, by which
+/// the lease grows before any is parsed (DEL-08-01 Design
+/// `report-package-current-results.md` §2.6 items 1-3), within the
+/// per-invocation budget (`memory_pool::Lease::grow_to`). The growth is
+/// route-aware (`report_package_save::ingress_lease_bytes`; W-18b, DEL-08-01
+/// Design `report-user-release.md` §2.5, "The outer command"): route 010
+/// refuses the exact texts before they are priced.
+fn grow_report_package_save_lease(
+    registry: &SolveJobRegistry,
+    request: &report_package_save::ReportPackageSaveRequest,
+    lease: &mut memory_pool::Lease,
+) -> Result<(), CommandError<ReportPackageSaveCommandError>> {
+    let growth = report_package_save::ingress_lease_bytes(request).map_err(CommandError::Command)?;
+    lease.grow_to(lease.bytes().saturating_add(growth)).map_err(|refusal| CommandError::Ingress(registry.refuse(refusal)))
+}
+
+/// The save's ingress ([`decode_report_package_save`] and
+/// [`grow_report_package_save_lease`]), as the command runs it, for its
+/// regressions.
+#[cfg(test)]
 fn admit_report_package_save(
     registry: &SolveJobRegistry,
     body: &tauri::ipc::InvokeBody,
     headers: &tauri::http::HeaderMap,
 ) -> Result<(report_package_save::ReportPackageSaveRequest, memory_pool::Lease), CommandError<ReportPackageSaveCommandError>> {
-    let (mut args, mut lease) = command_ingress::admit_body(registry, body, headers, "save_report_package", ArgsDecoding::Moved)?;
-    let request = report_package_save::save_report_package_args(&mut args)?;
-    drop(args);
-    let growth = report_package_save::ingress_lease_bytes(&request).map_err(CommandError::Command)?;
-    lease.grow_to(lease.bytes().saturating_add(growth)).map_err(|refusal| registry.refuse(refusal))?;
+    let (request, mut lease) = decode_report_package_save(registry, body, headers)?;
+    grow_report_package_save_lease(registry, &request, &mut lease)?;
     Ok((request, lease))
 }
 
 /// Admission, the dialog and the write on a blocking worker, with the
 /// command's lease (route 010 grows it) and the registry (its attested
-/// solves); returns the lease so the response is serialized while it is held.
+/// solves); returns the lease so the outcome leaves the route's exit and the
+/// response is serialized while it is held.
 async fn save_report_package_decoded(
     app: AppHandle,
     request: report_package_save::ReportPackageSaveRequest,
@@ -123,7 +154,7 @@ async fn save_report_package_decoded(
         let custody = |job: &str| registry.custody_binding(job);
         let outcome = {
             let mut session = report_package_save::UserReleaseSession { registry: &registry, lease: &mut lease };
-            save_report_package_in_session(request, &software, &mut lookup, &custody, &mut session, |file_name| {
+            report_package_save::save_report_package_session(request, &software, &mut lookup, &custody, &mut session, |file_name| {
                 choose_report_package_save_path(&app, file_name)
             })
         };
@@ -143,19 +174,6 @@ async fn save_report_package_decoded(
             None,
         )
     })
-}
-
-/// The command's admission (both routes, with the session) and the save.
-fn save_report_package_in_session(
-    request: report_package_save::ReportPackageSaveRequest,
-    software: &report_package_save::ExpectedSoftware,
-    lookup: &mut model_document_save::LibraryLookup<'_>,
-    custody: &report_package_save::CustodyLookup<'_>,
-    session: &mut report_package_save::UserReleaseSession<'_>,
-    choose: impl FnOnce(&str) -> Option<Result<PathBuf, String>>,
-) -> Result<report_package_save::ReportPackageSaveReceipt, report_package_save::SaveRefusal> {
-    let admitted = report_package_save::admit_report_package_session(request, software, lookup, custody, Some(session))?;
-    Ok(report_package_save::save_admitted_report_package_in(admitted, custody, choose)?)
 }
 
 fn choose_report_package_save_path(app: &AppHandle, file_name: &str) -> Option<Result<PathBuf, String>> {
