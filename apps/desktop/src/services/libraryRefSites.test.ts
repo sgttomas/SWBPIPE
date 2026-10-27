@@ -4,8 +4,9 @@
 // `library_ref_walk_matches_the_shared_site_table`). Invented data.
 import { describe, expect, it } from "vitest";
 import siteTable from "../../../../fixtures/model_document/library_ref_sites.json";
+import memberTable from "../../../../fixtures/model_document/library_ref_member_sites.json";
 import { modelLibraryRefs as saveScreenRefs } from "../features/model-file/modelDocumentSave";
-import { libraryRefSites, modelLibraryRefs } from "./libraryImportService";
+import { libraryRefMemberSites, libraryRefSites, modelLibraryRefs } from "./libraryImportService";
 
 type Site = { path: string; entity_ref: string; identity: [string, string, string | null] | null };
 const sites = siteTable.sites as Site[];
@@ -27,5 +28,26 @@ describe("the shared library_ref walk", () => {
     expect(sent[2]).toEqual({ entity_ref: "material:padded", library_kind: " material ", library_id: " matlib.invented.sites ", record_id: "\tmat.padded " });
     // A non-string kind is sent empty, so it reads as unresolved instead of failing the check.
     expect(sent[7]).toEqual({ entity_ref: "support:not-text", library_kind: "", library_id: "matlib.invented.sites" });
+  });
+});
+
+// W-18b library rule 1's detector alone (DEL-08-01 Design `report-user-release.md` §2.7, §6):
+// every member named `library_ref`, whatever its value, with its JSON pointer, as the native
+// `export_disposition_screen::library_ref_member_sites` finds it in the same table.
+describe("the library_ref member detector", () => {
+  const kind = (value: unknown) =>
+    value === null ? "null" : Array.isArray(value) ? "array" : typeof value === "object" ? "object" : typeof value;
+
+  it("names every library_ref member at any depth, whatever its value, with its pointer", () => {
+    const found = libraryRefMemberSites(memberTable.document).map(({ pointer, value }) => ({ pointer, kind: kind(value) }));
+    expect(found).toEqual(memberTable.sites);
+    for (const expected of ["object", "null", "string", "number", "boolean", "array"]) {
+      expect(memberTable.sites.some((site) => site.kind === expected), expected).toBe(true);
+    }
+  });
+
+  it("leaves the object-only walk unchanged", () => {
+    expect(libraryRefSites(memberTable.document)).toHaveLength(memberTable.sites.filter((site) => site.kind === "object").length);
+    expect(libraryRefMemberSites(siteTable.document).filter((site) => kind(site.value) === "object")).toHaveLength(sites.length);
   });
 });

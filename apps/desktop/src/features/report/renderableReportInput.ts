@@ -19,9 +19,11 @@ import desktopAppConfig from "../../../src-tauri/tauri.conf.json";
 import type { NumericalHealthView } from "../results/numericalHealth";
 import { reportLineText } from "../results/numericalHealthText";
 import { reportResultRows } from "./reportResultRows";
+import { USER_RELEASED_REPORT_CONTEXT, type UserReleasedReportContext } from "../redaction-controls/redactionExportControls";
 import { checkExactReportAdmission, REPORT_EXACT_ADMISSION_BINDING_MISMATCH, type ExactReportAdmission } from "./exactReportAdmission";
 import { exactLimitationEntries, exactRouteCore, isExactReportSource, SECTION_BASIS_HEADLINES } from "./exactReportSections";
 import { isDisplayedScaled } from "./reportQuantityDisplay";
+import { isSpringHangerSupport } from "./springHangerSupport";
 
 // DEC-021 (A7): assemble the renderer input document from session state.
 // The frontend composes only references, disclosures, and display rows — the
@@ -87,6 +89,15 @@ export type ReportRenderContext = {
    * caller records none. The renderer never reads a clock. */
   generatedAt: string | null;
 };
+
+/** The user-released report context (W-18b, DEL-08-01 Design `report-user-release.md` §2.6),
+ * the DEL-12-02 vocabulary's single definition (`redactionExportControls.ts`; Rust
+ * `report_package::user_release::USER_RELEASED_CONTEXT`), re-exported here. Only the
+ * user-released report builder below writes it. */
+export { USER_RELEASED_REPORT_CONTEXT };
+
+/** The context a report input is built under: a wrapper context, or the user-released one. */
+type BuiltReportContext = { exportContext: ReportExportContext | UserReleasedReportContext; generatedAt: string | null };
 
 const NOT_RECORDED = null;
 const REPORT_REDISTRIBUTION_STATUSES = new Set([
@@ -517,13 +528,7 @@ function libraryFindingDiagnostics(findings: ReadonlyArray<LibraryRefFinding>, p
 }
 
 function springHangerSupports(model: PreviewModel) {
-  return model.supports.filter(
-    (support) =>
-      support.family === "variable_spring_hanger" ||
-      support.family === "constant_effort_support" ||
-      support.hanger?.hanger_type === "variable_spring_hanger" ||
-      support.hanger?.hanger_type === "constant_effort_support"
-  );
+  return model.supports.filter(isSpringHangerSupport);
 }
 
 function springHangerSourceLocation(support: PreviewModel["supports"][number]): string {
@@ -642,7 +647,7 @@ async function boundInputManifest(
 async function buildReportContext(
   result: MechanicsResult,
   analysisRun: AnalysisRunEnvelope,
-  renderContext: ReportRenderContext,
+  renderContext: BuiltReportContext,
   inputManifest: CurrentSessionInputManifestEvidence | null | undefined
 ) {
   const run = analysisRun.analysis_run;
@@ -754,18 +759,7 @@ function userRuleChecks(run: SessionRuleCheckRun) {
   };
 }
 
-export async function buildRenderableReportInput({
-  model,
-  result,
-  analysisRun,
-  projectSummary,
-  renderContext,
-  inputManifest = null,
-  ruleCheckRun = null,
-  numericalHealth = null,
-  exactAdmission = null,
-  libraryRefFindings = []
-}: {
+type RenderableReportInputArgs = {
   model: PreviewModel;
   result: MechanicsResult;
   analysisRun: AnalysisRunEnvelope;
@@ -786,7 +780,66 @@ export async function buildRenderableReportInput({
   /** W-11 slice (c) (§4.2): the library store's findings that still apply to `model`; the
    * callers pass `currentLibraryRefFindings(model)`. Each becomes a provenance warning. */
   libraryRefFindings?: ReadonlyArray<LibraryRefFinding>;
+};
+
+export async function buildRenderableReportInput(args: RenderableReportInputArgs) {
+  return renderableReportInput(args, null);
+}
+
+/** The user-released record as the report context carries it (W-18b §2.3). Its form and
+ * bound members are checked natively; the builder carries it as given. */
+export type UserReleaseRecordValue = Record<string, unknown>;
+
+/** The minimal renderer input of a user-released report (W-18b, DEL-08-01 Design
+ * `report-user-release.md` §2.6): the local-private builder's title, model summary, load
+ * cases, result rows, the solve's own diagnostics, status disclosures, technical-preview
+ * limitation and run context, under `user_released_report` with `generated_at` null and the
+ * record `userRelease`. It leaves out every component, spring-hanger, material, section and
+ * support provenance entry, the library references and library-store findings, every
+ * provenance diagnostic, rule-pack references and user-rule outcomes; its persistence
+ * reference is `TBD`. A pressure-free source only. The Rust mirror is
+ * `report_package::user_release::minimal_renderer_input`, held equal by
+ * `fixtures/reports/invented/user_release_derivation_vectors.json`. */
+export async function userReleasedRenderableReportInput({
+  model,
+  result,
+  analysisRun,
+  inputManifest,
+  userRelease
+}: {
+  model: PreviewModel;
+  result: MechanicsResult;
+  analysisRun: AnalysisRunEnvelope;
+  inputManifest: CurrentSessionInputManifestEvidence;
+  userRelease: UserReleaseRecordValue;
 }) {
+  if (isExactReportSource(result)) {
+    throw new Error("REPORT-USER-RELEASE-EXACT-ROUTE-NOT-ADMITTED: a shareable report package carries pressure-free (preview-physics-2) results only; this exact-route result can be saved in a local private package.");
+  }
+  return renderableReportInput(
+    { model, result, analysisRun, projectSummary: null, inputManifest, renderContext: { exportContext: "local_private", generatedAt: null } },
+    userRelease
+  );
+}
+
+/** The one builder: `userRelease` null builds the wrapper contexts' input exactly as before;
+ * a record builds the minimal user-released input (above). */
+async function renderableReportInput(
+  {
+    model,
+    result,
+    analysisRun,
+    projectSummary,
+    renderContext,
+    inputManifest = null,
+    ruleCheckRun = null,
+    numericalHealth = null,
+    exactAdmission = null,
+    libraryRefFindings = []
+  }: RenderableReportInputArgs,
+  userRelease: UserReleaseRecordValue | null
+) {
+  const minimal = userRelease !== null;
   const exact = isExactReportSource(result);
   if (!exact && exactAdmission !== null) {
     throw new Error(`${REPORT_EXACT_ADMISSION_BINDING_MISMATCH}: semantic_contract_id`);
@@ -797,8 +850,9 @@ export async function buildRenderableReportInput({
   const exactInputs = exact ? { model, result, analysisRun, inputManifest: inputManifest as CurrentSessionInputManifestEvidence } : null;
   if (exactInputs) checkExactReportAdmission(exactAdmission, exactInputs);
   const provenance = sessionProvenance(model);
-  const subjects = await subjectProvenance(model, provenance);
-  const libraryRefs = libraryReferences(model, provenance);
+  // The minimal input carries no per-object provenance entry, library reference or finding.
+  const subjects = minimal ? { records: [], values: [], diagnostics: [] } : await subjectProvenance(model, provenance);
+  const libraryRefs = minimal ? [] : libraryReferences(model, provenance);
   const modelHashValue = await canonicalSha256Hex(model);
   const runRecordHash = run.hashes.find((item) => item.payload_scope === "analysis_run_record");
   const receivedResultScope = analysisResultHashScope(analysisRun.schema_version);
@@ -819,10 +873,10 @@ export async function buildRenderableReportInput({
     run_ref: { ref_type: "analysis_run", ref_id: result.run_id },
 	    diagnostics: [
 	      ...diagnosticsForSections(result, provenance),
-	      ...componentProvenanceDiagnostics(model, provenance),
-	      ...springHangerDiagnostics(model, provenance),
+	      ...(minimal ? [] : componentProvenanceDiagnostics(model, provenance)),
+	      ...(minimal ? [] : springHangerDiagnostics(model, provenance)),
 	      ...subjects.diagnostics,
-	      ...libraryFindingDiagnostics(libraryRefFindings, provenance)
+	      ...(minimal ? [] : libraryFindingDiagnostics(libraryRefFindings, provenance))
 	    ],
     analysis_status_disclosures: [
       ...analysisStatus
@@ -846,13 +900,13 @@ export async function buildRenderableReportInput({
     ],
 	    provenance_notes: [
 	      provenance,
-	      ...model.components.map((component) => componentReportRecord(component, provenance)),
-	      ...springHangerSupports(model).map((support) => springHangerProvenanceRecord(support, provenance)),
+	      ...(minimal ? [] : model.components.map((component) => componentReportRecord(component, provenance))),
+	      ...(minimal ? [] : springHangerSupports(model).map((support) => springHangerProvenanceRecord(support, provenance))),
 	      ...subjects.records
 	    ],
 	    user_supplied_values: [
-	      ...componentProvenanceValues(model, provenance),
-	      ...springHangerValues(model, provenance),
+	      ...(minimal ? [] : componentProvenanceValues(model, provenance)),
+	      ...(minimal ? [] : springHangerValues(model, provenance)),
 	      ...subjects.values
 	    ],
     assumptions: [],
@@ -987,7 +1041,9 @@ export async function buildRenderableReportInput({
     }))
   };
 
-  const reportContext = await buildReportContext(result, analysisRun, renderContext, inputManifest);
+  const reportContext = minimal
+    ? { ...(await buildReportContext(result, analysisRun, { exportContext: USER_RELEASED_REPORT_CONTEXT, generatedAt: null }, inputManifest)), user_release: userRelease }
+    : await buildReportContext(result, analysisRun, renderContext, inputManifest);
   // W-11 (§3.2-§3.3): the exact-route result block: the identity, the admission binding
   // (the renderer composes the standing line from it), the load/reference line and the
   // headlines, nominal then reduced.
@@ -1020,7 +1076,8 @@ export async function buildRenderableReportInput({
       source_ref: item.integrityDiagnosticId ?? "numerical_quality"
     }))),
     report_context: reportContext,
-    user_rule_checks: ruleCheckRun ? userRuleChecks(ruleCheckRun) : null,
+    // The minimal input carries no user-rule outcome member at all (§2.6).
+    ...(minimal ? {} : { user_rule_checks: ruleCheckRun ? userRuleChecks(ruleCheckRun) : null }),
     ...(exactRoute ? { exact_route: exactRoute } : {}),
     // W-11 slice (c) (§4.2): absent without references, so such an input is unchanged.
     ...(libraryRefs.length > 0 ? { library_references: libraryRefs } : {})

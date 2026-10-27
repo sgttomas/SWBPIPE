@@ -19,6 +19,7 @@ import type {
 } from "../../types";
 import { buildUnitDisplaySummary, DEC018_UNIT_SYSTEM_REF } from "./renderableReportInput";
 import { controlReportDomAndJson } from "./reportRedactionProjector";
+import { isSpringHangerSupport, springHangerKind } from "./springHangerSupport";
 import type { NumericalHealthView } from "../results/numericalHealth";
 import { reportLineText } from "../results/numericalHealthText";
 import { modelDocumentVersionCheckStatus } from "../../services/projectService";
@@ -492,21 +493,22 @@ export function formatComponentStressModifierSummary(
   return parts.join("; ");
 }
 
-function formatSpringHangerSummary(records: ReturnType<typeof reportSpringHangerEvidence>): string {
+export function formatSpringHangerSummary(records: ReturnType<typeof reportSpringHangerEvidence>): string {
   if (records.length === 0) return "0 spring hanger records";
-  const variableCount = records.filter((item) => item.hanger_type === "variable_spring_hanger").length;
-  const constantCount = records.filter((item) => item.hanger_type === "constant_effort_support").length;
+  // The variable/constant-effort split is the solver's (`springHangerKind`): the same normalized
+  // reading that counted the record, so a padded or family-only hanger falls in its group. A record's
+  // "not provided" is the placeholder for an absent value; a literal "not provided" cannot decide here,
+  // because a support whose reading is that text is not a hanger and has no record.
+  const kinds = records.map((item) =>
+    springHangerKind({
+      family: item.support_family === "not provided" ? undefined : item.support_family,
+      hanger: { hanger_type: item.hanger_type === "not provided" ? undefined : item.hanger_type }
+    })
+  );
+  const variableCount = kinds.filter((kind) => kind === "variable").length;
+  const constantCount = kinds.filter((kind) => kind === "constant_effort").length;
   const rowCount = records.reduce((count, item) => count + item.result_refs.length, 0);
   return `${records.length} hanger record${records.length === 1 ? "" : "s"}; variable=${variableCount}; constant_effort=${constantCount}; rows=${rowCount}`;
-}
-
-function isSpringHangerSupport(support: PreviewModel["supports"][number]): boolean {
-  return (
-    support.family === "variable_spring_hanger" ||
-    support.family === "constant_effort_support" ||
-    support.hanger?.hanger_type === "variable_spring_hanger" ||
-    support.hanger?.hanger_type === "constant_effort_support"
-  );
 }
 
 function componentGeometrySourceRef(component: PreviewModel["components"][number]): string {

@@ -48,11 +48,22 @@ wrapper. Item-level dispositions cannot conceal rejected/protected provenance.
 
 Downstream manual selection must revalidate library + record identity and map
 only explicit `magnitude` to product `value`, retaining the original units.
-Persist canonical `HangerSelectionEvidence` JSON in operation `source_note` and
-support `provenance`: `{kind:"user_imported_hanger_selection",
-library_kind:"hanger",library_id,hanger_id,library_metadata,record_snapshot}`.
-Both snapshots include all original metadata and per-value provenance. Library
-edits/deletion must not alter already-selected support snapshots.
+Since W-17 (`00af9112c0`, `apps/desktop/src/features/hanger-selection/hangerSelection.ts`)
+the selection writes only the short library reference into the model: the
+support's `provenance_record` carries a `library_ref`, and the support's
+`provenance` and the operation's `source_note` carry the library provenance
+string `library:hanger:<library id>#<record id>`. Library metadata and the
+record snapshot never enter the model, so library edits or deletion cannot
+alter a selected support.
+
+A model saved before `00af9112c0` may still carry the legacy form: the support's
+`provenance` holds the canonical JSON text of
+`{kind:"user_imported_hanger_selection",library_kind:"hanger",library_id,hanger_id,library_metadata,record_snapshot}`,
+with no `library_ref` and no `library:` string. Nothing writes it now. The
+library rule of route `DREP-PACKAGE-USER-RELEASE-010`, the shareable report
+package (`apps/desktop/src-tauri/src/user_release_admission.rs`), refuses a
+model carrying it as it refuses the W-17 marks (`REPORT-USER-RELEASE-LIBRARY-REFERENCED`,
+rule `legacy_hanger_selection`; DEL-08-01 Design `report-user-release.md` §2.7).
 
 PKG16/PKG07 own the resolver, preview, persistence and atomic configuration
 replacement. On existing supports the whole before/after projection must

@@ -2992,6 +2992,73 @@ fieldset.viewport-intent-controls {
   cursor: pointer;
 }
 
+/* A8: the displacement extremes table (DEL-07-05 Design `displacement-extremes.md` §6). */
+.displacement-extremes-controls,
+.displacement-extremes-pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+}
+
+.displacement-extremes-cases {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  margin: 0;
+  padding: 2px 6px;
+  border: 1px solid #c9d2ce;
+}
+
+.displacement-extremes-cases legend {
+  padding: 0 2px;
+  font-size: 12px;
+}
+
+.displacement-extremes-table-scroll {
+  overflow: auto;
+  max-height: 420px;
+}
+
+.displacement-extremes td,
+.displacement-extremes th[scope="col"],
+.displacement-extremes th[scope="colgroup"] {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.displacement-extremes td.displacement-extremes-supports {
+  text-align: left;
+  white-space: normal;
+}
+
+.displacement-extremes-node {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* A9: the weight and centre-of-gravity summary (DEL-07-05 Design `weight-cog-summary.md` §6). */
+.weight-summary-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+}
+
+.weight-summary td {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
 .endpoint-pair {
   display: grid;
   gap: 6px;
