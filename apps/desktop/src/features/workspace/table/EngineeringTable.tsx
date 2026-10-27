@@ -5,6 +5,7 @@ import { useTableGeometry } from "./tableGeometry";
 import { useEnumEditor } from "./useEnumEditor";
 import { VirtualList } from "../VirtualList";
 import type { EntityKey } from "../selectionState";
+import { canSurfaceRevealNow } from "../surfaceReveal";
 import {
   adjacentCell, capturedCellIsCurrent, sameCell,
   type CapturedCell, type CellAddress, type TableColumn, type TableEdit, type TableRow, type TableSort
@@ -117,6 +118,31 @@ export function EngineeringTable(props: Props) {
     : !edit && viewRows[0] && columns[0] ? { rowKey: viewRows[0].key, columnKey: columns[0].key } : null;
   const active = edit?.captured ?? rovingFocus;
   const activeIndex = active ? viewRows.findIndex((row) => row.key === active.rowKey) : null;
+  // A selection made outside the table (the viewport, the tree, a result row)
+  // becomes the table's current row, which the list scrolls into view. DOM focus
+  // and the selection stay where they are; focus or an edit in the table keeps
+  // the table's own position. The request is kept while the table cannot show
+  // it (another layout or family, a hidden, inert or CSS-hidden pane:
+  // `canSurfaceRevealNow`) or its row is filtered out, and done when the row can
+  // be shown. The selection the table first mounts with is such a request.
+  const revealedSelectionKey = useRef(selectedKey);
+  const pendingSelectionReveal = useRef<EntityKey | null>(selectedKey);
+  useLayoutEffect(() => {
+    if (revealedSelectionKey.current === selectedKey) return;
+    revealedSelectionKey.current = selectedKey;
+    pendingSelectionReveal.current = editRef.current || root.current?.contains(document.activeElement) ? null : selectedKey;
+  }, [selectedKey]);
+  useLayoutEffect(() => {
+    const key = pendingSelectionReveal.current;
+    if (key === null || !root.current || !canSurfaceRevealNow(root.current)) return;
+    if (!viewRows.some((row) => row.key === key)) return;
+    pendingSelectionReveal.current = null;
+    if (editRef.current || root.current.contains(document.activeElement)) return;
+    const columnKey = focused && columns.some((column) => column.key === focused.columnKey) ? focused.columnKey : columns[0]?.key;
+    if (!columnKey) return;
+    setFocused({ rowKey: key, columnKey });
+    setReveal((value) => value + 1);
+  });
   const minimums = [130, ...columns.map((column) => column.minWidth ?? (column.kind === "text" ? 150 : review ? 160 : 90))];
   const weights = [1.4, ...columns.map((column) => column.minWidth ? 1 : column.kind === "text" ? 1.5 : 1)];
   const geometry = useTableGeometry(root, minimums, weights, Boolean(props.compact), surfaceActive, `${viewRows.length}:${body.height}:${density}:${JSON.stringify(columns.map(({ label, unit }) => [label, unit]))}`);

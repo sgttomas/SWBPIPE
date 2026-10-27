@@ -2,10 +2,11 @@ import { QuantityReadout } from "../display-units";
 import { Anchor, Box, CircleDot, GitBranch, ListTree, Search, SquareStack, Table2, Waypoints, X, Zap } from "lucide-react";
 import type React from "react";
 import { createPortal } from "react-dom";
-import { useContext, useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { useContext, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import type { EditorOperationIntent, EditorOperationObjectType, EntityRef, PreviewModel } from "../../types";
 import { entityKey, type EntityKey, type OrderedSelectionState, type SelectionModifiers } from "../workspace/selectionState";
 import { modelIndexFor, type ModelIndex } from "../workspace/modelIndex";
+import { canSurfaceRevealNow } from "../workspace/surfaceReveal";
 import { VirtualList } from "../workspace/VirtualList";
 import { OverflowRail, TableChromeContext } from "../workspace/table/OverflowRail";
 import { EngineeringTable, useTableBodyHeight, type TableApplyResult } from "../workspace/table/EngineeringTable";
@@ -119,6 +120,46 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
     onFocusChange(fallback?.kind === "entity" ? entityKey(fallback.item) : null);
   }, [focusedTreeKey, onFocusChange, selectionState?.focusKey, treeRows]);
 
+  // A selection made outside the tree (the viewport, the grid, a result row) is
+  // revealed here: its group opens and its row becomes the tree's current row,
+  // which the list scrolls into view. Neither DOM focus nor the selection moves.
+  // A selection made while focus is in the tree list is the tree's own and is
+  // left. The request is kept while the tree list cannot show it (the Grid
+  // layout, a hidden, inert or CSS-hidden pane: `canSurfaceRevealNow`) or a
+  // filter hides the row, and done when the row can be shown.
+  const treeRootRef = useRef<HTMLDivElement>(null);
+  const primarySelectionKey = selectionState ? selectionState.primaryKey : entityKey(selection);
+  const revealedSelectionKey = useRef(primarySelectionKey);
+  const pendingTreeReveal = useRef<string | null>(null);
+  const [treeRevealRequest, setTreeRevealRequest] = useState(0);
+  const focusInTreeList = () => Boolean(treeRootRef.current?.querySelector('[role="tree"]')?.contains(document.activeElement));
+  useLayoutEffect(() => {
+    if (revealedSelectionKey.current === primarySelectionKey) return;
+    revealedSelectionKey.current = primarySelectionKey;
+    pendingTreeReveal.current = primarySelectionKey && !focusInTreeList() ? primarySelectionKey : null;
+  }, [primarySelectionKey]);
+  useLayoutEffect(() => {
+    const key = pendingTreeReveal.current;
+    if (key === null || layoutMode !== "tree") return;
+    if (!canSurfaceRevealNow(treeRootRef.current?.querySelector('[role="tree"]'))) return;
+    // Under a filter only a matching entity has a row to reveal.
+    const filtering = Boolean(filterText.trim());
+    const shown = filtering ? filteredTree : tree;
+    const group = shown.groups.find((candidate) => candidate.items.some((item) => entityKey(item) === key));
+    const projectRow = shown.project && entityKey(shown.project) === key;
+    if (!group && !projectRow) return;
+    pendingTreeReveal.current = null;
+    if (focusInTreeList()) return;
+    if (group && filtering && filteredCollapsedGroups.has(group.title)) {
+      setFilteredCollapsedGroups((current) => { const next = new Set(current); next.delete(group.title); return next; });
+    } else if (group && !filtering && !expandedGroups.has(group.title)) {
+      setExpandedGroups((current) => new Set(current).add(group.title));
+    }
+    setFocusedTreeKey(key);
+    setTreeRevealRequest((value) => value + 1);
+    onFocusChange(key as EntityKey);
+  });
+
   useEffect(() => {
     if (layoutMode === "grid") {
       setGridEntityType(gridEntityTypeFromSelection(selection));
@@ -156,7 +197,7 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
 
   return (
     <TableChromeContext.Provider value={{ target: columnTarget, owner: chromeOwner, setOwner: setChromeOwner }}>
-    <div className="panel model-tree" data-bounded-grid={boundedGrid && layoutMode === "grid"} data-compact-grid={compactGrid && layoutMode === "grid"} aria-label="Model tree"
+    <div className="panel model-tree" ref={treeRootRef} data-bounded-grid={boundedGrid && layoutMode === "grid"} data-compact-grid={compactGrid && layoutMode === "grid"} aria-label="Model tree"
       onKeyDown={(event) => {
         if (event.key === "Escape" && !event.defaultPrevented && closeCompactDetails(true)) { event.preventDefault(); event.stopPropagation(); }
       }}
@@ -297,6 +338,7 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
             role="tree"
             rowHeight={density === "compact" ? 28 : 34}
             pinIndex={focusedTreeIndex}
+            revealActiveRequest={treeRevealRequest}
             tabIndex={0}
             testId="model-tree-virtual"
           />
@@ -832,6 +874,41 @@ function EntityGrid({
   );
   const queueDisabled = !onQueueIntent || changedCells.length === 0;
   const virtualGrid = visibleRows.length >= 100;
+  // A selection made outside the grid is scrolled into view in this family's
+  // rows (the node, material and section tables reveal their own). The reveal
+  // is held as pending until this family's list holds the selected row, so a
+  // grid opened after the selection, or a family the selection switches to,
+  // still reveals it. The request is also kept while the grid cannot show it
+  // (the Tree layout, a hidden, inert or CSS-hidden pane: `canSurfaceRevealNow`),
+  // and done when it can: a list that is not laid out cannot scroll.
+  // Focus in the grid (an edit, or a row control) keeps its position: it drops
+  // the pending reveal. The virtual list is asked once, by a one-shot index
+  // cleared after it has scrolled.
+  const gridRootRef = useRef<HTMLElement>(null);
+  const bulkScrollRef = useRef<HTMLDivElement>(null);
+  const [virtualReveal, setVirtualReveal] = useState<number | null>(null);
+  const selectionKey = entityKey(selection);
+  const pendingGridReveal = useRef<EntityKey | null>(selectionKey);
+  const revealedGridSelection = useRef(selectionKey);
+  useLayoutEffect(() => {
+    if (revealedGridSelection.current === selectionKey) return;
+    revealedGridSelection.current = selectionKey;
+    pendingGridReveal.current = gridRootRef.current?.contains(document.activeElement) ? null : selectionKey;
+  }, [selectionKey]);
+  useLayoutEffect(() => {
+    const key = pendingGridReveal.current;
+    if (key === null || commonFamily) return;
+    const index = visibleRows.findIndex((row) => entityKey({ type: row.type, id: row.id }) === key);
+    const host = bulkScrollRef.current;
+    if (index < 0 || !canSurfaceRevealNow(host)) return;
+    pendingGridReveal.current = null;
+    if (host.contains(document.activeElement)) return;
+    if (virtualGrid) setVirtualReveal(index);
+    else host.querySelector<HTMLElement>("tbody tr.active")?.scrollIntoView?.({ block: "nearest", inline: "nearest" });
+  });
+  useEffect(() => {
+    if (virtualReveal !== null) setVirtualReveal(null);
+  }, [virtualReveal]);
 
   useEffect(() => {
     setQueuedMessage("");
@@ -931,7 +1008,7 @@ function EntityGrid({
     </div>
   </>;
   return (
-    <section className={`entity-grid${bounded ? " bounded" : ""}`} aria-label="Bulk entity grid" data-testid="entity-grid">
+    <section className={`entity-grid${bounded ? " bounded" : ""}`} ref={gridRootRef} aria-label="Bulk entity grid" data-testid="entity-grid">
       {compact && toolbarTarget ? createPortal(compactControls, toolbarTarget) : null}
       <div hidden={compact} className="entity-grid-tabs" aria-label="Grid entity type">
         {GRID_ENTITY_TYPES.map((item) => (
@@ -997,7 +1074,7 @@ function EntityGrid({
           active={reviewVisible && entityType === "sections"} bounded={bounded} compact={compact} density={density} filter={filterText} selection={selection}
           onSelect={onSelect} updateCell={updateCell} resetEditsKey={sectionReviewReset} />
       </div>
-      {!commonFamily ? <div className="entity-grid-scroll" role="region" aria-label="Editable model entity table">
+      {!commonFamily ? <div className="entity-grid-scroll" ref={bulkScrollRef} role="region" aria-label="Editable model entity table">
         {virtualGrid ? (
           <div className="entity-grid-virtual-table" role="table" aria-label={`${entityType} editable grid`} data-testid={`entity-grid-table-${entityType}`}>
             <div className="entity-grid-virtual-row header" role="row" style={{ gridTemplateColumns: `minmax(100px, 1fr) repeat(${columns.length}, minmax(120px, 1fr))` }}>
@@ -1010,6 +1087,7 @@ function EntityGrid({
               itemKey={(row) => `${row.type}:${row.id}`}
               items={visibleRows}
               pinIndex={focusedGridIndex === -1 ? null : focusedGridIndex}
+              activeIndex={virtualReveal}
               renderItem={(row) => (
                 <div
                   className={`entity-grid-virtual-row${selection.type === row.type && selection.id === row.id ? " active" : ""}`}
