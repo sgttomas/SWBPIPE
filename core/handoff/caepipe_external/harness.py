@@ -484,9 +484,10 @@ def _round_trip(config: HarnessConfig, case_id: str, mbf_text: str, paths: dict[
             "batch": BATCH_COMMAND_SHAPE,
             "gui_print_fallback": {
                 "used": gui_used,
-                "label": "trial_build_workaround",
-                "description": "the guest script stops the batch process it started, opens the solved .res in a "
-                               "CAEPIPE instance it starts itself and prints the results to CSV via Print > To File",
+                "label": "print_to_file_fallback",
+                "description": "fallback when the batch route yields no result file: the guest script stops the "
+                               "batch process it started, opens the solved .res in a CAEPIPE instance it starts "
+                               "itself and prints the results to CSV via Print > To File",
             },
             "host_invocation": "prlctl exec <vm_name> --current-user cmd /c <guest command>",
         },
