@@ -61,6 +61,9 @@ const EMPTY_RESULT_FAMILY_COUNTS: ResultFamilyCounts = {
 };
 const RESULT_UNIT_DISPLAY_ORDER = ["MPa", "N", "N*m", "mm", "rad"];
 
+/** A view of the results table another surface asks for (A6): a text filter for one run. */
+export type ResultsViewRequest = Readonly<{ serial: number; runId: string; filterText: string }>;
+
 export function ResultsPanel({
   result,
   knowledge,
@@ -71,7 +74,8 @@ export function ResultsPanel({
   resolveCauseLocation,
   onSelectCauseLocation,
   onShowDiagnostic,
-  selectedEntity = null
+  selectedEntity = null,
+  viewRequest = null
 }: {
   result: MechanicsResult | null;
   knowledge: DesignKnowledge | null;
@@ -87,6 +91,9 @@ export function ResultsPanel({
   /** The workspace's primary selection. With "Selected entity only" on, the
    * table shows only the rows stated for it. */
   selectedEntity?: EntityRef | null;
+  /** A6 (Design `key-results-panel.md` §2): sets the table's filters once per `serial` for the
+   * run it names; every other filter returns to its default. A request for another run is ignored. */
+  viewRequest?: ResultsViewRequest | null;
 }) {
   const [filterText, setFilterText] = useState("");
   const [selectionOnly, setSelectionOnly] = useState(false);
@@ -112,6 +119,7 @@ export function ResultsPanel({
     });
   }
   const [pageSize, setPageSize] = useState<number>(DEFAULT_RESULT_PAGE_SIZE);
+  const [appliedRequest, setAppliedRequest] = useState<number | null>(null);
   // One reading of the source's row semantics per result, for every row.
   const labels = useMemo(() => (result ? semanticLabels(result) : null), [result]);
   const familyCounts = useMemo(
@@ -124,6 +132,17 @@ export function ResultsPanel({
   // state, so it does not change with the other filters; a run without the chosen case shows all.
   const cases = useMemo(() => (result ? navigatorCases(result.results) : []), [result]);
   const [caseFilter, setCaseFilter] = useState<string>(ALL_CASES);
+  // Applied during render, as a filter change would be, so the first render that shows the
+  // request already shows its rows.
+  if (viewRequest && viewRequest.serial !== appliedRequest && viewRequest.runId === runId) {
+    setAppliedRequest(viewRequest.serial);
+    setFilterText(viewRequest.filterText);
+    setFamilyFilter("all");
+    setCaseFilter(ALL_CASES);
+    setFrameFilter(ALL_FRAMES);
+    setSelectionOnly(false);
+    setPagePosition({ runId, index: 0 });
+  }
   const activeCase = caseFilter !== ALL_CASES && cases.some((item) => item.key === caseFilter) ? caseFilter : ALL_CASES;
   // The rows every filter but "Selected entity only" admits: the navigator's supports and elements.
   const navigatorRows = useMemo(

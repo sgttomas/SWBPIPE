@@ -187,7 +187,7 @@ function membersOf(row: ResultRow, attachment: ResultColourAttachment, index: Me
 }
 
 /** The pipe a rule outcome's locations name, and its station, or null when they name no single pipe. */
-function ruleOutcomePlace(row: StressRatioGroup["rows"][number], pipeIds: ReadonlySet<string>): { member: string; fraction: number | null } | null {
+export function ruleOutcomePlace(row: StressRatioGroup["rows"][number], pipeIds: ReadonlySet<string>): { member: string; fraction: number | null } | null {
   const entities = new Set(row.locations.map((location) => location.entityRef));
   if (entities.size !== 1) return null;
   const member = [...entities][0];

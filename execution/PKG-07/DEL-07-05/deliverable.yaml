@@ -308,6 +308,12 @@ code_paths:
 - apps/desktop/src/features/report/springHangerSupport.ts
 - apps/desktop/src/features/results/resultsNavigator.ts
 - apps/desktop/src/App.resultsNavigator.test.tsx
+- apps/desktop/src/features/results/keyResults.ts
+- apps/desktop/src/features/results/KeyResultsPanel.tsx
+- apps/desktop/src/features/results/useKeyResultsSession.ts
+- apps/desktop/src/features/viewport/viewportSelection.ts
+- apps/desktop/src/test-support/keyResultsFixtures.ts
+- apps/desktop/src/App.keyResults.test.tsx
 checks:
 - apps/desktop/src/features/results/ResultsPanel.test.tsx
 - apps/desktop/src/App.resultPaging.test.tsx
@@ -355,3 +361,8 @@ checks:
 - apps/desktop/src/features/results/resultsNavigator.test.ts
 - apps/desktop/src/features/results/ResultsPanel.navigator.test.tsx
 - apps/desktop/src/App.resultsNavigator.test.tsx
+- apps/desktop/src/features/results/keyResults.test.ts
+- apps/desktop/src/features/results/KeyResultsPanel.test.tsx
+- apps/desktop/src/features/results/ResultsPanel.keyResults.test.tsx
+- apps/desktop/src/features/viewport/PipeViewport.keyResults.test.tsx
+- apps/desktop/src/App.keyResults.test.tsx

@@ -4644,3 +4644,39 @@ body { min-width: 760px; min-height: 540px; }
 .context-menu-shortcut { font-family: var(--font-mono); font-size: var(--type-size-caption); color: inherit; }
 .context-menu-reason { grid-column: 1 / -1; font-size: var(--type-size-caption); color: var(--ui-disabled-text, #667680); white-space: normal; }
 .context-menu-separator { height: 1px; margin: var(--space-2) var(--space-1); background: var(--ui-divider, var(--border-hairline)); }
+
+/* Key results (A6; DEL-07-05 Design `key-results-panel.md` §5): a raised card over the
+   workspace's top-right corner, below the toolbar, clear of the solve progress card. */
+.key-results-panel {
+  position: fixed;
+  z-index: 54;
+  top: calc(var(--layout-toolbar) + var(--space-5));
+  right: var(--space-5);
+  display: grid;
+  gap: var(--space-3);
+  box-sizing: border-box;
+  width: min(340px, calc(100vw - 2 * var(--space-5)));
+  max-height: min(56vh, 560px);
+  overflow: auto;
+  padding: var(--space-4) var(--space-5);
+  color: var(--ui-text);
+  background: var(--surface-raised);
+  border: 1px solid var(--ui-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--elevation-2);
+  font-size: var(--type-size-chip);
+}
+.key-results-header { display: flex; align-items: center; gap: var(--space-3); }
+.key-results-header h2 { margin: 0; font-size: var(--type-size-caption); }
+.key-results-header code { flex: 1; overflow: hidden; color: var(--ui-muted); text-overflow: ellipsis; white-space: nowrap; }
+.key-results-group { display: grid; gap: var(--space-2); }
+.key-results-group h3 { margin: 0; font-size: var(--type-size-caption); }
+.key-results-line { margin: 0; overflow-wrap: anywhere; }
+.key-results-incomplete { font-weight: 600; }
+.key-results-boundary, .key-results-reason { color: var(--ui-muted); overflow-wrap: anywhere; }
+.key-results-choice { display: grid; gap: var(--space-1); }
+.key-results-choice select { min-width: 0; }
+.key-results-action { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); text-align: start; }
+.key-results-action kbd { color: var(--ui-muted); font-family: var(--font-mono); font-size: var(--type-size-caption); }
+.key-results-action[aria-disabled="true"] { opacity: 0.6; cursor: default; }
+.key-results-every-solve { display: flex; align-items: center; gap: var(--space-2); }
