@@ -953,6 +953,27 @@ mod tests {
     /// including `library_material_insert`) save and re-open unchanged. With an
     /// empty store each library reference is a `MODEL-LIBRARY-REF-UNRESOLVED`
     /// warning, never a refusal.
+    /// Model document 0.8.0's `model_settings.shear_model` (DEL-02-01 Design
+    /// `model-document-0.8.0.md` §1, §4): a document carrying `euler_bernoulli` saves and
+    /// reopens byte for byte, and the same document without it is unchanged by the round trip.
+    #[test]
+    fn a_shear_model_setting_saves_and_reopens_byte_for_byte() {
+        let _save_lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
+        let root = sandbox("shear-model");
+        let demo: Value = serde_json::from_str(include_str!("../../../../fixtures/product_preview/invented_demo_model.json")).unwrap();
+        let mut authored = demo.clone();
+        authored["model_settings"]["shear_model"] = serde_json::json!("euler_bernoulli");
+        for (name, document) in [("authored", authored), ("absent", demo)] {
+            let text = canonical_json(&document);
+            let admitted = admit(text.clone(), &hash_of(&text)).unwrap_or_else(|diagnostics| panic!("{name} refused: {diagnostics:?}"));
+            let destination = root.join(format!("{name}.json"));
+            assert!(matches!(write_admitted_model_document(&destination, admitted), ModelDocumentSaveOutcome::Saved { .. }), "{name}");
+            let ModelDocumentOpenOutcome::Opened { document: reopened, .. } = read_model_document_file(&destination) else { panic!("{name} does not re-open") };
+            assert_eq!(canonical_json(&reopened), text, "{name}");
+        }
+        fs::remove_dir_all(root).unwrap();
+    }
+
     #[test]
     fn every_emitted_authoring_and_library_apply_document_saves_and_reopens() {
         let _save_lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();

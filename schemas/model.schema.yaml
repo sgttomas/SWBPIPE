@@ -2830,6 +2830,14 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
+        "shear_model": {
+          "description": "Model document 0.8.0 (DEL-02-01 Design model-document-0.8.0.md §1, §4): the pressure-free document's beam theory, in the exact contract's vocabulary. Absent: Euler–Bernoulli, never written. Refused on a document with pressure_contract (MODEL-SETTING-SHEAR-MODEL-WITH-PRESSURE-CONTRACT; that document's choice is pressure_contract.shear_model); in 0.8.0 timoshenko_annulus_energy_v1 is schema-valid but refused at solve and at authoring (MODEL-SETTING-SHEAR-MODEL-TIMOSHENKO-UNSUPPORTED); any other value, null included, is refused (MODEL-SETTING-SHEAR-MODEL-UNKNOWN). euler_bernoulli solves exactly as absent.",
+          "type": "string",
+          "enum": [
+            "euler_bernoulli",
+            "timoshenko_annulus_energy_v1"
+          ]
+        },
         "node_proximity_tolerance": {
           "description": "The length within which the near-duplicate node check treats two nodes as near duplicates (owner, 2026-10-23: a fixed 5 mm default \"and give the user the means to change it\"). Absent model_settings or absent member: 5 mm. A finite value greater than zero in a length unit of the units catalog; a non-finite or non-positive value or a non-length or unknown unit is refused by name (MODEL-SETTING-TOLERANCE-NOT-FINITE, -NOT-POSITIVE, -UNIT-NOT-LENGTH).",
           "type": "object",

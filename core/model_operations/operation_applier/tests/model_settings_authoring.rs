@@ -321,3 +321,80 @@ fn a_changed_tolerance_changes_which_nodes_warn_through_the_solve() {
         assert!(near_duplicates(&reset, mode).is_empty(), "reset to the default, 8 mm does not warn");
     }
 }
+
+// ---- model document 0.8.0: model_settings.shear_model --------------------------
+// (DEL-02-01 Design `model-document-0.8.0.md` §1, §4; Agent 0's decision under MD8 §11.)
+
+const SHEAR: &str = "model_settings.shear_model";
+
+fn shear_before(model: &Value) -> String {
+    model.pointer("/model_settings/shear_model").map(canonical_json).unwrap_or_else(|| "not_present".into())
+}
+fn set_shear(model: &Value, value: &str) -> Value {
+    intent("set_model_setting", PROJECT, SHEAR, &shear_before(model), value, "none", "dimensionless")
+}
+fn clear_shear(model: &Value) -> Value {
+    intent("clear_model_setting", PROJECT, SHEAR, &shear_before(model), "not_present", "none", "dimensionless")
+}
+fn exact(model: &Value) -> Value {
+    let mut model = model.clone();
+    model["pressure_contract"] = json!({"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"});
+    model
+}
+fn validator_codes(model: &Value) -> Vec<&'static str> {
+    validate_model_document(model).into_iter().filter(|d| d.is_blocking()).map(|d| d.code).collect()
+}
+
+#[test]
+fn euler_bernoulli_is_set_and_cleared_and_the_default_is_never_written() {
+    let model = cantilevers(0.003);
+    assert!(model.get("model_settings").is_none());
+    let (set_model, outcome) = applied(&model, &set_shear(&model, "euler_bernoulli"));
+    assert_eq!(set_model["model_settings"], json!({"shear_model": "euler_bernoulli"}));
+    assert_eq!(outcome.diff_preview[0].after, "\"euler_bernoulli\"");
+    assert!(validator_codes(&set_model).is_empty());
+    refused(&set_model, &set_shear(&set_model, "euler_bernoulli"), "OP-MODEL-SETTING-UNCHANGED");
+    // Clearing restores the absent form byte for byte; nothing writes the default.
+    let (cleared, _) = applied(&set_model, &clear_shear(&set_model));
+    assert_eq!(canonical_json(&cleared), canonical_json(&model));
+    refused(&cleared, &clear_shear(&cleared), "OP-MODEL-SETTING-UNCHANGED");
+    // Beside the tolerance, clearing one member keeps the other and the record.
+    let (both, _) = applied(&set_model, &set(&set_model, "2", "mm"));
+    let (tolerance_only, _) = applied(&both, &clear_shear(&both));
+    assert_eq!(tolerance_only["model_settings"], json!({"node_proximity_tolerance": {"value": 2.0, "unit": "mm"}}));
+}
+
+#[test]
+fn the_shear_model_refusals_are_named_at_authoring_and_at_the_validator() {
+    let model = cantilevers(0.003);
+    // Code 3 (the 0.8.0 interim): Timoshenko on a pressure-free document is refused at
+    // authoring; the document validator admits it as schema-valid.
+    let message = refused(&model, &set_shear(&model, "timoshenko_annulus_energy_v1"), "MODEL-SETTING-SHEAR-MODEL-TIMOSHENKO-UNSUPPORTED");
+    assert_eq!(message, "model_settings.shear_model `timoshenko_annulus_energy_v1` is not yet solved on a pressure-free document; set `euler_bernoulli` or remove the member.");
+    let mut timoshenko = model.clone();
+    timoshenko["model_settings"] = json!({"shear_model": "timoshenko_annulus_energy_v1"});
+    assert!(validator_codes(&timoshenko).is_empty());
+    // Code 2: never beside a pressure contract, for either value.
+    for value in ["euler_bernoulli", "timoshenko_annulus_energy_v1"] {
+        let document = exact(&model);
+        refused(&document, &set_shear(&document, value), "MODEL-SETTING-SHEAR-MODEL-WITH-PRESSURE-CONTRACT");
+        let mut carried = document.clone();
+        carried["model_settings"] = json!({"shear_model": value});
+        assert_eq!(validator_codes(&carried), vec!["MODEL-SETTING-SHEAR-MODEL-WITH-PRESSURE-CONTRACT"], "{value}");
+    }
+    // Code 1: any other value, a non-string and null included.
+    refused(&model, &set_shear(&model, "timoshenko"), "MODEL-SETTING-SHEAR-MODEL-UNKNOWN");
+    for value in [json!(null), json!("Euler_Bernoulli"), json!(1), json!({})] {
+        let mut document = model.clone();
+        document["model_settings"] = json!({"shear_model": value});
+        assert_eq!(validator_codes(&document), vec!["MODEL-SETTING-SHEAR-MODEL-UNKNOWN"], "{value}");
+    }
+    // The unit and dimension of a name.
+    let mut wrong = set_shear(&model, "euler_bernoulli");
+    wrong["change"]["dimension"] = json!("length");
+    refused(&model, &wrong, "OP-MODEL-SETTING-SHAPE-INVALID");
+    // The settings list names both members.
+    let unknown = intent("set_model_setting", PROJECT, "model_settings.beam_theory", "not_present", "x", "none", "dimensionless");
+    assert_eq!(refused(&model, &unknown, "OP-MODEL-SETTING-UNKNOWN"),
+        "`model_settings.beam_theory` is not a model setting; the settings are `model_settings.node_proximity_tolerance` and `model_settings.shear_model`.");
+}

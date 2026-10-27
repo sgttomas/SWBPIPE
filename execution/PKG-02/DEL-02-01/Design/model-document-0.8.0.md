@@ -40,6 +40,10 @@ relative to `projects/chirality-piping/`.
   - The offset is built first and the 0.8.0 ripple last, after #1625 and
     #1630.
   - There is one D3 turn.
+- **Agent 0, 2026-10-27, `model_settings.shear_model`:** "add one optional
+  member to 0.8.0 before #1649 merges ... Why now: every model-document version
+  step strands older projects (0.7.0 opens are refused by name), so we take this
+  field in 0.8.0 rather than spend another step on it." The member is §1.1.
 
 ## 1. Version 0.8.0
 
@@ -60,6 +64,43 @@ the owner's delegation). The schema's component geometry record is closed.
 
 Either way, a document carrying the member is not a 0.7.0 document. The version
 names the format.
+
+### 1.1 `model_settings.shear_model`
+
+0.8.0 also gains a second optional member, `model_settings.shear_model` (§0,
+Agent 0, 2026-10-27): a string, one of `euler_bernoulli` or
+`timoshenko_annulus_energy_v1`, the exact contract's vocabulary
+(`pressure_contract.shear_model`).
+- **Absent means Euler–Bernoulli, and the product never writes it.** This is the
+  tolerance member's rule (`model-document-0.7.0.md` §3.8): an absent
+  `model_settings`, or an absent member, means the default. An authored `null`
+  is refused.
+- **`euler_bernoulli`** solves exactly as absent: the same mechanics and result
+  rows. Only the model hash differs, because the document differs.
+- **Refusals**, named in `core/product_physics/src/model_settings.rs`. The solve
+  (`validation::validate_model_settings`) and the applier's document validator
+  give the same code and message.
+  1. `MODEL-SETTING-SHEAR-MODEL-UNKNOWN`: any other value, a non-string or
+     `null`.
+  2. `MODEL-SETTING-SHEAR-MODEL-WITH-PRESSURE-CONTRACT`: the member on a
+     document that declares `pressure_contract`, for either value. That
+     document's selection is `pressure_contract.shear_model`, so it has one
+     source of truth.
+  3. `MODEL-SETTING-SHEAR-MODEL-TIMOSHENKO-UNSUPPORTED` (the 0.8.0 interim):
+     `timoshenko_annulus_energy_v1` on a pressure-free document. The solve
+     refuses it by name before any route, and nothing is solved; the applier
+     refuses authoring it. The document validator admits it as schema-valid, so
+     such a document opens and is refused at solve. The numerical unit later
+     removes this refusal from the solve and the applier.
+- **Wire and authoring.** `ModelSettings.shear_model` decodes any present value,
+  so the refusals above name it rather than a decode error.
+  `PreviewModel::shear_model()` returns the effective choice (Euler–Bernoulli
+  when absent); in 0.8.0 nothing consumes it beyond the refusals. The applier's
+  `set_model_setting` and `clear_model_setting` accept
+  `model_settings.shear_model`: set admits `euler_bernoulli` and refuses the
+  other cases by name; clear removes the member, and the record when it becomes
+  empty. The top-level `shear_model` alias refusal (`lib.rs`
+  `SHEAR_MODEL_WITHOUT_PRESSURE_CONTRACT`) is unchanged.
 
 ## 2. Code
 
@@ -262,8 +303,12 @@ This design changes neither.
 - Component geometry gains
   `"eccentric_offset": {"$ref": "#/$defs/VectorQuantity"}`, described as a
   reducer slot that states the R-c1 convention.
+- `$defs/ModelSettings` gains `shear_model` with
+  `enum: [euler_bernoulli, timoshenko_annulus_energy_v1]` (§1.1). Both values
+  are listed from the start, so the numerical unit needs no schema change. The
+  record stays closed.
 - The schema stays structural. The kind restriction and the geometry check
-  belong to the solve.
+  belong to the solve, as do the shear member's refusals 2 and 3.
 
 `$defs/DesktopDocument` is unchanged.
 
@@ -495,6 +540,13 @@ ripple lands joins 0.8.0 through Agent 0.
   and batch; Python persistence validate, create, save and open; the preview
   service; the CAEPIPE SI writer. Every Python retired list equals
   `model_format.rs`'s (`test_model_version_literals.py`).
+- **`model_settings.shear_model` (§1.1).** Every existing document gives
+  byte-identical results (`pressure_free_byte_identity`), and `euler_bernoulli`
+  gives the rows and mechanics of its twin without the member
+  (`product_physics/tests/model_settings_shear_model.rs`). Each refusal is tested
+  at solve, and refusals 1 and 2 at the document validator; the applier sets,
+  clears and refuses (`operation_applier/tests/model_settings_authoring.rs`); a
+  set member saves and reopens byte for byte (src-tauri `model_document_save.rs`).
 - **Literals.** The extended literal guard passes, and the audit list is
   reviewed.
 - **Leaf comparison.** 0 numeric, boolean or status differences outside the
