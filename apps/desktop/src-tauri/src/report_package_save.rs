@@ -68,6 +68,10 @@
 //! attested solve of the model and result, checks the run record, and
 //! reaches the producer only through its one admitting entry, which derives
 //! the whole request (`report_package_bridge::assemble_user_released_request`).
+//! Route 010's checks refuse at their first finding: its disposition screen
+//! applies the same rules in the same order but stops at the first finding
+//! and reads no library store, and every route-010 refusal carries one
+//! bounded diagnostic (`bound_route_010_refusal`; Codex round 1 at #1682).
 //! Route 009 refuses a user-release record (`REPORT-USER-RELEASE-NOT-THIS-ROUTE`)
 //! and reaches the producer through the general entry, which refuses every
 //! user-release marker. A user release is the user's statement about rights
@@ -87,7 +91,8 @@ use crate::atomic_report_package_save::{self, AtomicSaveError};
 use crate::command_ingress::{report_package_request_parse_bytes, text_parse_bytes, Args, ArgsDecoding, ValueDecoder};
 use crate::model_document_file::MAX_MODEL_DOCUMENT_BYTES;
 use crate::export_disposition_screen::{
-    malformed_values, screen_dispositions_in, screen_value, DispositionDiagnostic as Diagnostic, LibraryLookup, PathStyle,
+    first_document_site_finding, first_library_ref_object, first_structural_finding, malformed_values, screen_dispositions_in, screen_value,
+    DispositionDiagnostic as Diagnostic, LibraryLookup, PathStyle, StructuralFinding,
 };
 use crate::exact_source_binding::{self as exact_binding, ExactRefusal};
 use crate::report_package_bridge::{self, ReportPackageRequest};
@@ -99,8 +104,8 @@ use open_pipe_stress_operation_applier::{canonical_json, sha256_hex};
 use open_pipe_stress_product_physics::PreviewSolverMode;
 use open_pipe_stress_report_package::bindings::{DESKTOP_PROFILE, REPORT_CONTEXT_NOT_LOCAL_PRIVATE};
 use open_pipe_stress_report_package::user_release::{
-    self as user_release, SoftwareIdentity, EXACT_ROUTE_NOT_ADMITTED, NOT_THIS_ROUTE, RECORD_INVALID, RESULT_NOT_ATTESTED,
-    UNBOUND, USER_RELEASED_CONTEXT, USER_RELEASED_DESKTOP_PROFILE,
+    self as user_release, SoftwareIdentity, EXACT_ROUTE_NOT_ADMITTED, LIBRARY_REFERENCED, NOT_THIS_ROUTE, RECORD_INVALID,
+    RESULT_NOT_ATTESTED, UNBOUND, USER_RELEASED_CONTEXT, USER_RELEASED_DESKTOP_PROFILE,
 };
 use open_pipe_stress_report_package::ReportPackageContainerOutcome;
 use serde::{Deserialize, Serialize};
@@ -142,6 +147,16 @@ pub const DISPOSITION_MALFORMED: &str = "REPORT-PACKAGE-SAVE-DISPOSITION-MALFORM
 pub const REQUEST_POSITIONAL: &str = "REPORT-PACKAGE-SAVE-REQUEST-POSITIONAL";
 /// The webview screener's code for a blocked disposition (`redactionExportControls.ts`).
 pub use crate::export_disposition_screen::PROTECTED_CONTENT_BLOCKED;
+
+/// Route 010's refusal bounds (W-18b, DEL-08-01 Design `report-user-release.md`
+/// §2.5, "Refusals on route 010"; Codex round 1 at #1682, P1): a route-010
+/// refusal carries one diagnostic, whose path is at most this many bytes (the
+/// finding's JSON pointer, or its nearest enclosing pointer within that
+/// length) ...
+pub(crate) const ROUTE_010_PATH_BYTES: usize = 1024;
+/// ... and whose message is at most this many bytes (a longer one keeps its
+/// head and its tail around an elision note).
+pub(crate) const ROUTE_010_DETAIL_BYTES: usize = 2048;
 
 /// The largest request text admitted. The request carries the report input,
 /// the result document, its source carrier and the handoff records, each a
@@ -331,6 +346,13 @@ impl ReportPackageSaveCommandError {
         Self::with_stage(code, "admit", message, diagnostics)
     }
 
+    /// [`Self::refused`] of one finding, moved in: the joined message is
+    /// written into one buffer sized before it is written (route 010).
+    fn refused_one(diagnostic: Diagnostic) -> Self {
+        let message = joined_message(&diagnostic.code, &diagnostic.path, &diagnostic.message);
+        Self::with_stage(diagnostic.code.clone(), "admit", message, vec![diagnostic])
+    }
+
     fn with_stage(code: String, stage: &str, message: String, diagnostics: Vec<Diagnostic>) -> Self {
         Self {
             code,
@@ -364,6 +386,21 @@ impl From<AtomicSaveError> for ReportPackageSaveCommandError {
             diagnostics: Vec::new(),
         }
     }
+}
+
+/// One finding as [`ReportPackageSaveCommandError::refused`] joins it
+/// (`CODE at PATH: message`, or `CODE: message` with no path), in one buffer
+/// sized before it is written.
+fn joined_message(code: &str, path: &str, message: &str) -> String {
+    let mut joined = String::with_capacity(code.len() + path.len() + message.len() + 6);
+    joined.push_str(code);
+    if !path.is_empty() {
+        joined.push_str(" at ");
+        joined.push_str(path);
+    }
+    joined.push_str(": ");
+    joined.push_str(message);
+    joined
 }
 
 fn finding(code: &str, path: &str, message: impl Into<String>) -> Diagnostic {
@@ -528,8 +565,9 @@ fn analysis_run_text_of(analysis_run_text: Option<&str>) -> Result<&str, ReportP
 ///     manifest the bound one;
 ///   - the refusal formatting allowance
 ///     ([`crate::user_release_admission::refusal_formatting_bytes`]): a
-///     route-010 refusal names a JSON pointer in the model or the request,
-///     whose length the texts bound (Codex round 2 at #1673).
+///     route-010 refusal names one JSON pointer in the model or the request,
+///     whose length the texts bound (Codex round 2 at #1673), and is then
+///     bounded (Codex round 1 at #1682).
 ///
 /// Rule 3 (b)'s growth (§2.7) comes later, inside admission, by the largest
 /// embedded candidate's priced parse. Every growth is refused above the
@@ -712,6 +750,81 @@ fn screen_content(request: &Value, model: &Value, project_id: &str, lookup: &mut
     if blocking.is_empty() { Ok(warnings) } else { Err(ReportPackageSaveCommandError::refused(blocking)) }
 }
 
+/// Route 010's disposition screen (W-18b, DEL-08-01 Design
+/// `report-user-release.md` §2.5, "Refusals on route 010"; Codex round 1 at
+/// #1682, P1): [`screen_content`]'s rules over the same two values, in its
+/// order, refused at the first finding, which is named as
+/// [`screen_content`] names it:
+/// - the structural screens' first finding, the request's then the model's
+///   (`export_disposition_screen::first_structural_finding`);
+/// - then, per value, the store-resolved screen's first own-site finding
+///   (`first_document_site_finding`), and then its first object
+///   `library_ref`, which route 010 refuses as
+///   `REPORT-USER-RELEASE-LIBRARY-REFERENCED` without reading the local
+///   library store: step 5 refuses every library reference of the model
+///   whatever the store holds, so the store's verdict cannot admit anything
+///   here, and the store's reads would be memory the route's lease does not
+///   price.
+///
+/// Its walks allocate nothing per level or per finding; the refusal holds the
+/// one finding, within the refusal formatting allowance of route 010's lease
+/// (`user_release_admission::refusal_formatting_bytes`). No warning arises:
+/// an unresolved reference is a `library_ref`, which refuses.
+fn screen_content_first(request: &Value, model: &Value) -> Result<(), ReportPackageSaveCommandError> {
+    let roots = [("/request", request), ("/model", model)];
+    for (root, value) in roots {
+        if let Some((kind, found)) = first_structural_finding(value) {
+            // The path is moved into the finding, not copied.
+            let diagnostic = match kind {
+                StructuralFinding::Blocking => {
+                    let (pointer, status) = found.rsplit_once(' ').expect("pointer and status");
+                    Diagnostic {
+                        code: PROTECTED_CONTENT_BLOCKED.to_string(),
+                        path: rooted(root, pointer),
+                        message: format!("The disposition `{status}` blocks the save; request human review of the record's disposition first."),
+                    }
+                }
+                StructuralFinding::Malformed => {
+                    let (pointer, kind) = [" is an array", " is an object"]
+                        .iter()
+                        .find_map(|suffix| found.strip_suffix(suffix).map(|pointer| (pointer, &suffix[4..])))
+                        .expect("pointer and value kind");
+                    Diagnostic {
+                        code: DISPOSITION_MALFORMED.to_string(),
+                        path: rooted(root, pointer),
+                        message: format!("The disposition member is {kind}, not text, so its disposition cannot be judged; nothing was saved."),
+                    }
+                }
+            };
+            drop(found);
+            return Err(ReportPackageSaveCommandError::refused_one(diagnostic));
+        }
+    }
+    for (root, value) in roots {
+        if let Some(diagnostic) = first_document_site_finding(value, root) {
+            return Err(ReportPackageSaveCommandError::refused_one(diagnostic));
+        }
+        if let Some(pointer) = first_library_ref_object(value) {
+            let path = rooted(root, &pointer);
+            drop(pointer);
+            return Err(ReportPackageSaveCommandError::refused_one(Diagnostic {
+                code: LIBRARY_REFERENCED.to_string(),
+                path,
+                message: "This member is a library reference. A shareable report package does not yet carry library record values, so it cannot be saved; route DREP-PACKAGE-USER-RELEASE-010 does not read the local library store, and the local private package is unaffected.".to_string(),
+            }));
+        }
+    }
+    Ok(())
+}
+
+/// `root` and `pointer`, in one allocation of their length.
+fn rooted(root: &str, pointer: &str) -> String {
+    let mut path = String::with_capacity(root.len() + pointer.len());
+    path.push_str(root);
+    path.push_str(pointer);
+    path
+}
+
 /// The raw context and model-text bindings of §2.6 item 5, by route (W-18b
 /// §2.5 step 3): route 009 renders under `local_private` with the desktop
 /// profile and carries no user-release record
@@ -858,10 +971,33 @@ fn identity_text(set: &BTreeSet<RulePackIdentity>) -> String {
     set.iter().map(|(id, version, checksum)| format!("{id}@{version} (sha256 {checksum})")).collect::<Vec<_>>().join(", ")
 }
 
+/// Route 010's [`identity_text`]: the count, and the first identity with its
+/// texts cut to 160 characters (Codex round 1 at #1682, P1: a refusal whose
+/// text grows with the request's entries).
+fn identity_text_bounded(set: &BTreeSet<RulePackIdentity>) -> String {
+    let cut = |text: &str| -> String {
+        match text.char_indices().nth(160) {
+            Some((end, _)) => format!("{}\u{2026}", &text[..end]),
+            None => text.to_string(),
+        }
+    };
+    match set.iter().next() {
+        None => "none".to_string(),
+        Some((id, version, checksum)) => {
+            let first = format!("{}@{} (sha256 {})", cut(id), cut(version), cut(checksum));
+            match set.len() {
+                1 => first,
+                count => format!("{count} packs, the first {first}"),
+            }
+        }
+    }
+}
+
 /// §2.5's decided rule, re-checked natively: the package's rule packs (the
 /// rule-check run's, as the report and the audit manifest record them; else
 /// none) equal the solve's, the bound input manifest's `active_rule_packs`.
-fn check_rule_packs_agree(request: &Value, solve: &BTreeSet<RulePackIdentity>) -> Result<(), ReportPackageSaveCommandError> {
+fn check_rule_packs_agree(request: &Value, solve: &BTreeSet<RulePackIdentity>, user_release_route: bool) -> Result<(), ReportPackageSaveCommandError> {
+    let identity_text = if user_release_route { identity_text_bounded } else { identity_text };
     for (pointer, version_key) in [("/report/calculation_report/rule_pack_refs", "version"), ("/audit_manifest/rule_pack_refs", "rule_pack_version")] {
         let package = package_rule_packs(request, pointer, version_key);
         if package != *solve {
@@ -1000,7 +1136,152 @@ impl From<ReportPackageSaveCommandError> for SaveRefusal {
 /// private classes, the solve attestation, the run record and the one
 /// admitting producer entry, through
 /// [`report_package_bridge::assemble_user_released_request`].
+///
+/// A route-010 refusal is bounded ([`bound_route_010_refusal`]): one
+/// diagnostic, its path and message within [`ROUTE_010_PATH_BYTES`] and
+/// [`ROUTE_010_DETAIL_BYTES`]. Route 009's refusals are unchanged.
 pub fn admit_report_package_session(
+    request: ReportPackageSaveRequest,
+    software: &ExpectedSoftware,
+    lookup: &mut LibraryLookup<'_>,
+    custody: &CustodyLookup<'_>,
+    session: Option<&mut UserReleaseSession<'_>>,
+) -> Result<AdmittedReportPackage, SaveRefusal> {
+    let user_release_route = request.screening.route_id == REPORT_PACKAGE_USER_RELEASE_ROUTE_ID;
+    let admitted = admit_both_routes(request, software, lookup, custody, session);
+    match admitted {
+        Err(SaveRefusal::Command(error)) if user_release_route => Err(SaveRefusal::Command(bound_route_010_refusal(error))),
+        other => other,
+    }
+}
+
+/// The most bytes a route-010 refusal's code keeps (codes are short
+/// constants; a producer message without a `CODE:` prefix names its whole
+/// text as its code).
+const ROUTE_010_CODE_BYTES: usize = 128;
+
+/// The most a bounded route-010 refusal's own strings hold (its code, stage,
+/// one diagnostic's code, path and message, and the joined message, with the
+/// elision notes), each counted at its allocation envelope: what bounding a
+/// refusal adds to the refusal it replaces, which route 010's refusal
+/// formatting allowance prices
+/// (`user_release_admission::refusal_formatting_bytes`).
+pub(crate) const ROUTE_010_BOUNDED_REFUSAL_BYTES: u64 = 4 * 16 * 1024;
+
+/// `text` within `limit` bytes: unchanged when it fits, else its head and tail
+/// (each cut at a character boundary) around a note of the bytes elided.
+fn elided(text: &str, limit: usize) -> String {
+    if text.len() <= limit {
+        return text.to_string();
+    }
+    let keep = (limit - 64) / 2;
+    let mut head = keep;
+    while !text.is_char_boundary(head) {
+        head -= 1;
+    }
+    let mut tail = text.len() - keep;
+    while !text.is_char_boundary(tail) {
+        tail += 1;
+    }
+    let note = format!(" \u{2026} [{} bytes elided] \u{2026} ", tail - head);
+    let mut out = String::with_capacity(head + note.len() + text.len() - tail);
+    out.push_str(&text[..head]);
+    out.push_str(&note);
+    out.push_str(&text[tail..]);
+    out
+}
+
+/// A route-010 refusal within its bounds (W-18b, DEL-08-01 Design
+/// `report-user-release.md` §2.5, "Refusals on route 010"; Codex round 1 at
+/// #1682, P1), so the response the command returns has a fixed bound:
+/// - at most one diagnostic, the first (route 010's checks refuse at their
+///   first finding, so there is never a second); a refusal whose first
+///   finding had followers says how many;
+/// - its path: the finding's JSON pointer when it is at most
+///   [`ROUTE_010_PATH_BYTES`] bytes, else its nearest enclosing pointer within
+///   that length (a pointer of an ancestor of the finding), with the full
+///   pointer's length in the message;
+/// - its message and the refusal's own message within
+///   [`ROUTE_010_DETAIL_BYTES`] (head and tail kept, [`elided`]), the code
+///   within [`ROUTE_010_CODE_BYTES`].
+///
+/// A refusal already within its bounds is returned unchanged, so every
+/// route-010 refusal of an ordinary request reads as before.
+fn bound_route_010_refusal(error: ReportPackageSaveCommandError) -> ReportPackageSaveCommandError {
+    let within = |error: &ReportPackageSaveCommandError| {
+        error.code.len() <= ROUTE_010_CODE_BYTES
+            && error.message.len() <= ROUTE_010_DETAIL_BYTES
+            && error.diagnostics.len() <= 1
+            && error.diagnostics.iter().all(|item| item.code.len() <= ROUTE_010_CODE_BYTES && item.path.len() <= ROUTE_010_PATH_BYTES && item.message.len() <= ROUTE_010_DETAIL_BYTES)
+    };
+    if within(&error) {
+        return error;
+    }
+    let ReportPackageSaveCommandError {
+        code,
+        stage,
+        message,
+        os_error_kind,
+        os_error_code,
+        cleanup_code,
+        cleanup_message,
+        selected_basename,
+        path_containment,
+        limitation,
+        mut diagnostics,
+    } = error;
+    let code = elided(&code, ROUTE_010_CODE_BYTES);
+    let followers = diagnostics.len().saturating_sub(1);
+    diagnostics.truncate(1);
+    let bounded = diagnostics.pop().map(|item| {
+        let mut note = String::new();
+        let path = if item.path.len() <= ROUTE_010_PATH_BYTES {
+            item.path.clone()
+        } else {
+            // A `/` in a JSON pointer always separates tokens (`~1` escapes
+            // one in a key), so the text before one is an ancestor's pointer.
+            // `/` is one byte, so the text before it ends at a character boundary.
+            let ancestor = item.path.as_bytes()[..=ROUTE_010_PATH_BYTES].iter().rposition(|byte| *byte == b'/').map_or("", |at| &item.path[..at]);
+            note = format!(" (The finding's JSON pointer is {} bytes; the path names its nearest enclosing member within {ROUTE_010_PATH_BYTES} bytes.)", item.path.len());
+            ancestor.to_string()
+        };
+        if followers > 0 {
+            note.push_str(&format!(" ({followers} further findings are not listed.)"));
+        }
+        let detail = elided(&item.message, ROUTE_010_DETAIL_BYTES - note.len());
+        let mut message = String::with_capacity(detail.len() + note.len());
+        message.push_str(&detail);
+        message.push_str(&note);
+        Diagnostic { code: elided(&item.code, ROUTE_010_CODE_BYTES), path, message }
+    });
+    let (message, diagnostics) = match bounded {
+        Some(item) => (elided(&joined_message(&item.code, &item.path, &item.message), ROUTE_010_DETAIL_BYTES), vec![item]),
+        None => (elided(&message, ROUTE_010_DETAIL_BYTES), Vec::new()),
+    };
+    ReportPackageSaveCommandError {
+        code,
+        stage,
+        message,
+        os_error_kind,
+        os_error_code,
+        cleanup_code,
+        cleanup_message,
+        selected_basename,
+        path_containment,
+        limitation,
+        diagnostics,
+    }
+}
+
+/// [`bound_route_010_refusal`], for its regression.
+#[cfg(test)]
+pub(crate) fn bound_route_010_refusal_for_tests(error: ReportPackageSaveCommandError) -> ReportPackageSaveCommandError {
+    bound_route_010_refusal(error)
+}
+
+/// [`admit_report_package_session`]'s checks, before a route-010 refusal is
+/// bounded.
+fn admit_both_routes(
     request: ReportPackageSaveRequest,
     software: &ExpectedSoftware,
     lookup: &mut LibraryLookup<'_>,
@@ -1102,7 +1383,12 @@ pub fn admit_report_package_session(
 
     // Disposition screening of both values, then the context bindings.
     let project_id = text_at(&model_value, "/project/id").unwrap_or("").to_string();
-    let warnings = screen_content(&request_value, &model_value, &project_id, lookup)?;
+    let warnings = if user_release_route {
+        screen_content_first(&request_value, &model_value)?;
+        Vec::new()
+    } else {
+        screen_content(&request_value, &model_value, &project_id, lookup)?
+    };
     check_context(&request_value, &model_value, software, user_release_route)?;
     // Route 010 keeps the model for its steps 4-9.
     let model_value = if user_release_route {
@@ -1123,7 +1409,7 @@ pub fn admit_report_package_session(
         )
         .into());
     }
-    check_rule_packs_agree(&request_value, &solve_packs)?;
+    check_rule_packs_agree(&request_value, &solve_packs, user_release_route)?;
     drop(solve_packs);
 
     let (package, user_release_model_document_sha256) = match (model_value, input_manifest_value) {
@@ -1184,16 +1470,7 @@ pub(crate) fn coded_for_tests(path: &str, message: &str) -> ReportPackageSaveCom
 fn refused_sized(code: &str, path: &str, detail: &str) -> ReportPackageSaveCommandError {
     let mut owned = String::with_capacity(detail.len());
     owned.push_str(detail);
-    let mut message = String::with_capacity(code.len() + path.len() + detail.len() + 6);
-    message.push_str(code);
-    if !path.is_empty() {
-        message.push_str(" at ");
-        message.push_str(path);
-    }
-    message.push_str(": ");
-    message.push_str(detail);
-    let diagnostics = vec![Diagnostic { code: code.to_string(), path: path.to_string(), message: owned }];
-    ReportPackageSaveCommandError::with_stage(code.to_string(), "admit", message, diagnostics)
+    ReportPackageSaveCommandError::refused_one(Diagnostic { code: code.to_string(), path: path.to_string(), message: owned })
 }
 
 /// Step 4 (§2.5): the record is of its form (§2.3; no `content_binding`) and

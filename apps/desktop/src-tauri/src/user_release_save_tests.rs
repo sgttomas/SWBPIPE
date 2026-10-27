@@ -121,10 +121,25 @@ fn admit(args: ReportPackageSaveRequest, registry: &SolveJobRegistry, lease: &mu
     admit_report_package_session(args, &software(), &mut no_store, &crate::report_package_save::no_custody, Some(&mut session))
 }
 
+/// Admission's refusal `code`, with its first path and its message. The lease
+/// is grown by the route-aware reservation first, as the command grows it,
+/// and admission's measured peak must stay within that growth and any growth
+/// admission makes itself (Codex round 1 at #1682, P1: every route-010
+/// refusal within its reservation).
 #[track_caller]
 fn refused(args: ReportPackageSaveRequest, registry: &SolveJobRegistry, code: &str) -> (String, String) {
     let mut lease = registry.acquire_interactive_ingress(1024).unwrap();
-    match admit(args, registry, &mut lease) {
+    let growth = ingress_lease_bytes(&args).ok();
+    if let Some(growth) = growth {
+        lease.grow_to(1024 + growth).unwrap();
+    }
+    let reserved = lease.bytes();
+    let (outcome, measured) = crate::ingress::counting::measure(|| admit(args, registry, &mut lease));
+    if let Some(growth) = growth {
+        let grown = lease.bytes() - reserved;
+        assert!(measured.peak_priced <= growth + grown, "{code}: peak {} within the reservation {}", measured.peak_priced, growth + grown);
+    }
+    match outcome {
         Ok(_) => panic!("expected {code}: admitted"),
         Err(SaveRefusal::Resource(refusal)) => panic!("expected {code}: resource {refusal:?}"),
         Err(SaveRefusal::Command(error)) => {
@@ -321,14 +336,18 @@ fn route_010_binds_the_record() {
 fn route_010_refuses_references_private_classes_and_unattested_results() {
     let basis = basis();
     let (registry, _) = basis.session(PreviewSolverMode::SparseInteractive);
-    // A library-applied material (rule 1), and its provenance string alone
-    // (rule 2); the detector's own cases are `user_release_admission`'s.
+    // A library-applied material, and its provenance string alone (rule 2);
+    // the detector's own cases are `user_release_admission`'s. Since Codex
+    // round 1 at #1682 (P1) route 010's disposition screen reads no library
+    // store: it refuses the object `library_ref` itself, at its pointer,
+    // before step 5's rule 1 would name it (`/model`, "holds a library origin
+    // (rule library_ref"), with the same code.
     let mut library = basis.model.clone();
     library["materials"][0]["provenance_record"] = json!({"library_ref": {"library_kind": "material", "library_id": "matlib.invented", "library_version": "1.0.0", "record_id": "steel.1"}});
     let (request, manifest) = rebound(&basis, &basis.request(), &library);
     let (path, message) = refused(basis.args_for(&request, &library, &manifest), &registry, LIBRARY_REFERENCED);
-    assert_eq!(path, "/model");
-    assert!(message.contains("/materials/0/provenance_record/library_ref holds a library origin (rule library_ref"), "{message}");
+    assert_eq!(path, "/model/materials/0/provenance_record/library_ref");
+    assert!(message.contains("is a library reference") && message.contains("does not read the local library store"), "{message}");
     let mut marked = basis.model.clone();
     marked["materials"][0]["provenance"] = json!("library:material:matlib.invented#steel.1");
     let (request, manifest) = rebound(&basis, &basis.request(), &marked);
@@ -483,6 +502,274 @@ fn route_010_admission_stays_within_its_lease() {
         Err(crate::memory_pool::ResourceRefusal::IngressExceedsBudget { required_bytes: 1024 + growth, budget_bytes: 1024 + growth - 1 })
     );
     registry.configure_pool(pool_bytes, budget, false).unwrap();
+}
+
+// --- Many findings (Codex round 1 at #1682, P1) -----------------------------
+
+/// Codex round 1 at #1682 (P1): `model.extra` holds `levels` nested objects,
+/// each keyed by `format!("{i:03}{}", "x".repeat(key_bytes - 3))`, and at the
+/// leaf an array of `findings` objects `{"redistribution_status":
+/// "protected_suspected"}`.
+fn deep_findings(levels: usize, key_bytes: usize, findings: usize) -> Value {
+    let mut value = json!(vec![json!({"redistribution_status": "protected_suspected"}); findings]);
+    for level in (0..levels).rev() {
+        value = json!({ format!("{level:03}{}", "x".repeat(key_bytes - 3)): value });
+    }
+    value
+}
+
+/// The wide variant: `findings` blocking objects at depth 2 (`/extra/<i>`).
+fn wide_findings(findings: usize) -> Value {
+    json!(vec![json!({"redistribution_status": "protected_suspected"}); findings])
+}
+
+/// The basis model with `extra`, and the coherent request and input manifest
+/// rebound to it (steps 1-3 hold up to the disposition screen).
+fn with_extra(basis: &Basis, extra: Value) -> (Value, Value, Value) {
+    let mut model = basis.model.clone();
+    model["extra"] = extra;
+    let (request, manifest) = rebound(basis, &basis.request(), &model);
+    (request, model, manifest)
+}
+
+/// The shapes of the P1 regressions: Codex's, scaled 2x and 10x (keys and
+/// findings), and the wide variant.
+fn many_finding_shapes() -> Vec<(&'static str, Value)> {
+    vec![
+        ("80 levels of 4,000-byte keys, 128 findings (Codex's repro)", deep_findings(80, 4_000, 128)),
+        ("80 levels of 8,000-byte keys, 256 findings (2x)", deep_findings(80, 8_000, 256)),
+        ("80 levels of 40,000-byte keys, 1,280 findings (10x)", deep_findings(80, 40_000, 1_280)),
+        ("100,000 findings at depth 2 (wide)", wide_findings(100_000)),
+    ]
+}
+
+/// What one route-010 admission measured through the raw command.
+struct Admission {
+    outcome: Result<crate::report_package_save::AdmittedReportPackage, SaveRefusal>,
+    /// The invocation budget: the ingress lease plus the route-aware growth,
+    /// the complete calculated reservation.
+    reservation: u64,
+    /// The route-aware growth (`ingress_lease_bytes`), and what admission
+    /// grew the lease by itself (rule 3 (b)).
+    growth: u64,
+    grown_in_admission: u64,
+    measured: crate::ingress::counting::Measured,
+}
+
+/// Admits `args` as the command does: `command_ingress::admit` with a
+/// `save_report_package` body, under an invocation budget set to the complete
+/// calculated reservation, the lease grown by `ingress_lease_bytes`, then
+/// admission with this session's attested solve of the basis, measured by the
+/// counting allocator from the moved texts to its outcome.
+fn admit_through_the_command(basis: &Basis, args: ReportPackageSaveRequest) -> Admission {
+    let mut body = args_body(&args);
+    body["analysisRunCanonicalText"] = json!(args.analysis_run_text);
+    // The reservation, on a first registry; the budget, on the one admitted.
+    let reservation = {
+        let registry = registry(ScriptedHost::normal());
+        let (mut decoded, lease) = admit_json(&registry, "save_report_package", ArgsDecoding::Moved, &body).unwrap();
+        let request = crate::report_package_save::save_report_package_args(&mut decoded).unwrap();
+        lease.bytes() + ingress_lease_bytes(&request).unwrap()
+    };
+    let (registry, _) = basis.session(PreviewSolverMode::SparseInteractive);
+    let (pool_bytes, _) = registry.pool().settings();
+    registry.configure_pool(pool_bytes, reservation, false).unwrap();
+    let (mut decoded, mut lease) = admit_json(&registry, "save_report_package", ArgsDecoding::Moved, &body).unwrap();
+    drop(body);
+    let request = crate::report_package_save::save_report_package_args(&mut decoded).unwrap();
+    drop(decoded);
+    let growth = ingress_lease_bytes(&request).unwrap();
+    assert_eq!(lease.bytes() + growth, reservation);
+    lease.grow_to(reservation).unwrap();
+    let (outcome, measured) = crate::ingress::counting::measure(|| admit(request, &registry, &mut lease));
+    let grown_in_admission = lease.bytes() - reservation;
+    Admission { outcome, reservation, growth, grown_in_admission, measured }
+}
+
+/// Codex round 1 at #1682 (P1): on its repro (80 levels of 4,000-byte keys
+/// over 128 blocking findings) route 010's disposition screen collected every
+/// finding with its full pointer and joined them into one message, a peak of
+/// 272,569,728 priced bytes against a reservation of 52,842,048. Route 010's
+/// screen now stops at its first finding and builds only that finding's
+/// pointer, and the refusal carries that one diagnostic, cut to the route's
+/// bounds (`report_package_save::ROUTE_010_PATH_BYTES` and
+/// `ROUTE_010_DETAIL_BYTES`). For the repro, the shape scaled 2x and 10x (keys
+/// and findings) and the wide variant, admitted through the raw command under
+/// a budget of exactly its reservation, the measured peak stays within the
+/// growth the lease was given, and the refusal is the first finding's alone.
+#[test]
+fn route_010_refuses_many_findings_within_its_reservation() {
+    let basis = basis();
+    for (name, extra) in many_finding_shapes() {
+        let (request, model, manifest) = with_extra(&basis, extra);
+        let admission = admit_through_the_command(&basis, basis.args_for(&request, &model, &manifest));
+        let Admission { outcome, reservation, growth, grown_in_admission, measured } = admission;
+        eprintln!(
+            "route 010, {name}: reservation {reservation} B (growth {growth} B, grown in admission {grown_in_admission} B), peak requested {} B, peak priced {} B",
+            measured.peak_requested, measured.peak_priced
+        );
+        assert!(measured.peak_priced <= growth + grown_in_admission, "{name}: peak {} within {}", measured.peak_priced, growth + grown_in_admission);
+        match outcome {
+            Err(SaveRefusal::Command(error)) => {
+                assert_eq!(error.code, crate::report_package_save::PROTECTED_CONTENT_BLOCKED, "{name}: {}", error.message);
+                assert_eq!(error.diagnostics.len(), 1, "{name}");
+                let path = &error.diagnostics[0].path;
+                assert!(path.len() <= crate::report_package_save::ROUTE_010_PATH_BYTES, "{name}: {} B", path.len());
+                assert!(path.starts_with("/model/extra"), "{name}: {path}");
+                let serialized = serde_json::to_string(&error).unwrap();
+                assert!(serialized.len() <= 16 * 1024, "{name}: the refusal serializes to {} B", serialized.len());
+                eprintln!("route 010, {name}: {} ({} B serialized)", error.message.chars().take(200).collect::<String>(), serialized.len());
+            }
+            Err(SaveRefusal::Resource(refusal)) => {
+                assert!(matches!(refusal, crate::memory_pool::ResourceRefusal::IngressExceedsBudget { .. }), "{name}: {refusal:?}");
+            }
+            Ok(_) => panic!("{name}: admitted"),
+        }
+    }
+}
+
+/// The other route-010 refusals whose text names a site (Codex round 1 at
+/// #1682, P1): a rule-pack reference (step 5), a non-project private class
+/// (step 6), a library provenance string (step 5, rule 2) and an object
+/// `library_ref` (refused by route 010's screen) at the end of 80 levels of
+/// 4,000-byte keys, and the rule-pack agreement over 10,000 package entries.
+/// Each is admitted through the raw command under a budget of exactly its
+/// reservation, refused with its code within that reservation, and bounded.
+#[test]
+fn route_010_refuses_each_deep_site_within_its_reservation() {
+    let basis = basis();
+    let deep = |leaf: Value| {
+        let mut value = leaf;
+        for level in (0..80).rev() {
+            value = json!({ format!("{level:03}{}", "x".repeat(3_997)): value });
+        }
+        value
+    };
+    let mut cases: Vec<(&str, ReportPackageSaveRequest, &str)> = Vec::new();
+    for (name, leaf, code) in [
+        ("a rule-pack reference", json!({"rule_pack_refs": [{"rule_pack_id": "invented-pack", "version": "1.0.0"}]}), RULE_PACK_REFERENCED),
+        ("a non-project private class", json!({"privacy_class": "private_material_data"}), PRIVATE_CLASS),
+        ("a library provenance string", json!({"note": "library:material:matlib.invented#steel.1"}), LIBRARY_REFERENCED),
+        ("an object library_ref", json!({"library_ref": {"library_kind": "material", "library_id": "matlib.invented", "record_id": "steel.1"}}), LIBRARY_REFERENCED),
+    ] {
+        let (request, model, manifest) = with_extra(&basis, deep(leaf));
+        cases.push((name, basis.args_for(&request, &model, &manifest), code));
+    }
+    let mut request = basis.request();
+    request["report"]["calculation_report"]["rule_pack_refs"] = json!((0..10_000)
+        .map(|index| json!({"rule_pack_id": format!("invented-pack-{index:05}"), "version": "1.0.0", "checksum": {"value": "0".repeat(64)}}))
+        .collect::<Vec<_>>());
+    cases.push(("10,000 package rule packs", basis.args_for(&request, &basis.model, &basis.manifest), crate::report_package_save::RULE_PACKS_DISAGREE));
+    for (name, args, code) in cases {
+        let Admission { outcome, reservation, growth, grown_in_admission, measured } = admit_through_the_command(&basis, args);
+        eprintln!(
+            "route 010, {name}: reservation {reservation} B (growth {growth} B, grown in admission {grown_in_admission} B), peak requested {} B, peak priced {} B",
+            measured.peak_requested, measured.peak_priced
+        );
+        assert!(measured.peak_priced <= growth + grown_in_admission, "{name}: peak {} within {}", measured.peak_priced, growth + grown_in_admission);
+        match outcome {
+            Err(SaveRefusal::Command(error)) => {
+                assert_eq!(error.code, code, "{name}: {}", error.message);
+                assert!(error.diagnostics.len() <= 1, "{name}");
+                assert!(error.message.len() <= crate::report_package_save::ROUTE_010_DETAIL_BYTES, "{name}: {} B", error.message.len());
+                eprintln!("route 010, {name}: {}", error.message.chars().take(240).collect::<String>());
+            }
+            other => panic!("{name}: {:?}", other.map(|_| ())),
+        }
+    }
+}
+
+/// The derivation's refusal names the first differing pointer as a refusal
+/// shows it (240 characters), and builds no more of it (Codex round 1 at
+/// #1682, P1): a difference below 80 levels of 4,000-byte keys is found and
+/// reported holding only the walk's key sets and the shown text.
+#[test]
+fn the_derivation_refusal_holds_no_long_pointer() {
+    let deep = |leaf: Value| {
+        let mut value = leaf;
+        for level in (0..80).rev() {
+            value = json!({ format!("{level:03}{}", "x".repeat(3_997)): value });
+        }
+        value
+    };
+    let derivation = open_pipe_stress_report_package::user_release::UserReleaseDerivation {
+        input_manifest: deep(json!(1)),
+        input_manifest_sha256: String::new(),
+        input_manifest_ref: String::new(),
+        request: json!({}),
+    };
+    let found = deep(json!(2));
+    let (refusal, measured) = crate::ingress::counting::measure(|| open_pipe_stress_report_package::user_release::check_matches_derivation(&derivation, &found, &json!({})));
+    let refusal = refusal.unwrap_err();
+    eprintln!("derivation refusal: {} B, peak requested {} B, peak priced {} B", refusal.len(), measured.peak_requested, measured.peak_priced);
+    assert!(refusal.starts_with(CONTENT_NOT_DERIVED) && refusal.ends_with('\u{2026}'), "{refusal}");
+    assert!(measured.peak_priced <= 64 * 1024, "{measured:?}");
+}
+
+/// A route-010 refusal is bounded (`report_package_save::bound_route_010_refusal`):
+/// one diagnostic, its path an enclosing pointer within the path bound, its
+/// message and the joined message within the detail bound, the code within
+/// its bound; a refusal within the bounds is unchanged.
+#[test]
+fn route_010_refusals_are_bounded() {
+    use crate::report_package_save::{bound_route_010_refusal_for_tests as bound, ReportPackageSaveCommandError, ROUTE_010_DETAIL_BYTES, ROUTE_010_PATH_BYTES};
+    use crate::export_disposition_screen::DispositionDiagnostic;
+    let item = |path: &str, message: &str| DispositionDiagnostic { code: "INVENTED-CODE".to_string(), path: path.to_string(), message: message.to_string() };
+    let short = ReportPackageSaveCommandError::refused(vec![item("/model/a", "short")]);
+    let unchanged = bound(ReportPackageSaveCommandError::refused(vec![item("/model/a", "short")]));
+    assert_eq!(serde_json::to_value(&unchanged).unwrap(), serde_json::to_value(&short).unwrap());
+    let long_key = "é".repeat(700);
+    let path = format!("/model/extra/{long_key}/b~1c/0/redistribution_status");
+    let long_message = format!("{path} holds a finding; {}", "and more text ".repeat(400));
+    let error = bound(ReportPackageSaveCommandError::refused(vec![item(&path, &long_message), item("/model/b", "second"), item("/model/c", "third")]));
+    assert_eq!(error.diagnostics.len(), 1);
+    let first = &error.diagnostics[0];
+    assert_eq!(first.path, "/model/extra", "the nearest enclosing pointer within the bound");
+    assert!(path.starts_with(&format!("{}/", first.path)));
+    assert!(first.message.len() <= ROUTE_010_DETAIL_BYTES && error.message.len() <= ROUTE_010_DETAIL_BYTES);
+    assert!(first.message.contains("bytes elided") && first.message.ends_with("(2 further findings are not listed.)"), "{}", first.message);
+    assert!(first.message.contains(&format!("The finding's JSON pointer is {} bytes", path.len())), "{}", first.message);
+    assert!(error.message.starts_with("INVENTED-CODE at /model/extra: "), "{}", error.message);
+    let mid = format!("/model/{}/{}", "a".repeat(600), "b".repeat(600));
+    assert_eq!(bound(ReportPackageSaveCommandError::refused(vec![item(&mid, "x")])).diagnostics[0].path, format!("/model/{}", "a".repeat(600)));
+    assert!(bound(ReportPackageSaveCommandError::refused(vec![item(&mid, "x")])).diagnostics[0].path.len() <= ROUTE_010_PATH_BYTES);
+    let bridge = bound(ReportPackageSaveCommandError::bridge(format!("INVENTED-CODE: {}", "y".repeat(10_000))));
+    assert!(bridge.message.len() <= ROUTE_010_DETAIL_BYTES && bridge.message.starts_with("INVENTED-CODE: yyy") && bridge.code == "INVENTED-CODE");
+    let codeless = bound(ReportPackageSaveCommandError::bridge("z".repeat(10_000)));
+    assert!(codeless.code.len() <= 128 && codeless.message.len() <= ROUTE_010_DETAIL_BYTES);
+}
+
+/// Route 009 with the same inputs refuses with exactly the bytes it gave
+/// before route 010's bounded screen (pinned at `031723bd24`): every finding,
+/// with its full pointer, in one joined message. The 10x shape is not run on
+/// route 009: its unbounded refusal would request about 16 GB.
+#[test]
+fn route_009_refusals_of_many_findings_are_unchanged() {
+    let basis = basis();
+    let pinned: [(&str, usize, usize, &str); 3] = [
+        ("80 levels of 4,000-byte keys, 128 findings (Codex's repro)", 128, 81_990_707, "d2a00d98e0c09b5537e906bdd186c4e164067e9e24d91a44a7a611cabccf3417"),
+        ("80 levels of 8,000-byte keys, 256 findings (2x)", 256, 327_821_107, "d90af1685d7b6f28cab3abf797abf2922b854a598fad6dea6de61dd0387219ca"),
+        ("100,000 findings at depth 2 (wide)", 100_000, 39_378_307, "f87a6476a65425f2fb59dc4316fb9f354b596fe7c02cb80217c4933223c00590"),
+    ];
+    let shapes = many_finding_shapes();
+    let mut measured = Vec::new();
+    for (name, _, _, _) in pinned {
+        let extra = shapes.iter().find(|(shape, _)| *shape == name).unwrap().1.clone();
+        let (mut request, model, manifest) = with_extra(&basis, extra);
+        request["export_profile_id"] = json!(open_pipe_stress_report_package::bindings::DESKTOP_PROFILE);
+        request["report"]["report_context"]["export_context"] = json!("local_private");
+        request["report"]["report_context"].as_object_mut().unwrap().remove("user_release");
+        let args = save_request_with(&request, &model, &manifest);
+        let error = crate::report_package_save::admit_report_package(args, &software(), &mut no_store).unwrap_err();
+        assert_eq!(error.code, crate::report_package_save::PROTECTED_CONTENT_BLOCKED);
+        let serialized = serde_json::to_string(&error).unwrap();
+        eprintln!("route 009, {name}: {} diagnostics, {} B, sha256 {}", error.diagnostics.len(), serialized.len(), sha256_hex(&serialized));
+        measured.push((error.diagnostics.len(), serialized.len(), sha256_hex(&serialized)));
+    }
+    for ((name, diagnostics, bytes, sha256), (found, length, digest)) in pinned.iter().zip(&measured) {
+        assert_eq!(found, diagnostics, "{name}");
+        assert_eq!((*length, digest.as_str()), (*bytes, *sha256), "{name}: route 009's refusal bytes");
+    }
 }
 
 // --- The render command (§2.8) ----------------------------------------------

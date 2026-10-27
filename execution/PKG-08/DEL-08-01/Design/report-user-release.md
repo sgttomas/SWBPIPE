@@ -835,15 +835,85 @@ refuses the exact texts in the outer command:
     size cap, prescan or pricing runs on it, so a malformed or oversized
     exact text gets this code, and the lease stays at the ingress admission's
     bytes;
-  - otherwise the ordinary reservation: `parse_lease_bytes` over the request,
-    model and input-manifest texts, plus `text_parse_bytes` of
-    `analysisRunCanonicalText` after its cap (step 2).
+  - otherwise route 010's reservation, which is the sum of:
+    - the ordinary reservation: `parse_lease_bytes` over the request, model
+      and input-manifest texts, plus `text_parse_bytes` of
+      `analysisRunCanonicalText` after its cap (step 2);
+    - the derivation's working memory (step 9): one more
+      `text_parse_bytes` of the request text and of the input-manifest text,
+      since the derived request and manifest canonically equal the admitted
+      ones;
+    - the refusal formatting allowance
+      (`user_release_admission::refusal_formatting_bytes`, "Refusals on route
+      010" below): four allocation envelopes of one refusal message naming a
+      pointer of `pointer_bound` (twice the longer of the request and model
+      texts, plus 4,096 bytes), plus 65,536 bytes for bounding the refusal.
 
-The two growths are different things. The ordinary reservation prices the
+The two growths are different things. Route 010's reservation prices the
 parse of the four texts that every route-010 save needs before any content
-check. The exact-text growth prices W-11's resubmitted texts, which route 010
-never parses, so it never happens on route 010. Rule 3 (b)'s growth (§2.7)
-comes later, inside admission.
+check, the derivation, and the one refusal it may format. The exact-text
+growth prices W-11's resubmitted texts, which route 010 never parses, so it
+never happens on route 010. Rule 3 (b)'s growth (§2.7) comes later, inside
+admission. Every growth is refused above the budget the command was admitted
+under (`IngressExceedsBudget`, DEL-04-07).
+
+**Refusals on route 010 (Codex round 1 at #1682, P1).** Every allocation route
+010 makes while it screens and refuses is within its reservation, and its
+refusal output has a fixed bound:
+- **One finding.** Route 010's checks refuse at their first finding. Its
+  disposition screen (`report_package_save::screen_content_first`) applies
+  `screen_content`'s rules to the same two values in the same order: the
+  structural screens' first finding (the request's, then the model's), then,
+  per value, the store-resolved screen's first own-site finding
+  (`provenance_record`, `rule_pack_refs[]` and non-object members). Each
+  first finding is the collecting screen's first entry, word for word
+  (`first_findings_match_the_collecting_screens`). Its walks hold their path
+  on their own stack frames or in one buffer sized before the walk, so they
+  allocate nothing per level or per finding, and only the reported finding's
+  pointer is built. The library, rule-pack and private-class rules and the
+  derivation's comparison (§2.6) stop at their first site in the same way,
+  and their messages are written into buffers sized before they are written.
+  The derivation's refusal builds only the 240 characters of the pointer it
+  shows. The run-record check's messages are fixed texts, hashes and
+  identities cut to 160 characters. The rule-pack agreement's refusal names
+  the count of packs and the first identity, each text cut to 160
+  characters.
+- **No library store.** On route 010 the store-resolved screen reads no local
+  library store. It refuses an object `library_ref`, in the request or the
+  model, as `REPORT-USER-RELEASE-LIBRARY-REFERENCED` at that member's
+  pointer. Step 5 refuses every library reference of the model whatever the
+  store holds, so the store's verdict could never admit anything here. Its
+  reads are memory the route's lease does not price. Route 009 still
+  resolves every reference in the store.
+- **A bounded refusal.** A route-010 admission refusal carries one
+  diagnostic. Its path is the finding's JSON pointer when that is at most
+  1,024 bytes. Otherwise it is the nearest enclosing pointer within 1,024
+  bytes, and the message gives the full pointer's length. The diagnostic's
+  message and the refusal's message are each at most 2,048 bytes; a longer
+  one keeps its head and tail around a note of the bytes elided. The code is
+  at most 128 bytes (`report_package_save::bound_route_010_refusal`). A
+  refusal within these bounds is unchanged.
+- **The response.** An admitted save's receipt is serialized under the held
+  lease. On route 010 it carries no warnings, its member summaries are the
+  package's fixed members, and its other fields are the checked evidence's
+  constants and hashes. A refusal is returned as the command's error. Tauri
+  converts it to its IPC value after the command returns and its lease is
+  released, so those bytes are priced by no lease. On route 010 they are the
+  bounded refusal's strings: at most 6,000 bytes of text (the code, the
+  stage, the one diagnostic and the joined message, and the fixed path and
+  limitation notes), and at most 36,000 bytes once JSON-escaped (an escape
+  is at most six bytes per character). Those
+  bytes are the unpriced residual of a route-010 refusal. Route 009's
+  refusals keep their every finding (pinned byte for byte by
+  `route_009_refusals_of_many_findings_are_unchanged`), as DEL-04-07's
+  residual records.
+
+Codex's repro (80 levels of 4,000-byte keys over 128 blocking findings)
+measured a peak of 272,569,728 priced bytes against a reservation of
+52,842,048 before this rule. With it, that shape, the same shape with keys and
+findings scaled 2x and 10x, and 100,000 findings at depth 2 each stay within
+the growth the lease was given, under a budget of exactly the reservation
+(`route_010_refuses_many_findings_within_its_reservation`).
 
 Route 010 adds the steps below, in this order. Every one of them that reads a
 member by key runs after the object-form check, as the existing keyed checks
@@ -877,8 +947,10 @@ need none (`report_package/src/wire.rs:46-55`).
    supplied exact text the same way, for a caller of `admit_report_package_in`
    that did not come through the command; the command has already refused
    it. No custody is queried and no exact text is parsed. At this point the
-   lease holds the ordinary reservation only; it never grows by an exact-text
-   pricing on route 010. Route 009 is unchanged.
+   lease holds route 010's reservation (the ordinary reservation, the
+   derivation's and the refusal formatting allowance, above) and nothing
+   more; it never grows by an exact-text pricing on route 010. Route 009 is
+   unchanged.
 3. **Context** (`check_context`, `:563-603`).
    - Route 009: unchanged, plus `/report/report_context/user_release` absent,
      else `REPORT-USER-RELEASE-NOT-THIS-ROUTE`.
@@ -946,7 +1018,9 @@ need none (`report_package/src/wire.rs:46-55`).
    the producer under the user-released profile without the derivation (§2.8).
 10. **Unchanged, on both routes:**
     - the object-form check (`:715-722`);
-    - the disposition screens (`screen_content`, `:524-560`);
+    - the disposition screens' rules and order (`screen_content`,
+      `:524-560`); route 010 stops at the first finding and reads no library
+      store ("Refusals on route 010" above);
     - the rule-pack agreement (`:684-700`), whose two sides are both empty on
       route 010 after step 5;
     - the shared producer's checks (§2.8). Route 009 reaches them through the
@@ -1261,7 +1335,9 @@ further, in proportion to the site's pointer and kept texts (Codex round
 7,280 bytes of growth plus a 2,099,200-byte site allowance). Slice (r2c)
 prices that formatting within route 010's ingress lease, which the
 budget-bounded growth rule of DEL-04-07 (draft #1676) caps at the budget the
-command was admitted under.
+command was admitted under. The same allowance covers the disposition
+screen's first finding, and every route-010 refusal is bounded (§2.5,
+"Refusals on route 010").
 
 **The webview** applies the same three rules as an early check
 (`libraryRefMemberSites`, the substring tests, and `JSON.parse` in a `try` for
@@ -2661,9 +2737,10 @@ leaves the sandbox directory empty, with no picker request.
       ingress admission's: no growth at all;
     - a request whose result document has an exact identity, and a
       pressure-free request whose report carries a non-null `exact_route`.
-      Each is refused at step 2a with the lease grown by exactly the ordinary
-      reservation: `parse_lease_bytes` over its three texts plus the
-      run-record text's pricing, and no exact-text growth.
+      Each is refused at step 2a with the lease grown by exactly route 010's
+      reservation: `parse_lease_bytes` over its three texts, the run-record
+      text's pricing, the derivation's and the refusal formatting allowance,
+      and no exact-text growth.
 
     The same exact request on route 009, with its exact texts, is still
     admitted, and its lease grows by `parse_lease_bytes_with_exact` as at the

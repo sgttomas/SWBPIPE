@@ -948,6 +948,7 @@ pub fn derive(basis: &UserReleaseBasis<'_>) -> Result<UserReleaseDerivation, Str
     Ok(UserReleaseDerivation { input_manifest, input_manifest_sha256, input_manifest_ref: manifest_ref, request })
 }
 
+#[cfg(test)]
 fn pointer_token(key: &str) -> String {
     key.replace('~', "~0").replace('/', "~1")
 }
@@ -961,43 +962,130 @@ fn numbers_equal(left: &serde_json::Number, right: &serde_json::Number) -> bool 
     }
 }
 
-fn difference_at(expected: &Value, found: &Value, pointer: &mut String) -> bool {
+/// One step of the path to a difference, held on the comparison's own stack
+/// frames: the walk allocates no pointer text per level, whatever the depth or
+/// the keys' length (Codex round 1 at #1682, P1). Only the reported pointer is
+/// built, by [`DiffPath::write`].
+#[derive(Clone, Copy)]
+enum DiffStep<'a> {
+    Key(&'a str),
+    Index(usize),
+}
+
+struct DiffPath<'p, 'a> {
+    parent: Option<&'p DiffPath<'p, 'a>>,
+    step: DiffStep<'a>,
+}
+
+impl DiffPath<'_, '_> {
+    /// The characters of this path's JSON pointer, RFC 6901 escapes included.
+    fn chars(&self) -> usize {
+        let own = 1 + match self.step {
+            DiffStep::Key(key) => key.chars().count() + key.chars().filter(|c| matches!(c, '~' | '/')).count(),
+            DiffStep::Index(index) => index.checked_ilog10().map_or(1, |digits| digits as usize + 1),
+        };
+        own + self.parent.map_or(0, DiffPath::chars)
+    }
+
+    /// The bytes of this path's JSON pointer.
+    fn bytes(&self) -> usize {
+        let own = 1 + match self.step {
+            DiffStep::Key(key) => key.len() + key.bytes().filter(|b| matches!(b, b'~' | b'/')).count(),
+            DiffStep::Index(index) => index.checked_ilog10().map_or(1, |digits| digits as usize + 1),
+        };
+        own + self.parent.map_or(0, DiffPath::bytes)
+    }
+
+    /// Appends at most `budget` characters of this path's JSON pointer.
+    fn write(&self, out: &mut String, budget: &mut usize) {
+        if let Some(parent) = self.parent {
+            parent.write(out, budget);
+        }
+        let mut push = |c: char| {
+            if *budget > 0 {
+                out.push(c);
+                *budget -= 1;
+            }
+        };
+        push('/');
+        match self.step {
+            DiffStep::Key(key) => {
+                for c in key.chars() {
+                    match c {
+                        '~' => {
+                            push('~');
+                            push('0');
+                        }
+                        '/' => {
+                            push('~');
+                            push('1');
+                        }
+                        other => push(other),
+                    }
+                }
+            }
+            DiffStep::Index(index) => {
+                for c in index.to_string().chars() {
+                    push(c);
+                }
+            }
+        }
+    }
+}
+
+/// The JSON pointer of `path` (`""` at the root), cut to its first `limit`
+/// characters followed by an ellipsis when it is longer; built in one buffer
+/// sized before it is written.
+fn pointer_text(path: Option<&DiffPath<'_, '_>>, limit: Option<usize>) -> String {
+    let Some(path) = path else { return String::new() };
+    let chars = path.chars();
+    let mut budget = limit.map_or(chars, |limit| chars.min(limit));
+    let mut out = String::with_capacity(if limit.is_some() { 4 * budget + 3 } else { path.bytes() });
+    path.write(&mut out, &mut budget);
+    if limit.is_some_and(|limit| chars > limit) {
+        out.push('\u{2026}');
+    }
+    out
+}
+
+/// The first difference under `up`, reported by `report` with its path. Keys
+/// are taken in code-point order from both objects (each key borrowed).
+fn difference_at<'a>(
+    expected: &'a Value,
+    found: &'a Value,
+    up: Option<&DiffPath<'_, 'a>>,
+    report: &mut dyn FnMut(Option<&DiffPath<'_, 'a>>) -> String,
+) -> Option<String> {
     match (expected, found) {
         (Value::Object(expected), Value::Object(found)) => {
-            let keys: BTreeSet<&String> = expected.keys().chain(found.keys()).collect();
+            let keys: BTreeSet<&'a str> = expected.keys().chain(found.keys()).map(String::as_str).collect();
             for key in keys {
-                let length = pointer.len();
-                pointer.push('/');
-                pointer.push_str(&pointer_token(key));
+                let here = DiffPath { parent: up, step: DiffStep::Key(key) };
                 let differs = match (expected.get(key), found.get(key)) {
-                    (Some(expected), Some(found)) => difference_at(expected, found, pointer),
-                    _ => true,
+                    (Some(expected), Some(found)) => difference_at(expected, found, Some(&here), report),
+                    _ => Some(report(Some(&here))),
                 };
-                if differs {
-                    return true;
+                if differs.is_some() {
+                    return differs;
                 }
-                pointer.truncate(length);
             }
-            false
+            None
         }
         (Value::Array(expected), Value::Array(found)) => {
             for index in 0..expected.len().max(found.len()) {
-                let length = pointer.len();
-                pointer.push('/');
-                pointer.push_str(&index.to_string());
+                let here = DiffPath { parent: up, step: DiffStep::Index(index) };
                 let differs = match (expected.get(index), found.get(index)) {
-                    (Some(expected), Some(found)) => difference_at(expected, found, pointer),
-                    _ => true,
+                    (Some(expected), Some(found)) => difference_at(expected, found, Some(&here), report),
+                    _ => Some(report(Some(&here))),
                 };
-                if differs {
-                    return true;
+                if differs.is_some() {
+                    return differs;
                 }
-                pointer.truncate(length);
             }
-            false
+            None
         }
-        (Value::Number(expected), Value::Number(found)) => !numbers_equal(expected, found),
-        _ => expected != found,
+        (Value::Number(expected), Value::Number(found)) => (!numbers_equal(expected, found)).then(|| report(up)),
+        _ => (expected != found).then(|| report(up)),
     }
 }
 
@@ -1006,19 +1094,29 @@ fn difference_at(expected: &Value, found: &Value, pointer: &mut String) -> bool 
 /// member present in only one of them, a value of another type, or another
 /// value. `None` when the two are canonically equal. `""` names the root.
 pub fn first_difference(expected: &Value, found: &Value) -> Option<String> {
-    let mut pointer = String::new();
-    difference_at(expected, found, &mut pointer).then_some(pointer)
+    difference_at(expected, found, None, &mut |path| pointer_text(path, None))
+}
+
+/// [`first_difference`] as a refusal shows it ([`shown_pointer`]'s text):
+/// the root as `/`, a long pointer cut to its first 240 characters. Only
+/// those characters are written, so a refusal holds no more of a long
+/// pointer than it shows (Codex round 1 at #1682, P1).
+fn first_difference_shown(expected: &Value, found: &Value) -> Option<String> {
+    difference_at(expected, found, None, &mut |path| match path {
+        None => "/".to_string(),
+        path => pointer_text(path, Some(240)),
+    })
 }
 
 /// The input manifest, then the whole request, must canonically equal their
 /// derivations (§2.5 step 9). The refusal names the first differing JSON
 /// pointer, never a value.
 pub fn check_matches_derivation(derivation: &UserReleaseDerivation, input_manifest: &Value, request: &Value) -> Result<(), String> {
-    if let Some(pointer) = first_difference(&derivation.input_manifest, input_manifest) {
-        return Err(format!("{CONTENT_NOT_DERIVED}: the input manifest differs from its derivation at {}", shown_pointer(&pointer)));
+    if let Some(pointer) = first_difference_shown(&derivation.input_manifest, input_manifest) {
+        return Err(format!("{CONTENT_NOT_DERIVED}: the input manifest differs from its derivation at {pointer}"));
     }
-    if let Some(pointer) = first_difference(&derivation.request, request) {
-        return Err(format!("{CONTENT_NOT_DERIVED}: the request differs from its derivation at {}", shown_pointer(&pointer)));
+    if let Some(pointer) = first_difference_shown(&derivation.request, request) {
+        return Err(format!("{CONTENT_NOT_DERIVED}: the request differs from its derivation at {pointer}"));
     }
     Ok(())
 }
@@ -1080,7 +1178,8 @@ pub(crate) fn content_binding(members: &[crate::ContainerMember]) -> Value {
 }
 
 /// A pointer as a refusal shows it: the root as `/`, a long one cut to its
-/// first 240 characters.
+/// first 240 characters ([`first_difference_shown`]'s oracle).
+#[cfg(test)]
 fn shown_pointer(pointer: &str) -> String {
     match pointer {
         "" => "/".to_string(),
@@ -1092,6 +1191,81 @@ fn shown_pointer(pointer: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// The comparison as it was written before Codex round 1 at #1682 (one
+    /// pointer buffer, grown and truncated per level): the oracle of
+    /// [`first_difference`] and [`first_difference_shown`].
+    fn difference_oracle(expected: &Value, found: &Value) -> Option<String> {
+        fn at(expected: &Value, found: &Value, pointer: &mut String) -> bool {
+            match (expected, found) {
+                (Value::Object(expected), Value::Object(found)) => {
+                    let keys: BTreeSet<&String> = expected.keys().chain(found.keys()).collect();
+                    for key in keys {
+                        let length = pointer.len();
+                        pointer.push('/');
+                        pointer.push_str(&pointer_token(key));
+                        let differs = match (expected.get(key), found.get(key)) {
+                            (Some(expected), Some(found)) => at(expected, found, pointer),
+                            _ => true,
+                        };
+                        if differs {
+                            return true;
+                        }
+                        pointer.truncate(length);
+                    }
+                    false
+                }
+                (Value::Array(expected), Value::Array(found)) => {
+                    for index in 0..expected.len().max(found.len()) {
+                        let length = pointer.len();
+                        pointer.push('/');
+                        pointer.push_str(&index.to_string());
+                        let differs = match (expected.get(index), found.get(index)) {
+                            (Some(expected), Some(found)) => at(expected, found, pointer),
+                            _ => true,
+                        };
+                        if differs {
+                            return true;
+                        }
+                        pointer.truncate(length);
+                    }
+                    false
+                }
+                (Value::Number(expected), Value::Number(found)) => !numbers_equal(expected, found),
+                _ => expected != found,
+            }
+        }
+        let mut pointer = String::new();
+        at(expected, found, &mut pointer).then_some(pointer)
+    }
+
+    /// The stack-held comparison reports the pointer the buffered one did, in
+    /// full and as a refusal shows it, for differences at the root, in
+    /// members present on one side only, in arrays of unequal length, in
+    /// escaped and multi-byte keys, and below a pointer longer than the 240
+    /// characters a refusal shows.
+    #[test]
+    fn first_difference_matches_the_buffered_comparison() {
+        let long = format!("k~/é{}", "x".repeat(300));
+        let deep = |leaf: Value| json!({"a": [{"b~/c": {"é": {long.as_str(): [0, 1, {"z": leaf}]}}}]});
+        let cases = [
+            (json!(1), json!("1")),
+            (json!(5), json!(5.0)),
+            (json!({"a": 1}), json!({"b": 1})),
+            (json!({"a": [1, 2]}), json!({"a": [1, 2, 3]})),
+            (json!({"a~b": {"c/d": true}}), json!({"a~b": {"c/d": false}})),
+            (deep(json!(1)), deep(json!(2))),
+            (deep(json!({"x": 1})), deep(json!({"x": 1, "y": 2}))),
+            (deep(json!(null)), deep(json!(null))),
+            (json!({"é": "x".repeat(10)}), json!({"é": "x".repeat(10)})),
+        ];
+        for (expected, found) in cases {
+            let oracle = difference_oracle(&expected, &found);
+            assert_eq!(first_difference(&expected, &found), oracle);
+            assert_eq!(first_difference_shown(&expected, &found), oracle.as_deref().map(shown_pointer));
+        }
+        assert!(first_difference_shown(&deep(json!(1)), &deep(json!(2))).unwrap().ends_with('\u{2026}'));
+    }
 
     const VECTORS: &str = include_str!("../../../../fixtures/reports/invented/user_release_derivation_vectors.json");
     const MODEL: &str = include_str!("../../../../fixtures/model_operations/precision_connected_ui_model.json");

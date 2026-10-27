@@ -55,7 +55,11 @@
 //! Residual: the command's own working memory and its response serialization
 //! run under the held lease but are not separately bounded, except the report
 //! package save's working-memory term; wry/Tauri copies of the raw body made
-//! before the command runs are not ours to price (as for the solve start).
+//! before the command runs are not ours to price (as for the solve start). A
+//! command's error is converted by Tauri after the command returns and its
+//! lease is released; route `DREP-PACKAGE-USER-RELEASE-010`'s refusals are
+//! bounded to one diagnostic of fixed size for that reason
+//! (`report_package_save::bound_route_010_refusal`).
 
 use crate::ingress::{self, allocation_envelope, FieldRegion, IngressBound, RegionField, RegionStruct};
 use crate::memory_pool::{Lease, ResourceRefusal};

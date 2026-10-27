@@ -156,19 +156,39 @@ pub(crate) fn pointer_bound(text_bytes: u64) -> u64 {
 }
 
 /// The refusal formatting allowance of route 010's ingress lease (W-18b,
-/// DEL-08-01 Design `report-user-release.md` §2.7 "Cost"; Codex round 2 at
-/// #1673): the detection walks allocate nothing per level and build only the
-/// reported site, which the growth-plus-site bound covers; formatting the
-/// refusal from the site then holds, at once, the site's pointer, the
-/// refusal message ([`LibrarySite::refusal`], one buffer sized before it is
-/// written) and the save error built from it (its finding's detail and its
-/// joined message, each sized before written,
-/// `report_package_save::refused_sized`). The pointer is in the model or the
-/// request, so it is bounded by the longer text ([`pointer_bound`]); each of
-/// the four live strings is priced at its allocation envelope.
+/// DEL-08-01 Design `report-user-release.md` §2.5 "Refusals on route 010" and
+/// §2.7 "Cost"; Codex round 2 at #1673 and round 1 at #1682): every route-010
+/// check refuses at its first finding, and its walks allocate nothing per
+/// level and build only the reported site, which the growth-plus-site bound
+/// covers. Formatting one refusal then holds, at once, at most four strings
+/// each within one message of a pointer: for a library site, the site's
+/// pointer, the refusal message ([`LibrarySite::refusal`], one buffer sized
+/// before it is written) and the save error built from it (its finding's
+/// detail and its joined message, each sized before written,
+/// `report_package_save::refused_sized`); for the disposition screen's first
+/// finding (`report_package_save::screen_content_first`), the site's pointer,
+/// the diagnostic's path and message (the message may name the enclosing
+/// path or an `id`, each no longer than the pointer bound) and the joined
+/// message, which holds both and is priced as two. The pointer is in the
+/// model or the request, so it is bounded by the longer text
+/// ([`pointer_bound`]); each live string is priced at its allocation envelope.
+/// Bounding the refusal (`report_package_save::bound_route_010_refusal`)
+/// then adds at most `ROUTE_010_BOUNDED_REFUSAL_BYTES` beside it.
 pub(crate) fn refusal_formatting_bytes(request_bytes: u64, model_bytes: u64) -> u64 {
     let message = refusal_bytes(pointer_bound(request_bytes.max(model_bytes))).saturating_add(512);
-    crate::ingress::allocation_envelope(message).unwrap_or(u64::MAX).saturating_mul(4)
+    crate::ingress::allocation_envelope(message)
+        .unwrap_or(u64::MAX)
+        .saturating_mul(4)
+        .saturating_add(crate::report_package_save::ROUTE_010_BOUNDED_REFUSAL_BYTES)
+}
+
+/// `parts`, concatenated into one buffer sized before it is written.
+fn sized(parts: &[&str]) -> String {
+    let mut text = String::with_capacity(parts.iter().map(|part| part.len()).sum());
+    for part in parts {
+        text.push_str(part);
+    }
+    text
 }
 
 /// Why rule 1-3's refusal ended: a library site (the refusal message), or the
@@ -383,18 +403,22 @@ pub(crate) fn refuse_library_referenced(model: &Value, lease: &mut Lease) -> Res
 /// manifest records any active rule pack (or its `active_rule_packs` is not a
 /// list). The walk stops at the first entry ([`first_rule_pack_ref_member_site`]).
 pub(crate) fn refuse_rule_pack_referenced(model: &Value, input_manifest: &Value) -> Result<(), String> {
-    let refusal = |where_: &str| {
-        format!(
-            "{RULE_PACK_REFERENCED}: {where_}. A shareable report package does not yet carry rule-pack references or rule checks, so it cannot be saved for this model; its local private package is unaffected."
-        )
+    // Each refusal is written into one buffer sized before it is written: the
+    // site's pointer is the only part that grows (Codex round 1 at #1682).
+    const TAIL: &str = ". A shareable report package does not yet carry rule-pack references or rule checks, so it cannot be saved for this model; its local private package is unaffected.";
+    let refusal = |where_: &[&str]| {
+        let mut parts = vec![RULE_PACK_REFERENCED, ": "];
+        parts.extend_from_slice(where_);
+        parts.push(TAIL);
+        sized(&parts)
     };
     if let Some(pointer) = first_rule_pack_ref_member_site(model) {
-        return Err(refusal(&format!("the model's {pointer} is a rule-pack reference")));
+        return Err(refusal(&["the model's ", &pointer, " is a rule-pack reference"]));
     }
     match input_manifest.get("active_rule_packs") {
         Some(Value::Array(packs)) if packs.is_empty() => Ok(()),
-        Some(Value::Array(_)) => Err(refusal("the run's input manifest records an active rule pack (/active_rule_packs/0)")),
-        _ => Err(refusal("the run's input manifest has no active_rule_packs list")),
+        Some(Value::Array(_)) => Err(refusal(&["the run's input manifest records an active rule pack (/active_rule_packs/0)"])),
+        _ => Err(refusal(&["the run's input manifest has no active_rule_packs list"])),
     }
 }
 
@@ -413,9 +437,16 @@ pub(crate) fn refuse_private_classes(value: &Value, root: &str) -> Result<(), St
             .map(|class| (at.pointer(), class))
     });
     match found {
-        Some((pointer, class)) => Err(format!(
-            "{PRIVATE_CLASS}: {root}{pointer} is {class}, a private class that is not the user's project data; a shareable report package cannot carry it."
-        )),
+        // One buffer sized before it is written (Codex round 1 at #1682).
+        Some((pointer, class)) => Err(sized(&[
+            PRIVATE_CLASS,
+            ": ",
+            root,
+            &pointer,
+            " is ",
+            class,
+            ", a private class that is not the user's project data; a shareable report package cannot carry it.",
+        ])),
         None => Ok(()),
     }
 }
