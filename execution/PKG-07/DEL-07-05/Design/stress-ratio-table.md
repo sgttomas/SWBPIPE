@@ -218,6 +218,10 @@ listed after the ranked rows, in run order, with its reason, and never hidden. S
 it by magnitude with every other admitted outcome that has a computed value; the table reads the
 decision's "rank by magnitude otherwise" (§3.1) this way. Ratios and magnitudes are never mixed in
 one order, since a ratio has no unit. Incomplete and withheld outcomes stay pinned in either mode.
+HELP_HUMAN confirmed this reading on 2026-10-27: "Ordering: keep the built reading. In ratio mode
+both directions rank together by ratio, and rows without a ratio stay visible in run order; stress
+mode ranks by magnitude. That's what I meant, and a separate fallback section would change existing
+ordering for no gain."
 
 **Ties.** Equal keys put a failed outcome before a checked one, and then keep source order (run
 order for outcomes, result-row order for stress rows). 0 and -0 tie.
