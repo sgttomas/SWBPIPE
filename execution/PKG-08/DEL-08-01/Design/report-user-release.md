@@ -1,21 +1,53 @@
 # Per-report user release of the user's own project data (W-18b)
 
-**Basis:** `origin/main` at `c7f52fd12a` (2026-10-25), merged into this branch
-at `ad79d9d72f`. Every file:line citation is at that tree. At revision 3,
-`main` at `3027cf2f35` (W-15 slice b, #1608) was merged at `b2bc7e8a27`. Of
-the files cited here it changes only `docs/COMPLETENESS_MAP.md`, whose W-18
-row moved from :546 to :547 (§9), and `tools/hosted-ci-routing.json`, cited
-without a line; every other citation holds at both trees. Revision 2 reduced
-the design to the owner's scope R (§0), after Codex round 1 (three blocking,
-four should-fix) and round 2 (one blocking, three should-fix). Revision 3
-answers round 3 (one blocking, three should-fix, one non-blocking, and A7's
-wording). §7 says where each finding is resolved. Design before
-implementation; nothing here is built. This design records the mechanism by which a user can state,
-for one report, that they release their own project data for sharing. It
-records no release, and it records, implies or derives no acceptance,
-issuance, approval, compliance or lifecycle standing (F-PIP-3,
-`loop/LOOP_INIT.md:68-72`).
+**Basis:** `origin/main` at `2e4748eada` (2026-10-26). Revision 4. Every
+file:line citation is at that tree and relative to `projects/chirality-piping/`
+unless it names a root path. Revisions 1-3 were at `c7f52fd12a` and
+`3027cf2f35` (2026-10-25). Revision 2 reduced the design to the owner's scope R
+(§0), after Codex round 1 (three blocking, four should-fix) and round 2 (one
+blocking, three should-fix). Revision 3 answered round 3 (one blocking, three
+should-fix, one non-blocking, and A7's wording). §7 says where each finding is
+resolved. Design before implementation; nothing here is built. This design
+records the mechanism by which a user can state, for one report, that they
+release their own project data for sharing. It records no release, and it
+records, implies or derives no acceptance, issuance, approval, compliance or
+lifecycle standing (F-PIP-3, `loop/LOOP_INIT.md:90-94`).
 Standard claim fence applies (claims taxonomy per DEC-081).
+
+**Changed in revision 4.** The design was re-derived against main
+`2e4748eada`. Its decisions are unchanged except that §0 records one new
+decision, on exact-route results.
+- **Exact-route results (W-11 opening, #1648).** The owner opened the rendered
+  report and the report package to `pressure-2` and `pressure-source-1`
+  results, local private only. Route 010 therefore no longer inherits the
+  exact-route refusal from the local-private package. Under R it refuses
+  exact-route results with its own code,
+  `REPORT-USER-RELEASE-EXACT-ROUTE-NOT-ADMITTED`. The refusal applies in the
+  webview, at native admission and in the shared producer, and the reader
+  refuses such a package. This was a manager decision, confirmed by HELP_HUMAN
+  (§0). Changed: §0, §2.1, §2.2, §2.5, §2.8, §2.9, §3.4, §6, §8, §9, §10 and
+  Appendix A.
+- **The report display rule (#1655).** The derivation names the shared
+  functions it derives rows and the unit display summary with (§2.6).
+- **The Diagnostics binding (#1659).** The derivation's diagnostics use the
+  producer's `expected_report_diagnostics` (§2.6). Route 010 needs nothing
+  more, since R refuses exact routes.
+- **Object form (#1650, #1651).** Route 010's keyed checks follow the existing
+  object-form check (§2.5). Library rule 1 also counts a non-object
+  `library_ref` (§2.7).
+- **FR-REP-003 provenance (W-11 (c), #1639).** Since #1639 the renderer
+  refuses private record content outside `local_private`, and the owner ruled
+  "C1 b, C2 a". So the renderer must admit the released class under
+  `user_released_report` (§2.6, §4). The minimal input also leaves out the new
+  material, section and support provenance entries and the library
+  references (§2.6).
+- **W-11 custody digests (#1637).** §1 and §2.4 now state the native custody
+  record the solve-job registry keeps, and how route 010's attestation differs
+  from it.
+- **Citations.** Every file:line citation was re-checked against the new tree.
+  Where a cited fact changed, the text now says so.
+- **Appendix A.** Each Old was re-checked against main. A1, A10, A11 and A12
+  are re-derived, A14 is new and A13 has moved line (Appendix A).
 
 ## 0. Rulings
 
@@ -49,12 +81,38 @@ Standard claim fence applies (claims taxonomy per DEC-081).
   earlier) and records no release." Software release and issuance are owner
   acts. This mechanism records a *user's* statement of their own
   redistribution right for one report.
-- **Ruling 10A (owner, 2026-10-21):** exact-route results stay refused for
-  reports and the report package. W-11 opens them, separately. The user release
-  admits only what the local-private package admits (§3.4).
+- **Ruling 10A (owner, 2026-10-21):** exact-route results were to stay
+  refused for reports and the report package until W-11 opened them. At
+  revision 3 this design relied on that ruling: "The user release admits only
+  what the local-private package admits (§3.4)."
+  - **Changed since revision 3.** The owner has since opened the rendered
+    report and the report package to `pressure-2` and `pressure-source-1`
+    results, local private only. The opening ruling (2026-10-26) reads "My two
+    decisions are to approve your recommendations in both cases. Proceed
+    accordingly." The evidence ruling reads "#1648 I approve option A. For
+    FR-REP-003 I approve option D." Both are recorded in DEL-08-01 Design
+    `exact-route-report-sections.md` §0, and the opening merged in #1648
+    (`289bd8d546`).
+  - So the local-private package now admits exact-route results, and the
+    sentence quoted above no longer keeps them off route 010. Revision 4
+    withdraws it. The next item governs instead.
+- **Exact-route results under R.** This was a manager decision (2026-10-26),
+  made within scope R as the owner ruled it, and confirmed by HELP_HUMAN on
+  2026-10-26: "Your decision stands, no veto. Under R, route 010 refuses
+  exact-route results with its own named code at all three layers: webview,
+  native admission and producer. That keeps the outcome the owner approved for
+  R."
+  - The owner ruled R while exact routes were refused, so under R route 010
+    admits only a Current pressure-free (`preview-physics-2`) result.
+  - It refuses an exact-route result with
+    `REPORT-USER-RELEASE-EXACT-ROUTE-NOT-ADMITTED`. The refusal applies in the
+    webview (§2.2, §3.4), at native admission (§2.5 step 2a) and in the shared
+    producer (§2.8). The reader refuses such a package too (§2.9).
+  - Admitting exact-route results under user release returns to the owner
+    (§10).
 - **DEC-028 (owner, 2026-10-10):** "Close: one version". The package has one
-  version, 2.0.0 today (`report_package/src/lib.rs:75`); the reader refuses
-  every other version by name (`reader.rs:269-293`).
+  version, 2.0.0 today (`report_package/src/lib.rs:89`); the reader refuses
+  every other version by name (`reader.rs:281-305`).
 - **Owner, 2026-10-25 (W-18b decisions):** "I approve your recommended options
   for the three W-18b decisions." As relayed by HELP_HUMAN, the approved
   recommendations are:
@@ -94,8 +152,8 @@ your project data". No text uses "issued", "approved", "accepted",
 `standing` member is the constant `user_statement_of_data_rights_only` (§2.3).
 
 **What "the user's own project data" means here.** It is the content of the
-model this application solved in the current session, the result its own
-solver produced for that model, and the run record of that solve, as native
+model this application solved in the current session, the pressure-free result
+its own solver produced for that model, and the run record of that solve, as native
 admission binds and derives them (§2.5, §2.6). Under R the model carries no
 detectable library or rule-pack reference (§2.7).
 
@@ -111,23 +169,50 @@ does not prove it (§2.9).
 
 - **Every session value is private.** The report builder classifies the
   session, every component and every spring hanger as `private_project_data`
-  with `redistribution_status` `private_only` (`renderableReportInput.ts:121-132,178-194,258-273`).
+  with `redistribution_status` `private_only` (`renderableReportInput.ts:142-153,204-220,539-554`).
+  Since W-11 (c) (#1639), a material, section, component or support that
+  carries a `provenance_record` gets that record mapped in its place: privacy
+  is still `private_project_data`, but the record's own redistribution and
+  review statuses are copied (`mappedProvenanceRecord`, `:250-263`; W-11 design
+  §4.1).
 - **Two report surfaces, two contexts.**
   - The rendered-report panel renders under `public_report` (blocked for every
     session) or, with its own checkbox, `local_private`
-    (`RenderedReportPanel.tsx:79-80,237-245`). Its HTML save is a webview
-    `data:` download (`:359-375`) and its PDF is the browser print of the
-    derived view (`:376-383,399-408`), which the document itself says is not
-    hash-bound (`report_renderer/src/lib.rs:1299`). The native render command
-    is a pure renderer: it receives no model, no route evidence and no
-    screening (`src-tauri/src/lib.rs:1540-1566`).
+    (`RenderedReportPanel.tsx:84-85,253-261`). Its HTML save is a webview
+    `data:` download (`:377-393`) and its PDF is the browser print of the
+    derived view (`:394-401,417-426`), which the document itself says is not
+    hash-bound (`report_renderer/src/lib.rs:2131-2134`).
+  - For a pressure-free input, the native render command is a pure renderer.
+    It receives no model, no route evidence and no screening
+    (`render_calculation_report`, `src-tauri/src/lib.rs:1569-1584`, through
+    `report_render_exact::render_calculation_report_args_in`,
+    `report_render_exact.rs:94-117`). Since W-11 it first refuses a struct in
+    positional form (`check_object_form`, `:127-132`) and applies the
+    exact-identity step 0. An exact-route input must then be `local_private`
+    and is bound to the bytes its solve job delivered (W-11 design §3.6).
   - Save Report Package… renders under `local_private` only, with
-    `generatedAt: null` (`reportPackageRequest.ts:197-205`), through route
-    `DREP-PACKAGE-SAVE-009` (`reportRedactionProjector.ts:58-68`). The native
-    admission re-checks the evidence, binds the request, model and input-manifest
-    texts by SHA-256, screens dispositions in the request and the model, and binds
-    the context (`report_package_save.rs:591-662`): "caller evidence alone
-    admits nothing" (DEL-12-02 `ScopeOfWork.md:486`, REXC-OI-007).
+    `generatedAt: null` (`reportPackageRequest.ts:246-256`), through route
+    `DREP-PACKAGE-SAVE-009` (`reportRedactionProjector.ts:58-68`). Native
+    admission (`report_package_save.rs:764-860`) does the following:
+    - it re-checks the evidence;
+    - it refuses a positional struct (`check_request_object_form`, `:715-722`)
+      before any check that reads members by key;
+    - for an exact-route request, it binds the source and model to the job's
+      custody (`bind_exact_save_source`, `:733-761`);
+    - it binds the request, model and input-manifest texts by SHA-256;
+    - it screens dispositions in the request and the model, and binds the
+      context.
+
+    "caller evidence alone admits nothing" (DEL-12-02 `ScopeOfWork.md:486`,
+    REXC-OI-007).
+  - **Exact-route results are now admitted on both surfaces, local private
+    only** (W-11 opening, §0). The output policy admits them on
+    `rendered-report` and `report-package` (`EXACT_ADMITTED_SURFACES`,
+    `outputPolicy.ts:91-94`). The
+    package's Rust boundary admits `preview-physics-2`, `pressure-2` and
+    `pressure-source-1` (`report_package/src/document_form.rs:19`).
+    `reportPackageUnavailableReason` (`reportPackageRequest.ts:83-85`) refuses
+    only the retained routes.
 - **Context vocabulary.** Five contexts: `public_report`, `public_example`,
   `shared_model`, `downstream_tool`, `local_private`
   (`redactionExportControls.ts:17-22,127-133`; `controls.py:18-19`; schema
@@ -153,28 +238,33 @@ does not prove it (§2.9).
   round 2, blocking). A library-applied component's flexibility factor and SIF
   are model values that the solver consumes:
   - the curved-bend flexibility row carries the factor as its value
-    (`core/product_physics/src/lib.rs:13341-13343`);
+    (`core/product_physics/src/lib.rs:13486-13488`);
   - the user-multiplier row's basis carries the SIF, the flexibility and the
-    source reference (`:13245`);
+    source reference (`:13390`);
   - the intensified-bending rows carry the SIF and its source in their sign
     convention, contract evidence and diagnostics
     (`preview_physics.rs:687,696-698,700-705`).
 
   Codex cited these at `05ec850eca` as `lib.rs:13230` and
-  `preview_physics.rs:694`. The solve's own attestation reproduces them, so no
+  `preview_physics.rs:694` (at revision 3, `lib.rs:13341-13343,13245`). The solve's own attestation reproduces them, so no
   derivation check can tell a library value from a user-entered one once it is
   in the result.
 - **How a library apply marks the model.** Every apply writes a
-  `provenance_record.library_ref` (`libraryApply.ts:224`) and a library
+  `provenance_record.library_ref` (`libraryApply.ts:275`) and a library
   provenance string `library:<kind>:<library id>#<record id>`
   (`libraryProvenanceString`, `libraryApply.ts:81-83`). That string goes into
-  component source-reference strings (`:701-708`) and a hanger's `provenance`
+  component source-reference strings (`:752-759`) and a hanger's `provenance`
   text (`hangerSelection.ts:41-42,54-55`). The native save already walks every
-  `library_ref` at any depth (`export_disposition_screen::library_ref_sites`,
-  `export_disposition_screen.rs:263-319`), pinned to
-  `fixtures/model_document/library_ref_sites.json` with the webview's
+  `library_ref` at any depth (`export_disposition_screen::library_ref_sites`
+  over the one walk `walk_document`, `export_disposition_screen.rs:454-516`),
+  pinned to `fixtures/model_document/library_ref_sites.json` with the webview's
   `libraryRefSites` (`libraryImportService.ts:440`). The same walk visits every
-  `rule_pack_refs[]` entry (`:231-296`).
+  `rule_pack_refs[]` entry. Since W-17 object form (#1651) it also visits a
+  `provenance_record`, `rule_pack_refs` entry or `library_ref` that is not an
+  object, and the disposition screen refuses it on every route
+  (`MODEL-DISPOSITION-RECORD-MALFORMED`, `:398-404,485`). W-17's library
+  disposition change (#1653) refuses an unreadable disposition at apply
+  (`libraryApply.ts:99-146`). It writes no new library mark.
 - **How the hanger selection marked the model before W-17** (Codex round 3,
   blocking). From `46f3aed341` (2026-09-05) until `00af9112c0` (2026-10-23),
   the hanger selection wrote neither mark. It stored a support's `provenance`
@@ -183,26 +273,36 @@ does not prove it (§2.9).
   library_metadata, record_snapshot}` (`hangerSelection.ts:35-39,52` at
   `00af9112c0^`). A model saved in that period still carries it. Its hanger
   values reach genuine `spring_hanger_user_input_review` rows
-  (`core/product_physics/src/lib.rs:13429,13530`), and nothing current
-  detects their library origin. `core/library_import/README.md:45-51` still
+  (`core/product_physics/src/lib.rs:13574,13675`), and nothing current
+  detects their library origin. `core/library_import/README.md:49-55` still
   describes that form as current.
 - **Rule packs in the package.** A package names the rule packs of its
   rule-check run, and admission requires them to equal the solve's
-  `active_rule_packs` (`report_package_save.rs:572-588`;
-  `reportPackageRequest.ts:210`). The session's analysis record composes the
-  rule-check aggregate into its status (`previewService.ts:565-581`). Since W-17
+  `active_rule_packs` (`report_package_save.rs:684-700`;
+  `reportPackageRequest.ts:261`). The session's analysis record composes the
+  rule-check aggregate into its status (`previewService.ts:584-600`). Since W-17
   (#1629), outcomes are per check and load case or combination, with an
   optional `basis_ref` on `UserRuleCheckOutcome`
-  (`report_renderer/src/lib.rs:129-162`; `renderableReportInput.ts:451-474`).
+  (`report_renderer/src/lib.rs:132-165`; `renderableReportInput.ts:732-755`).
 - **Solve custody.** The host never materializes the solved model: the worker
-  process does (`src-tauri/src/solve_jobs.rs:1-41`; `solve_worker.rs:293-298`).
-  The worker returns the producer's exact bytes, which are serde's
-  serialization, not RFC 8785 (`lib.rs:1828-1836`). The host retains them until
-  the webview takes them, and releases them on disposal
-  (`solve_jobs.rs:668-800`); nothing native records afterwards which result
-  was produced for which model. The webview's Current export requires a
-  captured native invocation for the result (`hasNativeMechanicsInvocation`,
-  `resultExportAdapter.ts:294`), which is a webview check.
+  process does (`src-tauri/src/solve_jobs.rs:1-55`; `ordinary_solve`,
+  `solve_worker.rs:465-472`). The worker returns the producer's exact bytes,
+  which are serde's serialization, not RFC 8785 (`lib.rs:1894-1906`). The host
+  retains them until the webview takes them, and releases them on disposal
+  (`solve_jobs.rs:722-914`).
+  - **Changed since revision 3 (W-11 (b), #1637).** Each job now records
+    custody digests: the SHA-256 of the raw model body it admitted and of its
+    result bytes, with the admitted solver mode. That is 65 bytes per job,
+    hashed in place (`solve_jobs.rs:37-50,227-248`). `custody_binding` returns
+    them only while the delivered result's custody lease is held
+    (`:759-770`), and they are released with custody. The exact-route render
+    and save bind resubmitted texts to them (W-11 design §3.6).
+  - They are digests of raw bytes, not of canonical values. Once custody
+    ends, nothing native records which result was produced for which model
+    (§2.4 says how route 010's attestation differs).
+  - The webview's Current export requires a captured native invocation for
+    the result (`hasNativeMechanicsInvocation`, `resultExportAdapter.ts:294`),
+    which is a webview check.
 - **Native pieces R can reuse unchanged.**
   - `canonical_json::checked_v1_domain_canonical` with `ByteSink` streams a
     domain-separated canonical form into a hasher without holding the text
@@ -212,24 +312,41 @@ does not prove it (§2.9).
   - Record Run's binding checks of a transient analysis record against its
     result and input manifest (`analysis_runs::checked_submission`,
     `analysis_runs.rs:634-782`).
-  - The producer's report-row projection, already derived natively
-    (`report_package::bindings::expected_report_result_rows`, item 6,
-    `bindings.rs:448-452`; vectors `fixtures/reports/invented/report_result_rows_parity.json`).
+  - The producer's report projections of a source, already derived natively
+    (`report_package/src/bindings.rs`):
+    - the report rows, `expected_report_result_rows` (item 6, `:129-167`;
+      vectors `fixtures/reports/invented/report_result_rows_parity.json`).
+      Since #1655 its value text is the report's display rule,
+      `quantity_display::display_quantity` (`quantity_display.rs:41-44`): six
+      significant digits, and a value stored in `Pa` shown in `MPa`
+      (vectors `report_quantity_display_parity.json`, mirrored by
+      `reportQuantityDisplay.ts`);
+    - the full-precision row checksums, `check_report_result_refs`
+      (`:177-191`);
+    - the unit display summary, `check_unit_display_summary` (`:199-207`),
+      with `QUANTITY_DISPLAY_POLICY` and
+      `quantity_display::source_displays_scaled_value`
+      (`quantity_display.rs:28,54-67`);
+    - since #1659, the report's projection of the source's diagnostics,
+      `expected_report_diagnostics` (`:234-274`; vectors
+      `report_diagnostics_parity.json`). `check_report_diagnostics`
+      (`:289-305`) applies it on the exact route only.
 - **The package and its reader.**
   - The manifest's fields are fixed by the version except `package_id`,
     `export_profile_id`, the source references and the diagnostics
-    (`lib.rs:643-734`).
+    (`lib.rs:667-758`).
   - Its third boundary note reads "No timestamps or generated identifiers are
     recorded anywhere in this package; identical inputs produce identical
-    bytes." (`lib.rs:722-723`).
+    bytes." (`lib.rs:746-747`).
   - The reader rebuilds the manifest from those fields and refuses any
-    difference (`reader.rs:221-240`).
+    difference (`reader.rs:233-252`).
   - The writer blocks a package without a state/comparison/handoff member
-    (`lib.rs:255-259`), the producer requires exactly one handoff record set
-    (`bindings.rs:320`), and the reader refuses an unblocked package without
-    one (`reader.rs:960-967`).
+    (`lib.rs:279-283`), the producer requires exactly one handoff record set
+    (`bindings.rs:488`), and the reader refuses an unblocked package without
+    one (`reader.rs:976-983`; since W-11 it also requires a result member
+    there).
   - The reader's role forms fix member order, not member count
-    (`reader.rs:766-780`), so it admits more than one result member.
+    (`reader.rs:778-792`), so it admits more than one result member.
 - **What is missing.** A runtime way for the user to record, for one report, the
   basis `docs/IP_AND_DATA_BOUNDARY.md:99` names: "unless a user intentionally
   exports or contributes it with documented redistribution rights".
@@ -245,7 +362,7 @@ Its members, in archive order after the manifest, are exactly these:
 |---|---|---|---|
 | `calculation_report.html`, `calculation_report.pdf` | one each | The rendering of the minimal native renderer input (§2.6): the title; the model summary (project name and id, units, model hash, input-manifest reference, display policy); the load cases (id, label, kind); the result rows (the five-field projection of every `results` row of the solve, its review rows included, such as a spring hanger's `spring_hanger_user_input_review` rows); the solve's diagnostics; the analysis-status disclosures; the fixed technical-preview limitation; the run context (software, solver identity, mode and settings, run name); the record and the notice | Rule-pack references; user-rule outcomes; component and spring-hanger provenance entries; dedicated per-object hanger quantity entries; numerical-health rows; the local persistence reference (always `TBD`); a generation time and a run recording time (not recorded) |
 | `audit_manifest.json` | one | Its id (the input-manifest reference); the model and input-manifest hash records; the solver identity; the unit-system reference; `rule_pack_refs: []`; `assets: []`; the boundary constants | Any rule-pack reference; any asset |
-| `result_export_<envelope>.json` | exactly one | The DEL-08-04 0.3.0 document that native admission derives from the bound model, the attested solve, the run record and the input manifest (§2.6) | A second result member |
+| `result_export_<envelope>.json` | exactly one | The DEL-08-04 0.3.0 document of a pressure-free (`preview-physics-2`) result, which native admission derives from the bound model, the attested solve, the run record and the input manifest (§2.6) | A second result member; an exact-route (`pressure-2`, `pressure-source-1`) document (§0) |
 | State/comparison/handoff record set | none | — | The member itself: no state/run, comparison or handoff section |
 | `package_manifest.json` | one | The fixed fields; `package_id` `desktop-user-released-report-<run>`; the profile `desktop_user_released_report_package_1`; the source references; the producer's diagnostics; the record with its `content_binding`; the user-released boundary notes (§5.3) | — |
 
@@ -265,8 +382,10 @@ rule-pack payload or library record (W-18a design §2.2, "Not a member").
 - the result was not produced by this session's solver for that model, or its
   attestation has been evicted (§2.4);
 - any request member differs from its native derivation (§2.6);
-- or any existing refusal applies: an exact route, a blocked disposition, the
-  protected-content linter (§3.4).
+- the result is an exact-route result (`pressure-2` or `pressure-source-1`):
+  `REPORT-USER-RELEASE-EXACT-ROUTE-NOT-ADMITTED` (§0, §3.4);
+- or any existing refusal applies: a retained route, a positional struct, a
+  blocked disposition, the protected-content linter (§3.4).
 
 **The W-17 constraint.** R carries no rule-check outcome, in any shape. The run
 record it admits carries the solve's own rule status, not a rule-check
@@ -280,11 +399,11 @@ Save Report Package…'s route, and the package's HTML and PDF members carry it.
 The standalone rendered report (panel HTML save and Print / PDF) is not offered
 a user release in W-18b (O-C, as recommended). Reasons, from current code:
 - the standalone HTML save and the print view are webview sinks with no native
-  admission (`RenderedReportPanel.tsx:359-383`), and the render command
-  receives no model or evidence (`src-tauri/src/lib.rs:1553-1566`), so a
+  admission (`RenderedReportPanel.tsx:377-401`), and for a pressure-free input the render
+  command receives no model or evidence (`src-tauri/src/lib.rs:1569-1613`), so a
   standalone release would rest on caller evidence alone, which REXC-OI-007
   forbids for this class of route;
-- the PDF is a derived, non-hash-bound view (`report_renderer/src/lib.rs:1299`),
+- the PDF is a derived, non-hash-bound view (`report_renderer/src/lib.rs:2131-2134`),
   so a record in it could not be bound to the bytes the user shares;
 - HELP_HUMAN's ruling names the package manifest record, which only the
   package has.
@@ -294,17 +413,17 @@ member; each member carries the notice and the bound identities (§5.1).
 
 **The controls.**
 - In the rendered-report panel's package controls
-  (`RenderedReportPanel.tsx:252-274`), a second button after
+  (`RenderedReportPanel.tsx:268-290`), a second button after
   "Save Report Package…": **"Save Shareable Report Package…"**
   (`data-testid="report-package-user-release"`), enabled under the same
-  conditions as the local-private save (`:267`).
+  conditions as the local-private save (`:283`).
 - In the File menu, after "Save Report Package…" (`App.tsx:1253`; native menu
-  `src-tauri/src/lib.rs:4396`): **"Save Shareable Report Package…"**, command
+  `src-tauri/src/lib.rs:4467`): **"Save Shareable Report Package…"**, command
   id `file.save-shareable-report-package`, disabled exactly when
   `file.save-report-package` is.
 - Both open one dialog, `apps/desktop/src/features/report/UserReleaseDialog.tsx`.
   The local-private checkbox "Include known private values in this local
-  package" (`RenderedReportPanel.tsx:254-263`) is not read by this route and
+  package" (`RenderedReportPanel.tsx:270-279`) is not read by this route and
   keeps its meaning.
 
 **The dialog** (pattern: `HandoffSaveDialog.tsx`, `role="dialog"`,
@@ -321,8 +440,9 @@ close it and discard the selection. Exact proposed wording:
 >   {first 12 hex}…), run {run id}.
 > - It carries the model summary, the load cases and this solve's results. It
 >   carries no rule-pack reference, user-rule outcome or run comparison.
-> - It needs a result solved in this session. A model with a library or
->   rule-pack reference cannot be shared this way.
+> - It needs a pressure-free result solved in this session. An exact-route
+>   result, and a model with a library or rule-pack reference, cannot be
+>   shared this way.
 > - The application checks this model only for library and rule-pack marks.
 >   It cannot tell where any other value came from, so your statement below
 >   covers every value in this report.
@@ -342,6 +462,12 @@ or a rule pack. Shareable packages do not yet carry library record values or
 rule-pack checks, so a shareable package cannot be saved for this model. Its
 local private package is unaffected." The save button stays disabled.
 
+When the user-release cell refuses an exact-route result (below), the dialog
+shows, in place of the checkbox: "This result is from an exact pressure route
+(pressure-2 or pressure-source-1). Shareable packages do not yet carry
+exact-route results, so a shareable package cannot be saved for this result.
+Its local private package is unaffected." The save button stays disabled.
+
 The save button is disabled until the checkbox is ticked. The checkbox starts
 unticked every time the dialog opens.
 
@@ -350,17 +476,40 @@ control) plus a statement of the redistribution right (ticking the statement),
 then the save. Confirming starts the save at once; the confirmation is one
 argument of that one save (§2.3, "Session").
 
-**Exact routes stay refused.** The dialog's controls are disabled whenever
-`reportPackageUnavailableReason` refuses (`reportPackageRequest.ts:60-62`), and
-the save goes through the same output-policy cell and producer admission as the
-local-private package (§3.4). Ruling 10A stands; W-11 is separate.
+**Exact routes are refused on this route (§0).** The package's own cell,
+`reportPackageUnavailableReason` (`reportPackageRequest.ts:83-85`), admits
+exact-route results since the W-11 opening, so the dialog reads a cell of its
+own, `userReleasedReportPackageUnavailableReason(result)` in
+`reportPackageRequest.ts`:
+- the package cell's refusal, when it refuses (the retained routes);
+- else, for a result that `isExactReportSource` recognizes
+  (`exactReportSections.ts:68`),
+  `REPORT-USER-RELEASE-EXACT-ROUTE-NOT-ADMITTED: a shareable report package
+  carries pressure-free (preview-physics-2) results only; this exact-route
+  result can be saved in a local private package.`;
+- else null.
+
+`OUTPUT_POLICY` gains no surface and no cell changes, so every other surface's
+decision is unchanged. `buildUserReleasedReportPackageRequest` applies the same
+cell first. Its document identity check, the form of
+`assembleReportPackageRequest`'s (`reportPackageRequest.ts:230-234`), admits
+`preview-physics-2` only, not `REPORT_PACKAGE_ADMITTED_CONTRACT_IDS` (`:57`).
+Native admission
+(§2.5 step 2a) and the producer (§2.8) refuse the same results, and the reader
+refuses such a package (§2.9). The webview check is early; native admission
+decides.
 
 ### 2.3 The record
 
 **Form.** One JSON object, key `user_release`. Every member is required; no
 other member is admitted (`deny_unknown_fields` in Rust, an exact key check in
 TypeScript and at the reader). Hex values are 64 lowercase hexadecimal
-characters.
+characters. The record is a typed member of the renderer input (below), so the
+shared object-form check covers it. That check is
+`report_renderer::object_form::report_positional_struct_path`
+(`object_form.rs:485`, #1650). It refuses a record written in positional
+(array) form at the native render, the native save and the producer, before
+any check that reads its members by key.
 
 | Member | Type | Value |
 |---|---|---|
@@ -370,7 +519,7 @@ characters.
 | `statement_basis` | string, constant | `docs/IP_AND_DATA_BOUNDARY.md §6: a user intentionally exports their own data with documented redistribution rights` |
 | `standing` | string, constant | `user_statement_of_data_rights_only` |
 | `scope.scope_kind` | string, constant | `this_report_only` |
-| `scope.report_id` | string | `report:<analysis_run_ref>`, which is the report's `calculation_report.report_id` (`renderableReportInput.ts:597`) |
+| `scope.report_id` | string | `report:<analysis_run_ref>`, which is the report's `calculation_report.report_id` (`renderableReportInput.ts:913`) |
 | `scope.package_id` | string | the request's `package_id`, `desktop-user-released-report-<run>` |
 | `scope.released_data_class` | string, constant | `private_project_data` |
 | `scope.not_carried` | array of strings, constant | `["rule_pack_references", "user_rule_outcomes", "run_comparisons", "handoff_records", "library_records", "audit_assets"]` |
@@ -406,31 +555,32 @@ plus the hash of every member it covers.
 **The three hashes, precisely.**
 - **Model document SHA-256** (`model_document_sha256`): SHA-256 over the RFC
   8785 (JCS) bytes of the session model, as `canonicalSha256Hex(model)`
-  computes it (`reportPackageRequest.ts:213`). It is the same value as:
-  - the request's `audit_manifest.model_hash.value` (`:231-237`);
+  computes it (`reportPackageRequest.ts:264`). It is the same value as:
+  - the request's `audit_manifest.model_hash.value` (`:282-288`);
   - the result document's `reproducibility.model_hash.value` (bound equal by
-    `bindings.rs:229-241`);
-  - the native SHA-256 of `modelCanonicalText` (`report_package_save.rs:613`).
+    `bindings.rs:408-420`);
+  - the native SHA-256 of `modelCanonicalText` (`report_package_save.rs:811`).
 - **Result-set identity** (`result_envelope_id` and
   `result_document_derivative_sha256`): the DEL-08-04 0.3.0 document's
   envelope id and its derivative hash, SHA-256 over the RFC 8785 bytes of the
   document without its own hash (`resultExportAdapter.ts:153`).
   - The producer verifies that hash (`document_form::check_self_hash`), and
-    the reader re-verifies it for every result member (`reader.rs:927-940`).
+    the reader re-verifies it for every result member (`reader.rs:941-942`;
+    `document_form::check_result_member_form`, `document_form.rs:282-286`).
   - The derivative hash, not the member's byte hash, is chosen because it is
     the document's own recorded identity and is known before the report is
     built. `content_binding` records the member's byte hash.
 - **Audit-manifest input-manifest hash** (`input_manifest_sha256`): the
   request's `audit_manifest.input_manifest_hash.value`
-  (`reportPackageRequest.ts:238-244`), which native admission binds to the
-  SHA-256 of `inputManifestCanonicalText` (`report_package_save.rs:624-631`).
+  (`reportPackageRequest.ts:289-295`), which native admission binds to the
+  SHA-256 of `inputManifestCanonicalText` (`report_package_save.rs:822-829`).
   `input_manifest_ref` is that hash record's `payload_ref`, which admission
-  binds to the session's reference (`:645-652`).
+  binds to the session's reference (`:843-850`).
 
 **Where it is written.**
 1. `report.report_context.user_release` in the request, from which the
    renderer emits it into the HTML and PDF members (§5.1). The Rust
-   `ReportContext` (`report_renderer/src/lib.rs:100-115`) gains
+   `ReportContext` (`report_renderer/src/lib.rs:103-118`) gains
    `#[serde(default)] pub user_release: Option<UserReleaseRecord>`.
 2. The package manifest's top-level `user_release`, written by the writer as
    the typed `report_context.user_release` plus `content_binding` (one source
@@ -438,22 +588,24 @@ plus the hash of every member it covers.
    from every package without a user release.
 3. The save receipt gains `user_release_recorded: bool` and
    `user_release_model_document_sha256: String` ("" when not recorded), shown
-   in the panel's status line (`RenderedReportPanel.tsx:288-306`).
+   in the panel's status line (`RenderedReportPanel.tsx:304-322`).
 
 **Session.** The selection lives only in the dialog's React state and in the
 argument of the one save it starts:
 `handleSaveShareableReportPackage({ releasedAt })`, beside
-`handleSaveReportPackage` (`workspaceSession.ts:2869-2947`).
+`handleSaveReportPackage` (`workspaceSession.ts:2976-3062`).
 - Its basis is the same basis without `comparison`, `comparisonUnavailable`,
   `projectSummary`, `ruleCheckAggregate`, `ruleCheckRun` and `privateIntent`,
   and the builder computes every bound value from that basis (§2.6).
 - The run record it sends is the solve's own transient record, built by
   `buildAnalysisRunPreview(result, { inputManifest })` with no rule-check
-  aggregate (`previewService.ts:565-581`), not the session's composed record.
+  aggregate (`previewService.ts:584-600`), not the session's composed record.
+  Its `rulePackExclusions` are empty, since route 010 refuses every model with a
+  rule-pack reference (§2.7).
 - Nothing is written to session state that outlives the save, to the SQLite
   project, to the model document, or to any session snapshot.
 - The dialog's open flag joins the modal guards of `runMenuCommand`
-  (`workspaceSession.ts:2955`).
+  (`workspaceSession.ts:3070`).
 - If any basis member changes while the dialog is open, the dialog closes, and
   the next attempt needs a new confirmation.
 
@@ -465,9 +617,9 @@ members, not that a solver produced them. So the host records what its own
 solver produced. There is no rule-check attestation under R.
 
 **In the worker** (`solve_worker.rs`, and the solve wrapper
-`solve_preview_mechanics_with_mode`, `lib.rs:1828-1836`):
+`solve_preview_mechanics_with_mode`, `lib.rs:1898-1906`):
 - before the solve, over the model value the worker has already materialized
-  (`solve_worker.rs:293-298`): `d_M`, the SHA-256 of
+  (`ordinary_solve`, `solve_worker.rs:467-472`): `d_M`, the SHA-256 of
   `checked_v1_domain_canonical("openpipestress.user_release.solved_model.v1", model)`;
 - after `run_linear_static_preview_value_with_mode` returns the result value
   (unchanged), and before it is serialized: `d_S`, the same over
@@ -484,11 +636,28 @@ parent reads it into a fixed 64-byte buffer. An `ATST` anywhere else, a second
 one, or another status or body length is a protocol violation, and the job
 fails as any protocol violation does today.
 
-**In the registry.** On publication (`solve_jobs.rs:668`), the registry records
-`{ job_id, solver_mode, d_M, d_S }` in a bounded session table of the
-`MAX_ATTESTED_SOLVES` (32) most recent attested solves, evicting the oldest.
-`dispose_all_results` (`:784`, page load) clears it. It is never persisted and
-never sent to the webview.
+**In the registry.** On publication (`publish`, `solve_jobs.rs:722`), the
+registry records `{ job_id, solver_mode, d_M, d_S }` in a bounded session table
+of the `MAX_ATTESTED_SOLVES` (32) most recent attested solves, evicting the
+oldest. `dispose_all_results` (`:879`, page load) clears it. It is never
+persisted and never sent to the webview. The table is separate from the job
+records' custody digests (§1, below): it is not pruned with a record and not
+released with custody.
+
+**How this differs from W-11's custody digests (revision 4).** Since #1637 the
+registry keeps a native record of what each job received and delivered (§1).
+Route 010 does not bind to it. The two records differ in two ways:
+- **What they digest.** The custody digests are SHA-256 over raw bytes. A
+  check against them needs the webview to resubmit the exact delivered and
+  intake texts, and the host to parse those texts under a priced lease
+  (W-11 design §3.6 steps 1-3). The attestation digests canonical values, so
+  admission compares them over the M and S it already parses.
+- **How long they last.** The custody binding ends when the webview disposes
+  its copy of the result. The attestation table keeps the 32 most recent
+  attested solves until page load.
+
+This design keeps the attestation that §0 names ("Solve attestation") and the
+(r2a) slice as designed.
 
 **At admission** (route 010), admission computes the same two digests, by the
 same streaming function, over the model value M and the request's
@@ -508,7 +677,8 @@ user-visible condition is the same; native admission now enforces it.
 
 **What solve attestation costs.**
 - **Worker transport:** one frame tag (`worker_alloc.rs:63-79`) and a 64-byte
-  body, read by the supervisor before `RSLT` (`solve_worker.rs:720-766`), and
+  body, read by the supervisor before `RSLT` (its `RSLT` arm,
+  `solve_worker.rs:1037-1090`), and
   the protocol text of `solve_worker.rs:10-25`.
 - **DEL-04-07 memory accounting:**
   - The worker's two passes allocate only transient pieces in its counted
@@ -563,14 +733,30 @@ design. The worker already holds both values.
 
 ### 2.5 Native admission on route 010
 
-`admit_report_package` (`report_package_save.rs:591-662`). The command stays
-`save_report_package`; the route id in the evidence selects the branch. Every
-existing check runs on both routes in its current order. Route 010 adds these,
-in this order:
+`admit_report_package` and `admit_report_package_in`
+(`report_package_save.rs:764-860`). The command stays `save_report_package`;
+the route id in the evidence selects the branch. Every existing check runs on
+both routes in its current order. Since #1648 and #1650 that order is:
+- the evidence and the text sizes (the exact texts included);
+- the evidence's payload hash;
+- the request's parse;
+- the object-form check (`check_request_object_form`, `:715-722`);
+- for an exact-route request, the native source binding
+  (`bind_exact_save_source`, `:733-761`);
+- the model and input-manifest bindings;
+- the disposition screens and the context;
+- the input-manifest reference and the rule-pack agreement;
+- the typed conversion and the shared producer.
 
-1. **Evidence** (`validate_report_package_save_evidence`, `:294-328`).
-   `ReportPackageSaveScreening` (`:110-125`, `deny_unknown_fields`) and
-   `ReportPackageLocalFirstEvidence` (`:130-139`) gain
+Route 010 adds the steps below, in this order. Every one of them that reads a
+member by key runs after the object-form check, as the existing keyed checks
+do. The run-record text (step 2) has no struct decoder and is read by key
+only, so it needs no object-form comparison, as the request's untyped members
+need none (`report_package/src/wire.rs:46-55`).
+
+1. **Evidence** (`validate_report_package_save_evidence`, `:327-361`).
+   `ReportPackageSaveScreening` (`:127-142`, `deny_unknown_fields`) and
+   `ReportPackageLocalFirstEvidence` (`:147-156`) gain
    `#[serde(default)] explicit_user_release_intent: bool`.
    - Route 009: unchanged, plus `explicit_user_release_intent` false, and no
      `analysisRunCanonicalText` argument.
@@ -583,8 +769,16 @@ in this order:
    adds `analysisRunCanonicalText`, the solve's DEL-14-02 0.3.0 transient
    record. It must be its own canonical text, within
    `MAX_ANALYSIS_RUN_TEXT_BYTES` (one model-document cap), and priced in the
-   command's ingress lease as the input-manifest text is.
-3. **Context** (`check_context`, `:451-491`).
+   command's ingress lease as the input-manifest text is. Route 010 carries no
+   exact texts (`exact_result_text`, `exact_intake_text`; step 2a).
+2a. **Exact routes (§0).** This step runs directly after the object-form check
+   and before the exact source binding. A route-010 request is refused with
+   `REPORT-USER-RELEASE-EXACT-ROUTE-NOT-ADMITTED` when `exact_request` holds,
+   that is, when the result document has an exact identity or the report
+   carries a non-null `exact_route` (`:724-729`). It is refused the same way
+   when it carries either exact text. No custody is queried, no exact text is
+   parsed, and the lease does not grow. Route 009 is unchanged.
+3. **Context** (`check_context`, `:563-603`).
    - Route 009: unchanged, plus `/report/report_context/user_release` absent,
      else `REPORT-USER-RELEASE-NOT-THIS-ROUTE`.
    - Route 010: `export_context` `user_released_report`, profile
@@ -598,11 +792,11 @@ in this order:
    field alone; any inequality is `REPORT-USER-RELEASE-UNBOUND`, naming the
    member:
    - `model_document_sha256` = `model_hex`, the SHA-256 of the model text
-     admission received (`:613`);
+     admission received (`:811`);
    - `model_ref` = the model text's `/project/id` = `/source_model_ref/ref_id`;
-   - `input_manifest_sha256` = `input_manifest_hex` (`:624`), and
+   - `input_manifest_sha256` = `input_manifest_hex` (`:822`), and
      `input_manifest_ref` = the reference admission derives
-     (`analysis_runs::input_manifest_ref`, `:645`);
+     (`analysis_runs::input_manifest_ref`, `:843`);
    - `analysis_run_ref` = `/source_results/0/run_id`;
    - `result_envelope_id` and `result_document_derivative_sha256` =
      `/result_documents/0/result_envelope/envelope_id` and
@@ -632,7 +826,7 @@ in this order:
    Route 010 adds:
    - `analysis_status` is exactly `HUMAN_REVIEW_REQUIRED`, S's
      `status.mechanics` and S's own `status.rule_check`, so no rule-check
-     aggregate (`previewService.ts:579`);
+     aggregate (`previewService.ts:598`);
    - `run_name`, `unresolved_tbd` and `professional_boundary` are the
      builder's values (`analysisRunCompatibility.ts:192-206`).
 
@@ -643,8 +837,9 @@ in this order:
    `REPORT-USER-RELEASE-CONTENT-NOT-DERIVED`, naming the first differing JSON
    pointer.
 10. **Unchanged, on both routes:**
-    - the disposition screens (`screen_content`, `:412-448`);
-    - the rule-pack agreement (`:572-588`), whose two sides are both empty on
+    - the object-form check (`:715-722`);
+    - the disposition screens (`screen_content`, `:524-560`);
+    - the rule-pack agreement (`:684-700`), whose two sides are both empty on
       route 010 after step 5;
     - the shared producer (§2.8).
 
@@ -658,10 +853,10 @@ the bound basis and requires canonical equality. A new module,
 `report_package` is outside `core/product_physics`'s closure.
 
 **The bound basis:**
-- **M**, the model text (SHA-256-bound and screened, `report_package_save.rs:613,412-448`);
+- **M**, the model text (SHA-256-bound and screened, `report_package_save.rs:811,524-560`);
 - **S**, the source carrier, attested for M (§2.4), with its attested solver
   mode **m**;
-- **I**, the input-manifest text (bound, `:624-652`);
+- **I**, the input-manifest text (bound, `:822-850`);
 - **R**, the run record (checked, §2.5 step 8);
 - **H**, the host's own software identity (`app.package_info()`, already
   checked by `check_context`);
@@ -671,7 +866,7 @@ the bound basis and requires canonical equality. A new module,
 - **Input manifest.** I must canonically equal the manifest
   `buildCurrentSessionInputManifest` builds (`inputManifestService.ts:75-129`).
   It is built from M, S's producer and m, with the solve's fixed settings for m
-  (`workspaceSession.ts:1021-1035`), `active_rule_packs: []` and
+  (`workspaceSession.ts:1048-1062`), `active_rule_packs: []` and
   `external_assets: []`. The store state at solve time is not re-read; step 5
   has already refused any model with a rule-pack reference.
 - **Result document.** `derive_document(base, M, S, origin, None)`
@@ -681,20 +876,50 @@ the bound basis and requires canonical equality. A new module,
   from M, S, R and I.
 - **Renderer input** (the minimal native renderer input):
   - `report_title`: `{M.project.name} — Calculation Report`;
-  - `calculation_report`: as the builder writes it (`renderableReportInput.ts:596-672`),
+  - `calculation_report`: as the builder writes it (`renderableReportInput.ts:912-988`),
     with:
     - the persistence reference `TBD`;
     - `rule_pack_refs: []`;
     - the project and model references, model hash and load-case summary
       (id, label, kind) from M;
-    - the display summary's result units from S;
-    - the result references and row checksums, the two audit references, the
-      analysis status and the unresolved TBDs from R;
+    - the unit display summary as `buildUnitDisplaySummary(M, S)` writes it
+      (`renderableReportInput.ts:130-140`). Its members are:
+      - the storage convention `entered_units_preserved`;
+      - `model_units`, M's `project.units` in key order;
+      - `result_units`, the sorted distinct units of S's rows;
+      - `quantity_display_policy`, the constant
+        `quantity_display::QUANTITY_DISPLAY_POLICY` (`quantity_display.rs:28`,
+        the renderer's, `report_renderer/src/lib.rs:1315`);
+      - `conversion_performed`, which is
+        `quantity_display::source_displays_scaled_value(S)`
+        (`quantity_display.rs:54-67`), true exactly when a row of S is stored
+        in `Pa`. S is never an exact source (§2.5 step 2a), so no headline
+        enters it.
+
+      These are the members the producer checks with
+      `check_unit_display_summary` (`bindings.rs:199-207`), and the derivation
+      calls the same constant and function (#1655);
+    - the result references from R's `result_refs`, each with its row checksum.
+      That checksum is the full-precision SHA-256 of the S row's canonical
+      form, which `check_report_result_refs` (`bindings.rs:177-191`) requires
+      and which R's checked row checksums equal (§2.5 step 8). The rows
+      displayed at six significant digits are bound to their stored values by
+      these checksums (#1655);
+    - the two audit references, the analysis status and the unresolved TBDs
+      from R;
     - the builder's constants: template slots, rendered sections, boundary,
       session provenance and privacy class;
   - `report_sections`:
     - the model and run references;
-    - S's diagnostics only, as `diagnosticsForSections` maps them (`:139-160`);
+    - S's diagnostics only: `bindings::expected_report_diagnostics(S)`
+      (`bindings.rs:234-274`, #1659), the Rust mirror of
+      `diagnosticsForSections` (`renderableReportInput.ts:165-186`; vectors
+      `fixtures/reports/invented/report_diagnostics_parity.json`). Each entry
+      carries the session provenance, which that function leaves unbound. No
+      model-provenance or library finding is appended. The producer's
+      `check_report_diagnostics` (`:289-305`) runs on the exact route only and
+      so not on route 010. Whole-request equality binds every entry, so route
+      010 needs nothing more from #1659;
     - the status disclosures from R's status;
     - `provenance_notes`: the session provenance only;
     - `user_supplied_values: []`;
@@ -702,8 +927,15 @@ the bound basis and requires canonical equality. A new module,
     - the fixed technical-preview limitation;
     - the unresolved TBDs from R;
     - the boundary;
-  - `result_rows`: the existing five-field projection of S's rows
-    (`expected_report_result_rows`, which the producer already requires);
+  - `result_rows`: the existing five-field projection of S's rows,
+    `bindings::expected_report_result_rows(S)` (`bindings.rs:129-167`), which
+    the producer already requires (item 6). Since #1655 each row's
+    `quantity_display` is `quantity_display::display_quantity` over the row's
+    stored value and unit (`quantity_display.rs:41-44`): six significant
+    digits, half away from zero, and a value stored in `Pa` shown in `MPa`.
+    The webview mirror is `reportQuantityDisplay.ts`, held equal by
+    `report_quantity_display_parity.json`. The minimal input adds no
+    numerical-health row;
   - `report_context`:
     - export context `user_released_report`;
     - `generated_at` null;
@@ -713,26 +945,61 @@ the bound basis and requires canonical equality. A new module,
       reference from R;
     - `analysis_run_recorded_at` null (the transient record's `created_at`);
     - solver mode and settings from I (each value's canonical JSON text, keys
-      sorted, as `buildReportContext` writes them, `:361-402`);
+      sorted, as `buildReportContext` writes them, `:642-683`);
     - model coordinate system null;
     - result coordinate systems from S's row metadata;
     - `user_release` U;
-  - `user_rule_checks`: absent.
+  - `user_rule_checks`: absent;
+  - `exact_route`: absent (§2.5 step 2a);
+  - `library_references`: absent (§2.7 refuses every model with one).
 - **Audit manifest and top-level members**, as `buildReportPackageRequest`
-  writes them (`reportPackageRequest.ts:221-258`), with these differences:
+  writes them (`reportPackageRequest.ts:272-309`), with these differences:
   `rule_pack_refs: []`, the route-010 `package_id` and profile,
   `state_comparison_handoff_records: []`, `rule_check_aggregate: null` and
   `solve_rule_check_status` equal to S's.
 
 The minimal input differs from the local-private input in what it leaves out:
-component and spring-hanger provenance entries, dedicated per-object hanger
-quantity entries and their provenance diagnostics, rule-pack references and
-user-rule outcomes. These return with the later slice (§10).
+- component and spring-hanger provenance entries;
+- dedicated per-object hanger quantity entries;
+- since W-11 (c) (#1639), the material, section and support provenance
+  entries, the Library Records list and the library-store findings (W-11
+  design §4.1-§4.2);
+- every provenance diagnostic;
+- rule-pack references and user-rule outcomes.
+
+These return with the later slice (§10), subject to the owner's ruling on
+#1639 (below).
+
+**The owner's ruling on #1639 ("C1 b, C2 a", W-11 design §0) holds under R.**
+- C1 (b): a record whose redistribution, review or privacy status is `unknown`
+  or `TBD` "stays report-blocking" in every context but local-private, and
+  the ruling names "W-18b's user-released report". The renderer judges
+  `user_released_report` as not local-private (`provenance_context`,
+  `report_renderer/src/lib.rs:1659-1664`), so that rule applies unchanged.
+- C2 (a): the user's authored record text "stays as written in local-private
+  outputs; no other context carries these records". The minimal input carries
+  none of those records. Its only provenance record is the session provenance
+  (`sessionProvenance`, `renderableReportInput.ts:142-153`), and the
+  application writes it. It is `private_project_data`, `private_only` and
+  `pending`, so it is resolved.
+- **A renderer change this needs (r2c).** Since #1639 the renderer refuses any
+  private record content when the context is not `local_private`
+  (`REPORT_PROVENANCE_CONTEXT_NOT_LOCAL_PRIVATE`,
+  `provenance_disposition_blocking_reasons`,
+  `report_renderer/src/lib.rs:1731-1820`). The session provenance on the
+  minimal input's diagnostics, notes and limitation would trip it, so a
+  user-released render would always refuse. For `user_released_report` with
+  a record, the rule therefore treats a record whose privacy class is
+  `private_project_data` as the released class, which does not trip it. Any
+  record with another non-public class still trips it, with the message
+  naming `user_released_report`. This is the renderer's form of §3.2 steps 10
+  and 11. Every other context keeps the rule exactly, and the
+  disposition-blocking and unresolved-record rules are unchanged.
 
 The solve's review rows are retained. `result_rows` is the projection of every
 `results` row of S, so a spring hanger's user-entered stiffness and loads
 appear, as the solver wrote them, in S's `spring_hanger_user_input_review` rows
-(`core/product_physics/src/lib.rs:13429,13530`), for an ordinary user-entered
+(`core/product_physics/src/lib.rs:13574,13675`), for an ordinary user-entered
 hanger as for any other. Only the dedicated per-object entries are left out.
 
 **Parity.** The webview builds the same request with
@@ -766,8 +1033,8 @@ library origin into a model. The history of the two writers (`git log` of
 
 | Form | Written by | Where in M | Rule |
 |---|---|---|---|
-| A `library_ref` object in `provenance_record` | every W-17 apply (material, section, component, hanger) from `00af9112c0`, 2026-10-23 (`libraryApply.ts:224`; `hangerSelection.ts:55,70-82`) | the applied entity's `provenance_record` | 1 |
-| The library provenance string `library:<kind>:<library id>#<record id>` | the same applies (`libraryApply.ts:81-83,399,445-446,511,702-708`; `hangerSelection.ts:41-42,54`) | the entity's `provenance`; component source-reference strings; a hanger support's `provenance` | 2 |
+| A `library_ref` object in `provenance_record` | every W-17 apply (material, section, component, hanger) from `00af9112c0`, 2026-10-23 (`libraryApply.ts:275`; `hangerSelection.ts:55,70-82`) | the applied entity's `provenance_record` | 1 |
+| The library provenance string `library:<kind>:<library id>#<record id>` | the same applies (`libraryApply.ts:81-83,450,496-497,562,753-759`; `hangerSelection.ts:41-42,54`) | the entity's `provenance`; component source-reference strings; a hanger support's `provenance` | 2 |
 | The legacy hanger selection evidence: the RFC 8785 JSON text of `{hanger_id, kind: "user_imported_hanger_selection", library_id, library_kind: "hanger", library_metadata, record_snapshot}`, held as a string | the hanger selection from `46f3aed341` (2026-09-05) until `00af9112c0` replaced it (`hangerSelection.ts:35-39,52` at `00af9112c0^`) | a hanger support's `provenance`, with no `library_ref` and no `library:` string | 3 |
 
 There is no other form. Before `00af9112c0` no material, section or component
@@ -775,17 +1042,28 @@ apply existed: `libraryApply.ts` arrived in that commit, and the model's
 `LibraryRef` with model 0.7.0 (`60ed7f6478`). The hanger selection is the only
 writer of `user_imported_hanger_selection` in the history. Committed model
 fixtures carry only the W-17 forms (`fixtures/model_document/desktop_emitted.json`,
-`library_ref_sites.json`).
+`library_ref_sites.json`). Re-checked at revision 4: since revision 3, the only
+change to the library writers is W-17's disposition refusal (#1653,
+`libraryApply.ts:99-146` and its two call sites). That change refuses an
+unreadable disposition before apply and writes no new mark, and
+`library_import_document`'s changes in the same PR are import-time disposition
+checks. The re-apply note `Applied over the previous library reference
+library:<kind>:…` (`libraryApply.ts:271`) sits in the `provenance_record` of
+an entity that also carries its new `library_ref`, and rule 2 matches it too.
 
 **The rules.** A *string* here is every JSON string value at any depth of M:
 an object member's value or an array element. Object keys are not tested. The
 substring tests are exact and case-sensitive, over the string's characters,
 with no trimming. M is library-referenced when any of these holds:
-1. **A `library_ref` object at any depth.** The test is
+1. **A `library_ref` member at any depth.** The test is
    `export_disposition_screen::library_ref_sites(M)` non-empty
-   (`export_disposition_screen.rs:310-319`): the one walk, pinned to
+   (`export_disposition_screen.rs:507-516`): the one walk, pinned to
    `fixtures/model_document/library_ref_sites.json`. A site whose identity is
-   blank counts too.
+   blank counts too. The test also counts a `library_ref` member that is not
+   an object, which the walk visits as `DocumentSite::NotAnObject`
+   (`:485`, W-17 object form, #1651). The disposition screen refuses that
+   member on both routes as `MODEL-DISPOSITION-RECORD-MALFORMED` (`:398-404`),
+   and rule 1 names it as a library site whichever check runs first.
 2. **A string that holds a library provenance reference**: it contains one of
    `library:material:`, `library:section:`, `library:component:` or
    `library:hanger:`. A model whose `library_ref` was removed but whose values
@@ -846,17 +1124,17 @@ This resolves Codex round 2's blocker and round 3's. The library-applied
 bend's raw flexibility factor and SIF reach result rows, contract evidence and
 diagnostics through genuine solver output (§1), and so do a legacy library
 hanger's loads and stiffness, in `spring_hanger_user_input_review` rows
-(`core/product_physics/src/lib.rs:13429,13530`). Attestation reproduces them.
+(`core/product_physics/src/lib.rs:13574,13675`). Attestation reproduces them.
 Under R a model with a detected library origin never reaches the derivation.
 
 **Rule-pack-referenced.** M is rule-pack-referenced when the walk finds any
-`rule_pack_refs[]` entry (`export_disposition_screen.rs:231-296`), or when I
+`rule_pack_refs[]` entry (`walk_document`, `export_disposition_screen.rs:454-497`), or when I
 records any active rule pack. The code is
 `REPORT-USER-RELEASE-RULE-PACK-REFERENCED`. HELP_HUMAN settled this refusal
 on 2026-10-25 (§0). It follows from R:
 - R carries no rule-pack reference and no rule-check outcome;
 - the package's agreement rule requires the package to name every active pack
-  of the solve (`report_package_save.rs:572-588`), which needs the rule-check
+  of the solve (`report_package_save.rs:684-700`), which needs the rule-check
   run that R does not carry;
 - references the manifest leaves out become rule-pack diagnostics in the run
   record (`analysis_runs.rs:298-343`).
@@ -876,25 +1154,42 @@ inclusion.
 
 ### 2.8 Shared producer, writer and render command
 
-**Shared producer** (`report_package::bindings::check_request`,
-`bindings.rs:180-496`):
-- the profile table (`:213-217`) gains
+**Shared producer** (`report_package::bindings::check_request` and
+`check_request_in`, `bindings.rs:345-683`, reached through
+`wire::assemble_wire_request_in`, `wire.rs:366-408`). There, item 0 (the route
+preflight) and the report's object-form check run before `check_request_in`,
+unchanged:
+- **exact routes (§0):** directly after item 0, beside
+  `exact_sections::check_runner_profile` (`bindings.rs:373`;
+  `exact_sections.rs:86-93`), a check of the same form refuses an exact
+  identity under `USER_RELEASED_DESKTOP_PROFILE` with
+  `REPORT-USER-RELEASE-EXACT-ROUTE-NOT-ADMITTED`. It reads only the profile and
+  the document's producer identity, so it refuses whatever the report carries.
+  Item 0's admitted set is not changed and no second `AdmittedSet` is made, so
+  W-11's forwarding-graph scan (`admitted.rs:1-15`) still holds. One code
+  serves the webview, native admission and the producer, as HELP_HUMAN's
+  confirmation names "its own named code at all three layers";
+- the profile table (`:392-396`) gains
   `(USER_RELEASED_DESKTOP_PROFILE, DESKTOP_ORIGIN) => true`;
 - for that profile the request must carry no handoff record set
   (`REPORT-PACKAGE-USER-RELEASE-UNBOUND` otherwise). The checks that read the
-  handoff's run section (`:319-366`, `:403-409`, the handoff status at `:446`)
+  handoff's run section (`:487-546`, `:583-589`, the handoff status at `:623`)
   have nothing to read. The run record they bind is not in the request
   (`bindings.rs:8-11`) and is bound natively by admission (§2.5 step 8). Every
   other item runs unchanged;
-- item 7 (`:454-489`) is unchanged: with no aggregate, the report carries no
+- item 7 (`:631-666`) is unchanged: with no aggregate, the report carries no
   outcomes and no rule-pack reference;
-- item 8 (`:491-494`) becomes:
+- item 8 (`:668-671`) becomes:
   - the local-private profiles (desktop and runner) require `export_context`
     `local_private` and no record (`REPORT-PACKAGE-USER-RELEASE-NOT-ADMITTED`
     if a record is present);
   - the user-released profile requires `user_released_report` and a record;
-- a new item 9 checks the record against the request's members, each
-  inequality `REPORT-PACKAGE-USER-RELEASE-UNBOUND`:
+- item 9 (W-11 §3.5, `:673-682`) is unchanged. With a pressure-free document
+  it requires that the report carry no exact sections, and it does not run
+  `check_report_diagnostics`;
+- a new item 10 (item 9 at revision 3, renumbered because W-11 took that
+  number) checks the record against the request's members, each inequality
+  `REPORT-PACKAGE-USER-RELEASE-UNBOUND`:
   - `model_ref` = `source_model_ref.ref_id` = the document's
     `model_ref.ref_id` = `audit_manifest.model_hash.payload_ref`;
   - `model_document_sha256` = `audit_manifest.model_hash.value` = the
@@ -906,41 +1201,51 @@ inclusion.
   - `scope.report_id` = `report:<analysis_run_ref>` = the report's
     `report_id`, and `scope.package_id` = the request's.
 
-The headless runner keeps its profile (`bindings.rs:36`), so a runner request
+The headless runner keeps its profile (`bindings.rs:38`), so a runner request
 with a record is refused. The runner gains no flag.
 
 **Writer.**
-- `ReportPackageContainerInput` (`lib.rs:116-136`) and `ManifestFields`
-  (`lib.rs:643-650`) gain `user_release: Option<&Value>`.
+- `ReportPackageContainerInput` (`lib.rs:130-150`) and `ManifestFields`
+  (`lib.rs:667-674`) gain `user_release: Option<&Value>`.
 - With a record, the writer requires zero state/comparison/handoff records and
-  blocks any (`lib.rs:255-259` blocks none today). Without a record it requires
+  blocks any (`lib.rs:279-283` blocks none today). Without a record it requires
   at least one, as today.
-- `package_manifest_document` (`lib.rs:652-734`) writes `"user_release"` only
+- `package_manifest_document` (`lib.rs:676-758`) writes `"user_release"` only
   when present: the caller's record plus `content_binding` over the
-  materialized members (`lib.rs:304-335`). It then writes the user-released
+  materialized members (`lib.rs:328-359`). It then writes the user-released
   boundary notes (§5.3).
 
 **Render command.** `render_calculation_report_value`
-(`src-tauri/src/lib.rs:1553-1566`) refuses an input whose
+(`src-tauri/src/lib.rs:1594-1613`) refuses an input whose
 `report_context.export_context` is `user_released_report`, with
-`RENDER-USER-RELEASE-PACKAGE-ONLY`. A user-released document is therefore
-produced only inside the package admission. The webview already refuses that
-context on this route (`reportRenderService.ts:124-140`).
+`RENDER-USER-RELEASE-PACKAGE-ONLY`. Since W-11 the command reaches it through
+`report_render_exact::render_calculation_report_args_in`
+(`report_render_exact.rs:94-117`), after the object-form check and step 0. An
+exact input that names `user_released_report` is refused earlier by
+`check_exact_render_context` (`:139-147`). A user-released document is
+therefore produced only inside the package admission. The webview already
+refuses that context on this route (`controlledContextConsistent`,
+`reportRenderService.ts:135-151`).
 
 ### 2.9 How the reader verifies it (DEL-02-05), and what that establishes
 
-`read_report_package_container` (`reader.rs:161-263`):
-- `manifest_fields` (`:683-721`) reads an optional `user_release` and passes
-  it to the rebuild (`:225-240`), so a record outside the defined form fails the
+`read_report_package_container` (`reader.rs:163-275`):
+- `manifest_fields` (`:695-733`) reads an optional `user_release` and passes
+  it to the rebuild (`:237-252`), so a record outside the defined form fails the
   existing manifest-form check.
-- The unblocked-package member rule (`:960-967`) requires at least one
-  state/comparison/handoff member only when no record is present.
-- After `verify_members` (`:807-969`), when a record is present, each failure
+- The unblocked-package member rule (`:976-983`) requires at least one
+  state/comparison/handoff member only when no record is present. Its result
+  member requirement (since W-11) is unchanged.
+- After `verify_members` (`:819-985`), when a record is present, each failure
   is `OPSPROJ_USER_RELEASE_UNBOUND` with its reason:
   - the package is unblocked, and `export_profile_id` is
     `desktop_user_released_report_package_1`;
   - **cardinality:** exactly one HTML, one PDF, one audit and one result
     member, and no state/comparison/handoff member;
+  - **pressure-free only (§0):** the result member's producer identity is
+    `preview-physics-2`. The reader's item 0 admits the exact identities in
+    every package since W-11 (`reader.rs:941-946`), so this check sits beside
+    its `check_runner_profile` call (`:946`), in the same form;
   - the record's constants and forms hold;
   - `model_ref` = the manifest's `source_model_ref.ref_id` = the result
     member's `model_ref.ref_id` = the audit member's `model_hash.payload_ref`;
@@ -963,12 +1268,12 @@ context on this route (`reportRenderService.ts:124-140`).
 - A user-released profile without a record, or a record with any other
   profile, is refused.
 - Refusal: a new variant `PackageReadRefusal::UserReleaseUnbound { reason }`,
-  code `OPSPROJ_USER_RELEASE_UNBOUND` (`reader.rs:90-121`).
-- `ReadReportPackage` (`:64-85`) gains `user_release: Option<Value>`, so a
+  code `OPSPROJ_USER_RELEASE_UNBOUND` (`reader.rs:92-123`).
+- `ReadReportPackage` (`:66-87`) gains `user_release: Option<Value>`, so a
   consumer can show the record.
 
 The audit and result identities are collected in `verify_members` as the audit
-identity already is (`:917-920`).
+identity already is (`:931-934`).
 
 **What these checks establish, and what they do not (O-G).** The reader's
 checks are equality checks, not signatures (`reader.rs:30-41`). They establish
@@ -1153,21 +1458,36 @@ Route tables and local-first admission:
 
 ### 3.4 What still refuses, and what is unchanged
 
-- **Exact routes.** Route 010 uses the same output-policy cell
-  (`reportPackageUnavailableReason`, `reportPackageRequest.ts:60-62`), the same
-  surface refusal (`:168`) and the same producer preflight
-  (`wire.rs:281-283`). Exact routes stay refused with
-  `PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE` and `REPORT-PACKAGE-ROUTE-NOT-ADMITTED`
-  (ruling 10A).
+- **Exact routes (changed in revision 4; §0).** The W-11 opening admits
+  exact-route results on the local-private package's output-policy cell
+  (`reportPackageUnavailableReason`, `reportPackageRequest.ts:83-85`), its
+  surface refusal (`refuseSurfaceOutput`, `:196`) and the producer's route
+  preflight (item 0, `wire.rs:373-375`; `document_form.rs:19`). Revision 3
+  relied on these to refuse them. Route 010 still uses them, so a retained
+  route still refuses with its own code. It also refuses `pressure-2` and
+  `pressure-source-1` results with
+  `REPORT-USER-RELEASE-EXACT-ROUTE-NOT-ADMITTED` in three places:
+  - the webview's user-release cell (§2.2);
+  - native admission, before any exact source binding (§2.5 step 2a);
+  - the producer, after item 0 (§2.8).
+
+  The reader refuses a user-released package with an exact member (§2.9).
+  The local-private routes keep the W-11 opening unchanged.
 - **Protected-content linter.** The renderer runs it before and after rendering
-  in every context (`report_renderer/src/lib.rs:1229-1267,1306-1325`); a
+  in every context (`report_renderer/src/lib.rs:2057-2098,2140-2159`); a
   blocking finding sets `export_blocked`, and admission refuses a blocked
-  package (`REPORT-PACKAGE-PRODUCER-BLOCKED`, `report_package_save.rs:658-660`).
+  package (`REPORT-PACKAGE-PRODUCER-BLOCKED`, `report_package_save.rs:856-858`).
+  Since #1639 a render refused for its provenance records returns no body
+  (`:2012-2048`); §2.6 states how `user_released_report` meets those rules.
 - **Disposition blocks.** The webview blocks `protected_suspected`,
   `quarantined` and `rejected` before any context branch (steps 8-9 of §3.2).
   Native admission runs both screens on route 010 as on 009
-  (`report_package_save.rs:412-448`): `PROTECTED_CONTENT_BLOCKED` and
-  `REPORT-PACKAGE-SAVE-DISPOSITION-MALFORMED`.
+  (`report_package_save.rs:524-560`): `PROTECTED_CONTENT_BLOCKED`,
+  `REPORT-PACKAGE-SAVE-DISPOSITION-MALFORMED` and, from the store-resolved
+  screen, `MODEL-DISPOSITION-RECORD-MALFORMED` (W-17, #1651 and #1653).
+- **Object form.** The save's `REPORT-PACKAGE-SAVE-REQUEST-POSITIONAL`, the
+  producer's positional-report refusal (`wire.rs:376-381`) and the render's
+  `check_object_form` apply on route 010 unchanged (#1650).
 - **Every other context is unchanged.** `public_report`, `public_example`,
   `shared_model`, `downstream_tool` and `local_private` keep every decision on
   every input, and their controlled payloads keep their bytes, including raw
@@ -1201,7 +1521,7 @@ selection, the report stays local-private exactly as today". It is held by
 
 **Consequence.** A reader built before W-18b refuses a user-released package as
 `OPSPROJ_MANIFEST_MALFORMED` ("manifest differs from the version 2.0.0 manifest
-form at: user_release", `reader.rs:236-240`), not by version name. No such
+form at: user_release", `reader.rs:248-252`), not by version name. No such
 reader has been released.
 
 **The absent handoff member is part of the record-selected form.** HELP_HUMAN
@@ -1211,19 +1531,25 @@ user-released package with no state/comparison/handoff member. So R keeps no
 handoff record set, and the reader admits its absence only with the record.
 
 **Rendered reports.** No JSON schema file describes the renderer input; its
-contract is the Rust type (`report_renderer/src/lib.rs:184-194`) and the
+contract is the Rust type (`report_renderer/src/lib.rs:249-263`) and the
 TypeScript builder. Changes:
-- `ReportExportContext` (`:80-83`) gains `UserReleasedReport`
-  (`user_released_report`); `export_context_label` (`:365-370`) gains it;
+- `ReportExportContext` (`:82-86`) gains `UserReleasedReport`
+  (`user_released_report`); `export_context_label` (`:445-450`) gains it;
 - `ReportContext` gains `user_release` (§2.3), defaulting to `None`;
 - `UserReleaseRecord` is a new typed struct with `deny_unknown_fields` and no
   `content_binding` member;
-- `report_context_blocking_codes` (`:1182-1213`) adds
+- `report_context_blocking_codes` (`:1824-1855`) adds
   `REPORT-CONTEXT-USER-RELEASE-MISMATCH` when the context is
   `user_released_report` without a record, or a record is present in another
   context;
-- TypeScript `ReportExportContext` (`renderableReportInput.ts:67`) gains the
-  value.
+- TypeScript `ReportExportContext` (`renderableReportInput.ts:72`) gains the
+  value;
+- `provenance_disposition_blocking_reasons` (`:1731-1820`) treats a
+  `private_project_data` record under `user_released_report` with a record as
+  the released class (§2.6); `provenance_context` (`:1659-1664`) is unchanged,
+  so `user_released_report` is judged as not local-private (C1 b);
+- the input's `exact_route` and `library_references` (W-11) are absent in a
+  user-released input (§2.6), so they emit nothing.
 
 `report_generator` and `schemas/report_generator.schema.yaml` do not change:
 the record is in `report_context`, not in `calculation_report`. Existing
@@ -1251,8 +1577,8 @@ defaults to absent and adds no row or banner then.
 ### 5.1 Notice text (proposed exact)
 
 The renderer gains `user_release_notice_text(input) -> Option<String>`. The
-HTML body uses it (beside `local-private-banner`, `report_renderer/src/lib.rs:1281-1285`),
-and so do the PDF (`pdf_emitter/src/lib.rs:236`) and the reader's notice check
+HTML body uses it (beside `local-private-banner`, `report_renderer/src/lib.rs:2115-2119`),
+and so do the PDF (`pdf_emitter/src/lib.rs:254`) and the reader's notice check
 (§2.9). It is emitted only for `user_released_report` with a record, in a
 banner of its own,
 `<div class="user-release-banner" data-export-context="user_released_report">`:
@@ -1269,7 +1595,7 @@ banner of its own,
 > concerns rights in the data only; the analysis status and the Professional
 > Boundary notice below are unchanged.
 
-The run-context table (`run_context_rows`, `:372`) shows "Report export
+The run-context table (`run_context_rows`, `:452`) shows "Report export
 context: user_released_report" and three added rows:
 - "User release statement": the statement;
 - "User release time (application clock)": `released_at`;
@@ -1280,21 +1606,21 @@ context: user_released_report" and three added rows:
 
 ### 5.2 Relation to the other notices
 
-- **PRD §19.3** (`docs/PRD.md:1290-1296`; renderer `:1007-1030`): unchanged, in
+- **PRD §19.3** (`docs/PRD.md:1290-1296`; renderer `:1132-1155`): unchanged, in
   every report, user-released or not. A user release changes no analysis status
   and adds no review record.
 - **The local-private notice** (W-3, `local_private_notice_text`,
-  `report_renderer/src/lib.rs:1169-1178`): unchanged and still emitted for
+  `report_renderer/src/lib.rs:1294-1303`): unchanged and still emitted for
   every `local_private` report. A user-released report carries the user-release
   notice in its place, because the two contexts exclude each other.
-- **The panel's local-private warning** (`RenderedReportPanel.tsx:46-47`):
+- **The panel's local-private warning** (`RenderedReportPanel.tsx:51-52`):
   unchanged. After a user-released save the status line reads:
   "User-released report package saved: it contains this project's values and
   results for sharing, as you stated in the release dialog."
 
 ### 5.3 Package boundary notes (user-released packages only)
 
-The three notes of `lib.rs:718-724` become, for a package with a record:
+The three notes of `lib.rs:742-748` become, for a package with a record:
 1. unchanged: "This container is an artifact format, not an issuance act;
    package contents are engineering decision-support information."
 2. unchanged: "Human professional review is required before any reliance on
@@ -1327,6 +1653,18 @@ tool's own line and retired-text scans. Result: no finding.
 - The texts state a user's data right. They do not restate PRD §21 and add no
   prohibition list (registry §4).
 - The PRD §19.3 notice and its lint anchors are untouched.
+
+**Revision 4's new and changed texts have not been run through GEN-13.**
+They are:
+- the dialog's exact-route line and its changed bullet (§2.2);
+- the webview refusal text of `REPORT-USER-RELEASE-EXACT-ROUTE-NOT-ADMITTED`
+  (§2.2);
+- the re-derived A1, A10, A11 and A12, and the new A14.
+
+This assignment ran no checks beyond Appendix A's `count == 1`. These texts go
+through GEN-13 with the Codex review of the exact text, before HELP_HUMAN
+(§6). Each was written to the same rules: no litany terms, no retired hedge
+phrasing and no prohibition list.
 
 Round 1's lint-scope finding is resolved on main: #1626 changed the
 ScopeOfWork glob to `execution/PKG-*/DEL-*/ScopeOfWork.md`
@@ -1443,6 +1781,49 @@ leaves the sandbox directory empty, with no picker request.
     the parent head (a vitest and a pytest of the projector, plus a Tauri
     admission test on route 009).
   - The same members on route 010 are refused natively.
+- `user_release_exact_route_refused` (revision 4, §0). Each case uses an
+  eligible `pressure-2` and an eligible `pressure-source-1` result that Export
+  Result JSON admits, and the local-private package admits each one as a
+  control:
+  - **webview** (vitest): the user-release cell returns
+    `REPORT-USER-RELEASE-EXACT-ROUTE-NOT-ADMITTED`, the dialog shows its
+    exact-route line with the save disabled, and
+    `buildUserReleasedReportPackageRequest` throws with the code. For the same
+    result, `reportPackageUnavailableReason` and the local-private Save Report
+    Package… still admit it;
+  - **native** (Tauri, sandbox directory, counting picker): each of these is
+    refused on route 010 with that code, with no custody query, no lease
+    growth, no picker request and the directory left empty:
+    - a request whose result document has an exact identity;
+    - a pressure-free request whose report carries a non-null `exact_route`;
+    - a pressure-free request that carries `exact_result_text` or
+      `exact_intake_text`.
+
+    The same exact request on route 009 is still admitted;
+  - **producer** (`tests/user_release_package.rs`): a user-released-profile
+    request with an exact document is refused with that code after item 0. The
+    W-11 forwarding-graph scans (`admitted_tests`, `report_render_exact_tests`)
+    pass unchanged;
+  - **reader** (`tests/reader.rs`): a user-released package whose result
+    member is an exact document, re-hashed coherently, is
+    `OPSPROJ_USER_RELEASE_UNBOUND`.
+- `user_release_render_admits_only_the_released_class` (revision 4, §2.6), in
+  the renderer and the Tauri render:
+  - a user-released input whose provenance records are all the session
+    provenance renders, with no `REPORT_PROVENANCE_CONTEXT_NOT_LOCAL_PRIVATE`;
+  - the same input with one record of another non-public class is refused,
+    and so is one with an `unknown` or `TBD` record (C1 b);
+  - a `public_report` input with the session provenance is still refused, as
+    at the parent head;
+  - a positional `user_release` record is refused by the object-form check at
+    the native render, the save and the producer (#1650).
+- `user_release_display_rule` (revision 4, §2.6): a derivation vector whose S
+  has `Pa` rows and rows with more than six significant digits. The derived
+  rows show six significant digits and `MPa`, `conversion_performed` is true,
+  and the row checksums are the full-precision digests. A stored value
+  mutated in its seventh significant digit leaves the displayed row
+  unchanged. The request is still refused, by the run record's row checksums
+  (§2.5 step 8) and by the producer's `check_report_result_refs`.
 
 **Owner property 1: the flag cannot leak private values.**
 - vitest `redactionExportControls.test.ts`:
@@ -1574,7 +1955,7 @@ leaves the sandbox directory empty, with no picker request.
   binding and the member hashes intact.
 - **Native smoke:** a user-released save on the solved demo, which carries no
   library or rule-pack reference, through `native_smoke::take_chosen_path`
-  (beside the W-18 (b2) step, `native-smoke/run.mjs:93-95,191`). The harness
+  (beside the W-18 (b2) step, `native-smoke/run.mjs:242-248,337`). The harness
   checks:
   - the file's SHA-256 against the receipt;
   - the record's model hash against the session model's;
@@ -1642,7 +2023,7 @@ leaves the sandbox directory empty, with no picker request.
   - (a) the recorded-revision alternative is removed, since O-B stands as
     recommended. That alternative conflicted with the unchanged Current-export
     and producer checks that require `state:<model>:preview`
-    (`resultExportAdapter.ts:278-279`; `bindings.rs:327`). Route 010 admits
+    (`resultExportAdapter.ts:278-279`; `bindings.rs:495`). Route 010 admits
     only the transient record (§2.5 step 8), so note 3's statement holds
     (§5.3);
   - (b) the derivation wording of A1 and A7, reduced to R;
@@ -1671,17 +2052,17 @@ leaves the sandbox directory empty, with no picker request.
 |---|---|---|---|
 | **(r1) Vocabulary and redaction** | The context, reason codes and route id in TypeScript, Python, the Rust mirror and the schema; the decision order of §3.2 (steps 10-13); the flag assertion; the local-first rule; the release projector (nearest-metadata labelling; unused until r3); corpus cases, the pinned-digest tests and `existing_contexts_preserve_raw_intent_named_members`. No route uses the context. | M (~650 lines with tests) | Data boundary (vocabulary only) |
 | **(r2a) Solve attestation** | The worker's streamed digests, the `ATST` frame, the registry table, clearing and bounds, the memory-budget text with the digest passes' transient pieces (§2.4), its measurement and the allocation checks, tests. No rule-check attestation. | S (~450) | Data boundary; DEL-04-07 memory accounting; no priced file |
-| **(r2b) Derivation and refusals** | `report_package::user_release`: Rust builders of the input manifest, the document base and origin, the minimal renderer input, and the audit and top-level members; the library rules 1-3 of §2.7, including the legacy hanger form, its embedded-JSON parse and lease, in `src-tauri` beside `export_disposition_screen`; the rule-pack and private-class rules; the run-record checks (Record Run's, factored); the derivation vectors and their vitest and Rust parity; `user_release_legacy_hanger_selection_refused`. | M (~1.05k) | **Data boundary** (what may be shared) |
-| **(r2c) Record, renderer, producer, writer, reader, native** | `UserReleaseRecord`; context and blocking codes; notice and rows in HTML and PDF; producer items 8-9, the profile and the handoff rule; writer manifest, content binding, notes and member rule; reader checks, cardinality and refusal; native route-010 branch (§2.5 steps 1-10) with the run-record text; the render-command refusal; the Rust tests of §6. The desktop does not offer it yet. | M-L (~1.3k) | **Persistence** (manifest, member set and reader) and **data boundary** (native admission) |
-| **(r3) Desktop** | Dialog, panel button, menu item (webview and native menu), session wiring and modal guard, the route-010 builders, the early reference check (the three rules of §2.7), the dialog's reliance line, save-service evidence and the run-record text, receipt display, vitest, native smoke step. | M (~900) | Data boundary (webview evidence) and file output |
+| **(r2b) Derivation and refusals** | `report_package::user_release`: Rust builders of the input manifest, the document base and origin, the minimal renderer input, and the audit and top-level members; the library rules 1-3 of §2.7, including the legacy hanger form, its embedded-JSON parse and lease, in `src-tauri` beside `export_disposition_screen`; the rule-pack and private-class rules (library rule 1 counting a non-object `library_ref`); the run-record checks (Record Run's, factored); the derivation's use of the shared display, row-checksum, unit-summary and diagnostics functions (§2.6); the derivation vectors and their vitest and Rust parity, `user_release_display_rule` among them; `user_release_legacy_hanger_selection_refused`. | M (~1.05k) | **Data boundary** (what may be shared) |
+| **(r2c) Record, renderer, producer, writer, reader, native** | `UserReleaseRecord`; context and blocking codes; the renderer's released-class rule for provenance records (§2.6); notice and rows in HTML and PDF; producer items 8 and 10, the profile, the handoff rule and the exact-route refusal after item 0; writer manifest, content binding, notes and member rule; reader checks, cardinality, the pressure-free-only check and refusal; native route-010 branch (§2.5 steps 1-10, step 2a included) with the run-record text; the render-command refusal; the Rust tests of §6, `user_release_exact_route_refused` and `user_release_render_admits_only_the_released_class` among them. The desktop does not offer it yet. | M-L (~1.38k) | **Persistence** (manifest, member set and reader) and **data boundary** (native admission) |
+| **(r3) Desktop** | Dialog, panel button, menu item (webview and native menu), session wiring and modal guard, the route-010 builders, the user-release cell and the dialog's exact-route line (§2.2), the early reference check (the three rules of §2.7), the dialog's reliance line, save-service evidence and the run-record text, receipt display, vitest (the webview cases of `user_release_exact_route_refused` included), native smoke step. | M (~930) | Data boundary (webview evidence) and file output |
 
 The order is (r1), then (r2a) and (r2b) in either order or together, then
 (r2c), then (r3). (r2c) needs (r2a) and (r2b) in its ancestry; (r3) offers the
 user release and needs (r2c). (r2c) and (r3) may land as one PR if review
-prefers. The total is about 4.35k lines (4.1k at revision 2; the legacy
-detector, its regressions and the allocation checks add about 250), down from
-about 5.8k for revision 1's
-full scope. The savings are:
+prefers. The total is about 4.46k lines (4.1k at revision 2; the legacy
+detector, its regressions and the allocation checks add about 250; revision 4's
+exact-route refusal, the renderer's released-class rule and their regressions
+add about 110), down from about 5.8k for revision 1's full scope. The savings are:
 - the builder mirrors (no component, hanger or rule-pack entries, no handoff
   sections, no analysis-record rebuild);
 - the closed table;
@@ -1703,7 +2084,8 @@ exact text.
     for the changed sources and the tests.
 - **(r2a)**
   - The `solve_worker.rs` protocol text (:10-25) names `ATST`; the
-    `solve_jobs.rs` module text (:1-41) names the attestation table.
+    `solve_jobs.rs` module text (:1-55) names the attestation table beside
+    the custody digests (§2.4).
   - DEL-04-07 `Design/memory-budget-decision.md` :37, the worker paragraph,
     names the frame, the digest passes and their transient pieces (the key
     vectors on the open path, one sort scratch, one escaped string; §2.4);
@@ -1713,7 +2095,7 @@ exact text.
   - DEL-08-01 `deliverable.yaml` code paths (`user_release` module and the
     library rules) and checks (the derivation vectors, the legacy-form
     regressions); CI routing.
-  - `core/library_import/README.md` :45-51 still describes the pre-W-17 hanger
+  - `core/library_import/README.md` :49-55 still describes the pre-W-17 hanger
     provenance as what selection persists. It is changed to name the W-17 form
     (`library_ref` and the `library:hanger:` string) as current, and the
     legacy form as one that models saved before `00af9112c0` may still carry,
@@ -1726,26 +2108,43 @@ exact text.
     the `reader.rs` module text (:1-42), with the §2.9 statement of what the
     checks establish; CI routing.
   - DEL-08-01 Design `report-package-current-results.md` keeps its text; it
-    carries only a pointer to this design.
+    carries only a pointer to this design (`:1536`).
+  - DEL-08-01 Design `exact-route-report-sections.md` keeps its text. Its §0
+    ruling "C1 b" already names the user-released report as a context where an
+    unresolved record blocks, and §2.6 applies that.
 - **(r3)**
   - DEL-08-01 `ScopeOfWork.md` :81 (A1) and OQ-08-01-003 :383 (A2).
   - DEL-12-02 REXC-REQ-016 after :189 (A4), REXC-OI-002 :481 (A6), CLM-036
     :470 (A9).
-  - User guide `docs/user_guide/index.md` :91 (A10), :109-111 (A11), :393
-    (A13) and :482-483 (A12).
+  - DEL-04-08 REQ-006 (c) :219 (A14, new in revision 4).
+  - User guide `docs/user_guide/index.md` :92 (A10), :113-115 (A11), :420
+    (A13) and :547-548 (A12).
     - The §10 sentence's "renders a report only as a local private document"
       would mislead once a shareable package exists, so A13 names the
       standalone report.
-    - Its table row (:148) stays true: the package is still saved locally.
+    - Its table row (:152) stays true: the local-private package is still
+      saved locally, and the row's exact-route clause concerns the
+      local-private surfaces.
   - `docs/COMPLETENESS_MAP.md` records W-18b (R) and the later slice: gap 1
-    (:94-100), FR-REP-001 (:205), the not-ready list (:461-464) and the W-18
-    row (:547).
+    (:96-104), FR-REP-001 (:209), the not-ready list (:470-473) and the W-18
+    row (:559). Each states that shareable packages carry pressure-free
+    results only, and that exact-route sharing returns to the owner (§10).
+  - DEL-04-07 Design `desktop-exact-outputs.md` §4.5 (:203-211), the
+    report-package bullet: the shareable package refuses exact-route results
+    (`REPORT-USER-RELEASE-EXACT-ROUTE-NOT-ADMITTED`). This is a design text, so
+    the slice edits it directly.
   - `apps/desktop/native-smoke/run.mjs`, the user-released step (§6).
   - DEL-08-01 `deliverable.yaml` code paths (`UserReleaseDialog.tsx`) and
     checks.
 - **No change:**
-  - DEL-04-08 REQ-006 (c) :219 and AC-006 :240 stay true (the same policy
-    cell and producer boundary);
+  - DEL-04-08 AC-006 :240 stays true: the package's Rust boundary still
+    refuses every identity except `preview-physics-2`, `pressure-2` and
+    `pressure-source-1`, and the user-released profile's exact-route refusal is
+    a profile check after it. Revision 3 listed REQ-006 (c) :219 here too.
+    Since the W-11 opening (O1, #1648), it says the report package admits
+    exact-route results and that every other surface refuses with
+    `PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE`. Neither describes the shareable
+    package, so A14 adds it;
   - the DEL-08-02 audit manifest, and its ScopeOfWork;
   - the PRD §19.3 notice, and `docs/report_notice_template.md`;
   - no priced source (§2.4).
@@ -1757,60 +2156,116 @@ record, attestation, derivation and reader. None is designed here beyond its
 constraints.
 - **Rule outcomes at safe metadata.** It needs:
   - a rule-check attestation recorded by `run_rule_checks`
-    (`src-tauri/src/lib.rs:2834`), of the safe projection of the pack reference
+    (`src-tauri/src/lib.rs:2905`), of the safe projection of the pack reference
     and the outcomes;
   - the derivation's renderer input carrying that projection;
   - the run record's composed status admitted.
 
   It assumes W-17's per-basis shape (#1629). A check has one outcome per load
   case or combination its stress category maps, `UserRuleCheckOutcome` carries
-  an optional `basis_ref` (`report_renderer/src/lib.rs:129-162`), and a check id
+  an optional `basis_ref` (`report_renderer/src/lib.rs:132-165`), and a check id
   repeats once per basis. The attestation and the derivation therefore key each
   outcome by (check id, basis), and bind the outcome count. The renderer's count
-  note (`USER_RULE_CHECK_COUNT_SCOPE_NOTE`, `:160-162`) stays. Whether a
+  note (`USER_RULE_CHECK_COUNT_SCOPE_NOTE`, `:163-165`) stays. Whether a
   released outcome may omit `basis_ref` ("load case not recorded") is that
   slice's question; the desktop always writes it
-  (`renderableReportInput.ts:451-474`). O-E's question returns with it: whether
+  (`renderableReportInput.ts:732-755`). O-E's question returns with it: whether
   check ids and missing-input names are safe metadata.
 - **Rule-pack references at safe metadata**, with the agreement rule, which
   lifts the rule-pack-reference refusal of §2.7.
 - **Library-referenced models.** It needs a rule for library values that
   genuine solver output carries (§1): refuse, or mark them, in result rows,
   annotations, diagnostics, witnesses and contract evidence. It also needs
-  revision 1's source resolution for report entries.
+  revision 1's source resolution for report entries. Since W-11 (c) the
+  local-private report lists the model's library references at safe metadata
+  (`library_references`, W-11 design §4.2). That slice decides whether the
+  list is carried, and it is subject to the ruling below.
 - **Comparisons** (FR-REP-004), by native derivation from attested results (O-F's
   alternative), and the handoff record set's state/run sections.
 - **The report entries R leaves out:** component and spring-hanger provenance
-  entries and dedicated per-object hanger quantity entries. The solve's review
-  rows, hanger rows included, are already in R (§2.6).
+  entries, the material, section and support provenance entries of W-11 (c),
+  and dedicated per-object hanger quantity entries. The solve's review rows,
+  hanger rows included, are already in R (§2.6).
+  - **The owner's ruling "C2 a" (#1639, 2026-10-26)** says that the user's
+    authored record text "stays as written in local-private outputs; no other
+    context carries these records".
+  - So carrying the provenance records under `user_released_report` needs
+    the owner's ruling. That slice cannot settle it within R's mechanism.
+    "C1 b" keeps unresolved records report-blocking there in any case.
 - **The record:** a new `scope.not_carried` value and `record_version` for each
   widening. The reader admits each version it writes.
 
+**Returns to the owner (not in the list above): exact-route results under user
+release.** Under R, route 010 refuses `pressure-2` and `pressure-source-1`
+results (§0). Admitting them is not part of the later slice the owner kept in
+v0.1. HELP_HUMAN, 2026-10-26: "Opening a surface to sharing is the owner's
+call, as the local-private opening was, so don't build it without that." It is
+not built without the owner's decision. If the owner opens it, route 010 would
+need these, on the same record, attestation and reader:
+- W-11's exact source binding (W-11 design §3.6): custody, the resubmitted
+  delivered and intake texts, and the native reader's eligible standing;
+- the exact sections in the derivation (the `exact_route` block, the exact
+  limitation entries and the headlines, which the display rule covers);
+- the Diagnostics binding (`check_report_diagnostics`, #1659);
+- the producer's item 9 under the user-released profile.
+
+Lifting the refusal of §2.2, §2.5 step 2a, §2.8 and §2.9 would then be that
+change's edit.
+
 ## Appendix A. Wording-route drafts (old → new; not applied)
 
-Each Old is copied byte-exact from its file. At revision 3 each was re-checked
-with a Python `count == 1` against the branch tree after main `3027cf2f35` was
-merged (`b2bc7e8a27`). Every Old still matches once, at the line given, and
-none needed updating: the four target files are unchanged since revision 1's
-basis `8cec2178c1`. Line numbers are where the Old begins. In an Old or New,
-`\n` stands for a line break and `\"` for a quotation mark inside the quoted
-text. These drafts go to Codex as exact
-text, then to HELP_HUMAN under the wording grant. Nothing here is applied.
+Each Old is copied byte-exact from its file. At revision 4 each was re-checked
+with a Python `count == 1` against main `2e4748eada`, the design's basis. Line
+numbers are where the Old begins. In an Old or New, `\n` stands for a line break
+and `\"` for a quotation mark inside the quoted text. These drafts go to Codex
+as exact text, then to HELP_HUMAN under the wording grant. Nothing here is
+applied.
+
+**Revision 4's re-check.** Between revision 3's tree (`3027cf2f35`) and
+`2e4748eada`, #1648's opening texts (W-11 design Appendix A.2, O1-O15) changed
+three of the target files. O6 consumed A1's Old, O9 consumed A10's, O11
+consumed A11's and O15 consumed A12's. O12 rewrote the sentence around A13's
+Old, and the other guide edits since revision 3 (#1639, #1640, #1644, #1652)
+moved lines. At `2e4748eada`:
+
+| Draft | Revision 3 Old, count | Revision 4 Old, count and line | Revision 4 |
+|---|---|---|---|
+| A1 | 0 | 1, :81 | changed: re-derived |
+| A2 | 1 | 1, :383 | unchanged |
+| A3 | 1 | 1, :58 | unchanged |
+| A4 | 1 | 1, :189 | unchanged |
+| A5 | 1 | 1, :414 | unchanged |
+| A6 | 1 | 1, :481 | unchanged |
+| A7 | 1 | 1, :486 | unchanged |
+| A8 | 1 | 1, :214 | unchanged |
+| A9 | 1 | 1, :470 | unchanged |
+| A10 | 0 | 1, :92 | changed: re-derived |
+| A11 | 0 | 1, :113 | changed: re-derived |
+| A12 | 0 | 1, :547 | changed: re-derived |
+| A13 | 1 | 1, :420 | unchanged; its line moved from :393 |
+| A14 | — | 1, :219 | new in revision 4 |
+
+Each unchanged New was read again against R as amended by §0. None of them
+says or implies that a shareable package carries an exact-route result, so
+each is still exactly true once its slice lands. The re-derived and new News
+say that route 010 refuses exact-route results, and they no longer say that
+reports are pressure-free only.
 
 **Depends on** names what a New needs before it is applied:
 - the slice that makes it true;
-- the decisions it rests on, each **settled** (§7), or **none**.
+- the decisions it rests on, each **settled** (§0, §7), or **none**.
 
-Every decision these texts rest on is settled. Each New is written to be exactly
-true of scope R once its slice lands.
+Every decision these texts rest on is settled. "Exact routes under R" is the
+§0 decision that HELP_HUMAN confirmed on 2026-10-26. Each New is written to be
+exactly true of scope R once its slice lands.
 
-**Changed since round 3:** A5 (its derivation clause) and A7 (its library
-clause and detector). **Unchanged since round 3:** A1, A2, A3, A4, A6, A8, A9,
-A10, A11, A12 and A13.
+**Changed in revision 4:** A1, A10, A11 and A12 (re-derived), and A14 (new).
+**Unchanged in revision 4:** A2, A3, A4, A5, A6, A7, A8, A9 and A13 (A13 has
+moved line). At round 3, A5 and A7 changed.
 
-**A1. DEL-08-01 `ScopeOfWork.md` :81** (current-implementation paragraph, last sentence; slice r3; depends on: scope R, O-D, O-F, settled)
-- Old: "Every other identity is refused (exact routes with `PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE`; owner ruling 10A, 2026-10-21)."
-- New: "Every other identity is refused (exact routes with `PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE`; owner ruling 10A, 2026-10-21). Save Shareable Report Package… saves a reduced package for sharing after the user's per-report release of their own project data (route `DREP-PACKAGE-USER-RELEASE-010`, export context `user_released_report`; DEL-08-01 Design `report-user-release.md`): the release record in `report_context.user_release` and in the package manifest states the user's redistribution right and binds the model reference and document SHA-256, the run's input manifest and the result document, and the manifest copy also binds the hash of every other member; native admission requires every request member to equal its derivation from the bound model, its attested solve, the input manifest, the bound run, the host software identity and the user-release record; the package carries the rendered report, the audit manifest and one result member, and no user-rule outcome, rule-pack reference, run comparison or handoff record; a model that carries a library reference or a rule-pack reference is refused; and the rendered members carry the user-release notice in place of the local-private notice. Without that selection the package is local private as above, and the selection is not stored."
+**A1. DEL-08-01 `ScopeOfWork.md` :81** (current-implementation paragraph, last sentence; slice r3; depends on: scope R, O-D, O-F, exact routes under R, settled) — *changed in revision 4*
+- Old: "Every other identity is refused."
+- New: "Every other identity is refused. Save Shareable Report Package… saves a reduced package for sharing, for a Current pressure-free (preview-physics-2) result only, after the user's per-report release of their own project data (route `DREP-PACKAGE-USER-RELEASE-010`, export context `user_released_report`; DEL-08-01 Design `report-user-release.md`): the release record in `report_context.user_release` and in the package manifest states the user's redistribution right and binds the model reference and document SHA-256, the run's input manifest and the result document, and the manifest copy also binds the hash of every other member; native admission requires every request member to equal its derivation from the bound model, its attested solve, the input manifest, the bound run, the host software identity and the user-release record; the package carries the rendered report, the audit manifest and one result member, and no user-rule outcome, rule-pack reference, run comparison or handoff record; an exact-route result is refused on that route in the desktop, at native admission and by the shared producer (`REPORT-USER-RELEASE-EXACT-ROUTE-NOT-ADMITTED`), and so is a model that carries a library reference or a rule-pack reference; and the rendered members carry the user-release notice in place of the local-private notice. Without that selection the package is local private as above, and the selection is not stored."
 
 **A2. DEL-08-01 `ScopeOfWork.md` :383** (OQ-08-01-003, last cell; slice r3; depends on: scope R, settled)
 - Old: "Preserve route-specific controlled output, explicit intent, source non-mutation and fail-closed behavior; this does not supply legal/privacy acceptance. |"
@@ -1847,20 +2302,28 @@ A10, A11, A12 and A13.
 - New: the Old line unchanged, followed by this line:
   "> | User-released report | The user's own project values in one report after the explicit per-report release, derived natively from the bound model, its attested solve and its run, recorded in the report and stated in its notice; no user-rule outcome, rule-pack reference, library reference, run comparison or handoff record | An unchanged user-release record whose bound identities or member hashes do not match this report, a selection remembered for later reports, or content outside the permitted source-bound projection |"
 
-**A10. User guide `docs/user_guide/index.md` :91** (slice r3; depends on: none)
-- Old: "- **Reports are local-private only, and pressure-free only.**"
-- New: "- **Reports are pressure-free only. Shareable packages require your per-report statement of rights to share your own project data.**"
+**A10. User guide `docs/user_guide/index.md` :92** (slice r3; depends on: exact routes under R, settled) — *changed in revision 4*
+- Old: "- **Reports are local-private only.**"
+- New: "- **Reports are local-private only, except a shareable package of a pressure-free result saved with your per-report statement of rights to share your own project data.**"
+- Note: at revision 3 the Old read "- **Reports are local-private only, and pressure-free only.**", and #1648's O9 replaced it. Reports are no longer pressure-free only, so the New no longer says so.
 
-**A11. User guide `docs/user_guide/index.md` :109** (a bullet added; slice r3; depends on: scope R, O-D, O-F, settled)
-- Old: "  - Save Report Package… saves a local private package for a pressure-free\n    result after its own local-private selection; exact-route results are\n    refused with `PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE`."
+**A11. User guide `docs/user_guide/index.md` :113** (a bullet added; slice r3; depends on: scope R, O-D, O-F, exact routes under R, settled) — *changed in revision 4*
+- Old: "  - Save Report Package… saves a local private package for a pressure-free\n    result, or for an exact-route result that Export Result JSON admits,\n    after its own local-private selection."
 - New: the Old bullet unchanged, followed by:
-  "\n  - Save Shareable Report Package… saves a reduced package for sharing after\n    you tick, in its dialog, \"I hold the right to share this project's data,\n    and I release it in this report for sharing.\" The release covers that one\n    report. Its documents carry a \"USER-RELEASED REPORT\" notice naming the\n    model and result it covers. The package carries the model summary, load\n    cases and results of this session's solve. It carries no rule-pack\n    reference, user-rule outcome or run comparison. It needs a result solved\n    in this session. A model with a library reference, such as a material,\n    section, component or hanger applied from a library, or with a rule-pack\n    reference, is refused. The selection applies only to this save."
+  "\n  - Save Shareable Report Package… saves a reduced package for sharing after\n    you tick, in its dialog, \"I hold the right to share this project's data,\n    and I release it in this report for sharing.\" The release covers that one\n    report. Its documents carry a \"USER-RELEASED REPORT\" notice naming the\n    model and result it covers. The package carries the model summary, load\n    cases and results of this session's solve. It carries no rule-pack\n    reference, user-rule outcome or run comparison. It needs a pressure-free\n    result solved in this session; an exact-route result is refused with\n    `REPORT-USER-RELEASE-EXACT-ROUTE-NOT-ADMITTED`. A model with a library\n    reference, such as a material, section, component or hanger applied from\n    a library, or with a rule-pack reference, is refused. The selection\n    applies only to this save."
+- Note: the Old is #1648's O11 New. The added bullet is revision 3's, with "It needs a result solved in this session." replaced by the pressure-free and exact-route sentence.
 
-**A12. User guide `docs/user_guide/index.md` :482** (limitations list; slice r3; depends on: none)
-- Old: "[Current Desktop App](#current-desktop-app-010): reports only as local private\n  documents and only for pressure-free results,"
-- New: "[Current Desktop App](#current-desktop-app-010): reports only as local private\n  documents or shareable packages with your per-report statement of rights to share your own project data, and only for pressure-free results,"
-- Note: the words are the reviewed New exactly; the line break after "local private" is the Old's own, kept so the list item's wrapping is unchanged.
+**A12. User guide `docs/user_guide/index.md` :547** (limitations list; slice r3; depends on: exact routes under R, settled) — *changed in revision 4*
+- Old: "[Current Desktop App](#current-desktop-app-010): reports only as local private\n  documents, and the report JSON packet only for pressure-free results,"
+- New: "[Current Desktop App](#current-desktop-app-010): reports only as local private\n  documents or as shareable packages of pressure-free results with your per-report statement of rights to share your own project data, and the report JSON packet only for pressure-free results,"
+- Note: the Old is #1648's O15 New. The line break after "local private" is the Old's own, kept so the list item's wrapping is unchanged.
 
-**A13. User guide `docs/user_guide/index.md` :393** (§10, first sentence; slice r3; depends on: O-C, settled)
+**A13. User guide `docs/user_guide/index.md` :420** (§10, first sentence; slice r3; depends on: O-C, settled) — *unchanged in revision 4; its line moved from :393*
 - Old: "renders a report only as a local private document"
 - New: "renders the standalone report only as a local private document"
+- Note: the sentence now continues "…, after the local-private selection, for a pressure-free result or an exact-route result that Export Result JSON admits, and the report package is saved locally for the same results" (#1648's O12). With the New, it describes the standalone report and the local-private package, and both clauses stay true under R.
+
+**A14. DEL-04-08 `ScopeOfWork.md` :219** (REQ-006 (c), first bullet; slice r3; depends on: scope R, exact routes under R, settled) — *new in revision 4*
+- Old: "Every other desktop output surface refuses it (`PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE`)."
+- New: "Every other desktop output surface refuses it (`PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE`), and Save Shareable Report Package… (DEL-08-01 Design `report-user-release.md`) refuses it with `REPORT-USER-RELEASE-EXACT-ROUTE-NOT-ADMITTED`."
+- Note: since #1648's O1 the bullet says that "the report package" admits an exact-route result. A14 says what the shareable package does, which is the consequence of the §0 decision. This is commitment text, so it goes through the wording grant like every other draft.
