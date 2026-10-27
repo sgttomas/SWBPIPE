@@ -73,3 +73,27 @@ def test_repin_leaves_the_registered_profile_record_unchanged():
     # The actual record is matched exactly once.
     source = (PROJECT / "core/product_physics/src/retained_memory.rs").read_text(encoding="utf-8")
     assert len(tool.PROTECTED["core/product_physics/src/retained_memory.rs"].findall(source)) == 1
+
+
+def test_timoshenko_table_is_preview_physics_2_with_its_identity_profile_and_limitation_0():
+    """DEL-05-03 Design pf-timoshenko.md §4: the derived table differs from preview-physics-2 in exactly three
+    members (identity, profile, limitation 0), member order kept; `derive --check` holds it current."""
+    import json
+    tool = _tool()
+    preview = json.loads((PROJECT / tool.PREVIEW).read_bytes())
+    derived = json.loads((PROJECT / tool.TIMOSHENKO).read_bytes())
+    assert list(derived) == list(preview)
+    assert {k for k in preview if preview[k] != derived[k]} == {
+        "semantic_contract_id", "formulation_profile_id", "supported_profile_limitations"}
+    assert derived["semantic_contract_id"] == "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1"
+    assert derived["formulation_profile_id"] == "product_preview_mechanics_timoshenko_v1"
+    assert derived["supported_profile_limitations"] == [tool.TIMOSHENKO_LIMITATION_0] + preview["supported_profile_limitations"][1:]
+    assert (PROJECT / tool.TIMOSHENKO).read_bytes() == tool.timoshenko_table()
+    # The results schema's Timoshenko branch states the same array (apply-u4b keeps it current).
+    assert tool.apply_u4b(check=True) == 0
+    schema = json.loads((PROJECT / "schemas/results.v0.3.schema.yaml").read_text(encoding="utf-8"))
+    branch = next(b for b in schema["$defs"]["ResultEnvelope"]["oneOf"]
+                  if b.get("properties", {}).get("producer", {}).get("properties", {}).get("semantic_contract_id", {}).get("const")
+                  == derived["semantic_contract_id"])
+    assert branch["properties"]["formulation_basis"]["properties"]["profile_id"]["const"] == derived["formulation_profile_id"]
+    assert branch["properties"]["formulation_basis"]["properties"]["limitations"]["const"] == derived["supported_profile_limitations"]
