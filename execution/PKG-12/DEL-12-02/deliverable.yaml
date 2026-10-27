@@ -249,5 +249,13 @@ code_paths:
 - schemas/redaction_export_controls.schema.yaml
 - tools/validation/validate_dependencies_schema.py
 - apps/desktop/src/features/redaction-controls/**
+# W-18b (r1), DEL-08-01 Design `report-user-release.md` §3: the user-released context,
+# its decision order, local-first rule and route id in the three mirrors and the corpus.
+- core/security/local_first_storage/route_control.py
+- core/runner/headless/src/redaction_binding.rs
+- fixtures/redaction_export_controls/cases.json
+- docs/security/redaction_export_controls.md
 checks:
 - tests/security/test_redaction_export_controls.py
+- apps/desktop/src/features/redaction-controls/redactionExportControls.test.ts
+- core/runner/headless/src/redaction_binding.rs
