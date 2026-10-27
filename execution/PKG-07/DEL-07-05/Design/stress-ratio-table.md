@@ -121,8 +121,26 @@ quantity, such as the argument of a `TableOutOfRange` finding ("table argument �
 table range [ … ]"). It carries no unit for that number, so the display rule (§6) could not be
 applied to it faithfully, and rewriting numeric tokens would also corrupt identifiers that contain
 digits. For a withheld row (§4) such a number would also be a withheld value. The cause stays
-visible: the code, the subject and the missing inputs. The full messages remain in the rule-check
+visible: the code, the subject (by standing, below) and the missing inputs. The full messages remain in the rule-check
 run panel, which is the run's own surface.
+
+A finding's subject can carry a status. When a check evaluates to a pass or fail its pack does not
+declare in `result_statuses`, the runner (`enforce_declared` in `core/rules/rule_check_runner`)
+records a `STATUS_NOT_DECLARED` finding whose subject is the evaluated status, such as
+`USER_RULE_FAILED`, and reports the outcome `RULE_INPUTS_INCOMPLETE`. Subjects are therefore
+shown by standing:
+
+- **Withheld row (§4).** No finding subject is shown: "Completeness finding CODE." or "Evaluator
+  finding CODE.". The missing inputs, the codes and the incomplete status stay, so the cause is
+  still visible.
+- **Admitted row.** A subject is shown unless it contains a token of the runner's status
+  vocabulary (`RULE_INPUTS_INCOMPLETE`, `USER_RULE_CHECKED`, `USER_RULE_FAILED`, the whole of
+  `RuleCheckStatus`), compared without case. Such a subject reads "(undeclared status)" under
+  `STATUS_NOT_DECLARED`, which is what that finding means, and "(subject not shown)" under any
+  other code, where a pack identifier happens to contain a status token. The outcome's status is
+  the runner's own, incomplete. Showing the undeclared evaluated status beside it would add a pass
+  or fail the run did not report, so neither placeholder echoes the token. The rule-check run
+  panel still shows the finding in full.
 
 ## 4. Numerical standing and withheld rows
 
@@ -138,7 +156,10 @@ Rows are admitted only by the viewport overlays' rule, `overlayMayShowRow(standi
   "Withheld".
 - An incomplete outcome is shown as incomplete whatever its standing, in its status cell and in
   `data-status="RULE_INPUTS_INCOMPLETE"`. If its case is also withheld, its values are not shown,
-  and its reason (§3.2) carries no quantity in either case.
+  and its reason (§3.2) carries no quantity in either case. A withheld incomplete row's reason
+  also carries no finding subject, since a subject can be the check's evaluated pass or fail status
+  (§3.2). No text, attribute, title or accessible name of a withheld row carries a pass or fail
+  status.
 
 The retained routes have no numerical health view, so all of their rows are withheld.
 
@@ -276,7 +297,9 @@ and writes nothing.
   each reason none is formed; incomplete outcomes pinned under every threshold, mode and sort;
   withheld outcomes pinned with no status; failed outcomes never hidden, and listed on every page at
   their rank in either mode; the incomplete reason built from structured fields, with no number
-  from a finding's message; multiple bases per check;
+  from a finding's message, no subject for a withheld row, and no status token in an admitted
+  row's subjects (a `STATUS_NOT_DECLARED` subject of `USER_RULE_FAILED` or `USER_RULE_CHECKED`,
+  withheld and admitted, in both modes); multiple bases per check;
   tie order (failed before checked, then run order); locations from bound rows and from selectors;
   the run-mismatch guard; no run gives stress groups only; unavailable states.
 - `apps/desktop/src/features/results/StressRatioTablePanel.test.tsx`: the display rule in cells,
@@ -284,7 +307,10 @@ and writes nothing.
   disabled reason; the threshold and the hidden count; pinned incomplete rows with their reasons
   under a threshold above every ratio; no digit of a finding message's quantity anywhere in the
   markup, for a withheld or an admitted incomplete outcome; no pass or fail attribute on a withheld
-  row; a failed outcome kept on the page when switching to stress moves it past 50; highlight by
+  row; for a downgraded check's `STATUS_NOT_DECLARED` subject (`USER_RULE_FAILED`,
+  `USER_RULE_CHECKED`) in both modes, no status token in a withheld row's text, attributes, titles
+  or accessible names, with its incomplete status and cause stated, and "(undeclared status)" in
+  an admitted row's reason; a failed outcome kept on the page when switching to stress moves it past 50; highlight by
   click and keyboard; the selected-row mark; "Show 50 more" with the listed count; source-order
   labels for mixed units; a custom test-id prefix; one derivation per input identity.
 - Native smoke (`apps/desktop/native-smoke/driver.js`, `run.mjs`): structure only, no values, and

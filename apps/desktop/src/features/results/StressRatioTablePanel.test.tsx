@@ -16,7 +16,7 @@ import {
   STRESS_RATIO_PINNED_TEXT,
   StressRatioTablePanel
 } from "./StressRatioTablePanel";
-import { INCOMPLETE_MESSAGES_NOTE, STRESS_RATIO_NO_RESULT, STRESS_RATIO_NO_RUN, THRESHOLD_INVALID_NOTE, stressRatioRunText, unitsDifferNote } from "./stressRatioTable";
+import { INCOMPLETE_MESSAGES_NOTE, STRESS_RATIO_NO_RESULT, SUBJECT_UNDECLARED_STATUS, STRESS_RATIO_NO_RUN, THRESHOLD_INVALID_NOTE, stressRatioRunText, unitsDifferNote } from "./stressRatioTable";
 import { supportLoadWithheldStateText } from "./supportLoadSummary";
 
 afterEach(cleanup);
@@ -245,24 +245,70 @@ describe("StressRatioTablePanel: rule-check outcomes", () => {
       })
     ];
     const reason = `Missing input: in_p2. Completeness finding RULE_SOLVER_RESULT_ROW_MISSING (in_p2). Evaluator finding TableOutOfRange (chk_p2). ${INCOMPLETE_MESSAGES_NOTE}`;
+    const withheldReason = `Missing input: in_p2. Completeness finding RULE_SOLVER_RESULT_ROW_MISSING. Evaluator finding TableOutOfRange. ${INCOMPLETE_MESSAGES_NOTE}`;
     const quantities = ["123456789", "123.457", "1.23457", "123457", "98765432", "98.7654", "100.25", "0.5", "table argument", "no row matched"];
     const withheld = healthStanding({ eligible: true, states: { "load:L-1": "checks_passed", "load:L-2": "sensitive" } });
     for (const mode of ["ratio", "stress"] as const) {
-      // Withheld: the cause (code, subject, missing input) and the incomplete status stay; no digit of a value anywhere.
+      // Withheld: the cause (codes, missing input) and the incomplete status stay, with no finding
+      // subject (§3.2); no digit of a value anywhere.
       const held = renderPanel({ ruleCheckRun: ruleRun(checks), standing: withheld });
       fireEvent.click(screen.getByTestId(`stress-ratio-mode-${mode}`));
       const heldRow = screen.getByTestId(`stress-ratio-row-${P2_L2}`);
       expect([heldRow.getAttribute("data-standing"), heldRow.getAttribute("data-status")]).toEqual(["withheld", "RULE_INPUTS_INCOMPLETE"]);
       expect(screen.getByTestId(`stress-ratio-status-${P2_L2}`).textContent).toBe("Incomplete (RULE_INPUTS_INCOMPLETE)");
-      expect(screen.getByTestId(`stress-ratio-reason-${P2_L2}`).textContent).toBe(`${reason} ${supportLoadWithheldStateText("sensitive")}`);
+      expect(screen.getByTestId(`stress-ratio-reason-${P2_L2}`).textContent).toBe(`${withheldReason} ${supportLoadWithheldStateText("sensitive")}`);
       for (const fragment of quantities) expect(held.container.innerHTML).not.toContain(fragment);
       held.unmount();
-      // Admitted: the same structured reason; the message's numbers are not shown in any form.
+      // Admitted: the structured reason with its subjects; the message's numbers are not shown in any form.
       const admitted = renderPanel({ ruleCheckRun: ruleRun(checks) });
       fireEvent.click(screen.getByTestId(`stress-ratio-mode-${mode}`));
       expect(screen.getByTestId(`stress-ratio-reason-${P2_L2}`).textContent).toBe(reason);
       for (const fragment of quantities) expect(admitted.container.innerHTML).not.toContain(fragment);
       admitted.unmount();
+    }
+  });
+
+  describe("a downgraded check's undeclared status in a finding subject (§3.2, §4)", () => {
+    // The runner's `enforce_declared` puts the evaluated status in a STATUS_NOT_DECLARED finding's
+    // subject and reports the outcome RULE_INPUTS_INCOMPLETE.
+    const downgraded = (evaluated: string) => [outcome("chk_p2", "in_p2", null, "RULE_INPUTS_INCOMPLETE", L2, {
+      computed_value: quantity(4.5), limit_value: quantity(3),
+      evaluator_findings: [{ code: "STATUS_NOT_DECLARED", severity: "blocking", subject_id: evaluated, message: "computed status is not in the check's declared result_statuses" }]
+    })];
+    const withheld = healthStanding({ eligible: true, states: { "load:L-1": "checks_passed", "load:L-2": "sensitive" } });
+    const STATUS_TOKEN = /USER_RULE_(FAILED|CHECKED)|user-rule (failed|checked)|(failed|checked) by your rule/i;
+
+    for (const evaluated of ["USER_RULE_FAILED", "USER_RULE_CHECKED"]) {
+      for (const mode of ["ratio", "stress"] as const) {
+        it(`${evaluated}, ${mode} mode: no status token in a withheld row; admitted reads "${SUBJECT_UNDECLARED_STATUS}"`, () => {
+          const held = renderPanel({ ruleCheckRun: ruleRun(downgraded(evaluated)), standing: withheld });
+          fireEvent.click(screen.getByTestId(`stress-ratio-mode-${mode}`));
+          const heldRow = screen.getByTestId(`stress-ratio-row-${P2_L2}`);
+          expect([heldRow.getAttribute("data-standing"), heldRow.getAttribute("data-status")]).toEqual(["withheld", "RULE_INPUTS_INCOMPLETE"]);
+          expect(screen.getByTestId(`stress-ratio-status-${P2_L2}`).textContent).toBe("Incomplete (RULE_INPUTS_INCOMPLETE)");
+          expect(screen.getByTestId(`stress-ratio-reason-${P2_L2}`).textContent)
+            .toBe(`Missing input: in_p2. Evaluator finding STATUS_NOT_DECLARED. ${INCOMPLETE_MESSAGES_NOTE} ${supportLoadWithheldStateText("sensitive")}`);
+          // Text, attributes, titles and aria of the row, and of the whole panel.
+          expect(heldRow.textContent).not.toMatch(STATUS_TOKEN);
+          expect(heldRow.outerHTML).not.toMatch(STATUS_TOKEN);
+          for (const element of [heldRow, ...Array.from(heldRow.querySelectorAll("*"))]) {
+            for (const attribute of Array.from(element.attributes)) expect(attribute.value, attribute.name).not.toMatch(STATUS_TOKEN);
+          }
+          expect(held.container.innerHTML).not.toMatch(STATUS_TOKEN);
+          expect(held.container.innerHTML).not.toContain(SUBJECT_UNDECLARED_STATUS);
+          held.unmount();
+
+          const admitted = renderPanel({ ruleCheckRun: ruleRun(downgraded(evaluated)) });
+          fireEvent.click(screen.getByTestId(`stress-ratio-mode-${mode}`));
+          const admittedRow = screen.getByTestId(`stress-ratio-row-${P2_L2}`);
+          expect([admittedRow.getAttribute("data-standing"), admittedRow.getAttribute("data-status")]).toEqual(["admitted", "RULE_INPUTS_INCOMPLETE"]);
+          expect(screen.getByTestId(`stress-ratio-status-${P2_L2}`).textContent).toBe("Incomplete (RULE_INPUTS_INCOMPLETE)");
+          expect(screen.getByTestId(`stress-ratio-reason-${P2_L2}`).textContent)
+            .toBe(`Missing input: in_p2. Evaluator finding STATUS_NOT_DECLARED (${SUBJECT_UNDECLARED_STATUS}). ${INCOMPLETE_MESSAGES_NOTE}`);
+          expect(admitted.container.innerHTML).not.toMatch(STATUS_TOKEN);
+          admitted.unmount();
+        });
+      }
     }
   });
 
