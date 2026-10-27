@@ -94,6 +94,31 @@ fn only_the_three_crates_depend_on_the_renderer() {
     assert_eq!(dependents("open_pipe_stress_pdf_emitter"), BTreeSet::from(["core/reporting/report_package".to_string()]));
 }
 
+/// Codex round 1 at #1682 (P2, P2b): the spellings Codex found escaping on the
+/// real source inventory are findings there: a raw `assemble_derived` call, a
+/// renderer call through a leading `::`, a raw `DerivedUserRelease` literal in
+/// its own module, a nested `cfg_attr` applying `path` (Rust would load
+/// `alternate.rs`) and a derive applied by `cfg_attr`.
+#[test]
+fn the_real_sources_find_the_escaping_spellings() {
+    let base = project_sources(&project());
+    let cases = [
+        ("src-tauri/src/report_package_save.rs", "fn other(request: Value) { open_pipe_stress_report_package::user_release::r#assemble_derived(request, linked, inputs, manifest); }\n", "assemble_derived is called from Fn(\"other\")"),
+        ("src-tauri/src/lib.rs", "fn rooted(input: &I) { ::open_pipe_stress_report_renderer::render_calculation_report(input); }\n", "render_calculation_report is called from Fn(\"rooted\")"),
+        ("report_package/src/user_release.rs", "fn forge() -> DerivedUserRelease { r#DerivedUserRelease { _derived: () } }\n", "literal outside check_derived"),
+        ("report_package/src/lib.rs", "#[cfg_attr(all(), cfg_attr(all(), path = \"alternate.rs\"))]\nmod ordinary;\n", "a cfg_attr that applies #[path]"),
+        ("report_package/src/lib.rs", "#[cfg_attr(all(), derive(UnlistedDerive))]\nstruct Rogue;\n", "the derive UnlistedDerive is not on the derive list"),
+    ];
+    for (file, text, expected) in cases {
+        let mut sources = base.clone();
+        sources.files.get_mut(file).unwrap().push_str(text);
+        sources.files.insert("report_package/src/ordinary.rs".to_string(), "\n".to_string());
+        sources.files.insert("report_package/src/alternate.rs".to_string(), "pub fn forward(input: &I) -> O { crate::pdf::assemble_full_report_package(input) }\n".to_string());
+        let findings = scan(&sources);
+        assert!(findings.iter().any(|finding| finding.contains(expected)), "{file}: expected {expected:?} in {findings:#?}");
+    }
+}
+
 // --- The invented closed set and its negative fixtures (§6) -----------------
 
 /// `app_invoke_handler`'s basis text, read from the real `lib.rs` (its pin
@@ -314,6 +339,9 @@ fn appended(file: &str, text: &str) -> Sources {
 const WRITER_CALL: &str = "    let report = pdf::assemble_full_report_package(input.report);\n";
 const LIB: &str = "report_package/src/lib.rs";
 const TAURI: &str = "src-tauri/src/lib.rs";
+const SAVE: &str = "src-tauri/src/report_package_save.rs";
+const BRIDGE: &str = "src-tauri/src/report_package_bridge.rs";
+const USER_RELEASE: &str = "report_package/src/user_release.rs";
 
 #[test]
 fn the_invented_closed_set_passes() {
@@ -419,6 +447,65 @@ fn user_release_reach_scan_finds_each_break() {
         }, "has a src/bin directory"),
         ("a glob import", appended("src-tauri/src/report_package_bridge.rs", "use open_pipe_stress_report_package::*;\n"), "a glob import of open_pipe_stress_report_package"),
     ];
+    // Codex round 1 at #1682 (P2): names are compared without `r#` and paths
+    // without a leading `::`, `crate::`, `self::` or `super::` as the scan
+    // resolves modules; every other spelling fails closed.
+    let spellings: Vec<(&str, Sources, &str)> = vec![
+        ("a raw assemble_derived call", appended(SAVE, "fn other(r: Value) { open_pipe_stress_report_package::user_release::r#assemble_derived(r, l, i, m); }\n"), "assemble_derived is called from Fn(\"other\")"),
+        ("a raw assemble_derived on the real-source form", edited(BRIDGE, "    package::user_release::assemble_derived(request)\n", "    package::user_release::assemble_derived(request)\n}\nfn twice(request: Value) -> Result<Outcome, String> {\n    open_pipe_stress_report_package::user_release::r#assemble_derived(request, linked, inputs, manifest)\n"), "assemble_derived is called from Fn(\"twice\")"),
+        ("the renderer through a leading ::", appended(TAURI, "fn rooted(input: &I) { ::open_pipe_stress_report_renderer::render_calculation_report(input); }\n"), "render_calculation_report is called from Fn(\"rooted\")"),
+        ("the renderer by a raw name", appended(TAURI, "fn raw(i: &I) { open_pipe_stress_report_renderer::r#render_calculation_report(i); }\n"), "render_calculation_report is called from Fn(\"raw\")"),
+        ("the renderer crate by a raw name", appended(TAURI, "fn raw(i: &I) { r#open_pipe_stress_report_renderer::render_calculation_report(i); }\n"), "render_calculation_report is called from Fn(\"raw\")"),
+        ("the renderer pair through Self::", appended(TAURI, "struct W;\nimpl W { fn r(i: &I) { Self::render_calculation_report(i); } }\n"), "render_calculation_report is called from Method(\"r\")"),
+        ("the renderer pair through a re-export path", appended(TAURI, "fn re(i: &I) { open_pipe_stress_report_package::forwarded::assemble_report_sections(i); }\n"), "assemble_report_sections is called from Fn(\"re\")"),
+        ("a fn pointer to the renderer through ::", appended(TAURI, "const R: fn(&I) -> O = ::open_pipe_stress_report_renderer::render_calculation_report;\n"), "render_calculation_report named in a path other than a direct call"),
+        ("a closure bound to the renderer through ::", appended(TAURI, "fn c(i: &I) { let f = |i| ::open_pipe_stress_report_renderer::render_calculation_report(i); f(i); }\n"), "render_calculation_report is called from Closure"),
+        ("the renderer path in macro tokens, raw", appended(TAURI, "fn m() { let _ = format!(\"{:p}\", ::open_pipe_stress_report_renderer::r#render_calculation_report as fn(&I) -> O); }\n"), "render_calculation_report named in a macro's or an attribute's tokens"),
+        ("a raw scanned name in macro tokens", appended(LIB, "fn m() { let _ = format!(\"{:p}\", pdf::r#assemble_full_report_package as fn(&I) -> O); }\n"), "assemble_full_report_package named in a macro's or an attribute's tokens"),
+        ("a raw method call by the scanned name", appended(LIB, "pub fn m(input: &I) { input.r#assemble_full_report_package(); }\n"), "named other than as a definition or a direct call"),
+        ("a raw scanned fn pointer", appended(LIB, "const BUILD: fn(&I) -> O = pdf::r#assemble_full_report_package;\n"), "named other than as a definition or a direct call"),
+        ("a <T as Trait>:: call by the scanned name", appended(SAVE, "fn qualified(r: Value) { <Bridge as Assemble>::assemble_user_released_request(r); }\n"), "named through a qualified <T as Trait>:: path"),
+        ("a <T>:: call by the scanned name", appended(LIB, "pub fn q(i: &I) { <pdf::Emitter>::assemble_full_report_package(i); }\n"), "named through a qualified <T as Trait>:: path"),
+        ("use ::renderer as an alias in src-tauri", appended(TAURI, "use ::open_pipe_stress_report_renderer as r;\n"), "src-tauri imports open_pipe_stress_report_renderer"),
+        ("use of a raw renderer crate name in src-tauri", appended(TAURI, "use r#open_pipe_stress_report_renderer as r;\n"), "src-tauri imports open_pipe_stress_report_renderer"),
+        ("use of a raw scanned name as an alias", appended(LIB, "use open_pipe_stress_pdf_emitter::r#assemble_full_report_package as build;\n"), "assemble_full_report_package named in a use"),
+        ("the PDF crate bound under another alias", appended(LIB, "use open_pipe_stress_pdf_emitter as forge;\n"), "binds the renderer or PDF crate as forge"),
+        ("a re-export of the PDF alias through crate::", appended(LIB, "pub use crate::pdf as p;\n"), "re-exports the renderer or PDF crate"),
+        ("a re-export of the renderer alias through self::", appended(LIB, "pub(crate) use self::renderer as r;\n"), "re-exports the renderer or PDF crate"),
+        ("a raw DerivedUserRelease literal in its module", appended(USER_RELEASE, "fn forge() -> DerivedUserRelease { r#DerivedUserRelease { _derived: () } }\n"), "literal outside check_derived"),
+        ("a Self literal in an impl of DerivedUserRelease", appended(USER_RELEASE, "impl DerivedUserRelease { fn forge() -> Self { Self { _derived: () } } }\n"), "literal outside check_derived"),
+        ("a type alias of DerivedUserRelease", appended(USER_RELEASE, "type D = DerivedUserRelease;\nfn forge() -> D { D { _derived: () } }\n"), "DerivedUserRelease named in a type alias"),
+        ("an associated type of DerivedUserRelease", appended(USER_RELEASE, "impl Tr for X { type D = DerivedUserRelease; }\n"), "DerivedUserRelease named in a type alias"),
+        ("a derive on DerivedUserRelease", edited(USER_RELEASE, "pub(crate) struct DerivedUserRelease {", "#[derive(Default)]\npub(crate) struct DerivedUserRelease {"), "the DerivedUserRelease definition carries #[derive]"),
+        ("a cfg_attr derive on DerivedUserRelease", edited(USER_RELEASE, "pub(crate) struct DerivedUserRelease {", "#[cfg_attr(all(), derive(Clone))]\npub(crate) struct DerivedUserRelease {"), "the DerivedUserRelease definition carries #[derive]"),
+        ("an unsafe block in a reporting crate", appended(USER_RELEASE, "fn forge() -> DerivedUserRelease { unsafe { std::mem::zeroed() } }\n"), "an unsafe block in a reporting crate"),
+        ("an unsafe fn in a reporting crate", appended("pdf_emitter/src/lib.rs", "unsafe fn f() {}\n"), "an unsafe fn in a reporting crate"),
+        ("an extern block in a reporting crate", appended(LIB, "extern \"C\" { fn forge() -> u8; }\n"), "an extern block in a reporting crate"),
+        ("UserRelease bound by an import", appended(USER_RELEASE, "use crate::user_release::ProducerEntry::UserRelease as U;\n"), "binds ProducerEntry::UserRelease"),
+        ("UserRelease as a constructor value", appended(USER_RELEASE, "fn smuggle(derived: DerivedUserRelease) -> ProducerEntry { let f = ProducerEntry::UserRelease; f(derived) }\n"), "ProducerEntry::UserRelease is constructed outside assemble_derived"),
+        ("a raw UserRelease construction", appended(USER_RELEASE, "fn smuggle(derived: DerivedUserRelease) -> ProducerEntry { ProducerEntry::r#UserRelease(derived) }\n"), "ProducerEntry::UserRelease is constructed outside assemble_derived"),
+        ("a raw module name resolves to its file", with_file("report_package/src/escape.rs", "pub fn forward(input: &I) -> O { crate::pdf::assemble_full_report_package(input) }\n", appended(LIB, "mod r#escape;\n")), "report_package/src/escape.rs:1: assemble_full_report_package is called from Fn(\"forward\")"),
+        ("an unlisted macro behind a leading ::", appended(LIB, "fn e(i: &I) { ::forwarder::emit!(i); }\n"), "the macro forwarder::emit! is not on the invocation list"),
+    ];
+    // Codex round 1 at #1682 (P2): a conditional attribute is checked by the
+    // rules of a direct one, at any depth, whatever its predicate.
+    let conditional: Vec<(&str, Sources, &str)> = vec![
+        (
+            "a nested cfg_attr applying path",
+            with_file("report_package/src/alternate.rs", "pub fn forward(input: &I) -> O { crate::pdf::assemble_full_report_package(input) }\n", with_file("report_package/src/ordinary.rs", "\n", appended(LIB, "#[cfg_attr(all(), cfg_attr(all(), path = \"alternate.rs\"))]\nmod ordinary;\n"))),
+            "a cfg_attr that applies #[path]",
+        ),
+        ("a cfg_attr applying path under a false predicate", with_file("report_package/src/ordinary.rs", "\n", appended(LIB, "#[cfg_attr(any(), path = \"alternate.rs\")]\nmod ordinary;\n")), "a cfg_attr that applies #[path]"),
+        ("an unlisted derive through cfg_attr", appended(LIB, "#[cfg_attr(all(), derive(UnlistedDerive))]\nstruct Rogue;\n"), "the derive UnlistedDerive is not on the derive list"),
+        ("an unlisted derive through a nested cfg_attr", appended(LIB, "#[cfg_attr(all(), cfg_attr(not(test), derive(UnlistedDerive)))]\nstruct Rogue;\n"), "the derive UnlistedDerive is not on the derive list"),
+        ("several attributes in one cfg_attr", appended(LIB, "#[cfg_attr(all(), derive(Clone), derive(Hash))]\nstruct Rogue;\n"), "the derive Hash is not on the derive list"),
+        ("a serde key through cfg_attr", edited(USER_RELEASE, "    pub note: Option<String>,", "    #[cfg_attr(all(), serde(serialize_with = \"forward\"))]\n    pub note: Option<String>,"), "the serde key serialize_with is not on the serde key list"),
+        ("macro_use through cfg_attr", appended(LIB, "#[cfg_attr(all(), macro_use)]\nmod inline_macros {}\n"), "#[macro_use]"),
+        ("tauri::command through cfg_attr on a scanned function", edited(BRIDGE, "pub fn assemble_user_released_request", "#[cfg_attr(all(), tauri::command)]\npub fn assemble_user_released_request"), "#[tauri::command] marks the scanned function assemble_user_released_request"),
+        ("an attribute macro through a nested cfg_attr", appended(LIB, "#[cfg_attr(all(), cfg_attr(all(), forwarder::instrument))]\nfn f() {}\n"), "the attribute #[forwarder::instrument] (through cfg_attr) is not on the attribute list"),
+        ("a macro in a cfg_attr's doc value", appended(LIB, "#[cfg_attr(all(), doc = include!(\"forward.rs\"))]\nfn f() {}\n"), "include! brings in source"),
+    ];
+    let cases: Vec<(&str, Sources, &str)> = cases.into_iter().chain(spellings).chain(conditional).collect();
     for (case, sources, expected) in cases {
         let findings = scan(&sources);
         assert!(findings.iter().any(|finding| finding.contains(expected)), "{case}: expected {expected:?} in {findings:#?}");
@@ -442,6 +529,10 @@ fn user_release_reach_scan_admits_the_listed_forms() {
         ("a #[cfg(test)] item holding a call", appended(LIB, "#[cfg(test)]\nfn t(i: &I) { pdf::assemble_full_report_package(i); renderer::render_calculation_report(i); }\n")),
         ("a ProducerEntry::UserRelease(_) pattern in check_request_in", invented()),
         ("a test-only outlined module", appended(LIB, "#[cfg(test)]\nmod witness_tests;\n")),
+        // Codex round 1 at #1682 (P2): the normalized spellings of admitted forms.
+        ("listed macros and an attribute behind a leading ::", appended(TAURI, "#[::tauri::command]\nfn rooted() { let _ = ::serde_json::json!({}); }\n")),
+        ("the local Tauri command through crate::", appended(TAURI, "fn again(input: Value) -> Result<Value, String> { crate::render_calculation_report(input) }\n")),
+        ("a nested cfg_attr applying listed attributes", appended("report_package/src/user_release.rs", "#[cfg_attr(all(), cfg_attr(not(test), allow(dead_code)), derive(Clone, Debug))]\nstruct Listed;\n")),
     ];
     for (case, sources) in passing {
         let findings = scan(&sources);

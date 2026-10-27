@@ -1675,7 +1675,10 @@ with `syn::visit::Visit`.
   declarations is not read.
 - **Forbidden in production.** Each of these is a finding:
   - a `#[path = …]` on a `mod`;
-  - a `cfg_attr` whose attribute list contains `path`;
+  - a `cfg_attr` that applies `path`, at any depth of nested `cfg_attr`s and
+    whatever its predicate. The scan does not evaluate predicates, so it
+    cannot know which file such a module loads; it refuses the attribute
+    rather than follow one candidate (Codex round 1 at #1682, P2b);
   - any `include!`;
   - an `include_str!` or `include_bytes!` whose argument is not one string
     literal, or names a `.rs` file;
@@ -1756,8 +1759,11 @@ broken.
    be one of these:
    - built in: `cfg`, `cfg_attr`, `allow`, `inline`, `cold`,
      `global_allocator`, `derive`, and `doc` (doc comments). The attributes a
-     `cfg_attr` applies are checked against this list too. At the basis each
-     one is an `allow(dead_code)`;
+     `cfg_attr` applies, at any depth and whatever the predicate, are checked
+     by every rule here as a direct attribute is: this list, the derive list,
+     the `serde` keys, `tauri::command`'s form, `#[macro_export]` and
+     `#[macro_use]` (Codex round 1 at #1682, P2b). At the basis each one is
+     an `allow(dead_code)`;
    - derive helpers, which emit nothing themselves: `default` (the `Default`
      derive's variant marker) and `serde`, with only the keys used at the
      basis: `default` with no value, `deny_unknown_fields`, `flatten`,
@@ -1886,6 +1892,40 @@ above, each derived from the basis source.
 - `check_derived`, `assemble_derived`,
   `assemble_user_released_request` and `DerivedUserRelease`.
 
+*Spellings (Codex round 1 at #1682, P2a).* Names and paths are compared
+normalized, in calls, literals, types, imports, attributes, macro paths and
+token screening alike:
+- a raw identifier is compared without its `r#` (`r#assemble_derived` is
+  `assemble_derived`), including a module's name when its file is resolved;
+- a leading `::` is dropped (`::serde_json::json!` is `serde_json::json!`);
+- a path prefix of only `crate`, `self` and `super` is the current crate's
+  own modules.
+
+Every other spelling fails closed:
+- `use … as` aliases: an import that names a scanned function, any import
+  in `src-tauri` of the renderer or PDF crate, and an import that binds
+  `ProducerEntry::UserRelease`, are findings. In `report_package` and
+  `pdf_emitter` the renderer and PDF crates are bound only under the basis
+  aliases (`renderer`, `pdf`); another alias is a finding, so (a) below sees
+  every re-export;
+- `<T as Trait>::name` and `<T>::name` paths to a scanned name are
+  findings, never counted as calls;
+- method-call syntax, function pointers and closures by a scanned name are
+  occurrences other than a direct call (rule 2 below), so they are findings
+  except a closure's direct call, which is a call from the closure;
+- `Self::name`: in `src-tauri` a renderer-pair name through any prefix other
+  than `crate`, `self` or `super` (`Self`, an alias, a re-export path) is
+  scanned;
+- `DerivedUserRelease`: a `Self { .. }` literal in an `impl` of it is its
+  literal; naming it in a type alias or an associated type is a finding; its
+  definition carries no attribute but its documentation (no derive); and the
+  three reporting crates hold no `unsafe` block, function, impl or trait and
+  no `extern` block, through which one could be built without naming it;
+- `ProducerEntry::UserRelease` named as a value, not only as a callee, is a
+  construction;
+- macro-generated paths: only the listed macros may be invoked, and their
+  tokens are screened with the same normalization.
+
 An occurrence is an identifier equal to a scanned name, wherever it stands:
 - in a path, a `use` tree, a method call, a field, a pattern or a type;
 - in an attribute's arguments;
@@ -1896,8 +1936,9 @@ An occurrence is an identifier equal to a scanned name, wherever it stands:
 In `src-tauri` the bare `render_calculation_report` is the Tauri command's:
 its definition (`lib.rs:1569`) and its handler entry (`:5076`). Its command
 string (`:1573`) is a literal and is never matched. So in `src-tauri` the
-renderer's two functions are matched only as the path
-`open_pipe_stress_report_renderer::<name>`, or that token sequence in a
+renderer's two functions are matched only as a path with a prefix other than
+`crate`, `self` or `super` (such as `open_pipe_stress_report_renderer::<name>`
+or `::open_pipe_stress_report_renderer::<name>`), or that token sequence in a
 macro. Rule (b) below keeps any other path from naming the renderer there.
 Every other scanned name is matched bare in all four crates.
 
@@ -1939,8 +1980,8 @@ scanned name must be one of these:
    file the table gives;
 2. the callee of a direct call: a call expression whose function is a path
    ending in the name, whose innermost scope owner is an allowed caller of
-   that row. For the `src-tauri` renderer pair the path is exactly
-   `open_pipe_stress_report_renderer::<name>`;
+   that row. For the `src-tauri` renderer pair the path's prefix is
+   `open_pipe_stress_report_renderer` (with or without a leading `::`);
 3. for `DerivedUserRelease` only, a type position (a signature, a field, the
    entry variant's payload), or the struct literal in `check_derived`
    (rule (c)).
@@ -2963,6 +3004,45 @@ leaves the sandbox directory empty, with no picker request.
       - a `#[cfg(test)]` item, inline module or outlined module that holds any
         of the calls above;
       - a `ProducerEntry::UserRelease(_)` pattern in `check_request_in`.
+
+    Codex round 1 at #1682 (P2a, P2b) adds the cases below (§2.8,
+    *Spellings*; rule 3). Each must be a finding unless it is marked as
+    passing; the first five are also applied to the real sources:
+    - **Raw identifiers and a leading `::`:**
+      `open_pipe_stress_report_package::user_release::r#assemble_derived(…)`
+      outside the bridge; `::open_pipe_stress_report_renderer::render_calculation_report(input)`,
+      the renderer function or crate written raw, a `fn` pointer and a
+      closure through `::`, and the raw renderer path in a macro's tokens, in
+      `src-tauri`; a raw scanned name in a macro's tokens, as a method and as
+      a `fn` pointer; a `r#DerivedUserRelease` literal in its own module; a
+      raw `ProducerEntry::r#UserRelease(derived)`; and `mod r#escape;`,
+      whose `escape.rs` is read;
+    - **Other prefixes:** `Self::render_calculation_report` and a re-export
+      path to `assemble_report_sections` in `src-tauri`;
+      `<Bridge as Assemble>::assemble_user_released_request(r)` and
+      `<pdf::Emitter>::assemble_full_report_package(i)`; `::forwarder::emit!`;
+    - **Imports:** `use ::open_pipe_stress_report_renderer as r;` and the
+      crate written raw in `src-tauri`; a raw scanned name imported `as`
+      another; `use open_pipe_stress_pdf_emitter as forge;`;
+      `pub use crate::pdf as p;` and `pub(crate) use self::renderer as r;`;
+      `use crate::user_release::ProducerEntry::UserRelease as U;`;
+    - **`DerivedUserRelease` and `UserRelease` without their literal:** a
+      `Self { _derived: () }` in an `impl` of it, a type alias and an
+      associated type naming it, a derive on its definition (direct and
+      through `cfg_attr`), an `unsafe` block, an `unsafe fn` and an `extern`
+      block in a reporting crate, and `let f = ProducerEntry::UserRelease;`;
+    - **Conditional attributes (P2b):**
+      `#[cfg_attr(all(), cfg_attr(all(), path = "alternate.rs"))] mod ordinary;`
+      (Rust loads `alternate.rs`), the same with a false predicate
+      (`any()`), `#[cfg_attr(all(), derive(UnlistedDerive))]` direct and
+      nested, `#[cfg_attr(all(), derive(Clone), derive(Hash))]`, a `serde`
+      key, `macro_use`, `tauri::command` on the bridge function and an
+      attribute macro under nested `cfg_attr`s, and a macro in a `cfg_attr`'s
+      `doc = …` value;
+    - **Passing cases:** `#[::tauri::command]` with `::serde_json::json!`;
+      `crate::render_calculation_report(input)` in `src-tauri`, the local
+      command; and a nested `cfg_attr` applying `allow(dead_code)` and listed
+      derives.
   - **Render command:** a pressure-free `local_private` input with a
     `user_release` member, and an exact `local_private` input with one, are
     each refused with `RENDER-USER-RELEASE-PACKAGE-ONLY`, with no body.

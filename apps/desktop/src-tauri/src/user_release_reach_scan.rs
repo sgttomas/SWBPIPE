@@ -10,16 +10,27 @@
 //!   resolves the files itself. An item is test-only when one of its outer
 //!   attributes is exactly `#[cfg(test)]`; every other item, whatever its
 //!   `cfg`, is production. A `#[path]` on a production `mod`, a `cfg_attr`
-//!   carrying `path`, any `include!`, an `include_str!`/`include_bytes!` that
-//!   is not one string literal or names a `.rs` file, a missing or ambiguous
-//!   module file, and a file that does not parse are findings.
+//!   applying `path` at any depth and under any predicate (refused, not
+//!   followed: the scan does not evaluate predicates), any `include!`, an
+//!   `include_str!`/`include_bytes!` that is not one string literal or names
+//!   a `.rs` file, a missing or ambiguous module file, and a file that does
+//!   not parse are findings.
+//! - **Spellings** (Codex round 1 at #1682). Identifiers are compared without
+//!   `r#` and paths without a leading `::`; a prefix of only `crate`, `self`
+//!   and `super` is the crate's own. Every other spelling fails closed:
+//!   `<T as Trait>::` paths to scanned names, `Self::` and alias prefixes to
+//!   the `src-tauri` renderer pair, other aliases of the renderer and PDF
+//!   crates, imports of `ProducerEntry::UserRelease`, `DerivedUserRelease` in
+//!   a type alias, attributes on its definition, and `unsafe` code in the
+//!   three reporting crates are findings.
 //! - **Macros.** No `macro_rules!` or `macro` item except `app_invoke_handler`,
 //!   pinned by the SHA-256 of its source text; `#[macro_export]`,
 //!   `#[macro_use]` and any `Item::Verbatim` are findings. Every macro
 //!   invocation, in any position and inside another macro's tokens, must be
 //!   on the list derived from the basis source, by its path as written.
 //! - **Attributes, derives and imports.** Attribute paths, `serde` keys,
-//!   `tauri::command` uses and derives are on closed lists; `extern crate`,
+//!   `tauri::command` uses and derives are on closed lists, applied alike to
+//!   the attributes a `cfg_attr` applies, at any depth; `extern crate`,
 //!   glob imports and imports that rebind a listed macro, derive or crate
 //!   name are findings; `report_package` and `pdf_emitter` re-export no
 //!   renderer or PDF crate, and `src-tauri` imports neither, nor a scanned
@@ -242,10 +253,52 @@ fn is_test_only(attrs: &[syn::Attribute]) -> bool {
     })
 }
 
+/// An identifier as the scan compares it: a raw identifier without its `r#`
+/// (`r#name` and `name` are the same identifier; Codex round 1 at #1682, P2).
+fn ident_text(ident: &proc_macro2::Ident) -> String {
+    syn::ext::IdentExt::unraw(ident).to_string()
+}
+
+/// A path's segments as the scan compares them ([`ident_text`]), without a
+/// leading `::`: in the 2018+ editions `::name` and `name` name the same
+/// external crate, and a local item cannot be named after `::`.
+fn segments(path: &syn::Path) -> Vec<String> {
+    path.segments.iter().map(|segment| ident_text(&segment.ident)).collect()
+}
+
+/// [`segments`], joined by `::`: the normalized text of every path the scan
+/// matches against its lists (attributes, derives, `serde` keys, macro
+/// invocations, the entry argument).
 fn path_text(path: &syn::Path) -> String {
-    let mut text = if path.leading_colon.is_some() { "::".to_string() } else { String::new() };
-    text.push_str(&path.segments.iter().map(|segment| segment.ident.to_string()).collect::<Vec<_>>().join("::"));
-    text
+    segments(path).join("::")
+}
+
+/// Whether a path prefix names only the current crate's own modules
+/// (`crate`, `self`, `super`, as the scan resolves modules): in `src-tauri`
+/// such a path to a renderer-pair name is the local item of that name.
+fn local_prefix(prefix: &[String]) -> bool {
+    prefix.iter().all(|segment| matches!(segment.as_str(), "crate" | "self" | "super"))
+}
+
+/// Every attribute `attrs` apply, `cfg_attr` flattened at any depth (each
+/// conditional attribute counted whatever its predicate).
+fn applied_paths(attrs: &[syn::Attribute]) -> Vec<String> {
+    fn flatten(meta: &syn::Meta, out: &mut Vec<String>) {
+        let path = path_text(meta.path());
+        if let (syn::Meta::List(list), "cfg_attr") = (meta, path.as_str()) {
+            if let Ok(metas) = list.parse_args_with(syn::punctuated::Punctuated::<syn::Meta, syn::Token![,]>::parse_terminated) {
+                for inner in metas.iter().skip(1) {
+                    flatten(inner, out);
+                }
+            }
+        }
+        out.push(path);
+    }
+    let mut out = Vec::new();
+    for attr in attrs {
+        flatten(&attr.meta, &mut out);
+    }
+    out
 }
 
 fn sha256_hex(bytes: &[u8]) -> String {
@@ -276,11 +329,30 @@ struct FileScan<'a> {
     constructions: &'a mut Vec<(Owner, String, usize)>,
     /// Admitted macro definitions seen: (file, name).
     macros: &'a mut Vec<(String, String)>,
+    /// For each enclosing `impl`, whether its self type is `DerivedUserRelease`
+    /// (a `Self { .. }` literal there constructs one).
+    impl_derived: Vec<bool>,
+    /// Inside a type alias (`type X = ...;`), where naming `DerivedUserRelease`
+    /// would give it a name the literal rule does not match.
+    in_type_alias: bool,
 }
 
 impl FileScan<'_> {
     fn crate_key(&self) -> &str {
         crate_of(&self.file)
+    }
+
+    /// Whether this file is one of the three reporting crates, which hold no
+    /// `unsafe` code: `unsafe` could build a `DerivedUserRelease` without
+    /// naming it (`std::mem::zeroed`, `transmute`), so it is refused there.
+    fn is_core(&self) -> bool {
+        self.crate_key() != "src-tauri"
+    }
+
+    fn unsafe_found(&mut self, line: usize, what: &str) {
+        if self.is_core() {
+            self.finding(line, format!("{what} in a reporting crate"));
+        }
     }
 
     fn owner(&self) -> Owner {
@@ -310,13 +382,19 @@ impl FileScan<'_> {
 
     /// A scanned name used through `path` in this crate (a call, a type or
     /// anything else): the name, or `None`.
+    ///
+    /// Names are compared normalized ([`segments`]). In `src-tauri` a
+    /// renderer-pair name is the local item when the path is bare or its
+    /// prefix is only `crate`, `self` or `super`; through any other prefix
+    /// (the renderer crate, `::` and the crate, `Self`, an alias, a
+    /// re-export) it is scanned, failing closed.
     fn scanned_in_path(&self, path: &syn::Path) -> Option<String> {
-        let last = path.segments.last()?.ident.to_string();
+        let segments = segments(path);
+        let (last, prefix) = segments.split_last()?;
         if self.crate_key() == "src-tauri" && RENDERER_PAIR.contains(&last.as_str()) {
-            let segments: Vec<String> = path.segments.iter().map(|segment| segment.ident.to_string()).collect();
-            return (path.leading_colon.is_none() && segments.len() == 2 && segments[0] == RENDERER_CRATE).then_some(last);
+            return (!local_prefix(prefix)).then(|| last.clone());
         }
-        self.scanned_bare(&last).then_some(last)
+        self.scanned_bare(last).then(|| last.clone())
     }
 
     /// Screens a token stream (a macro's or an attribute's arguments): every
@@ -328,17 +406,16 @@ impl FileScan<'_> {
             match tree {
                 TokenTree::Group(group) => self.screen_tokens(&group.stream(), check_invocations),
                 TokenTree::Ident(ident) => {
-                    let name = ident.to_string();
+                    let name = ident_text(ident);
                     let line = line_of(ident.span());
                     if self.scanned_bare(&name) {
                         self.record(&name, line, Kind::Other("named in a macro's or an attribute's tokens"));
-                    } else if self.crate_key() == "src-tauri" && name == RENDERER_CRATE {
-                        // `open_pipe_stress_report_renderer :: <pair name>` as tokens.
-                        if let (Some(TokenTree::Punct(a)), Some(TokenTree::Punct(b)), Some(TokenTree::Ident(next))) =
-                            (trees.get(index + 1), trees.get(index + 2), trees.get(index + 3))
-                        {
-                            if a.as_char() == ':' && b.as_char() == ':' && RENDERER_PAIR.contains(&next.to_string().as_str()) {
-                                self.record(&next.to_string(), line, Kind::Other("named in a macro's or an attribute's tokens"));
+                    } else if self.crate_key() == "src-tauri" && RENDERER_PAIR.contains(&name.as_str()) && index >= 3 {
+                        // `<prefix> :: <pair name>` as tokens, the prefix other than
+                        // `crate`, `self` or `super` (as `scanned_in_path`).
+                        if let (TokenTree::Ident(previous), TokenTree::Punct(a), TokenTree::Punct(b)) = (&trees[index - 3], &trees[index - 2], &trees[index - 1]) {
+                            if a.as_char() == ':' && b.as_char() == ':' && !local_prefix(&[ident_text(previous)]) {
+                                self.record(&name, line, Kind::Other("named in a macro's or an attribute's tokens"));
                             }
                         }
                     }
@@ -354,7 +431,7 @@ impl FileScan<'_> {
                                 while at >= 3 {
                                     match (&trees[at - 1], &trees[at - 2], &trees[at - 3]) {
                                         (TokenTree::Punct(a), TokenTree::Punct(b), TokenTree::Ident(previous)) if a.as_char() == ':' && b.as_char() == ':' => {
-                                            segments.insert(0, previous.to_string());
+                                            segments.insert(0, ident_text(previous));
                                             at -= 3;
                                         }
                                         _ => break,
@@ -377,13 +454,32 @@ impl FileScan<'_> {
     }
 
     fn check_attribute(&mut self, attr: &syn::Attribute) {
-        let path = path_text(attr.path());
-        let line = line_of(attr.pound_token.span);
-        if !ATTRIBUTES.contains(&path.as_str()) {
-            self.finding(line, format!("the attribute #[{path}] is not on the attribute list"));
+        self.check_meta(&attr.meta, line_of(attr.pound_token.span), false);
+    }
+
+    /// One attribute, direct or applied by a `cfg_attr` (`through`), by the
+    /// same rules at any depth (Codex round 1 at #1682, P2): the attribute
+    /// list, `#[macro_export]` and `#[macro_use]`, the derive list, the
+    /// `serde` keys, `tauri::command`'s form, a nested `cfg_attr` checked in
+    /// turn, and each other list's tokens screened. A `path` applied by a
+    /// `cfg_attr` is refused whatever its predicate: the scan does not
+    /// evaluate predicates, so it could not know which file the module loads.
+    fn check_meta(&mut self, meta: &syn::Meta, line: usize, through: bool) {
+        let path = path_text(meta.path());
+        if path == "macro_export" || path == "macro_use" {
+            self.finding(line, format!("#[{path}]"));
             return;
         }
-        match (&attr.meta, path.as_str()) {
+        if through && path == "path" {
+            self.finding(line, "a cfg_attr that applies #[path]");
+            return;
+        }
+        if !ATTRIBUTES.contains(&path.as_str()) {
+            let via = if through { " (through cfg_attr)" } else { "" };
+            self.finding(line, format!("the attribute #[{path}]{via} is not on the attribute list"));
+            return;
+        }
+        match (meta, path.as_str()) {
             (syn::Meta::List(list), "cfg_attr") => self.check_cfg_attr(list, line),
             (syn::Meta::List(list), "derive") => {
                 let parsed = list.parse_args_with(syn::punctuated::Punctuated::<syn::Path, syn::Token![,]>::parse_terminated);
@@ -403,10 +499,14 @@ impl FileScan<'_> {
             (syn::Meta::Path(_), "tauri::command") | (syn::Meta::Path(_), "default") => {}
             (_, "tauri::command") => self.finding(line, "#[tauri::command] with arguments"),
             (syn::Meta::List(list), _) => self.screen_tokens(&list.tokens, true),
+            (syn::Meta::NameValue(value), _) => self.visit_expr(&value.value),
             _ => {}
         }
     }
 
+    /// `cfg_attr(predicate, attribute, ...)`: each attribute it applies is
+    /// checked as a direct one ([`Self::check_meta`]), nested `cfg_attr`s
+    /// included.
     fn check_cfg_attr(&mut self, list: &syn::MetaList, line: usize) {
         let parsed = list.parse_args_with(syn::punctuated::Punctuated::<syn::Meta, syn::Token![,]>::parse_terminated);
         let Ok(metas) = parsed else {
@@ -414,14 +514,7 @@ impl FileScan<'_> {
             return;
         };
         for meta in metas.iter().skip(1) {
-            let path = path_text(meta.path());
-            if path == "path" {
-                self.finding(line, "a cfg_attr that applies #[path]");
-            } else if !ATTRIBUTES.contains(&path.as_str()) {
-                self.finding(line, format!("the attribute #[{path}] (through cfg_attr) is not on the attribute list"));
-            } else if let syn::Meta::List(inner) = meta {
-                self.screen_tokens(&inner.tokens, true);
-            }
+            self.check_meta(meta, line, true);
         }
     }
 
@@ -487,7 +580,7 @@ impl FileScan<'_> {
 
     /// A production `macro_rules!` definition: only the pinned one.
     fn check_macro_definition(&mut self, item: &syn::ItemMacro) {
-        let name = item.ident.as_ref().map(ToString::to_string).unwrap_or_default();
+        let name = item.ident.as_ref().map(ident_text).unwrap_or_default();
         let line = line_of(item.mac.bang_token.span);
         let start = item.mac.path.segments.first().map(|segment| segment.ident.span().start());
         let end = match &item.mac.delimiter {
@@ -544,18 +637,18 @@ impl FileScan<'_> {
             match tree {
                 syn::UseTree::Path(path) => {
                     let mut next = prefix;
-                    next.push(path.ident.to_string());
+                    next.push(ident_text(&path.ident));
                     walk(&path.tree, next, out);
                 }
                 syn::UseTree::Name(name) => {
                     let mut full = prefix;
-                    full.push(name.ident.to_string());
+                    full.push(ident_text(&name.ident));
                     out.push((full, None, false));
                 }
                 syn::UseTree::Rename(rename) => {
                     let mut full = prefix;
-                    full.push(rename.ident.to_string());
-                    out.push((full, Some(rename.rename.to_string()), false));
+                    full.push(ident_text(&rename.ident));
+                    out.push((full, Some(ident_text(&rename.rename)), false));
                 }
                 syn::UseTree::Glob(_) => out.push((prefix, None, true)),
                 syn::UseTree::Group(group) => {
@@ -582,13 +675,23 @@ impl FileScan<'_> {
             if listed_name && !from_source {
                 self.finding(line, format!("the import {joined} binds the listed name {name}"));
             }
-            let names_crate = |krate: &str| path.first().is_some_and(|first| first == krate);
+            // The path from its first segment that is not `crate`, `self` or
+            // `super`: `crate::pdf` names the crate root's `pdf` alias.
+            let resolved: &[String] = &path[path.iter().take_while(|segment| matches!(segment.as_str(), "crate" | "self" | "super")).count()..];
+            let names_crate = |krate: &str| resolved.first().is_some_and(|first| first == krate);
             match crate_key.as_str() {
-                "report_package" | "pdf_emitter" if public => {
+                "report_package" | "pdf_emitter" => {
                     let renderer = names_crate(RENDERER_CRATE) || names_crate("renderer");
                     let pdf = names_crate(PDF_CRATE) || names_crate("pdf");
+                    // The renderer and PDF crates are bound only under the basis
+                    // aliases, so a re-export through another name is found.
+                    let crate_itself = resolved.len() == 1 || (resolved.len() == 2 && last == "self");
+                    let alias = if renderer { "renderer" } else { "pdf" };
+                    if (renderer || pdf) && crate_itself && name != alias {
+                        self.finding(line, format!("the import {joined} binds the renderer or PDF crate as {name}"));
+                    }
                     let exception = joined == format!("{RENDERER_CRATE}::serde_error_kind") && rename.is_none();
-                    if (renderer || pdf) && !exception {
+                    if public && (renderer || pdf) && !exception {
                         self.finding(line, format!("a {} use of {joined} re-exports the renderer or PDF crate", "non-private"));
                     }
                 }
@@ -598,6 +701,10 @@ impl FileScan<'_> {
                     }
                 }
                 _ => {}
+            }
+            // `UserRelease` under another name would construct it unseen.
+            if last == "UserRelease" {
+                self.finding(line, format!("the import {joined} binds ProducerEntry::UserRelease"));
             }
             if path.iter().any(|segment| self.scanned_bare(segment)) {
                 let scanned = path.iter().find(|segment| self.scanned_bare(segment)).cloned().unwrap_or_default();
@@ -670,46 +777,44 @@ impl<'ast> Visit<'ast> for FileScan<'_> {
     }
 
     fn visit_attribute(&mut self, attr: &'ast syn::Attribute) {
-        let path = path_text(attr.path());
-        if path == "macro_export" || path == "macro_use" {
-            self.finding(line_of(attr.pound_token.span), format!("#[{path}]"));
-            return;
-        }
         self.check_attribute(attr);
     }
 
     fn visit_item_mod(&mut self, module: &'ast syn::ItemMod) {
         let line = line_of(module.mod_token.span);
+        let name = ident_text(&module.ident);
         for attr in &module.attrs {
-            if attr.path().is_ident("path") {
-                self.finding(line, format!("a #[path] on the production module {}", module.ident));
-            }
-        }
-        for attr in &module.attrs {
-            if !attr.path().is_ident("path") {
+            if path_text(attr.path()) == "path" {
+                self.finding(line, format!("a #[path] on the production module {name}"));
+            } else {
+                // A `path` applied through `cfg_attr` is refused there.
                 self.visit_attribute(attr);
             }
         }
         match &module.content {
             Some((_, items)) => {
-                self.inline.push(module.ident.to_string());
+                self.inline.push(name.clone());
                 for item in items {
                     self.visit_item(item);
                 }
                 self.inline.pop();
             }
-            None => self.modules.push((self.file.clone(), self.inline.clone(), module.ident.to_string(), line)),
+            None => self.modules.push((self.file.clone(), self.inline.clone(), name, line)),
         }
     }
 
     fn visit_item_fn(&mut self, function: &'ast syn::ItemFn) {
         self.check_attributes(&function.attrs);
-        let name = function.sig.ident.to_string();
+        let name = ident_text(&function.sig.ident);
         let line = line_of(function.sig.ident.span());
         if self.scanned_bare(&name) {
             self.record(&name, line, Kind::Definition);
         }
-        let command = function.attrs.iter().any(|attr| path_text(attr.path()) == "tauri::command");
+        if function.sig.unsafety.is_some() {
+            self.unsafe_found(line, "an unsafe fn");
+        }
+        // Direct or through `cfg_attr`, at any depth.
+        let command = applied_paths(&function.attrs).iter().any(|path| path == "tauri::command");
         let scanned = ROWS.iter().any(|(row, _, _)| *row == name) || name == DERIVED;
         if command && scanned && !(self.file == "src-tauri/src/lib.rs" && name == "render_calculation_report") {
             self.finding(line, format!("#[tauri::command] marks the scanned function {name}"));
@@ -739,7 +844,10 @@ impl<'ast> Visit<'ast> for FileScan<'_> {
 
     fn visit_impl_item_fn(&mut self, function: &'ast syn::ImplItemFn) {
         self.check_attributes(&function.attrs);
-        let name = function.sig.ident.to_string();
+        let name = ident_text(&function.sig.ident);
+        if function.sig.unsafety.is_some() {
+            self.unsafe_found(line_of(function.sig.ident.span()), "an unsafe fn");
+        }
         if self.scanned_bare(&name) {
             self.record(&name, line_of(function.sig.ident.span()), Kind::Other("a method of that name"));
         }
@@ -758,7 +866,10 @@ impl<'ast> Visit<'ast> for FileScan<'_> {
             return;
         }
         self.check_attributes(&function.attrs);
-        let name = function.sig.ident.to_string();
+        let name = ident_text(&function.sig.ident);
+        if function.sig.unsafety.is_some() {
+            self.unsafe_found(line_of(function.sig.ident.span()), "an unsafe fn");
+        }
         if self.scanned_bare(&name) {
             self.record(&name, line_of(function.sig.ident.span()), Kind::Other("a trait method of that name"));
         }
@@ -796,13 +907,69 @@ impl<'ast> Visit<'ast> for FileScan<'_> {
 
     fn visit_item_struct(&mut self, item: &'ast syn::ItemStruct) {
         self.check_attributes(&item.attrs);
-        if item.ident == DERIVED {
+        let name = ident_text(&item.ident);
+        if name == DERIVED {
             self.record(DERIVED, line_of(item.ident.span()), Kind::Definition);
-        } else if self.scanned_bare(&item.ident.to_string()) {
-            self.record(&item.ident.to_string(), line_of(item.ident.span()), Kind::Other("a struct of that name"));
+            // No derive (or any attribute but its documentation): a derived
+            // `Default` or `Clone` would construct one without a literal.
+            for path in applied_paths(&item.attrs) {
+                if path != "doc" {
+                    self.finding(line_of(item.ident.span()), format!("the {DERIVED} definition carries #[{path}]"));
+                }
+            }
+        } else if self.scanned_bare(&name) {
+            self.record(&name, line_of(item.ident.span()), Kind::Other("a struct of that name"));
         }
         visit::visit_generics(self, &item.generics);
         self.visit_fields(&item.fields);
+    }
+
+    fn visit_item_impl(&mut self, item: &'ast syn::ItemImpl) {
+        if item.unsafety.is_some() {
+            self.unsafe_found(line_of(item.impl_token.span), "an unsafe impl");
+        }
+        let derived = matches!(&*item.self_ty, syn::Type::Path(path) if path.path.segments.last().is_some_and(|segment| ident_text(&segment.ident) == DERIVED));
+        self.impl_derived.push(derived);
+        visit::visit_item_impl(self, item);
+        self.impl_derived.pop();
+    }
+
+    fn visit_item_trait(&mut self, item: &'ast syn::ItemTrait) {
+        if item.unsafety.is_some() {
+            self.unsafe_found(line_of(item.trait_token.span), "an unsafe trait");
+        }
+        // A trait's default methods have no impl self type.
+        self.impl_derived.push(false);
+        visit::visit_item_trait(self, item);
+        self.impl_derived.pop();
+    }
+
+    fn visit_item_foreign_mod(&mut self, item: &'ast syn::ItemForeignMod) {
+        self.unsafe_found(line_of(item.abi.extern_token.span), "an extern block");
+        visit::visit_item_foreign_mod(self, item);
+    }
+
+    fn visit_expr_unsafe(&mut self, block: &'ast syn::ExprUnsafe) {
+        self.unsafe_found(line_of(block.unsafe_token.span), "an unsafe block");
+        visit::visit_expr_unsafe(self, block);
+    }
+
+    fn visit_item_type(&mut self, item: &'ast syn::ItemType) {
+        let saved = std::mem::replace(&mut self.in_type_alias, true);
+        visit::visit_item_type(self, item);
+        self.in_type_alias = saved;
+    }
+
+    fn visit_impl_item_type(&mut self, item: &'ast syn::ImplItemType) {
+        let saved = std::mem::replace(&mut self.in_type_alias, true);
+        visit::visit_impl_item_type(self, item);
+        self.in_type_alias = saved;
+    }
+
+    fn visit_trait_item_type(&mut self, item: &'ast syn::TraitItemType) {
+        let saved = std::mem::replace(&mut self.in_type_alias, true);
+        visit::visit_trait_item_type(self, item);
+        self.in_type_alias = saved;
     }
 
     fn visit_item_macro(&mut self, item: &'ast syn::ItemMacro) {
@@ -830,7 +997,13 @@ impl<'ast> Visit<'ast> for FileScan<'_> {
         let mut consumed = false;
         if let syn::Expr::Path(path) = &*call.func {
             let line = path.path.segments.last().map_or(0, |segment| line_of(segment.ident.span()));
-            if let Some(name) = self.scanned_in_path(&path.path) {
+            if let (Some(qself), Some(name)) = (&path.qself, self.scanned_in_path(&path.path)) {
+                // `<T as Trait>::name(..)` names an associated item, never the
+                // scanned free function: refused, not counted as its call.
+                self.record(&name, line, Kind::Other("named through a qualified <T as Trait>:: path"));
+                self.visit_type(&qself.ty);
+                consumed = true;
+            } else if let Some(name) = self.scanned_in_path(&path.path) {
                 self.record(&name, line, Kind::Call);
                 if ENTRY_RULES.iter().any(|(callee, _, _)| *callee == name) {
                     let (entry, text) = Self::entry_of(&call.args);
@@ -838,7 +1011,7 @@ impl<'ast> Visit<'ast> for FileScan<'_> {
                     self.entries.push((name.clone(), owner, entry, text, line));
                 }
                 consumed = true;
-            } else if path.path.segments.last().is_some_and(|segment| segment.ident == "UserRelease") {
+            } else if path.path.segments.last().is_some_and(|segment| ident_text(&segment.ident) == "UserRelease") {
                 self.constructions.push((self.owner(), self.file.clone(), line));
                 consumed = true;
             }
@@ -857,8 +1030,25 @@ impl<'ast> Visit<'ast> for FileScan<'_> {
         }
     }
 
+    /// `ProducerEntry::UserRelease` as a value (a function pointer to the
+    /// variant's constructor) constructs one when called: counted as a
+    /// construction where it is named.
+    fn visit_expr_path(&mut self, path: &'ast syn::ExprPath) {
+        if path.path.segments.last().is_some_and(|segment| ident_text(&segment.ident) == "UserRelease") {
+            let line = path.path.segments.last().map_or(0, |segment| line_of(segment.ident.span()));
+            self.constructions.push((self.owner(), self.file.clone(), line));
+        }
+        visit::visit_expr_path(self, path);
+    }
+
     fn visit_expr_struct(&mut self, literal: &'ast syn::ExprStruct) {
-        if literal.path.segments.last().is_some_and(|segment| segment.ident == DERIVED) {
+        let names_derived = literal.path.segments.last().is_some_and(|segment| ident_text(&segment.ident) == DERIVED);
+        // `Self { .. }` in an `impl` of `DerivedUserRelease` is its literal too.
+        let self_literal = literal.qself.is_none()
+            && literal.path.segments.len() == 1
+            && ident_text(&literal.path.segments[0].ident) == "Self"
+            && self.impl_derived.last() == Some(&true);
+        if names_derived || self_literal {
             let line = line_of(literal.path.segments.last().unwrap().ident.span());
             self.record(DERIVED, line, Kind::Literal);
             for field in &literal.fields {
@@ -873,8 +1063,9 @@ impl<'ast> Visit<'ast> for FileScan<'_> {
     }
 
     fn visit_type_path(&mut self, path: &'ast syn::TypePath) {
-        if path.path.segments.last().is_some_and(|segment| segment.ident == DERIVED) {
-            self.record(DERIVED, line_of(path.path.segments.last().unwrap().ident.span()), Kind::TypeUse);
+        if path.path.segments.last().is_some_and(|segment| ident_text(&segment.ident) == DERIVED) {
+            let kind = if self.in_type_alias { Kind::Other("named in a type alias") } else { Kind::TypeUse };
+            self.record(DERIVED, line_of(path.path.segments.last().unwrap().ident.span()), kind);
             for segment in &path.path.segments {
                 self.visit_path_arguments(&segment.arguments);
             }
@@ -898,7 +1089,7 @@ impl<'ast> Visit<'ast> for FileScan<'_> {
     }
 
     fn visit_ident(&mut self, ident: &'ast proc_macro2::Ident) {
-        let name = ident.to_string();
+        let name = ident_text(ident);
         if self.scanned_bare(&name) {
             self.record(&name, line_of(ident.span()), Kind::Other("named other than as a definition or a direct call"));
         }
@@ -989,6 +1180,8 @@ pub(crate) fn scan_reading(sources: &Sources) -> (Vec<String>, BTreeSet<String>)
             entries: &mut entries,
             constructions: &mut constructions,
             macros: &mut macros,
+            impl_derived: Vec::new(),
+            in_type_alias: false,
         };
         for attr in &parsed.attrs {
             scan.visit_attribute(attr);
