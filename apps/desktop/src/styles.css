@@ -1408,6 +1408,24 @@ button:focus-visible {
   border-left: 3px solid var(--ui-warning-border);
 }
 
+/* Deflected-shape controls (A5) inside the deformation popover, and the factor stated on the canvas. */
+.viewport-deflection-controls { display: grid; gap: 6px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--ui-divider); }
+.viewport-deflection-controls label { display: grid; gap: 2px; }
+.viewport-deflection-factor { display: flex; align-items: center; gap: 4px; }
+.viewport-deflection-factor label { display: flex; align-items: center; gap: 2px; }
+.viewport-deflection-factor input { width: 72px; }
+.viewport-deflection-label {
+  position: absolute;
+  z-index: 2;
+  right: 14px;
+  bottom: calc(52px + var(--viewport-presentation-bottom-inset, 0px));
+  padding: 3px 8px;
+  color: var(--canvas-label);
+  background: var(--canvas-labelBg);
+  font-size: 12px;
+  pointer-events: none;
+}
+
 .viewport-select-target {
   position: absolute;
   display: inline-flex;
