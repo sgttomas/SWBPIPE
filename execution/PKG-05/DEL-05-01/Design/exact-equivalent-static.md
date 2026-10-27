@@ -40,8 +40,11 @@ PF keeps its current generator mass (`compute_pipe_mass_per_length`, PP
 `lib.rs` ~10045: the wall less mill tolerance for both metal and bore). A model
 solved on both routes can therefore carry different seismic loads. This is a
 property of the two routes' section bases, not a defect. Each generated
-primitive's evidence names its `mass_method`. Aligning PF to D-5 is out of
-scope.
+primitive's evidence names its `mass_method`. Aligning PF to D-5 is
+deferred (Agent 0, 2026-10-27, under the owner's delegation in #1662): it
+would move PF results and goldens, and the difference between the routes is
+documented by design. It is revisited if the CAEPIPE comparisons show that
+the PF basis is the less accurate one.
 
 Wind does not depend on mass, and is identical on both routes.
 
