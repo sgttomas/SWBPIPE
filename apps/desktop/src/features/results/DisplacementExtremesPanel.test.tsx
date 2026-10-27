@@ -2,6 +2,7 @@
 // the display rule, the case chooser, the filter, the sort, paging, node selection and the
 // render-cost contract. Invented data only (`resultOverlayFixtures`).
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { Activity, Profiler, StrictMode, type ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { healthStanding, overlayModel, overlayResult, row } from "../../test-support/resultOverlayFixtures";
 import type { MechanicsResult, PreviewModel } from "../../types";
@@ -262,6 +263,65 @@ describe("displacement extremes panel: paging and selection", () => {
     fireEvent.change(screen.getByTestId("displacement-extremes-sort"), { target: { value: "ux" } });
     fireEvent.change(screen.getByTestId("displacement-extremes-sort"), { target: { value: "model" } });
     expect(pageText()).toBe("Nodes 1–50 of 123");
+  });
+
+  // Codex r2: under StrictMode React replays a mount's effects (mount, unmount, mount) and an
+  // Activity re-show replays them with the state kept; the selection's page and the user's paging
+  // must survive both, and a remount (historical-run hide/show) applies the selection again.
+  const strict = (node: ReactNode) => <StrictMode>{node}</StrictMode>;
+
+  it("shows the selected node's page on a StrictMode mount", () => {
+    const { model: big, result } = sized(123);
+    render(strict(<DisplacementExtremesPanel model={big} result={result} standing={PASSING} selectedNodeId="node:N122" />));
+    expect(pageText()).toBe("Nodes 101–123 of 123");
+    expect(screen.getByTestId("displacement-extremes-row-node:N122").getAttribute("aria-current")).toBe("true");
+  });
+
+  it("applies the selection's page again when the panel is hidden and shown under StrictMode", () => {
+    const { model: big, result } = sized(123);
+    const panel = (shown: boolean) => strict(shown ? <DisplacementExtremesPanel model={big} result={result} standing={PASSING} selectedNodeId="node:N122" /> : null);
+    const view = render(panel(true));
+    fireEvent.click(screen.getByTestId("displacement-extremes-page-previous"));
+    expect(pageText()).toBe("Nodes 51–100 of 123");
+    view.rerender(panel(false));
+    expect(screen.queryByTestId("displacement-extremes-panel")).toBeNull();
+    view.rerender(panel(true));
+    expect(pageText()).toBe("Nodes 101–123 of 123");
+  });
+
+  it("keeps the user's paging under StrictMode across re-renders and an effect replay", () => {
+    const { model: big, result } = sized(123);
+    const panel = (mode: "visible" | "hidden", onSelectNode?: (nodeId: string) => void) =>
+      strict(<Activity mode={mode}><DisplacementExtremesPanel model={big} result={result} standing={PASSING} selectedNodeId="node:N3" onSelectNode={onSelectNode} /></Activity>);
+    const view = render(panel("visible"));
+    expect(pageText()).toBe("Nodes 1–50 of 123");
+    fireEvent.click(screen.getByTestId("displacement-extremes-page-next"));
+    expect(pageText()).toBe("Nodes 51–100 of 123");
+    view.rerender(panel("visible", () => undefined));
+    expect(pageText()).toBe("Nodes 51–100 of 123");
+    // Hiding and showing an Activity keeps the panel's state and replays its effects.
+    view.rerender(panel("hidden"));
+    view.rerender(panel("visible"));
+    expect(pageText()).toBe("Nodes 51–100 of 123");
+  });
+
+  it("settles the selected node's page in the mount's one commit under StrictMode, with no further render", () => {
+    const { model: big, result } = sized(123);
+    const commits: string[] = [];
+    const errors = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const panel = (onSelectNode?: (nodeId: string) => void) => strict(
+      <Profiler id="extremes" onRender={(_id, phase) => commits.push(phase)}>
+        <DisplacementExtremesPanel model={big} result={result} standing={PASSING} selectedNodeId="node:N122" onSelectNode={onSelectNode} />
+      </Profiler>
+    );
+    const view = render(panel());
+    expect(commits).toEqual(["mount"]);
+    expect(pageText()).toBe("Nodes 101–123 of 123");
+    view.rerender(panel(() => undefined));
+    expect(commits).toEqual(["mount", "update"]);
+    expect(pageText()).toBe("Nodes 101–123 of 123");
+    expect(errors).not.toHaveBeenCalled();
+    errors.mockRestore();
   });
 
   it("shows node names as text when no selection handler is given", () => {
