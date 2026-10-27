@@ -259,11 +259,28 @@ def validate_project_persistence_envelope(envelope: Mapping[str, Any]) -> list[d
     return sorted(diagnostics, key=canonical_json)
 
 
-def _model_semver(raw: str) -> tuple[int, int, int] | None:
-    parts = raw.split(".")
+def _semver(raw: Any) -> tuple[str, str, str] | None:
+    """`major.minor.patch`, each part one or more ASCII digits, with its leading zeros dropped.
+
+    The parts stay digit strings: nothing converts them to int (whose string conversion is bounded), so a part of
+    any length has a defined state, as in the applier's and the TS checks.
+    """
+
+    parts = raw.split(".") if isinstance(raw, str) else []
     if len(parts) != 3 or not all(part and all("0" <= ch <= "9" for ch in part) for part in parts):
         return None
-    return int(parts[0]), int(parts[1]), int(parts[2])
+    major, minor, patch = (part.lstrip("0") or "0" for part in parts)
+    return major, minor, patch
+
+
+def _semver_compare(left: tuple[str, str, str], right: tuple[str, str, str]) -> int:
+    """-1, 0 or 1: parts compare as numbers, a longer part (no leading zeros) larger, then digit by digit."""
+
+    for a, b in zip(left, right):
+        key_a, key_b = (len(a), a), (len(b), b)
+        if key_a != key_b:
+            return 1 if key_a > key_b else -1
+    return 0
 
 
 def model_document_version_state(model_payload: Any) -> dict[str, Any]:
@@ -275,13 +292,13 @@ def model_document_version_state(model_payload: Any) -> dict[str, Any]:
         return {"status": "current", "source_schema_version": raw, "target_schema_version": raw, "code": None,
                 "detail": f"Model document {MODEL_VERSION} is the current version; a pressure contract, when present, "
                           "and solve eligibility are validated separately."}
-    parsed = _model_semver(raw)
+    parsed = _semver(raw)
     if parsed is None:
         return {"status": "unsupported_schema", "source_schema_version": raw or "missing_schema_version",
                 "target_schema_version": MODEL_VERSION, "code": MODEL_SCHEMA_VERSION_UNSUPPORTED,
                 "detail": "Model document has no valid semver schema_version; refusing to open it for editing without "
                           "coercion."}
-    if parsed > _model_semver(MODEL_VERSION):
+    if _semver_compare(parsed, _semver(MODEL_VERSION)) > 0:
         return {"status": "newer_than_supported", "source_schema_version": raw, "target_schema_version": MODEL_VERSION,
                 "code": MODEL_SCHEMA_VERSION_NEWER_THAN_SUPPORTED,
                 "detail": f"Model document schema_version {raw} is newer than the current {MODEL_VERSION}; refusing to "
@@ -414,16 +431,13 @@ def save_project_store(store_path: str | Path, envelope: Mapping[str, Any]) -> d
 def _version_status(raw: Any) -> str:
     """One current version (DEL-02-05 CLM-003): every other version is refused by name, never migrated."""
 
-    def parse(value: Any) -> tuple[int, ...] | None:
-        parts = value.split(".") if isinstance(value, str) else []
-        return tuple(int(part) for part in parts) if len(parts) == 3 and all(part.isdigit() for part in parts) else None
-
-    version, current = parse(raw), parse(SCHEMA_VERSION)
+    version = _semver(raw)
     if version is None:
         return "unsupported_schema"
-    if version == current:
+    order = _semver_compare(version, _semver(SCHEMA_VERSION))
+    if order == 0:
         return "current"
-    return "newer_than_supported" if version > current else "retired_schema"
+    return "newer_than_supported" if order > 0 else "retired_schema"
 
 
 def version_check_project_store(store_path: str | Path) -> dict[str, Any]:

@@ -118,5 +118,5 @@ fn every_non_current_version_is_refused_by_state_on_every_entry() {
             refused += 1;
         }
     }
-    assert_eq!(refused, 2 * 18, "eighteen non-current states, two edits each");
+    assert_eq!(refused, 2 * 29, "twenty-nine non-current states, two edits each");
 }

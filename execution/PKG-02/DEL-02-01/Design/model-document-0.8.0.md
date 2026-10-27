@@ -220,16 +220,23 @@ applier now owns it (`operation_applier` `model_document_version.rs`; src-tauri
 mirror it, and all three are checked against one table,
 `fixtures/model_document/version_states.json`:
 - `current`: the one current version;
-- `retired_schema`, code `MODEL_SCHEMA_VERSION_RETIRED`: a semver version below the
-  current one. A listed retired version gets the message above; any other older one gets
-  "model document {v} is not a supported version; re-author it as model document 0.8.0.
-  Nothing is migrated.";
+- `retired_schema`, code `MODEL_SCHEMA_VERSION_RETIRED`: any other semver version not
+  above the current one, one written with leading zeros (`00.8.0`) included. A listed
+  retired version gets the message above; any other gets "model document {v} is not a
+  supported version; re-author it as model document 0.8.0. Nothing is migrated.";
 - `newer_than_supported`, code `MODEL_SCHEMA_VERSION_NEWER_THAN_SUPPORTED`: a semver
   version above the current one;
 - `unsupported_schema`, code `MODEL_SCHEMA_VERSION_UNSUPPORTED`: a missing, non-string or
   non-semver version. Each part must be ASCII digits, as the TS and Python checks read it,
   so a signed part such as `+0.8.0` is unsupported in the native check too, where it had
   read as an older version.
+
+Parts compare as digit strings in all three (Codex r8 R8-1, R8-2): leading zeros
+dropped, then the longer part is larger, then digit by digit. Nothing converts a part to
+a bounded integer, so a part of any length has one defined state everywhere. Python's
+int conversion had raised on a part over 4,300 digits, and the native check had read a
+part above `u64` as unsupported. The table carries leading-zero, `u64`-boundary and
+4,301-digit cases.
 
 The applier and Python persistence refuse each non-current state by its code, blocking,
 before anything is written. The desktop's surfaces keep their texts.

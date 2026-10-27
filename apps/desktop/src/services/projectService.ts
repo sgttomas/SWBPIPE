@@ -57,10 +57,26 @@ function hasTauriRuntime(): boolean {
 // name and nothing is migrated. Mirrors apps/desktop/src-tauri/src/model_document_version.rs.
 export { MODEL_SCHEMA_VERSION, RETIRED_MODEL_SCHEMA_VERSIONS } from "./modelSchemaVersion";
 
-function parseSemver(raw: string): [number, number, number] | null {
-  const match = /^(\d+)\.(\d+)\.(\d+)$/.exec(raw);
+// `major.minor.patch`, each part one or more ASCII digits, with its leading zeros
+// dropped. The parts stay digit strings (never Number), so a part of any length
+// has a defined state, as in the applier's and Python's checks.
+function parseSemver(raw: string): [string, string, string] | null {
+  const match = /^([0-9]+)\.([0-9]+)\.([0-9]+)$/.exec(raw);
   if (!match) return null;
-  return [Number(match[1]), Number(match[2]), Number(match[3])];
+  const part = (text: string) => text.replace(/^0+/, "") || "0";
+  return [part(match[1]), part(match[2]), part(match[3])];
+}
+
+// Parts compare as numbers: a longer part (no leading zeros) is larger, and parts
+// of one length compare digit by digit.
+function compareSemver(left: [string, string, string], right: [string, string, string]): number {
+  for (let index = 0; index < 3; index += 1) {
+    const a = left[index];
+    const b = right[index];
+    if (a.length !== b.length) return a.length > b.length ? 1 : -1;
+    if (a !== b) return a > b ? 1 : -1;
+  }
+  return 0;
 }
 
 // The one version evaluator (CLM-003): current, retired_schema (an older
@@ -87,8 +103,7 @@ export function evaluateModelDocumentLocal(model: PreviewModel): ModelDocumentVe
       detail: "Model document has no valid semver schema_version; refusing to open it for editing without coercion."
     };
   }
-  const compare = version[0] - current[0] || version[1] - current[1] || version[2] - current[2];
-  if (compare > 0) {
+  if (compareSemver(version, current) > 0) {
     return {
       status: "newer_than_supported",
       source_schema_version: raw,

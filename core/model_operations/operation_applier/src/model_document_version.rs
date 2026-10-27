@@ -8,13 +8,17 @@
 //!
 //! States, each with the code that names its refusal:
 //! - `current`: the one current version (no refusal);
-//! - `retired_schema` (`MODEL_SCHEMA_VERSION_RETIRED`): a semver version below the
-//!   current one, with the re-author text (the named one for a listed retired
-//!   version);
+//! - `retired_schema` (`MODEL_SCHEMA_VERSION_RETIRED`): any other semver version
+//!   not above the current one (one written with leading zeros included), with the
+//!   re-author text (the named one for a listed retired version);
 //! - `newer_than_supported` (`MODEL_SCHEMA_VERSION_NEWER_THAN_SUPPORTED`): a semver
 //!   version above the current one;
 //! - `unsupported_schema` (`MODEL_SCHEMA_VERSION_UNSUPPORTED`): a missing,
 //!   non-string or non-semver version.
+//!
+//! Version parts compare as digit strings (leading zeros dropped, then by length,
+//! then digit by digit), never as bounded integers, so every implementation gives
+//! a part of any length the same state.
 
 use open_pipe_stress_product_physics::{
     is_retired_model_schema_version, retired_model_schema_message, MODEL_SCHEMA_VERSION,
@@ -65,14 +69,16 @@ impl ModelDocumentVersion {
 }
 
 /// `major.minor.patch`, each part one or more ASCII digits (as the TS and Python checks
-/// read it: no sign, space or other character).
-fn parse_semver(raw: &str) -> Option<(u64, u64, u64)> {
-    fn part(text: Option<&str>) -> Option<u64> {
+/// read it: no sign, space or other character), with its leading zeros dropped. The
+/// parts stay digit strings, so a part of any length has a defined state.
+fn parse_semver(raw: &str) -> Option<[&str; 3]> {
+    fn part(text: Option<&str>) -> Option<&str> {
         let text = text?;
         if text.is_empty() || !text.bytes().all(|byte| byte.is_ascii_digit()) {
             return None;
         }
-        text.parse::<u64>().ok()
+        let trimmed = text.trim_start_matches('0');
+        Some(if trimmed.is_empty() { "0" } else { trimmed })
     }
     let mut parts = raw.split('.');
     let major = part(parts.next())?;
@@ -81,7 +87,18 @@ fn parse_semver(raw: &str) -> Option<(u64, u64, u64)> {
     if parts.next().is_some() {
         return None;
     }
-    Some((major, minor, patch))
+    Some([major, minor, patch])
+}
+
+/// Compares two parsed versions part by part as numbers: a longer part (no leading
+/// zeros) is larger, and parts of one length compare digit by digit. The TS and
+/// Python checks compare the same way.
+fn compare_semver(left: &[&str; 3], right: &[&str; 3]) -> std::cmp::Ordering {
+    left.iter()
+        .zip(right.iter())
+        .map(|(a, b)| a.len().cmp(&b.len()).then_with(|| a.cmp(b)))
+        .find(|ordering| ordering.is_ne())
+        .unwrap_or(std::cmp::Ordering::Equal)
 }
 
 fn state(status: &'static str, source: &str, target: &str, detail: String) -> ModelDocumentVersion {
@@ -113,7 +130,7 @@ pub fn evaluate_model_document_version(document: &Value) -> ModelDocumentVersion
         );
     };
     let current = parse_semver(MODEL_SCHEMA_VERSION).expect("the current version is semver");
-    if version > current {
+    if compare_semver(&version, &current).is_gt() {
         return state(
             "newer_than_supported",
             raw,

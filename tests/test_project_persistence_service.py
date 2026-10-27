@@ -810,6 +810,21 @@ def test_every_non_current_model_payload_is_refused_on_validate_create_save_and_
         opened = open_project_store(store)
         # Open reports the store's blocking findings beside the stored envelope, as for a hash mismatch.
         assert _version_refusals(opened["diagnostics"]) == expected, case["label"]
+        assert opened["envelope"]["project"]["model_payload"].get("schema_version") == case.get("schema_version"), case["label"]
+        assert "hash_manifest" in opened, case["label"]
+
+
+def test_the_store_version_check_is_total():
+    # R8-1: a component of any length has a defined state; nothing converts a digit string to int (Python's
+    # integer-string limit is 4300 digits), and only ASCII digits are digits.
+    from core.project_persistence.service import SCHEMA_VERSION, _version_status
+    assert SCHEMA_VERSION == "0.1.0"
+    assert _version_status("0.1.0") == "current"
+    assert _version_status("9" * 4301 + ".0.0") == "newer_than_supported"
+    assert _version_status("0.0." + "9" * 4301) == "retired_schema"
+    assert _version_status("0." + "0" * 4300 + "2.0") == "newer_than_supported"
+    assert _version_status("².0.0") == "unsupported_schema"
+    assert _version_status("١.1.0") == "unsupported_schema"
 
 
 def test_an_authored_euler_bernoulli_member_is_kept_byte_for_byte(tmp_path):
