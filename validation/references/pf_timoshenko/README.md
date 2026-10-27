@@ -26,8 +26,8 @@ moved.
 | File | Role |
 |---|---|
 | `generators/pf_reference.py` | the generator: exact Q(π) arithmetic, its own element, assembly and solve, the support-state enumeration, the requests, `product_cases.json` and `SHA256SUMS` |
-| `product_cases.json` | 42 case records (20 Timoshenko documents, their 20 absent-member Euler–Bernoulli twins and 2 explicit `euler_bernoulli` documents), 116 load cases and combinations, 9266 rows, the discriminators, 418 cross-checks and the omitted cases |
-| `requests/<case>.request.json` | 42 complete PF product preview requests (`{"model": …, "materials": []}`), each bound to its case by SHA-256 |
+| `product_cases.json` | 44 case records (21 Timoshenko documents, their 21 absent-member Euler–Bernoulli twins and 2 explicit `euler_bernoulli` documents), 122 load cases and combinations, 9740 rows, the discriminators, 438 cross-checks and the omitted cases |
+| `requests/<case>.request.json` | 44 complete PF product preview requests (`{"model": …, "materials": []}`), each bound to its case by SHA-256 |
 | `SHA256SUMS` | hashes of every file above (`shasum -a 256 -c SHA256SUMS` in this directory) |
 
 The Timoshenko rows of `PFT-SB-L{1,2,10}-CM2MM-*` are identical to those of the
@@ -87,7 +87,8 @@ Expected values come only from this generator's arithmetic.
   requests author the nearest binary64 values (relative effects of order
   1e-16). E = 200e9 Pa and G = 77e9 Pa are exact binary64 integers, so the
   derived ν is exact for the authored values. The φ = 2 cases author dyadic OD,
-  wall and L, exact in binary64.
+  wall and L, exact in binary64; the exact φ = 2 control also authors
+  E = 8e9 Pa and G = 9e9 Pa, exact binary64 integers.
 - **ν and κ_E.** On PF, ν = E/(2G) − 1 from the authored, unscaled E and G,
   computed exactly (pf-timoshenko.md §2). κ_E = 6(1+ν)²(1+m²)² /
   [(7+14ν+8ν²)(1−m²)² + 48m²(1+ν)²], m = r_i/r_o, on PF's single annulus
@@ -139,12 +140,14 @@ Expected values come only from this generator's arithmetic.
 | OD 0.25, t 1/64 (PHI2) | 7/8 | 23/77 | 10215200/20281987 | 0.50365873915607973 |
 | OD 0.2, t 0.04 (AUTHNU) | 3/5 | 23/77 | 541875/984808 | 0.55023415731797467 |
 | OD 0.2, t 0.04, AUTHNU's authored ν (discriminator only) | 3/5 | 3/10 | 146523/266294 | 0.55023019669988809 |
+| OD 9/32, t 3/32, E 8 GPa, G 9 GPa (PHI2-EXACT-AUXETIC) | 1/3 | −5/9 | 30/49 | 0.61224489795918367 |
 
 The decimals are the 17-digit roundings of the rationals; check mode recomputes
 them and fails if this table differs.
 
-ν = 23/77 = 0.298701298701… exactly; its binary64 value is
-0.2987012987012987 (`3fd31dec0d4c77b0`). For these E and G the quotients
+In every steel case ν = 23/77 = 0.298701298701… exactly; its binary64 value is
+0.2987012987012987 (`3fd31dec0d4c77b0`). For these E and G (and for the
+auxetic control's) the quotients
 E/(2G), (E/2)/G and (E/G)/2 are the same rational scaled by powers of two, so
 any of those operation orders gives that value. Each member record also gives
 κ_E evaluated in design §3.1's fixed binary64 order; it differs from the exact
@@ -152,7 +155,8 @@ any of those operation orders gives that value. Each member record also gives
 
 ## Cases
 
-All members: E = 200 GPa, G = 77 GPa. φ is exact in each member record.
+All members: E = 200 GPa, G = 77 GPa, except the auxetic control's. φ is exact
+in each member record.
 
 | Case | Content | φ | Discriminating Timoshenko rows |
 |---|---|---|---|
@@ -160,6 +164,7 @@ All members: E = 200 GPa, G = 77 GPa. φ is exact in each member record.
 | `PFT-SB-L{1,2,10}-CM2MM` | the same with t = 0.012 m and c_m = 0.002 m: t − c_m = 0.01 m, so every row equals CM0's exactly (checked) | as CM0 | as CM0; adds the nominal-wall discriminators |
 | `PFT-SS-MID` | simply supported span L = 2 m with a midpoint node; −1000 N/m in Y, then in Z. The generator checks v_mid = 5wL⁴/384EI + wL²/(8κ_E GA) and θ_end = wL³/24EI exactly in both planes | 0.281 | v_mid in each plane (shear term −2.166e-6 m of −4.073e-5 m) |
 | `PFT-PHI2-{NEAREST,PLUS2ULP,MINUS2ULP}` | simply supported member, couples at A about Z and Y, then −1000 N/m in Y; L = 0.4619620772920835 m (the binary64 nearest L*) and two ulps either side | 2 − 1.5e-16, 2 − 1.1e-15, 2 + 8.1e-16 | θ_A and θ_B under each couple: θ_B = −ML/6EI + M/(Ks L) is (2 − φ)-small (−3.7e-23 rad at NEAREST against the Euler–Bernoulli −4.85e-7 rad) |
+| `PFT-PHI2-EXACT-AUXETIC` | supplementary control beside the near-2 steel cases: φ = 2 exactly. OD 9/32 m, t 3/32 m (m = 1/3), L 7/32 m, E 8 GPa, G 9 GPa, so ν = −5/9 and κ_E = 30/49; every input binary64-exact. Same supports and loads as PHI2 | 2 | θ_A and θ_B under each couple: θ_B = 0 exactly (a zero row; the (2 − φ) term vanishes exactly) against the Euler–Bernoulli −ML/6EI |
 | `PFT-SKEW-SPRING` | four skew spans (directions (2,3,6)/7, (1,4,8)/9, (2,−1,2)/3, (6,2,3)/7), anchors at both ends, a pinned support, an interior UZ spring 2e6 N/m and an RX spring 5e5 N·m/rad; nodal loads, then −800 N/m in Z | 0.092–0.222 | 243 of 274 and 239 of 270 |
 | `PFT-IMPOSED` | L frame; the anchor at D moves UX 3 mm, UY −5 mm, UZ 8 mm, RY 0.002 rad; an 80 °C rise; the combination motion + 0.5 thermal | 0.125, 0.281 | 124 of 136, 65 of 136 and 118 of 130 |
 | `PFT-WEIGHT` | three spans (one rising along (3,0,4)/5), anchors, a rest; metal and contents weight on every span | 0.071, 0.045, 0.126 | 179 of 198 |
@@ -168,6 +173,15 @@ All members: E = 200 GPa, G = 77 GPa. φ is exact in each member record.
 | `PFT-NL-ONEWAY` | cantilever A–B–C, a one-way UY support at B; pressed (active; R = 2401.608 N, Euler–Bernoulli 2500 N) and lifted (released) | 0.281 | 22 and 2 of 136 each |
 | `PFT-NL-GAP` | a 0.5 mm gap at C closing in −UY; closed (u_C = −g; R = 1004.600 N, Euler–Bernoulli 987.131 N) and open | 0.281 | 39 and 2 of 136 each |
 | `PFT-NL-FRICTION` | friction at B in UZ, μ = 0.3, explicit N = 1000 N; stick (R = −192.129 N, Euler–Bernoulli −200 N) and slide (+Z, F = −300 N) | 0.281 | 22 and 2 of 136 each |
+
+**The auxetic control.** The refuter's construction, verified here: with
+r_o = 9/64, r_i = 3/64 and ν = E/(2G) − 1 = −5/9, κ_E = 30/49 and
+φ = 12EI/(G·κ_E·A·L²) = 2 at L = 7/32 m, all exactly. ν < 0 is physically
+unusual (an auxetic material), but κ_E's form is defined for ν > −1. Whether
+the product admits it is decided by its factor-range check (pf-timoshenko.md
+§2), which this reference does not guess. If the product refuses the
+document by range, the consumer records that refusal instead of comparing
+rows; the steel PHI2 cases still exercise φ near 2.
 
 Each case states its inputs and key values; the generator checks the closed
 forms named above and, for the nonlinear cases, the compatibility forms of the
@@ -291,10 +305,10 @@ python3 -I generators/pf_reference.py --write    # rewrite the outputs (intentio
 Check mode prints:
 
 ```
-42 cases, 116 load cases and combinations, 9266 rows (1092 Timoshenko rows discriminating); 42 requests
-cross-checks: 418 recorded, 0 disagreeing
-README kappa_E figures: 5 rows equal their rationals' 17-digit decimals
-verified 46 files byte for byte (SHA256SUMS included)
+44 cases, 122 load cases and combinations, 9740 rows (1096 Timoshenko rows discriminating); 44 requests
+cross-checks: 438 recorded, 0 disagreeing
+README kappa_E figures: 6 rows equal their rationals' 17-digit decimals
+verified 48 files byte for byte (SHA256SUMS included)
 ```
 
 It also fails on any cross-check disagreement, unexpected file or κ_E table

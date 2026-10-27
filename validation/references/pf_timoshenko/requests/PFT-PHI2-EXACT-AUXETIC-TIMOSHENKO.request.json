@@ -1,0 +1,178 @@
+{
+ "model": {
+  "schema_version": "0.8.0",
+  "document_kind": "openpipestress.product_preview.model",
+  "analysis_status": {
+   "mechanics": "ready_for_preview_diagnostics",
+   "rule_check": "not_performed_user_rule_inputs_missing",
+   "professional_acceptance": "not_provided"
+  },
+  "project": {
+   "id": "invented:pf-timoshenko:PFT-PHI2-EXACT-AUXETIC-TIMOSHENKO",
+   "units": {
+    "length": "m",
+    "force": "N",
+    "angle": "rad",
+    "pressure": "Pa",
+    "stress": "Pa",
+    "temperature": "degC"
+   }
+  },
+  "model_settings": {
+   "shear_model": "timoshenko_annulus_energy_v1"
+  },
+  "nodes": [
+   {
+    "id": "node:A",
+    "position": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   },
+   {
+    "id": "node:B",
+    "position": {
+     "x": 0.21875,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   }
+  ],
+  "pipe_segments": [
+   {
+    "id": "pipe:AB",
+    "from": "node:A",
+    "to": "node:B",
+    "material": "mat:A",
+    "y_reference": {
+     "x": 0.0,
+     "y": 1.0,
+     "z": 0.0
+    },
+    "section": {
+     "outside_diameter": {
+      "value": 0.28125,
+      "unit": "m"
+     },
+     "wall_thickness": {
+      "value": 0.09375,
+      "unit": "m"
+     }
+    },
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   }
+  ],
+  "materials": [
+   {
+    "id": "mat:A",
+    "elastic_modulus": {
+     "value": 8000000000.0,
+     "unit": "Pa"
+    },
+    "shear_modulus": {
+     "value": 9000000000.0,
+     "unit": "Pa"
+    },
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   }
+  ],
+  "supports": [
+   {
+    "id": "support:A",
+    "node": "node:A",
+    "family": "guide",
+    "restraints": [
+     "UX",
+     "UY",
+     "UZ",
+     "RX"
+    ],
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   },
+   {
+    "id": "support:B",
+    "node": "node:B",
+    "family": "guide",
+    "restraints": [
+     "UY",
+     "UZ"
+    ],
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   }
+  ],
+  "components": [],
+  "load_cases": [
+   {
+    "id": "case:couple_a_z",
+    "kind": "primitive_user_load",
+    "primitive_loads": [
+     {
+      "id": "load:couple_a_z:0",
+      "category": "concentrated_moment",
+      "target": {
+       "type": "node",
+       "node": "node:A"
+      },
+      "direction": "rotation_z",
+      "magnitude": {
+       "value": 100.0,
+       "unit": "N*m"
+      },
+      "dimension": "moment",
+      "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+     }
+    ],
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   },
+   {
+    "id": "case:couple_a_y",
+    "kind": "primitive_user_load",
+    "primitive_loads": [
+     {
+      "id": "load:couple_a_y:0",
+      "category": "concentrated_moment",
+      "target": {
+       "type": "node",
+       "node": "node:A"
+      },
+      "direction": "rotation_y",
+      "magnitude": {
+       "value": 100.0,
+       "unit": "N*m"
+      },
+      "dimension": "moment",
+      "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+     }
+    ],
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   },
+   {
+    "id": "case:w_y",
+    "kind": "primitive_user_load",
+    "primitive_loads": [
+     {
+      "id": "load:w_y:0",
+      "category": "distributed_force",
+      "target": {
+       "type": "element",
+       "pipe": "pipe:AB"
+      },
+      "direction": "global_y",
+      "magnitude": {
+       "value": -1000.0,
+       "unit": "N/m"
+      },
+      "dimension": "force_per_length",
+      "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+     }
+    ],
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   }
+  ],
+  "combinations": []
+ },
+ "materials": []
+}

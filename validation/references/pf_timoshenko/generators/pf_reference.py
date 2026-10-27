@@ -1275,13 +1275,13 @@ def phi2_lengths():
     return L2, {"NEAREST": near, "PLUS2ULP": plus, "MINUS2ULP": minus}
 
 
-def phi2_spec(case_id, L):
+def phi2_spec(case_id, L, sec=None, materials=None):
     """A simply supported member (torsion held at A) with end couples at A in both planes and a
     uniform load in y: the far-end rotation carries k_thetatheta' = (2 - phi)EI/(L(1+phi)), which
     vanishes at phi = 2, so theta_j under the couple at A is zero there in exact arithmetic."""
-    return {"case_id": case_id, "materials": MAT_A,
+    return {"case_id": case_id, "materials": materials or MAT_A,
             "nodes": [("node:A", (F(0), F(0), F(0))), ("node:B", (F(L), F(0), F(0)))],
-            "members": [pipe("pipe:AB", "node:A", "node:B", SEC_PHI2, (0, 1, 0))],
+            "members": [pipe("pipe:AB", "node:A", "node:B", sec or SEC_PHI2, (0, 1, 0))],
             "supports": [guide("support:A", "node:A", ("UX", "UY", "UZ", "RX")),
                          guide("support:B", "node:B", ("UY", "UZ"))],
             "load_cases": [{"id": "case:couple_a_z", "nodal": [("node:A", "rotation_z", F(100))]},
@@ -1388,6 +1388,13 @@ def authnu_spec(case_id):
             "load_cases": [{"id": "case:tip_y", "nodal": [("node:B", "global_y", F(100))]},
                            {"id": "case:tip_z", "nodal": [("node:B", "global_z", F(-100))]}]}
 
+
+# Exact phi = 2 (a supplementary auxetic control): OD 9/32 m, t 3/32 m (r_o 9/64, r_i 3/64, m = 1/3),
+# E 8 GPa, G 9 GPa (nu = E/(2G) - 1 = -5/9, inside kappa_E's domain nu > -1), L 7/32 m: kappa_E = 30/49
+# and phi = 12 E I/(G kappa_E A L^2) = 2 exactly. Every input is binary64-exact.
+SEC_AUX = {"od": F(9, 32), "wall": F(3, 32), "mill": F(0)}
+E_AUX, G_AUX, L_AUX = F(8000000000), F(9000000000), F(7, 32)
+MAT_AUX = {"mat:A": {"E": E_AUX, "G": G_AUX, "nu_authored": None, "alpha": None}}
 
 def nl_frame(case_id, supports, load_cases):
     return {"case_id": case_id, "materials": MAT_A,
@@ -1855,6 +1862,49 @@ def phi2_cases(requests):
     return out
 
 
+def phi2_exact_cases(requests):
+    """phi = 2 exactly (the supplementary auxetic control): theta_B under a couple at A is exactly
+    zero, the (2 - phi) term of k_thetatheta' vanishing in exact arithmetic."""
+    nu = derived_nu(E_AUX, G_AUX)
+    agree("auxetic control inputs", "nu = E/(2G) - 1 = -5/9 > -1 and kappa_E(1/3, -5/9) = 30/49",
+          nu == F(-5, 9) and kappa_energy(F(1, 3), nu) == F(30, 49))
+
+    def keys(lid, st, se):
+        res = []
+        for sol in (st, se):
+            EI, Ks, L = eiks(sol, "pipe:AB")
+            M = F(100)
+            rec = {}
+            if Ks is not None:
+                phi = 12 * EI / (Ks * L * L)
+                agree("phi = 2 exactly", f"{sol['spec']['case_id']}", phi == 2)
+                rec["phi"] = num(phi)
+            if lid in ("case:couple_a_z", "case:couple_a_y"):
+                sh = ZERO if Ks is None else M / (Ks * L)
+                ta, tb = M * L / (3 * EI) + sh, -M * L / (6 * EI) + sh
+                k = 5 if lid == "case:couple_a_z" else 4
+                ga, gb = sol["u"]["node:A"][k], sol["u"]["node:B"][k]
+                ok = ga == ta and gb == tb and (Ks is None or (gb.is_zero() and ga == M * L / (2 * EI)))
+                agree("closed form (simply supported end couple at phi = 2: theta_A = ML/2EI, theta_B = 0)",
+                      f"{sol['spec']['case_id']} {lid}", ok)
+                rec.update({"theta_A_rad": num(ga, "rad"), "theta_B_rad": num(gb, "rad")})
+            res.append(rec)
+        return res
+
+    desc = ("phi = 2 exactly, a supplementary auxetic control beside the near-2 steel cases: a simply supported "
+            "member (A: UX UY UZ RX; B: UY UZ), OD 9/32 m, wall 3/32 m (m = 1/3), E 8 GPa, G 9 GPa "
+            "(nu = E/(2G) - 1 = -5/9: physically unusual, inside kappa_E's domain nu > -1; kappa_E = 30/49), "
+            "L = 7/32 m, every input binary64-exact; a 100 N*m couple at A about Z, then about Y, then -1000 N/m in "
+            "Y. Under the couple theta_B = -ML/6EI + M/(Ks L) = 0 exactly. Admission is decided by the product's "
+            "factor-range check: if the product refuses this nu by range, the consumer records that refusal "
+            "instead of these rows")
+    cases, _ = build_case("PFT-PHI2-EXACT-AUXETIC", "phi = 2 (exact, auxetic control)", desc,
+                          lambda c: phi2_spec(c, L_AUX, SEC_AUX, MAT_AUX),
+                          ["cowper_factor", "five_sixths_factor", "euler_bernoulli_recovery"], requests,
+                          key_values=keys, extra={"length_binary64": float(L_AUX), "length_hex": f64hex(float(L_AUX))})
+    return cases
+
+
 def rigid_modes_check(spec):
     """Each member's global stiffness annihilates the six rigid motions of its two nodes."""
     pos = dict(spec["nodes"])
@@ -2127,9 +2177,9 @@ OMITTED = [
 
 def product_cases(requests):
     crosscheck_t4_u8()
-    return (sb_cases(requests) + ss_cases(requests) + phi2_cases(requests) + skew_cases(requests)
-            + imposed_cases(requests) + weight_cases(requests) + w15_cases(requests) + authnu_cases(requests)
-            + nl_cases(requests))
+    return (sb_cases(requests) + ss_cases(requests) + phi2_cases(requests) + phi2_exact_cases(requests)
+            + skew_cases(requests) + imposed_cases(requests) + weight_cases(requests) + w15_cases(requests)
+            + authnu_cases(requests) + nl_cases(requests))
 
 
 def product_document(cases):
@@ -2158,7 +2208,8 @@ def product_document(cases):
             "inputs": "decimal inputs are exact rationals (r_i = 9/100 m, and so on); the requests author the nearest "
                       "binary64 values (relative effects of order 1e-16). E = 200e9 Pa and G = 77e9 Pa are exact "
                       "binary64 integers, so nu = E/(2G) - 1 = 23/77 is exact for the authored values; the phi = 2 "
-                      "cases author dyadic OD, wall and L, exact in binary64"},
+                      "cases author dyadic OD, wall and L, exact in binary64, and the exact phi = 2 control also E = "
+                      "8e9 Pa and G = 9e9 Pa (nu = -5/9)"},
         "criteria": {
             "modes": ["sparse_interactive", "dense_scrutiny"], "same_reference_both_modes": True,
             "nonzero": "|observed - expected| <= 1e-9 |expected| (criterion.kind relative)",
@@ -2209,7 +2260,8 @@ def readme_kappa_figures():
     out = []
     for name, sec, n in (("SEC (m = 9/10)", SEC, nu), ("SEC_WT (m = 91/100)", SEC_WT, nu),
                          ("SEC_PHI2 (m = 7/8)", SEC_PHI2, nu), ("SEC_THICK (m = 3/5)", SEC_THICK, nu),
-                         ("SEC_THICK, authored nu 3/10", SEC_THICK, F(3, 10))):
+                         ("SEC_THICK, authored nu 3/10", SEC_THICK, F(3, 10)),
+                         ("SEC_AUX (m = 1/3, nu = -5/9)", SEC_AUX, derived_nu(E_AUX, G_AUX))):
         s = pf_section(dict(sec))
         k = kappa_energy(s["ri"] / s["ro"], n)
         out.append((name, fstr(k), format(Decimal(k.numerator) / Decimal(k.denominator), ".17g")))
