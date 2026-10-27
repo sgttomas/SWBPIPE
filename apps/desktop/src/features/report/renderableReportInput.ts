@@ -19,6 +19,7 @@ import desktopAppConfig from "../../../src-tauri/tauri.conf.json";
 import type { NumericalHealthView } from "../results/numericalHealth";
 import { reportLineText } from "../results/numericalHealthText";
 import { reportResultRows } from "./reportResultRows";
+import { USER_RELEASED_REPORT_CONTEXT, type UserReleasedReportContext } from "../redaction-controls/redactionExportControls";
 import { checkExactReportAdmission, REPORT_EXACT_ADMISSION_BINDING_MISMATCH, type ExactReportAdmission } from "./exactReportAdmission";
 import { exactLimitationEntries, exactRouteCore, isExactReportSource, SECTION_BASIS_HEADLINES } from "./exactReportSections";
 import { isDisplayedScaled } from "./reportQuantityDisplay";
@@ -88,13 +89,14 @@ export type ReportRenderContext = {
   generatedAt: string | null;
 };
 
-/** The user-released report context (W-18b, DEL-08-01 Design `report-user-release.md` §2.6;
- * `report_package::user_release::USER_RELEASED_CONTEXT`). Only the user-released report
- * builder below writes it. */
-export const USER_RELEASED_REPORT_CONTEXT = "user_released_report";
+/** The user-released report context (W-18b, DEL-08-01 Design `report-user-release.md` §2.6),
+ * the DEL-12-02 vocabulary's single definition (`redactionExportControls.ts`; Rust
+ * `report_package::user_release::USER_RELEASED_CONTEXT`), re-exported here. Only the
+ * user-released report builder below writes it. */
+export { USER_RELEASED_REPORT_CONTEXT };
 
 /** The context a report input is built under: a wrapper context, or the user-released one. */
-type BuiltReportContext = { exportContext: ReportExportContext | typeof USER_RELEASED_REPORT_CONTEXT; generatedAt: string | null };
+type BuiltReportContext = { exportContext: ReportExportContext | UserReleasedReportContext; generatedAt: string | null };
 
 const NOT_RECORDED = null;
 const REPORT_REDISTRIBUTION_STATUSES = new Set([
