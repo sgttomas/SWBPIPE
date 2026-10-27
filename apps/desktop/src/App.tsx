@@ -107,6 +107,10 @@ import { ReportPanel } from "./features/report/ReportPanel";
 import { RenderedReportPanel } from "./features/report/RenderedReportPanel";
 import { ResultExportPanel } from "./features/result-export/ResultExportPanel";
 import { ResultsPanel } from "./features/results/ResultsPanel";
+import { SupportLoadSummaryPanel } from "./features/results/SupportLoadSummaryPanel";
+import { StressRatioTablePanel } from "./features/results/StressRatioTablePanel";
+import { DisplacementExtremesPanel } from "./features/results/DisplacementExtremesPanel";
+import { WeightSummaryPanel } from "./features/results/WeightSummaryPanel";
 import { resolveLocatedCauseSelection } from "./features/results/resultInterpretation";
 import { useDiagnosticFilterRequest, type DiagnosticFilterRequest } from "./features/diagnostics/diagnosticFilterRequest";
 import { ReviewGeometryPanel } from "./features/review-geometry/ReviewGeometryPanel";
@@ -445,6 +449,8 @@ function AppSession() {
               selectionState={orderedSelection}
               onQueueIntent={handleQueueEditorIntent}
               operationBusy={operationBusy}
+              viewCommandRef={viewportViewCommandRef}
+              showAllAvailable={hiddenEntityKeys.size > 0 || isolationActive}
               onApplyCellIntent={async (intent) => {
                 const owned: { current?: Readonly<OperationOutcome> } = {};
                 const applied = await handleApplyIntent(intent, owned);
@@ -680,6 +686,7 @@ function AppSession() {
                 analysisRun={analysisRun}
                 selectedResultId={selectedReviewTarget?.target_type === "result" ? selectedReviewTarget.id : null}
                 onSelectResult={handleSelectResult}
+                selectedEntity={selection}
                 numericalHealth={numericalHealth}
                 resolveCauseLocation={(location) => resolveLocatedCauseSelection(model, location)}
                 onSelectCauseLocation={(entity) => handleSelectEntity(entity)}
@@ -689,6 +696,51 @@ function AppSession() {
                   setIssuesDrawerOpen(true);
                 }}
               />}
+              {historicalRun ? null : (
+                // A2: the per-support load summary reads the same standing as the viewport overlays.
+                <SupportLoadSummaryPanel
+                  model={model}
+                  result={result}
+                  standing={viewportResultStanding}
+                  focusSupportId={selection.type === "support" ? selection.id : null}
+                />
+              )}
+              {historicalRun ? null : (
+                // A3: the sorted stress and ratio table reads the same standing; the session's rule-check
+                // run is passed only while the shown result is the current solved result it was run on.
+                <StressRatioTablePanel
+                  model={model}
+                  result={result}
+                  standing={viewportResultStanding}
+                  ruleCheckRun={currentSolvedResult !== null && result === currentSolvedResult ? ruleCheckReportRun : null}
+                  selectedResultId={selectedReviewTarget?.target_type === "result" ? selectedReviewTarget.id : null}
+                  onSelectLocation={(target) => {
+                    if (target.resultId) handleSelectResult(target.resultId);
+                    else if (target.entityRef) {
+                      const entity = resolveEntitySelection(model, target.entityRef);
+                      if (entity) handleSelectEntity(entity);
+                    }
+                  }}
+                />
+              )}
+              {historicalRun ? null : (
+                // A8: displacement extremes per node across the chosen cases, under the same standing.
+                <DisplacementExtremesPanel
+                  model={model}
+                  result={result}
+                  standing={viewportResultStanding}
+                  selectedNodeId={selection.type === "node" ? selection.id : null}
+                  onSelectNode={(nodeId) => {
+                    const entity = resolveEntitySelection(model, nodeId);
+                    if (entity) handleSelectEntity(entity);
+                  }}
+                />
+              )}
+              {historicalRun ? null : (
+                // A9: weight and centre of gravity of the model, a line or the selected pipes, from the
+                // self-weight generator's own weights; model data, so no solve is needed.
+                <WeightSummaryPanel model={model} selectedPipeRefs={selectedPipeRefs} />
+              )}
               <ComparisonPanel
                 comparison={withinRun.status === "ready" ? withinRun.comparison : null}
                 result={currentSolvedResult}
@@ -823,6 +875,7 @@ function AppSession() {
               onViewportInteractionStart={exposeViewportForNarrowInteraction}
               onInvalidateDraft={invalidateDirectDraftContext}
               onQueueIntent={handleQueueEditorIntent}
+              operationBusy={operationBusy}
               onSelect={handleSelectEntity}
               queuedIntents={editorIntents}
               reservedIntents={queuedBatches.flatMap((entry) => entry.batch.operations)}

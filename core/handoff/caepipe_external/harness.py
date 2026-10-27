@@ -10,7 +10,9 @@ live step skips with a stated reason (PH-004).
 
 The harness never searches for, bundles or installs CAEPIPE, never stops a
 process on the host other than the `prlctl` client it started itself (on its
-own timeout), and runs one case at a time. Everything it writes under
+own timeout), and runs one case at a time. Its export step writes a stored solved
+model back to MBF (`caepipe_out/exported.mbf`) for the DEL-17-04 import
+regression. Everything it writes under
 `caepipe_out/` is CAEPIPE output or derived from it and stays private (§8).
 Its records are regression and handoff evidence only.
 """
@@ -45,6 +47,9 @@ CASE_LAYERS = ("swbpipe", "caepipe_in", "caepipe_out", "parsed", "comparison")
 OUTPUT_NAMES = ("model.res", "model.mod")
 PRLCTL_ATTEMPTS = 3
 CSV_ROUTES = ("csv_from_batch", "csv_from_gui_print")
+EXPORTED_MBF = "exported.mbf"
+EXPORT_OUTPUTS = (EXPORTED_MBF, "export_guest_stdout.txt", "export_guest_stderr.txt", "export_guest_log.json")
+EXPORT_ROUTE = "mbf_exported"
 # Guest paths enter `cmd /c` command strings, so they are held to a strict allow-list: an absolute Windows path
 # (drive letter, colon, backslash) of letters, digits, space and \ . - _ ( ) only. Quotes, %, ^, &, |, <, >, !
 # and control characters can never reach the guest shell.
@@ -302,6 +307,13 @@ def run_caepipe_round_trip(config: HarnessConfig, case_id: str, mbf_text: str, *
     an MBF whose SHA-256 equals the host's (otherwise `input_hash_mismatch`).
     """
 
+    return _locked(config, case_id, lambda paths, harness_dir: _round_trip(
+        config, case_id, mbf_text, paths, harness_dir, timeout_s, runner))
+
+
+def _locked(config: HarnessConfig, case_id: str, work: Callable[[dict[str, Path], Path], dict[str, Any]]) -> dict[str, Any]:
+    """Check the guest paths, then run `work` for one case under the exchange folder's single-run lock."""
+
     if config.prlctl is None:
         raise ValueError("the harness configuration was resolved without prlctl; live runs need it")
     for key in GUEST_PATH_KEYS:
@@ -321,13 +333,14 @@ def run_caepipe_round_trip(config: HarnessConfig, case_id: str, mbf_text: str, *
     try:
         os.write(handle, f"{os.getpid()} {_now()} {case_id}\n".encode("ascii"))
         os.close(handle)
-        return _round_trip(config, case_id, mbf_text, paths, harness_dir, timeout_s, runner)
+        return work(paths, harness_dir)
     finally:
         lock.unlink(missing_ok=True)
 
 
+# A new solve also clears the previous solve's MBF export, which no longer describes the solved model.
 _CLEARED_OUTPUTS = {name.lower() for name in (*OUTPUT_NAMES, "guest_stdout.txt", "guest_stderr.txt", "guest_log.json",
-                                               "run_record.json")}
+                                               "run_record.json", *EXPORT_OUTPUTS)}
 
 
 def _refuse_links(root: Path, out: Path) -> None:
@@ -358,6 +371,30 @@ def _clear_outputs(root: Path, out: Path) -> None:
             contained(root, entry).unlink()
 
 
+def _guest_step(config: HarnessConfig, runner: Callable[..., subprocess.CompletedProcess], timeout_s: float,
+                steps: list[dict[str, Any]], name: str, command: str) -> dict[str, Any]:
+    """Run one guest command through `prlctl exec`, append its record to `steps` and return it."""
+
+    argv = [config.prlctl, "exec", config.vm_name, "--current-user", "cmd", "/c", command]
+    record: dict[str, Any] = {"name": name, "guest_command": command, "started": _now(), "attempts": 0}
+    # The prlctl client intermittently fails a call before or after the guest command with exit 255 and a
+    # "PrlJob_..." message. Every step is idempotent (each clears its old outputs first), so retry.
+    while True:
+        record["attempts"] += 1
+        try:
+            completed = runner(argv, capture_output=True, text=True, check=False, timeout=timeout_s)
+            record.update(exit_status=completed.returncode, stdout=completed.stdout or "", stderr=completed.stderr or "")
+        except subprocess.TimeoutExpired as error:
+            record.update(exit_status="timeout", stdout=_text(error.stdout), stderr=_text(error.stderr))
+        except OSError as error:
+            record.update(exit_status="launch_failed", stdout="", stderr=str(error))
+        if not (record["exit_status"] == 255 and "PrlJob_" in record["stderr"]) or record["attempts"] >= PRLCTL_ATTEMPTS:
+            break
+    record["finished"] = _now()
+    steps.append(record)
+    return record
+
+
 def _round_trip(config: HarnessConfig, case_id: str, mbf_text: str, paths: dict[str, Path], harness_dir: Path,
                 timeout_s: float, runner: Callable[..., subprocess.CompletedProcess]) -> dict[str, Any]:
     started = _now()
@@ -384,24 +421,7 @@ def _round_trip(config: HarnessConfig, case_id: str, mbf_text: str, paths: dict[
     steps: list[dict[str, Any]] = []
 
     def step(name: str, command: str) -> dict[str, Any]:
-        argv = [config.prlctl, "exec", config.vm_name, "--current-user", "cmd", "/c", command]
-        record: dict[str, Any] = {"name": name, "guest_command": command, "started": _now(), "attempts": 0}
-        # The prlctl client intermittently fails a call before or after the guest command with exit 255 and a
-        # "PrlJob_..." message. Every step is idempotent (prepare and solve clear old outputs first), so retry.
-        while True:
-            record["attempts"] += 1
-            try:
-                completed = runner(argv, capture_output=True, text=True, check=False, timeout=timeout_s)
-                record.update(exit_status=completed.returncode, stdout=completed.stdout or "", stderr=completed.stderr or "")
-            except subprocess.TimeoutExpired as error:
-                record.update(exit_status="timeout", stdout=_text(error.stdout), stderr=_text(error.stderr))
-            except OSError as error:
-                record.update(exit_status="launch_failed", stdout="", stderr=str(error))
-            if not (record["exit_status"] == 255 and "PrlJob_" in record["stderr"]) or record["attempts"] >= PRLCTL_ATTEMPTS:
-                break
-        record["finished"] = _now()
-        steps.append(record)
-        return record
+        return _guest_step(config, runner, timeout_s, steps, name, command)
 
     # The guest work copy of the MBF is deleted before the copy, so a failed copy can never leave an older MBF
     # to be solved; a failed prepare step stops the round trip before solving.
@@ -460,6 +480,8 @@ def _round_trip(config: HarnessConfig, case_id: str, mbf_text: str, paths: dict[
         route = str(status or "unknown_guest_status")
     gui_used = bool(isinstance(guest_log, dict) and isinstance(guest_log.get("gui"), dict) and guest_log["gui"].get("used"))
 
+    collected = [path.name for path in out.iterdir()
+                 if path.name.startswith("model") and path.is_file() and not path.is_symlink()]
     record = {
         "document_kind": RUN_RECORD_KIND,
         "schema_version": "1",
@@ -484,9 +506,10 @@ def _round_trip(config: HarnessConfig, case_id: str, mbf_text: str, paths: dict[
             "batch": BATCH_COMMAND_SHAPE,
             "gui_print_fallback": {
                 "used": gui_used,
-                "label": "trial_build_workaround",
-                "description": "the guest script stops the batch process it started, opens the solved .res in a "
-                               "CAEPIPE instance it starts itself and prints the results to CSV via Print > To File",
+                "label": "print_to_file_fallback",
+                "description": "fallback when the batch route yields no result file: the guest script stops the "
+                               "batch process it started, opens the solved .res in a CAEPIPE instance it starts "
+                               "itself and prints the results to CSV via Print > To File",
             },
             "host_invocation": "prlctl exec <vm_name> --current-user cmd /c <guest command>",
         },
@@ -500,13 +523,188 @@ def _round_trip(config: HarnessConfig, case_id: str, mbf_text: str, paths: dict[
         "stdout_file": "caepipe_out/guest_stdout.txt",
         "stderr_file": "caepipe_out/guest_stderr.txt",
         "guest_log": guest_log,
-        "outputs_collected": sorted(path.name for path in out.iterdir()
-                                    if path.name.startswith("model") and path.is_file() and not path.is_symlink()),
+        "outputs_collected": sorted(collected),
+        "outputs_sha256": {name: _sha256((out / name).read_bytes()) for name in sorted(collected)},
         "timestamps": {"started": started, "finished": _now()},
         "boundary_note": BOUNDARY_NOTE,
     }
     write_private(root, out / "run_record.json", json.dumps(record, indent=2, sort_keys=True) + "\n")
     return record
+
+
+def stored_run_record(root: Path, out: Path) -> dict[str, Any] | None:
+    """The harness run record stored in caepipe_out/, or None when absent or not a run record."""
+
+    path = contained(root, out / "run_record.json")
+    try:
+        record = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else None
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+        return None
+    return record if isinstance(record, dict) and record.get("document_kind") == RUN_RECORD_KIND else None
+
+
+def solved_model_binding(record: Mapping[str, Any] | None, mbf_sha256: str, mod: Path) -> str:
+    """Why the stored `model.mod` is not the solve of the MBF with `mbf_sha256`, or "" when the run record binds it."""
+
+    if record is None:
+        return "no valid caepipe_out/run_record.json binds a solved model to this MBF"
+    if (record.get("mbf") or {}).get("sha256") != mbf_sha256 or record.get("guest_mbf_sha256") != mbf_sha256:
+        return "the stored solve is not of the current MBF (host or guest MBF hash differs)"
+    if "model.mod" not in (record.get("outputs_collected") or []) or not mod.is_file():
+        return "the run record names no collected caepipe_out/model.mod"
+    hashes = record.get("outputs_sha256")
+    # Records written before outputs were hashed bind model.mod by name only.
+    if isinstance(hashes, dict) and hashes.get("model.mod") != _sha256(mod.read_bytes()):
+        return "caepipe_out/model.mod differs from the solved model the run record hashed"
+    return ""
+
+
+def run_caepipe_mbf_export(config: HarnessConfig, case_id: str, mbf_sha256: str, *, timeout_s: float = 600,
+                           runner: Callable[..., subprocess.CompletedProcess] = subprocess.run) -> dict[str, Any]:
+    """Export one case's stored solved model back to MBF with the user's CAEPIPE (Design §3, §5).
+
+    The stored solve must be bound to the MBF with `mbf_sha256` by its run record; otherwise the route is
+    `not_bound`, nothing is run, any earlier export outputs are removed and the run record's export entry
+    states why. The guest opens a copy of `caepipe_out/model.mod` in a CAEPIPE
+    instance it starts, exports it with File > Export to MBF... and stops that instance. The harness collects
+    `caepipe_out/exported.mbf` only when the guest reports opening a model whose SHA-256 equals the stored one,
+    keeps it only when its SHA-256 equals the one the guest reported, and records the export in the run record's
+    `mbf_export` entry, which binds it to the solve by both hashes.
+    """
+
+    return _locked(config, case_id, lambda paths, harness_dir: _mbf_export(
+        config, case_id, mbf_sha256, paths, harness_dir, timeout_s, runner))
+
+
+def _mbf_export(config: HarnessConfig, case_id: str, mbf_sha256: str, paths: dict[str, Path], harness_dir: Path,
+                timeout_s: float, runner: Callable[..., subprocess.CompletedProcess]) -> dict[str, Any]:
+    started = _now()
+    root = config.exchange_root
+    out = paths["caepipe_out"]
+    _refuse_links(root, out)
+    run_record = stored_run_record(root, out)
+    mod = contained(root, out / "model.mod")
+    reason = solved_model_binding(run_record, mbf_sha256, mod)
+    if reason:
+        # An earlier export is no longer bound to the current MBF: it is removed, and the run record's export
+        # entry says why, so no consumer can read a stale file as the current model's export.
+        for entry in out.iterdir():
+            if entry.name.lower() in EXPORT_OUTPUTS and entry.is_file():
+                contained(root, entry).unlink()
+        refused = {"route": "not_bound", "reason": reason, "solved_mbf_sha256": mbf_sha256,
+                   "timestamps": {"started": started, "finished": _now()}}
+        if run_record is not None:
+            write_private(root, out / "run_record.json",
+                          json.dumps({**run_record, "mbf_export": refused}, indent=2, sort_keys=True) + "\n")
+        return {"route": "not_bound", "reason": reason}
+    mod_sha256 = _sha256(mod.read_bytes())
+    for entry in out.iterdir():
+        if entry.name.lower() in EXPORT_OUTPUTS and entry.is_file():
+            contained(root, entry).unlink()
+    script_bytes = GUEST_SCRIPT.read_bytes()
+    write_private(root, harness_dir / GUEST_SCRIPT.name, script_bytes)
+
+    guest_out = _win(config.guest_exchange_root, "cases", case_id, "caepipe_out")
+    work = _win(config.guest_work_root, case_id, "export")
+    guest_mod, guest_mbf = _win(work, "model.mod"), _win(work, EXPORTED_MBF)
+    share_script = _win(config.guest_exchange_root, HARNESS_DIR, GUEST_SCRIPT.name)
+    work_script = _win(work, GUEST_SCRIPT.name)
+
+    def export_command(script: str) -> str:
+        return (f"powershell -NoProfile -ExecutionPolicy Bypass -File {_quote(script)} "
+                f"-Exe {_quote(config.guest_executable)} -ExportMod {_quote(guest_mod)} -ExportName {EXPORTED_MBF}")
+
+    steps: list[dict[str, Any]] = []
+
+    def step(name: str, command: str) -> dict[str, Any]:
+        return _guest_step(config, runner, timeout_s, steps, name, command)
+
+    # As for the solve: the guest copies are deleted first, so a failed copy can never leave an older model open.
+    prepare = step("export_prepare", f"if not exist {_quote(work)} mkdir {_quote(work)} & del /Q {_quote(guest_mod)} "
+                                     f"{_quote(guest_mbf)} 2>nul & copy /Y {_quote(_win(guest_out, 'model.mod'))} "
+                                     f"{_quote(guest_mod)}")
+    script_location = "exchange_share"
+    export: dict[str, Any] = {"exit_status": None, "stdout": "", "stderr": ""}
+    guest_log = None
+    if prepare["exit_status"] == 0:
+        export = step("export", export_command(share_script))
+        guest_log = last_json_object(export["stdout"])
+        if guest_log is None and export["exit_status"] != "timeout":
+            script_location = "guest_work_dir"
+            step("export_stage_script", f"copy /Y {_quote(share_script)} {_quote(work_script)}")
+            export = step("export_from_work_dir", export_command(work_script))
+            guest_log = last_json_object(export["stdout"])
+
+    def guest_hash(key: str) -> str | None:
+        value = guest_log.get(key) if isinstance(guest_log, dict) else None
+        return value.lower() if isinstance(value, str) else None
+
+    guest_mod_sha256, guest_exported_sha256 = guest_hash("mod_sha256"), guest_hash("exported_mbf_sha256")
+    mod_verified = guest_mod_sha256 == mod_sha256
+    status = guest_log.get("status") if isinstance(guest_log, dict) else None
+    if status == EXPORT_ROUTE and mod_verified:
+        _refuse_links(root, out)  # again just before the guest writes into the layer
+        step("export_collect", f"copy /Y {_quote(guest_mbf)} {_quote(_win(guest_out, EXPORTED_MBF))}")
+
+    write_private(root, out / "export_guest_stdout.txt", export["stdout"])
+    write_private(root, out / "export_guest_stderr.txt", export["stderr"])
+    if guest_log is not None:
+        write_private(root, out / "export_guest_log.json", json.dumps(guest_log, indent=2, sort_keys=True) + "\n")
+
+    exported = contained(root, out / EXPORTED_MBF)
+    exported_sha256 = exported_bytes = None
+    if exported.is_file() and not exported.is_symlink():
+        data = exported.read_bytes()
+        exported_sha256, exported_bytes = _sha256(data), len(data)
+    if prepare["exit_status"] != 0:
+        route = "prepare_failed"
+    elif export["exit_status"] == "timeout":
+        route = "timeout"
+    elif guest_log is None:
+        route = "no_guest_json"
+    elif not mod_verified:
+        route = "input_hash_mismatch"
+    elif status != EXPORT_ROUTE:
+        route = str(status or "unknown_guest_status")
+    elif exported_sha256 is None:
+        route = "mbf_not_collected"
+    elif exported_sha256 != guest_exported_sha256:
+        route = "export_hash_mismatch"
+    else:
+        route = EXPORT_ROUTE
+    if route != EXPORT_ROUTE and exported.is_file():
+        exported.unlink()  # never left where the import regression would read an unbound file
+        exported_sha256 = exported_bytes = None
+
+    entry = {
+        "route": route,
+        "solved_mbf_sha256": mbf_sha256,
+        "mod": {"path": "caepipe_out/model.mod", "guest_path": guest_mod, "sha256": mod_sha256},
+        "guest_mod_sha256": guest_mod_sha256,
+        "mod_hash_verified": mod_verified,
+        "exported_mbf": {"path": f"caepipe_out/{EXPORTED_MBF}" if exported_sha256 else None,
+                         "sha256": exported_sha256, "bytes": exported_bytes},
+        "guest_exported_mbf_sha256": guest_exported_sha256,
+        "guest_script": {"repository_path": GUEST_SCRIPT_REPOSITORY_PATH,
+                         "exchange_copy": f"{HARNESS_DIR}/{GUEST_SCRIPT.name}",
+                         "sha256": _sha256(script_bytes), "run_from": script_location},
+        "command_shape": {
+            "description": "the guest script opens a copy of the solved model in a CAEPIPE instance it starts "
+                           "(File > Open...), writes it with File > Export to MBF... and stops that instance",
+            "host_invocation": "prlctl exec <vm_name> --current-user cmd /c <guest command>",
+        },
+        "steps": [{key: value for key, value in item.items() if key not in ("stdout", "stderr")}
+                  | {"stdout_chars": len(item["stdout"]), "stderr_chars": len(item["stderr"])} for item in steps],
+        "working_directory": work,
+        "exit_status": export["exit_status"],
+        "stdout_file": "caepipe_out/export_guest_stdout.txt",
+        "stderr_file": "caepipe_out/export_guest_stderr.txt",
+        "guest_log": guest_log,
+        "timestamps": {"started": started, "finished": _now()},
+    }
+    write_private(root, out / "run_record.json",
+                  json.dumps({**run_record, "mbf_export": entry}, indent=2, sort_keys=True) + "\n")
+    return entry
 
 
 def _text(value: Any) -> str:

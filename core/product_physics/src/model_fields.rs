@@ -527,6 +527,7 @@ fn nested_records(
         nested_member(component, "objective_connector", OBJECTIVE_CONNECTOR_FIELDS, &at, findings);
         if let Some((geometry, at)) = nested_member(component, "geometry", fields.geometry, &at, findings) {
             nested_member(geometry, "center_of_gravity", fields.vector_quantity, &at, findings);
+            nested_member(geometry, "eccentric_offset", fields.vector_quantity, &at, findings);
             nested_quantities(geometry, &GEOMETRY_QUANTITIES, fields.magnitude, &at, findings);
         }
         if let Some((modifiers, at)) = nested_member(component, "modifiers", fields.modifiers, &at, findings) {
@@ -672,7 +673,7 @@ mod tests {
     }
 
     /// The committed model document schema (`schemas/model.schema.yaml`, JSON
-    /// syntax; model document 0.7.0) is the authoritative key list of each
+    /// syntax; model document 0.8.0) is the authoritative key list of each
     /// closed record.
     const MODEL_SCHEMA: &str = include_str!("../../../schemas/model.schema.yaml");
 
@@ -714,7 +715,7 @@ mod tests {
     fn the_key_lists_are_model_document_0_7_0s() {
         let schema = schema();
         assert_eq!(schema["properties"]["schema_version"]["enum"], serde_json::json!([crate::MODEL_SCHEMA_VERSION]));
-        assert_eq!(crate::MODEL_SCHEMA_VERSION, "0.7.0");
+        assert_eq!(crate::MODEL_SCHEMA_VERSION, "0.8.0");
         let fields = record_fields();
         for key in ROOT_0_7_0 {
             assert!(fields.model.contains(&key), "model root declares {key}");
@@ -805,7 +806,7 @@ mod tests {
         }
         assert_eq!(refs(&d["Node"], "Vector3"), set(&["position"]));
         assert_eq!(refs(&d["PipeSegment"], "Vector3"), set(&["y_reference"]));
-        assert_eq!(refs(&d["ComponentGeometry"], "VectorQuantity"), set(&["center_of_gravity"]));
+        assert_eq!(refs(&d["ComponentGeometry"], "VectorQuantity"), set(&["center_of_gravity", "eccentric_offset"]));
         assert_eq!(refs(&d["SpringHanger"], "SupportStiffness"), set(&["stiffness"]));
         assert_eq!(refs(&d["Support"], "SupportStiffness"), set(&["stiffness"]));
         assert_eq!(d["Section"]["properties"]["properties"]["additionalProperties"]["$ref"], "#/$defs/Quantity");

@@ -7,6 +7,7 @@ import { JointPressureModelEditor } from "../pressure-authoring/JointPressureMod
 import { WindExposureForm } from "../wind-exposure/WindExposureForm";
 import { SectionAssignment } from "../toolkit/SectionAssignment";
 import { GuardedRemoval } from "../toolkit/GuardedRemoval";
+import { buildDeleteNodeIntent, buildDeletePipeIntent, buildDeleteSupportIntent } from "./removalIntents";
 import { ModelDataAnnotations } from "../model-data/ModelDataAnnotations";
 import { ModelSettingsSection } from "../model-settings/ModelSettingsSection";
 import { ProjectUnitsSection } from "../project-units/ProjectUnitsSection";
@@ -44,6 +45,7 @@ import { entityRefFromKey, type OrderedSelectionState } from "../workspace/selec
 import { VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
 import { ConnectorDraftFields } from "../component-creation/ConnectorDraftFields";
 import { RigidDraftFields } from "../component-creation/RigidDraftFields";
+import { ECCENTRIC_OFFSET_CONVENTION } from "../component-creation/eccentricOffsetConvention";
 import {
   buildCreateComponentIntent,
   CENTER_OF_GRAVITY_CONVENTION,
@@ -1319,7 +1321,7 @@ function SelectedFieldValue({ field, basis }: { field: EditableField; basis: Uni
     <section className="inspector-context-card" data-testid="inspector-text-value" aria-label="Current value">
       <span>Current {propertyLabel(field).toLowerCase()}</span>
       <strong>{field.before}</strong>
-      {field.valueKind === "vector" ? <small data-testid="inspector-vector-convention">{CENTER_OF_GRAVITY_CONVENTION} Enter x, y, z.</small> : null}
+      {field.valueKind === "vector" ? <small data-testid="inspector-vector-convention">{field.fieldPath === "geometry.eccentric_offset" ? `${ECCENTRIC_OFFSET_CONVENTION}.` : CENTER_OF_GRAVITY_CONVENTION} Enter x, y, z.</small> : null}
     </section>
   );
 }
@@ -2045,6 +2047,16 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef, route: Un
           component.geometry?.center_of_gravity,
           units.length ?? ""
         ), "length", "required"),
+        // W-15 slice c: a reducer's eccentric offset, optional, under R-c1.
+        ...(component.kind === "reducer"
+          ? [projectUnitDefault(vectorField(
+              "Eccentric offset",
+              "geometry.eccentric_offset",
+              component.geometry?.eccentric_offset,
+              units.length ?? "",
+              ECCENTRIC_OFFSET_CONVENTION
+            ), "length", "choose")]
+          : []),
         scalarField(
           "Stiffness behavior",
           "geometry.stiffness_behavior_reference",
@@ -2437,7 +2449,8 @@ function vectorField(
   label: string,
   fieldPath: string,
   vector: { x: number; y: number; z: number; unit: string } | undefined,
-  defaultUnit: string
+  defaultUnit: string,
+  sourceNote = "user-entered vector in global X/Y/Z from the component's node (x, y, z)"
 ): EditableField {
   const components = vector ? `${vector.x}, ${vector.y}, ${vector.z}` : "";
   return {
@@ -2448,7 +2461,7 @@ function vectorField(
     objectType: "Component",
     dimension: "length",
     unit: vector?.unit ?? defaultUnit,
-    sourceNote: "user-entered vector in global X/Y/Z from the component's node (x, y, z)",
+    sourceNote,
     changeKind: "set_field",
     unitEditable: true,
     valueKind: "vector"
@@ -2883,170 +2896,6 @@ function buildCreateSupportIntent(
   };
 }
 
-function buildDeleteSupportIntent(
-  support: PreviewModel["supports"][number],
-  model: PreviewModel
-): EditorOperationIntent {
-  const supportId = support.id.trim();
-  return {
-    operation_id: `op:delete-support-${safeToken(supportId)}`,
-    operation_kind: "delete",
-    operation_status: "proposed",
-    author_type: "user",
-    source: {
-      source_ref: "apps/desktop/src/features/model-tree/PropertyInspector.tsx",
-      source_channel: "local_desktop_preview",
-      source_role: "gui_editor"
-    },
-    target: {
-      object_type: "Support",
-      ref: supportId
-    },
-    change: {
-      change_id: `change:delete-support:${safeToken(supportId)}`,
-      change_kind: "delete_support",
-      field_label: "Explicit support deletion",
-      field_path: "supports",
-      before: support.label,
-      after: "not_present",
-      unit: "none",
-      dimension: "dimensionless",
-      source_note: "explicit user-entered support deletion; reference integrity required"
-    },
-    validation: {
-      schema_validation: "not_run",
-      constraint_validation: "not_run",
-      unit_validation: "not_required_dimensionless",
-      diff_preview_status: "not_generated",
-      application_status: "not_applied"
-    },
-    audit_boundary: {
-      mutation_route: "structured_operations_only",
-      direct_model_mutation_allowed: false,
-      requires_user_acceptance: true,
-      mutates_accepted_model_state: false
-    },
-    professional_boundary: {
-      human_review_required: true,
-      software_makes_compliance_claim: false,
-      software_makes_certification_claim: false,
-      software_makes_sealing_claim: false,
-      software_makes_approval_claim: false,
-      software_makes_authentication_claim: false
-    },
-    rationale: `explicit user-entered support deletion for ${model.project.id}; requires reference validation before durable model change.`
-  };
-}
-
-function buildDeleteNodeIntent(node: PreviewModel["nodes"][number], model: PreviewModel): EditorOperationIntent {
-  const nodeId = node.id.trim();
-  const before = `${node.label}; x=${node.position.x}; y=${node.position.y}; z=${node.position.z}`;
-  return {
-    operation_id: `op:delete-node-${safeToken(nodeId)}`,
-    operation_kind: "delete",
-    operation_status: "proposed",
-    author_type: "user",
-    source: {
-      source_ref: "apps/desktop/src/features/model-tree/PropertyInspector.tsx",
-      source_channel: "local_desktop_preview",
-      source_role: "gui_editor"
-    },
-    target: {
-      object_type: "Node",
-      ref: nodeId
-    },
-    change: {
-      change_id: `change:delete-node:${safeToken(nodeId)}`,
-      change_kind: "delete_node",
-      field_label: "Explicit node deletion",
-      field_path: "nodes",
-      before,
-      after: "not_present",
-      unit: "none",
-      dimension: "dimensionless",
-      source_note: "explicit user-entered node deletion; endpoint and load reference integrity required"
-    },
-    validation: {
-      schema_validation: "not_run",
-      constraint_validation: "not_run",
-      unit_validation: "not_required_dimensionless",
-      diff_preview_status: "not_generated",
-      application_status: "not_applied"
-    },
-    audit_boundary: {
-      mutation_route: "structured_operations_only",
-      direct_model_mutation_allowed: false,
-      requires_user_acceptance: true,
-      mutates_accepted_model_state: false
-    },
-    professional_boundary: {
-      human_review_required: true,
-      software_makes_compliance_claim: false,
-      software_makes_certification_claim: false,
-      software_makes_sealing_claim: false,
-      software_makes_approval_claim: false,
-      software_makes_authentication_claim: false
-    },
-    rationale: `explicit user-entered node deletion for ${model.project.id}; requires reference validation before durable model change.`
-  };
-}
-
-function buildDeletePipeIntent(
-  pipe: PreviewModel["pipe_segments"][number],
-  model: PreviewModel
-): EditorOperationIntent {
-  const pipeId = pipe.id.trim();
-  const before = `${pipe.label}; ${pipe.from}->${pipe.to}; material=${pipe.material}`;
-  return {
-    operation_id: `op:delete-pipe-${safeToken(pipeId)}`,
-    operation_kind: "delete",
-    operation_status: "proposed",
-    author_type: "user",
-    source: {
-      source_ref: "apps/desktop/src/features/model-tree/PropertyInspector.tsx",
-      source_channel: "local_desktop_preview",
-      source_role: "gui_editor"
-    },
-    target: {
-      object_type: "Element",
-      ref: pipeId
-    },
-    change: {
-      change_id: `change:delete-pipe:${safeToken(pipeId)}`,
-      change_kind: "delete_pipe_run",
-      field_label: "Explicit pipe deletion",
-      field_path: "pipe_segments",
-      before,
-      after: "not_present",
-      unit: "none",
-      dimension: "dimensionless",
-      source_note: "explicit user-entered pipe deletion; primitive-load reference integrity required"
-    },
-    validation: {
-      schema_validation: "not_run",
-      constraint_validation: "not_run",
-      unit_validation: "not_required_dimensionless",
-      diff_preview_status: "not_generated",
-      application_status: "not_applied"
-    },
-    audit_boundary: {
-      mutation_route: "structured_operations_only",
-      direct_model_mutation_allowed: false,
-      requires_user_acceptance: true,
-      mutates_accepted_model_state: false
-    },
-    professional_boundary: {
-      human_review_required: true,
-      software_makes_compliance_claim: false,
-      software_makes_certification_claim: false,
-      software_makes_sealing_claim: false,
-      software_makes_approval_claim: false,
-      software_makes_authentication_claim: false
-    },
-    rationale: `explicit user-entered pipe deletion for ${model.project.id}; requires reference validation before durable model change.`
-  };
-}
-
 function operationIntentIsComplete(intent: EditorOperationIntent): boolean {
   if (!intent.target.ref.trim() || !intent.change.after.trim() || intent.change.after === "TBD") return false;
   if (intent.change.unit === "TBD" || !intent.change.unit.trim()) return false;
@@ -3306,5 +3155,10 @@ export const inspectorAuthoringPaths = {
   defaultSectionDraft,
   buildCreateSectionIntent,
   defaultSupportDraft,
-  buildCreateSupportIntent
+  buildCreateSupportIntent,
+  // W-15 slice c (DEL-02-01 Design model-document-0.8.0.md §5): the reducer's
+  // eccentric-offset field and the inspector's edit intent, for the emission golden.
+  eccentricOffsetField: (vector: { x: number; y: number; z: number; unit: string } | undefined, defaultUnit: string) =>
+    vectorField("Eccentric offset", "geometry.eccentric_offset", vector, defaultUnit, ECCENTRIC_OFFSET_CONVENTION),
+  buildOperationIntent
 };

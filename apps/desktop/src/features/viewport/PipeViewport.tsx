@@ -24,6 +24,8 @@ import type {
 } from "../../types";
 import { ConnectorDraftFields } from "../component-creation/ConnectorDraftFields";
 import { RigidDraftFields } from "../component-creation/RigidDraftFields";
+import { isContextMenuKey, keyboardMenuRequest, pointerMenuRequest, type ContextMenuRequest } from "../workspace/contextMenu/ContextMenu";
+import { EntityContextMenu, type EntityCommandEnvironment } from "../workspace/contextMenu/EntityContextMenu";
 import {
   buildCreateComponentIntent,
   componentDraftForKind,
@@ -107,7 +109,10 @@ import {
   type ViewportRendererInfo
 } from "./viewportResource";
 import { createFigureMaterial, figureEdgeOutlineFor } from "./viewportFigureMaterial";
-import { buildDeformationOverlay, buildRotationOverlay, rotationGlyphAnchors } from "./deformationOverlay";
+import { buildDeformationOverlay, buildRotationOverlay, deformationAtPhase, rotationGlyphAnchors } from "./deformationOverlay";
+import { DEFLECTION_PHASE_STEPS, DeflectedShapeControls, deflectionLabel, deflectionSummaryScale } from "./DeflectedShapeControls";
+import { buildElementAxesView, type ElementAxesFrame, type ElementAxesView } from "./elementAxes";
+import { elementAxisDisplayLength, instancedElementAxisMeshes, type ElementAxisPlacement } from "./viewportElementAxes";
 import { instancedRotationGlyphMeshes, type RotationGlyphPlacement } from "./viewportRotationGlyph";
 import {
   availableResultColourQuantities,
@@ -130,6 +135,39 @@ import { VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
 import { componentDraftMissingUnitNotices, missingProjectUnitText, projectUnitMissing } from "../project-units/missingProjectUnit";
 
 export { buildDeformationOverlay, buildRotationOverlay } from "./deformationOverlay";
+
+function axisText(vector: Vec3): string {
+  const part = (value: number) => {
+    const rounded = Number(value.toFixed(4));
+    return String(Object.is(rounded, -0) ? 0 : rounded);
+  };
+  return `(${part(vector.x)}, ${part(vector.y)}, ${part(vector.z)})`;
+}
+
+/** What the element axes show: the frame, the members drawn and withheld, and the selected
+ * member's axes as unit vectors in global X, Y, Z. */
+function ElementAxesStatus({ view, selection }: { view: ElementAxesView; selection: EntityRef }) {
+  const reasons = [...new Set(view.withheld.values())];
+  const frameName = view.frame === "local" ? "Local axes" : "Global axes";
+  const selected = selection.type === "pipe" ? view.triads.get(selection.id) : undefined;
+  const selectedReason = selection.type === "pipe" ? view.withheld.get(selection.id) : undefined;
+  const legend = view.frame === "local"
+    ? "x from the From node to the To node, y from the member's y_reference, z = x × y; drawn x red, y green, z blue"
+    : "the model's X, Y and Z; drawn X red, Y green, Z blue";
+  return (
+    <span role="status" data-testid="viewport-element-axes-status" title={`${frameName}: ${legend}${reasons.length ? `. Without a triad: ${reasons.join("; ")}` : ""}`}>
+      {frameName}: {view.triads.size} member{view.triads.size === 1 ? "" : "s"}
+      {view.withheld.size > 0 ? <>; {view.withheld.size} without a {view.frame === "local" ? "local frame" : "triad"}</> : null}
+      {selected ? (
+        <span data-testid="viewport-element-axes-selected">
+          {" · "}{selection.id} x {axisText(selected.x)} y {axisText(selected.y)} z {axisText(selected.z)}
+        </span>
+      ) : selectedReason ? (
+        <span data-testid="viewport-element-axes-selected">{" · "}{selection.id}: {selectedReason}</span>
+      ) : null}
+    </span>
+  );
+}
 
 function ViewportMeasurementQuantityReadout({ label, unit, value }: { label: string; unit: string; value: number }) {
   const display = useDisplayQuantity({ value, unit, dimension_id: "length" });
@@ -185,6 +223,8 @@ type Props = {
   onClearVisibility?: () => void;
   onViewportInteractionStart?: (interaction: ViewportExposureInteraction) => void;
   onQueueIntent?: (intent: EditorOperationIntent) => void;
+  /** An operation is validating or applying (the inspector's Remove panel waits for it). */
+  operationBusy?: boolean;
   onBoxSelection?: (
     keys: readonly EntityKey[],
     modifiers: { additive?: boolean; toggle?: boolean },
@@ -218,6 +258,24 @@ export type ViewportExposureInteraction = "measurement" | "box-selection";
 type ViewportCommandType = "create_node" | "connect_pipe_run" | "insert_component_symbol";
 type ViewPreset = "iso" | "front" | "top";
 const VIEWPORT_DIMENSIONLESS_UNIT_VALIDATION_STATUS = "not_required_dimensionless";
+/** One full undeformed-deformed-undeformed animation cycle, and the step between drawn phases. */
+const DEFLECTION_CYCLE_MS = 2400;
+const DEFLECTION_STEP_MS = 100;
+
+/** The platform's reduced-motion preference, followed while it changes. */
+function usePrefersReducedMotion(): boolean {
+  const query = "(prefers-reduced-motion: reduce)";
+  const read = () => typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia(query).matches;
+  const [reduced, setReduced] = useState(read);
+  useEffect(() => {
+    if (typeof window.matchMedia !== "function") return;
+    const media = window.matchMedia(query);
+    const update = () => setReduced(media.matches);
+    media.addEventListener?.("change", update);
+    return () => media.removeEventListener?.("change", update);
+  }, []);
+  return reduced;
+}
 
 type ViewportSelectionTarget = {
   ref: EntityRef;
@@ -370,6 +428,7 @@ export function PipeViewport({
   onClearVisibility = () => {},
   onViewportInteractionStart = () => {},
   onQueueIntent,
+  operationBusy = false,
   onBoxSelection = () => Object.freeze({ orderedKeys: [], primaryKey: null, rangeAnchorKey: null, focusKey: null, preparationEpoch: 0 }),
   onSelect,
   queuedIntents = [],
@@ -466,6 +525,16 @@ export function PipeViewport({
   const [reactionsOn, setReactionsOn] = useState(false);
   const [overlayQuantityId, setOverlayQuantityId] = useState<string | null>(null);
   const [overlayCaseKey, setOverlayCaseKey] = useState<string | null>(null);
+  // Deflected-shape controls (A5): session view state, never persisted and never model data.
+  // The case is null for each node's governing row (the normalized drawing); the factor is
+  // null for the case's default; the phase runs from 0 (undeformed) to 1 (deformed).
+  const [deflectionCaseKey, setDeflectionCaseKey] = useState<string | null>(null);
+  const [deflectionFactor, setDeflectionFactor] = useState<number | null>(null);
+  const [undeformedGhost, setUndeformedGhost] = useState(false);
+  const [deflectionPlaying, setDeflectionPlaying] = useState(false);
+  const [deflectionPhase, setDeflectionPhase] = useState(1);
+  // Element axis triads (A7): session view state, off by default, never persisted.
+  const [elementAxesFrame, setElementAxesFrame] = useState<ElementAxesFrame | null>(null);
   const [boxSelectActive, setBoxSelectActive] = useState(false);
   const [boxSelectionFilter, setBoxSelectionFilter] = useState<BoxSelectionFilter>("all");
   const [boxRect, setBoxRect] = useState<{ left: number; top: number; right: number; bottom: number } | null>(null);
@@ -523,6 +592,12 @@ export function PipeViewport({
     ? null
     : "Select at least one valid drawable node, pipe, support, or component.";
   const [hoveredEntityKey, setHoveredEntityKey] = useState<EntityKey | null>(null);
+  // B9: the entity context menu. A right-click (or a secondary press released within 4 CSS px,
+  // so that a right-drag still pans) opens it at the pointer; Shift+F10 or the ContextMenu key
+  // opens it on the focused label or, from the canvas, on the primary selection.
+  const [entityMenu, setEntityMenu] = useState<{ target: EntityRef; request: ContextMenuRequest; serial: number } | null>(null);
+  const entityMenuSerialRef = useRef(0);
+  const secondaryPressRef = useRef<{ pointerId: number; x: number; y: number; moved: boolean } | null>(null);
   useEffect(() => {
     setHoveredEntityKey((current) => current && !hiddenKeys.has(current) ? current : null);
   }, [activeModelIndex.sessionGeneration, hiddenKeys]);
@@ -615,10 +690,24 @@ export function PipeViewport({
     inspectorSelection: selection,
     selectionPublication
   };
-  const deformation = useMemo(() => buildDeformationOverlay(model, result), [model, result]);
-  const rotation = useMemo(() => buildRotationOverlay(model, result), [model, result]);
   // Derived when the model, result, standing, case or quantity changes; never per frame.
   const overlayCases = useMemo(() => resultOverlayCases(model, result), [model, result]);
+  const deflectionCase = overlayCases.find((item) => item.key === deflectionCaseKey) ?? null;
+  const modelExtent = useMemo(() => {
+    const bounds = activeModelIndex.geometryBounds;
+    return bounds ? Math.max(bounds.max.x - bounds.min.x, bounds.max.y - bounds.min.y, bounds.max.z - bounds.min.z) : null;
+  }, [activeModelIndex]);
+  const fullDeformation = useMemo(() => buildDeformationOverlay(model, result, {
+    basisKey: deflectionCase?.key ?? null,
+    scale: deflectionCase ? { mode: "factor", factor: deflectionFactor } : { mode: "normalized" },
+    modelLengthUnit: model.project.units.length ?? null,
+    modelExtent
+  }), [deflectionCase, deflectionFactor, model, modelExtent, result]);
+  const deflectionAnimatable = fullDeformation.state === "available" && fullDeformation.scale.mode === "factor";
+  const drawnPhase = deflectionAnimatable ? deflectionPhase : 1;
+  const deformation = useMemo(() => deformationAtPhase(model, fullDeformation, drawnPhase), [drawnPhase, fullDeformation, model]);
+  const rotation = useMemo(() => buildRotationOverlay(model, result, { basisKey: deflectionCase?.key ?? null }), [deflectionCase, model, result]);
+  const elementAxes = useMemo(() => elementAxesFrame ? buildElementAxesView(model, elementAxesFrame) : null, [elementAxesFrame, model]);
   const overlayQuantities = useMemo(() => availableResultColourQuantities(model, result), [model, result]);
   const overlayCase = overlayCases.find((item) => item.key === overlayCaseKey) ?? overlayCases[0] ?? null;
   const overlayQuantity = overlayQuantities.find((item) => item.id === overlayQuantityId) ?? overlayQuantities[0] ?? null;
@@ -1335,6 +1424,15 @@ export function PipeViewport({
     applySelectionPresentation(resource, orderedSelectionKeys);
   }, [activeModelIndex, deformation, model, reactionOverlay, renderTransform, rotation]);
 
+  // The element axis triads live in the diagnostic layer: annotations of the model that are
+  // neither the element (no halo, no pick) nor a result, rebuilt when the frame or model changes.
+  useEffect(() => {
+    const resource = viewportResourceRef.current;
+    if (!resource || (!elementAxes && resource.diagnosticLayer.children.length === 0)) return;
+    resource.replaceLayer(resource.diagnosticLayer, elementAxes ? instancedElementAxisMeshes(elementAxisGroups(elementAxes, renderTransform.origin, activeModelIndex)) : []);
+    applySelectionPresentation(resource, orderedSelectionKeys);
+  }, [activeModelIndex, elementAxes, renderTransform]);
+
   // Result colour on the model's tubes: one in-place repaint of instance colours per change. The
   // resource keeps the table, so a rebuilt model layer (the effect above this one) takes it again.
   useEffect(() => {
@@ -1457,6 +1555,34 @@ export function PipeViewport({
   useEffect(() => {
     viewportResourceRef.current?.setVisibilityPresentation(hiddenKeys, dimmedKeys);
   }, [activeModelIndex.generation, hiddenKeys, dimmedKeys]);
+
+  // The undeformed ghost dims the model layer while a deformed shape is drawn.
+  const undeformedGhostKeys = useMemo(() => {
+    if (!undeformedGhost || deformation.state !== "available") return new Set<EntityKey>();
+    return new Set([...activeModelIndex.entities].flatMap(([key, indexed]) =>
+      indexed.ref.type === "pipe" || indexed.ref.type === "node" || indexed.ref.type === "support" || indexed.ref.type === "component" ? [key] : []));
+  }, [activeModelIndex, deformation.state, undeformedGhost]);
+  useEffect(() => {
+    viewportResourceRef.current?.setUndeformedGhostPresentation(undeformedGhostKeys);
+  }, [undeformedGhostKeys]);
+
+  // The animation oscillates the drawn phase from 0 to 1 and back, one case at the stated
+  // factor (design system 6.8). It runs only while asked, and stops at the full deflection.
+  const reducedMotion = usePrefersReducedMotion();
+  useEffect(() => {
+    if (!deflectionPlaying) return;
+    if (!deflectionAnimatable || reducedMotion) {
+      setDeflectionPlaying(false);
+      setDeflectionPhase(1);
+      return;
+    }
+    const started = performance.now();
+    const timer = window.setInterval(() => {
+      const cycle = ((performance.now() - started) % DEFLECTION_CYCLE_MS) / DEFLECTION_CYCLE_MS;
+      setDeflectionPhase(Math.round(((1 - Math.cos(2 * Math.PI * cycle)) / 2) * DEFLECTION_PHASE_STEPS) / DEFLECTION_PHASE_STEPS);
+    }, DEFLECTION_STEP_MS);
+    return () => window.clearInterval(timer);
+  }, [deflectionAnimatable, deflectionPlaying, reducedMotion]);
 
   useLayoutEffect(() => {
     if (!viewCommandRef) return;
@@ -1749,6 +1875,15 @@ export function PipeViewport({
   }
 
   function handleViewportPointerDown(event: ReactPointerEvent<HTMLDivElement>) {
+    if (event.button === 2) {
+      secondaryPressRef.current = {
+        pointerId: finitePointerEventNumber(event.pointerId, 1),
+        x: finitePointerEventNumber(event.clientX, 0),
+        y: finitePointerEventNumber(event.clientY, 0),
+        moved: false
+      };
+      return;
+    }
     if (draftReviewBusy) return;
     if (event.button !== 0 && event.button !== undefined) return;
     if (event.isPrimary === false) return;
@@ -1809,6 +1944,12 @@ export function PipeViewport({
   }
 
   function handleViewportPointerMove(event: ReactPointerEvent<HTMLDivElement>) {
+    // A secondary press that ever travels beyond 4 CSS px is a pan, even if it comes back.
+    const secondary = secondaryPressRef.current;
+    if (secondary && !secondary.moved && secondary.pointerId === finitePointerEventNumber(event.pointerId, 1) &&
+      Math.hypot(finitePointerEventNumber(event.clientX, 0) - secondary.x, finitePointerEventNumber(event.clientY, 0) - secondary.y) > 4) {
+      secondary.moved = true;
+    }
     const boxCandidate = boxGestureRef.current;
     if (boxCandidate && boxCandidate.pointerId === finitePointerEventNumber(event.pointerId, 1)) {
       if (!boxCandidateIsCurrent(boxCandidate.context)) {
@@ -1895,6 +2036,10 @@ export function PipeViewport({
   }
 
   function handleViewportPointerUp(event: ReactPointerEvent<HTMLDivElement>) {
+    if (event.button === 2) {
+      handleViewportSecondaryRelease(event);
+      return;
+    }
     const boxCandidate = boxGestureRef.current;
     if (boxCandidate && boxCandidate.pointerId === finitePointerEventNumber(event.pointerId, 1)) {
       if (!boxCandidateIsCurrent(boxCandidate.context)) {
@@ -2243,6 +2388,54 @@ export function PipeViewport({
     );
   }
 
+  const entityCommandEnvironment: EntityCommandEnvironment = {
+    model,
+    modelIndex: activeModelIndex,
+    selectedKeys: orderedSelectionKeys,
+    hiddenKeys,
+    showAllAvailable: explicitHiddenKeys.size > 0 || isolationActive,
+    viewCommand: dispatchViewportViewCommand,
+    viewportShortcuts: true,
+    fitSelectionAvailable: Boolean(fitSelectionBounds),
+    operationBusy,
+    onQueueIntent
+  };
+
+  function openEntityMenu(target: EntityRef, request: ContextMenuRequest) {
+    setEntityMenu({ target, request, serial: ++entityMenuSerialRef.current });
+  }
+
+  /** Right-clicking an entity that is not selected selects it first; a selected one keeps the selection. */
+  function selectForContextMenu(ref: EntityRef, inputKind: "pointer" | "label") {
+    if (orderedSelectionKeySet.has(entityKey(ref)) || draftReviewBusy) return;
+    publishSelectionAction(onSelect(ref), inputKind, null);
+  }
+
+  /** A label's menu falls back to the same entity's current label, then to the canvas. */
+  function labelMenuFallbacks(ref: EntityRef) {
+    const key = entityKey(ref);
+    return () => [
+      [...(selectionLayerRef.current?.querySelectorAll<HTMLElement>("[data-entity-key]") ?? [])].find((element) => element.dataset.entityKey === key),
+      hostRef.current
+    ];
+  }
+
+  function primarySelectionRef(): EntityRef {
+    return (primarySelectionKey ? entityRefFromKey(primarySelectionKey) : null) ?? selection;
+  }
+
+  function handleViewportSecondaryRelease(event: ReactPointerEvent<HTMLDivElement>) {
+    const press = secondaryPressRef.current;
+    secondaryPressRef.current = null;
+    const x = finitePointerEventNumber(event.clientX, 0);
+    const y = finitePointerEventNumber(event.clientY, 0);
+    // A right-drag pans the camera; only a press released in place opens the menu.
+    if (!press || press.moved || press.pointerId !== finitePointerEventNumber(event.pointerId, 1) || Math.hypot(x - press.x, y - press.y) > 4) return;
+    const picked = pickRef.current?.({ clientX: x, clientY: y }) ?? null;
+    if (picked) selectForContextMenu(picked, "pointer");
+    openEntityMenu(picked ?? primarySelectionRef(), pointerMenuRequest({ clientX: x, clientY: y }, hostRef.current));
+  }
+
   return (
     <div
       className="viewport-shell"
@@ -2265,11 +2458,27 @@ export function PipeViewport({
           aria-label="Viewport deformation overlay status"
           data-testid="viewport-deformation-status"
         >
-          <summary>{deformation.state === "available" ? "Deformation · normalized" : deformation.state === "blocked" ? "Deformation · blocked" : "Deformation · unavailable"}</summary>
+          <summary>{deformation.state === "available" ? `Deformation · ${deflectionSummaryScale(deformation)}` : deformation.state === "blocked" ? "Deformation · blocked" : "Deformation · unavailable"}</summary>
           <div><strong data-testid="viewport-deformation-summary">{deformation.maximum ? <>available; nodes={deformation.nodeCount}; max=<QuantityReadout quantity={{ ...deformation.maximum, dimension_id: "length" }} /></> : deformation.summary}</strong>
           <small data-testid="viewport-deformation-boundary">{deformation.boundary}</small>{" "}
           <small data-testid="viewport-rotation-summary">rotation: {rotation.maximum ? <>available; nodes={rotation.nodeCount}; drawn={rotation.drawnCount}; max |component|=<QuantityReadout quantity={{ ...rotation.maximum, dimension_id: "angle" }} /></> : rotation.summary}</small>{" "}
-          <small data-testid="viewport-rotation-boundary">{rotation.boundary}</small></div>
+          <small data-testid="viewport-rotation-boundary">{rotation.boundary}</small>
+          {result ? (
+            <DeflectedShapeControls
+              cases={overlayCases}
+              caseKey={deflectionCase?.key ?? null}
+              onCaseChange={(key) => { setDeflectionCaseKey(key); setDeflectionFactor(null); setDeflectionPhase(1); }}
+              deformation={fullDeformation}
+              onFactorChange={setDeflectionFactor}
+              ghost={undeformedGhost}
+              onGhostChange={setUndeformedGhost}
+              playing={deflectionPlaying}
+              onPlayingChange={(playing) => { setDeflectionPlaying(playing); if (!playing) setDeflectionPhase(1); }}
+              phase={drawnPhase}
+              onPhaseChange={(phase) => { setDeflectionPlaying(false); setDeflectionPhase(phase); }}
+              reducedMotion={reducedMotion}
+            />
+          ) : null}</div>
         </details>
         <div className="viewport-display-toggles" role="group" aria-label="Viewport display toggles">
           <button
@@ -2327,6 +2536,21 @@ export function PipeViewport({
             </>
           ) : null}
         </div>
+        <div className="viewport-display-toggles viewport-element-axes-toggle" role="group" aria-label="Element axes">
+          {([null, "local", "global"] as const).map((frame) => (
+            <button
+              key={frame ?? "off"}
+              type="button"
+              data-testid={`viewport-element-axes-${frame ?? "off"}`}
+              aria-pressed={elementAxesFrame === frame}
+              className={elementAxesFrame === frame ? "active" : ""}
+              onClick={() => setElementAxesFrame(frame)}
+              title={frame === "local"
+                ? "Show each member's local axes: x from its From node to its To node, y from its y_reference, z = x × y"
+                : frame === "global" ? "Show the model's global X, Y and Z axes at each member" : "Hide the element axes"}
+            >{frame === "local" ? "Local axes" : frame === "global" ? "Global axes" : "No axes"}</button>
+          ))}
+        </div>
         <div className="viewport-selection-tools" role="group" aria-label="Viewport selection tools">
           <button
             aria-pressed={boxSelectActive}
@@ -2365,6 +2589,7 @@ export function PipeViewport({
             className="viewport-toolbar-selection-status"
             title={`Selected ${selection.type}: ${selection.id}`}
           >Selected: {selection.id}</span>
+          {elementAxes ? <ElementAxesStatus view={elementAxes} selection={selection} /> : null}
           {hiddenCount > 0 ? <button type="button" className="viewport-hidden-count" data-testid="viewport-hidden-count" onClick={() => dispatchViewportViewCommand({ type: "show-all" })} title="Clear Hide and isolation">{hiddenCount} hidden · Show all</button> : null}
           {selectedHiddenCount > 0 ? <span role="status" title={`${selectedHiddenCount} selected item${selectedHiddenCount === 1 ? " is" : "s are"} hidden`}>{selectedHiddenCount} selected item{selectedHiddenCount === 1 ? " is" : "s are"} hidden</span> : null}
           <span role="status" data-testid="viewport-od-status" title={geometryMode === "actual-od" ? actualOd.reason : "Schematic centerline geometry"}>{geometryMode === "actual-od" ? actualOd.reason : "Schematic centerline geometry"}</span>
@@ -2398,6 +2623,13 @@ export function PipeViewport({
           onPointerUp={handleViewportPointerUp}
           onPointerCancel={handleViewportPointerCancel}
           onLostPointerCapture={handleViewportLostPointerCapture}
+          onContextMenu={(event) => event.preventDefault()}
+          onKeyDown={(event) => {
+            if (event.target !== event.currentTarget || !isContextMenuKey(event)) return;
+            event.preventDefault();
+            const rect = event.currentTarget.getBoundingClientRect();
+            openEntityMenu(primarySelectionRef(), { anchor: { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }, returnFocus: event.currentTarget });
+          }}
           ref={hostRef}
           aria-label="Three.js pipe centerline viewport"
           title={webglAvailable === false ? pointerCaptureReason : "Click a part to select it; drag to orbit, scroll to zoom"}
@@ -2427,6 +2659,16 @@ export function PipeViewport({
                     additive: event.shiftKey,
                     toggle: event.ctrlKey || event.metaKey
                   })}
+                  onContextMenu={(event) => {
+                    event.preventDefault();
+                    selectForContextMenu(target.ref, "label");
+                    openEntityMenu(target.ref, pointerMenuRequest(event, event.currentTarget, labelMenuFallbacks(target.ref)));
+                  }}
+                  onKeyDown={(event) => {
+                    if (!isContextMenuKey(event)) return;
+                    event.preventDefault();
+                    openEntityMenu(target.ref, keyboardMenuRequest(event.currentTarget, event.currentTarget, labelMenuFallbacks(target.ref)));
+                  }}
                   style={{
                     left: `${target.screen.x}%`,
                     top: `${target.screen.y}%`
@@ -2480,6 +2722,11 @@ export function PipeViewport({
             standing={resultStanding}
             focus={overlayFocus(hoveredEntityKey, selection)}
           />
+        ) : null}
+        {deformation.state === "available" ? (
+          <div className="viewport-deflection-label" data-testid="viewport-deflection-label">
+            {deflectionLabel(deformation, deflectionCase?.label ?? null)}
+          </div>
         ) : null}
         <div className="viewport-scale-bar" data-testid="viewport-scale-bar">
           <QuantityReadout quantity={{ value: 1, unit: defaultLengthUnit, dimension_id: "length" }} />
@@ -3089,6 +3336,16 @@ export function PipeViewport({
         </div></details>
         </section>
       </OptionalPortal>
+      {entityMenu ? (
+        <EntityContextMenu
+          key={entityMenu.serial}
+          env={entityCommandEnvironment}
+          target={entityMenu.target}
+          request={entityMenu.request}
+          onClose={() => setEntityMenu(null)}
+          testId="viewport-context-menu"
+        />
+      ) : null}
     </div>
   );
 }
@@ -3967,6 +4224,18 @@ function instancedComponentMeshes(
   return output;
 }
 
+// Element axis placements in render-local coordinates, grouped by spatial chunk and owned by
+// their member. Members with invalid geometry get none.
+function elementAxisGroups(view: ElementAxesView, origin: Readonly<Vec3>, index: ModelIndex): ElementAxisPlacement[][] {
+  const placements = new Map<EntityKey, ElementAxisPlacement>();
+  for (const triad of view.triads.values()) {
+    const key = entityKey({ type: "pipe", id: triad.pipeId });
+    if (index.invalidGeometry.has(key)) continue;
+    placements.set(key, { ownerKey: key, anchor: authoredToLocal(triad.origin, origin), axes: [triad.x, triad.y, triad.z], displayLength: elementAxisDisplayLength(triad.length) });
+  }
+  return spatialGroups(index, placements);
+}
+
 // Rotation glyph placements in render-local coordinates, grouped by spatial chunk.
 function rotationGlyphGroups(
   model: PreviewModel,
@@ -4009,7 +4278,8 @@ function overlayFocus(hoveredKey: EntityKey | null, selection: EntityRef): Overl
   return selection.type === "pipe" || selection.type === "support" ? { ref: selection, source: "selection" } : null;
 }
 
-function instancedDeformedPipeMesh(
+/** Exported for the renderer-buffer check in `deflectedShape.test.ts`. */
+export function instancedDeformedPipeMesh(
   model: PreviewModel,
   positions: ReadonlyMap<string, Vec3>,
   origin: Readonly<Vec3>,
@@ -4050,7 +4320,8 @@ function instancedDeformedPipeMesh(
   });
 }
 
-function instancedDeformationMarkerMesh(
+/** Exported for the renderer-buffer check in `deflectedShape.test.ts`. */
+export function instancedDeformationMarkerMesh(
   model: PreviewModel,
   positions: ReadonlyMap<string, Vec3>,
   origin: Readonly<Vec3>,

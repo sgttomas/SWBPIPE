@@ -144,7 +144,7 @@
             "temperature": "degC"
           }
         },
-        "schema_version": "0.7.0",
+        "schema_version": "0.8.0",
         "supports": [
           {
             "id": "rigid:N0",
@@ -3951,7 +3951,7 @@
           "domain": "source_blocks_invocation_v1",
           "profile": "openpipestress_jcs_ijson_v1",
           "scope": "actual_request_and_solver_mode",
-          "value": "a27c1199070764618be916e28a011bc38e130b6cc6681f7d934973203a80d3f0"
+          "value": "eae9882d8e9239bf0ef5e7951e92c5e14b325103ee2f9cfacb2950e75b29aa7b"
         },
         "material_bases": [
           {
@@ -6735,7 +6735,7 @@
         },
         "work_policy": "W1-LME-20B-60B-v1"
       },
-      "receipt_sha256": "abf1ef976af4d24fcc3f365f7408531a7c6513fa37561fb1c74bb81093a7a492"
+      "receipt_sha256": "8e2f57ebf68c286b7afa5088037f7a7a2e8becc7298bee297ae87ef2a8c72484"
     },
     "run_id": "run:preview-linear-static-001",
     "schema_version": "0.2.0",

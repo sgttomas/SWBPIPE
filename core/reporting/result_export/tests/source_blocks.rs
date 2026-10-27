@@ -1,7 +1,7 @@
 //! B4/D1 (b): the non-composite source-blocks-1 identity is retired. A stored
 //! source-blocks-1 statement is refused by name; the composite identities keep
 //! the shared source-block machinery and their ordinary cases (B7b: the
-//! current pressure-source-1 statement on the 0.7.0/v3 corpus).
+//! current pressure-source-1 statement on the 0.8.0/v3 corpus).
 use open_pipe_stress_result_export::{reader_verdict, semantic_contract};
 use serde_json::{json, Value};
 

@@ -2,7 +2,8 @@
 
 From the project root:
 
-    python3 -m tools.caepipe_correlation.run_pilot [--case ID ...] [--offline] [--runner PATH]
+    python3 -m tools.caepipe_correlation.run_pilot [--case ID ...] [--offline | --export-mbf | --export-only]
+        [--runner PATH]
 
 Per case: the independent hand calculation, the SWBPIPE solve (headless runner),
 the SI MBF (with the case's deliberate fault injection, if any), the live
@@ -21,14 +22,26 @@ exchange folder; every case whose declarations name an evaluated hypothesis and
 whose stored record carries a different series status is then rebuilt offline
 from its stored CSV, so its causes use the series status (Design §6, §7).
 
+--export-mbf adds the export step after each case's live round trip: the guest
+opens the case's solved model in a CAEPIPE instance it starts, writes it back to
+MBF with File > Export to MBF... and stops that instance; the harness collects
+caepipe_out/exported.mbf and binds it to the run record by hash (Design §3, §5).
+--export-only runs only that step, from each case's stored solve, which its run
+record must bind to the current MBF, and needs no runner. In the exchange folder it
+writes the case's caepipe_out/ files (the export, its guest logs and the run
+record's export entry), the harness copy of the guest script and run lock in
+_harness/, and creates the case's layer folders if they are missing.
+
 Standard output carries operational status only: per case its id, route and
 either the comparison record's path relative to the exchange folder or the
-reason no record was written, and per series the path of its record. Outcome,
+reason no record was written, per export step its route and either the exported
+MBF's path or the reason none was written, and per series the path of its
+record. Outcome,
 cause and series status stay in the private records; no external-prover value or
 derived statistic is printed. Exit status 0 when every selected case and every
 rebuild produced a comparison record, or when the harness is not configured
-(the reason is printed and nothing is written); 1 otherwise; 2 for a usage
-error.
+(the reason is printed and nothing is written); 1 otherwise, including any export
+step that wrote no exported MBF; 2 for a usage error.
 """
 
 from __future__ import annotations
@@ -57,6 +70,7 @@ from core.handoff.caepipe_external import (  # noqa: E402
     case_paths,
     read_caepipe_print_csv,
     resolve_harness_config,
+    run_caepipe_mbf_export,
     run_caepipe_round_trip,
 )
 from core.handoff.caepipe_external.correlation import evaluate_hypothesis_series, series_summary  # noqa: E402
@@ -64,10 +78,12 @@ from core.handoff.caepipe_external.harness import (  # noqa: E402
     BOUNDARY_NOTE,
     CASE_ID_PATTERN,
     CSV_ROUTES,
-    RUN_RECORD_KIND,
+    EXPORT_ROUTE,
+    EXPORTED_MBF,
     ContainmentError,
     contained,
     contained_dir,
+    stored_run_record,
     write_private,
 )
 from core.handoff.caepipe_mbf import render_caepipe_mbf_si  # noqa: E402
@@ -83,7 +99,7 @@ PARSER_DIAGNOSTICS_KIND = "openpipestress.caepipe_print_csv.parser_diagnostics"
 LAYER_PRIVACY = {
     "swbpipe": "SWBPIPE request and result from the invented public case; kept with the private run",
     "caepipe_in": "SWBPIPE-derived MBF and writer maps; no CAEPIPE output",
-    "caepipe_out": "PRIVATE: CAEPIPE output (CSV, .res, .mod) and the guest run log",
+    "caepipe_out": "PRIVATE: CAEPIPE output (CSV, .res, .mod, exported.mbf) and the guest run logs",
     "parsed": "PRIVATE: derived from CAEPIPE output",
     "comparison": "PRIVATE: derived from CAEPIPE output",
 }
@@ -230,16 +246,6 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
 
-def stored_run_record(root: Path, out_dir: Path) -> dict[str, Any] | None:
-    """The harness run record stored in caepipe_out/, or None when absent or not a run record."""
-    path = contained(root, out_dir / "run_record.json")
-    try:
-        record = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else None
-    except (OSError, UnicodeDecodeError, json.JSONDecodeError):
-        return None
-    return record if isinstance(record, dict) and record.get("document_kind") == RUN_RECORD_KIND else None
-
-
 def bound_csv(root: Path, paths: Mapping[str, Path], record: Mapping[str, Any] | None,
               mbf_sha256: str) -> tuple[Path | None, str, str]:
     """(CSV, route, reason): the CSV only when the run record binds it to the current MBF, else None and why."""
@@ -316,8 +322,8 @@ def _run_case(case: Mapping[str, Any], config: HarnessConfig, *, runner: str, of
             return False
     in_dir = paths["caepipe_in"]
     write_private(root, in_dir / "model.mbf", mbf_text.encode("utf-8"))
-    _write_json(root, in_dir / "id_map.json", {key: value for key, value in mbf.to_dict().items()
-                                                if key.endswith("_map")})
+    _write_json(root, in_dir / "id_map.json", {**{key: value for key, value in mbf.to_dict().items()
+                                                   if key.endswith("_map")}, "mbf_sha256": mbf_sha256})
     _write_json(root, in_dir / "mbf_render.json", {
         "profile_id": mbf.to_dict()["profile_id"], "status": mbf.status, "layout_row_count": mbf.layout_row_count,
         "diagnostics": mbf.diagnostics, "loss_report": mbf.loss_report, "assumptions": mbf.assumptions,
@@ -426,12 +432,42 @@ def run_series(config: HarnessConfig, *, runner: str, hand_calcs: Any, emit: Cal
     return rebuilt
 
 
+def export_case(case: Mapping[str, Any], config: HarnessConfig, *, emit: Callable[[str], None] = print,
+                export: Callable[..., dict[str, Any]] = run_caepipe_mbf_export) -> bool:
+    """Export the case's stored solved model to caepipe_out/exported.mbf when its run record binds it to the MBF."""
+    case_id = case["case_id"]
+    mbf, _, mbf_text = render_case_mbf(case)
+    if mbf.status != "written":
+        emit(f"{case_id}: export route=not_run; MBF refused; no exported MBF")
+        return False
+    try:
+        entry = export(config, case_id, _sha256(mbf_text))
+    except ContainmentError as error:
+        emit(f"{case_id}: export route=containment_violation; {error}; no exported MBF")
+        return False
+    route = entry["route"]
+    if route == EXPORT_ROUTE:
+        emit(f"{case_id}: export route={route}; exported MBF written: cases/{case_id}/caepipe_out/{EXPORTED_MBF}")
+        return True
+    reason = entry.get("reason") or f"the guest export did not complete (cases/{case_id}/caepipe_out/run_record.json)"
+    emit(f"{case_id}: export route={route}; {reason}; no exported MBF")
+    return False
+
+
 def run_cases(cases: list[Mapping[str, Any]], config: HarnessConfig, *, runner: str, offline: bool, hand_calcs: Any,
               emit: Callable[[str], None] = print,
-              round_trip: Callable[..., dict[str, Any]] = run_caepipe_round_trip) -> dict[str, bool]:
-    """Run the selected cases, then the series step; {case id or "series": success}."""
-    results = {case["case_id"]: run_case(case, config, runner=runner, offline=offline, hand_calcs=hand_calcs,
-                                         emit=emit, round_trip=round_trip) for case in cases}
+              round_trip: Callable[..., dict[str, Any]] = run_caepipe_round_trip, export_mbf: bool = False,
+              export: Callable[..., dict[str, Any]] = run_caepipe_mbf_export) -> dict[str, bool]:
+    """Run the selected cases (each followed by its export step with `export_mbf`), then the series step.
+
+    Returns {case id, "<case id> export" or "series": success}.
+    """
+    results = {}
+    for case in cases:
+        results[case["case_id"]] = run_case(case, config, runner=runner, offline=offline, hand_calcs=hand_calcs,
+                                            emit=emit, round_trip=round_trip)
+        if export_mbf:
+            results[f"{case['case_id']} export"] = export_case(case, config, emit=emit, export=export)
     for key, ok in run_series(config, runner=runner, hand_calcs=hand_calcs, emit=emit).items():
         results[key] = results.get(key, True) and ok
     return results
@@ -440,7 +476,12 @@ def run_cases(cases: list[Mapping[str, Any]], config: HarnessConfig, *, runner: 
 def main(argv: list[str] | None = None, environ: Mapping[str, str] = os.environ) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--case", action="append", dest="cases", metavar="ID", help="run only this case (repeatable)")
-    parser.add_argument("--offline", action="store_true", help="reuse the CAEPIPE CSV stored in caepipe_out/")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--offline", action="store_true", help="reuse the CAEPIPE CSV stored in caepipe_out/")
+    mode.add_argument("--export-mbf", action="store_true",
+                      help="after each case's round trip, export the solved model to caepipe_out/exported.mbf")
+    mode.add_argument("--export-only", action="store_true",
+                      help="only export each case's stored, bound solved model to caepipe_out/exported.mbf")
     parser.add_argument("--runner", help=f"openpipestress-runner executable (default: ${RUNNER_ENV})")
     args = parser.parse_args(argv)
     try:
@@ -453,6 +494,10 @@ def main(argv: list[str] | None = None, environ: Mapping[str, str] = os.environ)
     if isinstance(config, HarnessSkip):
         print(f"CAEPIPE harness skipped: {config.reason}")
         return 0
+    if args.export_only:
+        for warning in config.warnings:
+            print(f"warning: {warning}")
+        return 0 if all([export_case(case, config) for case in cases]) else 1
     runner = args.runner or environ.get(RUNNER_ENV)
     if not runner or not Path(runner).is_file():
         print(f"error: no runner executable (--runner or ${RUNNER_ENV})", file=sys.stderr)
@@ -460,7 +505,8 @@ def main(argv: list[str] | None = None, environ: Mapping[str, str] = os.environ)
     for warning in config.warnings:
         print(f"warning: {warning}")
     hand_calcs = load_hand_calcs()
-    results = run_cases(cases, config, runner=runner, offline=args.offline, hand_calcs=hand_calcs)
+    results = run_cases(cases, config, runner=runner, offline=args.offline, hand_calcs=hand_calcs,
+                        export_mbf=args.export_mbf)
     return 0 if all(results.values()) else 1
 
 

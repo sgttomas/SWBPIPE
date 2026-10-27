@@ -137,7 +137,7 @@ describe("the solve records the model's rule packs in the input manifest (FR-CMP
     // Byte-identical to the pinned manifest (written before the change by the session's builder).
     expect(evidence.canonical_bytes).toBe(committed.input_manifest_canonical);
     expect(evidence.manifest_sha256).toBe(committed.run_record.analysis_run.reproducibility.input_manifest_hashes[0].value);
-    expect(evidence.manifest_sha256).toBe("dbf365b957c9251feb2f362757cef7a37965219ed2600289497c682f335c6ce1");
+    expect(evidence.manifest_sha256).toBe("cca3862b0ec08ffeceada7188a5be6f505e81feb06ea28cc9a062dee96a89c83");
     expect(evidence.manifest.active_rule_packs).toEqual([]);
     expect(Object.keys(evidence.manifest).sort()).toEqual(["active_rule_packs", "document_kind", "external_assets", "identity_policy", "load_basis", "model_basis", "replay_boundary", "schema_version", "solver_basis", "unit_basis"]);
     // The transient record is the committed one, byte for byte (its own hash included).

@@ -42,14 +42,14 @@ function controlValues(region: HTMLElement): string[] {
   return Array.from(region.querySelectorAll("input, select")).map(el => (el as HTMLInputElement | HTMLSelectElement).value);
 }
 
-/** The current exact-contract document without its contract: pressure-free 0.7.0. */
+/** The current exact-contract document without its contract: pressure-free 0.8.0. */
 function pressureFree(): PreviewModel {
   const model = structuredClone(exactPressure) as unknown as PreviewModel;
   delete (model as { pressure_contract?: unknown }).pressure_contract;
   return model;
 }
 
-describe("gating to the current exact-contract document (D3: no upgrade operation; B7b: 0.7.0 with 3.0.0/exact_pressure_v3)", () => {
+describe("gating to the current exact-contract document (D3: no upgrade operation; B7b: 0.8.0 with 3.0.0/exact_pressure_v3)", () => {
   it("offers no load/reference-state field on a retired version or a pressure-free document, only the one line", () => {
     const retired = ["0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.4.1", "0.5.0", "0.6.0"].map(version => {
       const model = structuredClone(exactPressure) as unknown as PreviewModel;
@@ -106,7 +106,7 @@ describe("operation submission, one field group at a time", () => {
     expect(model).toEqual(before); // no client-side mutation
     const next = await applied(model, intent);
     expect(next.reference_configurations).toEqual(expected);
-    expect(next.schema_version).toBe("0.7.0");
+    expect(next.schema_version).toBe("0.8.0");
   });
 
   it("analysis state: support motion, element thermal state, material selection and a load-source factor", async () => {

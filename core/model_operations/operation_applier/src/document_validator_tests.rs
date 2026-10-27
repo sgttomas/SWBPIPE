@@ -58,7 +58,7 @@ fn every_slot_document_is_clean_and_absence_means_none() {
     // Not an object: no slots, no findings (the callers name the shape).
     assert!(validate_model_document(&json!([1, 2])).is_empty());
     // The version string is not read.
-    clean(&mutated(|d| d["schema_version"] = json!("0.7.0")));
+    clean(&mutated(|d| d["schema_version"] = json!("0.8.0")));
 }
 
 #[test]

@@ -13,7 +13,7 @@
     "professional_or_release_claim": false
   },
   "blank_model": {
-    "schema_version": "0.7.0",
+    "schema_version": "0.8.0",
     "document_kind": "openpipestress.product_preview.model",
     "data_boundary": {
       "public_examples_policy": "blank_user_created_local_document_no_bundled_engineering_values",

@@ -6,7 +6,7 @@ invocation, raw, (for pressure-2) canonical document and manifest files,
 and the actual CLI input and stdout, when these variables are set:
 
 - ``HEADLESS_LOAD_REFERENCE_OUTPUT_DIR``: pressure-2 with the load/reference-state
-  group (model 0.7.0, 3.0.0/exact_pressure_v3), the two committed requests in
+  group (model 0.8.0, 3.0.0/exact_pressure_v3), the two committed requests in
   ``pressure/load_reference`` in both modes;
 - ``HEADLESS_LOAD_REFERENCE_SOURCE_OUTPUT_DIR``: pressure-source-1 with the group,
   the five committed joined witnesses in ``pressure_source/load_reference_source``

@@ -22,7 +22,7 @@ const US: [(&str, &str); 7] =
 /// A current model document with the SI preset and no nodes.
 fn blank() -> Value {
     let units: serde_json::Map<String, Value> = SI.iter().map(|(key, symbol)| (key.to_string(), json!(symbol))).collect();
-    json!({"schema_version":"0.7.0","document_kind":"openpipestress.product_preview.model",
+    json!({"schema_version":"0.8.0","document_kind":"openpipestress.product_preview.model",
         "project":{"id":PROJECT,"name":"Invented units project","units":units},
         "analysis_status":{"mechanics":"ready_for_preview_diagnostics","rule_check":"not_performed_user_rule_inputs_missing","professional_acceptance":"not_provided"},
         "nodes":[],"pipe_segments":[],"supports":[],"components":[],"materials":[],"load_cases":[],"combinations":[]})
@@ -256,7 +256,9 @@ fn each_refusal_is_reached_by_name() {
     // OP-PROJECT-UNIT-DOCUMENT-INVALID: an older document, another kind, a units member that is not a map.
     let mut old = model.clone();
     old["schema_version"] = json!("0.6.0");
-    refused(&old, &set(&old, "force", "lbf"), "OP-PROJECT-UNIT-DOCUMENT-INVALID");
+    refused(&old, &set(&old, "force", "lbf"), "MODEL_SCHEMA_VERSION_RETIRED");
+    old["schema_version"] = json!("0.9.0");
+    refused(&old, &set(&old, "force", "lbf"), "MODEL_SCHEMA_VERSION_NEWER_THAN_SUPPORTED");
     let mut other_kind = model.clone();
     other_kind["document_kind"] = json!("openpipestress.other");
     refused(&other_kind, &set(&other_kind, "force", "lbf"), "OP-PROJECT-UNIT-DOCUMENT-INVALID");
@@ -334,9 +336,10 @@ fn the_refusals_run_in_the_table_order() {
     };
     // Shape before target.
     both(&|intent| { intent["target"]["ref"] = json!("project:other"); intent["change"]["before"] = json!(3); }, &model, "OP-PROJECT-UNIT-SHAPE-INVALID");
-    // Target before document.
+    // Target before document (another document kind: a non-current version is
+    // refused by name before any operation is checked, model document 0.8.0, r6/r7).
     let mut old = model.clone();
-    old["schema_version"] = json!("0.6.0");
+    old["document_kind"] = json!("openpipestress.other");
     both(&|intent| intent["target"]["ref"] = json!("project:other"), &old, "OP-TARGET-NOT-FOUND");
     // Document before key.
     both(&|intent| intent["change"]["field_path"] = json!("project.units.mass"), &old, "OP-PROJECT-UNIT-DOCUMENT-INVALID");

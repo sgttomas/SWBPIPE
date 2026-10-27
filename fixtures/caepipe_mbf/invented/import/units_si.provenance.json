@@ -1,0 +1,13 @@
+{
+  "description": "SI-unit MBF: the English fixture's values converted by exact definitions, printed to 15 significant digits where they do not terminate",
+  "license": "project-original",
+  "material_provenance": {
+    "*": {
+      "origin": "project_invented",
+      "redistribution_status": "public_permissive",
+      "source_name": "invented steel for the importer units check"
+    }
+  },
+  "origin": "invented for the DEL-17-04 MBF importer units check",
+  "produced_by_caepipe": false
+}

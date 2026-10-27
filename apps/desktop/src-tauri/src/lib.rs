@@ -26,8 +26,10 @@ mod report_render_exact_tests;
 #[cfg(test)]
 mod object_form_tests;
 mod rule_solver_selection;
+mod solve_attestation;
 mod solve_jobs;
 mod solve_worker;
+mod user_release_admission;
 mod worker_alloc;
 #[cfg(test)]
 mod rule_check_object_form_tests;
@@ -69,14 +71,24 @@ async fn save_report_package(
     invoke: tauri::ipc::Request<'_>,
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError<ReportPackageSaveCommandError>> {
-    // The arguments are three canonical texts and two structs of scalars, moved.
-    let (mut args, mut lease) = command_ingress::admit(&registry, &invoke, "save_report_package", ArgsDecoding::Moved)?;
+    // The lease is held through admission, the save dialog and the write.
+    let (request, _lease) = admit_report_package_save(&registry, invoke.body(), invoke.headers())?;
+    respond(save_report_package_decoded(app, request).await.map_err(CommandError::Command))
+}
+
+/// The save's ingress: the arguments (three canonical texts and two structs of
+/// scalars) moved out of the admitted body, then the evidence shape, the size
+/// caps and the priced parse of the texts, by which the lease grows before any
+/// is parsed (DEL-08-01 Design `report-package-current-results.md` §2.6 items
+/// 1-3), within the per-invocation budget (`memory_pool::Lease::grow_to`).
+fn admit_report_package_save(
+    registry: &SolveJobRegistry,
+    body: &tauri::ipc::InvokeBody,
+    headers: &tauri::http::HeaderMap,
+) -> Result<(report_package_save::ReportPackageSaveRequest, memory_pool::Lease), CommandError<ReportPackageSaveCommandError>> {
+    let (mut args, mut lease) = command_ingress::admit_body(registry, body, headers, "save_report_package", ArgsDecoding::Moved)?;
     let request = report_package_save::save_report_package_args(&mut args)?;
     drop(args);
-    // Evidence shape, the size caps, then the priced parse of the three texts:
-    // the lease grows by their parse before any is parsed (DEL-08-01 Design
-    // `report-package-current-results.md` §2.6 items 1-3). The lease is held
-    // through admission, the save dialog and the write.
     let growth = report_package_save::validate_report_package_save_evidence(&request.screening, request.local_first.as_ref())
         .and_then(|()| {
             report_package_save::parse_lease_bytes_with_exact(
@@ -86,13 +98,10 @@ async fn save_report_package(
                 request.exact_result_text.as_deref(),
                 request.exact_intake_text.as_deref(),
             )
-        });
-    let growth = match growth {
-        Ok(growth) => growth,
-        Err(error) => return respond::<report_package_save::ReportPackageSaveReceipt, _>(Err(CommandError::Command(error))),
-    };
+        })
+        .map_err(CommandError::Command)?;
     lease.grow_to(lease.bytes().saturating_add(growth)).map_err(|refusal| registry.refuse(refusal))?;
-    respond(save_report_package_decoded(app, request).await.map_err(CommandError::Command))
+    Ok((request, lease))
 }
 
 async fn save_report_package_decoded(
@@ -2266,10 +2275,15 @@ fn get_local_storage_capability(app: AppHandle) -> Result<StorageCapability, Str
 }
 
 fn refuse_model_document(status: &ModelDocumentVersionStatus) -> String {
-    format!(
+    let refusal = format!(
         "Model document refused for editing: status={}; source_schema_version={}; target_schema_version={}; {}",
         status.status, status.source_schema_version, status.target_schema_version, status.detail
-    )
+    );
+    // A retired project: what it means for its recorded runs (MD8 §3.3, ruling a2).
+    match status.refusal_suffix() {
+        "" => refusal,
+        note => format!("{refusal} {note}"),
+    }
 }
 
 /// W-13 §5.3: the one document validator's blocking findings, named with
@@ -4783,7 +4797,7 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S
     let hash = |payload: &Value| format!("sha256:{}", open_pipe_stress_operation_applier::sha256_hex(
         &open_pipe_stress_operation_applier::canonical_json(payload)));
     let baseline_hash = hash(&model);
-    if baseline_hash != "sha256:6ab326322a5e10568a71048a22cc7cb633b4422a0ade86e021debc01f0f6ddcf" {
+    if baseline_hash != "sha256:a83c8d8db50c7793a02fe7159a234ac66652f784ddff34e3b918efb77284c346" {
         return Err(format!("PACKAGED-SMOKE-FROZEN-BASELINE-HASH-MISMATCH: {baseline_hash}"));
     }
     let baseline = solve_preview_mechanics(model.clone())?;
@@ -4803,7 +4817,7 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S
     }
     let edited_model = applied["applied_model"].clone();
     let edited_hash = hash(&edited_model);
-    if edited_hash != "sha256:042bf3a9b2a2b52aba14bf759bb34ffd0f4c125422cbb1aa9520d28e0ab69012" {
+    if edited_hash != "sha256:2ffc037a3668ba11935adb01db99d24d2549ff7dc17f06e5d233f1224f4ae535" {
         return Err(format!("PACKAGED-SMOKE-FROZEN-EDIT-HASH-MISMATCH: {edited_hash}"));
     }
     let agent_intent: Value = serde_json::from_str(r#"{
@@ -5435,7 +5449,7 @@ mod tests {
     fn source_blocks_native_actual_invocation_store_and_rule_context() {
         // B4/D1 (b): source blocks remain only on the exact route's composites, so this
         // control reads pressure-source-1's committed request (B7b: an exact-contract
-        // 0.7.0 model with 3.0.0/exact_pressure_v3, the v3 twin of physics-source-1's).
+        // 0.8.0 model with 3.0.0/exact_pressure_v3, the v3 twin of physics-source-1's).
         let request: Value = serde_json::from_str(include_str!("../../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json")).unwrap();
         let model = &request["model"];
         for mode in [PreviewSolverMode::DenseScrutiny, PreviewSolverMode::SparseInteractive] {
@@ -6431,8 +6445,8 @@ mod tests {
         let project_id = model["project"]["id"].as_str().unwrap();
         let version = check_model_document_for_persist(&model).unwrap();
         assert_eq!(version.status, "current");
-        // B7b: the exact form is a contract-present 0.7.0 document (3.0.0/exact_pressure_v3).
-        assert_eq!(version.target_schema_version, "0.7.0");
+        // B7b: the exact form is a contract-present 0.8.0 document (3.0.0/exact_pressure_v3).
+        assert_eq!(version.target_schema_version, "0.8.0");
         let prepared = model.clone();
         upsert_project(
             &mut connection, project_id, "Explicit exact-profile fixture", &prepared,
@@ -6443,7 +6457,7 @@ mod tests {
         assert_eq!(loaded.model, model);
         let reopened = evaluate_model_document(&loaded.model);
         assert_eq!(reopened.status, "current");
-        assert_eq!(reopened.target_schema_version, "0.7.0");
+        assert_eq!(reopened.target_schema_version, "0.8.0");
         let (status, _, signature) = unit_round_trip_summary(&loaded.model);
         assert_eq!(status, "unit_metadata_preserved_in_local_project_envelope");
         assert!(signature.contains("poisson_ratio=1"));
@@ -6471,7 +6485,7 @@ mod tests {
             .unwrap()
     }
 
-    /// T1 WP2, on the current format (B7b): a 0.7.0 exact-contract model with the
+    /// T1 WP2, on the current format (B7b): a 0.8.0 exact-contract model with the
     /// load/reference-state group is saved and reopened exactly as any current
     /// document is, and its saved pressure-2 result keeps its raw hash and its
     /// resolved evidence bytes. The model and result are committed producer
@@ -6482,7 +6496,7 @@ mod tests {
             "../../../../fixtures/product_preview/pressure/load_reference/connected.request.json"
         )).unwrap();
         let model = request["model"].clone();
-        assert_eq!(model["schema_version"], "0.7.0");
+        assert_eq!(model["schema_version"], "0.8.0");
         let result: Value = serde_json::from_str(include_str!(
             "../../../../fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json"
         )).unwrap();
@@ -6512,8 +6526,8 @@ mod tests {
             apply_store_migrations(&connection).unwrap();
             let status = check_model_document_for_persist(&current).unwrap();
             assert_eq!(status.status, "current");
-            assert_eq!(status.source_schema_version, "0.7.0");
-            assert_eq!(status.target_schema_version, "0.7.0");
+            assert_eq!(status.source_schema_version, "0.8.0");
+            assert_eq!(status.target_schema_version, "0.8.0");
             let (persisted, saved_mh, saved_eh) = (current.clone(), mh.clone(), eh.clone());
             assert_eq!(persisted, model);
             upsert_project(
@@ -6528,7 +6542,7 @@ mod tests {
             let loaded = load_project(&reopened, Some(&project)).unwrap().unwrap();
             let status = evaluate_model_document(&loaded.model);
             assert_eq!(status.status, "current");
-            assert_eq!(status.target_schema_version, "0.7.0");
+            assert_eq!(status.target_schema_version, "0.8.0");
             let opened = loaded.model;
             assert_eq!(opened, model);
             assert_eq!(serde_json::to_string(&opened).unwrap(), model_bytes);
@@ -6561,8 +6575,8 @@ mod tests {
     }
 
     /// T1 WP2 (D3), on the current format (B7b): exact-contract and pressure-free
-    /// 0.7.0 documents persist unchanged with no load/reference-state key added; a
-    /// pressure-free 0.7.0 document that carries the load/reference-state group
+    /// 0.8.0 documents persist unchanged with no load/reference-state key added; a
+    /// pressure-free 0.8.0 document that carries the load/reference-state group
     /// (which requires the exact contract) is kept as authored (not stripped, not
     /// re-stamped) and the product blocks on solve.
     #[test]
@@ -6629,11 +6643,11 @@ mod tests {
             "../../../../fixtures/product_preview/pressure/load_reference/connected.request.json"
         )).unwrap();
         let carried = pressure_free(&request["model"]);
-        assert_eq!(carried["schema_version"], "0.7.0");
+        assert_eq!(carried["schema_version"], "0.8.0");
         assert!(carries_load_reference_keys(&carried));
         let (loaded, status) = round_trip(&carried);
         assert_eq!(loaded, carried);
-        assert_eq!(status.target_schema_version, "0.7.0");
+        assert_eq!(status.target_schema_version, "0.8.0");
         for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
             let solved = run_linear_static_preview_with_mode(
                 serde_json::from_value(json!({"model": loaded.clone(), "materials": []})).unwrap(),
@@ -6656,7 +6670,7 @@ mod tests {
         assert!(fts5_available(&connection));
 
         let model = json!({
-        "schema_version": "0.7.0",
+        "schema_version": "0.8.0",
         "document_kind": "openpipestress.product_preview.model",
             "project": {
                 "id": "project:test-local",
@@ -7341,7 +7355,7 @@ mod tests {
         );
     }
 
-    /// U3 (D-2 A1), on the current format (B7b): a 0.7.0 document declaring the
+    /// U3 (D-2 A1), on the current format (B7b): a 0.8.0 document declaring the
     /// retired 1.0.0/legacy_pressure_v1 or 2.0.0/exact_straight_pressure_v2 contract
     /// opens unchanged (no migration rewrites it), and its solve is refused with
     /// PRESSURE_MODEL_REAUTHOR_REQUIRED; nothing is published.
@@ -7362,7 +7376,7 @@ mod tests {
             let before = labelled.clone();
             let opened = evaluate_model_document(&labelled);
             assert_eq!(opened.status, "current", "{contract}");
-            assert_eq!(opened.target_schema_version, "0.7.0", "{contract}");
+            assert_eq!(opened.target_schema_version, "0.8.0", "{contract}");
             assert_eq!(labelled, before);
 
             let solved = run_preview_mechanics_value(Some(labelled)).expect("refusal is a published envelope");
@@ -7379,7 +7393,7 @@ mod tests {
     #[test]
     fn run_preview_mechanics_reports_blank_model_incomplete_without_defaults() {
         let blank = json!({
-            "schema_version": "0.7.0",
+            "schema_version": "0.8.0",
             "document_kind": "openpipestress.product_preview.model",
             "data_boundary": {
                 "public_examples_policy": "blank_user_created_local_document_no_bundled_engineering_values",
@@ -7743,7 +7757,7 @@ mod tests {
             "value": "raw-received-model-claim"
         });
         let received_envelope_claim = json!(["raw", "received", "envelope", "claim"]);
-        // The derived fixture is a current (0.7.0) document: it persists exactly
+        // The derived fixture is a current (0.8.0) document: it persists exactly
         // as edited, with the received hash claims kept raw; nothing is migrated
         // and no evidence is minted.
         let document_status = check_model_document_for_persist(&edited_model)
@@ -7803,14 +7817,16 @@ mod tests {
 
     #[test]
     fn persist_preparation_refuses_retired_newer_and_unsupported_model_documents() {
-        for version in ["0.1.0", "0.2.0", "0.5.0", "0.6.0"] {
+        for version in ["0.1.0", "0.2.0", "0.5.0", "0.6.0", "0.7.0"] {
             let retired = json!({ "schema_version": version, "project": { "id": "project:retired", "name": "Retired" } });
             let error = check_model_document_for_persist(&retired)
                 .expect_err("retired documents must be refused by name");
             assert!(error.contains("retired_schema") && error.contains("MODEL_SCHEMA_VERSION_RETIRED"), "{error}");
             assert!(error.contains(version) && error.contains("re-author"), "{error}");
+            // A retired project states what it means for its recorded runs (MD8 §3.3).
+            assert!(error.ends_with(&format!(" {}", crate::model_document_version::RETIRED_PROJECT_RUNS_NOTE)), "{error}");
         }
-        let newer = json!({ "schema_version": "0.7.1", "project": { "id": "project:newer", "name": "Newer" } });
+        let newer = json!({ "schema_version": "0.8.1", "project": { "id": "project:newer", "name": "Newer" } });
         let error = check_model_document_for_persist(&newer)
             .expect_err("newer-than-supported documents must be refused");
         assert!(error.contains("newer_than_supported"), "{error}");
@@ -7827,8 +7843,8 @@ mod tests {
         let model = json!({ "schema_version": open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION, "project": { "id": "project:current", "name": "Current" } });
         let status = check_model_document_for_persist(&model).expect("current documents persist");
         assert_eq!(status.status, "current");
-        assert_eq!(status.source_schema_version, "0.7.0");
-        assert_eq!(status.target_schema_version, "0.7.0");
+        assert_eq!(status.source_schema_version, "0.8.0");
+        assert_eq!(status.target_schema_version, "0.8.0");
     }
 
     /// B7a: a project stored as a retired version (here a 0.1.0 row a previous

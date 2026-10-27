@@ -8,7 +8,7 @@
 // `stateComparisonParity.test.ts`) is checked against it by
 // `tests/test_model_state_comparison_parity.py`.
 //
-// Flattening is complete and fails closed: every top-level member of the 0.7.0
+// Flattening is complete and fails closed: every top-level member of the 0.8.0
 // model document is assigned to an entity family or to the single `model`
 // entity (`MEMBER_ASSIGNMENT`), and a document holding any other member is
 // refused (`COMPARISON-MEMBER-UNASSIGNED`). The `model` entity also holds the
@@ -92,7 +92,7 @@ export const MODEL_ENTITY_MEMBERS = [
   "model_settings"
 ] as const;
 
-/** Every top-level member of the 0.7.0 model document (`schemas/model.schema.yaml`
+/** Every top-level member of the 0.8.0 model document (`schemas/model.schema.yaml`
  * `properties`) and what holds it. A test fails when the schema gains a member
  * that is not assigned here. */
 export const MEMBER_ASSIGNMENT: Readonly<Record<string, EntityFamily>> = {
@@ -167,7 +167,7 @@ function entitiesOf(member: string, value: unknown, idKey: string, side: string)
   });
 }
 
-/** Flattens a 0.7.0 model document into its entities: the single `model` entity
+/** Flattens a 0.8.0 model document into its entities: the single `model` entity
  * first, then each collection's entities in document order. Fails closed: a
  * member no family holds, a collection that is not an array of objects or an
  * entity without a stable id refuses the comparison by name. */

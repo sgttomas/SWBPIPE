@@ -1408,6 +1408,24 @@ button:focus-visible {
   border-left: 3px solid var(--ui-warning-border);
 }
 
+/* Deflected-shape controls (A5) inside the deformation popover, and the factor stated on the canvas. */
+.viewport-deflection-controls { display: grid; gap: 6px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--ui-divider); }
+.viewport-deflection-controls label { display: grid; gap: 2px; }
+.viewport-deflection-factor { display: flex; align-items: center; gap: 4px; }
+.viewport-deflection-factor label { display: flex; align-items: center; gap: 2px; }
+.viewport-deflection-factor input { width: 72px; }
+.viewport-deflection-label {
+  position: absolute;
+  z-index: 2;
+  right: 14px;
+  bottom: calc(52px + var(--viewport-presentation-bottom-inset, 0px));
+  padding: 3px 8px;
+  color: var(--canvas-label);
+  background: var(--canvas-labelBg);
+  font-size: 12px;
+  pointer-events: none;
+}
+
 .viewport-select-target {
   position: absolute;
   display: inline-flex;
@@ -2895,6 +2913,152 @@ fieldset.viewport-intent-controls {
   overflow-wrap: anywhere;
 }
 
+/* A2: the per-support load summary (DEL-07-05 Design `support-load-summary.md` §5). */
+.support-load-stepper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.support-load-table-scroll {
+  overflow: auto;
+}
+
+.support-load-summary td,
+.support-load-summary th[scope="col"] {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.support-load-summary td[colspan] {
+  text-align: left;
+  white-space: normal;
+}
+
+.support-load-extremes th,
+.support-load-extremes td {
+  border-top: 1px solid #c9d2ce;
+}
+
+/* A3: the sorted stress and ratio table (DEL-07-05 Design `stress-ratio-table.md` §7). */
+.stress-ratio-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+}
+
+.stress-ratio-mode {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 2px 6px;
+  border: 1px solid #c9d2ce;
+}
+
+.stress-ratio-mode legend {
+  padding: 0 2px;
+  font-size: 12px;
+}
+
+.stress-ratio-table-scroll {
+  overflow: auto;
+  max-height: 420px;
+}
+
+.stress-ratio-table td,
+.stress-ratio-table th[scope="col"] {
+  white-space: nowrap;
+}
+
+.stress-ratio-table td[colspan] {
+  white-space: normal;
+}
+
+.stress-ratio-table tr[data-part="pinned"] {
+  background: rgba(201, 210, 206, 0.25);
+}
+
+.stress-ratio-location {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* A8: the displacement extremes table (DEL-07-05 Design `displacement-extremes.md` §6). */
+.displacement-extremes-controls,
+.displacement-extremes-pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+}
+
+.displacement-extremes-cases {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  margin: 0;
+  padding: 2px 6px;
+  border: 1px solid #c9d2ce;
+}
+
+.displacement-extremes-cases legend {
+  padding: 0 2px;
+  font-size: 12px;
+}
+
+.displacement-extremes-table-scroll {
+  overflow: auto;
+  max-height: 420px;
+}
+
+.displacement-extremes td,
+.displacement-extremes th[scope="col"],
+.displacement-extremes th[scope="colgroup"] {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.displacement-extremes td.displacement-extremes-supports {
+  text-align: left;
+  white-space: normal;
+}
+
+.displacement-extremes-node {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* A9: the weight and centre-of-gravity summary (DEL-07-05 Design `weight-cog-summary.md` §6). */
+.weight-summary-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+}
+
+.weight-summary td {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
 .endpoint-pair {
   display: grid;
   gap: 6px;
@@ -4373,3 +4537,22 @@ body { min-width: 760px; min-height: 540px; }
   font-size: var(--type-size-caption);
   overflow-wrap: anywhere;
 }
+
+/* B9: the entity and cell context menu (ContextMenu.tsx). It is portalled to the shell, so it
+   takes the shell's tokens, with the base tokens where it opens outside the shell. */
+.context-menu {
+  position: fixed; z-index: 80; display: flex; flex-direction: column; min-width: 220px; max-width: 360px; padding: var(--space-2);
+  color: var(--ui-text, var(--text-primary)); background: var(--surface-raised); border: 1px solid var(--ui-border, var(--border-hairline));
+  border-radius: var(--radius-control); box-shadow: var(--elevation-2); font-size: var(--type-size-body);
+}
+.context-menu:focus { outline: none; }
+.context-menu-item {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; column-gap: var(--space-5);
+  min-height: 28px; padding: var(--space-2) var(--space-3); border-radius: var(--radius-control); cursor: pointer;
+}
+.context-menu-item.active { background: var(--ui-selection, var(--selection-band)); }
+.context-menu-item:focus-visible { outline: 2px solid var(--ui-focus, var(--focus-ring)); outline-offset: -2px; }
+.context-menu-item[aria-disabled="true"] { color: var(--ui-disabled-text, #667680); cursor: not-allowed; }
+.context-menu-shortcut { font-family: var(--font-mono); font-size: var(--type-size-caption); color: inherit; }
+.context-menu-reason { grid-column: 1 / -1; font-size: var(--type-size-caption); color: var(--ui-disabled-text, #667680); white-space: normal; }
+.context-menu-separator { height: 1px; margin: var(--space-2) var(--space-1); background: var(--ui-divider, var(--border-hairline)); }

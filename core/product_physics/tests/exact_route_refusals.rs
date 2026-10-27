@@ -10,7 +10,7 @@
 //! `fixtures/exact_pressure_connected_request.json` (without the
 //! load/reference-state group), Y0 =
 //! `fixtures/product_preview/pressure/load_reference/pressure.request.json`
-//! (with it), both current model 0.7.0 documents under
+//! (with it), both current model 0.8.0 documents under
 //! `3.0.0/exact_pressure_v3`. "Both entries" are the captured value entry and
 //! the typed entry; "both modes" are sparse-interactive and dense-scrutiny.
 
@@ -232,14 +232,14 @@ fn has_code(envelope: &Value, code: &str) -> bool {
         .any(|d| d["code"] == code)
 }
 
-/// A1.9: on the pressure-free route (0.7.0, no pressure contract) the connector
+/// A1.9: on the pressure-free route (0.8.0, no pressure contract) the connector
 /// is refused as a contract-version mismatch, and no exact family code
 /// applies. The exact document's allowances leave with its contract.
 #[test]
 fn a1_objective_connector_outside_the_exact_route_is_a_version_mismatch() {
     let mut document = Base::X0.document();
     let model = &mut document["model"];
-    assert_eq!(model["schema_version"], "0.7.0");
+    assert_eq!(model["schema_version"], "0.8.0");
     model.as_object_mut().unwrap().remove("pressure_contract");
     for case in model["load_cases"].as_array_mut().unwrap() {
         case.as_object_mut().unwrap().remove("pressure_regions");

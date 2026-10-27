@@ -37,7 +37,7 @@
           ],
           "id": "model",
           "fields": {
-            "schema_version": "0.7.0",
+            "schema_version": "0.8.0",
             "document_kind": "openpipestress.product_preview.model",
             "project": {
               "id": "project:slots",
@@ -564,7 +564,7 @@
           ],
           "id": "model",
           "fields": {
-            "schema_version": "0.7.0",
+            "schema_version": "0.8.0",
             "document_kind": "openpipestress.product_preview.model",
             "project": {
               "id": "project:slots",
@@ -1298,7 +1298,7 @@
           ],
           "id": "model",
           "fields": {
-            "schema_version": "0.7.0",
+            "schema_version": "0.8.0",
             "document_kind": "openpipestress.product_preview.model",
             "project": {
               "id": "project:slots",
@@ -1825,7 +1825,7 @@
           ],
           "id": "model",
           "fields": {
-            "schema_version": "0.7.0",
+            "schema_version": "0.8.0",
             "document_kind": "openpipestress.product_preview.model",
             "project": {
               "notes": "Project-level free text.",
@@ -2559,7 +2559,7 @@
           ],
           "id": "model",
           "fields": {
-            "schema_version": "0.7.0",
+            "schema_version": "0.8.0",
             "document_kind": "openpipestress.product_preview.model",
             "project": {
               "id": "project:slots",
@@ -3086,7 +3086,7 @@
           ],
           "id": "model",
           "fields": {
-            "schema_version": "0.7.0",
+            "schema_version": "0.8.0",
             "document_kind": "openpipestress.product_preview.model",
             "project": {
               "id": "project:slots",
@@ -3828,7 +3828,7 @@
           ],
           "id": "model",
           "fields": {
-            "schema_version": "0.7.0",
+            "schema_version": "0.8.0",
             "document_kind": "openpipestress.product_preview.model",
             "project": {
               "id": "project:slots",
@@ -4355,7 +4355,7 @@
           ],
           "id": "model",
           "fields": {
-            "schema_version": "0.7.0",
+            "schema_version": "0.8.0",
             "document_kind": "openpipestress.product_preview.model",
             "project": {
               "id": "project:slots",
@@ -5133,7 +5133,7 @@
           ],
           "id": "model",
           "fields": {
-            "schema_version": "0.7.0",
+            "schema_version": "0.8.0",
             "document_kind": "openpipestress.product_preview.model",
             "project": {
               "id": "project:slots",
@@ -5660,7 +5660,7 @@
           ],
           "id": "model",
           "fields": {
-            "schema_version": "0.7.0",
+            "schema_version": "0.8.0",
             "document_kind": "openpipestress.product_preview.model",
             "project": {
               "id": "project:slots",
@@ -6409,7 +6409,7 @@
           ],
           "id": "model",
           "fields": {
-            "schema_version": "0.7.0",
+            "schema_version": "0.8.0",
             "document_kind": "openpipestress.product_preview.model",
             "project": {
               "id": "project:slots",
@@ -6936,7 +6936,7 @@
           ],
           "id": "model",
           "fields": {
-            "schema_version": "0.7.0",
+            "schema_version": "0.8.0",
             "document_kind": "openpipestress.product_preview.model",
             "project": {
               "id": "project:slots",
@@ -7811,7 +7811,7 @@
           ],
           "id": "model",
           "fields": {
-            "schema_version": "0.7.0",
+            "schema_version": "0.8.0",
             "document_kind": "openpipestress.product_preview.model",
             "project": {
               "id": "project:slots",
@@ -8338,7 +8338,7 @@
           ],
           "id": "model",
           "fields": {
-            "schema_version": "0.7.0",
+            "schema_version": "0.8.0",
             "document_kind": "openpipestress.product_preview.model",
             "project": {
               "id": "project:slots",
@@ -9075,7 +9075,7 @@
           ],
           "id": "model",
           "fields": {
-            "schema_version": "0.7.0",
+            "schema_version": "0.8.0",
             "document_kind": "openpipestress.product_preview.model",
             "project": {
               "id": "project:slots",
@@ -9622,7 +9622,7 @@
           ],
           "id": "model",
           "fields": {
-            "schema_version": "0.7.0",
+            "schema_version": "0.8.0",
             "document_kind": "openpipestress.product_preview.model",
             "project": {
               "id": "project:slots",

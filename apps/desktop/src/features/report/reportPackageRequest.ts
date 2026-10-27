@@ -41,13 +41,16 @@ import type {
 } from "../../types";
 import { canonicalSha256Hex } from "../../services/hashService";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
-import { buildRenderableReportInput, type SessionRuleCheckRun } from "./renderableReportInput";
+import { buildRenderableReportInput, userReleasedRenderableReportInput, type SessionRuleCheckRun, type UserReleaseRecordValue } from "./renderableReportInput";
 import { reportResultRows } from "./reportResultRows";
 import { buildStateComparisonHandoffSections } from "./stateComparisonHandoffSections";
 import { currentLibraryRefFindings } from "../library/libraryRefFindings";
 
 /** The desktop's export profile (`report_package::bindings::DESKTOP_PROFILE`). */
 export const REPORT_PACKAGE_DESKTOP_PROFILE = "desktop_local_private_report_package_1";
+/** The user-released export profile (W-18b, DEL-08-01 Design `report-user-release.md` §2.1;
+ * `report_package::user_release::USER_RELEASED_DESKTOP_PROFILE`). */
+export const REPORT_PACKAGE_USER_RELEASED_PROFILE = "desktop_user_released_report_package_1";
 /** The result document's identity is not one the package admits. */
 export const REPORT_PACKAGE_ROUTE_NOT_ADMITTED = "REPORT-PACKAGE-ROUTE-NOT-ADMITTED";
 /** The semantic contracts the package admits: Rust's `ADMITTED_SEMANTIC_CONTRACTS`
@@ -315,3 +318,75 @@ async function assembleReportPackageRequest(input: ReportPackageRequestInput, ad
   return request;
 }
 
+
+/** The inputs of a user-released request (W-18b, DEL-08-01 Design `report-user-release.md`
+ * §2.3 "Session", §2.6): the local-private basis without the comparison, project summary,
+ * rule-check aggregate and run, and the solve's own transient run record. */
+export type UserReleasedReportPackageRequestInput = {
+  model: PreviewModel;
+  result: MechanicsResult;
+  analysisRun: AnalysisRunEnvelope;
+  inputManifest: CurrentSessionInputManifestEvidence;
+  userRelease: UserReleaseRecordValue;
+};
+
+/** The user-released request's assembly (§2.6; scope R, §2.1): the Export Result JSON
+ * document of a pressure-free (preview-physics-2) result, the minimal renderer input, an
+ * audit manifest with no rule-pack reference or asset, and no state/comparison/handoff
+ * record. The run record carries the solve's own rule status. The native host derives the
+ * same request from its bound basis and requires canonical equality
+ * (`report_package::user_release::derive`; vectors
+ * `fixtures/reports/invented/user_release_derivation_vectors.json`). This is the assembly
+ * only: it grants nothing, and the route's own cell and dialog are the desktop slice's. */
+export async function assembleUserReleasedReportPackageRequest(input: UserReleasedReportPackageRequestInput) {
+  const { model, result, analysisRun, inputManifest, userRelease } = input;
+  if (isExactReportSource(result)) {
+    throw new Error("REPORT-USER-RELEASE-EXACT-ROUTE-NOT-ADMITTED: a shareable report package carries pressure-free (preview-physics-2) results only; this exact-route result can be saved in a local private package.");
+  }
+  const document: ResultDocument = await buildCurrentResultExport({ model, result, analysisRun, inputManifest });
+  const envelope = document.result_envelope as JsonRecord;
+  const identity = envelope?.producer?.semantic_contract_id;
+  if (identity !== PREVIEW_PHYSICS_CONTRACT_ID) {
+    throw new Error(
+      `${REPORT_PACKAGE_ROUTE_NOT_ADMITTED}: a shareable report package admits only ${PREVIEW_PHYSICS_CONTRACT_ID} results; this document is ${String(identity ?? "unidentified")}.`
+    );
+  }
+  const run = analysisRun.analysis_run;
+  const recordedTokens = run.analysis_status.filter((status) => RULE_TOKENS.has(status));
+  if (recordedTokens.length !== 1 || recordedTokens[0] !== result.status.rule_check) {
+    throw ruleCheckMismatch(`the analysis record's rule status (${recordedTokens.join(", ") || "none"}) is not the solve's (${result.status.rule_check}).`);
+  }
+  const report = await userReleasedRenderableReportInput({ model, result, analysisRun, inputManifest, userRelease });
+  if (JSON.stringify(report.result_rows) !== JSON.stringify(reportResultRows(result))) {
+    throw new Error(`${REPORT_PACKAGE_REPORT_ROWS_MISMATCH}: the report's result rows are not the source rows' projection.`);
+  }
+  const modelHash = await canonicalSha256Hex(model);
+  if (envelope.reproducibility?.model_hash?.value !== modelHash) {
+    throw new Error("REPORT-PACKAGE-MODEL-HASH-MISMATCH: the result document's model hash is not the session model's.");
+  }
+  const solver = envelope.solver_version as { solver_name: string; solver_version: string; solver_build_ref: string };
+  const loadBasisRefs = (envelope.load_basis_refs as Array<{ ref_type: string; ref_id: string }>).map((item) => reference(item.ref_type, item.ref_id));
+  const manifestRef = inputManifest.manifest_ref.ref;
+  return {
+    package_id: `desktop-user-released-report-${safeId(result.run_id)}`,
+    export_profile_id: REPORT_PACKAGE_USER_RELEASED_PROFILE,
+    source_model_ref: reference("model", model.project.id),
+    source_basis_refs: [reference("analysis_run", run.run_id), ...loadBasisRefs],
+    report,
+    audit_manifest: {
+      manifest_id: manifestRef,
+      model_hash: { algorithm: "sha256", canonicalization: "rfc8785_jcs", payload_kind: "model_json", payload_ref: model.project.id, value: modelHash },
+      input_manifest_hash: { algorithm: "sha256", canonicalization: "rfc8785_jcs", payload_kind: "input_manifest_json", payload_ref: manifestRef, value: inputManifest.manifest_sha256 },
+      solver_version: { solver_name: solver.solver_name, solver_version: solver.solver_version, solver_build_ref: solver.solver_build_ref },
+      unit_system_ref: envelope.unit_system_ref.ref_id as string,
+      rule_pack_refs: [],
+      assets: [],
+      professional_boundary: PROFESSIONAL_BOUNDARY
+    },
+    result_documents: [document],
+    source_results: [result],
+    state_comparison_handoff_records: [],
+    rule_check_aggregate: null,
+    solve_rule_check_status: result.status.rule_check
+  };
+}

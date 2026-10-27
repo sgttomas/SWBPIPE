@@ -9,7 +9,7 @@
   },
   "purpose": "Slenderness series member (series shear-deformation): identical to cpc-01-cantilever-force except the span, L = 3 m, so the relative SWBPIPE-CAEPIPE tip-deflection gap can be compared with the (r/L)^2 scaling shear deformation predicts.",
   "model": {
-    "schema_version": "0.7.0",
+    "schema_version": "0.8.0",
     "document_kind": "openpipestress.product_preview.model",
     "project": {
       "id": "project:cpc-07-cantilever-span-3m",
