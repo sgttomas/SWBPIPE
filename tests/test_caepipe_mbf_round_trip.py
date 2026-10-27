@@ -36,8 +36,10 @@ import caepipe_mbf_canonical as canon  # noqa: E402
 from core.handoff.caepipe_mbf import importer as importer_module  # noqa: E402
 from core.handoff.caepipe_mbf import render_caepipe_mbf_si  # noqa: E402
 from core.handoff.caepipe_mbf.importer import (  # noqa: E402
-    canonical_sidecar, import_caepipe_mbf, sidecar_difference, summed_entries)
-from core.handoff.caepipe_mbf.si_writer import regenerate_caepipe_sidecar  # noqa: E402
+    canonical_sidecar, sidecar_difference, summed_entries)
+from core.handoff.caepipe_mbf.importer import import_caepipe_mbf as import_as_given  # noqa: E402
+from core.handoff.caepipe_mbf.si_writer import (  # noqa: E402
+    SIDECAR_FORMAT, regenerate_caepipe_sidecar, sidecar_canonical_bytes, sidecar_self_digest)
 from schema_validation import JsonSchemaDependencyMissing, _skip_or_note_missing_jsonschema, validate_instance  # noqa: E402
 from test_model_schema import desktop_entity_requirements  # noqa: E402
 import test_caepipe_mbf_si_writer as writer_tests  # noqa: E402
@@ -47,6 +49,14 @@ from tools.caepipe_correlation.run_pilot import load_cases, solve_swbpipe  # noq
 
 INVENTED = {"*": {"origin": "project_invented", "source_name": "invented round-trip model",
                   "redistribution_status": "public_permissive"}}
+
+
+def import_caepipe_mbf(data: bytes, *, sidecar=None, **options):
+    """The importer, given `sidecar` as a deliberate editor leaves it (Design §15): each edit in this module has its
+    self-digest recomputed (canon.redigested), so it reaches the parser, the agreement rule and the regeneration
+    identity behind the self-digest; an unedited writer sidecar is unchanged by it. `import_as_given` imports a
+    sidecar exactly as given: the writer's own sidecars, and every edit again with its self-digest left stale."""
+    return import_as_given(data, sidecar=canon.redigested(sidecar), **options)
 FIXTURES = ROOT / "fixtures" / "caepipe_mbf" / "invented" / "import"
 DESKTOP_SCHEMA = {"$schema": "https://json-schema.org/draft/2020-12/schema",
                   "$ref": "https://openpipestress.org/schemas/model.schema.yaml#/$defs/DesktopDocument"}
@@ -183,7 +193,7 @@ class Trip:
         self.text = self.writer.text
         self.data = self.text.encode("ascii")
         self.sidecar = self.writer.sidecar(hashlib.sha256(self.data).hexdigest())
-        self.bound = import_caepipe_mbf(self.data, sidecar=self.sidecar, material_provenance=INVENTED, source_label=name)
+        self.bound = import_as_given(self.data, sidecar=self.sidecar, material_provenance=INVENTED, source_label=name)
         self.printed = canon.read_printed(self.text)
 
     def kinds(self, model: dict) -> dict[str, str]:
@@ -1605,7 +1615,8 @@ def sidecar_replacements(sidecar: dict, data: bytes) -> list[tuple[str, dict, st
             at(f"pressure_map.regions[{index}].terminals[{end}].provenance", "imported",
                lambda s, t=terminal: t(s).update(provenance="another invented provenance"))
     at("mbf_sha256", "unbound", lambda s: s.update(mbf_sha256="0" * 64))
-    at("sidecar_format", "refused", lambda s: s.update(sidecar_format=3))
+    at("sidecar_format", "refused", lambda s: s.update(sidecar_format=4))
+    at("sidecar_format", "refused", lambda s: s.update(sidecar_format=2))  # format 2 has no self-digest field
     return found
 
 
@@ -1710,11 +1721,26 @@ def test_every_mutated_sidecar_is_refused_by_name_or_restores_the_same_model(bas
         mutated = deepcopy(base)
         mutated["load_map"][formed] = {**deepcopy(base["load_map"][keys[0]]), "direction": "global_x"}
         mutations.append((f"load_map/{formed}: duplicate of the formed id", mutated))
-    outcomes = {"refused": 0, "equal": 0, "unbound": 0}
+    outcomes = {"refused": 0, "equal": 0, "unbound": 0, "stale": 0}
+
+    def stale(sidecar, label):
+        # The same edit with its self-digest left stale (an accidental or partial edit): refused on every route.
+        # Where the edited sidecar still claims format 3 with a well-formed digest and canonical content, the
+        # self-digest alone refuses it, before the parser; otherwise the parser refuses it by path.
+        given = import_as_given(data, sidecar=sidecar, material_provenance=INVENTED, pressure_closure=CLOSURE,
+                                source_label="stale")
+        assert given.status == "refused", label
+        if sidecar.get("sidecar_format") == SIDECAR_FORMAT and canon.redigested(sidecar) != sidecar:
+            assert refusals(given) == {("MBF-IMPORT-SIDECAR-DIGEST-MISMATCH", "sidecar_sha256")}, label
+            outcomes["stale"] += 1
+        else:
+            assert {code for code, _ in refusals(given)} == {"MBF-IMPORT-SIDECAR-INVALID"}, label
+
     # Removing one of the summed entries leaves a sidecar the writer writes for a model with one primitive there: a
     # consistent edit, which imports as that model (§14); it is the only mutation that imports.
     consistent = {f"load_map/{key}: removed" for keys in summed.values() for key in keys}
     for label, sidecar in mutations:
+        stale(sidecar, label)
         imported = run(sidecar, "mutated")
         errors = {item["code"] for item in imported.diagnostics if item["severity"] == "error"}
         if label in consistent:
@@ -1727,8 +1753,8 @@ def test_every_mutated_sidecar_is_refused_by_name_or_restores_the_same_model(bas
         if imported.status == "refused":
             assert errors and all(code.startswith("MBF-IMPORT-") for code in errors), label
             # The identity alone refuses it too; a mutated digest is the parser's (it decides the route, and the
-            # identity, which compares everything else, excludes it).
-            assert label.startswith("mbf_sha256") or sidecar_difference(
+            # identity, which compares everything else, excludes it), and a mutated self-digest the self-digest's.
+            assert label.startswith(("mbf_sha256", "sidecar_sha256")) or sidecar_difference(
                 sidecar, regenerated, summed=summed) is not None, label
             outcomes["refused"] += 1
         elif imported.source["binding"] == "unbound":
@@ -1743,7 +1769,8 @@ def test_every_mutated_sidecar_is_refused_by_name_or_restores_the_same_model(bas
         writer, result = captured["writer"], captured["result"]
         writer.diagnostics[:], writer.loss[:] = list(captured["diagnostics"]), list(captured["loss"])
         maps = {key: value for key, value in sidecar.items() if key != "mbf_sha256"}
-        object.__setattr__(result, "sidecar", lambda digest, maps=maps: {**maps, "mbf_sha256": digest})
+        object.__setattr__(result, "sidecar", lambda digest, maps=maps: canon.redigested(
+            {**maps, "mbf_sha256": digest}))
         survives = original(writer, result)
         refusals_ = {item["code"] for item in writer.diagnostics if item["severity"] == "error"}
         if imported.status == "refused":
@@ -1759,6 +1786,7 @@ def test_every_mutated_sidecar_is_refused_by_name_or_restores_the_same_model(bas
     # proves consistency, not authorship).
     replaced = sidecar_replacements(base, data)
     for label, sidecar, expected in replaced:
+        stale(sidecar, label)
         imported = run(sidecar, "replaced")
         errors = {item["code"] for item in imported.diagnostics if item["severity"] == "error"}
         if expected == "refused":
@@ -1771,6 +1799,7 @@ def test_every_mutated_sidecar_is_refused_by_name_or_restores_the_same_model(bas
             assert imported.status == "imported", (label, errors)
             assert regeneration_difference(sidecar, imported) is None, label
     assert {expected for _, _, expected in replaced} >= {"refused", "imported"}
+    assert outcomes["stale"] > (len(mutations) + len(replaced)) // 2, outcomes
 
 
 LOAD_FIELDS = {"load_case": "case:mbf-sustained", "direction": "global_y"}
@@ -2499,3 +2528,274 @@ def test_a_mixed_legacy_thermal_set_keeps_the_agreed_direction_and_says_so():
     (report,) = [item for item in result.loss_report if item["code"] == "MBF-IMPORT-DIRECTION-UNRECOVERABLE"]
     assert report["location"] == f"load_map[{entry['load_case']}/t2].direction"
     assert "takes global_z" in report["reason"] and "global_x" not in report["reason"]
+
+
+# --- the sidecar's self-digest (Design §15) --------------------------------------------------------------------------
+# A tiny invented sidecar-shaped object (it need not pass the parser), with its canonical form and SHA-256 written by
+# hand: keys sorted by UTF-16 code units (U+1F600 is D83D DE00 and sorts before U+E000, against code-point order),
+# numbers as ECMAScript writes them, and the escapes RFC 8785 requires and no others (U+007F and U+00E9 are literal).
+TINY_SIDECAR = {
+    "sidecar_format": 3,
+    "node_map": {"N2": "20", "N10": "10"},
+    "element_map": {"S1": {"from": "10", "to": "20", "reversed": False,
+                           "y_reference": {"z": -1e-7, "y": 1.0, "x": 0.000001}, "y_reference_authored": True}},
+    "load_case_map": {"\U0001f600": "smile", "\ue000": "private use", "case:\u00e9": "tab\there \"q\" \\ \u001f\u007f"},
+    "material_map": {"M1": {"origin": None, "big": 1e21, "neg": -0.0, "int": 2, "frac": 123.456, "e20": 1.5e20}},
+    "mbf_sha256": "0" * 64,
+    "sidecar_sha256": "f" * 64,  # excluded from what it digests
+}
+TINY_CANONICAL = (
+    '{"element_map":{"S1":{"from":"10","reversed":false,"to":"20","y_reference":{"x":0.000001,"y":1,'
+    '"z":-1e-7},"y_reference_authored":true}},"load_case_map":{"case:\u00e9":"tab\\there \\"q\\" \\\\ '
+    '\\u001f\u007f","\U0001f600":"smile","\ue000":"private use"},"material_map":{"M1":{"big":1e+21,'
+    '"e20":150000000000000000000,"frac":123.456,"int":2,"neg":0,"origin":null}},"mbf_sha256":"' + "0" * 64
+    + '","node_map":{"N10":"10","N2":"20"},"sidecar_format":3}').encode("utf-8")
+TINY_DIGEST = "763f7c67deb82dc29eb03ae4f4fa2efda20ac4b9ea459d180e22605fe0b0ffd3"
+
+
+def reordered(value: Any) -> Any:
+    """`value` with every object's members in reverse order."""
+    if isinstance(value, dict):
+        return {key: reordered(value[key]) for key in reversed(list(value))}
+    return [reordered(item) for item in value] if isinstance(value, list) else value
+
+
+def test_the_self_digest_is_the_sha256_of_the_hand_derived_canonical_form():
+    assert hashlib.sha256(TINY_CANONICAL).hexdigest() == TINY_DIGEST
+    assert sidecar_canonical_bytes(TINY_SIDECAR) == TINY_CANONICAL
+    assert sidecar_self_digest(TINY_SIDECAR) == TINY_DIGEST == canon.self_digest(TINY_SIDECAR)
+    # Key order is not content: the sidecar reaches the importer as a parsed JSON object, whose members JSON leaves
+    # unordered, and the canonical form sorts them. Likewise 1 and 1.0 are one binary64 value.
+    assert sidecar_self_digest(reordered(TINY_SIDECAR)) == TINY_DIGEST
+    assert sidecar_self_digest({**TINY_SIDECAR, "material_map": {"M1": {
+        **TINY_SIDECAR["material_map"]["M1"], "int": 2.0}}}) == TINY_DIGEST
+    # A value with no canonical form is named by its path.
+    from core.handoff.caepipe_mbf.si_writer import SidecarNotCanonical
+    for change, path in ((lambda s: s["node_map"].update(N2="\ud800"), "node_map[N2]"),
+                         (lambda s: s["element_map"]["S1"]["y_reference"].update(x=math.inf),
+                          "element_map[S1].y_reference.x"),
+                         (lambda s: s["material_map"]["M1"].update(int=2 ** 53 + 1), "material_map[M1].int"),
+                         (lambda s: s["load_case_map"].update({1: "x"}), "load_case_map")):
+        sidecar = deepcopy(TINY_SIDECAR)
+        change(sidecar)
+        with pytest.raises(SidecarNotCanonical) as raised:
+            sidecar_canonical_bytes(sidecar)
+        assert raised.value.path == path
+        with pytest.raises((ValueError, UnicodeEncodeError)):
+            canon.self_digest(sidecar)
+
+
+def test_every_writer_sidecar_carries_its_self_digest_and_imports_verified(trips):
+    # The writer's sidecar of every comparison model is format 3, its self-digest the test's own RFC 8785 digest of
+    # it, and it imports as given, verified. Written as JSON in another layout and read back, it is the same content
+    # and imports the same model. With its members reordered it has the same self-digest: JSON leaves an object's
+    # members unordered, and the canonical form sorts them, so a reorder is not an edit.
+    for name in REVERSIBLE:
+        trip = trips[name]
+        assert trip.sidecar["sidecar_format"] == SIDECAR_FORMAT == 3, name
+        assert trip.sidecar["sidecar_sha256"] == canon.self_digest(trip.sidecar), name
+        assert sidecar_self_digest(reordered(trip.sidecar)) == trip.sidecar["sidecar_sha256"], name
+        assert trip.bound.status == "imported" and trip.bound.source["sidecar_self_digest"] == "verified", name
+        assert "MBF-IMPORT-SIDECAR-NO-SELF-DIGEST" not in {item["code"] for item in trip.bound.diagnostics}, name
+        text = json.dumps(trip.sidecar, indent=1, ensure_ascii=False)
+        again = import_as_given(trip.data, sidecar=json.loads(text), material_provenance=INVENTED, source_label=name)
+        assert again.model_bytes() == trip.bound.model_bytes(), name
+    data, sidecar = bound_parts(writer_tests.bent_l())
+    result = import_as_given(data, sidecar=json.loads(json.dumps(reordered(sidecar))), material_provenance=INVENTED,
+                             source_label="reordered")
+    assert result.status == "imported", result.diagnostics
+    assert (result.source["binding"], result.source["sidecar_self_digest"]) == ("bound", "verified")
+
+
+def test_an_edited_or_partial_sidecar_is_refused_by_its_self_digest_on_every_route():
+    # A one-byte edit of the written JSON (a case label), and a partial sidecar (one map dropped), each refused by
+    # name before the parser reads it: on the exact-digest route, on the explicit rebind route, and on the route of
+    # another MBF, where the sidecar would otherwise be left unapplied. Nothing is bound or rebound.
+    data, sidecar = bound_parts(writer_tests.cantilever())
+    text = json.dumps(sidecar)
+    assert "Sustained (W+P)" in text
+    edited = text.replace("Sustained (W+P)", "Sustained (W+Q)", 1)
+    assert len(edited) == len(text) and sum(a != b for a, b in zip(text, edited)) == 1
+    partial = {key: value for key, value in sidecar.items() if key != "load_case_map"}
+    other = data.replace(b"GUARD", b"OTHER")
+    assert other != data
+    for label, given in (("one byte", json.loads(edited)), ("partial", partial),
+                         ("stale digest", {**sidecar, "sidecar_sha256": "0" * 64})):
+        for route, mbf, options in (("bound", data, {}), ("rebind", data, {"rebind_by_node_number": True}),
+                                    ("rebind elsewhere", other, {"rebind_by_node_number": True}),
+                                    ("not applied", other, {})):
+            result = import_as_given(mbf, sidecar=given, material_provenance=INVENTED, source_label=route, **options)
+            assert refusals(result) == {("MBF-IMPORT-SIDECAR-DIGEST-MISMATCH", "sidecar_sha256")}, (label, route)
+            assert result.source["binding"] == "unbound" and result.source["sidecar_self_digest"] is None
+    # The same edits, their digest recomputed (a deliberate editor), reach the guards behind it: the label, which
+    # the MBF determines, is refused by the agreement rule; the partial sidecar by the parser.
+    codes = {code for code, _ in refusals(import_caepipe_mbf(data, sidecar=json.loads(edited),
+                                                             material_provenance=INVENTED, source_label="e"))}
+    assert "MBF-IMPORT-SIDECAR-CONFLICT" in codes and "MBF-IMPORT-SIDECAR-DIGEST-MISMATCH" not in codes
+    assert refusals(import_caepipe_mbf(data, sidecar=partial, material_provenance=INVENTED, source_label="p")) == {
+        ("MBF-IMPORT-SIDECAR-INVALID", "load_case_map")}
+
+
+def test_a_malformed_or_removed_self_digest_is_refused_and_a_deliberate_downgrade_still_meets_the_guards():
+    data, sidecar = bound_parts(writer_tests.cantilever())
+    for value in (None, 7, "F" * 64, "f" * 63, ["x"]):
+        result = import_as_given(data, sidecar={**sidecar, "sidecar_sha256": value}, material_provenance=INVENTED,
+                                 source_label="malformed")
+        assert refusals(result) == {("MBF-IMPORT-SIDECAR-INVALID", "sidecar_sha256")}, value
+    removed = {key: value for key, value in sidecar.items() if key != "sidecar_sha256"}
+    for options in ({}, {"rebind_by_node_number": True}):  # format 3 without its digest is not read as format 2
+        result = import_as_given(data, sidecar=removed, material_provenance=INVENTED, source_label="removed",
+                                 **options)
+        assert refusals(result) == {("MBF-IMPORT-SIDECAR-INVALID", "sidecar_sha256")}, options
+        assert any("not read as an older format" in item["message"] for item in result.diagnostics)
+    # Format 2 has no self-digest field, and a legacy sidecar none either.
+    result = import_as_given(data, sidecar={**sidecar, "sidecar_format": 2}, material_provenance=INVENTED,
+                             source_label="kept")
+    assert refusals(result) == {("MBF-IMPORT-SIDECAR-INVALID", "sidecar_sha256")}
+    legacy_data = LEGACY_MBF_TEXT.encode("ascii")
+    result = import_as_given(legacy_data, sidecar={**LEGACY_SIDECAR, "sidecar_sha256": "0" * 64},
+                             material_provenance=INVENTED, source_label="legacy")
+    assert refusals(result) == {("MBF-IMPORT-SIDECAR-INVALID", "sidecar_sha256")}
+    # Content with no canonical form is refused by path before the digest is compared.
+    bad = deepcopy(sidecar)
+    bad["node_map"]["N0"] = "1\ud800"
+    result = import_as_given(data, sidecar=bad, material_provenance=INVENTED, source_label="surrogate")
+    assert refusals(result) == {("MBF-IMPORT-SIDECAR-INVALID", "node_map[N0]")}
+    # A deliberate editor can drop the digest and claim format 2: the self-digest cannot stop that, and the import
+    # says the sidecar carries none. The parser, the agreement rule and the regeneration identity still govern
+    # meaning: an unchanged downgrade imports the same model, and an MBF-determined edit with it is still refused.
+    downgraded = {**removed, "sidecar_format": 2}
+    result = import_as_given(data, sidecar=downgraded, material_provenance=INVENTED, source_label="downgraded")
+    base = import_as_given(data, sidecar=sidecar, material_provenance=INVENTED, source_label="base")
+    assert result.status == "imported" and result.model_bytes() == base.model_bytes()
+    assert result.source["sidecar_self_digest"] == "absent"
+    assert ("MBF-IMPORT-SIDECAR-NO-SELF-DIGEST", "info") in {(item["code"], item["severity"])
+                                                            for item in result.diagnostics}
+    edited = deepcopy(downgraded)
+    edited["support_map"]["anchor:N0"]["node"] = "99"
+    assert import_as_given(data, sidecar=edited, material_provenance=INVENTED, source_label="edited").status == (
+        "refused")
+
+
+def test_older_format_2_and_legacy_sidecars_import_as_before_and_say_they_carry_no_self_digest():
+    data = importer_tests.mbf("F10,KA,MM1,PP1,CL=L1", "T20,KA,X1000", loads=("L1,20,10,0",))
+    plain = importer_tests.run(data, pressure_closure=importer_tests.CLOSURE)
+    older = complete_sidecar(data, plain.model, plain.id_map)  # format 2, as written before the self-digest
+    assert older["sidecar_format"] == 2 and "sidecar_sha256" not in older
+    legacy_data = LEGACY_MBF_TEXT.encode("ascii")
+    for label, mbf, sidecar, location, says in (
+            ("format 2", data, older, "sidecar_format", "format 2, written before the self-digest"),
+            ("legacy", legacy_data, LEGACY_SIDECAR, "sidecar", "legacy, from main's tranche-1 writer")):
+        result = import_as_given(mbf, sidecar=sidecar, material_provenance=INVENTED, source_label=label)
+        assert result.status == "imported" and result.source["binding"] == "bound", (label, result.diagnostics)
+        assert result.source["sidecar_self_digest"] == "absent", label
+        report = [item for item in result.diagnostics if item["code"] == "MBF-IMPORT-SIDECAR-NO-SELF-DIGEST"]
+        assert [(item["severity"], item["location"]) for item in report] == [("info", location)], label
+        assert says in report[0]["message"] and "no self-digest" in report[0]["message"], label
+    rebound = import_as_given(data, sidecar=older, material_provenance=INVENTED, rebind_by_node_number=True,
+                              pressure_closure=CLOSURE, source_label="rebound")
+    assert rebound.status == "imported", rebound.diagnostics
+    assert (rebound.source["binding"], rebound.source["sidecar_self_digest"]) == ("rebound_unconfirmed", "absent")
+
+
+def test_the_writer_preflight_reimports_its_sidecar_with_the_self_digest(monkeypatch):
+    # The preflight's bound re-import reads the writer's own sidecar, self-digest included: a writer whose digest
+    # were wrong refuses its own export, naming the importer's code.
+    from core.handoff.caepipe_mbf import si_writer
+    assert render_caepipe_mbf_si(writer_tests.pressurized_l(), title="PREFLIGHT").status == "written"
+    monkeypatch.setattr(si_writer, "sidecar_self_digest", lambda sidecar: "0" * 64)
+    written = render_caepipe_mbf_si(writer_tests.pressurized_l(), title="PREFLIGHT")
+    assert written.status == "refused"
+    found = [item for item in written.diagnostics if item["code"] == "MBF-SI-PREFLIGHT-REFUSED"]
+    assert any("MBF-IMPORT-SIDECAR-DIGEST-MISMATCH" in item["message"] for item in found), written.diagnostics
+
+
+def test_a_repeated_member_name_is_refused_by_path_on_every_load_path_and_in_every_format(tmp_path):
+    # Codex VER-002 self-digest r1 (P2): json.loads keeps the last of two members with one name, so "N0":"99","N0":"10"
+    # in a format-3 sidecar imported as verified, its digest unchanged. Where the importer parses JSON (the file
+    # loader, sidecar text or bytes, the command line), a repeated name is refused by path, in every format.
+    data, sidecar = bound_parts(writer_tests.cantilever())
+    text = json.dumps(sidecar)
+    assert text.count('"N0": "10"') == 1
+    repeated = text.replace('"N0": "10"', '"N0": "99", "N0": "10"')
+    assert import_as_given(data, sidecar=json.loads(repeated), material_provenance=INVENTED,
+                           source_label="lenient").source["sidecar_self_digest"] == "verified"  # why it matters
+    path = tmp_path / "id_map.json"
+    path.write_text(repeated, encoding="utf-8")
+    loaded = importer_module.load_sidecar(path)
+    assert loaded == repeated.encode("utf-8")  # unchanged: the importer parses it
+    for label, given, options in (("file", loaded, {}), ("text", repeated, {}), ("bytes", repeated.encode(), {}),
+                                  ("rebind", loaded, {"rebind_by_node_number": True})):
+        result = import_as_given(data, sidecar=given, material_provenance=INVENTED, source_label=label, **options)
+        assert refusals(result) == {("MBF-IMPORT-SIDECAR-INVALID", "node_map[N0]")}, label
+        assert result.source["sidecar_self_digest"] is None and result.source["binding"] == "unbound", label
+    with pytest.raises(importer_module.SidecarJsonInvalid) as raised:
+        importer_module.parse_sidecar_json(repeated)
+    assert raised.value.findings[0][0] == "node_map[N0]"
+    # Nested, top-level, format 2 and legacy alike.
+    nested = text.replace('"y_reference": {"x": ', '"y_reference": {"x": 5.0, "x": ', 1)
+    top = text[:-1] + ', "mbf_sha256": "' + "0" * 64 + '"}'
+    older_data = importer_tests.mbf("F10,KA,MM1,PP1,CL=L1", "T20,KA,X1000", loads=("L1,20,10,0",))
+    plain = importer_tests.run(older_data, pressure_closure=importer_tests.CLOSURE)
+    older = json.dumps(complete_sidecar(older_data, plain.model, plain.id_map))
+    legacy_text = json.dumps(LEGACY_SIDECAR)
+    for label, mbf, given, where in (
+            ("nested", data, nested, "element_map[S1].y_reference.x"),
+            ("top", data, top, "mbf_sha256"),
+            ("format 2", older_data, older.replace('"sidecar_format": 2', '"sidecar_format": 2, "sidecar_format": 2'),
+             "sidecar_format"),
+            ("legacy", LEGACY_MBF_TEXT.encode("ascii"),
+             legacy_text.replace('"load_case_map": ', '"load_case_map": {}, "load_case_map": ', 1), "load_case_map")):
+        assert given not in (text, older, legacy_text), label
+        result = import_as_given(mbf, sidecar=given.encode(), material_provenance=INVENTED, pressure_closure=CLOSURE,
+                                 source_label=label)
+        assert refusals(result) == {("MBF-IMPORT-SIDECAR-INVALID", where)}, (label, refusals(result))
+    # Not JSON: NaN, bytes that are not UTF-8, a truncated text. Each is refused at `sidecar`.
+    for label, given in (("nan", older.replace('"reversed": false', '"reversed": NaN', 1).encode()),
+                         ("utf-8", older.encode()[:-1] + b"\xff}"), ("truncated", older.encode()[:-1])):
+        assert given != older.encode(), label
+        result = import_as_given(older_data, sidecar=given, material_provenance=INVENTED, pressure_closure=CLOSURE,
+                                 source_label=label)
+        assert refusals(result) == {("MBF-IMPORT-SIDECAR-INVALID", "sidecar")}, (label, refusals(result))
+    # The command line refuses it in the import report.
+    mbf_path, out = tmp_path / "in.mbf", tmp_path / "out"
+    mbf_path.write_bytes(data)
+    assert importer_module.main([str(mbf_path), "--out", str(out), "--sidecar", str(path)]) == 1
+    report = json.loads((out / "import_report.json").read_text(encoding="utf-8"))
+    assert ("MBF-IMPORT-SIDECAR-INVALID", "node_map[N0]") in {(item["code"], item["location"])
+                                                              for item in report["diagnostics"]}
+
+
+def test_the_companion_digest_backfills_only_a_legacy_sidecar(tmp_path):
+    # Codex VER-002 self-digest r1 (P2): load_sidecar filled a missing mbf_sha256 from mbf_render.json before the
+    # self-digest was checked, so a format-3 sidecar with its digest field deleted imported as verified. Only main's
+    # earliest pilot layout, a legacy sidecar that kept its digest beside it, takes the companion's digest.
+    data, sidecar = bound_parts(writer_tests.cantilever())
+    older_data = importer_tests.mbf("F10,KA,MM1,PP1,CL=L1", "T20,KA,X1000", loads=("L1,20,10,0",))
+    plain = importer_tests.run(older_data, pressure_closure=importer_tests.CLOSURE)
+    older = complete_sidecar(older_data, plain.model, plain.id_map)
+    legacy_data = LEGACY_MBF_TEXT.encode("ascii")
+    for label, mbf, given, expected in (
+            ("format 3", data, sidecar, {("MBF-IMPORT-SIDECAR-DIGEST-MISMATCH", "sidecar_sha256")}),
+            ("format 2", older_data, older, {("MBF-IMPORT-SIDECAR-INVALID", "mbf_sha256")}),
+            ("legacy", legacy_data, LEGACY_SIDECAR, None)):
+        folder = tmp_path / label.replace(" ", "-")
+        folder.mkdir()
+        path = folder / "id_map.json"
+        path.write_text(json.dumps({key: value for key, value in given.items() if key != "mbf_sha256"}),
+                        encoding="utf-8")
+        (folder / "mbf_render.json").write_text(json.dumps({"mbf_sha256": hashlib.sha256(mbf).hexdigest()}),
+                                                encoding="utf-8")
+        loaded = importer_module.load_sidecar(path)
+        result = import_as_given(mbf, sidecar=loaded, material_provenance=INVENTED, pressure_closure=CLOSURE,
+                                 source_label=label)
+        if expected is None:
+            assert loaded == {**LEGACY_SIDECAR, "mbf_sha256": hashlib.sha256(legacy_data).hexdigest()}
+            assert result.status == "imported" and result.source["binding"] == "bound", result.diagnostics
+        else:
+            assert loaded == path.read_bytes(), label  # supplied unchanged: no backfill, merge or normalisation
+            assert refusals(result) == expected, (label, refusals(result))
+    # A companion that is not strict JSON is refused, not read.
+    (tmp_path / "legacy" / "mbf_render.json").write_text('{"mbf_sha256": "0", "mbf_sha256": "1"}', encoding="utf-8")
+    with pytest.raises(importer_module.SidecarJsonInvalid):
+        importer_module.load_sidecar(tmp_path / "legacy" / "id_map.json")

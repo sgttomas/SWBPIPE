@@ -37,7 +37,8 @@ for extra in (ROOT, ROOT / "tests"):
 
 import caepipe_mbf_canonical as canon  # noqa: E402
 from core.handoff.caepipe_external.harness import EXPORT_ROUTE, contained, contained_dir, write_private  # noqa: E402
-from core.handoff.caepipe_mbf.importer import IMPORT_PROFILE_ID, import_caepipe_mbf, inside_git_work_tree  # noqa: E402
+from core.handoff.caepipe_mbf.importer import (  # noqa: E402
+    IMPORT_PROFILE_ID, import_caepipe_mbf, inside_git_work_tree, load_sidecar)
 from tools.caepipe_correlation.run_pilot import load_cases, render_case_mbf  # noqa: E402
 
 
@@ -67,7 +68,7 @@ def exchange_root(environ: Mapping[str, str]) -> Path | str:
     return root
 
 
-def classify(case: Mapping[str, Any], exported: bytes, sidecar: Mapping[str, Any]) -> dict[str, Any]:
+def classify(case: Mapping[str, Any], exported: bytes, sidecar: Any) -> dict[str, Any]:
     """The private outcome of importing one exported MBF (never printed)."""
     declaration = {"*": {"origin": "project_invented", "source_name": f"invented correlation case {case['case_id']}"}}
     result = import_caepipe_mbf(exported, sidecar=sidecar, material_provenance=declaration, rebind_by_node_number=True,
@@ -130,7 +131,7 @@ def check_exchange(root: Path, *, record: bool, emit: Callable[[str], None] = pr
         elif not sidecar_path.is_file():
             statuses.append(CaseStatus(case_id, "skipped", "no caepipe_in/id_map.json writer sidecar"))
         else:
-            outcome = classify(case, exported_path.read_bytes(), json.loads(sidecar_path.read_text(encoding="utf-8")))
+            outcome = classify(case, exported_path.read_bytes(), load_sidecar(sidecar_path))
             if record:
                 contained_dir(root, record_path.parent)
                 write_private(root, record_path, json.dumps(outcome, indent=2, sort_keys=True) + "\n")
