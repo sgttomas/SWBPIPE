@@ -33,6 +33,8 @@ mod user_release_admission;
 #[cfg(test)]
 mod user_release_reach_scan;
 #[cfg(test)]
+mod user_release_reach_scan_tests;
+#[cfg(test)]
 mod user_release_save_tests;
 mod worker_alloc;
 #[cfg(test)]

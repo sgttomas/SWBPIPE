@@ -2,7 +2,9 @@
 //! `report-user-release.md` §2.8, §6). Standard claim fence applies (claims
 //! taxonomy per DEC-081).
 
-use super::*;
+use crate::user_release_reach_scan::{project_sources, scan, scan_reading, Sources, CRATES};
+use std::collections::{BTreeMap, BTreeSet};
+use std::path::Path;
 
 fn project() -> std::path::PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..")
@@ -39,6 +41,7 @@ fn the_scan_reads_the_production_files() {
     }
     for file in [
         "src-tauri/src/user_release_reach_scan.rs",
+        "src-tauri/src/user_release_reach_scan_tests.rs",
         "src-tauri/src/user_release_save_tests.rs",
         "src-tauri/src/report_render_exact_tests.rs",
         "report_package/src/admitted_tests.rs",

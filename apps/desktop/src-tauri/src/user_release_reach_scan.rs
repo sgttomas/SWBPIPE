@@ -1112,7 +1112,3 @@ pub(crate) fn project_sources(project: &Path) -> Sources {
     }
     sources
 }
-
-#[cfg(test)]
-#[path = "user_release_reach_scan_tests.rs"]
-mod tests;
