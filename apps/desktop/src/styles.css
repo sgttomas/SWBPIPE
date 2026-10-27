@@ -2941,6 +2941,57 @@ fieldset.viewport-intent-controls {
   border-top: 1px solid #c9d2ce;
 }
 
+/* A3: the sorted stress and ratio table (DEL-07-05 Design `stress-ratio-table.md` §7). */
+.stress-ratio-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+}
+
+.stress-ratio-mode {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 2px 6px;
+  border: 1px solid #c9d2ce;
+}
+
+.stress-ratio-mode legend {
+  padding: 0 2px;
+  font-size: 12px;
+}
+
+.stress-ratio-table-scroll {
+  overflow: auto;
+  max-height: 420px;
+}
+
+.stress-ratio-table td,
+.stress-ratio-table th[scope="col"] {
+  white-space: nowrap;
+}
+
+.stress-ratio-table td[colspan] {
+  white-space: normal;
+}
+
+.stress-ratio-table tr[data-part="pinned"] {
+  background: rgba(201, 210, 206, 0.25);
+}
+
+.stress-ratio-location {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .endpoint-pair {
   display: grid;
   gap: 6px;
