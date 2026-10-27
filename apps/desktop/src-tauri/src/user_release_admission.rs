@@ -4,7 +4,7 @@
 //! `export_disposition_screen`, whose one walk they share:
 //! - the library rules 1-3 ([`refuse_library_referenced`]): a `library_ref`
 //!   member at any depth, whatever its value (its own detector,
-//!   [`library_ref_member_sites`]); a library provenance string; the legacy
+//!   [`first_library_ref_member`]); a library provenance string; the legacy
 //!   hanger selection evidence, in its text or as embedded JSON, which is
 //!   prescanned and priced first and parsed one candidate at a time;
 //! - the rule-pack rule ([`refuse_rule_pack_referenced`]);
@@ -18,13 +18,22 @@
 //! detector finds the marks library applies have written into a model; it
 //! cannot find a library origin a user has erased, and it does not show that
 //! any value is the user's own (the reliance limit, §2.7).
+//!
+//! Every walk here stops at its first site and holds its path on its own
+//! stack frames ([`StackPath`]): it allocates nothing per level and builds
+//! the reported pointer only for the site it returns, so rule 3 (b)'s scan of
+//! a parsed embedded value stays inside the lease growth that priced the
+//! parse (Codex round 1 P1).
 //! Standard claim fence applies (claims taxonomy per DEC-081).
 
 #![cfg_attr(not(test), allow(dead_code))]
 
 use crate::analysis_runs;
 use crate::command_ingress::{text_parse_bytes, ArgsDecoding};
-use crate::export_disposition_screen::{library_ref_identity, library_ref_member_sites, rule_pack_ref_member_sites};
+use crate::export_disposition_screen::{
+    first_library_ref_member, first_member_hit, first_rule_pack_ref_member_site, holds_library_ref_member, library_ref_identity, stack_pointer, PathStep,
+    StackPath,
+};
 use crate::stored_read::ReadMemory;
 use serde_json::{json, Value};
 use std::ops::ControlFlow;
@@ -89,7 +98,9 @@ impl LibraryRule {
 }
 
 /// The first library site of a model: its JSON pointer, the rule, and the
-/// library kind and id where the site states them.
+/// library kind and id where the site states them, each kept to
+/// `SHOWN_CHARS + 1` characters (all [`LibrarySite::refusal`] shows), so a
+/// site copies no more than that of the model or of an embedded value.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct LibrarySite {
     pub(crate) pointer: String,
@@ -116,6 +127,15 @@ impl LibrarySite {
     }
 }
 
+/// The first `SHOWN_CHARS + 1` characters of `text`: [`shown`] of it is
+/// [`shown`] of `text`.
+fn kept(text: &str) -> String {
+    match text.char_indices().nth(SHOWN_CHARS + 1) {
+        Some((end, _)) => text[..end].to_string(),
+        None => text.to_string(),
+    }
+}
+
 fn shown(text: &str) -> String {
     if text.chars().count() > SHOWN_CHARS {
         text.chars().take(SHOWN_CHARS).chain(std::iter::once('\u{2026}')).collect()
@@ -124,47 +144,26 @@ fn shown(text: &str) -> String {
     }
 }
 
-/// One step of a path inside a value.
-#[derive(Clone, Copy)]
-enum Step<'a> {
-    Key(&'a str),
-    Index(usize),
-}
-
-fn pointer_of(path: &[Step<'_>]) -> String {
-    let mut pointer = String::new();
-    for step in path {
-        pointer.push('/');
-        match step {
-            Step::Key(key) => pointer.push_str(&key.replace('~', "~0").replace('/', "~1")),
-            Step::Index(index) => pointer.push_str(&index.to_string()),
-        }
-    }
-    pointer
-}
-
 /// Visits every string value at any depth (object member values and array
 /// elements; keys are not tested), in the one walk's order: arrays in order,
-/// object members in code-point key order. It builds no path text; `path`
-/// grows by one step per level.
-fn visit_strings<'a>(value: &'a Value, path: &mut Vec<Step<'a>>, visit: &mut dyn FnMut(&'a str, &[Step<'a>]) -> ControlFlow<()>) -> ControlFlow<()> {
+/// object members in code-point key order. It stops when `visit` breaks and
+/// allocates nothing: the path (`None` at the root) is a [`StackPath`].
+fn visit_strings<'a>(
+    value: &'a Value,
+    up: Option<&StackPath<'_, 'a>>,
+    visit: &mut dyn FnMut(&'a str, Option<&StackPath<'_, 'a>>) -> ControlFlow<()>,
+) -> ControlFlow<()> {
     match value {
-        Value::String(text) => visit(text, path),
+        Value::String(text) => visit(text, up),
         Value::Array(items) => {
             for (index, item) in items.iter().enumerate() {
-                path.push(Step::Index(index));
-                let flow = visit_strings(item, path, visit);
-                path.pop();
-                flow?;
+                visit_strings(item, Some(&StackPath::new(up, PathStep::Index(index))), visit)?;
             }
             ControlFlow::Continue(())
         }
         Value::Object(object) => {
             for (key, child) in object {
-                path.push(Step::Key(key));
-                let flow = visit_strings(child, path, visit);
-                path.pop();
-                flow?;
+                visit_strings(child, Some(&StackPath::new(up, PathStep::Key(key))), visit)?;
             }
             ControlFlow::Continue(())
         }
@@ -210,16 +209,17 @@ fn candidate(text: &str) -> Candidate {
 
 /// Rule 3 (b) within one parsed embedded object: a legacy member, or rule 1,
 /// 2 or 3 (a) within the parsed value (strings inside are tested by the
-/// substring rules, not parsed again).
+/// substring rules, not parsed again). It decides at the first hit and
+/// allocates nothing.
 fn embedded_holds_legacy(parsed: &Value) -> bool {
     let Value::Object(object) = parsed else { return false };
     if LEGACY_HANGER_MEMBERS.iter().any(|member| object.contains_key(*member)) {
         return true;
     }
-    if !library_ref_member_sites(parsed).is_empty() {
+    if holds_library_ref_member(parsed) {
         return true;
     }
-    visit_strings(parsed, &mut Vec::new(), &mut |text, _| {
+    visit_strings(parsed, None, &mut |text, _| {
         if text.contains(LEGACY_HANGER_SELECTION_KIND) || provenance_reference(text).is_some() {
             ControlFlow::Break(())
         } else {
@@ -237,23 +237,26 @@ fn embedded_holds_legacy(parsed: &Value) -> bool {
 /// the candidates one at a time, dropping each before the next, so at most
 /// one embedded value is held beside `M`. `grow`'s refusal is returned as it
 /// is. No growth happens when rule 1 or 2 finds a site, or when no candidate
-/// is checkable.
+/// is checkable. Every pass stops at its first site and allocates nothing per
+/// level; beyond the one embedded parse, the only allocation is the returned
+/// site (its pointer in `M`, and the kind and id kept to `SHOWN_CHARS + 1`
+/// characters).
 pub(crate) fn library_reference_site(model: &Value, grow: &mut dyn FnMut(u64) -> Result<(), String>) -> Result<Option<LibrarySite>, String> {
     // Rule 1: every member named `library_ref`, whatever its value.
-    if let Some(member) = library_ref_member_sites(model).into_iter().next() {
+    if let Some(member) = first_library_ref_member(model) {
         let identity = member.reference.and_then(library_ref_identity);
         return Ok(Some(LibrarySite {
             pointer: member.pointer,
             rule: LibraryRule::LibraryRef,
-            kind: identity.map(|(kind, _, _)| kind.to_string()),
-            id: identity.map(|(_, id, _)| id.to_string()),
+            kind: identity.map(|(kind, _, _)| kept(kind)),
+            id: identity.map(|(_, id, _)| kept(id)),
         }));
     }
     // Rule 2: a library provenance reference in any string.
     let mut found = None;
-    let _ = visit_strings(model, &mut Vec::new(), &mut |text, path| match provenance_reference(text) {
+    let _ = visit_strings(model, None, &mut |text, path| match provenance_reference(text) {
         Some((kind, id)) => {
-            found = Some(LibrarySite { pointer: pointer_of(path), rule: LibraryRule::ProvenanceString, kind: Some(kind.to_string()), id: id.map(str::to_string) });
+            found = Some(LibrarySite { pointer: stack_pointer(path), rule: LibraryRule::ProvenanceString, kind: Some(kind.to_string()), id: id.map(kept) });
             ControlFlow::Break(())
         }
         None => ControlFlow::Continue(()),
@@ -263,7 +266,7 @@ pub(crate) fn library_reference_site(model: &Value, grow: &mut dyn FnMut(u64) ->
     }
     // Rule 3 (b)'s pricing: every candidate is prescanned before any is parsed.
     let mut largest: Option<u64> = None;
-    let _ = visit_strings(model, &mut Vec::new(), &mut |text, _| {
+    let _ = visit_strings(model, None, &mut |text, _| {
         if is_candidate(text) {
             if let Candidate::Checkable(bytes) = candidate(text) {
                 largest = Some(largest.map_or(bytes, |held| held.max(bytes)));
@@ -275,13 +278,13 @@ pub(crate) fn library_reference_site(model: &Value, grow: &mut dyn FnMut(u64) ->
         grow(bytes)?;
     }
     // Rule 3, in document order.
-    let legacy = |path: &[Step<'_>], id: Option<String>| LibrarySite {
-        pointer: pointer_of(path),
+    let legacy = |path: Option<&StackPath<'_, '_>>, id: Option<String>| LibrarySite {
+        pointer: stack_pointer(path),
         rule: LibraryRule::LegacyHangerSelection,
         kind: Some("hanger".to_string()),
         id,
     };
-    let _ = visit_strings(model, &mut Vec::new(), &mut |text, path| {
+    let _ = visit_strings(model, None, &mut |text, path| {
         if text.contains(LEGACY_HANGER_SELECTION_KIND) {
             found = Some(legacy(path, None));
             return ControlFlow::Break(());
@@ -299,7 +302,7 @@ pub(crate) fn library_reference_site(model: &Value, grow: &mut dyn FnMut(u64) ->
                 // One embedded value at a time, dropped before the next.
                 let Ok(parsed) = serde_json::from_str::<Value>(text) else { return ControlFlow::Continue(()) };
                 if embedded_holds_legacy(&parsed) {
-                    let id = parsed.get("library_id").and_then(Value::as_str).map(str::to_string);
+                    let id = parsed.get("library_id").and_then(Value::as_str).map(kept);
                     found = Some(legacy(path, id));
                     ControlFlow::Break(())
                 } else {
@@ -324,14 +327,14 @@ pub(crate) fn refuse_library_referenced(model: &Value, grow: &mut dyn FnMut(u64)
 /// rule-pack-referenced when the one walk finds any `rule_pack_refs[]` entry
 /// (or a `rule_pack_refs` member that is not a list), or when the input
 /// manifest records any active rule pack (or its `active_rule_packs` is not a
-/// list).
+/// list). The walk stops at the first entry ([`first_rule_pack_ref_member_site`]).
 pub(crate) fn refuse_rule_pack_referenced(model: &Value, input_manifest: &Value) -> Result<(), String> {
     let refusal = |where_: &str| {
         format!(
             "{RULE_PACK_REFERENCED}: {where_}. A shareable report package does not yet carry rule-pack references or rule checks, so it cannot be saved for this model; its local private package is unaffected."
         )
     };
-    if let Some(pointer) = rule_pack_ref_member_sites(model).into_iter().next() {
+    if let Some(pointer) = first_rule_pack_ref_member_site(model) {
         return Err(refusal(&format!("the model's {pointer} is a rule-pack reference")));
     }
     match input_manifest.get("active_rule_packs") {
@@ -345,31 +348,17 @@ pub(crate) fn refuse_rule_pack_referenced(model: &Value, input_manifest: &Value)
 /// `privacy_classification` or `privacy_class` is a non-project private class
 /// is refused, naming the member's pointer under `root` (for example
 /// `/request` or `/model`). A label can add a refusal; no label grants
-/// inclusion.
+/// inclusion. The walk stops at the first such member and builds only its
+/// pointer.
 pub(crate) fn refuse_private_classes(value: &Value, root: &str) -> Result<(), String> {
-    fn walk<'a>(value: &'a Value, path: &mut Vec<Step<'a>>) -> Option<(String, &'a str)> {
-        match value {
-            Value::Array(items) => items.iter().enumerate().find_map(|(index, item)| {
-                path.push(Step::Index(index));
-                let found = walk(item, path);
-                path.pop();
-                found
-            }),
-            Value::Object(object) => object.iter().find_map(|(key, child)| {
-                path.push(Step::Key(key));
-                let own = PRIVACY_MEMBERS
-                    .contains(&key.as_str())
-                    .then(|| child.as_str().filter(|class| NON_PROJECT_PRIVATE_CLASSES.contains(class)))
-                    .flatten()
-                    .map(|class| (pointer_of(path), class));
-                let found = own.or_else(|| walk(child, path));
-                path.pop();
-                found
-            }),
-            _ => None,
-        }
-    }
-    match walk(value, &mut Vec::new()) {
+    let found = first_member_hit(value, None, &mut |key, child, at| {
+        PRIVACY_MEMBERS
+            .contains(&key)
+            .then(|| child.as_str().filter(|class| NON_PROJECT_PRIVATE_CLASSES.contains(class)))
+            .flatten()
+            .map(|class| (at.pointer(), class))
+    });
+    match found {
         Some((pointer, class)) => Err(format!(
             "{PRIVATE_CLASS}: {root}{pointer} is {class}, a private class that is not the user's project data; a shareable report package cannot carry it."
         )),

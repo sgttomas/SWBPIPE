@@ -6,6 +6,7 @@
 //! reliance limit, not that any value is the user's own.
 
 use super::*;
+use crate::export_disposition_screen::library_ref_member_sites;
 use crate::stored_read::UnmeteredReadMemory;
 use open_pipe_stress_canonical_json::canonical_json;
 use open_pipe_stress_operation_applier::sha256_hex;
@@ -308,7 +309,8 @@ fn rule_3b_unchecked_findings_are_the_prescans() {
 /// are parsed one at a time, so the measured peak stays within that growth and
 /// near a model with the largest candidate alone. No growth happens when an
 /// earlier rule finds a site or no candidate is checkable, and a refused
-/// growth is returned before any parse.
+/// growth is returned before any parse. Deep and wide embedded values:
+/// `rule_3b_scans_of_deep_and_wide_values_stay_within_the_lease`.
 #[test]
 fn rule_3b_grows_the_lease_once_and_holds_one_embedded_value() {
     let embedded = |members: usize| canonical_json(&json!({ "values": (0..members).map(|index| json!({"index": index, "note": format!("invented note {index}")})).collect::<Vec<_>>() }));
@@ -348,6 +350,86 @@ fn rule_3b_grows_the_lease_once_and_holds_one_embedded_value() {
     marked["supports"][6]["provenance"] = json!("library:hanger:hangerlib.invented#h.1");
     assert_eq!(library_reference_site(&marked, &mut |_| panic!("no growth")).unwrap().unwrap().rule, LibraryRule::ProvenanceString);
     assert_eq!(library_reference_site(&parse(DEMO_MODEL), &mut |_| panic!("no growth")), Ok(None));
+}
+
+/// What one embedded or model-side walk may allocate beyond the lease growth
+/// (Codex round 1 P1): the returned site alone, its pointer in `M` (built
+/// once, at its exact length) and the kind and id kept to `SHOWN_CHARS + 1`
+/// characters (at most 4 bytes each), each priced by `allocation_envelope`.
+/// The walks themselves allocate nothing per level.
+fn site_allowance(pointer: &str) -> u64 {
+    let envelope = |bytes: usize| crate::ingress::allocation_envelope(bytes as u64).unwrap();
+    (envelope(pointer.len()) + 2 * envelope(4 * (SHOWN_CHARS + 1))) as u64
+}
+
+/// Codex round 1 P1 at `57450e1fc8`: rule 3 (b)'s scan of a parsed embedded
+/// value collected every `library_ref` site and built each level's path, so a
+/// candidate of 111,462 bytes (1,000 `{"library_ref": null}` leaves beneath 90
+/// object levels whose keys are 1,000 characters each) priced at 1,542,832
+/// bytes peaked at 145,166,048 priced bytes. Every walk now stops at its first
+/// site and borrows its path, so the peak stays within the growth (and the
+/// site's own allowance, [`site_allowance`]) for that shape, for a deeper one
+/// (126 levels, the prescan's limit less the leaves' own), for a wide one
+/// (100,000 sites in one list), for each with the site last and no
+/// `library_ref` at all (every member visited), and for the same shapes in the
+/// model itself (rule 1 and the private-class and rule-pack walks, with no
+/// growth).
+#[test]
+fn rule_3b_scans_of_deep_and_wide_values_stay_within_the_lease() {
+    let nested = |levels: usize, key_chars: usize, leaves: Value| {
+        let mut value = leaves;
+        for level in 0..levels {
+            value = json!({ format!("{level:03}{}", "x".repeat(key_chars)): value });
+        }
+        value
+    };
+    let sites = |count: usize| json!({ "leaves": (0..count).map(|_| json!({"library_ref": null})).collect::<Vec<_>>() });
+    let unmarked = |count: usize| json!({ "leaves": (0..count).map(|index| json!({"note": format!("invented {index}")})).collect::<Vec<_>>() });
+    let mut last = unmarked(20_000);
+    last["leaves"].as_array_mut().unwrap().push(json!({"zz": {"library_ref": null}}));
+    let shapes: [(&str, Value, bool); 6] = [
+        ("codex", nested(90, 1_000, sites(1_000)), true),
+        ("deep", nested(124, 1_000, sites(1_000)), true),
+        ("wide", nested(2, 10, sites(100_000)), true),
+        ("deep, unmarked", nested(124, 1_000, unmarked(1_000)), false),
+        ("wide, unmarked", nested(2, 10, unmarked(100_000)), false),
+        ("wide, the site last", nested(2, 10, last), true),
+    ];
+    for (name, value, marked) in &shapes {
+        let text = serde_json::to_string(value).unwrap();
+        assert!(matches!(candidate(&text), Candidate::Checkable(_)), "{name}: the prescan admits it");
+        let model = json!({ "note": text });
+        let mut growth = 0;
+        let (found, measured) = crate::ingress::counting::measure(|| {
+            library_reference_site(&model, &mut |bytes| {
+                growth = bytes;
+                Ok(())
+            })
+        });
+        let found = found.unwrap();
+        assert_eq!(found.is_some(), *marked, "{name}");
+        if let Some(found) = &found {
+            assert_eq!((found.pointer.as_str(), found.rule), ("/note", LibraryRule::LegacyHangerSelection), "{name}");
+        }
+        let allowance = site_allowance("/note");
+        eprintln!("{name}: candidate {} bytes, growth {growth}, peak requested {}, peak priced {}", text.len(), measured.peak_requested, measured.peak_priced);
+        assert!(growth > 0 && measured.peak_priced <= growth + allowance, "{name}: peak {} within the growth {growth} + {allowance}", measured.peak_priced);
+
+        // The same value as the model itself: no growth; the walks allocate
+        // nothing beyond the site they return.
+        let (found, measured) = crate::ingress::counting::measure(|| library_reference_site(value, &mut |_| panic!("no growth")));
+        let found = found.unwrap();
+        assert_eq!(found.is_some(), *marked, "{name}");
+        let pointer = found.as_ref().map_or(String::new(), |found| found.pointer.clone());
+        if *marked {
+            assert_eq!(Some(pointer.as_str()), library_ref_member_sites(value).first().map(|member| member.pointer.as_str()), "{name}");
+        }
+        assert!(measured.peak_priced <= site_allowance(&pointer), "{name}: model-side peak {} within the site {}", measured.peak_priced, site_allowance(&pointer));
+        let manifest = json!({"active_rule_packs": []});
+        let (refused, measured) = crate::ingress::counting::measure(|| (refuse_private_classes(value, "/model").is_ok(), refuse_rule_pack_referenced(value, &manifest).is_ok()));
+        assert_eq!(refused, (true, true), "{name}");
+        assert_eq!(measured.peak_priced, 0, "{name}: the private-class and rule-pack walks allocate nothing");
+    }
 }
 
 // --- Rule packs and private classes -------------------------------------------

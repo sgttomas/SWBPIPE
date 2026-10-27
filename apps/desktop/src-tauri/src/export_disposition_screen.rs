@@ -531,7 +531,11 @@ pub(crate) struct LibraryRefMember<'a> {
 /// detector: [`library_ref_sites`] keeps the objects only, unchanged (Record
 /// Run's revision and `fixtures/model_document/library_ref_sites.json` keep
 /// their meaning). Pinned with the webview's `libraryRefMemberSites` to
-/// `fixtures/model_document/library_ref_member_sites.json`.
+/// `fixtures/model_document/library_ref_member_sites.json`. It collects every
+/// site and builds each one's path, so admission does not call it: it is the
+/// oracle of [`first_library_ref_member`] and [`holds_library_ref_member`],
+/// which stop at the first site and build no path per level.
+#[cfg(test)]
 pub(crate) fn library_ref_member_sites(document: &Value) -> Vec<LibraryRefMember<'_>> {
     let mut sites = Vec::new();
     walk_document(document, "", PathStyle::Pointer, &mut |site, at| match site {
@@ -544,7 +548,9 @@ pub(crate) fn library_ref_member_sites(document: &Value) -> Vec<LibraryRefMember
 
 /// The JSON pointer of every `rule_pack_refs[]` entry the one walk visits,
 /// object or not, and of every `rule_pack_refs` member that is not a list
-/// (W-18b's rule-pack rule, DEL-08-01 Design `report-user-release.md` §2.7).
+/// (W-18b's rule-pack rule, DEL-08-01 Design `report-user-release.md` §2.7):
+/// the oracle of [`first_rule_pack_ref_member_site`], which admission calls.
+#[cfg(test)]
 pub(crate) fn rule_pack_ref_member_sites(document: &Value) -> Vec<String> {
     let mut sites = Vec::new();
     walk_document(document, "", PathStyle::Pointer, &mut |site, at| match site {
@@ -552,6 +558,109 @@ pub(crate) fn rule_pack_ref_member_sites(document: &Value) -> Vec<String> {
         _ => {}
     });
     sites
+}
+
+/// One step of a path inside a value: an object member's key or an array
+/// index, borrowed from the value.
+#[derive(Clone, Copy, Debug)]
+pub(crate) enum PathStep<'a> {
+    Key(&'a str),
+    Index(usize),
+}
+
+/// A path held on a walk's own stack frames: each level borrows its parent
+/// and its key, so a walk allocates nothing per level, whatever the depth or
+/// the keys' length (W-18b slice (r2b), Codex round 1 P1: a walk that built
+/// each level's path text exceeded rule 3 (b)'s lease). The pointer text is
+/// built only for a site that is reported ([`StackPath::pointer`]).
+#[derive(Clone, Copy)]
+pub(crate) struct StackPath<'p, 'a> {
+    parent: Option<&'p StackPath<'p, 'a>>,
+    step: PathStep<'a>,
+}
+
+impl<'p, 'a> StackPath<'p, 'a> {
+    pub(crate) fn new(parent: Option<&'p StackPath<'p, 'a>>, step: PathStep<'a>) -> Self {
+        Self { parent, step }
+    }
+
+    /// The path's JSON pointer (RFC 6901, [`pointer_token`]'s escapes), built
+    /// in one allocation of its exact length.
+    pub(crate) fn pointer(&self) -> String {
+        fn length(path: &StackPath<'_, '_>) -> usize {
+            let own = 1 + match path.step {
+                PathStep::Key(key) => pointer_token_len(key),
+                PathStep::Index(index) => index.checked_ilog10().map_or(1, |digits| digits as usize + 1),
+            };
+            own + path.parent.map_or(0, length)
+        }
+        fn write(path: &StackPath<'_, '_>, out: &mut String) {
+            if let Some(parent) = path.parent {
+                write(parent, out);
+            }
+            out.push('/');
+            match path.step {
+                PathStep::Key(key) => push_pointer_token(out, key),
+                PathStep::Index(index) => {
+                    let _ = std::fmt::Write::write_fmt(out, format_args!("{index}"));
+                }
+            }
+        }
+        let mut out = String::with_capacity(length(self));
+        write(self, &mut out);
+        out
+    }
+}
+
+/// The JSON pointer of `path`; `""` at the root.
+pub(crate) fn stack_pointer(path: Option<&StackPath<'_, '_>>) -> String {
+    path.map_or_else(String::new, StackPath::pointer)
+}
+
+/// The first object member, in the one walk's order ([`walk_document`]'s:
+/// arrays in order, object members in key order, each member before what it
+/// holds), for which `hit` returns a value. It stops there and allocates
+/// nothing itself: the path is a [`StackPath`].
+pub(crate) fn first_member_hit<'a, T>(
+    value: &'a Value,
+    up: Option<&StackPath<'_, 'a>>,
+    hit: &mut dyn FnMut(&'a str, &'a Value, &StackPath<'_, 'a>) -> Option<T>,
+) -> Option<T> {
+    match value {
+        Value::Array(items) => items.iter().enumerate().find_map(|(index, item)| first_member_hit(item, Some(&StackPath::new(up, PathStep::Index(index))), hit)),
+        Value::Object(object) => object.iter().find_map(|(key, child)| {
+            let here = StackPath::new(up, PathStep::Key(key));
+            hit(key, child, &here).or_else(|| first_member_hit(child, Some(&here), hit))
+        }),
+        _ => None,
+    }
+}
+
+/// The first member named `library_ref`, whatever its value, in the one
+/// walk's order: library rule 1's detector as admission runs it (the first of
+/// [`library_ref_member_sites`], pinned by
+/// `first_member_detectors_match_the_collecting_walks`). Only its pointer is
+/// built.
+pub(crate) fn first_library_ref_member(document: &Value) -> Option<LibraryRefMember<'_>> {
+    first_member_hit(document, None, &mut |key, child, at| (key == "library_ref").then(|| LibraryRefMember { pointer: at.pointer(), reference: child.as_object() }))
+}
+
+/// Whether any member is named `library_ref`, whatever its value (rule 3
+/// (b) through rule 1, inside a parsed embedded value): it allocates nothing.
+pub(crate) fn holds_library_ref_member(document: &Value) -> bool {
+    first_member_hit(document, None, &mut |key, _, _| (key == "library_ref").then_some(())).is_some()
+}
+
+/// The first of [`rule_pack_ref_member_sites`], found the same way as
+/// [`first_library_ref_member`]: a non-empty `rule_pack_refs` list's first
+/// entry, or a `rule_pack_refs` member that is not a list.
+pub(crate) fn first_rule_pack_ref_member_site(document: &Value) -> Option<String> {
+    first_member_hit(document, None, &mut |key, child, at| match (key, child) {
+        ("rule_pack_refs", Value::Array(refs)) if refs.is_empty() => None,
+        ("rule_pack_refs", Value::Array(_)) => Some(StackPath::new(Some(at), PathStep::Index(0)).pointer()),
+        ("rule_pack_refs", _) => Some(at.pointer()),
+        _ => None,
+    })
 }
 
 /// W-6a's store-resolved screen (`model_document_save`
@@ -1040,6 +1149,60 @@ mod tests {
         let non_objects: Vec<&str> =
             table["sites"].as_array().unwrap().iter().filter(|site| site["kind"] != "object").map(|site| site["pointer"].as_str().unwrap()).collect();
         assert_eq!(malformed, non_objects);
+    }
+
+    /// Admission's early-exit detectors (W-18b (r2b), Codex round 1 P1) find
+    /// what the collecting walks find first, with the same pointer, through
+    /// every site of the shared member table in turn (each found member is
+    /// removed and the walk run again), and through escaped keys and indexes
+    /// of more than one digit.
+    #[test]
+    fn first_member_detectors_match_the_collecting_walks() {
+        fn remove(document: &mut Value, pointer: &str) {
+            let (parent, token) = pointer.rsplit_once('/').unwrap();
+            let key = token.replace("~1", "/").replace("~0", "~");
+            match document.pointer_mut(parent).unwrap() {
+                Value::Object(object) => assert!(object.remove(&key).is_some()),
+                Value::Array(items) => {
+                    items.remove(key.parse::<usize>().unwrap());
+                }
+                _ => unreachable!("a member's parent holds it"),
+            }
+        }
+        let table: Value = serde_json::from_str(include_str!("../../../../fixtures/model_document/library_ref_member_sites.json")).unwrap();
+        let escaped = json!({
+            "a~b": [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {"c/d": {"library_ref": null}}],
+            "z": {"rule_pack_refs": []},
+            "w~/": {"x": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, {"rule_pack_refs": [{"rule_pack_id": "invented"}]}]},
+            "y": [{"rule_pack_refs": "not a list"}, {"library_ref": {"library_kind": "hanger", "library_id": "invented"}}]
+        });
+        for mut document in [table["document"].clone(), escaped] {
+            assert!(holds_library_ref_member(&document));
+            let mut visited = 0;
+            loop {
+                let first = first_library_ref_member(&document).map(|member| (member.pointer, member.reference.is_some()));
+                let oracle = library_ref_member_sites(&document).into_iter().next().map(|member| (member.pointer, member.reference.is_some()));
+                assert_eq!(first, oracle);
+                assert_eq!(holds_library_ref_member(&document), oracle.is_some());
+                let Some((pointer, _)) = oracle else { break };
+                remove(&mut document, &pointer);
+                visited += 1;
+            }
+            assert!(visited > 1);
+            loop {
+                let oracle = rule_pack_ref_member_sites(&document).into_iter().next();
+                assert_eq!(first_rule_pack_ref_member_site(&document), oracle);
+                let Some(pointer) = oracle else { break };
+                // An entry's site is removed with its whole list.
+                let member = if pointer.ends_with("/rule_pack_refs") { pointer } else { pointer.rsplit_once('/').unwrap().0.to_string() };
+                remove(&mut document, &member);
+            }
+        }
+        let escaped = json!({"a~b": [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {"c/d": {"library_ref": null}}]});
+        assert_eq!(first_library_ref_member(&escaped).unwrap().pointer, "/a~0b/11/c~1d/library_ref");
+        assert_eq!(first_rule_pack_ref_member_site(&json!({"w~/": {"x": [0, {"rule_pack_refs": [1]}]}})).as_deref(), Some("/w~0~1/x/1/rule_pack_refs/0"));
+        assert_eq!(first_library_ref_member(&json!({"library_ref": 1})).unwrap().pointer, "/library_ref");
+        assert!(first_library_ref_member(&json!([{"a": "library_ref"}])).is_none());
     }
 
     #[test]
