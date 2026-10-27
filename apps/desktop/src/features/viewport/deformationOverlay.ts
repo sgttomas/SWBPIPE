@@ -31,6 +31,13 @@ export type DeformationOverlay = {
   defaultFactor?: number;
   /** Why a factor scale is not available, when one was asked for or cannot be. */
   factorUnavailable?: string;
+  /** A factor can be drawn for this choice: one case with complete, convertible rows. */
+  factorAccepted: boolean;
+  /** Why the asked factor, or the default, is not the one drawn (no default without a
+   * positive model extent; a factor whose shape cannot be represented). */
+  factorNote?: string;
+  /** The fraction of each offset drawn, from 0 (undeformed) to 1 (the stated scale). */
+  phase: number;
 };
 
 /** A deflected-shape view setting. Never model data: it changes how emitted
@@ -53,7 +60,7 @@ export const NORMALIZED_DEFORMATION_DISPLAY_OFFSET = 0.65;
 const NOT_GENERATED = "scale=not_generated; professional_claim=false";
 
 function emptyDeformation(state: DeformationOverlay["state"], summary: string, basisKey: string | null): DeformationOverlay {
-  return { state, summary, boundary: NOT_GENERATED, nodePositions: new Map(), offsets: new Map(), basisKey, scale: { mode: "normalized" } };
+  return { state, summary, boundary: NOT_GENERATED, nodePositions: new Map(), offsets: new Map(), basisKey, scale: { mode: "normalized" }, factorAccepted: false, phase: 1 };
 }
 
 export function buildDeformationOverlay(
@@ -132,32 +139,68 @@ export function buildDeformationOverlay(
         : !(maxValue > 0)
           ? "every drawn displacement is zero"
           : undefined;
-  const extent = options.modelExtent;
-  const defaultFactor = factorUnavailable === undefined && lengthRatio !== null && extent !== null && extent !== undefined && extent > 0 && Number.isFinite(extent)
-    ? roundFactor125(extent / 10 / (maxValue * lengthRatio))
-    : undefined;
-  const asked = options.scale?.mode === "factor" ? options.scale.factor : undefined;
-  const requestedFactor = asked === undefined ? undefined : asked ?? defaultFactor;
-  const factor = factorUnavailable === undefined && requestedFactor !== undefined && Number.isFinite(requestedFactor) && requestedFactor > 0
-    ? requestedFactor
-    : undefined;
-  const scale: DeformationOverlay["scale"] = factor !== undefined
-    ? { mode: "factor", factor, isDefault: asked === null }
-    : { mode: "normalized" };
-
+  const factorAccepted = factorUnavailable === undefined;
   const fallbackDirection: Vec3 = { x: 0, y: 1, z: 0 };
-  const offsets = new Map<string, Vec3>();
-  const nodePositions = new Map<string, Vec3>();
-  for (const node of model.nodes) {
-    const value = nodeValues.get(node.id)?.value ?? 0;
-    const length = factor !== undefined
-      ? Math.abs(value) * lengthRatio! * factor
-      : maxValue > 0 ? (Math.abs(value) / maxValue) * NORMALIZED_DEFORMATION_DISPLAY_OFFSET : 0;
-    const direction = directional ? (nodeDirections.get(node.id) ?? fallbackDirection) : fallbackDirection;
-    const offset = { x: direction.x * length, y: direction.y * length, z: direction.z * length };
-    offsets.set(node.id, offset);
-    nodePositions.set(node.id, { x: node.position.x + offset.x, y: node.position.y + offset.y, z: node.position.z + offset.z });
+  // The offsets and positions for a factor (or the normalized scale), or null when any is not
+  // a finite number: a finite factor can still be too large to draw.
+  const draw = (factor: number | undefined) => {
+    const offsets = new Map<string, Vec3>();
+    const nodePositions = new Map<string, Vec3>();
+    for (const node of model.nodes) {
+      const value = nodeValues.get(node.id)?.value ?? 0;
+      const length = factor !== undefined
+        ? Math.abs(value) * lengthRatio! * factor
+        : maxValue > 0 ? (Math.abs(value) / maxValue) * NORMALIZED_DEFORMATION_DISPLAY_OFFSET : 0;
+      const direction = directional ? (nodeDirections.get(node.id) ?? fallbackDirection) : fallbackDirection;
+      const offset = { x: direction.x * length, y: direction.y * length, z: direction.z * length };
+      const position = { x: node.position.x + offset.x, y: node.position.y + offset.y, z: node.position.z + offset.z };
+      // The normalized scale is bounded; only a factor is checked (a node already off the
+      // finite range is the model's own issue, reported by the model index).
+      if (factor !== undefined && Number.isFinite(node.position.x + node.position.y + node.position.z) &&
+          ![offset.x, offset.y, offset.z, position.x, position.y, position.z].every(Number.isFinite)) return null;
+      offsets.set(node.id, offset);
+      nodePositions.set(node.id, position);
+    }
+    return { offsets, nodePositions };
+  };
+
+  // The default draws the largest displacement at a tenth of the model's largest side, as the
+  // nearest 1-2-5 value; it needs a positive, finite extent and a representable ratio.
+  const extent = options.modelExtent;
+  const rawDefault = factorAccepted && extent !== null && extent !== undefined && extent > 0 && Number.isFinite(extent)
+    ? extent / 10 / (maxValue * lengthRatio!)
+    : undefined;
+  const defaultCandidate = rawDefault !== undefined && Number.isFinite(rawDefault) && rawDefault > 0 ? roundFactor125(rawDefault) : undefined;
+  const defaultDrawing = defaultCandidate !== undefined ? draw(defaultCandidate) : null;
+  const defaultFactor = defaultDrawing ? defaultCandidate : undefined;
+  const noDefaultReason = !(extent !== null && extent !== undefined && extent > 0 && Number.isFinite(extent))
+    ? "the model has no positive extent (for example a single node), so there is no default factor; enter one"
+    : "the largest displacement is too small for a default factor; enter one";
+
+  const asked = options.scale?.mode === "factor" ? options.scale.factor : undefined;
+  let factor: number | undefined;
+  let isDefault = false;
+  let factorNote: string | undefined;
+  let drawing: ReturnType<typeof draw> = null;
+  if (factorAccepted && asked !== undefined && asked !== null && Number.isFinite(asked) && asked > 0) {
+    drawing = draw(asked);
+    if (drawing) factor = asked;
+    else factorNote = `×${formatNumber(asked)} cannot be drawn: the shape would not be representable`;
   }
+  if (factorAccepted && asked !== undefined && factor === undefined) {
+    if (defaultFactor !== undefined) {
+      factor = defaultFactor;
+      isDefault = true;
+      drawing = defaultDrawing;
+      if (factorNote) factorNote = `${factorNote}; the default ×${formatNumber(defaultFactor)} is drawn`;
+    } else {
+      factorNote = factorNote ? `${factorNote}, and ${noDefaultReason}` : noDefaultReason;
+    }
+  }
+  const scale: DeformationOverlay["scale"] = factor !== undefined
+    ? { mode: "factor", factor, isDefault }
+    : { mode: "normalized" };
+  const { offsets, nodePositions } = (factor !== undefined ? drawing : null) ?? draw(undefined)!;
 
   const vectorDirection = directional
     ? "global_cartesian_displacement_components"
@@ -177,7 +220,10 @@ export function buildDeformationOverlay(
     basisKey,
     scale,
     ...(defaultFactor !== undefined ? { defaultFactor } : {}),
-    ...(factorUnavailable !== undefined && (asked !== undefined || basisKey !== null) ? { factorUnavailable } : {})
+    ...(factorUnavailable !== undefined && (asked !== undefined || basisKey !== null) ? { factorUnavailable } : {}),
+    factorAccepted,
+    ...(factorNote !== undefined ? { factorNote } : {}),
+    phase: 1
   };
 }
 
@@ -194,7 +240,8 @@ export function deformationAtPhase(model: PreviewModel, overlay: DeformationOver
     if (!offset) continue;
     nodePositions.set(node.id, { x: node.position.x + offset.x * t, y: node.position.y + offset.y * t, z: node.position.z + offset.z * t });
   }
-  return { ...overlay, nodePositions };
+  const drawn = overlay.scale.mode === "factor" ? `; drawn_factor=${formatNumber(overlay.scale.factor * t)}` : "";
+  return { ...overlay, nodePositions, phase: t, boundary: overlay.boundary.replace("; professional_claim=false", `; phase=${formatNumber(t)}${drawn}; professional_claim=false`) };
 }
 
 const FACTOR_MANTISSAS = [1, 2, 5] as const;

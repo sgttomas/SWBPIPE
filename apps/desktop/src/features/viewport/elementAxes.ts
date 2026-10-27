@@ -1,21 +1,25 @@
 // Element axis triads for the viewport (A7; FR-SOL-007, DEL-07-05). The local frame is the
-// one the solver forms for a straight member (`FrameOrientation::from_x_axis_and_y_reference`
-// in `core/solver/frame_kernel/src/lib.rs`, used through `FrameElement::orientation`):
+// one the solver forms for a straight member (`FrameElement::orientation` in
+// `core/solver/frame_kernel/src/lib.rs`), on node coordinates in metres (the product engine
+// converts them from `project.units.length` before the kernel sees them):
 //
 //   x = (to - from) / |to - from|                  (node i is the pipe's `from`)
 //   y = (y_ref - (y_ref . x) x) / |...|            (the pipe's `y_reference`)
 //   z = x cross y
 //
-// each normalization refused at a magnitude of 1e-12 or less, the kernel's tolerance (the
-// kernel measures the member axis in metres, so in another length unit the zero-length
-// refusal here differs from it only at that scale). No
-// default orientation is applied: a pipe without a `y_reference` has no local frame here, as
-// the solver blocks it. A span realized as a curved bend publishes its end rows in end-tangent
-// frames, not in a straight member frame, so no straight-member triad is drawn for it. The
-// global frame is the model's X, Y and Z. This is a display of the convention only: it forms no
-// result and transforms no result value.
+// with the kernel's whole validation, at its `AXIS_TOLERANCE` of 1e-12 and with its own
+// arithmetic (|v| = sqrt(v . v), v / |v| as v times 1/|v|): finite inputs, each normalization
+// refused at a magnitude of 1e-12 or less, then `FrameOrientation::new`'s checks that each axis
+// is unit length, that the three are mutually orthogonal and that x cross y is z, each to 1e-12.
+// A member the kernel would refuse gets no triad, with the reason. No default orientation is
+// applied: a pipe without a `y_reference` has no local frame here, as the solver blocks it. A
+// span realized as a curved bend publishes its end rows in end-tangent frames, not in a straight
+// member frame, so no straight-member triad is drawn for it. The global frame is the model's X,
+// Y and Z. This is a display of the convention only: it forms no result and transforms no result
+// value.
 
 import type { PreviewComponent, PreviewModel, Vec3 } from "../../types";
+import { unitRatio } from "../../services/unitConversion";
 
 export type ElementAxesFrame = "local" | "global";
 
@@ -44,8 +48,11 @@ export const REALIZED_CURVED_BEND = "curved_bend_macro_element";
 
 export const WITHHELD_REASONS = Object.freeze({
   noYReference: "no y_reference entered; no default orientation is applied",
-  parallelYReference: "y_reference is parallel to the member axis",
+  parallelYReference: "y_reference is zero or parallel to the member axis",
+  notOrthonormal: "the solver refuses these axes: with this y_reference they are not unit, orthogonal and right-handed to 1e-12",
+  nonFinite: "a coordinate or the y_reference is not a finite number",
   zeroLength: "the member has zero length",
+  noLengthUnit: "the model length unit does not convert to metres here, so the solver's frame cannot be formed",
   missingNode: "an end node is missing",
   curvedBend: "realized curved bend: its end rows are in end-tangent frames"
 });
@@ -60,16 +67,27 @@ export function realizedCurvedBendPipeIds(components: readonly PreviewComponent[
   }));
 }
 
-/** The kernel's local frame of a straight member, or the reason it has none. */
-export function straightMemberLocalAxes(from: Vec3, to: Vec3, yReference: Vec3 | undefined):
+/** The kernel's local frame of a straight member, or the reason the kernel would refuse it.
+ * `metresPerUnit` converts the authored coordinates to the metres the kernel works in. */
+export function straightMemberLocalAxes(from: Vec3, to: Vec3, yReference: Vec3 | undefined, metresPerUnit = 1):
   { x: Vec3; y: Vec3; z: Vec3 } | { reason: string } {
-  const x = normalize(subtract(to, from));
+  const i = scale(from, metresPerUnit);
+  const j = scale(to, metresPerUnit);
+  if (![i, j].every(finite)) return { reason: WITHHELD_REASONS.nonFinite };
+  const x = normalize(subtract(j, i));
   if (!x) return { reason: WITHHELD_REASONS.zeroLength };
   if (!yReference) return { reason: WITHHELD_REASONS.noYReference };
+  if (!finite(yReference)) return { reason: WITHHELD_REASONS.nonFinite };
   const y = normalize(subtract(yReference, scale(x, dot(yReference, x))));
   if (!y) return { reason: WITHHELD_REASONS.parallelYReference };
   const z = normalize(cross(x, y));
   if (!z) return { reason: WITHHELD_REASONS.parallelYReference };
+  // `FrameOrientation::new`.
+  const unit = (axis: Vec3) => Math.abs(norm(axis) - 1) <= AXIS_TOLERANCE;
+  const orthogonal = Math.abs(dot(x, y)) <= AXIS_TOLERANCE && Math.abs(dot(x, z)) <= AXIS_TOLERANCE && Math.abs(dot(y, z)) <= AXIS_TOLERANCE;
+  const handed = subtract(cross(x, y), z);
+  const rightHanded = Math.max(Math.abs(handed.x), Math.abs(handed.y), Math.abs(handed.z)) <= AXIS_TOLERANCE;
+  if (!unit(x) || !unit(y) || !unit(z) || !orthogonal || !rightHanded) return { reason: WITHHELD_REASONS.notOrthonormal };
   return { x, y, z };
 }
 
@@ -82,12 +100,15 @@ const GLOBAL_AXES = Object.freeze({
 export function buildElementAxesView(model: PreviewModel, frame: ElementAxesFrame): ElementAxesView {
   const nodes = new Map(model.nodes.map((node) => [node.id, node.position] as const));
   const curved = realizedCurvedBendPipeIds(model.components ?? []);
+  const metresPerUnit = unitRatio(model.project.units.length ?? "", "m");
   const triads = new Map<string, ElementAxisTriad>();
   const withheld = new Map<string, string>();
   for (const pipe of model.pipe_segments) {
     const from = nodes.get(pipe.from);
     const to = nodes.get(pipe.to);
     if (!from || !to) { withheld.set(pipe.id, WITHHELD_REASONS.missingNode); continue; }
+    // A display length for the triad, in authored units. Every length unit converted here is at
+    // most a metre, so this never withholds a member the kernel's metre check would accept.
     const length = Math.hypot(to.x - from.x, to.y - from.y, to.z - from.z);
     if (!(length > AXIS_TOLERANCE) || !Number.isFinite(length)) { withheld.set(pipe.id, WITHHELD_REASONS.zeroLength); continue; }
     const origin = { x: (from.x + to.x) / 2, y: (from.y + to.y) / 2, z: (from.z + to.z) / 2 };
@@ -96,7 +117,8 @@ export function buildElementAxesView(model: PreviewModel, frame: ElementAxesFram
       continue;
     }
     if (curved.has(pipe.id)) { withheld.set(pipe.id, WITHHELD_REASONS.curvedBend); continue; }
-    const axes = straightMemberLocalAxes(from, to, pipe.y_reference);
+    if (metresPerUnit === null) { withheld.set(pipe.id, WITHHELD_REASONS.noLengthUnit); continue; }
+    const axes = straightMemberLocalAxes(from, to, pipe.y_reference, metresPerUnit);
     if ("reason" in axes) { withheld.set(pipe.id, axes.reason); continue; }
     triads.set(pipe.id, { pipeId: pipe.id, origin, ...axes, length });
   }
@@ -119,8 +141,17 @@ function cross(a: Vec3, b: Vec3): Vec3 {
   return { x: a.y * b.z - a.z * b.y, y: a.z * b.x - a.x * b.z, z: a.x * b.y - a.y * b.x };
 }
 
+function norm(a: Vec3): number {
+  return Math.sqrt(dot(a, a));
+}
+
+function finite(a: Vec3): boolean {
+  return Number.isFinite(a.x) && Number.isFinite(a.y) && Number.isFinite(a.z);
+}
+
+// The kernel's `normalize`: refused at or below the tolerance, then scaled by the reciprocal.
 function normalize(a: Vec3): Vec3 | null {
-  const magnitude = Math.hypot(a.x, a.y, a.z);
+  const magnitude = norm(a);
   if (!Number.isFinite(magnitude) || magnitude <= AXIS_TOLERANCE) return null;
-  return { x: a.x / magnitude, y: a.y / magnitude, z: a.z / magnitude };
+  return scale(a, 1 / magnitude);
 }

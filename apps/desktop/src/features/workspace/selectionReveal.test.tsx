@@ -123,6 +123,37 @@ describe("the grid reveals a selection made elsewhere", () => {
   });
 });
 
+describe("the virtual bulk grid (review r1, #1667)", () => {
+  function pipeGrid(selection: string) {
+    return tree(nodesModel(161, 160), { type: "pipe", id: selection });
+  }
+  function openGrid() {
+    fireEvent.click(screen.getByTestId("layout-mode-grid"));
+    act(() => (document.activeElement as HTMLElement | null)?.blur());
+    return screen.getByTestId("entity-grid-virtual-rows");
+  }
+
+  it("scrolls to an outside selection once", () => {
+    const view = render(pipeGrid("p/0"));
+    const list = openGrid();
+    expect(list.scrollTop).toBe(0);
+    view.rerender(pipeGrid("p/150"));
+    expect(list.scrollTop).toBeGreaterThan(0);
+    expect(screen.getByTestId("entity-grid-row-pipe-p-150")).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("keeps its position while an edit has focus in the grid", () => {
+    const view = render(pipeGrid("p/0"));
+    const list = openGrid();
+    const input = list.querySelector("input") as HTMLInputElement;
+    expect(input).not.toBeNull();
+    act(() => input.focus());
+    view.rerender(pipeGrid("p/150"));
+    expect(list.scrollTop).toBe(0);
+    expect(document.activeElement).toBe(input);
+  });
+});
+
 describe("the results table follows the selected entity", () => {
   const result = {
     ...currentCarrierHeader(), run_id: "invented", model_ref: "invented",
@@ -160,6 +191,24 @@ describe("the results table follows the selected entity", () => {
     expect(screen.getByTestId("result-filter-summary").textContent).toContain("2 of 3");
 
     fireEvent.click(toggle);
+    expect(screen.getByTestId("result-row-r:a")).toBeInTheDocument();
+  });
+
+  it("shows no rows, and says so, when the selection is cleared while the toggle is on (review r1, #1667)", () => {
+    const view = render(panel({ type: "node", id: "node:A" }));
+    fireEvent.click(screen.getByTestId("result-selection-only"));
+    view.rerender(panel({ type: "project", id: "p" }));
+    const toggle = screen.getByTestId("result-selection-only");
+    expect(toggle).toHaveAttribute("aria-pressed", "true");
+    expect(toggle).toBeEnabled();
+    expect(screen.queryByTestId("result-row-r:a")).toBeNull();
+    expect(screen.queryByTestId("result-row-r:b")).toBeNull();
+    expect(screen.getByTestId("result-selection-only-empty")).toHaveTextContent("No model entity is selected, so no rows are shown.");
+    expect(screen.getByTestId("result-filter-summary").textContent).toContain("0 of 3");
+    view.rerender(panel(null));
+    expect(screen.queryByTestId("result-row-r:a")).toBeNull();
+    fireEvent.click(toggle);
+    expect(screen.queryByTestId("result-selection-only-empty")).toBeNull();
     expect(screen.getByTestId("result-row-r:a")).toBeInTheDocument();
   });
 

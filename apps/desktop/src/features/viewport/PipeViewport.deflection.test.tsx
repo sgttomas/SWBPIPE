@@ -4,6 +4,8 @@ import { DisplayUnitsProvider } from "../display-units";
 import { loadBundledMechanicsReference } from "../../services/previewService";
 import type { MechanicsResult, PreviewModel } from "../../types";
 import { PipeViewport } from "./PipeViewport";
+import { DeflectedShapeControls } from "./DeflectedShapeControls";
+import { buildDeformationOverlay } from "./deformationOverlay";
 
 // The deflected-shape controls (A5) over the bundled invented reference. jsdom has no WebGL, so
 // the drawn shape is covered by `deflectedShape.test.ts` (positions, phase and the ghost's dim
@@ -109,9 +111,14 @@ describe("PipeViewport deflected-shape controls", () => {
     fireEvent.change(byId("viewport-deflection-case"), { target: { value: "load_case:load:L-200" } });
     const phase = byId("viewport-deflection-phase");
     expect(phase).toHaveValue("24");
+    const stated = Number((byId("viewport-deflection-factor") as HTMLInputElement).value);
     fireEvent.change(phase, { target: { value: "6" } });
     expect(phase).toHaveValue("6");
     expect(phase).toHaveAttribute("aria-valuetext", "25% of the deflection");
+    // Review r1 (#1667): the canvas and the summary state the magnification drawn at this phase.
+    expect(byId("viewport-deflection-label")).toHaveTextContent(`Deformed ×${stated / 4}, 25% of ×${stated} (default) · `);
+    expect(byId("viewport-deformation-status").querySelector("summary")).toHaveTextContent(`Deformation · ×${stated / 4}`);
+    expect(byId("viewport-deformation-boundary")).toHaveTextContent("phase=0.25");
 
     const animate = byId("toggle-viewport-deflection-animation");
     fireEvent.click(animate);
@@ -141,5 +148,27 @@ describe("PipeViewport deflected-shape controls", () => {
     fireEvent.change(byId("viewport-deflection-case"), { target: { value: "load_case:load:L-100" } });
     expect(byId("toggle-viewport-deflection-animation")).toBeDisabled();
     expect(byId("viewport-deflection-phase")).toBeEnabled();
+  });
+});
+
+describe("deflected-shape controls without a default factor (review r1, #1667)", () => {
+  it("say why a zero-extent model has no default and still take a factor from the keyboard", async () => {
+    const { model, source } = await loadBundledMechanicsReference();
+    const deformation = buildDeformationOverlay(model, source, {
+      basisKey: "load_case:load:L-100", scale: { mode: "factor", factor: null }, modelLengthUnit: "m", modelExtent: 0
+    });
+    const onFactorChange = vi.fn();
+    render(
+      <DeflectedShapeControls cases={[]} caseKey="load_case:load:L-100" onCaseChange={vi.fn()} deformation={deformation}
+        onFactorChange={onFactorChange} ghost={false} onGhostChange={vi.fn()} playing={false} onPlayingChange={vi.fn()}
+        phase={1} onPhaseChange={vi.fn()} reducedMotion={false} />
+    );
+    expect(byId("viewport-deflection-reason")).toHaveTextContent("no positive extent (for example a single node)");
+    const field = byId("viewport-deflection-factor");
+    expect(field).toBeEnabled();
+    expect(byId("viewport-deflection-factor-up")).toBeDisabled();
+    fireEvent.change(field, { target: { value: "20" } });
+    fireEvent.keyDown(field, { key: "Enter" });
+    expect(onFactorChange).toHaveBeenCalledWith(20);
   });
 });

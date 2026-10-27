@@ -861,18 +861,28 @@ function EntityGrid({
   const virtualGrid = visibleRows.length >= 100;
   // A selection made outside the grid is scrolled into view in this family's
   // rows (the node, material and section tables reveal their own). Focus in
-  // the grid keeps its position.
+  // the grid (an edit, or a row control) keeps its position, in the plain and
+  // the virtual table alike. The virtual table is asked once, by a one-shot
+  // reveal index that is cleared after the list has scrolled.
   const bulkScrollRef = useRef<HTMLDivElement>(null);
-  const selectedGridIndex = visibleRows.findIndex((row) => row.type === selection.type && row.id === selection.id);
+  const [virtualReveal, setVirtualReveal] = useState<number | null>(null);
   const revealedGridSelection = useRef(entityKey(selection));
   useLayoutEffect(() => {
     const key = entityKey(selection);
     if (revealedGridSelection.current === key) return;
     revealedGridSelection.current = key;
     const host = bulkScrollRef.current;
-    if (virtualGrid || !host || host.contains(document.activeElement)) return;
+    if (!host || host.contains(document.activeElement)) return;
+    if (virtualGrid) {
+      const index = visibleRows.findIndex((row) => row.type === selection.type && row.id === selection.id);
+      if (index >= 0) setVirtualReveal(index);
+      return;
+    }
     host.querySelector<HTMLElement>("tbody tr.active")?.scrollIntoView?.({ block: "nearest", inline: "nearest" });
   }, [selection.id, selection.type, virtualGrid]);
+  useEffect(() => {
+    if (virtualReveal !== null) setVirtualReveal(null);
+  }, [virtualReveal]);
 
   useEffect(() => {
     setQueuedMessage("");
@@ -1051,7 +1061,7 @@ function EntityGrid({
               itemKey={(row) => `${row.type}:${row.id}`}
               items={visibleRows}
               pinIndex={focusedGridIndex === -1 ? null : focusedGridIndex}
-              activeIndex={selectedGridIndex === -1 ? null : selectedGridIndex}
+              activeIndex={virtualReveal}
               renderItem={(row) => (
                 <div
                   className={`entity-grid-virtual-row${selection.type === row.type && selection.id === row.id ? " active" : ""}`}

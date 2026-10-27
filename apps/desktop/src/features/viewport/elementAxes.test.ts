@@ -137,3 +137,32 @@ describe("element axis meshes", () => {
     expect(elementAxisDisplayLength(1)).toBeCloseTo(0.35, 12);
   });
 });
+
+// Review r1 (#1667): the kernel's whole validation, on coordinates in metres.
+describe("members the kernel would refuse get no triad", () => {
+  it("refuses axes that are not orthogonal to 1e-12, as FrameOrientation::new does", () => {
+    const axes = straightMemberLocalAxes({ x: 0, y: 0, z: 0 }, { x: 1, y: 1, z: 0 }, { x: 1, y: 1.000001, z: 0 });
+    expect(axes).toEqual({ reason: WITHHELD_REASONS.notOrthonormal });
+    // A well-conditioned reference on the same member is accepted.
+    expect("reason" in straightMemberLocalAxes({ x: 0, y: 0, z: 0 }, { x: 1, y: 1, z: 0 }, { x: 0, y: 0, z: 1 })).toBe(false);
+  });
+
+  it("measures the member in metres, as the kernel sees it", async () => {
+    const { model } = await loadBundledMechanicsReference();
+    const [first] = model.pipe_segments;
+    const tiny = (unit: string): PreviewModel => ({
+      ...model,
+      project: { ...model.project, units: { ...model.project.units, length: unit } },
+      nodes: model.nodes.map((node) => node.id === first.to ? { ...node, position: { x: 5e-10, y: 0, z: 0 } } : node.id === first.from ? { ...node, position: { x: 0, y: 0, z: 0 } } : node),
+      pipe_segments: model.pipe_segments.map((pipe) => pipe.id === first.id ? { ...pipe, y_reference: { x: 0, y: 0, z: 1 } } : pipe)
+    });
+    // 5e-10 m is a member to the kernel; 5e-10 mm is 5e-13 m, which it refuses.
+    expect(buildElementAxesView(tiny("m"), "local").triads.has(first.id)).toBe(true);
+    expect(buildElementAxesView(tiny("mm"), "local").withheld.get(first.id)).toBe(WITHHELD_REASONS.zeroLength);
+    expect(buildElementAxesView(tiny("furlong"), "local").withheld.get(first.id)).toBe(WITHHELD_REASONS.noLengthUnit);
+  });
+
+  it("refuses a non-finite y_reference", () => {
+    expect(straightMemberLocalAxes({ x: 0, y: 0, z: 0 }, { x: 1, y: 0, z: 0 }, { x: 0, y: Number.NaN, z: 1 })).toEqual({ reason: WITHHELD_REASONS.nonFinite });
+  });
+});

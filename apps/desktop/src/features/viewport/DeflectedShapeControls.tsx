@@ -16,12 +16,27 @@ export function formatFactor(value: number): string {
   return String(Number(value.toPrecision(6)));
 }
 
-/** The on-canvas statement of how the deformed shape is drawn. */
+/** The on-canvas statement of how the deformed shape is drawn: the magnification actually
+ * drawn (the stated factor times the phase, with both named when the phase is not 1) and the
+ * case, or the normalized scale and its basis. */
 export function deflectionLabel(deformation: DeformationOverlay, caseLabel: string | null): string {
+  const basis = deformation.basisKey === null ? "governing case per node" : caseLabel ?? deformation.basisKey;
+  const phase = deformation.phase;
+  const partial = phase < 1 ? ` (${Math.round(phase * 100)}% of the deflection)` : "";
   if (deformation.scale.mode === "factor") {
-    return `Deformed ×${formatFactor(deformation.scale.factor)}${deformation.scale.isDefault ? " (default)" : ""}${caseLabel ? ` · ${caseLabel}` : ""}`;
+    const { factor, isDefault } = deformation.scale;
+    const drawn = phase < 1
+      ? `×${formatFactor(factor * phase)}, ${Math.round(phase * 100)}% of ×${formatFactor(factor)}${isDefault ? " (default)" : ""}`
+      : `×${formatFactor(factor)}${isDefault ? " (default)" : ""}`;
+    return `Deformed ${drawn} · ${basis}`;
   }
-  return "Deformed · normalized, not to scale · governing case per node";
+  return `Deformed · normalized, not to scale${partial} · ${basis}`;
+}
+
+/** The popover summary's scale: the magnification drawn now. */
+export function deflectionSummaryScale(deformation: DeformationOverlay): string {
+  if (deformation.scale.mode !== "factor") return "normalized";
+  return `×${formatFactor(deformation.scale.factor * deformation.phase)}`;
 }
 
 export function DeflectedShapeControls({
@@ -62,13 +77,18 @@ export function DeflectedShapeControls({
   }, [factor]);
 
   const factorReady = factor !== null;
-  const reason = deformation.state !== "available"
+  // The field takes a factor whenever one could be drawn, including when there is no default.
+  const fieldReady = deformation.state === "available" && deformation.factorAccepted;
+  const stated = deformation.state !== "available"
     ? "No displacement rows to draw for this choice."
     : deformation.factorUnavailable
       ? `Factor unavailable: ${deformation.factorUnavailable}.`
       : factorReady
         ? `Displacements are drawn at ×${formatFactor(factor)} their physical length in model units${deformation.scale.mode === "factor" && deformation.scale.isDefault ? "; the default draws the largest at one tenth of the model extent, rounded to 1, 2 or 5" : ""}.`
-        : "The largest displacement is drawn at a fixed display length; choose one case to set a factor.";
+        : deformation.basisKey === null
+          ? "The largest displacement is drawn at a fixed display length; choose one case to set a factor."
+          : "The largest displacement is drawn at a fixed display length.";
+  const reason = deformation.factorNote ? `${stated} Note: ${deformation.factorNote}.` : stated;
 
   function commitDraft() {
     const value = Number(draft.trim());
@@ -108,13 +128,13 @@ export function DeflectedShapeControls({
             aria-label="Magnification factor"
             aria-invalid={draftError ? true : undefined}
             data-testid="viewport-deflection-factor"
-            disabled={!factorReady}
+            disabled={!fieldReady}
             inputMode="decimal"
-            onBlur={() => { if (factorReady && draft !== formatFactor(factor!)) commitDraft(); }}
+            onBlur={() => { if (fieldReady && draft !== (factor === null ? "" : formatFactor(factor))) commitDraft(); }}
             onChange={(event) => setDraft(event.target.value)}
             onKeyDown={(event) => {
               if (event.key === "Enter") { event.preventDefault(); commitDraft(); }
-              if (event.key === "Escape" && factor !== null) { event.preventDefault(); setDraft(formatFactor(factor)); setDraftError(null); }
+              if (event.key === "Escape") { event.preventDefault(); setDraft(factor === null ? "" : formatFactor(factor)); setDraftError(null); }
             }}
             type="text"
             value={draft}

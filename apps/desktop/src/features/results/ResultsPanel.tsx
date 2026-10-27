@@ -79,6 +79,9 @@ export function ResultsPanel({
   const [frameFilter, setFrameFilter] = useState<string>(ALL_FRAMES);
   const selectionEntityId = selectedEntity && selectedEntity.type !== "project" ? selectedEntity.id : null;
   const selectionFilterId = selectionOnly ? selectionEntityId : null;
+  // With "Selected entity only" on and no model entity selected, the table shows no rows and
+  // says so; the restriction is never dropped silently. Turning the toggle off shows all rows.
+  const selectionOnlyWithoutEntity = selectionOnly && selectionEntityId === null;
   const [familyFilter, setFamilyFilter] = useState<ResultFamilyFilter>("all");
   // The page is the user's position in one run's rows, held with that run's id.
   // Any other run reads as page 1 in the very render that first shows it. A
@@ -104,10 +107,11 @@ export function ResultsPanel({
   const activeFrame = frameFilter !== ALL_FRAMES && frameCounts.has(frameFilter) ? frameFilter : ALL_FRAMES;
   const filteredResults = useMemo(() => {
     const rows = result && labels ? filterResults(result.results, filterText, familyFilter, labels) : [];
+    if (selectionOnlyWithoutEntity) return [];
     return rows.filter((item) =>
       (selectionFilterId === null || item.entity_ref === selectionFilterId) &&
       (activeFrame === ALL_FRAMES || resultFrame(item) === activeFrame));
-  }, [activeFrame, familyFilter, filterText, result, labels, selectionFilterId]);
+  }, [activeFrame, familyFilter, filterText, result, labels, selectionFilterId, selectionOnlyWithoutEntity]);
   const page = useMemo(
     () => paginateResults(filteredResults, pageIndex, pageSize),
     [filteredResults, pageIndex, pageSize]
@@ -433,6 +437,11 @@ function ResultControls({
           Selected entity only{selectionOnly ? `: ${selectionEntityId ?? "none selected"}` : ""}
         </button>
       </div>
+      {selectionOnly && !selectionEntityId ? (
+        <p role="status" className="muted" data-testid="result-selection-only-empty">
+          No model entity is selected, so no rows are shown. Select an entity, or turn off "Selected entity only" to show every row.
+        </p>
+      ) : null}
       <div className="result-page-row" aria-label="Result page controls">
         <label className="result-page-size">
           <span>Rows</span>

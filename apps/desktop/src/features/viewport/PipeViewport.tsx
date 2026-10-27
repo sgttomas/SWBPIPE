@@ -108,7 +108,7 @@ import {
 } from "./viewportResource";
 import { createFigureMaterial, figureEdgeOutlineFor } from "./viewportFigureMaterial";
 import { buildDeformationOverlay, buildRotationOverlay, deformationAtPhase, rotationGlyphAnchors } from "./deformationOverlay";
-import { DEFLECTION_PHASE_STEPS, DeflectedShapeControls, deflectionLabel, formatFactor } from "./DeflectedShapeControls";
+import { DEFLECTION_PHASE_STEPS, DeflectedShapeControls, deflectionLabel, deflectionSummaryScale } from "./DeflectedShapeControls";
 import { buildElementAxesView, type ElementAxesFrame, type ElementAxesView } from "./elementAxes";
 import { elementAxisDisplayLength, instancedElementAxisMeshes, type ElementAxisPlacement } from "./viewportElementAxes";
 import { instancedRotationGlyphMeshes, type RotationGlyphPlacement } from "./viewportRotationGlyph";
@@ -2380,7 +2380,7 @@ export function PipeViewport({
           aria-label="Viewport deformation overlay status"
           data-testid="viewport-deformation-status"
         >
-          <summary>{deformation.state === "available" ? (deformation.scale.mode === "factor" ? `Deformation · ×${formatFactor(deformation.scale.factor)}` : "Deformation · normalized") : deformation.state === "blocked" ? "Deformation · blocked" : "Deformation · unavailable"}</summary>
+          <summary>{deformation.state === "available" ? `Deformation · ${deflectionSummaryScale(deformation)}` : deformation.state === "blocked" ? "Deformation · blocked" : "Deformation · unavailable"}</summary>
           <div><strong data-testid="viewport-deformation-summary">{deformation.maximum ? <>available; nodes={deformation.nodeCount}; max=<QuantityReadout quantity={{ ...deformation.maximum, dimension_id: "length" }} /></> : deformation.summary}</strong>
           <small data-testid="viewport-deformation-boundary">{deformation.boundary}</small>{" "}
           <small data-testid="viewport-rotation-summary">rotation: {rotation.maximum ? <>available; nodes={rotation.nodeCount}; drawn={rotation.drawnCount}; max |component|=<QuantityReadout quantity={{ ...rotation.maximum, dimension_id: "angle" }} /></> : rotation.summary}</small>{" "}
@@ -2630,7 +2630,7 @@ export function PipeViewport({
         ) : null}
         {deformation.state === "available" ? (
           <div className="viewport-deflection-label" data-testid="viewport-deflection-label">
-            {deflectionLabel(fullDeformation, deflectionCase?.label ?? null)}
+            {deflectionLabel(deformation, deflectionCase?.label ?? null)}
           </div>
         ) : null}
         <div className="viewport-scale-bar" data-testid="viewport-scale-bar">

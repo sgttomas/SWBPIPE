@@ -17,7 +17,7 @@ import {
 } from "./deformationOverlay";
 import { createFigureMaterial } from "./viewportFigureMaterial";
 import { registerInstancedRolePresentation, ViewportOwnershipLedger, ViewportResource } from "./viewportResource";
-import { deflectionLabel } from "./DeflectedShapeControls";
+import { deflectionLabel, deflectionSummaryScale } from "./DeflectedShapeControls";
 
 type Row = MechanicsResult["results"][number];
 
@@ -212,3 +212,52 @@ describe("the undeformed ghost", () => {
   });
 });
 
+
+// Review r1 (#1667) regressions.
+describe("the canvas states the drawn basis and scale", () => {
+  it("keeps the chosen case in a normalized fallback, and states the magnification drawn at a partial phase", async () => {
+    const { model, result } = await fixture();
+    const incomplete = solved(result.results.filter((row) => row.id !== "d:node:N-140:load:L-100:z"));
+    const fallback = buildDeformationOverlay(model, incomplete, { basisKey: L100, scale: { mode: "factor", factor: 100 }, modelLengthUnit: "m", modelExtent: 10 });
+    expect(fallback.scale).toEqual({ mode: "normalized" });
+    expect(deflectionLabel(fallback, "Case A")).toBe("Deformed · normalized, not to scale · Case A");
+    expect(deflectionLabel(buildDeformationOverlay(model, result), null)).toBe("Deformed · normalized, not to scale · governing case per node");
+
+    const full = buildDeformationOverlay(model, result, { basisKey: L100, scale: { mode: "factor", factor: 100 }, modelLengthUnit: "m", modelExtent: 10 });
+    const quarter = deformationAtPhase(model, full, 0.25);
+    expect(deflectionLabel(quarter, "Case A")).toBe("Deformed ×25, 25% of ×100 · Case A");
+    expect(deflectionSummaryScale(quarter)).toBe("×25");
+    expect(quarter.boundary).toContain("phase=0.25; drawn_factor=25");
+    expect(deflectionLabel(full, "Case A")).toBe("Deformed ×100 · Case A");
+  });
+});
+
+describe("a factor that cannot be drawn", () => {
+  it("falls back to the default with the reason instead of drawing non-finite geometry", async () => {
+    const { model, result } = await fixture();
+    const extreme = buildDeformationOverlay(model, result, { basisKey: L100, scale: { mode: "factor", factor: 1e308 }, modelLengthUnit: "mm", modelExtent: 10 });
+    expect(extreme.scale).toEqual({ mode: "factor", factor: extreme.defaultFactor, isDefault: true });
+    expect(extreme.factorNote).toContain("cannot be drawn: the shape would not be representable");
+    expect(extreme.factorNote).toContain("the default ×");
+    for (const offset of extreme.offsets.values()) expect([offset.x, offset.y, offset.z].every(Number.isFinite)).toBe(true);
+    for (const position of extreme.nodePositions.values()) expect([position.x, position.y, position.z].every(Number.isFinite)).toBe(true);
+    // Without a default, the drawing stays normalized and says both things.
+    const noDefault = buildDeformationOverlay(model, result, { basisKey: L100, scale: { mode: "factor", factor: 1e308 }, modelLengthUnit: "mm", modelExtent: 0 });
+    expect(noDefault.scale).toEqual({ mode: "normalized" });
+    expect(noDefault.factorNote).toContain("cannot be drawn");
+    expect(noDefault.factorNote).toContain("no positive extent");
+    for (const offset of noDefault.offsets.values()) expect([offset.x, offset.y, offset.z].every(Number.isFinite)).toBe(true);
+  });
+
+  it("gives a zero-extent model a reason and still takes an entered factor", async () => {
+    const { model, node, result } = await fixture();
+    const single = buildDeformationOverlay(model, result, { basisKey: L100, scale: { mode: "factor", factor: null }, modelLengthUnit: "m", modelExtent: 0 });
+    expect(single.scale).toEqual({ mode: "normalized" });
+    expect(single.defaultFactor).toBeUndefined();
+    expect(single.factorAccepted).toBe(true);
+    expect(single.factorNote).toContain("the model has no positive extent (for example a single node), so there is no default factor");
+    const entered = buildDeformationOverlay(model, result, { basisKey: L100, scale: { mode: "factor", factor: 10 }, modelLengthUnit: "m", modelExtent: 0 });
+    expect(entered.scale).toEqual({ mode: "factor", factor: 10, isDefault: false });
+    expect(entered.nodePositions.get("node:N-140")!.z).toBeCloseTo(node.position.z - 0.2, 12);
+  });
+});
