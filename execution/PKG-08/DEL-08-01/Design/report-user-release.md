@@ -58,6 +58,17 @@ decision, on exact-route results.
   (S2, §2.7). A14's New gives one code per surface (S3). The naming rule is
   applied throughout, including `user_released_at` and the statement (S4).
   §7 says where each finding is resolved.
+- **Codex round 2 at revision 4 (`1dce3ee2b2`: two should-fix, one
+  non-blocking; B1 and S1-S4 closed).** The reach scan now pins every call of
+  the renderer's and `pdf_emitter`'s document functions in the four crates
+  that can make one, rejects aliases, re-exports, function values and
+  closures, and has negative fixtures. The §2.8 table claims no more than the
+  scan establishes (S5, §2.8, §6). The admitting entry runs item 0 and the
+  user-released exact check before the derivation, so an exact document gets
+  `REPORT-USER-RELEASE-EXACT-ROUTE-NOT-ADMITTED` whatever its report. The
+  general entries' precedence is stated (S6, §2.8, §6). The runner's
+  refusal message names the triggering member from a closed set of three
+  paths (N1, §2.8). A1 is unchanged (§7).
 
 ## 0. Rulings
 
@@ -883,9 +894,11 @@ need none (`report_package/src/wire.rs:46-55`).
 9. **The derivation and the producer, in one call** (§2.6, §2.8). Route 010
    calls `report_package_bridge::assemble_user_released_request`, which calls
    the producer's one user-release entry,
-   `report_package::user_release::assemble_derived`. That entry first requires
-   the input manifest, then the whole request, to equal their derivations
-   canonically. Otherwise it refuses with
+   `report_package::user_release::assemble_derived`. That entry first runs
+   its preflight, item 0 and the user-released exact check (§2.8), which
+   reads no report member; on route 010, step 2a has already refused every
+   exact request. It then requires the input manifest, then the whole
+   request, to equal their derivations canonically. Otherwise it refuses with
    `REPORT-USER-RELEASE-CONTENT-NOT-DERIVED`, naming the first differing JSON
    pointer. Only then does it run the shared producer. No caller can reach
    the producer under the user-released profile without the derivation (§2.8).
@@ -1244,12 +1257,25 @@ inclusion.
 `wire::assemble_wire_request_in`, `wire.rs:366-408`). There, item 0 (the route
 preflight) and the report's object-form check run before `check_request_in`,
 unchanged:
-- **exact routes (§0):** directly after item 0, beside
+- **exact routes (§0):** a check of the same form as
   `exact_sections::check_runner_profile` (`bindings.rs:373`;
-  `exact_sections.rs:86-93`), a check of the same form refuses an exact
-  identity under `USER_RELEASED_DESKTOP_PROFILE` with
-  `REPORT-USER-RELEASE-EXACT-ROUTE-NOT-ADMITTED`. It reads only the profile and
-  the document's producer identity, so it refuses whatever the report carries.
+  `exact_sections.rs:86-93`), `exact_sections::check_user_released_profile(export_profile_id,
+  document)`, refuses an exact identity under `USER_RELEASED_DESKTOP_PROFILE`
+  with `REPORT-USER-RELEASE-EXACT-ROUTE-NOT-ADMITTED`. It reads only the
+  profile it is given and the document's producer identity, so it refuses
+  whatever the report carries. It runs in two places (Codex round 2 at
+  revision 4, S6):
+  - in the admitting entry's preflight, before the derivation, with the
+    profile constant rather than the request's profile (below, refusal 3).
+    This is where an exact document on the user-release path is refused;
+  - in `check_request_in`, in this order: item 0, `check_runner_profile`, the
+    general entries' marker refusal (refusal 2 below), then this check. Under
+    a general entry the marker refusal has already refused every request with
+    the user-released profile, so this check does not fire there. Under the
+    user-release entry the preflight has already run it on the same
+    documents, so it does not fire there either. It stays as the producer's
+    own statement of the rule at the point where the profile is admitted.
+
   Item 0's admitted set is not changed and no second `AdmittedSet` is made, so
   W-11's forwarding-graph scan (`admitted.rs:1-15`) still holds, with the one
   root that the admitting entry adds (below). One code
@@ -1323,8 +1349,12 @@ these holds:
    and the producer. The diagnostic is `HEADLESS_RUNNER_EXPORT_RESULTS_PAYLOAD_INVALID`
    with the message `REPORT-USER-RELEASE-RUNNER-NOT-ADMITTED: the headless
    runner packages no user-released report; only the desktop's route
-   DREP-PACKAGE-USER-RELEASE-010 builds one`. The message names the member that
-   carries the marker, never its value. The command exits 1, its output has no
+   DREP-PACKAGE-USER-RELEASE-010 builds one (marker: <member>)`. `<member>`
+   is one of a closed set of three fixed paths, one per marker above:
+   `export_profile_id`, `report.report_context.export_context` and
+   `report.report_context.user_release`. When more than one marker is
+   present, it is the first in that order. The message never carries the
+   member's value (Codex round 2 at revision 4, N1). The command exits 1, its output has no
    `report_package` and it writes no `--output` file, with or without
    `--explicit-local-private-intent` (`openpipestress-runner.rs:169`). One
    marker alone is enough, so the runner also refuses the profile without a
@@ -1338,17 +1368,55 @@ these holds:
    (`lib.rs:204`) are the public entries that the runner, route 009's bridge
    (`report_package_bridge::assemble_request`) and the tests call. Each
    refuses any marker with `REPORT-PACKAGE-USER-RELEASE-NOT-ADMITTED`. The
-   first two refuse directly after item 0, beside `check_runner_profile`; the
-   writer refuses before it renders.
+   first two refuse in `check_request_in`, after item 0 and
+   `check_runner_profile` and before the user-released exact check (the
+   order is under "exact routes" above); the writer refuses before it
+   renders.
+   - **Precedence for an exact document (Codex round 2 at revision 4, S6).**
+     A user-release request whose result document is exact never gets
+     `REPORT-USER-RELEASE-EXACT-ROUTE-NOT-ADMITTED` at a general entry:
+     - at `wire::assemble_wire_request` and `bindings::check_request`, it gets
+       item 0's own refusal if its identity is outside the admitted set, and
+       otherwise `REPORT-PACKAGE-USER-RELEASE-NOT-ADMITTED`. With the runner
+       profile and a record it gets W-11's
+       `REPORT-PACKAGE-EXACT-RUNNER-PROFILE` first, since that check runs
+       directly after item 0 as W-11 placed it;
+     - at `assemble_report_package_container` it gets
+       `REPORT-PACKAGE-USER-RELEASE-NOT-ADMITTED`, whatever its identity. The
+       writer's refusal runs before it renders, and so before the writer's
+       own item-0 check (`lib.rs:265`), which follows the render.
+     The reason: a general entry builds no user-released package of any
+     content, so what it owes the caller is that this is the wrong entry. The
+     exact-route code says why a user-released package refuses a result, and
+     only the admitting entry builds one. The marker refusal also reads only
+     the profile and two `report_context` members, so it too does not depend
+     on the rest of the report.
 3. **One admitting entry.** `report_package::user_release::assemble_derived(request,
    linked, basis)` is the only entry that admits the user-released profile.
-   - It computes `E(M, S, m, I, R, H, U)` (§2.6) itself, and requires the
-     input manifest and the whole request to equal it
+   - **Preflight, before the derivation (Codex round 2 at revision 4, S6).**
+     It first runs two checks on each result document, in this order. Neither
+     reads any member of the report:
+     1. item 0, through the public `document_form::check_route_admitted`
+        (`document_form.rs:47`, the production root), so an identity outside
+        the admitted set gets item 0's own refusal, as on every producer
+        entry, and item 0 still runs before any other check (W-11 §5.5). No
+        edge is added to W-11's forwarding graph, whose rows are the `_in`
+        variants;
+     2. `exact_sections::check_user_released_profile(USER_RELEASED_DESKTOP_PROFILE,
+        document)`, with the profile constant, not the request's profile. An
+        exact document is therefore refused with
+        `REPORT-USER-RELEASE-EXACT-ROUTE-NOT-ADMITTED` whatever the request's
+        profile, record or report carries, including a report that differs
+        from the derivation or is in positional form.
+   - Only after the preflight does it compute `E(M, S, m, I, R, H, U)` (§2.6),
+     and require the input manifest and the whole request to equal it
      (`REPORT-USER-RELEASE-CONTENT-NOT-DERIVED`).
    - It then calls `wire::assemble_wire_request_in` with `admitted::PRODUCTION`
      and a crate-private entry value, `ProducerEntry::UserRelease(DerivedUserRelease)`.
-     `DerivedUserRelease` has a private field, and only that derivation check
-     makes one. The general entries pass `ProducerEntry::General`, which
+     `DerivedUserRelease` has a private field and derives neither `Clone`,
+     `Copy` nor `Default`. Only the derivation check, the module-private
+     `user_release::check_derived`, constructs one, and only `assemble_derived`
+     calls that check (reach scan). The general entries pass `ProducerEntry::General`, which
      refuses every marker. `assemble_wire_request_in` forwards the entry to
      `check_request_in` and to `assemble_report_package_container_in`, so the
      writer admits a record only under the user-release entry.
@@ -1368,7 +1436,8 @@ producer does what it can express:
 - the checks that need the session stay in native admission (§2.5 steps 5-8):
   model screening against the local store and solve attestation against the
   registry;
-- a scan pins the one admitting entry to its one caller.
+- a scan pins the one admitting entry to its one caller, and every renderer
+  and PDF call in the crates that can make one to its allowed callers.
 
 **No second admitted set.** `AdmittedSet` and `PRODUCTION` do not change. The
 entry value is not an admitted set and changes no item-0 decision. W-11's
@@ -1377,22 +1446,117 @@ row for `assemble_wire_request_in` gains one root,
 `("user_release.rs", "assemble_derived", Arg::Production)`, and no variant
 becomes `pub fn`.
 
-**The reach scan** (`user_release_reach_scan`, a `src-tauri` test). It uses
-`forwarding_graph_scan`'s test-item removal, as `report_render_exact_tests.rs`
-does (`:14-22`), and asserts:
-- in non-test source, `user_release::assemble_derived` is called only by
-  `report_package_bridge::assemble_user_released_request`, and that function
-  only by route 010's branch of `report_package_save.rs`;
-- no source under `core/runner` calls either function;
+**The reach scan** (`user_release_reach_scan`, a `src-tauri` test; extended
+after Codex round 2 at revision 4, S5). It reads the non-test source of four
+crates: `apps/desktop/src-tauri/src`, `core/reporting/report_package/src`,
+`core/reporting/pdf_emitter/src` and `core/reporting/report_renderer/src`.
+Non-test source is as `forwarding_graph_scan` defines it (`non_test_source`,
+with comments removed by `code_of`), which `report_render_exact_tests.rs`
+already includes by path (`:14-22`). The scan applies that module's call-site
+rule (`forwarding_graph_scan.rs:13-17,169-220`): a scanned name may occur only
+in its definition and in direct calls (`name(`), and each call is attributed
+to its enclosing function.
+
+*Scanned functions and their allowed callers.* Each allowed caller calls the
+function exactly once. "None" means no call anywhere in the four crates'
+non-test source. Lines are at the basis.
+
+| Function (crate) | Allowed callers | Path the call must go through |
+|---|---|---|
+| `render_calculation_report` (renderer, `report_renderer/src/lib.rs:2002`) | `emit_calculation_report_pdf` and `assemble_full_report_package` (pdf_emitter, `pdf_emitter/src/lib.rs:130,197`); `render_calculation_report_value` (`src-tauri/src/lib.rs:1601`) | pdf_emitter's two callers: the rows below. `render_calculation_report_value`: the render-command refusal, before it decodes (below) |
+| `assemble_report_sections` (renderer, `:730`) | `render_calculation_report` (renderer, `:2050`); `emit_pdf_document` (pdf_emitter, `:237`) | inside the render, behind its own gates; `emit_pdf_document`: the rows below |
+| `emit_pdf_document` (pdf_emitter, private, `:233`) | `pdf_from_render` (`:155`) | the row below |
+| `pdf_from_render` (pdf_emitter, `:138`) | `emit_calculation_report_pdf` (`:131`) and `assemble_full_report_package` (`:198`), each passing its own `input` and the render it has just made from that input | the rows below |
+| `emit_calculation_report_pdf` (pdf_emitter, `:129`) | none | none: it is unreachable from product code in these crates |
+| `assemble_full_report_package` (pdf_emitter, `:194`) | `assemble_report_package_container_in`, the writer (report_package, `lib.rs:236`) | the writer's callers, which W-11's graph pins (`admitted_tests.rs:46-53`): `assemble_report_package_container`, passing `ProducerEntry::General` (refusal 2, before it renders), and `wire::assemble_wire_request_in`, forwarding its own entry |
+| `wire::assemble_wire_request_in` (report_package) | W-11's row with its one added root: `wire::assemble_wire_request`, passing `ProducerEntry::General`, and `user_release::assemble_derived`, passing `ProducerEntry::UserRelease(derived)` | refusal 2 (in `check_request_in`), or the admitting entry |
+| `user_release::check_derived` (report_package) | `user_release::assemble_derived` | the preflight, then the derivation |
+| `user_release::assemble_derived` (report_package) | `report_package_bridge::assemble_user_released_request` (src-tauri) | the row below |
+| `report_package_bridge::assemble_user_released_request` (src-tauri) | route 010's branch of `report_package_save.rs` | native steps 1-8 |
+
+The scan also reads the entry argument (the one before `admitted`) at every
+call of `check_request_in`, `wire::assemble_wire_request_in` and
+`assemble_report_package_container_in`. It must be `ProducerEntry::General`
+at the three public roots (`check_request`, `assemble_wire_request` and
+`assemble_report_package_container`), the forwarded `entry` at the edges
+inside `assemble_wire_request_in`, and `ProducerEntry::UserRelease(derived)`
+only in `assemble_derived`.
+
+*How names are matched.* In `report_package`, `pdf_emitter` and the renderer a
+scanned name is matched as an identifier wherever it appears, as the module
+does. In `src-tauri` the bare name `render_calculation_report` is also the
+Tauri command's (`lib.rs:1569`, its handler entry at `:5076` and its command
+string at `:1573`). There the renderer's two functions are therefore matched
+in their qualified form, `open_pipe_stress_report_renderer::<name>`. Each
+pdf_emitter function, `check_derived` and `assemble_derived` is matched by
+name, since no `src-tauri` name collides with them. Rule (d) below keeps the
+bare name from referring to the renderer there.
+
+*Escapes rejected.* Each of these is a finding:
+- (a) any occurrence of a scanned name other than its definition or a direct
+  call by an allowed caller. This is the module's rule. It rejects:
+  - `use … as` (for example
+    `use open_pipe_stress_pdf_emitter::assemble_full_report_package as build;`);
+  - any `use`, `pub use` or `pub(crate) use` that names the function;
+  - a function value: `let f = pdf::assemble_full_report_package;`,
+    `.map(pdf::assemble_full_report_package)`, or a `fn`-pointer constant or
+    struct field initialized with it;
+  - a call from any other function, including a new `pub fn`, a trait method
+    or a nested `fn`;
+  - a call in a `macro_rules!` body, which has no enclosing function.
+
+  In `src-tauri`, a scanned name qualified by any other path (for example
+  `package::assemble_full_report_package`) is a finding too;
+- (b) a closure that holds a call. Each allowed call must stand at its
+  caller's top level: on a line one indentation step inside the caller's
+  `fn` line, with no closure bar (`|`) on that line. So
+  `let build = |input| pdf::assemble_full_report_package(input);`, or a call
+  inside a multi-line closure body, is a finding, and no closure can carry a
+  scanned function out of an allowed caller. Every allowed call at the basis
+  is such a statement (the lines cited in the table);
+- (c) a re-export by module, alias or glob. In `report_package` and
+  `pdf_emitter`, no `pub use`, `pub(crate) use`, `pub(super) use` or
+  `pub extern crate` item may name the renderer or pdf_emitter crate, its
+  local alias (`renderer`, `pdf`), or a glob of either: for example
+  `pub use pdf::*;` or `pub use open_pipe_stress_pdf_emitter as pdf;`. The one
+  exception is the re-export at the basis,
+  `pub use open_pipe_stress_report_renderer::serde_error_kind;`
+  (`report_package/src/lib.rs:64`), which names no scanned function. So no
+  dependent of `report_package`, the runner included, can name a renderer or
+  PDF function through it;
+- (d) in `src-tauri`'s non-test source, a `use` item that names the renderer
+  crate, the pdf_emitter crate or a scanned function, or that glob-imports
+  `open_pipe_stress_report_package`. At the basis there is none. The only
+  crate alias is `use open_pipe_stress_report_package as package;`
+  (`report_package_bridge.rs:2`), and (c) leaves that path with no renderer
+  or PDF function to name;
+- (e) a construction of `DerivedUserRelease` (a struct literal
+  `DerivedUserRelease {`) anywhere except `check_derived`, besides the
+  struct's own definition.
+
+A crate alias such as `use open_pipe_stress_pdf_emitter as pdf;`
+(`report_package/src/lib.rs:48`) or `use open_pipe_stress_report_renderer as
+renderer;` (`pdf_emitter/src/lib.rs:29`) is allowed. Rule (a) matches the
+function's own name, whatever path comes before it.
+
+*Also asserted:*
+- no source under `core/runner` calls `assemble_derived` or the bridge
+  function;
 - the project's Cargo manifests that depend on
   `open_pipe_stress_report_renderer` are exactly `src-tauri`'s, `pdf_emitter`'s
   and `report_package`'s, and only `report_package`'s depends on
-  `open_pipe_stress_pdf_emitter`;
-- in `src-tauri`'s non-test source, the renderer's `render_calculation_report`
-  is called only in `render_calculation_report_value`.
+  `open_pipe_stress_pdf_emitter`.
 
-A new caller or dependent fails the scan, so changing one is reviewed as a
-change to this boundary.
+A new caller, re-export or dependent fails the scan, so changing one is
+reviewed as a change to this boundary.
+
+*What the scan does not establish.* It pins the calls of the functions named
+above. It does not judge new code that would build a document without
+calling them: for example, a renderer function that writes HTML from the
+renderer's per-line helpers, or `report_package` code that writes the input
+itself. Such code never reaches the renderer's user-released class rule. It
+would bypass the render's gates in every context, not this design's alone,
+and it is reviewed as a change to the renderer or the producer.
 
 **Every path to the renderer's user-released class rule, at main plus this
 design.** The renderer applies that rule (§2.6) to any `user_released_report`
@@ -1404,7 +1568,7 @@ checked:
 | The runner's `export-results` | refusal 1, before the producer |
 | Route 009's save (`report_package_bridge::assemble_request`) | native step 3 (`REPORT-USER-RELEASE-NOT-THIS-ROUTE`), then refusal 2 |
 | The producer's public entries called from any other crate | refusal 2 |
-| `pdf_emitter`'s public entries (`emit_calculation_report_pdf`, `assemble_full_report_package`, `pdf_emitter/src/lib.rs:129,194`) | only `report_package` depends on `pdf_emitter`, and it calls them only from the writer, behind refusal 2 or the admitting entry (reach scan) |
+| Renderer and PDF calls inside `report_package` and `pdf_emitter`: `pdf_emitter`'s public functions (`emit_calculation_report_pdf`, `pdf_from_render`, `assemble_full_report_package`, `pdf_emitter/src/lib.rs:129,138,194`) and the renderer's `render_calculation_report` and `assemble_report_sections` | the reach scan's rows. Only `report_package` depends on `pdf_emitter`. Inside `pdf_emitter` the renderer is called only from `emit_calculation_report_pdf` and `assemble_full_report_package`, the first has no caller, and the second is called only by `report_package`'s writer. The writer is reached only from `assemble_report_package_container` (refusal 2) and `wire::assemble_wire_request_in`, which forwards refusal 2 or the admitting entry. No alias, re-export, function value or closure carries any of them elsewhere. This covers the calls of the functions named; new code that builds a document without them is outside the scan (above) |
 | The render command, pressure-free branch (`render_calculation_report_value`) | the render-command refusal below |
 | The render command, exact branch | `check_exact_render_context` (`report_render_exact.rs:139-147`) admits `local_private` only; a record under `local_private` is refused by the render-command refusal below |
 | Route 010 | the admitting entry, after native steps 1-8 |
@@ -2048,10 +2212,29 @@ leaves the sandbox directory empty, with no picker request.
     The same exact request on route 009, with its exact texts, is still
     admitted, and its lease grows by `parse_lease_bytes_with_exact` as at the
     parent head;
-  - **producer** (`tests/user_release_package.rs`): a user-released-profile
-    request with an exact document is refused with that code after item 0. The
-    W-11 forwarding-graph scans (`admitted_tests`, `report_render_exact_tests`)
-    pass unchanged;
+  - **producer** (`tests/user_release_package.rs`; Codex round 2 at
+    revision 4, S6). Each case is called through the public entry
+    `user_release::assemble_derived`, with a basis whose derivation is
+    coherent apart from the exact document:
+    - the derivation vector's expected request with its result document
+      replaced by the eligible exact document, once with the report
+      unchanged, once with a report that differs from the derivation (a
+      changed `report_title`), and once with the report in positional form.
+      Each returns `REPORT-USER-RELEASE-EXACT-ROUTE-NOT-ADMITTED`, never
+      `REPORT-USER-RELEASE-CONTENT-NOT-DERIVED` and never the object-form
+      code, and the message names no JSON pointer;
+    - the same, under the desktop local-private profile with no record: the
+      same code, since the preflight uses the profile constant;
+    - a `physics-retained-1` document: item 0's own refusal
+      (`REPORT-PACKAGE-ROUTE-NOT-ADMITTED`), before the exact check.
+
+    Through each general entry (`wire::assemble_wire_request`,
+    `bindings::check_request`, `assemble_report_package_container`), the
+    first request above gets `REPORT-PACKAGE-USER-RELEASE-NOT-ADMITTED`.
+    Through the first two, which run `check_runner_profile`, the same request
+    under the runner profile gets `REPORT-PACKAGE-EXACT-RUNNER-PROFILE` (§2.8,
+    "Precedence for an exact document"). The W-11 forwarding-graph scans (`admitted_tests`,
+    `report_render_exact_tests`) pass, with the one added root (§2.8);
   - **reader** (`tests/reader.rs`): a user-released package whose result
     member is an exact document, re-hashed coherently, is
     `OPSPROJ_USER_RELEASE_UNBOUND`.
@@ -2082,8 +2265,48 @@ leaves the sandbox directory empty, with no picker request.
     `assemble_derived` admits the coherent request, and refuses it once any
     member differs from the derivation. W-11's forwarding-graph scan passes
     with its one added root.
-  - **Reach scan:** `user_release_reach_scan` (§2.8) passes, and fails on an
-    invented added call site of `assemble_derived` outside the bridge.
+  - **Reach scan:** `user_release_reach_scan` (§2.8) passes on the real
+    sources and on an invented closed set of the four crates, and fails on an
+    invented added call site of `assemble_derived` outside the bridge. The
+    invented sources are string literals, as W-11's scans test theirs
+    (`report_render_exact_tests.rs:655-703`). Each change below, made alone to
+    an existing dependent in the invented set, must be a finding (Codex round
+    2 at revision 4, S5):
+    - in `report_package`'s `lib.rs`, a new
+      `pub fn forward(input: &renderer::RenderableReportInput)` whose body is
+      `pdf::assemble_full_report_package(input)`;
+    - in `report_package`, a new `pub fn` that calls
+      `pdf::emit_calculation_report_pdf`, one that calls
+      `renderer::render_calculation_report`, and one that calls
+      `pdf::pdf_from_render` with a fabricated `RenderOutcome`;
+    - in `pdf_emitter`, a new `pub fn` that calls
+      `renderer::render_calculation_report`, and one that calls
+      `pdf_from_render` or `renderer::assemble_report_sections`;
+    - a second call of `pdf::assemble_full_report_package` in the writer;
+    - `use open_pipe_stress_pdf_emitter::assemble_full_report_package as build;`
+      with a call `build(input)` in a new function;
+    - `pub use open_pipe_stress_pdf_emitter::assemble_full_report_package;`,
+      `pub use pdf::*;` and `pub use open_pipe_stress_pdf_emitter as pdf;` in
+      `report_package`'s `lib.rs`;
+    - a function value: `const BUILD: fn(&renderer::RenderableReportInput) ->
+      pdf::FullReportPackageOutcome = pdf::assemble_full_report_package;`, and
+      `std::iter::once(input.report).map(pdf::assemble_full_report_package)`
+      in the writer in place of its direct call;
+    - in the writer, `let build = |input| pdf::assemble_full_report_package(input);`
+      in place of its direct call, and the same call inside a multi-line
+      closure body;
+    - the same call inside a `macro_rules!` body in `report_package`;
+    - in `src-tauri`, a call of `package::assemble_full_report_package` (the
+      shape a glob re-export would allow), a
+      `use open_pipe_stress_report_renderer::render_calculation_report;`, and a
+      second `open_pipe_stress_report_renderer::render_calculation_report` call
+      outside `render_calculation_report_value`;
+    - a `DerivedUserRelease { … }` literal outside `check_derived`, and a call
+      of `check_derived` outside `assemble_derived`;
+    - `ProducerEntry::UserRelease(derived)` passed to
+      `wire::assemble_wire_request_in` from a function other than
+      `assemble_derived`, and `ProducerEntry::UserRelease` in place of
+      `ProducerEntry::General` at a public root.
   - **Render command:** a pressure-free `local_private` input with a
     `user_release` member, and an exact `local_private` input with one, are
     each refused with `RENDER-USER-RELEASE-PACKAGE-ONLY`, with no body.
@@ -2359,6 +2582,45 @@ leaves the sandbox directory empty, with no picker request.
     - "software release", for the owner's act;
     - "release their own project data" and "release my project data", which
       are the allowed "release your project data" in another person.
+- Round 2 at revision 4 (Codex, `1dce3ee2b2`; B1 and S1-S4 closed, the B1
+  mechanism sound):
+  - S5, the reach scan's coverage: the scan now reads the non-test source
+    of `src-tauri`, `report_package`, `pdf_emitter` and the renderer. It pins
+    each call of `render_calculation_report`, `assemble_report_sections`,
+    `emit_pdf_document`, `pdf_from_render`, `emit_calculation_report_pdf` and
+    `assemble_full_report_package` to its allowed callers, by function, each
+    called once, with the path each must go through. Within `report_package`
+    the one caller is the writer, behind refusal 2 or the admitting entry. It
+    also pins the producer-entry argument at each producer call, and the one
+    constructor of `DerivedUserRelease`. It rejects aliases, `use` and
+    `pub use` items, module and glob re-exports, function values, closures
+    and macro bodies. The §2.8 table's row now claims what the scan
+    establishes, and the scan's limit is stated (§2.8, "The reach scan").
+    The negative fixtures are in §6 (`user_release_runner_refused`, "Reach
+    scan");
+  - S6, derivation-first ordering: `assemble_derived` now runs a preflight
+    before the derivation. Item 0 runs through the public
+    `check_route_admitted`, then `check_user_released_profile` runs with the
+    profile constant. So an exact document gets
+    `REPORT-USER-RELEASE-EXACT-ROUTE-NOT-ADMITTED` whatever the report
+    carries. At the general entries, the marker refusal comes before the
+    user-released exact check, so they give
+    `REPORT-PACKAGE-USER-RELEASE-NOT-ADMITTED`, with the stated exceptions
+    for item 0 and W-11's runner-profile check, and the reason for that
+    order (§2.8, "exact routes" and "Precedence for an exact document"). The
+    regression calls the public entry with an exact document and a report
+    that differs from the derivation (§6, `user_release_exact_route_refused`,
+    producer). A1 is unchanged. Its clause "an exact-route result is refused
+    on that route … by the shared producer
+    (`REPORT-USER-RELEASE-EXACT-ROUTE-NOT-ADMITTED`)" concerns route 010,
+    whose only producer entry is `assemble_derived`. That entry now gives
+    this code for every exact document, whatever the report carries, so the
+    clause is exactly true;
+  - N1, the runner's message: the exact proposed message ends
+    `(marker: <member>)`. `<member>` is one of three fixed paths:
+    `export_profile_id`, `report.report_context.export_context` and
+    `report.report_context.user_release`. If more than one is present, the
+    first in that order is named (§2.8, refusal 1).
 
 **Open.** None. Every decision this design rests on is settled.
 
@@ -2369,18 +2631,20 @@ leaves the sandbox directory empty, with no picker request.
 | **(r1) Vocabulary and redaction** | The context, reason codes and route id in TypeScript, Python, the Rust mirror and the schema; the decision order of §3.2 (steps 10-13); the flag assertion; the local-first rule; the user-release projector (nearest-metadata labelling; unused until r3); corpus cases, the pinned-digest tests and `existing_contexts_preserve_raw_intent_named_members`. No route uses the context. | M (~650 lines with tests) | Data boundary (vocabulary only) |
 | **(r2a) Solve attestation** | The worker's streamed digests, the `ATST` frame, the registry table, clearing and bounds, the memory-budget text with the digest passes' transient pieces (§2.4), its measurement and the allocation checks, tests. No rule-check attestation. | S (~450) | Data boundary; DEL-04-07 memory accounting; no priced file |
 | **(r2b) Derivation and refusals** | `report_package::user_release`: Rust builders of the input manifest, the document base and origin, the minimal renderer input, and the audit and top-level members; the library rules 1-3 of §2.7, including the legacy hanger form, its embedded-JSON parse and lease, in `src-tauri` beside `export_disposition_screen`; the rule-pack and private-class rules (library rule 1 counting a non-object `library_ref` by its own detector at both layers, `library_ref_member_sites` and `libraryRefMemberSites`); the run-record checks (Record Run's, factored); the derivation's use of the shared display, row-checksum, unit-summary and diagnostics functions (§2.6); the derivation vectors and their vitest and Rust parity, `user_release_display_rule` among them; `user_release_legacy_hanger_selection_refused`. | M (~1.07k) | **Data boundary** (what may be shared) |
-| **(r2c) Record, renderer, producer, writer, reader, native** | `UserReleaseRecord`; context and blocking codes; the renderer's user-released class rule for provenance records (§2.6); notice and rows in HTML and PDF; producer items 8 and 10, the profile, the handoff rule and the exact-route refusal after item 0; writer manifest, content binding, notes and member rule; reader checks, cardinality, the pressure-free-only check and refusal; native route-010 branch (§2.5 steps 1-10, step 2a included) with the run-record text and the outer command's route-aware `ingress_lease_bytes`; the render-command refusal of the context and of a record; the user-release markers' refusals in the runner's `export-results` and the producer's general entries, the one admitting entry `user_release::assemble_derived` with its bridge function, and `user_release_reach_scan` (§2.8); the Rust tests of §6, `user_release_exact_route_refused`, `user_release_runner_refused` (with its CLI pytest) and `user_release_render_admits_only_the_user_released_class` among them. The desktop does not offer it yet. | M-L (~1.5k) | **Persistence** (manifest, member set and reader) and **data boundary** (native admission) |
+| **(r2c) Record, renderer, producer, writer, reader, native** | `UserReleaseRecord`; context and blocking codes; the renderer's user-released class rule for provenance records (§2.6); notice and rows in HTML and PDF; producer items 8 and 10, the profile, the handoff rule and the exact-route refusal after item 0; writer manifest, content binding, notes and member rule; reader checks, cardinality, the pressure-free-only check and refusal; native route-010 branch (§2.5 steps 1-10, step 2a included) with the run-record text and the outer command's route-aware `ingress_lease_bytes`; the render-command refusal of the context and of a record; the user-release markers' refusals in the runner's `export-results` and the producer's general entries, the one admitting entry `user_release::assemble_derived` with its bridge function, and `user_release_reach_scan` (§2.8); the Rust tests of §6, `user_release_exact_route_refused`, `user_release_runner_refused` (with its CLI pytest) and `user_release_render_admits_only_the_user_released_class` among them. The desktop does not offer it yet. | M-L (~1.6k) | **Persistence** (manifest, member set and reader) and **data boundary** (native admission) |
 | **(r3) Desktop** | Dialog, panel button, menu item (webview and native menu), session wiring and modal guard, the route-010 builders, the user-release cell and the dialog's exact-route line (§2.2), the early reference check (the three rules of §2.7), the dialog's reliance line, save-service evidence and the run-record text, receipt display, vitest (the webview cases of `user_release_exact_route_refused` included), native smoke step. | M (~930) | Data boundary (webview evidence) and file output |
 
 The order is (r1), then (r2a) and (r2b) in either order or together, then
 (r2c), then (r3). (r2c) needs (r2a) and (r2b) in its ancestry; (r3) offers the
 user release and needs (r2c). (r2c) and (r3) may land as one PR if review
-prefers. The total is about 4.6k lines (4.1k at revision 2; the legacy
+prefers. The total is about 4.7k lines (4.1k at revision 2; the legacy
 detector, its regressions and the allocation checks add about 250; revision 4's
 exact-route refusal, the renderer's user-released class rule and their regressions
 add about 110; Codex round 1 at revision 4 adds about 140 for the runner and
 producer refusals, the reach scan, the outer command's pricing and the
-non-object `library_ref` detectors), down from about 5.8k for revision 1's
+non-object `library_ref` detectors; Codex round 2 at revision 4 adds about
+80 for the reach scan's extension, its negative fixtures and the admitting
+entry's preflight), down from about 5.8k for revision 1's
 full scope. The savings are:
 - the builder mirrors (no component, hanger or rule-pack entries, no handoff
   sections, no analysis-record rebuild);
@@ -2543,7 +2807,7 @@ change's edit.
 
 Each Old is copied byte-exact from its file. At revision 4 each was re-checked
 with a Python `count == 1` against main `2e4748eada`, the design's basis, and
-again after Codex round 1 at revision 4: all fourteen count 1, at the lines
+again after Codex rounds 1 and 2 at revision 4: all fourteen count 1, at the lines
 below. Line
 numbers are where the Old begins. In an Old or New, `\n` stands for a line break
 and `\"` for a quotation mark inside the quoted text. These drafts go to Codex
@@ -2599,6 +2863,10 @@ the News changed.
 - A7's detector now reads "a `library_ref` member at any depth, whatever its
   value" and "a `library_ref` member or a string" (S2).
 - A14's New was reordered (S3).
+
+**After Codex round 2 at revision 4.** No Old or New changed. A1's producer
+clause stays exactly true once the admitting entry's preflight is in place
+(§7, S6).
 
 **A1. DEL-08-01 `ScopeOfWork.md` :81** (current-implementation paragraph, last sentence; slice r3; depends on: scope R, O-D, O-F, exact routes under R, settled) — *changed in revision 4*
 - Old: "Every other identity is refused."
