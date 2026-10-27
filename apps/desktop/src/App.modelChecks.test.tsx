@@ -142,3 +142,38 @@ await act(async()=>release({checked:true,diagnostics:[{id:"OLD_PROJECT",code:"OL
 expect(screen.queryByTestId("model-check-OLD_PROJECT")).toBeNull();
 expect(busy).toBe("false");
 });
+
+// Codex review r3 of #1665: a new project session cancels a native check in
+// progress, so the native host kills its worker and releases its grant; with no
+// check in progress nothing is cancelled.
+it("a new project session cancels the native check in progress", async () => {
+  let release: (value: unknown) => void = () => {};
+  const commands: string[] = [];
+  invokeMock.mockImplementation((command: string) => {
+    commands.push(command);
+    if (command === "sync_native_shell_state") return Promise.resolve(undefined);
+    if (command === "dispose_all_preview_mechanics_results") return Promise.resolve({ released_results: 0, released_bytes: 0, abandoned_jobs: 0 });
+    if (command === "check_preview_model") return new Promise((resolve) => { release = resolve; });
+    if (command === "cancel_model_checks") return Promise.resolve(true);
+    throw new Error(`Unexpected command ${command}`);
+  });
+  render(<App />);
+  await screen.findByTestId("desktop-preview-shell");
+  (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+  const cancels = () => commands.filter((command) => command === "cancel_model_checks").length;
+  expect(cancels()).toBe(0);
+  act(() => nativeMenuCommand("analyze.check-model"));
+  await waitFor(() => expect(commands).toContain("check_preview_model"));
+  // The blank project is made in the browser path; the check was native.
+  delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
+  act(() => nativeMenuCommand("file.new-blank"));
+  fireEvent.click(await screen.findByTestId("project-units-create"));
+  await waitFor(() => expect(screen.getByTestId("toolbar-project-name")).toHaveTextContent("Blank Local Model"));
+  await waitFor(() => expect(cancels()).toBe(1));
+  await act(async () => release({ checked: true, diagnostics: [], diagnostics_not_shown: 0, slot_findings: [], slot_findings_not_shown: 0 }));
+  // A later session change with no check in progress cancels nothing.
+  act(() => nativeMenuCommand("file.new-blank"));
+  fireEvent.click(await screen.findByTestId("project-units-create"));
+  await waitFor(() => expect(screen.queryByTestId("project-units-create")).toBeNull());
+  expect(cancels()).toBe(1);
+});

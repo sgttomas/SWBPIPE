@@ -161,6 +161,12 @@ function summaryText(run: ModelCheckRun): string {
   const count = (severity: string) => run.findings.filter((item) => item.diagnostic.severity === severity).length;
   const blocking = count("blocking") + count("error");
   const total = run.findings.length;
-  if (total === 0) return run.solve.kind === "checked" ? "The checks found nothing to report." : "The checks that ran found nothing to report.";
-  return `${total} ${total === 1 ? "finding" : "findings"}: ${blocking} blocking or error, ${count("warning")} ${count("warning") === 1 ? "warning" : "warnings"}, ${count("info")} info.`;
+  const omitted = notShownTotal(run);
+  // Codex review r3 of #1665: a run whose findings were all counted rather
+  // than listed has findings; it is not an empty result.
+  const omittedBlocking = `${run.notShownBlocking} of them blocking or error`;
+  if (total === 0 && omitted === 0) return run.solve.kind === "checked" ? "The checks found nothing to report." : "The checks that ran found nothing to report.";
+  if (total === 0) return `${omitted} ${omitted === 1 ? "finding" : "findings"}, none listed; ${omittedBlocking}.`;
+  const listed = `${total} ${total === 1 ? "finding" : "findings"}: ${blocking} blocking or error, ${count("warning")} ${count("warning") === 1 ? "warning" : "warnings"}, ${count("info")} info.`;
+  return omitted > 0 ? `${listed} ${omitted} more not listed; ${omittedBlocking}.` : listed;
 }

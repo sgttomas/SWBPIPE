@@ -86,6 +86,9 @@ fn the_report_is_bounded_whatever_the_model() {
     let unbounded = serde_json::to_string(&solved).unwrap().len();
     eprintln!("bounded report {} bytes, {} shown, {} not shown; unbounded findings {unbounded} bytes", text.len(), shown.len(), report["diagnostics_not_shown"]);
     assert!(unbounded > MODEL_CHECKS_MAX_RESPONSE_BYTES && report["diagnostics_not_shown"].as_u64().unwrap() > 0);
+    let blocking = |findings: &[Value]| findings.iter().filter(|d| matches!(d["severity"].as_str(), Some("blocking" | "error"))).count() as u64;
+    // Codex r3: the findings not shown are counted with their severity.
+    assert_eq!(report["diagnostics_not_shown_blocking"].as_u64(), Some(blocking(&solved[shown.len()..])));
 
     // Codex r2: a 3,008-byte support id stays whole, so its finding still names the support.
     let mut model: Value = serde_json::from_str(BUNDLED_DEMO).unwrap();
@@ -98,6 +101,18 @@ fn the_report_is_bounded_whatever_the_model() {
     let solve = solve.iter().find(|d| d["code"] == "SUPPORT_FAMILY_INVALID").unwrap();
     assert_eq!(finding["id"], solve["id"], "the diagnostic id is kept whole");
 
+    // Codex r3: a support id of 1.1 million characters cannot be listed whole,
+    // so its blocking finding is counted, as blocking, rather than listed.
+    let mut model: Value = serde_json::from_str(BUNDLED_DEMO).unwrap();
+    model["supports"] = json!([{"id": format!("support:{}", "x".repeat(1_100_000)), "node": node, "family": "review_unknown", "restraints": ["UX"], "provenance": "review_invented"}]);
+    let report = model_checks(&model);
+    let solved = solve_diagnostics(&model);
+    let listed = report["diagnostics"].as_array().unwrap();
+    assert!(listed.iter().all(|d| d["code"] != "SUPPORT_FAMILY_INVALID"));
+    assert!(report["diagnostics_not_shown"].as_u64().unwrap() >= 1);
+    assert_eq!(report["diagnostics_not_shown_blocking"].as_u64(), Some(blocking(&solved[listed.len()..])));
+    assert!(report["diagnostics_not_shown_blocking"].as_u64().unwrap() >= 1, "{}", report["diagnostics_not_shown_blocking"]);
+
     // Codex r2: 4,000 assumptions naming missing entities flood the slot checks; they share the bound.
     let mut model: Value = serde_json::from_str(BUNDLED_DEMO).unwrap();
     model["unresolved_assumptions"] = Value::Array((0..4_000).map(|i| json!({"assumption_id": format!("assumption:review-{i}"), "kind": "assumption", "status": "unresolved", "statement": "Invented probe", "affected_refs": [format!("missing:{}", "x".repeat(600))]})).collect());
@@ -107,6 +122,8 @@ fn the_report_is_bounded_whatever_the_model() {
     let slot_shown = report["slot_findings"].as_array().unwrap().len();
     assert_eq!(slot_shown as u64 + report["slot_findings_not_shown"].as_u64().unwrap(), slots.len() as u64);
     assert!(report["slot_findings_not_shown"].as_u64().unwrap() > 0, "{} slot findings, {slot_shown} shown", slots.len());
+    let omitted_blocking = slots[slot_shown..].iter().filter(|f| f.severity == "blocking").count() as u64;
+    assert_eq!(report["slot_findings_not_shown_blocking"].as_u64(), Some(omitted_blocking));
 
     // A long text the solve quotes in its refusal is cut on a character boundary and marked.
     let long = json!("révïew".repeat(200_000));

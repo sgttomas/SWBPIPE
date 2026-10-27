@@ -65,12 +65,13 @@ hard-coded model-version fixtures follow the 0.8.0 documents.
 ## Desktop
 
 - **Report.** `operation_applier/src/model_checks.rs` returns
-  `{document_kind: "openpipestress.desktop.model_checks", checked, diagnostics, diagnostics_not_shown, slot_findings, slot_findings_not_shown}`;
+  `{document_kind: "openpipestress.desktop.model_checks", checked, diagnostics, diagnostics_not_shown, diagnostics_not_shown_blocking, slot_findings, slot_findings_not_shown, slot_findings_not_shown_blocking}`;
   with `checked: false` it carries the solve's own refusal text in `refusal`
   (with `refusal_truncated` when shortened) and no solve findings, and the slot
   checks still run. The report is bounded whatever the model: at most 1 MiB of
   serialized findings, the solve's first and then the slot checks', each list
-  in its checks' order, and a count of each list's findings left out. Only
+  in its checks' order, and a count of each list's findings left out, with
+  how many of them are blocking or errors. Only
   display text is shortened: a finding's message, cut at 2 KiB on a character
   boundary (the finding is then marked `truncated`), and a refusal's text.
   Machine identifiers (ids, codes, severities, sources, paths and affected
@@ -79,7 +80,11 @@ hard-coded model-version fixtures follow the 0.8.0 documents.
   counted as not shown rather than altered (Codex review r2 of #1665: a
   shortened 3,008-byte support id had made its finding unselectable). The
   library-reference findings take what the report leaves of the bound. The
-  panel states how many were left out and marks shortened text.
+  panel states how many were left out, and how many of those are blocking or
+  errors, and marks shortened text. A run whose findings were all left out is
+  not called empty (Codex review r3 of #1665: a support id of 1.1 million
+  characters had left one blocking finding counted and the summary saying the
+  checks found nothing).
 - **Memory (DEL-04-07).** Model-sized work follows the memory-budget decision
   (`memory-budget-decision.md`, "On-demand model checks"):
   - in the app, the checks run as a solve runs: `check_preview_model` takes a
@@ -92,7 +97,14 @@ hard-coded model-version fixtures follow the 0.8.0 documents.
     found in review r2. A refusal at intake, at the starting grant or while
     the worker runs leaves the checks not run, and the panel names it. The
     starting grant waits for a worker slot or headroom as a solve's does, for
-    at most 2 s; the check has no job record;
+    at most 2 s; the check has no job record. At most one check is in
+    progress: a newer check, a project-session change (`cancel_model_checks`)
+    and a session reset (page load) each cancel it as a solve is cancelled,
+    so a waiting check stops waiting and a running check's worker is killed
+    and its grant released after the reap (Codex review r3: an abandoned
+    check had kept 68,157,440 bytes reserved after its request was retired).
+    When the app exits, the worker ends itself on its parent's exit, as a
+    solve's does;
   - in the browser preview, which has no pool, the wasm engine's
     `model_checks_json` checks a model text of at most 4 MiB, counted in UTF-8
     bytes, and refuses a longer one `MODEL-CHECKS-INPUT-TOO-LARGE` before
@@ -112,7 +124,7 @@ hard-coded model-version fixtures follow the 0.8.0 documents.
   (`features/diagnostics/modelChecks.ts`) on the session model; while the
   native check runs, the panel's button reads **Running model checks** and is
   `aria-disabled`. A later run or a new project session supersedes a run still
-  in progress.
+  in progress and cancels its native check.
 - **List.** `features/diagnostics/ModelChecksPanel.tsx`, at the top of the
   Issues drawer:
   - findings are grouped by check, each with its own code, severity and
@@ -152,7 +164,9 @@ hard-coded model-version fixtures follow the 0.8.0 documents.
   3,008-byte support id stays whole; 4,000 assumptions naming missing
   entities flood the slot checks within the same bound; a
   1.2-million-character string refusal is cut to 2 KiB and marked; the
-  browser bound refuses one byte over.
+  browser bound refuses one byte over. The findings left out are counted with
+  their severity: a 1.1-million-character support id leaves its blocking
+  finding counted as blocking.
 - `apps/desktop/src-tauri/src/solve_jobs.rs`:
   `model_checks_run_in_a_capped_worker_whatever_the_fan_out` (Codex r2's 1-,
   16- and 64-pipe load-state fan-out shapes complete in the worker with the
@@ -161,6 +175,13 @@ hard-coded model-version fixtures follow the 0.8.0 documents.
   `model_checks_refuse_by_type_at_the_invocation_budget` (Codex r2's budget
   probe: the intake refused `ingress_exceeds_budget`; a budget the 64-pipe
   check outgrows ends its worker with a typed worker refusal).
+  `model_checks_wait_for_a_worker_slot_then_refuse_by_type`: the starting
+  grant waits in the solve's queue for its 2 s window, then is refused
+  `worker_limit_reached`. Cancellation (Codex r3):
+  `a_session_reset_cancels_a_running_check_and_releases_its_grant`,
+  `a_newer_check_cancels_the_one_in_progress` and
+  `a_solve_queued_behind_a_cancelled_check_starts` (which also cancels a
+  check still waiting for its starting grant).
 - `apps/desktop/src/features/diagnostics/modelChecks.test.ts`, through the
   built wasm engine:
   - the topology warning, linked to its node;
@@ -174,14 +195,18 @@ hard-coded model-version fixtures follow the 0.8.0 documents.
     reaching the engine, counted in UTF-8 bytes (1,500,000 CJK characters);
   - a long support id kept whole, so its finding selects the support;
   - no slot validation after a native refusal or over the browser bound, and
-    a slot flood listed within the bound with the rest counted.
+    a slot flood listed within the bound with the rest counted;
+  - the blocking findings left out counted in every group (a
+    1.1-million-character support id; library findings past the bound).
 - `apps/desktop/src/features/diagnostics/ModelChecksPanel.test.tsx`:
   - grouping, codes and text;
   - selection, and no selection for a finding that names no entity;
   - arrow, Home and End navigation;
   - focus moving to a new run's outcome once;
   - the out-of-date note and the not-run statement;
-  - the left-out count, shortened text and a run in progress.
+  - the left-out count, shortened text and a run in progress;
+  - a run whose findings were all left out stated as such, with how many are
+    blocking, not as empty.
 - `apps/desktop/src/App.modelChecks.test.tsx`, in the full shell:
   - the menu item shows ⇧⌘M;
   - ⇧⌘M runs the checks and opens the Issues drawer with focus on the
@@ -191,4 +216,6 @@ hard-coded model-version fixtures follow the 0.8.0 documents.
   - the native menu command runs the checks too;
   - of overlapping native checks, the latest request's report is the one
     shown, in either completion order;
-  - a new project retires a check in progress and its busy state.
+  - a new project retires a check in progress and its busy state, and
+    cancels the native check (`cancel_model_checks`), once; a later project
+    change with no check in progress cancels nothing.

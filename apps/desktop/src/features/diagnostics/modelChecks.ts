@@ -12,6 +12,7 @@
 //   within what the report leaves of its bound.
 // Running them never changes the model: each reads a copy of its JSON text or
 // the model value as it stands.
+import { invoke } from "@tauri-apps/api/core";
 import type { Diagnostic, EntityRef, PreviewModel } from "../../types";
 import { loadedWasmEngine, WASM_ENGINE_BUILD_COMMAND } from "../../services/wasmEngine/loadWasmEngine";
 import { invokeWithIngress, nativeFailureText } from "../../services/nativeIngress";
@@ -50,6 +51,8 @@ export type ModelCheckRun = Readonly<{
   findings: readonly ModelCheckFinding[];
   /** Findings past the report's bound in each group, counted but not listed. */
   notShown: Readonly<Record<ModelCheckGroupId, number>>;
+  /** How many of the findings not listed, in all groups, are blocking or errors. */
+  notShownBlocking: number;
 }>;
 
 /** The browser engine's input bound, as the engine itself refuses above it
@@ -65,9 +68,12 @@ type ModelChecksReport = {
   checked?: boolean;
   diagnostics?: Array<Diagnostic & { truncated?: boolean }>;
   diagnostics_not_shown?: number;
+  /** How many of the solve findings not shown are blocking or errors. */
+  diagnostics_not_shown_blocking?: number;
   /** The slot findings, already in the Diagnostics list's shape (id, code, severity, message, affected_refs, source, path). */
   slot_findings?: Array<Diagnostic & { path?: string; truncated?: boolean }>;
   slot_findings_not_shown?: number;
+  slot_findings_not_shown_blocking?: number;
   refusal?: string;
   refusal_truncated?: boolean;
   refusal_code?: string;
@@ -79,12 +85,13 @@ type EngineChecks = {
   solve: Diagnostic[];
   slots: Diagnostic[];
   notShown: { solve: number; slots: number };
+  notShownBlocking: number;
   /** The report's serialized findings, counted against the bound. */
   bytes: number;
 };
 
 function unavailable(reason: string): EngineChecks {
-  return { outcome: { kind: "unavailable", reason }, solve: [], slots: [], notShown: { solve: 0, slots: 0 }, bytes: 0 };
+  return { outcome: { kind: "unavailable", reason }, solve: [], slots: [], notShown: { solve: 0, slots: 0 }, notShownBlocking: 0, bytes: 0 };
 }
 
 /** The UTF-8 length of `text`, counted without encoding it; it stops counting
@@ -105,6 +112,19 @@ export function utf8ByteLength(text: string, limit = Number.MAX_SAFE_INTEGER): n
     } else bytes += 3;
   }
   return bytes;
+}
+
+/** Cancels the native check in progress (`cancel_model_checks`): the native
+ * host kills its worker and releases the worker's grant, as for a cancelled
+ * solve. The session calls it when the project session changes, which retires
+ * the check's request; a newer check and a page load cancel it natively. Best
+ * effort; never throws. */
+export async function cancelNativeModelChecks(): Promise<void> {
+  try {
+    await invoke("cancel_model_checks");
+  } catch {
+    // Best effort: the next check or page load cancels it too.
+  }
 }
 
 /** The engine's checks for `model`: the solve's checks before stiffness
@@ -148,10 +168,12 @@ export async function engineModelChecks(model: PreviewModel): Promise<EngineChec
     solve: typeof report.diagnostics_not_shown === "number" ? report.diagnostics_not_shown : 0,
     slots: typeof report.slot_findings_not_shown === "number" ? report.slot_findings_not_shown : 0
   };
+  const count = (value: unknown) => (typeof value === "number" ? value : 0);
+  const notShownBlocking = count(report.diagnostics_not_shown_blocking) + count(report.slot_findings_not_shown_blocking);
   const outcome: SolveChecksOutcome = report.checked
     ? { kind: "checked" }
     : { kind: "refused", refusal: report.refusal ?? "the solve could not read the model" };
-  return { outcome, solve, slots, notShown, bytes };
+  return { outcome, solve, slots, notShown, notShownBlocking, bytes };
 }
 
 function entityFor(model: PreviewModel, diagnostic: Diagnostic): EntityRef | null {
@@ -170,12 +192,14 @@ export async function runModelChecks(model: PreviewModel, libraryReferenceDiagno
   const engine = await engineModelChecks(model);
   let library: Diagnostic[] = [];
   let libraryNotShown = 0;
+  let libraryNotShownBlocking = 0;
   if (engine.outcome.kind !== "unavailable") {
     let remaining = MODEL_CHECKS_MAX_RESPONSE_BYTES - engine.bytes;
     for (const diagnostic of libraryReferenceDiagnostics()) {
       const length = utf8ByteLength(JSON.stringify(diagnostic)) + 1;
       if (libraryNotShown > 0 || length > remaining) {
         libraryNotShown += 1;
+        if (diagnostic.severity === "blocking" || diagnostic.severity === "error") libraryNotShownBlocking += 1;
         continue;
       }
       remaining -= length;
@@ -195,5 +219,11 @@ export async function runModelChecks(model: PreviewModel, libraryReferenceDiagno
       entity: entityFor(model, diagnostic)
     }))
   );
-  return { model, solve: engine.outcome, findings, notShown: { solve: engine.notShown.solve, slots: engine.notShown.slots, library: libraryNotShown } };
+  return {
+    model,
+    solve: engine.outcome,
+    findings,
+    notShown: { solve: engine.notShown.solve, slots: engine.notShown.slots, library: libraryNotShown },
+    notShownBlocking: engine.notShownBlocking + libraryNotShownBlocking
+  };
 }

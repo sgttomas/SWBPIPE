@@ -83,7 +83,7 @@ describe("on-demand model checks", () => {
     const engine = loadedWasmEngine()!;
     const wasm = vi.spyOn(engine, "modelChecksJson");
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
-    invokeMock.mockResolvedValue({ document_kind: "openpipestress.desktop.model_checks", checked: true, diagnostics_not_shown: 3, slot_findings: [], slot_findings_not_shown: 2,
+    invokeMock.mockResolvedValue({ document_kind: "openpipestress.desktop.model_checks", checked: true, diagnostics_not_shown: 3, diagnostics_not_shown_blocking: 2, slot_findings: [], slot_findings_not_shown: 2, slot_findings_not_shown_blocking: 1,
       diagnostics: [{ id: "diagnostic:topology:disconnected", code: "MODEL_TOPOLOGY_DISCONNECTED", severity: "warning", message: "invented native text", source: "core/product_physics", affected_refs: [model.nodes[0].id] }] });
     const run = await runModelChecks(model);
     // The test invoke decodes the raw args-json-v1 body: the command received exactly `{model}`.
@@ -91,6 +91,7 @@ describe("on-demand model checks", () => {
     expect(wasm).not.toHaveBeenCalled();
     expect(run.solve).toEqual({ kind: "checked" });
     expect(run.notShown).toEqual({ solve: 3, slots: 2, library: 0 });
+    expect(run.notShownBlocking).toBe(3);
     expect(run.findings.find((item) => item.group === "solve")?.diagnostic.message).toBe("invented native text");
   });
 
@@ -159,5 +160,23 @@ describe("on-demand model checks", () => {
     const run = await runModelChecks(flooded);
     expect(utf8ByteLength(JSON.stringify(run.findings.map((item) => item.diagnostic)))).toBeLessThanOrEqual(1024 * 1024 + 512);
     expect(run.notShown.slots).toBeGreaterThan(0);
+  });
+
+  // Codex review r3 of #1665: a support id of 1.1 million characters cannot be
+  // listed whole, so its blocking finding is counted, with its severity; a
+  // library finding left out is counted with its severity too.
+  it("counts the blocking findings the bound leaves out, in every group", async () => {
+    const model = clone(await loadPreviewModel());
+    const id = `support:${"x".repeat(1_100_000)}`;
+    model.supports = [{ ...model.supports[0], id, family: "review_unknown" } as (typeof model.supports)[number]];
+    const library = [{ id: "library:a", code: "INVENTED_LIBRARY", severity: "blocking" as const, message: "invented library text", affected_refs: [] }];
+    const run = await runModelChecks(model, () => library);
+    expect(run.solve).toEqual({ kind: "checked" });
+    expect(run.findings.some((item) => item.diagnostic.code === "SUPPORT_FAMILY_INVALID")).toBe(false);
+    expect(run.notShown.solve).toBeGreaterThanOrEqual(1);
+    expect(run.notShownBlocking).toBeGreaterThanOrEqual(1);
+    const full = await runModelChecks(clone(await loadPreviewModel()), () => Array.from({ length: 2 }, (_, i) => ({ ...library[0], id: `library:${i}`, message: "m".repeat(600_000) })));
+    expect(full.notShown.library).toBe(1);
+    expect(full.notShownBlocking).toBe(1);
   });
 });

@@ -2285,7 +2285,21 @@ fn model_checks_response(registry: &SolveJobRegistry, input: solve_jobs::ModelCh
         }
         Err(solve_jobs::ModelChecksError::Unavailable(error)) => Err(CommandError::Ingress(error)),
         Err(solve_jobs::ModelChecksError::Failed(message)) => Err(CommandError::Command(message)),
+        Err(solve_jobs::ModelChecksError::Cancelled) => Err(CommandError::Command(
+            "MODEL-CHECKS-CANCELLED: the check was cancelled before it reported; its worker was stopped.".to_string(),
+        )),
     }
+}
+
+/// Cancels the on-demand model check in progress, if any: the desktop calls it
+/// when the project session changes, which retires the check's request. A
+/// check waiting for its starting grant stops waiting; a running check's
+/// worker is killed and its grant released after the reap, as a cancelled
+/// solve's is. A newer check and a session reset cancel it the same way.
+/// Returns whether a check was in progress.
+#[tauri::command]
+fn cancel_model_checks(registry: tauri::State<'_, SolveJobRegistry>) -> bool {
+    registry.cancel_model_checks()
 }
 
 #[tauri::command]
@@ -5094,6 +5108,7 @@ macro_rules! app_invoke_handler {
             get_unit_catalog,
             convert_display_quantities,
             check_preview_model,
+            cancel_model_checks,
             get_local_storage_capability,
             create_local_project,
             open_local_project,

@@ -12,6 +12,7 @@ const run: ModelCheckRun = {
   model,
   solve: { kind: "checked" },
   notShown: { solve: 0, slots: 0, library: 0 },
+  notShownBlocking: 0,
   findings: [
     { key: "solve:0:a", group: "solve", entity: { type: "node", id: "node:a" },
       diagnostic: { id: "diagnostic:topology:disconnected", code: "MODEL_TOPOLOGY_DISCONNECTED", severity: "warning", message: "invented two-part text", affected_refs: ["node:a", "node:c"] } },
@@ -98,10 +99,11 @@ describe("ModelChecksPanel", () => {
   });
 
   it("states how many findings the bounded report left out, marks shortened text, and shows a run in progress", () => {
-    const bounded: ModelCheckRun = { ...run, notShown: { solve: 9, slots: 3, library: 0 }, findings: [{ ...run.findings[0], diagnostic: { ...run.findings[0].diagnostic, truncated: true } as typeof run.findings[0]["diagnostic"] }] };
+    const bounded: ModelCheckRun = { ...run, notShown: { solve: 9, slots: 3, library: 0 }, notShownBlocking: 4, findings: [{ ...run.findings[0], diagnostic: { ...run.findings[0].diagnostic, truncated: true } as typeof run.findings[0]["diagnostic"] }] };
     const onRun = vi.fn();
     const view = render(<ModelChecksPanel model={model} run={bounded} onRun={onRun} onSelectEntity={() => {}} />);
     expect(screen.getByTestId("model-checks-not-shown")).toHaveTextContent("12 more findings are not listed: the report is bounded.");
+    expect(screen.getByTestId("model-checks-summary")).toHaveTextContent("1 finding: 0 blocking or error, 1 warning, 0 info. 12 more not listed; 4 of them blocking or error.");
     expect(screen.getByTestId("model-check-truncated")).toHaveTextContent("Text shortened in the bounded report.");
     view.rerender(<ModelChecksPanel model={model} run={bounded} busy onRun={onRun} onSelectEntity={() => {}} />);
     const button = screen.getByTestId("model-checks-run");
@@ -109,5 +111,16 @@ describe("ModelChecksPanel", () => {
     expect(button).toHaveAttribute("aria-disabled", "true");
     fireEvent.click(button);
     expect(onRun).not.toHaveBeenCalled();
+  });
+
+  // Codex review r3 of #1665 (its probe: a support id of 1.1 million
+  // characters gives one blocking finding the report counts but cannot list):
+  // a run whose findings were all left out is not an empty result.
+  it("does not call a run empty when every finding was counted rather than listed", () => {
+    const omitted: ModelCheckRun = { ...run, findings: [], notShown: { solve: 1, slots: 0, library: 0 }, notShownBlocking: 1 };
+    render(<ModelChecksPanel model={model} run={omitted} onRun={() => {}} onSelectEntity={() => {}} />);
+    const summary = screen.getByTestId("model-checks-summary");
+    expect(summary).toHaveTextContent("1 finding, none listed; 1 of them blocking or error.");
+    expect(summary).not.toHaveTextContent("nothing to report");
   });
 });

@@ -25,7 +25,6 @@ pub const MODEL_CHECKS_DOCUMENT_KIND: &str = "openpipestress.desktop.model_check
 pub const MODEL_CHECKS_MAX_RESPONSE_BYTES: usize = 1024 * 1024;
 /// The longest text of a finding or a refusal, in UTF-8 bytes.
 pub const MODEL_CHECKS_MAX_TEXT_BYTES: usize = 2048;
-/// The references a finding names at most.
 /// The longest model text the browser engine checks (4 MiB); a longer one is
 /// refused `MODEL-CHECKS-INPUT-TOO-LARGE` before it is parsed.
 pub const MODEL_CHECKS_MAX_BROWSER_INPUT_BYTES: usize = 4 * 1024 * 1024;
@@ -36,8 +35,10 @@ pub fn model_checks(model: &Value) -> Value {
     model_checks_owned(model.clone())
 }
 
-/// `{document_kind, checked, diagnostics, diagnostics_not_shown, slot_findings,
-/// slot_findings_not_shown}`: with `checked: true`, the solve's diagnostics as
+/// `{document_kind, checked, diagnostics, diagnostics_not_shown,
+/// diagnostics_not_shown_blocking, slot_findings, slot_findings_not_shown,
+/// slot_findings_not_shown_blocking}` (each `_blocking` count is how many of the
+/// findings not shown are blocking or errors): with `checked: true`, the solve's diagnostics as
 /// it publishes them; with `checked: false`, the solve's own refusal text in
 /// `refusal` (and `refusal_truncated` when it was shortened) and no solve
 /// findings. The slot checks run either way. Bounded as the module says. The
@@ -53,10 +54,11 @@ pub fn model_checks_owned(model: Value) -> Value {
     report.insert("document_kind".to_string(), json!(MODEL_CHECKS_DOCUMENT_KIND));
     match solve {
         Ok(diagnostics) => {
-            let (shown, not_shown) = budget.list(diagnostics.into_iter().map(|diagnostic| serde_json::to_value(diagnostic).ok()));
+            let listed = budget.list(diagnostics.into_iter().map(|diagnostic| serde_json::to_value(diagnostic).ok()));
             report.insert("checked".to_string(), Value::Bool(true));
-            report.insert("diagnostics".to_string(), Value::Array(shown));
-            report.insert("diagnostics_not_shown".to_string(), json!(not_shown));
+            report.insert("diagnostics".to_string(), Value::Array(listed.shown));
+            report.insert("diagnostics_not_shown".to_string(), json!(listed.not_shown));
+            report.insert("diagnostics_not_shown_blocking".to_string(), json!(listed.not_shown_blocking));
         }
         Err(refusal) => {
             let (refusal, truncated) = cut(refusal);
@@ -68,11 +70,13 @@ pub fn model_checks_owned(model: Value) -> Value {
             }
             report.insert("diagnostics".to_string(), Value::Array(Vec::new()));
             report.insert("diagnostics_not_shown".to_string(), json!(0));
+            report.insert("diagnostics_not_shown_blocking".to_string(), json!(0));
         }
     }
-    let (shown, not_shown) = budget.list(slots.into_iter().enumerate().map(|(index, finding)| Some(slot_diagnostic(index, finding))));
-    report.insert("slot_findings".to_string(), Value::Array(shown));
-    report.insert("slot_findings_not_shown".to_string(), json!(not_shown));
+    let listed = budget.list(slots.into_iter().enumerate().map(|(index, finding)| Some(slot_diagnostic(index, finding))));
+    report.insert("slot_findings".to_string(), Value::Array(listed.shown));
+    report.insert("slot_findings_not_shown".to_string(), json!(listed.not_shown));
+    report.insert("slot_findings_not_shown_blocking".to_string(), json!(listed.not_shown_blocking));
     Value::Object(report)
 }
 
@@ -101,31 +105,52 @@ struct Budget {
     remaining: usize,
 }
 
+/// One group's findings within the bound: those listed, and how many were
+/// counted instead, and how many of those are blocking or errors.
+struct Listed {
+    shown: Vec<Value>,
+    not_shown: usize,
+    not_shown_blocking: usize,
+}
+
+/// Whether a finding is blocking or an error (so the solve would not run).
+fn blocking(finding: &Value) -> bool {
+    matches!(finding.get("severity").and_then(Value::as_str), Some("blocking" | "error"))
+}
+
 impl Budget {
     /// The findings that fit, in order, each with only its message shortened;
-    /// the first that does not fit, and every one after it, is counted instead.
-    fn list(&mut self, findings: impl Iterator<Item = Option<Value>>) -> (Vec<Value>, usize) {
-        let mut shown = Vec::new();
-        let mut not_shown = 0usize;
+    /// the first that does not fit, and every one after it, is counted instead,
+    /// with its severity.
+    fn list(&mut self, findings: impl Iterator<Item = Option<Value>>) -> Listed {
+        let mut listed = Listed { shown: Vec::new(), not_shown: 0, not_shown_blocking: 0 };
+        let count = |listed: &mut Listed, finding: &Value| {
+            listed.not_shown += 1;
+            listed.not_shown_blocking += usize::from(blocking(finding));
+        };
         for finding in findings {
-            if not_shown > 0 {
-                not_shown += 1;
+            let Some(finding) = finding else {
+                count(&mut listed, &Value::Null);
+                continue;
+            };
+            if listed.not_shown > 0 {
+                count(&mut listed, &finding);
                 continue;
             }
-            let Some(Value::Object(fields)) = finding else {
-                not_shown += 1;
+            let Value::Object(fields) = finding else {
+                count(&mut listed, &finding);
                 continue;
             };
             let finding = shortened(fields);
             let length = serde_json::to_string(&finding).map(|text| text.len() + 1).unwrap_or(usize::MAX);
             if length > self.remaining {
-                not_shown += 1;
+                count(&mut listed, &finding);
                 continue;
             }
             self.remaining -= length;
-            shown.push(finding);
+            listed.shown.push(finding);
         }
-        (shown, not_shown)
+        listed
     }
 }
 

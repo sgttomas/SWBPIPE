@@ -53,7 +53,7 @@ import type { BlankProjectKind, BlankProjectUnitsRequest } from "../project-unit
 import { modelFileRefusalMessage, modelFileWarningSuffix, openModelDocumentFile } from "../../services/modelDocumentFile";
 import { checkModelLibraryRefs, modelLibraryRefs } from "../../services/libraryImportService";
 import { currentLibraryRefFindings, libraryRefDiagnostics, publishLibraryRefFindings } from "../library/libraryRefFindings";
-import { runModelChecks, type ModelCheckRun } from "../diagnostics/modelChecks";
+import { cancelNativeModelChecks, runModelChecks, type ModelCheckRun } from "../diagnostics/modelChecks";
 import { modelDocumentSlotValidation } from "../model-file/modelDocumentShape";
 import {
   keptStoredProjectMessage,
@@ -3070,10 +3070,16 @@ export function useWorkspaceSession() {
   const [modelCheckRun, setModelCheckRun] = useState<ModelCheckRun | null>(null);
   const [modelCheckBusy, setModelCheckBusy] = useState(false);
   const modelCheckRequest = useRef(0);
+  // Whether the latest request is a native check still in progress.
+  const nativeModelCheckInFlight = useRef(false);
   // A new project session retires a run in progress and the last run's list
   // (Codex review r2 of #1665): neither describes the new session's model.
+  // A native check in progress is cancelled, so its worker's grant is
+  // released (Codex review r3).
   useEffect(() => {
     modelCheckRequest.current += 1;
+    if (nativeModelCheckInFlight.current) void cancelNativeModelChecks();
+    nativeModelCheckInFlight.current = false;
     setModelCheckBusy(false);
     setModelCheckRun(null);
   }, [projectSessionGeneration]);
@@ -3083,8 +3089,10 @@ export function useWorkspaceSession() {
     const generation = projectSessionGenerationRef.current;
     setIssuesDrawerOpen(true);
     setModelCheckBusy(true);
+    nativeModelCheckInFlight.current = isTauriRuntime();
     const run = await runModelChecks(model, () => libraryRefDiagnostics(currentLibraryRefFindings(model)));
     if (request !== modelCheckRequest.current || generation !== projectSessionGenerationRef.current) return;
+    nativeModelCheckInFlight.current = false;
     setModelCheckBusy(false);
     setModelCheckRun(run);
   }
