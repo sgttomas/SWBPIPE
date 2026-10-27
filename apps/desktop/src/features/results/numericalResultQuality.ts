@@ -16,6 +16,13 @@ export const PRESSURE_SOURCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.
 /** T4-U2: the ordinary exact identity (3.0.0/exact_pressure_v3). */
 export const PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-2";
 export const PREVIEW_PHYSICS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-2";
+/** DEL-05-03 Design `pf-timoshenko.md` §4: the pressure-free Timoshenko identity, a second
+ * complete identity on the `preview_physics` route (a document whose
+ * `model_settings.shear_model` selects `timoshenko_annulus_energy_v1`). Its table is
+ * preview-physics-2's with the identity, the profile and limitation 0 replaced. */
+export const PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1";
+/** The `preview_physics` route's identities, Euler–Bernoulli first. */
+export const PREVIEW_PHYSICS_CONTRACT_IDS: readonly string[] = Object.freeze([PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID]);
 /** U6d (D-U6-6; D2 4.7 S-1, 4.9.6): the F2a preview successor. Its statement is checked
  * only by the accepted reader (the Rust one, through `retainedPrecisionReader.ts`), and
  * standing comes only from that reader's registered validation

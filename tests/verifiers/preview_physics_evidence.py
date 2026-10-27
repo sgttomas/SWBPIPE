@@ -27,6 +27,23 @@ ROOT = Path(__file__).resolve().parents[2]
 TABLE_PATH = ROOT / "fixtures/results/semantic_contract_v0_3_preview_physics_2.json"
 TABLE = json.loads(TABLE_PATH.read_text(encoding="utf-8"))
 LIMITATIONS = list(TABLE["supported_profile_limitations"])
+# DEL-05-03 Design pf-timoshenko.md §4: the pressure-free Timoshenko identity. Its table is
+# preview-physics-2's rows, vocabulary and policies with the identity, the profile and
+# limitation 0 replaced, so the row checks below read either table alike; the header admits
+# either complete identity (identity, profile and limitation array together).
+TIMOSHENKO_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1"
+TIMOSHENKO_PROFILE = "product_preview_mechanics_timoshenko_v1"
+TIMOSHENKO_TABLE_PATH = ROOT / "fixtures/results/semantic_contract_v0_3_preview_physics_timoshenko_1.json"
+TIMOSHENKO_LIMITATIONS = list(json.loads(TIMOSHENKO_TABLE_PATH.read_text(encoding="utf-8"))["supported_profile_limitations"])
+IDENTITIES = {CONTRACT_ID: (PROFILE, LIMITATIONS), TIMOSHENKO_CONTRACT_ID: (TIMOSHENKO_PROFILE, TIMOSHENKO_LIMITATIONS)}
+
+
+def identity_of(source: Mapping[str, Any]) -> tuple[str, list[str]]:
+    """The (profile, limitations) of the source's preview identity: the Timoshenko identity when
+    its producer names it, else preview-physics-2 (Rust's `preview_physics_identity_of`)."""
+    producer = source.get("producer") if isinstance(source, Mapping) else None
+    named = producer.get("semantic_contract_id") if isinstance(producer, Mapping) else None
+    return IDENTITIES.get(named, IDENTITIES[CONTRACT_ID]) if isinstance(named, str) else IDENTITIES[CONTRACT_ID]
 
 MAXIMUM_KIND = "pipe_elastic_normal_stress_maximum_v2"
 INTENSIFIED_KIND = "component_equal_factor_intensified_bending_stress_v1"
@@ -214,10 +231,14 @@ def signature(row: Mapping[str, Any]) -> Mapping[str, Any] | None:
 def _header(source: Mapping[str, Any]) -> None:
     _require(not any(key in source for key in ("source_block_recovery", "carrier_evidence")), "unsupported source namespace")
     _require(source.get("schema_version") == "0.2.0", "schema version")
-    _require(source.get("producer") == {"component_name": "open_pipe_stress_product_physics", "component_version": "0.2.0", "semantic_contract_id": CONTRACT_ID}, "producer")
+    producer = source.get("producer")
+    _require(isinstance(producer, Mapping) and producer.get("semantic_contract_id") in IDENTITIES
+             and producer == {"component_name": "open_pipe_stress_product_physics", "component_version": "0.2.0",
+                              "semantic_contract_id": producer.get("semantic_contract_id")}, "producer")
+    profile, limitations = identity_of(source)
     formulation = source.get("formulation_basis")
     _shape(formulation, {"profile_id", "limitations"}, "formulation basis")
-    _require(formulation["profile_id"] == PROFILE and formulation["limitations"] == LIMITATIONS, "formulation profile or limitations")
+    _require(formulation["profile_id"] == profile and formulation["limitations"] == limitations, "formulation profile or limitations")
     evidence = source.get("contract_evidence")
     _shape(evidence, {"preview_cases", "combination_gates"}, "contract evidence namespace")
     _require(isinstance(evidence["preview_cases"], list) and isinstance(evidence["combination_gates"], list), "contract evidence lists")
@@ -538,9 +559,10 @@ def validate_transport_metadata(source: Mapping[str, Any]) -> None:
     from .source_blocks import _shape as schema_shape
     try:
         _require(not any(key in source for key in ("source_block_recovery", "carrier_evidence")), "unsupported source namespace")
+        profile, limitations = identity_of(source)
         formulation = source.get("formulation_basis")
         _shape(formulation, {"profile_id", "limitations"}, "formulation basis")
-        _require(formulation["profile_id"] == PROFILE and formulation["limitations"] == LIMITATIONS, "formulation profile or limitations")
+        _require(formulation["profile_id"] == profile and formulation["limitations"] == limitations, "formulation profile or limitations")
         schema = json.loads((ROOT / "schemas/results.v0.3.schema.yaml").read_text(encoding="utf-8"))
         evidence = source.get("contract_evidence")
         _require(schema_shape(evidence, schema["$defs"]["PreviewPhysicsContractEvidence"], schema), "transport evidence shape")

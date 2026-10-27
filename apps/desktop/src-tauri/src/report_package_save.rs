@@ -999,13 +999,25 @@ pub(crate) mod test_support {
     /// canonical SHA-256 is every input-manifest hash, and its reference is the
     /// session's (`input-manifest:<model>:<sha256>`).
     pub(crate) fn desktop_request_for(model: &Value, manifest: &Value) -> Value {
+        desktop_request_from(model, manifest, &witness_source())
+    }
+
+    /// The committed witness's source result.
+    pub(crate) fn witness_source() -> Value {
+        let witness: Value = serde_json::from_str(WITNESS).unwrap();
+        witness["export_results"]["source_results"][0].clone()
+    }
+
+    /// As [`desktop_request_for`], over `source` in place of the witness's own
+    /// (the pressure-free Timoshenko tests' transformed stand-in).
+    pub(crate) fn desktop_request_from(model: &Value, manifest: &Value, source: &Value) -> Value {
         let witness: Value = serde_json::from_str(WITNESS).unwrap();
         let runner = &witness["export_results"];
         let solver = &runner["audit_manifest"]["solver_version"];
         let manifest_ref = crate::analysis_runs::input_manifest_ref(model["project"]["id"].as_str().unwrap(), &sha256_hex(&canonical_json(manifest)));
         let inputs = Inputs {
             model,
-            source: &runner["source_results"][0],
+            source,
             producer_document: &runner["result_documents"][0],
             solve_request: &Value::Null,
             input_manifest: manifest,

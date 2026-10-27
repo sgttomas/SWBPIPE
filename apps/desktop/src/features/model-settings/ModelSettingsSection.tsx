@@ -6,6 +6,14 @@
 // default, which removes the setting. Each edit is checked by the operation
 // engine (validate-only) and, when it is not refused, queued for Review/Apply
 // and undone like any other model edit; a refusal stays here by name.
+//
+// It also holds the pressure-free document's straight-member shear deformation
+// (DEL-05-03 Design pf-timoshenko.md §1, §5 "Desktop"): Euler–Bernoulli (the
+// default) or Timoshenko with the energy-matched annular factor. Choosing either
+// writes `model_settings.shear_model` as an explicit user set; Reset to default
+// clears it, so a document whose user never chose keeps it absent. On a document
+// with a pressure contract the control is disabled: that document's beam theory is
+// `pressure_contract.shear_model`, set in the pressure panel.
 import { useEffect, useRef, useState } from "react";
 import type { EditorOperationIntent, OperationOutcomeDiagnostic, PreviewModel } from "../../types";
 import { canonicalJsonString, computeModelHash } from "../../services/hashService";
@@ -17,12 +25,30 @@ import { storedProjectUnit } from "../project-units/projectUnitIntents";
 import {
   DEFAULT_NODE_PROXIMITY_TOLERANCE,
   NODE_PROXIMITY_TOLERANCE_PATH,
+  SHEAR_MODEL_PATH,
   authoredNodeProximityTolerance,
+  authoredShearModel,
   clearNodeProximityToleranceIntent,
+  clearShearModelIntent,
   effectiveNodeProximityTolerance,
   setNodeProximityToleranceIntent,
-  type Canonicalize
+  setShearModelIntent,
+  type Canonicalize,
+  type SettingPath
 } from "./modelSettingsIntents";
+
+/** The straight-member shear deformation choices (pf-timoshenko.md §1), default first. */
+export const SHEAR_MODEL_CHOICES = Object.freeze([
+  { value: "euler_bernoulli", label: "Euler–Bernoulli (the default)" },
+  { value: "timoshenko_annulus_energy_v1", label: "Timoshenko (energy-matched annular factor)" }
+] as const);
+export const SHEAR_MODEL_NOTE =
+  "Applies to every straight member, including tees' straight legs, rigid-family components and geometry-only bends. Realized arcs stay Euler–Bernoulli. Timoshenko members use Poisson's ratio E/(2G) − 1 from each case's moduli; an authored Poisson's ratio is not used.";
+export const SHEAR_MODEL_EXACT_NOTE =
+  "This document has a pressure contract, so its beam theory is the pressure contract's shear model: set it in the Pressure panel.";
+
+type Feedback = { error: string; notice: string; diagnostics: OperationOutcomeDiagnostic[] };
+const NO_FEEDBACK: Feedback = { error: "", notice: "", diagnostics: [] };
 
 export type ModelSettingsSectionProps = {
   model: PreviewModel;
@@ -60,9 +86,12 @@ export function ModelSettingsSection(props: ModelSettingsSectionProps) {
   const [valueText, setValueText] = useState(authored ? String(authored.value) : "");
   const [unit, setUnit] = useState(() => initialUnit(model));
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
-  const [notice, setNotice] = useState("");
-  const [diagnostics, setDiagnostics] = useState<OperationOutcomeDiagnostic[]>([]);
+  const [feedback, setFeedback] = useState<Record<SettingPath, Feedback>>({
+    [NODE_PROXIMITY_TOLERANCE_PATH]: NO_FEEDBACK,
+    [SHEAR_MODEL_PATH]: NO_FEEDBACK
+  });
+  const { error, notice, diagnostics } = feedback[NODE_PROXIMITY_TOLERANCE_PATH];
+  const shearFeedback = feedback[SHEAR_MODEL_PATH];
   const latest = useRef(props);
   latest.current = props;
   const live = useRef(false);
@@ -85,18 +114,27 @@ export function ModelSettingsSection(props: ModelSettingsSectionProps) {
   const working = busy || Boolean(props.operationBusy);
   const unchanged = authored !== null && valueText.trim() === String(authored.value) && unit === authored.unit;
   const canonicalize = props.canonicalize ?? canonicalJsonString;
+  const exactDocument = model.pressure_contract != null;
+  const authoredShear = authoredShearModel(model);
+  const effectiveShear = authoredShear === null
+    ? `${SHEAR_MODEL_CHOICES[0].label.replace(" (the default)", "")} (default)`
+    : SHEAR_MODEL_CHOICES.find((choice) => choice.value === authoredShear)?.label.replace(" (the default)", "") ?? authoredShear;
 
-  async function submit(build: (canonicalize: Canonicalize) => Promise<EditorOperationIntent>) {
+  async function submit(build: (canonicalize: Canonicalize) => Promise<EditorOperationIntent>, path: SettingPath = NODE_PROXIMITY_TOLERANCE_PATH) {
     if (working) return;
     const captured = props;
+    const report = (next: Partial<Feedback>) => setFeedback((all) => ({ ...all, [path]: { ...all[path], ...next } }));
+    const setError = (text: string) => report({ error: text });
+    const setNotice = (text: string) => report({ notice: text });
+    const setDiagnostics = (items: OperationOutcomeDiagnostic[]) => report({ diagnostics: items });
     setBusy(true);
-    setError("");
-    setNotice("");
-    setDiagnostics([]);
+    report(NO_FEEDBACK);
     try {
       if (captured.queuedIntents?.some((queued) =>
-        queued.target.object_type === "Project" && queued.change.field_path === NODE_PROXIMITY_TOLERANCE_PATH)) {
-        throw new Error("Review or remove the pending node-proximity tolerance change before queuing another.");
+        queued.target.object_type === "Project" && queued.change.field_path === path)) {
+        throw new Error(path === SHEAR_MODEL_PATH
+          ? "Review or remove the pending shear deformation change before queuing another."
+          : "Review or remove the pending node-proximity tolerance change before queuing another.");
       }
       const intent = await build(canonicalize);
       const outcome = await validateModelOperation(captured.model, intent, await computeModelHash(captured.model));
@@ -180,6 +218,51 @@ export function ModelSettingsSection(props: ModelSettingsSectionProps) {
           </ul>
         ) : null}
         {notice ? <p role="status" data-testid="model-settings-node-proximity-notice">{notice}</p> : null}
+      </fieldset>
+      <fieldset className="model-data-fieldset" data-testid="model-settings-shear-model">
+        <legend>Straight-member shear deformation</legend>
+        {exactDocument ? <p className="model-data-note" data-testid="model-settings-shear-model-exact">{SHEAR_MODEL_EXACT_NOTE}</p> : null}
+        <p data-testid="model-settings-shear-model-effective">
+          Effective: <strong>{effectiveShear}</strong>
+        </p>
+        <p className="model-data-note" data-testid="model-settings-shear-model-note">{SHEAR_MODEL_NOTE}</p>
+        <div role="radiogroup" aria-label="Straight-member shear deformation">
+          {SHEAR_MODEL_CHOICES.map((choice) => (
+            <label key={choice.value}>
+              <input
+                type="radio"
+                name="model-settings-shear-model"
+                value={choice.value}
+                data-testid={`model-settings-shear-model-${choice.value}`}
+                checked={authoredShear === choice.value}
+                {...disabledBy(working, [exactDocument, SHEAR_MODEL_EXACT_NOTE], [authoredShear === choice.value, "This choice is already set."])}
+                onChange={() => void submit((canon) => setShearModelIntent(canon, model, choice.value), SHEAR_MODEL_PATH)}
+              />
+              {choice.label}
+            </label>
+          ))}
+        </div>
+        <div className="model-data-actions">
+          <button
+            type="button"
+            data-testid="model-settings-shear-model-reset"
+            {...disabledBy(working, [exactDocument, SHEAR_MODEL_EXACT_NOTE], [authoredShear === null, "Euler–Bernoulli already applies by default."])}
+            onClick={() => void submit((canon) => clearShearModelIntent(canon, model), SHEAR_MODEL_PATH)}
+          >
+            Reset to default
+          </button>
+        </div>
+        {shearFeedback.error ? <p role="alert" data-testid="model-settings-shear-model-error">{shearFeedback.error}</p> : null}
+        {shearFeedback.diagnostics.length ? (
+          <ul aria-label="Operation engine diagnostics" data-testid="model-settings-shear-model-diagnostics">
+            {shearFeedback.diagnostics.map((item) => (
+              <li key={item.id} data-testid={`model-settings-shear-model-diagnostic-${item.code}`}>
+                {item.code}: {item.message}
+              </li>
+            ))}
+          </ul>
+        ) : null}
+        {shearFeedback.notice ? <p role="status" data-testid="model-settings-shear-model-notice">{shearFeedback.notice}</p> : null}
       </fieldset>
     </section>
   );

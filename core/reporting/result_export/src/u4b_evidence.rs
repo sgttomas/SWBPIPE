@@ -509,7 +509,7 @@ pub(crate) fn preview_model_checks(source: &Value, model: &Value) -> Check {
     use open_pipe_stress_units::Dimension;
     // W-15 slice d (DEL-03-05 Design §5): the bodies the model's eligibility
     // predicate expects, with their records.
-    crate::component_body::model_checks(source, model, crate::semantic_contract::preview_physics_contract())?;
+    crate::component_body::model_checks(source, model, crate::semantic_contract::preview_physics_identity_of(source).0)?;
     let route = Route::Preview;
     let length = |q: &Value| crate::physics_source::normalized_quantity(q, Dimension::Length);
     let stress = |q: &Value| crate::physics_source::normalized_quantity(q, Dimension::Stress);

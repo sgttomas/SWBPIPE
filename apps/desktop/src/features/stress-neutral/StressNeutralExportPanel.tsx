@@ -1,7 +1,7 @@
 import { LoadReferenceDisclosure, loadReferenceDisclosure } from "../results/loadReferenceDisclosure";
 import { KnownSemanticNotices } from "../results/KnownSemanticNotices";
 import { hasNativeMechanicsInvocation } from "../../services/previewService";
-import { RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, isRetainedRoute, type SourceContract } from "../results/numericalResultQuality";
+import { PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID, RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, isRetainedRoute, type SourceContract } from "../results/numericalResultQuality";
 import { currentSemanticContract, hasCurrentSourceContract, readerRowSemantics, readerTransport, readerValidate, sourceContract } from "../results/resultReader";
 import { numericalResultStanding } from "../results/resultStanding";
 import { refuseSurfaceOutput, refuseSurfaceRoute, surfaceOutputRefusal } from "../results/outputPolicy";
@@ -927,11 +927,19 @@ const SEMANTIC_TABLE_FILES: Readonly<Record<Exclude<SourceContract, "unsupported
   retained_physics: "semantic_contract_v0_3_physics_retained_1.json",
   pressure_source: "semantic_contract_v0_3_pressure_source_1.json", pressure: "semantic_contract_v0_3_pressure_2.json",
 });
+/** DEL-05-03 `pf-timoshenko.md` §4: the preview route's table by the source's identity. */
+const PREVIEW_IDENTITY_TABLE_FILES: Readonly<Record<string, string>> = Object.freeze({
+  [PREVIEW_PHYSICS_CONTRACT_ID]: "semantic_contract_v0_3_preview_physics_2.json",
+  [PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID]: "semantic_contract_v0_3_preview_physics_timoshenko_1.json",
+});
 function semanticTablePath(source: MechanicsResult): string {
   const route = sourceContract(source);
   if (route === "unsupported") throw new Error("SN-SOURCE-CONTRACT-UNSUPPORTED");
   refuseSurfaceRoute(source, "stress-neutral");
-  const file = Object.hasOwn(SEMANTIC_TABLE_FILES, route) ? SEMANTIC_TABLE_FILES[route] : null;
+  const identity = source.producer?.semantic_contract_id ?? "";
+  const file = route === "preview_physics"
+    ? (Object.hasOwn(PREVIEW_IDENTITY_TABLE_FILES, identity) ? PREVIEW_IDENTITY_TABLE_FILES[identity] : null)
+    : Object.hasOwn(SEMANTIC_TABLE_FILES, route) ? SEMANTIC_TABLE_FILES[route] : null;
   if (!file) throw new Error("SN-SOURCE-CONTRACT-UNSUPPORTED");
   return `fixtures/results/${file}`;
 }

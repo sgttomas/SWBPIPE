@@ -126,8 +126,8 @@ async function shearBefore(canonicalize: Canonicalize, model: PreviewModel): Pro
   return authored === null ? "not_present" : canonicalize(authored);
 }
 
-/** Set the shear model to `name` (the engine refuses by name: an unknown name, a document with a
- * pressure contract and, in 0.8.0, `timoshenko_annulus_energy_v1`). */
+/** Set the shear model to `name`, `euler_bernoulli` or `timoshenko_annulus_energy_v1` (the
+ * engine refuses by name an unknown name and a document with a pressure contract). */
 export async function setShearModelIntent(canonicalize: Canonicalize, model: PreviewModel, name: string): Promise<EditorOperationIntent> {
   return intent(model, "set_model_setting", await shearBefore(canonicalize, model), name, "none", "dimensionless", "Set shear model", SHEAR_MODEL_PATH);
 }

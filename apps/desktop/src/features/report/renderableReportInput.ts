@@ -22,6 +22,7 @@ import { reportResultRows } from "./reportResultRows";
 import { USER_RELEASED_REPORT_CONTEXT, type UserReleasedReportContext } from "../redaction-controls/redactionExportControls";
 import { checkExactReportAdmission, REPORT_EXACT_ADMISSION_BINDING_MISMATCH, type ExactReportAdmission } from "./exactReportAdmission";
 import { exactLimitationEntries, exactRouteCore, isExactReportSource, SECTION_BASIS_HEADLINES } from "./exactReportSections";
+import { isPfTimoshenkoReportSource, pfTimoshenkoLimitationEntry, pfTimoshenkoSection } from "./pfTimoshenkoReport";
 import { isDisplayedScaled } from "./reportQuantityDisplay";
 import { isSpringHangerSupport } from "./springHangerSupport";
 
@@ -841,7 +842,11 @@ async function renderableReportInput(
 ) {
   const minimal = userRelease !== null;
   const exact = isExactReportSource(result);
-  if (!exact && exactAdmission !== null) {
+  // DEL-05-03 `pf-timoshenko.md` §4: a pressure-free Timoshenko source carries its
+  // limitation 0 entry always, and its `pf_timoshenko` section when it took the admission
+  // (the rendered report; the package binds the entry against its source instead).
+  const pfTimoshenko = isPfTimoshenkoReportSource(result);
+  if (!exact && !pfTimoshenko && exactAdmission !== null) {
     throw new Error(`${REPORT_EXACT_ADMISSION_BINDING_MISMATCH}: semantic_contract_id`);
   }
   const run = analysisRun.analysis_run;
@@ -849,6 +854,8 @@ async function renderableReportInput(
   // (`checkExactReportAdmission`): retirement, an edit or a substitute refuses.
   const exactInputs = exact ? { model, result, analysisRun, inputManifest: inputManifest as CurrentSessionInputManifestEvidence } : null;
   if (exactInputs) checkExactReportAdmission(exactAdmission, exactInputs);
+  const pfInputs = pfTimoshenko && exactAdmission !== null ? { model, result, analysisRun, inputManifest: inputManifest as CurrentSessionInputManifestEvidence } : null;
+  if (pfInputs) checkExactReportAdmission(exactAdmission, pfInputs);
   const provenance = sessionProvenance(model);
   // The minimal input carries no per-object provenance entry, library reference or finding.
   const subjects = minimal ? { records: [], values: [], diagnostics: [] } : await subjectProvenance(model, provenance);
@@ -944,6 +951,10 @@ async function renderableReportInput(
     const [preview] = reportSections.limitations;
     const entries = await exactLimitationEntries(result, result.run_id, { id: semanticContract.id, sha256: semanticContract.sha256 });
     reportSections.limitations.push(...entries.map((entry) => ({ ...entry, effect: preview.effect, provenance: preview.provenance })) as never[]);
+  }
+  if (pfTimoshenko) {
+    const [preview] = reportSections.limitations;
+    reportSections.limitations.push({ ...pfTimoshenkoLimitationEntry(result, result.run_id), effect: preview.effect, provenance: preview.provenance } as never);
   }
 
   const sectionsChecksumValue = await canonicalSha256Hex(reportSections);
@@ -1060,6 +1071,7 @@ async function renderableReportInput(
     : null;
   // After the last await: the admission still holds for these live objects.
   if (exactInputs) checkExactReportAdmission(exactAdmission, exactInputs);
+  if (pfInputs) checkExactReportAdmission(exactAdmission, pfInputs);
 
   return {
     report_title: `${model.project.name} — Calculation Report`,
@@ -1079,6 +1091,8 @@ async function renderableReportInput(
     // The minimal input carries no user-rule outcome member at all (§2.6).
     ...(minimal ? {} : { user_rule_checks: ruleCheckRun ? userRuleChecks(ruleCheckRun) : null }),
     ...(exactRoute ? { exact_route: exactRoute } : {}),
+    // DEL-05-03 `pf-timoshenko.md` §4: absent on every other source, so its input is unchanged.
+    ...(pfInputs ? { pf_timoshenko: pfTimoshenkoSection(exactAdmission!.binding) } : {}),
     // W-11 slice (c) (§4.2): absent without references, so such an input is unchanged.
     ...(libraryRefs.length > 0 ? { library_references: libraryRefs } : {})
   };

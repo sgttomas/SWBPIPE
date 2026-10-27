@@ -9,14 +9,19 @@
 use crate::admitted::{self, AdmittedSet};
 use crate::schema_eval::{Catalog, RESULTS_V03};
 use open_pipe_stress_result_export::derivative::{checksum, guard_json, reference};
-use open_pipe_stress_result_export::semantic_contract::{for_export_metadata, PRESSURE_ID, PRESSURE_SOURCE_ID, PREVIEW_PHYSICS_ID, RESULT_EXPORT_VERSION};
+use open_pipe_stress_result_export::semantic_contract::{
+    for_export_metadata, PRESSURE_ID, PRESSURE_SOURCE_ID, PREVIEW_PHYSICS_ID, PREVIEW_PHYSICS_TIMOSHENKO_ID, RESULT_EXPORT_VERSION,
+};
 use serde_json::Value;
 
 /// The semantic contracts a report package admits (§2.3 item 0): the
 /// pressure-free route and, since W-11 opened exact-route packages (DEL-08-01
 /// Design `exact-route-report-sections.md` §5.1; owner, 2026-10-26), the
-/// pressure-2 and pressure-source-1 routes.
-pub const ADMITTED_SEMANTIC_CONTRACTS: [&str; 3] = [PREVIEW_PHYSICS_ID, PRESSURE_ID, PRESSURE_SOURCE_ID];
+/// pressure-2 and pressure-source-1 routes. The pressure-free route admits both of
+/// its identities (DEL-05-03 Design `pf-timoshenko.md` §4); a Timoshenko report
+/// carries its projection (`pf_timoshenko`).
+pub const ADMITTED_SEMANTIC_CONTRACTS: [&str; 4] =
+    [PREVIEW_PHYSICS_ID, PREVIEW_PHYSICS_TIMOSHENKO_ID, PRESSURE_ID, PRESSURE_SOURCE_ID];
 
 pub const ROUTE_NOT_ADMITTED: &str = "REPORT-PACKAGE-ROUTE-NOT-ADMITTED";
 pub const RESULT_FORM_INVALID: &str = "REPORT-PACKAGE-RESULT-FORM-INVALID";
