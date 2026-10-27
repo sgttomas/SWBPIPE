@@ -13,7 +13,7 @@
 // −0 becomes +0. Node k is never computed from node k−1, so rounding does not accumulate.
 //
 // Before queueing, the planner refuses what the applier refuses, from the same rules:
-// `record_shape`, `endpoints`, `attachments` (split = true), `frame`, and `metadata` (ids
+// `record_shape` (with `validate_corrosion_allowance`), `endpoints`, `attachments` (split = true), `frame`, and `metadata` (ids
 // valid and globally unique). Each split is checked on the model as it stands at that step.
 import type { OperationBatch } from "../../services/operationBatchService";
 import type { EditorOperationIntent, PreviewModel } from "../../types";
@@ -127,6 +127,41 @@ function recordShape(record: unknown, node: boolean, what: string) {
   }
   for (const key of ["material", "from", "to"]) if (!nonblank(record[key])) throw new Error(`${what}: ${key} must be nonblank text.`);
   if (record.section_ref !== undefined && !nonblank(record.section_ref)) throw new Error(`${what}: section_ref must be nonblank text.`);
+}
+
+/** `validate_corrosion_allowance` (section_bindings.rs), called by `record_shape`: when the
+ * section has `corrosion_allowance`, each length is converted to metres by the engine
+ * (`length`: an accepted finite length quantity), mill tolerance is 0 when absent or null, and
+ *   mill < 0 or mill ≥ wall                  refuses (mill tolerance message)
+ *   allowance < 0 or mill + allowance ≥ wall  refuses (corrosion allowance message)
+ * with mill + allowance one binary64 addition, as in the applier. */
+async function corrosionIssue(section: JsonObject, convert: ConvertLengths): Promise<string | null> {
+  if (!("corrosion_allowance" in section)) return null;
+  const metres = async (key: string): Promise<number | string> => {
+    const quantity = section[key];
+    if (!isObject(quantity)) return `${key} must be an explicit quantity`;
+    if (Object.keys(quantity).length !== 2 || !("value" in quantity) || !("unit" in quantity)) return `${key} requires only value and unit`;
+    if (typeof quantity.value !== "number") return `${key} value must be numeric`;
+    if (typeof quantity.unit !== "string") return `${key} unit must be text`;
+    try {
+      const [value] = await convert([quantity.value], quantity.unit, "m");
+      if (Number.isFinite(value)) return value;
+    } catch { /* the applier reports the same message for an unavailable conversion */ }
+    return `${key} requires an accepted finite length quantity`;
+  };
+  const allowance = await metres("corrosion_allowance");
+  if (typeof allowance === "string") return allowance;
+  const wall = await metres("wall_thickness");
+  if (typeof wall === "string") return wall;
+  let mill = 0;
+  if (section.mill_tolerance !== undefined && section.mill_tolerance !== null) {
+    const value = await metres("mill_tolerance");
+    if (typeof value === "string") return value;
+    mill = value;
+  }
+  if (mill < 0 || mill >= wall) return "Mill tolerance must be nonnegative and leave a positive effective wall";
+  if (allowance < 0 || mill + allowance >= wall) return "Corrosion allowance must be nonnegative and leave a positive wall after mill tolerance";
+  return null;
 }
 
 /** `render_suffix`: `.key`, `[i]`, and `["key"]` for a key that is not a plain identifier. */
@@ -286,6 +321,8 @@ async function plan(model: PreviewModel, request: SplitPartsRequest, convert: Co
   if (matches.length !== 1) throw new Error(`Pipe ${request.pipeId} does not resolve to exactly one pipe.`);
   const source = matches[0] as unknown as JsonObject;
   recordShape(source, false, `Pipe ${request.pipeId}`);
+  const corrosion = await corrosionIssue(source.section as JsonObject, convert);
+  if (corrosion) throw new Error(`Pipe ${request.pipeId}: ${corrosion}`);
   const endpoint = (id: string) => {
     const nodes = model.nodes.filter((node) => node.id === id);
     if (nodes.length !== 1) throw new Error(`Endpoint ${id} does not resolve to exactly one node.`);

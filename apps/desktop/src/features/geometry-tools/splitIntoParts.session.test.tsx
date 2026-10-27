@@ -6,6 +6,7 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as previewService from "../../services/previewService";
 import { canonicalJsonString, computeModelHash } from "../../services/hashService";
+import { applyOperationBatch } from "../../services/operationBatchService";
 import { splitPartsModel } from "../../test-support/splitPartsModel";
 import type { PreviewModel } from "../../types";
 import { useWorkspaceSession } from "../workspace/workspaceSession";
@@ -122,5 +123,72 @@ describe("equal-part split through the session and the wasm engine", () => {
   it("a support at an end node does not block, as in the engine", async () => {
     const planned = await planSplitIntoParts(splitPartsModel(), request("pipe:H", 2));
     expect(planned.ok).toBe(true);
+  });
+
+  // r1: one separate existing split of the original pipe at k / N, through the engine.
+  async function singleSplit(model: PreviewModel, pipeId: string, fraction: number) {
+    const draft = { ...emptyGeometryDraft(), action: "split" as const, pipeRefs: [pipeId], fraction: String(fraction),
+      newNode: { id: "node:ONE", label: "ONE", provenance: "p" }, newPipe: { id: "pipe:ONE", label: "ONE", provenance: "p" } };
+    const batch = await buildGeometryBatch(model, draft, "one-split");
+    return applyOperationBatch(model, batch, await computeModelHash(model));
+  }
+
+  it("node k equals what one existing split of the original pipe at k / N stores (engine, k = 1 … N−1)", async () => {
+    const model = splitPartsModel();
+    const { result } = await applyThroughSession(model, "pipe:S", 7);
+    const applied = result.current.model.model!;
+    for (let k = 1; k < 7; k++) {
+      const single = await singleSplit(splitPartsModel(), "pipe:S", k / 7);
+      expect(single.validation.application_status).toBe("applied_to_session_model");
+      const one = single.applied_model!.nodes.find((n) => n.id === "node:ONE")!.position;
+      const node = applied.nodes.find((n) => n.id === `node:S${k * 10}`)!.position;
+      for (const axis of ["x", "y", "z"] as const) expect(Object.is(node[axis], one[axis]), `k=${k} ${axis}`).toBe(true);
+    }
+  });
+
+  it("stores the formula's binary64 value, not the correctly rounded interpolation (A=6.97…, B=−2.55…, N=8, k=7)", async () => {
+    const model = splitPartsModel();
+    model.nodes.find((n) => n.id === "node:D")!.position = { x: 6.9705855667666725, y: -3.7, z: 9 };
+    model.nodes.find((n) => n.id === "node:E")!.position = { x: -2.5521381070139633, y: -3.7, z: 9 };
+    const { result } = await applyThroughSession(model, "pipe:H", 8);
+    const x = result.current.model.model!.nodes.find((n) => n.id === "node:S70")!.position.x;
+    expect(Object.is(x, -1.3617976477913842)).toBe(true);
+    expect(x).not.toBe(-1.3617976477913838);
+  });
+
+  it("refuses a piece that rounds to zero length, as the engine refuses the same single split", async () => {
+    const model = splitPartsModel();
+    const ulp = 2 ** -36; // the spacing of binary64 near 1e5
+    model.nodes.find((n) => n.id === "node:D")!.position = { x: 1e5, y: -3.7, z: 9 };
+    model.nodes.find((n) => n.id === "node:E")!.position = { x: 1e5 + 2 * ulp, y: -3.7, z: 9 };
+    // The source spans 2 ulp ≈ 8.9e-12 m, longer than the 1e-12 m tolerance; at 1/8 the node rounds onto D.
+    expect(1e5 + 2 * ulp * 0.125).toBe(1e5);
+    const planned = await planSplitIntoParts(model, request("pipe:H", 8));
+    expect(planned.ok).toBe(false);
+    if (!planned.ok) expect(planned.reason).toContain("axis tolerance");
+    const single = await singleSplit(model, "pipe:H", 1 / 8);
+    expect(single.applied_model).toBeNull();
+    expect(JSON.stringify(single.operation_outcomes.flatMap((step) => step.diagnostics))).toContain("Degenerate or nonfinite axis/length");
+  });
+
+  // r1: the applier's record_shape includes the unit-aware corrosion and effective-wall rule.
+  it.each([
+    ["allowance equal to the wall", { corrosion_allowance: { value: 0.237, unit: "in" } }, false],
+    ["mill tolerance in mm plus allowance in in exceed the wall", { mill_tolerance: { value: 3, unit: "mm" }, corrosion_allowance: { value: 0.12, unit: "in" } }, false],
+    ["mill tolerance equal to the wall", { mill_tolerance: { value: 6.0198, unit: "mm" }, corrosion_allowance: { value: 0, unit: "in" } }, false],
+    ["a negative allowance", { corrosion_allowance: { value: -0.01, unit: "in" } }, false],
+    ["mill tolerance in mm plus allowance in in leave a wall", { mill_tolerance: { value: 3, unit: "mm" }, corrosion_allowance: { value: 0.1, unit: "in" } }, true]
+  ])("corrosion rule, %s: planner and engine agree", async (_name, extra, accepted) => {
+    const model = splitPartsModel();
+    Object.assign(model.pipe_segments.find((p) => p.id === "pipe:H")!.section, extra);
+    const planned = await planSplitIntoParts(model, request("pipe:H", 3));
+    const single = await singleSplit(model, "pipe:H", 1 / 3);
+    const engineMessages = single.operation_outcomes.flatMap((step) => step.diagnostics.map((item) => item.message));
+    expect(planned.ok).toBe(accepted);
+    expect(single.validation.application_status === "applied_to_session_model").toBe(accepted);
+    if (!planned.ok) {
+      expect(engineMessages.some((message) => message.includes(planned.reason.replace(/^Pipe pipe:H: /, "")))).toBe(true);
+      await expect(buildSplitIntoPartsBatch(model, request("pipe:H", 3), canonicalJsonString, "b")).rejects.toThrow();
+    }
   });
 });
