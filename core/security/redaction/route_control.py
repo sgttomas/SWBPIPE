@@ -275,10 +275,14 @@ def _materialize(value: Any) -> Any:
 def _declares_direct_public_basis(value: Mapping[str, Any]) -> bool:
     privacy = value.get("privacy_classification", value.get("classification"))
     redistribution = value.get("redistribution_status")
-    return privacy in {"public", "public_metadata", "invented_public_example"} and redistribution in {
-        "public_permissive",
-        "invented_non_engineering_example",
-    }
+    # A non-string label is a stated label that matches no class (input contract): it is no
+    # public basis, and an array or object no longer raises TypeError here.
+    return (
+        isinstance(privacy, str)
+        and privacy in {"public", "public_metadata", "invented_public_example"}
+        and isinstance(redistribution, str)
+        and redistribution in {"public_permissive", "invented_non_engineering_example"}
+    )
 
 
 def _leaf_classification(
