@@ -7,7 +7,7 @@ The CAEPIPE correlation pilot (DEL-17-05 Design `caepipe-correlation-pilot.md` �
 ## 1. Selection and persistence
 
 - **Field.** `model_settings.shear_model` ∈ {`euler_bernoulli`, `timoshenko_annulus_energy_v1`}, defined in model document 0.8.0 (#1649; Agent 0's ruling (a), 2026-10-27; W-17 implements the member).
-  - Absent means Euler–Bernoulli, and the product never writes it.
+  - Absent means Euler–Bernoulli. The product never writes the default unprompted. An **explicit** user set of `euler_bernoulli` writes the member, and clear restores absence. This is the tolerance member's rule (never written into a document the user did not author), as refined on #1649 (Codex r7, option A, Agent 0, 2026-10-27). Absent and explicit Euler–Bernoulli solve identically.
   - An authored `null`, or any other value, is refused: `MODEL-SETTING-SHEAR-MODEL-UNKNOWN`.
   - The field is refused on a document with `pressure_contract` (`MODEL-SETTING-SHEAR-MODEL-WITH-PRESSURE-CONTRACT`), so each document has one selection. An exact document keeps `pressure_contract.shear_model`.
 - **0.8.0 interim.** `euler_bernoulli` is admitted and solves exactly as absent: same rows and mechanics, only the model hash differs. `timoshenko_annulus_energy_v1` is refused by name at solve and at authoring (`MODEL-SETTING-SHEAR-MODEL-TIMOSHENKO-UNSUPPORTED`).
@@ -169,7 +169,7 @@ Changing the preview-physics-2 table would move its hash. Every recorded run bou
 
   A blocked Timoshenko envelope carries the new identity. The identity inventory test passes.
 - **Independent numerical scrutiny.** A Codex review covers the wiring, the ν and κ basis, the refusals, the readers and the references against their generator.
-- **Desktop.** The Model settings section gains "Straight-member shear deformation": Euler–Bernoulli (the default, written as absence) or Timoshenko (energy-matched annular factor). A line states that realized arcs stay Euler–Bernoulli and that Poisson's ratio is E/(2G) − 1. On an exact document the control is disabled and points to the pressure panel. There are Vitest tests for the intents, and the native smoke runs a Timoshenko solve, save and reopen.
+- **Desktop.** The Model settings section gains "Straight-member shear deformation": Euler–Bernoulli (the default) or Timoshenko (energy-matched annular factor). Choosing either writes the member, as an explicit user set; "Reset to default" clears it back to absence; and a document whose user never chose keeps it absent. A line states that realized arcs stay Euler–Bernoulli and that Poisson's ratio is E/(2G) − 1. On an exact document the control is disabled and points to the pressure panel. There are Vitest tests for the intents, and the native smoke runs a Timoshenko solve, save and reopen.
 
 ## 6. D3, sequencing and size
 
