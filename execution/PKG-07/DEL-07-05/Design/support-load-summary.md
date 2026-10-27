@@ -10,9 +10,8 @@ Neither is a qualification, an acceptance or a code check.
 ## 1. Basis and scope
 
 HELP_HUMAN adopted A2 under the owner's 2026-10-27 delegation (#1662). The CAEPIPE survey
-(#1657, `execution/_Coordination/PROPOSAL_2026-10-26_FEATURE_SURVEY.md` on
-`claude/piping-caepipe-survey-20261026`) recommends it because support and equipment loads are the
-main deliverable a stress run hands to the structural and mechanical disciplines, and the desktop
+(#1657, `execution/_Coordination/PROPOSAL_2026-10-26_FEATURE_SURVEY.md`) recommends it because
+support and equipment loads are the main deliverable a stress run hands to the structural and mechanical disciplines, and the desktop
 had no cross-case summary per support. It serves FR-SOL-007 and the support types of PRD §12.4,
 and it touches DEL-05-02 (envelopes) and DEL-08-04 (result export). This deliverable owns the
 viewer slice. W-17's key-results panel (A6) embeds the panel, so the derivation and the component
