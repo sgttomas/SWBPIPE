@@ -20,6 +20,28 @@ param(
 )
 $ErrorActionPreference = "Stop"
 
+# The target tool's user interface as the round trip addresses it.
+$Ui = @{
+    BlockingTitle = '^Caepipe: Error|^Caepipe Trial \|'
+    LayoutClass   = 'CaepipeLayout'
+    ResultsClass  = 'CaepipeResults'
+    DialogClass   = '#32770'
+    OpenMenu      = 'Open Results...'
+    OpenDialog    = 'Open Results'
+    OpenButton    = 'Open'
+    ChooserDialog = 'Results'
+    OkButton      = 'OK'
+    PrintMenu     = 'Print...'
+    PrintDialog   = 'Print Results'
+    AllButton     = 'All'
+    ToFileButton  = 'To File'
+    SaveDialog    = 'Print to File'
+    CsvType       = '*.csv*'
+    FileNameId    = 1152
+    FileTypeId    = 1136
+    CommitId      = 1
+}
+
 Add-Type @"
 using System; using System.Text; using System.Runtime.InteropServices; using System.Collections.Generic;
 public class CaepipeUi {
@@ -147,7 +169,7 @@ $proc = Start-Process -FilePath $Exe -ArgumentList ('"' + $Mbf + '";batchmode=ye
 $log.batch.command_shape = '<exe> "<mbf>";batchmode=yes'
 $deadline = $started.AddSeconds($BatchTimeoutSec)
 while ((Get-Date) -lt $deadline -and -not $proc.HasExited) {
-    $blocking = Window-Report ([uint32]$proc.Id) | Where-Object { $_ -match '^Caepipe: Error|^Caepipe Trial \|' }
+    $blocking = Window-Report ([uint32]$proc.Id) | Where-Object { $_ -match $Ui.BlockingTitle }
     if ($blocking -and (Wait-StableFile $resPath 3)) { break }
     if ($blocking -and -not (Test-Path $resPath)) { break }
     Start-Sleep -Milliseconds 500
@@ -166,57 +188,57 @@ $log.batch.csv_present = Test-Path $batchCsv
 if ($log.batch.csv_present) { $log.csv_path = $batchCsv; $log.status = "csv_from_batch"; $log | ConvertTo-Json -Depth 6; exit 0 }
 if (-not $log.batch.res_present) { $log.status = "no_results_after_batch"; $log | ConvertTo-Json -Depth 6; exit 2 }
 
-# 2. Print the solved results to CSV through the GUI.
+# 2. Fallback when the batch route yields no result file: print the solved results to CSV through the GUI.
 $log.gui.used = $true
 $gui = Start-Process -FilePath $Exe -WorkingDirectory (Split-Path $Exe) -PassThru
 $gp = [uint32]$gui.Id
 try {
-    $layout = Wait-Window $gp { param($h) [CaepipeUi]::Cls($h) -eq "CaepipeLayout" } 60
+    $layout = Wait-Window $gp { param($h) [CaepipeUi]::Cls($h) -eq $Ui.LayoutClass } 60
     if (-not $layout) { throw "layout window did not appear" }
     # A fresh instance may still be loading its start-up model when the window appears; a command posted
     # then is dropped, so wait and post once more if the dialog does not open.
     Start-Sleep -Seconds 2
-    Invoke-Menu $layout "Open Results..."
-    $open = Wait-Window $gp { param($h) [CaepipeUi]::Text($h) -eq "Open Results" } 15
+    Invoke-Menu $layout $Ui.OpenMenu
+    $open = Wait-Window $gp { param($h) [CaepipeUi]::Text($h) -eq $Ui.OpenDialog } 15
     if (-not $open) {
-        Note "Open Results command re-posted"
-        Invoke-Menu $layout "Open Results..."
-        $open = Wait-Window $gp { param($h) [CaepipeUi]::Text($h) -eq "Open Results" } 20
+        Note "open-results command re-posted"
+        Invoke-Menu $layout $Ui.OpenMenu
+        $open = Wait-Window $gp { param($h) [CaepipeUi]::Text($h) -eq $Ui.OpenDialog } 20
     }
-    if (-not $open) { throw "Open Results dialog did not appear" }
-    $edit = Find-ChildById $open "Edit" 1152
+    if (-not $open) { throw "open-results dialog did not appear" }
+    $edit = Find-ChildById $open "Edit" $Ui.FileNameId
     if (-not $edit) { throw "file name field not found" }
     [CaepipeUi]::SendMessage($edit, $WM_SETTEXT, [IntPtr]::Zero, $resPath) | Out-Null
-    Click $open "Open"
-    $chooser = Wait-Window $gp { param($h) [CaepipeUi]::Cls($h) -eq "#32770" -and [CaepipeUi]::Text($h) -eq "Results" } 30
-    if ($chooser) { Click $chooser "OK" }
-    $results = Wait-Window $gp { param($h) [CaepipeUi]::Cls($h) -eq "CaepipeResults" } 30
+    Click $open $Ui.OpenButton
+    $chooser = Wait-Window $gp { param($h) [CaepipeUi]::Cls($h) -eq $Ui.DialogClass -and [CaepipeUi]::Text($h) -eq $Ui.ChooserDialog } 30
+    if ($chooser) { Click $chooser $Ui.OkButton }
+    $results = Wait-Window $gp { param($h) [CaepipeUi]::Cls($h) -eq $Ui.ResultsClass } 30
     if (-not $results) { throw "results window did not appear" }
     Start-Sleep -Milliseconds 500
-    Invoke-Menu $results "Print..."
-    $print = Wait-Window $gp { param($h) [CaepipeUi]::Text($h) -eq "Print Results" } 20
-    if (-not $print) { throw "Print Results dialog did not appear" }
-    Click $print "All"
+    Invoke-Menu $results $Ui.PrintMenu
+    $print = Wait-Window $gp { param($h) [CaepipeUi]::Text($h) -eq $Ui.PrintDialog } 20
+    if (-not $print) { throw "print dialog did not appear" }
+    Click $print $Ui.AllButton
     Start-Sleep -Milliseconds 500
-    Click $print "To File"
-    $save = Wait-Window $gp { param($h) [CaepipeUi]::Text($h) -eq "Print to File" } 20
-    if (-not $save) { throw "Print to File dialog did not appear" }
-    $type = Find-ChildById $save "ComboBox" 1136
+    Click $print $Ui.ToFileButton
+    $save = Wait-Window $gp { param($h) [CaepipeUi]::Text($h) -eq $Ui.SaveDialog } 20
+    if (-not $save) { throw "print-to-file dialog did not appear" }
+    $type = Find-ChildById $save "ComboBox" $Ui.FileTypeId
     if (-not $type) { throw "file type field not found" }
     $count = [CaepipeUi]::SendMessage($type, $CB_GETCOUNT, [IntPtr]::Zero, [IntPtr]::Zero).ToInt32()
     $csvIndex = -1
     for ($i = 0; $i -lt $count; $i++) {
         $sb = New-Object Text.StringBuilder 512
         [CaepipeUi]::SendMessage($type, $CB_GETLBTEXT, [IntPtr]$i, $sb) | Out-Null
-        if ($sb.ToString() -like "*.csv*") { $csvIndex = $i }
+        if ($sb.ToString() -like $Ui.CsvType) { $csvIndex = $i }
     }
     if ($csvIndex -lt 0) { throw "CSV file type not offered" }
     [CaepipeUi]::SendMessage($type, $CB_SETCURSEL, [IntPtr]$csvIndex, [IntPtr]::Zero) | Out-Null
-    [CaepipeUi]::PostMessage($save, $WM_COMMAND, [IntPtr](1136 -bor ($CBN_SELCHANGE -shl 16)), $type) | Out-Null
-    $name = Find-ChildById $save "Edit" 1152
+    [CaepipeUi]::PostMessage($save, $WM_COMMAND, [IntPtr]($Ui.FileTypeId -bor ($CBN_SELCHANGE -shl 16)), $type) | Out-Null
+    $name = Find-ChildById $save "Edit" $Ui.FileNameId
     [CaepipeUi]::SendMessage($name, $WM_SETTEXT, [IntPtr]::Zero, $guiCsv) | Out-Null
     Start-Sleep -Milliseconds 300
-    $commit = Find-ChildById $save "Button" 1
+    $commit = Find-ChildById $save "Button" $Ui.CommitId
     [CaepipeUi]::PostMessage($commit, $BM_CLICK, [IntPtr]::Zero, [IntPtr]::Zero) | Out-Null
     if (Wait-StableFile $guiCsv $GuiTimeoutSec) { $log.csv_path = $guiCsv; $log.status = "csv_from_gui_print" }
     else { $log.status = "csv_not_written"; $log.gui.windows = @(Window-Report $gp) }

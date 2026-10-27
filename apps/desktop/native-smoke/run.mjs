@@ -324,7 +324,7 @@ function check(name, ok, detail) {
 function observation(report, name, mode) {
   return report.observations?.find((item) => item.case === name && item.mode === mode);
 }
-function checkObservation(prefix, seen, want, modelHash) {
+function checkObservation(prefix, seen, want, modelHash, supportCount) {
   if (!seen) return check(`${prefix}: observed`, false, "no observation");
   check(`${prefix}: rows`, seen.proof_rows === want.rows && seen.result_filter_summary?.endsWith(`of ${want.rows} results match filter`), `${seen.proof_rows}; ${seen.result_filter_summary}`);
   if (want.probe_entered) check(`${prefix}: ${seen.probe}`, seen.probe_entered === want.probe_entered, seen.probe_entered);
@@ -332,6 +332,10 @@ function checkObservation(prefix, seen, want, modelHash) {
   check(`${prefix}: solve proof model_sha256`, seen.proof_model_sha256 === modelHash, seen.proof_model_sha256);
   check(`${prefix}: solve proof identity`, seen.solve_proof?.includes("identity=match") && seen.proof_project === seen.project_id, seen.proof_project);
   check(`${prefix}: no retained-precision diagnostics`, seen.retained_precision_codes.length === 0 && seen.retained_precision_elements === 0, seen.retained_precision_codes);
+  // A2 (DEL-07-05 Design support-load-summary.md): structure only; the support count is the opened model's.
+  const loads = seen.support_load;
+  check(`${prefix}: support load summary, one support of the model's ${supportCount} with every row stated and the extreme rows`,
+    loads?.table && new RegExp(`^Support \\d+ of ${supportCount}$`).test(loads.position ?? "") && loads.rows > 0 && loads.rows_stated === loads.rows && loads.extreme_rows === 2, loads);
 }
 
 const first = await launch("open-solve-save", { report_package: REPORT_PACKAGE_SAVE, exact_report_package: EXACT_REPORT_PACKAGE_SAVE });
@@ -367,7 +371,7 @@ for (const want of expected.refusals) {
 }
 for (const doc of documents) {
   const hash = modelSha256(doc.document);
-  for (const mode of doc.modes) checkObservation(`${doc.case}/${mode}`, observation(first, doc.case, mode), doc.observations[mode], hash);
+  for (const mode of doc.modes) checkObservation(`${doc.case}/${mode}`, observation(first, doc.case, mode), doc.observations[mode], hash, doc.document.supports.length);
 }
 
 // HELP_HUMAN ruling (2026-10-10): the app never silently replaces a stored project.
@@ -624,7 +628,7 @@ for (const doc of documents) {
   const hash = doc.saved_model ? modelSha256(doc.saved_model) : null;
   for (const mode of doc.modes) {
     const seen = observation(second, doc.case, mode);
-    checkObservation(`${doc.case}/${mode}/reopened`, seen, doc.observations[mode], hash);
+    checkObservation(`${doc.case}/${mode}/reopened`, seen, doc.observations[mode], hash, doc.document.supports.length);
     const before = observation(first, doc.case, mode);
     check(`${doc.case}/${mode}/reopened: same rows and probed value as before save`, seen && before && seen.proof_rows === before.proof_rows && seen.probe_entered === before.probe_entered);
   }

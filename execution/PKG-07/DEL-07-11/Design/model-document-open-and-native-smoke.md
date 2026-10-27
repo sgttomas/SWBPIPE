@@ -370,6 +370,20 @@ refusal named in the product:
 A broken step stops the driver, the phase reports not completed, and every
 later check fails for want of its observation.
 
+**Showing a section.** Choosing the page that is already open closes it (View
+menu). So the driver sends a View section command only when that section is not
+shown, and then waits until it shows. The driver used to send the command
+regardless. Two steps then chose Report while it was open: the demo's
+local-private render after its package save, and the exact-route render. That
+second choice closed the page. Its wait passed only when its first sample ran
+before the close was drawn, which depends on whether the menu command's reply or
+the page's re-render runs first in the webview. In run 1 of the #1668 smoke at
+`594e437a09`, at the exact-route render, the re-render ran first. The wait timed
+out after 120 s, the blank was never authored, and phase 2 failed for want of
+it. When the wait did pass, the render ran on a closed page, and on the exact
+route the package save chose Report a third time to reopen it. `native-smoke/driver.test.mjs` covers both cases, an open
+section and a hidden one. Timeouts are unchanged.
+
 A step the window reports as failed stops the driver at once with that
 report, rather than waiting out its timeout. One example is a solve whose job
 reaches a terminal state other than `completed`: `refused`, `failed` or

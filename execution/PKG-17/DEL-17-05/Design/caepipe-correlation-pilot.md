@@ -40,11 +40,9 @@ of engineering use, or compatibility proof (DEL-17-05-REQ-008, F-PIP-3).
 |---|---|
 | Target | CAEPIPE 15.10 (PRD §22.5 names the target tool and version), run under the owner's licence; MBF `VERSION 15.10` per the public import page |
 | Environment | The owner's Windows virtual machine under Parallels on the development Mac; commands run as the logged-in Windows user (`prlctl exec <vm> --current-user`) |
-| Licence period | Limited, from first launch (2026-10-26); the private case manifests record the date |
-| Model size | The build in use limits model size (private observation notes; DEL-17-01 CQ-17-01-009) |
 
-That limit shapes the pilot corpus: every case stays small. The writer reports the
-layout row count against a configurable limit and warns above it, but does not refuse.
+The pilot cases are small. The writer reports the layout row count against a
+configurable threshold and warns above it, but does not refuse.
 
 ## 3. Invocation profile (settles DEL-17-05-REQ-003 for the pilot)
 
@@ -58,16 +56,12 @@ It imports the MBF, writes `<model>.mod` and `<model>.res`, and is documented to
 `<model>.csv` beside the MBF. The harness always runs this route first and uses its CSV
 whenever one appears.
 
-**Workaround for the build in use (labelled, not hardened).** With the build used by
-the pilot, the batch run does not leave the documented CSV (private observation
-notes; DEL-17-01 CQ-17-01-008). Until a build does, the guest script stops the
-process it started, opens the solved results in a fresh instance of the target tool
-that it starts itself, and prints the results to CSV through the documented
-print-to-file command, finding menu items and buttons by their visible captions. It
-reads no binary result file and stops only processes it started. The run record states
-which route produced the CSV (`csv_from_batch` or `csv_from_gui_print`). This fallback
-exists only for that build and gets no further investment; a licensed full build
-should be checked for batch CSV output first.
+**Fallback when the batch route yields no result file.** The guest script then stops
+the process it started, opens the solved results in a fresh CAEPIPE instance that it
+starts itself, and prints the results to CSV through the documented print-to-file
+command (`CAEPIPE-PRINT-TO-FILE`), finding menu items and buttons by their visible
+captions. It reads no binary result file and stops only processes it started. The run
+record states which route produced the CSV (`csv_from_batch` or `csv_from_gui_print`).
 
 ## 4. Configuration surface (DEL-17-05-PH-001)
 
@@ -97,6 +91,8 @@ cases/<case_id>/
   swbpipe/                   solve request and SWBPIPE result envelope
   caepipe_in/                model.mbf, id_map.json, mbf_render.json (diagnostics, loss report, mapping assumptions)
   caepipe_out/               CSV, guest run log, .mod/.res as CAEPIPE wrote them        PRIVATE
+  caepipe_out/exported.mbf   CAEPIPE's MBF export of the solved model (DEL-17-04)        PRIVATE
+  imported/                  import outcome of exported.mbf, derived from CAEPIPE output PRIVATE
   parsed/                    normalized CAEPIPE results                                  PRIVATE
   comparison/                three-way comparison record                                 PRIVATE
 series/<hypothesis_id>.json  hypothesis series evaluation (§7)                          PRIVATE
@@ -123,8 +119,9 @@ idempotent and is retried when the `prlctl` client itself fails (exit 255 with a
   (`OPTIONS SI`, lengths in mm, E in N/mm², weight density in kgf/m³) from the headless
   runner's preview model. A project or quantity in another unit system is refused by
   name, not converted. Unsupported constructs are refused by name and listed in the
-  loss report. Rotational partial restraints are refused because the target tool's
-  import does not accept them (private notes); translational `FIXD` is written. A
+  loss report. Rotational partial restraints are refused because CAEPIPE's MBF
+  import does not accept `FIXR` records (observed format behaviour); translational
+  `FIXD` is written. A
   curved bend is written at its tangent intersection (`KI`, radius `B`, the user
   flexibility factor as `FF`); CAEPIPE generates the bend's near and far end nodes
   with `A` and `B` suffixes on the bend node (technical reference, "Bend",
@@ -147,8 +144,8 @@ idempotent and is retried when the `prlctl` client itself fails (exit 255 with a
   correlation per REQ-010, bound back to SWBPIPE ids through the writer's id map).
 
   The section titles, header and unit rows, the blank-as-zero rule and the row order
-  come from private notes, not from public documentation. The public test fixture is
-  invented and labelled, with no attribution.
+  are observed format behaviour of the CSV CAEPIPE writes; the public documentation
+  does not list them. The public test fixture is invented and labelled.
 - **Comparison record.** Each case produces one record naming what PRD §22.5 lists:
   internal model hash, exported MBF hash, target tool and version, import/export
   assumptions, manual changes (none), load-case mapping, support mapping, comparison
@@ -193,7 +190,7 @@ in the operating cases ("Force", <https://docs.sstcae.com/tech_manual/force.htm>
 
 Sign and unit mappings are applied before comparison. The target tool's support loads
 and SWBPIPE's reactions differ in sign, rotations arrive in degrees, and the mechanical
-case appears in more than one of the target tool's load cases (private notes). The
+case appears in more than one of CAEPIPE's load cases (observed format behaviour). The
 pilot therefore compares the target tool's sustained case, with empty pipes and zero
 pressure.
 
@@ -217,7 +214,7 @@ Each case carries three tolerances, all `ASSUMPTION`:
 | `external` | SWBPIPE–prover, analytic–prover | rel 0.5 %; abs 2e-6 m, 2e-6 rad, 1 N, 1 N·m |
 | `caepipe_print_resolution` | alternative analytic–prover | rel 1e-6; abs half a printed unit: 0.5 N, 0.5 N·m, 5e-7 m, 8.7266e-7 rad |
 
-The printed resolution of the target tool's CSV (private notes) sets the
+The printed resolution of CAEPIPE's CSV (observed format behaviour) sets the
 `caepipe_print_resolution` values: half a printed unit is the tightest tolerance the
 printed values can resolve.
 
@@ -243,10 +240,6 @@ carries a different series status. Standard output names only the files written.
 
 ### 7.1 Shear deformation evidence
 
-Facts learned from running the target tool are written in this Design without the
-product name, vendor or version, and their detail is kept in private notes (owner,
-2026-10-26). Facts that the public manuals document are cited to them.
-
 SWBPIPE's frame preview is Euler–Bernoulli. CAEPIPE's technical reference, page
 "Fiber Reinforced Plastic Piping (FRP)", section "Stiffness matrix"
 (<https://docs.sstcae.com/tech_manual/fiber_reinforced_plastic_piping__frp_.htm>),
@@ -266,21 +259,38 @@ rule of §6: the alternative analytic must match the external prover at print re
 series must be consistent.
 
 The private run records the residual of every alternative-analytic check. Where a
-residual exceeds print resolution although SWBPIPE and the external prover match within the
-external tolerance, no cause is assigned. The residual is still reported as part of
-the hypothesis that is not yet explained, and the shape factor is not refitted to
-absorb it.
+residual exceeds print resolution although SWBPIPE and the external prover match within
+the external tolerance, no cause is assigned, the residual stays in the private record,
+and the shape factor is not refitted to absorb it.
 
 A difference indicating a wrong SWBPIPE output goes to Agent 0 with its evidence and
 is not fixed in this deliverable.
 
 ## 8. Data boundary
 
-CAEPIPE's outputs and everything derived from them (parsed values, differences,
-agreement counts, tolerances measured from them) stay in the exchange folder and are
-never committed, pushed, or written into PR, issue or other GitHub text. Public
-material is limited to invented models, SWBPIPE-generated MBF, code, this Design, and
-invented parser fixtures. Vendor files in the CAEPIPE install folder are read locally
+<!-- policy-text -->
+The owner's rule (2026-10-26): <!-- owner-words -->"I want: **interoperate openly, evaluate privately**".<!-- /owner-words -->
+Public text (the repository, PRs and commits) may name CAEPIPE and state the file-format
+and interface facts the code needs to interoperate: record syntax, CSV section layout,
+labels, sign and unit conventions, and how the importer and exporter map records. A fact
+the public manual covers is cited to it (DEL-17-01 `Source_Basis_Register.md`); any other
+is stated plainly as observed format behaviour. Code may contain whatever it needs.
+Anything that evaluates CAEPIPE stays in the exchange folder: result values, differences,
+agreement counts and classifications, tolerances measured from results; its defects and
+crashes, the trial's limits, the evaluation stamp, its performance; screenshots and
+survey notes. The lane-local check `tools/caepipe_correlation/check_public_observations.py`
+screens added public text for those kinds of content. A lexical check is only a backstop, so
+every pull request in this lane that adds public text also gets an independent content pass for
+evaluation material on its final diff (Agent 0, 2026-10-27); that review is the control.
+<!-- /policy-text -->
+
+CAEPIPE's output files and the values parsed or derived from them (results,
+differences, agreement counts and classifications, tolerances measured from them) stay in
+the exchange folder and are never committed, pushed, or written into PR, issue or other
+GitHub text. The format and interface facts the code needs, including those learned
+from CAEPIPE's outputs, are public as stated above. Public material is otherwise limited
+to invented models, SWBPIPE-generated MBF, code, this Design, and invented parser
+fixtures. Vendor files in the CAEPIPE install folder are read locally
 only and never copied. No public text claims agreement with CAEPIPE. The pilot
 command's standard output carries operational status only (case, route, the record's
 path in the exchange folder or the reason none was written); outcome and cause counts
@@ -301,15 +311,16 @@ classification. It never prints external-prover values outside the local run.
 
 ## 10. Remaining items
 
-- Batch-route CSV on a licensed build; retire the GUI-print fallback once batch output
-  works (CQ-17-01-008).
 - A governed tolerance class for external-oracle comparisons (owner ruling).
 - Writer breadth: springs, guides, hangers, nonlinear supports, pressure, rigid and
   valve components, temperature-dependent materials, imperial-unit projects
   (conversion), multiple thermal cases.
 - The desktop `.mbf` export (`CaepipeMbfExportPanel.tsx`) still writes the placeholder
   smoke text; it should use the SI writer's record subset.
-- Wider correlation corpus once a full licence lifts the model-size limit.
+- A wider correlation corpus (larger models, more load types) under the full licence.
 - Non-unit bend flexibility factors are untested: the bend case uses k = 1.
 - CAEPIPE's pipe shear shape factor and default gravitational acceleration
   (CQ-17-01-010); κ = 0.5 stays an `ASSUMPTION` until answered.
+- Two-way iteration (CAEPIPE's MBF export of the solved model): a guest step that
+  writes `caepipe_out/exported.mbf` for DEL-17-04's private import regression
+  (DEL-17-04 `Design/caepipe-mbf-import.md` §18.3).

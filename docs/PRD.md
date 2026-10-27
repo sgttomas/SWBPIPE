@@ -5,8 +5,8 @@
 **Product type:** Analysis-grade piping design engine and stress-model authoring environment  
 **Document version:** 0.4 Draft  
 **Date:** 2026-05-02  
-**Amended:** 2026-07-16; 2026-09-18; 2026-10-12; 2026-10-17 (§12.8, verified result bounds)  
-**Status:** Adopted PRD authority per D-21 / DEC-056 / SCA-005, as amended by D-47 / DEC-080 / SCA-007 (2026-07-16) by D-71 / DEC-101 / SCA-010 (2026-09-18, product name only), by SCA-012 (2026-10-12, elastic tie rods) and by the owner-approved 2026-10-17 §12.8 amendment (verified result bounds)  
+**Amended:** 2026-07-16; 2026-09-18; 2026-10-12; 2026-10-17 (§12.8, verified result bounds); 2026-10-27 (FR-SOL-016 and §12.9, modal analysis)  
+**Status:** Adopted PRD authority per D-21 / DEC-056 / SCA-005, as amended by D-47 / DEC-080 / SCA-007 (2026-07-16) by D-71 / DEC-101 / SCA-010 (2026-09-18, product name only), by SCA-012 (2026-10-12, elastic tie rods), by the owner-approved 2026-10-17 §12.8 amendment (verified result bounds) and by SCA-013 (2026-10-27, modal analysis)  
 **Intended audience:** Piping designers, piping stress engineers, software architects, numerical-method developers, open-source contributors, owner-operators, EPC engineering managers, and technical reviewers
 
 ---
@@ -78,6 +78,8 @@ This PRD was amended on 2026-07-16 under D-47 Option O-A (codified as DEC-080, e
 This PRD was amended on 2026-10-12 by SCA-012 on the owner's choice "Lift for tie rods only": elastic tie rods on expansion joints, as explicit rod elements, left the §7 non-goals (item 19) and joined the §12.3 expansion-joint requirements; hinge and gimbal hardware remain non-goals.
 
 This PRD was amended on 2026-10-17: §12.8 gained a requirement for verified result bounds (decomposition revision 0.15, SOW-080). The owner approved its text in PR #1405: "I approve #1405 as required."
+
+This PRD was amended on 2026-10-27 by SCA-013: modal analysis (natural frequencies and mode shapes) re-entered scope as FR-SOL-016 and §12.9 (decomposition revision 0.16, SOW-081, DEL-04-09), reversing the DEC-078 deferral of the v0.1 FR-024 for modal analysis only. Response-spectrum and time-history analysis remain deferred. HELP_HUMAN decided the change under the owner's delegation of 2026-10-27 (`loop/LOOP_INIT.md`: "Yes, decide them too").
 
 ---
 
@@ -522,6 +524,7 @@ Key needs:
 | FR-SOL-013 | Support expansion joints | Should | Expansion joints accept stiffnesses, effective pressure area, movement limits, and manufacturer provenance. |
 | FR-SOL-014 | Support nonlinear restraints | Should | Gaps, one-way supports, lift-off, and friction converge on validation cases and report diagnostics. |
 | FR-SOL-015 | Report numerical diagnostics | Must | Solver reports singularities, ill-conditioning, residuals, convergence issues, and invalid elements. |
+| FR-SOL-016 | Support modal analysis | Should | Natural frequencies, normalized mode shapes with their generalized masses, participation factors and effective masses of the linear model are computed on its self-weight mass basis from a user-entered mode count or frequency cut-off, each extracted set is checked for numerical integrity and completeness under stated premises, closed-form modal benchmarks pass, and at least one published piping benchmark with recorded redistribution evidence is compared (§12.9). |
 
 ### 11.5 Rule-Pack and Private Data Requirements
 
@@ -593,7 +596,7 @@ The solver shall use a 3D line-element representation of the piping centerline. 
 Ux, Uy, Uz, Rx, Ry, Rz
 ```
 
-The initial formulation shall be linear elastic, small-displacement, static 3D frame analysis. Later modules may add geometric nonlinearity, dynamics, or specialized component behavior.
+The initial formulation shall be linear elastic, small-displacement, static 3D frame analysis. Modal analysis of the same linear model is specified in §12.9. Later modules may add geometric nonlinearity, further dynamics, or specialized component behavior.
 
 ### 12.2 Solver Capabilities
 
@@ -792,6 +795,19 @@ Where its retained-precision method establishes them, the engine shall publish v
 - Each published verified result shall be checkable by consumers separate from its solver: the product result reader, whose native and WebAssembly builds give the same outcome for the same input, and a test verifier that shares no code with the producer. They check the published statement, its classes and the inputs they can rederive. They do not re-run the solve or replay its proof.
 - The method shall run within fixed resource limits. Each retained-precision invocation is admitted only within a memory budget qualified for the actual product build: 12 GiB on the 16 GiB base machine, under the existing qualification margins. These are accounting margins, not measured memory. Retained-source recovery runs within its stated size and work limits. A build that is not qualified publishes no retained-precision result, and its ordinary results stand.
 - No product surface produces retained-precision results until the owner activates the method there.
+
+### 12.9 Modal Analysis
+
+The engine shall compute the natural frequencies and mode shapes of the linear model of §12.1 about its unloaded configuration:
+
+- solve the generalized eigenproblem of the restraint-reduced stiffness and a mass matrix on the self-weight basis: the pipe metal, contents and insulation mass from the user-entered section data, and the user-entered weights of rigid and semi-rigid components at their centres of gravity, converted to mass by a user-entered acceleration; no mass or acceleration is defaulted;
+- take a number of modes, a frequency cut-off or both as a required user input, with no default; report the lowest modes up to whichever bound is reached first, the cut-off inclusive, extending the set only to complete a cluster at the boundary and disclosing that extension, where a cluster is a run of adjacent computed eigenvalues each within a stated relative cluster tolerance of the next;
+- publish each mode's frequency, period and shape, its generalized mass, its translational participation factors and effective masses, and the model's total and participating mass, each in a unit of the unit catalog. A mode with translation is normalized to unit maximum translation, its generalized mass in kg. A mode with no translation, such as pure torsion, decided by a stated threshold relative to its rotations, is normalized to unit maximum rotation, its generalized mass in kg·m², with negligible translational participation and effective mass, each translational effective-mass fraction at most that threshold;
+- check each extracted set with numerical-integrity checks under stated premises: per mode, a residual against a higher-precision re-formation of the stiffness and mass, with a residual-based error estimate; mass orthogonality; and a Sturm count, taken only at a shift separated from the computed eigenvalues by a stated multiple of its estimated backward error, that agrees with the number of modes reported. Refuse a set whose count disagrees, or whose count cannot be taken under that separation. State that these checks are estimates under their premises, not mathematical bounds on the eigenvalues;
+- refuse by name what it does not admit, such as nonlinear supports, rather than linearizing it silently;
+- reproduce closed-form beam, rod and ring frequencies, and compare with at least one published piping benchmark, transcribed only with that source's own redistribution evidence, at a stated tolerance, as comparison evidence.
+
+Response-spectrum, harmonic and time-history analysis are not required. A modal result is a numerical statement about the discrete model: it establishes neither physical correctness nor a code-compliance determination (§21.2).
 
 ---
 
@@ -1512,7 +1528,7 @@ MVP shall not include:
 - forced prover-status lifecycle;
 - protected standards data;
 - automatic professional acceptance records;
-- advanced nonlinear/dynamic modules unless otherwise prioritized.
+- advanced nonlinear/dynamic modules unless otherwise prioritized (modal analysis, §12.9, is prioritized by SCA-013; response-spectrum and time-history modules are not).
 
 ---
 

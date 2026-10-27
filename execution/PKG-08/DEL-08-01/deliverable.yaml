@@ -297,6 +297,15 @@ needs:
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
   evidence: execution/PKG-08/DEL-08-04/Specification.md
+- from: DEL-04-09
+  condition: >-
+    The rendered report's "Modal analysis" section (F1 M3) states DEL-04-09's request and basis, mass
+    summary, modes table, integrity evidence, refusals, disclosures and the `product_preview_modal_v1`
+    limitation, taking the Rust modal reader's verdict, with no claim language beyond the existing fences
+    (DEL-04-09 Design §5.1).
+  gating: true
+  when: Before the report's modal section ships (DEL-04-09 M3).
+  evidence: execution/PKG-04/DEL-04-09/Design/modal-analysis.md
 code_paths:
 - core/reporting/report_generator/
 - core/reporting/report_package/
