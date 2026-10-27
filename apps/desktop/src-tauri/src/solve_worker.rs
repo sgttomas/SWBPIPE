@@ -27,8 +27,10 @@
 //!   (the producer's exact bytes), or `FAIL {n}` + n bytes (n <= 64 KiB).
 //!   The parent reads an `ATST` body into a fixed 64-byte buffer. A result
 //!   without its `ATST`, an `ATST` followed by anything but `RSLT` (a second
-//!   `ATST` included), or one with another status or nonzero `b`/`c` is a
-//!   protocol violation and fails the job.
+//!   `ATST` included), one with another status or nonzero `b`/`c`, or any
+//!   output after the result (a frame or not) is a protocol violation and
+//!   fails the job; the parent reads the channel to its end before the
+//!   result counts.
 //!
 //! The solve attestation: before the solve the worker digests the model value
 //! it materialized (`d_M`), and after the unchanged solve it parses the
@@ -785,6 +787,22 @@ fn protocol(message: impl std::fmt::Display) -> WorkerOutcome {
     WorkerOutcome::Failed(format!("SOLVE_WORKER_PROTOCOL: {message}"))
 }
 
+/// Reads the channel after the result up to the worker's end of it (EOF, at
+/// its exit or kill): None if nothing followed the result, else the
+/// violation. The result lease and the grant stay held meanwhile, as they do
+/// until the reap.
+fn trailing_output(stdout: &mut ChildStdout) -> Option<String> {
+    let mut byte = [0u8; 1];
+    loop {
+        match stdout.read(&mut byte) {
+            Ok(0) => return None,
+            Ok(_) => return Some(format!("output after the result (byte 0x{:02x})", byte[0])),
+            Err(error) if error.kind() == std::io::ErrorKind::Interrupted => {}
+            Err(error) => return Some(format!("the channel after the result failed: {error}")),
+        }
+    }
+}
+
 /// How often the supervisor measures a worker's physical footprint while no
 /// frame arrives: the bound on how long memory outside the counted heap can
 /// exceed the grant (or the budget) unnoticed.
@@ -1174,6 +1192,12 @@ pub(crate) fn supervise(
                     break;
                 }
                 lease.set_purpose(LeasePurpose::Result);
+                // Nothing follows the result (§2.4): a byte after it, a frame
+                // (a second `ATST` included) or not, is a violation.
+                if let Some(trailing) = trailing_output(&mut process.stdout) {
+                    verdict = end(protocol(trailing));
+                    break;
+                }
                 completed = Some((result, lease, attested));
                 break;
             }
@@ -1511,6 +1535,31 @@ pub(crate) mod tests {
             "result_without_atst" => {
                 result(b"{}");
                 sleep_forever()
+            }
+            // Output after a well-formed result, then a clean exit.
+            "trailing_atst" => {
+                frame(TAG_ATTESTATION, 1, 0, &full);
+                result(b"{}");
+                frame(TAG_ATTESTATION, 1, 0, &full);
+                std::process::exit(0)
+            }
+            "trailing_atst_status" => {
+                frame(TAG_ATTESTATION, 1, 0, &full);
+                result(b"{}");
+                frame(TAG_ATTESTATION, 2, 0, &full);
+                std::process::exit(0)
+            }
+            "trailing_result" => {
+                frame(TAG_ATTESTATION, 0, 0, &[]);
+                result(b"{}");
+                result(b"{}");
+                std::process::exit(0)
+            }
+            // A result frame of 2 bytes followed by 3 more bytes (no frame).
+            "trailing_bytes" => {
+                frame(TAG_ATTESTATION, 0, 0, &[]);
+                frame(TAG_RESULT, 2, 0, b"{}xyz");
+                std::process::exit(0)
             }
             _ => run_scripted(workload, raw, mode).map(|text| match text.strip_prefix("attested:") {
                 Some(text) => (text.to_string(), Some(scripted_attestation(text))),
@@ -2128,8 +2177,11 @@ pub(crate) mod tests {
 
     /// §2.4: an `ATST` anywhere but directly before the result, a second one,
     /// another status, nonzero fields, a body that does not match the status,
-    /// and a result without its `ATST` are protocol violations: the job fails,
-    /// the worker is killed and reaped and every lease is released.
+    /// a result without its `ATST`, and any output after the result (a second
+    /// `ATST` of either status, a second result, bytes that are no frame),
+    /// even from a worker that exits 0, are protocol violations: the job
+    /// fails, the worker is killed and reaped and every lease is released. A
+    /// well-formed run still completes.
     #[test]
     fn atst_protocol_violations_fail_the_job() {
         let pool = pool();
@@ -2142,6 +2194,10 @@ pub(crate) mod tests {
             ("atst_body_on_status_0", "an ATST frame followed by"),
             ("atst_short_body", "the ATST frame was truncated"),
             ("result_without_atst", "a result without its ATST frame"),
+            ("trailing_atst", "output after the result (byte 0x41)"),
+            ("trailing_atst_status", "output after the result (byte 0x41)"),
+            ("trailing_result", "output after the result (byte 0x52)"),
+            ("trailing_bytes", "output after the result (byte 0x78)"),
         ] {
             let run = run(&pool, &*TestLauncher::scripted(workload), BODY, 12 * GIB, PROCESS_RESERVE_BYTES);
             match &run.outcome {
@@ -2153,6 +2209,12 @@ pub(crate) mod tests {
             assert_reaped(run.pid);
             assert_eq!(pool.reserved_total(), 0, "{workload}");
         }
+        let run = run(&pool, &*TestLauncher::scripted("attested:{}"), BODY, 12 * GIB, PROCESS_RESERVE_BYTES);
+        let WorkerOutcome::Completed { result, attestation, lease } = run.outcome else { panic!("{:?}", run.outcome) };
+        assert_eq!((result.as_slice(), attestation), (&b"{}"[..], Some(scripted_attestation("{}"))));
+        drop(lease);
+        assert_reaped(run.pid);
+        assert_eq!(pool.reserved_total(), 0);
     }
 
     /// A demo variant whose solve the checked profile refuses: the moduli
