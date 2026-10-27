@@ -201,7 +201,12 @@ concrete-path, protected and quarantined/rejected checks, exactly as the
 classification decides that object. Only then does it label each leaf with the
 privacy and redistribution of its nearest enclosing object that states them
 (its own member, else its provenance's, as the classification reads them),
-else `private_project_data` / `private_only`, with no path-token labelling. It
+else `private_project_data` / `private_only`, with no path-token labelling.
+Only an absent label inherits: an object's explicitly stated privacy or
+redistribution that the classification does not recognize (for example `{}`,
+`[]`, a number, an empty or unknown string, or a null or `unknown` privacy)
+blocks at that object (`USER_RELEASE_VALUE_UNBOUND`), whatever its descendants
+state. It
 is lossless, and its local-first admission holds the route metadata under the
 existing `private_report` storage context.
 

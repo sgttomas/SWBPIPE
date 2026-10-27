@@ -2165,7 +2165,13 @@ else `private_project_data` / `private_only`. So:
   wrapper's intent, a block without it;
 - an object labelled with a non-project private class is withheld by step 10;
 - a protected, quarantined or rejected object blocks (steps 8-9);
-- an object with unknown own metadata blocks (step 13).
+- an object with unknown own metadata blocks (step 13). An explicitly stated
+  own privacy or redistribution (its own member, its provenance's, or its
+  `privacy_class`, as the projector reads them) that the classification does not
+  recognize, such as `{}`, `[]`, a number, a boolean, an empty or unknown
+  string, or a null, `unknown` or `TBD` privacy, blocks at that object by step
+  13 (`USER_RELEASE_VALUE_UNBOUND`), and no descendant's label replaces it;
+  only an absent label inherits (Codex r4 of the r1 slice).
 
 There is no path-token labelling and no field table on this route. The
 webview's check is early; native admission's derivation decides (§2.6).

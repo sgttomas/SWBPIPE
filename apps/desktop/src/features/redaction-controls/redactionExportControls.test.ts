@@ -1600,3 +1600,233 @@ describe("user-released context: the redaction walk refuses the context; the pro
     }
   });
 });
+
+// Codex r4: an explicitly stated but unrecognized own label is decided by step 13 at its object,
+// so no descendant's label can replace it for the leaves beneath; only an absent label inherits.
+const MALFORMED_LABEL_VALUES: unknown[] = [{}, [], { nested: "x" }, [1], 0, 7, 2.5, true, false, "", "bogus_label"];
+/** Privacy values the classification decides by step 13 although they are of a recognized form. */
+const UNKNOWN_PRIVACY_VALUES: unknown[] = [null, "unknown", "TBD"];
+const RECOGNIZED_PRIVACY = ["public", "public_metadata", "invented_public_example", "private_project_data", ...NON_PROJECT_PRIVATE_CLASSES];
+const RECOGNIZED_REDISTRIBUTION: unknown[] = ["public_permissive", "invented_non_engineering_example", "private_only", "unknown", "TBD", null];
+const RELEASE_OPTIONS = { exportContext: USER_RELEASED_REPORT_CONTEXT, explicitUserReleaseIntent: true } as const;
+const WELL_FORMED_CHILD = () => ({ privacy_classification: "private_project_data", redistribution_status: "private_only", value: "INVENTED_VALUE" });
+
+type LabelForm = { label: string; members: Record<string, unknown>; privacy?: unknown; redistribution?: unknown };
+const ABSENT_MEMBER = Symbol("absent");
+
+/** One object label in each placement the projector reads: its own members, its provenance's,
+ * and `privacy_class` for privacy. */
+function labelForms(privacy: unknown, redistribution: unknown): LabelForm[] {
+  const own: Record<string, unknown> = {};
+  const provenance: Record<string, unknown> = {};
+  if (privacy !== ABSENT_MEMBER) {
+    own.privacy_classification = privacy;
+    provenance.privacy_classification = privacy;
+  }
+  if (redistribution !== ABSENT_MEMBER) {
+    own.redistribution_status = redistribution;
+    provenance.redistribution_status = redistribution;
+  }
+  const forms: LabelForm[] = [{ label: "own", members: own, privacy, redistribution }];
+  if (Object.keys(provenance).length > 0) forms.push({ label: "provenance", members: { provenance }, privacy, redistribution });
+  if (privacy !== ABSENT_MEMBER) {
+    const classed: Record<string, unknown> = { privacy_class: privacy };
+    if (redistribution !== ABSENT_MEMBER) classed.redistribution_status = redistribution;
+    forms.push({ label: "privacy_class", members: classed, privacy, redistribution });
+  }
+  return forms;
+}
+
+/** The labelled object at each position: the request's top, beneath a labelled project-data
+ * parent at depths 0-3 (objects and arrays), and the same in the model. */
+function placedObject(object: Record<string, unknown>): Array<{ position: string; request: unknown; model: unknown; path: string }> {
+  const placed: Array<{ position: string; request: unknown; model: unknown; path: string }> = [
+    { position: "request-top", request: object, model: {}, path: "$.request" },
+    { position: "model-top", request: { value: 1 }, model: object, path: "$.model" }
+  ];
+  for (let depth = 0; depth <= 3; depth += 1) {
+    const { payload, childPath } = underLabelledParent(object, depth);
+    placed.push({ position: `request-depth-${depth}`, request: payload, model: {}, path: childPath });
+    placed.push({
+      position: `model-depth-${depth}`,
+      request: { value: 1 },
+      model: { project: payload },
+      path: childPath.replace(/^\$\.request/, "$.model.project")
+    });
+  }
+  return placed;
+}
+
+/** Whether the classification of the object alone decides it by step 13 because of the label it
+ * states: `USER_RELEASE_VALUE_UNBOUND` for the object, and for every recognized completion of the
+ * members it does not state as the classification reads them. */
+function classificationUnboundByOwnLabel(object: Record<string, unknown>): boolean {
+  if (classifyExportItem(object, RELEASE_OPTIONS).reason_code !== "USER_RELEASE_VALUE_UNBOUND") return false;
+  const reads = (key: string) =>
+    (object[key] !== undefined && object[key] !== null) ||
+    (isRecord(object.provenance) && key in object.provenance) ||
+    key in object;
+  const privacies = reads("privacy_classification") ? [undefined] : RECOGNIZED_PRIVACY;
+  const redistributions = reads("redistribution_status") ? [undefined] : RECOGNIZED_REDISTRIBUTION;
+  if (!reads("privacy_classification") && !reads("redistribution_status")) return false;
+  return privacies.every((privacy) =>
+    redistributions.every((redistribution) => {
+      const completed = {
+        ...object,
+        ...(privacy === undefined ? {} : { privacy_classification: privacy }),
+        ...(redistribution === undefined ? {} : { redistribution_status: redistribution })
+      };
+      return classifyExportItem(completed, RELEASE_OPTIONS).reason_code === "USER_RELEASE_VALUE_UNBOUND";
+    })
+  );
+}
+
+describe("user-released context: a malformed own label blocks at its object (Codex r4, §3.2)", () => {
+  it("reproduces Codex's case: an empty structured privacy over a project-data row blocks, in the request and the model", () => {
+    for (const privacy of [{}, []]) {
+      const malformed = { privacy_classification: privacy, rows: [WELL_FORMED_CHILD()] };
+      expect(classifyExportItem(malformed, RELEASE_OPTIONS)).toMatchObject({
+        action: "block_export",
+        reason_code: "USER_RELEASE_VALUE_UNBOUND"
+      });
+      for (const [request, model, path] of [
+        [malformed, {}, "$.request"],
+        [{ value: 1 }, malformed, "$.model"]
+      ] as Array<[unknown, unknown, string]>) {
+        const projected = controlUserReleasedReportPackageRequest(request, model, true);
+        expect(projected.blocked).toBe(true);
+        expect(projected.payload).toBeNull();
+        expect(projected.summary.materialization_withheld).toBe(true);
+        expect(projected.decisions).toContainEqual(
+          expect.objectContaining({ path, action: "block_export", reason_code: "USER_RELEASE_VALUE_UNBOUND" })
+        );
+        expect(projected.findings).toContainEqual(
+          expect.objectContaining({ path, code: "USER_RELEASE_VALUE_UNBOUND", severity: "BLOCKING" })
+        );
+      }
+    }
+  });
+
+  it("blocks each malformed privacy and redistribution form, own, in provenance and as privacy_class, at depth, in arrays, in the request and the model", () => {
+    const malformedCases: Array<{ privacy: unknown; redistribution: unknown }> = [
+      ...[...MALFORMED_LABEL_VALUES, ...UNKNOWN_PRIVACY_VALUES].map((privacy) => ({ privacy, redistribution: ABSENT_MEMBER })),
+      ...[...MALFORMED_LABEL_VALUES, ...UNKNOWN_PRIVACY_VALUES].map((privacy) => ({ privacy, redistribution: "private_only" })),
+      ...MALFORMED_LABEL_VALUES.map((redistribution) => ({ privacy: ABSENT_MEMBER, redistribution })),
+      ...MALFORMED_LABEL_VALUES.map((redistribution) => ({ privacy: "private_project_data", redistribution }))
+    ];
+    let checked = 0;
+    for (const { privacy, redistribution } of malformedCases) {
+      for (const form of labelForms(privacy, redistribution)) {
+        const object = { ...form.members, rows: [WELL_FORMED_CHILD(), { cell: WELL_FORMED_CHILD() }] };
+        for (const placed of placedObject(object)) {
+          const projected = controlUserReleasedReportPackageRequest(placed.request, placed.model, true);
+          const where = `${form.label} ${JSON.stringify(form.members)} ${placed.position}`;
+          expect(projected.blocked, where).toBe(true);
+          expect(projected.payload, where).toBeNull();
+          expect(
+            projected.decisions.some(
+              (decision) =>
+                decision.path === placed.path &&
+                decision.action === "block_export" &&
+                decision.reason_code === "USER_RELEASE_VALUE_UNBOUND"
+            ),
+            where
+          ).toBe(true);
+          checked += 1;
+        }
+      }
+    }
+    expect(checked).toBeGreaterThan(800);
+  });
+
+  it("records the classification's own step-13 decision of the stated label, where the classification reads it", () => {
+    for (const privacy of [...MALFORMED_LABEL_VALUES, ...UNKNOWN_PRIVACY_VALUES]) {
+      const object = { privacy_classification: privacy, redistribution_status: "private_only", rows: [WELL_FORMED_CHILD()] };
+      const projected = controlUserReleasedReportPackageRequest({ section: object }, {}, true);
+      const decision = projected.decisions.find((candidate) => candidate.path === "$.request.section");
+      expect(decision, JSON.stringify(privacy)).toBeDefined();
+      const { decision_id: _id, ...decided } = decision!;
+      const { decision_id: _wantedId, ...wanted } = classifyExportItem(
+        { field_id: `${REPORT_PACKAGE_USER_RELEASE_ROUTE_ID}:$.request.section`, field_class: "section", privacy_classification: privacy, redistribution_status: "private_only" },
+        { ...RELEASE_OPTIONS, path: "$.request.section" }
+      );
+      expect(wanted).toMatchObject({ action: "block_export", reason_code: "USER_RELEASE_VALUE_UNBOUND" });
+      expect(decided).toEqual(wanted);
+    }
+  });
+
+  it("still admits a well-formed nested request: absent labels inherit, recognized labels decide", () => {
+    const request = {
+      privacy_classification: "private_project_data",
+      redistribution_status: "private_only",
+      sections: [
+        { title: "Invented section", rows: [{ value: 1 }, { value: 2 }] },
+        { redistribution_status: "unknown", rows: [WELL_FORMED_CHILD()] },
+        { redistribution_status: null, note: "Invented note" },
+        { privacy_classification: "private_project_data", note: "Invented note" },
+        { provenance: { privacy_classification: "private_project_data", redistribution_status: "TBD" }, note: "Invented note" },
+        { privacy_class: "private_project_data", redistribution_status: "private_only", note: "Invented note" },
+        {
+          privacy_classification: "public_metadata",
+          redistribution_status: "public_permissive",
+          status: "MECHANICS_SOLVED",
+          nested: { privacy_classification: "invented_public_example", redistribution_status: "invented_non_engineering_example", label: "x" }
+        }
+      ]
+    };
+    for (const [payload, model] of [
+      [request, {}],
+      [{ value: 1 }, request],
+      [{ wrapper: [{ inner: request }] }, { project: [request] }]
+    ]) {
+      const projected = controlUserReleasedReportPackageRequest(payload, model, true);
+      expect(projected.blocked).toBe(false);
+      expect(projected.payload).toEqual(payload);
+      expect(projected.decisions.some((decision) => decision.reason_code === "USER_RELEASE_VALUE_UNBOUND")).toBe(false);
+      expect(controlUserReleasedReportPackageRequest(payload, model, false).blocked).toBe(true);
+    }
+  });
+
+  it("generated differential: every object the classification decides by step 13 for its own label blocks the projector", () => {
+    const privacies: unknown[] = [ABSENT_MEMBER, ...RECOGNIZED_PRIVACY, "protected_suspected", ...UNKNOWN_PRIVACY_VALUES, ...MALFORMED_LABEL_VALUES];
+    const redistributions: unknown[] = [ABSENT_MEMBER, ...RECOGNIZED_REDISTRIBUTION, "protected_suspected", ...MALFORMED_LABEL_VALUES];
+    let unboundObjects = 0;
+    let admittedWellFormed = 0;
+    let projections = 0;
+    for (const privacy of privacies) {
+      for (const redistribution of redistributions) {
+        for (const form of labelForms(privacy, redistribution)) {
+          const object = { ...form.members, rows: [WELL_FORMED_CHILD()] };
+          const unbound = form.label !== "privacy_class" && classificationUnboundByOwnLabel(object);
+          // Well formed: a recognized project label, or an absent one, over the project-data row.
+          const wellFormed =
+            (privacy === ABSENT_MEMBER || privacy === "private_project_data") &&
+            (redistribution === ABSENT_MEMBER || RECOGNIZED_REDISTRIBUTION.includes(redistribution)) &&
+            !(privacy === ABSENT_MEMBER && redistribution === ABSENT_MEMBER && form.label !== "own");
+          if (unbound) unboundObjects += 1;
+          for (const placed of placedObject(object)) {
+            const projected = controlUserReleasedReportPackageRequest(placed.request, placed.model, true);
+            projections += 1;
+            const where = `${form.label} ${JSON.stringify(form.members)} ${placed.position}`;
+            if (unbound) {
+              expect(projected.blocked, where).toBe(true);
+              expect(
+                projected.decisions.some(
+                  (decision) => decision.path === placed.path && decision.reason_code === "USER_RELEASE_VALUE_UNBOUND"
+                ),
+                where
+              ).toBe(true);
+            }
+            if (wellFormed) {
+              expect(projected.blocked, where).toBe(false);
+              admittedWellFormed += 1;
+            }
+          }
+        }
+      }
+    }
+    expect(unboundObjects).toBeGreaterThan(300);
+    expect(admittedWellFormed).toBeGreaterThan(100);
+    expect(projections).toBeGreaterThan(5000);
+  });
+});

@@ -1238,6 +1238,52 @@ function statedMember(object: PlainObject, key: string): unknown | typeof ABSENT
   return own;
 }
 
+/** The privacy and redistribution an object states, as the projector reads them (ABSENT
+ * when it states none): its own `privacy_classification`, else its provenance's, else its
+ * own `privacy_class`; its own `redistribution_status`, else its provenance's. */
+function statedUserReleaseLabel(object: PlainObject): { privacy: unknown; redistribution: unknown } {
+  const statedPrivacy = statedMember(object, "privacy_classification");
+  return {
+    privacy: statedPrivacy !== ABSENT ? statedPrivacy : ownMember(object, "privacy_class"),
+    redistribution: statedMember(object, "redistribution_status")
+  };
+}
+
+/** The values the classification gives a meaning in `user_released_report` (§3.2): the
+ * privacy classes steps 8 and 10-12 decide (any other privacy, null included, falls to
+ * step 13), and the redistribution statuses it recognizes (public, private, the
+ * unknown forms it treats as unknown, and protected). Built from the classification's
+ * own sets. */
+const USER_RELEASE_RECOGNIZED_PRIVACY = new Set<unknown>([
+  ...SAFE_PRIVACY_CLASSES,
+  ...PRIVATE_PRIVACY_CLASSES,
+  "protected_suspected"
+]);
+const USER_RELEASE_RECOGNIZED_REDISTRIBUTION = new Set<unknown>([
+  ...PUBLIC_REDIS_STATUSES,
+  ...PRIVATE_REDIS_STATUSES,
+  ...UNKNOWN_REDIS_STATUSES,
+  "protected_suspected"
+]);
+
+/** Whether an object's own stated label blocks by step 13 (§3.2), so that no descendant
+ * can replace it: a stated privacy or redistribution the classification does not
+ * recognize (`{}`, `[]`, a number, a boolean, an empty or unknown string; a null,
+ * `unknown` or `TBD` privacy), or a stated pair that the classification itself decides by
+ * step 13 (a safe class with a non-public redistribution). `decided` is the
+ * classification of the object's own stated members alone; an absent member is not stated
+ * and inherits. */
+function ownUserReleaseLabelUnbound(
+  stated: { privacy: unknown; redistribution: unknown },
+  decided: RedactionDecision
+): boolean {
+  const privacyStated = stated.privacy !== ABSENT;
+  const redistributionStated = stated.redistribution !== ABSENT;
+  if (privacyStated && !USER_RELEASE_RECOGNIZED_PRIVACY.has(stated.privacy)) return true;
+  if (redistributionStated && !USER_RELEASE_RECOGNIZED_REDISTRIBUTION.has(stated.redistribution)) return true;
+  return privacyStated && redistributionStated && decided.reason_code === "USER_RELEASE_VALUE_UNBOUND";
+}
+
 /** The nearest enclosing object that states a member supplies it: an object's own
  * `privacy_classification` (else its provenance's, as `classify` reads them, else its own
  * `privacy_class`), `redistribution_status` and `review_status` replace what it inherits.
@@ -1247,9 +1293,7 @@ function statedMember(object: PlainObject, key: string): unknown | typeof ABSENT
  * them. A label can add a refusal; no label grants inclusion, since the wrapper's intent
  * alone admits project data. */
 function nextUserReleaseLabel(object: PlainObject, inherited: UserReleaseLabel): UserReleaseLabel {
-  const statedPrivacy = statedMember(object, "privacy_classification");
-  const privacy = statedPrivacy !== ABSENT ? statedPrivacy : ownMember(object, "privacy_class");
-  const redistribution = statedMember(object, "redistribution_status");
+  const { privacy, redistribution } = statedUserReleaseLabel(object);
   const ownReview = ownMember(object, "review_status");
   const provenanceReview = ownMember(object.provenance, "review_status");
   const review =
@@ -1276,8 +1320,11 @@ function nextUserReleaseLabel(object: PlainObject, inherited: UserReleaseLabel):
  * decided by steps 1-9 exactly as `classifyExportItem` decides it, from its own members
  * (claim, network, SQL, storage bypass, secret, payload and path markers; protected,
  * quarantined and rejected dispositions, its provenance's included); a decision there is
- * recorded for the object. Only then is each leaf labelled with its nearest enclosing
- * metadata and decided by steps 8-13. */
+ * recorded for the object. Otherwise an object's explicitly stated own label that the
+ * classification does not recognize, or decides by step 13, is recorded for the object as
+ * `block_export` / `USER_RELEASE_VALUE_UNBOUND`, so no descendant's label can replace it;
+ * only an absent label inherits. Only then is each leaf labelled with its nearest
+ * enclosing metadata and decided by steps 8-13. */
 function screenUserReleaseValue(
   value: unknown,
   args: {
@@ -1289,8 +1336,8 @@ function screenUserReleaseValue(
     findings: RedactionFinding[];
   }
 ): void {
-  const record = (item: PlainObject, onlyBoundary: boolean): void => {
-    const { decision, finding, boundary } = classify(item, {
+  const decide = (item: PlainObject) =>
+    classify(item, {
       path: args.path,
       exportContext: USER_RELEASED_REPORT_CONTEXT,
       explicitLocalPrivateIntent: false,
@@ -1298,31 +1345,51 @@ function screenUserReleaseValue(
       decisionIndex: args.decisions.length + 1,
       findingIndex: args.findings.length + 1
     });
-    if (onlyBoundary && !boundary) return;
+  const push = (decision: RedactionDecision): void => {
     args.decisions.push(decision);
+    const finding = findingFor(decision, args.findings.length + 1);
     if (finding !== null) args.findings.push(finding);
   };
+  const fieldId = `${args.routeId}:${args.path}`;
+  const fieldClass = args.path.split(".").at(-1)?.split("[")[0] || "unknown";
   if (Array.isArray(value)) {
     value.forEach((item, index) => screenUserReleaseValue(item, { ...args, path: `${args.path}[${index}]` }));
     return;
   }
   if (isPlainObject(value)) {
-    record(value, true);
+    const screened = decide(value);
+    if (screened.boundary) {
+      push(screened.decision);
+    } else {
+      // The object's own stated label, decided alone (§3.2): an unrecognized or step-13 own
+      // label blocks here, before any descendant could replace it for its leaves.
+      const stated = statedUserReleaseLabel(value);
+      if (stated.privacy !== ABSENT || stated.redistribution !== ABSENT) {
+        const { decision } = decide({
+          field_id: fieldId,
+          field_class: fieldClass,
+          ...(stated.privacy === ABSENT ? {} : { privacy_classification: stated.privacy }),
+          ...(stated.redistribution === ABSENT ? {} : { redistribution_status: stated.redistribution })
+        });
+        if (ownUserReleaseLabelUnbound(stated, decision)) {
+          push({ ...decision, action: "block_export", reason_code: "USER_RELEASE_VALUE_UNBOUND" });
+        }
+      }
+    }
     const label = nextUserReleaseLabel(value, args.label);
     for (const [key, item] of Object.entries(value)) {
       screenUserReleaseValue(item, { ...args, path: `${args.path}.${key}`, label });
     }
     return;
   }
-  record(
-    {
-      field_id: `${args.routeId}:${args.path}`,
-      field_class: args.path.split(".").at(-1)?.split("[")[0] || "unknown",
+  push(
+    decide({
+      field_id: fieldId,
+      field_class: fieldClass,
       privacy_classification: args.label.privacy,
       redistribution_status: args.label.redistribution,
       ...(args.label.review === undefined ? {} : { review_status: args.label.review })
-    },
-    false
+    }).decision
   );
 }
 
