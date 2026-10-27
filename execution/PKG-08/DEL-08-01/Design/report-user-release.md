@@ -1750,12 +1750,16 @@ broken.
    scanned name other than one the name rules below allow. The list has one
    entry:
    - `app_invoke_handler`, `apps/desktop/src-tauri/src/lib.rs:5018-5081`
-     (2,455 bytes, LF line ends, ending at the closing `}`), SHA-256
-     `45c3d325100524094e8e57c33a3a1d13e12abb5cdf2abfed51224be5adbe1ed1`.
+     at the basis (2,455 bytes, LF line ends, ending at the closing `}`),
+     SHA-256 `45c3d325100524094e8e57c33a3a1d13e12abb5cdf2abfed51224be5adbe1ed1`.
+     #1665 (B11 model checks) added two ordinary handler entries,
+     `check_preview_model` and `cancel_model_checks`; reviewed, it was
+     re-pinned at `:5177-5242` (2,521 bytes), SHA-256
+     `cf2d34eb5102ed6d339c9ce067583bcd4e4ef3e1bb1faa63eb701c4f8ff8c1b5`.
      It holds no `mod`. Its one parameter, `$extra:path`, is used only as a
      whole handler entry (`$(, $extra)*`), never before `::`. Its one scanned
-     name is the Tauri command's bare `render_calculation_report` (`:5076`),
-     which the `src-tauri` rule does not match.
+     name is the Tauri command's bare `render_calculation_report` (`:5076`
+     at the basis, `:5237` now), which the `src-tauri` rule does not match.
 
    Also findings: `#[macro_export]` and `#[macro_use]` anywhere, and any
    item that `syn` gives as `Item::Verbatim`, which is how it gives a

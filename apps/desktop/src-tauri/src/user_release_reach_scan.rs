@@ -258,8 +258,11 @@ const ENTRY_RULES: [(&str, &str, Entry); 6] = [
 ];
 
 /// The one allowed macro definition: (file, name, SHA-256 of its text).
+/// Re-pinned after #1665 added two ordinary handler entries,
+/// `check_preview_model` and `cancel_model_checks` (reviewed: no `mod`, no
+/// `$parameter ::`, no scanned name added).
 const MACRO_DEFINITIONS: [(&str, &str, &str); 1] =
-    [("src-tauri/src/lib.rs", "app_invoke_handler", "45c3d325100524094e8e57c33a3a1d13e12abb5cdf2abfed51224be5adbe1ed1")];
+    [("src-tauri/src/lib.rs", "app_invoke_handler", "cf2d34eb5102ed6d339c9ce067583bcd4e4ef3e1bb1faa63eb701c4f8ff8c1b5")];
 
 /// The macro invocations admitted, by path as written (§2.8 macro rule 2).
 const MACRO_INVOCATIONS: [&str; 22] = [
