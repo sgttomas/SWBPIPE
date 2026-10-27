@@ -223,3 +223,9 @@ mod tests {
         assert_eq!(model.node_proximity_tolerance_m().unwrap_err().code, MODEL_SETTING_TOLERANCE_UNIT_NOT_LENGTH);
     }
 }
+
+/// On-demand model checks (DEL-04-06 Design `on-demand-model-checks.md`): the
+/// solve's own checks before stiffness formation, without solving. Declared
+/// here, in a public module that no retained-pricing owner source is, so the
+/// owner sources stay byte-identical (Codex review r1 of #1665).
+pub mod model_checks;

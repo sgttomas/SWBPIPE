@@ -28,7 +28,7 @@
 //! The retained-memory observer and the dense-scrutiny size guard are solve
 //! work, not input checks, and do not run here. Nothing here writes to the
 //! model; the caller's request is consumed.
-use super::*;
+use crate::*;
 
 /// The solve's pre-formation diagnostics for `actual_request`, or the solve's
 /// own refusal text when the request cannot be read (a model record that is not

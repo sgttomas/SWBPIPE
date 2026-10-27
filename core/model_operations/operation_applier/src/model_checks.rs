@@ -4,7 +4,7 @@
 //! session model as the desktop's solve request carries it
 //! (`{"model": …, "materials": []}`). Nothing here writes to the model, adds a
 //! rule or solves.
-use open_pipe_stress_product_physics::model_checks::preview_model_checks_value;
+use open_pipe_stress_product_physics::model_settings::model_checks::preview_model_checks_value;
 use serde_json::{json, Value};
 
 pub const MODEL_CHECKS_DOCUMENT_KIND: &str = "openpipestress.desktop.model_checks";
