@@ -1,0 +1,16 @@
+INVENTED UNITS CHECK SI
+Invented by the DEL-17-04 importer tests; the English fixture converted by exact definitions
+VERSION
+15.10
+OPTIONS
+HGRA,SI
+MATERIAL
+CS1,7833.41303298748,0.3,1,1,CS,invented steel
+CS1,21.1111111111111,199947.961501882,1.17E-05
+PIPE
+S6,168.275,7.112,0,0,0,0,0,0
+LAYOUT
+* invented layout: an anchored L with a tip-free corner
+F10,KA,MCS1,PS6
+T20,X3200.4,CFOR(0,-4448.2216152605,0),FLC=1,MOM(0,0,677.9089741657002)
+T30,Z2216.15,KA,CD(0,12.7,0),ROT(0.25,0,0)

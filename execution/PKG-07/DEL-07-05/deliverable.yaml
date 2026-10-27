@@ -203,6 +203,16 @@ needs:
     activate a held output surface.
   gating: true
   evidence: apps/desktop/src/features/results/retainedPrecisionReader.ts
+- from: DEL-04-09
+  condition: >-
+    The results viewer's modes table and mode-shape view (F1 M3) show DEL-04-09's `modal-1` rows,
+    standing, Sturm count, mass summary and disclosures through the Rust modal reader's verdict. The
+    mode-shape view is a normalized display transform labelled as not a physical length, with a static,
+    stepped alternative under reduced motion. The viewer supplies no extraction bound of its own; it
+    pre-fills only the project's last-used value (DEL-04-09 Design §5.1).
+  gating: true
+  when: Before the modal results view ships (DEL-04-09 M3).
+  evidence: execution/PKG-04/DEL-04-09/Design/modal-analysis.md
 code_paths:
 - apps/desktop/package.json
 - apps/desktop/src/App.test.tsx
@@ -242,6 +252,9 @@ code_paths:
 - apps/desktop/src/features/viewport/viewportResource.ts
 - apps/desktop/src/test-support/resultOverlayFixtures.ts
 - apps/desktop/e2e/result-overlays/
+- apps/desktop/src/features/results/supportLoadSummary.ts
+- apps/desktop/src/features/results/SupportLoadSummaryPanel.tsx
+- apps/desktop/src/features/report/reportQuantityDisplay.ts
 checks:
 - apps/desktop/src/features/results/ResultsPanel.test.tsx
 - apps/desktop/src/App.resultPaging.test.tsx
@@ -265,3 +278,5 @@ checks:
 - apps/desktop/src/features/viewport/viewportResultColour.test.ts
 - apps/desktop/src/features/viewport/PipeViewport.overlays.test.tsx
 - apps/desktop/e2e/result-overlays.spec.ts
+- apps/desktop/src/features/results/supportLoadSummary.test.ts
+- apps/desktop/src/features/results/SupportLoadSummaryPanel.test.tsx

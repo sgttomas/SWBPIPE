@@ -26,6 +26,7 @@ mod report_render_exact_tests;
 #[cfg(test)]
 mod object_form_tests;
 mod rule_solver_selection;
+mod solve_attestation;
 mod solve_jobs;
 mod solve_worker;
 mod user_release_admission;

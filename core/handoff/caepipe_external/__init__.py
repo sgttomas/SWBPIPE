@@ -21,6 +21,7 @@ from .harness import (
     HarnessSkip,
     case_paths,
     resolve_harness_config,
+    run_caepipe_mbf_export,
     run_caepipe_round_trip,
 )
 from .correlation import (
@@ -46,6 +47,7 @@ __all__ = [
     "parse_caepipe_print_csv",
     "read_caepipe_print_csv",
     "resolve_harness_config",
+    "run_caepipe_mbf_export",
     "run_caepipe_round_trip",
     "write_caepipe_external_run_package",
 ]

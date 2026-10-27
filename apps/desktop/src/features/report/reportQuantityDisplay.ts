@@ -27,8 +27,15 @@ const PASCAL_TO_MEGAPASCAL_SHIFT = 6;
 
 /** The displayed text `<display value> <display unit>` of a stored value and its stored unit. */
 export function displayQuantity(value: number, unit: string): string {
+  const parts = displayQuantityParts(value, unit);
+  return `${parts.number} ${parts.unit}`;
+}
+
+/** The same rule's number text and display unit, apart (a table may state the unit once in
+ * its column header). `displayQuantity` is `${number} ${unit}` of these. */
+export function displayQuantityParts(value: number, unit: string): { number: string; unit: string } {
   const scaled = unit === PASCAL;
-  return `${displayNumber(String(value), scaled ? PASCAL_TO_MEGAPASCAL_SHIFT : 0)} ${scaled ? MEGAPASCAL : unit}`;
+  return { number: displayNumber(String(value), scaled ? PASCAL_TO_MEGAPASCAL_SHIFT : 0), unit: scaled ? MEGAPASCAL : unit };
 }
 
 /** Whether a value stored in `unit` is displayed scaled (`conversion_performed`). */

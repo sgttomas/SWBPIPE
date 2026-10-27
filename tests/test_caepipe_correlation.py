@@ -29,6 +29,7 @@ from core.handoff.caepipe_external import (  # noqa: E402
     build_comparison_record,
     case_paths,
     resolve_harness_config,
+    run_caepipe_mbf_export,
     run_caepipe_round_trip,
 )
 from core.handoff.caepipe_external.correlation import (  # noqa: E402
@@ -804,6 +805,248 @@ def test_directories_at_output_names_are_refused_before_collection(tmp_path):
     assert victim.read_text(encoding="utf-8") == "keep\n"
 
 
+# --------------------------------------------------------------------------
+# MBF export of the stored solved model (invented bytes, fake prlctl runner)
+# --------------------------------------------------------------------------
+MOD_BYTES = b"INVENTED SOLVED MODEL\r\n"
+MOD_SHA = hashlib.sha256(MOD_BYTES).hexdigest()
+EXPORTED_BYTES = b"INVENTED\r\nEXPORTED MBF\r\n"
+EXPORTED_SHA = hashlib.sha256(EXPORTED_BYTES).hexdigest()
+
+
+def solved_case(tmp_path: Path, case_id: str, *, hashed: bool = True, **extra) -> tuple[HarnessConfig, Path]:
+    """An invented stored solve whose run record binds caepipe_out/model.mod to MBF_TEXT."""
+    config = fake_config(tmp_path)
+    out = case_paths(config, case_id)["caepipe_out"]
+    (out / "model.mod").write_bytes(MOD_BYTES)
+    record = {"document_kind": "openpipestress.caepipe_harness_run_record", "route": "csv_from_batch",
+              "mbf": {"sha256": MBF_SHA}, "guest_mbf_sha256": MBF_SHA, "outputs_collected": ["model.csv", "model.mod"],
+              **({"outputs_sha256": {"model.mod": MOD_SHA}} if hashed else {}), **extra}
+    (out / "run_record.json").write_text(json.dumps(record), encoding="utf-8")
+    return config, out
+
+
+def export_runner(out: Path, commands: list[str], *, guest: dict | None = None, collected: bytes = EXPORTED_BYTES,
+                  on_export=None):
+    """A fake prlctl: the export step reports the invented hashes, the collect step writes the invented export."""
+
+    def runner(argv, **kwargs):
+        assert argv[:6] == ["/invented/prlctl", "exec", "invented-vm", "--current-user", "cmd", "/c"]
+        command = argv[6]
+        commands.append(command)
+        stdout = ""
+        if command.startswith("powershell"):
+            if on_export:
+                on_export()
+            stdout = "banner\n" + json.dumps(guest if guest is not None else {
+                "status": "mbf_exported", "mod_sha256": MOD_SHA.upper(), "exported_mbf_sha256": EXPORTED_SHA,
+                "exported_mbf_path": "C:\\invented-work\\cpc-e\\export\\exported.mbf"})
+        elif command.startswith("copy") and "caepipe_out" in command:
+            (out / "exported.mbf").write_bytes(collected)
+        return subprocess.CompletedProcess(argv, 0, stdout, "")
+
+    return runner
+
+
+def test_mbf_export_collects_the_export_and_binds_it_to_the_run_record_by_hash(tmp_path):
+    config, out = solved_case(tmp_path, "cpc-e")
+    commands: list[str] = []
+    entry = run_caepipe_mbf_export(config, "cpc-e", MBF_SHA, runner=export_runner(out, commands))
+    assert [command.split(" ")[0] for command in commands] == ["if", "powershell", "copy"]
+    assert ('del /Q "C:\\invented-work\\cpc-e\\export\\model.mod" "C:\\invented-work\\cpc-e\\export\\exported.mbf"'
+            in commands[0])
+    assert 'copy /Y "Z:\\invented\\cases\\cpc-e\\caepipe_out\\model.mod" "C:\\invented-work\\cpc-e\\export\\model.mod"' \
+        in commands[0]
+    assert '-ExportMod "C:\\invented-work\\cpc-e\\export\\model.mod" -ExportName exported.mbf' in commands[1]
+    assert "-Mbf" not in commands[1]
+    assert commands[2] == ('copy /Y "C:\\invented-work\\cpc-e\\export\\exported.mbf" '
+                           '"Z:\\invented\\cases\\cpc-e\\caepipe_out\\exported.mbf"')
+    assert entry["route"] == "mbf_exported"
+    assert entry["mod"]["sha256"] == MOD_SHA and entry["mod_hash_verified"] is True
+    assert entry["solved_mbf_sha256"] == MBF_SHA
+    assert entry["exported_mbf"] == {"path": "caepipe_out/exported.mbf", "sha256": EXPORTED_SHA,
+                                     "bytes": len(EXPORTED_BYTES)}
+    stored = json.loads((out / "run_record.json").read_text(encoding="utf-8"))
+    assert stored["route"] == "csv_from_batch" and stored["mbf"]["sha256"] == MBF_SHA  # the solve record is kept
+    assert stored["mbf_export"]["route"] == "mbf_exported"
+    assert stored["mbf_export"]["exported_mbf"]["sha256"] == EXPORTED_SHA
+    assert (out / "exported.mbf").read_bytes() == EXPORTED_BYTES
+    assert json.loads((out / "export_guest_log.json").read_text(encoding="utf-8"))["status"] == "mbf_exported"
+    assert "invented-vm" not in json.dumps(stored)
+    assert not (config.exchange_root / "_harness" / "round_trip.lock").exists()
+
+    # Idempotent: a second run clears the previous export before the guest runs and records the same binding.
+    seen = []
+    again = run_caepipe_mbf_export(config, "cpc-e", MBF_SHA, runner=export_runner(
+        out, [], on_export=lambda: seen.append((out / "exported.mbf").exists())))
+    assert seen == [False] and again["route"] == "mbf_exported"
+    assert json.loads((out / "run_record.json").read_text(encoding="utf-8"))["mbf_export"]["exported_mbf"] == \
+        entry["exported_mbf"]
+
+
+def test_mbf_export_accepts_a_run_record_that_binds_the_model_by_name_only(tmp_path):
+    config, out = solved_case(tmp_path, "cpc-e", hashed=False)
+    assert run_caepipe_mbf_export(config, "cpc-e", MBF_SHA, runner=export_runner(out, []))["route"] == "mbf_exported"
+
+
+@pytest.mark.parametrize("label, extra, reason", [
+    ("stale solve", {"mbf": {"sha256": "1" * 64}}, "not of the current MBF"),
+    ("guest unverified", {"guest_mbf_sha256": None}, "not of the current MBF"),
+    ("model not collected", {"outputs_collected": ["model.csv"]}, "names no collected caepipe_out/model.mod"),
+    ("model replaced", {"outputs_sha256": {"model.mod": "2" * 64}}, "differs from the solved model"),
+])
+def test_mbf_export_refuses_a_solve_not_bound_to_the_current_mbf(tmp_path, label, extra, reason):
+    config, out = solved_case(tmp_path, "cpc-e", **extra)
+    before = sorted(path.name for path in out.iterdir())
+    entry = run_caepipe_mbf_export(config, "cpc-e", MBF_SHA, runner=lambda *a, **k: pytest.fail("prlctl called"))
+    assert entry["route"] == "not_bound" and reason in entry["reason"], label
+    assert sorted(path.name for path in out.iterdir()) == before
+    (out / "run_record.json").unlink()
+    entry = run_caepipe_mbf_export(config, "cpc-e", MBF_SHA, runner=lambda *a, **k: pytest.fail("prlctl called"))
+    assert entry["route"] == "not_bound" and "no valid caepipe_out/run_record.json" in entry["reason"]
+
+
+def test_mbf_export_collects_nothing_when_the_guest_opened_a_different_model(tmp_path):
+    config, out = solved_case(tmp_path, "cpc-e")
+    commands: list[str] = []
+    guest = {"status": "mbf_exported", "mod_sha256": "0" * 64, "exported_mbf_sha256": EXPORTED_SHA}
+    entry = run_caepipe_mbf_export(config, "cpc-e", MBF_SHA, runner=export_runner(out, commands, guest=guest))
+    assert entry["route"] == "input_hash_mismatch" and entry["mod_hash_verified"] is False
+    assert len(commands) == 2 and not (out / "exported.mbf").exists()
+    assert entry["exported_mbf"]["path"] is None
+
+
+def test_mbf_export_drops_a_collected_file_whose_hash_differs_from_the_guest_report(tmp_path):
+    config, out = solved_case(tmp_path, "cpc-e")
+    entry = run_caepipe_mbf_export(config, "cpc-e", MBF_SHA, runner=export_runner(out, [], collected=b"OTHER\r\n"))
+    assert entry["route"] == "export_hash_mismatch"
+    assert not (out / "exported.mbf").exists() and entry["exported_mbf"]["sha256"] is None
+
+
+def test_mbf_export_records_a_guest_failure_and_retries_the_prlctl_client(tmp_path):
+    config, out = solved_case(tmp_path, "cpc-e")
+    calls = []
+
+    def runner(argv, **kwargs):
+        calls.append(argv[6])
+        if len(calls) == 1:  # the client's own intermittent failure, before the guest command ran
+            return subprocess.CompletedProcess(argv, 255, "", "Failed to exec: PrlJob_invented")
+        stdout = json.dumps({"status": "export_failed", "mod_sha256": MOD_SHA}) if argv[6].startswith("powershell") else ""
+        return subprocess.CompletedProcess(argv, 0 if not stdout else 4, stdout, "")
+
+    entry = run_caepipe_mbf_export(config, "cpc-e", MBF_SHA, runner=runner)
+    assert entry["route"] == "export_failed"
+    assert entry["steps"][0]["name"] == "export_prepare" and entry["steps"][0]["attempts"] == 2
+    assert not any(command.startswith("copy") for command in calls)
+    assert json.loads((out / "run_record.json").read_text(encoding="utf-8"))["mbf_export"]["route"] == "export_failed"
+
+
+def test_mbf_export_refuses_links_planted_in_the_output_layer(tmp_path):
+    victim = tmp_path / "outside" / "victim.txt"
+    victim.parent.mkdir()
+    victim.write_text("keep\n", encoding="utf-8")
+    (tmp_path / "pre").mkdir()
+    config, out = solved_case(tmp_path / "pre", "cpc-e")
+    (out / "EXPORTED.MBF").symlink_to(victim)
+    with pytest.raises(ContainmentError):
+        run_caepipe_mbf_export(config, "cpc-e", MBF_SHA, runner=lambda *a, **k: pytest.fail("prlctl called"))
+
+    (tmp_path / "during").mkdir()
+    config, out = solved_case(tmp_path / "during", "cpc-e")
+    commands: list[str] = []
+    with pytest.raises(ContainmentError):
+        run_caepipe_mbf_export(config, "cpc-e", MBF_SHA, runner=export_runner(
+            out, commands, on_export=lambda: (out / "Exported.mbf").symlink_to(victim)))
+    assert not any(command.startswith("copy") for command in commands)
+    assert victim.read_text(encoding="utf-8") == "keep\n"
+    assert not (config.exchange_root / "_harness" / "round_trip.lock").exists()
+
+
+def test_a_new_solve_clears_the_previous_export_and_hashes_its_outputs(tmp_path):
+    config, out = solved_case(tmp_path, "cpc-x")
+    run_caepipe_mbf_export(config, "cpc-x", MBF_SHA, runner=export_runner(out, []))
+    assert (out / "exported.mbf").is_file()
+
+    def runner(argv, **kwargs):
+        stdout = ""
+        if argv[6].startswith("powershell"):
+            stdout = json.dumps({"status": "csv_from_batch", "mbf_sha256": MBF_SHA,
+                                 "csv_path": "C:\\invented-work\\cpc-x\\model.csv"})
+        elif argv[6].startswith("copy"):
+            (out / "model.csv").write_text("Invented\n", encoding="utf-8")
+            (out / "model.mod").write_bytes(MOD_BYTES)
+        return subprocess.CompletedProcess(argv, 0, stdout, "")
+
+    record_ = run_caepipe_round_trip(config, "cpc-x", MBF_TEXT, runner=runner)
+    assert not any((out / name).exists() for name in ("exported.mbf", "export_guest_log.json",
+                                                      "export_guest_stdout.txt"))
+    assert "mbf_export" not in record_
+    assert record_["outputs_sha256"]["model.mod"] == MOD_SHA
+
+
+def test_pilot_export_step_prints_operational_status_only(tmp_path):
+    case = next(item for item in run_pilot.load_cases() if item["case_id"] == "cpc-01-cantilever-force")
+    sha = current_mbf_sha(case["case_id"])
+    config = fake_config(tmp_path)
+    calls = []
+
+    def export(config_, case_id, mbf_sha256):
+        calls.append((case_id, mbf_sha256))
+        return {"route": "mbf_exported"} if len(calls) == 1 else {"route": "not_bound", "reason": "invented reason"}
+
+    lines: list[str] = []
+    assert run_pilot.export_case(case, config, emit=lines.append, export=export) is True
+    assert run_pilot.export_case(case, config, emit=lines.append, export=export) is False
+    assert calls == [(case["case_id"], sha)] * 2
+    assert lines == [
+        "cpc-01-cantilever-force: export route=mbf_exported; exported MBF written: "
+        "cases/cpc-01-cantilever-force/caepipe_out/exported.mbf",
+        "cpc-01-cantilever-force: export route=not_bound; invented reason; no exported MBF",
+    ]
+
+    def failed(config_, case_id, mbf_sha256):
+        return {"route": "export_failed", "exported_mbf": {"sha256": None}}
+
+    lines.clear()
+    assert run_pilot.export_case(case, config, emit=lines.append, export=failed) is False
+    assert lines == ["cpc-01-cantilever-force: export route=export_failed; the guest export did not complete "
+                     "(cases/cpc-01-cantilever-force/caepipe_out/run_record.json); no exported MBF"]
+
+
+def test_pilot_runs_the_export_step_after_each_case_only_when_asked(tmp_path, monkeypatch):
+    cases = [item for item in run_pilot.load_cases() if item["case_id"] in ("cpc-01-cantilever-force",
+                                                                            "cpc-02-anchored-thermal")]
+    order = []
+    monkeypatch.setattr(run_pilot, "run_case", lambda case, *a, **k: order.append(("case", case["case_id"])) or True)
+    monkeypatch.setattr(run_pilot, "run_series", lambda *a, **k: {})
+    export = lambda config_, case_id, sha: order.append(("export", case_id)) or {"route": "mbf_exported"}
+    config = fake_config(tmp_path)
+    results = run_pilot.run_cases(cases, config, runner="unused", offline=False, hand_calcs=None,
+                                  emit=lambda line: None, export_mbf=True, export=export)
+    assert order == [("case", "cpc-01-cantilever-force"), ("export", "cpc-01-cantilever-force"),
+                     ("case", "cpc-02-anchored-thermal"), ("export", "cpc-02-anchored-thermal")]
+    assert results == {"cpc-01-cantilever-force": True, "cpc-01-cantilever-force export": True,
+                       "cpc-02-anchored-thermal": True, "cpc-02-anchored-thermal export": True}
+    order.clear()
+    run_pilot.run_cases(cases, config, runner="unused", offline=False, hand_calcs=None, emit=lambda line: None,
+                        export=export)
+    assert [kind for kind, _ in order] == ["case", "case"]
+
+
+def test_pilot_export_only_needs_no_runner_and_refuses_offline(tmp_path, monkeypatch, capsys):
+    config = fake_config(tmp_path)
+    monkeypatch.setattr(run_pilot, "resolve_harness_config", lambda environ, require_vm_tools: config)
+    monkeypatch.setattr(run_pilot, "run_cases", lambda *a, **k: pytest.fail("comparison run"))
+    exported = []
+    monkeypatch.setattr(run_pilot, "export_case", lambda case, config_: exported.append(case["case_id"]) or True)
+    assert run_pilot.main(["--export-only", "--case", "cpc-03-anchored-weight"], environ={}) == 0
+    assert exported == ["cpc-03-anchored-weight"]
+    with pytest.raises(SystemExit) as raised:
+        run_pilot.main(["--offline", "--export-mbf"], environ={})
+    assert raised.value.code == 2
+    assert "not allowed with argument" in capsys.readouterr().err
+
+
 def offline_case(tmp_path, monkeypatch, *, run_record=None, csv=True):
     """Prepare an offline run of the cantilever case with a stubbed SWBPIPE solve and an invented CSV."""
     case = next(item for item in run_pilot.load_cases() if item["case_id"] == "cpc-01-cantilever-force")
@@ -857,6 +1100,9 @@ def test_offline_bound_csv_is_compared_and_stdout_carries_status_only(tmp_path, 
                      "cases/cpc-01-cantilever-force/comparison/comparison.json"]
     stored = json.loads((paths["comparison"] / "comparison.json").read_text(encoding="utf-8"))
     assert "by_outcome" in stored["summary"]
+    id_map = json.loads((paths["caepipe_in"] / "id_map.json").read_text(encoding="utf-8"))
+    assert id_map["mbf_sha256"] == sha  # binds the sidecar to the MBF bytes for the importer
+    assert {"node_map", "element_map", "support_map", "load_map", "material_map"} <= set(id_map)
 
 
 # --------------------------------------------------------------------------
@@ -1070,3 +1316,18 @@ def test_run_series_without_member_records_is_not_evaluated(tmp_path, monkeypatc
     assert run_pilot.run_series(config, runner="unused", hand_calcs=hand_calcs, emit=lines.append) == {}
     stored = json.loads((config.exchange_root / "series" / "shear-deformation.json").read_text(encoding="utf-8"))
     assert stored["status"] == "not_evaluated" and len(stored["reasons"]) == 3
+
+
+
+def test_a_later_unbound_run_removes_the_earlier_export_and_records_why(tmp_path):
+    config, out = solved_case(tmp_path, "cpc-e")
+    assert run_caepipe_mbf_export(config, "cpc-e", MBF_SHA, runner=export_runner(out, []))["route"] == "mbf_exported"
+    assert (out / "exported.mbf").is_file()
+    other = "3" * 64
+    entry = run_caepipe_mbf_export(config, "cpc-e", other, runner=lambda *a, **k: pytest.fail("prlctl called"))
+    assert entry["route"] == "not_bound"
+    assert not any(path.name.lower() in ("exported.mbf", "export_guest_log.json", "export_guest_stdout.txt",
+                                         "export_guest_stderr.txt") for path in out.iterdir())
+    stored = json.loads((out / "run_record.json").read_text(encoding="utf-8"))
+    assert stored["mbf_export"]["route"] == "not_bound" and stored["mbf_export"]["solved_mbf_sha256"] == other
+    assert stored["route"] == "csv_from_batch"  # the solve record itself is kept

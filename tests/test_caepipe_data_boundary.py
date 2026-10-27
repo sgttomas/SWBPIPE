@@ -6,7 +6,10 @@ folder. These checks look at the files Git tracks or would add (tracked plus
 untracked, not ignored): exchange-style paths, CAEPIPE-headed files, parsed,
 comparison and run-record JSON (by document kind or private-layer file name),
 unless declared invented by a provenance sidecar; and at the pilot command's
-unconfigured path.
+unconfigured path. For the MBF importer (DEL-17-04 Design `caepipe-mbf-import.md`
+§18.4): every tracked MBF needs an invented-provenance sidecar, as does every import
+report or private import outcome, and no file sits under an exchange-style
+`cases/<id>/imported/` path.
 """
 
 from __future__ import annotations
@@ -28,6 +31,7 @@ from core.handoff.caepipe_external import HarnessSkip, resolve_harness_config  #
 from core.handoff.caepipe_external.correlation import COMPARISON_RECORD_KIND, SERIES_RECORD_KIND  # noqa: E402
 from core.handoff.caepipe_external.harness import ENV_VAR, RUN_RECORD_KIND  # noqa: E402
 from core.handoff.caepipe_external.print_csv import DOCUMENT_KIND as PARSED_CSV_KIND  # noqa: E402
+from core.handoff.caepipe_mbf.importer import REPORT_KIND as IMPORT_REPORT_KIND  # noqa: E402
 from tools.caepipe_correlation.run_pilot import MANIFEST_KIND, PARSER_DIAGNOSTICS_KIND  # noqa: E402
 
 
@@ -38,9 +42,13 @@ FORBIDDEN_SEGMENTS = {"caepipe-oracle", "caepipe_out", "oracle_cases"}
 FORBIDDEN_HARNESS_FILES = {"Invoke-CaepipeRoundTrip.ps1", "round_trip.lock"}
 # Artefacts of the private exchange layers (Design §5): CAEPIPE output or derived from it.
 PRIVATE_LAYER_NAMES = {"caepipe_results.json", "parser_diagnostics.json", "comparison.json", "run_record.json",
-                       "guest_log.json", "guest_stdout.txt", "guest_stderr.txt", "case_manifest.json"}
+                       "guest_log.json", "guest_stdout.txt", "guest_stderr.txt", "case_manifest.json",
+                       "import_outcome.json", "export_guest_log.json", "export_guest_stdout.txt",
+                       "export_guest_stderr.txt"}
+# The private MBF import regression's outcome record (tests/test_caepipe_private_mbf_import.py).
+IMPORT_OUTCOME_KIND = "swbpipe.caepipe_mbf_import_outcome"
 PRIVATE_DOCUMENT_KINDS = {PARSED_CSV_KIND, PARSER_DIAGNOSTICS_KIND, COMPARISON_RECORD_KIND, SERIES_RECORD_KIND,
-                          RUN_RECORD_KIND, MANIFEST_KIND}
+                          RUN_RECORD_KIND, MANIFEST_KIND, IMPORT_REPORT_KIND, IMPORT_OUTCOME_KIND}
 # The target tool's output markers: the leading label of its results files and its section titles.
 OUTPUT_MARKERS = {
     "file_label": b"Caepipe",
@@ -91,7 +99,7 @@ def private_artefact_reason(path: Path) -> str | None:
             data = path.read_bytes()
         except (IsADirectoryError, FileNotFoundError, PermissionError):
             return None
-        if b"openpipestress.caepipe" in data:
+        if b"openpipestress.caepipe" in data or b"swbpipe.caepipe" in data:
             try:
                 kind = json.loads(data).get("document_kind")
             except (UnicodeDecodeError, json.JSONDecodeError, AttributeError):
@@ -126,6 +134,8 @@ def test_private_artefact_detector_on_synthetic_files(tmp_path):
     assert private_artefact_reason(write("shear-deformation.json", {"document_kind": SERIES_RECORD_KIND})) is not None
     for name in sorted(PRIVATE_LAYER_NAMES):
         assert private_artefact_reason(write(name, {"anything": 1})) is not None, name
+    assert private_artefact_reason(write("renamed_import.json", {"document_kind": IMPORT_REPORT_KIND})) is not None
+    assert private_artefact_reason(write("renamed_outcome.json", {"document_kind": IMPORT_OUTCOME_KIND})) is not None
     assert private_artefact_reason(write("other.json", {"document_kind": "openpipestress.caepipe_other"})) is None
     assert private_artefact_reason(write("broken.json", "openpipestress.caepipe {not json")) is None
     assert private_artefact_reason(write("list.json", ["openpipestress.caepipe"])) is None
@@ -137,16 +147,42 @@ def test_private_artefact_detector_on_synthetic_files(tmp_path):
     assert private_artefact_reason(unclear) is not None
 
 
+def exchange_style(name: str) -> bool:
+    parts = name.split("/")
+    if FORBIDDEN_SEGMENTS & set(parts):
+        return True
+    if "_harness" in parts[:-1] and parts[-1] in FORBIDDEN_HARNESS_FILES:
+        return True
+    # The importer's private layer: cases/<case id>/imported/... (DEL-17-05 Design §5).
+    return any(part == "imported" and index >= 2 and parts[index - 2] == "cases" for index, part in enumerate(parts[:-1]))
+
+
 def test_no_exchange_style_path_is_tracked():
     _, files = repository_files()
-    offending = []
-    for name in files:
-        parts = name.split("/")
-        if FORBIDDEN_SEGMENTS & set(parts):
-            offending.append(name)
-        elif "_harness" in parts[:-1] and parts[-1] in FORBIDDEN_HARNESS_FILES:
-            offending.append(name)
+    assert [name for name in files if exchange_style(name)] == []
+
+
+def test_exchange_style_detector_on_synthetic_paths():
+    assert exchange_style("x/cases/cpc-01/imported/import_outcome.json")
+    assert exchange_style("cases/cpc-01/imported/model.json")
+    assert exchange_style("a/caepipe_out/exported.mbf")
+    assert not exchange_style("docs/imported/notes.md")
+    assert not exchange_style("cases/imported")
+
+
+def test_tracked_mbf_files_are_declared_invented():
+    repo, files = repository_files()
+    offending = [name for name in files if name.lower().endswith(".mbf") and not declared_invented(repo / name)]
     assert offending == []
+
+
+def test_mbf_detector_on_synthetic_files(tmp_path):
+    plain = tmp_path / "model.mbf"
+    plain.write_text("INVENTED\r\n", encoding="utf-8")
+    assert not declared_invented(plain)
+    (tmp_path / "model.provenance.json").write_text(json.dumps({"produced_by_caepipe": False, "origin": "invented"}),
+                                                    encoding="utf-8")
+    assert declared_invented(plain)
 
 
 def test_caepipe_headed_files_are_declared_invented():

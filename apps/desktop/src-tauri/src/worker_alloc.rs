@@ -68,6 +68,10 @@ pub(crate) const TAG_GROW: [u8; 4] = *b"GROW";
 pub(crate) const TAG_CAP_EXCEEDED: [u8; 4] = *b"CAPX";
 /// Child -> parent: the child acknowledges a refused growth; `a` = requested, `b` = grant.
 pub(crate) const TAG_REFUSED: [u8; 4] = *b"RFSD";
+/// Child -> parent, directly before `RSLT`: `a` = the solve attestation's
+/// status (1 attested, 0 not), `b` = `c` = 0, then 64 bytes (`d_M ‖ d_S`,
+/// [`crate::solve_attestation`]) when the status is 1 and none when it is 0.
+pub(crate) const TAG_ATTESTATION: [u8; 4] = *b"ATST";
 /// Child -> parent: `a` = result length R, `b` = the child's lifetime-maximum
 /// phys_footprint, then R bytes.
 pub(crate) const TAG_RESULT: [u8; 4] = *b"RSLT";
