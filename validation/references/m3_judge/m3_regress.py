@@ -584,7 +584,62 @@ def collection_scenarios(check):
         _, e3 = MV.pinned_references(pin)
         table(6, "the committed digests: untracked, committed, then edited", "reference_sums_committed_and_unchanged",
               "untracked refused; committed read; edited refused",
-              any("not committed" in x for x in e1) and not e2 and p2 == {("pf", "set"): {"0" * 64: "synthetic"}} and any("differs" in x for x in e3))
+              any("not in HEAD" in x for x in e1) and not e2 and p2 == {("pf", "set"): {"0" * 64: "synthetic"}} and any("differs" in x for x in e3))
+        # ---- round 7 (Codex at cb60446a01): index flags hid an edited manifest; it is now read from HEAD's blob (Agent 0)
+        jr = T("r7-judge-repo")
+        rel_j = os.path.join("projects", "chirality-piping", "validation", "references", "m3_judge")
+        rel_c = os.path.join("projects", "chirality-piping", "fixtures", "results")
+        shutil.copytree(HERE, os.path.join(jr, rel_j), ignore=shutil.ignore_patterns("__pycache__"))
+        os.makedirs(os.path.join(jr, rel_c))
+        for f in MV.CONTRACT_FILES.values():
+            shutil.copyfile(os.path.join(MV.FIXTURES, f), os.path.join(jr, rel_c, f))
+        gj = lambda *a: subprocess.run(["git", "-C", jr, *a], capture_output=True, text=True)
+        gj("init", "-q")
+        gj("add", "-A")
+        commit = lambda msg: gj("-c", "user.name=selftest", "-c", "user.email=selftest@invalid", "commit", "-q", "-m", msg)
+        commit("judge copy")
+        jpin = os.path.join(jr, rel_j, "REFERENCE_SHA256SUMS")
+        jpin_rel = os.path.join(rel_j, "REFERENCE_SHA256SUMS")
+        original = open(jpin, "rb").read()
+        r7_raw = write(T("r7-complete.raw.jsonl"), complete)
+        r7_set = os.path.join(jr, rel_j, "selftest", "pf_set.jsonl")
+        r7_uncommitted = write(T("r7-uncommitted.set.jsonl"), open(PF_SET).read().replace("}\n", "} \n", 1), raw=True)
+        added = (MV.file_sha256(r7_uncommitted) + " pf set an uncommitted reference\n").encode()
+
+        def r7(case, attack, st, want):
+            pins_, probs_ = MV.pinned_references(jpin)
+            lib_ok = (not probs_ and not MV.reference_file_problems(st, "pf", "set", pins_)) == want
+            c = subprocess.run(py + [os.path.join(jr, rel_j, "m3_report.py"), "--route", "pf", st, r7_raw, "--workers", "2", "--runner-sha256", R,
+                                     "--product-head", head, "--checkout", checkout], capture_output=True, text=True)
+            last = c.stdout.strip().splitlines()[-1] if c.stdout.strip() else ""
+            prov_line = next((x for x in c.stdout.splitlines() if x.startswith("PROVENANCE")), "")
+            cli_ok = ((c.returncode == 0 and last == "OVERALL: PASS") if want else
+                      (c.returncode == 1 and last == "OVERALL: FAIL" and prov_line.endswith("FAIL") and "REFERENCE_SHA256SUMS" in c.stdout))
+            why = "" if not probs_ else ("not in HEAD" if "not in HEAD" in probs_[0] else "differs from HEAD's blob" if "differs" in probs_[0] else probs_[0][-60:])
+            outcome = f"library {'admitted' if not probs_ else 'refused: ' + why}; CLI exit {c.returncode}, '{last}'"
+            table(7, attack, case, outcome, lib_ok and cli_ok and "Traceback" not in c.stderr)
+
+        r7("pins_clean_checkout", "a clean checkout of the judge (control)", r7_set, True)
+        open(jpin, "wb").write(original + added)
+        r7("pins_unstaged_edit", "an unstaged edit adding an uncommitted reference's digest", r7_uncommitted, False)
+        gj("add", "--", jpin_rel)
+        r7("pins_staged_edit", "a staged edit adding it", r7_uncommitted, False)
+        gj("reset", "-q", "HEAD", "--", jpin_rel)
+        open(jpin, "wb").write(original)
+        for flag in ("assume-unchanged", "skip-worktree"):
+            gj("update-index", "--" + flag, "--", jpin_rel)
+            open(jpin, "wb").write(original + added)
+            hidden = not gj("status", "--porcelain", "--", jpin_rel).stdout.strip() and gj("diff", "--quiet", "HEAD", "--", jpin_rel).returncode == 0
+            r7(f"pins_{flag.replace('-', '_')}_edit", f"--{flag} plus an edit (git status and diff show nothing: {hidden})", r7_uncommitted, False)
+            open(jpin, "wb").write(original)
+            gj("update-index", "--no-" + flag, "--", jpin_rel)
+        open(jpin, "wb").write(original + added)
+        gj("add", "--", jpin_rel)
+        commit("pin the reference")
+        r7("pins_committed_edit", "the same digest committed (the accepted path; control)", r7_uncommitted, True)
+        gj("rm", "-q", "--cached", "--", jpin_rel)
+        commit("drop the manifest from HEAD")
+        r7("pins_absent_from_head", "the manifest absent from HEAD (the working file kept)", r7_uncommitted, False)
         # ---- run.sh: a synthetic builder whose runner is a Python script
         def runner(name, runs, exit_code=0):
             data = T(name + ".runs.json")
