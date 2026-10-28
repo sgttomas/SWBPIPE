@@ -395,8 +395,26 @@ and the redaction walk decides it as follows:
   - when the item decision redacts, every unsafe path key is dropped from the
     payload, key name included, as `omit_field` with the item's reason, unless
     its leaf blocks.
+- *Whole subtree.* A raised member's restriction covers its whole subtree
+  (Codex privacy review of #1722). Every decision beneath it is raised.
+  Beneath a redacting floor the whole member is replaced by `[REDACTED]` once
+  its decisions are taken: a nested item's extra metadata and a nested
+  record's members go with it, and a block beneath still blocks.
+- *Inherited floors.* A value record nested in a raised member, in an object,
+  an array or a label member, keeps the enclosing floor and omission. The
+  stricter of the enclosing floor and its own applies, and on a tie the
+  enclosing one.
 - *Ties.* Where both readings showed the same data, the decision records take
   the projection's form.
+
+The walk knows the projector's value-record node by identity, a module-private
+`WeakSet` in TypeScript and a private class in Python, never by a member an
+input could carry. An input record carrying the old `_route_value_record`
+marker with `item` and `projected` members is decided as itself. The
+materializer still reads the `_route_projected_leaf` and `__route_key__`
+markers by name, after every decision is taken. An input can carry them only
+inside an item, where they can drop or rename that item's members but never
+skip or weaken a decision.
 
 The Rust test mirror now carries the projector and this walk.
 
@@ -412,14 +430,33 @@ cases), the two readings diverged in 30,950 cases:
 | Each hid something the other showed | 572 | the union |
 | Same visible data | 204 | projection's form |
 
-Over that grid the result is less strict than neither reading and identical in
-TypeScript and Python. The committed sweep holds a pinned subset of 7,580
-cases: every record setting at most three axes, plus the extra records, in ten
-contexts (`fixtures/redaction_export_controls/value_record_sweep.json` and
-`value_record_sweep_decisions.json`). In all three suites it shows 0 cases
-less strict than either decided column and 0 mismatches. It is stricter than
-Python in 1,638 cases and than TypeScript in 1,461; the Rust column held no
-projector decision. No existing sweep case changes.
+Over that grid the exported payload is identical in TypeScript and Python, and
+less strict than neither reading: it exposes no key path or visible leaf that a
+reading hid, and it does not unblock what a reading blocked.
+
+The committed sweep holds a pinned subset of 7,730 cases
+(`fixtures/redaction_export_controls/value_record_sweep.json` and
+`value_record_sweep_decisions.json`): every record setting at most three axes,
+plus extra records, in ten contexts. The extra records include nested value
+records, arrays of them, raised items with extra metadata, the three repros of
+the Codex review and records carrying the reserved key prefix. The suites check
+the full exported payload, every key path and visible leaf, and the normalized
+decisions:
+
+- TypeScript and Python give the contract payload and decisions case for case.
+  The Rust mirror, which does not materialize a payload, gives the contract
+  decisions case for case and has no before column.
+- No case is less strict than Python before. Exactly one case is less strict
+  than TypeScript before, and it is pinned: `{value: "outer", field_class,
+  "__route_key__value": "SECRET"}` in `local_private` with intent.
+  TypeScript then exported only `value: "SECRET"`, because the input member's
+  reserved prefix collided with the item's own `value`. The item's own value
+  `"outer"`, which its decision kept, is now exported beside it, as Python
+  exported both.
+- The sweep is stricter than Python in 1,735 cases and than TypeScript in
+  1,574.
+
+No existing sweep case changes.
 
 **Flags.** All three recognize the strings `true`, `yes`, `explicit`,
 `present`, `local_private` and `explicit_local_private`, compared after
