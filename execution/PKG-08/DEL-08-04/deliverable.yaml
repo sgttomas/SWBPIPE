@@ -207,6 +207,8 @@ code_paths:
 - apps/desktop/src/features/redaction-controls/redactionExportControls.ts
 - apps/desktop/src/features/report/reportQuantityDisplay.ts
 - apps/desktop/src/features/results/displacementExtremesCsv.ts
+- apps/desktop/src/features/results/resultRowsCsv.ts
+- apps/desktop/src/features/display-units/index.tsx
 - apps/desktop/src/features/results/stressRatioTableCsv.ts
 - apps/desktop/src/features/results/supportLoadSummaryCsv.ts
 - apps/desktop/src/features/results/weightSummaryCsv.ts
@@ -231,6 +233,7 @@ checks:
 - apps/desktop/src/features/redaction-controls/redactionExportControls.test.ts
 - tests/security/test_local_first_storage_policy.py
 - apps/desktop/src/features/result-export/csvTables.test.ts
+- apps/desktop/src/features/results/resultRowsCsv.test.tsx
 - apps/desktop/src/features/result-export/csvTableCoverage.test.ts
 - apps/desktop/src/features/result-export/CsvExportControl.test.tsx
 - apps/desktop/src/features/report/reportQuantityDisplay.exact.test.ts

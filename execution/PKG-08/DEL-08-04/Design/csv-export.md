@@ -2,8 +2,7 @@
 
 **Basis:** `origin/main` at `389ca97d5f` (2026-10-28). Paths are relative to
 `projects/chirality-piping/` unless they name a root path. Slices 2 and 3
-(§5) are built, except the `ResultsPanel` row tables, whose value basis is
-open (§2). It serves release-target row RT-R6 and
+(§5) are built. It serves release-target row RT-R6 and
 exit criterion 5 (`docs/RELEASE_TARGET_v1.0.md`). The commitments are
 DEL-08-04-R14, AC-002 and VER-002 in this deliverable's `ScopeOfWork.md`.
 This design records no acceptance, issuance, approval, compliance or lifecycle
@@ -42,7 +41,7 @@ adapter reads:
 
 | Table (component) | View model | Export |
 |---|---|---|
-| Result row tables, one per group, and the endpoint pair (`features/results/ResultsPanel.tsx`, two `<table>` elements) | the panel's row groups (`resultSemantics.ts`, `resultReader.ts`) | **open**: see below |
+| Result row tables, one per group, and the endpoint pair (`features/results/ResultsPanel.tsx`, two `<table>` elements) | the panel's row groups (`resultSemantics.ts`, `resultReader.ts`) and the endpoint pair of the result interpretation; adapter `resultRowsCsv.ts` | one file per group, every row the filters admit across all pages (`results-<group>`), and the endpoint pair (`results-endpoint-pair`) |
 | Displacement extremes (`DisplacementExtremesPanel.tsx`) | `displacementExtremes.ts`; adapter `displacementExtremesCsv.ts` | every page of the current filter (`displacement-extremes`) |
 | Stress and ratio table (`StressRatioTablePanel.tsx`) | `stressRatioTable.ts`; adapter `stressRatioTableCsv.ts` | one file per group, every page under the current mode and threshold, with the user-rule outcome columns (`stress-ratio`) |
 | Support load summary (`SupportLoadSummaryPanel.tsx`) | `supportLoadSummary.ts`; adapter `supportLoadSummaryCsv.ts` | the shown support with its maximum and minimum rows (`support-loads`), and every support in one file, one row per support and case (`support-loads-all`) |
@@ -52,13 +51,38 @@ adapter reads:
 Each exporting `<table>` carries `data-csv-export` naming its kinds, and its
 panel renders an "Export CSV" control (`CsvExportControl.tsx`). The guard
 (`csvTableCoverage.test.ts`) fails when a `<table>` under `features/results` or
-`features/comparison` lacks the marker. Its only named exception is the two
-`ResultsPanel` tables. Their values come from the session's display-unit
-converter (`useDisplayQuantity`, `convertDisplayQuantities`). In the Rust unit
-engine (`core/units` `convert`), that converter converts SI and US units in
-binary64 through factors such as 0.0254, 4.4482216152605 and pi/180. So the
-exact step of §3 does not cover these tables, and their basis is HELP_HUMAN's
-open choice.
+`features/comparison` lacks the marker. All nine are exported.
+
+**The `ResultsPanel` tables.** The two `ResultsPanel` tables show values
+through the session's display-unit converter (`useDisplayQuantity`,
+`convertDisplayQuantities`). Under SI or US display units, the Rust unit
+engine (`core/units` `convert`) applies factors such as 0.0254,
+4.4482216152605, 0.001 and pi/180 in binary64.
+- **Resolution.** HELP_HUMAN engineering-judgment resolution, 2026-10-28:
+  these tables export the panel's own converted value. The reason, verbatim:
+  "converting stored values to display units in binary64 is routine
+  engineering practice. π/180 has no exact decimal, so binary64 is the
+  practical resolution and doesn't degrade the output. It also keeps C2's
+  intent that the CSV and the screen agree."
+- **The value.** The CSV writes the converter's binary64 output, the value
+  the readout shows before any rounding, as its shortest round-trip decimal.
+  It is obtained through `useDisplayQuantityResolver`, with the same
+  preference, converter and request. Under the default "entered" display
+  units the conversion is the identity, so the value is the stored value,
+  exact. Each row also keeps its entered value and unit, and the readout's
+  status.
+- **`unit_basis`.** It is one value, in a fixed text form:
+  - for entered units, `display units entered; values as stored, exact`;
+  - otherwise, `display units <SI|US>; converted in binary64 by the session's
+    display converter, value = stored x factor + offset`, then one entry per
+    conversion, `<dimension> <stored>-><display> factor <f>[ offset <o>]`,
+    then `as entered: <dimension> <unit>, ...` for readouts left as entered.
+
+  The entries are sorted by dimension, stored unit and display unit, and
+  separated by `; `. The offset is the converter's output for zero. The
+  factor is its output for one stored unit, less the offset. A value is not
+  called exact where a factor was applied.
+- **The other seven tables** keep the exact step of §3.
 
 Later results tables join when they are built, through the same serializer.
 Examples are the RT-A11 hanger table and the RT-R2 frequency and participation
@@ -146,6 +170,8 @@ tree, the library, units and split into parts.
     the exact result when that decimal reads back as the exact result.
     Otherwise it writes the exact decimal text itself (`csvDecimal`), for
     example `123.45678912345679` for 123456789.12345679 Pa.
+  - **The session converter.** The two `ResultsPanel` tables are the
+    exception: they write the session converter's binary64 value (§2).
   - **Stored values.** The comparison views convert nothing, so their values
     are written as stored, in the rows' own units.
   - **Dimensionless values.** A dimensionless value (a ratio, a count) is
@@ -213,10 +239,13 @@ tree, the library, units and split into parts.
      - adapter tests for AC-001 and the R9/R12 boundary;
      - a guard test that lists every `<table` under `features/results` and
        `features/comparison`, and fails when one lacks CSV export.
-   - Built: `csvTables.test.ts` (round trip and AC-001), `csvTableCoverage.test.ts`
-     (guard), `CsvExportControl.test.tsx` (controls), and
-     `reportQuantityDisplay.exact.test.ts` (the split is byte-identical).
-     The `ResultsPanel` tables wait on their value basis (§2).
+   - Built:
+     - `csvTables.test.ts`: round trip and AC-001;
+     - `csvTableCoverage.test.ts`: the guard;
+     - `CsvExportControl.test.tsx`: the controls;
+     - `reportQuantityDisplay.exact.test.ts`: the split is byte-identical;
+     - `resultRowsCsv.test.tsx`: the `ResultsPanel` tables, one regression
+       per conversion factor, with the panel's converter as the oracle.
    - Codex review.
 
 A rename that would touch `apps/desktop/native-smoke/expected.json` stops and
