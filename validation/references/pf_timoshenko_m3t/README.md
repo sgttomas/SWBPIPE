@@ -12,9 +12,17 @@ soundness (M3-T, carried to PF)", by the method of
 route's M3-T), whose tooling it reuses by import, unchanged. Standard claim fence applies (F-PIP-2;
 claims taxonomy per DEC-081). Every model is invented.
 
-**Status: built, self-checked and frozen by its author TASK (stage A).** No product output has been
-compared with an expected value of this set. A second TASK refutes the set before any judging
-(Plan 01 §5); the judging is stage B.
+**Status: built, self-checked and frozen by its author TASK (stage A), then refuted in round 1 by a
+second TASK (Codex; Plan 01 §5). No product output has been compared with an expected value of this
+set; the judging is stage B.** The refutation recomputed 16 models independently at 140 digits
+(3,287 rows and 35 maxima, including Codex's case and an expected refusal) and found every frozen
+value within its 45-digit rounding. It found 0 admission mismatches over the 906 models and the 41
+ulp placements correct. It refuted the judging workflow, repaired here; no frozen value moved:
+
+- a duplicated run record could replace an earlier failure, and missing or unexpected runs were
+  invisible. Both tools now check the collection inventory (below);
+- admission (C10) is a failing design-conformance verdict, separate from M3;
+- the README counted 7 auxetic elements at φ = 2 exactly; there are 6.
 
 **Independence.** The engine, generator, comparison and census are standard-library Python. They
 import and read no product code. They import `kd5t_engine.py`, `kd5t_generate.py`, `kd5t_compare.py`
@@ -42,7 +50,8 @@ reference: it links the product crate by path and calls only `run_linear_static_
 |---|---|
 | `pft_engine.py` | Exact PF reference engine: a PF request in, every expected published row out (110-digit `decimal`; ν, κ_E and φ exact rationals). `--check` runs its self-check (130 checks; one of them runs kd5t_engine's 58). |
 | `pft_generate.py` | Judged-set generator: `full <dir>` writes the set, `freeze` the frozen subset, `split` runner inputs, `probes` the format probes, `precision` a re-solve at more digits, `composition` the counts, `check` verifies everything. |
-| `pft_compare.py` | M3 judging on PF: kd5t_compare's reconstructed judge with a single-section adapter, plus the PF clauses C10 and C11. `--selftest <set>` exercises every rule and clause; `--probe-format` prints the format facts of the probes. |
+| `pft_compare.py` | M3 judging on PF: kd5t_compare's reconstructed judge with a single-section adapter, the collection inventory, the design-conformance clause C10 and the derived-row clauses C11, C11tau_b and C11ops. `--selftest <set>` exercises every rule and clause; `--probe-format` prints the format facts of the probes. |
+| `pft_report.py` | kd5t_report's tables over the comparison's records, with the three verdicts: inventory, M3 and design conformance. |
 | `pft_census.py` | Premise census: kd5t_census with its engine bound to the PF reference (`hager`, `probe`, `standings`, `--selftest`). |
 | `runner/` | The product-driving runner (harness): `Cargo.toml`, `Cargo.lock`, `src/main.rs` (kd5's, unchanged in behaviour) and `build.sh`. |
 | `run.sh` | Driver: runner and comparison over a split set. |
@@ -148,7 +157,9 @@ reference: it links the product crate by path and calls only `run_linear_static_
 - **φ (Timoshenko twins).** Outside the near-cancellation family, 1,155 elements from 1.0e-6
   (9.9994e-7) to 5.0e4: per decade from 1e-7 to 1e4, 3, 24, 55, 88, 98, 149, 229, 259, 161, 68, 12 and 9. The φ = 2
   cluster has 22 elements within 2.4e-15 of 2 at the origin and 10 within 2.0e-9 skewed; the
-  auxetic designs add 7 at exactly 2. The exact φ and φ − 2 are in each line's `ref.phi` and
+  auxetic designs add 6 at exactly 2 (the guided, free, two-element and fixed-fixed designs at the
+  origin). The skewed free auxetic element is 1.99999999674…, because its rounded binary64
+  coordinates move L. The exact φ and φ − 2 are in each line's `ref.phi` and
   `ref.phi_minus_2`.
 - **The near-cancellation family** (Agent 0: r1's defect published 55.6% low while marked Passed).
   E = 1 GPa and G authored, so E/(2G) is exact from the two binary64 values. Unless stated, a
@@ -216,27 +227,58 @@ byte, runs the engine self-check and the comparison self-test, and verifies `SHA
   (`../kd5_timoshenko/README.md`, "ε_E census, measured"); `pft_census.py probe` consumes such a
   dump unchanged.
 - **Judged, but as information.** The derived rows carry no certificate, so they are not part of
-  C1. C11 judges them against their body's coupled scale.
+  C1. C11 judges them against the ideal target at their body's coupled scale, and C11ops against the
+  design's prescribed binary64 operations on the published operands, where the design prescribes
+  them:
+  - σ± are checked **bit for bit**: u4b-u5b-implementation.md §2.3 fixes the sequence
+    h = norm2(σ_y, σ_z) (correctly rounded), RN(σ_N ± h), on the same station's published rows
+    ("Every reader can recompute this bit for bit");
+  - τ_v,max is checked to 2^-40 relative against §2.4's fixed sequence on the station's published
+    shear rows and the model's E, G, OD, wall and c_m. The sequence includes ν_d = RN(RN(E/RN(2G)) − 1)
+    and RN(1 + ν_d). Only I_b's binary64 order is not prescribed, so the exact I rounded once
+    stands in for it;
+  - the global end rows are checked against the ideal target only, because the rotation's binary64
+    order is not prescribed.
 
-**Clauses.** Acceptance is kd5t_compare's: C0–C4, C6, C8 and C9 (see `../kd5_timoshenko/README.md`,
-"The comparison and the M3 verdict"). They apply to every run, whatever the admission expectation,
-so a Passed publication on a model the design refuses is judged against its exact rows like any
-other. Information clauses: kd5t_compare's C3lit, C4b, C5, C6i and C7, and:
+**Three verdicts**, each failing on its own (`pft_report.py` prints all three; exit status 1 if any
+fails):
+
+1. **Inventory** (refuter P1). Every expected model × entry × mode has exactly one record, and no
+   record is unexpected. The entries are typed and captured, and the modes SparseInteractive and
+   DenseScrutiny. That is 3,624 runs for the full set and 400 for the frozen subset. A run identity
+   received more than once is rejected before judging: none of its records is judged, it fails C0,
+   and the inventory fails, so a later correct record can never replace an earlier failure. Records
+   of models outside the set fail C0 and the inventory. `pft_compare.py` checks the inventory of what
+   it receives against the set, or against a chunk's runner input (`--expect`). It writes
+   `<out>.inventory.json` and exits 3 on failure. `pft_report.py` checks the whole collection and
+   every comparison's inventory again.
+2. **M3** (the certificate): kd5t_compare's acceptance clauses C0–C4, C6, C8 and C9 (see
+   `../kd5_timoshenko/README.md`, "The comparison and the M3 verdict"). It passes only when the
+   inventory passes. The clauses apply to every run, whatever the admission expectation, so a Passed
+   publication on a model the design refuses is judged against its exact rows like any other.
+3. **Design conformance** (admission, separate from M3): C10, pf-timoshenko.md §2. It fails on an
+   expected refusal that publishes or is refused under another code, and on an admitted model that
+   is refused.
+
+Information clauses: kd5t_compare's C3lit, C4b, C5, C6i and C7, and:
 
 | Clause | Reported | Source |
 |---|---|---|
-| C10 | Admission differs from design §2: an expected refusal that publishes, or is refused under another code; or an admitted model refused | pf-timoshenko.md §2 |
-| C11 | On Passed cases: a derived group (global end force or moment per end, σ± pair, τ_v,max) beyond RD(1e-9) of its coupled scale in the row's unit (SF; SM; SM/Z; SF·c); an expected derived row unpublished; the τ-domain warning missing or unexpected (a τ row where none is expected is C6i) | own; u4b-u5b-implementation.md §§2.3, 2.4; global-end-actions.md |
+| C11 | On Passed cases: a derived group (global end force or moment per end, σ± pair, τ_v,max) beyond RD(1e-9) of its coupled scale in the row's unit (SF; SM; SM/Z; SF·c) and not the known τ defect; an expected derived row unpublished; the τ-domain warning missing or unexpected (a τ row where none is expected is C6i) | own; u4b-u5b-implementation.md §§2.3, 2.4; global-end-actions.md |
+| C11tau_b | On Passed cases: a τ_v,max group beyond the ideal target's scale that equals §2.4's prescribed operations. This is the **known defect on main**: RN(1 + ν_d) cancels as E/(2G) → 0, so τ is off by up to the relative error of RN(1 + ν_d), a factor of 1.5 at Codex's case. Agent 0 has ruled it a separate correction, option (b) | Agent 0's ruling; §2.4 |
+| C11ops | On Passed cases: σ± not bit for bit the prescribed operations, or τ_v,max not within 2^-40 of them | u4b-u5b-implementation.md §§2.3, 2.4 |
 
 C11 uses the coupled scale, not each group's own q, because σ⁻ = σ_N − h and τ are binary64
 functions of certified rows and may cancel legitimately.
 
-**`--selftest` passes 672 checks on the frozen subset.** On ten models (Euler–Bernoulli and
+**`--selftest` passes 684 checks on the frozen subset.** On ten models (Euler–Bernoulli and
 Timoshenko cantilevers, a prescribed-motion run, an L-line with a guide, a skew multi-span with guides
-and springs, a c_m > 0 model, a skewed UTM cantilever, Codex's case, the skewed auxetic φ = 2 point
+and springs, a c_m > 0 model, a skewed UTM cantilever, Codex's case, the skewed auxetic model (φ ≈ 2)
 and a two-element cantilever at E/(2G) = 1e-12) it checks:
 
-- the reference published as itself passes every clause and raises no information clause;
+- the reference published as itself, with σ± and τ formed by the prescribed operations, passes every
+  clause. Its only information is C11tau_b, raised exactly on the models where RN(1 + ν_d) is off by
+  more than 1e-12 (here Codex's case and E/(2G) = 1e-12);
 - CRIT pinned from both sides (1 ± 1e-5) on the largest judged group of every group kind (all 14 PF
   kinds pinned);
 - C3 pinned from both sides on translations and rotations;
@@ -247,7 +289,7 @@ and a two-element cantilever at E/(2G) = 1e-12) it checks:
 - C9 (a second value of one identity in four orders; the same on a Sensitive run; a same-value
   repeat; a second maximum);
 - C4 and C4b (typed/captured);
-- C5 and C10 (a refusal of an admitted model);
+- C5 and the design-conformance verdict (a refusal of an admitted model fails C10; M3 passes);
 - C11 from both sides (1 ± 1e-5 of the coupled scale) on each derived kind, and an unpublished
   derived row.
 
@@ -260,10 +302,24 @@ Beyond those ten models it checks:
 - rotation noise in an exactly zero rotation field (a guided tip) passes C3 and raises C3lit; an
   all-zero displacement field published as zeros passes and as noise fails C3;
 - a second body (C0);
-- three expected refusals, refused by name (pass), under another code (C10), publishing their exact
-  rows (C10, M3 clean) and publishing wrong rows as Passed (C3);
+- three expected refusals, refused by name (pass), under another code (C10 fails design
+  conformance), publishing their exact rows (C10 fails, M3 passes) and publishing wrong rows as
+  Passed (C3);
 - an out-of-domain Euler–Bernoulli twin: no τ rows and the warning (clean), the warning missing
-  (C11), and a τ row present (C6i).
+  (C11), and a τ row present (C6i);
+- the known τ defect and the operations: on Codex's case, τ by the prescribed operations is C11tau_b
+  (not C11 or C11ops), and τ at the ideal target is C11ops (not C11); σ⁻ one ulp off the operations
+  is C11ops on two models; the correctly rounded norm2 on hard cases;
+- **the collection** (refuter P1), through the comparison and the report:
+  - the complete synthetic collection (400 runs) passes, as the positive control;
+  - each of these fails the inventory and the M3 verdict: duplicate-then-correct and
+    correct-then-duplicate (r1's 55.6%-low UY and a correct record of one identity: the identity is
+    rejected, C0), a single run, an empty file, an unexpected tag, and an unpaired typed sparse and
+    captured dense pair;
+  - an empty collection through the CLIs: `pft_compare.py` exits 3 and `pft_report.py` exits 1;
+  - the full set's inventory is 3,624 runs and the frozen subset's 400;
+  - an admitted model refused in a complete collection: M3 passes, and design conformance fails on
+    its 4 records.
 
 **Controls.** `--ref twin` judges each run against its twin theory's reference. The Timoshenko
 product against the Euler–Bernoulli reference must fail at high φ. The stale-vector mutant is not
@@ -331,8 +387,8 @@ python3 -I -B pft_generate.py full <set> 8
 python3 -I -B pft_generate.py precision <set>/set.jsonl
 python3 -I -B pft_generate.py split <set>/set.jsonl <run>/chunks all 40     # or: eb, ts
 runner/build.sh <checkout> <target dir> <runner.bin>
-./run.sh <runner.bin> <set> <run> own twin             # writes <run>/out and <run>/eval
-python3 -I -B ../kd5_timoshenko/kd5t_report.py <run>/eval/c.*.own.jsonl --by theory
+./run.sh <runner.bin> <set> <run> own twin             # writes <run>/out and <run>/eval (and each chunk's inventory)
+python3 -I -B pft_report.py <set>/set.jsonl <run>/eval/c.*.own.jsonl --by theory --phi-table   # inventory, M3, design conformance
 python3 -I -B pft_census.py hager <set>/set.jsonl <run>/out/c.*.out.jsonl --out <census.jsonl>
 python3 -I -B pft_census.py standings <run>/out/c.*.out.jsonl
 python3 -I -B pft_generate.py probes <probes.in.jsonl>   # then the runner, then:
