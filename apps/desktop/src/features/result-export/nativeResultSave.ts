@@ -2,6 +2,7 @@ import { invokeWithIngress } from "../../services/nativeIngress";
 import { describeResourceRefusal, ResourceUnavailableError } from "../../services/memoryPool";
 import { isTauriRuntime } from "../../services/nativeMenu";
 import type { LocalFirstRouteEvidence } from "../redaction-controls/redactionExportControls";
+import { CSV_EXPORT_FILE_NAME } from "./csvTable";
 
 export const isNativeResultSaveRuntime = isTauriRuntime;
 export type NativeResultSaveRequest = {
@@ -34,11 +35,24 @@ export type NativeResultSaveError = {
   partial_file_name: string | null;
   cleanup: "not_needed" | "removed" | "retained" | "failed" | "unknown";
 };
-const requestedNames = {
-  "DOTH-JSON-001": /^openpipestress-preview-results-[a-z0-9]+(?:-[a-z0-9]+)*\.json$/,
-  "DOTH-FORMAT-003": /^openpipestress-preview-stress-neutral-[a-z0-9]+(?:-[a-z0-9]+)*\.json$/
+const JSON_DATA_PREFIX = "data:application/json;charset=utf-8,";
+/** RT-R6: the CSV table route's data prefix (`native_result_download.rs` `CSV_PREFIX`). */
+export const CSV_DATA_PREFIX = "data:text/csv;charset=utf-8,";
+const jsonReceiptName = /^openpipestress-preview-(?:results|stress-neutral)-[a-z0-9]+(?:-[a-z0-9]+)*(?: \([1-9][0-9]*\))?\.json$/;
+const csvReceiptName = /^swbpipe-[a-z0-9]+(?:-[a-z0-9]+)*(?: \([1-9][0-9]*\))?\.csv$/;
+/** Per route: requested name, receipt name, extension, data prefix and lossless flag. The
+ * CSV route alone states `lossless_required=false` (a derived view, DEL-08-04 Design
+ * `csv-export.md` §4); the JSON routes keep requiring `true`. */
+const routes = {
+  "DOTH-JSON-001": { name: /^openpipestress-preview-results-[a-z0-9]+(?:-[a-z0-9]+)*\.json$/, receipt: jsonReceiptName, ext: ".json", prefix: JSON_DATA_PREFIX, lossless: true },
+  "DOTH-FORMAT-003": { name: /^openpipestress-preview-stress-neutral-[a-z0-9]+(?:-[a-z0-9]+)*\.json$/, receipt: jsonReceiptName, ext: ".json", prefix: JSON_DATA_PREFIX, lossless: true },
+  "DOTH-CSV-011": { name: CSV_EXPORT_FILE_NAME, receipt: csvReceiptName, ext: ".csv", prefix: CSV_DATA_PREFIX, lossless: false }
 } as const;
-const receiptName = /^openpipestress-preview-(?:results|stress-neutral)-[a-z0-9]+(?:-[a-z0-9]+)*(?: \([1-9][0-9]*\))?\.json$/;
+type NativeSaveRoute = keyof typeof routes;
+function routeOf(request: NativeResultSaveRequest): (typeof routes)[NativeSaveRoute] | null {
+  const id = object(request) && object(request.screening) ? request.screening.route_id : undefined;
+  return typeof id === "string" && Object.hasOwn(routes, id) ? routes[id as NativeSaveRoute] : null;
+}
 const cleanups = ["not_needed", "removed", "retained", "failed", "unknown"];
 function object(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -59,7 +73,8 @@ function normalizeError(error: unknown, request: NativeResultSaveRequest): Nativ
     && typeof value.stage === "string" && ["request", "decode", "downloads", "containment", "open", "write", "flush", "busy", "worker"].includes(value.stage)
     && typeof value.cleanup === "string" && cleanups.includes(value.cleanup)
     && (value.partial_file_name === null || (typeof value.partial_file_name === "string"
-      && receiptName.test(value.partial_file_name) && sameRequestedFamily(value.partial_file_name, request.file_name)))) {
+      && routeOf(request) !== null && routeOf(request)!.receipt.test(value.partial_file_name)
+      && sameRequestedFamily(value.partial_file_name, request.file_name, routeOf(request)!.ext)))) {
     return { code: value.code, stage: value.stage, message: "Local result save did not complete.",
       partial_file_name: value.partial_file_name as string | null, cleanup: value.cleanup as NativeResultSaveError["cleanup"] };
   }
@@ -68,28 +83,30 @@ function normalizeError(error: unknown, request: NativeResultSaveRequest): Nativ
 function admitted(request: NativeResultSaveRequest): boolean {
   if (!object(request) || !object(request.screening) || !object(request.local_first)) return false;
   const s = request.screening, l = request.local_first;
+  const route = routeOf(request);
   return Object.keys(request).sort().join(",") === "file_name,href,local_first,screening"
     && Object.keys(s).sort().join(",") === "blocked,blocking_count,exact_payload_match,explicit_local_private_intent,export_context,lossless_required,materialization_withheld,route_id"
     && Object.keys(l).sort().join(",") === "action,blocked,explicit_local_private_intent,export_context,metadata_only,reason_code,route_id,storage_context"
-    && typeof request.href === "string" && request.href.startsWith("data:application/json;charset=utf-8,") && request.href.length > "data:application/json;charset=utf-8,".length
+    && route !== null
+    && typeof request.href === "string" && request.href.startsWith(route.prefix) && request.href.length > route.prefix.length
     && typeof request.file_name === "string"
-    && (s.route_id === "DOTH-JSON-001" || s.route_id === "DOTH-FORMAT-003")
-    && requestedNames[s.route_id].test(request.file_name)
+    && route.name.test(request.file_name)
     && s.export_context === "local_private" && s.explicit_local_private_intent === true
-    && s.blocked === false && s.materialization_withheld === false && s.lossless_required === true && s.exact_payload_match === true && s.blocking_count === 0
+    && s.blocked === false && s.materialization_withheld === false && s.lossless_required === route.lossless && s.exact_payload_match === true && s.blocking_count === 0
     && l.route_id === s.route_id && l.export_context === s.export_context && l.storage_context === "local_private"
     && l.action === "include_metadata_only" && l.reason_code === "PRIVATE_LOCAL_METADATA_ALLOWED"
     && l.blocked === false && l.metadata_only === true && l.explicit_local_private_intent === true;
 }
-function sameRequestedFamily(value: string, basename: string): boolean {
-  const stem = basename.slice(0, -5);
+function sameRequestedFamily(value: string, basename: string, ext: string): boolean {
+  const stem = basename.slice(0, -ext.length);
   if (value === basename) return true;
-  const suffix = value.startsWith(`${stem} (`) && value.endsWith(").json") ? value.slice(stem.length + 2, -6) : "";
+  const suffix = value.startsWith(`${stem} (`) && value.endsWith(`)${ext}`) ? value.slice(stem.length + 2, -(ext.length + 1)) : "";
   return /^[1-9][0-9]*$/.test(suffix);
 }
 function receipt(value: unknown, request: NativeResultSaveRequest): value is NativeResultSaveReceipt {
   return object(value) && Object.keys(value).sort().join(",") === "byte_count,durability,file_name,outcome,path_containment,replaced_existing"
-    && value.outcome === "saved" && typeof value.file_name === "string" && receiptName.test(value.file_name) && sameRequestedFamily(value.file_name, request.file_name)
+    && value.outcome === "saved" && typeof value.file_name === "string" && routeOf(request) !== null
+    && routeOf(request)!.receipt.test(value.file_name) && sameRequestedFamily(value.file_name, request.file_name, routeOf(request)!.ext)
     && typeof value.byte_count === "number" && Number.isSafeInteger(value.byte_count) && value.byte_count > 0
     && value.replaced_existing === false && value.durability === "not_guaranteed"
     && value.path_containment === "best_effort_non_adversarial";

@@ -97,8 +97,12 @@ older than it, by written time, are removed. Only names that parse as that
 slot's records are removed, regular files only (never a symlink), in that
 directory only. A record that another window wrote later is kept. This pruning
 replaces retained records automatically; only applying a recovery needs the
-user. When Save Local Project lands with the same model hash, the
-desktop discards the slot's records, since the store now holds that model.
+user. When Save Local Project (or New Local Project) lands, the desktop
+discards the slot's records whose model hash is the saved model's, since the
+store now holds exactly that model. A save never removes a record with any
+other hash, whatever its time: only the hash proves that a record's work is
+in the store, and another window may write newer edits around the save, or
+the user may have kept the record for later (Codex r1 on #1718).
 These are the app's own recovery records in its data directory, not files the
 user saved. The settings text says that autosaves are removed once saved.
 
@@ -108,8 +112,10 @@ Autosave is on by default, every 5 minutes. The user can choose 1, 2, 5, 10,
 15 or 30 minutes, or turn it off, and it writes only while there are unsaved
 edits (Agent 0, 2026-10-28, under the owner-accepted release target, row
 RT-U3: "on by default", so that a crash loses at most one interval, as exit
-criterion 10 of `docs/RELEASE_TARGET_v1.0.md` states). Turning it off shows a
-one-line notice that a crash can lose unsaved work (§8, slice 2). The existing
+criterion 10 of `docs/RELEASE_TARGET_v1.0.md` states). For as long as it is
+off, a one-line notice that a crash can lose unsaved work stays in the
+toolbar, taken from the settings and apart from the status line, so no later
+status replaces it (§8, slice 2; Codex r1 on #1718). The existing
 preference mechanism is the webview's UI
 preferences (`features/workspace/uiPreferences.ts`, localStorage key
 `chirality.desktop.ui-preferences.v1`: theme, density, layout). That record is
@@ -141,13 +147,21 @@ retries at the next tick. A successful one shows `Autosaved at <time>`.
 At startup, after the most recent project opens, and whenever a stored project
 is opened, the desktop lists the records (`list_project_autosaves`: names and
 sizes only, no content read). It pairs each record with the stored project
-whose id has the same slot. It offers a record when the record's model hash
-differs from the stored project's, and the record was written after that
-project was last saved. A record with no stored project (a model never saved)
-is offered too. Before offering anything, the dialog compares the record with
-the stored document and says which is newer, by their written and last-saved
-times, or that the stored project is the newer one. It never silently prefers
-either. The offer is a modal dialog showing:
+whose id has the same slot. Every record whose model hash is not shown to be
+the stored project's model stays recoverable: a wall clock that was set back
+can make newer work look older, so the times never hide a record (Codex r1 on
+#1718). At these moments the dialog is offered for a record with no stored
+project (a model never saved), and for one written, by this Mac's clock,
+after that project was last saved, or within the same second. A record the
+clock calls older is not offered then; a status line says that it is kept,
+states both times, and names Recover autosave…, which is in the Appearance
+popover beside the interval and in the project panel. Recover autosave…
+offers every record not shown to be its stored project's model, newest first,
+whatever the times. The texts compare the record with the stored document
+"by this Mac's clock", by their written and last-saved times, and say which
+is newer, that the same second cannot tell, or that there is no stored
+project; they never silently prefer either. The offer is a modal dialog
+showing:
 - what it is: the project name and id (read from the verified record), when it
   was autosaved, its size and its short model hash; and that queued batches,
   proposals, review context and solve results are not in it;
@@ -270,8 +284,10 @@ or rolls back a save.
   ever reads.
 - **Read-back.** After the rename, the file is streamed through SHA-256 in
   64 KiB blocks and compared with the model hash. On a mismatch
-  (`AUTOSAVE-READBACK-MISMATCH`) or a read error (`AUTOSAVE-READBACK-FAILED`),
-  that new file alone is removed and the previous record is kept.
+  (`AUTOSAVE-READBACK-MISMATCH`), the new file alone is removed and the
+  previous record is kept. On a read error (`AUTOSAVE-READBACK-FAILED`),
+  nothing is removed: the new file is kept unverified, and no older record is
+  pruned.
 - **Containment.** Every read, including the read-back and the `unchanged`
   check, opens the records directory `O_DIRECTORY | O_NOFOLLOW`, so a symlinked
   `autosave/` is refused (`AUTOSAVE-DIRECTORY-UNAVAILABLE`). It then resolves
@@ -334,7 +350,7 @@ counting-allocator tests the other model-sized commands use.
 | Slice | Content | Tests | Gate |
 |---|---|---|---|
 | 1 | This design. `autosave.rs`: slot and name, the per-slot locked write transaction with read-back, durability-gated pruning of strictly older records, a bounded listing and a contained, verified read. The writer's I/O seam, including its directory sync, shared at crate visibility. | Rust: exact bytes and hash; `unchanged`; injected disk full (ENOSPC) at write; real permission denied (read-only directory); injected interrupted rename; crash-before-rename temp ignored; read-back mismatch removes only the new file; store file untouched in every case; tampered and renamed records refused on read; non-current and malformed documents refused; pruning removes only the slot's own strictly older records. Review r1: two writers on one slot always leave a valid record; a write waits for its slot's lock and another slot does not; a failed directory sync keeps older records; creating the directory syncs its parent; an `unchanged` record that does not verify is rewritten; a listing beyond its limit is bounded and reserved; a symlinked directory, a record swapped for a symlink and a record that grows are refused; the capped read never reads past its cap. Review r2: a failed parent sync keeps older records on a later write too; a same-time retry whose check cannot be reserved keeps the only record; a read-back that cannot be reserved keeps new and older records; a corrupt record of the same name is replaced; a writer started between read-back and prune waits (forced by a hook) and a record survives; a lock file that is not a regular file is refused. | Independent review of the module (persistence) before slice 2 builds on it. |
-| 2 | Commands of §6 for autosave and settings; the desktop timer, status lines, recovery offer and discard; discard after a landed save. Required (Agent 0, 2026-10-28): (a) turning autosave off shows a one-line notice that a crash can lose unsaved work; (b) recovery compares the autosave with the stored document and says which is newer before it offers Open, Keep for later or Discard, never silently preferring either. | Rust: command arguments and leases; the settings default (5 minutes, on). Vitest: on by default at 5 minutes; the off notice; writes only while edited and on the interval; one in flight; refusal display; offer shown only for a newer record; shows what it replaces; never auto-applied; Open goes through the guard; Discard confirms. | Independent review. Native smoke stays with the owner. |
+| 2 | Commands of §6 for autosave and settings; the desktop timer, status lines, recovery offer and discard; discard after a landed save. Required (Agent 0, 2026-10-28): (a) turning autosave off shows a one-line notice that a crash can lose unsaved work; (b) recovery compares the autosave with the stored document and says which is newer before it offers Open, Keep for later or Discard, never silently preferring either. | Rust (`autosave_commands_tests.rs`): each command admitted under its §6 rule (the write with its whole body, leased envelope + M + 4 KiB; the record commands within 256 KiB; the settings commands within 4 KiB); each command's named arguments; the write runs in memory seeded with its lease, and its counting-allocator peak is within what it held; a record listed, read verified and discarded in the app data directory; a discard never follows or removes a symlink; the settings default (5 minutes, on) and the file's exact text; each bad settings file (not JSON, not an object, another kind, an unknown member, a folder that is not a path, too large, a directory, a symlink, version 2, no version, 7, 31, -1, 2.5, "5" or no minutes, keep 4) reads as the default with a status naming it and is not rewritten; a settings read that cannot be reserved reads as the default; setting the interval writes the file atomically and refuses values that are not choices. Vitest (`features/autosave`): on by default every 5 minutes and writes the canonical text on that interval; (a) the off notice, and no writes while off; (a) the off notice stays while off through later status lines (Keep for later, a write landing after autosave was turned off) (Codex r1 P2); a settings file that could not be used shows its status line; writes only while edited, only on the interval, never while the session is busy; one in flight; the refusal line and a retry at the next tick; after a landed save, only that project's records holding the saved model's hash are discarded, and a record with another hash (kept for later, or written by another window just before or after the save) is kept (Codex r1 P1); the offer shown only for a newer record whose model differs; (b) which is newer by this Mac's clock, both directions, and the same-second and no-stored cases; a differing record the clock calls older (a clock set back) is stated as kept at start and offered by Recover autosave…, which also says when there is nothing to recover (Codex r1 P2); what the record is, what it replaces and that the stored project stays unchanged; never applied by itself (Keep for later focused, modal hold taken and released, focus returned); Open hands the record to the session's open; Discard asks once more; an unreadable record offers Discard only; the pairing rule. Session (`autosave.session.test.tsx`): Open autosave goes through the unsaved-changes guard (Cancel keeps the edits; Discard edits adopts the record, read verified again, with no stored base); Save Local Project discards the project's autosave holding the saved model once it lands, and keeps one with another hash. A quit while the recovery offer is open closes nothing: the offer takes the shared modal hold, which the close guard (#1717) refuses on. | Independent review. Native smoke stays with the owner. |
 | 3 | Backup: folder chooser, settings, write after a landed save, rotation, refusal display. | Rust: backup equals the stored text and hash; rotation with All deletes nothing; N deletes only that project's pattern, never symlinks or other files; missing, read-only and full folder refusals; screening refusal. Vitest: settings, refusal line after a landed save. | Independent review (rotation deletes files). |
 
 Each test must fail without its wiring. The slice-1 evidence is in its PR.

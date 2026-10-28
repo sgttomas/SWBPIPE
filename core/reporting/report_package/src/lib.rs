@@ -43,6 +43,17 @@
 //! authentication, or code-compliance claims; human professional review is
 //! required before any reliance on package contents.
 
+#![forbid(unsafe_code)]
+
+// Code review r6 at #1682 (DEL-08-01 Design `report-user-release.md` §2.8,
+// "Threat model"): this crate's `#[cfg(test)]` items compile only into its
+// own unit-test binary. Cargo sets `CARGO_PRIMARY_PACKAGE` only for a package
+// the command selected (as `cargo test` selects this one), never for a
+// dependency, so a build that sets `--cfg test` for this crate as a
+// dependency of a product fails to compile here.
+#[cfg(test)]
+const _: () = assert!(option_env!("CARGO_PRIMARY_PACKAGE").is_some(), "cfg(test) is set for this reporting crate as a dependency (DEL-08-01 Design section 2.8)");
+
 use open_pipe_stress_audit_manifest as audit;
 use open_pipe_stress_canonical_json::canonical_json;
 use open_pipe_stress_pdf_emitter as pdf;
@@ -71,6 +82,7 @@ mod forwarding_graph_scan;
 mod exact_package_witness_tests;
 
 use crate::admitted::AdmittedSet;
+use crate::user_release::ProducerEntry;
 
 pub use reader::{
     read_report_package_container, PackageReadRefusal, ReadReportPackage, SUPPORTED_PACKAGE_VERSION,
@@ -205,17 +217,75 @@ pub struct ReportPackageContainerOutcome {
 pub fn assemble_report_package_container(
     input: &ReportPackageContainerInput,
 ) -> ReportPackageContainerOutcome {
-    assemble_report_package_container_in(input, admitted::PRODUCTION)
+    assemble_report_package_container_in(input, &ProducerEntry::General, admitted::PRODUCTION)
+}
+
+/// The outcome of a general entry's refusal of a user-release marker (W-18b,
+/// DEL-08-01 Design `report-user-release.md` §2.8, refusal 2): nothing is
+/// rendered, no member is materialized and the container is empty; the
+/// outcome is export-blocked with the refusal as its one reason.
+fn refused_outcome(input: &ReportPackageContainerInput, reason: String) -> ReportPackageContainerOutcome {
+    let empty = sha256_hex(&[]);
+    let blocking_reasons = vec![reason];
+    let render = renderer::RenderOutcome {
+        html: String::new(),
+        sha256_hex: empty.clone(),
+        export_blocked: true,
+        blocking_reasons: blocking_reasons.clone(),
+        report_validation_diagnostics: Vec::new(),
+        section_validation_diagnostics: Vec::new(),
+        pre_render_findings: Vec::new(),
+        post_render_findings: Vec::new(),
+        content_withheld: true,
+    };
+    let pdf = pdf::PdfEmissionOutcome {
+        pdf_bytes: Vec::new(),
+        sha256_hex: empty.clone(),
+        page_count: 0,
+        export_blocked: true,
+        blocking_reasons: blocking_reasons.clone(),
+        canonical_html_sha256_hex: empty.clone(),
+        text_model_findings: Vec::new(),
+    };
+    ReportPackageContainerOutcome {
+        container_file_name: format!("{}.{}", sanitize_component(&input.package_id), CONTAINER_EXTENSION),
+        document_kind: CONTAINER_DOCUMENT_KIND.to_string(),
+        package_identity_sha256_hex: empty.clone(),
+        container_bytes: Vec::new(),
+        container_sha256_hex: empty,
+        members: Vec::new(),
+        export_blocked: true,
+        blocking_reasons: blocking_reasons.clone(),
+        report: pdf::FullReportPackageOutcome { render, pdf, export_blocked: true, blocking_reasons, members: Vec::new() },
+    }
 }
 
 /// [`assemble_report_package_container`] against `admitted` (W-11, DEL-08-01
 /// Design `exact-route-report-sections.md` §5.5), forwarded to its item-0
-/// check.
+/// check, under the producer `entry` (W-18b, DEL-08-01 Design
+/// `report-user-release.md` §2.8). Under [`ProducerEntry::General`] a
+/// user-release marker (the user-released profile, the
+/// `user_released_report` context, or a record) is refused before anything
+/// is rendered. Under [`ProducerEntry::UserRelease`] the report must carry its
+/// record; the package then carries no state/comparison/handoff member, and
+/// the manifest carries the record with its `content_binding` and the
+/// user-released boundary notes (§5.3).
 pub(crate) fn assemble_report_package_container_in(
     input: &ReportPackageContainerInput,
+    entry: &ProducerEntry,
     admitted: AdmittedSet,
 ) -> ReportPackageContainerOutcome {
+    if !entry.is_user_release() {
+        if let Some(marker) = user_release::container_marker(&input.export_profile_id, input.report) {
+            return refused_outcome(input, user_release::general_entry_refusal(marker));
+        }
+    }
     let mut blocking_reasons: Vec<String> = Vec::new();
+    let record = input.report.report_context.as_ref().and_then(|context| context.user_release.as_ref());
+    let record_value: Option<Value> = record.map(|record| serde_json::to_value(record).expect("the typed record serializes"));
+    if entry.is_user_release() && record.is_none() {
+        blocking_reasons.push(format!("{}: the admitting entry packages a report with its user-release record only", user_release::PACKAGE_UNBOUND));
+    }
 
     if input.package_id.trim().is_empty() {
         blocking_reasons.push("package: package_id must not be empty".to_string());
@@ -276,8 +346,16 @@ pub(crate) fn assemble_report_package_container_in(
         result_members.push((file_name, document));
     }
 
-    // State/comparison/handoff report-section members (DEL-08-06).
-    if input.state_comparison_handoff_records.is_empty() {
+    // State/comparison/handoff report-section members (DEL-08-06). A
+    // user-released package carries none (W-18b §2.1, §2.8).
+    if record_value.is_some() {
+        if !input.state_comparison_handoff_records.is_empty() {
+            blocking_reasons.push(format!(
+                "{}: a user-released package carries no state/comparison/handoff report-section member",
+                user_release::PACKAGE_UNBOUND
+            ));
+        }
+    } else if input.state_comparison_handoff_records.is_empty() {
         blocking_reasons.push(
             "package: at least one state/comparison/handoff report-section member is required"
                 .to_string(),
@@ -396,6 +474,7 @@ pub(crate) fn assemble_report_package_container_in(
                     source_basis_refs: &input.source_basis_refs,
                     export_blocked,
                     blocking_reasons,
+                    user_release: record_value.as_ref(),
                 },
                 &members,
             ),
@@ -672,6 +751,31 @@ pub(crate) struct ManifestFields<'a> {
     pub(crate) source_basis_refs: &'a [PackageRef],
     pub(crate) export_blocked: bool,
     pub(crate) blocking_reasons: &'a [String],
+    /// The caller's user-release record (W-18b §2.3), without
+    /// `content_binding`: the manifest writes it with the binding over
+    /// `members`. `None` for every other package.
+    pub(crate) user_release: Option<&'a Value>,
+}
+
+/// The package manifest's boundary notes: the three of every package, or,
+/// with a user-release record, the user-released set (W-18b §5.3).
+fn boundary_notes(user_released: bool) -> Value {
+    if user_released {
+        json!([
+            "This container is an artifact format, not an issuance act; package contents are engineering decision-support information.",
+            "Human professional review is required before any reliance on package contents.",
+            "No timestamps or generated identifiers are recorded in this package except user_release.user_released_at, the time of the user release; identical inputs, including that time, produce identical bytes.",
+            "The user released their own project data in this package for sharing (user_release). The record is the user's statement about rights in that data; it is not an issuance act."
+        ])
+    } else {
+        json!([
+            "This container is an artifact format, not an issuance act; package contents are \
+             engineering decision-support information.",
+            "Human professional review is required before any reliance on package contents.",
+            "No timestamps or generated identifiers are recorded anywhere in this package; \
+             identical inputs produce identical bytes."
+        ])
+    }
 }
 
 pub(crate) fn package_manifest_document(
@@ -693,7 +797,7 @@ pub(crate) fn package_manifest_document(
         })
         .collect();
 
-    json!({
+    let mut document = json!({
         "artifact": PACKAGE_MANIFEST_ARTIFACT,
         "schema_version": PACKAGE_MANIFEST_SCHEMA_VERSION,
         "document_kind": CONTAINER_DOCUMENT_KIND,
@@ -740,13 +844,7 @@ pub(crate) fn package_manifest_document(
             "export_blocked": fields.export_blocked,
             "blocking_reasons": fields.blocking_reasons
         },
-        "boundary_notes": [
-            "This container is an artifact format, not an issuance act; package contents are \
-             engineering decision-support information.",
-            "Human professional review is required before any reliance on package contents.",
-            "No timestamps or generated identifiers are recorded anywhere in this package; \
-             identical inputs produce identical bytes."
-        ],
+        "boundary_notes": boundary_notes(fields.user_release.is_some()),
         "professional_boundary": {
             "human_review_required": true,
             "software_makes_compliance_claim": false,
@@ -755,7 +853,17 @@ pub(crate) fn package_manifest_document(
             "software_makes_approval_claim": false,
             "software_makes_authentication_claim": false
         }
-    })
+    });
+    // W-18b §2.3: the caller's record plus the binding of every other member,
+    // written only when present.
+    if let Some(record) = fields.user_release {
+        let mut record = record.clone();
+        if let Value::Object(object) = &mut record {
+            object.insert("content_binding".to_string(), user_release::content_binding(members));
+        }
+        document["user_release"] = record;
+    }
+    document
 }
 
 fn package_ref_json(reference: &PackageRef) -> Value {

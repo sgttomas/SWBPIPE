@@ -56,7 +56,7 @@ Each requirement needs named candidate-bound evidence. Existing code, route visi
 
 ## Governing Values and Decisions — Axiology
 
-Finite inventory: native JSON package; .mbf model export; licensed external-run evidence review; stress-neutral, PCF and review-geometry export; handoff/local-FEA/external-prover boundary panels; adapter-framework, headless-runner and export-adapter SDK review panels; validation-evidence review. Contract/engine/API ownership stays PKG-15, PKG-17, DEL-10-02/03/05 and PKG-09; DEL-17-02 owns the export-unit helper contract. DEL-10-04 retains build-readiness under DEC-076. DEL-07-08 retains offline/agent proposal review. No exporter, schema, licensed-process invocation, new adapter family, private-data permission or professional-acceptance workflow is added.
+Finite inventory: native JSON package; .mbf model export and import (DEL-17-04 Design `desktop-mbf-export-import.md`); licensed external-run evidence review; stress-neutral, PCF and review-geometry export; handoff/local-FEA/external-prover boundary panels; adapter-framework, headless-runner and export-adapter SDK review panels; validation-evidence review. Contract/engine/API ownership stays PKG-15, PKG-17, DEL-10-02/03/05 and PKG-09; DEL-17-02 owns the export-unit helper contract. DEL-10-04 retains build-readiness under DEC-076. DEL-07-08 retains offline/agent proposal review. No exporter, schema, licensed-process invocation, new adapter family, private-data permission or professional-acceptance workflow is added.
 
 Apply existing schema, units, provenance, protected-content and professional-boundary contracts. Source integration, internal checking, engineering acceptance and release remain distinct. Standard claim fence applies (F-PIP-2; DEC-081 claims taxonomy).
 

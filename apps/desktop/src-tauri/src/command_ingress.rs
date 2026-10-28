@@ -42,14 +42,25 @@
 //! [`report_package_request_parse_bytes`] for its request text, which prices
 //! the rebuild and the typed vectors by the request's regions
 //! ([`REPORT_PACKAGE_REQUEST_REGIONS`]) and adds the command's working memory
-//! ([`REPORT_PACKAGE_WORKING_MEMORY_FACTOR`]). The counting-allocator tests
-//! check the requested peak against these rules for representative and
-//! adversarial inputs.
+//! ([`REPORT_PACKAGE_WORKING_MEMORY_FACTOR`]). Its route
+//! `DREP-PACKAGE-USER-RELEASE-010` (W-18b) adds the run record text's priced
+//! parse, its derivation's request and input manifest (one more priced parse
+//! of each text) and its refusal formatting allowance
+//! (`report_package_save::ingress_lease_bytes`), and grows the lease inside
+//! admission by rule 3 (b)'s largest embedded candidate; every growth is
+//! refused above the budget the command was admitted under. The
+//! counting-allocator tests check the requested peak against these rules for
+//! representative and adversarial inputs.
 //!
 //! Residual: the command's own working memory and its response serialization
 //! run under the held lease but are not separately bounded, except the report
 //! package save's working-memory term; wry/Tauri copies of the raw body made
-//! before the command runs are not ours to price (as for the solve start).
+//! before the command runs are not ours to price (as for the solve start). A
+//! command's error is converted by Tauri after the command returns and its
+//! lease is released; route `DREP-PACKAGE-USER-RELEASE-010`'s refusals are
+//! bounded to at most one diagnostic and a fixed size, at every stage, for
+//! that reason: the save command returns every outcome through one exit
+//! (`report_package_save::SaveRoute::exit`).
 
 use crate::ingress::{self, allocation_envelope, FieldRegion, IngressBound, RegionField, RegionStruct};
 use crate::memory_pool::{Lease, ResourceRefusal};
