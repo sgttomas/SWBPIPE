@@ -638,6 +638,45 @@ def test_execute_fails_on_unexpected_boundary_finding(tmp_path):
     assert record["boundary_check"]["unexpected_finding_count"] == 1
 
 
+def test_execute_outputs_carry_no_host_paths_or_untracked_names(tmp_path, monkeypatch):
+    # Review leak surfaces: absolute-path metadata, names of local artifacts,
+    # raw lint paths and engine logs must not reach the record, report or
+    # lint run. The engine is stubbed so no cargo runs.
+    source = make_source_tree(tmp_path)
+    (source / "invented-private-client-notes.txt").write_text("x\n", encoding="utf-8")
+    target = tmp_path / "out"
+
+    def fake_lint(paths, engine_root):
+        return {
+            "status": "findings_present",
+            "command": "cargo run --quiet ...",
+            "summary": {"target_count": len(paths), "finding_count": 1,
+                        "blocking_finding_count": 0},
+            "findings": [{"path": str(paths[0]), "severity": "WARNING",
+                          "code": "UNKNOWN_PROVENANCE_REVIEW_REQUIRED", "line": 1}],
+            "note": None,
+        }
+
+    monkeypatch.setattr(PIPE, "run_engine_lint", fake_lint)
+    PIPE.main(["--source-root", str(source), "--execute", "--target", str(target)])
+    for name in (PIPE.RECORD_NAME, PIPE.REPORT_NAME, PIPE.LINT_RUN_NAME):
+        text = (target / name).read_text(encoding="utf-8")
+        assert str(tmp_path) not in text and str(tmp_path.resolve()) not in text, name
+        assert "invented-private-client-notes" not in text, name
+    record = json.loads((target / PIPE.RECORD_NAME).read_text(encoding="utf-8"))
+    assert record["source"]["source_root"] == "<repository>/"
+    assert record["source"]["git"]["dirty_path_count"] == 1
+
+    monkeypatch.undo()
+    host_text = str(tmp_path / "engine-log-path")
+    monkeypatch.setattr(
+        PIPE, "run_command",
+        lambda command, cwd: PIPE.subprocess.CompletedProcess(command, 1, "", host_text),
+    )
+    note = PIPE.run_engine_lint([source / "docs" / "README.md"], source)["note"]
+    assert host_text not in note and "exited 1" in note
+
+
 def test_execute_refuses_unsafe_targets(tmp_path):
     source = make_source_tree(tmp_path)
     inside = source / "export-out"

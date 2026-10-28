@@ -323,12 +323,19 @@ def collect_git_state(root: Path) -> dict:
     dirty_paths = []
     if porcelain:
         dirty_paths = [line[3:].strip() for line in porcelain.splitlines() if line.strip()]
+    # Counts only: dirty and untracked file names can be private, and the
+    # export stages HEAD blobs, so the working tree never reaches it.
     return {
         "commit_hash": commit,
         "working_tree_dirty": bool(dirty_paths),
         "dirty_path_count": len(dirty_paths),
-        "dirty_paths": dirty_paths[:100],
     }
+
+
+def repository_prefix(source_root: Path) -> str:
+    """The source root as a repository-relative path (no host path)."""
+    prefix = capture_output(["git", "rev-parse", "--show-prefix"], source_root)
+    return "<repository>/" + (prefix or "")
 
 
 def collect_runtime_versions(root: Path) -> dict:
@@ -719,17 +726,22 @@ def run_engine_lint(paths: list[Path], engine_root: Path) -> dict:
                 "command": " ".join(base_command[:8]) + " ...",
                 "summary": None,
                 "findings": [],
-                "note": f"Engine CLI unavailable: {error}. Fails toward review.",
+                "note": (
+                    f"Engine CLI unavailable ({type(error).__name__}). "
+                    "Fails toward review."
+                ),
             }
         if completed.returncode != 0:
+            # Engine output can carry host paths: it goes to the console only.
+            print(completed.stderr.strip()[-2000:], file=sys.stderr)
             return {
                 "status": "engine_error",
                 "command": " ".join(base_command[:8]) + " ...",
                 "summary": None,
                 "findings": [],
                 "note": (
-                    f"Engine CLI exited {completed.returncode}: "
-                    f"{completed.stderr.strip()[:400]}. Fails toward review."
+                    f"Engine CLI exited {completed.returncode}; its output is "
+                    "not recorded (it can carry host paths). Fails toward review."
                 ),
             }
         payload = json.loads(completed.stdout)
@@ -863,7 +875,7 @@ def build_record(
         "decision_basis": DECISION_BASIS,
         "generated_utc": now.isoformat(),
         "source": {
-            "source_root": str(source_root),
+            "source_root": repository_prefix(source_root),
             "git": git,
             "runtime_versions": versions,
         },
@@ -1103,8 +1115,14 @@ def run_execute(source_root: Path, target: Path, force: bool, engine_root: Path)
 
     boundary_gate = classify_boundary_findings(boundary_findings(staging))
     lint_result = run_engine_lint(lintable_staged_files(staging), engine_root)
+    # Recorded finding paths are staging-relative, never host paths.
+    lint_record = dict(lint_result)
+    lint_record["findings"] = [
+        dict(finding, path=relativize_finding_path(finding.get("path", ""), staging))
+        for finding in lint_result.get("findings", [])
+    ]
     (target / LINT_RUN_NAME).write_text(
-        json.dumps(lint_result, indent=2) + "\n", encoding="utf-8"
+        json.dumps(lint_record, indent=2) + "\n", encoding="utf-8"
     )
     lint_gate = classify_lint_gate(lint_result, staging)
 
