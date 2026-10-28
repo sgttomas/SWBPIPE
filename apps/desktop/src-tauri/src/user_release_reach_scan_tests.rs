@@ -5,7 +5,7 @@
 use crate::user_release_reach_scan::{
     allowed_dependents, build_configuration, build_script_findings, cargo_configs, cargo_crate, crate_sources, dependent_findings, dependent_locations, expected_manifests, in_repo_build_scripts, in_repo_packages, manifest_overrides, path_module_key,
     path_packages, proc_macro_findings, project_manifests, project_sources, repository_root, resolved_identities, scan, scan_reading, scan_reading_all, CrateTarget, Dependents, Sources, BUILD_DEPENDENCIES, BUILD_SCRIPTS, CONSUMERS, CRATES, DEPENDENT_MANIFESTS,
-    PROC_MACRO_PACKAGES, REPORTING_DEPENDENTS, REPORTING_PACKAGES, RUNNER_DEPENDENCIES, SHELL_DEPENDENCIES, SHELL_TEST_CALLERS, TARGETS, TEST_PROOF_ITEMS,
+    FOREIGN_BLOCKS, PROC_MACRO_PACKAGES, REPORTING_DEPENDENTS, REPORTING_PACKAGES, RUNNER_DEPENDENCIES, SHELL_DEPENDENCIES, SHELL_TEST_CALLERS, SHELL_UNSAFE_MODULES, TARGETS, TEST_PROOF_ITEMS,
 };
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::Path;
@@ -349,6 +349,8 @@ mod tests {
         "src-tauri/src/lib.rs".to_string(),
         file(&format!(
             "
+#![deny(unsafe_code)]
+#[allow(unsafe_code)]
 mod host_memory;
 #[cfg(feature = \"native-smoke\")]
 mod native_smoke;
@@ -378,7 +380,7 @@ pub fn run() {{
             basis_macro()
         )),
     );
-    files.insert("src-tauri/src/main.rs".to_string(), file("fn main() {\n    println!(\"{}\", 1);\n}\n"));
+    files.insert("src-tauri/src/main.rs".to_string(), file("#![deny(unsafe_code)]\nfn main() {\n    println!(\"{}\", 1);\n}\n"));
     // A test module that renders through the shell's own function (code
     // review r7 at #1682: a test-only renderer call is a finding).
     files.insert("src-tauri/src/report_render_exact_tests.rs".to_string(), file("fn t() { crate::render_calculation_report_value(json!({})); }\n"));
@@ -2297,7 +2299,12 @@ fn the_review_r9_repros_in_scratch_copies() {
             Box::new(same),
             Box::new(append("extern \"Rust\" { fn r9_symbol(); }\npub fn r9() { unsafe { r9_symbol() } }\n")),
             vec![],
-            vec!["an extern block in the headless runner".to_string(), "an unsafe block in the headless runner".to_string(), "the unsafe keyword in the headless runner".to_string()],
+            vec![
+                "an extern block in the headless runner".to_string(),
+                "an unsafe block in the headless runner".to_string(),
+                "the unsafe keyword in the headless runner".to_string(),
+                "which is not on the foreign-block pin list".to_string(),
+            ],
         ),
         (
             "a new macro_rules! definition",
@@ -2435,4 +2442,141 @@ fn the_real_sources_find_the_review_r9_path_crossings() {
     let findings = scan(&sources);
     assert_eq!(findings.len(), 1, "{findings:#?}");
     assert!(findings[0].starts_with("src-tauri/src/lib.rs:") && findings[0].contains("loads report_package/tests/common/package_basis.rs, outside its crate's directory, and is not on the path-crossing allow-list"), "{findings:#?}");
+}
+
+// --- Code review r9 follow-up at #1682: symbol-level FFI ------------------
+
+/// The mangled symbol of the admitting entry, as a foreign item could declare
+/// it under another identifier.
+const MANGLED: &str = "_ZN31open_pipe_stress_report_package12user_release16assemble_derived17h0123456789abcdefE";
+
+/// A scratch copy of `src-tauri` that Cargo reads (manifest with absolute
+/// path dependencies, lock, build script and `src/`), with `edits` applied
+/// as (file, old, new): `old` occurring exactly once is replaced, `"^"`
+/// prepends and `"$"` appends; and the real sources with its part read from
+/// the copy.
+fn shell_copy_with(tree: &ScratchTree, edits: &[(&str, &str, String)]) -> Sources {
+    let dir = tree.crate_copy("apps/desktop/src-tauri", "src-tauri", &[("build.rs", None)]);
+    copy_dir(&project().join("apps/desktop/src-tauri/src"), &dir.join("src"));
+    for (file, old, new) in edits {
+        let path = dir.join(file);
+        let text = std::fs::read_to_string(&path).unwrap();
+        let edited = match *old {
+            "^" => format!("{new}{text}"),
+            "$" => format!("{text}{new}"),
+            old => {
+                assert_eq!(text.matches(old).count(), 1, "{file}: {old}");
+                text.replacen(old, new, 1)
+            }
+        };
+        std::fs::write(&path, edited).unwrap();
+    }
+    let mut sources = project_sources(&project());
+    sources.files.retain(|file, _| !file.starts_with("src-tauri/"));
+    sources.build_scripts.retain(|file, _| !file.starts_with("src-tauri/"));
+    sources.bin_dirs.remove("src-tauri");
+    crate_sources("src-tauri", &dir, &mut sources);
+    sources
+}
+
+/// Also asserted (code review r9 follow-up at #1682; §2.8, "Symbol-level
+/// FFI"): the shell's two roots carry `#![deny(unsafe_code)]`, exactly the
+/// ten pinned `mod` items carry `#[allow(unsafe_code)]`, the one foreign
+/// block is the pinned one, and no linkage attribute, dynamic lookup or
+/// transmute occurs in any scanned crate (the real scan returns none).
+#[test]
+fn the_real_sources_hold_the_symbol_level_ffi_rules() {
+    let sources = project_sources(&project());
+    assert!(scan(&sources).is_empty());
+    for root in ["src-tauri/src/lib.rs", "src-tauri/src/main.rs"] {
+        assert_eq!(sources.files[root].matches("#![deny(unsafe_code)]\n").count(), 1, "{root}");
+    }
+    let mut allows = 0;
+    for (file, text) in &sources.files {
+        if file.starts_with("src-tauri/src/user_release_reach_scan") {
+            continue;
+        }
+        allows += text.matches("#[allow(unsafe_code)]\n").count();
+    }
+    assert_eq!(allows, SHELL_UNSAFE_MODULES.len());
+    for (file, name, _) in SHELL_UNSAFE_MODULES {
+        let text = &sources.files[file];
+        let declared = text.match_indices(&format!("mod {name};\n")).filter(|(at, _)| text[..*at].ends_with('\n')).count();
+        assert_eq!(declared, 1, "{file}: {name}");
+        let at = text.find(&format!("\nmod {name};\n")).unwrap();
+        assert!(text[..at].rsplit('\n').take(3).any(|line| line == "#[allow(unsafe_code)]"), "{file}: {name}");
+    }
+    assert_eq!(FOREIGN_BLOCKS.len(), 1);
+    assert_eq!(sources.files[FOREIGN_BLOCKS[0].0].matches("extern \"C\" {\n        fn mach_host_self() -> libc::mach_port_t;\n    }").count(), 1);
+}
+
+/// Code review r9 follow-up at #1682, on scratch copies of `src-tauri` that
+/// Cargo reads: each break of the deny layer and of rules 1 to 3 gives its
+/// own findings and only those; the unedited copy, with the pinned block as
+/// it is, passes.
+#[test]
+fn the_symbol_level_ffi_repros_in_scratch_copies() {
+    let lib = "src/lib.rs";
+    let host = "src/host_memory.rs";
+    let block = "    extern \"C\" {\n        fn mach_host_self() -> libc::mach_port_t;\n    }\n";
+    let outside = "outside the pinned allow(unsafe_code) modules";
+    let not_pinned = "which is not on the foreign-block pin list";
+    let cases: Vec<(&str, Vec<(&str, &str, String)>, Vec<String>)> = vec![
+        ("unedited, the pinned block as it is", vec![], vec![]),
+        ("allow(unsafe_code) on another module", vec![(lib, "\nmod memory_pool;\n", "\n#[allow(unsafe_code)]\nmod memory_pool;\n".to_string())], vec![format!("src-tauri/src/lib.rs:19: #[allow(unsafe_code)] {outside}")]),
+        (
+            "the same through cfg_attr",
+            vec![(lib, "\nmod memory_pool;\n", "\n#[cfg_attr(all(), allow(unsafe_code))]\nmod memory_pool;\n".to_string())],
+            vec![format!("#[allow(unsafe_code)] (through cfg_attr) {outside}")],
+        ),
+        ("the same as an inner attribute", vec![("src/memory_pool.rs", "^", "#![allow(unsafe_code)]\n".to_string())], vec![format!("src-tauri/src/memory_pool.rs:1: #[allow(unsafe_code)] {outside}")]),
+        ("expect(unsafe_code) on an item", vec![(lib, "$", "#[expect(unsafe_code)]\nfn r9() {}\n".to_string())], vec![format!("#[expect(unsafe_code)] {outside}")]),
+        ("allow(unsafe_code) among other lints, on a function", vec![(lib, "$", "#[allow(dead_code, unsafe_code)]\nfn r9() {}\n".to_string())], vec![format!("#[allow(unsafe_code)] {outside}")]),
+        ("a removed root deny", vec![(lib, "#![deny(unsafe_code)]\n", String::new())], vec!["src-tauri/src/lib.rs:0: the crate root does not carry #![deny(unsafe_code)] exactly".to_string()]),
+        ("the binary root's deny removed", vec![("src/main.rs", "#![deny(unsafe_code)]\n", String::new())], vec!["src-tauri/src/main.rs:0: the crate root does not carry #![deny(unsafe_code)] exactly".to_string()]),
+        (
+            "a root deny weakened to warn",
+            vec![(lib, "#![deny(unsafe_code)]\n", "#![warn(unsafe_code)]\n".to_string())],
+            vec!["src-tauri/src/lib.rs:0: the crate root does not carry #![deny(unsafe_code)] exactly".to_string(), format!("#[warn(unsafe_code)] {outside}")],
+        ),
+        (
+            "a pinned module without its allow",
+            vec![(lib, "#[allow(unsafe_code)]\nmod solve_jobs;\n", "mod solve_jobs;\n".to_string())],
+            vec!["src-tauri/src/lib.rs: the pinned module solve_jobs does not carry #[allow(unsafe_code)] on its mod item".to_string()],
+        ),
+        ("an unpinned foreign block declaring the mangled symbol", vec![(lib, "$", format!("extern \"Rust\" {{\n    fn {MANGLED}();\n}}\n"))], vec![format!("fn {MANGLED}(); }}, {not_pinned}")]),
+        (
+            "an extra item in the pinned block",
+            vec![(host, block, format!("    extern \"C\" {{\n        fn mach_host_self() -> libc::mach_port_t;\n        fn {MANGLED}();\n    }}\n"))],
+            vec![format!("fn {MANGLED}(); }}, {not_pinned}")],
+        ),
+        ("an attribute on the pinned block", vec![(host, block, format!("    #[cfg(all())]\n{block}"))], vec![not_pinned.to_string()]),
+        (
+            "link_name aliasing in the pinned block",
+            vec![(host, block, format!("    extern \"C\" {{\n        #[link_name = \"{MANGLED}\"]\n        fn mach_host_self() -> libc::mach_port_t;\n    }}\n"))],
+            vec!["the linkage attribute #[link_name]".to_string(), not_pinned.to_string()],
+        ),
+        ("no_mangle", vec![(lib, "$", "#[no_mangle]\npub extern \"C\" fn r9() {}\n".to_string())], vec!["the linkage attribute #[no_mangle]".to_string()]),
+        ("export_name", vec![(lib, "$", "#[export_name = \"r9\"]\npub extern \"C\" fn r9() {}\n".to_string())], vec!["the linkage attribute #[export_name]".to_string()]),
+        ("no_mangle through cfg_attr", vec![(lib, "$", "#[cfg_attr(all(), no_mangle)]\npub extern \"C\" fn r9() {}\n".to_string())], vec!["the linkage attribute #[no_mangle] (through cfg_attr)".to_string()]),
+        ("the unsafe(no_mangle) form", vec![(lib, "$", "#[unsafe(no_mangle)]\npub extern \"C\" fn r9() {}\n".to_string())], vec!["the linkage attribute #[unsafe(no_mangle)]".to_string()]),
+        ("link and used", vec![(lib, "$", "#[used]\nstatic R9: u8 = 0;\n#[link(name = \"r9\")]\nfn r9() {}\n".to_string())], vec!["the linkage attribute #[used]".to_string(), "the linkage attribute #[link]".to_string()]),
+        (
+            "dlsym and transmute",
+            vec![(lib, "$", "fn r9(handle: *mut libc::c_void) { let symbol = libc::dlsym(handle, c\"r9\".as_ptr()); let entry: fn() = std::mem::transmute(symbol); entry(); }\n".to_string())],
+            vec!["dlsym, dynamic symbol lookup".to_string(), "transmute, a reinterpreting transmute".to_string()],
+        ),
+        ("libloading", vec![(lib, "$", "use libloading::Library;\nfn r9() { let _ = Library::new(\"r9\"); }\n".to_string())], vec!["libloading, dynamic symbol lookup".to_string()]),
+        ("dlopen in a macro's tokens", vec![(lib, "$", "fn r9() { println!(\"{:?}\", libc::dlopen(std::ptr::null(), 0)); }\n".to_string())], vec!["dlopen, dynamic symbol lookup".to_string()]),
+    ];
+    for (case, edits, expected) in cases {
+        let tree = ScratchTree::new();
+        let findings = scan(&shell_copy_with(&tree, &edits));
+        for expected in &expected {
+            assert!(findings.iter().any(|finding| finding.contains(expected.as_str())), "{case}: expected {expected:?} in {findings:#?}");
+        }
+        for finding in &findings {
+            assert!(expected.iter().any(|expected| finding.contains(expected.as_str())), "{case}: unexpected {finding:?}");
+        }
+    }
 }

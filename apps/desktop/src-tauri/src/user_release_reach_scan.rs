@@ -25,6 +25,13 @@
 //!   allowed dependents' path-dependency closure, which holds every
 //!   reporting crate's, builds a proc-macro ([`proc_macro_findings`],
 //!   [`PROC_MACRO_PACKAGES`], empty).
+//! - **Symbol-level FFI** (code review r9 follow-up at #1682). `src-tauri`'s
+//!   roots carry `#![deny(unsafe_code)]`, and only the pinned `mod` items
+//!   carry `#[allow(unsafe_code)]` ([`SHELL_UNSAFE_MODULES`]); every other
+//!   lint attribute naming `unsafe_code` is a finding. In every scanned
+//!   crate a foreign block is a finding unless pinned ([`FOREIGN_BLOCKS`]),
+//!   and every linkage attribute ([`LINKAGE_ATTRIBUTES`]), dynamic-lookup
+//!   name ([`DYNAMIC_LOOKUP`]) and transmute ([`TRANSMUTES`]) is a finding.
 //!
 //! - **Targets, from Cargo** (code review r5 at #1682). `cargo metadata
 //!   --offline --locked --no-deps` reports each crate's actual targets; they
@@ -258,6 +265,82 @@ const PATH_CROSSINGS: [(&str, &str, &str); 2] = [
 /// r9 at #1682): none. A proc-macro's expansion is code the scan never reads,
 /// so any package with a `proc-macro` target there is a finding.
 pub(crate) const PROC_MACRO_PACKAGES: [&str; 0] = [];
+
+/// The `src-tauri` modules admitted to hold `unsafe` code (code review r9
+/// follow-up at #1682; §2.8, "Symbol-level FFI"), as (declaring file, `mod`
+/// name, reason): each `mod` item carries exactly the outer attribute
+/// `#[allow(unsafe_code)]`, under the roots' `#![deny(unsafe_code)]`. Any
+/// other `allow(unsafe_code)` or `expect(unsafe_code)`, in any form (direct,
+/// through `cfg_attr`, inner, or on any other item), is a finding, and so is
+/// a listed `mod` without its allow. `allow(warnings)` and the lint groups do
+/// not lift a `deny(unsafe_code)` (no rustc group holds `unsafe_code`;
+/// checked on Rust 1.97.1), so they need no rule.
+pub(crate) const SHELL_UNSAFE_MODULES: [(&str, &str, &str); 10] = [
+    ("src-tauri/src/lib.rs", "handoff_package", "the handoff package's file-descriptor and atomic-publish system calls"),
+    ("src-tauri/src/lib.rs", "handoff_package_publish", "the handoff publish's directory-descriptor system calls"),
+    ("src-tauri/src/lib.rs", "host_memory", "the host memory sysctls and mach_host_self"),
+    ("src-tauri/src/lib.rs", "ingress", "#1676's ingress envelope: the page-size and resident-memory probes"),
+    ("src-tauri/src/lib.rs", "stored_read", "SQLite's memory-status call"),
+    ("src-tauri/src/lib.rs", "stored_model_document_export", "SQLite's memory-status call in its tests"),
+    ("src-tauri/src/lib.rs", "solve_jobs", "the worker liveness probe (kill with signal 0)"),
+    ("src-tauri/src/lib.rs", "solve_worker", "the solve worker's process, pipe and watchdog system calls"),
+    ("src-tauri/src/lib.rs", "worker_alloc", "the worker's counting global allocator"),
+    ("src-tauri/src/analysis_runs.rs", "tests", "analysis_runs_tests.rs: SQLite's memory-status call and an allocation probe"),
+];
+
+/// The foreign blocks admitted, as (file, ABI, item text with whitespace
+/// collapsed) (code review r9 follow-up at #1682): the block carries no
+/// attribute and no `unsafe`, and its items are exactly the pinned text, so
+/// an added item or an attribute on one changes it. Any other foreign block,
+/// any ABI, in any scanned crate, is a finding: a declared symbol can name a
+/// mangled Rust function (`assemble_derived`'s included) under another
+/// identifier.
+pub(crate) const FOREIGN_BLOCKS: [(&str, &str, &str); 1] = [("src-tauri/src/host_memory.rs", "C", "fn mach_host_self() -> libc::mach_port_t;")];
+
+/// The linkage attributes, each a finding wherever it is written, through
+/// `cfg_attr` and in the `unsafe(...)` form included (code review r9
+/// follow-up at #1682). The allow-list is empty; none exists today.
+const LINKAGE_ATTRIBUTES: [&str; 6] = ["link_name", "link", "no_mangle", "export_name", "used", "link_section"];
+
+/// The names of dynamic symbol lookup and of reinterpreting transmutes, each
+/// a finding as any identifier or path segment, in code, imports and macro
+/// tokens (code review r9 follow-up at #1682). The allow-lists are empty and
+/// none occurs today. Every `transmute` and `transmute_copy` is refused, not
+/// only those with a function-pointer or inferred target: a type alias can
+/// hide a function-pointer target from a parse.
+const DYNAMIC_LOOKUP: [&str; 5] = ["dlsym", "dlopen", "dlvsym", "NSAddressOfSymbol", "libloading"];
+const TRANSMUTES: [&str; 2] = ["transmute", "transmute_copy"];
+
+/// Whether `attr` is `#![deny(unsafe_code)]` exactly: the `src-tauri` roots'
+/// own (code review r9 follow-up at #1682), as [`is_root_forbid`].
+fn is_root_deny(attr: &syn::Attribute) -> bool {
+    matches!(attr.style, syn::AttrStyle::Inner(_))
+        && matches!(&attr.meta, syn::Meta::List(list)
+            if list.path.leading_colon.is_none()
+                && list.path.is_ident("deny")
+                && matches!(list.delimiter, syn::MacroDelimiter::Paren(_))
+                && list.tokens.to_string() == "unsafe_code")
+}
+
+/// Whether `attr` is the outer `#[allow(unsafe_code)]` exactly, as the pinned
+/// modules carry it ([`SHELL_UNSAFE_MODULES`]).
+fn is_module_allow(attr: &syn::Attribute) -> bool {
+    matches!(attr.style, syn::AttrStyle::Outer)
+        && matches!(&attr.meta, syn::Meta::List(list)
+            if list.path.leading_colon.is_none()
+                && list.path.is_ident("allow")
+                && matches!(list.delimiter, syn::MacroDelimiter::Paren(_))
+                && list.tokens.to_string() == "unsafe_code")
+}
+
+/// Whether `tokens` hold the identifier `unsafe_code`, at any depth.
+fn names_unsafe_code(tokens: &TokenStream) -> bool {
+    tokens.clone().into_iter().any(|tree| match tree {
+        TokenTree::Ident(ident) => ident_text(&ident) == "unsafe_code",
+        TokenTree::Group(group) => names_unsafe_code(&group.stream()),
+        _ => false,
+    })
+}
 
 const RENDERER_CRATE: &str = "open_pipe_stress_report_renderer";
 const PDF_CRATE: &str = "open_pipe_stress_pdf_emitter";
@@ -956,6 +1039,9 @@ struct FileScan<'a> {
     /// naming rules apply; the rules that only govern production code's
     /// shape do not ([`Self::production_finding`]).
     test_only: bool,
+    /// The pinned `allow(unsafe_code)` modules declared, and those seen with
+    /// their allow: (declaring file, name, whether it carries the allow).
+    unsafe_modules: &'a mut BTreeSet<(String, String, bool)>,
     /// The crate this file is compiled into: its own, or `src-tauri` for a
     /// file a `src-tauri` test module loads by `#[path]` from another crate
     /// (code review r7 at #1682). The crate rules follow it.
@@ -1162,6 +1248,7 @@ impl FileScan<'_> {
                 TokenTree::Ident(ident) => {
                     let name = ident_text(ident);
                     let line = line_of(ident.span());
+                    self.lookup_name(&name, line);
                     if self.scanned_bare(&name) {
                         self.record(&name, line, Kind::Other("named in a macro's or an attribute's tokens"));
                     } else if self.crate_key() == "src-tauri" && RENDERER_PAIR.contains(&name.as_str()) && index >= 3 {
@@ -1218,6 +1305,17 @@ impl FileScan<'_> {
         }
     }
 
+    /// Dynamic symbol lookup and transmutes, by name (code review r9
+    /// follow-up at #1682; [`DYNAMIC_LOOKUP`], [`TRANSMUTES`]).
+    fn lookup_name(&mut self, name: &str, line: usize) {
+        if DYNAMIC_LOOKUP.contains(&name) {
+            self.finding(line, format!("{name}, dynamic symbol lookup"));
+        }
+        if TRANSMUTES.contains(&name) {
+            self.finding(line, format!("{name}, a reinterpreting transmute"));
+        }
+    }
+
     /// One attribute. `forbid` is not on the attribute list: the crate-root
     /// `#![forbid(unsafe_code)]` of a reporting crate ([`is_root_forbid`]) is
     /// admitted before this, only among its root file's own attributes.
@@ -1238,12 +1336,38 @@ impl FileScan<'_> {
             self.finding(line, format!("#[{path}]"));
             return;
         }
+        // Code review r9 follow-up at #1682: linkage attributes, also in the
+        // `unsafe(...)` form, and any lint attribute that could lift the
+        // roots' `deny(unsafe_code)` outside the pinned modules.
+        let via = if through { " (through cfg_attr)" } else { "" };
+        if LINKAGE_ATTRIBUTES.contains(&path.as_str()) {
+            self.finding(line, format!("the linkage attribute #[{path}]{via}"));
+            return;
+        }
+        if path == "unsafe" {
+            let inner = match meta {
+                syn::Meta::List(list) => list.parse_args::<syn::Meta>().ok().map(|inner| path_text(inner.path())),
+                _ => None,
+            };
+            match inner {
+                Some(inner) if LINKAGE_ATTRIBUTES.contains(&inner.as_str()) => self.finding(line, format!("the linkage attribute #[unsafe({inner})]{via}")),
+                _ => self.finding(line, format!("an unsafe(...) attribute{via}")),
+            }
+            return;
+        }
+        if matches!(path.as_str(), "allow" | "expect" | "warn") {
+            if let syn::Meta::List(list) = meta {
+                if names_unsafe_code(&list.tokens) {
+                    self.finding(line, format!("#[{path}(unsafe_code)]{via} outside the pinned allow(unsafe_code) modules"));
+                    return;
+                }
+            }
+        }
         if through && path == "path" {
             self.finding(line, "a cfg_attr that applies #[path]");
             return;
         }
         if !ATTRIBUTES.contains(&path.as_str()) && !(self.test_only && TEST_ATTRIBUTES.contains(&path.as_str())) && !(self.shell_test() && SHELL_TEST_ATTRIBUTES.contains(&path.as_str())) {
-            let via = if through { " (through cfg_attr)" } else { "" };
             self.finding(line, format!("the attribute #[{path}]{via} is not on the attribute list"));
             return;
         }
@@ -1557,6 +1681,9 @@ impl FileScan<'_> {
         let crate_key = self.crate_key().to_string();
         for (path, rename, glob) in bound {
             let joined = path.join("::");
+            for segment in &path {
+                self.lookup_name(segment, line);
+            }
             // Code review r7 at #1682: in `src-tauri`'s test-only items an
             // import naming the renderer or PDF crate (any segment) may bind
             // only one of its other items by name: a glob, the crate itself
@@ -1733,7 +1860,17 @@ impl<'ast> Visit<'ast> for FileScan<'_> {
         }
         let mut followed = None;
         let paths = module.attrs.iter().filter(|attr| path_text(attr.path()) == "path").count();
+        // Code review r9 follow-up at #1682: a pinned module's own
+        // `#[allow(unsafe_code)]` ([`SHELL_UNSAFE_MODULES`]).
+        let pinned = self.inline.is_empty() && SHELL_UNSAFE_MODULES.iter().any(|(file, pinned, _)| *file == self.file && *pinned == name);
+        if pinned {
+            self.unsafe_modules.insert((self.file.clone(), name.clone(), false));
+        }
         for attr in &module.attrs {
+            if pinned && is_module_allow(attr) {
+                self.unsafe_modules.insert((self.file.clone(), name.clone(), true));
+                continue;
+            }
             if path_text(attr.path()) == "path" {
                 // Code review r7 at #1682: an allowed dependent's test
                 // module's one `#[path = "<literal>"]`, on an outlined module
@@ -1951,7 +2088,24 @@ impl<'ast> Visit<'ast> for FileScan<'_> {
     }
 
     fn visit_item_foreign_mod(&mut self, item: &'ast syn::ItemForeignMod) {
-        self.unsafe_found(line_of(item.abi.extern_token.span), "an extern block");
+        let line = line_of(item.abi.extern_token.span);
+        self.unsafe_found(line, "an extern block");
+        // Code review r9 follow-up at #1682: only a pinned block
+        // ([`FOREIGN_BLOCKS`]), with no attribute and no `unsafe`, its items
+        // exactly the pinned text.
+        let abi = item.abi.name.as_ref().map(|name| name.value()).unwrap_or_default();
+        let (open, close) = (item.brace_token.span.open().end(), item.brace_token.span.close().start());
+        let items = byte_offset(self.text, open.line, open.column)
+            .zip(byte_offset(self.text, close.line, close.column))
+            .and_then(|(from, to)| self.text.get(from..to))
+            .map(|text| text.split_whitespace().collect::<Vec<_>>().join(" "));
+        let pinned = item.attrs.is_empty()
+            && item.unsafety.is_none()
+            && !self.in_macro
+            && items.as_deref().is_some_and(|items| FOREIGN_BLOCKS.iter().any(|(file, listed_abi, listed)| *file == self.file && *listed_abi == abi && *listed == items));
+        if !pinned {
+            self.finding(line, format!("the foreign block extern {abi:?} {{ {} }}, which is not on the foreign-block pin list", items.unwrap_or_default()));
+        }
         visit::visit_item_foreign_mod(self, item);
     }
 
@@ -2105,6 +2259,7 @@ impl<'ast> Visit<'ast> for FileScan<'_> {
 
     fn visit_ident(&mut self, ident: &'ast proc_macro2::Ident) {
         let name = ident_text(ident);
+        self.lookup_name(&name, line_of(ident.span()));
         if self.scanned_bare(&name) {
             self.record(&name, line_of(ident.span()), Kind::Other("named other than as a definition or a direct call"));
         }
@@ -2450,6 +2605,8 @@ pub(crate) fn scan_reading_all(sources: &Sources) -> (Vec<String>, BTreeSet<Stri
     // actual library and binary target files, whatever the expected ones.
     let mut roots: BTreeSet<String> = BTreeSet::new();
     let mut forbid_roots: BTreeSet<String> = BTreeSet::new();
+    let mut deny_roots: BTreeSet<String> = BTreeSet::new();
+    let mut unsafe_modules: BTreeSet<(String, String, bool)> = BTreeSet::new();
     for (key, expected) in TARGETS {
         let actual: BTreeSet<CrateTarget> = sources.targets.get(key).into_iter().flatten().cloned().collect();
         let expected: BTreeSet<CrateTarget> =
@@ -2486,6 +2643,13 @@ pub(crate) fn scan_reading_all(sources: &Sources) -> (Vec<String>, BTreeSet<Stri
         if UNSAFE_FORBIDDING_DEPENDENTS.contains(&key) {
             for target in actual.iter().filter(|target| is_scanned_target(&target.kind)) {
                 forbid_roots.insert(target.src_path.clone());
+            }
+        }
+        // Code review r9 follow-up at #1682: every `src-tauri` library and
+        // binary root carries `#![deny(unsafe_code)]`.
+        if key == "src-tauri" {
+            for target in actual.iter().filter(|target| is_scanned_target(&target.kind)) {
+                deny_roots.insert(target.src_path.clone());
             }
         }
         let build: BTreeSet<String> = sources.build_dependencies.get(key).cloned().unwrap_or_default();
@@ -2581,6 +2745,7 @@ pub(crate) fn scan_reading_all(sources: &Sources) -> (Vec<String>, BTreeSet<Stri
             in_type_alias: false,
             in_macro: false,
             test_only,
+            unsafe_modules: &mut unsafe_modules,
             host: host.clone(),
         };
         if scan.forbids_unsafe() {
@@ -2595,8 +2760,12 @@ pub(crate) fn scan_reading_all(sources: &Sources) -> (Vec<String>, BTreeSet<Stri
         if forbid_root && !parsed.attrs.iter().any(is_root_forbid) {
             scan.finding(0, "the crate root does not carry #![forbid(unsafe_code)] exactly");
         }
+        let deny_root = deny_roots.contains(&file) && !test_only;
+        if deny_root && !parsed.attrs.iter().any(is_root_deny) {
+            scan.finding(0, "the crate root does not carry #![deny(unsafe_code)] exactly");
+        }
         for attr in &parsed.attrs {
-            if !(forbid_root && is_root_forbid(attr)) {
+            if !(forbid_root && is_root_forbid(attr)) && !(deny_root && is_root_deny(attr)) {
                 scan.visit_attribute(attr);
             }
         }
@@ -2622,6 +2791,14 @@ pub(crate) fn scan_reading_all(sources: &Sources) -> (Vec<String>, BTreeSet<Stri
                 Ok(next) => queue.push((next, test_module, host.clone())),
                 Err(error) => findings.push(format!("{error} (line {line})")),
             }
+        }
+    }
+    // Code review r9 follow-up at #1682: each pinned module that is
+    // declared carries its `#[allow(unsafe_code)]`.
+    for (file, name, _) in SHELL_UNSAFE_MODULES {
+        let key = |allowed: bool| (file.to_string(), name.to_string(), allowed);
+        if unsafe_modules.contains(&key(false)) && !unsafe_modules.contains(&key(true)) {
+            findings.push(format!("{file}: the pinned module {name} does not carry #[allow(unsafe_code)] on its mod item"));
         }
     }
     // A file loaded by `#[path]` declares no outlined module: Rust resolves

@@ -1,10 +1,20 @@
+//! The desktop shell. `unsafe` code is denied here and in every module but
+//! the ten that carry `#[allow(unsafe_code)]` on their `mod` line, a list the
+//! user-release reach scan pins (DEL-08-01 Design `report-user-release.md`
+//! §2.8, "Symbol-level FFI"; code review r9 at #1682).
+#![deny(unsafe_code)]
+
 mod atomic_report_package_save;
 mod command_ingress;
 mod exact_source_binding;
 mod export_disposition_screen;
+#[allow(unsafe_code)]
 mod handoff_package;
+#[allow(unsafe_code)]
 mod handoff_package_publish;
+#[allow(unsafe_code)]
 mod host_memory;
+#[allow(unsafe_code)]
 mod ingress;
 mod memory_pool;
 mod model_document_file;
@@ -13,7 +23,9 @@ mod model_document_shape;
 mod model_document_version;
 mod model_states;
 mod analysis_runs;
+#[allow(unsafe_code)]
 mod stored_read;
+#[allow(unsafe_code)]
 mod stored_model_document_export;
 #[cfg(feature = "native-smoke")]
 mod native_smoke;
@@ -27,7 +39,9 @@ mod report_render_exact_tests;
 mod object_form_tests;
 mod rule_solver_selection;
 mod solve_attestation;
+#[allow(unsafe_code)]
 mod solve_jobs;
+#[allow(unsafe_code)]
 mod solve_worker;
 mod user_release_admission;
 #[cfg(test)]
@@ -36,6 +50,7 @@ mod user_release_reach_scan;
 mod user_release_reach_scan_tests;
 #[cfg(test)]
 mod user_release_save_tests;
+#[allow(unsafe_code)]
 mod worker_alloc;
 #[cfg(test)]
 mod rule_check_object_form_tests;

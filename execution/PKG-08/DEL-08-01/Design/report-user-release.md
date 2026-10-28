@@ -2639,8 +2639,9 @@ headless runner) is a scanned crate under the shell's rules:
   reporting crates' library roots (`UNSAFE_FORBIDDING_DEPENDENTS`), and the
   token and parsed-tree `unsafe` findings apply to it, so a call through a
   declared foreign symbol, which needs `unsafe`, is refused by the compiler
-  and by the scan. The shell holds `unsafe` code (`host_memory.rs`,
-  `worker_alloc.rs`) and is not on that list.
+  and by the scan. The shell holds `unsafe` code in ten modules and is not
+  on that list; it carries the deny layer instead (*Symbol-level FFI*
+  below).
 - **Dependency pins.** The runner's normal and development dependencies are
   pinned exactly from its `cargo metadata`, in `SHELL_DEPENDENCIES`' form
   (`RUNNER_DEPENDENCIES`, ten normal entries, no development ones), and its
@@ -2706,6 +2707,67 @@ headless runner) is a scanned crate under the shell's rules:
   closure holds the five scanned crates and no proc-macro, and the two
   listed crossings are read; a third `#[path]` to the same file is a
   finding.
+
+*Symbol-level FFI (code review r9 follow-up at #1682).* **The class.** A
+crate that may write `unsafe` code can call a Rust function without naming
+it: a foreign block can declare the function's mangled symbol
+(`_ZN…16assemble_derived17h…E`) under another identifier, `#[link_name]` can
+alias one, and `dlsym` or a `transmute` to a function pointer can reach one
+at run time. The reporting crates and the runner forbid `unsafe` code; the
+shell holds some. HELP_HUMAN ruled for the repair below in this PR, with
+removing all `unsafe` from the shell recorded as the follow-up.
+- **Deny layer.** `src-tauri`'s library root (`src/lib.rs`) and binary root
+  (`src/main.rs`), the only roots Cargo reports, carry
+  `#![deny(unsafe_code)]`, and exactly ten `mod` items carry
+  `#[allow(unsafe_code)]`: `worker_alloc`, `host_memory`,
+  `handoff_package_publish`, `solve_worker`, `handoff_package`, `ingress`,
+  `stored_model_document_export`, `stored_read` and `solve_jobs` in
+  `lib.rs`, and `analysis_runs.rs`'s test module `tests`
+  (`analysis_runs_tests.rs`). These are the shell's modules with real
+  `unsafe` code; the shell builds and its tests compile under the layer,
+  which confirms the list. `ingress.rs` is unchanged (#1676's envelope); its
+  allow is on its `mod` line. The scan pins the list
+  (`SHELL_UNSAFE_MODULES`). Each of these is a finding: an `allow`,
+  `expect` or `warn` naming `unsafe_code` anywhere else, directly, through
+  `cfg_attr`, as an inner attribute in a module file or among other lints
+  on any item; a root without its exact `#![deny(unsafe_code)]`, or with a
+  weaker level; and a pinned `mod` without its allow. `allow(warnings)` and
+  the lint groups need no rule: no rustc group holds `unsafe_code`, and a
+  probe on Rust 1.97.1 confirmed that `allow(warnings)` and group allows do
+  not lift `deny(unsafe_code)`. The reporting crates and the runner keep
+  `#![forbid(unsafe_code)]`.
+- **Rule 1, foreign blocks.** In every scanned crate, a foreign block of
+  any ABI, `unsafe extern` included, is a finding unless pinned by file,
+  ABI and exact item text, with no attribute on the block (an attribute on
+  an item changes the text). The only pin is `host_memory.rs`'s
+  `extern "C" { fn mach_host_self() -> libc::mach_port_t; }`
+  (`FOREIGN_BLOCKS`).
+- **Rule 2, linkage attributes.** `#[link_name]`, `#[link]`, `#[no_mangle]`,
+  `#[export_name]`, `#[used]` and `#[link_section]` are findings wherever
+  written, through `cfg_attr` and in the `unsafe(...)` form included. The
+  allow-list is empty; none exists today.
+- **Rule 3, dynamic lookup.** Any identifier or path segment naming
+  `dlsym`, `dlopen`, `dlvsym`, `NSAddressOfSymbol` or `libloading`, in code,
+  imports or macro tokens, is a finding, and so is every `transmute` and
+  `transmute_copy`. That is stricter than refusing only function-pointer or
+  inferred targets, because a type alias can hide a function-pointer target
+  from a parse; none occurs today. The allow-lists are empty.
+- **Fixtures**, on scratch copies of `src-tauri` that Cargo reads, each
+  giving only its own findings: a new `allow(unsafe_code)` on another
+  module, through `cfg_attr`, as an inner attribute, as `expect` and among
+  other lints on a function; each root's `deny` removed, and one weakened to
+  `warn`; a pinned module without its allow; an unpinned foreign block
+  declaring the mangled symbol; an extra item in, and an attribute on, the
+  pinned block; `link_name` aliasing; `no_mangle`, `export_name`, through
+  `cfg_attr` and as `unsafe(no_mangle)`; `link` and `used`; `dlsym` with a
+  `transmute`; `libloading`; and `dlopen` in a macro's tokens. The unedited
+  copy, with the pinned block as it is, passes.
+- **Follow-up (option (c)).** Moving all `unsafe` code out of the shell
+  would let it carry `forbid` as the other scanned crates do. It is a
+  separate change: about 105 real `unsafe` uses in the ten modules, among
+  them `handoff_package_publish.rs` 27, `solve_worker.rs` 35 and
+  `worker_alloc.rs` 21, plus the counting allocator's callback into
+  `ingress::counting`.
 
 *Threat model.* The scan establishes this: under the repository's own build
 configuration, the reporting crates are built from the checked-in sources
