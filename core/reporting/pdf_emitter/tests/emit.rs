@@ -294,6 +294,7 @@ fn local_private_notice_reaches_the_pdf_only_for_a_local_private_context() {
         solver_settings: vec![],
         model_coordinate_system: None,
         result_coordinate_systems: vec![],
+        user_release: None,
     });
     let private = emit_calculation_report_pdf(&input);
     assert!(!private.export_blocked, "{:?}", private.blocking_reasons);

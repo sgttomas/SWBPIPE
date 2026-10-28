@@ -25,6 +25,17 @@
 //! claims. The app's derived webview print view keeps its ruled role as a
 //! non-hash-bound convenience (`DEC-021`); this emitter does not replace it.
 
+#![forbid(unsafe_code)]
+
+// Code review r6 at #1682 (DEL-08-01 Design `report-user-release.md` §2.8,
+// "Threat model"): this crate's `#[cfg(test)]` items compile only into its
+// own unit-test binary. Cargo sets `CARGO_PRIMARY_PACKAGE` only for a package
+// the command selected (as `cargo test` selects this one), never for a
+// dependency, so a build that sets `--cfg test` for this crate as a
+// dependency of a product fails to compile here.
+#[cfg(test)]
+const _: () = assert!(option_env!("CARGO_PRIMARY_PACKAGE").is_some(), "cfg(test) is set for this reporting crate as a dependency (DEL-08-01 Design section 2.8)");
+
 use open_pipe_stress_protected_content_linter as linter;
 use open_pipe_stress_report_renderer as renderer;
 use serde::Serialize;
@@ -254,6 +265,10 @@ fn emit_pdf_document(
     if let Some(notice) = renderer::local_private_notice_text(input) {
         emitter.note(notice);
         emitter.banner(notice, true);
+    }
+    if let Some(notice) = renderer::user_release_notice_text(input) {
+        emitter.note(&notice);
+        emitter.banner(&notice, true);
     }
 
     if !blocking_reasons.is_empty() {
