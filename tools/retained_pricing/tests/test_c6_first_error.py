@@ -41,17 +41,19 @@ for caller, target in PAIRS:
 # 646, 648, 651, 716, 765, 978, 990, 1107, 1127); fallback_circular_maximum's two added comment lines move its later
 # sites by 2 more. T4-S5 (epoch 4): five lines added above them move every site by 5 (T4-U6/U8:
 # 519, 530, 543, 546, 549, 647, 651, 653, 656, 658, 661, 726, 775, 988, 1002, 1119, 1139).
-CHECKED = 731
-SITE_INVENTORY = ((524,"format","maximum_cover"), (535,"format","maximum_cover"),
-    (548,"to_string","public_mpa_magnitude_in_pa_upper"),
-    (551,"to_string","public_mpa_magnitude_in_pa_upper"),
-    (554,"to_string","public_mpa_magnitude_in_pa_upper"),
-    (652,"into_text","directed_transport_sum"), (656,"to_string","directed_transport_sum"),
-    (658,"to_string","directed_transport_sum"), (661,"to_string","directed_transport_sum"),
-    (663,"into_text","directed_transport_sum"), (666,"to_string","directed_transport_sum"),
-    (CHECKED,"into_text","checked"), (780,"into_text","divided"),
-    (993,"into_text","fallback_circular_maximum"), (1007,"into_text","fallback_circular_maximum"),
-    (1124,"into_text","fallback_circular_maximum"), (1144,"format","fallback_circular_maximum"))
+# W-16 stage 2 R-c (§8.29): support/support_record's spring-ground parameter moves every site by 4, unchanged text
+# (524, 535, 548, 551, 554, 652, 656, 658, 661, 663, 666, 731, 780, 993, 1007, 1124, 1144).
+CHECKED = 735
+SITE_INVENTORY = ((528,"format","maximum_cover"), (539,"format","maximum_cover"),
+    (552,"to_string","public_mpa_magnitude_in_pa_upper"),
+    (555,"to_string","public_mpa_magnitude_in_pa_upper"),
+    (558,"to_string","public_mpa_magnitude_in_pa_upper"),
+    (656,"into_text","directed_transport_sum"), (660,"to_string","directed_transport_sum"),
+    (662,"to_string","directed_transport_sum"), (665,"to_string","directed_transport_sum"),
+    (667,"into_text","directed_transport_sum"), (670,"to_string","directed_transport_sum"),
+    (CHECKED,"into_text","checked"), (784,"into_text","divided"),
+    (997,"into_text","fallback_circular_maximum"), (1011,"into_text","fallback_circular_maximum"),
+    (1128,"into_text","fallback_circular_maximum"), (1148,"format","fallback_circular_maximum"))
 FORMATS, LEX = [], []
 for line, kind, owner in SITE_INVENTORY:
     row = {"file": CPP, "line": line, "kind": kind, "fn": STATE["keys"][owner]}
