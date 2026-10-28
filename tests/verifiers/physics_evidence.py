@@ -37,7 +37,7 @@ from collections.abc import Mapping
 from typing import Any
 
 from . import section_basis as sb
-from .pressure_2 import ARC_GEOMETRY_KEYS
+from .pressure_2 import ARC_GEOMETRY_KEYS, equivalent_static_record
 
 PRESSURE_V3 = ("3.0.0", "exact_pressure_v3")
 PRESSURE_ID = "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -148,7 +148,13 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any, contr
     straight_models: set[str] = set()
     extrema_ids: set[str] = set()
     for cid, case in cases.items():
-        _shape(case, {"load_case_id", "profile_mode", "material_basis", "pipe_materials", "pipe_sections", "pipe_stress_extrema", "stress_maximum_coverage", "pressure_rhs_assembly"} | ({"recovery_method"} if context is not None else set()), "case shape")
+        # W-16 slice c (DEL-05-01 Design exact-equivalent-static.md §2): a generating case's closed record,
+        # never on a selected retained case.
+        generation = isinstance(case, Mapping) and "equivalent_static" in case
+        if generation:
+            equivalent_static_record(cid, case["equivalent_static"])
+            _require(context is None or case.get("recovery_method") != context.EXACT, "case shape")
+        _shape(case, {"load_case_id", "profile_mode", "material_basis", "pipe_materials", "pipe_sections", "pipe_stress_extrema", "stress_maximum_coverage", "pressure_rhs_assembly"} | ({"recovery_method"} if context is not None else set()) | ({"equivalent_static"} if generation else set()), "case shape")
         _require(case["profile_mode"] == contract[1] and _text(case["material_basis"]), "case profile/material basis")
         materials[cid] = _indexed(case["pipe_materials"], "pipe_id", "case materials")
         geometries[cid] = _indexed(case["pipe_sections"], "pipe_id", "case sections")

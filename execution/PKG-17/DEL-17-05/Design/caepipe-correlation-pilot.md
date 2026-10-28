@@ -84,6 +84,16 @@ reason none was written: `not_bound`, `prepare_failed`, `timeout`, `no_guest_jso
 `input_hash_mismatch`, `export_failed`, `mbf_not_written`, `mbf_not_collected` or
 `export_hash_mismatch`.
 
+**Authored cases (DEL-17-04 Design §18.3).** `run_pilot --authored [--case ID …]` runs the
+authored cases of `validation/caepipe_correlation/authored/` instead of the writer cases: invented,
+hand-written MBF files listed in its `manifest.json`. Per case the live round trip above takes the
+authored file as written in place of the writer's render, and the export step follows it.
+`--authored --export-only` runs only the export step from the stored solve. No SWBPIPE solve, CSV
+comparison or series step runs, and no runner is needed. A round trip whose guest did not report
+importing the authored file (both hashes) stops the case before the export. No new harness or guest
+mode is needed: the harness already takes the MBF text it is given, and the export reads the model
+the batch route wrote.
+
 ## 4. Configuration surface (DEL-17-05-PH-001)
 
 The harness is disabled unless the user configures it (REQ-001, REQ-016):
@@ -119,7 +129,12 @@ cases/<case_id>/
 series/<hypothesis_id>.json  hypothesis series evaluation (§7)                          PRIVATE
 ```
 
-`caepipe_in/` holds only SWBPIPE-derived content. Every layer from `caepipe_out/` on
+An authored case (§3; DEL-17-04 Design §18.3) uses the same folder under its own id
+(`cases/cpa-nn-…/`). Its `caepipe_in/model.mbf` is the tracked authored file, written as is; it
+has no `id_map.json` or `mbf_render.json`, and its `swbpipe/`, `parsed/` and `comparison/` layers
+stay empty. Its `caepipe_out/` and `imported/` layers are as above and equally private.
+
+`caepipe_in/` holds only SWBPIPE-derived content or the invented authored file. Every layer from `caepipe_out/` on
 is CAEPIPE output or derived from it and stays private (§8). Every directory and
 file the pilot creates, writes or deletes must lie inside the resolved exchange
 folder with no symbolic link on the way; otherwise the case stops as
@@ -145,7 +160,11 @@ the steps and the guest log. The step's guest output goes to `export_guest_log.j
 these files and the entry. A new solve deletes them, because the export no longer
 describes the solved model. Each guest step is
 idempotent and is retried when the `prlctl` client itself fails (exit 255 with a
-`PrlJob_` message), which happens intermittently on this host.
+`PrlJob_` message), which happens intermittently on this host. Each prepare step brackets its
+folder check, `(if not exist <work> mkdir <work>) & del … & copy …`: in `cmd` an unbracketed `if`
+takes the rest of the line as its body, so a re-run whose work folder already existed would delete
+and copy nothing and leave the previous guest copy to be solved or exported. The hash checks above
+refuse such a run (`input_hash_mismatch`); the bracket makes the re-run replace the copy.
 
 ## 6. Writer, parser and comparison
 
@@ -356,6 +375,7 @@ classification. It never prints external-prover values outside the local run.
 - CAEPIPE's pipe shear shape factor and default gravitational acceleration
   (CQ-17-01-010); κ = 0.5 stays an `ASSUMPTION` until answered.
 - Two-way iteration: the export step (§3) writes `caepipe_out/exported.mbf` for
-  DEL-17-04's private import regression (DEL-17-04 `Design/caepipe-mbf-import.md` §18.3).
-  That regression's first recording run (`SWBPIPE_CAEPIPE_IMPORT_RECORD=1`), which
-  writes `imported/`, is still to be done.
+  DEL-17-04's private import regression (DEL-17-04 `Design/caepipe-mbf-import.md` §18.3),
+  for the writer cases and for the authored cases (§3, §5), whose outcomes are recorded
+  privately in `imported/`. The authored set grows with each importer tranche: each new
+  mapping or named refusal gets an authored file.

@@ -1,0 +1,13 @@
+{
+  "description": "Constant support hanger",
+  "license": "project-original",
+  "material_provenance": {
+    "*": {
+      "origin": "project_invented",
+      "redistribution_status": "public_permissive",
+      "source_name": "invented steel for the authored MBF cases"
+    }
+  },
+  "origin": "invented for the DEL-17-04 authored MBF round-trip cases",
+  "produced_by_caepipe": false
+}
