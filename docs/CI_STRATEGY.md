@@ -118,6 +118,23 @@ locally in the registered build and in an emulated unregistered build (a
 build-identity-changing flag such as `RUSTFLAGS=--cap-lints=warn`, in its own
 target directory).
 
+GEN-13, the claims-language check
+(`tools/validation/validate_claims_language.py`, SWBPIPE surfaces only), runs
+in hosted CI as a step of Repository checks (`governance-harness.yml`). The
+step is selected by the `claims_language` output of
+`tools/run_affected_tests.py --dry-run`, which is true when a changed path
+matches the validator's own `input_patterns()` (`--list-inputs` prints them):
+`apps/desktop/src/`, `docs/`, every `execution/PKG-*/DEL-*/ScopeOfWork.md`, the
+anchor surfaces `docs/PRD.md` and
+`core/reporting/report_renderer/src/lib.rs`, `docs/claims_registry.md`, and the
+validator itself. A dispatch run (`--all`) or an unresolvable base selects it
+too; the selection step treats a schedule event as it does dispatch, though the
+workflow has no schedule trigger. If the selector cannot load the validator, it selects
+the step as well, so a broken validator fails closed rather than going unchecked. Other
+changes skip it. The patterns are lexical paths; the repository has no tracked symlinks
+into these surfaces, and adding one would need its target covered too. A finding fails Repository checks, and so
+the `harness` result.
+
 No automatic nightly or post-merge duplicate suite is required. Reuse passing
 hosted results rather than repeating the same suite locally without a change or
 unresolved concern. Failure diagnostics stay in CI artifacts. The optional
