@@ -92,7 +92,16 @@ factors in the design and taste in the aesthetics", and a benchmark set compares
 SWBPIPE's non-code analysis outputs with CAEPIPE's "across as wide a range as
 practicable", which HELP_HUMAN investigates and proposes. HELP_HUMAN drafts the
 release target, its exit criteria and the benchmark set for the owner's
-acceptance; release remains the owner's.
+acceptance; release remains the owner's. Seismic analysis is static g-loads,
+plus response spectrum only where CAEPIPE has that capability (owner,
+2026-10-28: "I said you should only develop a response spectrum capability for
+seismic analysis if that's a functionality that CAEPIPE has, otherwise you can
+go with only static for now."). Benchmark agreement with CAEPIPE is published
+(owner, 2026-10-28: "Benchmark agreement with CAEPIPE will indeed be published.
+That part should be out in the open because the whole point is to feed into
+CAEPIPE and expect the results to come out the same (but validated to Code and
+to the reputation of CAEPIPE)."); `docs/IP_AND_DATA_BOUNDARY.md` §6.2 is to be
+amended to match, and other evaluation stays private.
 
 Agent 0 checks that the implementation and its declarations agree before
 integration.
