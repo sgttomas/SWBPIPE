@@ -5,9 +5,10 @@ import { AUTOSAVE_OFF_NOTICE, type AutosaveSession } from "./useAutosave";
  * Appearance popover (the existing preferences UI). Off, or every 1, 2, 5, 10,
  * 15 or 30 minutes; on by default, every 5 minutes. While it is off, a
  * one-line notice says that a crash can lose unsaved work (Agent 0,
- * 2026-10-28, item (a)). In the browser preview there are no native settings,
+ * 2026-10-28, item (a)). Recover autosave… offers every autosave not proven
+ * to be its stored project's model (Design §3). In the browser preview there are no native settings,
  * so the control is disabled and says so. */
-export function AutosaveSettingsControl({ autosave }: { autosave: Pick<AutosaveSession, "settings" | "settingBusy" | "chooseInterval"> }) {
+export function AutosaveSettingsControl({ autosave }: { autosave: Pick<AutosaveSession, "settings" | "settingBusy" | "chooseInterval" | "recoverAutosave"> }) {
   const { settings } = autosave;
   const off = settings?.autosave_minutes === 0;
   return (
@@ -30,6 +31,9 @@ export function AutosaveSettingsControl({ autosave }: { autosave: Pick<AutosaveS
         </select>
       </label>
       {off ? <p className="shell-autosave-off" role="status" data-testid="autosave-off-notice">{AUTOSAVE_OFF_NOTICE}</p> : null}
+      <button type="button" data-testid="recover-autosave" disabled={!settings} onClick={() => { void autosave.recoverAutosave(); }}>
+        Recover autosave…
+      </button>
       <p className="shell-autosave-detail" id="autosave-setting-detail">
         Autosave writes only while there are unsaved edits. Autosaves stay on this computer and are removed once the project is saved.
       </p>

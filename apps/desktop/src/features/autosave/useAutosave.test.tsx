@@ -334,12 +334,40 @@ describe("the recovery offer", () => {
     mount();
     await offered();
     expect(screen.getByTestId("autosave-recovery-newer")).toHaveTextContent(
-      `The autosave is newer: it was written ${formatAutosaveTime(record.written_unix_millis)}, after the stored project \`Stored invented demo\` was last saved ${formatAutosaveTime(SAVED_AT * 1000)}.`
+      `By this Mac's clock, the autosave is newer: it was written ${formatAutosaveTime(record.written_unix_millis)}, and the stored project \`Stored invented demo\` was last saved ${formatAutosaveTime(SAVED_AT * 1000)}.`
     );
-    // The stored project newer than its autosave: said in the status line, not offered.
+    // The stored project newer than its autosave by the clock: said in the
+    // status line, kept, and not offered at start.
     expect(status()).toHaveTextContent(
-      `The stored project \`Stored invented older\` is newer: it was last saved ${formatAutosaveTime(SAVED_AT * 1000)}, after its autosave was written ${formatAutosaveTime(old.written_unix_millis)}. The autosave is not offered and is kept.`
+      `An autosave is kept. By this Mac's clock, the stored project \`Stored invented older\` is newer: it was last saved ${formatAutosaveTime(SAVED_AT * 1000)}, and the autosave was written ${formatAutosaveTime(old.written_unix_millis)}. A clock that was changed can make this order wrong.`
     );
+  });
+
+  // Codex r1 P2: a clock set back can make newer work look older. Such a
+  // record is never hidden: it is stated as kept, and Recover autosave…
+  // offers it with the clock-qualified comparison.
+  it("keeps a differing record the clock calls older reachable: stated at start, offered by Recover autosave…", async () => {
+    const rolledBack = entry(DEMO_SLOT, (SAVED_AT - 300) * 1000, "sha256:" + "9".repeat(64));
+    native({ entries: [rolledBack], projects: [stored(DEMO.project.id, "Stored invented demo")] });
+    const { openAutosave } = mount();
+    await waitFor(() => expect(status()).toHaveTextContent("An autosave is kept."));
+    expect(status()).toHaveTextContent("It is not known to hold the saved project's model. Recover autosave… (in Appearance, or the project panel) offers it.");
+    expect(screen.queryByTestId("autosave-recovery-prompt")).toBeNull();
+    fireEvent.click(screen.getByTestId("recover-autosave"));
+    await offered();
+    expect(screen.getByTestId("autosave-recovery-newer")).toHaveTextContent(
+      `By this Mac's clock, the stored project \`Stored invented demo\` is newer: it was last saved ${formatAutosaveTime(SAVED_AT * 1000)}, and the autosave was written ${formatAutosaveTime(rolledBack.written_unix_millis)}. A clock that was changed can make this order wrong.`
+    );
+    fireEvent.click(screen.getByTestId("autosave-recovery-open"));
+    await waitFor(() => expect(openAutosave).toHaveBeenCalledWith(rolledBack.file_name, formatAutosaveTime(rolledBack.written_unix_millis)));
+  });
+
+  it("Recover autosave… says so when there is nothing to recover", async () => {
+    native({ entries: [], projects: projects() });
+    mount();
+    await waitFor(() => expect(screen.getByTestId("autosave-interval")).toHaveValue("5"));
+    fireEvent.click(screen.getByTestId("recover-autosave"));
+    await waitFor(() => expect(status()).toHaveTextContent("No autosave to recover."));
   });
 
   it("says when the times cannot tell which is newer, and when there is no stored project", async () => {

@@ -28,6 +28,7 @@ import type { ModelHashEvidence, PreviewModel } from "../../types";
 import {
   AUTOSAVE_NOT_INCLUDED,
   classifyRecords,
+  keptOlderText,
   formatAutosaveTime,
   shortHash,
   whichIsNewerText,
@@ -92,6 +93,10 @@ export type AutosaveDeps = {
 };
 
 type Scope = { projectId: string; storedHash: string | null } | null;
+/** `automatic` (start, an open): modal offers for records the clock calls
+ * newer, a status line for the rest. `all` (Recover Autosave…): every record
+ * not proven to be its stored project's model is offered. */
+type CheckMode = "automatic" | "all";
 
 const IDLE_POLL_MS = 250;
 
@@ -218,15 +223,20 @@ export function useAutosave(deps: AutosaveDeps) {
     return scheduleRecoveryCheck({ projectId, storedHash });
   }
 
-  function scheduleRecoveryCheck(scope: Scope): Promise<void> {
+  /** Recover Autosave…: offers every record not proven saved, one at a time. */
+  function recoverAutosave(): Promise<void> {
+    return scheduleRecoveryCheck(null, "all");
+  }
+
+  function scheduleRecoveryCheck(scope: Scope, mode: CheckMode = "automatic"): Promise<void> {
     if (!depsRef.current.native) return Promise.resolve();
-    checks.current = checks.current.then(() => recoveryCheck(scope)).catch((error) => {
+    checks.current = checks.current.then(() => recoveryCheck(scope, mode)).catch((error) => {
       if (mounted.current) setStatusLine(`Autosave recovery unavailable: ${nativeFailureText(error)}`);
     });
     return checks.current;
   }
 
-  async function recoveryCheck(scope: Scope): Promise<void> {
+  async function recoveryCheck(scope: Scope, mode: CheckMode): Promise<void> {
     const listed = await listProjectAutosaves();
     if (!mounted.current) return;
     if (listed?.outcome !== "listed") {
@@ -238,7 +248,10 @@ export function useAutosave(deps: AutosaveDeps) {
       const slot = await autosaveSlot(scope.projectId);
       entries = entries.filter((entry) => entry.slot === slot);
     }
-    if (entries.length === 0) return;
+    if (entries.length === 0) {
+      if (mode === "all") setStatusLine("No autosave to recover.");
+      return;
+    }
     const storedBySlot = new Map<string, StoredProjectInfo>();
     for (const project of await listLocalProjects()) {
       storedBySlot.set(await autosaveSlot(project.project_id), {
@@ -249,11 +262,16 @@ export function useAutosave(deps: AutosaveDeps) {
       });
     }
     const { offers, olderThanStored } = classifyRecords(entries, storedBySlot);
-    if (olderThanStored.length > 0 && mounted.current) {
-      const more = olderThanStored.length > 1 ? ` (${olderThanStored.length - 1} more older autosaves are kept too.)` : "";
-      setStatusLine(`${whichIsNewerText(olderThanStored[0])}${more}`);
+    // Recover Autosave… offers every record not proven saved, newest first.
+    const offered = mode === "all"
+      ? [...offers, ...olderThanStored].sort((a, b) => b.entry.written_unix_millis - a.entry.written_unix_millis)
+      : offers;
+    if (mode === "all" && offered.length === 0) {
+      setStatusLine("No autosave to recover: each autosave found holds its stored project's model.");
+      return;
     }
-    for (const candidate of offers) {
+    if (mode === "automatic" && olderThanStored.length > 0 && mounted.current) setStatusLine(keptOlderText(olderThanStored));
+    for (const candidate of offered) {
       if (!mounted.current) return;
       // After Open, the working model is the record: nothing else is offered now.
       if ((await offerRecord(candidate)) === "open") return;
@@ -353,7 +371,8 @@ export function useAutosave(deps: AutosaveDeps) {
     recoveryPrompt,
     chooseInterval,
     afterProjectSaved,
-    afterStoredProjectOpened
+    afterStoredProjectOpened,
+    recoverAutosave
   };
 }
 

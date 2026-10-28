@@ -1027,6 +1027,10 @@ function AppSession() {
             <FolderOpen size={15} aria-hidden="true" />
             Open model file
           </button>
+          <button data-testid="project-recover-autosave" type="button" onClick={() => void autosave.recoverAutosave()} disabled={projectBusy || !autosave.settings}>
+            <FolderOpen size={15} aria-hidden="true" />
+            Recover autosave…
+          </button>
           <button data-testid="open-local-project" type="button" onClick={() => handleOpenProject()} disabled={projectBusy}>
             <FolderOpen size={15} aria-hidden="true" />
             Open local
