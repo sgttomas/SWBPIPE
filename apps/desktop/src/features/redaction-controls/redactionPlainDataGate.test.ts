@@ -123,10 +123,15 @@ describe("DEL-12-02 plain-data gate: Codex r4 repros (the single-read snapshot)"
     });
     return { proxy, reads };
   };
-  const throwing = () =>
+  const revokedProxy = () => {
+    const { proxy, revoke } = Proxy.revocable({}, {});
+    revoke();
+    return proxy;
+  };
+  const throwing = (thrown: () => unknown = () => new Error("trap ran")) =>
     new Proxy({ value: "x", ...P } as Item, {
       ownKeys() {
-        throw new Error("trap ran");
+        throw thrown();
       }
     });
 
@@ -157,6 +162,17 @@ describe("DEL-12-02 plain-data gate: Codex r4 repros (the single-read snapshot)"
     expect(codes(controlRouteExport({ record: throwing() }, { routeId: "DREP-JSON-002", exportContext: "public_report" }).decisions)).toEqual([REFUSED]);
     expect(codes(controlUserReleasedReportPackageRequest({ record: throwing() }, {}, true).decisions)).toEqual([REFUSED]);
     expect(codes(controlUserReleasedReportPackageRequest({}, throwing(), true).decisions)).toEqual([REFUSED]);
+  });
+
+  it("refuses a Proxy whose trap throws a revoked Proxy, at all four entry points (Codex final round)", () => {
+    // Inspecting the thrown value (`instanceof`) would run its own trap and throw again.
+    const input = () => throwing(revokedProxy);
+    expect(codes([classifyExportItem(input(), { exportContext: "public_report" })])).toEqual([REFUSED]);
+    expect(codes(redactExportPayload(input(), { exportContext: "public_report" }).decisions)).toEqual([REFUSED]);
+    expect(codes(redactExportPayload({ item: input() }, { exportContext: "public_report" }).decisions)).toEqual([REFUSED]);
+    expect(codes(controlRouteExport({ record: input() }, { routeId: "DREP-JSON-002", exportContext: "public_report" }).decisions)).toEqual([REFUSED]);
+    expect(codes(controlUserReleasedReportPackageRequest({ record: input() }, {}, true).decisions)).toEqual([REFUSED]);
+    expect(codes(controlUserReleasedReportPackageRequest({}, input(), true).decisions)).toEqual([REFUSED]);
   });
 
   it("refuses the array key 4294967295, which is not an array index", () => {

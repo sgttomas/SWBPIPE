@@ -460,8 +460,14 @@ function setMember(target: PlainObject, key: string, value: unknown): void {
 type PlainDataRefusal = { path: string; shape: string };
 
 class PlainDataRefused {
-  constructor(readonly refusal: PlainDataRefusal) {}
+  constructor(readonly refusal: PlainDataRefusal) {
+    ownRefusals.add(this);
+  }
 }
+
+/** The refusals this module threw. The catch below recognises its own by identity: `instanceof` on
+ * a thrown input value runs that value's `getPrototypeOf` trap, which may itself throw. */
+const ownRefusals = new WeakSet<object>();
 
 const MAX_ARRAY_INDEX = 4294967294; // 2^32 - 2: the largest array index
 
@@ -590,7 +596,9 @@ function plainDataSnapshot(input: unknown, rootPath = "$"): { value: unknown } |
     }
     return { value: root };
   } catch (error) {
-    if (error instanceof PlainDataRefused) return { refusal: error.refusal };
+    if (typeof error === "object" && error !== null && ownRefusals.has(error)) {
+      return { refusal: (error as PlainDataRefused).refusal };
+    }
     return { refusal: { path, shape: "exception while reading the input" } };
   } finally {
     errorConstructor.stackTraceLimit = stackTraceLimit;
