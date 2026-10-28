@@ -314,7 +314,7 @@ def test_schema_property_maps_are_not_provenance_records():
         "examples": [{"provenance": dict(ACCEPTED_PROVENANCE)}],
         "properties": {"redistribution_status": "unknown"},
     }
-    paths = [path for path, _ in module.iter_provenance_records(schema)]
+    paths = [path for path, _ in module.iter_provenance_records(schema, in_schema=True)]
     # The example record and a malformed string-valued record are still checked.
     assert paths == ["$.examples[0].provenance", "$.properties"]
 
@@ -381,6 +381,44 @@ def test_scan_record_carries_no_host_paths_or_captured_logs(tmp_path, monkeypatc
     assert "resolved_root" not in record["artifact_classes"]["AC-4"]
     lint_paths = {f["path"] for f in record["checks"]["protected_content_lint"]["findings"]}
     assert lint_paths <= {"AC-4:README.md", "AC-4:example.json"}
+
+
+@pytest.mark.parametrize(
+    "declared",
+    [
+        "https://json-schema.org.invented.invalid/draft/2020-12/schema",
+        "https://json-schema.org/draft/2020-12/schema",
+    ],
+)
+def test_self_declared_schema_cannot_hide_a_data_record(tmp_path, declared):
+    # Review r3 finding 1: a data document declaring `$schema` (spoofed or the
+    # genuine metaschema URI) hid an invalid `.properties` record: zero records
+    # were checked. Schema status comes from the schema inventory path only.
+    module = load_module()
+    data = {
+        "$schema": declared,
+        "properties": {
+            "source_name": "invented",
+            "source_location": "invented/inline",
+            "source_license": "TBD",
+            "contributor": "invented",
+            "contributor_certification": "invented",
+            "redistribution_status": {"status": "rejected"},
+            "review_status": "rejected",
+        },
+    }
+    member = tmp_path / "data.json"
+    member.write_text(json.dumps(data), encoding="utf-8")
+    result = module.run_provenance_check([("AC-4:fixtures/data.json", member)])
+    assert result["provenance_records_checked"] == 1
+    assert "AC-4:fixtures/data.json $.properties: source_license is 'TBD'" in result["violations"]
+
+    # A real inventory member (schemas/<name>.schema.json) is still a schema.
+    inventory = module.run_provenance_check([("AC-4:schemas/invented.schema.json", member)])
+    assert inventory["provenance_records_checked"] == 0
+    for outside in ("fixtures/invented.schema.json", "schemas/nested/x.schema.json",
+                    "schemas/invented.json"):
+        assert not module.is_schema_inventory_member(outside)
 
 
 def test_quarantine_hygiene_flags_quarantine_paths(tmp_path):

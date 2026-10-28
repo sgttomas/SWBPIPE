@@ -242,27 +242,30 @@ def run_engine_lint(paths: list[Path], root: Path) -> dict:
     }
 
 
-def is_json_schema_document(document) -> bool:
-    """A verified JSON Schema: a top-level `$schema` naming json-schema.org."""
-    return (
-        isinstance(document, dict)
-        and isinstance(document.get("$schema"), str)
-        and "json-schema.org" in document["$schema"]
-    )
+# The project's schema inventory: its declared schema directories and their
+# `*.schema.json` files. A file is a schema because of where it is in the
+# candidate, never because it declares `$schema` (data can declare anything).
+SCHEMA_DIRECTORIES = ("schemas", "validation/witness/schemas")
+SCHEMA_FILE_SUFFIX = ".schema.json"
+
+
+def is_schema_inventory_member(relative_path: str) -> bool:
+    """True for `<schema directory>/<name>.schema.json` within a class root."""
+    directory, _, name = relative_path.replace("\\", "/").rpartition("/")
+    return directory in SCHEMA_DIRECTORIES and name.endswith(SCHEMA_FILE_SUFFIX)
 
 
 def is_schema_property_map(json_path: str, document: dict) -> bool:
-    """Inside a verified JSON Schema, a `properties` map that declares the
+    """In a schema-inventory file, a `properties` map that declares the
     provenance fields maps each name to a subschema object; it describes
-    records and is not one. Callers apply this only in a schema document."""
+    records and is not one. Callers apply this only to inventory members."""
     return json_path.endswith(".properties") and isinstance(
         document.get("redistribution_status"), dict
     )
 
 
-def iter_provenance_records(document, json_path="$", in_schema=None):
-    if in_schema is None:
-        in_schema = is_json_schema_document(document)
+def iter_provenance_records(document, json_path="$", in_schema=False):
+    """Provenance-shaped objects; `in_schema` only for schema-inventory files."""
     if isinstance(document, dict):
         if "redistribution_status" in document and not (
             in_schema and is_schema_property_map(json_path, document)
@@ -317,7 +320,9 @@ def run_provenance_check(json_paths: list[tuple[str, Path]]) -> dict:
             )
             unparseable.append(f"{member_label}: {detail}")
             continue
-        for json_path, record in iter_provenance_records(document):
+        relative = member_label.split(":", 1)[-1]
+        in_schema = is_schema_inventory_member(relative)
+        for json_path, record in iter_provenance_records(document, in_schema=in_schema):
             records_checked += 1
             for violation in provenance_record_violations(json_path, record):
                 violations.append(f"{member_label} {violation}")
