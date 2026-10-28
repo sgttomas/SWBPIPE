@@ -25,6 +25,7 @@ import {
   type FieldUnitDefault
 } from "../project-units/projectUnitSelection";
 import { loadUnitCatalog, type UnitCatalogRoute } from "../../services/unitCatalogService";
+import { RunSheet, type RunSheetHost } from "./runSheet/RunSheet";
 
 type Props = {
   model: PreviewModel;
@@ -58,6 +59,8 @@ type Props = {
   // mounted, so drafts survive a layout switch, but only the Tree layout shows
   // it: the Grid layout owns the whole bounded host.
   treeRecords?: React.ReactNode;
+  /** Run sheet S2 (DEL-07-02 Design `run-sheet-entry.md`): the Grid mode's "Run sheet" tab. */
+  runSheet?: RunSheetHost;
 };
 
 type LayoutMode = "tree" | "grid";
@@ -82,7 +85,7 @@ const GRID_ENTITY_TYPES: ReadonlyArray<{ id: GridEntityType; label: string }> = 
   { id: "combinations", label: "Combinations" }
 ];
 
-export function ModelTree({ boundedGrid = false, compactGrid = false, model, modelIndex, selection, selectionState, density = "comfortable", hiddenKeys = new Set(), projectSessionGeneration = 0, onSelect, onFocusChange = () => {}, onFilterPublication = () => {}, onQueueIntent, onApplyCellIntent, operationBusy, treeRecords, viewCommandRef, showAllAvailable = false, onChangeSelected, onSplitPipe }: Props) {
+export function ModelTree({ boundedGrid = false, compactGrid = false, model, modelIndex, selection, selectionState, density = "comfortable", hiddenKeys = new Set(), projectSessionGeneration = 0, onSelect, onFocusChange = () => {}, onFilterPublication = () => {}, onQueueIntent, onApplyCellIntent, operationBusy, treeRecords, viewCommandRef, showAllAvailable = false, onChangeSelected, onSplitPipe, runSheet }: Props) {
   const [columnTarget, setColumnTarget] = useState<HTMLDivElement | null>(null);
   const [chromeOwner, setChromeOwner] = useState<string | null>(null);
   const [toolbarTarget, setToolbarTarget] = useState<HTMLDivElement | null>(null);
@@ -300,6 +303,8 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
           setFocusedGridKey={setFocusedGridKey}
           entityEnvironment={entityEnvironment}
           isSelected={(key) => selectedKeys.has(key)}
+          runSheet={runSheet}
+          viewCommand={viewCommand}
         />
       </div> : null}
       {layoutMode !== "grid" ? (
@@ -843,7 +848,9 @@ function EntityGrid({
   setFocusedGridKey,
   projectSessionGeneration,
   entityEnvironment,
-  isSelected
+  isSelected,
+  runSheet,
+  viewCommand
 }: {
   bounded: boolean;
   compact: boolean;
@@ -865,8 +872,13 @@ function EntityGrid({
   projectSessionGeneration: number;
   entityEnvironment: EntityCommandEnvironment;
   isSelected: (key: EntityKey) => boolean;
+  runSheet?: RunSheetHost;
+  viewCommand?: ((command: ViewportViewCommand) => void) | null;
 }) {
   const [queuedMessage, setQueuedMessage] = useState("");
+  // Run sheet S2: the "Run sheet" tab beside the entity families.
+  const [runSheetActive, setRunSheetActive] = useState(false);
+  const runSheetShown = Boolean(runSheet) && runSheetActive;
   // B9: a bulk-grid row's context menu: right-click the row (outside its text and choice fields,
   // which keep the platform's own editing menu) or press Shift+F10 on its ID button.
   const [rowMenu, setRowMenu] = useState<{ target: EntityRef; request: ContextMenuRequest; serial: number } | null>(null);
@@ -1087,8 +1099,13 @@ function EntityGrid({
       </button>;
   const compactControls = <>
     <label className="compact-family-label">Family
-      <select aria-label="Grid family" data-testid="entity-grid-family" value={entityType} onChange={(event) => onEntityTypeChange(event.target.value as GridEntityType)}>
-        {GRID_ENTITY_TYPES.map((item) => <option key={item.id} value={item.id}>{item.label}{item.id === entityType ? ` (${rows.length})` : ""}</option>)}
+      <select aria-label="Grid family" data-testid="entity-grid-family" value={runSheetShown ? "run_sheet" : entityType} onChange={(event) => {
+        if (event.target.value === "run_sheet") { setRunSheetActive(true); return; }
+        setRunSheetActive(false);
+        onEntityTypeChange(event.target.value as GridEntityType);
+      }}>
+        {GRID_ENTITY_TYPES.map((item) => <option key={item.id} value={item.id}>{item.label}{item.id === entityType && !runSheetShown ? ` (${rows.length})` : ""}</option>)}
+        {runSheet ? <option value="run_sheet">Run sheet</option> : null}
       </select>
     </label>
     {reviewToggle}
@@ -1112,16 +1129,25 @@ function EntityGrid({
       <div hidden={compact} className="entity-grid-tabs" aria-label="Grid entity type">
         {GRID_ENTITY_TYPES.map((item) => (
           <button
-            aria-pressed={item.id === entityType}
+            aria-pressed={item.id === entityType && !runSheetShown}
             data-testid={`entity-grid-type-${item.id}`}
             key={item.id}
-            onClick={() => onEntityTypeChange(item.id)}
+            onClick={() => { setRunSheetActive(false); onEntityTypeChange(item.id); }}
             type="button"
           >
             {item.label}
           </button>
         ))}
+        {runSheet ? (
+          <button aria-pressed={runSheetShown} data-testid="entity-grid-type-run-sheet" onClick={() => setRunSheetActive(true)} type="button">
+            Run sheet
+          </button>
+        ) : null}
       </div>
+      {runSheetShown && runSheet ? (
+        <RunSheet host={runSheet} model={model} operationBusy={operationBusy} viewCommand={viewCommand} onSelect={onSelect} />
+      ) : null}
+      <div className="entity-grid-families" hidden={runSheetShown} inert={runSheetShown} style={runSheetShown ? undefined : { display: "contents" }}>
       {!directVisible && directDraftRetained ? <p className="retained-direct-draft" role="status" data-testid="retained-direct-draft">Direct node edit retained. Return to node fields to correct or cancel it.</p> : null}
       <div className="direct-coordinate-workarea" hidden={!directVisible} inert={!directVisible}>
         <EngineeringTable label="Node fields" bounded={bounded} compact={compact} active={directVisible} onDraftStateChange={setDirectDraftRetained} rows={tableRows} columns={coordinateColumns} generation={tableGeneration}
@@ -1288,6 +1314,7 @@ function EntityGrid({
         </div>
       </div>
       {!compact ? reviewToggle : null}
+      </div>
       {rowMenu ? (
         <EntityContextMenu key={rowMenu.serial} env={entityEnvironment} target={rowMenu.target} request={rowMenu.request} onClose={() => setRowMenu(null)} testId="grid-context-menu" />
       ) : null}

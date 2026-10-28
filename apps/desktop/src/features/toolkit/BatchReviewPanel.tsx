@@ -12,6 +12,9 @@ export type QueuedBatch = {
    * submitted operation requires preview (`operationRequiresPreview`). Such a
    * batch is applied only after a clean validation-only preview on the same basis. */
   requiresPreview?: boolean;
+  /** Set when the session retired this registration because the model changed
+   * after it was prepared (run sheet S2, §3.6 step 1): a notice whose only action is Dismiss. */
+  retired?: string;
 };
 /** The operation kinds applied only after a clean preview of their exact batch on
  * the current model: a reconnect (W-10, DEL-16-06 Design `pipe-reconnect.md` §3),
@@ -67,15 +70,18 @@ type Props = {
   onClear: () => void;
   onValidate: (entry: QueuedBatch) => void;
   onApply: (entry: QueuedBatch) => void;
+  /** Dismiss a retired notice. */
+  onDismiss?: (entry: QueuedBatch) => void;
   /** Select an affected ref through the existing selection. */
   onSelectRef?: (ref: string) => void;
 };
 
-export function BatchReviewPanel({ batches, outcomes, receipts, revision, busy, message, onClear, onValidate, onApply, onSelectRef }: Props) {
+export function BatchReviewPanel({ batches, outcomes, receipts, revision, busy, message, onClear, onValidate, onApply, onDismiss, onSelectRef }: Props) {
+  const retiredCount = batches.filter((entry) => entry.retired).length;
   return (
     <section className="panel" id="batch-review" tabIndex={-1} aria-label="Batch review">
       <h3>Batch review</h3>
-      <p data-testid="batch-review-summary">{batches.length} queued batches; {receipts.length} batches applied this session.</p>
+      <p data-testid="batch-review-summary">{batches.length - retiredCount} queued batches; {receipts.length} batches applied this session.{retiredCount ? ` ${retiredCount} withdrawn on a model change.` : ""}</p>
       <p>Validate to preview all steps on temporary state. Apply commits the entire batch once or leaves the model unchanged. Batch drafts and receipts shown here belong to this session.</p>
       <button
         type="button"
@@ -88,6 +94,15 @@ export function BatchReviewPanel({ batches, outcomes, receipts, revision, busy, 
       </button>
       {message ? <p role="status" data-testid="batch-review-message">{message}</p> : null}
       {batches.map((entry) => {
+        if (entry.retired) {
+          return (
+            <article key={entry.key} data-testid={`batch-${entry.key}`} data-retired="true">
+              <h4>{entry.batch.batch_id}</h4>
+              <p role="note" data-testid={`retired-batch-${entry.key}`}>{entry.retired}</p>
+              <button type="button" data-testid={`dismiss-batch-${entry.key}`} onClick={() => onDismiss?.(entry)} disabled={!onDismiss}>Dismiss</button>
+            </article>
+          );
+        }
         const outcome = outcomes[entry.key];
         const stale = entry.basisRevision !== revision;
         const reason = stale ? "The model changed. Prepare a new batch from the current model." : busy ? "Wait for the current request to finish." : undefined;
