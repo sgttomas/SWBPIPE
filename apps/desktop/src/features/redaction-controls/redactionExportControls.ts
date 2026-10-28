@@ -422,6 +422,17 @@ function isPlainObject(value: unknown): value is PlainObject {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+/** Sets `key` on a copy as an own enumerable data member. Assignment (`target[key] = value`)
+ * would run the `__proto__` setter for that key and make a JSON `__proto__` member the copy's
+ * prototype, so its labels would be inherited and the member itself would vanish. Here a
+ * `__proto__` member is an ordinary own member, as it is in Python and serde_json (HELP_HUMAN
+ * decision, 2026-10-27: "Parse so that no JSON member can become a prototype"). Every copy
+ * this module makes of input members goes through this, `Object.fromEntries`, a spread or
+ * `structuredClone`, each of which defines own data members. */
+function setMember(target: PlainObject, key: string, value: unknown): void {
+  Object.defineProperty(target, key, { value, writable: true, enumerable: true, configurable: true });
+}
+
 // Input contract (docs/security/redaction_export_controls.md, "Input contract"; HELP_HUMAN ruling
 // 2026-10-27). The flag strings all three implementations recognize, after trimming and lowercasing;
 // identical in core/security/redaction/controls.py and redaction_binding.rs.
@@ -749,7 +760,7 @@ function findingFor(decision: RedactionDecision, findingIndex: number): Redactio
 function withoutUnsafeDetail(item: PlainObject): PlainObject {
   const output: PlainObject = {};
   for (const [key, value] of Object.entries(item)) {
-    if (!UNSAFE_DETAIL_KEYS.has(key)) output[key] = value;
+    if (!UNSAFE_DETAIL_KEYS.has(key)) setMember(output, key, value);
   }
   return output;
 }
@@ -884,7 +895,7 @@ function walk(
     const output: PlainObject = {};
     for (const [key, item] of Object.entries(value)) {
       const child = walk(item, { ...args, path: `${args.path}.${key}` });
-      if (child !== OMITTED_SENTINEL) output[key] = child;
+      if (child !== OMITTED_SENTINEL) setMember(output, key, child);
     }
     return output;
   }
@@ -1098,13 +1109,17 @@ function stripRouteIntent(value: unknown): unknown {
   for (const [key, item] of Object.entries(value)) {
     if (ROUTE_INTENT_KEYS.has(key)) continue;
     if (key === "export_policy" && isPlainObject(item)) {
-      output[key] = Object.fromEntries(
-        Object.entries(item)
-          .filter(([policyKey]) => !ROUTE_INTENT_KEYS.has(policyKey))
-          .map(([policyKey, policyValue]) => [policyKey, stripRouteIntent(policyValue)])
+      setMember(
+        output,
+        key,
+        Object.fromEntries(
+          Object.entries(item)
+            .filter(([policyKey]) => !ROUTE_INTENT_KEYS.has(policyKey))
+            .map(([policyKey, policyValue]) => [policyKey, stripRouteIntent(policyValue)])
+        )
       );
     } else {
-      output[key] = stripRouteIntent(item);
+      setMember(output, key, stripRouteIntent(item));
     }
   }
   return output;
