@@ -119,6 +119,23 @@ def shear_factor(nu: float, ro: float, ri: float, inertia: float) -> float | Non
     return factor if math.isfinite(factor) and factor > 0 else None
 
 
+def preview_shear_factor(e: float, g: float, ro: float, ri: float, inertia: float) -> float | None:
+    """c_b on preview-physics-2 from the moduli (§2.4), bit for bit with the product: the ν sequence of
+    ``shear_factor`` with ν = RN(q − 1) while q = RN(E/RN(2·G)) >= 1/2; below, with no 1+ν formed,
+    x = RN(RN(2·G)/E) and c_b = RN(RN(RN(2·RN(RN(r_o·r_o) + RN(r_i·r_i))) + RN(x·RN(RN(r_o − r_i)·RN(r_o + r_i))))/RN(4·I)).
+    None outside -1 < ν < 1/2 (admission by the rounded ν)."""
+    ratio = e / (2.0 * g)
+    if not ratio < 0.5:
+        return shear_factor(ratio - 1.0, ro, ri, inertia)
+    if not (ratio - 1.0 > -1.0 and e > 0.0 and g > 0.0 and 0.0 < ri < ro and inertia > 0.0):
+        return None
+    x = (2.0 * g) / e
+    if not (math.isfinite(x) and x > 2.0 / 3.0):
+        return None
+    factor = (2.0 * (ro * ro + ri * ri) + x * ((ro - ri) * (ro + ri))) / (4.0 * inertia)
+    return factor if math.isfinite(factor) and factor > 0 else None
+
+
 def shear_maximum(shear_y: float, shear_z: float, factor: float) -> float:
     return correctly_rounded_norm([shear_y, shear_z]) * factor / 1e6
 

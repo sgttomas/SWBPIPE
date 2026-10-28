@@ -1083,19 +1083,12 @@ fn u4b_preview_shear_factor_from_moduli_is_within_its_bound() {
     assert_eq!((admitted, below_half, refused), (32, 20, 6));
 }
 
-/// DEL-04-07 §2.4 on a document: Codex's model (OD 0.2 m, wall 0.01 m, L 1 m, fixed root, tip
-/// restrained except UY, E = 1 GPa, G = 6755399441055744 GPa, so E/(2G) = 1/(3·2^52) and
-/// ν = RN(q − 1) = −1 + 2^-53; tip force 1e-18 N in Y). Euler–Bernoulli only: this base refuses
-/// `timoshenko_annulus_energy_v1` at solve. Every τ_v,max row is within 11.5u of
-/// |V|·c*/1e6 (c* exact rational from the preview annulus's binary64 operands; Codex's
-/// independent value 2.376033621224861803e-7 MPa at |V| = 1e-18 N, with an exact I, agrees to
-/// 1e-14); forming 1 + ν from ν published 1.584022414149910e-7 MPa, 33.3% low. The
-/// preview-physics reader recomputes the same bits.
-#[test]
-fn u4b_preview_shear_maximum_with_g_above_e() {
+/// A G > E preview cantilever (OD 0.2 m, wall 0.01 m, L 1 m, fixed root, tip restrained except UY,
+/// a tip force in global Y), the moduli authored in GPa so G stays a safe integer.
+fn g_above_e_request(e_gpa: f64, g_gpa: f64, force_n: f64) -> Value {
     let provenance = "invented regression model; not library, catalog, manufacturer or code-rule data";
     let material = json!({"id": "mat:m", "provenance": provenance,
-        "elastic_modulus": {"unit": "GPa", "value": 1.0}, "shear_modulus": {"unit": "GPa", "value": 6755399441055744.0},
+        "elastic_modulus": {"unit": "GPa", "value": e_gpa}, "shear_modulus": {"unit": "GPa", "value": g_gpa},
         "thermal_expansion_coefficient": {"unit": "1/degC", "value": 1.2e-05}});
     let model = json!({
         "schema_version": MODEL_SCHEMA_VERSION, "document_kind": "openpipestress.product_preview.model",
@@ -1112,37 +1105,86 @@ fn u4b_preview_shear_maximum_with_g_above_e() {
         "components": [], "combinations": [],
         "load_cases": [{"id": "case:1", "kind": "primitive_user_load", "provenance": provenance, "primitive_loads": [{"id": "load:N1:fy",
             "category": "concentrated_force", "dimension": "force", "direction": "global_y", "provenance": provenance,
-            "magnitude": {"unit": "N", "value": 1e-18}, "target": {"node": "node:N1", "type": "node"}}]}],
+            "magnitude": {"unit": "N", "value": force_n}, "target": {"node": "node:N1", "type": "node"}}]}],
     });
-    let request = json!({"model": model, "materials": [material]});
-    // The preview annulus (`derive_pipe_section`) and its exact c*.
+    json!({"model": model, "materials": [material]})
+}
+
+/// The two G > E documents: (name, E GPa, G GPa, tip force N, exact c* hi bits, lo bits), c* = exact rational
+/// Saint-Venant c_b (ν form, Python `fractions`) from the preview annulus's binary64 operands.
+/// Codex's: E/(2G) = 1/(3·2^52), ν = RN(q − 1) = −1 + 2^-53. Moderate: E/(2G) = 0.1.
+const G_ABOVE_E_DOCUMENTS: [(&str, f64, f64, f64, u64, u64); 2] = [
+    ("codex_q_1_over_3_2p52", 1.0, 6755399441055744.0, 1e-18, 0x438a6117fde5fe85, 0xc0043768a891bdcb),
+    ("moderate_q_0_1", 200.0, 1000.0, 1500.0, 0x407feecc3359c847, 0xbd07ffe48fdbe857),
+];
+
+/// DEL-04-07 §2.4 on documents: each τ_v,max row of a G > E preview member is within 11.5u of |V|·c*/1e6; forming
+/// 1 + ν from the rounded ν published Codex's 1.584022414149910e-7 MPa, 33.3% low (Codex's independent value
+/// 2.376033621224861803e-7 MPa at |V| = 1e-18 N, with an exact I, agrees to 1e-14). Euler–Bernoulli only: this base
+/// refuses `timoshenko_annulus_energy_v1` at solve. The Rust preview-physics reader recomputes the same bits; the
+/// Python reader reads the same envelopes from [`PREVIEW_SHEAR_MODULI_FIXTURE`].
+#[test]
+fn u4b_preview_shear_maximum_with_g_above_e() {
     let (od, t) = (0.2_f64, 0.01_f64);
     let id = od - 2.0 * t;
     let inertia = PI * (od.powi(4) - id.powi(4)) / 64.0;
     assert_eq!(((od / 2.0).to_bits(), (id / 2.0).to_bits(), inertia.to_bits()), (0x3fb999999999999a, 0x3fb70a3d70a3d70b, 0x3efc52664442210e));
-    let (hi, lo) = (f64::from_bits(0x438a6117fde5fe85), f64::from_bits(0xc0043768a891bdcb));
-    let out = run_linear_static_preview_value_with_mode(request.clone(), PreviewSolverMode::SparseInteractive).unwrap();
-    assert_eq!(out.status.mechanics, "MECHANICS_SOLVED", "{:?}", out.diagnostics);
-    assert!(!out.diagnostics.iter().any(|d| d.code == u4b_rows::POISSON_OUT_OF_DOMAIN), "ν = −1 + 2^-53 is admitted");
-    let rows = shear_rows(&out, "case:1");
-    assert_eq!(rows.len(), u4b_rows::STATIONS.len());
-    for row in rows {
-        let location = &row.metadata.as_ref().unwrap().location;
-        let shear = |kind: &str| out.results.iter().find(|r| r.kind == kind && r.entity_ref == row.entity_ref
-            && r.metadata.as_ref().is_some_and(|m| &m.location == location)).unwrap().value;
-        // One local shear carries the tip force; |V| = norm2 is then exact.
-        let (vy, vz) = (shear("element_local_shear_force_y").abs(), shear("element_local_shear_force_z").abs());
-        assert_eq!(vy.min(vz), 0.0, "{location}");
-        let v = vy.max(vz);
-        // τ* = v·(hi + lo)/1e6 in double-double: v·hi = p + p_err exactly, then the quotient's residual.
-        let p = v * hi;
-        let p_err = v.mul_add(hi, -p);
-        let tau_hi = p / 1e6;
-        let tau_lo = ((-tau_hi).mul_add(1e6, p) + p_err + v * lo) / 1e6;
-        let err = error_in_u(row.value, tau_hi, tau_lo);
-        assert!(err.abs() <= 11.5, "{location}: τ_v,max {:e} is {err:.3}u from exact {tau_hi:e}", row.value);
-        let codex = 2.376033621224861803e-7 * (v / 1e-18);
-        assert!((row.value / codex - 1.0).abs() <= 1e-14, "{location}: {:e} vs Codex's {codex:e}", row.value);
+    for (name, e, g, force, hi, lo) in G_ABOVE_E_DOCUMENTS {
+        let (hi, lo) = (f64::from_bits(hi), f64::from_bits(lo));
+        let request = g_above_e_request(e, g, force);
+        let out = run_linear_static_preview_value_with_mode(request.clone(), PreviewSolverMode::SparseInteractive).unwrap();
+        assert_eq!(out.status.mechanics, "MECHANICS_SOLVED", "{name}: {:?}", out.diagnostics);
+        assert!(!out.diagnostics.iter().any(|d| d.code == u4b_rows::POISSON_OUT_OF_DOMAIN), "{name}: admitted");
+        let rows = shear_rows(&out, "case:1");
+        assert_eq!(rows.len(), u4b_rows::STATIONS.len(), "{name}");
+        for row in rows {
+            let location = &row.metadata.as_ref().unwrap().location;
+            let shear = |kind: &str| out.results.iter().find(|r| r.kind == kind && r.entity_ref == row.entity_ref
+                && r.metadata.as_ref().is_some_and(|m| &m.location == location)).unwrap().value;
+            // One local shear carries the tip force; |V| = norm2 is then exact.
+            let (vy, vz) = (shear("element_local_shear_force_y").abs(), shear("element_local_shear_force_z").abs());
+            assert_eq!(vy.min(vz), 0.0, "{name} {location}");
+            let v = vy.max(vz);
+            // τ* = v·(hi + lo)/1e6 in double-double: v·hi = p + p_err exactly, then the quotient's residual.
+            let p = v * hi;
+            let p_err = v.mul_add(hi, -p);
+            let tau_hi = p / 1e6;
+            let tau_lo = ((-tau_hi).mul_add(1e6, p) + p_err + v * lo) / 1e6;
+            let err = error_in_u(row.value, tau_hi, tau_lo);
+            assert!(err.abs() <= 11.5, "{name} {location}: τ_v,max {:e} is {err:.3}u from exact {tau_hi:e}", row.value);
+            if force == 1e-18 {
+                let codex = 2.376033621224861803e-7 * (v / 1e-18);
+                assert!((row.value / codex - 1.0).abs() <= 1e-14, "{location}: {:e} vs Codex's {codex:e}", row.value);
+            }
+        }
+        assert_eq!(verdict(&out, "preview-physics", &model_with_materials(&request))["ok"], true, "{name}");
     }
-    assert_eq!(verdict(&out, "preview-physics", &model_with_materials(&request))["ok"], true);
+}
+
+/// The cross-reader fixture (`tests/fixtures/u4b_preview_shear_moduli.json`): the family's operands, exact values and
+/// the product's c_b bits, and the two G > E documents with their sparse envelopes. `tests/test_u4b_preview_shear_moduli.py`
+/// requires the Python reader to reproduce every c_b and to accept both envelopes with their models (bit for bit τ).
+const PREVIEW_SHEAR_MODULI_FIXTURE: &str = "tests/fixtures/u4b_preview_shear_moduli.json";
+
+#[test]
+fn u4b_preview_shear_cross_reader_fixture_is_current() {
+    let hex = |v: u64| format!("0x{v:016x}");
+    let family: Vec<Value> = PREVIEW_SHEAR_FAMILY.iter().map(|&(section, e, g, hi, lo)| {
+        let (ro, ri, inertia) = SHEAR_FAMILY_SECTIONS[section];
+        let c = u4b_rows::preview_shear_factor(f64::from_bits(e), f64::from_bits(g), ro, ri, inertia).ok();
+        json!({"section": section, "e": hex(e), "g": hex(g), "exact_hi": hex(hi), "exact_lo": hex(lo), "c_b": c.map(|c| hex(c.to_bits()))})
+    }).collect();
+    let documents: Vec<Value> = G_ABOVE_E_DOCUMENTS.iter().map(|&(name, e, g, force, _, _)| {
+        let request = g_above_e_request(e, g, force);
+        let out = run_linear_static_preview_value_with_mode(request.clone(), PreviewSolverMode::SparseInteractive).unwrap();
+        json!({"name": name, "model": model_with_materials(&request), "envelope": serde_json::to_value(&out).unwrap()})
+    }).collect();
+    let sections: Vec<Value> = SHEAR_FAMILY_SECTIONS.iter().map(|&(ro, ri, inertia)| json!([hex(ro.to_bits()), hex(ri.to_bits()), hex(inertia.to_bits())])).collect();
+    let fixture = json!({"sections": sections, "family": family, "documents": documents});
+    let bytes = serde_json::to_string_pretty(&fixture).unwrap() + "\n";
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(PREVIEW_SHEAR_MODULI_FIXTURE);
+    if std::env::var_os("U4B_WRITE_PREVIEW_SHEAR_MODULI").is_some() {
+        std::fs::write(&path, &bytes).unwrap();
+    }
+    assert_eq!(std::fs::read_to_string(&path).unwrap(), bytes, "{}: regenerate with U4B_WRITE_PREVIEW_SHEAR_MODULI=1", path.display());
 }
