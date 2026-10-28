@@ -161,6 +161,15 @@ describe("CSV units", () => {
     expect(rows.slice(12)).toEqual([["10", "0.5", "12.5", "MPa"], ["10", "0.5", "3", "kN"]]);
   });
 
+  it("refuses an empty per-row unit, and admits a status saying why the unit is missing", () => {
+    const columns = [{ kind: "number", label: "Value", unitColumn: "Unit" }, { kind: "unit", label: "Unit" }] as const;
+    for (const unit of [csvText(""), csvText("  ")]) {
+      expect(() => serializeCsvTable(table({ columns: [...columns], rows: [[csvNumber(3), unit]] }))).toThrowError(/CSV_UNIT_EMPTY/);
+    }
+    const rows = parse(serializeCsvTable(table({ columns: [...columns], rows: [[csvNumber(3), csvStatus("unit not stated")]] })));
+    expect(rows[12]).toEqual(["3", "unit not stated"]);
+  });
+
   it("refuses a numeric column with no unit, both units, or a unit column that is not one", () => {
     for (const column of [
       { kind: "number", label: "UX" },
@@ -222,6 +231,11 @@ describe("CSV absent values", () => {
     for (const cell of absent) {
       expect(() => serializeCsvTable(table({ rows: [[csvText("10"), cell as CsvCell, csvText("x")]] })), JSON.stringify(cell)).toThrowError(CsvSerializationError);
     }
+    // A sparse row (an array hole) is a missing cell, not an empty field.
+    const sparse = new Array<CsvCell>(3);
+    sparse[0] = csvText("10");
+    sparse[2] = csvText("x");
+    expect(() => serializeCsvTable(table({ rows: [sparse] }))).toThrowError(/CSV_CELL_KIND_INVALID/);
     // A row with too few cells cannot leave a numeric field empty either.
     expect(() => serializeCsvTable(table({ rows: [[csvText("10")]] }))).toThrowError(/CSV_ROW_WIDTH/);
     const text = serializeCsvTable(table({
@@ -240,8 +254,8 @@ describe("CSV absent values", () => {
 });
 
 describe("CSV formula guard", () => {
-  it("prefixes ' to text beginning with =, +, -, @, TAB or CR, in cells, headers and preamble values", () => {
-    for (const lead of ["=", "+", "-", "@", "\t", "\r"]) {
+  it("prefixes ' to text beginning with =, +, -, @, TAB, CR, LF or a full-width ＝ ＋ － ＠, in cells, headers and preamble values", () => {
+    for (const lead of ["=", "+", "-", "@", "\t", "\r", "\n", "\uFF1D", "\uFF0B", "\uFF0D", "\uFF20"]) {
       const label = `${lead}SUM(A1:A2)`;
       expect(neutralizeCsvText(label)).toBe(`'${label}`);
       const rows = parse(serializeCsvTable(table({

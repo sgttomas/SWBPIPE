@@ -125,7 +125,9 @@ export function csvExportFileName(kind: string, qualifier?: string): string {
   return `${name}.csv`;
 }
 
-const FORMULA_LEADING = new Set(["=", "+", "-", "@", "\t", "\r"]);
+// The ASCII starters, LF, and their full-width forms (U+FF1D, U+FF0B, U+FF0D, U+FF20), which some
+// spreadsheet locales also read as a formula start.
+const FORMULA_LEADING = new Set(["=", "+", "-", "@", "\t", "\r", "\n", "\uFF1D", "\uFF0B", "\uFF0D", "\uFF20"]);
 const LONE_SURROGATE = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/;
 
 /** Formula guard: a text that a spreadsheet would read as a formula gets a leading `'`. */
@@ -222,6 +224,10 @@ function cellField(cell: CsvCell, column: CsvColumn, where: string): string {
       return textField(required(cell.reason, `${where} status reason`), where);
     case "text":
       if (column.kind === "number") throw new CsvSerializationError("CSV_CELL_KIND_INVALID", `${where}: a numeric column takes numbers or status cells`);
+      // A per-row unit is stated, or the row carries a status saying why it is missing (R3, R11).
+      if (column.kind === "unit" && (typeof cell.text !== "string" || cell.text.trim() === "")) {
+        throw new CsvSerializationError("CSV_UNIT_EMPTY", `${where}: a unit cell states its unit, or is a status cell`);
+      }
       return textField(cell.text, where);
     default:
       throw new CsvSerializationError("CSV_CELL_KIND_INVALID", `${where} is not a CSV cell`);
@@ -247,7 +253,12 @@ export function serializeCsvTable(table: CsvTable): string {
     if (!Array.isArray(row) || row.length !== columns.length) {
       throw new CsvSerializationError("CSV_ROW_WIDTH", `row ${rowIndex} has ${columns.length} cells`);
     }
-    lines.push(row.map((cell, index) => cellField(cell, columns[index], `row ${rowIndex} column ${index}`)).join(","));
+    // Every column index, holes included (`map` would skip a hole and leave an empty field).
+    const fields: string[] = [];
+    for (let index = 0; index < columns.length; index += 1) {
+      fields.push(cellField(row[index], columns[index], `row ${rowIndex} column ${index}`));
+    }
+    lines.push(fields.join(","));
   });
   return CSV_BOM + lines.map((line) => line + CSV_ROW_END).join("");
 }

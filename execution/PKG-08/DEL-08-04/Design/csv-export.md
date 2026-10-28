@@ -102,7 +102,8 @@ tree, the library, units and split into parts.
   RT-R3 wording reaches the CSV with no separate change. Rule packs appear by
   identifier, version and checksum only (R8).
 - **Formula neutralization.** A text cell that begins with `=`, `+`, `-`, `@`,
-  TAB or CR gets a leading apostrophe. Numbers are written as numbers, so a
+  TAB, CR, LF or a full-width `＝`, `＋`, `－` or `＠` gets a leading
+  apostrophe. Numbers are written as numbers, so a
   negative value is unchanged. Labels can come from an imported MBF, so they
   are treated as untrusted.
 - **Determinism.** Identical source data, provenance and table settings give
