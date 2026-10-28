@@ -59,9 +59,11 @@ A model solves on one of two routes:
 
 **What you can do today**, with invented data or your own private data:
 
-- **Projects.** Use File › Open Model Document…, New Blank Project or New
-  Local Project to start. Save Local Project writes the project to the local
-  store (§3.2), and Open Local Project… reopens it.
+- **Projects.** Use File › New Blank Project (an empty model) or Open Model
+  Document… to start. Save Local Project writes the project to the local
+  store (§3.2), and Open Local Project… reopens it. Save as New Local Project
+  stores the model on screen as a local project of its own; it does not start
+  an empty model.
 - **Authoring.** Place nodes and pipes in the 3D viewport. Assign materials and
   sections, and add bends, expansion joints, supports, load cases and
   combinations. Each edit is a validated operation that you can review and
@@ -307,8 +309,8 @@ When a required value is missing:
 
 In the desktop app the workflow is:
 
-1. Start a project: File › Open Model Document…, New Blank Project or New
-   Local Project. The project lives in the local SQLite store (§3.2). Storage
+1. Start a project: File › New Blank Project (an empty model) or Open Model
+   Document…. The project lives in the local SQLite store (§3.2). Storage
    roots for other operating systems and a portable project export/copy
    remain `TBD`.
 2. Choose the units. New Blank Project opens a units dialog: SI (the

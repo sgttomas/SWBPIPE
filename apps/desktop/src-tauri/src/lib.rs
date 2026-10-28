@@ -4515,6 +4515,24 @@ fn restore_native_check_item_after_activation<R: tauri::Runtime>(
     }
 }
 
+/// The native File menu, top to bottom, as the in-DOM File menu (`App.tsx`):
+/// `(command id, label, accelerator)`, `None` a separator. New Blank Project
+/// is the one "new" (an empty model). `file.new-local` stores the working
+/// model itself as a local project, so it is labelled and placed as a save.
+const NATIVE_FILE_MENU: &[Option<(&str, &str, Option<&str>)>] = &[
+    Some(("file.new-blank", "New Blank Project", None)),
+    None,
+    Some(("file.open-model", "Open Model Document…", None)),
+    Some(("file.open-local", "Open Local Project…", None)),
+    Some(("file.list-local", "List Local Projects", None)),
+    None,
+    Some(("file.save-local", "Save Local Project", None)),
+    Some(("file.new-local", "Save as New Local Project", None)),
+    Some(("file.save-model-document", "Save Model Document…", None)),
+    Some(("file.save-handoff", "Save Handoff…", None)),
+    Some(("file.save-report-package", "Save Report Package…", None)),
+];
+
 // Native macOS menu bar (TP-R3UX-CADSHELL). Each custom item carries the same
 // command id the in-DOM menu uses; on click the backend injects one typed DOM
 // event into the main webview, where the React command sink dispatches it.
@@ -4527,19 +4545,19 @@ fn build_app_menu<R: tauri::Runtime>(
         .quit()
         .build()?;
 
-    let file = SubmenuBuilder::new(handle, "File")
-        .text("file.new-local", "New Local Project")
-        .text("file.new-blank", "New Blank Project")
-        .separator()
-        .text("file.open-model", "Open Model Document…")
-        .text("file.open-local", "Open Local Project…")
-        .text("file.list-local", "List Local Projects")
-        .separator()
-        .text("file.save-local", "Save Local Project")
-        .text("file.save-model-document", "Save Model Document…")
-        .text("file.save-handoff", "Save Handoff…")
-        .text("file.save-report-package", "Save Report Package…")
-        .build()?;
+    let mut file = SubmenuBuilder::new(handle, "File");
+    for entry in NATIVE_FILE_MENU {
+        file = match entry {
+            None => file.separator(),
+            Some((id, label, None)) => file.text(*id, *label),
+            Some((id, label, Some(accelerator))) => file.item(
+                &MenuItemBuilder::with_id(*id, *label)
+                    .accelerator(*accelerator)
+                    .build(handle)?,
+            ),
+        };
+    }
+    let file = file.build()?;
 
     let edit = SubmenuBuilder::new(handle, "Edit")
         .text("edit.undo", "Undo Model Edit")
@@ -5723,6 +5741,19 @@ mod tests {
         assert_eq!(evidence["solve"]["fresh_resolve_matches_saved_result_rows"], json!(true));
         assert_eq!(evidence["solve"]["analytical_witnesses"].as_array().unwrap().len(), 3);
         assert_eq!(evidence["boundary"]["repository_write"], json!(false));
+    }
+
+    #[test]
+    fn native_file_menu_offers_new_blank_as_the_only_new_and_names_new_local_a_save() {
+        let items: Vec<(&str, &str)> = NATIVE_FILE_MENU
+            .iter()
+            .flatten()
+            .map(|(id, label, _)| (*id, *label))
+            .collect();
+        assert_eq!(items.first(), Some(&("file.new-blank", "New Blank Project")));
+        assert!(items.iter().all(|(_, label)| !label.starts_with("New ") || *label == "New Blank Project"));
+        let save = items.iter().position(|(id, _)| *id == "file.save-local").unwrap();
+        assert_eq!(items[save + 1], ("file.new-local", "Save as New Local Project"));
     }
 
     #[test]

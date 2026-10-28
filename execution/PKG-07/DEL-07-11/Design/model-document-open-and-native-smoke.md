@@ -135,8 +135,9 @@ export use their existing routes unchanged.
   that replaces the working model asks first while the model has edits no save
   holds (the toolbar's "Edited"). These are Open Local Project, opening a
   project from the index, Open Model Document…, New Blank and the blank
-  load/reference model, and Open State (W-12). New Local Project saves the
-  working model, so it does not ask.
+  load/reference model, and Open State (W-12). Save as New Local Project
+  (`file.new-local`, labelled New Local Project before W-17) saves the working
+  model, so it does not ask.
   - **The prompt.** `UnsavedChangesPrompt` (`unsavedChangesGuard.ts`) is one
     modal alert dialog for every such command. It is modal as the replace
     prompt is, and sets its focus and key hold in a layout effect.
@@ -270,7 +271,7 @@ It also checks:
 - the proof hash against its own JCS hash of each file;
 - each saved model against the opened document;
 - the replace prompt, as named observations. In phase 1:
-  - a second New Local Project of the milestone prompts, and Cancel keeps the
+  - a second Save as New Local Project of the milestone prompts, and Cancel keeps the
     stored project;
   - Save as a new project stores the copy, which differs from the stored
     original in `project.id` alone, and its solve proof carries the copy's own
