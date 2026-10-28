@@ -71,6 +71,11 @@ export type RunSheetRowInput = {
   storedEndId?: string;
   /** An applied bend row's own pipe end, its stored incoming tangent point (the readouts). */
   storedPipeEnd?: Vec3;
+  /** An applied bend row whose outgoing tangent node no longer exists (its id): the row has no
+   * point to continue from, and the removed corner is never resolved in its place. */
+  storedEndMissing?: string;
+  /** An applied bend row whose incoming tangent node no longer exists: it has no length readout. */
+  storedPipeEndMissing?: string;
 };
 
 export type RunSheetNumbering = { nodePrefix: string; pipePrefix: string; start: number; step: number };
@@ -146,6 +151,8 @@ export type ResolvedRunSheetRow = {
   labels: { pipe?: string; support?: string };
   support: { family: string; restraints: string[] } | null;
   bend: { radius: Quantity; k: number; kSource: string } | null;
+  /** The id of an applied bend's outgoing tangent node that no longer exists. */
+  endMissing?: string;
   refusals: RunSheetFinding[];
   warnings: RunSheetFinding[];
 };
@@ -210,6 +217,8 @@ export const MESSAGES = {
   bendCornerPipes: (count: number) => `A bend corner joins exactly two pipes; this one would join ${count}.`,
   bendRadius: "Enter a positive bend radius R.",
   bendK: "Enter k and its source for this bend; none is suggested.",
+  bendOutgoingMissing: (id: string) => `The bend's outgoing point ${id} no longer exists.`,
+  bendIncomingMissing: (id: string) => `The bend's incoming point ${id} no longer exists.`,
   notChecked: "Not checked: an earlier row is refused.",
 } as const;
 
@@ -454,6 +463,8 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
       } else if (predecessor?.kind === "support" && predecessor.start) {
         start = predecessor.start;
         startPosition = predecessor.startPosition;
+      } else if (predecessor?.endMissing) {
+        refusals.push({ rule: "no-current-node", message: `${MESSAGES.bendOutgoingMissing(predecessor.endMissing)} Start this chain again with F.` });
       } else {
         refusals.push({ rule: "no-current-node", message: MESSAGES.noCurrentNode });
       }
@@ -608,6 +619,9 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
           // An applied row: its stored end, not the sum of its historical increments (§3.4).
           const id = text(raw.storedEndId) || text(overrides.node) || derivedIds?.node || "";
           end = { id, position: { x: normalizeZero(raw.storedEnd.x), y: normalizeZero(raw.storedEnd.y), z: normalizeZero(raw.storedEnd.z) }, existing: false };
+        } else if (raw.storedEndMissing) {
+          // An applied bend whose outgoing tangent is gone: no end, never the removed corner.
+          end = null;
         } else if (increments) {
           if (increments.x === 0 && increments.y === 0 && increments.z === 0) refusals.push({ rule: "zero-length", message: MESSAGES.zeroLength });
           const converted = convertAll(increments);
@@ -626,7 +640,7 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
           }
         }
       }
-      const pipeEnd = raw.storedPipeEnd ?? end?.position;
+      const pipeEnd = raw.storedPipeEndMissing ? undefined : raw.storedPipeEnd ?? end?.position;
       if (pipeEnd && startPosition) length = Math.hypot(pipeEnd.x - startPosition.x, pipeEnd.y - startPosition.y, pipeEnd.z - startPosition.z);
     }
 
@@ -722,13 +736,14 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
       if (k === null || k <= 0 || !kSource) refusals.push({ rule: "bend", column: "k", message: MESSAGES.bendK });
       if (supportText) refusals.push({ rule: "bend", column: "Support", message: MESSAGES.bendSupport });
       // The bend's ids follow its corner; an applied bend row's end is its outgoing tangent point.
-      const corner = raw.storedEndId ? ids.node || end?.id : end?.id;
+      const corner = raw.storedEndId || raw.storedEndMissing ? ids.node || end?.id : end?.id;
       if (corner) ids.bend = bendIdsFor(corner);
       if (radius.value && radius.value.value > 0 && k !== null && k > 0 && kSource) bend = { radius: radius.value, k, kSource };
     }
 
     const row: ResolvedRunSheetRow = {
       key: raw.key, number, kind, start, startPosition, end, increments, length, cells, label, ids, labels, support, bend, refusals, warnings,
+      ...(raw.storedEndMissing ? { endMissing: raw.storedEndMissing } : {}),
     };
     rows.push(row);
     if (end && !end.existing && (kind === "run" || kind === "bend" || kind === "point") && end.id) drafted.set(end.id, row);

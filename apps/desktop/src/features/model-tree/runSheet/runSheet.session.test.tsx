@@ -4,14 +4,14 @@
 // Notify for apply, Undo and Redo; the apply order and the retirement of stale
 // registrations; withdrawal; abandonment; Open State's history reset; and the
 // ledger's transitions. Invented S1 fixture model.
-import { act, renderHook, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, renderHook, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 
 import fixtureJson from "../../../../../../fixtures/model_operations/run_sheet_authoring.json";
-import { computeModelHash } from "../../../services/hashService";
+import { canonicalJsonString, computeModelHash } from "../../../services/hashService";
 import * as operationBatchService from "../../../services/operationBatchService";
 import * as previewService from "../../../services/previewService";
 import type { PreviewModel } from "../../../types";
@@ -24,6 +24,10 @@ import { RETIRED_BATCH_NOTICE, useWorkspaceSession } from "../../workspace/works
 import * as ledger from "./runSheetLedger";
 import { initialRunSheetState, type RunSheetState } from "./runSheetLedger";
 import { useRunSheetStore } from "./runSheetStore";
+import { RunSheet } from "./RunSheet";
+import { buildDeleteNodeIntent, buildDeletePipeIntent } from "../removalIntents";
+import type { EditorOperationIntent } from "../../../types";
+import { useModelledVisibility } from "../../../test-support/modelledVisibility";
 import { assignIds, buildDraftBatch, markSubmitted, setCell, sheetView, type SheetColumnKey } from "./runSheetView";
 
 const fixture = fixtureJson as unknown as { basis_model: PreviewModel };
@@ -410,6 +414,108 @@ describe("run sheet ledger (§3.6 Transitions), pure", () => {
     expect(ledger.reconcileRunSheet(state, () => undefined).get("a")).toMatchObject({ status: "detached", changed: ["node:A1"] });
     const tomb: RunSheetState = { ...state, ledger: { ...state.ledger, records: [{ ...state.ledger.records[0], rowEntries: { a: { ...state.ledger.records[0].rowEntries.a, removedIds: [{ type: "support", id: "support:S" }], expected: [...state.ledger.records[0].rowEntries.a.expected, { ref: { type: "support", id: "support:S" }, record: null }] } } }] } };
     expect(ledger.reconcileRunSheet(tomb, (ref) => ref.type === "support" ? { id: "support:S" } : record).get("a")).toMatchObject({ status: "detached", restoredOutside: ["support:S"] });
+  });
+});
+
+describe("run sheet S2: a bend whose tangent node was deleted outside the sheet (Codex r3 P2)", () => {
+  useModelledVisibility();
+  const handle: { session: ReturnType<typeof useWorkspaceSession> | null; store: ReturnType<typeof useRunSheetStore> | null } = { session: null, store: null };
+  function Rendered() {
+    const session = useWorkspaceSession();
+    const store = useRunSheetStore(session.operations.sessionEvents, session.model.activeModelIndex, session.model.model?.project.id ?? null);
+    handle.session = session;
+    handle.store = store;
+    return session.model.model ? <RunSheet host={{ store, queuedBatches: session.operations.queuedBatches, editorIntents: session.operations.editorIntents, registerBatch: session.operations.registerOperationBatch }} model={session.model.model} /> : null;
+  }
+  const result = { get current() { return { session: handle.session!, store: handle.store! }; } } as unknown as Harness;
+  const cell = (row: string, column: string) => screen.getByTestId(`run-sheet-cell-${row}-${column}`);
+  /** F node:A; a bend run of dX 10 (corner (10, 0, 0), R 1; tangents (9, 0, 0) and (10, 1, 0)); a run of dY 10. */
+  async function appliedBend() {
+    vi.spyOn(previewService, "loadPreviewModel").mockResolvedValue(structuredClone(fixture.basis_model));
+    render(<Rendered />);
+    await waitFor(() => expect(handle.session?.model.model).toBeTruthy());
+    const batchId = await queueRows(result, [
+      { kind: "F", node: "node:A" },
+      { kind: "B", dx: "10", od: "0.1143", wall: "0.00602", material: "material:steel", orientation: "0 0 1", bendRadius: "1", k: "1.5", kSource: "invented k" },
+      { dy: "10" },
+    ]);
+    await act(async () => { await result.current.session.operations.handleRunOperationBatch(entryOf(result, batchId), false); });
+    await apply(result, batchId);
+    expect(statusList(result)).toEqual(["applied", "applied", "applied"]);
+  }
+  /** Delete the named entities on another surface, in one batch: the component, then pipes, then nodes. */
+  async function deleteOutside(pipes: string[], nodes: string[]) {
+    const model = result.current.session.model.model!;
+    const component = model.components.find((item) => item.id === "component:N20-bend")!;
+    const operations: EditorOperationIntent[] = [{
+      ...buildDeletePipeIntent(model.pipe_segments[0], model), operation_id: "op:delete-bend-component",
+      target: { object_type: "Component", ref: component.id },
+      change: { ...buildDeletePipeIntent(model.pipe_segments[0], model).change, change_id: "change:delete-bend-component", change_kind: "delete_component", field_path: "components", before: await canonicalJsonString(component), after: "deleted" },
+    } as EditorOperationIntent];
+    for (const id of pipes) operations.push(buildDeletePipeIntent(model.pipe_segments.find((pipe) => pipe.id === id)!, model));
+    for (const id of nodes) operations.push(buildDeleteNodeIntent(model.nodes.find((node) => node.id === id)!, model));
+    await act(async () => { await result.current.session.operations.handleQueueOperationBatch({ batch_id: "batch:outside-delete", operations }); });
+    await apply(result, "batch:outside-delete");
+    expect(result.current.session.operations.undoStack[0].operation_id).toBe("batch:outside-delete");
+    for (const id of nodes) expect(result.current.session.model.model!.nodes.some((node) => node.id === id)).toBe(false);
+  }
+  const startBranch = () => {
+    act(() => cell("r2", "dx").focus());
+    fireEvent.keyDown(cell("r2", "dx"), { key: "F10", shiftKey: true });
+    return within(screen.getByRole("menu")).getByText("Start branch here").closest("[role='menuitem']") as HTMLElement;
+  };
+  const MISSING_OUT = "The bend's outgoing point node:N20-T2 no longer exists.";
+  const MISSING_IN = "The bend's incoming point node:N20-T1 no longer exists.";
+
+  it("incoming tangent deleted: the bend row never shows its corner; the chain still continues from the stored outgoing tangent", async () => {
+    await appliedBend();
+    await deleteOutside(["pipe:N20-bend", "pipe:P20"], ["node:N20-T1"]);
+    expect(statusList(result)).toEqual(["applied", "detached", "applied"]);
+    expect(cell("r2", "position")).toBeEmptyDOMElement();
+    expect(cell("r2", "position")).toHaveAccessibleDescription(new RegExp(MISSING_IN));
+    expect(cell("r2", "dx")).toHaveAccessibleName("Row 2 dX:");
+    expect(cell("r2", "dx")).toHaveAccessibleDescription(new RegExp(MISSING_IN));
+    expect(cell("r3", "dy")).toHaveAccessibleName("Row 3 dY: 9 m");
+    fireEvent.click(startBranch());
+    const branch = screen.getAllByTestId(/^run-sheet-row-r\d+$/).at(-1)!.dataset.testid!.replace("run-sheet-row-", "");
+    expect(cell(branch, "node")).toHaveTextContent("node:N20-T2");
+  });
+
+  it("outgoing tangent deleted: Start branch here is unavailable, the following row reads no point from the corner, and a continuation is refused", async () => {
+    await appliedBend();
+    await deleteOutside(["pipe:N20-bend", "pipe:P30"], ["node:N20-T2"]);
+    expect(statusList(result)).toEqual(["applied", "detached", "detached"]);
+    const item = startBranch();
+    expect(item).toHaveAttribute("aria-disabled", "true");
+    expect(screen.getByRole("menu")).toHaveTextContent(MISSING_OUT);
+    fireEvent.keyDown(screen.getByRole("menu"), { key: "Escape" });
+    expect(cell("r2", "position")).toHaveTextContent("9, 0, 0");
+    expect(cell("r3", "dy")).toHaveAccessibleName("Row 3 dY:");
+    expect(cell("r3", "dy")).toHaveAccessibleDescription(new RegExp(MISSING_OUT));
+    // Remove row 3 from the sheet; a draft row after the bend is refused, and resolves no position.
+    act(() => cell("r3", "dx").focus());
+    fireEvent.keyDown(cell("r3", "dx"), { key: "F10", shiftKey: true });
+    fireEvent.click(within(screen.getByRole("menu")).getByText("Remove from sheet").closest("[role='menuitem']")!);
+    fireEvent.click(screen.getByTestId("run-sheet-add-row"));
+    const next = screen.getAllByTestId(/^run-sheet-row-r\d+$/).at(-1)!.dataset.testid!.replace("run-sheet-row-", "");
+    act(() => cell(next, "dx").focus());
+    fireEvent.keyDown(cell(next, "dx"), { key: "1" });
+    fireEvent.change(within(cell(next, "dx")).getByRole("textbox"), { target: { value: "1" } });
+    fireEvent.keyDown(within(cell(next, "dx")).getByRole("textbox"), { key: "Tab" });
+    expect(cell(next, "position")).toBeEmptyDOMElement();
+    expect(screen.getByTestId(`run-sheet-row-header-${next}`)).toHaveAccessibleName(new RegExp(`^Row 3, run, draft, refused: the bend's outgoing point node:N20-T2 no longer exists`));
+  });
+
+  it("both tangents deleted: no readout from the corner, Start branch here unavailable, the following row reads no point", async () => {
+    await appliedBend();
+    await deleteOutside(["pipe:N20-bend", "pipe:P20", "pipe:P30"], ["node:N20-T1", "node:N20-T2"]);
+    expect(statusList(result)).toEqual(["applied", "detached", "detached"]);
+    expect(cell("r2", "position")).toBeEmptyDOMElement();
+    expect(cell("r2", "dx")).toHaveAccessibleName("Row 2 dX:");
+    expect(cell("r3", "dy")).toHaveAccessibleName("Row 3 dY:");
+    const item = startBranch();
+    expect(item).toHaveAttribute("aria-disabled", "true");
+    expect(screen.getByRole("menu")).toHaveTextContent(MISSING_OUT);
   });
 });
 

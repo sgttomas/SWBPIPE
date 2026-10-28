@@ -377,6 +377,16 @@ end, including after an outside move that Adopt current values accepts.
   resolved.
 - The bend's T1, T2, arc and component stay resolvable as stored records, so
   an `F` row may name either tangent node.
+- Each tangent point is read on its own. If one was deleted outside the
+  sheet, the row is `detached`, and what that tangent gave is shown as missing
+  ("The bend's outgoing point ⟨id⟩ no longer exists"), never replaced by the
+  corner.
+  - Without T1, the row has no position or increment readout.
+  - Without T2, Start branch here is unavailable, the following row has no
+    increment readout, and a draft row after the bend is refused with that
+    reason.
+  - On any applied row, Start branch here is unavailable once the row's end
+    node no longer exists.
 
 **Ownership.** Each applied row records the ids its applied batches created,
 in its history (§3.6). A row **owns** exactly those entities:

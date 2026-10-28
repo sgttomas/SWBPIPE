@@ -15,7 +15,7 @@ import { ContextMenu, isContextMenuKey, keyboardMenuRequest, type ContextMenuEnt
 import type { ViewportViewCommand } from "../../viewport/viewportSelection";
 import { mapOutcomeToRows } from "./runSheetBatch";
 import { adoptCurrentValues, applySessionEvent, currentEntry, reconcileRunSheet, removeRowFromSheet, type RunSheetState } from "./runSheetLedger";
-import { KIND_CODES, QUANTITY_COLUMNS, SUPPORT_CODES, reservedOperationIds, type QuantityColumn, type RunSheetFinding } from "./runSheetModel";
+import { KIND_CODES, MESSAGES, QUANTITY_COLUMNS, SUPPORT_CODES, reservedOperationIds, type QuantityColumn, type RunSheetFinding } from "./runSheetModel";
 import type { RunSheetStore } from "./runSheetStore";
 import {
   CODE_LISTS, FAST_PATH, SHEET_COLUMNS, assignIds, buildDraftBatch, cellName, cellView, deleteDraftRow, discardEdit, effectiveText, insertRow,
@@ -447,9 +447,7 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
         const end = row.resolved.end?.id ?? "";
         store.update((current) => assignIds(setCell(setCell(current, key, "kind", "F"), key, "node", end), key, model, reservedIds));
         setVersion((value) => value + 1);
-      }, row.resolved.kind === "bend" && row.status !== "applied" && row.status !== "detached"
-        ? "A bend's corner is replaced by its tangent points when it is applied; start a branch from the applied bend."
-        : row.resolved.end?.id ? null : "This row has no end node yet."),
+      }, startBranchReason(row, store.lookup)),
       command("fit-row", "Fit row in viewport", () => {
         const pipe = row.resolved.ids.pipe;
         const node = row.resolved.end?.id;
@@ -618,6 +616,17 @@ function engineFindings(checks: ReturnType<typeof mapOutcomeToRows>, batchDiagno
   const blocking = batchDiagnostics.filter((item) => item.severity === "blocking");
   if (blocking.length && firstRow) out.set(firstRow, [...(out.get(firstRow) ?? []), ...blocking.map((item) => ({ rule: "incomplete" as const, message: `${item.code}: ${item.message}` }))]);
   return out;
+}
+
+/** Why Start branch here is unavailable on a row, or null: never a node that does not exist. */
+function startBranchReason(row: ViewRow, lookup: RunSheetStore["lookup"]): string | null {
+  const applied = row.status === "applied" || row.status === "detached";
+  if (row.resolved.kind === "bend" && !applied) return "A bend's corner is replaced by its tangent points when it is applied; start a branch from the applied bend.";
+  if (row.resolved.endMissing) return MESSAGES.bendOutgoingMissing(row.resolved.endMissing);
+  const end = row.resolved.end?.id;
+  if (!end) return "This row has no end node yet.";
+  if (applied && lookup({ type: "node", id: end }) === undefined) return `Node ${end} no longer exists in the model.`;
+  return null;
 }
 
 function typedText(row: ViewRow | undefined, column: SheetColumnKey): string {
