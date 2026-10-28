@@ -242,6 +242,7 @@ def _judge_collection(route, set_path, raw_paths, variant, workers, runner_sha, 
            "design_pass": design_pass, "design_failing_records": len(design_failing), "nonvacuity": nv, "records": len(records),
            "info_records": dict(collections.Counter(c for r in records for c in (r.get("info") or {}))),
            "c4_failures": sum(1 for r in records if (r.get("verdict_failures") or {}).get("C4")),
+           "c4x_runs": sorted([r["tag"], r["mode"]] for r in records if (r.get("info") or {}).get("C4x")),
            "runner_errors": len(errored), "schema_invalid": len(invalid), "set_aside": set_aside,
            "contracts": dict(collections.Counter(v.contract for v in successful if v.contract)),
            "schema_problems": sorted({p for _, ps in invalid for p in ps})[:20]}
@@ -352,6 +353,10 @@ def report(route, set_path, raw_paths, variant="own", workers=6, runner_sha=None
     say(f"NONVACUITY VERDICT (judged groups on Passed cases > 0 overall and in every family): {'PASS' if nv['pass'] else 'FAIL'}"
         + (f" (vacuous: {nv['vacuous_families']})" if nv["vacuous_families"] else ""))
     say(f"information clauses, records raising each: {dict(sorted(out['info_records'].items()))}")
+    if out["c4x_runs"]:
+        say(f"  C4x (typed/captured disagreement across two contracts; information), {len(out['c4x_runs'])} captured runs:")
+        for tag, mode in out["c4x_runs"]:
+            say(f"    {tag} {mode}")
     if out["info_records"].get("C11tau_b"):
         say("  C11tau_b is the known tau_v,max defect on main (RN(1 + nu_d) cancels as E/(2G) -> 0), ruled by Agent 0 a separate correction (option (b))")
     if json_out:

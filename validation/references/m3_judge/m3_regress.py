@@ -31,6 +31,14 @@ RECOVERY_TEMPLATE = "pressure_source_plain_n05_sparse.stress_neutral.json"
 READ_EXTREMUM = ("pipe_id", "result_id", "section_basis", "value_lower_pa", "value_upper_pa")
 
 
+def mutate_both(runs, *fs):
+    xs = copy.deepcopy(runs)
+    for r in xs:
+        for f in fs:
+            f(r)
+    return xs
+
+
 def source_recovery(r):
     """A synthetic exact record as pressure-source-1 publishes it: retained-source maximum rows and the recovery evidence
     of an ordinary model (physics_source_recovery.schema.json). The members the judge reads (READ_EXTREMUM, and each case's
@@ -737,6 +745,49 @@ def collection_scenarios(check):
                    lambda j: schema(j) and not j.get("contracts"), "refused by the view", route="exact")
         judge_runs(9, "exact view: pressure-2's evidence on rows of pressure-source-1", "exact_pressure_2_evidence_under_pressure_source_1", ex_own,
                    mut(xe, retained), False, lambda j: schema(j) and not j.get("contracts"), "refused by the view", route="exact")
+        # ---- round 10 (Agent 0, a criterion change after the 0.8.0 re-judge): C4 within one contract, C4x (information)
+        # across two; each entry still judged against its own reference
+        def rec_of(path, tag, entry, mode):
+            return next(r for r in (m3_json.strict_loads(x) for x in open(path)) if (r["tag"], r["entry"], r["mode"]) == (tag, entry, mode))
+
+        def half_top(r):
+            top = max((x for x in r["results"] if x["kind"].startswith("global_nodal_displacement_")), key=lambda x: abs(x["value"]))
+            top["value"] *= 0.5
+        sens_at = lambda tag, entry: (lambda r: r["tag"] == tag and r["entry"] == entry and r["mode"] == MV.MODES[0] and sens(r))
+        for case, st, runs_, route, tag in (("pf_same_contract_c4", one, four, "pf", codex["tag"]),
+                                            ("exact_same_contract_pressure_2_c4", ex_own, xe, "exact", pres["tag"]),
+                                            ("exact_same_contract_pressure_source_1_c4", ex_own, rx, "exact", pres["tag"])):
+            ev10 = T(case + ".eval.jsonl")
+            judge_runs(10, "a same-contract typed/captured disagreement (typed Passed, captured Sensitive)", case, st, mut(runs_, sens_at(tag, "captured")),
+                       False,
+                       lambda j, ev10=ev10, tag=tag: m3(j) and j["c4_failures"] == 1 and not j["c4x_runs"]
+                       and rec_of(ev10, tag, "captured", MV.MODES[0])["verdict_failures"] == {"C4": 1},
+                       "M3: C4", route=route, eval_out=ev10)
+        # pres: typed under pressure-2, captured under pressure-source-1 (the product's split, CLM-003); plain unchanged
+        npx = sum(1 for r in xe if r["tag"] == pres["tag"])
+        mixed = [r if r["entry"] == "typed" or r["tag"] != pres["tag"] else s_ for r, s_ in zip(xe, rx)]
+        assert npx == 4 and sum(r["tag"] == pres["tag"] and r["entry"] == "captured" for r in mixed) == 2
+        cap_sens, typ_sens = sens_at(pres["tag"], "captured"), sens_at(pres["tag"], "typed")
+        cross_ok = lambda j: (j["c4_failures"] == 0 and j["c4x_runs"] == [[pres["tag"], MV.MODES[0]]]
+                                 and j.get("contracts") == {p2_id: 6, ps1_id: 2} and j.get("schema_invalid", 0) == 0)
+        judge_runs(10, "exact view: a cross-contract pair, its captured Sensitive (C4x information)", "exact_cross_contract_c4x", ex_own,
+                   mut(mixed, cap_sens), True, cross_ok, "C4x listed; no C4", route="exact")
+        judge_runs(10, "exact view: a cross-contract pair, its typed Sensitive (C4x information)", "exact_cross_contract_c4x_typed_sensitive",
+                   ex_own, mut(mixed, typ_sens), True, cross_ok, "C4x listed; no C4", route="exact")
+        refuse_typed = lambda r: r["tag"] == pres["tag"] and r["entry"] == "typed" and r["mode"] == MV.MODES[0] and r.update(
+            diagnostics=[S.diag(sorted(MV.REFUSALS["exact"])[0], "blocking")], results=[], results_count=0, summary=None, contract_evidence=None)
+        judge_runs(10, "exact view: a refused typed entry beside a pressure-source-1 captured one (a refusal has no contract)",
+                   "exact_refusal_beside_pressure_source_1_c4", ex_own, mut(mixed, refuse_typed), False,
+                   lambda j: m3(j) and j["c4_failures"] == 1 and not j["c4x_runs"], "M3: C4, not C4x", route="exact")
+        for case, standing, defect_entry in (("exact_cross_contract_c3_on_typed", cap_sens, "typed"),
+                                             ("exact_cross_contract_c3_on_captured", typ_sens, "captured")):
+            ev10 = T(case + ".eval.jsonl")
+            hit = lambda r, e=defect_entry: r["tag"] == pres["tag"] and r["entry"] == e and r["mode"] == MV.MODES[0] and half_top(r)
+            judge_runs(10, f"exact view: a C4x pair whose Passed {defect_entry} entry halves its largest displacement", case, ex_own,
+                       mutate_both(mixed, standing, hit), False,
+                       lambda j, ev10=ev10, e=defect_entry: m3(j) and j["c4_failures"] == 0 and j["c4x_runs"] == [[pres["tag"], MV.MODES[0]]]
+                       and "C3" in rec_of(ev10, pres["tag"], e, MV.MODES[0])["verdict_failures"],
+                       f"M3: C3 on the {defect_entry} entry, judged against its own reference; C4x still listed", route="exact", eval_out=ev10)
         # ---- round 7 (Codex at cb60446a01): index flags hid an edited manifest; it is now read from HEAD's blob (Agent 0)
         jr = T("r7-judge-repo")
         rel_j = os.path.join("projects", "chirality-piping", "validation", "references", "m3_judge")

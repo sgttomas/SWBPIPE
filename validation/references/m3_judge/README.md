@@ -197,6 +197,16 @@ things:
 - **Standings per load case.** Each load case is judged under its own standing. On these single-case
   sets this is the same as before.
 
+One criterion changed after results were seen (Agent 0, after the 0.8.0 re-judge): **C4 applies only
+when both entries publish under the same contract.** A disagreement between a typed and a captured
+entry under two different contracts is information C4x, counted and listed, and each entry is still
+judged against its own reference. A refusal publishes under no contract and is always compared (C4).
+The reason is the product's design: only the captured entry attempts retained-source recovery
+(pressure-source-1). DEL-04-08 ScopeOfWork CLM-003: "The typed entry
+(`run_linear_static_preview_with_mode`, used by `headless_preview_runner`) has no captured invocation
+and never attempts it"; DEL-04-07 `Design/pressure-contract.md:48`: "The typed entry still attempts no
+retained-source recovery under either contract".
+
 ## Nonvacuity (Agent 0, decided)
 
 The judging pass counts the judged groups on Passed cases, overall and per family, beside the runs,

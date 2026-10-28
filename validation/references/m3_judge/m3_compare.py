@@ -46,7 +46,13 @@ Acceptance, per run (the K-D5 M3 criterion and the soundness of its judging; a r
   null published value on a Passed case.
 - C2 [K-D5 §3.2, §4, §4.3]: 0 strict coverage failures of the circular maxima, on every run with rows.
 - C3 [K-D5 §4.3]: on Passed cases every displacement and rotation group within RD(1e-9) of S*_kind.
-- C4 [K-D5 §4.3; b4]: 0 typed/captured disagreements (standing codes or breach counts).
+- C4 [K-D5 §4.3; b4]: 0 typed/captured disagreements (standing codes or breach counts) between two entries that
+  publish under the same semantic contract. A refusal publishes under none and is always compared. Agent 0, after
+  the 0.8.0 re-judge: a disagreement between entries under two different contracts is information C4x, each entry
+  still judged against its own reference, because only the captured entry attempts retained-source recovery
+  (pressure-source-1): DEL-04-08 ScopeOfWork CLM-003, "The typed entry (`run_linear_static_preview_with_mode`, used
+  by `headless_preview_runner`) has no captured invocation and never attempts it"; DEL-04-07
+  Design/pressure-contract.md:48, "The typed entry still attempts no retained-source recovery under either contract".
 - C6 [M3T2, F3]: on Passed cases, no reference row or maximum unpublished.
 - C8 [M3T2, F1]: on Passed cases, no group the reference itself would judge (factor-2 margin on the floor) left
   unjudged, and no body with a nonzero reference and nothing judged.
@@ -55,7 +61,7 @@ Acceptance, per run (the K-D5 M3 criterion and the soundness of its judging; a r
 Design conformance (separate; PF only): C10 [pf-timoshenko.md §2]: an expected refusal not refused by its named
 code, or an admitted model refused.
 Information (counted, not acceptance): C3lit (C3 against the separate published scales), C4b (typed/captured rows
-differ), C5 (refusal), C6i (unmapped published rows; unpublished or null rows when not Passed), C7 (maximum
+differ), C4x (a typed/captured disagreement between two contracts; see C4), C5 (refusal), C6i (unmapped published rows; unpublished or null rows when not Passed), C7 (maximum
 evidence missing, an enclosure that misses the exact maximum by more than CRIT, a headline that is not the maximum
 of its basis), and on PF: C11 (derived rows beyond 1e-9 of their coupled scale, unpublished, or the tau-domain
 warning differs), C11tau_b (the known tau_v,max defect on main, Agent 0 option (b)) and C11ops (derived rows
@@ -116,6 +122,7 @@ DESIGN = {"C10": "admission differs from pf-timoshenko.md section 2 (PF only)"}
 INFO = {
     "C3lit": "displacement/rotation group beyond 1e-9 of the body's separate published scale (Passed)",
     "C4b": "typed/captured published rows differ",
+    "C4x": "typed/captured disagreement between entries publishing under two different contracts (Agent 0; see C4)",
     "C5": "refused",
     "C6i": "unmapped published rows; unpublished or null rows when not Passed",
     "C7": "maximum evidence missing, exact maximum outside the enclosure, or headline finding",
@@ -592,7 +599,11 @@ def judge_model(model, expected, runs):
                 rec["typed_extra_codes"] = sorted(set(orec["codes"]) - set(rec["codes"]))
                 rec["typed_captured_disagree"] = (orec.get("integrity") != rec.get("integrity") or orec.get("blocking") != rec.get("blocking")
                                                   or len(orec.get("breaches", [])) != len(rec.get("breaches", [])))
-                rec["verdict_failures"]["C4"] = rec["verdict_failures"].get("C4", 0) + int(rec["typed_captured_disagree"])
+                # C4 within one contract; C4x (information) across two. A refusal has no contract and is always C4.
+                cross = other.contract is not None and run.contract is not None and other.contract != run.contract
+                rec["typed_captured_contracts"] = [other.contract, run.contract]
+                clause, bucket = ("C4x", rec["info"]) if cross else ("C4", rec["verdict_failures"])
+                bucket[clause] = bucket.get(clause, 0) + int(rec["typed_captured_disagree"])
                 rec["info"]["C4b"] = rec["info"].get("C4b", 0) + int(not rec["typed_captured_rows_identical"])
         rec.pop("_groups", None)
         rec["meta"] = dict(model.meta)
