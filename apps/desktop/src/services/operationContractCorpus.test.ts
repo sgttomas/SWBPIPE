@@ -68,7 +68,7 @@ const REQUIRED_ACCEPTED_KINDS = [
   "delete_combination_term"
 ] as const;
 
-const EXPECTED_CORPUS_CASES = 84;
+const EXPECTED_CORPUS_CASES = 85;
 
 const REQUIRED_BLOCK_CODES = [
   "OP-TARGET-ALREADY-EXISTS", // duplicate id

@@ -131,6 +131,7 @@ code_paths:
 - apps/desktop/src/features/project-storage/UnsavedChangesPrompt.tsx
 - apps/desktop/src/features/project-storage/unsavedChangesGuard.ts
 - apps/desktop/src/features/project-storage/modalHolds.ts
+- apps/desktop/src-tauri/src/close_guard.rs
 - apps/desktop/src/services/modelDocumentFile.ts
 - apps/desktop/src/services/previewService.ts
 - apps/desktop/src/services/previewService.test.ts
@@ -155,6 +156,8 @@ checks:
 - apps/desktop/src/features/project-storage/replaceProjectPrompt.test.tsx
 - apps/desktop/src/features/project-storage/unsavedChangesPrompt.test.tsx
 - apps/desktop/src/features/project-storage/modalHolds.test.ts
+- apps/desktop/src/features/project-storage/workLossGuards.test.tsx
+- apps/desktop/src-tauri/src/close_guard.rs
 - apps/desktop/src/features/workspace/workspaceSession.shell.test.tsx
 - apps/desktop/src/App.shell.test.tsx
 - apps/desktop/e2e/r2-smoke.spec.ts

@@ -1,4 +1,6 @@
 mod atomic_report_package_save;
+mod autosave;
+mod close_guard;
 mod command_ingress;
 mod exact_source_binding;
 mod export_disposition_screen;
@@ -4515,31 +4517,117 @@ fn restore_native_check_item_after_activation<R: tauri::Runtime>(
     }
 }
 
+/// SWBPIPE › Quit SWBPIPE (⌘Q); handled natively, never sent to the webview
+/// as a menu command.
+const QUIT_MENU_ID: &str = "app.quit";
+
+/// A window close or quit from the user, through the unsaved-changes guard.
+fn request_close<R: tauri::Runtime>(app: &tauri::AppHandle<R>, kind: close_guard::CloseKind) -> bool {
+    let guard = app.state::<close_guard::CloseGuard>();
+    match guard.request(kind) {
+        close_guard::CloseDecision::Proceed => true,
+        close_guard::CloseDecision::Ask { request_id, attempt, kind } => {
+            let asked = app
+                .get_webview_window("main")
+                .map(|webview| webview.eval(&close_guard::close_request_dispatch_script(request_id, attempt, kind)))
+                .is_some_and(|result| result.is_ok());
+            if !asked {
+                // No webview to ask: nothing can show the prompt, so go ahead.
+                eprintln!("close request {request_id}: main webview unavailable; proceeding");
+                if let Some(kind) = guard.abandon_to_proceed(request_id) {
+                    finish_close(app, kind);
+                }
+                return false;
+            }
+            let app = app.clone();
+            std::thread::spawn(move || {
+                std::thread::sleep(close_guard::ACK_TIMEOUT);
+                if let Some(kind) = app.state::<close_guard::CloseGuard>().acknowledgement_deadline(request_id, attempt) {
+                    eprintln!("close request {request_id}: the webview did not acknowledge it; proceeding");
+                    finish_close(&app, kind);
+                }
+            });
+            false
+        }
+    }
+}
+
+/// Closes or quits once the guard approved the request.
+fn finish_close<R: tauri::Runtime>(app: &tauri::AppHandle<R>, kind: close_guard::CloseKind) {
+    match (kind, app.get_webview_window("main")) {
+        (close_guard::CloseKind::Window, Some(window)) => {
+            if let Err(error) = window.destroy() {
+                eprintln!("window close failed: {error}");
+                app.exit(0);
+            }
+        }
+        _ => app.exit(0),
+    }
+}
+
+/// The webview received an attempt of a close request (`close_guard.rs`).
+/// True when the host accepted it; only then may the webview ask the user.
+#[tauri::command]
+fn acknowledge_close_request(app: AppHandle, request_id: u64, attempt: u64) -> bool {
+    app.state::<close_guard::CloseGuard>().acknowledge(request_id, attempt)
+}
+
+/// The user's decision on a close request: `proceed` closes or quits.
+#[tauri::command]
+fn resolve_close_request(app: AppHandle, request_id: u64, proceed: bool) {
+    if let Some(kind) = app.state::<close_guard::CloseGuard>().resolve(request_id, proceed) {
+        finish_close(&app, kind);
+    }
+}
+
+/// The native File menu, top to bottom, as the in-DOM File menu (`App.tsx`):
+/// `(command id, label, accelerator)`, `None` a separator. New Blank Project
+/// is the one "new" (an empty model). `file.new-local` stores the working
+/// model itself as a local project, so it is labelled and placed as a save.
+const NATIVE_FILE_MENU: &[Option<(&str, &str, Option<&str>)>] = &[
+    Some(("file.new-blank", "New Blank Project", None)),
+    None,
+    Some(("file.open-model", "Open Model Document…", None)),
+    Some(("file.open-local", "Open Local Project…", None)),
+    Some(("file.list-local", "List Local Projects", None)),
+    None,
+    Some(("file.save-local", "Save Local Project", Some("CmdOrCtrl+S"))),
+    Some(("file.new-local", "Save as New Local Project", None)),
+    Some(("file.save-model-document", "Save Model Document…", None)),
+    Some(("file.save-handoff", "Save Handoff…", None)),
+    Some(("file.save-report-package", "Save Report Package…", None)),
+];
+
 // Native macOS menu bar (TP-R3UX-CADSHELL). Each custom item carries the same
 // command id the in-DOM menu uses; on click the backend injects one typed DOM
 // event into the main webview, where the React command sink dispatches it.
 fn build_app_menu<R: tauri::Runtime>(
     handle: &tauri::AppHandle<R>,
 ) -> tauri::Result<tauri::menu::Menu<R>> {
+    // Quit is the app's own item, not AppKit's `terminate:`, which cannot be
+    // held: it goes through the unsaved-changes guard (`close_guard.rs`).
+    let quit = MenuItemBuilder::with_id(QUIT_MENU_ID, "Quit SWBPIPE")
+        .accelerator("CmdOrCtrl+Q")
+        .build(handle)?;
     let app_menu = SubmenuBuilder::new(handle, "SWBPIPE")
         .about(None)
         .separator()
-        .quit()
+        .item(&quit)
         .build()?;
 
-    let file = SubmenuBuilder::new(handle, "File")
-        .text("file.new-local", "New Local Project")
-        .text("file.new-blank", "New Blank Project")
-        .separator()
-        .text("file.open-model", "Open Model Document…")
-        .text("file.open-local", "Open Local Project…")
-        .text("file.list-local", "List Local Projects")
-        .separator()
-        .text("file.save-local", "Save Local Project")
-        .text("file.save-model-document", "Save Model Document…")
-        .text("file.save-handoff", "Save Handoff…")
-        .text("file.save-report-package", "Save Report Package…")
-        .build()?;
+    let mut file = SubmenuBuilder::new(handle, "File");
+    for entry in NATIVE_FILE_MENU {
+        file = match entry {
+            None => file.separator(),
+            Some((id, label, None)) => file.text(*id, *label),
+            Some((id, label, Some(accelerator))) => file.item(
+                &MenuItemBuilder::with_id(*id, *label)
+                    .accelerator(*accelerator)
+                    .build(handle)?,
+            ),
+        };
+    }
+    let file = file.build()?;
 
     let edit = SubmenuBuilder::new(handle, "Edit")
         .text("edit.undo", "Undo Model Edit")
@@ -5142,6 +5230,8 @@ macro_rules! app_invoke_handler {
             analysis_runs::delete_analysis_run,
             analysis_runs::admit_analysis_run_comparison,
             sync_native_shell_state,
+            acknowledge_close_request,
+            resolve_close_request,
             validate_rule_pack,
             compute_rule_pack_document_checksum,
             save_local_rule_pack,
@@ -5167,10 +5257,24 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .manage(SolveJobRegistry::new(memory_pool::MemoryPool::new(Arc::new(host_memory::MacHostMemory))))
         .manage(native_result_download::SaveAdmission::default())
+        .manage(close_guard::CloseGuard::default())
         .menu(|handle| build_app_menu(handle))
         .on_menu_event(|app, event| {
+            if event.id().0 == QUIT_MENU_ID {
+                if request_close(app, close_guard::CloseKind::Quit) {
+                    app.exit(0);
+                }
+                return;
+            }
             restore_native_check_item_after_activation(app, &event.id().0);
             dispatch_native_menu_command(app, &event.id().0);
+        })
+        .on_window_event(|window, event| {
+            if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                if window.label() == "main" && !request_close(window.app_handle(), close_guard::CloseKind::Window) {
+                    api.prevent_close();
+                }
+            }
         });
     #[cfg(not(feature = "native-smoke"))]
     let builder = builder.invoke_handler(app_invoke_handler!());
@@ -5723,6 +5827,29 @@ mod tests {
         assert_eq!(evidence["solve"]["fresh_resolve_matches_saved_result_rows"], json!(true));
         assert_eq!(evidence["solve"]["analytical_witnesses"].as_array().unwrap().len(), 3);
         assert_eq!(evidence["boundary"]["repository_write"], json!(false));
+    }
+
+    #[test]
+    fn native_file_menu_offers_new_blank_as_the_only_new_and_names_new_local_a_save() {
+        let items: Vec<(&str, &str)> = NATIVE_FILE_MENU
+            .iter()
+            .flatten()
+            .map(|(id, label, _)| (*id, *label))
+            .collect();
+        assert_eq!(items.first(), Some(&("file.new-blank", "New Blank Project")));
+        assert!(items.iter().all(|(_, label)| !label.starts_with("New ") || *label == "New Blank Project"));
+        let save = items.iter().position(|(id, _)| *id == "file.save-local").unwrap();
+        assert_eq!(items[save + 1], ("file.new-local", "Save as New Local Project"));
+    }
+
+    #[test]
+    fn native_save_local_project_carries_the_save_accelerator_and_no_other_file_item_does() {
+        let accelerated: Vec<(&str, &str)> = NATIVE_FILE_MENU
+            .iter()
+            .flatten()
+            .filter_map(|(id, _, accelerator)| accelerator.map(|accelerator| (*id, accelerator)))
+            .collect();
+        assert_eq!(accelerated, vec![("file.save-local", "CmdOrCtrl+S")]);
     }
 
     #[test]
