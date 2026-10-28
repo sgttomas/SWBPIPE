@@ -286,35 +286,55 @@ built on the pressure-free route in two stages; no "the exact route is the
 only route" statement is made.
 - **Stage 1:** a support target for the primitive load, mapped into the
   partitioned reduction of prescribed values the exact route already uses
-  (`boundary_motion`). It is refused on a non-rigid DOF or a spring, and
-  refused by name when the model also has nonlinear supports. PF benchmarks:
+  (`boundary_motion`). It is refused on a non-rigid DOF or a spring, and,
+  until stage 2's R-a, refused by name when the model also has nonlinear
+  supports. PF benchmarks:
   the W-9 L-frame settlement against its closed form and a nozzle movement.
   The desktop `imposed_displacement` primitive solves where supported and is
   refused with a named, readable reason elsewhere. Priced change: D3
   re-registration with independent review.
-- **Stage 2 (designed, not implemented):** until its implementation lands, the
-  pressure-free route refuses imposed motion in a model with nonlinear supports
-  by name (`IMPOSED_DISPLACEMENT_WITH_NONLINEAR_SUPPORTS`). The design covers
-  imposed motion in a model with nonlinear supports, in two separable parts. (R-a) Rigid anchors and restraints carry stage-1 primitives
+- **Stage 2:** imposed motion in a model with nonlinear supports, in
+  separable parts. (R-a) Rigid anchors and restraints carry stage-1 primitives
   as nonzero base prescribed values in the nonlinear active-set loop and its
   K-D5 confirmation; every nonlinear support's ground stays fixed. (R-b) A
   primitive on a nonlinear support's own DOF moves that support's ground: gap
-  closure, lift-off and friction slip are measured on the displacement
-  relative to the moved ground, and an active or sticking state prescribes the
-  moved ground (plus or minus the clearance for a gap). Linear springs with a
-  moving base stay refused. Design: DEL-04-03
-  `Design/pf-nonlinear-imposed-motion.md`, with dual numerical review and its
-  own benchmarks; R-b may land as a later slice.
+  closure, lift-off and friction slip are measured on the displacement relative
+  to the moved ground, and an active or sticking state prescribes the moved
+  ground (plus or minus the clearance for a gap). (R-c) A primitive on a
+  linear spring's DOF moves its base; the case gains k·g and the spring
+  publishes −k·(u−g). (R-d) A primitive on a mixed nonlinear
+  record's rigid restraint prescribes that restraint's base value. Design:
+  DEL-04-03 `Design/pf-nonlinear-imposed-motion.md`,
+  with dual numerical review and its own benchmarks; R-b may land as a later
+  slice.
 Stage 1 is built (W-16 slice a; DEL-04-03 Design `pf-imposed-displacement.md`).
 On the pressure-free route a support-targeted `imposed_displacement` primitive
 is one prescribed value on its rigid support's global DOF, solved by the
 shared partitioned reduction in both solver modes; a case without one keeps
 its unchanged path. Each misuse is refused by name before generic validation
-(`IMPOSED_DISPLACEMENT_*`; `IMPOSED_DISPLACEMENT_WITH_NONLINEAR_SUPPORTS` until
-stage 2), and any refusal withholds the whole document. The exact route keeps
+(`IMPOSED_DISPLACEMENT_*`), and any refusal withholds the whole document. The exact route keeps
 `boundary_motion` as its form and refuses a support-targeted primitive by name
 (`EXACT_IMPOSED_DISPLACEMENT_PRIMITIVE_UNSUPPORTED`); the retained sub-route
 declines it at D1.7. `IMPOSED_DISPLACEMENT_REQUIRES_LOAD_STATE_MODEL` is
 retired. Evidence: `core/product_physics/tests/w16_imposed_motion.rs` (the
 nozzle movement against `validation/references/w16_imposed_motion/`, parity
 with EX) and W9-C on both routes (`tests/w9_solver_benchmarks.rs`).
+Stage 2 is built. In a model with nonlinear supports, a stage-1 primitive on a
+rigid anchor or restraint is a base prescribed value of the nonlinear loop and
+its K-D5 confirmation (R-a), and a primitive on a nonlinear support's own DOF
+moves that support's ground (R-b): its state is measured on u_d − g_s, an
+active or sticking state prescribes the moved ground, and the support publishes
+a `nonlinear_support_final_relative_displacement` observation row. The
+confirmation checks the loop's prescribed map against the case's motion bit
+for bit. `IMPOSED_DISPLACEMENT_WITH_NONLINEAR_SUPPORTS` is retired; the R-b
+refusals are `IMPOSED_DISPLACEMENT_NONLINEAR_DOF_MISMATCH`,
+`IMPOSED_DISPLACEMENT_GAP_CLOSURE_INEXACT` and the extended
+`IMPOSED_DISPLACEMENT_COINCIDENT_RESTRAINT`. A primitive on a mixed nonlinear
+record's rigid restraint prescribes that restraint's base value (R-d). Still
+refused (`IMPOSED_DISPLACEMENT_SUPPORT_NOT_RIGID`): a constant-effort record,
+a nonlinear field included. A primitive on a linear spring's DOF moves its
+base: the case gains the formed load k·g and the spring publishes
+−k·(u − g) (R-c). Evidence:
+`core/product_physics/src/w16_nonlinear_motion_tests.rs` against
+`validation/references/w16_nonlinear_motion/` (A-1 to A-3, B-1 to B-3, C-1 to
+C-5, D-1 to D-3 and the rigid-translation property, both modes).

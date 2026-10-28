@@ -44,10 +44,11 @@ LN = {
     'to_string': 173,     # `refs.iter().map(|value| value.to_string()).collect(),` (174) [162]
     # Nested-record closure D3 (§8.25): the four lib.rs lines move +106 with unchanged text; model document 0.8.0 (§8.26):
     # +36 (unit_message) and +36 (the three helpers), unchanged text.
-    'unit_message': 10244, # lib.rs `message.into()` (9162) [9159]
-    'suffix': 15187,      # lib.rs `id.replace(':', "-")` (13614) [13619]
-    'diag_fn': 15136,     # lib.rs fn diag (13563) [13568]
-    'suffix_fn': 15186,   # lib.rs fn stable_suffix (13613) [13618]
+    # W-16 stage 2 D3 (§8.29): +55 (unit_message) and +106 (the three helpers), unchanged text.
+    'unit_message': 10299, # lib.rs `message.into()` (9162) [9159]
+    'suffix': 15293,      # lib.rs `id.replace(':', "-")` (13614) [13619]
+    'diag_fn': 15242,     # lib.rs fn diag (13563) [13568]
+    'suffix_fn': 15292,   # lib.rs fn stable_suffix (13613) [13618]
     'require': 125,       # physics_source.rs `Err(format!("PHYSICS_SOURCE_{detail}"))` (89; 62 before ccb19ba0bf) [78]
 }
 PR = PP + 'pressure_runtime.rs:'
