@@ -1,6 +1,6 @@
 // RT-S1/RT-U1: the `create_support` intent the New support form emits, with its family, passes the
 // operation applier's `SUPPORT_FAMILIES` validation (`rich_authoring.rs`) in the shared Wasm engine,
-// and a value outside that list is refused. No hash or operation mocks: these checks require the
+// a family the form disables is one the engine refuses, and a value outside the list is refused. No hash or operation mocks: these checks require the
 // accepted rebuilt Wasm. All entities are invented test input.
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -9,7 +9,9 @@ import type { EditorOperationIntent } from "../../types";
 import { DisplayUnitsProvider } from "../display-units";
 import { applyModelOperation } from "../../services/operationService";
 import { loadPreviewModel } from "../../services/previewService";
+import { SUPPORT_FAMILIES } from "../results/displacementExtremes";
 import { PropertyInspector } from "./PropertyInspector";
+import { SUPPORT_FAMILY_OPTIONS } from "./supportFamilyDraft";
 
 afterEach(cleanup);
 
@@ -25,23 +27,30 @@ async function emitted(choose: (() => void) | null) {
   return { model, node, intent: queue.mock.calls[0][0] };
 }
 
-describe("the New support form's family in the operation applier", () => {
-  it.each([["anchor", null], ["guide", "guide"], ["line_stop", "line_stop"], ["vertical_support", "vertical_support"]] as const)(
-    "applies the emitted %s support", async (family, pick) => {
-      const { model, node, intent } = await emitted(pick ? () => changeFormControl(screen.getByTestId("create-support-family"), { target: { value: pick } }) : null);
-      const original = JSON.stringify(model);
-      const applied = await applyModelOperation(model, intent, null);
-      expect(applied.validation.application_status, JSON.stringify(applied.diagnostics)).toBe("applied_to_session_model");
-      expect(applied.applied_model!.supports.find((support) => support.id === intent.target.ref))
-        .toMatchObject({ node, family, restraints: ["UX", "UY", "UZ", "RX", "RY", "RZ"] });
-      expect(JSON.stringify(model)).toBe(original);
-    });
+const ENABLED = SUPPORT_FAMILY_OPTIONS.filter((option) => option.value !== "" && !option.disabled).map((option) => option.value);
+const DISABLED = SUPPORT_FAMILY_OPTIONS.filter((option) => option.disabled).map((option) => option.value);
 
-  it("refuses the same intent with a family outside SUPPORT_FAMILIES", async () => {
+describe("the New support form's family in the operation applier", () => {
+  it("lists every SupportFamily value once, as enabled or disabled", () => {
+    expect([...ENABLED, ...DISABLED].sort()).toEqual(SUPPORT_FAMILIES.map((item) => item.value).sort());
+  });
+
+  it.each(ENABLED)("applies the emitted support with enabled family %s", async (family) => {
+    const { model, node, intent } = await emitted(family === "anchor" ? null : () => changeFormControl(screen.getByTestId("create-support-family"), { target: { value: family } }));
+    const original = JSON.stringify(model);
+    const applied = await applyModelOperation(model, intent, null);
+    expect(applied.validation.application_status, JSON.stringify(applied.diagnostics)).toBe("applied_to_session_model");
+    expect(applied.applied_model!.supports.find((support) => support.id === intent.target.ref))
+      .toMatchObject({ node, family, restraints: ["UX", "UY", "UZ", "RX", "RY", "RZ"] });
+    expect(JSON.stringify(model)).toBe(original);
+  });
+
+  // The form cannot emit a disabled family, so the emitted intent carries it in `after` here.
+  it.each([...DISABLED, "strut"])("is refused by the engine for disabled (or unknown) family %s", async (family) => {
     const { model, intent } = await emitted(null);
-    const after = { ...JSON.parse(intent.change.after), family: "strut" };
+    const after = { ...JSON.parse(intent.change.after), family };
     const refused = await applyModelOperation(model, { ...intent, change: { ...intent.change, after: JSON.stringify(after) } }, null);
     expect(refused.validation.application_status).not.toBe("applied_to_session_model");
-    expect(JSON.stringify(refused.diagnostics)).toContain("family");
+    expect(refused.diagnostics.some((item) => item.severity === "blocking")).toBe(true);
   });
 });

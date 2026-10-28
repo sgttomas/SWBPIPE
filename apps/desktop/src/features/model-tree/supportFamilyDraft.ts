@@ -4,11 +4,25 @@ import { SUPPORT_FAMILIES } from "../results/displacementExtremes";
 /** The six rigid DOFs whose full restraint suggests an anchor. */
 const RIGID_DOFS = ["UX", "UY", "UZ", "RX", "RY", "RZ"] as const;
 
+/** Why the "New support" form cannot supply a family: the operation applier refuses it from this
+ * form's `create_support` (spring: explicit stiffness with its DOF; hangers: a hanger object), as
+ * `PropertyInspector.supportFamilyEngine.test.tsx` checks against the Wasm engine. */
+export const SUPPORT_FAMILY_ELSEWHERE: Readonly<Record<string, string>> = Object.freeze({
+  spring: "Needs stiffness with its DOF: use Support configuration",
+  variable_spring_hanger: "Needs hanger data: use Support configuration",
+  spring_hanger: "Needs hanger data: use Support configuration",
+  constant_effort_support: "Needs hanger data: use Support configuration"
+});
+
 /** The "New support" form's family options: no family, then the model document's
- * `SupportFamily` values in the shared list's order and labels (the applier's `SUPPORT_FAMILIES`). */
+ * `SupportFamily` values in the shared list's order and labels (the applier's `SUPPORT_FAMILIES`).
+ * A family this form cannot supply stays listed, disabled, with its reason. */
 export const SUPPORT_FAMILY_OPTIONS: readonly CompactSelectOption[] = Object.freeze([
   Object.freeze({ value: "", label: "Not stated" }),
-  ...SUPPORT_FAMILIES
+  ...SUPPORT_FAMILIES.map((family) => {
+    const elsewhere = SUPPORT_FAMILY_ELSEWHERE[family.value];
+    return elsewhere ? Object.freeze({ value: family.value, label: `${family.label} (${elsewhere})`, disabled: true }) : family;
+  })
 ]);
 
 /**

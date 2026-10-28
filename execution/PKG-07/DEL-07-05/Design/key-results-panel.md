@@ -62,7 +62,9 @@ Choosing in a select sets nothing by itself.
   none listed the panel says "No support is declared as an anchor or equipment connection.", which is
   true of such a model. DEL-07-02's "New support" form suggests `anchor` from six checked rigid DOFs
   with no stiffness, visibly and changeably, and writes the family only when the user queues the
-  form. No open, load or migration path adds a family to an existing support
+  form. It lists every family; spring and the hanger families, which the applier refuses from that
+  form, are disabled with a reason naming Support configuration. No open, load or migration path
+  adds a family to an existing support
   (`App.supportFamilyOpen.test.tsx`).
 - **Support contact and lift-off.** The product emits one `nonlinear_support_active_set_state_code`
   row per nonlinear support and case (DEL-04-04's classifier through DEL-04-07's loop). Each row

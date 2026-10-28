@@ -40,12 +40,35 @@ function queued(queue: ReturnType<typeof mount>["queue"]) {
 }
 
 describe("the New support form's family", () => {
-  it("offers no family, then the shared SupportFamily list in its order and labels", () => {
+  it("offers no family, then the whole shared SupportFamily list, disabling with a visible reason each family it cannot supply", () => {
     mount();
+    const hanger = "Needs hanger data: use Support configuration";
     expect(compactOptionRecords(family())).toEqual([
       { value: "", label: "Not stated", disabled: false },
-      ...SUPPORT_FAMILIES.map((item) => ({ ...item, disabled: false }))
+      { value: "anchor", label: "Anchor", disabled: false },
+      { value: "guide", label: "Guide", disabled: false },
+      { value: "line_stop", label: "Line stop", disabled: false },
+      { value: "vertical_support", label: "Vertical support", disabled: false },
+      { value: "spring", label: "Spring (Needs stiffness with its DOF: use Support configuration)", disabled: true },
+      { value: "variable_spring_hanger", label: `Variable spring hanger (${hanger})`, disabled: true },
+      { value: "spring_hanger", label: `Spring hanger (${hanger})`, disabled: true },
+      { value: "constant_effort_support", label: `Constant-effort support (${hanger})`, disabled: true },
+      { value: "nonlinear", label: "Nonlinear support", disabled: false }
     ]);
+    expect(compactOptionRecords(family()).slice(1).map((item) => item.value)).toEqual(SUPPORT_FAMILIES.map((item) => item.value));
+  });
+
+  it("does not take a disabled family, so none is queued", () => {
+    const { queue } = mount();
+    toggle("RX", "RY", "RZ");
+    const control = family();
+    if (control.getAttribute("aria-expanded") !== "true") fireEvent.click(control);
+    const list = document.getElementById(control.getAttribute("aria-controls")!)!;
+    const option = Array.from(list.querySelectorAll<HTMLElement>('[role="option"]')).find((item) => item.dataset.value === "spring_hanger")!;
+    expect(option).toHaveAttribute("aria-disabled", "true");
+    fireEvent.click(option);
+    expectFormControlValue(family(), "anchor");
+    expect(queued(queue).family).toBe("anchor");
   });
 
   it("suggests anchor, visibly, when all six rigid DOFs are checked, and writes it only on queue", () => {
