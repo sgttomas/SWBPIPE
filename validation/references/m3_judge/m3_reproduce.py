@@ -1,14 +1,12 @@
 """Reproducibility of the committed reference files (Agent 0: "regenerating each set from its committed generator
 reproduces the pinned digest. Otherwise the pin only says 'unchanged', not 'reproducible'").
 
-Usage: python3 -I -B m3_reproduce.py <new scratch dir> [--pf-dir <pf_timoshenko_m3t dir>] [--workers N]
+Usage: python3 -I -B m3_reproduce.py <new scratch dir> [--workers N]
 
 For every line of REFERENCE_SHA256SUMS (read from HEAD's blob, as the judge reads it) there is exactly one recipe
 below; each regenerates its file into the scratch directory from the committed generator and requires its sha256 to
-equal the pin. The exact route's three files (../kd5_timoshenko/kd5t_generate.py) are mandatory. The PF route's
-three need pf_timoshenko_m3t/pft_generate.py, which is on branch claude/piping-pf-timoshenko-m3t-20261027 and not on
-main yet: they run when that generator is present (beside this directory, or named by --pf-dir) and are otherwise
-reported as SKIPPED, by name. They become mandatory once that branch merges this one.
+equal the pin. All six are mandatory: the exact route's three from ../kd5_timoshenko/kd5t_generate.py and the PF
+route's three from ../pf_timoshenko_m3t/pft_generate.py.
 The PF selftest set is the 20 named lines of the regenerated PF frozen subset, in its order.
 """
 
@@ -75,15 +73,10 @@ def selftest_subset(frozen_path, out):
 def main():
     args = sys.argv[1:]
     pf_dir, workers = os.path.normpath(os.path.join(HERE, "..", "pf_timoshenko_m3t")), 4
-    for flag in ("--pf-dir", "--workers"):
-        if flag in args:
-            i = args.index(flag)
-            val = args[i + 1]
-            del args[i:i + 2]
-            if flag == "--pf-dir":
-                pf_dir = os.path.abspath(val)
-            else:
-                workers = int(val)
+    if "--workers" in args:
+        i = args.index("--workers")
+        workers = int(args[i + 1])
+        del args[i:i + 2]
     if len(args) != 1:
         raise SystemExit(__doc__)
     scratch = os.path.abspath(args[0])
@@ -95,7 +88,6 @@ def main():
         print("REFERENCE_SHA256SUMS: " + "; ".join(probs))
         print("REPRODUCE: FAIL")
         raise SystemExit(1)
-    pf_ok = os.path.isfile(os.path.join(pf_dir, "pft_generate.py"))
     S = lambda *p: os.path.join(scratch, *p)
     # recipe name (the pin's text, from REFERENCE_SHA256SUMS) -> (route, kind, mandatory, producer)
     recipes = {
@@ -106,11 +98,11 @@ def main():
         "kd5_timoshenko/frozen/kd5t_frozen_subset.jsonl (64 models)":
             ("exact", "set", True, lambda: frozen(KD5, "kd5t_generate", S("kd5t_frozen_subset.jsonl"), workers)),
         "pf_timoshenko_m3t: pft_generate.py full set.jsonl (906 models; generator at decb1dbb61)":
-            ("pf", "set", False, lambda: full(pf_dir, "pft_generate.py", S("pf-full"), "set.jsonl", workers)),
+            ("pf", "set", True, lambda: full(pf_dir, "pft_generate.py", S("pf-full"), "set.jsonl", workers)),
         "pf_timoshenko_m3t/frozen/pft_frozen_subset.jsonl (100 models)":
-            ("pf", "set", False, lambda: frozen(pf_dir, "pft_generate", S("pft_frozen_subset.jsonl"), workers)),
+            ("pf", "set", True, lambda: frozen(pf_dir, "pft_generate", S("pft_frozen_subset.jsonl"), workers)),
         "m3_judge/selftest/pf_set.jsonl (20 models, verbatim lines of the PF frozen subset)":
-            ("pf", "set", False, lambda: selftest_subset(S("pft_frozen_subset.jsonl") if os.path.exists(S("pft_frozen_subset.jsonl"))
+            ("pf", "set", True, lambda: selftest_subset(S("pft_frozen_subset.jsonl") if os.path.exists(S("pft_frozen_subset.jsonl"))
                                                         else frozen(pf_dir, "pft_generate", S("pft_frozen_subset.jsonl"), workers), S("pf_set.jsonl"))),
     }
     pinned = {(route, kind, name): h for (route, kind), entries in pins.items() for h, name in entries.items()}
@@ -123,10 +115,6 @@ def main():
         want = pinned.get((route, kind, name))
         if want is None:
             continue
-        if route == "pf" and not pf_ok:
-            print(f"SKIP   {route} {kind} {name}: pin {want}; the PF generator is not present at {pf_dir} "
-                  "(it is on claude/piping-pf-timoshenko-m3t-20261027, not on main); mandatory once that branch merges")
-            continue
         try:
             got = sha(make())
         except Exception as e:
@@ -136,9 +124,7 @@ def main():
         ok = got == want
         status |= 0 if ok else 1
         print(f"{'OK    ' if ok else 'FAIL  '} {route} {kind} {name}: regenerated {got}, pin {want}")
-    skipped = 0 if pf_ok else sum(1 for (r, _, _) in pinned if r == "pf")
-    print(f"REPRODUCE: {'PASS' if status == 0 else 'FAIL'} ({len(pinned) - skipped} of {len(pinned)} pinned files regenerated"
-          + (f"; {skipped} PF files SKIPPED: generator absent" if skipped else "") + ")")
+    print(f"REPRODUCE: {'PASS' if status == 0 else 'FAIL'} ({len(pinned)} pinned files, every one mandatory)")
     raise SystemExit(status)
 
 

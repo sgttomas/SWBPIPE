@@ -172,7 +172,7 @@ def _judge_collection(route, set_path, raw_paths, variant, workers, runner_sha, 
     models, ref_probs = MV.reference_views(lines, route, variant, controls) if not ref_parse and not ctl_parse else ({}, [])
     ref_probs = ref_parse + ctl_parse + ref_probs
     all_tags = {x["tag"] for x in lines if isinstance(x, dict) and isinstance(x.get("tag"), str)}
-    contract_sha = MV.contract(route)[1]
+    contract_sha = {name.rsplit("/", 1)[-1]: MV.contract(route, name)[1] for name, _ in MV.CONTRACTS[route]}
     raws, raw_parse = [], []
     for p in raw_paths:
         rs, probs = m3_json.read_jsonl(p)

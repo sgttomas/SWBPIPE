@@ -850,6 +850,37 @@ def collection_scenarios(check):
         finally:
             MV._SCHEMA_DOCS.clear()
             MV._SCHEMA_DOCS.update(saved_docs)
+        # ---- round 12 (#1663 at 9fbb2b7b6f): PF publishes Timoshenko results under preview-physics-timoshenko-1, the same
+        # rows as preview-physics-2 with its own identity; the view matches a record against the table its request's shear
+        # model selects. Its new kind (supported-source-080/081) is admitted from the table, never judged
+        pp2_id, pts_id = MV.CONTRACTS["pf"][0][0], MV.CONTRACTS["pf"][1][0]
+        eb_twin = by_tag[codex["meta"]["twin"]]
+        judge_runs(12, "PF view: a Timoshenko and an Euler-Bernoulli model (control)", "pf_contract_by_shear_model",
+                   write(T("r12-set.jsonl"), [codex, eb_twin]), four + [run(eb_twin, e, m) for e, m in EM], True,
+                   lambda j: j.get("contracts") == {pts_id: 4, pp2_id: 4}, "Timoshenko under its own identity, EB under preview-physics-2")
+        new_kind = "nonlinear_support_final_relative_displacement"
+
+        def nl_row(unit):
+            def f(r):
+                sup = codex["request"]["model"]["supports"][0]["id"]
+                r["results"].append({"kind": new_kind, "value": 0.25, "unit": unit, "entity_ref": sup, "case": "case:1", "location": "final_state",
+                                     "component": new_kind, "id": f"result:nl:{unit}",
+                                     "metadata": {"basis": "nonlinear_support_final_state", "component": new_kind, "coordinate_system": "global",
+                                                  "location": "final_state", "sign_convention": "relative"}})
+                r["results_count"] = len(r["results"])
+            return f
+        jn = judge_runs(12, "PF view: the new nonlinear-support kind in mm on a Timoshenko run", "pf_timoshenko_new_kind_mm", one,
+                        mut(four, nl_row("mm")), True, lambda j: j.get("contracts") == {pts_id: 4} and j.get("schema_invalid", 0) == 0,
+                        "admitted from preview-physics-timoshenko-1; not judged", eval_out=T("r12-nl.eval.jsonl"))
+        base12 = judge_runs(12, "PF view: the same runs without it (control)", "pf_timoshenko_without_new_kind", one, four, True,
+                            eval_out=T("r12-base.eval.jsonl"))
+        table(12, "the same: every record's clauses and information equal those without it", "pf_timoshenko_new_kind_records_equal",
+              "records equal" if verdicts(T("r12-nl.eval.jsonl")) == verdicts(T("r12-base.eval.jsonl")) else "records differ",
+              verdicts(T("r12-nl.eval.jsonl")) == verdicts(T("r12-base.eval.jsonl")) and jn["pass"] == base12["pass"])
+        judge_runs(12, "PF view: the new kind in rad (the table's second row)", "pf_timoshenko_new_kind_rad", one, mut(four, nl_row("rad")), True,
+                   lambda j: j.get("schema_invalid", 0) == 0, "admitted")
+        judge_runs(12, "PF view: the new kind in m (a unit no row of the table declares)", "pf_timoshenko_new_kind_unit_m", one,
+                   mut(four, nl_row("m")), False, schema, "refused by the view: unit")
         # ---- round 7 (Codex at cb60446a01): index flags hid an edited manifest; it is now read from HEAD's blob (Agent 0)
         jr = T("r7-judge-repo")
         rel_j = os.path.join("projects", "chirality-piping", "validation", "references", "m3_judge")

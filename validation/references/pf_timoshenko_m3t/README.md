@@ -110,11 +110,9 @@ reference: it links the product crate by path and calls only `run_linear_static_
 |---|---|
 | `pft_engine.py` | Exact PF reference engine: a PF request in, every expected published row out (110-digit `decimal`; ν, κ_E and φ exact rationals). `--check` runs its self-check (130 checks; one of them runs kd5t_engine's 58). |
 | `pft_generate.py` | Judged-set generator: `full <dir>` writes the set, `freeze` the frozen subset, `split` runner inputs, `probes` the format probes, `precision` a re-solve at more digits, `composition` the counts, `check` verifies everything. |
-| `pft_compare.py` | The judging library: kd5t_compare's reconstructed judge with a single-section adapter, the strict raw-output and reference schemas, the request binding, the inventory, the design-conformance clause C10 and the derived-row clauses C11, C11tau_b and C11ops. `--selftest <set>` exercises every rule and clause; `--probe-format` prints the format facts of the probes. |
-| `pft_report.py` | The one judging pass: the whole collection of raw runner outputs judged against the reference, total and fail-closed, with kd5t_report's tables, the four verdicts (provenance, inventory, M3 and design conformance) and the final `OVERALL:` line. |
+| `pft_compare.py` | A shim: the judging lives in `../m3_judge/` (route `pf`). `--selftest <frozen subset>` runs the shared judge's self-test. |
 | `pft_census.py` | Premise census: kd5t_census with its engine bound to the PF reference (`hager`, `probe`, `standings`, `--selftest`). |
-| `runner/` | The product-driving runner (harness): `Cargo.toml`, `Cargo.lock`, `build.rs`, `src/main.rs` (kd5's, plus each record's provenance) and `build.sh`. |
-| `run.sh` | Driver: builds the runner from a clean checkout, runs it over every chunk (raw outputs only, fresh each time), then the judging pass. |
+| `run.sh` | Driver: `../m3_judge/run.sh pf`, which builds the shared runner (`../m3_judge/runner/`) from a clean checkout, runs it over every chunk (raw outputs only, fresh each time), then the judging pass. |
 | `frozen/pft_frozen_subset.jsonl` | 100 models (50 designs in both theories), each line `{tag, meta, ref, request}`, with exact expected rows. |
 | `SHA256SUMS` | Digests of the files above, except this README. |
 
@@ -256,7 +254,16 @@ including Codex's case's neighbours at the admission edge and every representabi
 19,566 expected rows and maxima. `check` regenerates the subset in memory and compares it byte for
 byte, runs the engine self-check and the comparison self-test, and verifies `SHA256SUMS`.
 
-## The comparison (`pft_compare.py`)
+## The comparison (`pft_compare.py`, now `../m3_judge/`)
+
+**This set is judged by the shared M3 judge, `../m3_judge/`, route `pf`.** Its validator turns each
+raw record into a closed, typed evidence view, and its comparison reads only that view. The rules
+below, the judging pass and the runner (`../m3_judge/runner/`, this directory's former `runner/`) are
+ported there unchanged in meaning; the changes the view makes are listed in `../m3_judge/README.md`
+("The rules"). A record's rows are matched against the contract its request's shear model selects:
+preview-physics-2 for Euler–Bernoulli, preview-physics-timoshenko-1 for Timoshenko. The sections
+below name `pft_compare.py`, `pft_report.py`, `runner/` and the `PFM3T_*` variables as they were
+built and refuted in rounds 1–4; the file names are now those of `../m3_judge/`.
 
 **What PF publishes, from the format probes.**
 
@@ -543,13 +550,12 @@ python3 -I -B pft_generate.py check                  # self-check, frozen bytes,
 python3 -I -B pft_generate.py full <set> 8
 python3 -I -B pft_generate.py precision <set>/set.jsonl
 python3 -I -B pft_generate.py split <set>/set.jsonl <run>/chunks all 40     # or: eb, ts
-./run.sh <clean checkout> <set> <run> own twin         # builds the runner, raw outputs in <run>/out, the judging pass per variant
-python3 -I -B pft_report.py <set>/set.jsonl <run>/out/c.*.out.jsonl --runner-sha256 <hex64> --product-head <hex40> --checkout <dir> \
-        --by theory --phi-table                         # the same pass by hand; add --ref twin for the sensitivity control (must fail M3)
+./run.sh <clean checkout> <set> <run> own twin         # ../m3_judge/run.sh pf: builds the runner, raw outputs in <run>/out, the judging pass per variant
+python3 -I -B ../m3_judge/m3_report.py --route pf <set>/set.jsonl <run>/out/c.*.out.jsonl --runner-sha256 <hex64> \
+        --product-head <hex40> --checkout <dir>         # the same pass by hand; add --ref twin for the sensitivity control (must fail M3)
 python3 -I -B pft_census.py hager <set>/set.jsonl <run>/out/c.*.out.jsonl --out <census.jsonl>
 python3 -I -B pft_census.py standings <run>/out/c.*.out.jsonl
-python3 -I -B pft_generate.py probes <probes.in.jsonl>   # then the runner, then:
-python3 -I -B pft_compare.py --probe-format <probes.in.jsonl> <probes.out.jsonl>
+python3 -I -B pft_generate.py probes <probes.in.jsonl>   # format probes; the raw shape is now ../m3_judge/m3_view.py RAW_SCHEMA
 ```
 
 `freeze` regenerates the references for an intended change of them, never to absorb a product
