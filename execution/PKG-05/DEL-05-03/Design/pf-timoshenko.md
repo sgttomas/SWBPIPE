@@ -194,7 +194,13 @@ Changing the preview-physics-2 table would move its hash. Every recorded run bou
   - `core/reporting/result_export/src/preview_physics_evidence.rs`, `retained_precision.rs` (the transport validator), `reader_verdict.rs`, `derivative.rs` and `semantic_contract.rs` (a new resident parsed table, if it is cached like the others);
   - the results schema and the new table.
 
-  The preview-physics-2 and retained tables are unchanged. Route L's Euler–Bernoulli invocations still load whatever resident tables the readers cache, so a new resident table is a priced static owner even though Timoshenko documents decline D1. The pricing inventory covers the shared readers, resident table growth and the source-bound rules; the footprint is measured, not assumed. The only FK change is the shear module's new function; no straight_pipe source changes.
+  The preview-physics-2 and retained tables are unchanged. Route L's Euler–Bernoulli invocations still load whatever resident tables the readers cache, so a new resident table is a priced static owner even though Timoshenko documents decline D1. The pricing inventory covers the shared readers, resident table growth and the source-bound rules; the footprint is measured, not assumed.
+  - **The Timoshenko table's cache** (Codex review of the build). `semantic_contract::preview_physics_timoshenko_contract` parses the table into a `OnceLock` on the first read of a Timoshenko source. From then on it is resident for the process, through every later route-L Euler–Bernoulli invocation, so it is a process-lifetime static owner like the reader statics of DEL-04-08 `retained-pricing-rules.md` §3.6. At #1663's D3 turn:
+    - the table (`fixtures/results/semantic_contract_v0_3_preview_physics_timoshenko_1.json`) joins `build_identity.rs`'s `REVIEWED_INPUTS`, so its bytes are bound into the retained build identity;
+    - its cache joins the static-owner inventory (`STATIC_OWNERS`, the §3.6 owner list) and is priced as resident in every phase;
+    - the affected shared-reader work is priced: `current_header`'s and `for_source`'s identity dispatch, `reader_verdict.rs`'s identity-keyed bindings and `bind_preview_shear_model`, and the model-free readers' second identity.
+
+    Until then `REVIEWED_INPUTS`, the registered profile and every price are unchanged: registering them changes the build identity, which is D3's act. The only FK change is the shear module's new function; no straight_pipe source changes.
 - **Order.** The unit builds after #1649 (0.8.0) merges. D3 is queued after #1649, W-16b/c and #1654, and is priced only on Agent 0's go. The AC-004 witnesses run if D1's change or the stack moves them.
 - **Size.**
   - About 600–900 lines of product, reader, table-derivation and desktop change.

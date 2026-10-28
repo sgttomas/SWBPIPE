@@ -85,9 +85,12 @@ LITERAL_SITES = {
         "identity from them (its own id, profile and limitation 0) and selects between the two", None, None),
     "core/product_physics/src/build_identity.rs": (
         {"table"}, EB_ONLY,
-        "the retained profile's reviewed inputs, the reader statics route L parses; route L declines a Timoshenko "
-        "document at D1, and the readers parse the Timoshenko table only for a source of that identity, so it is no "
-        "route-L resident. Adding it would make the registered retained profile Stale (design §6, D3 pricing)", None, None),
+        "the retained profile's reviewed inputs, the reader statics route L parses. Route L declines a Timoshenko "
+        "document at D1, and the readers parse the Timoshenko table only for a source of that identity, but its "
+        "OnceLock cache (semantic_contract::preview_physics_timoshenko_contract) then stays resident for the "
+        "process, through later route-L Euler-Bernoulli invocations too. So it is a process-lifetime static owner, "
+        "not yet registered: at #1663's D3 turn the table joins REVIEWED_INPUTS and its cache is priced (design "
+        "§6). Adding it before then would make the registered retained profile Stale", None, None),
     "core/product_physics/src/retained_memory.rs": (
         {"table", "hash"}, EB_ONLY, "the registered retained-memory profile's reviewed inputs (route L; S5's D3 registration owns them)", None, None),
     "tools/validation/qualification_gate.py": (
