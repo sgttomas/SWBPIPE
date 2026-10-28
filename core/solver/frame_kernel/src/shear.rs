@@ -33,6 +33,8 @@ pub enum ShearFactorError {
     InnerRadiusOutOfRange { inner_radius: f64, outer_radius: f64 },
     /// nu is outside the open interval (-1, 1/2).
     PoissonRatioOutOfRange { value: f64 },
+    /// A modulus (`name`) is not positive.
+    NonPositiveModulus { name: &'static str, value: f64 },
     /// The area is not positive.
     NonPositiveArea { value: f64 },
     /// A formed value is zero, subnormal or non-finite (`name` names it).
@@ -55,6 +57,9 @@ impl fmt::Display for ShearFactorError {
             ),
             Self::PoissonRatioOutOfRange { value } => {
                 write!(f, "Poisson ratio must satisfy -1 < nu < 1/2, got {value}")
+            }
+            Self::NonPositiveModulus { name, value } => {
+                write!(f, "{name} must be positive, got {value}")
             }
             Self::NonPositiveArea { value } => write!(f, "area must be positive, got {value}"),
             Self::NumericalRange { name } => write!(
@@ -141,4 +146,43 @@ pub fn shear_area(kappa: f64, area: f64) -> Result<f64, ShearFactorError> {
         });
     }
     Ok(shear_area)
+}
+
+/// The moduli terms of an isotropic material whose Poisson ratio is
+/// nu = E/(2G) - 1, formed without 1 + nu, in this fixed binary64 order:
+///
+/// ```text
+/// x = (2*G)/E   (= 1/(1 + nu))
+/// t = 1 - x     (= nu/(1 + nu))
+/// ```
+///
+/// A ratio (a + b*nu)/(1 + nu) is then a*x + b*t exactly in real arithmetic,
+/// since 1/(1 + nu) = 2G/E and nu/(1 + nu) = 1 - 2G/E.
+///
+/// **Exactness.** Let u = 2^-53 and x* = 2G/E. 2*G is exact (a power-of-two
+/// scaling) and x = x*(1 + e) with |e| <= u. For x in [1/2, 2], 1 - x is
+/// exact (Sterbenz), so t carries only x's rounding: |t - t*| <= u*x*. For
+/// x > 2, |1 - x| >= x/2 and 1 - x rounds once, so t's relative error is at
+/// most 3u. Forming 1 + nu = fl(fl(E/(2G)) - 1) + 1 instead loses up to
+/// 2^-54/(E/(2G)) relative below E/(2G) = 1/2 (x > 2).
+///
+/// **Refusals.** A non-finite input, E or G not positive, and an x that is
+/// not a positive normal number (2*G overflowing, or x out of range). The
+/// Poisson domain is the caller's.
+pub fn moduli_ratio_terms(
+    elastic_modulus: f64,
+    shear_modulus: f64,
+) -> Result<(f64, f64), ShearFactorError> {
+    let e = finite("elastic_modulus", elastic_modulus)?;
+    let g = finite("shear_modulus", shear_modulus)?;
+    for (name, value) in [("elastic_modulus", e), ("shear_modulus", g)] {
+        if value <= 0.0 {
+            return Err(ShearFactorError::NonPositiveModulus { name, value });
+        }
+    }
+    let x = (2.0 * g) / e;
+    if !(x.is_normal() && x > 0.0) {
+        return Err(ShearFactorError::NumericalRange { name: "x: (2*G)/E" });
+    }
+    Ok((x, 1.0 - x))
 }
