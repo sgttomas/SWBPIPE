@@ -123,18 +123,19 @@ def git_state(root: Path, commit_override: str | None) -> dict:
             "commit_hash": commit_override,
             "commit_source": "caller_override",
             "working_tree_dirty": False,
-            "dirty_paths": [],
+            "dirty_path_count": 0,
         }
     commit = capture_version(["git", "rev-parse", "HEAD"], root)
     status = capture_version(["git", "status", "--porcelain"], root)
     dirty_paths = sorted(
         line[3:] for line in (status or "").splitlines() if line.strip()
     )
+    # Counts only: dirty and untracked file names can be private.
     return {
         "commit_hash": commit,
         "commit_source": "git",
         "working_tree_dirty": bool(dirty_paths),
-        "dirty_paths": dirty_paths,
+        "dirty_path_count": len(dirty_paths),
     }
 
 
@@ -211,7 +212,10 @@ def run_engine_lint(paths: list[Path], root: Path) -> dict:
             "command": " ".join(command[:8]) + " ...",
             "finding_count": 0,
             "findings": [],
-            "note": f"Engine CLI unavailable: {error}. Fails toward review.",
+            "note": (
+                f"Engine CLI unavailable ({type(error).__name__}). "
+                "Fails toward review."
+            ),
         }
     if completed.returncode != 0:
         return {
@@ -221,7 +225,8 @@ def run_engine_lint(paths: list[Path], root: Path) -> dict:
             "findings": [],
             "note": (
                 "Engine CLI exited "
-                f"{completed.returncode}: {completed.stderr.strip()[:400]}. "
+                f"{completed.returncode}; its output is not recorded (it can "
+                "carry host paths). "
                 "Fails toward review."
             ),
         }
@@ -304,7 +309,13 @@ def run_provenance_check(json_paths: list[tuple[str, Path]]) -> dict:
         try:
             document = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError) as error:
-            unparseable.append(f"{member_label}: {error}")
+            # The error class and position only: OSError text names host paths.
+            detail = (
+                f"{error.msg} (line {error.lineno}, column {error.colno})"
+                if isinstance(error, json.JSONDecodeError)
+                else type(error).__name__
+            )
+            unparseable.append(f"{member_label}: {detail}")
             continue
         for json_path, record in iter_provenance_records(document):
             records_checked += 1
@@ -343,7 +354,13 @@ def run_security_profile(root: Path, mode: str) -> dict:
         "status": "pass" if completed.returncode == 0 else "findings_present",
         "command": " ".join(command[1:]),
         "exit_code": completed.returncode,
-        "note": None if completed.returncode == 0 else completed.stdout[-1000:],
+        # Captured test output can carry host paths and names: not recorded.
+        "note": None
+        if completed.returncode == 0
+        else (
+            f"Security profile exited {completed.returncode}; its output is not "
+            "recorded (it can carry host paths). Rerun the command to read it."
+        ),
     }
 
 
@@ -522,6 +539,33 @@ def parse_class_arguments(
     return classes, errors
 
 
+def public_path(raw: str, root: Path) -> str:
+    """A caller path as recorded: relative to the scan root when inside it,
+    else only its final component (no host path)."""
+    path = Path(raw)
+    if not path.is_absolute():
+        return raw
+    try:
+        return path.resolve().relative_to(root.resolve()).as_posix()
+    except ValueError:
+        return "<absolute path>/" + path.name
+
+
+def public_class_entry(entry: dict, root: Path) -> dict:
+    public = {key: value for key, value in entry.items() if key != "resolved_root"}
+    if "root" in public:
+        public["root"] = public_path(public["root"], root)
+    return public
+
+
+def label_lint_paths(lint_check: dict, labels: dict[str, str]) -> None:
+    """Replace the engine's absolute finding paths with `AC-n:<relative>`."""
+    for finding in lint_check.get("findings", []):
+        raw = finding.get("path", "")
+        label = labels.get(raw) or labels.get(str(Path(raw).resolve()))
+        finding["path"] = label or "<absolute path>/" + Path(raw).name
+
+
 def build_record(
     candidate: str,
     classes: dict,
@@ -553,7 +597,8 @@ def build_record(
         "runtime": runtime_versions(root),
         "commands_run": commands_run,
         "artifact_classes": {
-            class_id: classes[class_id] for class_id in sorted(classes)
+            class_id: public_class_entry(classes[class_id], root)
+            for class_id in sorted(classes)
         },
         "classes_scanned": scanned,
         "classes_not_applicable": not_applicable,
@@ -692,6 +737,7 @@ def main(argv: list[str] | None = None) -> int:
     git = git_state(root, args.commit)
 
     lintable_paths: list[Path] = []
+    lint_labels: dict[str, str] = {}
     json_members: list[tuple[str, Path]] = []
     for class_id, entry in sorted(classes.items()):
         if entry["status"] != "scanned":
@@ -705,6 +751,8 @@ def main(argv: list[str] | None = None) -> int:
             )
             if artifact["lintable"]:
                 lintable_paths.append(absolute)
+                lint_labels[str(absolute)] = f"{class_id}:{artifact['path']}"
+                lint_labels[str(absolute.resolve())] = f"{class_id}:{artifact['path']}"
             if absolute.suffix.lower() == ".json":
                 json_members.append((f"{class_id}:{artifact['path']}", absolute))
 
@@ -724,6 +772,7 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.lint_mode == "engine":
         lint_check = run_engine_lint(sorted(lintable_paths), root)
+        label_lint_paths(lint_check, lint_labels)
     else:
         lint_check = {
             "status": "not_run",

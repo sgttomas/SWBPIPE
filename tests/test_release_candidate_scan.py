@@ -348,6 +348,41 @@ def test_property_map_outside_a_json_schema_is_still_checked(tmp_path):
     assert module.run_provenance_check([("AC-4:data.json", member)])["provenance_records_checked"] == 1
 
 
+def test_scan_record_carries_no_host_paths_or_captured_logs(tmp_path, monkeypatch):
+    # Review leak surfaces: captured security logs, absolute class roots and
+    # raw engine finding paths must not reach the record. No cargo runs.
+    module = load_module()
+    candidate_root = make_candidate_tree(tmp_path)
+    host_text = str(tmp_path / "host-only" / "pytest-rootdir")
+
+    def fake_lint(paths, root):
+        return {"status": "findings_present", "command": "cargo run ...",
+                "finding_count": 1, "note": None,
+                "findings": [{"path": str(paths[0]), "severity": "WARNING",
+                              "code": "UNKNOWN_PROVENANCE_REVIEW_REQUIRED", "line": 1,
+                              "column": 1, "class": "invented", "excerpt": "invented",
+                              "matched_policy": "invented", "message": "invented",
+                              "remediation": "invented", "review_route": "invented"}]}
+
+    monkeypatch.setattr(module, "run_engine_lint", fake_lint)
+    monkeypatch.setattr(
+        module, "run_command",
+        lambda command, cwd: subprocess.CompletedProcess(command, 1, host_text, host_text),
+    )
+    _, output_dir = run_scan(module, tmp_path, candidate_root, lint_mode="engine",
+                             extra=["--security-profile", "run"])
+    path, record = read_single_record(output_dir)
+    text = path.read_text(encoding="utf-8")
+    for host in (str(tmp_path), str(tmp_path.resolve()), host_text):
+        assert host not in text
+    assert record["checks"]["security_profile"]["status"] == "findings_present"
+    assert "not recorded" in record["checks"]["security_profile"]["note"]
+    assert record["artifact_classes"]["AC-4"]["root"] == "<absolute path>/candidate"
+    assert "resolved_root" not in record["artifact_classes"]["AC-4"]
+    lint_paths = {f["path"] for f in record["checks"]["protected_content_lint"]["findings"]}
+    assert lint_paths <= {"AC-4:README.md", "AC-4:example.json"}
+
+
 def test_quarantine_hygiene_flags_quarantine_paths(tmp_path):
     module = load_module()
     candidate_root = make_candidate_tree(tmp_path)
