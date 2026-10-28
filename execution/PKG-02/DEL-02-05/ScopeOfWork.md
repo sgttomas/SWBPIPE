@@ -162,6 +162,7 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 > - project file schema contract;
 > - round-trip serialization and deterministic canonicalization behavior for JSON payloads;
 > - persistence service contract for create/open/save/version validation and version-status reporting;
+> - autosave recovery records beside the local store and backups of the last saved version to a user-chosen local folder (Design `autosave-and-backup.md`);
 > - validation and test obligations for schema, round-trip, hash stability, provenance, unit metadata, and protected-content boundaries.
 >
 > Out of scope:
@@ -275,6 +276,7 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 > | Save project | Validated project envelope, target artifact reference, canonicalization/hash options. | Saved artifact reference, version metadata, hash/manifest evidence, diagnostics. | Physical storage follows DEC-017 and portable packaging DEC-028. |
 > | Validate project | Project envelope or artifact reference. | Schema, unit, provenance, rule-pack-reference, private-data, and protected-content diagnostics. | Diagnostics use structured result-envelope fields. |
 > | Version check | Project schema/version metadata. | `current`, `unsupported_schema`, `newer_than_supported`, or the named re-author refusal, with diagnostics. | One current version (CLM-003); there is no migrate operation. |
+> | Autosave and backup | The session's canonical model document and its hash; for a backup, the stored project and a user-chosen folder. | A hash-named recovery record or backup verified by read-back, an unchanged result, or a named refusal; a failed read-back can leave a new recovery record kept unverified. The operation leaves the store and the saved project unchanged. | A recovery is applied only when the user accepts the offer. Older recovery records are pruned automatically only after a newer record verifies and is durable; pruning can be deferred or fail with diagnostics. Backup rotation follows the user's setting; Design `autosave-and-backup.md`. |
 >
 
 ### CLM-020 — Diagnostic Class Coverage

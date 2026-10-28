@@ -4126,6 +4126,11 @@ body { min-width: 760px; min-height: 540px; }
   color: var(--ui-text); background: var(--surface-raised); border: 1px solid var(--ui-border); border-radius: var(--radius-card); box-shadow: var(--elevation-2);
 }
 .app-shell .shell-appearance-popover label { display: grid; grid-template-columns: 64px minmax(0, 1fr); align-items: center; gap: var(--space-3); font-size: var(--type-size-body); }
+.app-shell .shell-autosave-off, .app-shell .shell-autosave-detail { margin: 0; max-width: 260px; font-size: var(--type-size-caption); }
+.app-shell .shell-autosave-off { color: var(--ui-text); }
+.app-shell .shell-autosave-detail { color: var(--ui-muted); }
+.app-shell .shell-autosave-status { margin: 0; max-width: 240px; overflow: hidden; color: var(--ui-muted); font-size: var(--type-size-caption); text-overflow: ellipsis; white-space: nowrap; }
+.app-shell .shell-autosave-off-status { color: var(--ui-text); }
 .app-shell .shell-toolbar-palette { flex: 0 1 220px; min-width: 120px; display: flex; }
 .app-shell .shell-toolbar-palette .toolkit-palette { flex: 1 1 auto; }
 .app-shell .shell-toolbar-palette [data-testid="toolkit-entry"] { width: 100%; justify-content: flex-start; color: var(--ui-muted); overflow: hidden; }
