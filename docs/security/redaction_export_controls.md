@@ -372,6 +372,55 @@ This is deliberately stricter than Python's previous reading, which took the
 key as an ordinary member. The member itself is kept in the payload, and its
 leaves are labelled like any other.
 
+**Value records.** The route projector decides whether a `{value, ...}` record
+with a scalar `value` is one item or a record whose members it labels by path.
+Before, TypeScript made it an item if it carried any metadata key, and Python
+only if it carried a scalar privacy, redistribution or review label, on itself
+or its provenance. Neither was uniformly stricter: `{value, field_class, note}`
+left `note` visible in TypeScript, and `{value, professional_claim: true}`
+blocked in TypeScript but was only redacted in Python. All three
+implementations now take the stricter decision per case (HELP_HUMAN decision,
+2026-10-28: "take the stricter decision per case"). A record with a scalar
+label is still an item. A record with only other metadata is a *value record*,
+and the redaction walk decides it as follows:
+
+- *Block.* It classifies the record as one item first. A block is the whole
+  record's: one decision on the record, also where the projection would have
+  blocked on a leaf.
+- *Otherwise.* It decides the record as projected, and then:
+  - every `value` and `text` leaf is raised to the item decision where that is
+    stricter, keeping the item's own reason;
+  - when the item decision redacts, the `privacy_classification` leaves are
+    raised too, since the item's redaction replaces that member;
+  - when the item decision redacts, every unsafe path key is dropped from the
+    payload, key name included, as `omit_field` with the item's reason, unless
+    its leaf blocks.
+- *Ties.* Where both readings showed the same data, the decision records take
+  the projection's form.
+
+The Rust test mirror now carries the projector and this walk.
+
+Over a generated grid of 24,608 `{value, ...}` records in ten contexts (246,080
+cases), the two readings diverged in 30,950 cases:
+
+| Class | Cases | Decision taken |
+|---|---|---|
+| TypeScript blocked, Python did not | 20,880 | block |
+| Python hid more | 6,200 | projection |
+| Python blocked | 774 | projection |
+| Both blocked | 2,320 | the item's block |
+| Each hid something the other showed | 572 | the union |
+| Same visible data | 204 | projection's form |
+
+Over that grid the result is less strict than neither reading and identical in
+TypeScript and Python. The committed sweep holds a pinned subset of 7,580
+cases: every record setting at most three axes, plus the extra records, in ten
+contexts (`fixtures/redaction_export_controls/value_record_sweep.json` and
+`value_record_sweep_decisions.json`). In all three suites it shows 0 cases
+less strict than either decided column and 0 mismatches. It is stricter than
+Python in 1,638 cases and than TypeScript in 1,461; the Rust column held no
+projector decision. No existing sweep case changes.
+
 **Flags.** All three recognize the strings `true`, `yes`, `explicit`,
 `present`, `local_private` and `explicit_local_private`, compared after
 trimming and lowercasing. Python and JavaScript lowercase by Unicode and Rust by
