@@ -522,11 +522,11 @@ t4_u4b is a comparison rule for the test, not a publication.
     num = RN(RN(RN(3+2ν)·RN(r_o·r_o)) + RN(RN(1+2ν)·RN(r_i,b·r_i,b))) and
     den = RN(RN(4·RN(1+ν))·I_b), r_o = D/2, and r_i,b and I_b the basis section's.
     This is the form on pressure-2, and on preview-physics-2 while q = RN(E/RN(2·G)) ≥ 1/2
-    (G ≤ E, or G just above E where q rounds to 1/2). There ν is the rounded ν = RN(q − 1), and
+    (G ≤ E; for binary64 G > E, q < 1/2). There ν is the rounded ν = RN(q − 1), and
     the operations ν = q − 1, 1+ν = q and 1+2ν = 2q − 1 are exact.
   - On preview-physics-2 with q < 1/2, write ν* = E/(2G) − 1 in exact arithmetic, so
-    1/(1+ν*) = 2G/E and ν*/(1+ν*) = 1 − 2G/E. The rounded ν would recover 1+ν* only to within
-    2^-54/q relative. So c_b is formed without ν from the rounded x = RN(RN(2·G)/E), which
+    1/(1+ν*) = 2G/E and ν*/(1+ν*) = 1 − 2G/E, with q* = E/(2G). The rounded ν would recover
+    1+ν* only to within u + 2^-54/q* relative (u = 2^-53). So c_b is formed without ν from the rounded x = RN(RN(2·G)/E), which
     approximates 1/(1+ν*) within one rounding (frame kernel `shear::moduli_ratio_terms`, which
     also gives t = RN(1 − x), approximating ν*/(1+ν*); these are the pressure-free Timoshenko
     factor's terms): c_b = RN(num/den), with
@@ -534,11 +534,13 @@ t4_u4b is a comparison rule for the test, not a publication.
     and den = RN(4·I_b). In exact arithmetic (3+2ν*)/(1+ν*) = 2 + 2G/E and
     (1+2ν*)/(1+ν*) = 2 − 2G/E, so this is the same Saint-Venant value, and every term is
     nonnegative.
-  - The rounded ν = RN(q − 1) serves admission only (the domain rule above), so the admitted set
+  - On q < 1/2 the rounded ν = RN(q − 1) serves admission only (the domain rule above), so the admitted set
     does not move. It is not 1/x − 1: just below q = 1/2 the rounded ν is still −1/2, and at
     E/(2G) = 1/(3·2^52) it is −1 + 2^-53, where 1/(1+ν) = 2^53 but x = 3·2^52. To first order in
-    u = 2^-53, |c_b/c_b* − 1| ≤ 8.5u for every E/(2G) in (0, 3/2) (7u on the x form), with
-    c_b* the exact value at ν*, and τ_v,max is within 11.5u of |V|·c_b*/1e6.
+    u, for admitted evaluations without overflow or underflow and taking the binary64 moduli,
+    section and force operands as exact, |c_b/c_b* − 1| ≤ 8.5u for every E/(2G) in (0, 3/2)
+    (7u on the x form), with c_b* the exact value at ν*, and τ_v,max is within 11.5u relative of
+    |V|·c_b*/1e6. Section-property and solve errors are separate.
   - t = `norm2`(V_y, V_z) (N). At the three interior stations it uses the published j-side
     section rows. At `end_i` and `end_j` there are no section rows, so it uses the published
     end-force shear rows of that end. The norm ignores their node-on-element sign, and in exact
