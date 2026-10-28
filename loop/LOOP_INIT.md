@@ -78,6 +78,31 @@ acceptance, holds, purchases and the native-smoke `expected.json` values stay
 with the owner. The product and data boundaries (`docs/PRODUCT_BOUNDARIES.md`,
 `docs/IP_AND_DATA_BOUNDARY.md`) are unchanged.
 
+The owner defined the target on 2026-10-27. Publication-ready means "a version
+good enough to publish engineering results with". Its analyses cover the
+sustained, expansion and operating cases, hydrostatic test and seismic, and the
+other analyses considered standard ("We should be able to do seismic plus
+hydrostatic, and the sustained, expansion, operation as you clearly know too.
+Anything else that would be considered standard?"). SWBPIPE does not proclaim
+code compliance ("For now, it won't proclaim code compliance. I actually want
+the user to go to CAEPIPE for that purpose. This software does all the design
+iteration."). CAEPIPE is the validation to SWBPIPE: design and analysis features
+are to be on par or better, "given real thought for user experience and human
+factors in the design and taste in the aesthetics", and a benchmark set compares
+SWBPIPE's non-code analysis outputs with CAEPIPE's "across as wide a range as
+practicable", which HELP_HUMAN investigates and proposes. HELP_HUMAN drafts the
+release target, its exit criteria and the benchmark set for the owner's
+acceptance; release remains the owner's. Seismic analysis is static g-loads,
+plus response spectrum only where CAEPIPE has that capability (owner,
+2026-10-28: "I said you should only develop a response spectrum capability for
+seismic analysis if that's a functionality that CAEPIPE has, otherwise you can
+go with only static for now."). Benchmark agreement with CAEPIPE is published
+(owner, 2026-10-28: "Benchmark agreement with CAEPIPE will indeed be published.
+That part should be out in the open because the whole point is to feed into
+CAEPIPE and expect the results to come out the same (but validated to Code and
+to the reputation of CAEPIPE)."); `docs/IP_AND_DATA_BOUNDARY.md` §6.2 is to be
+amended to match, and other evaluation stays private.
+
 Agent 0 checks that the implementation and its declarations agree before
 integration.
 

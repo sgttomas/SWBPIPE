@@ -3,6 +3,8 @@ import { TextField } from "../rich-authoring/formSupport";
 import { VirtualMultiTargetPicker, VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
 import { VirtualList } from "../workspace/VirtualList";
 import { batchId, issue, useBatchQueue, type BatchFormProps } from "./batchFormSupport";
+import { DirectionEntry } from "./DirectionEntry";
+import { exactCoordinateText } from "./directionArithmetic";
 import { buildGeometryBatch, emptyGeometryDraft, emptyIdentity, geometryPayload, orphanCleanupNode, selectedGeometry, type GeometryDraft, type NewIdentity } from "./geometryDraft";
 export { buildGeometryBatch, geometryPayload } from "./geometryDraft";
 export type { GeometryDraft } from "./geometryDraft";
@@ -35,6 +37,10 @@ export function GeometryToolsPanel(props: BatchFormProps & { selectedPipeRefs?: 
   const reconnectSource = draft.action === "reconnect" && draft.pipeRefs.length === 1
     ? props.model.pipe_segments.find((pipe) => pipe.id === draft.pipeRefs[0]) : undefined;
   const orphan = orphanCleanupNode(props.model, draft);
+  // B5: the end that stays is the start of the length-and-direction entry for the new point.
+  const fixedEndId = reconnectSource && (draft.reconnectEnd === "from" || draft.reconnectEnd === "to")
+    ? reconnectSource[draft.reconnectEnd === "to" ? "from" : "to"] : null;
+  const fixedEnd = fixedEndId ? props.model.nodes.find((node) => node.id === fixedEndId) : undefined;
   const selectedNode = props.selection.type === "node" ? props.selection.id : "";
   const copyRows = useMemo(() => [
     ...draft.copyNodes.map((value) => ({ kind: "copyNodes" as const, value })),
@@ -98,6 +104,13 @@ export function GeometryToolsPanel(props: BatchFormProps & { selectedPipeRefs?: 
             {(["x", "y", "z"] as const).map(key => <TextField key={key} label={`New point ${key.toUpperCase()}`}
               value={draft.newPoint[key]} onChange={value => set("newPoint", { ...draft.newPoint, [key]: value })} />)}
           </fieldset>
+          <DirectionEntry
+            context="Reconnect point"
+            projectLengthUnit={props.model.project.units.length}
+            start={fixedEnd ? { id: fixedEnd.id, position: fixedEnd.position } : null}
+            startReason="Choose the source pipe and which end moves; the end that stays is the start."
+            onUse={(position) => set("newPoint", { x: exactCoordinateText(position.x), y: exactCoordinateText(position.y), z: exactCoordinateText(position.z) })}
+          />
         </> : <fieldset>
           <legend>Target node</legend>
           <VirtualTargetPicker label="Target node" options={nodeOptions} value={draft.targetNode} onChange={value => set("targetNode", value)} testId="reconnect-target-node" />
