@@ -270,8 +270,11 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
         "FORMULATION_BASIS",
     )?;
     let evidence = &source["contract_evidence"];
+    // Operating-case slice 1a: `combination_operands` only beside a nonlinear
+    // model's admitted combinations (checked below).
     require(
-        keys(evidence, &["preview_cases", "combination_gates"]),
+        keys(evidence, &["preview_cases", "combination_gates"])
+            || keys(evidence, &["preview_cases", "combination_gates", crate::preview_combination_operands::MEMBER]),
         "EVIDENCE_SHAPE",
     )?;
     let preview_cases = array(&evidence["preview_cases"])?;
@@ -347,6 +350,9 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
             .count();
         require(integer(count) == Some(intensified as f64), "MODIFIER_COUNT")?;
     }
+    // Operating-case slice 1a (DEL-05-02 `pf-nonlinear-operand-standing.md` §3):
+    // the operand records and their notices; none on a blocked envelope.
+    crate::preview_combination_operands::check(source, solved)?;
     // A1 e: a blocked envelope has empty evidence, no rows and null headlines;
     // item 3 above already refused any `result:` reference.
     if !solved {
