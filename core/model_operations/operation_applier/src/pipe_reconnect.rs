@@ -5,24 +5,23 @@
 //! (`references`, with the root `diagnostics` skipped) finds the dependents a
 //! `delete_pipe_run` refuses on (§7).
 //!
-//! Orientation is checked through the frame kernel's own constructor
-//! (`FrameOrientation::from_x_axis_and_y_reference`), the one the solve uses
-//! for every straight element, so a reconnect the applier admits is not
-//! refused by the kernel's orthogonality tolerance later. No orientation is
-//! ever derived: an absent `y_reference` stays absent, with a warning.
+//! Orientation is checked through the frame kernel's own element calls
+//! (`FrameElement::length` and `FrameElement::orientation`), the ones the
+//! solve makes for every straight element, so a reconnect the applier admits
+//! is not refused by the kernel's orthogonality tolerance later, and the
+//! reverse. No orientation is ever derived: an absent `y_reference` stays
+//! absent, with a warning. The same predicate (`kernel_orientation`) checks `connect_pipe_run` (run-sheet
+//! design O4, DEL-07-02 `run-sheet-entry.md` §8).
 use crate::geometry_operations::{
     convert, diff, fields, record_shape, reference_segments, render_suffix, text, unique, vector, GeometryError, Seg,
 };
 use crate::{canonical_json, DiffPreviewRow, Dimension};
-use open_pipe_stress_frame_kernel::{FrameKernelError, FrameOrientation};
+use open_pipe_stress_frame_kernel::{FrameElement, FrameKernelError, FrameNode, FrameSection};
 use open_pipe_stress_product_physics::TANGENCY_TOLERANCE_RAD;
 use serde_json::Value;
 use std::collections::{BTreeMap, BTreeSet};
 
 pub(crate) const CHANGE_KIND: &str = "reconnect_pipe_run";
-/// The frame kernel's `AXIS_TOLERANCE` (private there): a chord whose metre
-/// norm is at or below it is degenerate (`normalize`, `frame_kernel` lib.rs).
-const AXIS_TOLERANCE: f64 = 1.0e-12;
 /// Relative tolerance of the coincident-span warning (§2.4).
 const COINCIDENT_RELATIVE: f64 = 1.0e-9;
 
@@ -257,35 +256,79 @@ fn position(model: &Value, node: &str) -> Result<Vec3, GeometryError> {
     vector(&unique(model, "nodes", node)?["position"])
 }
 
-/// R6 then R7 (§2.3): the chord in metres, checked as the kernel's private
-/// `normalize` checks it, then the kernel's orientation constructor with the
-/// effective `y_reference`. Kernel errors map by variant and call order.
-fn orientation(chord: Vec3, unit: &str, y: Option<Vec3>, pipe: &str, refs: &[String]) -> Result<(), ReconnectBlock> {
-    let geometry = |detail: String| {
-        block(
+/// Why the kernel orientation predicate refused a pipe.
+pub(crate) enum OrientationFault {
+    /// R6: the chord in metres cannot be formed, is nonfinite, or is at or
+    /// below the kernel's axis tolerance. The text completes "the chord ...".
+    Chord(String),
+    /// R7: the kernel's orientation constructor refuses the chord with the
+    /// effective `y_reference`.
+    Orientation(FrameKernelError),
+}
+
+/// The kernel orientation predicate, shared by `reconnect_pipe_run` (R6, R7,
+/// §2.3) and `connect_pipe_run` (run-sheet design O4), so the two operations
+/// apply one rule, and the rule is the solve's own frame construction:
+/// - each endpoint coordinate (stored in the project length unit `unit`) is
+///   converted to metres first, as `product_physics`'
+///   `normalize_node_coordinates` does before any element is built;
+/// - the element is the kernel's `FrameElement` on those metre nodes, and the
+///   checks are the calls `FrameElement::new` makes for every straight pipe
+///   (`StraightPipeElement::new`): `length` (the chord, `to - from`, at the
+///   kernel's 1e-12 axis tolerance), then `orientation`, which normalizes the
+///   chord (`local_x_axis`) and only then hands it with `y` to
+///   `FrameOrientation::from_x_axis_and_y_reference`.
+///
+/// So connect, reconnect and the solve compute the same binary64 values and
+/// admit the same orientations. `length` and `orientation` read only the
+/// nodes and `y_reference`; the section below is a valid placeholder that
+/// neither reads (section validity is the solve's separate check).
+/// `y = None` checks the chord only.
+pub(crate) fn kernel_orientation(from: Vec3, to: Vec3, unit: &str, y: Option<Vec3>) -> Result<(), OrientationFault> {
+    let metres = |point: Vec3| -> Result<Vec3, OrientationFault> {
+        let mut out = [0.0; 3];
+        for i in 0..3 {
+            out[i] = convert(point[i], unit, "m", Dimension::Length)
+                .map_err(|_| OrientationFault::Chord("cannot be converted to metres as a finite length".into()))?;
+        }
+        Ok(out)
+    };
+    let element = FrameElement {
+        node_i: FrameNode { index: 0, coordinates: metres(from)? },
+        node_j: FrameNode { index: 1, coordinates: metres(to)? },
+        section: FrameSection::new(1.0, 1.0, 1.0, 1.0, 1.0, 1.0).expect("unit placeholder section is valid"),
+        y_reference: y.unwrap_or([0.0, 0.0, 0.0]),
+    };
+    match element.length() {
+        Ok(length) if length.is_finite() => {}
+        Ok(length) => return Err(OrientationFault::Chord(format!("is nonfinite (|x| = {length:e} m)"))),
+        Err(_) => {
+            let chord = sub(element.node_j.coordinates, element.node_i.coordinates);
+            return Err(OrientationFault::Chord(format!(
+                "is degenerate or nonfinite (|x| = {:e} m, frame kernel axis tolerance 1e-12)",
+                norm(chord)
+            )));
+        }
+    }
+    if y.is_none() {
+        return Ok(());
+    }
+    element.orientation().map(|_| ()).map_err(|error| match error {
+        FrameKernelError::NonFiniteInput { name: "local_x_axis", .. } => OrientationFault::Chord("is nonfinite".into()),
+        other => OrientationFault::Orientation(other),
+    })
+}
+
+/// R6 then R7 (§2.3) for the reconnected pipe running `from` → `to`.
+fn orientation(from: Vec3, to: Vec3, unit: &str, y: Option<Vec3>, pipe: &str, refs: &[String]) -> Result<(), ReconnectBlock> {
+    kernel_orientation(from, to, unit, y).map_err(|fault| match fault {
+        OrientationFault::Chord(detail) => block(
             "OP-RECONNECT-GEOMETRY-DEGENERATE",
             format!("Cannot reconnect {pipe}: the new chord {detail}."),
             "Choose a target node at a distinct finite position.",
             refs.to_vec(),
-        )
-    };
-    let mut metres = [0.0; 3];
-    for i in 0..3 {
-        metres[i] = convert(chord[i], unit, "m", Dimension::Length)
-            .map_err(|_| geometry("cannot be converted to metres as a finite length".into()))?;
-    }
-    let length = norm(metres);
-    if !length.is_finite() || length <= AXIS_TOLERANCE {
-        return Err(geometry(format!(
-            "is degenerate or nonfinite (|x| = {length:e} m, frame kernel axis tolerance 1e-12)"
-        )));
-    }
-    let Some(y) = y else {
-        return Ok(());
-    };
-    FrameOrientation::from_x_axis_and_y_reference(metres, y).map(|_| ()).map_err(|error| match error {
-        FrameKernelError::NonFiniteInput { name: "local_x_axis", .. } => geometry("is nonfinite".into()),
-        other => block(
+        ),
+        OrientationFault::Orientation(other) => block(
             "OP-RECONNECT-ORIENTATION-DEGENERATE",
             format!(
                 "Cannot reconnect {pipe}: the frame kernel refuses the new chord with its y_reference ({other:?}); the local axes would not be an orthonormal right-handed basis within 1e-12."
@@ -436,7 +479,7 @@ pub(crate) fn resolve(model: &Value, intent: &Value) -> Result<ReconnectEdit, Bl
         position(model, &ends.fixed).map_err(|e| vec![e.into()])?,
         position(model, &ends.target).map_err(|e| vec![e.into()])?,
     );
-    let chord = if end == "to" { sub(target_at, fixed_at) } else { sub(fixed_at, target_at) };
+    let (from_at, to_at) = if end == "to" { (fixed_at, target_at) } else { (target_at, fixed_at) };
     let kept_y = match pipe.get("y_reference") {
         Some(y) => Some(vector(y).map_err(|e| vec![e.into()])?),
         None => None,
@@ -446,7 +489,7 @@ pub(crate) fn resolve(model: &Value, intent: &Value) -> Result<ReconnectEdit, Bl
     let mut blocks = Vec::new();
     let mut warnings = Vec::new();
     // R6, R7.
-    if let Err(error) = orientation(chord, unit, effective_y, pipe_id, &[pipe_id.to_string(), ends.fixed.clone(), target.to_string()]) {
+    if let Err(error) = orientation(from_at, to_at, unit, effective_y, pipe_id, &[pipe_id.to_string(), ends.fixed.clone(), target.to_string()]) {
         blocks.push(error);
     }
     for segs in malformed_collections(model) {

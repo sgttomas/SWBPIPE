@@ -98,7 +98,7 @@ import { PcfExportPanel } from "./features/pcf-export/PcfExportPanel";
 import { ProjectStorageAuditPanel } from "./features/project-storage/ProjectStorageAuditPanel";
 import { ReplaceProjectPrompt } from "./features/project-storage/ReplaceProjectPrompt";
 import { HistoryPanel } from "./features/history/HistoryPanel";
-import { UnsavedChangesPrompt } from "./features/project-storage/UnsavedChangesPrompt";
+import { QuitWhileBusyPrompt, UnsavedChangesPrompt } from "./features/project-storage/UnsavedChangesPrompt";
 import { AutosaveRecoveryPrompt } from "./features/autosave";
 import { ProjectUnitsDialog } from "./features/project-units/ProjectUnitsDialog";
 import { ModelDocumentSaveDialog } from "./features/model-file/ModelDocumentSaveDialog";
@@ -297,7 +297,7 @@ function AppSession() {
     modelDocumentSaveRequest,
     handoffSaveRequest
   } = session.project;
-  const { unsavedChangesPrompt, autosave } = session.project;
+  const { unsavedChangesPrompt, quitWhileBusyPrompt, autosave } = session.project;
   const {
     uiPreferences, setUiPreferences,
     resolvedTheme,
@@ -403,7 +403,7 @@ function AppSession() {
       data-theme-preference={uiPreferences.theme}
       data-testid="desktop-preview-shell"
       // The replace prompt, the unsaved-changes prompt, the units dialog and the model-document save dialog are modal: the workspace takes no focus or input meanwhile.
-      inert={replaceProjectPrompt !== null || blankProjectUnitsRequest !== null || unsavedChangesPrompt !== null || modelDocumentSaveRequest !== null || handoffSaveRequest !== null || autosave.recoveryPrompt !== null}
+      inert={replaceProjectPrompt !== null || blankProjectUnitsRequest !== null || unsavedChangesPrompt !== null || quitWhileBusyPrompt !== null || modelDocumentSaveRequest !== null || handoffSaveRequest !== null || autosave.recoveryPrompt !== null}
       ref={workspaceShellRef}
       onFocusCapture={rememberShellFocus}
       onPointerDownCapture={rememberShellFocus}
@@ -1285,6 +1285,7 @@ function AppSession() {
       ) : null}
       <ReplaceProjectPrompt prompt={replaceProjectPrompt} />
       <UnsavedChangesPrompt prompt={unsavedChangesPrompt} />
+      <QuitWhileBusyPrompt prompt={quitWhileBusyPrompt} />
       <AutosaveRecoveryPrompt prompt={autosave.recoveryPrompt} />
       <ProjectUnitsDialog request={blankProjectUnitsRequest} />
       <ModelDocumentSaveDialog request={modelDocumentSaveRequest} />
@@ -1391,14 +1392,17 @@ function MenuBar({
       id: "file",
       label: "File",
       items: [
-        { kind: "command", id: "file.new-local", label: "New Local Project", disabled: projectBusy },
+        // New Blank Project is the one "new": it starts an empty model (asking
+        // first while the working model has unsaved edits). `file.new-local`
+        // stores the working model itself as a local project, so it is a save.
         { kind: "command", id: "file.new-blank", label: "New Blank Project", disabled: projectBusy },
         { kind: "separator" },
         { kind: "command", id: "file.open-model", label: "Open Model Document…", disabled: projectBusy },
         { kind: "command", id: "file.open-local", label: "Open Local Project…", disabled: projectBusy },
         { kind: "command", id: "file.list-local", label: "List Local Projects", disabled: projectBusy },
         { kind: "separator" },
-        { kind: "command", id: "file.save-local", label: "Save Local Project", disabled: projectBusy },
+        { kind: "command", id: "file.save-local", label: "Save Local Project", disabled: projectBusy, shortcut: { label: "⌘S", aria: "Meta+S Control+S" } },
+        { kind: "command", id: "file.new-local", label: "Save as New Local Project", disabled: projectBusy },
         { kind: "command", id: "file.save-model-document", label: "Save Model Document…", disabled: !modelDocumentSaveReady },
         { kind: "command", id: "file.save-handoff", label: "Save Handoff…", disabled: !modelDocumentSaveReady },
         { kind: "command", id: "file.save-report-package", label: "Save Report Package…", disabled: !reportPackageReady }

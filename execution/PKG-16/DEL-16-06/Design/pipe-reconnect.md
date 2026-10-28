@@ -284,9 +284,26 @@ straight element's frame through `from_x_axis_and_y_reference` (`:617-630`, via
 kept `y_reference` (1.00001, 1, 0) passes `frame` (perpendicular norm about
 7.07e-6) but the kernel's |x·y| is about 4.4e-11 > 1e-12.
 
-So the module calls `FrameOrientation::from_x_axis_and_y_reference` on the new
-chord in metres (converted as `frame` converts, `:322-325`) and the effective
-`y_reference`. This needs a direct dependency on `open_pipe_stress_frame_kernel`
+So the module builds the solve's own element and makes the solve's calls.
+Each endpoint coordinate is converted to metres first, as the solve's
+`normalize_node_coordinates` does before any element is built; the two metre
+nodes and the effective `y_reference` form a kernel `FrameElement`, and the
+module calls `FrameElement::length` (the chord `to - from` at the kernel's 1e-12
+axis tolerance) and then `FrameElement::orientation`, which normalizes the
+chord (`local_x_axis`) before `FrameOrientation::from_x_axis_and_y_reference`
+normalizes it again. These are the calls `FrameElement::new` makes for every
+straight pipe (`StraightPipeElement::new`), so the module and the solve compute
+the same binary64 values. Handing the raw chord to the constructor, as the
+first O4 revision did, is not equivalent: chord (1, 1, 0) m with
+`y_reference` (1.000022, 1, 0) gives |x·y| about 2.0e-11 on the raw chord and 0
+after the solve's normalization. The section the element carries is a valid
+placeholder that neither call reads. The predicate is
+`pipe_reconnect::kernel_orientation`; `connect_pipe_run` applies the same one
+(O4, DEL-07-02 `run-sheet-entry.md` §8) under its own codes
+`OP-CONNECT-PIPE-GEOMETRY-DEGENERATE` (R6) and
+`OP-CONNECT-PIPE-ORIENTATION-DEGENERATE` (R7).
+
+This needs a direct dependency on `open_pipe_stress_frame_kernel`
 in the applier's `Cargo.toml`. That is not a D3-pinned file (the pinned list,
 `b7a_domain_model.py:74`, holds `.rs` sources; using the kernel's public API
 edits none of them). The crate is already in the wasm engine's closure through
@@ -300,19 +317,18 @@ and `validation/benchmarks/physics_audit_regression/Cargo.lock`. They are in
 W-10's scope; none is D3-pinned.
 
 Mapping, by `FrameKernelError` variant (`frame_kernel/src/lib.rs:322-336`), not
-message text: `NonFiniteInput { name: "local_x_axis" }` and `DegenerateAxis`
-from the chord normalization → R6; `NonFiniteInput { name: "y_reference" }`,
-`DegenerateAxis` from the y or z normalization, and `InvalidOrientation` → R7.
-The kernel's `normalize` is private, so the module first runs its own chord
-check on the same metre vector at the same threshold (norm ≤ 1e-12 or
-nonfinite → R6) and calls `from_x_axis_and_y_reference` only on a chord that
-passes it. Any `DegenerateAxis` from that call therefore comes from the y or z
-normalization and maps to R7; the sources are told apart by call order, not by
-`detail`. Missing `y_reference` → chord check only, plus the §1 warning. Residual: a
-case on the 1e-12 boundary could differ between the applier's metre conversion
-and the product's unit normalization; the solve then refuses it by name
-(`PIPE_ELEMENT_INPUT_INVALID`, `product_physics/src/lib.rs:8148-8160`), never a
-silent result.
+message text: an error from `FrameElement::length`, a nonfinite length, or
+`NonFiniteInput { name: "local_x_axis" }` → R6; `NonFiniteInput { name:
+"y_reference" }`, `DegenerateAxis` from the y or z normalization, and
+`InvalidOrientation` → R7. `orientation` runs only on a chord that `length`
+passed, so any `DegenerateAxis` from it comes from the y or z normalization;
+the sources are told apart by call order, not by `detail`. Missing
+`y_reference` → chord check only, plus the §1 warning. A chord or orientation
+the module refuses is one the solve refuses by name
+(`PIPE_ELEMENT_INPUT_INVALID`, `product_physics/src/lib.rs`), and the reverse.
+`tests/connect_pipe_orientation.rs` pins this for connect and reconnect
+against the solve on a table and a near-parallel sweep of oblique and offset
+chords in m and mm.
 
 ### 2.4 Warnings (non-blocking; the user may be mid-edit)
 
