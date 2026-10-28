@@ -5,11 +5,13 @@ import { SelfWeightPlanPanel } from "./features/self-weight-authoring";
 import { OfflineProposalIntakePanel } from "./features/offline-proposal-intake";
 import operationSchema from "../../../schemas/model_operation.schema.json";
 import { GeometryToolsPanel } from "./features/geometry-tools/GeometryToolsPanel";
+import { SplitIntoPartsPanel, type SplitPartsOpenRequest } from "./features/geometry-tools/SplitIntoPartsPanel";
 import { operationExamples } from "./features/geometry-tools/reconnectExample";
 import { resolveEntitySelection } from "./features/results/resultInterpretation";
 import { BoundaryAuthoringPanel } from "./features/boundary-authoring/BoundaryAuthoringPanel";
 import { DisplayUnitsProvider } from "./features/display-units";
 import { BatchReviewPanel } from "./features/toolkit/BatchReviewPanel";
+import { BulkChangePanel } from "./features/bulk-change/BulkChangePanel";
 import {
   Bot,
   ClipboardCheck,
@@ -75,7 +77,7 @@ import { LoadCaseManagerPanel } from "./features/load-cases/LoadCaseManagerPanel
 import { LocalFeaHandoffPanel } from "./features/local-fea-handoff/LocalFeaHandoffPanel";
 import { MissingDataBlockingPanel, countMissingDataBlockers } from "./features/missing-data/MissingDataBlockingPanel";
 import { professionalStatusToken, ruleCheckStatusToken, statusDisplay } from "./features/workspace/statusLabels";
-import { setSelectionFocus } from "./features/workspace/selectionState";
+import { entityRefFromKey, setSelectionFocus } from "./features/workspace/selectionState";
 import { solveProofStatus, type SolveProofEvidence } from "./features/workspace/solveProof";
 import {
   WORKSPACE_SECTIONS,
@@ -113,6 +115,8 @@ import { SupportLoadSummaryPanel } from "./features/results/SupportLoadSummaryPa
 import { StressRatioTablePanel } from "./features/results/StressRatioTablePanel";
 import { DisplacementExtremesPanel } from "./features/results/DisplacementExtremesPanel";
 import { WeightSummaryPanel } from "./features/results/WeightSummaryPanel";
+import { KeyResultsPanel } from "./features/results/KeyResultsPanel";
+import { useKeyResultsSession } from "./features/results/useKeyResultsSession";
 import { resolveLocatedCauseSelection } from "./features/results/resultInterpretation";
 import { useDiagnosticFilterRequest, type DiagnosticFilterRequest } from "./features/diagnostics/diagnosticFilterRequest";
 import { ReviewGeometryPanel } from "./features/review-geometry/ReviewGeometryPanel";
@@ -333,12 +337,46 @@ function AppSession() {
   // "Show solver diagnostic" (DEL-07-05 numerical health §3): the Issues drawer's
   // Diagnostics panel opens filtered to exactly that diagnostic, once.
   const { filterRequest: diagnosticFilterRequest, requestDiagnosticFilter } = useDiagnosticFilterRequest({ issuesDrawerOpen, result, analysisRun });
+  // A6 (DEL-07-05 Design `key-results-panel.md`): the key-results panel's open state, auto-open
+  // rule and actions, each through an existing setter. The rule-check run follows the A3 rule.
+  const keyResults = useKeyResultsSession({
+    result,
+    standing: viewportResultStanding,
+    historical: historicalRun !== null,
+    setActiveSection,
+    selectEntity: (entity) => { handleSelectEntity(entity); },
+    viewCommandRef: viewportViewCommandRef,
+    enterModelStage: () => runMenuCommand("view.stage.model"),
+    openRuleChecks: () => runMenuCommand("analyze.rule-checks")
+  });
+  const keyResultsRuleCheckRun = currentSolvedResult !== null && result === currentSolvedResult ? ruleCheckReportRun : null;
 
   // In the packaged Tauri shell the OS-level menu bar is the single menu, so the
   // in-DOM menu bar is suppressed to avoid a redundant second row. In the
   // browser/Playwright preview there is no native menu, so the in-DOM bar
   // renders and remains the navigable, tested source of truth.
   const showInAppMenuBar = !isTauriRuntime();
+
+  // B2 (DEL-07-02 Design `bulk-change.md`): Bulk change acts on the ordered selection. Change
+  // selected… in the entity menus opens its tab and moves focus to the panel.
+  const bulkChangeScope = useMemo(
+    () => orderedSelection.orderedKeys.flatMap((key) => { const ref = entityRefFromKey(key); return ref ? [ref] : []; }),
+    [orderedSelection.orderedKeys]
+  );
+  const [bulkChangeFocusRequest, setBulkChangeFocusRequest] = useState(0);
+  const openBulkChange = () => {
+    setActiveSection("operations");
+    setOperationTab("bulk");
+    setBulkChangeFocusRequest((current) => current + 1);
+  };
+  // B5 (DEL-07-01 Design `split-and-slope-entry.md`): Split into N… in the entity menus opens
+  // Split into equal parts on the pipe, under the Geometry tab, with focus on its parts field.
+  const [splitPartsRequest, setSplitPartsRequest] = useState<SplitPartsOpenRequest | null>(null);
+  const openSplitIntoParts = (pipeId: string) => {
+    setActiveSection("operations");
+    setOperationTab("geometry");
+    setSplitPartsRequest((current) => ({ pipeId, serial: (current?.serial ?? 0) + 1 }));
+  };
 
   if (!model || !selection) {
     return <div className="loading-screen">Loading local SWBPIPE preview fixture.</div>;
@@ -391,7 +429,8 @@ function AppSession() {
           run={runPresenceFromCells({ result, historicalRun, solveJob, hasQualifiedCurrentResult: currentSolvedResult !== null, numericalHealthHold })}
           theme={uiPreferences.theme}
           density={uiPreferences.density}
-          onCommand={runMenuCommand}
+          keyResultsOpen={keyResults.open}
+          onCommand={(command) => { if (command === "view.key-results") { setOpenMenu(null); keyResults.toggle(); } else runMenuCommand(command); }}
           onOpenMenu={setOpenMenu}
         />
       ) : null}
@@ -457,6 +496,8 @@ function AppSession() {
               operationBusy={operationBusy}
               viewCommandRef={viewportViewCommandRef}
               showAllAvailable={hiddenEntityKeys.size > 0 || isolationActive}
+              onChangeSelected={openBulkChange}
+              onSplitPipe={openSplitIntoParts}
               onApplyCellIntent={async (intent) => {
                 const owned: { current?: Readonly<OperationOutcome> } = {};
                 const applied = await handleApplyIntent(intent, owned);
@@ -490,7 +531,7 @@ function AppSession() {
               {activeSection === "operations" || activatedExpensiveSections.has("operations") ? (
               <DormantSection active={activeSection === "operations"} guardGeneration={requestEpoch} sessionGeneration={projectSessionGeneration}>
               <nav className="operation-tabs" aria-label="Editing and review tools">
-                {[["review", "Review changes"], ["geometry", "Geometry"], ["supports", "Supports"], ["weight", "Self weight"], ["agent", "Agent"], ["records", "Model records"], ["details", "Details"]].map(([id, label]) => (
+                {[["review", "Review changes"], ["bulk", "Bulk change"], ["geometry", "Geometry"], ["supports", "Supports"], ["weight", "Self weight"], ["agent", "Agent"], ["records", "Model records"], ["details", "Details"]].map(([id, label]) => (
                   <button type="button" key={id} aria-pressed={operationTab === id} data-testid={`operation-tab-${id}`} onClick={() => setOperationTab(id)}>{label}</button>
                 ))}
               </nav>
@@ -509,6 +550,15 @@ function AppSession() {
                   </details>
                 ))}
               </section>
+              </div>
+              <div className="operation-tool-page" hidden={operationTab !== "bulk"}>
+              <BulkChangePanel
+                model={model}
+                scope={bulkChangeScope}
+                onQueueBatch={handleQueueOperationBatch}
+                busy={operationBusy}
+                focusRequest={bulkChangeFocusRequest}
+              />
               </div>
               <div className="operation-tool-page" hidden={operationTab !== "records"}>
               <AssumptionsPanel key={`assumptions:${projectSessionGeneration}`} model={model} selection={selection} queuedIntents={editorIntents} onQueueIntent={handleQueueEditorIntent} operationBusy={operationBusy} />
@@ -572,6 +622,13 @@ function AppSession() {
                 onQueueBatch={handleQueueOperationBatch}
                 busy={operationBusy}
                 requestEpoch={requestEpoch}
+              />
+              <SplitIntoPartsPanel
+                model={model}
+                selectedPipeRefs={selectedPipeRefs}
+                onQueueBatch={handleQueueOperationBatch}
+                busy={operationBusy}
+                openRequest={splitPartsRequest}
               />
               </div>
               <div className="operation-tool-page" hidden={operationTab !== "supports"}>
@@ -686,6 +743,9 @@ function AppSession() {
               <button type="button" onClick={() => void handleInspectBundledReference()}>
                 Inspect bundled reference
               </button>
+              <button type="button" data-testid="key-results-open" aria-pressed={keyResults.open} onClick={keyResults.toggle}>
+                Key results
+              </button>
               {historicalRun ? <HistoricalRunPanel key={historicalRun.runId} context={historicalRun} /> : <ResultsPanel
                 result={result}
                 knowledge={knowledge}
@@ -693,6 +753,7 @@ function AppSession() {
                 selectedResultId={selectedReviewTarget?.target_type === "result" ? selectedReviewTarget.id : null}
                 onSelectResult={handleSelectResult}
                 selectedEntity={selection}
+                viewRequest={keyResults.resultsRequest}
                 numericalHealth={numericalHealth}
                 resolveCauseLocation={(location) => resolveLocatedCauseSelection(model, location)}
                 onSelectCauseLocation={(entity) => handleSelectEntity(entity)}
@@ -709,6 +770,7 @@ function AppSession() {
                   result={result}
                   standing={viewportResultStanding}
                   focusSupportId={selection.type === "support" ? selection.id : null}
+                  focusRequest={keyResults.supportRequest}
                 />
               )}
               {historicalRun ? null : (
@@ -881,12 +943,15 @@ function AppSession() {
               onViewportInteractionStart={exposeViewportForNarrowInteraction}
               onInvalidateDraft={invalidateDirectDraftContext}
               onQueueIntent={handleQueueEditorIntent}
+              onChangeSelected={openBulkChange}
+              onSplitPipe={openSplitIntoParts}
               operationBusy={operationBusy}
               onSelect={handleSelectEntity}
               queuedIntents={editorIntents}
               reservedIntents={queuedBatches.flatMap((entry) => entry.batch.operations)}
               result={result}
               resultStanding={viewportResultStanding}
+              ruleCheckRun={currentSolvedResult !== null && result === currentSolvedResult ? ruleCheckReportRun : null}
               selection={selection}
               selectionState={orderedSelection}
               theme={resolvedTheme}
@@ -1171,6 +1236,20 @@ function AppSession() {
       </div>
 
       <SolveProgressPanel solveJob={solveJob} running={running} onCancel={handleCancelRun} />
+      {keyResults.open ? (
+        <KeyResultsPanel
+          model={model}
+          result={result}
+          standing={viewportResultStanding}
+          ruleCheckRun={keyResultsRuleCheckRun}
+          historical={historicalRun !== null}
+          canvasHidden={stageView === "table"}
+          everySolve={keyResults.everySolve}
+          onEverySolveChange={keyResults.setEverySolve}
+          panelRef={keyResults.panelRef}
+          {...keyResults.actions}
+        />
+      ) : null}
       <ShellStatusBar issueCount={issueCount} />
 
       {auditDrawerOpen ? (
@@ -1270,6 +1349,7 @@ function MenuBar({
   run,
   theme,
   density,
+  keyResultsOpen = false,
   onCommand,
   onOpenMenu
 }: {
@@ -1280,6 +1360,7 @@ function MenuBar({
   run: Parameters<typeof railStageStates>[0];
   theme: UiThemePreference;
   density: UiDensityPreference;
+  keyResultsOpen?: boolean;
   activeSection: WorkspaceSectionId | null;
   auditOpen: boolean;
   canRedo: boolean;
@@ -1370,6 +1451,7 @@ function MenuBar({
         { kind: "separator" },
         { kind: "command", id: "view.issues", label: "Issues", active: issuesOpen },
         { kind: "command", id: "view.audit", label: "Audit & Boundaries", active: auditOpen },
+        { kind: "command", id: "view.key-results", label: "Key Results", active: keyResultsOpen },
         { kind: "separator" },
         ...(["light", "dark", "system"] as const).map((value): MenuItemSpec => ({
           kind: "command", id: `view.theme.${value}`, label: { light: "Light", dark: "Dark", system: "System" }[value], active: theme === value

@@ -3216,3 +3216,185 @@ if fnkey("case_prescribed", _W16_IM):
         (site_after("solve_prepared_load_case", _LIB, "if has_blocking(&diagnostics[before..]) {", "load_case_id: load_case.id.clone(),"),
          {"load_case.id": IN}),
     ]
+
+# ---- W-16 slices b and c: exact-route load combinations (DEL-05-02 Design `exact-combinations.md`) and exact-route
+# equivalent-static generation (DEL-05-01 Design `exact-equivalent-static.md`); retained-pricing-rules.md §8.27. D1
+# admits neither on a retained branch: D1.4's exact clause refuses every combination on route E and route L has no
+# exact contract (W16B-CB); D1.5 refuses every case with equivalent_static on both routes (W16C-ES). What the new code
+# reaches on D1 is the pressure-2 reader's combination test (W16B-RD); every by-name edge into the two new modules'
+# private functions is an unrelated name (W16BC-BN).
+_W16B_EC = PP_ + "exact_combinations.rs"
+_W16B_EV = RE_ + "exact_combination_evidence.rs"
+_W16_RM = PP_ + "retained_memory.rs"
+if fnkey("append", _W16B_EC):
+    _W16B_RUN = _fn_text("run_linear_static_preview_observed_inner", _LIB)
+    _W16B_FAMILY = _fn_text("family_clauses", _W16_RM)
+    _W16B_LIBP = _re.sub(r"//[^\n]*", "", _text_of(_LIB))   # lib.rs opens with #[cfg(test)] module declarations
+    # W16B-CB (guard): D1.4's exact clause (route E) and the one guarded append; the evidence member is inserted only
+    # from append's records, and state_operand_standing runs only on that member.
+    _w16b_cb = (
+        _W16B_FAMILY.count("    if exact && !m.combinations.is_empty() {\n        return refuse(C::Invocation, F::Combinations);\n    }") == 1,
+        _W16B_RUN.count("let exact_combinations = (pressure_runtime::is_exact(&model) && !model.combinations.is_empty()).then(|| {\n"
+                        "        exact_combinations::append(") == 1,
+        _W16B_LIBP.count("exact_combinations::append(") == 1,
+        _W16B_RUN.count("if let Some(records) = exact_combinations {\n                evidence[\"exact_combinations\"] = serde_json::json!(records);") == 1,
+        _W16B_LIBP.count('"exact_combinations"') == 2,
+        _W16B_RUN.count('if let Some(records) = envelope.contract_evidence.as_mut().and_then(|e| e.get_mut("exact_combinations"))'
+                        '.and_then(serde_json::Value::as_array_mut) {\n        exact_combinations::state_operand_standing(') == 1,
+        _W16B_LIBP.count("exact_combinations::state_operand_standing(") == 1,
+    )
+    if not all(_w16b_cb):
+        raise SystemExit(f"W16B-CB: the combination premise or its guards changed; re-review its zeros: {_w16b_cb}")
+    _W16B_CB = (O10 + "W16B-CB: exact_combinations::append runs only under `is_exact(&model) && !model.combinations.is_empty()`: "
+                "route E's D1.4 exact clause refuses every combination (family_clauses) and route L has no exact contract "
+                "(D1.3 branch L), so append never runs and the `exact_combinations` evidence member it alone feeds is absent")
+    O10_EDGE_ZERO += [
+        (fnkey("run_linear_static_preview_observed_inner", _LIB), fnkey("append", _W16B_EC), _W16B_CB),
+        (fnkey("run_linear_static_preview_observed_inner", _LIB), fnkey("state_operand_standing", _W16B_EC),
+         _W16B_CB + " (state_operand_standing runs only on that member)"),
+    ]
+if fnkey("validate", _W16B_EV) and fnkey("validate_direct_pressure_evidence", RE_ + "physics_evidence.rs"):
+    _W16B_VPE = _fn_text("validate_pressure_evidence", RE_ + "physics_evidence.rs")
+    _W16B_PRESENT = _fn_text("present", _W16B_EV)
+    # W16B-RD (guard): the reader enters its combination pass only when `present`; otherwise it runs the direct pass
+    # once and returns its Result.
+    _w16b_rd = (
+        _W16B_VPE.count("    if crate::exact_combination_evidence::present(source) {\n"
+                        "        let view = crate::exact_combination_evidence::direct_view(source)?;\n"
+                        "        validate_direct_pressure_evidence(&view)?;\n"
+                        "        return crate::exact_combination_evidence::validate(source);\n    }\n"
+                        "    validate_direct_pressure_evidence(source)\n}") == 1,
+        _W16B_VPE.count("validate_direct_pressure_evidence(") == 2,
+        _W16B_PRESENT.count('source["contract_evidence"].get("exact_combinations").is_some()\n'
+                            "        || items(&source[\"results\"]).iter().any(is_combination_row)") == 1,
+        _fn_text("is_combination_row", _W16B_EV).count('row["basis_ref"]["ref_type"] == "combination"') == 1,
+    )
+    if not all(_w16b_rd):
+        raise SystemExit(f"W16B-RD: the reader's combination dispatch changed; re-review its zeros: {_w16b_rd}")
+    _W16B_RD = (O10 + "W16B-RD: present(source) is false on D1: the successor carries no contract_evidence.exact_combinations "
+                "(W16B-CB) and no row whose basis_ref names a combination (route E has none, D1.4's exact clause; route L "
+                "never reaches this reader, R1), so the combination pass and its view never run")
+    O10_EDGE_ZERO += [(fnkey("validate_pressure_evidence", RE_ + "physics_evidence.rs"), fnkey(_n, _W16B_EV), _W16B_RD)
+                      for _n in ("direct_view", "validate")]
+    EDGE_PER_CALL = list(EDGE_PER_CALL) + [(fnkey("validate_pressure_evidence", RE_ + "physics_evidence.rs"),
+        fnkey("validate_direct_pressure_evidence", RE_ + "physics_evidence.rs"), "1",
+        O10 + "W16B-RD: of the two direct-pass calls, the `present` arm's returns and is unreached on D1; the other runs once")]
+_W16C_FAMILY = _fn_text("family_clauses", _W16_RM) if fnkey("family_clauses", _W16_RM) else ""
+if fnkey("exact_equivalent_static_record", _LIB):
+    _W16C_GEN = _fn_text("append_equivalent_static_generated_loads", _LIB)
+    _w16c_else = "    let Some(equivalent_static) = &load_case.equivalent_static else {\n        return;\n    };\n"
+    _W16C_INT = _fn_text("intensity", PP_ + "certified_loads.rs")
+    _w16c_int = "        if let Some(generation) = &case.equivalent_static {\n"
+    _W16C_PSB = _fn_text("physical_source_built", PP_ + "source_receipt/composite.rs")
+    _w16c_psb = '    if case.equivalent_static.is_some() {\n        expected_keys.insert("equivalent_static");\n'
+    _W16C_VP = _fn_text("validate_profile", PP_ + "pressure_runtime.rs")
+    _W16C_PEI = _fn_text("validate_physics_evidence_in", RE_ + "physics_evidence.rs")
+    _W16C_TMI = _fn_text("validate_transport_metadata_in", RE_ + "physics_source.rs")
+    _W16C_LIBP = _re.sub(r"//[^\n]*", "", _text_of(_LIB))   # lib.rs opens with #[cfg(test)] module declarations
+    _w16c_gen_calls = ("pressure_runtime::is_exact(", "joint::replaced_span_ids(", "pressure_runtime::selects_timoshenko(",
+                       "curved_bend_realized_pipe_ids(", "generation_mass_per_length(", "refuse_generated_id_collisions(",
+                       "wind_span_replaced(")
+    # W16C-ES (guard): D1.5's per-case refusal, and every new call behind a case's equivalent_static.
+    _w16c_es = (
+        _W16C_FAMILY.count("    for case in &m.load_cases {\n        let regions_in_domain = match &case.pressure_regions {\n") == 1,
+        _W16C_FAMILY.count("        if case.equivalent_static.is_some() {\n            return refuse(C::Case, F::EquivalentStatic);") == 1,
+        "\n    }\n" not in _W16C_FAMILY.split("    for case in &m.load_cases {\n        let regions_in_domain", 1)[-1].split(
+            "        if case.equivalent_static.is_some() {\n            return refuse(C::Case, F::EquivalentStatic);", 1)[0],
+        _W16C_GEN.count(_w16c_else) == 1
+        and not any(_c in _W16C_GEN.split(_w16c_else, 1)[0] for _c in _w16c_gen_calls),
+        _W16C_INT.count(_w16c_int) == 1 and _W16C_INT.count("is_generated_equivalent_static_load(") == 2
+        and _W16C_INT.count("pressure_runtime::is_exact(") == 1
+        and _W16C_INT.split(_w16c_int, 1)[0].count("is_generated_equivalent_static_load(") == 0
+        and _W16C_INT.split(_w16c_int, 1)[0].count("pressure_runtime::is_exact(") == 0,
+        _fn_text("solve_prepared_load_case", _LIB).count(
+            "        if load_case.equivalent_static.is_some() {\n"
+            "            evidence[\"equivalent_static\"] = exact_equivalent_static_record(load_case, &loads);") == 1,
+        _W16C_LIBP.count("exact_equivalent_static_record(") == 2 and _W16C_LIBP.count('evidence["equivalent_static"]') == 1,
+        _W16C_PSB.count(_w16c_psb) == 1 and _W16C_PSB.count("exact_equivalent_static_record(") == 1
+        and _W16C_PSB.count("build_load_case_primitive_loads(") == 1
+        and _W16C_PSB.split(_w16c_psb, 1)[0].count("build_load_case_primitive_loads(") == 0,
+        _W16C_VP.count("        if case.equivalent_static.is_some() {\n") == 1 and _W16C_VP.count("carries_fields(") == 1
+        and _W16C_VP.index("carries_fields(") > _W16C_VP.index("        if case.equivalent_static.is_some() {\n"),
+        _W16C_PEI.count('        let generation = case.get("equivalent_static").is_some();\n        if generation {\n'
+                        '            equivalent_static_record(case_id, &case["equivalent_static"])?;') == 1
+        and _W16C_PEI.count("equivalent_static_record(") == 1,
+        _W16C_TMI.count('        if let Some(generation) = exact.get("equivalent_static") {\n') == 1
+        and _W16C_TMI.count("equivalent_static_record(") == 1,
+    )
+    if not all(_w16c_es):
+        raise SystemExit(f"W16C-ES: the equivalent-static premise or its guards changed; re-review its zeros: {_w16c_es}")
+    _W16C_ES = (O10 + "W16C-ES: D1.5 refuses every case with equivalent_static on both routes (family_clauses, "
+                "F::EquivalentStatic), so no admitted case generates and no case evidence carries an equivalent_static record")
+    O10_EDGE_ZERO += [
+        (fnkey("append_equivalent_static_generated_loads", _LIB), fnkey(_n, _f), _W16C_ES + " (after the generator's let-else return)")
+        for _n, _f in (("is_exact", PP_ + "pressure_runtime.rs"), ("replaced_span_ids", PP_ + "joint.rs"),
+                       ("selects_timoshenko", PP_ + "pressure_runtime.rs"), ("curved_bend_realized_pipe_ids", _LIB),
+                       ("generation_mass_per_length", _LIB), ("refuse_generated_id_collisions", _LIB), ("wind_span_replaced", _LIB))
+    ] + [
+        (fnkey("intensity", PP_ + "certified_loads.rs"), fnkey(_n, _f), _W16C_ES + " (inside intensity's `if let Some(generation)` arm)")
+        for _n, _f in (("is_generated_equivalent_static_load", _LIB), ("is_exact", PP_ + "pressure_runtime.rs"))
+    ] + [
+        (fnkey("solve_prepared_load_case", _LIB), fnkey("exact_equivalent_static_record", _LIB),
+         _W16C_ES + " (the case evidence's record is formed only under `load_case.equivalent_static.is_some()`)"),
+        (fnkey("physical_source_built", PP_ + "source_receipt/composite.rs"), fnkey("exact_equivalent_static_record", _LIB),
+         _W16C_ES + " (the companion binding re-forms the record only under `case.equivalent_static.is_some()`)"),
+        (fnkey("physical_source_built", PP_ + "source_receipt/composite.rs"), fnkey("build_load_case_primitive_loads", _LIB),
+         _W16C_ES + " (the companion binding re-forms the record only under `case.equivalent_static.is_some()`)"),
+        (fnkey("validate_profile", PP_ + "pressure_runtime.rs"), fnkey("carries_fields", PP_ + "case_state/mod.rs"),
+         _W16C_ES + " (validate_profile's load/reference-state refusal is inside `case.equivalent_static.is_some()`)"),
+        (fnkey("validate_physics_evidence_in", RE_ + "physics_evidence.rs"), fnkey("equivalent_static_record", RE_ + "physics_evidence.rs"),
+         _W16C_ES + "; the producer writes the record only under `load_case.equivalent_static.is_some()` (solve_prepared_load_case)"),
+        (fnkey("validate_transport_metadata_in", RE_ + "physics_source.rs"), fnkey("equivalent_static_record", RE_ + "physics_evidence.rs"),
+         _W16C_ES + "; the producer writes the record only under `load_case.equivalent_static.is_some()` (solve_prepared_load_case)"),
+    ]
+# W16BC-BN: the call graph links a call by its name; these callers name a different function (a method, a binding or
+# a function of their own module) that shares a name with a private function of exact_combinations.rs or
+# exact_combination_evidence.rs. A private module-level function or method is visible only inside its module, so none
+# of these callers can call it. Guard: each callee is defined once, without `pub`.
+_W16BC_BN = []
+for _callee_file, _callee, _callers in (
+        (_W16B_EC, "evidence", (("run_linear_static_preview_observed_inner", _LIB), ("solve_prepared_load_case", _LIB),
+                                ("kernel_outcome", PP_ + "retained_wire.rs"), ("composite_exact", PP_ + "source_receipt/composite.rs"))),
+        (_W16B_EC, "with", (("tally", PP_ + "retained_tests_hooks/grant2.rs"),)),
+        (_W16B_EC, "stiffness", (("build_curved_bend_macro_elements", _LIB), ("check_captured_structure", PP_ + "retained_product.rs"))),
+        (_W16B_EV, "stiffness", (("build_curved_bend_macro_elements", _LIB), ("check_captured_structure", PP_ + "retained_product.rs"))),
+        (_W16B_EV, "text", (("identity_match", _W16_RM), ("pending_error_bytes", PP_ + "retained_product.rs"),
+                            ("expression_matches", RE_ + "retained_precision.rs"))),
+        (_W16B_EV, "add", tuple((_n, RE_ + "declared_member_load.rs") for _n in ("isqrt", "add", "rn", "sqrt", "div12", "declared"))),
+        (_W16B_EV, "signum", (("section_functionals", RE_ + "physics_source.rs"),))):
+    _k = fnkey(_callee, _callee_file)
+    if not _k:
+        continue
+    _def = _text_of(_callee_file).split("\n")[int(_k.split(":")[1]) - 1]
+    if not _re.match(r"\s*fn\s", _def):
+        raise SystemExit(f"W16BC-BN: {_callee_file}:{_callee} is no longer private; re-review its by-name zeros")
+    for _n, _f in _callers:
+        # Every definition of the caller's name in its file (an impl method may share it; `pub(in ..)` included).
+        _defs = [i + 1 for i, _l in enumerate(_text_of(_f).split("\n"))
+                 if _re.match(r"\s*(pub(\([^)]*\))?\s+)?fn\s+" + _re.escape(_n) + r"\b", _l)] if _os.path.exists(_os.path.join(_SNAP, _f)) else []
+        for _line in _defs:
+            _W16BC_BN.append((Resolved(f"{_f.split('/src/')[-1]}:{_line}:{_n}"), _k, O10 + f"W16BC-BN: by-name edge to the private `{_callee}` of "
+                              f"{_callee_file.split('/src/')[-1]}, which {_n} cannot call (its `{_callee}` is another function, method or binding)"))
+O10_EDGE_ZERO += _W16BC_BN
+# W16BC-ID: the new modules' unreached format sites keep their arguments' classes (the chain classifies every format
+# row before its multiplicity applies). A combination names at most three operand cases (D1.9: at most three terms or
+# range operands), each an IN128 id, joined by ", "; the envelope mode is one of four literals; an operand's modulus
+# reference is the case's modulus_basis_ref (IN128); a withheld reason is one of the reader's static constants.
+if fnkey("validate", _W16B_EV):
+    _W16_JOIN3 = {"bytes": 3 * 128 + 2 * len(", "), "source": O10 + "W16BC-ID: at most three IN128 operand case ids joined by \", \""}
+    _w16_modes = _re.findall(r'Mode::\w+ => "([a-z_]+)"', _fn_text("sign", _W16B_EV))
+    _w16_consts = [len(_c.encode()) for _c in _re.findall(r'const [A-Z_]+: &str = "((?:[^"\\]|\\.)*)";', _production(_W16B_EV))]
+    if len(_w16_modes) != 4 or not _w16_consts:
+        raise SystemExit(f"W16BC-ID: the envelope mode literals or the reader's constants changed; re-review: {_w16_modes}")
+    O10_ID_AUDIT += [
+        (site("validate", _W16B_EV, "is missing in operand case {cases}", full=True), {"cases": _W16_JOIN3}),
+        (site("sign", _W16B_EV, "mode-selected source result across", full=True, row="format!("),
+         {'matchmode{Mode::Min=>"min",Mode::Max=>"max",Mode::MinAbs=>"min_abs",Mode::MaxAbs=>"max_abs",}':
+          {"bytes": max(len(_m) for _m in _w16_modes), "source": O10 + "W16BC-ID: the longest envelope mode literal"}}),
+        (site("modulus_key", _W16B_EV, 'format!("exact:{}", text(r, "OPERAND_SHAPE")?)', full=True), {'text(r,"OPERAND_SHAPE")?': IN}),
+        (site("validate", _W16B_EV, 'w["reason"].as_str().unwrap_or_default()', full=True),
+         {'w["reason"].as_str().unwrap_or_default()': {"bytes": max(_w16_consts),
+          "source": O10 + "W16BC-ID: a withheld reason is a static constant of the reader (the longest bounds it)"}}),
+    ]
+if fnkey("append", _W16B_EC):
+    O10_ID_AUDIT += [(site("append", _W16B_EC, "is missing in operand case {cases}", full=True), {"cases": _W16_JOIN3})]

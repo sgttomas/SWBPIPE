@@ -264,3 +264,11 @@ pub(crate) fn rhs_term(kind: &str, pipe: &str, coefficient: f64, region: &Value,
         _ => return None,
     })
 }
+
+// #1686's tests of `source_blocks.rs`'s solver mirror. They are declared here,
+// not in `source_blocks.rs` (whose test suffix `product_physics`'s
+// `retained_memory_law_tests` audits as closed) or `lib.rs` (pinned by the
+// retained-pricing W1 model). No retained-pricing model pins this file.
+#[cfg(test)]
+#[path = "source_blocks_spring_tests.rs"]
+mod source_blocks_spring_tests;

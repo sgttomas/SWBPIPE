@@ -14,6 +14,8 @@ import { ContextMenu, type ContextMenuEntry, type ContextMenuRequest } from "./C
 //   toolbar buttons (and H, I) do. They are session view state and never change the model.
 // - Queue removal queues the intent the inspector's Delete panel or Remove panel queues, for the
 //   same review and Apply. Opening the menu changes nothing.
+// - Change selected… (B2) opens the Bulk change panel on the selection, as its tab does.
+// - Split into N… (B5, pipes) opens Split into equal parts on the pipe, as the Geometry tab does.
 // The selection commands act on the selection. A menu opened from the keyboard on an entity
 // that is not selected leaves the selection alone, and these commands then say so.
 
@@ -34,6 +36,10 @@ export type EntityCommandEnvironment = Readonly<{
   fitSelectionAvailable?: boolean;
   operationBusy?: boolean;
   onQueueIntent?: (intent: EditorOperationIntent) => void;
+  /** Opens Bulk change on the selection (B2); without it the menu offers no Change selected… item. */
+  onChangeSelected?: () => void;
+  /** Opens Split into equal parts on one pipe (B5); without it the menu offers no Split into N… item. */
+  onSplitPipe?: (pipeId: string) => void;
 }>;
 
 /** The viewport's own reason for Hide and Isolate. */
@@ -97,8 +103,31 @@ export function entityCommandEntries(env: EntityCommandEnvironment, target: Enti
     viewEntry("fit-selection", "Fit selection", { type: "fit-selection" }, viewReason(fittable, FIT_SELECTION_REASON)),
     viewEntry("show-all", "Show all", { type: "show-all" }, !view ? "The viewport is unavailable." : env.showAllAvailable ? null : SHOW_ALL_REASON),
     { kind: "separator", id: "separator-removal" },
+    // Split into N… sits above Change selected…, which stays directly above Queue removal.
+    ...splitPipeEntries(env, target, selected),
+    ...changeSelectedEntries(env, target, selected),
     removalEntry(env, target, prepared)
   ];
+}
+
+/** B2: Change selected… opens Bulk change on the selection; it acts on the selection, so the
+ * B9 selection rule applies. */
+function changeSelectedEntries(env: EntityCommandEnvironment, target: EntityRef, selected: boolean): ContextMenuEntry[] {
+  const open = env.onChangeSelected;
+  if (!open) return [];
+  const reason = selected ? null : notSelectedReason(target);
+  return [{ kind: "command", id: "change-selected", label: "Change selected…", disabled: Boolean(reason), reason, run: () => open() }];
+}
+
+/** B5: Split into N… opens Split into equal parts on this pipe. It acts on one pipe, so the B9
+ * selection rule applies and the pipe must be the only one selected. */
+function splitPipeEntries(env: EntityCommandEnvironment, target: EntityRef, selected: boolean): ContextMenuEntry[] {
+  const open = env.onSplitPipe;
+  if (!open || target.type !== "pipe") return [];
+  const reason = !selected ? notSelectedReason(target)
+    : env.selectedKeys.length > 1 ? `Split into N parts acts on one pipe; select only ${target.id}.`
+      : !env.model.pipe_segments.some((pipe) => pipe.id === target.id) ? `${target.id} is not in the current model.` : null;
+  return [{ kind: "command", id: "split-into-parts", label: "Split into N…", disabled: Boolean(reason), reason, run: () => open(target.id) }];
 }
 
 /** Prepares the guarded removal snapshot for a material, section or component, as the Remove panel does. */

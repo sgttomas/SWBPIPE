@@ -22,6 +22,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from fractions import Fraction
+import hashlib
 import json
 import math
 from pathlib import Path
@@ -87,6 +88,10 @@ _STRESS_TO_MPA["psi"] = NORMALIZATION["psi"][0]
 _FORCE_TO_N["lbf"] = NORMALIZATION["lbf"][0]
 _MOMENT_TO_NM.update({"lbf*in": NORMALIZATION["lbf*in"][0], "lbf*ft": NORMALIZATION["lbf*ft"][0]})
 _FORCE_PER_LENGTH_TO_N_PER_M["lbf/in"] = NORMALIZATION["lbf/in"][0]
+# A spring's linear stiffness (core/units LinearStiffness, which reads force-per-length symbols) in N/mm, the unit of
+# a flexible anchor's TRAK in SI files (Format of .MBF, TRAK).
+_STIFFNESS_TO_N_PER_MM: dict[str, int | Fraction] = {"N/m": -3, "N/mm": 0, "kN/m": 0, "kN/mm": 3,
+                                                      "lbf/in": NORMALIZATION["lbf/in"][0] / 1000}
 _EXPANSION_TO_PER_C["1/degF"] = NORMALIZATION["1/degF"][0]
 _TEMPERATURE_INTERVAL_TO_C["degF"] = NORMALIZATION["degF"][0]
 # Pressure regions become LOADS Pressure 1 in bar (Format of .MBF, LOADS, SI): 1 bar = 1e5 Pa exactly, and psi by
@@ -121,8 +126,10 @@ MATERIAL_ORIGINS = ("project_invented", "user_supplied")
 _TITLE_MAX = 70
 _DESCRIPTION_MAX = 30
 # The writer sidecar's format (Design §15). Format 2 records the effective value of every field, never null or another
-# sentinel for a default to fill; a sidecar without `sidecar_format` is a legacy one, from main's tranche-1 writer.
-SIDECAR_FORMAT = 2
+# sentinel for a default to fill; format 3 is format 2 with its self-digest `sidecar_sha256`. A sidecar without
+# `sidecar_format` is a legacy one, from main's tranche-1 writer.
+SIDECAR_FORMAT = 3
+SIDECAR_DIGEST_KEY = "sidecar_sha256"
 _MAX_NODES = 9999  # node numbers 10, 20, ... stay below 99999
 
 
@@ -163,9 +170,10 @@ class MbfSiResult:
         }
 
     def sidecar(self, mbf_sha256: str) -> dict[str, Any]:
-        """The writer sidecar of the written text whose SHA-256 is `mbf_sha256` (Design §15), format 2: what a bound
+        """The writer sidecar of the written text whose SHA-256 is `mbf_sha256` (Design §15), format 3: what a bound
         import restores and the MBF does not carry, each field with its effective value. What the MBF determines
-        (layout order, record names, numbers, bend geometry, sections) is not repeated in it."""
+        (layout order, record names, numbers, bend geometry, sections) is not repeated in it. Its `sidecar_sha256` is
+        the self-digest of the rest (sidecar_self_digest)."""
         record = self.to_dict()
 
         def element(entry: Mapping[str, Any]) -> dict[str, Any]:
@@ -175,7 +183,7 @@ class MbfSiResult:
             return {**kept, "y_reference": entry["y_reference"], "y_reference_authored": entry["y_reference_authored"]}
 
         pressure = record["pressure_map"]
-        return {
+        body = {
             "sidecar_format": SIDECAR_FORMAT,
             "node_map": record["node_map"],
             "element_map": {key: element(entry) for key, entry in record["element_map"].items()},
@@ -191,6 +199,102 @@ class MbfSiResult:
                                          for region in pressure["regions"]]},
             "mbf_sha256": mbf_sha256,
         }
+        return {**body, SIDECAR_DIGEST_KEY: sidecar_self_digest(body)}
+
+
+# Maps whose entries a JSON path names as map[key], as the importer's sidecar parser names them; other fields .field.
+_KEYED_MAPS = ("node_map", "element_map", "support_map", "load_case_map", "material_map", "section_map", "load_map")
+_ESCAPES = {'"': '\\"', "\\": "\\\\", "\b": "\\b", "\t": "\\t", "\n": "\\n", "\f": "\\f", "\r": "\\r"}
+
+
+class SidecarNotCanonical(ValueError):
+    """A sidecar value that has no canonical serialisation (sidecar_canonical_bytes), at the JSON path `path`."""
+
+    def __init__(self, path: str, reason: str) -> None:
+        super().__init__(f"{path}: {reason}")
+        self.path, self.reason = path, reason
+
+
+def sidecar_canonical_bytes(sidecar: Mapping[str, Any]) -> bytes:
+    """The byte-exact canonical serialisation of `sidecar` without its `sidecar_sha256`, which the self-digest covers
+    (Design §15): RFC 8785 (JCS). Members are sorted by key as UTF-16 code units, with no whitespace (`,` and `:`
+    alone separate); a string escapes `"` and `\\` with a backslash, U+0008, U+0009, U+000A, U+000C and U+000D as
+    `\\b \\t \\n \\f \\r`, the other controls below U+0020 as `\\u00xx` (lowercase hex), and nothing else; a number is
+    the binary64 it denotes (1 and 1.0 are one value, -0 is 0), written as ECMAScript's Number::toString writes it;
+    then `true`, `false`, `null`; the whole in UTF-8, no BOM and no final newline. A value with no such form (a
+    non-finite number, an integer that is not exactly a binary64, a lone surrogate, a key that is not a string, or
+    anything but a JSON value) raises SidecarNotCanonical naming its path."""
+    def child(path: str, key: str) -> str:
+        return f"{path}[{key}]" if path in _KEYED_MAPS else (f"{path}.{key}" if path else key)
+
+    def text(value: str, path: str) -> str:
+        try:
+            value.encode("utf-8")
+        except UnicodeEncodeError:
+            raise SidecarNotCanonical(path, "holds a lone surrogate, which has no UTF-8 form") from None
+        return '"' + "".join(_ESCAPES.get(char) or (f"\\u{ord(char):04x}" if char < " " else char)
+                             for char in value) + '"'
+
+    def walk(value: Any, path: str) -> str:
+        if value is None or type(value) is bool:
+            return {None: "null", True: "true", False: "false"}[value]
+        if type(value) is int:
+            try:
+                exact = float(value) == value
+            except OverflowError:
+                exact = False
+            if not exact:
+                raise SidecarNotCanonical(path, "is an integer that is not exactly a binary64 number")
+            return _canonical_number(float(value))
+        if type(value) is float:
+            if not math.isfinite(value):
+                raise SidecarNotCanonical(path, "is not a finite number")
+            return _canonical_number(value)
+        if type(value) is str:
+            return text(value, path)
+        if type(value) is list:
+            return "[" + ",".join(walk(item, f"{path}[{index}]") for index, item in enumerate(value)) + "]"
+        if type(value) is dict:
+            for key in value:
+                if type(key) is not str:
+                    raise SidecarNotCanonical(path, f"has a key {key!r} that is not a string")
+                text(key, child(path, key))
+            ordered = sorted(value, key=lambda key: key.encode("utf-16-be"))
+            return "{" + ",".join(f"{text(key, child(path, key))}:{walk(value[key], child(path, key))}"
+                                  for key in ordered) + "}"
+        raise SidecarNotCanonical(path or "sidecar", f"is a {type(value).__name__}, not a JSON value")
+
+    if type(sidecar) is not dict:
+        raise SidecarNotCanonical("sidecar", "must be an object")
+    return walk({key: value for key, value in sidecar.items() if key != SIDECAR_DIGEST_KEY}, "").encode("utf-8")
+
+
+def sidecar_self_digest(sidecar: Mapping[str, Any]) -> str:
+    """The sidecar's self-digest (Design §15): the lowercase hex SHA-256 of sidecar_canonical_bytes."""
+    return hashlib.sha256(sidecar_canonical_bytes(sidecar)).hexdigest()
+
+
+def _canonical_number(value: float) -> str:
+    """ECMAScript's Number::toString of the finite binary64 `value` (RFC 8785 §3.2.2.3): the fewest decimal digits
+    that read back as `value`, the nearest where several do (Python's repr gives these digits), placed as ECMAScript
+    places them for the decimal exponent n of value = 0.digits x 10^n."""
+    if value == 0:
+        return "0"
+    mantissa, _, exponent = repr(abs(value)).partition("e")
+    whole, _, fraction = mantissa.partition(".")
+    significant = (whole + fraction).lstrip("0")
+    n = len(whole) + int(exponent or 0) - (len(whole + fraction) - len(significant))
+    digits = significant.rstrip("0")
+    k = len(digits)
+    sign = "-" if value < 0 else ""
+    if k <= n <= 21:
+        return sign + digits + "0" * (n - k)
+    if 0 < n <= 21:
+        return sign + digits[:n] + "." + digits[n:]
+    if -6 < n <= 0:
+        return sign + "0." + "0" * -n + digits
+    e = n - 1
+    return sign + digits[0] + ("." + digits[1:] if k > 1 else "") + "e" + ("+" if e >= 0 else "-") + str(abs(e))
 
 
 def _known(value: Any, table: Mapping[str, Any]) -> bool:
@@ -287,6 +391,7 @@ class _Writer:
         self.node_restraints: dict[str, set[str]] = {}
         self.node_supports: dict[str, list[str]] = {}
         self.supports: dict[str, dict[str, Any]] = {}
+        self.node_springs: dict[str, dict[str, float]] = {}  # node -> translational DOF -> stiffness in N/mm
         self.case_labels: dict[str, str] = {}
         self.forces: dict[str, list[float]] = {}
         self.moments: dict[str, list[float]] = {}
@@ -829,11 +934,14 @@ class _Writer:
                 self.diag("MBF-SI-REFERENCE-UNRESOLVED", "error", entity, f"{entity} is at unknown node {node!r}")
                 continue
             family = support.get("family")
+            if family == "spring" and support.get("hanger") is None and support.get("nonlinear") is None:
+                self.read_spring(support, entity, node)
+                continue
             special = [name for name in ("stiffness", "hanger", "nonlinear") if support.get(name) is not None]
             if family not in _RIGID_FAMILIES or special:
                 what = f"family {family!r}" if family not in _RIGID_FAMILIES else ", ".join(special)
                 self.refuse("MBF-SI-SUPPORT-UNSUPPORTED", entity,
-                            f"{entity} ({what}) is not a rigid restraint; springs, hangers and nonlinear or "
+                            f"{entity} ({what}) is not a rigid restraint or a spring; hangers and nonlinear or "
                             "gapped supports are not exported by the pilot writer")
                 continue
             restraints = support.get("restraints")
@@ -868,6 +976,47 @@ class _Writer:
                                 "without being a full anchor; the target tool does not accept "
                                 "rotational restraints (FIXR) in an imported MBF, so partial rotational restraints are "
                                 "not exported")
+
+        for node in sorted(set(self.node_springs) & set(self.node_restraints)):
+            self.refuse("MBF-SI-SUPPORT-UNSUPPORTED", f"node:{node}",
+                        f"node {node!r} carries springs and rigid restraints; a spring is written as a flexible "
+                        "anchor (KA with TRAK), which the importer reads alone at its node")
+
+    def read_spring(self, support: Mapping[str, Any], entity: str, node: str) -> None:
+        """A spring support (Design §12, tranche 3): one translational DOF, named by its stiffness and its restraint
+        list alike, with a positive stiffness. It is written as a flexible anchor KA,TRAK(kx,ky,kz),ROTK(0,0,0) in
+        N/mm; a zero TRAK component leaves its DOF free (technical reference, Anchor). Rotational springs are not
+        written: ROTK's unit is open (TBD-17-04-010)."""
+        stiffness = support.get("stiffness")
+        restraints = support.get("restraints")
+        if not isinstance(stiffness, Mapping) or not isinstance(restraints, list):
+            self.invalid(entity, f"{entity} is a spring and needs a stiffness and a restraints list")
+            return
+        dof = _DOF_TOKENS.get(stiffness.get("dof")) if isinstance(stiffness.get("dof"), str) else None
+        tokens = [_DOF_TOKENS.get(token) if isinstance(token, str) else None for token in restraints]
+        if dof is None or tokens != [dof]:
+            self.refuse("MBF-SI-SUPPORT-UNSUPPORTED", entity,
+                        f"{entity} is a spring whose restraints and stiffness must name the same single DOF")
+            return
+        if dof not in DOFS[:3]:
+            self.refuse("MBF-SI-SUPPORT-UNSUPPORTED", entity,
+                        f"{entity} is a rotational spring ({dof}); ROTK's unit is open (TBD-17-04-010), so only "
+                        "translational springs are written")
+            return
+        value = self.quantity(stiffness.get("value"), _STIFFNESS_TO_N_PER_MM, "N/mm", entity, "stiffness")
+        if value is None:
+            return
+        if not value > 0:
+            self.diag("MBF-SI-VALUE-OUT-OF-RANGE", "error", entity,
+                      f"{entity} stiffness must be positive (the solve refuses a spring without one)")
+            return
+        springs = self.node_springs.setdefault(node, {})
+        if dof in springs:
+            self.refuse("MBF-SI-SUPPORT-UNSUPPORTED", entity,
+                        f"{entity} is a second spring on {dof} at node {node!r}; TRAK carries one stiffness per DOF")
+            return
+        springs[dof] = value
+        self.supports[support["id"]] = {"node": node, "dofs": {dof}, "family": "spring"}
 
     def is_anchor(self, node: Any) -> bool:
         return isinstance(node, str) and len(self.node_restraints.get(node, ())) == 6
@@ -1358,7 +1507,7 @@ class _Writer:
             if bend is not None:
                 fields.append("KI")
                 comments.append(f"FF={_num(bend['k'])}")
-            if row["new"] and self.is_anchor(node):
+            if row["new"] and (self.is_anchor(node) or node in self.node_springs):
                 fields.append("KA")
             pipe_id = row["element"] if row["kind"] == "T" else (first_element if index == 0 else None)
             if pipe_id is not None:
@@ -1416,7 +1565,8 @@ class _Writer:
         for support_id, support in self.supports.items():
             support_map[support_id] = {
                 "node": node_map[support["node"]],
-                "caepipe_kind": "anchor" if self.is_anchor(support["node"]) else "restraint",
+                "caepipe_kind": ("anchor" if self.is_anchor(support["node"]) or support["family"] == "spring"
+                                 else "restraint"),
                 "restrained": [dof for dof in DOFS if dof in support["dofs"]],
                 # the effective family: the authored one, or the solve's inference (anchor with six DOFs, else guide)
                 "family": support["family"] or ("anchor" if len(support["dofs"]) == len(DOFS) else "guide"),
@@ -1469,12 +1619,18 @@ class _Writer:
             loss_report=self.loss,
             assumptions=self.assumptions,
         )
-        if self.contract is not None and self.regenerating is None and not self.survives_reimport(result):
+        try:  # the self-digest covers canonical JSON content only (Design §15)
+            result.sidecar("0" * 64)
+        except SidecarNotCanonical as error:
+            self.invalid(error.path, f"the sidecar's {error.path} {error.reason}; the sidecar has no self-digest")
+            return self.refused()
+        # The preflight is total (Design §14): every export but the regeneration route's, whose caller is the import.
+        if self.regenerating is None and not self.survives_reimport(result):
             return self.refused()
         return result
 
     def survives_reimport(self, result: MbfSiResult) -> bool:
-        """Design §9.4: the exact-pressure export as the printed MBF gives it back. The writer's own bound re-import
+        """Design §9.4, §12 and §14: every export as the printed MBF gives it back. The writer's own bound re-import
         reads the printed values exactly as an import will (positions summed from the printed offsets, bend tangent
         nodes rebuilt, OD and wall as printed) and applies the exact route's whole-region checks to the restored
         regions in their declared order. The export stands only if that re-import succeeds completely and checks
@@ -1505,7 +1661,8 @@ class _Writer:
                 self.refuse("MBF-SI-PREFLIGHT-REFUSED", item["location"] or "MBF",
                             f"the bound re-import of this MBF refuses it ({item['code']} at {item['location']}, line "
                             f"{item['line']}): {item['message']}")
-        if back.status == "imported" and back.summary.get("pressure_regions") != len(self.regions):
+        if (back.status == "imported" and self.contract is not None
+                and back.summary.get("pressure_regions") != len(self.regions)):
             self.refuse("MBF-SI-PREFLIGHT-REFUSED", "pressure_map",
                         f"the bound re-import restored {back.summary.get('pressure_regions')} pressure regions, not "
                         f"the {len(self.regions)} written; the region checks did not cover every region")
@@ -1515,6 +1672,10 @@ class _Writer:
 
     def node_comments(self, node: str) -> list[str]:
         comments = []
+        springs = self.node_springs.get(node)
+        if springs:  # a flexible anchor: one stiffness per translation, 0 free; rotations free
+            comments.append("TRAK({})".format(",".join(_num(springs.get(dof, 0.0)) for dof in DOFS[:3])))
+            comments.append("ROTK(0,0,0)")
         restrained = self.node_restraints.get(node, set())
         if restrained and not self.is_anchor(node):
             translations = [1 if dof in restrained else 0 for dof in DOFS[:3]]
@@ -1549,6 +1710,10 @@ class _Writer:
             + " and specific gravity 0 (empty pipe); Temperature 1 = reference "
             "temperature + the element's SWBPIPE thermal change (summed when several primitives act on one element).",
         ]
+        if self.node_springs:
+            notes.append("Spring supports are written as flexible anchors KA,TRAK(kx,ky,kz),ROTK(0,0,0), stiffness "
+                         "in N/mm; a zero component leaves its DOF free and ROTK(0,0,0) leaves rotations free "
+                         "(technical reference, Anchor).")
         if self.pipe_pressure:
             notes.append(f"OPPRES is written {OPPRES_LINE}: PD/4t, Bourdon effect off, pressure correction for bends "
                          "off, peak pressure factor 1. SWBPIPE's exact pressure route models neither effect (DEL-04-07 "

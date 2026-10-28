@@ -118,11 +118,18 @@ import {
   availableResultColourQuantities,
   buildResultColourOverlay,
   resultColourTable,
-  resultOverlayCases
+  resultOverlayCases,
+  type ResultColourDisplay,
+  type ResultColourResolution
 } from "./resultColourOverlay";
 import { buildReactionOverlay, type ReactionVector } from "./reactionOverlay";
 import { instancedReactionForceMeshes, instancedReactionMomentMeshes, type ReactionArrowPlacement } from "./viewportReactionArrows";
-import { ResultOverlayLegend, type OverlayFocus } from "./ResultOverlayLegend";
+import { ResultOverlayLegend, useDisplayPerStored, type OverlayFocus } from "./ResultOverlayLegend";
+import { contourValueLabels, thresholdInOverlayUnit } from "./resultContour";
+import { buildResultContourMesh, contourMeshMembers, type ContourMeshMember } from "./resultContourMesh";
+import { ResultValueLabels, resultValueLabelAnchors } from "./ResultValueLabels";
+import { buildStressRatioTable } from "../results/stressRatioTable";
+import type { SessionRuleCheckRun } from "../report/renderableReportInput";
 import type { ResultOverlayStanding } from "../results/numericalHealth";
 import type { ViewportPaletteRole } from "./viewportPalette";
 import {
@@ -132,6 +139,8 @@ import {
   type UiDiagnosticsPublication
 } from "../workspace/uiDiagnostics";
 import { VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
+import { DirectionEntry } from "../geometry-tools/DirectionEntry";
+import { exactCoordinateText, type Vec3 as EntryVec3 } from "../geometry-tools/directionArithmetic";
 import { componentDraftMissingUnitNotices, missingProjectUnitText, projectUnitMissing } from "../project-units/missingProjectUnit";
 
 export { buildDeformationOverlay, buildRotationOverlay } from "./deformationOverlay";
@@ -223,6 +232,10 @@ type Props = {
   onClearVisibility?: () => void;
   onViewportInteractionStart?: (interaction: ViewportExposureInteraction) => void;
   onQueueIntent?: (intent: EditorOperationIntent) => void;
+  /** Opens Bulk change on the selection, for the menus' Change selected… (B2). */
+  onChangeSelected?: () => void;
+  /** Opens Split into equal parts on a pipe, for the menus' Split into N… (B5). */
+  onSplitPipe?: (pipeId: string) => void;
   /** An operation is validating or applying (the inspector's Remove panel waits for it). */
   operationBusy?: boolean;
   onBoxSelection?: (
@@ -237,6 +250,9 @@ type Props = {
   /** The reader's numerical standing and the session's numerical health view of `result`. The
    * result overlays (colour, reaction arrows) draw only rows these admit; absent, they draw none. */
   resultStanding?: ResultOverlayStanding | null;
+  /** The session's rule-check run of `result`, for the result colour's rule ratios (A4); App passes
+   * it only while `result` is the current solved result it was run on. */
+  ruleCheckRun?: SessionRuleCheckRun | null;
   selection: EntityRef;
   selectionState?: OrderedSelectionState;
   /** Presentation-only clearance below viewport furniture and the painted orientation frame. */
@@ -428,6 +444,8 @@ export function PipeViewport({
   onClearVisibility = () => {},
   onViewportInteractionStart = () => {},
   onQueueIntent,
+  onChangeSelected,
+  onSplitPipe,
   operationBusy = false,
   onBoxSelection = () => Object.freeze({ orderedKeys: [], primaryKey: null, rangeAnchorKey: null, focusKey: null, preparationEpoch: 0 }),
   onSelect,
@@ -435,6 +453,7 @@ export function PipeViewport({
   reservedIntents = [],
   result = null,
   resultStanding = null,
+  ruleCheckRun = null,
   selection,
   selectionState,
   presentationBottomInsetPx = 0,
@@ -525,6 +544,12 @@ export function PipeViewport({
   const [reactionsOn, setReactionsOn] = useState(false);
   const [overlayQuantityId, setOverlayQuantityId] = useState<string | null>(null);
   const [overlayCaseKey, setOverlayCaseKey] = useState<string | null>(null);
+  // Result contour (A4): along members or one value per member, colours or numbers, and the
+  // threshold. Session view state, never persisted and never model data.
+  const [overlayResolution, setOverlayResolution] = useState<ResultColourResolution>("member");
+  const [overlayDisplay, setOverlayDisplay] = useState<ResultColourDisplay>("colour");
+  const [overlayThresholdOn, setOverlayThresholdOn] = useState(false);
+  const [overlayThresholdText, setOverlayThresholdText] = useState("");
   // Deflected-shape controls (A5): session view state, never persisted and never model data.
   // The case is null for each node's governing row (the normalized drawing); the factor is
   // null for the case's default; the phase runs from 0 (undeformed) to 1 (deformed).
@@ -708,14 +733,30 @@ export function PipeViewport({
   const deformation = useMemo(() => deformationAtPhase(model, fullDeformation, drawnPhase), [drawnPhase, fullDeformation, model]);
   const rotation = useMemo(() => buildRotationOverlay(model, result, { basisKey: deflectionCase?.key ?? null }), [deflectionCase, model, result]);
   const elementAxes = useMemo(() => elementAxesFrame ? buildElementAxesView(model, elementAxesFrame) : null, [elementAxesFrame, model]);
-  const overlayQuantities = useMemo(() => availableResultColourQuantities(model, result), [model, result]);
+  // The rule ratios come from the stress and ratio table's own reading of the session's run (A3).
+  const ratioTable = useMemo(
+    () => resultColourOn && ruleCheckRun ? buildStressRatioTable({ model, result, standing: resultStanding, ruleCheckRun }) : null,
+    [model, result, resultColourOn, resultStanding, ruleCheckRun]
+  );
+  const overlayQuantities = useMemo(() => availableResultColourQuantities(model, result, ratioTable), [model, ratioTable, result]);
   const overlayCase = overlayCases.find((item) => item.key === overlayCaseKey) ?? overlayCases[0] ?? null;
   const overlayQuantity = overlayQuantities.find((item) => item.id === overlayQuantityId) ?? overlayQuantities[0] ?? null;
   const colourOverlay = useMemo(
-    () => resultColourOn ? buildResultColourOverlay({ model, result, standing: resultStanding, quantity: overlayQuantity, overlayCase }) : null,
-    [model, overlayCase, overlayQuantity, result, resultColourOn, resultStanding]
+    () => resultColourOn
+      ? buildResultColourOverlay({ model, result, standing: resultStanding, quantity: overlayQuantity, overlayCase, resolution: overlayResolution, ratioTable })
+      : null,
+    [model, overlayCase, overlayQuantity, overlayResolution, ratioTable, result, resultColourOn, resultStanding]
   );
-  const colourTable = useMemo(() => colourOverlay ? resultColourTable(model, colourOverlay) : null, [colourOverlay, model]);
+  const displayPerStored = useDisplayPerStored(colourOverlay?.unit ?? null, colourOverlay?.quantity?.dimension ?? null);
+  const overlayThreshold = colourOverlay && overlayThresholdOn ? thresholdInOverlayUnit(overlayThresholdText, displayPerStored) : null;
+  const colourTable = useMemo(
+    () => colourOverlay ? resultColourTable(model, colourOverlay, { threshold: overlayThreshold, display: overlayDisplay }) : null,
+    [colourOverlay, model, overlayDisplay, overlayThreshold]
+  );
+  const contourValues = useMemo(
+    () => colourOverlay && overlayDisplay === "numbers" ? contourValueLabels(colourOverlay, { threshold: overlayThreshold }) : null,
+    [colourOverlay, overlayDisplay, overlayThreshold]
+  );
   const reactionOverlay = useMemo(
     () => reactionsOn ? buildReactionOverlay({ model, result, standing: resultStanding, overlayCase }) : null,
     [model, overlayCase, reactionsOn, result, resultStanding]
@@ -728,6 +769,25 @@ export function PipeViewport({
     ),
     [activeModelIndex, model, renderTransform]
   );
+  // The contour sleeves (A4): members drawn along their length, minus hidden and dimmed members.
+  // Without sleeves the value keeps one identity, so the result layer is not rebuilt for nothing.
+  const contourMembers = useMemo(() => overlayDisplay !== "colour" || colourOverlay?.state !== "available" || colourOverlay.resolution !== "station"
+    ? NO_CONTOUR_MEMBERS
+    : contourMeshMembers(model, colourOverlay, {
+      nodes: localNodeMap,
+      radii: geometryMode === "actual-od" ? actualOd.radii : new Map(),
+      defaultRadius: 0.052,
+      threshold: overlayThreshold,
+      excluded: new Set([...hiddenKeys, ...dimmedKeys])
+    }), [actualOd, colourOverlay, dimmedKeys, geometryMode, hiddenKeys, localNodeMap, model, overlayDisplay, overlayThreshold]);
+  const contourValueAnchors = useMemo(() => contourValues ? resultValueLabelAnchors(
+    contourValues.labels.filter((label) => !hiddenKeys.has(entityKey({ type: "pipe", id: label.memberId }))),
+    new Map(model.pipe_segments.flatMap((pipe) => {
+      const from = localNodeMap.get(pipe.from);
+      const to = localNodeMap.get(pipe.to);
+      return from && to ? [[pipe.id, { from, to }] as const] : [];
+    }))
+  ) : null, [contourValues, hiddenKeys, localNodeMap, model]);
   const visibleIntents = onQueueIntent ? viewportIntents(queuedIntents) : localIntents;
   const pendingViewportIntents = [...reservedIntents, ...queuedIntents, ...localIntents];
   const routeNodeMap = useMemo(
@@ -811,6 +871,7 @@ export function PipeViewport({
     `length=${unitDimensionValidationStatus(unitCatalogRoute, nodeDraft.coordinateUnit, "length")}`
   );
   const routeDraft = routeDraftFromState(pipeDraft, routeEndMode, newEndDraft);
+  const routeStartNode = model.nodes.find((node) => node.id === pipeDraft.from.trim());
   const routeBuild = buildRouteSubmission(
     model,
     pendingViewportIntents,
@@ -1420,9 +1481,11 @@ export function PipeViewport({
       resultObjects.push(...instancedReactionForceMeshes(reactionArrowGroups(model, reactionOverlay.forces, renderTransform.origin, activeModelIndex)));
       resultObjects.push(...instancedReactionMomentMeshes(reactionArrowGroups(model, reactionOverlay.moments, renderTransform.origin, activeModelIndex)));
     }
+    // Painted for the resource's theme as the layer takes them (`paintResultContourTheme`).
+    resultObjects.push(...spatialGroups(activeModelIndex, contourMembers).flatMap((group) => buildResultContourMesh(group, "light") ?? []));
     resource.replaceLayer(resource.resultLayer, resultObjects);
     applySelectionPresentation(resource, orderedSelectionKeys);
-  }, [activeModelIndex, deformation, model, reactionOverlay, renderTransform, rotation]);
+  }, [activeModelIndex, contourMembers, deformation, model, reactionOverlay, renderTransform, rotation]);
 
   // The element axis triads live in the diagnostic layer: annotations of the model that are
   // neither the element (no halo, no pick) nor a result, rebuilt when the frame or model changes.
@@ -1835,6 +1898,14 @@ export function PipeViewport({
     }
     invalidateDraftReview();
     setNewEndDraft((current) => ({ ...current, [field]: value }));
+  }
+
+  // B5: the length-and-direction entry fills the typed coordinates with the exact computed values,
+  // in the project length unit, so the create_node conversion is the identity.
+  function useDirectionEndPoint(position: EntryVec3, unit: string) {
+    clearPointerPlacement();
+    invalidateDraftReview();
+    setNewEndDraft((current) => ({ ...current, coordinateUnit: unit, x: exactCoordinateText(position.x), y: exactCoordinateText(position.y), z: exactCoordinateText(position.z) }));
   }
 
   function updateComponentDraft<K extends keyof ComponentDraft>(field: K, value: ComponentDraft[K]) {
@@ -2374,6 +2445,22 @@ export function PipeViewport({
       setViewCommandStatus(`${visibilitySelectionKeys.length} selected item${visibilitySelectionKeys.length === 1 ? "" : "s"} isolated; other shown geometry is dimmed to 20%.`);
       return;
     }
+    if (command.type === "show-result-colour") {
+      // As the Result colour toggle turned on, then the legend's quantity and case selectors.
+      setResultColourOn(true);
+      setOverlayQuantityId(command.quantityId);
+      setOverlayCaseKey(command.caseKey);
+      setViewCommandStatus("Result colour shown.");
+      return;
+    }
+    if (command.type === "show-deflected-shape") {
+      // As the deformation popover's case selector (`DeflectedShapeControls` onCaseChange).
+      setDeflectionCaseKey(command.caseKey);
+      setDeflectionFactor(null);
+      setDeflectionPhase(1);
+      setViewCommandStatus("Deflected shape case chosen.");
+      return;
+    }
     if (command.type === "show-all") {
       onClearVisibility();
       setViewCommandStatus("All eligible model geometry shown.");
@@ -2398,7 +2485,9 @@ export function PipeViewport({
     viewportShortcuts: true,
     fitSelectionAvailable: Boolean(fitSelectionBounds),
     operationBusy,
-    onQueueIntent
+    onQueueIntent,
+    onChangeSelected,
+    onSplitPipe
   };
 
   function openEntityMenu(target: EntityRef, request: ContextMenuRequest) {
@@ -2721,6 +2810,26 @@ export function PipeViewport({
             reactions={reactionOverlay}
             standing={resultStanding}
             focus={overlayFocus(hoveredEntityKey, selection)}
+            contour={colourOverlay ? {
+              resolution: overlayResolution,
+              onResolutionChange: setOverlayResolution,
+              display: overlayDisplay,
+              onDisplayChange: setOverlayDisplay,
+              thresholdOn: overlayThresholdOn,
+              onThresholdOnChange: setOverlayThresholdOn,
+              thresholdText: overlayThresholdText,
+              onThresholdTextChange: setOverlayThresholdText,
+              threshold: overlayThreshold,
+              numbers: contourValues && contourValueAnchors ? { selected: contourValueAnchors.length, candidates: contourValues.candidateCount } : null
+            } : null}
+          />
+        ) : null}
+        {colourOverlay?.state === "available" && colourOverlay.quantity && contourValueAnchors ? (
+          <ResultValueLabels
+            anchors={contourValueAnchors}
+            unit={colourOverlay.unit ?? ""}
+            dimension={colourOverlay.quantity.dimension}
+            resourceRef={viewportResourceRef}
           />
         ) : null}
         {deformation.state === "available" ? (
@@ -3055,6 +3164,14 @@ export function PipeViewport({
                 options={nodeLengthUnitOptions.map((option) => ({ value: option.symbol, label: option.symbol }))}
               /></label>
               <label><span>Provenance</span><input aria-label="Route end provenance" data-testid="viewport-route-end-provenance" value={newEndDraft.provenance} onChange={(event) => updateNewEndDraft("provenance", event.target.value)} /></label>
+              <DirectionEntry
+                context="Route end"
+                projectLengthUnit={model.project.units.length}
+                start={routeStartNode ? { id: routeStartNode.id, position: routeStartNode.position } : null}
+                startReason="Choose the From node first; the end point is measured from it."
+                disabled={routeEndMode !== "new"}
+                onUse={useDirectionEndPoint}
+              />
             </div>
             <VirtualTargetPicker label="New pipe material" testId="viewport-create-pipe-material" options={materialTargetOptions} value={pipeDraft.material} onChange={(value) => updatePipeDraft("material", value)} />
             <label>
@@ -4043,6 +4160,8 @@ function viewportChange(
       : "viewport editor gesture review intent; pending_service_validation"
   };
 }
+
+const NO_CONTOUR_MEMBERS: ReadonlyMap<EntityKey, ContourMeshMember> = new Map();
 
 function spatialGroups<T>(index: ModelIndex, entries: ReadonlyMap<EntityKey, T>): T[][] {
   const groups: T[][] = [];

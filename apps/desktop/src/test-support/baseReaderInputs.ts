@@ -321,6 +321,10 @@ export async function baseReaderInputs(): Promise<BaseReaderInput[]> {
   for (const mode of modes) {
     base(`load_reference_fallback_uz-${mode}`, fileText(`core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-${mode}.raw.json`), fallback);
   }
+  // W-16 slice b: the shared pressure-2 combination corpus, each envelope with its model.
+  for (const c of index(read("fixtures/results/pressure_v3_combination_reader_corpus.json"), "cases") as RawObject[]) {
+    base(`combination/${c.label as string}`, rawText(c.envelope), c.model);
+  }
   const statement = (id: string, doc: Raw, literal: string | null, readers: string[], transports: string[] = []): BaseReaderInput => {
     if (literal === null) return { id, sourceJson: rawText(doc), parsed: true, readers, transports, rowsJson: null };
     // A text serde_json refuses (the gate checks the engine refuses it).

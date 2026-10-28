@@ -45,12 +45,16 @@ from .si_writer import (
     LOAD_CASE_LABELS,
     MATERIAL_ORIGINS,
     MBF_VERSION,
+    SIDECAR_DIGEST_KEY,
     SIDECAR_FORMAT,
     STANDARD_GRAVITY,
     USER_SUPPLIED_CERTIFICATION,
     _BEND_RELATIVE_TOLERANCE,
+    _KEYED_MAPS,
+    SidecarNotCanonical,
     current_model_schema_version,
     regenerate_caepipe_sidecar,
+    sidecar_self_digest,
 )
 
 
@@ -174,9 +178,8 @@ _ROW_KEY_LETTERS = "KMPJXYZBH"
 _XYZ = lambda base: {base + axis for axis in _AXES}  # noqa: E731 - axis-suffixed comment names
 _DOCUMENTED_REFUSED_COMMENTS = {
     "MBF-IMPORT-SUPPORT-UNSUPPORTED": {
-        "AXIAL", "CLD", "CNOD", "CS", "DV", "E", "FREE", *_XYZ("FREE"), "G", "GGAP", "GRA1", "GRA2", "GRB1",
-        "GRB2", "GRB3", "GRC1", "GRC2", "HTYP", "K", "KR", "LS", "MLV", "MU", "NOD", "NOZZLE", "NTHK", "ROTK",
-        "SHEARY", "SHEARZ", "SPIDER", "SR", "STIFF", "TRAK", "US", "VOD", "VTHK", "VS"},
+        "CLD", "CNOD", "CS", "E", "FREE", *_XYZ("FREE"), "GRA1", "GRA2", "GRB1", "GRB2", "GRB3", "GRC1", "GRC2",
+        "HTYP", "MLV", "NOD", "NOZZLE", "NTHK", "SPIDER", "SR", "US", "VOD", "VTHK", "VS"},
     "MBF-IMPORT-DISPLACEMENT-UNSUPPORTED": {
         "LD", *{f"DIS{n}" for n in range(2, 11)}, *{f"ROT{n}" for n in range(2, 11)}, "DISD", "ROTD", "SETT",
         "STRO", "SEIS", "SEIS2", "SEIS3", "SERO", "SERO2", "SERO3", *{f"WIND{n}" for n in range(1, 5)},
@@ -201,8 +204,40 @@ _ROTATION_NAMES = {"ROT": None, **{f"ROT{axis}": index for index, axis in enumer
 _FIXD_NAMES = {"FIXD": None, "F": None, **{f"FIXD{axis}": index for index, axis in enumerate(_AXES)},
                **{f"F{axis}": index for index, axis in enumerate(_AXES)}}
 _FIXR_NAMES = {"FIXR": None, **{f"FIXR{axis}": index for index, axis in enumerate(_AXES)}}
+# Guides, limit stops, skewed restraints and flexible anchors (Design §12, tranche 3; Format of .MBF, comment list).
+# A row carries at most one support type, and its data comments belong to it: GGAP to a guide, MU and STIFF to a guide
+# or limit stop, DV to a limit stop or skewed restraint. TRAK and ROTK are a flexible anchor's (KA) stiffnesses.
+_SUPPORT_TYPES = {"G": "guide", "LS": "stop", "K": "skew"}
+# Two spellings MBF files carry (observed format behaviour; Design §12): `STIFF=Rigid` on a guide or limit stop, the
+# rigid stiffness the technical reference names as both supports' default (Guide; Limit Stop), and `None` for a blank
+# limit stop limit, the technical reference's display of a blank limit, free on that side (Limit Stop).
+RIGID_STIFFNESS = "Rigid"
+BLANK_LIMIT = "None"
+_SUPPORT_DATA = {"GGAP": ("G",), "MU": ("G", "LS"), "STIFF": ("G", "LS"), "DV": ("LS", "K")}
+_SUPPORT_NAMES = {"G": "a guide (G)", "LS": "a limit stop (LS)", "K": "a skewed restraint (K)"}
+# Support comments whose meaning the public manual leaves open (TBD-17-04-010, Design §20.1).
+_TBD_010_COMMENTS = {
+    "AXIAL": "AXIAL sets a limit stop along its element's local x, but no public page says which element's axes a "
+             "limit stop takes",
+    "SHEARY": "SHEARY sets a limit stop along its element's local y, but no public page says which element's axes a "
+              "limit stop takes",
+    "SHEARZ": "SHEARZ sets a limit stop along its element's local z, but no public page says which element's axes a "
+              "limit stop takes",
+    "KR": "KR, a rotational stiffness, is in in-lb/deg or N-m/deg on the Format of .MBF page and in inch-lb/radian "
+          "on the technical reference's Anchor page; its unit is open"}
+_ANCHOR_STIFFNESS = ("TRAK", "ROTK")
+SPRING_FAMILY = "spring"
+# A stiffness (TRAK, STIFF, K) is in N/mm in SI files and lb/in in English files (Format of .MBF, TRAK, STIFF, K); it
+# keeps that unit, which the units catalog reads to N/m by its binary64 factor (core/units: N/mm 1000; lbf/in
+# POUND_FORCE_IN_NEWTONS / INCH_IN_METERS).
+STIFFNESS_UNIT = {True: "N/mm", False: "lbf/in"}
+_N_PER_M_PER_UNIT = {"N/mm": 1000.0, "lbf/in": 4.448_221_615_260_5 / 0.0254}
+# The solve reads a document under the checked-JSON profile openpipestress_jcs_ijson_v1 (canonical_json
+# MAX_SAFE_INTEGER and `validate_checked_value`): no integer, and no integral float, beyond 2^53 - 1 in magnitude.
+MAX_SAFE_INTEGER = 9_007_199_254_740_991
 _DOCUMENTED_COMMENTS = {*_FORCE_NAMES, *_MOMENT_NAMES, *_DISPLACEMENT_NAMES, *_ROTATION_NAMES, *_FIXD_NAMES,
-                        *_FIXR_NAMES, "FLC", "FF", "LA", "TAG", "LTAG",
+                        *_FIXR_NAMES, "FLC", "FF", "LA", "TAG", "LTAG", *_SUPPORT_TYPES, *_SUPPORT_DATA,
+                        *_TBD_010_COMMENTS, *_ANCHOR_STIFFNESS,
                         *(name for names in _DOCUMENTED_REFUSED_COMMENTS.values() for name in names)}
 _INCH_MARKS = ('"', "\u201d")
 _FOOT_SEPARATORS = ("'", "\u2019", "-")
@@ -259,7 +294,7 @@ def canonical_bytes(value: Any) -> bytes:
 def import_caepipe_mbf(
     data: bytes,
     *,
-    sidecar: Mapping[str, Any] | None = None,
+    sidecar: Mapping[str, Any] | bytes | str | None = None,
     material_provenance: Mapping[str, Any] | None = None,
     pressure_closure: Mapping[str, Any] | None = None,
     shear_model: str | None = None,
@@ -267,6 +302,10 @@ def import_caepipe_mbf(
     source_label: str,
 ) -> MbfImportResult:
     """Import the declared MBF subset into a SWBPIPE model document, or refuse by name.
+
+    `sidecar` is the writer sidecar as parsed JSON, or its JSON text (bytes or str), which the importer parses
+    strictly (parse_sidecar_json; Design §15): a repeated member name, a NaN or Infinity, or bytes that are not strict
+    UTF-8 are refused by JSON path. A caller passing parsed JSON has resolved its own parse.
 
     `pressure_closure` is the caller's closure-transfer declaration for the terminals of pressure regions an
     unbound import forms (Design §9.4): {"closure_transfer": "transfers_to_wall" or
@@ -706,21 +745,28 @@ _RUST_WHITESPACE = frozenset("\t\n\x0b\x0c\r \x85\xa0\u1680\u2028\u2029\u202f\u2
 # the sidecar (Design §15)
 # ---------------------------------------------------------------------------
 _SHA256 = re.compile(r"[0-9a-f]{64}\Z")
+# The sidecar formats this importer reads (Design §15): 2, and the current writer's 3, which is 2 with its self-digest.
+SIDECAR_FORMATS = (2, SIDECAR_FORMAT)
 _LOAD_CATEGORIES = ("concentrated_force", "concentrated_moment", "weight", "thermal", "imposed_displacement")
 _RIGID_FAMILIES = RESTORABLE_SUPPORT_FAMILIES[1:]
 _BAD = object()
 
 
 def runtime_support_findings(supports: Iterable[tuple[str, str, str | None, list[str]]]) -> list[tuple[str, str]]:
-    """What the solve refuses among rigid supports (support_id, node, family, DOFs), in model order, as
+    """What the solve refuses among supports (support_id, node, family, DOFs), in model order, as
     (support_id, reason): product_physics `rigid_linear_support_from_preview` infers an absent family as anchor with
     six DOFs and as guide otherwise, and linear_supports `prepare_rigid_support` requires at least one DOF, admits
     any DOF for an anchor, translations only for a guide or line stop, UZ only for a vertical support, and refuses a
-    DOF already restrained at the node (SUPPORT_INPUT_INVALID)."""
+    DOF already restrained at the node (SUPPORT_INPUT_INVALID). A spring (`prepare_spring`) acts on one DOF and
+    restrains none; the importer and the writer give it exactly one, the DOF its stiffness names."""
     allowed = {"anchor": DOFS, "guide": DOFS[:3], "line_stop": DOFS[:3], "vertical_support": ("UZ",)}
     restrained: set[tuple[str, str]] = set()
     found = []
     for support_id, node, family, dofs in supports:
+        if family == SPRING_FAMILY:
+            if len(dofs) != 1:
+                found.append((support_id, "a spring acts on exactly one DOF"))
+            continue
         family = family if family in _RIGID_FAMILIES else ("anchor" if len(dofs) == len(DOFS) else "guide")
         if not dofs:
             found.append((support_id, "a rigid support restrains no DOF"))
@@ -734,14 +780,11 @@ def runtime_support_findings(supports: Iterable[tuple[str, str, str | None, list
     return found
 
 
-# Maps whose entries a JSON path names as map[key] (the parser's paths); other objects' fields as .field.
-_KEYED_MAPS = ("node_map", "element_map", "support_map", "load_case_map", "material_map", "section_map", "load_map")
-
-
 def canonical_sidecar(sidecar: Mapping[str, Any]) -> dict[str, Any]:
-    """`sidecar` without its digest, in the form the regeneration identity compares (Design §14): every number a
-    binary64 (1 and 1.0 are one value), key order immaterial, and each load direction as the axis it names through its
-    aliases (`global_y`, `GLOBAL_Y`, `UY`, `uy`: UY; `rotation_x`, `rx`: RX)."""
+    """`sidecar` without its digests (`mbf_sha256`, which decides the route, and the self-digest), in the form the
+    regeneration identity compares (Design §14): every number a binary64 (1 and 1.0 are one value), key order
+    immaterial, and each load direction as the axis it names through its aliases (`global_y`, `GLOBAL_Y`, `UY`, `uy`:
+    UY; `rotation_x`, `rx`: RX)."""
     def walk(value: Any) -> Any:
         if isinstance(value, Mapping):
             return {key: walk(item) for key, item in value.items()}
@@ -751,7 +794,7 @@ def canonical_sidecar(sidecar: Mapping[str, Any]) -> dict[str, Any]:
             return float(value)
         return value
 
-    out = walk({key: value for key, value in sidecar.items() if key != "mbf_sha256"})
+    out = walk({key: value for key, value in sidecar.items() if key not in ("mbf_sha256", SIDECAR_DIGEST_KEY)})
     loads = out.get("load_map")
     for entry in loads.values() if isinstance(loads, dict) else ():
         direction = entry.get("direction") if isinstance(entry, Mapping) else None
@@ -838,7 +881,8 @@ class _SidecarParser:
     """The strict sidecar parser, run before anything reads the sidecar (Design §15). Every key has an exact JSON
     type (a bool is not a number, null is not a default), an allowed vocabulary, a non-empty value where an id or
     name is required, and finite binary64 range for numbers; unknown keys and wrong shapes are refused by JSON path.
-    A sidecar with `sidecar_format` 2 (the current writer's) must hold every field, each with its effective value
+    A sidecar with `sidecar_format` 2 or 3 (the current writer's: 2 with its self-digest `sidecar_sha256`, which
+    _Importer.self_digest verifies before this parser runs) must hold every field, each with its effective value
     (never null); one without it is legacy, from main's tranche-1 writer, and holds what that writer recorded
     (some fields absent in its earlier versions) and no pressure_map. `parse` returns the typed copy that the
     importer reads, or None with `errors` [(path, reason)]."""
@@ -846,6 +890,7 @@ class _SidecarParser:
     def __init__(self) -> None:
         self.errors: list[tuple[str, str]] = []
         self.current = False
+        self.format_number: int | None = None  # 2 or 3 once parsed; None for a legacy sidecar
 
     def fail(self, path: str, reason: str) -> object:
         self.errors.append((path, reason))
@@ -954,8 +999,9 @@ class _SidecarParser:
 
     def support(self, value: Any, path: str) -> Any:
         common = {"node": self.text, "restrained": self.items(self.choice(DOFS))}
-        if self.current:
-            entry = self.record(value, path, {**common, "family": self.choice(_RIGID_FAMILIES),
+        if self.current:  # format 3 also records springs (Design §12, tranche 3); format 2 the rigid families only
+            families = (*_RIGID_FAMILIES, SPRING_FAMILY) if self.format_number == SIDECAR_FORMAT else _RIGID_FAMILIES
+            entry = self.record(value, path, {**common, "family": self.choice(families),
                                               "family_authored": self.flag})
         else:
             entry = self.record(value, path, {**common, "caepipe_kind": self.choice(("anchor", "restraint"))},
@@ -966,6 +1012,12 @@ class _SidecarParser:
             return self.fail(f"{path}.restrained", "repeats a DOF")
         if entry.get("family") == "anchor" and len(entry["restrained"]) != len(DOFS):
             return self.fail(f"{path}.family", "an anchor restrains all six DOFs, as the writer exports it")
+        if entry.get("family") == SPRING_FAMILY:
+            if len(entry["restrained"]) != 1 or entry["restrained"][0] not in DOFS[:3]:
+                return self.fail(f"{path}.restrained", "a spring acts on exactly one translation, as the writer "
+                                 "exports it (a flexible anchor's TRAK)")
+            if entry.get("family_authored") is not True:
+                return self.fail(f"{path}.family_authored", "a spring's family is authored: the solve infers none")
         inferred = "anchor" if len(entry["restrained"]) == len(DOFS) else "guide"
         if self.current and entry.get("family_authored") is False and entry.get("family") != inferred:
             return self.fail(f"{path}.family", f"an unauthored family is the solve's inference, {inferred}")
@@ -1036,7 +1088,7 @@ class _SidecarParser:
         contract). A legacy sidecar has none: main's writer exported no pressure."""
         if not self.current:
             return self.fail(path, "is not a field main's tranche-1 writer records; a sidecar with pressure has "
-                             f"sidecar_format {SIDECAR_FORMAT}")
+                             f"sidecar_format {' or '.join(map(str, SIDECAR_FORMATS))}")
         entry = self.record(value, path, {"contract": self.contract, "shear_model": self.choice(SHEAR_MODELS),
                                           "regions": self.items(self.region, nonempty=False)})
         if entry is _BAD or len(entry) != 3 or any(item is _BAD for item in entry.values()):
@@ -1052,8 +1104,9 @@ class _SidecarParser:
         return self.fail(path, "must be a lowercase SHA-256 hex digest" + ("" if self.current else " or null"))
 
     def format(self, value: Any, path: str) -> Any:
-        return value if type(value) is int and value == SIDECAR_FORMAT else self.fail(
-            path, f"must be {SIDECAR_FORMAT}, the format this importer reads (or absent, for a legacy sidecar)")
+        return value if type(value) is int and value in SIDECAR_FORMATS else self.fail(
+            path, f"must be {' or '.join(map(str, SIDECAR_FORMATS))}, a format this importer reads (or absent, for a "
+            "legacy sidecar)")
 
     # -- the whole sidecar -------------------------------------------------
     def parse(self, sidecar: Any) -> dict[str, Any] | None:
@@ -1069,14 +1122,20 @@ class _SidecarParser:
             self.fail("sidecar", "must be an object")
             return None
         self.current = "sidecar_format" in sidecar
-        if self.current:  # every map but section_map (the MBF's), the digest and the format
+        self.format_number = sidecar["sidecar_format"] if self.current and type(sidecar["sidecar_format"]) is int \
+            else None
+        if self.current:  # every map but section_map (the MBF's), the digest and the format; format 3 its self-digest
             current = {name: parse for name, parse in maps.items() if name != "section_map"}
-            parsed = self.record(sidecar, "", {**current, "mbf_sha256": self.digest, "sidecar_format": self.format})
+            current.update(mbf_sha256=self.digest, sidecar_format=self.format)
+            if type(sidecar["sidecar_format"]) is int and sidecar["sidecar_format"] == SIDECAR_FORMAT:
+                current[SIDECAR_DIGEST_KEY] = self.digest
+            parsed = self.record(sidecar, "", current)
         else:  # main's run_pilot wrote the seven maps; earlier runs kept the digest in mbf_render.json
             legacy = {name: parse for name, parse in maps.items() if name != "pressure_map"}
             parsed = self.record(sidecar, "", legacy, {"mbf_sha256": self.digest, "pressure_map": self.pressure})
         if self.errors:
             return None
+        self.format_number = parsed.get("sidecar_format")
         out = {name: parsed.get(name, {}) for name in maps}
         out["mbf_sha256"] = parsed.get("mbf_sha256")
         # The importer reads the restored pressure state as the contract (with its shear model) and regions, or None.
@@ -1201,6 +1260,7 @@ class _Importer:
         self.closure = closure
         self.shear_model = shear_model
         self.sidecar_current = False
+        self.self_digest_state: str | None = None  # "verified" or "absent" once a given sidecar is read
         self.oppres: tuple[int, list[str], bool] | None = None
         self.pressure_notes: list[str] = []
         self.sidecar = sidecar
@@ -1274,7 +1334,8 @@ class _Importer:
                   "angles": "rad" if self.rad else "deg", "vertical_axis": "Z" if self.z_vertical else "Y",
                   "line_count": len(self.lines),
                   "source_label": self.source_label,
-                  "binding": "bound" if self.bound else ("rebound_unconfirmed" if self.rebound else "unbound")}
+                  "binding": "bound" if self.bound else ("rebound_unconfirmed" if self.rebound else "unbound"),
+                  "sidecar_self_digest": self.self_digest_state}
         return MbfImportResult(
             status="refused" if refused else "imported",
             model=None if refused else model,
@@ -1503,12 +1564,30 @@ class _Importer:
             if self.rebind:
                 self.refuse("MBF-IMPORT-SIDECAR-INVALID", 0, "sidecar", "rebinding was requested without a sidecar")
             return
+        if isinstance(self.sidecar, (bytes, bytearray, str)):  # JSON text: parsed strictly, changed in nothing
+            try:
+                self.sidecar = parse_sidecar_json(self.sidecar)
+            except SidecarJsonInvalid as error:
+                for path, reason in error.findings:
+                    self.refuse("MBF-IMPORT-SIDECAR-INVALID", 0, path, f"the sidecar JSON at {path} {reason}")
+                return
+        if not self.self_digest():  # before anything else reads the sidecar, on every route (Design §15)
+            return
         parser = _SidecarParser()  # strict, before anything reads the sidecar (Design §15)
         parsed = parser.parse(self.sidecar)
         if parsed is None:
             for path, reason in parser.errors:
                 self.refuse("MBF-IMPORT-SIDECAR-INVALID", 0, path, f"the sidecar's {path} {reason}")
             return
+        if parser.format_number != SIDECAR_FORMAT:
+            self.self_digest_state = "absent"
+            self.diagnostics.append({
+                "code": "MBF-IMPORT-SIDECAR-NO-SELF-DIGEST", "severity": "info", "line": 0,
+                "location": "sidecar_format" if parser.current else "sidecar",
+                "message": ("the sidecar is format 2, written before the self-digest" if parser.current else
+                            "the sidecar is legacy, from main's tranche-1 writer")
+                + ", and carries no self-digest: an accidental or partial edit of it is caught only where the "
+                  "agreement rule, the parser or the regeneration identity reads the edited value"})
         digest = parsed.pop("mbf_sha256")
         self.maps = parsed
         self.sidecar_current = parser.current
@@ -1529,6 +1608,43 @@ class _Importer:
             return
         self.node_ids = {name: swb_id for swb_id, name in self.maps["node_map"].items()}
         self.ambiguous()
+
+    def self_digest(self) -> bool:
+        """Design §15: a sidecar claiming format 3 must carry its self-digest `sidecar_sha256`, the SHA-256 of its
+        canonical content without it (si_writer.sidecar_canonical_bytes), and that digest must be the content's, or
+        the import is refused, before the parser or any route reads it. It catches an accidental or partial edit; a
+        deliberate editor can recompute it, so the parser, the agreement rule and the regeneration identity still
+        govern meaning. Format 2 and legacy sidecars carry none: the parser reads them, and bind_sidecar reports it."""
+        sidecar = self.sidecar
+        if not (type(sidecar) is dict and type(sidecar.get("sidecar_format")) is int
+                and sidecar["sidecar_format"] == SIDECAR_FORMAT):
+            return True
+        path = SIDECAR_DIGEST_KEY
+        if path not in sidecar:
+            self.refuse("MBF-IMPORT-SIDECAR-INVALID", 0, path,
+                        f"the sidecar's {path} is missing: a sidecar of format {SIDECAR_FORMAT} carries its "
+                        "self-digest, and one without it is not read as an older format")
+            return False
+        given = sidecar[path]
+        if not (type(given) is str and _SHA256.match(given)):
+            self.refuse("MBF-IMPORT-SIDECAR-INVALID", 0, path,
+                        f"the sidecar's {path} must be a lowercase SHA-256 hex digest")
+            return False
+        try:
+            actual = sidecar_self_digest(sidecar)
+        except SidecarNotCanonical as error:
+            self.refuse("MBF-IMPORT-SIDECAR-INVALID", 0, error.path,
+                        f"the sidecar's {error.path} {error.reason}, so the sidecar has no canonical form for its "
+                        "self-digest")
+            return False
+        if actual != given:
+            self.refuse("MBF-IMPORT-SIDECAR-DIGEST-MISMATCH", 0, path,
+                        f"the sidecar's {path} is not the SHA-256 of its canonical content ({actual}): the sidecar "
+                        "was changed after it was written, or only part of it was kept. It is not applied on any "
+                        "route; restore the written sidecar")
+            return False
+        self.self_digest_state = "verified"
+        return True
 
     def ambiguous(self) -> None:
         """Refuse, before assembly, a sidecar whose reverse mapping is not a function (VER-002 r13): two elements
@@ -2114,9 +2230,47 @@ class _Importer:
                             for a, b, start, end in self.straight_ends()}
             raise _Refused
         model, id_map = self.assemble()
+        self.checked_json_domain(model)
+        if self.has_errors():
+            raise _Refused
         if self.bound and self.sidecar_current:
             self.regeneration_identity(model, id_map)
         return model, id_map
+
+    def checked_json_domain(self, model: dict[str, Any]) -> None:
+        """Design §9.4 guard map: every number of the emitted document lies in the checked-JSON numeric domain the
+        solve reads it under (canonical_json `validate_checked_value`, profile openpipestress_jcs_ijson_v1): an
+        integer within +-(2^53 - 1) (CHECKED-JSON-UNSAFE-INTEGER), a finite number (CHECKED-JSON-NON-FINITE), and no
+        integral float beyond 2^53 - 1 (CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT). The importer writes each number as
+        Python's json writes it: a float with a fraction or exponent mark, which the reader parses as f64, and an int
+        as an integer. A number outside the domain is refused by name at its JSON path, never changed or dropped."""
+        def walk(value: Any, path: str, line: int) -> None:
+            if isinstance(value, dict):
+                provenance = value.get("provenance")
+                found = re.search(r", line (\d+)\Z", provenance) if isinstance(provenance, str) else None
+                line = int(found.group(1)) if found else line
+                for key, item in value.items():
+                    walk(item, f"{path}.{key}" if path else key, line)
+            elif isinstance(value, list):
+                for index, item in enumerate(value):
+                    key = item.get("id") if isinstance(item, dict) and isinstance(item.get("id"), str) else index
+                    walk(item, f"{path}[{key}]", line)
+            elif isinstance(value, bool) or not isinstance(value, (int, float)):
+                return
+            elif isinstance(value, int) and abs(value) > MAX_SAFE_INTEGER:
+                self.refuse("MBF-IMPORT-VALUE-UNREPRESENTABLE", line, path,
+                            f"{path} is an integer beyond +-(2^53 - 1), which the solve's checked-JSON reader refuses "
+                            "(CHECKED-JSON-UNSAFE-INTEGER)")
+            elif isinstance(value, float) and not math.isfinite(value):
+                self.refuse("MBF-IMPORT-VALUE-UNREPRESENTABLE", line, path,
+                            f"{path} is not finite, which the solve's checked-JSON reader refuses "
+                            "(CHECKED-JSON-NON-FINITE)")
+            elif isinstance(value, float) and value.is_integer() and abs(value) > MAX_SAFE_INTEGER:
+                self.refuse("MBF-IMPORT-VALUE-UNREPRESENTABLE", line, path,
+                            f"{path} is the integral value {value!r} beyond 2^53 - 1, which the solve's checked-JSON "
+                            "reader refuses (CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT)")
+
+        walk(model, "", 0)
 
     def regeneration_identity(self, model: dict[str, Any], id_map: dict[str, Any]) -> None:
         """The exact-digest route's guard of record (Design §14, VER-002 r13): the writer regenerates the sidecar
@@ -2131,6 +2285,8 @@ class _Importer:
         regenerated, refusals = regenerate_caepipe_sidecar(model, mbf_sha256=self.sha,
                                                            derived_y_reference=id_map["y_reference_derived"],
                                                            **reference)
+        if regenerated is not None:  # format 2 is format 3 without the self-digest: compared in the given format
+            regenerated = {**regenerated, "sidecar_format": self.sidecar["sidecar_format"]}
         if regenerated is None:
             self.refuse("MBF-IMPORT-SIDECAR-NOT-REPRODUCED", 0, "sidecar",
                         "the bound sidecar is not the writer's record of the model it yields: the writer does not "
@@ -2312,7 +2468,7 @@ class _Importer:
     def node_record(self, number: int) -> dict[str, Any]:
         return self.node_data.setdefault(number, {
             "anchor": [], "la": [], "fixd": {}, "fixr": {}, "forces": {}, "moments": {}, "disp": {}, "rot": {},
-            "tag": [], "comment_lines": [], "load_lines": []})
+            "tag": [], "comment_lines": [], "load_lines": [], "supports": [], "trak": [], "rotk": []})
 
     def comment_values(self, name: str, args: str | None, value: str | None, axis: int | None, line: int,
                        location: str, *, flag: bool = False) -> dict[int, Num] | None:
@@ -2350,6 +2506,7 @@ class _Importer:
             record["anchor"].append(row.line)
         flc: tuple[int, Num | None] | None = None
         loads: list[tuple[str, dict[int, Num], int]] = []
+        support_data: dict[str, tuple[str | None, str | None, int, str]] = {}
         for line, text in row.comments:
             where = f"{location} comment {text.split('=')[0].split('(')[0] or '?'}"
             if text.startswith("L=") or text == "L":
@@ -2420,6 +2577,15 @@ class _Importer:
                                 "an anchor in local axes (LA=1) is not read")
                 elif number is not None:
                     record["la"].append(line)
+            elif name in _SUPPORT_TYPES or name in _SUPPORT_DATA or name in _TBD_010_COMMENTS:
+                if name in support_data:
+                    self.refuse("MBF-IMPORT-COMMENT-INVALID", line, where, f"{name} is repeated on one row")
+                else:
+                    support_data[name] = (value, args, line, where)
+            elif name in _ANCHOR_STIFFNESS:
+                values = self.comment_values(name, args, value, None, line, where)
+                if values is not None:  # magnitudes per axis: they move with their axes, as restraint flags do
+                    record[name.lower()].append((self.to_swb(values, signed=False), line))
             elif name == "TAG":
                 record["tag"].append(((value or "").strip(), line))
             elif name == "LTAG":
@@ -2430,7 +2596,7 @@ class _Importer:
                     self.refuse("MBF-IMPORT-COMMENT-UNKNOWN", line, where,
                                 f"comment {name} is not in the documented comment list")
                 else:
-                    self.refuse(code, line, where, f"comment {name} is not read in tranche 1")
+                    self.refuse(code, line, where, f"comment {name} is not read by this profile (Design §12 to §14)")
         for kind, values, line in loads:
             if flc is None:
                 if not self.convention(f"a {'force' if kind == 'forces' else 'moment'} without FLC", line,
@@ -2444,12 +2610,124 @@ class _Importer:
             record["load_lines"].append(line)
         if flc is not None and not loads:
             self.refuse("MBF-IMPORT-COMMENT-INVALID", flc[0], f"{location} comment FLC", "FLC without FOR or MOM")
+        if support_data:
+            self.row_supports(record, support_data, location)
+
+    def errors(self) -> int:
+        return sum(item["severity"] == "error" for item in self.diagnostics)
+
+    def single_value(self, name: str, entry: tuple[str | None, str | None, int, str]) -> Num | None:
+        value, args, line, where = entry
+        if args is not None or value is None:
+            self.refuse("MBF-IMPORT-COMMENT-INVALID", line, where, f"{name} takes one value, as {name}=value")
+            return None
+        return self.real(value, line, where)
+
+    def row_supports(self, record: dict[str, Any], data: dict[str, tuple[str | None, str | None, int, str]],
+                     location: str) -> None:
+        """Design §12, tranche 3: the guide (G), limit stop (LS) or skewed restraint (K) one row carries, with its data
+        comments. Each is read only rigid and axis-aligned, or as a spring along one global axis; gaps, friction and
+        skewed directions are refused by name."""
+        start = self.errors()
+        for name in sorted(data.keys() & _TBD_010_COMMENTS):
+            self.refuse("MBF-IMPORT-TBD-17-04-010", data[name][2], data[name][3], _TBD_010_COMMENTS[name])
+        kinds = [name for name in _SUPPORT_TYPES if name in data]
+        if len(kinds) > 1:
+            self.refuse("MBF-IMPORT-SUPPORT-UNSUPPORTED", data[kinds[1]][2], location,
+                        f"{' and '.join(kinds)} on one row: a row carries one guide (G), limit stop (LS) or skewed "
+                        "restraint (K), and its other comments are that support's data")
+            return
+        kind = kinds[0] if kinds else None
+        for name, readers in _SUPPORT_DATA.items():
+            if name in data and kind not in readers:
+                self.refuse("MBF-IMPORT-SUPPORT-UNSUPPORTED", data[name][2], data[name][3],
+                            f"{name} is read only as the data of {' or '.join(_SUPPORT_NAMES[r] for r in readers)} "
+                            "on its row")
+        if kind is None or self.errors() > start:
+            return
+        value, args, line, where = data[kind]
+        stiffness: Num | None = None
+        axis: int | None = None
+        if "GGAP" in data:
+            gap = self.single_value("GGAP", data["GGAP"])
+            if gap is not None and gap.exact != 0:
+                self.refuse("MBF-IMPORT-SUPPORT-UNSUPPORTED", data["GGAP"][2], data["GGAP"][3],
+                            "a guide gap (GGAP) is a clearance the pipe closes before the guide acts, symmetric about "
+                            "the guide axis: SWBPIPE has no support member for it; only GGAP=0 is read")
+        if "MU" in data:
+            mu = self.single_value("MU", data["MU"])
+            if mu is not None and mu.exact < 0:
+                self.refuse("MBF-IMPORT-VALUE-OUT-OF-RANGE", data["MU"][2], data["MU"][3],
+                            "a friction coefficient is not negative")
+            elif mu is not None and mu.exact != 0:
+                self.refuse("MBF-IMPORT-SUPPORT-UNSUPPORTED", data["MU"][2], data["MU"][3],
+                            "a friction coefficient (MU) makes the support nonlinear, its friction opposing motion "
+                            "normal to the restraint; only MU=0 is read")
+        if "STIFF" in data and data["STIFF"][0] == RIGID_STIFFNESS and data["STIFF"][1] is None:
+            pass  # STIFF=Rigid: the documented default, read exactly as a row without STIFF (Design §12)
+        elif "STIFF" in data:
+            stiffness = self.single_value("STIFF", data["STIFF"])
+            if stiffness is not None and not stiffness.exact > 0:
+                self.refuse("MBF-IMPORT-VALUE-OUT-OF-RANGE", data["STIFF"][2], data["STIFF"][3],
+                            "a stiffness (STIFF) must be positive; without STIFF the support is rigid")
+        if "DV" in data:
+            dv_value, dv_args, dv_line, dv_where = data["DV"]
+            components = self.comment_values("DV", dv_args, dv_value, None, dv_line, dv_where)
+            if components is not None:
+                along = [index for index, number in self.to_swb(components).items() if number.exact != 0]
+                if not along:
+                    self.refuse("MBF-IMPORT-COMMENT-INVALID", dv_line, dv_where, "DV(0,0,0) names no direction")
+                elif len(along) > 1:
+                    self.refuse("MBF-IMPORT-SUPPORT-UNSUPPORTED", dv_line, dv_where,
+                                "a direction vector off the global axes is a skewed restraint direction; SWBPIPE's "
+                                "supports restrain global DOFs only")
+                else:
+                    axis = along[0]
+        if kind == "G":
+            if value is not None or args is not None:
+                self.refuse("MBF-IMPORT-COMMENT-INVALID", line, where, "G takes no value")
+        elif kind == "LS":
+            parts = split_fields(args) if args is not None else None
+            if parts is None or len(parts) != 2:
+                self.refuse("MBF-IMPORT-COMMENT-INVALID", line, where,
+                            "LS needs its two limits, LS(lower,upper)")
+            else:
+                for label, part in zip(("lower", "upper"), parts):
+                    if part in ("", BLANK_LIMIT):
+                        self.refuse("MBF-IMPORT-SUPPORT-UNSUPPORTED", line, f"{where} {label}",
+                                    f"a blank {label} limit (empty or None) leaves that side free: a one-way "
+                                    "restraint, which is nonlinear; only LS(0,0), stopped both ways at the undeflected "
+                                    "position, is read")
+                        continue
+                    limit = self.real(part, line, f"{where} {label}")
+                    if limit is not None and limit.exact != 0:
+                        self.refuse("MBF-IMPORT-SUPPORT-UNSUPPORTED", line, f"{where} {label}",
+                                    f"a non-zero {label} limit is a gap the node moves through freely before the stop "
+                                    "acts, which is nonlinear; only LS(0,0) is read")
+            if "DV" not in data:
+                self.refuse("MBF-IMPORT-TBD-17-04-010", line, where,
+                            "a limit stop without DV: the Format of .MBF page documents no default direction")
+        else:
+            stiffness = self.single_value("K", data["K"])
+            if stiffness is not None and not stiffness.exact > 0:
+                self.refuse("MBF-IMPORT-VALUE-OUT-OF-RANGE", line, where, "a skewed restraint's stiffness K must be "
+                            "positive")
+            if "DV" not in data:
+                self.refuse("MBF-IMPORT-SUPPORT-UNSUPPORTED", line, where,
+                            "a skewed restraint needs its direction DV (a connected node, CNOD, is not read)")
+        if self.errors() == start:
+            record["supports"].append({"kind": _SUPPORT_TYPES[kind], "line": line, "axis": axis,
+                                       "stiffness": stiffness})
 
     def check_supports(self) -> None:
         for number, record in self.node_data.items():
             location = f"node {number}"
             if record["la"] and not record["anchor"]:
                 self.refuse("MBF-IMPORT-SUPPORT-UNSUPPORTED", record["la"][0], location, "LA is read only with KA")
+            self.check_flexible_anchor(number, record)
+            for support in record["supports"]:
+                if support["kind"] == "guide":
+                    support["axis"] = self.guide_axis(number, support["line"])
             for key in ("disp", "rot"):
                 if record[key] and not record["anchor"]:
                     line = min(line for items in record[key].values() for _, line in items)
@@ -2460,6 +2738,71 @@ class _Importer:
                 if lines:
                     self.refuse("MBF-IMPORT-BEND-UNSUPPORTED", min(lines), location,
                                 "a location row, support or load at a tangent-intersection node is not read")
+
+    def check_flexible_anchor(self, number: int, record: dict[str, Any]) -> None:
+        """Design §12, tranche 3: KA with TRAK(kx,ky,kz) and ROTK(kxx,kyy,kzz) is a flexible anchor, one stiffness per
+        global DOF; 0 leaves the DOF free (documented: technical reference, Anchor). Its translational stiffnesses
+        become springs; ROTK is read only as all zero, its unit being open (TBD-17-04-010)."""
+        location = f"node {number}"
+        for name in _ANCHOR_STIFFNESS:
+            items = record[name.lower()]
+            if len(items) > 1:
+                self.refuse("MBF-IMPORT-COMMENT-INVALID", items[1][1], f"{location} {name}",
+                            f"{name} is given twice at node {number}")
+            if items and not record["anchor"]:
+                self.refuse("MBF-IMPORT-SUPPORT-UNSUPPORTED", items[0][1], f"{location} {name}",
+                            f"{name} is an anchor's stiffness and is read only with KA")
+        if not record["anchor"] or not (record["trak"] or record["rotk"]):
+            return
+        line = record["anchor"][0]
+        if not (record["trak"] and record["rotk"]):
+            self.refuse("MBF-IMPORT-TBD-17-04-010", line, location,
+                        "a flexible anchor needs both TRAK and ROTK: no public page says whether the DOFs of an absent "
+                        "one stay rigid or are free")
+            return
+        trak, rotk = record["trak"][0][0], record["rotk"][0][0]
+        if any(value.exact < 0 for value in (*trak.values(), *rotk.values())):
+            self.refuse("MBF-IMPORT-VALUE-OUT-OF-RANGE", line, location, "an anchor stiffness is not negative")
+        elif any(value.exact != 0 for value in rotk.values()):
+            self.refuse("MBF-IMPORT-TBD-17-04-010", record["rotk"][0][1], f"{location} ROTK",
+                        "a non-zero ROTK: its unit is in-lb/deg or N-m/deg on the Format of .MBF page and inch-lb/radian "
+                        "on the technical reference's Anchor page, so it is open; ROTK(0,0,0), free rotations, is read")
+        elif all(value.exact == 0 for value in trak.values()):
+            self.refuse("MBF-IMPORT-SUPPORT-UNSUPPORTED", line, location,
+                        f"the flexible anchor at node {number} has no stiffness in any DOF and restrains nothing")
+        if record["fixd"] or record["fixr"] or record["supports"]:
+            self.refuse("MBF-IMPORT-SUPPORT-UNSUPPORTED", line, location,
+                        "a flexible anchor (KA with TRAK and ROTK) is read alone at its node: no public page says how "
+                        "it combines with another restraint there")
+        for key in ("disp", "rot"):
+            if record[key]:
+                moved = min(line for items in record[key].values() for _, line in items)
+                self.refuse("MBF-IMPORT-DISPLACEMENT-UNSUPPORTED", moved, location,
+                            "a specified displacement at a flexible anchor moves the ground end of its springs; "
+                            "SWBPIPE's imposed displacement is a rigid prescribed DOF")
+
+    def guide_axis(self, number: int, line: int) -> int | None:
+        """The global axis of the element whose local axes a guide at `number` takes: the preceding element, or with
+        none the following one (documented: technical reference, Guide). The guide restrains that element's local y
+        and z; it is read only when the element lies exactly along a global axis, whose two lateral translations are
+        then exactly those."""
+        location = f"node {number} G"
+        before = [element for element in self.elements if element.end == number]
+        after = [element for element in self.elements if element.start == number]
+        if not before and len(after) != 1:
+            self.refuse("MBF-IMPORT-SUPPORT-UNSUPPORTED", line, location,
+                        f"node {number} has no preceding element and {len(after)} following ones, so the guide's "
+                        "element is not determined")
+            return None
+        element = (before or after)[0]
+        start, end = self.nodes[element.start]["exact"], self.nodes[element.end]["exact"]
+        along = [index for index in range(3) if end[index] != start[index]]
+        if len(along) != 1:
+            self.refuse("MBF-IMPORT-SUPPORT-UNSUPPORTED", line, location,
+                        f"the guide's element, {element.start} to {element.end}, does not lie along a global axis, so "
+                        "its lateral directions are skewed; SWBPIPE's supports restrain global DOFs only")
+            return None
+        return along[0]
 
     # -- §11 bends ---------------------------------------------------------------
     def resolve_bends(self) -> None:
@@ -3012,18 +3355,67 @@ class _Importer:
         for swb_id, entry in self.maps.get("support_map", {}).items():
             sidecar_by_node.setdefault(entry["node"], []).append((swb_id, entry))
         matched_sidecar: set[str] = set()
+        stiffness_unit = STIFFNESS_UNIT[self.si]
         for number in self.node_order:
             record = self.node_data.get(number)
             if record is None:
                 continue
             name = str(number)
-            imported: list[tuple[str, list[str], str | None, int]] = []
-            if record["anchor"]:
-                imported.append((f"support:{name}", list(DOFS), "anchor", record["anchor"][0]))
+            # (id, DOFs, family, line, label): an anchor, a restraint, a guide, limit stops, then springs (§10.4, §12)
+            imported: list[tuple[str, list[str], str | None, int, str]] = []
+            springs: dict[str, tuple[Num, int]] = {}
+
+            def add(item: tuple[str, list[str], str | None, int, str], what: str) -> None:
+                if any(existing[0] == item[0] for existing in imported):
+                    self.refuse("MBF-IMPORT-SUPPORT-UNSUPPORTED", item[3], f"node {name}",
+                                f"a second {what} at node {name} is not read")
+                else:
+                    imported.append(item)
+
+            def spring(dof: str, stiffness: Num, line: int, what: str) -> None:
+                if dof in springs:
+                    self.refuse("MBF-IMPORT-SUPPORT-UNSUPPORTED", line, f"node {name}",
+                                f"{what} adds a second spring on {dof} at node {name}, which is not read")
+                else:
+                    springs[dof] = (stiffness, line)
+
+            flexible = bool(record["anchor"] and record["trak"])
+            if record["anchor"] and not flexible:
+                imported.append((f"support:{name}", list(DOFS), "anchor", record["anchor"][0], "anchor"))
+            if flexible:
+                for axis, stiffness in sorted(record["trak"][0][0].items()):
+                    if stiffness.exact != 0:
+                        spring(DOFS[axis], stiffness, record["anchor"][0], "TRAK")
             dofs = [DOFS[axis] for axis in sorted(record["fixd"])] + [DOFS[3 + axis] for axis in sorted(record["fixr"])]
             if dofs:
                 line = min(list(record["fixd"].values()) + list(record["fixr"].values()))
-                imported.append((f"support:{name}-restraint", dofs, None, line))
+                imported.append((f"support:{name}-restraint", dofs, None, line, "restraint"))
+            for item in record["supports"]:
+                axis, line, stiffness = item["axis"], item["line"], item["stiffness"]
+                if item["kind"] == "guide":  # restrains its element's two lateral translations (§12)
+                    lateral = [DOFS[index] for index in range(3) if index != axis]
+                    if stiffness is None:
+                        add((f"support:{name}-guide", lateral, "guide", line, "guide"), "guide")
+                    for dof in lateral if stiffness is not None else ():
+                        spring(dof, stiffness, line, "a flexible guide (G with STIFF)")
+                elif item["kind"] == "stop":
+                    if stiffness is None:
+                        add((f"support:{name}-stop-{'xyz'[axis]}", [DOFS[axis]], "line_stop", line, "limit stop"),
+                            f"limit stop along {'xyz'[axis]}")
+                    else:
+                        spring(DOFS[axis], stiffness, line, "a flexible limit stop (LS with STIFF)")
+                else:
+                    spring(DOFS[axis], stiffness, line, "a skewed restraint (K)")
+            rigid = set().union(*(set(item[1]) for item in imported))
+            for dof, (_, line) in springs.items():
+                if dof in rigid:
+                    self.refuse("MBF-IMPORT-SUPPORT-UNSUPPORTED", line, f"node {name}",
+                                f"a spring on {dof} at node {name}, which a rigid support there already restrains, is "
+                                "not read")
+            for dof in DOFS:
+                if dof in springs:
+                    imported.append((f"support:{name}-spring-{dof.lower()}", [dof], SPRING_FAMILY, springs[dof][1],
+                                     "spring"))
             tags = record["tag"]
             if not imported:
                 for _, line in tags:
@@ -3038,11 +3430,15 @@ class _Importer:
                             f"the bound sidecar records no support at node {name}, which the file supports")
                 continue
             if restored:
-                wanted = set().union(*(set(dofs) for _, dofs, _, _ in imported))
-                given = set().union(*(set(entry["restrained"]) for _, entry in restored))
-                if wanted != given:
+                wanted = set().union(*(set(dofs) for _, dofs, family, _, _ in imported if family != SPRING_FAMILY))
+                given = set().union(*(set(entry["restrained"]) for _, entry in restored
+                                      if entry.get("family") != SPRING_FAMILY))
+                given_springs = sorted(dof for _, entry in restored if entry.get("family") == SPRING_FAMILY
+                                       for dof in entry["restrained"])
+                if wanted != given or given_springs != sorted(springs):
                     self.refuse("MBF-IMPORT-SIDECAR-CONFLICT", line, f"node {name}",
-                                f"the sidecar's supports at node {name} restrain other DOFs than the MBF")
+                                f"the sidecar's supports at node {name} restrain other DOFs, or carry springs on other "
+                                "DOFs, than the MBF")
                     continue
                 entries = []
                 for swb_id, entry in restored:
@@ -3051,7 +3447,8 @@ class _Importer:
                     if "family" not in entry:
                         self.listed("approximated", "MBF-IMPORT-ID-UNRECOVERABLE", line, f"support_map[{swb_id}]",
                                     f"the sidecar entry for {swb_id} carries no family, which is not recoverable")
-                    entries.append((swb_id, [dof for dof in DOFS if dof in entry["restrained"]], family))
+                    label = ("spring" if family == SPRING_FAMILY else "anchor" if family == "anchor" else "restraint")
+                    entries.append((swb_id, [dof for dof in DOFS if dof in entry["restrained"]], family, label, line))
                     kind = "anchor" if record["anchor"] else "restraint"
                     if self.bound and not self.sidecar_current and entry["caepipe_kind"] != kind:
                         self.refuse("MBF-IMPORT-SIDECAR-CONFLICT", line, f"support_map[{swb_id}].caepipe_kind",
@@ -3061,16 +3458,24 @@ class _Importer:
                     if self.rebound:
                         self.unconfirmed.append(swb_id)
             else:
-                entries = [(swb_id, dofs, family) for swb_id, dofs, family, _ in imported]
-            for swb_id, dofs, family in entries:
+                entries = [(swb_id, dofs, family, label, own) for swb_id, dofs, family, own, label in imported]
+            for swb_id, dofs, family, label, own in entries:
                 claim(swb_id, f"support at node {name}", line)
-                self.support_lines[swb_id] = line
-                support: dict[str, Any] = {"id": swb_id, "label": tags[0][0] if tags else
-                                           f"{'anchor' if family == 'anchor' else 'restraint'} at {name}",
+                self.support_lines[swb_id] = own
+                support: dict[str, Any] = {"id": swb_id, "label": tags[0][0] if tags else f"{label} at {name}",
                                            "node": node_id[name], "restraints": dofs,
                                            "provenance": provenance(line)}
                 if family is not None:
                     support["family"] = family
+                if family == SPRING_FAMILY:
+                    stiffness, spring_line = springs[dofs[0]]
+                    if not (math.isfinite(stiffness.value * _N_PER_M_PER_UNIT[stiffness_unit])
+                            and stiffness.value * _N_PER_M_PER_UNIT[stiffness_unit] > 0):
+                        self.refuse("MBF-IMPORT-VALUE-UNREPRESENTABLE", spring_line, swb_id,
+                                    f"the stiffness of {swb_id} is outside the binary64 range in N/m, as the solve "
+                                    "reads it")
+                    support["stiffness"] = {"dof": dofs[0], "value": {"value": stiffness.value,
+                                                                      "unit": stiffness_unit}}
                 supports.append(support)
                 ids.append((swb_id, dofs))
             support_ids[number] = ids
@@ -3852,6 +4257,27 @@ class _Importer:
                                 "written as absent" + (", except the corrosion allowance under pressure."
                                                        if self.pressure_notes else "."))
         self.assumptions.extend(self.pressure_notes)
+        kinds = {item["kind"] for record in self.node_data.values() for item in record["supports"]}
+        flexible = any(record["anchor"] and record["trak"] for record in self.node_data.values())
+        unit = STIFFNESS_UNIT[self.si]
+        for kind, note in (
+                ("guide", "A guide (G) restrains the two global translations lateral to the element whose local axes "
+                          "it takes, the preceding element or else the following one (technical reference, Guide), "
+                          "which lies along a global axis: rigid, or with STIFF a spring on each."),
+                ("stop", "A limit stop LS(0,0) along an axis-aligned DV is stopped both ways at its undeflected "
+                         "position (technical reference, Limit Stop): a rigid line stop on that DOF, or with STIFF a "
+                         "spring."),
+                ("skew", "A skewed restraint K along an axis-aligned DV is a two-way spring on that DOF (technical "
+                         "reference, Skewed Restraint).")):
+            if kind in kinds:
+                self.assumptions.append(note)
+        if flexible:
+            self.assumptions.append("A flexible anchor (KA with TRAK and ROTK(0,0,0)) is a spring on each translation "
+                                    "with a non-zero stiffness; a zero stiffness leaves its DOF free (technical "
+                                    "reference, Anchor).")
+        if kinds - {"guide"} or flexible or any(item["stiffness"] is not None for record in self.node_data.values()
+                                                for item in record["supports"]):
+            self.assumptions.append(f"Spring stiffnesses keep their MBF unit, {unit}.")
         if ("gravity", "the earth gravity setting") in self.used_conventions:
             self.used_conventions.discard(("gravity", "the earth gravity setting"))
             self.assumptions.append("OPMISC gives earth gravity (the export's default setting 386.4 with direction "
@@ -3893,13 +4319,80 @@ def inside_git_work_tree(path: Path) -> bool:
     return completed.returncode == 0
 
 
-def load_sidecar(path: Path) -> dict[str, Any]:
-    sidecar = json.loads(path.read_text(encoding="utf-8"))
-    if isinstance(sidecar, dict) and "mbf_sha256" not in sidecar:
-        render = path.with_name("mbf_render.json")
-        if render.is_file():
-            sidecar["mbf_sha256"] = json.loads(render.read_text(encoding="utf-8")).get("mbf_sha256")
-    return sidecar
+class SidecarJsonInvalid(ValueError):
+    """Sidecar JSON text that parse_sidecar_json refuses; `findings` are (JSON path, reason)."""
+
+    def __init__(self, findings: list[tuple[str, str]]) -> None:
+        super().__init__("; ".join(f"{path}: {reason}" for path, reason in findings))
+        self.findings = findings
+
+
+def _json_path(path: str, key: str) -> str:
+    return f"{path}[{key}]" if path in _KEYED_MAPS else (f"{path}.{key}" if path else key)
+
+
+def parse_sidecar_json(text: bytes | bytearray | str) -> Any:
+    """Sidecar JSON text, parsed strictly and changed in nothing (Design §15): bytes must be strict UTF-8, the text
+    RFC 8259 JSON (no NaN, Infinity or -Infinity), and no object may repeat a member name, which json.loads would
+    resolve silently to its last value. Raises SidecarJsonInvalid naming each repeated member by JSON path."""
+    if isinstance(text, (bytes, bytearray)):
+        try:
+            text = bytes(text).decode("utf-8")
+        except UnicodeDecodeError as error:
+            raise SidecarJsonInvalid([("sidecar", f"is not strict UTF-8: the byte at offset {error.start} cannot "
+                                                  "be decoded")]) from None
+    repeated: dict[int, tuple[dict, list[str]]] = {}  # holds each such object, so its id is not reused
+
+    def pairs(items: list[tuple[str, Any]]) -> dict[str, Any]:
+        out: dict[str, Any] = {}
+        for key, value in items:
+            if key in out:
+                repeated.setdefault(id(out), (out, []))[1].append(key)
+            out[key] = value
+        return out
+
+    def constant(name: str) -> Any:
+        raise ValueError(f"{name} is not a JSON value")
+
+    try:
+        value = json.loads(text, object_pairs_hook=pairs, parse_constant=constant)
+    except ValueError as error:  # json.JSONDecodeError, or a NaN or Infinity
+        raise SidecarJsonInvalid([("sidecar", f"is not JSON: {error}")]) from None
+    findings: list[tuple[str, str]] = []
+
+    def walk(item: Any, path: str) -> None:
+        if type(item) is dict:
+            for key in dict.fromkeys(repeated.get(id(item), ({}, []))[1]):
+                findings.append((_json_path(path, key), "repeats a member name; JSON does not define which value "
+                                 "counts (RFC 8259 §4), and the sidecar must state each once"))
+            for key, child in item.items():
+                walk(child, _json_path(path, key))
+        elif type(item) is list:
+            for index, child in enumerate(item):
+                walk(child, f"{path}[{index}]")
+
+    walk(value, "")
+    if findings:
+        raise SidecarJsonInvalid(findings)
+    return value
+
+
+def load_sidecar(path: Path) -> bytes | dict[str, Any]:
+    """The sidecar file as the import reads it (Design §15): its bytes, unchanged, which the importer parses strictly
+    and a format-3 sidecar's self-digest then verifies as supplied. The one exception is a legacy sidecar (no
+    `sidecar_format`) without `mbf_sha256`, the layout of main's earliest pilot runs, which kept the digest in
+    `mbf_render.json` beside it: that sidecar is parsed strictly here and takes its companion's digest. A format-2
+    or format-3 sidecar never takes it. Raises SidecarJsonInvalid when that companion is not strict JSON."""
+    data = path.read_bytes()
+    try:
+        sidecar = parse_sidecar_json(data)
+    except SidecarJsonInvalid:
+        return data  # the import refuses it by path
+    render = path.with_name("mbf_render.json")
+    if type(sidecar) is dict and "sidecar_format" not in sidecar and "mbf_sha256" not in sidecar and render.is_file():
+        companion = parse_sidecar_json(render.read_bytes())
+        return {**sidecar, "mbf_sha256": companion.get("mbf_sha256") if type(companion) is dict else None}
+    return data
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -3917,9 +4410,14 @@ def main(argv: list[str] | None = None) -> int:
         print("importer: refused: the output folder is inside a Git work tree and the input MBF is not a declared "
               "invented fixture; import outputs are private", file=sys.stderr)
         return 2
+    try:
+        sidecar = load_sidecar(args.sidecar) if args.sidecar else None
+    except SidecarJsonInvalid as error:
+        print(f"importer: refused: mbf_render.json beside the sidecar is not strict JSON ({error})", file=sys.stderr)
+        return 2
     result = import_caepipe_mbf(
         args.mbf.read_bytes(),
-        sidecar=load_sidecar(args.sidecar) if args.sidecar else None,
+        sidecar=sidecar,
         material_provenance=json.loads(args.material_provenance.read_text(encoding="utf-8"))
         if args.material_provenance else None,
         pressure_closure=json.loads(args.pressure_closure.read_text(encoding="utf-8"))

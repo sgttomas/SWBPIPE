@@ -29,7 +29,7 @@ if str(ROOT) not in sys.path:
 
 from core.handoff.caepipe_mbf import importer as importer_module  # noqa: E402
 from core.handoff.caepipe_mbf import render_caepipe_mbf_si  # noqa: E402
-from core.handoff.caepipe_mbf.si_writer import current_model_schema_version  # noqa: E402
+from core.handoff.caepipe_mbf.si_writer import current_model_schema_version, sidecar_self_digest  # noqa: E402
 from core.handoff.caepipe_mbf.importer import (  # noqa: E402
     IMPORT_PROFILE_ID,
     REPORT_KIND,
@@ -529,7 +529,7 @@ def test_supports():
     ("FIXD(2,0,0)", "MBF-IMPORT-COMMENT-INVALID"),
     ("FIXD(1,0)", "MBF-IMPORT-COMMENT-INVALID"),
     ("F", "MBF-IMPORT-COMMENT-INVALID"),
-    ("G", "MBF-IMPORT-SUPPORT-UNSUPPORTED"),
+    ("G,GGAP=5", "MBF-IMPORT-SUPPORT-UNSUPPORTED"),
     ("VS", "MBF-IMPORT-SUPPORT-UNSUPPORTED"),
     ("TRAK(1,2,3)", "MBF-IMPORT-SUPPORT-UNSUPPORTED"),
     ("NOZZLE=650", "MBF-IMPORT-SUPPORT-UNSUPPORTED"),
@@ -800,6 +800,7 @@ def test_a_bound_import_restores_straight_orientation_from_the_sidecar():
     # A sidecar orientation that is not a usable vector (here zero length) is refused by name with the element, and
     # nothing is substituted (lane manager, after VER-002 r6).
     sidecar["element_map"]["S"]["y_reference"] = {"x": 0.0, "y": 0.0, "z": 0.0}
+    sidecar["sidecar_sha256"] = sidecar_self_digest(sidecar)  # a deliberate edit, past the self-digest (§15)
     zero = run(data, sidecar=sidecar)
     assert refused(zero, "MBF-IMPORT-ORIENTATION-UNUSABLE")["location"] == "S"
     assert "MBF-IMPORT-ORIENTATION-DEFAULTED" not in {item["code"] for item in zero.diagnostics}
@@ -1505,3 +1506,202 @@ def test_the_ported_arc_angle_matches_the_runtime_bit_for_bit():
     assert importer_module.twice_atan2_nonnegative(0.0, 0.0) is None
     assert importer_module.twice_atan2_nonnegative(0.0, 2.0) == 0.0
     assert importer_module.twice_atan2_nonnegative(2.0, 0.0) == math.pi
+
+
+# --- tranche 3: guides, limit stops, springs and flexible anchors (§12) ----------------------------------------------
+def supports_of(result) -> list[tuple]:
+    return [(item["id"], item["restraints"], item.get("family"),
+             (item["stiffness"]["dof"], item["stiffness"]["value"]["value"], item["stiffness"]["value"]["unit"])
+             if "stiffness" in item else None, item["label"]) for item in result.model["supports"]]
+
+
+def test_rigid_axis_aligned_guides_and_limit_stops_map_onto_the_solves_rigid_families():
+    # Hand-derived (invented layout). A guide restrains its element's local y and z (technical reference, Guide):
+    # for an element along global X those are global Y and Z; along Y (vertical), X and Z. At a run's first node the
+    # guide takes the following element. LS(0,0) is stopped both ways along DV, whose sign and length do not matter.
+    result = run(mbf("F10,KA,MM1,PP1,CL=L1", "T20,X3000,CG,GGAP=0,MU=0", "T30,Y2000,CG,TAG=invented riser guide",
+                     "T40,Z1500,CLS(0,0),DV(0,-3,0)", "L40,CLS(0.0,-0),DV(0,0,0.5),MU=0",
+                     "F50,X9000,CG", "T60,KA,Z1000"))
+    assert result.status == "imported", result.diagnostics
+    assert supports_of(result) == [
+        ("support:10", list(importer_module.DOFS), "anchor", None, "anchor at 10"),
+        ("support:20-guide", ["UY", "UZ"], "guide", None, "guide at 20"),
+        ("support:30-guide", ["UX", "UZ"], "guide", None, "invented riser guide"),
+        ("support:40-stop-y", ["UY"], "line_stop", None, "limit stop at 40"),
+        ("support:40-stop-z", ["UZ"], "line_stop", None, "limit stop at 40"),
+        ("support:50-guide", ["UX", "UY"], "guide", None, "guide at 50"),  # the following element, along Z
+        ("support:60", list(importer_module.DOFS), "anchor", None, "anchor at 60"),
+    ]
+    assert result.id_map["support_map"]["40"] == ["support:40-stop-y", "support:40-stop-z"]
+    assert any(note.startswith("A guide (G) restrains") for note in result.assumptions)
+    assert any(note.startswith("A limit stop LS(0,0)") for note in result.assumptions)
+
+
+def test_springs_keep_their_unit_one_per_dof():
+    # SI: N/mm (Format of .MBF: TRAK, STIFF, K in lb/in or N/mm). A flexible anchor's zero TRAK component and
+    # ROTK(0,0,0) leave those DOFs free (technical reference, Anchor); a flexible guide is a spring on each lateral
+    # translation; a skewed restraint K along an axis-aligned DV a spring on that translation.
+    result = run(mbf("F10,KA,MM1,PP1,CL=L1", "T20,X3000,CG,STIFF=125.5", "T30,X1000,CLS(0,0),DV(-1,0,0),STIFF=7",
+                     "T40,Y1000,CK=4e3,DV(0,0,9)", "T50,Y500,KA,CTRAK(10,0,0.25),ROTK(0,0,0)"))
+    assert result.status == "imported", result.diagnostics
+    assert supports_of(result)[1:] == [
+        ("support:20-spring-uy", ["UY"], "spring", ("UY", 125.5, "N/mm"), "spring at 20"),
+        ("support:20-spring-uz", ["UZ"], "spring", ("UZ", 125.5, "N/mm"), "spring at 20"),
+        ("support:30-spring-ux", ["UX"], "spring", ("UX", 7.0, "N/mm"), "spring at 30"),
+        ("support:40-spring-uz", ["UZ"], "spring", ("UZ", 4000.0, "N/mm"), "spring at 40"),
+        ("support:50-spring-ux", ["UX"], "spring", ("UX", 10.0, "N/mm"), "spring at 50"),
+        ("support:50-spring-uz", ["UZ"], "spring", ("UZ", 0.25, "N/mm"), "spring at 50"),
+    ]
+    assert "Spring stiffnesses keep their MBF unit, N/mm." in result.assumptions
+    # English: lb/in, kept as lbf/in (the catalog reads it to N/m).
+    english = run(mbf("F10,KA,MM1,PP1,CL=L1", "T20,X10,KA,CTRAK(0,1500,0),ROTK(0,0,0)", options="HGRA",
+                      material=("M1,0,0.3,1,1,CS,invented steel", "M1,70,29000000,6.5e-06"),
+                      pipe=("P1,6.625,0.28,0,0,0,0,0,0",), loads=("L1,70,0,0",), optemp="70"))
+    assert supports_of(english)[1:] == [("support:20-spring-uy", ["UY"], "spring", ("UY", 1500.0, "lbf/in"),
+                                         "spring at 20")]
+
+
+def test_support_axes_and_stiffnesses_move_with_the_z_vertical_rotation():
+    # File (X, Y, Z) -> SWBPIPE (X, Z, -Y): TRAK(1,2,3) gives x 1, z 2, y 3 (magnitudes move with their axes);
+    # DV(0,0,1) is the file's vertical, SWBPIPE's y; a guide on a pipe along the file's Z (vertical) restrains the
+    # file's X and Y, SWBPIPE's x and z.
+    result = run(z_file("F10,KA,MM1,PP1,CL=L1", "T20,Z3000,CG", "T30,X1000,CLS(0,0),DV(0,0,1)",
+                        "T40,X1000,KA,CTRAK(1,2,3),ROTK(0,0,0)"))
+    assert result.status == "imported", result.diagnostics
+    assert supports_of(result)[1:] == [
+        ("support:20-guide", ["UX", "UZ"], "guide", None, "guide at 20"),
+        ("support:30-stop-y", ["UY"], "line_stop", None, "limit stop at 30"),
+        ("support:40-spring-ux", ["UX"], "spring", ("UX", 1.0, "N/mm"), "spring at 40"),
+        ("support:40-spring-uy", ["UY"], "spring", ("UY", 3.0, "N/mm"), "spring at 40"),
+        ("support:40-spring-uz", ["UZ"], "spring", ("UZ", 2.0, "N/mm"), "spring at 40"),
+    ]
+
+
+@pytest.mark.parametrize("rows, code, at", [
+    # guide data
+    (("T20,X3000,CG,GGAP=5",), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "T20"),  # a clearance: no member carries it
+    (("T20,X3000,CG,MU=0.3",), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "T20"),  # friction: nonlinear
+    (("T20,X3000,CG,MU=-1",), "MBF-IMPORT-VALUE-OUT-OF-RANGE", "T20"),
+    (("T20,X3000,CG,STIFF=0",), "MBF-IMPORT-VALUE-OUT-OF-RANGE", "T20"),
+    (("T20,X3000,CG,STIFF=1e306",), "MBF-IMPORT-VALUE-UNREPRESENTABLE", "T20"),  # 1e309 N/m as the solve reads it
+    (("T20,X3000,CG=1",), "MBF-IMPORT-COMMENT-INVALID", "T20"),
+    (("T20,X3000,CG,G",), "MBF-IMPORT-COMMENT-INVALID", "T20"),
+    (("T20,X3000,CSTIFF=5",), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "T20"),  # data without its support
+    (("T20,X3000,CGGAP=0",), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "T20"),
+    (("T20,X3000,CDV(1,0,0)",), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "T20"),
+    (("T20,X3000,CK=5,DV(0,1,0),GGAP=0",), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "T20"),
+    (("T20,X3000,CG,LS(0,0),DV(1,0,0)",), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "T20"),  # two support types
+    (("T20,X3000,Y1,CG",), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "T20"),  # skewed element: lateral axes skewed
+    (("T20,X3000,CG", "L20,CG"), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "L20"),  # a second guide
+    # limit stop data
+    (("T20,X3000,CLS",), "MBF-IMPORT-COMMENT-INVALID", "T20"),
+    (("T20,X3000,CLS(0),DV(1,0,0)",), "MBF-IMPORT-COMMENT-INVALID", "T20"),
+    (("T20,X3000,CLS(-1.0,1.5),DV(0,1,0)",), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "T20"),  # gaps
+    (("T20,X3000,CLS(0,),DV(0,1,0)",), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "T20"),  # one-way
+    (("T20,X3000,CLS(0,0)",), "MBF-IMPORT-TBD-17-04-010", "T20"),  # no documented default direction
+    (("T20,X3000,CLS(0,0),DV(1,1,0)",), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "T20"),  # skewed direction
+    (("T20,X3000,CLS(0,0),DV(0,0,0)",), "MBF-IMPORT-COMMENT-INVALID", "T20"),
+    (("T20,X3000,CLS(0,0),AXIAL",), "MBF-IMPORT-TBD-17-04-010", "T20"),
+    (("T20,X3000,CLS(0,0),DV(0,1,0),SHEARY",), "MBF-IMPORT-TBD-17-04-010", "T20"),
+    (("T20,X3000,CLS(0,0),DV(0,1,0),SHEARZ",), "MBF-IMPORT-TBD-17-04-010", "T20"),
+    (("T20,X3000,CLS(0,0),DV(0,1,0)", "L20,CLS(0,0),DV(0,2,0)"), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "L20"),
+    (("T20,X3000,CG", "L20,CLS(0,0),DV(0,1,0)"), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "L20"),  # UY restrained twice
+    # skewed restraint
+    (("T20,X3000,CK=500",), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "T20"),  # no direction
+    (("T20,X3000,CK=0,DV(0,1,0)",), "MBF-IMPORT-VALUE-OUT-OF-RANGE", "T20"),
+    (("T20,X3000,CK(1,2),DV(0,1,0)",), "MBF-IMPORT-COMMENT-INVALID", "T20"),
+    (("T20,X3000,CK=500,KR=10,DV(1,0,0)",), "MBF-IMPORT-TBD-17-04-010", "T20"),  # the rotational unit is open
+    (("T20,X3000,CK=5,DV(0,1,0)", "L20,CK=6,DV(0,-1,0)"), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "L20"),  # two springs
+    (("T20,X3000,CK=5,DV(0,1,0),FIXDY",), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "T20"),  # spring on a rigid DOF
+    # flexible anchors
+    (("T20,X3000,CTRAK(1,2,3)",), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "T20"),  # without KA
+    (("T20,X3000,KA,CTRAK(1,0,0)",), "MBF-IMPORT-TBD-17-04-010", "T20"),  # without ROTK
+    (("T20,X3000,KA,CROTK(0,0,0)",), "MBF-IMPORT-TBD-17-04-010", "T20"),  # without TRAK
+    (("T20,X3000,KA,CTRAK(1,0,0),ROTK(0,5,0)",), "MBF-IMPORT-TBD-17-04-010", "T20"),  # the rotational unit
+    (("T20,X3000,KA,CTRAK(-1,0,0),ROTK(0,0,0)",), "MBF-IMPORT-VALUE-OUT-OF-RANGE", "T20"),
+    (("T20,X3000,KA,CTRAK(0,0,0),ROTK(0,0,0)",), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "T20"),  # restrains nothing
+    (("T20,X3000,KA,CTRAK(1,0,0),ROTK(0,0,0),TRAK(2,0,0)",), "MBF-IMPORT-COMMENT-INVALID", "T20"),
+    (("T20,X3000,KA,CTRAK(1,0,0),ROTK(0,0,0),FIXDY",), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "T20"),  # not alone
+    (("T20,X3000,KA,CTRAK(1,0,0),ROTK(0,0,0),D(0,1,0)",), "MBF-IMPORT-DISPLACEMENT-UNSUPPORTED", "T20"),
+    (("T20,X3000,KA,CTRAKX=1,ROTK(0,0,0)",), "MBF-IMPORT-COMMENT-UNKNOWN", "T20"),  # only TRAK(kx,ky,kz)
+    # hangers stay refused by name (§12): CAEPIPE designs VS and CS, and a hanger's loads act by case
+    (("T20,X3000,CVS=2",), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "T20"),
+    (("T20,X3000,CCS",), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "T20"),
+    (("T20,X3000,CUS(2,600,1540)",), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "T20"),
+    (("T20,X3000,CUS(1,0,2300)",), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "T20"),
+    (("T20,X3000,CHTYP=16",), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "T20"),
+    (("T20,X3000,CCLD=1",), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "T20"),
+    (("T20,X3000,CK=5,DV(0,1,0),CNOD=30",), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "T20"),
+])
+def test_tranche_3_support_refusals(rows, code, at):
+    data = mbf("F10,KA,MM1,PP1,CL=L1", *rows)
+    refused(run(data), code, layout_line(data, at))
+
+
+def test_stiff_rigid_reads_exactly_as_a_row_without_stiff():
+    # STIFF=Rigid (observed format behaviour) is the rigid default of guides and limit stops (technical reference,
+    # Guide; Limit Stop): the import is the one a row without STIFF gives, comment order included.
+    rows = ("F10,KA,MM1,PP1,CL=L1", "T20,X3000,CG{}", "T30,Y2000,CTAG=,G{}", "T40,Z1500,CLS(0,0),DV(0,-3,0){}",
+            "L40,CLS(0.000,0.000),DV(0.0000,0.0000,1.0000),MU=0.000{}", "T50,KA,X1000")
+    plain_data = mbf(*(row.format("") for row in rows))
+    rigid_data = mbf(*(row.format(",STIFF=Rigid") for row in rows))
+    plain, rigid = run(plain_data), run(rigid_data)
+    assert plain.status == rigid.status == "imported", rigid.diagnostics
+
+    def masked(model, data):  # the model names its source file by hash; everything else must be identical
+        digest = hashlib.sha256(data).hexdigest()
+        return json.dumps(model, sort_keys=True).replace(digest, "<source>").replace(digest[:12], "<source>")
+
+    assert masked(rigid.model, rigid_data) == masked(plain.model, plain_data)
+    assert masked(rigid.id_map, rigid_data) == masked(plain.id_map, plain_data)
+    assert [(item["code"], item["severity"]) for item in rigid.diagnostics] == \
+        [(item["code"], item["severity"]) for item in plain.diagnostics]
+
+
+@pytest.mark.parametrize("rows, code, at", [
+    (("T20,X3000,CG,STIFF=rigid",), "MBF-IMPORT-NUMBER-INVALID", "T20"),  # only the spelling Rigid is read
+    (("T20,X3000,CG,STIFF=R",), "MBF-IMPORT-NUMBER-INVALID", "T20"),
+    (("T20,X3000,CG,STIFF(Rigid)",), "MBF-IMPORT-COMMENT-INVALID", "T20"),
+    (("T20,X3000,CSTIFF=Rigid",), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "T20"),  # data without its support
+    (("T20,X3000,CK=Rigid,DV(0,1,0)",), "MBF-IMPORT-NUMBER-INVALID", "T20"),  # K is a value, not STIFF
+    (("T20,X3000,CG,GGAP=5,STIFF=Rigid",), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "T20"),  # the gap stays refused
+    # None is a blank limit, free on that side (technical reference, Limit Stop): a one-way stop, refused by name
+    (("T20,X3000,CLS(0.000,None),DV(0,1,0),STIFF=Rigid",), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "T20"),
+    (("T20,X3000,CLS(None,0),DV(0,1,0)",), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "T20"),
+    (("T20,X3000,CLS(None,None),DV(0,1,0)",), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "T20"),
+    (("T20,X3000,CLS(0,NONE),DV(0,1,0)",), "MBF-IMPORT-NUMBER-INVALID", "T20"),  # only the spelling None is read
+])
+def test_the_rigid_and_blank_limit_spellings(rows, code, at):
+    data = mbf("F10,KA,MM1,PP1,CL=L1", *rows)
+    result = run(data)
+    refused(result, code, layout_line(data, at))
+    if rows[0].startswith("T20,X3000,CLS(") and "NONE" not in rows[0]:
+        # a None limit is refused as the one-way stop it is, never as an unreadable number
+        assert not any(item["code"] == "MBF-IMPORT-NUMBER-INVALID" for item in result.diagnostics)
+        assert any("one-way" in item["message"] for item in result.diagnostics if item["severity"] == "error")
+
+
+def test_a_guide_whose_element_is_not_determined_is_refused():
+    # Its first node has no preceding element and two following ones.
+    data = mbf("F10,MM1,PP1,CL=L1,G", "T20,KA,X3000", "F10", "T30,KA,Y1000")
+    assert refused(run(data), "MBF-IMPORT-SUPPORT-UNSUPPORTED", layout_line(data, "F10,"))["location"] == "node 10 G"
+
+
+@pytest.mark.parametrize("row, path", [
+    ("T20,X3000,CK=1e20,DV(0,1,0),FOR(0,-6000,0),FLC=1", "supports[support:20-spring-uy].stiffness.value.value"),
+    ("T20,X3000,CK=9007199254740992,DV(0,1,0),FOR(0,-6000,0),FLC=1",
+     "supports[support:20-spring-uy].stiffness.value.value"),  # 2^53: the first integral float refused
+    ("T20,X3000,CFOR(0,-1e20,0),FLC=1",
+     "load_cases[case:mbf-sustained].primitive_loads[load:concentrated_force:node:20:global_y].magnitude.value"),
+    ("T20,X100000000000000000,CFOR(0,-6000,0),FLC=1", "nodes[node:20].position.x"),
+])
+def test_every_emitted_number_lies_in_the_solves_checked_json_domain(row, path):
+    # VER-002 r2 (tranche 3): the solve reads the document under the checked-JSON profile, which refuses an integral
+    # float beyond 2^53 - 1 (canonical_json validate_checked_value, CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT). The import
+    # refuses each such number by name at its JSON path, whatever field it is; nothing is changed or dropped.
+    data = mbf("F10,KA,MM1,PP1,CL=L1", row)
+    found = refused(run(data), "MBF-IMPORT-VALUE-UNREPRESENTABLE", layout_line(data, "T20"))
+    assert found["location"] == path and "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT" in found["message"]
+    edge = run(mbf("F10,KA,MM1,PP1,CL=L1", "T20,X3000,CK=9007199254740991,DV(0,1,0),FOR(0,-6000,0),FLC=1"))
+    assert edge.status == "imported"  # 2^53 - 1 is in the domain
+    assert edge.model["supports"][1]["stiffness"]["value"]["value"] == 9007199254740991.0

@@ -53,6 +53,10 @@ implies or derives acceptance, issuance or lifecycle standing (F-PIP-3).
 - **Agent 0, 2026-10-27 (tranche 2), under the owner's delegation:** "the importer's next
   tranche: pressure and Z-vertical first". Implemented in §9.4 (pressure) and §5.1 and
   §10.5 (Z vertical), each with its writer counterpart.
+- **Agent 0, 2026-10-27 (tranche 3), under the owner's delegation:** §20.3 items 3 to 6, mapped onto
+  existing SWBPIPE members only; an element or option with no member is refused by name, and each gap
+  that matters for parity is proposed in §20.3 for Agent 0. Item 6 waits for the ruling question of §20.2
+  (O-7). Implemented in §12 (guides, limit stops, springs and flexible anchors; hangers stay refused).
 - **Data rule (owner):** CAEPIPE's outputs and anything derived from them are private.
   Manual text, tables and examples are not copied. There is no reverse engineering and no
   claim of compatibility with CAEPIPE.
@@ -115,6 +119,12 @@ page and section. Their text, tables and examples are not reproduced.
 | `CAEPIPE-ANALYSIS` | `users_manual/analysis.htm` (*Analysis*: *Number of Thermal Loads*; *Gravitational Acceleration and Direction*) | The number of thermal loads is the count of operating temperatures (and their pressures) in use; with `CAEPIPE-LOAD-CASES`, multiple operating and expansion cases exist only when it is above 1 (§9.1). From 15.10 a gravitational acceleration and direction scale the analysis, with all input given for earth gravity (§6) |
 | `CAEPIPE-LOCAL-AXES` | `tech_manual/local_coordinate_system.htm` (technical reference, *Local Coordinate System*) | The pipe element local-axis convention: with global Y vertical, a non-vertical straight's local y lies in the plane of its local x and global Y, toward +Y; a vertical straight's local y is global −X (§10.5) |
 | `CAEPIPE-TECH-REF` | `tech_manual/index.htm` | The technical reference's index; the pages used are registered separately above |
+| `CAEPIPE-GUIDE` | `tech_manual/guide.htm` (technical reference, *Guide*) | A guide restrains the translations in the local y and z of the element it is attached to, its local x taken from the preceding element, else the following one; rotations are free; the default stiffness is rigid; a gap is symmetric about the guide axis; a friction coefficient makes the analysis nonlinear (§12) |
+| `CAEPIPE-LIMIT-STOP` | `tech_manual/limit_stop.htm` (technical reference, *Limit Stop*) | A limit stop acts along one direction given by global components; a zero limit stops the node at its undeflected position, a blank limit leaves that side free, a non-zero limit is a gap; the default stiffness is rigid; limit stops need a nonlinear solution (§12) |
+| `CAEPIPE-ANCHOR` | `tech_manual/anchor.htm` (technical reference, *Anchor*) | An anchor is rigid in all six DOFs by default; a flexible anchor has a stiffness per DOF, and a zero stiffness leaves that DOF free; displacements at a flexible anchor act through its stiffness (§12) |
+| `CAEPIPE-SKEWED-RESTRAINT` | `tech_manual/skewed_restraint.htm` (technical reference, *Skewed Restraint*) | A two-way support along, or about, a direction given by global components, with a stiffness the user supplies (§12) |
+| `CAEPIPE-HANGER` | `tech_manual/hanger.htm` (technical reference, *Hanger*) | Hangers act vertically; the number of hangers multiplies stiffness and load; hanger loads (hot or cold, by option) act as forces in the sustained and operating cases, and spring rates enter the stiffness only with an option (§12) |
+| `CAEPIPE-MATERIAL` | `tech_manual/material.htm` (technical reference, *Material*) | The tabulated expansion coefficient is the mean coefficient, not the instantaneous one; element temperatures must lie within the table's range (§20.2, O-7) |
 
 The seven rows from `CAEPIPE-LAYOUT-OFFSETS` to `CAEPIPE-FORCE` are registered in DEL-17-01
 `Source_Basis_Register.md`. Each has the live URL, an archived fallback where the Internet
@@ -125,7 +135,10 @@ Archive holds one (it holds none for `CAEPIPE-MBF-ABSOLUTE`), and a boundary:
 - "bend end-node naming and section assignment only" for `CAEPIPE-BEND`.
 
 `CAEPIPE-LOCAL-AXES` was registered later with the boundary "pipe local-axis convention
-only", for the straight-pipe orientation of §10.5.
+only", for the straight-pipe orientation of §10.5. The six tranche-3 rows from `CAEPIPE-GUIDE` to
+`CAEPIPE-MATERIAL` are registered with the boundary "support-type semantics only" (the four support pages
+and *Hanger*) or "material-property semantics only" (*Material*). `CAEPIPE-ANALYSIS` also gives the
+modulus option of §20.2 (O-7), within its existing boundary.
 
 ## 3. Where it lives and its interface
 
@@ -433,10 +446,17 @@ code-checking or acceptance logic, and their presence is listed in the loss repo
   This is the exact inverse of the writer, which writes identical lines at three
   temperatures.
 - **Varying values are refused** (`MBF-IMPORT-MATERIAL-TEMPERATURE-DEPENDENT`). SWBPIPE
-  has `temperature_points`, but mapping them needs two choices the MBF does not state:
-  which modulus each case solves with (SWBPIPE's explicit `modulus_basis`), and whether the
-  tabulated α is a mean coefficient from a reference temperature. Both are tranche 2 and
-  need a ruling.
+  has `temperature_points`, but mapping them needs choices the MBF does not state: which
+  modulus each case solves with (SWBPIPE's explicit `modulus_basis`), and how the tabulated α,
+  which the public *Material* page documents as a mean coefficient, enters each case
+  (O-7, §20.2). Identical rows are the one exact reading, since a constant E and a constant α
+  give the same E and the same α(T₁ − T_ref) under every modulus basis and every reference
+  temperature of the mean.
+- **Ruling (O-7; Agent 0's decision under the owner's delegation, 2026-10-27).** A temperature-dependent MATERIAL stays refused until the reference
+  temperature from which the tabulated mean α is measured, and the interpolation between rows
+  for E and for α, are confirmed (DEL-17-01 CQ-17-01-016). It then takes the hot basis (§20.2,
+  option A), for files whose OPTEMP modulus flag selects the hot modulus; cold-modulus files stay
+  refused, since SWBPIPE's case basis selects E and α together.
 - **Joint factors and type.** These are code-check settings. They are listed as
   `delegated` and are not imported.
 - **Strength and code data.** These are the yield and tensile strengths,
@@ -807,11 +827,12 @@ the sidecar (r8).
 | `EXACT_PRESSURE_MATERIAL_INVALID` | E > 0 and 0 < ν < 0.5 (`MBF-IMPORT-VALUE-OUT-OF-RANGE`) | U, B |
 | `PRESSURE_REGION_MITRE_UNSUPPORTED` | ported tangency check at each junction beside a bend, on the arc formed in metres (**Bends**; `MBF-IMPORT-PRESSURE-MITRE`, new in r6). r5 listed it as unable to arise, reasoning in the file's unit; the metre reading breaks that (VER-002 r6) | U, B |
 | `PRESSURE_MODEL_REAUTHOR_REQUIRED`, `PRESSURE_CONTRACT_UNSUPPORTED`, `EXACT_PRESSURE_SHEAR_MODEL_REQUIRED`, `PREVIEW_SCHEMA_VERSION_UNSUPPORTED`, `PREVIEW_CONTRACT_VERSION_MISMATCH`, `_BASIS_UNSUPPORTED`, `CORROSION_ALLOWANCE_WITHOUT_PRESSURE_CONTRACT`, `EXACT_PRESSURE_REQUIRES_REGION`, `EXACT_PRESSURE_REGIONS_REQUIRED` | by construction: the importer writes only the current schema version, the one contract, the one basis, the allowance only under the contract, no pressure primitive, and a region list on every case. B restores only the contract's shear model and the regions; a restored contract other than 3.0.0/exact_pressure_v3 with a shear model from `SHEAR_MODELS` is refused, no longer replaced by euler_bernoulli (`MBF-IMPORT-SIDECAR-INVALID`, new in r7) | U, B |
-| `EXACT_PRESSURE_FAMILY_NOT_ADMITTED` | U: only anchors and rigid restraints, without family or as `anchor`, and realized bends; no hanger, nonlinear support, connector, combination or equivalent-static load. B: the parser refuses a restored support family other than none, `anchor`, `guide`, `line_stop` or `vertical_support` (the rigid families the writer exports), an `anchor` restraining fewer than six DOFs, a restrained list that is not distinct DOFs, and supports the solve's family, DOF and overlap rules refuse (§12), by support id (`MBF-IMPORT-SIDECAR-INVALID`, r7, r8; r5 and r6 wrongly listed it as unable to arise). Components restore only their id | U, B |
+| `EXACT_PRESSURE_FAMILY_NOT_ADMITTED` | U: only anchors and rigid restraints, without family or as `anchor`, `guide` or `line_stop`, linear springs (`family: spring`, which `exact_admission` `support_family` admits; tranche 3, §12), and realized bends; no hanger, nonlinear support, connector, combination or equivalent-static load. B: the parser refuses a restored support family other than none, `anchor`, `guide`, `line_stop` or `vertical_support` (the rigid families the writer exports) and, in format 3 only, `spring` on one translation with `family_authored` true, an `anchor` restraining fewer than six DOFs, a restrained list that is not distinct DOFs, and supports the solve's family, DOF and overlap rules refuse (§12), by support id (`MBF-IMPORT-SIDECAR-INVALID`, r7, r8; r5 and r6 wrongly listed it as unable to arise). Components restore only their id | U, B |
 | `JOINT_PRESSURE_INTERFACE_UNRESOLVED` | by construction: raised only for a joint a region lists as a connector member; the importer writes no connector and no region connector list, and on B the parser refuses any region field other than `id`, `members`, `terminals`, `provenance` and `pressure_bar` (new in r8; omitted from the r5 to r7 inventory) | U, B |
 | `OBJECTIVE_CONNECTOR_VERSION_UNSUPPORTED`, `OBJECTIVE_CONNECTOR_NOT_IMPLEMENTED`, `EXACT_PRESSURE_REDUCER_IN_REGION` | by construction: the importer writes no connector and no reducer; B restores no component kind, interface or connector field, only the bend component's id (a string, else `MBF-IMPORT-SIDECAR-INVALID`) | U, B |
 | `EXACT_PRESSURE_MATERIAL_AMBIGUOUS`, `_MATERIAL_MISSING`, `_MATERIAL_BASIS_REQUIRED`, `_POISSON_RATIO_REQUIRED`, `THERMAL_EXPANSION_INPUT_MISSING`, `LOAD_STATE_MEMBER_MATERIAL_MISSING`, `_SECTION_MISSING`, `_NOT_NORMALIZED`, `EXACT_PRESSURE_REGION_MEMBER_NOT_STRAIGHT` | by construction: each pipe names one imported E/ν material with explicit ν and α (B restores only material ids, merged only where E, ν and α are identical, and an origin from `MATERIAL_ORIGINS`); no load-state case (B restores case ids only); every pipe has a section, whose 0 < t < OD/2 is checked again on the values in m (§4.3, new in r6); bar and psi normalize to Pa in the solve's own seam; the last is an unreachable guard by its source comment | U, B |
-| `EXACT_PRESSURE_OUTPUT_UNREPRESENTABLE`, `PRESSURE_LEDGER_SUM_UNREPRESENTABLE`, `PRESSURE_ASSEMBLY_COEFFICIENT_UNREPRESENTABLE`, `PRESSURE_ASSEMBLY_SOURCE_UNREPRESENTABLE`, `PRESSURE_ASSEMBLY_CANCELLATION_UNRESOLVED` | not an import guard: solve-time arithmetic of the assembled loads, refused by name by the solve; the importer keeps every input finite | — |
+| `EXACT_PRESSURE_OUTPUT_UNREPRESENTABLE`, `PRESSURE_LEDGER_SUM_UNREPRESENTABLE`, `PRESSURE_ASSEMBLY_COEFFICIENT_UNREPRESENTABLE`, `PRESSURE_ASSEMBLY_SOURCE_UNREPRESENTABLE`, `PRESSURE_ASSEMBLY_CANCELLATION_UNRESOLVED`, `NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED` | not an import guard: solve-time arithmetic of the assembled loads and stiffness, refused by name by the solve; the importer keeps every input finite. The last depends on the assembly arithmetic over the whole model: a spring stiffness negligible against the assembled stiffness (1e-300 N/mm at a cantilever's tip) imports as written and the solve refuses it by this code (tranche 3, VER-002 r2; regression in the round-trip tests) | — |
+| `CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT`, `CHECKED-JSON-UNSAFE-INTEGER`, `CHECKED-JSON-NON-FINITE` (the checked-JSON reader of the solve's input, canonical_json `validate_checked_value`, profile `openpipestress_jcs_ijson_v1`; not pressure codes, listed with them because every route reaches them) | ported: every number of the emitted document, whatever its field (coordinates, section, material, loads, pressures, temperatures, displacements, stiffnesses), must be an integer within ±(2⁵³ − 1), finite, and not an integral float beyond 2⁵³ − 1; else `MBF-IMPORT-VALUE-UNREPRESENTABLE` at its JSON path, nothing changed or dropped (tranche 3, VER-002 r2). The writer's preflight inherits the refusal as `MBF-SI-PREFLIGHT-REFUSED` | U, B |
 
 Related: the exact route's `EXACT_IMPOSED_DISPLACEMENT_PRIMITIVE_UNSUPPORTED` is kept out by
 `MBF-IMPORT-PRESSURE-DISPLACEMENT-UNSUPPORTED` (above).
@@ -865,8 +886,8 @@ refuses:
   stage, is refused as `MBF-SI-PREFLIGHT-REFUSED`, carrying the importer's code, location
   and line: for example OD 100.00000004 with wall 50 prints as 100, which the import
   refuses (`MBF-IMPORT-VALUE-OUT-OF-RANGE`), and a region through a tee
-  (`MBF-IMPORT-PRESSURE-INTERNAL-BRANCH`). The preflight runs for every export under the
-  exact contract. The writer refuses rather than printing more digits. The
+  (`MBF-IMPORT-PRESSURE-INTERNAL-BRANCH`). The preflight runs for every export (it is total,
+  §14). The writer refuses rather than printing more digits. The
   10-significant-digit print is the profile's established form, and the §18.2 bounds and
   byte reproduction rest on it. More digits would not settle the geometry either: an offset
   is a binary64 difference of two positions, so its exact decimal does not, summed, give the
@@ -960,11 +981,13 @@ zero, because the manual gives no rule for them.
     gives (`CAEPIPE-BEND`), which the writer's node map already uses;
   - element from `a` to `b` → `pipe:a-b`;
   - bend → `component:bend-n`;
-  - anchor at `n` → `support:n`; restraint at `n` → `support:n-restraint`;
+  - anchor at `n` → `support:n`; restraint at `n` → `support:n-restraint`; guide at `n` →
+    `support:n-guide`; limit stop along axis `a` → `support:n-stop-a` (`x`, `y`, `z`, SWBPIPE's
+    axes); spring on DOF `d` → `support:n-spring-d` (`ux`, `uy`, `uz`);
   - material `M` → `material:M`;
   - primitive loads → `load:<category>:<target id>[:<axis>]`.
 - Node labels are the CAEPIPE names. Pipe labels are `a-b`. Support labels are the node's
-  `TAG`, else `anchor at n` or `restraint at n`; bend components are labelled `bend n`; load
+  `TAG`, else `anchor at n`, `restraint at n`, `guide at n`, `limit stop at n` or `spring at n`; bend components are labelled `bend n`; load
   cases carry the writer's case labels (§9.3).
 
 ### 10.5 Straight-pipe orientation
@@ -1090,16 +1113,24 @@ reference *Bend*; *Node*). The inverse:
 Support data are comments on the node's row or on a Location row. They follow *Format of
 .MBF*, LAYOUT, key letter K code A and the comment list.
 
-| MBF | Tranche 1 |
+| MBF | Treatment |
 |---|---|
 | `KA`, anchor in global axes (`LA` absent or 0) | `support:n`, `family: anchor`, restraints UX…RZ |
 | `FIXD(a,b,c)`, `F(a,b,c)`, `FIXDX[=1]`, `FX`, … | Translational restraints. Each value must be 0 or 1 (`MBF-IMPORT-COMMENT-INVALID`). They go on `support:n-restraint` with family absent (the solver's own inference, as for any family-less support) |
 | `FIXR(…)`, `FIXRX[=1]`, … | Rotational restraints, on the same restraint support. A restraint with some but not all rotations and no anchor cannot be represented by the solve's families: a family-less support with fewer than six DOFs is a guide, which restrains translations only. It is refused (`MBF-IMPORT-SUPPORT-UNSUPPORTED`; independent review VER-002 r8, the lane manager's sign-off) |
 | FIXD and FIXR covering all six DOF | Kept as written. The writer writes such a node as `KA` |
-| `KA` with `LA=1` (local axes), `TRAK`, `ROTK`, `FREE` | Refused (`MBF-IMPORT-SUPPORT-UNSUPPORTED`). Flexible anchors are tranche 2: one spring support per DOF, with N·m/deg → N·m/rad by multiplication by 180/π |
-| Guide `G` (`GGAP`, `MU`, `STIFF`) | Refused. Tranche 2, rigid and axis-aligned first |
-| Limit stop `LS` (`DV`, `STIFF`, `MU`, `AXIAL`, `SHEARY`, `SHEARZ`) | Refused. Tranche 2 |
-| Hangers `VS`, `CS`, `US`, `HTYP`, `SR`, `MLV`, `CLD`; snubbers; skewed restraints `K`/`KR`; generic support `KG`, `GR*`; nozzles `NOZZLE` and its fields; `CNOD` | Refused (`MBF-IMPORT-SUPPORT-UNSUPPORTED`, naming the keyword) |
+| `KA` with `TRAK(kx,ky,kz)` and `ROTK(0,0,0)`, a flexible anchor (tranche 3) | One `family: spring` support per translation with k > 0, `support:n-spring-ux` …, restraints [the DOF], `stiffness` {the DOF, k in `N/mm` or `lbf/in`}. A zero component leaves its DOF free (documented: `CAEPIPE-ANCHOR`); so does `ROTK(0,0,0)`, whatever its unit. TRAK and ROTK move with their axes under §5.1 (unsigned, as restraint flags) |
+| Flexible-anchor refusals | `TRAK` or `ROTK` without `KA`, or a flexible anchor with another support at its node (`MBF-IMPORT-SUPPORT-UNSUPPORTED`); `KA` with only one of `TRAK` and `ROTK`, whose absent DOFs no source says are rigid or free, and a non-zero `ROTK` component, whose unit the public pages give two ways (`MBF-IMPORT-TBD-17-04-010`); a negative stiffness (`MBF-IMPORT-VALUE-OUT-OF-RANGE`); all six zero (restrains nothing, `MBF-IMPORT-SUPPORT-UNSUPPORTED`); `D`/`ROT` at a flexible anchor, which would move the springs' ground end (`MBF-IMPORT-DISPLACEMENT-UNSUPPORTED`); a repeated `TRAK` or `ROTK` (`MBF-IMPORT-COMMENT-INVALID`) |
+| `KA` with `LA=1` (local axes), `FREE` | Refused (`MBF-IMPORT-SUPPORT-UNSUPPORTED`) |
+| Guide `G`, rigid (tranche 3) | `support:n-guide`, `family: guide`, restraining the two global translations lateral to the guide's element: its local y and z (documented: `CAEPIPE-GUIDE`), read only when the element lies exactly along a global axis (its exact rational offsets have one non-zero component, after §5.1). The element is the preceding one (the element ending at `n`), else the one following element; a first node with several following elements is refused. `GGAP` and `MU` are read only as 0 or empty |
+| Guide with `STIFF=k` | A spring on each lateral translation, k in `N/mm` or `lbf/in` (*Format of .MBF*, `STIFF`) |
+| `STIFF=Rigid` on a guide or limit stop | Read exactly as the same row without `STIFF`: a rigid guide or line stop. The technical reference documents rigid as the default stiffness of both (`CAEPIPE-GUIDE`: "The default stiffness is rigid which is input by typing “r” or “Rigid”"; `CAEPIPE-LIMIT-STOP`: "The default is set to Rigid stiffness"). *Format of .MBF* shows only numeric `STIFF` values; the spelling `STIFF=Rigid` in an MBF file is observed format behaviour. Only `Rigid` is read; any other non-numeric value is `MBF-IMPORT-NUMBER-INVALID`, and the data-comment rules below apply unchanged |
+| A `None` limit of `LS`, as in `LS(0.000,None)` | A blank limit: the technical reference shows a blank limit as `None` and documents that with no limit on one side the node "can move freely on that side" (`CAEPIPE-LIMIT-STOP`), so the stop is one-way. It is refused by name as a one-way restraint (`MBF-IMPORT-SUPPORT-UNSUPPORTED`, below), as an empty limit is. *Format of .MBF* documents only numeric limits; the spelling `None` in an MBF file is observed format behaviour. Only `None` is read so; any other non-numeric limit is `MBF-IMPORT-NUMBER-INVALID` |
+| Limit stop `LS(0,0)` with `DV` along one global axis (tranche 3) | `support:n-stop-a`, `family: line_stop`, restraining that translation: zero limits stop the node at its undeflected position on both sides (documented: `CAEPIPE-LIMIT-STOP`), a two-way rigid restraint. `DV`'s sign and length do not matter; it rotates under §5.1. With `STIFF=k`, a spring on that DOF. `MU` is read only as 0 or empty |
+| Skewed restraint `K=k` with `DV` along one global axis (tranche 3) | A spring on that translation (documented: `CAEPIPE-SKEWED-RESTRAINT`, a two-way support along its direction; *Format of .MBF*: `K` in lb/in or N/mm) |
+| Guide, limit-stop and skewed-restraint refusals | A non-zero `GGAP` (a symmetric clearance) or `MU` (friction), and an `LS` limit that is non-zero (a gap) or blank (a one-way restraint): each nonlinear, `MBF-IMPORT-SUPPORT-UNSUPPORTED`; a guide whose element is not along a global axis, and a `DV` off the global axes (skewed directions), `MBF-IMPORT-SUPPORT-UNSUPPORTED`; `LS` without `DV`, and `AXIAL`, `SHEARY`, `SHEARZ` (which element's local axes a limit stop takes is not documented) and `KR` (unit given two ways), `MBF-IMPORT-TBD-17-04-010`; `K` without `DV`, `CNOD` (connected node), more than one of `G`, `LS`, `K` on one row, data comments (`GGAP`, `MU`, `STIFF`, `DV`) without their support type, a second guide or limit stop on one axis at a node, two springs on one DOF, and a spring on a rigidly restrained DOF, `MBF-IMPORT-SUPPORT-UNSUPPORTED`; `STIFF` or `K` not positive, `MU` negative, `MBF-IMPORT-VALUE-OUT-OF-RANGE`; `LS` without two limits, `G` with a value, `DV(0,0,0)`, `K(…)`, a repeated comment on one row, `MBF-IMPORT-COMMENT-INVALID`; a stiffness whose reading in N/m overflows, `MBF-IMPORT-VALUE-UNREPRESENTABLE` |
+| Hangers `VS`, `CS`, `US`, `HTYP`, `SR`, `MLV`, `CLD` (tranche 3: kept refused) | Refused (`MBF-IMPORT-SUPPORT-UNSUPPORTED`, naming the keyword). `VS` and `CS` are designed by the target's hanger design. A hanger's load acts as a force in the sustained and operating cases, hot or cold load by option, and its spring rate enters the stiffness only by option (documented: `CAEPIPE-HANGER`). SWBPIPE's constant-effort support applies its load in every solved case, the thermal case included, and its spring hanger's loads are not consumed. No exact mapping exists (§20.3, gaps) |
+| Snubbers; generic support `KG`, `GR*`; nozzles `NOZZLE` and its fields; `CNOD` | Refused (`MBF-IMPORT-SUPPORT-UNSUPPORTED`, naming the keyword) |
 | `TAG=<text>` | Becomes the `label` of the node's support. On a node without a support it is listed as `omitted` |
 | `LTAG` (spectrum level) | Empty is accepted (§4.4); non-empty is refused |
 
@@ -1108,7 +1139,16 @@ linear_supports `prepare_rigid_support`), ported and applied to every imported m
 or not (independent review VER-002 r8): a support without family is an anchor with six DOFs
 and a guide otherwise; an anchor restrains any DOF, a guide or line stop translations only,
 a vertical support UZ only; a support restrains at least one DOF; and no DOF is restrained
-twice at a node. A support that breaks one is refused by its id
+twice at a node. A spring (`family: spring`, `prepare_spring`) restrains nothing and acts on
+the one DOF its stiffness names; the solve takes that DOF and needs a positive, finite
+stiffness in N/m (`SupportQuantity::positive`, else `SUPPORT_INPUT_INVALID`). The importer gives
+each spring exactly that DOF as its restraint list, a positive stiffness, and refuses one whose
+value × the catalog factor (N/mm 1000; lbf/in 4.4482216152605 / 0.0254, in binary64) is not
+finite. The exact pressure route admits linear restraints and springs (`exact_admission`
+`support_family`), so a spring needs no pressure guard. A stiffness negligible against the
+assembled stiffness is refused by the solve (`NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED`, §9.4 guard
+map), not by the import; a stiffness outside the solve's checked-JSON domain (1e20 N/mm, an integral
+float beyond 2⁵³ − 1) is refused by the import, as every such number is (§9.4). A support that breaks one is refused by its id
 (`MBF-IMPORT-SUPPORT-UNSUPPORTED`), as the solve refuses it (`SUPPORT_INPUT_INVALID`): for
 example `KA` with `FIXD` at one node restrains a translation twice.
 
@@ -1119,6 +1159,22 @@ supports into one anchor, and the sidecar splits them back where the solve admit
 The writer records each support's `family` in `support_map` (implemented), and bound imports
 restore it. A sidecar entry without `family` (an older sidecar) is reported as unrecoverable
 (§15).
+
+**Writer counterpart (tranche 3).** SWBPIPE's `guide` and `line_stop` families are already
+written as `FIXD` with the family in `support_map`, which an import reads exactly; the writer
+does not write `G` or `LS`. A `family: spring` support is written as a flexible anchor on the
+node's row, `KA,TRAK(kx,ky,kz),ROTK(0,0,0)`, in N/mm: N/m × 10⁻³, kN/m × 1, kN/mm × 10³,
+lbf/in × 4.4482216152605 / 25.4, each the exact rational product rounded once (listed in
+`MBF-SI-UNITS-NORMALIZED`); a DOF without a spring writes 0. The writer refuses
+(`MBF-SI-SUPPORT-UNSUPPORTED`) a rotational spring (ROTK's unit is open, TBD-17-04-010), a spring
+whose restraints and stiffness do not name the same single DOF, a second spring on one DOF, and
+a node with springs and rigid restraints (the importer reads a flexible anchor alone); a
+stiffness that is not positive is `MBF-SI-VALUE-OUT-OF-RANGE`, an imposed displacement on a
+spring `MBF-SI-IMPOSED-DISPLACEMENT-UNSUPPORTED`. `support_map` records each spring with its
+DOF, `family: spring` and `family_authored: true`. The export preflight of §9.4, the writer's
+own bound re-import, runs for every export (§14), so a stiffness whose printed value
+the import refuses (1e306 N/mm, which reads as 1e309 N/m) is refused as
+`MBF-SI-PREFLIGHT-REFUSED`.
 
 ## 13. Point loads and displacements
 
@@ -1143,14 +1199,28 @@ after canonicalisation. Any value the writer would not reproduce counts as a dif
 is refused by name at its JSON path. The guard proves consistency, not authorship. An edit
 that the writer would reproduce for the model it yields cannot be told apart from writer
 output, and imports as such. Such consistent edits import as stated, with nothing defaulted
-or misread. Authorship is not claimed.
+or misread. Authorship is not claimed. The sidecar's self-digest (§15) adds a check in
+front of this guard. It catches an accidental or partial edit. It does not replace the guard
+or bear on authorship.
 
 **The regeneration identity** is the exact-digest route's guard of record. After assembly,
-a bound import of a format-2 sidecar has the writer regenerate the sidecar from the imported
+a bound import of a format-2 or format-3 sidecar has the writer regenerate the sidecar from the imported
 model (`regenerate_caepipe_sidecar`). No MBF is written and the writer's export preflight
-is not run. The one input beyond the model is the import's record of which straights'
+is not run.
+
+**The writer's preflight is total** (tranche 3, independent review VER-002 r3). Every export
+other than the regeneration route's, whose caller is the import, is checked by its own bound
+re-import (§9.4), whatever it holds: pressure or none, springs or none. Any refusal of that
+re-import is a named export refusal carrying the importer's code and location
+(`MBF-SI-PREFLIGHT-REFUSED`, or `MBF-SI-PRESSURE-REGION-FORMAT` for a region check). It adds a
+check only: an export it admits is the text it would have written without it. Printing and unit
+normalization can each break a value that the model holds validly. For example, a force of
+2⁵³ − 1 N prints to 10 significant digits as 9.007199255e+15, and 1e14 kN is written as 1e17 N.
+Each is an integral float beyond 2⁵³ − 1, which the solve's checked-JSON reader refuses (§9.4
+guard map), so the export is refused. The one input beyond the model is the import's record of which straights'
 `y_reference` it derived (`id_map` `y_reference_derived`), so a derived orientation
-regenerates as derived. The two sidecars are compared without the digest, with key order
+regenerates as derived. The two sidecars are compared without the digests (`mbf_sha256`
+and the self-digest `sidecar_sha256`), in the given sidecar's format, with key order
 immaterial, every number as a binary64 (1 and 1.0 are one value) and each load direction
 as the axis it names (`global_y`, `GLOBAL_Y`, `UY` and `uy` alike). A difference is refused
 as `MBF-IMPORT-SIDECAR-NOT-REPRODUCED`, naming the first differing JSON path in sorted key
@@ -1177,7 +1247,8 @@ sidecar, which the writer no longer writes, is closed instead by the agreement o
 MBF-determined field it retains (§15).
 
 **Consistent edits.** The digest binds only the MBF, and the MBF has no carrier for the
-sidecar (TBD-17-01-003, TBD-17-04-003; O-6). Some values pass from the model to the sidecar
+sidecar (TBD-17-01-003, TBD-17-04-003; O-6). The self-digest binds the sidecar only to
+itself, and an editor can recompute it (§15). Some values pass from the model to the sidecar
 unchanged: ids, `reversed`, an authored `y_reference` or `family`, a recorded `origin`, a
 thermal direction, the shear model of a contract, region ids, and closure transfers with
 their provenance. Such a value regenerates as the sidecar gives it, so an edit of one imports
@@ -1225,7 +1296,12 @@ the manual does not make clear which kind a record is, it is refused.
 - `MBF-IMPORT-SHEAR-MODEL-INVALID`: a `shear_model` argument outside the contract's two
   values (§9.4);
 - `MBF-IMPORT-VALUE-UNREPRESENTABLE`: a read or derived value outside the binary64 range, or a
-  non-zero value that would become 0 (§4.3);
+  non-zero value that would become 0 (§4.3), a spring stiffness that is not finite in N/m (§12),
+  and any emitted number outside the solve's checked-JSON domain, at its JSON path (§9.4);
+- tranche 3: `MBF-IMPORT-TBD-17-04-010` (§12, §20.1): a limit stop without `DV`, `AXIAL`, `SHEARY`,
+  `SHEARZ`, `KR`, a non-zero `ROTK`, and a flexible anchor with only one of `TRAK` and `ROTK`.
+  `MBF-IMPORT-SUPPORT-UNSUPPORTED` no longer refuses `G`, `LS`, `K`, `TRAK`, `ROTK`, `DV`, `STIFF`,
+  `GGAP` and `MU` as such; it refuses the cases §12 lists;
 - tranche 2: `MBF-IMPORT-PRESSURE-CLOSURE-REQUIRED`, `MBF-IMPORT-PRESSURE-CLOSURE-INVALID`,
   `MBF-IMPORT-PRESSURE-DISPLACEMENT-UNSUPPORTED`, `MBF-IMPORT-PRESSURE-RUN-NONCOLLINEAR`,
   `MBF-IMPORT-PRESSURE-BORE-MISMATCH`, `MBF-IMPORT-PRESSURE-INTERNAL-BRANCH`,
@@ -1273,12 +1349,14 @@ travels in a sidecar.
 
 **Input.** The writer's sidecar (`MbfSiResult.sidecar`): `sidecar_format`, the maps
 (`node_map`, `element_map`, `support_map`, `load_case_map`, `material_map`, `section_map`,
-`load_map`, `pressure_map`) and `mbf_sha256`, as `run_pilot.py` writes it to
-`caepipe_in/id_map.json` (older runs hold the digest in `mbf_render.json`, and the importer
-accepts either file pair).
+`load_map`, `pressure_map`), `mbf_sha256` and the self-digest `sidecar_sha256`, as
+`run_pilot.py` writes it to `caepipe_in/id_map.json`. Main's earliest pilot runs kept the
+digest in `mbf_render.json` beside a legacy sidecar. For that layout only, the file loader
+takes the companion's digest (*Loading*, below).
 
 **Sidecar format** (independent review VER-002 r10 to r12). The current writer records
-`sidecar_format` = 2. A format-2 sidecar holds what a bound import restores and the MBF does
+`sidecar_format` = 3, which is format 2 with its self-digest (below). A format-2 sidecar
+holds what a bound import restores and the MBF does
 not carry, every field with its effective value; it never uses null, or another sentinel, as
 a value a default then fills, and it does not repeat what the MBF determines (layout order,
 record names, material and section numbers, bend geometry, CAEPIPE kinds and names; no
@@ -1290,7 +1368,9 @@ record names, material and section numbers, bend geometry, CAEPIPE kinds and nam
   written MBF's own positions as an import derives it) with `y_reference_authored`, for a
   bend `bend` with its `component` id;
 - `support_map`: id → `node`, `restrained`, the effective `family` (the authored one, or the
-  solve's inference: anchor with six DOFs, else guide) and `family_authored`;
+  solve's inference: anchor with six DOFs, else guide) and `family_authored`. Format 3 also
+  records a spring (tranche 3, §12): one translation, `family: spring`, `family_authored` true.
+  Its stiffness is in the MBF (`TRAK`) and is not repeated; no new field is added;
 - `load_case_map`: id → label; `material_map`: name → `swbpipe_material` id and `origin`
   (one of `MATERIAL_ORIGINS`, or `"undeclared"`, when the import needs the caller's
   declaration);
@@ -1301,7 +1381,7 @@ record names, material and section numbers, bend geometry, CAEPIPE kinds and nam
   effective `shear_model` (the contract's, or the route's `euler_bernoulli` without a
   contract) and `regions` (each `id`, `members`, two `terminals`; none without a contract).
 
-The parser refuses a format-2 sidecar missing any field, with null in any, or with a field
+The parser refuses a format-2 or format-3 sidecar missing any field, with null in any, or with a field
 outside this list, by JSON path (`MBF-IMPORT-SIDECAR-INVALID`). Each recorded value the MBF
 or a derivation also determines must agree with it, or the import is refused
 (`MBF-IMPORT-SIDECAR-CONFLICT`, or `-INVALID` for the parser's own checks): the CAEPIPE
@@ -1320,6 +1400,105 @@ each value (an unauthored family as absent, which the solve infers to the same f
 entry's variant must be the element's: a bend record for a bend, an orientation for a
 straight (`MBF-IMPORT-SIDECAR-CONFLICT` at `element_map[<id>].bend`, on both routes; VER-002
 r13).
+
+**The self-digest** (Agent 0, under the owner's delegation, after tranche 2). A format-3
+sidecar is a format-2 sidecar plus one field, `sidecar_sha256`. Its value is the lowercase
+hex SHA-256 of the sidecar's canonical serialisation, taken without that field.
+
+*Why a new format and not an optional field in format 2.* With a new format number, each
+format's parser rule stays a fixed list in which every field is required. An optional digest
+inside format 2 could not tell a sidecar written before the digest from one whose digest was
+removed. The downgrade refusal below would then be impossible. Every format-2 sidecar stays
+readable, unchanged.
+
+*Canonical serialisation* (`si_writer.sidecar_canonical_bytes`). The serialisation is RFC 8785
+(JSON Canonicalization Scheme), applied to the sidecar object without `sidecar_sha256`:
+
+- **Objects.** Members are sorted by key, with keys compared as sequences of UTF-16 code units.
+  There is no whitespace anywhere. A `,` separates members and elements, and a `:` separates
+  a key from its value.
+- **Strings.** `"` and `\` are escaped as `\"` and `\\`. U+0008, U+0009, U+000A, U+000C
+  and U+000D become `\b`, `\t`, `\n`, `\f` and `\r`. Every other code point below U+0020
+  becomes `\u00xx` in lowercase hex. All other characters are written literally, U+007F and
+  non-ASCII included.
+- **Numbers.** Each number is the binary64 value it denotes, so 1 and 1.0 are one value and
+  −0 is 0. It is written as ECMAScript's Number::toString writes it: the fewest significant
+  digits that read back as the value. The form is positional for values from 10⁻⁶ up to,
+  but not including, 10²¹ (`0.000001`, `150000000000000000000`), and exponential otherwise
+  (`1e-7`, `1e+21`).
+- **Literals.** `true`, `false` and `null` are written as they are.
+- **Encoding.** UTF-8, with no byte-order mark and no trailing newline.
+
+Some values have no such form: a non-finite number, an integer that is not exactly a
+binary64, a lone surrogate, a key that is not a string, and anything that is not a JSON
+value. Each is refused by JSON path (`MBF-IMPORT-SIDECAR-INVALID`).
+
+The self-digest does not reuse an existing canonical form, because neither is a byte-exact
+definition that another implementation could reproduce. The regeneration identity's
+canonicalisation (§14) compares parsed values; it is not a byte serialisation. The
+importer's `canonical_bytes` is Python's `json.dumps`, which has its own number text (`1.0`
+against `1`, `1e-07`). The tests carry an independent implementation and a digest derived
+by hand from a small invented sidecar.
+
+*Loading* (independent review VER-002, self-digest r1). The sidecar is verified exactly as
+supplied. Nothing is added, merged or normalised before the check.
+
+- **Parsing.** Where the importer parses JSON itself, it parses strictly
+  (`parse_sidecar_json`), in every format. This covers the file loader (`load_sidecar`, the
+  command line, the private regression of §18.3) and sidecar text or bytes passed to
+  `import_caepipe_mbf`. Bytes must be strict UTF-8, and the text must be RFC 8259 JSON:
+  NaN, Infinity and -Infinity are refused. A member name repeated within one object is
+  refused at its JSON path (`MBF-IMPORT-SIDECAR-INVALID`, for example `node_map[N0]`).
+  Python's `json.loads` would otherwise keep the last value silently and so hide the
+  conflict. RFC 8785 requires unique names. A caller that passes `import_caepipe_mbf` an
+  already-parsed object has resolved its own parse, and the importer reads that object as
+  given.
+- **Companion digest.** `load_sidecar` returns the file's bytes unchanged, for the importer
+  to parse. There is one exception, which applies only to legacy sidecars, the format that
+  relied on it: a legacy sidecar (no `sidecar_format`) without `mbf_sha256` takes the digest
+  of the `mbf_render.json` beside it, and that companion is parsed strictly too. A format-2
+  or format-3 sidecar always recorded its own `mbf_sha256` and never takes the companion's.
+  Deleting it is a partial edit: format 3 refuses it by its self-digest, and format 2 by the
+  parser.
+- **Sweep.** These steps changed content before the check, and each is now closed:
+  - the companion backfill, which applied to any sidecar without `mbf_sha256`;
+  - `json.loads` keeping the last of repeated members;
+  - `json.loads` admitting NaN and Infinity;
+  - the private regression's own lenient `json.loads` of `id_map.json`, which now uses
+    `load_sidecar`.
+
+  `import_caepipe_mbf` neither copies nor changes a sidecar before the check. A number's
+  spelling becomes its binary64 value, which is the canonical form's own value model, not a
+  change of content.
+
+*Import.* The self-digest is checked before the parser or any route reads the sidecar. The
+check runs on every route: the exact-digest route, the explicit rebind, and the route that
+leaves a sidecar of another MBF unapplied. A sidecar claims format 3 when `sidecar_format`
+is the integer 3. Such a sidecar is refused, and nothing of it is applied, in three cases:
+
+- **Digest missing.** Refused as `MBF-IMPORT-SIDECAR-INVALID` at `sidecar_sha256`. A removed
+  digest is not read as format 2.
+- **Digest malformed.** A value that is not a lowercase SHA-256 hex digest is refused at
+  `sidecar_sha256` (`-INVALID`).
+- **Digest wrong.** A digest that is not the content's is refused as
+  `MBF-IMPORT-SIDECAR-DIGEST-MISMATCH` at `sidecar_sha256`.
+
+A verified import reports `source.sidecar_self_digest` = `verified`. Two kinds of sidecar
+carry no self-digest: a format-2 sidecar, written before the self-digest existed, and a
+legacy sidecar. Each imports exactly as before, and the import says so by name
+(`MBF-IMPORT-SIDECAR-NO-SELF-DIGEST`, info; `source.sidecar_self_digest` = `absent`).
+Only format 3 has `sidecar_sha256`: a format-2 or legacy sidecar that carries it is refused
+by path. The writer's preflight (§9.4) re-imports the writer's own output with its
+self-digest.
+
+*What it proves and what it does not.* The self-digest detects accidental or partial edits:
+a changed byte, a dropped map, or a sidecar paired with another sidecar's digest. It is not
+a signature. A deliberate editor can recompute it, or remove it and claim format 2. Meaning
+is therefore still governed by the regeneration identity and the agreement rule (§14),
+over exactly the values they governed before. Authorship is still not claimed. Key order,
+whitespace and the JSON spelling of a number are not content. The sidecar reaches the
+importer as a parsed JSON object, and the canonical form sorts its members and writes the
+value of each number.
 
 **Legacy sidecars.** A sidecar without `sidecar_format` is legacy: written by main's
 tranche-1 writer (`si_writer.py` up to 42a86df92f) through `run_pilot.py`. That writer
@@ -1400,7 +1579,8 @@ and wrong shapes are refused by JSON path, for example `element_map[S1].reversed
 union of what every SWBPIPE writer version records, so a sidecar from an older run, without
 `family`, `origin`, `direction` or `y_reference`, still parses:
 
-- top level: format 2 as listed under **Sidecar format**; a legacy sidecar holds the seven
+- top level: format 2 as listed under **Sidecar format**, format 3 the same with
+  `sidecar_sha256` (**The self-digest**); a legacy sidecar holds the seven
   maps below (no `pressure_map`) and `mbf_sha256`, a lowercase SHA-256 or null. The entries
   below are a legacy sidecar's ("optionally": its documented omissions; format 2 keeps only
   the fields listed above);
@@ -1413,8 +1593,12 @@ union of what every SWBPIPE writer version records, so a sidecar from an older r
 - `support_map`: id → `node`, `restrained` (a non-empty list of distinct DOFs), and
   `caepipe_kind` (`anchor`, `restraint`) and `family` (`anchor`, `guide`, `line_stop`,
   `vertical_support`; `anchor` only with all six DOFs; legacy also null or absent; format 2
-  also `family_authored`); the supports at each node
-  together must pass the solve's support rules (§12);
+  also `family_authored`; format 3 also `spring`, only on exactly one translation with
+  `family_authored` true); the supports at each node
+  together must pass the solve's support rules (§12). A bound import compares the file's rigid
+  DOFs with the union of the non-spring entries at the node, and its spring DOFs with the spring
+  entries, one each (`MBF-IMPORT-SIDECAR-CONFLICT`); a restored spring takes its stiffness from
+  the file;
 - `load_case_map`: id → label;
 - `material_map`: name → `swbpipe_material` id, the four numbers the writer records,
   `temperatures_c`, `elements` and `origin` (one of `MATERIAL_ORIGINS`, format 2 also
@@ -1432,7 +1616,7 @@ union of what every SWBPIPE writer version records, so a sidecar from an older r
   wrote (`FOR`, `MOM`, `D`, `ROT`, `LOADS <L> Temperature 1`, `MATERIAL <M> weight
   density`). On a bound import a legacy element's `material`, `section` and `load` must be
   the file's record names;
-- `pressure_map` (format 2 only): as under **Sidecar format**; each terminal has
+- `pressure_map` (formats 2 and 3 only): as under **Sidecar format**; each terminal has
   `node_ref`, `closure_transfer` and provenance;
 - integers (layout order and row) are non-negative and at most 2⁵³, exact in binary64.
 
@@ -1454,9 +1638,9 @@ aliases. The check against the file of what the parser
 admits stays where it was: ownership and pressure of regions (§9.4), supports' DOF sets per
 node (§12), the frame check of `y_reference` (§10.5).
 
-A seeded mutation test exercises the parser on format-2 sidecars of five invented files
+A seeded mutation test exercises the parser on the writer's format-3 sidecars of six invented files
 (pressurized, pressure-free, with a contract and no region, with an authored non-default
-orientation, and with two forces the MBF sums). Each field is swapped for every other JSON type, each container emptied, each
+orientation, with two forces the MBF sums, and with two springs, tranche 3). Each field is swapped for every other JSON type, each container emptied, each
 number made huge or non-finite, an unknown key added and each key removed, and each of the
 eight maps deleted and emptied. Each import passes a closure declaration, so a bound import
 that fell through to unbound formation would succeed and be caught. Every mutated import is
@@ -1467,13 +1651,20 @@ target, the direction and the case, and adds an entry under the summed primitive
 id (a duplicate primitive id). Each is refused, and the identity alone, which sets aside
 only the summed identity, refuses each too. The regeneration identity alone,
 given the model the file and the unmutated sidecar determine, refuses each mutation too (a
-mutated digest is the parser's: it decides the route). The writer's own sidecar regenerates
+mutated digest is the parser's: it decides the route; a mutated self-digest is the
+self-digest's). The writer's own sidecar regenerates
 exactly, as a positive control, and so does that of every model in the reversible subset
-(§18.2). With pressure, the writer's preflight given the same maps refuses with a named
+(§18.2). The writer's preflight, given the same maps, refuses with a named
 `MBF-SI-*` code exactly where the import refuses. Each field is also set to a different
-well-formed value. One the MBF or a derivation determines is refused, and the identity alone
+well-formed value; a single-DOF support entry also reads as the other kind (a spring as a line stop,
+a rigid entry as a spring), which the MBF's spring and rigid DOFs refuse. One the MBF or a derivation determines is refused, and the identity alone
 refuses it. One the writer copies from the model unchanged imports and regenerates as given
-(§14).
+(§14). Each mutation and replacement is imported as a deliberate editor would leave it:
+its self-digest is recomputed, so it reaches the guards above. Each is imported a second
+time with its self-digest left stale, as an accidental edit leaves it. Where the sidecar
+still claims format 3 with a well-formed digest and canonical content, the self-digest
+alone refuses it (`MBF-IMPORT-SIDECAR-DIGEST-MISMATCH`). Otherwise the parser refuses it
+by path.
 
 **What a bound sidecar cannot restore.** Many-to-one mappings and identities the sidecar
 does not preserve are reported, never guessed. Each is listed in the loss report as
@@ -1601,6 +1792,9 @@ input.
 | Full six-DOF restraint (one or several supports) → `KA` | Anchor; the sidecar splits it back |
 | Translational partial restraint → `FIXD` | Restraint support; family restored from `support_map` in bound imports (§12) |
 | Partial rotational restraint refused | Refused as well: the solve admits no partial rotational restraint without a family (§12) |
+| `guide`, `line_stop` families → `FIXD`, family in `support_map` | Restraint with the family restored; unbound `G` and `LS(0,0)` along an axis import as `guide` and `line_stop` (§12) |
+| Spring (`family: spring`, one translation) → `KA,TRAK(kx,ky,kz),ROTK(0,0,0)` in N/mm; rotational springs refused | Flexible anchor → one spring per non-zero TRAK component, ids restored from `support_map` |
+| Hangers, nonlinear supports refused | Hangers refused (§12) |
 | Curved bend → `T<n>,KI,B<R>,…,CFF=<k>` at the TI; ends `nA`/`nB` | Tangent nodes from TI, R and the adjacent legs; bend pipe, y_reference and component reconstructed |
 | Straight-pipe `y_reference` not in the MBF; recorded in `element_map` | Restored in bound imports; otherwise the documented local y (§10.5) |
 | US-customary model units → exact normalization to SI (`MBF-SI-UNITS-NORMALIZED`, §5.2) | SI import of the normalized values |
@@ -1716,6 +1910,23 @@ declares it invented. The boundary guard (§18.4) requires the sidecar.
    as '-', empty and repeated restored region ids, and a restored orientation along the
    element axis.
 
+8. **Tranche 3, hand-derived** (§12). Rigid guides and limit stops on invented layouts: the
+   lateral DOFs of an X, a Y and a Z element, a run's first node taking its following element,
+   two limit stops at one node, and the Z-vertical rotation of `DV`, a guide's element and `TRAK`.
+   Springs from a flexible anchor, a flexible guide, a flexible limit stop and a skewed restraint,
+   in N/mm and lbf/in. One refusal test per refused case of §12, hangers included. Solve-backed:
+   an imported rigid guide and an imported limit stop each prop a 3 m cantilever loaded at
+   midspan and carry 5P/16; a skewed-restraint spring and a flexible anchor at a cantilever's
+   tip each carry k/(3EI/L³ + k) of the tip load (Euler–Bernoulli, within 1e-9). The writer's
+   spring export: the hand-derived TRAK line, each refusal, and the preflight's refusal of a
+   stiffness its printed value breaks (1e306 and 1e20 N/mm). VER-002 r2: the checked-JSON domain on
+   a stiffness, a force and a coordinate, with 2⁵³ − 1 admitted and 2⁵³ refused; the runner's own
+   `CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT` for the same file with the guard removed; and a 1e-300 N/mm
+   spring that imports as written and the runner refuses as `NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED`.
+   The round trip adds `writer-springs` (the cantilever with
+   a 250000 N/m and a 1.5 lbf/in spring) to the reversible and byte-reproducible subsets; the
+   parser's spring vocabulary is refused by path outside format 3.
+
 The weight-density conversion, the G derivation, the ΔT mapping and the rational
 summation change numerical meaning. They therefore get targeted regression tests (items
 3d and 4) and independent scrutiny by a separate agent before integration.
@@ -1771,7 +1982,9 @@ Each exclusion is listed in the test so that it stays explicit.
 - node positions;
 - per pipe: endpoint pair, oriented only when the sidecar is bound; OD; t; E; ν, the
   writer's, given or derived; G; and α;
-- per node: the union of restrained DOFs, and per support when the sidecar is bound;
+- per node: the union of restrained DOFs of its rigid supports, and per support when the sidecar
+  is bound; per node and DOF, the spring stiffness in N/m, bounded as printed directly from its
+  `TRAK` component in N/mm (× 10³);
 - per bend: R, k, the bend-plane direction and the component node. The bend-plane
   direction is compared as the writer checks it: the normalized projection of
   `y_reference` perpendicular to the unit chord between the two tangent nodes. For
@@ -1916,6 +2129,43 @@ The test is `tests/test_caepipe_private_mbf_import.py`.
 DEL-17-05 Design §5's run-directory table gains two rows: `caepipe_out/exported.mbf`
 (PRIVATE) and `imported/` (PRIVATE, derived from CAEPIPE output).
 
+**Authored cases** (Agent 0, under the owner's delegation, 2026-10-27). The writer cases cover only
+what the writer writes: Y vertical and no refused input. A second case kind covers the rest of the
+importer's mappings and named refusals.
+
+- **Fixtures.** `validation/caepipe_correlation/authored/` holds invented, hand-written MBF files, each
+  with an invented-provenance sidecar (§18.4), and `manifest.json`. Each manifest entry names the case
+  (`cpa-nn-…`), its file, the construct it exercises, the importer's own outcome on the file
+  (`importer_expectation`: imported, or refused with a named code) and, for a file with pressure, the
+  closure declaration both imports take (§9.4). The set covers pressure (a straight run and a run
+  through a bend), Z vertical (with a riser, a force, a bend with an anchor displacement, and supports),
+  each mapped support kind of §12 (rigid guides, guides and limit stops with `STIFF`, two-way limit
+  stops, axis-aligned `K`, flexible anchors), and each refusal: `GGAP`, `MU`, limit-stop gaps, a one-way
+  stop, a skewed `DV`, `CNOD`, the hangers `VS`, `CS` and `US`, a non-zero `ROTK`, `KR` and a
+  temperature-dependent material. `KR` is written alone on its row with its `DV`: the target imports
+  one data item per row and takes further items from Location rows (observed format behaviour).
+- **Round trip.** DEL-17-05's pilot command (`run_pilot --authored`, DEL-17-05 Design §3) has the target
+  tool import the authored file as written, through the same batch route as a writer case, which also
+  solves it; the export step then writes the model back to `caepipe_out/exported.mbf`. The authored
+  file is the case's `caepipe_in/model.mbf`, and the run record binds the export to it by hash.
+- **Comparison.** The test imports the authored file and the exported file, both unbound, without a
+  sidecar, with the case's `project_invented` declaration and its closure declaration. For a mapped
+  case the authored import is the reference: the SI writer renders it, and the comparison uses the
+  same canonical forms and writer-derived tolerances as the writer cases (§18.2). The outcome is
+  `equal_within_writer_tolerance`, `differs`, or `refused` when the export's import is refused. For a
+  refused case it compares refusals: `refused_alike` when the export's import is refused with the
+  manifest's named code, `refused_differently` when it is refused otherwise, and `differs` when it
+  imports. An authored file that no longer meets its manifest expectation fails the test by case id.
+- **Binding.** An authored case is checked only when its run record's export entry binds the export
+  to the solve of exactly the tracked authored file (both hashes); otherwise it is skipped with that
+  reason.
+- **Outcomes and privacy** are as above: the record goes to `cases/<id>/imported/import_outcome.json`
+  with `case_kind: authored`, and standard output carries operational status only.
+- **Public tests** check each fixture against its manifest expectation with the importer alone, the
+  manifest's coverage of the constructs above, and the classification and binding on invented
+  exchange folders whose "export" is the authored file or an invented edit of it. They assert no
+  outcome of a target-tool run.
+
 ### 18.4 Boundary guard
 
 `tests/test_caepipe_data_boundary.py` is extended. It fails if any tracked `.mbf` lacks an invented-provenance sidecar, regardless of
@@ -1947,7 +2197,9 @@ a2"<!-- /owner-words -->).
 ### 20.1 TBDs
 
 TBD-17-04-005 to -009 are added to DEL-17-04 CLM-022. The questions go to the DEL-17-01
-dossier as CQ-17-01-011 to -015.
+dossier as CQ-17-01-011 to -015. TBD-17-04-010 is added to the DEL-17-04 ScopeOfWork TBD table
+(Agent 0, 2026-10-27); its unit question is drafted in the dossier as CQ-17-01-017, and O-7's
+as CQ-17-01-016. Both are drafts for the owner to send.
 
 | TBD | Question | Effect until closed |
 |---|---|---|
@@ -1956,6 +2208,7 @@ dossier as CQ-17-01-011 to -015.
 | TBD-17-04-007 | Whether `L=<load name>` is the documented load reference, carried like M and P, and which load case a `FOR` or `MOM` without `FLC` joins; and whether these are stable across versions | Bound imports apply the writer's conventions. Unbound imports refuse both with `MBF-IMPORT-TBD-17-04-007`. Unbound imports may admit both where an explicitly retained bounded profile decision does so |
 | TBD-17-04-008 | Whether CAEPIPE's MBF export keeps node numbers, row order and TI bend rows as imported, and whether it writes offsets or absolute coordinates | A sidecar is applied by CAEPIPE name only on explicit request, whatever its digest, and every rebound id is marked unconfirmed (§15). Geometry is read only in its documented forms |
 | TBD-17-04-009 | Whether the absolute-coordinate marker `*` precedes or follows the node number in an MBF layout row. The *Node* page and the *DX, DY, DZ* page and MBF examples disagree | The trailing marker shown in MBF examples is a selected interpretation (§10.2). Any other placement is refused by name (`MBF-IMPORT-TBD-17-04-009`) |
+| TBD-17-04-010 | Support records whose meaning the public pages leave open: (a) the unit of `ROTK` and `KR`, in-lb/deg or N-m/deg on *Format of .MBF* but inch-lb/radian on the *Anchor* page; (b) whether a `KA` with only one of `TRAK` and `ROTK` leaves the other's DOFs rigid or free; (c) which element's local axes `AXIAL`, `SHEARY` and `SHEARZ` name for a limit stop (the *Guide* page states the preceding element for guides only); (d) the direction of an `LS` without `DV` | Refused by name (`MBF-IMPORT-TBD-17-04-010`). `ROTK(0,0,0)` is read, a zero being free in any unit. The writer writes no rotational spring. Part (a) is drafted as DEL-17-01 CQ-17-01-017 |
 
 ### 20.2 Owner choices
 
@@ -1971,6 +2224,38 @@ dossier as CQ-17-01-011 to -015.
   under the owner's delegation, 2026-10-27) and stated in §9.4. Once the pressure-free
   Timoshenko unit (#1663) lands, pressure-free imports follow the same default through
   `model_settings.shear_model`; that is a later slice, not this one.
+- **O-7 (ruled: Agent 0's decision under the owner's delegation, 2026-10-27, as recommended below; the ruling is stated in §7.1).** How should a MATERIAL whose temperature rows differ in E
+  or α be mapped onto SWBPIPE's `temperature_points` and a case's modulus basis?
+  - *What the public pages document.* Each row gives a temperature, E and α (*Format of .MBF*,
+    MATERIAL). α is the mean coefficient, not the instantaneous one, and element temperatures
+    must lie within the table (`CAEPIPE-MATERIAL`). The page gives no formula for the strain, no
+    interpolation and no base temperature of the mean. An analysis option selects E at T1 for
+    operating case 1 (hot modulus) or at the reference temperature (cold modulus), and the
+    expansion case is operating minus sustained (`CAEPIPE-ANALYSIS`); the MBF carries the
+    option as OPTEMP's modulus flag, read today as `delegated` (§6).
+  - *What SWBPIPE holds.* A material's `temperature_points` (temperature, E, G or ν, α), and on
+    each load case `modulus_basis_ref` (one point) or `modulus_basis_temperature` (linear
+    interpolation, no extrapolation). The basis selects E, G and α together, and the thermal
+    strain is α(basis) × ΔT.
+  - *Options and their numerical consequences* (invented table: E 29.5e6 psi at 70 °F and
+    25.5e6 psi at 500 °F; α 6.0e-6 and 7.0e-6 /°F; T_ref 70 °F, T1 500 °F):
+    - **A. Hot basis.** The thermal case solves at T1 by interpolation: E 25.5e6, strain
+      7.0e-6 × 430 = 3.01e-3. This equals the mean-α strain α(T1)(T1 − T_ref) only when the
+      table's mean is taken from T_ref; from another base T₀ the strain is α(T1)(T1 − T₀) −
+      α(T_ref)(T_ref − T₀) (from T₀ = 32 °F: 7.0e-6 × 468 − 6.0e-6 × 38 = 3.048e-3, 1.3 %
+      higher). For one strain, thermal reactions scale with E: 25.5/29.5 = 0.864, 13.6 % below a
+      cold-modulus solve's. Exact for files whose
+      modulus flag selects the hot modulus, if the base of the mean is T_ref and CAEPIPE
+      interpolates linearly.
+    - **B. Cold basis.** The thermal case solves at T_ref: E 29.5e6, but SWBPIPE then takes
+      α(T_ref) = 6.0e-6 too, strain 2.58e-3, 14.3 % below the mean-α strain. Not exact for any
+      file: SWBPIPE would need a separate α basis (a gap, §20.3).
+    - **C. Keep refusing.** Temperature-dependent materials stay out; parity models must be
+      written with identical rows.
+  - *Recommendation.* C now. Then A, for files whose OPTEMP flag selects the hot modulus, once
+    SST confirms (as dossier questions) that the mean is taken from the OPTEMP reference
+    temperature and that rows are interpolated linearly. Cold-modulus files stay refused until
+    SWBPIPE has a separate α basis. The confirmation is drafted as DEL-17-01 CQ-17-01-016.
 - **O-4.** How CAEPIPE-exported MBFs are produced for §18.3: by hand by the owner, or by a
   guest automation step.
 - **O-6 (open, not adopted).** Binding the sidecar's digest into the MBF, so that a
@@ -1990,14 +2275,74 @@ tranche, in priority order, each with its writer counterpart where one is missin
 2. Z-vertical, a routine axis rotation. **Implemented** (§5.1, §10.5): the exact rotation
    (X, Y, Z) → (X, Z, −Y) and the manual's Z-vertical local axes; the writer always writes
    Y vertical;
-3. rigid, axis-aligned guides and limit stops;
-4. flexible anchors and springs;
-5. hangers;
-6. temperature-dependent materials, after a ruling on modulus basis and mean α.
+3. rigid, axis-aligned guides and limit stops. **Implemented** (tranche 3, §12): `G` on an element
+   along a global axis → `guide` on its two lateral translations; `LS(0,0)` with an axis-aligned
+   `DV` → `line_stop`. Gaps, friction, one-way stops and skewed directions are refused. The
+   writer's counterpart already exists (`FIXD` with the family in `support_map`);
+4. flexible anchors and springs. **Implemented** (§12): `KA,TRAK(…),ROTK(0,0,0)`, `G` or `LS`
+   with `STIFF`, and `K` with an axis-aligned `DV` → `family: spring` supports in N/mm or lbf/in;
+   the writer writes springs as flexible anchors, with its preflight, and sidecar format 3 records
+   them. Rotational stiffness is refused (TBD-17-04-010);
+5. hangers. **Refused** (§12): no exact mapping onto SWBPIPE's hanger members (gaps below);
+6. temperature-dependent materials. **Refused under the O-7 ruling** (§7.1, §20.2) until
+   CQ-17-01-016 is answered; then the hot basis. Identical rows, already read, are the one exact
+   reading.
 
-After tranche 2 merges, not part of its branch (Agent 0, under the owner's delegation): a
-sidecar self-digest over the sidecar's canonical content, to catch accidental or partial
-edits, with older sidecars without one reported as legacy.
+**Gaps for Agent 0** (tranche 3; each refused by name today). Each states the element, what SWBPIPE
+lacks, the smallest member that would carry it, and the ruling (Agent 0's decision under the owner's delegation, 2026-10-27). Each ruled member is a
+SWBPIPE model or analysis addition that its owning lane builds, not this lane. The importer keeps
+refusing each item by name until its member exists, and then maps onto it.
+
+- **Skewed directions** (a guide on a skewed element; `DV` off the axes; `K` along a skewed
+  direction; `LA=1`). SWBPIPE's restraints and springs act on global DOFs only. Smallest member: an
+  optional `direction` (a unit vector) on a single-DOF `line_stop` or `spring`, restraining
+  translation along it. *Ruling: adopted in principle, second priority.* W-17 scopes it into the
+  model-document 0.9.0 step with C1, so that there is one version step, not two; the solver lane
+  covers the kernel side.
+- **Guide clearance** (`GGAP` > 0). SWBPIPE's `nonlinear.gap` acts on one DOF; a guide's clearance
+  is symmetric about its axis in the lateral plane. Smallest member: a two-sided gap on one DOF
+  (`gap` with lower and upper limits) would carry an axis-aligned element's clearance per lateral
+  DOF only approximately (a square, not a circle); an exact one needs a radial gap over two DOFs.
+  *Ruling: stays refused.* A circular clearance is not approximated by a square one; revisited after
+  the operating case below, as an exact radial gap.
+- **Limit-stop gaps and one-way stops** (`LS(a,b)` with a non-zero or blank limit). SWBPIPE has
+  per-DOF `nonlinear` `gap` and `one_way`, but a nonlinear state depends on the combined operating
+  load, and the import forms only primitive cases (sustained; thermal). Smallest member: an
+  operating case (sustained plus thermal) in which the nonlinear supports are solved, with the
+  expansion case as its difference from the sustained one, as `CAEPIPE-ANALYSIS` documents.
+- **Friction** (`MU` > 0). Same gap as above; SWBPIPE's `friction` behaviour exists per DOF.
+- *Ruling on these two: the operating case with nonlinear supports, expansion as the difference, is
+  adopted in principle as the first priority, design first.* It goes to the solver lane, which first
+  reconciles it with the W-16 work in flight (#1654, imposed displacement with nonlinear supports;
+  EX combinations). It changes the analysis basis, so it needs a design, independent numerical
+  scrutiny and targeted regressions before any build.
+- **Displacements at a flexible anchor**. SWBPIPE's imposed displacement is a rigid prescribed
+  DOF. Smallest member: an imposed displacement of a spring's ground end (`target.type: support`
+  on a spring support, moving its ground point). *Ruling: a later item.*
+- **Hangers** (`VS`, `CS`, `US`). SWBPIPE's `constant_effort_support` applies its load in every
+  solved case, the thermal case included, and its spring hanger's loads are review-only; CAEPIPE
+  applies hanger loads in the sustained and operating cases only (`CAEPIPE-HANGER`). Smallest
+  member: a case scope on a hanger's load (sustained and operating only), with the spring rate
+  added to the stiffness as a spring. `VS` and `CS` loads come from the target's hanger design and
+  have no input value to carry. *Ruling: after the operating case.*
+- **Rotational stiffness** (`ROTK`, `KR`). Not a member gap: SWBPIPE's rotational springs exist; the
+  unit is open (TBD-17-04-010).
+- **Temperature-dependent materials, cold modulus**. SWBPIPE's case basis selects E and α together;
+  a cold-modulus file needs E at T_ref with the mean α at T1. Smallest member: a separate α basis
+  on a load case (O-7, option B). Under the O-7 ruling, cold-modulus files stay refused; no member
+  is adopted.
+
+After tranche 2 (Agent 0, under the owner's delegation), the sidecar self-digest is
+**implemented** (§15). The writer records format 3: format 2 plus `sidecar_sha256`, the
+SHA-256 of the RFC 8785 serialisation of the rest. The importer verifies it before anything
+reads the sidecar, on every route. A mismatch, and a format-3 sidecar without the digest,
+are refused by name. Format-2 and legacy sidecars import as before and are reported as
+carrying no self-digest.
+
+**From the authored cases (§18.3): implemented** (Agent 0's assignment under the owner's delegation,
+2026-10-27). Two support spellings in exported MBF files (observed format behaviour) are read in §12:
+`STIFF=Rigid` on a guide or limit stop as the rigid support, and a `None` limit of a limit stop as a
+blank, one-way limit, refused by name.
 
 Later, in proposed order: concentrated weight and uniform load; contents, insulation and
 lining; rigid and valve joints; reducers (0.8.0); SIF user values; multiple thermal loads;

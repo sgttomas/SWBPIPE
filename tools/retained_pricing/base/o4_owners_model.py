@@ -65,7 +65,9 @@ BODY_PINS = {
     (RPX, "rows_for"): "0de430a098ccc641c696d953385da2dffb73829a4f7391c825164e6a51ca6f84",
     (RPX, "distinct_members_of"): "598d7ae3646832e6c1ca8e55ff8ff2f4eaa5f80641348ffd5cdd25cf6cdb3304",
     (RPX, "native_bytes"): "b29f2a8e08c9b1129d6c0667216d233f5b15bb5917d2443de415577d2299ca57",
-    (PHS, "validate_transport_metadata_in"): "19b220d5cefe27184577254a24bab6b25663356549982db6a057e64576ff8ded",
+    # W-16 slice c D3 (§8.27, W16C-ES): an ordinary companion's equivalent_static record is checked under
+    # `exact.get("equivalent_static")`, absent on D1 (D1.5 refuses the generation); the owner it prices is unchanged.
+    (PHS, "validate_transport_metadata_in"): "9000648e78a185e739811f0647aa600cd499ebe1a5419c320decfb0ffb9ce56a",
     # O4-SR (the source route's second maximum) and O4-SP (its payload keys and per-station components)
     # Pre-0.4 failure unification D3 (§8.14): the screen and withheld decline on both exact routes, the support-norm
     # cause String and the route-neutral cause records (PU-TX). The second maximum and the payload keys are unchanged.
@@ -74,7 +76,10 @@ BODY_PINS = {
     # primitives' prescribed map (imposed_motion::case_prescribed, W16-NI) and returns an empty LoadCaseSolve on a
     # blocking finding there (none on D1: D1.7 refuses the support target, W16-NS); the prescribed values read that
     # map when present. The second composite maximum and its payload keys are unchanged.
-    (LIB, "solve_prepared_load_case"): "e711a993d202da97d7d255b440fa4ea4c74e0dface00ab240c750eeda3e7af34",
+    # W-16 slice c D3 (§8.27, W16C-ES): the case evidence's equivalent_static record, formed only under
+    # `load_case.equivalent_static.is_some()` (none on D1: D1.5). The second composite maximum and its payload keys are
+    # unchanged.
+    (LIB, "solve_prepared_load_case"): "d100a2ea59e493d4b2b6572adb2e5e01819a4ab1e54cab3e70f539968ee566da",
     (SRC, "distinct_reduced_section"): "179e447476ae2a7cf8b01d1e5da22bddd66b9057403453ffc79f9e57747fd100",
     (SRC, "stress_operands"): "de7a26eb0574635be8c808bc42070cdb132f8f8b67fee83542bd79f667cb6050",
     (SRC, "commitment"): "279ce112036664d7802e2952d87a67abe6dd7fe04879a4d498fd2544fe86753d",

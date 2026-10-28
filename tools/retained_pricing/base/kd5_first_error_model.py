@@ -39,7 +39,10 @@ PINS = {'checked': 'f6462ce3e9b91123fc8c424e4e932ca6ae2e06773c3c8ea4ca9a233ea006
 # (imposed_motion::case_prescribed, W16-NI) and returns an empty LoadCaseSolve on a blocking finding there (none on D1,
 # W16-NS); the prescribed values read that map when present. No literal, label, record constructor, route string,
 # carrier, staging, fallback attempt or first-return alternative changes.
-LIB_PINS = {'solve_load_case_observed': '5a70782515a2e66790c8d570cc13d49ead9d22614e0f99b288d2632e8fc4e061', 'solve_prepared_load_case': '2544b007297f0f6f91a6ae73ce8d379f22fff252e248c6134da966beedf9aba5', 'exact_straight_summary_extrema': '1c15fd171ea49543bb3c7372e93a79545dfb63d5f877a5c232b423ec4ebd4ce0'}
+# W-16 slice c D3 (§8.27, W16C-ES): solve_prepared_load_case forms the case evidence's equivalent_static record only
+# under `load_case.equivalent_static.is_some()` (none on D1). No literal, label, record constructor, route string,
+# carrier, staging, fallback attempt or first-return alternative changes.
+LIB_PINS = {'solve_load_case_observed': '5a70782515a2e66790c8d570cc13d49ead9d22614e0f99b288d2632e8fc4e061', 'solve_prepared_load_case': '223dba958940f4947790bf907b2039e8d83e1b4e4852585d63ab162b40a44e2f', 'exact_straight_summary_extrema': '1c15fd171ea49543bb3c7372e93a79545dfb63d5f877a5c232b423ec4ebd4ce0'}
 PRIVATE = ("checked", "exact", "rounded", "accumulate", "add", "mul", "divided", "exact_scaled", "divided_scaled", "min", "max", "active_length")
 ENTRY = ("summary_row", "stress_mpa", "maximum_summary_mpa", "fallback_section_errors", "fallback_circular_maximum")
 PRIVATE_ROOTS = ("fallback_circular_maximum", "summary_row", "stress_mpa", "maximum_summary_mpa")

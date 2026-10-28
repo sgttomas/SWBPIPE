@@ -36,7 +36,7 @@ MODULE = 'core/reporting/result_export/src/physics_evidence.rs'
 UNITS = 'core/units/src/lib.rs'
 # T4-U6 (D-5, §2.4): the table's per-basis stress signatures (106 signatures, 59 kinds); T4-U5b's tie-rod force
 # and T4-U4b's (§2.2) per-basis kinds (129 signatures, 66 kinds).
-TABLE_SHA256 = 'a47626ed51791f984fbc07630732a046f8090ff645efdb56e73a284110e9c80c'
+TABLE_SHA256 = 'be61c6ea828797ad5664d06a2c835b28deffaff07cc33fec6bb4d48a8fcb0919'
 DEPENDENCIES = {
     # T4-U6/U8 re-pins: the D-5 section bases and the Timoshenko beam theory (8bf263d6..., was 38302413...);
     # then §2.5's realized-arc marker (98bdfeee3e: arcs known by `member_kind`, refused on the composite);
@@ -50,8 +50,11 @@ DEPENDENCIES = {
     # then W-7 (DEL-04-01 global-end-actions.md): the reader checks the global end-action rows (was 520e7189...),
     # after the published rows' own coverage (was 8b61f340...); then W-15 slice d (DEL-03-05 Design §5): the
     # component-body records, bodies out of the maxima and headlines, merged with W-7 (was ad8edd63... on W-7 and
-    # 420e60e4... on W-15).
-    MODULE: '0b296b0ebe97d5455fbaae36eb380ad8bc4fd06363e516dd519e6a4c45d3575d',
+    # 420e60e4... on W-15); then W-16 slice c (DEL-05-01 exact-equivalent-static.md §2): the generated-primitive
+    # evidence binding (was 0b296b0e...); then W-16 slice b (DEL-05-02 exact-combinations.md §6): the direct pass
+    # reads the document without its combination rows and records, then the combination pass re-derives them
+    # (was ef200d25...).
+    MODULE: 'c82a0f11e77162692306e8ff275218596d343e2777a2bad0c4192b790861fbee',
     TABLE: TABLE_SHA256,
     UNITS: '521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c',
 }
