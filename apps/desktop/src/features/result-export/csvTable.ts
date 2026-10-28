@@ -23,6 +23,30 @@ export const CSV_PREAMBLE_KEYS = [
   "rule_pack"
 ] as const;
 
+/** A two-sided table's keys in place of `model_hash`, `result_hash` and `analysis_route`, in
+ * file order. `a` and `b` follow the view's own sides (Design `csv-export.md` §3). */
+export const CSV_PAIR_PROVENANCE_KEYS = [
+  "model_hash_a",
+  "model_hash_b",
+  "result_hash_a",
+  "result_hash_b",
+  "analysis_route_a",
+  "analysis_route_b"
+] as const;
+
+/** A result exists but carries no recorded value for the key. */
+export const CSV_NOT_RECORDED = "not_recorded";
+/** There is no result (a model-only or state table), so the key has no value. */
+export const CSV_NOT_APPLICABLE = "not_applicable";
+export const CSV_PROVENANCE_TOKENS: readonly string[] = [CSV_NOT_RECORDED, CSV_NOT_APPLICABLE];
+const HASH = /^sha256:[0-9a-f]{64}$/;
+
+/** Whether a preamble hash value is a hash: `sha256:` and 64 lowercase hex digits. The tokens
+ * are not hex and not `sha256:`-shaped, so they never pass. */
+export function isCsvHashValue(value: unknown): value is string {
+  return typeof value === "string" && HASH.test(value);
+}
+
 /** UTF-8 byte-order mark, written first. */
 export const CSV_BOM = "﻿";
 /** Every row, including the last, ends with CRLF. */
@@ -34,11 +58,16 @@ export type CsvTextCell = { readonly kind: "text"; readonly text: string };
 export type CsvNumberCell = { readonly kind: "number"; readonly value: number };
 /** An absent value: the table's stated reason ("withheld", "No result", ...). Never blank. */
 export type CsvStatusCell = { readonly kind: "status"; readonly reason: string };
-export type CsvCell = CsvTextCell | CsvNumberCell | CsvStatusCell;
+/** An exact decimal that no binary64 reads back exactly, written as its own decimal text in a
+ * numeric column (the display rule's exact step, `exactDisplayQuantity`). Never guarded. */
+export type CsvDecimalCell = { readonly kind: "decimal"; readonly text: string };
+export type CsvCell = CsvTextCell | CsvNumberCell | CsvStatusCell | CsvDecimalCell;
 
 export const csvText = (text: string): CsvTextCell => ({ kind: "text", text });
 export const csvNumber = (value: number): CsvNumberCell => ({ kind: "number", value });
 export const csvStatus = (reason: string): CsvStatusCell => ({ kind: "status", reason });
+export const csvDecimal = (text: string): CsvDecimalCell => ({ kind: "decimal", text });
+const DECIMAL_TEXT = /^-?\d+(?:\.\d+)?(?:e[+-]\d+)?$/;
 
 /** A text column (identifiers, labels, status, rule outcomes). */
 export type CsvTextColumn = { readonly kind: "text"; readonly label: string };
@@ -54,23 +83,34 @@ export type CsvColumn = CsvTextColumn | CsvUnitColumn | CsvNumberColumn;
 /** A rule pack, by identifier, version and checksum only (R8). */
 export type CsvRulePackRef = { readonly id: string; readonly version: string; readonly checksum: string };
 
+/** One side's provenance. A hash is `sha256:<hex>`, or `not_recorded` (a result with no
+ * recorded hash) or `not_applicable` (no result). The analysis route is the result's
+ * `producer.semantic_contract_id`, with the same tokens. */
+export type CsvProvenance = {
+  readonly modelHash: string;
+  readonly resultHash: string;
+  /** One or more analysis route identifiers, written in one row, space-separated, in order;
+   * or one token alone. */
+  readonly analysisRoutes: readonly string[];
+};
+
 /** The provenance preamble. `export_context` and `released_report` are fixed by the
  * serializer (`local_private`, `false`), and `notice` is `CSV_PREAMBLE_NOTICE`. Every value
- * is required and non-empty: missing metadata is stated by the adapter with its reason,
- * never silently filled (R11). */
+ * is required and non-empty: missing metadata is stated by a token, never silently filled
+ * (R11). A one-sided table states `model_hash`, `result_hash` and `analysis_route`; a
+ * two-sided table (`sides`) states the `_a` and `_b` keys of `CSV_PAIR_PROVENANCE_KEYS`. */
 export type CsvPreamble = {
   /** The DEL-07-01 `export-file-names.md` CSV kind slug, e.g. `stress-ratio`. */
   readonly table: string;
   readonly softwareVersion: string;
-  readonly modelHash: string;
-  readonly resultHash: string;
-  /** One or more analysis route identifiers, written in one row, space-separated, in order. */
-  readonly analysisRoutes: readonly string[];
   readonly caseOrFilter: string;
   readonly unitBasis: string;
   /** Only for tables with rule outcomes: one `rule_pack` row each, `<id> <version> <checksum>`. */
   readonly rulePacks?: readonly CsvRulePackRef[];
-};
+} & (
+  | (CsvProvenance & { readonly sides?: undefined })
+  | { readonly sides: { readonly a: CsvProvenance; readonly b: CsvProvenance } }
+);
 
 export type CsvTable = {
   readonly preamble: CsvPreamble;
@@ -176,12 +216,47 @@ function spaceJoined(parts: readonly string[], key: string): string {
   }).join(" ");
 }
 
+function hashValue(value: unknown, key: string): string {
+  const text = required(value, key);
+  if (!isCsvHashValue(text) && !CSV_PROVENANCE_TOKENS.includes(text)) {
+    throw new CsvSerializationError("CSV_PREAMBLE_VALUE_INVALID", `preamble ${key} is a sha256: hash or a token`);
+  }
+  return text;
+}
+
+function routeValue(routes: unknown, key: string): string {
+  if (!Array.isArray(routes) || routes.length === 0) {
+    throw new CsvSerializationError("CSV_PREAMBLE_VALUE_MISSING", `preamble ${key} needs one or more routes`);
+  }
+  if (routes.length > 1 && routes.some((route) => CSV_PROVENANCE_TOKENS.includes(route))) {
+    throw new CsvSerializationError("CSV_PREAMBLE_VALUE_INVALID", `preamble ${key} states a token alone`);
+  }
+  return spaceJoined(routes, key);
+}
+
+function provenanceRows(preamble: CsvPreamble): [string, string][] {
+  if (preamble.sides === undefined) {
+    return [
+      ["model_hash", hashValue(preamble.modelHash, "model_hash")],
+      ["result_hash", hashValue(preamble.resultHash, "result_hash")],
+      ["analysis_route", routeValue(preamble.analysisRoutes, "analysis_route")]
+    ];
+  }
+  const { a, b } = preamble.sides;
+  if (!a || !b) throw new CsvSerializationError("CSV_PREAMBLE_VALUE_MISSING", "a two-sided preamble states both sides");
+  return [
+    ["model_hash_a", hashValue(a.modelHash, "model_hash_a")],
+    ["model_hash_b", hashValue(b.modelHash, "model_hash_b")],
+    ["result_hash_a", hashValue(a.resultHash, "result_hash_a")],
+    ["result_hash_b", hashValue(b.resultHash, "result_hash_b")],
+    ["analysis_route_a", routeValue(a.analysisRoutes, "analysis_route_a")],
+    ["analysis_route_b", routeValue(b.analysisRoutes, "analysis_route_b")]
+  ];
+}
+
 function preambleRows(preamble: CsvPreamble): [string, string][] {
   if (!isCsvKind(required(preamble.table, "table"))) {
     throw new CsvSerializationError("CSV_KIND_INVALID", "preamble table is not a CSV kind of export-file-names.md");
-  }
-  if (!Array.isArray(preamble.analysisRoutes) || preamble.analysisRoutes.length === 0) {
-    throw new CsvSerializationError("CSV_PREAMBLE_VALUE_MISSING", "preamble analysis_route needs one or more routes");
   }
   const rows: [string, string][] = [
     ["notice", CSV_PREAMBLE_NOTICE],
@@ -189,9 +264,7 @@ function preambleRows(preamble: CsvPreamble): [string, string][] {
     ["released_report", "false"],
     ["table", preamble.table],
     ["software_version", required(preamble.softwareVersion, "software_version")],
-    ["model_hash", required(preamble.modelHash, "model_hash")],
-    ["result_hash", required(preamble.resultHash, "result_hash")],
-    ["analysis_route", spaceJoined(preamble.analysisRoutes, "analysis_route")],
+    ...provenanceRows(preamble),
     ["case_or_filter", required(preamble.caseOrFilter, "case_or_filter")],
     ["unit_basis", required(preamble.unitBasis, "unit_basis")]
   ];
@@ -219,6 +292,10 @@ function cellField(cell: CsvCell, column: CsvColumn, where: string): string {
     case "number":
       if (column.kind !== "number") throw new CsvSerializationError("CSV_CELL_KIND_INVALID", `${where}: a number belongs in a numeric column`);
       return formatCsvNumber(cell.value);
+    case "decimal":
+      if (column.kind !== "number") throw new CsvSerializationError("CSV_CELL_KIND_INVALID", `${where}: a number belongs in a numeric column`);
+      if (typeof cell.text !== "string" || !DECIMAL_TEXT.test(cell.text)) throw new CsvSerializationError("CSV_DECIMAL_INVALID", `${where} is not decimal text`);
+      return cell.text;
     case "status":
       // An absent value carries its stated reason, so no field of a numeric column is empty.
       return textField(required(cell.reason, `${where} status reason`), where);
