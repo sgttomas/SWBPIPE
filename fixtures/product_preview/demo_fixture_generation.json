@@ -325,7 +325,7 @@
     "core/solver/frame_kernel/src/lib.rs": "af5497d7f082ae76dc368a5001ba3cb2d4b91d61e17efa3a3ce1328d4111ed43",
     "core/solver/frame_kernel/src/load_ledger.rs": "8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f",
     "core/solver/frame_kernel/src/rigid_body.rs": "729589dc5e2d57d2830794b6d77fc276a0268df27f33050dd0e07a80d43ab66a",
-    "core/solver/frame_kernel/src/shear.rs": "c7f3d5241f26fa02f19b4778a07d05f24a718179b8c58eedc431659c4b56fd36",
+    "core/solver/frame_kernel/src/shear.rs": "9c62a9fbbdb3bbe533ffe539a127564835632fc8f2d9fdd5d7f5eb50dea0d066",
     "core/solver/frame_kernel/src/structural.rs": "c4d96b2c41ce74044953dc8893b269570809651867ac55fee430ea2d1b475e82",
     "core/solver/frame_kernel/src/structural/absorption_tests.rs": "a7cd2e34675b2c24d23b031f756108b887f27aac9a1c2530f573912d2ac1d8f5",
     "core/solver/frame_kernel/src/structural/arc_angle.rs": "d4c89c334880a8abff717f79ac90f5009e8a738cbaaab250b9cc7ca994169e4e",
@@ -916,7 +916,7 @@
     "core/solver/frame_kernel/src/lib.rs": "af5497d7f082ae76dc368a5001ba3cb2d4b91d61e17efa3a3ce1328d4111ed43",
     "core/solver/frame_kernel/src/load_ledger.rs": "8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f",
     "core/solver/frame_kernel/src/rigid_body.rs": "729589dc5e2d57d2830794b6d77fc276a0268df27f33050dd0e07a80d43ab66a",
-    "core/solver/frame_kernel/src/shear.rs": "c7f3d5241f26fa02f19b4778a07d05f24a718179b8c58eedc431659c4b56fd36",
+    "core/solver/frame_kernel/src/shear.rs": "9c62a9fbbdb3bbe533ffe539a127564835632fc8f2d9fdd5d7f5eb50dea0d066",
     "core/solver/frame_kernel/src/structural.rs": "c4d96b2c41ce74044953dc8893b269570809651867ac55fee430ea2d1b475e82",
     "core/solver/frame_kernel/src/structural/absorption_tests.rs": "a7cd2e34675b2c24d23b031f756108b887f27aac9a1c2530f573912d2ac1d8f5",
     "core/solver/frame_kernel/src/structural/arc_angle.rs": "d4c89c334880a8abff717f79ac90f5009e8a738cbaaab250b9cc7ca994169e4e",
@@ -1197,7 +1197,7 @@
     "schemas/viewport_editor.schema.yaml": "d23ce086b82ff6196edec81319257515bf5aa12dee3e2b79ae0c17246a56fcb3",
     "tools/serialization/generate_product_preview_mechanics.mjs": "a5bdbab5b10c4d127574cf91da1693b919bc5fdf6db9801a853608eea4b265a4"
   },
-  "inventory_json_sha256": "d8b83087d98522f68f7d56c0d9ac41f9778d745b76b8e41997e4bd01352cc75d",
+  "inventory_json_sha256": "dc26cc6bd5957d93f7e09e9ec0ec00ff488515d2739d98601b0c1cc54fab6492",
   "dependencies": [
     {
       "name": "block-buffer",

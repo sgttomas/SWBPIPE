@@ -176,7 +176,10 @@ pub fn annulus_energy_shear_factor(
 /// domain, only binary64 range: D is not normal exactly when t*t (or x)
 /// overflows, at |t| >= about 2^512, i.e. E/(2G) <= about 7.458e-155 (b lies
 /// in [0, 1] and every other term is finite); with D finite, kappa >= 6/D is
-/// normal, so its check is a backstop that does not fire.
+/// normal, so its check is a backstop that does not fire. Separately, 2G
+/// itself overflows for G > f64::MAX/2 whatever the ratio (E = G = 1e308 has
+/// E/(2G) = 1/2 but no finite 2G), and that also refuses with NumericalRange;
+/// on the pressure-free route the nu range check refuses such moduli first.
 pub fn annulus_energy_shear_factor_of_moduli(
     inner_radius: f64,
     outer_radius: f64,
