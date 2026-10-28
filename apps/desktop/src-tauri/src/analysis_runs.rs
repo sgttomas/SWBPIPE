@@ -2471,5 +2471,6 @@ pub fn delete_analysis_run(
 }
 
 #[cfg(test)]
+#[allow(unsafe_code)]
 #[path = "analysis_runs_tests.rs"]
 mod tests;

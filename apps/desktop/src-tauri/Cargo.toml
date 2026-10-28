@@ -38,6 +38,14 @@ getrandom = "0.3"
 tauri = { version = "2", features = [] }
 tauri-plugin-dialog = "2"
 
+[dev-dependencies]
+# The user-release reach scan (`src/user_release_reach_scan.rs`; W-18b,
+# DEL-08-01 Design `report-user-release.md` §2.8) parses the production source
+# of four crates. Pinned to the versions already in Cargo.lock: no new
+# package entry, and an offline build needs no fetch.
+syn = { version = "=2.0.117", default-features = false, features = ["full", "parsing", "visit"] }
+proc-macro2 = { version = "=1.0.106", features = ["span-locations"] }
+
 [target.'cfg(unix)'.dependencies]
 # Host memory reader for the aggregate pool (`src/host_memory.rs`, macOS) and
 # the capped solve worker's process control and raw channel (`src/solve_worker.rs`,

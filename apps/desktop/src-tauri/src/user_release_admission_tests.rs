@@ -24,9 +24,29 @@ fn parse(text: &str) -> Value {
     serde_json::from_str(text).unwrap()
 }
 
+/// A registry on a normal host (the default budget) and an ingress lease of
+/// 1 KiB in it, as a command holds one: rule 3 (b) grows it.
+fn registry_and_lease() -> (crate::solve_jobs::SolveJobRegistry, Lease) {
+    let registry = crate::command_ingress::test_support::registry(crate::memory_pool::test_host::ScriptedHost::normal());
+    let lease = registry.acquire_interactive_ingress(1024).unwrap();
+    (registry, lease)
+}
+
+fn lease() -> Lease {
+    registry_and_lease().1
+}
+
 /// The first site, with any growth admitted.
 fn site(model: &Value) -> Option<LibrarySite> {
-    library_reference_site(model, &mut |_| Ok(())).unwrap()
+    library_reference_site(model, &mut lease()).unwrap()
+}
+
+/// The refusal text of a refused model.
+fn referenced(model: &Value) -> String {
+    match refuse_library_referenced(model, &mut lease()) {
+        Err(LibraryRefusal::Referenced(text)) => text,
+        other => panic!("not a library refusal: {other:?}"),
+    }
 }
 
 /// A document holding only `pointer`'s path in `document`, ending in its value
@@ -180,7 +200,7 @@ fn user_release_library_applied_bend_refused() {
     assert_eq!(found, LibrarySite { pointer: "/components/0/modifiers/source_reference".into(), rule: LibraryRule::ProvenanceString, kind: Some("component".into()), id: Some("complib.invented".into()) });
     model["components"][0]["modifiers"]["source_reference"] = json!("invented_user_entered_preview_no_code_table");
     assert_eq!(site(&model), None);
-    assert_eq!(refuse_library_referenced(&model, &mut |_| Ok(())), Ok(()));
+    assert_eq!(refuse_library_referenced(&model, &mut lease()), Ok(()));
 }
 
 /// Rule 2 at any depth and for each kind, and the re-apply note that sits
@@ -218,7 +238,7 @@ fn user_release_legacy_hanger_selection_refused() {
     assert!(!full.contains("library_ref") && !full.contains("library:"), "the legacy form carries neither W-17 mark");
 
     // The full legacy string (rules 3 (a) and 3 (b)).
-    let refusal = refuse_library_referenced(&demo_with_hanger_provenance(&full), &mut |_| Ok(())).unwrap_err();
+    let refusal = referenced(&demo_with_hanger_provenance(&full));
     assert!(refusal.starts_with(&format!("{LIBRARY_REFERENCED}: {HANGER_PROVENANCE} holds a library origin (rule legacy_hanger_selection, library kind hanger)")), "{refusal}");
     assert!(!refusal.contains("record_snapshot") && !refusal.contains("Invented hangers"), "the refusal quotes no site text: {refusal}");
     // `kind` removed: each embedded-JSON member kept alone (3 (b)).
@@ -325,15 +345,13 @@ fn rule_3b_grows_the_lease_once_and_holds_one_embedded_value() {
     let mut alone = parse(DEMO_MODEL);
     alone["supports"][1]["notes"] = json!(large);
 
-    let mut grown = Vec::new();
-    let (found, measured) = crate::ingress::counting::measure(|| library_reference_site(&model, &mut |bytes| {
-        grown.push(bytes);
-        Ok(())
-    }));
+    let (registry, mut held) = registry_and_lease();
+    let before = held.bytes();
+    let (found, measured) = crate::ingress::counting::measure(|| library_reference_site(&model, &mut held));
     assert_eq!(found, Ok(None));
-    assert_eq!(grown, vec![largest], "one growth, by the largest candidate's priced parse");
+    assert_eq!(held.bytes() - before, largest, "one growth, by the largest candidate's priced parse");
     assert!(measured.peak_priced <= largest, "peak {} within the growth {largest}", measured.peak_priced);
-    let (_, single) = crate::ingress::counting::measure(|| library_reference_site(&alone, &mut |_| Ok(())));
+    let (_, single) = crate::ingress::counting::measure(|| library_reference_site(&alone, &mut lease()));
     assert!(
         measured.peak_priced <= single.peak_priced + priced(&small) / 2,
         "at most one embedded value is held: {} against {} alone",
@@ -341,15 +359,26 @@ fn rule_3b_grows_the_lease_once_and_holds_one_embedded_value() {
         single.peak_priced
     );
 
-    // A refused growth is returned as it is, before any parse.
-    let (refused, refused_measure) = crate::ingress::counting::measure(|| library_reference_site(&model, &mut |_| Err("INVENTED-LEASE-REFUSED".to_string())));
-    assert_eq!(refused, Err("INVENTED-LEASE-REFUSED".to_string()));
+    // A growth above the budget the lease was admitted under is refused
+    // (`ingress_exceeds_budget`, DEL-04-07) and returned as it is, before any
+    // parse; the lease is unchanged.
+    drop(held);
+    let (pool_bytes, budget) = registry.pool().settings();
+    registry.configure_pool(pool_bytes, 1024 + largest - 1, false).unwrap();
+    // A lease keeps the budget it was admitted under: admit one under the lower budget.
+    let mut low = registry.acquire_interactive_ingress(1024).unwrap();
+    let (refused, refused_measure) = crate::ingress::counting::measure(|| library_reference_site(&model, &mut low));
+    assert_eq!(refused, Err(ResourceRefusal::IngressExceedsBudget { required_bytes: 1024 + largest, budget_bytes: 1024 + largest - 1 }));
+    assert_eq!(low.bytes(), 1024);
+    registry.configure_pool(pool_bytes, budget, false).unwrap();
     assert!(refused_measure.peak_priced < priced(&small) / 4, "nothing was parsed: {}", refused_measure.peak_priced);
     // No growth when rule 2 finds a site first, or when no candidate is checkable.
     let mut marked = model.clone();
     marked["supports"][6]["provenance"] = json!("library:hanger:hangerlib.invented#h.1");
-    assert_eq!(library_reference_site(&marked, &mut |_| panic!("no growth")).unwrap().unwrap().rule, LibraryRule::ProvenanceString);
-    assert_eq!(library_reference_site(&parse(DEMO_MODEL), &mut |_| panic!("no growth")), Ok(None));
+    let mut unchanged = lease();
+    assert_eq!(library_reference_site(&marked, &mut unchanged).unwrap().unwrap().rule, LibraryRule::ProvenanceString);
+    assert_eq!(library_reference_site(&parse(DEMO_MODEL), &mut unchanged), Ok(None));
+    assert_eq!(unchanged.bytes(), 1024, "no growth");
 }
 
 /// What one embedded or model-side walk may allocate beyond the lease growth
@@ -399,13 +428,9 @@ fn rule_3b_scans_of_deep_and_wide_values_stay_within_the_lease() {
         let text = serde_json::to_string(value).unwrap();
         assert!(matches!(candidate(&text), Candidate::Checkable(_)), "{name}: the prescan admits it");
         let model = json!({ "note": text });
-        let mut growth = 0;
-        let (found, measured) = crate::ingress::counting::measure(|| {
-            library_reference_site(&model, &mut |bytes| {
-                growth = bytes;
-                Ok(())
-            })
-        });
+        let mut held = lease();
+        let (found, measured) = crate::ingress::counting::measure(|| library_reference_site(&model, &mut held));
+        let growth = held.bytes() - 1024;
         let found = found.unwrap();
         assert_eq!(found.is_some(), *marked, "{name}");
         if let Some(found) = &found {
@@ -417,7 +442,9 @@ fn rule_3b_scans_of_deep_and_wide_values_stay_within_the_lease() {
 
         // The same value as the model itself: no growth; the walks allocate
         // nothing beyond the site they return.
-        let (found, measured) = crate::ingress::counting::measure(|| library_reference_site(value, &mut |_| panic!("no growth")));
+        let mut unchanged = lease();
+        let (found, measured) = crate::ingress::counting::measure(|| library_reference_site(value, &mut unchanged));
+        assert_eq!(unchanged.bytes(), 1024, "{name}: no growth");
         let found = found.unwrap();
         assert_eq!(found.is_some(), *marked, "{name}");
         let pointer = found.as_ref().map_or(String::new(), |found| found.pointer.clone());

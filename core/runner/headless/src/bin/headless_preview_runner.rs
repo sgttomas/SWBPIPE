@@ -16,6 +16,11 @@
 //! no blocking diagnostics and the result validates clean; 1 when the run
 //! carries blocking diagnostics or fails validation; 2 on usage or input
 //! errors.
+//!
+//! Holds no `unsafe` code: the reach scan requires `#![forbid(unsafe_code)]`
+//! at this root (DEL-08-01 Design `report-user-release.md` §2.8; code review
+//! r9 at #1682).
+#![forbid(unsafe_code)]
 
 use std::process::ExitCode;
 
