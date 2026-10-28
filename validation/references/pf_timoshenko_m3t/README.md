@@ -24,6 +24,17 @@ ulp placements correct. It refuted the judging workflow, repaired here; no froze
 - admission (C10) is a failing design-conformance verdict, separate from M3;
 - the README counted 7 auxetic elements at φ = 2 exactly; there are 6.
 
+**Round 2** (Codex, at `81f11c6be8`) reproduced the frozen bytes and checks, found exactly six φ = 2
+elements, and confirmed C11ops against §§2.3–2.4 on 2,040 σ± and 930 τ rows. It refuted the
+aggregation. Both findings are repaired here; no frozen value moved:
+
+- the report trusted chunk sidecars, so a typed/captured disagreement split across comparisons
+  disappeared. The report now recomputes the inventory and the typed/captured pairing over the whole
+  collection, and sidecars are cross-checks only;
+- cached evaluations from before the repair hid admission failures. Every record and sidecar is now
+  stamped. `run.sh` and the report refuse or recompute a stale evaluation, and an absent
+  `design_failures` fails.
+
 **Independence.** The engine, generator, comparison and census are standard-library Python. They
 import and read no product code. They import `kd5t_engine.py`, `kd5t_generate.py`, `kd5t_compare.py`
 and `kd5t_census.py` from `../kd5_timoshenko/` (read-only, no bytecode written there), which are
@@ -51,10 +62,10 @@ reference: it links the product crate by path and calls only `run_linear_static_
 | `pft_engine.py` | Exact PF reference engine: a PF request in, every expected published row out (110-digit `decimal`; ν, κ_E and φ exact rationals). `--check` runs its self-check (130 checks; one of them runs kd5t_engine's 58). |
 | `pft_generate.py` | Judged-set generator: `full <dir>` writes the set, `freeze` the frozen subset, `split` runner inputs, `probes` the format probes, `precision` a re-solve at more digits, `composition` the counts, `check` verifies everything. |
 | `pft_compare.py` | M3 judging on PF: kd5t_compare's reconstructed judge with a single-section adapter, the collection inventory, the design-conformance clause C10 and the derived-row clauses C11, C11tau_b and C11ops. `--selftest <set>` exercises every rule and clause; `--probe-format` prints the format facts of the probes. |
-| `pft_report.py` | kd5t_report's tables over the comparison's records, with the three verdicts: inventory, M3 and design conformance. |
+| `pft_report.py` | kd5t_report's tables over the comparison's records, with the four verdicts (provenance, inventory, M3 and design conformance) recomputed over the whole collection. |
 | `pft_census.py` | Premise census: kd5t_census with its engine bound to the PF reference (`hager`, `probe`, `standings`, `--selftest`). |
 | `runner/` | The product-driving runner (harness): `Cargo.toml`, `Cargo.lock`, `src/main.rs` (kd5's, unchanged in behaviour) and `build.sh`. |
-| `run.sh` | Driver: runner and comparison over a split set. |
+| `run.sh` | Driver: runner and comparison over a split set; a cached evaluation is reused only when `pft_compare.py --check-eval` finds it current. |
 | `frozen/pft_frozen_subset.jsonl` | 100 models (50 designs in both theories), each line `{tag, meta, ref, request}`, with exact expected rows. |
 | `SHA256SUMS` | Digests of the files above, except this README. |
 
@@ -240,25 +251,41 @@ byte, runs the engine self-check and the comparison self-test, and verifies `SHA
   - the global end rows are checked against the ideal target only, because the rotation's binary64
     order is not prescribed.
 
-**Three verdicts**, each failing on its own (`pft_report.py` prints all three; exit status 1 if any
-fails):
+**Four verdicts**, each failing on its own (`pft_report.py` prints all four; exit status 1 if any
+fails). The report takes nothing from a chunk's summary. It recomputes the inventory and every
+cross-record clause over the whole collection of records, wherever each record was judged. That
+covers the typed/captured pairing of each model and solver mode (C4 and C4b, from the operands each
+record keeps), and the completeness of both modes for each model and entry, which is part of the
+inventory.
 
-1. **Inventory** (refuter P1). Every expected model × entry × mode has exactly one record, and no
-   record is unexpected. The entries are typed and captured, and the modes SparseInteractive and
-   DenseScrutiny. That is 3,624 runs for the full set and 400 for the frozen subset. A run identity
-   received more than once is rejected before judging: none of its records is judged, it fails C0,
-   and the inventory fails, so a later correct record can never replace an earlier failure. Records
-   of models outside the set fail C0 and the inventory. `pft_compare.py` checks the inventory of what
-   it receives against the set, or against a chunk's runner input (`--expect`). It writes
-   `<out>.inventory.json` and exits 3 on failure. `pft_report.py` checks the whole collection and
-   every comparison's inventory again.
-2. **M3** (the certificate): kd5t_compare's acceptance clauses C0–C4, C6, C8 and C9 (see
-   `../kd5_timoshenko/README.md`, "The comparison and the M3 verdict"). It passes only when the
-   inventory passes. The clauses apply to every run, whatever the admission expectation, so a Passed
+1. **Provenance** (refuter round 2). Every record carries a stamp: the judging format
+   (`pft_compare.JUDGING_FORMAT`, now `pft-m3t-judging/2`), the sha256 of `pft_compare.py` and of
+   `kd5t_compare.py`, the sha256 of the reference set, and the reference variant.
+   - Every evaluation file must have its sidecar `<eval>.inventory.json`. The sidecar carries the
+     same stamp and the sha256 of exactly that file's records, of the runs it judged and of the
+     models it expected, plus the identities it received.
+   - The report fails a record or sidecar whose stamp is absent or differs, a missing sidecar, a
+     sidecar that does not match its records, and a comparison whose own inventory failed. A
+     pre-repair evaluation has no stamp, so it fails.
+   - `run.sh` reuses a cached evaluation only when `pft_compare.py --check-eval` finds it current and
+     bound to that chunk's runs and models. It recomputes the evaluation otherwise, and still fails a
+     cached evaluation whose inventory failed.
+2. **Inventory** (refuter P1), recomputed over all records. Every expected model × entry × mode has
+   exactly one record, and no record is unexpected. The entries are typed and captured, and the modes
+   SparseInteractive and DenseScrutiny. That is 3,624 runs for the full set and 400 for the frozen
+   subset. A run identity received more than once is rejected before judging: none of its records is
+   judged, it fails C0, and the inventory fails, so a later correct record can never replace an
+   earlier failure. Records of models outside the set fail C0 and the inventory. `pft_compare.py`
+   checks the inventory of what it receives against the set, or against a chunk's runner input
+   (`--expect`), and exits 3 on failure.
+3. **M3** (the certificate): kd5t_compare's acceptance clauses C0–C4, C6, C8 and C9 (see
+   `../kd5_timoshenko/README.md`, "The comparison and the M3 verdict"), with C4 as recomputed over the
+   collection. It passes only when provenance and the inventory pass. The clauses apply to every run, whatever the admission expectation, so a Passed
    publication on a model the design refuses is judged against its exact rows like any other.
-3. **Design conformance** (admission, separate from M3): C10, pf-timoshenko.md §2. It fails on an
-   expected refusal that publishes or is refused under another code, and on an admitted model that
-   is refused.
+4. **Design conformance** (admission, separate from M3): C10, pf-timoshenko.md §2. It fails on an
+   expected refusal that publishes or is refused under another code, on an admitted model that is
+   refused, and on any record that carries no `design_failures`. It also requires provenance and the
+   inventory.
 
 Information clauses: kd5t_compare's C3lit, C4b, C5, C6i and C7, and:
 
@@ -271,7 +298,7 @@ Information clauses: kd5t_compare's C3lit, C4b, C5, C6i and C7, and:
 C11 uses the coupled scale, not each group's own q, because σ⁻ = σ_N − h and τ are binary64
 functions of certified rows and may cancel legitimately.
 
-**`--selftest` passes 684 checks on the frozen subset.** On ten models (Euler–Bernoulli and
+**`--selftest` passes 720 checks on the frozen subset.** On ten models (Euler–Bernoulli and
 Timoshenko cantilevers, a prescribed-motion run, an L-line with a guide, a skew multi-span with guides
 and springs, a c_m > 0 model, a skewed UTM cantilever, Codex's case, the skewed auxetic model (φ ≈ 2)
 and a two-element cantilever at E/(2G) = 1e-12) it checks:
@@ -319,7 +346,29 @@ Beyond those ten models it checks:
   - an empty collection through the CLIs: `pft_compare.py` exits 3 and `pft_report.py` exits 1;
   - the full set's inventory is 3,624 runs and the frozen subset's 400;
   - an admitted model refused in a complete collection: M3 passes, and design conformance fails on
-    its 4 records.
+    its 4 records;
+- **refutation round 2's scenarios**, on synthetic runs, through the real CLIs and `run.sh` with
+  `false` as the runner, so no product can run:
+  - the four positive controls pass: `small_positive`, `frozen_positive`, `chunks_complete_positive`
+    and `driver_positive`;
+  - all 30 failing scenarios fail the report:
+    - round 1's three replays;
+    - duplicate-then-correct, correct-then-duplicate, a single run, an empty file, an unknown entry,
+      an unknown mode, an unexpected tag, an unpaired pair (each comparison also exits 3), and a
+      unique bad record;
+    - an admission failure (design conformance fails, M3 passes);
+    - a complete chunk in an incomplete collection, the same chunk twice, a sidecar from another
+      chunk, and a missing sidecar;
+    - the typed Passed and captured Sensitive records split into two comparisons, with failing,
+      stale passing or missing sidecars, and unsplit; also on the full frozen subset, with no and
+      with stale sidecars. Each gives C4 = 2, recomputed over the collection;
+    - run.sh with chunks duplicated across or within a chunk (run.sh and its rerun exit 1), a missing
+      chunk, and a cached evaluation of another chunk (recomputed);
+    - a pre-repair cache, which the report refuses on provenance and design conformance, and which
+      run.sh recomputes so that design conformance fails on its 4 refused records;
+  - a record without `design_failures` fails;
+  - `--check-eval` reuses a current evaluation and recomputes one bound to other runs or another
+    variant.
 
 **Controls.** `--ref twin` judges each run against its twin theory's reference. The Timoshenko
 product against the Euler–Bernoulli reference must fail at high φ. The stale-vector mutant is not
@@ -387,8 +436,9 @@ python3 -I -B pft_generate.py full <set> 8
 python3 -I -B pft_generate.py precision <set>/set.jsonl
 python3 -I -B pft_generate.py split <set>/set.jsonl <run>/chunks all 40     # or: eb, ts
 runner/build.sh <checkout> <target dir> <runner.bin>
-./run.sh <runner.bin> <set> <run> own twin             # writes <run>/out and <run>/eval (and each chunk's inventory)
-python3 -I -B pft_report.py <set>/set.jsonl <run>/eval/c.*.own.jsonl --by theory --phi-table   # inventory, M3, design conformance
+./run.sh <runner.bin> <set> <run> own twin             # writes <run>/out and <run>/eval (each with its stamped sidecar)
+python3 -I -B pft_report.py <set>/set.jsonl <run>/eval/c.*.own.jsonl --by theory --phi-table   # provenance, inventory, M3, design conformance
+python3 -I -B pft_report.py <set>/set.jsonl <run>/eval/c.*.twin.jsonl --ref twin                # the sensitivity control
 python3 -I -B pft_census.py hager <set>/set.jsonl <run>/out/c.*.out.jsonl --out <census.jsonl>
 python3 -I -B pft_census.py standings <run>/out/c.*.out.jsonl
 python3 -I -B pft_generate.py probes <probes.in.jsonl>   # then the runner, then:
