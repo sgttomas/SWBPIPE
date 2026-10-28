@@ -121,7 +121,7 @@ import {
 } from "../results/resultInterpretation";
 import { MODEL_SCHEMA_VERSION } from "../../services/modelSchemaVersion";
 import type { RuleCheckRunBasis } from "../rule-check/RuleCheckRunPanel";
-import { batchRequiresPreview, previewSatisfied, PREVIEW_REQUIRED_REASON, type QueuedBatch } from "../toolkit/BatchReviewPanel";
+import { batchRequiresPreview, operationRequiresPreview, previewSatisfied, PREVIEW_REQUIRED_REASON, type QueuedBatch } from "../toolkit/BatchReviewPanel";
 import { capabilityAvailability, capabilityRoute } from "../toolkit/capabilityCatalog";
 import type { ToolkitCapability } from "../toolkit/capabilityCatalog";
 import type { CreationTool, ViewportExposureInteraction } from "../viewport/PipeViewport";
@@ -1371,7 +1371,7 @@ export function useWorkspaceSession() {
     // predicate as the Apply button, and the preview must be of this exact
     // batch content (its canonical fingerprint at validation).
     const gated = apply && batchRequiresPreview(entry.batch);
-    const refusePreview = () => setBatchMessage(`Batch ${entry.batch.batch_id} was not applied. ${PREVIEW_REQUIRED_REASON}`);
+    const refusePreview = () => setBatchMessage(`Batch ${entry.batch.batch_id} was not applied. ${PREVIEW_REQUIRED_REASON(entry.batch)}`);
     if (gated && (!registration.validated || !previewSatisfied(entry, registration.validated.outcome, modelRevision.current))) {
       refusePreview();
       return;
@@ -1733,10 +1733,14 @@ export function useWorkspaceSession() {
 
   async function handleApplyIntent(intent: EditorOperationIntent, ownedOutcome?: { current?: Readonly<OperationOutcome> }): Promise<boolean> {
     if (!model || operationRequest.current.busy) return false;
-    // W-10: a reconnect is never applied without preview; route it to batch review.
-    if (intent?.change?.change_kind === "reconnect_pipe_run") {
-      setOperationMessage("Reconnect is applied through batch review; it has been queued there.");
-      await handleQueueOperationBatch({ batch_id: `reconnect-${intentKey(intent)}`, operations: [structuredClone(intent)] });
+    // W-10, O6: an operation that requires preview (a reconnect, a bend
+    // insertion) is never applied without one; route it to batch review.
+    if (operationRequiresPreview(intent?.change?.change_kind)) {
+      const reconnect = intent.change.change_kind === "reconnect_pipe_run";
+      setOperationMessage(reconnect
+        ? "Reconnect is applied through batch review; it has been queued there."
+        : `${intent.change.change_kind} is applied through batch review after a preview; it has been queued there.`);
+      await handleQueueOperationBatch({ batch_id: `${reconnect ? "reconnect" : "preview"}-${intentKey(intent)}`, operations: [structuredClone(intent)] });
       return false;
     }
     const revision = modelRevision.current;
