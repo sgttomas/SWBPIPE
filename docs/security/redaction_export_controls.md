@@ -455,17 +455,33 @@ ruling, 2026-10-28: "(a), the plain-data gate at the TS entry points. It
 removes the class instead of modelling JS semantics one primitive at a
 time."). A JSON-data graph has:
 
+- *Single read.* The gate is a snapshot taken in one iterative pass. It uses
+  an explicit stack, not recursion, and reads each own property's descriptor
+  exactly once, validating and copying as it goes. Everything downstream
+  classifies and exports only that snapshot, and the input is never read again
+  (HELP_HUMAN ruling, 2026-10-28, (i), the single-read snapshot). Any
+  exception during the pass, such as a Proxy trap that throws, is a refusal.
 - *Containers.* Objects whose prototype is this realm's `Object.prototype` or
-  null, and arrays whose prototype is `Array.prototype`, with only index keys
-  and `length` and no holes.
-- *Values.* Strings, finite numbers, booleans and null.
+  null, and arrays (`Array.isArray`) whose prototype is `Array.prototype`.
+  - An array's keys must be real array indices: canonical, below 2^32 − 1 and
+    below `length`. Its elements must be contiguous data members from 0 to
+    `length` − 1, so a hole is refused.
+  - An object with an exotic internal slot is refused by a brand check,
+    whatever its prototype: a boxed primitive, Map, Set, WeakMap, WeakSet,
+    Date, RegExp, ArrayBuffer, a typed array or a DataView.
+- *Values.* Strings, finite numbers, booleans and null. A non-finite number is
+  refused. Parsed JSON is not always finite: `JSON.parse("1e400")` gives
+  `Infinity`.
 - *Members.* Own, enumerable data members only, and no symbol key. They are
   enumerated with `Reflect.ownKeys` and read through their descriptors, so no
   getter, setter or method of the input ever runs. A non-enumerable member is
   refused, `__proto__` included, because parsed JSON has none.
 
-A class instance, a cross-realm object, Map, Set, Date, a typed array, an
-accessor, a function, NaN or an infinity is refused.
+A class instance, a cross-realm object, any of the exotic objects above, an
+accessor, a function, NaN or an infinity is refused. What no brand check can
+detect, such as a Proxy that presents plain data, is exported as its
+single-read plain copy. That copy holds only the own data members read once, so
+it can only lose data, never add it.
 
 - *`undefined`.* An object member whose value is `undefined` is absent:
   skipped and never classified (HELP_HUMAN ruling, 2026-10-28: "An undefined
@@ -483,6 +499,13 @@ accessor, a function, NaN or an infinity is refused.
 After the gate, each entry point works on that per-position copy, never on the
 input. Python and Rust receive parsed JSON, which is a JSON-data tree by
 construction, so they need no gate.
+
+*Known limits*, pre-existing and outside the ruling:
+
+- Duplicating a shared object per position grows exponentially with the depth
+  of nested sharing.
+- Nesting deeper than the engine's call stack still overflows in the recursive
+  steps downstream of the gate. That raises an exception and exports nothing.
 
 ## Source Data
 
