@@ -156,7 +156,7 @@ document 0.5.0. They stand as history; the re-judge below replaces them as the c
 (`MODEL_SCHEMA_VERSION_RETIRED`), so the set was re-authored as model document 0.8.0 with the same
 expected rows (964 references, 268,694 rows). It was run at product head `9875952df7` with runner
 sha256 `c0e7d413aa2a168053c4b5cbfe5e270d25e7927a5d5cf4390ec0db7728dc16c2`: 3,856 records, 3,840
-under pressure-2 and 16 under pressure-source-1. The shared judge at `94498f8e0d` judged them against
+under pressure-2 and 16 under pressure-source-1. The shared judge at `6c80e54528` (reports and records identical at `94498f8e0d`) judged them against
 the committed pins: set `0e8573d7…`, controls `a3b26032…`, frozen subset `42ee244f…`
 (`../m3_judge/REFERENCE_SHA256SUMS`; `m3_reproduce.py` regenerates all three).
 
