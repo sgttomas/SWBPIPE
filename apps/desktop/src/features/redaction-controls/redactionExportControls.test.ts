@@ -10,8 +10,11 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
+  CONTROL_EXPORT_CONTEXTS,
+  CSV_TABLE_ROUTE_ID,
   EXPORT_CONTEXTS,
   GOVERNED_LOCAL_FIRST_ROUTE_IDS,
+  LOCAL_PRIVATE_ONLY_ROUTE_IDS,
   REDACTED_VALUE,
   REPORT_PACKAGE_USER_RELEASE_ROUTE_ID,
   USER_RELEASED_REPORT_CONTEXT,
@@ -1840,5 +1843,58 @@ describe("user-released context: a malformed own label blocks at its object (Cod
     expect(unboundObjects).toBeGreaterThan(300);
     expect(admittedWellFormed).toBeGreaterThan(100);
     expect(projections).toBeGreaterThan(5000);
+  });
+});
+
+// RT-R6 (DEL-08-04-R14, AC-002): the CSV table route in the three route catalogues.
+describe("DOTH-CSV-011 route catalogue", () => {
+  const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../../..");
+  const quotedIds = (text: string) => [...text.matchAll(/"([A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+(?:\/[A-Z0-9-]+)?)"/g)].map((m) => m[1]);
+  const pythonSource = readFileSync(path.join(projectRoot, "core/security/local_first_storage/route_control.py"), "utf8");
+  const rustSource = readFileSync(path.join(projectRoot, "apps/desktop/src-tauri/src/native_result_download.rs"), "utf8");
+
+  it("is governed and admitted only for local_private with explicit intent", () => {
+    expect(CSV_TABLE_ROUTE_ID).toBe("DOTH-CSV-011");
+    expect(GOVERNED_LOCAL_FIRST_ROUTE_IDS.has(CSV_TABLE_ROUTE_ID)).toBe(true);
+    expect([...LOCAL_PRIVATE_ONLY_ROUTE_IDS]).toEqual([CSV_TABLE_ROUTE_ID]);
+    expect(enforceLocalFirstRoute({ routeId: CSV_TABLE_ROUTE_ID, exportContext: "local_private", explicitLocalPrivateIntent: true })).toEqual({
+      route_id: "DOTH-CSV-011", export_context: "local_private", storage_context: "local_private", action: "include_metadata_only",
+      reason_code: "PRIVATE_LOCAL_METADATA_ALLOWED", blocked: false, metadata_only: true, explicit_local_private_intent: true
+    });
+    expect(enforceLocalFirstRoute({ routeId: CSV_TABLE_ROUTE_ID, exportContext: "local_private" })).toMatchObject({
+      action: "block_storage", reason_code: "LOCAL_PRIVATE_INTENT_REQUIRED", blocked: true
+    });
+    for (const exportContext of EXPORT_CONTEXTS.filter((context) => context !== "local_private")) {
+      for (const explicitLocalPrivateIntent of [false, true]) {
+        expect(enforceLocalFirstRoute({ routeId: CSV_TABLE_ROUTE_ID, exportContext, explicitLocalPrivateIntent })).toEqual({
+          route_id: "DOTH-CSV-011", export_context: exportContext, storage_context: exportContext, action: "block_storage",
+          reason_code: "LOCAL_PRIVATE_ROUTE_REQUIRED", blocked: true, metadata_only: true, explicit_local_private_intent: explicitLocalPrivateIntent
+        });
+        expect(controlRouteExport("\uFEFFa\r\n", { routeId: CSV_TABLE_ROUTE_ID, exportContext, explicitLocalPrivateIntent }).blocked).toBe(true);
+      }
+    }
+    expect(enforceLocalFirstRoute({ routeId: CSV_TABLE_ROUTE_ID, exportContext: USER_RELEASED_REPORT_CONTEXT, explicitUserReleaseIntent: true })).toMatchObject({
+      reason_code: "USER_RELEASE_ROUTE_REQUIRED", blocked: true
+    });
+    expect(CONTROL_EXPORT_CONTEXTS).toContain(USER_RELEASED_REPORT_CONTEXT);
+    // The other governed routes keep their public-context behaviour.
+    expect(enforceLocalFirstRoute({ routeId: "DOTH-JSON-001", exportContext: "public_example" })).toMatchObject({ reason_code: "SAFE_PUBLIC_METADATA", blocked: false });
+  });
+
+  it("agrees with the Python and Rust catalogues", () => {
+    const pyBlock = pythonSource.match(/GOVERNED_LOCAL_FIRST_ROUTE_IDS = frozenset\(\s*\{([\s\S]*?)\}\s*\)/);
+    expect(pyBlock).not.toBeNull();
+    // Python also carries the core-only REXC-* routes, which no desktop surface uses.
+    const pyIds = quotedIds(pyBlock![1]);
+    expect(new Set(pyIds.filter((id) => !id.startsWith("REXC-")))).toEqual(new Set(GOVERNED_LOCAL_FIRST_ROUTE_IDS));
+    expect(pyIds).toContain("DOTH-CSV-011");
+    expect(pythonSource).toContain('CSV_TABLE_ROUTE_ID = "DOTH-CSV-011"');
+    expect(pythonSource).toContain("LOCAL_PRIVATE_ONLY_ROUTE_IDS = frozenset({CSV_TABLE_ROUTE_ID})");
+    const rustProfiles = rustSource.match(/fn profile\(route_id: &str\) -> Option<Profile> \{([\s\S]*?)\n\}/);
+    expect(rustProfiles).not.toBeNull();
+    expect(rustSource).toContain('const CSV_ROUTE: &str = "DOTH-CSV-011";');
+    const rustRoutes = [...quotedIds(rustProfiles![1]), ...(rustProfiles![1].includes("CSV_ROUTE =>") ? ["DOTH-CSV-011"] : [])];
+    expect(rustRoutes.sort()).toEqual(["DOTH-CSV-011", "DOTH-FORMAT-003", "DOTH-JSON-001"]);
+    for (const route of rustRoutes) expect(GOVERNED_LOCAL_FIRST_ROUTE_IDS.has(route), route).toBe(true);
   });
 });
