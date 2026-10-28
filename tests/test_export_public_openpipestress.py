@@ -135,7 +135,7 @@ def test_lint_selection_is_derived_shared_and_case_insensitive(tmp_path):
     findings = {(f["path"].rsplit("/", 1)[-1], f["kind"]) for f in PIPE.boundary_findings(staging)}
     assert ("server.PEM", "secret_material_filename") in findings
     assert ("run.LOG", "forbidden_suffix") in findings
-    assert not any(name == "icon.PNG" for name, _ in findings)
+    assert ("icon.PNG", "unreviewed_binary") in findings
 
     inventory = {entry["path"]: entry["lintable"] for entry in scan.inventory_class(staging)}
     assert inventory["docs/lib.rs"] is True and inventory["docs/Cargo.lock"] is True
@@ -400,74 +400,83 @@ def test_boundary_findings_flag_planted_risks(tmp_path):
 
     kinds = {(f["kind"], f["path"]) for f in PIPE.boundary_findings(staging)}
     assert ("secret_material_filename", "docs/server.pem") in kinds
-    assert ("non_allowlisted_binary", "docs/blob.bin") in kinds
+    assert ("unreviewed_binary", "docs/blob.bin") in kinds
     assert ("private_path_residue", "docs/leak.md") in kinds
     assert ("private_key_block", "docs/key.md") in kinds
     assert ("non_allowlisted_top_level", "not_allowlisted/x.md") in kinds
     assert not any(path == "docs/ok.md" for _, path in kinds)
 
 
-def test_allowed_binary_suffix_is_not_flagged(tmp_path):
-    # A well-formed PNG with no textual metadata passes and is not linted.
-    staging = tmp_path / "staging"
-    (staging / "apps").mkdir(parents=True)
-    (staging / "apps" / "icon.png").write_bytes(make_png())
-    assert PIPE.boundary_findings(staging) == []
-    assert PIPE.lintable_staged_files(staging) == []
+def reviewed_entry(path: str, data: bytes) -> dict:
+    import hashlib
+
+    return {"path": path, "sha256": hashlib.sha256(data).hexdigest(),
+            "size_bytes": len(data), "reason": "invented test entry"}
 
 
-def test_allowed_binary_suffix_admits_only_matching_content(tmp_path):
-    # Review r3 finding 2: non-UTF-8 content named .png got neither content
-    # inspection nor linting (zero boundary findings, zero lint targets).
-    staging = tmp_path / "staging"
-    (staging / "apps").mkdir(parents=True)
-    (staging / "apps" / "not_a.png").write_bytes(b"\x00\xff invented bytes \xfe")
-    (staging / "apps" / "text_named.png").write_text("invented text\n", encoding="utf-8")
+def test_binary_ships_only_when_its_exact_hash_is_reviewed(tmp_path):
+    # Review r3: content parsing let CRC-correct PNGs carry text (IEND body,
+    # oversized gAMA, invalid IDAT, bytes after the zlib stream), and r2: a
+    # non-PNG named .png. No format is parsed now: a binary ships only when
+    # its exact path, size and SHA-256 are on the reviewed list.
+    import zlib
+
     phrase = ("OPS_SYNTHETIC" + "_PROTECTED_TABLE").encode("ascii")
-    (staging / "apps" / "with_text.png").write_bytes(
-        make_png(png_chunk(b"tEXt", b"Comment\x00" + phrase))
-    )
-    bad_crc = bytearray(make_png())
-    bad_crc[30] ^= 0xFF
-    (staging / "apps" / "bad_crc.png").write_bytes(bytes(bad_crc))
+    base = make_png()
+    head, tail = base[: base.index(b"IDAT") - 4], base[base.index(b"IEND") - 4 :]
+    adversarial = {
+        "iend_text.png": base[: base.index(b"IEND") - 4] + png_chunk(b"IEND", phrase),
+        "oversized_gama.png": make_png(png_chunk(b"gAMA", b"\x00" * 64 + phrase)),
+        "invalid_idat.png": head + png_chunk(b"IDAT", phrase) + tail,
+        "trailing_zlib.png": head + png_chunk(b"IDAT", zlib.compress(b"\x00\x00") + phrase) + tail,
+        "not_a.png": b"\x00\xff invented bytes \xfe",
+        "blob.bin": b"\x00\xff\xfe",
+        "icon.icns": b"icns\x00\x00\x00\x09\xff",
+        "no_suffix": b"\xff\xfe\x00",
+        "valid.png": base,
+    }
+    staging = tmp_path / "staging"
+    (staging / "apps").mkdir(parents=True)
+    for name, data in adversarial.items():
+        (staging / "apps" / name).write_bytes(data)
+    (staging / "apps" / "text_named.png").write_text("invented text\n", encoding="utf-8")
 
-    findings = {(f["path"], f["kind"]) for f in PIPE.boundary_findings(staging)}
-    assert ("apps/not_a.png", "binary_format_mismatch") in findings
-    assert ("apps/bad_crc.png", "binary_format_mismatch") in findings
-    assert ("apps/with_text.png", "binary_text_metadata") in findings
+    findings = {(f["path"], f["kind"]) for f in PIPE.boundary_findings(staging, reviewed={})}
+    for name in adversarial:
+        assert ("apps/" + name, "unreviewed_binary") in findings, name
     assert not any(path == "apps/text_named.png" for path, _ in findings)
-    linted = {p.name for p in PIPE.lintable_staged_files(staging)}
-    assert linted == {"text_named.png"}
+    assert {p.name for p in PIPE.lintable_staged_files(staging)} == {"text_named.png"}
+
+    reviewed = {
+        "apps/valid.png": reviewed_entry("apps/valid.png", base),
+        "apps/not_a.png": reviewed_entry("apps/not_a.png", b"other reviewed bytes"),
+    }
+    findings = {(f["path"], f["kind"]) for f in PIPE.boundary_findings(staging, reviewed=reviewed)}
+    assert not any(path == "apps/valid.png" for path, _ in findings)
+    assert ("apps/not_a.png", "reviewed_binary_hash_mismatch") in findings
+    assert ("apps/iend_text.png", "unreviewed_binary") in findings
+
+    # By default the list comes from the staged tree itself (so from HEAD).
+    listing = staging / "tools" / "release" / "reviewed_binaries.json"
+    listing.parent.mkdir(parents=True)
+    listing.write_text(json.dumps({"binaries": [reviewed["apps/valid.png"]]}), encoding="utf-8")
+    assert not any(f["path"] == "apps/valid.png" for f in PIPE.boundary_findings(staging))
 
 
-def test_every_allowed_binary_suffix_has_a_content_inspector():
+def test_committed_reviewed_binary_list_matches_its_files():
+    # Each entry is one exact reviewed file; the list cannot drift from it.
+    import hashlib
+
     import release_members
 
-    assert set(PIPE.ALLOWED_BINARY_SUFFIXES) <= set(release_members.BINARY_INSPECTORS)
-
-
-def test_icns_inspection_checks_structure_and_embedded_png_metadata():
-    import struct
-
-    import release_members
-
-    def icns(*elements: bytes) -> bytes:
-        body = b"".join(elements)
-        return b"icns" + struct.pack(">I", 8 + len(body)) + body
-
-    def element(kind: bytes, data: bytes) -> bytes:
-        return kind + struct.pack(">I", 8 + len(data)) + data
-
-    clean = icns(element(b"ic07", make_png()))
-    assert release_members.inspect_icns(clean) == {"well_formed": True, "metadata": []}
-    texted = icns(element(b"ic07", make_png(png_chunk(b"tEXt", b"k\x00v"))),
-                  element(b"info", b"invented"))
-    assert release_members.inspect_icns(texted)["metadata"] == ["ic07/tEXt", "info"]
-    assert not release_members.inspect_icns(clean[:-1])["well_formed"]
-    toc = element(b"TOC ", b"ic07" + struct.pack(">I", 8 + len(make_png())))
-    assert release_members.inspect_icns(icns(toc, element(b"ic07", make_png())))["well_formed"]
-    wrong_toc = element(b"TOC ", b"ic08" + struct.pack(">I", 8))
-    assert not release_members.inspect_icns(icns(wrong_toc, element(b"ic07", make_png())))["well_formed"]
+    listing = ROOT / release_members.REVIEWED_BINARIES_PATH
+    document = json.loads(listing.read_text(encoding="utf-8"))
+    entries = release_members.load_reviewed_binaries(listing)
+    assert len(entries) == len(document["binaries"])
+    for path, entry in entries.items():
+        data = (ROOT / path).read_bytes()
+        assert entry["sha256"] == hashlib.sha256(data).hexdigest(), path
+        assert entry["size_bytes"] == len(data) and entry["reason"].strip()
 
 
 def test_classify_boundary_findings_splits_expected_and_unexpected():

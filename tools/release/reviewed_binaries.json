@@ -1,0 +1,4 @@
+{
+  "purpose": "Binaries (files that do not decode as UTF-8) the public export may ship. Each entry is one reviewed file: its project-relative path, exact size and SHA-256, and the reason it ships. Any other binary is blocked, whatever its suffix. Entries are added only from the owner's allowlist decisions (RT-V8 P1 and P9).",
+  "binaries": []
+}

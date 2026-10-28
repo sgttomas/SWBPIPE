@@ -3,14 +3,16 @@ DEC-058 release-candidate scan runner.
 
 DEC-058 check (b) lints every public text surface. Rather than a
 hand-maintained suffix list, a member is linted when its bytes decode as
-UTF-8, whatever its extension or its case. Binary members cannot be linted;
-the export admits them only from its declared binary suffixes, and both
-tools inventory and hash them.
+UTF-8, whatever its extension or its case. A member that does not decode
+cannot be linted, and its format is never parsed: it ships only when its
+exact path, size and SHA-256 are on the committed list of reviewed binaries
+(`reviewed_binaries.json`), whatever its suffix. Every other binary is
+blocked.
 """
 from __future__ import annotations
 
-import struct
-import zlib
+import hashlib
+import json
 from pathlib import Path
 
 
@@ -28,110 +30,31 @@ def is_text_member(path: Path) -> bool:
     return True
 
 
-# ---------------------------------------------------------------------------
-# Binary formats. A declared binary suffix admits a file only when its content
-# parses as that format; textual metadata inside it is reported, never passed.
-# ---------------------------------------------------------------------------
-
-PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
-# Chunk types that carry pixels or colour data only. Every other chunk
-# (tEXt, zTXt, iTXt, eXIf, iCCP, sPLT, caBX content credentials, private
-# chunks) is metadata that can carry text and is reported.
-PNG_PLAIN_CHUNKS = {
-    b"IHDR", b"PLTE", b"IDAT", b"IEND", b"tRNS", b"gAMA", b"cHRM",
-    b"sRGB", b"pHYs", b"bKGD", b"sBIT", b"hIST", b"tIME",
-}
-# icns elements that hold text rather than image data.
-ICNS_TEXT_ELEMENTS = {b"info", b"name"}
+REVIEWED_BINARIES_NAME = "reviewed_binaries.json"
+# The list's location inside the project tree (and so inside the export).
+REVIEWED_BINARIES_PATH = "tools/release/" + REVIEWED_BINARIES_NAME
 
 
-def inspect_png(data: bytes) -> dict:
-    """{"well_formed": bool, "metadata": [chunk types beyond plain image]}:
-    signature, chunk bounds and CRCs, IHDR first, an IDAT, IEND last and no
-    trailing bytes."""
-    result = {"well_formed": False, "metadata": []}
-    if not data.startswith(PNG_SIGNATURE):
-        return result
-    offset, types = len(PNG_SIGNATURE), []
-    while offset < len(data):
-        if offset + 12 > len(data):
-            return result
-        length = struct.unpack(">I", data[offset : offset + 4])[0]
-        kind = data[offset + 4 : offset + 8]
-        end = offset + 12 + length
-        if not (kind.isascii() and kind.isalpha()) or end > len(data):
-            return result
-        body = data[offset + 8 : offset + 8 + length]
-        crc = struct.unpack(">I", data[end - 4 : end])[0]
-        if zlib.crc32(kind + body) & 0xFFFFFFFF != crc:
-            return result
-        types.append(kind)
-        if kind not in PNG_PLAIN_CHUNKS:
-            result["metadata"].append(kind.decode("ascii"))
-        offset = end
-        if kind == b"IEND":
-            break
-    if (
-        offset != len(data)
-        or not types
-        or types[0] != b"IHDR"
-        or types[-1] != b"IEND"
-        or b"IDAT" not in types
-        or struct.unpack(">I", data[8:12])[0] != 13
-    ):
-        return result
-    result["well_formed"] = True
-    return result
+def load_reviewed_binaries(path: Path) -> dict[str, dict]:
+    """The committed reviewed-binary list, keyed by project-relative path.
+    A missing list is an empty one: every binary is then blocked."""
+    if not path.is_file():
+        return {}
+    document = json.loads(path.read_text(encoding="utf-8"))
+    entries: dict[str, dict] = {}
+    for entry in document["binaries"]:
+        if not all(isinstance(entry.get(key), str) and entry[key] for key in ("path", "sha256", "reason")) \
+                or not isinstance(entry.get("size_bytes"), int):
+            raise ValueError("reviewed binary entries need path, sha256, size_bytes and reason")
+        entries[entry["path"]] = entry
+    return entries
 
 
-def inspect_icns(data: bytes) -> dict:
-    """{"well_formed": bool, "metadata": [...]}: the `icns` header and total
-    length, an element table that exactly fills the file, a TOC (if present)
-    that matches it, and every embedded PNG inspected in turn."""
-    result = {"well_formed": False, "metadata": []}
-    if len(data) < 8 or data[:4] != b"icns" or struct.unpack(">I", data[4:8])[0] != len(data):
-        return result
-    offset, elements = 8, []
-    while offset < len(data):
-        if offset + 8 > len(data):
-            return result
-        kind = data[offset : offset + 4]
-        length = struct.unpack(">I", data[offset + 4 : offset + 8])[0]
-        if length < 8 or offset + length > len(data):
-            return result
-        elements.append((kind, length, data[offset + 8 : offset + length]))
-        offset += length
-    toc = [body for kind, _, body in elements if kind == b"TOC "]
-    if toc:
-        listed = [
-            (toc[0][i : i + 4], struct.unpack(">I", toc[0][i + 4 : i + 8])[0])
-            for i in range(0, len(toc[0]) - 7, 8)
-        ]
-        if len(toc[0]) % 8 or listed != [(k, n) for k, n, _ in elements if k != b"TOC "]:
-            return result
-    for kind, _, body in elements:
-        label = kind.decode("latin-1")
-        if kind in ICNS_TEXT_ELEMENTS:
-            result["metadata"].append(label)
-        if body.startswith(PNG_SIGNATURE):
-            embedded = inspect_png(body)
-            if not embedded["well_formed"]:
-                return result
-            result["metadata"].extend(f"{label}/{chunk}" for chunk in embedded["metadata"])
-    result["well_formed"] = True
-    return result
-
-
-# Every binary suffix a caller may allow needs an inspector here.
-BINARY_INSPECTORS = {".png": inspect_png, ".icns": inspect_icns}
-
-
-def inspect_binary(path: Path) -> dict | None:
-    """The inspection for a file whose suffix has an inspector, else None."""
-    inspector = BINARY_INSPECTORS.get(suffix_of(path))
-    if inspector is None:
-        return None
-    try:
-        return inspector(path.read_bytes())
-    except OSError:
-        return {"well_formed": False, "metadata": []}
+def binary_admission(relative_path: str, data: bytes, reviewed: dict[str, dict]) -> str | None:
+    """None when this exact binary is on the reviewed list, else the finding."""
+    entry = reviewed.get(relative_path)
+    if entry is None:
+        return "unreviewed_binary"
+    if entry["size_bytes"] != len(data) or entry["sha256"] != hashlib.sha256(data).hexdigest():
+        return "reviewed_binary_hash_mismatch"
+    return None

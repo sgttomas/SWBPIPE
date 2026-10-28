@@ -47,7 +47,13 @@ from datetime import datetime, timezone
 from pathlib import Path, PureWindowsPath
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from release_members import inspect_binary, is_text_member, suffix_of  # noqa: E402
+from release_members import (  # noqa: E402
+    REVIEWED_BINARIES_PATH,
+    binary_admission,
+    is_text_member,
+    load_reviewed_binaries,
+    suffix_of,
+)
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -176,9 +182,10 @@ SKIP_SUFFIXES = {
 FORBIDDEN_FILE_SUFFIXES = {".key", ".p12", ".pem", ".pfx"}
 FORBIDDEN_FILE_STEM_PREFIXES = ("id_rsa", "id_ed25519", "id_ecdsa", "id_dsa")
 
-# Binary (non-UTF-8) staged files must carry an explicitly allowed suffix;
-# anything else is a boundary finding (fail toward exclusion).
-ALLOWED_BINARY_SUFFIXES = {".png"}
+# Binary (non-UTF-8) staged files ship only when their exact path, size and
+# SHA-256 are on the committed reviewed-binary list
+# (`tools/release/reviewed_binaries.json`, read from the staged tree, so from
+# HEAD). No format is parsed and no suffix admits a binary.
 
 # Private absolute path prefixes rewritten in staged text files (mirrors the
 # `exports/chirality-app/export_public.py` sanitize pass). Longest first.
@@ -602,13 +609,16 @@ def read_text_if_utf8(path: Path) -> str | None:
         return None
 
 
-def boundary_findings(staging: Path) -> list[dict]:
+def boundary_findings(staging: Path, reviewed: dict[str, dict] | None = None) -> list[dict]:
     """Mechanical forbidden-path/forbidden-content findings over the staged
     tree. Each finding is {"kind", "path"}; anything found here should have
     been excluded by selection, so findings are gate failures unless listed
-    in EXPECTED_BOUNDARY_FINDINGS."""
+    in EXPECTED_BOUNDARY_FINDINGS. Binaries are judged against `reviewed`,
+    by default the reviewed-binary list the staged tree itself carries."""
     findings: list[dict] = []
     allowlisted = set(ROOT_FILES) | set(ROOT_DIRS)
+    if reviewed is None:
+        reviewed = load_reviewed_binaries(staging / REVIEWED_BINARIES_PATH)
 
     def add(kind: str, rel_posix: str) -> None:
         findings.append({"kind": kind, "path": rel_posix})
@@ -644,21 +654,10 @@ def boundary_findings(staging: Path) -> list[dict]:
             add("secret_material_filename", rel_posix)
 
         text = read_text_if_utf8(path)
-        if suffix_of(path) in ALLOWED_BINARY_SUFFIXES:
-            # A declared binary suffix admits only content that parses as that
-            # format (`release_members.BINARY_INSPECTORS`); textual metadata
-            # inside it is a finding. Content that does not match is linted as
-            # text when it decodes, and blocked when it does not.
-            inspection = inspect_binary(path)
-            if inspection is not None and inspection["well_formed"]:
-                if inspection["metadata"]:
-                    add("binary_text_metadata", rel_posix)
-                continue
-            if text is None:
-                add("binary_format_mismatch", rel_posix)
-                continue
-        elif text is None:
-            add("non_allowlisted_binary", rel_posix)
+        if text is None:
+            finding = binary_admission(rel_posix, path.read_bytes(), reviewed)
+            if finding is not None:
+                add(finding, rel_posix)
             continue
 
         if PRIVATE_PATH_RESIDUE_MARKER in text:
@@ -899,7 +898,7 @@ def build_record(
             "root_dirs": list(ROOT_DIRS),
             "excluded_top_level": list(EXCLUDED_TOP_LEVEL),
             "excluded_subtree_prefixes": list(EXCLUDED_SUBTREE_PREFIXES),
-            "allowed_binary_suffixes": sorted(ALLOWED_BINARY_SUFFIXES),
+            "reviewed_binaries": REVIEWED_BINARIES_PATH,
         },
         "counts": {
             "staged_files": len(rows),
