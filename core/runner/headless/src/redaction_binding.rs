@@ -655,19 +655,32 @@ fn route_walk(
                 let redacts = route_action_rank(item.0) >= route_action_rank("redact_value");
                 let basis = route_record_public_basis(record);
                 for (key, child) in record {
-                    let omit_member = redacts && route_unsafe_detail_key(key);
-                    let raise = omit_member
+                    let own_omit = redacts && route_unsafe_detail_key(key);
+                    let raise = own_omit
                         || key == "value"
                         || key == "text"
                         || (redacts && key == "privacy_classification");
+                    // A floor and an omission inherited from an enclosing value record still
+                    // hold here (Codex privacy review of #1722, P1-3): the stricter of the two
+                    // floors applies; on a tie, the enclosing one.
+                    let member_floor = match (floor, raise) {
+                        (Some(inherited), true)
+                            if route_action_rank(item.0) > route_action_rank(inherited.0) =>
+                        {
+                            Some(item)
+                        }
+                        (Some(inherited), _) => Some(inherited),
+                        (None, true) => Some(item),
+                        (None, false) => None,
+                    };
                     route_walk(
                         child,
                         &format!("{path}.{key}"),
                         basis,
                         context,
                         intent,
-                        if raise { Some(item) } else { None },
-                        omit_member,
+                        member_floor,
+                        own_omit || omit,
                         out,
                     );
                 }
@@ -2161,7 +2174,7 @@ mod tests {
     // Value records (HELP_HUMAN decision, 2026-10-28: "take the stricter decision per
     // case"): the shared sweep `value_record_sweep.json`, expanded by the same rule as the
     // pytest and vitest twins, and one regression per divergence class.
-    const VALUE_RECORD_CASE_COUNT: usize = 7_580;
+    const VALUE_RECORD_CASE_COUNT: usize = 7_730;
 
     fn value_record_cases() -> (Value, Vec<(Value, String, bool)>) {
         let spec = sweep_json(include_str!(
@@ -2233,97 +2246,27 @@ mod tests {
         (spec, cases)
     }
 
-    /// A case's outcome, as the spec defines it: 'B' when any decision blocks, else one code
-    /// per record member in sorted member order.
-    fn value_record_outcome(record: &Value, decisions: &[RouteDecision]) -> String {
-        if decisions
+    /// The sorted decisions with the route key prefix removed from paths, as the frozen
+    /// `decision_sets` hold them.  This mirror does not materialize a payload, so it is held
+    /// to the contract's decisions case for case; the pytest and vitest twins also hold the
+    /// exported payload to the contract and to each before column.
+    fn value_record_decision_set(decisions: &[RouteDecision]) -> String {
+        let mut normalized: Vec<(String, &str, &str)> = decisions
             .iter()
-            .any(|(_, action, _)| *action == "block_export")
-        {
-            return "B".to_string();
-        }
-        let rank = |code: char| "IWRO".find(code).expect("code");
-        let mut members: Vec<&String> = record.as_object().expect("record").keys().collect();
-        members.sort();
-        members
-            .iter()
-            .map(|member| {
-                let mut code: Option<char> = None;
-                for (path, action, _) in decisions {
-                    let candidate = if path == "$.record" {
-                        match *action {
-                            "redact_value"
-                                if ["value", "text", "privacy_classification"]
-                                    .contains(&member.as_str()) =>
-                            {
-                                'R'
-                            }
-                            "redact_value" if route_unsafe_detail_key(member) => 'O',
-                            "redact_value" | "warning_only" => 'W',
-                            "include" => 'I',
-                            "omit_field" => 'O',
-                            _ => 'R',
-                        }
-                    } else if path == &format!("$.record.{member}")
-                        || path.starts_with(&format!("$.record.{member}."))
-                        || path.starts_with(&format!("$.record.{member}["))
-                    {
-                        match *action {
-                            "include" => 'I',
-                            "warning_only" => 'W',
-                            "omit_field" => 'O',
-                            _ => 'R',
-                        }
-                    } else {
-                        continue;
-                    };
-                    if code.is_none_or(|current| rank(candidate) > rank(current)) {
-                        code = Some(candidate);
-                    }
-                }
-                code.unwrap_or('N')
-            })
-            .collect()
-    }
-
-    fn value_record_column(frozen: &Value, name: &str) -> Vec<String> {
-        frozen["outcomes"][name]
-            .as_array()
-            .expect("column")
-            .iter()
-            .flat_map(|line| {
-                line.as_str()
-                    .expect("line")
-                    .split(',')
-                    .map(str::to_string)
-                    .collect::<Vec<_>>()
-            })
-            .collect()
-    }
-
-    /// Less strict: not blocking where the column blocked, or a lower code on a member both
-    /// cover.  Stricter: blocking where the column did not, or a higher code on such a member.
-    fn value_record_compare(new: &str, old: &str) -> (bool, bool) {
-        if old == "-" {
-            return (false, false);
-        }
-        if old == "B" || new == "B" {
-            return (old == "B" && new != "B", new == "B" && old != "B");
-        }
-        let rank = |code: char| "IWRO".find(code);
-        let pairs: Vec<(usize, usize)> = new
-            .chars()
-            .zip(old.chars())
-            .filter_map(|(n, o)| Some((rank(n)?, rank(o)?)))
+            .map(|(path, action, reason)| (path.replace("__route_key__", ""), *action, *reason))
             .collect();
-        (
-            pairs.iter().any(|(n, o)| n < o),
-            pairs.iter().any(|(n, o)| n > o),
+        normalized.sort();
+        serde_json::to_string(
+            &normalized
+                .iter()
+                .map(|(path, action, reason)| json!([path, action, reason]))
+                .collect::<Vec<_>>(),
         )
+        .expect("decision set")
     }
 
     #[test]
-    fn value_record_sweep_gives_the_contract_and_is_never_less_strict() {
+    fn value_record_sweep_gives_the_contract_decisions() {
         let (spec, cases) = value_record_cases();
         assert_eq!(cases.len(), VALUE_RECORD_CASE_COUNT);
         let frozen = sweep_json(include_str!(
@@ -2334,38 +2277,35 @@ mod tests {
             Some(VALUE_RECORD_CASE_COUNT as u64)
         );
         let record_key = spec["record_key"].as_str().expect("record key");
-        let contract = value_record_column(&frozen, "contract");
-        let mut mismatches = Vec::new();
-        let mut looser = [0usize; 3];
-        let mut stricter = [0usize; 3];
-        let columns: Vec<Vec<String>> = ["python_before", "typescript_before", "rust_before"]
+        let sets = frozen["decision_sets"].as_array().expect("decision sets");
+        let contract: Vec<&str> = frozen["columns"]["contract_decisions"]
+            .as_array()
+            .expect("column")
             .iter()
-            .map(|name| value_record_column(&frozen, name))
+            .flat_map(|line| line.as_str().expect("line").split(','))
+            .map(|index| {
+                sets[index.parse::<usize>().expect("index")]
+                    .as_str()
+                    .expect("set")
+            })
             .collect();
-        for (index, (record, context, intent)) in cases.iter().enumerate() {
-            let decided = value_record_outcome(
-                record,
-                &route_record_decisions(record_key, record, context, *intent),
-            );
-            if decided != contract[index] {
-                mismatches.push(index);
-            }
-            for (column, before) in columns.iter().enumerate() {
-                let (less, more) = value_record_compare(&decided, &before[index]);
-                looser[column] += usize::from(less);
-                stricter[column] += usize::from(more);
-            }
-        }
+        assert_eq!(contract.len(), VALUE_RECORD_CASE_COUNT);
+        let mismatches: Vec<usize> = cases
+            .iter()
+            .enumerate()
+            .filter(|(index, (record, context, intent))| {
+                value_record_decision_set(&route_record_decisions(
+                    record_key, record, context, *intent,
+                )) != contract[*index]
+            })
+            .map(|(index, _)| index)
+            .collect();
         assert!(
             mismatches.is_empty(),
             "{} mismatches, first {:?}",
             mismatches.len(),
             mismatches.first()
         );
-        assert_eq!(looser, [0, 0, 0]);
-        // Pinned: stricter than Python in 1,638 cases and than TypeScript in 1,461; the Rust
-        // mirror had no route projector before.
-        assert_eq!(stricter, [1_638, 1_461, 0]);
     }
 
     fn value_record(json_text: &str, context: &str, intent: bool) -> Vec<RouteDecision> {
@@ -2490,6 +2430,72 @@ mod tests {
                 "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"
             )]
         );
+    }
+
+    /// Codex privacy review of #1722, P1-1: the old marker member in an input is not
+    /// trusted; the labelled record is a protected item and blocks.
+    #[test]
+    fn value_record_marker_in_input_is_not_trusted() {
+        assert_eq!(
+            value_record(
+                r#"{"value":"SECRET","privacy_classification":"protected_suspected","_route_value_record":true,"item":{"value":"safe","privacy_classification":"public","redistribution_status":"public_permissive"},"projected":{"__route_key__leak":"SECRET"}}"#,
+                "public_report",
+                false
+            ),
+            vec![route_decision(
+                "$.record",
+                "block_export",
+                "PROTECTED_CONTENT_BLOCKED"
+            )]
+        );
+    }
+
+    /// P1-2: a labelled item beneath a raised member is raised; the twins assert it is
+    /// replaced whole in the payload.
+    #[test]
+    fn value_record_raised_labelled_item_is_raised() {
+        let decided = value_record(
+            r#"{"value":"outer","field_class":"note","text":{"value":"safe","privacy_classification":"public","redistribution_status":"public_permissive","note":"SECRET"}}"#,
+            "public_report",
+            false,
+        );
+        assert!(decided.contains(&route_decision(
+            "$.record.text",
+            "redact_value",
+            "REDISTRIBUTION_STATUS_UNKNOWN"
+        )));
+    }
+
+    /// P1-3: a value record beneath a raised member keeps the enclosing floor, in an object,
+    /// an array and a nested label member.
+    #[test]
+    fn value_record_nested_value_record_keeps_the_inherited_floor() {
+        for (name, member) in [
+            ("text", r#"{"value":"SECRET","export_policy":{}}"#),
+            ("text", r#"[{"value":"SECRET","export_policy":{}}]"#),
+            (
+                "privacy_classification",
+                r#"{"value":"SECRET","export_policy":{}}"#,
+            ),
+        ] {
+            let decided = value_record(
+                &format!(r#"{{"value":"outer","concrete_path_present":true,"{name}":{member}}}"#),
+                "local_private",
+                true,
+            );
+            let nested: Vec<&RouteDecision> = decided
+                .iter()
+                .filter(|(path, _, _)| path.starts_with(&format!("$.record.{name}")))
+                .collect();
+            assert!(!nested.is_empty(), "{name} {member}");
+            assert!(
+                nested
+                    .iter()
+                    .all(|(_, action, reason)| *action == "redact_value"
+                        && *reason == "CONCRETE_PATH_REDACTED"),
+                "{name} {member}: {nested:?}"
+            );
+        }
     }
 
     /// Before the reorder `concrete_path_present: true` returned `redact_value` /

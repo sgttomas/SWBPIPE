@@ -20,15 +20,23 @@ type Spec = {
   route_id: string;
   contexts: [RedactionExportContext, boolean][];
 };
-type Frozen = { case_count: number; code_order: string[]; outcomes: Record<string, string[]> };
+type Frozen = {
+  case_count: number;
+  exposures: string[];
+  decision_sets: string[];
+  columns: Record<string, string[]>;
+};
 
 const fixtureDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../../../fixtures/redaction_export_controls");
 const spec = JSON.parse(readFileSync(path.join(fixtureDir, "value_record_sweep.json"), "utf8")) as Spec;
 const frozen = JSON.parse(readFileSync(path.join(fixtureDir, "value_record_sweep_decisions.json"), "utf8")) as Frozen;
-const CASE_COUNT = 7_580;
-const CODES = "IWRO";
-// The unsafe detail keys (`redactionExportControls.ts` `UNSAFE_DETAIL_KEYS`) the sweep's records carry.
-const UNSAFE_MEMBERS = new Set(["file_path"]);
+const CASE_COUNT = 7_730;
+const ROUTE_KEY_PREFIX = "__route_key__";
+// The one case less strict than TypeScript's before column: {value: "outer", field_class,
+// "__route_key__value": "SECRET"} in local_private with intent. TypeScript then exported value "SECRET" only,
+// because the input member's reserved prefix collided with the item's own `value` when materialized; the item's
+// own value "outer", which its decision kept, is now exported beside it, as Python exported both.
+const TYPESCRIPT_COLLISION_CASES = [7_719];
 
 function expand(sweep: Spec): [Item, RedactionExportContext, boolean][] {
   const records: Item[] = [];
@@ -61,76 +69,84 @@ function routeDecisions(record: Item, exportContext: RedactionExportContext, exp
   const controlled = controlRouteExport({ [spec.record_key]: record }, { routeId: spec.route_id, exportContext, explicitLocalPrivateIntent });
   return {
     controlled,
-    decided: controlled.decisions.map((decision) => [decision.path.replaceAll("__route_key__", ""), decision.action, decision.reason_code])
+    decided: controlled.decisions.map((decision) => [decision.path.replaceAll(ROUTE_KEY_PREFIX, ""), decision.action, decision.reason_code])
   };
 }
 
-function outcome(record: Item, decisions: string[][]): string {
-  if (decisions.some(([, action]) => action === "block_export")) return "B";
-  return Object.keys(record)
-    .sort()
-    .map((member) => {
-      let code: string | null = null;
-      for (const [decisionPath, action] of decisions) {
-        let candidate: string;
-        if (decisionPath === "$.record") {
-          if (action === "redact_value" && ["value", "text", "privacy_classification"].includes(member)) candidate = "R";
-          else if (action === "redact_value" && UNSAFE_MEMBERS.has(member)) candidate = "O";
-          else if (action === "redact_value" || action === "warning_only") candidate = "W";
-          else candidate = action === "include" ? "I" : action === "omit_field" ? "O" : "R";
-        } else if (
-          decisionPath === `$.record.${member}` ||
-          decisionPath.startsWith(`$.record.${member}.`) ||
-          decisionPath.startsWith(`$.record.${member}[`)
-        ) {
-          candidate = action === "include" ? "I" : action === "warning_only" ? "W" : action === "omit_field" ? "O" : "R";
-        } else continue;
-        if (code === null || CODES.indexOf(candidate) > CODES.indexOf(code)) code = candidate;
-      }
-      return code ?? "N";
-    })
-    .join("");
+/** Python's `json.dumps(..., separators=(",", ":"), ensure_ascii=True)` of a string list. */
+function asciiJson(value: unknown): string {
+  return JSON.stringify(value).replace(/[\u0080-\uffff]/g, (char) => `\\u${char.charCodeAt(0).toString(16).padStart(4, "0")}`);
 }
 
-const column = (name: string) => frozen.outcomes[name].join(",").split(",");
+/** "B" when blocked, else every key path and visible scalar leaf of the exported payload, with the route key
+ * prefix removed from member names. */
+function exposure(blocked: boolean, payload: unknown): string {
+  if (blocked) return "B";
+  const entries: string[] = [];
+  const walk = (value: unknown, at: string) => {
+    if (Array.isArray(value)) value.forEach((item, index) => walk(item, `${at}[${index}]`));
+    else if (typeof value === "object" && value !== null) {
+      for (const [key, item] of Object.entries(value)) {
+        const name = key.replaceAll(ROUTE_KEY_PREFIX, "");
+        entries.push(`k:${at}.${name}`);
+        walk(item, `${at}.${name}`);
+      }
+    } else if (value !== "[REDACTED]") entries.push(`v:${at}=${asciiJson(value)}`);
+  };
+  walk(payload, "$");
+  return asciiJson(entries.sort());
+}
+
+const decisionSet = (decided: string[][]) => asciiJson([...decided].sort(compareTuples));
+function compareTuples(a: string[], b: string[]): number {
+  for (let index = 0; index < Math.max(a.length, b.length); index += 1) {
+    if (a[index] !== b[index]) return (a[index] ?? "") < (b[index] ?? "") ? -1 : 1;
+  }
+  return 0;
+}
+
+const column = (name: string, table: string[]) =>
+  frozen.columns[name].join(",").split(",").map((index) => table[Number(index)]);
 
 function compare(next: string, old: string): [boolean, boolean] {
-  if (old === "-") return [false, false];
   if (old === "B" || next === "B") return [old === "B" && next !== "B", next === "B" && old !== "B"];
-  const pairs = [...next]
-    .map((code, index) => [CODES.indexOf(code), CODES.indexOf(old[index])])
-    .filter(([n, o]) => n >= 0 && o >= 0);
-  return [pairs.some(([n, o]) => n < o), pairs.some(([n, o]) => n > o)];
+  const nextEntries = new Set(JSON.parse(next) as string[]);
+  const oldEntries = new Set(JSON.parse(old) as string[]);
+  const subset = [...nextEntries].every((entry) => oldEntries.has(entry));
+  return [!subset, subset && nextEntries.size < oldEntries.size];
 }
 
 describe("DEL-12-02 value records", () => {
-  it("gives the contract outcome for every sweep case and is never less strict than before", () => {
+  it("gives the contract exposure and decisions for every sweep case and is never less strict than before", () => {
     const cases = expand(spec);
     expect(cases).toHaveLength(CASE_COUNT);
     expect(frozen.case_count).toBe(CASE_COUNT);
-    expect(frozen.code_order).toEqual([...CODES]);
-    // The sweep's unsafe members are exactly the unsafe detail keys its axes set.
-    expect(spec.axes.map(([key]) => key).filter((key) => UNSAFE_MEMBERS.has(key))).toEqual(["file_path"]);
-    const contract = column("contract");
-    const names = ["python_before", "typescript_before", "rust_before"];
-    const before = Object.fromEntries(names.map((name) => [name, column(name)]));
+    const contract = column("contract", frozen.exposures);
+    const contractDecisions = column("contract_decisions", frozen.decision_sets);
+    const names = ["python_before", "typescript_before"];
+    const before = Object.fromEntries(names.map((name) => [name, column(name, frozen.exposures)]));
     const mismatches: number[] = [];
-    const looser = Object.fromEntries(names.map((name) => [name, 0]));
+    const looser: Record<string, number[]> = Object.fromEntries(names.map((name) => [name, []]));
     const stricter = Object.fromEntries(names.map((name) => [name, 0]));
     cases.forEach(([record, context, intent], index) => {
-      const decided = outcome(record, routeDecisions(record, context, intent).decided);
-      if (decided !== contract[index]) mismatches.push(index);
+      const { controlled, decided } = routeDecisions(record, context, intent);
+      const exposed = exposure(controlled.blocked, controlled.payload);
+      if (exposed !== contract[index] || decisionSet(decided) !== contractDecisions[index]) mismatches.push(index);
       for (const name of names) {
-        const [less, more] = compare(decided, before[name][index]);
-        looser[name] += Number(less);
+        const [less, more] = compare(exposed, before[name][index]);
+        if (less) looser[name].push(index);
         stricter[name] += Number(more);
       }
     });
     expect(mismatches).toEqual([]);
-    expect(looser).toEqual({ python_before: 0, typescript_before: 0, rust_before: 0 });
-    // Pinned: stricter than Python in 1,638 cases and than TypeScript in 1,461; the Rust mirror had no
-    // route projector before.
-    expect(stricter).toEqual({ python_before: 1_638, typescript_before: 1_461, rust_before: 0 });
+    expect(looser).toEqual({ python_before: [], typescript_before: TYPESCRIPT_COLLISION_CASES });
+    expect(cases[TYPESCRIPT_COLLISION_CASES[0]]).toEqual([
+      { value: "outer", field_class: "note", __route_key__value: "SECRET" },
+      "local_private",
+      true
+    ]);
+    // Pinned: stricter than Python in 1,735 cases and than TypeScript in 1,574.
+    expect(stricter).toEqual({ python_before: 1_735, typescript_before: 1_574 });
   }, 120_000);
 
   const sortedDecisions = (record: Item, context: RedactionExportContext, intent: boolean) => {
@@ -180,5 +196,45 @@ describe("DEL-12-02 value records", () => {
     const { controlled, decided } = sortedDecisions({ value: "INVENTED", export_policy: {} }, "local_private", true);
     expect(decided).toEqual([["$.record.value", "warning_only", "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"]]);
     expect(controlled.payload).toEqual({ record: { value: "INVENTED", export_policy: {} } });
+  });
+
+  it("does not trust the old marker member in an input (Codex privacy review of #1722, P1-1)", () => {
+    const forged: Item = JSON.parse(
+      '{"value":"SECRET","privacy_classification":"protected_suspected","_route_value_record":true,"item":{"value":"safe","privacy_classification":"public","redistribution_status":"public_permissive"},"projected":{"__route_key__leak":"SECRET"}}'
+    );
+    const { controlled, decided } = sortedDecisions(forged, "public_report", false);
+    expect(decided).toEqual([["$.record", "block_export", "PROTECTED_CONTENT_BLOCKED"]]);
+    expect([controlled.blocked, controlled.payload]).toEqual([true, null]);
+    delete forged.item;
+    expect(sortedDecisions(forged, "public_report", false).controlled.blocked).toBe(true);
+  });
+
+  it("replaces a raised labelled item whole, its extra metadata included (P1-2)", () => {
+    const { controlled, decided } = sortedDecisions(
+      {
+        value: "outer",
+        field_class: "note",
+        text: { value: "safe", privacy_classification: "public", redistribution_status: "public_permissive", note: "SECRET" }
+      },
+      "public_report",
+      false
+    );
+    expect(decided).toContainEqual(["$.record.text", "redact_value", "REDISTRIBUTION_STATUS_UNKNOWN"]);
+    expect(controlled.payload).toEqual({ record: { value: "[REDACTED]", field_class: "[REDACTED]", text: "[REDACTED]" } });
+  });
+
+  it("keeps the inherited floor in a nested value record, in an object, an array and a label member (P1-3)", () => {
+    for (const member of [
+      { text: { value: "SECRET", export_policy: {} } },
+      { text: [{ value: "SECRET", export_policy: {} }] },
+      { privacy_classification: { value: "SECRET", export_policy: {} } }
+    ] as Item[]) {
+      const [name] = Object.keys(member);
+      const { controlled, decided } = sortedDecisions({ value: "outer", concrete_path_present: true, ...member }, "local_private", true);
+      expect((controlled.payload as { record: Item }).record[name], name).toBe("[REDACTED]");
+      const nested = decided.filter(([decisionPath]) => decisionPath.startsWith(`$.record.${name}`));
+      expect(nested.length, name).toBeGreaterThan(0);
+      expect(nested.every(([, action, reason]) => action === "redact_value" && reason === "CONCRETE_PATH_REDACTED"), name).toBe(true);
+    }
   });
 });

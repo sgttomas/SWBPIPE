@@ -1169,18 +1169,40 @@ function walkValueRecord(node: PlainObject, args: WalkArgs): unknown {
   const output: PlainObject = {};
   for (const [key, child] of Object.entries(node.projected as PlainObject)) {
     const member = key.startsWith(ROUTE_KEY_PREFIX) ? key.slice(ROUTE_KEY_PREFIX.length) : key;
-    const omit = redacts && UNSAFE_DETAIL_KEYS.has(member);
+    const ownOmit = redacts && UNSAFE_DETAIL_KEYS.has(member);
     // The item's redaction replaces `value`, `text` and `privacy_classification` (`applyAction`).
-    const raise = omit || member === "value" || member === "text" || (redacts && member === "privacy_classification");
-    const result = walk(child, { ...args, path: `${args.path}.${key}`, floor: raise ? itemDecision : null, omit });
+    const raise = ownOmit || member === "value" || member === "text" || (redacts && member === "privacy_classification");
+    // A floor and an omission inherited from an enclosing value record still hold here (Codex
+    // privacy review of #1722, P1-3): the stricter of the two floors applies.
+    const floor = stricterFloor(args.floor ?? null, raise ? itemDecision : null);
+    const omit = ownOmit || args.omit === true;
+    const result = walk(child, { ...args, path: `${args.path}.${key}`, floor, omit });
     if (!omit && result !== OMITTED_SENTINEL) setMember(output, key, result);
   }
   return output;
 }
 
+/** The stricter of two floors; on a tie, the enclosing one. */
+function stricterFloor(inherited: RedactionDecision | null, own: RedactionDecision | null): RedactionDecision | null {
+  if (inherited === null) return own;
+  if (own === null) return inherited;
+  return ACTION_RANK[own.action] > ACTION_RANK[inherited.action] ? own : inherited;
+}
+
+/** The redaction walk. Beneath a redacting floor the whole node is replaced once its decisions are
+ * taken, its extra metadata and nested members included, as the enclosing item's redaction replaced
+ * the member (Codex privacy review of #1722, P1-2); a block beneath still blocks. */
 function walk(value: unknown, args: WalkArgs): unknown | typeof OMITTED_SENTINEL {
+  const result = walkNode(value, args);
+  const floor = args.floor ?? null;
+  return floor !== null && ACTION_RANK[floor.action] >= ACTION_RANK.redact_value && result !== OMITTED_SENTINEL
+    ? REDACTED_VALUE
+    : result;
+}
+
+function walkNode(value: unknown, args: WalkArgs): unknown | typeof OMITTED_SENTINEL {
   if (isPlainObject(value)) {
-    if (args.route === true && value[VALUE_RECORD_MARK] === true) return walkValueRecord(value, args);
+    if (args.route === true && VALUE_RECORD_NODES.has(value)) return walkValueRecord(value, args);
     if (isValueBearing(value)) {
       const { decision: classified } = classify(value, {
         path: args.path,
@@ -1309,9 +1331,15 @@ const ROUTE_INTENT_KEYS = new Set([
   "user_intent"
 ]);
 const ROUTE_KEY_PREFIX = "__route_key__";
-/** The route projector's node for a value record (`projectRouteValue`); its members carry the
- * prefix, so no input member can name it. */
-const VALUE_RECORD_MARK = "_route_value_record";
+/** The route projector's value-record nodes (`projectRouteValue`), known by identity, never by a
+ * member an input could carry (Codex privacy review of #1722, P1-1). An input reaches the projector
+ * only as the gate's fresh snapshot, so it can hold none of them. */
+const VALUE_RECORD_NODES = new WeakSet<object>();
+
+function registered<T extends object>(set: WeakSet<object>, object: T): T {
+  set.add(object);
+  return object;
+}
 
 /** A scalar privacy, redistribution or review label on a record or its provenance object: the
  * route projector's item test, identical to Python's `_has_contract_metadata` and the Rust
@@ -1514,7 +1542,7 @@ function projectRouteValue(
       // projection (`walkValueRecord`).
       if (hasContractLabel(value)) return copyPlain(value);
       if (hasExplicitMetadata(value)) {
-        return { [VALUE_RECORD_MARK]: true, item: copyPlain(value), projected: projectRecordMembers(value, args) };
+        return registered(VALUE_RECORD_NODES, { item: copyPlain(value), projected: projectRecordMembers(value, args) });
       }
     }
     return projectRecordMembers(value, args);
@@ -1565,6 +1593,10 @@ function projectRouteValue(
   };
 }
 
+/** The exported payload of a route walk. It runs after every decision is taken and reads the
+ * `_route_projected_leaf` and key-prefix markers by name: an input can carry them only inside an
+ * item, where they can drop or rename the item's members but never skip or weaken a decision
+ * (Codex privacy review of #1722, marker audit). */
 function materializeRouteValue(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(materializeRouteValue);
   if (!isPlainObject(value)) return copyPlain(value);

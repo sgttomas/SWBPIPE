@@ -352,10 +352,19 @@ def classify_export_item(
     return decision
 
 
-# The route projector's node for a value record (``route_control._project``); its members
-# carry the route key prefix, so no input member can name it.
-VALUE_RECORD_MARK = "_route_value_record"
 ROUTE_KEY_PREFIX = "__route_key__"
+
+
+class ValueRecordNode:
+    """The route projector's node for a value record: the record as an item, and its
+    projected members.  Known by type, never by a member an input could carry (Codex
+    privacy review of #1722, P1-1): JSON input holds only plain dicts and lists."""
+
+    __slots__ = ("item", "projected")
+
+    def __init__(self, item: dict[str, Any], projected: dict[str, Any]) -> None:
+        self.item = item
+        self.projected = projected
 ACTION_RANK = {
     "include": 0,
     "warning_only": 1,
@@ -380,14 +389,28 @@ def _raised_decision(
     return decision
 
 
+def _stricter_floor(
+    inherited: RedactionDecision | None, own: RedactionDecision | None
+) -> RedactionDecision | None:
+    """The stricter of two floors; on a tie, the enclosing one."""
+
+    if inherited is None:
+        return own
+    if own is None:
+        return inherited
+    return own if ACTION_RANK[own.action] > ACTION_RANK[inherited.action] else inherited
+
+
 def _walk_value_record(
-    node: dict[str, Any],
+    node: ValueRecordNode,
     *,
     path: str,
     export_context: str,
     explicit_local_private_intent: bool,
     decisions: list[RedactionDecision],
     findings: list[RedactionFinding],
+    floor: RedactionDecision | None,
+    inherited_omit: bool,
 ) -> Any:
     """A value record (HELP_HUMAN decision, 2026-10-28: "take the stricter decision per
     case"): a ``{value, ...}`` record with metadata but no scalar label, which TypeScript
@@ -399,7 +422,7 @@ def _walk_value_record(
     key included (2(a)).  Identical in redactionExportControls.ts (``walkValueRecord``) and the
     Rust mirror (``route_value_record_outcome``)."""
 
-    item = node["item"]
+    item = node.item
     item_decision, _ = _classify(
         item,
         path=path,
@@ -417,12 +440,16 @@ def _walk_value_record(
         return _apply_action(item, item_decision.action)
     redacts = ACTION_RANK[item_decision.action] >= ACTION_RANK["redact_value"]
     output: dict[str, Any] = {}
-    for key, child in node["projected"].items():
+    for key, child in node.projected.items():
         member = key[len(ROUTE_KEY_PREFIX):] if key.startswith(ROUTE_KEY_PREFIX) else key
-        omit = redacts and member in UNSAFE_DETAIL_KEYS
+        own_omit = redacts and member in UNSAFE_DETAIL_KEYS
         # The item's redaction replaces ``value``, ``text`` and ``privacy_classification``
         # (``_apply_action``).
-        raise_ = omit or member in {"value", "text"} or (redacts and member == "privacy_classification")
+        raise_ = own_omit or member in {"value", "text"} or (redacts and member == "privacy_classification")
+        # A floor and an omission inherited from an enclosing value record still hold here
+        # (Codex privacy review of #1722, P1-3): the stricter of the two floors applies.
+        member_floor = _stricter_floor(floor, item_decision if raise_ else None)
+        omit = own_omit or inherited_omit
         result = _walk(
             child,
             path=f"{path}.{key}",
@@ -431,7 +458,7 @@ def _walk_value_record(
             decisions=decisions,
             findings=findings,
             route=True,
-            floor=item_decision if raise_ else None,
+            floor=member_floor,
             omit=omit,
         )
         if not omit and result is not OMITTED_SENTINEL:
@@ -451,18 +478,57 @@ def _walk(
     floor: RedactionDecision | None = None,
     omit: bool = False,
 ) -> Any:
+    """The redaction walk.  Beneath a redacting floor the whole node is replaced once its
+    decisions are taken, its extra metadata and nested members included, as the enclosing
+    item's redaction replaced the member (Codex privacy review of #1722, P1-2); a block
+    beneath still blocks."""
+
+    result = _walk_node(
+        value,
+        path=path,
+        export_context=export_context,
+        explicit_local_private_intent=explicit_local_private_intent,
+        decisions=decisions,
+        findings=findings,
+        route=route,
+        floor=floor,
+        omit=omit,
+    )
+    if (
+        floor is not None
+        and ACTION_RANK[floor.action] >= ACTION_RANK["redact_value"]
+        and result is not OMITTED_SENTINEL
+    ):
+        return REDACTED_VALUE
+    return result
+
+
+def _walk_node(
+    value: Any,
+    *,
+    path: str,
+    export_context: str,
+    explicit_local_private_intent: bool,
+    decisions: list[RedactionDecision],
+    findings: list[RedactionFinding],
+    route: bool,
+    floor: RedactionDecision | None,
+    omit: bool,
+) -> Any:
     # The walk serves the five existing contexts only; ``redact_export_payload``
     # refuses ``user_released_report`` before it is reached (§3.2).
+    if route and isinstance(value, ValueRecordNode):
+        return _walk_value_record(
+            value,
+            path=path,
+            export_context=export_context,
+            explicit_local_private_intent=explicit_local_private_intent,
+            decisions=decisions,
+            findings=findings,
+            floor=floor,
+            inherited_omit=omit,
+        )
     if isinstance(value, dict):
-        if route and value.get(VALUE_RECORD_MARK) is True:
-            return _walk_value_record(
-                value,
-                path=path,
-                export_context=export_context,
-                explicit_local_private_intent=explicit_local_private_intent,
-                decisions=decisions,
-                findings=findings,
-            )
         if _is_value_bearing(value):
             classified, _ = _classify(
                 value,

@@ -18,13 +18,18 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from core.security.redaction import control_route_export  # noqa: E402
-from core.security.redaction.controls import UNSAFE_DETAIL_KEYS  # noqa: E402
 
 FIXTURE_DIR = ROOT / "fixtures" / "redaction_export_controls"
 SPEC = json.loads((FIXTURE_DIR / "value_record_sweep.json").read_text(encoding="utf-8"))
 FROZEN = json.loads((FIXTURE_DIR / "value_record_sweep_decisions.json").read_text(encoding="utf-8"))
-CASE_COUNT = 7_580
-CODES = "IWRO"
+CASE_COUNT = 7_730
+ROUTE_KEY_PREFIX = "__route_key__"
+# The one case less strict than TypeScript's before column: {value: "outer", field_class,
+# "__route_key__value": "SECRET"} in local_private with intent.  TypeScript then exported
+# value "SECRET" only, because the input member's reserved prefix collided with the item's own
+# `value` when materialized; the item's own value "outer", which its decision kept, is now
+# exported beside it, as Python exported both.
+TYPESCRIPT_COLLISION_CASES = [7_719]
 
 
 def expand(spec):
@@ -51,79 +56,79 @@ def route_decisions(record, context, intent):
         explicit_local_private_intent=intent,
     )
     return controlled, [
-        (decision.path.replace("__route_key__", ""), decision.action, decision.reason_code)
+        (decision.path.replace(ROUTE_KEY_PREFIX, ""), decision.action, decision.reason_code)
         for decision in controlled.decisions
     ]
 
 
-def outcome(record, decisions):
-    """'B' when any decision blocks, else one code per record member in sorted order."""
+def exposure(controlled):
+    """'B' when blocked, else every key path and visible scalar leaf of the exported payload,
+    with the route key prefix removed from member names."""
 
-    if any(action == "block_export" for _, action, _ in decisions):
+    if controlled.blocked:
         return "B"
-    codes = []
-    for member in sorted(record):
-        code = None
-        for path, action, _ in decisions:
-            if path == "$.record":
-                if action == "redact_value" and member in ("value", "text", "privacy_classification"):
-                    candidate = "R"
-                elif action == "redact_value" and member in UNSAFE_DETAIL_KEYS:
-                    candidate = "O"
-                elif action in ("redact_value", "warning_only"):
-                    candidate = "W"
-                else:
-                    candidate = {"include": "I", "omit_field": "O"}.get(action, "R")
-            elif (
-                path == f"$.record.{member}"
-                or path.startswith(f"$.record.{member}.")
-                or path.startswith(f"$.record.{member}[")
-            ):
-                candidate = {"include": "I", "warning_only": "W", "omit_field": "O"}.get(action, "R")
-            else:
-                continue
-            if code is None or CODES.index(candidate) > CODES.index(code):
-                code = candidate
-        codes.append(code or "N")
-    return "".join(codes)
+    entries = []
+
+    def walk(value, path):
+        if isinstance(value, dict):
+            for key, item in value.items():
+                name = key.replace(ROUTE_KEY_PREFIX, "")
+                entries.append(f"k:{path}.{name}")
+                walk(item, f"{path}.{name}")
+        elif isinstance(value, list):
+            for index, item in enumerate(value):
+                walk(item, f"{path}[{index}]")
+        elif value != "[REDACTED]":
+            entries.append(f"v:{path}=" + json.dumps(value, separators=(",", ":"), ensure_ascii=True))
+
+    walk(controlled.payload, "$")
+    return json.dumps(sorted(entries), separators=(",", ":"), ensure_ascii=True)
 
 
-def column(name):
-    return ",".join(FROZEN["outcomes"][name]).split(",")
+def decision_set(decided):
+    return json.dumps(sorted([list(decision) for decision in decided]), separators=(",", ":"), ensure_ascii=True)
+
+
+def column(name, table):
+    return [FROZEN[table][int(index)] for index in ",".join(FROZEN["columns"][name]).split(",")]
 
 
 def compare(new, old):
-    """(less strict, stricter) against one frozen outcome; '-' is no decision."""
+    """(less strict, stricter) than one before exposure."""
 
-    if old == "-":
-        return False, False
     if old == "B" or new == "B":
         return old == "B" and new != "B", new == "B" and old != "B"
-    pairs = [(CODES.index(n), CODES.index(o)) for n, o in zip(new, old) if n in CODES and o in CODES]
-    return any(n < o for n, o in pairs), any(n > o for n, o in pairs)
+    new_entries, old_entries = set(json.loads(new)), set(json.loads(old))
+    return not new_entries <= old_entries, new_entries < old_entries
 
 
 def test_value_record_sweep_gives_the_contract_and_is_never_less_strict():
     cases = expand(SPEC)
     assert len(cases) == CASE_COUNT == FROZEN["case_count"]
-    assert FROZEN["code_order"] == list(CODES)
-    contract = column("contract")
-    names = ("python_before", "typescript_before", "rust_before")
-    before = {name: column(name) for name in names}
-    mismatches, looser, stricter = [], dict.fromkeys(names, 0), dict.fromkeys(names, 0)
+    contract = column("contract", "exposures")
+    contract_decisions = column("contract_decisions", "decision_sets")
+    names = ("python_before", "typescript_before")
+    before = {name: column(name, "exposures") for name in names}
+    mismatches, looser, stricter = [], {name: [] for name in names}, dict.fromkeys(names, 0)
     for index, (record, context, intent) in enumerate(cases):
-        decided = outcome(record, route_decisions(record, context, intent)[1])
-        if decided != contract[index]:
+        controlled, decided = route_decisions(record, context, intent)
+        exposed = exposure(controlled)
+        if exposed != contract[index] or decision_set(decided) != contract_decisions[index]:
             mismatches.append(index)
         for name in names:
-            less, more = compare(decided, before[name][index])
-            looser[name] += less
+            less, more = compare(exposed, before[name][index])
+            if less:
+                looser[name].append(index)
             stricter[name] += more
     assert mismatches == []
-    assert looser == {"python_before": 0, "typescript_before": 0, "rust_before": 0}
-    # Pinned: stricter than Python in 1,638 cases and than TypeScript in 1,461; the Rust
-    # mirror had no route projector before.
-    assert stricter == {"python_before": 1_638, "typescript_before": 1_461, "rust_before": 0}
+    assert looser == {"python_before": [], "typescript_before": TYPESCRIPT_COLLISION_CASES}
+    assert cases[TYPESCRIPT_COLLISION_CASES[0]] == (
+        {"value": "outer", "field_class": "note", "__route_key__value": "SECRET"},
+        "local_private",
+        True,
+    )
+    # Pinned: stricter than Python in 1,735 cases and than TypeScript in 1,574.
+    assert stricter == {"python_before": 1_735, "typescript_before": 1_574}
 
 
 def sorted_decisions(record, context, intent):
@@ -194,3 +199,57 @@ def test_value_record_tie_takes_the_projection_form():
     controlled, decided = sorted_decisions({"value": "INVENTED", "export_policy": {}}, "local_private", True)
     assert decided == [("$.record.value", "warning_only", "PRIVATE_LOCAL_ALLOWED_WITH_WARNING")]
     assert controlled.payload == {"record": {"value": "INVENTED", "export_policy": {}}}
+
+
+def test_value_record_marker_in_input_is_not_trusted():
+    """Codex privacy review of #1722, P1-1: a labelled record carrying the old marker member
+    and an ``item``/``projected`` pair is decided as itself, a protected item, and blocks;
+    without ``item`` it raises nothing."""
+
+    forged = {
+        "value": "SECRET",
+        "privacy_classification": "protected_suspected",
+        "_route_value_record": True,
+        "item": {"value": "safe", "privacy_classification": "public", "redistribution_status": "public_permissive"},
+        "projected": {"__route_key__leak": "SECRET"},
+    }
+    controlled, decided = sorted_decisions(forged, "public_report", False)
+    assert decided == [("$.record", "block_export", "PROTECTED_CONTENT_BLOCKED")]
+    assert controlled.blocked and controlled.payload is None
+    del forged["item"]
+    controlled, _ = sorted_decisions(forged, "public_report", False)
+    assert controlled.blocked
+
+
+def test_value_record_raised_item_is_replaced_whole():
+    """Codex privacy review of #1722, P1-2: a labelled item beneath a raised member is
+    replaced whole, its extra metadata included."""
+
+    controlled, decided = sorted_decisions(
+        {
+            "value": "outer",
+            "field_class": "note",
+            "text": {"value": "safe", "privacy_classification": "public", "redistribution_status": "public_permissive", "note": "SECRET"},
+        },
+        "public_report",
+        False,
+    )
+    assert ("$.record.text", "redact_value", "REDISTRIBUTION_STATUS_UNKNOWN") in decided
+    assert controlled.payload == {"record": {"value": "[REDACTED]", "field_class": "[REDACTED]", "text": "[REDACTED]"}}
+
+
+def test_value_record_nested_value_record_keeps_the_inherited_floor():
+    """Codex privacy review of #1722, P1-3: a value record beneath a raised member keeps the
+    enclosing floor, in an object, an array and a nested label member."""
+
+    for member in (
+        {"text": {"value": "SECRET", "export_policy": {}}},
+        {"text": [{"value": "SECRET", "export_policy": {}}]},
+        {"privacy_classification": {"value": "SECRET", "export_policy": {}}},
+    ):
+        record = {"value": "outer", "concrete_path_present": True, **member}
+        controlled, decided = sorted_decisions(record, "local_private", True)
+        (name,) = member
+        assert controlled.payload["record"][name] == "[REDACTED]", member
+        nested = [decision for decision in decided if decision[0].startswith(f"$.record.{name}")]
+        assert nested and all(decision[1:] == ("redact_value", "CONCRETE_PATH_REDACTED") for decision in nested), member

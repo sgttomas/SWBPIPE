@@ -18,7 +18,7 @@ from .controls import (
     USER_RELEASED_REPORT_CONTEXT,
     RedactionDecision,
     RedactionFinding,
-    VALUE_RECORD_MARK,
+    ValueRecordNode,
     _has_explicit_metadata,
     assert_user_release_intent_context,
     carries_proto_member,
@@ -231,11 +231,10 @@ def _project(
             and not isinstance(value.get("value"), (Mapping, list, tuple))
             and _has_explicit_metadata(dict(value))
         ):
-            return {
-                VALUE_RECORD_MARK: True,
-                "item": copy.deepcopy(dict(value)),
-                "projected": _project_members(value, route_id=route_id, path=path),
-            }
+            return ValueRecordNode(
+                copy.deepcopy(dict(value)),
+                _project_members(value, route_id=route_id, path=path),
+            )
         return _project_members(value, route_id=route_id, path=path)
     if isinstance(value, (list, tuple)):
         return [
@@ -279,6 +278,10 @@ def _project_members(value: Mapping[str, Any], *, route_id: str, path: str) -> d
 
 
 def _materialize(value: Any) -> Any:
+    # This runs after every decision is taken and reads the `_route_projected_leaf` and
+    # key-prefix markers by name: an input can carry them only inside an item, where they can
+    # drop or rename the item's members but never skip or weaken a decision (Codex privacy
+    # review of #1722, marker audit).
     if isinstance(value, Mapping):
         if value.get("_route_projected_leaf") is True:
             return copy.deepcopy(value.get("value"))
