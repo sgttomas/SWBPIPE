@@ -110,6 +110,9 @@ OPPRES_LINE = "0,0,0,1,0"
 _REGION_CHECK_CODES = ("MBF-IMPORT-PRESSURE-RUN-NONCOLLINEAR", "MBF-IMPORT-PRESSURE-BORE-MISMATCH",
                        "MBF-IMPORT-PRESSURE-MITRE", "MBF-IMPORT-PRESSURE-GEOMETRY-INVALID")
 _BEND_SOLVER_CONSUMPTION = "curved_bend_macro_element"
+# A realized bend's directional SIF pair, written as the bend comment BSIF(in-plane,out-plane) (Format of .MBF, BSIF);
+# the solve takes both or neither (DEL-04-07 Design `u4b-u5b-implementation.md` §2.6).
+BEND_SIF_FIELDS = ("sif_in_plane_user_value", "sif_out_of_plane_user_value")
 _BEND_RELATIVE_TOLERANCE = 1e-9  # tangent lengths, line intersection, bend angle and bend plane
 _PROJECT_UNITS = {"length": ("m", "mm", "in"), "force": ("N", "lbf"), "temperature": ("degC", "degF")}
 
@@ -122,6 +125,54 @@ MODEL_SCHEMA_PATH = Path(__file__).resolve().parents[3] / "schemas" / "model.sch
 INVENTED_CERTIFICATION = "invented non-engineering example"
 USER_SUPPLIED_CERTIFICATION = "user-supplied own source"
 MATERIAL_ORIGINS = ("project_invented", "user_supplied")
+
+# The field sweep (Design §17.1). The fields each member's reader writes (to the MBF or the sidecar), checks against
+# what is written, or refuses by name; every other non-empty field is listed once, as one omitted loss entry per field.
+_HANDLED_MEMBERS = {"schema_version", "document_kind", "pressure_contract", "project", "materials", "nodes",
+                    "pipe_segments", "supports", "components", "load_cases", "combinations",
+                    "reference_configurations", "model_settings", "shear_model"}
+_HANDLED_FIELDS = {
+    "materials": {"id", "elastic_modulus", "shear_modulus", "poisson_ratio", "thermal_expansion_coefficient",
+                  "temperature_points", "expansion_laws"},
+    "nodes": {"id", "position"},
+    "pipe_segments": {"id", "from", "to", "section", "material", "y_reference"},
+    "pipe_segments.section": {"outside_diameter", "wall_thickness", "corrosion_allowance", "mill_tolerance",
+                              "insulation_thickness", "material_density", "contents_density", "insulation_density"},
+    "supports": {"id", "node", "restraints", "family", "stiffness", "hanger", "nonlinear"},
+    "components": {"id", "kind", "node", "geometry", "modifiers", "mechanics_interface"},
+    "components.geometry": {"bend_pipe_ref", "bend_radius", "bend_angle"},
+    "components.modifiers": {"flexibility_factor_user_value", *BEND_SIF_FIELDS},
+    "components.mechanics_interface": {"solver_consumption"},
+    "load_cases": {"id", "primitive_loads", "pressure_regions", "equivalent_static", "modulus_basis_ref",
+                   "modulus_basis_temperature", "analysis_state"},
+    "load_cases.primitive_loads": {"id", "category", "target", "direction", "magnitude", "dimension"},
+    "load_cases.pressure_regions": {"id", "member_pipe_ids", "member_connector_ids", "pressure_basis", "pressure",
+                                    "terminals"},
+    "project": {"units"},
+}
+_NOT_CARRIED = "the MBF has no field for it and the sidecar does not carry it"
+_OMITTED_REASONS = {
+    "data_boundary": "the import writes its own data boundary for the local document",
+    "analysis_status": "the analysis state is not in the MBF; the import starts it afresh",
+    "sections": "each pipe segment's own section is written as a PIPE record; the section library is not",
+    "diagnostics": "stored diagnostics are not in the MBF; the import's validation forms its own",
+    "materials.constitutive_basis": "the MBF carries E and the Poisson ratio; the import forms its own basis",
+    "materials.provenance_record": "only its origin classification is carried, in the sidecar's material_map",
+    "pipe_segments.section_ref": "the pipe segment's own section is written; the section library is not",
+    "supports.properties": "display properties the solve ignores",
+    "components.completeness": "a derived finding; the import's validation forms its own",
+    "components.modifiers.sif_user_value": "BSIF carries the directional pair; the scalar SIF is a different "
+                                           "SWBPIPE field, which BSIF(s,s) would import as the pair",
+    "components.modifiers.source_reference": "the import names the MBF line as the source reference",
+    "load_cases.label": "the import labels each case by the target program's case (load_case_map)",
+    "load_cases.kind": "the import forms each case's kind from the target program's case (load_case_map)",
+    "load_cases.status": "the import sets each case's status",
+    "load_cases.pressure_regions.provenance": "the import names the MBF line as the region's provenance",
+}
+# The project units an import of this writer's text sets (importer, SI mode, rotations in degrees); a model unit
+# other than these is a display choice the MBF does not keep.
+IMPORTED_PROJECT_UNITS = {"length": "mm", "force": "N", "moment": "N*m", "pressure": "MPa", "stress": "Pa",
+                          "temperature": "degC", "angle": "deg"}
 
 _TITLE_MAX = 70
 _DESCRIPTION_MAX = 30
@@ -646,7 +697,7 @@ class _Writer:
                 if nu is not None and e_mpa is not None and g_mpa is not None and g_mpa > 0:
                     implied = e_mpa / (2.0 * (1.0 + nu))
                     if abs(implied - g_mpa) > 1e-9 * g_mpa:
-                        self.diag("MBF-SI-SHEAR-MODULUS-NOT-EXPORTED", "warning", entity,
+                        self.omit("MBF-SI-SHEAR-MODULUS-NOT-EXPORTED", entity,
                                   f"{entity} gives both poisson_ratio and shear_modulus; the MBF carries the Poisson "
                                   f"ratio {_num(nu)}, whose implied G = {_num(implied)} MPa differs from the authored "
                                   f"G = {_num(g_mpa)} MPa")
@@ -802,17 +853,31 @@ class _Writer:
             angle = self.number(record.get("value"), entity, "bend_angle")
             if angle is not None and unit == "deg":
                 angle = math.radians(angle)
-        if factor is None or radius is None:
+        sif_records = [modifiers.get(name) for name in BEND_SIF_FIELDS]
+        sifs: list[Any] | None = None
+        if any(record is not None for record in sif_records):
+            if any(record is None for record in sif_records):
+                self.refuse("MBF-SI-BEND-SIF-INCOMPLETE", entity,
+                            f"{entity} gives only one of modifiers.{BEND_SIF_FIELDS[0]} and modifiers."
+                            f"{BEND_SIF_FIELDS[1]}; the pair is written together as BSIF or not at all")
+                return
+            sifs = [self.quantity(record, _DIMENSIONLESS, "1", entity, name)
+                    for record, name in zip(sif_records, BEND_SIF_FIELDS)]
+        if factor is None or radius is None or (sifs is not None and None in sifs):
             return
         if not factor > 0 or not radius > 0:
             self.diag("MBF-SI-VALUE-OUT-OF-RANGE", "error", entity,
                       f"{entity} flexibility factor and bend radius must be positive")
             return
+        if sifs is not None and not all(value > 0 for value in sifs):
+            self.diag("MBF-SI-VALUE-OUT-OF-RANGE", "error", entity,
+                      f"{entity} directional SIFs must be positive (got {_num(sifs[0])}, {_num(sifs[1])})")
+            return
         if not _is_vector(pipe["y_reference"]):
             self.invalid(entity, f"pipe:{pipe_id} needs a numeric y_reference to fix the bend plane")
             return
         self.bends[pipe_id] = {"component": component.get("id"), "entity": entity, "radius": radius, "k": factor,
-                               "angle": angle}
+                               "angle": angle, "sifs": sifs}
 
     def resolve_bends(self) -> None:
         """Place each bend at the tangent intersection (TI) of its adjacent straights, or refuse it by name."""
@@ -1262,6 +1327,66 @@ class _Writer:
         if self.model.get("model_settings") is not None:
             self.omit("MBF-SI-MODEL-SETTINGS-NOT-EXPORTED", "model.model_settings",
                       "model_settings (input validation settings) are not exported")
+        self.sweep_fields()
+
+    def sweep_fields(self) -> None:
+        """Design §17.1: every non-empty model member and field no reader writes, checks or refuses is listed, one
+        omitted loss entry per member or field naming its entities, never dropped silently."""
+        for name, value in self.model.items():
+            if name not in _HANDLED_MEMBERS and _present(value):
+                self.omit("MBF-SI-MEMBER-NOT-EXPORTED", f"model.{name}",
+                          f"model.{name} is not exported; {_OMITTED_REASONS.get(name, _NOT_CARRIED)}")
+        unused = [material_id for material_id in self.materials
+                  if material_id not in {pipe["material"] for pipe in self.pipes.values()}]
+        if unused:
+            self.omit("MBF-SI-FIELD-NOT-EXPORTED", "model.materials",
+                      f"materials {', '.join(unused)} are not exported; the MBF writes only the materials its pipe "
+                      "segments use")
+        found: dict[str, list[str]] = {}
+
+        def sweep(record: Any, path: str, entity: str) -> None:
+            if isinstance(record, Mapping):
+                for key, value in record.items():
+                    if key not in _HANDLED_FIELDS[path] and _present(value):
+                        found.setdefault(f"{path}.{key}", []).append(entity)
+
+        project = self.model.get("project")
+        sweep(project, "project", "project")
+        units = project.get("units") if isinstance(project, Mapping) else None
+        if isinstance(units, Mapping):
+            kept = {key: value for key, value in units.items() if IMPORTED_PROJECT_UNITS.get(key) != value}
+            if kept:
+                found["project.units"] = [f"{key} {value}" for key, value in kept.items()]
+        prefixes = {"materials": "material", "nodes": "node", "pipe_segments": "pipe", "supports": "support",
+                    "components": "component", "load_cases": "load_case"}
+        for member, prefix in prefixes.items():
+            records = self.model.get(member)
+            for record in records if isinstance(records, list) else []:
+                if not isinstance(record, Mapping):
+                    continue
+                entity = f"{prefix}:{record.get('id')}"
+                sweep(record, member, entity)
+                if member == "pipe_segments":
+                    sweep(record.get("section"), "pipe_segments.section", entity)
+                elif member == "components" and record.get("kind") == "bend":
+                    for part in ("geometry", "modifiers", "mechanics_interface"):
+                        sweep(record.get(part), f"components.{part}", entity)
+                elif member == "load_cases":
+                    for part, kind in (("primitive_loads", "load"), ("pressure_regions", "region")):
+                        items = record.get(part)
+                        for item in items if isinstance(items, list) else []:
+                            label = (f"load:{record.get('id')}/" if kind == "load" else f"{entity}/region:")
+                            sweep(item, f"load_cases.{part}", f"{label}{item.get('id') if isinstance(item, Mapping) else None}")
+        for path, entities in found.items():
+            if path == "project.units":
+                self.omit("MBF-SI-FIELD-NOT-EXPORTED", "model.project.units",
+                          f"project.units ({', '.join(entities)}) are not kept; values are written in the MBF's SI "
+                          "units, and the import sets the project units "
+                          + ", ".join(f"{key} {value}" for key, value in IMPORTED_PROJECT_UNITS.items()))
+                continue
+            self.omit("MBF-SI-FIELD-NOT-EXPORTED", f"model.{path}",
+                      f"{path.split('.', 1)[1]} of {', '.join(entities)} is not exported; "
+                      f"{_OMITTED_REASONS.get(path, _NOT_CARRIED)}")
 
     # -- layout ---------------------------------------------------------
     def layout(self) -> list[dict[str, Any]]:
@@ -1475,6 +1600,8 @@ class _Writer:
                     "tangent_intersection_mm": list(bend["ti"]),
                     "caepipe_row_node": str(numbers[row["node"]]),
                 }
+                if bend["sifs"] is not None:
+                    element_map[row["bend"]]["bend"].update(sif_in_plane=bend["sifs"][0], sif_out_of_plane=bend["sifs"][1])
             start = row["end"]
         if self.has_errors():
             return self.refused()
@@ -1507,6 +1634,8 @@ class _Writer:
             if bend is not None:
                 fields.append("KI")
                 comments.append(f"FF={_num(bend['k'])}")
+                if bend["sifs"] is not None:
+                    comments.append("BSIF({},{})".format(*(_num(value) for value in bend["sifs"])))
             if row["new"] and (self.is_anchor(node) or node in self.node_springs):
                 fields.append("KA")
             pipe_id = row["element"] if row["kind"] == "T" else (first_element if index == 0 else None)
@@ -1740,6 +1869,10 @@ class _Writer:
                 "which node_map assigns to the SWBPIPE tangent-point nodes; the next row's offsets start at the TI. "
                 "The single user factor stands for SWBPIPE's in-plane and out-of-plane bending factor alike."
             )
+        if any(bend["sifs"] is not None for bend in self.bends.values()):
+            notes.append("A bend's directional SIF pair is written as the comment 'BSIF(<in-plane>,<out-of-plane>)' "
+                         "(Format of .MBF, BSIF), from SWBPIPE's in-plane (M_z of the arc's tangent frame) and out-of-plane "
+                         "(M_y) user values.")
         notes.append(
             "Model members the SWBPIPE solve does not read (analysis_status, data_boundary, diagnostics, lines, "
             "unresolved_assumptions, constraints, equipment_interfaces, rule_pack_refs) are not exported."
@@ -1754,6 +1887,11 @@ def _list(value: Any, writer: _Writer, entity: str) -> list[Any]:
         writer.invalid(entity, f"{entity} must be a list")
         return []
     return value
+
+
+def _present(value: Any) -> bool:
+    """A value that carries something: not None, an empty string, list or object."""
+    return value is not None and value != "" and value != [] and value != {}
 
 
 def _is_vector(value: Any) -> bool:
