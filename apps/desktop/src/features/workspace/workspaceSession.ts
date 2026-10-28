@@ -3459,13 +3459,24 @@ export function useWorkspaceSession() {
     const verb = kind === "quit" ? "quit" : "close the window";
     const answer = (proceed: boolean) =>
       resolveNativeCloseRequest(requestId, proceed).catch((error: unknown) => console.warn("Close request answer failed", error));
+    // Any dialog or prompt holding the window, read after the busy prompt has
+    // released its own hold: a dialog that opened behind it (a replace prompt
+    // after a refused save) must be decided first (Codex r2 P2).
+    const dialogOpen = () => replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current || handoffSaveDialogOpenRef.current;
+    const keptForDialog = () => {
+      setProjectMessage(`${refused}: a dialog is open. Finish or cancel it first; nothing was closed.`);
+      setProjectOperation(kind === "quit" ? "quit_dialog_open" : "close_dialog_open");
+    };
     if (nativeCloseFlow.current === requestId) {
       if (replacePromptOpenRef.current) return;
       const choice = await confirmQuitWhileBusy({ verb, running: "The save you chose before you asked to " + verb });
-      if (choice === "quit" && nativeCloseFlow.current === requestId) {
-        nativeCloseFlow.current = null;
-        await answer(true);
+      if (choice !== "quit" || nativeCloseFlow.current !== requestId) return;
+      if (dialogOpen()) {
+        keptForDialog();
+        return;
       }
+      nativeCloseFlow.current = null;
+      await answer(true);
       return;
     }
     if (nativeCloseFlow.current !== null) {
@@ -3475,12 +3486,14 @@ export function useWorkspaceSession() {
     nativeCloseFlow.current = requestId;
     let proceed = false;
     try {
-      if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current || handoffSaveDialogOpenRef.current) {
-        setProjectMessage(`${refused}: a dialog is open. Finish or cancel it first; nothing was closed.`);
-        setProjectOperation(kind === "quit" ? "quit_dialog_open" : "close_dialog_open");
+      if (dialogOpen()) {
+        keptForDialog();
       } else if (projectOperationOwner.current !== null) {
         proceed = (await confirmQuitWhileBusy({ verb, running: "An open, save or create of a local project" })) === "quit";
-        if (!proceed) {
+        if (proceed && dialogOpen()) {
+          proceed = false;
+          keptForDialog();
+        } else if (!proceed) {
           setProjectMessage(`${refused}: the project operation is still running; nothing was closed.`);
           setProjectOperation(kind === "quit" ? "quit_kept_waiting" : "close_kept_waiting");
         }

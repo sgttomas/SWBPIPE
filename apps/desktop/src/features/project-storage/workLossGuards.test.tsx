@@ -35,6 +35,10 @@ type CommandOptions = {
   acknowledge?: (requestId: number, attempt: number) => Promise<boolean>;
   /** Save Local Project never settles. */
   saveHangs?: boolean;
+  /** Save Local Project settles only when the test refuses it. */
+  saveRefusal?: { refuse: (error: Error) => void };
+  /** The stored project `find_local_project` returns. */
+  stored?: unknown;
 };
 
 function nativeCommands(options: CommandOptions = {}) {
@@ -42,11 +46,15 @@ function nativeCommands(options: CommandOptions = {}) {
     switch (command) {
       case "sync_native_shell_state": return Promise.resolve(null);
       case "list_model_states": return Promise.resolve([]);
-      case "find_local_project": return Promise.resolve(null);
+      case "find_local_project": return Promise.resolve(options.stored ?? null);
       case "create_local_project":
         return Promise.resolve(envelope((args as { model: PreviewModel }).model, "Created local SQLite project snapshot without external file copies."));
       case "save_local_project":
         if (options.saveHangs) return new Promise(() => {});
+        if (options.saveRefusal) {
+          const control = options.saveRefusal;
+          return new Promise((_, reject) => { control.refuse = reject; });
+        }
         return Promise.resolve(envelope((args!.request as { model: PreviewModel }).model, "Saved current project model snapshot without external file copies."));
       case "acknowledge_close_request": {
         const { requestId, attempt } = args as { requestId: number; attempt: number };
@@ -343,6 +351,30 @@ describe("Window close and quit: asked first while the working model has unsaved
     await settle();
     expect(screen.queryByTestId("quit-while-busy-prompt")).not.toBeInTheDocument();
     expect(answers()).toEqual([]);
+  });
+
+  it("Quit without saving waits for a dialog that opened behind the way out (a refused save's replace prompt)", async () => {
+    // Codex r2 P2: the save refuses as PROJECT-BASE-MOVED while the way out is showing.
+    const saveRefusal = { refuse: (_error: Error) => {} };
+    nativeCommands({
+      saveRefusal,
+      stored: { project_id: DEMO.project.id, project_name: "Stored invented demo", storage_mode: "local_sqlite", created_at_unix: 1760000000, updated_at_unix: 1760086400, revision: "sha256:stored@1760086400" }
+    });
+    await renderApp();
+    await applyNodeEdit();
+    setTauriRuntime(true);
+    closeRequest(13, "quit");
+    fireEvent.click(await screen.findByTestId("unsaved-changes-save"));
+    await waitFor(() => expect(called("save_local_project")).toHaveLength(1));
+    closeRequest(13, "quit", 2);
+    await screen.findByTestId("quit-while-busy-prompt");
+    await act(async () => { saveRefusal.refuse(new Error(`PROJECT-BASE-MOVED: project \`${DEMO.project.id}\` was saved since it was opened.`)); });
+    expect(await screen.findByTestId("replace-project-prompt")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("quit-while-busy-quit"));
+    await settle();
+    expect(answers()).toEqual([]);
+    expect(screen.getByTestId("replace-project-prompt")).toBeInTheDocument();
+    expect(projectMessage()).toHaveTextContent("Not quit: a dialog is open. Finish or cancel it first; nothing was closed.");
   });
 
   it("while a dialog is open a quit closes nothing, even without edits (the modal rule)", async () => {
