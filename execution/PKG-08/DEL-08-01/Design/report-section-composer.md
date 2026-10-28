@@ -388,6 +388,18 @@ local-private reports on both routes.
 
 ## 8. Open decisions for HELP_HUMAN / Agent 0
 
+**Ruled by Agent 0, 2026-10-28.** The table keeps the proposals; where a ruling differs, the ruling governs.
+
+- **D-1:** yes. The governed frame is fixed; only subsections are composed.
+- **D-2:** yes, session-only for v1. A saved, reusable composition is a remaining item (Should): it would be a
+  model-document change.
+- **D-3:** yes, no per-section units in v1.
+- **D-4:** yes, composition on the user-released route; the record stays 1.0.0, the composition is bound by
+  `content_binding`. C4's independent review treats it as a permissions surface: a composition cannot drop a required
+  notice or block and cannot reach unbound rows.
+- **D-5:** one independent review on the exact Old/New, then Agent 0's confirmation. C1 starts once D-5 is confirmed.
+- **D-6:** with the owner. C2 to C5 proceed regardless, since the composer does not depend on it.
+
 | Id | Decision | Recommendation | Consequence | Blocks |
 |---|---|---|---|---|
 | D-1 | Composer granularity | Governed frame fixed; composable subsections only (§2.1) | The generator contract and the required-content guarantee are unchanged. Users cannot remove Load Cases or Limitations, or reorder governed sections | C2 |
