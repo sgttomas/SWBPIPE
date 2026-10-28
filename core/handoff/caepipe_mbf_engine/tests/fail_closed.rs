@@ -78,3 +78,26 @@ fn an_english_length_far_below_binary64_is_read_exactly_then_refused_as_the_pyth
     let codes: Vec<&str> = result.diagnostics.iter().filter_map(|item| item.get("code").and_then(Value::as_str)).collect();
     assert!(codes.contains(&"MBF-IMPORT-VALUE-UNREPRESENTABLE"), "{codes:?}");
 }
+
+#[test]
+fn an_exponent_at_the_i64_limits_is_refused_like_any_huge_exponent_without_panicking() {
+    // Review r1: `OPTEMP` with exponent -9223372036854775808 overflowed `power.abs()`. Each extreme must take the same
+    // path as an ordinary exponent beyond 10^5.
+    let mut options = ImportOptions::new("invented-test");
+    options.material_provenance = Some(invented());
+    let outcome = |optemp: &str| match mbf::import(MBF.replace("OPTEMP\r\n20\r\n", &format!("OPTEMP\r\n{optemp}\r\n")).as_bytes(), &options) {
+        // The status and the diagnostic codes; the report also binds the input's own hash and quotes the field.
+        Ok(result) => String::from_utf8(result.report_bytes().expect("report bytes"))
+            .expect("report text")
+            .lines()
+            .filter(|line| line.trim_start().starts_with("\"code\"") || line.trim_start().starts_with("\"status\""))
+            .collect::<Vec<_>>()
+            .join("\n"),
+        Err(error) => format!("{error:?}"),
+    };
+    let huge = outcome("1e-200000");
+    assert!(huge.contains("MBF-IMPORT-VALUE-UNREPRESENTABLE"), "{huge}");
+    for extreme in ["1e-9223372036854775808", "1e9223372036854775807", "1e-9223372036854775809", "1e9223372036854775808"] {
+        assert_eq!(outcome(extreme), huge, "exponent {extreme}");
+    }
+}

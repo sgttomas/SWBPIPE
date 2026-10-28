@@ -332,7 +332,8 @@ fn parse_fraction_with(text: &str, bounded: bool) -> Result<Parsed, PyError> {
     let total = exponent + BigInt::from(scale);
     let digits = numerator.to_string().len() as i64;
     match total.to_i64() {
-        Some(power) if power.abs() <= 100_000 => {}
+        // A signed range test: `abs()` overflows on `i64::MIN`, which an untrusted exponent can reach (review r1).
+        Some(power) if (-100_000..=100_000).contains(&power) => {}
         _ => return Ok(Parsed::Huge),
     }
     let power = total.to_i64().expect("bounded");
