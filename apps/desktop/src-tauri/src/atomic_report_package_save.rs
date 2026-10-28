@@ -64,8 +64,9 @@ pub const MODEL_DOCUMENT_FORMAT: AtomicSaveFormat = AtomicSaveFormat {
     log_label: "model-document",
 };
 
+/// The bounded parent-directory sync's result.
 #[derive(Debug, PartialEq, Eq)]
-enum DirectorySyncResult {
+pub(crate) enum DirectorySyncResult {
     Durable,
     Failed {
         kind: String,
@@ -345,15 +346,22 @@ fn create_temp_as(
     ))
 }
 
-trait AtomicSaveIo {
+/// The writer's file operations: the system's, or a test's injected failures
+/// (shared at crate visibility so another format's tests can inject them).
+pub(crate) trait AtomicSaveIo {
     fn write_all(&mut self, temp: &mut File, bytes: &[u8]) -> io::Result<()>;
     fn flush(&mut self, temp: &mut File) -> io::Result<()>;
     fn sync_temp(&mut self, temp: &File) -> io::Result<()>;
     fn rename(&mut self, source: &Path, destination: &Path) -> io::Result<()>;
     fn cleanup_temp(&mut self, temp_path: &Path) -> io::Result<()>;
+    /// The bounded sync of `parent` after the rename (the system's, by
+    /// default; a test may report a failed sync).
+    fn sync_parent(&mut self, parent: &Path) -> DirectorySyncResult {
+        sync_parent_directory_bounded(parent)
+    }
 }
 
-struct SystemAtomicSaveIo;
+pub(crate) struct SystemAtomicSaveIo;
 
 impl AtomicSaveIo for SystemAtomicSaveIo {
     fn write_all(&mut self, temp: &mut File, bytes: &[u8]) -> io::Result<()> {
@@ -403,7 +411,7 @@ fn atomic_save_bytes_with_io(
     atomic_save_bytes_as_with_io(&REPORT_PACKAGE_FORMAT, destination, bytes, operations)
 }
 
-fn atomic_save_bytes_as_with_io(
+pub(crate) fn atomic_save_bytes_as_with_io(
     format: &AtomicSaveFormat,
     destination: &Path,
     bytes: &[u8],
@@ -453,7 +461,7 @@ fn atomic_save_bytes_as_with_io(
             .with_cleanup(format, operations.cleanup_temp(&temp_path)));
     }
 
-    let directory_sync = sync_parent_directory_bounded(&parent);
+    let directory_sync = operations.sync_parent(&parent);
     let durability = match &directory_sync {
         DirectorySyncResult::Durable => "durable",
         DirectorySyncResult::Failed { kind, raw_os_error } => {
