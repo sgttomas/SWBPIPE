@@ -214,16 +214,39 @@ def test_selection_in_a_git_checkout_stages_tracked_files_only(tmp_path):
     commit_all(source)
     (source / "fixtures" / "scratch_result.json").write_text("{}\n", encoding="utf-8")
     (source / "docs" / "notes.local.json").write_text("{}\n", encoding="utf-8")
-    git(source, "rm", "-q", "--cached", "README.md")
 
-    selected, exclusions, _ = PIPE.select_files(source)
+    selected, _, _ = PIPE.select_files(source)
     posix = {rel.as_posix() for rel in selected}
 
     assert "docs/README.md" in posix
     assert "fixtures/scratch_result.json" not in posix
     assert "docs/notes.local.json" not in posix
-    assert "README.md" not in posix
-    assert exclusions.get("untracked_in_source") == 3
+
+
+def test_export_stages_head_blobs_not_working_tree_state(tmp_path):
+    # Review finding 1: the export copied working-tree bytes, so dirty tracked
+    # edits and newly indexed files entered an export bound to HEAD.
+    source = make_source_tree(tmp_path)
+    committed = (source / "docs" / "README.md").read_bytes()
+    (source / "docs" / "README.md").write_text("uncommitted edit\n", encoding="utf-8")
+    (source / "fixtures" / "indexed_only.json").write_text("{}\n", encoding="utf-8")
+    git(source, "add", "fixtures/indexed_only.json")
+    (source / "api" / "README.md").unlink()
+    (source / "private_local_dir").mkdir()
+    (source / "private_local_dir" / "x.txt").write_text("x\n", encoding="utf-8")
+
+    selected, _, unlisted = PIPE.select_files(source)
+    posix = {rel.as_posix() for rel in selected}
+    assert "fixtures/indexed_only.json" not in posix
+    assert "api/README.md" in posix
+    assert "private_local_dir" not in unlisted
+
+    staging = tmp_path / "staging"
+    PIPE.stage_files(source, staging, selected)
+    assert (staging / "docs" / "README.md").read_bytes() == committed
+    assert (staging / "api" / "README.md").read_text(encoding="utf-8") == (
+        "Invented api placeholder.\n"
+    )
 
 
 def test_selection_refuses_a_source_outside_git(tmp_path):

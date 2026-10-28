@@ -422,52 +422,59 @@ def skip_reason(rel: Path) -> str | None:
     return None
 
 
-def tracked_files(source_root: Path) -> set[str] | None:
-    """Git-tracked paths under `source_root` (posix, relative to it), or None
-    when `source_root` is not inside a git work tree or git is unavailable
-    (`select_files` then refuses the export).
+# Git tree-entry modes (`git ls-tree`).
+MODE_SYMLINK = "120000"
+MODE_SUBMODULE = "160000"
+MODE_EXECUTABLE = "100755"
 
-    G3 binds the export to a commit, and `git status --porcelain` does not
-    report ignored files, so a filesystem walk alone could stage ignored or
-    untracked local files under a record that reads clean."""
+
+def head_entries(source_root: Path) -> dict[str, tuple[str, str]] | None:
+    """The HEAD tree under `source_root`: posix path relative to it ->
+    (mode, object id). None when `source_root` is not inside a git work tree
+    or git is unavailable (`select_files` then refuses the export).
+
+    G3 binds the export to HEAD, so selection and staging both read HEAD's
+    tree and blobs: working-tree edits, newly indexed files, ignored and
+    untracked files cannot enter the export, and an LFS pointer is exported
+    as the pointer HEAD holds."""
     probe = capture_output(["git", "rev-parse", "--is-inside-work-tree"], source_root)
     if probe != "true":
         return None
     try:
-        completed = run_command(["git", "ls-files", "-z", "--cached"], source_root)
+        prefix = run_command(["git", "rev-parse", "--show-prefix"], source_root)
+        listing = run_command(
+            ["git", "ls-tree", "-r", "-z", f"HEAD:{prefix.stdout.strip()}"], source_root
+        )
     except OSError:
         return None
-    if completed.returncode != 0:
-        raise SystemExit("git ls-files failed in the source root; cannot bind the export to a commit")
-    return {path for path in completed.stdout.split("\0") if path}
+    if prefix.returncode != 0 or listing.returncode != 0:
+        raise SystemExit(
+            "export refused (HEAD_TREE_UNREADABLE): git could not list HEAD's "
+            "tree for the source root"
+        )
+    entries: dict[str, tuple[str, str]] = {}
+    for record in listing.stdout.split("\0"):
+        if not record:
+            continue
+        meta, path = record.split("\t", 1)
+        mode, _kind, oid = meta.split()
+        entries[path] = (mode, oid)
+    return entries
+
+
+def tracked_files(source_root: Path) -> set[str] | None:
+    """Paths in HEAD's tree under `source_root`, or None outside git."""
+    entries = head_entries(source_root)
+    return None if entries is None else set(entries)
 
 
 def select_files(source_root: Path) -> tuple[list[Path], dict, list[str]]:
-    """Walk the allowlist; return staged relative paths, exclusion counts,
-    and the top-level entries present in the source tree but not
-    allowlisted (fail-toward-exclusion ledger). Only tracked files are
-    eligible; the rest count as `untracked_in_source`. A source outside a git
-    work tree is refused (GIT_PROBE_FAILED)."""
-    missing = [
-        name
-        for name in (*ROOT_FILES, *ROOT_DIRS)
-        if not (source_root / name).exists()
-    ]
-    if missing:
-        raise SystemExit(
-            "allowlisted roots missing from source root: "
-            + ", ".join(sorted(missing))
-            + "; update ROOT_FILES/ROOT_DIRS to match the tree"
-        )
-
-    selected: list[Path] = []
-    exclusions: dict[str, int] = {}
-
-    def count(reason: str) -> None:
-        exclusions[reason] = exclusions.get(reason, 0) + 1
-
-    tracked = tracked_files(source_root)
-    if tracked is None:
+    """Select from HEAD's tree; return staged relative paths, exclusion
+    counts, and the top-level HEAD entries that are not allowlisted
+    (fail-toward-exclusion ledger). A source outside a git work tree is
+    refused (GIT_PROBE_FAILED)."""
+    entries = head_entries(source_root)
+    if entries is None:
         # Fail closed: without git the export cannot be bound to a commit, and
         # a filesystem walk would admit ignored and untracked material.
         raise SystemExit(
@@ -476,33 +483,47 @@ def select_files(source_root: Path) -> tuple[list[Path], dict, list[str]]:
             "a git commit"
         )
 
-    for name in ROOT_FILES:
-        if name not in tracked:
-            count("untracked_in_source")
+    missing = [name for name in ROOT_FILES if name not in entries] + [
+        name for name in ROOT_DIRS if not any(p.startswith(name + "/") for p in entries)
+    ]
+    if missing:
+        raise SystemExit(
+            "allowlisted roots missing from HEAD: "
+            + ", ".join(sorted(missing))
+            + "; update ROOT_FILES/ROOT_DIRS to match the tree"
+        )
+
+    selected: list[Path] = [Path(name) for name in ROOT_FILES]
+    exclusions: dict[str, int] = {}
+
+    def count(reason: str) -> None:
+        exclusions[reason] = exclusions.get(reason, 0) + 1
+
+    root_dirs = set(ROOT_DIRS)
+    for path in sorted(entries):
+        if path.split("/", 1)[0] not in root_dirs:
             continue
-        selected.append(Path(name))
-
-    for name in ROOT_DIRS:
-        base = source_root / name
-        for path in sorted(base.rglob("*")):
-            if not path.is_file() or path.is_symlink():
-                if path.is_symlink():
-                    count("symlink")
-                continue
-            rel = path.relative_to(source_root)
+        mode, _oid = entries[path]
+        rel = Path(path)
+        if mode == MODE_SYMLINK:
+            reason = "symlink"
+        elif mode == MODE_SUBMODULE:
+            reason = "submodule"
+        else:
             reason = skip_reason(rel)
-            if reason is None and rel.as_posix() not in tracked:
-                reason = "untracked_in_source"
-            if reason is not None:
-                count(reason)
-                continue
-            selected.append(rel)
+        if reason is not None:
+            count(reason)
+            continue
+        selected.append(rel)
 
-    allowlisted = set(ROOT_FILES) | set(ROOT_DIRS)
+    allowlisted = set(ROOT_FILES) | root_dirs
     unlisted_top_level = sorted(
-        entry.name
-        for entry in source_root.iterdir()
-        if entry.name not in allowlisted and entry.name not in SKIP_DIR_NAMES
+        {
+            path.split("/", 1)[0]
+            for path in entries
+            if path.split("/", 1)[0] not in allowlisted
+            and path.split("/", 1)[0] not in SKIP_DIR_NAMES
+        }
     )
 
     return sorted(selected), exclusions, unlisted_top_level
@@ -514,10 +535,36 @@ def select_files(source_root: Path) -> tuple[list[Path], dict, list[str]]:
 
 
 def stage_files(source_root: Path, staging: Path, selected: list[Path]) -> None:
-    for rel in selected:
-        target = staging / rel
-        target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(source_root / rel, target)
+    """Write each selected path's HEAD blob (never working-tree bytes)."""
+    entries = head_entries(source_root)
+    if entries is None:
+        raise SystemExit("export refused (GIT_PROBE_FAILED): cannot read HEAD blobs")
+    process = subprocess.Popen(
+        ["git", "cat-file", "--batch"],
+        cwd=source_root,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+    )
+    assert process.stdin is not None and process.stdout is not None
+    try:
+        for rel in selected:
+            mode, oid = entries[rel.as_posix()]
+            process.stdin.write(oid.encode("ascii") + b"\n")
+            process.stdin.flush()
+            header = process.stdout.readline().split()
+            if len(header) != 3 or header[1] != b"blob":
+                raise SystemExit(
+                    f"export refused (HEAD_BLOB_UNREADABLE): {rel.as_posix()}"
+                )
+            data = process.stdout.read(int(header[2]))
+            process.stdout.read(1)
+            target = staging / rel
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(data)
+            target.chmod(0o755 if mode == MODE_EXECUTABLE else 0o644)
+    finally:
+        process.stdin.close()
+        process.wait()
 
 
 def sanitize_text_files(staging: Path) -> int:
