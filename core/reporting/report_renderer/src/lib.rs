@@ -21,6 +21,17 @@
 //! deterministic PDF emission (`pdf_emitter`, DEC-061) are two deterministic
 //! emissions of this one assembled section model.
 
+#![forbid(unsafe_code)]
+
+// Code review r6 at #1682 (DEL-08-01 Design `report-user-release.md` §2.8,
+// "Threat model"): this crate's `#[cfg(test)]` items compile only into its
+// own unit-test binary. Cargo sets `CARGO_PRIMARY_PACKAGE` only for a package
+// the command selected (as `cargo test` selects this one), never for a
+// dependency, so a build that sets `--cfg test` for this crate as a
+// dependency of a product fails to compile here.
+#[cfg(test)]
+const _: () = assert!(option_env!("CARGO_PRIMARY_PACKAGE").is_some(), "cfg(test) is set for this reporting crate as a dependency (DEL-08-01 Design section 2.8)");
+
 use open_pipe_stress_protected_content_linter as linter;
 use open_pipe_stress_report_generator as report;
 use open_pipe_stress_report_sections as sections;
@@ -83,6 +94,175 @@ pub struct ResultRow {
 pub enum ReportExportContext {
     PublicReport,
     LocalPrivate,
+    /// A report of the user's own session for which the user recorded, for
+    /// that one report, a user release of their own project data (W-18b,
+    /// DEL-08-01 Design `report-user-release.md` §3.1). Only the report
+    /// package's derivation-bound entry renders it, with a
+    /// [`UserReleaseRecord`] (§2.8); every other caller refuses it.
+    UserReleasedReport,
+}
+
+/// The user-release record's kind (§2.3).
+pub const USER_RELEASE_RECORD_KIND: &str = "user_release_of_own_project_data";
+/// The user-release record's version (§2.3). A later slice that widens what a
+/// user-released package carries changes `scope.not_carried` and this.
+pub const USER_RELEASE_RECORD_VERSION: &str = "1.0.0";
+/// The statement the user ticks in the dialog, verbatim (§2.2, §2.3).
+pub const USER_RELEASE_STATEMENT: &str =
+    "I hold the right to share this project's data, and I release my project data in this report for sharing.";
+/// The basis the statement rests on (§2.3).
+pub const USER_RELEASE_STATEMENT_BASIS: &str =
+    "docs/IP_AND_DATA_BOUNDARY.md \u{a7}6: a user intentionally exports their own data with documented redistribution rights";
+/// The record's standing: a user's statement about rights in their data,
+/// nothing more (§0, naming rule).
+pub const USER_RELEASE_STANDING: &str = "user_statement_of_data_rights_only";
+/// The record's scope kind (§2.3).
+pub const USER_RELEASE_SCOPE_KIND: &str = "this_report_only";
+/// The one data class a user release covers (§2.3).
+pub const USER_RELEASED_DATA_CLASS: &str = "private_project_data";
+/// What a user-released package does not carry under scope R (§2.1, §2.3).
+pub const USER_RELEASE_NOT_CARRIED: [&str; 6] =
+    ["rule_pack_references", "user_rule_outcomes", "run_comparisons", "handoff_records", "library_records", "audit_assets"];
+
+/// The report a user release covers (§2.3).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct UserReleaseScope {
+    pub scope_kind: String,
+    /// `report:<analysis_run_ref>`, the report's `calculation_report.report_id`.
+    pub report_id: String,
+    /// The request's `package_id`, `desktop-user-released-report-<run>`.
+    pub package_id: String,
+    pub user_released_data_class: String,
+    pub not_carried: Vec<String>,
+}
+
+/// The identities a user release is bound to (§2.3).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct UserReleaseBoundTo {
+    pub model_ref: String,
+    pub model_document_sha256: String,
+    pub analysis_run_ref: String,
+    pub input_manifest_ref: String,
+    pub input_manifest_sha256: String,
+    pub result_envelope_id: String,
+    pub result_document_derivative_sha256: String,
+}
+
+/// A user's per-report user release of their own project data (W-18b,
+/// DEL-08-01 Design `report-user-release.md` §2.3): the user's statement that
+/// they hold the right to share this project's data, bound to the model and
+/// result one report covers. It records a statement about rights in the
+/// data; it is not an issuance act and records no acceptance. Every member is
+/// required and no other is admitted; it never carries `content_binding`,
+/// which only the package manifest's copy has.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct UserReleaseRecord {
+    pub record_kind: String,
+    pub record_version: String,
+    pub statement: String,
+    pub statement_basis: String,
+    pub standing: String,
+    pub scope: UserReleaseScope,
+    pub bound_to: UserReleaseBoundTo,
+    /// The application clock when the user confirmed, UTC,
+    /// `YYYY-MM-DDTHH:MM:SSZ`.
+    pub user_released_at: String,
+}
+
+/// `YYYY-MM-DDTHH:MM:SSZ` with a month, day, hour, minute and second in range.
+fn is_user_released_at(text: &str) -> bool {
+    let bytes = text.as_bytes();
+    let digits = |range: std::ops::Range<usize>| bytes[range.clone()].iter().all(u8::is_ascii_digit).then(|| text[range].parse::<u32>().ok()).flatten();
+    if bytes.len() != 20 || bytes[4] != b'-' || bytes[7] != b'-' || bytes[10] != b'T' || bytes[13] != b':' || bytes[16] != b':' || bytes[19] != b'Z' {
+        return false;
+    }
+    match (digits(0..4), digits(5..7), digits(8..10), digits(11..13), digits(14..16), digits(17..19)) {
+        (Some(_), Some(month), Some(day), Some(hour), Some(minute), Some(second)) => {
+            (1..=12).contains(&month) && (1..=31).contains(&day) && hour < 24 && minute < 60 && second < 60
+        }
+        _ => false,
+    }
+}
+
+impl UserReleaseRecord {
+    /// The first member whose value is not of the defined form (§2.3): a
+    /// constant that differs, a hex value that is not 64 lowercase hex
+    /// characters, a `user_released_at` not of the form
+    /// `YYYY-MM-DDTHH:MM:SSZ`, or an empty identity. `None` when every member
+    /// is of its form. It names the member only, never its value.
+    pub fn form_defect(&self) -> Option<&'static str> {
+        let constants = [
+            ("record_kind", self.record_kind.as_str(), USER_RELEASE_RECORD_KIND),
+            ("record_version", self.record_version.as_str(), USER_RELEASE_RECORD_VERSION),
+            ("statement", self.statement.as_str(), USER_RELEASE_STATEMENT),
+            ("statement_basis", self.statement_basis.as_str(), USER_RELEASE_STATEMENT_BASIS),
+            ("standing", self.standing.as_str(), USER_RELEASE_STANDING),
+            ("scope.scope_kind", self.scope.scope_kind.as_str(), USER_RELEASE_SCOPE_KIND),
+            ("scope.user_released_data_class", self.scope.user_released_data_class.as_str(), USER_RELEASED_DATA_CLASS),
+        ];
+        if let Some((member, _, _)) = constants.iter().find(|(_, found, expected)| found != expected) {
+            return Some(member);
+        }
+        if self.scope.not_carried.iter().map(String::as_str).ne(USER_RELEASE_NOT_CARRIED) {
+            return Some("scope.not_carried");
+        }
+        let bound = &self.bound_to;
+        for (member, hex) in [
+            ("bound_to.model_document_sha256", &bound.model_document_sha256),
+            ("bound_to.input_manifest_sha256", &bound.input_manifest_sha256),
+            ("bound_to.result_document_derivative_sha256", &bound.result_document_derivative_sha256),
+        ] {
+            if !is_lower_hex_64(hex) {
+                return Some(member);
+            }
+        }
+        for (member, identity) in [
+            ("scope.report_id", &self.scope.report_id),
+            ("scope.package_id", &self.scope.package_id),
+            ("bound_to.model_ref", &bound.model_ref),
+            ("bound_to.analysis_run_ref", &bound.analysis_run_ref),
+            ("bound_to.input_manifest_ref", &bound.input_manifest_ref),
+            ("bound_to.result_envelope_id", &bound.result_envelope_id),
+        ] {
+            if identity.trim().is_empty() {
+                return Some(member);
+            }
+        }
+        if !is_user_released_at(&self.user_released_at) {
+            return Some("user_released_at");
+        }
+        None
+    }
+}
+
+/// The user-release notice for `record` (§5.1), shared by the HTML, the PDF
+/// and the package reader's notice check.
+pub fn user_release_notice_for(record: &UserReleaseRecord) -> String {
+    let bound = &record.bound_to;
+    format!(
+        "USER-RELEASED REPORT \u{2014} the user released their own project data in this report for sharing, stating that they hold the right to redistribute it (IP and data boundary \u{a7}6). The user release covers this report only: model SHA-256 {}, result document {} (SHA-256 {}), user-released {}. The report carries this model's summary, load cases and solve results, and no rule-pack reference, user-rule outcome or run comparison. The application found no library or rule-pack mark in this model. It cannot verify who holds the rights in the data, which rest on the user's statement. This statement concerns rights in the data only; the analysis status and the Professional Boundary notice below are unchanged.",
+        bound.model_document_sha256, bound.result_envelope_id, bound.result_document_derivative_sha256, record.user_released_at
+    )
+}
+
+/// The input's user-release record, when its export context is
+/// `user_released_report` and it carries one.
+pub fn user_released_record(input: &RenderableReportInput) -> Option<&UserReleaseRecord> {
+    let context = input.report_context.as_ref()?;
+    match context.export_context {
+        ReportExportContext::UserReleasedReport => context.user_release.as_ref(),
+        _ => None,
+    }
+}
+
+/// Emission-neutral user-release notice shared by the HTML and PDF emissions
+/// (§5.1): present only for `user_released_report` with a record, in place of
+/// the local-private notice (the two contexts exclude each other).
+pub fn user_release_notice_text(input: &RenderableReportInput) -> Option<String> {
+    user_released_record(input).map(user_release_notice_for)
 }
 
 /// One recorded solver setting, display-formatted by the caller. The key and
@@ -117,6 +297,11 @@ pub struct ReportContext {
     pub solver_settings: Vec<ReportSetting>,
     pub model_coordinate_system: Option<String>,
     pub result_coordinate_systems: Vec<String>,
+    /// The user's per-report user release (W-18b, §2.3): present only under
+    /// `user_released_report`. Absent, it serializes to nothing, so every
+    /// other input renders byte-identically.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub user_release: Option<UserReleaseRecord>,
 }
 
 /// Automatic user-rule check status vocabulary (the three statuses the rule
@@ -446,6 +631,7 @@ fn export_context_label(context: &ReportExportContext) -> &'static str {
     match context {
         ReportExportContext::PublicReport => "public_report",
         ReportExportContext::LocalPrivate => "local_private",
+        ReportExportContext::UserReleasedReport => "user_released_report",
     }
 }
 
@@ -521,6 +707,26 @@ fn run_context_rows(input: &RenderableReportInput) -> Vec<Vec<String>> {
             "Solver settings".to_string(),
             NOT_RECORDED.to_string(),
         ]),
+    }
+    // W-18b (§5.1): the user release's rows, only for `user_released_report`
+    // with a record. `content_binding` is never rendered.
+    if let Some(record) = user_released_record(input) {
+        let bound = &record.bound_to;
+        rows.push(vec!["User release statement".to_string(), record.statement.clone()]);
+        rows.push(vec!["User release time (application clock)".to_string(), record.user_released_at.clone()]);
+        rows.push(vec![
+            "User release bound to".to_string(),
+            format!(
+                "model {} (SHA-256 {}); run {}; input manifest {} (SHA-256 {}); result document {} (SHA-256 {})",
+                bound.model_ref,
+                bound.model_document_sha256,
+                bound.analysis_run_ref,
+                bound.input_manifest_ref,
+                bound.input_manifest_sha256,
+                bound.result_envelope_id,
+                bound.result_document_derivative_sha256
+            ),
+        ]);
     }
     rows
 }
@@ -1786,8 +1992,17 @@ pub fn provenance_disposition_blocking_reasons(input: &RenderableReportInput) ->
         input.report_context.as_ref().map(|context| context.export_context),
         Some(ReportExportContext::LocalPrivate)
     );
+    // W-18b (DEL-08-01 Design `report-user-release.md` §2.6): under
+    // `user_released_report` with a record, a record whose privacy class is
+    // `private_project_data` is the user-released class and does not trip
+    // this rule; any other non-public class still does. Every other context
+    // keeps the rule exactly.
+    let user_released = user_released_record(input).is_some();
+    let released_class = |privacy: sections::PrivacyClassification| user_released && privacy == sections::PrivacyClassification::PrivateProjectData;
     if !local_private {
-        let private = |record: &sections::Provenance| !record_is_public(record.privacy_classification, record.redistribution_status);
+        let private = |record: &sections::Provenance| {
+            !record_is_public(record.privacy_classification, record.redistribution_status) && !released_class(record.privacy_classification)
+        };
         let first = report_sections
             .provenance_notes
             .iter()
@@ -1796,10 +2011,10 @@ pub fn provenance_disposition_blocking_reasons(input: &RenderableReportInput) ->
             .or_else(|| {
                 report_sections.user_supplied_values.iter().position(|value| {
                     private(&value.provenance)
-                        || !matches!(
+                        || !(matches!(
                             value.privacy_classification,
                             sections::PrivacyClassification::PublicMetadata | sections::PrivacyClassification::InventedPublicExample
-                        )
+                        ) || released_class(value.privacy_classification))
                 }).map(|index| format!("user_supplied_values[{index}]"))
             })
             .or_else(|| report_sections.diagnostics.iter().position(|item| private(&item.provenance)).map(|index| format!("diagnostics[{index}].provenance")))
@@ -1809,6 +2024,7 @@ pub fn provenance_disposition_blocking_reasons(input: &RenderableReportInput) ->
         if let Some(place) = first {
             let context = match input.report_context.as_ref().map(|context| context.export_context) {
                 Some(ReportExportContext::PublicReport) => "public_report",
+                Some(ReportExportContext::UserReleasedReport) => "user_released_report",
                 _ => "not recorded",
             };
             reasons.push(format!(
@@ -1819,6 +2035,11 @@ pub fn provenance_disposition_blocking_reasons(input: &RenderableReportInput) ->
     reasons
 }
 
+/// A `user_released_report` context without a user-release record, or a
+/// record in any other context (W-18b, DEL-08-01 Design
+/// `report-user-release.md` §4).
+pub const REPORT_CONTEXT_USER_RELEASE_MISMATCH: &str = "REPORT-CONTEXT-USER-RELEASE-MISMATCH";
+
 /// Renderer-level consistency checks of the report context and rule-check
 /// blocks. Each returned code blocks export.
 fn report_context_blocking_codes(input: &RenderableReportInput) -> Vec<&'static str> {
@@ -1826,6 +2047,12 @@ fn report_context_blocking_codes(input: &RenderableReportInput) -> Vec<&'static 
     if let Some(context) = &input.report_context {
         if context.software_name.trim().is_empty() {
             codes.push("REPORT-CONTEXT-SOFTWARE-NAME-MISSING");
+        }
+        // W-18b (§4): a user-released report carries its record, and no other
+        // context carries one.
+        let user_released = context.export_context == ReportExportContext::UserReleasedReport;
+        if user_released != context.user_release.is_some() {
+            codes.push(REPORT_CONTEXT_USER_RELEASE_MISMATCH);
         }
     }
     if let Some(run) = &input.user_rule_checks {
@@ -2116,6 +2343,12 @@ pub fn render_calculation_report(input: &RenderableReportInput) -> RenderOutcome
         body.push_str(&format!(
             "<div class=\"local-private-banner\" data-export-context=\"local_private\">{}</div>\n",
             escape_html(notice),
+        ));
+    }
+    if let Some(notice) = user_release_notice_text(input) {
+        body.push_str(&format!(
+            "<div class=\"user-release-banner\" data-export-context=\"user_released_report\">{}</div>\n",
+            escape_html(&notice),
         ));
     }
     if !blocking_reasons.is_empty() {

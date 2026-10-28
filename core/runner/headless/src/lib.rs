@@ -5,6 +5,11 @@
 //! project files, invoke external processes, access the network, mutate the
 //! filesystem, run GUI/report/adapter/local-FEA workflows, or emit professional
 //! or code-compliance claims.
+//!
+//! Holds no `unsafe` code: the reach scan requires `#![forbid(unsafe_code)]`
+//! at this root (DEL-08-01 Design `report-user-release.md` §2.8; code review
+//! r9 at #1682).
+#![forbid(unsafe_code)]
 
 pub mod benchmark_binding;
 pub mod reader_binding;
