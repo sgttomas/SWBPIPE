@@ -106,10 +106,13 @@ fn user_release_runner_refused() {
     }
 }
 
-/// Also asserted by the reach scan's design (DEL-08-01 Design
-/// `report-user-release.md` §2.8): no source of the headless runner, its
-/// library, binaries or tests, names the producer's admitting entry, its
-/// derivation check, its proof type or the desktop's bridge function. The
+/// Kept in addition to the reach scan (DEL-08-01 Design
+/// `report-user-release.md` §2.8, "Allowed dependents"; code review r9 at
+/// #1682), which reads this crate's library and binaries and every module
+/// they load under the desktop shell's rules: no `.rs` file under `src/` or
+/// `tests/`, the integration tests the scan does not read included, names
+/// the producer's admitting entry, its derivation check, its proof type or
+/// the desktop's bridge function. It runs with the runner's own tests. The
 /// names are assembled here so this file holds none of them.
 #[test]
 fn no_runner_source_names_the_admitting_entry() {

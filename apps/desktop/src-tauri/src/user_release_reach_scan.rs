@@ -1,9 +1,30 @@
 //! `user_release_reach_scan` (W-18b slice (r2c); DEL-08-01 Design
 //! `report-user-release.md` §2.8, §6): who can reach the renderer's
-//! user-released class rule. The scan parses the production source of four
+//! user-released class rule. The scan parses the production source of five
 //! crates (`apps/desktop/src-tauri`, `core/reporting/report_package`,
-//! `core/reporting/pdf_emitter`, `core/reporting/report_renderer`) with `syn`
-//! and attributes every scanned name to its innermost lexical scope owner.
+//! `core/reporting/pdf_emitter`, `core/reporting/report_renderer` and, since
+//! code review r9 at #1682, `core/runner/headless`) with `syn` and attributes
+//! every scanned name to its innermost lexical scope owner.
+//!
+//! - **Allowed dependents** (code review r9 at #1682). Every allowed
+//!   dependent of a reporting crate that is not one itself
+//!   ([`DEPENDENT_CRATES`]: the desktop shell and the headless runner) is
+//!   scanned under the shell's rules, from the library and binary roots
+//!   Cargo reports, its targets, build-dependencies and normal and
+//!   development dependencies pinned ([`TARGETS`], [`BUILD_DEPENDENCIES`],
+//!   [`DEPENDENCY_PINS`]). No runner function may name a scanned function,
+//!   the runner's own list additions are named with reasons
+//!   ([`RUNNER_MACRO_INVOCATIONS`], [`RUNNER_SERDE_FLAGS`],
+//!   [`RUNNER_SERDE_FUNCTIONS`], its two pinned [`MACRO_DEFINITIONS`]), and
+//!   each runner root carries `#![forbid(unsafe_code)]`
+//!   ([`UNSAFE_FORBIDDING_DEPENDENTS`]). Every `.rs` file in a scanned
+//!   crate's directory is available to the module walk, and a production
+//!   `#[path]`, still a finding, is followed and its file read as
+//!   production; a `#[path]` that leaves the declaring crate's directory is
+//!   a finding unless listed ([`PATH_CROSSINGS`]). No package in the
+//!   allowed dependents' path-dependency closure, which holds every
+//!   reporting crate's, builds a proc-macro ([`proc_macro_findings`],
+//!   [`PROC_MACRO_PACKAGES`], empty).
 //!
 //! - **Targets, from Cargo** (code review r5 at #1682). `cargo metadata
 //!   --offline --locked --no-deps` reports each crate's actual targets; they
@@ -100,7 +121,7 @@
 //!   the token rule also finds every `unsafe` keyword there. So that no
 //!   listed macro path resolves to another macro: in the reporting crates
 //!   every `use … as …` rename and every non-private `use` is on a closed
-//!   list of today's ([`USE_RENAMES`], [`PUBLIC_USES`]); in all four crates a
+//!   list of today's ([`USE_RENAMES`], [`PUBLIC_USES`]); in every scanned crate a
 //!   `mod`, `use` binding, `extern crate` or `macro_rules!` named like a
 //!   macro path root or a listed macro ([`reserved_name`]) is a finding, as is
 //!   a `mod`, `use`, `extern`, `macro` or `macro_rules!` in tokens the scan
@@ -134,13 +155,109 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
 use syn::visit::{self, Visit};
 
-/// The four crates: (key, source root, manifest).
-pub(crate) const CRATES: [(&str, &str); 4] = [
+/// The scanned crates: (key, source root). The three reporting crates, and
+/// the allowed dependents of a reporting crate that are not reporting crates
+/// themselves ([`DEPENDENT_CRATES`]): the desktop shell and, since code
+/// review r9 at #1682, the headless runner.
+pub(crate) const CRATES: [(&str, &str); 5] = [
     ("src-tauri", "apps/desktop/src-tauri"),
     ("report_package", "core/reporting/report_package"),
     ("pdf_emitter", "core/reporting/pdf_emitter"),
     ("report_renderer", "core/reporting/report_renderer"),
+    ("headless", "core/runner/headless"),
 ];
+
+/// The reporting crates' keys in [`CRATES`].
+const REPORTING_KEYS: [&str; 3] = ["report_package", "pdf_emitter", "report_renderer"];
+
+/// The crate keys of the allowed dependents that are not reporting crates
+/// ([`REPORTING_DEPENDENTS`], [`DEPENDENT_MANIFESTS`]), each scanned under the
+/// shell's rules (code review r9 at #1682; §2.8, "Allowed dependents"): its
+/// Cargo targets, its module closure from each library and binary root, the
+/// name, construction, literal, macro, attribute, namespace and test-item
+/// rules, and its target, build-script and dependency pins.
+pub(crate) const DEPENDENT_CRATES: [&str; 2] = ["src-tauri", "headless"];
+
+/// The headless runner's normal, development and build dependencies,
+/// exactly, as Cargo reports them, in [`SHELL_DEPENDENCIES`]' form (code
+/// review r9 at #1682): any change, a new path dependency (a local
+/// proc-macro included, which can emit a call the scan never reads) or a
+/// rename, is a finding until reviewed. Its build-dependencies are also
+/// pinned (none, [`BUILD_DEPENDENCIES`]).
+pub(crate) const RUNNER_DEPENDENCIES: [&str; 10] = [
+    "normal open_pipe_stress_canonical_json",
+    "normal open_pipe_stress_mechanics_benchmarks",
+    "normal open_pipe_stress_nonlinear_benchmarks",
+    "normal open_pipe_stress_product_physics",
+    "normal open_pipe_stress_report_package",
+    "normal open_pipe_stress_result_export",
+    "normal open_pipe_stress_stress_benchmarks",
+    "normal serde",
+    "normal serde_json",
+    "normal sha2",
+];
+
+/// The pinned normal and development dependency sets, by crate key: the
+/// allowed dependents' ([`DEPENDENT_CRATES`]).
+const DEPENDENCY_PINS: [(&str, &[&str]); 2] = [("src-tauri", &SHELL_DEPENDENCIES), ("headless", &RUNNER_DEPENDENCIES)];
+
+/// The macro invocations the headless runner's production code may write
+/// besides [`MACRO_INVOCATIONS`], by path as written, each with its reason
+/// (code review r9 at #1682): exactly today's. Admitted only in the runner;
+/// every other macro there, an external crate's included, is a finding.
+const RUNNER_MACRO_INVOCATIONS: [(&str, &str); 3] = [
+    ("base", "reader_binding's pinned local macro_rules! (MACRO_DEFINITIONS), which writes one Reader literal"),
+    ("transport", "reader_binding's pinned local macro_rules! (MACRO_DEFINITIONS), which writes one Reader literal"),
+    ("concat", "the standard macro, inside the pinned transport!, joining two literals into one string literal"),
+];
+
+/// The `serde` flags the headless runner may write besides [`SERDE_FLAGS`]
+/// (code review r9 at #1682): `skip_serializing` names no function.
+const RUNNER_SERDE_FLAGS: [&str; 1] = ["skip_serializing"];
+
+/// The `serde` keys naming a function the headless runner may write, with the
+/// one value each admits (code review r9 at #1682): the derive expands the
+/// value into a call of that path, so the value is pinned, as
+/// `skip_serializing_if`'s are ([`SKIP_SERIALIZING_IF`]).
+const RUNNER_SERDE_FUNCTIONS: [(&str, &str); 1] = [("deserialize_with", "deserialize_present_json")];
+
+/// The allowed dependents that must carry `#![forbid(unsafe_code)]` at every
+/// library and binary root Cargo reports, as the reporting crates do at
+/// their library root (code review r9 at #1682): the headless runner, which
+/// holds no `unsafe` code. A call through a declared foreign symbol needs
+/// `unsafe`, so the compiler refuses it there. The shell holds `unsafe` code
+/// (`host_memory.rs`, `worker_alloc.rs`) and is not on this list.
+const UNSAFE_FORBIDDING_DEPENDENTS: [&str; 1] = ["headless"];
+
+/// The crates whose `src/bin` directory is admitted (code review r9 at
+/// #1682): the headless runner declares its two binaries there. Cargo
+/// discovers any other file there as a binary target, which the target pin
+/// ([`TARGETS`]) refuses.
+const BIN_DIRS: [&str; 1] = ["headless"];
+
+/// The `#[path]` attributes admitted that load a file outside the declaring
+/// crate's directory (code review r9 at #1682), as (declaring file, loaded
+/// file, reason), each on a test-only module and read as the declaring
+/// crate's test code. Any other `#[path]` that leaves its crate's directory,
+/// in a reporting crate or an allowed dependent, is a finding.
+const PATH_CROSSINGS: [(&str, &str, &str); 2] = [
+    (
+        "src-tauri/src/report_package_save.rs",
+        "report_package/tests/common/package_basis.rs",
+        "the save tests build their request from report_package's shared test basis, read as the shell's test code",
+    ),
+    (
+        "src-tauri/src/report_render_exact_tests.rs",
+        "report_package/src/forwarding_graph_scan.rs",
+        "W-11's forwarding-graph scan, a test-only module, run over the shell's sources, read as the shell's test code",
+    ),
+];
+
+/// The in-repository proc-macro packages admitted in the path-dependency
+/// closure of the reporting crates and their allowed dependents (code review
+/// r9 at #1682): none. A proc-macro's expansion is code the scan never reads,
+/// so any package with a `proc-macro` target there is a finding.
+pub(crate) const PROC_MACRO_PACKAGES: [&str; 0] = [];
 
 const RENDERER_CRATE: &str = "open_pipe_stress_report_renderer";
 const PDF_CRATE: &str = "open_pipe_stress_pdf_emitter";
@@ -316,12 +433,18 @@ const ENTRY_RULES: [(&str, &str, Entry); 6] = [
     ("assemble_wire_request_in", "assemble_derived", Entry::Released),
 ];
 
-/// The one allowed macro definition: (file, name, SHA-256 of its text).
-/// Re-pinned after #1665 added two ordinary handler entries,
-/// `check_preview_model` and `cancel_model_checks` (reviewed: no `mod`, no
-/// `$parameter ::`, no scanned name added).
-const MACRO_DEFINITIONS: [(&str, &str, &str); 1] =
-    [("src-tauri/src/lib.rs", "app_invoke_handler", "cf2d34eb5102ed6d339c9ce067583bcd4e4ef3e1bb1faa63eb701c4f8ff8c1b5")];
+/// The allowed production macro definitions: (file, name, SHA-256 of its
+/// text). `app_invoke_handler` was re-pinned after #1665 added two ordinary
+/// handler entries, `check_preview_model` and `cancel_model_checks`
+/// (reviewed: no `mod`, no `$parameter ::`, no scanned name added). The
+/// headless runner's two (code review r9 at #1682) each write one `Reader`
+/// literal of its own reader table (reviewed: no `mod`, no `$parameter ::`,
+/// no scanned name).
+const MACRO_DEFINITIONS: [(&str, &str, &str); 3] = [
+    ("src-tauri/src/lib.rs", "app_invoke_handler", "cf2d34eb5102ed6d339c9ce067583bcd4e4ef3e1bb1faa63eb701c4f8ff8c1b5"),
+    ("headless/src/reader_binding.rs", "base", "e4ca54306ec20645a40f7658e2d9f63508fd5ab234c9d29b83f95c7ac0bd5aea"),
+    ("headless/src/reader_binding.rs", "transport", "b000ef8eab3fc5711dbb04be30705f8902c19adfee232aec9114210f6d48fd79"),
+];
 
 /// The macro definitions admitted in `src-tauri`'s test-only items (code
 /// review r7 at #1682; §2.8, "Test-only items"): (file, name, SHA-256 of its
@@ -492,9 +615,14 @@ const SOURCE_MACROS: [&str; 4] = ["include", "include_str", "include_bytes", "co
 /// listed invocation (a bare listed macro's own name included). A local
 /// `mod`, `use` binding, `extern crate` or `macro_rules!` of that name could
 /// make a listed path resolve to another macro (`mod tauri { pub use
-/// std::include as generate_context; }`), so each is a finding.
+/// std::include as generate_context; }`), so each is a finding. The headless
+/// runner's listed invocations ([`RUNNER_MACRO_INVOCATIONS`]) are reserved
+/// in every scanned crate too (code review r9 at #1682), but for the pinned
+/// definitions themselves.
 fn reserved_name(name: &str) -> bool {
-    BUILTIN_ROOTS.contains(&name) || LISTED_ROOTS.contains(&name) || MACRO_INVOCATIONS.iter().any(|path| path.split("::").next() == Some(name))
+    BUILTIN_ROOTS.contains(&name)
+        || LISTED_ROOTS.contains(&name)
+        || MACRO_INVOCATIONS.iter().chain(RUNNER_MACRO_INVOCATIONS.iter().map(|(path, _)| path)).any(|path| path.split("::").next() == Some(name))
 }
 
 /// Whether `attr` is `#![forbid(unsafe_code)]` exactly: inner, the bare path
@@ -639,10 +767,13 @@ fn is_scanned_target(kind: &str) -> bool {
 /// its library from `src/lib.rs` and today's integration tests, nothing
 /// else; `src-tauri` also builds the app binary from `src/main.rs` (read as a
 /// crate root) and runs its `build.rs` (`tauri_build::build()`, whose only
-/// build-dependency is `tauri-build`, [`BUILD_DEPENDENCIES`]). Any other
+/// build-dependency is `tauri-build`, [`BUILD_DEPENDENCIES`]). The headless
+/// runner (code review r9 at #1682) builds its library, its two declared
+/// binaries (each read as a crate root) and today's integration tests, and
+/// runs no build script. Any other
 /// target (a binary, an example, a bench, a build script, a proc-macro or
 /// another integration test) and any other root file is a finding.
-pub(crate) const TARGETS: [(&str, &[(&str, &str, &str)]); 4] = [
+pub(crate) const TARGETS: [(&str, &[(&str, &str, &str)]); 5] = [
     (
         "src-tauri",
         &[
@@ -680,12 +811,37 @@ pub(crate) const TARGETS: [(&str, &[(&str, &str, &str)]); 4] = [
             ("test", "render", "report_renderer/tests/render.rs"),
         ],
     ),
+    (
+        "headless",
+        &[
+            ("lib", "open_pipe_stress_headless_runner", "headless/src/lib.rs"),
+            ("bin", "headless_preview_runner", "headless/src/bin/headless_preview_runner.rs"),
+            ("bin", "openpipestress-runner", "headless/src/bin/openpipestress-runner.rs"),
+            ("test", "del1005_package_witness", "headless/tests/del1005_package_witness.rs"),
+            ("test", "exact_admission_seam", "headless/tests/exact_admission_seam.rs"),
+            ("test", "exact_route_refusals", "headless/tests/exact_route_refusals.rs"),
+            ("test", "load_reference_cli", "headless/tests/load_reference_cli.rs"),
+            ("test", "object_form_cli", "headless/tests/object_form_cli.rs"),
+            ("test", "objective_connector", "headless/tests/objective_connector.rs"),
+            ("test", "physics_source_connected", "headless/tests/physics_source_connected.rs"),
+            ("test", "pressure_export", "headless/tests/pressure_export.rs"),
+            ("test", "preview_physics_admission", "headless/tests/preview_physics_admission.rs"),
+            ("test", "reader_cli", "headless/tests/reader_cli.rs"),
+            ("test", "refused_package_ids", "headless/tests/refused_package_ids.rs"),
+            ("test", "retained_precision_admission", "headless/tests/retained_precision_admission.rs"),
+            ("test", "s11g_zero_work_receipt", "headless/tests/s11g_zero_work_receipt.rs"),
+            ("test", "tied_joint_references", "headless/tests/tied_joint_references.rs"),
+            ("test", "untied_joint_pressure_references", "headless/tests/untied_joint_pressure_references.rs"),
+            ("test", "user_release_runner_refused", "headless/tests/user_release_runner_refused.rs"),
+        ],
+    ),
 ];
 
 /// Each scanned crate's build-dependencies, by name, exactly: only
-/// `src-tauri`'s build script has any, and it cannot link a reporting crate.
-pub(crate) const BUILD_DEPENDENCIES: [(&str, &[&str]); 4] =
-    [("src-tauri", &["tauri-build"]), ("report_package", &[]), ("pdf_emitter", &[]), ("report_renderer", &[])];
+/// `src-tauri`'s build script has any, and it cannot link a reporting crate;
+/// the headless runner has none (code review r9 at #1682).
+pub(crate) const BUILD_DEPENDENCIES: [(&str, &[&str]); 5] =
+    [("src-tauri", &["tauri-build"]), ("report_package", &[]), ("pdf_emitter", &[]), ("report_renderer", &[]), ("headless", &[])];
 
 fn crate_of(file: &str) -> &str {
     file.split('/').next().unwrap_or("")
@@ -811,20 +967,40 @@ impl FileScan<'_> {
         &self.host
     }
 
-    /// Whether this is `src-tauri` test-only code (code review r7 at #1682;
-    /// §2.8, "Test-only items"): unlike the reporting crates', whose root
-    /// guard stops a dependency build with `cfg(test)`, the shell is the
-    /// primary package of a product build, so its test-only items are held
-    /// to the caller-graph and renderer-call rules.
+    /// Whether this is an allowed dependent's test-only code (code review r7
+    /// at #1682 for `src-tauri`, r9 for the headless runner; §2.8,
+    /// "Test-only items"): unlike the reporting crates', whose root guard
+    /// stops a dependency build with `cfg(test)`, an allowed dependent is
+    /// the primary package of a product build, so its test-only items are
+    /// held to the caller-graph and renderer-call rules.
     fn shell_test(&self) -> bool {
-        self.test_only && self.crate_key() == "src-tauri"
+        self.test_only && self.is_dependent()
+    }
+
+    /// Whether this file is compiled into an allowed dependent that is not a
+    /// reporting crate ([`DEPENDENT_CRATES`]).
+    fn is_dependent(&self) -> bool {
+        DEPENDENT_CRATES.contains(&self.crate_key())
     }
 
     /// Whether this file is one of the three reporting crates, which hold no
     /// `unsafe` code: `unsafe` could build a `DerivedUserRelease` without
     /// naming it (`std::mem::zeroed`, `transmute`), so it is refused there.
     fn is_core(&self) -> bool {
-        self.crate_key() != "src-tauri"
+        REPORTING_KEYS.contains(&self.crate_key())
+    }
+
+    /// Whether `unsafe` code is refused in this file's crate: a reporting
+    /// crate's, or an allowed dependent's on [`UNSAFE_FORBIDDING_DEPENDENTS`]
+    /// (code review r9 at #1682).
+    fn forbids_unsafe(&self) -> bool {
+        self.is_core() || UNSAFE_FORBIDDING_DEPENDENTS.contains(&self.crate_key())
+    }
+
+    /// Whether this file is compiled into the headless runner (code review r9
+    /// at #1682), whose own additions to the production lists apply.
+    fn is_runner(&self) -> bool {
+        self.crate_key() == "headless"
     }
 
     /// A type alias's or an associated type's name in `report_package`. In the
@@ -853,13 +1029,16 @@ impl FileScan<'_> {
     /// generic arguments ([`lexical_findings`]), in
     /// any position, macro tokens, attributes and inline test modules
     /// included. A file that does not lex is a finding.
+    /// In an allowed dependent on [`UNSAFE_FORBIDDING_DEPENDENTS`] only the
+    /// `unsafe` keyword rule applies (code review r9 at #1682).
     fn token_rules(&mut self) {
         let Ok(tokens) = self.text.parse::<TokenStream>() else {
             self.finding(0, "a file that does not lex");
             return;
         };
         let mut found = Vec::new();
-        lexical_findings(tokens, &mut found);
+        let label = if self.is_core() { "a reporting crate" } else { "the headless runner" };
+        lexical_findings(tokens, self.is_core(), label, &mut found);
         for (line, what) in found {
             self.finding(line, what);
         }
@@ -868,6 +1047,8 @@ impl FileScan<'_> {
     fn unsafe_found(&mut self, line: usize, what: &str) {
         if self.is_core() {
             self.finding(line, format!("{what} in a reporting crate"));
+        } else if self.forbids_unsafe() {
+            self.finding(line, format!("{what} in the headless runner"));
         }
     }
 
@@ -1115,6 +1296,17 @@ impl FileScan<'_> {
             let key = path_text(meta.path());
             match &meta {
                 syn::Meta::Path(_) if SERDE_FLAGS.contains(&key.as_str()) => {}
+                // The headless runner's own (code review r9 at #1682).
+                syn::Meta::Path(_) if self.is_runner() && RUNNER_SERDE_FLAGS.contains(&key.as_str()) => {}
+                syn::Meta::NameValue(value) if self.is_runner() && RUNNER_SERDE_FUNCTIONS.iter().any(|(listed, _)| *listed == key) => {
+                    let literal = match &value.value {
+                        syn::Expr::Lit(syn::ExprLit { lit: syn::Lit::Str(text), .. }) => Some(text.value()),
+                        _ => None,
+                    };
+                    if !literal.as_deref().is_some_and(|text| RUNNER_SERDE_FUNCTIONS.contains(&(key.as_str(), text))) {
+                        self.finding(line, format!("a {key} naming a function other than the one admitted"));
+                    }
+                }
                 syn::Meta::NameValue(value) if SERDE_VALUED.contains(&key.as_str()) => {
                     if key == "skip_serializing_if" {
                         let literal = match &value.value {
@@ -1201,7 +1393,8 @@ impl FileScan<'_> {
     /// a string literal, so they bring in no code and need no rule beyond the
     /// list.
     fn check_invocation_path(&mut self, path: &str, tokens: &TokenStream, line: usize) {
-        if !MACRO_INVOCATIONS.contains(&path) {
+        let runner_listed = self.is_runner() && RUNNER_MACRO_INVOCATIONS.iter().any(|(listed, _)| *listed == path);
+        if !MACRO_INVOCATIONS.contains(&path) && !runner_listed {
             self.production_finding(line, format!("the macro {path}! is not on the invocation list"));
         }
         let last = path.rsplit("::").next().unwrap_or(path);
@@ -1325,7 +1518,7 @@ impl FileScan<'_> {
                 }
             }
             (Some(_), _) => self.finding(line, format!("the macro {name} differs from its pinned text (review it and replace its pin)")),
-            (None, _) if self.shell_test() => self.finding(line, format!("the macro definition {name} in a src-tauri test-only item is not on the test macro allow-list")),
+            (None, _) if self.shell_test() => self.finding(line, format!("the macro definition {name} in a {} test-only item is not on the test macro allow-list", self.host)),
             (None, _) => self.production_finding(line, format!("the macro definition {name} is not on the allow-list")),
         }
         self.with_owner(Owner::Macro, |scan| scan.screen_tokens(&item.mac.tokens, true));
@@ -1372,7 +1565,7 @@ impl FileScan<'_> {
             let shell_crate_import = self.shell_test() && path.iter().any(|segment| segment == RENDERER_CRATE || segment == PDF_CRATE);
             if glob {
                 if shell_crate_import {
-                    self.finding(line, format!("a glob import of {joined} in a src-tauri test-only item"));
+                    self.finding(line, format!("a glob import of {joined} in a {crate_key} test-only item"));
                 }
                 self.production_finding(line, format!("a glob import of {joined}"));
                 continue;
@@ -1381,7 +1574,7 @@ impl FileScan<'_> {
                 let last = path.last().map(String::as_str).unwrap_or_default();
                 let binds_crate = path.len() == 1 || last == "self" || last == RENDERER_CRATE || last == PDF_CRATE;
                 if binds_crate || path.iter().any(|segment| RENDERER_PAIR.contains(&segment.as_str())) {
-                    self.finding(line, format!("the import {joined} in a src-tauri test-only item binds the renderer or PDF crate or the renderer's pair"));
+                    self.finding(line, format!("the import {joined} in a {crate_key} test-only item binds the renderer or PDF crate or the renderer's pair"));
                 }
             }
             let last = path.last().cloned().unwrap_or_default();
@@ -1396,7 +1589,7 @@ impl FileScan<'_> {
             if SOURCE_MACROS.contains(&imported.as_str()) {
                 self.finding(line, format!("the import {joined} binds the source macro {imported}"));
             }
-            if crate_key != "src-tauri" {
+            if REPORTING_KEYS.contains(&crate_key.as_str()) {
                 // Code review r4 at #1682: whether a path names a macro is not
                 // decidable from source, so in the three reporting crates
                 // every rename and every non-private import is on a closed
@@ -1436,9 +1629,12 @@ impl FileScan<'_> {
                         self.production_finding(line, format!("a {} use of {joined} re-exports the renderer or PDF crate", "non-private"));
                     }
                 }
-                "src-tauri" => {
+                // The allowed dependents (code review r9 at #1682 for the
+                // headless runner): no import of the renderer or PDF crate or
+                // of a scanned function.
+                "src-tauri" | "headless" => {
                     if names_crate(RENDERER_CRATE) || names_crate(PDF_CRATE) || path.iter().any(|segment| ROWS.iter().any(|(function, _, _)| function == segment)) {
-                        self.production_finding(line, format!("src-tauri imports {joined}"));
+                        self.production_finding(line, format!("{crate_key} imports {joined}"));
                     }
                 }
                 _ => {}
@@ -1501,7 +1697,7 @@ impl<'ast> Visit<'ast> for FileScan<'_> {
             syn::Item::Use(i) => &i.attrs,
             _ => &[],
         };
-        // Test-only items are read in all four crates: the reporting crates'
+        // Test-only items are read in every scanned crate: the reporting crates'
         // since code review r6, `src-tauri`'s since code review r7 at #1682.
         if is_test_only(attrs) && !self.test_only {
             self.as_test_only(|scan| scan.visit_item(item));
@@ -1539,18 +1735,25 @@ impl<'ast> Visit<'ast> for FileScan<'_> {
         let paths = module.attrs.iter().filter(|attr| path_text(attr.path()) == "path").count();
         for attr in &module.attrs {
             if path_text(attr.path()) == "path" {
-                // Code review r7 at #1682: a `src-tauri` test module's one
-                // `#[path = "<literal>"]`, on an outlined module outside any
-                // inline module, is followed ([`path_module_key`]) and the
-                // file read as that crate's test code; any other `#[path]` is
-                // a finding, as in production.
+                // Code review r7 at #1682: an allowed dependent's test
+                // module's one `#[path = "<literal>"]`, on an outlined module
+                // outside any inline module, is followed ([`path_module_key`])
+                // and the file read as that crate's test code; any other
+                // `#[path]` is a finding, as in production. Since code review
+                // r9, a production module's is followed too, wherever it
+                // points, and read as production, besides being a finding.
                 let literal = match &attr.meta {
                     syn::Meta::NameValue(syn::MetaNameValue { value: syn::Expr::Lit(syn::ExprLit { lit: syn::Lit::Str(text), .. }), .. }) => Some(text.value()),
                     _ => None,
                 };
+                let followable = paths == 1 && module.content.is_none() && self.inline.is_empty();
                 match literal {
-                    Some(literal) if self.shell_test() && paths == 1 && module.content.is_none() && self.inline.is_empty() => followed = Some(literal),
-                    _ if self.shell_test() => self.finding(line, format!("a #[path] on the src-tauri test module {name} that is not one string literal on an outlined module outside inline modules")),
+                    Some(literal) if self.shell_test() && followable => followed = Some(literal),
+                    _ if self.shell_test() => self.finding(line, format!("a #[path] on the {} test module {name} that is not one string literal on an outlined module outside inline modules", self.host)),
+                    Some(literal) if !self.test_only && followable => {
+                        self.finding(line, format!("a #[path] on the production module {name}"));
+                        followed = Some(literal);
+                    }
                     _ => self.finding(line, format!("a #[path] on the production module {name}")),
                 }
             } else {
@@ -2108,7 +2311,11 @@ fn entry_colon(entry: &[TokenTree]) -> Option<usize> {
 /// is half of `<<` or `<=`; `>` closes unless it ends `->`, `=>` or starts
 /// `>=`; `;` and every brace group reset it. A comparison followed by a block
 /// argument (`f(a < b, { .. })`) is therefore found too, which fails closed.
-fn lexical_findings(tokens: TokenStream, out: &mut Vec<(usize, String)>) {
+///
+/// With `reporting` false (an allowed dependent on
+/// [`UNSAFE_FORBIDDING_DEPENDENTS`]; code review r9 at #1682) only the
+/// `unsafe` keyword is found, the finding naming `label`.
+fn lexical_findings(tokens: TokenStream, reporting: bool, label: &str, out: &mut Vec<(usize, String)>) {
     let trees: Vec<TokenTree> = tokens.into_iter().collect();
     let mut open = 0usize;
     for (index, tree) in trees.iter().enumerate() {
@@ -2121,7 +2328,10 @@ fn lexical_findings(tokens: TokenStream, out: &mut Vec<(usize, String)>) {
                 // tokens included, besides the crate root's
                 // `#![forbid(unsafe_code)]`, which the compiler enforces.
                 if text == "unsafe" {
-                    out.push((line_of(ident.span()), "the unsafe keyword in a reporting crate".to_string()));
+                    out.push((line_of(ident.span()), format!("the unsafe keyword in {label}")));
+                }
+                if !reporting {
+                    continue;
                 }
                 if let Some(raw) = text.strip_prefix("r#") {
                     if !RAW_IDENTIFIERS.contains(&raw) {
@@ -2140,13 +2350,15 @@ fn lexical_findings(tokens: TokenStream, out: &mut Vec<(usize, String)>) {
                 }
             }
             TokenTree::Group(group) => {
-                if group.delimiter() == proc_macro2::Delimiter::Brace {
+                if reporting && group.delimiter() == proc_macro2::Delimiter::Brace {
                     if previous_char(&['<']) || (open > 0 && previous_char(&[',', '='])) {
                         out.push((line_of(group.span()), "a brace or block expression in generic arguments in a reporting crate".to_string()));
                     }
+                }
+                if group.delimiter() == proc_macro2::Delimiter::Brace {
                     open = 0;
                 }
-                lexical_findings(group.stream(), out);
+                lexical_findings(group.stream(), reporting, label, out);
             }
             TokenTree::Literal(_) => {}
         }
@@ -2176,20 +2388,22 @@ fn module_file(files: &BTreeMap<String, String>, roots: &BTreeSet<String>, decla
     }
 }
 
-/// The file a `src-tauri` test module's `#[path = "<literal>"]` loads (code
-/// review r7 at #1682), as a `<crate key>/...` path: on an outlined module
-/// outside inline modules, Rust resolves the literal from the declaring
-/// file's directory. The literal is joined in the project tree ([`CRATES`]),
-/// `.` and `..` resolved, and the result must lie in one of the four crates;
-/// an absolute literal, a backslash, or a file outside them is an error (a
-/// finding).
+/// The file a module's `#[path = "<literal>"]` loads (code review r7 at
+/// #1682 for `src-tauri`'s test modules; r9 for every followed one), as a
+/// `<crate key>/...` path: on an outlined module outside inline modules,
+/// Rust resolves the literal from the declaring file's directory. The
+/// literal is joined in the project tree ([`CRATES`]), `.` and `..`
+/// resolved, and the result must lie in one of the scanned crates; an
+/// absolute literal, a backslash, or a file outside them is an error (a
+/// finding). One that leaves the declaring crate's directory is a finding
+/// besides, unless listed ([`PATH_CROSSINGS`]).
 pub(crate) fn path_module_key(declaring: &str, literal: &str) -> Result<String, String> {
     let refuse = |why: &str| Err(format!("{declaring}: the #[path] {literal:?} {why}"));
     if literal.is_empty() || literal.starts_with('/') || literal.contains('\\') || literal.contains(':') {
         return refuse("is not a relative path");
     }
     let key = crate_of(declaring);
-    let Some((_, root)) = CRATES.iter().find(|(crate_key, _)| *crate_key == key) else { return refuse("is declared outside the four crates") };
+    let Some((_, root)) = CRATES.iter().find(|(crate_key, _)| *crate_key == key) else { return refuse("is declared outside the scanned crates") };
     let relative = &declaring[key.len()..];
     let joined = format!("{root}{relative}");
     let mut segments: Vec<String> = joined.split('/').map(str::to_string).collect();
@@ -2211,7 +2425,7 @@ pub(crate) fn path_module_key(declaring: &str, literal: &str) -> Result<String, 
             return Ok(format!("{crate_key}/{rest}"));
         }
     }
-    refuse(&format!("loads {resolved}, outside the four crates"))
+    refuse(&format!("loads {resolved}, outside the scanned crates"))
 }
 
 /// The scan over `sources`: every finding, as text. Empty when the boundary
@@ -2266,13 +2480,21 @@ pub(crate) fn scan_reading_all(sources: &Sources) -> (Vec<String>, BTreeSet<Stri
                 _ => findings.push(format!("{key}: Cargo reports {} lib targets, not exactly one", libraries.len())),
             }
         }
+        // Code review r9 at #1682: every library and binary root of an
+        // allowed dependent on [`UNSAFE_FORBIDDING_DEPENDENTS`] carries
+        // `#![forbid(unsafe_code)]`, as a reporting crate's library root does.
+        if UNSAFE_FORBIDDING_DEPENDENTS.contains(&key) {
+            for target in actual.iter().filter(|target| is_scanned_target(&target.kind)) {
+                forbid_roots.insert(target.src_path.clone());
+            }
+        }
         let build: BTreeSet<String> = sources.build_dependencies.get(key).cloned().unwrap_or_default();
         let expected_build: BTreeSet<String> =
             BUILD_DEPENDENCIES.iter().find(|(crate_key, _)| *crate_key == key).map(|(_, names)| names.iter().map(|name| name.to_string()).collect()).unwrap_or_default();
         if build != expected_build {
             findings.push(format!("{key}: the build-dependencies are {build:?}, not {expected_build:?}"));
         }
-        if sources.bin_dirs.contains(key) {
+        if sources.bin_dirs.contains(key) && !BIN_DIRS.contains(&key) {
             findings.push(format!("{key} has a src/bin directory"));
         }
         // Code review r7 at #1682: every build script Cargo reports is pinned
@@ -2294,10 +2516,12 @@ pub(crate) fn scan_reading_all(sources: &Sources) -> (Vec<String>, BTreeSet<Stri
             }
         }
         // Code review r7 at #1682: `src-tauri`'s normal and development
-        // dependencies are exactly [`SHELL_DEPENDENCIES`].
-        if key == "src-tauri" {
+        // dependencies are exactly [`SHELL_DEPENDENCIES`]; since code review
+        // r9, the headless runner's are exactly [`RUNNER_DEPENDENCIES`]
+        // ([`DEPENDENCY_PINS`]).
+        if let Some((_, pinned)) = DEPENDENCY_PINS.iter().find(|(pinned_key, _)| *pinned_key == key) {
             let actual: BTreeSet<String> = sources.dependencies.get(key).cloned().unwrap_or_default();
-            let expected: BTreeSet<String> = SHELL_DEPENDENCIES.iter().map(|dependency| dependency.to_string()).collect();
+            let expected: BTreeSet<String> = pinned.iter().map(|dependency| dependency.to_string()).collect();
             for dependency in actual.difference(&expected) {
                 findings.push(format!("{key}: Cargo reports the dependency {dependency}, which is not on the dependency pin list"));
             }
@@ -2359,7 +2583,7 @@ pub(crate) fn scan_reading_all(sources: &Sources) -> (Vec<String>, BTreeSet<Stri
             test_only,
             host: host.clone(),
         };
-        if scan.is_core() {
+        if scan.forbids_unsafe() {
             scan.token_rules();
         }
         // Code review r4 at #1682: each reporting crate's actual library root
@@ -2384,6 +2608,12 @@ pub(crate) fn scan_reading_all(sources: &Sources) -> (Vec<String>, BTreeSet<Stri
             let next = match followed {
                 Some(literal) => path_module_key(&declaring, &literal).map(|next| {
                     path_loaded.insert(next.clone());
+                    // Code review r9 at #1682: a `#[path]` that leaves the
+                    // declaring crate's directory is a finding, unless listed
+                    // ([`PATH_CROSSINGS`]); the file is still read.
+                    if crate_of(&next) != crate_of(&declaring) && !PATH_CROSSINGS.iter().any(|(from, to, _)| *from == declaring && *to == next) {
+                        findings.push(format!("{declaring}:{line}: the #[path] {literal:?} of the module {name} loads {next}, outside its crate's directory, and is not on the path-crossing allow-list"));
+                    }
                     next
                 }),
                 None => module_file(&sources.files, &roots, &declaring, &inline, &name),
@@ -2540,7 +2770,7 @@ fn describe(kind: &Kind) -> String {
     }
 }
 
-/// The real sources of the four crates, read from the project tree, with
+/// The real sources of the scanned crates, read from the project tree, with
 /// each crate's targets from Cargo ([`crate_sources`]). Read once per test
 /// process for each project path.
 pub(crate) fn project_sources(project: &Path) -> Sources {
@@ -2558,10 +2788,13 @@ pub(crate) fn project_sources(project: &Path) -> Sources {
 }
 
 /// One crate's part of [`Sources`], read from `crate_dir` under the key
-/// `key`: its `.rs` files under `src/`, any scanned target root outside
-/// `src/` inside the crate, whether it has `src/bin`, and its targets and
-/// build-dependencies from [`cargo_crate`]. Panics when Cargo cannot report
-/// them, so the scan fails rather than assuming a layout.
+/// `key`: every `.rs` file in the crate's directory, at any depth but under a
+/// `target` or `.git` directory (code review r9 at #1682: a `#[path]` can load
+/// a file outside `src/`, `../r9.rs` included, and the scan follows it),
+/// whether it has `src/bin`, and its targets and build-dependencies from
+/// [`cargo_crate`]. Only files a crate root or a module declaration loads are
+/// read as code. Panics when Cargo cannot report them, so the scan fails
+/// rather than assuming a layout.
 pub(crate) fn crate_sources(key: &str, crate_dir: &Path, sources: &mut Sources) {
     fn read_dir(dir: &Path, prefix: &str, out: &mut BTreeMap<String, String>) {
         let mut entries: Vec<_> = std::fs::read_dir(dir).unwrap().map(|entry| entry.unwrap().path()).collect();
@@ -2569,19 +2802,15 @@ pub(crate) fn crate_sources(key: &str, crate_dir: &Path, sources: &mut Sources) 
         for path in entries {
             let name = path.file_name().unwrap().to_string_lossy().to_string();
             if path.is_dir() {
-                read_dir(&path, &format!("{prefix}/{name}"), out);
+                if name != "target" && name != ".git" {
+                    read_dir(&path, &format!("{prefix}/{name}"), out);
+                }
             } else if name.ends_with(".rs") {
                 out.insert(format!("{prefix}/{name}"), std::fs::read_to_string(&path).unwrap());
             }
         }
     }
-    read_dir(&crate_dir.join("src"), &format!("{key}/src"), &mut sources.files);
-    // Code review r7 at #1682: `tests/` too, which a `src-tauri` test module
-    // can load by `#[path]` (`report_package/tests/common/package_basis.rs`).
-    // Only files a crate root or a module declaration loads are read.
-    if crate_dir.join("tests").is_dir() {
-        read_dir(&crate_dir.join("tests"), &format!("{key}/tests"), &mut sources.files);
-    }
+    read_dir(crate_dir, key, &mut sources.files);
     sources.crate_dirs.insert(key.to_string(), std::fs::canonicalize(crate_dir).unwrap_or_else(|error| panic!("{}: {error}", crate_dir.display())));
     if crate_dir.join("src/bin").is_dir() {
         sources.bin_dirs.insert(key.to_string());
@@ -2753,8 +2982,9 @@ const CRATES_IO: &str = "registry+https://github.com/rust-lang/crates.io-index";
 /// read from; and, since code review r8, each reporting package's
 /// dependents, from Cargo's metadata of every package in the project and of
 /// the path dependencies reachable from them, against the exact allow-list
-/// ([`REPORTING_DEPENDENTS`], [`in_repo_packages`]). Empty when the
-/// configuration holds.
+/// ([`REPORTING_DEPENDENTS`], [`in_repo_packages`]); and, since code review
+/// r9, no proc-macro in the allowed dependents' path-dependency closure
+/// ([`proc_macro_findings`]). Empty when the configuration holds.
 pub(crate) fn build_configuration(sources: &Sources, project: &Path) -> Vec<String> {
     let mut findings = Vec::new();
     let Some(repository) = repository_root(project) else {
@@ -2799,8 +3029,15 @@ pub(crate) fn build_configuration(sources: &Sources, project: &Path) -> Vec<Stri
     // Code review r7 at #1682: the build scripts of the consumers' in-repo
     // path packages ([`in_repo_build_scripts`]).
     let shell = canonical(&project.join(CONSUMERS[0].1).to_string_lossy());
-    match in_repo_build_scripts(&CONSUMERS.iter().map(|(_, manifest, _)| project.join(manifest)).collect::<Vec<_>>(), &expected) {
+    let consumers: Vec<PathBuf> = CONSUMERS.iter().map(|(_, manifest, _)| project.join(manifest)).collect();
+    match in_repo_build_scripts(&consumers, &expected) {
         Ok(scripts) => findings.extend(build_script_findings(&scripts, &shell)),
+        Err(error) => findings.push(error),
+    }
+    // Code review r9 at #1682: no proc-macro in the path-dependency closure
+    // of the allowed dependents, which holds every reporting crate's.
+    match path_packages(&consumers) {
+        Ok(packages) => findings.extend(proc_macro_findings(&packages)),
         Err(error) => findings.push(error),
     }
     findings
@@ -2843,15 +3080,56 @@ pub(crate) struct InRepoBuildScript {
 /// reporting package (whose build scripts the target pin refuses), or a
 /// package that depends on one. `src-tauri`'s is pinned by content
 /// ([`BUILD_SCRIPTS`]); any other such package is a finding
-/// ([`build_configuration`]). The walk follows each manifest's path
-/// dependencies, of every kind, by `cargo metadata --format-version 1
-/// --offline --locked --no-deps` per manifest, which needs no download (a
-/// registry package cannot depend on a repository path). Every package with
-/// a build script is returned, whether or not it reaches a reporting one.
+/// ([`build_configuration`]). The walk ([`path_packages`]) follows each
+/// manifest's path dependencies, of every kind, by `cargo metadata
+/// --format-version 1 --offline --locked --no-deps` per manifest, which needs
+/// no download (a registry package cannot depend on a repository path).
+/// Every package with a build script is returned, whether or not it reaches
+/// a reporting one.
 pub(crate) fn in_repo_build_scripts(consumers: &[PathBuf], expected: &BTreeMap<String, PathBuf>) -> Result<Vec<InRepoBuildScript>, String> {
     let reporting: BTreeSet<PathBuf> = expected.values().cloned().collect();
-    // Each package: (name, build script, path dependencies' manifests).
-    let mut packages: BTreeMap<PathBuf, (String, Option<PathBuf>, Vec<PathBuf>)> = BTreeMap::new();
+    let packages = path_packages(consumers)?;
+    // Which packages reach a reporting package through path dependencies.
+    let mut reaches: BTreeSet<PathBuf> = reporting.iter().filter(|manifest| packages.contains_key(*manifest)).cloned().collect();
+    loop {
+        let before = reaches.len();
+        for (manifest, package) in &packages {
+            if package.dependencies.iter().any(|dependency| reaches.contains(dependency)) {
+                reaches.insert(manifest.clone());
+            }
+        }
+        if reaches.len() == before {
+            break;
+        }
+    }
+    Ok(packages
+        .iter()
+        .filter_map(|(manifest, package)| {
+            package.script.as_ref().map(|script| InRepoBuildScript { package: package.name.clone(), manifest: manifest.clone(), script: script.clone(), reaches_reporting: reaches.contains(manifest) })
+        })
+        .collect())
+}
+
+/// One in-repository path package, as Cargo reports it ([`path_packages`]).
+#[derive(Clone, Debug)]
+pub(crate) struct PathPackage {
+    pub(crate) name: String,
+    /// Its build script, if Cargo reports one.
+    pub(crate) script: Option<PathBuf>,
+    /// The names of its `proc-macro` targets (code review r9 at #1682).
+    pub(crate) proc_macros: Vec<String>,
+    /// Its path dependencies' canonical manifests, of every kind.
+    pub(crate) dependencies: Vec<PathBuf>,
+}
+
+/// The packages at `consumers` and every path dependency reachable from them,
+/// of every kind (normal, `dev`, `build`, any platform), by canonical
+/// manifest: each read by `cargo metadata --format-version 1 --offline
+/// --locked --no-deps --manifest-path`, run in its directory, which needs no
+/// download (a registry package cannot depend on a repository path).
+/// Metadata Cargo does not give is an error (a finding).
+pub(crate) fn path_packages(consumers: &[PathBuf]) -> Result<BTreeMap<PathBuf, PathPackage>, String> {
+    let mut packages: BTreeMap<PathBuf, PathPackage> = BTreeMap::new();
     let mut queue: Vec<PathBuf> = consumers.iter().map(|manifest| canonical(&manifest.to_string_lossy())).collect();
     while let Some(manifest) = queue.pop() {
         if packages.contains_key(&manifest) {
@@ -2875,13 +3153,10 @@ pub(crate) fn in_repo_build_scripts(consumers: &[PathBuf], expected: &BTreeMap<S
             .find(|package| package["manifest_path"].as_str().map(canonical).as_ref() == Some(&manifest))
             .ok_or_else(|| format!("{}: cargo metadata reports no package for it", manifest.display()))?;
         let name = package["name"].as_str().unwrap_or("?").to_string();
-        let script = package["targets"]
-            .as_array()
-            .into_iter()
-            .flatten()
-            .find(|target| target["kind"].as_array().into_iter().flatten().any(|kind| kind.as_str() == Some("custom-build")))
-            .and_then(|target| target["src_path"].as_str())
-            .map(canonical);
+        let targets: Vec<&serde_json::Value> = package["targets"].as_array().into_iter().flatten().collect();
+        let has_kind = |target: &serde_json::Value, wanted: &str| target["kind"].as_array().into_iter().flatten().any(|kind| kind.as_str() == Some(wanted));
+        let script = targets.iter().find(|target| has_kind(target, "custom-build")).and_then(|target| target["src_path"].as_str()).map(canonical);
+        let proc_macros = targets.iter().filter(|target| has_kind(target, "proc-macro")).map(|target| target["name"].as_str().unwrap_or("?").to_string()).collect();
         let mut dependencies = Vec::new();
         for dependency in package["dependencies"].as_array().into_iter().flatten() {
             if let Some(path) = dependency["path"].as_str() {
@@ -2890,27 +3165,32 @@ pub(crate) fn in_repo_build_scripts(consumers: &[PathBuf], expected: &BTreeMap<S
                 dependencies.push(next);
             }
         }
-        packages.insert(manifest, (name, script, dependencies));
+        packages.insert(manifest, PathPackage { name, script, proc_macros, dependencies });
     }
-    // Which packages reach a reporting package through path dependencies.
-    let mut reaches: BTreeSet<PathBuf> = reporting.iter().filter(|manifest| packages.contains_key(*manifest)).cloned().collect();
-    loop {
-        let before = reaches.len();
-        for (manifest, (_, _, dependencies)) in &packages {
-            if dependencies.iter().any(|dependency| reaches.contains(dependency)) {
-                reaches.insert(manifest.clone());
-            }
-        }
-        if reaches.len() == before {
-            break;
-        }
-    }
-    Ok(packages
+    Ok(packages)
+}
+
+/// A finding for each proc-macro package in the path-dependency closure of
+/// the reporting crates and their allowed dependents (`packages`, from
+/// [`path_packages`] at the allowed dependents, which reach every reporting
+/// crate) that is not on [`PROC_MACRO_PACKAGES`] (code review r9 at #1682;
+/// §2.8, "Proc-macros"): by target kind, as Cargo reports it, whatever the
+/// dependency's key, rename or kind, and however deep. Its expansion is code
+/// the scan never reads: the reviewer's round-9 macro emitted the producer's
+/// admitting entry into the runner.
+pub(crate) fn proc_macro_findings(packages: &BTreeMap<PathBuf, PathPackage>) -> Vec<String> {
+    packages
         .iter()
-        .filter_map(|(manifest, (name, script, _))| {
-            script.as_ref().map(|script| InRepoBuildScript { package: name.clone(), manifest: manifest.clone(), script: script.clone(), reaches_reporting: reaches.contains(manifest) })
+        .filter(|(_, package)| !package.proc_macros.is_empty() && !PROC_MACRO_PACKAGES.contains(&package.name.as_str()))
+        .map(|(manifest, package)| {
+            format!(
+                "the in-repository package {} ({}) builds the proc-macro target {} and is a path dependency of a reporting crate or an allowed dependent: its expansion is code the scan does not read",
+                package.name,
+                manifest.display(),
+                package.proc_macros.join(", ")
+            )
         })
-        .collect())
+        .collect()
 }
 
 /// Each reporting package's expected manifest: `Cargo.toml` in the

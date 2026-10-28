@@ -4,6 +4,11 @@
 //! request input from stdin or a caller-named file, structured JSON on stdout,
 //! optional explicit file output, and no network/daemon/telemetry/hidden
 //! filesystem mutation surface.
+//!
+//! Holds no `unsafe` code: the reach scan requires `#![forbid(unsafe_code)]`
+//! at this root (DEL-08-01 Design `report-user-release.md` §2.8; code review
+//! r9 at #1682).
+#![forbid(unsafe_code)]
 
 use std::io::{self, Read};
 use std::process::ExitCode;

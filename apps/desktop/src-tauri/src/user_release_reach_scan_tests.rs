@@ -4,8 +4,8 @@
 
 use crate::user_release_reach_scan::{
     allowed_dependents, build_configuration, build_script_findings, cargo_configs, cargo_crate, crate_sources, dependent_findings, dependent_locations, expected_manifests, in_repo_build_scripts, in_repo_packages, manifest_overrides, path_module_key,
-    project_manifests, project_sources, repository_root, resolved_identities, scan, scan_reading, scan_reading_all, CrateTarget, Dependents, Sources, BUILD_DEPENDENCIES, BUILD_SCRIPTS, CONSUMERS, CRATES, DEPENDENT_MANIFESTS,
-    REPORTING_DEPENDENTS, REPORTING_PACKAGES, SHELL_DEPENDENCIES, SHELL_TEST_CALLERS, TARGETS, TEST_PROOF_ITEMS,
+    path_packages, proc_macro_findings, project_manifests, project_sources, repository_root, resolved_identities, scan, scan_reading, scan_reading_all, CrateTarget, Dependents, Sources, BUILD_DEPENDENCIES, BUILD_SCRIPTS, CONSUMERS, CRATES, DEPENDENT_MANIFESTS,
+    PROC_MACRO_PACKAGES, REPORTING_DEPENDENTS, REPORTING_PACKAGES, RUNNER_DEPENDENCIES, SHELL_DEPENDENCIES, SHELL_TEST_CALLERS, TARGETS, TEST_PROOF_ITEMS,
 };
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::Path;
@@ -66,10 +66,10 @@ fn the_scan_reads_the_production_files() {
 /// `report_package`'s are `src-tauri` and the headless runner, the
 /// renderer's are `src-tauri`, `pdf_emitter` and `report_package`, and
 /// `pdf_emitter`'s is `report_package`. No manifest text is matched (the
-/// round-8 repro was a quoted key). That no source under the headless runner
-/// names the admitting entry or the bridge function is the runner's own test
-/// (`core/runner/headless/tests/user_release_runner_refused.rs`), so this
-/// crate's tests read no runner source.
+/// round-8 repro was a quoted key). Since code review r9 the scan reads the
+/// headless runner's sources under the shell's rules
+/// ([`the_scan_reads_the_headless_runner`]); the runner's own name check
+/// (`tests/user_release_runner_refused.rs` there) is kept in addition.
 #[test]
 fn only_the_allowed_packages_depend_on_the_reporting_crates() {
     let project = project();
@@ -401,6 +401,12 @@ fn admit_user_released(request: Value) -> Result<Outcome, String> {
 }
 "),
     );
+    // Code review r9 at #1682: the headless runner's roots, each carrying
+    // `#![forbid(unsafe_code)]`.
+    for root in ["headless/src/lib.rs", "headless/src/bin/headless_preview_runner.rs", "headless/src/bin/openpipestress-runner.rs"] {
+        let main = if root.ends_with("lib.rs") { "" } else { "fn main() {}\n" };
+        files.insert(root.to_string(), format!("#![forbid(unsafe_code)]\n{main}"));
+    }
     let targets = TARGETS
         .iter()
         .map(|(key, targets)| {
@@ -410,7 +416,10 @@ fn admit_user_released(request: Value) -> Result<Outcome, String> {
         .collect();
     let build_dependencies = BUILD_DEPENDENCIES.iter().map(|(key, names)| (key.to_string(), names.iter().map(|name| name.to_string()).collect())).collect();
     // Code review r7 at #1682: the pinned build script and dependency set.
-    let dependencies = BTreeMap::from([("src-tauri".to_string(), SHELL_DEPENDENCIES.iter().map(|dependency| dependency.to_string()).collect())]);
+    let dependencies = BTreeMap::from([
+        ("src-tauri".to_string(), SHELL_DEPENDENCIES.iter().map(|dependency| dependency.to_string()).collect()),
+        ("headless".to_string(), RUNNER_DEPENDENCIES.iter().map(|dependency| dependency.to_string()).collect()),
+    ]);
     let build_scripts = BTreeMap::from([("src-tauri/build.rs".to_string(), real_build_script())]);
     Sources { files, targets, build_dependencies, dependencies, build_scripts, bin_dirs: BTreeSet::new(), crate_dirs: BTreeMap::new() }
 }
@@ -1024,6 +1033,10 @@ fn cargo_reports_exactly_the_allow_listed_targets() {
         if key == "src-tauri" {
             // Code review r7 at #1682: the pinned dependency set is today's.
             assert_eq!(dependencies, SHELL_DEPENDENCIES.iter().map(|dependency| dependency.to_string()).collect::<BTreeSet<_>>());
+        }
+        if key == "headless" {
+            // Code review r9 at #1682: the runner's too.
+            assert_eq!(dependencies, RUNNER_DEPENDENCIES.iter().map(|dependency| dependency.to_string()).collect::<BTreeSet<_>>());
         }
         let expected = TARGETS.iter().find(|(crate_key, _)| *crate_key == key).unwrap().1;
         let mut expected: Vec<CrateTarget> = expected.iter().map(|(kind, name, src_path)| CrateTarget { kind: kind.to_string(), name: name.to_string(), src_path: src_path.to_string() }).collect();
@@ -1671,7 +1684,7 @@ fn the_real_sources_find_the_review_r7_shell_test_forms() {
             vec![("report_package/tests/common/r7_forge.rs", forge_call)],
             "report_package/tests/common/r7_forge.rs:1: render_calculation_report called in the test-only item t",
         ),
-        ("a #[path] outside the four crates", "#[cfg(test)]\n#[path = \"../../../../core/units/src/lib.rs\"]\nmod r7_units;\n".to_string(), vec![], "outside the four crates"),
+        ("a #[path] outside the four crates", "#[cfg(test)]\n#[path = \"../../../../core/units/src/lib.rs\"]\nmod r7_units;\n".to_string(), vec![], "outside the scanned crates"),
         ("an absolute #[path]", "#[cfg(test)]\n#[path = \"/tmp/r7.rs\"]\nmod r7_tests;\n".to_string(), vec![], "is not a relative path"),
         (
             "a #[path] inside an inline test module",
@@ -2065,4 +2078,361 @@ fn a_reachable_dependent_outside_the_project_is_a_finding() {
     let repository = repository_root(&real).unwrap();
     let findings = resolved_identities("copy", &std::fs::canonicalize(&shell).unwrap(), &expected, &[repository, tree.base.clone()], &allowed);
     assert_eq!(findings, [format!("copy: in the resolved graph, {expected_finding}")]);
+}
+
+// --- Code review r9 at #1682 -------------------------------------------------
+
+/// The reviewer's round-9 caller: the producer's admitting entry called from
+/// a module the headless runner loads.
+const R9_CALLER: &str = "pub fn r9(request: &serde_json::Value, model: &serde_json::Value, inputs: &open_pipe_stress_report_package::user_release::UserReleaseInputs<'_>) { let _ = open_pipe_stress_report_package::user_release::assemble_derived(request, model, inputs); }\n";
+const R9_CALL: &str = "assemble_derived is called from Fn(\"r9\"), which is not an allowed caller";
+/// The reviewer's round-9 proc-macro, whose expansion names the admitting
+/// entry the scan never reads.
+const R9_MACRO: &str = "use proc_macro::TokenStream;\n#[proc_macro]\npub fn entry(_: TokenStream) -> TokenStream { \"open_pipe_stress_report_package::user_release::assemble_derived\".parse().unwrap() }\n";
+const FORBID: &str = "#![forbid(unsafe_code)]\n";
+
+/// The headless runner's directory in the project, from [`CRATES`].
+fn runner_dir() -> &'static str {
+    CRATES.iter().find(|(key, _)| *key == "headless").unwrap().1
+}
+
+/// A scratch copy of the headless runner that Cargo reads (its manifest with
+/// the path dependencies made absolute, its lock, `src/` and `tests/`), at
+/// `headless` in `tree`, with `manifest` applied to its manifest text, `lib`
+/// to its `src/lib.rs`, and `files` written; and the real sources with the
+/// runner's part read from the copy. Returns the sources and the copy's
+/// manifest.
+fn runner_copy(tree: &ScratchTree, manifest: &dyn Fn(&str) -> String, lib: &dyn Fn(&str) -> String, files: &[(&str, &str)]) -> (Sources, std::path::PathBuf) {
+    let dir = tree.crate_copy(runner_dir(), "headless", &[]);
+    copy_dir(&project().join(runner_dir()).join("src"), &dir.join("src"));
+    copy_dir(&project().join(runner_dir()).join("tests"), &dir.join("tests"));
+    let text = std::fs::read_to_string(dir.join("Cargo.toml")).unwrap();
+    std::fs::write(dir.join("Cargo.toml"), manifest(&text)).unwrap();
+    let text = std::fs::read_to_string(dir.join("src/lib.rs")).unwrap();
+    std::fs::write(dir.join("src/lib.rs"), lib(&text)).unwrap();
+    for (path, text) in files {
+        tree.write(&format!("headless/{path}"), text);
+    }
+    let mut sources = project_sources(&project());
+    sources.files.retain(|file, _| !file.starts_with("headless/"));
+    sources.build_scripts.retain(|file, _| !file.starts_with("headless/"));
+    sources.bin_dirs.remove("headless");
+    crate_sources("headless", &dir, &mut sources);
+    (sources, std::fs::canonicalize(dir.join("Cargo.toml")).unwrap())
+}
+
+/// A proc-macro package `name` in `tree` (its `entry!` expands to the
+/// admitting entry's path), with `dependencies` as its manifest's
+/// `[dependencies]` lines; returns its directory.
+fn proc_macro_package(tree: &ScratchTree, name: &str) -> std::path::PathBuf {
+    tree.write(&format!("{name}/Cargo.toml"), &format!("[package]\nname = \"{name}\"\nversion = \"0.1.0\"\nedition = \"2021\"\n\n[lib]\nproc-macro = true\n"));
+    tree.write(&format!("{name}/src/lib.rs"), R9_MACRO);
+    tree.base.join(name)
+}
+
+/// `manifest` with `line` added under its `[dependencies]`.
+fn with_dependency(manifest: &str, line: &str) -> String {
+    assert_eq!(manifest.matches("\n[dependencies]\n").count(), 1);
+    manifest.replacen("\n[dependencies]\n", &format!("\n[dependencies]\n{line}\n"), 1)
+}
+
+/// Also asserted (code review r9 at #1682; §2.8, "Allowed dependents"): the
+/// scan reads the headless runner's library and binary roots and every
+/// production module they load, and reads its test-only modules as test
+/// code; each root carries `#![forbid(unsafe_code)]`; the real tree's
+/// path-dependency closure, from the allowed dependents, holds every
+/// reporting crate and the runner and no proc-macro.
+#[test]
+fn the_scan_reads_the_headless_runner() {
+    let project = project();
+    let (findings, production, test_only) = scan_reading_all(&project_sources(&project));
+    assert!(findings.is_empty(), "{findings:#?}");
+    for file in [
+        "headless/src/lib.rs",
+        "headless/src/bin/openpipestress-runner.rs",
+        "headless/src/bin/headless_preview_runner.rs",
+        "headless/src/benchmark_binding.rs",
+        "headless/src/reader_binding.rs",
+        "headless/src/redaction_binding.rs",
+        "headless/src/result_envelope_binding.rs",
+    ] {
+        assert!(production.contains(file), "{file}: {production:?}");
+    }
+    assert!(test_only.contains("headless/src/load_reference_route_tests.rs"), "{test_only:?}");
+    assert!(!production.contains("headless/src/load_reference_route_tests.rs"));
+    // Integration tests are separate test crates no product build compiles:
+    // pinned by name and file ([`TARGETS`]), not read (as the other crates'),
+    // and covered by the runner's own name check.
+    assert!(!production.contains("headless/tests/user_release_runner_refused.rs"));
+    let sources = project_sources(&project);
+    for root in ["headless/src/lib.rs", "headless/src/bin/openpipestress-runner.rs", "headless/src/bin/headless_preview_runner.rs"] {
+        assert_eq!(sources.files[root].matches(FORBID).count(), 1, "{root}");
+    }
+    let consumers: Vec<std::path::PathBuf> = CONSUMERS.iter().map(|(_, manifest, _)| project.join(manifest)).collect();
+    let packages = path_packages(&consumers).unwrap();
+    let names: BTreeSet<&str> = packages.values().map(|package| package.name.as_str()).collect();
+    for name in ["openpipestress-desktop", "open_pipe_stress_headless_runner", "open_pipe_stress_report_package", "open_pipe_stress_report_renderer", "open_pipe_stress_pdf_emitter", "open_pipe_stress_mechanics_benchmarks"] {
+        assert!(names.contains(name), "{name}: {names:?}");
+    }
+    assert!(packages.values().all(|package| package.proc_macros.is_empty()), "{packages:#?}");
+    assert!(proc_macro_findings(&packages).is_empty());
+    assert!(PROC_MACRO_PACKAGES.is_empty());
+}
+
+/// Code review r9 at #1682 (P2s, INSIDE), on scratch copies of the headless
+/// runner that Cargo reads: the reviewer's `#[path]` module calling the
+/// admitting entry, a `#[path]` to a file inside `src/`, a test module's
+/// `#[path]` out of the crate's directory, a `mod` declared from `build.rs`
+/// and from a new `tests/` file, a new normal, development and build
+/// dependency, the reviewer's local proc-macro, a renamed one and one reached
+/// through another path dependency, and the other rules the runner is now
+/// held to, each give their own findings and only those; the unedited copy
+/// and a test module's `#[path]` inside the crate pass.
+#[test]
+fn the_review_r9_repros_in_scratch_copies() {
+    let same = |text: &str| text.to_string();
+    let append = |extra: &'static str| move |text: &str| format!("{text}{extra}");
+    // A real crate the runner does not depend on, by the directory the scan
+    // read (no path literal here: hosted CI routes desktop Rust by the
+    // project paths this crate's literals name).
+    let pdf_dir = || project_sources(&project()).crate_dirs["pdf_emitter"].display().to_string();
+    let pdf = pdf_dir();
+    let not_pinned = |dependency: &str| format!("headless: Cargo reports the dependency {dependency}, which is not on the dependency pin list");
+    let invocation = |path: &str| format!("the macro {path}! is not on the invocation list");
+    type Case<'a> = (&'a str, Box<dyn Fn(&str) -> String>, Box<dyn Fn(&str) -> String>, Vec<(&'a str, String)>, Vec<String>);
+    let mut cases: Vec<Case> = vec![
+        ("unedited", Box::new(same), Box::new(same), vec![], vec![]),
+        (
+            "the reviewer's #[path] module",
+            Box::new(same),
+            Box::new(append("#[path = \"../r9.rs\"]\npub mod r9_review;\n")),
+            vec![("r9.rs", R9_CALLER.to_string())],
+            vec!["a #[path] on the production module r9_review".to_string(), format!("headless/r9.rs:1: {R9_CALL}")],
+        ),
+        (
+            "a #[path] to a file inside src/",
+            Box::new(same),
+            Box::new(append("#[path = \"r9_inside.rs\"]\nmod r9_inside;\n")),
+            vec![("src/r9_inside.rs", R9_CALLER.to_string())],
+            vec!["a #[path] on the production module r9_inside".to_string(), format!("headless/src/r9_inside.rs:1: {R9_CALL}")],
+        ),
+        (
+            "a test module's #[path] out of the crate's directory",
+            Box::new(same),
+            Box::new(append("#[cfg(test)]\n#[path = \"../../r9_outside.rs\"]\nmod r9_outside;\n")),
+            vec![],
+            vec!["the #[path] \"../../r9_outside.rs\" loads core/runner/r9_outside.rs, outside the scanned crates".to_string()],
+        ),
+        (
+            "a test module's #[path] into another scanned crate",
+            Box::new(same),
+            Box::new(append("#[cfg(test)]\n#[path = \"../../../reporting/report_package/src/r9_forge.rs\"]\nmod r9_forge;\n")),
+            vec![],
+            vec!["loads report_package/src/r9_forge.rs, outside its crate's directory, and is not on the path-crossing allow-list".to_string(), "report_package/src/r9_forge.rs: missing".to_string()],
+        ),
+        ("a test module's #[path] inside the crate", Box::new(same), Box::new(append("#[cfg(test)]\n#[path = \"r9_tests.rs\"]\nmod r9_tests;\n")), vec![("src/r9_tests.rs", "#[test]\nfn r9() {}\n".to_string())], vec![]),
+        (
+            "a test module calling the entry",
+            Box::new(same),
+            Box::new(append("#[cfg(test)]\n#[path = \"r9_tests.rs\"]\nmod r9_tests;\n")),
+            vec![("src/r9_tests.rs", R9_CALLER.to_string())],
+            vec!["headless/src/r9_tests.rs:1: assemble_derived called in the test-only item r9".to_string()],
+        ),
+        (
+            "a mod declared from build.rs",
+            Box::new(same),
+            Box::new(same),
+            vec![("build.rs", "mod r9_build;\nfn main() {}\n".to_string()), ("r9_build.rs", R9_CALLER.to_string())],
+            vec![
+                "headless: Cargo builds the custom-build target build-script-build from headless/build.rs, which is not on the target allow-list".to_string(),
+                "headless: the build script headless/build.rs is not on the build-script pin list".to_string(),
+            ],
+        ),
+        (
+            "a mod declared from a new tests/ file",
+            Box::new(same),
+            Box::new(same),
+            vec![("tests/r9.rs", "mod r9_inner;\n".to_string()), ("tests/r9_inner/mod.rs", R9_CALLER.to_string())],
+            vec!["headless: Cargo builds the test target r9 from headless/tests/r9.rs, which is not on the target allow-list".to_string()],
+        ),
+        (
+            "a new normal dependency",
+            Box::new(move |text: &str| with_dependency(text, &format!("open_pipe_stress_pdf_emitter = {{ path = \"{pdf}\" }}"))),
+            Box::new(same),
+            vec![],
+            vec![not_pinned("normal open_pipe_stress_pdf_emitter")],
+        ),
+        (
+            "a new development dependency",
+            Box::new({
+                let pdf = pdf_dir();
+                move |text: &str| format!("{text}\n[dev-dependencies]\nopen_pipe_stress_pdf_emitter = {{ path = \"{pdf}\" }}\n")
+            }),
+            Box::new(same),
+            vec![],
+            vec![not_pinned("dev open_pipe_stress_pdf_emitter")],
+        ),
+        (
+            "a new build dependency",
+            Box::new({
+                let pdf = pdf_dir();
+                move |text: &str| format!("{text}\n[build-dependencies]\nopen_pipe_stress_pdf_emitter = {{ path = \"{pdf}\" }}\n")
+            }),
+            Box::new(same),
+            vec![],
+            vec!["headless: the build-dependencies are {\"open_pipe_stress_pdf_emitter\"}, not {}".to_string()],
+        ),
+        (
+            "the root without #![forbid(unsafe_code)]",
+            Box::new(same),
+            Box::new(|text: &str| {
+                assert_eq!(text.matches(FORBID).count(), 1);
+                text.replacen(FORBID, "", 1)
+            }),
+            vec![],
+            vec!["headless/src/lib.rs:0: the crate root does not carry #![forbid(unsafe_code)] exactly".to_string()],
+        ),
+        (
+            "a call through a declared foreign symbol",
+            Box::new(same),
+            Box::new(append("extern \"Rust\" { fn r9_symbol(); }\npub fn r9() { unsafe { r9_symbol() } }\n")),
+            vec![],
+            vec!["an extern block in the headless runner".to_string(), "an unsafe block in the headless runner".to_string(), "the unsafe keyword in the headless runner".to_string()],
+        ),
+        (
+            "a new macro_rules! definition",
+            Box::new(same),
+            Box::new(append("macro_rules! r9 { () => { open_pipe_stress_report_package::user_release::assemble_derived }; }\n")),
+            vec![],
+            vec!["the macro definition r9 is not on the allow-list".to_string(), "assemble_derived named in a macro's or an attribute's tokens".to_string()],
+        ),
+        (
+            "an edited pinned macro",
+            Box::new(same),
+            Box::new(same),
+            vec![],
+            vec!["the macro base differs from its pinned text".to_string()],
+        ),
+        (
+            "another deserialize_with function",
+            Box::new(same),
+            Box::new(append("#[derive(Deserialize)]\npub struct R9 {\n    #[serde(deserialize_with = \"r9_read\")]\n    pub value: Value,\n}\n")),
+            vec![],
+            vec!["a deserialize_with naming a function other than the one admitted".to_string()],
+        ),
+        (
+            "an import of the admitting entry",
+            Box::new(same),
+            Box::new(append("use open_pipe_stress_report_package::user_release::assemble_derived as r9;\n")),
+            vec![],
+            vec!["headless imports open_pipe_stress_report_package::user_release::assemble_derived".to_string(), "assemble_derived named in a use".to_string()],
+        ),
+        (
+            "the renderer's pair named bare",
+            Box::new(same),
+            Box::new(append("pub fn r9() { let _ = render_calculation_report; }\n")),
+            vec![],
+            vec!["render_calculation_report named other than as a definition or a direct call".to_string()],
+        ),
+    ];
+    // The local proc-macro repros (the reviewer's, renamed, and through
+    // another path dependency): the scan's findings here; the proc-macro
+    // itself is found by the path-closure check below.
+    let tree_macro = ScratchTree::new();
+    let r9_macro = proc_macro_package(&tree_macro, "r9_macro").display().to_string();
+    let entry = |path: &str| format!("pub fn r9(request: &serde_json::Value) {{ let _ = {path}!()(request); }}\n");
+    cases.push((
+        "the reviewer's local proc-macro",
+        Box::new({
+            let r9_macro = r9_macro.clone();
+            move |text: &str| with_dependency(text, &format!("r9_macro = {{ path = \"{r9_macro}\" }}"))
+        }),
+        Box::new(append("pub mod r9_entry;\n")),
+        vec![("src/r9_entry.rs", entry("r9_macro::entry"))],
+        vec![not_pinned("normal r9_macro"), format!("headless/src/r9_entry.rs:1: {}", invocation("r9_macro::entry"))],
+    ));
+    cases.push((
+        "a renamed proc-macro",
+        Box::new({
+            let r9_macro = r9_macro.clone();
+            move |text: &str| with_dependency(text, &format!("r9 = {{ package = \"r9_macro\", path = \"{r9_macro}\" }}"))
+        }),
+        Box::new(append("pub mod r9_entry;\n")),
+        vec![("src/r9_entry.rs", entry("r9::entry"))],
+        vec![not_pinned("normal r9_macro as r9"), invocation("r9::entry")],
+    ));
+    tree_macro.write("r9_helper/Cargo.toml", &format!("[package]\nname = \"r9_helper\"\nversion = \"0.1.0\"\nedition = \"2021\"\n\n[dependencies]\nr9_macro = {{ path = \"{r9_macro}\" }}\n"));
+    tree_macro.write("r9_helper/src/lib.rs", "pub use r9_macro::entry;\n");
+    let r9_helper = tree_macro.base.join("r9_helper").display().to_string();
+    cases.push((
+        "a proc-macro through another path dependency",
+        Box::new({
+            let r9_helper = r9_helper.clone();
+            move |text: &str| with_dependency(text, &format!("r9_helper = {{ path = \"{r9_helper}\" }}"))
+        }),
+        Box::new(append("pub mod r9_entry;\n")),
+        vec![("src/r9_entry.rs", entry("r9_helper::entry"))],
+        vec![not_pinned("normal r9_helper"), invocation("r9_helper::entry")],
+    ));
+    let mut proc_macro_cases = 0;
+    for (case, manifest, lib, files, expected) in cases {
+        let tree = ScratchTree::new();
+        let files: Vec<(&str, &str)> = files.iter().map(|(path, text)| (*path, text.as_str())).collect();
+        let (mut sources, copy) = runner_copy(&tree, &*manifest, &*lib, &files);
+        if case == "an edited pinned macro" {
+            let file = "headless/src/reader_binding.rs";
+            let text = sources.files.get_mut(file).unwrap();
+            assert_eq!(text.matches("required_members: &[\"source\"],\n            optional_members: $optional,").count(), 1);
+            *text = text.replacen("optional_members: $optional,", "optional_members: $optional, ", 1);
+        }
+        let findings = scan(&sources);
+        for expected in &expected {
+            assert!(findings.iter().any(|finding| finding.contains(expected.as_str())), "{case}: expected {expected:?} in {findings:#?}");
+        }
+        // Each case gives only its own findings.
+        for finding in &findings {
+            assert!(expected.iter().any(|expected| finding.contains(expected.as_str())), "{case}: unexpected {finding:?}");
+        }
+        // The path closure from the copy (the real tree's, from both
+        // allowed dependents, is checked above): a proc-macro is a finding,
+        // by target kind, however it is reached or named.
+        let packages = path_packages(&[copy]).unwrap();
+        let proc_macros = proc_macro_findings(&packages);
+        if case.contains("proc-macro") {
+            proc_macro_cases += 1;
+            assert_eq!(proc_macros.len(), 1, "{case}: {proc_macros:#?}");
+            let at = std::fs::canonicalize(Path::new(&r9_macro).join("Cargo.toml")).unwrap();
+            assert_eq!(
+                proc_macros[0],
+                format!(
+                    "the in-repository package r9_macro ({}) builds the proc-macro target r9_macro and is a path dependency of a reporting crate or an allowed dependent: its expansion is code the scan does not read",
+                    at.display()
+                ),
+                "{case}"
+            );
+        } else {
+            assert!(proc_macros.is_empty(), "{case}: {proc_macros:#?}");
+        }
+    }
+    assert_eq!(proc_macro_cases, 3);
+}
+
+/// Code review r9 at #1682: the path-crossing rule on the real sources. The
+/// two listed crossings are read as the shell's test code; the same file
+/// loaded by another `src-tauri` test module is a finding.
+#[test]
+fn the_real_sources_find_the_review_r9_path_crossings() {
+    let (findings, _, test_only) = scan_reading_all(&project_sources(&project()));
+    assert!(findings.is_empty(), "{findings:#?}");
+    for file in ["report_package/tests/common/package_basis.rs", "report_package/src/forwarding_graph_scan.rs"] {
+        assert!(test_only.contains(file), "{file}: {test_only:?}");
+    }
+    let sources = with_file_text(
+        "src-tauri/src/lib.rs",
+        &format!("{}#[cfg(test)]\n#[path = \"../../../../core/reporting/report_package/tests/common/package_basis.rs\"]\nmod r9_basis;\n", project_sources(&project()).files["src-tauri/src/lib.rs"]),
+        project_sources(&project()),
+    );
+    let findings = scan(&sources);
+    assert_eq!(findings.len(), 1, "{findings:#?}");
+    assert!(findings[0].starts_with("src-tauri/src/lib.rs:") && findings[0].contains("loads report_package/tests/common/package_basis.rs, outside its crate's directory, and is not on the path-crossing allow-list"), "{findings:#?}");
 }
