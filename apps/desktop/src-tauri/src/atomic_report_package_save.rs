@@ -345,7 +345,9 @@ fn create_temp_as(
     ))
 }
 
-trait AtomicSaveIo {
+/// The writer's file operations: the system's, or a test's injected failures
+/// (shared at crate visibility so another format's tests can inject them).
+pub(crate) trait AtomicSaveIo {
     fn write_all(&mut self, temp: &mut File, bytes: &[u8]) -> io::Result<()>;
     fn flush(&mut self, temp: &mut File) -> io::Result<()>;
     fn sync_temp(&mut self, temp: &File) -> io::Result<()>;
@@ -353,7 +355,7 @@ trait AtomicSaveIo {
     fn cleanup_temp(&mut self, temp_path: &Path) -> io::Result<()>;
 }
 
-struct SystemAtomicSaveIo;
+pub(crate) struct SystemAtomicSaveIo;
 
 impl AtomicSaveIo for SystemAtomicSaveIo {
     fn write_all(&mut self, temp: &mut File, bytes: &[u8]) -> io::Result<()> {
@@ -403,7 +405,7 @@ fn atomic_save_bytes_with_io(
     atomic_save_bytes_as_with_io(&REPORT_PACKAGE_FORMAT, destination, bytes, operations)
 }
 
-fn atomic_save_bytes_as_with_io(
+pub(crate) fn atomic_save_bytes_as_with_io(
     format: &AtomicSaveFormat,
     destination: &Path,
     bytes: &[u8],
