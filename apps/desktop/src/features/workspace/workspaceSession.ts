@@ -3641,6 +3641,15 @@ export function useWorkspaceSession() {
         runMenuCommandRef.current("analyze.check-model");
         return;
       }
+      // ⌘S is File › Save Local Project. AppKit owns it in the native runtime,
+      // where the menu item carries the same accelerator; either way it waits
+      // while a modal holds the window (above, and runMenuCommand).
+      if (key === "s" && !event.shiftKey) {
+        if (isTauriRuntime()) return;
+        event.preventDefault();
+        runMenuCommandRef.current("file.save-local");
+        return;
+      }
       if (key === "z") {
         const target = event.target instanceof HTMLElement ? event.target : document.activeElement;
         if (target instanceof HTMLElement && (target.isContentEditable || target.closest('input, textarea, [contenteditable="true"], [contenteditable=""]'))) return;

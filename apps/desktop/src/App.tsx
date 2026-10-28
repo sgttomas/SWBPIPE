@@ -1394,7 +1394,7 @@ function MenuBar({
         { kind: "command", id: "file.open-local", label: "Open Local Project…", disabled: projectBusy },
         { kind: "command", id: "file.list-local", label: "List Local Projects", disabled: projectBusy },
         { kind: "separator" },
-        { kind: "command", id: "file.save-local", label: "Save Local Project", disabled: projectBusy },
+        { kind: "command", id: "file.save-local", label: "Save Local Project", disabled: projectBusy, shortcut: { label: "⌘S", aria: "Meta+S Control+S" } },
         { kind: "command", id: "file.new-local", label: "Save as New Local Project", disabled: projectBusy },
         { kind: "command", id: "file.save-model-document", label: "Save Model Document…", disabled: !modelDocumentSaveReady },
         { kind: "command", id: "file.save-handoff", label: "Save Handoff…", disabled: !modelDocumentSaveReady },

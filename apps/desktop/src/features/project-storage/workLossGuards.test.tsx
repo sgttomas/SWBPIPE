@@ -10,7 +10,8 @@ import type { LocalProjectEnvelope, PreviewModel } from "../../types";
 
 // Work-loss guards (HF-08, W-17): the File menu names the command that stores
 // the working model as a save (only New Blank Project starts a new, empty
-// model).
+// model); ⌘S / Ctrl+S is Save Local Project and waits while a modal holds the
+// window.
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -56,6 +57,14 @@ function setTauriRuntime(present: boolean) {
   else delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
 }
 
+const projectMessage = () => screen.getByTestId("local-project-message");
+
+function pressSave(init: KeyboardEventInit = { metaKey: true }) {
+  const event = new KeyboardEvent("keydown", { key: "s", bubbles: true, cancelable: true, ...init });
+  act(() => { window.dispatchEvent(event); });
+  return event;
+}
+
 function fileMenuLabels(): string[] {
   fireEvent.click(screen.getByTestId("menu-file"));
   const labels = within(screen.getByTestId("menu-dropdown-file")).getAllByRole("menuitem").map((item) => item.firstChild?.textContent ?? "");
@@ -90,3 +99,44 @@ describe("File menu: New starts empty; storing the working model is a save", () 
   });
 });
 
+describe("⌘S: Save Local Project", () => {
+  it("⌘S and Ctrl+S save the local project, and the browser's own Save is held back", async () => {
+    nativeCommands();
+    await renderApp();
+    // The browser preview saves to its in-memory project store.
+    expect(pressSave().defaultPrevented).toBe(true);
+    await waitFor(() => expect(projectMessage()).toHaveTextContent("Saved local browser-preview project snapshot"));
+    // Ctrl+S takes the same route (the handler claims the key).
+    expect(pressSave({ ctrlKey: true }).defaultPrevented).toBe(true);
+    // ⌥⌘S and ⇧⌘S are not Save.
+    expect(pressSave({ metaKey: true, shiftKey: true }).defaultPrevented).toBe(false);
+  });
+
+  it("the File menu shows ⌘S on Save Local Project", async () => {
+    nativeCommands();
+    await renderApp();
+    fireEvent.click(screen.getByTestId("menu-file"));
+    const item = screen.getByTestId("menu-item-file.save-local");
+    expect(item).toHaveTextContent("⌘S");
+    expect(item).toHaveAttribute("aria-keyshortcuts", "Meta+S Control+S");
+  });
+
+  it("waits while a modal holds the window: nothing is saved", async () => {
+    nativeCommands();
+    await renderApp();
+    act(() => { window.dispatchEvent(new CustomEvent("openpipestress-native-menu-command", { detail: "file.new-blank" })); });
+    await screen.findByTestId("project-units-dialog");
+    pressSave();
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(called("save_local_project")).toHaveLength(0);
+  });
+
+  it("in the native runtime the menu accelerator owns ⌘S: the webview does not save a second time", async () => {
+    nativeCommands();
+    await renderApp();
+    setTauriRuntime(true);
+    expect(pressSave().defaultPrevented).toBe(false);
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(called("save_local_project")).toHaveLength(0);
+  });
+});

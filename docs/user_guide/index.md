@@ -61,9 +61,9 @@ A model solves on one of two routes:
 
 - **Projects.** Use File › New Blank Project (an empty model) or Open Model
   Document… to start. Save Local Project writes the project to the local
-  store (§3.2), and Open Local Project… reopens it. Save as New Local Project
-  stores the model on screen as a local project of its own; it does not start
-  an empty model.
+  store (§3.2), and Open Local Project… reopens it; ⌘S is Save Local Project.
+  Save as New Local Project stores the model on screen as a local project of
+  its own; it does not start an empty model.
 - **Authoring.** Place nodes and pipes in the 3D viewport. Assign materials and
   sections, and add bends, expansion joints, supports, load cases and
   combinations. Each edit is a validated operation that you can review and

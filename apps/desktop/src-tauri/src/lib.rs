@@ -4526,7 +4526,7 @@ const NATIVE_FILE_MENU: &[Option<(&str, &str, Option<&str>)>] = &[
     Some(("file.open-local", "Open Local Project…", None)),
     Some(("file.list-local", "List Local Projects", None)),
     None,
-    Some(("file.save-local", "Save Local Project", None)),
+    Some(("file.save-local", "Save Local Project", Some("CmdOrCtrl+S"))),
     Some(("file.new-local", "Save as New Local Project", None)),
     Some(("file.save-model-document", "Save Model Document…", None)),
     Some(("file.save-handoff", "Save Handoff…", None)),
@@ -5754,6 +5754,16 @@ mod tests {
         assert!(items.iter().all(|(_, label)| !label.starts_with("New ") || *label == "New Blank Project"));
         let save = items.iter().position(|(id, _)| *id == "file.save-local").unwrap();
         assert_eq!(items[save + 1], ("file.new-local", "Save as New Local Project"));
+    }
+
+    #[test]
+    fn native_save_local_project_carries_the_save_accelerator_and_no_other_file_item_does() {
+        let accelerated: Vec<(&str, &str)> = NATIVE_FILE_MENU
+            .iter()
+            .flatten()
+            .filter_map(|(id, _, accelerator)| accelerator.map(|accelerator| (*id, accelerator)))
+            .collect();
+        assert_eq!(accelerated, vec![("file.save-local", "CmdOrCtrl+S")]);
     }
 
     #[test]
