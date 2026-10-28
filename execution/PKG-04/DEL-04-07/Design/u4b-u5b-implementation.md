@@ -521,6 +521,18 @@ t4_u4b is a comparison rule for the test, not a publication.
   - c_b = RN(num/den), with
     num = RN(RN(RN(3+2ν)·RN(r_o·r_o)) + RN(RN(1+2ν)·RN(r_i,b·r_i,b))) and
     den = RN(RN(4·RN(1+ν))·I_b), r_o = D/2, and r_i,b and I_b the basis section's.
+    This is the form on pressure-2, and on preview-physics-2 while q = RN(E/RN(2·G)) ≥ 1/2
+    (G ≤ E), where ν = q − 1, 1+ν = q and 1+2ν = 2q − 1 are exact.
+  - On preview-physics-2 with q < 1/2 (G > E, ν < −1/2), RN(ν + 1) loses up to 2^-54/q
+    relative, so c_b is formed without 1+ν from x = RN(RN(2·G)/E) = 1/(1+ν) (frame kernel
+    `shear::moduli_ratio_terms`, with t = 1 − x = ν/(1+ν), the pressure-free Timoshenko
+    factor's terms): c_b = RN(num/den), with
+    num = RN(RN(2·RN(RN(r_o·r_o) + RN(r_i,b·r_i,b))) + RN(x·RN(RN(r_o − r_i,b)·RN(r_o + r_i,b))))
+    and den = RN(4·I_b). The value is the same: (3+2ν)/(1+ν) = 2 + x and
+    (1+2ν)/(1+ν) = 2 − x, and every term is nonnegative.
+  - Admission stays with ν = RN(q − 1) (the domain rule above), so the admitted set does not
+    move. To first order in u = 2^-53, |c_b/c_b* − 1| ≤ 8.5u for every E/(2G) in (0, 3/2)
+    (7u on the x form), and τ_v,max is within 11.5u of |V|·c_b*/1e6.
   - t = `norm2`(V_y, V_z) (N). At the three interior stations it uses the published j-side
     section rows. At `end_i` and `end_j` there are no section rows, so it uses the published
     end-force shear rows of that end. The norm ignores their node-on-element sign, and in exact
