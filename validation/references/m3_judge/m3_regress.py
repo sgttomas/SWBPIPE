@@ -585,6 +585,71 @@ def collection_scenarios(check):
         table(6, "the committed digests: untracked, committed, then edited", "reference_sums_committed_and_unchanged",
               "untracked refused; committed read; edited refused",
               any("not in HEAD" in x for x in e1) and not e2 and p2 == {("pf", "set"): {"0" * 64: "synthetic"}} and any("differs" in x for x in e3))
+        # ---- round 8 (Agent 0, accepted with conditions): the exact view admits load_reference_states (shape-checked from
+        # the schema, never read) and retained_source_endpoint_normal_max_v1 only under pressure-source-1
+        lrs_fx, _ = m3_json.read_json(os.path.join(MV.FIXTURES, "pressure_load_state_pressure_sparse.stress_neutral.json"))
+        lrs_one = copy.deepcopy(lrs_fx["contract_evidence"]["load_reference_states"][0])
+        lrs_one["load_case_id"] = "case:1"
+
+        def scaled(x):
+            """Every number of a record times 1e9 (each would move a verdict if it were read; the schema still holds)."""
+            if isinstance(x, dict):
+                return {k: scaled(v) for k, v in x.items()}
+            if isinstance(x, list):
+                return [scaled(v) for v in x]
+            return x * 1e9 if type(x) in (int, float) else x
+        with_lrs = lambda rec: (lambda r: r["contract_evidence"].update(load_reference_states=[copy.deepcopy(rec)]))
+        check("round 8: the committed fixture's load_reference_states record is schema-valid and its scaled copy too",
+              not MV._schema_checked_members({"load_reference_states": [lrs_one]}, MV.Facts([], [], [], ["case:1"]))
+              and not MV._schema_checked_members({"load_reference_states": [scaled(lrs_one)]}, MV.Facts([], [], [], ["case:1"])))
+        base_ok = MR.report("exact", ex_own, [write(T("r8-base.raw.jsonl"), xe)], quiet=True, workers=1, runner_sha=R, head=head, checkout=checkout,
+                            references=pins("exact", ex_own), eval_out=T("r8-base.eval.jsonl"))
+        base_bad = MR.report("exact", ex_own, [write(T("r8-bad.raw.jsonl"), [xbad] + xe[1:])], quiet=True, workers=1, runner_sha=R, head=head,
+                             checkout=checkout, references=pins("exact", ex_own), eval_out=T("r8-bad.eval.jsonl"))
+        verdicts = lambda path: {(r["tag"], r["entry"], r["mode"]): (r.get("verdict_failures"), r.get("info")) for r in
+                                 (m3_json.strict_loads(line) for line in open(path))}
+        for case, runs_, base_j, base_eval, want in (("exact_lrs_scaled_unread", xe, base_ok, T("r8-base.eval.jsonl"), True),
+                                                     ("exact_lrs_scaled_unread_bad_rows", [xbad] + xe[1:], base_bad, T("r8-bad.eval.jsonl"), False)):
+            j = judge(8, "exact view: an admitted load_reference_states whose every number is x1e9 (it would move the verdict if read)", case,
+                      ex_own, [write(T(case + ".raw.jsonl"), mut(runs_, with_lrs(scaled(lrs_one))))], want,
+                      lambda j: j.get("schema_invalid", 0) == 0, "verdict unchanged: never read", route="exact", eval_out=T(case + ".eval.jsonl"))
+            table(8, "the same: every record's clauses and information equal those without it", case + "_records_equal",
+                  "records equal" if verdicts(T(case + ".eval.jsonl")) == verdicts(base_eval) else "records differ",
+                  verdicts(T(case + ".eval.jsonl")) == verdicts(base_eval) and j["pass"] == base_j["pass"])
+        unknown = copy.deepcopy(lrs_one)
+        unknown["unexpected"] = 1
+        other_case = copy.deepcopy(lrs_one)
+        other_case["load_case_id"] = "case:ghost"
+        for case, f in (("exact_lrs_wrong_type", lambda r: r["contract_evidence"].update(load_reference_states={})),
+                        ("exact_lrs_record_wrong_type", lambda r: r["contract_evidence"].update(load_reference_states=["record"])),
+                        ("exact_lrs_unknown_key", with_lrs(unknown)),
+                        ("exact_lrs_duplicate_case", lambda r: r["contract_evidence"].update(load_reference_states=[copy.deepcopy(lrs_one), copy.deepcopy(lrs_one)])),
+                        ("exact_lrs_other_case", with_lrs(other_case)),
+                        ("exact_evidence_unknown_member", lambda r: r["contract_evidence"].update(load_reference_state=[copy.deepcopy(lrs_one)]))):
+            judge_runs(8, "exact view: a malformed load_reference_states or an evidence member the schema does not admit", case, ex_own, mut(xe, f),
+                       False, schema, "refused by the view", route="exact")
+        token = "retained_source_endpoint_normal_max_v1; section_basis="
+        p2_id, ps1_id = MV.CONTRACTS["exact"][0][0], MV.CONTRACTS["exact"][1][0]
+        u2 = MV.match_contract("exact", MV.MAXIMUM, "maximum_absolute_normal_stress", "Pa", token + "nominal_section", p2_id)
+        u1 = MV.match_contract("exact", MV.MAXIMUM, "maximum_absolute_normal_stress", "Pa", token + "nominal_section", ps1_id)
+        table(8, "the retained-source token row by row", "exact_token_contract_tables", f"pressure-2: refused; pressure-source-1: basis {u1[0]}",
+              u2[1] is not None and u1 == ("nominal_section", None))
+
+        def retained(r):
+            for x in r["results"]:
+                if x["kind"] == MV.MAXIMUM:
+                    x["metadata"]["basis"] = token + MV._section_basis(x["metadata"]["basis"])
+
+        def global_end(r):
+            pid = next(x["entity_ref"] for x in r["results"] if x["kind"] == MV.MAXIMUM)
+            r["results"].append(S.row("exact", "case:1", "element_global_end_force_v1", pid, "end_i", "Fx", None, 1.0, "result:global-end-p2"))
+            r["results_count"] = len(r["results"])
+        judge_runs(8, "exact view: the token beside a row only pressure-2 declares (the token under pressure-2)", "exact_token_under_pressure_2", ex_own,
+                   mut(xe, lambda r: (retained(r), global_end(r))), False, schema, "refused by the view: no single contract", route="exact")
+        jt = judge_runs(8, "exact view: the token in a record wholly of pressure-source-1 (control)", "exact_token_under_pressure_source_1", ex_own,
+                        mut(xe, retained), True, lambda j: j.get("contracts") == {ps1_id: 8}, "admitted under pressure-source-1", route="exact")
+        judge_runs(8, "exact view: the token in a record wholly of pressure-source-1, a C3 defect (control)", "exact_token_under_pressure_source_1_bad_rows",
+                   ex_own, mut([xbad] + xe[1:], retained), False, m3, "M3: C3 (judged as before)", route="exact")
         # ---- round 7 (Codex at cb60446a01): index flags hid an edited manifest; it is now read from HEAD's blob (Agent 0)
         jr = T("r7-judge-repo")
         rel_j = os.path.join("projects", "chirality-piping", "validation", "references", "m3_judge")
@@ -593,6 +658,10 @@ def collection_scenarios(check):
         os.makedirs(os.path.join(jr, rel_c))
         for f in MV.CONTRACT_FILES.values():
             shutil.copyfile(os.path.join(MV.FIXTURES, f), os.path.join(jr, rel_c, f))
+        rel_s = os.path.join("projects", "chirality-piping", "schemas")
+        os.makedirs(os.path.join(jr, rel_s))
+        for f in MV.SCHEMA_FILES:
+            shutil.copyfile(os.path.join(MV.SCHEMAS, f), os.path.join(jr, rel_s, f))
         gj = lambda *a: subprocess.run(["git", "-C", jr, *a], capture_output=True, text=True)
         gj("init", "-q")
         gj("add", "-A")

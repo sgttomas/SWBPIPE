@@ -36,8 +36,20 @@ from m3_types import (SECTION_BASES, Expected, ExpectedCase, Extremum, Headline,
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 FIXTURES = os.path.normpath(os.path.join(HERE, "..", "..", "..", "fixtures", "results"))
-CONTRACT_FILES = {"pf": "semantic_contract_v0_3_preview_physics_2.json", "exact": "semantic_contract_v0_3_pressure_2.json"}
-CONTRACT_IDS = {"pf": "openpipestress.result_semantics/0.3.0/preview-physics-2", "exact": "openpipestress.result_semantics/0.3.0/pressure-2"}
+# The semantic contracts each route publishes under, in the order a record is matched against them. A record is admitted
+# under the first contract whose table every one of its rows matches; rows are never matched across two contracts.
+# The exact route publishes pressure-2 and, for retained-source maxima, pressure-source-1, which alone declares
+# `retained_source_endpoint_normal_max_v1` (results.v0.3.schema.yaml: "published only under pressure-source-1").
+CONTRACTS = {"pf": (("openpipestress.result_semantics/0.3.0/preview-physics-2", "semantic_contract_v0_3_preview_physics_2.json"),),
+             "exact": (("openpipestress.result_semantics/0.3.0/pressure-2", "semantic_contract_v0_3_pressure_2.json"),
+                       ("openpipestress.result_semantics/0.3.0/pressure-source-1", "semantic_contract_v0_3_pressure_source_1.json"))}
+CONTRACT_FILES = {"pf": CONTRACTS["pf"][0][1], "exact": CONTRACTS["exact"][0][1], "exact:pressure-source-1": CONTRACTS["exact"][1][1]}
+CONTRACT_IDS = {"pf": CONTRACTS["pf"][0][0], "exact": CONTRACTS["exact"][0][0]}
+SCHEMAS = os.path.normpath(os.path.join(HERE, "..", "..", "..", "schemas"))
+# The exact route's contract_evidence: its members (required and admitted) and their shapes are read from this schema
+# definition at judge time; only exact_cases' extrema enter the view, the other members are shape-checked or not read.
+EXACT_EVIDENCE_SCHEMA = ("results_pressure_2.v0.3.schema.json", "/$defs/PressureContractEvidence")
+SCHEMA_FILES = ("results_pressure_2.v0.3.schema.json", "load_reference_state.schema.json")
 
 ENTRIES = ("typed", "captured")
 MODES = ("SparseInteractive", "DenseScrutiny")
@@ -160,23 +172,26 @@ contract_evidence (standing):
 _CONTRACT = {}
 
 
-def contract(route):
-    """{(kind, component): [(unit, declared source basis or None), ...]} of the route's semantic contract, and its sha256."""
-    if route not in _CONTRACT:
-        path = os.path.join(FIXTURES, CONTRACT_FILES[route])
+def contract(route, name=None):
+    """{(kind, component): [(unit, declared source basis or None), ...]} of a semantic contract of the route (its first
+    by default), and the file's sha256."""
+    key = (route, name or CONTRACTS[route][0][0])
+    if key not in _CONTRACT:
+        fname = dict(CONTRACTS[route])[key[1]]
+        path = os.path.join(FIXTURES, fname)
         doc, probs = m3_json.read_json(path)
-        if probs or not isinstance(doc, dict) or doc.get("semantic_contract_id") != CONTRACT_IDS[route] or not isinstance(doc.get("rows"), list):
-            raise ValueError(f"the {route} semantic contract is unreadable at {path}: {probs[:1]}")
+        if probs or not isinstance(doc, dict) or doc.get("semantic_contract_id") != key[1] or not isinstance(doc.get("rows"), list):
+            raise ValueError(f"the {key[1]} semantic contract is unreadable at {path}: {probs[:1]}")
         table = collections.defaultdict(list)
         for r in doc["rows"]:
             sb = r.get("source_basis")
             table[(r["kind"], r["component"])].append((r["unit"], sb))
-        _CONTRACT[route] = (dict(table), hashlib.sha256(open(path, "rb").read()).hexdigest())
-    return _CONTRACT[route]
+        _CONTRACT[key] = (dict(table), hashlib.sha256(open(path, "rb").read()).hexdigest())
+    return _CONTRACT[key]
 
 
 def contract_unit(route, kind, component):
-    """The single unit the contract fixes for a judged kind and component (None when it fixes none or several)."""
+    """The single unit the route's first contract fixes for a judged kind and component (None when it fixes none or several)."""
     units = {u for u, _ in contract(route)[0].get((kind, component), [])}
     return next(iter(units)) if len(units) == 1 else None
 
@@ -187,12 +202,13 @@ def _section_basis(token):
     return token.split(SECTION_MARKER, 1)[1].split(";")[0].strip()
 
 
-def match_contract(route, kind, component, unit, source):
+def match_contract(route, kind, component, unit, source, name=None):
     """(section basis, problem): the row against the contract table: its (kind, component, unit) must be a row of it and
     its source basis a declared basis of that row, or any basis without a section-basis token where none is declared."""
-    cands = [sb for u, sb in contract(route)[0].get((kind, component), []) if u == unit]
+    table = contract(route, name)[0]
+    cands = [sb for u, sb in table.get((kind, component), []) if u == unit]
     if not cands:
-        known = sorted({u for u, _ in contract(route)[0].get((kind, component), [])})
+        known = sorted({u for u, _ in table.get((kind, component), [])})
         return None, (f"unit {unit!r} of {kind}/{component} is not the contract's {known}" if known else f"{kind}/{component} is not in the {route} contract")
     if source is not None and source in cands:
         b = _section_basis(source)
@@ -308,7 +324,7 @@ def _run_view(r, route, facts):
     if "error" in r:
         if not isinstance(r["error"], str) or not r["error"]:
             return None, ["error is not a nonempty string"]
-        return RunView(error=r["error"], refusal=None, standings=(), rows=(), extrema=(), headlines=(), warnings=frozenset(), **base), []
+        return RunView(error=r["error"], refusal=None, standings=(), rows=(), extrema=(), headlines=(), warnings=frozenset(), contract=None, **base), []
     if facts is None:
         return None, ["a model outside the reference set"]
     if r["publication"] != "ordinary":
@@ -317,7 +333,18 @@ def _run_view(r, route, facts):
         out.append("numerical_quality")
     standings, refusal, warnings, probs = _outcome(r["diagnostics"], route, facts)
     out += probs
-    rows, by_id, probs = _rows(r["results"], route, facts)
+    names = [n for n, _ in CONTRACTS[route]]
+    first, chosen = None, None
+    for name in names:
+        rows, by_id, probs = _rows(r["results"], route, facts, name)
+        first = first or (rows, by_id, probs)
+        if not probs:
+            chosen = name
+            break
+    if chosen is None:
+        rows, by_id, probs = first
+        if len(names) > 1:
+            probs = probs + [f"the rows match no single {route} contract ({', '.join(n.rsplit('/', 1)[-1] for n in names)})"]
     out += probs
     if not isinstance(r["results"], list) or not is_int(r["results_count"]) or r["results_count"] != len(r["results"]):
         out.append("results_count")
@@ -332,7 +359,7 @@ def _run_view(r, route, facts):
             out.append("contract_evidence")
         if out:
             return None, out
-        return RunView(error=None, refusal=refusal, standings=(), rows=(), extrema=(), headlines=(), warnings=warnings, **base), []
+        return RunView(error=None, refusal=refusal, standings=(), rows=(), extrema=(), headlines=(), warnings=warnings, contract=None, **base), []
     if not rows:
         out.append("a standing with no rows")
     headlines, probs = _summary(r["summary"], route, by_id)
@@ -341,7 +368,8 @@ def _run_view(r, route, facts):
     out += probs
     if out:
         return None, out
-    return RunView(error=None, refusal=None, standings=standings, rows=rows, extrema=extrema, headlines=headlines, warnings=warnings, **base), []
+    return RunView(error=None, refusal=None, standings=standings, rows=rows, extrema=extrema, headlines=headlines, warnings=warnings, contract=chosen,
+                   **base), []
 
 
 def _outcome(ds, route, facts):
@@ -387,7 +415,7 @@ def _outcome(ds, route, facts):
     return tuple(standings), None, warnings, out
 
 
-def _rows(rows, route, facts):
+def _rows(rows, route, facts, name):
     """(rows, {id: Row}, problems) of the published results."""
     if not isinstance(rows, list):
         return (), {}, ["results"]
@@ -426,7 +454,7 @@ def _rows(rows, route, facts):
             if kind == "displacement_magnitude":
                 out.append(f"{where}: metadata on displacement_magnitude")
             source = md["basis"]
-        basis, problem = match_contract(route, kind, x["component"], x["unit"], source)
+        basis, problem = match_contract(route, kind, x["component"], x["unit"], source, name)
         if problem:
             out.append(f"{where}: {problem}")
             continue
@@ -509,8 +537,11 @@ def _evidence(ev, route, facts, by_id):
             return (), ["contract_evidence"]
         cases, case_keys = ev["preview_cases"], PF_CASE_KEYS
     else:
-        if not isinstance(ev, dict) or "exact_cases" not in ev or not set(ev) <= {"connector", "exact_cases", "pressure"} or not all(isinstance(v, list) for v in ev.values()):
-            return (), ["contract_evidence"]
+        members, required = evidence_members()
+        if not isinstance(ev, dict) or not required <= set(ev) <= members or not all(isinstance(v, list) for v in ev.values()):
+            return (), [f"contract_evidence members {sorted(ev) if isinstance(ev, dict) else type(ev).__name__} (the schema requires "
+                        f"{sorted(required)}, admits {sorted(members)})"]
+        out += _schema_checked_members(ev, facts)
         cases, case_keys = ev["exact_cases"], EXACT_CASE_KEYS
     seen_cases = collections.Counter()
     extrema, seen = [], set()
@@ -581,6 +612,130 @@ def _evidence(ev, route, facts, by_id):
         if seen_cases[cid] != 1:
             out.append(f"evidence: {seen_cases[cid]} case objects for {cid} (exactly one required)")
     return tuple(extrema), out
+
+
+# ----------------------------------------------------------------- public schemas (exact evidence members)
+_SCHEMA_DOCS = {}
+SCHEMA_KEYWORDS = frozenset({"$ref", "type", "additionalProperties", "required", "properties", "items", "const", "enum", "minLength", "minimum",
+                             "pattern", "oneOf", "minItems", "description", "title", "$comment"})
+SHAPE_CHECKED = ("load_reference_states", "exact_combinations")     # read only for their shape; never judged
+
+
+def _schema_doc(name):
+    if name not in _SCHEMA_DOCS:
+        doc, probs = m3_json.read_json(os.path.join(SCHEMAS, name))
+        if probs or not isinstance(doc, dict):
+            raise ValueError(f"schema {name} unreadable: {probs[:1]}")
+        _SCHEMA_DOCS[name] = doc
+    return _SCHEMA_DOCS[name]
+
+
+def _resolve(doc_name, pointer):
+    node = _schema_doc(doc_name)
+    for part in pointer.strip("/").split("/"):
+        node = node[part]
+    return node
+
+
+def evidence_members():
+    """(admitted members, required members) of the exact route's contract_evidence, read from the schema."""
+    node = _resolve(*EXACT_EVIDENCE_SCHEMA)
+    if node.get("additionalProperties") is not False:
+        raise ValueError("the exact evidence schema is not closed")
+    return frozenset(node["properties"]), frozenset(node.get("required", ()))
+
+
+_TYPES = {"object": lambda v: type(v) is dict, "array": lambda v: type(v) is list, "string": lambda v: type(v) is str,
+          "number": lambda v: type(v) in (int, float), "integer": lambda v: type(v) is int, "boolean": lambda v: type(v) is bool,
+          "null": lambda v: v is None}
+
+
+def schema_problems(value, node, doc_name, where="", budget=None):
+    """Problems of a JSON value against a schema node (a closed subset of JSON Schema; an unsupported keyword is itself
+    a problem, so the check fails closed)."""
+    budget = budget if budget is not None else [20]
+    out = []
+
+    def bad(msg):
+        if budget[0] > 0:
+            out.append(f"{where or '/'}: {msg}")
+        budget[0] -= 1
+    if not isinstance(node, dict):
+        bad("schema node is not an object")
+        return out
+    unknown = set(node) - SCHEMA_KEYWORDS
+    if unknown:
+        bad(f"unsupported schema keywords {sorted(unknown)}")
+        return out
+    if "$ref" in node:
+        f, _, ptr = node["$ref"].partition("#")
+        f = f or doc_name
+        try:
+            target = _resolve(f, ptr)
+        except Exception:
+            bad(f"unresolvable $ref {node['$ref']}")
+            return out
+        out += schema_problems(value, target, f, where, budget)
+    if "type" in node:
+        ts = node["type"] if isinstance(node["type"], list) else [node["type"]]
+        if any(t not in _TYPES for t in ts):
+            bad(f"unsupported type {node['type']}")
+        elif not any(_TYPES[t](value) for t in ts):
+            bad(f"type {type(value).__name__}, not {node['type']}")
+            return out
+    if "const" in node and not (value == node["const"] and type(value) is type(node["const"])):
+        bad(f"not the constant {node['const']!r}")
+    if "enum" in node and not any(value == e and type(value) is type(e) for e in node["enum"]):
+        bad(f"{value!r} not in {node['enum']}")
+    if type(value) is str:
+        if "minLength" in node and len(value) < node["minLength"]:
+            bad("too short")
+        if "pattern" in node and not re.search(node["pattern"], value):
+            bad(f"does not match {node['pattern']}")
+    if type(value) in (int, float) and "minimum" in node and value < node["minimum"]:
+        bad(f"below {node['minimum']}")
+    if type(value) is list:
+        if "minItems" in node and len(value) < node["minItems"]:
+            bad("too few items")
+        if "items" in node:
+            for i, v in enumerate(value):
+                out += schema_problems(v, node["items"], doc_name, f"{where}[{i}]", budget)
+    if type(value) is dict:
+        props = node.get("properties", {})
+        for k in node.get("required", ()):
+            if k not in value:
+                bad(f"missing {k}")
+        extra = node.get("additionalProperties", True)
+        for k, v in value.items():
+            if k in props:
+                out += schema_problems(v, props[k], doc_name, f"{where}.{k}", budget)
+            elif extra is False:
+                bad(f"unknown key {k}")
+            elif isinstance(extra, dict):
+                out += schema_problems(v, extra, doc_name, f"{where}.{k}", budget)
+    if "oneOf" in node:
+        n = sum(1 for sub in node["oneOf"] if not schema_problems(value, sub, doc_name, where, [20]))
+        if n != 1:
+            bad(f"matches {n} of oneOf's {len(node['oneOf'])} alternatives")
+    return out
+
+
+def _schema_checked_members(ev, facts):
+    """load_reference_states and exact_combinations: shape-checked against the schema and (load_reference_states) one
+    record per load case of the model; never read for judging and never part of the view."""
+    out = []
+    doc, ptr = EXACT_EVIDENCE_SCHEMA
+    props = _resolve(doc, ptr)["properties"]
+    for member in SHAPE_CHECKED:
+        if member in ev:
+            out += [f"contract_evidence.{member}{p}" for p in schema_problems(ev[member], props[member], doc)]
+    if not out and "load_reference_states" in ev:
+        ids = [x["load_case_id"] for x in ev["load_reference_states"]]
+        if len(set(ids)) != len(ids):
+            out.append("contract_evidence.load_reference_states: a load case given twice")
+        if not set(ids) <= set(facts.cases):
+            out.append(f"contract_evidence.load_reference_states: {sorted(set(ids) - set(facts.cases))[:3]} not a load case of the model")
+    return out
 
 
 # ----------------------------------------------------------------- reference lines -> ModelView, Expected

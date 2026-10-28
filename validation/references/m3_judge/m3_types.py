@@ -148,9 +148,11 @@ class RunView:
     extrema: tuple
     headlines: tuple
     warnings: frozenset
+    contract: str | None       # the semantic contract whose table every row matched (None without rows); reported only
 
     def __post_init__(self):
         _require(_str(self.route) and self.route in ROUTES, "run route")
+        _require(_ostr(self.contract), "run contract")
         _require(all(_str(x) for x in (self.tag, self.entry, self.mode, self.request_sha256, self.runner_sha256, self.product_head)), "run strings")
         _require(_ostr(self.error) and _ostr(self.refusal), "run outcome strings")
         _require(_tuple_of(self.standings, lambda x: type(x) is Standing) and _tuple_of(self.rows, lambda x: type(x) is Row)

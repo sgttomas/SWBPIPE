@@ -243,6 +243,7 @@ def _judge_collection(route, set_path, raw_paths, variant, workers, runner_sha, 
            "info_records": dict(collections.Counter(c for r in records for c in (r.get("info") or {}))),
            "c4_failures": sum(1 for r in records if (r.get("verdict_failures") or {}).get("C4")),
            "runner_errors": len(errored), "schema_invalid": len(invalid), "set_aside": set_aside,
+           "contracts": dict(collections.Counter(v.contract for v in successful if v.contract)),
            "schema_problems": sorted({p for _, ps in invalid for p in ps})[:20]}
     out["pass"] = prov_pass and inv["pass"] and m3_pass and design_pass and nv["pass"]
     return out, records
@@ -321,6 +322,7 @@ def report(route, set_path, raw_paths, variant="own", workers=6, runner_sha=None
             for g, w in sorted(worst.items()):
                 say(f"    worst {g:30s} {w[0]:.4g}  {w[1:]}")
     say(f"route {out.get('route')}, reference {out.get('variant')}, contract sha256 {out.get('contract_sha256')}")
+    say(f"runs by semantic contract: {out.get('contracts')}")
     say(f"runner sha256: {out['runners']}")
     say(f"product head: {out['product_heads']}")
     say(f"PROVENANCE (committed reference files, reference, raw view, request sha256, one runner, one product head): "
