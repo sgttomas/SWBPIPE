@@ -331,7 +331,8 @@ describe("Window close and quit: asked first while the working model has unsaved
     await waitFor(() => expect(called("save_local_project")).toHaveLength(1));
     closeRequest(10, "quit", 2);
     expect(await screen.findByTestId("quit-while-busy-detail")).toHaveTextContent("has not finished. If you quit now, edits it has not saved are lost.");
-    expect(screen.getByTestId("quit-while-busy-wait")).toHaveFocus();
+    // The prompt takes focus in an effect after it renders.
+    await waitFor(() => expect(screen.getByTestId("quit-while-busy-wait")).toHaveFocus());
     expect(answers()).toEqual([]);
     fireEvent.click(screen.getByTestId("quit-while-busy-quit"));
     await waitFor(() => expect(answers()).toEqual([{ requestId: 10, proceed: true }]));
