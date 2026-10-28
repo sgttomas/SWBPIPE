@@ -292,3 +292,10 @@ checks:
 - apps/desktop/e2e/pipe-reconnect.spec.ts
 - apps/desktop/src/features/viewport/PipeViewport.contextMenu.test.tsx
 - apps/desktop/src/features/viewport/PipeViewport.contour.test.tsx
+- apps/desktop/src/features/geometry-tools/splitIntoParts.test.ts
+- apps/desktop/src/features/geometry-tools/splitIntoParts.session.test.tsx
+- apps/desktop/src/features/geometry-tools/SplitIntoPartsPanel.test.tsx
+- apps/desktop/src/features/geometry-tools/directionArithmetic.test.ts
+- apps/desktop/src/features/geometry-tools/directionEntry.session.test.tsx
+- apps/desktop/src/features/geometry-tools/DirectionEntry.test.tsx
+- apps/desktop/src/App.splitAndSlope.test.tsx
