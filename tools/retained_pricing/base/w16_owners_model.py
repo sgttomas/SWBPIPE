@@ -29,7 +29,7 @@ from g3lib import HashReq, s, pushcap
 PP = "core/product_physics/src/"
 IM = PP + "imposed_motion.rs"
 LIB = PP + "lib.rs"
-PIN = "4be84e3a61363d91cd3b09ecf755e48cfdf4c663d30fa79a357a96d234935d93"
+PIN = "7069d94e1590c0ce198d4d4ddfe593d46b2d1644f5937a05abf6cf8040217478"
 
 # (file, function, statement, count) with line breaks and their indentation removed.
 STATEMENTS = (
