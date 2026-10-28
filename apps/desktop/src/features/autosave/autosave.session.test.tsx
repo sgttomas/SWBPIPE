@@ -69,6 +69,8 @@ function nativeCommands(listings: Listing[]) {
         return Promise.resolve({ outcome: "read", file_name: args!.fileName, slot: "", written_unix_millis: WRITTEN, model_hash: "sha256:" + "d".repeat(64), byte_count: 2048, document });
       }
       case "discard_project_autosave": return Promise.resolve({ outcome: "discarded", file_name: args!.fileName });
+      case "acknowledge_close_request": return Promise.resolve(true);
+      case "resolve_close_request": return Promise.resolve(null);
       case "save_local_project":
         savedModel = (args!.request as { model: PreviewModel }).model;
         return Promise.resolve(envelope((args!.request as { model: PreviewModel }).model, "Saved current project model snapshot without external file copies."));
@@ -140,6 +142,19 @@ describe("Open autosave", () => {
     // No stored project was opened or written.
     expect(called("open_local_project")).toHaveLength(0);
     expect(called("save_local_project")).toHaveLength(0);
+  });
+});
+
+describe("a quit while the recovery offer is open", () => {
+  it("closes nothing: the offer holds the window (the shared modal hold), and stays", async () => {
+    await editedNativeSession([[await recoveredRecord()]]);
+    await screen.findByTestId("autosave-recovery-prompt");
+    act(() => { window.dispatchEvent(new CustomEvent("openpipestress-native-close-request", { detail: { requestId: 31, attempt: 1, kind: "quit" } })); });
+    await waitFor(() => expect(called("resolve_close_request").map(([, args]) => args)).toEqual([{ requestId: 31, proceed: false }]));
+    expect(projectMessage()).toHaveTextContent("Not quit: a dialog is open. Finish or cancel it first; nothing was closed.");
+    expect(screen.getByTestId("autosave-recovery-prompt")).toBeInTheDocument();
+    expect(screen.queryByTestId("unsaved-changes-prompt")).toBeNull();
+    expect(screen.getByTestId("project-edited")).toHaveTextContent("Edited");
   });
 });
 
