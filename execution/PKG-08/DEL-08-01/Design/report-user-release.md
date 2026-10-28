@@ -1638,9 +1638,13 @@ becomes `pub fn`.
 
 **The reach scan** (`user_release_reach_scan`, a `src-tauri` test). It was
 extended after Codex round 2 at revision 4 (S5). After round 3 (S5a, S5b) it
-reads parsed Rust rather than lines. It reads the production source of four
-crates: `apps/desktop/src-tauri`, `core/reporting/report_package`,
-`core/reporting/pdf_emitter` and `core/reporting/report_renderer`.
+reads parsed Rust rather than lines. It reads the production source of five
+crates, the *scanned crates*: the three reporting crates
+(`core/reporting/report_package`, `core/reporting/pdf_emitter` and
+`core/reporting/report_renderer`) and the two allowed dependents of a
+reporting crate that are not reporting crates themselves,
+`apps/desktop/src-tauri` and, since code review r9 at #1682,
+`core/runner/headless` (*Allowed dependents* below).
 
 Revision 4 had borrowed `forwarding_graph_scan`'s `non_test_source` and its
 call-site rule (`forwarding_graph_scan.rs:8-17`). Codex round 3 showed that
@@ -1684,10 +1688,14 @@ with `syn::visit::Visit`.
 *Which source is production.*
 - **Roots.** The roots are the files Cargo itself reports as each crate's
   library and binary targets (*Cargo targets* below): today each crate's
-  `src/lib.rs`, plus `src-tauri`'s `src/main.rs`. The scan reads from the
-  reported files, not an assumed `src/lib.rs`, and the target set is pinned,
-  so another library root or any added binary is a finding. A crate with a
-  `src/bin` directory is also a finding. None has one at the basis.
+  `src/lib.rs`, plus `src-tauri`'s `src/main.rs` and the headless runner's
+  two declared binaries, `src/bin/openpipestress-runner.rs` and
+  `src/bin/headless_preview_runner.rs`. The scan reads from the reported
+  files, not an assumed `src/lib.rs`, and the target set is pinned, so
+  another library root or any added binary is a finding. A crate with a
+  `src/bin` directory is also a finding, except the headless runner, whose
+  two binaries are there: Cargo discovers any other file there as a binary,
+  which the target pin refuses.
 - **Modules.** From each root the scan follows every `mod` item, outlined
   (`mod name;`) and inline. It resolves the files itself, by Rust's rules:
   - `name.rs` or `name/mod.rs` beside a root or `mod.rs` file;
@@ -1695,26 +1703,39 @@ with `syn::visit::Visit`.
     file;
   - under inline modules, the modules' names as further directories.
   A declaration whose file is missing, or that matches both candidates, is a
-  finding.
+  finding. Every `.rs` file in a scanned crate's directory, at any depth but
+  under `target` or `.git`, is available to this walk, so a file that a
+  `#[path]` loads from outside `src/` is read too (code review r9 at #1682).
 - **Test-only items.** An item is test-only when one of its outer attributes
   is exactly `#[cfg(test)]`. Every other item is production, whatever `cfg`
   it carries. That includes `#[cfg(not(test))]`,
   `#[cfg(feature = "native-smoke")]`, `#[cfg(target_os = "macos")]` and
   `#[cfg(any(test, …))]`, and an item gated only through a `cfg_attr` or an
   inner `#![cfg(…)]`.
-  In all four crates, test-only items, test modules included, outlined or
-  inline, are read under the test-only rules (*Build configuration* below):
-  the reporting crates' since code review r6 at #1682, `src-tauri`'s since
-  code review r7, where they are also held to the caller-graph and
-  renderer-call rules. Statements and expressions are read whatever their
+  In every scanned crate, test-only items, test modules included, outlined
+  or inline, are read under the test-only rules (*Build configuration*
+  below): the reporting crates' since code review r6 at #1682, `src-tauri`'s
+  since code review r7 and the headless runner's since r9, where the allowed
+  dependents' are also held to the caller-graph and renderer-call rules. Statements and expressions are read whatever their
   attributes.
 - **Files.** A file is production when any production declaration loads it,
   whatever test declarations also name it. A file named only by test
   declarations is read as a test-only module of the crate that compiles it.
 - **Forbidden in production.** Each of these is a finding:
-  - a `#[path = …]` on a `mod`. The one exception is a `src-tauri` test
-    module's (code review r7 at #1682; *Build configuration* below), which
-    is followed instead;
+  - a `#[path = …]` on a `mod`. The one exception is an allowed
+    dependent's test module's (code review r7 at #1682; *Build
+    configuration* below), which is followed instead. Since code review r9
+    a production module's one string literal on an outlined module outside
+    inline modules is followed as well, wherever it points, and the file
+    read as production, besides being a finding;
+  - a `#[path]` whose file lies outside the declaring crate's directory, in
+    any scanned crate, unless it is on the path-crossing allow-list
+    (`PATH_CROSSINGS`; code review r9 at #1682). The list holds today's two,
+    both on `src-tauri` test modules and read as the shell's test code:
+    `report_package_save.rs` loads `report_package`'s
+    `tests/common/package_basis.rs`, and `report_render_exact_tests.rs` loads
+    `report_package`'s `src/forwarding_graph_scan.rs`. A file outside the
+    scanned crates is a finding whatever the list says;
   - a `cfg_attr` that applies `path`, at any depth of nested `cfg_attr`s and
     whatever its predicate. The scan does not evaluate predicates, so it
     cannot know which file such a module loads; it refuses the attribute
@@ -1746,8 +1767,9 @@ those tokens for scanned names is not enough:
   call without the name appearing in the invocation.
 
 So the scan limits which macros may exist and which may be invoked, in the
-production source of the four crates. Each rule below is a finding when
-broken.
+production source of the scanned crates (the four of the basis and, since
+code review r9 at #1682, the headless runner). Each rule below is a finding
+when broken.
 1. **Definitions.** No `macro_rules!` item and no `macro` (2.0) item, except
    one on the allow-list. An entry names the file and the macro, and pins the
    SHA-256 of its source text: the file's bytes from the `macro_rules` token
@@ -1755,8 +1777,12 @@ broken.
    token, comment or whitespace in those bytes fails the scan until the macro
    is reviewed again and its pin is replaced. An entry is admitted only if
    its text holds no `mod` token, no `$` parameter followed by `::`, and no
-   scanned name other than one the name rules below allow. The list has one
-   entry:
+   scanned name other than one the name rules below allow. The list had one
+   entry at the basis; since code review r9 at #1682 it also holds the
+   headless runner's two, `base` and `transport` in
+   `core/runner/headless/src/reader_binding.rs`, each writing one `Reader`
+   literal of the runner's reader table (no `mod`, no `$` parameter before
+   `::`, no scanned name). The basis entry:
    - `app_invoke_handler`, `apps/desktop/src-tauri/src/lib.rs:5018-5081`
      at the basis (2,455 bytes, LF line ends, ending at the closing `}`),
      SHA-256 `45c3d325100524094e8e57c33a3a1d13e12abb5cdf2abfed51224be5adbe1ed1`.
@@ -1883,8 +1909,11 @@ code made only from its own tokens and its own crate's internals:
   parameters. The one listed has no `$` parameter before `::`, and its
   `$extra` is a whole path written in the invocation, where the screen reads
   it.
-- **N4.** A macro defined outside the four crates may be invoked only if it
-  is listed, and no listed one emits a call to a function it is not given.
+- **N4.** A macro defined outside the scanned crates may be invoked only if
+  it is listed, and no listed one emits a call to a function it is not given.
+  This holds in the headless runner since code review r9 at #1682: before,
+  the runner's source was not scanned, so a local proc-macro invoked there
+  could emit the admitting entry (*Allowed dependents* below).
 - **What remains.** The listed external macros are trusted to do what the
   versions in the lock do. `tauri::command`, `tauri::generate_handler!`,
   `tauri::generate_context!` and the `serde` derives are procedural, and
@@ -2080,7 +2109,7 @@ broken, and each allow-list is empty or derived from today's source:
   (`f(a < b, { … })`), which fails closed; today's source holds none. In the
   parsed tree, a const generic argument other than a literal, and an
   associated-constant argument, are findings too.
-- **Syntax `syn` does not model.** Anywhere in the four crates' production
+- **Syntax `syn` does not model.** Anywhere in the scanned crates' production
   source, an item,
   impl item, trait item, foreign item, expression, type, pattern or bound
   that `syn` gives as `Verbatim` is a finding, never skipped.
@@ -2139,16 +2168,17 @@ modelling:
     `reader::{read_report_package_container, PackageReadRefusal,
     ReadReportPackage, SUPPORTED_PACKAGE_VERSION}` (`PUBLIC_USES`). The
     same reason applies;
-  - (c) in all four crates, a `mod`, `use` binding, `extern crate` (already
+  - (c) in every scanned crate, a `mod`, `use` binding, `extern crate` (already
     a finding itself) or `macro_rules!` whose name is reserved: a standard
     crate root (`std`, `core`, `alloc`), a listed external crate (`serde`,
     `serde_json`, `rusqlite`, `tauri`), or the first segment of a listed
     invocation, which for a bare listed macro is its own name (`format`,
-    `vec`, `json`, `params` and the rest). A `use` that imports a listed
-    name from its listed source, and the pinned `app_invoke_handler`, are
-    the exceptions. A local module or binding of such a name is what lets a
+    `vec`, `json`, `params` and the rest, and since code review r9 the
+    headless runner's `base`, `transport` and `concat`). A `use` that imports
+    a listed name from its listed source, and the pinned macros, are the
+    exceptions. A local module or binding of such a name is what lets a
     listed path name another macro;
-  - (d) in all four crates, an invocation of `include!`, `include_bytes!` or
+  - (d) in every scanned crate, an invocation of `include!`, `include_bytes!` or
     `concat_idents!` by any path, judged by its final segment, and an import
     of any of them or of `include_str!`. `include_str!` is admitted only
     bare, with one string literal that names no `.rs` file: production uses
@@ -2157,7 +2187,7 @@ modelling:
     uses `include_bytes!`. `env!` and `option_env!` expand only to a string
     literal, so they need no rule beyond the invocation list (`env!` is
     listed; `option_env!` is not). Only one `macro_rules!` exists, pinned;
-  - in all four crates, the keywords `mod`, `use`, `extern` and `macro`, and
+  - in every scanned crate, the keywords `mod`, `use`, `extern` and `macro`, and
     `macro_rules!`, in tokens the scan does not parse (a macro's that is not
     parsed, an attribute's). An item there would bind a name the scan never
     sees, so the shadow above written inside `format!("{}", { … })` is a
@@ -2187,7 +2217,7 @@ read and the library's `forbid` did not govern. So Cargo, not the
 manifest's spelling, decides what each crate builds:
 - **The target set, from Cargo.** The scan's test runs `cargo metadata
   --format-version 1 --offline --locked --no-deps --manifest-path …` for
-  each of the four crates, with the `cargo` that runs the test, and requires
+  each scanned crate, with the `cargo` that runs the test, and requires
   each crate's reported targets to be exactly the allow-listed set, by kind,
   name and source file. Cargo's report includes what it discovers on its own
   (`src/main.rs`, `src/bin/`, `examples/`, `benches/`, `tests/`, `build.rs`)
@@ -2207,7 +2237,12 @@ manifest's spelling, decides what each crate builds:
   - `src-tauri`: the library (`staticlib`, `cdylib`, `rlib`) from
     `src/lib.rs`, the app binary from `src/main.rs`, which the scan reads as
     a crate root, and the build script `build.rs` (`tauri_build::build()`),
-    pinned by content since code review r7 (*Build configuration* below).
+    pinned by content since code review r7 (*Build configuration* below);
+  - the headless runner (code review r9 at #1682): the library from
+    `src/lib.rs`, the binaries `openpipestress-runner` and
+    `headless_preview_runner` from `src/bin/<name>.rs`, each read as a crate
+    root, and its sixteen integration tests, each from `tests/<name>.rs`. It
+    has no build script.
   Each reporting crate's one library target must come from its `src/lib.rs`;
   the scan reads the reported file as the root, so a different one is both a
   finding and the file actually read. Any other target, a binary, example,
@@ -2215,7 +2250,7 @@ manifest's spelling, decides what each crate builds:
   list, whether discovered or declared, is a finding, so adding one is
   reviewed as a change to this boundary. The build-dependencies are pinned
   as well: `src-tauri`'s only one is `tauri-build`, and the reporting crates
-  have none.
+  and the headless runner have none.
 - **Why the allowed separate crates cannot reach the proof types.** The
   reporting crates have no binary, example, bench, build script or
   proc-macro target; the only separate crates are the allow-listed
@@ -2396,11 +2431,14 @@ build configuration as well as the sources:
     `tests/common/package_basis.rs`. A shell test module's one
     `#[path = "<literal>"]`, on an outlined module outside any inline
     module, is followed: the literal is resolved from the declaring file's
-    directory, as Rust does, and must lead into one of the four crates. The
-    file is read as the shell's test code, whichever crate's tree holds it.
-    Any other `#[path]` (an absolute, a non-literal or an inline module's),
-    a file outside the four crates, and an outlined module declared in a
-    path-loaded file are findings.
+    directory, as Rust does, and must lead into one of the scanned crates.
+    The file is read as the shell's test code, whichever crate's tree holds
+    it. Any other `#[path]` (an absolute, a non-literal or an inline
+    module's), a file outside the scanned crates, a file outside the
+    declaring crate's directory not on `PATH_CROSSINGS` (since code review
+    r9; the two `report_package` files above are the list), and an outlined
+    module declared in a path-loaded file are findings. The same rules hold
+    for the headless runner's test modules, of which none uses `#[path]`.
   - **Listed forms.** `#[track_caller]` is admitted on shell test items
     (today's test helpers carry it; it moves only a panic's reported
     location). One `include_str!` of a `.rs` file is admitted:
@@ -2435,7 +2473,8 @@ build configuration as well as the sources:
     per-crate `cargo metadata`, as `<kind> <package>`, with any rename and
     platform (`SHELL_DEPENDENCIES`, 22 entries). The parser crates are
     development dependencies only. Any move, addition, removal or rename is
-    a finding.
+    a finding. The headless runner's are pinned the same way since code
+    review r9 (`RUNNER_DEPENDENCIES`, *Allowed dependents* below).
 - **`cfg(test)` in product builds.** Two compile-time guards hold on the
   toolchain the hosted jobs pin (Rust 1.97.1, through
   `dtolnay/rust-toolchain`; the repository has no `rust-toolchain` file).
@@ -2559,6 +2598,115 @@ build configuration as well as the sources:
     every shell test module and both `#[path]` files from `report_package`
     read, and today's two in-repository build scripts.
 
+*Allowed dependents (code review r9 at #1682).* The headless runner is an
+allowed dependent of `report_package`, but until r9 the scan governed only
+the shell's and the reporting crates' sources, and the runner's own test
+checked names in its `src/` and `tests/`. Two variants of addressed classes
+compiled and gave no finding: `#[path = "../r9.rs"] pub mod r9_review;` in
+the runner's `src/lib.rs` loaded a file outside `src/` that called
+`user_release::assemble_derived`, and a repository-local proc-macro
+package, a path dependency of the runner with no reporting dependency,
+expanded `r9_macro::entry!()` to that path. Each produced an unblocked
+package without native admission. So every allowed dependent of a reporting
+crate that is not one itself (`DEPENDENT_CRATES`: `src-tauri` and the
+headless runner) is a scanned crate under the shell's rules:
+- **What is scanned.** Its Cargo targets, pinned exactly (*Cargo targets*);
+  its full module closure from each library and binary root Cargo reports,
+  `mod`, `#[path]` and `cfg_attr` per the rules above; the name,
+  construction, literal, scope, call and entry-argument rules; the macro
+  definition and invocation, attribute, derive, `serde` key and import
+  rules; the namespace rules (c) to (e); the test-only rules with the
+  shell's caller-graph and renderer-call additions; its build-script pin
+  (the runner has none, so one is a target finding and a pin finding); and
+  its normal, development and build dependency sets.
+- **Callers.** No runner function may name a scanned function: the runner
+  reaches the producer only through its public general entries and refuses
+  every user-release marker (refusal 1), so the caller table gains no row
+  and the runner's test-caller list is empty. In the runner the renderer's
+  pair is matched bare too, since the runner has no function of that name.
+  An import of the renderer or PDF crate or of a scanned function is a
+  finding there, as in the shell.
+- **The runner's list additions**, each named with its reason in the scan:
+  the invocations `base!` and `transport!`, its two pinned local macros, and
+  `concat!`, inside `transport!`, joining two literals
+  (`RUNNER_MACRO_INVOCATIONS`); the `serde` flag `skip_serializing`
+  (`RUNNER_SERDE_FLAGS`); and `deserialize_with` with exactly the value
+  `"deserialize_present_json"`, since the derive expands the value into a
+  call of that path (`RUNNER_SERDE_FUNCTIONS`). They are admitted in the
+  runner only, and their names are reserved in every scanned crate.
+- **`unsafe`.** The runner held no `unsafe` code. Its library and binary
+  roots now carry `#![forbid(unsafe_code)]`, required exactly as at the
+  reporting crates' library roots (`UNSAFE_FORBIDDING_DEPENDENTS`), and the
+  token and parsed-tree `unsafe` findings apply to it, so a call through a
+  declared foreign symbol, which needs `unsafe`, is refused by the compiler
+  and by the scan. The shell holds `unsafe` code (`host_memory.rs`,
+  `worker_alloc.rs`) and is not on that list.
+- **Dependency pins.** The runner's normal and development dependencies are
+  pinned exactly from its `cargo metadata`, in `SHELL_DEPENDENCIES`' form
+  (`RUNNER_DEPENDENCIES`, ten normal entries, no development ones), and its
+  build-dependencies are pinned empty (`BUILD_DEPENDENCIES`). A new
+  dependency of any kind, a rename (`<name> as <key>`) or a removal is a
+  finding.
+- **Proc-macros.** A proc-macro's expansion is code the scan never reads.
+  From each allowed dependent's manifest the test follows every path
+  dependency of every kind and platform, through any depth, with `cargo
+  metadata --offline --locked --no-deps` per manifest; that closure holds
+  every reporting crate's own. Any package in it with a target of kind
+  `proc-macro`, as Cargo reports it, is a finding unless it is on
+  `PROC_MACRO_PACKAGES`, which is empty: whatever the dependency's key,
+  rename or kind, and whether it is reached directly or through another
+  path dependency. Today no package in that closure builds a proc-macro.
+  Registry proc-macros (`serde_derive`, `tauri-macros`, `thiserror-impl`
+  in the lock) are constrained by the source rules, not by this one. In a
+  scanned crate a procedural macro runs only where the source names it: a
+  derive (bare, from `DERIVES`: of these only `Serialize` and
+  `Deserialize` are procedural, and a binding of either must be imported
+  from `serde`), an attribute (from `ATTRIBUTES`: only `tauri::command`
+  is procedural; `serde` is the derive's inert helper) or an invocation
+  (from the invocation lists: `tauri::generate_handler!` and
+  `tauri::generate_context!`). In production code no glob import,
+  `#[macro_use]`, unlisted path or local binding of a reserved root can
+  bring another into scope, so `thiserror`'s derive cannot be named; the
+  derive and attribute lists hold in test-only items too, where the
+  invocation list is relaxed (*Test-only items*), and a proc-macro crate
+  added for tests is a dependency-pin finding in the allowed dependents. Which crate a listed root names
+  is fixed for the allowed dependents by their dependency pins, and for
+  the reporting crates by the reliance below on reviewed locked
+  dependencies and no manifest renames.
+- **`#[path]`.** A `#[path]` that leaves its crate's directory is a finding
+  unless listed (`PATH_CROSSINGS`, today's two shell test modules). The
+  scan does not read files outside the scanned crates: such a `#[path]` is
+  a finding whatever the list says. One inside the crate's directory is
+  followed wherever it points and read, a production one also being a
+  finding. On the real tree the runner has no `#[path]` in `src/`; six of
+  its integration tests carry seven, and they are separate test crates the
+  scan does not read.
+- **Integration tests.** As for every scanned crate, the runner's
+  integration tests are separate crates no product build compiles; they
+  are pinned by name and file and not read. The runner's own name check
+  (`no_runner_source_names_the_admitting_entry`), over every `.rs` file in
+  its `src/` and `tests/`, is kept in addition: it also covers those tests,
+  and it runs with the runner's own tests. The scan reading the runner
+  means that a change to the runner's sources now selects the desktop Rust
+  job in hosted CI (`tools/software_workflow/test_hosted_ci.py`).
+- **Fixtures**, on scratch copies of the runner that Cargo reads, each
+  giving its own findings and only those: the reviewer's `#[path]` module
+  calling the admitting entry; a `#[path]` to a file inside `src/`; a test
+  module's `#[path]` out of the crate's directory, and into another scanned
+  crate; a test module calling the entry; a `mod` declared from a new
+  `build.rs` and from a new `tests/` file; a new normal, development and
+  build dependency; the root without its `forbid`; a call through a
+  declared foreign symbol; a new and an edited `macro_rules!`; another
+  `deserialize_with` function; an import of the entry; the renderer's pair
+  named bare; and the reviewer's local proc-macro, a renamed one and one
+  reached through another path dependency, each also one proc-macro
+  finding in the path closure. The unedited copy and a test module's
+  `#[path]` inside the crate pass. On the real tree the runner's roots and
+  modules are read, its test-only module is read as test code, the path
+  closure holds the five scanned crates and no proc-macro, and the two
+  listed crossings are read; a third `#[path]` to the same file is a
+  finding.
+
 *Threat model.* The scan establishes this: under the repository's own build
 configuration, the reporting crates are built from the checked-in sources
 the scan read, with the targets it pins and the package identities it
@@ -2579,10 +2727,15 @@ scope, because CI builds the reviewed artifact from the repository alone.
 The real-source scan finds nothing under these rules. Beyond today's renames
 and re-exports, these allow-list entries were needed: the one test-only
 proof item; since code review r7, the shell's two pinned test macros, its
-one `.rs` `include_str!` and `#[track_caller]`. The shell's test-caller list
-is empty. The only production-code changes were the three crate-root
-attributes, their `cfg(test)` guards and the shell's build-script guard,
-which since r7 also refuses `CARGO_CFG_TEST` and is pinned by content.
+one `.rs` `include_str!` and `#[track_caller]`; since code review r9, the
+runner's two pinned macros, three invocations, one `serde` flag and one
+`deserialize_with` value, and the shell's two path crossings. The shell's
+and the runner's test-caller lists are empty, as are the runner's caller
+rows and the proc-macro list. The only production-code changes were the
+three crate-root attributes, their `cfg(test)` guards and the shell's
+build-script guard, which since r7 also refuses `CARGO_CFG_TEST` and is
+pinned by content, and, since r9, `#![forbid(unsafe_code)]` at the
+runner's three roots.
 What the scan does not
 attempt to model, and refuses instead: macro expansion (beyond the listed
 macros' input grammars), name resolution beyond the crate-wide inventory of
@@ -2604,7 +2757,9 @@ renderer's two functions are matched only as a path with a prefix other than
 `crate`, `self` or `super` (such as `open_pipe_stress_report_renderer::<name>`
 or `::open_pipe_stress_report_renderer::<name>`), or that token sequence in a
 macro. Rule (b) below keeps any other path from naming the renderer there.
-Every other scanned name is matched bare in all four crates.
+Every other scanned name is matched bare in every scanned crate, and in the
+headless runner the renderer's pair is matched bare too (code review r9 at
+#1682).
 
 *Lexical scope.* Each occurrence is attributed to its innermost enclosing
 scope owner in the tree. A scope owner is one of these:
@@ -2620,7 +2775,7 @@ identified by name and file. A call belongs to an allowed caller only when
 that caller is the call's innermost scope owner.
 
 *Scanned functions and their allowed callers.* Each allowed caller calls the
-function exactly once. "None" means no call anywhere in the four crates'
+function exactly once. "None" means no call anywhere in the scanned crates'
 production source. Lines are at the basis.
 
 | Function (crate) | Allowed callers | Path the call must go through |
@@ -2638,7 +2793,7 @@ production source. Lines are at the basis.
 | `user_release::assemble_derived` (report_package) | `report_package_bridge::assemble_user_released_request` (src-tauri) | the row below |
 | `report_package_bridge::assemble_user_released_request` (src-tauri) | the `report_package_save.rs` function that holds route 010's branch | native steps 1-8 |
 
-*The rule.* In the four crates' production source, each occurrence of a
+*The rule.* In the scanned crates' production source, each occurrence of a
 scanned name must be one of these:
 1. its definition: the `fn` item's (or the struct's) own name, once, in the
    file the table gives;
@@ -2693,9 +2848,10 @@ expression.
   (`report_package/src/lib.rs:64`), which names no scanned function. So no
   dependent of `report_package`, the runner included, can name a renderer or
   PDF function through it.
-- **(b) In `src-tauri`'s production source, imports.** No `use` item or
-  `extern crate` may name the renderer crate, the pdf_emitter crate or a
-  scanned function, and none may glob-import `open_pipe_stress_report_package`
+- **(b) In the allowed dependents' production source (`src-tauri`'s and,
+  since code review r9 at #1682, the headless runner's), imports.** No `use`
+  item or `extern crate` may name the renderer crate, the pdf_emitter crate
+  or a scanned function, and none may glob-import `open_pipe_stress_report_package`
   or its alias. At the basis there is none in production. The renderer
   imports at `object_form_tests.rs:23-24` and
   `report_render_exact_tests.rs:23-24,1420` are in test-only files. The only
@@ -2711,15 +2867,19 @@ renderer;` (`pdf_emitter/src/lib.rs:29`) is allowed. The rule matches the
 function's own name, whatever path comes before it.
 
 *Also asserted:*
-- no source under `core/runner` calls `assemble_derived` or the bridge
-  function;
+- no `.rs` file under the headless runner's `src/` or `tests/` names
+  `assemble_derived`, `check_derived`, `DerivedUserRelease` or the bridge
+  function, by the runner's own check, kept in addition to the scan, which
+  since code review r9 reads the runner (*Allowed dependents*);
 - the packages that depend on each reporting package are exactly the
   allowed ones, as Cargo reports every package in the project and every path
   dependency reachable from them (*Build configuration*, "Dependents").
 
 A new caller, re-export, module path, included file, macro definition, macro
-invocation, attribute or derive outside the lists, or a changed
-`app_invoke_handler`, fails the scan. So does a new dependent of a reporting
+invocation, attribute or derive outside the lists, or a changed pinned
+macro, fails the scan, in any scanned crate, the headless runner included
+since code review r9. So does a new proc-macro in the allowed dependents'
+path closure, and a change to an allowed dependent's dependency set. So does a new dependent of a reporting
 package: since code review r8 the dependents are part of the scan test's
 build-configuration check, derived from Cargo's metadata rather than
 manifest text, so a quoted, dotted, renamed, development, build or
@@ -2738,8 +2898,10 @@ as a change to this boundary.
 - **Macro expansion.** The scan reads source as written and does not expand
   macros. Every macro's tokens are screened, so no macro can carry a scanned
   name that is written in it. Beyond that, only the listed macros may be
-  defined or invoked (*Macros* above), so no local macro and no unlisted
-  external macro, declarative or procedural, can emit a `mod` or a call. What
+  defined or invoked (*Macros* above), in every scanned crate, so no local
+  macro and no unlisted external macro, declarative or procedural, can emit
+  a `mod` or a call. No in-repository proc-macro may be a path dependency of
+  a scanned crate (*Allowed dependents*, "Proc-macros"). What
   remains is a listed external macro whose version emitted a call to a
   scanned function not named in its input, for example by building the
   identifier from parts. The scan would not see it. None of today's does
@@ -2752,9 +2914,12 @@ as a change to this boundary.
   by a listed external macro itself. The listed ones take no type to
   construct, and a change to one is reviewed as a change to this boundary.
 - **Manifests and dependency names.** A listed external crate root is
-  trusted to be that crate. A `Cargo.toml` rename of a dependency to a
-  listed root's name (`tauri = { package = … }`) is not judged by the scan;
-  it is reviewed as a manifest change.
+  trusted to be that crate. In the allowed dependents a rename is a
+  dependency-pin finding (`<package> as <key>`). In the reporting crates,
+  whose dependency sets are not pinned, a `Cargo.toml` rename of a
+  dependency to a listed root's name (`serde = { package = … }`) is not
+  judged by the scan; it is reviewed as a manifest change (the reliance on
+  no manifest-level renames, *Threat model*).
 - **W-11's scan.** W-11's forwarding-graph scan keeps its line rules for the
   admitted set, which is W-11's own claim. This design relies on that scan
   for no reach claim, since the reach scan pins the producer's internal
@@ -2771,7 +2936,7 @@ checked:
 | The runner's `export-results` | refusal 1, before the producer |
 | Route 009's save (`report_package_bridge::assemble_request`) | native step 3 (`REPORT-USER-RELEASE-NOT-THIS-ROUTE`), then refusal 2 |
 | The producer's public entries called from any other crate | refusal 2 |
-| Renderer and PDF calls inside `report_package` and `pdf_emitter`: `pdf_emitter`'s public functions (`emit_calculation_report_pdf`, `pdf_from_render`, `assemble_full_report_package`, `pdf_emitter/src/lib.rs:129,138,194`) and the renderer's `render_calculation_report` and `assemble_report_sections` | the reach scan's rows. Only `report_package` depends on `pdf_emitter`. Inside `pdf_emitter` the renderer is called only from `emit_calculation_report_pdf` and `assemble_full_report_package`, the first has no caller, and the second is called only by `report_package`'s writer. The writer is reached only from `assemble_report_package_container` (refusal 2) and `wire::assemble_wire_request_in`, which forwards refusal 2 or the admitting entry. The scan reads every production file of the four crates as parsed Rust and attributes each name to its lexical scope. In that source each scanned name occurs only at its definition and as a direct call by an allowed caller that is the call's innermost scope owner. No `use`, re-export, function value, trait object, generic argument, closure, nested item or macro names one, and only the listed macros may be defined or invoked. This covers the calls of the functions named, as written. New code that builds a document without them, and a listed external macro whose version would make a call without naming it (none of today's does), are outside the scan (above) |
+| Renderer and PDF calls inside `report_package` and `pdf_emitter`: `pdf_emitter`'s public functions (`emit_calculation_report_pdf`, `pdf_from_render`, `assemble_full_report_package`, `pdf_emitter/src/lib.rs:129,138,194`) and the renderer's `render_calculation_report` and `assemble_report_sections` | the reach scan's rows. Only `report_package` depends on `pdf_emitter`. Inside `pdf_emitter` the renderer is called only from `emit_calculation_report_pdf` and `assemble_full_report_package`, the first has no caller, and the second is called only by `report_package`'s writer. The writer is reached only from `assemble_report_package_container` (refusal 2) and `wire::assemble_wire_request_in`, which forwards refusal 2 or the admitting entry. The scan reads every production file of the scanned crates (the four and, since code review r9, the headless runner) as parsed Rust and attributes each name to its lexical scope. In that source each scanned name occurs only at its definition and as a direct call by an allowed caller that is the call's innermost scope owner. No `use`, re-export, function value, trait object, generic argument, closure, nested item or macro names one, and only the listed macros may be defined or invoked. This covers the calls of the functions named, as written. New code that builds a document without them, and a listed external macro whose version would make a call without naming it (none of today's does), are outside the scan (above) |
 | The render command, pressure-free branch (`render_calculation_report_value`) | the render-command refusal below |
 | The render command, exact branch | `check_exact_render_context` (`report_render_exact.rs:139-147`) admits `local_private` only; a record under `local_private` is refused by the render-command refusal below |
 | Route 010 | the admitting entry, after native steps 1-8 |
