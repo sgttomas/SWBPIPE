@@ -67,7 +67,8 @@ export type RedactionReasonCode =
   | "USER_RELEASED_PROJECT_DATA"
   | "USER_RELEASE_INTENT_REQUIRED"
   | "USER_RELEASE_VALUE_UNBOUND"
-  | "EXPORT_INPUT_NOT_PLAIN_DATA";
+  | "EXPORT_INPUT_NOT_PLAIN_DATA"
+  | "EXPORT_INPUT_RESERVED_NAME";
 
 export type RedactionFindingClass =
   | "IP_BOUNDARY_WARNING"
@@ -949,7 +950,8 @@ const FINDING_CLASS_BY_REASON: Record<string, RedactionFindingClass> = {
   USER_RELEASED_PROJECT_DATA: "PRIVATE_DATA_WARNING",
   USER_RELEASE_INTENT_REQUIRED: "PRIVATE_DATA_WARNING",
   USER_RELEASE_VALUE_UNBOUND: "PROVENANCE_WARNING",
-  EXPORT_INPUT_NOT_PLAIN_DATA: "STORAGE_BOUNDARY_WARNING"
+  EXPORT_INPUT_NOT_PLAIN_DATA: "STORAGE_BOUNDARY_WARNING",
+  EXPORT_INPUT_RESERVED_NAME: "STORAGE_BOUNDARY_WARNING"
 };
 
 const FINDING_MESSAGE_BY_ACTION: Record<string, string> = {
@@ -969,7 +971,9 @@ const FINDING_MESSAGE_BY_REASON: Record<string, string> = {
   USER_RELEASE_VALUE_UNBOUND:
     "Export is blocked: a user-released report includes only values whose privacy and redistribution metadata it recognizes.",
   EXPORT_INPUT_NOT_PLAIN_DATA:
-    "Export is blocked: its input is not plain JSON data, so no part of it is read or exported."
+    "Export is blocked: its input is not plain JSON data, so no part of it is read or exported.",
+  EXPORT_INPUT_RESERVED_NAME:
+    "Export is blocked: its input carries a member named like the route exporter's internal names, so it is not interpreted."
 };
 
 const FINDING_REMEDIATION =
@@ -1296,6 +1300,46 @@ export function redactExportPayload(
   const snapshot = plainDataSnapshot(payload);
   if ("refusal" in snapshot) return plainDataBlockedExport(snapshot.refusal, options.exportContext);
   return redactSnapshot(snapshot.value, options.exportContext, options.explicitLocalPrivateIntent ?? false);
+}
+
+/** Whether a member name is one of the route exporter's internal names: the projector's key prefix,
+ * its labelled-leaf marker and its old value-record marker (HELP_HUMAN ruling, 2026-10-28: "When
+ * input can collide with internal names, the export should be blocked, not interpreted."). Identical
+ * in core/security/redaction/route_control.py and the Rust mirror (`route_reserved_name`). */
+function isReservedName(key: string): boolean {
+  return key.startsWith(ROUTE_KEY_PREFIX) || key === "_route_projected_leaf" || key === "_route_value_record";
+}
+
+/** The sorted paths of every member with a reserved name in a snapshot, at any depth; iterative. */
+function reservedNamePaths(value: unknown): string[] {
+  const found: string[] = [];
+  const stack: [unknown, string][] = [[value, "$"]];
+  while (stack.length > 0) {
+    const [node, at] = stack.pop() as [unknown, string];
+    if (Array.isArray(node)) node.forEach((item, index) => stack.push([item, `${at}[${index}]`]));
+    else if (isPlainObject(node)) {
+      for (const [key, item] of Object.entries(node)) {
+        if (isReservedName(key)) found.push(`${at}.${key}`);
+        stack.push([item, `${at}.${key}`]);
+      }
+    }
+  }
+  return found.sort();
+}
+
+function reservedNameDecision(path: string, exportContext: RedactionExportContext, index: number): RedactionDecision {
+  return {
+    decision_id: `REDC-DEC-${String(index).padStart(4, "0")}`,
+    path,
+    field_class: "export_input",
+    privacy_classification: "unknown",
+    redistribution_status: "unknown",
+    review_status: "unknown",
+    export_context: exportContext,
+    action: "block_export",
+    reason_code: "EXPORT_INPUT_RESERVED_NAME",
+    source_metadata_present: false
+  };
 }
 
 /** The redaction walk over data this module built: a snapshot, or the route projector's
@@ -1649,6 +1693,26 @@ export function controlRouteExport(
     };
   }
   const source = snapshot.value;
+  // Reserved internal names (HELP_HUMAN ruling, 2026-10-28: "fail closed on reserved internal
+  // names, in all three implementations"): a member so named anywhere in the input blocks the
+  // whole export before projection, one decision per such member, naming its path only.
+  const reserved = reservedNamePaths(source);
+  if (reserved.length > 0) {
+    const decisions = reserved.map((reservedPath, index) => reservedNameDecision(reservedPath, options.exportContext, index + 1));
+    const findings = decisions.map((decision, index) => findingFor(decision, index + 1) as RedactionFinding);
+    return {
+      payload: null,
+      decisions,
+      findings,
+      blocked: true,
+      summary: {
+        ...summarize(decisions, findings),
+        route_id: options.routeId,
+        materialization_withheld: false,
+        local_first: localFirst
+      }
+    };
+  }
   const structuralProjection = structuralProjectionFor(source, options.routeId);
   const projected = projectRouteValue(stripRouteIntent(source), {
     routeId: options.routeId,

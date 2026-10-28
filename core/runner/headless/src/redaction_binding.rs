@@ -730,10 +730,57 @@ fn route_record_decisions(
     context: &str,
     intent: bool,
 ) -> Vec<RouteDecision> {
-    let payload = strip_intent(serde_json::json!({ record_key: record }));
+    let input = serde_json::json!({ record_key: record });
+    // Reserved internal names (HELP_HUMAN ruling, 2026-10-28: "fail closed on reserved internal
+    // names, in all three implementations"): a member so named anywhere in the input blocks the
+    // whole export before projection, one decision per such member, naming its path only.
+    let mut reserved = Vec::new();
+    route_reserved_name_paths(&input, "$", &mut reserved);
+    if !reserved.is_empty() {
+        reserved.sort();
+        return reserved
+            .into_iter()
+            .map(|path| (path, "block_export", "EXPORT_INPUT_RESERVED_NAME"))
+            .collect();
+    }
+    let payload = strip_intent(input);
     let mut out = Vec::new();
     route_walk(&payload, "$", false, context, intent, None, false, &mut out);
     out
+}
+
+/// A member name of the route exporter's internal names: the projector's key prefix, its
+/// labelled-leaf marker and its old value-record marker (TypeScript `isReservedName`, Python
+/// `_reserved_name`).
+#[cfg(test)]
+fn route_reserved_name(key: &str) -> bool {
+    key.starts_with("__route_key__")
+        || key == "_route_projected_leaf"
+        || key == "_route_value_record"
+}
+
+/// The paths of every member with a reserved name, at any depth; iterative.
+#[cfg(test)]
+fn route_reserved_name_paths(value: &Value, root: &str, found: &mut Vec<String>) {
+    let mut stack: Vec<(&Value, String)> = vec![(value, root.to_string())];
+    while let Some((node, at)) = stack.pop() {
+        match node {
+            Value::Object(map) => {
+                for (key, item) in map {
+                    if route_reserved_name(key) {
+                        found.push(format!("{at}.{key}"));
+                    }
+                    stack.push((item, format!("{at}.{key}")));
+                }
+            }
+            Value::Array(items) => {
+                for (index, item) in items.iter().enumerate() {
+                    stack.push((item, format!("{at}[{index}]")));
+                }
+            }
+            _ => {}
+        }
+    }
 }
 
 /// A label the TypeScript and Python contracts read as unknown (`UNKNOWN_*` sets): absent,
@@ -2442,12 +2489,56 @@ mod tests {
                 "public_report",
                 false
             ),
-            vec![route_decision(
-                "$.record",
-                "block_export",
-                "PROTECTED_CONTENT_BLOCKED"
-            )]
+            vec![
+                route_decision(
+                    "$.record._route_value_record",
+                    "block_export",
+                    "EXPORT_INPUT_RESERVED_NAME"
+                ),
+                route_decision(
+                    "$.record.projected.__route_key__leak",
+                    "block_export",
+                    "EXPORT_INPUT_RESERVED_NAME"
+                ),
+            ]
         );
+    }
+
+    /// HELP_HUMAN ruling, 2026-10-28: "fail closed on reserved internal names, in all three
+    /// implementations."  At the top level, in a nested value record, in an array and in a
+    /// provenance; the decision names the path, never the value.
+    #[test]
+    fn reserved_internal_names_block_the_export_by_path_only() {
+        for (record, reserved_path) in [
+            (
+                r#"{"value":"outer","field_class":"note","__route_key__value":"SECRET"}"#,
+                "$.record.__route_key__value",
+            ),
+            (
+                r#"{"value":"outer","field_class":"note","text":{"value":"inner","field_class":"note","_route_projected_leaf":"SECRET"}}"#,
+                "$.record.text._route_projected_leaf",
+            ),
+            (
+                r#"{"value":"outer","field_class":"note","child":[{"note":"x"},{"_route_value_record":"SECRET"}]}"#,
+                "$.record.child[1]._route_value_record",
+            ),
+            (
+                r#"{"value":"outer","privacy_classification":"public","provenance":{"__route_key__x":"SECRET"}}"#,
+                "$.record.provenance.__route_key__x",
+            ),
+        ] {
+            let decided = value_record(record, "local_private", true);
+            assert_eq!(
+                decided,
+                vec![route_decision(
+                    reserved_path,
+                    "block_export",
+                    "EXPORT_INPUT_RESERVED_NAME"
+                )],
+                "{record}"
+            );
+            assert!(decided.iter().all(|(path, _, _)| !path.contains("SECRET")));
+        }
     }
 
     /// P1-2: a labelled item beneath a raised member is raised; the twins assert it is

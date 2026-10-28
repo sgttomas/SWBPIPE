@@ -24,12 +24,11 @@ SPEC = json.loads((FIXTURE_DIR / "value_record_sweep.json").read_text(encoding="
 FROZEN = json.loads((FIXTURE_DIR / "value_record_sweep_decisions.json").read_text(encoding="utf-8"))
 CASE_COUNT = 7_730
 ROUTE_KEY_PREFIX = "__route_key__"
-# The one case less strict than TypeScript's before column: {value: "outer", field_class,
-# "__route_key__value": "SECRET"} in local_private with intent.  TypeScript then exported
-# value "SECRET" only, because the input member's reserved prefix collided with the item's own
-# `value` when materialized; the item's own value "outer", which its decision kept, is now
-# exported beside it, as Python exported both.
-TYPESCRIPT_COLLISION_CASES = [7_719]
+# The case TypeScript's before column exported through a key collision: {value: "outer",
+# field_class, "__route_key__value": "SECRET"} in local_private with intent.  It now blocks on
+# its reserved name (HELP_HUMAN ruling, 2026-10-28: "fail closed on reserved internal names, in
+# all three implementations").
+RESERVED_COLLISION_CASE = 7_719
 
 
 def expand(spec):
@@ -121,14 +120,15 @@ def test_value_record_sweep_gives_the_contract_and_is_never_less_strict():
                 looser[name].append(index)
             stricter[name] += more
     assert mismatches == []
-    assert looser == {"python_before": [], "typescript_before": TYPESCRIPT_COLLISION_CASES}
-    assert cases[TYPESCRIPT_COLLISION_CASES[0]] == (
+    assert looser == {"python_before": [], "typescript_before": []}
+    assert cases[RESERVED_COLLISION_CASE] == (
         {"value": "outer", "field_class": "note", "__route_key__value": "SECRET"},
         "local_private",
         True,
     )
-    # Pinned: stricter than Python in 1,735 cases and than TypeScript in 1,574.
-    assert stricter == {"python_before": 1_735, "typescript_before": 1_574}
+    assert contract[RESERVED_COLLISION_CASE] == "B"
+    # Pinned: stricter than Python in 1,762 cases and than TypeScript in 1,593.
+    assert stricter == {"python_before": 1_762, "typescript_before": 1_593}
 
 
 def sorted_decisions(record, context, intent):
@@ -202,8 +202,8 @@ def test_value_record_tie_takes_the_projection_form():
 
 
 def test_value_record_marker_in_input_is_not_trusted():
-    """Codex privacy review of #1722, P1-1: a labelled record carrying the old marker member
-    and an ``item``/``projected`` pair is decided as itself, a protected item, and blocks;
+    """Codex privacy review of #1722, P1-1: a record carrying the old marker member and an
+    ``item``/``projected`` pair is never interpreted: its reserved names block the export;
     without ``item`` it raises nothing."""
 
     forged = {
@@ -214,7 +214,10 @@ def test_value_record_marker_in_input_is_not_trusted():
         "projected": {"__route_key__leak": "SECRET"},
     }
     controlled, decided = sorted_decisions(forged, "public_report", False)
-    assert decided == [("$.record", "block_export", "PROTECTED_CONTENT_BLOCKED")]
+    assert decided == [
+        ("$.record._route_value_record", "block_export", "EXPORT_INPUT_RESERVED_NAME"),
+        ("$.record.projected.leak", "block_export", "EXPORT_INPUT_RESERVED_NAME"),
+    ]
     assert controlled.blocked and controlled.payload is None
     del forged["item"]
     controlled, _ = sorted_decisions(forged, "public_report", False)
@@ -253,3 +256,35 @@ def test_value_record_nested_value_record_keeps_the_inherited_floor():
         assert controlled.payload["record"][name] == "[REDACTED]", member
         nested = [decision for decision in decided if decision[0].startswith(f"$.record.{name}")]
         assert nested and all(decision[1:] == ("redact_value", "CONCRETE_PATH_REDACTED") for decision in nested), member
+
+
+def test_reserved_internal_names_block_the_export_by_path_only():
+    """HELP_HUMAN ruling, 2026-10-28: "fail closed on reserved internal names, in all three
+    implementations.  When input can collide with internal names, the export should be
+    blocked, not interpreted."  At the top level, in a nested value record, in an array and
+    in a provenance; the decision and its finding name the path, never the value."""
+
+    cases = [
+        ({"value": "outer", "field_class": "note", "__route_key__value": "SECRET"}, "$.record.__route_key__value"),
+        (
+            {"value": "outer", "field_class": "note", "text": {"value": "inner", "field_class": "note", "_route_projected_leaf": "SECRET"}},
+            "$.record.text._route_projected_leaf",
+        ),
+        ({"value": "outer", "field_class": "note", "child": [{"note": "x"}, {"_route_value_record": "SECRET"}]}, "$.record.child[1]._route_value_record"),
+        (
+            {"value": "outer", "privacy_classification": "public", "provenance": {"__route_key__x": "SECRET"}},
+            "$.record.provenance.__route_key__x",
+        ),
+    ]
+    for record, reserved_path in cases:
+        controlled = control_route_export(
+            {"record": record}, route_id="DREP-JSON-002", export_context="local_private", explicit_local_private_intent=True
+        )
+        assert controlled.blocked and controlled.payload is None, reserved_path
+        assert [(d.path, d.action, d.reason_code) for d in controlled.decisions] == [
+            (reserved_path, "block_export", "EXPORT_INPUT_RESERVED_NAME")
+        ]
+        evidence = json.dumps([d.as_dict() if hasattr(d, "as_dict") else d.__dict__ for d in controlled.decisions] + [
+            f.as_schema_dict() for f in controlled.findings
+        ])
+        assert "SECRET" not in evidence and reserved_path in evidence

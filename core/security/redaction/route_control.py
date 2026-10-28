@@ -18,7 +18,9 @@ from .controls import (
     USER_RELEASED_REPORT_CONTEXT,
     RedactionDecision,
     RedactionFinding,
+    RedactionResult,
     ValueRecordNode,
+    _finding_for,
     _has_explicit_metadata,
     assert_user_release_intent_context,
     carries_proto_member,
@@ -132,6 +134,39 @@ def control_route_export(
         for item in source_findings_copy
         if str(item.get("severity", "")).casefold() == "blocking"
     )
+    # Reserved internal names (HELP_HUMAN ruling, 2026-10-28: "fail closed on reserved internal
+    # names, in all three implementations"): a member so named anywhere in the input blocks the
+    # whole export before projection, one decision per such member, naming its path only.
+    reserved = _reserved_name_paths(source)
+    if reserved:
+        decisions = tuple(
+            RedactionDecision(
+                decision_id=f"REDC-DEC-{index:04d}",
+                path=reserved_path,
+                field_class="export_input",
+                privacy_classification="unknown",
+                redistribution_status="unknown",
+                review_status="unknown",
+                export_context=export_context,
+                action="block_export",
+                reason_code="EXPORT_INPUT_RESERVED_NAME",
+                source_metadata_present=False,
+            )
+            for index, reserved_path in enumerate(reserved, start=1)
+        )
+        findings = tuple(
+            finding
+            for index, decision in enumerate(decisions, start=1)
+            if (finding := _finding_for(decision, index)) is not None
+        )
+        return _controlled_export(
+            RedactionResult(None, decisions, findings),
+            route_id=route_id,
+            local_first=local_first,
+            source_findings_copy=source_findings_copy,
+            source_blocking_count=source_blocking_count,
+            require_lossless_materialization=require_lossless_materialization,
+        )
     projected = _project(
         _strip_source_intent(source),
         route_id=route_id,
@@ -143,6 +178,25 @@ def control_route_export(
         explicit_local_private_intent=normalized_local_private_intent,
         explicit_user_release_intent=normalized_release_intent,
     )
+    return _controlled_export(
+        result,
+        route_id=route_id,
+        local_first=local_first,
+        source_findings_copy=source_findings_copy,
+        source_blocking_count=source_blocking_count,
+        require_lossless_materialization=require_lossless_materialization,
+    )
+
+
+def _controlled_export(
+    result: RedactionResult,
+    *,
+    route_id: str,
+    local_first: Any,
+    source_findings_copy: tuple[dict[str, Any], ...],
+    source_blocking_count: int,
+    require_lossless_materialization: bool,
+) -> ControlledExport:
     destructive = any(
         decision.action in {"redact_value", "redact_field", "omit_field", "block_export"}
         for decision in result.decisions
@@ -179,6 +233,34 @@ def control_route_export(
         blocked=blocked,
         summary=summary,
     )
+
+
+def _reserved_name(key: str) -> bool:
+    """A member name of the route exporter's internal names: the projector's key prefix, its
+    labelled-leaf marker and its old value-record marker (HELP_HUMAN ruling, 2026-10-28:
+    "When input can collide with internal names, the export should be blocked, not
+    interpreted.").  Identical in redactionExportControls.ts (``isReservedName``) and the
+    Rust mirror (``route_reserved_name``)."""
+
+    return key.startswith(ROUTE_KEY_PREFIX) or key in {"_route_projected_leaf", "_route_value_record"}
+
+
+def _reserved_name_paths(value: Any) -> list[str]:
+    """The sorted paths of every member with a reserved name, at any depth; iterative."""
+
+    found: list[str] = []
+    stack: list[tuple[Any, str]] = [(value, "$")]
+    while stack:
+        node, at = stack.pop()
+        if isinstance(node, Mapping):
+            for key, item in node.items():
+                if _reserved_name(str(key)):
+                    found.append(f"{at}.{key}")
+                stack.append((item, f"{at}.{key}"))
+        elif isinstance(node, (list, tuple)):
+            for index, item in enumerate(node):
+                stack.append((item, f"{at}[{index}]"))
+    return sorted(found)
 
 
 def _assert_generic_route_export(route_id: Any, export_context: Any) -> None:

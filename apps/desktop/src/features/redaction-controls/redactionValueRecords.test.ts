@@ -32,11 +32,10 @@ const spec = JSON.parse(readFileSync(path.join(fixtureDir, "value_record_sweep.j
 const frozen = JSON.parse(readFileSync(path.join(fixtureDir, "value_record_sweep_decisions.json"), "utf8")) as Frozen;
 const CASE_COUNT = 7_730;
 const ROUTE_KEY_PREFIX = "__route_key__";
-// The one case less strict than TypeScript's before column: {value: "outer", field_class,
-// "__route_key__value": "SECRET"} in local_private with intent. TypeScript then exported value "SECRET" only,
-// because the input member's reserved prefix collided with the item's own `value` when materialized; the item's
-// own value "outer", which its decision kept, is now exported beside it, as Python exported both.
-const TYPESCRIPT_COLLISION_CASES = [7_719];
+// The case TypeScript's before column exported through a key collision: {value: "outer", field_class,
+// "__route_key__value": "SECRET"} in local_private with intent. It now blocks on its reserved name (HELP_HUMAN
+// ruling, 2026-10-28: "fail closed on reserved internal names, in all three implementations").
+const RESERVED_COLLISION_CASE = 7_719;
 
 function expand(sweep: Spec): [Item, RedactionExportContext, boolean][] {
   const records: Item[] = [];
@@ -139,14 +138,15 @@ describe("DEL-12-02 value records", () => {
       }
     });
     expect(mismatches).toEqual([]);
-    expect(looser).toEqual({ python_before: [], typescript_before: TYPESCRIPT_COLLISION_CASES });
-    expect(cases[TYPESCRIPT_COLLISION_CASES[0]]).toEqual([
+    expect(looser).toEqual({ python_before: [], typescript_before: [] });
+    expect(cases[RESERVED_COLLISION_CASE]).toEqual([
       { value: "outer", field_class: "note", __route_key__value: "SECRET" },
       "local_private",
       true
     ]);
-    // Pinned: stricter than Python in 1,735 cases and than TypeScript in 1,574.
-    expect(stricter).toEqual({ python_before: 1_735, typescript_before: 1_574 });
+    expect(contract[RESERVED_COLLISION_CASE]).toBe("B");
+    // Pinned: stricter than Python in 1,762 cases and than TypeScript in 1,593.
+    expect(stricter).toEqual({ python_before: 1_762, typescript_before: 1_593 });
   }, 120_000);
 
   const sortedDecisions = (record: Item, context: RedactionExportContext, intent: boolean) => {
@@ -203,7 +203,10 @@ describe("DEL-12-02 value records", () => {
       '{"value":"SECRET","privacy_classification":"protected_suspected","_route_value_record":true,"item":{"value":"safe","privacy_classification":"public","redistribution_status":"public_permissive"},"projected":{"__route_key__leak":"SECRET"}}'
     );
     const { controlled, decided } = sortedDecisions(forged, "public_report", false);
-    expect(decided).toEqual([["$.record", "block_export", "PROTECTED_CONTENT_BLOCKED"]]);
+    expect(decided).toEqual([
+      ["$.record._route_value_record", "block_export", "EXPORT_INPUT_RESERVED_NAME"],
+      ["$.record.projected.leak", "block_export", "EXPORT_INPUT_RESERVED_NAME"]
+    ]);
     expect([controlled.blocked, controlled.payload]).toEqual([true, null]);
     delete forged.item;
     expect(sortedDecisions(forged, "public_report", false).controlled.blocked).toBe(true);
@@ -235,6 +238,30 @@ describe("DEL-12-02 value records", () => {
       const nested = decided.filter(([decisionPath]) => decisionPath.startsWith(`$.record.${name}`));
       expect(nested.length, name).toBeGreaterThan(0);
       expect(nested.every(([, action, reason]) => action === "redact_value" && reason === "CONCRETE_PATH_REDACTED"), name).toBe(true);
+    }
+  });
+
+  it("blocks reserved internal names at any depth, naming the path and never the value", () => {
+    // HELP_HUMAN ruling, 2026-10-28: "fail closed on reserved internal names, in all three implementations.
+    // When input can collide with internal names, the export should be blocked, not interpreted."
+    const cases: [Item, string][] = [
+      [{ value: "outer", field_class: "note", __route_key__value: "SECRET" }, "$.record.__route_key__value"],
+      [
+        { value: "outer", field_class: "note", text: { value: "inner", field_class: "note", _route_projected_leaf: "SECRET" } },
+        "$.record.text._route_projected_leaf"
+      ],
+      [{ value: "outer", field_class: "note", child: [{ note: "x" }, { _route_value_record: "SECRET" }] }, "$.record.child[1]._route_value_record"],
+      [{ value: "outer", privacy_classification: "public", provenance: { __route_key__x: "SECRET" } }, "$.record.provenance.__route_key__x"]
+    ];
+    for (const [record, reservedPath] of cases) {
+      const controlled = controlRouteExport({ record }, { routeId: "DREP-JSON-002", exportContext: "local_private", explicitLocalPrivateIntent: true });
+      expect([controlled.blocked, controlled.payload], reservedPath).toEqual([true, null]);
+      expect(controlled.decisions.map((decision) => [decision.path, decision.action, decision.reason_code])).toEqual([
+        [reservedPath, "block_export", "EXPORT_INPUT_RESERVED_NAME"]
+      ]);
+      const evidence = JSON.stringify([controlled.decisions, controlled.findings]);
+      expect(evidence.includes("SECRET"), reservedPath).toBe(false);
+      expect(evidence.includes(reservedPath), reservedPath).toBe(true);
     }
   });
 });

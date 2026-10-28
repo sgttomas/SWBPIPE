@@ -825,6 +825,7 @@ def _finding_for(
         "USER_RELEASED_PROJECT_DATA": "PRIVATE_DATA_WARNING",
         "USER_RELEASE_INTENT_REQUIRED": "PRIVATE_DATA_WARNING",
         "USER_RELEASE_VALUE_UNBOUND": "PROVENANCE_WARNING",
+        "EXPORT_INPUT_RESERVED_NAME": "STORAGE_BOUNDARY_WARNING",
     }[decision.reason_code]
     message = USER_RELEASE_FINDING_MESSAGES.get(decision.reason_code) or {
         "warning_only": "Export retained the value only in a local/private context with an explicit warning.",
@@ -854,6 +855,7 @@ USER_RELEASE_FINDING_MESSAGES = {
     "USER_RELEASED_PROJECT_DATA": "Export retained the user's own project data in this report under the user's release of their project data, with a warning.",
     "USER_RELEASE_INTENT_REQUIRED": "Export is blocked: this report carries the user's project data and no user release of that data was selected for it.",
     "USER_RELEASE_VALUE_UNBOUND": "Export is blocked: a user-released report includes only values whose privacy and redistribution metadata it recognizes.",
+    "EXPORT_INPUT_RESERVED_NAME": "Export is blocked: its input carries a member named like the route exporter's internal names, so it is not interpreted.",
 }
 
 
