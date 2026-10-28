@@ -1574,7 +1574,7 @@ The run at `0bf192cbf8` completes on all four points with exit 0, no unmapped he
 - the law tests' phase record, every phase in both modes, +20,658 B;
 - the challenge binary's `W1_PHASE_BYTES` (6,559,533,008 and 6,618,664,352) and `MAX_PHASE_BYTES` (8,855,710,229 and 8,914,841,573).
 
-The `profile_` law tests pass in the registered build. The run at `0bf192cbf8` is the commit carrying the rules; the block and these pins are registered at `5628094d23`, which changes no file the run's snapshot prices but `retained_memory.rs`'s block, records and comments. AC-004's six stack-headroom witnesses have not been run for this D3. Coefficients and the registration move, so Agent 0's ruling quoted in §8.28, "if coefficients move, re-register and re-run AC-004 with my exclusive grant", applies; they wait for that grant.
+The `profile_` law tests pass in the registered build. The block and these pins are registered at `5628094d23`. The run at `b6abdcc231` (the branch head carrying the block, the pins, the tests and this text) and the run at `0bf192cbf8` are coefficient-identical but for the basis line. AC-004's six stack-headroom witnesses have not been run for this D3. Coefficients and the registration move, so Agent 0's ruling quoted in §8.28, "if coefficients move, re-register and re-run AC-004 with my exclusive grant", applies; they wait for that grant.
 
 The merged tree at native atoms, against ⌊0.9M⌋:
 
