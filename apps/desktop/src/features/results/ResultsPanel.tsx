@@ -176,7 +176,6 @@ export function ResultsPanel({
     [filteredResults, pageIndex, pageSize]
   );
   const groups = result && labels ? groupResults(page.items, labels) : [];
-  const allGroups = result && labels ? groupResults(filteredResults, labels) : [];
   // Dispatch once per render; the row labels apply to preview-physics-2 and its successor only.
   const labelSource = useMemo(() => {
     try { return result && ["preview_physics", "retained_preview_physics", "retained_physics"].includes(sourceContract(result)) ? result : null; } catch { return null; }
@@ -215,6 +214,8 @@ export function ResultsPanel({
     };
   }));
   const exportGroup = async (title: string) => {
+    // Every row the filters admit, across all pages, grouped as the table groups them.
+    const allGroups = result && labels ? groupResults(filteredResults, labels) : [];
     const rows = await csvRows(allGroups.find((group) => group.title === title)?.items ?? []);
     return resultGroupCsv({
       title, rows, provenance: await csvProvenance(), softwareVersion: CSV_SOFTWARE_VERSION,
