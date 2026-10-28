@@ -134,6 +134,53 @@ def isolation_checks():
     except TypeError:
         inv = True
     check("an Extremum with lower > upper cannot exist", inv)
+    # the final round's P3: exact types only; no subclass can carry state or override iteration or arithmetic
+    import dataclasses
+
+    class RunChild(MV.RunView):
+        pass
+
+    class ModelChild(MV.ModelView):
+        pass
+
+    class TupleChild(tuple):
+        pass
+
+    class FloatChild(float):
+        def as_integer_ratio(self):
+            return (0, 1)
+
+    class StrChild(str):
+        pass
+
+    class FracChild(Q):
+        pass
+
+    class SetChild(frozenset):
+        pass
+
+    def refused(make):
+        try:
+            make()
+            return False
+        except TypeError:
+            return True
+    row = next(r for r in v.rows if r.value)
+    child = RunChild(**{f.name: getattr(v, f.name) for f in dataclasses.fields(v)})
+    mchild = ModelChild(**{f.name: getattr(m.view, f.name) for f in dataclasses.fields(m.view)})
+    sec = m.expected.sections[0]
+    props = sec.bases[0][1]
+    for label, make in (("a RunView subclass given to judge_model", lambda: MC.judge_model(m.view, m.expected, (child,))),
+                        ("a ModelView subclass given to judge_model", lambda: MC.judge_model(mchild, m.expected, (v,))),
+                        ("a tuple subclass of rows", lambda: dataclasses.replace(v, rows=TupleChild(v.rows))),
+                        ("a float subclass value", lambda: dataclasses.replace(row, value=FloatChild(row.value))),
+                        ("a str subclass kind", lambda: dataclasses.replace(row, kind=StrChild(row.kind))),
+                        ("a frozenset subclass of warnings", lambda: dataclasses.replace(v, warnings=SetChild(v.warnings))),
+                        ("a Fraction subclass section property", lambda: dataclasses.replace(props, A=FracChild(props.A))),
+                        ("a tuple subclass of section bases", lambda: dataclasses.replace(sec, bases=TupleChild(sec.bases))),
+                        ("a bool for a float L_b", lambda: dataclasses.replace(m.view, Lb=True)),
+                        ("a tuple subclass of expected cases", lambda: dataclasses.replace(m.expected, cases=TupleChild(m.expected.cases)))):
+        check(f"exact types: {label} is refused (TypeError)", refused(make))
 
 
 def contract_checks():

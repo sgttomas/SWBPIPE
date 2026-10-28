@@ -11,6 +11,7 @@ import copy
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -68,9 +69,19 @@ def collection_scenarios(check):
         withref = write(T("refused-set.jsonl"), [refused_g, codex])   # one family: the refused model beside an admitted one
         pf_set = write(T("pf-set.jsonl"), pf_gens)
 
+        def pins(route, st, controls=None):
+            """The test's own synthetic set (and controls) declared as committed references: the judging library's
+            `references` argument. The CLI and run.sh always read the committed REFERENCE_SHA256SUMS."""
+            out = {(route, "set"): {MV.file_sha256(st): "synthetic"}}
+            if controls:
+                out[(route, "controls")] = {MV.file_sha256(controls): "synthetic"}
+            return out
+
         def judge(rnd, attack, case, st, files, want, why=lambda j: True, label="", route="pf", **kw):
+            refs = kw.pop("references", "test")
             args = dict(quiet=True, workers=kw.pop("workers", 1), runner_sha=kw.pop("runner_sha", R), head=kw.pop("head", head),
                         checkout=kw.pop("checkout", checkout), **kw)
+            args["references"] = pins(route, st, args.get("controls_path")) if refs == "test" else refs
             j = MR.report(route, st, files, **args)
             outcome = ("OVERALL: PASS" if j["pass"] else "OVERALL: FAIL") + (f" ({label})" if label else "")
             table(rnd, attack, case, outcome, j["pass"] == want and why(j))
@@ -127,7 +138,7 @@ def collection_scenarios(check):
         judge_runs(2, "split C4 on the whole selftest set", "r2_set_c4", pf_set, [r for r in complete if r["tag"] != codex["tag"]] + split[0] + split[1],
                    False, lambda j: j["c4_failures"] == 2, "C4 = 2", workers=4)
         MR.report("pf", small, [T("small_positive.raw.jsonl")], quiet=True, workers=1, runner_sha=R, head=head, checkout=checkout,
-                  eval_out=T("small.eval.jsonl"))
+                  eval_out=T("small.eval.jsonl"), references=pins("pf", small))
         evs = [m3_json.strict_loads(line) for line in open(T("small.eval.jsonl"))]
         pre_repair = mut(evs, lambda r: (r.pop("design_failures", None), r.update(info=dict(r.get("info") or {}, C10=1))))
         judge_runs(2, "a pre-repair evaluation cache given as input", "r2_pre_repair_cache_as_input", small, pre_repair, False, schema, "refused by the view")
@@ -247,7 +258,7 @@ def collection_scenarios(check):
                 os.link(raw_p, alias)
             before = {p: open(p, "rb").read() for p in (raw_p, ref_p)}
             kw = {"json_out": alias} if target == "json" else {"eval_out": alias}
-            j = MR.report("pf", ref_p, [raw_p], quiet=True, workers=1, runner_sha=R, head=head, checkout=checkout, **kw)
+            j = MR.report("pf", ref_p, [raw_p], quiet=True, workers=1, runner_sha=R, head=head, checkout=checkout, references=pins("pf", ref_p), **kw)
             kept = all(open(p, "rb").read() == b for p, b in before.items()) and (target != "existing" or open(alias).read() == "keep")
             table(4, "an output aliasing an input or an existing file", case, "OVERALL: FAIL (outputs refused, inputs intact)",
                   not j["pass"] and bool(j.get("outputs_refused")) and kept)
@@ -474,6 +485,106 @@ def collection_scenarios(check):
         judge_runs(5, "PF view: exact-route records", "pf_with_exact_records", small,
                    [dict(x, tag=t["tag"], request_sha256=MV.request_sha256(t["tag"], t["request"])) for x, t in zip(xe, [codex] * 4 + [ordinary] * 4)],
                    False, schema, "refused by the view")
+        # ---- the final round (Codex at cd94a8389b): the reference side bound (Agent 0), null first, exact types
+        for route, models, runs, bad_runs in (("pf", [codex, ordinary], eight, [bad] + eight[1:]), ("exact", [pres, plain], xe, [xbad] + xe[1:])):
+            P = route + "_"
+
+            def edited(f, models=models):
+                gs = copy.deepcopy(models)
+                f(gs[0])
+                return gs
+
+            def far_node(g):
+                g["ref"]["nodes"][1] = [g["ref"]["nodes"][1][0], ["1e20", "1e20", "1e20"]]
+
+            def dup_node(g):
+                g["ref"]["nodes"].append([g["ref"]["nodes"][0][0], ["1e20", "1e20", "1e20"]])
+            for case, f in (("reference_node_1e20", far_node), ("reference_duplicate_node", dup_node)):
+                st = write(T(P + case + ".set.jsonl"), edited(f))
+                judge(6, f"{route}: a reference node moved to 1e20 or duplicated there (it set L_b), with a C3 defect", P + case, st,
+                      [write(T(P + case + ".raw.jsonl"), bad_runs)], False, m3, "M3: C3; ref.nodes are not read, L_b is the request's", route=route)
+                judge(6, f"{route}: the same reference, not committed", P + case + "_not_committed", st, [T(P + case + ".raw.jsonl")], False,
+                      lambda j: prov(j) and any("is not a committed" in p for p in j["provenance"]), "provenance: reference file not committed",
+                      route=route, references=None)
+
+            def req_far(g):
+                g["request"]["model"]["nodes"][1]["position"] = {"x": 1e20, "y": 1e20, "z": 1e20}
+
+            def req_dup(g):
+                g["request"]["model"]["nodes"].append(copy.deepcopy(g["request"]["model"]["nodes"][0]))
+
+            def req_ghost_end(g):
+                g["request"]["model"]["pipe_segments"][0]["to"] = "node:ghost"
+
+            def req_ghost_support(g):
+                g["request"]["model"]["supports"][0]["node"] = "node:ghost"
+
+            def req_shared_id(g):
+                g["request"]["model"]["supports"][0]["id"] = g["request"]["model"]["nodes"][0]["id"]
+
+            def ref_ghost_row(g):
+                row = next(w for w in g["ref"]["cases"]["case:1"]["rows"] if w[0] == "element_local_axial_force" or w[0] == "element_local_shear_force_y")
+                row[1] = "pipe:ghost"
+
+            def ref_bad_section(g):
+                pid = next(iter(g["ref"]["sections"]))
+                g["ref"]["sections"][pid]["ro"] = 0.1
+            judge(6, f"{route}: a request node moved to 1e20 (the runs solved the original)", P + "request_node_1e20",
+                  write(T(P + "rq-far.set.jsonl"), edited(req_far)), [write(T(P + "rq.raw.jsonl"), runs)], False,
+                  lambda j: prov(j) and any("request sha256 differs" in p for p in j["provenance"]), "provenance: request sha256", route=route)
+            for case, f, why in (("request_duplicate_node_id", req_dup, "duplicate nodes ids"), ("request_undefined_pipe_end", req_ghost_end, "ends of"),
+                                 ("request_undefined_support_node", req_ghost_support, "node of"),
+                                 ("request_id_naming_two_entities", req_shared_id, "names two entities"),
+                                 ("reference_row_of_no_request_entity", ref_ghost_row, "a reference row"),
+                                 ("reference_section_value_not_text", ref_bad_section, "ref section")):
+                judge(6, f"{route}: reference admission ({case.replace('_', ' ')})", P + case, write(T(P + case + ".set.jsonl"), edited(f)),
+                      [T(P + "rq.raw.jsonl")], False, lambda j, why=why: prov(j) and any(why in p for p in j["provenance"]),
+                      "provenance: reference refused", route=route)
+
+            def null_global_end(r, route=route):
+                ends = [x for x in r["results"] if x["kind"] == "element_global_end_force_v1"]
+                if not ends:
+                    pid = models[0]["request"]["model"]["pipe_segments"][0]["id"] if r["tag"] == models[0]["tag"] else \
+                        models[1]["request"]["model"]["pipe_segments"][0]["id"]
+                    x = S.row(route, "case:1", "element_global_end_force_v1", pid, "end_i", "Fx", None, 0.0, "result:global-end")
+                    r["results"].append(x)
+                    r["results_count"] = len(r["results"])
+                    ends = [x]
+                ends[0]["value"] = None
+            judge_runs(6, f"{route}: a contract-valid derived row published null on Passed runs", P + "null_derived_row",
+                       write(T(P + "null.set.jsonl"), models), mut(runs, null_global_end), False,
+                       lambda j: m3(j) and j.get("schema_invalid", 0) == 0, "M3: C1 (null first, before any kind-based skip)", route=route)
+        # the controls file (exact route): every entry admitted
+        x_twin_ref = next(g for g in ex_gens if g["tag"] == plain["meta"]["twin"])["ref"]
+        for case, ctl_lines, why in (("control_unknown_entry", [{"tag": plain["tag"], "pertE": x_twin_ref}, {"tag": "absent-model", "pertE": x_twin_ref}],
+                                      "not a model of the set"),
+                                     ("control_malformed_pertE", [{"tag": plain["tag"], "pertE": {"malformed": True}}], "control reference"),
+                                     ("control_unknown_malformed", [{"tag": plain["tag"], "pertE": x_twin_ref}, {"tag": "absent-model", "pertE": {"malformed": True}}],
+                                      "not a model of the set"),
+                                     ("control_duplicate_tag", [{"tag": plain["tag"], "pertE": x_twin_ref}] * 2, "duplicate tag"),
+                                     ("control_extra_key", [{"tag": plain["tag"], "pertE": x_twin_ref, "note": "x"}], "keys")):
+            judge(6, "exact: the controls file", case, ex_own, [T("exact-ctl.raw.jsonl")], False,
+                  lambda j, why=why: prov(j) and any(why in p for p in j["provenance"]), "provenance: control refused", route="exact", variant="control",
+                  controls_path=write(T(case + ".controls.jsonl"), ctl_lines))
+        judge(6, "exact: a controls file not committed", "control_file_not_committed", ex_own, [T("exact-ctl.raw.jsonl")], False,
+              lambda j: prov(j) and any("controls file" in p for p in j["provenance"]), "provenance: controls file not committed", route="exact",
+              variant="control", controls_path=ctl, references={("exact", "set"): {MV.file_sha256(ex_own): "synthetic"}})
+        # the committed digests themselves: tracked and unchanged in git
+        repo = T("pins-repo")
+        os.makedirs(repo)
+        pin = os.path.join(repo, "REFERENCE_SHA256SUMS")
+        open(pin, "w").write("0" * 64 + " pf set synthetic\n")
+        gp = lambda *a: subprocess.run(["git", "-C", repo, *a], capture_output=True, text=True)
+        gp("init", "-q")
+        _, e1 = MV.pinned_references(pin)
+        gp("add", "-A")
+        gp("-c", "user.name=selftest", "-c", "user.email=selftest@invalid", "commit", "-q", "-m", "x")
+        p2, e2 = MV.pinned_references(pin)
+        open(pin, "a").write("1" * 64 + " pf set added later\n")
+        _, e3 = MV.pinned_references(pin)
+        table(6, "the committed digests: untracked, committed, then edited", "reference_sums_committed_and_unchanged",
+              "untracked refused; committed read; edited refused",
+              any("not committed" in x for x in e1) and not e2 and p2 == {("pf", "set"): {"0" * 64: "synthetic"}} and any("differs" in x for x in e3))
         # ---- run.sh: a synthetic builder whose runner is a Python script
         def runner(name, runs, exit_code=0):
             data = T(name + ".runs.json")
@@ -499,43 +610,58 @@ def collection_scenarios(check):
         builder = T("builder.sh")
         open(builder, "w").write('#!/bin/bash\nset -eu\ncp "$M3J_FAKE_RUNNER" "$3"\nchmod +x "$3"\n')
         os.chmod(builder, 0o755)
-        good, badr, exit7 = runner("good", eight), runner("bad", [bad] + eight[1:]), runner("exit7", eight, 7)
-        twins = [by_tag[codex["meta"]["twin"]], by_tag[ordinary["meta"]["twin"]]]
-        good4 = runner("good4", eight + [run(t, e, m) for t in twins for e, m in EM])
-        sd, sd4, sdx = T("driver-set"), T("driver-set4"), T("driver-setx")
-        write(os.path.join(sd, "set.jsonl"), [codex, ordinary])
-        write(os.path.join(sd4, "set.jsonl"), [codex, ordinary] + twins)
-        write(os.path.join(sdx, "set.jsonl"), [pres, plain])
-        goodx = runner("goodx", xe)
+        # run.sh judges through the CLI, which reads the committed REFERENCE_SHA256SUMS: the driver sets are byte copies
+        # of committed reference files (the PF selftest set, the kd5 frozen subset)
+        others = [g for g in pf_gens if g["tag"] != codex["tag"]]
+        complete_bad = [bad if (r["tag"], r["entry"], r["mode"]) == (bad["tag"], bad["entry"], bad["mode"]) else r for r in complete]
+        good, badr, exit7 = runner("good", complete), runner("bad", complete_bad), runner("exit7", complete, 7)
+        good4 = good
+        sd, sdx = T("driver-set"), T("driver-setx")
+        os.makedirs(sd)
+        os.makedirs(sdx)
+        shutil.copyfile(PF_SET, os.path.join(sd, "set.jsonl"))
+        shutil.copyfile(EXACT_SET, os.path.join(sdx, "set.jsonl"))
+        sd4 = sd
+        goodx = runner("goodx", [run(g, e, m, "exact") for g in ex_gens for e, m in EM])
+        failing_twin_py = T("py-failing-twin.sh")
+        open(failing_twin_py, "w").write(f'#!/bin/bash\ncase " $* " in *" --ref twin "*) echo "OVERALL: FAIL (synthetic: the twin pass did not complete)"; exit 1 ;; esac\n'
+                                         f'exec {sys.executable} "$@"\n')
+        os.chmod(failing_twin_py, 0o755)
 
-        def driver(rnd, attack, case, runner_bin, rundir, chunks, variants, want, setdir=sd, why=lambda d: True, route="pf"):
+        def driver(rnd, attack, case, runner_bin, rundir, chunks, variants, want, setdir=sd, why=lambda d: True, route="pf", python=sys.executable):
             for i, tags in enumerate(chunks):
                 write(os.path.join(rundir, "chunks", f"c.{i:03d}.in.jsonl"), MV.request_lines(tags), raw=True)
-            env = dict(os.environ, M3J_PY=sys.executable, M3J_WORKERS="1", M3J_BUILD=builder, M3J_FAKE_RUNNER=runner_bin)
+            env = dict(os.environ, M3J_PY=python, M3J_WORKERS="2", M3J_BUILD=builder, M3J_FAKE_RUNNER=runner_bin)
             d = subprocess.run(["bash", os.path.join(HERE, "run.sh"), route, checkout, setdir, rundir, *variants], capture_output=True, text=True, env=env)
             last = d.stdout.strip().splitlines()[-1] if d.stdout.strip() else ""
             table(rnd, attack, case, f"run.sh exit {d.returncode}, final line '{last}'",
                   (d.returncode == 0) == want and last == ("OVERALL: PASS" if want else "OVERALL: FAIL") and why(rundir))
 
-        driver(0, "positive control", "driver_positive", good, T("d/positive"), [[codex], [ordinary]], ["own"], True)
-        driver(0, "positive control", "driver_positive_with_twin_control", good4, T("d/twin-ok"), [[codex, ordinary], twins], ["own", "twin"], True, sd4)
-        driver(0, "exact view: positive control", "driver_exact_positive", goodx, T("d/exact"), [[pres], [plain]], ["own"], True, sdx, route="exact")
-        driver(1, "a model missing from the chunks", "driver_missing_model", good, T("d/missing"), [[codex]], ["own"], False)
-        driver(1, "a chunk given twice", "driver_duplicate_across_chunks", good, T("d/dup"), [[codex], [codex], [ordinary]], ["own"], False)
-        driver(3, "a changed request under the same tag", "driver_changed_request", good, T("d/changed"), [[changed, ordinary]], ["own"], False)
-        driver(3, "a replaced runner", "driver_resume_good_then_bad_runner (good first)", good, T("d/resume"), [[codex], [ordinary]], ["own"], True)
-        driver(3, "a replaced runner", "driver_resume_bad_new_runner", badr, T("d/resume"), [[codex], [ordinary]], ["own"], False)
-        write(os.path.join(T("d/partial"), "out", "c.000.out.jsonl"), [bad])
-        driver(4, "a partial earlier output", "driver_recover_good_clear_partial", good, T("d/partial"), [[codex], [ordinary]], ["own"], True,
+        driver(0, "positive control", "driver_positive", good, T("d/positive"), [[codex], others], ["own"], True)
+        driver(0, "positive control", "driver_positive_with_twin_control", good4, T("d/twin-ok"), [pf_gens[:10], pf_gens[10:]], ["own", "twin"], True, sd4)
+        driver(0, "exact view: positive control", "driver_exact_positive", goodx, T("d/exact"), [ex_gens[:32], ex_gens[32:]], ["own"], True, sdx,
+               route="exact")
+        driver(1, "a model missing from the chunks", "driver_missing_model", good, T("d/missing"), [others], ["own"], False)
+        driver(1, "a chunk given twice", "driver_duplicate_across_chunks", good, T("d/dup"), [[codex], [codex], others], ["own"], False)
+        driver(3, "a changed request under the same tag", "driver_changed_request", good, T("d/changed"), [[changed] + others], ["own"], False)
+        driver(3, "a replaced runner", "driver_resume_good_then_bad_runner (good first)", good, T("d/resume"), [[codex], others], ["own"], True)
+        driver(3, "a replaced runner", "driver_resume_bad_new_runner", badr, T("d/resume"), [[codex], others], ["own"], False)
+        write(os.path.join(T("d/partial"), "out", "c.000.out.jsonl"), [bad])          # a partial earlier output of the same chunk
+        driver(4, "a partial earlier output", "driver_recover_good_clear_partial", good, T("d/partial"), [[codex], others], ["own"], True,
                why=lambda d: sorted(os.listdir(os.path.join(d, "out"))) == ["c.000.out.jsonl", "c.001.out.jsonl"])
         write(os.path.join(T("d/partial2"), "out", "c.007.out.jsonl"), [bad])
-        driver(4, "a stale output from an earlier chunking", "driver_stale_out_removed", good, T("d/partial2"), [[codex], [ordinary]], ["own"], True,
+        driver(4, "a stale output from an earlier chunking", "driver_stale_out_removed", good, T("d/partial2"), [[codex], others], ["own"], True,
                why=lambda d: not os.path.exists(os.path.join(d, "out", "c.007.out.jsonl")))
-        driver(4, "a runner that exits 7 after valid records", "driver_valid_records_exit_nonzero", exit7, T("d/exit7"), [[codex], [ordinary]], ["own"], False)
-        driver(4, "a twin control that cannot complete", "driver_twin_runtime_error_accepted", good, T("d/twin-bad"), [[codex], [ordinary]], ["own", "twin"], False)
-        driver(4, "twin only, no own judgement", "driver_twin_only_no_own", good, T("d/twin-only"), [[codex], [ordinary]], ["twin"], False)
-        driver(5, "a control variant on the PF route", "driver_pf_control_refused", good, T("d/pf-ctl"), [[codex], [ordinary]], ["own", "control"], False)
-        driver(5, "an unknown route", "driver_unknown_route", good, T("d/route"), [[codex], [ordinary]], ["own"], False, route="preview")
+        driver(4, "a runner that exits 7 after valid records", "driver_valid_records_exit_nonzero", exit7, T("d/exit7"), [[codex], others], ["own"], False)
+        driver(4, "a twin control that cannot complete", "driver_twin_runtime_error_accepted", good, T("d/twin-bad"), [[codex], others], ["own", "twin"], False,
+               python=failing_twin_py)
+        driver(4, "twin only, no own judgement", "driver_twin_only_no_own", good, T("d/twin-only"), [[codex], others], ["twin"], False)
+        driver(5, "a control variant on the PF route", "driver_pf_control_refused", good, T("d/pf-ctl"), [[codex], others], ["own", "control"], False)
+        driver(5, "an unknown route", "driver_unknown_route", good, T("d/route"), [[codex], others], ["own"], False, route="preview")
+        tmpset = T("driver-set-unpinned")
+        write(os.path.join(tmpset, "set.jsonl"), pf_gens)
+        driver(6, "run.sh on a reference set whose sha256 is not committed", "driver_reference_not_committed", good, T("d/unpinned"), [[codex], others],
+               ["own"], False, tmpset)
         # build.sh: a dirty build input refuses the build before cargo runs (a throwaway repository; cargo is `false`)
         repo = T("build-repo")
         rel = os.path.join("projects", "chirality-piping")
@@ -559,19 +685,33 @@ def collection_scenarios(check):
             table(4, "the runner built from a dirty input", case, f"build.sh exit {b.returncode}" + (" (refused: dirty input)" if b.returncode == 3 else ""),
                   b.returncode == want and not os.path.exists(T("bt.bin")))
         # the CLI: one final OVERALL line, exit 0 only on PASS; usage and internal errors fail by name
-        for case, argv, rc, route in (("cli_passing", [small, T("small_positive.raw.jsonl")], 0, "pf"),
-                                      ("cli_failing", [small, T("bad_uy_55_6_percent_low.raw.jsonl")], 1, "pf"),
-                                      ("cli_bad_rows_sensitive_only", [small, T("bad_rows_sensitive_only.raw.jsonl")], 1, "pf"),
-                                      ("cli_exact_passing", [ex_own, T("exact_positive.raw.jsonl")], 0, "exact"),
+        full_raw = write(T("cli-complete.raw.jsonl"), complete)
+        bad_raw = write(T("cli-bad.raw.jsonl"), complete_bad)
+        sens_raw = write(T("cli-sensitive.raw.jsonl"), mut(complete_bad, sens))
+        ex_raw = write(T("cli-exact.raw.jsonl"), [run(g, e, m, "exact") for g in ex_gens for e, m in EM])
+        # the same JSON meaning, other bytes: one space after the first line's object
+        modified = write(T("pf-set-modified.jsonl"), open(PF_SET).read().replace("}\n", "} \n", 1), raw=True)
+        ex_modified = write(T("kd5-modified.jsonl"), open(EXACT_SET).read().replace("}\n", "} \n", 1), raw=True)
+        check("the modified reference copies differ in bytes from the committed files",
+              MV.file_sha256(modified) != MV.file_sha256(PF_SET) and MV.file_sha256(ex_modified) != MV.file_sha256(EXACT_SET))
+        for case, argv, rc, route in (("cli_passing", [PF_SET, full_raw], 0, "pf"),
+                                      ("cli_failing", [PF_SET, bad_raw], 1, "pf"),
+                                      ("cli_bad_rows_sensitive_only", [PF_SET, sens_raw], 1, "pf"),
+                                      ("cli_exact_passing", [EXACT_SET, ex_raw], 0, "exact"),
                                       ("cli_missing_mandatory_flags", [small, T("small_positive.raw.jsonl"), "--no-provenance"], 2, "pf"),
-                                      ("cli_missing_route", [small, T("small_positive.raw.jsonl")], 2, None)):
+                                      ("cli_missing_route", [small, T("small_positive.raw.jsonl")], 2, None),
+                                      ("cli_reference_not_committed", [small, T("small_positive.raw.jsonl")], 1, "pf"),
+                                      ("cli_reference_hash_mismatch", [modified, full_raw], 1, "pf"),
+                                      ("cli_exact_reference_hash_mismatch", [ex_modified, ex_raw], 1, "exact"),
+                                      ("cli_reference_of_the_other_route", [EXACT_SET, ex_raw], 1, "pf")):
             flags = ["--runner-sha256", R, "--product-head", head, "--checkout", checkout] if case != "cli_missing_mandatory_flags" else []
             c = subprocess.run(py + [os.path.join(HERE, "m3_report.py"), *(["--route", route] if route else []), *argv, "--workers", "1", *flags],
                                capture_output=True, text=True)
             last = c.stdout.strip().splitlines()[-1] if c.stdout.strip() else ""
-            rnd = 5 if ("sensitive" in case or "route" in case) else (4 if rc == 2 else 0)
+            rnd = 6 if "reference" in case else (5 if ("sensitive" in case or "route" in case) else (4 if rc == 2 else 0))
             table(rnd, "the CLI's final line and exit", case, f"exit {c.returncode}, final line '{last}'",
-                  c.returncode == rc and last.startswith("OVERALL: PASS" if rc == 0 else "OVERALL: FAIL") and "Traceback" not in c.stderr)
+                  c.returncode == rc and last.startswith("OVERALL: PASS" if rc == 0 else "OVERALL: FAIL") and "Traceback" not in c.stderr
+                  and ("reference" not in case or "is not a committed" in c.stdout))
     by_round = {}
     for r in rows:
         by_round[r[0]] = by_round.get(r[0], 0) + 1
