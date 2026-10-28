@@ -285,6 +285,17 @@ def test_provenance_violations_are_blocking_findings(tmp_path):
     assert record["blocking_finding_count"] >= 1
 
 
+@pytest.mark.parametrize("licence", [{"spdx": "MIT"}, None, 7])
+def test_non_string_licence_is_a_violation_not_a_crash(licence):
+    # The staged export's dry run aborted with AttributeError on a record whose
+    # source_license was an object; the check must record it and continue.
+    module = load_module()
+    record = dict(ACCEPTED_PROVENANCE)
+    record["source_license"] = licence
+    violations = module.provenance_record_violations("$.provenance", record)
+    assert violations == ["$.provenance: missing or empty 'source_license'"]
+
+
 def test_quarantine_hygiene_flags_quarantine_paths(tmp_path):
     module = load_module()
     candidate_root = make_candidate_tree(tmp_path)

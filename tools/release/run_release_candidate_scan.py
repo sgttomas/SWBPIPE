@@ -276,7 +276,10 @@ def provenance_record_violations(json_path: str, record: dict) -> list[str]:
             f"{json_path}: review_status is "
             f"'{record.get('review_status')}', not 'accepted'"
         )
-    if record.get("source_license", "").strip().upper() == "TBD":
+    # A non-string licence is already a "missing or empty" violation above; it
+    # must not abort the scan.
+    source_license = record.get("source_license")
+    if isinstance(source_license, str) and source_license.strip().upper() == "TBD":
         violations.append(f"{json_path}: source_license is 'TBD'")
     return violations
 
