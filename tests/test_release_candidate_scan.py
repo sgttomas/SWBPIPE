@@ -383,42 +383,89 @@ def test_scan_record_carries_no_host_paths_or_captured_logs(tmp_path, monkeypatc
     assert lint_paths <= {"AC-4:README.md", "AC-4:example.json"}
 
 
+INVALID_RECORD_DOCUMENT = {
+    "properties": {
+        "source_name": "invented",
+        "source_location": "invented/inline",
+        "source_license": "TBD",
+        "contributor": "invented",
+        "contributor_certification": "invented",
+        "redistribution_status": {"status": "rejected"},
+        "review_status": "rejected",
+    },
+}
+
+
 @pytest.mark.parametrize(
     "declared",
     [
+        None,
         "https://json-schema.org.invented.invalid/draft/2020-12/schema",
         "https://json-schema.org/draft/2020-12/schema",
     ],
 )
-def test_self_declared_schema_cannot_hide_a_data_record(tmp_path, declared):
-    # Review r3 finding 1: a data document declaring `$schema` (spoofed or the
-    # genuine metaschema URI) hid an invalid `.properties` record: zero records
-    # were checked. Schema status comes from the schema inventory path only.
+def test_data_at_a_schema_path_is_checked_whatever_it_declares(tmp_path, declared):
+    # Review r3 P1: a data document at schemas/x.schema.json passed a path
+    # pattern with zero records checked; r2 P1: a spoofed or genuine `$schema`
+    # in data hid the record. Only the committed manifest, by path and
+    # SHA-256, makes a file a schema.
     module = load_module()
-    data = {
-        "$schema": declared,
-        "properties": {
-            "source_name": "invented",
-            "source_location": "invented/inline",
-            "source_license": "TBD",
-            "contributor": "invented",
-            "contributor_certification": "invented",
-            "redistribution_status": {"status": "rejected"},
-            "review_status": "rejected",
-        },
-    }
-    member = tmp_path / "data.json"
+    data = dict(INVALID_RECORD_DOCUMENT)
+    if declared is not None:
+        data["$schema"] = declared
+    member = tmp_path / "x.schema.json"
     member.write_text(json.dumps(data), encoding="utf-8")
-    result = module.run_provenance_check([("AC-4:fixtures/data.json", member)])
-    assert result["provenance_records_checked"] == 1
-    assert "AC-4:fixtures/data.json $.properties: source_license is 'TBD'" in result["violations"]
+    for label in ("AC-4:schemas/x.schema.json", "AC-4:fixtures/data.json"):
+        result = module.run_provenance_check([(label, member)])
+        assert result["provenance_records_checked"] == 1, label
+        assert f"{label} $.properties: source_license is 'TBD'" in result["violations"]
 
-    # A real inventory member (schemas/<name>.schema.json) is still a schema.
-    inventory = module.run_provenance_check([("AC-4:schemas/invented.schema.json", member)])
-    assert inventory["provenance_records_checked"] == 0
-    for outside in ("fixtures/invented.schema.json", "schemas/nested/x.schema.json",
-                    "schemas/invented.json"):
-        assert not module.is_schema_inventory_member(outside)
+
+def test_listed_schema_is_trusted_only_while_its_hash_matches(tmp_path):
+    import hashlib
+
+    module = load_module()
+    schema = {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {"redistribution_status": {"type": "string"},
+                       "review_status": {"type": "string"}},
+    }
+    member = tmp_path / "invented.schema.json"
+    member.write_text(json.dumps(schema), encoding="utf-8")
+    manifest = {"schemas/invented.schema.json": hashlib.sha256(member.read_bytes()).hexdigest()}
+    label = "AC-4:schemas/invented.schema.json"
+    assert module.run_provenance_check([(label, member)], manifest)["provenance_records_checked"] == 0
+
+    member.write_text(json.dumps(INVALID_RECORD_DOCUMENT), encoding="utf-8")
+    changed = module.run_provenance_check([(label, member)], manifest)
+    assert changed["provenance_records_checked"] == 1
+    assert f"{label} $.properties: source_license is 'TBD'" in changed["violations"]
+
+
+def load_generator():
+    spec = importlib.util.spec_from_file_location(
+        "generate_schema_manifest", ROOT / "tools" / "release" / "generate_schema_manifest.py"
+    )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_schema_manifest_is_generated_from_the_real_schemas(tmp_path):
+    # Changing a schema requires regenerating the manifest; every listed schema
+    # validates against the JSON Schema 2020-12 metaschema (pinned validator).
+    generator = load_generator()
+    assert generator.main(["--check"]) == 0
+    manifest = json.loads((ROOT / generator.MANIFEST_PATH).read_text(encoding="utf-8"))
+    assert manifest["schemas"]
+    for entry in manifest["schemas"]:
+        generator.check_against_metaschema(json.loads((ROOT / entry["path"]).read_text(encoding="utf-8")))
+
+    root = tmp_path / "project"
+    (root / "schemas").mkdir(parents=True)
+    (root / "schemas" / "bad.schema.json").write_text(json.dumps({"type": 5}), encoding="utf-8")
+    with pytest.raises(Exception):
+        generator.build_manifest(root)
 
 
 def test_quarantine_hygiene_flags_quarantine_paths(tmp_path):

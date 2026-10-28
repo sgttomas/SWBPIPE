@@ -1,0 +1,110 @@
+{
+  "generated_by": "tools/release/generate_schema_manifest.py",
+  "metaschema": "https://json-schema.org/draft/2020-12/schema",
+  "schemas": [
+    {
+      "path": "schemas/analysis_run.schema.json",
+      "sha256": "e604c7799566b2eb33d99cef4aa320d8ec6bc79512f2c25f59340424c0d6004f"
+    },
+    {
+      "path": "schemas/analysis_run.v0.3.schema.json",
+      "sha256": "75e1163673258d7762bb6d18c855a1ee14753060a1bef490243bd072c367d757"
+    },
+    {
+      "path": "schemas/caepipe_external_run.schema.json",
+      "sha256": "22e9878e6cff2cacf9fc3af382ada500b2c6b502421ac8ea90c1646f5281f022"
+    },
+    {
+      "path": "schemas/caepipe_mbf_export.schema.json",
+      "sha256": "a6db28814b512b54c4daa1b71f6c89a8ec5cae612775015cb94df3c7640460aa"
+    },
+    {
+      "path": "schemas/comparison_mapping.schema.json",
+      "sha256": "3fdbb88e328b3bb1bce046bd0fa9342fb0e4efd9bb30d4d33ed4579cb249d759"
+    },
+    {
+      "path": "schemas/comparison_tolerance.schema.json",
+      "sha256": "2c2cf4089849bb42a2d8eb83d559f2a60212ca525d2fa1e0bbb910609c10525a"
+    },
+    {
+      "path": "schemas/constraint.schema.json",
+      "sha256": "84a0d53a5c305bc6cd47eea50308da2162a16d989e1f7dbeb359b301bcb525a9"
+    },
+    {
+      "path": "schemas/design_knowledge.schema.json",
+      "sha256": "a6e0a26be60d255ea5ed938124cb719b1350d3825a7bfaf36fba4454b432e510"
+    },
+    {
+      "path": "schemas/export_adapter_sdk.schema.json",
+      "sha256": "3d5c29778d23b098868cd5c824e250e8b6b0e9000ce4239048a69275c98e9359"
+    },
+    {
+      "path": "schemas/external_prover_metadata.schema.json",
+      "sha256": "1079153350ca41e7ba8c371d348f3f55e74919a6d18a944488a461583a3273f8"
+    },
+    {
+      "path": "schemas/handoff_package.schema.json",
+      "sha256": "043a8d7dde56eacbaa0ddfd4f1f61fa75100d71ecfe404e558851ebeed28922e"
+    },
+    {
+      "path": "schemas/load_reference_state.schema.json",
+      "sha256": "5415d8f6d8856dba3470ab46423ba54d253e14a49680031d877a333b6d5d00a0"
+    },
+    {
+      "path": "schemas/model_operation.schema.json",
+      "sha256": "7b00a2e0996f3beddfecee9b1de83cefece3bc3ad872d37db636026d3b4b60eb"
+    },
+    {
+      "path": "schemas/model_state.schema.json",
+      "sha256": "d0429889334090fc2b2457cedc71affba64ebeed38ea9f991a72dc02faa4c72b"
+    },
+    {
+      "path": "schemas/native_json_export.schema.json",
+      "sha256": "f77313c982b2ede5ffb18a284c5069ce9ea9b477e33d08aef0aad9919f51bd67"
+    },
+    {
+      "path": "schemas/operation_outcome.schema.json",
+      "sha256": "ec813d20529f9a6a7806e0b6c0e99bceb6c1a04ce569d4ed6530e2171168fe1b"
+    },
+    {
+      "path": "schemas/pcf_export.schema.json",
+      "sha256": "91561c3680f6b497bc8c06e9b556ba62ec44c317861dd15be54396379359b71b"
+    },
+    {
+      "path": "schemas/physics_source_recovery.schema.json",
+      "sha256": "ae45b97742fd463866d8f231004f2053834d5bd413a1430e766f24516d3569ac"
+    },
+    {
+      "path": "schemas/results_pressure_2.v0.3.schema.json",
+      "sha256": "ce085117a3501ecc87e08afa478e187c770cc11057b9d9c637022c8ec3fea9b9"
+    },
+    {
+      "path": "schemas/retained_precision_mp_v2.schema.json",
+      "sha256": "73bebc5fb562b7f519c7d59be8e7830f98b21ce29fa0b7c017e43426f50cfcaa"
+    },
+    {
+      "path": "schemas/review_geometry_export.schema.json",
+      "sha256": "58da7881bf3e176eb39c2d14023fa22f52f1d3ab84cefcc60e0c814c81280164"
+    },
+    {
+      "path": "schemas/rule_check_run_result.schema.json",
+      "sha256": "b88be1087269bc747724c4f574b74021bd4ff0da01b199a9204eac1bd8aaf0f7"
+    },
+    {
+      "path": "schemas/stress_neutral_export.schema.json",
+      "sha256": "819762a9ff6536bc345acfd57699a086a8c8da9474115fd68f44752cdda33a11"
+    },
+    {
+      "path": "schemas/stress_neutral_export.v0.3.schema.json",
+      "sha256": "03a4bb8f24f4809af131996668e97707788185e6da845a2e88ac3b54e1d59220"
+    },
+    {
+      "path": "schemas/target_mapping.schema.json",
+      "sha256": "126fc0f111912ab6fd4f8cc475bb2ce96fd723799765aed1b1e74370bded4e17"
+    },
+    {
+      "path": "validation/witness/schemas/openmath_calculation_witness.schema.json",
+      "sha256": "abc225547d0e309d5b4749928719a41456c5f2eaba11f12b3be50607453e63c7"
+    }
+  ]
+}
