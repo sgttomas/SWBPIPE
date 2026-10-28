@@ -1,4 +1,5 @@
 mod atomic_report_package_save;
+mod autosave;
 mod close_guard;
 mod command_ingress;
 mod exact_source_binding;
