@@ -165,6 +165,13 @@ mod tests {
         let identity = identity_of(&[k.clone(), c.clone()]).unwrap();
         assert_eq!(exact_kelvin(&k), exact_kelvin(&c));
         assert_eq!(identity.kelvin(&c), identity.kelvin(&k));
+        // P5: P1's pair with 20 degC: two classes, ordered and admitted.
+        let warm = q(20.0, "degC");
+        let identity = identity_of(&[k.clone(), c.clone(), warm.clone()]).unwrap();
+        assert_eq!(identity.classes.len(), 2);
+        assert_eq!(identity.kelvin(&c), identity.kelvin(&k));
+        assert!(exact_kelvin(&warm).unwrap() < exact_kelvin(&k).unwrap());
+        assert!(identity.kelvin(&warm).unwrap() < identity.kelvin(&k).unwrap());
         // P6: the degC member takes the K member's representative.
         let (k, c) = (
             q(f64::from_bits(0x408fc00020000000), "K"),
