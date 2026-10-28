@@ -338,3 +338,32 @@ base: the case gains the formed load k·g and the spring publishes
 `core/product_physics/src/w16_nonlinear_motion_tests.rs` against
 `validation/references/w16_nonlinear_motion/` (A-1 to A-3, B-1 to B-3, C-1 to
 C-5, D-1 to D-3 and the rigid-translation property, both modes).
+
+## Exact temperature identity on the load/reference-state route
+
+The resolver decides each member's temperature equality and order (material
+point selection, bracketing, the installation temperature and expansion-law
+tables) on exact values, not on binary64 affine conversions
+(`case_state/temperature.rs`). Each authored absolute temperature becomes the
+exact kelvin value N / (9·10^24) of its canonical decimal under the unit's
+exact affine definition (K, degC, degF, degR). The canonical decimal and the
+integer form are DEL-02-01 Design `model-document-0.9.0.md` §1.5.1's: the
+shortest decimal that parses back to the authored binary64, the one closer to
+it when two of that length do, and the even one when they are equally close
+(the rule of Python's `repr` and ECMAScript's `Number::toString`; Rust's
+`{:e}` takes the other candidate on such 16- or 17-digit ties). It is computed
+on integers, never by a float formatter, in
+`case_state/temperature/canonical_decimal.rs`, the one implementation C1's
+lowering reuses.
+- **Domain:** |value| ≤ 10^6 in the authored unit, with a canonical decimal
+  exponent e ≥ −24 (§1.5.1's admitted operand range). A temperature outside it
+  is refused by name, `TEMPERATURE_RANGE_UNSUPPORTED` in the message of
+  `LOAD_STATE_TEMPERATURE_IDENTITY_UNRESOLVED`. Inside it |N| < 10^31, so
+  equality and order are integer comparisons that cannot overflow.
+- **Representatives:** exactly equal temperatures share the binary64 kelvin of
+  the first one registered. Distinct ones stay distinct, and a member whose
+  representatives do not strictly increase with the exact order is refused;
+  there is no tolerance snapping.
+Evidence: the unit tests of both files, including the tie regressions and a
+corpus of 4549 binaries against Python's `repr`
+(`tools/fixtures/temperature_canonical_decimal_corpus.py`).
