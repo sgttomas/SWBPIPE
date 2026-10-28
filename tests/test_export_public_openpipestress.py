@@ -15,7 +15,9 @@ from __future__ import annotations
 import csv
 import importlib.util
 import json
+import os
 import shutil
+import subprocess
 import sys
 from pathlib import Path, PureWindowsPath
 
@@ -123,8 +125,33 @@ def test_skip_reason_rules():
 # ---------------------------------------------------------------------------
 
 
-def make_source_tree(base: Path) -> Path:
-    """Minimal invented tree carrying every allowlisted root."""
+# The export is cut only from a git commit, so each synthetic tree is a git
+# repository of its own, isolated from the caller's git configuration.
+GIT_ENV = {
+    **os.environ,
+    "GIT_CONFIG_GLOBAL": os.devnull,
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_AUTHOR_NAME": "invented",
+    "GIT_AUTHOR_EMAIL": "invented@example.invalid",
+    "GIT_COMMITTER_NAME": "invented",
+    "GIT_COMMITTER_EMAIL": "invented@example.invalid",
+}
+
+
+def git(source: Path, *args: str) -> None:
+    subprocess.run(["git", *args], cwd=source, env=GIT_ENV, check=True,
+                   capture_output=True)
+
+
+def commit_all(source: Path, message: str = "invented") -> None:
+    """Commit the synthetic tree as it stands (ignored files stay out)."""
+    git(source, "add", "-A")
+    git(source, "commit", "-q", "--allow-empty", "-m", message)
+
+
+def make_source_tree(base: Path, *, commit: bool = True) -> Path:
+    """Minimal invented tree carrying every allowlisted root, committed to a
+    git repository of its own unless `commit` is False."""
     source = base / "source"
     for name in PIPE.ROOT_FILES:
         source.mkdir(parents=True, exist_ok=True)
@@ -150,6 +177,9 @@ def make_source_tree(base: Path) -> Path:
         "junk\n", encoding="utf-8"
     )
     (source / "docs" / ".env.local").write_text("SECRET=1\n", encoding="utf-8")
+    if commit:
+        git(source, "init", "-q")
+        commit_all(source)
     return source
 
 
@@ -178,17 +208,13 @@ def test_selection_in_a_git_checkout_stages_tracked_files_only(tmp_path):
     # G3: the record binds the export to a commit, and `git status --porcelain`
     # does not show ignored files, so ignored or untracked local files must not
     # be staged under an allowlisted root.
-    import subprocess
-
-    source = make_source_tree(tmp_path)
+    source = make_source_tree(tmp_path, commit=False)
     (source / ".gitignore").write_text("*.local.json\n", encoding="utf-8")
-    git = ["git", "-c", "user.name=invented", "-c", "user.email=invented@example.invalid"]
-    subprocess.run([*git, "init", "-q"], cwd=source, check=True)
-    subprocess.run([*git, "add", "-A"], cwd=source, check=True)
-    subprocess.run([*git, "commit", "-q", "-m", "invented"], cwd=source, check=True)
+    git(source, "init", "-q")
+    commit_all(source)
     (source / "fixtures" / "scratch_result.json").write_text("{}\n", encoding="utf-8")
     (source / "docs" / "notes.local.json").write_text("{}\n", encoding="utf-8")
-    subprocess.run([*git, "rm", "-q", "--cached", "README.md"], cwd=source, check=True)
+    git(source, "rm", "-q", "--cached", "README.md")
 
     selected, exclusions, _ = PIPE.select_files(source)
     posix = {rel.as_posix() for rel in selected}
@@ -200,17 +226,28 @@ def test_selection_in_a_git_checkout_stages_tracked_files_only(tmp_path):
     assert exclusions.get("untracked_in_source") == 3
 
 
-def test_selection_outside_git_walks_the_filesystem(tmp_path):
-    source = make_source_tree(tmp_path)
+def test_selection_refuses_a_source_outside_git(tmp_path):
+    # Review finding 3: without a git probe the export fell back to a
+    # filesystem walk that admits ignored and untracked material. It refuses.
+    source = make_source_tree(tmp_path, commit=False)
     assert PIPE.tracked_files(source) is None
-    selected, exclusions, _ = PIPE.select_files(source)
-    assert "README.md" in {rel.as_posix() for rel in selected}
-    assert "untracked_in_source" not in exclusions
+    with pytest.raises(SystemExit) as excinfo:
+        PIPE.select_files(source)
+    assert "GIT_PROBE_FAILED" in str(excinfo.value)
+
+
+def test_execute_refuses_a_source_outside_git(tmp_path):
+    source = make_source_tree(tmp_path, commit=False)
+    with pytest.raises(SystemExit) as excinfo:
+        PIPE.main(["--source-root", str(source), "--execute", "--target", str(tmp_path / "out")])
+    assert "GIT_PROBE_FAILED" in str(excinfo.value)
+    assert not (tmp_path / "out" / PIPE.STAGING_DIR_NAME).exists()
 
 
 def test_selection_fails_closed_when_allowlisted_root_is_missing(tmp_path):
     source = make_source_tree(tmp_path)
     shutil.rmtree(source / "schemas")
+    commit_all(source)
     with pytest.raises(SystemExit) as excinfo:
         PIPE.select_files(source)
     assert "schemas" in str(excinfo.value)
@@ -479,6 +516,7 @@ def test_execute_fails_on_unexpected_blocking_lint_finding(tmp_path):
     (source / "docs" / "planted.md").write_text(
         "OPS_SYNTHETIC" + "_PROTECTED_TABLE\n", encoding="utf-8"
     )
+    commit_all(source)
     target = tmp_path / "out"
     assert PIPE.main(
         ["--source-root", str(source), "--execute", "--target", str(target)]
@@ -499,6 +537,7 @@ def test_execute_treats_reviewed_fixture_findings_as_expected(tmp_path):
         ROOT / "fixtures" / "report_lint" / "invented" / "synthetic_risk_template.txt",
         fixture_dir / "synthetic_risk_template.txt",
     )
+    commit_all(source)
     target = tmp_path / "out"
     assert PIPE.main(
         ["--source-root", str(source), "--execute", "--target", str(target)]
@@ -517,6 +556,7 @@ def test_execute_treats_reviewed_fixture_findings_as_expected(tmp_path):
 def test_execute_fails_on_unexpected_boundary_finding(tmp_path):
     source = make_source_tree(tmp_path)
     (source / "docs" / "server.pem").write_text("not a real key\n", encoding="utf-8")
+    commit_all(source)
     target = tmp_path / "out"
     assert PIPE.main(
         ["--source-root", str(source), "--execute", "--target", str(target)]
