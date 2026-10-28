@@ -46,6 +46,9 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path, PureWindowsPath
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from release_members import is_text_member, suffix_of  # noqa: E402
+
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -206,34 +209,8 @@ EXPECTED_BOUNDARY_FINDINGS = {
     ),
 }
 
-# Text suffixes eligible for the sanitize pass.
-TEXT_SUFFIXES = {
-    ".cjs",
-    ".cfg",
-    ".css",
-    ".csv",
-    ".html",
-    ".htm",
-    ".js",
-    ".json",
-    ".jsx",
-    ".lock",
-    ".md",
-    ".mjs",
-    ".plist",
-    ".py",
-    ".rs",
-    ".sh",
-    ".svg",
-    ".toml",
-    ".ts",
-    ".tsx",
-    ".tsv",
-    ".txt",
-    ".xml",
-    ".yaml",
-    ".yml",
-}
+# The sanitize pass and the lint gate cover every staged member that decodes
+# as UTF-8 text (`release_members.is_text_member`), whatever its extension.
 
 # ---------------------------------------------------------------------------
 # Protected-content lint gate (G4, DEC-058 check (b) surface, consumed as-is
@@ -245,29 +222,6 @@ LINTER_MANIFEST = "core/reporting/protected_content_linter/Cargo.toml"
 LINT_CLI_BIN = "protected_content_lint_cli"
 LINT_BATCH_SIZE = 400
 
-# Public text and data members (DEC-058 check (b): "all public text/JSON
-# surfaces"). The data formats after `.yml` are model, scene and record files
-# the staged tree ships: JSON Lines, CAEPIPE MBF, K6 model, PCF, glTF, MathML.
-LINTABLE_SUFFIXES = {
-    ".csv",
-    ".htm",
-    ".html",
-    ".json",
-    ".md",
-    ".svg",
-    ".toml",
-    ".tsv",
-    ".txt",
-    ".xml",
-    ".yaml",
-    ".yml",
-    ".gltf",
-    ".jsonl",
-    ".k6model",
-    ".mathml",
-    ".mbf",
-    ".pcf",
-}
 
 # Reviewed expected blocking findings: exact (staging-relative path, code)
 # pairs the gate treats as known-and-reviewed. Every entry is still recorded
@@ -409,13 +363,13 @@ def skip_reason(rel: Path) -> str | None:
     for part in rel.parts:
         if part in SKIP_DIR_NAMES:
             return "skip_dir_name"
-        if part.startswith(".env"):
+        if part.lower().startswith(".env"):
             return "env_file"
     if is_excluded_subtree(rel_posix):
         return "excluded_subtree"
     if rel.name in SKIP_FILE_NAMES:
         return "skip_file_name"
-    if rel.suffix in SKIP_SUFFIXES:
+    if suffix_of(rel) in SKIP_SUFFIXES:
         return "skip_suffix"
     if "quarantine" in (part.lower() for part in rel.parts):
         return "quarantine_path"
@@ -584,7 +538,7 @@ def stage_files(source_root: Path, staging: Path, selected: list[Path]) -> None:
 def sanitize_text_files(staging: Path) -> int:
     changed = 0
     for path in sorted(staging.rglob("*")):
-        if not path.is_file() or path.suffix not in TEXT_SUFFIXES:
+        if not path.is_file() or path.is_symlink() or not is_text_member(path):
             continue
         try:
             text = path.read_text(encoding="utf-8")
@@ -670,18 +624,18 @@ def boundary_findings(staging: Path) -> list[dict]:
         if not path.is_file():
             continue
 
-        if path.name in SKIP_FILE_NAMES or path.name.startswith(".env"):
+        if path.name in SKIP_FILE_NAMES or path.name.lower().startswith(".env"):
             add("forbidden_file_name", rel_posix)
-        if path.suffix in SKIP_SUFFIXES:
+        if suffix_of(path) in SKIP_SUFFIXES:
             add("forbidden_suffix", rel_posix)
-        if path.suffix in FORBIDDEN_FILE_SUFFIXES or path.name.startswith(
+        if suffix_of(path) in FORBIDDEN_FILE_SUFFIXES or path.name.lower().startswith(
             FORBIDDEN_FILE_STEM_PREFIXES
         ):
             add("secret_material_filename", rel_posix)
 
         text = read_text_if_utf8(path)
         if text is None:
-            if path.suffix not in ALLOWED_BINARY_SUFFIXES:
+            if suffix_of(path) not in ALLOWED_BINARY_SUFFIXES:
                 add("non_allowlisted_binary", rel_posix)
             continue
 
@@ -722,7 +676,7 @@ def lintable_staged_files(staging: Path) -> list[Path]:
     return [
         path
         for path in iter_staged_files(staging)
-        if path.suffix in LINTABLE_SUFFIXES
+        if is_text_member(path)
     ]
 
 
@@ -1098,11 +1052,10 @@ def write_report(record: dict, output: Path) -> None:
 
 def run_plan(source_root: Path) -> int:
     selected, exclusions, unlisted = select_files(source_root)
-    lint_candidates = [rel for rel in selected if rel.suffix in LINTABLE_SUFFIXES]
     print("DEC-059 export pipeline — plan only (no writes).")
     print(f"Source root: {source_root}")
     print(f"Would stage {len(selected)} files.")
-    print(f"Lint gate candidates (staged text members): {len(lint_candidates)}")
+    print("Lint gate: every staged member that decodes as UTF-8 text (counted at --execute).")
     print("Exclusions by reason:")
     for reason in sorted(exclusions):
         print(f"  {reason}: {exclusions[reason]}")

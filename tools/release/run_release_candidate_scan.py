@@ -35,6 +35,9 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from release_members import is_text_member  # noqa: E402
+
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -52,27 +55,6 @@ ARTIFACT_CLASSES = {
     "AC-6": "Release notes, gate records, and release-evidence documents",
 }
 
-LINTABLE_SUFFIXES = {
-    ".txt",
-    ".md",
-    ".json",
-    ".html",
-    ".htm",
-    ".csv",
-    ".tsv",
-    ".yaml",
-    ".yml",
-    ".toml",
-    ".xml",
-    ".svg",
-    # Data formats shipped as public members (kept equal to the export gate's).
-    ".gltf",
-    ".jsonl",
-    ".k6model",
-    ".mathml",
-    ".mbf",
-    ".pcf",
-}
 
 REQUIRED_PROVENANCE_FIELDS = (
     "source_name",
@@ -193,7 +175,7 @@ def inventory_class(class_root: Path) -> list[dict]:
                 "path": relative,
                 "size_bytes": artifact.stat().st_size,
                 "sha256": sha256_of(artifact),
-                "lintable": artifact.suffix.lower() in LINTABLE_SUFFIXES,
+                "lintable": is_text_member(artifact),
             }
         )
     return entries

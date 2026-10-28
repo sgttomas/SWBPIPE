@@ -89,17 +89,38 @@ def test_no_ci_workflow_ships_in_the_export():
     assert ".github" in PIPE.SKIP_DIR_NAMES
 
 
-def test_lint_gate_and_scan_runner_cover_the_same_public_data_formats():
-    # DEC-058 check (b) covers public text/JSON surfaces; the export gate and the
-    # scan runner consume the same engine and must lint the same members.
+def test_lint_selection_is_derived_shared_and_case_insensitive(tmp_path):
+    # Review finding 5: duplicated hand-kept suffix lists omitted shipped text
+    # (.rs, .py, .ts, .tsx, .lock), and uppercase extensions bypassed them.
     spec = importlib.util.spec_from_file_location(
-        "scan_suffix_probe", ROOT / "tools" / "release" / "run_release_candidate_scan.py"
+        "scan_member_probe", ROOT / "tools" / "release" / "run_release_candidate_scan.py"
     )
     scan = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(scan)
-    assert PIPE.LINTABLE_SUFFIXES == scan.LINTABLE_SUFFIXES
-    for data_format in (".jsonl", ".mbf", ".k6model", ".gltf", ".pcf", ".mathml"):
-        assert data_format in PIPE.LINTABLE_SUFFIXES
+    assert scan.is_text_member is PIPE.is_text_member
+
+    staging = tmp_path / "staging"
+    (staging / "docs").mkdir(parents=True)
+    text = ["lib.rs", "tool.py", "view.ts", "panel.tsx", "Cargo.lock", "NOTES.MD",
+            "DATA.JSONL", "SHA256SUMS", "model.MBF"]
+    for name in text:
+        (staging / "docs" / name).write_text("invented\n", encoding="utf-8")
+    (staging / "docs" / "icon.PNG").write_bytes(b"\x89PNG\r\n\x1a\n\xff\xfe")
+    (staging / "docs" / "server.PEM").write_text("not a real key\n", encoding="utf-8")
+    (staging / "docs" / "run.LOG").write_text("x\n", encoding="utf-8")
+
+    linted = {p.name for p in PIPE.lintable_staged_files(staging)}
+    assert set(text) <= linted
+    assert "icon.PNG" not in linted
+
+    findings = {(f["path"].rsplit("/", 1)[-1], f["kind"]) for f in PIPE.boundary_findings(staging)}
+    assert ("server.PEM", "secret_material_filename") in findings
+    assert ("run.LOG", "forbidden_suffix") in findings
+    assert not any(name == "icon.PNG" for name, _ in findings)
+
+    inventory = {entry["path"]: entry["lintable"] for entry in scan.inventory_class(staging)}
+    assert inventory["docs/lib.rs"] is True and inventory["docs/Cargo.lock"] is True
+    assert inventory["docs/icon.PNG"] is False
 
 
 def test_skip_reason_rules():
