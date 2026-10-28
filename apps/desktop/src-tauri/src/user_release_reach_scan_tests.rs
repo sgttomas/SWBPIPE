@@ -2521,9 +2521,12 @@ fn the_symbol_level_ffi_repros_in_scratch_copies() {
     let block = "    extern \"C\" {\n        fn mach_host_self() -> libc::mach_port_t;\n    }\n";
     let outside = "outside the pinned allow(unsafe_code) modules";
     let not_pinned = "which is not on the foreign-block pin list";
+    // The line the inserted allow takes: `mod memory_pool;`'s in the real file.
+    let real_lib = &project_sources(&project()).files["src-tauri/src/lib.rs"];
+    let memory_pool_line = real_lib[..real_lib.find("\nmod memory_pool;\n").unwrap()].matches('\n').count() + 2;
     let cases: Vec<(&str, Vec<(&str, &str, String)>, Vec<String>)> = vec![
         ("unedited, the pinned block as it is", vec![], vec![]),
-        ("allow(unsafe_code) on another module", vec![(lib, "\nmod memory_pool;\n", "\n#[allow(unsafe_code)]\nmod memory_pool;\n".to_string())], vec![format!("src-tauri/src/lib.rs:19: #[allow(unsafe_code)] {outside}")]),
+        ("allow(unsafe_code) on another module", vec![(lib, "\nmod memory_pool;\n", "\n#[allow(unsafe_code)]\nmod memory_pool;\n".to_string())], vec![format!("src-tauri/src/lib.rs:{memory_pool_line}: #[allow(unsafe_code)] {outside}")]),
         (
             "the same through cfg_attr",
             vec![(lib, "\nmod memory_pool;\n", "\n#[cfg_attr(all(), allow(unsafe_code))]\nmod memory_pool;\n".to_string())],
