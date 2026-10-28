@@ -1161,6 +1161,12 @@ fn a_blocked_package_with_a_malformed_result_member_is_refused() {
     member_refusal(&zip(&entries), "REPORT-PACKAGE-RESULT-FORM-INVALID");
 }
 
+/// W-11 opening (DEL-08-01 Design `exact-route-report-sections.md` §5.1;
+/// owner, 2026-10-26): the reader's item 0 admits a well-formed pressure-2
+/// member, so a pressure-2 member swapped into a pressure-free package is
+/// refused by a later binding, not by the route code; a well-formed
+/// physics-retained-1 member (the committed exact-successor derivative) is
+/// still refused by the route code.
 #[test]
 fn an_unblocked_package_with_a_well_formed_non_admitted_member_is_refused() {
     let pressure: Value = serde_json::from_str(include_str!(
@@ -1172,7 +1178,22 @@ fn an_unblocked_package_with_a_well_formed_non_admitted_member_is_refused() {
     let pressure = common::rehash(pressure);
     open_pipe_stress_report_package::document_form::check_result_member_form(&pressure)
         .expect("the pressure-2 document is well formed");
-    member_refusal(&with_result_member(&package(), &pressure), "REPORT-PACKAGE-ROUTE-NOT-ADMITTED");
+    let refused = refusal(&with_result_member(&package(), &pressure));
+    assert_eq!(refused.code(), "OPSPROJ_MEMBER_INTEGRITY", "{refused}");
+    assert!(!refused.to_string().contains("REPORT-PACKAGE-ROUTE-NOT-ADMITTED"), "{refused}");
+    let mut retained: Value = serde_json::from_str(include_str!(
+        "../../../../fixtures/results/retained_precision_exact_successor_derivative_sparse_interactive.json"
+    ))
+    .unwrap();
+    assert_eq!(
+        retained["result_envelope"]["producer"]["semantic_contract_id"],
+        json!(open_pipe_stress_result_export::semantic_contract::PHYSICS_RETAINED_ID)
+    );
+    retained["result_envelope"]["envelope_id"] = common::invented_result_document()["result_envelope"]["envelope_id"].clone();
+    let retained = common::rehash(retained);
+    open_pipe_stress_report_package::document_form::check_result_member_form(&retained)
+        .expect("the physics-retained-1 document is well formed");
+    member_refusal(&with_result_member(&package(), &retained), "REPORT-PACKAGE-ROUTE-NOT-ADMITTED");
 }
 
 #[test]

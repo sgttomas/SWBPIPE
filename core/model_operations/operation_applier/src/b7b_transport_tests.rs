@@ -3,7 +3,7 @@ use serde_json::json;
 
 fn model() -> Value {
     json!({
-        "schema_version": "0.7.0", "document_kind": "openpipestress.product_preview.model",
+        "schema_version": "0.8.0", "document_kind": "openpipestress.product_preview.model",
         "project": {"id": "project:b7b"},
         "analysis_status": {"mechanics": "MODEL_INCOMPLETE", "rule_check": "RULE_INPUTS_INCOMPLETE", "professional_acceptance": "HUMAN_REVIEW_REQUIRED"},
         "nodes": [], "supports": [], "components": [], "materials": [],
@@ -22,7 +22,7 @@ const SHEAR_MODELS: [&str; 2] = ["timoshenko_annulus_energy_v1", "euler_bernoull
 
 fn profile_edit(model: &Value, shear_model: &str) -> Result<Option<rich_authoring::RichEdit>, rich_authoring::RichError> {
     let before = canonical_json(&json!({"schema_version": model["schema_version"]}));
-    let after = canonical_json(&json!({"schema_version": "0.7.0",
+    let after = canonical_json(&json!({"schema_version": "0.8.0",
         "pressure_contract": {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": shear_model}}));
     pressure_authoring::resolve(model, "Model", "project:b7b", "pressure_profile",
         &before, &after, "none", "dimensionless")
@@ -239,10 +239,10 @@ fn explicit_region_then_profile(shear_model: &str) {
     ).unwrap();
     assert!(staged.diagnostics.iter().any(|finding| finding.code == "PREVIEW_CONTRACT_VERSION_MISMATCH"),
         "explicit preactivation authoring does not admit pressure regions on the preview solve");
-    let after = json!({"schema_version": "0.7.0", "pressure_contract": {
+    let after = json!({"schema_version": "0.8.0", "pressure_contract": {
         "version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": shear_model}});
     let mut profile = intent("set_field", "pressure_profile",
-        canonical_json(&json!({"schema_version": "0.7.0"})), canonical_json(&after), "none", "dimensionless");
+        canonical_json(&json!({"schema_version": "0.8.0"})), canonical_json(&after), "none", "dimensionless");
     profile["target"] = json!({"object_type": "Model", "ref": "project:b7b"});
     let hash = claim(&current);
     let reviewed = validate_operation(&current, &profile, Some(&hash));

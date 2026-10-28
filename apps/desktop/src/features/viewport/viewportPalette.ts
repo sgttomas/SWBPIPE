@@ -174,7 +174,11 @@ export const VIEWPORT_ROLE_TOKENS = Object.freeze({
   gizmoAxisX: "canvas.axisX",
   gizmoAxisY: "canvas.axisY",
   gizmoAxisZ: "canvas.axisZ",
-  gizmoBadge: "surface.raised"
+  gizmoBadge: "surface.raised",
+  // Element axis triads (A7) take the triad's axis colours, as the orientation gizmo does.
+  elementAxisX: "canvas.axisX",
+  elementAxisY: "canvas.axisY",
+  elementAxisZ: "canvas.axisZ"
 } as const satisfies Readonly<Record<string, ViewportTokenName>>);
 
 export type ViewportPaletteRole = keyof typeof VIEWPORT_ROLE_TOKENS;

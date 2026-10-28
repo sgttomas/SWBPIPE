@@ -230,7 +230,7 @@ fn the_cli_reads_the_input_bytes_as_given_and_refuses_unusable_input_with_exit_2
 fn base_readers_read_through_the_cli_as_reader_verdict() {
     use open_pipe_stress_result_export::reader_verdict as rv;
     // B4/D1 (b): the composite statement is the source route here; B7b: the
-    // current pressure-source-1 (0.7.0/v3) statement.
+    // current pressure-source-1 (0.8.0/v3) statement.
     let blocks: Value = serde_json::from_str(include_str!(
         "../../../../fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json"
     ))

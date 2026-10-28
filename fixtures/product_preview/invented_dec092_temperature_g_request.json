@@ -1,6 +1,6 @@
 {
   "model": {
-    "schema_version": "0.7.0",
+    "schema_version": "0.8.0",
     "document_kind": "openpipestress.product_preview.model",
     "project": {
       "id": "project:invented-dec092-temperature-g-torsion",

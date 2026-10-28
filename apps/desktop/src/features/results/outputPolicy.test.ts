@@ -61,17 +61,21 @@ const ROUTES: Record<SourceContract, true> = { pressure_source: true, preview_ph
 /** T1's group a, by test-id prefix (the eighteen surfaces of the refusal tests). */
 const GATED_PREFIXES = ["pcf-export", "caepipe-mbf", "caepipe-external", "export-adapter-sdk", "adapter-framework", "external-prover", "missing-data", "design-workspace", "rule-check", "report-lint", "solve-job", "headless-runner", "local-fea", "native-package", "handoff", "export-review", "report", "rendered-report"];
 const PANELS = ["result-export", "stress-neutral"];
-/** Epoch 8 (ruling 10A; design §5.1): the surfaces opened to the exact routes. */
-const OPENED = ["result-export", "stress-neutral", "rule-check"];
+/** Epoch 8 (ruling 10A; design §5.1) and W-11's opening (DEL-08-01 Design
+ * `exact-route-report-sections.md` §5.1; owner, 2026-10-26): the surfaces opened to the
+ * exact routes. */
+const OPENED = ["result-export", "stress-neutral", "rule-check", "rendered-report", "report-package"];
+/** The gated (group a) surfaces opened to the exact routes. */
+const OPENED_GATED = ["rule-check", "rendered-report"];
 const EXACT_ROUTES = ["pressure", "pressure_source"] as const;
-/** The exact entries, cell by cell (design §5.1): admitted on the three opened surfaces,
- * refused on every other, the report package included. */
+/** The exact entries, cell by cell (design §5.1): admitted on the five opened surfaces,
+ * refused on every other, the report JSON packet included. */
 const EXACT_SURFACES = {
   "pcf-export": "refused", "caepipe-mbf": "refused", "caepipe-external": "refused", "export-adapter-sdk": "refused",
   "adapter-framework": "refused", "external-prover": "refused", "missing-data": "refused", "design-workspace": "refused",
   "rule-check": "admitted", "report-lint": "refused", "solve-job": "refused", "headless-runner": "refused",
   "local-fea": "refused", "native-package": "refused", "handoff": "refused", "export-review": "refused",
-  "report": "refused", "rendered-report": "refused", "report-package": "refused",
+  "report": "refused", "rendered-report": "admitted", "report-package": "admitted",
   "result-export": "admitted", "stress-neutral": "admitted",
 } as const;
 /** §5.2: the gate's refuse/admit decision before epoch 8, per route, on the eighteen gated
@@ -81,8 +85,9 @@ const EXACT_SURFACES = {
 const PRE_EPOCH_8_GATED_REFUSES: Record<SourceContract, boolean> = {
   pressure: true, pressure_source: true, retained_preview_physics: true, retained_physics: true, preview_physics: false, unsupported: false,
 };
-/** The cells §5.2 opens on a gated surface: the exact routes on `rule-check`. */
-const opened = (route: string, surface: string) => (EXACT_ROUTES as readonly string[]).includes(route) && surface === "rule-check";
+/** The cells opened on a gated surface: the exact routes on `rule-check` (epoch 8, §5.2)
+ * and on `rendered-report` (W-11). */
+const opened = (route: string, surface: string) => (EXACT_ROUTES as readonly string[]).includes(route) && OPENED_GATED.includes(surface);
 const refuses = (decided: ReturnType<typeof routeSurfaceDecision>) => decided !== null && decided.decision === "refused";
 /** Every committed load/reference-state raw of the exact identities, with its request
  * model and the route's reason: pressure-2's two load/reference results, its
@@ -106,8 +111,8 @@ describe("the output policy (T6S-3)", () => {
     expect(Object.keys(OUTPUT_POLICY).sort()).toStrictEqual(Object.keys(ROUTES).sort());
     expect([...OUTPUT_SURFACES]).toStrictEqual([...GATED_PREFIXES, "report-package", ...PANELS]);
     for (const route of ["preview_physics", "unsupported"] as const) expect(OUTPUT_POLICY[route]).toStrictEqual({ gate: "none" });
-    // Epoch 8 (design §5.1): pressure-2 and pressure-source-1 (with or without
-    // load/reference states) are admitted on the three opened surfaces and refused, by
+    // Epoch 8 (design §5.1) and W-11: pressure-2 and pressure-source-1 (with or without
+    // load/reference states) are admitted on the five opened surfaces and refused, by
     // their own reason, on every other, cell by cell.
     for (const [route, reason] of [["pressure", PRESSURE_2_OUTPUT_REFUSAL], ["pressure_source", PRESSURE_SOURCE_OUTPUT_REFUSAL]] as const) {
       const policy = OUTPUT_POLICY[route] as Json;
@@ -119,7 +124,10 @@ describe("the output policy (T6S-3)", () => {
         expect(routeSurfaceDecision(route, surface), `${route} ${surface}`).toStrictEqual(OPENED.includes(surface) ? null : { decision: "refused", reason });
       }
       expect(Object.entries(policy.surfaces).filter(([, decision]) => decision === "admitted").map(([surface]) => surface).sort()).toStrictEqual([...OPENED].sort());
-      expect(policy.surfaces["report-package"]).toBe("refused");
+      expect(policy.surfaces["report-package"]).toBe("admitted");
+      expect(policy.surfaces["rendered-report"]).toBe("admitted");
+      // §5.4: the report JSON packet stays refused.
+      expect(policy.surfaces.report).toBe("refused");
     }
     const successor = OUTPUT_POLICY.retained_preview_physics as Json;
     expect([successor.gate, successor.reason]).toStrictEqual(["per_surface", RETAINED_PRECISION_OUTPUT_REFUSAL]);
@@ -164,7 +172,7 @@ describe("the output policy (T6S-3)", () => {
   });
   it("§5.3: keeps the code and rewords both texts; neither calls the result invalid or unsupported", () => {
     expect(PRESSURE_2_OUTPUT_NOT_YET_AVAILABLE).toBe("PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE");
-    expect(N_PRESSURE_2_OUTPUT).toBe("This output of pressure-2 results (3.0.0/exact_pressure_v3) is not available on the desktop; only the result JSON and stress-neutral exports and the rule check admit a numerically eligible result. The result remains readable here; this is not a finding about the result.");
+    expect(N_PRESSURE_2_OUTPUT).toBe("This output of pressure-2 results (3.0.0/exact_pressure_v3) is not available on the desktop; only the result JSON and stress-neutral exports, the rule check, the rendered report and the report package admit a numerically eligible result. The result remains readable here; this is not a finding about the result.");
     expect(N_PRESSURE_SOURCE_OUTPUT).toBe(N_PRESSURE_2_OUTPUT.replace("pressure-2 results", "pressure-source-1 results"));
     expect(PRESSURE_2_OUTPUT_REFUSAL).toBe(`${PRESSURE_2_OUTPUT_NOT_YET_AVAILABLE}: ${N_PRESSURE_2_OUTPUT}`);
     expect(PRESSURE_SOURCE_OUTPUT_REFUSAL).toBe(`${PRESSURE_2_OUTPUT_NOT_YET_AVAILABLE}: ${N_PRESSURE_SOURCE_OUTPUT}`);
@@ -173,16 +181,16 @@ describe("the output policy (T6S-3)", () => {
       expect(reason).not.toMatch(/\bT[0-9]/);
     }
   });
-  it("§5.2: on the eighteen gated surfaces every route decides as before epoch 8, except the exact routes on rule-check", () => {
+  it("§5.2: on the eighteen gated surfaces every route decides as before epoch 8, except the exact routes on rule-check and (W-11) rendered-report", () => {
     for (const route of Object.keys(ROUTES) as SourceContract[]) {
       for (const surface of GATED_PREFIXES) {
         const before = PRE_EPOCH_8_GATED_REFUSES[route];
         expect(refuses(routeSurfaceDecision(route, surface)), `${route} ${surface}`).toBe(opened(route, surface) ? !before : before);
       }
     }
-    // Exactly two cells changed, both from refuse to admit.
+    // Exactly four cells changed, each from refuse to admit.
     const changed = (Object.keys(ROUTES) as SourceContract[]).flatMap(route => GATED_PREFIXES.filter(surface => refuses(routeSurfaceDecision(route, surface)) !== PRE_EPOCH_8_GATED_REFUSES[route]).map(surface => `${route}/${surface}`));
-    expect(changed.sort()).toStrictEqual(["pressure/rule-check", "pressure_source/rule-check"]);
+    expect(changed.sort()).toStrictEqual(["pressure/rendered-report", "pressure/rule-check", "pressure_source/rendered-report", "pressure_source/rule-check"]);
   });
   it.each([
     ["pressure-2", "fixtures/results/pressure_connected_mechanics_sparse.json", `${PRESSURE_LR}/connected`, PRESSURE_2_OUTPUT_REFUSAL],
@@ -195,7 +203,7 @@ describe("the output policy (T6S-3)", () => {
     for (const source of [plain, withStates]) {
       for (const surface of GATED_PREFIXES as OutputSurface[]) {
         // The gate's decision (`LoadReferenceOutputGate` reads `surfaceRouteRefusal`).
-        expect(surfaceRouteRefusal(source, surface) !== null, surface).toBe(surface !== "rule-check");
+        expect(surfaceRouteRefusal(source, surface) !== null, surface).toBe(!OPENED_GATED.includes(surface));
       }
     }
     for (const surface of OUTPUT_SURFACES) {
@@ -245,7 +253,7 @@ describe("the output policy (T6S-3)", () => {
       expect(surfaceOutputRefusal(result, model, surface), surface).toBe(expected);
       expect(surfaceOutputRefusal(result, null, surface), surface).toBe(expected);
     }
-    // The route's shared reason, for the remaining direct callers (the rendered report).
+    // The route's shared reason (`loadReferenceOutputRefusal`, which no product surface reads since W-11).
     expect(routeOutputRefusal(result)).toBe(reason);
     expect(loadReferenceOutputRefusal(result)).toBe(reason);
   });

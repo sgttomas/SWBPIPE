@@ -96,6 +96,55 @@ function levelTokens(level: Level): string[] {
     .filter((token): token is string => Boolean(token));
 }
 
+/** The code the native export screen, the library import and this apply
+ * share for a disposition no verdict can read (W-17 object form). */
+export const DISPOSITION_RECORD_MALFORMED = "MODEL-DISPOSITION-RECORD-MALFORMED";
+
+const UNREADABLE_MEMBERS = ["redistribution_status", "review_status", "provenance"] as const;
+
+/** The members of `value`, at any depth, whose disposition no verdict can
+ * read, in the native screen's order (`export_disposition_screen.rs`
+ * `stored_item_malformed`, `StoredMembers::Refuse`): a `redistribution_status`
+ * or `review_status` holding an array or an object, or a `provenance`
+ * written as an array. `classification`, the privacy members and scalars that
+ * are not text are not refused: they follow the verdict as the screen's do. */
+export function unreadableDispositions(value: unknown): string[] {
+  const found = new Set<string>();
+  const walk = (node: unknown): void => {
+    if (Array.isArray(node)) { node.forEach(walk); return; }
+    if (!node || typeof node !== "object") return;
+    for (const [key, child] of Object.entries(node as Json)) {
+      const container = Boolean(child) && typeof child === "object";
+      if ((key === "redistribution_status" || key === "review_status") && container) found.add(key);
+      if (key === "provenance" && Array.isArray(child)) found.add(key);
+      walk(child);
+    }
+  };
+  walk(value);
+  return UNREADABLE_MEMBERS.filter((member) => found.has(member));
+}
+
+const KIND_OF = (value: unknown) => (value === null ? "null" : Array.isArray(value) ? "an array" : typeof value === "string" ? "text" : `a ${typeof value}`);
+
+/** Refuses, by name, a library whose metadata or selected record holds a
+ * disposition no verdict can read: the native screen refuses every export of
+ * a model that references such a record, so it is never applied. */
+function refuseUnreadable(kind: ApplyLibraryKind, metadataKey: string, metadata: unknown, record: Json, recordId: string): void {
+  const library = `the ${kind} library ${str(obj(metadata)?.library_id) || "(no library_id)"}`;
+  const repair = "Open the library in the Library Manager, write each redistribution_status and review_status as text and each provenance as an object, and save it to the local store again, or choose a different library.";
+  if (metadata !== undefined && !obj(metadata)) {
+    refuse(DISPOSITION_RECORD_MALFORMED, `The ${kind} library's ${metadataKey} is ${KIND_OF(metadata)}, not an object, so its disposition cannot be read and record ${recordId} is not applied. ${repair}`);
+  }
+  const inMetadata = unreadableDispositions(metadata);
+  if (inMetadata.length) {
+    refuse(DISPOSITION_RECORD_MALFORMED, `The library metadata of ${library} holds ${inMetadata.join(", ")} as an array or an object, so its disposition cannot be read and record ${recordId} is not applied. ${repair}`);
+  }
+  const inRecord = unreadableDispositions(record);
+  if (inRecord.length) {
+    refuse(DISPOSITION_RECORD_MALFORMED, `Record ${recordId} of ${library} holds ${inRecord.join(", ")} as an array or an object, so its disposition cannot be read and the record is not applied. ${repair}`);
+  }
+}
+
 /** The disposition tokens that exclude a slot or value, or refuse a library or record. */
 function blockedTokens(level: Level): string[] {
   return levelTokens(level).filter((token) => BLOCKED_TOKENS.has(token));
@@ -165,7 +214,9 @@ async function context(kind: Exclude<ApplyLibraryKind, "hanger">, document: Json
   const library = obj(document[keys.library]);
   const records = Array.isArray(document[keys.records]) ? (document[keys.records] as unknown[]) : [];
   const record = records.map(obj).find((item) => item?.[keys.id] === recordId);
-  if (!library || !record) refuse("LIBRARY-APPLY-RECORD-MISSING", "The selected record is not in the stored library. Refresh the library list, open the library again and choose a record it holds.");
+  if (!record || (!library && document[keys.library] === undefined)) refuse("LIBRARY-APPLY-RECORD-MISSING", "The selected record is not in the stored library. Refresh the library list, open the library again and choose a record it holds.");
+  // An unreadable disposition is refused by name before any verdict, as the native screen does.
+  refuseUnreadable(kind, keys.library, document[keys.library], record!, recordId);
   for (const [label, level] of [["library", library], ["record", record]] as const) {
     const blocked = blockedTokens(level);
     if (blocked.length) refuse("LIBRARY-APPLY-SOURCE-REJECTED", `The ${label} is marked ${blocked.join(", ")}, so its data is not applied. Choose a different record, or re-import the library with reviewed source dispositions.`);
@@ -592,11 +643,14 @@ const REPLACEABLE: Record<Group, string[]> = {
   expansion: ["geometry.effective_area", "geometry.movement_limit"],
   modifiers: ["modifiers.sif_user_value", "modifiers.flexibility_factor_user_value", "modifiers.sif_in_plane_user_value", "modifiers.sif_out_of_plane_user_value", "modifiers.linear_stiffness_user_value", "modifiers.rotational_stiffness_user_value"]
 };
-/** Values of each group, including non-replaceable ones such as center_of_gravity. */
+/** Values of each group, including non-replaceable ones such as center_of_gravity
+ * and a reducer's eccentric_offset (W-15 slice c): a retained offset keeps the
+ * group's source reference, so an apply never treats the group as left with no
+ * user geometry. */
 const GROUP_VALUES: Record<Exclude<Group, "modifiers">, string[]> = {
   bend: REPLACEABLE.bend,
   branch: REPLACEABLE.branch,
-  rigid: [...REPLACEABLE.rigid, "geometry.center_of_gravity"],
+  rigid: [...REPLACEABLE.rigid, "geometry.center_of_gravity", "geometry.eccentric_offset"],
   expansion: REPLACEABLE.expansion
 };
 
@@ -730,6 +784,7 @@ export async function hangerLibraryProvenance(library: Json, record: Json, copie
     record,
     version: await libraryRecordVersion(record)
   };
+  refuseUnreadable("hanger", "hanger_library", library, record, ctx.recordId);
   for (const [label, level] of [["library", library], ["record", record]] as const) {
     const blocked = blockedTokens(level);
     if (blocked.length) refuse("LIBRARY-APPLY-SOURCE-REJECTED", `The hanger ${label} is marked ${blocked.join(", ")}, so its data is not applied. Choose a different record, or re-import the library with reviewed source dispositions.`);

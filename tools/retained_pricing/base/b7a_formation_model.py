@@ -25,7 +25,9 @@ SOURCE_FILES = {
     # section_ref before rebuilding the closed section (DEPENDENCY_SECTION_REF), component_basis reads the recorded
     # weight and centre of gravity as closed quantities, and the tests add evidence tests. No formed-load or finding
     # owner changes.
-    "core/product_physics/src/self_weight.rs": "e543bf48200f0453a11026f1167d124050ffc21b275c977fc98e52698f85f775",
+    # W-16 slice c (§8.27, W16C-ES): exact_generation_mass_per_length, the generator's exact-route mass (reached only
+    # from an admitted equivalent-static case, none on D1). The formed-load and finding owners are unchanged.
+    "core/product_physics/src/self_weight.rs": "cdd7c0887f0ea9b50bb3131c68848f2e7708d5a4692fde52aa2f0109ae67a383",
     "core/product_physics/src/source_receipt/source.rs": "384140db918da65d5e76dd601cd0a2068ae2a098379b41c6907069cf99ced419",
     # T4-U8: retained::assemble's Timoshenko refusal; W1 adds one retained_api
     # export line for member-source types. Existing formation owners stay.
@@ -46,7 +48,8 @@ SOURCE_FILES = {
     # RA-HS); j7_rf_census declares the #[cfg(test)] gating module. No formed-load or finding owner changes.
     # Pre-0.4 failure unification D3 (§8.14): read b6cc3a792a; the screen's and decline_withheld's doc comments are
     # route-neutral and RF-14's test is restated. No formed-load or finding owner changes.
-    "core/product_physics/src/source_recovery.rs": "0c38c5ebd6c51148b5d5d554a11504bbb3273b3e7899657eab88255ddcd2aac8",
+    # Model document 0.8.0 (§8.26): source_recovery.rs changes two comments (the current version); no owner changes.
+    "core/product_physics/src/source_recovery.rs": "e277cc8d1383d7e36272cf751aa1f72aee010f7f6f0b4ced2b17520f9ce3951a",
     "core/solver/frame_kernel/src/structural/sparse.rs": "e316bc9d2738285ef9a87392436436c667b60b9ab0a744f6650051fcf918f4fb",
 }
 RANGE_CONTENT = 59
@@ -203,8 +206,9 @@ def decisions(snapshot, resolved):
     # W-15 slice b (§8.22): 869 -> 1281 (the component-weight generator above it; same text). W-16 slice a (§8.23):
     # 1281 -> 1284 (primitive_payload's support arm above it; same text).
     # Nested-record closure (§8.25): 1284 -> 1292 (DEPENDENCY_SECTION_REF's two lines, the first evidence-reader
-    # literal's three members and component_basis's three closed reads above it), same text.
-    audit.append((resolved("core/product_physics/src/self_weight.rs:1292"), {
+    # literal's three members and component_basis's three closed reads above it), same text. W-16 slice c (§8.27):
+    # 1292 -> 1302 (exact_generation_mass_per_length above it), same text.
+    audit.append((resolved("core/product_physics/src/self_weight.rs:1302"), {
         "case.id": {"bytes": 128, "source": "IN128"},
         "pipe": {"bytes": 128, "source": "IN128"},
         "case.id.len()": {"bytes": 20, "source": "NUM"},

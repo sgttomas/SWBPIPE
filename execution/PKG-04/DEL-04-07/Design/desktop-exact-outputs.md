@@ -202,14 +202,11 @@ Two panels make up this surface. Both receive the Current result. The run also h
 
 ### 4.5 Reports, the report package and the other surfaces
 
-**These stay refused in this unit** (ruling 10A, §8).
+**These stayed refused in this unit** (ruling 10A, §8). The rendered report and the report package were opened later under DEL-08-01 Design `exact-route-report-sections.md` (owner, 2026-10-26: "My two decisions are to approve your recommendations in both cases. Proceed accordingly."); the report JSON packet and the other fifteen surfaces still refuse.
 
-- **Report JSON and rendered report** (`report`, `rendered-report`). Their builders are generic.
-  - `selectedResultRefs` picks the single `max_open_formula_stress` headline (`features/report/ReportPanel.tsx:279-298`), but an exact result carries one headline per section basis.
-  - The renderable report builds the exact identity's limitation sections, stress headlines and standing line behind this refusal (DEL-08-01 Design `exact-route-report-sections.md`). Until the owner opens them, none of them reaches an output: the `rendered-report` and `report-package` cells refuse an exact result, and the native render and the package's Rust boundary refuse every input that carries an exact identity in an identity field (`REPORT-RENDER-ROUTE-NOT-ADMITTED`, `REPORT-PACKAGE-ROUTE-NOT-ADMITTED`).
-
-  Opening them needs DEL-08-01's own design of those sections and of the PRD §19.3 notice's place. They keep refusing with the reworded text (§5.3).
-- **Report package.** Since W-18 (DEL-08-01 Design `report-package-current-results.md`) it saves a Current preview-physics-2 result. It refuses the exact identities by policy and Rust identity, not by the fresh-result code: the policy entry `report-package: refused` gives their routes' refusal (`PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE`, through `reportPackageUnavailableReason` in `reportPackageRequest.ts`), and the package's Rust boundary admits only preview-physics-2 (`REPORT-PACKAGE-ROUTE-NOT-ADMITTED`).
+- **Report JSON** (`report`) stays refused with `PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE`; its builder still selects one headline and fixed demo references.
+- **Rendered report** (`rendered-report`) admits an exact-route result only when Export Result JSON admits it, with the sections of DEL-08-01 Design `exact-route-report-sections.md`. Its native render admits the pressure-2 and pressure-source-1 identities and binds each exact input to the result and model its solve job delivered and received. The PRD §19.3 notice keeps its existing place.
+- **Report package** (`report-package`) saves a Current preview-physics-2 result or an eligible pressure-2 or pressure-source-1 result. Its TypeScript and Rust identity checks admit those three identities; its exact sections are checked against the source as DEL-08-01 Design `exact-route-report-sections.md` specifies.
 - **The other fifteen surfaces** keep refusing: PCF, CAEPIPE MBF and external, export-adapter SDK, adapter framework, external prover, missing-data, design workspace, report lint, solve job, headless runner, local FEA, native package, handoff and export review. Each is an interop or handoff format with its own owner and its own design. This is the same scope the retained routes keep.
 
 ## 5. Policy and text changes
@@ -221,8 +218,8 @@ Two panels make up this surface. Both receive the Current result. The run also h
   - `routeSurfaceDecision`, `surfaceRouteRefusal` and `surfaceOutputRefusal` return null for it (`:139-167`).
   - `admitted_when_eligible` keeps its retained meaning and text unchanged.
 - **The exact entries.**
-  - `"admitted"` on the surfaces the owner opened (ruling 10A): `result-export`, `stress-neutral`, `rule-check`.
-  - `"refused"` on every other surface, `report-package` included.
+  - `"admitted"` on the surfaces the owner opened (ruling 10A): `result-export`, `stress-neutral`, `rule-check`; and, since W-11 (DEL-08-01 Design `exact-route-report-sections.md` §5.1; owner, 2026-10-26), `rendered-report` and `report-package`.
+  - `"refused"` on every other surface, the report JSON packet (`report`) included.
 
 On an admitted surface the exact identities then behave as preview-physics-2 behaves today. Eligibility is the surfaces' own existing checks (§4.2–4.4), and no retained-precision text can appear on an exact result.
 
@@ -241,16 +238,16 @@ A non-eligible exact result is never Current, so the Current-receiving panels sh
   - the gate;
   - the rule-check service.
 
-  `routeOutputRefusal` and `loadReferenceOutputRefusal` stay for their remaining direct callers (`RenderedReportPanel.tsx:70`, `outputPolicy.test.ts:149`). They return the route's shared reason, which for the exact routes is the reworded text (§5.3). Their only remaining product caller is the rendered report, which stays refused.
+  `routeOutputRefusal` and `loadReferenceOutputRefusal` stay for their remaining direct callers (`RenderedReportPanel.tsx:70`, `outputPolicy.test.ts:149`). They return the route's shared reason, which for the exact routes is the reworded text (§5.3). Their only remaining product caller was the rendered report; since W-11 it reads its own `rendered-report` cell, so they have no product caller.
 - **The change.** `LoadReferenceOutputGate` takes the surface id its panel already passes as `testIdPrefix`; the surfaces are named by these prefixes (`outputPolicy.ts:60-61`). It calls `surfaceRouteRefusal(result, surface)` in place of `routeOutputRefusal`.
-- **What stays the same.** For every route and every gated surface the decision is unchanged, except the exact routes on an admitted gated surface; today that is `rule-check` only. The reason: the retained entries refuse on all eighteen gated surfaces, and the ungated routes add no refusal.
+- **What stays the same.** For every route and every gated surface the decision is unchanged, except the exact routes on an admitted gated surface; at epoch 8 that was `rule-check` only, and W-11 adds `rendered-report`. The reason: the retained entries refuse on all eighteen gated surfaces, and the ungated routes add no refusal.
 - **The check.** A maintained test enumerates every route and every gated surface. It asserts that the refuse or admit decision is equal, except in the opened cells. It compares decisions, not texts, because the exact routes' refusal texts are reworded (§5.3). It runs on a plain and a load/reference-state source of each exact identity, and asserts that the two decide alike on every surface.
 
 ### 5.3 Texts
 
 - **The code is kept.** `PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE` stays the code of every remaining exact refusal. AC-006 keeps reading as written: "The desktop output policy refuses each named identity with its stated code".
 - **The two texts are reworded.** They no longer say every output is unavailable. This follows Decision 12's rewording of the retained text (`outputPolicy.ts:46-47`). Under the opened surfaces:
-  - `N_PRESSURE_2_OUTPUT`: "This output of pressure-2 results (3.0.0/exact_pressure_v3) is not available on the desktop; only the result JSON and stress-neutral exports and the rule check admit a numerically eligible result. The result remains readable here; this is not a finding about the result."
+  - `N_PRESSURE_2_OUTPUT`: "This output of pressure-2 results (3.0.0/exact_pressure_v3) is not available on the desktop; only the result JSON and stress-neutral exports, the rule check, the rendered report and the report package admit a numerically eligible result. The result remains readable here; this is not a finding about the result." (W-11 added the rendered report and the report package to the epoch 8 text.)
   - `N_PRESSURE_SOURCE_OUTPUT`: the same sentence with "pressure-source-1".
 - **No third text.** A load/reference-state result takes its identity's text on every refused surface. The text names the opened surfaces, and those surfaces do admit an eligible load/reference-state result (§5.4), so the text is true for it.
 - **No new notice on the opened panels, other than the §5.4 disclosure line.**

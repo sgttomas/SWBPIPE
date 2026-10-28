@@ -141,6 +141,23 @@ def test_the_python_verifier_twin_verifies_the_witness():
     assert verified["export_hash"] == f"sha256:{manifest()['checksums'][1]['value']}"
 
 
+# Model document 0.8.0 (DEL-02-01 Design model-document-0.8.0.md §3.4, §12): the witness package as the
+# 0.7.0 producer wrote it (its bytes before the ripple, at 71300752ab), kept as the ripple's one committed
+# 0.7.0 refusal control (tests/test_model_document_schema.py EXPLICIT_RETIRED_CONTROLS).
+RETIRED_PACKAGE = ROOT / "fixtures" / "handoff" / "retired_0_7_0_witness.swbhandoff"
+
+
+def test_a_package_written_at_model_0_7_0_still_verifies_and_holds_a_retired_model():
+    """Verifying an old package's bytes stays possible: its internal consistency and hashes verify. Admitting its
+    model as current does not happen: the embedded model is document 0.7.0, which the desktop's open path and the
+    solve refuse by name (apps/desktop/src-tauri/src/handoff_package.rs
+    `a_package_written_at_model_0_7_0_holds_a_model_the_open_and_solve_paths_refuse`)."""
+    verified = verify_handoff_package(RETIRED_PACKAGE)
+    model_bytes = (RETIRED_PACKAGE / "model" / "model.json").read_bytes()
+    assert verified["model_hash"] == f"sha256:{sha256(model_bytes).hexdigest()}"
+    assert json.loads(model_bytes)["schema_version"] == "0.7.0"
+
+
 @pytest.mark.parametrize("member", ["model/model.json", "handoff_package.json"])
 def test_one_changed_byte_in_either_member_fails(tmp_path, member):
     copy = tmp_path / "invented_witness.swbhandoff"

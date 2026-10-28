@@ -26,6 +26,7 @@ import { inspectorAuthoringPaths } from "../model-tree/PropertyInspector";
 import { loadCaseAuthoringPaths } from "../load-cases/LoadCaseManagerPanel";
 import { RECORD_FAMILIES, annotationIntent, recordIntent, rulePackReferenceFromDocument } from "./modelDataIntents";
 import { buildMaterialInsert } from "../library/libraryApply";
+import { buildCreateComponentIntent, defaultComponentDraft } from "../component-creation/componentIntent";
 import type { UnitCatalog } from "../../services/unitCatalogService";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -170,6 +171,23 @@ async function emit(): Promise<Array<{ path: string; document: PreviewModel }>> 
     model, document: INVENTED_MATERIAL_LIBRARY, recordId: "mat.invented.emission", newId: "material:library-emission", mode: "e_nu", catalog: EMISSION_CATALOG
   })).batch.operations[0]);
   record("library_material_insert", model);
+  // Model document 0.8.0 (DEL-02-01 Design model-document-0.8.0.md §5; DEL-03-05 Design
+  // eccentric-reducer-offset.md §6): an invented reducer at node:N-2 on pipe:P-1, created
+  // through the component form's builder, then given its eccentric offset through the
+  // inspector's field (the creation form takes no offset). Intentional new golden content.
+  const reducer = {
+    ...defaultComponentDraft(model, { type: "node", id: "node:N-2" }, [], "reducer"),
+    primaryPipeRef: "pipe:P-1", rigidBodyLength: "0.12", endASize: "0.168", endBSize: "0.114", weight: "500",
+    centerOfGravityX: "0", centerOfGravityY: "0", centerOfGravityZ: "0",
+    connectionEndAReference: "invented end A", connectionEndBReference: "invented end B",
+    stiffnessBehaviorReference: "invented rigid behaviour"
+  };
+  model = await apply(model, buildCreateComponentIntent({ draft: reducer, model, sourceRef: "desktopEmission.golden.test.ts", sourceRole: "gui_editor", unitValidation: "not_run" }));
+  model = await apply(model, inspectorAuthoringPaths.buildOperationIntent({
+    field: inspectorAuthoringPaths.eccentricOffsetField(undefined, "mm"), model, proposedValue: "0, -50, 0", proposedUnit: "mm",
+    rationale: "Invented eccentric offset", selection: { type: "component", id: reducer.id }, unitCatalogRoute: null
+  }));
+  record("reducer_eccentric_offset", model);
   return entries;
 }
 
@@ -188,7 +206,7 @@ describe("TP-PMM-GUIEMIT-001 desktop emission golden", () => {
     const golden = {
       document_kind: "openpipestress.test.desktop_emission_golden",
       description:
-        "Desktop-emitted model documents, one per authoring path, under a fixed clock (TP-PMM-GUIEMIT-001; W-13 design model-document-0.7.0.md §5.2). Invented data. Regenerate with DESKTOP_EMISSION_UPDATE=1.",
+        "Desktop-emitted model documents, one per authoring path, under a fixed clock (TP-PMM-GUIEMIT-001; W-13 design model-document-0.7.0.md §5.2; a reducer's eccentric offset, model-document-0.8.0.md §5). Invented data. Regenerate with DESKTOP_EMISSION_UPDATE=1.",
       clock: FIXED_CLOCK.toISOString(),
       entries
     };
@@ -203,7 +221,7 @@ describe("TP-PMM-GUIEMIT-001 desktop emission golden", () => {
       "blank_project", "blank_load_reference_project", "node_creation", "material_creation", "section_creation",
       "pipe_creation", "support_creation", "load_creation", "combination_creation", "project_tags_and_notes",
       "entity_tags_and_notes", "provenance_records", "line", "assumptions_and_open_issues",
-      "constraints_and_equipment_interfaces", "rule_pack_ref", "library_material_insert"
+      "constraints_and_equipment_interfaces", "rule_pack_ref", "library_material_insert", "reducer_eccentric_offset"
     ]);
   });
 });

@@ -29,7 +29,9 @@ PINS = {
         # `component_body: None` only); carriers, staging and prepared-pressure calls unchanged.
         # W-16 slice a D3 (§8.23): the pressure-free case's prescribed map (imposed_motion::case_prescribed) and its
         # blocking early return; carriers, staging and prepared-pressure calls unchanged.
-        "solve_prepared_load_case": "2544b007297f0f6f91a6ae73ce8d379f22fff252e248c6134da966beedf9aba5",
+        # W-16 slice c D3 (§8.27, W16C-ES): the generated equivalent-static evidence record, only on an admitted
+        # equivalent_static case (refused on every retained branch); carriers, staging and prepared-pressure calls unchanged.
+        "solve_prepared_load_case": "223dba958940f4947790bf907b2039e8d83e1b4e4852585d63ab162b40a44e2f",
         "append_curved_bend_macro_element_results": "9e9b5010a84aa73268d72fabcf99c5cb2012f6f35ef5a15adb41bb30bf045a4e",
     },
     # B7b: branch E is 0.5.0 with {3.0.0, exact_pressure_v3, euler_bernoulli}; the
@@ -47,7 +49,7 @@ PINS = {
     # narrows admission. The component, region and load-state refusals are unchanged.
     "core/product_physics/src/retained_memory.rs": {
         "namespace_branch": "b1f8f02df1f10552a69c357ebc329fa801243addc94d595403ab9313f79cf805",
-        "family_clauses": "2e23cc04f4e6e12a08e9c8dc2fedaad5bd7efee9cbd1d175492c00f24a7afbcc",
+        "family_clauses": "dc1eb90fc5475c1b682011cb8c0bd486aa68e05638ba1a700007fdf57904b84e",
     },
 }
 # B7b: the production prefix deletes v2's declaration, refusal and negative-pressure
@@ -71,7 +73,13 @@ PINS = {
 # W-15 D3 (§8.21): validate_profile refuses a reducer whose mapped member belongs to a case's pressure region
 # (exact_admission::reducer_region_refusals; diagnostics only). Under D1 no component is admitted (P2) and E's regions
 # are explicitly empty (D1.5), so it collects nothing. No carrier, child or staging changes.
-PRESSURE_PREFIX_PIN = "296df65d9ad72e257b48a2dd6b02156a394099f6ac0b70ef7199564269404b12"
+# Model document 0.8.0 D3 (§8.26): the same two validate_profile texts format the shared crate::MODEL_SCHEMA_VERSION
+# constant (S1B-MV) in place of the literal, same bytes; diagnostics only. No carrier, child or staging changes.
+# W-16 slice c D3 (§8.27, W16C-ES): validate_profile refuses a generated equivalent-static case in a load/reference-
+# state document (exact_admission::EQUIVALENT_STATIC_LOAD_STATE), inside the existing `case.equivalent_static.is_some()`
+# arm; every retained branch refuses equivalent_static (D1), so it is unreachable there. Diagnostics only; no carrier,
+# child or staging changes.
+PRESSURE_PREFIX_PIN = "6905aec336a943fb592a107456541d6a47d12f973ae22c033bb1bdd7c160d591"
 LEGACY_PRESSURE_PREFIX_PIN = "d335b7c22bee4bf5832a4e2b9f82f63a77930aa2bbcedeab15369e62c205b017"
 LEGACY_CASE_PIN = "273d31e03921bad5b4d28852b54b17ba7e70acd85d590b4213a3d5d8141aa00c"
 

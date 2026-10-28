@@ -7,6 +7,7 @@ import type { EditorOperationIntent, EntityRef, OperationOutcome, PreviewModel }
 import { DisplayUnitsProvider } from "../display-units";
 import { entityKey } from "../workspace/selectionState";
 import { PropertyInspector } from "./PropertyInspector";
+import { ECCENTRIC_OFFSET_CONVENTION } from "../component-creation/eccentricOffsetConvention";
 
 afterEach(cleanup);
 
@@ -100,6 +101,35 @@ describe("PropertyInspector views", () => {
     type("editor-intent-value", "mechanics_geometry_only");
     fireEvent.click(byId("queue-editor-intent"));
     expect(lastIntent(queue).change).toMatchObject({ field_path: "mechanics_interface.solver_consumption", before: "TBD", after: "mechanics_geometry_only" });
+  });
+
+  it("edits a reducer's eccentric offset as a vector under its own convention, and offers it on reducers only (W-15 slice c)", async () => {
+    const model = inventedModel();
+    model.components = [{ id: "component:R", label: "Reducer", kind: "reducer", node: "node:A", provenance: "invented reducer",
+      geometry: { rigid_pipe_ref: "pipe:AB", eccentric_offset: { x: 0, y: -50, z: 0, unit: "mm" } } }];
+    const { queue } = mount({ type: "component", id: "component:R" }, {}, model);
+    await catalogSettled();
+    startTask();
+    changeFormControl(byId("editor-intent-field"), { target: { value: "geometry.eccentric_offset" } });
+    expect(screen.getByRole("heading", { name: "Edit eccentric offset" })).toBeInTheDocument();
+    expect(byId("inspector-text-value")).toHaveTextContent("0, -50, 0 mm");
+    expect(byId("inspector-vector-convention")).toHaveTextContent(ECCENTRIC_OFFSET_CONVENTION);
+    type("editor-intent-value", "0, -47, 0");
+    fireEvent.click(byId("queue-editor-intent"));
+    expect(lastIntent(queue).change).toMatchObject({
+      field_path: "geometry.eccentric_offset", before: "0, -50, 0 mm",
+      after: JSON.stringify({ x: 0, y: -47, z: 0, unit: "mm" }), unit: "mm", dimension: "length"
+    });
+    cleanup();
+    const valveModel = inventedModel();
+    valveModel.components = [{ id: "component:V", label: "Valve", kind: "valve", node: "node:A", provenance: "invented valve", geometry: { rigid_pipe_ref: "pipe:AB" } }];
+    mount({ type: "component", id: "component:V" }, {}, valveModel);
+    await catalogSettled();
+    startTask();
+    changeFormControl(byId("editor-intent-field"), { target: { value: "geometry.center_of_gravity" } });
+    expect(screen.getByRole("heading", { name: "Edit center of gravity" })).toBeInTheDocument();
+    expect(() => changeFormControl(byId("editor-intent-field"), { target: { value: "geometry.eccentric_offset" } }))
+      .toThrow(/no option for geometry.eccentric_offset/);
   });
 
   it("authors an absent centre of gravity from three entered components and a unit", async () => {

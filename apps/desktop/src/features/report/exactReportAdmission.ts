@@ -13,11 +13,12 @@
  * recorded admission whose objects, text, invocation, standing or custody no longer hold
  * is stale (`REPORT-EXACT-ADMISSION-STALE`).
  *
- * This is an equality check, not an output gate: every report surface keeps refusing
- * an exact result by its output-policy cell, and the native render and the package's
- * Rust boundary refuse every exact identity, until the owner opens them (ruling 10A).
- * Tests reach it below the gate. Standard claim fence applies (claims taxonomy per
- * DEC-081). */
+ * This is an equality check, not an output gate: the `rendered-report` and
+ * `report-package` cells admit pressure-2 and pressure-source-1 since the owner opened
+ * them (DEL-08-01 Design `exact-route-report-sections.md` §5.1; owner, 2026-10-26), and
+ * the native render and the package's Rust boundary bind and check what this admission
+ * yields; the report JSON packet and the other surfaces keep refusing an exact result.
+ * Standard claim fence applies (claims taxonomy per DEC-081). */
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
 import { buildCurrentResultExport, resultDigest, type JsonObject } from "../result-export/resultExportAdapter";
 import { numericalResultStanding } from "../results/resultStanding";

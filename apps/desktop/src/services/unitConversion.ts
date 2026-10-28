@@ -77,6 +77,15 @@ export function convertForDisplay(
   return { value: (value * from.toCanonical) / to.toCanonical, unit: from.companion };
 }
 
+/** How many `to` units one `from` unit is, when both are in the table under one
+ * dimension; otherwise null. Display only, as everything here. */
+export function unitRatio(from: string, to: string): number | null {
+  const source = UNIT_TABLE[from.trim()];
+  const target = UNIT_TABLE[to.trim()];
+  if (!source || !target || source.dimension !== target.dimension) return null;
+  return source.toCanonical / target.toCanonical;
+}
+
 /** Format a converted magnitude to ~4 significant figures without trailing noise. */
 export function formatConverted(value: number): string {
   if (!Number.isFinite(value)) return "TBD";

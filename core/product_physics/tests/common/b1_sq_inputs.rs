@@ -26,16 +26,17 @@ const PROV: &str = "invented_t3_b1_sw_probe_input_no_library_data";
 
 /// I86's `input_sha` pins (sha256 of `serde_json::to_vec(&value)`). The silent-drop guard
 /// (2026-10-23) moved the stressed inputs' depth-16 value from an unknown root member to the
-/// declared `diagnostics` member (`stressed`), which re-pinned the i3 inputs below.
-pub const W2B_SHA256: &str = "2b2f398d15da0832cff6294c776bda79bd83ef52495e2f31e72cd85d9312e9d1";
-pub const B2_K1E3_SHA256: &str = "10d54e956d093784cfb761635a37bfb27a3300224ba440d0e5941addda5dc393";
-pub const C1_SHA256: &str = "4eb2bac2cef38f221f1509ae516589320080046af64f1f9d12e353226aa3d3bd";
+/// declared `diagnostics` member (`stressed`), which re-pinned the i3 inputs below. Model
+/// document 0.8.0 (W-15 slice c) re-pinned every pin below with its version-only re-authoring.
+pub const W2B_SHA256: &str = "4bbbe484c3f97a9c067e86658147814888dba3426c2a6b29870bf03066d44a02";
+pub const B2_K1E3_SHA256: &str = "50d130f4407f506565273743d826dc75facd1b8e4a9b1c8f066fbbb0b8ec067f";
+pub const C1_SHA256: &str = "596bb58f7035470d1de4d293b47be75819bda73af5f536d2ac601ff36e48c770";
 pub const I3_CASE_SHA256: [(&str, &str); 3] = [
-    ("case:a", "26b4860a70e2f83f77f0b1ac53c29943e676902281984370a56b922b3360458e"),
-    ("case:b", "7f52e5bc2edb1f67e376660dcc701b210a3eba01cd32ffb30b03284bcad0e4d5"),
-    ("case:c", "a2692dffea9fa8bcc5519e408b0c8060b27995e2b759526254bc4de105fa4f44"),
+    ("case:a", "ca9f514e4cec9d1dcfa0810e588a000ec5063f159cad435b5de9625fe311cb96"),
+    ("case:b", "95a7cc286c5563efc2aba7042d039592e495974f3c56f2719a7be57555927748"),
+    ("case:c", "64dadebcd0d8a5e8bcd46cf44e18964a6ad0c51f5828662cad4fb077e699f8c8"),
 ];
-pub const I3_THREE_CASE_SHA256: &str = "ceb08a01c38cbc9813e3daf085431ee7659060fb7f76c6723a05e3c1d899985b";
+pub const I3_THREE_CASE_SHA256: &str = "4c1dbffcd73db3cfb1487aeb84c4d6a53d9f2525139ccee59d6b029325769686";
 
 pub fn milestone() -> Value {
     serde_json::from_str(MILESTONE).unwrap()
@@ -102,7 +103,7 @@ pub fn law_cap_maximal() -> Value {
         .collect();
     json!({
         "model": {
-            "schema_version": "0.7.0",
+            "schema_version": "0.8.0",
             "document_kind": "openpipestress.product_preview.model",
             "analysis_status": {"mechanics": "ready_for_preview_diagnostics", "rule_check": "not_performed_user_rule_inputs_missing", "professional_acceptance": "not_provided"},
             "project": {"id": text("project:", 128), "units": {"length": "m", "force": "N"}},
@@ -438,7 +439,7 @@ pub fn b2_c1_range_mechanics() -> Value {
 /// Euler-Bernoulli and an explicit zero corrosion allowance on every pipe section.
 pub fn exact3(mut raw: Value) -> Value {
     let m = &mut raw["model"];
-    m["schema_version"] = json!("0.7.0");
+    m["schema_version"] = json!("0.8.0");
     m["pressure_contract"] = json!({"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"});
     for material in m["materials"].as_array_mut().unwrap() {
         material.as_object_mut().unwrap().remove("shear_modulus");

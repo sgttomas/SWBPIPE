@@ -10,7 +10,7 @@ const RETIRED_LOAD_REFERENCE_SOURCE_ID: &str =
     "openpipestress.result_semantics/0.3.0/load-reference-source-1";
 const RETIRED_V2_CONTRACT: &str = r#"{"version":"2.0.0","mode":"exact_straight_pressure_v2"}"#;
 
-/// The committed current (0.7.0, v3, CA 0, Euler-Bernoulli) source controls.
+/// The committed current (0.8.0, v3, CA 0, Euler-Bernoulli) source controls.
 fn fixture_request(family: &str, name: &str) -> Value {
     let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(format!(
         "../../fixtures/product_preview/pressure_source/{family}/{name}.request.json"
@@ -166,7 +166,7 @@ const JOINED_LIMITATION_7: &str = "Every member section declares its corrosion a
 /// T4-U6 (§2.4): limitation [0] of pressure-2, the B7b text with the
 /// shear-model parenthesis, the realized-bend clause and the section-bases
 /// sentences of the design (the latter after the admitted-families sentence).
-const PRESSURE_1_IDENTITY: &str = "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers only when their mapped member lies outside every pressure region (EXACT_PRESSURE_REDUCER_IN_REGION otherwise). Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.";
+const PRESSURE_1_IDENTITY: &str = "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers only when their mapped member lies outside every pressure region (EXACT_PRESSURE_REDUCER_IN_REGION otherwise). Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component or support family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.";
 
 /// The regenerated v3 reader corpora are unselected pressure-2 publications:
 /// each equals the joined unselected basis exactly; the selected basis names
@@ -516,7 +516,7 @@ fn cached_source_context_keeps_original_raw_custody_and_typed_selection() {
 #[test]
 fn cached_source_context_none_preserves_preview_and_invalid_contract_refusal() {
     let refusal=bad("composite source requires an actual exact contract");
-    for schema in ["0.1.0","0.2.0","0.3.0","0.4.0","0.5.0","0.6.0","0.7.0"] {
+    for schema in ["0.1.0","0.2.0","0.3.0","0.4.0","0.5.0","0.6.0","0.7.0","0.8.0"] {
         // B7b: a present null contract fails decoding (no capture is formed).
         let mut null_contract=request(false);
         null_contract["model"]["schema_version"]=json!(schema);

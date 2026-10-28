@@ -242,7 +242,7 @@ mod nested_records {
         ] {
             record.as_object_mut().unwrap().extend(annotations(extra).as_object().unwrap().clone());
         }
-        json!({"model": {"schema_version": "0.7.0", "document_kind": "model", "project": {"id": "project:P"},
+        json!({"model": {"schema_version": "0.8.0", "document_kind": "model", "project": {"id": "project:P"},
             "analysis_status": {"mechanics": "m", "rule_check": "r", "professional_acceptance": "a"},
             "nodes": [node], "pipe_segments": [pipe], "sections": [section], "supports": [support], "components": [component],
             "materials": [model_material]},

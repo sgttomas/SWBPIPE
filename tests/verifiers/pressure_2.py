@@ -58,7 +58,7 @@ from pathlib import Path
 import struct
 from typing import Any
 
-from . import component_body, global_end, section_basis as sb, u4b
+from . import component_body, exact_combinations, global_end, section_basis as sb, u4b
 
 PROJECT = Path(__file__).resolve().parents[2]
 
@@ -70,7 +70,7 @@ TABLE_PATH = PROJECT / "fixtures/results/semantic_contract_v0_3_pressure_2.json"
 # T4-U6 (D-5, §2.4): one stress signature per (recovery token x section basis); T4-U5b adds the tie-rod force and
 # T4-U4b its 22 per-basis signatures: 129 signatures over 66 kinds; W-7 (DEL-04-01) the six global end-action
 # signatures: 135 over 68.
-TABLE_SHA256 = "3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d"
+TABLE_SHA256 = "be61c6ea828797ad5664d06a2c835b28deffaff07cc33fec6bb4d48a8fcb0919"
 TABLE_SIGNATURE_COUNT = 135
 TABLE_KIND_COUNT = 68
 
@@ -84,8 +84,10 @@ RETIRED_EXACT_V2_IDS = (
     "openpipestress.result_semantics/0.3.0/load-reference-source-1",
 )
 SOURCE_EXACT_PRESSURE_V2_RETIRED = "SOURCE_EXACT_PRESSURE_V2_RETIRED"
+# The current model document version this verifier names (b7-plan "Current model format").
+MODEL_VERSION = "0.8.0"
 V2_RETIRED_TEXT = (f"{SOURCE_EXACT_PRESSURE_V2_RETIRED}: 2.0.0/exact_straight_pressure_v2 results are no longer read; "
-                   "re-author the model as 0.7.0 with the current exact pressure contract and re-run the analysis")
+                   f"re-author the model as {MODEL_VERSION} with the current exact pressure contract and re-run the analysis")
 # Model 0.6.0 (DEL-04-07 Design u4b-u5b-implementation.md §1.2): the retired pressure-1 identity, refused by name.
 RETIRED_PRESSURE_1_ID = "openpipestress.result_semantics/0.3.0/pressure-1"
 SOURCE_PRESSURE_1_RETIRED = "SOURCE_PRESSURE_1_RETIRED"
@@ -194,7 +196,20 @@ def verify_source(source: Mapping[str, Any], *, raw: bool = True) -> None:
 def validate_pressure_evidence(source: Mapping[str, Any]) -> None:
     """Raw pressure-2 evidence. An envelope that carries ``load_reference_states``
     takes the load/reference-state pre-pass first; any other takes the physics
-    checks directly."""
+    checks directly. W-16 slice b: a document with a load combination takes those
+    checks on its view without the combination rows and record, then the
+    combination pass (``exact_combinations``) on the whole document."""
+    if isinstance(source, Mapping) and exact_combinations.present(source):
+        _validate_direct_pressure_evidence(exact_combinations.direct_view(source))
+        try:
+            exact_combinations.validate(source, pressure_table())
+        except (TypeError, KeyError, AttributeError, OverflowError, IndexError) as error:
+            raise ValueError("SOURCE_PHYSICS_COMBINATION_MALFORMED") from error
+        return
+    _validate_direct_pressure_evidence(source)
+
+
+def _validate_direct_pressure_evidence(source: Mapping[str, Any]) -> None:
     evidence = source.get("contract_evidence") if isinstance(source, Mapping) else None
     if isinstance(evidence, Mapping) and "load_reference_states" in evidence:
         _load_state_evidence(source)
@@ -303,6 +318,22 @@ def _member(value: Any, allowed: set[str]) -> bool:
 # --------------------------------------------------------------------------
 # Physics evidence (straight, arcs, connectors), contract 3.0.0/exact_pressure_v3
 # --------------------------------------------------------------------------
+
+
+# W-16 slice c (§2): the exact route's D-5 mass method (PP self_weight::EXACT_MASS_METHOD).
+EXACT_MASS_METHOD = "source_od_nominal_wall_pressure_bore_areas/v1"
+
+
+def equivalent_static_record(case_id: str, record: Any) -> None:
+    """Rust `physics_evidence::equivalent_static_record`: closed, the exact mass method, and at least one
+    generated primitive id, each once, each in the case's ``<case>:generated:`` namespace."""
+    _require(isinstance(record, Mapping) and set(record) == {"mass_method", "generated_load_ids"}, "equivalent_static shape")
+    _require(record["mass_method"] == EXACT_MASS_METHOD, "equivalent_static mass method")
+    ids = record["generated_load_ids"]
+    _require(isinstance(ids, list) and bool(ids), "equivalent_static shape")
+    prefix = f"{case_id}:generated:"
+    _require(all(isinstance(i, str) and i.startswith(prefix) for i in ids) and len(set(ids)) == len(ids), "equivalent_static load ids")
+
 
 def _require(condition: bool, detail: str) -> None:
     if not condition:
@@ -478,7 +509,11 @@ def _physics(source: Mapping[str, Any]) -> None:
         # T4-U4b (§2.6): intensified_measures only when non-empty.
         directional = "intensified_measures" in case
         _require(not directional or (isinstance(case["intensified_measures"], list) and case["intensified_measures"]), "case shape")
-        _shape(case, {"load_case_id", "profile_mode", "material_basis", "pipe_materials", "pipe_sections", "pipe_stress_extrema", "stress_maximum_coverage", "pressure_rhs_assembly"} | ({"intensified_measures"} if directional else set()), "case shape")
+        # W-16 slice c (DEL-05-01 Design exact-equivalent-static.md §2): a generating case's closed record.
+        generation = "equivalent_static" in case
+        if generation:
+            equivalent_static_record(cid, case["equivalent_static"])
+        _shape(case, {"load_case_id", "profile_mode", "material_basis", "pipe_materials", "pipe_sections", "pipe_stress_extrema", "stress_maximum_coverage", "pressure_rhs_assembly"} | ({"intensified_measures"} if directional else set()) | ({"equivalent_static"} if generation else set()), "case shape")
         _require(case["profile_mode"] == PRESSURE_V3[1] and _text(case["material_basis"]), "case profile/material basis")
         materials[cid] = _indexed(case["pipe_materials"], "pipe_id", "case materials")
         geometries[cid] = _indexed(case["pipe_sections"], "pipe_id", "case sections")

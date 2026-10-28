@@ -269,7 +269,7 @@ fn pf_document(i: &Inputs, cases: Vec<Value>, combinations: Vec<Value>, density:
             "y_reference": {"x": y[0], "y": y[1], "z": y[2]}, "provenance": PROV})
     }).collect();
     let supports: Vec<Value> = i.supports.iter().map(|(id, node, r)| json!({"id": id, "node": node, "family": "anchor", "restraints": r, "provenance": PROV})).collect();
-    json!({"model": {"schema_version": "0.7.0", "document_kind": "openpipestress.product_preview.model",
+    json!({"model": {"schema_version": "0.8.0", "document_kind": "openpipestress.product_preview.model",
         "project": {"id": "project:w16", "units": {"length": "m", "force": "N", "angle": "rad", "pressure": "Pa", "stress": "Pa", "temperature": "degC"}},
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics", "rule_check": "not_performed_user_rule_inputs_missing", "professional_acceptance": "not_provided"},
         "nodes": nodes, "pipe_segments": pipes, "supports": supports, "components": [],

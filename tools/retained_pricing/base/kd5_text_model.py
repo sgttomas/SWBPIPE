@@ -12,7 +12,9 @@ import hashlib, os, re
 # on route E: PU-TX), keeps a selected case's first support-norm refusal as its finalization cause (PU-TX) and records
 # the S2/S3 cause on both routes. No record constructor, label, route string, carrier, staging, fallback attempt or
 # first-return alternative changes.
-PINS = {'core/product_physics/src/certified_publication.rs': {'group': 'ec5db3c8e95c345590bf4472a4310f155259cb9ced56b58da3c0316b62b0f394', 'magnitude_group': '600d0d42c5dbb53c489b4bf86a1fba82fdcc8d00440e4f86a2cfb6e6d7bfd953', 'member_record': '201b9a9c9390794c15207731efe9f524d1c14f0c80a15afa02b1e3b601580547', 'support_record': '1b5b46b845578a05a14879b1bae657f832f48a5b2122b404350588490571fd44', 'unavailable_record': '79931f5662ae9277f7ddbc008799340757f0e581e29a053cbdd90ff7a0eaf1a6', 'connector_record': '42cbb33f9c55a26951f72198fdbdc017670a472ce85fb80caf83acd5b09e477a', 'straight_stress_spans': '8fa6015c0c0b6ae5c87f241c29b1187f6e3e4a3bc3e624969d37aff1c3164efe', 'fallback_circular_maximum': 'bf5ab4f4c3577ffb0b068e1a9b918793e22b04a8c68764610cec3fe6e648210c', 'fallback_product_up': '5476bd4c93f66d5aee68c465b7da0ee39ab1d123dc75825931f2502cf0b607bb'}, 'core/product_physics/src/formation_guard.rs': {'recovery_finding': 'c499ed59986310186a5825c2043363ca131a5b44d41755a7700e1f7d6c1f5f9b', 'member_group_decision': '76a37c824097b528c638214d913166d24ffa81698222ad9199a511f32f0d5e59'}, 'core/product_physics/src/preview_physics.rs': {'extrema_evidence': 'a79bfa6c33095f97bc672ea78e27a3b768d901399978fac58d5ed9d804f3aac3'}, 'core/product_physics/src/lib.rs': {'solve_load_case_observed': '5a70782515a2e66790c8d570cc13d49ead9d22614e0f99b288d2632e8fc4e061', 'solve_prepared_load_case': '2544b007297f0f6f91a6ae73ce8d379f22fff252e248c6134da966beedf9aba5'}}
+# W-16 slice c D3 (§8.27, W16C-ES): solve_prepared_load_case's equivalent_static record is formed only under
+# `load_case.equivalent_static.is_some()` (none on D1); no record constructor, label or route string changes.
+PINS = {'core/product_physics/src/certified_publication.rs': {'group': 'ec5db3c8e95c345590bf4472a4310f155259cb9ced56b58da3c0316b62b0f394', 'magnitude_group': '600d0d42c5dbb53c489b4bf86a1fba82fdcc8d00440e4f86a2cfb6e6d7bfd953', 'member_record': '201b9a9c9390794c15207731efe9f524d1c14f0c80a15afa02b1e3b601580547', 'support_record': '1b5b46b845578a05a14879b1bae657f832f48a5b2122b404350588490571fd44', 'unavailable_record': '79931f5662ae9277f7ddbc008799340757f0e581e29a053cbdd90ff7a0eaf1a6', 'connector_record': '42cbb33f9c55a26951f72198fdbdc017670a472ce85fb80caf83acd5b09e477a', 'straight_stress_spans': '8fa6015c0c0b6ae5c87f241c29b1187f6e3e4a3bc3e624969d37aff1c3164efe', 'fallback_circular_maximum': 'bf5ab4f4c3577ffb0b068e1a9b918793e22b04a8c68764610cec3fe6e648210c', 'fallback_product_up': '5476bd4c93f66d5aee68c465b7da0ee39ab1d123dc75825931f2502cf0b607bb'}, 'core/product_physics/src/formation_guard.rs': {'recovery_finding': 'c499ed59986310186a5825c2043363ca131a5b44d41755a7700e1f7d6c1f5f9b', 'member_group_decision': '76a37c824097b528c638214d913166d24ffa81698222ad9199a511f32f0d5e59'}, 'core/product_physics/src/preview_physics.rs': {'extrema_evidence': 'a79bfa6c33095f97bc672ea78e27a3b768d901399978fac58d5ed9d804f3aac3'}, 'core/product_physics/src/lib.rs': {'solve_load_case_observed': '5a70782515a2e66790c8d570cc13d49ead9d22614e0f99b288d2632e8fc4e061', 'solve_prepared_load_case': '223dba958940f4947790bf907b2039e8d83e1b4e4852585d63ab162b40a44e2f'}}
 # Epoch addbdc030e: solve_prepared_load_case's `pipe_sections` is `exact_pipe_sections(built)`, the same entries plus
 # the realized-arc marker on a realized arc (none on D1); no record constructor or label changes.
 # T4-U6/U8 D3 (retained-pricing-rules.md, "T4-U6/U8: actual-source D3"): straight_stress_spans,
@@ -197,7 +199,11 @@ def inspect_directed_helpers(snapshot):
 # W-16 slice a D3 (§8.23): lib.rs's support target, imposed-motion calls and primitive filter add no `.min(`/`.max(` call.
 # Nested-record closure D3 (§8.25): lib.rs's closed nested records and material wire add or remove no `.min(`/`.max(`
 # call, and the observation lane stays deleted (E14); E13's retired preimage is unchanged.
-B7A_PRIMITIVE_LIB_SOURCE_PIN = '06e98114c960d95f0d7dc59b749e274c7bca5fc206343e4c7460604a4213e761'
+# Model document 0.8.0 D3 (§8.26): lib.rs's eccentric_offset member, its normalization and the offset-check calls add or
+# remove no `.min(`/`.max(` call (rigid_component.rs's arc_evidence receivers are f64, W15C-CG).
+# W-16 slices b and c D3 (§8.27): lib.rs's combination append, operand standing, equivalent-static record and generator
+# checks add no `.min(`/`.max(` call.
+B7A_PRIMITIVE_LIB_SOURCE_PIN = '4b83ddc6ed910d983f838588d0e6d31e1d703651486cd05c8bdfe09180b1c81d'
 
 
 def primitive_lib_minmax_callers(snapshot):

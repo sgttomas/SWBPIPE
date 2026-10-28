@@ -185,6 +185,8 @@ code_paths:
 - schemas/results.schema.yaml
 - apps/desktop/src/features/workspace/table/**
 - apps/desktop/src/features/model-data/**
+- apps/desktop/src/features/workspace/contextMenu/**
+- apps/desktop/src/features/bulk-change/**
 checks:
 - apps/desktop/src/features/model-tree/ModelTree.test.tsx
 - apps/desktop/src/features/model-tree/typedInspector.test.tsx
@@ -199,3 +201,15 @@ checks:
 - apps/desktop/e2e/b4-table-editing.spec.ts
 - apps/desktop/e2e/b4-sections.spec.ts
 - apps/desktop/src/features/model-data/modelData.test.tsx
+- apps/desktop/src/features/workspace/selectionReveal.test.tsx
+- apps/desktop/src/features/model-tree/ModelTree.contextMenu.test.tsx
+- apps/desktop/src/features/workspace/contextMenu/ContextMenu.test.tsx
+- apps/desktop/src/features/workspace/contextMenu/EntityContextMenu.test.tsx
+- apps/desktop/src/App.contextMenu.test.tsx
+- apps/desktop/src/features/workspace/table/EngineeringTable.contextMenu.test.tsx
+- apps/desktop/src/features/bulk-change/bulkChange.test.ts
+- apps/desktop/src/features/bulk-change/BulkChangePanel.test.tsx
+- apps/desktop/src/features/bulk-change/BulkChangeMenus.test.tsx
+- apps/desktop/src/features/bulk-change/bulkChange.session.test.tsx
+- apps/desktop/src/features/bulk-change/bulkChange.edges.session.test.tsx
+- apps/desktop/src/App.bulkChange.test.tsx

@@ -1,6 +1,6 @@
 //! Genuine public-producer fixtures plus explicitly corrupted copies, not native Current.
 //! B7b: the current retained-source reader (pressure-source-1, 0.3 source family,
-//! 0.7.0/3.0.0/exact_pressure_v3) over the v3 twins of the retired physics-source-1
+//! 0.8.0/3.0.0/exact_pressure_v3) over the v3 twins of the retired physics-source-1
 //! fixtures (same physical inputs), with the case-evidence domain
 //! `pressure_source_case_evidence_v1`.
 use open_pipe_stress_result_export::{physics_source, section_basis, semantic_contract, source_blocks};

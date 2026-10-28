@@ -55,7 +55,7 @@ This Scope of Work defines `DEL-12-02` in service of project scope [SOW-040] and
 > | Protected data classes | Standards text, tables, figures, copied formulas, material allowables, SIF/flexibility tables, protected dimensional tables, and proprietary commercial data |
 > | Diagnostic class | `IP_BOUNDARY_WARNING` where export/report content may expose private or protected data |
 > | Redaction action vocabulary | `include`, `warning_only`, `redact_value`, `redact_field`, `omit_field`, `block_export` |
-> | Export context vocabulary | `public_report`, `public_example`, `shared_model`, `downstream_tool`, `local_private` |
+> | Export context vocabulary | `public_report`, `public_example`, `shared_model`, `downstream_tool`, `local_private`, `user_released_report` |
 > | Config persistence | `schemas/redaction_export_controls.schema.yaml` now records the local-first control profile, field policies, decisions, and findings contract; durable project/profile storage location and storage roots remain `TBD` |
 > | Export-test status | Current guard and fixed-route tests are defined in `tests/security/test_redaction_export_controls.py`, `redactionExportControls.test.ts` and `ControlledExportLink.test.tsx`. The R15 accepted breadth scope and native witness limit remain specific; this record runs no suite or new acceptance. |
 > | Implementation status | Metadata helper/schema plus actual desktop/Python/Rust final-sink bindings exist. Persist profile lifecycle, native witnesses, future public/plugin egress, quarantine, cloud and legal/security approval as separately scoped obligations. |

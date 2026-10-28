@@ -172,9 +172,7 @@ fn the_desktop_basis_carries_the_received_current_origin() {
 
 #[test]
 fn non_admitted_identities_are_refused_by_the_preflight_before_any_form_error() {
-    let ids: [Option<&str>; 6] = [
-        Some(PRESSURE_ID),
-        Some(PRESSURE_SOURCE_ID),
+    let ids: [Option<&str>; 4] = [
         Some(PREVIEW_PHYSICS_RETAINED_ID),
         Some(PHYSICS_RETAINED_ID),
         Some("openpipestress.result_semantics/0.3.0/invented-unknown"),
@@ -196,6 +194,27 @@ fn non_admitted_identities_are_refused_by_the_preflight_before_any_form_error() 
                 document["result_envelope"].as_object_mut().unwrap().remove("result_sets");
             });
             refused(&edited, ROUTE_NOT_ADMITTED, &format!("{id:?}"));
+        }
+    }
+}
+
+/// W-11 opening (DEL-08-01 Design `exact-route-report-sections.md` §5.1;
+/// owner, 2026-10-26): item 0 admits pressure-2 and pressure-source-1, so the
+/// same edited document passes the route preflight and refuses at a later
+/// check (its form defect, or the runner profile's exact-identity refusal),
+/// never with the route code.
+#[test]
+fn exact_identities_pass_the_route_preflight() {
+    for request in [runner(), desktop()] {
+        for id in [PRESSURE_ID, PRESSURE_SOURCE_ID] {
+            let edited = with_document(&request, |document| {
+                at(document, "/result_envelope/producer").as_object_mut().unwrap().insert("semantic_contract_id".into(), json!(id));
+                document["result_envelope"].as_object_mut().unwrap().remove("result_sets");
+            });
+            match assemble(&edited) {
+                Ok(outcome) => panic!("{id}: assembled (blocked: {})", outcome.export_blocked),
+                Err(error) => assert!(!error.starts_with(ROUTE_NOT_ADMITTED), "{id}: {error}"),
+            }
         }
     }
 }
@@ -358,7 +377,11 @@ fn binding_cases() -> Vec<(&'static str, RequestEdit, &'static str)> {
         // Units and display policy.
         ("audit unit system", |r| *at(r, "/audit_manifest/unit_system_ref") = json!("invented-other:units"), BINDING_MISMATCH),
         ("summary unit_system_ref", |r| *at(r, "/report/calculation_report/model_input_summary/unit_system_ref/ref_id") = json!("unit-system:invented-other"), BINDING_MISMATCH),
-        ("conversion_performed", |r| *at(r, "/report/calculation_report/model_input_summary/unit_display_summary/conversion_performed") = json!(true), BINDING_MISMATCH),
+        // §2.3 item 5: `conversion_performed` is whether a displayed value is stored in Pa; the other value refuses.
+        ("conversion_performed", |r| {
+            let flag = at(r, "/report/calculation_report/model_input_summary/unit_display_summary/conversion_performed");
+            *flag = json!(flag != &json!(true));
+        }, BINDING_MISMATCH),
         ("storage_convention", |r| *at(r, "/report/calculation_report/model_input_summary/unit_display_summary/storage_convention") = json!("converted_to_si"), BINDING_MISMATCH),
         ("quantity_display_policy", |r| *at(r, "/report/calculation_report/model_input_summary/unit_display_summary/quantity_display_policy") = json!("display converted values"), BINDING_MISMATCH),
         ("result_units", |r| *at(r, "/report/calculation_report/model_input_summary/unit_display_summary/result_units") = json!([]), BINDING_MISMATCH),
@@ -1035,11 +1058,24 @@ fn round3_rendered_rule_pack_checksum_must_name_the_pack_type() {
 /// DEL-10-05 witness basis and its preview result carry PF's LIMITATIONS[1], which
 /// drops its 69-byte support-displacement clause, with the hashes binding it (was
 /// 351f041b…/91575116… and aa96dee4…/8fbfe6bb…); the report crates are unchanged.
+///
+/// Readability slice (DEL-08-01 Design `exact-route-report-sections.md` §6.3
+/// items 1-3) re-pinned both: the report's display rule (a Pa value shown in
+/// MPa, six significant digits), the display rule statement and the
+/// Diagnostics evidence block change the report rows, the policy text and
+/// `conversion_performed` (the witness has Pa rows) and the rendered HTML and
+/// PDF members, so the manifest and the container change (were
+/// b1f0eaae…/12618f50… and 0c939ae9…/99e34b89…, captured at `1ee5d0e5dc`);
+/// the stored-data members keep their bytes
+/// (`the_stored_data_members_keep_their_bytes`). Model document 0.8.0 (W-15
+/// slice c) re-pinned all four, and both tests' stored-data members, by the
+/// version token of the regenerated witness input, desktop model and input
+/// manifest (with the committed 0.7.0 inputs the runner's former pins hold).
 #[test]
 fn current_requests_assemble_the_same_bytes_as_before_the_exact_sections() {
     for (request, container, identity) in [
-        (runner(), "b1f0eaaea6c1987366e2dfa9066125e2ba14ecee2611be945b56a995388957df", "12618f502ae0e541495347f9c7014c7eaee0b570c020a76c912b9e3fce39f8c4"),
-        (desktop(), "0c939ae9d07add6678a265d1aeb538b6fa284677744164c3c399de7fe0908292", "99e34b89f6fce79545cf36aaf9516abcd2a54f42d57633c3de28979f1d79519a"),
+        (runner(), "ca57934802e690e602085f4a856195a55fc690a4cff5f6e5e3c39a3f1ceb5c43", "118d765acc91d5cc5e774fb285e8284bc0969041286135e4b9b9866de15ade38"),
+        (desktop(), "98b571282a3059c814608fdb4753478650c659b3874189f8e6449300e96dd0a6", "58fb5e7becaf6d51d5a66ed92f52c6211fc6f51bb8f539ab676e5bb3c5af5e4d"),
     ] {
         let outcome = unblocked(&request);
         assert_eq!(outcome.container_sha256_hex, container);
@@ -1072,5 +1108,47 @@ fn a_positional_report_struct_refuses_the_shared_producer() {
             let error = refused(&edited, REQUEST_POSITIONAL, pointer);
             assert!(!error.contains("quarantined"), "{error}");
         }
+    }
+}
+
+/// Readability slice (DEL-08-01 Design `exact-route-report-sections.md` §6.3
+/// items 1-3; the display resolution of `report-package-current-results.md`
+/// §2.3): the display rule changes only the human-readable report. The
+/// stored-data members (the audit manifest, the result export document and
+/// the state/comparison/handoff sections) keep their bytes; their hashes are
+/// the ones captured at `1ee5d0e5dc`, before the slice. Only the rendered
+/// HTML and PDF members, and the manifest that hashes them, change.
+#[test]
+fn the_stored_data_members_keep_their_bytes() {
+    const RUNNER: [(&str, &str); 3] = [
+        ("audit_manifest", "c21153c1ce949c6394d2779c6544384e6387ac28fba38c4e45a9899010a79562"),
+        ("result_export", "df2bfdcd3727abcf017f48c94b3aa98e49a024b61dfd604a84b50bf981b954fb"),
+        ("state_comparison_handoff_sections", "38b14409facd9375627c9061aba496591728274f5472ee2fc687b5034bf17fe1"),
+    ];
+    const DESKTOP: [(&str, &str); 3] = [
+        ("audit_manifest", "b4b8684a28ff6763d988b3108b3dc09b599900b13242a6d9cc33cb7108c2991b"),
+        ("result_export", "f6c6a7f682cab408a41a2c344222549c336de176ba43a4bdd9027dc597784abc"),
+        ("state_comparison_handoff_sections", "563bf17e5802e9ce6aff50ea0a3be4eadeba2d2b0a454f63ebdc53bf475b1f50"),
+    ];
+    const BEFORE_HTML: [&str; 2] = [
+        "630f6439d35832d1dc54922d5334e0f411b9635e8fb42aa1ae42d486863ed19e",
+        "f92278d84c311b37dbc519822ced4301e36d0948759c60b5aa479393577a0110",
+    ];
+    for ((request, stored), before_html) in [(runner(), RUNNER), (desktop(), DESKTOP)].into_iter().zip(BEFORE_HTML) {
+        let outcome = unblocked(&request);
+        let found: Vec<(&str, &str)> = outcome
+            .members
+            .iter()
+            .filter(|member| ![ROLE_REPORT_HTML, ROLE_REPORT_PDF, "package_manifest"].contains(&member.role.as_str()))
+            .map(|member| (member.role.as_str(), member.sha256_hex.as_str()))
+            .collect();
+        assert_eq!(found, stored);
+        let html = outcome.members.iter().find(|member| member.role == ROLE_REPORT_HTML).unwrap();
+        assert_ne!(html.sha256_hex, before_html, "the rendered report carries the display rule");
+        let text = String::from_utf8(html.bytes.clone()).unwrap();
+        assert!(text.contains(open_pipe_stress_report_package::quantity_display::QUANTITY_DISPLAY_POLICY));
+        assert!(text.contains("Displayed values: result values and stress headlines are rounded for display"));
+        // The witness has rows stored in Pa, so a conversion is performed for display.
+        assert!(text.contains("<tr><td>Report-time conversion</td><td>true</td></tr>"));
     }
 }

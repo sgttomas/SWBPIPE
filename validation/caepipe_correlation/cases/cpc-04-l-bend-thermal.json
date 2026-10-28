@@ -1,0 +1,385 @@
+{
+  "case_id": "cpc-04-l-bend-thermal",
+  "title": "Horizontal L with a 90 degree bend, uniform temperature rise",
+  "provenance": {
+    "origin": "invented",
+    "license": "project-original",
+    "redistribution_status": "public_permissive",
+    "contributor_note": "Invented by the DEL-17-05 pilot implementer; round numbers chosen for hand calculation. No CAEPIPE output, vendor material or library data is included."
+  },
+  "purpose": "Bend: curved bend written at its tangent intersection with radius and user flexibility factor; thermal reactions of an indeterminate L.",
+  "model": {
+    "schema_version": "0.8.0",
+    "document_kind": "openpipestress.product_preview.model",
+    "project": {
+      "id": "project:cpc-04",
+      "name": "project:cpc-04",
+      "units": {
+        "length": "m",
+        "force": "N",
+        "temperature": "degC",
+        "angle": "rad",
+        "stress": "Pa",
+        "pressure": "Pa"
+      }
+    },
+    "analysis_status": {
+      "mechanics": "ready_for_preview_diagnostics",
+      "rule_check": "not_performed_user_rule_inputs_missing",
+      "professional_acceptance": "not_provided"
+    },
+    "nodes": [
+      {
+        "id": "node:A",
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "provenance": "invented CAEPIPE correlation pilot input (DEL-17-05); not library, component, catalog or code-rule data"
+      },
+      {
+        "id": "node:T1",
+        "position": {
+          "x": 3.75,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "provenance": "invented CAEPIPE correlation pilot input (DEL-17-05); not library, component, catalog or code-rule data"
+      },
+      {
+        "id": "node:T2",
+        "position": {
+          "x": 4.0,
+          "y": 0.0,
+          "z": 0.25
+        },
+        "provenance": "invented CAEPIPE correlation pilot input (DEL-17-05); not library, component, catalog or code-rule data"
+      },
+      {
+        "id": "node:B",
+        "position": {
+          "x": 4.0,
+          "y": 0.0,
+          "z": 3.0
+        },
+        "provenance": "invented CAEPIPE correlation pilot input (DEL-17-05); not library, component, catalog or code-rule data"
+      }
+    ],
+    "pipe_segments": [
+      {
+        "id": "pipe:S1",
+        "from": "node:A",
+        "to": "node:T1",
+        "material": "material:pilot-steel",
+        "section": {
+          "outside_diameter": {
+            "value": 0.1683,
+            "unit": "m"
+          },
+          "wall_thickness": {
+            "value": 0.00711,
+            "unit": "m"
+          }
+        },
+        "y_reference": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        },
+        "provenance": "invented CAEPIPE correlation pilot input (DEL-17-05); not library, component, catalog or code-rule data"
+      },
+      {
+        "id": "pipe:BEND",
+        "from": "node:T1",
+        "to": "node:T2",
+        "material": "material:pilot-steel",
+        "section": {
+          "outside_diameter": {
+            "value": 0.1683,
+            "unit": "m"
+          },
+          "wall_thickness": {
+            "value": 0.00711,
+            "unit": "m"
+          }
+        },
+        "y_reference": {
+          "x": 1.0,
+          "y": 0.0,
+          "z": -1.0
+        },
+        "provenance": "invented CAEPIPE correlation pilot input (DEL-17-05); not library, component, catalog or code-rule data"
+      },
+      {
+        "id": "pipe:S2",
+        "from": "node:T2",
+        "to": "node:B",
+        "material": "material:pilot-steel",
+        "section": {
+          "outside_diameter": {
+            "value": 0.1683,
+            "unit": "m"
+          },
+          "wall_thickness": {
+            "value": 0.00711,
+            "unit": "m"
+          }
+        },
+        "y_reference": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        },
+        "provenance": "invented CAEPIPE correlation pilot input (DEL-17-05); not library, component, catalog or code-rule data"
+      }
+    ],
+    "materials": [
+      {
+        "id": "material:pilot-steel",
+        "elastic_modulus": {
+          "value": 200000000000.0,
+          "unit": "Pa"
+        },
+        "shear_modulus": {
+          "value": 76923076923.07692,
+          "unit": "Pa"
+        },
+        "thermal_expansion_coefficient": {
+          "value": 1.2e-05,
+          "unit": "1/degC"
+        },
+        "temperature_points": [],
+        "provenance": "invented CAEPIPE correlation pilot input (DEL-17-05); not library, component, catalog or code-rule data"
+      }
+    ],
+    "supports": [
+      {
+        "id": "support:A",
+        "node": "node:A",
+        "family": "anchor",
+        "restraints": [
+          "UX",
+          "UY",
+          "UZ",
+          "RX",
+          "RY",
+          "RZ"
+        ],
+        "provenance": "invented CAEPIPE correlation pilot input (DEL-17-05); not library, component, catalog or code-rule data"
+      },
+      {
+        "id": "support:B",
+        "node": "node:B",
+        "family": "anchor",
+        "restraints": [
+          "UX",
+          "UY",
+          "UZ",
+          "RX",
+          "RY",
+          "RZ"
+        ],
+        "provenance": "invented CAEPIPE correlation pilot input (DEL-17-05); not library, component, catalog or code-rule data"
+      }
+    ],
+    "components": [
+      {
+        "id": "component:bend-1",
+        "kind": "bend",
+        "node": "node:T1",
+        "provenance": "invented CAEPIPE correlation pilot input (DEL-17-05); not library, component, catalog or code-rule data",
+        "geometry": {
+          "bend_pipe_ref": "pipe:BEND",
+          "bend_radius": {
+            "value": 0.25,
+            "unit": "m"
+          },
+          "bend_angle": {
+            "value": 1.5707963267948966,
+            "unit": "rad"
+          },
+          "bend_geometry_source_reference": "invented pilot corner bend"
+        },
+        "modifiers": {
+          "flexibility_factor_user_value": {
+            "value": 1.0,
+            "unit": "none"
+          },
+          "source_reference": "invented pilot value (k = 1)"
+        },
+        "mechanics_interface": {
+          "solver_consumption": "curved_bend_macro_element"
+        }
+      }
+    ],
+    "load_cases": [
+      {
+        "id": "case:thermal",
+        "provenance": "invented CAEPIPE correlation pilot input (DEL-17-05); not library, component, catalog or code-rule data",
+        "primitive_loads": [
+          {
+            "id": "load:thermal:pipe:S1",
+            "category": "thermal",
+            "target": {
+              "type": "element",
+              "pipe": "pipe:S1"
+            },
+            "direction": "global_x",
+            "magnitude": {
+              "value": 100.0,
+              "unit": "degC"
+            },
+            "dimension": "temperature_interval",
+            "provenance": "invented CAEPIPE correlation pilot input (DEL-17-05); not library, component, catalog or code-rule data"
+          },
+          {
+            "id": "load:thermal:pipe:BEND",
+            "category": "thermal",
+            "target": {
+              "type": "element",
+              "pipe": "pipe:BEND"
+            },
+            "direction": "global_x",
+            "magnitude": {
+              "value": 100.0,
+              "unit": "degC"
+            },
+            "dimension": "temperature_interval",
+            "provenance": "invented CAEPIPE correlation pilot input (DEL-17-05); not library, component, catalog or code-rule data"
+          },
+          {
+            "id": "load:thermal:pipe:S2",
+            "category": "thermal",
+            "target": {
+              "type": "element",
+              "pipe": "pipe:S2"
+            },
+            "direction": "global_x",
+            "magnitude": {
+              "value": 100.0,
+              "unit": "degC"
+            },
+            "dimension": "temperature_interval",
+            "provenance": "invented CAEPIPE correlation pilot input (DEL-17-05); not library, component, catalog or code-rule data"
+          }
+        ]
+      }
+    ],
+    "combinations": []
+  },
+  "reference_temperature_c": 20.0,
+  "quantities": [
+    {
+      "id": "a_fx",
+      "quantity": "reaction_force",
+      "component": "x",
+      "load_case": "case:thermal",
+      "support": "support:A"
+    },
+    {
+      "id": "a_fz",
+      "quantity": "reaction_force",
+      "component": "z",
+      "load_case": "case:thermal",
+      "support": "support:A"
+    },
+    {
+      "id": "a_my",
+      "quantity": "reaction_moment",
+      "component": "y",
+      "load_case": "case:thermal",
+      "support": "support:A"
+    },
+    {
+      "id": "b_fx",
+      "quantity": "reaction_force",
+      "component": "x",
+      "load_case": "case:thermal",
+      "support": "support:B"
+    },
+    {
+      "id": "b_fz",
+      "quantity": "reaction_force",
+      "component": "z",
+      "load_case": "case:thermal",
+      "support": "support:B"
+    },
+    {
+      "id": "b_my",
+      "quantity": "reaction_moment",
+      "component": "y",
+      "load_case": "case:thermal",
+      "support": "support:B"
+    }
+  ],
+  "tolerances": {
+    "analytic_vs_swbpipe": {
+      "rel": 1e-06,
+      "abs": {
+        "m": 1e-09,
+        "rad": 1e-09,
+        "N": 1e-06,
+        "N*m": 1e-06
+      },
+      "basis": "ASSUMPTION",
+      "note": "closed-form Euler-Bernoulli witness against SWBPIPE's Euler-Bernoulli frame: binary64 round-off scale"
+    },
+    "external": {
+      "rel": 0.005,
+      "abs": {
+        "m": 2e-06,
+        "rad": 2e-06,
+        "N": 1.0,
+        "N*m": 1.0
+      },
+      "basis": "ASSUMPTION",
+      "note": "relative 0.5 %; absolute floors cover the rounding of the external prover's printed values"
+    },
+    "caepipe_print_resolution": {
+      "rel": 1e-06,
+      "abs": {
+        "m": 5e-07,
+        "rad": 8.7266e-07,
+        "N": 0.5,
+        "N*m": 0.5
+      },
+      "basis": "ASSUMPTION",
+      "note": "alternative analytic against the external prover: half a unit of its printed resolution (forces 1 N, moments 1 N*m, displacements 0.001 mm, rotations 0.0001 deg) plus binary64-scale relative 1e-6; the tightest tolerance the printed values can resolve"
+    },
+    "governed_status": "TBD",
+    "basis_note": "ASSUMPTION: pilot tolerance chosen by the implementer for the proof of concept; the governed external-oracle tolerance class is TBD (owner ruling); never loosened to match CAEPIPE"
+  },
+  "declared_differences": [
+    {
+      "id": "dd-shear-deformation",
+      "hypothesis": "shear-deformation",
+      "applies_to": [
+        "a_fx",
+        "a_fz",
+        "a_my",
+        "b_fx",
+        "b_fz",
+        "b_my"
+      ],
+      "cause": "documented_behavior_difference",
+      "description": "Shear deformation: SWBPIPE's frame preview is Euler-Bernoulli; the CAEPIPE technical reference describes a pipe stiffness matrix with a transverse shear flexibility term. The alternative analytic is the Timoshenko value (Euler-Bernoulli plus the shear term) with shape factor 2, kappa = 0.5 (ASSUMPTION).",
+      "alternative_analytic": {
+        "basis": "Timoshenko",
+        "values_from": "validation/caepipe_correlation/hand_calcs.py alternative_analytic_values(case_id)['shear-deformation']",
+        "assumption": "ASSUMPTION: Timoshenko shear coefficient kappa = 0.5, i.e. shape factor 2 in the shear flexibility shape factor x L / (G A) (thin-wall circular tube); the CAEPIPE technical reference names the shape-factor term without a value (docs.sstcae.com tech_manual, Fiber Reinforced Plastic Piping (FRP), Stiffness matrix); its CAEPIPE value is a question for SST (CQ-17-01-010)"
+      },
+      "source_basis": [
+        {
+          "id": "SST-TECH-FRP-STIFFNESS",
+          "title": "CAEPIPE Technical Reference Manual, Fiber Reinforced Plastic Piping (FRP)",
+          "location": "Stiffness matrix",
+          "url": "https://docs.sstcae.com/tech_manual/fiber_reinforced_plastic_piping__frp_.htm",
+          "accessed": "2026-10-26",
+          "public": true,
+          "supports": "paraphrased, not quoted: the pipe stiffness matrix is formed from an axial flexibility L/EA, a transverse shear flexibility (a shape factor times L/GA), a bending flexibility L/EI and a torsional flexibility L/2GI; no shape-factor value is published, and the page is the FRP chapter (its use for the steel pipe element is an inference for SST to confirm, CQ-17-01-010)"
+        }
+      ]
+    }
+  ]
+}

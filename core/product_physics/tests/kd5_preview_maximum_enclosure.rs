@@ -26,7 +26,7 @@ fn udl(pipe: &str, direction: &str, value: f64) -> Value {
         "magnitude":{"value":value,"unit":"N/m"},"dimension":"force_per_length","provenance":P})
 }
 fn request(id: &str, nodes: Vec<Value>, pipes: Vec<Value>, supports: Vec<Value>, loads: Vec<Value>) -> LinearStaticPreviewRequest {
-    serde_json::from_value(json!({"model":{"schema_version":"0.7.0","document_kind":"openpipestress.product_preview.model",
+    serde_json::from_value(json!({"model":{"schema_version":"0.8.0","document_kind":"openpipestress.product_preview.model",
         "analysis_status":{"mechanics":"ready_for_preview_diagnostics","rule_check":"not_performed_user_rule_inputs_missing","professional_acceptance":"not_provided"},
         "project":{"id":id,"units":{"length":"m","force":"N","angle":"rad","pressure":"Pa","temperature":"degC","stress":"Pa"}},
         "nodes":nodes,"pipe_segments":pipes,

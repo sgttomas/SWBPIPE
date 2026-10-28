@@ -28,7 +28,7 @@ RF_PINS = {
     "core/product_physics/src/lib.rs": "6c48546bbea452c7f26a3490892d4b441aff25ed7c1c1a9e2b10ac8eb4d91bb4",
     "core/product_physics/src/retained_wire.rs": "7e4326e5b294f6db2ed0995eeca1a8bae3e4ddd487bb0f70436f82426eaa6f3a",
     "core/product_physics/src/certified_publication.rs": "1c6de84c0f7c4cd0799a5b2c7f4bacf3d5d950bb062a816066aaabdd45b489c5",
-    "core/product_physics/src/certified_loads.rs": "56f2a4ef24ccca359290d7b25ab2078487d89da908826dd3f3897e14fdd35c8f",
+    "core/product_physics/src/certified_loads.rs": "79130c5e6a93d2d6207a6d569f464660d32f9bd592c33dc7b1e6f3d3b4199313",
     "core/product_physics/src/preview_physics.rs": "61b2fb2f3f9bc3aa9803bf6bf5c95cf5e51c841289ef5c415bf86fe00f33b468",
     "core/solver/frame_kernel/src/structural/formation_check.rs": "0d83c8a61b890d757b96529d255e38c42b35793ae5c998871331278c8cbaa384",
     "core/solver/frame_kernel/src/structural/certified_recovery.rs": "1766a0d94cf02b909b4875cae756b6df5d0bb81489c359281109b7cb248999dc",
@@ -67,12 +67,17 @@ RF_PINS = {
 # owner or lifetime changes.
 # Nested-record closure D3 (§8.25): lib.rs's closed nested wire records and material wire change no reduction's owner or
 # lifetime; the L5 guard, shadow, insert and call texts are unchanged.
+# Model document 0.8.0 D3 (§8.26): lib.rs's eccentric_offset member and offset-check calls, retained_wire.rs's DEF-E hash
+# and preview_physics.rs's test literal change no reduction's owner or lifetime; the L5 texts are unchanged.
+# W-16 slices b and c D3 (§8.27): lib.rs's exact combination append (W16B-CB) and equivalent-static record and checks
+# (W16C-ES), and certified_loads.rs's generated-id test and exact mass operands, change no reduction's owner or lifetime;
+# the L5 guard, shadow, insert and call texts are unchanged.
 REDUCED_PINS = {
-    "core/product_physics/src/lib.rs": "06e98114c960d95f0d7dc59b749e274c7bca5fc206343e4c7460604a4213e761",
-    "core/product_physics/src/retained_wire.rs": "1c58db53d9a590d4316aea0fdc855396002935faed3d91a31e7f5434d93d8d40",
+    "core/product_physics/src/lib.rs": "4b83ddc6ed910d983f838588d0e6d31e1d703651486cd05c8bdfe09180b1c81d",
+    "core/product_physics/src/retained_wire.rs": "b457aff075c67f6eb93000dff2ca0cf4bab43119fe34db1316c78356bf1864b3",
     "core/product_physics/src/certified_publication.rs": "8dd1a0ed3c32df695639b2adda57e2d501b6becc8fafec78c5256061148ba19c",
-    "core/product_physics/src/certified_loads.rs": "56f2a4ef24ccca359290d7b25ab2078487d89da908826dd3f3897e14fdd35c8f",
-    "core/product_physics/src/preview_physics.rs": "878a16b8c2d72abea6a6c4122cfa10fa29a752671660acdc299b3caed6b515c9",
+    "core/product_physics/src/certified_loads.rs": "79130c5e6a93d2d6207a6d569f464660d32f9bd592c33dc7b1e6f3d3b4199313",
+    "core/product_physics/src/preview_physics.rs": "bc3d93c28744cb8ec68f324c21809caff9bba007ea50876f2fa425238c9edacc",
     "core/solver/frame_kernel/src/structural/formation_check.rs": "ec27fd9b61191c292ef24a240efccf667976c25f4d42a0a8eea833fb37d21b5d",
     "core/solver/frame_kernel/src/structural/certified_recovery.rs": "518f343f9052a94faf3b93e16a488552f707554a66b532156cdced71a4fd75f7",
     "core/solver/frame_kernel/src/load_ledger.rs": "8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f",

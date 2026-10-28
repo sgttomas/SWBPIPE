@@ -5,7 +5,7 @@ Mirrors the load/reference-state adapter: an explicitly selected foreground
 ``openpipestress-runner solve --input - --solver-mode <mode>`` process, the
 ControlledExport/CLI1.0 wrapper and a raw0.2 mechanics envelope whose producer
 is exactly ``openpipestress.result_semantics/0.3.0/pressure-2`` with profile
-``exact_pressure_v3`` on a model document 0.7.0 under the current exact contract
+``exact_pressure_v3`` on a model document 0.8.0 under the current exact contract
 (with its load/reference-state records when the document carries that group).
 B7b retired the 0.3.0/0.4.0 documents: the package's frozen, hash-bound case
 inputs (0.3.0, or 0.4.0 with the group) are never edited; each run submits their
@@ -14,8 +14,8 @@ product tests' one re-authoring rule), against which the raw is read. A package
 document authored on model 0.5.0 (T4-U6's MILLTOL owners: 0.5.0 under
 3.0.0/exact_pressure_v3 with an explicit shear model and an explicit corrosion
 allowance on every section) is likewise kept as bound and submitted as its copy
-re-authored by its version alone (model 0.7.0). A package document already current
-(0.7.0) would be submitted unchanged; its ledger records the identity re-authoring,
+re-authored by its version alone (model 0.8.0). A package document already current
+(0.8.0) would be submitted unchanged; its ledger records the identity re-authoring,
 with the same hash on both sides. Cases come from a hash-locked
 case manifest (``openpipestress.exact_pressure_qualification_manifest/1``)
 named by a run selection record. Every required selector, including the
@@ -41,6 +41,7 @@ import math
 from pathlib import Path, PurePosixPath
 import platform
 import re
+import struct
 import subprocess
 import sys
 
@@ -68,7 +69,7 @@ READER = 'pressure'
 ENTRYPOINT = 'validate_pressure_evidence'
 CONTRACT = 'openpipestress.result_semantics/0.3.0/pressure-2'
 PROFILE = 'exact_pressure_v3'
-# The submitted (re-authored) document is model 0.7.0 under the current contract; the package's frozen
+# The submitted (re-authored) document is model 0.8.0 under the current contract; the package's frozen
 # documents keep their 0.3.0/0.4.0 spelling under the former v3 contract object, or their 0.5.0 spelling (the
 # MILLTOL owners, re-authored by their version alone, DEL-04-07 Design u4b-u5b-implementation.md §1.4).
 MODEL_VERSION = physics.MODEL_VERSION
@@ -85,7 +86,7 @@ TABLE = 'fixtures/results/semantic_contract_v0_3_pressure_2.json'
 # resident table; the former pin 07a6a308... named the table before its re-issue. T4-U6 (D-5, §2.4) re-issued it
 # with one stress signature per (recovery token x section basis): 106 signatures, 59 kinds (B7b's was a4e3bf2c...);
 # T4-U5b added the tie-rod force and T4-U4b (§2.2) the new per-basis kinds: 129 signatures, 66 kinds.
-TABLE_SHA256 = '3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d'
+TABLE_SHA256 = 'be61c6ea828797ad5664d06a2c835b28deffaff07cc33fec6bb4d48a8fcb0919'
 # The owned reader is the Rust product reader of pressure-2 (owner, 2026-10-10:
 # "move to one product reader in Rust"): `validate_pressure_evidence` (an envelope
 # carrying the load/reference-state group takes its pre-pass), reached through
@@ -406,7 +407,7 @@ def current_contract(contract) -> bool:
 
 
 def current_package_document(model, version: str = MODEL_VERSION) -> bool:
-    """A package document authored complete on ``version`` (current 0.7.0, or 0.5.0 or 0.6.0 before it): the current
+    """A package document authored complete on ``version`` (current 0.8.0, or 0.5.0, 0.6.0 or 0.7.0 before it): the current
     contract and an explicit corrosion_allowance on every section."""
     sections = [pipe.get('section') if type(pipe) is dict else None for pipe in model.get('pipe_segments') or []] if type(model) is dict else []
     return (type(model) is dict and model.get('schema_version') == version and current_contract(model.get('pressure_contract'))
@@ -416,7 +417,7 @@ def current_package_document(model, version: str = MODEL_VERSION) -> bool:
 def model_version(model) -> str:
     """The package document's version: a frozen 0.3.0 (or 0.4.0 with the load/reference-state group) under the former
     contract; a 0.5.0 or 0.6.0 document authored complete, re-authored by its version alone; or a document authored current
-    (0.7.0), which is submitted unchanged."""
+    (0.8.0), which is submitted unchanged."""
     for version in (MODEL_VERSION, *PREVIOUS_VERSIONS):
         if type(model) is dict and model.get('schema_version') == version:
             require(current_package_document(model, version), f'a {version} package document requires the current 3.0.0/exact_pressure_v3 '
@@ -441,9 +442,9 @@ def submitted_input(data: bytes, model: dict, version: str) -> tuple[bytes, dict
 
 
 def current_model(model) -> bool:
-    """The submitted document: model 0.7.0 under the current contract. Returns the load/reference-state group's presence."""
+    """The submitted document: model 0.8.0 under the current contract. Returns the load/reference-state group's presence."""
     require(type(model) is dict and model.get('schema_version') == MODEL_VERSION and current_contract(model.get('pressure_contract')),
-            'actual 0.7.0 model under the current 3.0.0/exact_pressure_v3 contract required')
+            f'actual {MODEL_VERSION} model under the current 3.0.0/exact_pressure_v3 contract required')
     return physics.model_carries_load_state(model)
 
 
@@ -600,6 +601,51 @@ def unwrap(raw: bytes, request: dict, mode: str, *, limit: int = LIMIT) -> tuple
     return mechanics, rows
 
 
+def combination_binding(mechanics: dict, model: dict) -> None:
+    """W-16 slice b (DEL-05-02 exact-combinations.md §6): the raw combination records and rows are exactly the bound
+    input's combinations. One record per input combination, in input order (an absent or null ``combinations`` is
+    none), each with the input's id, basis, complete expression (terms with their factors bit for bit, the
+    subtraction's operands, or the envelope's operands and mode) and its operands' modulus-basis references; a
+    combination row names a bound combination. The operands' selection temperatures, which the producer records
+    normalized, are bound by the owned reader, which receives the bound model (``consistency_observation``)."""
+    combinations = model.get('combinations')
+    combinations = [] if combinations is None else combinations
+    require(type(combinations) is list and all(type(c) is dict for c in combinations), 'bound input combinations invalid')
+    records = (mechanics.get('contract_evidence') or {}).get('exact_combinations') or []
+    require(type(records) is list and len(records) == len(combinations), 'raw combination records differ from the bound input')
+    cases = {c.get('id'): c for c in model.get('load_cases') or [] if type(c) is dict}
+    for record, combination in zip(records, combinations):
+        require(type(record) is dict and record.get('combination_id') == combination.get('id')
+                and record.get('basis') == combination.get('basis'), 'raw combination records differ from the bound input')
+        basis = combination.get('basis')
+        if basis == 'mechanics':
+            expression = {'terms': [{'load_case_id': t.get('load_case'), 'factor': t.get('factor')} for t in combination.get('terms') or []]}
+        elif basis == 'result_state_subtraction':
+            expression = {'minuend_id': combination.get('minuend_id'), 'subtrahend_id': combination.get('subtrahend_id')}
+        else:
+            expression = {'operand_ids': combination.get('operand_ids'), 'mode': combination.get('mode')}
+        require(_same_bits(record.get('expression'), expression), 'raw combination expression differs from the bound input')
+        for operand in record.get('operands') or []:
+            case = cases.get(operand.get('load_case_id')) if type(operand) is dict else None
+            require(case is not None and operand.get('modulus_basis_ref') == case.get('modulus_basis_ref'),
+                    'raw combination operand selection differs from the bound input')
+    combined = {row['basis_ref']['ref_id'] for row in mechanics['results']
+                if 'basis_ref' in row and row['basis_ref'].get('ref_type') == 'combination'}
+    require(combined <= {c.get('id') for c in combinations}, 'raw rows carry combinations outside the bound input')
+
+
+def _same_bits(a, b) -> bool:
+    """Equal values with every float bit for bit (1.3 is not 1.3000000000000003; -0.0 is not 0.0)."""
+    if isinstance(a, float) or isinstance(b, float):
+        return isinstance(a, (int, float)) and isinstance(b, (int, float)) and not isinstance(a, bool) and not isinstance(b, bool) \
+            and struct.pack('>d', float(a)) == struct.pack('>d', float(b))
+    if isinstance(a, dict) and isinstance(b, dict):
+        return a.keys() == b.keys() and all(_same_bits(a[k], b[k]) for k in a)
+    if isinstance(a, list) and isinstance(b, list):
+        return len(a) == len(b) and all(_same_bits(x, y) for x, y in zip(a, b))
+    return a == b
+
+
 def numerical_standing(mechanics: dict, request_cases: list[str]) -> dict:
     """Observed standing, reported separately. Missing/unknown values raise."""
     quality = mechanics['numerical_quality']
@@ -727,8 +773,12 @@ def structural_checks(mechanics: dict, prepared: dict, mode: str, standing: dict
         wanted = sorted(prepared['request_cases'])
         exact = sorted(case.get('load_case_id') for case in evidence['exact_cases'])
         require(exact == wanted, 'raw load cases differ from the bound input (substitution)')
-        foreign = sorted({row['basis_ref']['ref_id'] for row in mechanics['results'] if 'basis_ref' in row} - set(wanted))
+        # W-16 slice b (DEL-05-02 exact-combinations.md §6): a combination row names a combination of the
+        # bound input; the document's combination records are exactly the input's combinations.
+        foreign = sorted({row['basis_ref']['ref_id'] for row in mechanics['results']
+                          if 'basis_ref' in row and row['basis_ref'].get('ref_type') != 'combination'} - set(wanted))
         require(not foreign, 'raw rows carry load cases outside the bound input')
+        combination_binding(mechanics, request['solve']['preview_model']['model'])
         details.update(model_ref=mechanics['model_ref'], request_id=request['request']['request_id'], load_cases=wanted)
 
     def contract(details):
@@ -847,7 +897,7 @@ def load_binding(project: Path, binding_path: Path, expected_sha256: str, *, req
 
 
 def consistency_observation(raw: dict, binding: dict, directory: Path, *, input_limit: int = LIMIT,
-                            timeout_seconds: float = 60) -> dict:
+                            timeout_seconds: float = 60, model: dict | None = None) -> dict:
     """Take the Rust product reader's verdict on the parsed snapshot (`openpipestress-runner read pressure`).
 
     The reader input is a derived parsed snapshot, not the runner's stdout bytes. A
@@ -855,7 +905,10 @@ def consistency_observation(raw: dict, binding: dict, directory: Path, *, input_
     reader executable is identified by its digest only, not as built from the bound sources.
     """
     require(raw.get('schema_version') == '0.2.0' and raw.get('producer') == PRODUCER, 'pressure-2 raw/producer dispatch mismatch')
-    request_bytes = json.dumps({'source': raw}, ensure_ascii=True, separators=(',', ':'), allow_nan=False).encode()
+    # W-16 slice b: with the bound model, the reader also binds the combination records to the input's
+    # combinations and their operands' modulus selections (`exact_combination_evidence::model_checks`).
+    reader_input = {'source': raw} if model is None else {'source': raw, 'model': model}
+    request_bytes = json.dumps(reader_input, ensure_ascii=True, separators=(',', ':'), allow_nan=False).encode()
     require(type(input_limit) is int and 0 < input_limit <= MAX_OUTPUT_LIMIT and len(request_bytes) <= input_limit, 'reader input limit')
     require(bounded(binding['binding_path'], binding['binding_sha256']) == binding['binding_bytes'], 'binding changed before reader')
     for row in binding['binding']['files']:
@@ -942,7 +995,8 @@ def observe_case(case_ledger, prepared, stdout_bytes, mode, reader_binding, outp
     reader, reader_error = None, None
     try:
         reader = consistency_observation(mechanics, reader_binding, output_dir / f'{prefix}-reader',
-                                         input_limit=output_limit_bytes, timeout_seconds=timeout_seconds)
+                                         input_limit=output_limit_bytes, timeout_seconds=timeout_seconds,
+                                         model=prepared['request']['solve']['preview_model']['model'])
     except (ValueError, KeyError, TypeError, OSError) as exc:
         reader_error = str(exc)
     finally:

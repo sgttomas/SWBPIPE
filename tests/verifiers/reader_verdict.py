@@ -329,6 +329,9 @@ def validate(reader: str, source: Any, model: Any = None, invocation: Any = None
                 # W-15 slice d (DEL-03-05 Design §5): the model's bodies and their records.
                 from . import component_body
                 component_body.model_checks(source, model, pressure_2.pressure_table())
+                # W-16 slice b (§6): the combination records bound to the model.
+                from . import exact_combinations
+                exact_combinations.model_checks(source, model)
             return {"ok": True}
         if reader == "pressure-source":
             eligible = _source_validate(source, invocation)

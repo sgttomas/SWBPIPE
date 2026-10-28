@@ -525,7 +525,7 @@ fn well_formed_documents_with_declared_ignored_members_publish() {
 }
 
 /// The nested records' declared members the solve never reads (model document
-/// 0.7.0), by collection of the demo.
+/// 0.8.0), by collection of the demo.
 const NESTED_DECLARED: [(&str, &[&str]); 5] = [
     ("nodes", &["label", "tags", "notes"]),
     ("pipe_segments", &["label", "tags", "notes"]),

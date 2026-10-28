@@ -21,10 +21,10 @@ from tests.verifiers import compatibility as v
 ROOT = Path(__file__).resolve().parents[1]
 SUCC = c.PREVIEW_PHYSICS_RETAINED_CONTRACT_ID
 PINNED = {
-    "sparse_interactive": ("139cfdb7d960aa1c5a061ee21cbf48fa55b96f896dc40120b6576a9f8061781c",
-                           "a3a2fc6748be7deb006681b493cc858b065b000f3f3427a8dc3ce0f75d7750d8", [25, 69, 3, 1, 15 + 12]),
-    "dense_scrutiny": ("7ce9946465092d416474faf1f455cb9466edd8fb84d3b8a3640a433b27d29d31",
-                       "fcb064918059448e3e2a671821a2924f69c4d1da3fabbad105cab9f483297168", [25, 69, 3, 1, 15 + 12]),
+    "sparse_interactive": ("7fc66eeef48d03b64da78db705fe5b4d34f12e9b2b90ab0578eb5af9699d3c92",
+                           "c238347e1e0f32f1e484e84a0c0e4679be5c86546ab87af59da469cf560d6374", [25, 69, 3, 1, 15 + 12]),
+    "dense_scrutiny": ("ce0f6a6a80a327fbcdf594b166290cc2c86ca8e91e852ce3de84303f54713357",
+                       "51f2d8b75c12305ac184cb4378dc6d543389e958655465032cee3161a89eee49", [25, 69, 3, 1, 15 + 12]),
 }
 MODES = sorted(PINNED)
 NOTICE = "Retained-precision recovery is unavailable for this load case. Its published rows keep their ordinary values, standing and diagnostics."

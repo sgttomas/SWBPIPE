@@ -157,7 +157,13 @@ This Scope of Work defines `DEL-04-04` in service of project scope [SOW-012] and
 > state-switched: engaged supports (including closed gaps) classify on trial
 > reaction sign and released supports classify on trial displacement penetration
 > (or the explicit gap clearance), each measured from the support's ground position, which an imposed support displacement moves, so re-engagement and lift-off transitions are
-> observable and the converged state does not depend on seeded initial states;
+> observable. For frictionless problems satisfying §2.3's strict-contact
+> and nonsingular-reduced-matrix conditions, uniqueness is stated for the
+> exact-element model, not certified (`DEL-04-01`
+> `kd5-nonlinear-active-set.md` §2.3); this does not guarantee convergence
+> from every seed. With active friction, confirmation establishes one
+> admissible state, not uniqueness or physical reachability through a
+> specified history, and the selected state may depend on seeded initial states;
 > verification includes transition witnesses for re-engagement of a lifted
 > one-way support, lift-off of a closed gap, and bounded +/- mu*N friction
 > sliding. Assembled-loop verification is owned by
@@ -332,7 +338,7 @@ Retain per-iteration active-set classification and its state/diagnostic contract
 These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
 
 - **DEL-04-04:1** — Obtain the owning formal REVIEW disposition and accepted dimensional/conversion basis before PDU-035 closure; metadata binding is technically addressed but must not be promoted to engineering validation.
-- **DEL-04-04:2** — Define and validate any path/load-step friction-history model beyond the implemented static, path-independent final Coulomb admissibility check (gated: new D-XX ruling per mechanics plan §4) (source: mechanics plan §4 / Receipt 6 / TP-PMM-P2-FRICTION-001 §Boundaries)
+- **DEL-04-04:2** — Define and validate any path/load-step friction-history model beyond the implemented static, history-free final Coulomb admissibility check (each case is solved independently, with no loading trajectory, accumulated slip or continuation between cases, and friction may admit several states; a history can change derived differences: on an invented bar whose sustained force slides it and whose operating case adds cooling, operating minus sustained gives an axial-force change of 0 N as solved, against +512 N under a sequential history that sticks from the sustained position) (gated: new D-XX ruling per mechanics plan §4) (source: mechanics plan §4 / Receipt 6 / TP-PMM-P2-FRICTION-001 §Boundaries)
 - **DEL-04-04:3** — Complete remaining contact/model qualification beyond exact-touch, contact-loss, and the bounded current-normal friction fixtures, including retained-spring mixed-friction numerical adequacy.
 - **DEL-04-04:4** — Promote non-seed force/displacement convergence thresholds beyond the accepted thirteen-fixture multi-support set (see also DEL-09-03) (source: PRD plan §3 Phase D D6/D9 rows / DEC-046)
 - **DEL-04-04:5** — Promote broader displacement/reaction-delta and energy thresholds beyond the accepted current-seed/thirteen-fixture/product-preview surfaces (see also DEL-09-03) (source: PRD plan §3 D6/D9 rows)

@@ -76,7 +76,7 @@ fn retired_v2_labels_are_refused() {
             relabelled["producer"]["semantic_contract_id"] = json!(id);
             for refusal in [s::for_source(&relabelled).unwrap_err(), s::for_source_metadata(&relabelled).unwrap_err()] {
                 assert!(refusal.starts_with(&format!("{}: ", s::SOURCE_EXACT_PRESSURE_V2_RETIRED)), "{label} {id}: {refusal}");
-                assert!(refusal.contains("re-author the model as 0.7.0"), "{label} {id}: {refusal}");
+                assert!(refusal.contains("re-author the model as 0.8.0"), "{label} {id}: {refusal}");
             }
         }
     }
@@ -230,11 +230,17 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
     assert_eq!(schema["$defs"]["PressureResultMetadata"]["additionalProperties"], false);
     // The two tables share their header members; the source table adds only its
     // source-block policy. T4-U6 (§2.4): pressure-2 now also declares the
-    // source-basis signature policy, with the same text.
+    // source-basis signature policy, with the same text. W-16 slice b (DEL-05-02
+    // Design exact-combinations.md §6): pressure-2 alone states its
+    // `combination_policy`; the source table, whose family refuses combinations,
+    // does not carry it.
     let (p, q) = (pressure.as_object().unwrap(), source.as_object().unwrap());
     let mut source_keys: Vec<&String> = q.keys().collect();
     source_keys.retain(|k| k.as_str() != "source_block_policy");
-    assert_eq!(p.keys().collect::<Vec<_>>(), source_keys);
+    assert!(p.contains_key("combination_policy") && !q.contains_key("combination_policy"));
+    let mut pressure_keys: Vec<&String> = p.keys().collect();
+    pressure_keys.retain(|k| k.as_str() != "combination_policy");
+    assert_eq!(pressure_keys, source_keys);
     assert_eq!(p["source_basis_signature_policy"], q["source_basis_signature_policy"]);
     for key in ["schema_version", "hash_vectors", "source_schema_version", "source_producer", "reserved_inactive_successors", "formulation_profile_id"] {
         assert_eq!(p[key], q[key], "{key}");

@@ -4,7 +4,7 @@ use serde_json::{json, Value};
 
 fn request() -> Value {
     json!({"model": {
-        "schema_version": "0.7.0",
+        "schema_version": "0.8.0",
         "document_kind": "openpipestress.product_preview.model",
         "project": {"id": "project:b7b"},
         "analysis_status": {"mechanics": "MODEL_INCOMPLETE", "rule_check": "RULE_INPUTS_INCOMPLETE", "professional_acceptance": "HUMAN_REVIEW_REQUIRED"},
@@ -122,7 +122,7 @@ fn current_joint_request() -> Value {
     let mut raw: Value = serde_json::from_str(include_str!(
         "../../../validation/references/t4_u5a/requests/J3-0.request.json"
     )).unwrap();
-    raw["model"]["schema_version"] = json!("0.7.0");
+    raw["model"]["schema_version"] = json!("0.8.0");
     raw["model"]["pressure_contract"] = contract();
     for pipe in raw["model"]["pipe_segments"].as_array_mut().unwrap() {
         pipe["section"]["corrosion_allowance"] = json!({"value": 0.0, "unit": "m"});
@@ -384,16 +384,16 @@ fn b7b_member_connector_ids_absence_and_empty_array_are_the_only_empty_forms() {
 }
 
 /// B7b's one re-authoring of a copied lib-test model (manager decision; the
-/// integration twin is `tests/common/current_model.rs`). A 0.5.0 or 0.6.0 copy changes its
-/// `schema_version` to 0.7.0 and nothing else (DEL-04-07 Design
-/// `u4b-u5b-implementation.md` §1.4; DEL-02-01 Design `model-document-0.7.0.md` §2). An older copy: `schema_version` becomes
-/// 0.7.0; a declared v2 or v3 exact contract becomes the current
+/// integration twin is `tests/common/current_model.rs`). A 0.5.0, 0.6.0 or 0.7.0 copy changes its
+/// `schema_version` to 0.8.0 and nothing else (DEL-04-07 Design
+/// `u4b-u5b-implementation.md` §1.4; DEL-02-01 Design `model-document-0.7.0.md` §2 and `model-document-0.8.0.md` §5). An older copy: `schema_version` becomes
+/// 0.8.0; a declared v2 or v3 exact contract becomes the current
 /// `3.0.0/exact_pressure_v3` object with `shear_model` `euler_bernoulli`; and, on
 /// a contract-present document, every pipe section lacking one gains an explicit
 /// zero `corrosion_allowance`. Nothing else changes: no physical or numerical
 /// input, and no other contract (a retired-contract refusal control keeps its form).
 pub(crate) fn reauthor_current_model(model: &mut Value) {
-    if matches!(model["schema_version"].as_str(), Some("0.5.0" | "0.6.0")) {
+    if matches!(model["schema_version"].as_str(), Some("0.5.0" | "0.6.0" | "0.7.0")) {
         model["schema_version"] = json!(crate::MODEL_SCHEMA_VERSION);
         return;
     }
@@ -431,7 +431,7 @@ fn b7b_reauthoring_helper_changes_only_version_contract_and_allowance() {
             "corrosion_allowance": {"value": 0.0, "unit": "mm"}}}]);
     let current = reauthor_current_request(raw.clone());
     let mut expected = raw.clone();
-    expected["model"]["schema_version"] = json!("0.7.0");
+    expected["model"]["schema_version"] = json!("0.8.0");
     expected["model"]["pressure_contract"] = contract();
     expected["model"]["pipe_segments"][0]["section"]["corrosion_allowance"] = json!({"value": 0.0, "unit": "m"});
     assert_eq!(current, expected);
@@ -440,16 +440,16 @@ fn b7b_reauthoring_helper_changes_only_version_contract_and_allowance() {
     free["model"]["schema_version"] = json!("0.2.0");
     free["model"]["pipe_segments"] = raw["model"]["pipe_segments"].clone();
     let mut expected = free.clone();
-    expected["model"]["schema_version"] = json!("0.7.0");
+    expected["model"]["schema_version"] = json!("0.8.0");
     assert_eq!(reauthor_current_request(free), expected);
     let mut legacy = raw;
     legacy["model"]["pressure_contract"] = json!({"version": "1.0.0", "mode": "legacy_pressure_v1"});
     let current = reauthor_current_request(legacy.clone());
     assert_eq!(current["model"]["pressure_contract"], legacy["model"]["pressure_contract"]);
     assert!(current["model"]["pipe_segments"][0]["section"].get("corrosion_allowance").is_none());
-    // A 0.5.0 or 0.6.0 copy is re-authored by its version alone: nothing else moves, even
-    // an incomplete exact document (its refusal stays the producer's to give).
-    for version in ["0.5.0", "0.6.0"] {
+    // A 0.5.0, 0.6.0 or 0.7.0 copy is re-authored by its version alone: nothing else moves,
+    // even an incomplete exact document (its refusal stays the producer's to give).
+    for version in ["0.5.0", "0.6.0", "0.7.0"] {
         let mut previous = legacy.clone();
         previous["model"]["schema_version"] = json!(version);
         previous["model"]["pressure_contract"] = contract();

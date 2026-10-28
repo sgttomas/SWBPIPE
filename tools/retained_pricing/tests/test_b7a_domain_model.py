@@ -198,25 +198,25 @@ def test_new_uniform_identifier_classes_are_site_specific_input_bounds():
     actual = dict(audits)
     pp = "core/product_physics/src/"
     # T4-U6/U8: the same sites on the priced source's unchanged lines (B7b's 10632.. + 359; certified_loads + 3;
-    # the final source 588de796a4: lib.rs + 5 more; T4-S5 epoch 4: lib.rs + 314 more; pre-0.4 unification: + 103; W-8: + 2; silent-zero guard: + 1; model document 0.7.0: + 7; W-7: + 37; W-15: + 103, unchanged text).
+    # the final source 588de796a4: lib.rs + 5 more; T4-S5 epoch 4: lib.rs + 314 more; pre-0.4 unification: + 103; W-8: + 2; silent-zero guard: + 1; model document 0.7.0: + 7; W-7: + 37; W-15: + 103; W-16 slices b and c: + 193, unchanged text; certified_loads' two prefix formats moved into lib.rs's is_generated_equivalent_static_load).
     sites = {
-        "lib.rs:11773": {"load_case_id"},
-        "lib.rs:11787": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
-        "lib.rs:11794": {"load.load_id", "bend.pipe_id"},
-        "lib.rs:11799": {"load.load_id"},
-        "lib.rs:11800": {"bend.pipe_id"},
-        "lib.rs:11801": {"bend.component_id"},
-        "lib.rs:11802": {"load_case_id"},
-        "lib.rs:11861": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
-        "lib.rs:11868": {"load.load_id", "bend.pipe_id"},
-        "lib.rs:11873": {"load.load_id"},
-        "lib.rs:11874": {"bend.pipe_id"},
-        "lib.rs:11875": {"bend.component_id"},
-        "lib.rs:11876": {"load_case_id"},
-        "lib.rs:11915": {"stable_suffix(&load.load_id)"},
-        "lib.rs:11922": {"load.load_id", "load_case_id"},
-        "certified_loads.rs:236": {"case_id"},
-        "certified_loads.rs:259": {"case_id"},
+        "lib.rs:12002": {"load_case_id"},
+        "lib.rs:12016": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
+        "lib.rs:12023": {"load.load_id", "bend.pipe_id"},
+        "lib.rs:12028": {"load.load_id"},
+        "lib.rs:12029": {"bend.pipe_id"},
+        "lib.rs:12030": {"bend.component_id"},
+        "lib.rs:12031": {"load_case_id"},
+        "lib.rs:12090": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
+        "lib.rs:12097": {"load.load_id", "bend.pipe_id"},
+        "lib.rs:12102": {"load.load_id"},
+        "lib.rs:12103": {"bend.pipe_id"},
+        "lib.rs:12104": {"bend.component_id"},
+        "lib.rs:12105": {"load_case_id"},
+        "lib.rs:12144": {"stable_suffix(&load.load_id)"},
+        "lib.rs:12151": {"load.load_id", "load_case_id"},
+        "lib.rs:10547": {"load_case.id"},
+        "lib.rs:10548": {"load_case.id"},
     }
     assert sum(map(len, sites.values())) == 22
     for key, args in sites.items():

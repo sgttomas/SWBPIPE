@@ -1,0 +1,159 @@
+{
+  "description": "Invented data. Every member named library_ref at any depth, whatever its value (an object, null, a string, a number, a boolean, an array, a positional record), in document order (arrays in order, object keys in code-point order; every key here is written in that order so the webview's insertion order agrees): W-18b library rule 1 (DEL-08-01 Design report-user-release.md section 2.7). Read by the native detector (export_disposition_screen::library_ref_member_sites) and the webview's (libraryRefMemberSites, apps/desktop/src/services/libraryImportService.ts). A key that only contains library_ref (library_reference, library_ref_note) is not a site. The object-only walk (library_ref_sites.json) is unchanged.",
+  "document": {
+    "a/b~c": {
+      "library_ref": "escaped key path"
+    },
+    "components": [
+      {
+        "id": "component:object",
+        "provenance_record": {
+          "library_ref": {
+            "library_id": "complib.invented",
+            "library_kind": "component",
+            "record_id": "rec.1"
+          },
+          "source_name": "Invented"
+        }
+      },
+      {
+        "id": "component:blank",
+        "provenance_record": {
+          "library_ref": {
+            "library_id": "",
+            "library_kind": " ",
+            "record_id": ""
+          },
+          "source_name": "Invented"
+        }
+      },
+      {
+        "id": "component:null",
+        "provenance_record": {
+          "library_ref": null,
+          "source_name": "Invented"
+        }
+      },
+      {
+        "id": "component:string",
+        "provenance_record": {
+          "library_ref": "library:component:complib.invented#rec.1"
+        }
+      },
+      {
+        "id": "component:number",
+        "library_ref": 7
+      },
+      {
+        "id": "component:boolean",
+        "library_ref": false
+      },
+      {
+        "id": "component:array",
+        "library_ref": []
+      },
+      {
+        "id": "component:positional",
+        "provenance_record": {
+          "library_ref": [
+            "component",
+            "complib.invented",
+            "rec.1"
+          ]
+        }
+      }
+    ],
+    "materials": [
+      {
+        "id": "material:nested",
+        "notes": {
+          "deeper": [
+            {
+              "library_ref": {
+                "library_id": "matlib.invented",
+                "library_kind": "material",
+                "library_ref": "inner"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "project": {
+      "id": "project:invented-member-sites",
+      "library_ref_note": "neither",
+      "library_reference": "not a library_ref member",
+      "name": "Invented member sites"
+    },
+    "supports": [
+      {
+        "id": "support:hanger",
+        "provenance": "library:hanger:hangerlib.invented#h.1",
+        "provenance_record": {
+          "library_ref": {
+            "library_id": "hangerlib.invented",
+            "library_kind": "hanger",
+            "record_id": "h.1"
+          }
+        }
+      },
+      {
+        "id": "support:plain",
+        "provenance": "user entered",
+        "provenance_record": {
+          "source_name": "Invented"
+        }
+      }
+    ]
+  },
+  "sites": [
+    {
+      "kind": "string",
+      "pointer": "/a~1b~0c/library_ref"
+    },
+    {
+      "kind": "object",
+      "pointer": "/components/0/provenance_record/library_ref"
+    },
+    {
+      "kind": "object",
+      "pointer": "/components/1/provenance_record/library_ref"
+    },
+    {
+      "kind": "null",
+      "pointer": "/components/2/provenance_record/library_ref"
+    },
+    {
+      "kind": "string",
+      "pointer": "/components/3/provenance_record/library_ref"
+    },
+    {
+      "kind": "number",
+      "pointer": "/components/4/library_ref"
+    },
+    {
+      "kind": "boolean",
+      "pointer": "/components/5/library_ref"
+    },
+    {
+      "kind": "array",
+      "pointer": "/components/6/library_ref"
+    },
+    {
+      "kind": "array",
+      "pointer": "/components/7/provenance_record/library_ref"
+    },
+    {
+      "kind": "object",
+      "pointer": "/materials/0/notes/deeper/0/library_ref"
+    },
+    {
+      "kind": "string",
+      "pointer": "/materials/0/notes/deeper/0/library_ref/library_ref"
+    },
+    {
+      "kind": "object",
+      "pointer": "/supports/0/provenance_record/library_ref"
+    }
+  ]
+}
