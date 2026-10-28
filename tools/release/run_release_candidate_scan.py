@@ -255,25 +255,37 @@ def run_engine_lint(paths: list[Path], root: Path) -> dict:
     }
 
 
+def is_json_schema_document(document) -> bool:
+    """A verified JSON Schema: a top-level `$schema` naming json-schema.org."""
+    return (
+        isinstance(document, dict)
+        and isinstance(document.get("$schema"), str)
+        and "json-schema.org" in document["$schema"]
+    )
+
+
 def is_schema_property_map(json_path: str, document: dict) -> bool:
-    """A JSON Schema `properties` map that declares the provenance fields maps
-    each name to a subschema object; it describes records and is not one."""
+    """Inside a verified JSON Schema, a `properties` map that declares the
+    provenance fields maps each name to a subschema object; it describes
+    records and is not one. Callers apply this only in a schema document."""
     return json_path.endswith(".properties") and isinstance(
         document.get("redistribution_status"), dict
     )
 
 
-def iter_provenance_records(document, json_path="$"):
+def iter_provenance_records(document, json_path="$", in_schema=None):
+    if in_schema is None:
+        in_schema = is_json_schema_document(document)
     if isinstance(document, dict):
-        if "redistribution_status" in document and not is_schema_property_map(
-            json_path, document
+        if "redistribution_status" in document and not (
+            in_schema and is_schema_property_map(json_path, document)
         ):
             yield json_path, document
         for key, value in sorted(document.items()):
-            yield from iter_provenance_records(value, f"{json_path}.{key}")
+            yield from iter_provenance_records(value, f"{json_path}.{key}", in_schema)
     elif isinstance(document, list):
         for index, item in enumerate(document):
-            yield from iter_provenance_records(item, f"{json_path}[{index}]")
+            yield from iter_provenance_records(item, f"{json_path}[{index}]", in_schema)
 
 
 def provenance_record_violations(json_path: str, record: dict) -> list[str]:

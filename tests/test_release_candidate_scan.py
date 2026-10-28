@@ -301,6 +301,7 @@ def test_schema_property_maps_are_not_provenance_records():
     # declares the provenance fields; those subschemas are not data records.
     module = load_module()
     schema = {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
         "$defs": {
             "Provenance": {
                 "type": "object",
@@ -316,6 +317,35 @@ def test_schema_property_maps_are_not_provenance_records():
     paths = [path for path, _ in module.iter_provenance_records(schema)]
     # The example record and a malformed string-valued record are still checked.
     assert paths == ["$.examples[0].provenance", "$.properties"]
+
+
+def test_property_map_outside_a_json_schema_is_still_checked(tmp_path):
+    # Review finding 4: any `.properties` object with an object-valued
+    # redistribution_status escaped validation, even outside a JSON Schema.
+    module = load_module()
+    data = {
+        "properties": {
+            "source_name": "invented",
+            "source_location": "invented/inline",
+            "source_license": "TBD",
+            "contributor": "invented",
+            "contributor_certification": "invented",
+            "redistribution_status": {"status": "rejected"},
+            "review_status": "rejected",
+        }
+    }
+    member = tmp_path / "data.json"
+    member.write_text(json.dumps(data), encoding="utf-8")
+    result = module.run_provenance_check([("AC-4:data.json", member)])
+    assert result["status"] == "findings_present"
+    assert result["provenance_records_checked"] == 1
+    assert "AC-4:data.json $.properties: source_license is 'TBD'" in result["violations"]
+    assert any("review_status is 'rejected'" in v for v in result["violations"])
+
+    # The same object in a document that only looks like a schema still blocks.
+    data["$schema"] = "urn:invented:not-json-schema"
+    member.write_text(json.dumps(data), encoding="utf-8")
+    assert module.run_provenance_check([("AC-4:data.json", member)])["provenance_records_checked"] == 1
 
 
 def test_quarantine_hygiene_flags_quarantine_paths(tmp_path):
