@@ -398,6 +398,15 @@ fn combinations_admitted_gated_and_magnitudes() {
             r["metadata"]["basis"] = json!("explicit_user_range_envelope");
         }
     }
+    // Operating-case slice 1a: the invented model has nonlinear supports, so its
+    // admitted range envelope states its operands (DEL-05-02
+    // `pf-nonlinear-operand-standing.md` §2.1); without the record it is refused.
+    refused(&range, "COMBINATION_OPERANDS_PRESENCE");
+    let quality = |case: &str| range["numerical_quality"]["cases"].as_array().unwrap().iter().find(|c| c["basis_ref"]["ref_id"] == case).unwrap().clone();
+    let operand = |case: &str| json!({"load_case_id": case, "modulus_basis_ref": null, "modulus_basis_temperature": null, "numerical_quality": quality(case)});
+    let record = json!([{"combination_id": COMB, "basis": "range_envelope", "expression": {"operand_ids": ["load:L-100", "load:L-200"], "mode": "max"},
+        "operands": [operand("load:L-100"), operand("load:L-200")], "standing": "derived_from_case_results"}]);
+    range["contract_evidence"]["combination_operands"] = record;
     s::for_source(&range).unwrap();
 
     for kind in [

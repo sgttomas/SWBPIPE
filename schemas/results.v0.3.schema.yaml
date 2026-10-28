@@ -3837,6 +3837,210 @@
               }
             ]
           }
+        },
+        "combination_operands": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Operating-case slice 1a (DEL-05-02 Design pf-nonlinear-operand-standing.md): one record per admitted combination of a model with nonlinear supports, in model order; present only when there is one. States each operand's numerical standing (its numerical_quality case record, verbatim); the combination's rows stay derived inspection results without their own numerical enclosure.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "combination_id",
+              "basis",
+              "expression",
+              "operands",
+              "standing"
+            ],
+            "properties": {
+              "combination_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "basis": {
+                "enum": [
+                  "result_state_subtraction",
+                  "range_envelope"
+                ]
+              },
+              "expression": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "minuend_id",
+                      "subtrahend_id"
+                    ],
+                    "properties": {
+                      "minuend_id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "subtrahend_id": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "operand_ids",
+                      "mode"
+                    ],
+                    "properties": {
+                      "operand_ids": {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "mode": {
+                        "enum": [
+                          "min",
+                          "max",
+                          "min_abs",
+                          "max_abs"
+                        ]
+                      }
+                    }
+                  }
+                ]
+              },
+              "operands": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "load_case_id",
+                    "modulus_basis_ref",
+                    "modulus_basis_temperature",
+                    "numerical_quality"
+                  ],
+                  "properties": {
+                    "load_case_id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "modulus_basis_ref": {
+                      "oneOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "modulus_basis_temperature": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "value",
+                            "unit"
+                          ],
+                          "properties": {
+                            "value": {
+                              "type": "number"
+                            },
+                            "unit": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          }
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "numerical_quality": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "basis_ref",
+                        "structural_status",
+                        "solve_quality",
+                        "model_matrix_fidelity",
+                        "accuracy_evidence",
+                        "evidence_refs"
+                      ],
+                      "properties": {
+                        "basis_ref": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "ref_type",
+                            "ref_id"
+                          ],
+                          "properties": {
+                            "ref_type": {
+                              "const": "load_case"
+                            },
+                            "ref_id": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          }
+                        },
+                        "structural_status": {
+                          "enum": [
+                            "passive_model_basis",
+                            "physical_mechanism_witnessed",
+                            "negative_energy_witnessed",
+                            "numerically_unresolved"
+                          ]
+                        },
+                        "solve_quality": {
+                          "enum": [
+                            "not_assessed",
+                            "checks_passed",
+                            "sensitive",
+                            "unresolved",
+                            "failed"
+                          ]
+                        },
+                        "model_matrix_fidelity": {
+                          "enum": [
+                            "represented_equations_retained",
+                            "assembly_loss_detected",
+                            "assembly_uncertainty",
+                            "not_assessed"
+                          ]
+                        },
+                        "accuracy_evidence": {
+                          "enum": [
+                            "not_claimed",
+                            "reference_verified",
+                            "unresolved"
+                          ]
+                        },
+                        "evidence_refs": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "standing": {
+                "const": "derived_from_case_results"
+              }
+            }
+          }
         }
       }
     },

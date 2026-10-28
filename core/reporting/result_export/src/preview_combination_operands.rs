@@ -18,6 +18,7 @@ const SOURCE: &str = "core/product_physics";
 const RECORD_KEYS: [&str; 5] = ["combination_id", "basis", "expression", "operands", "standing"];
 const OPERAND_KEYS: [&str; 4] = ["load_case_id", "modulus_basis_ref", "modulus_basis_temperature", "numerical_quality"];
 const NAMED: usize = 8;
+const LINEAR_BASIS: &str = "explicit_user_linear_combination";
 
 fn require(ok: bool, code: &str) -> Check {
     if ok {
@@ -105,7 +106,7 @@ fn states_notice(id: &str, operands: &[&str], rows: &[Value]) -> Result<Option<V
     let mut differing: Vec<(&str, Vec<&str>)> = Vec::new();
     for support in supports {
         let codes: Vec<Option<f64>> = operands.iter().map(|case| states.iter().find(|(c, s, _)| c == case && *s == support).map(|t| t.2)).collect();
-        if codes.iter().any(|c| c.is_none() || c.map(f64::to_bits) != codes[0].map(f64::to_bits)) {
+        if codes.iter().any(|c| c.is_none() || *c != codes[0]) {
             differing.push((support, codes.into_iter().map(state_token).collect()));
         }
     }
@@ -164,10 +165,14 @@ pub(crate) fn check(source: &Value, solved: bool) -> Check {
     let diagnostics = items(&source["diagnostics"]);
     let mut expected: Vec<Value> = Vec::new();
     let nonlinear = rows.iter().any(|r| r["kind"] == STATE_CODE);
+    // A combination whose rows carry the linear-combination basis is a mechanics
+    // combination: it has no operand record (and the producer admits none in a
+    // nonlinear model). Every other admitted combination has one.
     let admitted: Vec<&str> = items(&source["contract_evidence"]["combination_gates"])
         .iter()
         .filter(|g| g["withheld"] == false)
         .filter_map(|g| g["combination_id"].as_str())
+        .filter(|id| !rows.iter().any(|r| combination_of(r) == Some(*id) && r["metadata"]["basis"] == LINEAR_BASIS))
         .collect();
     require(member.is_some() == (solved && nonlinear && !admitted.is_empty()), "PRESENCE")?;
     if let Some(member) = member {
