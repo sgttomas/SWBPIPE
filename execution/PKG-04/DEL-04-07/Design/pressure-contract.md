@@ -357,13 +357,15 @@ on integers, never by a float formatter, in
 lowering reuses.
 - **Domain:** |value| ≤ 10^6 in the authored unit, with a canonical decimal
   exponent e ≥ −24 (§1.5.1's admitted operand range). A temperature outside it
-  is refused by name, `TEMPERATURE_RANGE_UNSUPPORTED` in the message of
-  `LOAD_STATE_TEMPERATURE_IDENTITY_UNRESOLVED`. Inside it |N| < 10^31, so
+  is refused with its own blocking code,
+  `LOAD_STATE_TEMPERATURE_RANGE_UNSUPPORTED`. Inside it |N| < 10^31, so
   equality and order are integer comparisons that cannot overflow.
 - **Representatives:** exactly equal temperatures share the binary64 kelvin of
   the first one registered. Distinct ones stay distinct, and a member whose
-  representatives do not strictly increase with the exact order is refused;
-  there is no tolerance snapping.
+  representatives do not strictly increase with the exact order is refused
+  (`LOAD_STATE_TEMPERATURE_IDENTITY_UNRESOLVED`); there is no tolerance
+  snapping.
 Evidence: the unit tests of both files, including the tie regressions and a
 corpus of 4549 binaries against Python's `repr`
-(`tools/fixtures/temperature_canonical_decimal_corpus.py`).
+(`tools/fixtures/temperature_canonical_decimal_corpus.py`), and the solve-level
+refusal in `tests/load_reference_state_runtime_extension.rs`.

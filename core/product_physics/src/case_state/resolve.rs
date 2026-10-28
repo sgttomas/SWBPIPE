@@ -448,9 +448,8 @@ fn member_identity(
     let mut add = |quantity: &Quantity| -> Result<(), (&'static str, String)> {
         let binary = normalized(quantity, Dimension::Temperature)
             .map_err(|message| ("LOAD_STATE_QUANTITY_INVALID", message))?;
-        identity
-            .register(quantity, binary)
-            .map_err(|message| ("LOAD_STATE_TEMPERATURE_IDENTITY_UNRESOLVED", message))
+        // LOAD_STATE_TEMPERATURE_RANGE_UNSUPPORTED or _IDENTITY_UNRESOLVED.
+        identity.register(quantity, binary)
     };
     for point in &authored.temperature_points {
         let relevant = match &element.material_selection {

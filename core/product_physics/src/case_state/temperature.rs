@@ -8,11 +8,12 @@
 //! decimal, exact ties to the even digit, never a float formatter) and the
 //! unit's exact affine definition. The domain is |value| <= 10^6 in the authored
 //! unit with a canonical decimal exponent >= -24; a temperature outside it is
-//! refused by name (`TEMPERATURE_RANGE_UNSUPPORTED`). Exactly equal temperatures
-//! then share one binary64 representative; numerical evaluation stays in
-//! binary64. There is no tolerance snapping: distinct exact temperatures stay
-//! distinct, and a set whose binary64 representatives cannot preserve their
-//! exact order is refused.
+//! refused with its own code, `LOAD_STATE_TEMPERATURE_RANGE_UNSUPPORTED`.
+//! Exactly equal temperatures then share one binary64 representative;
+//! numerical evaluation stays in binary64. There is no tolerance snapping:
+//! distinct exact temperatures stay distinct, and a set whose binary64
+//! representatives cannot preserve their exact order is refused
+//! (`LOAD_STATE_TEMPERATURE_IDENTITY_UNRESOLVED`).
 pub(crate) mod canonical_decimal;
 
 use crate::Quantity;
@@ -23,21 +24,33 @@ use open_pipe_stress_units::{unit_by_symbol, Dimension};
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub(crate) struct ExactKelvin(i128);
 
-/// Named refusal of a temperature outside the exact identity's domain.
-pub(crate) const TEMPERATURE_RANGE_UNSUPPORTED: &str = "TEMPERATURE_RANGE_UNSUPPORTED: absolute temperature is outside the exact identity domain (|value| <= 1e6 in its authored unit, canonical decimal exponent >= -24)";
+/// Code of a temperature outside the exact identity's domain.
+pub(crate) const TEMPERATURE_RANGE_UNSUPPORTED: &str = "LOAD_STATE_TEMPERATURE_RANGE_UNSUPPORTED";
+/// Code of every other temperature identity refusal.
+pub(crate) const TEMPERATURE_IDENTITY_UNRESOLVED: &str =
+    "LOAD_STATE_TEMPERATURE_IDENTITY_UNRESOLVED";
+const RANGE_MESSAGE: &str = "absolute temperature is outside the exact identity domain (|value| <= 1e6 in its authored unit, canonical decimal exponent >= -24)";
 
 /// Exact kelvin value of an authored absolute temperature, using the units
 /// catalog only to identify the unit and exact affine definitions to convert.
-pub(crate) fn exact_kelvin(quantity: &Quantity) -> Result<ExactKelvin, String> {
-    let unit = unit_by_symbol(&quantity.unit, Dimension::Temperature).map_err(|e| e.to_string())?;
+/// A refusal carries its diagnostic code.
+pub(crate) fn exact_kelvin(quantity: &Quantity) -> Result<ExactKelvin, (&'static str, String)> {
+    let unresolved = |message: String| (TEMPERATURE_IDENTITY_UNRESOLVED, message);
+    let unit = unit_by_symbol(&quantity.unit, Dimension::Temperature)
+        .map_err(|e| unresolved(e.to_string()))?;
     let decimal = canonical_decimal(quantity.value).map_err(|error| match error {
-        CanonicalError::NonFinite => "temperature is not finite",
-        CanonicalError::RangeUnsupported => TEMPERATURE_RANGE_UNSUPPORTED,
+        CanonicalError::NonFinite => unresolved("temperature is not finite".into()),
+        CanonicalError::RangeUnsupported => (TEMPERATURE_RANGE_UNSUPPORTED, RANGE_MESSAGE.into()),
     })?;
-    let kelvin = kelvin_numerator(decimal, unit)
-        .ok_or_else(|| format!("no exact absolute-temperature definition for {unit:?}"))?;
+    let kelvin = kelvin_numerator(decimal, unit).ok_or_else(|| {
+        unresolved(format!(
+            "no exact absolute-temperature definition for {unit:?}"
+        ))
+    })?;
     if kelvin < 0 {
-        return Err("absolute temperature cannot be below zero kelvin".into());
+        return Err(unresolved(
+            "absolute temperature cannot be below zero kelvin".into(),
+        ));
     }
     Ok(ExactKelvin(kelvin))
 }
@@ -55,7 +68,7 @@ impl TemperatureIdentity {
         &mut self,
         quantity: &Quantity,
         binary64_kelvin: f64,
-    ) -> Result<(), String> {
+    ) -> Result<(), (&'static str, String)> {
         let exact = exact_kelvin(quantity)?;
         if !self.classes.iter().any(|(value, _)| *value == exact) {
             self.classes.push((exact, binary64_kelvin));
@@ -72,7 +85,7 @@ impl TemperatureIdentity {
     }
     /// Canonical binary64 kelvin for an authored temperature already registered.
     pub(crate) fn kelvin(&self, quantity: &Quantity) -> Result<f64, String> {
-        let exact = exact_kelvin(quantity)?;
+        let exact = exact_kelvin(quantity).map_err(|(_, message)| message)?;
         self.classes
             .iter()
             .find(|(value, _)| *value == exact)
@@ -119,8 +132,12 @@ mod tests {
         assert!(exact_kelvin(&q(20.0, "m")).is_err());
         assert!(exact_kelvin(&q(f64::NAN, "K")).is_err());
         assert_eq!(
-            exact_kelvin(&q(1e300, "K")),
-            Err(TEMPERATURE_RANGE_UNSUPPORTED.to_string())
+            exact_kelvin(&q(1e300, "K")).unwrap_err().0,
+            "LOAD_STATE_TEMPERATURE_RANGE_UNSUPPORTED"
+        );
+        assert_eq!(
+            exact_kelvin(&q(-1.0, "K")).unwrap_err().0,
+            "LOAD_STATE_TEMPERATURE_IDENTITY_UNRESOLVED"
         );
     }
     /// The ordinary binary64 kelvin conversion, as the resolver registers it.
@@ -131,7 +148,9 @@ mod tests {
     fn identity_of(temperatures: &[Quantity]) -> Result<TemperatureIdentity, String> {
         let mut identity = TemperatureIdentity::default();
         for t in temperatures {
-            identity.register(t, binary(t))?;
+            identity
+                .register(t, binary(t))
+                .map_err(|(_, message)| message)?;
         }
         identity.check_order()?;
         Ok(identity)
@@ -193,7 +212,10 @@ mod tests {
     }
     #[test]
     fn the_domain_is_refused_by_name_in_the_authored_unit() {
-        let refused = Err(TEMPERATURE_RANGE_UNSUPPORTED.to_string());
+        let refused = Err((
+            "LOAD_STATE_TEMPERATURE_RANGE_UNSUPPORTED",
+            RANGE_MESSAGE.to_string(),
+        ));
         let above = f64::from_bits(1e6f64.to_bits() + 1);
         for unit in ["K", "degC", "degF", "degR"] {
             assert!(exact_kelvin(&q(1e6, unit)).is_ok(), "{unit}");
@@ -208,7 +230,7 @@ mod tests {
         let mut identity = TemperatureIdentity::default();
         assert_eq!(
             identity.register(&q(above, "K"), above),
-            Err(TEMPERATURE_RANGE_UNSUPPORTED.to_string())
+            refused.map(|_| ())
         );
     }
     #[test]
