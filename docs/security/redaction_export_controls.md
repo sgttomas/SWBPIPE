@@ -369,8 +369,95 @@ parsed JSON, but neither has non-enumerable keys, so a `__proto__` key is
 always visible there.
 
 This is deliberately stricter than Python's previous reading, which took the
-key as an ordinary member. The member itself is kept in the payload, and its
+key as an ordinary member. On the same reasoning, the route exporter blocks
+the whole export, in all three implementations, when its input carries any of
+its internal names. These are a member named with the `__route_key__` prefix,
+`_route_projected_leaf` or `_route_value_record`, at any depth. The block is
+one `block_export` decision per such member, with reason
+`EXPORT_INPUT_RESERVED_NAME`, naming the member's path and never its value
+(HELP_HUMAN ruling, 2026-10-28: "fail closed on reserved internal names, in
+all three implementations. ... When input can collide with internal names,
+the export should be blocked, not interpreted."). The member itself is kept in the payload, and its
 leaves are labelled like any other.
+
+**Value records.** The route projector decides whether a `{value, ...}` record
+with a scalar `value` is one item or a record whose members it labels by path.
+Before, TypeScript made it an item if it carried any metadata key, and Python
+only if it carried a scalar privacy, redistribution or review label, on itself
+or its provenance. Neither was uniformly stricter: `{value, field_class, note}`
+left `note` visible in TypeScript, and `{value, professional_claim: true}`
+blocked in TypeScript but was only redacted in Python. All three
+implementations now take the stricter decision per case (HELP_HUMAN decision,
+2026-10-28: "take the stricter decision per case"). A record with a scalar
+label is still an item. A record with only other metadata is a *value record*,
+and the redaction walk decides it as follows:
+
+- *Block.* It classifies the record as one item first. A block is the whole
+  record's: one decision on the record, also where the projection would have
+  blocked on a leaf.
+- *Otherwise.* It decides the record as projected, and then:
+  - every `value` and `text` leaf is raised to the item decision where that is
+    stricter, keeping the item's own reason;
+  - when the item decision redacts, the `privacy_classification` leaves are
+    raised too, since the item's redaction replaces that member;
+  - when the item decision redacts, every unsafe path key is dropped from the
+    payload, key name included, as `omit_field` with the item's reason, unless
+    its leaf blocks.
+- *Whole subtree.* A raised member's restriction covers its whole subtree
+  (Codex privacy review of #1722). Every decision beneath it is raised.
+  Beneath a redacting floor the whole member is replaced by `[REDACTED]` once
+  its decisions are taken: a nested item's extra metadata and a nested
+  record's members go with it, and a block beneath still blocks.
+- *Inherited floors.* A value record nested in a raised member, in an object,
+  an array or a label member, keeps the enclosing floor and omission. The
+  stricter of the enclosing floor and its own applies, and on a tie the
+  enclosing one.
+- *Ties.* Where both readings showed the same data, the decision records take
+  the projection's form.
+
+The walk knows the projector's value-record node by identity, a module-private
+`WeakSet` in TypeScript and a private class in Python, never by a member an
+input could carry. An input carrying any of the exporter's internal names is
+blocked before projection (see the `__proto__` member rule above).
+
+The Rust test mirror now carries the projector and this walk.
+
+Over a generated grid of 24,608 `{value, ...}` records in ten contexts (246,080
+cases), the two readings diverged in 30,950 cases:
+
+| Class | Cases | Decision taken |
+|---|---|---|
+| TypeScript blocked, Python did not | 20,880 | block |
+| Python hid more | 6,200 | projection |
+| Python blocked | 774 | projection |
+| Both blocked | 2,320 | the item's block |
+| Each hid something the other showed | 572 | the union |
+| Same visible data | 204 | projection's form |
+
+Over that grid the exported payload is identical in TypeScript and Python, and
+less strict than neither reading: it exposes no key path or visible leaf that a
+reading hid, and it does not unblock what a reading blocked.
+
+The committed sweep holds a pinned subset of 7,730 cases
+(`fixtures/redaction_export_controls/value_record_sweep.json` and
+`value_record_sweep_decisions.json`): every record setting at most three axes,
+plus extra records, in ten contexts. The extra records include nested value
+records, arrays of them, raised items with extra metadata, the three repros of
+the Codex review and records carrying the reserved key prefix. The suites check
+the full exported payload, every key path and visible leaf, and the normalized
+decisions:
+
+- TypeScript and Python give the contract payload and decisions case for case.
+  The Rust mirror, which does not materialize a payload, gives the contract
+  decisions case for case and has no before column.
+- No case is less strict than either before column. One case is pinned as
+  blocked: `{value: "outer", field_class, "__route_key__value": "SECRET"}` in
+  `local_private` with intent, whose reserved name TypeScript once let
+  collide with the item's own `value`.
+- The sweep is stricter than Python in 1,762 cases and than TypeScript in
+  1,593.
+
+No existing sweep case changes.
 
 **Flags.** All three recognize the strings `true`, `yes`, `explicit`,
 `present`, `local_private` and `explicit_local_private`, compared after

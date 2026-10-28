@@ -67,7 +67,8 @@ export type RedactionReasonCode =
   | "USER_RELEASED_PROJECT_DATA"
   | "USER_RELEASE_INTENT_REQUIRED"
   | "USER_RELEASE_VALUE_UNBOUND"
-  | "EXPORT_INPUT_NOT_PLAIN_DATA";
+  | "EXPORT_INPUT_NOT_PLAIN_DATA"
+  | "EXPORT_INPUT_RESERVED_NAME";
 
 export type RedactionFindingClass =
   | "IP_BOUNDARY_WARNING"
@@ -971,7 +972,8 @@ const FINDING_CLASS_BY_REASON: Record<string, RedactionFindingClass> = {
   USER_RELEASED_PROJECT_DATA: "PRIVATE_DATA_WARNING",
   USER_RELEASE_INTENT_REQUIRED: "PRIVATE_DATA_WARNING",
   USER_RELEASE_VALUE_UNBOUND: "PROVENANCE_WARNING",
-  EXPORT_INPUT_NOT_PLAIN_DATA: "STORAGE_BOUNDARY_WARNING"
+  EXPORT_INPUT_NOT_PLAIN_DATA: "STORAGE_BOUNDARY_WARNING",
+  EXPORT_INPUT_RESERVED_NAME: "STORAGE_BOUNDARY_WARNING"
 };
 
 const FINDING_MESSAGE_BY_ACTION: Record<string, string> = {
@@ -991,7 +993,9 @@ const FINDING_MESSAGE_BY_REASON: Record<string, string> = {
   USER_RELEASE_VALUE_UNBOUND:
     "Export is blocked: a user-released report includes only values whose privacy and redistribution metadata it recognizes.",
   EXPORT_INPUT_NOT_PLAIN_DATA:
-    "Export is blocked: its input is not plain JSON data, so no part of it is read or exported."
+    "Export is blocked: its input is not plain JSON data, so no part of it is read or exported.",
+  EXPORT_INPUT_RESERVED_NAME:
+    "Export is blocked: its input carries a member named like the route exporter's internal names, so it is not interpreted."
 };
 
 const FINDING_REMEDIATION =
@@ -1126,19 +1130,107 @@ export function classifyExportItem(
 
 /** The redaction walk serves the five existing contexts only; `redactExportPayload` refuses
  * `user_released_report` before it is reached (§3.2). */
-function walk(
-  value: unknown,
-  args: {
-    path: string;
-    exportContext: RedactionExportContext;
-    explicitLocalPrivateIntent: boolean;
-    decisions: RedactionDecision[];
-    findings: RedactionFinding[];
+type WalkArgs = {
+  path: string;
+  exportContext: RedactionExportContext;
+  explicitLocalPrivateIntent: boolean;
+  decisions: RedactionDecision[];
+  findings: RedactionFinding[];
+  /** The route exporter's walk over its projection, which alone reads value-record nodes. */
+  route?: boolean;
+  /** A value record's item decision that every decision beneath is raised to (`walkValueRecord`). */
+  floor?: RedactionDecision | null;
+  /** Beneath an unsafe path key of a value record whose item decision redacts: omitted. */
+  omit?: boolean;
+};
+
+const ACTION_RANK: Record<RedactionAction, number> = {
+  include: 0,
+  warning_only: 1,
+  redact_value: 2,
+  redact_field: 2,
+  omit_field: 3,
+  block_export: 4
+};
+
+/** A decision raised to a value record's item decision where that is stricter, keeping the item's
+ * own reason (HELP_HUMAN ruling 1(a)); beneath an omitted unsafe path key, omitted unless it
+ * blocks (ruling 2(a)). */
+function raisedDecision(decision: RedactionDecision, args: WalkArgs): RedactionDecision {
+  let raised = decision;
+  const floor = args.floor ?? null;
+  if (floor !== null && ACTION_RANK[floor.action] > ACTION_RANK[raised.action]) {
+    raised = { ...raised, action: floor.action, reason_code: floor.reason_code };
   }
-): unknown | typeof OMITTED_SENTINEL {
+  if (floor !== null && args.omit && raised.action !== "block_export") {
+    raised = { ...raised, action: "omit_field", reason_code: floor.reason_code };
+  }
+  return raised;
+}
+
+/** A value record (HELP_HUMAN decision, 2026-10-28: "take the stricter decision per case"): a
+ * `{value, ...}` record with metadata but no scalar label, which TypeScript decided as one item and
+ * Python projected. Its item decision is taken first; a block is the whole record's (ruling 3(a)).
+ * Otherwise the record is decided as projected, every `value` and `text` leaf raised to the item
+ * decision where that is stricter (1(a)), and, when the item decision redacts, the
+ * `privacy_classification` leaves raised too (the item's redaction replaces that member) and every
+ * unsafe path key dropped entirely, key included (2(a)). */
+function walkValueRecord(node: PlainObject, args: WalkArgs): unknown {
+  const item = node.item as PlainObject;
+  const { decision: itemDecision } = classify(item, {
+    path: args.path,
+    exportContext: args.exportContext,
+    explicitLocalPrivateIntent: args.explicitLocalPrivateIntent,
+    explicitUserReleaseIntent: false,
+    decisionIndex: args.decisions.length + 1,
+    findingIndex: args.findings.length + 1
+  });
+  if (itemDecision.action === "block_export") {
+    args.decisions.push(itemDecision);
+    const finding = findingFor(itemDecision, args.findings.length + 1);
+    if (finding !== null) args.findings.push(finding);
+    return applyAction(item, itemDecision.action);
+  }
+  const redacts = ACTION_RANK[itemDecision.action] >= ACTION_RANK.redact_value;
+  const output: PlainObject = {};
+  for (const [key, child] of Object.entries(node.projected as PlainObject)) {
+    const member = key.startsWith(ROUTE_KEY_PREFIX) ? key.slice(ROUTE_KEY_PREFIX.length) : key;
+    const ownOmit = redacts && UNSAFE_DETAIL_KEYS.has(member);
+    // The item's redaction replaces `value`, `text` and `privacy_classification` (`applyAction`).
+    const raise = ownOmit || member === "value" || member === "text" || (redacts && member === "privacy_classification");
+    // A floor and an omission inherited from an enclosing value record still hold here (Codex
+    // privacy review of #1722, P1-3): the stricter of the two floors applies.
+    const floor = stricterFloor(args.floor ?? null, raise ? itemDecision : null);
+    const omit = ownOmit || args.omit === true;
+    const result = walk(child, { ...args, path: `${args.path}.${key}`, floor, omit });
+    if (!omit && result !== OMITTED_SENTINEL) setMember(output, key, result);
+  }
+  return output;
+}
+
+/** The stricter of two floors; on a tie, the enclosing one. */
+function stricterFloor(inherited: RedactionDecision | null, own: RedactionDecision | null): RedactionDecision | null {
+  if (inherited === null) return own;
+  if (own === null) return inherited;
+  return ACTION_RANK[own.action] > ACTION_RANK[inherited.action] ? own : inherited;
+}
+
+/** The redaction walk. Beneath a redacting floor the whole node is replaced once its decisions are
+ * taken, its extra metadata and nested members included, as the enclosing item's redaction replaced
+ * the member (Codex privacy review of #1722, P1-2); a block beneath still blocks. */
+function walk(value: unknown, args: WalkArgs): unknown | typeof OMITTED_SENTINEL {
+  const result = walkNode(value, args);
+  const floor = args.floor ?? null;
+  return floor !== null && ACTION_RANK[floor.action] >= ACTION_RANK.redact_value && result !== OMITTED_SENTINEL
+    ? REDACTED_VALUE
+    : result;
+}
+
+function walkNode(value: unknown, args: WalkArgs): unknown | typeof OMITTED_SENTINEL {
   if (isPlainObject(value)) {
+    if (args.route === true && VALUE_RECORD_NODES.has(value)) return walkValueRecord(value, args);
     if (isValueBearing(value)) {
-      const { decision, finding } = classify(value, {
+      const { decision: classified } = classify(value, {
         path: args.path,
         exportContext: args.exportContext,
         explicitLocalPrivateIntent: args.explicitLocalPrivateIntent,
@@ -1146,7 +1238,9 @@ function walk(
         decisionIndex: args.decisions.length + 1,
         findingIndex: args.findings.length + 1
       });
+      const decision = raisedDecision(classified, args);
       args.decisions.push(decision);
+      const finding = findingFor(decision, args.findings.length + 1);
       if (finding !== null) args.findings.push(finding);
       return applyAction(value, decision.action);
     }
@@ -1230,12 +1324,53 @@ export function redactExportPayload(
   return redactSnapshot(snapshot.value, options.exportContext, options.explicitLocalPrivateIntent ?? false);
 }
 
+/** Whether a member name is one of the route exporter's internal names: the projector's key prefix,
+ * its labelled-leaf marker and its old value-record marker (HELP_HUMAN ruling, 2026-10-28: "When
+ * input can collide with internal names, the export should be blocked, not interpreted."). Identical
+ * in core/security/redaction/route_control.py and the Rust mirror (`route_reserved_name`). */
+function isReservedName(key: string): boolean {
+  return key.startsWith(ROUTE_KEY_PREFIX) || key === "_route_projected_leaf" || key === "_route_value_record";
+}
+
+/** The sorted paths of every member with a reserved name in a snapshot, at any depth; iterative. */
+function reservedNamePaths(value: unknown): string[] {
+  const found: string[] = [];
+  const stack: [unknown, string][] = [[value, "$"]];
+  while (stack.length > 0) {
+    const [node, at] = stack.pop() as [unknown, string];
+    if (Array.isArray(node)) node.forEach((item, index) => stack.push([item, `${at}[${index}]`]));
+    else if (isPlainObject(node)) {
+      for (const [key, item] of Object.entries(node)) {
+        if (isReservedName(key)) found.push(`${at}.${key}`);
+        stack.push([item, `${at}.${key}`]);
+      }
+    }
+  }
+  return found.sort();
+}
+
+function reservedNameDecision(path: string, exportContext: RedactionExportContext, index: number): RedactionDecision {
+  return {
+    decision_id: `REDC-DEC-${String(index).padStart(4, "0")}`,
+    path,
+    field_class: "export_input",
+    privacy_classification: "unknown",
+    redistribution_status: "unknown",
+    review_status: "unknown",
+    export_context: exportContext,
+    action: "block_export",
+    reason_code: "EXPORT_INPUT_RESERVED_NAME",
+    source_metadata_present: false
+  };
+}
+
 /** The redaction walk over data this module built: a snapshot, or the route projector's
  * projection of one. It is not gated again. */
 function redactSnapshot(
   value: unknown,
   exportContext: RedactionExportContext,
-  explicitLocalPrivateIntent: boolean
+  explicitLocalPrivateIntent: boolean,
+  route = false
 ): RedactionRunResult {
   const decisions: RedactionDecision[] = [];
   const findings: RedactionFinding[] = [];
@@ -1244,7 +1379,8 @@ function redactSnapshot(
     exportContext,
     explicitLocalPrivateIntent,
     decisions,
-    findings
+    findings,
+    route
   });
   return {
     payload: redacted === OMITTED_SENTINEL ? null : redacted,
@@ -1261,6 +1397,27 @@ const ROUTE_INTENT_KEYS = new Set([
   "user_intent"
 ]);
 const ROUTE_KEY_PREFIX = "__route_key__";
+/** The route projector's value-record nodes (`projectRouteValue`), known by identity, never by a
+ * member an input could carry (Codex privacy review of #1722, P1-1). An input reaches the projector
+ * only as the gate's fresh snapshot, so it can hold none of them. */
+const VALUE_RECORD_NODES = new WeakSet<object>();
+
+function registered<T extends object>(set: WeakSet<object>, object: T): T {
+  set.add(object);
+  return object;
+}
+
+/** A scalar privacy, redistribution or review label on a record or its provenance object: the
+ * route projector's item test, identical to Python's `_has_contract_metadata` and the Rust
+ * mirror's `route_item_label`. */
+function hasContractLabel(value: PlainObject): boolean {
+  const scalarLabel = (object: PlainObject) =>
+    ["privacy_classification", "redistribution_status", "review_status"].some(
+      (key) =>
+        Object.prototype.hasOwnProperty.call(object, key) && !isPlainObject(object[key]) && !Array.isArray(object[key])
+    );
+  return scalarLabel(value) || (isPlainObject(value.provenance) && scalarLabel(value.provenance));
+}
 
 const PRIVATE_ROUTE_TOKENS = [
   "component",
@@ -1395,6 +1552,40 @@ function stripRouteIntent(value: unknown): unknown {
   return output;
 }
 
+/** A record's members projected as path-labelled leaves under its own direct public basis. */
+function projectRecordMembers(
+  value: PlainObject,
+  args: { routeId: string; path: string; publicBasis: boolean; structuralProjection: StructuralProjection | null }
+): PlainObject {
+  // The `classification` alias is read only when `privacy_classification` is absent, as
+  // Python reads it: a present primary label, null included, is the label, so a null cannot
+  // let the alias lift a sibling into a public basis (HELP_HUMAN decision, 2026-10-27).
+  const directPrivacy = Object.prototype.hasOwnProperty.call(value, "privacy_classification")
+    ? value.privacy_classification
+    : value.classification;
+  // A non-string label is a stated label that matches no class (input contract): `["public"]`
+  // is not a public basis.
+  const directRedistribution = value.redistribution_status;
+  // An own `__proto__` member on the record or its provenance gives it no direct public basis
+  // (`carriesProtoMember`), so its siblings are labelled by their paths.
+  const boundedPublicBasis =
+    !carriesProtoMember(value) &&
+    typeof directPrivacy === "string" &&
+    SAFE_PRIVACY_CLASSES.has(directPrivacy) &&
+    typeof directRedistribution === "string" &&
+    PUBLIC_REDIS_STATUSES.has(directRedistribution);
+  return Object.fromEntries(
+    Object.entries(value).map(([key, item]) => [
+      `${ROUTE_KEY_PREFIX}${key}`,
+      projectRouteValue(item, {
+        ...args,
+        path: `${args.path}.${key}`,
+        publicBasis: boundedPublicBasis
+      })
+    ])
+  );
+}
+
 function projectRouteValue(
   value: unknown,
   args: {
@@ -1410,41 +1601,17 @@ function projectRouteValue(
     );
   }
   if (isPlainObject(value)) {
-    if (
-      "value" in value &&
-      !isPlainObject(value.value) &&
-      !Array.isArray(value.value) &&
-      hasExplicitMetadata(value)
-    ) {
-      return copyPlain(value);
+    if ("value" in value && !isPlainObject(value.value) && !Array.isArray(value.value)) {
+      // Value records (HELP_HUMAN decision, 2026-10-28: "take the stricter decision per case").
+      // A record with a scalar label is an item, as Python decides; one with only other metadata
+      // is a value record, decided by the redaction walk as the stricter of the item and its
+      // projection (`walkValueRecord`).
+      if (hasContractLabel(value)) return copyPlain(value);
+      if (hasExplicitMetadata(value)) {
+        return registered(VALUE_RECORD_NODES, { item: copyPlain(value), projected: projectRecordMembers(value, args) });
+      }
     }
-    // The `classification` alias is read only when `privacy_classification` is absent, as
-    // Python reads it: a present primary label, null included, is the label, so a null cannot
-    // let the alias lift a sibling into a public basis (HELP_HUMAN decision, 2026-10-27).
-    const directPrivacy = Object.prototype.hasOwnProperty.call(value, "privacy_classification")
-      ? value.privacy_classification
-      : value.classification;
-    // A non-string label is a stated label that matches no class (input contract): `["public"]`
-    // is not a public basis.
-    const directRedistribution = value.redistribution_status;
-    // An own `__proto__` member on the record or its provenance gives it no direct public basis
-    // (`carriesProtoMember`), so its siblings are labelled by their paths.
-    const boundedPublicBasis =
-      !carriesProtoMember(value) &&
-      typeof directPrivacy === "string" &&
-      SAFE_PRIVACY_CLASSES.has(directPrivacy) &&
-      typeof directRedistribution === "string" &&
-      PUBLIC_REDIS_STATUSES.has(directRedistribution);
-    return Object.fromEntries(
-      Object.entries(value).map(([key, item]) => [
-        `${ROUTE_KEY_PREFIX}${key}`,
-        projectRouteValue(item, {
-          ...args,
-          path: `${args.path}.${key}`,
-          publicBasis: boundedPublicBasis
-        })
-      ])
-    );
+    return projectRecordMembers(value, args);
   }
 
   const lowered = args.path.toLowerCase().replaceAll("-", "_");
@@ -1492,6 +1659,10 @@ function projectRouteValue(
   };
 }
 
+/** The exported payload of a route walk. It runs after every decision is taken and reads the
+ * `_route_projected_leaf` and key-prefix markers by name: an input can carry them only inside an
+ * item, where they can drop or rename the item's members but never skip or weaken a decision
+ * (Codex privacy review of #1722, marker audit). */
 function materializeRouteValue(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(materializeRouteValue);
   if (!isPlainObject(value)) return copyPlain(value);
@@ -1544,6 +1715,26 @@ export function controlRouteExport(
     };
   }
   const source = snapshot.value;
+  // Reserved internal names (HELP_HUMAN ruling, 2026-10-28: "fail closed on reserved internal
+  // names, in all three implementations"): a member so named anywhere in the input blocks the
+  // whole export before projection, one decision per such member, naming its path only.
+  const reserved = reservedNamePaths(source);
+  if (reserved.length > 0) {
+    const decisions = reserved.map((reservedPath, index) => reservedNameDecision(reservedPath, options.exportContext, index + 1));
+    const findings = decisions.map((decision, index) => findingFor(decision, index + 1) as RedactionFinding);
+    return {
+      payload: null,
+      decisions,
+      findings,
+      blocked: true,
+      summary: {
+        ...summarize(decisions, findings),
+        route_id: options.routeId,
+        materialization_withheld: false,
+        local_first: localFirst
+      }
+    };
+  }
   const structuralProjection = structuralProjectionFor(source, options.routeId);
   const projected = projectRouteValue(stripRouteIntent(source), {
     routeId: options.routeId,
@@ -1554,7 +1745,7 @@ export function controlRouteExport(
   // The options were asserted above, as `redactExportPayload` asserts them; the projection is
   // this module's own data, so it is not gated again.
   assertRedactionWalkContext(options.exportContext);
-  const controlled = redactSnapshot(projected, options.exportContext, options.explicitLocalPrivateIntent ?? false);
+  const controlled = redactSnapshot(projected, options.exportContext, options.explicitLocalPrivateIntent ?? false, true);
   const destructive = controlled.decisions.some((decision) =>
     ["redact_value", "redact_field", "omit_field", "block_export"].includes(decision.action)
   );
