@@ -16,6 +16,8 @@ import * as operationBatchService from "../../../services/operationBatchService"
 import * as previewService from "../../../services/previewService";
 import type { PreviewModel } from "../../../types";
 import { buildReconnectBatch, emptyGeometryDraft } from "../../geometry-tools/geometryDraft";
+import { buildRouteSubmission, type FrozenDraftReview, type RouteDraft } from "../../viewport/routeDraft";
+import { buildGridOperationIntent, type GridColumn } from "../../workspace/table/modelTableAdapter";
 import * as sessionModel from "../../workspace/sessionModel";
 import type { SessionEvent } from "../../workspace/sessionEvents";
 import { RETIRED_BATCH_NOTICE, useWorkspaceSession } from "../../workspace/workspaceSession";
@@ -171,6 +173,87 @@ describe("run sheet S2 against the session: injected failures (§3.6 Prepare, Pu
       result.current.session.chrome.viewportViewCommandRef.current = null;
     }
     expect(identityHash).toBe(sessionModel.uiModelIdentityHash);
+  });
+});
+
+describe("run sheet S2 against the session: injected failures on the single-intent and draft-review apply paths", () => {
+  function nodeIntent(model: PreviewModel) {
+    const target = model.nodes.find((node) => node.id === "node:A")!;
+    const column: GridColumn = { key: "y", label: "Y", fieldPath: "position.y", objectType: "Node", changeKind: "set_field", dimension: "length", sourceNote: "entered coordinate", unit: () => "m", value: () => String(target.position.y) };
+    return buildGridOperationIntent({ column, model, row: { id: target.id, label: target.label, type: "node", raw: target, searchText: "" }, sequence: 1, value: "0.5", interaction: "cell" });
+  }
+  /** A route from node:D: to a new node:Z (a batch), or to the stored node:E (a single intent). */
+  function route(kind: "batch" | "single"): RouteDraft {
+    return {
+      startNodeId: "node:D", endMode: kind === "single" ? "existing" : "new", existingEndNodeId: "node:E",
+      newEnd: { id: "node:Z", label: "Z", x: "12", y: "4", z: "0", coordinateUnit: "m", provenance: "invented session test input" },
+      pipe: { id: "pipe:Z", label: "Z", materialId: "material:steel", outsideDiameter: "0.1", wallThickness: "0.005", lengthUnit: "m", yReferenceX: "0", yReferenceY: "0", yReferenceZ: "1", provenance: "invented session test input" },
+    };
+  }
+  async function review(result: Harness, kind: "batch" | "single"): Promise<FrozenDraftReview> {
+    const built = buildRouteSubmission(result.current.session.model.model!, [], route(kind), 1, "length=passed");
+    if (!built.ok || built.submission.kind !== kind) throw new Error(`expected a ${kind} route submission`);
+    let frozen: FrozenDraftReview | null = null;
+    await act(async () => { frozen = await result.current.session.operations.handleAddDraftReview(built.submission, 1); });
+    expect(frozen).not.toBeNull();
+    return frozen!;
+  }
+  const paths = {
+    "single-intent apply": async (result: Harness) => {
+      let applied = false;
+      await act(async () => { applied = await result.current.session.operations.handleApplyIntent(nodeIntent(result.current.session.model.model!)); });
+      return applied;
+    },
+    "draft-review apply (batch)": async (result: Harness) => {
+      const frozen = await review(result, "batch");
+      let applied = false;
+      await act(async () => { applied = await result.current.session.operations.handleApplyDraftReview(frozen); });
+      return applied;
+    },
+    "draft-review apply (single)": async (result: Harness) => {
+      const frozen = await review(result, "single");
+      let applied = false;
+      await act(async () => { applied = await result.current.session.operations.handleApplyDraftReview(frozen); });
+      return applied;
+    },
+  } as const;
+  /** A sheet batch applied first, so the ledger has a record and the rows a status to keep. */
+  async function withAppliedSheet() {
+    const { result, events } = await harness();
+    await apply(result, await queueRows(result, CHAIN));
+    return { result, events };
+  }
+  it.each(Object.keys(paths) as Array<keyof typeof paths>)("%s: a failure in Prepare via the sheet's staged transition changes nothing; a retry applies", async (path) => {
+    const { result, events } = await withAppliedSheet();
+    const before = await snapshot(result);
+    const spy = vi.spyOn(ledger, "applySessionEvent").mockImplementation((state, event) => {
+      if (event.type === "checkpoint") throw new Error("injected staged-transition failure");
+      return realTransition(state, event);
+    });
+    expect(await paths[path](result)).toBe(false);
+    expect(result.current.session.operations.operationMessage).toMatch(/failed to run: Error: injected staged-transition failure$/);
+    expect(await snapshot(result)).toEqual(before);
+    const checkpoints = events.filter((event) => event.startsWith("checkpoint")).length;
+    spy.mockRestore();
+    expect(await paths[path](result)).toBe(true);
+    expect(events.filter((event) => event.startsWith("checkpoint")).length).toBe(checkpoints + 1);
+    expect(result.current.session.operations.undoStack).toHaveLength(2);
+    expect([result.current.store.state.ledger.cursor, result.current.store.state.ledger.records.at(-1)?.foreign]).toEqual([2, true]);
+    expect(statusList(result)).toEqual(["applied", "applied", "applied"]);
+  });
+  it.each(Object.keys(paths) as Array<keyof typeof paths>)("%s: a failure in Notify is reported once; the publication and the sheet's record stand", async (path) => {
+    const { result } = await withAppliedSheet();
+    let failures = 0;
+    result.current.session.chrome.viewportViewCommandRef.current = (command) => {
+      if (command.type === "retire-box-gesture") { failures += 1; throw new Error("injected viewport failure"); }
+    };
+    expect(await paths[path](result)).toBe(true);
+    expect(failures).toBe(1);
+    expect(result.current.session.operations.operationMessage).toContain("The viewport did not retire its box gesture: Error: injected viewport failure");
+    expect(result.current.session.operations.undoStack).toHaveLength(2);
+    expect([result.current.store.state.ledger.cursor, result.current.store.state.ledger.records.at(-1)?.foreign]).toEqual([2, true]);
+    expect(statusList(result)).toEqual(["applied", "applied", "applied"]);
+    result.current.session.chrome.viewportViewCommandRef.current = null;
   });
 });
 
