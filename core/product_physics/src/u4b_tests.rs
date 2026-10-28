@@ -899,7 +899,7 @@ fn u4b_toroidal_evaluation_failure_blocks_by_name() {
     ] {
         let (mut results, mut diagnostics) = (Vec::new(), Vec::new());
         u4b_rows::append_station_quantities(&model, &mut results, &mut diagnostics, &u4b_rows::MemberQuantities {
-            case_id: "case:x", pipe_id: "pipe:BEND", arc: true, exact: true, bases: bases.clone(), poisson_ratio: 0.3,
+            case_id: "case:x", pipe_id: "pipe:BEND", arc: true, exact: true, bases: bases.clone(), poisson: u4b_rows::ShearPoisson::Authored(0.3),
             directional: None, toroidal: Some((pressure, bend_radius)),
         });
         assert!(!results.iter().any(|r| r.kind == u4b_rows::HOOP_KIND || r.kind == u4b_rows::RADIAL_KIND), "{code}");
@@ -986,4 +986,163 @@ fn u4b_end_i_extremes_follow_the_j_side_rows() {
         assert_eq!(axial_stress > 0.0, sign > 0.0);
         assert_eq!(end_force < 0.0, sign > 0.0);
     }
+}
+
+/// The error of `value` against the exact c* = hi + lo (hi = RN(c*), lo = RN(c* − hi)), in u = 2^-53.
+fn error_in_u(value: f64, hi: f64, lo: f64) -> f64 {
+    ((value - hi) - lo) / hi / (f64::EPSILON / 2.0)
+}
+
+/// The two annuli (r_o, r_i,b, I_b) of [`PREVIEW_SHEAR_FAMILY`], binary64 operands taken as
+/// exact: a thin wall (r_o − r_i exact by Sterbenz) and a thick one (r_i < r_o/2).
+const SHEAR_FAMILY_SECTIONS: [(f64, f64, f64); 2] = [(0.1, 0.09, 2.6e-5), (0.05, 0.01, 4.9e-6)];
+
+/// (section, E bits, G bits, hi bits, lo bits) with c* = ((3+2ν)r_o² + (1+2ν)r_i²)/(4(1+ν)I),
+/// ν = E/(2G) − 1, evaluated in exact rational arithmetic (Python `fractions`) from the binary64
+/// operands, with the Saint-Venant ν form rather than the x identity. E/(2G) runs from 1.4 down
+/// to 1e-300: the Sterbenz edge 1/2 and its neighbours, ν = 0, ν near −1, the admission edge
+/// (q = RN(E/(2G)) > 2^-54) and beyond it, and Codex's pair (E = 1 GPa, G = 6755399441055744 GPa).
+#[rustfmt::skip]
+const PREVIEW_SHEAR_FAMILY: [(usize, u64, u64, u64, u64); 38] = [
+        (0, 0x42474876e8000000, 0x4230a17981249249, 0x40769205a05a05a1, 0x3cfd6ea388020134), // E/(2G) = 1.4000000000000001, q = 1.4000000000000001, nu = 0.40000000000000013
+        (0, 0x42474876e8000000, 0x4232a05f20000000, 0x4076ab13b13b13b2, 0x3cdc3e4060f25dfe), // E/(2G) = 1.25, q = 1.25, nu = 0.25
+        (0, 0x42474876e8000000, 0x42374876e8000000, 0x4076e589d89d89d9, 0x3d1e55eeef5657dd), // E/(2G) = 1, q = 1.0, nu = 0.0
+        (0, 0x42474876e8000000, 0x423f0b4935555555, 0x407746f96f96f971, 0xbd1dc27df6b8a52c), // E/(2G) = 0.75, q = 0.75, nu = -0.25
+        (0, 0x42474876e8000000, 0x42474876e7ffffff, 0x407809d89d89d89f, 0xbd1916d50367904c), // E/(2G) = 0.50000000000000011, q = 0.5000000000000001, nu = -0.4999999999999999
+        (0, 0x42474876e8000000, 0x42474876e8000000, 0x407809d89d89d89f, 0xbd12cfda8245ae32), // E/(2G) = 0.5, q = 0.5, nu = -0.5
+        (0, 0x42474876e8000000, 0x42474876e8000001, 0x407809d89d89d89f, 0xbd0911c00247982f), // E/(2G) = 0.49999999999999994, q = 0.49999999999999994, nu = -0.5
+        (0, 0x42474876e8000000, 0x424d1a94a2000000, 0x40789c0000000001, 0x3d149d40c4ec4ec7), // E/(2G) = 0.40000000000000002, q = 0.4, nu = -0.6
+        (0, 0x42474876e8000000, 0x42574876e8000000, 0x407a527627627629, 0x3d05c92535048b61), // E/(2G) = 0.25, q = 0.25, nu = -0.75
+        (0, 0x42474876e8000000, 0x426d1a94a2000000, 0x4080962762762764, 0x3d2200ecf86d10ac), // E/(2G) = 0.10000000000000001, q = 0.1, nu = -0.9
+        (0, 0x42474876e8000000, 0x42a2309ce5400000, 0x40a0fe0000000004, 0xbd21a37bffffffeb), // E/(2G) = 0.01, q = 0.01, nu = -0.99
+        (0, 0x42474876e8000000, 0x430c6bf526340000, 0x4106580313b13b1a, 0xbda1624896bedd21), // E/(2G) = 0.0001, q = 0.0001, nu = -0.9999
+        (0, 0x42474876e8000000, 0x43e158e460913d00, 0x41db3928e8400007, 0x3e777be75ea1b8a7), // E/(2G) = 1e-08, q = 1e-08, nu = -0.99999999
+        (0, 0x22de7c5f127bd87e, 0x254bba08cf8c979d, 0x42b09da302a5aadd, 0x3f5c563732274216), // E/(2G) = 9.9999999999999998e-13, q = 1e-12, nu = -0.999999999999
+        (0, 0x22de7c5f127bd87e, 0x261452ea0c529054, 0x43785be5be5be5db, 0xc012d759e0b1bc2b), // E/(2G) = 1.6653345369377348e-16, q = 1.6653345369377348e-16, nu = -0.9999999999999998
+        (0, 0x22de7c5f127bd87e, 0x2655275ed8d8f36b, 0x43b95a88dbe7f6b9, 0xc04a3b7358cb3806), // E/(2G) = 1.0000000000000001e-17, q = 1e-17, nu = -1.0
+        (0, 0x22de7c5f127bd87e, 0x37916c262777579c, 0x54f4e1aa02e93f3c, 0xd1601cc24d414d92), // E/(2G) = 1e-100, q = 1e-100, nu = -1.0
+        (0, 0x22de7c5f127bd87e, 0x6116c2d4256ffcc3, 0x7e7b47aef65e102a, 0xfafa0c0fd21ef11f), // E/(2G) = 1e-300, q = 1e-300, nu = -1.0
+        (0, 0x41cdcd6500000000, 0x45165a0bc0000000, 0x438b676276276288, 0x402c9c7fcf86d126), // E/(2G) = 7.4014868308343765e-17, q = 7.401486830834377e-17, nu = -0.9999999999999999
+        (1, 0x42474876e8000000, 0x4230a17981249249, 0x40760c509b3df292, 0xbd043a3498523104), // E/(2G) = 1.4000000000000001, q = 1.4000000000000001, nu = 0.40000000000000013
+        (1, 0x42474876e8000000, 0x4232a05f20000000, 0x4076b43eb1a1f58e, 0x3d08634a5e77a155), // E/(2G) = 1.25, q = 1.25, nu = 0.25
+        (1, 0x42474876e8000000, 0x42374876e8000000, 0x40783c14e5e0a730, 0x3d0d21df51fe14b3), // E/(2G) = 1, q = 1.0, nu = 0.0
+        (1, 0x42474876e8000000, 0x423f0b4935555555, 0x407ac92492492494, 0xbd1f28b332392691), // E/(2G) = 0.75, q = 0.75, nu = -0.25
+        (1, 0x42474876e8000000, 0x42474876e7ffffff, 0x407fe343eb1a1f5a, 0xbd0f4aabb6447721), // E/(2G) = 0.50000000000000011, q = 0.5000000000000001, nu = -0.4999999999999999
+        (1, 0x42474876e8000000, 0x42474876e8000000, 0x407fe343eb1a1f5a, 0x3d1a6d6409cf2ac4), // E/(2G) = 0.5, q = 0.5, nu = -0.5
+        (1, 0x42474876e8000000, 0x42474876e8000001, 0x407fe343eb1a1f5b, 0x3cf20077bb024460), // E/(2G) = 0.49999999999999994, q = 0.49999999999999994, nu = -0.5
+        (1, 0x42474876e8000000, 0x424d1a94a2000000, 0x4081db6db6db6db8, 0xbd1fa461c5c8c507), // E/(2G) = 0.40000000000000002, q = 0.4, nu = -0.6
+        (1, 0x42474876e8000000, 0x42574876e8000000, 0x408798d0fac687d7, 0x3d29132665b7b5cc), // E/(2G) = 0.25, q = 0.25, nu = -0.75
+        (1, 0x42474876e8000000, 0x426d1a94a2000000, 0x4097472f0539782b, 0xbcfabbe3bebf47a5), // E/(2G) = 0.10000000000000001, q = 0.1, nu = -0.9
+        (1, 0x42474876e8000000, 0x42a2309ce5400000, 0x40c86f1a1f58d0fc, 0x3d2268f88cbdc9be), // E/(2G) = 0.01, q = 0.01, nu = -0.99
+        (1, 0x42474876e8000000, 0x430c6bf526340000, 0x4132b0331a1f58d2, 0xbdb1ca725fbd77b7), // E/(2G) = 0.0001, q = 0.0001, nu = -0.9999
+        (1, 0x42474876e8000000, 0x43e158e460913d00, 0x4206ced28d83eb1b, 0x3ea21c77c4dab1a7), // E/(2G) = 1e-08, q = 1e-08, nu = -0.99999999
+        (1, 0x22de7c5f127bd87e, 0x254bba08cf8c979d, 0x42dbd777fba0e985, 0xbf7aa85f616152c4), // E/(2G) = 9.9999999999999998e-13, q = 1e-12, nu = -0.999999999999
+        (1, 0x22de7c5f127bd87e, 0x261452ea0c529054, 0x43a4687d6343eb1d, 0x403de6200ec8f298), // E/(2G) = 1.6653345369377348e-16, q = 1.6653345369377348e-16, nu = -0.9999999999999998
+        (1, 0x22de7c5f127bd87e, 0x2655275ed8d8f36b, 0x43e53dd3ba2a018e, 0xc081cfed9df7f8a7), // E/(2G) = 1.0000000000000001e-17, q = 1e-17, nu = -1.0
+        (1, 0x22de7c5f127bd87e, 0x37916c262777579c, 0x55217ea4fc1d5523, 0xd1cb3fc9139232ab), // E/(2G) = 1e-100, q = 1e-100, nu = -1.0
+        (1, 0x22de7c5f127bd87e, 0x6116c2d4256ffcc3, 0x7ea6dafdd3155664, 0xfb237a64094bc44f), // E/(2G) = 1e-300, q = 1e-300, nu = -1.0
+        (1, 0x41cdcd6500000000, 0x45165a0bc0000000, 0x43b6f58d0fac6880, 0xc05a170b5af2e2a9), // E/(2G) = 7.4014868308343765e-17, q = 7.401486830834377e-17, nu = -0.9999999999999999
+];
+
+/// DEL-04-07 §2.4: on preview-physics-2, c_b from the moduli is within 8.5u of the exact
+/// Saint-Venant value for every E/(2G) in (0, 3/2), down to E/(2G) → 0. Forming 1 + ν as
+/// RN(RN(E/(2G)) − 1) + 1 lost up to 2^-54/(E/(2G)) relative below E/(2G) = 1/2 (33% at
+/// Codex's pair). Admission is unchanged: a member whose ν = RN(q − 1) is −1 is out of the
+/// domain, and its x-form value is still checked (7u) through the shared moduli terms.
+#[test]
+fn u4b_preview_shear_factor_from_moduli_is_within_its_bound() {
+    let (mut admitted, mut below_half, mut refused) = (0, 0, 0);
+    for (section, e, g, hi, lo) in PREVIEW_SHEAR_FAMILY {
+        let (e, g, hi, lo) = (f64::from_bits(e), f64::from_bits(g), f64::from_bits(hi), f64::from_bits(lo));
+        let (ro, ri, inertia) = SHEAR_FAMILY_SECTIONS[section];
+        let q = e / (2.0 * g);
+        let nu = u4b_rows::preview_poisson_ratio(e, g);
+        match u4b_rows::preview_shear_factor(e, g, ro, ri, inertia) {
+            Ok(c) => {
+                let err = error_in_u(c, hi, lo);
+                assert!(err.abs() <= 8.5, "E/(2G) = {q:e}, section {section}: c_b {c:e} is {err:.3}u from exact");
+                if q >= 0.5 {
+                    // The ν sequence's bits stand where its 1 + ν is exact.
+                    assert_eq!(c.to_bits(), open_pipe_stress_stress_recovery::section_stress_quantities::saint_venant_shear_factor(nu, ro, ri, inertia).unwrap().to_bits());
+                } else {
+                    below_half += 1;
+                }
+                admitted += 1;
+            }
+            Err(error) => {
+                assert_eq!(nu, -1.0, "E/(2G) = {q:e}: only ν = −1 is refused here");
+                assert_eq!(error, open_pipe_stress_stress_recovery::section_stress_quantities::SectionQuantityError::PoissonOutOfDomain { nu });
+                refused += 1;
+            }
+        }
+        let (x, _) = open_pipe_stress_frame_kernel::shear::moduli_ratio_terms(e, g).unwrap();
+        let c = open_pipe_stress_stress_recovery::section_stress_quantities::saint_venant_shear_factor_of_ratio(x, ro, ri, inertia).unwrap();
+        let err = error_in_u(c, hi, lo);
+        assert!(err.abs() <= 7.0, "E/(2G) = {q:e}, section {section}: x form {c:e} is {err:.3}u from exact");
+    }
+    assert_eq!((admitted, below_half, refused), (32, 20, 6));
+}
+
+/// DEL-04-07 §2.4 on a document: Codex's model (OD 0.2 m, wall 0.01 m, L 1 m, fixed root, tip
+/// restrained except UY, E = 1 GPa, G = 6755399441055744 GPa, so E/(2G) = 1/(3·2^52) and
+/// ν = RN(q − 1) = −1 + 2^-53; tip force 1e-18 N in Y). Euler–Bernoulli only: this base refuses
+/// `timoshenko_annulus_energy_v1` at solve. Every τ_v,max row is within 11.5u of
+/// |V|·c*/1e6 (c* exact rational from the preview annulus's binary64 operands; Codex's
+/// independent value 2.376033621224861803e-7 MPa at |V| = 1e-18 N, with an exact I, agrees to
+/// 1e-14); forming 1 + ν from ν published 1.584022414149910e-7 MPa, 33.3% low. The
+/// preview-physics reader recomputes the same bits.
+#[test]
+fn u4b_preview_shear_maximum_with_g_above_e() {
+    let provenance = "invented regression model; not library, catalog, manufacturer or code-rule data";
+    let material = json!({"id": "mat:m", "provenance": provenance,
+        "elastic_modulus": {"unit": "GPa", "value": 1.0}, "shear_modulus": {"unit": "GPa", "value": 6755399441055744.0},
+        "thermal_expansion_coefficient": {"unit": "1/degC", "value": 1.2e-05}});
+    let model = json!({
+        "schema_version": MODEL_SCHEMA_VERSION, "document_kind": "openpipestress.product_preview.model",
+        "analysis_status": {"mechanics": "ready_for_preview_diagnostics", "professional_acceptance": "not_provided", "rule_check": "not_performed_user_rule_inputs_missing"},
+        "project": {"id": "invented:u4b:g-above-e", "units": {"angle": "rad", "force": "N", "length": "m", "pressure": "Pa", "stress": "Pa", "temperature": "degC"}},
+        "nodes": [{"id": "node:N0", "position": {"x": 0.0, "y": 0.0, "z": 0.0}, "provenance": provenance},
+                  {"id": "node:N1", "position": {"x": 1.0, "y": 0.0, "z": 0.0}, "provenance": provenance}],
+        "materials": [material.clone()],
+        "pipe_segments": [{"id": "pipe:N01", "from": "node:N0", "to": "node:N1", "material": "mat:m", "provenance": provenance,
+            "section": {"outside_diameter": {"unit": "m", "value": 0.2}, "wall_thickness": {"unit": "m", "value": 0.01}},
+            "y_reference": {"x": 0.0, "y": 0.0, "z": 1.0}}],
+        "supports": [{"id": "support:root", "family": "anchor", "node": "node:N0", "provenance": provenance, "restraints": ["UX", "UY", "UZ", "RX", "RY", "RZ"]},
+                     {"id": "support:tip", "family": "anchor", "node": "node:N1", "provenance": provenance, "restraints": ["UX", "UZ", "RX", "RY", "RZ"]}],
+        "components": [], "combinations": [],
+        "load_cases": [{"id": "case:1", "kind": "primitive_user_load", "provenance": provenance, "primitive_loads": [{"id": "load:N1:fy",
+            "category": "concentrated_force", "dimension": "force", "direction": "global_y", "provenance": provenance,
+            "magnitude": {"unit": "N", "value": 1e-18}, "target": {"node": "node:N1", "type": "node"}}]}],
+    });
+    let request = json!({"model": model, "materials": [material]});
+    // The preview annulus (`derive_pipe_section`) and its exact c*.
+    let (od, t) = (0.2_f64, 0.01_f64);
+    let id = od - 2.0 * t;
+    let inertia = PI * (od.powi(4) - id.powi(4)) / 64.0;
+    assert_eq!(((od / 2.0).to_bits(), (id / 2.0).to_bits(), inertia.to_bits()), (0x3fb999999999999a, 0x3fb70a3d70a3d70b, 0x3efc52664442210e));
+    let (hi, lo) = (f64::from_bits(0x438a6117fde5fe85), f64::from_bits(0xc0043768a891bdcb));
+    let out = run_linear_static_preview_value_with_mode(request.clone(), PreviewSolverMode::SparseInteractive).unwrap();
+    assert_eq!(out.status.mechanics, "MECHANICS_SOLVED", "{:?}", out.diagnostics);
+    assert!(!out.diagnostics.iter().any(|d| d.code == u4b_rows::POISSON_OUT_OF_DOMAIN), "ν = −1 + 2^-53 is admitted");
+    let rows = shear_rows(&out, "case:1");
+    assert_eq!(rows.len(), u4b_rows::STATIONS.len());
+    for row in rows {
+        let location = &row.metadata.as_ref().unwrap().location;
+        let shear = |kind: &str| out.results.iter().find(|r| r.kind == kind && r.entity_ref == row.entity_ref
+            && r.metadata.as_ref().is_some_and(|m| &m.location == location)).unwrap().value;
+        // One local shear carries the tip force; |V| = norm2 is then exact.
+        let (vy, vz) = (shear("element_local_shear_force_y").abs(), shear("element_local_shear_force_z").abs());
+        assert_eq!(vy.min(vz), 0.0, "{location}");
+        let v = vy.max(vz);
+        // τ* = v·(hi + lo)/1e6 in double-double: v·hi = p + p_err exactly, then the quotient's residual.
+        let p = v * hi;
+        let p_err = v.mul_add(hi, -p);
+        let tau_hi = p / 1e6;
+        let tau_lo = ((-tau_hi).mul_add(1e6, p) + p_err + v * lo) / 1e6;
+        let err = error_in_u(row.value, tau_hi, tau_lo);
+        assert!(err.abs() <= 11.5, "{location}: τ_v,max {:e} is {err:.3}u from exact {tau_hi:e}", row.value);
+        let codex = 2.376033621224861803e-7 * (v / 1e-18);
+        assert!((row.value / codex - 1.0).abs() <= 1e-14, "{location}: {:e} vs Codex's {codex:e}", row.value);
+    }
+    assert_eq!(verdict(&out, "preview-physics", &model_with_materials(&request))["ok"], true);
 }
