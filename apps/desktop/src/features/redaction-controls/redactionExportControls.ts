@@ -134,6 +134,7 @@ export type LocalFirstRouteEvidence = {
     | "LOCAL_PRIVATE_INTENT_REQUIRED"
     | "LOCAL_FIRST_ROUTE_UNKNOWN"
     | "LOCAL_FIRST_EXPORT_CONTEXT_INVALID"
+    | "LOCAL_PRIVATE_ROUTE_REQUIRED"
     | "USER_RELEASE_METADATA_ALLOWED"
     | "USER_RELEASE_ROUTE_REQUIRED"
     | "USER_RELEASE_INTENT_REQUIRED";
@@ -168,6 +169,7 @@ export const CONTROL_EXPORT_CONTEXTS: ControlExportContext[] = [...EXPORT_CONTEX
 /** The governed local-first routes (exported read-only for the regressions). */
 export const GOVERNED_LOCAL_FIRST_ROUTE_IDS: ReadonlySet<string> = new Set([
   "DOTH-CAEPIPE-LOCAL-006",
+  "DOTH-CSV-011",
   "DOTH-FORMAT-003",
   "DOTH-HANDOFF-002",
   "DOTH-HANDOFF-PACKAGE-008",
@@ -182,6 +184,14 @@ export const GOVERNED_LOCAL_FIRST_ROUTE_IDS: ReadonlySet<string> = new Set([
   "DREP-PACKAGE-USER-RELEASE-010",
   "DREP-UI-001/DREP-JSON-002"
 ]);
+
+/** RT-R6 (DEL-08-04-R14): the CSV table save route. */
+export const CSV_TABLE_ROUTE_ID = "DOTH-CSV-011";
+
+/** Governed routes admitted only in the `local_private` context (with explicit intent);
+ * every other context is refused (`LOCAL_PRIVATE_ROUTE_REQUIRED`). The Python catalogue
+ * (`route_control.py`) carries the same set. */
+export const LOCAL_PRIVATE_ONLY_ROUTE_IDS: ReadonlySet<string> = new Set([CSV_TABLE_ROUTE_ID]);
 
 /** The storage context of a context's governed route metadata: a user-released report is
  * written to the user's own local path by the same atomic save, so its route metadata is
@@ -271,6 +281,18 @@ export function enforceLocalFirstRoute(options: {
       metadata_only: true,
       explicit_local_private_intent: explicitIntent,
       explicit_user_release_intent: releaseIntent
+    };
+  }
+  if (LOCAL_PRIVATE_ONLY_ROUTE_IDS.has(routeId) && exportContext !== "local_private") {
+    return {
+      route_id: routeId,
+      export_context: exportContext,
+      storage_context: storageContextFor(exportContext),
+      action: "block_storage",
+      reason_code: "LOCAL_PRIVATE_ROUTE_REQUIRED",
+      blocked: true,
+      metadata_only: true,
+      explicit_local_private_intent: explicitIntent
     };
   }
   if (exportContext === "local_private" && !explicitIntent) {

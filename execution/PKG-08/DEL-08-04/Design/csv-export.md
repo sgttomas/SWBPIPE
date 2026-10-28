@@ -1,8 +1,9 @@
 # CSV export of every results table (RT-R6)
 
 **Basis:** `origin/main` at `389ca97d5f` (2026-10-28). Paths are relative to
-`projects/chirality-piping/` unless they name a root path. Design before
-implementation; nothing here is built. It serves release-target row RT-R6 and
+`projects/chirality-piping/` unless they name a root path. Slice 2 (§5: the
+serializer, the formula guard and the route) is built; the adapters and
+controls of slice 3 are not. It serves release-target row RT-R6 and
 exit criterion 5 (`docs/RELEASE_TARGET_v1.0.md`). The commitments are
 DEL-08-04-R14, AC-002 and VER-002 in this deliverable's `ScopeOfWork.md`.
 This design records no acceptance, issuance, approval, compliance or lifecycle
@@ -61,17 +62,30 @@ tree, the library, units and split into parts.
   reads the view model the panel renders. It recomputes nothing and reads
   nothing from the page. It therefore stays inside the governed result reader
   and keeps R9 and R12 (no bypass).
-- **Preamble.** Key,value rows:
-  - the notice;
-  - the model and result hashes;
-  - the analysis route or routes;
-  - the case or filter;
-  - the unit basis;
-  - the software version;
-  - a line stating that this is a local-private export, not a released report.
+- **Preamble.** Key,value rows, column A the key and column B the value, in
+  this order:
+  - `notice`: the registry's BS-VALID canonical text, verbatim
+    (`docs/claims_registry.md` §1). It is the one exported constant
+    `CSV_PREAMBLE_NOTICE` in `features/result-export/csvTable.ts`, pinned by
+    the GEN-13 anchor `MISSING_CSV_NOTICE` in the root
+    `tools/validation/validate_claims_language.py`;
+  - `export_context` = `local_private`;
+  - `released_report` = `false`;
+  - `table`: the CSV kind slug from `export-file-names.md`;
+  - `software_version`;
+  - `model_hash`;
+  - `result_hash`;
+  - `analysis_route`: one or more routes, in one row, space-separated;
+  - `case_or_filter`;
+  - `unit_basis`;
+  - zero or more `rule_pack` rows, with value `<id> <version> <checksum>`,
+    only where the table has rule outcomes.
 
-  The exact notice wording comes to HELP_HUMAN under the wording grant before
-  slice 2 uses it.
+  Then exactly one empty row, then the table's header row. These are machine
+  keys, and no other prose is written. HELP_HUMAN confirmed the rows under the
+  wording grant: "(d). Use BS-VALID alone as the `notice` row, verbatim, with
+  all the machine-key rows as in r2." A required value that is missing is
+  refused, never filled; the adapter states it with its reason (R11).
 - **Columns.**
   - Rows keep their existing stable identifiers (result, node or element,
     case key) next to their labels (R10).
@@ -88,7 +102,8 @@ tree, the library, units and split into parts.
   RT-R3 wording reaches the CSV with no separate change. Rule packs appear by
   identifier, version and checksum only (R8).
 - **Formula neutralization.** A text cell that begins with `=`, `+`, `-`, `@`,
-  TAB or CR gets a leading apostrophe. Numbers are written as numbers, so a
+  TAB, CR, LF or a full-width `＝`, `＋`, `－` or `＠` gets a leading
+  apostrophe. Numbers are written as numbers, so a
   negative value is unchanged. Labels can come from an imported MBF, so they
   are treated as untrusted.
 - **Determinism.** Identical source data, provenance and table settings give
