@@ -66,7 +66,8 @@ export type RedactionReasonCode =
   | "CONCRETE_PATH_REDACTED"
   | "USER_RELEASED_PROJECT_DATA"
   | "USER_RELEASE_INTENT_REQUIRED"
-  | "USER_RELEASE_VALUE_UNBOUND";
+  | "USER_RELEASE_VALUE_UNBOUND"
+  | "EXPORT_INPUT_NOT_PLAIN_DATA";
 
 export type RedactionFindingClass =
   | "IP_BOUNDARY_WARNING"
@@ -426,38 +427,121 @@ function isPlainObject(value: unknown): value is PlainObject {
  * would run the `__proto__` setter for that key and make a JSON `__proto__` member the copy's
  * prototype, so its labels would be inherited and the member itself would vanish. Here a
  * `__proto__` member is an ordinary own member, as it is in Python and serde_json (HELP_HUMAN
- * decision, 2026-10-27: "Parse so that no JSON member can become a prototype"). Every copy
- * this module makes of an input object iterates `ownEntries` and defines the members through
- * this or `Object.fromEntries`; a spread or `structuredClone` copies only such a copy. */
+ * decision, 2026-10-27: "Parse so that no JSON member can become a prototype"). Every entry
+ * point copies its gated input through `copyPlain`, which defines members through this; later
+ * copies of that copy use this or `Object.fromEntries`. */
 function setMember(target: PlainObject, key: string, value: unknown): void {
   Object.defineProperty(target, key, { value, writable: true, enumerable: true, configurable: true });
 }
 
-/** An object's own enumerable entries, with its own `__proto__` member appended even when it is
- * not enumerable (an accessor member is kept unread, as `undefined`). Every copy of an input
- * object iterates these, so a copy keeps the member and `carriesProtoMember` still sees it:
- * `Object.entries` and `structuredClone` drop a non-enumerable member. */
-function ownEntries(object: PlainObject): [string, unknown][] {
-  const entries = Object.entries(object);
-  const member = Object.getOwnPropertyDescriptor(object, "__proto__");
-  if (member !== undefined && !member.enumerable) entries.push(["__proto__", member.value]);
-  return entries;
+/** The plain-data gate (HELP_HUMAN rulings, 2026-10-28: "(a), the plain-data gate at the TS entry
+ * points. It removes the class instead of modelling JS semantics one primitive at a time."; "An
+ * undefined own data property on an object is treated as absent: skipped, never classified, exactly
+ * as JSON.stringify writes it. An undefined array element still fails closed."; "Admit shared
+ * references in an acyclic graph and refuse only cycles."). Every entry point runs it before it
+ * reads its input, and refuses the whole export with `EXPORT_INPUT_NOT_PLAIN_DATA` unless the input
+ * is a JSON-data graph:
+ * - objects whose prototype is this realm's `Object.prototype` or null, and arrays whose prototype
+ *   is `Array.prototype`, with only index keys and `length` and no holes;
+ * - strings, finite numbers, booleans and null;
+ * - own enumerable data members only, enumerated with `Reflect.ownKeys` and read through their
+ *   descriptors, so that no getter, setter or method of the input ever runs; no symbol key. A
+ *   non-enumerable member is refused, `__proto__` included: parsed JSON has none;
+ * - an object member whose value is `undefined` is absent; an `undefined` array element is refused;
+ * - an object reached twice is admitted when the graph is acyclic (JSON writes it once per
+ *   position); a cycle is refused (JSON cannot express it). The ancestor set holds the current path.
+ * The first refusal, as its path and shape, or null. */
+function plainDataRefusal(
+  value: unknown,
+  path = "$",
+  ancestors: Set<object> = new Set()
+): { path: string; shape: string } | null {
+  if (value === null || typeof value === "string" || typeof value === "boolean") return null;
+  if (typeof value === "number") return Number.isFinite(value) ? null : { path, shape: "non-finite number" };
+  if (typeof value !== "object") return { path, shape: typeof value };
+  if (ancestors.has(value)) return { path, shape: "cycle" };
+  const array = Array.isArray(value);
+  const prototype = Object.getPrototypeOf(value);
+  if (array ? prototype !== Array.prototype : prototype !== Object.prototype && prototype !== null) {
+    return { path, shape: array ? "array of another kind" : "not a plain object" };
+  }
+  const keys = Reflect.ownKeys(value);
+  ancestors.add(value);
+  try {
+    for (const key of keys) {
+      if (typeof key === "symbol") return { path, shape: "symbol key" };
+      if (array && key === "length") continue;
+      if (array && !/^(0|[1-9][0-9]*)$/.test(key)) return { path, shape: `array key ${JSON.stringify(key)}` };
+      const descriptor = Object.getOwnPropertyDescriptor(value, key) as PropertyDescriptor;
+      if (!("value" in descriptor)) return { path, shape: `accessor ${JSON.stringify(key)}` };
+      if (!descriptor.enumerable) return { path, shape: `non-enumerable member ${JSON.stringify(key)}` };
+      const at = array ? `${path}[${key}]` : `${path}.${key}`;
+      if (descriptor.value === undefined) {
+        if (array) return { path: at, shape: "undefined array element" };
+        continue;
+      }
+      const refused = plainDataRefusal(descriptor.value, at, ancestors);
+      if (refused !== null) return refused;
+    }
+  } finally {
+    ancestors.delete(value);
+  }
+  if (array) {
+    const length = (Object.getOwnPropertyDescriptor(value, "length") as PropertyDescriptor).value as number;
+    if (keys.length - 1 !== length) return { path, shape: "array hole" };
+  }
+  return null;
 }
 
-/** The redaction walk's copy of its input: arrays and ordinary objects (prototype
- * `Object.prototype` or null) member by member through `ownEntries`, so an own `__proto__`
- * member survives enumerable or not; any other value as `structuredClone` copies it. */
-function cloneInput(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(cloneInput);
-  if (isPlainObject(value)) {
-    const prototype = Object.getPrototypeOf(value);
-    if (prototype === Object.prototype || prototype === null) {
-      const output: PlainObject = {};
-      for (const [key, item] of ownEntries(value)) setMember(output, key, cloneInput(item));
-      return output;
-    }
+/** A copy of a gated input, one fresh object or array per position (a shared object is
+ * duplicated, so redacting one position never touches another); an `undefined` member is left
+ * out. It reads only own data members through their descriptors and calls no method of the
+ * input. */
+function copyPlain(value: unknown): unknown {
+  if (typeof value !== "object" || value === null) return value;
+  const member = (key: string) => (Object.getOwnPropertyDescriptor(value, key) as PropertyDescriptor).value as unknown;
+  if (Array.isArray(value)) {
+    const output: unknown[] = [];
+    const length = member("length") as number;
+    for (let index = 0; index < length; index += 1) output.push(copyPlain(member(String(index))));
+    return output;
   }
-  return structuredClone(value);
+  const output: PlainObject = {};
+  for (const key of Reflect.ownKeys(value) as string[]) {
+    const item = member(key);
+    if (item !== undefined) setMember(output, key, copyPlain(item));
+  }
+  return output;
+}
+
+/** The whole-export block of a refused input (`plainDataRefusal`), as one decision and its
+ * blocking finding. */
+function plainDataBlock(
+  refusal: { path: string; shape: string },
+  exportContext: ControlExportContext
+): { decision: RedactionDecision; finding: RedactionFinding } {
+  const decision: RedactionDecision = {
+    decision_id: "REDC-DEC-0001",
+    path: refusal.path,
+    field_class: "export_input",
+    privacy_classification: "unknown",
+    redistribution_status: "unknown",
+    review_status: "unknown",
+    export_context: exportContext,
+    action: "block_export",
+    reason_code: "EXPORT_INPUT_NOT_PLAIN_DATA",
+    source_metadata_present: false
+  };
+  const finding = findingFor(decision, 1) as RedactionFinding;
+  return { decision, finding: { ...finding, message: `${finding.message} (${refusal.shape})` } };
+}
+
+function plainDataBlockedExport(
+  refusal: { path: string; shape: string },
+  exportContext: ControlExportContext
+): RedactionRunResult {
+  const { decision, finding } = plainDataBlock(refusal, exportContext);
+  return { payload: null, decisions: [decision], findings: [finding], blocked: true, summary: summarize([decision], [finding]) };
 }
 
 /** Whether an object or its `provenance` object carries an own `__proto__` member. Such an
@@ -768,7 +852,8 @@ const FINDING_CLASS_BY_REASON: Record<string, RedactionFindingClass> = {
   CONCRETE_PATH_REDACTED: "STORAGE_BOUNDARY_WARNING",
   USER_RELEASED_PROJECT_DATA: "PRIVATE_DATA_WARNING",
   USER_RELEASE_INTENT_REQUIRED: "PRIVATE_DATA_WARNING",
-  USER_RELEASE_VALUE_UNBOUND: "PROVENANCE_WARNING"
+  USER_RELEASE_VALUE_UNBOUND: "PROVENANCE_WARNING",
+  EXPORT_INPUT_NOT_PLAIN_DATA: "STORAGE_BOUNDARY_WARNING"
 };
 
 const FINDING_MESSAGE_BY_ACTION: Record<string, string> = {
@@ -786,7 +871,9 @@ const FINDING_MESSAGE_BY_REASON: Record<string, string> = {
   USER_RELEASE_INTENT_REQUIRED:
     "Export is blocked: this report carries the user's project data and no user release of that data was selected for it.",
   USER_RELEASE_VALUE_UNBOUND:
-    "Export is blocked: a user-released report includes only values whose privacy and redistribution metadata it recognizes."
+    "Export is blocked: a user-released report includes only values whose privacy and redistribution metadata it recognizes.",
+  EXPORT_INPUT_NOT_PLAIN_DATA:
+    "Export is blocked: its input is not plain JSON data, so no part of it is read or exported."
 };
 
 const FINDING_REMEDIATION =
@@ -809,7 +896,7 @@ function findingFor(decision: RedactionDecision, findingIndex: number): Redactio
 
 function withoutUnsafeDetail(item: PlainObject): PlainObject {
   const output: PlainObject = {};
-  for (const [key, value] of ownEntries(item)) {
+  for (const [key, value] of Object.entries(item)) {
     if (!UNSAFE_DETAIL_KEYS.has(key)) setMember(output, key, value);
   }
   return output;
@@ -907,7 +994,9 @@ export function classifyExportItem(
 ): RedactionDecision {
   assertContext(options.exportContext);
   assertUserReleaseIntentContext(options.exportContext, options.explicitUserReleaseIntent);
-  return classify(item, {
+  const refusal = plainDataRefusal(item, options.path ?? "$");
+  if (refusal !== null) return plainDataBlock(refusal, options.exportContext).decision;
+  return classify(copyPlain(item) as PlainObject, {
     path: options.path ?? "$",
     exportContext: options.exportContext,
     explicitLocalPrivateIntent: options.explicitLocalPrivateIntent ?? false,
@@ -944,7 +1033,7 @@ function walk(
       return applyAction(value, decision.action);
     }
     const output: PlainObject = {};
-    for (const [key, item] of ownEntries(value)) {
+    for (const [key, item] of Object.entries(value)) {
       const child = walk(item, { ...args, path: `${args.path}.${key}` });
       if (child !== OMITTED_SENTINEL) setMember(output, key, child);
     }
@@ -1018,9 +1107,11 @@ export function redactExportPayload(
   assertContext(options.exportContext);
   assertUserReleaseIntentContext(options.exportContext, options.explicitUserReleaseIntent);
   assertRedactionWalkContext(options.exportContext);
+  const refusal = plainDataRefusal(payload);
+  if (refusal !== null) return plainDataBlockedExport(refusal, options.exportContext);
   const decisions: RedactionDecision[] = [];
   const findings: RedactionFinding[] = [];
-  const redacted = walk(cloneInput(payload), {
+  const redacted = walk(copyPlain(payload), {
     path: "$",
     exportContext: options.exportContext,
     explicitLocalPrivateIntent: options.explicitLocalPrivateIntent ?? false,
@@ -1155,16 +1246,16 @@ function structuralProjectionFor(payload: unknown, routeId: string): StructuralP
 
 function stripRouteIntent(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(stripRouteIntent);
-  if (!isPlainObject(value)) return structuredClone(value);
+  if (!isPlainObject(value)) return copyPlain(value);
   const output: PlainObject = {};
-  for (const [key, item] of ownEntries(value)) {
+  for (const [key, item] of Object.entries(value)) {
     if (ROUTE_INTENT_KEYS.has(key)) continue;
     if (key === "export_policy" && isPlainObject(item)) {
       setMember(
         output,
         key,
         Object.fromEntries(
-          ownEntries(item)
+          Object.entries(item)
             .filter(([policyKey]) => !ROUTE_INTENT_KEYS.has(policyKey))
             .map(([policyKey, policyValue]) => [policyKey, stripRouteIntent(policyValue)])
         )
@@ -1197,7 +1288,7 @@ function projectRouteValue(
       !Array.isArray(value.value) &&
       hasExplicitMetadata(value)
     ) {
-      return structuredClone(value);
+      return copyPlain(value);
     }
     // The `classification` alias is read only when `privacy_classification` is absent, as
     // Python reads it: a present primary label, null included, is the label, so a null cannot
@@ -1217,7 +1308,7 @@ function projectRouteValue(
       typeof directRedistribution === "string" &&
       PUBLIC_REDIS_STATUSES.has(directRedistribution);
     return Object.fromEntries(
-      ownEntries(value).map(([key, item]) => [
+      Object.entries(value).map(([key, item]) => [
         `${ROUTE_KEY_PREFIX}${key}`,
         projectRouteValue(item, {
           ...args,
@@ -1268,15 +1359,15 @@ function projectRouteValue(
     redistribution_status: redistribution,
     review_status:
       unknown || (!privateValue && !args.publicBasis && !safePublicValue) ? "pending" : "accepted",
-    value: structuredClone(value),
+    value: copyPlain(value),
     _route_projected_leaf: true
   };
 }
 
 function materializeRouteValue(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(materializeRouteValue);
-  if (!isPlainObject(value)) return structuredClone(value);
-  if (value._route_projected_leaf === true) return structuredClone(value.value);
+  if (!isPlainObject(value)) return copyPlain(value);
+  if (value._route_projected_leaf === true) return copyPlain(value.value);
   return Object.fromEntries(
     Object.entries(value)
       .filter(([key]) => key !== "_route_projected_leaf")
@@ -1316,8 +1407,17 @@ export function controlRouteExport(
   assertUserReleaseIntentContext(options.exportContext, options.explicitUserReleaseIntent);
   assertGenericRouteExport(options.routeId, options.exportContext);
   const localFirst = enforceLocalFirstRoute(options);
-  const structuralProjection = structuralProjectionFor(payload, options.routeId);
-  const projected = projectRouteValue(stripRouteIntent(payload), {
+  const refusal = plainDataRefusal(payload);
+  if (refusal !== null) {
+    const refused = plainDataBlockedExport(refusal, options.exportContext);
+    return {
+      ...refused,
+      summary: { ...refused.summary, route_id: options.routeId, materialization_withheld: false, local_first: localFirst }
+    };
+  }
+  const source = copyPlain(payload);
+  const structuralProjection = structuralProjectionFor(source, options.routeId);
+  const projected = projectRouteValue(stripRouteIntent(source), {
     routeId: options.routeId,
     path: "$",
     publicBasis: false,
@@ -1519,7 +1619,7 @@ function screenUserReleaseValue(
       }
     }
     const label = nextUserReleaseLabel(value, args.label);
-    for (const [key, item] of ownEntries(value)) {
+    for (const [key, item] of Object.entries(value)) {
       screenUserReleaseValue(item, { ...args, path: `${args.path}.${key}`, label });
     }
     return;
@@ -1556,18 +1656,27 @@ export function controlUserReleasedReportPackageRequest(
     exportContext: USER_RELEASED_REPORT_CONTEXT,
     explicitUserReleaseIntent: releaseIntent
   });
+  const refusal = plainDataRefusal(payload, "$.request") ?? plainDataRefusal(model, "$.model");
+  if (refusal !== null) {
+    const refused = plainDataBlockedExport(refusal, USER_RELEASED_REPORT_CONTEXT);
+    return {
+      ...refused,
+      summary: { ...refused.summary, route_id: routeId, materialization_withheld: false, local_first: localFirst }
+    };
+  }
+  const request = copyPlain(payload);
   const decisions: RedactionDecision[] = [];
   const findings: RedactionFinding[] = [];
   const screen = { routeId, label: USER_RELEASE_DEFAULT_LABEL, explicitUserReleaseIntent: releaseIntent, decisions, findings };
-  screenUserReleaseValue(payload, { ...screen, path: "$.request" });
-  screenUserReleaseValue(model, { ...screen, path: "$.model" });
+  screenUserReleaseValue(request, { ...screen, path: "$.request" });
+  screenUserReleaseValue(copyPlain(model), { ...screen, path: "$.model" });
   const decisionsBlock = decisions.some((decision) => decision.action === "block_export");
   const materializationWithheld = decisions.some((decision) =>
     ["redact_value", "redact_field", "omit_field", "block_export"].includes(decision.action)
   );
   const blocked = decisionsBlock || materializationWithheld || localFirst.blocked;
   return {
-    payload: blocked ? null : structuredClone(payload),
+    payload: blocked ? null : copyPlain(request),
     decisions,
     findings,
     blocked,

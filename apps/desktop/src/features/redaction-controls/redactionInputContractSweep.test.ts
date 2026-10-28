@@ -588,34 +588,29 @@ describe("DEL-12-02 input contract: named regressions", () => {
     }
   });
 
-  it("bars a non-enumerable own __proto__ member through every copy", () => {
-    // Codex r2 on #1692: `Object.entries` and `structuredClone` dropped a non-enumerable member before the
-    // check. On the record, the item or the provenance, through the route projector, the redaction walk and
-    // the user-release screen, each beside its renamed control.
+  it("refuses a non-enumerable own member, __proto__ included, at every entry point", () => {
+    // Codex r2 on #1692 found copies dropping a non-enumerable `__proto__`; the plain-data gate (HELP_HUMAN
+    // ruling, 2026-10-28) now refuses any non-enumerable member before any read, as parsed JSON has none.
     const hidden = (labels: Item, memberKey: string): Item => {
       const object: Item = { ...labels };
       Object.defineProperty(object, memberKey, { value: {}, enumerable: false, writable: true, configurable: true });
       return object;
     };
     for (const memberKey of ["__proto__", "proto_member"]) {
-      const barredCase = memberKey === "__proto__";
       for (const placement of ["record", "provenance"]) {
         const where = `${memberKey} ${placement}`;
         const record =
           placement === "record"
-            ? { ...withMember({}, "note", "INVENTED"), ...PUBLIC_LABELS }
+            ? hidden({ ...PUBLIC_LABELS, note: "INVENTED" }, memberKey)
             : { ...PUBLIC_LABELS, provenance: hidden(PUBLIC_LABELS, memberKey), note: "INVENTED" };
-        const subject = placement === "record" ? hidden(record, memberKey) : record;
-        expect(noteDecision(subject, "public_report", false).decided, where).toEqual(
-          barredCase ? unbased("public_report") : ["include", "SAFE_PUBLIC_METADATA"]
-        );
         const item = placement === "record" ? hidden({ value: "x", ...PUBLIC_LABELS }, memberKey) : { value: "x", provenance: hidden(PUBLIC_LABELS, memberKey) };
-        const walked = redactExportPayload({ item }, { exportContext: "public_report" });
-        expect(walked.decisions.map((decision) => [decision.action, decision.reason_code]), where).toEqual([
-          barredCase ? ["redact_value", "UNKNOWN_PROVENANCE_WARNING"] : ["include", "SAFE_PUBLIC_METADATA"]
-        ]);
-        const released = controlUserReleasedReportPackageRequest({ record: subject }, {}, true);
-        expect(released.blocked, where).toBe(barredCase);
+        const refused = (decisions: { action: string; reason_code: string }[]) =>
+          decisions.map((decision) => [decision.action, decision.reason_code]);
+        const expected = [["block_export", "EXPORT_INPUT_NOT_PLAIN_DATA"]];
+        expect(refused(controlRouteExport({ record }, { routeId: "DREP-JSON-002", exportContext: "public_report" }).decisions), where).toEqual(expected);
+        expect(refused(redactExportPayload({ item }, { exportContext: "public_report" }).decisions), where).toEqual(expected);
+        expect(refused([classifyExportItem(item, { exportContext: "public_report" })]), where).toEqual(expected);
+        expect(refused(controlUserReleasedReportPackageRequest({ record }, {}, true).decisions), where).toEqual(expected);
       }
     }
   });
