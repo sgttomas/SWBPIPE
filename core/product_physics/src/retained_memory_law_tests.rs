@@ -1848,6 +1848,11 @@ fn profile_in_build_record() {
 }
 /// The build identity of the pinned profile record (the qualified dev/test build of G6).
 pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
+/// W-16 stage 2 at 0bf192cbf8 (retained-pricing-rules.md §8.29): from §8.27's record below, each
+/// case's two spring-base vectors raise O_base by 288 B (W16S-SG), one more integrity-id call raises
+/// TAV_W and TAV_X by 954 B, and the relative-displacement row's signatures in both preview tables
+/// raise STATICS by 2,808 B + 21 Node(String,Value) + 36 s(Value) (+19,416 B here), so every phase
+/// rises by 20,658 B in both modes; W3 is still the maximum.
 /// W-16 slices b and c at 3493838a8b (retained-pricing-rules.md §8.27): from the shear-model member's
 /// record below, the certified producer's two generated-id prefix formats, now behind the case's
 /// generation (W16C-ES), leave TAV_W and TAV_X (-223,488 B) and the shorter identity text and longer
@@ -1922,8 +1927,8 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 /// second ordinary span. The build identity, atoms and native values are unchanged; reviewed-input
 /// registration is separate below.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_559_512_350, 6_901_506_911, 8_855_689_571, 8_643_849_998, 7_721_878_225, 8_607_115_058, 7_338_515_720, 7_011_805_596],
-    [6_618_643_694, 6_960_638_255, 8_914_820_915, 8_702_981_342, 7_781_009_569, 8_666_246_402, 7_397_647_064, 7_070_936_940],
+    [6_559_533_008, 6_901_527_569, 8_855_710_229, 8_643_870_656, 7_721_898_883, 8_607_135_716, 7_338_536_378, 7_011_826_254],
+    [6_618_664_352, 6_960_658_913, 8_914_841_573, 8_703_002_000, 7_781_030_227, 8_666_267_060, 7_397_667_722, 7_070_957_598],
 ];
 
 #[test]
