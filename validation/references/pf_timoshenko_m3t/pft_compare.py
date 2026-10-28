@@ -4,13 +4,9 @@ The judging and coverage logic is kd5t_compare.py's reconstructed M3 harness, im
 ../kd5_timoshenko (read-only); see its docstring for every rule and its source. This module adapts it to
 the pressure-free (PF) route and adds the PF-only rows and expectations. No product code is read.
 
-Usage:
-  python3 -I -B pft_compare.py <set.jsonl> <runs.jsonl> <out.jsonl> [--ref own|twin] [--expect <runner input>] [--workers N]
-      writes the judged records to <out.jsonl> and the collection inventory to <out.jsonl>.inventory.json;
-      exits 3 when the inventory fails
-  python3 -I -B pft_compare.py --check-eval <set.jsonl> <runs.jsonl> <eval.jsonl> [--ref own|twin] [--expect <runner input>]
-      0: the cached evaluation is current (stamp, sidecar, runs and expected models) and its inventory passed;
-      3: current, inventory failed; 2: stale or inconsistent, recompute it
+The judging library of pft_report.py, which is the one judging pass (refutation round 3): it judges a whole
+collection of raw runner outputs directly against the reference, every time, and nothing intermediate is read
+back. This module's own CLI is its self-test and the format-probe summary:
   python3 -I -B pft_compare.py --selftest <set.jsonl>
   python3 -I -B pft_compare.py --probe-format <probes.in.jsonl> <probes.out.jsonl>
 
@@ -33,13 +29,14 @@ What PF publishes, established from the public result format on Euler-Bernoulli 
   u4b-u5b-implementation.md sections 2.3, 2.4). These carry no certificate ("No certificate";
   "receive no certificate of their own"), so they are judged here as information (C11), not as C1.
 
-Provenance [refuter round 2]: every record carries a stamp (JUDGING_FORMAT, the sha256 of pft_compare.py and
-kd5t_compare.py, the sha256 of the reference set, the reference variant), and the sidecar <out>.inventory.json binds
-the comparison's inventory to its records, its runs and its expected models by sha256. Sidecars are cross-checks
-only: pft_report.py recomputes the inventory and the typed/captured pairing over the whole collection.
+Raw outputs and provenance [refutation round 3]: every raw record is validated exactly against RAW_SCHEMA
+(required keys, types, no unknown keys); a record with an `error` key (null included) is a runner failure.
+Each record carries request_sha256 (the sha256 of the runner-input line {tag, request} it solved, which must
+equal that of the reference's request: request_line), runner_sha256 and product_head; a collection must carry
+one runner and one product head. The reference set is validated exactly as well (reference_problems).
 
 Inventory [refuter P1]: every expected model x entry x mode (typed, captured; SparseInteractive,
-DenseScrutiny) exactly once and nothing else; expected models are the set's or a chunk's (`--expect`). A run
+DenseScrutiny) exactly once, successful and schema-valid, and nothing else. A run
 identity received more than once is rejected before judging (C0 on that identity; no record of it is judged,
 so a later record cannot replace an earlier failure); a record of a model outside the set fails C0.
 
@@ -75,6 +72,7 @@ import collections
 import copy
 import hashlib
 import json
+import re
 import math
 import os
 import sys
@@ -256,10 +254,20 @@ def derived_info(ref, run, rec, derived_rows, core_rows):
 
 
 def judge(gen, ref, run):
-    """kd5t_compare's judgement of one run on the PF reference, with the PF information clauses."""
+    """kd5t_compare's judgement of one run on the PF reference, with the PF information clauses.
+
+    A run that carries an `error` key (null included: kd5t_compare.judge_run returns no failure for any `error`
+    key, refutation round 3, P1) is a runner failure: C0, never judged or skipped. So is a successful run that
+    carries neither an integrity standing nor a blocking refusal."""
+    if "error" in run:
+        return {"tag": gen["tag"], "entry": run.get("entry"), "mode": run.get("mode"), "runner_error": repr(run["error"]),
+                "verdict_failures": {"C0": 1}, "info": {}, "design_failures": {"unjudged": 1}}
     core, derived = split_run(run)
     rec = KC.judge_run(gen, kd5_ref(ref), core, PRODUCER)
     rec["producer"] = "pf"
+    if not rec.get("integrity") and not refused(run):
+        rec["no_standing"] = True
+        rec["verdict_failures"]["C0"] = rec["verdict_failures"].get("C0", 0) + 1
     info = collections.Counter(rec.get("info") or {})
     rec["expect"] = ref.get("expect", "rows")
     rec["design_failures"] = {"C10": admission_info(ref, run)}
@@ -286,7 +294,7 @@ def work(job):
         # a run identity received more than once is rejected before judging: no record of it is judged, so a later
         # record can never replace an earlier failure (refuter P1); the collection inventory fails as well
         return [{"tag": gen["tag"], "entry": e, "mode": m, "duplicate_identity": n, "verdict_failures": {"C0": 1}, "info": {}, "verdict": "fail",
-                 "design_failures": {"unjudged": 1}, "design_verdict": "fail", "pairing": None,
+                 "design_failures": {"unjudged": 1}, "design_verdict": "fail",
                  "meta": {k: gen["meta"].get(k) for k in ("design", "family", "theory", "placement", "section_variant", "twin", "E", "G")}}
                 for (e, m), n in sorted(ident.items()) if (e, m) in dup] + work((gen, ref, [r for r in runs if (r.get("entry"), r.get("mode")) not in dup]))
     by = {(r["entry"], r["mode"]): r for r in runs}
@@ -300,12 +308,10 @@ def work(job):
                                                    "verdict_failures": {"C0": 1}}
     out = []
     for (entry, mode), rec in judged.items():
-        # the operands of the typed/captured clauses, kept so that the report recomputes them over the whole
-        # collection, whichever comparison judged each record (refuter round 2, P1)
-        rec["pairing"] = None if "reference_error" in rec else pairing_operands(rec, by[(entry, mode)])
+        # C4 and C4b from the raw runs themselves: the judging pass gives work() every record of a model at once
         if entry == "captured":
             other, orec = by.get(("typed", mode)), judged.get(("typed", mode))
-            if other is not None and orec is not None and "reference_error" not in orec and "reference_error" not in rec:
+            if (other is not None and orec is not None and not {"reference_error", "runner_error"} & (set(orec) | set(rec))):
                 run = by[(entry, mode)]
                 rec["typed_captured_rows_identical"] = KC.row_fingerprint(other) == KC.row_fingerprint(run)
                 a = [d["code"] for d in other.get("diagnostics") or []]
@@ -328,140 +334,181 @@ def work(job):
     return out
 
 
-def pairing_operands(rec, run):
-    """What C4 and C4b compare between a typed and a captured record of one model and mode."""
-    return {"integrity": rec.get("integrity"), "n_breaches": len(rec.get("breaches", [])),
-            "row_digest": hashlib.sha256(json.dumps(KC.row_fingerprint(run)).encode()).hexdigest(),
-            "codes": sorted({d["code"] for d in run.get("diagnostics") or []})}
+HEX64 = re.compile(r"^[0-9a-f]{64}$")
+RAW_COMMON = {"tag", "entry", "mode", "ns", "request_sha256", "runner_sha256", "product_head"}
+RAW_SUCCESS = RAW_COMMON | {"diagnostics", "results", "results_count", "numerical_quality", "summary", "contract_evidence", "publication"}
+RAW_ERROR = RAW_COMMON | {"error"}
+ROW_KEYS = {"kind", "value", "unit", "entity_ref", "case", "location", "component", "id", "metadata"}
+ROW_METADATA = {"basis", "component", "coordinate_system", "location", "sign_convention"}
+DIAG_REQUIRED = {"code", "id", "message", "severity", "source"}
+DIAG_KEYS = DIAG_REQUIRED | {"affected_refs"}
+SEVERITIES = {"info", "warning", "blocking"}
+RAW_SCHEMA = """A raw record is exactly one of
+  success: {tag, entry, mode, ns, diagnostics, results, results_count, numerical_quality, summary, contract_evidence,
+            publication, request_sha256, runner_sha256, product_head}
+  runner error: {tag, entry, mode, ns, error, request_sha256, runner_sha256, product_head}
+with tag a string, entry in ENTRIES, mode in MODES, ns a nonnegative integer, the two sha256 lowercase hex, product_head
+a nonempty string; error a nonempty string; diagnostics a list of objects with code, id, message, severity (info,
+warning or blocking) and source strings and optional affected_refs (a list of strings), and no other key; results a
+list of rows with exactly ROW_KEYS (kind, unit, entity_ref and id strings; case, location and component strings or
+null; value a number or null; metadata null or an object of strings over ROW_METADATA); results_count = len(results);
+numerical_quality, summary and contract_evidence objects or null; publication "ordinary". Nothing else."""
 
 
-def pair_typed_captured(recs):
-    """C4 and C4b recomputed over a whole collection of records: every record's own C4/C4b is replaced by the pairing
-    of its model and mode's typed and captured records, wherever they were judged. Identities received more than once
-    are not paired (the inventory fails them). Returns the number of C4 disagreements."""
-    seen = collections.Counter((r.get("tag"), r.get("entry"), r.get("mode")) for r in recs)
-    by = {}
-    for r in recs:
-        (r.get("verdict_failures") or {}).pop("C4", None)
-        (r.get("info") or {}).pop("C4b", None)
-        for k in ("typed_captured_rows_identical", "typed_captured_disagree", "captured_extra_codes", "typed_extra_codes"):
-            r.pop(k, None)
-        key = (r.get("tag"), r.get("entry"), r.get("mode"))
-        if not r.get("pairing") and "integrity" in r and "duplicate_identity" not in r:
-            # a record without its pairing operands (an older format, which provenance fails) still pairs on C4's
-            r["pairing"] = {"integrity": r["integrity"], "n_breaches": len(r.get("breaches", [])), "row_digest": None, "codes": []}
-        if seen[key] == 1 and r.get("pairing"):
-            by[key] = r
-    n = 0
-    for (tag, entry, mode), cap in by.items():
-        typ = by.get((tag, "typed", mode))
-        if entry != "captured" or typ is None:
+def is_int(x):
+    return isinstance(x, int) and not isinstance(x, bool)
+
+
+def is_num(x):
+    return isinstance(x, (int, float)) and not isinstance(x, bool)
+
+
+def raw_problems(r):
+    """Every way a raw record departs from RAW_SCHEMA ([] when it conforms)."""
+    if not isinstance(r, dict):
+        return ["not an object"]
+    want = RAW_ERROR if "error" in r else RAW_SUCCESS
+    out = [f"missing {k}" for k in sorted(want - set(r))] + [f"unknown key {k}" for k in sorted(set(r) - want)]
+    g = r.get
+    if not isinstance(g("tag"), str) or not g("tag"):
+        out.append("tag")
+    if g("entry") not in ENTRIES:
+        out.append("entry")
+    if g("mode") not in MODES:
+        out.append("mode")
+    if not is_int(g("ns")) or g("ns") < 0:
+        out.append("ns")
+    for k in ("request_sha256", "runner_sha256"):
+        if not isinstance(g(k), str) or not HEX64.match(g(k)):
+            out.append(k)
+    if not isinstance(g("product_head"), str) or not g("product_head"):
+        out.append("product_head")
+    if "error" in r:
+        if not isinstance(r["error"], str) or not r["error"]:
+            out.append("error is not a nonempty string")
+        return out
+    ds = g("diagnostics")
+    if not isinstance(ds, list):
+        out.append("diagnostics")
+    else:
+        for d in ds:
+            if (not isinstance(d, dict) or not DIAG_REQUIRED <= set(d) or not set(d) <= DIAG_KEYS
+                    or not all(isinstance(d[k], str) for k in DIAG_REQUIRED) or d["severity"] not in SEVERITIES
+                    or ("affected_refs" in d and not (isinstance(d["affected_refs"], list) and all(isinstance(x, str) for x in d["affected_refs"])))):
+                out.append("a diagnostic")
+                break
+    rows = g("results")
+    if not isinstance(rows, list):
+        out.append("results")
+    else:
+        for x in rows:
+            md = x.get("metadata") if isinstance(x, dict) else None
+            if (not isinstance(x, dict) or set(x) != ROW_KEYS or not all(isinstance(x[k], str) for k in ("kind", "unit", "entity_ref", "id"))
+                    or not all(x[k] is None or isinstance(x[k], str) for k in ("case", "location", "component"))
+                    or not (x["value"] is None or is_num(x["value"]))
+                    or not (md is None or (isinstance(md, dict) and set(md) <= ROW_METADATA and all(isinstance(v, str) for v in md.values())))):
+                out.append("a result row")
+                break
+        if not is_int(g("results_count")) or g("results_count") != len(rows):
+            out.append("results_count")
+    for k in ("numerical_quality", "summary", "contract_evidence"):
+        if not (g(k) is None or isinstance(g(k), dict)):
+            out.append(k)
+    if g("publication") != "ordinary":
+        out.append("publication")
+    return out
+
+
+REF_LINE = {"tag", "meta", "ref", "request"}
+REF_META = {"design", "family", "section", "material", "placement", "theory", "section_variant", "twin", "E", "G", "harness_validation",
+            "notes", "self_weight_N_per_m"}
+REF_REF = {"theory", "sections", "nodes", "cases", "expect", "expected_warnings", "phi", "phi_minus_2"}
+
+
+def reference_problems(lines, twins=False):
+    """The reference set validated exactly: line, meta and ref keys, the case shapes, unique tags, and, when judging
+    against the twins, every twin present."""
+    out = []
+    tags = collections.Counter(x.get("tag") if isinstance(x, dict) else None for x in lines)
+    out += [f"duplicate reference tag {t}" for t, n in tags.items() if n > 1]
+    for x in lines:
+        t = x.get("tag") if isinstance(x, dict) else None
+        if not isinstance(x, dict) or set(x) != REF_LINE or not isinstance(t, str):
+            out.append(f"{t}: line keys")
             continue
-        a, b = typ["pairing"], cap["pairing"]
-        cap["typed_captured_disagree"] = a["integrity"] != b["integrity"] or a["n_breaches"] != b["n_breaches"]
-        cap["typed_captured_rows_identical"] = None if None in (a["row_digest"], b["row_digest"]) else a["row_digest"] == b["row_digest"]
-        cap["captured_extra_codes"] = sorted(set(b["codes"]) - set(a["codes"]))
-        cap["typed_extra_codes"] = sorted(set(a["codes"]) - set(b["codes"]))
-        if cap["typed_captured_disagree"]:
-            cap["verdict_failures"]["C4"] = 1
-            n += 1
-        if cap["typed_captured_rows_identical"] is False:
-            cap.setdefault("info", {})["C4b"] = 1
-    for r in recs:
-        r["verdict"] = "fail" if r.get("verdict_failures") else "pass"
-    return n
+        m, r = x["meta"], x["ref"]
+        if not isinstance(m, dict) or set(m) != REF_META or (twins and m["twin"] not in tags):
+            out.append(f"{t}: meta")
+        if not isinstance(r, dict) or set(r) != REF_REF | ({"refusal"} if r.get("expect") == "refused" else set()) or r.get("expect") not in ("rows", "refused"):
+            out.append(f"{t}: ref keys")
+            continue
+        if not isinstance(x["request"], dict) or not isinstance(r["cases"], dict) or not r["cases"]:
+            out.append(f"{t}: request or cases")
+            continue
+        for cid, c in r["cases"].items():
+            if (not isinstance(c, dict) or set(c) != {"rows", "maxima"}
+                    or not all(isinstance(row, list) and len(row) == 6 and isinstance(row[5], str) for row in c["rows"])
+                    or not all(isinstance(mx, list) and len(mx) == 3 and isinstance(mx[2], str) for mx in c["maxima"])):
+                out.append(f"{t}: case {cid}")
+    return out
+
+
+def request_line(tag, request):
+    """The runner-input line of a model, exactly as pft_generate.py split writes it and the runner hashes it."""
+    return json.dumps({"tag": tag, "request": request}, sort_keys=True, separators=(",", ":"))
+
+
+def request_lines(gens):
+    return "".join(request_line(g["tag"], g["request"]) + "\n" for g in gens)
+
+
+def request_sha256(tag, request):
+    return hashlib.sha256(request_line(tag, request).encode()).hexdigest()
 
 
 def file_sha256(path):
     return hashlib.sha256(open(path, "rb").read()).hexdigest()
 
 
-def stamp(set_path, variant):
-    """What every record and sidecar carries: the judging format, the comparator's two sources and the reference."""
-    return {"format": JUDGING_FORMAT, "comparator_sha256": file_sha256(os.path.join(HERE, "pft_compare.py")),
-            "kd5t_compare_sha256": file_sha256(KC.__file__), "reference_sha256": file_sha256(set_path), "ref_variant": variant}
-
-
-def record_identities(recs):
-    """The run identities a file of records stands for (a rejected duplicate stands for every copy received)."""
-    return sorted([[r.get("tag"), r.get("entry"), r.get("mode")] for r in recs for _ in range(r.get("duplicate_identity", 1))], key=repr)
-
-
-def eval_problems(eval_path, want):
-    """Cross-checks of one evaluation file against its sidecar and the current stamp `want`: [] when it is current
-    and self-consistent. The sidecar is a cross-check only; nothing is taken from it."""
-    side_path = eval_path + ".inventory.json"
-    if not os.path.exists(eval_path):
-        return ["evaluation missing"]
-    recs = [json.loads(line) for line in open(eval_path) if line.strip()]
-    out = []
-    bad = sum(1 for r in recs if r.get("stamp") != want)
-    if bad:
-        out.append(f"{bad} records with an absent or different stamp (judging format, comparator or reference)")
-    if not os.path.exists(side_path):
-        return out + ["sidecar missing"]
-    side = json.load(open(side_path))
-    if side.get("stamp") != want:
-        out.append("sidecar stamp absent or different")
-    if side.get("eval_sha256") != file_sha256(eval_path):
-        out.append("sidecar does not belong to these records (eval sha256 differs)")
-    if side.get("identities") != record_identities(recs):
-        out.append("sidecar identities differ from the records'")
-    return out
-
-
-def check_eval(set_path, runs_path, eval_path, variant, expect_paths=None):
-    """Whether a cached evaluation may be reused for these runs: 0 current and its inventory passed, 3 current and
-    its inventory failed, 2 stale or inconsistent (recompute)."""
-    probs = eval_problems(eval_path, stamp(set_path, variant))
-    if probs:
-        return 2, probs
-    side = json.load(open(eval_path + ".inventory.json"))
-    tags = expected_tags(set_path, expect_paths)
-    if side.get("runs_sha256") != file_sha256(runs_path):
-        return 2, ["sidecar's runs sha256 differs from the runs file"]
-    if side.get("expected_tags") != sorted(set(tags)):
-        return 2, ["sidecar's expected models differ"]
-    return (0 if side.get("pass") else 3), []
-
-
-def expected_tags(set_path, expect_paths=None):
-    if expect_paths:
-        return [json.loads(line)["tag"] for p in expect_paths for line in open(p) if line.strip()]
-    return [json.loads(line)["tag"] for line in open(set_path) if line.strip()]
-
-
-def inventory(expected_tags, identities):
-    """The collection check (refuter P1): every expected model x entry x mode exactly once, and nothing else.
-    `identities` are (tag, entry, mode) tuples of the received records."""
+def inventory(expected_tags, identities, unsuccessful=()):
+    """The collection check: every expected model x entry x mode exactly once, successful and schema-valid, and
+    nothing else. `identities` are the (tag, entry, mode) of the schema-valid, successful records; `unsuccessful`
+    those of runner errors and schema-invalid records (identifiable or not), which fail the inventory."""
     want = {(t, e, m) for t in expected_tags for e in ENTRIES for m in MODES}
     got = collections.Counter(identities)
-    out = {"expected": len(want), "received": sum(got.values()),
+    out = {"expected": len(want), "received": sum(got.values()) + len(unsuccessful),
            "missing": sorted(want - set(got)), "duplicate": sorted(k for k, n in got.items() if n > 1),
-           "unexpected": sorted(k for k in got if k not in want)}
-    out["pass"] = not (out["missing"] or out["duplicate"] or out["unexpected"])
+           "unexpected": sorted(k for k in got if k not in want), "unsuccessful": sorted(unsuccessful, key=repr)}
+    out["pass"] = not (out["missing"] or out["duplicate"] or out["unexpected"] or out["unsuccessful"])
     return out
 
 
 def inventory_text(inv):
     return (f"INVENTORY (model x entry x mode): {'PASS' if inv['pass'] else 'FAIL'} ({inv['received']} records against {inv['expected']} expected; "
-            f"{len(inv['missing'])} missing, {len(inv['duplicate'])} duplicate, {len(inv['unexpected'])} unexpected)")
+            f"{len(inv['missing'])} missing, {len(inv['duplicate'])} duplicate, {len(inv['unexpected'])} unexpected, "
+            f"{len(inv['unsuccessful'])} unsuccessful or schema-invalid)")
 
 
 # ----------------------------------------------------------------- self-test
-def synthetic_run(gen, upper_scale=1.0 + 1e-12, entry="typed", mode="SparseInteractive"):
-    """A PF-shaped run that publishes the reference rows themselves (rounded to binary64), with the derived sigma+-
-    and tau_v,max formed by the design's binary64 operations from those rows, Passed."""
+SYNTH_RUNNER = "5" * 64          # a synthetic runner's sha256 and product head (no product runs in the self-test)
+SYNTH_HEAD = "synthetic-head"
+
+
+def synthetic_run(gen, upper_scale=1.0 + 1e-12, entry="typed", mode="SparseInteractive", runner=SYNTH_RUNNER, head=SYNTH_HEAD):
+    """A raw runner record (RAW_SCHEMA) that publishes the reference rows themselves (rounded to binary64), with the
+    derived sigma+- and tau_v,max formed by the design's binary64 operations from those rows, Passed, bound to the
+    reference request."""
     ref = gen["ref"]
     rows, cases_ev = [], []
     for cid, c in ref["cases"].items():
         for kind, ent, loc, comp, _, val in c["rows"]:
-            rows.append({"kind": kind, "value": float(Decimal(val)), "entity_ref": ent, "case": cid, "location": loc, "component": comp,
-                         "metadata": {"basis": "recovered_from_open_mechanics_stress_components"}})
+            rows.append({"kind": kind, "value": float(Decimal(val)), "unit": "synthetic", "entity_ref": ent, "case": cid, "location": loc,
+                         "component": comp, "id": f"result:{len(rows)}", "metadata": {"basis": "recovered_from_open_mechanics_stress_components"}})
         ev = []
         for pid, _, val in c["maxima"]:
-            rows.append({"kind": "pipe_elastic_normal_stress_maximum_v2", "value": float(Decimal(val)), "entity_ref": pid, "case": cid,
-                         "location": "governing_station", "component": "maximum_absolute_normal_stress", "metadata": {"basis": "x"}})
+            rows.append({"kind": "pipe_elastic_normal_stress_maximum_v2", "value": float(Decimal(val)), "unit": "Pa", "entity_ref": pid, "case": cid,
+                         "location": "governing_station", "component": "maximum_absolute_normal_stress", "id": f"result:{len(rows)}",
+                         "metadata": {"basis": "x"}})
             ev.append({"pipe_id": pid, "value_upper_pa": float(Decimal(val)) * upper_scale, "value_lower_pa": float(Decimal(val)) / upper_scale})
         cases_ev.append({"load_case_id": cid, "pipe_stress_extrema": ev})
     # sigma+- and tau_v,max as the design prescribes them: binary64 operations on the published operand rows
@@ -476,14 +523,18 @@ def synthetic_run(gen, upper_scale=1.0 + 1e-12, entry="typed", mode="SparseInter
             r["value"] = tau_ops(ref["sections"][r["entity_ref"]], val[(k[0], "element_local_shear_force_y", k[1], k[2])],
                                  val[(k[0], "element_local_shear_force_z", k[1], k[2])])
     mx = [r["value"] for r in rows if r["kind"] == "pipe_elastic_normal_stress_maximum_v2"]
-    diags = [{"code": "NUMERICAL_INTEGRITY_CHECKS_PASSED", "severity": "info", "message": "synthetic"}]
-    diags += [{"code": w, "severity": "warning", "message": "synthetic"} for w in ref.get("expected_warnings", [])]
+    diags = [diag("NUMERICAL_INTEGRITY_CHECKS_PASSED", "info")] + [diag(w, "warning") for w in ref.get("expected_warnings", [])]
     if ref.get("expect") == "refused":
-        diags = [{"code": REFUSAL_CODE, "severity": "blocking", "message": "synthetic"}]
+        diags = [diag(REFUSAL_CODE, "blocking")]
         rows, cases_ev, mx = [], [], []
-    return {"tag": gen["tag"], "entry": entry, "mode": mode, "results": rows,
-            "summary": {"max_open_formula_stress": {"value": max(mx), "unit": "Pa"}} if mx else {},
-            "diagnostics": diags, "contract_evidence": {"preview_cases": cases_ev}}
+    return {"tag": gen["tag"], "entry": entry, "mode": mode, "ns": 1, "diagnostics": diags, "results": rows, "results_count": len(rows),
+            "numerical_quality": {}, "summary": {"max_open_formula_stress": {"value": max(mx), "unit": "Pa"}} if mx else {},
+            "contract_evidence": {"preview_cases": cases_ev}, "publication": "ordinary",
+            "request_sha256": request_sha256(gen["tag"], gen["request"]), "runner_sha256": runner, "product_head": head}
+
+
+def diag(code, severity, message="synthetic"):
+    return {"code": code, "id": "diagnostic:" + code.lower(), "message": message, "severity": severity, "source": "synthetic"}
 
 
 def selftest(set_path):
@@ -788,76 +839,22 @@ def selftest(set_path):
               rr["info"].get("C11ops", 0) == 1 and not rr["info"].get("C11"))
     check("rn_norm2 is correctly rounded on hard cases", rn_norm2(3.0, 4.0) == 5.0 and rn_norm2(1.0, 2.0 ** -27) == 1.0
           and rn_norm2(1e-200, 1e-200) == float(Decimal(2).sqrt() * Decimal("1e-200")) and rn_norm2(1e200, 1e200) == float(Decimal(2).sqrt() * Decimal("1e200")))
-    # the collection (refuter P1): duplicates, missing runs and unexpected records fail; the complete collection passes
-    import tempfile
-    import pft_report
-    g = pick("NCcodexS8")
-    clean = synthetic_run(g)
-    bad = copy.deepcopy(clean)
-    for r in bad["results"]:
-        if r["kind"] in ("global_nodal_displacement_y", "displacement_magnitude") and r["entity_ref"] == "node:N1":
-            r["value"] *= 1 - 0.556
-    for label, runs in (("duplicate-then-correct", [bad, clean]), ("correct-then-duplicate", [clean, bad])):
-        recs = W(g, runs)
-        check(f"{label} (r1's 55.6%-low UY and a correct record of one identity): the identity is rejected (C0), never judged PASS",
-              len(recs) == 1 and recs[0]["verdict"] == "fail" and recs[0]["verdict_failures"] == {"C0": 1} and recs[0]["duplicate_identity"] == 2)
-    full_tags = [t for t, _, _ in __import__("pft_generate").model_list()]
-    check(f"the full set's inventory is 3,624 runs ({len(full_tags)} models x 2 entries x 2 modes)", inventory(full_tags, [])["expected"] == 3624)
-    frozen_tags = [x["tag"] for x in gens]
-    check(f"the frozen subset's inventory is {4 * len(frozen_tags)} runs", inventory(frozen_tags, [])["expected"] == 4 * len(frozen_tags) == 400)
-    complete = [synthetic_run(x, entry=e, mode=m) for x in gens for e in ENTRIES for m in MODES]
-    scenarios = {"complete (positive control)": (complete, True),
-                 "duplicate-then-correct": ([bad, clean] + [r for r in complete if (r["tag"], r["entry"], r["mode"]) != (g["tag"], "typed", "SparseInteractive")], False),
-                 "correct-then-duplicate": (complete + [bad], False),
-                 "a single run": ([clean], False),
-                 "an empty file": ([], False),
-                 "an unexpected tag": (complete + [dict(clean, tag="pft|NOSUCH|S8NC|o|m0|ts")], False),
-                 "unpaired typed sparse and captured dense": ([clean, dict(clean, entry="captured", mode="DenseScrutiny")], False)}
-    with tempfile.TemporaryDirectory() as tmp:
-        for label, (runs, want) in scenarios.items():
-            rp, ep = os.path.join(tmp, "runs.jsonl"), os.path.join(tmp, "eval.jsonl")
-            with open(rp, "w") as f:
-                f.writelines(json.dumps(r) + "\n" for r in runs)
-            inv, _ = compare(set_path, rp, ep, workers=4)
-            rep_ = pft_report.report(set_path, [ep], quiet=True)
-            check(f"collection '{label}': compare inventory {'passes' if want else 'fails'} and the report's M3 verdict {'passes' if want else 'fails'}",
-                  inv["pass"] == want and rep_["inventory"]["pass"] == want and rep_["m3_pass"] == want and rep_["pass"] == want)
-        # the CLIs: the compare exits 3 and the report exits 1 on an empty collection
-        import subprocess
-        rp, ep = os.path.join(tmp, "runs.jsonl"), os.path.join(tmp, "eval.jsonl")
-        open(rp, "w").close()
-        c1 = subprocess.run([sys.executable, "-I", "-B", os.path.join(HERE, "pft_compare.py"), set_path, rp, ep], capture_output=True, text=True)
-        c2 = subprocess.run([sys.executable, "-I", "-B", os.path.join(HERE, "pft_report.py"), set_path, ep], capture_output=True, text=True)
-        check("empty collection through the CLIs: pft_compare exits 3 and pft_report exits 1 with INVENTORY FAIL and M3 VERDICT FAIL",
-              c1.returncode == 3 and c2.returncode == 1 and "INVENTORY (model x entry x mode): FAIL" in c2.stdout and "M3 VERDICT" in c2.stdout
-              and ": FAIL" in c2.stdout.split("M3 VERDICT", 1)[1].split("\n", 1)[0])
-        # an admission mismatch fails the design-conformance verdict and leaves M3 passing
-        adm = [copy.deepcopy(r) for r in complete]
-        for r in adm:
-            if r["tag"] == pick("CANT03")["tag"]:
-                r["diagnostics"], r["results"] = [{"code": REFUSAL_CODE, "severity": "blocking", "message": "x"}], []
-        with open(rp, "w") as f:
-            f.writelines(json.dumps(r) + "\n" for r in adm)
-        compare(set_path, rp, ep, workers=4)
-        rep_ = pft_report.report(set_path, [ep], quiet=True)
-        check("an admitted model refused in a complete collection: M3 passes, design conformance fails (4 records)",
-              rep_["m3_pass"] and not rep_["design_pass"] and rep_["design_failing_records"] == 4 and not rep_["pass"])
-    round2_aggregation(set_path, gens, pick, check)
+    collection_scenarios(set_path, gens, pick, check)
     bad = [n for n, ok in out if not ok]
     print(f"compare self-test: {len(out) - len(bad)} of {len(out)} checks pass")
     if bad:
         raise SystemExit(1)
 
 
-def round2_aggregation(set_path, gens, pick, check):
-    """Refutation round 2 (Codex, at 81f11c6be8): its named scenarios through the real CLIs and run.sh, on synthetic
-    runs only (the runner is `false`, so no product can run). Every scenario but the four positive controls must
-    fail the report; the split typed/captured case must fail C4 recomputed over the collection."""
+def collection_scenarios(set_path, gens, pick, check):
+    """The judging pass over raw outputs (pft_report.py), on synthetic runs only: the refutation rounds' attacks that
+    still apply, round 3's each (new-results.json, additional-results.json, runner-cache-results.json), and the
+    positive controls. run.sh is driven with synthetic runners that are Python scripts, so no product can run."""
     import shutil
     import subprocess
     import tempfile
+    import pft_report as PR
     py = [sys.executable, "-I", "-B"]
-    false = shutil.which("false") or "/usr/bin/false"
     codex, ordinary = pick("NCcodexS8"), pick("CANT03")
     four = [synthetic_run(codex, entry=e, mode=m) for e in ENTRIES for m in MODES]
     eight = four + [synthetic_run(ordinary, entry=e, mode=m) for e in ENTRIES for m in MODES]
@@ -865,181 +862,194 @@ def round2_aggregation(set_path, gens, pick, check):
     for r in bad["results"]:
         if r["kind"] == "global_nodal_displacement_y" and r["entity_ref"] == "node:N1":
             r["value"] *= 0.444
+    complete = [synthetic_run(x, entry=e, mode=m) for x in gens for e in ENTRIES for m in MODES]
+    check(f"the full set's inventory is 3,624 runs, the frozen subset's {inventory([x['tag'] for x in gens], [])['expected']}",
+          inventory([t for t, _, _ in __import__("pft_generate").model_list()], [])["expected"] == 3624 and len(complete) == 400)
     with tempfile.TemporaryDirectory() as tmp:
         T = lambda name: os.path.join(tmp, name)
 
-        def write(path, xs):
+        def write(path, xs, raw=False):
             os.makedirs(os.path.dirname(path), exist_ok=True)
             with open(path, "w") as f:
-                f.writelines(json.dumps(x) + "\n" for x in xs)
+                f.write(xs if raw else "".join(json.dumps(x) + "\n" for x in xs))
             return path
-
-        def cmp_(name, st, runs, expect=None):
-            ep = T(name + ".eval.jsonl")
-            args = py + [os.path.join(HERE, "pft_compare.py"), st, write(T(name + ".raw.jsonl"), runs), ep, "--workers", "1"]
-            if expect:
-                args += ["--expect", expect]
-            return subprocess.run(args, capture_output=True, text=True).returncode, ep
-
-        def rep_(st, eps):
-            jp = T("report.json")
-            if os.path.exists(jp):
-                os.remove(jp)
-            rc = subprocess.run(py + [os.path.join(HERE, "pft_report.py"), st, *eps, "--json", jp], capture_output=True, text=True).returncode
-            return rc, json.load(open(jp))
-
-        def outcome(name, rc, j, want_pass, extra=True, note=""):
-            check(f"round 2 '{name}': the report {'passes' if want_pass else 'fails'} (exit {rc}){note}",
-                  (rc == 0) == want_pass and j["pass"] == want_pass and extra)
 
         small = write(T("small-set.jsonl"), [codex, ordinary])
         one = write(T("one-set.jsonl"), [codex])
-        # round 1's reproductions on the frozen subset
-        for name, runs in (("r1_duplicate", [bad, four[0]]), ("r1_single", [four[0]]), ("r1_empty", [])):
-            c, ep = cmp_(name, set_path, runs)
-            rc, j = rep_(set_path, [ep])
-            outcome(name, rc, j, False, c == 3)
-        scen = {"small_positive": (eight, True, 0), "duplicate_bad_then_good": ([bad] + eight, False, 3), "duplicate_good_then_bad": (eight + [bad], False, 3),
-                "single": ([four[0]], False, 3), "empty": ([], False, 3), "wrong_entry": (eight + [dict(four[0], entry="unrecognized")], False, 3),
-                "wrong_mode": (eight + [dict(four[0], mode="Unrecognized")], False, 3),
-                "unexpected_tag": (eight + [dict(four[0], tag="invented-unexpected-tag")], False, 3), "unpaired": ([four[0], four[3]], False, 3),
-                "bad_unique": ([bad] + eight[1:], False, 0)}
-        for name, (runs, want, crc) in scen.items():
-            c, ep = cmp_(name, small, runs)
-            rc, j = rep_(small, [ep])
-            outcome(name, rc, j, want, c == crc, f" and the comparison exits {crc}")
-        complete = [synthetic_run(x, entry=e, mode=m) for x in gens for e in ENTRIES for m in MODES]
-        c, fp = cmp_("frozen_positive", set_path, complete)
-        rc, j = rep_(set_path, [fp])
-        outcome("frozen_positive", rc, j, True, c == 0 and j["inventory"]["expected"] == 400)
-        adm = copy.deepcopy(eight)
-        for r in adm:
-            if r["tag"] == ordinary["tag"]:
-                r["results"], r["diagnostics"] = [], [{"code": REFUSAL_CODE, "severity": "blocking", "message": "synthetic"}]
-        c, ep = cmp_("admission_failure", small, adm)
-        rc, j = rep_(small, [ep])
-        outcome("admission_failure", rc, j, False, j["m3_pass"] and not j["design_pass"], " on design conformance, M3 passing")
-        # chunks
-        ex_a = write(T("expect-a.jsonl"), [{"tag": codex["tag"], "request": codex["request"]}])
-        ex_b = write(T("expect-b.jsonl"), [{"tag": ordinary["tag"], "request": ordinary["request"]}])
-        ca, ea = cmp_("chunk_a", small, four, ex_a)
-        cb, eb = cmp_("chunk_b", small, eight[4:], ex_b)
-        rc, j = rep_(small, [ea, eb])
-        outcome("chunks_complete_positive", rc, j, True, ca == cb == 0)
-        rc, j = rep_(small, [ea])
-        outcome("chunks_complete_but_collection_incomplete", rc, j, False)
-        rc, j = rep_(small, [ea, eb, ea])
-        outcome("duplicate_across_chunks", rc, j, False, not j["inventory"]["pass"])
-        stale = T("sidecar-mismatch.eval.jsonl")
-        shutil.copyfile(ea, stale)
-        shutil.copyfile(eb + ".inventory.json", stale + ".inventory.json")
-        rc, j = rep_(small, [stale, eb])
-        outcome("sidecar_disagrees_with_its_records", rc, j, False, not j["provenance_pass"], " on provenance")
-        miss = T("missing-sidecar.eval.jsonl")
-        shutil.copyfile(ea, miss)
-        rc, j = rep_(small, [miss, eb])
-        outcome("missing_sidecar", rc, j, False, not j["provenance_pass"], " on provenance")
-        # typed Passed and captured Sensitive split into separate comparisons: C4 recomputed over the collection
-        parts = [copy.deepcopy(four[:2]), copy.deepcopy(four[2:])]
-        for r in parts[1]:
-            r["diagnostics"] = [{"code": "NUMERICAL_INTEGRITY_SENSITIVE", "severity": "warning", "message": "synthetic"}]
-        split = [cmp_(f"split_c4_{i}", one, part, ex_a) for i, part in enumerate(parts)]
-        eps = [ep for _, ep in split]
-        rc, j = rep_(one, eps)
-        outcome("split_c4_failing_sidecars", rc, j, False, [c for c, _ in split] == [3, 3] and j["c4_recomputed"] == 2, ", with C4 recomputed (2)")
-        for ep in eps:
-            shutil.copyfile(ea + ".inventory.json", ep + ".inventory.json")
-        rc, j = rep_(one, eps)
-        outcome("split_c4_stale_passing_sidecars", rc, j, False, not j["provenance_pass"] and j["c4_recomputed"] == 2 and not j["m3_pass"],
-                ", on provenance and on C4 recomputed (2)")
-        c, ep = cmp_("same_c4_unsplit", one, parts[0] + parts[1])
-        rc, j = rep_(one, [ep])
-        outcome("same_c4_unsplit", rc, j, False, c == 0 and j["c4_recomputed"] == 2, ", C4 2")
-        # the full frozen subset: everything else complete, Codex's identities split across two partial comparisons
-        others = [x for x in gens if x["tag"] != codex["tag"]]
-        c, eo = cmp_("full_c4_other", set_path, [r for r in complete if r["tag"] != codex["tag"]],
-                     write(T("full-c4-other.expect.jsonl"), [{"tag": x["tag"], "request": x["request"]} for x in others]))
-        fparts = []
-        for i, ep in enumerate(eps):
-            q = T(f"full-c4-part{i}.eval.jsonl")
-            shutil.copyfile(ep, q)
-            fparts.append(q)
-        rc, j = rep_(set_path, [eo] + fparts)
-        outcome("full_c4_no_sidecars", rc, j, False, c == 0 and j["inventory"]["pass"] and j["c4_recomputed"] == 2 and not j["m3_pass"],
-                " (400 records complete), on provenance and C4 recomputed (2)")
-        for q in fparts:
-            shutil.copyfile(ea + ".inventory.json", q + ".inventory.json")
-        rc, j = rep_(set_path, [eo] + fparts)
-        outcome("full_c4_stale_sidecars", rc, j, False, not j["provenance_pass"] and j["c4_recomputed"] == 2 and not j["m3_pass"])
-        for q in fparts:
-            os.remove(q + ".inventory.json")
-        rc, j = rep_(one, fparts)
-        outcome("split_c4_missing_sidecars", rc, j, False, not j["provenance_pass"] and j["c4_recomputed"] == 2)
 
-        # run.sh with cached runner outputs (the runner is `false`)
-        def driver(name, chunks, cached=None, pre=None):
-            run, sd = T(name), T(name + "-set")
-            write(os.path.join(sd, "set.jsonl"), [codex, ordinary])
-            for i, (tags, runs) in enumerate(chunks):
-                write(os.path.join(run, "chunks", f"c.{i:03d}.in.jsonl"), [{"tag": x["tag"], "request": x["request"]} for x in tags])
-                write(os.path.join(run, "out", f"c.{i:03d}.out.jsonl"), runs)
-                os.makedirs(os.path.join(run, "eval"), exist_ok=True)
-                if cached:
-                    shutil.copyfile(cached, os.path.join(run, "eval", f"c.{i:03d}.own.jsonl"))
-                    shutil.copyfile(cached + ".inventory.json", os.path.join(run, "eval", f"c.{i:03d}.own.jsonl.inventory.json"))
-                if pre:
-                    write(os.path.join(run, "eval", f"c.{i:03d}.own.jsonl"), pre(tags, runs, os.path.join(sd, "set.jsonl")))
-            evals = lambda: sorted(os.path.join(run, "eval", f) for f in os.listdir(os.path.join(run, "eval")) if f.endswith(".own.jsonl"))
-            before = rep_(os.path.join(sd, "set.jsonl"), evals()) if pre else None
-            env = dict(os.environ, PFM3T_PY=sys.executable, PFM3T_WORKERS="1")
-            d = subprocess.run(["bash", os.path.join(HERE, "run.sh"), false, sd, run, "own"], capture_output=True, text=True, env=env).returncode
-            return d, rep_(os.path.join(sd, "set.jsonl"), evals()), before, (lambda: subprocess.run(
-                ["bash", os.path.join(HERE, "run.sh"), false, sd, run, "own"], capture_output=True, text=True, env=env).returncode)
+        def judge_files(name, st, files, want, cond=lambda j: True, note="", **kw):
+            j = PR.report(st, files, quiet=True, workers=kw.pop("workers", 1), **kw)
+            check(f"judging pass '{name}': OVERALL {'PASS' if want else 'FAIL'}{note}", j["pass"] == want and cond(j))
+            return j
 
-        d, (rc, j), _, _ = driver("driver_positive", [([codex], four), ([ordinary], eight[4:])])
-        outcome("driver_positive", rc, j, True, d == 0)
-        d, (rc, j), _, _ = driver("driver_duplicate_across_chunks", [([codex], four), ([codex], four)])
-        outcome("driver_duplicate_across_chunks", rc, j, False, not j["inventory"]["pass"])
-        d, (rc, j), _, _ = driver("driver_missing_chunk", [([codex], four)])
-        outcome("driver_missing_chunk", rc, j, False, not j["inventory"]["pass"])
-        d, (rc, j), _, again = driver("driver_duplicate_within_chunk", [([codex], [bad] + four), ([ordinary], eight[4:])])
-        outcome("driver_duplicate_within_chunk", rc, j, False, d == 1, ", and run.sh exits 1")
-        d2 = again()
-        outcome("driver_duplicate_within_chunk_rerun", rc, j, False, d2 == 1, ", and the rerun exits 1 on the cached failing inventory")
-        d, (rc, j), _, _ = driver("driver_stale_cached_eval", [([ordinary], eight[4:])], cached=ea)
-        recs = [json.loads(line) for line in open(os.path.join(T("driver_stale_cached_eval"), "eval", "c.000.own.jsonl"))]
-        outcome("driver_stale_cached_eval", rc, j, False, {r["tag"] for r in recs} == {ordinary["tag"]},
-                ", after run.sh recomputed the other chunk's cached evaluation")
+        def judge_runs(name, st, runs, want, cond=lambda j: True, note="", **kw):
+            return judge_files(name, st, [write(T(name + ".raw.jsonl"), runs)], want, cond, note, **kw)
 
-        def pre_repair(tags, runs, st):
-            """Records in the 1ee2263d91 format: no stamp, no sidecar, no design_failures, admission as information C10."""
-            recs = work((tags[0], tags[0]["ref"], runs))
-            for r in recs:
-                c10 = (r.pop("design_failures", None) or {}).get("C10", 0)
-                r.pop("design_verdict", None)
-                r.pop("pairing", None)
-                if c10:
-                    r.setdefault("info", {})["C10"] = c10
-                r["ref_variant"] = "own"
-            return recs
+        def mut(runs, f):
+            xs = copy.deepcopy(runs)
+            for r in xs:
+                f(r)
+            return xs
 
-        d, (rc, j), (rc0, j0), _ = driver("driver_pre_repair_cache", [([codex], four), ([ordinary], adm[4:])], pre=pre_repair)
-        outcome("pre_repair_cache_report", rc0, j0, False, not j0["provenance_pass"] and not j0["design_pass"], " on provenance and design conformance")
-        outcome("driver_pre_repair_cache", rc, j, False, j["provenance_pass"] and j["m3_pass"] and not j["design_pass"] and j["design_failing_records"] == 4,
-                ": run.sh recomputed the pre-repair evaluations, and design conformance fails on the 4 refused records")
-        # a record that carries no design_failures is a design-conformance failure, not a pass
-        rec = [json.loads(line) for line in open(fp)]
-        for r in rec[:1]:
-            r.pop("design_failures")
-        nd = T("no-design.eval.jsonl")
-        write(nd, rec)
-        shutil.copyfile(fp + ".inventory.json", nd + ".inventory.json")
-        rc, j = rep_(set_path, [nd])
-        outcome("a record without design_failures (sidecar copied)", rc, j, False, not j["design_pass"] and not j["provenance_pass"])
-        check("--check-eval: a current evaluation is reusable (0); its sidecar's runs differ, or its stamp is absent: recompute (2)",
-              check_eval(small, T("chunk_a.raw.jsonl"), ea, "own", [ex_a])[0] == 0
-              and check_eval(small, T("chunk_b.raw.jsonl"), ea, "own", [ex_a])[0] == 2
-              and check_eval(small, T("chunk_a.raw.jsonl"), ea, "twin", [ex_a])[0] == 2)
+        # positive controls
+        judge_runs("small_positive", small, eight, True)
+        fz = judge_runs("frozen_positive (400 runs)", set_path, complete, True, lambda j: j["inventory"]["expected"] == 400, workers=4)
+        judge_files("chunks_complete_positive (two raw files)", small, [write(T("a.raw.jsonl"), four), write(T("b.raw.jsonl"), eight[4:])], True)
+        judge_runs("twin sensitivity control: the frozen positive judged against the twin references", set_path, complete, False,
+                   lambda j: j["provenance_pass"] and j["inventory"]["pass"] and not j["m3_pass"], ", M3 failing", variant="twin", workers=4)
+        # rounds 1 and 2, on raw outputs
+        for name, st, runs in (("r1_duplicate", set_path, [bad, four[0]]), ("r1_single", set_path, [four[0]]), ("r1_empty", set_path, []),
+                               ("duplicate_bad_then_good", small, [bad] + eight), ("duplicate_good_then_bad", small, eight + [bad]),
+                               ("single", small, [four[0]]), ("empty", small, []), ("unpaired", small, [four[0], four[3]]),
+                               ("unexpected_tag", small, eight + [dict(four[0], tag="invented-unexpected-tag")])):
+            judge_runs(name, st, runs, False, lambda j: not j["inventory"]["pass"], " (inventory)")
+        for name, runs in (("wrong_entry", eight + [dict(four[0], entry="unrecognized")]), ("wrong_mode", eight + [dict(four[0], mode="Unrecognized")])):
+            judge_runs(name, small, runs, False, lambda j: j["schema_invalid"] == 1 and not j["inventory"]["pass"], " (schema, inventory)")
+        judge_runs("bad_unique (55.6%-low UY, everything else right)", small, [bad] + eight[1:], False,
+                   lambda j: j["provenance_pass"] and j["inventory"]["pass"] and not j["m3_pass"], " (M3)")
+        adm = mut(eight, lambda r: r.update(results=[], results_count=0, diagnostics=[diag(REFUSAL_CODE, "blocking")]) if r["tag"] == ordinary["tag"] else None)
+        judge_runs("admission_failure", small, adm, False, lambda j: j["m3_pass"] and not j["design_pass"] and j["design_failing_records"] == 4,
+                   " (design conformance on 4 records; M3 passes)")
+        judge_files("chunks_complete_but_collection_incomplete", small, [T("a.raw.jsonl")], False, lambda j: not j["inventory"]["pass"])
+        judge_files("duplicate_across_chunks (one raw file given twice)", small, [T("a.raw.jsonl"), T("b.raw.jsonl"), T("a.raw.jsonl")], False,
+                    lambda j: bool(j["inventory"]["duplicate"]))
+        sens = lambda r: r.update(diagnostics=[diag("NUMERICAL_INTEGRITY_SENSITIVE", "warning")])
+        split = [four[:2], mut(four[2:], sens)]
+        judge_files("split C4 (typed Passed and captured Sensitive in two raw files)", one,
+                    [write(T("s0.raw.jsonl"), split[0]), write(T("s1.raw.jsonl"), split[1])], False, lambda j: j["c4_failures"] == 2, ", C4 = 2")
+        judge_runs("same C4 unsplit", one, split[0] + split[1], False, lambda j: j["c4_failures"] == 2, ", C4 = 2")
+        others = [r for r in complete if r["tag"] != codex["tag"]]
+        judge_files("full frozen subset with Codex's model split across raw files", set_path,
+                    [write(T("others.raw.jsonl"), others), T("s0.raw.jsonl"), T("s1.raw.jsonl")], False,
+                    lambda j: j["inventory"]["pass"] and j["c4_failures"] == 2, ", C4 = 2", workers=4)
+        # round 3: runner errors are failures, never skipped (new-results.json)
+        for name, f in (("runner_errors_only", lambda r: (r.clear(), r.update(tag=r0["tag"], entry=r0["entry"], mode=r0["mode"], ns=1, error="synthetic runner failure",
+                                                                                 request_sha256=r0["request_sha256"], runner_sha256=SYNTH_RUNNER, product_head=SYNTH_HEAD))),
+                        ("passed_plus_runner_error", lambda r: r.update(error="synthetic runner failure", results=[], results_count=0)),
+                        ("no_standing_no_results", lambda r: r.update(results=[], results_count=0, diagnostics=[])),
+                        ("null_error_bypass", lambda r: r.update(error=None, results=[], results_count=0))):
+            xs = []
+            for r in copy.deepcopy(eight):
+                r0 = dict(r)
+                f(r)
+                xs.append(r)
+            judge_runs(name, small, xs, False, lambda j: not j["inventory"]["pass"] and not j["m3_pass"], " (C0, inventory)")
+        judge_runs("error_bypasses_wrong_rows (the 55.6%-low Passed record with error: null)", small, [dict(bad, error=None)] + eight[1:], False,
+                   lambda j: not j["inventory"]["pass"] and j["schema_invalid"] == 1)
+        r_err = mut(complete, lambda r: (r.pop("results"), r.pop("results_count"), r.pop("diagnostics"), r.pop("numerical_quality"), r.pop("summary"),
+                                          r.pop("contract_evidence"), r.pop("publication"), r.update(error="synthetic runner failure")))
+        judge_runs("frozen_all_runner_errors (400 schema-valid runner errors)", set_path, r_err, False,
+                   lambda j: j["runner_errors"] == 400 and len(j["inventory"]["unsuccessful"]) == 400 and j["m3_failing_records"] == 400, workers=4)
+        # round 3: strict schema; evaluation records and older formats are refused as input
+        for name, f in (("an unknown key", lambda r: r.update(pairing={"integrity": ["NUMERICAL_INTEGRITY_CHECKS_PASSED"]})),
+                        ("a missing key", lambda r: r.pop("results_count")), ("a null clause list (results)", lambda r: r.update(results=None)),
+                        ("a row with an unknown key", lambda r: r["results"][0].update(extra=1)),
+                        ("a diagnostic without id", lambda r: r["diagnostics"][0].pop("id")),
+                        ("a string value", lambda r: r["results"][0].update(value="1.0")),
+                        ("results_count not the row count", lambda r: r.update(results_count=r["results_count"] + 1)),
+                        ("an older-format record (no provenance)", lambda r: [r.pop(k) for k in ("request_sha256", "runner_sha256", "product_head")])):
+            xs = copy.deepcopy(eight)
+            f(xs[3])
+            judge_runs(f"schema: {name}", small, xs, False, lambda j: j["schema_invalid"] == 1 and not j["m3_pass"])
+        ev = T("small.eval.jsonl")
+        PR.report(small, [T("small_positive.raw.jsonl")], quiet=True, workers=1, eval_out=ev)
+        evs = [json.loads(line) for line in open(ev)]
+        for name, f in (("the evaluation output of a passing run", lambda r: None),
+                        ("an evaluation with a forged pairing (pairing_lie)", lambda r: r.update(pairing={"integrity": r.get("integrity"), "row_digest": "0" * 64})),
+                        ("an evaluation without verdict_failures", lambda r: r.pop("verdict_failures", None)),
+                        ("an evaluation with design_failures null", lambda r: r.update(design_failures=None)),
+                        ("an evaluation with a forged current stamp (forged_stamp_legacy)", lambda r: r.update(stamp={"format": "pft-m3t-judging/2"}))):
+            judge_runs(f"refused as input: {name}", small, mut(evs, f), False, lambda j: j["schema_invalid"] == len(evs) and not j["m3_pass"])
+        for name, text in (("an empty raw file (empty_eval)", ""), ("a truncated raw file (truncated_eval)", json.dumps(eight[0]) + "\n"),
+                           ("an invalid JSON raw file (invalid_json_eval)", '{"tag":'), ("a blank line", "\n".join(json.dumps(r) for r in eight[:2]) + "\n\n")):
+            judge_files(name, small, [write(T("text.raw.jsonl"), text, raw=True)], False)
+        judge_files("a raw file that does not exist", small, [T("absent.raw.jsonl")], False, lambda j: not j["provenance_pass"])
+        # round 3: provenance (additional-results.json)
+        changed = copy.deepcopy(codex)
+        changed["request"]["model"]["nodes"][1]["position"]["x"] = 2.0
+        moved = [dict(r, request_sha256=request_sha256(changed["tag"], changed["request"])) for r in four] + eight[4:]
+        judge_runs("changed_member_length_same_tag (runs of L = 2 m under the L = 1 m model's tag)", small, moved, False,
+                   lambda j: not j["provenance_pass"], " (provenance: request sha256)")
+        judge_files("mixed runner sha256 across raw files", small, [T("a.raw.jsonl"), write(T("b2.raw.jsonl"), [dict(r, runner_sha256="6" * 64) for r in eight[4:]])],
+                    False, lambda j: not j["provenance_pass"])
+        judge_files("mixed product heads across raw files", small, [T("a.raw.jsonl"), write(T("b3.raw.jsonl"), [dict(r, product_head="other-head") for r in eight[4:]])],
+                    False, lambda j: not j["provenance_pass"])
+        judge_runs("--runner-sha256 differs", small, eight, False, lambda j: not j["provenance_pass"], runner_sha="7" * 64)
+        judge_runs("--product-head differs", small, eight, False, lambda j: not j["provenance_pass"], head="another-head")
+        judge_runs("--runner-sha256 and --product-head equal (positive)", small, eight, True, runner_sha=SYNTH_RUNNER, head=SYNTH_HEAD)
+        judge_runs("a -dirty product head", small, [dict(r, product_head="abc-dirty") for r in eight], False, lambda j: not j["provenance_pass"])
+        badref = T("bad-set.jsonl")
+        write(badref, [dict(codex, extra=1), ordinary])
+        judge_files("a reference set with an unknown key", badref, [T("small_positive.raw.jsonl")], False, lambda j: not j["provenance_pass"])
+        # round 3: C4b from the raw rows (sensitive_rows_differ, false_row_digest)
+        rows_differ = mut(four, sens)
+        for r in rows_differ:
+            if r["entry"] == "captured":
+                for x in r["results"]:
+                    if x["kind"] == "global_nodal_displacement_y" and x["entity_ref"] == "node:N1":
+                        x["value"] *= 0.444
+        jr = PR.judge_collection(one, [write(T("rows-differ.raw.jsonl"), rows_differ)], workers=1)[0]
+        check("sensitive_rows_differ: C4b is derived from the raw rows on both modes (information); C4 0", jr["info_records"].get("C4b") == 2 and jr["c4_failures"] == 0)
+
+        # run.sh: raw outputs only, written fresh on every invocation; one judging pass over them
+        src = T("sources.json")
+
+        def fake_runner(name, runs):
+            """A synthetic runner: for each input line it emits the given runs of that model, bound to the line's sha256,
+            with its own wrapper's sha256 as runner_sha256."""
+            data = T(name + ".runs.json")
+            json.dump(runs, open(data, "w"))
+            script = T(name + ".py")
+            open(script, "w").write(
+                "import hashlib, json, os, sys\n"
+                "me = hashlib.sha256(open(sys.argv[1], 'rb').read()).hexdigest()\n"
+                f"runs = json.load(open({data!r}))\n"
+                "out = open(os.environ['KD5_OUT'], 'w')\n"
+                "for line in open(os.environ['KD5_IN'], 'rb').read().split(b'\\n'):\n"
+                "    if not line: continue\n"
+                "    tag = json.loads(line)['tag']\n"
+                "    for r in runs:\n"
+                "        if r['tag'] == tag:\n"
+                "            out.write(json.dumps(dict(r, request_sha256=hashlib.sha256(line).hexdigest(), runner_sha256=me, product_head='synthetic-head')) + '\\n')\n")
+            wrapper = T(name)
+            open(wrapper, "w").write(f"#!/bin/bash\nexec {sys.executable} -I -B {script} \"$0\"\n")
+            os.chmod(wrapper, 0o755)
+            return wrapper
+
+        good, badr = fake_runner("good_runner", eight), fake_runner("bad_runner", [bad] + eight[1:])
+        sd = T("driver-set")
+        write(os.path.join(sd, "set.jsonl"), [codex, ordinary])
+        env = dict(os.environ, PFM3T_PY=sys.executable, PFM3T_WORKERS="1")
+
+        def driver(name, runner, run, chunks, want, extra_check=lambda run: True):
+            for i, tags in enumerate(chunks):
+                write(os.path.join(run, "chunks", f"c.{i:03d}.in.jsonl"), request_lines(tags), raw=True)
+            d = subprocess.run(["bash", os.path.join(HERE, "run.sh"), runner, sd, run, "own"], capture_output=True, text=True, env=env)
+            rep = json.load(open(os.path.join(run, "report.own.json")))
+            check(f"run.sh '{name}': exit {d.returncode}, OVERALL {'PASS' if rep['pass'] else 'FAIL'}",
+                  (d.returncode == 0) == want and rep["pass"] == want and extra_check(run))
+
+        os.makedirs(T("drv"), exist_ok=True)
+        driver("driver_positive", good, T("drv/positive"), [[codex], [ordinary]], True)
+        driver("driver_duplicate_across_chunks", good, T("drv/dup"), [[codex], [codex]], False)
+        driver("driver_missing_chunk", good, T("drv/missing"), [[codex]], False)
+        driver("driver_changed_request (the chunk solves L = 2 m under the reference's tag)", good, T("drv/changed"), [[changed, ordinary]], False)
+        resume = T("drv/resume")
+        driver("synthetic_good_initial", good, resume, [[codex], [ordinary]], True)
+        driver("synthetic_bad_resumed (a different runner on the same run directory re-runs every chunk)", badr, resume, [[codex], [ordinary]], False,
+               lambda run: all(json.loads(line)["runner_sha256"] == hashlib.sha256(open(badr, "rb").read()).hexdigest()
+                               for f in os.listdir(os.path.join(run, "out")) for line in open(os.path.join(run, "out", f))))
+        driver("synthetic_bad_fresh", badr, T("drv/fresh"), [[codex], [ordinary]], False)
+        stale_out = T("drv/stale-out")
+        write(os.path.join(stale_out, "out", "c.007.out.jsonl"), [bad])
+        driver("driver_stale_out (a raw output left from an earlier chunking is removed, not judged)", good, stale_out, [[codex], [ordinary]], True,
+               lambda run: not os.path.exists(os.path.join(run, "out", "c.007.out.jsonl")))
+        # the CLI: one final OVERALL line, exit 0 only on PASS
+        for name, raw, rc in (("passing", T("small_positive.raw.jsonl"), 0), ("failing", T("bad_unique (55.6%-low UY, everything else right).raw.jsonl"), 1)):
+            c = subprocess.run(py + [os.path.join(HERE, "pft_report.py"), small, raw, "--workers", "1"], capture_output=True, text=True)
+            last = c.stdout.strip().splitlines()[-1]
+            check(f"pft_report.py CLI, {name} collection: the final line is '{last}' and the exit is {c.returncode}",
+                  c.returncode == rc and last == ("OVERALL: PASS" if rc == 0 else "OVERALL: FAIL"))
 
 
 # ------------------------------------------------------------- format probes
@@ -1085,104 +1095,14 @@ def probe_format(in_path, out_path):
     print("unmatched EB probe rows by kind:", dict(unmatched))
 
 
-def compare(set_path, runs_path, out_path, variant="own", workers=6, expect_paths=None):
-    """Judge every received run, write the records, and return (inventory, summary). Expected tags are the set's,
-    or those of the given runner inputs (a chunk). Records of tags outside the set are not judged (unexpected)."""
-    gens = {}
-    for line in open(set_path):
-        x = json.loads(line)
-        gens[x["tag"]] = x
-    expected = expected_tags(set_path, expect_paths)
-    st = stamp(set_path, variant)
-    runs = collections.defaultdict(list)
-    idents = []
-    for line in open(runs_path):
-        if not line.strip():
-            continue
-        x = json.loads(line)
-        idents.append((x.get("tag"), x.get("entry"), x.get("mode")))
-        runs[x.get("tag")].append(x)
-    inv = inventory(expected, idents)
-    jobs = []
-    stray = []
-    for tag, rs in runs.items():
-        if tag not in gens:
-            # a record of a model outside the set is not judged; it is written as a failing record (C0) so that
-            # the report's inventory sees it too
-            stray += [{"tag": tag, "entry": r.get("entry"), "mode": r.get("mode"), "unexpected_tag": True, "verdict_failures": {"C0": 1},
-                       "info": {}, "verdict": "fail", "design_failures": {"unjudged": 1}, "design_verdict": "fail", "pairing": None,
-                       "ref_variant": variant} for r in rs]
-            continue
-        gen = gens[tag]
-        ref = gen["ref"] if variant == "own" else gens[gen["meta"]["twin"]]["ref"]
-        jobs.append((gen, ref, rs))
-    import multiprocessing as mp
-    summary = collections.Counter()
-    with open(out_path, "w") as f:
-        for rec in stray:
-            rec["stamp"] = st
-            summary["records"] += 1
-            summary["M3 failing"] += 1
-            f.write(json.dumps(rec) + "\n")
-        if workers <= 1 or len(jobs) <= 1:
-            results = map(work, jobs)
-        else:
-            pool = mp.get_context("fork").Pool(workers)
-            results = pool.imap_unordered(work, jobs, chunksize=2)
-        for result in results:
-            for rec in result:
-                rec["ref_variant"] = variant
-                rec["stamp"] = st
-                summary["records"] += 1
-                summary["M3 failing"] += bool(rec.get("verdict_failures"))
-                summary["design failing"] += bool(rec.get("design_failures"))
-                f.write(json.dumps(rec) + "\n")
-    # the sidecar: this comparison's own inventory, bound to its records, its runs and its expected models by sha256
-    side = dict(inv, stamp=st, eval_sha256=file_sha256(out_path), runs_sha256=file_sha256(runs_path), expected_tags=sorted(set(expected)),
-                identities=sorted([list(i) for i in idents], key=repr))
-    with open(out_path + ".inventory.json", "w") as f:
-        json.dump(side, f, indent=1)
-    return inv, summary
-
-
 def main():
     args = sys.argv[1:]
     if args and args[0] == "--selftest":
         selftest(args[1])
-        return
-    if args and args[0] == "--probe-format":
+    elif args and args[0] == "--probe-format":
         probe_format(args[1], args[2])
-        return
-    check = bool(args) and args[0] == "--check-eval"
-    if check:
-        args = args[1:]
-    variant, workers, expect = "own", 6, None
-    if "--expect" in args:
-        i = args.index("--expect")
-        expect = [args[i + 1]]
-        del args[i:i + 2]
-    for flag in ("--ref", "--workers"):
-        if flag in args:
-            i = args.index(flag)
-            val = args[i + 1]
-            del args[i:i + 2]
-            if flag == "--ref":
-                variant = val
-            else:
-                workers = int(val)
-    if variant not in ("own", "twin"):
-        raise SystemExit("--ref own|twin")
-    set_path, runs_path, out_path = args
-    if check:
-        code, probs = check_eval(set_path, runs_path, out_path, variant, expect)
-        print(f"evaluation {out_path}: " + {0: "current, inventory passed", 3: "current, inventory failed"}.get(code, "stale: " + "; ".join(probs)))
-        raise SystemExit(code)
-    inv, summary = compare(set_path, runs_path, out_path, variant, workers, expect)
-    print(inventory_text(inv))
-    print(f"M3 records failing an acceptance clause: {summary['M3 failing']} of {summary['records']}; "
-          f"design-conformance (admission) records failing: {summary['design failing']}")
-    if not inv["pass"]:
-        raise SystemExit(3)
+    else:
+        raise SystemExit(__doc__)
 
 
 if __name__ == "__main__":
