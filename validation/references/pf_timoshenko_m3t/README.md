@@ -111,7 +111,8 @@ reference: it links the product crate by path and calls only `run_linear_static_
 | `pft_engine.py` | Exact PF reference engine: a PF request in, every expected published row out (110-digit `decimal`; ν, κ_E and φ exact rationals). `--check` runs its self-check (130 checks; one of them runs kd5t_engine's 58). |
 | `pft_generate.py` | Judged-set generator: `full <dir>` writes the set, `freeze` the frozen subset, `split` runner inputs, `probes` the format probes, `precision` a re-solve at more digits, `composition` the counts, `check` verifies everything. |
 | `pft_compare.py` | A shim: the judging lives in `../m3_judge/` (route `pf`). `--selftest <frozen subset>` runs the shared judge's self-test. |
-| `pft_census.py` | Premise census: kd5t_census with its engine bound to the PF reference (`hager`, `probe`, `standings`, `--selftest`). |
+| `pft_census.py` | Premise census: kd5t_census with its engine bound to the PF reference (`hager`, `probe`, `standings`, `--selftest`), and `bound`, the census of B ≥ \|error\| (below, "Census"; `bound --selftest`). |
+| `pft_intended.py` | The census's second reference: the exact solution of the product's intended system, from the solver's binary64 section and material operands. |
 | `run.sh` | Driver: `../m3_judge/run.sh pf`, which builds the shared runner (`../m3_judge/runner/`) from a clean checkout, runs it over every chunk (raw outputs only, fresh each time), then the judging pass. |
 | `frozen/pft_frozen_subset.jsonl` | 100 models (50 designs in both theories), each line `{tag, meta, ref, request}`, with exact expected rows. |
 | `SHA256SUMS` | Digests of the files above, except this README. |
@@ -468,6 +469,74 @@ Beyond those ten models it checks:
 product against the Euler–Bernoulli reference must fail at high φ. The stale-vector mutant is not
 observable here, as on the exact route: every member load is full span, where the two vectors are
 identical, and PF refuses Timoshenko partial spans by name (pf-timoshenko.md §3).
+
+## Census (`pft_census.py bound`, `pft_intended.py`)
+
+**What B certifies.** In K-D5's Design (DEL-04-01 `Design/kd5-member-relative-bound.md`), line 28:
+"\"Certified\" means against K-D5's intended system"; §1's intended system is the re-formation at
+p = 128 "of the stiffness and of every formed load term from its binary64 primitives"; and §3 (line
+208): "The bound is B_g = ‖v_g − m_g‖ + ‖r_g‖ + ‖R_g‖, rounded upward." The census reference is
+therefore the exact solution of that system (Agent 0, option 2): `pft_intended.py` solves each model
+with `pft_engine`'s element, loads, recovery and stresses, replacing only each member's section and
+material operands with the solver's binary64 E, G, A, Iy, Iz, J and A_s from the probe's `frames`.
+The frames are bound to the run: every evaluation line of a model carries the same frames, one per
+pipe, with E and G bit-equal to the reference's Pa operands. B does not certify the section-property
+rounding of those operands against the annulus of the authored OD and wall; M3's 1e-9 criterion
+judges that gap.
+
+**Criterion.** B ≥ |published − intended exact|, exactly, on every judged resultant and pipe-wall group
+of every Passed case (PF publishes no pipe-wall group), B read from the probe's groups line and the
+group's norm the M3 judge's. The section cuts `cut_i`/`cut_j` are checked with their own B against the
+end rows. Inputs: the stage-B raw records of `b52900b3ef` (runner `86acccd7…`), judged by the shared
+judge, and the dumps of the probe build of the same head, whose raw records are byte-identical to
+them apart from `ns`, runner and head.
+
+| Batch | Bound held (judged groups) | Section cuts | ε_E go (no-go), ε_E/‖K̃_s‖₁ max | A1 held, min margin |
+|---|---|---|---|---|
+| (a) the 16 models recomputed in round 1, both theories | 5,308 of 5,308 | 1,824 of 1,824 | 60 of 60 (0), 5.5e-16 | 60 of 60, 999 |
+| (b) near-cancellation (170 models) | 12,664 of 12,664 | 3,488 of 3,488 | 302 of 302 (0), 5.0e-16 | 302 of 302, 999 |
+| (c) the full set (906 models, 3,560 runs) | 179,392 of 179,392 | 61,288 of 61,288 | 1,706 of 1,706 (0), 9.2e-16 | 1,706 of 1,706, 563 |
+
+ε_E and A1 are over the typed entries' evaluation lines (the gate is entry-independent); go is
+ε_E ≤ 2^-40 ‖K̃_s‖₁ and A1 is ‖K̃_s^-1‖₁ ≤ 2^10 est. Judged displacement and rotation groups (24,190 in
+(c)) have no product bound; C3 judges them.
+
+**Stress rows.** Line 224: "**Stress rows** are scaled at p from the certified resultants and judged
+through the resultant they scale." Each stress row is judged against B_resultant/(c·10^6) + 4 ulps of
+the published stress, with c the intended section's A (axial), Z = I/r_o (bending) or J/r_o
+(torsion) (Agent 0). The first term is the resultant's certified error carried through the scaling;
+the second covers the product's binary64 representation of the section modulus and the final
+rounding of the stress. Every stress row of a judged stress group of a Passed case held: 4,556, 8,680
+and 154,080 in (a), (b) and (c), with the worst usage 0.304 (`NCauxff|S7NC|o|m0|eb`, N01 end_j,
+bending y, 1.22 ulps). Among the near-zero rows below, the worst usage is 0.096.
+
+*Information: |error| in ulps of the published stress, maximum per kind.*
+
+| Kind | (a) | (b) | (c) |
+|---|---|---|---|
+| axial | 0.49 | 0.47 | 0.50 |
+| bending y | 1.03 | 1.22 | 1,044 rows in (1, 2], 880 beyond 4 |
+| bending z | 1.23 | 1.28 | 952 rows in (1, 2], 344 beyond 4 |
+| torsional | 0.49 | 0.37 | 0.50 |
+
+No row lies in (2, 4]. The 1,224 rows beyond 4 ulps are near-zero stresses (|published| ≤ 7.3e-34 MPa,
+352 with an intended exact value of exactly 0), where an ulp of the published value says nothing:
+46 models of 12 designs, FF06 (16 rows), FF12 (40), L00 (288), L01 (240), L06 (48), PHI2S4FF (32),
+PHI2S5FF (24), SOFTUY00 (98), SOFTUY01 (144), SOFTUY02 (98), SOFTUY03 (144) and SOFTUY04 (52). Each
+lies within the stress rule.
+
+**NCcodexS8: closed.** `pft|NCcodexS8|S8NC|o|m0|eb`, N01 end_i: the resultant is exact (bending_moment_y
+−5e-19 published, intended and physical; B 4.4e-57), and the stress is 1 ulp off. The earlier "B
+1.63e-59" of that stress group was the census's assignment B/(Z·10^6), not a product bound.
+
+**Information: the physical system.** Against this set's rows (the exact annulus of OD and wall), B
+falls short on part of the groups (124,608 of 240,680 checks hold in (c)), by at most 8.5e-15 of the
+group's q: the section-property rounding of the binary64 A, I, J and A_s, which B does not claim and
+M3's 1e-9 criterion judges.
+
+**Open item.** The probe does not dump the product's Z or the stress operands. With them the census
+could check each stress row as the product's scaling of the certified resultant, bit for bit, instead
+of through the allowance above.
 
 ## Premise census (`pft_census.py`)
 
