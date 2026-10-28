@@ -456,6 +456,34 @@ export function libraryRefSites(model: unknown): LibraryRefSite[] {
   return found;
 }
 
+/** One `library_ref` member of a model, whatever its value: its JSON pointer and the value. */
+export type LibraryRefMemberSite = { pointer: string; value: unknown };
+
+function pointerToken(key: string): string {
+  return key.replaceAll("~", "~0").replaceAll("/", "~1");
+}
+
+/** Every member named `library_ref` at any depth, in document order, whatever its value:
+ * an object, `null`, a string, a number, a boolean or an array (a positional record among
+ * them). W-18b's library rule 1 (DEL-08-01 Design `report-user-release.md` §2.7), the
+ * webview's early check; the native detector is `export_disposition_screen::library_ref_member_sites`,
+ * both pinned to `fixtures/model_document/library_ref_member_sites.json`. `libraryRefSites`
+ * above keeps only the object members and is unchanged. */
+export function libraryRefMemberSites(model: unknown): LibraryRefMemberSite[] {
+  const found: LibraryRefMemberSite[] = [];
+  const walk = (value: unknown, pointer: string) => {
+    if (Array.isArray(value)) { value.forEach((entry, index) => walk(entry, `${pointer}/${index}`)); return; }
+    if (!isRecordObject(value)) return;
+    for (const [key, child] of Object.entries(value)) {
+      const at = `${pointer}/${pointerToken(key)}`;
+      if (key === "library_ref") found.push({ pointer: at, value: child });
+      walk(child, at);
+    }
+  };
+  walk(model, "");
+  return found;
+}
+
 /** The references the open-time store check sends, as the model records them
  * (the backend normalizes). A non-string kind or library id is sent empty, so
  * it reads as unresolved rather than failing the check. */

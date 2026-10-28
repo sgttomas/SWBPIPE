@@ -13,7 +13,7 @@
 //! (`inputs.jsonl`) for a comparison outside Rust.
 //!
 //! B7b: the corpus is built from the current fixtures only. The exact-route
-//! statements are the v3 twins (0.7.0/3.0.0/exact_pressure_v3) read by the
+//! statements are the v3 twins (0.8.0/3.0.0/exact_pressure_v3) read by the
 //! pressure-2 and pressure-source-1 readers, with and without the
 //! load/reference-state group; the retired v2 identities appear only as named
 //! refusals (the mutation files' relabel cases). The ledger cases apply to the
@@ -305,6 +305,10 @@ fn build_corpus() -> Vec<Input> {
     for mode in modes {
         let path = format!("core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-{mode}.raw.json");
         base(&mut inputs, format!("load_reference_fallback_uz-{mode}"), read(&path), Some(fallback.clone()), None);
+    }
+    // W-16 slice b: the shared pressure-2 combination corpus, each envelope with its model.
+    for case in read("fixtures/results/pressure_v3_combination_reader_corpus.json")["cases"].as_array().unwrap() {
+        base(&mut inputs, format!("combination/{}", case["label"].as_str().unwrap()), case["envelope"].clone(), Some(case["model"].clone()), None);
     }
     // The shared tamper vector (preview-physics).
     let vector = read("fixtures/results/preview_physics_tamper_vector.json");

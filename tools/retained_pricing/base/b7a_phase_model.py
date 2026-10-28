@@ -35,7 +35,7 @@ INVALIDATION = ("The stage-1 lc-1 preparation-refusal credit is retired. Every a
 FG_FILE = "core/product_physics/src/formation_guard.rs"
 FG = FG_FILE + ":304:load_row_finding"
 DECIDE = FG_FILE + ":223:decide_row"
-SOLVE = "core/product_physics/src/lib.rs:5023:solve_prepared_load_case"   # W-16 slice a (§8.23: 4917, unchanged text); W-15 (§8.21: 4910); W-7 (§8.20: 4850; model document 0.7.0: 4845; silent-zero guard: 4775; W-8: 4774; pre-0.4 unification: 4772; O4 S5: 4687; T4-S5 epoch: 4684; final source 588de796a4: 4507; PP: 4500; B7b: 4427; B7a: 4442)
+SOLVE = "core/product_physics/src/lib.rs:5072:solve_prepared_load_case"   # W-16 slice b/c (§8.27: 5044 -> 5072, unchanged text); model document 0.8.0 (§8.26: 5023 -> 5044, unchanged text); W-16 slice a (§8.23: 4917, unchanged text); W-15 (§8.21: 4910); W-7 (§8.20: 4850; model document 0.7.0: 4845; silent-zero guard: 4775; W-8: 4774; pre-0.4 unification: 4772; O4 S5: 4687; T4-S5 epoch: 4684; final source 588de796a4: 4507; PP: 4500; B7b: 4427; B7a: 4442)
 ROW_LOOP = "for row in &rows"
 LOOP_RULE = {
     "fn": "formation_guard.rs:304:load_row_finding",
@@ -228,13 +228,14 @@ def selected_publication_context(snapshot, directory, graph):
     # topology warnings (§8.16): lib 2634 -> 2635 (`mod topology;`), unchanged text. W-15 (§8.21): lib 2705 -> 2750
     # (`mod rigid_component;`, ResultItem's record and BuiltModel's scaled members), unchanged text.
     # W-16 slice a (§8.23): lib 2750 -> 2752 (`mod imposed_motion;` and LoadTargetInput's support arm, less the deleted
-    # pre-parse refusal call), unchanged text.
+    # pre-parse refusal call), unchanged text. W-16 slices b and c (§8.27): composite 740/1018 -> 754/1032
+    # (physical_source_built's equivalent-static binding), lib 2867 -> 2868 (`mod exact_combinations;`), unchanged text.
     expected = {
-        "core/product_physics/src/source_receipt/composite.rs:740:composite_exact": SOLVE,
-        "core/product_physics/src/source_receipt/composite.rs:1018:ordinary_physics": SOLVE,
+        "core/product_physics/src/source_receipt/composite.rs:754:composite_exact": SOLVE,
+        "core/product_physics/src/source_receipt/composite.rs:1032:ordinary_physics": SOLVE,
         "core/product_physics/src/source_receipt.rs:661:failed": SOLVE,
         "core/product_physics/src/source_receipt.rs:747:finalize_composite":
-            "core/product_physics/src/lib.rs:2858:run_linear_static_preview_observed_inner",
+            "core/product_physics/src/lib.rs:2868:run_linear_static_preview_observed_inner",
         "core/product_physics/src/source_receipt.rs:763:finalize_for":
             "core/product_physics/src/source_receipt.rs:747:finalize_composite",
     }

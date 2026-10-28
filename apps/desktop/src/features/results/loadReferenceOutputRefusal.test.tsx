@@ -102,8 +102,12 @@ const STATES = [["pressure-2", ordinary, PRESSURE_2_OUTPUT_REFUSAL], ["pressure-
 /** Every committed load/reference-state raw, by identity. */
 const PRESSURE_RAWS = ["connected", "pressure"].flatMap(name => MODES.map(mode => [`${name}-${mode}`, name, mode] as const));
 const SOURCE_RAWS = ["n05", "n06", "fields", "mixed", "eigen_motion"].flatMap(name => MODES.map(mode => [`${name}-${mode}`, name, mode] as const));
-/** The three surfaces the owner opened (ruling 10A). */
-const OPENED = ["result-export", "stress-neutral", "rule-check"] as const;
+/** The surfaces the owner opened: three at epoch 8 (ruling 10A), and the rendered report
+ * and the report package at W-11 (DEL-08-01 Design `exact-route-report-sections.md` §5.1;
+ * owner, 2026-10-26). */
+const OPENED = ["result-export", "stress-neutral", "rule-check", "rendered-report", "report-package"] as const;
+/** The opened surfaces among the eighteen gated prefixes. */
+const OPENED_GATED: readonly string[] = ["rule-check", "rendered-report"];
 
 /** Surfaces whose downloads or handoffs carry result data (group a). */
 const GATED: [string, ComponentType<Json>, string][] = [
@@ -132,13 +136,13 @@ describe("the shared refusal", () => {
     for (const [, make, reason] of STATES) {
       // §5.3: the code is kept; the text names the opened surfaces instead of refusing every output.
       expect(reason.startsWith("PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE: This output of ")).toBe(true);
-      expect(reason).toContain("is not available on the desktop; only the result JSON and stress-neutral exports and the rule check admit a numerically eligible result.");
+      expect(reason).toContain("is not available on the desktop; only the result JSON and stress-neutral exports, the rule check, the rendered report and the report package admit a numerically eligible result.");
       expect(reason).toContain("The result remains readable here; this is not a finding about the result.");
       expect(reason).not.toMatch(/\bT[0-9]/);
       expect(reason.toLowerCase()).not.toMatch(/invalid|unsupported/);
       const { result } = await make();
       expect(Array.isArray((result.contract_evidence as Json).load_reference_states)).toBe(true);
-      // The route's shared reason, for its remaining direct caller (the rendered report).
+      // The route's shared reason (no product surface reads it since W-11).
       expect(loadReferenceOutputRefusal(result)).toBe(reason);
     }
     expect(loadReferenceOutputRefusal((await preview()).result)).toBeNull();
@@ -146,9 +150,10 @@ describe("the shared refusal", () => {
 });
 
 /** Epoch 8 (§5.2): the gate reads its surface's own decision. The rule-check
- * completeness panel admits the exact routes; the other seventeen gated surfaces (the
- * fifteen interop and handoff surfaces, the report and the rendered report) still refuse. */
-describe.each(GATED.filter(([, , prefix]) => prefix !== "rule-check"))("%s", (_label, Panel, prefix) => {
+ * completeness panel admits the exact routes, and since W-11 the rendered report does too;
+ * the other sixteen gated surfaces (the fifteen interop and handoff surfaces and the
+ * report JSON packet) still refuse (§5.4). */
+describe.each(GATED.filter(([, , prefix]) => !OPENED_GATED.includes(prefix)))("%s", (_label, Panel, prefix) => {
   it.each(STATES)("refuses %s output with the reworded reason and keeps its display", async (_id, make, reason) => {
     const { props } = await make();
     render(<Panel {...props} />);
@@ -162,6 +167,15 @@ describe.each(GATED.filter(([, , prefix]) => prefix !== "rule-check"))("%s", (_l
     const { props } = await preview();
     render(<Panel {...props} />);
     expect(screen.queryByTestId(`${prefix}-load-reference-output-unavailable`)).toBeNull();
+  });
+});
+
+describe("Rendered report (an opened surface, W-11 §5.1)", () => {
+  it.each(STATES)("admits %s at the gate: no refusal, and the render control is offered", async (_id, make) => {
+    const { props } = await make();
+    render(<RenderedReportPanel {...props} />);
+    expect(screen.queryByTestId("rendered-report-load-reference-output-unavailable")).toBeNull();
+    expect(screen.getByTestId("rendered-report-render")).toBeTruthy();
   });
 });
 
@@ -209,12 +223,12 @@ describe("LoadReferenceOutputGate", () => {
     expect(gate(successor, "stress-neutral")).toStrictEqual({ refusal: reason, open: false });
     for (const [, , prefix] of GATED) expect(gate(successor, prefix), prefix).toStrictEqual({ refusal: reason, open: false });
   });
-  it.each(STATES)("opens for %s on rule-check only among the eighteen gated prefixes, and refuses the other seventeen", async (_id, make, reason) => {
+  it.each(STATES)("opens for %s on rule-check and rendered-report only among the eighteen gated prefixes, and refuses the other sixteen", async (_id, make, reason) => {
     const { result } = await make();
     for (const [, , prefix] of GATED) {
-      expect(gate(result, prefix), prefix).toStrictEqual(prefix === "rule-check" ? { refusal: null, open: true } : { refusal: reason, open: false });
+      expect(gate(result, prefix), prefix).toStrictEqual(OPENED_GATED.includes(prefix) ? { refusal: null, open: true } : { refusal: reason, open: false });
     }
-    // The other opened surfaces add no refusal either; report-package and an unnamed prefix refuse.
+    // The other opened surfaces add no refusal either (report-package since W-11); an unnamed prefix refuses.
     for (const surface of OUTPUT_SURFACES.filter(surface => !GATED.some(([, , prefix]) => prefix === surface))) {
       expect(gate(result, surface), surface).toStrictEqual(OPENED.includes(surface as never) ? { refusal: null, open: true } : { refusal: reason, open: false });
     }
@@ -368,11 +382,16 @@ describe("the opened surfaces follow the reader's standing", () => {
     expect(screen.queryByTestId("result-export-load-reference-disclosure")).toBeNull();
     expect(document.querySelectorAll("a[download]")).toHaveLength(0);
   });
-  it.each(STATES)("the report package refuses %s by its report-package cell (§4.5; ruling 10A)", async (_id, make, reason) => {
+  it.each(STATES)("the report package admits %s past its report-package cell, and the report JSON packet still refuses it (W-11 §5.1, §5.4)", async (_id, make, reason) => {
     const { model, result, analysisRun } = await make();
-    expect(reportPackageUnavailableReason(result)).toBe(reason);
-    expect(surfaceRouteRefusal(result, "report-package")).toBe(reason);
-    await expect(buildReportPackageRequest({ model, result, analysisRun } as never)).rejects.toThrow(reason);
+    expect(reportPackageUnavailableReason(result)).toBeNull();
+    expect(surfaceRouteRefusal(result, "report-package")).toBeNull();
+    expect(surfaceRouteRefusal(result, "report")).toBe(reason);
+    // Past the cell, the builder's own admission decides (here: no input manifest).
+    let message = "";
+    try { await buildReportPackageRequest({ model, result, analysisRun } as never); } catch (error) { message = String(error); }
+    expect(message).not.toBe("");
+    expect(message).not.toContain(reason);
   });
 });
 

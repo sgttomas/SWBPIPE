@@ -48,7 +48,7 @@ fn frame_request(
         })
         .collect();
     json!({"model": {
-        "schema_version": "0.7.0", "document_kind": "openpipestress.product_preview.model",
+        "schema_version": "0.8.0", "document_kind": "openpipestress.product_preview.model",
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics",
                             "rule_check": "not_performed_user_rule_inputs_missing",
                             "professional_acceptance": "not_provided"},
@@ -118,7 +118,7 @@ fn curved_elbow_request() -> Value {
                "direction": dof, "magnitude": {"value": 1.0, "unit": "N*m"}, "dimension": "moment", "provenance": p})
     };
     json!({"model": {
-        "schema_version": "0.7.0", "document_kind": "openpipestress.product_preview.model",
+        "schema_version": "0.8.0", "document_kind": "openpipestress.product_preview.model",
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics",
                             "rule_check": "not_performed_user_rule_inputs_missing",
                             "professional_acceptance": "not_provided"},
@@ -201,7 +201,7 @@ fn u3_connector_request() -> Value {
         "../../../validation/references/t4_i12/u3_reference_cases.json"
     ))
     .unwrap();
-    // B7b: only the copy is re-authored to the current 0.7.0 exact form.
+    // B7b: only the copy is re-authored to the current 0.8.0 exact form.
     crate::b7b_admission_tests::reauthor_current_request(as_request(
         references["cases"]["U3-SYS-DEMO-CONNECTOR-001"]["inputs"]["document_v3_0.3.0"].clone(),
     ))
@@ -1776,7 +1776,7 @@ fn phys_r4_request(pressurized: bool) -> Value {
             "magnitude": {"value": tip, "unit": "N*m"}, "provenance": "independent_section_geometry_reference"}));
     }
     json!({"model": {
-        "schema_version": "0.7.0", "document_kind": "openpipestress.product_preview.model",
+        "schema_version": "0.8.0", "document_kind": "openpipestress.product_preview.model",
         "pressure_contract": {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"},
         "project": {"id": "project:section-oracle", "units": {"length": "m", "force": "N", "angle": "rad",
             "pressure": "Pa", "stress": "Pa", "temperature": "degC"}},

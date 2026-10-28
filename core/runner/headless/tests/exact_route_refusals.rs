@@ -1,7 +1,9 @@
 //! T4-U0 (exact-route hardening) through the headless runner: an exact
-//! document refused for a metadata-only component (A1.1) or a combination
-//! (A1.6) is blocked with no export, in both solver modes. The input is PP's
-//! committed invented X0 fixture (the current 0.7.0 `3.0.0/exact_pressure_v3`
+//! document refused for a metadata-only component (A1.1) is blocked with no
+//! export, in both solver modes. W-16 slice b (DEL-05-02 Design
+//! `exact-combinations.md`) admits the combination (A1.6), which now solves and
+//! exports with its combination evidence. The input is PP's
+//! committed invented X0 fixture (the current 0.8.0 `3.0.0/exact_pressure_v3`
 //! document).
 //!
 //! B7b: the retired `2.0.0/exact_straight_pressure_v2` route's composition and
@@ -71,18 +73,27 @@ fn exact_route_refusals_are_blocked_without_export_in_both_modes() {
         "terms":[{"load_case":"case:closed-pressure","factor":1.0},
             {"load_case":"case:six-component-load","factor":1.0}],
         "provenance":"invented_u0_control"}]);
+    // W-16 slice b: the combination is admitted; the document solves, states its
+    // combination record and exports.
+    for mode in MODES {
+        let output = run_preview_model_value_with_mode(
+            request(&combination["model"]),
+            combination.clone(),
+            mode,
+        )
+        .unwrap();
+        let raw = serde_json::to_value(output.mechanics_envelope.as_ref().unwrap()).unwrap();
+        assert_eq!(raw["status"]["mechanics"], "MECHANICS_SOLVED", "A1.6 {mode:?}");
+        assert!(!raw["diagnostics"].as_array().unwrap().iter().any(|d| d["code"] == "EXACT_PRESSURE_FAMILY_NOT_ADMITTED"), "A1.6 {mode:?}");
+        assert_eq!(raw["contract_evidence"]["exact_combinations"][0]["combination_id"], "combination:sum", "A1.6 {mode:?}");
+        assert!(output.result_envelope_document.is_some(), "A1.6 {mode:?}: {:?}", output.canonical_export_unavailability);
+    }
     for (name, payload, code, refs) in [
         (
             "A1.1",
             tee,
             "EXACT_PRESSURE_FAMILY_NOT_ADMITTED",
             json!(["component:tee"]),
-        ),
-        (
-            "A1.6",
-            combination,
-            "EXACT_PRESSURE_FAMILY_NOT_ADMITTED",
-            json!(["combination:sum"]),
         ),
     ] {
         for mode in MODES {

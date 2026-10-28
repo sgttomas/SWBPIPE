@@ -6,7 +6,7 @@
 //! load/reference-state group), Y0 =
 //! `fixtures/product_preview/pressure/load_reference/pressure.request.json`
 //! (with the group). B7b deleted the v2 contract: both are current model
-//! 0.7.0 documents, re-authored once from their v2 originals to
+//! 0.8.0 documents, re-authored once from their v2 originals to
 //! `3.0.0/exact_pressure_v3` with `shear_model` Euler-Bernoulli and an
 //! explicit zero corrosion allowance. "Both entries" are the captured value
 //! entry and the typed entry; "both modes" are sparse-interactive and
@@ -47,7 +47,7 @@ enum Base {
 }
 
 impl Base {
-    /// The committed current document (0.7.0, v3, CA 0, Euler-Bernoulli).
+    /// The committed current document (0.8.0, v3, CA 0, Euler-Bernoulli).
     fn current(self) -> Value {
         let document: Value = serde_json::from_str(match self {
             Base::X0 => X0,
@@ -439,14 +439,8 @@ fn each_family_not_yet_admitted_is_refused_by_name_on_v3() {
             declare_support_state(&mut document, &id);
             cases.push((document, vec![id], name));
         }
-        let [first, second] = base.cases();
-        let mut combination = base.current();
-        combination["model"]["combinations"] = json!([{"id":"combination:sum","basis":"mechanics",
-            "terms":[{"load_case":first,"factor":1.0},{"load_case":second,"factor":1.0}],"provenance":PROVENANCE}]);
-        cases.push((combination, vec!["combination:sum".into()], "load combination"));
-        let mut equivalent = base.current();
-        case_mut(&mut equivalent, second)["equivalent_static"] = json!({"provenance":PROVENANCE});
-        cases.push((equivalent, vec![second.into(), "equivalent_static".into()], "equivalent-static generation"));
+        // W-16 slice b admits load combinations (see the test below); W-16 slice c
+        // admits equivalent-static generation (see the test after it).
         for (document, refs, name) in cases {
             let refs = refs.iter().map(String::as_str).collect::<Vec<_>>();
             for envelope in run_all(&document) {
@@ -459,6 +453,60 @@ fn each_family_not_yet_admitted_is_refused_by_name_on_v3() {
                     assert!(message.contains("realize this bend"), "{message}");
                 } else {
                     assert!(message.contains("is not yet admitted under 3.0.0/exact_pressure_v3"), "{message}");
+                }
+            }
+        }
+    }
+}
+
+/// W-16 slice b (DEL-05-02 Design `exact-combinations.md`): the seam admits a
+/// model-authored combination, so the family refusal never names it. On both
+/// bases the document solves and states the combination's evidence record.
+#[test]
+fn a_load_combination_is_admitted_at_the_seam() {
+    for base in [Base::X0, Base::Y0] {
+        let [first, second] = base.cases();
+        let mut document = base.current();
+        document["model"]["combinations"] = json!([{"id":"combination:sum","basis":"mechanics",
+            "terms":[{"load_case":first,"factor":1.0},{"load_case":second,"factor":1.0}],"provenance":PROVENANCE}]);
+        for envelope in run_all(&document) {
+            assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED");
+            assert!(!has_code(&envelope, FAMILY), "{:#?}", envelope["diagnostics"]);
+            let records = envelope["contract_evidence"]["exact_combinations"].as_array().unwrap();
+            assert_eq!(records.len(), 1);
+            assert_eq!(records[0]["combination_id"], "combination:sum");
+        }
+    }
+}
+
+/// W-16 slice c (DEL-05-01 Design `exact-equivalent-static.md`): the seam
+/// admits a case's `equivalent_static`, so the family refusal never names it.
+/// On the plain document a wind generation solves and publishes its record;
+/// on the load/reference-state document the route refuses generation by name,
+/// before the effective cases are selected.
+#[test]
+fn equivalent_static_is_admitted_at_the_seam_and_refused_on_load_state_documents() {
+    const LOAD_STATE: &str = "EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED";
+    for base in [Base::X0, Base::Y0] {
+        let [_, second] = base.cases();
+        let mut equivalent = base.current();
+        case_mut(&mut equivalent, second)["equivalent_static"] = json!({"wind": {"pressure": {"value": 800.0, "unit": "Pa"},
+            "shape_factor": {"value": 0.7, "unit": "1"}, "direction": "global_z", "exposed_pipe_refs": [base.region_pipe()]},
+            "provenance": PROVENANCE});
+        for envelope in run_all(&equivalent) {
+            assert!(!has_code(&envelope, FAMILY), "{:#?}", envelope["diagnostics"]);
+            match base {
+                Base::X0 => {
+                    assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{:#?}", envelope["diagnostics"]);
+                    assert!(!has_code(&envelope, LOAD_STATE));
+                    let case = envelope["contract_evidence"]["exact_cases"].as_array().unwrap().iter()
+                        .find(|c| c["load_case_id"] == second).unwrap();
+                    assert_eq!(case["equivalent_static"]["generated_load_ids"].as_array().unwrap().len(), 1);
+                }
+                Base::Y0 => {
+                    assert_v3_blocked(&envelope, base);
+                    let message = finding(&envelope, LOAD_STATE, &[second, "equivalent_static"])["message"].as_str().unwrap().to_string();
+                    assert!(message.contains("declared source ledger"), "{message}");
                 }
             }
         }
@@ -645,8 +693,8 @@ fn shared_pressure_v3_reader_corpus_is_current() {
     let corpus = json!({
         "corpus":"T4-U2a pressure-1 straight reader corpus",
         "generator":"core/product_physics/tests/exact_admission_seam.rs::shared_pressure_v3_reader_corpus_is_current",
-        "inputs":["core/product_physics/tests/fixtures/exact_pressure_connected_request.json (X0, model 0.7.0, pressure_contract 3.0.0/exact_pressure_v3, case:closed-pressure p = -2000 kPa)",
-            "fixtures/product_preview/pressure/load_reference/pressure.request.json (Y0, model 0.7.0 with the load/reference-state group, pressure_contract 3.0.0/exact_pressure_v3)"],
+        "inputs":["core/product_physics/tests/fixtures/exact_pressure_connected_request.json (X0, model 0.8.0, pressure_contract 3.0.0/exact_pressure_v3, case:closed-pressure p = -2000 kPa)",
+            "fixtures/product_preview/pressure/load_reference/pressure.request.json (Y0, model 0.8.0 with the load/reference-state group, pressure_contract 3.0.0/exact_pressure_v3)"],
         "cases":cases,
     });
     let bytes = serde_json::to_string_pretty(&corpus).unwrap() + "\n";

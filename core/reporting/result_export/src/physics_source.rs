@@ -21,7 +21,7 @@ impl SourceContract {
     pub const fn pressure(self) -> crate::physics_evidence::PressureContract {
         crate::physics_evidence::PressureContract::PressureV3
     }
-    /// The captured model's contract: a 0.7.0 document whose
+    /// The captured model's contract: a 0.8.0 document whose
     /// `pressure_contract` is exactly `{version "3.0.0", mode
     /// "exact_pressure_v3", shear_model}` with `shear_model` either
     /// `euler_bernoulli` or `timoshenko_annulus_energy_v1` (O4 §3.4), and no
@@ -29,7 +29,7 @@ impl SourceContract {
     pub fn from_invocation(invocation: &Value) -> Result<Self, String> {
         let model = &invocation["request"]["model"];
         let contract = &model["pressure_contract"];
-        if model["schema_version"] == "0.7.0"
+        if model["schema_version"] == "0.8.0"
             && model.get("shear_model").is_none()
             && contract.as_object().is_some_and(|members| members.len() == 3)
             && contract["version"] == "3.0.0"
@@ -255,6 +255,14 @@ pub fn validate_transport_metadata_in(source: &Value, contract: SourceContract) 
             proof["load_reference_state"] = state.clone();
         }
         require(record["physical_evidence_sha256"] == domain_hash(contract.case_domain(), &proof)?, "PHYSICAL_CASE_HASH")?;
+        // W-16 slice c (DEL-05-01 Design `exact-equivalent-static.md` §2): an
+        // ordinary companion may carry its generation record (closed by the
+        // schema, checked like pressure-2's); a selected case never does,
+        // since source recovery declines equivalent-static producers.
+        if let Some(generation) = exact.get("equivalent_static") {
+            require(record["selected_method"] != EXACT, "SOURCE_EQUIVALENT_STATIC")?;
+            crate::physics_evidence::equivalent_static_record(cid, generation)?;
+        }
         if record["selected_method"] == EXACT {
             require(pressure.is_empty(), "SOURCE_PRESSURE_INVENTORY")?;
             let plan = &record["source"];
@@ -835,7 +843,7 @@ pub(crate) fn validate_source_case_in(
     if let Some(invocation) = invocation {
         let model = &invocation["request"]["model"];
         require(
-            model["schema_version"] == "0.7.0"
+            model["schema_version"] == "0.8.0"
                 && SourceContract::from_invocation(invocation).ok() == Some(contract),
             "ACTUAL_EXACT_PROFILE",
         )?;
@@ -1357,7 +1365,7 @@ pub fn validate_in(source: &Value, actual_invocation: Option<&Value>, contract: 
     if contract == SourceContract::PressureV3 {
         if let Some(invocation) = actual_invocation {
             let model = &invocation["request"]["model"];
-            require(model["schema_version"] == "0.7.0", "ACTUAL_MODEL_SCHEMA")?;
+            require(model["schema_version"] == "0.8.0", "ACTUAL_MODEL_SCHEMA")?;
             require(resolved == model_carries_load_state(model), "ACTUAL_LOAD_REFERENCE_CONTEXT")?;
         }
     }

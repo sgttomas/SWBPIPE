@@ -21,6 +21,12 @@ the preview extremum (<= 15 entries, keys <= 40 B), componentwise; a coverage en
 (no coverage entry lists bodies and the captured model's components are empty, P2). Both clones are charged, with the
 case and entry lists, beside U4B-RD's and W7-RD's sets.
 
+W15C (W-15 slice c, the eccentric offset; retained-pricing-rules.md §8.26): Topology::of builds a third pipe map with
+the node positions, the per-node member lists, the mapping table and the realized and replaced sets, but only for
+judge_all, which both offset entry points call after their allocation-free first pass; that pass returns when no
+component carries `eccentric_offset`, which P2 makes every D1 request (W15C-NO, o10_rules.py). So nothing of it is
+live on D1 and W15-PM's two tables are unchanged.
+
 Bound to the two files' sha256 (both are W-15's new modules), the exact allocating statements and the readers' call
 sites; a snapshot without them adds nothing (earlier registered trees keep their coefficients), a partly present or
 changed owner stops the run."""
@@ -31,13 +37,14 @@ PP = "core/product_physics/src/"
 RE = "core/reporting/result_export/src/"
 RC = PP + "rigid_component.rs"
 CB = RE + "component_body.rs"
-PINS = {RC: "0203c6aa752219d4af9df90f4f31c2fc8a4d54960625cda790bab14d8a0d9dc9",
+PINS = {RC: "e885dae77f51be7336d63d17ced700dbb0aaf69e0bb47ffa54c7c8c3542c2144",
         CB: "ace48d130d710eae3412c1b850962f78673ba03e143044c0fbc5d48f2265b514"}
 
 # (file, statement, count): each owning statement the formulas price or the premise empties.
 STATEMENTS = (
     (RC, "model.pipe_segments.iter().map(|pipe| (pipe.id.as_str(), pipe)).collect()", 1),
-    (RC, "let pipes = pipe_map(model);", 2),
+    (RC, "let pipes = pipe_map(model);", 3),
+    (RC, "let topology = Topology::of(model);", 1),
     (RC, "let conflicted = conflicts(model).into_iter().map(|(member, _)| member).collect::<HashSet<_>>();", 1),
     (RC, "for component in model.components.iter().filter(|component| is_rigid_family(component)) {", 1),
     (RC, "let mut by_member: BTreeMap<&str, Vec<&str>> = BTreeMap::new();", 1),

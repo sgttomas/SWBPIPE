@@ -42,11 +42,12 @@ LN = {
     'format': 166,        # `&format!(` (167) [155]
     'join': 168,          # `stable_suffix(&refs.join(":"))` (169) [157]
     'to_string': 173,     # `refs.iter().map(|value| value.to_string()).collect(),` (174) [162]
-    # Nested-record closure D3 (§8.25): the four lib.rs lines move +106 with unchanged text.
-    'unit_message': 10175, # lib.rs `message.into()` (9162) [9159]
-    'suffix': 14953,      # lib.rs `id.replace(':', "-")` (13614) [13619]
-    'diag_fn': 14902,     # lib.rs fn diag (13563) [13568]
-    'suffix_fn': 14952,   # lib.rs fn stable_suffix (13613) [13618]
+    # Nested-record closure D3 (§8.25): the four lib.rs lines move +106 with unchanged text; model document 0.8.0 (§8.26):
+    # +36 (unit_message) and +36 (the three helpers), unchanged text.
+    'unit_message': 10244, # lib.rs `message.into()` (9162) [9159]
+    'suffix': 15187,      # lib.rs `id.replace(':', "-")` (13614) [13619]
+    'diag_fn': 15136,     # lib.rs fn diag (13563) [13568]
+    'suffix_fn': 15186,   # lib.rs fn stable_suffix (13613) [13618]
     'require': 125,       # physics_source.rs `Err(format!("PHYSICS_SOURCE_{detail}"))` (89; 62 before ccb19ba0bf) [78]
 }
 PR = PP + 'pressure_runtime.rs:'
@@ -112,9 +113,12 @@ PROBLEM_PARENTS = [PR + x for x in (   # B7a: 188, 234, 531, 545, 618, 1091, 133
     # assemble_pressure_case's `realized_arc` call
     # W-15 D3 (§8.21): validate_profile's reducer refusal (one more call of `problem` in validate_profile, 0 on D1: P2,
     # D1.5) moves the later parents +6 with unchanged text.
-    '187:exact_member_recovery', '211:validate_profile', '500:check_suffixes',
-    '514:normalize_region_units', '587:assemble_pressure_case', '1066:add_joint_terms',
-    '1316:finish_source_groups', '1464:traverse_region', '1704:collinear_run')]
+    # W-16 slice c D3 (§8.27, W16C-ES): validate_profile's load/reference-state refusal of a generated equivalent-static
+    # case (one more call of `problem` in validate_profile, inside `case.equivalent_static.is_some()`: 0 on D1, which
+    # refuses equivalent_static on every retained branch) moves the later parents +7 with unchanged text.
+    '187:exact_member_recovery', '211:validate_profile', '507:check_suffixes',
+    '521:normalize_region_units', '594:assemble_pressure_case', '1073:add_joint_terms',
+    '1323:finish_source_groups', '1471:traverse_region', '1711:collinear_run')]
 # U5B-JV (T4-U5b): joint.rs `hardware`'s match binding `Err(Some(problem)) => problems.push(problem)` gives the
 # by-name value scan one more graph parent of `problem`, which hardware never calls; o10_rules.py zeroes that edge, and
 # the owner's message/ref bounds are unchanged (hardware passes neither).

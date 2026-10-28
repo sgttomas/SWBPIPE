@@ -14,6 +14,7 @@ import {
 
 import { ViewportSelectionPresentation } from "./viewportSelectionPresentation";
 import { ViewportHaloPresentation } from "./viewportHalo";
+import { paintResultContourTheme } from "./resultContourMesh";
 import { isFigureMaterial, setFigureEdge, setFigureShadeRatio } from "./viewportFigureMaterial";
 import {
   DEFAULT_VIEWPORT_PALETTE_THEME,
@@ -501,6 +502,9 @@ export class ViewportResource {
   private modelIndex: ModelIndex | null = null;
   private hiddenKeys: ReadonlySet<EntityKey> = new Set();
   private dimmedKeys: ReadonlySet<EntityKey> = new Set();
+  // The undeformed ghost (DEL-07-05, A5): model-layer entities drawn at the dimmed opacity
+  // while the deformed shape is shown. Display only; picking and hiding are unchanged.
+  private ghostKeys: ReadonlySet<EntityKey> = new Set();
   private selectedKeys: ReadonlySet<EntityKey> = new Set();
   private hoveredKey: EntityKey | null = null;
   // Selection and hover halos. Display-only: never given to either picking path. Absent only on a
@@ -513,6 +517,7 @@ export class ViewportResource {
   private resultColours: ResultColourTable | null = null;
   private renderOrigin: Readonly<Vec3> = Object.freeze({ x: 0, y: 0, z: 0 });
   private labelUpdater: (() => void) | null = null;
+  private overlayLabelUpdater: (() => void) | null = null;
   private disposed = false;
   private contextStatus: ViewportContextStatus = "ready";
   private contextLostCount = 0;
@@ -684,6 +689,12 @@ export class ViewportResource {
     this.labelUpdater = updater;
   }
 
+  /** The result overlay's own canvas labels (the contour's numbers), placed after each main
+   * render as the entity labels are, or none. */
+  setOverlayLabelUpdater(updater: (() => void) | null): void {
+    this.overlayLabelUpdater = updater;
+  }
+
   /**
    * Result colour on the model's tubes (design system 6.7), or none. Kept, so a rebuilt model
    * layer takes it again. Display only: instance colours are rewritten in place, once per call,
@@ -752,11 +763,7 @@ export class ViewportResource {
   setVisibilityPresentation(hiddenKeys: ReadonlySet<EntityKey>, dimmedKeys: ReadonlySet<EntityKey> = new Set()): void {
     this.hiddenKeys = new Set(hiddenKeys);
     this.dimmedKeys = new Set(dimmedKeys);
-    applyVisibilityPresentation(
-      [this.modelLayer, this.authoredLoadLayer, this.resultLayer, this.diagnosticLayer],
-      this.hiddenKeys,
-      this.dimmedKeys
-    );
+    this.applyLayerVisibility();
     this.syncHalo();
     this.updateSelectionCue();
     this.invalidate();
@@ -785,17 +792,31 @@ export class ViewportResource {
       this.selectedKeys,
       this.themePresentation
     );
-    applyVisibilityPresentation(
-      [this.modelLayer, this.authoredLoadLayer, this.resultLayer, this.diagnosticLayer],
-      this.hiddenKeys,
-      this.dimmedKeys
-    );
+    this.applyLayerVisibility();
     this.applyAuxiliaryVisibility();
     // After the layer holds its new objects: halos of geometries that left with the old layer are
     // disposed, and the selected and hovered elements are haloed from the new ones.
     this.syncHalo();
     this.notifyResourceStateChange(false);
     this.invalidate();
+  }
+
+  /**
+   * The undeformed ghost: these model-layer entities draw at the dimmed opacity, through the
+   * same dim batches as isolation, so nothing is created or disposed. The deformed shape and the
+   * other layers keep their opacity. Hide still wins; dimmed geometry stays selectable.
+   */
+  setUndeformedGhostPresentation(ghostKeys: ReadonlySet<EntityKey>): void {
+    this.ghostKeys = new Set(ghostKeys);
+    this.applyLayerVisibility();
+    this.invalidate();
+  }
+
+  private applyLayerVisibility(): void {
+    const dimmed = this.dimmedKeys ?? new Set<EntityKey>();
+    const ghost = this.ghostKeys ?? new Set<EntityKey>();
+    applyVisibilityPresentation([this.modelLayer], this.hiddenKeys, ghost.size ? new Set([...dimmed, ...ghost]) : dimmed);
+    applyVisibilityPresentation([this.authoredLoadLayer, this.resultLayer, this.diagnosticLayer], this.hiddenKeys, dimmed);
   }
 
   /**
@@ -947,6 +968,7 @@ export class ViewportResource {
     this.dimmedKeys = new Set();
     this.actualOdRadiusByPipe = new Map();
     this.labelUpdater = null;
+    this.overlayLabelUpdater = null;
     this.host.replaceChildren();
     this.notifyResourceStateChange(true);
   }
@@ -985,6 +1007,7 @@ export class ViewportResource {
     const rendererInfo = copyRendererInfo(this.renderer.info);
     this.renderGizmo();
     this.labelUpdater?.();
+    this.overlayLabelUpdater?.();
     // Renderer diagnostics are captured in the actual main-render completion
     // path above. Presentation timing comes from the external compositor
     // witness; diagnostics must not schedule an additional app-owned RAF.
@@ -1212,6 +1235,8 @@ function paintFigureShade(object: THREE.Object3D, theme: ViewportThemePresentati
 
 function paintObjectForTheme(object: THREE.Object3D, theme: ViewportThemePresentation, edgeWidth = 1): void {
   paintFigureShade(object, theme, edgeWidth);
+  // A result contour sleeve holds both themes' vertex colours and has no palette role.
+  paintResultContourTheme(object, theme);
   const gridRoles = object.userData.viewportPaletteGridRoles as GridPaletteRoles | undefined;
   if (gridRoles && object instanceof THREE.LineSegments) paintGridColors(object, gridRoles, theme);
   const role: unknown = object.userData.viewportPaletteRole;

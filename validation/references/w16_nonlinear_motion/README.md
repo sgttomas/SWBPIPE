@@ -22,7 +22,7 @@ TASK. They have not yet been independently refuted.
 | File | Role |
 |---|---|
 | `generators/w16_nl_reference.py` | the generator: writes the requests, solves every support state in exact rational arithmetic, evaluates each benchmark's closed form, and writes `references.json` and `SHA256SUMS` |
-| `requests/*.json` | the invented product request documents (model schema 0.7.0) |
+| `requests/*.json` | the invented product request documents (model document 0.8.0) |
 | `references.json` | per request and load case: the strictly and weakly qualifying states, with exact published rows (and each moved ground's exact relative displacement); the closed-form cross-checks; A-3's reduced closed form and mutants |
 | `SHA256SUMS` | hashes of every file above (`shasum -a 256 -c SHA256SUMS` in this directory) |
 

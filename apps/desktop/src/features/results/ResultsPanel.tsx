@@ -9,7 +9,7 @@ import type { ReactNode } from "react";
 import { QuantityReadout } from "../display-units";
 import { semanticDimension, semanticLabels, type RowLabels } from "./resultSemantics";
 import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import type { AnalysisRunEnvelope, DesignKnowledge, MechanicsGap, MechanicsResult, ResultInterpretation } from "../../types";
 import { buildResultInterpretation, mechanicsGaps } from "./resultInterpretation";
 import type { EntityRef } from "../../types";
@@ -17,6 +17,20 @@ import { numericalResultStanding } from "./resultStanding";
 import { badgeOf, locationText, numericalHealthView, readNumericalHealth, rowHealthState, type NumericalHealthBadge, type NumericalHealthLocation, type NumericalHealthView } from "./numericalHealth";
 import { DETAIL_SECTION_LABEL, LOCATED_CAUSES_LABEL, NUMERICAL_HEALTH_STATE_TEXT, SHOW_SOLVER_DIAGNOSTIC } from "./numericalHealthText";
 import { SECTION_BASIS_HEADLINES, WITHHELD_SECTION_BASIS_HEADLINE } from "../report/exactReportSections";
+import { canSurfaceRevealNow } from "../workspace/surfaceReveal";
+import {
+  ALL_CASES,
+  NAVIGATOR_KEYS,
+  firstRowOf,
+  isNavigatorExcludedTarget,
+  navigatorCases,
+  navigatorEntities,
+  navigatorKeyStep,
+  rowCaseKey,
+  stepIndex,
+  type NavigatorAxis,
+  type NavigatorCase
+} from "./resultsNavigator";
 
 const RESULT_PAGE_SIZE_OPTIONS = [50, 100, 200] as const;
 const DEFAULT_RESULT_PAGE_SIZE = RESULT_PAGE_SIZE_OPTIONS[0];
@@ -47,6 +61,10 @@ const EMPTY_RESULT_FAMILY_COUNTS: ResultFamilyCounts = {
 };
 const RESULT_UNIT_DISPLAY_ORDER = ["MPa", "N", "N*m", "mm", "rad"];
 
+/** A view of the results table another surface asks for (A6): the rows of one exact kind for one
+ * run, with the rows the asking surface's standing withholds and its reason for each. */
+export type ResultsViewRequest = Readonly<{ serial: number; runId: string; kind: string; withheld: Readonly<Record<string, string>> }>;
+
 export function ResultsPanel({
   result,
   knowledge,
@@ -56,7 +74,9 @@ export function ResultsPanel({
   numericalHealth,
   resolveCauseLocation,
   onSelectCauseLocation,
-  onShowDiagnostic
+  onShowDiagnostic,
+  selectedEntity = null,
+  viewRequest = null
 }: {
   result: MechanicsResult | null;
   knowledge: DesignKnowledge | null;
@@ -69,8 +89,23 @@ export function ResultsPanel({
   resolveCauseLocation?: (location: NumericalHealthLocation) => EntityRef | null;
   onSelectCauseLocation?: (entity: EntityRef) => void;
   onShowDiagnostic?: (diagnosticId: string) => void;
+  /** The workspace's primary selection. With "Selected entity only" on, the
+   * table shows only the rows stated for it. */
+  selectedEntity?: EntityRef | null;
+  /** A6 (Design `key-results-panel.md` §2): once per `serial`, for the run it names, shows only the
+   * rows of exactly `kind`, marks the rows it lists as withheld, and returns every other filter to its
+   * default. A request for another run is ignored. The user clears the kind filter. */
+  viewRequest?: ResultsViewRequest | null;
 }) {
   const [filterText, setFilterText] = useState("");
+  const [selectionOnly, setSelectionOnly] = useState(false);
+  const [frameFilter, setFrameFilter] = useState<string>(ALL_FRAMES);
+  const selectionEntityId = selectedEntity && selectedEntity.type !== "project" ? selectedEntity.id : null;
+  const selectionFilterId = selectionOnly ? selectionEntityId : null;
+  // With "Selected entity only" on and no model entity selected, the table shows no rows and
+  // says so; the restriction is never dropped silently. Turning the toggle off removes the
+  // selection restriction; the text, family and frame filters still apply.
+  const selectionOnlyWithoutEntity = selectionOnly && selectionEntityId === null;
   const [familyFilter, setFamilyFilter] = useState<ResultFamilyFilter>("all");
   // The page is the user's position in one run's rows, held with that run's id.
   // Any other run reads as page 1 in the very render that first shows it. A
@@ -86,16 +121,44 @@ export function ResultsPanel({
     });
   }
   const [pageSize, setPageSize] = useState<number>(DEFAULT_RESULT_PAGE_SIZE);
+  const [appliedRequest, setAppliedRequest] = useState<number | null>(null);
+  // Held with the run it was asked for, as the page is: another run shows every kind.
+  const [requestedKind, setKindFilter] = useState<{ runId: string; kind: string; withheld: Readonly<Record<string, string>> } | null>(null);
+  const kindFilter = requestedKind && requestedKind.runId === (result?.run_id ?? null) ? requestedKind : null;
   // One reading of the source's row semantics per result, for every row.
   const labels = useMemo(() => (result ? semanticLabels(result) : null), [result]);
   const familyCounts = useMemo(
     () => (result && labels ? countResultFamilies(result.results, labels) : EMPTY_RESULT_FAMILY_COUNTS),
     [result, labels]
   );
-  const filteredResults = useMemo(
-    () => (result && labels ? filterResults(result.results, filterText, familyFilter, labels) : []),
-    [familyFilter, filterText, result, labels]
+  const frameCounts = useMemo(() => (result ? countResultFrames(result.results) : new Map<string, number>()), [result]);
+  const activeFrame = frameFilter !== ALL_FRAMES && frameCounts.has(frameFilter) ? frameFilter : ALL_FRAMES;
+  // A1 (Design `results-navigator.md`): the case filter's list is every case the result's rows
+  // state, so it does not change with the other filters; a run without the chosen case shows all.
+  const cases = useMemo(() => (result ? navigatorCases(result.results) : []), [result]);
+  const [caseFilter, setCaseFilter] = useState<string>(ALL_CASES);
+  // Applied during render, as a filter change would be, so the first render that shows the
+  // request already shows its rows.
+  if (viewRequest && viewRequest.serial !== appliedRequest && viewRequest.runId === runId) {
+    setAppliedRequest(viewRequest.serial);
+    setKindFilter({ runId: viewRequest.runId, kind: viewRequest.kind, withheld: viewRequest.withheld });
+    setFilterText("");
+    setFamilyFilter("all");
+    setCaseFilter(ALL_CASES);
+    setFrameFilter(ALL_FRAMES);
+    setSelectionOnly(false);
+    setPagePosition({ runId, index: 0 });
+  }
+  const activeCase = caseFilter !== ALL_CASES && cases.some((item) => item.key === caseFilter) ? caseFilter : ALL_CASES;
+  // The rows every filter but "Selected entity only" admits: the navigator's supports and elements.
+  const navigatorRows = useMemo(
+    () => (result && labels ? rowsUnderFilters(result.results, labels, { filterText, familyFilter, frame: activeFrame, caseKey: activeCase, kind: kindFilter?.kind ?? null }) : []),
+    [activeCase, activeFrame, familyFilter, filterText, result, labels, kindFilter]
   );
+  const filteredResults = useMemo(() => {
+    if (selectionOnlyWithoutEntity) return [];
+    return navigatorRows.filter((item) => selectionFilterId === null || item.entity_ref === selectionFilterId);
+  }, [navigatorRows, selectionFilterId, selectionOnlyWithoutEntity]);
   const page = useMemo(
     () => paginateResults(filteredResults, pageIndex, pageSize),
     [filteredResults, pageIndex, pageSize]
@@ -114,6 +177,10 @@ export function ResultsPanel({
   useEffect(() => {
     setPageIndex((current) => Math.min(current, page.pageCount - 1));
   }, [page.pageCount]);
+  // A new selected entity starts its rows at page 1.
+  useEffect(() => {
+    if (selectionFilterId !== null) setPageIndex(0);
+  }, [selectionFilterId]);
 
   function handleFilterChange(value: string) {
     setFilterText(value);
@@ -130,8 +197,109 @@ export function ResultsPanel({
     setPageIndex(0);
   }
 
+  /* ---- A1: the results navigator (Design `results-navigator.md`) ---- */
+  const kindIds = RESULT_FAMILY_OPTIONS
+    .filter((option) => option.id === "all" || familyCounts[option.id as ResultFamily] > 0)
+    .map((option) => option.id);
+  const caseKeys = [ALL_CASES, ...cases.map((item) => item.key)];
+  // The navigator's support or element: the one a step chose, else the session's. A newly
+  // selected result row, or a new selection, made anywhere moves it; a new run clears it.
+  const selectedRow = selectedResultId && result ? result.results.find((row) => row.id === selectedResultId) ?? null : null;
+  const [tracked, setTracked] = useState(() => ({ entity: selectedRow?.entity_ref ?? selectionEntityId, selection: selectionEntityId, resultId: selectedResultId, runId }));
+  let navEntity = tracked.entity;
+  if (tracked.selection !== selectionEntityId || tracked.resultId !== selectedResultId || tracked.runId !== runId) {
+    let entity = tracked.runId !== runId ? null : tracked.entity;
+    if (tracked.resultId !== selectedResultId && selectedRow) entity = selectedRow.entity_ref;
+    else if (tracked.selection !== selectionEntityId) entity = selectionEntityId;
+    navEntity = entity;
+    setTracked({ entity, selection: selectionEntityId, resultId: selectedResultId, runId });
+  }
+  const entities = useMemo(() => navigatorEntities(navigatorRows), [navigatorRows]);
+  const currentRow = selectedRow && selectedRow.entity_ref === navEntity && navigatorRows.includes(selectedRow)
+    ? selectedRow
+    : firstRowOf(navigatorRows, navEntity);
+  const [endNotice, setEndNotice] = useState<string | null>(null);
+  const [reveal, setReveal] = useState<{ rowId: string; focus: boolean } | null>(null);
+  const panelRef = useRef<HTMLElement>(null);
+
+  /** The step's target position on each axis; null where the axis cannot move. */
+  function stepTarget(axis: NavigatorAxis, delta: 1 | -1): number | null {
+    if (axis === "kind") return stepIndex(kindIds.length, kindIds.indexOf(familyFilter), delta);
+    if (axis === "case") return stepIndex(caseKeys.length, caseKeys.indexOf(activeCase), delta);
+    return stepIndex(entities.length, navEntity === null ? -1 : entities.indexOf(navEntity), delta);
+  }
+
+  /** Shows `entity`'s first row of `rows`: its page, its row in view, and the session's
+   * selection of it (through `onSelectResult`, as a click on the row). Nothing else changes.
+   * `focus` is the key step that came from a result row: focus moves to the new current row, or,
+   * when the destination has none, to that step's own button, which stays mounted and focusable,
+   * so focus never leaves the panel with the row being left. */
+  function follow(entity: string | null, rows: MechanicsResult["results"], focus: NavigatorStep | null) {
+    const at = entity === null ? -1 : rows.findIndex((row) => row.entity_ref === entity);
+    if (at < 0) {
+      setPageIndex(0);
+      if (focus) {
+        panelRef.current?.querySelector<HTMLElement>(`[data-testid="results-navigator-${focus.axis}-${focus.delta > 0 ? "next" : "previous"}"]`)?.focus();
+      }
+      return;
+    }
+    setTracked((current) => ({ ...current, entity }));
+    setPageIndex(selectionOnly ? 0 : Math.floor(at / pageSize));
+    setReveal({ rowId: rows[at].id, focus: focus !== null });
+    onSelectResult(rows[at].id);
+  }
+
+  function rowsFor(family: ResultFamilyFilter, caseKey: string) {
+    return result && labels ? rowsUnderFilters(result.results, labels, { filterText, familyFilter: family, frame: activeFrame, caseKey, kind: kindFilter?.kind ?? null }) : [];
+  }
+
+  function chooseCase(caseKey: string, focus: NavigatorStep | null = null) {
+    setEndNotice(null);
+    setCaseFilter(caseKey);
+    follow(navEntity, rowsFor(familyFilter, caseKey), focus);
+  }
+
+  function navigate(axis: NavigatorAxis, delta: 1 | -1, fromRow = false) {
+    const focus = fromRow ? { axis, delta } : null;
+    const target = stepTarget(axis, delta);
+    if (target === null) {
+      setEndNotice(`${delta > 0 ? "Last" : "First"} ${NAVIGATOR_AXIS_NOUN[axis]} reached.`);
+      return;
+    }
+    setEndNotice(null);
+    if (axis === "kind") {
+      const family = kindIds[target];
+      setFamilyFilter(family);
+      follow(navEntity, rowsFor(family, activeCase), focus);
+    } else if (axis === "case") {
+      chooseCase(caseKeys[target], focus);
+    } else {
+      follow(entities[target], navigatorRows, focus);
+    }
+  }
+
+  function handleNavigatorKeyDown(event: KeyboardEvent<HTMLElement>) {
+    if (event.defaultPrevented || isNavigatorExcludedTarget(event.target)) return;
+    const step = navigatorKeyStep(event);
+    if (!step) return;
+    event.preventDefault();
+    // From a result row, focus moves with the current row so the row being left can unmount.
+    const fromRow = event.target instanceof Element && event.target.closest("tr[data-testid^='result-row-']") !== null;
+    navigate(step.axis, step.delta, fromRow);
+  }
+
+  useEffect(() => {
+    if (!reveal) return;
+    const row = [...(panelRef.current?.querySelectorAll<HTMLElement>("tr[data-testid^='result-row-']") ?? [])]
+      .find((element) => element.dataset.testid === `result-row-${reveal.rowId}`);
+    if (!row) return;
+    if (canSurfaceRevealNow(row)) row.scrollIntoView?.({ block: "nearest" });
+    if (reveal.focus) row.focus();
+    setReveal(null);
+  }, [reveal, page]);
+
   return (
-    <section className="panel results-panel" aria-label="Results" data-testid="results-panel">
+    <section className="panel results-panel" aria-label="Results" data-testid="results-panel" ref={panelRef} onKeyDown={handleNavigatorKeyDown}>
       <div className="panel-title">Results</div>
       {result ? (
         <>
@@ -157,6 +325,34 @@ export function ResultsPanel({
             onPageSizeChange={handlePageSizeChange}
             onPreviousPage={() => setPageIndex((current) => Math.max(0, current - 1))}
             onNextPage={() => setPageIndex((current) => Math.min(page.pageCount - 1, current + 1))}
+            selectionEntityId={selectionEntityId}
+            selectionOnly={selectionOnly}
+            onSelectionOnlyChange={(value) => { setSelectionOnly(value); setPageIndex(0); }}
+            frameCounts={frameCounts}
+            frameFilter={activeFrame}
+            onFrameFilterChange={(value) => { setFrameFilter(value); setPageIndex(0); }}
+          />
+          {kindFilter ? (
+            <p className="results-kind-filter" data-testid="results-kind-filter">
+              Showing only rows of kind <code>{kindFilter.kind}</code>.{" "}
+              <button type="button" data-testid="results-kind-filter-clear" onClick={() => { setKindFilter(null); setPageIndex(0); }}>Show all kinds</button>
+            </p>
+          ) : null}
+          <ResultsNavigator
+            kinds={kindIds}
+            kind={familyFilter}
+            cases={cases}
+            caseKey={activeCase}
+            entities={entities}
+            entity={navEntity}
+            currentRowId={currentRow?.id ?? null}
+            rowCount={filteredResults.length}
+            selectionOnlyWithoutEntity={selectionOnlyWithoutEntity}
+            health={health}
+            endNotice={endNotice}
+            canStep={(axis, delta) => stepTarget(axis, delta) !== null}
+            onStep={(axis, delta) => navigate(axis, delta)}
+            onChooseCase={(caseKey) => chooseCase(caseKey)}
           />
           <ResultDetail interpretation={interpretation} result={result} />
           <GoverningRatioState ratioCount={0} />
@@ -176,6 +372,7 @@ export function ResultsPanel({
                         <th>ID</th>
                         <th>Entity</th>
                         <th>Location</th>
+                        <th title="The coordinate frame the row's value is stated in, as the row states it">Frame</th>
                         <th>Value</th>
                         <th>Entered source</th>
                       </tr>
@@ -196,9 +393,10 @@ export function ResultsPanel({
                           }}
                           tabIndex={0}
                         >
-                          <td>{item.id}<small> {labels!.category(item)}</small>{labelSource && resultRowLabel(item, labelSource) ? <small data-testid={`result-row-label-${item.id}`}> {resultRowLabel(item, labelSource)}</small> : null}<RowHealthBadge health={health} item={item} />{item.component_body ? <small data-testid={`result-row-component-body-${item.id}`}> reference section of component body {item.component_body.component_ref}</small> : null}</td>
+                          <td>{item.id}<small> {labels!.category(item)}</small>{labelSource && resultRowLabel(item, labelSource) ? <small data-testid={`result-row-label-${item.id}`}> {resultRowLabel(item, labelSource)}</small> : null}<RowHealthBadge health={health} item={item} />{kindFilter?.withheld[item.id] ? <small data-testid={`result-row-withheld-${item.id}`}> {kindFilter.withheld[item.id]}</small> : null}{item.component_body ? <small data-testid={`result-row-component-body-${item.id}`}> reference section of component body {item.component_body.component_ref}</small> : null}</td>
                           <td>{item.entity_ref}</td>
                           <td>{item.metadata?.location ?? "summary"}</td>
+                          <td data-testid={`result-row-frame-${item.id}`}>{frameLabel(resultFrame(item))}</td>
                           <td>
                             <QuantityReadout quantity={{ value: item.value, unit: item.unit, dimension_id: labels!.dimension(item) ?? "unknown" }} />
                           </td>
@@ -289,7 +487,13 @@ function ResultControls({
   onFilterChange,
   onPageSizeChange,
   onPreviousPage,
-  onNextPage
+  onNextPage,
+  selectionEntityId,
+  selectionOnly,
+  onSelectionOnlyChange,
+  frameCounts,
+  frameFilter,
+  onFrameFilterChange
 }: {
   familyCounts: ResultFamilyCounts;
   familyFilter: ResultFamilyFilter;
@@ -304,6 +508,12 @@ function ResultControls({
   onPageSizeChange: (value: number) => void;
   onPreviousPage: () => void;
   onNextPage: () => void;
+  selectionEntityId: string | null;
+  selectionOnly: boolean;
+  onSelectionOnlyChange: (value: boolean) => void;
+  frameCounts: ReadonlyMap<string, number>;
+  frameFilter: string;
+  onFrameFilterChange: (value: string) => void;
 }) {
   const visibleFamilyOptions = RESULT_FAMILY_OPTIONS.filter(
     (option) => option.id === "all" || familyCounts[option.id as ResultFamily] > 0
@@ -338,6 +548,28 @@ function ResultControls({
           );
         })}
       </div>
+      {frameCounts.size > 1 ? (
+        <div className="result-family-row" role="group" aria-label="Result frame filter" data-testid="result-frame-filter">
+          {[ALL_FRAMES, ...frameCounts.keys()].map((frame) => {
+            const isActive = frame === frameFilter;
+            const count = frame === ALL_FRAMES ? [...frameCounts.values()].reduce((sum, value) => sum + value, 0) : frameCounts.get(frame) ?? 0;
+            return (
+              <button
+                aria-pressed={isActive}
+                className={isActive ? "result-family-active" : undefined}
+                data-testid={`result-frame-${frame}`}
+                key={frame}
+                onClick={() => onFrameFilterChange(frame)}
+                title={frame === ALL_FRAMES ? "Rows in every frame" : `Only rows stated in the ${frameLabel(frame).toLowerCase()} frame; values are shown as published, never re-projected`}
+                type="button"
+              >
+                <span>{frame === ALL_FRAMES ? "All frames" : frameLabel(frame)}</span>
+                <strong>{count}</strong>
+              </button>
+            );
+          })}
+        </div>
+      ) : null}
       <div className="result-filter-row">
         <label>
           <Search size={14} aria-hidden="true" />
@@ -363,7 +595,23 @@ function ResultControls({
         >
           <X size={14} aria-hidden="true" />
         </button>
+        <button
+          aria-pressed={selectionOnly}
+          className={selectionOnly ? "result-family-active" : undefined}
+          data-testid="result-selection-only"
+          disabled={!selectionEntityId && !selectionOnly}
+          onClick={() => onSelectionOnlyChange(!selectionOnly)}
+          title={selectionEntityId ? `Show only the rows stated for ${selectionEntityId}; the table follows the selection` : "Select a model entity to show its rows"}
+          type="button"
+        >
+          Selected entity only{selectionOnly ? `: ${selectionEntityId ?? "none selected"}` : ""}
+        </button>
       </div>
+      {selectionOnly && !selectionEntityId ? (
+        <p role="status" className="muted" data-testid="result-selection-only-empty">
+          No model entity is selected, so no rows are shown. Select an entity, or turn off "Selected entity only" to remove the selection restriction; the other table filters still apply.
+        </p>
+      ) : null}
       <div className="result-page-row" aria-label="Result page controls">
         <label className="result-page-size">
           <span>Rows</span>
@@ -559,6 +807,127 @@ function MechanicsGapLedger({ gaps }: { gaps: MechanicsGap[] }) {
   );
 }
 
+type NavigatorStep = Readonly<{ axis: NavigatorAxis; delta: 1 | -1 }>;
+const NAVIGATOR_AXIS_NOUN: Readonly<Record<NavigatorAxis, string>> = Object.freeze({
+  kind: "table kind",
+  case: "load case or combination",
+  entity: "support or element"
+});
+const NAVIGATOR_AXIS_LABEL: Readonly<Record<NavigatorAxis, string>> = Object.freeze({
+  kind: "Table",
+  case: "Case",
+  entity: "Support or element"
+});
+
+function kindLabel(kind: ResultFamilyFilter): string {
+  return kind === "all" ? "All kinds" : RESULT_FAMILY_OPTIONS.find((option) => option.id === kind)?.label ?? kind;
+}
+
+/** A case's label with its numerical health where the table badges rows and the case has not
+ * passed its checks, so a stepped-to case never reads as passed when it is not. */
+function navigatorCaseText(item: NavigatorCase | null, health: NumericalHealthView | null): string {
+  if (!item) return "All cases";
+  const state = item.basis ? rowHealthState(health, { basis_ref: item.basis }) : null;
+  return state && state !== "checks_passed" ? `${item.label} (numerical health: ${NUMERICAL_HEALTH_STATE_TEXT[state]})` : item.label;
+}
+
+/** A1: the results navigator's three steppers and its live position line (Design
+ * `results-navigator.md` §2 to §5). Each Previous and Next button is the visible route of its
+ * key chord; at an end the button stays focusable, is marked unavailable and does nothing. */
+function ResultsNavigator({
+  kinds, kind, cases, caseKey, entities, entity, currentRowId, rowCount, selectionOnlyWithoutEntity, health, endNotice, canStep, onStep, onChooseCase
+}: {
+  kinds: readonly ResultFamilyFilter[];
+  kind: ResultFamilyFilter;
+  cases: readonly NavigatorCase[];
+  caseKey: string;
+  entities: readonly string[];
+  entity: string | null;
+  currentRowId: string | null;
+  rowCount: number;
+  selectionOnlyWithoutEntity: boolean;
+  health: NumericalHealthView | null;
+  endNotice: string | null;
+  canStep: (axis: NavigatorAxis, delta: 1 | -1) => boolean;
+  onStep: (axis: NavigatorAxis, delta: 1 | -1) => void;
+  onChooseCase: (caseKey: string) => void;
+}) {
+  const chosenCase = cases.find((item) => item.key === caseKey) ?? null;
+  const caseText = navigatorCaseText(chosenCase, health);
+  const entityIndex = entity === null ? -1 : entities.indexOf(entity);
+  const positions: Readonly<Record<NavigatorAxis, string>> = {
+    kind: `${kindLabel(kind)} (${kinds.indexOf(kind) + 1} of ${kinds.length})`,
+    case: `${caseText} (${caseKey === ALL_CASES ? 1 : cases.indexOf(chosenCase!) + 2} of ${cases.length + 1})`,
+    entity: entity === null
+      ? `None chosen; ${entities.length} in this table`
+      : entityIndex < 0 ? `${entity}: no rows in this table` : `${entity} (${entityIndex + 1} of ${entities.length})`
+  };
+  const table = `${kindLabel(kind)}, ${caseText}`;
+  const where = selectionOnlyWithoutEntity
+    ? "No model entity is selected, so no rows are shown."
+    : rowCount === 0
+      ? `No rows of ${kind === "all" ? "any kind" : kindLabel(kind)} are stated for ${caseKey === ALL_CASES ? "any case" : caseText} under the current filters.`
+      : entity === null
+        ? `${table}: ${rowCount} rows.`
+        : currentRowId
+          ? `${table}: ${entity}, row ${currentRowId}.`
+          : `${table}: ${entity} has no rows here.`;
+  const stepper = (axis: NavigatorAxis, control?: ReactNode) => {
+    const button = (delta: 1 | -1) => {
+      const available = canStep(axis, delta);
+      const name = `${delta > 0 ? "Next" : "Previous"} ${NAVIGATOR_AXIS_NOUN[axis]}`;
+      const keys = delta > 0 ? NAVIGATOR_KEYS[axis].next : NAVIGATOR_KEYS[axis].previous;
+      return (
+        <button
+          type="button"
+          aria-label={name}
+          aria-keyshortcuts={keys}
+          aria-disabled={available ? undefined : true}
+          data-testid={`results-navigator-${axis}-${delta > 0 ? "next" : "previous"}`}
+          title={available ? `${name} (${keys})` : `${delta > 0 ? "Last" : "First"} ${NAVIGATOR_AXIS_NOUN[axis]} already shown (${keys})`}
+          onClick={() => onStep(axis, delta)}
+        >
+          {delta > 0 ? <ChevronRight size={14} aria-hidden="true" /> : <ChevronLeft size={14} aria-hidden="true" />}
+        </button>
+      );
+    };
+    return (
+      <div className="results-navigator-axis" role="group" aria-label={NAVIGATOR_AXIS_LABEL[axis]} data-testid={`results-navigator-${axis}`}>
+        <span className="results-navigator-axis-label">{NAVIGATOR_AXIS_LABEL[axis]}</span>
+        {button(-1)}
+        {control}
+        <span data-testid={`results-navigator-${axis}-position`}>{positions[axis]}</span>
+        {button(1)}
+      </div>
+    );
+  };
+  return (
+    <section className="result-controls results-navigator" aria-label="Results navigator" data-testid="results-navigator">
+      {stepper("kind")}
+      {stepper("case", cases.length > 0 ? (
+        <select aria-label="Load case or combination" data-testid="results-navigator-case-select" value={caseKey} onChange={(event) => onChooseCase(event.target.value)}>
+          <option value={ALL_CASES}>All cases</option>
+          {cases.map((item) => <option key={item.key} value={item.key}>{navigatorCaseText(item, health)}</option>)}
+        </select>
+      ) : null)}
+      {stepper("entity")}
+      <p className="muted" role="status" data-testid="results-navigator-status">{endNotice ? `${endNotice} ` : ""}{where}</p>
+    </section>
+  );
+}
+
+/** The rows the text, family, frame and case filters admit, in result order. */
+function rowsUnderFilters(
+  rows: MechanicsResult["results"],
+  labels: RowLabels,
+  filters: Readonly<{ filterText: string; familyFilter: ResultFamilyFilter; frame: string; caseKey: string; kind?: string | null }>
+): MechanicsResult["results"] {
+  return filterResults(rows, filters.filterText, filters.familyFilter, labels).filter((item) =>
+    (!filters.kind || item.kind === filters.kind) &&
+    (filters.frame === ALL_FRAMES || resultFrame(item) === filters.frame) &&
+    (filters.caseKey === ALL_CASES || rowCaseKey(item) === filters.caseKey));
+}
+
 function groupResults(resultItems: MechanicsResult["results"], labels: RowLabels) {
   const specs: { title: string; family: ResultFamily }[] = [
     { title: "Displacement", family: "displacement" },
@@ -608,6 +977,37 @@ function countResultFamilies(resultItems: MechanicsResult["results"], labels: Ro
     counts[resultFamilyKey(item, labels)] += 1;
   }
   return counts;
+}
+
+const ALL_FRAMES = "all";
+const UNSTATED_FRAME = "unstated";
+const FRAME_LABELS: Readonly<Record<string, string>> = {
+  element_local: "Element local",
+  global: "Global",
+  pipe_section: "Pipe section",
+  connector_axes_q: "Connector axes",
+  reduced_system: "Reduced system",
+  solver_iteration: "Solver iteration",
+  [UNSTATED_FRAME]: "Not stated"
+};
+
+/** The frame a row states its value in (`metadata.coordinate_system`); rows that state none
+ * are "unstated". Read from the row, never inferred from its kind. */
+function resultFrame(item: MechanicsResult["results"][number]): string {
+  const frame = item.metadata?.coordinate_system;
+  return typeof frame === "string" && frame.trim() ? frame : UNSTATED_FRAME;
+}
+
+function frameLabel(frame: string): string {
+  return FRAME_LABELS[frame] ?? frame;
+}
+
+/** Row counts per frame, element local and global first, then the others by name. */
+function countResultFrames(items: MechanicsResult["results"]): Map<string, number> {
+  const counts = new Map<string, number>();
+  for (const item of items) counts.set(resultFrame(item), (counts.get(resultFrame(item)) ?? 0) + 1);
+  const order = (frame: string) => frame === "element_local" ? 0 : frame === "global" ? 1 : frame === UNSTATED_FRAME ? 3 : 2;
+  return new Map([...counts].sort(([a], [b]) => order(a) - order(b) || a.localeCompare(b)));
 }
 
 function filterResults(

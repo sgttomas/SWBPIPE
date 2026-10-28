@@ -36,9 +36,11 @@ def test_only_retired_observation_caller_leaves_and_all_28_current_callers_stay(
         "build_curved_bend_macro_elements", "straight_summary_extrema"]
     rules = c4_rules(PIPING)
     # RF's upfront unit limit adds prepare_sources' intrinsic usize min; W-8 (W8-CG, §8.16) adds
-    # topology.rs's near_duplicate_nodes (f64 box bounds and usize node indices) and scaled_norm (f64).
-    assert len(rules) == 60
-    assert len({rule["caller"] for rule in rules}) == 30
+    # topology.rs's near_duplicate_nodes (f64 box bounds and usize node indices) and scaled_norm (f64); W-15 slice c
+    # (W15C-CG, §8.26) adds rigid_component.rs's arc_evidence (f64).
+    assert len(rules) == 62
+    assert len({rule["caller"] for rule in rules}) == 31
+    assert {rule["name"] for rule in rules if rule["caller"].endswith("/rigid_component.rs:" + rule["caller"].split(":")[-2] + ":arc_evidence")} == {"min", "max"}
     assert {rule["name"] for rule in rules if "/topology.rs:" in rule["caller"]} == {"min", "max"}
     assert all(not rule["targets"] for rule in rules if "/topology.rs:" in rule["caller"])
     assert any(rule["caller"].endswith(":prepare_sources") and rule["name"] == "min" for rule in rules)

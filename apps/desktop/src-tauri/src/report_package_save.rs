@@ -51,8 +51,9 @@
 //! admission's digests, then the request's source and the model text against
 //! the delivered result and the solved model (`exact_source_binding.rs`).
 //! Custody is checked again after the save dialog and before the write.
-//! Before opening, such a request then refuses at the shared producer's
-//! item 0 (`REPORT-PACKAGE-ROUTE-NOT-ADMITTED`).
+//! The shared producer's item 0 admits pressure-2 and pressure-source-1 since
+//! the owner opened exact-route packages (§5.1; 2026-10-26), and refuses every
+//! other exact identity (`REPORT-PACKAGE-ROUTE-NOT-ADMITTED`).
 //!
 //! Admission is a pure function of its arguments, the library lookup and the
 //! custody lookup, so its tests need no window. The command (`lib.rs` `save_report_package`)

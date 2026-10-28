@@ -171,24 +171,7 @@ pub(crate) fn admit_body(
     command: &'static str,
     decoding: ArgsDecoding,
 ) -> Result<(Args, Lease), SolveJobError> {
-    match headers.get(INGRESS_HEADER) {
-        None => {
-            return Err(invalid_request(format!(
-                "INGRESS-HEADER-REQUIRED: `{command}` needs header `{INGRESS_HEADER}: {INGRESS_ARGS_JSON_V1}` and a raw body."
-            )))
-        }
-        Some(value) if value.as_bytes() != INGRESS_ARGS_JSON_V1.as_bytes() => {
-            return Err(invalid_request(format!(
-                "INGRESS-HEADER-UNKNOWN: `{command}` accepts only `{INGRESS_HEADER}: {INGRESS_ARGS_JSON_V1}`."
-            )))
-        }
-        Some(_) => {}
-    }
-    let InvokeBody::Raw(raw) = body else {
-        return Err(invalid_request(format!(
-            "INGRESS-RAW-BODY-REQUIRED: send `{command}`'s arguments as raw UTF-8 JSON bytes."
-        )));
-    };
+    let raw = raw_args_body(body, headers, command)?;
     let bound = ingress::prescan(raw).map_err(|invalid| {
         registry.refuse(ResourceRefusal::IngressInvalid { reason: format!("{} at byte {}", invalid.reason, invalid.offset) })
     })?;
@@ -209,6 +192,30 @@ pub(crate) fn admit_body(
             Err(registry.refuse(ResourceRefusal::IngressInvalid { reason: error.to_string() }))
         }
     }
+}
+
+/// The raw args body of a command sent with the ingress header, unparsed; the
+/// header's absence, another format or a JSON body is a typed invalid request.
+pub(crate) fn raw_args_body<'a>(body: &'a InvokeBody, headers: &HeaderMap, command: &'static str) -> Result<&'a [u8], SolveJobError> {
+    match headers.get(INGRESS_HEADER) {
+        None => {
+            return Err(invalid_request(format!(
+                "INGRESS-HEADER-REQUIRED: `{command}` needs header `{INGRESS_HEADER}: {INGRESS_ARGS_JSON_V1}` and a raw body."
+            )))
+        }
+        Some(value) if value.as_bytes() != INGRESS_ARGS_JSON_V1.as_bytes() => {
+            return Err(invalid_request(format!(
+                "INGRESS-HEADER-UNKNOWN: `{command}` accepts only `{INGRESS_HEADER}: {INGRESS_ARGS_JSON_V1}`."
+            )))
+        }
+        Some(_) => {}
+    }
+    let InvokeBody::Raw(raw) = body else {
+        return Err(invalid_request(format!(
+            "INGRESS-RAW-BODY-REQUIRED: send `{command}`'s arguments as raw UTF-8 JSON bytes."
+        )));
+    };
+    Ok(raw)
 }
 
 /// [`admit`] for a command whose arguments are small by contract: a raw body
@@ -760,6 +767,38 @@ pub(crate) mod test_support {
     ) -> Result<(Args, Lease), SolveJobError> {
         let body = InvokeBody::Raw(serde_json::to_vec(args).unwrap());
         admit_body(registry, &body, &headers(Some(INGRESS_ARGS_JSON_V1)), command, decoding)
+    }
+
+    /// A growing site's normal path against the per-invocation budget
+    /// (`memory_pool::Lease::grow_to`): `run` admits its body and grows the
+    /// lease as the command does, returning the grown lease. It is admitted
+    /// under `registry`'s budget, and again with the budget at exactly the
+    /// grown lease; one byte below that, the growth is refused
+    /// `ingress_exceeds_budget` (the ingress lease itself still fits).
+    /// Returns (ingress lease, grown lease).
+    pub(crate) fn grown_lease_meets_the_budget(
+        registry: &SolveJobRegistry,
+        label: &str,
+        ingress: u64,
+        run: &dyn Fn() -> Result<u64, SolveJobError>,
+    ) -> (u64, u64) {
+        let (pool_bytes, budget) = registry.pool().settings();
+        let grown = run().unwrap_or_else(|error| panic!("{label}: refused under the budget {budget}: {error:?}"));
+        assert!(ingress < grown && grown <= budget, "{label}: ingress {ingress} grown {grown} budget {budget}");
+        registry.configure_pool(pool_bytes, grown, false).unwrap();
+        assert_eq!(run().unwrap_or_else(|error| panic!("{label}: refused at a budget of its grown lease: {error:?}")), grown);
+        registry.configure_pool(pool_bytes, grown - 1, false).unwrap();
+        match run() {
+            Err(SolveJobError::ResourceUnavailable { refusal, .. }) => assert_eq!(
+                refusal,
+                ResourceRefusal::IngressExceedsBudget { required_bytes: grown, budget_bytes: grown - 1 },
+                "{label}"
+            ),
+            other => panic!("{label}: not refused at its growth one byte below: {other:?}"),
+        }
+        registry.configure_pool(pool_bytes, budget, false).unwrap();
+        eprintln!("{label}: ingress lease {ingress} B, grown lease {grown} B, budget {budget} B");
+        (ingress, grown)
     }
 
     /// Checks the lease rule for one raw body: the requested peak (each live

@@ -155,11 +155,12 @@ describe("joined composite (pressure-source-1) native transport unit simulation"
     expect(analysisRun.analysis_run.source_block_recovery).toEqual(source.source_block_recovery);
     await validateAnalysisRunV03(analysisRun, source);
     // Epoch 8 (design §5.1): the result JSON export, the stress-neutral export and the rule
-    // check add no policy refusal; every other surface refuses pressure-source-1 by name
-    // (b7-plan D6), under pressure-2's code.
+    // check add no policy refusal, nor (W-11, owner 2026-10-26) the rendered report and the
+    // report package; every other surface refuses pressure-source-1 by name (b7-plan D6),
+    // under pressure-2's code.
     expect(isFreshSemanticResult(source)).toBe(true);
     for (const surface of OUTPUT_SURFACES) {
-      expect(surfaceOutputRefusal(source,model,surface),surface).toBe(["result-export","stress-neutral","rule-check"].includes(surface)?null:PRESSURE_SOURCE_OUTPUT_REFUSAL);
+      expect(surfaceOutputRefusal(source,model,surface),surface).toBe(["result-export","stress-neutral","rule-check","rendered-report","report-package"].includes(surface)?null:PRESSURE_SOURCE_OUTPUT_REFUSAL);
     }
     // Design §4.2: the eligible result exports, carrying its contract evidence and received
     // receipt whole, as Rust's derivative does.
@@ -175,8 +176,11 @@ describe("joined composite (pressure-source-1) native transport unit simulation"
     const copy = structuredClone(source);
     await expect(buildCurrentResultExport({model,result:copy,analysisRun,inputManifest})).rejects.toThrow("CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE");
     await expect(buildStressNeutralExportPacket({model,result:copy,analysisRun})).rejects.toThrow("SN-NUMERICAL-INTEGRITY-NEEDS-RECOMPUTE");
-    // Design §4.5; owner ruling 10A: the report package refuses it by its report-package cell.
-    await expect(buildReportPackageRequest({model,result:source,analysisRun,inputManifest} as never)).rejects.toThrow(PRESSURE_SOURCE_OUTPUT_REFUSAL);
+    // W-11 (DEL-08-01 Design `exact-route-report-sections.md` §5.1; owner, 2026-10-26): the
+    // report package admits the eligible result, with its exact-route sections.
+    const packageRequest=await buildReportPackageRequest({model,result:source,analysisRun,inputManifest,projectSummary:null,comparison:null,ruleCheckAggregate:null,ruleCheckRun:null}) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+    expect(packageRequest.result_documents[0].result_envelope.producer.semantic_contract_id).toBe(source.producer!.semantic_contract_id);
+    expect(packageRequest.report.exact_route.semantic_contract_id).toBe(source.producer!.semantic_contract_id);
     // Mode binding: these bytes were captured under `mode` only.
     const otherMode=mode==="sparse_interactive"?"dense_scrutiny":"sparse_interactive";
     expect(hasNativeMechanicsInvocation(source,model,otherMode)).toBe(false);

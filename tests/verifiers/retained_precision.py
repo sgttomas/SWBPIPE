@@ -43,7 +43,7 @@ SELECTED_MEMBER_LOAD_MESSAGE = 'Retained-precision recovery (contribution_preser
 RETAINED_DISPOSITIONS = ("retained_selected", "retained_unavailable")
 METHOD = "contribution_preserving_multiprecision_v1"
 # B3b (B3-D, final for J1, with REVISION_01): the `<physics-retained>` route. Since B7b D4 (a) its base is pressure-2
-# (`3.0.0/exact_pressure_v3`): a current 0.7.0 model with the closed v3 Euler-Bernoulli contract and explicitly empty
+# (`3.0.0/exact_pressure_v3`): a current 0.8.0 model with the closed v3 Euler-Bernoulli contract and explicitly empty
 # pressure regions. G0 reads its table's bound values (§2.4; decision 31, N-12) and cross-checks them against these
 # constants, so neither drifts alone.
 EXACT_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1"
@@ -51,9 +51,11 @@ EXACT_PROFILE = "exact_straight_retained_w1a_v2"
 EXACT_DEFINITION_ID = "RP-PREPARED-EXACT-DUAL-v1"
 # T4-U6: DEF-E states zero mill tolerance and lists the reduced-basis rows and both headlines; the table follows the
 # inherited pressure-2 table's per-basis rows.
-EXACT_DEFINITION_HASH = "bd3c7de76f4ba2d1f7a72894c173e9c449e27f318359de648f912a192f7cb031"
-EXACT_TABLE_HASH = "d6d86dfc418978257d1d3370684e879ba9711465ceba1de72729eb48bb12ad3c"
+EXACT_DEFINITION_HASH = "913d248b387ecba3dd668493aa2176719965715c20b7d419c63b35c7d7f3657f"
+EXACT_TABLE_HASH = "33cc0c4dc1d7dea07e14c16e07f4ee3f93cc2f84e4dd0494e232397d4e3861c1"
 RECEIPT_POLICY = "M03-INTEGRITY-MP-v2"
+# The current model document version the namespace gates accept (b7-plan "Current model format").
+MODEL_VERSION = "0.8.0"
 FACADE_POLICY = "RP-FACADE-SI-v2"
 RECEIPT_BINDINGS = {"canonicalization": "openpipestress_jcs_ijson_v1", "method": METHOD, "projection_policy": "RP-LOGICAL-ATTEMPTS-v1",
                     "work": {"case_limit": 20_000_000_000, "invocation_limit": 60_000_000_000}, "work_policy": "W1-LME-20B-60B-v1"}
@@ -1998,12 +2000,12 @@ def _pressure_contract_is(model, expected):
 def _preview_namespace(model):
     """G8's namespace on the preview successor, type-strict (B3-D REVISION_01 §3, N-4): branch L, a pressure-free
     document keyed on the contract's absence (b7-plan "Model format, pressure-free half"): the current model version
-    0.7.0 with `pressure_contract` absent. Anything else is refused: a 0.7.0 model with any contract
+    0.8.0 with `pressure_contract` absent. Anything else is refused: a 0.8.0 model with any contract
     (`{}` and other falsy values included), the retired 0.1.0 and 0.2.0, and any 0.3.0 model, the retired
     {"version": "1.0.0", "mode": "legacy_pressure_v1"} included (B3a's branch L3 is dropped; the owner retired that
     contract product-wide)."""
     version = model.get("schema_version")
-    return (type(version) is str and version == "0.7.0" and "pressure_contract" not in model and "shear_model" not in model
+    return (type(version) is str and version == MODEL_VERSION and "pressure_contract" not in model and "shear_model" not in model
             and _section_allowances(model, exact=False))
 
 
@@ -2048,7 +2050,7 @@ def _exact_namespace(model):
     domain."""
     version = model.get("schema_version")
     contract = model.get("pressure_contract")
-    return (type(version) is str and version == "0.7.0" and "shear_model" not in model and type(contract) is dict
+    return (type(version) is str and version == MODEL_VERSION and "shear_model" not in model and type(contract) is dict
             and contract.get("shear_model") in EXACT_SHEAR_MODELS
             and _pressure_contract_is(model, dict(EXACT_PRESSURE_CONTRACT, shear_model=contract["shear_model"]))
             and _section_allowances(model, exact=True))
@@ -2123,7 +2125,7 @@ def _guard_member_g8(body,invocation,exact=False):
     # a sections list before this early bound. Iterate existing pipes instead.
     member=any(isinstance(s,dict) and "member_load_terms" in s for s in items(field(body,"sources")))
     if not member and not exact:
-        preview=(type(field(model,"schema_version")) is str and model["schema_version"]=="0.7.0" and "pressure_contract" not in model and "shear_model" not in model
+        preview=(type(field(model,"schema_version")) is str and model["schema_version"]==MODEL_VERSION and "pressure_contract" not in model and "shear_model" not in model
                  and all(not isinstance(field(pipe,"section"),dict) or "corrosion_allowance" not in pipe["section"] for pipe in pipes))
         member=preview and any(field(field(load,"target"),"type")=="element" and field(load,"category")=="distributed_force"
                                and field(load,"dimension")=="force_per_length" for case in cases for load in items(field(case,"primitive_loads")))

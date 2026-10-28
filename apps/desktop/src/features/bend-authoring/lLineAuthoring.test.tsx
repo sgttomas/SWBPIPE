@@ -99,7 +99,7 @@ describe("the L line authored on the desktop (T4-U2)", () => {
     change("Pressure profile", "exact_pressure_v3");
     change("Shear model", "euler_bernoulli");
     const profile = await queued(() => fireEvent.click(screen.getByRole("button", { name: "Queue pressure profile" })), queue);
-    expect(JSON.parse(profile.change.after)).toEqual({ schema_version: "0.7.0", pressure_contract: { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "euler_bernoulli" } });
+    expect(JSON.parse(profile.change.after)).toEqual({ schema_version: "0.8.0", pressure_contract: { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "euler_bernoulli" } });
     model = await apply(model, profile);
     cleanup();
 
@@ -136,8 +136,9 @@ describe("the L line authored on the desktop (T4-U2)", () => {
     expect(standing.eligible).toBe(true);
     // Epoch 8 (DEL-04-07 Design `desktop-exact-outputs.md` §5.1): the result JSON and
     // stress-neutral exports and the rule check add no policy refusal; each takes the
-    // Rust reader's standing at its own check. Every other surface refuses by name.
-    const opened: readonly string[] = ["result-export", "stress-neutral", "rule-check"];
+    // Rust reader's standing at its own check; W-11 (owner, 2026-10-26) adds the rendered
+    // report and the report package. Every other surface refuses by name.
+    const opened: readonly string[] = ["result-export", "stress-neutral", "rule-check", "rendered-report", "report-package"];
     for (const surface of OUTPUT_SURFACES) expect(surfaceRouteRefusal(pressure1, surface), surface).toBe(opened.includes(surface) ? null : PRESSURE_2_OUTPUT_REFUSAL);
     render(<ResultsPanel result={pressure1} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={vi.fn()} />);
     expect(screen.getByTestId("numerical-result-standing")).not.toHaveTextContent("Unsupported numerical contract");

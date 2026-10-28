@@ -177,7 +177,7 @@ fn status() -> Value {
 }
 /// A preview-route (PF) document.
 fn preview(nodes: Vec<Value>, pipes: Vec<Value>, supports: Vec<Value>, components: Vec<Value>, cases: Vec<Value>, combinations: Vec<Value>) -> Value {
-    json!({"model": {"schema_version": "0.7.0", "document_kind": "openpipestress.product_preview.model",
+    json!({"model": {"schema_version": "0.8.0", "document_kind": "openpipestress.product_preview.model",
         "project": {"id": "project:w7", "units": serde_json::from_str::<Value>(UNITS).unwrap()}, "analysis_status": status(),
         "nodes": nodes, "pipe_segments": pipes, "supports": supports, "components": components,
         "materials": [{"id": "material:m", "elastic_modulus": qv(200e9, "Pa"), "shear_modulus": qv(76.923076923e9, "Pa"),
@@ -186,7 +186,7 @@ fn preview(nodes: Vec<Value>, pipes: Vec<Value>, supports: Vec<Value>, component
 }
 /// An exact-route (EX, `3.0.0/exact_pressure_v3`, Euler-Bernoulli) document.
 fn exact(nodes: Vec<Value>, pipes: Vec<Value>, supports: Vec<Value>, components: Vec<Value>, cases: Vec<Value>) -> Value {
-    json!({"model": {"schema_version": "0.7.0", "document_kind": "openpipestress.product_preview.model",
+    json!({"model": {"schema_version": "0.8.0", "document_kind": "openpipestress.product_preview.model",
         "pressure_contract": {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"},
         "project": {"id": "project:w7", "units": serde_json::from_str::<Value>(UNITS).unwrap()}, "analysis_status": status(),
         "nodes": nodes, "pipe_segments": pipes, "supports": supports, "components": components,
@@ -476,7 +476,7 @@ fn w9_l_frame() -> Value {
         json!({"id": id, "from": from, "to": to, "section": {"outside_diameter": qv(0.2, "m"), "wall_thickness": qv(0.01, "m")},
             "material": "material:w9", "y_reference": {"x": y[0], "y": y[1], "z": y[2]}, "provenance": PROV})
     };
-    json!({"model": {"schema_version": "0.7.0", "document_kind": "openpipestress.product_preview.model",
+    json!({"model": {"schema_version": "0.8.0", "document_kind": "openpipestress.product_preview.model",
         "project": {"id": "project:w7-w9", "units": serde_json::from_str::<Value>(UNITS).unwrap()}, "analysis_status": status(),
         "nodes": [node("node:a", [0.0, 0.0, 0.0]), node("node:c", [4.0, 0.0, 0.0]), node("node:d", [4.0, 3.0, 0.0])],
         "pipe_segments": [pipe9("pipe:a-c", "node:a", "node:c", [0.0, 1.0, 0.0]), pipe9("pipe:c-d", "node:c", "node:d", [-1.0, 0.0, 0.0])],

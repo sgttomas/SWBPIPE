@@ -71,6 +71,14 @@ code_paths:
 - core/loads/self_weight_wasm/**
 - core/product_physics/src/self_weight.rs
 - core/product_physics/src/certified_loads.rs
+- core/product_physics/src/exact_admission.rs
+- core/product_physics/src/pressure_runtime.rs
+- core/product_physics/src/lib.rs
+- core/product_physics/src/source_receipt/composite.rs
+- core/reporting/result_export/src/physics_evidence.rs
+- core/reporting/result_export/src/physics_source.rs
+- schemas/results_pressure_2.v0.3.schema.json
+- schemas/physics_source_recovery.schema.json
 - core/model_operations/operation_applier/tests/generated_self_weight.rs
 - schemas/model.schema.yaml
 - validation/hand_calcs/mechanics/tp_pmm_p3_subspan_wind_exposure.md
@@ -81,6 +89,8 @@ code_paths:
 - apps/desktop/src-tauri/src/lib.rs
 checks:
 - core/loads/primitive_loads/src/lib.rs
+- core/product_physics/tests/w16_exact_equivalent_static.rs
+- validation/references/w16_exact_equivalent_static/generators/w16c_reference.py
 - core/model_operations/operation_applier/tests/generated_self_weight.rs
 - core/loads/self_weight_wasm/tests/applied_self_weight.rs
 - apps/desktop/src/features/self-weight-authoring/SelfWeightRefresh.test.tsx

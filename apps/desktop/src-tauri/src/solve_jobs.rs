@@ -48,6 +48,19 @@
 //! held. The native render and
 //! save of an exact-route report bind resubmitted texts to them.
 //!
+//! Attestation table (W-18b (r2a), DEL-08-01 Design `report-user-release.md`
+//! §2.4): separately from the custody digests, publication of a result whose
+//! worker sent an attested `ATST` frame records `{job, solver mode, d_M, d_S}`
+//! (the SHA-256 of the checked canonical model and result values, under their
+//! user-release domains, [`crate::solve_attestation`]) in a bounded session
+//! table of the [`crate::solve_attestation::MAX_ATTESTED_SOLVES`] (32) most recent attested solves, evicting
+//! the oldest. It lives inline in the job table (a fixed ring under 8 KiB, no
+//! lease), is not pruned with a record and not released with custody or by
+//! `dispose_result`; [`SolveJobRegistry::dispose_all_results`] (page load)
+//! clears it. It is never persisted and never sent to the webview:
+//! [`SolveJobRegistry::holds_attested_solve`] answers only whether an entry
+//! with given digests and mode is held, for the user-release route's admission.
+//!
 //! Locks: the registry lock may be held while taking the pool lock (lease
 //! drop/grow) or a worker's control lock (kill); the pool never calls back
 //! into the registry under its lock, and the supervisor never takes the
@@ -59,8 +72,9 @@ use crate::memory_pool::{
     JobCounts, Lease, LeasePurpose, MemoryPool, PoolStatus, ResampleStop, ResourceRefusal, WaitOutcome, MAX_QUEUED_JOBS,
     MAX_RETAINED_RESULTS, MAX_TERMINAL_RECORDS, MAX_WEBVIEW_CUSTODY_RESULTS,
 };
+use crate::solve_attestation::{AttestationTable, SolveAttestation};
 use crate::solve_worker::{
-    CurrentExeLauncher, SupervisorHooks, WorkerControl, WorkerLauncher, WorkerOutcome, WorkerTerms, PROCESS_RESERVE_BYTES,
+    CurrentExeLauncher, SupervisorHooks, WorkerControl, WorkerLauncher, WorkerOutcome, WorkerTask, WorkerTerms, PROCESS_RESERVE_BYTES,
 };
 use open_pipe_stress_product_physics::PreviewSolverMode;
 use serde::Serialize;
@@ -68,7 +82,7 @@ use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use std::panic::{catch_unwind, AssertUnwindSafe};
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 /// Cancelling a running job kills its worker process (preemptive); a queued
 /// job exits before starting one.
@@ -277,6 +291,8 @@ struct SolveJobRecord {
 struct SolveJobTable {
     next_job_number: u64,
     records: HashMap<String, SolveJobRecord>,
+    /// The most recent attested solves (§2.4), apart from the records.
+    attested: AttestationTable,
 }
 
 impl SolveJobTable {
@@ -327,6 +343,125 @@ struct AdmittedInput {
     max_grant: u64,
 }
 
+/// The admitted intake of an on-demand model check (`check_preview_model`):
+/// the raw `{model}` args body copied under its intake lease, and the worker's
+/// starting grant and cap.
+pub(crate) struct ModelChecksInput {
+    raw: Vec<u8>,
+    lease: Lease,
+    start_grant: u64,
+    max_grant: u64,
+    check: CheckRegistration,
+}
+
+/// The cancellation of one on-demand model check, as a solve job's record
+/// holds it: a flag the supervisor and the start wait read, and kill access to
+/// its worker while it may be unreaped.
+#[derive(Debug, Default)]
+struct CheckControl {
+    state: Mutex<CheckState>,
+}
+
+#[derive(Debug, Default)]
+struct CheckState {
+    cancelled: bool,
+    worker: Option<Arc<WorkerControl>>,
+}
+
+impl CheckControl {
+    fn lock(&self) -> MutexGuard<'_, CheckState> {
+        self.state.lock().unwrap_or_else(PoisonError::into_inner)
+    }
+
+    fn cancelled(&self) -> bool {
+        self.lock().cancelled
+    }
+
+    /// Requests cancellation and kills the worker if one is attached; its
+    /// supervisor releases the grant after reaping it, as for a solve.
+    fn cancel(&self) {
+        let mut state = self.lock();
+        state.cancelled = true;
+        if let Some(worker) = &state.worker {
+            worker.kill();
+        }
+    }
+}
+
+/// The registry's current check (at most one; a newer request supersedes the
+/// older): dropping the registration clears the slot if it is still current.
+pub(crate) struct CheckRegistration {
+    slot: Arc<Mutex<Option<Arc<CheckControl>>>>,
+    control: Arc<CheckControl>,
+}
+
+impl Drop for CheckRegistration {
+    fn drop(&mut self) {
+        let mut slot = self.slot.lock().unwrap_or_else(PoisonError::into_inner);
+        if slot.as_ref().is_some_and(|current| Arc::ptr_eq(current, &self.control)) {
+            *slot = None;
+        }
+    }
+}
+
+/// How long an on-demand model check waits for its worker's starting grant, as
+/// a solve start waits in the queue (`MemoryPool::wait_acquire`): the same
+/// window as the intake and result leases' headroom re-sampling. A check has
+/// no job record to cancel, so the wait ends at this deadline, and the last
+/// queue reason stands as the check's refusal.
+pub(crate) const MODEL_CHECKS_START_WAIT: Duration = Duration::from_secs(2);
+
+/// How an on-demand model check did not produce its report.
+#[derive(Debug)]
+pub(crate) enum ModelChecksError {
+    /// A typed memory-pool refusal: at intake, at the worker's start grant, or
+    /// while it ran (its growth, cap or footprint).
+    Unavailable(SolveJobError),
+    /// The worker failed (a crash, a protocol violation or its own error).
+    Failed(String),
+    /// Cancelled by a session reset, a project-session change or a newer
+    /// check before it reported; its worker was killed and its grant released.
+    Cancelled,
+}
+
+/// A completed model check: the report's bytes in their result lease, and the
+/// worker's peak grant and peak measured footprint.
+#[derive(Debug)]
+pub(crate) struct ModelChecksOutput {
+    pub report: Vec<u8>,
+    pub lease: Lease,
+    /// Read by the worker-figure regressions; the command sends the report only.
+    #[cfg_attr(not(test), allow(dead_code))]
+    pub peak_grant_bytes: u64,
+    #[cfg_attr(not(test), allow(dead_code))]
+    pub peak_footprint_bytes: u64,
+}
+
+/// The model check's supervisor view: its cancellation (as [`JobHooks`] reads
+/// a job record's) and the worker's peak grant and footprint.
+struct ModelChecksHooks {
+    control: Arc<CheckControl>,
+    peak_grant: u64,
+    peak_footprint: u64,
+}
+
+impl SupervisorHooks for ModelChecksHooks {
+    fn attach(&mut self, control: Arc<WorkerControl>) -> bool {
+        let mut state = self.control.lock();
+        state.worker = Some(control);
+        !state.cancelled
+    }
+    fn cancelled(&self) -> bool {
+        self.control.cancelled()
+    }
+    fn grant_changed(&mut self, grant_bytes: u64) {
+        self.peak_grant = self.peak_grant.max(grant_bytes);
+    }
+    fn footprint_observed(&mut self, footprint_bytes: u64) {
+        self.peak_footprint = self.peak_footprint.max(footprint_bytes);
+    }
+}
+
 #[derive(Clone)]
 pub(crate) struct SolveJobRegistry {
     jobs: Arc<Mutex<SolveJobTable>>,
@@ -335,6 +470,8 @@ pub(crate) struct SolveJobRegistry {
     spawn: SpawnFn,
     /// The worker's process reserve (non-heap footprint allowance).
     reserve: u64,
+    /// The on-demand model check in progress, if any.
+    checks: Arc<Mutex<Option<Arc<CheckControl>>>>,
 }
 
 fn thread_spawn(job: Box<dyn FnOnce() + Send + 'static>) -> std::io::Result<()> {
@@ -407,7 +544,7 @@ impl SolveJobRegistry {
     }
 
     pub(crate) fn with_hooks(pool: Arc<MemoryPool>, launcher: Arc<dyn WorkerLauncher>, spawn: SpawnFn) -> Self {
-        Self { jobs: Arc::default(), pool, launcher, spawn, reserve: PROCESS_RESERVE_BYTES }
+        Self { jobs: Arc::default(), pool, launcher, spawn, reserve: PROCESS_RESERVE_BYTES, checks: Arc::default() }
     }
 
 
@@ -582,6 +719,122 @@ impl SolveJobRegistry {
         })
     }
 
+    /// Admits an on-demand model check's raw `{model}` args body as `start`
+    /// admits a solve (DEL-04-07 memory-budget decision, "On-demand model
+    /// checks"): the prescan, the worker's starting grant (process reserve plus
+    /// the intake bound) within the per-invocation budget, and the intake lease
+    /// before this process copies the bytes. A new check supersedes the one in
+    /// progress: that one is cancelled first, so its grant is released.
+    pub(crate) fn admit_model_checks(&self, body: &[u8]) -> Result<ModelChecksInput, SolveJobError> {
+        let check = self.register_model_check();
+        let bound = ingress::prescan(body).map_err(|invalid| {
+            self.unavailable(ResourceRefusal::IngressInvalid { reason: format!("{} at byte {}", invalid.reason, invalid.offset) })
+        })?;
+        let (_, budget) = self.pool.settings();
+        let start_grant = bound
+            .lease_bytes()
+            .and_then(|ingress| crate::solve_worker::initial_grant(self.reserve, ingress))
+            .unwrap_or(u64::MAX);
+        if start_grant > budget {
+            return Err(self.unavailable(ResourceRefusal::IngressExceedsBudget { required_bytes: start_grant, budget_bytes: budget }));
+        }
+        let ingress_bytes = ingress::allocation_envelope(bound.raw_len).unwrap_or(u64::MAX);
+        let lease = match self.pool.acquire_resampling(ingress_bytes, LeasePurpose::Ingress, &|| false) {
+            Ok(lease) => lease,
+            Err(ResampleStop::Refused(refusal)) => return Err(self.unavailable(refusal)),
+            Err(ResampleStop::Cancelled) => unreachable!("the intake wait is never cancelled"),
+        };
+        Ok(ModelChecksInput { raw: body.to_vec(), lease, start_grant, max_grant: budget, check })
+    }
+
+    /// Makes a new check the current one, cancelling the one it supersedes.
+    fn register_model_check(&self) -> CheckRegistration {
+        let control = Arc::new(CheckControl::default());
+        let previous = self.checks.lock().unwrap_or_else(PoisonError::into_inner).replace(control.clone());
+        if let Some(previous) = previous {
+            previous.cancel();
+            self.pool.wake_waiters();
+        }
+        CheckRegistration { slot: self.checks.clone(), control }
+    }
+
+    /// Cancels the model check in progress, if any (`cancel_model_checks`, on
+    /// a project-session change, and session reset): a check still waiting for
+    /// its starting grant stops waiting, a running check's worker is killed,
+    /// and its supervisor releases the grant after reaping it. Returns whether
+    /// a check was in progress.
+    pub(crate) fn cancel_model_checks(&self) -> bool {
+        let current = self.checks.lock().unwrap_or_else(PoisonError::into_inner).take();
+        let Some(current) = current else { return false };
+        current.cancel();
+        self.pool.wake_waiters();
+        true
+    }
+
+    /// Runs an admitted model check in a capped worker process, as an ordinary
+    /// solve runs: its starting grant is a worker lease taken by the solve's own
+    /// queue wait (`wait_acquire`: the worker count limit, the pool and a fresh
+    /// headroom verdict at each attempt), for at most [`MODEL_CHECKS_START_WAIT`],
+    /// after which the last queue reason stands as its typed refusal; its grant
+    /// grows on demand up to the budget the check was admitted under
+    /// (`max_grant`, as a queued solve's worker), and
+    /// its report's bytes come back in a result lease, which the caller holds
+    /// until it has sent them.
+    pub(crate) fn run_model_checks(&self, input: ModelChecksInput) -> Result<ModelChecksOutput, ModelChecksError> {
+        let ModelChecksInput { raw, lease, start_grant, max_grant, check } = input;
+        let control = check.control.clone();
+        let deadline = Instant::now() + MODEL_CHECKS_START_WAIT;
+        let mut queued: Option<ResourceRefusal> = None;
+        // As a solve's worker: bounded by the budget the check was admitted
+        // under (`max_grant`), not the budget when it leaves the queue.
+        let waited = self.pool.wait_acquire(
+            start_grant,
+            LeasePurpose::Worker,
+            Some(max_grant),
+            &|| control.cancelled() || Instant::now() >= deadline,
+            &mut |reason| queued = Some(reason.clone()),
+        );
+        let mut grant = match waited {
+            Ok(grant) => grant,
+            Err(WaitOutcome::Cancelled) if control.cancelled() => {
+                drop((raw, lease));
+                return Err(ModelChecksError::Cancelled);
+            }
+            Err(WaitOutcome::Cancelled) => {
+                drop((raw, lease));
+                // The first attempt always precedes the deadline, so a reason was recorded.
+                let refusal = queued.unwrap_or(ResourceRefusal::HeadroomUnknown);
+                return Err(ModelChecksError::Unavailable(self.unavailable(refusal)));
+            }
+        };
+        let terms = WorkerTerms { pool: &self.pool, launcher: &*self.launcher, task: WorkerTask::ModelChecks, max_grant, reserve: self.reserve };
+        let mut hooks = ModelChecksHooks { control: control.clone(), peak_grant: grant.bytes(), peak_footprint: 0 };
+        // The worker is reaped inside `supervise`, also while it unwinds; only
+        // then is the grant released.
+        let outcome = catch_unwind(AssertUnwindSafe(|| crate::solve_worker::supervise(&terms, &mut grant, (raw, lease), &mut hooks)));
+        control.lock().worker = None;
+        drop(grant);
+        drop(check);
+        if control.cancelled() {
+            // A report that arrived as it was cancelled answers a retired
+            // request; it and its result lease are released here.
+            drop(outcome);
+            return Err(ModelChecksError::Cancelled);
+        }
+        match outcome {
+            Err(payload) => Err(ModelChecksError::Failed(format!("MODEL-CHECKS-PANICKED: {}", crate::solve_worker::panic_message(payload.as_ref())))),
+            Ok(WorkerOutcome::Completed { result, lease, .. }) => Ok(ModelChecksOutput {
+                report: result,
+                lease,
+                peak_grant_bytes: hooks.peak_grant,
+                peak_footprint_bytes: hooks.peak_footprint,
+            }),
+            Ok(WorkerOutcome::Failed(error)) => Err(ModelChecksError::Failed(error)),
+            Ok(WorkerOutcome::Refused(refusal)) => Err(ModelChecksError::Unavailable(self.unavailable(refusal))),
+            Ok(WorkerOutcome::Terminated) => Err(ModelChecksError::Failed("MODEL-CHECKS-WORKER-TERMINATED: the check's worker was stopped.".to_string())),
+        }
+    }
+
     fn cancellation_requested(&self, job_id: &str) -> bool {
         self.table().records.get(job_id).is_none_or(|r| r.cancellation_requested)
     }
@@ -644,9 +897,12 @@ impl SolveJobRegistry {
         let _exit = WorkerExit { registry: self.clone(), job_id: job_id.clone() };
         let AdmittedInput { raw, lease, mode, start_grant, max_grant } = input;
         let mut input = Some((raw, lease));
+        // The worker is bounded by the budget its job was admitted under
+        // (`max_grant`), not the budget at the time it leaves the queue.
         let grant = self.pool.wait_acquire(
             start_grant,
             LeasePurpose::Worker,
+            Some(max_grant),
             &|| self.cancellation_requested(&job_id),
             &mut |reason| self.set_queue_reason(&job_id, reason),
         );
@@ -665,7 +921,7 @@ impl SolveJobRegistry {
             return;
         }
         let Some(input) = input.take() else { return };
-        let terms = WorkerTerms { pool: &self.pool, launcher: &*self.launcher, mode, max_grant, reserve: self.reserve };
+        let terms = WorkerTerms { pool: &self.pool, launcher: &*self.launcher, task: WorkerTask::Solve(mode), max_grant, reserve: self.reserve };
         // The worker is reaped inside `supervise`, also while it unwinds; only
         // then is the grant released.
         let outcome = catch_unwind(AssertUnwindSafe(|| {
@@ -682,11 +938,11 @@ impl SolveJobRegistry {
                     record.error_message = Some(format!("PREVIEW-SOLVE-PANICKED: {message}"));
                 });
             }
-            Ok(WorkerOutcome::Completed { result, lease }) => match String::from_utf8(result) {
+            Ok(WorkerOutcome::Completed { result, lease, attestation }) => match String::from_utf8(result) {
                 Ok(result) => {
                     // Hashed in place, before publication takes the registry lock (§3.6).
                     let result_sha256 = sha256_in_place(result.as_bytes());
-                    self.publish(&job_id, result, lease, result_sha256)
+                    self.publish(&job_id, result, lease, result_sha256, attestation.map(|a| (mode, a)))
                 }
                 Err(_) => {
                     drop(lease);
@@ -718,8 +974,16 @@ impl SolveJobRegistry {
     }
 
     /// Retains a finished result under its result lease, unless the job was
-    /// cancelled or retention is full (both drop it).
-    fn publish(&self, job_id: &str, result: String, lease: Lease, result_sha256: [u8; 32]) {
+    /// cancelled or retention is full (both drop it). A retained result's
+    /// attestation, if its worker sent one, enters the attestation table.
+    fn publish(
+        &self,
+        job_id: &str,
+        result: String,
+        lease: Lease,
+        result_sha256: [u8; 32],
+        attestation: Option<(PreviewSolverMode, SolveAttestation)>,
+    ) {
         let mut table = self.table();
         let retained = table.counts().retained;
         let Some(record) = table.records.get_mut(job_id) else { return };
@@ -753,7 +1017,22 @@ impl SolveJobRegistry {
         if let Some(digests) = record.digests.as_mut() {
             digests.result_sha256 = Some(result_sha256);
         }
+        let number = record.number;
+        if let Some((mode, attestation)) = attestation {
+            table.attested.record(number, mode, attestation);
+        }
         table.prune();
+    }
+
+    /// Whether this session's solver produced, in `solver_mode`, an attested
+    /// solve with these digests (`d_M`, `d_S`) among the
+    /// [`crate::solve_attestation::MAX_ATTESTED_SOLVES`] most recent since the last session reset. For
+    /// the user-release route's native admission (DEL-08-01 Design
+    /// `report-user-release.md` §2.5 step 7), which computes the digests with
+    /// [`SolveAttestation::of`]. Returns no digest and no job.
+    #[cfg_attr(not(test), allow(dead_code))]
+    pub(crate) fn holds_attested_solve(&self, solver_mode: PreviewSolverMode, attestation: &SolveAttestation) -> bool {
+        self.table().attested.holds(solver_mode, attestation)
     }
 
     /// The job's custody digests (§3.6), a copy, only while its result is
@@ -900,6 +1179,8 @@ impl SolveJobRegistry {
                 released.push((result, lease));
             }
         }
+        // The attestation table goes with the session (§2.4).
+        table.attested.clear();
         let receipt = SolveResultsDisposal {
             released_results: released.len(),
             released_bytes: released.iter().filter_map(|(_, lease)| lease.as_ref()).map(Lease::bytes).sum(),
@@ -910,6 +1191,9 @@ impl SolveJobRegistry {
         if abandoned_jobs > 0 {
             self.pool.wake_waiters();
         }
+        // An on-demand model check in progress belongs to the page that is gone.
+        drop(table);
+        self.cancel_model_checks();
         receipt
     }
 
@@ -2040,6 +2324,341 @@ mod tests {
         assert!(peak < crate::memory_pool::DEFAULT_INVOCATION_BUDGET_BYTES, "{peak}");
         assert_eq!(registry.take_result(&receipt.job_id).unwrap(), direct.as_bytes(), "the producer's exact bytes");
         registry.dispose_result(&receipt.job_id).unwrap();
+        assert_eq!((registry.pool().reserved_total(), registry.pool().running_workers()), (0, 0));
+    }
+
+    // ---- B11 on-demand model checks (Codex reviews r1 and r2 of #1665) ----
+
+    const FAN_OUT_BASE: &str = include_str!("../../../../core/product_physics/tests/fixtures/model_checks/load_state_fan_out_base.json");
+
+    /// Codex r2's adversarial shape (invented): a load-state model whose one
+    /// material carries 1.2 MB of provenance, shared by `pipes` members; the
+    /// load-state resolution copies the material into every resolved member.
+    fn fan_out_model(pipes: usize) -> serde_json::Value {
+        let mut model: serde_json::Value = serde_json::from_str(FAN_OUT_BASE).unwrap();
+        model["materials"][0]["provenance"] = serde_json::json!(format!("review_invented_{}", "a".repeat(1_200_000)));
+        let replicate = |value: &serde_json::Value| -> serde_json::Value {
+            let text = value.to_string();
+            serde_json::Value::Array((0..pipes).map(|i| serde_json::from_str(&text.replace("pipe:probe-0", &format!("pipe:probe-{i}"))).unwrap()).collect())
+        };
+        model["pipe_segments"] = replicate(&model["pipe_segments"][0]);
+        let members = replicate(&model["reference_configurations"][0]["member_references"][0]);
+        model["reference_configurations"][0]["member_references"] = members;
+        let states = replicate(&model["load_cases"][0]["analysis_state"]["element_states"][0]);
+        model["load_cases"][0]["analysis_state"]["element_states"] = states;
+        model
+    }
+
+    fn checks_body(model: &serde_json::Value) -> Vec<u8> {
+        serde_json::to_vec(&serde_json::json!({ "model": model })).unwrap()
+    }
+
+    /// The checks run in a capped worker process: Codex's 16- and 64-pipe
+    /// fan-out shapes complete with the applier's report, their grant grows
+    /// on demand and never passes the per-invocation budget, and every lease
+    /// is released afterwards.
+    #[test]
+    fn model_checks_run_in_a_capped_worker_whatever_the_fan_out() {
+        let host = ScriptedHost::normal();
+        let registry = registry(&host, TestLauncher::solve());
+        let (_, budget) = registry.pool().settings();
+        for pipes in [1, 16, 64] {
+            let model = fan_out_model(pipes);
+            let body = checks_body(&model);
+            let input = registry.admit_model_checks(&body).unwrap();
+            let start_grant = input.start_grant;
+            let output = registry.run_model_checks(input).unwrap();
+            let report: serde_json::Value = serde_json::from_slice(&output.report).unwrap();
+            assert_eq!(report, open_pipe_stress_operation_applier::model_checks(&model), "{pipes} pipes");
+            assert!(output.peak_grant_bytes <= budget, "{pipes} pipes: grant {} above the budget {budget}", output.peak_grant_bytes);
+            eprintln!(
+                "model checks fan-out {pipes} pipes: body {} B, starting grant {start_grant} B, peak grant {} B, peak footprint {} B, report {} B",
+                body.len(), output.peak_grant_bytes, output.peak_footprint_bytes, output.report.len()
+            );
+            drop(output);
+            assert_eq!((registry.pool().reserved_total(), registry.pool().running_workers()), (0, 0), "{pipes} pipes");
+        }
+    }
+
+    /// The per-invocation budget holds at the start and while the check runs
+    /// (Codex r2's budget probe): a budget below the starting grant refuses the
+    /// intake by type, and a budget the 64-pipe check outgrows ends its worker
+    /// with a typed worker refusal; nothing stays reserved.
+    #[test]
+    fn model_checks_refuse_by_type_at_the_invocation_budget() {
+        let host = ScriptedHost::normal();
+        let registry = registry(&host, TestLauncher::solve());
+        let pool_bytes = registry.pool().settings().0;
+        // Codex's probe: the budget set to the demo's admitted ingress amount.
+        let demo: serde_json::Value = serde_json::from_str(crate::BUNDLED_DEMO_MODEL).unwrap();
+        registry.configure_pool(pool_bytes, 196_752, false).unwrap();
+        let error = registry.admit_model_checks(&checks_body(&demo)).err().expect("refused at intake");
+        assert!(
+            matches!(&error, SolveJobError::ResourceUnavailable { refusal: ResourceRefusal::IngressExceedsBudget { budget_bytes: 196_752, .. }, .. }),
+            "{error:?}"
+        );
+        // A budget just above the 64-pipe check's starting grant: the worker outgrows it.
+        let body = checks_body(&fan_out_model(64));
+        registry.configure_pool(pool_bytes, 12 * GIB, false).unwrap();
+        let start_grant = registry.admit_model_checks(&body).unwrap().start_grant;
+        let budget = start_grant + 8 * (1 << 20);
+        registry.configure_pool(pool_bytes, budget, false).unwrap();
+        let input = registry.admit_model_checks(&body).unwrap();
+        match registry.run_model_checks(input) {
+            Err(ModelChecksError::Unavailable(SolveJobError::ResourceUnavailable { refusal, .. })) => assert!(
+                matches!(refusal, ResourceRefusal::WorkerCapExceeded { .. } | ResourceRefusal::WorkerFootprintExceeded { .. } | ResourceRefusal::WorkerGrowthRefused { .. }),
+                "{refusal:?}"
+            ),
+            other => panic!("expected a typed worker refusal at the budget, got {other:?}"),
+        }
+        assert_eq!((registry.pool().reserved_total(), registry.pool().running_workers()), (0, 0));
+    }
+
+    /// With #1676's budget rule: a check that waits for a worker slot keeps the
+    /// budget it was admitted under, as a queued solve does. Lowered to just
+    /// above the starting grant while it waits, the 64-pipe check still grows
+    /// past the lowered budget to its report, within the admitted one.
+    #[test]
+    fn a_check_admitted_before_a_budget_change_keeps_its_budget() {
+        let host = ScriptedHost::normal();
+        let registry = registry(&host, TestLauncher::solve());
+        let pool_bytes = registry.pool().settings().0;
+        registry.configure_pool(pool_bytes, 12 * GIB, false).unwrap();
+        registry.pool().set_max_running_workers(0);
+        let input = registry.admit_model_checks(&checks_body(&fan_out_model(64))).unwrap();
+        let lowered = input.start_grant + 8 * (1 << 20);
+        let waiting = {
+            let registry = registry.clone();
+            std::thread::spawn(move || registry.run_model_checks(input))
+        };
+        registry.configure_pool(pool_bytes, lowered, false).unwrap();
+        registry.pool().set_max_running_workers(1);
+        let output = joined(waiting).expect("the check keeps its admitted budget");
+        assert!(lowered < output.peak_grant_bytes && output.peak_grant_bytes <= 12 * GIB, "peak grant {} lowered budget {lowered}", output.peak_grant_bytes);
+        drop(output);
+        assert_eq!((registry.pool().reserved_total(), registry.pool().running_workers()), (0, 0));
+    }
+
+    // --- W-18b (r2a): the attestation table (DEL-08-01 Design `report-user-release.md` §2.4) ---
+
+    use crate::solve_attestation::MAX_ATTESTED_SOLVES;
+    use crate::solve_worker::tests::scripted_attestation;
+
+    fn hex(bytes: &[u8]) -> String {
+        bytes.iter().map(|b| format!("{b:02x}")).collect()
+    }
+
+    /// Publication records an attested solve; the table keeps the 32 most
+    /// recent, evicting the oldest, outlives custody (`dispose_result`) and
+    /// the record's pruning, records nothing for an unattested or cancelled
+    /// job, and is cleared by `dispose_all_results`.
+    #[test]
+    fn the_attestation_table_is_bounded_outlives_custody_and_clears_on_reset() {
+        let host = ScriptedHost::normal();
+        let (registry, gate) = gated(&host);
+        let mode = PreviewSolverMode::SparseInteractive;
+        let total = MAX_ATTESTED_SOLVES + 3;
+        let mut first_job = String::new();
+        for index in 0..total {
+            let receipt = registry.start(MODEL, None).unwrap();
+            gate.wait_started(index + 1);
+            gate.release(&format!("attested:{{\"n\":{index}}}"));
+            assert_eq!(wait_terminal(&registry, &receipt.job_id).state, "completed");
+            assert_eq!(registry.take_result(&receipt.job_id).unwrap(), format!("{{\"n\":{index}}}").as_bytes());
+            // Custody ends; the attestation stays (not released with custody).
+            registry.dispose_result(&receipt.job_id).unwrap();
+            if index == 0 {
+                first_job = receipt.job_id;
+            }
+        }
+        let held = |index: usize| registry.holds_attested_solve(mode, &scripted_attestation(&format!("{{\"n\":{index}}}")));
+        assert!((0..3).all(|index| !held(index)), "the three oldest were evicted");
+        assert!((3..total).all(held), "the 32 most recent are held after their custody ended");
+        assert!(!registry.holds_attested_solve(PreviewSolverMode::DenseScrutiny, &scripted_attestation("{\"n\":5}")), "another mode");
+        let numbers = registry.table().attested.job_numbers();
+        assert_eq!(numbers.len(), MAX_ATTESTED_SOLVES);
+        assert_eq!(numbers.first(), Some(&4), "job numbers start at 1; the first three were evicted");
+
+        // Not pruned with its record: the records age out, the entry stays.
+        for _ in 0..(MAX_TERMINAL_RECORDS + 10) {
+            let receipt = registry.start(MODEL, None).unwrap();
+            gate.release("err:failed");
+            assert_eq!(wait_terminal(&registry, &receipt.job_id).state, "failed");
+        }
+        assert!(registry.status(&first_job).is_err(), "the oldest records were pruned");
+        assert!(held(total - 1), "unattested and failed jobs record nothing and evict nothing");
+        assert_eq!(registry.table().attested.job_numbers(), numbers);
+
+        // A job cancelled before publication records nothing.
+        let receipt = registry.start(MODEL, None).unwrap();
+        gate.wait_started(total + MAX_TERMINAL_RECORDS + 11);
+        assert!(registry.cancel(&receipt.job_id, &receipt.backend_cancellation_token).unwrap().accepted);
+        assert_eq!(wait_terminal(&registry, &receipt.job_id).state, "cancelled");
+        assert_eq!(registry.table().attested.job_numbers(), numbers);
+
+        // Session reset clears it.
+        registry.dispose_all_results();
+        assert!((0..total).all(|index| !held(index)));
+        assert!(registry.table().attested.job_numbers().is_empty());
+        assert_eq!(registry.pool().reserved_total(), 0);
+    }
+
+    /// §2.4 and §6: the solved demo's `d_M` and `d_S` equal the digests that
+    /// admission computes over the session model and the received result
+    /// after the webview round trip (parse, RFC 8785 text, native parse), in
+    /// both modes; another mode, a result with one added annotation and
+    /// another model are not held. Nothing the webview receives carries a
+    /// digest.
+    #[test]
+    fn the_solved_demos_attestation_matches_admissions_digests_after_the_round_trip() {
+        use open_pipe_stress_canonical_json::canonical_json;
+        let registry = real_registry(ScriptedHost::normal());
+        let model = crate::load_preview_model().unwrap();
+        let body = serde_json::to_vec(&model).unwrap();
+        let round_trip = |value: &serde_json::Value| -> serde_json::Value { serde_json::from_str(&canonical_json(value)).unwrap() };
+        for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+            let receipt = registry.start(&body, Some(mode.as_str())).unwrap();
+            let status = wait_terminal(&registry, &receipt.job_id);
+            assert_eq!(status.state, "completed", "{status:?}");
+            let bytes = registry.take_result(&receipt.job_id).unwrap();
+            // The webview parses the producer's bytes and writes the session
+            // model and the result into the request's RFC 8785 text; admission parses it.
+            let received: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
+            let (session_model, source) = (round_trip(&model), round_trip(&received));
+            let at_admission = SolveAttestation::of(&session_model, &source).expect("the demo is within the checked profile");
+            assert!(registry.holds_attested_solve(mode, &at_admission), "{mode:?}");
+            let other = match mode {
+                PreviewSolverMode::SparseInteractive => PreviewSolverMode::DenseScrutiny,
+                PreviewSolverMode::DenseScrutiny => PreviewSolverMode::SparseInteractive,
+            };
+            if mode == PreviewSolverMode::SparseInteractive {
+                assert!(!registry.holds_attested_solve(other, &at_admission), "mode mismatch");
+            }
+            // An annotation added only in the request is not attested.
+            let mut annotated = source.clone();
+            let row = annotated["results"].as_array_mut().and_then(|rows| rows.first_mut()).expect("the demo has result rows");
+            row.as_object_mut().unwrap().insert("x_annotation".into(), serde_json::json!("invented"));
+            assert!(!registry.holds_attested_solve(mode, &SolveAttestation::of(&session_model, &annotated).unwrap()));
+            let mut other_model = session_model.clone();
+            other_model.as_object_mut().unwrap().insert("x_other".into(), serde_json::json!(1));
+            assert!(!registry.holds_attested_solve(mode, &SolveAttestation::of(&other_model, &source).unwrap()));
+            // Never sent to the webview: no receipt, status or disposal carries a digest.
+            let disposal = registry.dispose_result(&receipt.job_id).unwrap();
+            let sent = [
+                serde_json::to_string(&receipt).unwrap(),
+                serde_json::to_string(&registry.status(&receipt.job_id).unwrap()).unwrap(),
+                serde_json::to_string(&disposal).unwrap(),
+                serde_json::to_string(&registry.pool_status()).unwrap(),
+            ];
+            for digest in [at_admission.model_sha256, at_admission.result_sha256] {
+                assert!(sent.iter().all(|text| !text.contains(&hex(&digest))));
+            }
+            assert!(registry.holds_attested_solve(mode, &at_admission), "not released with custody");
+        }
+        let reset = registry.dispose_all_results();
+        assert_eq!(reset.released_results, 0);
+        assert!(registry.table().attested.job_numbers().is_empty());
+        assert_eq!(registry.pool().reserved_total(), 0);
+    }
+
+    /// The starting grant waits in the solve's queue (`wait_acquire`, the
+    /// production entry a solve start uses) for at most the check's window,
+    /// then the queue reason stands: with no worker slot free the check is
+    /// refused `worker_limit_reached`, after the window, and nothing stays reserved.
+    #[test]
+    fn model_checks_wait_for_a_worker_slot_then_refuse_by_type() {
+        let host = ScriptedHost::normal();
+        let registry = registry(&host, TestLauncher::solve());
+        registry.pool().set_max_running_workers(0);
+        let demo: serde_json::Value = serde_json::from_str(crate::BUNDLED_DEMO_MODEL).unwrap();
+        let input = registry.admit_model_checks(&checks_body(&demo)).unwrap();
+        let started = std::time::Instant::now();
+        match registry.run_model_checks(input) {
+            Err(ModelChecksError::Unavailable(SolveJobError::ResourceUnavailable { refusal: ResourceRefusal::WorkerLimitReached { limit: 0, .. }, .. })) => {}
+            other => panic!("expected worker_limit_reached after the wait, got {other:?}"),
+        }
+        assert!(started.elapsed() >= MODEL_CHECKS_START_WAIT, "{:?}", started.elapsed());
+        assert_eq!((registry.pool().reserved_total(), registry.pool().running_workers()), (0, 0));
+    }
+
+    /// Runs one admitted check on its own thread, as `check_preview_model`'s
+    /// blocking task does.
+    fn spawn_check(registry: &SolveJobRegistry) -> std::thread::JoinHandle<Result<ModelChecksOutput, ModelChecksError>> {
+        let input = registry.admit_model_checks(&checks_body(&serde_json::json!({"project": {"id": "p"}}))).unwrap();
+        let registry = registry.clone();
+        std::thread::spawn(move || registry.run_model_checks(input))
+    }
+
+    /// The check's outcome, failing the test if it has not ended within 30 s.
+    fn joined(check: std::thread::JoinHandle<Result<ModelChecksOutput, ModelChecksError>>) -> Result<ModelChecksOutput, ModelChecksError> {
+        let deadline = std::time::Instant::now() + Duration::from_secs(30);
+        while !check.is_finished() {
+            assert!(std::time::Instant::now() < deadline, "the check did not end");
+            std::thread::sleep(Duration::from_millis(2));
+        }
+        check.join().unwrap()
+    }
+
+    /// Codex review r3 of #1665: a session reset (page load) cancels a running
+    /// check, as it abandons a solve: its worker is killed and, after the reap,
+    /// its grant released; nothing stays reserved.
+    #[test]
+    fn a_session_reset_cancels_a_running_check_and_releases_its_grant() {
+        let host = ScriptedHost::normal();
+        let (registry, gate) = gated(&host);
+        let check = spawn_check(&registry);
+        gate.wait_started(1);
+        assert_eq!(registry.pool().running_workers(), 1);
+        assert!(registry.pool().reserved_total() > 0);
+        registry.dispose_all_results();
+        assert!(matches!(joined(check), Err(ModelChecksError::Cancelled)));
+        assert_eq!((registry.pool().reserved_total(), registry.pool().running_workers()), (0, 0));
+        assert!(!registry.cancel_model_checks(), "the slot is clear once the check has ended");
+    }
+
+    /// A newer check supersedes the one in progress: admitting it cancels the
+    /// older check, whose worker is killed, and the newer one runs and reports.
+    #[test]
+    fn a_newer_check_cancels_the_one_in_progress() {
+        let host = ScriptedHost::normal();
+        let (registry, gate) = gated(&host);
+        let older = spawn_check(&registry);
+        gate.wait_started(1);
+        let newer = spawn_check(&registry);
+        assert!(matches!(joined(older), Err(ModelChecksError::Cancelled)));
+        gate.wait_started(2);
+        gate.release("{\"newer\":true}");
+        let output = joined(newer).unwrap_or_else(|e| panic!("{e:?}"));
+        assert_eq!(output.report, br#"{"newer":true}"#);
+        drop(output);
+        assert_eq!((registry.pool().reserved_total(), registry.pool().running_workers()), (0, 0));
+    }
+
+    /// A solve queued behind a running check (one worker slot) starts once the
+    /// project session's change cancels the check (`cancel_model_checks`); a
+    /// check still waiting for its starting grant stops waiting at once.
+    #[test]
+    fn a_solve_queued_behind_a_cancelled_check_starts() {
+        let host = ScriptedHost::normal();
+        let (registry, gate) = gated(&host);
+        registry.pool().set_max_running_workers(1);
+        let check = spawn_check(&registry);
+        gate.wait_started(1);
+        let receipt = registry.start(MODEL, None).unwrap();
+        let queued = wait_for(&registry, &receipt.job_id, |s| s.queue_reason.is_some());
+        assert_eq!(queued.state, "queued", "{queued:?}");
+        // A second check waits for the slot too; it is cancelled before its window ends.
+        let waiting = spawn_check(&registry);
+        assert!(matches!(joined(check), Err(ModelChecksError::Cancelled)), "superseded");
+        let cancelled_at = std::time::Instant::now();
+        assert!(registry.cancel_model_checks());
+        assert!(matches!(joined(waiting), Err(ModelChecksError::Cancelled)));
+        assert!(cancelled_at.elapsed() < MODEL_CHECKS_START_WAIT, "{:?}", cancelled_at.elapsed());
+        gate.wait_started(2);
+        assert_eq!(wait_for(&registry, &receipt.job_id, |s| s.state == "running").state, "running");
+        gate.release("{}");
+        assert_eq!(wait_terminal(&registry, &receipt.job_id).state, "completed");
+        registry.dispose_all_results();
         assert_eq!((registry.pool().reserved_total(), registry.pool().running_workers()), (0, 0));
     }
 }

@@ -15,7 +15,7 @@ const PRIVATE_MATERIAL_LABEL = "User entered alloy placeholder";
 
 function inventedModel(): PreviewModel {
   return {
-    schema_version: "0.7.0",
+    schema_version: "0.8.0",
     document_kind: "openpipestress.product_preview.model",
     data_boundary: {},
     project: {

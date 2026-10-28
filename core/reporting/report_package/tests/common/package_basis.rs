@@ -21,6 +21,7 @@
 #![allow(dead_code)]
 
 use open_pipe_stress_report_package::bindings::{expected_report_result_rows, DESKTOP_PROFILE, RUNNER_PROFILE};
+use open_pipe_stress_report_package::quantity_display::{source_displays_scaled_value, QUANTITY_DISPLAY_POLICY};
 use open_pipe_stress_result_export::derivative::{checksum, derive_document, digest, reference};
 use serde_json::{json, Value};
 
@@ -243,8 +244,8 @@ pub fn build(inputs: &Inputs<'_>) -> Result<Basis, String> {
             "storage_convention": "entered_units_preserved",
             "model_units": model["project"]["units"].clone(),
             "result_units": result_units.into_iter().collect::<Vec<_>>(),
-            "quantity_display_policy": "display result-row values with their explicit units; no report-time conversion",
-            "conversion_performed": false
+            "quantity_display_policy": QUANTITY_DISPLAY_POLICY,
+            "conversion_performed": source_displays_scaled_value(source)
         },
         "model_hash": hash_record("rfc8785_jcs", reference("model", &model_id), &model_hash),
         "input_manifest_ref": reference("InputManifest", inputs.input_manifest_id),

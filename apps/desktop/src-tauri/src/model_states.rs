@@ -1917,8 +1917,14 @@ fn refuse_version(status: &crate::model_document_version::ModelDocumentVersionSt
     } else {
         "its schema_version is too long to show"
     };
+    // A retired state: what it means for the project's recorded runs (MD8 §3.3,
+    // ruling a2), a static text appended after the quoted values.
+    let note = match status.refusal_suffix() {
+        "" => String::new(),
+        note => format!(" {note}"),
+    };
     format!(
-        "Model document refused for editing: status={}; source_schema_version={}; target_schema_version={}; {}",
+        "Model document refused for editing: status={}; source_schema_version={}; target_schema_version={}; {}{note}",
         stored_read::shown(&status.status),
         stored_read::shown(&status.source_schema_version),
         stored_read::shown(&status.target_schema_version),
@@ -3138,7 +3144,7 @@ mod tests {
         include_str!("../../../../fixtures/persistence/model_state_record_witness.json");
     const WITNESS_PATH_ENV: &str = "OPENPIPESTRESS_WRITE_MODEL_STATE_WITNESS";
 
-    /// An invented 0.7.0 document: one node, a model assumption naming a
+    /// An invented 0.8.0 document: one node, a model assumption naming a
     /// support it does not have (a validator warning) and a resolved open issue.
     fn model(name: &str) -> Value {
         json!({

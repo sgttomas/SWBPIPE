@@ -13,7 +13,7 @@
 //! pricing of the check. Invented data only. Standard claim fence applies
 //! (claims taxonomy per DEC-081).
 
-use crate::command_ingress::test_support::{admit_json, headers, registry};
+use crate::command_ingress::test_support::{admit_json, grown_lease_meets_the_budget, headers, registry};
 use crate::command_ingress::{admit_body, respond, ArgsDecoding, CommandError, INGRESS_ARGS_JSON_V1};
 use crate::ingress::counting::measure;
 use crate::memory_pool::test_host::ScriptedHost;
@@ -240,4 +240,22 @@ fn the_object_form_check_is_priced_within_the_existing_leases() {
     assert!(measured.peak_priced <= lease_bytes - envelope, "save: priced peak {} exceeds its lease {}", measured.peak_priced, lease_bytes - envelope);
     let (_, check) = measure(|| open_pipe_stress_report_package::wire::request_positional_struct_path(&request));
     eprintln!("pressure-free save: priced peak {} lease {}; the check alone {}", measured.peak_priced, lease_bytes - envelope, check.peak_priced);
+}
+
+/// The report-package save's normal path on the pressure-free witness, through
+/// the command's admission and growth (`admit_report_package_save`), stays
+/// within the per-invocation budget under the growth check
+/// (`grown_lease_meets_the_budget`).
+#[test]
+fn the_pressure_free_save_grows_within_the_budget() {
+    let body = InvokeBody::Raw(serde_json::to_vec(&args_body(&save_request(&request(), &model()))).unwrap());
+    let headers = headers(Some(INGRESS_ARGS_JSON_V1));
+    let registry = registry(ScriptedHost::normal());
+    assert_eq!(registry.pool().settings().1, crate::memory_pool::DEFAULT_INVOCATION_BUDGET_BYTES);
+    let ingress = admit_body(&registry, &body, &headers, "save_report_package", ArgsDecoding::Moved).unwrap().1.bytes();
+    grown_lease_meets_the_budget(&registry, "pressure-free save", ingress, &|| match crate::admit_report_package_save(&registry, &body, &headers) {
+        Ok((_, lease)) => Ok(lease.bytes()),
+        Err(CommandError::Ingress(error)) => Err(error),
+        Err(other) => panic!("the save failed otherwise: {other:?}"),
+    });
 }

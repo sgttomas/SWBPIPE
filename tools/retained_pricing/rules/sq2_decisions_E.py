@@ -81,7 +81,9 @@ if B7B_EXACT_BASE:
     # B7b-LR: validate_pressure_evidence takes its load/reference-state arm only when project(successor) carries
     # contract_evidence.load_reference_states; the producer inserts that member only under case_state::is_load_state
     # (lib.rs, both envelope constructors), false on route E (B7b-LS), and project() copies contract_evidence unchanged.
-    EDGE_ZERO = EDGE_ZERO + [(rs("validate_pressure_evidence", f=RE_FULL + "physics_evidence.rs"),
+    # W-16 slice b (§8.27, W16B-RD): the reader's direct-case checks moved into validate_direct_pressure_evidence, which
+    # validate_pressure_evidence calls (once on D1); the load/reference-state arm and its premise are unchanged.
+    EDGE_ZERO = EDGE_ZERO + [(rs_any("validate_direct_pressure_evidence", "validate_pressure_evidence", f=RE_FULL + "physics_evidence.rs"),
                               rs("validate_pressure_load_reference_evidence", f=RE_FULL + "load_reference.rs"),
                               "B7b-LR (route E): " + LOAD_STATE_OFF + "; the producer adds contract_evidence.load_reference_states only "
                               "under is_load_state and RS project() copies contract_evidence, so the successor has none and "

@@ -5,7 +5,7 @@ ControlledExport wrapper: the T4-I7 L line (``U2-L-ANCH-PTW-K2``) on 0.3.0
 (sparse) and 0.4.0 (dense) and the admitted kink (``U2-L-KINK-ANCH-P-K2``,
 0.3.0, dense) from ``fixtures/results/pressure_v3_arc_reader_corpus.json``,
 whose documents are the package's own generated requests re-authored to model
-0.7.0, as the adapter re-authors each frozen case input it submits. They are scored
+0.8.0, as the adapter re-authors each frozen case input it submits. They are scored
 against the generated package (analytical values from the frozen T4-I7
 references), admitted here with a synthetic test-only stub; no product solver
 or runner binary is executed. The owned reader genuinely runs against the
@@ -356,11 +356,11 @@ class PackageTests(unittest.TestCase):
             record = prepared['reauthoring']
             frozen = json.loads(files[case['runner_input']['path']])
             submitted = json.loads(prepared['runner_input'])
-            frozen['solve']['preview_model']['model']['schema_version'] = '0.7.0'
+            frozen['solve']['preview_model']['model']['schema_version'] = '0.8.0'
             self.assertEqual(submitted, frozen, 'only the version moves')
             self.assertNotEqual(record['frozen_input_sha256'], record['submitted_input_sha256'])
             self.assertEqual(record['frozen_input_sha256'], case['runner_input']['sha256'])
-            self.assertEqual((record['model_schema_version'], record['explicit_zero_corrosion_allowance']), (['0.5.0', '0.7.0'], False))
+            self.assertEqual((record['model_schema_version'], record['explicit_zero_corrosion_allowance']), (['0.5.0', '0.8.0'], False))
             self.assertEqual(record['pressure_contract'][0], record['pressure_contract'][1])
             self.assertEqual(prepared['load_state'], case_id.endswith(('_load_state_group', '_load_state_group_timoshenko')))
         model = json.loads(files[cases['milltol_lame_membrane.free_transferring@0.5.0']['product_request']['path']])['model']
@@ -406,14 +406,14 @@ class CompleteRunTests(unittest.TestCase):
         for case in result['cases']:
             self.assertEqual(case['reader_consistency']['response']['verdict'], 'consistent')
             self.assertEqual(case['process']['command'][1:], ['solve', '--input', '-', '--solver-mode', mode, '--explicit-local-private-intent'])
-            # The runner received the declared re-authored copy (model 0.7.0); the frozen input stays bound.
+            # The runner received the declared re-authored copy (model 0.8.0); the frozen input stays bound.
             reauthoring = case['runner_input_reauthoring']
             self.assertEqual(reauthoring['rule'], physics.REAUTHORING)
             self.assertEqual(case['process']['stdin_sha256'], reauthoring['submitted_input_sha256'])
             frozen = next(b for b in case['bindings'] if b['role'] == 'runner_input')
             self.assertEqual(frozen['sha256'], reauthoring['frozen_input_sha256'])
-            self.assertEqual(reauthoring['model_schema_version'][1], '0.7.0')
-            self.assertEqual(check(case, 'transport_identity_and_mode')['details']['document_schema_version'], '0.7.0')
+            self.assertEqual(reauthoring['model_schema_version'][1], '0.8.0')
+            self.assertEqual(check(case, 'transport_identity_and_mode')['details']['document_schema_version'], '0.8.0')
             self.assertTrue(any(r['id'].startswith('negative:') and r['state'] == 'matched' for r in case['assertions']))
         self.assertEqual(json.loads((output / 'ledger.json').read_text()), result)
         self.assertIn('Outcome: all_required_assertions_matched', (output / 'summary.md').read_text())
@@ -534,6 +534,56 @@ class BindingAndReaderTests(unittest.TestCase):
         refused = ep.consistency_observation(broken, binding, fixture.root / 'reader-refused')
         self.assertEqual(refused['response']['verdict'], 'refused')
         self.assertTrue(refused['response']['reason'])
+
+
+class CombinationBindingTests(unittest.TestCase):
+    """W-16 slice b, review r1 (3): the raw combination records bind the input's complete expressions, and the owned
+    reader receives the bound model, so a changed factor is refused by both."""
+
+    def entry(self):
+        corpus = json.loads((PROJECT / 'fixtures/results/pressure_v3_combination_reader_corpus.json').read_text())
+        case = next(c for c in corpus['cases'] if c['label'].startswith('W16B line'))
+        return deepcopy(case['envelope']), deepcopy(case['model'])
+
+    def test_the_input_binding_binds_complete_expressions(self):
+        raw, model = self.entry()
+        ep.combination_binding(raw, model)
+        changed = deepcopy(model)
+        self.assertEqual(changed['combinations'][0]['terms'][1]['factor'], 1.3)
+        changed['combinations'][0]['terms'][1]['factor'] = 1.25
+        with self.assertRaisesRegex(ValueError, 'expression differs'):
+            ep.combination_binding(raw, changed)
+        changed['combinations'][0]['terms'][1]['factor'] = 1.3000000000000003
+        with self.assertRaisesRegex(ValueError, 'expression differs'):
+            ep.combination_binding(raw, changed)
+        swapped = deepcopy(model)
+        swapped['combinations'][1]['minuend_id'], swapped['combinations'][1]['subtrahend_id'] = (
+            swapped['combinations'][1]['subtrahend_id'], swapped['combinations'][1]['minuend_id'])
+        with self.assertRaisesRegex(ValueError, 'expression differs'):
+            ep.combination_binding(raw, swapped)
+        for absent in ('absent', None, []):
+            other = deepcopy(model)
+            if absent == 'absent':
+                del other['combinations']
+            else:
+                other['combinations'] = absent
+            with self.assertRaisesRegex(ValueError, 'records differ'):
+                ep.combination_binding(raw, other)
+
+    def test_the_owned_reader_receives_the_bound_model(self):
+        raw, model = self.entry()
+        fixture = Fixture(self, 'sparse_interactive', ['U2-L-ANCH-PTW-K2@0.3.0'])
+        binding_path = fixture.root / 'binding-direct.json'
+        binding_path.write_bytes(dump(fixture.binding))
+        binding = ep.load_binding(fixture.candidate, binding_path, sha256_bytes(binding_path.read_bytes()))
+        observed = ep.consistency_observation(raw, binding, fixture.root / 'reader-bound', model=model)
+        self.assertEqual(observed['response']['verdict'], 'consistent')
+        self.assertEqual(json.loads((fixture.root / 'reader-bound/stdin.bin').read_bytes()), {'source': raw, 'model': model})
+        changed = deepcopy(model)
+        changed['combinations'][0]['terms'][1]['factor'] = 1.25
+        refused = ep.consistency_observation(raw, binding, fixture.root / 'reader-changed-factor', model=changed)
+        self.assertEqual(refused['response']['verdict'], 'refused')
+        self.assertIn('COMBINATION_MODEL_EXPRESSION', json.dumps(refused['response']))
 
 
 class TransportRefusalTests(unittest.TestCase):

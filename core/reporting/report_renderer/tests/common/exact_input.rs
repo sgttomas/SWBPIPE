@@ -55,7 +55,7 @@ pub fn with_exact_route(mut input: RenderableReportInput) -> RenderableReportInp
             ReportHeadline {
                 basis: "nominal_section".to_string(),
                 label: "Nominal section (nominal wall)".to_string(),
-                value_display: "41354908.75465696 Pa".to_string(),
+                value_display: "41.3549 MPa".to_string(),
                 location_ref: Some("pipe:invented-span".to_string()),
                 source_ref: Some("result:invented-nominal-maximum".to_string()),
             },

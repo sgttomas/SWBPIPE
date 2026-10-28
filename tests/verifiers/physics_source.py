@@ -8,7 +8,7 @@ B7b (A4/A5): the retained-source composite has one current contract, `pressure-s
 `3.0.0/exact_pressure_v3` (policy PRESSURE-SOURCE-1, case domain `pressure_source_case_evidence_v1`). The retired
 `physics-source-1` (`2.0.0/exact_straight_pressure_v2`) is not read here; a stored v2 result is refused by name at
 the header (`compatibility.py`, `reader_verdict.py`). Actual numerical eligibility additionally requires the
-independently captured full invocation, a current model document 0.7.0 with the exact contract.
+independently captured full invocation, a current model document 0.8.0 with the exact contract.
 
 T4-U6 (DEL-05-03 ``section-bases-and-timoshenko.md`` §2.3, §5) and O4 (DEL-04-08 Design
 ``o4-source-extension.md`` §3.4): the retained-source route admits both shear models
@@ -44,11 +44,11 @@ PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
 PRESSURE_PROFILE = "exact_pressure_v3"
 # T4-U6 (D-5, §2.4): one stress signature per (recovery token x section basis); 88 signatures over 51 kinds.
 # T4-U4b §4.3: + the straight derived signatures (sigma+, sigma-, tau on both bases): 94 over 53.
-PRESSURE_TABLE_SHA256 = "b5a4b0e585b9ec440d36144860baaf101b628498cfdab9a1de9248c2ed5069e7"
+PRESSURE_TABLE_SHA256 = "609a4e92ac19de0f5a1dd067dab64b4abeb7b3b70511e2095455f1d000d28e2c"
 PRESSURE_TABLE_PATH = ROOT / "fixtures/results/semantic_contract_v0_3_pressure_source_1.json"
 # The current model document and the exact contract a captured invocation must author
-# (b7-plan "Current model format"; O4 §3.4): 0.7.0, `pressure_contract` present, either shear model.
-MODEL_VERSION = "0.7.0"
+# (b7-plan "Current model format"; O4 §3.4): 0.8.0, `pressure_contract` present, either shear model.
+MODEL_VERSION = "0.8.0"
 SHEAR_MODELS = (sb.EULER_BERNOULLI, sb.TIMOSHENKO)
 
 
@@ -85,7 +85,7 @@ class SourceContract(Enum):
 
     @classmethod
     def from_invocation(cls, invocation):
-        """The captured model's contract: a current 0.7.0 document with the exact v3 contract and no outer
+        """The captured model's contract: a current 0.8.0 document with the exact v3 contract and no outer
         shear key, as Rust's `from_invocation`; anything else is refused."""
         model = _get(_get(invocation, "request"), "model")
         contract = _get(model, "pressure_contract")
@@ -249,6 +249,10 @@ def _validate_transport_metadata(source: Mapping[str, Any], source_contract: Sou
         cid = case["load_case_id"]
         pressure = [p for p in evidence["pressure"] if p["load_case_id"] == cid]
         _require(case["recovery_method"] == record["selected_method"], "RECOVERY_METHOD")
+        # W-16 slice c (§2): Rust `physics_source`: a selected case never carries a generation record.
+        if "equivalent_static" in case:
+            _require(record["selected_method"] != EXACT, "SOURCE_EQUIVALENT_STATIC")
+            physical.equivalent_static_record(cid, case["equivalent_static"])
         # O4 (§3.4): each section entry's nominal section, reduced section and beam theory are their D-5 and
         # Timoshenko rederivation from its captured authored values and the case's nu, and the case's straight
         # members share one shear model. Coincident bases remain bit-equal; distinct bases are admitted.

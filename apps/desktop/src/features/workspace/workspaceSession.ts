@@ -52,7 +52,8 @@ import {
 import type { BlankProjectKind, BlankProjectUnitsRequest } from "../project-units/ProjectUnitsDialog";
 import { modelFileRefusalMessage, modelFileWarningSuffix, openModelDocumentFile } from "../../services/modelDocumentFile";
 import { checkModelLibraryRefs, modelLibraryRefs } from "../../services/libraryImportService";
-import { publishLibraryRefFindings } from "../library/libraryRefFindings";
+import { currentLibraryRefFindings, libraryRefDiagnostics, publishLibraryRefFindings } from "../library/libraryRefFindings";
+import { cancelNativeModelChecks, runModelChecks, type ModelCheckRun } from "../diagnostics/modelChecks";
 import { modelDocumentSlotValidation } from "../model-file/modelDocumentShape";
 import {
   keptStoredProjectMessage,
@@ -165,7 +166,8 @@ import type { EntityKey, OrderedSelectionState, SelectionModifiers } from "./sel
 import {
   clonePreviewModel,
   selectionForOperationOutcome,
-  uiModelIdentityHash
+  uiModelIdentityHash,
+  type SessionModelCheckpoint
 } from "./sessionModel";
 import { commitModelAfterSolveInvalidation } from "./solveGates";
 import {
@@ -447,6 +449,7 @@ export function useWorkspaceSession() {
     batchSequence,
     operationBusy, setOperationBusy,
     operationMessage, setOperationMessage,
+    historyFailure, setHistoryFailure,
     operationEngineStatus, setOperationEngineStatus,
     intentSequence,
     operationRequest,
@@ -713,18 +716,63 @@ export function useWorkspaceSession() {
   // only a change to the model or project on screen supersedes the blank.
   const modelCommitEpochRef = useRef(0);
 
+  // A model commit is split so that an apply path can order it as Prepare,
+  // Publish, Notify: `prepareModelPublication` holds the fallible work and
+  // changes nothing; `publishModel` only assigns session state and
+  // session-owned refs; `retireViewportBoxGesture` calls out to the viewport.
+  // `commitModel` keeps the earlier behaviour for every other caller: the
+  // viewport is told first, so its failure still precedes publication.
+  type ModelPublication = Readonly<{ model: PreviewModel; identityHash: string }>;
+
+  function prepareModelPublication(nextModel: PreviewModel): ModelPublication {
+    return { model: nextModel, identityHash: uiModelIdentityHash(nextModel) };
+  }
+
+  function retireViewportBoxGesture() {
+    viewportViewCommandRef.current?.({ type: "retire-box-gesture" });
+  }
+
+  // Notify for an apply, undo or redo path: the viewport's failure is returned
+  // for the caller to report beside its message; the publication stands.
+  function retireViewportBoxGestureAfterPublication(): string | null {
+    try {
+      retireViewportBoxGesture();
+      return null;
+    } catch (error) {
+      return `The viewport did not retire its box gesture: ${nativeFailureText(error)}`;
+    }
+  }
+
+  // Prepare for a publication: the ordered selection pruned to the entities of
+  // `nextModel`, under the index generation `publishModel` assigns, as
+  // `preserveAndPruneSelection` would build it after the commit.
+  function prunedSelectionForPublication(nextModel: PreviewModel): OrderedSelectionState {
+    const nextIndex = modelIndexFor(nextModel, projectSessionGenerationRef.current, uiModelRevisionRef.current + 1);
+    return pruneSelection(
+      orderedSelectionRef.current,
+      new Set(nextIndex.entities.keys()),
+      { type: "project", id: nextModel.project.id }
+    );
+  }
+
   function commitModel(nextModel: PreviewModel, directDraftToken: string | null = null) {
+    retireViewportBoxGesture();
+    publishModel(prepareModelPublication(nextModel), directDraftToken);
+  }
+
+  function publishModel(prepared: ModelPublication, directDraftToken: string | null = null) {
+    const { model: nextModel, identityHash } = prepared;
     modelCommitEpochRef.current += 1;
+    // A later model supersedes an earlier undo or redo failure.
+    setHistoryFailure(null);
     referencePersistence.current = null;
     modelHashOwner.current = null;
-    viewportViewCommandRef.current?.({ type: "retire-box-gesture" });
     invalidateReportPackageComputedState();
     const assignmentStartedAt = performance.now();
     const modelPublicationGeneration = ++nextUiModelPublicationGeneration;
     publishUiModelAssignmentStarted(modelPublicationGeneration, assignmentStartedAt);
     const nextUiModelRevision = uiModelRevisionRef.current + 1;
     const indexGeneration = `${projectSessionGenerationRef.current}:${nextUiModelRevision}`;
-    const identityHash = uiModelIdentityHash(nextModel);
     setModelAssignment({
       status: "started",
       generation: modelPublicationGeneration,
@@ -1359,23 +1407,31 @@ export function useWorkspaceSession() {
       }
       if (!registered()) throw new Error("The batch was withdrawn from the review queue; its result was discarded.");
       if (!apply) registration.validated = { fingerprint, outcome };
-      setBatchOutcomes((current) => ({ ...current, [entry.key]: outcome }));
-      if (!apply || outcome.validation.application_status !== "applied_to_session_model") return;
+      // A validation, or an apply that did not apply, is shown at once. An
+      // applied outcome is published only with its model, below, so a failed
+      // preparation keeps the earlier preview and its Apply gate.
+      if (!apply || outcome.validation.application_status !== "applied_to_session_model") {
+        setBatchOutcomes((current) => ({ ...current, [entry.key]: outcome }));
+        return;
+      }
       if (!outcome.applied_model || !outcome.acceptance || outcome.simulation_disposition !== "committed_as_one_batch") {
         throw new Error("The batch did not return a complete application receipt; the model was not changed.");
       }
-      setUndoStack((current) => [{
+      // Prepare: every value the publication needs, computed before any state
+      // changes. A failure here leaves the history, receipts, review context,
+      // applied operations, registration and queue as they were.
+      const appliedModel = outcome.applied_model;
+      const publication = prepareModelPublication(appliedModel);
+      const checkpoint: SessionModelCheckpoint = {
         checkpoint_id: `undo-${entry.key}`,
         operation_id: entry.batch.batch_id,
         model: clonePreviewModel(entry.basisModel),
         selection: selection ?? defaultSelection(entry.basisModel)
-      }, ...current].slice(0, 25));
-      setRedoStack([]);
-      setBatchReceipts((current) => [...current, { batch: entry.batch, outcome }]);
-      setRetainedReviewContext((current) => [...current, ...structuredClone(entry.batch.operations)]);
-      setAppliedOperations((current) => [...current, {
-        receipt_id: `applied-${entry.key}`,
-        sequence: current.length + 1,
+      };
+      const batchReceipt = { batch: entry.batch, outcome };
+      const reviewContext = structuredClone(entry.batch.operations);
+      const appliedReceiptId = `applied-${entry.key}`;
+      const appliedFields: Omit<AppliedOperationReceipt, "receipt_id" | "sequence"> = {
         operation_id: entry.batch.batch_id,
         change_id: entry.batch.batch_id,
         target_object_type: "Model",
@@ -1388,15 +1444,35 @@ export function useWorkspaceSession() {
         acceptance: outcome.acceptance!,
         diagnostics: outcome.diagnostics,
         professional_boundary: outcome.professional_boundary
-      }]);
-      commitModel(outcome.applied_model);
-      preserveAndPruneSelection(outcome.applied_model);
+      };
+      const prunedSelection = prunedSelectionForPublication(appliedModel);
+      const appliedSolveJob = sessionHistoryChangedSolveJob("batch", entry.batch.batch_id);
+
+      // Publish: one synchronous block of state setters and session-owned ref
+      // writes; nothing here throws.
+      setBatchOutcomes((current) => ({ ...current, [entry.key]: outcome }));
+      setUndoStack((current) => [checkpoint, ...current].slice(0, 25));
+      setRedoStack([]);
+      setBatchReceipts((current) => [...current, batchReceipt]);
+      setRetainedReviewContext((current) => [...current, ...reviewContext]);
+      setAppliedOperations((current) => [...current, { receipt_id: appliedReceiptId, sequence: current.length + 1, ...appliedFields }]);
+      publishModel(publication);
+      commitSelectionState(prunedSelection, appliedModel);
       batchRegistrations.current.delete(entry.key);
       setQueuedBatches((current) => current.filter((candidate) => candidate.key !== entry.key));
-      clearComputedModelState(sessionHistoryChangedSolveJob("batch", entry.batch.batch_id));
+      clearComputedModelState(appliedSolveJob);
       setProposal(null);
       setSelectedReviewTarget(null);
-      setBatchMessage("Batch applied once. Previous solve results were cleared; one undo checkpoint is available.");
+      const appliedMessage = "Batch applied once. Previous solve results were cleared; one undo checkpoint is available.";
+      setBatchMessage(appliedMessage);
+
+      // Notify: external callbacks, each caught and reported; the published
+      // batch is not rolled back.
+      try {
+        retireViewportBoxGesture();
+      } catch (error) {
+        setBatchMessage(`${appliedMessage} The viewport did not retire its box gesture: ${nativeFailureText(error)}`);
+      }
     } catch (error) {
       if (stillCurrent()) setBatchMessage(`Batch request failed: ${nativeFailureText(error)}`);
     } finally {
@@ -1476,7 +1552,8 @@ export function useWorkspaceSession() {
     const epoch = requestEpochRef.current;
     const request = ++operationRequest.current.sequence;
     operationRequest.current.busy = true;
-    directDraftReviews.current.delete(review.reviewId);
+    // The review stays registered until its model is published (`publishModel`
+    // clears every draft review), so a failure before publication can be retried.
     const basisModel = clonePreviewModel(model);
     const frozenSubmission = structuredClone(registered.submission);
     const stillCurrent = () =>
@@ -1503,18 +1580,20 @@ export function useWorkspaceSession() {
           appliedHash?.value !== outcome.applied_model_backend_hash ||
           `sha256:${batchHash}` !== outcome.batch_hash
         ) return false;
-        setUndoStack((current) => [{
+        // Prepare: every value the publication needs, computed before any state
+        // changes. A failure here leaves the model, history, receipts, review
+        // context, applied operations and the registered review as they were.
+        const appliedModel = outcome.applied_model!;
+        const publication = prepareModelPublication(appliedModel);
+        const checkpoint: SessionModelCheckpoint = {
           checkpoint_id: `undo-${review.reviewId}`,
           operation_id: frozenSubmission.batch.batch_id,
           model: basisModel,
           selection: selection ?? defaultSelection(basisModel)
-        }, ...current].slice(0, 25));
-        setRedoStack([]);
-        setBatchReceipts((current) => [...current, { batch: frozenSubmission.batch, outcome }]);
-        setRetainedReviewContext((current) => [...current, ...structuredClone(frozenSubmission.batch.operations)]);
-        setAppliedOperations((current) => [...current, {
-          receipt_id: `applied-${review.reviewId}`,
-          sequence: current.length + 1,
+        };
+        const batchReceipt = { batch: frozenSubmission.batch, outcome };
+        const reviewContext = structuredClone(frozenSubmission.batch.operations);
+        const appliedFields: Omit<AppliedOperationReceipt, "receipt_id" | "sequence"> = {
           operation_id: frozenSubmission.batch.batch_id,
           change_id: frozenSubmission.batch.batch_id,
           target_object_type: "Model",
@@ -1527,13 +1606,32 @@ export function useWorkspaceSession() {
           acceptance: outcome.acceptance!,
           diagnostics: outcome.diagnostics,
           professional_boundary: outcome.professional_boundary
-        }]);
-        commitModel(outcome.applied_model!, review.reviewId);
+        };
         const endpoint = frozenSubmission.batch.operations.at(-1)?.change.after;
         const endpointId = endpoint ? (JSON.parse(endpoint) as { to?: string }).to : null;
-        setSelection(endpointId ? { type: "node", id: endpointId } : defaultSelection(outcome.applied_model!));
-        clearComputedModelState(sessionHistoryChangedSolveJob("batch", frozenSubmission.batch.batch_id));
-        setOperationMessage("Applied the reviewed route as one atomic batch; one undo checkpoint is available.");
+        const appliedSelection = singletonSelection(
+          endpointId ? { type: "node", id: endpointId } : defaultSelection(appliedModel),
+          orderedSelectionRef.current
+        );
+        const appliedSolveJob = sessionHistoryChangedSolveJob("batch", frozenSubmission.batch.batch_id);
+
+        // Publish: one synchronous block of state setters and session-owned ref
+        // writes; nothing here throws.
+        setUndoStack((current) => [checkpoint, ...current].slice(0, 25));
+        setRedoStack([]);
+        setBatchReceipts((current) => [...current, batchReceipt]);
+        setRetainedReviewContext((current) => [...current, ...reviewContext]);
+        setAppliedOperations((current) => [...current, { receipt_id: `applied-${review.reviewId}`, sequence: current.length + 1, ...appliedFields }]);
+        publishModel(publication, review.reviewId);
+        commitSelectionState(appliedSelection, appliedModel);
+        clearComputedModelState(appliedSolveJob);
+        const appliedMessage = "Applied the reviewed route as one atomic batch; one undo checkpoint is available.";
+        setOperationMessage(appliedMessage);
+
+        // Notify: external callbacks, each caught and reported; the published
+        // batch is not rolled back.
+        const viewportFailure = retireViewportBoxGestureAfterPublication();
+        if (viewportFailure) setOperationMessage(`${appliedMessage} ${viewportFailure}`);
         return true;
       }
 
@@ -1548,6 +1646,9 @@ export function useWorkspaceSession() {
       ) return false;
       const appliedHash = await computeModelHash(outcome.applied_model!);
       if (!stillCurrent() || appliedHash?.value !== outcome.applied_model_backend_hash) return false;
+      // Prepare: as for the batch above.
+      const appliedModel = outcome.applied_model!;
+      const publication = prepareModelPublication(appliedModel);
       const receipt: AppliedOperationReceipt = {
         receipt_id: `applied-${review.reviewId}`,
         sequence: appliedOperations.length + 1,
@@ -1564,19 +1665,35 @@ export function useWorkspaceSession() {
         diagnostics: outcome.diagnostics,
         professional_boundary: outcome.professional_boundary
       };
-      setAppliedOperations((current) => [receipt, ...current]);
-      setRetainedReviewContext((current) => [...current, structuredClone(intent)]);
-      setUndoStack((current) => [{
+      const reviewContext = structuredClone(intent);
+      const checkpoint: SessionModelCheckpoint = {
         checkpoint_id: `undo-${review.reviewId}`,
         operation_id: outcome.operation_id,
         model: basisModel,
         selection: selection ?? defaultSelection(basisModel)
-      }, ...current].slice(0, 25));
+      };
+      const appliedSelection = singletonSelection(
+        selectionForOperationOutcome(outcome) ?? defaultSelection(appliedModel),
+        orderedSelectionRef.current
+      );
+      const appliedSolveJob = modelChangedSolveJob(outcome);
+
+      // Publish: one synchronous block of state setters and session-owned ref
+      // writes; nothing here throws.
+      setAppliedOperations((current) => [receipt, ...current]);
+      setRetainedReviewContext((current) => [...current, reviewContext]);
+      setUndoStack((current) => [checkpoint, ...current].slice(0, 25));
       setRedoStack([]);
-      commitModel(outcome.applied_model!, review.reviewId);
-      setSelection(selectionForOperationOutcome(outcome) ?? defaultSelection(outcome.applied_model!));
-      clearComputedModelState(modelChangedSolveJob(outcome));
-      setOperationMessage(`Applied reviewed ${outcome.operation_id}; previous solve results were cleared.`);
+      publishModel(publication, review.reviewId);
+      commitSelectionState(appliedSelection, appliedModel);
+      clearComputedModelState(appliedSolveJob);
+      const appliedMessage = `Applied reviewed ${outcome.operation_id}; previous solve results were cleared.`;
+      setOperationMessage(appliedMessage);
+
+      // Notify: external callbacks, each caught and reported; the published
+      // operation is not rolled back.
+      const viewportFailure = retireViewportBoxGestureAfterPublication();
+      if (viewportFailure) setOperationMessage(`${appliedMessage} ${viewportFailure}`);
       return true;
     } catch (error) {
       if (stillCurrent()) setOperationMessage(`Draft apply failed to run: ${nativeFailureText(error)}`);
@@ -1634,15 +1751,23 @@ export function useWorkspaceSession() {
       // The hash computation is asynchronous too; generation must still match
       // after it resolves before any outcome, receipt or checkpoint is published.
       if (!stillCurrent() || currentHash?.value !== initialHash.value) return false;
-      setOperationOutcomes((current) => ({ ...current, [intentKey(intent)]: outcome }));
-      // Internal owned result only; this is not acknowledgement of a React publication.
-      if (ownedOutcome) ownedOutcome.current = outcome;
+      // An outcome that did not apply is shown at once. An applied outcome is
+      // published only with its model, below, so a failed preparation keeps
+      // the earlier outcome.
       if (outcome.validation.application_status !== "applied_to_session_model" || !outcome.applied_model) {
+        setOperationOutcomes((current) => ({ ...current, [intentKey(intent)]: outcome }));
+        // Internal owned result only; this is not acknowledgement of a React publication.
+        if (ownedOutcome) ownedOutcome.current = outcome;
         setOperationMessage(
           `Operation ${outcome.operation_id} was not applied (${outcome.validation.application_status}); see its diagnostics.`
         );
         return false;
       }
+      // Prepare: every value the publication needs, computed before any state
+      // changes. A failure here leaves the model, history, receipts, review
+      // context, applied operations, queued intents and earlier outcome as they were.
+      const appliedModel = outcome.applied_model;
+      const publication = prepareModelPublication(appliedModel);
       const receipt: AppliedOperationReceipt = {
         receipt_id: `applied-${appliedOperations.length + 1}-${intentKey(intent)}`,
         sequence: appliedOperations.length + 1,
@@ -1659,31 +1784,33 @@ export function useWorkspaceSession() {
         diagnostics: outcome.diagnostics,
         professional_boundary: outcome.professional_boundary
       };
-      setAppliedOperations((current) => [receipt, ...current]);
-      setRetainedReviewContext((current) => [...current, structuredClone(intent)]);
-      setUndoStack((current) =>
-        [
-          {
-            checkpoint_id: `undo-${appliedOperations.length + 1}-${intentKey(intent)}`,
-            operation_id: outcome.operation_id,
-            model: clonePreviewModel(model),
-            selection: selection ?? defaultSelection(model)
-          },
-          ...current
-        ].slice(0, 25)
-      );
-      setRedoStack([]);
-      commitModel(outcome.applied_model);
-      const appliedSelection = selectionForOperationOutcome(outcome);
+      const reviewContext = structuredClone(intent);
+      const checkpoint: SessionModelCheckpoint = {
+        checkpoint_id: `undo-${appliedOperations.length + 1}-${intentKey(intent)}`,
+        operation_id: outcome.operation_id,
+        model: clonePreviewModel(model),
+        selection: selection ?? defaultSelection(model)
+      };
+      const authoredSelection = selectionForOperationOutcome(outcome);
       // Explicit creation deliberately focuses the authored entity. Ordinary
       // edits and deletion preserve ordered membership and prune only refs the
       // accepted model no longer contains.
-      if (appliedSelection && /^(create_|insert_|connect_)/.test(outcome.change_kind)) {
-        setSelection(appliedSelection);
-      } else {
-        preserveAndPruneSelection(outcome.applied_model);
-      }
-      setEditorIntents((current) => current.filter((queued) => intentKey(queued) !== intentKey(intent)));
+      const appliedSelection = authoredSelection && /^(create_|insert_|connect_)/.test(outcome.change_kind)
+        ? singletonSelection(authoredSelection, orderedSelectionRef.current)
+        : prunedSelectionForPublication(appliedModel);
+      const appliedIntentKey = intentKey(intent);
+      const appliedSolveJob = modelChangedSolveJob(outcome);
+
+      // Publish: one synchronous block of state setters and session-owned ref
+      // writes; nothing here throws.
+      setOperationOutcomes((current) => ({ ...current, [appliedIntentKey]: outcome }));
+      setAppliedOperations((current) => [receipt, ...current]);
+      setRetainedReviewContext((current) => [...current, reviewContext]);
+      setUndoStack((current) => [checkpoint, ...current].slice(0, 25));
+      setRedoStack([]);
+      publishModel(publication);
+      commitSelectionState(appliedSelection, appliedModel);
+      setEditorIntents((current) => current.filter((queued) => intentKey(queued) !== appliedIntentKey));
       // Earlier solve output no longer describes the edited model document;
       // keeping it visible would overstate what was computed.
       setResult(null);
@@ -1692,10 +1819,26 @@ export function useWorkspaceSession() {
       setRuleCheckAggregate(null);
       setProposal(null);
       setSelectedReviewTarget(null);
-      setSolveJob(modelChangedSolveJob(outcome));
-      setOperationMessage(
-        `Applied ${outcome.operation_id} to the session model; previous solve results were cleared. Run a new solve, then save the project to store the edited model locally.`
-      );
+      setSolveJob(appliedSolveJob);
+      let appliedMessage =
+        `Applied ${outcome.operation_id} to the session model; previous solve results were cleared. Run a new solve, then save the project to store the edited model locally.`;
+      setOperationMessage(appliedMessage);
+
+      // Notify: external callbacks, each caught and reported; the published
+      // operation is not rolled back. A caller's owned outcome may be an accessor.
+      const viewportFailure = retireViewportBoxGestureAfterPublication();
+      if (viewportFailure) {
+        appliedMessage = `${appliedMessage} ${viewportFailure}`;
+        setOperationMessage(appliedMessage);
+      }
+      if (ownedOutcome) {
+        try {
+          // Internal owned result only; this is not acknowledgement of a React publication.
+          ownedOutcome.current = outcome;
+        } catch (error) {
+          setOperationMessage(`${appliedMessage} The caller did not receive the applied outcome: ${nativeFailureText(error)}`);
+        }
+      }
       return true;
     } catch (error) {
       if (stillCurrent()) setOperationMessage(`Operation apply failed to run: ${nativeFailureText(error)}`);
@@ -1718,49 +1861,75 @@ export function useWorkspaceSession() {
   }
 
   function handleUndoSessionModelEdit() {
-    if (operationRequest.current.busy || !model || !selection || undoStack.length === 0) return;
-    const [checkpoint, ...remainingUndo] = undoStack;
-    setUndoStack(remainingUndo);
-    setRedoStack((current) =>
-      [
-        {
-          checkpoint_id: `redo-${checkpoint.checkpoint_id}`,
-          operation_id: checkpoint.operation_id,
-          model: clonePreviewModel(model),
-          selection
-        },
-        ...current
-      ].slice(0, 25)
-    );
-    commitModel(clonePreviewModel(checkpoint.model));
-    setSelection(checkpoint.selection);
-    clearComputedModelState(sessionHistoryChangedSolveJob("undo", checkpoint.operation_id));
-    setOperationMessage(
-      `Undid ${checkpoint.operation_id} in the local session; previous solve results were cleared. Save is still required to persist the current session model.`
-    );
+    stepSessionHistory("undo");
   }
 
   function handleRedoSessionModelEdit() {
-    if (operationRequest.current.busy || !model || !selection || redoStack.length === 0) return;
-    const [checkpoint, ...remainingRedo] = redoStack;
-    setRedoStack(remainingRedo);
-    setUndoStack((current) =>
-      [
-        {
-          checkpoint_id: `undo-${checkpoint.checkpoint_id}`,
+    stepSessionHistory("redo");
+  }
+
+  // Undo and redo move one checkpoint between the stacks with the model it
+  // restores, ordered Prepare, Publish, Notify like an apply. Neither throws:
+  // a failure is reported in the operation message.
+  function stepSessionHistory(action: "undo" | "redo") {
+    const source = action === "undo" ? undoStack : redoStack;
+    if (operationRequest.current.busy || !model || !selection || source.length === 0) return;
+    const [checkpoint, ...remaining] = source;
+
+    // Prepare: every value the publication needs, computed before any state
+    // changes. A failure leaves the model and both stacks as they were, so the
+    // step can be retried.
+    let prepared: Readonly<{
+      restoredModel: PreviewModel;
+      publication: ModelPublication;
+      reverse: SessionModelCheckpoint;
+      restoredSelection: OrderedSelectionState;
+      solveJob: SolveJobAuditState;
+    }>;
+    try {
+      const restoredModel = clonePreviewModel(checkpoint.model);
+      prepared = {
+        restoredModel,
+        publication: prepareModelPublication(restoredModel),
+        reverse: {
+          checkpoint_id: `${action === "undo" ? "redo" : "undo"}-${checkpoint.checkpoint_id}`,
           operation_id: checkpoint.operation_id,
           model: clonePreviewModel(model),
           selection
         },
-        ...current
-      ].slice(0, 25)
-    );
-    commitModel(clonePreviewModel(checkpoint.model));
-    setSelection(checkpoint.selection);
-    clearComputedModelState(sessionHistoryChangedSolveJob("redo", checkpoint.operation_id));
-    setOperationMessage(
-      `Redid ${checkpoint.operation_id} in the local session; previous solve results were cleared. Save is still required to persist the current session model.`
-    );
+        restoredSelection: singletonSelection(checkpoint.selection, orderedSelectionRef.current),
+        solveJob: sessionHistoryChangedSolveJob(action, checkpoint.operation_id)
+      };
+    } catch (error) {
+      const failure = `${action === "undo" ? "Undo" : "Redo"} failed to run: ${nativeFailureText(error)}`;
+      setOperationMessage(failure);
+      setHistoryFailure(failure);
+      return;
+    }
+
+    // Publish: one synchronous block of state setters and session-owned ref
+    // writes; nothing here throws.
+    if (action === "undo") {
+      setUndoStack(remaining);
+      setRedoStack((current) => [prepared.reverse, ...current].slice(0, 25));
+    } else {
+      setRedoStack(remaining);
+      setUndoStack((current) => [prepared.reverse, ...current].slice(0, 25));
+    }
+    publishModel(prepared.publication);
+    commitSelectionState(prepared.restoredSelection, prepared.restoredModel);
+    clearComputedModelState(prepared.solveJob);
+    const steppedMessage =
+      `${action === "undo" ? "Undid" : "Redid"} ${checkpoint.operation_id} in the local session; previous solve results were cleared. Save is still required to persist the current session model.`;
+    setOperationMessage(steppedMessage);
+
+    // Notify: external callbacks, each caught and reported; the step is not
+    // rolled back.
+    const viewportFailure = retireViewportBoxGestureAfterPublication();
+    if (viewportFailure) {
+      setOperationMessage(`${steppedMessage} ${viewportFailure}`);
+      setHistoryFailure(`${action === "undo" ? "Undid" : "Redid"} ${checkpoint.operation_id}. ${viewportFailure}`);
+    }
   }
 
   function clearComputedModelState(nextSolveJob: SolveJobAuditState) {
@@ -3061,6 +3230,41 @@ export function useWorkspaceSession() {
     }
   }
 
+  // B11 on-demand model checks (DEL-04-06 Design `on-demand-model-checks.md`):
+  // the session's last run, shown in the Issues drawer. The checks read the
+  // model as it stands and never change it.
+  // In the app the solve's checks run natively under the memory pool, so a run
+  // is asynchronous: a later request (or a new project session) supersedes it.
+  const [modelCheckRun, setModelCheckRun] = useState<ModelCheckRun | null>(null);
+  const [modelCheckBusy, setModelCheckBusy] = useState(false);
+  const modelCheckRequest = useRef(0);
+  // Whether the latest request is a native check still in progress.
+  const nativeModelCheckInFlight = useRef(false);
+  // A new project session retires a run in progress and the last run's list
+  // (Codex review r2 of #1665): neither describes the new session's model.
+  // A native check in progress is cancelled, so its worker's grant is
+  // released (Codex review r3).
+  useEffect(() => {
+    modelCheckRequest.current += 1;
+    if (nativeModelCheckInFlight.current) void cancelNativeModelChecks();
+    nativeModelCheckInFlight.current = false;
+    setModelCheckBusy(false);
+    setModelCheckRun(null);
+  }, [projectSessionGeneration]);
+  async function handleRunModelChecks() {
+    if (!model) return;
+    const request = ++modelCheckRequest.current;
+    const generation = projectSessionGenerationRef.current;
+    setIssuesDrawerOpen(true);
+    setModelCheckBusy(true);
+    nativeModelCheckInFlight.current = isTauriRuntime();
+    const run = await runModelChecks(model, () => libraryRefDiagnostics(currentLibraryRefFindings(model)));
+    if (request !== modelCheckRequest.current || generation !== projectSessionGenerationRef.current) return;
+    nativeModelCheckInFlight.current = false;
+    setModelCheckBusy(false);
+    setModelCheckRun(run);
+  }
+
   // Single command sink for both the in-DOM menu bar (tested) and the native
   // macOS menu bar (Tauri shell only). View commands summon/dismiss workspace
   // sections and toggle the tree/inspector rails; the spatial core (tree |
@@ -3145,6 +3349,9 @@ export function useWorkspaceSession() {
         break;
       case "analyze.rule-checks":
         setActiveSection("solve");
+        break;
+      case "analyze.check-model":
+        void handleRunModelChecks();
         break;
       default: {
         const prefix = "view.section.";
@@ -3427,6 +3634,13 @@ export function useWorkspaceSession() {
       if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current || handoffSaveDialogOpenRef.current) return;
       if ((!event.metaKey && !event.ctrlKey) || event.altKey || event.defaultPrevented) return;
       const key = event.key.toLowerCase();
+      // ⇧⌘M runs the model checks (Analyze → Check Model). AppKit owns it in the
+      // native runtime, where the menu item carries the same accelerator.
+      if (key === "m" && event.shiftKey && !isTauriRuntime()) {
+        event.preventDefault();
+        runMenuCommandRef.current("analyze.check-model");
+        return;
+      }
       if (key === "z") {
         const target = event.target instanceof HTMLElement ? event.target : document.activeElement;
         if (target instanceof HTMLElement && (target.isContentEditable || target.closest('input, textarea, [contenteditable="true"], [contenteditable=""]'))) return;
@@ -3627,6 +3841,7 @@ export function useWorkspaceSession() {
       directDraftCommitToken,
       operationBusy,
       operationMessage,
+      historyFailure,
       operationEngineStatus,
       operationRequest,
       handleQueueEditorIntent,
@@ -3690,6 +3905,9 @@ export function useWorkspaceSession() {
       reviewDetailsOpen, setReviewDetailsOpen,
       auditDrawerOpen, setAuditDrawerOpen,
       issuesDrawerOpen, setIssuesDrawerOpen,
+      modelCheckRun,
+      modelCheckBusy,
+      handleRunModelChecks,
       stageSurface,
       stageViewMemory, setStageViewMemory,
       narrowWindow,

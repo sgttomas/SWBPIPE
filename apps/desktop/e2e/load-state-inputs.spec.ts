@@ -7,7 +7,7 @@ import {
   openWorkspaceSection,
 } from "./workspace-driver";
 
-// T1 WP3: plain load/reference-state fields (model 0.7.0 with the exact contract since
+// T1 WP3: plain load/reference-state fields (model 0.8.0 with the exact contract since
 // B7b) on the browser lane.
 // Every value is an invented test input. The browser has no solver backend, so
 // no e2e here shows a load/reference-state solve: the resolved-state block for the committed
@@ -62,7 +62,7 @@ test("blank load/reference model: author support motion, a thermal state and a m
   await expect(page.getByTestId("operation-engine-chip")).toContainText("Engine ready");
 
   // The pressure-free bundled fixture offers only the gating line (B7b: the group needs
-  // the current 0.7.0 document with the exact contract).
+  // the current 0.8.0 document with the exact contract).
   await openWorkspaceSection(page, "loads");
   await expect(page.getByTestId("load-state-needs-current")).toHaveText("Load/reference state needs the current model with an explicit exact pressure contract.");
   await expect(page.getByTestId("load-state-inputs")).toHaveCount(0);
@@ -70,7 +70,7 @@ test("blank load/reference model: author support motion, a thermal state and a m
   await openWorkspaceSection(page, "project");
   await page.getByRole("button", { name: "Blank load/reference model", exact: true }).click();
   await confirmProjectUnits(page);
-  await expect(page.getByTestId("local-project-message")).toContainText("Created blank local load/reference-state model 0.7.0 document");
+  await expect(page.getByTestId("local-project-message")).toContainText("Created blank local load/reference-state model 0.8.0 document");
 
   // Existing authoring reaches a straight model: two nodes, a material, one pipe, a support, one case with one primitive.
   await createNode(page, "node:WP3-A", "0");

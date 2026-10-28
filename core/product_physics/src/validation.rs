@@ -40,6 +40,19 @@ fn validate_model_settings(model: &PreviewModel, diagnostics: &mut Vec<Diagnosti
             vec![crate::model_settings::NODE_PROXIMITY_TOLERANCE_PATH.to_string()],
         ));
     }
+    // Model document 0.8.0: `model_settings.shear_model` is refused by name when it is not one of
+    // the two names, on a document with `pressure_contract`, or (the 0.8.0 interim)
+    // `timoshenko_annulus_energy_v1` on a pressure-free document. Nothing is then solved.
+    let authored = model.model_settings.as_ref().and_then(|settings| settings.shear_model);
+    if let Some(error) = authored.and_then(|setting| crate::model_settings::shear_model_refusal(setting, model.pressure_contract.is_some())) {
+        diagnostics.push(diag(
+            "diagnostic:model-settings:shear-model",
+            error.code,
+            "blocking",
+            error.message,
+            vec![crate::model_settings::SHEAR_MODEL_PATH.to_string()],
+        ));
+    }
 }
 
 // Local solve readiness only: records remain deserializable and editable.
@@ -2129,3 +2142,10 @@ fn validate_directional_sifs(model: &crate::PreviewModel, diagnostics: &mut Vec<
         }
     }
 }
+
+/// On-demand model checks (DEL-04-06 Design `on-demand-model-checks.md`): the
+/// solve's own checks before stiffness formation, without solving, exposed as
+/// `LinearStaticPreviewRequest::pre_formation_checks_value`. Declared here, in
+/// a module that no retained-pricing owner source is, so the owner sources
+/// stay byte-identical (Codex reviews r1 and r2 of #1665).
+mod model_checks;

@@ -1,0 +1,147 @@
+id: DEL-04-09
+name: Modal analysis
+needs:
+- from: DEL-04-01
+  condition: >-
+    DEL-04-09 forms K_ff by DEL-04-01's kernel assembly and partitioned restraint reduction
+    (`reduce_system…`, `reduce_assembled_sparse_system`), including the curved-bend macro-element
+    (`curved_bend`, its arc length and `consistent_uniform_nodal_loads` for the arc resultant check). Its
+    modal formation check re-forms K, in at least double-double precision, through one new read-only
+    frame_kernel entry exposing K-D5's p128 element re-formation (`intended_stiffness_pass`,
+    `formation_check.rs`) without K-D5's D5C1 criterion, which judges a static correction and is not
+    reused (M1b), and evaluates residuals with `exact_sum`. Both paths take their Sturm counts from
+    `sparse_direct`'s public API (`reverse_cuthill_mckee`, `SymmetricProfileMatrix::from_entries_with_order`,
+    `factorize_ldlt` with its `nonpositive_pivot_count` and `first_nonpositive_pivot`, and `solve_ordered`)
+    plus one new read-only accessor on `ProfileFactorization` returning max|L_ij| and the pivot magnitudes,
+    with no mutation and no allocation (M1b, used unchanged by M2's sparse path). Both seams are additions
+    to DEL-04-01's code in priced crates, re-registered under D3 in their change. The Sturm count relies
+    on `nonpositive_pivot_count` being the number of negative pivots of the unpivoted LDLᵀ, and is relied
+    on only at shifts separated from the computed eigenvalues by a stated multiple of the estimated
+    backward error that the accessor's growth observations feed (Design §3.2, §3.3, §3.4).
+  gating: true
+  evidence: core/solver/sparse_direct/src/lib.rs
+- from: DEL-04-02
+  condition: >-
+    DEL-04-09 places the consistent mass on DEL-04-02's straight pipe element in the member's own frame
+    orientation, and compares a·M·r_k nodally with the element's consistent uniform-load vector (forces
+    wL/2, moments ±wL²/12) in the weight-basis identity check (Design §2.5).
+  gating: true
+  evidence: core/solver/straight_pipe
+- from: DEL-04-03
+  condition: >-
+    DEL-04-09 reduces M with the restrained DOFs of DEL-04-03's linear supports, takes spring stiffness
+    on the global diagonal, and keeps imposed-displacement DOFs restrained without their motion values
+    (`imposed_motion.rs`). Constant-effort supports contribute no stiffness and no mass.
+  gating: true
+  evidence: core/solver/linear_supports
+- from: DEL-04-06
+  condition: >-
+    An unrestrained or mechanism model is refused through DEL-04-06's singular-model detection and
+    diagnostics, unchanged, before any eigen-solve.
+  gating: true
+  evidence: execution/PKG-04/DEL-04-06/ScopeOfWork.md
+- from: DEL-04-07
+  condition: >-
+    The modal entry (`run_modal_preview_with_mode`) sits beside DEL-04-07's product solve entry
+    (`run_linear_static_preview_with_mode`). It reads the built PF model (`BuiltModel`) in a separate pass
+    that adds no frame to `build_member` or the AC-004 peak chain. It resolves the modulus basis with
+    `materials_for_modulus_basis_observed`, chooses its path by `PreviewSolverMode`, and sizes its dense
+    guard against the dense scrutiny ceiling (`DENSE_SCRUTINY_CEILING_BYTES`). The exact route,
+    load/reference-state documents and Timoshenko straights are refused by name (Design §1.2).
+  gating: true
+  evidence: core/product_physics/src/lib.rs
+- from: DEL-05-01
+  condition: >-
+    The mass basis is the self-weight basis. DEL-04-09 reads DEL-05-01's PF mass per length
+    (`stable_mass_per_length`, `STABLE_MASS_METHOD` `source_od_effective_wall_areas/v1`) and the
+    component eligibility function (`component_weights`), both exposed `pub(crate)` without change of
+    meaning. It runs the generator in inspection mode (`generate_operations(…, true)`) for the identity
+    check, and reads applied self-weight evidence (`inspect_applied_self_weight`, the component
+    primitives' `normalized_acceleration_m_per_s2`) for the acceleration agreement (Design §2.3, §2.5).
+  gating: true
+  evidence: core/product_physics/src/self_weight.rs
+- from: DEL-03-05
+  condition: >-
+    A rigid-family component's body mass is W/a at its centre of gravity. DEL-04-09 needs DEL-03-05's
+    rigid-family predicates (`is_rigid_family`, `mapped_pipe_ref`, `mechanics_geometry_only`
+    consumption), the component weight as an authored force and the centre-of-gravity convention (R10,
+    owner 2026-10-24: global X/Y/Z from the component node), and the s·E, s·G stiffness scaling, unchanged.
+  gating: true
+  evidence: core/product_physics/src/rigid_component.rs
+- from: DEL-04-08
+  condition: >-
+    F1 touches priced sources (PP `lib.rs`, `self_weight.rs`, the `sparse_direct` accessor and the frame_kernel
+    re-formation entry, both in M1b, and DEL-02-02's unit families in `core/units`) and the reviewed
+    `core/product_physics/Cargo.lock`. Each such change is
+    re-registered under DEL-04-08's actual-source pricing law (D3, `tools/retained_pricing`) in the change
+    that makes it, and keeps the AC-004 stack witnesses passing. F1 never enters the retained Direct entry
+    or D1. D3 runs join the queue on Agent 0's go.
+  gating: true
+  evidence: execution/PKG-04/DEL-04-08/Design/retained-pricing-rules.md
+- from: DEL-02-02
+  condition: >-
+    The extraction cut-off (frequency), the weight-to-mass acceleration and every mass input are
+    normalized through DEL-02-02's unit catalog and dimension checks (`open_pipe_stress_units`); results
+    are displayed in project units. Every published modal quantity has integer unit exponents. The catalog
+    gains the families the modal results need and does not yet have: frequency (Hz canonical), angular
+    frequency (rad/s), rotation per length (rad/m), length per rotation (m/rad) and mass moment of inertia
+    (kg·m²); period uses the existing Time (s). DEL-02-02 makes that extension, a priced change under D3.
+    DEL-04-09 defines no unit or conversion of its own (Design §1.5).
+  gating: true
+  when: The unit families before M1b publishes modal results.
+  evidence: core/units/README.md
+- from: DEL-00-06
+  condition: >-
+    The modal profile (`product_preview_modal_v1`) joins the result envelope of `schemas/results.v0.3.schema.yaml`,
+    and the `modal` run kind joins `schemas/analysis_run.v0.3.schema.json`, under DEL-00-06's diagnostics and
+    result-envelope contract and the one-version rule. Whether these are additions within the current
+    versions is settled in M1b's design (Design §9, O-8). The modal refusals and warnings are typed
+    diagnostics under that contract.
+  gating: true
+  when: Before M1b publishes modal results.
+- from: DEL-04-05
+  condition: >-
+    M2's scale benchmarks use DEL-04-05's performance-harness conventions, and the dense path's
+    kernel-level control generalizes the harness's Jacobi routine (`jacobi_symmetric_eigenvalues`) in
+    tests only. No product path depends on the harness.
+  gating: false
+  evidence: core/solver/performance_harness/src/lib.rs
+- from: DEL-05-03
+  condition: >-
+    M4, outside F1's current commitments, admits Timoshenko straights with a Timoshenko consistent mass
+    once DEL-05-03's PF Timoshenko unit (#1663) and model document 0.8.0 land. Until then they are refused
+    by name.
+  gating: false
+  when: Before M4.
+- from: DEL-10-05
+  condition: >-
+    The headless runner hosts a modal command (M1b). It supplies no extraction bound or acceleration of
+    its own.
+  gating: false
+- from: external:nrc-nureg-cr
+  condition: >-
+    Class-c comparison problems (first, NUREG/CR-1677 Vol. 1) are transcribed from a report only with that
+    report's own redistribution evidence (its rights statement and NRC distribution terms), recorded per
+    fixture with the `docs/IP_AND_DATA_BOUNDARY.md` §4 fields. A report with uncertain rights is held for
+    the owner's review and nothing is transcribed from it; copyrighted or adapted content inside a report
+    is excluded (Agent 0, 2026-10-27; Design §4.4). At least one such comparison is required before
+    FR-SOL-016 is reported complete (ScopeOfWork REQ-010).
+  gating: false
+  when: After M1b, for REQ-010.
+# Planned paths: none of these exists yet (Design §3.5, §5).
+code_paths:
+- core/solver/modal_eigen/**
+- core/product_physics/src/modal.rs
+- core/product_physics/src/modal/**
+- core/product_physics/tests/modal_*.rs
+- core/reporting/result_export/src/modal_evidence.rs
+- core/reporting/result_export/tests/modal_*.rs
+- fixtures/results/semantic_contract_v0_3_modal_1.json
+- fixtures/results/modal_*.json
+- tests/verifiers/modal_evidence.py
+- tests/test_modal_*.py
+- validation/references/f1_modal/**
+- apps/desktop/src/features/results/ModalResultsPanel*
+- apps/desktop/src/features/viewport/modeShapeOverlay*
+# Planned checks: registered by each slice (ScopeOfWork VER-001 to VER-010).
+checks: []

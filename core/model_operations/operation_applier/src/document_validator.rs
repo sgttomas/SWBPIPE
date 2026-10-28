@@ -706,8 +706,9 @@ impl Validator {
 
     // ---- §3.8 model settings ------------------------------------------------
 
-    /// `model_settings`: a closed record whose one member, `node_proximity_tolerance`, is a
-    /// length quantity `{value, unit}`: finite, greater than zero, in a catalog length unit.
+    /// `model_settings`: a closed record. `node_proximity_tolerance` is a length quantity
+    /// `{value, unit}`: finite, greater than zero, in a catalog length unit; `shear_model`
+    /// (model document 0.8.0) is one of the two names and never beside a pressure contract.
     /// The value checks run before the unit check, as in product_physics' accessor, and give
     /// its codes and messages.
     fn model_settings(&mut self, root: &Map<String, Value>) {
@@ -717,7 +718,16 @@ impl Validator {
             self.block(SLOT_SHAPE, "model_settings", format!("model_settings is {}; object required.", kind_name(value)), Vec::new());
             return;
         };
-        self.members(settings, "model_settings", &[], &["node_proximity_tolerance"], &[]);
+        self.members(settings, "model_settings", &[], &["node_proximity_tolerance", "shear_model"], &[]);
+        // Model document 0.8.0: `shear_model`, one of the two names, never beside a
+        // pressure contract; `timoshenko_annulus_energy_v1` is schema-valid here and is
+        // refused at solve and at authoring.
+        if let Some(value) = settings.get("shear_model") {
+            let has_contract = root.get("pressure_contract").is_some_and(|contract| !contract.is_null());
+            if let Some(error) = ms::shear_model_document_refusal(ms::ShearModelSetting::of(value), has_contract) {
+                self.block(error.code, ms::SHEAR_MODEL_PATH, error.message, Vec::new());
+            }
+        }
         let Some(tolerance) = settings.get("node_proximity_tolerance") else { return };
         let at = ms::NODE_PROXIMITY_TOLERANCE_PATH;
         let Some(quantity) = tolerance.as_object() else {

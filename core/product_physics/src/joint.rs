@@ -714,7 +714,7 @@ fn model_findings(
         Ok(_) => findings.extend(tie_rod_formation_findings(model, spec)),
         Err(hardware) => findings.extend(hardware),
     }
-    // Only current 0.7.0 exact documents reach the classifier (`ExactContract::of`).
+    // Only current 0.8.0 exact documents reach the classifier (`ExactContract::of`).
     if let Err(finding) = pressure_model(connector) {
         findings.push(finding);
     }

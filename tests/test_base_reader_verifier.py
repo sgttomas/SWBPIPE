@@ -107,8 +107,9 @@ def test_the_corpus_is_the_committed_corpus():
     # B7b: 543 less the 14 load-reference transport cases retired with the v2 transport reader.
     # T4-U4b (§5.1): seven tampers of the new kinds (529 -> 536); review 2: the twin-order swap (537);
     # review 6: the preview arc withholding revived (538); review 3 and 5: the two arc envelopes and seven tampers (547);
-    # Codex round 2: nine malformed directional records (556).
-    assert [item.id for item in built] == list(committed) and len(built) == 556
+    # Codex round 2: nine malformed directional records (556); W-16 slice b: the four combination
+    # corpus entries with their models (560); review r1: the Celsius selection-temperature entry (561).
+    assert [item.id for item in built] == list(committed) and len(built) == 561
     for item in built:
         entry = committed[item.id]
         if item.source is None:
@@ -174,8 +175,9 @@ def test_the_verifier_gives_every_committed_outcome_but_the_declared_class():
     # T4-U4b adds the seven tampers' readings (587); review 2, the twin-order swap (588); review 6, the preview
     # arc withholding revived (589); review 3 and 5, the two arc envelopes (validate and transport) and seven
     # tampers (600); Codex round 2, nine malformed directional records read and transported and the revival
-    # transported (619).
-    assert compared == 619
+    # transported (619); W-16 slice b, the four combination entries read and transported (627);
+    # review r1, the Celsius entry (629).
+    assert compared == 629
     assert validate_differences == DECLARED_VALIDATE
     assert standing_differences == DECLARED_STANDING
 

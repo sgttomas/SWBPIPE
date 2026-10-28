@@ -170,7 +170,7 @@ describe("the comparison view", () => {
 
   it("pages through every matching row, at most a page at once, back to the first page on a filter change", () => {
     // 201 removed `A-N-1-xxx` nodes sort before the removed `N-1`, which is on the second page.
-    const minimal = (nodes: Json[]) => ({ schema_version: "0.7.0", document_kind: "openpipestress.product_preview.model", project: { id: PROJECT }, nodes });
+    const minimal = (nodes: Json[]) => ({ schema_version: "0.8.0", document_kind: "openpipestress.product_preview.model", project: { id: PROJECT }, nodes });
     const removed = [...Array.from({ length: 201 }, (_, index) => ({ id: `A-N-1-${String(index).padStart(3, "0")}` })), { id: "N-1" }];
     render(<StateComparisonView result={{ projectId: PROJECT, left: FIRST, right: SECOND, comparison: compareModelDocuments(minimal(removed), minimal([])) }} onClose={() => {}} />);
     const ids = () => [...screen.getByTestId("state-comparison-table").querySelectorAll("tbody tr td:nth-child(2)")].map((cell) => cell.textContent);

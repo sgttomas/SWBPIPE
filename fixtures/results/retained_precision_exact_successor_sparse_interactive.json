@@ -146,7 +146,7 @@
             "temperature": "degC"
           }
         },
-        "schema_version": "0.7.0",
+        "schema_version": "0.8.0",
         "supports": [
           {
             "id": "rigid:N0",
@@ -454,7 +454,7 @@
     "document_kind": "openpipestress.product_preview.mechanics_result",
     "formulation_basis": {
       "limitations": [
-        "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers only when their mapped member lies outside every pressure region (EXACT_PRESSURE_REDUCER_IN_REGION otherwise). Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.",
+        "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers only when their mapped member lies outside every pressure region (EXACT_PRESSURE_REDUCER_IN_REGION otherwise). Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component or support family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.",
         "Pressure is a signed internal differential with zero external pressure increment, uniform within each explicit case-scoped collinear equal-bore region with explicit closure-transfer paths. A negative differential is admitted, but external-pressure stability and collapse are not assessed.",
         "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization.",
         "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly.",
@@ -4382,7 +4382,7 @@
               ],
               "verification_precision": 256
             },
-            "source_identity_sha256": "3312bd2923c5311f75a5a743ba8e14da1e926e86b290ddab307a53b29337fd03",
+            "source_identity_sha256": "d06a63260c84a7ff0e362e54d9a23a49630e7f1c8a9997bf7a2dc2d7b278dab8",
             "source_ref": 0,
             "status": "selected"
           }
@@ -4408,7 +4408,7 @@
           "domain": "source_blocks_invocation_v1",
           "profile": "openpipestress_jcs_ijson_v1",
           "scope": "actual_request_and_solver_mode",
-          "value": "7d5c9abf4ee17b87ecfac3013c11243b4909806d20102579cfcf4edfd07a3db8"
+          "value": "100855555c94164631f345b81dae340e6465aa3a68f9e825cb17bd3b1d2dad42"
         },
         "material_bases": [
           {
@@ -5830,7 +5830,7 @@
           }
         ],
         "projection_policy": "RP-LOGICAL-ATTEMPTS-v1",
-        "publication_sha256": "4d8980b153fed4b2028d7cc332a29d7790edd2045d06bcd7a7e4c6ddbc3a3ec3",
+        "publication_sha256": "cc9a16dda0229b19148eb5b611862ddb5e9869afccdd6d9fd5d60a1c863d8d3f",
         "receipt_version": 1,
         "sources": [
           {
@@ -6690,7 +6690,7 @@
             },
             "preparation": {
               "attempt_ref": 0,
-              "sha256": "a77d631a71a7559057ac9f0f8bbe1e47ae5d3fc00cc1a77112f12ad8182e608e"
+              "sha256": "05ea98cdf1f7c55cdb1a802e512f1a257edbd59541db3c5de0fb7a948fa51b82"
             },
             "section_terms": [
               {
@@ -6810,7 +6810,7 @@
         },
         "work_policy": "W1-LME-20B-60B-v1"
       },
-      "receipt_sha256": "0c7b14b6b08c689eee3be11ac164b0ec9296fd759c91595955eee7056dbc6ff4"
+      "receipt_sha256": "85e38b97c9cea2579f7851e4c570923ba2ba1494c7226480847f46ca76802ab8"
     },
     "run_id": "run:preview-linear-static-001",
     "schema_version": "0.2.0",
