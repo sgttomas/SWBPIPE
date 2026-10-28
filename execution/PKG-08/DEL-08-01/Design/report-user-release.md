@@ -2639,7 +2639,7 @@ headless runner) is a scanned crate under the shell's rules:
   reporting crates' library roots (`UNSAFE_FORBIDDING_DEPENDENTS`), and the
   token and parsed-tree `unsafe` findings apply to it, so a call through a
   declared foreign symbol, which needs `unsafe`, is refused by the compiler
-  and by the scan. The shell holds `unsafe` code in ten modules and is not
+  and by the scan. The shell holds `unsafe` code in eleven modules and is not
   on that list; it carries the deny layer instead (*Symbol-level FFI*
   below).
 - **Dependency pins.** The runner's normal and development dependencies are
@@ -2718,16 +2718,20 @@ shell holds some. HELP_HUMAN ruled for the repair below in this PR, with
 removing all `unsafe` from the shell recorded as the follow-up.
 - **Deny layer.** `src-tauri`'s library root (`src/lib.rs`) and binary root
   (`src/main.rs`), the only roots Cargo reports, carry
-  `#![deny(unsafe_code)]`, and exactly ten `mod` items carry
-  `#[allow(unsafe_code)]`: `worker_alloc`, `host_memory`,
+  `#![deny(unsafe_code)]`, and exactly eleven `mod` items carry
+  `#[allow(unsafe_code)]`: `autosave` (#1709; HELP_HUMAN's ruling, its test
+  module `tests` declared inside it), `worker_alloc`, `host_memory`,
   `handoff_package_publish`, `solve_worker`, `handoff_package`, `ingress`,
   `stored_model_document_export`, `stored_read` and `solve_jobs` in
   `lib.rs`, and `analysis_runs.rs`'s test module `tests`
   (`analysis_runs_tests.rs`). These are the shell's modules with real
   `unsafe` code; the shell builds and its tests compile under the layer,
   which confirms the list. `ingress.rs` is unchanged (#1676's envelope); its
-  allow is on its `mod` line. The scan pins the list
-  (`SHELL_UNSAFE_MODULES`). Each of these is a finding: an `allow`,
+  allow is on its `mod` line, as is `autosave`'s, whose content is
+  unchanged. The scan pins the list (`SHELL_UNSAFE_MODULES`), and rules 1
+  to 3 below apply to every pinned module as to all code. The pinned list
+  is a deliberate gate: a future module needing `unsafe` must be added to it
+  explicitly, in its own reviewed PR. Each of these is a finding: an `allow`,
   `expect` or `warn` naming `unsafe_code` anywhere else, directly, through
   `cfg_attr`, as an inner attribute in a module file or among other lints
   on any item; a root without its exact `#![deny(unsafe_code)]`, or with a
@@ -2754,7 +2758,8 @@ removing all `unsafe` from the shell recorded as the follow-up.
   from a parse; none occurs today. The allow-lists are empty.
 - **Fixtures**, on scratch copies of `src-tauri` that Cargo reads, each
   giving only its own findings: a new `allow(unsafe_code)` on another
-  module, through `cfg_attr`, as an inner attribute, as `expect` and among
+  module (an unpinned module carrying it), through `cfg_attr`, as an inner
+  attribute, as `expect` and among
   other lints on a function; each root's `deny` removed, and one weakened to
   `warn`; a pinned module without its allow; an unpinned foreign block
   declaring the mangled symbol; an extra item in, and an attribute on, the
@@ -2764,10 +2769,11 @@ removing all `unsafe` from the shell recorded as the follow-up.
   copy, with the pinned block as it is, passes.
 - **Follow-up (option (c)).** Moving all `unsafe` code out of the shell
   would let it carry `forbid` as the other scanned crates do. It is a
-  separate change: about 105 real `unsafe` uses in the ten modules, among
-  them `handoff_package_publish.rs` 27, `solve_worker.rs` 35 and
-  `worker_alloc.rs` 21, plus the counting allocator's callback into
-  `ingress::counting`.
+  separate change: about 122 real `unsafe` uses in the eleven modules,
+  about 105 in the first ten, among them `handoff_package_publish.rs` 27,
+  `solve_worker.rs` 35 and `worker_alloc.rs` 21, and 17 in `autosave`
+  (16 in `autosave.rs`, 1 in `autosave_tests.rs`), plus the counting
+  allocator's callback into `ingress::counting`.
 
 *Threat model.* The scan establishes this: under the repository's own build
 configuration, the reporting crates are built from the checked-in sources

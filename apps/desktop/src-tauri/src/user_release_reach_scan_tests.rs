@@ -2481,7 +2481,7 @@ fn shell_copy_with(tree: &ScratchTree, edits: &[(&str, &str, String)]) -> Source
 
 /// Also asserted (code review r9 follow-up at #1682; §2.8, "Symbol-level
 /// FFI"): the shell's two roots carry `#![deny(unsafe_code)]`, exactly the
-/// ten pinned `mod` items carry `#[allow(unsafe_code)]`, the one foreign
+/// eleven pinned `mod` items carry `#[allow(unsafe_code)]`, the one foreign
 /// block is the pinned one, and no linkage attribute, dynamic lookup or
 /// transmute occurs in any scanned crate (the real scan returns none).
 #[test]

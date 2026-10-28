@@ -272,10 +272,16 @@ pub(crate) const PROC_MACRO_PACKAGES: [&str; 0] = [];
 /// `#[allow(unsafe_code)]`, under the roots' `#![deny(unsafe_code)]`. Any
 /// other `allow(unsafe_code)` or `expect(unsafe_code)`, in any form (direct,
 /// through `cfg_attr`, inner, or on any other item), is a finding, and so is
-/// a listed `mod` without its allow. `allow(warnings)` and the lint groups do
+/// a listed `mod` without its allow. The list is a deliberate gate: a future
+/// module needing `unsafe` is added to it explicitly, in its own reviewed PR.
+/// `allow(warnings)` and the lint groups do
 /// not lift a `deny(unsafe_code)` (no rustc group holds `unsafe_code`;
 /// checked on Rust 1.97.1), so they need no rule.
-pub(crate) const SHELL_UNSAFE_MODULES: [(&str, &str, &str); 10] = [
+pub(crate) const SHELL_UNSAFE_MODULES: [(&str, &str, &str); 11] = [
+    // HELP_HUMAN's ruling on #1709's autosave (code review r9 follow-up at
+    // #1682): pinned as the eleventh; its test module `tests`
+    // (`autosave_tests.rs`) is declared inside it and inherits the allow.
+    ("src-tauri/src/lib.rs", "autosave", "autosave's directory-descriptor system calls (openat, fstatat, unlinkat) and its tests' mkfifo"),
     ("src-tauri/src/lib.rs", "handoff_package", "the handoff package's file-descriptor and atomic-publish system calls"),
     ("src-tauri/src/lib.rs", "handoff_package_publish", "the handoff publish's directory-descriptor system calls"),
     ("src-tauri/src/lib.rs", "host_memory", "the host memory sysctls and mach_host_self"),
