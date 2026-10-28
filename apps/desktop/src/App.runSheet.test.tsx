@@ -346,3 +346,110 @@ describe("run sheet through the shell", () => {
     expect(treeRow("node", "node:N20")).toBeNull();
   });
 });
+
+describe("run sheet bend rows read stored tangent points (Codex r2 P2)", () => {
+  /** F node:A (0, 0, 0); a bend run of dX 10 (corner (10, 0, 0), R 1); then `next`. Tangents: (9, 0, 0) and (10, 1, 0). */
+  async function appliedBend(next: Array<[string, string]> = [["dy", "10"]], second?: Array<[string, string]>) {
+    await renderSheet();
+    code("r1", "kind", "f");
+    type("r1", "node", "node:A");
+    const r2 = addRow();
+    code(r2, "kind", "b");
+    for (const [column, text] of [["dx", "10"], ["od", "0.1143"], ["wall", "0.00602"], ["material", "material:steel"], ["orientation", "0 0 1"], ["bendRadius", "1"], ["k", "1.5"], ["kSource", "invented k"]]) type(r2, column, text);
+    const r3 = addRow();
+    if (second) code(r3, "kind", "b");
+    for (const [column, text] of next) type(r3, column, text);
+    let r4: string | null = null;
+    if (second) {
+      r4 = addRow();
+      for (const [column, text] of second) type(r4, column, text);
+    }
+    await queueRows();
+    await previewAndApply("batch:run-sheet-sheet-1-1");
+    return { r2, r3, r4 };
+  }
+  const moveNode = async (id: string, axis: "x" | "y" | "z", value: string) => {
+    fireEvent.click(screen.getByTestId("entity-grid-type-nodes"));
+    const target = () => screen.getByTestId(`table-cell-${id}-${axis}`);
+    fireEvent.click(target()); fireEvent.click(target());
+    fireEvent.change(screen.getByRole("textbox", { name: `${id} ${axis.toUpperCase()} [m]` }), { target: { value } });
+    fireEvent.click(within(screen.getByTestId("engineering-table")).getByRole("button", { name: "Apply" }));
+    await waitFor(() => expect(target()).toHaveTextContent(value));
+    fireEvent.click(screen.getByTestId("entity-grid-type-run-sheet"));
+    await screen.findByTestId("run-sheet");
+  };
+  const menuItem = (row: string, label: string) => {
+    act(() => cell(row, "dx").focus());
+    fireEvent.keyDown(cell(row, "dx"), { key: "F10", shiftKey: true });
+    return within(screen.getByRole("menu")).getByText(label).closest("[role='menuitem']") as HTMLElement;
+  };
+
+  it("the row after an applied bend shows stored end minus the stored outgoing tangent point; a draft row after it emits what it displays", async () => {
+    const { r2, r3 } = await appliedBend();
+    expect(statuses(r2, r3)).toEqual(["applied", "applied"]);
+    // The bend row's own pipe ends at the incoming tangent point (9, 0, 0).
+    expect(cell(r2, "position")).toHaveTextContent("9, 0, 0");
+    expect(cell(r2, "dx")).toHaveAccessibleName("Row 2 dX: 9 m");
+    // The next row's pipe starts at the outgoing tangent point (10, 1, 0): dY = 10 − 1 = 9.
+    expect(cell(r3, "dy")).toHaveAccessibleName("Row 3 dY: 9 m");
+    expect(cell(r3, "position")).toHaveTextContent("10, 10, 0");
+    const r4 = addRow();
+    type(r4, "dx", "1");
+    expect(cell(r4, "position")).toHaveTextContent("11, 10, 0");
+    await queueRows();
+    toReview();
+    const batch = JSON.parse(within(batchArticle("batch:run-sheet-sheet-1-2")).getByText(/"batch_id"/).textContent!);
+    const created = batch.operations.find((operation: { change: { change_kind: string } }) => operation.change.change_kind === "create_node");
+    expect(JSON.parse(created.change.after).position).toEqual({ x: 11, y: 10, z: 0 });
+  });
+
+  it("an F branch naming a stored tangent node resolves; Start branch here on an applied bend names its outgoing tangent node, and on a draft bend is unavailable", async () => {
+    const { r2 } = await appliedBend();
+    const f = addRow();
+    code(f, "kind", "f");
+    type(f, "node", "node:N20-T1");
+    expect(screen.getByTestId(`run-sheet-row-header-${f}`)).toHaveAccessibleName(/^Row 4, start from node, draft$/);
+    const run = addRow();
+    type(run, "dz", "2");
+    type(run, "orientation", "1 0 0");
+    expect(cell(run, "position")).toHaveTextContent("9, 0, 2");
+    expect(screen.getByTestId(`run-sheet-row-header-${run}`)).toHaveAccessibleName(/^Row 5, run, draft$/);
+    fireEvent.click(menuItem(r2, "Start branch here"));
+    const branch = screen.getAllByTestId(/^run-sheet-row-r\d+$/).at(-1)!.dataset.testid!.replace("run-sheet-row-", "");
+    expect(cell(branch, "node")).toHaveTextContent("node:N20-T2");
+    expect(screen.getByTestId(`run-sheet-row-header-${branch}`)).toHaveAccessibleName(/start from node, draft$/);
+    // A draft bend's corner is replaced on apply: no branch may start there.
+    const draftBend = addRow();
+    code(draftBend, "kind", "f");
+    type(draftBend, "node", "node:E");
+    const b = addRow();
+    code(b, "kind", "b");
+    type(b, "dx", "3");
+    const item = menuItem(b, "Start branch here");
+    expect(item).toHaveAttribute("aria-disabled", "true");
+    expect(screen.getByRole("menu")).toHaveTextContent("A bend's corner is replaced by its tangent points when it is applied; start a branch from the applied bend.");
+  });
+
+  it("two consecutive bends: each row reads its stored tangent points", async () => {
+    const { r2, r3, r4 } = await appliedBend([["dy", "10"], ["bendRadius", "1"], ["k", "1.5"], ["kSource", "invented k"]], [["dz", "10"], ["orientation", "1 0 0"]]);
+    expect(statuses(r2, r3, r4!)).toEqual(["applied", "applied", "applied"]);
+    expect(cell(r2, "dx")).toHaveAccessibleName("Row 2 dX: 9 m");
+    // Row 3 runs from the first outgoing tangent (10, 1, 0) to the second incoming tangent (10, 9, 0).
+    expect(cell(r3, "dy")).toHaveAccessibleName("Row 3 dY: 8 m");
+    expect(cell(r3, "position")).toHaveTextContent("10, 9, 0");
+    // Row 4 runs from the second outgoing tangent (10, 10, 1) to (10, 10, 10).
+    expect(cell(r4!, "dz")).toHaveAccessibleName("Row 4 dZ: 9 m");
+  });
+
+  it("a detached bend row: its tangent point moved outside shows the stored position, and the next row's increment follows it", async () => {
+    const { r2, r3 } = await appliedBend();
+    await moveNode("node:N20-T2", "y", "1.5");
+    expect(status(r2)).toBe("detached");
+    expect(screen.getByTestId(`run-sheet-detached-${r2}`)).toHaveTextContent("Changed outside the sheet: node:N20-T2");
+    expect(status(r3)).toBe("applied");
+    expect(cell(r3, "dy")).toHaveAccessibleName("Row 3 dY: 8.5 m");
+    fireEvent.click(menuItem(r2, "Adopt current values"));
+    expect(status(r2)).toBe("applied");
+    expect(cell(r3, "dy")).toHaveAccessibleName("Row 3 dY: 8.5 m");
+  });
+});

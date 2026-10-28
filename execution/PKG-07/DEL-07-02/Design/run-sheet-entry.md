@@ -370,6 +370,13 @@ applied row shows stored values. Its increments read
 only. The chain resolves from the stored end positions of its applied rows, so
 a row after an applied one continues from where the model holds that row's
 end, including after an outside move that Adopt current values accepts.
+- An applied bend row's corner no longer exists. Its own pipe ends at the
+  stored incoming tangent point T1, which its readouts show. The chain
+  continues from the stored outgoing tangent point T2, so the next row's
+  increments read `stored(end) − stored(T2)`. The removed corner is never
+  resolved.
+- The bend's T1, T2, arc and component stay resolvable as stored records, so
+  an `F` row may name either tangent node.
 
 **Ownership.** Each applied row records the ids its applied batches created,
 in its history (§3.6). A row **owns** exactly those entities:
@@ -925,6 +932,9 @@ uses a modifier. No clash exists.
 - **Row menu.** Through the shared context menu (`Design/context-menus.md`):
   Insert row above, Insert row below, Delete row, Fill down, Start branch here
   (appends an `F` row naming this row's end node) and Fit row in viewport.
+  On an applied bend row, Start branch here names its outgoing tangent node
+  T2. On a bend row that is not applied it is unavailable, because the corner
+  is replaced when the bend applies.
   Unavailable items stay focusable and give their reason.
 - **Roles and names.** The sheet is a `table` region named "Run sheet". Each
   cell's accessible name is "Row ⟨n⟩ ⟨column⟩: ⟨value⟩ ⟨unit⟩". Its description

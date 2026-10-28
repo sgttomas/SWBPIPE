@@ -64,8 +64,13 @@ export type RunSheetRowInput = {
   /** Ids the user overwrote (§3.2); otherwise derived from the row's number. */
   ids?: { node?: string; pipe?: string; support?: string };
   /** An applied row's stored end position (§3.4, §6.2): the resolver uses it in
-   * place of `x_{k−1} + c(Δ)`, so later rows continue from stored geometry. */
+   * place of `x_{k−1} + c(Δ)`, so later rows continue from stored geometry. For
+   * an applied bend row it is the stored outgoing tangent point, named by
+   * `storedEndId`: the removed corner is never resolved. */
   storedEnd?: Vec3;
+  storedEndId?: string;
+  /** An applied bend row's own pipe end, its stored incoming tangent point (the readouts). */
+  storedPipeEnd?: Vec3;
 };
 
 export type RunSheetNumbering = { nodePrefix: string; pipePrefix: string; start: number; step: number };
@@ -601,7 +606,7 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
         increments = parseIncrements();
         if (raw.storedEnd) {
           // An applied row: its stored end, not the sum of its historical increments (§3.4).
-          const id = text(overrides.node) || derivedIds?.node || "";
+          const id = text(raw.storedEndId) || text(overrides.node) || derivedIds?.node || "";
           end = { id, position: { x: normalizeZero(raw.storedEnd.x), y: normalizeZero(raw.storedEnd.y), z: normalizeZero(raw.storedEnd.z) }, existing: false };
         } else if (increments) {
           if (increments.x === 0 && increments.y === 0 && increments.z === 0) refusals.push({ rule: "zero-length", message: MESSAGES.zeroLength });
@@ -621,7 +626,8 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
           }
         }
       }
-      if (end && startPosition) length = Math.hypot(end.position.x - startPosition.x, end.position.y - startPosition.y, end.position.z - startPosition.z);
+      const pipeEnd = raw.storedPipeEnd ?? end?.position;
+      if (pipeEnd && startPosition) length = Math.hypot(pipeEnd.x - startPosition.x, pipeEnd.y - startPosition.y, pipeEnd.z - startPosition.z);
     }
 
     // ---- Ids, labels and support (§3.2, §5.2).
@@ -715,7 +721,9 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
       const kSource = enteredValue("kSource");
       if (k === null || k <= 0 || !kSource) refusals.push({ rule: "bend", column: "k", message: MESSAGES.bendK });
       if (supportText) refusals.push({ rule: "bend", column: "Support", message: MESSAGES.bendSupport });
-      if (end?.id) ids.bend = bendIdsFor(end.id);
+      // The bend's ids follow its corner; an applied bend row's end is its outgoing tangent point.
+      const corner = raw.storedEndId ? ids.node || end?.id : end?.id;
+      if (corner) ids.bend = bendIdsFor(corner);
       if (radius.value && radius.value.value > 0 && k !== null && k > 0 && kSource) bend = { radius: radius.value, k, kSource };
     }
 

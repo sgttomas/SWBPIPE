@@ -75,19 +75,41 @@ export function rowInput(state: RunSheetState, row: SheetRow, status: RowStatus,
   const values = entry?.valuesAfter ?? {};
   const input: RunSheetRowInput = { key: row.key, ...values };
   const stored = storedEndOf(entry, values, lookup);
-  if (stored) input.storedEnd = stored;
+  if (stored) {
+    input.storedEnd = stored.end;
+    if (stored.endId) input.storedEndId = stored.endId;
+    if (stored.pipeEnd) input.storedPipeEnd = stored.pipeEnd;
+  }
   return input;
 }
-/** The stored position of the end node a run or P row created, when the model still holds it. */
-function storedEndOf(entry: ReturnType<typeof currentEntry>, values: RowValues, lookup: RecordLookup | undefined): Vec3 | null {
+const isBendRow = (values: RowValues) => (values.kind ?? "").trim().toUpperCase() === "B";
+const finitePosition = (record: unknown): Vec3 | null => {
+  const position = (record as { position?: Vec3 } | undefined)?.position;
+  return position && [position.x, position.y, position.z].every((value) => typeof value === "number" && Number.isFinite(value)) ? { x: position.x, y: position.y, z: position.z } : null;
+};
+/** The stored geometry an applied row continues from (§3.4, §6.2), when the model still holds it:
+ * - a run or P row that created its end node: that node;
+ * - a bend row: the bend removed its corner, so its own pipe ends at the stored incoming tangent
+ *   point (the node its pipe shares with the arc), and the chain continues from the stored
+ *   outgoing tangent point (the arc's other end), by its id. The corner is never resolved. */
+function storedEndOf(entry: ReturnType<typeof currentEntry>, values: RowValues, lookup: RecordLookup | undefined): { end: Vec3; endId?: string; pipeEnd?: Vec3 } | null {
   if (!entry || !lookup) return null;
   const kind = (values.kind ?? "").trim().toUpperCase();
+  if (kind === "B") {
+    const [own, arc] = entry.ownedIds.filter((ref) => ref.type === "pipe").map((ref) => lookup(ref) as { from?: string; to?: string } | undefined);
+    if (!own || !arc || !arc.from || !arc.to) return null;
+    const incoming = own.to === arc.from || own.from === arc.from ? arc.from : own.to === arc.to || own.from === arc.to ? arc.to : null;
+    if (!incoming) return null;
+    const outgoing = incoming === arc.from ? arc.to : arc.from;
+    const pipeEnd = finitePosition(lookup({ type: "node", id: incoming }));
+    const end = finitePosition(lookup({ type: "node", id: outgoing }));
+    return pipeEnd && end ? { end, endId: outgoing, pipeEnd } : null;
+  }
   const createsEnd = ((kind === "" || kind === "R") && !(values.node ?? "").trim()) || kind === "P";
   if (!createsEnd) return null;
   const node = entry.ownedIds.find((ref) => ref.type === "node");
-  const record = node ? lookup(node) as { position?: Vec3 } | undefined : undefined;
-  const position = record?.position;
-  return position && [position.x, position.y, position.z].every((value) => typeof value === "number" && Number.isFinite(value)) ? { x: position.x, y: position.y, z: position.z } : null;
+  const end = node ? finitePosition(lookup(node)) : null;
+  return end ? { end } : null;
 }
 
 /** The model without the entities the sheet's applied rows own (the chain resolves as drafted). */
@@ -96,7 +118,13 @@ export function sheetBasisModel(model: PreviewModel, state: RunSheetState, statu
   for (const row of state.rows) {
     const status = statuses.get(row.key)?.status;
     if (status !== "applied" && status !== "detached") continue;
-    for (const ref of currentEntry(state.ledger, row.key)?.ownedIds ?? []) {
+    const entry = currentEntry(state.ledger, row.key);
+    // A bend row's tangent nodes, arc and component stay: they are stored records the sheet
+    // resolves (an F branch may name a tangent node), and no row recreates them.
+    const bend = Boolean(entry && isBendRow(entry.valuesAfter));
+    const ownPipe = bend ? entry!.ownedIds.find((ref) => ref.type === "pipe")?.id : undefined;
+    for (const ref of entry?.ownedIds ?? []) {
+      if (bend && !(ref.type === "support" || (ref.type === "pipe" && ref.id === ownPipe))) continue;
       if (!owned.has(ref.type)) owned.set(ref.type, new Set());
       owned.get(ref.type)!.add(ref.id);
     }
@@ -124,6 +152,8 @@ export type ViewRow = Readonly<{
   /** An applied or detached row's increments, `stored(end) − stored(predecessor)`, for display only
    * (§3.4): in the sheet unit once converted, else in the stored unit. Absolute for a P row. */
   storedIncrements: Readonly<{ value: Vec3; unit: string }> | null;
+  /** An applied bend row's own pipe end, its stored incoming tangent point (Position readout). */
+  storedPipeEnd: Vec3 | null;
 }>;
 export type SheetView = Readonly<{
   resolved: ResolvedRunSheet;
@@ -159,10 +189,12 @@ export function sheetView(input: {
   const { state, statuses, model } = input;
   const shown = state.rows.filter((row) => statuses.get(row.key)?.status !== "deleted");
   const statusOf = (row: SheetRow): RowStatus => statuses.get(row.key)?.status ?? "draft";
+  const lookup = input.lookup ?? modelLookup(model);
+  const inputs = shown.map((row) => rowInput(state, row, statusOf(row), lookup));
   const resolved = resolveRunSheet({
     sheetKey: state.sheetKey, batchSeq: state.batchSeq, lengthUnit: state.header.lengthUnit, source: state.header.source,
     numbering: state.header.numbering, columnUnits: state.columnUnits,
-    rows: shown.map((row) => rowInput(state, row, statusOf(row), input.lookup ?? modelLookup(model))),
+    rows: inputs,
   }, { model: sheetBasisModel(model, state, statuses), idState: state.idState, reservedIds: input.reservedIds, conversions: input.conversions });
   const inModel = modelIds(model);
   const displayConversions: DisplayQuantityRequest[] = [];
@@ -187,14 +219,16 @@ export function sheetView(input: {
       refusals.push(...(input.engineRefusals?.get(sheetRow.key) ?? []));
     }
     let storedIncrements: ViewRow["storedIncrements"] = null;
-    if ((status === "applied" || status === "detached") && row.end && !row.end.existing) {
+    const storedPipeEnd = inputs[index].storedPipeEnd ?? null;
+    if ((status === "applied" || status === "detached") && row.end && !row.end.existing && inputs[index].storedEnd) {
       const from = row.kind === "point" ? { x: 0, y: 0, z: 0 } : row.startPosition;
+      const to = storedPipeEnd ?? row.end.position;
       if (from && (row.kind === "run" || row.kind === "bend" || row.kind === "point")) {
-        const stored = { x: row.end.position.x - from.x, y: row.end.position.y - from.y, z: row.end.position.z - from.z };
+        const stored = { x: to.x - from.x, y: to.y - from.y, z: to.z - from.z };
         storedIncrements = displayIncrements(stored, resolved.storedLengthUnit, resolved.sheetLengthUnit, input.conversions, displayConversions);
       }
     }
-    return { sheetRow, status, resolved: row, refusals, editedNotApplied: editedNotApplied(state, sheetRow), values: shownValues(state, sheetRow), storedIncrements };
+    return { sheetRow, status, resolved: row, refusals, editedNotApplied: editedNotApplied(state, sheetRow), values: shownValues(state, sheetRow), storedIncrements, storedPipeEnd };
   });
   const draftRows = rows.filter((row) => row.status === "draft" && hasValues(row));
   const refused = draftRows.filter((row) => row.refusals.length > 0);
@@ -346,7 +380,7 @@ export function cellView(view: SheetView, row: ViewRow, column: SheetColumn, col
       return { ...base, text: id ?? "", italic: !overridden && Boolean(id), origin: overridden ? "entered" : id ? "derived: the sheet's numbering" : "blank" };
     }
     case "position": {
-      const end = resolvedRow.end?.position;
+      const end = row.storedPipeEnd ?? resolvedRow.end?.position;
       return { ...base, text: end ? `${fmt(end.x)}, ${fmt(end.y)}, ${fmt(end.z)}` : "", unit: end ? view.resolved.storedLengthUnit : "", italic: true, origin: "derived: the resulting end point" };
     }
     case "length":

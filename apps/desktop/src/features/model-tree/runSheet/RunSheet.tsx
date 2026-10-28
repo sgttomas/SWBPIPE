@@ -447,7 +447,9 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
         const end = row.resolved.end?.id ?? "";
         store.update((current) => assignIds(setCell(setCell(current, key, "kind", "F"), key, "node", end), key, model, reservedIds));
         setVersion((value) => value + 1);
-      }, row.resolved.end?.id ? null : "This row has no end node yet."),
+      }, row.resolved.kind === "bend" && row.status !== "applied" && row.status !== "detached"
+        ? "A bend's corner is replaced by its tangent points when it is applied; start a branch from the applied bend."
+        : row.resolved.end?.id ? null : "This row has no end node yet."),
       command("fit-row", "Fit row in viewport", () => {
         const pipe = row.resolved.ids.pipe;
         const node = row.resolved.end?.id;
