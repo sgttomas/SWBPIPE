@@ -40,6 +40,10 @@ derived from it is regenerated here, never edited by hand:
           state kinds and the result schemas' closed basis enums;
           then apply-u4b and derive carry them to the inheriting tables. Idempotent;
           `--check` reports a difference instead of writing.
+  apply-w16 the W-16 stage 2 (R-b) relative-displacement signatures on preview-physics-2
+          (after the W-7 rows; apply-u4b keeps them there and carries them to
+          preview-physics-retained-1). Never combined. Idempotent; `--check` reports a
+          difference instead of writing.
 
 Typical sequence after editing pressure-2 (or merging another edit of it):
 
@@ -300,9 +304,9 @@ def u4b_tables(files: dict) -> None:
     hashes = {}
     for name, exact in (("pressure_2", True), ("preview_physics_2", False)):
         table = json.loads(files[TABLE % name], object_pairs_hook=collections.OrderedDict)
-        # W-7's rows follow the U4b rows and keep their numbers (apply-w7).
-        w7 = [r for r in table["rows"] if r["kind"] in W7_KINDS]
-        rows = [r for r in table["rows"] if r["kind"] not in U4B_KINDS and r["kind"] not in W7_KINDS]
+        # W-7's rows, then W-16's, follow the U4b rows and keep their numbers (apply-w7, apply-w16).
+        w7 = [r for r in table["rows"] if r["kind"] in W7_KINDS + W16_KINDS]
+        rows = [r for r in table["rows"] if r["kind"] not in U4B_KINDS and r["kind"] not in W7_KINDS + W16_KINDS]
         rows = marked(rows + u4b_rows(exact, highest(rows) + 1) + w7)
         table["rows"] = rows
         table["source_signature_count"] = len(rows)
@@ -391,8 +395,10 @@ def w7_rows(first: int) -> list:
 def w7_tables(files: dict) -> None:
     for name, bases in (("pressure_2", [W7_BASIS, W7_WALL_BASIS]), ("preview_physics_2", [W7_BASIS])):
         table = json.loads(files[TABLE % name], object_pairs_hook=collections.OrderedDict)
-        rows = [r for r in table["rows"] if r["kind"] not in W7_KINDS]
-        rows = rows + w7_rows(highest(rows) + 1)
+        # W-16's rows (apply-w16) follow W-7's and keep their numbers.
+        w16 = [r for r in table["rows"] if r["kind"] in W16_KINDS]
+        rows = [r for r in table["rows"] if r["kind"] not in W7_KINDS + W16_KINDS]
+        rows = rows + w7_rows(highest(rows) + 1) + w16
         table["rows"] = rows
         table["source_signature_count"] = len(rows)
         table["source_kind_count"] = len({r["kind"] for r in rows})
@@ -431,6 +437,59 @@ def apply_w7(check: bool) -> int:
     w7_schemas(files)
     stale = [p for p in W7_PATHS if files[p] != current[p]]
     for path in W7_PATHS:
+        state = "unchanged" if path not in stale else ("differs" if check else "written")
+        if path in stale and not check:
+            (PROJECT / path).write_text(files[path], encoding="utf-8")
+        print(f"{path}: {state}; sha256 {hashlib.sha256(files[path].encode('utf-8')).hexdigest()}")
+    return 1 if check and stale else 0
+
+
+# ---------------------------------------------------------------- apply-w16
+# W-16 stage 2, R-b (DEL-04-03 Design pf-nonlinear-imposed-motion.md §4): each support whose
+# ground the case moves publishes `nonlinear_support_final_relative_displacement`, an observation
+# row, in the two families of `nonlinear_support_final_displacement` (mm, length; rad, angle).
+# Two signatures on preview-physics-2, appended after the W-7 rows and numbered after the table's
+# highest id; preview-physics-retained-1 inherits them through apply-u4b. Never combined and not
+# eligible for governing ratios. Idempotent; `--check` reports a difference.
+
+W16_RELATIVE = "nonlinear_support_final_relative_displacement"
+W16_KINDS = (W16_RELATIVE,)
+
+
+def w16_rows(first: int) -> list:
+    out = []
+    for unit, dimension, family, admission in (
+            ("mm", "length", "displacement", "accepts_with_legacy_dimension_equal_new_semantics"),
+            ("rad", "angle", "rotation", "accepts_with_preserved_legacy_dimension_different_from_new_semantics")):
+        out.append(collections.OrderedDict([
+            ("signature_id", "supported-source-%03d" % (first + len(out))), ("kind", W16_RELATIVE), ("unit", unit),
+            ("component", W16_RELATIVE), ("source_physical_semantic_dimension", dimension),
+            ("derivative_target_dimension", dimension), ("category", "physical_quantity"), ("family", family),
+            ("canonical_disposition", "exported_quantity"), ("legacy_declared_dimension", "length"),
+            ("legacy_run_creation_admission", admission), ("governing_ratio_eligible", False),
+            ("combination_algebra", algebra(W16_RELATIVE))]))
+    return out
+
+
+def w16_tables(files: dict) -> None:
+    table = json.loads(files[TABLE % "preview_physics_2"], object_pairs_hook=collections.OrderedDict)
+    rows = [r for r in table["rows"] if r["kind"] not in W16_KINDS]
+    rows = rows + w16_rows(highest(rows) + 1)
+    table["rows"] = rows
+    table["source_signature_count"] = len(rows)
+    table["source_kind_count"] = len({r["kind"] for r in rows})
+    files[TABLE % "preview_physics_2"] = table_text(table)
+
+
+W16_PATHS = [TABLE % "preview_physics_2"]
+
+
+def apply_w16(check: bool) -> int:
+    current = {p: (PROJECT / p).read_text(encoding="utf-8") for p in W16_PATHS}
+    files = dict(current)
+    w16_tables(files)
+    stale = [p for p in W16_PATHS if files[p] != current[p]]
+    for path in W16_PATHS:
         state = "unchanged" if path not in stale else ("differs" if check else "written")
         if path in stale and not check:
             (PROJECT / path).write_text(files[path], encoding="utf-8")
@@ -762,6 +821,8 @@ def main(argv: list[str]) -> int:
     apply_parser.add_argument("--check", action="store_true")
     w7_parser = sub.add_parser("apply-w7")
     w7_parser.add_argument("--check", action="store_true")
+    w16_parser = sub.add_parser("apply-w16")
+    w16_parser.add_argument("--check", action="store_true")
     derive_parser = sub.add_parser("derive")
     derive_parser.add_argument("--check", action="store_true")
     repin_parser = sub.add_parser("repin", description=(
@@ -776,6 +837,8 @@ def main(argv: list[str]) -> int:
         return apply_u4b(args.check)
     if args.command == "apply-w7":
         return apply_w7(args.check)
+    if args.command == "apply-w16":
+        return apply_w16(args.check)
     if args.command == "derive":
         return derive(args.check)
     return repin(args.from_rev, args.dry_run)

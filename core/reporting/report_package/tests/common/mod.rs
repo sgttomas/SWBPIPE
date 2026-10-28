@@ -264,9 +264,14 @@ impl Fixture {
     }
 
     pub fn input(&self) -> ReportPackageContainerInput<'_> {
+        self.input_with_profile("invented-profile-native-full-report")
+    }
+
+    /// [`Fixture::input`] under another export profile.
+    pub fn input_with_profile(&self, export_profile_id: &str) -> ReportPackageContainerInput<'_> {
         ReportPackageContainerInput {
             package_id: "invented-package-001".to_string(),
-            export_profile_id: "invented-profile-native-full-report".to_string(),
+            export_profile_id: export_profile_id.to_string(),
             source_model_ref: PackageRef::new("model", "invented-model"),
             source_basis_refs: vec![PackageRef::new("analysis_run", "invented-run")],
             report: &self.report,

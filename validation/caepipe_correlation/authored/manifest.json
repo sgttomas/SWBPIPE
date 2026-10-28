@@ -1,0 +1,211 @@
+{
+  "document_kind": "openpipestress.caepipe_correlation.authored_manifest",
+  "schema_version": "1",
+  "note": "Invented, hand-written MBF fixtures (not produced by CAEPIPE). Each exercises one mapping or one named refusal of the DEL-17-04 importer; importer_expectation is the importer's own outcome on the fixture.",
+  "cases": [
+    {
+      "case_id": "cpa-01-pressure",
+      "file": "cpa-01-pressure.mbf",
+      "construct": "pressure (§9.4)",
+      "pressure_closure": {
+        "closure_transfer": "transfers_to_wall",
+        "provenance": "invented declaration for the authored MBF cases"
+      },
+      "importer_expectation": {
+        "status": "imported"
+      }
+    },
+    {
+      "case_id": "cpa-02-pressure-bend",
+      "file": "cpa-02-pressure-bend.mbf",
+      "construct": "pressure through a bend (§9.4)",
+      "pressure_closure": {
+        "closure_transfer": "transfers_to_wall",
+        "provenance": "invented declaration for the authored MBF cases"
+      },
+      "importer_expectation": {
+        "status": "imported"
+      }
+    },
+    {
+      "case_id": "cpa-03-z-vertical",
+      "file": "cpa-03-z-vertical.mbf",
+      "construct": "vertical Z (§5.1, §10.5)",
+      "importer_expectation": {
+        "status": "imported"
+      }
+    },
+    {
+      "case_id": "cpa-04-z-vertical-bend",
+      "file": "cpa-04-z-vertical-bend.mbf",
+      "construct": "vertical Z with a bend and D (§5.1, §11, §13)",
+      "importer_expectation": {
+        "status": "imported"
+      }
+    },
+    {
+      "case_id": "cpa-05-guide",
+      "file": "cpa-05-guide.mbf",
+      "construct": "guide (§12)",
+      "importer_expectation": {
+        "status": "imported"
+      }
+    },
+    {
+      "case_id": "cpa-06-guide-stiffness",
+      "file": "cpa-06-guide-stiffness.mbf",
+      "construct": "guide with STIFF (§12)",
+      "importer_expectation": {
+        "status": "imported"
+      }
+    },
+    {
+      "case_id": "cpa-07-limit-stop",
+      "file": "cpa-07-limit-stop.mbf",
+      "construct": "limit stop LS(0,0) with DV (§12)",
+      "importer_expectation": {
+        "status": "imported"
+      }
+    },
+    {
+      "case_id": "cpa-08-limit-stop-stiffness",
+      "file": "cpa-08-limit-stop-stiffness.mbf",
+      "construct": "limit stop with STIFF (§12)",
+      "importer_expectation": {
+        "status": "imported"
+      }
+    },
+    {
+      "case_id": "cpa-09-skewed-restraint-axis",
+      "file": "cpa-09-skewed-restraint-axis.mbf",
+      "construct": "spring K with an axis-aligned DV (§12)",
+      "importer_expectation": {
+        "status": "imported"
+      }
+    },
+    {
+      "case_id": "cpa-10-flexible-anchor",
+      "file": "cpa-10-flexible-anchor.mbf",
+      "construct": "flexible anchor KA,TRAK,ROTK(0,0,0) (§12)",
+      "importer_expectation": {
+        "status": "imported"
+      }
+    },
+    {
+      "case_id": "cpa-11-z-vertical-supports",
+      "file": "cpa-11-z-vertical-supports.mbf",
+      "construct": "vertical Z with supports (§5.1, §12)",
+      "importer_expectation": {
+        "status": "imported"
+      }
+    },
+    {
+      "case_id": "cpa-12-guide-gap",
+      "file": "cpa-12-guide-gap.mbf",
+      "construct": "GGAP (§12)",
+      "importer_expectation": {
+        "status": "refused",
+        "code": "MBF-IMPORT-SUPPORT-UNSUPPORTED"
+      }
+    },
+    {
+      "case_id": "cpa-13-guide-friction",
+      "file": "cpa-13-guide-friction.mbf",
+      "construct": "friction MU (§12)",
+      "importer_expectation": {
+        "status": "refused",
+        "code": "MBF-IMPORT-SUPPORT-UNSUPPORTED"
+      }
+    },
+    {
+      "case_id": "cpa-14-limit-stop-gap",
+      "file": "cpa-14-limit-stop-gap.mbf",
+      "construct": "limit-stop gaps (§12)",
+      "importer_expectation": {
+        "status": "refused",
+        "code": "MBF-IMPORT-SUPPORT-UNSUPPORTED"
+      }
+    },
+    {
+      "case_id": "cpa-15-one-way-stop",
+      "file": "cpa-15-one-way-stop.mbf",
+      "construct": "one-way stop (§12)",
+      "importer_expectation": {
+        "status": "refused",
+        "code": "MBF-IMPORT-SUPPORT-UNSUPPORTED"
+      }
+    },
+    {
+      "case_id": "cpa-16-skewed-direction",
+      "file": "cpa-16-skewed-direction.mbf",
+      "construct": "skewed direction (§12)",
+      "importer_expectation": {
+        "status": "refused",
+        "code": "MBF-IMPORT-SUPPORT-UNSUPPORTED"
+      }
+    },
+    {
+      "case_id": "cpa-17-connected-node",
+      "file": "cpa-17-connected-node.mbf",
+      "construct": "CNOD (§12)",
+      "importer_expectation": {
+        "status": "refused",
+        "code": "MBF-IMPORT-SUPPORT-UNSUPPORTED"
+      }
+    },
+    {
+      "case_id": "cpa-18-variable-spring-hanger",
+      "file": "cpa-18-variable-spring-hanger.mbf",
+      "construct": "hanger VS (§12)",
+      "importer_expectation": {
+        "status": "refused",
+        "code": "MBF-IMPORT-SUPPORT-UNSUPPORTED"
+      }
+    },
+    {
+      "case_id": "cpa-19-constant-support",
+      "file": "cpa-19-constant-support.mbf",
+      "construct": "hanger CS (§12)",
+      "importer_expectation": {
+        "status": "refused",
+        "code": "MBF-IMPORT-SUPPORT-UNSUPPORTED"
+      }
+    },
+    {
+      "case_id": "cpa-20-user-hanger",
+      "file": "cpa-20-user-hanger.mbf",
+      "construct": "hanger US (§12)",
+      "importer_expectation": {
+        "status": "refused",
+        "code": "MBF-IMPORT-SUPPORT-UNSUPPORTED"
+      }
+    },
+    {
+      "case_id": "cpa-21-anchor-rotational-stiffness",
+      "file": "cpa-21-anchor-rotational-stiffness.mbf",
+      "construct": "non-zero ROTK (§12, TBD-17-04-010)",
+      "importer_expectation": {
+        "status": "refused",
+        "code": "MBF-IMPORT-TBD-17-04-010"
+      }
+    },
+    {
+      "case_id": "cpa-22-skewed-rotational-stiffness",
+      "file": "cpa-22-skewed-rotational-stiffness.mbf",
+      "construct": "KR (§12, TBD-17-04-010)",
+      "importer_expectation": {
+        "status": "refused",
+        "code": "MBF-IMPORT-TBD-17-04-010"
+      }
+    },
+    {
+      "case_id": "cpa-23-temperature-dependent-material",
+      "file": "cpa-23-temperature-dependent-material.mbf",
+      "construct": "multi-row temperature-dependent material (§7.1)",
+      "importer_expectation": {
+        "status": "refused",
+        "code": "MBF-IMPORT-MATERIAL-TEMPERATURE-DEPENDENT"
+      }
+    }
+  ]
+}

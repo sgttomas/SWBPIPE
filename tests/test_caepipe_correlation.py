@@ -589,7 +589,7 @@ def test_round_trip_records_route_and_never_runs_a_real_prlctl(tmp_path):
         return subprocess.CompletedProcess(argv, 0, stdout, "")
 
     record_ = run_caepipe_round_trip(config, "cpc-x", MBF_TEXT, runner=runner)
-    assert [call[6].split(" ")[0] for call in calls] == ["if", "powershell", "copy"]
+    assert [call[6].split(" ")[0] for call in calls] == ["(if", "powershell", "copy"]
     assert '"C:\\invented-work\\cpc-x\\model.mbf"' in calls[0][6].split(" & copy ")[0]  # old guest MBF deleted
     assert record_["guest_mbf_sha256"] == MBF_SHA and record_["input_hash_verified"] is True
     assert "-File \"Z:\\invented\\_harness\\Invoke-CaepipeRoundTrip.ps1\"" in calls[1][6]
@@ -639,9 +639,27 @@ def test_round_trip_stops_before_solving_when_preparation_fails(tmp_path):
         return subprocess.CompletedProcess(argv, 1, "", "The system cannot find the file specified.")
 
     record_ = run_caepipe_round_trip(config, "cpc-p", MBF_TEXT, runner=runner)
-    assert len(commands) == 1 and commands[0].startswith("if not exist")
+    assert len(commands) == 1 and commands[0].startswith("(if not exist")
     assert record_["route"] == "prepare_failed"
     assert record_["observed_csv_path"]["host"] is None and record_["guest_mbf_sha256"] is None
+
+
+def test_prepare_steps_bracket_the_folder_check_so_a_rerun_still_replaces_the_guest_copy(tmp_path):
+    # In cmd, an unbracketed `if` takes the rest of the line as its body: `if not exist W mkdir W & del ... & copy ...`
+    # deletes and copies nothing once W exists, so a re-run would leave the previous guest copy in place.
+    (tmp_path / "r").mkdir()
+    (tmp_path / "s").mkdir()
+    config, out = solved_case(tmp_path / "r", "cpc-r")
+    commands: list[str] = []
+    run_caepipe_round_trip(config, "cpc-r", MBF_TEXT, runner=lambda argv, **k: commands.append(argv[6]) or
+                           subprocess.CompletedProcess(argv, 1, "", ""))
+    config, out = solved_case(tmp_path / "s", "cpc-s")
+    run_caepipe_mbf_export(config, "cpc-s", MBF_SHA, runner=lambda argv, **k: commands.append(argv[6]) or
+                           subprocess.CompletedProcess(argv, 1, "", ""))
+    work = {"cpc-r": "C:\\invented-work\\cpc-r", "cpc-s": "C:\\invented-work\\cpc-s\\export"}
+    assert commands[0].startswith(f'(if not exist "{work["cpc-r"]}" mkdir "{work["cpc-r"]}") & del /Q ')
+    assert commands[1].startswith(f'(if not exist "{work["cpc-s"]}" mkdir "{work["cpc-s"]}") & del /Q ')
+    assert all(command.count("(if ") == 1 and " & copy /Y " in command for command in commands)
 
 
 def test_round_trip_accepts_a_drive_root_exchange_share(tmp_path):
@@ -852,7 +870,7 @@ def test_mbf_export_collects_the_export_and_binds_it_to_the_run_record_by_hash(t
     config, out = solved_case(tmp_path, "cpc-e")
     commands: list[str] = []
     entry = run_caepipe_mbf_export(config, "cpc-e", MBF_SHA, runner=export_runner(out, commands))
-    assert [command.split(" ")[0] for command in commands] == ["if", "powershell", "copy"]
+    assert [command.split(" ")[0] for command in commands] == ["(if", "powershell", "copy"]
     assert ('del /Q "C:\\invented-work\\cpc-e\\export\\model.mod" "C:\\invented-work\\cpc-e\\export\\exported.mbf"'
             in commands[0])
     assert 'copy /Y "Z:\\invented\\cases\\cpc-e\\caepipe_out\\model.mod" "C:\\invented-work\\cpc-e\\export\\model.mod"' \
@@ -1045,6 +1063,62 @@ def test_pilot_export_only_needs_no_runner_and_refuses_offline(tmp_path, monkeyp
         run_pilot.main(["--offline", "--export-mbf"], environ={})
     assert raised.value.code == 2
     assert "not allowed with argument" in capsys.readouterr().err
+
+
+def test_pilot_authored_mode_round_trips_the_authored_file_then_exports_it(tmp_path):
+    case = next(item for item in run_pilot.load_authored_cases() if item["case_id"] == "cpa-05-guide")
+    data = run_pilot.authored_mbf_bytes(case)
+    sha = hashlib.sha256(data).hexdigest()
+    assert data.startswith(b"INVENTED AUTHORED FIXTURE\r\n") and data.endswith(b"\r\n")
+    config = fake_config(tmp_path)
+    order: list[tuple] = []
+
+    def round_trip(config_, case_id, mbf_text):
+        order.append(("round_trip", case_id, mbf_text.encode("utf-8") == data))
+        return {"route": "csv_from_batch", "mbf": {"sha256": sha}, "guest_mbf_sha256": sha}
+
+    def export(config_, case_id, mbf_sha256):
+        order.append(("export", case_id, mbf_sha256 == sha))
+        return {"route": "mbf_exported"}
+
+    lines: list[str] = []
+    assert run_pilot.run_authored_case(case, config, emit=lines.append, round_trip=round_trip, export=export)
+    assert order == [("round_trip", "cpa-05-guide", True), ("export", "cpa-05-guide", True)]
+    assert lines == ["cpa-05-guide: route=csv_from_batch; round trip recorded: cases/cpa-05-guide/caepipe_out/run_record.json",
+                     "cpa-05-guide: export route=mbf_exported; exported MBF written: "
+                     "cases/cpa-05-guide/caepipe_out/exported.mbf"]
+    order.clear()
+    lines.clear()
+    assert run_pilot.run_authored_case(case, config, export_only=True, emit=lines.append,
+                                       round_trip=lambda *a: pytest.fail("round trip"), export=export)
+    assert order == [("export", "cpa-05-guide", True)]
+
+    # A round trip whose guest did not report importing this file stops before the export.
+    order.clear()
+    lines.clear()
+    assert not run_pilot.run_authored_case(
+        case, config, emit=lines.append, export=export,
+        round_trip=lambda *a: {"route": "input_hash_mismatch", "mbf": {"sha256": sha}, "guest_mbf_sha256": "0" * 64})
+    assert order == [] and lines == ["cpa-05-guide: route=input_hash_mismatch; the guest did not report importing "
+                                     "this MBF; no exported MBF"]
+
+
+def test_pilot_authored_option_needs_no_runner_and_refuses_comparison_modes(tmp_path, monkeypatch, capsys):
+    config = fake_config(tmp_path)
+    monkeypatch.setattr(run_pilot, "resolve_harness_config", lambda environ, require_vm_tools: config)
+    monkeypatch.setattr(run_pilot, "run_cases", lambda *a, **k: pytest.fail("comparison run"))
+    calls = []
+    monkeypatch.setattr(run_pilot, "run_authored_case",
+                        lambda case, config_, export_only: calls.append((case["case_id"], export_only)) or True)
+    assert run_pilot.main(["--authored", "--case", "cpa-12-guide-gap"], environ={}) == 0
+    assert run_pilot.main(["--authored", "--export-only", "--case", "cpa-12-guide-gap"], environ={}) == 0
+    assert calls == [("cpa-12-guide-gap", False), ("cpa-12-guide-gap", True)]
+    assert run_pilot.main(["--authored", "--case", "cpc-01-cantilever-force"], environ={}) == 2
+    for mode in ("--offline", "--export-mbf"):
+        with pytest.raises(SystemExit) as raised:
+            run_pilot.main(["--authored", mode], environ={})
+        assert raised.value.code == 2
+    assert "--authored takes only --case and --export-only" in capsys.readouterr().err
 
 
 def offline_case(tmp_path, monkeypatch, *, run_record=None, csv=True):

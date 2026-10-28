@@ -468,7 +468,9 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // `b7b_current_table_tests` (head 389–481, main 329–421) and E14 (head 1047–1071, main
             // 981–1005) modules are main's, byte for byte; every other line differing from main lies in
             // the inspected prefix or the inspected production after the resume (head 482–1046, main
-            // 422–980). The value is unchanged.
+            // 422–980). The value is unchanged. Re-audited on the merge with main 14344b87e0 (suffix pin
+            // still 6dc09d33…; main changed only PREVIEW_PHYSICS_SHA256 in the inspected prefix): the
+            // same ranges, the closed modules main's byte for byte, the merged suffix #1663's; unchanged.
             complete_suffix_sha256: "0d01d7e25d89e3214322197da2bbf26e6cd76bdcc09783c4a25a14971343ee79",
             production_resume: Some("/// Header dispatch only; canonical envelopes have no raw rows. This does not"),
             trailing_test: Some(SEMANTIC_E14_TEST_ITEM),
@@ -848,8 +850,8 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         "ae45b97742fd463866d8f231004f2053834d5bd413a1430e766f24516d3569ac",
         "73bebc5fb562b7f519c7d59be8e7830f98b21ce29fa0b7c017e43426f50cfcaa",
         "a056c395e27f964c842a1347db689eb24377d0b5a79a3b954435105a2c422d08",
-        "7d59a8e7fa7b3b997d3809bd90b7efbdda6c91ad46c0fbe31420f11dc4350520",
-        "5a6630d9157ad1f4232c558d0cd57414677add8d1c95cc0a5d19a2579fb3a05b",
+        "b001070e5fedeeb101522b22ce0d61bb7cf85f82e86b8d851713f8d9fc8c4c46",
+        "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2",
         "fe371e07cd727154235f3725eeeef393ad0a433f0e8c98656f98468940d9aea2",
         "c7bcf0ceb82372fbf5f9958446ffe3f9c1ca3eb2384c47663514d21f89a885bb",
         "33cc0c4dc1d7dea07e14c16e07f4ee3f93cc2f84e4dd0494e232397d4e3861c1",
@@ -1863,6 +1865,11 @@ fn profile_in_build_record() {
 }
 /// The build identity of the pinned profile record (the qualified dev/test build of G6).
 pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
+/// W-16 stage 2 at 0bf192cbf8 (retained-pricing-rules.md §8.29): from §8.27's record below, each
+/// case's two spring-base vectors raise O_base by 288 B (W16S-SG), one more integrity-id call raises
+/// TAV_W and TAV_X by 954 B, and the relative-displacement row's signatures in both preview tables
+/// raise STATICS by 2,808 B + 21 Node(String,Value) + 36 s(Value) (+19,416 B here), so every phase
+/// rises by 20,658 B in both modes; W3 is still the maximum.
 /// W-16 slices b and c at 3493838a8b (retained-pricing-rules.md §8.27): from the shear-model member's
 /// record below, the certified producer's two generated-id prefix formats, now behind the case's
 /// generation (W16C-ES), leave TAV_W and TAV_X (-223,488 B) and the shorter identity text and longer
@@ -1937,8 +1944,8 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 /// second ordinary span. The build identity, atoms and native values are unchanged; reviewed-input
 /// registration is separate below.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_559_512_350, 6_901_506_911, 8_855_689_571, 8_643_849_998, 7_721_878_225, 8_607_115_058, 7_338_515_720, 7_011_805_596],
-    [6_618_643_694, 6_960_638_255, 8_914_820_915, 8_702_981_342, 7_781_009_569, 8_666_246_402, 7_397_647_064, 7_070_936_940],
+    [6_559_533_008, 6_901_527_569, 8_855_710_229, 8_643_870_656, 7_721_898_883, 8_607_135_716, 7_338_536_378, 7_011_826_254],
+    [6_618_664_352, 6_960_658_913, 8_914_841_573, 8_703_002_000, 7_781_030_227, 8_666_267_060, 7_397_667_722, 7_070_957_598],
 ];
 
 #[test]

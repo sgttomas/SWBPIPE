@@ -5,6 +5,7 @@ import { SelfWeightPlanPanel } from "./features/self-weight-authoring";
 import { OfflineProposalIntakePanel } from "./features/offline-proposal-intake";
 import operationSchema from "../../../schemas/model_operation.schema.json";
 import { GeometryToolsPanel } from "./features/geometry-tools/GeometryToolsPanel";
+import { SplitIntoPartsPanel, type SplitPartsOpenRequest } from "./features/geometry-tools/SplitIntoPartsPanel";
 import { operationExamples } from "./features/geometry-tools/reconnectExample";
 import { resolveEntitySelection } from "./features/results/resultInterpretation";
 import { BoundaryAuthoringPanel } from "./features/boundary-authoring/BoundaryAuthoringPanel";
@@ -97,7 +98,7 @@ import { PcfExportPanel } from "./features/pcf-export/PcfExportPanel";
 import { ProjectStorageAuditPanel } from "./features/project-storage/ProjectStorageAuditPanel";
 import { ReplaceProjectPrompt } from "./features/project-storage/ReplaceProjectPrompt";
 import { HistoryPanel } from "./features/history/HistoryPanel";
-import { UnsavedChangesPrompt } from "./features/project-storage/UnsavedChangesPrompt";
+import { QuitWhileBusyPrompt, UnsavedChangesPrompt } from "./features/project-storage/UnsavedChangesPrompt";
 import { ProjectUnitsDialog } from "./features/project-units/ProjectUnitsDialog";
 import { ModelDocumentSaveDialog } from "./features/model-file/ModelDocumentSaveDialog";
 import { HandoffSaveDialog } from "./features/handoff/HandoffSaveDialog";
@@ -295,7 +296,7 @@ function AppSession() {
     modelDocumentSaveRequest,
     handoffSaveRequest
   } = session.project;
-  const { unsavedChangesPrompt } = session.project;
+  const { unsavedChangesPrompt, quitWhileBusyPrompt } = session.project;
   const {
     uiPreferences, setUiPreferences,
     resolvedTheme,
@@ -368,6 +369,14 @@ function AppSession() {
     setOperationTab("bulk");
     setBulkChangeFocusRequest((current) => current + 1);
   };
+  // B5 (DEL-07-01 Design `split-and-slope-entry.md`): Split into N… in the entity menus opens
+  // Split into equal parts on the pipe, under the Geometry tab, with focus on its parts field.
+  const [splitPartsRequest, setSplitPartsRequest] = useState<SplitPartsOpenRequest | null>(null);
+  const openSplitIntoParts = (pipeId: string) => {
+    setActiveSection("operations");
+    setOperationTab("geometry");
+    setSplitPartsRequest((current) => ({ pipeId, serial: (current?.serial ?? 0) + 1 }));
+  };
 
   if (!model || !selection) {
     return <div className="loading-screen">Loading local SWBPIPE preview fixture.</div>;
@@ -393,7 +402,7 @@ function AppSession() {
       data-theme-preference={uiPreferences.theme}
       data-testid="desktop-preview-shell"
       // The replace prompt, the unsaved-changes prompt, the units dialog and the model-document save dialog are modal: the workspace takes no focus or input meanwhile.
-      inert={replaceProjectPrompt !== null || blankProjectUnitsRequest !== null || unsavedChangesPrompt !== null || modelDocumentSaveRequest !== null || handoffSaveRequest !== null}
+      inert={replaceProjectPrompt !== null || blankProjectUnitsRequest !== null || unsavedChangesPrompt !== null || quitWhileBusyPrompt !== null || modelDocumentSaveRequest !== null || handoffSaveRequest !== null}
       ref={workspaceShellRef}
       onFocusCapture={rememberShellFocus}
       onPointerDownCapture={rememberShellFocus}
@@ -488,6 +497,7 @@ function AppSession() {
               viewCommandRef={viewportViewCommandRef}
               showAllAvailable={hiddenEntityKeys.size > 0 || isolationActive}
               onChangeSelected={openBulkChange}
+              onSplitPipe={openSplitIntoParts}
               onApplyCellIntent={async (intent) => {
                 const owned: { current?: Readonly<OperationOutcome> } = {};
                 const applied = await handleApplyIntent(intent, owned);
@@ -612,6 +622,13 @@ function AppSession() {
                 onQueueBatch={handleQueueOperationBatch}
                 busy={operationBusy}
                 requestEpoch={requestEpoch}
+              />
+              <SplitIntoPartsPanel
+                model={model}
+                selectedPipeRefs={selectedPipeRefs}
+                onQueueBatch={handleQueueOperationBatch}
+                busy={operationBusy}
+                openRequest={splitPartsRequest}
               />
               </div>
               <div className="operation-tool-page" hidden={operationTab !== "supports"}>
@@ -927,6 +944,7 @@ function AppSession() {
               onInvalidateDraft={invalidateDirectDraftContext}
               onQueueIntent={handleQueueEditorIntent}
               onChangeSelected={openBulkChange}
+              onSplitPipe={openSplitIntoParts}
               operationBusy={operationBusy}
               onSelect={handleSelectEntity}
               queuedIntents={editorIntents}
@@ -1262,6 +1280,7 @@ function AppSession() {
       ) : null}
       <ReplaceProjectPrompt prompt={replaceProjectPrompt} />
       <UnsavedChangesPrompt prompt={unsavedChangesPrompt} />
+      <QuitWhileBusyPrompt prompt={quitWhileBusyPrompt} />
       <ProjectUnitsDialog request={blankProjectUnitsRequest} />
       <ModelDocumentSaveDialog request={modelDocumentSaveRequest} />
       <HandoffSaveDialog request={handoffSaveRequest} />
@@ -1367,14 +1386,17 @@ function MenuBar({
       id: "file",
       label: "File",
       items: [
-        { kind: "command", id: "file.new-local", label: "New Local Project", disabled: projectBusy },
+        // New Blank Project is the one "new": it starts an empty model (asking
+        // first while the working model has unsaved edits). `file.new-local`
+        // stores the working model itself as a local project, so it is a save.
         { kind: "command", id: "file.new-blank", label: "New Blank Project", disabled: projectBusy },
         { kind: "separator" },
         { kind: "command", id: "file.open-model", label: "Open Model Document…", disabled: projectBusy },
         { kind: "command", id: "file.open-local", label: "Open Local Project…", disabled: projectBusy },
         { kind: "command", id: "file.list-local", label: "List Local Projects", disabled: projectBusy },
         { kind: "separator" },
-        { kind: "command", id: "file.save-local", label: "Save Local Project", disabled: projectBusy },
+        { kind: "command", id: "file.save-local", label: "Save Local Project", disabled: projectBusy, shortcut: { label: "⌘S", aria: "Meta+S Control+S" } },
+        { kind: "command", id: "file.new-local", label: "Save as New Local Project", disabled: projectBusy },
         { kind: "command", id: "file.save-model-document", label: "Save Model Document…", disabled: !modelDocumentSaveReady },
         { kind: "command", id: "file.save-handoff", label: "Save Handoff…", disabled: !modelDocumentSaveReady },
         { kind: "command", id: "file.save-report-package", label: "Save Report Package…", disabled: !reportPackageReady }

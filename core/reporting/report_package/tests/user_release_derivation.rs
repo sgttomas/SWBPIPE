@@ -14,6 +14,7 @@ use open_pipe_stress_report_package::user_release::{
     check_matches_derivation, derive, derive_input_manifest, first_difference, SoftwareIdentity, UserReleaseBasis, UserReleaseDerivation,
     BASIS_INVALID, CONTENT_NOT_DERIVED, EXACT_ROUTE_NOT_ADMITTED, USER_RELEASED_CONTEXT, USER_RELEASED_DESKTOP_PROFILE,
 };
+use open_pipe_stress_report_renderer::UserReleaseRecord;
 use open_pipe_stress_result_export::derivative::digest;
 use serde_json::{json, Value};
 
@@ -32,6 +33,8 @@ struct Case {
     model: Value,
     source: Value,
     software: SoftwareIdentity,
+    /// The vector's record, typed (`report_renderer::UserReleaseRecord`).
+    record: UserReleaseRecord,
 }
 
 impl Case {
@@ -42,7 +45,7 @@ impl Case {
             solver_mode: self.vector["solver_mode"].as_str().unwrap(),
             run_record: &self.vector["run_record"],
             software: &self.software,
-            record: &self.vector["user_release"],
+            record: &self.record,
         }
     }
 
@@ -86,6 +89,7 @@ fn cases() -> Vec<Case> {
                 name: vector["software"]["name"].as_str().unwrap().to_string(),
                 version: vector["software"]["version"].as_str().unwrap().to_string(),
             },
+            record: serde_json::from_value(vector["user_release"].clone()).unwrap(),
             vector: vector.clone(),
         })
         .collect()

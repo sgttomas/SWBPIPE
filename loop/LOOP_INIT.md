@@ -78,6 +78,44 @@ acceptance, holds, purchases and the native-smoke `expected.json` values stay
 with the owner. The product and data boundaries (`docs/PRODUCT_BOUNDARIES.md`,
 `docs/IP_AND_DATA_BOUNDARY.md`) are unchanged.
 
+The owner defined the target on 2026-10-27. Publication-ready means "a version
+good enough to publish engineering results with". Its analyses cover the
+sustained, expansion and operating cases, hydrostatic test and seismic, and the
+other analyses considered standard ("We should be able to do seismic plus
+hydrostatic, and the sustained, expansion, operation as you clearly know too.
+Anything else that would be considered standard?"). SWBPIPE does not proclaim
+code compliance ("For now, it won't proclaim code compliance. I actually want
+the user to go to CAEPIPE for that purpose. This software does all the design
+iteration."). CAEPIPE is the validation to SWBPIPE: design and analysis features
+are to be on par or better, "given real thought for user experience and human
+factors in the design and taste in the aesthetics", and a benchmark set compares
+SWBPIPE's non-code analysis outputs with CAEPIPE's "across as wide a range as
+practicable", which HELP_HUMAN investigates and proposes. HELP_HUMAN drafts the
+release target, its exit criteria and the benchmark set for the owner's
+acceptance; release remains the owner's. Seismic analysis is static g-loads,
+plus response spectrum only where CAEPIPE has that capability (owner,
+2026-10-28: "I said you should only develop a response spectrum capability for
+seismic analysis if that's a functionality that CAEPIPE has, otherwise you can
+go with only static for now."). Benchmark agreement with CAEPIPE is published
+(owner, 2026-10-28: "Benchmark agreement with CAEPIPE will indeed be published.
+That part should be out in the open because the whole point is to feed into
+CAEPIPE and expect the results to come out the same (but validated to Code and
+to the reputation of CAEPIPE)."); `docs/IP_AND_DATA_BOUNDARY.md` §6.2 is to be
+amended to match, and other evaluation stays private. The target's rows and exit
+criteria are in `docs/RELEASE_TARGET_v1.0.md`. Briefs and PRs for work toward the
+target name the `RT-` row they serve (HELP_HUMAN's coordination rule, adopted in
+its HELP_HUMAN role).
+
+Review is proportionate to the stake (HELP_HUMAN's proposal, approved by the
+owner on 2026-10-28: "These are all good changes to bring about and I
+approve."). Independent review rounds are for numerical meaning, persistence
+and permissions; another change gets at most one review round. Verification
+tooling (scanners, judges, guards) is reviewed against a threat model stated in
+its brief, for at most three adversarial rounds: a finding outside the model is
+recorded, not repaired, and a new kind of finding inside it goes to Agent 0.
+Re-pricing registrations whose coefficients do not move may share one D3 turn.
+Returns and briefs are as short as their content allows.
+
 Agent 0 checks that the implementation and its declarations agree before
 integration.
 

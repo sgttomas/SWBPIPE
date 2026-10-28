@@ -1124,6 +1124,8 @@ Support data are comments on the node's row or on a Location row. They follow *F
 | `KA` with `LA=1` (local axes), `FREE` | Refused (`MBF-IMPORT-SUPPORT-UNSUPPORTED`) |
 | Guide `G`, rigid (tranche 3) | `support:n-guide`, `family: guide`, restraining the two global translations lateral to the guide's element: its local y and z (documented: `CAEPIPE-GUIDE`), read only when the element lies exactly along a global axis (its exact rational offsets have one non-zero component, after §5.1). The element is the preceding one (the element ending at `n`), else the one following element; a first node with several following elements is refused. `GGAP` and `MU` are read only as 0 or empty |
 | Guide with `STIFF=k` | A spring on each lateral translation, k in `N/mm` or `lbf/in` (*Format of .MBF*, `STIFF`) |
+| `STIFF=Rigid` on a guide or limit stop | Read exactly as the same row without `STIFF`: a rigid guide or line stop. The technical reference documents rigid as the default stiffness of both (`CAEPIPE-GUIDE`: "The default stiffness is rigid which is input by typing “r” or “Rigid”"; `CAEPIPE-LIMIT-STOP`: "The default is set to Rigid stiffness"). *Format of .MBF* shows only numeric `STIFF` values; the spelling `STIFF=Rigid` in an MBF file is observed format behaviour. Only `Rigid` is read; any other non-numeric value is `MBF-IMPORT-NUMBER-INVALID`, and the data-comment rules below apply unchanged |
+| A `None` limit of `LS`, as in `LS(0.000,None)` | A blank limit: the technical reference shows a blank limit as `None` and documents that with no limit on one side the node "can move freely on that side" (`CAEPIPE-LIMIT-STOP`), so the stop is one-way. It is refused by name as a one-way restraint (`MBF-IMPORT-SUPPORT-UNSUPPORTED`, below), as an empty limit is. *Format of .MBF* documents only numeric limits; the spelling `None` in an MBF file is observed format behaviour. Only `None` is read so; any other non-numeric limit is `MBF-IMPORT-NUMBER-INVALID` |
 | Limit stop `LS(0,0)` with `DV` along one global axis (tranche 3) | `support:n-stop-a`, `family: line_stop`, restraining that translation: zero limits stop the node at its undeflected position on both sides (documented: `CAEPIPE-LIMIT-STOP`), a two-way rigid restraint. `DV`'s sign and length do not matter; it rotates under §5.1. With `STIFF=k`, a spring on that DOF. `MU` is read only as 0 or empty |
 | Skewed restraint `K=k` with `DV` along one global axis (tranche 3) | A spring on that translation (documented: `CAEPIPE-SKEWED-RESTRAINT`, a two-way support along its direction; *Format of .MBF*: `K` in lb/in or N/mm) |
 | Guide, limit-stop and skewed-restraint refusals | A non-zero `GGAP` (a symmetric clearance) or `MU` (friction), and an `LS` limit that is non-zero (a gap) or blank (a one-way restraint): each nonlinear, `MBF-IMPORT-SUPPORT-UNSUPPORTED`; a guide whose element is not along a global axis, and a `DV` off the global axes (skewed directions), `MBF-IMPORT-SUPPORT-UNSUPPORTED`; `LS` without `DV`, and `AXIAL`, `SHEARY`, `SHEARZ` (which element's local axes a limit stop takes is not documented) and `KR` (unit given two ways), `MBF-IMPORT-TBD-17-04-010`; `K` without `DV`, `CNOD` (connected node), more than one of `G`, `LS`, `K` on one row, data comments (`GGAP`, `MU`, `STIFF`, `DV`) without their support type, a second guide or limit stop on one axis at a node, two springs on one DOF, and a spring on a rigidly restrained DOF, `MBF-IMPORT-SUPPORT-UNSUPPORTED`; `STIFF` or `K` not positive, `MU` negative, `MBF-IMPORT-VALUE-OUT-OF-RANGE`; `LS` without two limits, `G` with a value, `DV(0,0,0)`, `K(…)`, a repeated comment on one row, `MBF-IMPORT-COMMENT-INVALID`; a stiffness whose reading in N/m overflows, `MBF-IMPORT-VALUE-UNREPRESENTABLE` |
@@ -2127,6 +2129,43 @@ The test is `tests/test_caepipe_private_mbf_import.py`.
 DEL-17-05 Design §5's run-directory table gains two rows: `caepipe_out/exported.mbf`
 (PRIVATE) and `imported/` (PRIVATE, derived from CAEPIPE output).
 
+**Authored cases** (Agent 0, under the owner's delegation, 2026-10-27). The writer cases cover only
+what the writer writes: Y vertical and no refused input. A second case kind covers the rest of the
+importer's mappings and named refusals.
+
+- **Fixtures.** `validation/caepipe_correlation/authored/` holds invented, hand-written MBF files, each
+  with an invented-provenance sidecar (§18.4), and `manifest.json`. Each manifest entry names the case
+  (`cpa-nn-…`), its file, the construct it exercises, the importer's own outcome on the file
+  (`importer_expectation`: imported, or refused with a named code) and, for a file with pressure, the
+  closure declaration both imports take (§9.4). The set covers pressure (a straight run and a run
+  through a bend), Z vertical (with a riser, a force, a bend with an anchor displacement, and supports),
+  each mapped support kind of §12 (rigid guides, guides and limit stops with `STIFF`, two-way limit
+  stops, axis-aligned `K`, flexible anchors), and each refusal: `GGAP`, `MU`, limit-stop gaps, a one-way
+  stop, a skewed `DV`, `CNOD`, the hangers `VS`, `CS` and `US`, a non-zero `ROTK`, `KR` and a
+  temperature-dependent material. `KR` is written alone on its row with its `DV`: the target imports
+  one data item per row and takes further items from Location rows (observed format behaviour).
+- **Round trip.** DEL-17-05's pilot command (`run_pilot --authored`, DEL-17-05 Design §3) has the target
+  tool import the authored file as written, through the same batch route as a writer case, which also
+  solves it; the export step then writes the model back to `caepipe_out/exported.mbf`. The authored
+  file is the case's `caepipe_in/model.mbf`, and the run record binds the export to it by hash.
+- **Comparison.** The test imports the authored file and the exported file, both unbound, without a
+  sidecar, with the case's `project_invented` declaration and its closure declaration. For a mapped
+  case the authored import is the reference: the SI writer renders it, and the comparison uses the
+  same canonical forms and writer-derived tolerances as the writer cases (§18.2). The outcome is
+  `equal_within_writer_tolerance`, `differs`, or `refused` when the export's import is refused. For a
+  refused case it compares refusals: `refused_alike` when the export's import is refused with the
+  manifest's named code, `refused_differently` when it is refused otherwise, and `differs` when it
+  imports. An authored file that no longer meets its manifest expectation fails the test by case id.
+- **Binding.** An authored case is checked only when its run record's export entry binds the export
+  to the solve of exactly the tracked authored file (both hashes); otherwise it is skipped with that
+  reason.
+- **Outcomes and privacy** are as above: the record goes to `cases/<id>/imported/import_outcome.json`
+  with `case_kind: authored`, and standard output carries operational status only.
+- **Public tests** check each fixture against its manifest expectation with the importer alone, the
+  manifest's coverage of the constructs above, and the classification and binding on invented
+  exchange folders whose "export" is the authored file or an invented edit of it. They assert no
+  outcome of a target-tool run.
+
 ### 18.4 Boundary guard
 
 `tests/test_caepipe_data_boundary.py` is extended. It fails if any tracked `.mbf` lacks an invented-provenance sidecar, regardless of
@@ -2299,6 +2338,11 @@ SHA-256 of the RFC 8785 serialisation of the rest. The importer verifies it befo
 reads the sidecar, on every route. A mismatch, and a format-3 sidecar without the digest,
 are refused by name. Format-2 and legacy sidecars import as before and are reported as
 carrying no self-digest.
+
+**From the authored cases (§18.3): implemented** (Agent 0's assignment under the owner's delegation,
+2026-10-27). Two support spellings in exported MBF files (observed format behaviour) are read in §12:
+`STIFF=Rigid` on a guide or limit stop as the rigid support, and a `None` limit of a limit stop as a
+blank, one-way limit, refused by name.
 
 Later, in proposed order: concentrated weight and uniform load; contents, insulation and
 lining; rigid and valve joints; reducers (0.8.0); SIF user values; multiple thermal loads;

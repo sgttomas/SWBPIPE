@@ -208,6 +208,11 @@ _FIXR_NAMES = {"FIXR": None, **{f"FIXR{axis}": index for index, axis in enumerat
 # A row carries at most one support type, and its data comments belong to it: GGAP to a guide, MU and STIFF to a guide
 # or limit stop, DV to a limit stop or skewed restraint. TRAK and ROTK are a flexible anchor's (KA) stiffnesses.
 _SUPPORT_TYPES = {"G": "guide", "LS": "stop", "K": "skew"}
+# Two spellings MBF files carry (observed format behaviour; Design §12): `STIFF=Rigid` on a guide or limit stop, the
+# rigid stiffness the technical reference names as both supports' default (Guide; Limit Stop), and `None` for a blank
+# limit stop limit, the technical reference's display of a blank limit, free on that side (Limit Stop).
+RIGID_STIFFNESS = "Rigid"
+BLANK_LIMIT = "None"
 _SUPPORT_DATA = {"GGAP": ("G",), "MU": ("G", "LS"), "STIFF": ("G", "LS"), "DV": ("LS", "K")}
 _SUPPORT_NAMES = {"G": "a guide (G)", "LS": "a limit stop (LS)", "K": "a skewed restraint (K)"}
 # Support comments whose meaning the public manual leaves open (TBD-17-04-010, Design §20.1).
@@ -2658,7 +2663,9 @@ class _Importer:
                 self.refuse("MBF-IMPORT-SUPPORT-UNSUPPORTED", data["MU"][2], data["MU"][3],
                             "a friction coefficient (MU) makes the support nonlinear, its friction opposing motion "
                             "normal to the restraint; only MU=0 is read")
-        if "STIFF" in data:
+        if "STIFF" in data and data["STIFF"][0] == RIGID_STIFFNESS and data["STIFF"][1] is None:
+            pass  # STIFF=Rigid: the documented default, read exactly as a row without STIFF (Design §12)
+        elif "STIFF" in data:
             stiffness = self.single_value("STIFF", data["STIFF"])
             if stiffness is not None and not stiffness.exact > 0:
                 self.refuse("MBF-IMPORT-VALUE-OUT-OF-RANGE", data["STIFF"][2], data["STIFF"][3],
@@ -2686,10 +2693,11 @@ class _Importer:
                             "LS needs its two limits, LS(lower,upper)")
             else:
                 for label, part in zip(("lower", "upper"), parts):
-                    if part == "":
+                    if part in ("", BLANK_LIMIT):
                         self.refuse("MBF-IMPORT-SUPPORT-UNSUPPORTED", line, f"{where} {label}",
-                                    f"a blank {label} limit leaves that side free: a one-way restraint, which is "
-                                    "nonlinear; only LS(0,0), stopped both ways at the undeflected position, is read")
+                                    f"a blank {label} limit (empty or None) leaves that side free: a one-way "
+                                    "restraint, which is nonlinear; only LS(0,0), stopped both ways at the undeflected "
+                                    "position, is read")
                         continue
                     limit = self.real(part, line, f"{where} {label}")
                     if limit is not None and limit.exact != 0:

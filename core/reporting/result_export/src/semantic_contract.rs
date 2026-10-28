@@ -125,7 +125,7 @@ pub const RETIRED_PREVIEW_PHYSICS_1_ID: &str = "openpipestress.result_semantics/
 pub const SOURCE_PREVIEW_PHYSICS_1_RETIRED: &str = "SOURCE_PREVIEW_PHYSICS_1_RETIRED";
 pub const PREVIEW_PHYSICS_ID: &str = "openpipestress.result_semantics/0.3.0/preview-physics-2";
 pub const PREVIEW_PHYSICS_SHA256: &str =
-    "5a6630d9157ad1f4232c558d0cd57414677add8d1c95cc0a5d19a2579fb3a05b";
+    "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2";
 pub const PREVIEW_PHYSICS_PROFILE: &str = "product_preview_mechanics_v1";
 /// DEL-05-03 Design `pf-timoshenko.md` §4: the pressure-free Timoshenko identity, a
 /// second complete identity on the preview-physics route. Its table is preview-physics-2's
@@ -135,7 +135,7 @@ pub const PREVIEW_PHYSICS_TIMOSHENKO_ID: &str =
     "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1";
 pub const PREVIEW_PHYSICS_TIMOSHENKO_PROFILE: &str = "product_preview_mechanics_timoshenko_v1";
 pub const PREVIEW_PHYSICS_TIMOSHENKO_SHA256: &str =
-    "94538daa46b4795550a8c9e6b4ec05d8eb40d5be34b78c1a630613dc7ae2732f";
+    "a7b83c37a4af9bf70f56513f80883003a2a3860387319311ea2e967dd0cf764b";
 /// The preview-physics route's admitted identities, `(id, profile)`, in one place: every
 /// identity-aware site keys by the envelope's `semantic_contract_id` through this list.
 pub const PREVIEW_PHYSICS_IDENTITIES: [(&str, &str); 2] = [
@@ -169,7 +169,7 @@ pub fn preview_physics_identity_of(source: &Value) -> (&'static Value, &'static 
 pub const PREVIEW_PHYSICS_RETAINED_ID: &str = crate::retained_precision::CONTRACT_ID;
 pub const PREVIEW_PHYSICS_RETAINED_PROFILE: &str = crate::retained_precision::PROFILE;
 pub const PREVIEW_PHYSICS_RETAINED_SHA256: &str =
-    "7d59a8e7fa7b3b997d3809bd90b7efbdda6c91ad46c0fbe31420f11dc4350520";
+    "b001070e5fedeeb101522b22ce0d61bb7cf85f82e86b8d851713f8d9fc8c4c46";
 /// B3b (B3-D §6.1): the exact successor `<physics-retained>`, whose base is
 /// pressure-2 since B7b D4 (a). Like the preview successor, its raw and transport statements are
 /// checked only by the accepted reader (`crate::retained_precision`, its exact

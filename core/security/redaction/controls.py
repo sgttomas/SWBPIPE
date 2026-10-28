@@ -445,6 +445,7 @@ def _classify(
         direct_sql_access=_direct_sql_access(item),
         storage_bypass=_storage_bypass_requested(item),
         concrete_path_present=_concrete_path_present(item),
+        public_basis_barred=carries_proto_member(item),
     )
     decision = RedactionDecision(
         decision_id=f"REDC-DEC-{decision_index:04d}",
@@ -477,6 +478,7 @@ def _action_for(
     direct_sql_access: bool,
     storage_bypass: bool,
     concrete_path_present: bool,
+    public_basis_barred: bool,
 ) -> tuple[str, str]:
     if professional_claim:
         return "block_export", "PROFESSIONAL_BOUNDARY_BLOCKED"
@@ -513,6 +515,12 @@ def _action_for(
     # redaction.
     if concrete_path_present and action != "block_export":
         return "redact_value", "CONCRETE_PATH_REDACTED"
+    # Last, after every other step: an own `__proto__` member turns only a final inclusion
+    # into the unknown-label decision (`carries_proto_member`); every other decision stands.
+    if public_basis_barred and action == "include":
+        if export_context == USER_RELEASED_REPORT_CONTEXT:
+            return "block_export", "USER_RELEASE_VALUE_UNBOUND"
+        return _unknown_action(export_context), "UNKNOWN_PROVENANCE_WARNING"
     return action, reason
 
 
@@ -793,6 +801,27 @@ def _professional_claim(item: dict[str, Any]) -> bool:
 
     claim = item.get("professional_claim")
     return not (claim is None or claim is False)
+
+
+def carries_proto_member(item: Any) -> bool:
+    """Whether an object or its ``provenance`` object carries an own ``__proto__`` member.
+
+    Such an object has no public basis, whatever its labels state (HELP_HUMAN ruling,
+    2026-10-27, option (b): "fail closed on the key itself, in all three
+    implementations"): a ``__proto__`` key in export data is anomalous, and it may never
+    lift or restrict a record by accident.  The route projector gives the record no direct
+    public basis, and the classifier reads the member as an unknown label only where the
+    decision would otherwise be an inclusion, as the last step of the decision order: every
+    other decision stands.  This is deliberately stricter than Python's reading before the
+    ruling, which took the key as an ordinary member.  Python receives dicts, parsed or
+    built by a caller; a ``__proto__`` key is always an ordinary, visible key of a dict.  Identical in redactionExportControls.ts (``carriesProtoMember``) and
+    redaction_binding.rs.
+    """
+
+    def own(candidate: Any) -> bool:
+        return isinstance(candidate, dict) and "__proto__" in candidate
+
+    return own(item) or (isinstance(item, dict) and own(item.get("provenance")))
 
 
 def _label(value: Any) -> Any:

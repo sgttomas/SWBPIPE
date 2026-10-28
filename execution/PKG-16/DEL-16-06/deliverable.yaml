@@ -147,5 +147,7 @@ checks:
 - core/model_operations/operation_applier/tests/support_authoring_conflicts.rs
 - apps/desktop/src/services/operationBatchService.test.ts
 - core/model_operations/operation_applier/tests/pipe_reconnect.rs
+- core/model_operations/operation_applier/tests/connect_pipe_orientation.rs
 - core/model_operations/operation_applier/tests/pipe_delete_dependents.rs
 - apps/desktop/src/services/pipeReconnectEquivalence.test.ts
+- core/model_operations/operation_applier/tests/run_sheet_authoring.rs
