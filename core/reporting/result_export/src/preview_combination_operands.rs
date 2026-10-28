@@ -19,6 +19,13 @@ const RECORD_KEYS: [&str; 5] = ["combination_id", "basis", "expression", "operan
 const OPERAND_KEYS: [&str; 4] = ["load_case_id", "modulus_basis_ref", "modulus_basis_temperature", "numerical_quality"];
 const NAMED: usize = 8;
 const LINEAR_BASIS: &str = "explicit_user_linear_combination";
+const MODES: [&str; 4] = ["min", "max", "min_abs", "max_abs"];
+const DISPLACEMENT: &str = "nonlinear_support_final_displacement";
+const RELATIVE_DISPLACEMENT: &str = "nonlinear_support_final_relative_displacement";
+const MODULUS_RECORD: &str = "combination_modulus_basis_record";
+const SUPPORT_COMPONENT: &str = "support_reaction_component_v2";
+const SUPPORT_COMPONENTS: [&str; 6] = ["Fx", "Fy", "Fz", "Mx", "My", "Mz"];
+const DISPLACEMENT_COMPONENTS: [&str; 3] = ["global_nodal_displacement_x", "global_nodal_displacement_y", "global_nodal_displacement_z"];
 
 fn require(ok: bool, code: &str) -> Check {
     if ok {
@@ -57,7 +64,7 @@ fn evaluation_order<'a>(basis: &str, expression: &'a Value) -> Result<Vec<&'a st
             Ok(vec![a.unwrap(), b.unwrap()])
         }
         "range_envelope" => {
-            require(keys(expression, &["operand_ids", "mode"]) && text(&expression["mode"]).is_some(), "SHAPE")?;
+            require(keys(expression, &["operand_ids", "mode"]) && expression["mode"].as_str().is_some_and(|m| MODES.contains(&m)), "SHAPE")?;
             let mut ids = items(&expression["operand_ids"]).iter().map(text).collect::<Option<Vec<_>>>().ok_or_else(|| "SOURCE_PREVIEW_PHYSICS_COMBINATION_OPERANDS_SHAPE".to_string())?;
             require(!ids.is_empty() && expression["operand_ids"].is_array(), "SHAPE")?;
             ids.sort_unstable();
@@ -68,17 +75,26 @@ fn evaluation_order<'a>(basis: &str, expression: &'a Value) -> Result<Vec<&'a st
     }
 }
 
-fn state_token(code: Option<f64>) -> &'static str {
+/// §2.2: an operand's reported state of one support: the state code and, for a
+/// sliding friction support, its slip sense, from the relative-displacement row when
+/// the case publishes one and otherwise the zero-ground displacement row.
+fn reported_state(code: Option<f64>, sense: Option<f64>) -> &'static str {
     match code {
+        None => "unreported",
         Some(c) if c == 0.0 => "inactive",
         Some(c) if c == 1.0 => "active",
         Some(c) if c == 2.0 => "sticking",
-        Some(c) if c == 3.0 => "sliding",
+        Some(c) if c == 3.0 => match sense {
+            Some(v) if v > 0.0 => "sliding (positive slip)",
+            Some(v) if v < 0.0 => "sliding (negative slip)",
+            _ => "sliding (slip sense unavailable)",
+        },
         Some(_) => "unknown",
-        None => "unreported",
     }
 }
-
+fn same_state(states: &[&str]) -> bool {
+    states.iter().all(|s| *s == states[0] && *s != "unreported" && !s.contains("unavailable"))
+}
 fn notice(id: String, code: &str, severity: &str, message: String, refs: Vec<String>) -> Value {
     json!({"id": id, "code": code, "severity": severity, "message": message, "source": SOURCE, "affected_refs": refs})
 }
@@ -103,11 +119,18 @@ fn states_notice(id: &str, operands: &[&str], rows: &[Value]) -> Result<Option<V
             }
         }
     }
+    let sense = |case: &str, support: &str| {
+        let find = |kind: &str| rows.iter().find(|r| r["kind"] == kind && case_of(r) == Some(case) && r["entity_ref"] == support).and_then(|r| r["value"].as_f64());
+        find(RELATIVE_DISPLACEMENT).or_else(|| find(DISPLACEMENT))
+    };
     let mut differing: Vec<(&str, Vec<&str>)> = Vec::new();
     for support in supports {
-        let codes: Vec<Option<f64>> = operands.iter().map(|case| states.iter().find(|(c, s, _)| c == case && *s == support).map(|t| t.2)).collect();
-        if codes.iter().any(|c| c.is_none() || *c != codes[0]) {
-            differing.push((support, codes.into_iter().map(state_token).collect()));
+        let reported: Vec<&str> = operands
+            .iter()
+            .map(|case| reported_state(states.iter().find(|(c, s, _)| c == case && *s == support).map(|t| t.2), sense(case, support)))
+            .collect();
+        if !same_state(&reported) {
+            differing.push((support, reported));
         }
     }
     if differing.is_empty() {
@@ -165,16 +188,16 @@ pub(crate) fn check(source: &Value, solved: bool) -> Check {
     let diagnostics = items(&source["diagnostics"]);
     let mut expected: Vec<Value> = Vec::new();
     let nonlinear = rows.iter().any(|r| r["kind"] == STATE_CODE);
-    // A combination whose rows carry the linear-combination basis is a mechanics
-    // combination: it has no operand record (and the producer admits none in a
-    // nonlinear model). Every other admitted combination has one.
     let admitted: Vec<&str> = items(&source["contract_evidence"]["combination_gates"])
         .iter()
         .filter(|g| g["withheld"] == false)
         .filter_map(|g| g["combination_id"].as_str())
-        .filter(|id| !rows.iter().any(|r| combination_of(r) == Some(*id) && r["metadata"]["basis"] == LINEAR_BASIS))
         .collect();
     require(member.is_some() == (solved && nonlinear && !admitted.is_empty()), "PRESENCE")?;
+    // In a solved nonlinear document every mechanics combination is withheld.
+    if solved && nonlinear {
+        require(!rows.iter().any(|r| combination_of(r).is_some() && r["metadata"]["basis"] == LINEAR_BASIS), "MECHANICS_ADMITTED")?;
+    }
     if let Some(member) = member {
         let records = member.as_array().ok_or_else(|| "SOURCE_PREVIEW_PHYSICS_COMBINATION_OPERANDS_SHAPE".to_string())?;
         require(records.len() == admitted.len(), "PRESENCE")?;
@@ -193,14 +216,55 @@ pub(crate) fn check(source: &Value, solved: bool) -> Check {
                 let stated = quality.iter().find(|q| q["basis_ref"]["ref_type"] == "load_case" && q["basis_ref"]["ref_id"] == *case);
                 require(stated.is_some_and(|q| bit_equal(q, &operand["numerical_quality"])), "STANDING")?;
             }
-            // Rows: a row formed from case rows names one source row per operand, in order.
+            // Rows: references by row kind and basis.
+            let basis = record["basis"].as_str().unwrap_or_default();
+            let row_basis = if basis == "range_envelope" { "explicit_user_range_envelope" } else { "explicit_user_result_state_subtraction" };
+            let by_id = |reference: &Value| rows.iter().find(|r| r["id"] == *reference);
             for row in rows.iter().filter(|r| combination_of(r) == Some(id)) {
-                let sources: Vec<Option<&str>> = items(&row["source_result_refs"])
-                    .iter()
-                    .map(|reference| rows.iter().find(|r| r["id"] == *reference).and_then(case_of))
-                    .collect();
-                if !sources.is_empty() && sources.iter().all(Option::is_some) {
-                    require(sources.iter().map(|c| c.unwrap()).eq(order.iter().copied()), "ROWS")?;
+                let kind = row["kind"].as_str().unwrap_or_default();
+                if kind == MODULUS_RECORD {
+                    continue;
+                }
+                require(row["metadata"].is_null() || row["metadata"]["basis"] == row_basis, "ROWS")?;
+                let refs = items(&row["source_result_refs"]);
+                let recomputed: Option<Vec<(&str, Option<&str>)>> = match (basis, kind) {
+                    ("result_state_subtraction", "displacement_magnitude") => Some(DISPLACEMENT_COMPONENTS.iter().map(|k| (*k, None)).collect()),
+                    ("result_state_subtraction", "support_reaction_force_magnitude_v2" | "support_reaction_moment_magnitude_v2") => {
+                        Some(SUPPORT_COMPONENTS.iter().map(|c| (SUPPORT_COMPONENT, Some(*c))).collect())
+                    }
+                    _ => None,
+                };
+                match recomputed {
+                    // Recomputed magnitudes name this combination's component rows, in order.
+                    Some(components) => {
+                        require(refs.len() == components.len(), "ROWS")?;
+                        for (reference, (component_kind, component)) in refs.iter().zip(components) {
+                            let source = by_id(reference).ok_or_else(|| "SOURCE_PREVIEW_PHYSICS_COMBINATION_OPERANDS_ROWS".to_string())?;
+                            require(
+                                combination_of(source) == Some(id)
+                                    && source["kind"] == component_kind
+                                    && source["entity_ref"] == row["entity_ref"]
+                                    && component.is_none_or(|c| source["metadata"]["component"] == c),
+                                "ROWS",
+                            )?;
+                        }
+                    }
+                    // Direct rows name one matching case row per operand, in evaluation order.
+                    None => {
+                        require(refs.len() == order.len(), "ROWS")?;
+                        for (reference, case) in refs.iter().zip(&order) {
+                            let source = by_id(reference).ok_or_else(|| "SOURCE_PREVIEW_PHYSICS_COMBINATION_OPERANDS_ROWS".to_string())?;
+                            require(
+                                case_of(source) == Some(*case)
+                                    && source["kind"] == row["kind"]
+                                    && source["entity_ref"] == row["entity_ref"]
+                                    && source["unit"] == row["unit"]
+                                    && source["metadata"]["component"] == row["metadata"]["component"]
+                                    && source["metadata"]["location"] == row["metadata"]["location"],
+                                "ROWS",
+                            )?;
+                        }
+                    }
                 }
             }
             expected.extend(states_notice(id, &order, rows)?);

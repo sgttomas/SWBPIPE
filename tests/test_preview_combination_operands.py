@@ -38,7 +38,7 @@ def records(source: dict) -> list:
     return source["contract_evidence"]["combination_operands"]
 
 
-@pytest.mark.parametrize("name", ["v1_gap_closes", "v3_friction"])
+@pytest.mark.parametrize("name", ["v1_gap_closes", "v3_friction", "slip_reversal", "v2_anchor_rise"])
 def test_producer_documents_are_admitted_with_and_without_their_models(name):
     source, model = entry(name)
     validate_preview_physics_evidence(source)
@@ -152,3 +152,80 @@ def test_the_model_binding_refuses_forged_expressions_and_selections():
     m = copy.deepcopy(model)
     del m["combinations"][1]
     refused_with(v1, m)
+
+
+def test_slip_sense_is_part_of_the_reported_state():
+    """Codex r1 finding 1: a sliding support's slip sense; the relative row decides it when present."""
+    dropped, _ = entry("slip_reversal")
+    dropped["diagnostics"] = [d for d in dropped["diagnostics"] if d["code"] != "COMBINATION_OPERAND_SUPPORT_STATES_DIFFER"]
+    refused(dropped, "NOTICE")
+    same, _ = entry("slip_reversal")
+    for row in same["results"]:
+        if row["kind"] == "nonlinear_support_final_displacement" and row["basis_ref"]["ref_id"] == "case:O":
+            row["value"] = 0.9765625
+    refused(same, "NOTICE")
+    relative, _ = entry("slip_reversal")
+    row = copy.deepcopy(next(r for r in relative["results"] if r["kind"] == "nonlinear_support_final_displacement" and r["basis_ref"]["ref_id"] == "case:O"))
+    row.update(id="result:nonlinear-support:support-shoe:UX-relative-displacement:forged", kind="nonlinear_support_final_relative_displacement", value=0.5)
+    row["metadata"]["component"] = "nonlinear_support_final_relative_displacement"
+    relative["results"].append(row)
+    refused(relative, "NOTICE")
+
+
+def _tag(source):
+    row = next(r for r in source["results"] if r["basis_ref"]["ref_id"] == "comb:o-s" and r["kind"] == "global_nodal_rotation_x")
+    row["metadata"]["basis"] = "explicit_user_linear_combination"
+
+
+def test_admitted_mechanics_rows_never_exempt_a_record():
+    """Codex r1 finding 2."""
+    stripped, _ = entry("v1_gap_closes")
+    _tag(stripped)
+    records(stripped).pop(0)
+    stripped["diagnostics"] = [d for d in stripped["diagnostics"]
+                               if not (d["code"].startswith("COMBINATION_OPERAND_") and d["affected_refs"][0] == "comb:o-s")]
+    refused(stripped, "MECHANICS_ADMITTED")
+    tagged, _ = entry("v1_gap_closes")
+    _tag(tagged)
+    refused(tagged, "MECHANICS_ADMITTED")
+
+
+def _index(source, cid, kind):
+    return next(i for i, r in enumerate(source["results"]) if r["basis_ref"]["ref_id"] == cid and r["kind"] == kind)
+
+
+def test_row_references_follow_kind_and_basis():
+    """Codex r1 finding 3."""
+    cleared, _ = entry("v1_gap_closes")
+    records(cleared)[0]["expression"] = {"minuend_id": "case:S", "subtrahend_id": "case:O"}
+    records(cleared)[0]["operands"].reverse()
+    for row in cleared["results"]:
+        if row["basis_ref"]["ref_id"] == "comb:o-s":
+            row["source_result_refs"] = []
+    refused(cleared, "ROWS")
+    v1, _ = entry("v1_gap_closes")
+    i = _index(v1, "comb:o-s", "global_nodal_displacement_x")
+    y = _index(v1, "comb:o-s", "global_nodal_displacement_y")
+    m = _index(v1, "comb:o-s", "support_reaction_force_magnitude_v2")
+    c = _index(v1, "comb:o-s", "support_reaction_component_v2")
+    edits = [
+        lambda s: s["results"][i]["source_result_refs"].pop(),
+        lambda s: s["results"][i].pop("source_result_refs"),
+        lambda s: s["results"][i]["source_result_refs"].__setitem__(1, s["results"][y]["id"]),
+        lambda s: s["results"][i]["source_result_refs"].__setitem__(1, s["results"][y]["source_result_refs"][1]),
+        lambda s: s["results"][m]["source_result_refs"].reverse(),
+        lambda s: s["results"][m].__setitem__("source_result_refs", list(s["results"][c]["source_result_refs"])),
+        lambda s: s["results"][i]["metadata"].__setitem__("basis", "explicit_user_range_envelope"),
+    ]
+    for edit in edits:
+        source = copy.deepcopy(v1)
+        edit(source)
+        refused(source, "ROWS")
+
+
+@pytest.mark.parametrize("mode", ["invalid", "", None, "MAX"])
+def test_range_modes_are_closed(mode):
+    """Codex r1 finding 4."""
+    source, _ = entry("v1_gap_closes")
+    records(source)[1]["expression"]["mode"] = mode
+    refused(source, "SHAPE")

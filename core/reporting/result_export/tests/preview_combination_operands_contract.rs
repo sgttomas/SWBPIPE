@@ -29,7 +29,7 @@ fn position(v: &Value, code: &str) -> usize {
 
 #[test]
 fn producer_documents_are_admitted_with_and_without_their_models() {
-    for name in ["v1_gap_closes", "v3_friction"] {
+    for name in ["v1_gap_closes", "v3_friction", "slip_reversal", "v2_anchor_rise"] {
         let (source, model) = entry(name);
         assert_eq!(s::validate_preview_physics_evidence(&source), Ok(()), "{name}");
         assert_eq!(with_model(&source, &model)["ok"], true, "{name}: {}", with_model(&source, &model));
@@ -165,4 +165,127 @@ fn the_model_binding_refuses_forged_expressions_and_selections() {
     let mut m = model.clone();
     m["combinations"].as_array_mut().unwrap().remove(1);
     refused_with(&v1, &m, "a record without its combination");
+}
+
+/// Codex r1 finding 1: the reported state includes a sliding support's slip sense;
+/// the relative-displacement row, when present, decides it.
+#[test]
+fn slip_sense_is_part_of_the_reported_state() {
+    let (slip, _) = entry("slip_reversal");
+    // The notices are required.
+    let mut dropped = slip.clone();
+    diagnostics(&mut dropped).retain(|d| d["code"] != "COMBINATION_OPERAND_SUPPORT_STATES_DIFFER");
+    refused(&dropped, "NOTICE", "opposite slip without its notice");
+    // Making both senses positive removes the difference, so the stated notices no longer match.
+    let mut same = slip.clone();
+    for row in same["results"].as_array_mut().unwrap() {
+        if row["kind"] == "nonlinear_support_final_displacement" && row["basis_ref"]["ref_id"] == "case:O" {
+            row["value"] = json!(0.9765625);
+        }
+    }
+    refused(&same, "NOTICE", "senses made equal");
+    // A relative-displacement row takes precedence over the displacement row.
+    let mut relative = slip.clone();
+    let mut row = relative["results"].as_array().unwrap().iter()
+        .find(|r| r["kind"] == "nonlinear_support_final_displacement" && r["basis_ref"]["ref_id"] == "case:O").unwrap().clone();
+    row["id"] = json!("result:nonlinear-support:support-shoe:UX-relative-displacement:forged");
+    row["kind"] = json!("nonlinear_support_final_relative_displacement");
+    row["metadata"]["component"] = json!("nonlinear_support_final_relative_displacement");
+    row["value"] = json!(0.5);
+    relative["results"].as_array_mut().unwrap().push(row);
+    refused(&relative, "NOTICE", "a relative row that reverses the sense");
+}
+
+/// Codex r1 finding 2: no row-based exemption; an admitted mechanics combination in a
+/// solved nonlinear document is refused, and every admitted gate needs its record.
+#[test]
+fn admitted_mechanics_rows_never_exempt_a_record() {
+    let (v1, _) = entry("v1_gap_closes");
+    let tag = |v: &mut Value| {
+        let row = v["results"].as_array_mut().unwrap().iter_mut()
+            .find(|r| r["basis_ref"]["ref_id"] == "comb:o-s" && r["kind"] == "global_nodal_rotation_x").unwrap();
+        row["metadata"]["basis"] = json!("explicit_user_linear_combination");
+    };
+    // Codex's failure: one tagged row, the record and its two notices removed.
+    let mut stripped = v1.clone();
+    tag(&mut stripped);
+    stripped["contract_evidence"]["combination_operands"].as_array_mut().unwrap().remove(0);
+    diagnostics(&mut stripped).retain(|d| !d["affected_refs"].as_array().is_some_and(|r| r.first() == Some(&json!("comb:o-s")) && d["code"].as_str().unwrap().starts_with("COMBINATION_OPERAND_")));
+    refused(&stripped, "MECHANICS_ADMITTED", "a tagged row in place of the record");
+    // With the tagged combination's rows all mechanics and its record gone, the gate count still binds.
+    let mut all = stripped.clone();
+    for row in all["results"].as_array_mut().unwrap() {
+        if row["basis_ref"]["ref_id"] == "comb:o-s" && row["metadata"].is_object() {
+            row["metadata"]["basis"] = json!("explicit_user_linear_combination");
+        }
+    }
+    assert!(s::validate_preview_physics_evidence(&all).is_err(), "every row tagged");
+    // The tag alone, with the record kept.
+    let mut tagged = v1.clone();
+    tag(&mut tagged);
+    refused(&tagged, "MECHANICS_ADMITTED", "an admitted mechanics row in a nonlinear document");
+}
+
+/// Codex r1 finding 3: reference requirements follow the row kind and basis.
+#[test]
+fn row_references_follow_kind_and_basis() {
+    let (v1, _) = entry("v1_gap_closes");
+    let index = |v: &Value, id: &str, kind: &str| v["results"].as_array().unwrap().iter()
+        .position(|r| r["basis_ref"]["ref_id"] == id && r["kind"] == kind).unwrap();
+    // Codex's failure: the expression and operands reversed, every source cleared,
+    // the notices re-formed for the reversed order.
+    let mut cleared = v1.clone();
+    {
+        let record = &mut cleared["contract_evidence"]["combination_operands"][0];
+        record["expression"] = json!({"minuend_id": "case:S", "subtrahend_id": "case:O"});
+        record["operands"].as_array_mut().unwrap().reverse();
+    }
+    for row in cleared["results"].as_array_mut().unwrap() {
+        if row["basis_ref"]["ref_id"] == "comb:o-s" {
+            row["source_result_refs"] = json!([]);
+        }
+    }
+    refused(&cleared, "ROWS", "cleared references");
+    // A missing reference on one direct row, and an absent member.
+    let mut missing = v1.clone();
+    let i = index(&missing, "comb:o-s", "global_nodal_displacement_x");
+    missing["results"][i]["source_result_refs"].as_array_mut().unwrap().pop();
+    refused(&missing, "ROWS", "one operand reference missing");
+    let mut absent = v1.clone();
+    absent["results"][i].as_object_mut().unwrap().remove("source_result_refs");
+    refused(&absent, "ROWS", "no reference member");
+    // Mixed: a direct row naming a combination row.
+    let mut mixed = v1.clone();
+    let component = mixed["results"][index(&mixed, "comb:o-s", "global_nodal_displacement_y")]["id"].clone();
+    mixed["results"][i]["source_result_refs"][1] = component;
+    refused(&mixed, "ROWS", "a direct row naming a combination row");
+    // A source row of another kind.
+    let mut kind = v1.clone();
+    let other = kind["results"][index(&kind, "comb:o-s", "global_nodal_displacement_y")]["source_result_refs"][1].clone();
+    kind["results"][i]["source_result_refs"][1] = other;
+    refused(&kind, "ROWS", "a source row of another kind");
+    // Recomputed magnitudes name their combination components, in order.
+    let mut magnitude = v1.clone();
+    let m = index(&magnitude, "comb:o-s", "support_reaction_force_magnitude_v2");
+    magnitude["results"][m]["source_result_refs"].as_array_mut().unwrap().swap(0, 1);
+    refused(&magnitude, "ROWS", "magnitude components out of order");
+    let mut cases = v1.clone();
+    let direct = cases["results"][index(&cases, "comb:o-s", "support_reaction_component_v2")]["source_result_refs"].clone();
+    cases["results"][m]["source_result_refs"] = direct;
+    refused(&cases, "ROWS", "a subtraction magnitude naming case rows");
+    // A row of the other basis.
+    let mut basis = v1.clone();
+    basis["results"][i]["metadata"]["basis"] = json!("explicit_user_range_envelope");
+    refused(&basis, "ROWS", "a range row under a subtraction record");
+}
+
+/// Codex r1 finding 4: a range mode is one of the four tokens.
+#[test]
+fn range_modes_are_closed() {
+    let (v1, _) = entry("v1_gap_closes");
+    for mode in [json!("invalid"), json!(""), json!(null), json!("MAX")] {
+        let mut v = v1.clone();
+        v["contract_evidence"]["combination_operands"][1]["expression"]["mode"] = mode.clone();
+        refused(&v, "SHAPE", &format!("mode {mode}"));
+    }
 }

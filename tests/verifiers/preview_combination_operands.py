@@ -23,6 +23,13 @@ RECORD_KEYS = {"combination_id", "basis", "expression", "operands", "standing"}
 OPERAND_KEYS = {"load_case_id", "modulus_basis_ref", "modulus_basis_temperature", "numerical_quality"}
 NAMED = 8
 LINEAR_BASIS = "explicit_user_linear_combination"
+MODES = ("min", "max", "min_abs", "max_abs")
+DISPLACEMENT = "nonlinear_support_final_displacement"
+RELATIVE_DISPLACEMENT = "nonlinear_support_final_relative_displacement"
+MODULUS_RECORD = "combination_modulus_basis_record"
+SUPPORT_COMPONENT = "support_reaction_component_v2"
+SUPPORT_COMPONENTS = ("Fx", "Fy", "Fz", "Mx", "My", "Mz")
+DISPLACEMENT_COMPONENTS = ("global_nodal_displacement_x", "global_nodal_displacement_y", "global_nodal_displacement_z")
 STATE_TOKENS = {0: "inactive", 1: "active", 2: "sticking", 3: "sliding"}
 
 
@@ -66,7 +73,7 @@ def _evaluation_order(basis: Any, expression: Any) -> list[str]:
         _require(_text(a) and _text(b) and a != b, "SHAPE")
         return [a, b]
     if basis == "range_envelope":
-        _require(_keys(expression, {"operand_ids", "mode"}) and _text(expression["mode"]), "SHAPE")
+        _require(_keys(expression, {"operand_ids", "mode"}) and expression["mode"] in MODES, "SHAPE")
         ids = expression["operand_ids"]
         _require(isinstance(ids, list) and ids and all(_text(i) for i in ids), "SHAPE")
         ordered = sorted(ids)
@@ -94,11 +101,27 @@ def _states_notice(cid: str, operands: list[str], rows: list) -> dict[str, Any] 
         for c, s, _ in states:
             if c == case and s not in supports:
                 supports.append(s)
+    def sense(case: str, support: str) -> float | None:
+        for kind in (RELATIVE_DISPLACEMENT, DISPLACEMENT):
+            row = next((r for r in rows if isinstance(r, Mapping) and r.get("kind") == kind and _basis(r, "load_case") == case
+                        and r.get("entity_ref") == support), None)
+            if row is not None and type(row.get("value")) in (int, float):
+                return row["value"]
+        return None
+
+    def reported(code: float | None, slip: float | None) -> str:
+        if code is None:
+            return "unreported"
+        if code == 3:
+            return ("sliding (positive slip)" if slip is not None and slip > 0
+                    else "sliding (negative slip)" if slip is not None and slip < 0 else "sliding (slip sense unavailable)")
+        return STATE_TOKENS[int(code)]
+
     differing: list[tuple[str, list[str]]] = []
     for support in supports:
-        codes = [next((v for c, s, v in states if c == case and s == support), None) for case in operands]
-        if any(code is None or code != codes[0] for code in codes):
-            differing.append((support, ["unreported" if code is None else STATE_TOKENS[int(code)] for code in codes]))
+        tokens = [reported(next((v for c, s, v in states if c == case and s == support), None), sense(case, support)) for case in operands]
+        if not all(t == tokens[0] and t != "unreported" and "unavailable" not in t for t in tokens):
+            differing.append((support, tokens))
     if not differing:
         return None
     named = "; ".join(f"{support} ({', '.join(f'{case}: {state}' for case, state in zip(operands, tokens))})"
@@ -137,14 +160,13 @@ def check(source: Mapping[str, Any], solved: bool) -> None:
     rows = _items(source.get("results"))
     diagnostics = _items(source.get("diagnostics"))
     nonlinear = any(isinstance(r, Mapping) and r.get("kind") == STATE_CODE for r in rows)
-    # A combination whose rows carry the linear-combination basis is a mechanics combination: it has no operand record
-    # (and the producer admits none in a nonlinear model). Every other admitted combination has one.
-    linear = {_basis(r, "combination") for r in rows if isinstance(r, Mapping) and isinstance(r.get("metadata"), Mapping)
-              and r["metadata"].get("basis") == LINEAR_BASIS}
     admitted = [g["combination_id"] for g in _items(evidence.get("combination_gates"))
-                if isinstance(g, Mapping) and g.get("withheld") is False and isinstance(g.get("combination_id"), str)
-                and g["combination_id"] not in linear]
+                if isinstance(g, Mapping) and g.get("withheld") is False and isinstance(g.get("combination_id"), str)]
     _require((MEMBER in evidence) == (solved and nonlinear and bool(admitted)), "PRESENCE")
+    # In a solved nonlinear document every mechanics combination is withheld.
+    if solved and nonlinear:
+        _require(not any(isinstance(r, Mapping) and _basis(r, "combination") is not None and isinstance(r.get("metadata"), Mapping)
+                         and r["metadata"].get("basis") == LINEAR_BASIS for r in rows), "MECHANICS_ADMITTED")
     expected: list[dict[str, Any]] = []
     if MEMBER in evidence:
         _require(isinstance(member, list), "SHAPE")
@@ -166,13 +188,38 @@ def check(source: Mapping[str, Any], solved: bool) -> None:
                 stated = next((q for q in quality if isinstance(q, Mapping) and isinstance(q.get("basis_ref"), Mapping)
                                and q["basis_ref"].get("ref_type") == "load_case" and q["basis_ref"].get("ref_id") == case), None)
                 _require(stated is not None and bit_equal(stated, operand["numerical_quality"]), "STANDING")
-            # Rows: a row formed from case rows names one source row per operand, in order.
+            # Rows: references by row kind and basis.
+            row_basis = "explicit_user_range_envelope" if record["basis"] == "range_envelope" else "explicit_user_result_state_subtraction"
             for row in rows:
-                if not isinstance(row, Mapping) or _basis(row, "combination") != cid:
+                if not isinstance(row, Mapping) or _basis(row, "combination") != cid or row.get("kind") == MODULUS_RECORD:
                     continue
-                sources = [_basis(by_id[ref], "load_case") if ref in by_id else None for ref in _items(row.get("source_result_refs"))]
-                if sources and all(s is not None for s in sources):
-                    _require(sources == order, "ROWS")
+                metadata = row.get("metadata")
+                _require(metadata is None or (isinstance(metadata, Mapping) and metadata.get("basis") == row_basis), "ROWS")
+                refs = row.get("source_result_refs")
+                refs = refs if isinstance(refs, list) else []
+                kind = row.get("kind")
+                components = None
+                if record["basis"] == "result_state_subtraction" and kind == "displacement_magnitude":
+                    components = [(k, None) for k in DISPLACEMENT_COMPONENTS]
+                elif record["basis"] == "result_state_subtraction" and kind in ("support_reaction_force_magnitude_v2", "support_reaction_moment_magnitude_v2"):
+                    components = [(SUPPORT_COMPONENT, c) for c in SUPPORT_COMPONENTS]
+                if components is not None:
+                    # Recomputed magnitudes name this combination's component rows, in order.
+                    _require(len(refs) == len(components), "ROWS")
+                    for ref, (component_kind, component) in zip(refs, components):
+                        source = by_id.get(ref) if isinstance(ref, str) else None
+                        _require(source is not None and _basis(source, "combination") == cid and source.get("kind") == component_kind
+                                 and source.get("entity_ref") == row.get("entity_ref")
+                                 and (component is None or (source.get("metadata") or {}).get("component") == component), "ROWS")
+                else:
+                    # Direct rows name one matching case row per operand, in evaluation order.
+                    _require(len(refs) == len(order), "ROWS")
+                    for ref, case in zip(refs, order):
+                        source = by_id.get(ref) if isinstance(ref, str) else None
+                        _require(source is not None and _basis(source, "load_case") == case and source.get("kind") == kind
+                                 and source.get("entity_ref") == row.get("entity_ref") and source.get("unit") == row.get("unit")
+                                 and (source.get("metadata") or {}).get("component") == (metadata or {}).get("component")
+                                 and (source.get("metadata") or {}).get("location") == (metadata or {}).get("location"), "ROWS")
             for notice in (_states_notice(cid, order, rows), _standing_notice(cid, operands)):
                 if notice is not None:
                     expected.append(notice)
