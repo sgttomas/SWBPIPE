@@ -851,24 +851,36 @@ REFERENCE_SUMS = os.path.join(HERE, "REFERENCE_SHA256SUMS")
 
 
 def pinned_references(path=REFERENCE_SUMS):
-    """({(route, kind): {sha256: name}}, problems) of the committed reference digests. The file must be tracked by git
-    and unchanged from HEAD in the judge's own checkout; lines are `<sha256> <route> <set|controls> <name...>`."""
+    """({(route, kind): {sha256: name}}, problems) of the committed reference digests (Agent 0, round 7): the manifest
+    is read from HEAD's blob (`git cat-file blob HEAD:<path>`, git show HEAD:<path> without text conversion) of the
+    checkout it sits in, and the working file must exist and be byte-identical to that blob. No index, status or diff
+    is consulted, so no index flag (assume-unchanged, skip-worktree) and no staged or unstaged edit can stand in for
+    the commit. Lines are `<sha256> <route> <set|controls> <name...>`."""
     out = []
-    d = os.path.dirname(os.path.abspath(path))
     try:
-        tracked = subprocess.run(["git", "-C", d, "ls-files", "--error-unmatch", "--", os.path.basename(path)], capture_output=True, text=True, timeout=60)
-        clean = subprocess.run(["git", "-C", d, "diff", "--quiet", "HEAD", "--", os.path.basename(path)], capture_output=True, text=True, timeout=60)
+        real = os.path.realpath(path)
+        d = os.path.dirname(real)
+        top = subprocess.run(["git", "-C", d, "rev-parse", "--show-toplevel"], capture_output=True, text=True, timeout=60)
+        if top.returncode != 0:
+            return {}, [f"{path} is not in a git checkout"]
+        rel = os.path.relpath(real, os.path.realpath(top.stdout.strip())).replace(os.sep, "/")
+        blob = subprocess.run(["git", "-C", top.stdout.strip(), "cat-file", "blob", "HEAD:" + rel], capture_output=True, timeout=60)
     except Exception as e:
         return {}, [f"git failed on {path} ({type(e).__name__})"]
-    if tracked.returncode != 0:
-        return {}, [f"{path} is not committed"]
-    if clean.returncode != 0:
-        return {}, [f"{path} differs from its committed content"]
-    pins = collections.defaultdict(dict)
+    if blob.returncode != 0:
+        return {}, [f"{path} is not in HEAD (no blob HEAD:{rel})"]
     try:
-        text = open(path, encoding="utf-8").read()
-    except Exception as e:
-        return {}, [f"{path} unreadable ({type(e).__name__})"]
+        with open(real, "rb") as f:
+            work = f.read()
+    except OSError as e:
+        return {}, [f"{path} is missing from the working tree ({type(e).__name__})"]
+    if work != blob.stdout:
+        return {}, [f"{path} differs from HEAD's blob HEAD:{rel}"]
+    try:
+        text = blob.stdout.decode("utf-8")
+    except UnicodeDecodeError:
+        return {}, [f"{path}: HEAD's blob is not UTF-8"]
+    pins = collections.defaultdict(dict)
     for i, line in enumerate(text.splitlines()):
         if not line.strip() or line.startswith("#"):
             continue
