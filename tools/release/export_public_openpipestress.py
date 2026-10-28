@@ -895,10 +895,15 @@ SELF_VERIFICATION_LINES = [
     "",
     "## Self-Verification",
     "",
-    "The staged tree verifies itself without the monorepo. From `staging/`:",
+    "The staged tree verifies itself without the monorepo, as the git "
+    "repository the public export will be. Copy `staging/` to a new directory "
+    "(a `.git` inside `staging/` would fail `--verify`) and, there:",
     "",
+    "- `git init -q && git add -A -f && git commit -q -m export` (tests that "
+    "bind a commit need one; `-f` keeps the committed `Cargo.lock` files that "
+    "crate `.gitignore` files list)",
     "- `python3 -m pytest -q tests`",
-    "- `python3 tools/release/check_release_readiness.py --profile skeleton`",
+    "- `python3 tools/release/check_release_readiness.py --profile skeleton --execute`",
     "",
     "Tests that read a surface the export leaves out (the monorepo's "
     "`execution/`, its repository-root tools and CI action, and local "

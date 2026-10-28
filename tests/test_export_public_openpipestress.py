@@ -70,8 +70,11 @@ def test_export_detection_matches_what_the_export_leaves_out():
 def test_report_states_how_the_staged_tree_verifies_itself():
     text = "\n".join(PIPE.SELF_VERIFICATION_LINES)
     assert "python3 -m pytest -q tests" in text
-    assert "check_release_readiness.py --profile skeleton" in text
+    assert "check_release_readiness.py --profile skeleton --execute" in text
     assert "tests/public_export.py" in text
+    # The staged dry run failed 38 commit-binding tests outside a git checkout,
+    # and a plain `git add -A` drops the force-added Cargo.lock files.
+    assert "git init -q && git add -A -f && git commit" in text
 
 
 def test_local_evidence_and_coordination_subtrees_are_excluded():
