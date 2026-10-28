@@ -248,9 +248,19 @@ def run_engine_lint(paths: list[Path], root: Path) -> dict:
     }
 
 
+def is_schema_property_map(json_path: str, document: dict) -> bool:
+    """A JSON Schema `properties` map that declares the provenance fields maps
+    each name to a subschema object; it describes records and is not one."""
+    return json_path.endswith(".properties") and isinstance(
+        document.get("redistribution_status"), dict
+    )
+
+
 def iter_provenance_records(document, json_path="$"):
     if isinstance(document, dict):
-        if "redistribution_status" in document:
+        if "redistribution_status" in document and not is_schema_property_map(
+            json_path, document
+        ):
             yield json_path, document
         for key, value in sorted(document.items()):
             yield from iter_provenance_records(value, f"{json_path}.{key}")

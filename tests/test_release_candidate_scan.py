@@ -296,6 +296,28 @@ def test_non_string_licence_is_a_violation_not_a_crash(licence):
     assert violations == ["$.provenance: missing or empty 'source_license'"]
 
 
+def test_schema_property_maps_are_not_provenance_records():
+    # The staged export ships JSON Schemas whose $defs.Provenance.properties
+    # declares the provenance fields; those subschemas are not data records.
+    module = load_module()
+    schema = {
+        "$defs": {
+            "Provenance": {
+                "type": "object",
+                "properties": {
+                    "redistribution_status": {"type": "string"},
+                    "source_license": {"type": "string"},
+                },
+            }
+        },
+        "examples": [{"provenance": dict(ACCEPTED_PROVENANCE)}],
+        "properties": {"redistribution_status": "unknown"},
+    }
+    paths = [path for path, _ in module.iter_provenance_records(schema)]
+    # The example record and a malformed string-valued record are still checked.
+    assert paths == ["$.examples[0].provenance", "$.properties"]
+
+
 def test_quarantine_hygiene_flags_quarantine_paths(tmp_path):
     module = load_module()
     candidate_root = make_candidate_tree(tmp_path)
