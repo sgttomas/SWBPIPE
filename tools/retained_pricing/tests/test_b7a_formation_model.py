@@ -390,10 +390,11 @@ def test_newly_reached_identifier_audits_bind_exact_production_expressions():
     }
     fc = "core/solver/frame_kernel/src/structural/formation_check.rs:"
     # T4-S5 (epoch 4): unchanged text, moved (T4-U6/U8: 509, 515, 525, 575, 588, 595; 627, 637, 643, 649).
-    for line in (528,534,544,620,633,640):
+    # W-16 stage 2 R-c (§8.29): +2 (528, 534, 544, 620, 633, 640; 672, 682, 688, 694), unchanged text.
+    for line in (530,536,546,622,635,642):
         assert table[fc+str(line)] == {
             "terms[p.term_index].source":{"bytes":128,"source":"IN128"}}
-    for line in (672,682,688,694,MODEL["FIRST_RETURN_LINE"]):
+    for line in (674,684,690,696,MODEL["FIRST_RETURN_LINE"]):
         assert table[fc+str(line)] == {
             "term.source":{"bytes":128,"source":"IN128"}}
     # These are literal producer/source edges under the existing raw guards,

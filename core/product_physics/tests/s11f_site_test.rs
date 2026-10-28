@@ -263,6 +263,7 @@ const PRODUCERS: &[(&str, &str, &str)] = &[
     // producer and the closure metadata writers. `push_nodal_loads` above now
     // serves only the retained-source replay (`nodal_and_eigen_case_force`).
     ("PP/certified_loads.rs", "nodal", "live nodal producer (`case_force_ledger`): an unscaled authored load is a plain input term; a load-source-factored load is a formed RoundedProduct term with its NodalProduct summand"),
+    ("PP/certified_loads.rs", "spring_base_motion", "W-16 R-c (DEL-04-03 pf-nonlinear-imposed-motion.md §11.1; called from `solve_prepared_load_case`): each moved spring's fl(k*g), a formed RoundedProduct term with its NodalProduct summand; no term when g compares equal to zero"),
     ("PP/certified_loads.rs", "attach", "closure metadata (§1 complete summands): installs the term's source-enumerated manifest, then attaches the supplied primitives; pushes no term"),
     ("PP/certified_loads.rs", "attach_last", "closure metadata: `attach` on the last pushed term (forwards its ledger)"),
     // Nonlinear K-D5 (DEL-04-01 kd5-nonlinear-active-set.md §1.4, §1.6): the
@@ -631,6 +632,11 @@ const FORCE_FUNCTIONS: &[(&str, &str, &str)] = &[
     ("FK/structural/certified_recovery.rs", "tangent_end_operator_and_loads", "U4a: rotate intended end loads in ball arithmetic before evaluating and publishing the certified tangent rows"),
     ("FK/structural/certified_recovery.rs", "certify_connector_recovery", "K-D5 §3.1: connector rows through connector_matrix"),
     ("FK/structural/certified_recovery.rs", "straight_member_frames_bound", "T4-U8 §4 item 2: the straight recovery frame bit-equal to its member's FormationSource frame (CertifiedMemberLoads::with_member_source) and to every straight primitive frame of the member; reads frame bits and source identities only; read-only"),
+    (
+        "FK/structural/certified_recovery.rs",
+        "certify_spring_reaction",
+        "K-D5 §3.2, W-16 R-c: spring row -k (u + w + w2 - g); a moved base's exact product +k*g is the row's own load addend (no binary64 fold of k*g or u - g); g equal to zero is the fixed-base row",
+    ),
     (
         "FK/structural/certified_recovery.rs",
         "certify_support_reaction",
@@ -2146,6 +2152,23 @@ fn t8_every_case_force_producer_is_classified() {
     assert!(nodal.body.find("ledger.push_formed(").unwrap() < else_at && else_at < plain);
     assert!(nodal.body[..else_at].contains("attach_last("));
     assert!(!nodal.body[else_at..].contains("attach"));
+    // W-16 R-c (DEL-04-03 pf-nonlinear-imposed-motion.md §11.1): one formed
+    // RoundedProduct term (not self-equilibrated) with its NodalProduct
+    // summand per moved spring, after the zero test; no input push.
+    let spring = items(&certified)
+        .into_iter()
+        .find(|i| i.name == "spring_base_motion")
+        .expect("certified_loads::spring_base_motion");
+    assert_eq!(calls(&spring.body, "ledger.push(").count(), 0);
+    assert_eq!(calls(&spring.body, "ledger.push_product(").count(), 0);
+    let formed = call_arguments(&spring.body, "ledger.push_formed(");
+    assert_eq!(formed.len(), 1);
+    assert!(formed[0].contains("Formation::RoundedProduct { k: 1.0, a: k, b: g }"), "{}", formed[0]);
+    assert_eq!(last_argument(&formed[0]), "false");
+    assert!(spring.body.contains("LoadFormula::NodalProduct { global_dof: dof, magnitude: k, factor: g }"));
+    let zero = spring.body.find("if g == 0.0 {").expect("the zero test");
+    assert!(zero < spring.body.find("ledger.push_formed(").unwrap());
+    assert!(spring.body.contains("attach_last("));
     // The live ledger takes its nodal loads from it; `push_nodal_loads` (an
     // input producer) remains only for the retained-source replay.
     let ledger_body = &pp_items
@@ -2198,6 +2221,8 @@ fn t8_every_case_force_producer_is_classified() {
         .filter(|s| s.3.is_some())
         .map(|s| ("PP/lib.rs".to_string(), s.0.to_string()))
         .chain([("PP/certified_loads.rs".to_string(), "nodal".to_string())])
+        // W-16 R-c: the spring-base producer, a formed product per moved spring.
+        .chain([("PP/certified_loads.rs".to_string(), "spring_base_motion".to_string())])
         // Nonlinear K-D5 (kd5-nonlinear-active-set.md §1.6): the confirmation's
         // appended sliding-friction terms, outside the case force.
         .chain([("nonlinear_integration/confirmation.rs".to_string(), "appended_ledger".to_string())])

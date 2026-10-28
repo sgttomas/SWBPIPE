@@ -1215,6 +1215,48 @@ fn k2b_rv11d_end_actions_check_the_local_displacement_stage_at_every_b() {
         .all(|p| p.representability == Representability::Normal));
 }
 
+/// W-16 R-c: a spring whose base moves by g acts with -(k·2^b)·(u - g),
+/// the exact sum rounded once; g equal to zero, of either sign, is the
+/// fixed-base arithmetic bit for bit; a nonzero exact sum that would not be
+/// normal is refused; a non-finite g is invalid input.
+#[test]
+fn k2b_force_scaled_spring_action_with_a_moving_base() {
+    use open_pipe_stress_frame_kernel::force_scaled_spring_action as action;
+    let refused = |dof: usize| {
+        Err(ForceScaledError::Refused(ForceScalingRefusal {
+            reason: ForceScaleReason::PublicationOutsideBinary64 { global_dof: Some(dof) },
+            trigger: None,
+        }))
+    };
+    let k = 3.0;
+    for u in [[0.0, 0.25], [0.0, -0.0], [0.0, 0.0]] {
+        for b in [ForceScale::UNSCALED, scale(64), scale(-64)] {
+            let fixed = action((1, k), 0.0, &u, b).unwrap();
+            for zero in [0.0, -0.0] {
+                let moved = action((1, k), zero, &u, b).unwrap();
+                assert_eq!(moved.value.to_bits(), fixed.value.to_bits(), "u = {u:?}, g = {zero:?}");
+                assert_eq!(moved.representability, fixed.representability);
+            }
+        }
+    }
+    // -3·(0.25 - 0.1) from the exact sum, rounded once (not -3·fl(0.25 - 0.1)).
+    let mut exact = open_pipe_stress_frame_kernel::exact_sum::ExactAccumulator::new();
+    exact.add_product(-k, 0.25).unwrap();
+    exact.add_product(k, 0.1).unwrap();
+    let once = exact.round().unwrap();
+    for b in [ForceScale::UNSCALED, scale(64), scale(-64)] {
+        assert_eq!(action((1, k), 0.1, &[0.0, 0.25], b).unwrap().value.to_bits(), once.to_bits());
+    }
+    // An exact cancellation publishes +0; a tiny nonzero sum is refused.
+    assert_eq!(action((1, k), 0.25, &[0.0, 0.25], ForceScale::UNSCALED).unwrap().value.to_bits(), 0.0_f64.to_bits());
+    let tiny = pow2(-600);
+    assert_eq!(action((1, tiny), pow2(-500), &[0.0, 0.0], ForceScale::UNSCALED), refused(1));
+    assert_eq!(
+        action((1, k), f64::NAN, &[0.0, 0.25], ForceScale::UNSCALED),
+        Err(ForceScaledError::Structural(StructuralError::InvalidInput("spring base motion")))
+    );
+}
+
 /// RV11D-1: the kernel's spring action at 2^b
 /// (`force_scaled_spring_action`), built as the member actions are. The
 /// product -(k * 2^b) * u of nonzero operands must be normal, or the action is
@@ -1239,28 +1281,28 @@ fn k2b_rv11d_force_scaled_spring_action_checks_its_product_at_every_b() {
     let today = -(k * u[1]);
     assert!(today.is_normal());
     assert_eq!(
-        action((1, k), &u, ForceScale::UNSCALED),
+        action((1, k), 0.0, &u, ForceScale::UNSCALED),
         Ok(published(today))
     );
-    assert_eq!(action((1, k), &u, scale(-138)), refused(1));
+    assert_eq!(action((1, k), 0.0, &u, scale(-138)), refused(1));
     // A subnormal product (about 2^-1060) is refused too, at b = 0.
     let small = [0.0, pow2(-460)];
-    assert_eq!(action((1, k), &small, ForceScale::UNSCALED), refused(1));
+    assert_eq!(action((1, k), 0.0, &small, ForceScale::UNSCALED), refused(1));
     // Normal at scale: exact, and the same bits as at b = 0.
-    assert_eq!(action((1, k), &u, scale(64)), Ok(published(today)));
+    assert_eq!(action((1, k), 0.0, &u, scale(64)), Ok(published(today)));
     // A zero displacement gives a zero action (its sign kept), not a refusal.
-    let zero = action((1, k), &[0.0, 0.0], scale(-138)).unwrap();
+    let zero = action((1, k), 0.0, &[0.0, 0.0], scale(-138)).unwrap();
     assert_eq!(zero.value, 0.0);
     assert_eq!(zero.representability, Representability::Normal);
     // Invalid input and an unscalable stiffness.
     assert_eq!(
-        action((2, k), &u, ForceScale::UNSCALED),
+        action((2, k), 0.0, &u, ForceScale::UNSCALED),
         Err(ForceScaledError::Structural(StructuralError::InvalidInput(
             "displacement vector"
         )))
     );
     assert_eq!(
-        action((1, pow2(1000)), &u, scale(100)),
+        action((1, pow2(1000)), 0.0, &u, scale(100)),
         Err(ForceScaledError::Formation(
             FrameKernelError::NumericalRange {
                 name: "spring stiffness*2^b (force scale)"
