@@ -144,6 +144,35 @@ def test_verifier_model_bound_reader_refuses_a_crossed_pair(name):
     assert rv.standing(ti, selected)["findings"] == []
 
 
+_MALFORMED_SETTINGS = [
+    (None, "MODEL-SLOT-SHAPE"), ("timoshenko_annulus_energy_v1", "MODEL-SLOT-SHAPE"), (["euler_bernoulli"], "MODEL-SLOT-SHAPE"),
+    (0, "MODEL-SLOT-SHAPE"), ({"shear_model": None}, "MODEL-SETTING-SHEAR-MODEL-UNKNOWN"),
+    ({"shear_model": 1}, "MODEL-SETTING-SHEAR-MODEL-UNKNOWN"), ({"shear_model": True}, "MODEL-SETTING-SHEAR-MODEL-UNKNOWN"),
+    ({"shear_model": {"name": "euler_bernoulli"}}, "MODEL-SETTING-SHEAR-MODEL-UNKNOWN"),
+    ({"shear_model": "Euler_Bernoulli"}, "MODEL-SETTING-SHEAR-MODEL-UNKNOWN"),
+]
+
+
+@pytest.mark.parametrize("name", list(SOURCES))
+def test_verifier_model_bound_reader_refuses_a_present_null_or_malformed_shear_model(name):
+    """Codex P1 on #1663 (Rust `model_bound_readers_refuse_a_present_null_or_malformed_shear_model`): an
+    authored null is not absence; a malformed settings record is refused naming the producer's and validator's
+    code. Only an absent member (or absent `model_settings`) is Euler-Bernoulli."""
+    base, ti = eb(name), timoshenko_of(eb(name))
+    empty = model(name)
+    empty["model_settings"] = {}
+    assert rv.validate("preview-physics", base, empty) == {"ok": True}
+    for settings, code in _MALFORMED_SETTINGS:
+        bound = model(name)
+        bound["model_settings"] = settings
+        for source in (base, ti):
+            outcome = rv.validate("preview-physics", source, bound)
+            assert outcome["error"]["code"] == rv.SHEAR_MODEL_IDENTITY, (settings, outcome)
+            standing = rv.standing(source, bound)
+            assert standing["eligible"] is False, settings
+            assert standing["findings"][0].startswith(f"{rv.SHEAR_MODEL_IDENTITY}: {code}: "), (settings, standing)
+
+
 # The product's Rust-routed reading: these need the runner binary (skipped without it, conftest).
 
 @pytest.mark.parametrize("name", list(SOURCES))

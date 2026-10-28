@@ -72,6 +72,8 @@ _TABLE_PATHS = {c.PRESSURE_SOURCE_CONTRACT_ID: c._PRESSURE_SOURCE_CONTRACT_PATH,
                 **{identity: pinned[1] for identity, pinned in c.PREVIEW_PHYSICS_CONTRACTS.items()},
                 PRESSURE_CONTRACT_ID: c._PRESSURE_CONTRACT_PATH, **{identity: pinned[1] for identity, pinned in c.RETAINED_CONTRACTS.items()}}
 SHEAR_MODEL_IDENTITY = "SOURCE_PREVIEW_PHYSICS_SHEAR_MODEL_IDENTITY"
+# An absent `model_settings.shear_model`, distinct from an authored `null`.
+_ABSENT = object()
 _QUALITY_STATUSES = ("not_assessed", "checks_passed", "sensitive", "unresolved", "failed")
 _SUPPORT_KINDS = {"support_reaction_component_v2", "support_reaction_force_magnitude_v2", "support_reaction_moment_magnitude_v2"}
 _TABLES: dict[str, Any] = {}
@@ -227,14 +229,24 @@ def binding_of(name: str, source: Any) -> dict[str, str] | None:
 
 def bind_preview_shear_model(source: Mapping[str, Any], model: Mapping[str, Any]) -> None:
     """pf-timoshenko.md §4 (model-bound; Rust `bind_preview_shear_model`): the identity the model's
-    `model_settings.shear_model` selects. Absent or `euler_bernoulli` selects preview-physics-2,
-    `timoshenko_annulus_energy_v1` the Timoshenko identity; a crossed pair or any other value is refused."""
-    settings = model.get("model_settings") if isinstance(model, Mapping) else None
-    selected = settings.get("shear_model") if isinstance(settings, Mapping) else None
-    expected = {None: c.PREVIEW_PHYSICS_CONTRACT_ID, "euler_bernoulli": c.PREVIEW_PHYSICS_CONTRACT_ID,
-                "timoshenko_annulus_energy_v1": c.PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID}.get(selected) if selected is None or isinstance(selected, str) else None
-    if expected is None:
-        raise Refused(f"{SHEAR_MODEL_IDENTITY}: model_settings.shear_model is not a selectable value")
+    `model_settings.shear_model` selects. An absent member (or absent `model_settings`) or `euler_bernoulli`
+    selects preview-physics-2, `timoshenko_annulus_energy_v1` the Timoshenko identity; a crossed pair is
+    refused. A setting the producer and validator refuse is refused naming their code: a `model_settings`
+    that is not an object, `null` included (MODEL-SLOT-SHAPE), and a `shear_model` that is not one of the
+    two names, `null` and non-strings included (MODEL-SETTING-SHEAR-MODEL-UNKNOWN)."""
+    selected: Any = _ABSENT
+    if isinstance(model, Mapping) and "model_settings" in model:
+        settings = model["model_settings"]
+        if not isinstance(settings, Mapping):
+            raise Refused(f"{SHEAR_MODEL_IDENTITY}: MODEL-SLOT-SHAPE: model_settings is not an object, so it selects no beam theory")
+        selected = settings.get("shear_model", _ABSENT)
+    if selected is _ABSENT or selected == "euler_bernoulli":
+        expected = c.PREVIEW_PHYSICS_CONTRACT_ID
+    elif selected == "timoshenko_annulus_energy_v1":
+        expected = c.PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID
+    else:
+        raise Refused(f"{SHEAR_MODEL_IDENTITY}: MODEL-SETTING-SHEAR-MODEL-UNKNOWN: model_settings.shear_model must be "
+                      "`euler_bernoulli` or `timoshenko_annulus_energy_v1`")
     producer = source.get("producer") if isinstance(source, Mapping) else None
     if not isinstance(producer, Mapping) or producer.get("semantic_contract_id") != expected:
         raise Refused(f"{SHEAR_MODEL_IDENTITY}: the result's semantic contract is not the one the model's shear model selects ({expected})")

@@ -140,17 +140,28 @@ pub fn binding_of(route: &str, source: &Value) -> Value {
 
 /// pf-timoshenko.md §4 (model-bound): a preview-physics identity binds the beam theory
 /// the model selects. `model_settings.shear_model = timoshenko_annulus_energy_v1` selects
-/// the Timoshenko identity; absent or `euler_bernoulli` selects preview-physics-2. A
-/// crossed pair is refused by name. Any other model value is the producer's refusal,
-/// never a result, so it binds neither identity.
+/// the Timoshenko identity; an absent member (or an absent `model_settings`) or
+/// `euler_bernoulli` selects preview-physics-2. A crossed pair is refused by name. A
+/// present setting the producer and the document validator refuse is never a result, so
+/// it binds neither identity and is refused naming their code: a `model_settings` that is
+/// not an object, `null` included (`MODEL-SLOT-SHAPE`), and a `shear_model` that is not one
+/// of the two names, `null` and non-strings included (`MODEL-SETTING-SHEAR-MODEL-UNKNOWN`).
 pub const SHEAR_MODEL_IDENTITY: &str = "SOURCE_PREVIEW_PHYSICS_SHEAR_MODEL_IDENTITY";
 pub fn bind_preview_shear_model(source: &Value, model: &Value) -> Result<(), String> {
-    let selected = &model["model_settings"]["shear_model"];
-    let expected = match selected.as_str() {
-        _ if selected.is_null() => sc::PREVIEW_PHYSICS_ID,
-        Some("euler_bernoulli") => sc::PREVIEW_PHYSICS_ID,
-        Some("timoshenko_annulus_energy_v1") => sc::PREVIEW_PHYSICS_TIMOSHENKO_ID,
-        _ => return Err(format!("{SHEAR_MODEL_IDENTITY}: model_settings.shear_model is not a selectable value")),
+    let selected = match model.get("model_settings") {
+        None => None,
+        Some(Value::Object(settings)) => settings.get("shear_model"),
+        Some(_) => {
+            return Err(format!("{SHEAR_MODEL_IDENTITY}: MODEL-SLOT-SHAPE: model_settings is not an object, so it selects no beam theory"));
+        }
+    };
+    let expected = match selected.map(|value| value.as_str()) {
+        None => sc::PREVIEW_PHYSICS_ID,
+        Some(Some("euler_bernoulli")) => sc::PREVIEW_PHYSICS_ID,
+        Some(Some("timoshenko_annulus_energy_v1")) => sc::PREVIEW_PHYSICS_TIMOSHENKO_ID,
+        Some(_) => {
+            return Err(format!("{SHEAR_MODEL_IDENTITY}: MODEL-SETTING-SHEAR-MODEL-UNKNOWN: model_settings.shear_model must be `euler_bernoulli` or `timoshenko_annulus_energy_v1`"));
+        }
     };
     if source["producer"]["semantic_contract_id"] != expected {
         return Err(format!("{SHEAR_MODEL_IDENTITY}: the result's semantic contract is not the one the model's shear model selects ({expected})"));

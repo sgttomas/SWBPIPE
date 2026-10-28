@@ -180,6 +180,47 @@ fn model_bound_readers_refuse_a_crossed_pair() {
     }
 }
 
+/// Codex P1 on #1663: an authored `null` is not absence. A malformed settings record, which
+/// the producer and the document validator refuse, binds neither identity and is refused
+/// naming their code; only an absent member (or absent `model_settings`) is Euler–Bernoulli.
+#[test]
+fn model_bound_readers_refuse_a_present_null_or_malformed_shear_model() {
+    for (name, text) in SOURCES {
+        let eb = parse(text);
+        let ti = timoshenko_of(&eb);
+        let with_settings = |settings: Value| {
+            let mut model = model_for(name, None);
+            model["model_settings"] = settings;
+            model
+        };
+        // A settings record without the member is absence.
+        let ok = json!({"ok": true});
+        assert_eq!(rv::validate("preview-physics", &eb, Some(&with_settings(json!({}))), None), ok, "{name}");
+        let cases = [
+            (json!(null), "MODEL-SLOT-SHAPE"),
+            (json!("timoshenko_annulus_energy_v1"), "MODEL-SLOT-SHAPE"),
+            (json!(["euler_bernoulli"]), "MODEL-SLOT-SHAPE"),
+            (json!(0), "MODEL-SLOT-SHAPE"),
+            (json!({"shear_model": null}), "MODEL-SETTING-SHEAR-MODEL-UNKNOWN"),
+            (json!({"shear_model": 1}), "MODEL-SETTING-SHEAR-MODEL-UNKNOWN"),
+            (json!({"shear_model": true}), "MODEL-SETTING-SHEAR-MODEL-UNKNOWN"),
+            (json!({"shear_model": {"name": "euler_bernoulli"}}), "MODEL-SETTING-SHEAR-MODEL-UNKNOWN"),
+            (json!({"shear_model": "Euler_Bernoulli"}), "MODEL-SETTING-SHEAR-MODEL-UNKNOWN"),
+        ];
+        for (settings, code) in cases {
+            let model = with_settings(settings.clone());
+            for source in [&eb, &ti] {
+                let out = rv::validate("preview-physics", source, Some(&model), None);
+                assert_eq!(out["error"]["code"], rv::SHEAR_MODEL_IDENTITY, "{name} {settings}: {out}");
+                let standing = rv::standing(source, Some(&model), None);
+                assert_eq!(standing["eligible"], false, "{name} {settings}");
+                let finding = standing["findings"][0].as_str().unwrap();
+                assert!(finding.starts_with(&format!("{}: {code}: ", rv::SHEAR_MODEL_IDENTITY)), "{name} {settings}: {finding}");
+            }
+        }
+    }
+}
+
 #[test]
 fn the_derivative_carries_the_timoshenko_identity_and_its_evidence() {
     for (name, text) in SOURCES {
