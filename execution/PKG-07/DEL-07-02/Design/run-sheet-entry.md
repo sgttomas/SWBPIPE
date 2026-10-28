@@ -81,7 +81,10 @@ pairs; the sheet never converts them. Each quantity column has one column
 unit, chosen in its header from the unit catalog
 (`src/services/unitCatalogService.ts`). It defaults to the project's unit for
 that dimension where `project.units` declares one; otherwise the header reads
-"Choose unit" and entry in that column is refused until one is chosen. A value
+"Choose unit" and entry in that column is refused until one is chosen. Where
+the catalog is unavailable (the browser preview), or offers no unit of that
+dimension, the unit is typed in the header; the engine's conversion checks it
+(§6.2). A value
 inherited from an existing pipe keeps its stored unit and shows it beside the
 value when it differs from the column unit.
 
@@ -92,8 +95,12 @@ value when it differs from the column unit.
 - **Numbering**: id prefixes and step (§3.2).
 
 The sheet is transient view state, like the grid's cell drafts
-(`src/features/model-tree/ModelTree.tsx:87-90`). It is not saved and is
-cleared when the project session changes (DEL-07-02 CLM-033).
+(`src/features/model-tree/ModelTree.tsx:87-90`). It is not saved. It is held
+beside the workspace session (`src/features/model-tree/runSheet/runSheetStore.ts`),
+so it follows every session checkpoint whichever surface is shown. It is
+cleared when the model's project changes. A history reset of the same project,
+such as Open State of one of its saved states, folds the ledger instead
+(§3.6), and the rows reconcile.
 
 ## 2. Inheritance
 
@@ -212,6 +219,8 @@ Ids are entity identity, not order (FR-MOD-003).
     not reused in the session.
   - The user may overwrite a draft row's id cell; the entered id is checked
     against the same reservations.
+  - The Numbering fields are fixed once any row has a number: a prefix
+    change would otherwise rename the ids already assigned.
 - **Labels.** A blank Label is the node id's token (derived). Pipe labels are
   the pipe id's token. Bend records use the form's labels "Bend start", "Bend
   end", "Bend arc" and "Bend".
@@ -429,14 +438,22 @@ are never deleted by the sheet.
   `validateOperationBatch` (`src/services/operationBatchService.ts`). It then
   hands the batch to the workspace's existing queue,
   `handleQueueOperationBatch` (`src/features/workspace/workspaceSession.ts:1277-1306`).
+  - While the batch is checked, the acting rows are queued and read-only. An
+    engine refusal returns them to draft by the `refused` transition (§3.6),
+    with the refusal on the failing row, and the batch is not handed over.
+  - The sheet registers its batch without moving the section or focus
+    (`registerOperationBatch(batch, { reveal: false })`), so focus stays on
+    the same cell (§5.1). Pending changes shows the batch.
 - **All or nothing.** Queue is disabled while any draft row is refused; the
   disabled reason lists the rows (open choice O5).
 - **Preview.** The Pending changes review shows the batch's per-step diff rows
   (`BatchReviewPanel.tsx`). Every batch containing `insert_bend_at_corner` or
   `reconnect_pipe_run` requires a preview of that exact batch on the current
-  model revision before Apply. The gate today covers reconnect only
-  (`BatchReviewPanel.tsx:17-19`). Extending it is an S2 prerequisite (§7) and
-  covers the bend form's intents too (O6).
+  model revision before Apply. One predicate, `operationRequiresPreview`
+  (`BatchReviewPanel.tsx`), names both kinds. The batch gate uses it, and so
+  does the single-intent apply path, which places such an intent in batch
+  review as a one-operation batch. The bend form's intents are therefore gated
+  too (O6).
 - **Apply and undo.** Apply is the user's explicit act in the review queue. One
   applied batch pushes one whole-model undo checkpoint
   (`workspaceSession.ts:1367-1372`), and the checkpoint carries the batch id
@@ -628,6 +645,13 @@ other surfaces, Undo, Redo and opened states.
 
   A median above one 60 Hz frame (16.7 ms) is reported as a finding for
   Agent 0, not passed silently.
+- S2 measured it (`runSheet/runSheetReconcile.measure.test.tsx`; indicative,
+  an ordinary test run on a shared host). On 500 rows with 50 bend rows,
+  1,600 expected ids and 6,703 model entities, over 100 revisions, the
+  reconciliation took a median of 2.7 ms (95th percentile 4.4 ms), with one
+  lookup per expected id. The cold `buildModelIndex` of the same model took a
+  median of 7.7 ms (95th percentile 10.9 ms). The session built one index per
+  revision with the sheet mounted and one without it.
 
 **Why reconciliation is exact.**
 - Undo and Redo commit a clone of the whole checkpoint model
@@ -740,7 +764,9 @@ every producer (step 1), and Prepare/Publish/Notify publication (step 2).
      `abandoned` with its reason. These are the returns where
      `stillCurrent()` fails. The plain "busy" return (`workspaceSession.ts:1318`)
      is not an abandonment: the batch stays queued and its buttons stay
-     disabled until the request ends.
+     disabled until the request ends. Today every model change that can occur
+     while a batch runs withdraws or retires its registration first, so
+     `abandoned` covers a revision that moves before the retirement sees it.
   4. `handleClearReviewQueue` and `withdrawBatchRegistrations` emit
      `withdrawn` for each registration they revoke.
 - **Requeue** is an ordinary Queue on the current model:
@@ -831,7 +857,7 @@ The sheet reuses the engineering table's cell model and handler conventions
 | Tab / Shift+Tab | any | Commit and move to the next or previous editable cell in column order, wrapping rows. Past the last cell, focus leaves to the sheet footer, as in the table. |
 | Arrow keys | not editing | Move; read-only readouts are reachable here only |
 | Delete / Backspace | not editing | Clear the cell, returning it to inheritance (§2.4) |
-| Ctrl/⌘+D | not editing | **Fill down**: copy this cell's effective value into the selected following rows as entered values |
+| Ctrl/⌘+D | not editing | **Fill down**: copy this cell's effective value into the selected following rows as entered values. Shift+ArrowDown and Shift+ArrowUp extend the row selection from the focused row; with no selection, the next row is filled |
 | Ctrl/⌘+Enter | anywhere in the sheet | Queue rows (same as the button) |
 | Shift+F10, ContextMenu | row header or cell | The row menu (§5.3) |
 
