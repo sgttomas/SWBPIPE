@@ -149,3 +149,4 @@ checks:
 - core/model_operations/operation_applier/tests/pipe_reconnect.rs
 - core/model_operations/operation_applier/tests/pipe_delete_dependents.rs
 - apps/desktop/src/services/pipeReconnectEquivalence.test.ts
+- core/model_operations/operation_applier/tests/run_sheet_authoring.rs
