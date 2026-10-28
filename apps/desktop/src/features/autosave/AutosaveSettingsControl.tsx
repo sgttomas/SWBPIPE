@@ -35,7 +35,7 @@ export function AutosaveSettingsControl({ autosave }: { autosave: Pick<AutosaveS
         Recover autosave…
       </button>
       <p className="shell-autosave-detail" id="autosave-setting-detail">
-        Autosave writes only while there are unsaved edits. Autosaves stay on this computer and are removed once the project is saved.
+        Autosave writes only while there are unsaved edits. Autosaves stay on this computer. Saving the project removes only the autosaves that match the saved model.
       </p>
     </>
   );
