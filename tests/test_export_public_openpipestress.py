@@ -244,6 +244,26 @@ def test_selection_in_a_git_checkout_stages_tracked_files_only(tmp_path):
     assert "docs/notes.local.json" not in posix
 
 
+def test_selection_reads_head_for_a_project_nested_in_its_repository(tmp_path):
+    # The real source root is projects/<name> inside the monorepo; run from a
+    # subdirectory, `git ls-tree HEAD:<prefix>` listed nothing without
+    # --full-tree, so every allowlisted root read as missing.
+    repository = tmp_path / "repository"
+    source = make_source_tree(repository / "projects", commit=False)
+    git(repository, "init", "-q")
+    commit_all(repository)
+    selected, _, unlisted = PIPE.select_files(source)
+    posix = {rel.as_posix() for rel in selected}
+    assert {"README.md", "docs/README.md"} <= posix
+    assert "execution" in unlisted
+
+    staging = tmp_path / "staging"
+    PIPE.stage_files(source, staging, selected)
+    assert (staging / "docs" / "README.md").read_text(encoding="utf-8") == (
+        "Invented docs placeholder.\n"
+    )
+
+
 def test_export_stages_head_blobs_not_working_tree_state(tmp_path):
     # Review finding 1: the export copied working-tree bytes, so dirty tracked
     # edits and newly indexed files entered an export bound to HEAD.

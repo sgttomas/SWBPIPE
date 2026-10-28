@@ -404,7 +404,10 @@ def head_entries(source_root: Path) -> dict[str, tuple[str, str]] | None:
     try:
         prefix = run_command(["git", "rev-parse", "--show-prefix"], source_root)
         listing = run_command(
-            ["git", "ls-tree", "-r", "-z", f"HEAD:{prefix.stdout.strip()}"], source_root
+            # --full-tree: run from a subdirectory, ls-tree would otherwise
+            # filter the subtree's entries by that directory's path again.
+            ["git", "ls-tree", "-r", "-z", "--full-tree", f"HEAD:{prefix.stdout.strip()}"],
+            source_root,
         )
     except OSError:
         return None
