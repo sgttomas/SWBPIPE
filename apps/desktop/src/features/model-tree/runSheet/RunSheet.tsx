@@ -273,12 +273,14 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
   }
 
   // ---- Keys (§5.1, §5.2).
-  const editableColumns = (row: ViewRow) => columns.filter((column) => editableAt(row, column));
+  /** The next or previous editable cell in column order, wrapping rows, from any cell (§5.1 Tab). */
   function tabTarget(address: Address, backwards: boolean): Address | "footer" | null {
-    const order = view.rows.flatMap((row) => editableColumns(row).map((column) => ({ rowKey: row.sheetRow.key, column: column.key })));
+    const order = view.rows.flatMap((row) => columns.map((column) => ({ rowKey: row.sheetRow.key, column: column.key, editable: editableAt(row, column) })));
     const at = order.findIndex((item) => item.rowKey === address.rowKey && item.column === address.column);
-    const next = order[at + (backwards ? -1 : 1)];
-    if (next) return next;
+    const step = backwards ? -1 : 1;
+    for (let index = at + step; index >= 0 && index < order.length; index += step) {
+      if (order[index].editable) return { rowKey: order[index].rowKey, column: order[index].column };
+    }
     return backwards ? null : "footer";
   }
   function enterTarget(address: Address): Address | "append" | null {

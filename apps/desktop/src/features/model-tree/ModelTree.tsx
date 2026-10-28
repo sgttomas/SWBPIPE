@@ -1108,9 +1108,9 @@ function EntityGrid({
         {runSheet ? <option value="run_sheet">Run sheet</option> : null}
       </select>
     </label>
-    {reviewToggle}
-    {retainedReviewCount > 0 ? <span role="status">{retainedReviewCount} retained drafts</span> : null}
-    {reviewVisible ? gridActions : null}
+    {runSheetShown ? null : reviewToggle}
+    {!runSheetShown && retainedReviewCount > 0 ? <span role="status">{retainedReviewCount} retained drafts</span> : null}
+    {reviewVisible && !runSheetShown ? gridActions : null}
     {queuedMessage ? <span role="status" className="compact-queued-message" data-testid="entity-grid-queued-message">{queuedMessage}</span> : null}
     <button type="button" data-table-chrome-owner={chromeOwner ?? undefined} onPointerDown={(event) => event.preventDefault()} popoverTarget={compactInfoId} aria-label="Table details" className="compact-table-info">Details</button>
     <div id={compactInfoId} data-table-chrome-owner={chromeOwner ?? undefined} popover="auto" className="compact-table-details" role="dialog" aria-label="Table details" tabIndex={-1}

@@ -241,6 +241,9 @@ describe("run sheet focus recovery (§5.1)", () => {
     expect(cell("r2", "material")).toHaveAttribute("aria-readonly", "true");
     fireEvent.keyDown(cell("r2", "material"), { key: "x" });
     expect(live()).toHaveTextContent("Queued in batch:run-sheet-sheet-1-1; read-only until it is applied or cleared from Pending changes.");
+    // Tab from a read-only cell moves to the next editable cell; with every row queued, to the footer.
+    fireEvent.keyDown(cell("r2", "material"), { key: "Tab" });
+    expect(screen.getByTestId("run-sheet-footer").contains(document.activeElement)).toBe(true);
   });
 
   it("after Delete row focus goes to the same column of the next shown row, else the previous, else the footer; after Insert row to the new row's dX", () => {
