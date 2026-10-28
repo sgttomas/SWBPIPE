@@ -118,7 +118,6 @@ export function useAutosave(deps: AutosaveDeps) {
         if (typeof read?.settings?.autosave_minutes !== "number") throw new Error("AUTOSAVE-SETTINGS-RESPONSE: the settings response has no interval");
         setSettings(read.settings);
         if (read.status) setStatusLine(`Autosave settings: ${read.status.code}: ${read.status.message}`);
-        else if (read.settings.autosave_minutes === 0) setStatusLine(AUTOSAVE_OFF_NOTICE);
       } catch (error) {
         if (!mounted.current) return;
         setSettings(DEFAULT_AUTOSAVE_SETTINGS);
@@ -176,7 +175,8 @@ export function useAutosave(deps: AutosaveDeps) {
       if (!mounted.current) return;
       if (outcome.outcome === "saved") {
         setSettings(outcome.settings);
-        setStatusLine(outcome.settings.autosave_minutes === 0 ? AUTOSAVE_OFF_NOTICE : `Autosave every ${outcome.settings.autosave_minutes} minutes while there are unsaved edits.`);
+        // Off: the notice of item (a) is the persistent `offNotice`, not a status line.
+        setStatusLine(outcome.settings.autosave_minutes === 0 ? null : `Autosave every ${outcome.settings.autosave_minutes} minutes while there are unsaved edits.`);
       } else {
         setStatusLine(`Autosave setting not changed: ${diagnosticsText(outcome.diagnostics)}`);
       }
@@ -346,6 +346,8 @@ export function useAutosave(deps: AutosaveDeps) {
   return {
     /** Null until the native settings are read (and always in the browser preview). */
     settings,
+    /** Item (a): shown for as long as autosave is off, apart from the status line. */
+    offNotice: settings?.autosave_minutes === 0 ? AUTOSAVE_OFF_NOTICE : null,
     settingBusy,
     statusLine,
     recoveryPrompt,

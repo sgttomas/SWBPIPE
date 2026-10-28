@@ -15,6 +15,7 @@ import { loadWasmEngine } from "../../services/wasmEngine/loadWasmEngine";
 import type { LocalProjectIndexEntry, ModelHashEvidence, PreviewModel } from "../../types";
 import { AutosaveRecoveryPrompt } from "./AutosaveRecoveryPrompt";
 import { AutosaveSettingsControl } from "./AutosaveSettingsControl";
+import { AutosaveStatus } from "./AutosaveStatus";
 import { formatAutosaveTime } from "./autosaveRecovery";
 import { autosaveSlot, type AutosaveEntry, type AutosaveReadOutcome, type AutosaveSettingsRead, type AutosaveWriteOutcome } from "./autosaveService";
 import { AUTOSAVE_OFF_NOTICE, useAutosave, type AutosaveDeps, type AutosaveSession } from "./useAutosave";
@@ -108,7 +109,7 @@ function Harness({ deps, expose }: { deps: AutosaveDeps; expose: (session: Autos
     <div>
       <button type="button" data-testid="workspace-control">Workspace</button>
       <AutosaveSettingsControl autosave={autosave} />
-      <p data-testid="autosave-status">{autosave.statusLine}</p>
+      <AutosaveStatus autosave={autosave} />
       <AutosaveRecoveryPrompt prompt={autosave.recoveryPrompt} />
     </div>
   );
@@ -163,15 +164,47 @@ describe("the autosave setting", () => {
     fireEvent.change(screen.getByTestId("autosave-interval"), { target: { value: "0" } });
     await waitFor(() => expect(screen.getByTestId("autosave-off-notice")).toHaveTextContent(AUTOSAVE_OFF_NOTICE));
     expect(AUTOSAVE_OFF_NOTICE).toBe("Autosave is off: a crash can lose unsaved work.");
-    expect(status()).toHaveTextContent(AUTOSAVE_OFF_NOTICE);
+    expect(screen.getByTestId("autosave-off-status")).toHaveTextContent(AUTOSAVE_OFF_NOTICE);
     expect(calls("set_autosave_settings").map(([, args]) => args)).toEqual([{ autosaveMinutes: 0 }]);
     await advance(60 * MINUTE);
     expect(calls("write_project_autosave")).toHaveLength(0);
     // Back on: the notice goes and the chosen interval applies.
     fireEvent.change(screen.getByTestId("autosave-interval"), { target: { value: "1" } });
     await waitFor(() => expect(screen.queryByTestId("autosave-off-notice")).toBeNull());
+    expect(screen.queryByTestId("autosave-off-status")).toBeNull();
     await advance(MINUTE);
     await waitFor(() => expect(calls("write_project_autosave")).toHaveLength(1));
+  });
+
+  // Codex r1 P2: the notice of item (a) stays for as long as autosave is off,
+  // whatever status line comes later (Keep for later, a write that lands after
+  // autosave was turned off).
+  it("(a) keeps the off notice while autosave is off, through later status lines", async () => {
+    vi.useFakeTimers({ toFake: ["setInterval", "clearInterval"] });
+    const record = entry(DEMO_SLOT, (SAVED_AT + 3600) * 1000, "sha256:" + "d".repeat(64));
+    let finish: (outcome: AutosaveWriteOutcome) => void = () => {};
+    const state = native({
+      settings: { settings: { autosave_minutes: 0, backup_folder: null, backup_keep: null }, source: "file", status: null },
+      entries: [record],
+      projects: [stored(DEMO.project.id, "Stored invented demo")],
+      write: () => new Promise((resolve) => { finish = resolve; })
+    });
+    mount();
+    expect(await screen.findByTestId("autosave-off-status")).toHaveTextContent(AUTOSAVE_OFF_NOTICE);
+    fireEvent.click(await screen.findByTestId("autosave-recovery-keep"));
+    await waitFor(() => expect(status()).toHaveTextContent("Autosave kept for later"));
+    expect(screen.getByTestId("autosave-off-status")).toHaveTextContent(AUTOSAVE_OFF_NOTICE);
+    // On, a write starts; off again while it runs; it lands after.
+    state.entries = [];
+    fireEvent.change(screen.getByTestId("autosave-interval"), { target: { value: "1" } });
+    await waitFor(() => expect(screen.queryByTestId("autosave-off-status")).toBeNull());
+    await advance(MINUTE);
+    await waitFor(() => expect(calls("write_project_autosave")).toHaveLength(1));
+    fireEvent.change(screen.getByTestId("autosave-interval"), { target: { value: "0" } });
+    expect(await screen.findByTestId("autosave-off-status")).toHaveTextContent(AUTOSAVE_OFF_NOTICE);
+    await act(async () => { finish(written()); });
+    await waitFor(() => expect(status()).toHaveTextContent(`Autosaved at ${formatAutosaveTime(WRITTEN)}.`));
+    expect(screen.getByTestId("autosave-off-status")).toHaveTextContent(AUTOSAVE_OFF_NOTICE);
   });
 
   it("a settings file that could not be used reads as the default, with its status line", async () => {

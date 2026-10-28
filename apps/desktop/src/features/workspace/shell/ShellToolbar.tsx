@@ -25,7 +25,7 @@ import {
   useSessionResults
 } from "../WorkspaceSessionContext";
 import { DisabledReason } from "./DisabledReason";
-import { AutosaveSettingsControl } from "../../autosave";
+import { AutosaveSettingsControl, AutosaveStatus } from "../../autosave";
 
 const VIEW_ICONS: Record<ShellView, typeof Table2> = { table: Table2, model: Box, both: Columns2 };
 
@@ -71,7 +71,7 @@ export function ShellToolbar({ issueCount, children }: { issueCount: number; chi
       <div className="shell-toolbar-identity titlebar">
         <h1 className="shell-wordmark">SWBPIPE</h1>
         <p className="shell-project-name" data-testid="toolbar-project-name" title={projectName}>{projectName}{modelEdited ? <span data-testid="project-edited" aria-label="Unsaved model edits"> · Edited</span> : null}</p>
-        {autosave.statusLine ? <p className="shell-autosave-status" data-testid="autosave-status" role="status" title={autosave.statusLine}>{autosave.statusLine}</p> : null}
+        <AutosaveStatus autosave={autosave} />
       </div>
       <div className="shell-toolbar-group" role="group" aria-label="Editing tools">
         <button type="button" className="shell-icon-button" data-testid="workspace-undo" aria-label="Undo model edit" disabled={!canUndo} onClick={handleUndoSessionModelEdit} title={canUndo ? "Undo (⌘Z)" : "Nothing to undo"}><Undo2 size={16} aria-hidden="true" /></button>
