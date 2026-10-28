@@ -323,10 +323,44 @@ in the public and shared contexts and warning-only in `local_private`. The item
 classifier reads no alias: a null `privacy_classification` falls back to the
 provenance as above, never to `classification`. The user-release projector's
 `privacy_class` alias is likewise read only when `privacy_classification` is
-absent from the object and its provenance. A `__proto__` member is an ordinary
-own member in all three, labelling only itself and never the record that holds
-it: TypeScript copies input members by definition, not assignment, so no JSON
-member becomes a prototype (HELP_HUMAN decision, 2026-10-27).
+absent from the object and its provenance. A `__proto__` member is an own
+member in all three: TypeScript copies input members by definition, not
+assignment, so no JSON member becomes a prototype (HELP_HUMAN decision,
+2026-10-27).
+
+**`__proto__` member.** An object that carries an own `__proto__` member, on
+itself or on its `provenance` object, fails closed on the key itself, in all
+three implementations (HELP_HUMAN ruling, 2026-10-27: "option (b), fail closed
+on the key itself, in all three implementations. A record carrying an own
+`__proto__` member gets no direct public basis, and its siblings are labelled by
+path. The item classifier treats the member as an unknown label."). The reason,
+as ruled: "a `__proto__` key in export data is anomalous, and it may never lift
+or restrict a record by accident". The rule applies in each place that reads labels:
+
+- *Route projector.* A record that carries the member has no direct public
+  basis, whatever its own `privacy_classification`, `classification` alias or
+  redistribution state. Its siblings are labelled by their paths, as under a
+  null primary label.
+- *Item classifier.* The member reads as an unknown label only where that is
+  stricter. It bars the safe-and-public pairing and nothing else:
+  - in the five existing contexts an item that would be included takes the
+    unknown-label decision (`redact_value`, `warning_only` in `local_private`,
+    `UNKNOWN_PROVENANCE_WARNING`);
+  - in `user_released_report` it takes `USER_RELEASE_VALUE_UNBOUND`;
+  - every other decision stands.
+  
+  Replacing the item's stated labels with `unknown` was not chosen: it would
+  turn a protected block into a redaction, and a private label's
+  `LOCAL_PRIVATE_INTENT_REQUIRED` block into a warning.
+- *User-release screen* (TypeScript only). The member reads as a stated
+  unknown label, so the object blocks by step 13 and no descendant inherits a
+  label past it.
+- *Not affected.* `export_policy` carries no labels; only its intent keys are
+  read. The runners' `control_local_private` reads no labels.
+
+This is deliberately stricter than Python's previous reading, which took the
+key as an ordinary member. The member itself is kept in the payload, and its
+leaves are labelled like any other.
 
 **Flags.** All three recognize the strings `true`, `yes`, `explicit`,
 `present`, `local_private` and `explicit_local_private`, compared after
@@ -373,11 +407,14 @@ by assignment, so a `__proto__` member became the copy's prototype or was
 dropped: its frozen decisions on the 10,080 `__proto__` projector records are of
 a different record than the input, and those cases are held to the Python
 column instead (the Rust mirror then had none). Against that set-aside column the
-repair is stricter in 780 cases, where the member's public labels had lifted a
+own-member copy alone was stricter in 780 cases, where the member's public labels had lifted a
 sibling into a public basis, and less strict in 120, where the member's
 restrictive privacy had hidden the record's own safe `classification` alias and
-public redistribution; in the 120 all three now include the sibling, as Python
-always did. Each test fails if any case is decided less strictly than any
+public redistribution. Under the fail-closed rule the contract is stricter
+than that set-aside column in 1,920 projector cases, the 780 and the 120
+included, and less strict in none. It is also less strict than the Python
+column in no case, and stricter in 1,932 `__proto__` cases (1,260 projector
+records and 672 classifier items), as the rule intends. Each test fails if any case is decided less strictly than any
 frozen decision it is held to, and requires the contract decision for every case, so the three
 agree case for case. Strictness is the total order `include` < `warning_only` <
 `redact_value` < `block_export`. `redact_value` sits above `warning_only` because
