@@ -1,6 +1,9 @@
 import { hasCurrentSourceContract } from "../results/resultReader";
 import type React from "react";
-import { isTauriRuntime, syncNativeShellState } from "../../services/nativeMenu";
+import {
+  acknowledgeNativeCloseRequest, isTauriRuntime, NATIVE_CLOSE_REQUEST_DOM_EVENT, nativeCloseRequestFrom,
+  resolveNativeCloseRequest, syncNativeShellState, type NativeCloseRequest
+} from "../../services/nativeMenu";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
   canonicalSha256Hex,
@@ -3424,6 +3427,52 @@ export function useWorkspaceSession() {
     window.addEventListener("openpipestress-native-menu-command", handleNativeMenuCommand);
     return () => {
       window.removeEventListener("openpipestress-native-menu-command", handleNativeMenuCommand);
+    };
+  }, []);
+
+  // W-17 (HF-08): a window close or quit while the working model has unsaved
+  // edits. The native host holds it (`src-tauri/src/close_guard.rs`) and asks
+  // here; this acknowledges at once, asks with the unsaved-changes prompt and
+  // answers. Without edits the host does not ask. A repeat of the open request
+  // is acknowledged only: its prompt is already showing. In the browser
+  // preview, the page's own unload prompt guards a reload or tab close.
+  const nativeCloseRequestInFlight = useRef<number | null>(null);
+  async function handleNativeCloseRequest({ requestId, kind }: NativeCloseRequest) {
+    void acknowledgeNativeCloseRequest(requestId).catch((error: unknown) => console.warn("Close request acknowledgement failed", error));
+    if (nativeCloseRequestInFlight.current === requestId) return;
+    nativeCloseRequestInFlight.current = requestId;
+    let proceed = false;
+    try {
+      const outcome = await confirmReplacingEdits(kind === "quit"
+        ? { action: "Quitting SWBPIPE", verb: "quit", consequence: "Quitting SWBPIPE closes the working model." }
+        : { action: "Closing the window", verb: "close it", consequence: "Closing the window quits SWBPIPE and closes the working model." });
+      proceed = outcome === "proceed";
+      if (outcome !== "proceed") {
+        setProjectMessage(unsavedChangesRefusal(outcome, kind === "quit" ? "Not quit" : "Window not closed"));
+        setProjectOperation(kind === "quit" ? "quit_kept_edits" : "close_kept_edits");
+      }
+    } finally {
+      if (nativeCloseRequestInFlight.current === requestId) nativeCloseRequestInFlight.current = null;
+      await resolveNativeCloseRequest(requestId, proceed).catch((error: unknown) => console.warn("Close request answer failed", error));
+    }
+  }
+  const nativeCloseRequestRef = useRef(handleNativeCloseRequest);
+  nativeCloseRequestRef.current = handleNativeCloseRequest;
+  useEffect(() => {
+    const onCloseRequest = (event: Event) => {
+      const request = event instanceof CustomEvent ? nativeCloseRequestFrom(event.detail) : null;
+      if (request) void nativeCloseRequestRef.current(request);
+    };
+    const onBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (isTauriRuntime() || !modelEditedRef.current) return;
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener(NATIVE_CLOSE_REQUEST_DOM_EVENT, onCloseRequest);
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => {
+      window.removeEventListener(NATIVE_CLOSE_REQUEST_DOM_EVENT, onCloseRequest);
+      window.removeEventListener("beforeunload", onBeforeUnload);
     };
   }, []);
 

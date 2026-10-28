@@ -55,3 +55,28 @@ export async function syncNativeShellState(state: NativeShellState): Promise<voi
   if (!isTauriRuntime()) return;
   await invoke("sync_native_shell_state", { state });
 }
+
+/** A window close or quit the native host holds while the working model has
+ * unsaved edits (`src-tauri/src/close_guard.rs`), dispatched to the webview as
+ * the `openpipestress-native-close-request` DOM event. */
+export const NATIVE_CLOSE_REQUEST_DOM_EVENT = "openpipestress-native-close-request";
+export type NativeCloseRequest = { requestId: number; kind: "window" | "quit" };
+
+export function nativeCloseRequestFrom(detail: unknown): NativeCloseRequest | null {
+  if (typeof detail !== "object" || detail === null) return null;
+  const { requestId, kind } = detail as Record<string, unknown>;
+  if (typeof requestId !== "number" || !Number.isSafeInteger(requestId) || (kind !== "window" && kind !== "quit")) return null;
+  return { requestId, kind };
+}
+
+/** Tells the host the request arrived; an unacknowledged request proceeds after the host's deadline. */
+export async function acknowledgeNativeCloseRequest(requestId: number): Promise<void> {
+  if (!isTauriRuntime()) return;
+  await invoke("acknowledge_close_request", { requestId });
+}
+
+/** The user's decision: `proceed` closes or quits; otherwise the app stays open. */
+export async function resolveNativeCloseRequest(requestId: number, proceed: boolean): Promise<void> {
+  if (!isTauriRuntime()) return;
+  await invoke("resolve_close_request", { requestId, proceed });
+}

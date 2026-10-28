@@ -63,7 +63,7 @@ export function UnsavedChangesPrompt({ prompt }: { prompt: UnsavedChangesPromptS
       >
         <h2 id="unsaved-changes-title">The working model has unsaved edits</h2>
         <p id="unsaved-changes-detail" data-testid="unsaved-changes-detail">
-          {prompt.action} replaces the working model. Its edits since the last save are not saved and would be lost.
+          {prompt.consequence ?? `${prompt.action} replaces the working model.`} Its edits since the last save are not saved and would be lost.
         </p>
         <div className="report-actions">
           <button type="button" ref={cancel} data-testid="unsaved-changes-cancel" onClick={() => prompt.choose("cancel")}>

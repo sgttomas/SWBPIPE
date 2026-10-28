@@ -19,6 +19,8 @@ export type UnsavedChangesRequest = {
   action: string;
   /** "open it" / "create it". */
   verb: string;
+  /** What happens to the working model, when it is not replaced (quit, close). */
+  consequence?: string;
 };
 
 export type UnsavedChangesPromptState = UnsavedChangesRequest & {

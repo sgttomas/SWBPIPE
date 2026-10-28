@@ -63,11 +63,15 @@ A model solves on one of two routes:
   Document… to start. Save Local Project writes the project to the local
   store (§3.2), and Open Local Project… reopens it; ⌘S is Save Local Project.
   Save as New Local Project stores the model on screen as a local project of
-  its own; it does not start an empty model.
+  its own; it does not start an empty model. Quitting (⌘Q) or closing the
+  window while the model has unsaved edits (the toolbar shows "Edited") asks
+  first: Save Local Project and quit, discard the edits and quit, or Cancel.
+  Quitting from the Dock or at logout does not ask yet.
 - **Authoring.** Place nodes and pipes in the 3D viewport. Assign materials and
   sections, and add bends, expansion joints, supports, load cases and
   combinations. Each edit is a validated operation that you can review and
-  undo (Edit › Undo Model Edit, Redo Model Edit).
+  undo (Edit › Undo Model Edit, Redo Model Edit). Undo keeps the last 25
+  edits of this session; it is not kept when you quit or open another project.
 - **Solving.** The pressure-free route covers linear and nonlinear supports,
   wind, seismic loads and load combinations. The exact route covers pressure,
   load/reference states and objective-connector joints.

@@ -1,4 +1,5 @@
 mod atomic_report_package_save;
+mod close_guard;
 mod command_ingress;
 mod exact_source_binding;
 mod export_disposition_screen;
@@ -4447,6 +4448,7 @@ fn sync_native_shell_state(
     state: NativeShellState,
 ) -> Result<NativeShellStateReceipt, String> {
     validate_native_shell_state(&state)?;
+    app.state::<close_guard::CloseGuard>().set_model_edited(state.model_edited);
     let menu = app
         .menu()
         .ok_or_else(|| "NATIVE-MENU-UNAVAILABLE: application menu is not installed".to_string())?;
@@ -4515,6 +4517,68 @@ fn restore_native_check_item_after_activation<R: tauri::Runtime>(
     }
 }
 
+/// SWBPIPE › Quit SWBPIPE (⌘Q); handled natively, never sent to the webview
+/// as a menu command.
+const QUIT_MENU_ID: &str = "app.quit";
+
+/// A window close or quit from the user, through the unsaved-changes guard.
+fn request_close<R: tauri::Runtime>(app: &tauri::AppHandle<R>, kind: close_guard::CloseKind) -> bool {
+    let guard = app.state::<close_guard::CloseGuard>();
+    match guard.request(kind) {
+        close_guard::CloseDecision::Proceed => true,
+        close_guard::CloseDecision::Ask { request_id, attempt, kind } => {
+            let asked = app
+                .get_webview_window("main")
+                .map(|webview| webview.eval(&close_guard::close_request_dispatch_script(request_id, kind)))
+                .is_some_and(|result| result.is_ok());
+            if !asked {
+                // No webview to ask: nothing can show the prompt, so go ahead.
+                eprintln!("close request {request_id}: main webview unavailable; proceeding");
+                if let Some(kind) = guard.abandon_to_proceed(request_id) {
+                    finish_close(app, kind);
+                }
+                return false;
+            }
+            let app = app.clone();
+            std::thread::spawn(move || {
+                std::thread::sleep(close_guard::ACK_TIMEOUT);
+                if let Some(kind) = app.state::<close_guard::CloseGuard>().acknowledgement_deadline(request_id, attempt) {
+                    eprintln!("close request {request_id}: the webview did not acknowledge it; proceeding");
+                    finish_close(&app, kind);
+                }
+            });
+            false
+        }
+    }
+}
+
+/// Closes or quits once the guard approved the request.
+fn finish_close<R: tauri::Runtime>(app: &tauri::AppHandle<R>, kind: close_guard::CloseKind) {
+    match (kind, app.get_webview_window("main")) {
+        (close_guard::CloseKind::Window, Some(window)) => {
+            if let Err(error) = window.destroy() {
+                eprintln!("window close failed: {error}");
+                app.exit(0);
+            }
+        }
+        _ => app.exit(0),
+    }
+}
+
+/// The webview received a close request (`close_guard.rs`).
+#[tauri::command]
+fn acknowledge_close_request(app: AppHandle, request_id: u64) -> bool {
+    app.state::<close_guard::CloseGuard>().acknowledge(request_id)
+}
+
+/// The user's decision on a close request: `proceed` closes or quits.
+#[tauri::command]
+fn resolve_close_request(app: AppHandle, request_id: u64, proceed: bool) {
+    if let Some(kind) = app.state::<close_guard::CloseGuard>().resolve(request_id, proceed) {
+        finish_close(&app, kind);
+    }
+}
+
 /// The native File menu, top to bottom, as the in-DOM File menu (`App.tsx`):
 /// `(command id, label, accelerator)`, `None` a separator. New Blank Project
 /// is the one "new" (an empty model). `file.new-local` stores the working
@@ -4539,10 +4603,15 @@ const NATIVE_FILE_MENU: &[Option<(&str, &str, Option<&str>)>] = &[
 fn build_app_menu<R: tauri::Runtime>(
     handle: &tauri::AppHandle<R>,
 ) -> tauri::Result<tauri::menu::Menu<R>> {
+    // Quit is the app's own item, not AppKit's `terminate:`, which cannot be
+    // held: it goes through the unsaved-changes guard (`close_guard.rs`).
+    let quit = MenuItemBuilder::with_id(QUIT_MENU_ID, "Quit SWBPIPE")
+        .accelerator("CmdOrCtrl+Q")
+        .build(handle)?;
     let app_menu = SubmenuBuilder::new(handle, "SWBPIPE")
         .about(None)
         .separator()
-        .quit()
+        .item(&quit)
         .build()?;
 
     let mut file = SubmenuBuilder::new(handle, "File");
@@ -5160,6 +5229,8 @@ macro_rules! app_invoke_handler {
             analysis_runs::delete_analysis_run,
             analysis_runs::admit_analysis_run_comparison,
             sync_native_shell_state,
+            acknowledge_close_request,
+            resolve_close_request,
             validate_rule_pack,
             compute_rule_pack_document_checksum,
             save_local_rule_pack,
@@ -5185,10 +5256,24 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .manage(SolveJobRegistry::new(memory_pool::MemoryPool::new(Arc::new(host_memory::MacHostMemory))))
         .manage(native_result_download::SaveAdmission::default())
+        .manage(close_guard::CloseGuard::default())
         .menu(|handle| build_app_menu(handle))
         .on_menu_event(|app, event| {
+            if event.id().0 == QUIT_MENU_ID {
+                if request_close(app, close_guard::CloseKind::Quit) {
+                    app.exit(0);
+                }
+                return;
+            }
             restore_native_check_item_after_activation(app, &event.id().0);
             dispatch_native_menu_command(app, &event.id().0);
+        })
+        .on_window_event(|window, event| {
+            if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                if window.label() == "main" && !request_close(window.app_handle(), close_guard::CloseKind::Window) {
+                    api.prevent_close();
+                }
+            }
         });
     #[cfg(not(feature = "native-smoke"))]
     let builder = builder.invoke_handler(app_invoke_handler!());
