@@ -63,7 +63,6 @@ pub(crate) struct SolveAttestation {
 impl SolveAttestation {
     /// Both digests over a model and a result value, by the same streaming
     /// function the worker uses; `None` if the checked profile refuses either.
-    #[cfg_attr(not(test), allow(dead_code))]
     pub(crate) fn of(model: &Value, result: &Value) -> Option<Self> {
         Some(Self {
             model_sha256: streamed_digest(SOLVED_MODEL_DOMAIN, model)?,

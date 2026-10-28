@@ -14,7 +14,7 @@ import hashlib, os, re
 # first-return alternative changes.
 # W-16 slice c D3 (§8.27, W16C-ES): solve_prepared_load_case's equivalent_static record is formed only under
 # `load_case.equivalent_static.is_some()` (none on D1); no record constructor, label or route string changes.
-PINS = {'core/product_physics/src/certified_publication.rs': {'group': 'ec5db3c8e95c345590bf4472a4310f155259cb9ced56b58da3c0316b62b0f394', 'magnitude_group': '600d0d42c5dbb53c489b4bf86a1fba82fdcc8d00440e4f86a2cfb6e6d7bfd953', 'member_record': '201b9a9c9390794c15207731efe9f524d1c14f0c80a15afa02b1e3b601580547', 'support_record': '1b5b46b845578a05a14879b1bae657f832f48a5b2122b404350588490571fd44', 'unavailable_record': '79931f5662ae9277f7ddbc008799340757f0e581e29a053cbdd90ff7a0eaf1a6', 'connector_record': '42cbb33f9c55a26951f72198fdbdc017670a472ce85fb80caf83acd5b09e477a', 'straight_stress_spans': '8fa6015c0c0b6ae5c87f241c29b1187f6e3e4a3bc3e624969d37aff1c3164efe', 'fallback_circular_maximum': 'bf5ab4f4c3577ffb0b068e1a9b918793e22b04a8c68764610cec3fe6e648210c', 'fallback_product_up': '5476bd4c93f66d5aee68c465b7da0ee39ab1d123dc75825931f2502cf0b607bb'}, 'core/product_physics/src/formation_guard.rs': {'recovery_finding': 'c499ed59986310186a5825c2043363ca131a5b44d41755a7700e1f7d6c1f5f9b', 'member_group_decision': '76a37c824097b528c638214d913166d24ffa81698222ad9199a511f32f0d5e59'}, 'core/product_physics/src/preview_physics.rs': {'extrema_evidence': 'a79bfa6c33095f97bc672ea78e27a3b768d901399978fac58d5ed9d804f3aac3'}, 'core/product_physics/src/lib.rs': {'solve_load_case_observed': '5a70782515a2e66790c8d570cc13d49ead9d22614e0f99b288d2632e8fc4e061', 'solve_prepared_load_case': '223dba958940f4947790bf907b2039e8d83e1b4e4852585d63ab162b40a44e2f'}}
+PINS = {'core/product_physics/src/certified_publication.rs': {'group': 'ec5db3c8e95c345590bf4472a4310f155259cb9ced56b58da3c0316b62b0f394', 'magnitude_group': '600d0d42c5dbb53c489b4bf86a1fba82fdcc8d00440e4f86a2cfb6e6d7bfd953', 'member_record': '201b9a9c9390794c15207731efe9f524d1c14f0c80a15afa02b1e3b601580547', 'support_record': '1b5b46b845578a05a14879b1bae657f832f48a5b2122b404350588490571fd44', 'unavailable_record': '79931f5662ae9277f7ddbc008799340757f0e581e29a053cbdd90ff7a0eaf1a6', 'connector_record': '42cbb33f9c55a26951f72198fdbdc017670a472ce85fb80caf83acd5b09e477a', 'straight_stress_spans': '8fa6015c0c0b6ae5c87f241c29b1187f6e3e4a3bc3e624969d37aff1c3164efe', 'fallback_circular_maximum': 'bf5ab4f4c3577ffb0b068e1a9b918793e22b04a8c68764610cec3fe6e648210c', 'fallback_product_up': '5476bd4c93f66d5aee68c465b7da0ee39ab1d123dc75825931f2502cf0b607bb'}, 'core/product_physics/src/formation_guard.rs': {'recovery_finding': 'c499ed59986310186a5825c2043363ca131a5b44d41755a7700e1f7d6c1f5f9b', 'member_group_decision': '76a37c824097b528c638214d913166d24ffa81698222ad9199a511f32f0d5e59'}, 'core/product_physics/src/preview_physics.rs': {'extrema_evidence': 'a79bfa6c33095f97bc672ea78e27a3b768d901399978fac58d5ed9d804f3aac3'}, 'core/product_physics/src/lib.rs': {'solve_load_case_observed': '5a70782515a2e66790c8d570cc13d49ead9d22614e0f99b288d2632e8fc4e061', 'solve_prepared_load_case': '067f5f620f66549ae511cacb0f7f8fcc49306aab139a93a69444ce46df988dcb'}}
 # Epoch addbdc030e: solve_prepared_load_case's `pipe_sections` is `exact_pipe_sections(built)`, the same entries plus
 # the realized-arc marker on a realized arc (none on D1); no record constructor or label changes.
 # T4-U6/U8 D3 (retained-pricing-rules.md, "T4-U6/U8: actual-source D3"): straight_stress_spans,
@@ -48,7 +48,15 @@ PINS = {'core/product_physics/src/certified_publication.rs': {'group': 'ec5db3c8
 # (imposed_motion::case_prescribed, W16-NI) and returns an empty LoadCaseSolve on a blocking finding there (none on D1,
 # W16-NS); the prescribed values read that map when present. No literal, label, record constructor, route string,
 # carrier, staging, fallback attempt or first-return alternative changes.
-PRODUCTION_PINS = {'core/product_physics/src/certified_publication.rs': '00d3c00131ada096b6de636d4f1d8e6ee7628722a2b8af40e77b5ae60c51d01f', 'core/solver/frame_kernel/src/structural/certified_recovery.rs': '2625f6af25de1cb3d7d18b870faae0d7ef4ff37cfa330a02fb77c7293c4a3c0b', 'core/solver/frame_kernel/src/exact_sum.rs': '35ae1c71195a95d88669c658965198e7dc2476cf32d948e4bfc62ef184e1051c'}
+# W-16 stage 2 D3 (§8.29): solve_prepared_load_case takes the case's moved nonlinear grounds (R-b,
+# imposed_motion::case_ground_motion) and spring bases (R-c, case_spring_ground and
+# certified_loads::spring_base_motion, W16S-SG) beside the prescribed map, and passes the ground into the nonlinear
+# loop and the spring rows; `before` moves above the spring-base map. certified_publication.rs `support` zips the
+# springs with their bases (borrowed; no owner); certified_recovery.rs `certify_spring_reaction` takes g and, for a
+# nonzero g, adds k·g to one stack RowLoad (one ExactAccumulator and two f64, as the pinned premise states). No record
+# constructor, label, route string, carrier, staging, fallback attempt or first-return alternative changes, and the
+# record constructors (support_record among them) keep their pins.
+PRODUCTION_PINS = {'core/product_physics/src/certified_publication.rs': 'b2876daebb052a9981eb4e9249dba5d390e7f0bee82e24fb6ca6b14e0dfe194c', 'core/solver/frame_kernel/src/structural/certified_recovery.rs': 'a1701363ac1dc5b08d457abbad7ba0d435852c01cd3258eb9403e1c681f94cdc', 'core/solver/frame_kernel/src/exact_sum.rs': '35ae1c71195a95d88669c658965198e7dc2476cf32d948e4bfc62ef184e1051c'}
 
 def function_body(text, name):
     hits = list(re.finditer(r"^(?:pub(?:\([a-z]+\))?\s+)?fn\s+" + re.escape(name) + r"\b", text, re.M))
@@ -203,7 +211,7 @@ def inspect_directed_helpers(snapshot):
 # remove no `.min(`/`.max(` call (rigid_component.rs's arc_evidence receivers are f64, W15C-CG).
 # W-16 slices b and c D3 (§8.27): lib.rs's combination append, operand standing, equivalent-static record and generator
 # checks add no `.min(`/`.max(` call.
-B7A_PRIMITIVE_LIB_SOURCE_PIN = '4b83ddc6ed910d983f838588d0e6d31e1d703651486cd05c8bdfe09180b1c81d'
+B7A_PRIMITIVE_LIB_SOURCE_PIN = 'e4a08ba9637316489bad25066d8103e3d0be9aaef73e35228cfd9fef267b40e0'
 
 
 def primitive_lib_minmax_callers(snapshot):

@@ -17,6 +17,7 @@ from .controls import guard_storage_records, storage_record
 GOVERNED_LOCAL_FIRST_ROUTE_IDS = frozenset(
     {
         "DOTH-CAEPIPE-LOCAL-006",
+        "DOTH-CSV-011",
         "DOTH-FORMAT-003",
         "DOTH-HANDOFF-002",
         "DOTH-HANDOFF-PACKAGE-008",
@@ -41,6 +42,13 @@ GOVERNED_LOCAL_FIRST_ROUTE_IDS = frozenset(
         "REXC-LOSSLESS-COUNT-TEST",
     }
 )
+
+# RT-R6 (DEL-08-04-R14): the CSV table save route.  It and every route in
+# ``LOCAL_PRIVATE_ONLY_ROUTE_IDS`` are admitted only in the ``local_private`` context
+# with explicit intent; any other context is refused (``LOCAL_PRIVATE_ROUTE_REQUIRED``).
+# The TypeScript catalogue (``redactionExportControls.ts``) carries the same set.
+CSV_TABLE_ROUTE_ID = "DOTH-CSV-011"
+LOCAL_PRIVATE_ONLY_ROUTE_IDS = frozenset({CSV_TABLE_ROUTE_ID})
 
 # W-18b (DEL-08-01 Design `report-user-release.md` §3.3): the user-release route and its
 # context.  A user-released report is written to the user's own local path by the same
@@ -162,6 +170,20 @@ def enforce_local_first_route(
             storage_context=storage_context,
             explicit_local_private_intent=normalized_intent,
             explicit_user_release_intent=release_intent,
+        )
+
+    if (
+        normalized_route_id in LOCAL_PRIVATE_ONLY_ROUTE_IDS
+        and storage_context != "local_private"
+    ):
+        return LocalFirstRouteDecision(
+            route_id=normalized_route_id,
+            export_context=normalized_context,
+            storage_context=storage_context,
+            action="block_storage",
+            reason_code="LOCAL_PRIVATE_ROUTE_REQUIRED",
+            blocked=True,
+            explicit_local_private_intent=normalized_intent,
         )
 
     local_private = storage_context == "local_private"

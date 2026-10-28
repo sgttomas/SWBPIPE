@@ -4126,6 +4126,11 @@ body { min-width: 760px; min-height: 540px; }
   color: var(--ui-text); background: var(--surface-raised); border: 1px solid var(--ui-border); border-radius: var(--radius-card); box-shadow: var(--elevation-2);
 }
 .app-shell .shell-appearance-popover label { display: grid; grid-template-columns: 64px minmax(0, 1fr); align-items: center; gap: var(--space-3); font-size: var(--type-size-body); }
+.app-shell .shell-autosave-off, .app-shell .shell-autosave-detail { margin: 0; max-width: 260px; font-size: var(--type-size-caption); }
+.app-shell .shell-autosave-off { color: var(--ui-text); }
+.app-shell .shell-autosave-detail { color: var(--ui-muted); }
+.app-shell .shell-autosave-status { margin: 0; max-width: 240px; overflow: hidden; color: var(--ui-muted); font-size: var(--type-size-caption); text-overflow: ellipsis; white-space: nowrap; }
+.app-shell .shell-autosave-off-status { color: var(--ui-text); }
 .app-shell .shell-toolbar-palette { flex: 0 1 220px; min-width: 120px; display: flex; }
 .app-shell .shell-toolbar-palette .toolkit-palette { flex: 1 1 auto; }
 .app-shell .shell-toolbar-palette [data-testid="toolkit-entry"] { width: 100%; justify-content: flex-start; color: var(--ui-muted); overflow: hidden; }
@@ -4386,11 +4391,17 @@ body { min-width: 760px; min-height: 540px; }
 .model-tree[data-bounded-grid="true"] > .model-tree-controls { flex: 0 0 auto; }
 .model-tree[data-bounded-grid="true"] > .model-grid-frame { flex: 1 1 0; min-height: 0; }
 .entity-grid.bounded { height: 100%; display: flex; flex-direction: column; min-height: 0; }
+/* Run sheet S2: the entity families sit in one wrapper beside the Run sheet tab. It adds no box
+   (display: contents), so its children stay flex items of the bounded grid, and the rules below
+   reach them through it. */
+.entity-grid-families { display: contents; }
+.entity-grid-families[hidden] { display: none; }
+.entity-grid.bounded > .run-sheet { flex: 1 1 0; min-height: 0; overflow: auto; }
 .entity-grid.bounded > .entity-grid-tabs, .retained-direct-draft { flex: 0 0 auto; }
 .retained-direct-draft { margin: 0; font-size: 12px; }
-.entity-grid.bounded > .direct-coordinate-workarea { flex: 1 1 0; min-height: 0; }
-.entity-grid.bounded > .entity-grid-review { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; }
-.entity-grid.bounded > .entity-grid-review-toggle { flex: 0 0 auto; }
+:is(.entity-grid.bounded, .entity-grid.bounded > .entity-grid-families) > .direct-coordinate-workarea { flex: 1 1 0; min-height: 0; }
+:is(.entity-grid.bounded, .entity-grid.bounded > .entity-grid-families) > .entity-grid-review { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; }
+:is(.entity-grid.bounded, .entity-grid.bounded > .entity-grid-families) > .entity-grid-review-toggle { flex: 0 0 auto; }
 .entity-grid.bounded .entity-grid-review-content { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; gap: 8px; }
 .entity-grid.bounded .entity-grid-review-content > :not(.entity-grid-scroll) { flex: 0 0 auto; }
 .entity-grid.bounded .entity-grid-scroll { flex: 1 1 0; min-height: 0; max-height: none; overscroll-behavior-y: contain; }

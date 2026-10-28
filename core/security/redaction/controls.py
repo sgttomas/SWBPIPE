@@ -7,7 +7,7 @@ quarantine material, transmit data, or infer sensitivity from value text.
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from typing import Any
 import copy
 
@@ -278,6 +278,39 @@ def redact_export_payload(
     assert_user_release_intent_context(export_context, explicit_user_release_intent)
     _assert_redaction_walk_context(export_context)
 
+    return _redact(
+        payload,
+        export_context=export_context,
+        explicit_local_private_intent=explicit_local_private_intent,
+        route=False,
+    )
+
+
+def redact_route_projection(
+    projected: Any,
+    *,
+    export_context: str,
+    explicit_local_private_intent: bool = False,
+    explicit_user_release_intent: bool = False,
+) -> RedactionResult:
+    """The redaction walk over the route projector's projection, which alone reads
+    value-record nodes (``route_control._project``)."""
+
+    if export_context not in EXPORT_CONTEXTS:
+        raise ValueError(f"unsupported export_context: {export_context}")
+    assert_user_release_intent_context(export_context, explicit_user_release_intent)
+    _assert_redaction_walk_context(export_context)
+    return _redact(
+        projected,
+        export_context=export_context,
+        explicit_local_private_intent=explicit_local_private_intent,
+        route=True,
+    )
+
+
+def _redact(
+    payload: Any, *, export_context: str, explicit_local_private_intent: bool, route: bool
+) -> RedactionResult:
     decisions: list[RedactionDecision] = []
     findings: list[RedactionFinding] = []
     redacted = _walk(
@@ -287,6 +320,7 @@ def redact_export_payload(
         explicit_local_private_intent=explicit_local_private_intent,
         decisions=decisions,
         findings=findings,
+        route=route,
     )
     if redacted is OMITTED_SENTINEL:
         redacted = None
@@ -318,6 +352,120 @@ def classify_export_item(
     return decision
 
 
+ROUTE_KEY_PREFIX = "__route_key__"
+
+
+class ValueRecordNode:
+    """The route projector's node for a value record: the record as an item, and its
+    projected members.  Known by type, never by a member an input could carry (Codex
+    privacy review of #1722, P1-1): JSON input holds only plain dicts and lists."""
+
+    __slots__ = ("item", "projected")
+
+    def __init__(self, item: dict[str, Any], projected: dict[str, Any]) -> None:
+        self.item = item
+        self.projected = projected
+ACTION_RANK = {
+    "include": 0,
+    "warning_only": 1,
+    "redact_value": 2,
+    "redact_field": 2,
+    "omit_field": 3,
+    "block_export": 4,
+}
+
+
+def _raised_decision(
+    decision: RedactionDecision, floor: RedactionDecision | None, omit: bool
+) -> RedactionDecision:
+    """A decision raised to a value record's item decision where that is stricter, keeping
+    the item's own reason (HELP_HUMAN ruling 1(a)); beneath an omitted unsafe path key,
+    omitted unless it blocks (ruling 2(a))."""
+
+    if floor is not None and ACTION_RANK[floor.action] > ACTION_RANK[decision.action]:
+        decision = replace(decision, action=floor.action, reason_code=floor.reason_code)
+    if floor is not None and omit and decision.action != "block_export":
+        decision = replace(decision, action="omit_field", reason_code=floor.reason_code)
+    return decision
+
+
+def _stricter_floor(
+    inherited: RedactionDecision | None, own: RedactionDecision | None
+) -> RedactionDecision | None:
+    """The stricter of two floors; on a tie, the enclosing one."""
+
+    if inherited is None:
+        return own
+    if own is None:
+        return inherited
+    return own if ACTION_RANK[own.action] > ACTION_RANK[inherited.action] else inherited
+
+
+def _walk_value_record(
+    node: ValueRecordNode,
+    *,
+    path: str,
+    export_context: str,
+    explicit_local_private_intent: bool,
+    decisions: list[RedactionDecision],
+    findings: list[RedactionFinding],
+    floor: RedactionDecision | None,
+    inherited_omit: bool,
+) -> Any:
+    """A value record (HELP_HUMAN decision, 2026-10-28: "take the stricter decision per
+    case"): a ``{value, ...}`` record with metadata but no scalar label, which TypeScript
+    decided as one item and Python projected.  Its item decision is taken first; a block is
+    the whole record's (ruling 3(a)).  Otherwise the record is decided as projected, every
+    ``value`` and ``text`` leaf raised to the item decision where that is stricter (1(a)),
+    and, when the item decision redacts, the ``privacy_classification`` leaves raised too
+    (the item's redaction replaces that member) and every unsafe path key dropped entirely,
+    key included (2(a)).  Identical in redactionExportControls.ts (``walkValueRecord``) and the
+    Rust mirror (``route_value_record_outcome``)."""
+
+    item = node.item
+    item_decision, _ = _classify(
+        item,
+        path=path,
+        export_context=export_context,
+        explicit_local_private_intent=explicit_local_private_intent,
+        explicit_user_release_intent=False,
+        decision_index=len(decisions) + 1,
+        finding_index=len(findings) + 1,
+    )
+    if item_decision.action == "block_export":
+        decisions.append(item_decision)
+        finding = _finding_for(item_decision, len(findings) + 1)
+        if finding is not None:
+            findings.append(finding)
+        return _apply_action(item, item_decision.action)
+    redacts = ACTION_RANK[item_decision.action] >= ACTION_RANK["redact_value"]
+    output: dict[str, Any] = {}
+    for key, child in node.projected.items():
+        member = key[len(ROUTE_KEY_PREFIX):] if key.startswith(ROUTE_KEY_PREFIX) else key
+        own_omit = redacts and member in UNSAFE_DETAIL_KEYS
+        # The item's redaction replaces ``value``, ``text`` and ``privacy_classification``
+        # (``_apply_action``).
+        raise_ = own_omit or member in {"value", "text"} or (redacts and member == "privacy_classification")
+        # A floor and an omission inherited from an enclosing value record still hold here
+        # (Codex privacy review of #1722, P1-3): the stricter of the two floors applies.
+        member_floor = _stricter_floor(floor, item_decision if raise_ else None)
+        omit = own_omit or inherited_omit
+        result = _walk(
+            child,
+            path=f"{path}.{key}",
+            export_context=export_context,
+            explicit_local_private_intent=explicit_local_private_intent,
+            decisions=decisions,
+            findings=findings,
+            route=True,
+            floor=member_floor,
+            omit=omit,
+        )
+        if not omit and result is not OMITTED_SENTINEL:
+            output[key] = result
+    return output
+
+
 def _walk(
     value: Any,
     *,
@@ -326,12 +474,63 @@ def _walk(
     explicit_local_private_intent: bool,
     decisions: list[RedactionDecision],
     findings: list[RedactionFinding],
+    route: bool = False,
+    floor: RedactionDecision | None = None,
+    omit: bool = False,
+) -> Any:
+    """The redaction walk.  Beneath a redacting floor the whole node is replaced once its
+    decisions are taken, its extra metadata and nested members included, as the enclosing
+    item's redaction replaced the member (Codex privacy review of #1722, P1-2); a block
+    beneath still blocks."""
+
+    result = _walk_node(
+        value,
+        path=path,
+        export_context=export_context,
+        explicit_local_private_intent=explicit_local_private_intent,
+        decisions=decisions,
+        findings=findings,
+        route=route,
+        floor=floor,
+        omit=omit,
+    )
+    if (
+        floor is not None
+        and ACTION_RANK[floor.action] >= ACTION_RANK["redact_value"]
+        and result is not OMITTED_SENTINEL
+    ):
+        return REDACTED_VALUE
+    return result
+
+
+def _walk_node(
+    value: Any,
+    *,
+    path: str,
+    export_context: str,
+    explicit_local_private_intent: bool,
+    decisions: list[RedactionDecision],
+    findings: list[RedactionFinding],
+    route: bool,
+    floor: RedactionDecision | None,
+    omit: bool,
 ) -> Any:
     # The walk serves the five existing contexts only; ``redact_export_payload``
     # refuses ``user_released_report`` before it is reached (§3.2).
+    if route and isinstance(value, ValueRecordNode):
+        return _walk_value_record(
+            value,
+            path=path,
+            export_context=export_context,
+            explicit_local_private_intent=explicit_local_private_intent,
+            decisions=decisions,
+            findings=findings,
+            floor=floor,
+            inherited_omit=omit,
+        )
     if isinstance(value, dict):
         if _is_value_bearing(value):
-            decision, finding = _classify(
+            classified, _ = _classify(
                 value,
                 path=path,
                 export_context=export_context,
@@ -340,7 +539,9 @@ def _walk(
                 decision_index=len(decisions) + 1,
                 finding_index=len(findings) + 1,
             )
+            decision = _raised_decision(classified, floor, omit)
             decisions.append(decision)
+            finding = _finding_for(decision, len(findings) + 1)
             if finding is not None:
                 findings.append(finding)
             return _apply_action(value, decision.action)
@@ -354,6 +555,9 @@ def _walk(
                 explicit_local_private_intent=explicit_local_private_intent,
                 decisions=decisions,
                 findings=findings,
+                route=route,
+                floor=floor,
+                omit=omit,
             )
             if child is not OMITTED_SENTINEL:
                 output[key] = child
@@ -369,6 +573,9 @@ def _walk(
                 explicit_local_private_intent=explicit_local_private_intent,
                 decisions=decisions,
                 findings=findings,
+                route=route,
+                floor=floor,
+                omit=omit,
             )
             if child is not OMITTED_SENTINEL:
                 output_list.append(child)
@@ -445,6 +652,7 @@ def _classify(
         direct_sql_access=_direct_sql_access(item),
         storage_bypass=_storage_bypass_requested(item),
         concrete_path_present=_concrete_path_present(item),
+        public_basis_barred=carries_proto_member(item),
     )
     decision = RedactionDecision(
         decision_id=f"REDC-DEC-{decision_index:04d}",
@@ -477,6 +685,7 @@ def _action_for(
     direct_sql_access: bool,
     storage_bypass: bool,
     concrete_path_present: bool,
+    public_basis_barred: bool,
 ) -> tuple[str, str]:
     if professional_claim:
         return "block_export", "PROFESSIONAL_BOUNDARY_BLOCKED"
@@ -513,6 +722,12 @@ def _action_for(
     # redaction.
     if concrete_path_present and action != "block_export":
         return "redact_value", "CONCRETE_PATH_REDACTED"
+    # Last, after every other step: an own `__proto__` member turns only a final inclusion
+    # into the unknown-label decision (`carries_proto_member`); every other decision stands.
+    if public_basis_barred and action == "include":
+        if export_context == USER_RELEASED_REPORT_CONTEXT:
+            return "block_export", "USER_RELEASE_VALUE_UNBOUND"
+        return _unknown_action(export_context), "UNKNOWN_PROVENANCE_WARNING"
     return action, reason
 
 
@@ -610,6 +825,7 @@ def _finding_for(
         "USER_RELEASED_PROJECT_DATA": "PRIVATE_DATA_WARNING",
         "USER_RELEASE_INTENT_REQUIRED": "PRIVATE_DATA_WARNING",
         "USER_RELEASE_VALUE_UNBOUND": "PROVENANCE_WARNING",
+        "EXPORT_INPUT_RESERVED_NAME": "STORAGE_BOUNDARY_WARNING",
     }[decision.reason_code]
     message = USER_RELEASE_FINDING_MESSAGES.get(decision.reason_code) or {
         "warning_only": "Export retained the value only in a local/private context with an explicit warning.",
@@ -639,6 +855,7 @@ USER_RELEASE_FINDING_MESSAGES = {
     "USER_RELEASED_PROJECT_DATA": "Export retained the user's own project data in this report under the user's release of their project data, with a warning.",
     "USER_RELEASE_INTENT_REQUIRED": "Export is blocked: this report carries the user's project data and no user release of that data was selected for it.",
     "USER_RELEASE_VALUE_UNBOUND": "Export is blocked: a user-released report includes only values whose privacy and redistribution metadata it recognizes.",
+    "EXPORT_INPUT_RESERVED_NAME": "Export is blocked: its input carries a member named like the route exporter's internal names, so it is not interpreted.",
 }
 
 
@@ -793,6 +1010,27 @@ def _professional_claim(item: dict[str, Any]) -> bool:
 
     claim = item.get("professional_claim")
     return not (claim is None or claim is False)
+
+
+def carries_proto_member(item: Any) -> bool:
+    """Whether an object or its ``provenance`` object carries an own ``__proto__`` member.
+
+    Such an object has no public basis, whatever its labels state (HELP_HUMAN ruling,
+    2026-10-27, option (b): "fail closed on the key itself, in all three
+    implementations"): a ``__proto__`` key in export data is anomalous, and it may never
+    lift or restrict a record by accident.  The route projector gives the record no direct
+    public basis, and the classifier reads the member as an unknown label only where the
+    decision would otherwise be an inclusion, as the last step of the decision order: every
+    other decision stands.  This is deliberately stricter than Python's reading before the
+    ruling, which took the key as an ordinary member.  Python receives dicts, parsed or
+    built by a caller; a ``__proto__`` key is always an ordinary, visible key of a dict.  Identical in redactionExportControls.ts (``carriesProtoMember``) and
+    redaction_binding.rs.
+    """
+
+    def own(candidate: Any) -> bool:
+        return isinstance(candidate, dict) and "__proto__" in candidate
+
+    return own(item) or (isinstance(item, dict) and own(item.get("provenance")))
 
 
 def _label(value: Any) -> Any:

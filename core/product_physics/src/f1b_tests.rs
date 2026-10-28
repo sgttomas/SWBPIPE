@@ -2137,6 +2137,33 @@ fn f1b_admission_names_each_family() {
     );
 }
 
+/// W-16 R-c: a spring-base load (a formed `spring_base_motion` term whose
+/// source is the support) is outside the declared F1b subset, so a
+/// range-triggered spring-motion case is refused by name at admission
+/// (`non_nodal_load_term`) before any W2 publication. An unmoved spring
+/// (g = +0 or -0) adds no term and is admitted as before.
+#[test]
+fn f1b_a_spring_base_term_is_not_admitted() {
+    let base = admission_inputs(&chain_request(2));
+    let n = base.force.len();
+    let spring = SpringEntry {
+        support_id: "support:k".into(),
+        node_dof: open_pipe_stress_linear_supports::NodeDof::new(1, FrameDof::Uy),
+        stiffness: SupportQuantity::positive(1000.0, QuantityDimension::TranslationalStiffness).unwrap(),
+    };
+    let with_base = |g: f64| {
+        let mut ledger = open_pipe_stress_frame_kernel::load_ledger::LoadLedger::new();
+        ledger.push("load:tip-y", 13, 1250.0);
+        certified_loads::spring_base_motion(&mut ledger, std::slice::from_ref(&spring), &[g]);
+        ledger.finish(n).unwrap()
+    };
+    assert_eq!(family_of(base.admit(None, &[], Some(&with_base(0.001)))), "non_nodal_load_term");
+    for zero in [0.0, -0.0] {
+        assert_eq!(with_base(zero).terms().len(), 1, "g = {zero:?} adds no term");
+        assert_eq!(family_of(base.admit(None, &[], Some(&with_base(zero)))), "admitted");
+    }
+}
+
 /// F-A2 at unit level (RV11D-1): on K2a's exact-zero case, the orchestrator's
 /// own outcome with its displacements scaled by 2^-80 makes N0's reactions
 /// underflow after unscaling; the publication refuses them by name (never a
@@ -2163,6 +2190,7 @@ fn f1b_publication_refuses_an_underflowing_reaction_by_name() {
         &model,
         &basis.built,
         &basis.springs,
+        &vec![0.0; basis.springs.len()],
         &basis.restrained,
         &outcome,
         force,
@@ -2178,6 +2206,7 @@ fn f1b_publication_refuses_an_underflowing_reaction_by_name() {
         &model,
         &basis.built,
         &basis.springs,
+        &vec![0.0; basis.springs.len()],
         &basis.restrained,
         &shrunk,
         force,
@@ -2216,6 +2245,7 @@ fn f1b_an_in_range_reaction_is_the_scaled_exact_sum_rounded_once() {
             &model,
             &basis.built,
             &basis.springs,
+            &vec![0.0; basis.springs.len()],
             &basis.restrained,
             &outcome,
             force,
@@ -2290,7 +2320,7 @@ fn f1b_a_subnormal_spring_action_is_the_checked_helpers_value() {
         let spring = basis.springs[0].stiffness.value;
         assert_eq!(spring.to_bits(), k.to_bits());
         let helper =
-            force_scaled_spring_action((dof, spring), u, outcome.solution.force_scale).unwrap();
+            force_scaled_spring_action((dof, spring), 0.0, u, outcome.solution.force_scale).unwrap();
         assert!(
             matches!(helper.representability, Representability::Subnormal { .. }),
             "{mode:?}"

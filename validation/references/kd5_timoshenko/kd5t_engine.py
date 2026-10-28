@@ -1,7 +1,8 @@
 """M3-T independent exact reference engine (standard-library Python only).
 
 It imports and reads no product code. Its input is a public product request
-(model format 0.5.0 under `3.0.0/exact_pressure_v3`); every binary64 number in
+(model document 0.8.0, or the historical 0.5.0 of the census corpora, under
+`3.0.0/exact_pressure_v3`: the two spell these models identically but for the version); every binary64 number in
 the request is taken as its exact value. Arithmetic is Python `decimal` at
 PREC (default 110) significant digits; pi is computed by Machin's formula.
 Rational element controls (SHEAR_REFERENCE S-A, S-E) run the same element
@@ -335,8 +336,8 @@ class Reference:
 
     def __init__(self, request, theory=None, e_scale=ONE):
         model = request["model"]
-        if model.get("schema_version") != "0.5.0":
-            raise ValueError("model format 0.5.0 expected")
+        if model.get("schema_version") not in ("0.8.0", "0.5.0"):
+            raise ValueError("model document 0.8.0 (or the historical 0.5.0) expected")
         pc = model.get("pressure_contract")
         if not pc or pc.get("version") != "3.0.0" or pc.get("mode") != "exact_pressure_v3":
             raise ValueError("3.0.0/exact_pressure_v3 expected")
@@ -842,7 +843,7 @@ def _sb_request(L):
     """SHEAR_REFERENCE S-B companion as a product request (Timoshenko, F = 100 N tip force)."""
     q = lambda v, u: {"value": v, "unit": u}
     prov = "invented M3-T engine self-check"
-    return {"model": {"schema_version": "0.5.0", "document_kind": "openpipestress.product_preview.model",
+    return {"model": {"schema_version": "0.8.0", "document_kind": "openpipestress.product_preview.model",
                       "pressure_contract": {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "timoshenko_annulus_energy_v1"},
                       "nodes": [{"id": "node:A", "position": {"x": 0.0, "y": 0.0, "z": 0.0}}, {"id": "node:B", "position": {"x": L, "y": 0.0, "z": 0.0}}],
                       "pipe_segments": [{"id": "pipe:AB", "from": "node:A", "to": "node:B", "material": "material:m",

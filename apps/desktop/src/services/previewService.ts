@@ -655,6 +655,7 @@ export function declaredSourceResultDimension(
     nonlinear_support_active_set_iteration_count: "dimensionless",
     nonlinear_support_active_set_state_code: "dimensionless",
     nonlinear_support_final_displacement: "length",
+    nonlinear_support_final_relative_displacement: "length",
     nonlinear_support_final_reaction: "force",
     nonlinear_support_free_dof_work_residual: "moment",
     nonlinear_support_friction_normal_reaction_derived: "force",

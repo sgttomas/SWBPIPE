@@ -60,7 +60,8 @@ WITHHELD_DIAGNOSTIC_PREFIX = {
 }
 GATE_REASONS = ("NONLINEAR_COMBINATION_REQUIRES_SOLVE", "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE", "COMBINATION_MODULUS_BASIS_MIXED")
 RANGE_BASIS = "explicit_user_range_envelope"
-PER_SUPPORT_NONLINEAR_KINDS = ("nonlinear_support_final_reaction", "nonlinear_support_final_displacement", "nonlinear_support_active_set_state_code")
+PER_SUPPORT_NONLINEAR_KINDS = ("nonlinear_support_final_reaction", "nonlinear_support_final_displacement",
+                               "nonlinear_support_final_relative_displacement", "nonlinear_support_active_set_state_code")
 # Representation guard only (S1 §9.7); not an engineering tolerance.
 GUARD = 64.0 * sys.float_info.epsilon
 TINY = sys.float_info.min

@@ -306,6 +306,159 @@ null label is unchanged: it falls back to the provenance, as an absent one does,
 so null privacy and redistribution under public, permissive provenance are
 included (`SAFE_PUBLIC_METADATA`).
 
+**Alias.** The route projector reads a record's privacy for its direct public
+basis from `privacy_classification`, and from the `classification` alias only
+when `privacy_classification` is absent. A present primary label, null
+included, is the label and the alias is ignored, so a null primary label cannot
+let the alias lift a sibling into a public basis (HELP_HUMAN decision under the
+owner's delegation, 2026-10-27). TypeScript formerly read the alias with `??`,
+so `{"privacy_classification": null, "classification": "public",
+"redistribution_status": "public_permissive", "note": ...}` included `note` in
+`public_report` on `DREP-JSON-002`; Python read it as now, and the test-only
+Rust mirror carries the same reading for the sweep's projector cases. The
+projector's public basis does not read the record's provenance, so a null
+primary label gives the record no public basis: its siblings are labelled by
+their paths, and an unknown leaf is redacted (`REDISTRIBUTION_STATUS_UNKNOWN`)
+in the public and shared contexts and warning-only in `local_private`. The item
+classifier reads no alias: a null `privacy_classification` falls back to the
+provenance as above, never to `classification`. The user-release projector's
+`privacy_class` alias is likewise read only when `privacy_classification` is
+absent from the object and its provenance. A `__proto__` member is an own
+member in all three: TypeScript copies input members by definition, not
+assignment, so no JSON member becomes a prototype (HELP_HUMAN decision,
+2026-10-27).
+
+**`__proto__` member.** An object that carries an own `__proto__` member, on
+itself or on its `provenance` object, fails closed on the key itself, in all
+three implementations (HELP_HUMAN ruling, 2026-10-27: "option (b), fail closed
+on the key itself, in all three implementations. A record carrying an own
+`__proto__` member gets no direct public basis, and its siblings are labelled by
+path. The item classifier treats the member as an unknown label."). The reason,
+as ruled: "a `__proto__` key in export data is anomalous, and it may never lift
+or restrict a record by accident". The rule applies in each place that reads labels:
+
+- *Route projector.* A record that carries the member has no direct public
+  basis, whatever its own `privacy_classification`, `classification` alias or
+  redistribution state. Its siblings are labelled by their paths, as under a
+  null primary label.
+- *Item classifier.* The member reads as an unknown label only where the
+  decision would otherwise be an inclusion. It is the last step of the decision
+  order, after the concrete-path redaction:
+  - in the five existing contexts a final `include` becomes the unknown-label
+    decision (`redact_value`, `warning_only` in `local_private`,
+    `UNKNOWN_PROVENANCE_WARNING`);
+  - in `user_released_report` a final `include` becomes
+    `USER_RELEASE_VALUE_UNBOUND`;
+  - every other decision stands, the concrete-path redaction and every earlier
+    block or redaction included.
+  
+  Replacing the item's stated labels with `unknown` was not chosen: it would
+  turn a protected block into a redaction, and a private label's
+  `LOCAL_PRIVATE_INTENT_REQUIRED` block into a warning.
+- *User-release screen* (TypeScript only). The member reads as a stated
+  unknown label, so the object blocks by step 13 and no descendant inherits a
+  label past it.
+- *Not affected.* `export_policy` carries no labels; only its intent keys are
+  read. The runners' `control_local_private` reads no labels.
+
+In TypeScript the plain-data gate (below) runs before the rule. It refuses a
+non-enumerable member, so the member the rule reads is always an own,
+enumerable data member, as JSON parsing makes it. Python and Rust can be
+handed a programmatically built mapping (a dict, a serde_json map) as well as
+parsed JSON, but neither has non-enumerable keys, so a `__proto__` key is
+always visible there.
+
+This is deliberately stricter than Python's previous reading, which took the
+key as an ordinary member. On the same reasoning, the route exporter blocks
+the whole export, in all three implementations, when its input carries any of
+its internal names. These are a member named with the `__route_key__` prefix,
+`_route_projected_leaf` or `_route_value_record`, at any depth. The block is
+one `block_export` decision per such member, with reason
+`EXPORT_INPUT_RESERVED_NAME`, naming the member's path and never its value
+(HELP_HUMAN ruling, 2026-10-28: "fail closed on reserved internal names, in
+all three implementations. ... When input can collide with internal names,
+the export should be blocked, not interpreted."). The member itself is kept in the payload, and its
+leaves are labelled like any other.
+
+**Value records.** The route projector decides whether a `{value, ...}` record
+with a scalar `value` is one item or a record whose members it labels by path.
+Before, TypeScript made it an item if it carried any metadata key, and Python
+only if it carried a scalar privacy, redistribution or review label, on itself
+or its provenance. Neither was uniformly stricter: `{value, field_class, note}`
+left `note` visible in TypeScript, and `{value, professional_claim: true}`
+blocked in TypeScript but was only redacted in Python. All three
+implementations now take the stricter decision per case (HELP_HUMAN decision,
+2026-10-28: "take the stricter decision per case"). A record with a scalar
+label is still an item. A record with only other metadata is a *value record*,
+and the redaction walk decides it as follows:
+
+- *Block.* It classifies the record as one item first. A block is the whole
+  record's: one decision on the record, also where the projection would have
+  blocked on a leaf.
+- *Otherwise.* It decides the record as projected, and then:
+  - every `value` and `text` leaf is raised to the item decision where that is
+    stricter, keeping the item's own reason;
+  - when the item decision redacts, the `privacy_classification` leaves are
+    raised too, since the item's redaction replaces that member;
+  - when the item decision redacts, every unsafe path key is dropped from the
+    payload, key name included, as `omit_field` with the item's reason, unless
+    its leaf blocks.
+- *Whole subtree.* A raised member's restriction covers its whole subtree
+  (Codex privacy review of #1722). Every decision beneath it is raised.
+  Beneath a redacting floor the whole member is replaced by `[REDACTED]` once
+  its decisions are taken: a nested item's extra metadata and a nested
+  record's members go with it, and a block beneath still blocks.
+- *Inherited floors.* A value record nested in a raised member, in an object,
+  an array or a label member, keeps the enclosing floor and omission. The
+  stricter of the enclosing floor and its own applies, and on a tie the
+  enclosing one.
+- *Ties.* Where both readings showed the same data, the decision records take
+  the projection's form.
+
+The walk knows the projector's value-record node by identity, a module-private
+`WeakSet` in TypeScript and a private class in Python, never by a member an
+input could carry. An input carrying any of the exporter's internal names is
+blocked before projection (see the `__proto__` member rule above).
+
+The Rust test mirror now carries the projector and this walk.
+
+Over a generated grid of 24,608 `{value, ...}` records in ten contexts (246,080
+cases), the two readings diverged in 30,950 cases:
+
+| Class | Cases | Decision taken |
+|---|---|---|
+| TypeScript blocked, Python did not | 20,880 | block |
+| Python hid more | 6,200 | projection |
+| Python blocked | 774 | projection |
+| Both blocked | 2,320 | the item's block |
+| Each hid something the other showed | 572 | the union |
+| Same visible data | 204 | projection's form |
+
+Over that grid the exported payload is identical in TypeScript and Python, and
+less strict than neither reading: it exposes no key path or visible leaf that a
+reading hid, and it does not unblock what a reading blocked.
+
+The committed sweep holds a pinned subset of 7,730 cases
+(`fixtures/redaction_export_controls/value_record_sweep.json` and
+`value_record_sweep_decisions.json`): every record setting at most three axes,
+plus extra records, in ten contexts. The extra records include nested value
+records, arrays of them, raised items with extra metadata, the three repros of
+the Codex review and records carrying the reserved key prefix. The suites check
+the full exported payload, every key path and visible leaf, and the normalized
+decisions:
+
+- TypeScript and Python give the contract payload and decisions case for case.
+  The Rust mirror, which does not materialize a payload, gives the contract
+  decisions case for case and has no before column.
+- No case is less strict than either before column. One case is pinned as
+  blocked: `{value: "outer", field_class, "__route_key__value": "SECRET"}` in
+  `local_private` with intent, whose reserved name TypeScript once let
+  collide with the item's own `value`.
+- The sweep is stricter than Python in 1,762 cases and than TypeScript in
+  1,593.
+
+No existing sweep case changes.
+
 **Flags.** All three recognize the strings `true`, `yes`, `explicit`,
 `present`, `local_private` and `explicit_local_private`, compared after
 trimming and lowercasing. Python and JavaScript lowercase by Unicode and Rust by
@@ -332,13 +485,34 @@ JavaScript (checked over every code point), so the three agree.
 `false`. `"false"`, `"no"`, `""`, `0`, `[]` and `{}` all block.
 
 **Proof.** `fixtures/redaction_export_controls/input_contract_sweep.json`
-expands to 74,760 cases in each implementation's test
+expands to 100,744 cases in each implementation's test
 (`tests/security/test_redaction_input_contract_sweep.py`,
-`redactionInputContractSweep.test.ts` and the Rust test module).
-`input_contract_sweep_decisions.json` freezes each implementation's decision per
-case before the contract, captured from the real code, the Rust from the real
-test-only mirror. Each test fails if any case is decided less strictly than any
-frozen decision, and requires the contract decision for every case, so the three
+`redactionInputContractSweep.test.ts` and the Rust test module): the 74,760
+cases of the contract; 7,840 alias cases, 5,040 classifier items and 2,800
+records decided by the route projector on `DREP-JSON-002` in its five contexts ×
+two intent settings; and 18,144 `__proto__` cases, 8,064 classifier items and
+10,080 projector records carrying a `__proto__` member. `input_contract_sweep_decisions.json` freezes each implementation's
+decision per case before the contract, captured from the real code, the Rust
+from the real test-only mirror; the alias cases before the alias rule. The Rust
+mirror then had no route projector, so its column holds no decision for the
+2,800 projector cases, which are held to the Python and TypeScript columns. The
+alias rule made 120 TypeScript projector cases stricter (a null primary label
+with a safe alias and a public redistribution: `include` became `redact_value`
+in 96 and `warning_only` in 24, in `local_private`) and changed no other
+decision. Before the `__proto__` repair the TypeScript projector copied a record
+by assignment, so a `__proto__` member became the copy's prototype or was
+dropped: its frozen decisions on the 10,080 `__proto__` projector records are of
+a different record than the input, and those cases are held to the Python
+column instead (the Rust mirror then had none). Against that set-aside column the
+own-member copy alone was stricter in 780 cases, where the member's public labels had lifted a
+sibling into a public basis, and less strict in 120, where the member's
+restrictive privacy had hidden the record's own safe `classification` alias and
+public redistribution. Under the fail-closed rule the contract is stricter
+than that set-aside column in 1,920 projector cases, the 780 and the 120
+included, and less strict in none. It is also less strict than the Python
+column in no case, and stricter in 1,932 `__proto__` cases (1,260 projector
+records and 672 classifier items), as the rule intends. Each test fails if any case is decided less strictly than any
+frozen decision it is held to, and requires the contract decision for every case, so the three
 agree case for case. Strictness is the total order `include` < `warning_only` <
 `redact_value` < `block_export`. `redact_value` sits above `warning_only` because
 `warning_only` keeps the value and is the unknown-metadata action only in
@@ -357,6 +531,68 @@ action loosening, but such an output is newly available from Python.
 The runners' fixed `control_local_private` projection is untouched: it reads
 none of these labels, flags or `professional_claim`. It strips the intent keys
 at every depth and labels values by path.
+
+**Plain-data gate (TypeScript).** Every TypeScript entry point checks its input
+before reading it: `controlRouteExport`, `redactExportPayload`,
+`classifyExportItem` and `controlUserReleasedReportPackageRequest` (its request
+and its model). Anything other than a JSON-data graph refuses the whole export
+as one `block_export` decision with reason `EXPORT_INPUT_NOT_PLAIN_DATA`, at the
+first refused path, with a blocking finding that names the shape (HELP_HUMAN
+ruling, 2026-10-28: "(a), the plain-data gate at the TS entry points. It
+removes the class instead of modelling JS semantics one primitive at a
+time."). A JSON-data graph has:
+
+- *Single read.* The gate is a snapshot taken in one iterative pass. It uses
+  an explicit stack, not recursion, and reads each own property's descriptor
+  exactly once, validating and copying as it goes. Everything downstream
+  classifies and exports only that snapshot, and the input is never read again
+  (HELP_HUMAN ruling, 2026-10-28, (i), the single-read snapshot). Any
+  exception during the pass, such as a Proxy trap that throws, is a refusal.
+- *Containers.* Objects whose prototype is this realm's `Object.prototype` or
+  null, and arrays (`Array.isArray`) whose prototype is `Array.prototype`.
+  - An array's keys must be real array indices: canonical, below 2^32 − 1 and
+    below `length`. Its elements must be contiguous data members from 0 to
+    `length` − 1, so a hole is refused.
+  - An object with an exotic internal slot is refused by a brand check,
+    whatever its prototype: a boxed primitive, Map, Set, WeakMap, WeakSet,
+    Date, RegExp, ArrayBuffer, a typed array or a DataView.
+- *Values.* Strings, finite numbers, booleans and null. A non-finite number is
+  refused. Parsed JSON is not always finite: `JSON.parse("1e400")` gives
+  `Infinity`.
+- *Members.* Own, enumerable data members only, and no symbol key. They are
+  enumerated with `Reflect.ownKeys` and read through their descriptors, so no
+  getter, setter or method of the input ever runs. A non-enumerable member is
+  refused, `__proto__` included, because parsed JSON has none.
+
+A class instance, a cross-realm object, any of the exotic objects above, an
+accessor, a function, NaN or an infinity is refused. What no brand check can
+detect, such as a Proxy that presents plain data, is exported as its
+single-read plain copy. That copy holds only the own data members read once, so
+it can only lose data, never add it.
+
+- *`undefined`.* An object member whose value is `undefined` is absent:
+  skipped and never classified (HELP_HUMAN ruling, 2026-10-28: "An undefined
+  own data property on an object is treated as absent: skipped, never
+  classified, exactly as JSON.stringify writes it. An undefined array element
+  still fails closed."). This matches the serialized form, and absence is
+  already the stricter path: an absent label reads as unknown.
+- *Sharing and cycles.* An object reached twice in an acyclic graph is
+  admitted, and the copy duplicates it per position, so redacting one position
+  never touches another. A cycle is refused (HELP_HUMAN ruling, 2026-10-28:
+  "Admit shared references in an acyclic graph and refuse only cycles."). The
+  reason is that JSON writes DAG sharing as duplicates and cannot express a
+  cycle. The gate tracks the current path, not every object seen.
+
+After the gate, each entry point works on that per-position copy, never on the
+input. Python and Rust receive parsed JSON, which is a JSON-data tree by
+construction, so they need no gate.
+
+*Known limits*, pre-existing and outside the ruling:
+
+- Duplicating a shared object per position grows exponentially with the depth
+  of nested sharing.
+- Nesting deeper than the engine's call stack still overflows in the recursive
+  steps downstream of the gate. That raises an exception and exports nothing.
 
 ## Source Data
 

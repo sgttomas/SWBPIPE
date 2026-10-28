@@ -314,6 +314,7 @@ pub(super) fn support(
     support: &PreviewSupport,
     built: &BuiltModel,
     springs: &[SpringEntry],
+    spring_ground: &[f64],
     source: &FormationSource<'_>,
     force: &AssembledForce,
     u: &[f64],
@@ -366,12 +367,15 @@ pub(super) fn support(
                 certify_support_reaction(source, force, 6 * linear.node_index + slot, u, bound)?;
         }
     }
-    for spring in springs
+    // W-16 R-c: -k·(u + w + w₂ - g) for a moved base, the exact +k·g in the
+    // row's accumulator; an unmoved base (g = ±0) is the fixed-base row.
+    for (spring, &ground) in springs
         .iter()
-        .filter(|spring| spring.support_id == support.id)
+        .zip(spring_ground)
+        .filter(|(spring, _)| spring.support_id == support.id)
     {
         let dof = spring.node_dof.global_index();
-        rows[dof % 6] = certify_spring_reaction(dof, spring.stiffness.value, u, bound)?;
+        rows[dof % 6] = certify_spring_reaction(dof, spring.stiffness.value, ground, u, bound)?;
     }
     Ok(rows)
 }

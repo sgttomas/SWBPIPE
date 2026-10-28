@@ -2950,7 +2950,15 @@ pub(crate) fn scrutinize_gaps(
                 } => -1,
                 _ => return Err(exact::Error::Invalid("gap source family")),
             };
-            let gap = support.gap.ok_or(exact::Error::Invalid("missing gap"))?;
+            let clearance = support.gap.ok_or(exact::Error::Invalid("missing gap"))?;
+            // W-16 stage 2 (R-b): a moved ground passes the effective clearance
+            // sigma*p_s = c + sigma*g_s, exact in binary64 (validated), so the
+            // proof forms sigma*(u - g_s) - c exactly; it may be negative.
+            let gap = match crate::ground_offset(&input.ground_motion, &support.support_id) {
+                Some(ground) => crate::exact_gap_closing_position(clearance, f64::from(sense), ground)
+                    .ok_or(exact::Error::Invalid("inexact gap closing position"))?,
+                None => clearance,
+            };
             let dof = crate::node_dof_index(support.node_index, support.dof);
             let proof = gap_attempt(
                 response.gap_proof_with_work(
@@ -3247,6 +3255,8 @@ mod retention_tests {
         let mut force = vec![0.0; 18];
         force[12] = 12.5;
         NonlinearFrameSolveInput {
+            base_prescribed: Vec::new(),
+            ground_motion: Vec::new(),
             node_count: 3,
             elements,
             connectors: Vec::new(),

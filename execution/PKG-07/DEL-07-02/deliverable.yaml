@@ -188,6 +188,8 @@ code_paths:
 - apps/desktop/src/features/workspace/contextMenu/**
 - fixtures/model_operations/run_sheet_authoring.json
 - apps/desktop/src/features/bulk-change/**
+- apps/desktop/src/features/workspace/sessionEvents.ts
+- apps/desktop/src/features/toolkit/BatchReviewPanel.tsx
 checks:
 - apps/desktop/src/features/model-tree/ModelTree.test.tsx
 - apps/desktop/src/features/model-tree/typedInspector.test.tsx
@@ -209,6 +211,12 @@ checks:
 - apps/desktop/src/App.contextMenu.test.tsx
 - apps/desktop/src/features/workspace/table/EngineeringTable.contextMenu.test.tsx
 - apps/desktop/src/features/model-tree/runSheet/runSheet.test.ts
+- apps/desktop/src/features/model-tree/runSheet/RunSheet.test.tsx
+- apps/desktop/src/features/model-tree/runSheet/runSheet.session.test.tsx
+- apps/desktop/src/features/model-tree/runSheet/runSheetReconcile.measure.test.tsx
+- apps/desktop/src/App.runSheet.test.tsx
+- apps/desktop/src/features/workspace/bendPreviewGate.session.test.tsx
+- apps/desktop/src/features/toolkit/BatchReviewPanel.test.tsx
 - core/model_operations/operation_applier/tests/run_sheet_authoring.rs
 - apps/desktop/src/features/bulk-change/bulkChange.test.ts
 - apps/desktop/src/features/bulk-change/BulkChangePanel.test.tsx
@@ -216,4 +224,6 @@ checks:
 - apps/desktop/src/features/bulk-change/bulkChange.session.test.tsx
 - apps/desktop/src/features/bulk-change/bulkChange.edges.session.test.tsx
 - apps/desktop/src/App.bulkChange.test.tsx
+- apps/desktop/src/features/model-tree/PropertyInspector.supportFamily.test.tsx
+- apps/desktop/src/features/model-tree/PropertyInspector.supportFamilyEngine.test.tsx
 - apps/desktop/src/App.splitAndSlope.test.tsx

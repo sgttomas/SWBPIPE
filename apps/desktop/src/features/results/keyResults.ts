@@ -94,7 +94,7 @@ export const KEY_RATIO_ENVELOPE_ONLY =
   "This category's outcomes on a single pipe are all on range envelopes, which the contour does not draw. The stress and ratio table lists them.";
 export const KEY_RATIO_NONE = "No stress category to show.";
 export const KEY_DEFLECTION_NO_CASES = "No load case or combination with result rows.";
-export const KEY_SUPPORTS_NONE = "The model has no anchor and no equipment connection.";
+export const KEY_SUPPORTS_NONE = "No support is declared as an anchor or equipment connection.";
 export const KEY_CONTACT_NONE = "This result states no support contact or lift-off state rows; it has no nonlinear support state to show.";
 
 export type KeyRatioCategory = Readonly<{

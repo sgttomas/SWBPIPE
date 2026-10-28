@@ -307,6 +307,17 @@ pub(crate) fn matching_library_records<'a>(kind: &str, stored: &'a Value, record
         .unwrap_or_default()
 }
 
+/// `parts`, concatenated into one buffer sized before it is written: a
+/// message naming a long record or path holds that text once (route 010's
+/// bounded screen, Codex round 1 at #1682, P1; the text is `format!`'s).
+fn concat(parts: &[&str]) -> String {
+    let mut text = String::with_capacity(parts.iter().map(|part| part.len()).sum());
+    for part in parts {
+        text.push_str(part);
+    }
+    text
+}
+
 fn join(path: &str, key: &str) -> String {
     if path.is_empty() { key.to_string() } else { format!("{path}.{key}") }
 }
@@ -375,7 +386,14 @@ impl DispositionScreen {
         self.blocking.push(diagnostic(
             DISPOSITION_RECORD_MALFORMED,
             path,
-            format!("{record} ({what}: {members}) holds an array or an object where its disposition is read, so the disposition cannot be judged; correct the record first."),
+            concat(&[
+                record,
+                " (",
+                what,
+                ": ",
+                members,
+                ") holds an array or an object where its disposition is read, so the disposition cannot be judged; correct the record first.",
+            ]),
         ));
     }
 
@@ -399,16 +417,23 @@ impl DispositionScreen {
         self.blocking.push(diagnostic(
             DISPOSITION_RECORD_MALFORMED,
             path,
-            format!("`{member}` is {kind}, not an object (a record written as an array is in positional form), so its disposition cannot be judged; correct the record first."),
+            concat(&[
+                "`",
+                member,
+                "` is ",
+                kind,
+                ", not an object (a record written as an array is in positional form), so its disposition cannot be judged; correct the record first.",
+            ]),
         ));
     }
 
     fn block(&mut self, found: Vec<String>, path: &str, record: &str, what: &str) {
         if !found.is_empty() {
+            let found = found.join(", ");
             self.blocking.push(diagnostic(
                 PROTECTED_CONTENT_BLOCKED,
                 path,
-                format!("{record} ({what}: {}) blocks the save; request human review of the record's disposition first.", found.join(", ")),
+                concat(&[record, " (", what, ": ", &found, ") blocks the save; request human review of the record's disposition first."]),
             ));
         }
     }
@@ -587,28 +612,7 @@ impl<'p, 'a> StackPath<'p, 'a> {
     /// The path's JSON pointer (RFC 6901, [`pointer_token`]'s escapes), built
     /// in one allocation of its exact length.
     pub(crate) fn pointer(&self) -> String {
-        fn length(path: &StackPath<'_, '_>) -> usize {
-            let own = 1 + match path.step {
-                PathStep::Key(key) => pointer_token_len(key),
-                PathStep::Index(index) => index.checked_ilog10().map_or(1, |digits| digits as usize + 1),
-            };
-            own + path.parent.map_or(0, length)
-        }
-        fn write(path: &StackPath<'_, '_>, out: &mut String) {
-            if let Some(parent) = path.parent {
-                write(parent, out);
-            }
-            out.push('/');
-            match path.step {
-                PathStep::Key(key) => push_pointer_token(out, key),
-                PathStep::Index(index) => {
-                    let _ = std::fmt::Write::write_fmt(out, format_args!("{index}"));
-                }
-            }
-        }
-        let mut out = String::with_capacity(length(self));
-        write(self, &mut out);
-        out
+        self.pointer_under("")
     }
 }
 
@@ -661,6 +665,160 @@ pub(crate) fn first_rule_pack_ref_member_site(document: &Value) -> Option<String
         ("rule_pack_refs", _) => Some(at.pointer()),
         _ => None,
     })
+}
+
+// --- Route 010's bounded screen (W-18b; Codex round 1 at #1682, P1) ---------
+//
+// Route `DREP-PACKAGE-USER-RELEASE-010` screens the same values with the same
+// rules as the screens above, in their order, but refuses at the first
+// finding and builds only that finding's pointer. The structural walks, which
+// the collecting screens share, retain the first finding and walk on without
+// building another; the document-site walk stops at its first finding. The
+// walks allocate nothing per level and nothing per finding, so the refusal's
+// memory is bounded by one pointer,
+// which the route's ingress lease prices (DEL-08-01 Design
+// `report-user-release.md` §2.5, "Refusals on route 010"). Every other caller
+// keeps the collecting screens unchanged.
+
+/// The first finding's text only, built at its exact length as
+/// [`FindingTexts`] builds every one.
+struct FirstFindingText(Option<String>);
+
+impl WalkFindings<String> for FirstFindingText {
+    fn add(&mut self, pointer: &String, member: Option<&str>, middle: &str, tail: &str) {
+        if self.0.is_none() {
+            self.0 = Some(finding_text(pointer, member, middle, tail));
+        }
+    }
+}
+
+/// Which structural screen found a value's first finding.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum StructuralFinding {
+    /// [`screen_value`]'s: `<pointer> <status>`.
+    Blocking,
+    /// [`malformed_values`]'s: `<pointer> is <kind>`.
+    Malformed,
+}
+
+/// The first finding of [`screen_value`] over `value`, else the first of
+/// [`malformed_values`], in their text: the first entry of each collecting
+/// screen (pinned by `first_findings_match_the_collecting_screens`). The
+/// walks' one pointer buffer is sized first, by the allocation-free count
+/// ([`structural_bound`]), so it never grows; only the first finding is built.
+pub(crate) fn first_structural_finding(value: &Value) -> Option<(StructuralFinding, String)> {
+    let pointer_max = usize::try_from(structural_bound(value).pointer_max).unwrap_or(usize::MAX);
+    for (kind, walk) in [
+        (StructuralFinding::Blocking, blocking_walk::<String, FirstFindingText> as fn(&Value, &mut String, ClassificationExemption, &mut FirstFindingText)),
+        (StructuralFinding::Malformed, malformed_walk::<String, FirstFindingText>),
+    ] {
+        let mut pointer = String::with_capacity(pointer_max);
+        let mut found = FirstFindingText(None);
+        walk(value, &mut pointer, ClassificationExemption::None, &mut found);
+        drop(pointer);
+        if let Some(text) = found.0 {
+            return Some((kind, text));
+        }
+    }
+    None
+}
+
+impl StackPath<'_, '_> {
+    /// [`StackPath::pointer`] under `root`, in one allocation of its exact
+    /// length.
+    pub(crate) fn pointer_under(&self, root: &str) -> String {
+        fn length(path: &StackPath<'_, '_>) -> usize {
+            let own = 1 + match path.step {
+                PathStep::Key(key) => pointer_token_len(key),
+                PathStep::Index(index) => index.checked_ilog10().map_or(1, |digits| digits as usize + 1),
+            };
+            own + path.parent.map_or(0, length)
+        }
+        fn write(path: &StackPath<'_, '_>, out: &mut String) {
+            if let Some(parent) = path.parent {
+                write(parent, out);
+            }
+            out.push('/');
+            match path.step {
+                PathStep::Key(key) => push_pointer_token(out, key),
+                PathStep::Index(index) => {
+                    let _ = std::fmt::Write::write_fmt(out, format_args!("{index}"));
+                }
+            }
+        }
+        let mut out = String::with_capacity(root.len() + length(self));
+        out.push_str(root);
+        write(self, &mut out);
+        out
+    }
+}
+
+/// The first blocking finding of the store-resolved screen's own sites
+/// ([`screen_dispositions_in`] over `value` under `root`, with JSON pointers,
+/// before any library is resolved): each `provenance_record`, each
+/// `rule_pack_refs[]` entry, and each of those or a `library_ref` that is not
+/// an object, in the one walk's order ([`walk_document`]). The diagnostic is
+/// the collecting screen's, word for word (pinned by
+/// `first_findings_match_the_collecting_screens`). The walk holds its path on
+/// its own stack frames; a site's pointer is built only when the site is
+/// screened, and dropped before the next.
+pub(crate) fn first_document_site_finding(value: &Value, root: &str) -> Option<DispositionDiagnostic> {
+    fn walk<'a>(value: &'a Value, up: Option<&StackPath<'_, 'a>>, root: &str, screen: &mut DispositionScreen) -> bool {
+        match value {
+            Value::Array(items) => items.iter().enumerate().any(|(index, item)| walk(item, Some(&StackPath::new(up, PathStep::Index(index))), root, screen)),
+            Value::Object(object) => {
+                let owner = object.get("id").and_then(Value::as_str).filter(|id| !id.is_empty());
+                for (key, child) in object {
+                    let here = StackPath::new(up, PathStep::Key(key));
+                    match (key.as_str(), child) {
+                        ("provenance_record", Value::Object(record)) => {
+                            let at = here.pointer_under(root);
+                            // The enclosing object's path is `at` without its last token.
+                            let enclosing = &at[..at.len() - "/provenance_record".len()];
+                            let name = owner.unwrap_or(if enclosing.is_empty() { "$" } else { enclosing });
+                            screen.screen(record, &at, name, "provenance_record");
+                        }
+                        ("provenance_record", other) => screen.not_an_object(&here.pointer_under(root), "provenance_record", value_kind(other)),
+                        ("rule_pack_refs", Value::Array(refs)) => {
+                            for (index, entry) in refs.iter().enumerate() {
+                                let entry_at = StackPath::new(Some(&here), PathStep::Index(index)).pointer_under(root);
+                                match entry.as_object() {
+                                    Some(entry) => {
+                                        let name = entry.get("rule_pack_id").and_then(Value::as_str).filter(|id| !id.is_empty()).unwrap_or(&entry_at);
+                                        screen.screen(entry, &entry_at, name, "rule_pack_ref");
+                                    }
+                                    None => screen.not_an_object(&entry_at, "rule_pack_refs[]", value_kind(entry)),
+                                }
+                                if !screen.blocking.is_empty() {
+                                    return true;
+                                }
+                            }
+                        }
+                        ("rule_pack_refs", other) => screen.not_an_object(&here.pointer_under(root), "rule_pack_refs", value_kind(other)),
+                        // An object `library_ref` is resolved in the store by the collecting screen; route 010 refuses it instead ([`first_library_ref_object`]).
+                        ("library_ref", Value::Object(_)) => {}
+                        ("library_ref", other) => screen.not_an_object(&here.pointer_under(root), "library_ref", value_kind(other)),
+                        _ => {}
+                    }
+                    if !screen.blocking.is_empty() || walk(child, Some(&here), root, screen) {
+                        return true;
+                    }
+                }
+                false
+            }
+            _ => false,
+        }
+    }
+    let mut screen = DispositionScreen { style: PathStyle::Pointer, stored_members: StoredMembers::Refuse, ..DispositionScreen::default() };
+    walk(value, None, root, &mut screen);
+    screen.blocking.into_iter().next()
+}
+
+/// The JSON pointer of the first `library_ref` member whose value is an
+/// object, in the one walk's order: the sites the collecting screen resolves
+/// in the local library store. Only its pointer is built.
+pub(crate) fn first_library_ref_object(document: &Value) -> Option<String> {
+    first_member_hit(document, None, &mut |key, child, at| (key == "library_ref" && child.is_object()).then(|| at.pointer()))
 }
 
 /// W-6a's store-resolved screen (`model_document_save`
@@ -902,17 +1060,22 @@ struct FindingTexts(Vec<String>);
 
 impl WalkFindings<String> for FindingTexts {
     fn add(&mut self, pointer: &String, member: Option<&str>, middle: &str, tail: &str) {
-        let length = pointer.len() + member.map_or(0, |member| 1 + pointer_token_len(member)) + middle.len() + tail.len();
-        let mut text = String::with_capacity(length);
-        text.push_str(pointer);
-        if let Some(member) = member {
-            text.push('/');
-            push_pointer_token(&mut text, member);
-        }
-        text.push_str(middle);
-        text.push_str(tail);
-        self.0.push(text);
+        self.0.push(finding_text(pointer, member, middle, tail));
     }
+}
+
+/// One finding's text at its exact length.
+fn finding_text(pointer: &str, member: Option<&str>, middle: &str, tail: &str) -> String {
+    let length = pointer.len() + member.map_or(0, |member| 1 + pointer_token_len(member)) + middle.len() + tail.len();
+    let mut text = String::with_capacity(length);
+    text.push_str(pointer);
+    if let Some(member) = member {
+        text.push('/');
+        push_pointer_token(&mut text, member);
+    }
+    text.push_str(middle);
+    text.push_str(tail);
+    text
 }
 
 /// How many findings a walk makes and their texts' total length.
@@ -1214,6 +1377,111 @@ mod tests {
         });
         assert_eq!(rule_pack_ref_member_sites(&document), vec!["/nested/rule_pack_refs", "/rule_pack_refs/0", "/rule_pack_refs/1", "/rule_pack_refs/2"]);
         assert!(rule_pack_ref_member_sites(&json!({"rule_pack_refs": [], "project": {"id": "p"}})).is_empty());
+    }
+
+    // --- Route 010's bounded screen (W-18b; Codex round 1 at #1682, P1) ----
+
+    /// Removes the member or element at `pointer`.
+    fn remove_at(document: &mut Value, pointer: &str) {
+        let (parent, token) = pointer.rsplit_once('/').unwrap();
+        let key = token.replace("~1", "/").replace("~0", "~");
+        match document.pointer_mut(parent).unwrap() {
+            Value::Object(object) => assert!(object.remove(&key).is_some(), "{pointer}"),
+            Value::Array(items) => {
+                items.remove(key.parse::<usize>().unwrap());
+            }
+            _ => unreachable!("a member's parent holds it"),
+        }
+    }
+
+    /// Documents with findings of every kind, at depth, under escaped keys.
+    fn screened_corpus() -> Vec<Value> {
+        let table: Value = serde_json::from_str(include_str!("../../../../fixtures/model_document/library_ref_member_sites.json")).unwrap();
+        vec![
+            table["document"].clone(),
+            json!({
+                "a~b": [{}, {"c/d": {"redistribution_status": "protected_suspected", "review_status": ["quarantined"]}}],
+                "materials": [
+                    {"id": "M-1", "provenance_record": {"redistribution_status": "public", "provenance": {"review_status": "rejected"}}},
+                    {"provenance_record": {"redistribution_status": "rejected", "provenance_record": {"review_status": "quarantined"}}},
+                    {"id": "M-3", "provenance_record": ["positional"]},
+                    {"id": "M-4", "provenance_record": {"redistribution_status": {"nested": "protected_suspected"}}}
+                ],
+                "rule_pack_refs": [{"rule_pack_id": "invented", "redistribution_status": "rejected"}, {"review_status": "quarantined"}, "positional", null],
+                "nested": {"rule_pack_refs": "not a list", "library_ref": 7, "privacy_class": "protected_suspected", "classification": {"x": 1}},
+                "components": [{"library_ref": {"library_kind": "component", "library_id": "invented"}, "provenance": ["positional"]}],
+                "provenance_record": {"review_status": "rejected"},
+                "w~/": {"x": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, {"lifecycle_status": "quarantined", "privacy_classification": ["rejected"]}]}
+            }),
+        ]
+    }
+
+    /// Route 010's first findings are the collecting screens' first entries,
+    /// finding after finding as each is removed: the structural screens'
+    /// texts, the store-resolved screen's own-site diagnostics word for word
+    /// (under a root, with no library resolved), and the first object
+    /// `library_ref`.
+    #[test]
+    fn first_findings_match_the_collecting_screens() {
+        let mut visited = 0;
+        for mut document in screened_corpus() {
+            loop {
+                let oracle = screen_value(&document)
+                    .into_iter()
+                    .next()
+                    .map(|text| (StructuralFinding::Blocking, text))
+                    .or_else(|| malformed_values(&document).into_iter().next().map(|text| (StructuralFinding::Malformed, text)));
+                assert_eq!(first_structural_finding(&document), oracle);
+                let Some((kind, text)) = oracle else { break };
+                let pointer = match kind {
+                    StructuralFinding::Blocking => text.rsplit_once(' ').unwrap().0.to_string(),
+                    StructuralFinding::Malformed => text.rsplit_once(" is ").unwrap().0.to_string(),
+                };
+                remove_at(&mut document, &pointer);
+                visited += 1;
+            }
+        }
+        assert!(visited > 10, "{visited}");
+        let mut visited = 0;
+        for mut document in screened_corpus() {
+            loop {
+                let collected = screen_dispositions_in(&document, "/model", PathStyle::Pointer, "p", "X", &mut |_: &str, _: &str, _: &str| Ok(None::<Value>));
+                let oracle = collected.err().and_then(|blocking| blocking.into_iter().next());
+                assert_eq!(first_document_site_finding(&document, "/model"), oracle);
+                let Some(found) = oracle else { break };
+                remove_at(&mut document, found.path.strip_prefix("/model").unwrap());
+                visited += 1;
+            }
+            let oracle = library_ref_member_sites(&document).into_iter().find(|member| member.reference.is_some()).map(|member| member.pointer);
+            assert_eq!(first_library_ref_object(&document), oracle);
+        }
+        assert!(visited > 8, "{visited}");
+        assert_eq!(first_library_ref_object(&json!({"a": {"library_ref": null}, "b": [{"library_ref": {}}]})).as_deref(), Some("/b/0/library_ref"));
+        let found = first_document_site_finding(&json!({"provenance_record": {"review_status": "rejected"}}), "").unwrap();
+        assert!(found.message.starts_with("$ (provenance_record: review_status rejected)"), "{}", found.message);
+    }
+
+    /// The bounded walks allocate nothing per level and nothing per finding:
+    /// over 100 levels of 4,000-byte keys holding 128 findings, each holds at
+    /// most its one pointer buffer and the first finding's text and
+    /// diagnostic, while the collecting screens hold every finding.
+    #[test]
+    fn first_findings_allocate_one_pointer() {
+        let key = "x".repeat(3_997);
+        let mut value = json!(vec![json!({"redistribution_status": "protected_suspected", "provenance_record": {"review_status": "rejected"}}); 128]);
+        for level in 0..100 {
+            value = json!({ format!("{level:03}{key}"): value });
+        }
+        let pointer = 100 * 4_001 + 64;
+        let envelope = |bytes: usize| crate::ingress::allocation_envelope(bytes as u64).unwrap();
+        let (found, structural) = crate::ingress::counting::measure(|| first_structural_finding(&value));
+        assert_eq!(found.unwrap().0, StructuralFinding::Blocking);
+        assert!(structural.peak_priced <= 2 * envelope(pointer), "{structural:?}");
+        let (found, site) = crate::ingress::counting::measure(|| first_document_site_finding(&value, "/model"));
+        assert!(found.unwrap().path.ends_with("/0/provenance_record"));
+        assert!(site.peak_priced <= 4 * envelope(pointer + 512), "{site:?}");
+        let (_, collected) = crate::ingress::counting::measure(|| screen_value(&value));
+        assert!(collected.peak_priced > 64 * envelope(pointer), "{collected:?}");
     }
 
     // --- #1641 Codex r2 P2-a: the structural walks' paths -------------------

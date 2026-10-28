@@ -18,8 +18,13 @@ from .controls import (
     USER_RELEASED_REPORT_CONTEXT,
     RedactionDecision,
     RedactionFinding,
+    RedactionResult,
+    ValueRecordNode,
+    _finding_for,
+    _has_explicit_metadata,
     assert_user_release_intent_context,
-    redact_export_payload,
+    carries_proto_member,
+    redact_route_projection,
 )
 
 
@@ -129,17 +134,69 @@ def control_route_export(
         for item in source_findings_copy
         if str(item.get("severity", "")).casefold() == "blocking"
     )
+    # Reserved internal names (HELP_HUMAN ruling, 2026-10-28: "fail closed on reserved internal
+    # names, in all three implementations"): a member so named anywhere in the input blocks the
+    # whole export before projection, one decision per such member, naming its path only.
+    reserved = _reserved_name_paths(source)
+    if reserved:
+        decisions = tuple(
+            RedactionDecision(
+                decision_id=f"REDC-DEC-{index:04d}",
+                path=reserved_path,
+                field_class="export_input",
+                privacy_classification="unknown",
+                redistribution_status="unknown",
+                review_status="unknown",
+                export_context=export_context,
+                action="block_export",
+                reason_code="EXPORT_INPUT_RESERVED_NAME",
+                source_metadata_present=False,
+            )
+            for index, reserved_path in enumerate(reserved, start=1)
+        )
+        findings = tuple(
+            finding
+            for index, decision in enumerate(decisions, start=1)
+            if (finding := _finding_for(decision, index)) is not None
+        )
+        return _controlled_export(
+            RedactionResult(None, decisions, findings),
+            route_id=route_id,
+            local_first=local_first,
+            source_findings_copy=source_findings_copy,
+            source_blocking_count=source_blocking_count,
+            require_lossless_materialization=require_lossless_materialization,
+        )
     projected = _project(
         _strip_source_intent(source),
         route_id=route_id,
         path="$",
     )
-    result = redact_export_payload(
+    result = redact_route_projection(
         projected,
         export_context=export_context,
         explicit_local_private_intent=normalized_local_private_intent,
         explicit_user_release_intent=normalized_release_intent,
     )
+    return _controlled_export(
+        result,
+        route_id=route_id,
+        local_first=local_first,
+        source_findings_copy=source_findings_copy,
+        source_blocking_count=source_blocking_count,
+        require_lossless_materialization=require_lossless_materialization,
+    )
+
+
+def _controlled_export(
+    result: RedactionResult,
+    *,
+    route_id: str,
+    local_first: Any,
+    source_findings_copy: tuple[dict[str, Any], ...],
+    source_blocking_count: int,
+    require_lossless_materialization: bool,
+) -> ControlledExport:
     destructive = any(
         decision.action in {"redact_value", "redact_field", "omit_field", "block_export"}
         for decision in result.decisions
@@ -176,6 +233,34 @@ def control_route_export(
         blocked=blocked,
         summary=summary,
     )
+
+
+def _reserved_name(key: str) -> bool:
+    """A member name of the route exporter's internal names: the projector's key prefix, its
+    labelled-leaf marker and its old value-record marker (HELP_HUMAN ruling, 2026-10-28:
+    "When input can collide with internal names, the export should be blocked, not
+    interpreted.").  Identical in redactionExportControls.ts (``isReservedName``) and the
+    Rust mirror (``route_reserved_name``)."""
+
+    return key.startswith(ROUTE_KEY_PREFIX) or key in {"_route_projected_leaf", "_route_value_record"}
+
+
+def _reserved_name_paths(value: Any) -> list[str]:
+    """The sorted paths of every member with a reserved name, at any depth; iterative."""
+
+    found: list[str] = []
+    stack: list[tuple[Any, str]] = [(value, "$")]
+    while stack:
+        node, at = stack.pop()
+        if isinstance(node, Mapping):
+            for key, item in node.items():
+                if _reserved_name(str(key)):
+                    found.append(f"{at}.{key}")
+                stack.append((item, f"{at}.{key}"))
+        elif isinstance(node, (list, tuple)):
+            for index, item in enumerate(node):
+                stack.append((item, f"{at}[{index}]"))
+    return sorted(found)
 
 
 def _assert_generic_route_export(route_id: Any, export_context: Any) -> None:
@@ -220,19 +305,19 @@ def _project(
         # have already had all payload-carried intent removed.
         if "value" in value and _has_contract_metadata(value):
             return copy.deepcopy(dict(value))
-        # A public basis is record-local: it can classify scalar leaves owned
-        # directly by this record, but it cannot flow through another record
-        # or collection.  A nested record must declare its own complete basis.
-        bounded_public_basis = _declares_direct_public_basis(value)
-        return {
-            f"{ROUTE_KEY_PREFIX}{key}": _project(
-                item,
-                route_id=route_id,
-                path=f"{path}.{key}",
-                public_basis=bounded_public_basis,
+        # A value record (HELP_HUMAN decision, 2026-10-28: "take the stricter decision per
+        # case"): a scalar ``value`` with other metadata but no scalar label.  The redaction
+        # walk decides it as the stricter of the item and its projection.
+        if (
+            "value" in value
+            and not isinstance(value.get("value"), (Mapping, list, tuple))
+            and _has_explicit_metadata(dict(value))
+        ):
+            return ValueRecordNode(
+                copy.deepcopy(dict(value)),
+                _project_members(value, route_id=route_id, path=path),
             )
-            for key, item in value.items()
-        }
+        return _project_members(value, route_id=route_id, path=path)
     if isinstance(value, (list, tuple)):
         return [
             _project(
@@ -258,7 +343,27 @@ def _project(
     }
 
 
+def _project_members(value: Mapping[str, Any], *, route_id: str, path: str) -> dict[str, Any]:
+    # A public basis is record-local: it can classify scalar leaves owned
+    # directly by this record, but it cannot flow through another record
+    # or collection.  A nested record must declare its own complete basis.
+    bounded_public_basis = _declares_direct_public_basis(value)
+    return {
+        f"{ROUTE_KEY_PREFIX}{key}": _project(
+            item,
+            route_id=route_id,
+            path=f"{path}.{key}",
+            public_basis=bounded_public_basis,
+        )
+        for key, item in value.items()
+    }
+
+
 def _materialize(value: Any) -> Any:
+    # This runs after every decision is taken and reads the `_route_projected_leaf` and
+    # key-prefix markers by name: an input can carry them only inside an item, where they can
+    # drop or rename the item's members but never skip or weaken a decision (Codex privacy
+    # review of #1722, marker audit).
     if isinstance(value, Mapping):
         if value.get("_route_projected_leaf") is True:
             return copy.deepcopy(value.get("value"))
@@ -273,6 +378,13 @@ def _materialize(value: Any) -> Any:
 
 
 def _declares_direct_public_basis(value: Mapping[str, Any]) -> bool:
+    # The `classification` alias is read only when `privacy_classification` is absent: a
+    # present primary label, null included, is the label, so a null cannot let the alias
+    # lift a sibling into a public basis (HELP_HUMAN decision, 2026-10-27).
+    # An own `__proto__` member on the record or its provenance gives it no direct public
+    # basis (`carries_proto_member`), so its siblings are labelled by their paths.
+    if carries_proto_member(value):
+        return False
     privacy = value.get("privacy_classification", value.get("classification"))
     redistribution = value.get("redistribution_status")
     # A non-string label is a stated label that matches no class (input contract): it is no

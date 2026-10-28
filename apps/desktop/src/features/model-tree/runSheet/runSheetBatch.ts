@@ -270,7 +270,7 @@ export type RunSheetRowCheck =
 /** §4.2 Map an engine outcome to rows through the `rowKey` in each `operation_id`.
  * The batch stops at its first blocked step, so a row with an operation the
  * engine did not reach, or a row after the refused one, is "not checked". */
-export function mapOutcomeToRows(outcome: Pick<OperationBatchOutcome, "operation_outcomes">, build: RunSheetBuild): Map<string, RunSheetRowCheck> {
+export function mapOutcomeToRows(outcome: Pick<OperationBatchOutcome, "operation_outcomes">, build: Readonly<{ batch: OperationBatch; rows: readonly RunSheetRowBuild[] }>): Map<string, RunSheetRowCheck> {
   const checks = new Map<string, RunSheetRowCheck>();
   const reached = new Map(outcome.operation_outcomes.map((step) => [step.operation_id, step]));
   const blocked = outcome.operation_outcomes.find((step) => step.simulation_status === "blocked");

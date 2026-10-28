@@ -13,8 +13,11 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useMemo, useState } from "react";
-import type { MechanicsResult, PreviewModel } from "../../types";
+import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
 import { displayQuantityParts } from "../report/reportQuantityDisplay";
+import { CsvExportControl } from "../result-export/CsvExportControl";
+import { CSV_SOFTWARE_VERSION, CSV_UNIT_BASIS_DISPLAY_RULE, csvResultProvenance, csvUnitBasis } from "../result-export/csvProvenance";
+import { DISPLACEMENT_EXTREMES_CSV_KIND, DISPLACEMENT_NO_EXTREME, DISPLACEMENT_NO_SUPPORT, displacementExtremesCsv } from "./displacementExtremesCsv";
 import type { ResultOverlayStanding } from "./numericalHealth";
 import { SUPPORT_LOAD_ENVELOPE_TEXT } from "./SupportLoadSummaryPanel";
 import {
@@ -39,6 +42,8 @@ export const DISPLACEMENT_EXTREMES_BOUNDARY_TEXT =
 export type DisplacementExtremesPanelProps = Readonly<{
   model: PreviewModel;
   result: MechanicsResult | null;
+  /** The result's analysis-run record, for the CSV preamble's result hash (RT-R6). */
+  analysisRun?: AnalysisRunEnvelope | null;
   /** The reader's numerical standing and the session's numerical health view (the overlays' input). */
   standing: ResultOverlayStanding | null | undefined;
   /** The session's selected node: its row is marked, and its page is shown once when it changes,
@@ -121,7 +126,7 @@ function nextPaging(state: PagingState, input: {
 }
 
 export function DisplacementExtremesPanel({
-  model, result, standing, selectedNodeId = null, onSelectNode, testIdPrefix = "displacement-extremes"
+  model, result, analysisRun = null, standing, selectedNodeId = null, onSelectNode, testIdPrefix = "displacement-extremes"
 }: DisplacementExtremesPanelProps) {
   const data = useMemo(() => buildDisplacementExtremes({ model, result, standing }), [model, result, standing]);
   const [unchosen, setUnchosen] = useState<ReadonlySet<string>>(() => new Set());
@@ -204,6 +209,16 @@ export function DisplacementExtremesPanel({
             <p data-testid={tid("no-case")}>{DISPLACEMENT_EXTREMES_NO_CASE}</p>
           ) : (
             <>
+              <CsvExportControl
+                tableLabel={`Displacement and rotation extremes: ${view.filter.label}`}
+                testId={tid("export-csv")}
+                build={async () => displacementExtremesCsv({
+                  view,
+                  provenance: await csvResultProvenance({ model, result, analysisRun }),
+                  softwareVersion: CSV_SOFTWARE_VERSION,
+                  unitBasis: csvUnitBasis(model, CSV_UNIT_BASIS_DISPLAY_RULE)
+                })}
+              />
               <ExtremesTable view={view} rows={rows} selectedNodeId={selectedNodeId} onSelectNode={onSelectNode} tid={tid} />
               <div className="displacement-extremes-pager" role="group" aria-label="Pages">
                 <button type="button" aria-label="Previous page" data-testid={tid("page-previous")} disabled={shownPage === 0} onClick={() => setPage(shownPage - 1)}>
@@ -238,7 +253,7 @@ function ExtremesTable({ view, rows, selectedNodeId, onSelectNode, tid }: {
   };
   return (
     <div className="displacement-extremes-table-scroll">
-      <table aria-label={`Displacement and rotation extremes: ${view.filter.label}`} data-testid={tid("table")} data-filter={view.filter.id}>
+      <table aria-label={`Displacement and rotation extremes: ${view.filter.label}`} data-testid={tid("table")} data-filter={view.filter.id} data-csv-export={DISPLACEMENT_EXTREMES_CSV_KIND}>
         <thead>
           <tr>
             <th scope="col" rowSpan={2}>Node</th>
@@ -270,7 +285,7 @@ function ExtremesTable({ view, rows, selectedNodeId, onSelectNode, tid }: {
                   ) : name}
                 </th>
                 <td className="displacement-extremes-supports">
-                  {row.supports.length > 0 ? row.supports.map((item) => `${item.label}: ${item.kindText}`).join("; ") : <Dash label="no support" />}
+                  {row.supports.length > 0 ? row.supports.map((item) => `${item.label}: ${item.kindText}`).join("; ") : <Dash label={DISPLACEMENT_NO_SUPPORT} />}
                 </td>
                 {DISPLACEMENT_COMPONENTS.flatMap((item) => {
                   const extreme = row.extremes[item.id];
@@ -280,7 +295,7 @@ function ExtremesTable({ view, rows, selectedNodeId, onSelectNode, tid }: {
                     return (
                       <td key={`${item.id}-${which}`} data-testid={tid(`cell-${row.nodeId}-${item.id}-${which}`)}>
                         {value ? <><ValueText value={value} shareUnit={shareUnit} /><br /><small>{value.caseLabel}</small></>
-                          : extreme.note ? <small>{extreme.note}</small> : <Dash label="none" />}
+                          : extreme.note ? <small>{extreme.note}</small> : <Dash label={DISPLACEMENT_NO_EXTREME} />}
                       </td>
                     );
                   });

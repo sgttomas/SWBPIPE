@@ -11,6 +11,19 @@ use std::{
 const PREFIX: &str = "data:application/json;charset=utf-8,";
 const RESULT_FILE_PREFIX: &str = "openpipestress-preview-results-";
 const STRESS_FILE_PREFIX: &str = "openpipestress-preview-stress-neutral-";
+// RT-R6 (DEL-08-04-R14): the CSV table route. Its bytes are a derived view, so the request
+// states `lossless_required=false`; this route alone accepts that.
+const CSV_ROUTE: &str = "DOTH-CSV-011";
+const CSV_PREFIX: &str = "data:text/csv;charset=utf-8,";
+const CSV_FILE_PREFIX: &str = "swbpipe-";
+const UTF8_BOM: &[u8] = b"\xEF\xBB\xBF";
+/// DEL-07-01 `export-file-names.md` CSV kinds, as tokens. `results-<group>` is `results`
+/// followed by at least one token; the longer kinds (`support-loads-all`, `weight-cog`)
+/// are a shorter kind followed by qualifier tokens.
+const CSV_KINDS: &[&[&str]] = &[
+    &["displacement", "extremes"], &["stress", "ratio"], &["support", "loads"], &["weight"],
+    &["run", "comparison"], &["state", "comparison"],
+];
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
@@ -85,31 +98,53 @@ impl Drop for SavePermit {
     fn drop(&mut self) { self.0.store(false, Ordering::Release); }
 }
 
-fn valid_name(name: &str, prefix: &str) -> bool {
-    let Some(token) = name.strip_prefix(prefix).and_then(|v| v.strip_suffix(".json")) else { return false; };
-    !token.is_empty() && token.split('-').all(|part| !part.is_empty()
-        && part.bytes().all(|b| b.is_ascii_lowercase() || b.is_ascii_digit()))
+/// The per-route save profile: data prefix, file name rule, extension and lossless flag.
+#[derive(Clone, Copy)]
+struct Profile { data_prefix: &'static str, name_prefix: &'static str, ext: &'static str, csv: bool, lossless_required: bool }
+fn profile(route_id: &str) -> Option<Profile> {
+    let json = |name_prefix| Profile { data_prefix: PREFIX, name_prefix, ext: ".json", csv: false, lossless_required: true };
+    match route_id {
+        "DOTH-JSON-001" => Some(json(RESULT_FILE_PREFIX)),
+        "DOTH-FORMAT-003" => Some(json(STRESS_FILE_PREFIX)),
+        CSV_ROUTE => Some(Profile { data_prefix: CSV_PREFIX, name_prefix: CSV_FILE_PREFIX, ext: ".csv", csv: true, lossless_required: false }),
+        _ => None,
+    }
 }
-fn validate(request: &SaveRequest) -> Result<(), SaveError> {
+fn valid_tokens(name: &str, prefix: &str, ext: &str) -> Option<Vec<String>> {
+    let token = name.strip_prefix(prefix).and_then(|v| v.strip_suffix(ext))?;
+    let ok = !token.is_empty() && token.split('-').all(|part| !part.is_empty()
+        && part.bytes().all(|b| b.is_ascii_lowercase() || b.is_ascii_digit()));
+    ok.then(|| token.split('-').map(str::to_owned).collect())
+}
+fn valid_name(name: &str, prefix: &str) -> bool { valid_tokens(name, prefix, ".json").is_some() }
+/// `swbpipe-<csv kind>[-<qualifier>].csv` under the token rule of `export-file-names.md`.
+fn valid_csv_name(name: &str) -> bool {
+    let Some(tokens) = valid_tokens(name, CSV_FILE_PREFIX, ".csv") else { return false; };
+    (tokens[0] == "results" && tokens.len() >= 2)
+        || CSV_KINDS.iter().any(|kind| tokens.len() >= kind.len() && tokens.iter().zip(kind.iter()).all(|(t, k)| t == k))
+}
+fn validate(request: &SaveRequest) -> Result<Profile, SaveError> {
     let s = &request.screening;
     let l = &request.local_first;
+    let route = profile(&s.route_id);
     if s.export_context != "local_private" || !s.explicit_local_private_intent || s.blocked || s.materialization_withheld
-        || !s.lossless_required || !s.exact_payload_match || s.blocking_count != 0
+        || route.map_or(true, |p| s.lossless_required != p.lossless_required) || !s.exact_payload_match || s.blocking_count != 0
         || l.route_id != s.route_id || l.export_context != s.export_context
         || l.storage_context != "local_private" || l.action != "include_metadata_only"
         || l.reason_code != "PRIVATE_LOCAL_METADATA_ALLOWED" || l.blocked
         || !l.metadata_only || !l.explicit_local_private_intent
     { return Err(failure("REQUEST_EVIDENCE_DENIED", "request")); }
-    let prefix = match s.route_id.as_str() {
-        "DOTH-JSON-001" => RESULT_FILE_PREFIX,
-        "DOTH-FORMAT-003" => STRESS_FILE_PREFIX,
-        _ => return Err(failure("REQUEST_EVIDENCE_DENIED", "request")),
-    };
-    if !valid_name(&request.file_name, prefix) { return Err(failure("INVALID_FILE_NAME", "request")); }
-    Ok(())
+    let Some(route) = route else { return Err(failure("REQUEST_EVIDENCE_DENIED", "request")); };
+    let named = if route.csv { valid_csv_name(&request.file_name) } else { valid_name(&request.file_name, route.name_prefix) };
+    if !named { return Err(failure("INVALID_FILE_NAME", "request")); }
+    Ok(route)
 }
-fn decode(href: &str) -> Result<Vec<u8>, SaveError> {
-    let body = href.strip_prefix(PREFIX).filter(|body| !body.is_empty())
+#[cfg(test)]
+fn decode(href: &str) -> Result<Vec<u8>, SaveError> { decode_for(href, profile("DOTH-JSON-001").unwrap()) }
+/// JSON routes: valid UTF-8 that parses as JSON. The CSV route: valid UTF-8 that begins
+/// with the byte-order mark, with no JSON parse.
+fn decode_for(href: &str, route: Profile) -> Result<Vec<u8>, SaveError> {
+    let body = href.strip_prefix(route.data_prefix).filter(|body| !body.is_empty())
         .ok_or_else(|| failure("INVALID_DATA_PREFIX", "decode"))?;
     let mut decoded = Vec::with_capacity(body.len());
     let bytes = body.as_bytes();
@@ -123,7 +158,11 @@ fn decode(href: &str) -> Result<Vec<u8>, SaveError> {
         } else { decoded.push(bytes[index]); index += 1; }
     }
     let text = std::str::from_utf8(&decoded).map_err(|_| failure("INVALID_UTF8", "decode"))?;
-    serde_json::from_str::<serde_json::Value>(text).map_err(|_| failure("INVALID_JSON", "decode"))?;
+    if route.csv {
+        if !decoded.starts_with(UTF8_BOM) { return Err(failure("INVALID_CSV_BOM", "decode")); }
+    } else {
+        serde_json::from_str::<serde_json::Value>(text).map_err(|_| failure("INVALID_JSON", "decode"))?;
+    }
     Ok(decoded)
 }
 
@@ -160,15 +199,19 @@ fn cleanup(error: &mut SaveError, path: &Path, owned: Option<(u64, u64)>, io: &i
         _ => "retained",
     };
 }
+#[cfg(test)]
 fn save_bytes(root: &Path, basename: &str, bytes: &[u8], start: usize, io: &impl SaveIo) -> Result<SaveReceipt, SaveError> {
+    save_bytes_ext(root, basename, ".json", bytes, start, io)
+}
+fn save_bytes_ext(root: &Path, basename: &str, ext: &str, bytes: &[u8], start: usize, io: &impl SaveIo) -> Result<SaveReceipt, SaveError> {
     if !root.is_absolute() || !matches!(io.directory(root), Ok(true)) {
         return Err(failure("DOWNLOADS_UNAVAILABLE", "downloads"));
     }
     let canonical_root = io.canonical(root).map_err(|_| failure("DOWNLOADS_CANONICAL_FAILED", "containment"))?;
-    let stem = basename.strip_suffix(".json").ok_or_else(|| failure("INVALID_FILE_NAME", "request"))?;
+    let stem = basename.strip_suffix(ext).ok_or_else(|| failure("INVALID_FILE_NAME", "request"))?;
     let mut counter = start;
     loop {
-        let file_name = if counter == 0 { basename.to_owned() } else { format!("{stem} ({counter}).json") };
+        let file_name = if counter == 0 { basename.to_owned() } else { format!("{stem} ({counter}){ext}") };
         let destination = root.join(&file_name);
         if destination.parent().and_then(|p| io.canonical(p).ok()).as_ref() != Some(&canonical_root) {
             return Err(failure("PATH_CONTAINMENT_FAILED", "containment"));
@@ -194,10 +237,10 @@ fn save_bytes(root: &Path, basename: &str, bytes: &[u8], start: usize, io: &impl
 }
 
 pub(super) fn save_request<E>(request: SaveRequest, downloads: impl FnOnce() -> Result<PathBuf, E>) -> Result<SaveReceipt, SaveError> {
-    validate(&request)?;
-    let bytes = decode(&request.href)?;
+    let route = validate(&request)?;
+    let bytes = decode_for(&request.href, route)?;
     let root = downloads().map_err(|_| failure("DOWNLOADS_RESOLVER_FAILED", "downloads"))?;
-    save_bytes(&root, &request.file_name, &bytes, 0, &HostIo)
+    save_bytes_ext(&root, &request.file_name, route.ext, &bytes, 0, &HostIo)
 }
 
 #[cfg(test)]
@@ -265,6 +308,112 @@ mod tests {
         for (route, name) in [("DOTH-JSON-001", STRESS_NAME), ("DOTH-FORMAT-003", NAME)] {
             assert_eq!(save_request(request_for("{}", route, name), || -> Result<PathBuf, ()> { panic!("must not resolve") }).unwrap_err().stage, "request");
         }
+    }
+    const CSV_NAME: &str = "swbpipe-stress-ratio-case-1.csv";
+    const CSV_TEXT: &str = "\u{FEFF}notice,\"Candidate, \"\"quoted\"\"\"\r\nexport_context,local_private\r\n\r\nNode,UX [mm]\r\n10,-0\r\n'=SUM(A1),1e-7\r\n";
+    fn csv_request(text: &str, name: &str) -> SaveRequest {
+        let mut r = request_for("{}", CSV_ROUTE, name);
+        r.href = format!("{CSV_PREFIX}{}", percent(text));
+        r.screening.lossless_required = false;
+        r
+    }
+    fn denied_at(r: SaveRequest) -> &'static str {
+        save_request(r, || -> Result<PathBuf, ()> { panic!("must not resolve") }).unwrap_err().stage
+    }
+    #[test]
+    fn csv_route_admits_explicit_local_private_intent_and_writes_exact_bytes() {
+        let s = Scratch::new();
+        let first = save_request(csv_request(CSV_TEXT, CSV_NAME), || Ok::<_, ()>(s.0.clone())).unwrap();
+        assert_eq!(first.file_name, CSV_NAME);
+        assert_eq!(fs::read(s.0.join(CSV_NAME)).unwrap(), CSV_TEXT.as_bytes());
+        assert_eq!(first.byte_count, CSV_TEXT.len());
+        assert!(fs::read(s.0.join(CSV_NAME)).unwrap().starts_with(UTF8_BOM));
+        // A collision takes the existing ` (n)` suffix before `.csv`; the first file is kept.
+        let second = save_request(csv_request(CSV_TEXT, CSV_NAME), || Ok::<_, ()>(s.0.clone())).unwrap();
+        assert_eq!(second.file_name, "swbpipe-stress-ratio-case-1 (1).csv");
+        assert_eq!(fs::read(s.0.join(&second.file_name)).unwrap(), CSV_TEXT.as_bytes());
+    }
+    #[test]
+    fn csv_route_refuses_missing_intent_other_contexts_and_a_lossless_claim() {
+        for mutation in 0..4 {
+            let mut r = csv_request(CSV_TEXT, CSV_NAME);
+            match mutation {
+                0 => r.screening.explicit_local_private_intent = false,
+                1 => r.local_first.explicit_local_private_intent = false,
+                2 => { r.screening.explicit_local_private_intent = false; r.local_first.explicit_local_private_intent = false; }
+                _ => r.screening.lossless_required = true,
+            }
+            assert_eq!(denied_at(r), "request", "mutation {mutation}");
+        }
+        for context in ["public_report", "public_example", "shared_model", "downstream_tool", "user_released_report", "private_report", ""] {
+            let mut r = csv_request(CSV_TEXT, CSV_NAME);
+            r.screening.export_context = context.into(); r.local_first.export_context = context.into();
+            assert_eq!(denied_at(r.clone()), "request", "{context}");
+            r.local_first.storage_context = context.into();
+            assert_eq!(denied_at(r), "request", "{context}");
+        }
+        // The JSON routes keep requiring `lossless_required=true`.
+        for route in ["DOTH-JSON-001", "DOTH-FORMAT-003"] {
+            let mut r = request_for("{}", route, if route == "DOTH-JSON-001" { NAME } else { STRESS_NAME });
+            r.screening.lossless_required = false;
+            assert_eq!(denied_at(r), "request", "{route}");
+        }
+    }
+    #[test]
+    fn csv_and_json_data_prefixes_never_cross_and_csv_needs_utf8_with_bom() {
+        let mut json_on_csv = csv_request(CSV_TEXT, CSV_NAME);
+        json_on_csv.href = format!("{PREFIX}{}", percent(CSV_TEXT));
+        assert_eq!(save_request(json_on_csv, || -> Result<PathBuf, ()> { panic!("must not resolve") }).unwrap_err().code, "INVALID_DATA_PREFIX");
+        for (route, name) in [("DOTH-JSON-001", NAME), ("DOTH-FORMAT-003", STRESS_NAME)] {
+            let mut csv_on_json = request_for("{}", route, name);
+            csv_on_json.href = format!("{CSV_PREFIX}{}", percent("{}"));
+            assert_eq!(save_request(csv_on_json, || -> Result<PathBuf, ()> { panic!("must not resolve") }).unwrap_err().code, "INVALID_DATA_PREFIX");
+        }
+        let csv = profile(CSV_ROUTE).unwrap();
+        for (href, code) in [
+            (format!("{CSV_PREFIX}"), "INVALID_DATA_PREFIX"),
+            (format!("data:text/csv,{}", percent(CSV_TEXT)), "INVALID_DATA_PREFIX"),
+            (format!("data:text/csv;charset=UTF-8,{}", percent(CSV_TEXT)), "INVALID_DATA_PREFIX"),
+            (format!("{CSV_PREFIX}{}", percent("Node,UX [mm]\r\n")), "INVALID_CSV_BOM"),
+            (format!("{CSV_PREFIX}%EF%BB%BF%FF"), "INVALID_UTF8"),
+            (format!("{CSV_PREFIX}%EF%BB"), "INVALID_UTF8"),
+            (format!("{CSV_PREFIX}%EF%BB%BF%0G"), "INVALID_PERCENT_ESCAPE"),
+        ] {
+            assert_eq!(decode_for(&href, csv).unwrap_err().code, code, "{href}");
+        }
+        // No JSON parse on the CSV route: CSV text that is not JSON is accepted as bytes.
+        assert_eq!(decode_for(&format!("{CSV_PREFIX}{}", percent(CSV_TEXT)), csv).unwrap(), CSV_TEXT.as_bytes());
+    }
+    #[test]
+    fn csv_file_names_follow_the_export_file_name_convention() {
+        for name in ["swbpipe-stress-ratio.csv", CSV_NAME, "swbpipe-results-displacements.csv", "swbpipe-results-restraint-loads-sus-1.csv",
+            "swbpipe-displacement-extremes-all.csv", "swbpipe-support-loads.csv", "swbpipe-support-loads-all.csv", "swbpipe-support-loads-n20.csv",
+            "swbpipe-weight.csv", "swbpipe-weight-cog.csv", "swbpipe-run-comparison-run-3-run-4.csv", "swbpipe-state-comparison.csv"] {
+            assert!(valid_csv_name(name), "{name}");
+            assert!(!valid_name(name, RESULT_FILE_PREFIX) && !valid_name(name, STRESS_FILE_PREFIX), "{name}");
+        }
+        for name in ["swbpipe-results.csv", "swbpipe-stress.csv", "swbpipe-ratio.csv", "swbpipe-model.csv", "swbpipe-handoff.csv", "swbpipe-report.csv",
+            "swbpipe-comparison.csv", "swbpipe-stress-ratio.json", "swbpipe-stress-ratio.CSV", "swbpipe-Stress-ratio.csv", "swbpipe-stress--ratio.csv",
+            "swbpipe-stress-ratio-.csv", "swbpipe--stress-ratio.csv", "swbpipe-stress-ratio (1).csv", "swbpipe-stress-ratio-ré.csv", "swbpipe-stress_ratio.csv",
+            "swbpipe-.csv", "swbpipe.csv", "../swbpipe-stress-ratio.csv", "/swbpipe-stress-ratio.csv", "dir/swbpipe-stress-ratio.csv",
+            "openpipestress-preview-results-run-1.csv", "swbpipe-stress-ratio.csv.json", ""] {
+            assert!(!valid_csv_name(name), "{name}");
+            assert_eq!(denied_at(csv_request(CSV_TEXT, name)), "request", "{name}");
+        }
+        // Names never cross routes.
+        assert_eq!(denied_at(csv_request(CSV_TEXT, NAME)), "request");
+        for route in ["DOTH-JSON-001", "DOTH-FORMAT-003"] { assert_eq!(denied_at(request_for("{}", route, CSV_NAME)), "request"); }
+    }
+    #[test]
+    fn native_route_profiles_are_exactly_the_governed_local_private_saves() {
+        // Catalogue parity (with `route_control.py` and `redactionExportControls.ts`, which
+        // `tests/security/test_local_first_storage_policy.py` reads): the native save admits
+        // these three routes and no other.
+        for route in ["DOTH-JSON-001", "DOTH-FORMAT-003", CSV_ROUTE] { assert!(profile(route).is_some(), "{route}"); }
+        for route in ["DOTH-CSV-010", "DOTH-CSV-012", "doth-csv-011", "DOTH-CSV-011 ", "DREP-JSON-002", "DOTH-HANDOFF-PACKAGE-008", ""] { assert!(profile(route).is_none(), "{route}"); }
+        assert_eq!(CSV_ROUTE, "DOTH-CSV-011");
+        assert!(!profile(CSV_ROUTE).unwrap().lossless_required);
+        assert!(profile("DOTH-JSON-001").unwrap().lossless_required && profile("DOTH-FORMAT-003").unwrap().lossless_required);
     }
     #[test]
     fn actual_files_preserve_exact_escaped_unicode_numbers_and_multi_megabyte_bytes() {

@@ -894,7 +894,17 @@ def test_shared_parity_fixture_matches_core_decisions():
             assert finding.as_schema_dict()["class"] == expected["finding"]["class"], case_id
 
     schema = load_json(SCHEMA_PATH)
-    assert covered_reason_codes == enum_at(schema, "ReasonCode"), (
+    # Two governed codes no item-classifier corpus case can reach.  The TypeScript
+    # plain-data gate's refusal (HELP_HUMAN ruling, 2026-10-28: "(a), the plain-data gate at
+    # the TS entry points.") needs non-plain input, and every corpus item is plain data; the
+    # vitest suite `redactionPlainDataGate.test.ts` holds it.  The route exporter's
+    # reserved-name block (HELP_HUMAN ruling, 2026-10-28: "fail closed on reserved internal
+    # names, in all three implementations") decides a whole route input before projection,
+    # never an item; the value-record suites of all three implementations hold it.  Every
+    # other code is exercised here.
+    typescript_gate_only = {"EXPORT_INPUT_NOT_PLAIN_DATA", "EXPORT_INPUT_RESERVED_NAME"}
+    assert not covered_reason_codes & typescript_gate_only
+    assert covered_reason_codes | typescript_gate_only == enum_at(schema, "ReasonCode"), (
         "parity corpus must exercise every governed reason code"
     )
 
