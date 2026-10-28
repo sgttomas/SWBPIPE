@@ -102,7 +102,8 @@ use open_pipe_stress_nonlinear_integration::confirmation::{
     confirm_converged_state, Confirmation,
 };
 use open_pipe_stress_nonlinear_integration::{
-    eligible_contact_dofs, solve_active_set_frame_with_mode_and_springs_assembled,
+    dense_loop_memory_guard, eligible_contact_dofs,
+    solve_active_set_frame_with_mode_and_springs_assembled, DENSE_LOOP_MEMORY_CEILING_BYTES,
     ConvergenceControl, ConvergencePolicyStatus, CurvedBendStiffnessElement,
     DerivedFrictionNormalReaction, FrictionNormalReaction, LinearSolveMode,
     NonlinearFrameSolveInput, NonlinearFrameSolveResult, NonlinearIntegrationError,
@@ -3062,6 +3063,28 @@ fn run_linear_static_preview_observed_inner(
         Ok(stiffness) => stiffness,
         Err(error) => return solver_blocked(model, diagnostics, error),
     };
+    // §8.30 correction 2 (RT-U4, RT-A2): the nonlinear active-set loop is
+    // dense in both modes; an invocation with a nonlinear support is refused,
+    // once and before any case or n^2 allocation (ahead of F1b's dense-scrutiny
+    // guard, so both modes name the same refusal), when the loop's estimated
+    // leading dense storage exceeds its provisional limit (NI
+    // `dense_loop_memory_guard`).
+    if !built.nonlinear_supports.is_empty() {
+        if let Err(refusal) = dense_loop_memory_guard(
+            built.nodes.len(),
+            &boundary.restrained_dofs,
+            DENSE_LOOP_MEMORY_CEILING_BYTES,
+        ) {
+            diagnostics.push(diag(
+                "diagnostic:physics:nonlinear-dense-memory-guard",
+                "NONLINEAR_DENSE_MEMORY_LIMIT_EXCEEDED",
+                "blocking",
+                format!("{refusal}; it applies in sparse_interactive and dense_scrutiny alike"),
+                vec!["model".to_string()],
+            ));
+            return blocked_envelope(model, diagnostics);
+        }
+    }
     // F1b (§4.8 resource guard; ROOT Q8): dense scrutiny refuses, once per
     // invocation and before any n^2 allocation, a model whose dense-path
     // estimate exceeds the provisional ceiling.

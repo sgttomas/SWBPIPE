@@ -9,6 +9,8 @@
 pub mod confirmation;
 pub mod product_equilibrium;
 #[cfg(test)]
+mod dense_memory_guard_tests;
+#[cfg(test)]
 mod s11k_tests;
 pub mod structural_adapter;
 use open_pipe_stress_frame_kernel::load_ledger::AssembledForce;
@@ -396,6 +398,9 @@ pub enum NonlinearIntegrationError {
     Structural(StructuralError),
     NonlinearSupport(NonlinearSupportError),
     InvalidInput { detail: String },
+    /// §8.30 correction 2: the loop's estimated leading dense storage exceeds
+    /// the provisional limit; nothing n^2 was allocated.
+    DenseMemoryLimitExceeded(DenseLoopMemoryRefusal),
 }
 
 impl fmt::Display for NonlinearIntegrationError {
@@ -409,6 +414,7 @@ impl fmt::Display for NonlinearIntegrationError {
             Self::InvalidInput { detail } => {
                 write!(f, "invalid nonlinear integration input: {detail}")
             }
+            Self::DenseMemoryLimitExceeded(refusal) => write!(f, "{refusal}"),
         }
     }
 }
@@ -419,7 +425,7 @@ impl Error for NonlinearIntegrationError {
             Self::FrameKernel(error) => Some(error),
             Self::Structural(error) => Some(error),
             Self::NonlinearSupport(error) => Some(error),
-            Self::InvalidInput { .. } => None,
+            Self::InvalidInput { .. } | Self::DenseMemoryLimitExceeded(_) => None,
         }
     }
 }
@@ -440,6 +446,114 @@ impl From<NonlinearSupportError> for NonlinearIntegrationError {
     fn from(error: NonlinearSupportError) -> Self {
         Self::NonlinearSupport(error)
     }
+}
+
+/// §8.30 correction 2 (RT-U4, RT-A2; R-4 design C-6 and §3.6): the leading
+/// dense storage of the active-set loop, in bytes per entry. In both solver
+/// modes the loop holds the dense global stiffness and, inside FK's
+/// `prepare_bound` audit, its two dense symmetry views and the contribution
+/// sums and differences (`Expansion`, 32 + 32): 8 + 16 + 64 = 88 bytes per
+/// global entry. The prepared matrix and the loop's reduced copy add 8 + 8 = 16
+/// bytes per free entry. This is a leading-buffer estimate, not a complete
+/// memory bound: vectors, the model, results, the friction coupling solves'
+/// transient state and the process itself are not counted.
+pub const DENSE_LOOP_BYTES_PER_GLOBAL_ENTRY: u128 = 88;
+/// See [`DENSE_LOOP_BYTES_PER_GLOBAL_ENTRY`].
+pub const DENSE_LOOP_BYTES_PER_FREE_ENTRY: u128 = 16;
+/// Provisional limit on the estimate: floor(0.9 M) with M = 12 GiB, the
+/// product's per-invocation memory budget on the 16 GiB base machine (owner,
+/// 2026-10-11; DEL-04-07 Design `memory-budget-decision.md`), less the 0.9 M
+/// qualification margin, which leaves 0.1 M for what the estimate does not
+/// count. It admits about 1,759 nodes when every DOF is free. To be revisited
+/// with R-4 stage P (the sparse nonlinear loop).
+pub const DENSE_LOOP_MEMORY_CEILING_BYTES: u128 = 12 * (1 << 30) * 9 / 10;
+
+/// The loop's memory guard refusal: the estimate's inputs and its value
+/// (`None` when it exceeds u128), against the limit.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct DenseLoopMemoryRefusal {
+    pub global_dofs: Option<usize>,
+    pub free_dofs: Option<usize>,
+    pub estimated_bytes: Option<u128>,
+    pub ceiling_bytes: u128,
+}
+
+impl fmt::Display for DenseLoopMemoryRefusal {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let shown = |value: Option<usize>| value.map_or("more than usize::MAX".to_string(), |v| v.to_string());
+        let estimated = self
+            .estimated_bytes
+            .map_or("more than u128::MAX".to_string(), |value| value.to_string());
+        write!(
+            f,
+            "nonlinear dense loop memory guard: estimated leading dense storage {estimated} bytes ({DENSE_LOOP_BYTES_PER_GLOBAL_ENTRY} bytes x {}^2 global DOFs + {DENSE_LOOP_BYTES_PER_FREE_ENTRY} bytes x {}^2 free DOFs) exceeds the provisional limit {} bytes; the model is refused before any n^2 allocation. The estimate counts the loop's leading dense buffers only and is not a complete memory bound; the limit is provisional until the sparse nonlinear loop (R-4 stage P)",
+            shown(self.global_dofs),
+            shown(self.free_dofs),
+            self.ceiling_bytes,
+        )
+    }
+}
+
+/// The loop's estimated leading dense storage for `node_count` nodes with
+/// `base_restrained_dofs` restrained, by checked arithmetic: `None` when a
+/// step overflows. The free count is the global count less the distinct
+/// in-range base restraints, an upper bound on every iteration's free count.
+pub fn dense_loop_memory_estimate(
+    node_count: usize,
+    base_restrained_dofs: &[usize],
+) -> (Option<usize>, Option<usize>, Option<u128>) {
+    let Some(global) = node_count.checked_mul(DOF_PER_NODE) else {
+        return (None, None, None);
+    };
+    let restrained = base_restrained_dofs
+        .iter()
+        .filter(|&&dof| dof < global)
+        .collect::<HashSet<_>>()
+        .len();
+    let free = global - restrained;
+    let square = |count: usize| (count as u128).checked_mul(count as u128);
+    let estimate = square(global)
+        .and_then(|entries| entries.checked_mul(DENSE_LOOP_BYTES_PER_GLOBAL_ENTRY))
+        .zip(square(free).and_then(|entries| entries.checked_mul(DENSE_LOOP_BYTES_PER_FREE_ENTRY)))
+        .and_then(|(global_bytes, free_bytes)| global_bytes.checked_add(free_bytes));
+    (Some(global), Some(free), estimate)
+}
+
+/// The loop's memory guard: refuses when the estimate exceeds `ceiling_bytes`
+/// or overflows. It allocates nothing n^2.
+pub fn dense_loop_memory_guard(
+    node_count: usize,
+    base_restrained_dofs: &[usize],
+    ceiling_bytes: u128,
+) -> Result<(), DenseLoopMemoryRefusal> {
+    let (global_dofs, free_dofs, estimated_bytes) =
+        dense_loop_memory_estimate(node_count, base_restrained_dofs);
+    if estimated_bytes.is_some_and(|bytes| bytes <= ceiling_bytes) {
+        Ok(())
+    } else {
+        Err(DenseLoopMemoryRefusal {
+            global_dofs,
+            free_dofs,
+            estimated_bytes,
+            ceiling_bytes,
+        })
+    }
+}
+
+#[cfg(test)]
+thread_local! {
+    /// Tests only: a lowered limit for the loop entry's guard.
+    static DENSE_LOOP_CEILING_OVERRIDE: std::cell::Cell<Option<u128>> =
+        const { std::cell::Cell::new(None) };
+}
+
+/// The limit the loop entry applies (the constant; a unit test may lower it).
+fn dense_loop_ceiling_bytes() -> u128 {
+    #[cfg(test)]
+    if let Some(ceiling) = DENSE_LOOP_CEILING_OVERRIDE.with(|cell| cell.get()) {
+        return ceiling;
+    }
+    DENSE_LOOP_MEMORY_CEILING_BYTES
 }
 
 /// Validated potential contact DOFs for bounded contact-only initialization.
@@ -591,6 +705,13 @@ pub fn solve_active_set_frame_with_mode_and_springs(
     springs: &[(usize, f64)],
 ) -> Result<NonlinearFrameSolveResult, NonlinearIntegrationError> {
     validate_input(input)?;
+    // §8.30 correction 2: in both modes, before the first n^2 allocation.
+    dense_loop_memory_guard(
+        input.node_count,
+        &input.base_restrained_dofs,
+        dense_loop_ceiling_bytes(),
+    )
+    .map_err(NonlinearIntegrationError::DenseMemoryLimitExceeded)?;
 
     let mut stiffness = assemble_global_stiffness_with_connectors(
         input.node_count,
