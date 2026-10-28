@@ -583,7 +583,7 @@
     "schemas/physics_source_recovery.schema.json": "ae45b97742fd463866d8f231004f2053834d5bd413a1430e766f24516d3569ac",
     "schemas/plugin_manifest.schema.yaml": "2fb470eeeae8b0b26182264c6e33dfd0f89d9d321eaa2ba6b0411161264d759b",
     "schemas/project_persistence.schema.yaml": "5a974c4eb8997123d404539984e760a81c53a78eadc9a12134065fb7612e8aa8",
-    "schemas/redaction_export_controls.schema.yaml": "268c63d111b7dac54aa6da9595259a329b47cb24176dddcbace4c36dce0cb5b9",
+    "schemas/redaction_export_controls.schema.yaml": "f62f9667645ae89d964b73ddb9d6eeb75243facaf1956fe4c28697dec902b047",
     "schemas/report_generator.schema.yaml": "3239868bd9eeae389ad9592938ea8d889fafe62c8dfff94c87fff9ccc3b9b1dd",
     "schemas/report_protected_content_linter.schema.yaml": "a54eaaf238d55d27aa15b8d9560a309c2e2280e58687f8aafd58f60c20e07921",
     "schemas/report_sections.schema.yaml": "28316fc9b697d3fb6da5b7c581916762e7864fe1030ae0a43f9a240f40d5e094",
@@ -1170,7 +1170,7 @@
     "schemas/physics_source_recovery.schema.json": "ae45b97742fd463866d8f231004f2053834d5bd413a1430e766f24516d3569ac",
     "schemas/plugin_manifest.schema.yaml": "2fb470eeeae8b0b26182264c6e33dfd0f89d9d321eaa2ba6b0411161264d759b",
     "schemas/project_persistence.schema.yaml": "5a974c4eb8997123d404539984e760a81c53a78eadc9a12134065fb7612e8aa8",
-    "schemas/redaction_export_controls.schema.yaml": "268c63d111b7dac54aa6da9595259a329b47cb24176dddcbace4c36dce0cb5b9",
+    "schemas/redaction_export_controls.schema.yaml": "f62f9667645ae89d964b73ddb9d6eeb75243facaf1956fe4c28697dec902b047",
     "schemas/report_generator.schema.yaml": "3239868bd9eeae389ad9592938ea8d889fafe62c8dfff94c87fff9ccc3b9b1dd",
     "schemas/report_protected_content_linter.schema.yaml": "a54eaaf238d55d27aa15b8d9560a309c2e2280e58687f8aafd58f60c20e07921",
     "schemas/report_sections.schema.yaml": "28316fc9b697d3fb6da5b7c581916762e7864fe1030ae0a43f9a240f40d5e094",
@@ -1189,7 +1189,7 @@
     "schemas/viewport_editor.schema.yaml": "d23ce086b82ff6196edec81319257515bf5aa12dee3e2b79ae0c17246a56fcb3",
     "tools/serialization/generate_product_preview_mechanics.mjs": "a5bdbab5b10c4d127574cf91da1693b919bc5fdf6db9801a853608eea4b265a4"
   },
-  "inventory_json_sha256": "155eee0358fa179f7d7182b970d544b71273c49026b50ab56be4d89259ec6441",
+  "inventory_json_sha256": "55d20b2e9f3d4377b0ac8b8be41a050d49ba074a72ee682e9463a699e87fc825",
   "dependencies": [
     {
       "name": "block-buffer",
