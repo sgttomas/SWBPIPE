@@ -62,6 +62,10 @@ tests cover; it builds no frontend. It restores the main-scoped
 - Rust or a `Cargo.toml` or `Cargo.lock` in a crate it compiles: its normal,
   build and dev path dependencies, and their normal and build path
   dependencies, transitively;
+- any other `Cargo.toml` or `Cargo.lock` under the project, matched in any
+  letter case: the shell's W-18b reach scan finds manifests by name
+  case-insensitively and reads every project package's dependencies through
+  `cargo metadata`, so a new or changed manifest can change its result;
 - a file that the crate or those dependencies read by a literal `include*!` or
   `#[path]` in `src/` or `build.rs`, or that a declared runtime read in their
   `src/` or `build.rs` names;
