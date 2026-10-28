@@ -265,36 +265,230 @@ fn kd5_timoshenko_full_span_closes_and_passes() {
     }
 }
 
-/// Design §4 item 4: a Timoshenko frame with a partial-span UniformStraight
-/// primitive is recorded as unavailable (fail closed); it is never formed
-/// with the stale Euler–Bernoulli vector. The Euler–Bernoulli twin re-forms.
+/// The K-D5 check of `force` with `source_frame` in the formation source and
+/// `dense_frame`'s binary64 stiffness in the solve (the same frame for an
+/// ordinary case; distinct only to reach a re-formation failure whose frame
+/// has no binary64 stiffness).
+fn checked_with(
+    dense_frame: &FrameElement,
+    source_frame: &FrameElement,
+    force: &AssembledForce,
+) -> super::super::StructuralSolution {
+    let k: Matrix12 = dense_frame.global_stiffness().unwrap();
+    let dense: Vec<Vec<f64>> = k.iter().map(|r| r.to_vec()).collect();
+    let mut contributions = Vec::new();
+    for r in 0..12 {
+        for c in 0..12 {
+            contributions.push(StiffnessContribution { row: r, col: c, value: k[r][c] });
+        }
+    }
+    let source = FormationSource {
+        node_count: 2,
+        loads: force.load_primitives().into(),
+        frames: vec![*source_frame],
+        frame_members: vec![MEMBER_T.into()],
+        ..FormationSource::default()
+    };
+    let prescribed: Vec<_> = (0..6).map(|i| (i, 0.0)).collect();
+    let free: Vec<usize> = (6..12).collect();
+    let checked =
+        StructuralSystem::assembled(&dense, force, &free, &prescribed, Some(&contributions), None)
+            .with_formation_source(&source);
+    super::super::solve_formation_checked_structural_dense(&checked).unwrap()
+}
+
+/// Whether the ball (m, r) encloses num/den (den > 0): with
+/// offset = den * m - num formed exactly, den * r - |offset| >= 0.
+fn encloses(m: &Wide2, r: f64, num: f64, den: f64) -> bool {
+    let mut offset = ExactAccumulator::new();
+    assert!(!m.add_product_to(&mut offset, den).unwrap(), "split truncated");
+    offset.add(-num).unwrap();
+    let sign = if offset.signum() < 0 { 1.0 } else { -1.0 };
+    let mut slack = ExactAccumulator::new();
+    slack.add_product(den, r).unwrap();
+    // slack += -|offset|, term by term (round and subtract).
+    let mut rest = offset;
+    for _ in 0..8 {
+        if rest.is_zero() {
+            break;
+        }
+        let head = rest.round().unwrap();
+        rest.add(-head).unwrap();
+        slack.add(sign * head).unwrap();
+    }
+    assert!(rest.is_zero(), "offset needs more than eight terms");
+    slack.signum() >= 0
+}
+
+/// W-16t TPS-K (Design §4 item 4 (ii)) and element controls E1 and E9: the
+/// re-formed ball of a Timoshenko proper span encloses the exact rational
+/// vector (T1)/(T2). With E = G = A = J = 1, A_s = 12 and L = 1: I_y = 1
+/// gives phi_y = 1, I_z = 2 gives phi_z = 2 (unequal planes). Local y (phi_z
+/// = 2) over the distal half: [11/96, 7/192, 37/96, -3/64]; local z (phi_y =
+/// 1): [7/64, 13/384, 25/64, -19/384], with r_y taking the moments negated.
+/// The Euler–Bernoulli twin encloses the stale [3/32, 5/192, 13/32,
+/// -11/192]; the full span keeps it bit for bit.
 #[test]
-fn kd5_timoshenko_partial_span_is_unavailable() {
+fn kd5_timoshenko_partial_span_ball_encloses_the_rational_vector() {
+    let section = FrameSection::timoshenko(1.0, 1.0, 1.0, 1.0, 2.0, 1.0, 12.0).unwrap();
+    let t = frame(0, 1, [0.0; 3], [1.0, 0.0, 0.0], section, [0.0, 1.0, 0.0]);
+    assert_eq!(t.properties().unwrap().timoshenko_phi().unwrap(), Some([1.0, 2.0]));
+    let load = |f: FrameElement, a: f64, b: f64| LoadFormula::UniformStraight {
+        frame: f,
+        intensity: IntensityPrimitive::Authored([0.0, 1.0, 1.0]),
+        start_fraction: a,
+        end_fraction: b,
+    };
+    let (m, r) = load_reformation(&primitive(load(t, 0.5, 1.0), 0, "member")).unwrap();
+    let j = DOF_PER_NODE;
+    for (slot, num, den) in [
+        (crate::UY, 11.0, 96.0),
+        (crate::RZ, 7.0, 192.0),
+        (j + crate::UY, 37.0, 96.0),
+        (j + crate::RZ, -3.0, 64.0),
+        (crate::UZ, 7.0, 64.0),
+        (crate::RY, -13.0, 384.0),
+        (j + crate::UZ, 25.0, 64.0),
+        (j + crate::RY, 19.0, 384.0),
+        (crate::UX, 0.0, 1.0),
+    ] {
+        assert!(encloses(&m[slot], r[slot], num, den), "slot {slot}: not {num}/{den}");
+        assert!(r[slot] <= 1e-30, "slot {slot}: radius {}", r[slot]);
+    }
+    // The stale Euler–Bernoulli vector is not enclosed (it is 1/64 off).
+    assert!(!encloses(&m[crate::UZ], r[crate::UZ], 3.0, 32.0));
+    let eb = frame(0, 1, [0.0; 3], [1.0, 0.0, 0.0], euler_bernoulli_twin(section), [0.0, 1.0, 0.0]);
+    let (me, re) = load_reformation(&primitive(load(eb, 0.5, 1.0), 0, "member")).unwrap();
+    for (slot, num, den) in [(crate::UY, 3.0, 32.0), (crate::RZ, 5.0, 192.0), (j + crate::UY, 13.0, 32.0), (j + crate::RZ, -11.0, 192.0)] {
+        assert!(encloses(&me[slot], re[slot], num, den), "EB slot {slot}");
+    }
+    // A full span keeps the Euler–Bernoulli re-formation bit for bit.
+    let (mf, rf) = load_reformation(&primitive(load(t, 0.0, 1.0), 0, "member")).unwrap();
+    let (mfe, rfe) = load_reformation(&primitive(load(eb, 0.0, 1.0), 0, "member")).unwrap();
+    for k in 0..12 {
+        assert_eq!(mf[k].cmp_value(&mfe[k]), std::cmp::Ordering::Equal);
+        assert_eq!(rf[k].to_bits(), rfe[k].to_bits());
+    }
+}
+
+/// W-16t TPS-K (Design §4 item 4 (ii)): a closed Timoshenko cantilever with a
+/// proper-span uniform load passes K-D5, and its certified recovery gives
+/// the root actions of statics. w = (0, -1500, 400) N/m on [1, 2] m of a
+/// 2 m cantilever: Fy = 1500 N, Fz = -400 N, Mz = 2250 N·m, My = 600 N·m.
+#[test]
+fn kd5_timoshenko_partial_span_closes_and_passes() {
+    let t = cantilever(s_b_section(1.0));
+    for (a, b, fy, fz, mz, my) in [
+        (0.5, 1.0, 1500.0, -400.0, 2250.0, 600.0),
+        (0.0, 0.5, 1500.0, -400.0, 750.0, 200.0),
+        (0.2, 0.7, 1500.0, -400.0, 1350.0, 360.0),
+    ] {
+        let recipe = uniform(t, a, b);
+        let force = ledger(&recipe, formed(&recipe), "member:1:T:w");
+        let solution = checked_cantilever(&t, &force);
+        assert_eq!(solution.report.quality, SolveQuality::Passed, "[{a}, {b}]: {:?}", solution.formation_check);
+        let bound = solution.member_bound.as_ref().unwrap();
+        let source = member_t_source(&t);
+        let loads = CertifiedMemberLoads::from_member_primitives(0, 1, force.load_primitives(), MEMBER_T)
+            .unwrap()
+            .with_member_source(&source, MEMBER_T);
+        let rows = certify_straight_recovery(&t, &loads, &solution.displacements, bound).unwrap();
+        for (row, expected) in [
+            (crate::UY, fy),
+            (crate::UZ, fz),
+            (crate::RZ, mz),
+            (crate::RY, my),
+            (6 + crate::UY, 0.0),
+            (6 + crate::UZ, 0.0),
+            (6 + crate::RZ, 0.0),
+            (6 + crate::RY, 0.0),
+        ] {
+            let r = rows.ends[row];
+            assert!(
+                (r.published - expected).abs() <= r.bound() + 1e-9 * 3000.0,
+                "[{a}, {b}] row {row}: {} vs {expected} (bound {})",
+                r.published,
+                r.bound()
+            );
+        }
+    }
+}
+
+/// W-16t §2.4: the binary64 vector stale (the Euler–Bernoulli twin's values)
+/// against the correct Timoshenko re-formation leaves Passed on a
+/// nonsymmetric span: the closed residual measures the disagreement.
+#[test]
+fn kd5_timoshenko_partial_span_stale_binary64_leaves_passed() {
     let t = cantilever(s_b_section(1.0));
     let eb = cantilever(euler_bernoulli_twin(s_b_section(1.0)));
-    let partial = uniform(t, 0.5, 1.0);
-    assert!(matches!(
-        load_reformation(&primitive(partial.clone(), 0, "member")),
-        Err(LoadFailure::Wide(WideError::CountRange(
-            "timoshenko partial-span uniform load: unavailable"
-        )))
-    ));
-    let stale = uniform(eb, 0.5, 1.0);
-    assert!(load_reformation(&primitive(stale.clone(), 0, "member")).is_ok());
-    // The solve's force: any binary64 values (here the stale vector).
-    let force = ledger(&partial, formed(&stale), "member:1:T:w");
-    let solution = checked_cantilever(&t, &force);
+    for (a, b) in [(0.5, 1.0), (0.0, 0.5), (0.2, 0.7)] {
+        let recipe = uniform(t, a, b);
+        let stale = formed(&uniform(eb, a, b));
+        let correct = formed(&recipe);
+        assert_ne!(stale, correct, "[{a}, {b}]: precondition, the vectors differ");
+        let solution = checked_cantilever(&t, &ledger(&recipe, stale, "member:1:T:w"));
+        assert_ne!(solution.report.quality, SolveQuality::Passed, "[{a}, {b}]: the stale vector must not pass");
+        assert!(solution.member_bound.is_none() || solution.formation_check.is_some());
+    }
+}
+
+/// W-16t §5.2: TPS-K under a nonzero force-scale exponent. The scaled
+/// re-formation is 2^b times the unscaled one (midpoints exactly, radii
+/// rounded upward), and the primitive binds to a W2 source that holds E and G
+/// times 2^b, with its exponent in the closure entry.
+#[test]
+fn kd5_timoshenko_partial_span_force_scaled() {
+    let t = cantilever(s_b_section(1.0));
+    let base = primitive(uniform(t, 0.2, 0.7), 0, "member:1:T:w");
+    let (m0, r0) = load_reformation(&base).unwrap();
+    for b in [-40, 40] {
+        let mut scaled = base.clone();
+        scaled.force_scale_exponent = b;
+        let (m, r) = load_reformation(&scaled).unwrap();
+        for k in 0..12 {
+            assert_eq!(m[k].cmp_value(&m0[k].mul_pow2(i64::from(b)).unwrap()), std::cmp::Ordering::Equal);
+            assert!(r[k] >= r0[k] * 2f64.powi(b) && r[k].is_finite());
+        }
+        let entry = scaled.closure_entry();
+        assert_eq!(*entry.operand_bits.last().unwrap(), b as i64 as u64);
+        assert_ne!(entry, base.closure_entry());
+        let w2 = FormationSource {
+            node_count: 2,
+            loads: vec![scaled.clone()].into(),
+            frames: vec![t.force_scaled(crate::ForceScale::new(b).unwrap()).unwrap()],
+            frame_members: vec![MEMBER_T.into()],
+            ..FormationSource::default()
+        };
+        assert!(unbound_straight_primitive(&w2).is_none());
+    }
+}
+
+/// W-16t §5.2: a failure inside the new ball correction is
+/// FormationCheckUnavailable (fail closed). G A_s l^2 below the binary64
+/// range makes the "timoshenko phi" divisor ball reach zero; the same frame's
+/// full span (no correction) re-forms.
+#[test]
+fn kd5_timoshenko_partial_span_correction_failure_is_unavailable() {
+    let i = 0.0000085975 * std::f64::consts::PI;
+    let broken_section = FrameSection::timoshenko(200e9, 1e-200, 0.0019, i, i, 2.0 * i, 1e-200).unwrap();
+    let broken = cantilever(broken_section);
+    assert!(load_reformation(&primitive(uniform(broken, 0.0, 1.0), 0, "member")).is_ok());
+    let failure = load_reformation(&primitive(uniform(broken, 0.5, 1.0), 0, "member")).unwrap_err();
+    assert!(
+        matches!(failure, LoadFailure::DivisorReachesZero { site: "timoshenko phi" }),
+        "{failure:?}"
+    );
+    // The solve's binary64 stiffness is an ordinary frame's; the source frame
+    // and the primitives are the broken one's, so the closure binds and the
+    // re-formation fails inside the correction.
+    let t = cantilever(s_b_section(1.0));
+    let recipe = uniform(broken, 0.5, 1.0);
+    let force = ledger(&recipe, formed(&uniform(t, 0.5, 1.0)), "member:1:T:w");
+    let solution = checked_with(&t, &broken, &force);
     assert_eq!(solution.report.quality, SolveQuality::Sensitive);
     assert!(solution.member_bound.is_none());
     let detail = unavailable_detail(&solution);
-    assert!(
-        detail.starts_with("load closure:") && detail.contains("timoshenko partial-span uniform load: unavailable"),
-        "{detail}"
-    );
-    // Certified recovery and reactions refuse it too.
-    let primitives = force.load_primitives();
-    let loads = CertifiedMemberLoads::from_member_primitives(0, 1, primitives, "member:1:T:");
-    assert!(loads.is_err());
+    assert!(detail.starts_with("load closure:") && detail.contains("timoshenko phi"), "{detail}");
 }
 
 /// Design §4 item 2 and §8 ("Timoshenko leaf missing from a recovery or
