@@ -26,6 +26,7 @@ import json
 import math
 import os
 import re
+import subprocess
 from decimal import Decimal
 from fractions import Fraction as Q
 
@@ -207,19 +208,19 @@ def match_contract(route, kind, component, unit, source):
 
 # ----------------------------------------------------------------- helpers
 def is_int(x):
-    return isinstance(x, int) and not isinstance(x, bool)
+    return type(x) is int
 
 
 def is_num(x):
-    return isinstance(x, (int, float)) and not isinstance(x, bool)
+    return type(x) in (int, float)
 
 
 def binary64(x):
     """(float, ok) of a JSON number: a finite float as it is; an integer only when it is exactly a finite binary64."""
-    if isinstance(x, bool) or not isinstance(x, (int, float)):
-        return None, False
-    if isinstance(x, float):
+    if type(x) is float:
         return (x, True) if math.isfinite(x) else (None, False)
+    if type(x) is not int:
+        return None, False
     try:
         f = float(x)
     except OverflowError:
@@ -583,24 +584,25 @@ def _evidence(ev, route, facts, by_id):
 
 
 # ----------------------------------------------------------------- reference lines -> ModelView, Expected
-PF_LINE = {"tag", "meta", "ref", "request"}
-PF_META = {"design", "family", "section", "material", "placement", "theory", "section_variant", "twin", "E", "G", "harness_validation",
-           "notes", "self_weight_N_per_m"}
-PF_REF = {"theory", "sections", "nodes", "cases", "expect", "expected_warnings", "phi", "phi_minus_2"}
-PF_SECTION = {"od", "wall", "mill", "E", "G", "ro", "ri", "A", "I", "J", "Z", "L", "nu", "E_over_2G", "kappa_E", "shear_area", "tau_c",
-              "phi_timoshenko", "phi_used", "exact_nu_in_domain", "admitted", "refusal_reasons"}
-EXACT_META = {"design", "family", "harness_validation", "load_state", "material", "mill_and_allowance", "notes", "placement", "section",
-              "section_variant", "self_weight_N_per_m", "stiffness_basis_control", "theory", "twin"}
-EXACT_REF = {"cases", "nodes", "phi", "phi_minus_2", "sections", "theory"}
-EXACT_SECTION = {"E", "G", "L", "ca", "kappa_E", "mill", "nominal_section", "nu", "od", "phi_timoshenko", "phi_used", "pressure_bore",
-                 "reduced_section", "ro", "shear_area", "t_r_binary64", "wall"}
-EXACT_BASIS_SECTION = {"A", "I", "J", "Z", "ri", "wall"}
-REPORT_META = ("design", "family", "theory", "placement", "section_variant", "mill_and_allowance", "harness_validation", "load_state", "twin")
+# Agent 0 (the judge's final round): every datum the judge uses is either (a) derived from the hash-bound request,
+# parsed into the view and unique, or (b) read from a reference file whose sha256 the judging pass verifies against
+# the committed REFERENCE_SHA256SUMS as part of provenance. Nothing else in a reference is read.
+#   (a) the request: node ids and positions (L_b, bodies), pipe ids and ends, support ids and nodes, load case ids,
+#       components; every run binds it through request_sha256 = sha256(request_line(tag, request)).
+#   (b) the reference line, besides its request: meta family, theory, twin and the reporting keys REPORT_META; and
+#       ref: on PF expect, refusal.code, expected_warnings, sections[pipe] {ro, A, Z, J, I, tau_c, E, G, od, wall,
+#       mill}; on the exact route sections[pipe] {ro, nominal_section and reduced_section {A, Z, J}}; and on both
+#       cases[case] {rows, maxima}. The controls file (exact route): one {tag, pertE} per model with a control,
+#       pertE an exact-route ref read as above.
+# ref.nodes, phi, notes and every other member are not read.
+REPORT_META = ("design", "family", "theory", "placement", "section_variant", "twin")
+PF_TAU_FLOATS = ("od", "wall", "mill", "E", "G")
+PF_EXACT = ("ro", "A", "I", "J", "Z", "tau_c")
 
 
 def _decimal_text(x):
     try:
-        return isinstance(x, str) and Decimal(x).is_finite()
+        return type(x) is str and Decimal(x).is_finite()
     except Exception:
         return False
 
@@ -610,28 +612,56 @@ def _fq(text):
 
 
 def _float_text(x):
-    return isinstance(x, str) and _decimal_text(x) and _decimal_text(repr(float(x)))
+    """A decimal text of a finite binary64 (the generators write repr(float); E, G, OD, wall and mill are read as floats)."""
+    return _decimal_text(x) and math.isfinite(float(x))
 
 
-def _request_facts(q):
-    """(Facts, bodies, components, problems) of a reference request."""
-    if not (isinstance(q, dict) and set(q) == {"model", "materials"} and isinstance(q["model"], dict)):
-        return None, 0, 0, ["request"]
+def _id_list(xs, what):
+    """(ids, problems) of a request list of objects with string ids: unique."""
+    if type(xs) is not list or not all(type(e) is dict and type(e.get("id")) is str and e["id"] for e in xs):
+        return None, [f"request {what}"]
+    ids = [e["id"] for e in xs]
+    return ids, ([f"request: duplicate {what} ids {sorted({i for i in ids if ids.count(i) > 1})[:3]}"] if len(set(ids)) != len(ids) else [])
+
+
+def request_model(q):
+    """(Facts, L_b, bodies, components, problems) parsed from a request: unique ids across nodes, pipes, supports and
+    load cases; every pipe end and support node a defined node; positions finite binary64 (m)."""
+    if type(q) is not dict or type(q.get("model")) is not dict:
+        return None, 0.0, 0, 0, ["request"]
     mdl = q["model"]
-    lists = all(isinstance(mdl.get(k), list) and all(isinstance(e, dict) and isinstance(e.get("id"), str) for e in mdl[k])
-                for k in ("nodes", "pipe_segments", "supports", "load_cases"))
-    if not lists or not isinstance(mdl.get("components"), list):
-        return None, 0, 0, ["request model"]
     out = []
-    for k in ("nodes", "pipe_segments", "supports", "load_cases"):
-        ids = [e["id"] for e in mdl[k]]
-        if len(set(ids)) != len(ids):
-            out.append(f"request: duplicate {k} ids")
-    nodes = [n["id"] for n in mdl["nodes"]]
-    if not all(p.get("from") in nodes and p.get("to") in nodes for p in mdl["pipe_segments"]):
-        return None, 0, 0, out + ["request pipe ends"]
-    if not mdl["load_cases"]:
+    nodes, p1 = _id_list(mdl.get("nodes"), "nodes")
+    pipes, p2 = _id_list(mdl.get("pipe_segments"), "pipe_segments")
+    sups, p3 = _id_list(mdl.get("supports"), "supports")
+    cases, p4 = _id_list(mdl.get("load_cases"), "load_cases")
+    out += p1 + p2 + p3 + p4
+    if None in (nodes, pipes, sups, cases) or type(mdl.get("components")) is not list:
+        return None, 0.0, 0, 0, out + ["request model"]
+    every = nodes + pipes + sups + cases + [SOLVER_ENTITY]
+    if len(set(every)) != len(every):
+        out.append("request: an id names two entities")
+    if not cases:
         out.append("request: no load cases")
+    points = []
+    for n in mdl["nodes"]:
+        pos = n.get("position")
+        if type(pos) is not dict or not all(type(pos.get(a)) is float and math.isfinite(pos[a]) for a in "xyz"):
+            out.append(f"request: position of {n['id']}")
+        else:
+            points.append([pos["x"], pos["y"], pos["z"]])
+    known = set(nodes)
+    for p in mdl["pipe_segments"]:
+        if type(p.get("from")) is not str or type(p.get("to")) is not str or p["from"] not in known or p["to"] not in known or p["from"] == p["to"]:
+            out.append(f"request: ends of {p['id']}")
+    for s in mdl["supports"]:
+        if type(s.get("node")) is not str or s["node"] not in known:
+            out.append(f"request: node of {s['id']}")
+    if out or not points:
+        return None, 0.0, 0, 0, out or ["request: no nodes"]
+    # the node bounding-box diagonal, in kd5t_compare's binary64 arithmetic (formerly read from ref.nodes)
+    delta = [max(p[a] for p in points) - min(p[a] for p in points) for a in range(3)]
+    Lb = ((delta[0] ** 2 + delta[1] ** 2) + delta[2] ** 2) ** 0.5
     parent = {n: n for n in nodes}
 
     def find(a):
@@ -643,115 +673,92 @@ def _request_facts(q):
     for p in mdl["pipe_segments"]:
         parent[find(p["from"])] = find(p["to"])
     bodies = len({find(a) for a in parent})
-    facts = Facts(nodes, [p["id"] for p in mdl["pipe_segments"]], [s["id"] for s in mdl["supports"]], [c["id"] for c in mdl["load_cases"]])
-    return facts, bodies, len(mdl["components"]), out
+    return Facts(nodes, pipes, sups, cases), Lb, bodies, len(mdl["components"]), []
 
 
-def _lb(nodes):
-    """The node bounding-box diagonal (m), in kd5t_compare's binary64 arithmetic."""
-    points = [[float(Decimal(c)) for c in p] for _, p in nodes]
-    delta = [max(p[a] for p in points) - min(p[a] for p in points) for a in range(3)]
-    return ((delta[0] ** 2 + delta[1] ** 2) + delta[2] ** 2) ** 0.5
+def _ref_rows(c, facts, route, cid):
+    """(rows, derived, maxima, problems) of one reference case, bound to the request's entities."""
+    if type(c) is not dict or type(c.get("rows")) is not list or type(c.get("maxima")) is not list:
+        return None, None, None, [f"case {cid}"]
+    out, rows, derived, maxima = [], [], [], []
+    for w in c["rows"]:
+        ok = (type(w) is list and len(w) == 6 and type(w[0]) is str and type(w[1]) is str and (w[2] is None or type(w[2]) is str)
+              and (w[3] is None or type(w[3]) is str) and _decimal_text(w[5]))
+        if ok:
+            ok = (w[4] in SECTION_BASES if (route == "exact" and w[0] in STRESS_KINDS) else w[4] is None) and facts.entity_ok(w[0], w[1]) \
+                and w[0] in ENTITY_CLASS and w[0] != SOLVER
+        if not ok:
+            out.append(f"case {cid}: a reference row {str(w)[:120]}")
+            continue
+        ((derived if (route == "pf" and w[0] in DERIVED) else rows)).append(((w[0], w[1], w[2], w[3], w[4]), _fq(w[5])))
+    for w in c["maxima"]:
+        ok = (type(w) is list and len(w) == 3 and type(w[0]) is str and w[0] in facts.pipes and _decimal_text(w[2])
+              and (w[1] in SECTION_BASES if route == "exact" else w[1] is None))
+        if not ok:
+            out.append(f"case {cid}: a reference maximum {str(w)[:120]}")
+            continue
+        maxima.append(((w[0], w[1]), _fq(w[2])))
+    if any(len({k for k, _ in xs}) != len(xs) for xs in (rows, derived, maxima)):
+        out.append(f"case {cid}: duplicate reference keys")
+    return rows, derived, maxima, out
 
 
-def _nodes_ok(nodes):
-    return isinstance(nodes, list) and nodes and all(isinstance(n, list) and len(n) == 2 and isinstance(n[0], str) and isinstance(n[1], list)
-                                                     and len(n[1]) == 3 and all(_decimal_text(c) for c in n[1]) for n in nodes)
-
-
-def _pf_expected(ref, facts, variant):
-    """(Expected or None, problems) of a PF ref (own, twin)."""
+def _expected(ref, facts, route, variant):
+    """(Expected or None, problems) of a ref: only the members the judge reads, each of an exact type."""
+    if type(ref) is not dict or type(ref.get("sections")) is not dict or type(ref.get("cases")) is not dict:
+        return None, ["ref"]
     out = []
-    if not isinstance(ref, dict) or set(ref) != PF_REF | ({"refusal"} if ref.get("expect") == "refused" else set()) or ref.get("expect") not in ("rows", "refused"):
-        return None, ["ref keys"]
-    if ref["theory"] not in (EULER, TIMOSHENKO) or not (isinstance(ref["expected_warnings"], list) and all(isinstance(w, str) for w in ref["expected_warnings"])):
-        out.append("ref theory or warnings")
-    if ref["expect"] == "refused" and not (isinstance(ref["refusal"], dict) and ref["refusal"].get("code") in REFUSALS["pf"]):
-        out.append("ref refusal")
     secs = ref["sections"]
-    if not (isinstance(secs, dict) and secs and all(isinstance(s, dict) and set(s) == PF_SECTION for s in secs.values())
-            and all(_decimal_text(s[k]) for s in secs.values() for k in ("ro", "A", "I", "J", "Z", "tau_c"))
-            and all(_float_text(s[k]) for s in secs.values() for k in ("od", "wall", "mill", "E", "G"))):
-        return None, out + ["ref sections"]
-    if set(secs) != set(facts.pipes):
-        out.append("ref sections differ from the request's pipes")
-    if not _nodes_ok(ref["nodes"]):
-        return None, out + ["ref nodes"]
-    if not (isinstance(ref["phi"], dict) and isinstance(ref["phi_minus_2"], dict)):
-        out.append("ref phi")
-    if not isinstance(ref["cases"], dict) or sorted(ref["cases"]) != sorted(facts.cases):
-        return None, out + ["ref cases differ from the request's load cases"]
+    if sorted(secs) != sorted(facts.pipes):
+        return None, ["ref sections differ from the request's pipes"]
+    if sorted(ref["cases"]) != sorted(facts.cases):
+        return None, ["ref cases differ from the request's load cases"]
+    sections = []
+    for pid in sorted(secs):
+        s = secs[pid]
+        if type(s) is not dict or not _decimal_text(s.get("ro")):
+            out.append(f"ref section {pid}")
+            continue
+        if route == "pf":
+            if not (all(_decimal_text(s.get(k)) for k in PF_EXACT) and all(_float_text(s.get(k)) for k in PF_TAU_FLOATS)):
+                out.append(f"ref section {pid}")
+                continue
+            sections.append(PipeSection(pipe=pid, ro=_fq(s["ro"]), bases=((None, SectionProps(A=_fq(s["A"]), Z=_fq(s["Z"]), J=_fq(s["J"]))),),
+                                        tau=TauInputs(E=float(s["E"]), G=float(s["G"]), od=float(s["od"]), wall=float(s["wall"]),
+                                                      mill=float(s["mill"]), I=_fq(s["I"]), Z=_fq(s["Z"]), tau_c=_fq(s["tau_c"]))))
+        else:
+            if not all(type(s.get(b)) is dict and all(_decimal_text(s[b].get(k)) for k in ("A", "Z", "J")) for b in SECTION_BASES):
+                out.append(f"ref section {pid}")
+                continue
+            sections.append(PipeSection(pipe=pid, ro=_fq(s["ro"]), tau=None,
+                                        bases=tuple((b, SectionProps(A=_fq(s[b]["A"]), Z=_fq(s[b]["Z"]), J=_fq(s[b]["J"]))) for b in SECTION_BASES)))
     cases = []
     for cid in facts.cases:
-        c = ref["cases"][cid]
-        if not (isinstance(c, dict) and set(c) == {"rows", "maxima"} and isinstance(c["rows"], list) and isinstance(c["maxima"], list)
-                and all(isinstance(w, list) and len(w) == 6 and isinstance(w[0], str) and isinstance(w[1], str) and (w[2] is None or isinstance(w[2], str))
-                        and (w[3] is None or isinstance(w[3], str)) and w[4] is None and _decimal_text(w[5]) for w in c["rows"])
-                and all(isinstance(w, list) and len(w) == 3 and w[0] in facts.pipes and w[1] is None and _decimal_text(w[2]) for w in c["maxima"])):
-            out.append(f"case {cid}")
-            continue
-        rows = [((w[0], w[1], w[2], w[3], None), _fq(w[5])) for w in c["rows"] if w[0] not in DERIVED]
-        derived = [((w[0], w[1], w[2], w[3], None), _fq(w[5])) for w in c["rows"] if w[0] in DERIVED]
-        maxima = [((w[0], None), _fq(w[2])) for w in c["maxima"]]
-        if any(len({k for k, _ in xs}) != len(xs) for xs in (rows, derived, maxima)):
-            out.append(f"case {cid}: duplicate reference keys")
-            continue
-        cases.append(ExpectedCase(case=cid, rows=tuple(rows), maxima=tuple(maxima), derived=tuple(derived)))
+        rows, derived, maxima, probs = _ref_rows(ref["cases"][cid], facts, route, cid)
+        out += probs
+        if not probs:
+            cases.append(ExpectedCase(case=cid, rows=tuple(rows), maxima=tuple(maxima), derived=tuple(derived)))
+    expect = refusal = None
+    warnings = frozenset()
+    if route == "pf":
+        expect = ref.get("expect")
+        if expect not in ("rows", "refused") or type(expect) is not str:
+            out.append("ref expect")
+        elif expect == "refused":
+            r = ref.get("refusal")
+            if type(r) is not dict or type(r.get("code")) is not str or r["code"] not in REFUSALS["pf"]:
+                out.append("ref refusal")
+            else:
+                refusal = r["code"]
+        w = ref.get("expected_warnings")
+        if type(w) is not list or not all(type(x) is str for x in w):
+            out.append("ref expected_warnings")
+        else:
+            warnings = frozenset(w)
     if out:
         return None, out
-    sections = tuple(PipeSection(pipe=pid, ro=_fq(s["ro"]), bases=((None, SectionProps(A=_fq(s["A"]), Z=_fq(s["Z"]), J=_fq(s["J"]))),),
-                                 tau=TauInputs(E=float(s["E"]), G=float(s["G"]), od=float(s["od"]), wall=float(s["wall"]), mill=float(s["mill"]),
-                                               I=_fq(s["I"]), Z=_fq(s["Z"]), tau_c=_fq(s["tau_c"])))
-                     for pid, s in sorted(secs.items()))
-    return Expected(variant=variant, Lb=_lb(ref["nodes"]), sections=sections, cases=tuple(cases), bases=(None,), single_headline=True,
-                    expect=ref["expect"], refusal=ref["refusal"]["code"] if ref["expect"] == "refused" else None,
-                    warnings=frozenset(ref["expected_warnings"]), derived_judged=True), []
-
-
-def _exact_expected(ref, facts, variant):
-    """(Expected or None, problems) of an exact-route (kd5) ref (own, twin or control)."""
-    out = []
-    if not isinstance(ref, dict) or set(ref) != EXACT_REF:
-        return None, ["ref keys"]
-    if ref["theory"] not in (EULER, TIMOSHENKO):
-        out.append("ref theory")
-    secs = ref["sections"]
-    if not (isinstance(secs, dict) and secs and all(isinstance(s, dict) and set(s) == EXACT_SECTION for s in secs.values())
-            and all(_decimal_text(s["ro"]) for s in secs.values())
-            and all(isinstance(s[b], dict) and set(s[b]) == EXACT_BASIS_SECTION and all(_decimal_text(s[b][k]) for k in ("A", "Z", "J"))
-                    for s in secs.values() for b in SECTION_BASES)):
-        return None, out + ["ref sections"]
-    if set(secs) != set(facts.pipes):
-        out.append("ref sections differ from the request's pipes")
-    if not _nodes_ok(ref["nodes"]):
-        return None, out + ["ref nodes"]
-    if not (isinstance(ref["phi"], dict) and isinstance(ref["phi_minus_2"], dict)):
-        out.append("ref phi")
-    if not isinstance(ref["cases"], dict) or sorted(ref["cases"]) != sorted(facts.cases):
-        return None, out + ["ref cases differ from the request's load cases"]
-    cases = []
-    for cid in facts.cases:
-        c = ref["cases"][cid]
-        if not (isinstance(c, dict) and set(c) == {"rows", "maxima", "region_members"} and isinstance(c["rows"], list) and isinstance(c["maxima"], list)
-                and all(isinstance(w, list) and len(w) == 6 and isinstance(w[0], str) and isinstance(w[1], str) and (w[2] is None or isinstance(w[2], str))
-                        and (w[3] is None or isinstance(w[3], str)) and (w[4] in SECTION_BASES if w[0] in STRESS_KINDS else w[4] is None)
-                        and _decimal_text(w[5]) for w in c["rows"])
-                and all(isinstance(w, list) and len(w) == 3 and w[0] in facts.pipes and w[1] in SECTION_BASES and _decimal_text(w[2]) for w in c["maxima"])):
-            out.append(f"case {cid}")
-            continue
-        rows = [((w[0], w[1], w[2], w[3], w[4]), _fq(w[5])) for w in c["rows"]]
-        maxima = [((w[0], w[1]), _fq(w[2])) for w in c["maxima"]]
-        if any(len({k for k, _ in xs}) != len(xs) for xs in (rows, maxima)):
-            out.append(f"case {cid}: duplicate reference keys")
-            continue
-        cases.append(ExpectedCase(case=cid, rows=tuple(rows), maxima=tuple(maxima), derived=()))
-    if out:
-        return None, out
-    sections = tuple(PipeSection(pipe=pid, ro=_fq(s["ro"]), bases=tuple((b, SectionProps(A=_fq(s[b]["A"]), Z=_fq(s[b]["Z"]), J=_fq(s[b]["J"])))
-                                                                     for b in SECTION_BASES), tau=None)
-                     for pid, s in sorted(secs.items()))
-    return Expected(variant=variant, Lb=_lb(ref["nodes"]), sections=sections, cases=tuple(cases), bases=SECTION_BASES, single_headline=False,
-                    expect=None, refusal=None, warnings=frozenset(), derived_judged=False), []
+    return Expected(variant=variant, sections=tuple(sections), cases=tuple(cases), bases=(None,) if route == "pf" else SECTION_BASES,
+                    single_headline=route == "pf", expect=expect, refusal=refusal, warnings=warnings, derived_judged=route == "pf"), []
 
 
 class Model:
@@ -762,25 +769,33 @@ class Model:
 
 
 def reference_views(lines, route, variant="own", controls=None):
-    """({tag: Model}, problems): every reference line validated, with the expected reference of the variant (own,
-    twin or, on the exact route, control: the controls file's pertE reference). With any problem nothing is judged."""
-    out = []
+    """({tag: Model}, problems): every reference line admitted (request and read members), with the expected
+    reference of the variant (own, twin or, on the exact route, control: the controls file's pertE). Every control
+    entry is admitted too: one per tag, a tag of the set, a well-formed pertE. With any problem nothing is judged."""
     if not lines:
         return {}, ["an empty reference set"]
-    tags = collections.Counter(x.get("tag") if isinstance(x, dict) else None for x in lines)
-    out += [f"duplicate reference tag {t}" for t, n in tags.items() if n > 1]
-    by_tag = {x["tag"]: x for x in lines if isinstance(x, dict) and isinstance(x.get("tag"), str)}
+    out = []
+    tags = [x.get("tag") if type(x) is dict else None for x in lines]
+    out += [f"duplicate reference tag {t}" for t in sorted({t for t in tags if tags.count(t) > 1}, key=str)]
+    by_tag = {x["tag"]: x for x in lines if type(x) is dict and type(x.get("tag")) is str}
     ctl = {}
     if variant == "control":
         if route != "exact" or controls is None:
             return {}, ["the control variant needs the exact route and a controls file"]
-        cl = collections.Counter(x.get("tag") if isinstance(x, dict) else None for x in controls)
-        if any(n > 1 for n in cl.values()) or not all(isinstance(x, dict) and set(x) == {"tag", "pertE"} and isinstance(x["tag"], str) for x in controls):
-            return {}, ["controls: keys or duplicate tags"]
-        ctl = {x["tag"]: x["pertE"] for x in controls}
+        if not controls:
+            return {}, ["controls: empty"]
+        for x in controls:
+            if type(x) is not dict or set(x) != {"tag", "pertE"} or type(x["tag"]) is not str:
+                out.append("controls: an entry's keys")
+            elif x["tag"] in ctl:
+                out.append(f"controls: duplicate tag {x['tag']}")
+            elif x["tag"] not in by_tag:
+                out.append(f"controls: {x['tag']} is not a model of the set")
+            else:
+                ctl[x["tag"]] = x["pertE"]
     models = {}
     for x in lines:
-        t = x.get("tag") if isinstance(x, dict) else None
+        t = x.get("tag") if type(x) is dict else None
         try:
             m, probs = _reference_model(x, route, variant, by_tag, ctl)
         except Exception as e:  # never a crash
@@ -788,48 +803,89 @@ def reference_views(lines, route, variant="own", controls=None):
         out += [f"{t}: {p}" for p in probs]
         if m is not None and m.expected is not None:
             models[t] = m
-    if variant == "control" and not ctl:
-        out.append("controls: empty")
     return ({} if out else models), out
 
 
 def _reference_model(x, route, variant, by_tag, ctl):
-    if not isinstance(x, dict) or set(x) != PF_LINE or not isinstance(x["tag"], str):
+    if type(x) is not dict or type(x.get("tag")) is not str or type(x.get("meta")) is not dict or "ref" not in x or "request" not in x:
         return None, ["line keys"]
-    m, q = x["meta"], x["request"]
-    meta_keys = PF_META if route == "pf" else EXACT_META
-    if not isinstance(m, dict) or set(m) != meta_keys or not all(isinstance(m[k], str) for k in ("family", "theory", "twin", "design")):
-        return None, ["meta"]
-    facts, bodies, components, out = _request_facts(q)
+    m = x["meta"]
+    if not all(type(m.get(k)) is str for k in REPORT_META):
+        return None, ["meta (" + ", ".join(REPORT_META) + " must be strings)"]
+    facts, Lb, bodies, components, out = request_model(x["request"])
     if facts is None:
         return None, out
-    if variant == "own":
-        ref = x["ref"]
-    elif variant == "twin":
+    own, probs = _expected(x["ref"], facts, route, "own")       # the own reference is admitted whatever the variant
+    out += probs
+    expected = own
+    if variant == "twin":
         if m["twin"] not in by_tag:
             return None, out + [f"twin {m['twin']} absent"]
-        ref = by_tag[m["twin"]]["ref"]
-    else:
-        if x["tag"] not in ctl:
-            ref = None
-        else:
-            ref = ctl[x["tag"]]
-    # the own reference is always validated, whatever the variant
-    own, probs = (_pf_expected if route == "pf" else _exact_expected)(x["ref"], facts, "own")
-    out += probs
-    if ref is None:
+        expected, probs = _expected(by_tag[m["twin"]].get("ref"), facts, route, "twin")
+        out += [f"twin reference: {p}" for p in probs]
+    elif variant == "control":
         expected = None
-    elif variant == "own":
-        expected = own
-    else:
-        expected, probs = (_pf_expected if route == "pf" else _exact_expected)(ref, facts, variant)
-        out += [f"{variant} reference: {p}" for p in probs]
+        if x["tag"] in ctl:
+            expected, probs = _expected(ctl[x["tag"]], facts, route, "control")
+            out += [f"control reference: {p}" for p in probs]
     harness = None
     if components:
         harness = "components are not modelled by this judge"
     elif bodies != 1:
         harness = f"a model with {bodies} bodies: per-body scales are not implemented"
-    view = ModelView(route=route, tag=x["tag"], family=m["family"], theory=m["theory"], twin=m["twin"], cases=facts.cases,
-                     request_sha256=request_sha256(x["tag"], q), harness_error=harness,
-                     meta=tuple((k, str(m[k])) for k in REPORT_META if k in m))
+    view = ModelView(route=route, tag=x["tag"], family=m["family"], theory=m["theory"], twin=m["twin"], cases=facts.cases, Lb=float(Lb),
+                     request_sha256=request_sha256(x["tag"], x["request"]), harness_error=harness, meta=tuple((k, m[k]) for k in REPORT_META))
     return Model(view, facts, expected), out
+
+
+# ----------------------------------------------------------------- reference files (provenance)
+def file_sha256(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for block in iter(lambda: f.read(1 << 20), b""):
+            h.update(block)
+    return h.hexdigest()
+
+
+REFERENCE_SUMS = os.path.join(HERE, "REFERENCE_SHA256SUMS")
+
+
+def pinned_references(path=REFERENCE_SUMS):
+    """({(route, kind): {sha256: name}}, problems) of the committed reference digests. The file must be tracked by git
+    and unchanged from HEAD in the judge's own checkout; lines are `<sha256> <route> <set|controls> <name...>`."""
+    out = []
+    d = os.path.dirname(os.path.abspath(path))
+    try:
+        tracked = subprocess.run(["git", "-C", d, "ls-files", "--error-unmatch", "--", os.path.basename(path)], capture_output=True, text=True, timeout=60)
+        clean = subprocess.run(["git", "-C", d, "diff", "--quiet", "HEAD", "--", os.path.basename(path)], capture_output=True, text=True, timeout=60)
+    except Exception as e:
+        return {}, [f"git failed on {path} ({type(e).__name__})"]
+    if tracked.returncode != 0:
+        return {}, [f"{path} is not committed"]
+    if clean.returncode != 0:
+        return {}, [f"{path} differs from its committed content"]
+    pins = collections.defaultdict(dict)
+    try:
+        text = open(path, encoding="utf-8").read()
+    except Exception as e:
+        return {}, [f"{path} unreadable ({type(e).__name__})"]
+    for i, line in enumerate(text.splitlines()):
+        if not line.strip() or line.startswith("#"):
+            continue
+        parts = line.split(None, 3)
+        if len(parts) != 4 or not HEX64.match(parts[0]) or parts[1] not in JUDGED or parts[2] not in ("set", "controls"):
+            out.append(f"{path}:{i + 1}: malformed")
+            continue
+        pins[(parts[1], parts[2])][parts[0]] = parts[3]
+    return dict(pins), out
+
+
+def reference_file_problems(path, route, kind, pins):
+    """The sha256 of a reference file must be pinned for the route and kind."""
+    try:
+        h = file_sha256(path)
+    except Exception as e:
+        return [f"{kind} file {path} unreadable ({type(e).__name__})"]
+    if h not in pins.get((route, kind), {}):
+        return [f"{kind} file {path} (sha256 {h[:16]}...) is not a committed {route} reference (REFERENCE_SHA256SUMS)"]
+    return []

@@ -1,7 +1,7 @@
 """The M3 comparison: the K-D5 M3 rules on the canonical evidence view, for both routes.
 
-It reads only the view (m3_types.py): judge_model takes a ModelView, an Expected and RunViews, refuses anything
-else (TypeError), and never sees a raw record. It imports no JSON reader and no validator; m3_selftest.py asserts
+It reads only the view (m3_types.py): judge_model takes a ModelView, an Expected and RunViews of exactly those
+types, refuses anything else, subclasses included (TypeError), and never sees a raw record. It imports no JSON reader and no validator; m3_selftest.py asserts
 that from the source and from a fresh interpreter. The view guarantees what used to be checked here: one outcome
 per run, unique row and extremum identities, case-bound and validated evidence, contract units, lo <= hi.
 
@@ -22,12 +22,13 @@ Judging rules
 - conv to force units: s_axial A_b 1e6, s_bending Z_b 1e6, s_torsion J_b/r_o 1e6, membrane A_b, with the row's
   basis section [cc; Design §2.1].
 - Coupled scales SF = max(force, moment/L_b), SM = max(moment, L_b force) over the published action groups, L_b
-  the node bounding-box diagonal [K-D5 §3.3; cc]. Displacements and rotations are judged on their own q [cc;
+  the node bounding-box diagonal of the request's nodes [K-D5 §3.3; cc]. Displacements and rotations are judged on their own q [cc;
   K-D5 §4.1]; their own-q breaches are reported, not acceptance.
 - Reference scales [M3T2, F1]: a force, moment, stress or Lame group is also judged on the scales max(published,
   reference), so a vanishing publication is judged and breaches.
 - Overflow [M3T2, F2]: every decision is an exact rational predicate; ratios are display values (+inf beyond
-  binary64). A published null (serde's non-finite) is a C1 breach on a Passed case, C6i otherwise.
+  binary64). A published null (serde's non-finite) of any kind is a C1 breach on a Passed case, C6i otherwise;
+  it is checked before any kind-based skip.
 - C3 scales [K-D5 "The defect", §3.3, §4.1]: S*_t = max(S_t, L_b S_r), S*_r = max(S_r, S_t/L_b), from the body's
   largest published translation and rotation components (mm, rad; L_b in mm). No noise floor (HELP_HUMAN,
   2026-10-12).
@@ -343,7 +344,7 @@ def judge_run(model, exp, run):
     rec["msg_tail"] = None if first is None else first.message[-400:]
     standing = {s.case: s.code for s in run.standings}
     pipes = {p.pipe: p for p in exp.sections}
-    Lb = exp.Lb
+    Lb = model.Lb                     # from the request, which every run's request_sha256 binds
     rec["cases"] = {}
     all_groups = []
     derived_all = []
@@ -360,6 +361,11 @@ def judge_run(model, exp, run):
         for row in run.rows:
             if row.case != cid:
                 continue
+            # null first, before any kind-based skip: a published null of any kind is C1 on a Passed case, as in
+            # kd5t_compare's original judge (the judge's final round, P1)
+            if row.value is None:
+                nonfinite.append(list(row.key))
+                continue
             if exp.derived_judged and row.kind in DERIVED:
                 derived_rows.append(row)
                 continue
@@ -367,9 +373,6 @@ def judge_run(model, exp, run):
                 n_other += 1          # a contract kind the reference does not model: counted, not judged
                 continue
             core_rows.append(row)
-            if row.value is None:
-                nonfinite.append(list(row.key))
-                continue
             if row.kind == MAXIMUM:
                 maxrows.append(row)
                 maxvals[row.basis].append(row.value)
@@ -562,8 +565,8 @@ def fingerprint(run):
 def judge_model(model, expected, runs):
     """Every run of one model judged on the expected reference, with the typed/captured pairing (C4, C4b): a list of
     plain records. Arguments must be the view's types; a raw dictionary is refused."""
-    if not isinstance(model, ModelView) or not isinstance(expected, Expected) or not isinstance(runs, tuple) \
-            or not all(isinstance(r, RunView) and r.tag == model.tag and r.route == model.route for r in runs):
+    if type(model) is not ModelView or type(expected) is not Expected or type(runs) is not tuple \
+            or not all(type(r) is RunView and r.tag == model.tag and r.route == model.route for r in runs):
         raise TypeError("judge_model reads only the canonical view (ModelView, Expected, tuple of RunView of that model)")
     ident = collections.Counter(r.identity for r in runs)
     if any(n > 1 for n in ident.values()):

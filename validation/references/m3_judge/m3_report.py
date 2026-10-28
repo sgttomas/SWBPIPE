@@ -13,10 +13,12 @@ Steps:
    and expected references (m3_view.reference_views); with any problem nothing is judged. Every raw record must
    validate into the canonical view (m3_view.run_view: RAW_SCHEMA, bound to its model); a record that does not is
    refused whole.
-2. PROVENANCE: --runner-sha256 (64 lowercase hex) and --product-head (40 lowercase hex) are required; the head must
+2. PROVENANCE: the reference file (and the controls file) must have a sha256 committed for the route in
+   REFERENCE_SHA256SUMS, itself tracked and unchanged in the judge's checkout; --runner-sha256 (64 lowercase hex) and --product-head (40 lowercase hex) are required; the head must
    resolve with `git rev-parse --verify <head>^{commit}` in --checkout; every record carries exactly that runner and
    head; every record's request_sha256 equals the sha256 of its model's runner-input line formed from the reference
-   request; the reference set is valid. The record fields are assertions of the local build, bound by run.sh, not
+   request; the reference set is admitted (m3_view.reference_views: geometry, ids and length scales from the request,
+   expected values from the hash-verified file, nothing else read). The record fields are assertions of the local build, bound by run.sh, not
    authentication (README, "Threat model").
 3. INVENTORY: every model x entry (typed, captured) x mode (SparseInteractive, DenseScrutiny) exactly once, as a
    successful view, and nothing else. A runner error, a refused (schema-invalid or misbound) record or a duplicate
@@ -141,10 +143,13 @@ def nonvacuity(records, families, route):
     return {"pass": ok, "families": fam, "overall": dict(total), "vacuous_families": vacuous, "exempt": dict(exempt)}
 
 
-def judge_collection(route, set_path, raw_paths, variant="own", workers=6, runner_sha=None, head=None, checkout=None, controls_path=None):
-    """Judge the whole collection; return (report dict, judged records). Total: an unforeseen exception is a named failure."""
+def judge_collection(route, set_path, raw_paths, variant="own", workers=6, runner_sha=None, head=None, checkout=None, controls_path=None,
+                     references=None):
+    """Judge the whole collection; return (report dict, judged records). Total: an unforeseen exception is a named failure.
+    references: the accepted reference digests ({(route, kind): {sha256: name}}); None, always so from the CLI, reads
+    the committed REFERENCE_SHA256SUMS (m3_view.pinned_references). The self-test passes its own for synthetic sets."""
     try:
-        return _judge_collection(route, set_path, raw_paths, variant, workers, runner_sha, head, checkout, controls_path)
+        return _judge_collection(route, set_path, raw_paths, variant, workers, runner_sha, head, checkout, controls_path, references)
     except Exception as e:
         import traceback
         return ({"pass": False, "internal_error": f"{type(e).__name__}: {e}", "traceback": traceback.format_exc()[-2000:], "provenance": ["internal error"],
@@ -154,9 +159,14 @@ def judge_collection(route, set_path, raw_paths, variant="own", workers=6, runne
                  "runners": {}, "product_heads": {}, "set_aside": 0}, [])
 
 
-def _judge_collection(route, set_path, raw_paths, variant, workers, runner_sha, head, checkout, controls_path):
+def _judge_collection(route, set_path, raw_paths, variant, workers, runner_sha, head, checkout, controls_path, references):
     if route not in MV.JUDGED:
         raise ValueError(f"unknown route {route!r}")
+    # the reference files: their sha256 must be committed in REFERENCE_SHA256SUMS (Agent 0, the judge's final round)
+    pins, ref_file_probs = (MV.pinned_references() if references is None else (references, []))
+    ref_file_probs = ref_file_probs + MV.reference_file_problems(set_path, route, "set", pins)
+    if controls_path:
+        ref_file_probs += MV.reference_file_problems(controls_path, route, "controls", pins)
     lines, ref_parse = m3_json.read_jsonl(set_path)
     controls, ctl_parse = (m3_json.read_jsonl(controls_path) if controls_path else (None, []))
     models, ref_probs = MV.reference_views(lines, route, variant, controls) if not ref_parse and not ctl_parse else ({}, [])
@@ -183,7 +193,7 @@ def _judge_collection(route, set_path, raw_paths, variant, workers, runner_sha, 
     runners = collections.Counter(v.runner_sha256 for v in valid)
     heads = collections.Counter(v.product_head for v in valid)
     mismatch = sorted(v.identity for v in valid if v.tag in models and v.request_sha256 != models[v.tag].view.request_sha256)
-    prov = [f"reference: {p}" for p in ref_probs[:20]] + raw_parse[:20]
+    prov = ref_file_probs + [f"reference: {p}" for p in ref_probs[:20]] + raw_parse[:20]
     if not isinstance(runner_sha, str) or not re.fullmatch(r"[0-9a-f]{64}", runner_sha):
         prov.append("--runner-sha256 is required (64 lowercase hex)")
     prov += head_problems(head, checkout)
@@ -278,7 +288,7 @@ def table(recs):
 
 
 def report(route, set_path, raw_paths, variant="own", workers=6, runner_sha=None, head=None, by=None, quiet=False, eval_out=None, checkout=None,
-           json_out=None, controls_path=None):
+           json_out=None, controls_path=None, references=None):
     """The judging pass, printed; returns the report dict (with 'pass'). Outputs are checked before anything is judged."""
     say = (lambda *a: None) if quiet else print
     outs = [o for o in (eval_out, json_out) if o]
@@ -288,7 +298,7 @@ def report(route, set_path, raw_paths, variant="own", workers=6, runner_sha=None
             say(f"refused: {p}")
         say("OVERALL: FAIL (outputs refused; nothing judged or written)")
         return {"pass": False, "outputs_refused": bad_out}
-    out, records = judge_collection(route, set_path, raw_paths, variant, workers, runner_sha, head, checkout, controls_path)
+    out, records = judge_collection(route, set_path, raw_paths, variant, workers, runner_sha, head, checkout, controls_path, references)
     if out.get("internal_error"):
         say(f"internal error: {out['internal_error']}")
     if eval_out:
@@ -313,7 +323,8 @@ def report(route, set_path, raw_paths, variant="own", workers=6, runner_sha=None
     say(f"route {out.get('route')}, reference {out.get('variant')}, contract sha256 {out.get('contract_sha256')}")
     say(f"runner sha256: {out['runners']}")
     say(f"product head: {out['product_heads']}")
-    say(f"PROVENANCE (reference, raw view, request sha256, one runner, one product head): {'PASS' if out['provenance_pass'] else 'FAIL'}")
+    say(f"PROVENANCE (committed reference files, reference, raw view, request sha256, one runner, one product head): "
+        f"{'PASS' if out['provenance_pass'] else 'FAIL'}")
     for p in out["provenance"][:10]:
         say(f"  {p}")
     inv = out["inventory"]
