@@ -323,7 +323,10 @@ in the public and shared contexts and warning-only in `local_private`. The item
 classifier reads no alias: a null `privacy_classification` falls back to the
 provenance as above, never to `classification`. The user-release projector's
 `privacy_class` alias is likewise read only when `privacy_classification` is
-absent from the object and its provenance.
+absent from the object and its provenance. A `__proto__` member is an ordinary
+own member in all three, labelling only itself and never the record that holds
+it: TypeScript copies input members by definition, not assignment, so no JSON
+member becomes a prototype (HELP_HUMAN decision, 2026-10-27).
 
 **Flags.** All three recognize the strings `true`, `yes`, `explicit`,
 `present`, `local_private` and `explicit_local_private`, compared after
@@ -351,12 +354,13 @@ JavaScript (checked over every code point), so the three agree.
 `false`. `"false"`, `"no"`, `""`, `0`, `[]` and `{}` all block.
 
 **Proof.** `fixtures/redaction_export_controls/input_contract_sweep.json`
-expands to 82,600 cases in each implementation's test
+expands to 100,744 cases in each implementation's test
 (`tests/security/test_redaction_input_contract_sweep.py`,
 `redactionInputContractSweep.test.ts` and the Rust test module): the 74,760
-cases of the contract and 7,840 alias cases, 5,040 classifier items and 2,800
-records decided by the route projector on `DREP-JSON-002` in the ten contexts it
-admits. `input_contract_sweep_decisions.json` freezes each implementation's
+cases of the contract; 7,840 alias cases, 5,040 classifier items and 2,800
+records decided by the route projector on `DREP-JSON-002` in its five contexts ×
+two intent settings; and 18,144 `__proto__` cases, 8,064 classifier items and
+10,080 projector records carrying a `__proto__` member. `input_contract_sweep_decisions.json` freezes each implementation's
 decision per case before the contract, captured from the real code, the Rust
 from the real test-only mirror; the alias cases before the alias rule. The Rust
 mirror then had no route projector, so its column holds no decision for the
@@ -364,8 +368,17 @@ mirror then had no route projector, so its column holds no decision for the
 alias rule made 120 TypeScript projector cases stricter (a null primary label
 with a safe alias and a public redistribution: `include` became `redact_value`
 in 96 and `warning_only` in 24, in `local_private`) and changed no other
-decision. Each test fails if any case is decided less strictly than any
-frozen decision, and requires the contract decision for every case, so the three
+decision. Before the `__proto__` repair the TypeScript projector copied a record
+by assignment, so a `__proto__` member became the copy's prototype or was
+dropped: its frozen decisions on the 10,080 `__proto__` projector records are of
+a different record than the input, and those cases are held to the Python
+column instead (the Rust mirror then had none). Against that set-aside column the
+repair is stricter in 780 cases, where the member's public labels had lifted a
+sibling into a public basis, and less strict in 120, where the member's
+restrictive privacy had hidden the record's own safe `classification` alias and
+public redistribution; in the 120 all three now include the sibling, as Python
+always did. Each test fails if any case is decided less strictly than any
+frozen decision it is held to, and requires the contract decision for every case, so the three
 agree case for case. Strictness is the total order `include` < `warning_only` <
 `redact_value` < `block_export`. `redact_value` sits above `warning_only` because
 `warning_only` keeps the value and is the unknown-metadata action only in
