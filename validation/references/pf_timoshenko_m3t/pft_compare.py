@@ -334,7 +334,8 @@ def work(job):
     return out
 
 
-HEX64 = re.compile(r"^[0-9a-f]{64}$")
+HEX64 = re.compile(r"\A[0-9a-f]{64}\Z")
+HEX40 = re.compile(r"\A[0-9a-f]{40}\Z")
 RAW_COMMON = {"tag", "entry", "mode", "ns", "request_sha256", "runner_sha256", "product_head"}
 RAW_SUCCESS = RAW_COMMON | {"diagnostics", "results", "results_count", "numerical_quality", "summary", "contract_evidence", "publication"}
 RAW_ERROR = RAW_COMMON | {"error"}
@@ -343,16 +344,65 @@ ROW_METADATA = {"basis", "component", "coordinate_system", "location", "sign_con
 DIAG_REQUIRED = {"code", "id", "message", "severity", "source"}
 DIAG_KEYS = DIAG_REQUIRED | {"affected_refs"}
 SEVERITIES = {"info", "warning", "blocking"}
+# The closed sets of outcomes (refutation round 4, P1). Standings: DEL-07-05 numerical-health-indicator.md section 1's
+# table; only CHECKS_PASSED is Passed. Refusals: the PF refusals pf-timoshenko.md names (sections 1-3).
+STANDINGS = {"NUMERICAL_INTEGRITY_CHECKS_PASSED", "NUMERICAL_INTEGRITY_SENSITIVE", "NUMERICAL_INTEGRITY_UNRESOLVED",
+             "NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED", "NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED",
+             "NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM", "NUMERICAL_INTEGRITY_NEGATIVE_ENERGY", "NUMERICAL_INTEGRITY_FAILED"}
+REFUSALS = {"PF_TIMOSHENKO_SHEAR_FACTOR_UNAVAILABLE", "PF_TIMOSHENKO_PARTIAL_SPAN_UNSUPPORTED", "MODEL-SETTING-SHEAR-MODEL-UNKNOWN",
+            "MODEL-SETTING-SHEAR-MODEL-WITH-PRESSURE-CONTRACT", "MODEL-SETTING-SHEAR-MODEL-TIMOSHENKO-UNSUPPORTED"}
+SUMMARY_KEYS = {"component_stress_modifier_count", "curved_bend_macro_element_count", "load_case_count", "max_displacement",
+                "max_open_formula_stress", "node_count", "segment_count", "spring_hanger_user_input_count", "support_count"}
+HEADLINE_KEYS = {"location_ref", "result_ref", "unit", "value"}
+EVIDENCE_KEYS = {"combination_gates", "preview_cases"}
+CASE_EVIDENCE_KEYS = {"load_case_id", "pipe_stress_extrema", "intensified_measures", "stress_maximum_coverage", "support_attribution"}
+EXTREMA_KEYS = {"pipe_id", "value_lower_pa", "value_upper_pa", "approximation", "certified_gap_pa", "coefficient_basis", "enclosure_scope",
+                "global_upper_bound_pa", "local_fraction", "result_id", "span_index", "station_fraction", "subdivisions", "section_basis"}
 RAW_SCHEMA = """A raw record is exactly one of
   success: {tag, entry, mode, ns, diagnostics, results, results_count, numerical_quality, summary, contract_evidence,
             publication, request_sha256, runner_sha256, product_head}
   runner error: {tag, entry, mode, ns, error, request_sha256, runner_sha256, product_head}
 with tag a string, entry in ENTRIES, mode in MODES, ns a nonnegative integer, the two sha256 lowercase hex, product_head
-a nonempty string; error a nonempty string; diagnostics a list of objects with code, id, message, severity (info,
-warning or blocking) and source strings and optional affected_refs (a list of strings), and no other key; results a
-list of rows with exactly ROW_KEYS (kind, unit, entity_ref and id strings; case, location and component strings or
-null; value a number or null; metadata null or an object of strings over ROW_METADATA); results_count = len(results);
-numerical_quality, summary and contract_evidence objects or null; publication "ordinary". Nothing else."""
+40 lowercase hex; error a nonempty string; results_count = len(results); publication "ordinary". Nested, as the judge
+reads them:
+  diagnostics: objects with code, id, message, severity (info, warning or blocking) and source strings, optional
+    affected_refs (strings), nothing else. Exactly one outcome: either one standing per load case (a code of STANDINGS,
+    not blocking, affected_refs exactly [case]) and no blocking diagnostic, or blocking diagnostics of exactly one code,
+    of REFUSALS, and no standing. Any other NUMERICAL_INTEGRITY_* code is refused. A refusal publishes no rows, a
+    standing at least one;
+  results: rows of exactly ROW_KEYS (kind, unit, entity_ref and id strings; case, location and component strings or
+    null; value a number or null; metadata null or an object of strings over ROW_METADATA), each row's case a case of
+    the model and its entity_ref one of its nodes, pipes or supports;
+  summary: an object over SUMMARY_KEYS; max_open_formula_stress present when not refused, null or an object over
+    HEADLINE_KEYS with a numeric or null value. The other summary members are not read;
+  contract_evidence: null when refused; otherwise {combination_gates: [], preview_cases: [...]}, each case an object over
+    CASE_EVIDENCE_KEYS with a load_case_id string and pipe_stress_extrema a list of objects over EXTREMA_KEYS, each with
+    a pipe_id string and value_lower_pa and value_upper_pa numbers or null. intensified_measures,
+    stress_maximum_coverage and support_attribution are not read;
+  numerical_quality: null or an object; not read.
+JSON is read strictly: a duplicate object key, NaN or Infinity is refused (strict_loads)."""
+
+
+class StrictJSONError(ValueError):
+    pass
+
+
+def _no_duplicates(pairs):
+    out = {}
+    for k, v in pairs:
+        if k in out:
+            raise StrictJSONError(f"duplicate key {k!r}")
+        out[k] = v
+    return out
+
+
+def _no_constant(name):
+    raise StrictJSONError(f"non-JSON constant {name}")
+
+
+def strict_loads(text):
+    """json.loads refusing duplicate object keys (the last member would silently win) and NaN/Infinity."""
+    return json.loads(text, object_pairs_hook=_no_duplicates, parse_constant=_no_constant)
 
 
 def is_int(x):
@@ -381,8 +431,8 @@ def raw_problems(r):
     for k in ("request_sha256", "runner_sha256"):
         if not isinstance(g(k), str) or not HEX64.match(g(k)):
             out.append(k)
-    if not isinstance(g("product_head"), str) or not g("product_head"):
-        out.append("product_head")
+    if not isinstance(g("product_head"), str) or not HEX40.match(g("product_head")):
+        out.append("product_head is not 40 lowercase hex")
     if "error" in r:
         if not isinstance(r["error"], str) or not r["error"]:
             out.append("error is not a nonempty string")
@@ -411,11 +461,86 @@ def raw_problems(r):
                 break
         if not is_int(g("results_count")) or g("results_count") != len(rows):
             out.append("results_count")
-    for k in ("numerical_quality", "summary", "contract_evidence"):
-        if not (g(k) is None or isinstance(g(k), dict)):
-            out.append(k)
     if g("publication") != "ordinary":
         out.append("publication")
+    if not (g("numerical_quality") is None or isinstance(g("numerical_quality"), dict)):
+        out.append("numerical_quality")
+    if out:
+        return out
+    return out + outcome_problems(r)
+
+
+def outcome_problems(r):
+    """The outcome, summary and evidence of a structurally valid successful record (RAW_SCHEMA)."""
+    out = []
+    ds = r["diagnostics"]
+    standings = [d for d in ds if d["code"].startswith("NUMERICAL_INTEGRITY")]
+    blocking = [d for d in ds if d["severity"] == "blocking"]
+    unknown = sorted({d["code"] for d in standings} - STANDINGS)
+    if unknown:
+        out.append(f"unrecognised standing {unknown}")
+    if blocking:
+        codes = sorted({d["code"] for d in blocking})
+        if len(codes) != 1 or codes[0] not in REFUSALS:
+            out.append(f"refusal codes {codes}: exactly one recognised refusal code required")
+        if standings:
+            out.append("a refusal with a standing")
+        if r["results"]:
+            out.append("a refusal that publishes rows")
+    else:
+        if not standings:
+            out.append("no outcome: neither a standing nor a refusal")
+        if any(d["severity"] == "blocking" for d in standings):
+            out.append("a blocking standing")
+        if not r["results"]:
+            out.append("a standing with no rows")
+    sm = r["summary"]
+    if not (sm is None or isinstance(sm, dict)) or (isinstance(sm, dict) and not set(sm) <= SUMMARY_KEYS):
+        out.append("summary")
+    elif not blocking:
+        h = sm.get("max_open_formula_stress", "absent") if isinstance(sm, dict) else "absent"
+        if h == "absent" or not (h is None or (isinstance(h, dict) and set(h) <= HEADLINE_KEYS and "value" in h
+                                                and (h["value"] is None or is_num(h["value"])))):
+            out.append("summary.max_open_formula_stress")
+    ev = r["contract_evidence"]
+    if blocking:
+        if ev is not None and not isinstance(ev, dict):
+            out.append("contract_evidence")
+    elif (not isinstance(ev, dict) or set(ev) != EVIDENCE_KEYS or ev["combination_gates"] != [] or not isinstance(ev["preview_cases"], list)
+          or not all(isinstance(c, dict) and {"load_case_id", "pipe_stress_extrema"} <= set(c) <= CASE_EVIDENCE_KEYS
+                     and isinstance(c["load_case_id"], str) and isinstance(c["pipe_stress_extrema"], list)
+                     and all(isinstance(e, dict) and {"pipe_id", "value_lower_pa", "value_upper_pa"} <= set(e) <= EXTREMA_KEYS
+                             and isinstance(e["pipe_id"], str)
+                             and all(e[k] is None or is_num(e[k]) for k in ("value_lower_pa", "value_upper_pa"))
+                             for e in c["pipe_stress_extrema"])
+                     for c in ev["preview_cases"])):
+        out.append("contract_evidence")
+    return out
+
+
+def binding_problems(r, gen):
+    """A successful record against its model: one standing per load case naming it, rows of the model's cases and
+    entities, evidence of its cases and pipes."""
+    model = gen["request"]["model"]
+    cases = [c["id"] for c in model["load_cases"]]
+    entities = {x["id"] for k in ("nodes", "pipe_segments", "supports") for x in model[k]}
+    pipes = {x["id"] for x in model["pipe_segments"]}
+    out = []
+    if not any(d["severity"] == "blocking" for d in r["diagnostics"]):
+        standings = [d for d in r["diagnostics"] if d["code"].startswith("NUMERICAL_INTEGRITY")]
+        for cid in cases:
+            if sum(1 for d in standings if d.get("affected_refs") == [cid]) != 1:
+                out.append(f"not exactly one standing for {cid}")
+        if len(standings) != len(cases):
+            out.append(f"{len(standings)} standings for {len(cases)} load cases")
+    bad = [(x["case"], x["entity_ref"]) for x in r["results"] if x["case"] not in cases or x["entity_ref"] not in entities]
+    if bad:
+        out.append(f"{len(bad)} rows of another model's case or entity, first {bad[0]}")
+    if isinstance(r["contract_evidence"], dict) and not any(d["severity"] == "blocking" for d in r["diagnostics"]):
+        for c in r["contract_evidence"]["preview_cases"]:
+            if c["load_case_id"] not in cases or any(e["pipe_id"] not in pipes for e in c["pipe_stress_extrema"]):
+                out.append("evidence of another model's case or pipe")
+                break
     return out
 
 
@@ -425,31 +550,79 @@ REF_META = {"design", "family", "section", "material", "placement", "theory", "s
 REF_REF = {"theory", "sections", "nodes", "cases", "expect", "expected_warnings", "phi", "phi_minus_2"}
 
 
+REF_SECTION = {"od", "wall", "mill", "E", "G", "ro", "ri", "A", "I", "J", "Z", "L", "nu", "E_over_2G", "kappa_E", "shear_area", "tau_c",
+               "phi_timoshenko", "phi_used", "exact_nu_in_domain", "admitted", "refusal_reasons"}
+
+
+def _decimal_text(x):
+    try:
+        return isinstance(x, str) and Decimal(x).is_finite()
+    except Exception:
+        return False
+
+
+def _opt_str(x):
+    return x is None or isinstance(x, str)
+
+
 def reference_problems(lines, twins=False):
-    """The reference set validated exactly: line, meta and ref keys, the case shapes, unique tags, and, when judging
-    against the twins, every twin present."""
+    """The reference set validated exactly, every field the judge reads typed: line, meta and ref keys; sections; node
+    coordinates; case rows and maxima; the request's nodes, pipes, supports and load cases; unique tags; and, when
+    judging against the twins, every twin present."""
     out = []
     tags = collections.Counter(x.get("tag") if isinstance(x, dict) else None for x in lines)
     out += [f"duplicate reference tag {t}" for t, n in tags.items() if n > 1]
+    if not lines:
+        out.append("an empty reference set")
     for x in lines:
         t = x.get("tag") if isinstance(x, dict) else None
-        if not isinstance(x, dict) or set(x) != REF_LINE or not isinstance(t, str):
-            out.append(f"{t}: line keys")
-            continue
-        m, r = x["meta"], x["ref"]
-        if not isinstance(m, dict) or set(m) != REF_META or (twins and m["twin"] not in tags):
-            out.append(f"{t}: meta")
-        if not isinstance(r, dict) or set(r) != REF_REF | ({"refusal"} if r.get("expect") == "refused" else set()) or r.get("expect") not in ("rows", "refused"):
-            out.append(f"{t}: ref keys")
-            continue
-        if not isinstance(x["request"], dict) or not isinstance(r["cases"], dict) or not r["cases"]:
-            out.append(f"{t}: request or cases")
-            continue
-        for cid, c in r["cases"].items():
-            if (not isinstance(c, dict) or set(c) != {"rows", "maxima"}
-                    or not all(isinstance(row, list) and len(row) == 6 and isinstance(row[5], str) for row in c["rows"])
-                    or not all(isinstance(mx, list) and len(mx) == 3 and isinstance(mx[2], str) for mx in c["maxima"])):
-                out.append(f"{t}: case {cid}")
+        try:
+            out += [f"{t}: {p}" for p in _reference_line_problems(x, tags, twins)]
+        except Exception as e:  # a shape the checks below did not anticipate is itself a problem, never a crash
+            out.append(f"{t}: unreadable ({type(e).__name__})")
+    return out
+
+
+def _reference_line_problems(x, tags, twins):
+    if not isinstance(x, dict) or set(x) != REF_LINE or not isinstance(x["tag"], str):
+        return ["line keys"]
+    out = []
+    m, r, q = x["meta"], x["ref"], x["request"]
+    if not isinstance(m, dict) or set(m) != REF_META or not isinstance(m["twin"], str) or (twins and m["twin"] not in tags):
+        out.append("meta")
+    if not isinstance(r, dict) or set(r) != REF_REF | ({"refusal"} if r.get("expect") == "refused" else set()) or r["expect"] not in ("rows", "refused"):
+        return out + ["ref keys"]
+    if r["theory"] not in (EULER, TIMOSHENKO) or not (isinstance(r["expected_warnings"], list) and all(isinstance(w, str) for w in r["expected_warnings"])):
+        out.append("ref theory or warnings")
+    if r["expect"] == "refused" and not (isinstance(r["refusal"], dict) and r["refusal"].get("code") in REFUSALS):
+        out.append("ref refusal")
+    if not (isinstance(r["sections"], dict) and r["sections"] and all(isinstance(s, dict) and set(s) == REF_SECTION for s in r["sections"].values())
+            and all(_decimal_text(s[k]) for s in r["sections"].values() for k in ("ro", "A", "I", "J", "Z", "tau_c"))
+            and all(isinstance(s[k], str) and _decimal_text(repr(float(s[k]))) for s in r["sections"].values() for k in ("od", "wall", "mill", "E", "G"))):
+        out.append("ref sections")
+    if not (isinstance(r["nodes"], list) and r["nodes"] and all(isinstance(n, list) and len(n) == 2 and isinstance(n[0], str) and isinstance(n[1], list)
+                                                           and len(n[1]) == 3 and all(_decimal_text(c) for c in n[1]) for n in r["nodes"])):
+        out.append("ref nodes")
+    if not (isinstance(r["phi"], dict) and isinstance(r["phi_minus_2"], dict)):
+        out.append("ref phi")
+    if not (isinstance(q, dict) and set(q) == {"model", "materials"} and isinstance(q["model"], dict)):
+        return out + ["request"]
+    mdl = q["model"]
+    lists = all(isinstance(mdl.get(k), list) and all(isinstance(e, dict) and isinstance(e.get("id"), str) for e in mdl[k])
+                for k in ("nodes", "pipe_segments", "supports", "load_cases"))
+    if not lists or not isinstance(mdl.get("components"), list) or not all(isinstance(p.get("from"), str) and isinstance(p.get("to"), str)
+                                                                          for p in mdl["pipe_segments"]):
+        return out + ["request model"]
+    cases = [c["id"] for c in mdl["load_cases"]]
+    pipes = set(p["id"] for p in mdl["pipe_segments"])
+    if not isinstance(r["cases"], dict) or sorted(r["cases"]) != sorted(cases):
+        return out + ["ref cases differ from the request's load cases"]
+    for cid, c in r["cases"].items():
+        if not (isinstance(c, dict) and set(c) == {"rows", "maxima"} and isinstance(c["rows"], list) and isinstance(c["maxima"], list)
+                and all(isinstance(w, list) and len(w) == 6 and isinstance(w[0], str) and isinstance(w[1], str) and _opt_str(w[2]) and _opt_str(w[3])
+                        and w[4] is None and _decimal_text(w[5]) for w in c["rows"])
+                and all(isinstance(w, list) and len(w) == 3 and w[0] in pipes and w[1] is None and _decimal_text(w[2]) for w in c["maxima"])):
+            out.append(f"case {cid}")
     return out
 
 
@@ -490,8 +663,8 @@ def inventory_text(inv):
 
 
 # ----------------------------------------------------------------- self-test
-SYNTH_RUNNER = "5" * 64          # a synthetic runner's sha256 and product head (no product runs in the self-test)
-SYNTH_HEAD = "synthetic-head"
+SYNTH_RUNNER = "5" * 64          # a synthetic runner's sha256 (no product runs in the self-test)
+SYNTH_HEAD = "0" * 40            # a placeholder head for runs judged in memory; collection tests use the checkout's HEAD
 
 
 def synthetic_run(gen, upper_scale=1.0 + 1e-12, entry="typed", mode="SparseInteractive", runner=SYNTH_RUNNER, head=SYNTH_HEAD):
@@ -528,13 +701,15 @@ def synthetic_run(gen, upper_scale=1.0 + 1e-12, entry="typed", mode="SparseInter
         diags = [diag(REFUSAL_CODE, "blocking")]
         rows, cases_ev, mx = [], [], []
     return {"tag": gen["tag"], "entry": entry, "mode": mode, "ns": 1, "diagnostics": diags, "results": rows, "results_count": len(rows),
-            "numerical_quality": {}, "summary": {"max_open_formula_stress": {"value": max(mx), "unit": "Pa"}} if mx else {},
-            "contract_evidence": {"preview_cases": cases_ev}, "publication": "ordinary",
+            "numerical_quality": {}, "summary": {"max_open_formula_stress": {"value": max(mx), "unit": "Pa"}} if mx else
+            ({} if ref.get("expect") == "refused" else {"max_open_formula_stress": None}),
+            "contract_evidence": {"combination_gates": [], "preview_cases": cases_ev} if not ref.get("expect") == "refused" else None,
+            "publication": "ordinary",
             "request_sha256": request_sha256(gen["tag"], gen["request"]), "runner_sha256": runner, "product_head": head}
 
 
-def diag(code, severity, message="synthetic"):
-    return {"code": code, "id": "diagnostic:" + code.lower(), "message": message, "severity": severity, "source": "synthetic"}
+def diag(code, severity, message="synthetic", case="case:1"):
+    return {"affected_refs": [case], "code": code, "id": "diagnostic:" + code.lower(), "message": message, "severity": severity, "source": "synthetic"}
 
 
 def selftest(set_path):
@@ -847,24 +1022,37 @@ def selftest(set_path):
 
 
 def collection_scenarios(set_path, gens, pick, check):
-    """The judging pass over raw outputs (pft_report.py), on synthetic runs only: the refutation rounds' attacks that
-    still apply, round 3's each (new-results.json, additional-results.json, runner-cache-results.json), and the
-    positive controls. run.sh is driven with synthetic runners that are Python scripts, so no product can run."""
+    """Every refutation round's attacks (1-4) as committed regression cases of the judging pass (pft_report.py) and
+    run.sh, on synthetic records only: run.sh is driven with a synthetic builder whose runners are Python scripts, so no
+    product can run. Each case prints a TABLE line: round | attack | case | outcome."""
     import shutil
     import subprocess
     import tempfile
     import pft_report as PR
+    checkout = subprocess.run(["git", "-C", HERE, "rev-parse", "--show-toplevel"], capture_output=True, text=True).stdout.strip()
+    head = subprocess.run(["git", "-C", HERE, "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
+    check(f"the self-test's checkout {checkout} resolves HEAD to a commit", bool(re.fullmatch(r"[0-9a-f]{40}", head)))
     py = [sys.executable, "-I", "-B"]
+    R = SYNTH_RUNNER
     codex, ordinary = pick("NCcodexS8"), pick("CANT03")
-    four = [synthetic_run(codex, entry=e, mode=m) for e in ENTRIES for m in MODES]
-    eight = four + [synthetic_run(ordinary, entry=e, mode=m) for e in ENTRIES for m in MODES]
+    by_tag = {x["tag"]: x for x in gens}
+    run = lambda g, e, m, **kw: synthetic_run(g, entry=e, mode=m, head=head, **kw)
+    four = [run(codex, e, m) for e in ENTRIES for m in MODES]
+    eight = four + [run(ordinary, e, m) for e in ENTRIES for m in MODES]
     bad = copy.deepcopy(four[0])
     for r in bad["results"]:
         if r["kind"] == "global_nodal_displacement_y" and r["entity_ref"] == "node:N1":
             r["value"] *= 0.444
-    complete = [synthetic_run(x, entry=e, mode=m) for x in gens for e in ENTRIES for m in MODES]
+    complete = [run(x, e, m) for x in gens for e in ENTRIES for m in MODES]
     check(f"the full set's inventory is 3,624 runs, the frozen subset's {inventory([x['tag'] for x in gens], [])['expected']}",
           inventory([t for t, _, _ in __import__("pft_generate").model_list()], [])["expected"] == 3624 and len(complete) == 400)
+    rows = []
+
+    def table(rnd, attack, case, outcome, ok):
+        rows.append((rnd, attack, case, outcome))
+        print(f"TABLE {rnd} | {attack} | {case} | {outcome}")
+        check(f"round {rnd} '{case}' ({attack}): {outcome}", ok)
+
     with tempfile.TemporaryDirectory() as tmp:
         T = lambda name: os.path.join(tmp, name)
 
@@ -877,13 +1065,16 @@ def collection_scenarios(set_path, gens, pick, check):
         small = write(T("small-set.jsonl"), [codex, ordinary])
         one = write(T("one-set.jsonl"), [codex])
 
-        def judge_files(name, st, files, want, cond=lambda j: True, note="", **kw):
-            j = PR.report(st, files, quiet=True, workers=kw.pop("workers", 1), **kw)
-            check(f"judging pass '{name}': OVERALL {'PASS' if want else 'FAIL'}{note}", j["pass"] == want and cond(j))
+        def judge(rnd, attack, case, st, files, want, why=lambda j: True, label="", **kw):
+            args = dict(quiet=True, workers=kw.pop("workers", 1), runner_sha=kw.pop("runner_sha", R), head=kw.pop("head", head),
+                        checkout=kw.pop("checkout", checkout), **kw)
+            j = PR.report(st, files, **args)
+            outcome = ("OVERALL: PASS" if j["pass"] else "OVERALL: FAIL") + (f" ({label})" if label else "")
+            table(rnd, attack, case, outcome, j["pass"] == want and why(j))
             return j
 
-        def judge_runs(name, st, runs, want, cond=lambda j: True, note="", **kw):
-            return judge_files(name, st, [write(T(name + ".raw.jsonl"), runs)], want, cond, note, **kw)
+        def judge_runs(rnd, attack, case, st, runs, want, why=lambda j: True, label="", **kw):
+            return judge(rnd, attack, case, st, [write(T(case + ".raw.jsonl"), runs)], want, why, label, **kw)
 
         def mut(runs, f):
             xs = copy.deepcopy(runs)
@@ -891,118 +1082,172 @@ def collection_scenarios(set_path, gens, pick, check):
                 f(r)
             return xs
 
-        # positive controls
-        judge_runs("small_positive", small, eight, True)
-        fz = judge_runs("frozen_positive (400 runs)", set_path, complete, True, lambda j: j["inventory"]["expected"] == 400, workers=4)
-        judge_files("chunks_complete_positive (two raw files)", small, [write(T("a.raw.jsonl"), four), write(T("b.raw.jsonl"), eight[4:])], True)
-        judge_runs("twin sensitivity control: the frozen positive judged against the twin references", set_path, complete, False,
-                   lambda j: j["provenance_pass"] and j["inventory"]["pass"] and not j["m3_pass"], ", M3 failing", variant="twin", workers=4)
-        # rounds 1 and 2, on raw outputs
-        for name, st, runs in (("r1_duplicate", set_path, [bad, four[0]]), ("r1_single", set_path, [four[0]]), ("r1_empty", set_path, []),
-                               ("duplicate_bad_then_good", small, [bad] + eight), ("duplicate_good_then_bad", small, eight + [bad]),
-                               ("single", small, [four[0]]), ("empty", small, []), ("unpaired", small, [four[0], four[3]]),
-                               ("unexpected_tag", small, eight + [dict(four[0], tag="invented-unexpected-tag")])):
-            judge_runs(name, st, runs, False, lambda j: not j["inventory"]["pass"], " (inventory)")
-        for name, runs in (("wrong_entry", eight + [dict(four[0], entry="unrecognized")]), ("wrong_mode", eight + [dict(four[0], mode="Unrecognized")])):
-            judge_runs(name, small, runs, False, lambda j: j["schema_invalid"] == 1 and not j["inventory"]["pass"], " (schema, inventory)")
-        judge_runs("bad_unique (55.6%-low UY, everything else right)", small, [bad] + eight[1:], False,
-                   lambda j: j["provenance_pass"] and j["inventory"]["pass"] and not j["m3_pass"], " (M3)")
-        adm = mut(eight, lambda r: r.update(results=[], results_count=0, diagnostics=[diag(REFUSAL_CODE, "blocking")]) if r["tag"] == ordinary["tag"] else None)
-        judge_runs("admission_failure", small, adm, False, lambda j: j["m3_pass"] and not j["design_pass"] and j["design_failing_records"] == 4,
-                   " (design conformance on 4 records; M3 passes)")
-        judge_files("chunks_complete_but_collection_incomplete", small, [T("a.raw.jsonl")], False, lambda j: not j["inventory"]["pass"])
-        judge_files("duplicate_across_chunks (one raw file given twice)", small, [T("a.raw.jsonl"), T("b.raw.jsonl"), T("a.raw.jsonl")], False,
-                    lambda j: bool(j["inventory"]["duplicate"]))
+        schema = lambda j: j.get("schema_invalid", 0) > 0 and not j["inventory"]["pass"]
+        prov = lambda j: j.get("provenance_pass") is False
+        inv = lambda j: j["inventory"]["pass"] is False
+        m3 = lambda j: j["provenance_pass"] and j["inventory"]["pass"] and not j["m3_pass"]
         sens = lambda r: r.update(diagnostics=[diag("NUMERICAL_INTEGRITY_SENSITIVE", "warning")])
+        err_only = lambda r: [r.pop(k) for k in ("diagnostics", "results", "results_count", "numerical_quality", "summary", "contract_evidence",
+                                                  "publication")] and r.update(error="synthetic runner failure")
+        # ---- positive controls
+        judge(0, "positive control", "small_positive", small, [write(T("small_positive.raw.jsonl"), eight)], True)
+        judge(0, "positive control", "frozen_positive_400", set_path, [write(T("frozen.raw.jsonl"), complete)], True,
+              lambda j: j["inventory"]["expected"] == 400, workers=4)
+        judge(0, "positive control", "chunks_complete_positive (two raw files)", small, [write(T("a.raw.jsonl"), four), write(T("b.raw.jsonl"), eight[4:])], True)
+        judge(4, "key order is not meaning", "key_order_positive", small,
+              [write(T("ko.raw.jsonl"), "".join(json.dumps(dict(reversed(list(r.items())))) + "\n" for r in eight), raw=True)], True)
+        judge(4, "an escaped key is the same key", "escaped_key_positive", small,
+              [write(T("esc.raw.jsonl"), open(T("small_positive.raw.jsonl")).read().replace('"tag":', '"\\u0074ag":'), raw=True)], True)
+        judge(4, "a twin control judged against the twins", "frozen_twin_control", set_path, [T("frozen.raw.jsonl")], False, m3,
+              "M3 fails, provenance and inventory pass: the control behaves", variant="twin", workers=4)
+        # ---- round 1
+        for case, runs in (("duplicate_bad_then_good", [bad] + eight), ("duplicate_good_then_bad", eight + [bad]), ("single", [four[0]]),
+                           ("empty", []), ("unexpected_tag", eight + [dict(four[0], tag="invented-unexpected-tag")]), ("unpaired", [four[0], four[3]])):
+            judge_runs(1, case.replace("_", " "), case, small, runs, False, inv, "inventory")
+        judge_runs(1, "r1's 55.6%-low UY on a Passed run", "bad_uy_55_6_percent_low", small, [bad] + eight[1:], False, m3, "M3: C3")
+        # ---- round 2 (sidecars and caches no longer exist; their raw-output equivalents)
         split = [four[:2], mut(four[2:], sens)]
-        judge_files("split C4 (typed Passed and captured Sensitive in two raw files)", one,
-                    [write(T("s0.raw.jsonl"), split[0]), write(T("s1.raw.jsonl"), split[1])], False, lambda j: j["c4_failures"] == 2, ", C4 = 2")
-        judge_runs("same C4 unsplit", one, split[0] + split[1], False, lambda j: j["c4_failures"] == 2, ", C4 = 2")
-        others = [r for r in complete if r["tag"] != codex["tag"]]
-        judge_files("full frozen subset with Codex's model split across raw files", set_path,
-                    [write(T("others.raw.jsonl"), others), T("s0.raw.jsonl"), T("s1.raw.jsonl")], False,
-                    lambda j: j["inventory"]["pass"] and j["c4_failures"] == 2, ", C4 = 2", workers=4)
-        # round 3: runner errors are failures, never skipped (new-results.json)
-        for name, f in (("runner_errors_only", lambda r: (r.clear(), r.update(tag=r0["tag"], entry=r0["entry"], mode=r0["mode"], ns=1, error="synthetic runner failure",
-                                                                                 request_sha256=r0["request_sha256"], runner_sha256=SYNTH_RUNNER, product_head=SYNTH_HEAD))),
-                        ("passed_plus_runner_error", lambda r: r.update(error="synthetic runner failure", results=[], results_count=0)),
-                        ("no_standing_no_results", lambda r: r.update(results=[], results_count=0, diagnostics=[])),
-                        ("null_error_bypass", lambda r: r.update(error=None, results=[], results_count=0))):
-            xs = []
-            for r in copy.deepcopy(eight):
-                r0 = dict(r)
-                f(r)
-                xs.append(r)
-            judge_runs(name, small, xs, False, lambda j: not j["inventory"]["pass"] and not j["m3_pass"], " (C0, inventory)")
-        judge_runs("error_bypasses_wrong_rows (the 55.6%-low Passed record with error: null)", small, [dict(bad, error=None)] + eight[1:], False,
-                   lambda j: not j["inventory"]["pass"] and j["schema_invalid"] == 1)
-        r_err = mut(complete, lambda r: (r.pop("results"), r.pop("results_count"), r.pop("diagnostics"), r.pop("numerical_quality"), r.pop("summary"),
-                                          r.pop("contract_evidence"), r.pop("publication"), r.update(error="synthetic runner failure")))
-        judge_runs("frozen_all_runner_errors (400 schema-valid runner errors)", set_path, r_err, False,
-                   lambda j: j["runner_errors"] == 400 and len(j["inventory"]["unsuccessful"]) == 400 and j["m3_failing_records"] == 400, workers=4)
-        # round 3: strict schema; evaluation records and older formats are refused as input
-        for name, f in (("an unknown key", lambda r: r.update(pairing={"integrity": ["NUMERICAL_INTEGRITY_CHECKS_PASSED"]})),
-                        ("a missing key", lambda r: r.pop("results_count")), ("a null clause list (results)", lambda r: r.update(results=None)),
-                        ("a row with an unknown key", lambda r: r["results"][0].update(extra=1)),
-                        ("a diagnostic without id", lambda r: r["diagnostics"][0].pop("id")),
-                        ("a string value", lambda r: r["results"][0].update(value="1.0")),
-                        ("results_count not the row count", lambda r: r.update(results_count=r["results_count"] + 1)),
-                        ("an older-format record (no provenance)", lambda r: [r.pop(k) for k in ("request_sha256", "runner_sha256", "product_head")])):
-            xs = copy.deepcopy(eight)
-            f(xs[3])
-            judge_runs(f"schema: {name}", small, xs, False, lambda j: j["schema_invalid"] == 1 and not j["m3_pass"])
-        ev = T("small.eval.jsonl")
-        PR.report(small, [T("small_positive.raw.jsonl")], quiet=True, workers=1, eval_out=ev)
-        evs = [json.loads(line) for line in open(ev)]
-        for name, f in (("the evaluation output of a passing run", lambda r: None),
-                        ("an evaluation with a forged pairing (pairing_lie)", lambda r: r.update(pairing={"integrity": r.get("integrity"), "row_digest": "0" * 64})),
-                        ("an evaluation without verdict_failures", lambda r: r.pop("verdict_failures", None)),
-                        ("an evaluation with design_failures null", lambda r: r.update(design_failures=None)),
-                        ("an evaluation with a forged current stamp (forged_stamp_legacy)", lambda r: r.update(stamp={"format": "pft-m3t-judging/2"}))):
-            judge_runs(f"refused as input: {name}", small, mut(evs, f), False, lambda j: j["schema_invalid"] == len(evs) and not j["m3_pass"])
-        for name, text in (("an empty raw file (empty_eval)", ""), ("a truncated raw file (truncated_eval)", json.dumps(eight[0]) + "\n"),
-                           ("an invalid JSON raw file (invalid_json_eval)", '{"tag":'), ("a blank line", "\n".join(json.dumps(r) for r in eight[:2]) + "\n\n")):
-            judge_files(name, small, [write(T("text.raw.jsonl"), text, raw=True)], False)
-        judge_files("a raw file that does not exist", small, [T("absent.raw.jsonl")], False, lambda j: not j["provenance_pass"])
-        # round 3: provenance (additional-results.json)
+        s0, s1 = write(T("s0.raw.jsonl"), split[0]), write(T("s1.raw.jsonl"), split[1])
+        judge(2, "split C4 (typed Passed, captured Sensitive) across comparisons", "r2_c4_across_raw_files", one, [s0, s1], False,
+              lambda j: j["c4_failures"] == 2, "C4 = 2 from the raw records")
+        side = T("s0.raw.jsonl.inventory.json")
+        write(side, json.dumps({"pass": True, "expected": 4, "received": 4}), raw=True)
+        judge(2, "split C4 with a stale passing sidecar beside the raw files", "r2_stale_sidecar_not_read", one, [s0, s1], False,
+              lambda j: j["c4_failures"] == 2, "C4 = 2; sidecars are not read")
+        judge(2, "a sidecar (mismatched) given as a raw input", "r2_sidecar_as_input", one, [s0, s1, side], False, schema, "schema")
+        judge(2, "split C4 with missing sidecars", "r2_split_c4_no_sidecars", one, [s0, write(T("s1b.raw.jsonl"), split[1])], False,
+              lambda j: j["c4_failures"] == 2, "C4 = 2")
+        judge_runs(2, "split C4 on the full frozen subset", "r2_full_frozen_c4", set_path,
+                   [r for r in complete if r["tag"] != codex["tag"]] + split[0] + split[1], False, lambda j: j["c4_failures"] == 2, "C4 = 2", workers=4)
+        evs = []
+        PR.report(small, [T("small_positive.raw.jsonl")], quiet=True, workers=1, runner_sha=R, head=head, checkout=checkout, eval_out=T("small.eval.jsonl"))
+        evs = [strict_loads(line) for line in open(T("small.eval.jsonl"))]
+        pre_repair = mut(evs, lambda r: (r.pop("design_failures", None), r.update(info=dict(r.get("info") or {}, C10=1))))
+        judge_runs(2, "a pre-repair evaluation cache given as input", "r2_pre_repair_cache_as_input", small, pre_repair, False, schema, "schema")
+        # ---- round 3
+        rnull = lambda r: r.update(error=None, results=[], results_count=0)
+        judge_runs(3, "null error, no rows", "r3_error_null_only", small, mut(eight[:1], rnull) + eight[1:], False, schema, "schema")
+        judge_runs(3, "null error on the 55.6%-low Passed record", "r3_error_null_bad_rows", small, [dict(bad, error=None)] + eight[1:], False, schema, "schema")
+        judge_runs(3, "an error string beside results", "r3_error_string_plus_results", small, [dict(four[0], error="x")] + eight[1:], False, schema, "schema")
+        judge_runs(3, "a runner error", "r3_error_string_only", small, mut(eight[:1], err_only) + eight[1:], False,
+                   lambda j: j["runner_errors"] == 1 and inv(j), "C0, inventory")
+        judge_runs(3, "a run with no outcome", "r3_no_outcome", small, mut(eight, lambda r: r.update(results=[], results_count=0, diagnostics=[])), False,
+                   schema, "schema: no outcome")
+        judge_runs(3, "400 runner errors", "r3_frozen_400_errors", set_path, mut(complete, err_only), False,
+                   lambda j: j["runner_errors"] == 400 and len(j["inventory"]["unsuccessful"]) == 400 and j["m3_failing_records"] == 400, "C0 x400", workers=4)
+        judge_runs(3, "a forged pairing", "r3_unknown_pairing", small, mut(eight[:1], lambda r: r.update(pairing={"integrity": ["x"]})) + eight[1:],
+                   False, schema, "schema")
+        for case, f in (("r3_replay_pairing_lie_rehashed", lambda r: r.update(pairing={"integrity": r.get("integrity"), "row_digest": "0" * 64})),
+                        ("r3_replay_missing_verdict_failures", lambda r: r.pop("verdict_failures", None)),
+                        ("r3_replay_null_design_failures", lambda r: r.update(design_failures=None)),
+                        ("r3_replay_legacy_c4_currentstamp", lambda r: r.update(stamp={"format": "pft-m3t-judging/2"}))):
+            judge_runs(3, "an evaluation record given as input", case, small, mut(evs, f), False, schema, "schema")
+        for case, f in (("r3_missing_clause_list", lambda r: r.pop("results")), ("r3_null_clause_list", lambda r: r.update(results=None))):
+            judge_runs(3, "a missing or null clause list", case, small, mut(eight[:1], f) + eight[1:], False, schema, "schema")
         changed = copy.deepcopy(codex)
         changed["request"]["model"]["nodes"][1]["position"]["x"] = 2.0
-        moved = [dict(r, request_sha256=request_sha256(changed["tag"], changed["request"])) for r in four] + eight[4:]
-        judge_runs("changed_member_length_same_tag (runs of L = 2 m under the L = 1 m model's tag)", small, moved, False,
-                   lambda j: not j["provenance_pass"], " (provenance: request sha256)")
-        judge_files("mixed runner sha256 across raw files", small, [T("a.raw.jsonl"), write(T("b2.raw.jsonl"), [dict(r, runner_sha256="6" * 64) for r in eight[4:]])],
-                    False, lambda j: not j["provenance_pass"])
-        judge_files("mixed product heads across raw files", small, [T("a.raw.jsonl"), write(T("b3.raw.jsonl"), [dict(r, product_head="other-head") for r in eight[4:]])],
-                    False, lambda j: not j["provenance_pass"])
-        judge_runs("--runner-sha256 differs", small, eight, False, lambda j: not j["provenance_pass"], runner_sha="7" * 64)
-        judge_runs("--product-head differs", small, eight, False, lambda j: not j["provenance_pass"], head="another-head")
-        judge_runs("--runner-sha256 and --product-head equal (positive)", small, eight, True, runner_sha=SYNTH_RUNNER, head=SYNTH_HEAD)
-        judge_runs("a -dirty product head", small, [dict(r, product_head="abc-dirty") for r in eight], False, lambda j: not j["provenance_pass"])
-        badref = T("bad-set.jsonl")
-        write(badref, [dict(codex, extra=1), ordinary])
-        judge_files("a reference set with an unknown key", badref, [T("small_positive.raw.jsonl")], False, lambda j: not j["provenance_pass"])
-        # round 3: C4b from the raw rows (sensitive_rows_differ, false_row_digest)
-        rows_differ = mut(four, sens)
-        for r in rows_differ:
-            if r["entry"] == "captured":
-                for x in r["results"]:
-                    if x["kind"] == "global_nodal_displacement_y" and x["entity_ref"] == "node:N1":
-                        x["value"] *= 0.444
-        jr = PR.judge_collection(one, [write(T("rows-differ.raw.jsonl"), rows_differ)], workers=1)[0]
-        check("sensitive_rows_differ: C4b is derived from the raw rows on both modes (information); C4 0", jr["info_records"].get("C4b") == 2 and jr["c4_failures"] == 0)
+        judge_runs(3, "a changed request (L = 2 m) under the same tag", "r3_changed_L_hash", small,
+                   [dict(r, request_sha256=request_sha256(changed["tag"], changed["request"])) for r in four] + eight[4:], False, prov, "provenance")
+        judge(3, "mixed runner", "r3_mixed_runner", small, [T("a.raw.jsonl"), write(T("b6.raw.jsonl"), [dict(r, runner_sha256="6" * 64) for r in eight[4:]])],
+              False, prov, "provenance")
+        judge(3, "mixed head", "r3_mixed_head", small, [T("a.raw.jsonl"), write(T("b7.raw.jsonl"), [dict(r, product_head="1" * 40) for r in eight[4:]])],
+              False, prov, "provenance")
+        judge(3, "--runner-sha256 differs", "r3_expect_runner_mismatch", small, [T("small_positive.raw.jsonl")], False, prov, "provenance", runner_sha="7" * 64)
+        judge(3, "--product-head differs", "r3_expect_head_mismatch", small, [T("small_positive.raw.jsonl")], False, prov, "provenance", head="7" * 40)
+        for case, h in (("r3_dirty", head + "-dirty"), ("r3_unknown", "unknown")):
+            judge_runs(3, "a head that is not a commit", case, small, [dict(r, product_head=h) for r in eight], False, schema, "schema")
+        # ---- round 4
+        for case, h in (("arbitrary_noncommit_head", "this-is-not-a-commit"), ("unicode_head_suffix", head + "-dirty\u200b")):
+            judge_runs(4, "a head that is not 40 hex", case, small, [dict(r, product_head=h) for r in eight], False, lambda j: schema(j) and prov(j),
+                       "schema and provenance", head=h)
+        judge_runs(4, "a 40-hex head that is not a commit", "nonexistent_hex_head", small, [dict(r, product_head="0" * 40) for r in eight], False, prov,
+                   "provenance: not a commit", head="0" * 40)
+        judge(4, "a head without a checkout", "head_without_checkout", small, [T("small_positive.raw.jsonl")], False, prov, "provenance",
+              checkout=T("no-such-dir"))
+        judge(4, "no --runner-sha256", "missing_runner_sha", small, [T("small_positive.raw.jsonl")], False, prov, "provenance", runner_sha=None)
+        judge_runs(4, "identical forged runner sha256 at the real head", "forged_identical_provenance", small, [dict(r, runner_sha256="f" * 64) for r in eight],
+                   True, lambda j: True, "outside the model: assertions", runner_sha="f" * 64)
+        for case, f in (("unknown_integrity_code_bad_rows", lambda r: r.update(diagnostics=[diag("NUMERICAL_INTEGRITY_NOT_A_STANDING", "info")])),
+                        ("sensitive_before_passed_bad_rows", lambda r: r["diagnostics"].insert(0, diag("NUMERICAL_INTEGRITY_SENSITIVE", "warning"))),
+                        ("passed_before_sensitive_bad_rows", lambda r: r["diagnostics"].append(diag("NUMERICAL_INTEGRITY_SENSITIVE", "warning"))),
+                        ("standing_naming_another_case", lambda r: r.update(diagnostics=[diag("NUMERICAL_INTEGRITY_CHECKS_PASSED", "info", case="case:2")])),
+                        ("refusal_plus_standing", lambda r: r["diagnostics"].append(diag(REFUSAL_CODE, "blocking"))),
+                        ("unrecognised_refusal_code", lambda r: r.update(diagnostics=[diag("SOMETHING_BLOCKING", "blocking")], results=[], results_count=0)),
+                        ("two_refusal_codes", lambda r: r.update(diagnostics=[diag(REFUSAL_CODE, "blocking"), diag("PF_TIMOSHENKO_PARTIAL_SPAN_UNSUPPORTED", "blocking")],
+                                                                results=[], results_count=0))):
+            judge_runs(4, "contradictory or unknown standing or refusal", case, small, mut([bad] + eight[1:], f), False, schema, "schema")
+        judge_runs(4, "every run Sensitive, bad rows", "bad_rows_sensitive_only", small, mut([bad] + eight[1:], sens), True, lambda j: True,
+                   "by the criterion: Sensitive cases are not judged")
+        judge_runs(4, "a standing with no rows", "sensitive_no_results", small, mut(eight, lambda r: (sens(r), r.update(results=[], results_count=0))), False,
+                   schema, "schema")
 
-        # run.sh: raw outputs only, written fresh on every invocation; one judging pass over them
-        src = T("sources.json")
-
-        def fake_runner(name, runs):
-            """A synthetic runner: for each input line it emits the given runs of that model, bound to the line's sha256,
-            with its own wrapper's sha256 as runner_sha256."""
+        def swap(xs):
+            for i in range(4):
+                for k in RAW_SUCCESS - RAW_COMMON:
+                    xs[i][k], xs[i + 4][k] = copy.deepcopy(xs[i + 4][k]), copy.deepcopy(xs[i][k])
+            return xs
+        judge_runs(4, "another model's content under a matching hash", "different_model_content_matching_hash", small, swap(copy.deepcopy(eight)), False,
+                   schema, "schema: misbound rows")
+        judge_runs(4, "another model's content, Sensitive", "different_model_content_sensitive", small, swap(mut(eight, sens)), False, schema,
+                   "schema: misbound rows")
+        twin_content = []
+        for r in eight:
+            t = run(by_tag[by_tag[r["tag"]]["meta"]["twin"]], r["entry"], r["mode"])
+            twin_content.append(dict(r, **{k: t[k] for k in RAW_SUCCESS - RAW_COMMON}))
+        judge_runs(4, "the twin's rows under the own hash", "mixed_theory_content_own_hash", small, twin_content, False, m3, "M3")
+        for case, f in (("unicode_confusable_key", lambda r: r.update({"t\u0430g": r.pop("tag")})), ("bool_ns", lambda r: r.update(ns=True)),
+                        ("bool_row_value", lambda r: r["results"][0].update(value=True)), ("raw_with_ref_variant", lambda r: r.update(ref_variant="twin")),
+                        ("nested_summary_arbitrary", lambda r: r.update(summary={"arbitrary": True})),
+                        ("nested_headline_wrong_type", lambda r: r["summary"].update(max_open_formula_stress="high")),
+                        ("nested_evidence_wrong_type", lambda r: r.update(contract_evidence={"combination_gates": [], "preview_cases": "not-an-array"})),
+                        ("nested_extrema_wrong_type", lambda r: r["contract_evidence"]["preview_cases"][0]["pipe_stress_extrema"][0].update(value_upper_pa="1")),
+                        ("evidence_of_another_pipe", lambda r: r["contract_evidence"]["preview_cases"][0]["pipe_stress_extrema"][0].update(pipe_id="pipe:ZZ"))):
+            judge_runs(4, "a malformed nested field", case, small, mut(eight[:1], f) + eight[1:], False, schema, "schema")
+        nan = write(T("nan.raw.jsonl"), json.dumps(dict(four[0], results=[dict(four[0]["results"][0], value=float("nan"))] + four[0]["results"][1:])) + "\n"
+                    + "".join(json.dumps(r) + "\n" for r in eight[1:]), raw=True)
+        judge(4, "a NaN token", "nan_row_value", small, [nan], False, prov, "strict JSON: refused")
+        dd = write(T("dd.raw.jsonl"), "".join('{"diagnostics":' + json.dumps([diag("NUMERICAL_INTEGRITY_CHECKS_PASSED", "info")]) + ","
+                                              + json.dumps(dict(r, diagnostics=[diag("NUMERICAL_INTEGRITY_SENSITIVE", "warning")]))[1:] + "\n"
+                                              for r in [bad] + eight[1:]), raw=True)
+        judge(4, "a duplicate diagnostics key", "duplicate_diagnostics_hides_passed", small, [dd], False, prov, "strict JSON: refused")
+        dr = write(T("dr.raw.jsonl"), "".join('{"results":' + json.dumps((bad if i == 0 else r)["results"]) + "," + json.dumps(r)[1:] + "\n"
+                                              for i, r in enumerate(eight)), raw=True)
+        judge(4, "a duplicate results key", "duplicate_results_hides_bad_value", small, [dr], False, prov, "strict JSON: refused")
+        bad_ref = copy.deepcopy(codex)
+        bad_ref["ref"]["cases"]["case:1"]["rows"] = None
+        judge(4, "reference rows of the wrong type", "reference_rows_wrong_type", write(T("bad-ref.jsonl"), [bad_ref, ordinary]), [T("small_positive.raw.jsonl")],
+              False, prov, "provenance: reference; no traceback")
+        dup_ref = write(T("dup-ref.jsonl"), json.dumps(codex)[:-1] + ', "tag": "x"}\n' + json.dumps(ordinary) + "\n", raw=True)
+        judge(4, "a duplicate key in the reference", "reference_duplicate_key", dup_ref, [T("small_positive.raw.jsonl")], False, prov, "strict JSON: refused")
+        judge_runs(4, "half the runs", "partial_out", small, eight[:4], False, inv, "inventory")
+        judge(4, "an empty raw output", "empty_out", small, [write(T("empty.raw.jsonl"), "", raw=True)], False, lambda j: inv(j) and prov(j))
+        # outputs never alias inputs
+        for case, target in (("eval_out_alias_raw", "raw"), ("eval_out_alias_reference", "ref"), ("eval_out_alias_symlink_raw", "symlink"),
+                             ("eval_out_hardlink_input", "hardlink"), ("json_out_alias_input", "json"), ("eval_out_existing_file", "existing")):
+            raw_p, ref_p = write(T(case + ".raw.jsonl"), eight), write(T(case + ".set.jsonl"), [codex, ordinary])
+            alias = {"raw": raw_p, "ref": ref_p, "json": raw_p, "existing": write(T(case + ".other"), "keep", raw=True)}.get(target)
+            if target == "symlink":
+                alias = T(case + ".link")
+                os.symlink(raw_p, alias)
+            if target == "hardlink":
+                alias = T(case + ".hard")
+                os.link(raw_p, alias)
+            before = {p: open(p, "rb").read() for p in (raw_p, ref_p)}
+            kw = {"json_out": alias} if target == "json" else {"eval_out": alias}
+            j = PR.report(ref_p, [raw_p], quiet=True, workers=1, runner_sha=R, head=head, checkout=checkout, **kw)
+            kept = all(open(p, "rb").read() == b for p, b in before.items()) and (target != "existing" or open(alias).read() == "keep")
+            table(4, "an output aliasing an input or an existing file", case, "OVERALL: FAIL (outputs refused, inputs intact)",
+                  not j["pass"] and bool(j.get("outputs_refused")) and kept)
+        # ---- run.sh: a synthetic builder whose runner is a Python script
+        def runner(name, runs, exit_code=0):
             data = T(name + ".runs.json")
             json.dump(runs, open(data, "w"))
-            script = T(name + ".py")
-            open(script, "w").write(
-                "import hashlib, json, os, sys\n"
-                "me = hashlib.sha256(open(sys.argv[1], 'rb').read()).hexdigest()\n"
+            src = T(name + ".runner")
+            open(src, "w").write(
+                f"#!{sys.executable} -I\n"
+                "import hashlib, json, os, subprocess, sys\n"
+                "me = hashlib.sha256(open(sys.argv[0], 'rb').read()).hexdigest()\n"
+                f"head = subprocess.run(['git', '-C', {checkout!r}, 'rev-parse', 'HEAD'], capture_output=True, text=True).stdout.strip()\n"
                 f"runs = json.load(open({data!r}))\n"
                 "out = open(os.environ['KD5_OUT'], 'w')\n"
                 "for line in open(os.environ['KD5_IN'], 'rb').read().split(b'\\n'):\n"
@@ -1010,46 +1255,55 @@ def collection_scenarios(set_path, gens, pick, check):
                 "    tag = json.loads(line)['tag']\n"
                 "    for r in runs:\n"
                 "        if r['tag'] == tag:\n"
-                "            out.write(json.dumps(dict(r, request_sha256=hashlib.sha256(line).hexdigest(), runner_sha256=me, product_head='synthetic-head')) + '\\n')\n")
-            wrapper = T(name)
-            open(wrapper, "w").write(f"#!/bin/bash\nexec {sys.executable} -I -B {script} \"$0\"\n")
-            os.chmod(wrapper, 0o755)
-            return wrapper
+                "            out.write(json.dumps(dict(r, request_sha256=hashlib.sha256(line).hexdigest(), runner_sha256=me, product_head=head)) + '\\n')\n"
+                f"sys.exit({exit_code})\n")
+            os.chmod(src, 0o755)
+            return src
 
-        good, badr = fake_runner("good_runner", eight), fake_runner("bad_runner", [bad] + eight[1:])
-        sd = T("driver-set")
+        builder = T("builder.sh")
+        open(builder, "w").write('#!/bin/bash\nset -eu\ncp "$PFM3T_FAKE_RUNNER" "$3"\nchmod +x "$3"\n')
+        os.chmod(builder, 0o755)
+        good, badr, exit7 = runner("good", eight), runner("bad", [bad] + eight[1:]), runner("exit7", eight, 7)
+        twins = [by_tag[codex["meta"]["twin"]], by_tag[ordinary["meta"]["twin"]]]
+        good4 = runner("good4", eight + [run(t, e, m) for t in twins for e in ENTRIES for m in MODES])
+        sd, sd4 = T("driver-set"), T("driver-set4")
         write(os.path.join(sd, "set.jsonl"), [codex, ordinary])
-        env = dict(os.environ, PFM3T_PY=sys.executable, PFM3T_WORKERS="1")
+        write(os.path.join(sd4, "set.jsonl"), [codex, ordinary] + twins)
 
-        def driver(name, runner, run, chunks, want, extra_check=lambda run: True):
+        def driver(rnd, attack, case, runner_bin, rundir, chunks, variants, want, setdir=sd, why=lambda d: True):
             for i, tags in enumerate(chunks):
-                write(os.path.join(run, "chunks", f"c.{i:03d}.in.jsonl"), request_lines(tags), raw=True)
-            d = subprocess.run(["bash", os.path.join(HERE, "run.sh"), runner, sd, run, "own"], capture_output=True, text=True, env=env)
-            rep = json.load(open(os.path.join(run, "report.own.json")))
-            check(f"run.sh '{name}': exit {d.returncode}, OVERALL {'PASS' if rep['pass'] else 'FAIL'}",
-                  (d.returncode == 0) == want and rep["pass"] == want and extra_check(run))
+                write(os.path.join(rundir, "chunks", f"c.{i:03d}.in.jsonl"), request_lines(tags), raw=True)
+            env = dict(os.environ, PFM3T_PY=sys.executable, PFM3T_WORKERS="1", PFM3T_BUILD=builder, PFM3T_FAKE_RUNNER=runner_bin)
+            d = subprocess.run(["bash", os.path.join(HERE, "run.sh"), checkout, setdir, rundir, *variants], capture_output=True, text=True, env=env)
+            last = d.stdout.strip().splitlines()[-1] if d.stdout.strip() else ""
+            table(rnd, attack, case, f"run.sh exit {d.returncode}, final line '{last}'",
+                  (d.returncode == 0) == want and last == ("OVERALL: PASS" if want else "OVERALL: FAIL") and why(rundir))
 
-        os.makedirs(T("drv"), exist_ok=True)
-        driver("driver_positive", good, T("drv/positive"), [[codex], [ordinary]], True)
-        driver("driver_duplicate_across_chunks", good, T("drv/dup"), [[codex], [codex]], False)
-        driver("driver_missing_chunk", good, T("drv/missing"), [[codex]], False)
-        driver("driver_changed_request (the chunk solves L = 2 m under the reference's tag)", good, T("drv/changed"), [[changed, ordinary]], False)
-        resume = T("drv/resume")
-        driver("synthetic_good_initial", good, resume, [[codex], [ordinary]], True)
-        driver("synthetic_bad_resumed (a different runner on the same run directory re-runs every chunk)", badr, resume, [[codex], [ordinary]], False,
-               lambda run: all(json.loads(line)["runner_sha256"] == hashlib.sha256(open(badr, "rb").read()).hexdigest()
-                               for f in os.listdir(os.path.join(run, "out")) for line in open(os.path.join(run, "out", f))))
-        driver("synthetic_bad_fresh", badr, T("drv/fresh"), [[codex], [ordinary]], False)
-        stale_out = T("drv/stale-out")
-        write(os.path.join(stale_out, "out", "c.007.out.jsonl"), [bad])
-        driver("driver_stale_out (a raw output left from an earlier chunking is removed, not judged)", good, stale_out, [[codex], [ordinary]], True,
-               lambda run: not os.path.exists(os.path.join(run, "out", "c.007.out.jsonl")))
-        # the CLI: one final OVERALL line, exit 0 only on PASS
-        for name, raw, rc in (("passing", T("small_positive.raw.jsonl"), 0), ("failing", T("bad_unique (55.6%-low UY, everything else right).raw.jsonl"), 1)):
-            c = subprocess.run(py + [os.path.join(HERE, "pft_report.py"), small, raw, "--workers", "1"], capture_output=True, text=True)
-            last = c.stdout.strip().splitlines()[-1]
-            check(f"pft_report.py CLI, {name} collection: the final line is '{last}' and the exit is {c.returncode}",
-                  c.returncode == rc and last == ("OVERALL: PASS" if rc == 0 else "OVERALL: FAIL"))
+        driver(0, "positive control", "driver_positive", good, T("d/positive"), [[codex], [ordinary]], ["own"], True)
+        driver(0, "positive control", "driver_positive_with_twin_control", good4, T("d/twin-ok"), [[codex, ordinary], twins], ["own", "twin"], True, sd4)
+        driver(1, "a model missing from the chunks", "driver_missing_model", good, T("d/missing"), [[codex]], ["own"], False)
+        driver(1, "a chunk given twice", "driver_duplicate_across_chunks", good, T("d/dup"), [[codex], [codex], [ordinary]], ["own"], False)
+        driver(3, "a changed request under the same tag", "driver_changed_request", good, T("d/changed"), [[changed, ordinary]], ["own"], False)
+        driver(3, "a replaced runner", "driver_resume_good_then_bad_runner (good first)", good, T("d/resume"), [[codex], [ordinary]], ["own"], True)
+        driver(3, "a replaced runner", "driver_resume_bad_new_runner", badr, T("d/resume"), [[codex], [ordinary]], ["own"], False)
+        driver(4, "a partial earlier output", "driver_recover_good_clear_partial", good, T("d/partial"), [[codex], [ordinary]], ["own"], True,
+               why=lambda d: sorted(os.listdir(os.path.join(d, "out"))) == ["c.000.out.jsonl", "c.001.out.jsonl"])
+        write(os.path.join(T("d/partial2"), "out", "c.007.out.jsonl"), [bad])
+        driver(4, "a stale output from an earlier chunking", "driver_stale_out_removed", good, T("d/partial2"), [[codex], [ordinary]], ["own"], True,
+               why=lambda d: not os.path.exists(os.path.join(d, "out", "c.007.out.jsonl")))
+        driver(4, "a runner that exits 7 after valid records", "driver_valid_records_exit_nonzero", exit7, T("d/exit7"), [[codex], [ordinary]], ["own"], False)
+        driver(4, "a twin control that cannot complete", "driver_twin_runtime_error_accepted", good, T("d/twin-bad"), [[codex], [ordinary]], ["own", "twin"], False)
+        driver(4, "twin only, no own judgement", "driver_twin_only_no_own", good, T("d/twin-only"), [[codex], [ordinary]], ["twin"], False)
+        # the CLI: one final OVERALL line, exit 0 only on PASS; usage and internal errors fail by name
+        for case, argv, rc in (("cli_passing", [small, T("small_positive.raw.jsonl")], 0),
+                               ("cli_failing", [small, T("bad_uy_55_6_percent_low.raw.jsonl")], 1),
+                               ("cli_missing_mandatory_flags", [small, T("small_positive.raw.jsonl"), "--no-provenance"], 2)):
+            flags = ["--runner-sha256", R, "--product-head", head, "--checkout", checkout] if case != "cli_missing_mandatory_flags" else []
+            c = subprocess.run(py + [os.path.join(HERE, "pft_report.py"), *argv, "--workers", "1", *flags], capture_output=True, text=True)
+            last = c.stdout.strip().splitlines()[-1] if c.stdout.strip() else ""
+            table(4 if rc == 2 else 0, "the CLI's final line and exit", case, f"exit {c.returncode}, final line '{last}'",
+                  c.returncode == rc and last.startswith("OVERALL: PASS" if rc == 0 else "OVERALL: FAIL") and "Traceback" not in c.stderr)
+    check(f"{len(rows)} regression cases across rounds 1-4 and the positive controls", len(rows) >= 80)
 
 
 # ------------------------------------------------------------- format probes
