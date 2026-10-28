@@ -49,7 +49,13 @@ SCHEMAS = os.path.normpath(os.path.join(HERE, "..", "..", "..", "schemas"))
 # The exact route's contract_evidence: its members (required and admitted) and their shapes are read from this schema
 # definition at judge time; only exact_cases' extrema enter the view, the other members are shape-checked or not read.
 EXACT_EVIDENCE_SCHEMA = ("results_pressure_2.v0.3.schema.json", "/$defs/PressureContractEvidence")
-SCHEMA_FILES = ("results_pressure_2.v0.3.schema.json", "load_reference_state.schema.json")
+# Under pressure-source-1 the whole contract_evidence is the recovery evidence of this schema: ordinary, or resolved when
+# it carries load_reference_states. It is validated against that definition at judge time; only its exact_cases'
+# extrema enter the view (pipe_id, result_id, section_basis, value_lower_pa, value_upper_pa: the members kd5's prior
+# judge read), and value_pa, endpoints, the error bounds and the other members are schema-checked and not read.
+SOURCE_RECOVERY_SCHEMA = "physics_source_recovery.schema.json"
+SOURCE_RECOVERY_EVIDENCE = {False: "/$defs/pressure_source_ordinary_evidence", True: "/$defs/pressure_source_resolved_evidence"}
+SCHEMA_FILES = ("results_pressure_2.v0.3.schema.json", "load_reference_state.schema.json", SOURCE_RECOVERY_SCHEMA)
 
 ENTRIES = ("typed", "captured")
 MODES = ("SparseInteractive", "DenseScrutiny")
@@ -364,7 +370,7 @@ def _run_view(r, route, facts):
         out.append("a standing with no rows")
     headlines, probs = _summary(r["summary"], route, by_id)
     out += probs
-    extrema, probs = _evidence(r["contract_evidence"], route, facts, by_id)
+    extrema, probs = _evidence(r["contract_evidence"], route, facts, by_id, chosen)
     out += probs
     if out:
         return None, out
@@ -529,10 +535,22 @@ def _pipe_list(xs, facts):
     return isinstance(xs, list) and all(isinstance(p, str) and p in facts.pipes for p in xs)
 
 
-def _evidence(ev, route, facts, by_id):
-    """(extrema, problems): the case-bound, validated maximum-stress enclosures; nothing else of the evidence is read."""
+def _evidence(ev, route, facts, by_id, contract=None):
+    """(extrema, problems): the case-bound, validated maximum-stress enclosures; nothing else of the evidence is read.
+    The evidence shape follows the record's contract: pressure-2's PressureContractEvidence, or under pressure-source-1
+    the recovery evidence of SOURCE_RECOVERY_SCHEMA (each refused under the other)."""
     out = []
-    if route == "pf":
+    recovery = route == "exact" and contract == CONTRACTS["exact"][1][0]
+    if recovery:
+        if not isinstance(ev, dict):
+            return (), [f"contract_evidence {type(ev).__name__} (pressure-source-1 requires its recovery evidence object)"]
+        ptr = SOURCE_RECOVERY_EVIDENCE["load_reference_states" in ev]
+        probs = schema_problems(ev, {"$ref": f"#{ptr}"}, SOURCE_RECOVERY_SCHEMA)
+        if probs:
+            return (), [f"contract_evidence (pressure-source-1, {ptr.rsplit('/', 1)[-1]}){p}" for p in probs]
+        out += _state_cases(ev, facts)
+        cases, case_keys = ev["exact_cases"], recovery_case_keys()
+    elif route == "pf":
         if not isinstance(ev, dict) or set(ev) != {"combination_gates", "preview_cases"} or ev["combination_gates"] != [] or not isinstance(ev["preview_cases"], list):
             return (), ["contract_evidence"]
         cases, case_keys = ev["preview_cases"], PF_CASE_KEYS
@@ -575,13 +593,18 @@ def _evidence(ev, route, facts, by_id):
                 if k in c and not ok(c[k]):
                     out.append(f"evidence {cid}: {k}")
         for e in c["pipe_stress_extrema"]:
-            allowed = EXTREMA_REQUIRED | set(EXTREMA_TYPES) | ({"section_basis"} if route == "exact" else set())
-            if not isinstance(e, dict) or not EXTREMA_REQUIRED <= set(e) <= allowed or (route == "exact" and "section_basis" not in e):
-                out.append(f"evidence {cid}: an extremum's members")
-                continue
-            if not all(_typed(e[k], t) for k, t in EXTREMA_TYPES.items() if k in e):
-                out.append(f"evidence {cid}: an extremum member's type")
-                continue
+            if recovery:   # members and types already validated against the recovery schema; its own case binding:
+                if not isinstance(e, dict) or not EXTREMA_REQUIRED | {"section_basis"} <= set(e) or e.get("load_case_id", cid) != cid:
+                    out.append(f"evidence {cid}: an extremum's members or its load_case_id")
+                    continue
+            else:
+                allowed = EXTREMA_REQUIRED | set(EXTREMA_TYPES) | ({"section_basis"} if route == "exact" else set())
+                if not isinstance(e, dict) or not EXTREMA_REQUIRED <= set(e) <= allowed or (route == "exact" and "section_basis" not in e):
+                    out.append(f"evidence {cid}: an extremum's members")
+                    continue
+                if not all(_typed(e[k], t) for k, t in EXTREMA_TYPES.items() if k in e):
+                    out.append(f"evidence {cid}: an extremum member's type")
+                    continue
             basis = e.get("section_basis")
             if route == "exact" and basis not in SECTION_BASES:
                 out.append(f"evidence {cid}: section_basis {basis!r}")
@@ -617,7 +640,8 @@ def _evidence(ev, route, facts, by_id):
 # ----------------------------------------------------------------- public schemas (exact evidence members)
 _SCHEMA_DOCS = {}
 SCHEMA_KEYWORDS = frozenset({"$ref", "type", "additionalProperties", "required", "properties", "items", "const", "enum", "minLength", "minimum",
-                             "pattern", "oneOf", "minItems", "description", "title", "$comment"})
+                             "pattern", "oneOf", "minItems", "if", "then", "else", "exclusiveMinimum", "maximum", "maxItems", "uniqueItems",
+                             "description", "title", "$comment"})
 SHAPE_CHECKED = ("load_reference_states", "exact_combinations")     # read only for their shape; never judged
 
 
@@ -648,6 +672,20 @@ def evidence_members():
 _TYPES = {"object": lambda v: type(v) is dict, "array": lambda v: type(v) is list, "string": lambda v: type(v) is str,
           "number": lambda v: type(v) in (int, float), "integer": lambda v: type(v) is int, "boolean": lambda v: type(v) is bool,
           "null": lambda v: v is None}
+
+
+def _json_equal(a, b):
+    """JSON Schema equality: numbers by value (0 equals 0.0), a boolean never a number, containers member by member."""
+    num = lambda x: type(x) in (int, float)
+    if num(a) and num(b):
+        return a == b
+    if type(a) is not type(b):
+        return False
+    if type(a) is list:
+        return len(a) == len(b) and all(_json_equal(x, y) for x, y in zip(a, b))
+    if type(a) is dict:
+        return set(a) == set(b) and all(_json_equal(a[k], b[k]) for k in a)
+    return a == b
 
 
 def schema_problems(value, node, doc_name, where="", budget=None):
@@ -683,20 +721,29 @@ def schema_problems(value, node, doc_name, where="", budget=None):
         elif not any(_TYPES[t](value) for t in ts):
             bad(f"type {type(value).__name__}, not {node['type']}")
             return out
-    if "const" in node and not (value == node["const"] and type(value) is type(node["const"])):
+    if "const" in node and not _json_equal(value, node["const"]):
         bad(f"not the constant {node['const']!r}")
-    if "enum" in node and not any(value == e and type(value) is type(e) for e in node["enum"]):
+    if "enum" in node and not any(_json_equal(value, e) for e in node["enum"]):
         bad(f"{value!r} not in {node['enum']}")
     if type(value) is str:
         if "minLength" in node and len(value) < node["minLength"]:
             bad("too short")
         if "pattern" in node and not re.search(node["pattern"], value):
             bad(f"does not match {node['pattern']}")
-    if type(value) in (int, float) and "minimum" in node and value < node["minimum"]:
-        bad(f"below {node['minimum']}")
+    if type(value) in (int, float):
+        if "minimum" in node and value < node["minimum"]:
+            bad(f"below {node['minimum']}")
+        if "exclusiveMinimum" in node and not value > node["exclusiveMinimum"]:
+            bad(f"not above {node['exclusiveMinimum']}")
+        if "maximum" in node and value > node["maximum"]:
+            bad(f"above {node['maximum']}")
     if type(value) is list:
         if "minItems" in node and len(value) < node["minItems"]:
             bad("too few items")
+        if "maxItems" in node and len(value) > node["maxItems"]:
+            bad("too many items")
+        if node.get("uniqueItems") is True and len({json.dumps(v, sort_keys=True) for v in value}) != len(value):
+            bad("repeated items")
         if "items" in node:
             for i, v in enumerate(value):
                 out += schema_problems(v, node["items"], doc_name, f"{where}[{i}]", budget)
@@ -713,6 +760,10 @@ def schema_problems(value, node, doc_name, where="", budget=None):
                 bad(f"unknown key {k}")
             elif isinstance(extra, dict):
                 out += schema_problems(v, extra, doc_name, f"{where}.{k}", budget)
+    if "if" in node:
+        branch = "then" if not schema_problems(value, node["if"], doc_name, where, [20]) else "else"
+        if branch in node:
+            out += schema_problems(value, node[branch], doc_name, where, budget)
     if "oneOf" in node:
         n = sum(1 for sub in node["oneOf"] if not schema_problems(value, sub, doc_name, where, [20]))
         if n != 1:
@@ -729,13 +780,34 @@ def _schema_checked_members(ev, facts):
     for member in SHAPE_CHECKED:
         if member in ev:
             out += [f"contract_evidence.{member}{p}" for p in schema_problems(ev[member], props[member], doc)]
-    if not out and "load_reference_states" in ev:
+    if not out:
+        out += _state_cases(ev, facts)
+    return out
+
+
+def _state_cases(ev, facts):
+    """load_reference_states (when present): one record per load case, each a load case of the model."""
+    out = []
+    if "load_reference_states" in ev:
         ids = [x["load_case_id"] for x in ev["load_reference_states"]]
         if len(set(ids)) != len(ids):
             out.append("contract_evidence.load_reference_states: a load case given twice")
         if not set(ids) <= set(facts.cases):
             out.append(f"contract_evidence.load_reference_states: {sorted(set(ids) - set(facts.cases))[:3]} not a load case of the model")
     return out
+
+
+def recovery_case_keys():
+    """The members a pressure-source-1 exact case may carry: the union of the ordinary and resolved case definitions."""
+    keys = set()
+    for ptr in SOURCE_RECOVERY_EVIDENCE.values():
+        items = _resolve(SOURCE_RECOVERY_SCHEMA, ptr)["properties"]["exact_cases"]["items"]
+        if "$ref" in items:
+            items = _resolve(SOURCE_RECOVERY_SCHEMA, items["$ref"].partition("#")[2])
+        if items.get("additionalProperties") is not False:
+            raise ValueError("a pressure-source-1 exact case definition is not closed")
+        keys |= set(items["properties"])
+    return frozenset(keys)
 
 
 # ----------------------------------------------------------------- reference lines -> ModelView, Expected

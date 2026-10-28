@@ -25,6 +25,36 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 PF_SET = os.path.join(HERE, "selftest", "pf_set.jsonl")
 EXACT_SET = os.path.normpath(os.path.join(HERE, "..", "kd5_timoshenko", "frozen", "kd5t_frozen_subset.jsonl"))
 PASSED, SENSITIVE = "NUMERICAL_INTEGRITY_CHECKS_PASSED", "NUMERICAL_INTEGRITY_SENSITIVE"
+RETAINED = "retained_source_endpoint_normal_max_v1"
+# A committed pressure-source-1 record of an ordinary model whose maxima are retained-source endpoint maxima
+RECOVERY_TEMPLATE = "pressure_source_plain_n05_sparse.stress_neutral.json"
+READ_EXTREMUM = ("pipe_id", "result_id", "section_basis", "value_lower_pa", "value_upper_pa")
+
+
+def source_recovery(r):
+    """A synthetic exact record as pressure-source-1 publishes it: retained-source maximum rows and the recovery evidence
+    of an ordinary model (physics_source_recovery.schema.json). The members the judge reads (READ_EXTREMUM, and each case's
+    load_case_id and coverage) come from the record; every other member (value_pa, endpoints, the error bounds, the
+    materials, sections and recovery method) from the committed template."""
+    fx, probs = m3_json.read_json(os.path.join(MV.FIXTURES, RECOVERY_TEMPLATE))
+    assert not probs, probs
+    tc = fx["contract_evidence"]["exact_cases"][0]
+    te = next(e for e in tc["pipe_stress_extrema"] if e.get("basis") == RETAINED)
+    for x in r["results"]:
+        if x["kind"] == MV.MAXIMUM:
+            x["metadata"]["basis"] = f"{RETAINED}; section_basis={MV._section_basis(x['metadata']['basis'])}"
+    cases = []
+    for c in r["contract_evidence"]["exact_cases"]:
+        case = {k: copy.deepcopy(tc[k]) for k in ("material_basis", "pipe_materials", "pipe_sections", "pressure_rhs_assembly", "profile_mode",
+                                                  "recovery_method")}
+        case.update(load_case_id=c["load_case_id"], stress_maximum_coverage=copy.deepcopy(c["stress_maximum_coverage"]), pipe_stress_extrema=[])
+        for e in c["pipe_stress_extrema"]:
+            x = copy.deepcopy(te)
+            x.update({k: e[k] for k in READ_EXTREMUM}, load_case_id=c["load_case_id"])
+            case["pipe_stress_extrema"].append(x)
+        cases.append(case)
+    r["contract_evidence"] = {"connector": [], "exact_cases": cases, "pressure": []}
+    return r
 
 
 def collection_scenarios(check):
@@ -646,10 +676,67 @@ def collection_scenarios(check):
             r["results_count"] = len(r["results"])
         judge_runs(8, "exact view: the token beside a row only pressure-2 declares (the token under pressure-2)", "exact_token_under_pressure_2", ex_own,
                    mut(xe, lambda r: (retained(r), global_end(r))), False, schema, "refused by the view: no single contract", route="exact")
+        # under pressure-source-1 the evidence is the recovery evidence (round 9), so these controls publish it
         jt = judge_runs(8, "exact view: the token in a record wholly of pressure-source-1 (control)", "exact_token_under_pressure_source_1", ex_own,
-                        mut(xe, retained), True, lambda j: j.get("contracts") == {ps1_id: 8}, "admitted under pressure-source-1", route="exact")
+                        mut(xe, source_recovery), True, lambda j: j.get("contracts") == {ps1_id: 8}, "admitted under pressure-source-1", route="exact")
         judge_runs(8, "exact view: the token in a record wholly of pressure-source-1, a C3 defect (control)", "exact_token_under_pressure_source_1_bad_rows",
-                   ex_own, mut([xbad] + xe[1:], retained), False, m3, "M3: C3 (judged as before)", route="exact")
+                   ex_own, mut([xbad] + xe[1:], source_recovery), False, m3, "M3: C3 (judged as before)", route="exact")
+        # ---- round 9 (Agent 0, the third shape): pressure-source-1's recovery evidence, validated against
+        # physics_source_recovery.schema.json at judge time and admitted only under pressure-source-1; its extrema are
+        # read as kd5's prior judge read them (pipe_id, section_basis, value_upper_pa for C2, value_lower_pa for C7)
+        rx = mut(xe, source_recovery)
+        rxe = lambda r: r["contract_evidence"]["exact_cases"][0]["pipe_stress_extrema"]
+        base9 = judge_runs(9, "exact view: pressure-source-1 recovery evidence on Passed records (control)", "exact_recovery_positive", ex_own, rx,
+                           True, lambda j: j.get("contracts") == {ps1_id: 8} and j.get("schema_invalid", 0) == 0, "admitted under pressure-source-1",
+                           route="exact", eval_out=T("r9-base.eval.jsonl"))
+
+        def unread_scaled(r):
+            for c in r["contract_evidence"]["exact_cases"]:
+                for e in c["pipe_stress_extrema"]:
+                    e["value_pa"] *= 1e9
+                    e["absolute_error_bound_pa"] = e["absolute_error_bound_pa"] * 1e9 + 1e9
+                    for p in e["endpoints"]:
+                        p["value_pa"] *= 1e9
+                        p["interval_pa"] = [x * 1e9 for x in p["interval_pa"]]
+        j9 = judge_runs(9, "exact view: value_pa, the endpoints and the error bound x1e9 (each would move a verdict if it were read)",
+                        "exact_recovery_unread_scaled", ex_own, mut(rx, unread_scaled), True, lambda j: j.get("schema_invalid", 0) == 0,
+                        "verdict unchanged: never read", route="exact", eval_out=T("r9-scaled.eval.jsonl"))
+        table(9, "the same: every record's clauses and information equal those without it", "exact_recovery_unread_scaled_records_equal",
+              "records equal" if verdicts(T("r9-scaled.eval.jsonl")) == verdicts(T("r9-base.eval.jsonl")) else "records differ",
+              verdicts(T("r9-scaled.eval.jsonl")) == verdicts(T("r9-base.eval.jsonl")) and j9["pass"] == base9["pass"])
+
+        def c2_defect(r):
+            for e in rxe(r)[:1]:
+                e["value_lower_pa"] = e["value_upper_pa"] = 0.0
+        c2_runs = mut(rx[:1], c2_defect) + rx[1:]
+        judge_runs(9, "exact view: a Passed pressure-source-1 record whose retained maximum's upper bound is 0 (C2 coverage defect)",
+                   "exact_recovery_c2_defect", ex_own, c2_runs, False,
+                   lambda j: c2(j) and any("C2" in (v or {}) for (t, e, m), (v, _) in verdicts(T("r9-c2.eval.jsonl")).items()
+                                           if (t, e, m) == (rx[0]["tag"], rx[0]["entry"], rx[0]["mode"])),
+                   "M3: C2 on that record", route="exact", eval_out=T("r9-c2.eval.jsonl"))
+
+        def drop(where, key):
+            return lambda r: where(r).pop(key)
+        dup = lambda r: rxe(r).append(copy.deepcopy(rxe(r)[0]))
+        for case, f in (("exact_recovery_upper_wrong_type", lambda r: rxe(r)[0].update(value_upper_pa="1")),
+                        ("exact_recovery_endpoints_wrong_type", lambda r: rxe(r)[0].update(endpoints={})),
+                        ("exact_recovery_extremum_unknown_key", lambda r: rxe(r)[0].update(unexpected=1)),
+                        ("exact_recovery_case_unknown_key", lambda r: r["contract_evidence"]["exact_cases"][0].update(unexpected=1)),
+                        ("exact_recovery_unknown_member", lambda r: r["contract_evidence"].update(unexpected=[])),
+                        ("exact_recovery_duplicate_extremum", dup),
+                        ("exact_recovery_missing_value_pa", drop(lambda r: rxe(r)[0], "value_pa")),
+                        ("exact_recovery_missing_recovery_method", drop(lambda r: r["contract_evidence"]["exact_cases"][0], "recovery_method")),
+                        ("exact_recovery_missing_connector", drop(lambda r: r["contract_evidence"], "connector")),
+                        ("exact_recovery_extremum_of_another_case", lambda r: rxe(r)[0].update(load_case_id="case:ghost"))):
+            judge_runs(9, "exact view: malformed pressure-source-1 recovery evidence", case, ex_own, mut(rx, f), False, schema, "refused by the view",
+                       route="exact")
+
+        judge_runs(9, "exact view: the recovery evidence on rows of pressure-2 (the recovery shape under pressure-2)",
+                   "exact_recovery_under_pressure_2", ex_own,
+                   [dict(copy.deepcopy(p2), contract_evidence=copy.deepcopy(ps1["contract_evidence"])) for p2, ps1 in zip(xe, rx)], False,
+                   lambda j: schema(j) and not j.get("contracts"), "refused by the view", route="exact")
+        judge_runs(9, "exact view: pressure-2's evidence on rows of pressure-source-1", "exact_pressure_2_evidence_under_pressure_source_1", ex_own,
+                   mut(xe, retained), False, lambda j: schema(j) and not j.get("contracts"), "refused by the view", route="exact")
         # ---- round 7 (Codex at cb60446a01): index flags hid an edited manifest; it is now read from HEAD's blob (Agent 0)
         jr = T("r7-judge-repo")
         rel_j = os.path.join("projects", "chirality-piping", "validation", "references", "m3_judge")
