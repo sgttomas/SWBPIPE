@@ -501,7 +501,6 @@ def _action_for(
             privacy=privacy,
             redistribution=redistribution,
             explicit_user_release_intent=explicit_user_release_intent,
-            public_basis_barred=public_basis_barred,
         )
     else:
         action, reason = _context_action(
@@ -510,13 +509,18 @@ def _action_for(
             metadata_present=metadata_present,
             export_context=export_context,
             explicit_local_private_intent=explicit_local_private_intent,
-            public_basis_barred=public_basis_barred,
         )
     # A concrete path redacts only what would not block (input contract, 2026-10-27): it
     # never turns a protected, quarantined/rejected, intent or user-release block into a
     # redaction.
     if concrete_path_present and action != "block_export":
         return "redact_value", "CONCRETE_PATH_REDACTED"
+    # Last, after every other step: an own `__proto__` member turns only a final inclusion
+    # into the unknown-label decision (`carries_proto_member`); every other decision stands.
+    if public_basis_barred and action == "include":
+        if export_context == USER_RELEASED_REPORT_CONTEXT:
+            return "block_export", "USER_RELEASE_VALUE_UNBOUND"
+        return _unknown_action(export_context), "UNKNOWN_PROVENANCE_WARNING"
     return action, reason
 
 
@@ -527,7 +531,6 @@ def _context_action(
     metadata_present: bool,
     export_context: str,
     explicit_local_private_intent: bool,
-    public_basis_barred: bool,
 ) -> tuple[str, str]:
     """Step 10 onward in the five existing contexts (unchanged sequence)."""
 
@@ -537,11 +540,7 @@ def _context_action(
         return _unknown_action(export_context), "REDISTRIBUTION_STATUS_UNKNOWN"
     if privacy in UNKNOWN_PRIVACY_CLASSES:
         return _unknown_action(export_context), "UNKNOWN_PROVENANCE_WARNING"
-    if (
-        not public_basis_barred
-        and privacy in SAFE_PRIVACY_CLASSES
-        and redistribution in PUBLIC_REDIS_STATUSES
-    ):
+    if privacy in SAFE_PRIVACY_CLASSES and redistribution in PUBLIC_REDIS_STATUSES:
         reason = (
             "SAFE_INVENTED_PUBLIC_EXAMPLE"
             if privacy == "invented_public_example"
@@ -558,11 +557,7 @@ def _context_action(
 
 
 def _user_released_action(
-    *,
-    privacy: Any,
-    redistribution: Any,
-    explicit_user_release_intent: bool,
-    public_basis_barred: bool,
+    *, privacy: Any, redistribution: Any, explicit_user_release_intent: bool
 ) -> tuple[str, str]:
     """Steps 10-13 of §3.2, only for ``user_released_report``.
 
@@ -578,8 +573,7 @@ def _user_released_action(
             return "warning_only", "USER_RELEASED_PROJECT_DATA"
         return "block_export", "USER_RELEASE_INTENT_REQUIRED"
     if (
-        not public_basis_barred
-        and isinstance(privacy, str)
+        isinstance(privacy, str)
         and privacy in SAFE_PRIVACY_CLASSES
         and isinstance(redistribution, str)
         and redistribution in PUBLIC_REDIS_STATUSES
@@ -816,10 +810,11 @@ def carries_proto_member(item: Any) -> bool:
     2026-10-27, option (b): "fail closed on the key itself, in all three
     implementations"): a ``__proto__`` key in export data is anomalous, and it may never
     lift or restrict a record by accident.  The route projector gives the record no direct
-    public basis, and the classifier reads the member as an unknown label where that is
-    stricter: it removes the safe-and-public pairing and nothing else.  This is
-    deliberately stricter than Python's reading before the ruling, which took the key as an
-    ordinary member.  Identical in redactionExportControls.ts (``carriesProtoMember``) and
+    public basis, and the classifier reads the member as an unknown label only where the
+    decision would otherwise be an inclusion, as the last step of the decision order: every
+    other decision stands.  This is deliberately stricter than Python's reading before the
+    ruling, which took the key as an ordinary member.  Python receives dicts, parsed or
+    built by a caller; a ``__proto__`` key is always an ordinary, visible key of a dict.  Identical in redactionExportControls.ts (``carriesProtoMember``) and
     redaction_binding.rs.
     """
 

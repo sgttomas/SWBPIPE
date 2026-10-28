@@ -127,8 +127,9 @@ use open_pipe_stress_report_package::user_release::USER_RELEASED_CONTEXT as USER
 /// option (b): "fail closed on the key itself, in all three implementations"): a
 /// `__proto__` key in export data is anomalous, and it may never lift or restrict a record
 /// by accident. The route projector gives the record no direct public basis, and the
-/// classifier reads the member as an unknown label where that is stricter: it removes the
-/// safe-and-public pairing and nothing else. Identical in redactionExportControls.ts
+/// classifier reads the member as an unknown label only where the decision would otherwise
+/// be an inclusion, as the last step of the decision order: every other decision stands. A
+/// serde_json map, parsed or built, always shows a `__proto__` key. Identical in redactionExportControls.ts
 /// (`carriesProtoMember`) and core/security/redaction/controls.py (`carries_proto_member`).
 #[cfg(test)]
 fn carries_proto_member(object: &Map<String, Value>) -> bool {
@@ -218,11 +219,8 @@ fn classify_contract_item(
     let privacy_text = privacy.and_then(Value::as_str);
     let redistribution_text = redistribution.and_then(Value::as_str);
     // As in the TypeScript and Python contracts, any safe privacy class with any public
-    // redistribution status is safe, in every context; the reason follows the privacy. An
-    // own `__proto__` member on the item or its provenance bars that pairing
-    // (`carries_proto_member`).
+    // redistribution status is safe, in every context; the reason follows the privacy.
     let safe_public = match (privacy_text, redistribution_text) {
-        _ if carries_proto_member(item) => None,
         (
             Some(privacy @ ("public" | "public_metadata" | "invented_public_example")),
             Some("public_permissive" | "invented_non_engineering_example"),
@@ -336,6 +334,15 @@ fn classify_contract_item(
     // redaction.
     let (action, reason) = if path_present && decided_action != "block_export" {
         ("redact_value", "CONCRETE_PATH_REDACTED")
+    } else if decided_action == "include" && carries_proto_member(item) {
+        // Last, after every other step: an own `__proto__` member turns only a final
+        // inclusion into the unknown-label decision (`carries_proto_member`); every other
+        // decision stands.
+        if user_released {
+            ("block_export", "USER_RELEASE_VALUE_UNBOUND")
+        } else {
+            (unknown_action, "UNKNOWN_PROVENANCE_WARNING")
+        }
     } else {
         (decided_action, decided_reason)
     };
@@ -1785,6 +1792,83 @@ mod tests {
                 "{name}"
             );
             assert!(strictness(&barred_item) > strictness(&control));
+        }
+    }
+
+    /// Codex r2 on #1692: the bar is the last step of the decision order.  Each labels,
+    /// flags, claims and alias_items case, decided with an own `__proto__` member added on the
+    /// item and, where it has one, in its provenance, gives its own decision with only an
+    /// inclusion barred.
+    #[test]
+    fn proto_member_leaves_every_decision_but_a_final_inclusion_unchanged() {
+        let (cases, _) = sweep_fixtures();
+        let mut differ = Vec::new();
+        for (index, case) in cases.iter().enumerate() {
+            if !matches!(case.family, "labels" | "flags" | "claims" | "alias_items") {
+                continue;
+            }
+            let decide = |candidate: &Map<String, Value>| {
+                let decided = classify_contract_item(
+                    candidate,
+                    &case.context,
+                    case.local_intent,
+                    case.release_intent,
+                );
+                (decided.action, decided.reason_code)
+            };
+            let expected = barred(decide(&case.item), &case.context);
+            let mut on_item = case.item.clone();
+            on_item.insert("__proto__".to_string(), json!({}));
+            if decide(&on_item) != expected {
+                differ.push((index, "item"));
+            }
+            if let Some(provenance) = case.item.get("provenance").and_then(Value::as_object) {
+                let mut in_provenance = case.item.clone();
+                let mut provenance = provenance.clone();
+                provenance.insert("__proto__".to_string(), json!({}));
+                in_provenance.insert("provenance".to_string(), Value::Object(provenance));
+                if decide(&in_provenance) != expected {
+                    differ.push((index, "provenance"));
+                }
+            }
+        }
+        assert!(
+            differ.is_empty(),
+            "{} differ, first {:?}",
+            differ.len(),
+            differ.first()
+        );
+    }
+
+    /// Codex r2 on #1692: in user_released_report with release intent this gave
+    /// `USER_RELEASE_VALUE_UNBOUND`.
+    #[test]
+    fn proto_member_keeps_the_concrete_path_redaction_in_every_context() {
+        let item: Value = serde_json::from_str(
+            r#"{"value":"x","privacy_classification":"public","redistribution_status":"public_permissive","concrete_path_present":true,"__proto__":{}}"#,
+        )
+        .expect("item JSON");
+        let item = item.as_object().expect("item").clone();
+        let mut renamed = item.clone();
+        let member = renamed.remove("__proto__").expect("member");
+        renamed.insert("proto_member".to_string(), member);
+        let spec = sweep_json(include_str!(
+            "../../../../fixtures/redaction_export_controls/input_contract_sweep.json"
+        ));
+        for context in spec["contexts"].as_array().expect("contexts") {
+            for candidate in [&item, &renamed] {
+                let decided = classify_contract_item(
+                    candidate,
+                    context[0].as_str().expect("context"),
+                    context[1].as_bool().expect("local intent"),
+                    context[2].as_bool().expect("release intent"),
+                );
+                assert_eq!(
+                    (decided.action, decided.reason_code),
+                    ("redact_value", "CONCRETE_PATH_REDACTED"),
+                    "{context}"
+                );
+            }
         }
     }
 

@@ -444,6 +444,7 @@ describe("DEL-12-02 input contract: named regressions", () => {
     return { decided: note[0], payload: controlled.payload as { record: Item } | null };
   };
   const ownMember = (object: unknown, key: string) => Object.prototype.hasOwnProperty.call(object, key);
+  const isRecord = (value: unknown): value is Item => typeof value === "object" && value !== null && !Array.isArray(value);
   /** A path-labelled sibling of a record with no public basis. */
   const unbased = (context: string) => [context === "local_private" ? "warning_only" : "redact_value", "REDISTRIBUTION_STATUS_UNKNOWN"];
   /** The classifier's decision with the safe-and-public pairing barred: inclusion becomes the unknown-label
@@ -542,6 +543,81 @@ describe("DEL-12-02 input contract: named regressions", () => {
     ]);
     const renamed = JSON.parse(JSON.stringify(payload).replace('"__proto__"', '"proto_member"')) as Item;
     expect(controlUserReleasedReportPackageRequest(renamed, {}, true).blocked).toBe(false);
+  });
+
+  it("leaves every decision but a final inclusion unchanged across the sweep's item families", () => {
+    // Codex r2 on #1692: the bar is the last step of the decision order. Each labels, flags, claims and
+    // alias_items case, decided with an own `__proto__` member added on the item and, where it has one, in its
+    // provenance, gives its own decision with only an inclusion barred.
+    const differ: string[] = [];
+    cases.forEach((sweepCase, index) => {
+      if (!["labels", "flags", "claims", "alias_items"].includes(sweepCase.family)) return;
+      const decideItem = (candidate: Item) => {
+        const decision = classifyExportItem(candidate, {
+          exportContext: sweepCase.context,
+          explicitLocalPrivateIntent: sweepCase.localIntent,
+          explicitUserReleaseIntent: sweepCase.releaseIntent
+        });
+        return [decision.action, decision.reason_code];
+      };
+      const expected = barred(decideItem(sweepCase.item), sweepCase.context);
+      const onItem = withMember(sweepCase.item, "__proto__", {});
+      if (JSON.stringify(decideItem(onItem)) !== JSON.stringify(expected)) differ.push(`${index} item`);
+      const provenance = sweepCase.item.provenance;
+      if (isRecord(provenance)) {
+        const inProvenance = { ...sweepCase.item, provenance: withMember(provenance, "__proto__", {}) };
+        if (JSON.stringify(decideItem(inProvenance)) !== JSON.stringify(expected)) differ.push(`${index} provenance`);
+      }
+    });
+    expect(differ).toEqual([]);
+  });
+
+  it("keeps the concrete-path redaction of a __proto__-carrying item in every context", () => {
+    // Codex r2 on #1692: in user_released_report with release intent this gave `USER_RELEASE_VALUE_UNBOUND`.
+    const item = JSON.parse(
+      '{"value":"x","privacy_classification":"public","redistribution_status":"public_permissive","concrete_path_present":true,"__proto__":{}}'
+    ) as Item;
+    const renamed = JSON.parse(JSON.stringify(item).replace('"__proto__"', '"proto_member"')) as Item;
+    for (const [exportContext, explicitLocalPrivateIntent, explicitUserReleaseIntent] of spec.contexts) {
+      const decide = (candidate: Item) => {
+        const decision = classifyExportItem(candidate, { exportContext, explicitLocalPrivateIntent, explicitUserReleaseIntent });
+        return [decision.action, decision.reason_code];
+      };
+      expect(decide(item), exportContext).toEqual(["redact_value", "CONCRETE_PATH_REDACTED"]);
+      expect(decide(renamed), exportContext).toEqual(decide(item));
+    }
+  });
+
+  it("bars a non-enumerable own __proto__ member through every copy", () => {
+    // Codex r2 on #1692: `Object.entries` and `structuredClone` dropped a non-enumerable member before the
+    // check. On the record, the item or the provenance, through the route projector, the redaction walk and
+    // the user-release screen, each beside its renamed control.
+    const hidden = (labels: Item, memberKey: string): Item => {
+      const object: Item = { ...labels };
+      Object.defineProperty(object, memberKey, { value: {}, enumerable: false, writable: true, configurable: true });
+      return object;
+    };
+    for (const memberKey of ["__proto__", "proto_member"]) {
+      const barredCase = memberKey === "__proto__";
+      for (const placement of ["record", "provenance"]) {
+        const where = `${memberKey} ${placement}`;
+        const record =
+          placement === "record"
+            ? { ...withMember({}, "note", "INVENTED"), ...PUBLIC_LABELS }
+            : { ...PUBLIC_LABELS, provenance: hidden(PUBLIC_LABELS, memberKey), note: "INVENTED" };
+        const subject = placement === "record" ? hidden(record, memberKey) : record;
+        expect(noteDecision(subject, "public_report", false).decided, where).toEqual(
+          barredCase ? unbased("public_report") : ["include", "SAFE_PUBLIC_METADATA"]
+        );
+        const item = placement === "record" ? hidden({ value: "x", ...PUBLIC_LABELS }, memberKey) : { value: "x", provenance: hidden(PUBLIC_LABELS, memberKey) };
+        const walked = redactExportPayload({ item }, { exportContext: "public_report" });
+        expect(walked.decisions.map((decision) => [decision.action, decision.reason_code]), where).toEqual([
+          barredCase ? ["redact_value", "UNKNOWN_PROVENANCE_WARNING"] : ["include", "SAFE_PUBLIC_METADATA"]
+        ]);
+        const released = controlUserReleasedReportPackageRequest({ record: subject }, {}, true);
+        expect(released.blocked, where).toBe(barredCase);
+      }
+    }
   });
 
   it("keeps a __proto__ member an own member through the redaction walk and its redaction", () => {

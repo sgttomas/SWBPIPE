@@ -427,10 +427,37 @@ function isPlainObject(value: unknown): value is PlainObject {
  * prototype, so its labels would be inherited and the member itself would vanish. Here a
  * `__proto__` member is an ordinary own member, as it is in Python and serde_json (HELP_HUMAN
  * decision, 2026-10-27: "Parse so that no JSON member can become a prototype"). Every copy
- * this module makes of input members goes through this, `Object.fromEntries`, a spread or
- * `structuredClone`, each of which defines own data members. */
+ * this module makes of an input object iterates `ownEntries` and defines the members through
+ * this or `Object.fromEntries`; a spread or `structuredClone` copies only such a copy. */
 function setMember(target: PlainObject, key: string, value: unknown): void {
   Object.defineProperty(target, key, { value, writable: true, enumerable: true, configurable: true });
+}
+
+/** An object's own enumerable entries, with its own `__proto__` member appended even when it is
+ * not enumerable (an accessor member is kept unread, as `undefined`). Every copy of an input
+ * object iterates these, so a copy keeps the member and `carriesProtoMember` still sees it:
+ * `Object.entries` and `structuredClone` drop a non-enumerable member. */
+function ownEntries(object: PlainObject): [string, unknown][] {
+  const entries = Object.entries(object);
+  const member = Object.getOwnPropertyDescriptor(object, "__proto__");
+  if (member !== undefined && !member.enumerable) entries.push(["__proto__", member.value]);
+  return entries;
+}
+
+/** The redaction walk's copy of its input: arrays and ordinary objects (prototype
+ * `Object.prototype` or null) member by member through `ownEntries`, so an own `__proto__`
+ * member survives enumerable or not; any other value as `structuredClone` copies it. */
+function cloneInput(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(cloneInput);
+  if (isPlainObject(value)) {
+    const prototype = Object.getPrototypeOf(value);
+    if (prototype === Object.prototype || prototype === null) {
+      const output: PlainObject = {};
+      for (const [key, item] of ownEntries(value)) setMember(output, key, cloneInput(item));
+      return output;
+    }
+  }
+  return structuredClone(value);
 }
 
 /** Whether an object or its `provenance` object carries an own `__proto__` member. Such an
@@ -438,7 +465,8 @@ function setMember(target: PlainObject, key: string, value: unknown): void {
  * (b): "fail closed on the key itself, in all three implementations"): a `__proto__` key in export
  * data is anomalous, and it may never lift or restrict a record by accident. The route projector
  * gives the record no direct public basis, and the classifier reads the member as an unknown
- * label where that is stricter: it removes the safe-and-public pairing and nothing else. Identical
+ * label only where the decision would otherwise be an inclusion, as the last step of the decision order:
+ * every other decision stands. Identical
  * in core/security/redaction/controls.py (`carries_proto_member`) and redaction_binding.rs. */
 function carriesProtoMember(object: PlainObject): boolean {
   const own = (candidate: unknown) =>
@@ -598,7 +626,6 @@ function userReleasedAction(args: {
   privacy: unknown;
   redistribution: unknown;
   explicitUserReleaseIntent: boolean;
-  publicBasisBarred: boolean;
 }): { action: RedactionAction; reason: RedactionReasonCode } {
   if (typeof args.privacy === "string" && NON_PROJECT_PRIVATE_CLASSES.has(args.privacy)) {
     return { action: "redact_value", reason: "PRIVATE_DATA_REDACTED" };
@@ -609,7 +636,6 @@ function userReleasedAction(args: {
       : { action: "block_export", reason: "USER_RELEASE_INTENT_REQUIRED" };
   }
   if (
-    !args.publicBasisBarred &&
     typeof args.privacy === "string" &&
     SAFE_PRIVACY_CLASSES.has(args.privacy) &&
     typeof args.redistribution === "string" &&
@@ -676,7 +702,6 @@ function contextActionFor(args: ActionInputs): { action: RedactionAction; reason
     return { action: unknownAction(args.exportContext), reason: "UNKNOWN_PROVENANCE_WARNING" };
   }
   if (
-    !args.publicBasisBarred &&
     typeof args.privacy === "string" &&
     SAFE_PRIVACY_CLASSES.has(args.privacy) &&
     typeof args.redistribution === "string" &&
@@ -715,6 +740,13 @@ function actionFor(args: ActionInputs): {
   const decided = contextActionFor(args);
   if (args.concretePathPresent && decided.action !== "block_export") {
     return { action: "redact_value", reason: "CONCRETE_PATH_REDACTED", boundary: true };
+  }
+  // Last, after every other step: an own `__proto__` member turns only a final inclusion into the
+  // unknown-label decision (`carriesProtoMember`); every other decision stands.
+  if (args.publicBasisBarred && decided.action === "include") {
+    return args.exportContext === USER_RELEASED_REPORT_CONTEXT
+      ? { action: "block_export", reason: "USER_RELEASE_VALUE_UNBOUND", boundary: false }
+      : { action: unknownAction(args.exportContext), reason: "UNKNOWN_PROVENANCE_WARNING", boundary: false };
   }
   return { ...decided, boundary: args.concretePathPresent };
 }
@@ -777,7 +809,7 @@ function findingFor(decision: RedactionDecision, findingIndex: number): Redactio
 
 function withoutUnsafeDetail(item: PlainObject): PlainObject {
   const output: PlainObject = {};
-  for (const [key, value] of Object.entries(item)) {
+  for (const [key, value] of ownEntries(item)) {
     if (!UNSAFE_DETAIL_KEYS.has(key)) setMember(output, key, value);
   }
   return output;
@@ -912,7 +944,7 @@ function walk(
       return applyAction(value, decision.action);
     }
     const output: PlainObject = {};
-    for (const [key, item] of Object.entries(value)) {
+    for (const [key, item] of ownEntries(value)) {
       const child = walk(item, { ...args, path: `${args.path}.${key}` });
       if (child !== OMITTED_SENTINEL) setMember(output, key, child);
     }
@@ -988,7 +1020,7 @@ export function redactExportPayload(
   assertRedactionWalkContext(options.exportContext);
   const decisions: RedactionDecision[] = [];
   const findings: RedactionFinding[] = [];
-  const redacted = walk(structuredClone(payload), {
+  const redacted = walk(cloneInput(payload), {
     path: "$",
     exportContext: options.exportContext,
     explicitLocalPrivateIntent: options.explicitLocalPrivateIntent ?? false,
@@ -1125,14 +1157,14 @@ function stripRouteIntent(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(stripRouteIntent);
   if (!isPlainObject(value)) return structuredClone(value);
   const output: PlainObject = {};
-  for (const [key, item] of Object.entries(value)) {
+  for (const [key, item] of ownEntries(value)) {
     if (ROUTE_INTENT_KEYS.has(key)) continue;
     if (key === "export_policy" && isPlainObject(item)) {
       setMember(
         output,
         key,
         Object.fromEntries(
-          Object.entries(item)
+          ownEntries(item)
             .filter(([policyKey]) => !ROUTE_INTENT_KEYS.has(policyKey))
             .map(([policyKey, policyValue]) => [policyKey, stripRouteIntent(policyValue)])
         )
@@ -1185,7 +1217,7 @@ function projectRouteValue(
       typeof directRedistribution === "string" &&
       PUBLIC_REDIS_STATUSES.has(directRedistribution);
     return Object.fromEntries(
-      Object.entries(value).map(([key, item]) => [
+      ownEntries(value).map(([key, item]) => [
         `${ROUTE_KEY_PREFIX}${key}`,
         projectRouteValue(item, {
           ...args,
@@ -1487,7 +1519,7 @@ function screenUserReleaseValue(
       }
     }
     const label = nextUserReleaseLabel(value, args.label);
-    for (const [key, item] of Object.entries(value)) {
+    for (const [key, item] of ownEntries(value)) {
       screenUserReleaseValue(item, { ...args, path: `${args.path}.${key}`, label });
     }
     return;

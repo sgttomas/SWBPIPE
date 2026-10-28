@@ -525,6 +525,61 @@ def test_proto_member_classes_are_stricter_than_python_read_them_before_the_ruli
         assert strictness(f"{item.action}/{item.reason_code}") > strictness(f"{control.action}/{control.reason_code}")
 
 
+def test_proto_member_leaves_every_decision_but_a_final_inclusion_unchanged():
+    """Codex r2 on #1692: the bar is the last step of the decision order.  Each labels,
+    flags, claims and alias_items case, decided with an own `__proto__` member added on the
+    item and, where it has one, in its provenance, gives its own decision with only an
+    inclusion barred."""
+
+    differ = []
+    for index, (family, item, context, intent, release) in enumerate(expand_sweep(load_json(SWEEP_PATH))):
+        if family not in ("labels", "flags", "claims", "alias_items"):
+            continue
+
+        def decide_item(candidate):
+            try:
+                decision = classify_export_item(
+                    candidate,
+                    export_context=context,
+                    explicit_local_private_intent=intent,
+                    explicit_user_release_intent=release,
+                )
+            except TypeError:
+                return ("raised", "TypeError")
+            return decision.action, decision.reason_code
+
+        expected = barred(decide_item(item), context)
+        if decide_item({**item, "__proto__": {}}) != expected:
+            differ.append((index, "item"))
+        provenance = item.get("provenance")
+        if isinstance(provenance, dict):
+            if decide_item({**item, "provenance": {**provenance, "__proto__": {}}}) != expected:
+                differ.append((index, "provenance"))
+    assert differ == []
+
+
+def test_proto_member_keeps_the_concrete_path_redaction_in_every_context():
+    """Codex r2 on #1692: in user_released_report with release intent this gave
+    `USER_RELEASE_VALUE_UNBOUND`."""
+
+    item = json.loads(
+        '{"value":"x","privacy_classification":"public","redistribution_status":"public_permissive",'
+        '"concrete_path_present":true,"__proto__":{}}'
+    )
+    renamed = {("proto_member" if key == "__proto__" else key): value for key, value in item.items()}
+    for context, intent, release in load_json(SWEEP_PATH)["contexts"]:
+        decided = [
+            classify_export_item(
+                candidate,
+                export_context=context,
+                explicit_local_private_intent=intent,
+                explicit_user_release_intent=release,
+            )
+            for candidate in (item, renamed)
+        ]
+        assert [(d.action, d.reason_code) for d in decided] == [("redact_value", "CONCRETE_PATH_REDACTED")] * 2, context
+
+
 def test_concrete_path_never_turns_a_protected_block_into_a_redaction():
     """Before the reorder, ``concrete_path_present: true`` returned ``redact_value`` /
     ``CONCRETE_PATH_REDACTED`` ahead of the protected-content block, in every context."""
