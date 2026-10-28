@@ -1147,7 +1147,7 @@ function EntityGrid({
       {runSheetShown && runSheet ? (
         <RunSheet host={runSheet} model={model} operationBusy={operationBusy} viewCommand={viewCommand} onSelect={onSelect} />
       ) : null}
-      <div className="entity-grid-families" hidden={runSheetShown} inert={runSheetShown} style={runSheetShown ? undefined : { display: "contents" }}>
+      <div className="entity-grid-families" hidden={runSheetShown} inert={runSheetShown}>
       {!directVisible && directDraftRetained ? <p className="retained-direct-draft" role="status" data-testid="retained-direct-draft">Direct node edit retained. Return to node fields to correct or cancel it.</p> : null}
       <div className="direct-coordinate-workarea" hidden={!directVisible} inert={!directVisible}>
         <EngineeringTable label="Node fields" bounded={bounded} compact={compact} active={directVisible} onDraftStateChange={setDirectDraftRetained} rows={tableRows} columns={coordinateColumns} generation={tableGeneration}
