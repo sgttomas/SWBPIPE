@@ -157,6 +157,41 @@ def test_selection_stages_allowlist_and_drops_private_surfaces(tmp_path):
     assert "plans" in unlisted
 
 
+@pytest.mark.skipif(shutil.which("git") is None, reason="git is not installed")
+def test_selection_in_a_git_checkout_stages_tracked_files_only(tmp_path):
+    # G3: the record binds the export to a commit, and `git status --porcelain`
+    # does not show ignored files, so ignored or untracked local files must not
+    # be staged under an allowlisted root.
+    import subprocess
+
+    source = make_source_tree(tmp_path)
+    (source / ".gitignore").write_text("*.local.json\n", encoding="utf-8")
+    git = ["git", "-c", "user.name=invented", "-c", "user.email=invented@example.invalid"]
+    subprocess.run([*git, "init", "-q"], cwd=source, check=True)
+    subprocess.run([*git, "add", "-A"], cwd=source, check=True)
+    subprocess.run([*git, "commit", "-q", "-m", "invented"], cwd=source, check=True)
+    (source / "fixtures" / "scratch_result.json").write_text("{}\n", encoding="utf-8")
+    (source / "docs" / "notes.local.json").write_text("{}\n", encoding="utf-8")
+    subprocess.run([*git, "rm", "-q", "--cached", "README.md"], cwd=source, check=True)
+
+    selected, exclusions, _ = PIPE.select_files(source)
+    posix = {rel.as_posix() for rel in selected}
+
+    assert "docs/README.md" in posix
+    assert "fixtures/scratch_result.json" not in posix
+    assert "docs/notes.local.json" not in posix
+    assert "README.md" not in posix
+    assert exclusions.get("untracked_in_source") == 3
+
+
+def test_selection_outside_git_walks_the_filesystem(tmp_path):
+    source = make_source_tree(tmp_path)
+    assert PIPE.tracked_files(source) is None
+    selected, exclusions, _ = PIPE.select_files(source)
+    assert "README.md" in {rel.as_posix() for rel in selected}
+    assert "untracked_in_source" not in exclusions
+
+
 def test_selection_fails_closed_when_allowlisted_root_is_missing(tmp_path):
     source = make_source_tree(tmp_path)
     shutil.rmtree(source / "schemas")

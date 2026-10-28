@@ -413,10 +413,30 @@ def skip_reason(rel: Path) -> str | None:
     return None
 
 
+def tracked_files(source_root: Path) -> set[str] | None:
+    """Git-tracked paths under `source_root` (posix, relative to it), or None
+    when `source_root` is not inside a git work tree.
+
+    G3 binds the export to a commit, and `git status --porcelain` does not
+    report ignored files, so a filesystem walk alone could stage ignored or
+    untracked local files under a record that reads clean."""
+    probe = capture_output(["git", "rev-parse", "--is-inside-work-tree"], source_root)
+    if probe != "true":
+        return None
+    try:
+        completed = run_command(["git", "ls-files", "-z", "--cached"], source_root)
+    except OSError:
+        return None
+    if completed.returncode != 0:
+        raise SystemExit("git ls-files failed in the source root; cannot bind the export to a commit")
+    return {path for path in completed.stdout.split("\0") if path}
+
+
 def select_files(source_root: Path) -> tuple[list[Path], dict, list[str]]:
     """Walk the allowlist; return staged relative paths, exclusion counts,
     and the top-level entries present in the source tree but not
-    allowlisted (fail-toward-exclusion ledger)."""
+    allowlisted (fail-toward-exclusion ledger). Inside a git work tree only
+    tracked files are eligible; the rest count as `untracked_in_source`."""
     missing = [
         name
         for name in (*ROOT_FILES, *ROOT_DIRS)
@@ -435,7 +455,12 @@ def select_files(source_root: Path) -> tuple[list[Path], dict, list[str]]:
     def count(reason: str) -> None:
         exclusions[reason] = exclusions.get(reason, 0) + 1
 
+    tracked = tracked_files(source_root)
+
     for name in ROOT_FILES:
+        if tracked is not None and name not in tracked:
+            count("untracked_in_source")
+            continue
         selected.append(Path(name))
 
     for name in ROOT_DIRS:
@@ -447,6 +472,8 @@ def select_files(source_root: Path) -> tuple[list[Path], dict, list[str]]:
                 continue
             rel = path.relative_to(source_root)
             reason = skip_reason(rel)
+            if reason is None and tracked is not None and rel.as_posix() not in tracked:
+                reason = "untracked_in_source"
             if reason is not None:
                 count(reason)
                 continue
