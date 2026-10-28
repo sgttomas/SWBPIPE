@@ -598,36 +598,26 @@ ruling governs.
 
 ### 8.3 Proposed ScopeOfWork text (A-1)
 
-No ScopeOfWork is edited by this design. The proposals are exact:
+No ScopeOfWork is edited by this design. These are the exact texts after one independent review
+(2026-10-28), which found that each Old occurs exactly once when unwrapped and replaced AC-003's
+coverage sentence so that it does not understate A-3. Each Old and New is one line in its file;
+each sits inside the existing paragraph, keeping its prefix.
 
-**DEL-17-04 CLM-008, second paragraph.**
+**DEL-17-04 CLM-008** (inside its `>` paragraph).
 
-- *Old:* "It shall not implement a CAEPIPE result parser, external run harness, public API, GUI
-  behavior, release claims, CAEPIPE compatibility claims, code-compliance claims,
-  professional-acceptance claims, or full MBF coverage claims."
-- *New:* "It shall not implement a CAEPIPE result parser, external run harness, public API,
-  release claims, CAEPIPE compatibility claims, code-compliance claims, professional-acceptance
-  claims, or full MBF coverage claims. Its desktop part is limited to the engine, native file
-  commands and round-trip check of Design `desktop-mbf-export-import.md` (RT-R7, RT-R8); the
-  GUI code of those actions is DEL-07-12's."
+- *Old:* "It shall not implement a CAEPIPE result parser, external run harness, public API, GUI behavior, release claims, CAEPIPE compatibility claims, code-compliance claims, professional-acceptance claims, or full MBF coverage claims."
+- *New:* "It shall not implement a CAEPIPE result parser, external run harness, public API, release claims, CAEPIPE compatibility claims, code-compliance claims, professional-acceptance claims, or full MBF coverage claims. Its desktop part is limited to the engine, native file commands and round-trip check of Design `desktop-mbf-export-import.md` (RT-R7, RT-R8); the GUI code of those actions is DEL-07-12's."
 
-**DEL-17-04 CLM-012.**
+**DEL-17-04 CLM-012** (inside its `>` paragraph).
 
-- *Old:* "A desktop MBF import action would belong to DEL-07-12 and is not part of this
-  deliverable."
-- *New:* "The desktop MBF export and import actions use this deliverable's engine and native
-  file commands under Design `desktop-mbf-export-import.md`; their GUI code is DEL-07-12's."
+- *Old:* "A desktop MBF import action would belong to DEL-07-12 and is not part of this deliverable."
+- *New:* "The desktop MBF export and import actions use this deliverable's engine and native file commands under Design `desktop-mbf-export-import.md`; their GUI code is DEL-07-12's."
 
-**DEL-17-04, a new acceptance criterion after AC-002.**
+**DEL-17-04, a new acceptance criterion after AC-002** (an unquoted list item, in AC-002's format).
 
-- *New:* "- **AC-003** — The desktop saves a model in the writer's subset as an MBF with its
-  identity file through the native chooser after showing the writer's loss report, and imports
-  the pair back bound with the identities Design `desktop-mbf-export-import.md` §1.3 defines;
-  a CI check on an invented fixture covers every family the writer and importer support."
+- *New:* "- **AC-003** — The desktop saves a model in the writer's declared subset as an MBF with its identity file through the native chooser after showing the writer's loss report, and imports the pair back bound with the identities Design `desktop-mbf-export-import.md` §1.3 defines. A CI check on an invented fixture exercises C6-1 through C6-7 as applicable and tracks coverage and named refusals for every family the criterion-1 reference system contains, plus its cases and combinations. Criterion 6 is met only when the reference system passes C6-1 through C6-6 through the actual desktop build, with no such family omitted or unsupported in the loss report."
 
-**DEL-07-12, Governing Values.**
+**DEL-07-12, Governing Values** (an ordinary paragraph).
 
-- *Old:* "Finite inventory: native JSON package; .mbf model export; licensed external-run
-  evidence review;"
-- *New:* "Finite inventory: native JSON package; .mbf model export and import (DEL-17-04 Design
-  `desktop-mbf-export-import.md`); licensed external-run evidence review;"
+- *Old:* "Finite inventory: native JSON package; .mbf model export; licensed external-run evidence review;"
+- *New:* "Finite inventory: native JSON package; .mbf model export and import (DEL-17-04 Design `desktop-mbf-export-import.md`); licensed external-run evidence review;"
