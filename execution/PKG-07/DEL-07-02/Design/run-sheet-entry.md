@@ -363,10 +363,13 @@ available as an explicit, previewed command (open choice O1).
 from Pending changes returns them to draft. A draft row whose predecessor is
 queued waits for that batch to be applied.
 
-**Applied rows** (slice 4). Status comes from the history ledger and the
-reconciliation (§3.6), not from entity existence. An applied row shows stored values. Its increments read
+**Applied rows** (shown from S2; edited in slice 4). Status comes from the
+history ledger and the reconciliation (§3.6), not from entity existence. An
+applied row shows stored values. Its increments read
 `stored(end) − stored(predecessor)`, converted to the sheet unit for display
-only.
+only. The chain resolves from the stored end positions of its applied rows, so
+a row after an applied one continues from where the model holds that row's
+end, including after an outside move that Adopt current values accepts.
 
 **Ownership.** Each applied row records the ids its applied batches created,
 in its history (§3.6). A row **owns** exactly those entities:
@@ -438,6 +441,10 @@ are never deleted by the sheet.
   `validateOperationBatch` (`src/services/operationBatchService.ts`). It then
   hands the batch to the workspace's existing queue,
   `handleQueueOperationBatch` (`src/features/workspace/workspaceSession.ts:1277-1306`).
+  - Queue reads no render: the batch and the values the ledger records are
+    built from one snapshot of the sheet's committed state, so an edit
+    committed by Ctrl/⌘+Enter is the one queued. If the sheet changes while
+    the batch is built, nothing is queued.
   - While the batch is checked, the acting rows are queued and read-only. An
     engine refusal returns them to draft by the `refused` transition (§3.6),
     with the refusal on the failing row, and the batch is not handed over.
