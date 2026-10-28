@@ -270,8 +270,10 @@ or rolls back a save.
   ever reads.
 - **Read-back.** After the rename, the file is streamed through SHA-256 in
   64 KiB blocks and compared with the model hash. On a mismatch
-  (`AUTOSAVE-READBACK-MISMATCH`) or a read error (`AUTOSAVE-READBACK-FAILED`),
-  that new file alone is removed and the previous record is kept.
+  (`AUTOSAVE-READBACK-MISMATCH`), the new file alone is removed and the
+  previous record is kept. On a read error (`AUTOSAVE-READBACK-FAILED`),
+  nothing is removed: the new file is kept unverified, and no older record is
+  pruned.
 - **Containment.** Every read, including the read-back and the `unchanged`
   check, opens the records directory `O_DIRECTORY | O_NOFOLLOW`, so a symlinked
   `autosave/` is refused (`AUTOSAVE-DIRECTORY-UNAVAILABLE`). It then resolves
