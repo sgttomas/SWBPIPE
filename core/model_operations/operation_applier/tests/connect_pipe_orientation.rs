@@ -7,7 +7,7 @@
 //! reconnect, the kernel constructor itself and the product solve; all four
 //! must agree. Every model is an inline invented fixture built from
 //! `MODEL_SCHEMA_VERSION`; no value is library, catalog or code-rule data.
-use open_pipe_stress_frame_kernel::FrameOrientation;
+use open_pipe_stress_frame_kernel::{FrameElement, FrameNode, FrameSection};
 use open_pipe_stress_operation_applier::{
     apply_operation, apply_operation_batch, canonical_json, sha256_hex, validate_operation, OperationOutcome,
 };
@@ -128,38 +128,46 @@ fn solve_verdict(model: &Value, pipe_id: &str) -> Result<(), String> {
 struct Row {
     name: &'static str,
     unit: &'static str,
-    /// Chord end B; A is at the origin.
+    /// Chord ends A and B.
+    a: [f64; 3],
     b: [f64; 3],
     y: [f64; 3],
     /// `None`: accepted; `Some(code)`: connect's refusal code.
     refused: Option<&'static str>,
 }
 
+const O: [f64; 3] = [0.0, 0.0, 0.0];
+
 /// The shared table. Positions are in `unit`; `y_reference` is a direction.
 fn table() -> Vec<Row> {
     vec![
-        Row { name: "axis chord, perpendicular y", unit: "m", b: [2.0, 0.0, 0.0], y: [0.0, 0.0, 1.0], refused: None },
-        Row { name: "axis chord, y exactly parallel", unit: "m", b: [2.0, 0.0, 0.0], y: [3.0, 0.0, 0.0], refused: Some(CONNECT_ORIENTATION) },
-        Row { name: "axis chord, y exactly antiparallel", unit: "m", b: [2.0, 0.0, 0.0], y: [-1.0, 0.0, 0.0], refused: Some(CONNECT_ORIENTATION) },
+        Row { name: "axis chord, perpendicular y", unit: "m", a: O, b: [2.0, 0.0, 0.0], y: [0.0, 0.0, 1.0], refused: None },
+        Row { name: "axis chord, y exactly parallel", unit: "m", a: O, b: [2.0, 0.0, 0.0], y: [3.0, 0.0, 0.0], refused: Some(CONNECT_ORIENTATION) },
+        Row { name: "axis chord, y exactly antiparallel", unit: "m", a: O, b: [2.0, 0.0, 0.0], y: [-1.0, 0.0, 0.0], refused: Some(CONNECT_ORIENTATION) },
         // Near-parallel: the perpendicular part of y is 5e-13 <= 1e-12.
-        Row { name: "axis chord, y near-parallel", unit: "m", b: [2.0, 0.0, 0.0], y: [1.0, 0.0, 5e-13], refused: Some(CONNECT_ORIENTATION) },
+        Row { name: "axis chord, y near-parallel", unit: "m", a: O, b: [2.0, 0.0, 0.0], y: [1.0, 0.0, 5e-13], refused: Some(CONNECT_ORIENTATION) },
         // Just inside the tolerance: perpendicular part 2e-12 > 1e-12; on an
         // axis-aligned chord the kernel's axes are then exactly orthonormal.
-        Row { name: "axis chord, y just inside tolerance", unit: "m", b: [2.0, 0.0, 0.0], y: [1.0, 0.0, 2e-12], refused: None },
+        Row { name: "axis chord, y just inside tolerance", unit: "m", a: O, b: [2.0, 0.0, 0.0], y: [1.0, 0.0, 2e-12], refused: None },
         // A perpendicular y whose whole length is below the kernel tolerance.
-        Row { name: "axis chord, y below tolerance in length", unit: "m", b: [2.0, 0.0, 0.0], y: [0.0, 0.0, 1e-13], refused: Some(CONNECT_ORIENTATION) },
+        Row { name: "axis chord, y below tolerance in length", unit: "m", a: O, b: [2.0, 0.0, 0.0], y: [0.0, 0.0, 1e-13], refused: Some(CONNECT_ORIENTATION) },
         // Design §2.3 counterexample: the projection is nonzero (about 7.07e-6)
         // but the kernel's |x.y| after normalization exceeds 1e-12.
-        Row { name: "oblique chord, y near-parallel (§2.3)", unit: "m", b: [1.0, 1.0, 0.0], y: [1.00001, 1.0, 0.0], refused: Some(CONNECT_ORIENTATION) },
-        Row { name: "oblique chord, y well off the chord", unit: "m", b: [1.0, 1.0, 0.0], y: [1.0, 1.0, 1.0], refused: None },
-        Row { name: "oblique chord, y perpendicular", unit: "m", b: [1.0, 2.0, 3.0], y: [3.0, 0.0, -1.0], refused: None },
-        Row { name: "mm project, axis chord, y near-parallel", unit: "mm", b: [2000.0, 0.0, 0.0], y: [1.0, 0.0, 5e-13], refused: Some(CONNECT_ORIENTATION) },
-        Row { name: "mm project, axis chord, y just inside tolerance", unit: "mm", b: [2000.0, 0.0, 0.0], y: [1.0, 0.0, 2e-12], refused: None },
-        Row { name: "mm project, oblique chord, y perpendicular", unit: "mm", b: [300.0, 400.0, 0.0], y: [-4.0, 3.0, 0.0], refused: None },
+        Row { name: "oblique chord, y near-parallel (§2.3)", unit: "m", a: O, b: [1.0, 1.0, 0.0], y: [1.00001, 1.0, 0.0], refused: Some(CONNECT_ORIENTATION) },
+        Row { name: "oblique chord, y well off the chord", unit: "m", a: O, b: [1.0, 1.0, 0.0], y: [1.0, 1.0, 1.0], refused: None },
+        Row { name: "oblique chord, y perpendicular", unit: "m", a: O, b: [1.0, 2.0, 3.0], y: [3.0, 0.0, -1.0], refused: None },
+        Row { name: "mm project, axis chord, y near-parallel", unit: "mm", a: O, b: [2000.0, 0.0, 0.0], y: [1.0, 0.0, 5e-13], refused: Some(CONNECT_ORIENTATION) },
+        Row { name: "mm project, axis chord, y just inside tolerance", unit: "mm", a: O, b: [2000.0, 0.0, 0.0], y: [1.0, 0.0, 2e-12], refused: None },
+        Row { name: "mm project, oblique chord, y perpendicular", unit: "mm", a: O, b: [300.0, 400.0, 0.0], y: [-4.0, 3.0, 0.0], refused: None },
         // Distinct nodes at one position: there is no chord to orient.
-        Row { name: "coincident endpoints", unit: "m", b: [0.0, 0.0, 0.0], y: [0.0, 0.0, 1.0], refused: Some(CONNECT_GEOMETRY) },
+        Row { name: "coincident endpoints", unit: "m", a: O, b: [0.0, 0.0, 0.0], y: [0.0, 0.0, 1.0], refused: Some(CONNECT_GEOMETRY) },
         // 5e-10 mm = 5e-13 m, at or below the kernel's 1e-12 m axis tolerance.
-        Row { name: "mm project, chord below the axis tolerance", unit: "mm", b: [5e-10, 0.0, 0.0], y: [0.0, 0.0, 1.0], refused: Some(CONNECT_GEOMETRY) },
+        Row { name: "mm project, chord below the axis tolerance", unit: "mm", a: O, b: [5e-10, 0.0, 0.0], y: [0.0, 0.0, 1.0], refused: Some(CONNECT_GEOMETRY) },
+        // Review counterexample 1: near-parallel on an oblique chord that the
+        // solve admits, because it normalizes the chord before the constructor.
+        Row { name: "oblique chord, y near-parallel, solve admits (review 1)", unit: "m", a: O, b: [1.0, 1.0, 0.0], y: [1.000022, 1.0, 0.0], refused: None },
+        // Review counterexample 2 (reconnect): a 1 mm chord away from the origin.
+        Row { name: "mm project, offset oblique chord, solve admits (review 2)", unit: "mm", a: [10.0, 10.0, 0.0], b: [11.0, 11.0, 0.0], y: [1.000006, 1.0, 0.0], refused: None },
     ]
 }
 
@@ -175,13 +183,18 @@ fn metres(unit: &str) -> f64 {
 /// C off both, and pipe Q = A -> C, so reconnecting Q's `to` end to B makes the
 /// same chord A -> B that connect authors.
 fn base(row: &Row) -> Value {
-    let c = [0.0, 0.0, -1.0 / metres(row.unit)];
+    let c = [row.a[0], row.a[1], row.a[2] - 1.0 / metres(row.unit)];
     document(
         row.unit,
-        vec![node("node:A", [0.0, 0.0, 0.0]), node("node:B", row.b), node("node:C", c)],
+        vec![node("node:A", row.a), node("node:B", row.b), node("node:C", c)],
         vec![pipe("pipe:Q", "node:A", "node:C", [1.0, 0.0, 0.0])],
         vec![anchor("support:A", "node:A")],
     )
+}
+
+fn frame_element(a: [f64; 3], b: [f64; 3], y: [f64; 3]) -> Result<FrameElement, open_pipe_stress_frame_kernel::FrameKernelError> {
+    let section = FrameSection::new(200e9, 80e9, 1e-3, 1e-6, 1e-6, 2e-6).expect("valid section");
+    FrameElement::new(FrameNode::new(0, a)?, FrameNode::new(1, b)?, section, y)
 }
 
 #[test]
@@ -235,15 +248,17 @@ fn connect_reconnect_kernel_and_solve_agree_on_the_table() {
         });
         assert_eq!(mapped, reconnect, "{}: connect and reconnect", row.name);
 
-        let scale = metres(row.unit);
-        let chord = [row.b[0] * scale, row.b[1] * scale, row.b[2] * scale];
-        let kernel = FrameOrientation::from_x_axis_and_y_reference(chord, row.y);
-        assert_eq!(connect.is_ok(), kernel.is_ok(), "{}: connect and the kernel constructor ({kernel:?})", row.name);
+        // In a metre project the solve's element is `FrameElement::new` on the
+        // stored coordinates (no conversion), the call it makes per straight pipe.
+        if row.unit == "m" {
+            let element = frame_element(row.a, row.b, row.y);
+            assert_eq!(connect.is_ok(), element.is_ok(), "{}: connect and FrameElement::new ({element:?})", row.name);
+        }
 
         // The solve on the same pipe authored directly, with no operation.
         let direct = document(
             row.unit,
-            vec![node("node:A", [0.0, 0.0, 0.0]), node("node:B", row.b)],
+            vec![node("node:A", row.a), node("node:B", row.b)],
             vec![pipe("pipe:P", "node:A", "node:B", row.y)],
             vec![anchor("support:A", "node:A")],
         );
@@ -311,4 +326,77 @@ fn an_endpoint_without_an_explicit_position_is_refused() {
     model["nodes"][1]["position"] = json!({"x": 2.0, "y": 0.0});
     let outcome = run(&model, &connect("pipe:NEW", "node:A", "node:B", row.y));
     assert!(blocking(&outcome).contains(&CONNECT_GEOMETRY.to_string()), "{:#?}", outcome.diagnostics);
+}
+
+/// The verdicts of connect A -> B, reconnect Q.to C -> B, and the solve of
+/// the pipe A -> B authored directly, for one row.
+fn verdicts(row: &Row) -> (bool, bool, bool) {
+    let model = base(row);
+    let connect = connect_verdict(&model, "node:A", "node:B", row.y).is_ok();
+    let reconnect = run(&model, &reconnect(&model, "pipe:Q", "to", "node:B", row.y)).applied_model.is_some();
+    let direct = document(
+        row.unit,
+        vec![node("node:A", row.a), node("node:B", row.b)],
+        vec![pipe("pipe:P", "node:A", "node:B", row.y)],
+        vec![anchor("support:A", "node:A")],
+    );
+    (connect, reconnect, solve_verdict(&direct, "pipe:P").is_ok())
+}
+
+#[test]
+fn review_counterexample_1_connect_admits_the_oblique_orientation_the_solve_admits() {
+    // Metre endpoints (0,0,0) -> (1,1,0), y (1.000022, 1, 0). The raw chord
+    // handed to the constructor gives |x.y| about 2.02e-11 and was refused;
+    // the solve normalizes the chord first and admits it.
+    let row = Row { name: "review 1", unit: "m", a: O, b: [1.0, 1.0, 0.0], y: [1.000022, 1.0, 0.0], refused: None };
+    assert!(frame_element(row.a, row.b, row.y).is_ok(), "the solve's own element admits it");
+    assert_eq!(verdicts(&row), (true, true, true), "connect, reconnect, solve");
+}
+
+#[test]
+fn review_counterexample_2_reconnect_in_mm_admits_the_orientation_the_solve_admits() {
+    // mm endpoints (10,10,0) -> (11,11,0), y (1.000006, 1, 0): the chord is
+    // about 1.414e-3 m. Convert-then-subtract with the raw chord refused it
+    // (|x.y| about 1.48e-10); the solve converts, subtracts, normalizes and
+    // admits it.
+    let row = Row { name: "review 2", unit: "mm", a: [10.0, 10.0, 0.0], b: [11.0, 11.0, 0.0], y: [1.000006, 1.0, 0.0], refused: None };
+    let model = base(&row);
+    let outcome = run(&model, &reconnect(&model, "pipe:Q", "to", "node:B", row.y));
+    assert!(outcome.applied_model.is_some(), "{:#?}", outcome.diagnostics);
+    assert_eq!(verdicts(&row), (true, true, true), "connect, reconnect, solve");
+}
+
+/// A sweep of near-parallel `y_reference` vectors on oblique and offset
+/// chords, in metres and millimetres: connect and reconnect must give the
+/// solve's verdict on every case. Both verdicts must occur.
+#[test]
+fn near_parallel_sweep_on_oblique_chords_matches_the_solve() {
+    let chords: [(&'static str, [f64; 3], [f64; 3]); 7] = [
+        ("m", O, [1.0, 1.0, 0.0]),
+        ("m", O, [1.0, 2.0, 3.0]),
+        ("m", [0.3, -1.7, 2.2], [1.9, 0.4, -0.6]),
+        ("m", [5.0, 5.0, 5.0], [5.001, 4.9993, 5.0004]),
+        ("mm", [10.0, 10.0, 0.0], [11.0, 11.0, 0.0]),
+        ("mm", [-250.0, 40.0, 7.0], [1250.0, -960.0, 307.0]),
+        ("mm", [1.0e6, 2.0e6, -3.0e5], [1.0e6 + 700.0, 2.0e6 + 300.0, -3.0e5 - 1100.0]),
+    ];
+    let perturbations = [0.0, 1e-14, 1e-13, 3e-13, 1e-12, 3e-12, 1e-11, 3e-11, 1e-10, 1e-9, 1e-8, 1e-7, 1e-6, 3e-6, 6e-6, 1e-5, 2.2e-5, 5e-5, 1e-4, 3e-4, 1e-3, 1e-2];
+    let (mut cases, mut admitted) = (0, 0);
+    for (unit, a, b) in chords {
+        let d = [b[0] - a[0], b[1] - a[1], b[2] - a[2]];
+        for e in perturbations {
+            for y in [[d[0] * (1.0 + e), d[1], d[2]], [d[0] + e, d[1] - e, d[2] + 2.0 * e]] {
+                let row = Row { name: "sweep", unit, a, b, y, refused: None };
+                let (connect, reconnect, solve) = verdicts(&row);
+                assert_eq!((connect, reconnect), (solve, solve), "{unit} {a:?} -> {b:?}, y {y:?}: connect, reconnect vs solve {solve}");
+                if unit == "m" {
+                    assert_eq!(solve, frame_element(a, b, y).is_ok(), "{a:?} -> {b:?}, y {y:?}: solve vs FrameElement::new");
+                }
+                cases += 1;
+                admitted += usize::from(solve);
+            }
+        }
+    }
+    println!("O4 sweep: {cases} cases, {admitted} admitted, {} refused; connect = reconnect = solve on all", cases - admitted);
+    assert!(admitted > 0 && admitted < cases, "the sweep must cross the kernel tolerance: {admitted}/{cases}");
 }
