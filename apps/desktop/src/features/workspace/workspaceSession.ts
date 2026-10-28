@@ -50,7 +50,7 @@ import {
   type ProjectUnitMap
 } from "../../services/projectService";
 import type { BlankProjectKind, BlankProjectUnitsRequest } from "../project-units/ProjectUnitsDialog";
-import { modelFileRefusalMessage, modelFileWarningSuffix, openModelDocumentFile } from "../../services/modelDocumentFile";
+import { MODEL_DOCUMENT_FILE_SOURCE, modelFileRefusalMessage, modelFileWarningSuffix, type ModelDocumentSource } from "../../services/modelDocumentFile";
 import { checkModelLibraryRefs, modelLibraryRefs } from "../../services/libraryImportService";
 import { currentLibraryRefFindings, libraryRefDiagnostics, publishLibraryRefFindings } from "../library/libraryRefFindings";
 import { cancelNativeModelChecks, runModelChecks, type ModelCheckRun } from "../diagnostics/modelChecks";
@@ -146,6 +146,7 @@ import {
 import { persistenceHashesMatch } from "./savedModelBasis";
 import { useModelStateHistory, type LandedProjectSave, type ProjectBinding } from "../history/useModelStateHistory";
 import { unsavedChangesRefusal, useUnsavedChangesGuard } from "../project-storage/unsavedChangesGuard";
+import { openAutosaveSource, useAutosave } from "../autosave";
 import { createModalHolds, type ModalHolds } from "../project-storage/modalHolds";
 import { withinRunBusyReason, type WithinRunPair } from "../comparison/withinRunComparison";
 import { listModelStates, modelStateDescription, saveModelState, type ModelStateRead } from "../../services/modelStateService";
@@ -2193,6 +2194,7 @@ export function useWorkspaceSession() {
       setModelDocumentVersion(created.model_document_version ?? null);
       setProjectMessage(created.summary.message);
       setProjectOperation("create");
+      void autosave.afterProjectSaved(created.summary.project_id, returnedModelHash?.value ?? null);
     } catch (error) {
       if (pendingObservation && sameProjectSession() &&
         pendingObservation.envelope?.model?.project?.id === requestModel.project.id &&
@@ -2480,6 +2482,8 @@ export function useWorkspaceSession() {
       if (recomputedHash && openedGeneration === projectSessionGenerationRef.current && openedBasisSequence === savedBasisSequence.current) {
         setSavedModelBasis({ generation: openedGeneration, revision: openedRevision, hash: recomputedHash.value, source: "open" });
       }
+      // D5 §3: the opened project's autosaves are offered once it has opened.
+      void autosave.afterStoredProjectOpened(opened.model.project.id, recomputedHash?.value ?? null);
       if (!stillOwnsOpenedObservation()) return;
       setModelHashIntegrity(deriveModelHashIntegrity(opened.model_hash ?? null, recomputedHash, opened.model.project.id));
       const recomputedEnvelopeHash = await computeProjectEnvelopeHash({
@@ -2522,12 +2526,12 @@ export function useWorkspaceSession() {
   /** File > Open Model Document…: adopt a model document file from disk as the
    * session's model, unchanged. It starts unsaved, as the bundled demo does; New
    * Local Project saves it as a project. A refusal leaves the session as it was. */
-  async function handleOpenModelDocument() {
+  async function handleOpenModelDocument(source: ModelDocumentSource = MODEL_DOCUMENT_FILE_SOURCE) {
     // Another project operation or prompt owns the session: nothing starts.
     if (projectSessionBusy()) return;
     // An open replaces the working model: with unsaved edits it asks first.
     if (replacingNeedsConfirmation()) {
-      const guarded = await confirmReplacingEdits({ action: "Opening a model document", verb: "open it" });
+      const guarded = await confirmReplacingEdits({ action: source.action, verb: "open it" });
       if (guarded !== "proceed") {
         ++projectRequest.current;
         setProjectMessage(unsavedChangesRefusal(guarded, "Not opened"));
@@ -2541,7 +2545,7 @@ export function useWorkspaceSession() {
     const epoch = requestEpochRef.current;
     const stillCurrent = () => request === projectRequest.current && epoch === requestEpochRef.current;
     try {
-      const opened = await openModelDocumentFile();
+      const opened = await source.read();
       if (!stillCurrent() || opened.outcome === "cancelled") return;
       if (opened.outcome === "refused") {
         setProjectMessage(modelFileRefusalMessage(opened.file_name, opened.diagnostics));
@@ -2594,8 +2598,8 @@ export function useWorkspaceSession() {
       setProjectSummary(null);
       setProjectEnvelopeHash(null);
       setModelDocumentVersion(null);
-      setProjectMessage(`Opened model document ${opened.file_name} (${opened.byte_count} bytes; schema_version ${document.schema_version}, ${opened.schema_status}). Not saved as a local project yet.${modelFileWarningSuffix(opened.warnings)}`);
-      setProjectOperation("open_model");
+      setProjectMessage(`${source.opened(opened)} Not saved as a local project yet.${modelFileWarningSuffix(opened.warnings)}`);
+      setProjectOperation(source.operation);
       setActiveSection(null);
       const libraryWarnings = await libraryReferenceWarnings(document);
       if (libraryWarnings && stillCurrent()) setProjectMessage((message) => `${message}${libraryWarnings}`);
@@ -2963,6 +2967,7 @@ export function useWorkspaceSession() {
       setProjectMessage(saved.summary.message);
       projectSaveLanded.current = { projectId: saved.summary.project_id, base: saved.project_envelope_hash?.value ?? null, model: requestModel };
       setProjectOperation("save");
+      void autosave.afterProjectSaved(saved.summary.project_id, returnedModelHash?.value ?? null);
     } catch (error) {
       if (pendingObservation && sameProjectSession() &&
         pendingObservation.envelope?.model?.project?.id === requestModel.project.id &&
@@ -3749,6 +3754,19 @@ export function useWorkspaceSession() {
     modelEditedRef, holdModal, projectSessionBusy, saveLocalProject: async () => (await saveLocalProjectFirst()) !== null
   });
 
+  // D5 slice 2: the autosave timer, its settings and status line, and the
+  // recovery offer, whose Open runs the guard and adopts the record as Open
+  // Model Document adopts a file.
+  const autosave = useAutosave({
+    native: isTauriRuntime(),
+    modelEditedRef,
+    saveBasisRef: modelDocumentSaveBasisRef,
+    projectSessionBusy,
+    holdModal,
+    workingModel: () => currentModel.current ? { name: currentModel.current.project.name, edited: modelEditedRef.current } : null,
+    openAutosave: (fileName, writtenAt) => handleOpenModelDocument(openAutosaveSource(fileName, writtenAt))
+  });
+
   const history = useModelStateHistory({
     model, currentModel, projectSessionGeneration, projectSessionGenerationRef, storedBaseRef,
     confirmReplacingEdits, acquireProjectOperation, releaseProjectOperation,
@@ -3879,6 +3897,8 @@ export function useWorkspaceSession() {
       handleListProjects,
       replaceProjectPrompt,
       unsavedChangesPrompt,
+      // D5 slice 2: autosave settings, status line and recovery offer.
+      autosave,
       // W-12 S1: the saved model states of the session's project (History panel).
       history,
       requestSaveModelDocument,

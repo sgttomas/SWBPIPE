@@ -99,6 +99,7 @@ import { ProjectStorageAuditPanel } from "./features/project-storage/ProjectStor
 import { ReplaceProjectPrompt } from "./features/project-storage/ReplaceProjectPrompt";
 import { HistoryPanel } from "./features/history/HistoryPanel";
 import { UnsavedChangesPrompt } from "./features/project-storage/UnsavedChangesPrompt";
+import { AutosaveRecoveryPrompt } from "./features/autosave";
 import { ProjectUnitsDialog } from "./features/project-units/ProjectUnitsDialog";
 import { ModelDocumentSaveDialog } from "./features/model-file/ModelDocumentSaveDialog";
 import { HandoffSaveDialog } from "./features/handoff/HandoffSaveDialog";
@@ -296,7 +297,7 @@ function AppSession() {
     modelDocumentSaveRequest,
     handoffSaveRequest
   } = session.project;
-  const { unsavedChangesPrompt } = session.project;
+  const { unsavedChangesPrompt, autosave } = session.project;
   const {
     uiPreferences, setUiPreferences,
     resolvedTheme,
@@ -402,7 +403,7 @@ function AppSession() {
       data-theme-preference={uiPreferences.theme}
       data-testid="desktop-preview-shell"
       // The replace prompt, the unsaved-changes prompt, the units dialog and the model-document save dialog are modal: the workspace takes no focus or input meanwhile.
-      inert={replaceProjectPrompt !== null || blankProjectUnitsRequest !== null || unsavedChangesPrompt !== null || modelDocumentSaveRequest !== null || handoffSaveRequest !== null}
+      inert={replaceProjectPrompt !== null || blankProjectUnitsRequest !== null || unsavedChangesPrompt !== null || modelDocumentSaveRequest !== null || handoffSaveRequest !== null || autosave.recoveryPrompt !== null}
       ref={workspaceShellRef}
       onFocusCapture={rememberShellFocus}
       onPointerDownCapture={rememberShellFocus}
@@ -1280,6 +1281,7 @@ function AppSession() {
       ) : null}
       <ReplaceProjectPrompt prompt={replaceProjectPrompt} />
       <UnsavedChangesPrompt prompt={unsavedChangesPrompt} />
+      <AutosaveRecoveryPrompt prompt={autosave.recoveryPrompt} />
       <ProjectUnitsDialog request={blankProjectUnitsRequest} />
       <ModelDocumentSaveDialog request={modelDocumentSaveRequest} />
       <HandoffSaveDialog request={handoffSaveRequest} />
