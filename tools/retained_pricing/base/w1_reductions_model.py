@@ -34,7 +34,7 @@ RF_PINS = {
     "core/solver/frame_kernel/src/structural/certified_recovery.rs": "1766a0d94cf02b909b4875cae756b6df5d0bb81489c359281109b7cb248999dc",
     "core/solver/frame_kernel/src/load_ledger.rs": "8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f",
     "core/solver/nonlinear_integration/src/structural_adapter.rs": "bf42cfa532f0f36823fb78128ad175d6bb9a5765e8fd7374599da89df4232a8b",
-    "core/solver/straight_pipe/src/lib.rs": "a375535794d2700ffb08621aebe6f587a2d226f107056f320ee23fef466d1bb7"
+    "core/solver/straight_pipe/src/lib.rs": "9a4cb59ab52b6f4340fbd74bab9c83847b89691835d0e043a4971b261df452f7"
 }
 # T4-S5 D3 (epoch; retained-pricing-rules.md §8.8): the reduced cohort is re-bound after its diffs were read.
 # FormationSource.loads stays the Cow (L1a); load_closure only adds the TieRodReference arm and the reformation adds the
@@ -72,17 +72,19 @@ RF_PINS = {
 # W-16 slices b and c D3 (§8.27): lib.rs's exact combination append (W16B-CB) and equivalent-static record and checks
 # (W16C-ES), and certified_loads.rs's generated-id test and exact mass operands, change no reduction's owner or lifetime;
 # the L5 guard, shadow, insert and call texts are unchanged.
+# §8.30 D3: lib.rs's dense-memory guard and dropped Timoshenko partial-span refusal, FK formation_check.rs's and SP
+# lib.rs's Timoshenko partial-span formation change no reduction's owner or lifetime; the L5 texts are unchanged.
 REDUCED_PINS = {
-    "core/product_physics/src/lib.rs": "e4a08ba9637316489bad25066d8103e3d0be9aaef73e35228cfd9fef267b40e0",
+    "core/product_physics/src/lib.rs": "8dea48cd8210e8f9f8a6fedfc5dd614a6e9336f2f4ab48d62737e08e057e7593",
     "core/product_physics/src/retained_wire.rs": "b457aff075c67f6eb93000dff2ca0cf4bab43119fe34db1316c78356bf1864b3",
     "core/product_physics/src/certified_publication.rs": "89cdb23e172136b55ff980f7d4a4cd3643e43894fb2a9ad40c92fd3cd4adcf87",
     "core/product_physics/src/certified_loads.rs": "da7d3decc3a0170da65b38670ec215aaebdb9d8d799e3c76e41879a80589bc73",
     "core/product_physics/src/preview_physics.rs": "bc3d93c28744cb8ec68f324c21809caff9bba007ea50876f2fa425238c9edacc",
-    "core/solver/frame_kernel/src/structural/formation_check.rs": "5d18ed842d2bd0aa826b805fba1b19ce93d765a867d0760f8dff8ff1fb3baebb",
+    "core/solver/frame_kernel/src/structural/formation_check.rs": "ac56893815b552074dc4d3acc85ebe4b57579fecd311698729f2bbac225f954a",
     "core/solver/frame_kernel/src/structural/certified_recovery.rs": "8f69bb9bea7c7696b1f78fc985998faa03a507dfc47be13cc6a2b6aa062980c9",
     "core/solver/frame_kernel/src/load_ledger.rs": "8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f",
     "core/solver/nonlinear_integration/src/structural_adapter.rs": "1ca609bda4e56138aab980f5ff4be8f9f664e3300b8bc51f808bc60b45e4d0a3",
-    "core/solver/straight_pipe/src/lib.rs": "a375535794d2700ffb08621aebe6f587a2d226f107056f320ee23fef466d1bb7"
+    "core/solver/straight_pipe/src/lib.rs": "9a4cb59ab52b6f4340fbd74bab9c83847b89691835d0e043a4971b261df452f7"
 }
 
 
