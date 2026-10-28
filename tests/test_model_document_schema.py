@@ -452,7 +452,12 @@ def test_frozen_coverage_includes_every_retired_version_and_json_lines():
     # to 0.7.0, and the committed 0.7.0 ones to 0.8.0 (the tp_runner_015 witness input by its generator).
     assert {version for _, version in frozen} == RETIRED_VERSIONS - {"0.1.0", "0.6.0", "0.7.0"}
     assert not any(relative.startswith(FROZEN_ROOT) for bucket, relative, _, _ in classify() if bucket == "retired")
-    assert any(relative.endswith(".jsonl") for relative, _ in frozen)
+    # JSON-lines frozen documents are read and validated. The kd5_timoshenko frozen subset, formerly the only
+    # retired-version .jsonl, is re-authored as 0.8.0 (Agent 0, 2026-10-28, #1716), so its lines are now validated
+    # against the current schema in the "format" bucket; the coverage this checks is the classifier's reading of
+    # JSON lines under validation/, whichever version they carry.
+    assert any(relative.endswith(".jsonl") and relative.startswith(FROZEN_ROOT)
+               for bucket, relative, _, _ in classify() if bucket in {"format", "reauthored_frozen"})
 
 
 

@@ -99,6 +99,17 @@ describe("key results: cases, supports and support states", () => {
     expect(buildKeyResults({ model: plain, result: keyResult(), standing: PASSING }).supports).toEqual({ reason: KEY_SUPPORTS_NONE, items: [] });
   });
 
+  it("lists a support by its declared anchor family, never by its restraints", () => {
+    const declared = keyModel();
+    declared.supports = declared.supports.map((support) => ({ ...support, family: "anchor", restraints: ["UY"], boundary_association: undefined }));
+    expect(buildKeyResults({ model: declared, result: keyResult(), standing: PASSING }).supports.items.map((item) => item.text))
+      .toEqual(declared.supports.map((support) => `${support.label} (anchor)`));
+    const undeclared = keyModel();
+    undeclared.supports = undeclared.supports.map(({ family: _family, ...support }) => ({ ...support, restraints: ["UX", "UY", "UZ", "RX", "RY", "RZ"], boundary_association: undefined }));
+    expect(buildKeyResults({ model: undeclared, result: keyResult(), standing: PASSING }).supports).toEqual({ reason: KEY_SUPPORTS_NONE, items: [] });
+    expect(KEY_SUPPORTS_NONE).toBe("No support is declared as an anchor or equipment connection.");
+  });
+
   it("counts the support-state rows and their cases, and none when the result states none", () => {
     expect(buildKeyResults({ model: keyModel(), result: keyResult(), standing: PASSING }).contact).toEqual({ rowCount: 2, caseCount: 2 });
     const linear = keyResult(keyRows().filter((item) => item.kind !== "nonlinear_support_active_set_state_code"));

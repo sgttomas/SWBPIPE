@@ -1,11 +1,23 @@
+//! The desktop shell. `unsafe` code is denied here and in every module but
+//! the eleven that carry `#[allow(unsafe_code)]` on their `mod` line, a list the
+//! user-release reach scan pins (DEL-08-01 Design `report-user-release.md`
+//! §2.8, "Symbol-level FFI"; code review r9 at #1682).
+#![deny(unsafe_code)]
+
 mod atomic_report_package_save;
+#[allow(unsafe_code)]
 mod autosave;
+mod close_guard;
 mod command_ingress;
 mod exact_source_binding;
 mod export_disposition_screen;
+#[allow(unsafe_code)]
 mod handoff_package;
+#[allow(unsafe_code)]
 mod handoff_package_publish;
+#[allow(unsafe_code)]
 mod host_memory;
+#[allow(unsafe_code)]
 mod ingress;
 mod memory_pool;
 mod model_document_file;
@@ -14,7 +26,9 @@ mod model_document_shape;
 mod model_document_version;
 mod model_states;
 mod analysis_runs;
+#[allow(unsafe_code)]
 mod stored_read;
+#[allow(unsafe_code)]
 mod stored_model_document_export;
 #[cfg(feature = "native-smoke")]
 mod native_smoke;
@@ -30,9 +44,18 @@ mod report_render_pf_timoshenko_tests;
 mod object_form_tests;
 mod rule_solver_selection;
 mod solve_attestation;
+#[allow(unsafe_code)]
 mod solve_jobs;
+#[allow(unsafe_code)]
 mod solve_worker;
 mod user_release_admission;
+#[cfg(test)]
+mod user_release_reach_scan;
+#[cfg(test)]
+mod user_release_reach_scan_tests;
+#[cfg(test)]
+mod user_release_save_tests;
+#[allow(unsafe_code)]
 mod worker_alloc;
 #[cfg(test)]
 mod rule_check_object_form_tests;
@@ -73,58 +96,105 @@ async fn save_report_package(
     app: AppHandle,
     invoke: tauri::ipc::Request<'_>,
     registry: tauri::State<'_, SolveJobRegistry>,
-) -> Result<tauri::ipc::Response, CommandError<ReportPackageSaveCommandError>> {
-    // The lease is held through admission, the save dialog and the write.
-    let (request, _lease) = admit_report_package_save(&registry, invoke.body(), invoke.headers())?;
-    respond(save_report_package_decoded(app, request).await.map_err(CommandError::Command))
+) -> Result<tauri::ipc::Response, CommandError<report_package_save::SaveCommandError>> {
+    // Before the route is known, only the ingress layer refuses.
+    let (request, mut lease) = decode_report_package_save(&registry, invoke.body(), invoke.headers())?;
+    // The lease is held through the growth, admission (which may grow it,
+    // W-18b route 010), the save dialog, the write, the route's one exit and
+    // the response, except after a worker panic: its unwind drops the lease
+    // moved into the worker, and the fixed worker-failure error leaves with
+    // none. Every later outcome leaves through that exit
+    // (`report_package_save::SaveRoute::exit`): route 010's refusals bounded,
+    // whatever stage refused, and route 009's unchanged.
+    let route = report_package_save::SaveRoute::of(&request);
+    let (outcome, lease) = match grow_report_package_save_lease(&registry, &request, &mut lease) {
+        Ok(()) => save_report_package_decoded(app, request, lease, registry.inner().clone()).await,
+        Err(error) => (Err(error), Some(lease)),
+    };
+    let response = respond(route.exit(outcome));
+    drop(lease);
+    response
 }
 
-/// The save's ingress: the arguments (three canonical texts and two structs of
-/// scalars) moved out of the admitted body, then the evidence shape, the size
-/// caps and the priced parse of the texts, by which the lease grows before any
-/// is parsed (DEL-08-01 Design `report-package-current-results.md` §2.6 items
-/// 1-3), within the per-invocation budget (`memory_pool::Lease::grow_to`).
+/// The save's arguments (the canonical texts and two structs of scalars),
+/// moved out of the admitted body.
+fn decode_report_package_save(
+    registry: &SolveJobRegistry,
+    body: &tauri::ipc::InvokeBody,
+    headers: &tauri::http::HeaderMap,
+) -> Result<(report_package_save::ReportPackageSaveRequest, memory_pool::Lease), solve_jobs::SolveJobError> {
+    let (mut args, lease) = command_ingress::admit_body(registry, body, headers, "save_report_package", ArgsDecoding::Moved)?;
+    let request = report_package_save::save_report_package_args(&mut args)?;
+    drop(args);
+    Ok((request, lease))
+}
+
+/// The evidence, the size caps and the priced parse of the texts, by which
+/// the lease grows before any is parsed (DEL-08-01 Design
+/// `report-package-current-results.md` §2.6 items 1-3), within the
+/// per-invocation budget (`memory_pool::Lease::grow_to`). The growth is
+/// route-aware (`report_package_save::ingress_lease_bytes`; W-18b, DEL-08-01
+/// Design `report-user-release.md` §2.5, "The outer command"): route 010
+/// refuses the exact texts before they are priced.
+fn grow_report_package_save_lease(
+    registry: &SolveJobRegistry,
+    request: &report_package_save::ReportPackageSaveRequest,
+    lease: &mut memory_pool::Lease,
+) -> Result<(), CommandError<ReportPackageSaveCommandError>> {
+    let growth = report_package_save::ingress_lease_bytes(request).map_err(CommandError::Command)?;
+    lease.grow_to(lease.bytes().saturating_add(growth)).map_err(|refusal| CommandError::Ingress(registry.refuse(refusal)))
+}
+
+/// The save's ingress ([`decode_report_package_save`] and
+/// [`grow_report_package_save_lease`]), as the command runs it, for its
+/// regressions.
+#[cfg(test)]
 fn admit_report_package_save(
     registry: &SolveJobRegistry,
     body: &tauri::ipc::InvokeBody,
     headers: &tauri::http::HeaderMap,
 ) -> Result<(report_package_save::ReportPackageSaveRequest, memory_pool::Lease), CommandError<ReportPackageSaveCommandError>> {
-    let (mut args, mut lease) = command_ingress::admit_body(registry, body, headers, "save_report_package", ArgsDecoding::Moved)?;
-    let request = report_package_save::save_report_package_args(&mut args)?;
-    drop(args);
-    let growth = report_package_save::validate_report_package_save_evidence(&request.screening, request.local_first.as_ref())
-        .and_then(|()| {
-            report_package_save::parse_lease_bytes_with_exact(
-                &request.request_text,
-                &request.model_text,
-                &request.input_manifest_text,
-                request.exact_result_text.as_deref(),
-                request.exact_intake_text.as_deref(),
-            )
-        })
-        .map_err(CommandError::Command)?;
-    lease.grow_to(lease.bytes().saturating_add(growth)).map_err(|refusal| registry.refuse(refusal))?;
+    let (request, mut lease) = decode_report_package_save(registry, body, headers)?;
+    grow_report_package_save_lease(registry, &request, &mut lease)?;
     Ok((request, lease))
 }
 
+/// Admission, the dialog and the write on a blocking worker, with the
+/// command's lease (route 010 grows it) and the registry (its attested
+/// solves); returns the lease so the outcome leaves the route's exit and the
+/// response is serialized while it is held.
 async fn save_report_package_decoded(
     app: AppHandle,
     request: report_package_save::ReportPackageSaveRequest,
-) -> Result<report_package_save::ReportPackageSaveReceipt, ReportPackageSaveCommandError> {
+    mut lease: memory_pool::Lease,
+    registry: SolveJobRegistry,
+) -> (Result<report_package_save::ReportPackageSaveReceipt, CommandError<ReportPackageSaveCommandError>>, Option<memory_pool::Lease>) {
     let info = app.package_info();
     let software = report_package_save::ExpectedSoftware { name: info.name.clone(), version: info.version.to_string() };
     tauri::async_runtime::spawn_blocking(move || {
         let mut lookup = library_store_lookup(&app);
-        let registry = app.state::<SolveJobRegistry>().inner().clone();
         let custody = |job: &str| registry.custody_binding(job);
-        save_report_package_with_picker(request, &software, &mut lookup, &custody, |file_name| choose_report_package_save_path(&app, file_name))
+        let outcome = {
+            let mut session = report_package_save::UserReleaseSession { registry: &registry, lease: &mut lease };
+            report_package_save::save_report_package_session(request, &software, &mut lookup, &custody, &mut session, |file_name| {
+                choose_report_package_save_path(&app, file_name)
+            })
+        };
+        let outcome = outcome.map_err(|refusal| match refusal {
+            report_package_save::SaveRefusal::Command(error) => CommandError::Command(error),
+            report_package_save::SaveRefusal::Resource(refusal) => CommandError::Ingress(registry.refuse(refusal)),
+        });
+        (outcome, Some(lease))
     })
     .await
     .unwrap_or_else(|_| {
-        Err(ReportPackageSaveCommandError::bridge(format!(
-            "{}: the save's worker did not complete; the destination may be unchanged.",
-            report_package_save::WORKER_FAILED
-        )))
+        (
+            Err(CommandError::Command(ReportPackageSaveCommandError::bridge(format!(
+                "{}: the save's worker did not complete; the destination may be unchanged.",
+                report_package_save::WORKER_FAILED
+            )))),
+            None,
+        )
     })
 }
 
@@ -146,6 +216,7 @@ fn choose_report_package_save_path(app: &AppHandle, file_name: &str) -> Option<R
 /// custody lookup for an exact-route request's native source binding, W-11),
 /// then the save dialog and the atomic write. `choose` is the save dialog (a
 /// counting seam in tests).
+#[cfg(test)]
 fn save_report_package_with_picker(
     request: report_package_save::ReportPackageSaveRequest,
     software: &report_package_save::ExpectedSoftware,
@@ -1603,7 +1674,32 @@ fn render_calculation_report_args(args: &mut Args, registry: &SolveJobRegistry, 
     report_render_exact::render_calculation_report_args_in(args, registry, lease, report_render_exact::PRODUCTION)
 }
 
+/// The render command's refusal of a user-released input (W-18b, DEL-08-01
+/// Design `report-user-release.md` §2.8): a user-released document is
+/// produced only inside route 010's admission, through the report package's
+/// one admitting entry.
+pub(crate) const RENDER_USER_RELEASE_PACKAGE_ONLY: &str = "RENDER-USER-RELEASE-PACKAGE-ONLY";
+
+/// Refuses, before the input is decoded or rendered, an input whose
+/// `report_context.export_context` is `user_released_report`, and,
+/// independently, one whose `report_context` has a `user_release` member,
+/// whatever its context or value. It reads those two members by key; a
+/// positional input is refused earlier by the object-form check.
+pub(crate) fn refuse_user_release_render(input: &Value) -> Result<(), String> {
+    let context = input.get("report_context");
+    let named = context.and_then(|context| context.get("export_context")).and_then(Value::as_str) == Some("user_released_report");
+    let record = context.and_then(Value::as_object).is_some_and(|context| context.contains_key("user_release"));
+    if named || record {
+        return Err(format!(
+            "{RENDER_USER_RELEASE_PACKAGE_ONLY}: a user-released report is rendered only inside Save Shareable Report Package (route DREP-PACKAGE-USER-RELEASE-010); this render carries {}.",
+            if named { "the user_released_report export context" } else { "a user_release record" }
+        ));
+    }
+    Ok(())
+}
+
 fn render_calculation_report_value(input: Value) -> Result<Value, String> {
+    refuse_user_release_render(&input)?;
     // DEC-021 (A7): deterministic hash-bound HTML rendering with the
     // three-point protected-content gates evaluated in the renderer crate.
     // The derived print view is non-hash-bound and names the canonical hash.
@@ -4518,31 +4614,117 @@ fn restore_native_check_item_after_activation<R: tauri::Runtime>(
     }
 }
 
+/// SWBPIPE › Quit SWBPIPE (⌘Q); handled natively, never sent to the webview
+/// as a menu command.
+const QUIT_MENU_ID: &str = "app.quit";
+
+/// A window close or quit from the user, through the unsaved-changes guard.
+fn request_close<R: tauri::Runtime>(app: &tauri::AppHandle<R>, kind: close_guard::CloseKind) -> bool {
+    let guard = app.state::<close_guard::CloseGuard>();
+    match guard.request(kind) {
+        close_guard::CloseDecision::Proceed => true,
+        close_guard::CloseDecision::Ask { request_id, attempt, kind } => {
+            let asked = app
+                .get_webview_window("main")
+                .map(|webview| webview.eval(&close_guard::close_request_dispatch_script(request_id, attempt, kind)))
+                .is_some_and(|result| result.is_ok());
+            if !asked {
+                // No webview to ask: nothing can show the prompt, so go ahead.
+                eprintln!("close request {request_id}: main webview unavailable; proceeding");
+                if let Some(kind) = guard.abandon_to_proceed(request_id) {
+                    finish_close(app, kind);
+                }
+                return false;
+            }
+            let app = app.clone();
+            std::thread::spawn(move || {
+                std::thread::sleep(close_guard::ACK_TIMEOUT);
+                if let Some(kind) = app.state::<close_guard::CloseGuard>().acknowledgement_deadline(request_id, attempt) {
+                    eprintln!("close request {request_id}: the webview did not acknowledge it; proceeding");
+                    finish_close(&app, kind);
+                }
+            });
+            false
+        }
+    }
+}
+
+/// Closes or quits once the guard approved the request.
+fn finish_close<R: tauri::Runtime>(app: &tauri::AppHandle<R>, kind: close_guard::CloseKind) {
+    match (kind, app.get_webview_window("main")) {
+        (close_guard::CloseKind::Window, Some(window)) => {
+            if let Err(error) = window.destroy() {
+                eprintln!("window close failed: {error}");
+                app.exit(0);
+            }
+        }
+        _ => app.exit(0),
+    }
+}
+
+/// The webview received an attempt of a close request (`close_guard.rs`).
+/// True when the host accepted it; only then may the webview ask the user.
+#[tauri::command]
+fn acknowledge_close_request(app: AppHandle, request_id: u64, attempt: u64) -> bool {
+    app.state::<close_guard::CloseGuard>().acknowledge(request_id, attempt)
+}
+
+/// The user's decision on a close request: `proceed` closes or quits.
+#[tauri::command]
+fn resolve_close_request(app: AppHandle, request_id: u64, proceed: bool) {
+    if let Some(kind) = app.state::<close_guard::CloseGuard>().resolve(request_id, proceed) {
+        finish_close(&app, kind);
+    }
+}
+
+/// The native File menu, top to bottom, as the in-DOM File menu (`App.tsx`):
+/// `(command id, label, accelerator)`, `None` a separator. New Blank Project
+/// is the one "new" (an empty model). `file.new-local` stores the working
+/// model itself as a local project, so it is labelled and placed as a save.
+const NATIVE_FILE_MENU: &[Option<(&str, &str, Option<&str>)>] = &[
+    Some(("file.new-blank", "New Blank Project", None)),
+    None,
+    Some(("file.open-model", "Open Model Document…", None)),
+    Some(("file.open-local", "Open Local Project…", None)),
+    Some(("file.list-local", "List Local Projects", None)),
+    None,
+    Some(("file.save-local", "Save Local Project", Some("CmdOrCtrl+S"))),
+    Some(("file.new-local", "Save as New Local Project", None)),
+    Some(("file.save-model-document", "Save Model Document…", None)),
+    Some(("file.save-handoff", "Save Handoff…", None)),
+    Some(("file.save-report-package", "Save Report Package…", None)),
+];
+
 // Native macOS menu bar (TP-R3UX-CADSHELL). Each custom item carries the same
 // command id the in-DOM menu uses; on click the backend injects one typed DOM
 // event into the main webview, where the React command sink dispatches it.
 fn build_app_menu<R: tauri::Runtime>(
     handle: &tauri::AppHandle<R>,
 ) -> tauri::Result<tauri::menu::Menu<R>> {
+    // Quit is the app's own item, not AppKit's `terminate:`, which cannot be
+    // held: it goes through the unsaved-changes guard (`close_guard.rs`).
+    let quit = MenuItemBuilder::with_id(QUIT_MENU_ID, "Quit SWBPIPE")
+        .accelerator("CmdOrCtrl+Q")
+        .build(handle)?;
     let app_menu = SubmenuBuilder::new(handle, "SWBPIPE")
         .about(None)
         .separator()
-        .quit()
+        .item(&quit)
         .build()?;
 
-    let file = SubmenuBuilder::new(handle, "File")
-        .text("file.new-local", "New Local Project")
-        .text("file.new-blank", "New Blank Project")
-        .separator()
-        .text("file.open-model", "Open Model Document…")
-        .text("file.open-local", "Open Local Project…")
-        .text("file.list-local", "List Local Projects")
-        .separator()
-        .text("file.save-local", "Save Local Project")
-        .text("file.save-model-document", "Save Model Document…")
-        .text("file.save-handoff", "Save Handoff…")
-        .text("file.save-report-package", "Save Report Package…")
-        .build()?;
+    let mut file = SubmenuBuilder::new(handle, "File");
+    for entry in NATIVE_FILE_MENU {
+        file = match entry {
+            None => file.separator(),
+            Some((id, label, None)) => file.text(*id, *label),
+            Some((id, label, Some(accelerator))) => file.item(
+                &MenuItemBuilder::with_id(*id, *label)
+                    .accelerator(*accelerator)
+                    .build(handle)?,
+            ),
+        };
+    }
+    let file = file.build()?;
 
     let edit = SubmenuBuilder::new(handle, "Edit")
         .text("edit.undo", "Undo Model Edit")
@@ -5145,6 +5327,8 @@ macro_rules! app_invoke_handler {
             analysis_runs::delete_analysis_run,
             analysis_runs::admit_analysis_run_comparison,
             sync_native_shell_state,
+            acknowledge_close_request,
+            resolve_close_request,
             validate_rule_pack,
             compute_rule_pack_document_checksum,
             save_local_rule_pack,
@@ -5170,10 +5354,24 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .manage(SolveJobRegistry::new(memory_pool::MemoryPool::new(Arc::new(host_memory::MacHostMemory))))
         .manage(native_result_download::SaveAdmission::default())
+        .manage(close_guard::CloseGuard::default())
         .menu(|handle| build_app_menu(handle))
         .on_menu_event(|app, event| {
+            if event.id().0 == QUIT_MENU_ID {
+                if request_close(app, close_guard::CloseKind::Quit) {
+                    app.exit(0);
+                }
+                return;
+            }
             restore_native_check_item_after_activation(app, &event.id().0);
             dispatch_native_menu_command(app, &event.id().0);
+        })
+        .on_window_event(|window, event| {
+            if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                if window.label() == "main" && !request_close(window.app_handle(), close_guard::CloseKind::Window) {
+                    api.prevent_close();
+                }
+            }
         });
     #[cfg(not(feature = "native-smoke"))]
     let builder = builder.invoke_handler(app_invoke_handler!());
@@ -5726,6 +5924,29 @@ mod tests {
         assert_eq!(evidence["solve"]["fresh_resolve_matches_saved_result_rows"], json!(true));
         assert_eq!(evidence["solve"]["analytical_witnesses"].as_array().unwrap().len(), 3);
         assert_eq!(evidence["boundary"]["repository_write"], json!(false));
+    }
+
+    #[test]
+    fn native_file_menu_offers_new_blank_as_the_only_new_and_names_new_local_a_save() {
+        let items: Vec<(&str, &str)> = NATIVE_FILE_MENU
+            .iter()
+            .flatten()
+            .map(|(id, label, _)| (*id, *label))
+            .collect();
+        assert_eq!(items.first(), Some(&("file.new-blank", "New Blank Project")));
+        assert!(items.iter().all(|(_, label)| !label.starts_with("New ") || *label == "New Blank Project"));
+        let save = items.iter().position(|(id, _)| *id == "file.save-local").unwrap();
+        assert_eq!(items[save + 1], ("file.new-local", "Save as New Local Project"));
+    }
+
+    #[test]
+    fn native_save_local_project_carries_the_save_accelerator_and_no_other_file_item_does() {
+        let accelerated: Vec<(&str, &str)> = NATIVE_FILE_MENU
+            .iter()
+            .flatten()
+            .filter_map(|(id, _, accelerator)| accelerator.map(|accelerator| (*id, accelerator)))
+            .collect();
+        assert_eq!(accelerated, vec![("file.save-local", "CmdOrCtrl+S")]);
     }
 
     #[test]

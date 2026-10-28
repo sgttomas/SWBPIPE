@@ -369,6 +369,23 @@ code_paths:
 - apps/desktop/src-tauri/src/analysis_runs.rs
 - apps/desktop/src/services/libraryImportService.ts
 - fixtures/model_document/library_ref_member_sites.json
+# W-18b slice (r2c) (Design report-user-release.md §2.3, §2.5, §2.8, §2.9): the record, the renderer's
+# user-released class rule and notice, the admitting entry and the general entries' refusal, the writer's
+# record and the reader's checks, route 010's native admission and its lease, the render command's refusal
+# and the runner's refusal.
+- core/reporting/report_renderer/src/lib.rs
+- core/reporting/pdf_emitter/src/lib.rs
+- core/reporting/report_package/src/lib.rs
+- core/reporting/report_package/src/bindings.rs
+- core/reporting/report_package/src/wire.rs
+- core/reporting/report_package/src/reader.rs
+- core/reporting/report_package/src/exact_sections.rs
+- apps/desktop/src-tauri/src/report_package_save.rs
+- apps/desktop/src-tauri/src/report_package_bridge.rs
+- apps/desktop/src-tauri/src/lib.rs
+- core/runner/headless/src/bin/openpipestress-runner.rs
+- fixtures/reports/invented/user_release_record.json
+- fixtures/reports/invented/user_release_runner_refusal_request.json
 checks:
 - core/reporting/report_package/tests/container.rs
 - core/reporting/report_package/tests/reader.rs
@@ -411,3 +428,12 @@ checks:
 - apps/desktop/src/features/report/userReleaseDerivation.parity.test.ts
 - apps/desktop/src-tauri/src/user_release_admission_tests.rs
 - apps/desktop/src/services/libraryRefSites.test.ts
+# W-18b slice (r2c): the producer, writer and reader (user_release_exact_route_refused's producer and reader
+# cases, the general entries' refusal, local_private_package_bytes_unchanged_by_user_release), route 010's
+# native admission, lease and refusal formatting, the render refusal, the reach scan, and the runner's refusal.
+- core/reporting/report_package/tests/user_release_package.rs
+- apps/desktop/src-tauri/src/user_release_save_tests.rs
+- apps/desktop/src-tauri/src/user_release_reach_scan.rs
+- apps/desktop/src-tauri/src/user_release_reach_scan_tests.rs
+- core/runner/headless/tests/user_release_runner_refused.rs
+- tests/test_headless_runner_contract.py

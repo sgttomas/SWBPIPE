@@ -144,6 +144,7 @@ fn invented_report_context(export_context: ReportExportContext) -> ReportContext
         }],
         model_coordinate_system: None,
         result_coordinate_systems: vec!["element_local".to_string(), "global".to_string()],
+        user_release: None,
     }
 }
 
@@ -1701,5 +1702,162 @@ fn the_readability_texts_pass_the_claims_check() {
         assert!(!folded.contains("acceptance"), "{text}");
         assert!(LITANY.iter().filter(|term| folded.contains(*term)).count() < 3, "{text}");
         assert!(text.chars().all(|ch| (' '..='~').contains(&ch) || ('\u{a0}'..='\u{ff}').contains(&ch)), "{text}");
+    }
+}
+
+// --- W-18b (r2c): the user-released class rule, the notice and the rows
+// (DEL-08-01 Design `report-user-release.md` §2.6, §4, §5.1) -----------------
+
+fn invented_user_release_record() -> open_pipe_stress_report_renderer::UserReleaseRecord {
+    use open_pipe_stress_report_renderer::*;
+    UserReleaseRecord {
+        record_kind: USER_RELEASE_RECORD_KIND.to_string(),
+        record_version: USER_RELEASE_RECORD_VERSION.to_string(),
+        statement: USER_RELEASE_STATEMENT.to_string(),
+        statement_basis: USER_RELEASE_STATEMENT_BASIS.to_string(),
+        standing: USER_RELEASE_STANDING.to_string(),
+        scope: UserReleaseScope {
+            scope_kind: USER_RELEASE_SCOPE_KIND.to_string(),
+            report_id: "report:invented-run".to_string(),
+            package_id: "desktop-user-released-report-invented-run".to_string(),
+            user_released_data_class: USER_RELEASED_DATA_CLASS.to_string(),
+            not_carried: USER_RELEASE_NOT_CARRIED.iter().map(|item| item.to_string()).collect(),
+        },
+        bound_to: UserReleaseBoundTo {
+            model_ref: "invented-model".to_string(),
+            model_document_sha256: "a".repeat(64),
+            analysis_run_ref: "invented-run".to_string(),
+            input_manifest_ref: format!("input-manifest:invented-model:{}", "b".repeat(64)),
+            input_manifest_sha256: "b".repeat(64),
+            result_envelope_id: "result-envelope:invented-run".to_string(),
+            result_document_derivative_sha256: "c".repeat(64),
+        },
+        user_released_at: "2026-10-27T00:00:00Z".to_string(),
+    }
+}
+
+/// The fixture input with one record whose class is `record`'s, under
+/// `user_released_report` with a record.
+fn user_released_with(record: sections::Provenance) -> RenderableReportInput {
+    let mut input = with_material_record(record, Some(ReportExportContext::UserReleasedReport));
+    input.report_context.as_mut().unwrap().user_release = Some(invented_user_release_record());
+    input
+}
+
+fn context_refused(outcome: &open_pipe_stress_report_renderer::RenderOutcome) -> Option<&String> {
+    outcome.blocking_reasons.iter().find(|reason| reason.contains("REPORT_PROVENANCE_CONTEXT_NOT_LOCAL_PRIVATE"))
+}
+
+#[test]
+fn user_release_render_admits_only_the_user_released_class() {
+    use sections::{PrivacyClassification as Privacy, RedistributionStatus as Redistribution, ReviewStatus as Review};
+    // The session provenance's class (private_project_data, private_only,
+    // pending) is the user-released class: it renders.
+    let session = private_record(Review::Pending, Redistribution::PrivateOnly);
+    let outcome = render_calculation_report(&user_released_with(session.clone()));
+    assert!(!outcome.export_blocked, "{:?}", outcome.blocking_reasons);
+    assert!(context_refused(&outcome).is_none());
+    // A record of another non-public class is refused, naming the context.
+    for class in [Privacy::PrivateRulePackData, Privacy::Redacted] {
+        let mut other = session.clone();
+        other.privacy_classification = class;
+        let outcome = render_calculation_report(&user_released_with(other));
+        let reason = context_refused(&outcome).unwrap_or_else(|| panic!("{class:?}: {:?}", outcome.blocking_reasons));
+        assert!(reason.contains("under export context user_released_report"), "{reason}");
+        assert!(outcome.content_withheld && outcome.html.is_empty());
+    }
+    // An unknown or TBD record stays report-blocking (C1 b).
+    for redistribution in [Redistribution::Unknown, Redistribution::Tbd] {
+        let outcome = render_calculation_report(&user_released_with(private_record(Review::Pending, redistribution)));
+        assert!(outcome.export_blocked, "{redistribution:?}");
+        assert!(outcome.blocking_reasons.iter().any(|reason| reason.contains("REPORT_SECTION_PROVENANCE_UNRESOLVED")), "{:?}", outcome.blocking_reasons);
+    }
+    // The same record without the record, or under public_report, is still refused.
+    let mut no_record = user_released_with(session.clone());
+    no_record.report_context.as_mut().unwrap().user_release = None;
+    assert!(context_refused(&render_calculation_report(&no_record)).is_some());
+    let public = with_material_record(session, Some(ReportExportContext::PublicReport));
+    assert!(context_refused(&render_calculation_report(&public)).unwrap().contains("under export context public_report"));
+}
+
+#[test]
+fn user_release_record_and_context_must_go_together() {
+    let mut without = fixture_input();
+    without.report_context = Some(invented_report_context(ReportExportContext::UserReleasedReport));
+    let outcome = render_calculation_report(&without);
+    assert!(outcome.blocking_reasons.iter().any(|reason| reason == "report context: REPORT-CONTEXT-USER-RELEASE-MISMATCH"), "{:?}", outcome.blocking_reasons);
+    assert!(!outcome.html.contains("user-release-banner"));
+    for context in [ReportExportContext::LocalPrivate, ReportExportContext::PublicReport] {
+        let mut stray = fixture_input();
+        stray.report_context = Some(invented_report_context(context));
+        stray.report_context.as_mut().unwrap().user_release = Some(invented_user_release_record());
+        let outcome = render_calculation_report(&stray);
+        assert!(outcome.blocking_reasons.iter().any(|reason| reason == "report context: REPORT-CONTEXT-USER-RELEASE-MISMATCH"), "{context:?}");
+        assert!(!outcome.html.contains("USER-RELEASED REPORT"), "{context:?}");
+    }
+}
+
+#[test]
+fn user_release_notice_and_rows_are_rendered_and_bound() {
+    use open_pipe_stress_report_renderer::{user_release_notice_for, user_release_notice_text, USER_RELEASE_STATEMENT};
+    let mut input = fixture_input();
+    input.report_context = Some(invented_report_context(ReportExportContext::UserReleasedReport));
+    input.report_context.as_mut().unwrap().user_release = Some(invented_user_release_record());
+    let outcome = render_calculation_report(&input);
+    assert!(!outcome.export_blocked, "{:?}", outcome.blocking_reasons);
+    let record = invented_user_release_record();
+    let notice = user_release_notice_text(&input).unwrap();
+    assert_eq!(notice, user_release_notice_for(&record));
+    for bound in [&record.bound_to.model_document_sha256, &record.bound_to.result_envelope_id, &record.bound_to.result_document_derivative_sha256, &record.user_released_at] {
+        assert!(notice.contains(bound.as_str()), "{bound}");
+    }
+    let banner = format!("<div class=\"user-release-banner\" data-export-context=\"user_released_report\">{}</div>", escape_html(&notice));
+    assert_eq!(outcome.html.matches(&banner).count(), 1);
+    assert!(!outcome.html.contains("LOCAL PRIVATE REPORT") && !outcome.html.contains("content_binding"));
+    for row in ["Report export context", "user_released_report", "User release statement", "User release time (application clock)", "User release bound to"] {
+        assert!(outcome.html.contains(row), "{row}");
+    }
+    assert!(outcome.html.contains(&escape_html(USER_RELEASE_STATEMENT)));
+    // Absent from every other render.
+    assert_eq!(user_release_notice_text(&fixture_input()), None);
+    // The record refuses an unknown member and takes no content_binding.
+    let mut value = serde_json::to_value(&record).unwrap();
+    value["content_binding"] = serde_json::json!({});
+    assert!(serde_json::from_value::<open_pipe_stress_report_renderer::UserReleaseRecord>(value).is_err());
+}
+
+#[test]
+fn user_release_record_form_defects_name_the_member() {
+    let record = invented_user_release_record();
+    assert_eq!(record.form_defect(), None);
+    let cases: [(&str, fn(&mut open_pipe_stress_report_renderer::UserReleaseRecord)); 8] = [
+        ("statement", |r| r.statement.push('!')),
+        ("standing", |r| r.standing = "issued".to_string()),
+        ("scope.not_carried", |r| { r.scope.not_carried.pop(); }),
+        ("bound_to.model_document_sha256", |r| r.bound_to.model_document_sha256 = "A".repeat(64)),
+        ("bound_to.result_document_derivative_sha256", |r| r.bound_to.result_document_derivative_sha256.pop().map(drop).unwrap_or(())),
+        ("scope.report_id", |r| r.scope.report_id = " ".to_string()),
+        ("user_released_at", |r| r.user_released_at = "2026-10-27T00:00:00.000Z".to_string()),
+        ("user_released_at", |r| r.user_released_at = "2026-13-27T00:00:00Z".to_string()),
+    ];
+    for (member, edit) in cases {
+        let mut edited = record.clone();
+        edit(&mut edited);
+        assert_eq!(edited.form_defect(), Some(member));
+    }
+}
+
+#[test]
+fn user_release_texts_pass_the_claims_check() {
+    use open_pipe_stress_report_renderer::user_release_notice_for;
+    const LITANY: [&str; 11] = [
+        "certif", "seal", "authenticat", "code-compliance", "code compliance", "professional", "approval", "approve",
+        "endorse", "release-readiness", "production-readiness",
+    ];
+    let notice = user_release_notice_for(&invented_user_release_record());
+    let folded = notice.to_lowercase();
+    assert!(LITANY.iter().filter(|term| folded.contains(*term)).count() < 3, "{notice}");
+    for word in ["issued", "approved", "accepted", "certified", "released version", "release of swbpipe"] {
+        assert!(!folded.contains(word), "{word}");
     }
 }

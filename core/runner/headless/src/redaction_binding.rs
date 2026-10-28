@@ -122,6 +122,24 @@ struct ContractClassification {
 #[cfg(test)]
 use open_pipe_stress_report_package::user_release::USER_RELEASED_CONTEXT as USER_RELEASED_REPORT_CONTEXT;
 
+/// Whether an object or its `provenance` object carries an own `__proto__` member. Such an
+/// object has no public basis, whatever its labels state (HELP_HUMAN ruling, 2026-10-27,
+/// option (b): "fail closed on the key itself, in all three implementations"): a
+/// `__proto__` key in export data is anomalous, and it may never lift or restrict a record
+/// by accident. The route projector gives the record no direct public basis, and the
+/// classifier reads the member as an unknown label only where the decision would otherwise
+/// be an inclusion, as the last step of the decision order: every other decision stands. A
+/// serde_json map, parsed or built, always shows a `__proto__` key. Identical in redactionExportControls.ts
+/// (`carriesProtoMember`) and core/security/redaction/controls.py (`carries_proto_member`).
+#[cfg(test)]
+fn carries_proto_member(object: &Map<String, Value>) -> bool {
+    object.contains_key("__proto__")
+        || object
+            .get("provenance")
+            .and_then(Value::as_object)
+            .is_some_and(|provenance| provenance.contains_key("__proto__"))
+}
+
 /// Mirror the existing core contract's item classification without adding
 /// filesystem, transport, or side-effect behavior.  The runner route uses a
 /// fixed local/private projection; the canonical corpus test below pins the
@@ -316,6 +334,15 @@ fn classify_contract_item(
     // redaction.
     let (action, reason) = if path_present && decided_action != "block_export" {
         ("redact_value", "CONCRETE_PATH_REDACTED")
+    } else if decided_action == "include" && carries_proto_member(item) {
+        // Last, after every other step: an own `__proto__` member turns only a final
+        // inclusion into the unknown-label decision (`carries_proto_member`); every other
+        // decision stands.
+        if user_released {
+            ("block_export", "USER_RELEASE_VALUE_UNBOUND")
+        } else {
+            (unknown_action, "UNKNOWN_PROVENANCE_WARNING")
+        }
     } else {
         (decided_action, decided_reason)
     };
@@ -348,6 +375,66 @@ fn classify_contract_item(
             }
         }),
     }
+}
+
+/// The generic route projector's direct public-basis reading of a record, as the
+/// TypeScript (`projectRouteValue`) and Python (`_declares_direct_public_basis`)
+/// projectors read it: its privacy is its own `privacy_classification`, or its
+/// `classification` alias only when `privacy_classification` is absent, so a present
+/// primary label, null included, is the label (HELP_HUMAN decision, 2026-10-27); a public
+/// basis is a safe privacy class with a public redistribution status, both strings. The
+/// record's provenance is not read. The runners do not project routes; this mirror holds
+/// the shared sweep's projector cases. A record carrying an own `__proto__` member, on itself
+/// or its provenance, has no direct public basis (`carries_proto_member`).
+#[cfg(test)]
+fn route_record_public_basis(record: &Map<String, Value>) -> bool {
+    if carries_proto_member(record) {
+        return false;
+    }
+    let privacy = match record.get("privacy_classification") {
+        Some(stated) => Some(stated),
+        None => record.get("classification"),
+    };
+    matches!(
+        privacy.and_then(Value::as_str),
+        Some("public" | "public_metadata" | "invented_public_example")
+    ) && matches!(
+        record.get("redistribution_status").and_then(Value::as_str),
+        Some("public_permissive" | "invented_non_engineering_example")
+    )
+}
+
+/// The labelled leaf the route projector makes of a record's scalar member `key`, for a
+/// member the projector labels by its record's basis alone: a string other than `TBD`
+/// whose path holds no `tbd` and no private path token (such as the sweep's `note`).
+/// It is public metadata on a public basis, else unknown and pending. Other leaves are
+/// not mirrored.
+#[cfg(test)]
+fn route_basis_leaf(record: &Map<String, Value>, key: &str) -> Map<String, Value> {
+    let value = record.get(key).expect("record leaf");
+    assert!(
+        value.as_str().is_some_and(|text| text != "TBD")
+            && !key.to_ascii_lowercase().contains("tbd"),
+        "only a non-TBD string leaf is mirrored"
+    );
+    let (privacy, redistribution, review) = if route_record_public_basis(record) {
+        ("public_metadata", "public_permissive", "accepted")
+    } else {
+        ("unknown", "unknown", "pending")
+    };
+    Map::from_iter([
+        ("field_class".to_string(), serde_json::json!(key)),
+        (
+            "privacy_classification".to_string(),
+            serde_json::json!(privacy),
+        ),
+        (
+            "redistribution_status".to_string(),
+            serde_json::json!(redistribution),
+        ),
+        ("review_status".to_string(), serde_json::json!(review)),
+        ("value".to_string(), value.clone()),
+    ])
 }
 
 /// A label the TypeScript and Python contracts read as unknown (`UNKNOWN_*` sets): absent,
@@ -920,8 +1007,10 @@ mod tests {
     /// The DEL-12-02 input-contract sweep, expanded by the same rule as
     /// `tests/security/test_redaction_input_contract_sweep.py` and
     /// `redactionInputContractSweep.test.ts`: items in family order labels, flags, claims,
-    /// each decided in the spec's twelve contexts in order.
-    const SWEEP_CASE_COUNT: usize = 74_760;
+    /// alias_items, each decided in the spec's twelve contexts in order; then the
+    /// alias_projector records, each decided in the projector's ten contexts in order; then
+    /// the proto_items and the proto_projector records in the same way.
+    const SWEEP_CASE_COUNT: usize = 100_744;
 
     struct SweepCase {
         family: &'static str,
@@ -929,6 +1018,9 @@ mod tests {
         context: String,
         local_intent: bool,
         release_intent: bool,
+        /// The leaf of an `alias_projector` or `proto_projector` record, decided as the route
+        /// projector labels it.
+        leaf_key: Option<String>,
     }
 
     fn sweep_json(text: &str) -> Value {
@@ -1027,6 +1119,43 @@ mod tests {
                 items.push(("claims", item));
             }
         }
+        let aliases = &spec["aliases"];
+        let alias_labels = |privacy: &Value, alias: &Value, redistribution: &Value| {
+            let mut labels = Map::new();
+            put(&mut labels, "privacy_classification", privacy);
+            put(&mut labels, "classification", alias);
+            put(&mut labels, "redistribution_status", redistribution);
+            labels
+        };
+        let mut alias_grid = Vec::new();
+        for privacy in list(&aliases["privacy_classification"]) {
+            for alias in list(&aliases["classification"]) {
+                for redistribution in list(&aliases["redistribution"]) {
+                    alias_grid.push((privacy.clone(), alias.clone(), redistribution));
+                }
+            }
+        }
+        for (privacy, alias, redistribution) in &alias_grid {
+            for placement in list(&aliases["item_placements"]) {
+                let labels = alias_labels(privacy, alias, redistribution);
+                let mut item = Map::from_iter([("value".to_string(), json!("x"))]);
+                match placement.as_str().expect("item placement") {
+                    "provenance" => {
+                        item.insert("provenance".to_string(), Value::Object(labels));
+                    }
+                    other => {
+                        item.extend(labels);
+                        if other == "item_private_provenance" {
+                            item.insert(
+                                "provenance".to_string(),
+                                aliases["private_provenance"].clone(),
+                            );
+                        }
+                    }
+                }
+                items.push(("alias_items", item));
+            }
+        }
         let contexts = list(&spec["contexts"]);
         let mut cases = Vec::with_capacity(items.len() * contexts.len());
         for (family, item) in items {
@@ -1037,19 +1166,126 @@ mod tests {
                     context: context[0].as_str().expect("context").to_string(),
                     local_intent: context[1].as_bool().expect("local intent"),
                     release_intent: context[2].as_bool().expect("release intent"),
+                    leaf_key: None,
                 });
+            }
+        }
+        let projector = &aliases["projector"];
+        let leaf_key = projector["leaf_key"].as_str().expect("leaf key");
+        for (privacy, alias, redistribution) in &alias_grid {
+            for placement in list(&projector["placements"]) {
+                let mut record = alias_labels(privacy, alias, redistribution);
+                if placement.as_str() == Some("record_public_provenance") {
+                    record.insert(
+                        "provenance".to_string(),
+                        projector["public_provenance"].clone(),
+                    );
+                }
+                record.insert(leaf_key.to_string(), projector["leaf_value"].clone());
+                for context in list(&projector["contexts"]) {
+                    cases.push(SweepCase {
+                        family: "alias_projector",
+                        item: record.clone(),
+                        context: context[0].as_str().expect("context").to_string(),
+                        local_intent: context[1].as_bool().expect("local intent"),
+                        release_intent: false,
+                        leaf_key: Some(leaf_key.to_string()),
+                    });
+                }
+            }
+        }
+        // A `__proto__` key is an ordinary key of a serde_json map, as of a JSON object.
+        let proto = &spec["proto"];
+        let member = proto["member"].as_str().expect("proto member");
+        let mut proto_grid = Vec::new();
+        for privacy in list(&proto["privacy_classification"]) {
+            for alias in list(&proto["classification"]) {
+                for redistribution in list(&proto["redistribution"]) {
+                    for member_value in list(&proto["member_values"]) {
+                        proto_grid.push((
+                            privacy.clone(),
+                            alias.clone(),
+                            redistribution.clone(),
+                            member_value,
+                        ));
+                    }
+                }
+            }
+        }
+        for (privacy, alias, redistribution, member_value) in &proto_grid {
+            for placement in list(&proto["item_placements"]) {
+                let mut labels = alias_labels(privacy, alias, redistribution);
+                labels.insert(member.to_string(), member_value.clone());
+                let mut item = Map::from_iter([("value".to_string(), json!("x"))]);
+                if placement.as_str() == Some("provenance") {
+                    item.insert("provenance".to_string(), Value::Object(labels));
+                } else {
+                    item.extend(labels);
+                }
+                for context in &contexts {
+                    cases.push(SweepCase {
+                        family: "proto_items",
+                        item: item.clone(),
+                        context: context[0].as_str().expect("context").to_string(),
+                        local_intent: context[1].as_bool().expect("local intent"),
+                        release_intent: context[2].as_bool().expect("release intent"),
+                        leaf_key: None,
+                    });
+                }
+            }
+        }
+        for (privacy, alias, redistribution, member_value) in &proto_grid {
+            for placement in list(&proto["projector_placements"]) {
+                let mut record = alias_labels(privacy, alias, redistribution);
+                let mut public_provenance = projector["public_provenance"]
+                    .as_object()
+                    .expect("public provenance")
+                    .clone();
+                match placement.as_str().expect("projector placement") {
+                    "provenance" => {
+                        public_provenance.insert(member.to_string(), member_value.clone());
+                        record.insert("provenance".to_string(), Value::Object(public_provenance));
+                    }
+                    other => {
+                        record.insert(member.to_string(), member_value.clone());
+                        if other == "record_public_provenance" {
+                            record
+                                .insert("provenance".to_string(), Value::Object(public_provenance));
+                        }
+                    }
+                }
+                record.insert(leaf_key.to_string(), projector["leaf_value"].clone());
+                for context in list(&projector["contexts"]) {
+                    cases.push(SweepCase {
+                        family: "proto_projector",
+                        item: record.clone(),
+                        context: context[0].as_str().expect("context").to_string(),
+                        local_intent: context[1].as_bool().expect("local intent"),
+                        release_intent: false,
+                        leaf_key: Some(leaf_key.to_string()),
+                    });
+                }
             }
         }
         cases
     }
 
     fn sweep_decision(case: &SweepCase) -> String {
-        let decided = classify_contract_item(
-            &case.item,
-            &case.context,
-            case.local_intent,
-            case.release_intent,
-        );
+        let decided = match &case.leaf_key {
+            // The route projector's decision on the record's one leaf.
+            Some(key) => classify_contract_item(
+                &route_basis_leaf(&case.item, key),
+                &case.context,
+                case.local_intent,
+                false,
+            ),
+            None => classify_contract_item(
+                &case.item,
+                &case.context,
+                case.local_intent,
+                case.release_intent,
+            ),
+        };
         format!("{}/{}", decided.action, decided.reason_code)
     }
 
@@ -1089,6 +1325,21 @@ mod tests {
     const ACTION_ORDER: [&str; 4] = ["include", "warning_only", "redact_value", "block_export"];
     const BEFORE_COLUMNS: [&str; 3] = ["python_before", "typescript_before", "rust_before"];
     const RAISED: &str = "raised/TypeError";
+    /// The Rust mirror had no route projector before the alias decision, so its frozen
+    /// column holds no decision for an alias_projector case.
+    const NOT_MIRRORED: &str = "not_mirrored/NO_ROUTE_PROJECTOR";
+    /// The TypeScript projector before the decision that no JSON member becomes a prototype
+    /// (HELP_HUMAN, 2026-10-27: "Parse so that no JSON member can become a prototype") copied
+    /// a record by assignment, so a `__proto__` member became the copy's prototype, or was
+    /// dropped when it was not an object.  Its proto_projector decisions are of a different
+    /// record than the input, so those cases are held to the Python column, the reference
+    /// whose reading of the member as an ordinary own member all three now share (this
+    /// mirror's column is `not_mirrored`).
+    const PROTOTYPE_COPY_COLUMN: (&str, &str) = ("proto_projector", "typescript_before");
+
+    fn held_to(family: &str, name: &str, code: &str) -> bool {
+        code != RAISED && code != NOT_MIRRORED && (family, name) != PROTOTYPE_COPY_COLUMN
+    }
 
     fn strictness(code: &str) -> usize {
         let action = code.split('/').next().expect("action");
@@ -1109,16 +1360,25 @@ mod tests {
         assert_eq!(cases.len(), SWEEP_CASE_COUNT);
         assert_eq!(frozen["case_count"].as_u64(), Some(SWEEP_CASE_COUNT as u64));
         assert_eq!(frozen["action_order"], json!(ACTION_ORDER));
-        assert!(cases
-            .iter()
-            .all(|case| matches!(case.family, "labels" | "flags" | "claims")));
+        assert!(cases.iter().all(|case| matches!(
+            case.family,
+            "labels"
+                | "flags"
+                | "claims"
+                | "alias_items"
+                | "alias_projector"
+                | "proto_items"
+                | "proto_projector"
+        )));
         (cases, frozen)
     }
 
     /// The ruling's proof obligation: every sweep case's decision is at least as strict as
     /// each implementation's frozen pre-contract decision.  Python's former TypeError on an
     /// array or object label is no decision; the case is held to the TypeScript and Rust
-    /// columns.
+    /// columns.  Nor is this mirror's `not_mirrored` on an alias_projector or proto_projector
+    /// case; it is held to the Python and TypeScript columns.  A proto_projector case is not
+    /// held to the TypeScript column (`PROTOTYPE_COPY_COLUMN`).
     #[test]
     fn sweep_decides_no_case_less_strictly_than_any_frozen_pre_contract_decision() {
         let (cases, frozen) = sweep_fixtures();
@@ -1126,21 +1386,85 @@ mod tests {
             .iter()
             .map(|name| (*name, frozen_column(&frozen, name)))
             .collect();
-        let mut looser = Vec::new();
+        // Each column's count is asserted separately.
+        let mut looser: Vec<(&str, Vec<usize>)> = BEFORE_COLUMNS
+            .iter()
+            .map(|name| (*name, Vec::new()))
+            .collect();
         for (index, case) in cases.iter().enumerate() {
             let decided = sweep_decision(case);
-            for (name, column) in &before {
+            for ((name, column), (_, found)) in before.iter().zip(looser.iter_mut()) {
                 assert_eq!(column.len(), SWEEP_CASE_COUNT, "{name}");
-                if column[index] != RAISED && strictness(&decided) < strictness(&column[index]) {
-                    looser.push((index, *name, column[index].clone(), decided.clone()));
+                if held_to(case.family, name, &column[index])
+                    && strictness(&decided) < strictness(&column[index])
+                {
+                    found.push(index);
                 }
             }
         }
-        assert!(
-            looser.is_empty(),
-            "{} looser, first {:?}",
-            looser.len(),
-            looser.first()
+        for (name, found) in &looser {
+            assert!(
+                found.is_empty(),
+                "{name}: {} looser, first {:?}",
+                found.len(),
+                found.first()
+            );
+        }
+        assert_eq!(
+            looser.iter().map(|(name, _)| *name).collect::<Vec<_>>(),
+            ["python_before", "typescript_before", "rust_before"]
+        );
+    }
+
+    /// The TypeScript column is set aside only for the appended proto_projector cases, each
+    /// still held to the Python column.  Under the fail-closed rule (HELP_HUMAN ruling,
+    /// 2026-10-27, option (b)) the contract is no less strict than the set-aside column
+    /// either: stricter in 1,920 cases (among them the 780 where a member's public labels,
+    /// inherited by the copy, lifted a sibling into a public basis, and the 120 where a
+    /// member's restrictive privacy, inherited by the copy, hid the record's own
+    /// `classification` alias, which redact again) and less strict in none.  Against Python's
+    /// frozen decisions the contract is stricter in 1,932 `__proto__` cases, by design.
+    #[test]
+    fn sweep_sets_the_prototype_copy_column_aside_only_for_proto_projector_cases() {
+        let (cases, frozen) = sweep_fixtures();
+        let contract = frozen_column(&frozen, "contract");
+        let python = frozen_column(&frozen, "python_before");
+        let typescript = frozen_column(&frozen, "typescript_before");
+        let set_aside: Vec<usize> = (0..SWEEP_CASE_COUNT)
+            .filter(|index| cases[*index].family == "proto_projector")
+            .collect();
+        assert_eq!(set_aside.len(), 10_080);
+        assert!(set_aside[0] >= 82_600);
+        assert!(set_aside
+            .iter()
+            .all(|index| python[*index] != RAISED && python[*index] != NOT_MIRRORED));
+        let count = |looser: bool| {
+            set_aside
+                .iter()
+                .filter(|index| {
+                    let (before, after) = (
+                        strictness(&typescript[**index]),
+                        strictness(&contract[**index]),
+                    );
+                    if looser {
+                        before < after
+                    } else {
+                        before > after
+                    }
+                })
+                .count()
+        };
+        assert_eq!((count(true), count(false)), (1_920, 0));
+        let proto_cases: Vec<usize> = (0..SWEEP_CASE_COUNT)
+            .filter(|index| matches!(cases[*index].family, "proto_items" | "proto_projector"))
+            .collect();
+        assert_eq!((proto_cases.len(), proto_cases[0]), (18_144, 82_600));
+        assert_eq!(
+            proto_cases
+                .iter()
+                .filter(|index| strictness(&contract[**index]) > strictness(&python[**index]))
+                .count(),
+            1_932
         );
     }
 
@@ -1184,6 +1508,368 @@ mod tests {
             .iter()
             .all(|case| case.get("explicit_user_release_intent").is_some()));
         assert!(cases[cases.len() - 49..].iter().eq(added.into_iter()));
+    }
+
+    /// HELP_HUMAN decision, 2026-10-27: "A null primary label must not let an alias lift a
+    /// sibling into `public_report`."  The TypeScript projector read the `classification`
+    /// alias with `??` and so included `note`; Python reads it only when
+    /// `privacy_classification` is absent and redacts it, as all three now do.
+    #[test]
+    fn route_projector_reads_no_classification_alias_under_a_null_primary_label() {
+        let decide = |record: &Value| {
+            let record = record.as_object().expect("record");
+            let decided = classify_contract_item(
+                &route_basis_leaf(record, "note"),
+                "public_report",
+                false,
+                false,
+            );
+            (decided.action, decided.reason_code)
+        };
+        let mut record = json!({
+            "privacy_classification": null,
+            "classification": "public",
+            "redistribution_status": "public_permissive",
+            "note": "INVENTED"
+        });
+        assert!(!route_record_public_basis(
+            record.as_object().expect("record")
+        ));
+        assert_eq!(
+            decide(&record),
+            ("redact_value", "REDISTRIBUTION_STATUS_UNKNOWN")
+        );
+        // The alias is still the label when the primary member is absent.
+        record
+            .as_object_mut()
+            .expect("record")
+            .remove("privacy_classification");
+        assert!(route_record_public_basis(
+            record.as_object().expect("record")
+        ));
+        assert_eq!(decide(&record), ("include", "SAFE_PUBLIC_METADATA"));
+    }
+
+    /// A JSON `__proto__` member is an own member (HELP_HUMAN decision, 2026-10-27: "Parse so
+    /// that no JSON member can become a prototype"), and it fails closed on the key itself
+    /// (HELP_HUMAN ruling, 2026-10-27: "option (b), fail closed on the key itself, in all
+    /// three implementations. A record carrying an own `__proto__` member gets no direct
+    /// public basis, and its siblings are labelled by path. The item classifier treats the
+    /// member as an unknown label.").  One class per kind of member label in the code
+    /// review's 180 cases and their converse, as the vitest and pytest twins hold them, with
+    /// the member on the record and in its provenance, in the five projector contexts with
+    /// and without intent.  This mirror decides the record's basis and the leaf's action; it
+    /// does not materialize a projected payload, which the twins assert.
+    fn proto_member_classes() -> Vec<(&'static str, Value, Value)> {
+        vec![
+            (
+                "member_unknown_privacy",
+                json!({"privacy_classification": "unknown"}),
+                json!({"classification": "public", "redistribution_status": "public_permissive"}),
+            ),
+            (
+                "member_private_privacy",
+                json!({"privacy_classification": "private_project_data"}),
+                json!({"classification": "public", "redistribution_status": "public_permissive"}),
+            ),
+            (
+                "member_private_labels",
+                json!({"privacy_classification": "private_project_data", "redistribution_status": "private_only"}),
+                json!({"classification": "public", "redistribution_status": "public_permissive"}),
+            ),
+            (
+                "member_private_redistribution",
+                json!({"redistribution_status": "private_only"}),
+                json!({"privacy_classification": "public", "redistribution_status": "public_permissive"}),
+            ),
+            (
+                "member_public_labels",
+                json!({"privacy_classification": "public", "redistribution_status": "public_permissive"}),
+                json!({}),
+            ),
+            (
+                "member_public_redistribution",
+                json!({"redistribution_status": "public_permissive"}),
+                json!({"privacy_classification": "public"}),
+            ),
+            (
+                "member_public_privacy",
+                json!({"privacy_classification": "public"}),
+                json!({"redistribution_status": "public_permissive"}),
+            ),
+            (
+                "member_private_privacy_public_redistribution",
+                json!({"privacy_classification": "private_project_data", "redistribution_status": "public_permissive"}),
+                json!({"classification": "public"}),
+            ),
+        ]
+    }
+
+    fn with_member(labels: &Value, member_key: &str, member: &Value) -> Map<String, Value> {
+        let mut object = labels.as_object().expect("labels").clone();
+        object.insert(member_key.to_string(), member.clone());
+        object
+    }
+
+    /// The class's record with the member on it and with the member in its provenance.
+    fn proto_records(member: &Value, labels: &Value) -> Vec<(&'static str, Value)> {
+        let public = json!({"privacy_classification": "public", "redistribution_status": "public_permissive"});
+        let mut on_record = with_member(labels, "__proto__", member);
+        on_record.insert("note".to_string(), json!("INVENTED"));
+        let mut in_provenance = labels.as_object().expect("labels").clone();
+        in_provenance.insert(
+            "provenance".to_string(),
+            Value::Object(with_member(&public, "__proto__", member)),
+        );
+        in_provenance.insert("note".to_string(), json!("INVENTED"));
+        vec![
+            ("record", Value::Object(on_record)),
+            ("provenance", Value::Object(in_provenance)),
+        ]
+    }
+
+    fn proto_note_decision(
+        record: &Value,
+        context: &str,
+        intent: bool,
+    ) -> (&'static str, &'static str) {
+        let decided = classify_contract_item(
+            &route_basis_leaf(record.as_object().expect("record"), "note"),
+            context,
+            intent,
+            false,
+        );
+        (decided.action, decided.reason_code)
+    }
+
+    /// A path-labelled sibling of a record with no public basis.
+    fn unbased(context: &str) -> (&'static str, &'static str) {
+        if context == "local_private" {
+            ("warning_only", "REDISTRIBUTION_STATUS_UNKNOWN")
+        } else {
+            ("redact_value", "REDISTRIBUTION_STATUS_UNKNOWN")
+        }
+    }
+
+    /// The classifier's decision with the safe-and-public pairing barred: inclusion becomes
+    /// the unknown-label decision; every other decision stands.
+    fn barred(
+        control: (&'static str, &'static str),
+        context: &str,
+    ) -> (&'static str, &'static str) {
+        match (control.0, context) {
+            ("include", USER_RELEASED_REPORT_CONTEXT) => {
+                ("block_export", "USER_RELEASE_VALUE_UNBOUND")
+            }
+            ("include", "local_private") => ("warning_only", "UNKNOWN_PROVENANCE_WARNING"),
+            ("include", _) => ("redact_value", "UNKNOWN_PROVENANCE_WARNING"),
+            _ => control,
+        }
+    }
+
+    /// The code review's repro, parsed from JSON text.  The record carries an own
+    /// `__proto__` member, so it has no direct public basis and `note` is redacted, as base
+    /// TypeScript decided and Python did not.
+    #[test]
+    fn route_projector_fails_closed_on_a_json_proto_member() {
+        let payload: Value = serde_json::from_str(
+            r#"{"record":{"__proto__":{"privacy_classification":"private_project_data"},"classification":"public","redistribution_status":"public_permissive","note":"INVENTED"}}"#,
+        )
+        .expect("repro JSON");
+        let record = payload["record"].as_object().expect("record");
+        assert_eq!(
+            record.get("__proto__"),
+            Some(&json!({"privacy_classification": "private_project_data"}))
+        );
+        assert!(carries_proto_member(record));
+        assert!(!route_record_public_basis(record));
+        assert_eq!(
+            proto_note_decision(&payload["record"], "public_report", false),
+            ("redact_value", "REDISTRIBUTION_STATUS_UNKNOWN")
+        );
+    }
+
+    #[test]
+    fn route_projector_proto_member_classes_give_no_public_basis() {
+        let contexts = [
+            "public_report",
+            "public_example",
+            "shared_model",
+            "downstream_tool",
+            "local_private",
+        ];
+        for (name, member, labels) in proto_member_classes() {
+            for (placement, record) in proto_records(&member, &labels) {
+                assert!(!route_record_public_basis(
+                    record.as_object().expect("record")
+                ));
+                for context in contexts {
+                    for intent in [false, true] {
+                        assert_eq!(
+                            proto_note_decision(&record, context, intent),
+                            unbased(context),
+                            "{name} {placement} {context} {intent}"
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    /// On the item or in its provenance, the member bars the safe-and-public pairing and
+    /// nothing else, in all twelve sweep contexts.
+    #[test]
+    fn classifier_proto_member_classes_read_the_member_as_an_unknown_label() {
+        let spec = sweep_json(include_str!(
+            "../../../../fixtures/redaction_export_controls/input_contract_sweep.json"
+        ));
+        let contexts = spec["contexts"].as_array().expect("contexts").clone();
+        for (name, member, labels) in proto_member_classes() {
+            for placement in ["item", "provenance"] {
+                let item = |member_key: &str| {
+                    let carried = with_member(&labels, member_key, &member);
+                    let mut item = Map::from_iter([("value".to_string(), json!("x"))]);
+                    if placement == "provenance" {
+                        item.insert("provenance".to_string(), Value::Object(carried));
+                    } else {
+                        item.extend(carried);
+                    }
+                    item
+                };
+                for context in &contexts {
+                    let export_context = context[0].as_str().expect("context");
+                    let decide = |candidate: &Map<String, Value>| {
+                        let decided = classify_contract_item(
+                            candidate,
+                            export_context,
+                            context[1].as_bool().expect("local intent"),
+                            context[2].as_bool().expect("release intent"),
+                        );
+                        (decided.action, decided.reason_code)
+                    };
+                    assert_eq!(
+                        decide(&item("__proto__")),
+                        barred(decide(&item("proto_member")), export_context),
+                        "{name} {placement} {context}"
+                    );
+                }
+            }
+        }
+    }
+
+    /// One case per member class, on a record and an item whose own labels are public:
+    /// Python read the member as an ordinary member (as it reads the member renamed), so the
+    /// sibling and the item were included; now both fail closed.
+    #[test]
+    fn proto_member_classes_are_stricter_than_python_read_them_before_the_ruling() {
+        let public = json!({"privacy_classification": "public", "redistribution_status": "public_permissive"});
+        for (name, member, _) in proto_member_classes() {
+            let record = |member_key: &str| {
+                let mut record = with_member(&public, member_key, &member);
+                record.insert("note".to_string(), json!("INVENTED"));
+                Value::Object(record)
+            };
+            assert_eq!(
+                proto_note_decision(&record("proto_member"), "public_report", false),
+                ("include", "SAFE_PUBLIC_METADATA"),
+                "{name}"
+            );
+            assert_eq!(
+                proto_note_decision(&record("__proto__"), "public_report", false),
+                unbased("public_report"),
+                "{name}"
+            );
+            let item = |member_key: &str| {
+                let mut item = with_member(&public, member_key, &member);
+                item.insert("value".to_string(), json!("x"));
+                let decided = classify_contract_item(&item, "public_report", false, false);
+                format!("{}/{}", decided.action, decided.reason_code)
+            };
+            let (control, barred_item) = (item("proto_member"), item("__proto__"));
+            assert_eq!(control, "include/SAFE_PUBLIC_METADATA", "{name}");
+            assert_eq!(
+                barred_item, "redact_value/UNKNOWN_PROVENANCE_WARNING",
+                "{name}"
+            );
+            assert!(strictness(&barred_item) > strictness(&control));
+        }
+    }
+
+    /// Codex r2 on #1692: the bar is the last step of the decision order.  Each labels,
+    /// flags, claims and alias_items case, decided with an own `__proto__` member added on the
+    /// item and, where it has one, in its provenance, gives its own decision with only an
+    /// inclusion barred.
+    #[test]
+    fn proto_member_leaves_every_decision_but_a_final_inclusion_unchanged() {
+        let (cases, _) = sweep_fixtures();
+        let mut differ = Vec::new();
+        for (index, case) in cases.iter().enumerate() {
+            if !matches!(case.family, "labels" | "flags" | "claims" | "alias_items") {
+                continue;
+            }
+            let decide = |candidate: &Map<String, Value>| {
+                let decided = classify_contract_item(
+                    candidate,
+                    &case.context,
+                    case.local_intent,
+                    case.release_intent,
+                );
+                (decided.action, decided.reason_code)
+            };
+            let expected = barred(decide(&case.item), &case.context);
+            let mut on_item = case.item.clone();
+            on_item.insert("__proto__".to_string(), json!({}));
+            if decide(&on_item) != expected {
+                differ.push((index, "item"));
+            }
+            if let Some(provenance) = case.item.get("provenance").and_then(Value::as_object) {
+                let mut in_provenance = case.item.clone();
+                let mut provenance = provenance.clone();
+                provenance.insert("__proto__".to_string(), json!({}));
+                in_provenance.insert("provenance".to_string(), Value::Object(provenance));
+                if decide(&in_provenance) != expected {
+                    differ.push((index, "provenance"));
+                }
+            }
+        }
+        assert!(
+            differ.is_empty(),
+            "{} differ, first {:?}",
+            differ.len(),
+            differ.first()
+        );
+    }
+
+    /// Codex r2 on #1692: in user_released_report with release intent this gave
+    /// `USER_RELEASE_VALUE_UNBOUND`.
+    #[test]
+    fn proto_member_keeps_the_concrete_path_redaction_in_every_context() {
+        let item: Value = serde_json::from_str(
+            r#"{"value":"x","privacy_classification":"public","redistribution_status":"public_permissive","concrete_path_present":true,"__proto__":{}}"#,
+        )
+        .expect("item JSON");
+        let item = item.as_object().expect("item").clone();
+        let mut renamed = item.clone();
+        let member = renamed.remove("__proto__").expect("member");
+        renamed.insert("proto_member".to_string(), member);
+        let spec = sweep_json(include_str!(
+            "../../../../fixtures/redaction_export_controls/input_contract_sweep.json"
+        ));
+        for context in spec["contexts"].as_array().expect("contexts") {
+            for candidate in [&item, &renamed] {
+                let decided = classify_contract_item(
+                    candidate,
+                    context[0].as_str().expect("context"),
+                    context[1].as_bool().expect("local intent"),
+                    context[2].as_bool().expect("release intent"),
+                );
+                assert_eq!(
+                    (decided.action, decided.reason_code),
+                    ("redact_value", "CONCRETE_PATH_REDACTED"),
+                    "{context}"
+                );
+            }
+        }
     }
 
     /// Before the reorder `concrete_path_present: true` returned `redact_value` /

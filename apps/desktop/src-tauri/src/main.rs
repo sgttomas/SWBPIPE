@@ -1,3 +1,7 @@
+//! The desktop app binary. `unsafe` code is denied here (DEL-08-01 Design
+//! `report-user-release.md` §2.8, "Symbol-level FFI"; code review r9 at #1682).
+#![deny(unsafe_code)]
+
 fn main() {
     // A solve worker is started by the app itself (`solve_worker`); it must
     // not initialize Tauri or AppKit.

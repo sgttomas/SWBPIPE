@@ -415,6 +415,32 @@ pub(super) fn source_factor(
         .find(|load| load.id == load_id)?;
     Some((load.magnitude.value, source.factor))
 }
+/// W-16 R-c (DEL-04-03 Design `pf-nonlinear-imposed-motion.md` §11.1): each
+/// spring whose base moves by g adds the formed load fl(k·g) at its DOF, with
+/// the `NodalProduct` (k, g) under the identity (`spring_base_motion`,
+/// support id, 0). A g that compares equal to zero, of either sign, adds no
+/// term: the case keeps its fixed-base ledger bit for bit.
+pub(super) fn spring_base_motion(ledger: &mut LoadLedger, springs: &[SpringEntry], ground: &[f64]) {
+    for (spring, &g) in springs.iter().zip(ground) {
+        if g == 0.0 {
+            continue;
+        }
+        let dof = spring.node_dof.global_index();
+        let k = spring.stiffness.value;
+        ledger.push_formed(&spring.support_id, dof, k * g, Formation::RoundedProduct { k: 1.0, a: k, b: g }, 0.0, false);
+        attach_last(
+            ledger,
+            summand(
+                "spring_base_motion",
+                &spring.support_id,
+                0,
+                dof % 6,
+                LoadFormula::NodalProduct { global_dof: dof, magnitude: k, factor: g },
+            ),
+        );
+    }
+}
+
 /// Factored nodal values are formed products, while unscaled authored nodal
 /// loads remain exact input terms under the normalized-input contract.
 pub(super) fn nodal(

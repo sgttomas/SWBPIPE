@@ -340,6 +340,14 @@ by-name edges into the two new modules' private functions (W16BC-BN); W16BC-ID c
 format arguments. `rules/sq2_decisions_E.py`'s B7b-LR zero follows the direct pass. See the governing rules' §8.27 and
 `tests/test_w16bc_combinations_equivalent_static.py`.
 
+### W-16 stage 2 imposed displacement with nonlinear supports and on spring bases
+
+`base/w16_owners_model.py` adds W16S-SG: each case's spring-base vectors (`case_spring_ground`'s `ground` and `moved`,
+s entries each, `ordinary_caps.py` CasePrefix). `rules/o10_rules.py`'s W16-NS follows the support branch into its new
+helpers, `target_acting` and the two new resolvers; W16S-SG zeroes `spring_base_motion`'s formed terms behind
+`g == 0.0`; W16S-L1 bounds the relative-displacement loop at 0 on D1 and zeroes its clause; W16S-ID classifies the
+helpers' unreached format arguments. See the governing rules' §8.29 and `tests/test_w16_imposed_motion.py`.
+
 The current source pins fail closed outside the reviewed stage-2 cohort.
 Reproduce either RF or the pre-stage-2 reductions using its committed tool and
 source revision. A complete `run` is a pricing-completeness result; actual

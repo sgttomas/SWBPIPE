@@ -550,6 +550,18 @@ def test_a1_b_per_support_nonlinear_rows_name_listed_supports():
     validate_preview_physics_evidence(source)
 
 
+def test_w16_relative_displacement_rows_name_listed_supports():
+    """W-16 stage 2 (R-b, DEL-04-03 Design pf-nonlinear-imposed-motion.md §4): the
+    relative-displacement observation row is a per-support nonlinear row."""
+    kind = "nonlinear_support_final_relative_displacement"
+    source = envelope()
+    source["results"].append(_nonlinear_row("support:NL", kind))
+    validate_preview_physics_evidence(source)
+    source["results"].append(_nonlinear_row("support:UNLISTED", kind))
+    with pytest.raises(ValueError, match="per-support nonlinear row names an unlisted support"):
+        validate_preview_physics_evidence(source)
+
+
 def test_a1_c_range_combination_is_exempt_from_magnitude_consistency():
     source = envelope()
     for row in source["results"]:
