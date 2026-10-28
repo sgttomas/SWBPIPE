@@ -847,12 +847,12 @@ desktop), CAEPIPE, numerical.
 | B10 | Adopt later | convenience | W-17/model |
 | B11 | Adopt now | extends W-8 | W-17/model |
 | C1 | Adopt now | foundation for multi-condition modelling; model-document version step | W-17/model |
-| C2 | Adopt later | after C1; invented demo pack only | solver |
+| C2 | Defer until after v1.0 | owner, 2026-10-28; rule packs are a design aid; invented demo pack only (`docs/RELEASE_TARGET_v1.0.md` RT-R3) | solver |
 | C3 | Adopt later | after C1, on the pressure-free route | solver |
-| C4 | Adopt later | high value; multi-solve procedure; no manufacturer data | solver |
+| C4 | Adopt for v1.0 | owner, 2026-10-28; no manufacturer data (`docs/RELEASE_TARGET_v1.0.md` RT-A11) | solver |
 | C5 | Adopt later | niche | solver |
 | C6 | Adopt later | generator packs as rule-pack capability | solver |
-| C7 | Adopt later | after C1 | solver |
+| C7 | Adopt for v1.0 | owner, 2026-10-28; after C1 (`docs/RELEASE_TARGET_v1.0.md` RT-A6) | solver |
 | C8 | Decline for now | outside the piping focus until supports demand it | solver |
 | D1 | Adopt now | reports are the deliverable users hand over | reports |
 | D2 | Adopt now | small; follows result-export gating | reports |
@@ -861,14 +861,14 @@ desktop), CAEPIPE, numerical.
 | D5 | Adopt now | protects work; expected baseline | W-17/model |
 | D6 | Adopt now | small; helps large models | W-17/model |
 | D7 | Adopt later | follows export gating | reports |
-| E1 | Adopt later | after current rule-pack work | solver |
-| E2 | Adopt later | needed by most real packs; tables stay user-supplied | solver |
-| E3 | Adopt later | after E2 | solver |
-| E4 | Adopt later | pack-driven | solver |
-| E5 | Adopt later | pack-driven | solver |
-| E6 | Adopt later | behind FR-SOL-011 branch flexibility | solver |
-| F1 | Adopt later | research now: scope it as the first dynamic module; the idle numerical lane can do the research | numerical |
-| F2 | Adopt later | behind F1; no spectra shipped | numerical |
+| E1 | Defer until after v1.0 | owner, 2026-10-28 (`docs/RELEASE_TARGET_v1.0.md` RT-R3) | solver |
+| E2 | Defer until after v1.0 | owner, 2026-10-28; tables stay user-supplied (`docs/RELEASE_TARGET_v1.0.md` RT-R3) | solver |
+| E3 | Decline | a code-compliance function; users establish code compliance in accepted professional software (owner, 2026-10-28, accepting OC-6 "as stated"; `docs/RELEASE_TARGET_v1.0.md` RT-R3) | solver |
+| E4 | Decline | a code-compliance function; users establish code compliance in accepted professional software (owner, 2026-10-28, accepting OC-6 "as stated"; `docs/RELEASE_TARGET_v1.0.md` RT-R3) | solver |
+| E5 | Defer until after v1.0 | owner, 2026-10-28 (`docs/RELEASE_TARGET_v1.0.md` RT-R3) | solver |
+| E6 | Defer until after v1.0 | owner, 2026-10-28; behind FR-SOL-011 branch flexibility (`docs/RELEASE_TARGET_v1.0.md` RT-R3) | solver |
+| F1 | Adopted | SCA-013 (DEL-04-09); Must for v1.0 (`docs/RELEASE_TARGET_v1.0.md` RT-A7) | numerical |
+| F2 | Adopt for v1.0 | owner, 2026-10-28; behind F1; no spectra shipped (`docs/RELEASE_TARGET_v1.0.md` RT-A8) | numerical |
 | F3 | Decline for now | behind F1/F2 | numerical |
 | F4 | Decline for now | specialised; revisit with users | solver |
 | F5 | Adopt later | after the nonlinear-support work settles | solver |
