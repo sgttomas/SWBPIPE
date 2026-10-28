@@ -85,6 +85,8 @@ pub(crate) const READBACK_FAILED: &str = "AUTOSAVE-READBACK-FAILED";
 pub(crate) const PRUNE_FAILED: &str = "AUTOSAVE-PRUNE-FAILED";
 pub(crate) const PRUNE_DEFERRED: &str = "AUTOSAVE-PRUNE-DEFERRED";
 pub(crate) const NAME_INVALID: &str = "AUTOSAVE-NAME-INVALID";
+pub(crate) const NAME_IN_USE: &str = "AUTOSAVE-NAME-IN-USE";
+pub(crate) const VERIFY_UNAVAILABLE: &str = "AUTOSAVE-VERIFY-UNAVAILABLE";
 pub(crate) const NOT_FOUND: &str = "AUTOSAVE-NOT-FOUND";
 pub(crate) const UNREADABLE: &str = "AUTOSAVE-UNREADABLE";
 pub(crate) const INTEGRITY: &str = "AUTOSAVE-INTEGRITY";
@@ -100,6 +102,8 @@ pub(crate) const LISTED_ENTRY_BYTES: u64 = 512;
 pub(crate) const LOCK_WAIT: Duration = Duration::from_secs(5);
 const LOCK_POLL: Duration = Duration::from_millis(10);
 const LOCK_CREATE_RETRIES: u32 = 16;
+/// How often a lock whose file was replaced while it was taken is re-opened.
+const LOCK_REOPEN_RETRIES: u32 = 8;
 /// The most pruning warnings named; the rest are counted in one more.
 const MAX_PRUNE_WARNINGS: usize = 16;
 
@@ -223,6 +227,9 @@ thread_local! {
     /// Runs once between a record's inspection and its open (the swap and
     /// growth tests).
     static BEFORE_OPEN: std::cell::RefCell<Option<Box<dyn FnOnce()>>> = std::cell::RefCell::new(None);
+    /// Runs once between a write's read-back and its prune, while the slot's
+    /// lock is held (the forced-interleaving test).
+    static BEFORE_PRUNE: std::cell::RefCell<Option<Box<dyn FnOnce()>>> = std::cell::RefCell::new(None);
 }
 
 impl RecordDir {
@@ -400,14 +407,36 @@ fn stream_sha256_hex(file: &File, len: u64) -> Result<String, Access> {
     Ok(hasher.finalize().iter().map(|byte| format!("{byte:02x}")).collect())
 }
 
-/// SHA-256 (bare hex) of the record `name`, contained, within `memory`.
-fn record_sha256_hex(dir: &RecordDir, name: &str, memory: &dyn ReadMemory) -> Result<String, String> {
-    let _block: ReadReservation = memory.reserve("the autosave read-back block", READBACK_BLOCK_BYTES as u64)?;
+/// What a check of a record against its hash established.
+#[derive(Debug, PartialEq, Eq)]
+enum Verified {
+    /// It reads back as the hash.
+    Matches,
+    /// It verifiably does not: its bytes hash otherwise, or it exceeds the
+    /// cap. Only such a record may be replaced or removed as corrupt.
+    Differs(String),
+    /// It could not be checked: a reservation refused, a permission or I/O
+    /// error, an entry that vanished, changed or is not a regular file. The
+    /// record is then never rewritten or removed.
+    Unavailable(String),
+}
+
+/// Checks the record `name` against `expected_hex`, contained, within `memory`.
+fn verify_record(dir: &RecordDir, name: &str, expected_hex: &str, memory: &dyn ReadMemory) -> Verified {
+    let _block: ReadReservation = match memory.reserve("the autosave read-back block", READBACK_BLOCK_BYTES as u64) {
+        Ok(block) => block,
+        Err(message) => return Verified::Unavailable(message),
+    };
     let hashed = dir.inspect(name, MAX_MODEL_DOCUMENT_BYTES).and_then(|inspected| {
         let file = dir.open_inspected(name, inspected)?;
         stream_sha256_hex(&file, inspected.len)
     });
-    hashed.map_err(|access| access.describe(name).0)
+    match hashed {
+        Ok(hex) if hex == expected_hex => Verified::Matches,
+        Ok(hex) => Verified::Differs(format!("it reads back as sha256:{hex}, not sha256:{expected_hex}")),
+        Err(Access::TooLarge(len)) => Verified::Differs(format!("it is {len} bytes, above the open cap")),
+        Err(access) => Verified::Unavailable(access.describe(name).0),
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -425,25 +454,42 @@ pub(crate) struct SlotLock {
     _file: File,
 }
 
+/// The lock file must be a regular file (`fstat` on the opened descriptor),
+/// and, once locked, its name must still name that file (`fstatat`): a lock
+/// taken on a file that was replaced meanwhile is dropped and the new file is
+/// opened again, at most [`LOCK_REOPEN_RETRIES`] times. Residual: the lock
+/// coordinates SWBPIPE's own writers. Something that can rewrite the app's
+/// data directory can still split it, as it can write records, which is why
+/// every record is verified and recovery is an explicit offer.
 fn lock_slot(dir: &RecordDir, slot: &str, wait: Duration) -> Result<SlotLock, DispositionDiagnostic> {
-    let file = dir
-        .open_lock(slot)
-        .map_err(|error| diagnostic(LOCK_FAILED, "", format!("The autosave lock could not be opened: {error}. Nothing was written.")))?;
+    let failed = |detail: String| diagnostic(LOCK_FAILED, "", format!("The autosave lock {detail}. Nothing was written."));
+    let lock_name = format!("{slot}.lock");
     let deadline = Instant::now() + wait;
+    let mut reopened = 0;
     loop {
-        match file.try_lock() {
-            Ok(()) => return Ok(SlotLock { _file: file }),
-            Err(TryLockError::WouldBlock) if Instant::now() < deadline => std::thread::sleep(LOCK_POLL),
-            Err(TryLockError::WouldBlock) => {
-                return Err(diagnostic(
-                    LOCK_BUSY,
-                    "",
-                    format!("Another autosave of this project held its lock for over {} ms. Nothing was written.", wait.as_millis()),
-                ))
+        let file = dir.open_lock(slot).map_err(|error| failed(format!("could not be opened: {error}")))?;
+        let opened = file.metadata().map_err(|error| failed(format!("could not be inspected: {error}")))?;
+        if !opened.is_file() {
+            return Err(failed("is not a regular file".to_string()));
+        }
+        loop {
+            match file.try_lock() {
+                Ok(()) => break,
+                Err(TryLockError::WouldBlock) if Instant::now() < deadline => std::thread::sleep(LOCK_POLL),
+                Err(TryLockError::WouldBlock) => {
+                    return Err(diagnostic(
+                        LOCK_BUSY,
+                        "",
+                        format!("Another autosave of this project held its lock for over {} ms. Nothing was written.", wait.as_millis()),
+                    ))
+                }
+                Err(TryLockError::Error(error)) => return Err(failed(format!("could not be taken: {error}"))),
             }
-            Err(TryLockError::Error(error)) => {
-                return Err(diagnostic(LOCK_FAILED, "", format!("The autosave lock could not be taken: {error}. Nothing was written.")))
-            }
+        }
+        match dir.stat_child(&lock_name) {
+            Ok(stat) if (stat.st_dev as u64, stat.st_ino as u64) == (opened.dev(), opened.ino()) => return Ok(SlotLock { _file: file }),
+            _ if reopened < LOCK_REOPEN_RETRIES => reopened += 1,
+            _ => return Err(failed("file was replaced while it was taken".to_string())),
         }
     }
 }
@@ -561,21 +607,18 @@ fn admit_text(text: &str, claimed_hex: &str, mismatch: &str, memory: &dyn ReadMe
     Ok(AdmittedText { document: Metered::new(document).holding(reservation), slot, model_hash_hex: hex })
 }
 
-/// The directory exists as a real directory. When it is created here (under
-/// an existing parent), the parent is synced through `io`, so the new
-/// directory entry is durable; the result says whether that sync completed.
-fn ensure_directory(directory: &Path, io: &mut impl AtomicSaveIo) -> Result<bool, DispositionDiagnostic> {
+/// The directory exists as a real directory (created here if absent, under an
+/// existing parent). Its durability is never inferred from its existence: every
+/// write syncs the parent before it may prune (`write_autosave_with_io`).
+fn ensure_directory(directory: &Path) -> Result<(), DispositionDiagnostic> {
     let unavailable = |detail: String| diagnostic(DIRECTORY_UNAVAILABLE, "", format!("The autosave directory is unavailable: {detail}. Nothing was written."));
     let existing = |metadata: fs::Metadata| {
-        if metadata.is_dir() && !metadata.file_type().is_symlink() { Ok(true) } else { Err(unavailable("it is not a directory".to_string())) }
+        if metadata.is_dir() && !metadata.file_type().is_symlink() { Ok(()) } else { Err(unavailable("it is not a directory".to_string())) }
     };
     match fs::symlink_metadata(directory) {
         Ok(metadata) => existing(metadata),
         Err(error) if error.kind() == io::ErrorKind::NotFound => match fs::create_dir(directory) {
-            Ok(()) => {
-                let parent = directory.parent().ok_or_else(|| unavailable("it has no parent".to_string()))?;
-                Ok(io.sync_parent(parent) == DirectorySyncResult::Durable)
-            }
+            Ok(()) => Ok(()),
             // Another writer created it first.
             Err(error) if error.kind() == io::ErrorKind::AlreadyExists => {
                 fs::symlink_metadata(directory).map_err(|error| unavailable(error.to_string())).and_then(existing)
@@ -705,10 +748,9 @@ pub(crate) fn write_autosave_with_io(
         Ok(admitted) => admitted,
         Err(diagnostics) => return AutosaveWriteOutcome::Refused { diagnostics },
     };
-    let directory_durable = match ensure_directory(directory, io) {
-        Ok(durable) => durable,
-        Err(refusal) => return AutosaveWriteOutcome::Refused { diagnostics: vec![refusal] },
-    };
+    if let Err(refusal) = ensure_directory(directory) {
+        return AutosaveWriteOutcome::Refused { diagnostics: vec![refusal] };
+    }
     let dir = match RecordDir::open(directory) {
         Ok(dir) => dir,
         Err(error) => return AutosaveWriteOutcome::refused_one(DIRECTORY_UNAVAILABLE, format!("The autosave directory is unavailable: {error}. Nothing was written.")),
@@ -722,41 +764,73 @@ pub(crate) fn write_autosave_with_io(
     match newest_of_slot(&dir, &admitted.slot) {
         // The newest record already holds this model: unchanged only if it
         // still reads back as its hash; otherwise a new record is written.
-        Ok(Some(newest)) if newest.model_hash_hex == admitted.model_hash_hex => {
-            if record_sha256_hex(&dir, &newest.file_name(), memory).is_ok_and(|hex| hex == admitted.model_hash_hex) {
-                return AutosaveWriteOutcome::Unchanged { file_name: newest.file_name(), slot: admitted.slot, model_hash };
+        // A check that could not be made writes nothing and keeps the record.
+        Ok(Some(newest)) if newest.model_hash_hex == admitted.model_hash_hex => match verify_record(&dir, &newest.file_name(), &admitted.model_hash_hex, memory) {
+            Verified::Matches => return AutosaveWriteOutcome::Unchanged { file_name: newest.file_name(), slot: admitted.slot, model_hash },
+            Verified::Differs(_) => {}
+            Verified::Unavailable(detail) => {
+                return AutosaveWriteOutcome::refused_one(
+                    VERIFY_UNAVAILABLE,
+                    format!("The newest autosave `{}` holds this model but could not be checked ({detail}); nothing was written and it is kept.", newest.file_name()),
+                )
             }
-        }
+        },
         Ok(_) => {}
         Err(error) => return AutosaveWriteOutcome::refused_one(DIRECTORY_UNAVAILABLE, format!("The autosave directory could not be listed: {error}. Nothing was written.")),
     }
     let name = AutosaveName { slot: admitted.slot.clone(), written_unix_millis, model_hash_hex: admitted.model_hash_hex.clone() };
     let file_name = name.file_name();
+    // An existing entry of this name is replaced only when it verifiably is
+    // not this model's record (a corrupt record of the same time and hash).
+    match dir.stat_child(&file_name) {
+        Err(error) if error.kind() == io::ErrorKind::NotFound => {}
+        Err(error) => return AutosaveWriteOutcome::refused_one(VERIFY_UNAVAILABLE, format!("The autosave name `{file_name}` could not be inspected ({error}); nothing was written.")),
+        Ok(_) => match verify_record(&dir, &file_name, &admitted.model_hash_hex, memory) {
+            Verified::Differs(_) => {}
+            Verified::Matches => {
+                return AutosaveWriteOutcome::refused_one(NAME_IN_USE, format!("A valid autosave `{file_name}` already has this name though it is not the newest; nothing was written."))
+            }
+            Verified::Unavailable(detail) => {
+                return AutosaveWriteOutcome::refused_one(VERIFY_UNAVAILABLE, format!("The existing autosave `{file_name}` could not be checked ({detail}); nothing was written and it is kept."))
+            }
+        },
+    }
     let saved = match atomic_save_bytes_as_with_io(&AUTOSAVE_FORMAT, &directory.join(&file_name), canonical_text.as_bytes(), io) {
         Ok(saved) => saved,
         Err(error) => return AutosaveWriteOutcome::Refused { diagnostics: vec![writer_diagnostic(error)] },
     };
-    // The record is read back before any older record is removed; a record
-    // that does not read back as its hash is removed and the older one kept.
-    let removal = |dir: &RecordDir| dir.unlink(&file_name).err().map(|error| format!(" It could not be removed: {error}.")).unwrap_or_default();
-    match record_sha256_hex(&dir, &file_name, memory) {
-        Ok(read_back) if read_back == admitted.model_hash_hex => {}
-        Ok(read_back) => {
+    // The record is read back before any older record is removed. A record
+    // that verifiably does not read back as its hash is removed; one that
+    // could not be checked is kept, unverified, and nothing is pruned.
+    match verify_record(&dir, &file_name, &admitted.model_hash_hex, memory) {
+        Verified::Matches => {}
+        Verified::Differs(detail) => {
+            let removal = dir.unlink(&file_name).err().map(|error| format!(" It could not be removed: {error}.")).unwrap_or_default();
             return AutosaveWriteOutcome::refused_one(
                 READBACK_MISMATCH,
-                format!("The written autosave reads back as sha256:{read_back}, not {model_hash}; the previous autosave is kept.{}", removal(&dir)),
+                format!("The written autosave does not read back as {model_hash}: {detail}; the previous autosave is kept.{removal}"),
             );
         }
-        Err(error) => {
+        Verified::Unavailable(detail) => {
             return AutosaveWriteOutcome::refused_one(
                 READBACK_FAILED,
-                format!("The written autosave could not be read back ({error}); the previous autosave is kept.{}", removal(&dir)),
+                format!("The written autosave `{file_name}` could not be read back ({detail}); it is kept unverified and the previous autosave is kept."),
             );
         }
     }
     drop(admitted.document);
-    // Older records are removed only once this one is durable.
-    let durable = directory_durable && saved.durability == "durable";
+    // Older records are removed only once this one is durable: its directory
+    // synced after the rename, and the directory's own entry synced in its
+    // parent, on every write (never inferred from the directory existing).
+    let parent_durable = directory.parent().is_some_and(|parent| io.sync_parent(parent) == DirectorySyncResult::Durable);
+    let durable = parent_durable && saved.durability == "durable";
+    #[cfg(test)]
+    BEFORE_PRUNE.with(|hook| {
+        let hook = hook.borrow_mut().take();
+        if let Some(hook) = hook {
+            hook()
+        }
+    });
     let warnings = if durable {
         prune_older(&dir, &name.slot, &name)
     } else {

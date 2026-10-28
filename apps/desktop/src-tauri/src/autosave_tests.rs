@@ -257,6 +257,60 @@ fn a_same_model_record_that_does_not_verify_is_written_again() {
     assert_ne!(second, first);
     assert_eq!(sandbox.names(), vec![second.clone()]);
     assert_eq!(read_codes(read_autosave(&directory, &second, &UnmeteredReadMemory)), vec!["read".to_string()]);
+    // Review r2: a corrupt record of the same time and hash is the one
+    // entry a write may replace in place.
+    fs::write(directory.join(&second), b"{}").unwrap();
+    assert_eq!(written_name(&write(&directory, &text, &hash, 2_000)), second);
+    assert_eq!(read_codes(read_autosave(&directory, &second, &UnmeteredReadMemory)), vec!["read".to_string()]);
+}
+
+/// Refuses only the 64 KiB read-back block; every other reservation passes.
+struct ReadBackRefusing;
+
+impl ReadMemory for ReadBackRefusing {
+    fn reserve(&self, what: &str, bytes: u64) -> Result<ReadReservation, String> {
+        if what.contains("read-back block") {
+            return Err(format!("{STORE_READ_MEMORY_UNAVAILABLE}: reading {what} needs {bytes} bytes; refused."));
+        }
+        UnmeteredReadMemory.reserve(what, bytes)
+    }
+}
+
+/// Review r2 P2: retrying the same model at the same time while the
+/// read-back block cannot be reserved writes nothing and never removes the
+/// one valid record.
+#[test]
+fn a_retry_whose_check_cannot_be_reserved_keeps_the_only_record() {
+    let _lock = atomic_save_test_lock();
+    let sandbox = Sandbox::new("retry-reserve");
+    let directory = sandbox.directory();
+    let (text, hash) = demo();
+    let first = written_name(&write(&directory, &text, &hash, 1_000));
+    let retry = write_autosave(&directory, &text, &hash, 1_000, &ReadBackRefusing);
+    assert_eq!(refused_codes(&retry), vec![VERIFY_UNAVAILABLE.to_string()]);
+    assert_eq!(sandbox.names(), vec![first.clone()]);
+    assert_eq!(fs::read(directory.join(&first)).unwrap(), text.as_bytes());
+    assert_eq!(read_codes(read_autosave(&directory, &first, &UnmeteredReadMemory)), vec!["read".to_string()]);
+}
+
+/// Review r2 P2: a read-back that cannot be made (a resource failure) keeps
+/// the new record unverified and prunes nothing.
+#[test]
+fn a_read_back_that_cannot_be_reserved_keeps_new_and_older_records() {
+    let _lock = atomic_save_test_lock();
+    let sandbox = Sandbox::new("readback-reserve");
+    let directory = sandbox.directory();
+    let (first, first_hash) = demo();
+    let (second, second_hash) = demo_named("edited");
+    let first_name = written_name(&write(&directory, &first, &first_hash, 1_000));
+    let outcome = write_autosave(&directory, &second, &second_hash, 2_000, &ReadBackRefusing);
+    assert_eq!(refused_codes(&outcome), vec![READBACK_FAILED.to_string()]);
+    let names = sandbox.names();
+    assert_eq!(names.len(), 2, "{names:?}");
+    for name in names {
+        assert_eq!(read_codes(read_autosave(&directory, &name, &UnmeteredReadMemory)), vec!["read".to_string()], "{name}");
+    }
+    assert!(directory.join(first_name).exists());
 }
 
 /// A newer record of the slot removes the slot's strictly older records, and
@@ -391,15 +445,37 @@ fn creating_the_directory_syncs_its_parent() {
     let mut io = FaultyIo::new(Fault::None);
     let outcome = write_with(&directory, &text, &hash, 1_000, &mut io);
     assert!(matches!(&outcome, AutosaveWriteOutcome::Written { durability, .. } if durability == "durable"), "{outcome:?}");
-    assert_eq!(io.synced, vec![sandbox.root.clone(), directory.clone()], "the parent after the mkdir, then the directory after the rename");
+    assert_eq!(io.synced, vec![directory.clone(), sandbox.root.clone()], "the directory after the rename, then its parent");
     let other = Sandbox::new("mkdir-sync-fails");
     let outcome = write_with(&other.directory(), &text, &hash, 1_000, &mut FaultyIo::failing_sync_of(other.root.clone()));
     assert!(matches!(&outcome, AutosaveWriteOutcome::Written { durability, .. } if durability == "saved_durability_uncertain"), "{outcome:?}");
-    // An existing directory is not synced again.
+    // An existing directory's parent is synced on every write as well.
     let mut io = FaultyIo::new(Fault::None);
     let (edited, edited_hash) = demo_named("edited");
     written_name(&write_with(&directory, &edited, &edited_hash, 2_000, &mut io));
-    assert_eq!(io.synced, vec![directory]);
+    assert_eq!(io.synced, vec![directory, sandbox.root.clone()]);
+}
+
+/// Review r2 P2: a parent sync that fails when the directory is created,
+/// and again on the next write, keeps the older records: the directory's
+/// existence is never taken as its durability.
+#[test]
+fn a_failed_parent_sync_keeps_older_records_on_later_writes_too() {
+    let _lock = atomic_save_test_lock();
+    let sandbox = Sandbox::new("parent-sync");
+    let directory = sandbox.directory();
+    let (first, first_hash) = demo();
+    let (second, second_hash) = demo_named("edited");
+    let (third, third_hash) = demo_named("edited again");
+    let mut io = FaultyIo::failing_sync_of(sandbox.root.clone());
+    let first_name = written_name(&write_with(&directory, &first, &first_hash, 1_000, &mut io));
+    let outcome = write_with(&directory, &second, &second_hash, 2_000, &mut io);
+    let AutosaveWriteOutcome::Written { file_name: second_name, durability, warnings, .. } = outcome.clone() else { panic!("{outcome:?}") };
+    assert_eq!((durability.as_str(), warnings[0].code.as_str()), ("saved_durability_uncertain", PRUNE_DEFERRED));
+    assert_eq!(io.synced.iter().filter(|path| **path == sandbox.root).count(), 2, "the parent sync is retried on the second write");
+    assert_eq!(sandbox.names(), vec![first_name, second_name]);
+    let third_name = written_name(&write(&directory, &third, &third_hash, 3_000));
+    assert_eq!(sandbox.names(), vec![third_name]);
 }
 
 /// Content refusals come before the directory is touched.
@@ -693,6 +769,61 @@ fn a_capped_read_never_reads_past_its_cap() {
     let delivered = std::cell::Cell::new(0);
     assert!(matches!(read_at_most(Counting(io::Cursor::new(vec![b'x'; 1 << 20]), &delivered), 100), Err(Access::Changed(_))));
     assert!(delivered.get() <= 101, "read {} bytes past a 100-byte cap", delivered.get());
+}
+
+/// Review r2: the critical interleaving, forced. Writer A stops between its
+/// read-back and its prune, holding the slot's lock, and starts writer B of a
+/// newer model there. B must wait for A's transaction, and afterwards the
+/// slot holds B's valid record.
+#[test]
+fn a_writer_started_between_read_back_and_prune_waits_and_a_record_survives() {
+    let _lock = atomic_save_test_lock();
+    let sandbox = Sandbox::new("interleave");
+    let directory = sandbox.directory();
+    let (first, first_hash) = demo();
+    written_name(&write(&directory, &first, &first_hash, 1_000));
+    let (sender, receiver) = mpsc::channel();
+    let finished_inside = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+    let writer_b = std::sync::Arc::new(std::sync::Mutex::new(None));
+    {
+        let (directory, finished_inside, writer_b) = (directory.clone(), finished_inside.clone(), writer_b.clone());
+        BEFORE_PRUNE.with(|hook| {
+            *hook.borrow_mut() = Some(Box::new(move || {
+                let handle = std::thread::spawn(move || {
+                    let (text, hash) = demo_named("Invented, window B");
+                    sender.send(write(&directory, &text, &hash, 3_000)).unwrap();
+                });
+                finished_inside.store(receiver.recv_timeout(Duration::from_millis(300)).is_ok(), std::sync::atomic::Ordering::SeqCst);
+                *writer_b.lock().unwrap() = Some((handle, receiver));
+            }))
+        });
+    }
+    let (second, second_hash) = demo_named("Invented, window A");
+    let a_name = written_name(&write(&directory, &second, &second_hash, 2_000));
+    assert!(!finished_inside.load(std::sync::atomic::Ordering::SeqCst), "writer B ran inside A's transaction");
+    let (handle, receiver) = writer_b.lock().unwrap().take().unwrap();
+    let b_name = written_name(&receiver.recv_timeout(Duration::from_secs(5)).unwrap());
+    handle.join().unwrap();
+    assert_ne!(a_name, b_name);
+    assert_eq!(listed(&directory), vec![b_name.clone()]);
+    assert_eq!(read_codes(read_autosave(&directory, &b_name, &UnmeteredReadMemory)), vec!["read".to_string()]);
+}
+
+/// Review r2: a lock file that is not a regular file (a FIFO here) is refused,
+/// so writers cannot be split onto something other than the slot's lock file.
+#[test]
+fn a_lock_file_that_is_not_a_regular_file_is_refused() {
+    let sandbox = Sandbox::new("lock-fifo");
+    let directory = sandbox.directory();
+    fs::create_dir(&directory).unwrap();
+    let path = std::ffi::CString::new(directory.join(format!("{}.lock", autosave_slot(DEMO_PROJECT))).to_str().unwrap()).unwrap();
+    assert_eq!(unsafe { libc::mkfifo(path.as_ptr(), 0o600) }, 0);
+    let (text, hash) = demo();
+    let outcome = write(&directory, &text, &hash, 1_000);
+    let AutosaveWriteOutcome::Refused { diagnostics } = &outcome else { panic!("{outcome:?}") };
+    assert_eq!(diagnostics[0].code, LOCK_FAILED);
+    assert!(diagnostics[0].message.contains("not a regular file"), "{}", diagnostics[0].message);
+    assert!(sandbox.names().iter().all(|name| AutosaveName::parse(name).is_none()), "nothing was written");
 }
 
 #[test]

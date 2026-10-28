@@ -6,7 +6,12 @@ backup of the last saved version in a local folder they choose. Purpose: no work
 is lost to a crash. PRD §20.4 (Local-First Operation) governs it. Risk class:
 persistence.
 
-## 0. Locality
+## 0. Locality and decisions
+
+Agent 0 accepted on 2026-10-28, under the owner-accepted release target (row
+RT-U3), the three choices this design proposed: the native settings file (§2),
+backup rotation defaulting to All (§4) and the backup taken from the stored
+document (§4). It also set autosave on by default (§2).
 
 This design lives in DEL-02-05, because DEL-02-05 owns the native project
 persistence it extends: the local SQLite store and its create, open and save
@@ -99,8 +104,13 @@ user saved. The settings text says that autosaves are removed once saved.
 
 ## 2. Timing and the preference
 
-The interval is the user's choice: Off, 1, 2, 5, 10, 15 or 30 minutes. It is
-Off by default. The existing preference mechanism is the webview's UI
+Autosave is on by default, every 5 minutes. The user can choose 1, 2, 5, 10,
+15 or 30 minutes, or turn it off, and it writes only while there are unsaved
+edits (Agent 0, 2026-10-28, under the owner-accepted release target, row
+RT-U3: "on by default", so that a crash loses at most one interval, as exit
+criterion 10 of `docs/RELEASE_TARGET_v1.0.md` states). Turning it off shows a
+one-line notice that a crash can lose unsaved work (§8, slice 2). The existing
+preference mechanism is the webview's UI
 preferences (`features/workspace/uiPreferences.ts`, localStorage key
 `chirality.desktop.ui-preferences.v1`: theme, density, layout). That record is
 not changed. The autosave and backup settings are a native settings file,
@@ -108,11 +118,14 @@ not changed. The autosave and backup settings are a native settings file,
 
 ```json
 {"document_kind": "swbpipe.desktop.autosave_settings", "version": 1,
- "autosave_minutes": 0, "backup_folder": null, "backup_keep": null}
+ "autosave_minutes": 5, "backup_folder": null, "backup_keep": null}
 ```
 
-It is written by the same atomic writer. An unreadable, unknown-version or
-out-of-range file reads as Off, with a status line naming it. It is native
+`autosave_minutes` is 1 to 30, or 0 for off. A missing file reads as the
+default, 5 minutes. It is written by the same atomic writer. An unreadable,
+unknown-version or out-of-range file reads as the default, with a status line
+naming it, and is rewritten only when the user changes a setting. No slice-1
+code holds a settings default; slice 2 adds the file with these values. It is native
 because the backup folder is a filesystem path that only the native folder
 chooser produces. No native command takes a write path from the webview
 (every existing save path comes from a native chooser), and the settings keep
@@ -131,7 +144,10 @@ sizes only, no content read). It pairs each record with the stored project
 whose id has the same slot. It offers a record when the record's model hash
 differs from the stored project's, and the record was written after that
 project was last saved. A record with no stored project (a model never saved)
-is offered too. The offer is a modal dialog showing:
+is offered too. Before offering anything, the dialog compares the record with
+the stored document and says which is newer, by their written and last-saved
+times, or that the stored project is the newer one. It never silently prefers
+either. The offer is a modal dialog showing:
 - what it is: the project name and id (read from the verified record), when it
   was autosaved, its size and its short model hash; and that queued batches,
   proposals, review context and solve results are not in it;
@@ -220,15 +236,34 @@ or rolls back a save.
   processes exclude each other on macOS, while separate slots never contend.
   The kernel releases it when the file closes, also when a process crashes.
   The lock file is never removed, because removing it would let a later opener
-  lock a different file. Two openers creating it at once can see `ENOENT` from
+  lock a different file. After it is opened, `fstat` must show a regular file.
+  Once it is locked, its name must still name that file (`fstatat`), or the
+  file is opened and locked again, at most 8 times. Residual: the lock
+  coordinates SWBPIPE's own writers. Something that can rewrite the app's data
+  directory can still split it, as it can write records, which is why every
+  record is verified and recovery is an explicit offer. Two openers creating it at once can see `ENOENT` from
   `O_CREAT` on macOS; that open is retried, at most 16 times. Even without the
   lock, pruning only strictly older records keeps the newest record of every
   writer.
-- **Durability before pruning.** Creating `autosave/` syncs its parent
-  directory. When that sync, or the directory sync after the rename, fails,
-  is suppressed or times out, the write reports `saved_durability_uncertain`
-  with `AUTOSAVE-PRUNE-DEFERRED`, and every older record is kept. The next
-  durable write prunes them.
+- **Durability before pruning.** Every write, after its read-back, syncs the
+  parent of `autosave/`, whether the directory was created now, already
+  existed, or was created by a concurrent writer. Durability is never inferred
+  from the directory existing. When that sync, or the directory sync after the
+  rename, fails, is suppressed or times out, the write reports
+  `saved_durability_uncertain` with `AUTOSAVE-PRUNE-DEFERRED`, and every older
+  record is kept. The next durable write prunes them.
+- **Resource failures never remove a record.** A check of a record against its
+  hash has three results. It matches; it verifiably differs (its bytes hash
+  otherwise, or it exceeds the cap); or it cannot be made (a refused
+  reservation, a permission or I/O error, an entry that vanished, changed or is
+  not a regular file). Only a record that verifiably differs may be replaced,
+  or, when it is the one just written, removed. A check that cannot be made
+  writes nothing and removes nothing: `AUTOSAVE-VERIFY-UNAVAILABLE` for the
+  `unchanged` check or an existing entry of the same name, and
+  `AUTOSAVE-READBACK-FAILED` for a read-back, whose new record is kept
+  unverified. An existing valid record of the same name that is not the newest
+  is refused `AUTOSAVE-NAME-IN-USE`. The previous valid record is pruned only
+  after the new one has verified and is durable.
 - **Failure.** A failed write leaves the store unread and untouched, the
   previous record in place and the failure reported. A crash before the rename
   leaves at most a `.swbpipe-autosave-*.tmp` file, which no listing or recovery
@@ -298,8 +333,8 @@ counting-allocator tests the other model-sized commands use.
 
 | Slice | Content | Tests | Gate |
 |---|---|---|---|
-| 1 | This design. `autosave.rs`: slot and name, the per-slot locked write transaction with read-back, durability-gated pruning of strictly older records, a bounded listing and a contained, verified read. The writer's I/O seam, including its directory sync, shared at crate visibility. | Rust: exact bytes and hash; `unchanged`; injected disk full (ENOSPC) at write; real permission denied (read-only directory); injected interrupted rename; crash-before-rename temp ignored; read-back mismatch removes only the new file; store file untouched in every case; tampered and renamed records refused on read; non-current and malformed documents refused; pruning removes only the slot's own strictly older records. Review r1: two writers on one slot always leave a valid record; a write waits for its slot's lock and another slot does not; a failed directory sync keeps older records; creating the directory syncs its parent; an `unchanged` record that does not verify is rewritten; a listing beyond its limit is bounded and reserved; a symlinked directory, a record swapped for a symlink and a record that grows are refused; the capped read never reads past its cap. | Independent review of the module (persistence) before slice 2 builds on it. |
-| 2 | Commands of §6 for autosave and settings; the desktop timer, status lines, recovery offer and discard; discard after a landed save. | Rust: command arguments and leases. Vitest: Off by default; writes only while edited and on the interval; one in flight; refusal display; offer shown only for a newer record; shows what it replaces; never auto-applied; Open goes through the guard; Discard confirms. | Independent review. Native smoke stays with the owner. |
+| 1 | This design. `autosave.rs`: slot and name, the per-slot locked write transaction with read-back, durability-gated pruning of strictly older records, a bounded listing and a contained, verified read. The writer's I/O seam, including its directory sync, shared at crate visibility. | Rust: exact bytes and hash; `unchanged`; injected disk full (ENOSPC) at write; real permission denied (read-only directory); injected interrupted rename; crash-before-rename temp ignored; read-back mismatch removes only the new file; store file untouched in every case; tampered and renamed records refused on read; non-current and malformed documents refused; pruning removes only the slot's own strictly older records. Review r1: two writers on one slot always leave a valid record; a write waits for its slot's lock and another slot does not; a failed directory sync keeps older records; creating the directory syncs its parent; an `unchanged` record that does not verify is rewritten; a listing beyond its limit is bounded and reserved; a symlinked directory, a record swapped for a symlink and a record that grows are refused; the capped read never reads past its cap. Review r2: a failed parent sync keeps older records on a later write too; a same-time retry whose check cannot be reserved keeps the only record; a read-back that cannot be reserved keeps new and older records; a corrupt record of the same name is replaced; a writer started between read-back and prune waits (forced by a hook) and a record survives; a lock file that is not a regular file is refused. | Independent review of the module (persistence) before slice 2 builds on it. |
+| 2 | Commands of §6 for autosave and settings; the desktop timer, status lines, recovery offer and discard; discard after a landed save. Required (Agent 0, 2026-10-28): (a) turning autosave off shows a one-line notice that a crash can lose unsaved work; (b) recovery compares the autosave with the stored document and says which is newer before it offers Open, Keep for later or Discard, never silently preferring either. | Rust: command arguments and leases; the settings default (5 minutes, on). Vitest: on by default at 5 minutes; the off notice; writes only while edited and on the interval; one in flight; refusal display; offer shown only for a newer record; shows what it replaces; never auto-applied; Open goes through the guard; Discard confirms. | Independent review. Native smoke stays with the owner. |
 | 3 | Backup: folder chooser, settings, write after a landed save, rotation, refusal display. | Rust: backup equals the stored text and hash; rotation with All deletes nothing; N deletes only that project's pattern, never symlinks or other files; missing, read-only and full folder refusals; screening refusal. Vitest: settings, refusal line after a landed save. | Independent review (rotation deletes files). |
 
 Each test must fail without its wiring. The slice-1 evidence is in its PR.
