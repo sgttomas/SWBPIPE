@@ -8,6 +8,7 @@ import { WindExposureForm } from "../wind-exposure/WindExposureForm";
 import { SectionAssignment } from "../toolkit/SectionAssignment";
 import { GuardedRemoval } from "../toolkit/GuardedRemoval";
 import { buildDeleteNodeIntent, buildDeletePipeIntent, buildDeleteSupportIntent } from "./removalIntents";
+import { draftSupportFamily, SUPPORT_FAMILY_OPTIONS, suggestedSupportFamily, supportFamilySuggestionText } from "./supportFamilyDraft";
 import { ModelDataAnnotations } from "../model-data/ModelDataAnnotations";
 import { ModelSettingsSection } from "../model-settings/ModelSettingsSection";
 import { ProjectUnitsSection } from "../project-units/ProjectUnitsSection";
@@ -155,6 +156,7 @@ export function PropertyInspector({
   );
   // W-17 §2.4: a composed default the catalog lacks leaves the unit unselected, and says why.
   const supportStiffnessUnitNotice = supportDraft.linearStiffnessUnit === "" ? linearStiffnessUnitNotice(model, unitCatalogRoute) : null;
+  const supportFamilySuggestion = suggestedSupportFamily(supportDraft.restraints, supportDraft.linearStiffness);
   const thermalExpansionUnitNotice = materialDraft.thermalExpansionUnit === "" ? thermalExpansionUnitNoticeFor(model, unitCatalogRoute) : null;
   const componentAngleUnitOptions = unitOptions(
     unitCatalogRoute,
@@ -848,6 +850,21 @@ export function PropertyInspector({
             ))}
           </div>
           <label>
+            <span>Support family</span>
+            <CompactSelect
+              aria-label="New support family"
+              data-testid="create-support-family"
+              onValueChange={(value) => updateSupportDraft("familyChoice", value)}
+              value={draftSupportFamily(supportDraft.familyChoice, supportFamilySuggestion)}
+              options={SUPPORT_FAMILY_OPTIONS}
+            />
+            {supportFamilySuggestion ? (
+              <span className="muted" data-testid="create-support-family-suggestion">
+                {supportFamilySuggestionText(supportFamilySuggestion)}{supportDraft.familyChoice === null ? "; you can change it" : ""}
+              </span>
+            ) : null}
+          </label>
+          <label>
             <span>Linear stiffness unit</span>
             <CompactSelect
               aria-label="New support linear stiffness unit"
@@ -1144,6 +1161,8 @@ type SupportDraft = {
   /** "default" follows the project's composed default; "user" is an explicit choice. */
   linearStiffnessUnitSource: "default" | "user";
   linearStiffness: string;
+  /** null until the user picks a family; then the pick ("" for none), never replaced by the suggestion. */
+  familyChoice: string | null;
   provenance: string;
 };
 
@@ -2834,6 +2853,8 @@ function buildCreateSupportIntent(
     restraints: draft.restraints,
     provenance: draft.provenance.trim()
   };
+  const family = draftSupportFamily(draft.familyChoice, suggestedSupportFamily(draft.restraints, draft.linearStiffness));
+  if (family) payload.family = family;
   if (stiffnessProvided) {
     payload.properties = {
       linear_stiffness: {
@@ -3000,6 +3021,7 @@ function defaultSupportDraftWithReserved(
     linearStiffnessUnit: linearStiffnessUnit(model, route),
     linearStiffnessUnitSource: "default",
     linearStiffness: "",
+    familyChoice: null,
     provenance: "user_entered_local_preview"
   };
 }
