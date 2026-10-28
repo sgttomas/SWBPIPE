@@ -2491,14 +2491,20 @@ fn the_real_sources_hold_the_symbol_level_ffi_rules() {
     for root in ["src-tauri/src/lib.rs", "src-tauri/src/main.rs"] {
         assert_eq!(sources.files[root].matches("#![deny(unsafe_code)]\n").count(), 1, "{root}");
     }
-    let mut allows = 0;
+    // Code review r10 at #1682: counted in code, whatever shares the line
+    // (a same-line attribute included), comments aside.
+    let (mut allows, mut expects) = (0, 0);
     for (file, text) in &sources.files {
         if file.starts_with("src-tauri/src/user_release_reach_scan") {
             continue;
         }
-        allows += text.matches("#[allow(unsafe_code)]\n").count();
+        for line in text.lines() {
+            let code = line.split("//").next().unwrap_or_default();
+            allows += code.matches("allow(unsafe_code)").count();
+            expects += code.matches("expect(unsafe_code)").count();
+        }
     }
-    assert_eq!(allows, SHELL_UNSAFE_MODULES.len());
+    assert_eq!((allows, expects), (SHELL_UNSAFE_MODULES.len(), 0));
     for (file, name, _) in SHELL_UNSAFE_MODULES {
         let text = &sources.files[file];
         let declared = text.match_indices(&format!("mod {name};\n")).filter(|(at, _)| text[..*at].ends_with('\n')).count();
@@ -2518,6 +2524,9 @@ fn the_real_sources_hold_the_symbol_level_ffi_rules() {
 fn the_symbol_level_ffi_repros_in_scratch_copies() {
     let lib = "src/lib.rs";
     let host = "src/host_memory.rs";
+    let pool = "src/memory_pool.rs";
+    // The line an appended item takes in the real `memory_pool.rs`.
+    let pool_end = project_sources(&project()).files["src-tauri/src/memory_pool.rs"].matches('\n').count() + 1;
     let block = "    extern \"C\" {\n        fn mach_host_self() -> libc::mach_port_t;\n    }\n";
     let outside = "outside the pinned allow(unsafe_code) modules";
     let not_pinned = "which is not on the foreign-block pin list";
@@ -2571,6 +2580,45 @@ fn the_symbol_level_ffi_repros_in_scratch_copies() {
         ),
         ("libloading", vec![(lib, "$", "use libloading::Library;\nfn r9() { let _ = Library::new(\"r9\"); }\n".to_string())], vec!["libloading, dynamic symbol lookup".to_string()]),
         ("dlopen in a macro's tokens", vec![(lib, "$", "fn r9() { println!(\"{:?}\", libc::dlopen(std::ptr::null(), 0)); }\n".to_string())], vec!["dlopen, dynamic symbol lookup".to_string()]),
+        // Code review r10 at #1682: attributes inside admitted macros' tokens,
+        // in an unpinned module and in a pinned one.
+        (
+            "Codex's allow(unsafe_code) inside vec! tokens",
+            vec![(pool, "$", "fn added() { let _ = vec![{ #[allow(unsafe_code)] fn foreign() { unsafe { libc::getpid(); } } foreign(); 0 }]; }\n".to_string())],
+            vec![format!("src-tauri/src/memory_pool.rs:{pool_end}: #[allow(unsafe_code)] {outside}")],
+        ),
+        (
+            "expect(unsafe_code) inside vec! tokens",
+            vec![(pool, "$", "fn added() { let _ = vec![{ #[expect(unsafe_code)] fn foreign() { unsafe { libc::getpid(); } } foreign(); 0 }]; }\n".to_string())],
+            vec![format!("#[expect(unsafe_code)] {outside}")],
+        ),
+        (
+            "cfg_attr(all(), allow(unsafe_code)) inside vec! tokens",
+            vec![(pool, "$", "fn added() { let _ = vec![{ #[cfg_attr(all(), allow(unsafe_code))] fn foreign() { unsafe { libc::getpid(); } } foreign(); 0 }]; }\n".to_string())],
+            vec![format!("#[allow(unsafe_code)] (through cfg_attr) {outside}")],
+        ),
+        (
+            "an inner allow(unsafe_code) inside vec! tokens",
+            vec![(pool, "$", "fn added() { let _ = vec![{ #![allow(unsafe_code)] unsafe { libc::getpid() } }]; }\n".to_string())],
+            vec![format!("#[allow(unsafe_code)] {outside}")],
+        ),
+        ("#[used] inside vec! tokens in a pinned module", vec![(host, "$", "fn added() { let _ = vec![{ #[used] static R10: u8 = 0; 0 }]; }\n".to_string())], vec!["the linkage attribute #[used]".to_string()]),
+        (
+            "#[export_name] inside vec! tokens in a pinned module",
+            vec![(host, "$", "fn added() { let _ = vec![{ #[export_name = \"r10\"] extern \"C\" fn r10() {} 0 }]; }\n".to_string())],
+            vec!["the linkage attribute #[export_name]".to_string(), "the item keyword extern in tokens the scan does not parse".to_string()],
+        ),
+        // Code review r10 at #1682: a pin binds only the file-level `mod`.
+        (
+            "Codex's block-local module borrowing a pinned name",
+            vec![(lib, "$", "fn added() { #[allow(unsafe_code)] mod host_memory { pub fn foreign() { unsafe { libc::getpid(); } } } host_memory::foreign(); }\n".to_string())],
+            vec![format!("#[allow(unsafe_code)] {outside}")],
+        ),
+        ("a pinned name in an inline module", vec![(lib, "$", "mod r10_outer {\n    #[allow(unsafe_code)]\n    mod host_memory {}\n}\n".to_string())], vec![format!("#[allow(unsafe_code)] {outside}")]),
+        // The remaining names of rules 2 and 3.
+        ("link_section", vec![(lib, "$", "#[link_section = \".r10\"]\nstatic R10: u8 = 0;\n".to_string())], vec!["the linkage attribute #[link_section]".to_string()]),
+        ("dlvsym and NSAddressOfSymbol", vec![(lib, "$", "fn r10() { let _ = libc::dlvsym; let _ = NSAddressOfSymbol; }\n".to_string())], vec!["dlvsym, dynamic symbol lookup".to_string(), "NSAddressOfSymbol, dynamic symbol lookup".to_string()]),
+        ("transmute_copy", vec![(lib, "$", "fn r10() -> u8 { unsafe { std::mem::transmute_copy::<u8, u8>(&0) } }\n".to_string())], vec!["transmute_copy, a reinterpreting transmute".to_string()]),
     ];
     for (case, edits, expected) in cases {
         let tree = ScratchTree::new();

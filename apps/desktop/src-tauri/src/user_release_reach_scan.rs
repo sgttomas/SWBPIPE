@@ -524,13 +524,14 @@ const ENTRY_RULES: [(&str, &str, Entry); 6] = [
 
 /// The allowed production macro definitions: (file, name, SHA-256 of its
 /// text). `app_invoke_handler` was re-pinned after #1665 added two ordinary
-/// handler entries, `check_preview_model` and `cancel_model_checks`
-/// (reviewed: no `mod`, no `$parameter ::`, no scanned name added). The
+/// handler entries, `check_preview_model` and `cancel_model_checks`, and
+/// after #1717 added `acknowledge_close_request` and `resolve_close_request`
+/// (each reviewed: no `mod`, no `$parameter ::`, no scanned name added). The
 /// headless runner's two (code review r9 at #1682) each write one `Reader`
 /// literal of its own reader table (reviewed: no `mod`, no `$parameter ::`,
 /// no scanned name).
 const MACRO_DEFINITIONS: [(&str, &str, &str); 3] = [
-    ("src-tauri/src/lib.rs", "app_invoke_handler", "cf2d34eb5102ed6d339c9ce067583bcd4e4ef3e1bb1faa63eb701c4f8ff8c1b5"),
+    ("src-tauri/src/lib.rs", "app_invoke_handler", "f2a4bc95b5a24b5a5a5cfbfd32bfea885d59f2216c62d192a6ac7e1712d40d04"),
     ("headless/src/reader_binding.rs", "base", "e4ca54306ec20645a40f7658e2d9f63508fd5ab234c9d29b83f95c7ac0bd5aea"),
     ("headless/src/reader_binding.rs", "transport", "b000ef8eab3fc5711dbb04be30705f8902c19adfee232aec9114210f6d48fd79"),
 ];
@@ -1306,6 +1307,26 @@ impl FileScan<'_> {
                         }
                     }
                 }
+                // Code review r10 at #1682: an attribute in tokens the scan
+                // does not parse (`#[…]` or `#![…]`, at any depth, since
+                // every group is screened in turn) is checked by every
+                // attribute rule, as a direct one is: the unsafe-lint,
+                // linkage, attribute-list, derive and `serde` rules.
+                TokenTree::Punct(pound) if pound.as_char() == '#' => {
+                    let at = match trees.get(index + 1) {
+                        Some(TokenTree::Punct(bang)) if bang.as_char() == '!' => index + 2,
+                        _ => index + 1,
+                    };
+                    if let Some(TokenTree::Group(group)) = trees.get(at) {
+                        if group.delimiter() == proc_macro2::Delimiter::Bracket {
+                            let line = line_of(pound.span());
+                            match syn::parse2::<syn::Meta>(group.stream()) {
+                                Ok(meta) => self.check_meta(&meta, line, false),
+                                Err(_) => self.finding(line, "an attribute in tokens the scan does not parse, which does not parse as one"),
+                            }
+                        }
+                    }
+                }
                 _ => {}
             }
         }
@@ -1868,7 +1889,11 @@ impl<'ast> Visit<'ast> for FileScan<'_> {
         let paths = module.attrs.iter().filter(|attr| path_text(attr.path()) == "path").count();
         // Code review r9 follow-up at #1682: a pinned module's own
         // `#[allow(unsafe_code)]` ([`SHELL_UNSAFE_MODULES`]).
-        let pinned = self.inline.is_empty() && SHELL_UNSAFE_MODULES.iter().any(|(file, pinned, _)| *file == self.file && *pinned == name);
+        // Code review r10 at #1682: only the file-level `mod` item, outside
+        // every inline module and every function, block, closure, `const`
+        // or `static` (the owner stack holds only the module), matches a
+        // pin; a block-local or nested `mod` of the same name is not it.
+        let pinned = self.inline.is_empty() && self.owners.len() == 1 && SHELL_UNSAFE_MODULES.iter().any(|(file, pinned, _)| *file == self.file && *pinned == name);
         if pinned {
             self.unsafe_modules.insert((self.file.clone(), name.clone(), false));
         }

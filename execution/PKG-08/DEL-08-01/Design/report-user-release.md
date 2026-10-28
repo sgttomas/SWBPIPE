@@ -1790,10 +1790,14 @@ when broken.
      `check_preview_model` and `cancel_model_checks`; reviewed, it was
      re-pinned at `:5177-5242` (2,521 bytes), SHA-256
      `cf2d34eb5102ed6d339c9ce067583bcd4e4ef3e1bb1faa63eb701c4f8ff8c1b5`.
+     #1717 (the close guard) added two more, `acknowledge_close_request`
+     and `resolve_close_request`; reviewed, it is re-pinned at
+     `:5281-5348` (2,595 bytes), SHA-256
+     `f2a4bc95b5a24b5a5a5cfbfd32bfea885d59f2216c62d192a6ac7e1712d40d04`.
      It holds no `mod`. Its one parameter, `$extra:path`, is used only as a
      whole handler entry (`$(, $extra)*`), never before `::`. Its one scanned
      name is the Tauri command's bare `render_calculation_report` (`:5076`
-     at the basis, `:5237` now), which the `src-tauri` rule does not match.
+     at the basis, `:5343` now), which the `src-tauri` rule does not match.
 
    Also findings: `#[macro_export]` and `#[macro_use]` anywhere, and any
    item that `syn` gives as `Item::Verbatim`, which is how it gives a
@@ -2731,11 +2735,20 @@ removing all `unsafe` from the shell recorded as the follow-up.
   unchanged. The scan pins the list (`SHELL_UNSAFE_MODULES`), and rules 1
   to 3 below apply to every pinned module as to all code. The pinned list
   is a deliberate gate: a future module needing `unsafe` must be added to it
-  explicitly, in its own reviewed PR. Each of these is a finding: an `allow`,
+  explicitly, in its own reviewed PR. A pin binds only the file-level `mod`
+  item in the named file, outside every inline module and every function,
+  block, closure, `const` or `static` (code review r10 at #1682): a
+  block-local `#[allow(unsafe_code)] mod host_memory { … }` inside a
+  function, or a pinned name in an inline module, is a finding. Each of these is a finding: an `allow`,
   `expect` or `warn` naming `unsafe_code` anywhere else, directly, through
   `cfg_attr`, as an inner attribute in a module file or among other lints
   on any item; a root without its exact `#![deny(unsafe_code)]`, or with a
-  weaker level; and a pinned `mod` without its allow. `allow(warnings)` and
+  weaker level; and a pinned `mod` without its allow. Since code review r10
+  these rules, and every other attribute rule (linkage, attribute list,
+  derives, `serde`), also apply to an attribute, `#[…]` or `#![…]`, written
+  in a macro's tokens that the scan does not parse, at any depth: Codex's
+  `vec![{ #[allow(unsafe_code)] fn foreign() { unsafe { … } } … }]` in an
+  unpinned module is a finding. `allow(warnings)` and
   the lint groups need no rule: no rustc group holds `unsafe_code`, and a
   probe on Rust 1.97.1 confirmed that `allow(warnings)` and group allows do
   not lift `deny(unsafe_code)`. The reporting crates and the runner keep
@@ -2765,15 +2778,27 @@ removing all `unsafe` from the shell recorded as the follow-up.
   declaring the mangled symbol; an extra item in, and an attribute on, the
   pinned block; `link_name` aliasing; `no_mangle`, `export_name`, through
   `cfg_attr` and as `unsafe(no_mangle)`; `link` and `used`; `dlsym` with a
-  `transmute`; `libloading`; and `dlopen` in a macro's tokens. The unedited
-  copy, with the pinned block as it is, passes.
+  `transmute`; `libloading`; and `dlopen` in a macro's tokens. Since code
+  review r10: `allow`, `expect`, `cfg_attr(all(), allow(…))` and an inner
+  `#![allow]` naming `unsafe_code` inside `vec!` tokens in an unpinned
+  module; `#[used]` and `#[export_name]` inside `vec!` tokens in a pinned
+  one; Codex's block-local `mod host_memory`; a pinned name in an inline
+  module; `link_section`; `dlvsym` and `NSAddressOfSymbol`; and
+  `transmute_copy`. The unedited copy, with the pinned block as it is,
+  passes.
 - **Follow-up (option (c)).** Moving all `unsafe` code out of the shell
   would let it carry `forbid` as the other scanned crates do. It is a
   separate change: about 122 real `unsafe` uses in the eleven modules,
   about 105 in the first ten, among them `handoff_package_publish.rs` 27,
   `solve_worker.rs` 35 and `worker_alloc.rs` 21, and 17 in `autosave`
   (16 in `autosave.rs`, 1 in `autosave_tests.rs`), plus the counting
-  allocator's callback into `ingress::counting`.
+  allocator's callback into `ingress::counting`. It also closes a class no
+  narrow syntax rule does (Codex r10, P2, not blocking): a pinned `unsafe`
+  module can turn a `usize` into a callable function pointer through a
+  raw-pointer read, a union or a dereference, with no `transmute`, so that
+  ordinary code then calls it with no `unsafe`. Codex demonstrated a foreign
+  call, not discovering the protected function's address; generic and
+  inferred pointer targets hide the type from a parse.
 
 *Threat model.* The scan establishes this: under the repository's own build
 configuration, the reporting crates are built from the checked-in sources
