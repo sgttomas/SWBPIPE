@@ -89,6 +89,7 @@ CRIT, FLOOR = KC.CRIT, KC.FLOOR
 PRODUCER = "pre-u6"            # kd5t_compare's single-family producer: unsuffixed stress rows on one section
 SECTION = "reduced_section"    # its lookup key; PF's single section (wall less mill tolerance)
 REFUSAL_CODE = "PF_TIMOSHENKO_SHEAR_FACTOR_UNAVAILABLE"
+EULER, TIMOSHENKO = "euler_bernoulli", "timoshenko_annulus_energy_v1"
 TAU_WARNING = "TRANSVERSE_SHEAR_POISSON_OUT_OF_DOMAIN"
 DERIVED = {"element_global_end_force_v1", "element_global_end_moment_v1", "element_local_normal_stress_extreme",
            "element_local_transverse_shear_stress_maximum"}
@@ -351,6 +352,7 @@ STANDINGS = {"NUMERICAL_INTEGRITY_CHECKS_PASSED", "NUMERICAL_INTEGRITY_SENSITIVE
              "NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM", "NUMERICAL_INTEGRITY_NEGATIVE_ENERGY", "NUMERICAL_INTEGRITY_FAILED"}
 REFUSALS = {"PF_TIMOSHENKO_SHEAR_FACTOR_UNAVAILABLE", "PF_TIMOSHENKO_PARTIAL_SPAN_UNSUPPORTED", "MODEL-SETTING-SHEAR-MODEL-UNKNOWN",
             "MODEL-SETTING-SHEAR-MODEL-WITH-PRESSURE-CONTRACT", "MODEL-SETTING-SHEAR-MODEL-TIMOSHENKO-UNSUPPORTED"}
+SOLVER_ENTITY = "solver:linear_static_preview"
 SUMMARY_KEYS = {"component_stress_modifier_count", "curved_bend_macro_element_count", "load_case_count", "max_displacement",
                 "max_open_formula_stress", "node_count", "segment_count", "spring_hanger_user_input_count", "support_count"}
 HEADLINE_KEYS = {"location_ref", "result_ref", "unit", "value"}
@@ -372,7 +374,8 @@ reads them:
     standing at least one;
   results: rows of exactly ROW_KEYS (kind, unit, entity_ref and id strings; case, location and component strings or
     null; value a number or null; metadata null or an object of strings over ROW_METADATA), each row's case a case of
-    the model and its entity_ref one of its nodes, pipes or supports;
+    the model and its entity_ref one of its nodes, pipes or supports (the linear_solver_mode_basis row names
+    SOLVER_ENTITY);
   summary: an object over SUMMARY_KEYS; max_open_formula_stress present when not refused, null or an object over
     HEADLINE_KEYS with a numeric or null value. The other summary members are not read;
   contract_evidence: null when refused; otherwise {combination_gates: [], preview_cases: [...]}, each case an object over
@@ -533,7 +536,9 @@ def binding_problems(r, gen):
                 out.append(f"not exactly one standing for {cid}")
         if len(standings) != len(cases):
             out.append(f"{len(standings)} standings for {len(cases)} load cases")
-    bad = [(x["case"], x["entity_ref"]) for x in r["results"] if x["case"] not in cases or x["entity_ref"] not in entities]
+    # the solver-mode row names the solver, not a model entity (observed on every genuine probe record)
+    solver = lambda x: x["kind"] == "linear_solver_mode_basis" and x["entity_ref"] == SOLVER_ENTITY
+    bad = [(x["case"], x["entity_ref"]) for x in r["results"] if x["case"] not in cases or not (x["entity_ref"] in entities or solver(x))]
     if bad:
         out.append(f"{len(bad)} rows of another model's case or entity, first {bad[0]}")
     if isinstance(r["contract_evidence"], dict) and not any(d["severity"] == "blocking" for d in r["diagnostics"]):
@@ -1203,6 +1208,12 @@ def collection_scenarios(set_path, gens, pick, check):
                         ("nested_extrema_wrong_type", lambda r: r["contract_evidence"]["preview_cases"][0]["pipe_stress_extrema"][0].update(value_upper_pa="1")),
                         ("evidence_of_another_pipe", lambda r: r["contract_evidence"]["preview_cases"][0]["pipe_stress_extrema"][0].update(pipe_id="pipe:ZZ"))):
             judge_runs(4, "a malformed nested field", case, small, mut(eight[:1], f) + eight[1:], False, schema, "schema")
+        solver_row = lambda ent: (lambda r: (r["results"].append({"kind": "linear_solver_mode_basis", "value": 1.0, "unit": "mode_code", "entity_ref": ent,
+                                                                 "case": "case:1", "location": "case:1", "component": "linear_solver_mode", "id": "result:solver",
+                                                                 "metadata": None}), r.update(results_count=len(r["results"]))))
+        judge_runs(0, "positive control: the product's solver-mode row", "solver_row_genuine", small, mut(eight, solver_row(SOLVER_ENTITY)), True)
+        judge_runs(4, "a solver-mode row naming another entity", "solver_row_other_entity", small, mut(eight[:1], solver_row("solver:other")) + eight[1:], False,
+                   schema, "schema: misbound row")
         nan = write(T("nan.raw.jsonl"), json.dumps(dict(four[0], results=[dict(four[0]["results"][0], value=float("nan"))] + four[0]["results"][1:])) + "\n"
                     + "".join(json.dumps(r) + "\n" for r in eight[1:]), raw=True)
         judge(4, "a NaN token", "nan_row_value", small, [nan], False, prov, "strict JSON: refused")
@@ -1286,6 +1297,7 @@ def collection_scenarios(set_path, gens, pick, check):
         driver(3, "a changed request under the same tag", "driver_changed_request", good, T("d/changed"), [[changed, ordinary]], ["own"], False)
         driver(3, "a replaced runner", "driver_resume_good_then_bad_runner (good first)", good, T("d/resume"), [[codex], [ordinary]], ["own"], True)
         driver(3, "a replaced runner", "driver_resume_bad_new_runner", badr, T("d/resume"), [[codex], [ordinary]], ["own"], False)
+        write(os.path.join(T("d/partial"), "out", "c.000.out.jsonl"), [bad])          # a partial earlier output of the same chunk
         driver(4, "a partial earlier output", "driver_recover_good_clear_partial", good, T("d/partial"), [[codex], [ordinary]], ["own"], True,
                why=lambda d: sorted(os.listdir(os.path.join(d, "out"))) == ["c.000.out.jsonl", "c.001.out.jsonl"])
         write(os.path.join(T("d/partial2"), "out", "c.007.out.jsonl"), [bad])
@@ -1294,6 +1306,29 @@ def collection_scenarios(set_path, gens, pick, check):
         driver(4, "a runner that exits 7 after valid records", "driver_valid_records_exit_nonzero", exit7, T("d/exit7"), [[codex], [ordinary]], ["own"], False)
         driver(4, "a twin control that cannot complete", "driver_twin_runtime_error_accepted", good, T("d/twin-bad"), [[codex], [ordinary]], ["own", "twin"], False)
         driver(4, "twin only, no own judgement", "driver_twin_only_no_own", good, T("d/twin-only"), [[codex], [ordinary]], ["twin"], False)
+        # build.sh: a dirty build input refuses the build before cargo runs (a throwaway repository; cargo is `false`)
+        repo = T("build-repo")
+        rel = os.path.join("projects", "chirality-piping")
+        for f in (os.path.join(rel, "core", "product_physics", "Cargo.toml"), os.path.join(rel, "fixtures", "x.json"), os.path.join(rel, "schemas", "x.json"),
+                  os.path.join(rel, "validation", "references", "pf_timoshenko_m3t", "runner", "Cargo.toml"),
+                  os.path.join(rel, "validation", "references", "pf_timoshenko_m3t", "runner", "Cargo.lock"),
+                  os.path.join(rel, "validation", "references", "pf_timoshenko_m3t", "runner", "build.rs"), os.path.join(rel, "apps", "x.txt")):
+            write(os.path.join(repo, f), "x\n", raw=True)
+        g = lambda *a: subprocess.run(["git", "-C", repo, *a], capture_output=True, text=True)
+        g("init", "-q")
+        g("add", "-A")
+        g("-c", "user.name=selftest", "-c", "user.email=selftest@invalid", "commit", "-q", "-m", "x")
+        benv = dict(os.environ, PFM3T_CARGO="false")
+        for case, path, want in (("build_clean (cargo then refuses: false)", None, 1), ("build_dirty_core", os.path.join(rel, "core", "new.rs"), 3),
+                                 ("build_dirty_runner_lock", os.path.join(rel, "validation", "references", "pf_timoshenko_m3t", "runner", "Cargo.lock"), 3),
+                                 ("build_dirty_fixtures", os.path.join(rel, "fixtures", "x.json"), 3), ("build_apps_not_an_input", os.path.join(rel, "apps", "x.txt"), 1)):
+            g("checkout", "-q", "--", ".")
+            g("clean", "-qfd")
+            if path:
+                write(os.path.join(repo, path), "changed\n", raw=True)
+            b = subprocess.run(["bash", os.path.join(HERE, "runner", "build.sh"), repo, T("bt"), T("bt.bin")], capture_output=True, text=True, env=benv)
+            table(4, "the runner built from a dirty input", case, f"build.sh exit {b.returncode}" + (" (refused: dirty input)" if b.returncode == 3 else ""),
+                  b.returncode == want and not os.path.exists(T("bt.bin")))
         # the CLI: one final OVERALL line, exit 0 only on PASS; usage and internal errors fail by name
         for case, argv, rc in (("cli_passing", [small, T("small_positive.raw.jsonl")], 0),
                                ("cli_failing", [small, T("bad_uy_55_6_percent_low.raw.jsonl")], 1),
