@@ -38,8 +38,9 @@ runner (`runner/`) is harness, not reference.
 | `m3_report.py` | The judging pass: provenance, inventory, M3, design conformance, nonvacuity, `OVERALL`. |
 | `run.sh` | The driver: builds the runner from a clean checkout, runs every chunk, judges each variant. |
 | `runner/` | The shared runner: `Cargo.toml`, `Cargo.lock`, `build.rs`, `src/main.rs`, `build.sh`. |
-| `m3_selftest.py`, `m3_regress.py`, `m3_synth.py` | Self-test: isolation, contract units, rules on both views, and the round 1–5 regression table. |
+| `m3_selftest.py`, `m3_regress.py`, `m3_synth.py` | Self-test: isolation, contract units, rules on both views, and the round 1–6 regression table. |
 | `selftest/pf_set.jsonl` | 20 lines copied verbatim from `pf_timoshenko_m3t/frozen/pft_frozen_subset.jsonl` (sha256 `1a6984ec…`) for the PF view's self-test, since that set is not on main yet. |
+| `REFERENCE_SHA256SUMS` | The committed digests of the reference files the judge may judge against (provenance). |
 | `SHA256SUMS` | Digests of the files above, except this README; the self-test verifies them. |
 
 ## The canonical view
@@ -102,22 +103,50 @@ not read are type-checked where the public format fixes their shape, then droppe
 The derived rows (global end actions, σ±, τ_v,max) are judged as information (C11) on PF. On the exact
 route the K-D5 reference does not model them, so they are counted, not judged.
 
-**References.** Each reference line is validated exactly, every field typed. With any problem nothing
-is judged. A line yields:
+**References (the judge's final round).** Agent 0: "every datum the judge uses is either (a) derived
+from the hash-bound request, parsed into the view and unique, or (b) read from a reference file whose
+sha256 the judge verifies against the committed SHA256SUMS as part of provenance. Nothing else in a
+reference is read." Admission is as total as a run's: with any problem nothing is judged.
 
-- `ModelView`: tag, family, theory, twin, load cases, the request line's sha256, and a harness error
-  for a model with more than one body or with components;
-- `Expected`: exact rationals for the rows, maxima and sections; L_b; and on PF the admission
-  expectation and the τ inputs.
+| Datum | Source | Check |
+|---|---|---|
+| Node ids and positions | request `model.nodes` | ids unique; positions finite binary64 (m) |
+| L_b (coupled scales, S*) | request node positions | the bounding-box diagonal, formed as before; equal bit for bit to the former `ref.nodes` value on all 2,054 lines of the six reference files |
+| Connected bodies | request pipes | more than one body, or any component: C0 |
+| Pipe ids and ends | request `model.pipe_segments` | ids unique; `from` and `to` defined, distinct nodes |
+| Support ids and nodes | request `model.supports` | ids unique; `node` defined |
+| Load cases | request `model.load_cases` | ids unique; at least one |
+| Entity namespace | the request | no id names two entities (nor the solver entity) |
+| Request binding | sha256 of the request line | every run's `request_sha256` must equal it (provenance) |
+| Reference file | the set file | sha256 committed for the route in `REFERENCE_SHA256SUMS`, itself tracked and unchanged in the judge's checkout (provenance) |
+| Controls file | `controls.jsonl` | the same, kind `controls` |
+| Family, theory, twin, reporting keys | `meta` of the verified line | `design`, `family`, `theory`, `placement`, `section_variant` and `twin` are strings |
+| Section properties | `ref.sections[pipe]`, verified | exactly the request's pipes; `ro` and per basis `A`, `Z`, `J` decimal texts; PF also `I`, `tau_c` and `E`, `G`, `od`, `wall`, `mill` |
+| Expected rows and maxima | `ref.cases[case]`, verified | exactly the request's load cases; every row's entity a request entity of its kind; section basis by route; keys unique |
+| PF admission | `ref.expect`, `ref.refusal.code`, `ref.expected_warnings`, verified | `rows` or `refused`; a code of the PF refusals; strings |
+| Twin reference | the twin's line in the same verified file | present; admitted against this model's request |
+| Control reference | `pertE` of the verified controls file | every entry `{tag, pertE}` only, its tag a model of the set and unique, its `pertE` admitted as a reference whether or not it is used |
+
+`ref.nodes`, `ref.theory`, `phi`, the section members not listed, `region_members`, `notes` and every
+other member are not read. The view holds only exact immutable types: `type(x) is ...` gates on every
+field and container, so no subclass of `str`, `float`, `Fraction`, `tuple`, `frozenset` or a view type
+is admitted.
+
+`REFERENCE_SHA256SUMS` lists the six reference files: each route's full set (and the exact route's
+controls), which regenerate byte for byte from their committed generators, and the two frozen
+subsets and the PF selftest set. A new or changed reference set is judged only after its digest is
+committed there. The judging library's `references` argument lets the self-test declare its synthetic
+sets; the CLI and `run.sh` always read the committed file.
 
 The `twin` variant takes the twin's reference. The exact route's `control` variant takes the
 `controls.jsonl` `pertE` reference; models without a control are set aside and counted.
 
 ## How the comparison is kept from the raw record
 
-1. **Types.** `m3_compare.judge_model(model, expected, runs)` requires a `ModelView`, an `Expected`
-   and a tuple of `RunView` of that model. Anything else raises `TypeError`, a raw dictionary
-   included. The view types are frozen and checked on construction.
+1. **Types.** `m3_compare.judge_model(model, expected, runs)` requires exactly a `ModelView`, an
+   `Expected` and a `tuple` of `RunView` of that model (`type(x) is ...`). Anything else raises
+   `TypeError`: a raw dictionary, a list, or a subclass of a view type. The view types are frozen and
+   checked on construction with exact types.
 2. **Imports.** `m3_compare.py` imports only `__future__`, `collections`, `math`, `fractions` and
    `m3_types`. `m3_types.py` imports no JSON reader.
 3. **A test asserts both.** The self-test parses `m3_compare.py` and checks its imports. In a fresh
@@ -132,7 +161,7 @@ The `twin` variant takes the twin's reference. The exact route's `control` varia
 
 `m3_compare.py`'s docstring states every rule with its source. These are `kd5t_compare.py`'s
 reconstruction (`../kd5_timoshenko/`, refutation rounds 1–4), ported unchanged in meaning, with PF's
-information clauses (C11, C11tau_b, C11ops) and design conformance (C10). The view changes six
+information clauses (C11, C11tau_b, C11ops) and design conformance (C10). The view changes eight
 things:
 
 - **C9.** A repeated row identity is refused by the view, whatever its value, order or standing. The
@@ -144,6 +173,9 @@ things:
   was C7 information.
 - **Units, frames and metadata.** A wrong unit, frame, or metadata location or component is refused.
   Before, none was checked.
+- **Null first** (the final round). A published null of any kind, derived or not judged included, is
+  C1 on a Passed case, checked before any kind-based skip, as in `kd5t_compare.py`'s original judge.
+- **L_b from the request.** The coupled scales use the request's node positions, not `ref.nodes`.
 - **Infinite values.** An infinite value cannot be published; strict JSON already refused one from a
   file. A null value is still C1 on a Passed case.
 - **Standings per load case.** Each load case is judged under its own standing. On these single-case
@@ -177,10 +209,11 @@ python3 -I -B m3_report.py --route pf|exact <set.jsonl> <raw outputs...> --runne
 One invocation judges the whole collection from the raw outputs. Evaluation records are an output,
 never an input.
 
-1. **PROVENANCE.** The runner sha256 and head are required. The head must resolve with
+1. **PROVENANCE.** The reference file (and the controls file) must be committed in
+   `REFERENCE_SHA256SUMS` for the route. The runner sha256 and head are required. The head must resolve with
    `git rev-parse --verify <head>^{commit}` in `--checkout`. Every record must carry exactly that
    runner and head, and its request sha256 must equal its model's runner-input line. The reference
-   must be valid.
+   must be admitted (above).
 2. **INVENTORY.** Every model × entry × mode exactly once, as a successful view, and nothing else.
 3. **M3 VERDICT.** C0–C4, C6, C8 and C9.
 4. **DESIGN-CONFORMANCE VERDICT.** C10, PF only.
@@ -227,13 +260,14 @@ Findings that a later round places outside this model, each with its reason:
 
 ## Self-test
 
-`python3 -I -B m3_selftest.py` checks 1,315 of 1,315. It covers:
+`python3 -I -B m3_selftest.py` checks 1,362 of 1,362. It covers:
 
-- isolation (above) and the contract units of the judged kinds;
+- isolation (above), the exact-type gates (ten subclass probes, refused), and the contract units of
+  the judged kinds;
 - every rule and clause on both views: CRIT from both sides on every group kind, C3 from both sides,
   F1–F4, C2, C4/C4b, C6/C6i, C7, C8, C10, C11, the τ defect, σ± and τ operations, the twin control,
   the Lamé and nominal/reduced mutants;
-- 187 regression cases.
+- 223 regression cases.
 
 `--quick` runs only the isolation checks and the regression cases. Each regression case prints
 `TABLE round | attack | case | outcome`. By round:
@@ -246,6 +280,7 @@ Findings that a later round places outside this model, each with its reason:
 | 3 | 23 |
 | 4 | 55 |
 | 5 | 82 |
+| 6 (the final round) | 36 |
 
 - **PF view.** Rounds 1–4 are the PF judge's table, replayed. Round 5 covers:
   - the shadow evidence: nested, and in an unread member;
@@ -256,6 +291,14 @@ Findings that a later round places outside this model, each with its reason:
   - duplicate JSON keys and malformed solver rows;
   - malformed or unbound summary and evidence fields;
   - nonvacuity.
+- **The final round, both routes.** A reference node moved to 1e20 or duplicated there, with a C3
+  defect (M3 still fails: `ref.nodes` is not read; and the edited file is not committed); a request
+  node moved (request sha256), a duplicate node id, an undefined pipe end or support node, an id naming
+  two entities, a reference row of no request entity and a malformed section (reference refused); a
+  contract-valid derived row published null on Passed runs (C1, null first); every controls defect
+  (unknown entry, malformed `pertE`, both, duplicate tag, extra key, file not committed); the committed
+  digests themselves (untracked, edited); a reference not committed, a hash mismatch and the other
+  route's file, through the CLI and `run.sh`.
 - **Exact view.** Agent 0's required three (null error, missing run, duplicate run), and round 5's
   four: shadow, duplicate, unit and inverted interval. Also the twin and control variants, and
   cross-route records.
