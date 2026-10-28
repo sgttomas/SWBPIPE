@@ -1,7 +1,7 @@
 """M3-T judged-set generator (standard-library Python only; imports and reads no product code).
 
-Builds invented straight-member exact-route models (model format 0.5.0,
-`3.0.0/exact_pressure_v3`), each in an Euler-Bernoulli and a Timoshenko twin,
+Builds invented straight-member exact-route models (model document 0.8.0, the current version since
+main retired 0.5.0; `3.0.0/exact_pressure_v3`; re-authored from 0.5.0 by the version alone), each in an Euler-Bernoulli and a Timoshenko twin,
 places each topology at the origin, at a UTM-scale offset and skewed at a
 UTM-scale offset, adds nonzero mill tolerance and corrosion allowance on a
 subset, and freezes the exact expected rows from kd5t_engine.
@@ -588,7 +588,7 @@ def build_request(d, placement, theory, mill):
                         "terminals": [{"node_ref": n, "closure_transfer": c, "provenance": PROV} for n, c in reg["closures"].items()],
                         "provenance": PROV})
     case["pressure_regions"] = regions
-    model = {"schema_version": "0.5.0", "document_kind": "openpipestress.product_preview.model",
+    model = {"schema_version": "0.8.0", "document_kind": "openpipestress.product_preview.model",
              "pressure_contract": {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": theory},
              "project": {"id": f"project:m3t-{d.name.lower()}", "units": {"length": "m", "force": "N", "angle": "rad", "pressure": "Pa", "stress": "Pa", "temperature": "degC"}},
              "analysis_status": {"mechanics": "ready_for_preview_diagnostics", "rule_check": "not_performed_user_rule_inputs_missing", "professional_acceptance": "not_provided"},
