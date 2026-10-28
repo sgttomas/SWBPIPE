@@ -669,9 +669,50 @@ def evidence_members():
     return frozenset(node["properties"]), frozenset(node.get("required", ()))
 
 
+# JSON Schema's types: an integer is any number with a zero fractional part (0.0 and 12.0 included); a boolean is never a
+# number (type(True) is bool, not int).
 _TYPES = {"object": lambda v: type(v) is dict, "array": lambda v: type(v) is list, "string": lambda v: type(v) is str,
-          "number": lambda v: type(v) in (int, float), "integer": lambda v: type(v) is int, "boolean": lambda v: type(v) is bool,
-          "null": lambda v: v is None}
+          "number": lambda v: type(v) in (int, float), "integer": lambda v: type(v) is int or (type(v) is float and v.is_integer()),
+          "boolean": lambda v: type(v) is bool, "null": lambda v: v is None}
+_SUBSCHEMA = ("items", "if", "then", "else")       # keywords whose value is one schema; properties and oneOf hold several
+
+
+class SchemaUnsupported(ValueError):
+    """A schema this checker cannot evaluate in full (an unsupported keyword or type, a node that is not an object, an
+    unresolvable $ref). It is raised, never reported as a failed match, so the record is refused outright."""
+
+
+def schema_supported(node, doc_name, seen=None):
+    """Every node reachable from `node` (through $ref, properties, additionalProperties, items, if/then/else and oneOf)
+    uses only SCHEMA_KEYWORDS and _TYPES, wherever it sits; raises SchemaUnsupported otherwise."""
+    seen = set() if seen is None else seen
+    if (doc_name, id(node)) in seen:
+        return
+    seen.add((doc_name, id(node)))
+    if not isinstance(node, dict):
+        raise SchemaUnsupported(f"{doc_name}: a schema node that is not an object")
+    unknown = set(node) - SCHEMA_KEYWORDS
+    if unknown:
+        raise SchemaUnsupported(f"{doc_name}: unsupported schema keywords {sorted(unknown)}")
+    if "type" in node and any(t not in _TYPES for t in (node["type"] if isinstance(node["type"], list) else [node["type"]])):
+        raise SchemaUnsupported(f"{doc_name}: unsupported type {node['type']}")
+    if "$ref" in node:
+        f, _, ptr = node["$ref"].partition("#")
+        f = f or doc_name
+        try:
+            target = _resolve(f, ptr)
+        except Exception:
+            raise SchemaUnsupported(f"{doc_name}: unresolvable $ref {node['$ref']}") from None
+        schema_supported(target, f, seen)
+    for k in _SUBSCHEMA:
+        if k in node:
+            schema_supported(node[k], doc_name, seen)
+    if isinstance(node.get("additionalProperties"), dict):
+        schema_supported(node["additionalProperties"], doc_name, seen)
+    for sub in (node.get("properties") or {}).values():
+        schema_supported(sub, doc_name, seen)
+    for sub in node.get("oneOf", ()):
+        schema_supported(sub, doc_name, seen)
 
 
 def _json_equal(a, b):
@@ -689,36 +730,27 @@ def _json_equal(a, b):
 
 
 def schema_problems(value, node, doc_name, where="", budget=None):
-    """Problems of a JSON value against a schema node (a closed subset of JSON Schema; an unsupported keyword is itself
-    a problem, so the check fails closed)."""
-    budget = budget if budget is not None else [20]
+    """Problems of a JSON value against a schema node (a closed subset of JSON Schema). The whole schema reachable from
+    the node is checked first: an unsupported keyword anywhere, in a branch of if/then/else or oneOf included, raises
+    SchemaUnsupported (a refusal of the record), never a failed match."""
+    if budget is None:
+        schema_supported(node, doc_name)
+        budget = [20]
     out = []
 
     def bad(msg):
         if budget[0] > 0:
             out.append(f"{where or '/'}: {msg}")
         budget[0] -= 1
-    if not isinstance(node, dict):
-        bad("schema node is not an object")
-        return out
-    unknown = set(node) - SCHEMA_KEYWORDS
-    if unknown:
-        bad(f"unsupported schema keywords {sorted(unknown)}")
-        return out
+    if not isinstance(node, dict) or set(node) - SCHEMA_KEYWORDS:   # unreachable after schema_supported; never a failed match
+        raise SchemaUnsupported(f"{doc_name}{where}: an unsupported schema node")
     if "$ref" in node:
         f, _, ptr = node["$ref"].partition("#")
         f = f or doc_name
-        try:
-            target = _resolve(f, ptr)
-        except Exception:
-            bad(f"unresolvable $ref {node['$ref']}")
-            return out
-        out += schema_problems(value, target, f, where, budget)
+        out += schema_problems(value, _resolve(f, ptr), f, where, budget)
     if "type" in node:
         ts = node["type"] if isinstance(node["type"], list) else [node["type"]]
-        if any(t not in _TYPES for t in ts):
-            bad(f"unsupported type {node['type']}")
-        elif not any(_TYPES[t](value) for t in ts):
+        if not any(_TYPES[t](value) for t in ts):
             bad(f"type {type(value).__name__}, not {node['type']}")
             return out
     if "const" in node and not _json_equal(value, node["const"]):
@@ -742,7 +774,7 @@ def schema_problems(value, node, doc_name, where="", budget=None):
             bad("too few items")
         if "maxItems" in node and len(value) > node["maxItems"]:
             bad("too many items")
-        if node.get("uniqueItems") is True and len({json.dumps(v, sort_keys=True) for v in value}) != len(value):
+        if node.get("uniqueItems") is True and any(_json_equal(value[i], value[k]) for i in range(len(value)) for k in range(i)):
             bad("repeated items")
         if "items" in node:
             for i, v in enumerate(value):

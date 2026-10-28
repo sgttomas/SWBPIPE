@@ -788,6 +788,68 @@ def collection_scenarios(check):
                        lambda j, ev10=ev10, e=defect_entry: m3(j) and j["c4_failures"] == 0 and j["c4x_runs"] == [[pres["tag"], MV.MODES[0]]]
                        and "C3" in rec_of(ev10, pres["tag"], e, MV.MODES[0])["verdict_failures"],
                        f"M3: C3 on the {defect_entry} entry, judged against its own reference; C4x still listed", route="exact", eval_out=ev10)
+        # ---- round 11 (Codex at c5d1bfecf1): JSON Schema equivalence of the evidence checker. An integer is a number with
+        # a zero fractional part; uniqueItems compares JSON values; an unsupported keyword anywhere refuses the record
+        def raises(node, value=1):
+            try:
+                MV.schema_problems(value, node, MV.SOURCE_RECOVERY_SCHEMA)
+            except MV.SchemaUnsupported:
+                return True
+            return False
+        sp = lambda v, node: MV.schema_problems(v, node, MV.SOURCE_RECOVERY_SCHEMA)
+        integer = {"type": "integer", "minimum": 0}
+        table(11, "the checker on integers", "schema_integer_values", "0, 0.0, 12.0 admitted; 0.5, true, '1' refused",
+              not sp(0, integer) and not sp(0.0, integer) and not sp(12.0, integer) and sp(0.5, integer) and sp(True, integer) and sp("1", integer))
+        uniq = {"type": "array", "uniqueItems": True}
+        table(11, "the checker on uniqueItems", "schema_unique_items_by_value", "[0, 0.0] and [{a: 1}, {a: 1.0}] repeated; [0, 1], [0, false] unique",
+              bool(sp([0, 0.0], uniq)) and bool(sp([{"a": 1}, {"a": 1.0}], uniq)) and not sp([0, 1], uniq) and not sp([0, False], uniq))
+        table(11, "an unsupported keyword nested in a schema", "schema_unsupported_keyword_nested",
+              "raised in if, in an untaken else, in oneOf, under properties; a supported schema does not raise",
+              raises({"if": {"not": {}}, "then": {}}) and raises({"if": {"type": "integer"}, "then": {}, "else": {"allOf": []}})
+              and raises({"oneOf": [{"type": "integer"}, {"anyOf": []}]}) and raises({"type": "object", "properties": {"x": {"not": {}}}}, {})
+              and not raises({"if": {"type": "integer"}, "then": {"minimum": 0}, "else": {}, "oneOf": [{"type": "integer"}, {"type": "string"}]}))
+        sc = {"support_id": pres["request"]["model"]["supports"][0]["id"], "node_id": pres["request"]["model"]["supports"][0]["node"], "dof": "UX",
+              "global_dof": 0, "law_kind": "rigid_prescribed", "prescribed_value": 0, "unit": "m", "meaning": "absolute_reference_displacement",
+              "physical_state_source": "support_state.boundary_motion"}
+
+        def lrs_dof(dof):
+            rec = copy.deepcopy(lrs_one)
+            rec["support_components"] = [dict(sc, global_dof=dof)]
+            return with_lrs(rec)
+
+        def indices(f):
+            def g(r):
+                for c in r["contract_evidence"]["exact_cases"]:
+                    for e in c["pipe_stress_extrema"]:
+                        for p in e["endpoints"]:
+                            p["functional_indices"] = [f(x) for x in p["functional_indices"]]
+            return g
+        for case, runs_, want, why, label in (
+                ("exact_lrs_global_dof_0", mut(xe, lrs_dof(0)), True, lambda j: j.get("schema_invalid", 0) == 0, "admitted"),
+                ("exact_lrs_global_dof_0_0", mut(xe, lrs_dof(0.0)), True, lambda j: j.get("schema_invalid", 0) == 0, "admitted: 0.0 is an integer"),
+                ("exact_lrs_global_dof_0_5", mut(xe, lrs_dof(0.5)), False, schema, "refused by the view: not an integer"),
+                ("exact_recovery_endpoint_indices_as_12_0", mut(rx, indices(float)), True, lambda j: j.get("schema_invalid", 0) == 0,
+                 "admitted: 12.0 is an integer"),
+                ("exact_recovery_endpoint_index_0_5", mut(rx, indices(lambda x: x + 0.5)), False, schema, "refused by the view: not an integer")):
+            judge_runs(11, "exact view: integers written as JSON numbers in shape-checked evidence", case, ex_own, runs_, want, why, label, route="exact")
+        saved_docs = dict(MV._SCHEMA_DOCS)
+        try:
+            for case, plant in (("exact_recovery_schema_unsupported_in_oneOf",
+                                 lambda d: d["$defs"]["pressure_source_ordinary_evidence"]["properties"]["exact_cases"]["items"]["properties"]
+                                 ["pipe_stress_extrema"]["items"]["oneOf"][0].update(anyOf=[])),
+                                ("exact_recovery_schema_unsupported_in_else",
+                                 lambda d: d["$defs"]["retained_endpoint_maximum"].update({"if": {"type": "object"}, "then": {}, "else": {"not": {}}}))):
+                MV._SCHEMA_DOCS.clear()
+                MV._SCHEMA_DOCS.update(saved_docs)
+                doc = copy.deepcopy(MV._schema_doc(MV.SOURCE_RECOVERY_SCHEMA))
+                plant(doc)
+                MV._SCHEMA_DOCS[MV.SOURCE_RECOVERY_SCHEMA] = doc
+                judge_runs(11, "exact view: the recovery schema with an unsupported keyword in a branch the record does not take", case, ex_own, rx,
+                           False, lambda j: schema(j) and any("SchemaUnsupported" in p for p in j["schema_problems"]),
+                           "refused by the view: SchemaUnsupported", route="exact")
+        finally:
+            MV._SCHEMA_DOCS.clear()
+            MV._SCHEMA_DOCS.update(saved_docs)
         # ---- round 7 (Codex at cb60446a01): index flags hid an edited manifest; it is now read from HEAD's blob (Agent 0)
         jr = T("r7-judge-repo")
         rel_j = os.path.join("projects", "chirality-piping", "validation", "references", "m3_judge")
