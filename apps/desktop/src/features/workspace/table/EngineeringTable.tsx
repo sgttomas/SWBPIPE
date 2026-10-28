@@ -275,6 +275,9 @@ export function EngineeringTable(props: Props) {
   useLayoutEffect(() => {
     if (!focusRequest.current) return;
     const request = focusRequest.current;
+    // A hidden or inert table (a modal holds the workspace) takes no focus: the request is
+    // dropped, as the removal recovery above declines it. jsdom does not enforce inert.
+    if (root.current?.closest("[hidden], [inert]")) { focusRequest.current = null; return; }
     if (!viewRows.some((row) => row.key === request.rowKey && row.cells[request.columnKey])) {
       focusRequest.current = null;
       footer.current?.focus();

@@ -70,6 +70,50 @@ export function DisplayUnitSelector({ id = "display-unit-preference", compact = 
     <option value="entered">Entered</option><option value="SI">SI</option><option value="US">US</option>
   </select><p>Readouts use the selected units where conversion is available. Unavailable quantities retain entered values. Editing uses entered units.</p></div>;
 }
+/** The catalog target of a quantity under a preference, or undefined (entered, or none). */
+export function displayTarget(dimensionId: string, preference: DisplayUnitPreference): string | undefined {
+  return preference === "entered" ? undefined : DISPLAY_TARGETS[dimensionId]?.[preference];
+}
+
+/** The readout of a settled conversion: the converter's value, or the entered value with the
+ * reason (the hook's rule, shared with the CSV export so both read the same binary64). */
+export function settledDisplayQuantity(quantity: DisplaySourceQuantity, preference: DisplayUnitPreference, result: DisplayQuantityResult | null): DisplayQuantity {
+  const { value, unit, dimension_id } = quantity;
+  if (preference === "entered") return { value, unit, status: "entered" };
+  const target = displayTarget(dimension_id, preference);
+  const fallback = (notice: string): DisplayQuantity => ({ value, unit, status: "unavailable", notice: `Entered value shown: ${notice}` });
+  const valid = typeof value === "number" && Number.isFinite(value) && !!target;
+  if (!valid) return fallback(!target ? `no ${preference} catalog target for ${dimension_id || "unknown dimension"}.` : "quantity is not a finite numeric value.");
+  if (!result) return { value, unit, status: "pending", notice: "Conversion pending; entered value shown." };
+  if (result.status !== "converted") return fallback(result.message ?? "conversion unavailable.");
+  if (!Number.isFinite(result.value) || result.unit !== target) return fallback("invalid conversion response.");
+  return { value: result.value, unit: result.unit, status: "converted" };
+}
+
+/** RT-R6: the session's display conversion as a function, for an export that must write the
+ * same value a readout shows: the same preference, the same converter and the same request. */
+export function useDisplayQuantityResolver(): {
+  preference: DisplayUnitPreference;
+  resolve: (quantity: DisplaySourceQuantity) => Promise<DisplayQuantity>;
+  /** The converter's output for one stored unit and for zero, as it converts them. */
+  convertRaw: (request: Omit<DisplayQuantityRequest, "id">) => Promise<DisplayQuantityResult | null>;
+} {
+  const context = useContext(Context);
+  const preference = context?.preference ?? "entered";
+  const convert = context?.convert;
+  return useMemo(() => ({
+    preference,
+    convertRaw: async (request) => (convert ? convert(request) : null),
+    resolve: async (quantity) => {
+      const target = displayTarget(quantity.dimension_id, preference);
+      const valid = typeof quantity.value === "number" && Number.isFinite(quantity.value) && !!target;
+      if (preference === "entered" || !valid || !convert || !target) return settledDisplayQuantity(quantity, preference, null);
+      const result = await convert({ value: quantity.value as number, from_unit: quantity.unit, to_unit: target, dimension_id: quantity.dimension_id });
+      return settledDisplayQuantity(quantity, preference, result);
+    }
+  }), [preference, convert]);
+}
+
 export function useDisplayQuantity(quantity: DisplaySourceQuantity): DisplayQuantity {
   const context = useContext(Context);
   const preference = context?.preference ?? "entered";
@@ -88,14 +132,8 @@ export function useDisplayQuantity(quantity: DisplaySourceQuantity): DisplayQuan
     }
     return () => { active = false; };
   }, [key, preference, valid, convert, target, value, unit, dimension_id]);
-  if (preference === "entered") return { value, unit, status: "entered" };
-  const fallback = (notice: string): DisplayQuantity => ({ value, unit, status: "unavailable", notice: `Entered value shown: ${notice}` });
-  if (!valid) return fallback(!target ? `no ${preference} catalog target for ${dimension_id || "unknown dimension"}.` : "quantity is not a finite numeric value.");
-  if (!resolved || resolved.key !== key || resolved.convert !== convert) return { value, unit, status: "pending", notice: "Conversion pending; entered value shown." };
-  const result = resolved.result;
-  if (result.status !== "converted") return fallback(result.message ?? "conversion unavailable.");
-  if (!Number.isFinite(result.value) || result.unit !== target) return fallback("invalid conversion response.");
-  return { value: result.value, unit: result.unit, status: "converted" };
+  const settled = resolved && resolved.key === key && resolved.convert === convert ? resolved.result : null;
+  return settledDisplayQuantity(quantity, preference, settled);
 }
 export function QuantityReadout({ quantity, className, label }: { quantity: DisplaySourceQuantity; className?: string; label?: string }) {
   const display = useDisplayQuantity(quantity);

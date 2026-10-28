@@ -129,7 +129,9 @@ describe("Compare… in the History panel", () => {
     const history = slice({ stateComparison: result() });
     renderPanel(history);
     const view = screen.getByTestId("state-comparison");
-    expect(within(view).queryByRole("button", { name: /export|download|save/i })).toBeNull();
+    // RT-R6 (DEL-08-04 Design `csv-export.md` §1 C1): the one export is the table's local-private
+    // CSV; the comparison envelope export stays later (FR-CMP-010).
+    expect(within(view).getAllByRole("button", { name: /export|download|save/i }).map((button) => button.getAttribute("aria-label"))).toEqual(["Export CSV: Saved state comparison"]);
     expect(screen.getByTestId("model-history-panel").textContent).not.toMatch(/certif|accept|approv/i);
     fireEvent.click(within(view).getByTestId("state-comparison-close"));
     expect(history.closeStateComparison).toHaveBeenCalled();
