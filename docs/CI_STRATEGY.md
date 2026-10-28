@@ -129,7 +129,10 @@ anchor surfaces `docs/PRD.md` and
 `core/reporting/report_renderer/src/lib.rs`, `docs/claims_registry.md`, and the
 validator itself. A dispatch run (`--all`) or an unresolvable base selects it
 too; the selection step treats a schedule event as it does dispatch, though the
-workflow has no schedule trigger. Other changes skip it. A finding fails Repository checks, and so
+workflow has no schedule trigger. If the selector cannot load the validator, it selects
+the step as well, so a broken validator fails closed rather than going unchecked. Other
+changes skip it. The patterns are lexical paths; the repository has no tracked symlinks
+into these surfaces, and adding one would need its target covered too. A finding fails Repository checks, and so
 the `harness` result.
 
 No automatic nightly or post-merge duplicate suite is required. Reuse passing
