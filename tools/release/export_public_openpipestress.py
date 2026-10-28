@@ -245,6 +245,9 @@ LINTER_MANIFEST = "core/reporting/protected_content_linter/Cargo.toml"
 LINT_CLI_BIN = "protected_content_lint_cli"
 LINT_BATCH_SIZE = 400
 
+# Public text and data members (DEC-058 check (b): "all public text/JSON
+# surfaces"). The data formats after `.yml` are model, scene and record files
+# the staged tree ships: JSON Lines, CAEPIPE MBF, K6 model, PCF, glTF, MathML.
 LINTABLE_SUFFIXES = {
     ".csv",
     ".htm",
@@ -258,6 +261,12 @@ LINTABLE_SUFFIXES = {
     ".xml",
     ".yaml",
     ".yml",
+    ".gltf",
+    ".jsonl",
+    ".k6model",
+    ".mathml",
+    ".mbf",
+    ".pcf",
 }
 
 # Reviewed expected blocking findings: exact (staging-relative path, code)

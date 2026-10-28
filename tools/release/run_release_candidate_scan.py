@@ -65,6 +65,13 @@ LINTABLE_SUFFIXES = {
     ".toml",
     ".xml",
     ".svg",
+    # Data formats shipped as public members (kept equal to the export gate's).
+    ".gltf",
+    ".jsonl",
+    ".k6model",
+    ".mathml",
+    ".mbf",
+    ".pcf",
 }
 
 REQUIRED_PROVENANCE_FIELDS = (

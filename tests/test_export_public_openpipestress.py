@@ -84,6 +84,19 @@ def test_no_ci_workflow_ships_in_the_export():
     assert ".github" in PIPE.SKIP_DIR_NAMES
 
 
+def test_lint_gate_and_scan_runner_cover_the_same_public_data_formats():
+    # DEC-058 check (b) covers public text/JSON surfaces; the export gate and the
+    # scan runner consume the same engine and must lint the same members.
+    spec = importlib.util.spec_from_file_location(
+        "scan_suffix_probe", ROOT / "tools" / "release" / "run_release_candidate_scan.py"
+    )
+    scan = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(scan)
+    assert PIPE.LINTABLE_SUFFIXES == scan.LINTABLE_SUFFIXES
+    for data_format in (".jsonl", ".mbf", ".k6model", ".gltf", ".pcf", ".mathml"):
+        assert data_format in PIPE.LINTABLE_SUFFIXES
+
+
 def test_skip_reason_rules():
     assert PIPE.skip_reason(Path("apps/node_modules/x.js")) == "skip_dir_name"
     assert PIPE.skip_reason(Path("core/target/debug/lib.rlib")) == "skip_dir_name"
