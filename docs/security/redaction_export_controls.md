@@ -361,12 +361,12 @@ or restrict a record by accident". The rule applies in each place that reads lab
 - *Not affected.* `export_policy` carries no labels; only its intent keys are
   read. The runners' `control_local_private` reads no labels.
 
-TypeScript's copies (the intent strip, the redaction walk and its input copy,
-the redaction copy without unsafe detail, the user-release screen's iteration)
-keep an own `__proto__` member even when it is not enumerable, so the bar
-survives every copy. Python and Rust can be handed a programmatically built
-mapping (a dict, a serde_json map) as well as parsed JSON, but neither has
-non-enumerable keys, so a `__proto__` key is always visible there.
+In TypeScript the plain-data gate (below) runs before the rule. It refuses a
+non-enumerable member, so the member the rule reads is always an own,
+enumerable data member, as JSON parsing makes it. Python and Rust can be
+handed a programmatically built mapping (a dict, a serde_json map) as well as
+parsed JSON, but neither has non-enumerable keys, so a `__proto__` key is
+always visible there.
 
 This is deliberately stricter than Python's previous reading, which took the
 key as an ordinary member. The member itself is kept in the payload, and its
@@ -444,6 +444,45 @@ action loosening, but such an output is newly available from Python.
 The runners' fixed `control_local_private` projection is untouched: it reads
 none of these labels, flags or `professional_claim`. It strips the intent keys
 at every depth and labels values by path.
+
+**Plain-data gate (TypeScript).** Every TypeScript entry point checks its input
+before reading it: `controlRouteExport`, `redactExportPayload`,
+`classifyExportItem` and `controlUserReleasedReportPackageRequest` (its request
+and its model). Anything other than a JSON-data graph refuses the whole export
+as one `block_export` decision with reason `EXPORT_INPUT_NOT_PLAIN_DATA`, at the
+first refused path, with a blocking finding that names the shape (HELP_HUMAN
+ruling, 2026-10-28: "(a), the plain-data gate at the TS entry points. It
+removes the class instead of modelling JS semantics one primitive at a
+time."). A JSON-data graph has:
+
+- *Containers.* Objects whose prototype is this realm's `Object.prototype` or
+  null, and arrays whose prototype is `Array.prototype`, with only index keys
+  and `length` and no holes.
+- *Values.* Strings, finite numbers, booleans and null.
+- *Members.* Own, enumerable data members only, and no symbol key. They are
+  enumerated with `Reflect.ownKeys` and read through their descriptors, so no
+  getter, setter or method of the input ever runs. A non-enumerable member is
+  refused, `__proto__` included, because parsed JSON has none.
+
+A class instance, a cross-realm object, Map, Set, Date, a typed array, an
+accessor, a function, NaN or an infinity is refused.
+
+- *`undefined`.* An object member whose value is `undefined` is absent:
+  skipped and never classified (HELP_HUMAN ruling, 2026-10-28: "An undefined
+  own data property on an object is treated as absent: skipped, never
+  classified, exactly as JSON.stringify writes it. An undefined array element
+  still fails closed."). This matches the serialized form, and absence is
+  already the stricter path: an absent label reads as unknown.
+- *Sharing and cycles.* An object reached twice in an acyclic graph is
+  admitted, and the copy duplicates it per position, so redacting one position
+  never touches another. A cycle is refused (HELP_HUMAN ruling, 2026-10-28:
+  "Admit shared references in an acyclic graph and refuse only cycles."). The
+  reason is that JSON writes DAG sharing as duplicates and cannot express a
+  cycle. The gate tracks the current path, not every object seen.
+
+After the gate, each entry point works on that per-position copy, never on the
+input. Python and Rust receive parsed JSON, which is a JSON-data tree by
+construction, so they need no gate.
 
 ## Source Data
 
