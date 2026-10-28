@@ -4,6 +4,7 @@ From the project root:
 
     python3 -m tools.caepipe_correlation.run_pilot [--case ID ...] [--offline | --export-mbf | --export-only]
         [--runner PATH]
+    python3 -m tools.caepipe_correlation.run_pilot --authored [--case ID ...] [--export-only]
 
 Per case: the independent hand calculation, the SWBPIPE solve (headless runner),
 the SI MBF (with the case's deliberate fault injection, if any), the live
@@ -31,6 +32,14 @@ record must bind to the current MBF, and needs no runner. In the exchange folder
 writes the case's caepipe_out/ files (the export, its guest logs and the run
 record's export entry), the harness copy of the guest script and run lock in
 _harness/, and creates the case's layer folders if they are missing.
+
+--authored runs the authored cases of validation/caepipe_correlation/authored/
+instead: invented, hand-written MBF files listed in its manifest, each exercising
+one importer mapping or one named refusal (DEL-17-04 Design §18.3). Per case the
+live round trip imports (and solves) the authored MBF as written, and the export
+step then writes the model back to caepipe_out/exported.mbf; with --export-only
+only the export step runs. No SWBPIPE solve, CSV comparison or series step runs,
+and no runner is needed.
 
 Standard output carries operational status only: per case its id, route and
 either the comparison record's path relative to the exchange folder or the
@@ -90,6 +99,8 @@ from core.handoff.caepipe_mbf import render_caepipe_mbf_si  # noqa: E402
 
 
 CASES_DIR = PROJECT / "validation" / "caepipe_correlation" / "cases"
+AUTHORED_DIR = PROJECT / "validation" / "caepipe_correlation" / "authored"
+AUTHORED_MANIFEST_KIND = "openpipestress.caepipe_correlation.authored_manifest"
 SERIES_DIR = PROJECT / "validation" / "caepipe_correlation" / "series"
 SERIES_DEFINITION_KIND = "openpipestress.caepipe_correlation.series_definition"
 HAND_CALCS = PROJECT / "validation" / "caepipe_correlation" / "hand_calcs.py"
@@ -118,6 +129,32 @@ def load_cases(selected: list[str] | None = None) -> list[dict[str, Any]]:
             raise KeyError(f"unknown case id(s): {', '.join(unknown)}")
         return [cases[case_id] for case_id in sorted(set(selected))]
     return [cases[case_id] for case_id in sorted(cases)]
+
+
+def load_authored_cases(selected: list[str] | None = None) -> list[dict[str, Any]]:
+    """The authored cases of the manifest, checked: each id matches the pattern, is unique and names its MBF."""
+    manifest = json.loads((AUTHORED_DIR / "manifest.json").read_text(encoding="utf-8"))
+    if manifest.get("document_kind") != AUTHORED_MANIFEST_KIND:
+        raise ValueError(f"authored/manifest.json: document_kind must be {AUTHORED_MANIFEST_KIND}")
+    cases: dict[str, dict[str, Any]] = {}
+    for entry in manifest.get("cases") or []:
+        case_id = entry.get("case_id")
+        if not isinstance(case_id, str) or not CASE_ID_PATTERN.match(case_id) or case_id in cases:
+            raise ValueError(f"authored/manifest.json: case id {case_id!r} is invalid or repeated")
+        if entry.get("file") != f"{case_id}.mbf" or not (AUTHORED_DIR / entry["file"]).is_file():
+            raise ValueError(f"authored/manifest.json: {case_id} must name its file {case_id}.mbf")
+        cases[case_id] = entry
+    if selected:
+        unknown = sorted(set(selected) - set(cases))
+        if unknown:
+            raise KeyError(f"unknown authored case id(s): {', '.join(unknown)}")
+        return [cases[case_id] for case_id in sorted(set(selected))]
+    return [cases[case_id] for case_id in sorted(cases)]
+
+
+def authored_mbf_bytes(case: Mapping[str, Any]) -> bytes:
+    """The authored MBF exactly as tracked (CRLF kept)."""
+    return (AUTHORED_DIR / case["file"]).read_bytes()
 
 
 def load_series() -> list[dict[str, Any]]:
@@ -453,6 +490,36 @@ def export_case(case: Mapping[str, Any], config: HarnessConfig, *, emit: Callabl
     return False
 
 
+def run_authored_case(case: Mapping[str, Any], config: HarnessConfig, *, export_only: bool = False,
+                      emit: Callable[[str], None] = print,
+                      round_trip: Callable[..., dict[str, Any]] = run_caepipe_round_trip,
+                      export: Callable[..., dict[str, Any]] = run_caepipe_mbf_export) -> bool:
+    """Import (and solve) one authored MBF as written, then export the model back to caepipe_out/exported.mbf."""
+    case_id = case["case_id"]
+    data = authored_mbf_bytes(case)
+    mbf_sha256 = hashlib.sha256(data).hexdigest()
+    try:
+        if not export_only:
+            record = round_trip(config, case_id, data.decode("ascii"))
+            if record.get("mbf", {}).get("sha256") != mbf_sha256 or record.get("guest_mbf_sha256") != mbf_sha256:
+                emit(f"{case_id}: route={record.get('route')}; the guest did not report importing this MBF; "
+                     "no exported MBF")
+                return False
+            emit(f"{case_id}: route={record.get('route')}; round trip recorded: "
+                 f"cases/{case_id}/caepipe_out/run_record.json")
+        entry = export(config, case_id, mbf_sha256)
+    except ContainmentError as error:
+        emit(f"{case_id}: route=containment_violation; {error}; no exported MBF")
+        return False
+    route = entry["route"]
+    if route == EXPORT_ROUTE:
+        emit(f"{case_id}: export route={route}; exported MBF written: cases/{case_id}/caepipe_out/{EXPORTED_MBF}")
+        return True
+    reason = entry.get("reason") or f"the guest export did not complete (cases/{case_id}/caepipe_out/run_record.json)"
+    emit(f"{case_id}: export route={route}; {reason}; no exported MBF")
+    return False
+
+
 def run_cases(cases: list[Mapping[str, Any]], config: HarnessConfig, *, runner: str, offline: bool, hand_calcs: Any,
               emit: Callable[[str], None] = print,
               round_trip: Callable[..., dict[str, Any]] = run_caepipe_round_trip, export_mbf: bool = False,
@@ -481,10 +548,15 @@ def main(argv: list[str] | None = None, environ: Mapping[str, str] = os.environ)
                       help="after each case's round trip, export the solved model to caepipe_out/exported.mbf")
     mode.add_argument("--export-only", action="store_true",
                       help="only export each case's stored, bound solved model to caepipe_out/exported.mbf")
+    parser.add_argument("--authored", action="store_true",
+                        help="run the authored MBF cases of validation/caepipe_correlation/authored/ (with --export-only "
+                             "only their export step)")
     parser.add_argument("--runner", help=f"openpipestress-runner executable (default: ${RUNNER_ENV})")
     args = parser.parse_args(argv)
+    if args.authored and (args.offline or args.export_mbf):
+        parser.error("--authored takes only --case and --export-only")
     try:
-        cases = load_cases(args.cases)
+        cases = load_authored_cases(args.cases) if args.authored else load_cases(args.cases)
         load_series()
     except (KeyError, ValueError) as error:
         print(f"error: {error}", file=sys.stderr)
@@ -493,6 +565,10 @@ def main(argv: list[str] | None = None, environ: Mapping[str, str] = os.environ)
     if isinstance(config, HarnessSkip):
         print(f"CAEPIPE harness skipped: {config.reason}")
         return 0
+    if args.authored:
+        for warning in config.warnings:
+            print(f"warning: {warning}")
+        return 0 if all([run_authored_case(case, config, export_only=args.export_only) for case in cases]) else 1
     if args.export_only:
         for warning in config.warnings:
             print(f"warning: {warning}")
