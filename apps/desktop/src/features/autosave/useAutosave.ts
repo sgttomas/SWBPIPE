@@ -51,6 +51,8 @@ import {
 
 /** Item (a): the notice shown while autosave is off. */
 export const AUTOSAVE_OFF_NOTICE = "Autosave is off: a crash can lose unsaved work.";
+/** Why the autosave controls are disabled in the browser preview. */
+export const AUTOSAVE_DESKTOP_ONLY = "Autosave needs the desktop app.";
 
 export type AutosaveRecoveryChoice = "open" | "keep" | "discard" | "discard-confirmed" | "discard-cancelled";
 

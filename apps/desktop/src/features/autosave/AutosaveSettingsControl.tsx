@@ -1,5 +1,5 @@
 import { AUTOSAVE_MINUTE_CHOICES } from "./autosaveService";
-import { AUTOSAVE_OFF_NOTICE, type AutosaveSession } from "./useAutosave";
+import { AUTOSAVE_DESKTOP_ONLY, AUTOSAVE_OFF_NOTICE, type AutosaveSession } from "./useAutosave";
 
 /** The autosave interval, beside the theme and density in the toolbar's
  * Appearance popover (the existing preferences UI). Off, or every 1, 2, 5, 10,
@@ -31,7 +31,7 @@ export function AutosaveSettingsControl({ autosave }: { autosave: Pick<AutosaveS
         </select>
       </label>
       {off ? <p className="shell-autosave-off" role="status" data-testid="autosave-off-notice">{AUTOSAVE_OFF_NOTICE}</p> : null}
-      <button type="button" data-testid="recover-autosave" disabled={!settings} onClick={() => { void autosave.recoverAutosave(); }}>
+      <button type="button" data-testid="recover-autosave" disabled={!settings} title={settings ? "Offer each autosave not shown to be saved" : AUTOSAVE_DESKTOP_ONLY} onClick={() => { void autosave.recoverAutosave(); }}>
         Recover autosave…
       </button>
       <p className="shell-autosave-detail" id="autosave-setting-detail">

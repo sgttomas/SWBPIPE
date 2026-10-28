@@ -99,7 +99,7 @@ import { ProjectStorageAuditPanel } from "./features/project-storage/ProjectStor
 import { ReplaceProjectPrompt } from "./features/project-storage/ReplaceProjectPrompt";
 import { HistoryPanel } from "./features/history/HistoryPanel";
 import { QuitWhileBusyPrompt, UnsavedChangesPrompt } from "./features/project-storage/UnsavedChangesPrompt";
-import { AutosaveRecoveryPrompt } from "./features/autosave";
+import { AUTOSAVE_DESKTOP_ONLY, AutosaveRecoveryPrompt } from "./features/autosave";
 import { ProjectUnitsDialog } from "./features/project-units/ProjectUnitsDialog";
 import { ModelDocumentSaveDialog } from "./features/model-file/ModelDocumentSaveDialog";
 import { HandoffSaveDialog } from "./features/handoff/HandoffSaveDialog";
@@ -1027,7 +1027,7 @@ function AppSession() {
             <FolderOpen size={15} aria-hidden="true" />
             Open model file
           </button>
-          <button data-testid="project-recover-autosave" type="button" onClick={() => void autosave.recoverAutosave()} disabled={projectBusy || !autosave.settings}>
+          <button data-testid="project-recover-autosave" type="button" onClick={() => void autosave.recoverAutosave()} disabled={projectBusy || !autosave.settings} title={autosave.settings ? "Offer each autosave not shown to be saved" : AUTOSAVE_DESKTOP_ONLY}>
             <FolderOpen size={15} aria-hidden="true" />
             Recover autosave…
           </button>
