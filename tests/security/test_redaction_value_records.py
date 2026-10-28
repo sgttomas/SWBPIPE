@@ -1,0 +1,196 @@
+#!/usr/bin/env python3
+"""DEL-12-02 value records (HELP_HUMAN decision, 2026-10-28: "take the stricter decision
+per case").  A ``{value, ...}`` record with metadata but no scalar label was one item in
+TypeScript and a projected record in Python; all three implementations now decide it as the
+stricter of the two.  ``fixtures/redaction_export_controls/value_record_sweep.json`` is
+expanded here, in ``redactionValueRecords.test.ts`` and in
+``core/runner/headless/src/redaction_binding.rs`` (test module) by the same rule.  All data
+is invented.
+"""
+
+import itertools
+import json
+from pathlib import Path
+import sys
+
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT))
+
+from core.security.redaction import control_route_export  # noqa: E402
+from core.security.redaction.controls import UNSAFE_DETAIL_KEYS  # noqa: E402
+
+FIXTURE_DIR = ROOT / "fixtures" / "redaction_export_controls"
+SPEC = json.loads((FIXTURE_DIR / "value_record_sweep.json").read_text(encoding="utf-8"))
+FROZEN = json.loads((FIXTURE_DIR / "value_record_sweep_decisions.json").read_text(encoding="utf-8"))
+CASE_COUNT = 7_580
+CODES = "IWRO"
+
+
+def expand(spec):
+    absent = spec["absent"]
+    keys = [key for key, _ in spec["axes"]]
+    records = []
+    for combo in itertools.product(*(values for _, values in spec["axes"])):
+        if sum(1 for value in combo if value != absent) > spec["max_axes"]:
+            continue
+        record = {"value": "INVENTED"}
+        for key, value in zip(keys, combo):
+            if value != absent:
+                record[key] = value
+        records.append(record)
+    records += spec["extra_records"]
+    return [(record, context, intent) for record in records for context, intent in spec["contexts"]]
+
+
+def route_decisions(record, context, intent):
+    controlled = control_route_export(
+        {SPEC["record_key"]: record},
+        route_id=SPEC["route_id"],
+        export_context=context,
+        explicit_local_private_intent=intent,
+    )
+    return controlled, [
+        (decision.path.replace("__route_key__", ""), decision.action, decision.reason_code)
+        for decision in controlled.decisions
+    ]
+
+
+def outcome(record, decisions):
+    """'B' when any decision blocks, else one code per record member in sorted order."""
+
+    if any(action == "block_export" for _, action, _ in decisions):
+        return "B"
+    codes = []
+    for member in sorted(record):
+        code = None
+        for path, action, _ in decisions:
+            if path == "$.record":
+                if action == "redact_value" and member in ("value", "text", "privacy_classification"):
+                    candidate = "R"
+                elif action == "redact_value" and member in UNSAFE_DETAIL_KEYS:
+                    candidate = "O"
+                elif action in ("redact_value", "warning_only"):
+                    candidate = "W"
+                else:
+                    candidate = {"include": "I", "omit_field": "O"}.get(action, "R")
+            elif (
+                path == f"$.record.{member}"
+                or path.startswith(f"$.record.{member}.")
+                or path.startswith(f"$.record.{member}[")
+            ):
+                candidate = {"include": "I", "warning_only": "W", "omit_field": "O"}.get(action, "R")
+            else:
+                continue
+            if code is None or CODES.index(candidate) > CODES.index(code):
+                code = candidate
+        codes.append(code or "N")
+    return "".join(codes)
+
+
+def column(name):
+    return ",".join(FROZEN["outcomes"][name]).split(",")
+
+
+def compare(new, old):
+    """(less strict, stricter) against one frozen outcome; '-' is no decision."""
+
+    if old == "-":
+        return False, False
+    if old == "B" or new == "B":
+        return old == "B" and new != "B", new == "B" and old != "B"
+    pairs = [(CODES.index(n), CODES.index(o)) for n, o in zip(new, old) if n in CODES and o in CODES]
+    return any(n < o for n, o in pairs), any(n > o for n, o in pairs)
+
+
+def test_value_record_sweep_gives_the_contract_and_is_never_less_strict():
+    cases = expand(SPEC)
+    assert len(cases) == CASE_COUNT == FROZEN["case_count"]
+    assert FROZEN["code_order"] == list(CODES)
+    contract = column("contract")
+    names = ("python_before", "typescript_before", "rust_before")
+    before = {name: column(name) for name in names}
+    mismatches, looser, stricter = [], dict.fromkeys(names, 0), dict.fromkeys(names, 0)
+    for index, (record, context, intent) in enumerate(cases):
+        decided = outcome(record, route_decisions(record, context, intent)[1])
+        if decided != contract[index]:
+            mismatches.append(index)
+        for name in names:
+            less, more = compare(decided, before[name][index])
+            looser[name] += less
+            stricter[name] += more
+    assert mismatches == []
+    assert looser == {"python_before": 0, "typescript_before": 0, "rust_before": 0}
+    # Pinned: stricter than Python in 1,638 cases and than TypeScript in 1,461; the Rust
+    # mirror had no route projector before.
+    assert stricter == {"python_before": 1_638, "typescript_before": 1_461, "rust_before": 0}
+
+
+def sorted_decisions(record, context, intent):
+    controlled, decided = route_decisions(record, context, intent)
+    return controlled, sorted(decided)
+
+
+def test_value_record_with_field_class_and_note_is_projected():
+    """Python stricter: TypeScript decided ``{value, field_class, note}`` as one item and
+    left ``note`` visible in ``public_report``; it is projected, every leaf redacted."""
+
+    controlled, decided = sorted_decisions(
+        {"value": "INVENTED", "field_class": "note", "note": "INVENTED"}, "public_report", False
+    )
+    assert decided == [
+        ("$.record.field_class", "redact_value", "REDISTRIBUTION_STATUS_UNKNOWN"),
+        ("$.record.note", "redact_value", "REDISTRIBUTION_STATUS_UNKNOWN"),
+        ("$.record.value", "redact_value", "PRIVATE_DATA_REDACTED"),
+    ]
+    assert controlled.payload == {
+        "record": {"value": "[REDACTED]", "field_class": "[REDACTED]", "note": "[REDACTED]"}
+    }
+
+
+def test_value_record_with_a_professional_claim_blocks():
+    """TypeScript stricter: ``{value, professional_claim: true}`` blocks as one item; Python
+    redacted its leaves."""
+
+    controlled, decided = sorted_decisions(
+        {"value": "INVENTED", "professional_claim": True}, "public_report", False
+    )
+    assert decided == [("$.record", "block_export", "PROFESSIONAL_BOUNDARY_BLOCKED")]
+    assert controlled.blocked and controlled.payload is None
+
+
+def test_value_record_blocked_both_ways_takes_the_items_block():
+    """Both blocked on different paths (ruling 3(a)): the item's whole-record block."""
+
+    _, decided = sorted_decisions({"value": "INVENTED", "contains_payload": True}, "local_private", False)
+    assert decided == [("$.record", "block_export", "PAYLOAD_METADATA_ONLY_REQUIRED")]
+
+
+def test_value_record_projected_value_leaf_needs_intent():
+    """Python stricter by a block: the projected ``value`` leaf needs local-private intent."""
+
+    _, decided = sorted_decisions({"value": "INVENTED", "export_policy": {}}, "local_private", False)
+    assert decided == [("$.record.value", "block_export", "LOCAL_PRIVATE_INTENT_REQUIRED")]
+
+
+def test_value_record_union_raises_value_and_omits_the_unsafe_path_key():
+    """The union (the 572 class): the item redacts for the concrete path, so the ``value``
+    leaf is raised to it with the item's own reason (1(a)) and ``file_path`` is dropped,
+    key included (2(a))."""
+
+    controlled, decided = sorted_decisions(
+        {"value": "INVENTED", "file_path": "INVENTED", "export_policy": {}}, "local_private", True
+    )
+    assert decided == [
+        ("$.record.file_path", "omit_field", "CONCRETE_PATH_REDACTED"),
+        ("$.record.value", "redact_value", "CONCRETE_PATH_REDACTED"),
+    ]
+    assert controlled.payload == {"record": {"value": "[REDACTED]", "export_policy": {}}}
+
+
+def test_value_record_tie_takes_the_projection_form():
+    """A tie (same visible data) takes the projection's decision records."""
+
+    controlled, decided = sorted_decisions({"value": "INVENTED", "export_policy": {}}, "local_private", True)
+    assert decided == [("$.record.value", "warning_only", "PRIVATE_LOCAL_ALLOWED_WITH_WARNING")]
+    assert controlled.payload == {"record": {"value": "INVENTED", "export_policy": {}}}

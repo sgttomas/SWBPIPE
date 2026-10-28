@@ -18,9 +18,11 @@ from .controls import (
     USER_RELEASED_REPORT_CONTEXT,
     RedactionDecision,
     RedactionFinding,
+    VALUE_RECORD_MARK,
+    _has_explicit_metadata,
     assert_user_release_intent_context,
     carries_proto_member,
-    redact_export_payload,
+    redact_route_projection,
 )
 
 
@@ -135,7 +137,7 @@ def control_route_export(
         route_id=route_id,
         path="$",
     )
-    result = redact_export_payload(
+    result = redact_route_projection(
         projected,
         export_context=export_context,
         explicit_local_private_intent=normalized_local_private_intent,
@@ -221,19 +223,20 @@ def _project(
         # have already had all payload-carried intent removed.
         if "value" in value and _has_contract_metadata(value):
             return copy.deepcopy(dict(value))
-        # A public basis is record-local: it can classify scalar leaves owned
-        # directly by this record, but it cannot flow through another record
-        # or collection.  A nested record must declare its own complete basis.
-        bounded_public_basis = _declares_direct_public_basis(value)
-        return {
-            f"{ROUTE_KEY_PREFIX}{key}": _project(
-                item,
-                route_id=route_id,
-                path=f"{path}.{key}",
-                public_basis=bounded_public_basis,
-            )
-            for key, item in value.items()
-        }
+        # A value record (HELP_HUMAN decision, 2026-10-28: "take the stricter decision per
+        # case"): a scalar ``value`` with other metadata but no scalar label.  The redaction
+        # walk decides it as the stricter of the item and its projection.
+        if (
+            "value" in value
+            and not isinstance(value.get("value"), (Mapping, list, tuple))
+            and _has_explicit_metadata(dict(value))
+        ):
+            return {
+                VALUE_RECORD_MARK: True,
+                "item": copy.deepcopy(dict(value)),
+                "projected": _project_members(value, route_id=route_id, path=path),
+            }
+        return _project_members(value, route_id=route_id, path=path)
     if isinstance(value, (list, tuple)):
         return [
             _project(
@@ -256,6 +259,22 @@ def _project(
         "review_status": review,
         "value": copy.deepcopy(value),
         "_route_projected_leaf": True,
+    }
+
+
+def _project_members(value: Mapping[str, Any], *, route_id: str, path: str) -> dict[str, Any]:
+    # A public basis is record-local: it can classify scalar leaves owned
+    # directly by this record, but it cannot flow through another record
+    # or collection.  A nested record must declare its own complete basis.
+    bounded_public_basis = _declares_direct_public_basis(value)
+    return {
+        f"{ROUTE_KEY_PREFIX}{key}": _project(
+            item,
+            route_id=route_id,
+            path=f"{path}.{key}",
+            public_basis=bounded_public_basis,
+        )
+        for key, item in value.items()
     }
 
 

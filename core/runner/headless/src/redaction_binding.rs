@@ -437,6 +437,292 @@ fn route_basis_leaf(record: &Map<String, Value>, key: &str) -> Map<String, Value
     ])
 }
 
+/// The path tokens the generic route projector labels private (TypeScript
+/// `PRIVATE_ROUTE_TOKENS`, Python `PRIVATE_PATH_TOKENS`).
+#[cfg(test)]
+const ROUTE_PRIVATE_PATH_TOKENS: [&str; 24] = [
+    "component",
+    "content",
+    "coordinate",
+    "design_basis",
+    "displacement",
+    "force",
+    "free_metadata",
+    "geometry",
+    "diameter",
+    "material",
+    "moment",
+    "owner",
+    "path",
+    "pipe_segment",
+    "project_name",
+    "project_ref",
+    "project_id",
+    "result_value",
+    "rotation",
+    "rule_detail",
+    "stress",
+    "text",
+    "thickness",
+    "value",
+];
+
+/// One decision of the mirrored route exporter: its unprefixed path, action and reason.
+#[cfg(test)]
+type RouteDecision = (String, &'static str, &'static str);
+
+#[cfg(test)]
+fn route_action_rank(action: &str) -> usize {
+    match action {
+        "include" => 0,
+        "warning_only" => 1,
+        "redact_value" | "redact_field" => 2,
+        "omit_field" => 3,
+        _ => 4,
+    }
+}
+
+/// A scalar privacy, redistribution or review label on a record or its provenance object:
+/// the route projector's item test (TypeScript `hasContractLabel`, Python
+/// `_has_contract_metadata`).
+#[cfg(test)]
+fn route_item_label(record: &Map<String, Value>) -> bool {
+    let scalar_label = |object: &Map<String, Value>| {
+        [
+            "privacy_classification",
+            "redistribution_status",
+            "review_status",
+        ]
+        .iter()
+        .any(|key| {
+            object
+                .get(*key)
+                .is_some_and(|value| !value.is_object() && !value.is_array())
+        })
+    };
+    scalar_label(record)
+        || record
+            .get("provenance")
+            .and_then(Value::as_object)
+            .is_some_and(scalar_label)
+}
+
+/// Any redaction metadata key, or a scalar storage-privacy key (TypeScript
+/// `hasExplicitMetadata`, Python `_has_explicit_metadata`).
+#[cfg(test)]
+fn route_explicit_metadata(record: &Map<String, Value>) -> bool {
+    REDACTION_METADATA_KEYS
+        .iter()
+        .any(|key| record.contains_key(*key))
+        || STORAGE_PRIVACY_METADATA_KEYS.iter().any(|key| {
+            record
+                .get(*key)
+                .is_some_and(|value| !value.is_object() && !value.is_array())
+        })
+}
+
+#[cfg(test)]
+fn route_unsafe_detail_key(key: &str) -> bool {
+    PAYLOAD_KEYS
+        .iter()
+        .chain(SECRET_KEYS.iter())
+        .chain(PATH_KEYS.iter())
+        .chain(CLOUD_KEYS.iter())
+        .chain(SQL_KEYS.iter())
+        .any(|known| *known == key)
+}
+
+/// The labelled leaf the route projector makes of a scalar at `path` (TypeScript
+/// `projectRouteValue`'s leaf, Python `_leaf_classification`), for a route with no
+/// structural projection.
+#[cfg(test)]
+fn route_path_leaf(path: &str, value: &Value, public_basis: bool) -> Map<String, Value> {
+    let lowered = path.to_lowercase().replace('-', "_");
+    let unknown = value.is_null() || value.as_str() == Some("TBD") || lowered.contains("tbd");
+    let segments: Vec<String> = lowered
+        .replace('[', ".")
+        .replace(']', "")
+        .split('.')
+        .map(str::to_string)
+        .collect();
+    let leaf = segments
+        .last()
+        .cloned()
+        .unwrap_or_else(|| "unknown".to_string());
+    let checksum_value =
+        leaf == "value" && (lowered.contains("checksum") || lowered.contains("hash"));
+    let unit_map_leaf =
+        lowered.contains(".model_units.") || lowered.contains(".target_export_units.");
+    let private_leaf = !checksum_value
+        && !unit_map_leaf
+        && ROUTE_PRIVATE_PATH_TOKENS
+            .iter()
+            .any(|token| leaf == *token || leaf.ends_with(&format!("_{token}")));
+    let private = private_leaf
+        || ROUTE_PRIVATE_PATH_TOKENS
+            .iter()
+            .any(|token| lowered.contains(token));
+    let (privacy, redistribution, review) = if unknown {
+        ("unknown", "unknown", "pending")
+    } else if private {
+        ("private_project_data", "private_only", "accepted")
+    } else if public_basis {
+        ("public_metadata", "public_permissive", "accepted")
+    } else {
+        ("unknown", "unknown", "pending")
+    };
+    let field_class = path
+        .rsplit('.')
+        .next()
+        .unwrap_or("")
+        .split('[')
+        .next()
+        .filter(|class| !class.is_empty())
+        .unwrap_or("unknown");
+    Map::from_iter([
+        ("field_class".to_string(), serde_json::json!(field_class)),
+        (
+            "privacy_classification".to_string(),
+            serde_json::json!(privacy),
+        ),
+        (
+            "redistribution_status".to_string(),
+            serde_json::json!(redistribution),
+        ),
+        ("review_status".to_string(), serde_json::json!(review)),
+        ("value".to_string(), value.clone()),
+    ])
+}
+
+/// A decision raised to a value record's item decision where that is stricter, keeping the
+/// item's own reason; beneath an omitted unsafe path key, omitted unless it blocks
+/// (TypeScript `raisedDecision`, Python `_raised_decision`).
+#[cfg(test)]
+fn route_raised(
+    decided: (&'static str, &'static str),
+    floor: Option<(&'static str, &'static str)>,
+    omit: bool,
+) -> (&'static str, &'static str) {
+    let mut raised = decided;
+    if let Some(floor) = floor {
+        if route_action_rank(floor.0) > route_action_rank(raised.0) {
+            raised = floor;
+        }
+        if omit && raised.0 != "block_export" {
+            raised = ("omit_field", floor.1);
+        }
+    }
+    raised
+}
+
+/// The generic route exporter's decisions on an intent-stripped value, as TypeScript
+/// (`projectRouteValue` then `walk`) and Python (`_project` then `_walk`) make them, for a
+/// route with no structural projection; value records as `walkValueRecord` /
+/// `_walk_value_record` decide them (HELP_HUMAN decision, 2026-10-28: "take the stricter
+/// decision per case").
+#[cfg(test)]
+#[allow(clippy::too_many_arguments)]
+fn route_walk(
+    value: &Value,
+    path: &str,
+    public_basis: bool,
+    context: &str,
+    intent: bool,
+    floor: Option<(&'static str, &'static str)>,
+    omit: bool,
+    out: &mut Vec<RouteDecision>,
+) {
+    let decide = |item: &Map<String, Value>| {
+        let decided = classify_contract_item(item, context, intent, false);
+        (decided.action, decided.reason_code)
+    };
+    match value {
+        Value::Object(record) => {
+            let scalar_value = record
+                .get("value")
+                .is_some_and(|value| !value.is_object() && !value.is_array());
+            if scalar_value && route_item_label(record) {
+                let (action, reason) = route_raised(decide(record), floor, omit);
+                out.push((path.to_string(), action, reason));
+                return;
+            }
+            if scalar_value && route_explicit_metadata(record) {
+                let item = decide(record);
+                if item.0 == "block_export" {
+                    out.push((path.to_string(), item.0, item.1));
+                    return;
+                }
+                let redacts = route_action_rank(item.0) >= route_action_rank("redact_value");
+                let basis = route_record_public_basis(record);
+                for (key, child) in record {
+                    let omit_member = redacts && route_unsafe_detail_key(key);
+                    let raise = omit_member
+                        || key == "value"
+                        || key == "text"
+                        || (redacts && key == "privacy_classification");
+                    route_walk(
+                        child,
+                        &format!("{path}.{key}"),
+                        basis,
+                        context,
+                        intent,
+                        if raise { Some(item) } else { None },
+                        omit_member,
+                        out,
+                    );
+                }
+                return;
+            }
+            let basis = route_record_public_basis(record);
+            for (key, child) in record {
+                route_walk(
+                    child,
+                    &format!("{path}.{key}"),
+                    basis,
+                    context,
+                    intent,
+                    floor,
+                    omit,
+                    out,
+                );
+            }
+        }
+        Value::Array(items) => {
+            for (index, child) in items.iter().enumerate() {
+                route_walk(
+                    child,
+                    &format!("{path}[{index}]"),
+                    false,
+                    context,
+                    intent,
+                    floor,
+                    omit,
+                    out,
+                );
+            }
+        }
+        scalar => {
+            let leaf = route_path_leaf(path, scalar, public_basis);
+            let (action, reason) = route_raised(decide(&leaf), floor, omit);
+            out.push((path.to_string(), action, reason));
+        }
+    }
+}
+
+/// The mirrored route exporter's decisions on `{record_key: record}`.
+#[cfg(test)]
+fn route_record_decisions(
+    record_key: &str,
+    record: &Value,
+    context: &str,
+    intent: bool,
+) -> Vec<RouteDecision> {
+    let payload = strip_intent(serde_json::json!({ record_key: record }));
+    let mut out = Vec::new();
+    route_walk(&payload, "$", false, context, intent, None, false, &mut out);
+    out
+}
+
 /// A label the TypeScript and Python contracts read as unknown (`UNKNOWN_*` sets): absent,
 /// null, `unknown` or `TBD`.  Any other value, a non-string included, is a stated label.
 #[cfg(test)]
@@ -1870,6 +2156,340 @@ mod tests {
                 );
             }
         }
+    }
+
+    // Value records (HELP_HUMAN decision, 2026-10-28: "take the stricter decision per
+    // case"): the shared sweep `value_record_sweep.json`, expanded by the same rule as the
+    // pytest and vitest twins, and one regression per divergence class.
+    const VALUE_RECORD_CASE_COUNT: usize = 7_580;
+
+    fn value_record_cases() -> (Value, Vec<(Value, String, bool)>) {
+        let spec = sweep_json(include_str!(
+            "../../../../fixtures/redaction_export_controls/value_record_sweep.json"
+        ));
+        let absent = spec["absent"].as_str().expect("absent").to_string();
+        let max_axes = spec["max_axes"].as_u64().expect("max_axes") as usize;
+        let axes: Vec<(String, Vec<Value>)> = spec["axes"]
+            .as_array()
+            .expect("axes")
+            .iter()
+            .map(|axis| {
+                (
+                    axis[0].as_str().expect("axis key").to_string(),
+                    axis[1].as_array().expect("axis values").clone(),
+                )
+            })
+            .collect();
+        let mut records = Vec::new();
+        // Every combination, the last axis varying fastest, as itertools.product orders it.
+        let mut digits = vec![0usize; axes.len()];
+        loop {
+            let set = axes
+                .iter()
+                .zip(&digits)
+                .filter(|((_, values), digit)| values[**digit].as_str() != Some(absent.as_str()))
+                .count();
+            if set <= max_axes {
+                let mut record = Map::from_iter([("value".to_string(), json!("INVENTED"))]);
+                for ((key, values), digit) in axes.iter().zip(&digits) {
+                    if values[*digit].as_str() != Some(absent.as_str()) {
+                        record.insert(key.clone(), values[*digit].clone());
+                    }
+                }
+                records.push(Value::Object(record));
+            }
+            let mut position = axes.len();
+            let mut exhausted = true;
+            while position > 0 {
+                position -= 1;
+                digits[position] += 1;
+                if digits[position] < axes[position].1.len() {
+                    exhausted = false;
+                    break;
+                }
+                digits[position] = 0;
+            }
+            if exhausted {
+                break;
+            }
+        }
+        records.extend(
+            spec["extra_records"]
+                .as_array()
+                .expect("extra records")
+                .iter()
+                .cloned(),
+        );
+        let mut cases = Vec::new();
+        for record in records {
+            for context in spec["contexts"].as_array().expect("contexts") {
+                cases.push((
+                    record.clone(),
+                    context[0].as_str().expect("context").to_string(),
+                    context[1].as_bool().expect("intent"),
+                ));
+            }
+        }
+        (spec, cases)
+    }
+
+    /// A case's outcome, as the spec defines it: 'B' when any decision blocks, else one code
+    /// per record member in sorted member order.
+    fn value_record_outcome(record: &Value, decisions: &[RouteDecision]) -> String {
+        if decisions
+            .iter()
+            .any(|(_, action, _)| *action == "block_export")
+        {
+            return "B".to_string();
+        }
+        let rank = |code: char| "IWRO".find(code).expect("code");
+        let mut members: Vec<&String> = record.as_object().expect("record").keys().collect();
+        members.sort();
+        members
+            .iter()
+            .map(|member| {
+                let mut code: Option<char> = None;
+                for (path, action, _) in decisions {
+                    let candidate = if path == "$.record" {
+                        match *action {
+                            "redact_value"
+                                if ["value", "text", "privacy_classification"]
+                                    .contains(&member.as_str()) =>
+                            {
+                                'R'
+                            }
+                            "redact_value" if route_unsafe_detail_key(member) => 'O',
+                            "redact_value" | "warning_only" => 'W',
+                            "include" => 'I',
+                            "omit_field" => 'O',
+                            _ => 'R',
+                        }
+                    } else if path == &format!("$.record.{member}")
+                        || path.starts_with(&format!("$.record.{member}."))
+                        || path.starts_with(&format!("$.record.{member}["))
+                    {
+                        match *action {
+                            "include" => 'I',
+                            "warning_only" => 'W',
+                            "omit_field" => 'O',
+                            _ => 'R',
+                        }
+                    } else {
+                        continue;
+                    };
+                    if code.is_none_or(|current| rank(candidate) > rank(current)) {
+                        code = Some(candidate);
+                    }
+                }
+                code.unwrap_or('N')
+            })
+            .collect()
+    }
+
+    fn value_record_column(frozen: &Value, name: &str) -> Vec<String> {
+        frozen["outcomes"][name]
+            .as_array()
+            .expect("column")
+            .iter()
+            .flat_map(|line| {
+                line.as_str()
+                    .expect("line")
+                    .split(',')
+                    .map(str::to_string)
+                    .collect::<Vec<_>>()
+            })
+            .collect()
+    }
+
+    /// Less strict: not blocking where the column blocked, or a lower code on a member both
+    /// cover.  Stricter: blocking where the column did not, or a higher code on such a member.
+    fn value_record_compare(new: &str, old: &str) -> (bool, bool) {
+        if old == "-" {
+            return (false, false);
+        }
+        if old == "B" || new == "B" {
+            return (old == "B" && new != "B", new == "B" && old != "B");
+        }
+        let rank = |code: char| "IWRO".find(code);
+        let pairs: Vec<(usize, usize)> = new
+            .chars()
+            .zip(old.chars())
+            .filter_map(|(n, o)| Some((rank(n)?, rank(o)?)))
+            .collect();
+        (
+            pairs.iter().any(|(n, o)| n < o),
+            pairs.iter().any(|(n, o)| n > o),
+        )
+    }
+
+    #[test]
+    fn value_record_sweep_gives_the_contract_and_is_never_less_strict() {
+        let (spec, cases) = value_record_cases();
+        assert_eq!(cases.len(), VALUE_RECORD_CASE_COUNT);
+        let frozen = sweep_json(include_str!(
+            "../../../../fixtures/redaction_export_controls/value_record_sweep_decisions.json"
+        ));
+        assert_eq!(
+            frozen["case_count"].as_u64(),
+            Some(VALUE_RECORD_CASE_COUNT as u64)
+        );
+        let record_key = spec["record_key"].as_str().expect("record key");
+        let contract = value_record_column(&frozen, "contract");
+        let mut mismatches = Vec::new();
+        let mut looser = [0usize; 3];
+        let mut stricter = [0usize; 3];
+        let columns: Vec<Vec<String>> = ["python_before", "typescript_before", "rust_before"]
+            .iter()
+            .map(|name| value_record_column(&frozen, name))
+            .collect();
+        for (index, (record, context, intent)) in cases.iter().enumerate() {
+            let decided = value_record_outcome(
+                record,
+                &route_record_decisions(record_key, record, context, *intent),
+            );
+            if decided != contract[index] {
+                mismatches.push(index);
+            }
+            for (column, before) in columns.iter().enumerate() {
+                let (less, more) = value_record_compare(&decided, &before[index]);
+                looser[column] += usize::from(less);
+                stricter[column] += usize::from(more);
+            }
+        }
+        assert!(
+            mismatches.is_empty(),
+            "{} mismatches, first {:?}",
+            mismatches.len(),
+            mismatches.first()
+        );
+        assert_eq!(looser, [0, 0, 0]);
+        // Pinned: stricter than Python in 1,638 cases and than TypeScript in 1,461; the Rust
+        // mirror had no route projector before.
+        assert_eq!(stricter, [1_638, 1_461, 0]);
+    }
+
+    fn value_record(json_text: &str, context: &str, intent: bool) -> Vec<RouteDecision> {
+        let record: Value = serde_json::from_str(json_text).expect("record JSON");
+        let mut decided = route_record_decisions("record", &record, context, intent);
+        decided.sort();
+        decided
+    }
+
+    fn route_decision(path: &str, action: &'static str, reason: &'static str) -> RouteDecision {
+        (path.to_string(), action, reason)
+    }
+
+    /// Python stricter: TypeScript decided `{value, field_class, note}` as one item and left
+    /// `note` visible in `public_report`; it is projected, every leaf redacted.
+    #[test]
+    fn value_record_with_field_class_and_note_is_projected() {
+        let decided = value_record(
+            r#"{"value":"INVENTED","field_class":"note","note":"INVENTED"}"#,
+            "public_report",
+            false,
+        );
+        assert_eq!(
+            decided,
+            vec![
+                route_decision(
+                    "$.record.field_class",
+                    "redact_value",
+                    "REDISTRIBUTION_STATUS_UNKNOWN"
+                ),
+                route_decision(
+                    "$.record.note",
+                    "redact_value",
+                    "REDISTRIBUTION_STATUS_UNKNOWN"
+                ),
+                route_decision("$.record.value", "redact_value", "PRIVATE_DATA_REDACTED"),
+            ]
+        );
+    }
+
+    /// TypeScript stricter: `{value, professional_claim: true}` blocks as one item; Python
+    /// redacted its leaves.
+    #[test]
+    fn value_record_with_a_professional_claim_blocks() {
+        assert_eq!(
+            value_record(
+                r#"{"value":"INVENTED","professional_claim":true}"#,
+                "public_report",
+                false
+            ),
+            vec![route_decision(
+                "$.record",
+                "block_export",
+                "PROFESSIONAL_BOUNDARY_BLOCKED"
+            )]
+        );
+    }
+
+    /// Both blocked on different paths (ruling 3(a)): the item's whole-record block.
+    #[test]
+    fn value_record_blocked_both_ways_takes_the_items_block() {
+        assert_eq!(
+            value_record(
+                r#"{"value":"INVENTED","contains_payload":true}"#,
+                "local_private",
+                false
+            ),
+            vec![route_decision(
+                "$.record",
+                "block_export",
+                "PAYLOAD_METADATA_ONLY_REQUIRED"
+            )]
+        );
+    }
+
+    /// Python stricter by a block: the projected `value` leaf needs local-private intent.
+    #[test]
+    fn value_record_projected_value_leaf_needs_intent() {
+        assert_eq!(
+            value_record(
+                r#"{"value":"INVENTED","export_policy":{}}"#,
+                "local_private",
+                false
+            ),
+            vec![route_decision(
+                "$.record.value",
+                "block_export",
+                "LOCAL_PRIVATE_INTENT_REQUIRED"
+            )]
+        );
+    }
+
+    /// The union (the 572 class): the item redacts for the concrete path, so the `value` leaf
+    /// is raised to it with the item's own reason (1(a)) and `file_path` is omitted (2(a)).
+    #[test]
+    fn value_record_union_raises_value_and_omits_the_unsafe_path_key() {
+        assert_eq!(
+            value_record(
+                r#"{"value":"INVENTED","file_path":"INVENTED","export_policy":{}}"#,
+                "local_private",
+                true
+            ),
+            vec![
+                route_decision("$.record.file_path", "omit_field", "CONCRETE_PATH_REDACTED"),
+                route_decision("$.record.value", "redact_value", "CONCRETE_PATH_REDACTED"),
+            ]
+        );
+    }
+
+    /// A tie (same visible data) takes the projection's decision records.
+    #[test]
+    fn value_record_tie_takes_the_projection_form() {
+        assert_eq!(
+            value_record(
+                r#"{"value":"INVENTED","export_policy":{}}"#,
+                "local_private",
+                true
+            ),
+            vec![route_decision(
+                "$.record.value",
+                "warning_only",
+                "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"
+            )]
+        );
     }
 
     /// Before the reorder `concrete_path_present: true` returned `redact_value` /
