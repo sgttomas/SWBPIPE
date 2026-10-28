@@ -402,6 +402,6 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 
 These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
 
-- **DEL-06-02:1** — Keep PDU-037 downstream plugin/adapter bypass-attempt and public-example protected-content test families open; the refreshed 31-test plus 69-case evaluator corpus is verification only.
+- **DEL-06-02:1** — Keep PDU-037's public-example protected-content test families open; the refreshed 31-test plus 69-case evaluator corpus is verification only. Its downstream plugin/adapter bypass-attempt families are deferred until after v1.0 (owner, 2026-10-28, accepting OC-6 "as stated"; `docs/RELEASE_TARGET_v1.0.md` RT-R3).
 - **DEL-06-02:2** — Bind evaluator findings and final diagnostic taxonomy into a governed result envelope before report consumption; the T4 persisted-record reader does not execute or integrate the evaluator.
-- **DEL-06-02:3** — Bind any future adapter/plugin invocation to a governed runtime dispatch path; the DEC-074 O7/E5 declaration gate is deny-only and does not load or execute evaluator inputs.
+- **DEL-06-02:3** — Deferred until after v1.0 (owner, 2026-10-28, accepting OC-6 "as stated"; `docs/RELEASE_TARGET_v1.0.md` RT-R3). Bind any future adapter/plugin invocation to a governed runtime dispatch path; the DEC-074 O7/E5 declaration gate is deny-only and does not load or execute evaluator inputs.
