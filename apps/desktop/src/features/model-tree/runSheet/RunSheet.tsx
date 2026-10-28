@@ -138,6 +138,8 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
     const target = pendingFocus.current;
     if (!target) return;
     pendingFocus.current = null;
+    // A hidden or inert sheet (a modal holds the workspace) takes no focus.
+    if (tableRef.current?.closest("[hidden], [inert]")) return;
     if (target === "footer") {
       const queueButton = footerRef.current?.querySelector<HTMLButtonElement>('[data-testid="run-sheet-queue"]');
       (queueButton && !queueButton.disabled ? queueButton : footerRef.current)?.focus();
@@ -152,6 +154,7 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
     const previous = lastShown.current;
     lastShown.current = shownKeys;
     if (!focus || shownKeys.includes(focus.rowKey)) return;
+    if (tableRef.current?.closest("[hidden], [inert]")) { setFocus(null); return; }
     const at = previous.indexOf(focus.rowKey);
     const following = previous.slice(at + 1).find((key) => shownKeys.includes(key));
     const preceding = previous.slice(0, Math.max(0, at)).reverse().find((key) => shownKeys.includes(key));
