@@ -32,6 +32,17 @@ pub(crate) const REDUCER_IN_REGION: &str = "EXACT_PRESSURE_REDUCER_IN_REGION";
 /// The static text of [`REDUCER_IN_REGION`] (the seam composes no text).
 pub(crate) const REDUCER_IN_REGION_TEXT: &str = "reducer maps a member of this pressure region; a reducer's thrust from a bore change is not modelled under 3.0.0/exact_pressure_v3, and the equal-bore region check never reads the reducer, so the exact route refuses it rather than analyse it as equal-bore pipe; a reducer whose mapped member lies outside every pressure region is admitted with its DEC-045 stiffness scale";
 
+/// §8.30 correction 1 (RT-A3; R-4 design C-1): the case-specific refusal of a
+/// node where terminals of two or more pressure regions meet and at least one
+/// of them is `separately_supported_or_compensated`
+/// (`pressure_runtime::refuse_compensated_shared_terminals`). Temporary: R-4
+/// stage S1's junction admission replaces it.
+pub(crate) const SHARED_TERMINAL_JUNCTION: &str =
+    "EXACT_PRESSURE_SHARED_TERMINAL_JUNCTION_UNSUPPORTED";
+/// The static tail of [`SHARED_TERMINAL_JUNCTION`]'s text, after the node,
+/// its regions and the compensated regions are named.
+pub(crate) const SHARED_TERMINAL_JUNCTION_TEXT: &str = "3.0.0/exact_pressure_v3 has no junction representation yet, and a compensated terminal at a junction drops its member's share (p*Ai along the member's outward axis) of the junction's pressure load -sum(p*Ai*s) from the pipe solve, so the exact route refuses the junction rather than analyse it without that load; where the members share one fluid space, transfers_to_wall at every terminal of the node carries that load";
+
 /// The sole exact pressure contract declared on a current model document.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ExactContract {

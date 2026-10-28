@@ -501,6 +501,54 @@ pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagn
                 ),
             }
         }
+        refuse_compensated_shared_terminals(&case.id, regions, diagnostics);
+    }
+}
+
+/// §8.30 correction 1 (RT-A3; R-4 design C-1, temporary until R-4 stage S1's
+/// junction admission). A node where terminals of two or more regions of the
+/// case meet is a pressure junction of their members. Each `transfers_to_wall`
+/// cap there is p*Ai along its member's outward axis -s_k, so when every
+/// terminal at the node transfers, the caps sum to the junction load
+/// -sum(p*Ai*s_k). A `separately_supported_or_compensated` terminal at such a
+/// node drops its member's term, which no admitted representation restores,
+/// so the node is refused. Every terminal transferring, a single region's
+/// closure (beside unpressurized pipes included) and every other node are
+/// unchanged.
+fn refuse_compensated_shared_terminals(
+    case_id: &str,
+    regions: &[PressureRegionInput],
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    let mut at_node: BTreeMap<&str, (Vec<&str>, Vec<&str>)> = BTreeMap::new();
+    for region in regions {
+        let (Some(id), Some(terminals)) = (present(&region.id), &region.terminals) else {
+            continue;
+        };
+        for terminal in terminals {
+            let Some(node) = present(&terminal.node_ref) else {
+                continue;
+            };
+            let (ending, compensated) = at_node.entry(node).or_default();
+            if !ending.contains(&id) {
+                ending.push(id);
+            }
+            if terminal.closure_transfer.as_deref() == Some("separately_supported_or_compensated")
+                && !compensated.contains(&id)
+            {
+                compensated.push(id);
+            }
+        }
+    }
+    for (node, (ending, compensated)) in at_node {
+        if ending.len() < 2 || compensated.is_empty() {
+            continue;
+        }
+        let mut refs = vec![case_id, node];
+        refs.extend(&compensated);
+        problem(diagnostics, exact_admission::SHARED_TERMINAL_JUNCTION, &refs, format!(
+            "pressure regions {} each end at node {node}, so the node is a shared-terminal pressure junction, and separately_supported_or_compensated is declared there by {}; {}",
+            ending.join(", "), compensated.join(", "), exact_admission::SHARED_TERMINAL_JUNCTION_TEXT));
     }
 }
 

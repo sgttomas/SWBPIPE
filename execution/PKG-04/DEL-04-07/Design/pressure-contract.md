@@ -62,6 +62,10 @@ This records what the code does at T4-U2 source `98dba87714262722a78a534ad5921a1
 - **First usable path.** The L line authored from its corner through the panels equals the applier's document (`fixtures/model_operations/pressure_v3_l_line_authoring.json`); it solves under pressure-1 in both modes in PP and HR and agrees with T4-I7's hand-placed document.
 - **VP-STATIC `exact_pressure_1`.** The transport `exact_pressure_1_cli_1.0_raw0.2` (`tools/validation/qualification_exact_pressure.py`) scores the package `validation/qualification/fixtures/exact_pressure/` (168 cases from the frozen T4-I7 and T4-I8 references, both modes). Its owned-reader check takes the Rust reader's verdict, `openpipestress-runner read pressure` (binding `openpipestress.exact_pressure_consistency_binding/2`, which selects `physics_evidence.rs` with the table and unit authority), through the current pressure route, as the physics and load-reference qualification adapters do (b7-plan R2); no module outside `tests/` imports a verifier. The independent review T4-RV28 admitted it (`ADMISSION.json`; admission changes statuses only). The CLI gate run is not required: DEC-025 no longer binds.
 
+## Shared-terminal junctions (temporary refusal)
+
+Terminals of two or more regions of a case may meet at one node, such as a tee built from three regions with `components: []`. Each `transfers_to_wall` cap there is p·Ai along its member's outward axis, so when every terminal at the node transfers, the caps sum to the junction load −Σ p·Ai·s_k. A `separately_supported_or_compensated` terminal at such a node drops its member's term without notice. Since §8.30 correction 1 (RT-A3), that node is refused by name (`EXACT_PRESSURE_SHARED_TERMINAL_JUNCTION_UNSUPPORTED`, `pressure_runtime.rs`); the refusal names the case, the node and the compensated regions. Nodes whose terminals all transfer, and a single region's closure, are unchanged. The refusal is temporary: R-4 stage S1 replaces it with explicit junction admission (`design_r4.md` §3.1).
+
 ## Load cases that apply nothing
 
 A load case whose authored loads are not applied is refused by name; it is
