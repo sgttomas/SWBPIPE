@@ -251,27 +251,33 @@ def test_no_case_is_decided_less_strictly_than_before_in_any_implementation():
     object label is no decision; the case is held to the TypeScript and Rust columns.  Nor is
     the Rust column's ``not_mirrored`` on an alias_projector or proto_projector case; it is
     held to the Python and TypeScript columns.  A proto_projector case is not held to the
-    TypeScript column (``PROTOTYPE_COPY_COLUMN``)."""
+    TypeScript column (``PROTOTYPE_COPY_COLUMN``).  Each column's count is asserted
+    separately."""
 
     frozen = load_json(DECISIONS_PATH)
     cases = expand_sweep(load_json(SWEEP_PATH))
     before = {name: decoded_column(frozen, name) for name in BEFORE_COLUMNS}
-    looser = []
+    looser = {name: [] for name in BEFORE_COLUMNS}
     for index, case in enumerate(cases):
         decided = decide(case)
         assert decided not in NO_DECISION, index
         for name, column in before.items():
             if held_to(case[0], name, column[index]) and strictness(decided) < strictness(column[index]):
-                looser.append((index, name, column[index], decided))
-    assert looser == []
+                looser[name].append((index, column[index], decided))
+    assert looser["python_before"] == []
+    assert looser["typescript_before"] == []
+    assert looser["rust_before"] == []
 
 
 def test_the_prototype_copy_column_is_the_proto_projector_cases_only_and_pinned():
     """The TypeScript column is set aside only for the appended proto_projector cases, each
-    of which is still held to a decision, and its frozen decisions there differ from the
-    contract as pinned: 780 less strict (a `__proto__` member's public labels, inherited by
-    the copy, lifted a sibling into a public basis) and 120 stricter (a member's restrictive
-    privacy, inherited by the copy, hid the record's own `classification` alias)."""
+    of which is still held to the Python column.  Under the fail-closed rule (HELP_HUMAN
+    ruling, 2026-10-27, option (b)) the contract is no less strict than the set-aside column
+    either: it is stricter in 1,920 cases (among them the 780 where a member's public labels,
+    inherited by the copy, lifted a sibling into a public basis, and the 120 where a member's
+    restrictive privacy, inherited by the copy, hid the record's own `classification` alias,
+    which redact again) and less strict in none.  Against Python's frozen decisions the
+    contract is stricter in 1,932 `__proto__` cases, by design."""
 
     frozen = load_json(DECISIONS_PATH)
     cases = expand_sweep(load_json(SWEEP_PATH))
@@ -281,8 +287,12 @@ def test_the_prototype_copy_column_is_the_proto_projector_cases_only_and_pinned(
     assert len(set_aside) == 10_080 and set_aside[0] >= 82_600
     assert all(before["python_before"][index] not in NO_DECISION for index in set_aside)
     typescript = before["typescript_before"]
-    assert sum(strictness(typescript[i]) < strictness(contract[i]) for i in set_aside) == 780
-    assert sum(strictness(typescript[i]) > strictness(contract[i]) for i in set_aside) == 120
+    assert sum(strictness(typescript[i]) < strictness(contract[i]) for i in set_aside) == 1_920
+    assert sum(strictness(typescript[i]) > strictness(contract[i]) for i in set_aside) == 0
+    python = before["python_before"]
+    proto_cases = [i for i, case in enumerate(cases) if case[0] in ("proto_items", "proto_projector")]
+    assert len(proto_cases) == 18_144 and proto_cases[0] == 82_600
+    assert sum(strictness(contract[i]) > strictness(python[i]) for i in proto_cases) == 1_932
 
 
 def test_python_gives_the_contract_decision_for_every_case():
@@ -363,43 +373,46 @@ def test_route_projector_reads_no_classification_alias_under_a_null_primary_labe
     assert controlled.payload["record"]["note"] == "INVENTED"
 
 
-# A JSON `__proto__` member is an ordinary own member (HELP_HUMAN decision, 2026-10-27:
-# "Parse so that no JSON member can become a prototype").  One class per kind of member
-# label in the code review's 180 cases and their converse: the member's labels label only
-# the member, never the record that holds it, on the record or in its provenance, in the
-# five projector contexts with and without intent.
+# A JSON `__proto__` member is an own member (HELP_HUMAN decision, 2026-10-27: "Parse so
+# that no JSON member can become a prototype"), and it fails closed on the key itself
+# (HELP_HUMAN ruling, 2026-10-27: "option (b), fail closed on the key itself, in all three
+# implementations. A record carrying an own `__proto__` member gets no direct public basis,
+# and its siblings are labelled by path. The item classifier treats the member as an unknown
+# label.").  One class per kind of member label in the code review's 180 cases and their
+# converse, with the member on the record and in its provenance, in the five projector
+# contexts with and without intent.
 PROJECTOR_CONTEXTS = [
     (context, intent)
     for context in ("public_report", "public_example", "shared_model", "downstream_tool", "local_private")
     for intent in (False, True)
 ]
 PROTO_MEMBER_CLASSES = [
-    # (class, the member, the record's own labels, the record's labels are a public basis)
+    # (class, the member, the record's own labels)
     ("member_unknown_privacy", {"privacy_classification": "unknown"},
-     {"classification": "public", "redistribution_status": "public_permissive"}, True),
+     {"classification": "public", "redistribution_status": "public_permissive"}),
     ("member_private_privacy", {"privacy_classification": "private_project_data"},
-     {"classification": "public", "redistribution_status": "public_permissive"}, True),
+     {"classification": "public", "redistribution_status": "public_permissive"}),
     ("member_private_labels", {"privacy_classification": "private_project_data", "redistribution_status": "private_only"},
-     {"classification": "public", "redistribution_status": "public_permissive"}, True),
+     {"classification": "public", "redistribution_status": "public_permissive"}),
     ("member_private_redistribution", {"redistribution_status": "private_only"},
-     {"privacy_classification": "public", "redistribution_status": "public_permissive"}, True),
+     {"privacy_classification": "public", "redistribution_status": "public_permissive"}),
     ("member_public_labels", {"privacy_classification": "public", "redistribution_status": "public_permissive"},
-     {}, False),
+     {}),
     ("member_public_redistribution", {"redistribution_status": "public_permissive"},
-     {"privacy_classification": "public"}, False),
+     {"privacy_classification": "public"}),
     ("member_public_privacy", {"privacy_classification": "public"},
-     {"redistribution_status": "public_permissive"}, False),
+     {"redistribution_status": "public_permissive"}),
     ("member_private_privacy_public_redistribution", {"privacy_classification": "private_project_data", "redistribution_status": "public_permissive"},
-     {"classification": "public"}, False),
+     {"classification": "public"}),
 ]
-PUBLIC_PROVENANCE = {"privacy_classification": "public", "redistribution_status": "public_permissive"}
+PUBLIC_LABELS = {"privacy_classification": "public", "redistribution_status": "public_permissive"}
 
 
 def proto_records(member, labels, member_key="__proto__"):
     """The class's record with the member on it and with the member in its provenance."""
 
     yield "record", {**labels, member_key: member, "note": "INVENTED"}
-    yield "provenance", {**labels, "provenance": {**PUBLIC_PROVENANCE, member_key: member}, "note": "INVENTED"}
+    yield "provenance", {**labels, "provenance": {**PUBLIC_LABELS, member_key: member}, "note": "INVENTED"}
 
 
 def note_decision(record, context, intent):
@@ -415,72 +428,101 @@ def note_decision(record, context, intent):
     return note[0], controlled.payload
 
 
-def test_route_projector_reads_a_json_proto_member_as_an_ordinary_own_member():
-    """The code review's repro, parsed from JSON text: the member labels only itself, so the
-    record's own `classification` alias and redistribution are its public basis and `note` is
-    included, as Python always decided; the member is kept and its leaf is redacted."""
+def unbased(context):
+    """A path-labelled sibling of a record with no public basis."""
+
+    return ("warning_only" if context == "local_private" else "redact_value", "REDISTRIBUTION_STATUS_UNKNOWN")
+
+
+def barred(control, context):
+    """The classifier's decision with the safe-and-public pairing barred: inclusion becomes
+    the unknown-label decision; every other decision stands."""
+
+    if control[0] != "include":
+        return control
+    if context == "user_released_report":
+        return ("block_export", "USER_RELEASE_VALUE_UNBOUND")
+    return ("warning_only" if context == "local_private" else "redact_value", "UNKNOWN_PROVENANCE_WARNING")
+
+
+def test_route_projector_fails_closed_on_a_json_proto_member():
+    """The code review's repro, parsed from JSON text.  The record carries an own
+    `__proto__` member, so it has no direct public basis and `note` is redacted, as base
+    TypeScript decided and Python did not; the member is kept and its leaf is redacted."""
 
     payload = json.loads(
         '{"record":{"__proto__":{"privacy_classification":"private_project_data"},'
         '"classification":"public","redistribution_status":"public_permissive","note":"INVENTED"}}'
     )
     decided, materialized = note_decision(payload["record"], "public_report", False)
-    assert decided == ("include", "SAFE_PUBLIC_METADATA")
+    assert decided == ("redact_value", "REDISTRIBUTION_STATUS_UNKNOWN")
     assert materialized == {
         "record": {
             "__proto__": {"privacy_classification": "[REDACTED]"},
-            "classification": "public",
-            "redistribution_status": "public_permissive",
-            "note": "INVENTED",
+            "classification": "[REDACTED]",
+            "redistribution_status": "[REDACTED]",
+            "note": "[REDACTED]",
         }
     }
 
 
-def test_route_projector_proto_member_classes_label_only_the_member():
-    for name, member, labels, public_basis in PROTO_MEMBER_CLASSES:
-        expected_public = ("include", "SAFE_PUBLIC_METADATA")
-        for (placement, record), (_, renamed) in zip(
-            proto_records(member, labels), proto_records(member, labels, member_key="proto_member")
-        ):
+def test_route_projector_proto_member_classes_give_no_public_basis():
+    for name, member, labels in PROTO_MEMBER_CLASSES:
+        for placement, record in proto_records(member, labels):
             for context, intent in PROJECTOR_CONTEXTS:
-                expected = (
-                    expected_public
-                    if public_basis
-                    else ("warning_only" if context == "local_private" else "redact_value", "REDISTRIBUTION_STATUS_UNKNOWN")
-                )
                 decided, materialized = note_decision(record, context, intent)
                 where = (name, placement, context, intent)
-                assert decided == expected, where
-                assert note_decision(renamed, context, intent)[0] == decided, where
-                # The member is kept as an ordinary member wherever the payload is materialized.
+                assert decided == unbased(context), where
+                # The member is kept as an own member wherever the payload is materialized.
                 if context != "local_private" or intent:
                     record_out = materialized["record"]
                     assert "__proto__" in (record_out if placement == "record" else record_out["provenance"]), where
 
 
-def test_classifier_proto_member_classes_label_only_the_member():
-    """An item's `__proto__` member, on the item or in its provenance, decides nothing: the
-    item is decided as with the member renamed, in all twelve sweep contexts."""
+def test_classifier_proto_member_classes_read_the_member_as_an_unknown_label():
+    """An item's `__proto__` member, on the item or in its provenance, bars the
+    safe-and-public pairing and nothing else, in all twelve sweep contexts: the item is
+    decided as with the member renamed, except that inclusion becomes the unknown-label
+    decision."""
 
     contexts = load_json(SWEEP_PATH)["contexts"]
-    for name, member, labels, _ in PROTO_MEMBER_CLASSES:
+    for name, member, labels in PROTO_MEMBER_CLASSES:
         for placement in ("item", "provenance"):
             def item(member_key):
                 carried = {**labels, member_key: member}
                 return {"value": "x", "provenance": carried} if placement == "provenance" else {"value": "x", **carried}
 
             for context, intent, release in contexts:
-                decide_item = lambda candidate: classify_export_item(
-                    candidate,
-                    export_context=context,
-                    explicit_local_private_intent=intent,
-                    explicit_user_release_intent=release,
-                )
-                decided = decide_item(item("__proto__"))
-                control = decide_item(item("proto_member"))
-                assert (decided.action, decided.reason_code) == (control.action, control.reason_code), (
+                def decide_item(candidate):
+                    decision = classify_export_item(
+                        candidate,
+                        export_context=context,
+                        explicit_local_private_intent=intent,
+                        explicit_user_release_intent=release,
+                    )
+                    return decision.action, decision.reason_code
+
+                assert decide_item(item("__proto__")) == barred(decide_item(item("proto_member")), context), (
                     name, placement, context, intent, release
                 )
+
+
+def test_proto_member_classes_are_stricter_than_python_read_them_before_the_ruling():
+    """One case per member class, on a record and an item whose own labels are public:
+    Python read the member as an ordinary member (as it reads the member renamed), so the
+    record's sibling and the item were included; now both fail closed.  Deliberately
+    stricter than Python's previous reading."""
+
+    for name, member, _ in PROTO_MEMBER_CLASSES:
+        record = {**PUBLIC_LABELS, "__proto__": member, "note": "INVENTED"}
+        renamed = {**PUBLIC_LABELS, "proto_member": member, "note": "INVENTED"}
+        assert note_decision(renamed, "public_report", False)[0] == ("include", "SAFE_PUBLIC_METADATA"), name
+        assert note_decision(record, "public_report", False)[0] == unbased("public_report"), name
+        item = classify_export_item({"value": "x", **PUBLIC_LABELS, "__proto__": member}, export_context="public_report")
+        control = classify_export_item({"value": "x", **PUBLIC_LABELS, "proto_member": member}, export_context="public_report")
+        assert (control.action, control.reason_code) == ("include", "SAFE_PUBLIC_METADATA"), name
+        assert (item.action, item.reason_code) == ("redact_value", "UNKNOWN_PROVENANCE_WARNING"), name
+        assert strictness(f"{item.action}/{item.reason_code}") > strictness(f"{control.action}/{control.reason_code}")
 
 
 def test_concrete_path_never_turns_a_protected_block_into_a_redaction():

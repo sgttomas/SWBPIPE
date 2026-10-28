@@ -433,6 +433,19 @@ function setMember(target: PlainObject, key: string, value: unknown): void {
   Object.defineProperty(target, key, { value, writable: true, enumerable: true, configurable: true });
 }
 
+/** Whether an object or its `provenance` object carries an own `__proto__` member. Such an
+ * object has no public basis, whatever its labels state (HELP_HUMAN ruling, 2026-10-27, option
+ * (b): "fail closed on the key itself, in all three implementations"): a `__proto__` key in export
+ * data is anomalous, and it may never lift or restrict a record by accident. The route projector
+ * gives the record no direct public basis, and the classifier reads the member as an unknown
+ * label where that is stricter: it removes the safe-and-public pairing and nothing else. Identical
+ * in core/security/redaction/controls.py (`carries_proto_member`) and redaction_binding.rs. */
+function carriesProtoMember(object: PlainObject): boolean {
+  const own = (candidate: unknown) =>
+    isPlainObject(candidate) && Object.prototype.hasOwnProperty.call(candidate, "__proto__");
+  return own(object) || own(object.provenance);
+}
+
 // Input contract (docs/security/redaction_export_controls.md, "Input contract"; HELP_HUMAN ruling
 // 2026-10-27). The flag strings all three implementations recognize, after trimming and lowercasing;
 // identical in core/security/redaction/controls.py and redaction_binding.rs.
@@ -585,6 +598,7 @@ function userReleasedAction(args: {
   privacy: unknown;
   redistribution: unknown;
   explicitUserReleaseIntent: boolean;
+  publicBasisBarred: boolean;
 }): { action: RedactionAction; reason: RedactionReasonCode } {
   if (typeof args.privacy === "string" && NON_PROJECT_PRIVATE_CLASSES.has(args.privacy)) {
     return { action: "redact_value", reason: "PRIVATE_DATA_REDACTED" };
@@ -595,6 +609,7 @@ function userReleasedAction(args: {
       : { action: "block_export", reason: "USER_RELEASE_INTENT_REQUIRED" };
   }
   if (
+    !args.publicBasisBarred &&
     typeof args.privacy === "string" &&
     SAFE_PRIVACY_CLASSES.has(args.privacy) &&
     typeof args.redistribution === "string" &&
@@ -623,6 +638,8 @@ type ActionInputs = {
   directSqlAccess: boolean;
   storageBypass: boolean;
   concretePathPresent: boolean;
+  /** An own `__proto__` member on the item or its provenance (`carriesProtoMember`). */
+  publicBasisBarred: boolean;
 };
 
 /** The blocks of the decision order (§3.2) that come first in every context: the claim, network,
@@ -659,6 +676,7 @@ function contextActionFor(args: ActionInputs): { action: RedactionAction; reason
     return { action: unknownAction(args.exportContext), reason: "UNKNOWN_PROVENANCE_WARNING" };
   }
   if (
+    !args.publicBasisBarred &&
     typeof args.privacy === "string" &&
     SAFE_PRIVACY_CLASSES.has(args.privacy) &&
     typeof args.redistribution === "string" &&
@@ -828,7 +846,8 @@ function classify(
     cloudOrNetworkReference: cloudOrNetworkReference(item),
     directSqlAccess: directSqlAccess(item),
     storageBypass: storageBypassRequested(item),
-    concretePathPresent: concretePathPresent(item)
+    concretePathPresent: concretePathPresent(item),
+    publicBasisBarred: carriesProtoMember(item)
   });
   const decision: RedactionDecision = {
     decision_id: `REDC-DEC-${String(args.decisionIndex).padStart(4, "0")}`,
@@ -1157,7 +1176,10 @@ function projectRouteValue(
     // A non-string label is a stated label that matches no class (input contract): `["public"]`
     // is not a public basis.
     const directRedistribution = value.redistribution_status;
+    // An own `__proto__` member on the record or its provenance gives it no direct public basis
+    // (`carriesProtoMember`), so its siblings are labelled by their paths.
     const boundedPublicBasis =
+      !carriesProtoMember(value) &&
       typeof directPrivacy === "string" &&
       SAFE_PRIVACY_CLASSES.has(directPrivacy) &&
       typeof directRedistribution === "string" &&
@@ -1444,6 +1466,10 @@ function screenUserReleaseValue(
     const screened = decide(value);
     if (screened.boundary) {
       push(screened.decision);
+    } else if (carriesProtoMember(value)) {
+      // An own `__proto__` member reads as a stated unknown label (`carriesProtoMember`), which
+      // blocks by step 13 here, so no descendant inherits a label past it.
+      push(decide({ field_id: fieldId, field_class: fieldClass, privacy_classification: "unknown" }).decision);
     } else {
       // The object's own stated label, decided alone (§3.2): an unrecognized or step-13 own
       // label blocks here, before any descendant could replace it for its leaves.

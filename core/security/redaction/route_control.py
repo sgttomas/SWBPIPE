@@ -19,6 +19,7 @@ from .controls import (
     RedactionDecision,
     RedactionFinding,
     assert_user_release_intent_context,
+    carries_proto_member,
     redact_export_payload,
 )
 
@@ -276,6 +277,10 @@ def _declares_direct_public_basis(value: Mapping[str, Any]) -> bool:
     # The `classification` alias is read only when `privacy_classification` is absent: a
     # present primary label, null included, is the label, so a null cannot let the alias
     # lift a sibling into a public basis (HELP_HUMAN decision, 2026-10-27).
+    # An own `__proto__` member on the record or its provenance gives it no direct public
+    # basis (`carries_proto_member`), so its siblings are labelled by their paths.
+    if carries_proto_member(value):
+        return False
     privacy = value.get("privacy_classification", value.get("classification"))
     redistribution = value.get("redistribution_status")
     # A non-string label is a stated label that matches no class (input contract): it is no

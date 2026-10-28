@@ -10,6 +10,7 @@ import { describe, expect, it } from "vitest";
 import {
   classifyExportItem,
   controlRouteExport,
+  controlUserReleasedReportPackageRequest,
   redactExportPayload,
   type ControlExportContext,
   type RedactionExportContext
@@ -288,25 +289,29 @@ describe("DEL-12-02 input-contract sweep", () => {
     // Python's former TypeError on an array or object label is no decision; the case is held to
     // the TypeScript and Rust columns. Nor is the Rust column's `not_mirrored` on an alias_projector or
     // proto_projector case; it is held to the Python and TypeScript columns. A proto_projector case is not
-    // held to the TypeScript column (`PROTOTYPE_COPY_COLUMN`).
+    // held to the TypeScript column (`PROTOTYPE_COPY_COLUMN`). Each column's count is asserted separately.
     const before = BEFORE_COLUMNS.map((name) => [name, decodedColumn(name)] as const);
-    const looser: [number, string, string, string][] = [];
+    const looser: Record<string, [number, string, string][]> = Object.fromEntries(BEFORE_COLUMNS.map((name) => [name, []]));
     cases.forEach((sweepCase, index) => {
       const decided = decide(sweepCase);
       for (const [name, column] of before) {
         if (heldTo(sweepCase.family, name, column[index]) && strictness(decided) < strictness(column[index])) {
-          looser.push([index, name, column[index], decided]);
+          looser[name].push([index, column[index], decided]);
         }
       }
     });
-    expect(looser).toEqual([]);
+    expect(looser.python_before).toEqual([]);
+    expect(looser.typescript_before).toEqual([]);
+    expect(looser.rust_before).toEqual([]);
   });
 
   it("sets the TypeScript column aside only for the proto_projector cases, as pinned", () => {
-    // Each set-aside case is still held to the Python column. The frozen TypeScript decisions there differ
-    // from the contract as pinned: 780 less strict (a `__proto__` member's public labels, inherited by the
-    // copy, lifted a sibling into a public basis) and 120 stricter (a member's restrictive privacy,
-    // inherited by the copy, hid the record's own `classification` alias).
+    // Each set-aside case is still held to the Python column. Under the fail-closed rule (HELP_HUMAN ruling,
+    // 2026-10-27, option (b)) the contract is no less strict than the set-aside column either: stricter in
+    // 1,920 cases (among them the 780 where a member's public labels, inherited by the copy, lifted a sibling
+    // into a public basis, and the 120 where a member's restrictive privacy, inherited by the copy, hid the
+    // record's own `classification` alias, which redact again) and less strict in none. Against Python's
+    // frozen decisions the contract is stricter in 1,932 `__proto__` cases, by design.
     const contract = decodedColumn("contract");
     const python = decodedColumn("python_before");
     const typescript = decodedColumn("typescript_before");
@@ -314,8 +319,13 @@ describe("DEL-12-02 input-contract sweep", () => {
     expect(setAside).toHaveLength(10_080);
     expect(setAside[0]).toBeGreaterThanOrEqual(82_600);
     expect(setAside.every((index) => !NO_DECISION.includes(python[index]))).toBe(true);
-    expect(setAside.filter((index) => strictness(typescript[index]) < strictness(contract[index]))).toHaveLength(780);
-    expect(setAside.filter((index) => strictness(typescript[index]) > strictness(contract[index]))).toHaveLength(120);
+    expect(setAside.filter((index) => strictness(typescript[index]) < strictness(contract[index]))).toHaveLength(1_920);
+    expect(setAside.filter((index) => strictness(typescript[index]) > strictness(contract[index]))).toHaveLength(0);
+    const protoCases = cases.flatMap((sweepCase, index) =>
+      sweepCase.family === "proto_items" || sweepCase.family === "proto_projector" ? [index] : []
+    );
+    expect([protoCases.length, protoCases[0]]).toEqual([18_144, 82_600]);
+    expect(protoCases.filter((index) => strictness(contract[index]) > strictness(python[index]))).toHaveLength(1_932);
   });
 
   it("gives the contract decision for every case (with the pytest and cargo twins, 0 mismatches)", () => {
@@ -388,44 +398,43 @@ describe("DEL-12-02 input contract: named regressions", () => {
     expect(noteOf(aliasOnly)).toEqual({ decisions: [["include", "SAFE_PUBLIC_METADATA"]], note: "INVENTED" });
   });
 
-  // A JSON `__proto__` member is an ordinary own member (HELP_HUMAN decision, 2026-10-27: "Parse so that no
-  // JSON member can become a prototype"). One class per kind of member label in the code review's 180 cases
-  // and their converse: the member's labels label only the member, never the record that holds it, on the
-  // record or in its provenance, in the five projector contexts with and without intent.
-  const PROTO_MEMBER_CLASSES: [string, Item, Item, boolean][] = [
-    // [class, the member, the record's own labels, the record's labels are a public basis]
-    ["member_unknown_privacy", { privacy_classification: "unknown" }, { classification: "public", redistribution_status: "public_permissive" }, true],
-    ["member_private_privacy", { privacy_classification: "private_project_data" }, { classification: "public", redistribution_status: "public_permissive" }, true],
+  // A JSON `__proto__` member is an own member (HELP_HUMAN decision, 2026-10-27: "Parse so that no JSON member
+  // can become a prototype"), and it fails closed on the key itself (HELP_HUMAN ruling, 2026-10-27: "option (b),
+  // fail closed on the key itself, in all three implementations. A record carrying an own `__proto__` member
+  // gets no direct public basis, and its siblings are labelled by path. The item classifier treats the member
+  // as an unknown label."). One class per kind of member label in the code review's 180 cases and their
+  // converse, with the member on the record and in its provenance, in the five projector contexts with and
+  // without intent.
+  const PROTO_MEMBER_CLASSES: [string, Item, Item][] = [
+    // [class, the member, the record's own labels]
+    ["member_unknown_privacy", { privacy_classification: "unknown" }, { classification: "public", redistribution_status: "public_permissive" }],
+    ["member_private_privacy", { privacy_classification: "private_project_data" }, { classification: "public", redistribution_status: "public_permissive" }],
     [
       "member_private_labels",
       { privacy_classification: "private_project_data", redistribution_status: "private_only" },
-      { classification: "public", redistribution_status: "public_permissive" },
-      true
+      { classification: "public", redistribution_status: "public_permissive" }
     ],
-    ["member_private_redistribution", { redistribution_status: "private_only" }, { privacy_classification: "public", redistribution_status: "public_permissive" }, true],
-    ["member_public_labels", { privacy_classification: "public", redistribution_status: "public_permissive" }, {}, false],
-    ["member_public_redistribution", { redistribution_status: "public_permissive" }, { privacy_classification: "public" }, false],
-    ["member_public_privacy", { privacy_classification: "public" }, { redistribution_status: "public_permissive" }, false],
+    ["member_private_redistribution", { redistribution_status: "private_only" }, { privacy_classification: "public", redistribution_status: "public_permissive" }],
+    ["member_public_labels", { privacy_classification: "public", redistribution_status: "public_permissive" }, {}],
+    ["member_public_redistribution", { redistribution_status: "public_permissive" }, { privacy_classification: "public" }],
+    ["member_public_privacy", { privacy_classification: "public" }, { redistribution_status: "public_permissive" }],
     [
       "member_private_privacy_public_redistribution",
       { privacy_classification: "private_project_data", redistribution_status: "public_permissive" },
-      { classification: "public" },
-      false
+      { classification: "public" }
     ]
   ];
   const PROJECTOR_CONTEXTS = spec.aliases.projector.contexts;
-  const PUBLIC_PROVENANCE = { privacy_classification: "public", redistribution_status: "public_permissive" };
-  const protoRecords = (member: Item, labels: Item, memberKey = "__proto__"): [string, Item][] => {
-    const onRecord: Item = { ...labels };
-    setOwn(onRecord, memberKey, member);
-    onRecord.note = "INVENTED";
-    const provenance: Item = { ...PUBLIC_PROVENANCE };
-    setOwn(provenance, memberKey, member);
-    return [
-      ["record", onRecord],
-      ["provenance", { ...labels, provenance, note: "INVENTED" }]
-    ];
+  const PUBLIC_LABELS = { privacy_classification: "public", redistribution_status: "public_permissive" };
+  const withMember = (labels: Item, memberKey: string, member: unknown): Item => {
+    const object: Item = { ...labels };
+    setOwn(object, memberKey, member);
+    return object;
   };
+  const protoRecords = (member: Item, labels: Item): [string, Item][] => [
+    ["record", { ...withMember(labels, "__proto__", member), note: "INVENTED" }],
+    ["provenance", { ...labels, provenance: withMember(PUBLIC_LABELS, "__proto__", member), note: "INVENTED" }]
+  ];
   const noteDecision = (record: Item, exportContext: RedactionExportContext, explicitLocalPrivateIntent: boolean) => {
     const controlled = controlRouteExport({ record }, { routeId: "DREP-JSON-002", exportContext, explicitLocalPrivateIntent });
     const note = controlled.decisions
@@ -435,55 +444,57 @@ describe("DEL-12-02 input contract: named regressions", () => {
     return { decided: note[0], payload: controlled.payload as { record: Item } | null };
   };
   const ownMember = (object: unknown, key: string) => Object.prototype.hasOwnProperty.call(object, key);
+  /** A path-labelled sibling of a record with no public basis. */
+  const unbased = (context: string) => [context === "local_private" ? "warning_only" : "redact_value", "REDISTRIBUTION_STATUS_UNKNOWN"];
+  /** The classifier's decision with the safe-and-public pairing barred: inclusion becomes the unknown-label
+   * decision; every other decision stands. */
+  const barred = (control: string[], context: string) => {
+    if (control[0] !== "include") return control;
+    if (context === "user_released_report") return ["block_export", "USER_RELEASE_VALUE_UNBOUND"];
+    return [context === "local_private" ? "warning_only" : "redact_value", "UNKNOWN_PROVENANCE_WARNING"];
+  };
 
-  it("reads a JSON __proto__ member as an ordinary own member on the route projector (the review's repro)", () => {
-    // Code review r1 at 5be6c053ef: the copy made the member its prototype, so the inherited restrictive
-    // label was ignored only by the own-property check and the alias was read. The member labels only
-    // itself, so the record's own alias and redistribution are its public basis and `note` is included, as
-    // Python always decided; the member is kept as an own member and its leaf is redacted.
+  it("fails closed on a JSON __proto__ member on the route projector (the review's repro)", () => {
+    // Code review r1 at 5be6c053ef, then the HELP_HUMAN ruling: the record carries an own `__proto__` member,
+    // so it has no direct public basis and `note` is redacted, as base TypeScript decided and Python did not.
+    // The member is kept as an own member and its leaf is redacted.
     const payload = JSON.parse(
       '{"record":{"__proto__":{"privacy_classification":"private_project_data"},"classification":"public","redistribution_status":"public_permissive","note":"INVENTED"}}'
     ) as { record: Item };
     const { decided, payload: materialized } = noteDecision(payload.record, "public_report", false);
-    expect(decided).toEqual(["include", "SAFE_PUBLIC_METADATA"]);
+    expect(decided).toEqual(["redact_value", "REDISTRIBUTION_STATUS_UNKNOWN"]);
     expect(JSON.stringify(materialized)).toBe(
-      '{"record":{"__proto__":{"privacy_classification":"[REDACTED]"},"classification":"public","redistribution_status":"public_permissive","note":"INVENTED"}}'
+      '{"record":{"__proto__":{"privacy_classification":"[REDACTED]"},"classification":"[REDACTED]","redistribution_status":"[REDACTED]","note":"[REDACTED]"}}'
     );
     const record = (materialized as { record: Item }).record;
     expect(Object.getPrototypeOf(record)).toBe(Object.prototype);
     expect(ownMember(record, "__proto__")).toBe(true);
-    expect(ownMember(record, "privacy_classification")).toBe(false);
   });
 
-  it("labels only the member for each __proto__ member class on the route projector", () => {
-    for (const [name, member, labels, publicBasis] of PROTO_MEMBER_CLASSES) {
-      const renamed = protoRecords(member, labels, "proto_member");
-      protoRecords(member, labels).forEach(([placement, record], index) => {
+  it("gives no public basis for each __proto__ member class on the route projector", () => {
+    for (const [name, member, labels] of PROTO_MEMBER_CLASSES) {
+      for (const [placement, record] of protoRecords(member, labels)) {
         for (const [context, intent] of PROJECTOR_CONTEXTS) {
           const where = `${name} ${placement} ${context} ${intent}`;
-          const expected = publicBasis
-            ? ["include", "SAFE_PUBLIC_METADATA"]
-            : [context === "local_private" ? "warning_only" : "redact_value", "REDISTRIBUTION_STATUS_UNKNOWN"];
           const { decided, payload } = noteDecision(record, context as RedactionExportContext, intent);
-          expect(decided, where).toEqual(expected);
-          expect(noteDecision(renamed[index][1], context as RedactionExportContext, intent).decided, where).toEqual(decided);
-          // The member is kept as an ordinary member wherever the payload is materialized.
+          expect(decided, where).toEqual(unbased(context));
+          // The member is kept as an own member wherever the payload is materialized.
           if (context !== "local_private" || intent) {
             const holder = placement === "record" ? payload?.record : payload?.record.provenance;
             expect(ownMember(holder, "__proto__"), where).toBe(true);
             expect(Object.getPrototypeOf(holder), where).toBe(Object.prototype);
           }
         }
-      });
+      }
     }
   });
 
-  it("labels only the member for each __proto__ member class in the classifier", () => {
+  it("reads a __proto__ member as an unknown label for each class in the classifier", () => {
+    // On the item or in its provenance, the member bars the safe-and-public pairing and nothing else.
     for (const [name, member, labels] of PROTO_MEMBER_CLASSES) {
       for (const placement of ["item", "provenance"]) {
         const item = (memberKey: string): Item => {
-          const carried: Item = { ...labels };
-          setOwn(carried, memberKey, member);
+          const carried = withMember(labels, memberKey, member);
           return placement === "provenance" ? { value: "x", provenance: carried } : { value: "x", ...carried };
         };
         for (const [exportContext, explicitLocalPrivateIntent, explicitUserReleaseIntent] of spec.contexts) {
@@ -491,10 +502,46 @@ describe("DEL-12-02 input contract: named regressions", () => {
             const decision = classifyExportItem(candidate, { exportContext, explicitLocalPrivateIntent, explicitUserReleaseIntent });
             return [decision.action, decision.reason_code];
           };
-          expect(decide(item("__proto__")), `${name} ${placement} ${exportContext}`).toEqual(decide(item("proto_member")));
+          expect(decide(item("__proto__")), `${name} ${placement} ${exportContext}`).toEqual(
+            barred(decide(item("proto_member")), exportContext)
+          );
         }
       }
     }
+  });
+
+  it("is stricter than Python's reading before the ruling for one case per __proto__ member class", () => {
+    // On a record and an item whose own labels are public, Python read the member as an ordinary member (as it
+    // reads the member renamed), so the sibling and the item were included; now both fail closed.
+    for (const [name, member] of PROTO_MEMBER_CLASSES) {
+      const record = { ...withMember(PUBLIC_LABELS, "__proto__", member), note: "INVENTED" };
+      const renamed = { ...withMember(PUBLIC_LABELS, "proto_member", member), note: "INVENTED" };
+      expect(noteDecision(renamed, "public_report", false).decided, name).toEqual(["include", "SAFE_PUBLIC_METADATA"]);
+      expect(noteDecision(record, "public_report", false).decided, name).toEqual(unbased("public_report"));
+      const decide = (candidate: Item) => {
+        const decision = classifyExportItem(candidate, { exportContext: "public_report" });
+        return `${decision.action}/${decision.reason_code}`;
+      };
+      const control = decide({ value: "x", ...withMember(PUBLIC_LABELS, "proto_member", member) });
+      const item = decide({ value: "x", ...withMember(PUBLIC_LABELS, "__proto__", member) });
+      expect([control, item], name).toEqual(["include/SAFE_PUBLIC_METADATA", "redact_value/UNKNOWN_PROVENANCE_WARNING"]);
+      expect(strictness(item)).toBeGreaterThan(strictness(control));
+    }
+  });
+
+  it("blocks an object carrying a __proto__ member in the user-release screen", () => {
+    // The screen reads the member as a stated unknown label, which blocks by step 13 at that object, so no
+    // descendant inherits a label past it: here the public labels the object states would include `note`.
+    const payload = JSON.parse(
+      '{"record":{"__proto__":{"note":"INVENTED"},"privacy_classification":"public","redistribution_status":"public_permissive","note":"INVENTED"}}'
+    ) as Item;
+    const blocked = controlUserReleasedReportPackageRequest(payload, {}, true);
+    expect(blocked.blocked).toBe(true);
+    expect(blocked.decisions.filter((decision) => decision.path === "$.request.record").map((decision) => [decision.action, decision.reason_code])).toEqual([
+      ["block_export", "USER_RELEASE_VALUE_UNBOUND"]
+    ]);
+    const renamed = JSON.parse(JSON.stringify(payload).replace('"__proto__"', '"proto_member"')) as Item;
+    expect(controlUserReleasedReportPackageRequest(renamed, {}, true).blocked).toBe(false);
   });
 
   it("keeps a __proto__ member an own member through the redaction walk and its redaction", () => {

@@ -445,6 +445,7 @@ def _classify(
         direct_sql_access=_direct_sql_access(item),
         storage_bypass=_storage_bypass_requested(item),
         concrete_path_present=_concrete_path_present(item),
+        public_basis_barred=carries_proto_member(item),
     )
     decision = RedactionDecision(
         decision_id=f"REDC-DEC-{decision_index:04d}",
@@ -477,6 +478,7 @@ def _action_for(
     direct_sql_access: bool,
     storage_bypass: bool,
     concrete_path_present: bool,
+    public_basis_barred: bool,
 ) -> tuple[str, str]:
     if professional_claim:
         return "block_export", "PROFESSIONAL_BOUNDARY_BLOCKED"
@@ -499,6 +501,7 @@ def _action_for(
             privacy=privacy,
             redistribution=redistribution,
             explicit_user_release_intent=explicit_user_release_intent,
+            public_basis_barred=public_basis_barred,
         )
     else:
         action, reason = _context_action(
@@ -507,6 +510,7 @@ def _action_for(
             metadata_present=metadata_present,
             export_context=export_context,
             explicit_local_private_intent=explicit_local_private_intent,
+            public_basis_barred=public_basis_barred,
         )
     # A concrete path redacts only what would not block (input contract, 2026-10-27): it
     # never turns a protected, quarantined/rejected, intent or user-release block into a
@@ -523,6 +527,7 @@ def _context_action(
     metadata_present: bool,
     export_context: str,
     explicit_local_private_intent: bool,
+    public_basis_barred: bool,
 ) -> tuple[str, str]:
     """Step 10 onward in the five existing contexts (unchanged sequence)."""
 
@@ -532,7 +537,11 @@ def _context_action(
         return _unknown_action(export_context), "REDISTRIBUTION_STATUS_UNKNOWN"
     if privacy in UNKNOWN_PRIVACY_CLASSES:
         return _unknown_action(export_context), "UNKNOWN_PROVENANCE_WARNING"
-    if privacy in SAFE_PRIVACY_CLASSES and redistribution in PUBLIC_REDIS_STATUSES:
+    if (
+        not public_basis_barred
+        and privacy in SAFE_PRIVACY_CLASSES
+        and redistribution in PUBLIC_REDIS_STATUSES
+    ):
         reason = (
             "SAFE_INVENTED_PUBLIC_EXAMPLE"
             if privacy == "invented_public_example"
@@ -549,7 +558,11 @@ def _context_action(
 
 
 def _user_released_action(
-    *, privacy: Any, redistribution: Any, explicit_user_release_intent: bool
+    *,
+    privacy: Any,
+    redistribution: Any,
+    explicit_user_release_intent: bool,
+    public_basis_barred: bool,
 ) -> tuple[str, str]:
     """Steps 10-13 of §3.2, only for ``user_released_report``.
 
@@ -565,7 +578,8 @@ def _user_released_action(
             return "warning_only", "USER_RELEASED_PROJECT_DATA"
         return "block_export", "USER_RELEASE_INTENT_REQUIRED"
     if (
-        isinstance(privacy, str)
+        not public_basis_barred
+        and isinstance(privacy, str)
         and privacy in SAFE_PRIVACY_CLASSES
         and isinstance(redistribution, str)
         and redistribution in PUBLIC_REDIS_STATUSES
@@ -793,6 +807,26 @@ def _professional_claim(item: dict[str, Any]) -> bool:
 
     claim = item.get("professional_claim")
     return not (claim is None or claim is False)
+
+
+def carries_proto_member(item: Any) -> bool:
+    """Whether an object or its ``provenance`` object carries an own ``__proto__`` member.
+
+    Such an object has no public basis, whatever its labels state (HELP_HUMAN ruling,
+    2026-10-27, option (b): "fail closed on the key itself, in all three
+    implementations"): a ``__proto__`` key in export data is anomalous, and it may never
+    lift or restrict a record by accident.  The route projector gives the record no direct
+    public basis, and the classifier reads the member as an unknown label where that is
+    stricter: it removes the safe-and-public pairing and nothing else.  This is
+    deliberately stricter than Python's reading before the ruling, which took the key as an
+    ordinary member.  Identical in redactionExportControls.ts (``carriesProtoMember``) and
+    redaction_binding.rs.
+    """
+
+    def own(candidate: Any) -> bool:
+        return isinstance(candidate, dict) and "__proto__" in candidate
+
+    return own(item) or (isinstance(item, dict) and own(item.get("provenance")))
 
 
 def _label(value: Any) -> Any:
