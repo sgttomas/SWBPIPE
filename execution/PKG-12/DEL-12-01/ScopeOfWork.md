@@ -77,7 +77,7 @@ This Scope of Work defines `DEL-12-01` in service of project scope [SOW-029] and
 > | Symbolic Path Class | Intended Use | Boundary |
 > |---|---|---|
 > | `PUBLIC_REPO_ROOT` | Public source, schemas, documentation, invented examples, and validation artifacts safe for redistribution. | Must not hold private rule packs, owner standards, project models, private material libraries, private component libraries, credentials, or protected standards data. |
-> | `USER_CHOSEN_PROJECT_PATH` | User-selected local project model storage. | Private by default; current native placement/container follow DEL-02-05 and DEC-017/028. |
+> | `USER_CHOSEN_PROJECT_PATH` | User-selected local project model storage. | Private by default; current native placement/container follow DEL-02-05 and DEC-017/028, including the autosave recovery records and user-chosen backup folder (DEL-02-05 Design `autosave-and-backup.md`). |
 > | `USER_PRIVATE_LIBRARY_ROOT` | User-controlled local location for private rule packs, material libraries, component libraries, and owner/company design-basis data. | Must be outside default public repository paths and must not be committed publicly by default. |
 > | `PROJECT_PRIVATE_ASSET_ROOT` | Project-scoped private attachments, local manifests, and non-public supporting files. | Keep this planning alias distinct from persisted fields; physical packaging/migration follow DEC-017/019/028. |
 > | `REPORT_EXPORT_TARGET` | Local report/export destination selected by the user. | May contain private values; redaction/export safeguards belong to DEL-12-02. |

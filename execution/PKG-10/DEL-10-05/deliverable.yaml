@@ -119,6 +119,9 @@ code_paths:
 - tests/test_load_reference_headless_artifacts.py
 - tests/test_pressure_headless_artifacts.py
 checks:
+# W-18b (DEL-08-01 Design report-user-release.md §2.8 refusal 1): export-results refuses every user-release
+# marker; `user_release_runner_refused` and its CLI case `test_user_release_runner_refused` in the pytest below.
+- core/runner/headless/tests/user_release_runner_refused.rs
 - tests/test_headless_runner_contract.py
 - core/runner/headless/tests/load_reference_cli.rs
 - core/runner/headless/tests/pressure_export.rs

@@ -224,4 +224,6 @@ checks:
 - apps/desktop/src/features/bulk-change/bulkChange.session.test.tsx
 - apps/desktop/src/features/bulk-change/bulkChange.edges.session.test.tsx
 - apps/desktop/src/App.bulkChange.test.tsx
+- apps/desktop/src/features/model-tree/PropertyInspector.supportFamily.test.tsx
+- apps/desktop/src/features/model-tree/PropertyInspector.supportFamilyEngine.test.tsx
 - apps/desktop/src/App.splitAndSlope.test.tsx

@@ -487,3 +487,127 @@ def test_no_runtime_storage_code_or_schema_was_added():
     assert not (ROOT / "core" / "storage").exists()
     assert not (ROOT / "apps" / "storage").exists()
     assert not (ROOT / "schemas" / "storage.schema.yaml").exists()
+
+
+# RT-R6 (DEL-08-04-R14, AC-002): the CSV table route ``DOTH-CSV-011`` in the three route
+# catalogues: Python (here), TypeScript (``redactionExportControls.ts``) and the Rust
+# native save (``native_result_download.rs``).
+CSV_ROUTE = "DOTH-CSV-011"
+TS_CATALOGUE = ROOT / "apps/desktop/src/features/redaction-controls/redactionExportControls.ts"
+RUST_NATIVE_SAVE = ROOT / "apps/desktop/src-tauri/src/native_result_download.rs"
+ROUTE_ID_PATTERN = r'"([A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+(?:/[A-Z0-9-]+)?)"'
+
+
+def test_csv_route_is_admitted_only_for_local_private_with_explicit_intent():
+    from core.security.local_first_storage.route_control import (
+        CSV_TABLE_ROUTE_ID,
+        GOVERNED_LOCAL_FIRST_ROUTE_IDS,
+        LOCAL_PRIVATE_ONLY_ROUTE_IDS,
+    )
+
+    assert CSV_TABLE_ROUTE_ID == CSV_ROUTE
+    assert CSV_ROUTE in GOVERNED_LOCAL_FIRST_ROUTE_IDS
+    assert LOCAL_PRIVATE_ONLY_ROUTE_IDS == frozenset({CSV_ROUTE})
+    allowed = enforce_local_first_route(
+        route_id=CSV_ROUTE,
+        export_context="local_private",
+        explicit_local_private_intent=True,
+    ).as_schema_dict()
+    assert allowed == {
+        "route_id": CSV_ROUTE,
+        "export_context": "local_private",
+        "storage_context": "local_private",
+        "action": "include_metadata_only",
+        "reason_code": "PRIVATE_LOCAL_METADATA_ALLOWED",
+        "blocked": False,
+        "metadata_only": True,
+        "explicit_local_private_intent": True,
+    }
+    for intent in (False, None, "true", 1):
+        without = enforce_local_first_route(
+            route_id=CSV_ROUTE,
+            export_context="local_private",
+            explicit_local_private_intent=intent,
+        )
+        assert (without.blocked, without.reason_code) == (
+            True,
+            "LOCAL_PRIVATE_INTENT_REQUIRED",
+        )
+    for context in ("public_report", "public_example", "shared_model", "downstream_tool"):
+        for intent in (False, True):
+            refused = enforce_local_first_route(
+                route_id=CSV_ROUTE,
+                export_context=context,
+                explicit_local_private_intent=intent,
+            ).as_schema_dict()
+            assert refused == {
+                "route_id": CSV_ROUTE,
+                "export_context": context,
+                "storage_context": context,
+                "action": "block_storage",
+                "reason_code": "LOCAL_PRIVATE_ROUTE_REQUIRED",
+                "blocked": True,
+                "metadata_only": True,
+                "explicit_local_private_intent": intent,
+            }
+    released = enforce_local_first_route(
+        route_id=CSV_ROUTE,
+        export_context="user_released_report",
+        explicit_user_release_intent=True,
+    )
+    assert (released.blocked, released.reason_code) == (True, "USER_RELEASE_ROUTE_REQUIRED")
+    invalid = enforce_local_first_route(route_id=CSV_ROUTE, export_context="private_report")
+    assert (invalid.blocked, invalid.reason_code) == (True, "LOCAL_FIRST_EXPORT_CONTEXT_INVALID")
+    for lookalike in ("DOTH-CSV-010", "DOTH-CSV-012", "doth-csv-011", "DOTH-CSV-011 "):
+        unknown = enforce_local_first_route(
+            route_id=lookalike,
+            export_context="local_private",
+            explicit_local_private_intent=True,
+        )
+        assert (unknown.blocked, unknown.reason_code) == (True, "LOCAL_FIRST_ROUTE_UNKNOWN")
+    # The other governed routes keep their public-context behaviour.
+    public = enforce_local_first_route(route_id="DOTH-JSON-001", export_context="public_example")
+    assert (public.blocked, public.reason_code) == (False, "SAFE_PUBLIC_METADATA")
+
+
+def test_csv_route_catalogues_agree_across_python_typescript_and_rust():
+    import re
+
+    from core.security.local_first_storage.route_control import (
+        GOVERNED_LOCAL_FIRST_ROUTE_IDS,
+        LOCAL_PRIVATE_ONLY_ROUTE_IDS,
+    )
+
+    ts = TS_CATALOGUE.read_text(encoding="utf-8")
+    ts_block = re.search(
+        r"GOVERNED_LOCAL_FIRST_ROUTE_IDS: ReadonlySet<string> = new Set\(\[(.*?)\]\);",
+        ts,
+        re.S,
+    )
+    assert ts_block is not None
+    ts_routes = set(re.findall(ROUTE_ID_PATTERN, ts_block.group(1)))
+    # Python also carries the core-only REXC-* routes, which no desktop surface uses.
+    desktop_routes = {r for r in GOVERNED_LOCAL_FIRST_ROUTE_IDS if not r.startswith("REXC-")}
+    assert ts_routes == desktop_routes
+    assert CSV_ROUTE in ts_routes
+    assert f'export const CSV_TABLE_ROUTE_ID = "{CSV_ROUTE}";' in ts
+    assert (
+        "export const LOCAL_PRIVATE_ONLY_ROUTE_IDS: ReadonlySet<string> = "
+        "new Set([CSV_TABLE_ROUTE_ID]);"
+    ) in ts
+    assert LOCAL_PRIVATE_ONLY_ROUTE_IDS == frozenset({CSV_ROUTE})
+
+    rust = RUST_NATIVE_SAVE.read_text(encoding="utf-8")
+    assert f'const CSV_ROUTE: &str = "{CSV_ROUTE}";' in rust
+    profiles = re.search(r"fn profile\(route_id: &str\) -> Option<Profile> \{(.*?)\n\}", rust, re.S)
+    assert profiles is not None
+    rust_routes = set(re.findall(ROUTE_ID_PATTERN, profiles.group(1)))
+    if "CSV_ROUTE =>" in profiles.group(1):
+        rust_routes.add(CSV_ROUTE)
+    assert rust_routes == {"DOTH-JSON-001", "DOTH-FORMAT-003", CSV_ROUTE}
+    assert rust_routes <= GOVERNED_LOCAL_FIRST_ROUTE_IDS
+    # The native save admits only local_private, and the CSV profile alone states
+    # lossless_required=false.
+    assert 's.export_context != "local_private"' in rust
+    assert "lossless_required: false" in profiles.group(1)
+    assert profiles.group(1).count("lossless_required: true") == 1  # the shared JSON profile

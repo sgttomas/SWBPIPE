@@ -374,8 +374,9 @@ describe("File > Save Model Document…", () => {
     expect(sent.canonicalText).toBe(expectedText);
     expect(sent.claimedModelHash).toBe(expectedHash);
     expect(sent.screening.route_id).toBe("DOTH-MODEL-DOC-007");
-    // Only the save went to the native host: no solve, no store write.
-    expect(invokeMock.mock.calls.map(([command]) => command).filter((command) => command !== "sync_native_shell_state")).toEqual(["save_model_document_file"]);
+    // Only the save went to the native host: no solve, no store write. D5 autosave's settings read and
+    // record listing (RT-U3) are reads; any autosave write or discard still fails this.
+    expect(invokeMock.mock.calls.map(([command]) => command).filter((command) => command !== "sync_native_shell_state" && command !== "get_autosave_settings" && command !== "list_project_autosaves")).toEqual(["save_model_document_file"]);
     expect(screen.getByTestId(`tree-row-project-${encodeURIComponent(demoModel.project.id)}`)).toBeInTheDocument();
   });
 

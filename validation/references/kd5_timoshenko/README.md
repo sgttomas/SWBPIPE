@@ -22,12 +22,11 @@ not reference: it links the product crate by path and calls only `run_linear_sta
 |---|---|
 | `kd5t_engine.py` | Exact reference engine: a public request in, every expected published row out (110-digit `decimal`; rational element controls in `fractions`). `--check` runs its self-check (58 checks). |
 | `kd5t_generate.py` | Judged-set generator: `full <dir>` writes the set and controls, `freeze` writes the frozen subset, `split` makes runner inputs, `check` verifies everything. |
-| `kd5t_compare.py` | Reconstructed M3 judging and coverage and the M3 verdict (acceptance clauses C0–C4, C6, C8 and C9: the K-D5 M3 criterion and the soundness of its judging; and the information clauses), aware of the section basis and of the producer (`--producer u6\|pre-u6`). `--selftest <set>` exercises every rule and clause. |
-| `kd5t_report.py` | Aggregates the comparison into the M3 tables and the verdict, by family, theory, placement or section variant, and by phi decade. |
+| `kd5t_compare.py` | Routes the judging to the shared M3 judge, `../m3_judge/` (route `exact`; refutation round 5). Its `--selftest` runs that judge's self-test, whose exact view is judged on the frozen subset; `kd5t_generate.py check` calls it. |
 | `kd5t_census.py` | Premise census: the Hager ratio from published gate values (`hager`), the probe-dump consumer (`probe`), and standings of the re-authored corpora (`standings`). |
 | `kd5t_reauthor.py` | Re-authors the surviving RV30, realistic, RV29 and W1 corpora as 0.5.0 exact documents with either shear model. |
 | `runner/` | The product-driving runner (harness): `Cargo.toml`, `Cargo.lock`, `src/main.rs` and `build.sh`. |
-| `run.sh`, `census.sh` | Drivers: runner and comparison over a split set; re-authoring and slim runs of the census corpora. |
+| `run.sh`, `census.sh` | Drivers: `run.sh` calls `../m3_judge/run.sh exact` (build from a clean checkout, raw outputs, one judging pass per variant); `census.sh` re-authors and runs the census corpora slim with `runner/`. |
 | `frozen/kd5t_frozen_subset.jsonl` | 64 models (32 designs in both theories), each line `{tag, meta, ref, request}`, with exact expected rows. |
 | `SHA256SUMS` | Digests of the files above, except this README. |
 
@@ -142,7 +141,49 @@ not reference: it links the product crate by path and calls only `run_linear_sta
   sensitivity control that remains is the Timoshenko product judged against the Euler–Bernoulli
   reference (`--ref twin` on the Timoshenko runs), which must breach at high φ.
 
-## The comparison and the M3 verdict (`kd5t_compare.py`)
+## The comparison and the M3 verdict (`kd5t_compare.py`, now `../m3_judge/`)
+
+**Since refutation round 5 this set is judged by the shared M3 judge, `../m3_judge/`, route `exact`.**
+Its validator turns each raw record into a closed, typed evidence view: both D-5 bases, units from the
+pressure-2 contract, case-bound and unique identities, and lo ≤ hi. Its comparison reads only that
+view. The rules below are ported there unchanged in meaning. The changes the view makes are listed in
+`../m3_judge/README.md` ("The rules"): a repeated row identity, a basis-free stress row or a wrong
+unit is refused rather than counted as information, and nonvacuity applies per family. The measured
+verdicts in this section were judged with the earlier `kd5t_compare.py` at its epoch head on model
+document 0.5.0. They stand as history; the re-judge below replaces them as the current record.
+
+**Re-judge at current main (model document 0.8.0).** Main refuses 0.5.0 documents
+(`MODEL_SCHEMA_VERSION_RETIRED`), so the set was re-authored as model document 0.8.0 with the same
+expected rows (964 references, 268,694 rows). It was run at product head `9875952df7` with runner
+sha256 `c0e7d413aa2a168053c4b5cbfe5e270d25e7927a5d5cf4390ec0db7728dc16c2`: 3,856 records, 3,840
+under pressure-2 and 16 under pressure-source-1. The shared judge at `6c80e54528` (reports and records identical at `94498f8e0d`) judged them against
+the committed pins: set `0e8573d7…`, controls `a3b26032…`, frozen subset `42ee244f…`
+(`../m3_judge/REFERENCE_SHA256SUMS`; `m3_reproduce.py` regenerates all three).
+
+| Run set | Recorded (0.5.0) | Re-judged (0.8.0, `9875952df7`) |
+|---|---|---|
+| Timoshenko, own reference | 1,876 Passed, 52 Sensitive; PASS; worst C3 0.565 | 1,876, 52; PASS; worst C3 3.95e-7 |
+| Euler–Bernoulli, own reference | 1,804 Passed, 124 Sensitive; PASS; worst C3 0.742 | 1,804, 124; PASS; worst C3 2.53e-7 |
+| Timoshenko against the Euler–Bernoulli reference | FAIL, 1,796 runs; C1 133,612; C3 11,962 | the same |
+| Euler–Bernoulli against the Timoshenko reference | FAIL, 1,724 runs; C1 127,316; C3 11,552 | the same |
+| Euler–Bernoulli zero mill, E perturbed by 2^-20 | FAIL, 1,220 runs; C1 86,864; C3 7,194 | FAIL, 1,220 runs; C1 86,864; C3 7,202 |
+| Information, own references | C3lit 338 groups in 312 runs; every other clause 0 | C3lit 232 groups in 208 runs; C4b 16; C4x 10; every other clause 0 |
+
+Every view was admitted, and provenance, inventory and nonvacuity pass on all three references. The
+differences are expected product changes:
+
+- **#1397 (`03f39bb49d`, Euler–Bernoulli) and #1468 (`fa019d9cef`, Timoshenko).** Retained-source
+  recovery now succeeds for the SOFTRX05/06 near-sensitive models. Only the captured entry attempts it
+  (DEL-04-08 ScopeOfWork CLM-003), so 16 captured runs publish pressure-source-1 while their typed
+  pairs publish pressure-2. Their rows differ (C4b 16). Ten of these pairs also differ in breach
+  counts on Sensitive cases: C4x, information under Agent 0's C4 ruling (`../m3_judge/README.md`,
+  "The rules"), each entry judged against its own reference. The report lists the ten: SOFTRX05
+  `utm` (eb and ts, sparse) and SOFTRX06 `o` and `utm` (eb and ts, both modes).
+- **#1461 (`65cf0f42dd`, corrected nodal displacement).** The control's C3 count rises from 7,194 to
+  7,202; C3lit falls from 312 runs to 208 (102 Euler–Bernoulli, 106 Timoshenko; recorded 172 and
+  166); and the worst own-reference C3 on Passed runs falls from 0.742 to 3.95e-7. The earlier
+  `kd5t_compare.py` reproduces the recorded numbers on the epoch records and these numbers on the
+  0.8.0 records.
 
 The surviving `compare_current.py` (sha256 `4b21fa99…`, T3 scratch `pr_kd5_eval_current/`) imports
 RV30's `compare.py` and I41's `ref_ext.py`, which are lost. Its own logic is kept. The lost pieces
@@ -541,6 +582,9 @@ least 1):
 
 ## Runner (`runner/`)
 
+The M3 runs use the shared runner, `../m3_judge/runner/`, which records each run's request, runner and
+product provenance; this one remains for the census's slim runs (`census.sh`).
+
 A standalone crate: it joins no Cargo workspace (its own `[workspace]` root) and has its own
 `Cargo.lock`; it changes no product build or lock file. Its one product dependency is
 `../../../../core/product_physics`, the product of the checkout it sits in. The existing headless runner
@@ -563,9 +607,10 @@ python3 -I -B kd5t_engine.py --check
 python3 -I -B kd5t_generate.py check          # self-checks, frozen bytes, compare self-test, SHA256SUMS
 python3 -I -B kd5t_generate.py full <set> 8
 python3 -I -B kd5t_generate.py split <set>/set.jsonl <run>/chunks all 40     # or: eb, ts, hv, pending, stiffness_control
-runner/build.sh <checkout> <target dir> <runner.bin>
-./run.sh <runner.bin> <set> <run> own twin control     # writes <run>/out and <run>/eval
-python3 -I -B kd5t_report.py <run>/eval/c.*.own.jsonl --by section --phi-table <set>/set.jsonl
+runner/build.sh <checkout> <target dir> <runner.bin>   # the census runner (census.sh, slim runs)
+./run.sh <clean checkout> <set> <run> own twin control   # ../m3_judge/run.sh exact: builds the shared runner, raw outputs, one judging pass per variant
+python3 -I -B ../m3_judge/m3_report.py --route exact <set>/set.jsonl <run>/out/c.*.out.jsonl --runner-sha256 <hex64> \
+        --product-head <hex40> --checkout <dir> --by section   # the same pass by hand
 python3 -I -B kd5t_census.py hager <set>/set.jsonl <run>/out/c.*.out.jsonl --out <census.jsonl>
 KD5T_KEEP_INPUTS=1 ./census.sh <eb|ts> <runner.bin> <corpus dir> <census out>
 python3 -I -B kd5t_census.py standings <census out>/*.out.jsonl
