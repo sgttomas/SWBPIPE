@@ -5,6 +5,7 @@
 #![deny(unsafe_code)]
 
 mod atomic_report_package_save;
+mod autosave;
 mod command_ingress;
 mod exact_source_binding;
 mod export_disposition_screen;
