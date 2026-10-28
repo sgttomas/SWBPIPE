@@ -149,10 +149,41 @@ pressure-2 contract, case-bound and unique identities, and lo ≤ hi. Its compar
 view. The rules below are ported there unchanged in meaning. The changes the view makes are listed in
 `../m3_judge/README.md` ("The rules"): a repeated row identity, a basis-free stress row or a wrong
 unit is refused rather than counted as information, and nonvacuity applies per family. The measured
-verdicts in this section were judged with the earlier `kd5t_compare.py`. The recorded verdict was
-established at its epoch head on model document 0.5.0. A re-run at current main is pending, because
-main refuses 0.5.0 documents (`MODEL_SCHEMA_VERSION_RETIRED`); the recorded numbers stand as history
-until the set is re-authored as a current model document and re-judged with the shared judge.
+verdicts in this section were judged with the earlier `kd5t_compare.py` at its epoch head on model
+document 0.5.0. They stand as history; the re-judge below replaces them as the current record.
+
+**Re-judge at current main (model document 0.8.0).** Main refuses 0.5.0 documents
+(`MODEL_SCHEMA_VERSION_RETIRED`), so the set was re-authored as model document 0.8.0 with the same
+expected rows (964 references, 268,694 rows). It was run at product head `9875952df7` with runner
+sha256 `c0e7d413aa2a168053c4b5cbfe5e270d25e7927a5d5cf4390ec0db7728dc16c2`: 3,856 records, 3,840
+under pressure-2 and 16 under pressure-source-1. The shared judge at `94498f8e0d` judged them against
+the committed pins: set `0e8573d7…`, controls `a3b26032…`, frozen subset `42ee244f…`
+(`../m3_judge/REFERENCE_SHA256SUMS`; `m3_reproduce.py` regenerates all three).
+
+| Run set | Recorded (0.5.0) | Re-judged (0.8.0, `9875952df7`) |
+|---|---|---|
+| Timoshenko, own reference | 1,876 Passed, 52 Sensitive; PASS; worst C3 0.565 | 1,876, 52; PASS; worst C3 3.95e-7 |
+| Euler–Bernoulli, own reference | 1,804 Passed, 124 Sensitive; PASS; worst C3 0.742 | 1,804, 124; PASS; worst C3 2.53e-7 |
+| Timoshenko against the Euler–Bernoulli reference | FAIL, 1,796 runs; C1 133,612; C3 11,962 | the same |
+| Euler–Bernoulli against the Timoshenko reference | FAIL, 1,724 runs; C1 127,316; C3 11,552 | the same |
+| Euler–Bernoulli zero mill, E perturbed by 2^-20 | FAIL, 1,220 runs; C1 86,864; C3 7,194 | FAIL, 1,220 runs; C1 86,864; C3 7,202 |
+| Information, own references | C3lit 338 groups in 312 runs; every other clause 0 | C3lit 232 groups in 208 runs; C4b 16; C4x 10; every other clause 0 |
+
+Every view was admitted, and provenance, inventory and nonvacuity pass on all three references. The
+differences are expected product changes:
+
+- **#1397 (`03f39bb49d`, Euler–Bernoulli) and #1468 (`fa019d9cef`, Timoshenko).** Retained-source
+  recovery now succeeds for the SOFTRX05/06 near-sensitive models. Only the captured entry attempts it
+  (DEL-04-08 ScopeOfWork CLM-003), so 16 captured runs publish pressure-source-1 while their typed
+  pairs publish pressure-2. Their rows differ (C4b 16). Ten of these pairs also differ in breach
+  counts on Sensitive cases: C4x, information under Agent 0's C4 ruling (`../m3_judge/README.md`,
+  "The rules"), each entry judged against its own reference. The report lists the ten: SOFTRX05
+  `utm` (eb and ts, sparse) and SOFTRX06 `o` and `utm` (eb and ts, both modes).
+- **#1461 (`65cf0f42dd`, corrected nodal displacement).** The control's C3 count rises from 7,194 to
+  7,202; C3lit falls from 312 runs to 208 (102 Euler–Bernoulli, 106 Timoshenko; recorded 172 and
+  166); and the worst own-reference C3 on Passed runs falls from 0.742 to 3.95e-7. The earlier
+  `kd5t_compare.py` reproduces the recorded numbers on the epoch records and these numbers on the
+  0.8.0 records.
 
 The surviving `compare_current.py` (sha256 `4b21fa99…`, T3 scratch `pr_kd5_eval_current/`) imports
 RV30's `compare.py` and I41's `ref_ext.py`, which are lost. Its own logic is kept. The lost pieces
