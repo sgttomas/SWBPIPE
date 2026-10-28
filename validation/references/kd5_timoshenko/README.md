@@ -149,8 +149,10 @@ pressure-2 contract, case-bound and unique identities, and lo ≤ hi. Its compar
 view. The rules below are ported there unchanged in meaning. The changes the view makes are listed in
 `../m3_judge/README.md` ("The rules"): a repeated row identity, a basis-free stress row or a wrong
 unit is refused rather than counted as information, and nonvacuity applies per family. The measured
-verdicts in this section were judged with the earlier `kd5t_compare.py`. The exact-route re-judge with
-the shared judge is the next step.
+verdicts in this section were judged with the earlier `kd5t_compare.py`. The recorded verdict was
+established at its epoch head on model document 0.5.0. A re-run at current main is pending, because
+main refuses 0.5.0 documents (`MODEL_SCHEMA_VERSION_RETIRED`); the recorded numbers stand as history
+until the set is re-authored as a current model document and re-judged with the shared judge.
 
 The surviving `compare_current.py` (sha256 `4b21fa99…`, T3 scratch `pr_kd5_eval_current/`) imports
 RV30's `compare.py` and I41's `ref_ext.py`, which are lost. Its own logic is kept. The lost pieces
