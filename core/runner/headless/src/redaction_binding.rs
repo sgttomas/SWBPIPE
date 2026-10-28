@@ -437,6 +437,352 @@ fn route_basis_leaf(record: &Map<String, Value>, key: &str) -> Map<String, Value
     ])
 }
 
+/// The path tokens the generic route projector labels private (TypeScript
+/// `PRIVATE_ROUTE_TOKENS`, Python `PRIVATE_PATH_TOKENS`).
+#[cfg(test)]
+const ROUTE_PRIVATE_PATH_TOKENS: [&str; 24] = [
+    "component",
+    "content",
+    "coordinate",
+    "design_basis",
+    "displacement",
+    "force",
+    "free_metadata",
+    "geometry",
+    "diameter",
+    "material",
+    "moment",
+    "owner",
+    "path",
+    "pipe_segment",
+    "project_name",
+    "project_ref",
+    "project_id",
+    "result_value",
+    "rotation",
+    "rule_detail",
+    "stress",
+    "text",
+    "thickness",
+    "value",
+];
+
+/// One decision of the mirrored route exporter: its unprefixed path, action and reason.
+#[cfg(test)]
+type RouteDecision = (String, &'static str, &'static str);
+
+#[cfg(test)]
+fn route_action_rank(action: &str) -> usize {
+    match action {
+        "include" => 0,
+        "warning_only" => 1,
+        "redact_value" | "redact_field" => 2,
+        "omit_field" => 3,
+        _ => 4,
+    }
+}
+
+/// A scalar privacy, redistribution or review label on a record or its provenance object:
+/// the route projector's item test (TypeScript `hasContractLabel`, Python
+/// `_has_contract_metadata`).
+#[cfg(test)]
+fn route_item_label(record: &Map<String, Value>) -> bool {
+    let scalar_label = |object: &Map<String, Value>| {
+        [
+            "privacy_classification",
+            "redistribution_status",
+            "review_status",
+        ]
+        .iter()
+        .any(|key| {
+            object
+                .get(*key)
+                .is_some_and(|value| !value.is_object() && !value.is_array())
+        })
+    };
+    scalar_label(record)
+        || record
+            .get("provenance")
+            .and_then(Value::as_object)
+            .is_some_and(scalar_label)
+}
+
+/// Any redaction metadata key, or a scalar storage-privacy key (TypeScript
+/// `hasExplicitMetadata`, Python `_has_explicit_metadata`).
+#[cfg(test)]
+fn route_explicit_metadata(record: &Map<String, Value>) -> bool {
+    REDACTION_METADATA_KEYS
+        .iter()
+        .any(|key| record.contains_key(*key))
+        || STORAGE_PRIVACY_METADATA_KEYS.iter().any(|key| {
+            record
+                .get(*key)
+                .is_some_and(|value| !value.is_object() && !value.is_array())
+        })
+}
+
+#[cfg(test)]
+fn route_unsafe_detail_key(key: &str) -> bool {
+    PAYLOAD_KEYS
+        .iter()
+        .chain(SECRET_KEYS.iter())
+        .chain(PATH_KEYS.iter())
+        .chain(CLOUD_KEYS.iter())
+        .chain(SQL_KEYS.iter())
+        .any(|known| *known == key)
+}
+
+/// The labelled leaf the route projector makes of a scalar at `path` (TypeScript
+/// `projectRouteValue`'s leaf, Python `_leaf_classification`), for a route with no
+/// structural projection.
+#[cfg(test)]
+fn route_path_leaf(path: &str, value: &Value, public_basis: bool) -> Map<String, Value> {
+    let lowered = path.to_lowercase().replace('-', "_");
+    let unknown = value.is_null() || value.as_str() == Some("TBD") || lowered.contains("tbd");
+    let segments: Vec<String> = lowered
+        .replace('[', ".")
+        .replace(']', "")
+        .split('.')
+        .map(str::to_string)
+        .collect();
+    let leaf = segments
+        .last()
+        .cloned()
+        .unwrap_or_else(|| "unknown".to_string());
+    let checksum_value =
+        leaf == "value" && (lowered.contains("checksum") || lowered.contains("hash"));
+    let unit_map_leaf =
+        lowered.contains(".model_units.") || lowered.contains(".target_export_units.");
+    let private_leaf = !checksum_value
+        && !unit_map_leaf
+        && ROUTE_PRIVATE_PATH_TOKENS
+            .iter()
+            .any(|token| leaf == *token || leaf.ends_with(&format!("_{token}")));
+    let private = private_leaf
+        || ROUTE_PRIVATE_PATH_TOKENS
+            .iter()
+            .any(|token| lowered.contains(token));
+    let (privacy, redistribution, review) = if unknown {
+        ("unknown", "unknown", "pending")
+    } else if private {
+        ("private_project_data", "private_only", "accepted")
+    } else if public_basis {
+        ("public_metadata", "public_permissive", "accepted")
+    } else {
+        ("unknown", "unknown", "pending")
+    };
+    let field_class = path
+        .rsplit('.')
+        .next()
+        .unwrap_or("")
+        .split('[')
+        .next()
+        .filter(|class| !class.is_empty())
+        .unwrap_or("unknown");
+    Map::from_iter([
+        ("field_class".to_string(), serde_json::json!(field_class)),
+        (
+            "privacy_classification".to_string(),
+            serde_json::json!(privacy),
+        ),
+        (
+            "redistribution_status".to_string(),
+            serde_json::json!(redistribution),
+        ),
+        ("review_status".to_string(), serde_json::json!(review)),
+        ("value".to_string(), value.clone()),
+    ])
+}
+
+/// A decision raised to a value record's item decision where that is stricter, keeping the
+/// item's own reason; beneath an omitted unsafe path key, omitted unless it blocks
+/// (TypeScript `raisedDecision`, Python `_raised_decision`).
+#[cfg(test)]
+fn route_raised(
+    decided: (&'static str, &'static str),
+    floor: Option<(&'static str, &'static str)>,
+    omit: bool,
+) -> (&'static str, &'static str) {
+    let mut raised = decided;
+    if let Some(floor) = floor {
+        if route_action_rank(floor.0) > route_action_rank(raised.0) {
+            raised = floor;
+        }
+        if omit && raised.0 != "block_export" {
+            raised = ("omit_field", floor.1);
+        }
+    }
+    raised
+}
+
+/// The generic route exporter's decisions on an intent-stripped value, as TypeScript
+/// (`projectRouteValue` then `walk`) and Python (`_project` then `_walk`) make them, for a
+/// route with no structural projection; value records as `walkValueRecord` /
+/// `_walk_value_record` decide them (HELP_HUMAN decision, 2026-10-28: "take the stricter
+/// decision per case").
+#[cfg(test)]
+#[allow(clippy::too_many_arguments)]
+fn route_walk(
+    value: &Value,
+    path: &str,
+    public_basis: bool,
+    context: &str,
+    intent: bool,
+    floor: Option<(&'static str, &'static str)>,
+    omit: bool,
+    out: &mut Vec<RouteDecision>,
+) {
+    let decide = |item: &Map<String, Value>| {
+        let decided = classify_contract_item(item, context, intent, false);
+        (decided.action, decided.reason_code)
+    };
+    match value {
+        Value::Object(record) => {
+            let scalar_value = record
+                .get("value")
+                .is_some_and(|value| !value.is_object() && !value.is_array());
+            if scalar_value && route_item_label(record) {
+                let (action, reason) = route_raised(decide(record), floor, omit);
+                out.push((path.to_string(), action, reason));
+                return;
+            }
+            if scalar_value && route_explicit_metadata(record) {
+                let item = decide(record);
+                if item.0 == "block_export" {
+                    out.push((path.to_string(), item.0, item.1));
+                    return;
+                }
+                let redacts = route_action_rank(item.0) >= route_action_rank("redact_value");
+                let basis = route_record_public_basis(record);
+                for (key, child) in record {
+                    let own_omit = redacts && route_unsafe_detail_key(key);
+                    let raise = own_omit
+                        || key == "value"
+                        || key == "text"
+                        || (redacts && key == "privacy_classification");
+                    // A floor and an omission inherited from an enclosing value record still
+                    // hold here (Codex privacy review of #1722, P1-3): the stricter of the two
+                    // floors applies; on a tie, the enclosing one.
+                    let member_floor = match (floor, raise) {
+                        (Some(inherited), true)
+                            if route_action_rank(item.0) > route_action_rank(inherited.0) =>
+                        {
+                            Some(item)
+                        }
+                        (Some(inherited), _) => Some(inherited),
+                        (None, true) => Some(item),
+                        (None, false) => None,
+                    };
+                    route_walk(
+                        child,
+                        &format!("{path}.{key}"),
+                        basis,
+                        context,
+                        intent,
+                        member_floor,
+                        own_omit || omit,
+                        out,
+                    );
+                }
+                return;
+            }
+            let basis = route_record_public_basis(record);
+            for (key, child) in record {
+                route_walk(
+                    child,
+                    &format!("{path}.{key}"),
+                    basis,
+                    context,
+                    intent,
+                    floor,
+                    omit,
+                    out,
+                );
+            }
+        }
+        Value::Array(items) => {
+            for (index, child) in items.iter().enumerate() {
+                route_walk(
+                    child,
+                    &format!("{path}[{index}]"),
+                    false,
+                    context,
+                    intent,
+                    floor,
+                    omit,
+                    out,
+                );
+            }
+        }
+        scalar => {
+            let leaf = route_path_leaf(path, scalar, public_basis);
+            let (action, reason) = route_raised(decide(&leaf), floor, omit);
+            out.push((path.to_string(), action, reason));
+        }
+    }
+}
+
+/// The mirrored route exporter's decisions on `{record_key: record}`.
+#[cfg(test)]
+fn route_record_decisions(
+    record_key: &str,
+    record: &Value,
+    context: &str,
+    intent: bool,
+) -> Vec<RouteDecision> {
+    let input = serde_json::json!({ record_key: record });
+    // Reserved internal names (HELP_HUMAN ruling, 2026-10-28: "fail closed on reserved internal
+    // names, in all three implementations"): a member so named anywhere in the input blocks the
+    // whole export before projection, one decision per such member, naming its path only.
+    let mut reserved = Vec::new();
+    route_reserved_name_paths(&input, "$", &mut reserved);
+    if !reserved.is_empty() {
+        reserved.sort();
+        return reserved
+            .into_iter()
+            .map(|path| (path, "block_export", "EXPORT_INPUT_RESERVED_NAME"))
+            .collect();
+    }
+    let payload = strip_intent(input);
+    let mut out = Vec::new();
+    route_walk(&payload, "$", false, context, intent, None, false, &mut out);
+    out
+}
+
+/// A member name of the route exporter's internal names: the projector's key prefix, its
+/// labelled-leaf marker and its old value-record marker (TypeScript `isReservedName`, Python
+/// `_reserved_name`).
+#[cfg(test)]
+fn route_reserved_name(key: &str) -> bool {
+    key.starts_with("__route_key__")
+        || key == "_route_projected_leaf"
+        || key == "_route_value_record"
+}
+
+/// The paths of every member with a reserved name, at any depth; iterative.
+#[cfg(test)]
+fn route_reserved_name_paths(value: &Value, root: &str, found: &mut Vec<String>) {
+    let mut stack: Vec<(&Value, String)> = vec![(value, root.to_string())];
+    while let Some((node, at)) = stack.pop() {
+        match node {
+            Value::Object(map) => {
+                for (key, item) in map {
+                    if route_reserved_name(key) {
+                        found.push(format!("{at}.{key}"));
+                    }
+                    stack.push((item, format!("{at}.{key}")));
+                }
+            }
+            Value::Array(items) => {
+                for (index, item) in items.iter().enumerate() {
+                    stack.push((item, format!("{at}[{index}]")));
+                }
+            }
+            _ => {}
+        }
+    }
+}
+
 /// A label the TypeScript and Python contracts read as unknown (`UNKNOWN_*` sets): absent,
 /// null, `unknown` or `TBD`.  Any other value, a non-string included, is a stated label.
 #[cfg(test)]
@@ -1869,6 +2215,377 @@ mod tests {
                     "{context}"
                 );
             }
+        }
+    }
+
+    // Value records (HELP_HUMAN decision, 2026-10-28: "take the stricter decision per
+    // case"): the shared sweep `value_record_sweep.json`, expanded by the same rule as the
+    // pytest and vitest twins, and one regression per divergence class.
+    const VALUE_RECORD_CASE_COUNT: usize = 7_730;
+
+    fn value_record_cases() -> (Value, Vec<(Value, String, bool)>) {
+        let spec = sweep_json(include_str!(
+            "../../../../fixtures/redaction_export_controls/value_record_sweep.json"
+        ));
+        let absent = spec["absent"].as_str().expect("absent").to_string();
+        let max_axes = spec["max_axes"].as_u64().expect("max_axes") as usize;
+        let axes: Vec<(String, Vec<Value>)> = spec["axes"]
+            .as_array()
+            .expect("axes")
+            .iter()
+            .map(|axis| {
+                (
+                    axis[0].as_str().expect("axis key").to_string(),
+                    axis[1].as_array().expect("axis values").clone(),
+                )
+            })
+            .collect();
+        let mut records = Vec::new();
+        // Every combination, the last axis varying fastest, as itertools.product orders it.
+        let mut digits = vec![0usize; axes.len()];
+        loop {
+            let set = axes
+                .iter()
+                .zip(&digits)
+                .filter(|((_, values), digit)| values[**digit].as_str() != Some(absent.as_str()))
+                .count();
+            if set <= max_axes {
+                let mut record = Map::from_iter([("value".to_string(), json!("INVENTED"))]);
+                for ((key, values), digit) in axes.iter().zip(&digits) {
+                    if values[*digit].as_str() != Some(absent.as_str()) {
+                        record.insert(key.clone(), values[*digit].clone());
+                    }
+                }
+                records.push(Value::Object(record));
+            }
+            let mut position = axes.len();
+            let mut exhausted = true;
+            while position > 0 {
+                position -= 1;
+                digits[position] += 1;
+                if digits[position] < axes[position].1.len() {
+                    exhausted = false;
+                    break;
+                }
+                digits[position] = 0;
+            }
+            if exhausted {
+                break;
+            }
+        }
+        records.extend(
+            spec["extra_records"]
+                .as_array()
+                .expect("extra records")
+                .iter()
+                .cloned(),
+        );
+        let mut cases = Vec::new();
+        for record in records {
+            for context in spec["contexts"].as_array().expect("contexts") {
+                cases.push((
+                    record.clone(),
+                    context[0].as_str().expect("context").to_string(),
+                    context[1].as_bool().expect("intent"),
+                ));
+            }
+        }
+        (spec, cases)
+    }
+
+    /// The sorted decisions with the route key prefix removed from paths, as the frozen
+    /// `decision_sets` hold them.  This mirror does not materialize a payload, so it is held
+    /// to the contract's decisions case for case; the pytest and vitest twins also hold the
+    /// exported payload to the contract and to each before column.
+    fn value_record_decision_set(decisions: &[RouteDecision]) -> String {
+        let mut normalized: Vec<(String, &str, &str)> = decisions
+            .iter()
+            .map(|(path, action, reason)| (path.replace("__route_key__", ""), *action, *reason))
+            .collect();
+        normalized.sort();
+        serde_json::to_string(
+            &normalized
+                .iter()
+                .map(|(path, action, reason)| json!([path, action, reason]))
+                .collect::<Vec<_>>(),
+        )
+        .expect("decision set")
+    }
+
+    #[test]
+    fn value_record_sweep_gives_the_contract_decisions() {
+        let (spec, cases) = value_record_cases();
+        assert_eq!(cases.len(), VALUE_RECORD_CASE_COUNT);
+        let frozen = sweep_json(include_str!(
+            "../../../../fixtures/redaction_export_controls/value_record_sweep_decisions.json"
+        ));
+        assert_eq!(
+            frozen["case_count"].as_u64(),
+            Some(VALUE_RECORD_CASE_COUNT as u64)
+        );
+        let record_key = spec["record_key"].as_str().expect("record key");
+        let sets = frozen["decision_sets"].as_array().expect("decision sets");
+        let contract: Vec<&str> = frozen["columns"]["contract_decisions"]
+            .as_array()
+            .expect("column")
+            .iter()
+            .flat_map(|line| line.as_str().expect("line").split(','))
+            .map(|index| {
+                sets[index.parse::<usize>().expect("index")]
+                    .as_str()
+                    .expect("set")
+            })
+            .collect();
+        assert_eq!(contract.len(), VALUE_RECORD_CASE_COUNT);
+        let mismatches: Vec<usize> = cases
+            .iter()
+            .enumerate()
+            .filter(|(index, (record, context, intent))| {
+                value_record_decision_set(&route_record_decisions(
+                    record_key, record, context, *intent,
+                )) != contract[*index]
+            })
+            .map(|(index, _)| index)
+            .collect();
+        assert!(
+            mismatches.is_empty(),
+            "{} mismatches, first {:?}",
+            mismatches.len(),
+            mismatches.first()
+        );
+    }
+
+    fn value_record(json_text: &str, context: &str, intent: bool) -> Vec<RouteDecision> {
+        let record: Value = serde_json::from_str(json_text).expect("record JSON");
+        let mut decided = route_record_decisions("record", &record, context, intent);
+        decided.sort();
+        decided
+    }
+
+    fn route_decision(path: &str, action: &'static str, reason: &'static str) -> RouteDecision {
+        (path.to_string(), action, reason)
+    }
+
+    /// Python stricter: TypeScript decided `{value, field_class, note}` as one item and left
+    /// `note` visible in `public_report`; it is projected, every leaf redacted.
+    #[test]
+    fn value_record_with_field_class_and_note_is_projected() {
+        let decided = value_record(
+            r#"{"value":"INVENTED","field_class":"note","note":"INVENTED"}"#,
+            "public_report",
+            false,
+        );
+        assert_eq!(
+            decided,
+            vec![
+                route_decision(
+                    "$.record.field_class",
+                    "redact_value",
+                    "REDISTRIBUTION_STATUS_UNKNOWN"
+                ),
+                route_decision(
+                    "$.record.note",
+                    "redact_value",
+                    "REDISTRIBUTION_STATUS_UNKNOWN"
+                ),
+                route_decision("$.record.value", "redact_value", "PRIVATE_DATA_REDACTED"),
+            ]
+        );
+    }
+
+    /// TypeScript stricter: `{value, professional_claim: true}` blocks as one item; Python
+    /// redacted its leaves.
+    #[test]
+    fn value_record_with_a_professional_claim_blocks() {
+        assert_eq!(
+            value_record(
+                r#"{"value":"INVENTED","professional_claim":true}"#,
+                "public_report",
+                false
+            ),
+            vec![route_decision(
+                "$.record",
+                "block_export",
+                "PROFESSIONAL_BOUNDARY_BLOCKED"
+            )]
+        );
+    }
+
+    /// Both blocked on different paths (ruling 3(a)): the item's whole-record block.
+    #[test]
+    fn value_record_blocked_both_ways_takes_the_items_block() {
+        assert_eq!(
+            value_record(
+                r#"{"value":"INVENTED","contains_payload":true}"#,
+                "local_private",
+                false
+            ),
+            vec![route_decision(
+                "$.record",
+                "block_export",
+                "PAYLOAD_METADATA_ONLY_REQUIRED"
+            )]
+        );
+    }
+
+    /// Python stricter by a block: the projected `value` leaf needs local-private intent.
+    #[test]
+    fn value_record_projected_value_leaf_needs_intent() {
+        assert_eq!(
+            value_record(
+                r#"{"value":"INVENTED","export_policy":{}}"#,
+                "local_private",
+                false
+            ),
+            vec![route_decision(
+                "$.record.value",
+                "block_export",
+                "LOCAL_PRIVATE_INTENT_REQUIRED"
+            )]
+        );
+    }
+
+    /// The union (the 572 class): the item redacts for the concrete path, so the `value` leaf
+    /// is raised to it with the item's own reason (1(a)) and `file_path` is omitted (2(a)).
+    #[test]
+    fn value_record_union_raises_value_and_omits_the_unsafe_path_key() {
+        assert_eq!(
+            value_record(
+                r#"{"value":"INVENTED","file_path":"INVENTED","export_policy":{}}"#,
+                "local_private",
+                true
+            ),
+            vec![
+                route_decision("$.record.file_path", "omit_field", "CONCRETE_PATH_REDACTED"),
+                route_decision("$.record.value", "redact_value", "CONCRETE_PATH_REDACTED"),
+            ]
+        );
+    }
+
+    /// A tie (same visible data) takes the projection's decision records.
+    #[test]
+    fn value_record_tie_takes_the_projection_form() {
+        assert_eq!(
+            value_record(
+                r#"{"value":"INVENTED","export_policy":{}}"#,
+                "local_private",
+                true
+            ),
+            vec![route_decision(
+                "$.record.value",
+                "warning_only",
+                "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"
+            )]
+        );
+    }
+
+    /// Codex privacy review of #1722, P1-1: the old marker member in an input is not
+    /// trusted; the labelled record is a protected item and blocks.
+    #[test]
+    fn value_record_marker_in_input_is_not_trusted() {
+        assert_eq!(
+            value_record(
+                r#"{"value":"SECRET","privacy_classification":"protected_suspected","_route_value_record":true,"item":{"value":"safe","privacy_classification":"public","redistribution_status":"public_permissive"},"projected":{"__route_key__leak":"SECRET"}}"#,
+                "public_report",
+                false
+            ),
+            vec![
+                route_decision(
+                    "$.record._route_value_record",
+                    "block_export",
+                    "EXPORT_INPUT_RESERVED_NAME"
+                ),
+                route_decision(
+                    "$.record.projected.__route_key__leak",
+                    "block_export",
+                    "EXPORT_INPUT_RESERVED_NAME"
+                ),
+            ]
+        );
+    }
+
+    /// HELP_HUMAN ruling, 2026-10-28: "fail closed on reserved internal names, in all three
+    /// implementations."  At the top level, in a nested value record, in an array and in a
+    /// provenance; the decision names the path, never the value.
+    #[test]
+    fn reserved_internal_names_block_the_export_by_path_only() {
+        for (record, reserved_path) in [
+            (
+                r#"{"value":"outer","field_class":"note","__route_key__value":"SECRET"}"#,
+                "$.record.__route_key__value",
+            ),
+            (
+                r#"{"value":"outer","field_class":"note","text":{"value":"inner","field_class":"note","_route_projected_leaf":"SECRET"}}"#,
+                "$.record.text._route_projected_leaf",
+            ),
+            (
+                r#"{"value":"outer","field_class":"note","child":[{"note":"x"},{"_route_value_record":"SECRET"}]}"#,
+                "$.record.child[1]._route_value_record",
+            ),
+            (
+                r#"{"value":"outer","privacy_classification":"public","provenance":{"__route_key__x":"SECRET"}}"#,
+                "$.record.provenance.__route_key__x",
+            ),
+        ] {
+            let decided = value_record(record, "local_private", true);
+            assert_eq!(
+                decided,
+                vec![route_decision(
+                    reserved_path,
+                    "block_export",
+                    "EXPORT_INPUT_RESERVED_NAME"
+                )],
+                "{record}"
+            );
+            assert!(decided.iter().all(|(path, _, _)| !path.contains("SECRET")));
+        }
+    }
+
+    /// P1-2: a labelled item beneath a raised member is raised; the twins assert it is
+    /// replaced whole in the payload.
+    #[test]
+    fn value_record_raised_labelled_item_is_raised() {
+        let decided = value_record(
+            r#"{"value":"outer","field_class":"note","text":{"value":"safe","privacy_classification":"public","redistribution_status":"public_permissive","note":"SECRET"}}"#,
+            "public_report",
+            false,
+        );
+        assert!(decided.contains(&route_decision(
+            "$.record.text",
+            "redact_value",
+            "REDISTRIBUTION_STATUS_UNKNOWN"
+        )));
+    }
+
+    /// P1-3: a value record beneath a raised member keeps the enclosing floor, in an object,
+    /// an array and a nested label member.
+    #[test]
+    fn value_record_nested_value_record_keeps_the_inherited_floor() {
+        for (name, member) in [
+            ("text", r#"{"value":"SECRET","export_policy":{}}"#),
+            ("text", r#"[{"value":"SECRET","export_policy":{}}]"#),
+            (
+                "privacy_classification",
+                r#"{"value":"SECRET","export_policy":{}}"#,
+            ),
+        ] {
+            let decided = value_record(
+                &format!(r#"{{"value":"outer","concrete_path_present":true,"{name}":{member}}}"#),
+                "local_private",
+                true,
+            );
+            let nested: Vec<&RouteDecision> = decided
+                .iter()
+                .filter(|(path, _, _)| path.starts_with(&format!("$.record.{name}")))
+                .collect();
+            assert!(!nested.is_empty(), "{name} {member}");
+            assert!(
+                nested
+                    .iter()
+                    .all(|(_, action, reason)| *action == "redact_value"
+                        && *reason == "CONCRETE_PATH_REDACTED"),
+                "{name} {member}: {nested:?}"
+            );
         }
     }
 
