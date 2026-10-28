@@ -520,6 +520,11 @@ function plainDataSnapshot(input: unknown, rootPath = "$"): { value: unknown } |
   const refuse = (at: string, shape: string): never => {
     throw new PlainDataRefused({ path: at, shape });
   };
+  // The brand checks throw for every ordinary object; without stack capture that costs a few
+  // microseconds an object instead of tens. Restored before the pass returns.
+  const errorConstructor = Error as { stackTraceLimit?: number };
+  const stackTraceLimit = errorConstructor.stackTraceLimit;
+  errorConstructor.stackTraceLimit = 0;
   try {
     const ancestors = new Set<object>();
     const stack: SnapshotFrame[] = [];
@@ -529,9 +534,10 @@ function plainDataSnapshot(input: unknown, rootPath = "$"): { value: unknown } |
       if (typeof value === "number") return Number.isFinite(value) ? value : refuse(at, "non-finite number");
       if (typeof value !== "object") return refuse(at, typeof value);
       if (ancestors.has(value)) return refuse(at, "cycle");
-      const exotic = exoticKind(value);
-      if (exotic !== null) return refuse(at, exotic);
       const array = Array.isArray(value);
+      // An array has no other internal slot, so only a non-array object is brand-checked.
+      const exotic = array ? null : exoticKind(value);
+      if (exotic !== null) return refuse(at, exotic);
       const prototype = Reflect.getPrototypeOf(value);
       if (array ? prototype !== Array.prototype : prototype !== Object.prototype && prototype !== null) {
         return refuse(at, array ? "array of another kind" : "not a plain object");
@@ -586,6 +592,8 @@ function plainDataSnapshot(input: unknown, rootPath = "$"): { value: unknown } |
   } catch (error) {
     if (error instanceof PlainDataRefused) return { refusal: error.refusal };
     return { refusal: { path, shape: "exception while reading the input" } };
+  } finally {
+    errorConstructor.stackTraceLimit = stackTraceLimit;
   }
 }
 
@@ -1189,12 +1197,22 @@ export function redactExportPayload(
   assertRedactionWalkContext(options.exportContext);
   const snapshot = plainDataSnapshot(payload);
   if ("refusal" in snapshot) return plainDataBlockedExport(snapshot.refusal, options.exportContext);
+  return redactSnapshot(snapshot.value, options.exportContext, options.explicitLocalPrivateIntent ?? false);
+}
+
+/** The redaction walk over data this module built: a snapshot, or the route projector's
+ * projection of one. It is not gated again. */
+function redactSnapshot(
+  value: unknown,
+  exportContext: RedactionExportContext,
+  explicitLocalPrivateIntent: boolean
+): RedactionRunResult {
   const decisions: RedactionDecision[] = [];
   const findings: RedactionFinding[] = [];
-  const redacted = walk(snapshot.value, {
+  const redacted = walk(value, {
     path: "$",
-    exportContext: options.exportContext,
-    explicitLocalPrivateIntent: options.explicitLocalPrivateIntent ?? false,
+    exportContext,
+    explicitLocalPrivateIntent,
     decisions,
     findings
   });
@@ -1503,11 +1521,10 @@ export function controlRouteExport(
     publicBasis: false,
     structuralProjection
   });
-  const controlled = redactExportPayload(projected, {
-    exportContext: options.exportContext,
-    explicitLocalPrivateIntent: options.explicitLocalPrivateIntent ?? false,
-    ...(options.explicitUserReleaseIntent === undefined ? {} : { explicitUserReleaseIntent: options.explicitUserReleaseIntent })
-  });
+  // The options were asserted above, as `redactExportPayload` asserts them; the projection is
+  // this module's own data, so it is not gated again.
+  assertRedactionWalkContext(options.exportContext);
+  const controlled = redactSnapshot(projected, options.exportContext, options.explicitLocalPrivateIntent ?? false);
   const destructive = controlled.decisions.some((decision) =>
     ["redact_value", "redact_field", "omit_field", "block_export"].includes(decision.action)
   );

@@ -74,6 +74,9 @@ const frozen = JSON.parse(
   readFileSync(path.join(fixtureDir, "input_contract_sweep_decisions.json"), "utf8")
 ) as FrozenDecisions;
 const CASE_COUNT = 100_744;
+/** Each of the three sweep-wide tests decides every case through an entry point, so each takes
+ * its own plain-data snapshot; the full suite runs them under load. */
+const SWEEP_TIMEOUT_MS = 120_000;
 
 /** Sets a member as JSON parsing does: an own data member, `__proto__` included (assignment would make a
  * `__proto__` member the object's prototype). */
@@ -303,7 +306,7 @@ describe("DEL-12-02 input-contract sweep", () => {
     expect(looser.python_before).toEqual([]);
     expect(looser.typescript_before).toEqual([]);
     expect(looser.rust_before).toEqual([]);
-  });
+  }, SWEEP_TIMEOUT_MS);
 
   it("sets the TypeScript column aside only for the proto_projector cases, as pinned", () => {
     // Each set-aside case is still held to the Python column. Under the fail-closed rule (HELP_HUMAN ruling,
@@ -332,7 +335,7 @@ describe("DEL-12-02 input-contract sweep", () => {
     const contract = decodedColumn("contract");
     const mismatches = cases.flatMap((sweepCase, index) => (decide(sweepCase) === contract[index] ? [] : [index]));
     expect(mismatches).toEqual([]);
-  });
+  }, SWEEP_TIMEOUT_MS);
 });
 
 // Named regressions (HELP_HUMAN ruling 2026-10-27). The per-row cases of the (a′), (b′) and (c) tables
@@ -570,7 +573,7 @@ describe("DEL-12-02 input contract: named regressions", () => {
       }
     });
     expect(differ).toEqual([]);
-  });
+  }, SWEEP_TIMEOUT_MS);
 
   it("keeps the concrete-path redaction of a __proto__-carrying item in every context", () => {
     // Codex r2 on #1692: in user_released_report with release intent this gave `USER_RELEASE_VALUE_UNBOUND`.
