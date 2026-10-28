@@ -44,6 +44,11 @@ is settled by A-1 (§8.1), with the exact Old/New proposals in §8.3.
 - **Owner, 2026-10-28:** the release target ("Accepted."), including RT-R7, RT-R8 and
   criterion 6.
 - **Agent 0, 2026-10-28:** one file-name convention (#1711). The MBF export uses kind `model`.
+- **Agent 0, 2026-10-28 (§8.1 decisions):** A-1 to A-6 and O-1 are decided as §8.1 records.
+  The §8.3 texts await one independent review and Agent 0's confirmation; slices 4 and 5
+  wait for that, slices 2 and 3 do not.
+- **CAEPIPE lane, 2026-10-28 (§8.2 questions):** Q-1 to Q-6 are confirmed as recommended, with
+  the details §8.2 records. Its answers reach this design through Agent 0.
 
 ## 1. Scope and the gap
 
@@ -407,9 +412,13 @@ nothing is written before a native save.
 - **What it does not restore:**
   - **Sections.** The writer names PIPE records `P1`, `P2`, … by distinct OD and wall, and
     format 3 has no `section_map`. Section ids are therefore formed again, and two sections
-    with equal OD and wall merge (Q-2).
+    with equal OD and wall merge. Sections are in the identity set (A-3), so sidecar format 4,
+    which adds `section_map` ids, is required for C6-5 (Q-2). Formats 3, 2 and the legacy
+    format keep their current handling, and the self-digest is unchanged.
   - **The project.** The import forms `project:mbf-<12 hex>`, so an import is a new unsaved
-    document, not the original project (A-3).
+    document, not the original project. The project id is outside the identity set because it
+    identifies the store's project, not a model entity, and an import must not collide with
+    it (A-3).
   - **Unread members.** Lines, constraints, equipment interfaces, rule-pack references,
     unresolved assumptions and `analysis_status` are not written. The writer states this
     only as one assumption line (Q-6).
@@ -477,9 +486,14 @@ nothing is written before a native save.
 - Whether the target program reads the file belongs to the validation lane's private evidence
   (RT-V2, DEL-17-05), not to criterion 6.
 
-**Open item.** Neither the release target nor the DEL-17-04 or DEL-17-05 records name the
-reference system. Criterion 1 calls it "an invented reference system". It is not yet a file
-(O-1).
+**The reference system (O-1).** Neither the release target nor the DEL-17-04 or DEL-17-05
+records named it; criterion 1 calls it "an invented reference system". W-17 authors it as an
+invented fixture with its run sheet (criteria 1 and 7), starting from the families that
+exist now and adding the rest as their rows land. Families without an admitted public MBF
+source (today valves, reducers, flanges, rigid elements and nozzles; Q-3) are authored in the
+fixture and expected in the loss report until their sources exist. The fixture is named here
+and in RT-R7/R8's status column; the release target's criterion text is the owner's and is
+not edited.
 
 ## 6. Slices
 
@@ -488,9 +502,9 @@ Each slice is one PR. Every test must fail without its wiring.
 | Slice | Content | Tests | Gate |
 |---|---|---|---|
 | 1 | This design | GEN-13; deliverables check | Agent 0 on §8 |
-| 2 | Engine crate: the writer port and `sidecar`, the wasm build, parity vectors | Byte parity with Python for every writer test model and pilot case (text, sidecar, `to_dict()`); every `MBF-SI-*` code; normalization factors exact; float formatting at rounding boundaries; `forbid(unsafe_code)` | Independent review (numerical meaning, file bytes) and targeted regressions |
-| 3 | Engine crate: the importer port | Byte parity for every import fixture, the authored cases and the outputs of `test_caepipe_mbf_round_trip.py`; every named refusal; bound and unbound imports; self-digest; the reversible and byte-reproducible sets in Rust | Independent review |
-| 4 | Export: `DOTH-MBF-012` in the three catalogues; `save_mbf_export`; the atomic formats; reach-scan re-pin; menu item and dialog; retire the TypeScript builder (A-6); the #1711 row | Rust: admitted under its lease, with the counting-allocator peak within it; named arguments; hash mismatch; stale review; writer refusal opens no chooser; protected disposition refused; Cancel writes nothing; identity file before MBF; an injected failure of the second write removes the first; a read-back mismatch removes both; bytes equal the engine's. Route-catalogue parity; reach-scan pin. Vitest: refusals block Save, omissions warn, degF reference temperature, stale review runs again, suggested names, keyboard reach | Independent review (persistence, file writes, a new governed route) |
+| 2 | Engine crate: the writer port and `sidecar`, the wasm build, parity vectors. It starts from the CAEPIPE lane's SIF fix and Q-6 omitted-entries sweep (its named head), so the port does not copy the drop | Byte parity with Python over the whole committed MBF corpus and the authored cases, both ways, plus every writer test model and pilot case (text, sidecar, `to_dict()`); every `MBF-SI-*` code; normalization factors exact; float formatting at rounding boundaries; `forbid(unsafe_code)` | Independent numerical review (numerical meaning, file bytes) and targeted regressions |
+| 3 | Engine crate: the importer port | Byte parity over the whole committed MBF corpus and the authored cases, both ways, plus every import fixture and the outputs of `test_caepipe_mbf_round_trip.py`; every named refusal; bound and unbound imports; self-digest; the reversible and byte-reproducible sets in Rust | Independent numerical review |
+| 4 | Export: `DOTH-MBF-012` (local_private, explicit intent, lossless) in the three catalogues, with parity tests in all three; `save_mbf_export`; the atomic formats; reach-scan re-pin; menu item and dialog; retire the TypeScript builder (A-6); the #1711 row | Rust: admitted under its lease, with the counting-allocator peak within it; named arguments; hash mismatch; stale review; writer refusal opens no chooser; protected disposition refused; Cancel writes nothing; identity file before MBF; an injected failure of the second write removes the first; a read-back mismatch removes both; bytes equal the engine's. Route-catalogue parity; reach-scan pin. Vitest: refusals block Save, omissions warn, degF reference temperature, stale review runs again, suggested names, keyboard reach | Independent review (persistence, file writes) and an independent permissions review of the new governed route |
 | 5 | Import: `open_mbf_file`; the import source and review; material declaration; reach-scan re-pin | Rust: caps, symlink and non-regular-file refusals, identity file absent, present and unreadable, lease. Vitest: the guard's Cancel keeps edits; refusals block Adopt; a bound import restores ids; an unbound import states its consequence; the declaration re-run; the adopted document passes `checkNativeOutcome`; unsaved with no stored base | Independent review (session replacement; provenance declarations) |
 | 6 | The criterion-6 check of §5 and its CI routing | As in §5 | Focused review |
 | 7 | Unbound pressure closure declaration; rebinding by node name | Vitest and engine tests for both | Independent review |
@@ -521,6 +535,30 @@ needs slices 4 and 5.
 
 ### 8.1 For Agent 0
 
+**Ruled by Agent 0, 2026-10-28.** The table keeps the proposals; where a ruling differs, the
+ruling governs.
+
+- **A-1:** the locality is accepted. The §8.3 texts take one independent review on their exact
+  Old/New, then Agent 0's confirmation. Slices 4 and 5 wait for them; slice 2 does not.
+- **A-2:** accepted. Slices 2 and 3 take numerical review. Their parity bar is the whole
+  committed MBF corpus, byte for byte both ways, plus the authored cases. The writer is ported
+  after the SIF fix lands.
+- **A-3:** this reading is the criterion's own, so it narrows nothing.
+  - "Must family" means every family the reference system contains under criterion 1, plus
+    the cases and combinations it holds; each traces to its Must row. The RT-row list in the
+    table is a cross-check, not the definition.
+  - The identity set is as proposed, sections included, so Q-2's format 4 is a requirement.
+  - The project id is excluded because it identifies the store's project, not a model entity,
+    and an import must not collide with it (§4.4).
+  - A family with no MBF record goes to the criterion 3 limitations list, which the owner
+    accepts at release. Nothing about that is decided here.
+- **A-4:** a new `DOTH-MBF-012` (local_private, explicit intent, lossless), with parity tests in
+  all three catalogues and an independent permissions review.
+- **A-5:** the sibling `<stem>.swbpipe-ids.json`. An unbound import says why it is unbound.
+- **A-6:** retired when slice 4 lands. The stop rule on `apps/desktop/native-smoke/expected.json`
+  stands.
+- **O-1:** W-17 authors the reference system as an invented fixture with its run sheet (§5).
+
 | Id | Decision | Recommendation | Consequence | Blocks |
 |---|---|---|---|---|
 | A-1 | Locality of the desktop actions: DEL-17-04 CLM-008 excludes GUI behavior, and CLM-012 gives desktop import to DEL-07-12 | Keep the GUI code in DEL-07-12's paths and the engine, native file logic and criterion-6 check in DEL-17-04, under this design; apply §8.3 | The ScopeOfWork text changes, which is a commitment change and takes independent review. Without it, slices 4 and 5 build outside both deliverables' stated scope | 4, 5 |
@@ -532,6 +570,22 @@ needs slices 4 and 5.
 | O-1 | The reference system is not yet a named file | Author it as an invented fixture with its run sheet (criteria 1 and 7), name it in the release target, and add it to §5's models | Until it exists, criterion 6 is shown only on the coverage fixture | none (the owner's evidence) |
 
 ### 8.2 For the CAEPIPE lane
+
+**Confirmed by the CAEPIPE lane as recommended, 2026-10-28, through Agent 0:**
+
+- **Q-1:** byte-parity port accepted.
+- **Q-2:** sidecar format 4 adds `section_map` ids. Formats 3, 2 and legacy keep their current
+  handling, and the self-digest is unchanged.
+- **Q-3:** admitted public sources exist today for layout, bends, anchors, guides, limit stops,
+  skewed restraints, hangers (semantics only), materials, force loads, load cases, OPTEMP and
+  OPPRES. None exist yet for valves, reducers, flanges, rigid elements or nozzles. The lane is
+  adding source rows for the reference system's families; until they exist, those families are
+  authored in the fixture and listed in the loss report.
+- **Q-4:** `max_layout_rows=None` in the product.
+- **Q-5:** OPTEMP goes in a typed model member. The lane first checks for an existing temperature
+  member with the same meaning. A new member would be a model-document change through Agent 0.
+- **Q-6:** the SIF fix and the omitted-entries sweep are the lane's first code item after its
+  current batch, on a branch from main whose head it names. Slice 2 starts from that head.
 
 | Id | Question | Recommendation | Consequence | Blocks |
 |---|---|---|---|---|
