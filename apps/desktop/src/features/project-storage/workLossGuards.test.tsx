@@ -30,7 +30,14 @@ function envelope(model: PreviewModel, message: string): LocalProjectEnvelope {
   } as unknown as LocalProjectEnvelope;
 }
 
-function nativeCommands() {
+type CommandOptions = {
+  /** The host's answer to an acknowledgement (default: accepted). */
+  acknowledge?: (requestId: number, attempt: number) => Promise<boolean>;
+  /** Save Local Project never settles. */
+  saveHangs?: boolean;
+};
+
+function nativeCommands(options: CommandOptions = {}) {
   invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
     switch (command) {
       case "sync_native_shell_state": return Promise.resolve(null);
@@ -39,8 +46,12 @@ function nativeCommands() {
       case "create_local_project":
         return Promise.resolve(envelope((args as { model: PreviewModel }).model, "Created local SQLite project snapshot without external file copies."));
       case "save_local_project":
+        if (options.saveHangs) return new Promise(() => {});
         return Promise.resolve(envelope((args!.request as { model: PreviewModel }).model, "Saved current project model snapshot without external file copies."));
-      case "acknowledge_close_request": return Promise.resolve(true);
+      case "acknowledge_close_request": {
+        const { requestId, attempt } = args as { requestId: number; attempt: number };
+        return options.acknowledge ? options.acknowledge(requestId, attempt) : Promise.resolve(true);
+      }
       case "resolve_close_request": return Promise.resolve(null);
       default: return Promise.reject(new Error(`Unexpected command ${command}`));
     }
@@ -85,9 +96,11 @@ function pressSave(init: KeyboardEventInit = { metaKey: true }) {
   return event;
 }
 
-function closeRequest(requestId: number, kind: "window" | "quit") {
-  act(() => { window.dispatchEvent(new CustomEvent("openpipestress-native-close-request", { detail: { requestId, kind } })); });
+function closeRequest(requestId: number, kind: "window" | "quit", attempt = 1) {
+  act(() => { window.dispatchEvent(new CustomEvent("openpipestress-native-close-request", { detail: { requestId, attempt, kind } })); });
 }
+
+const settle = () => act(() => new Promise((resolve) => setTimeout(resolve, 50)));
 
 const answers = () => called("resolve_close_request").map(([, args]) => args as { requestId: number; proceed: boolean });
 const acknowledgements = () => called("acknowledge_close_request").map(([, args]) => (args as { requestId: number }).requestId);
@@ -190,8 +203,9 @@ describe("Window close and quit: asked first while the working model has unsaved
     expect(acknowledgements()).toEqual([2]);
     expect(answers()).toEqual([]);
     // A repeat of the open request is acknowledged; its prompt is already showing.
-    closeRequest(2, "quit");
-    expect(acknowledgements()).toEqual([2, 2]);
+    closeRequest(2, "quit", 2);
+    await waitFor(() => expect(acknowledgements()).toEqual([2, 2]));
+    await settle();
     expect(screen.getAllByTestId("unsaved-changes-prompt")).toHaveLength(1);
     fireEvent.click(screen.getByTestId("unsaved-changes-cancel"));
     await waitFor(() => expect(answers()).toEqual([{ requestId: 2, proceed: false }]));
@@ -245,5 +259,102 @@ describe("Window close and quit: asked first while the working model has unsaved
     const edited = new Event("beforeunload", { cancelable: true });
     window.dispatchEvent(edited);
     expect(edited.defaultPrevented).toBe(true);
+  });
+
+  it("every close is answered from the webview's current state: an edit whose shell sync has not landed is still asked about", async () => {
+    // Codex r1 P1: the host asks on every close; the webview reads `modelEdited` now.
+    nativeCommands();
+    await renderApp();
+    await applyNodeEdit();
+    setTauriRuntime(true);
+    closeRequest(6, "window");
+    expect(await screen.findByTestId("unsaved-changes-prompt")).toBeInTheDocument();
+    expect(answers()).toEqual([]);
+  });
+
+  it("a refused acknowledgement (late, or superseded) shows no prompt and sends no answer", async () => {
+    // Codex r1 P1: the host closes on its own deadline; nothing is shown on that window.
+    nativeCommands({ acknowledge: () => Promise.resolve(false) });
+    await renderApp();
+    await applyNodeEdit();
+    setTauriRuntime(true);
+    closeRequest(7, "quit");
+    await waitFor(() => expect(acknowledgements()).toEqual([7]));
+    await settle();
+    expect(screen.queryByTestId("unsaved-changes-prompt")).not.toBeInTheDocument();
+    expect(answers()).toEqual([]);
+  });
+
+  it("a failed acknowledgement shows no prompt and sends no answer", async () => {
+    nativeCommands({ acknowledge: () => Promise.reject(new Error("IPC unavailable")) });
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    await renderApp();
+    await applyNodeEdit();
+    setTauriRuntime(true);
+    closeRequest(8, "quit");
+    await waitFor(() => expect(acknowledgements()).toEqual([8]));
+    await settle();
+    expect(screen.queryByTestId("unsaved-changes-prompt")).not.toBeInTheDocument();
+    expect(answers()).toEqual([]);
+  });
+
+  it("the prompt waits for the host to accept the acknowledgement", async () => {
+    let accept: (accepted: boolean) => void = () => {};
+    nativeCommands({ acknowledge: () => new Promise<boolean>((resolve) => { accept = resolve; }) });
+    await renderApp();
+    await applyNodeEdit();
+    setTauriRuntime(true);
+    closeRequest(9, "quit");
+    await waitFor(() => expect(acknowledgements()).toEqual([9]));
+    await settle();
+    expect(screen.queryByTestId("unsaved-changes-prompt")).not.toBeInTheDocument();
+    await act(async () => { accept(true); });
+    expect(await screen.findByTestId("unsaved-changes-prompt")).toBeInTheDocument();
+  });
+
+  it("a save that never settles: a repeat quit offers an explicit way out, and Quit without saving quits", async () => {
+    // Codex r1 P2: an outstanding save cannot block quitting, and never quits silently.
+    nativeCommands({ saveHangs: true });
+    await renderApp();
+    await applyNodeEdit();
+    setTauriRuntime(true);
+    closeRequest(10, "quit");
+    fireEvent.click(await screen.findByTestId("unsaved-changes-save"));
+    await waitFor(() => expect(called("save_local_project")).toHaveLength(1));
+    closeRequest(10, "quit", 2);
+    expect(await screen.findByTestId("quit-while-busy-detail")).toHaveTextContent("has not finished. If you quit now, edits it has not saved are lost.");
+    expect(screen.getByTestId("quit-while-busy-wait")).toHaveFocus();
+    expect(answers()).toEqual([]);
+    fireEvent.click(screen.getByTestId("quit-while-busy-quit"));
+    await waitFor(() => expect(answers()).toEqual([{ requestId: 10, proceed: true }]));
+  });
+
+  it("a save that never settles: Keep waiting closes the way out and answers nothing", async () => {
+    nativeCommands({ saveHangs: true });
+    await renderApp();
+    await applyNodeEdit();
+    setTauriRuntime(true);
+    closeRequest(11, "window");
+    fireEvent.click(await screen.findByTestId("unsaved-changes-save"));
+    await waitFor(() => expect(called("save_local_project")).toHaveLength(1));
+    closeRequest(11, "window", 2);
+    expect(await screen.findByTestId("quit-while-busy-quit")).toHaveTextContent("Close without saving");
+    fireEvent.click(screen.getByTestId("quit-while-busy-wait"));
+    await settle();
+    expect(screen.queryByTestId("quit-while-busy-prompt")).not.toBeInTheDocument();
+    expect(answers()).toEqual([]);
+  });
+
+  it("while a dialog is open a quit closes nothing, even without edits (the modal rule)", async () => {
+    // Codex r1 P2: New Blank Project's units dialog is pending.
+    nativeCommands();
+    await renderApp();
+    act(() => { window.dispatchEvent(new CustomEvent("openpipestress-native-menu-command", { detail: "file.new-blank" })); });
+    await screen.findByTestId("project-units-dialog");
+    setTauriRuntime(true);
+    closeRequest(12, "quit");
+    await waitFor(() => expect(answers()).toEqual([{ requestId: 12, proceed: false }]));
+    expect(projectMessage()).toHaveTextContent("Not quit: a dialog is open. Finish or cancel it first; nothing was closed.");
+    expect(screen.getByTestId("project-units-dialog")).toBeInTheDocument();
   });
 });

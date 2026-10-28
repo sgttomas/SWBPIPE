@@ -3430,30 +3430,76 @@ export function useWorkspaceSession() {
     };
   }, []);
 
-  // W-17 (HF-08): a window close or quit while the working model has unsaved
-  // edits. The native host holds it (`src-tauri/src/close_guard.rs`) and asks
-  // here; this acknowledges at once, asks with the unsaved-changes prompt and
-  // answers. Without edits the host does not ask. A repeat of the open request
-  // is acknowledged only: its prompt is already showing. In the browser
-  // preview, the page's own unload prompt guards a reload or tab close.
-  const nativeCloseRequestInFlight = useRef<number | null>(null);
-  async function handleNativeCloseRequest({ requestId, kind }: NativeCloseRequest) {
-    void acknowledgeNativeCloseRequest(requestId).catch((error: unknown) => console.warn("Close request acknowledgement failed", error));
-    if (nativeCloseRequestInFlight.current === requestId) return;
-    nativeCloseRequestInFlight.current = requestId;
+  // W-17 (HF-08; Codex r1): a window close or quit. The native host holds
+  // every one and asks here (`src-tauri/src/close_guard.rs`); it never decides
+  // from the synced dirty flag. Each attempt is acknowledged first, and the
+  // user is asked only once the host accepted it: an accepted attempt has no
+  // deadline, and a refused or failed one means the host closes on its own
+  // deadline, so nothing is shown on a closing window. Then, for a new request:
+  // - a dialog or prompt holds the window: nothing closes (the modal rule);
+  //   the status line says to finish or cancel it first;
+  // - a project operation is running: the user chooses between waiting and
+  //   quitting without saving (never silently);
+  // - otherwise the unsaved-changes prompt asks while the model has edits, and
+  //   the request goes ahead at once without them.
+  // A repeat while a request is being decided asks nothing more while a prompt
+  // is showing; while the save chosen for it is still running, it offers the
+  // same explicit choice. In the browser preview, the page's unload prompt
+  // guards a reload or tab close.
+  const nativeCloseFlow = useRef<number | null>(null);
+  async function handleNativeCloseRequest({ requestId, attempt, kind }: NativeCloseRequest) {
+    let accepted = false;
+    try {
+      accepted = await acknowledgeNativeCloseRequest(requestId, attempt);
+    } catch (error: unknown) {
+      console.warn("Close request acknowledgement failed", error);
+    }
+    if (!accepted) return;
+    const refused = kind === "quit" ? "Not quit" : "Window not closed";
+    const verb = kind === "quit" ? "quit" : "close the window";
+    const answer = (proceed: boolean) =>
+      resolveNativeCloseRequest(requestId, proceed).catch((error: unknown) => console.warn("Close request answer failed", error));
+    if (nativeCloseFlow.current === requestId) {
+      if (replacePromptOpenRef.current) return;
+      const choice = await confirmQuitWhileBusy({ verb, running: "The save you chose before you asked to " + verb });
+      if (choice === "quit" && nativeCloseFlow.current === requestId) {
+        nativeCloseFlow.current = null;
+        await answer(true);
+      }
+      return;
+    }
+    if (nativeCloseFlow.current !== null) {
+      await answer(false);
+      return;
+    }
+    nativeCloseFlow.current = requestId;
     let proceed = false;
     try {
-      const outcome = await confirmReplacingEdits(kind === "quit"
-        ? { action: "Quitting SWBPIPE", verb: "quit", consequence: "Quitting SWBPIPE closes the working model." }
-        : { action: "Closing the window", verb: "close it", consequence: "Closing the window quits SWBPIPE and closes the working model." });
-      proceed = outcome === "proceed";
-      if (outcome !== "proceed") {
-        setProjectMessage(unsavedChangesRefusal(outcome, kind === "quit" ? "Not quit" : "Window not closed"));
-        setProjectOperation(kind === "quit" ? "quit_kept_edits" : "close_kept_edits");
+      if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current || handoffSaveDialogOpenRef.current) {
+        setProjectMessage(`${refused}: a dialog is open. Finish or cancel it first; nothing was closed.`);
+        setProjectOperation(kind === "quit" ? "quit_dialog_open" : "close_dialog_open");
+      } else if (projectOperationOwner.current !== null) {
+        proceed = (await confirmQuitWhileBusy({ verb, running: "An open, save or create of a local project" })) === "quit";
+        if (!proceed) {
+          setProjectMessage(`${refused}: the project operation is still running; nothing was closed.`);
+          setProjectOperation(kind === "quit" ? "quit_kept_waiting" : "close_kept_waiting");
+        }
+      } else {
+        const outcome = await confirmReplacingEdits(kind === "quit"
+          ? { action: "Quitting SWBPIPE", verb: "quit", consequence: "Quitting SWBPIPE closes the working model." }
+          : { action: "Closing the window", verb: "close it", consequence: "Closing the window quits SWBPIPE and closes the working model." });
+        proceed = outcome === "proceed";
+        if (outcome !== "proceed") {
+          setProjectMessage(unsavedChangesRefusal(outcome, refused));
+          setProjectOperation(kind === "quit" ? "quit_kept_edits" : "close_kept_edits");
+        }
       }
     } finally {
-      if (nativeCloseRequestInFlight.current === requestId) nativeCloseRequestInFlight.current = null;
-      await resolveNativeCloseRequest(requestId, proceed).catch((error: unknown) => console.warn("Close request answer failed", error));
+      if (nativeCloseFlow.current === requestId) {
+        nativeCloseFlow.current = null;
+        dismissQuitWhileBusy();
+        await answer(proceed);
+      }
     }
   }
   const nativeCloseRequestRef = useRef(handleNativeCloseRequest);
@@ -3803,7 +3849,7 @@ export function useWorkspaceSession() {
     return projectSaveLanded.current;
   }
 
-  const { unsavedChangesPrompt, replacingNeedsConfirmation, confirmReplacingEdits } = useUnsavedChangesGuard({
+  const { unsavedChangesPrompt, replacingNeedsConfirmation, confirmReplacingEdits, quitWhileBusyPrompt, confirmQuitWhileBusy, dismissQuitWhileBusy } = useUnsavedChangesGuard({
     modelEditedRef, holdModal, projectSessionBusy, saveLocalProject: async () => (await saveLocalProjectFirst()) !== null
   });
 
@@ -3937,6 +3983,7 @@ export function useWorkspaceSession() {
       handleListProjects,
       replaceProjectPrompt,
       unsavedChangesPrompt,
+      quitWhileBusyPrompt,
       // W-12 S1: the saved model states of the session's project (History panel).
       history,
       requestSaveModelDocument,

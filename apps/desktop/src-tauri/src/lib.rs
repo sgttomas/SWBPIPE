@@ -4448,7 +4448,6 @@ fn sync_native_shell_state(
     state: NativeShellState,
 ) -> Result<NativeShellStateReceipt, String> {
     validate_native_shell_state(&state)?;
-    app.state::<close_guard::CloseGuard>().set_model_edited(state.model_edited);
     let menu = app
         .menu()
         .ok_or_else(|| "NATIVE-MENU-UNAVAILABLE: application menu is not installed".to_string())?;
@@ -4529,7 +4528,7 @@ fn request_close<R: tauri::Runtime>(app: &tauri::AppHandle<R>, kind: close_guard
         close_guard::CloseDecision::Ask { request_id, attempt, kind } => {
             let asked = app
                 .get_webview_window("main")
-                .map(|webview| webview.eval(&close_guard::close_request_dispatch_script(request_id, kind)))
+                .map(|webview| webview.eval(&close_guard::close_request_dispatch_script(request_id, attempt, kind)))
                 .is_some_and(|result| result.is_ok());
             if !asked {
                 // No webview to ask: nothing can show the prompt, so go ahead.
@@ -4565,10 +4564,11 @@ fn finish_close<R: tauri::Runtime>(app: &tauri::AppHandle<R>, kind: close_guard:
     }
 }
 
-/// The webview received a close request (`close_guard.rs`).
+/// The webview received an attempt of a close request (`close_guard.rs`).
+/// True when the host accepted it; only then may the webview ask the user.
 #[tauri::command]
-fn acknowledge_close_request(app: AppHandle, request_id: u64) -> bool {
-    app.state::<close_guard::CloseGuard>().acknowledge(request_id)
+fn acknowledge_close_request(app: AppHandle, request_id: u64, attempt: u64) -> bool {
+    app.state::<close_guard::CloseGuard>().acknowledge(request_id, attempt)
 }
 
 /// The user's decision on a close request: `proceed` closes or quits.

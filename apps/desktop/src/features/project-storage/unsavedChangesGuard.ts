@@ -34,6 +34,21 @@ export type UnsavedChangesPromptState = UnsavedChangesRequest & {
  * project operation or prompt owns the session, so no prompt was shown. */
 export type UnsavedChangesOutcome = "proceed" | "cancelled" | "not-saved" | "busy";
 
+export type QuitWhileBusyChoice = "wait" | "quit";
+
+/** What the busy-quit prompt asks about. */
+export type QuitWhileBusyRequest = {
+  /** "quit" / "close the window". */
+  verb: string;
+  /** What is still running: "The save you chose before quitting" … */
+  running: string;
+};
+
+export type QuitWhileBusyPromptState = QuitWhileBusyRequest & {
+  opener: HTMLElement | null;
+  choose: (choice: QuitWhileBusyChoice) => void;
+};
+
 export const PROJECT_SESSION_BUSY = "another project operation or prompt is in progress; nothing was replaced.";
 
 export function unsavedChangesRefusal(outcome: Exclude<UnsavedChangesOutcome, "proceed">, refused: string): string {
@@ -86,5 +101,32 @@ export function useUnsavedChangesGuard(deps: {
     return (await depsRef.current.saveLocalProject()) ? "proceed" : "not-saved";
   }
 
-  return { unsavedChangesPrompt, replacingNeedsConfirmation, confirmReplacingEdits };
+  const [quitWhileBusyPrompt, setQuitWhileBusyPrompt] = useState<QuitWhileBusyPromptState | null>(null);
+  const quitWhileBusyChoose = useRef<((choice: QuitWhileBusyChoice) => void) | null>(null);
+
+  /** A quit or close while a project operation (including the save a quit is
+   * waiting for) is still running: the user chooses explicitly between
+   * waiting and quitting now. Never quits silently (Codex r1 P2). */
+  function confirmQuitWhileBusy(request: QuitWhileBusyRequest): Promise<QuitWhileBusyChoice> {
+    return new Promise<QuitWhileBusyChoice>((resolve) => {
+      const release = depsRef.current.holdModal();
+      const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      const choose = (picked: QuitWhileBusyChoice) => {
+        if (quitWhileBusyChoose.current !== choose) return;
+        quitWhileBusyChoose.current = null;
+        release();
+        setQuitWhileBusyPrompt(null);
+        resolve(picked);
+      };
+      quitWhileBusyChoose.current = choose;
+      setQuitWhileBusyPrompt({ ...request, opener, choose });
+    });
+  }
+
+  /** The operation finished first: the prompt closes as Keep waiting. */
+  function dismissQuitWhileBusy() {
+    quitWhileBusyChoose.current?.("wait");
+  }
+
+  return { unsavedChangesPrompt, replacingNeedsConfirmation, confirmReplacingEdits, quitWhileBusyPrompt, confirmQuitWhileBusy, dismissQuitWhileBusy };
 }

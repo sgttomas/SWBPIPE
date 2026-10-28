@@ -66,7 +66,10 @@ A model solves on one of two routes:
   its own; it does not start an empty model. Quitting (⌘Q) or closing the
   window while the model has unsaved edits (the toolbar shows "Edited") asks
   first: Save Local Project and quit, discard the edits and quit, or Cancel.
-  Quitting from the Dock or at logout does not ask yet.
+  While a dialog is open, ⌘Q and the close button do nothing; finish or
+  cancel the dialog first. If a save is still running when you quit again,
+  you choose between waiting for it and quitting without saving. Quitting
+  from the Dock or at logout does not ask yet.
 - **Authoring.** Place nodes and pipes in the 3D viewport. Assign materials and
   sections, and add bends, expansion joints, supports, load cases and
   combinations. Each edit is a validated operation that you can review and

@@ -157,6 +157,28 @@ export use their existing routes unchanged.
     take a hold on the shared modal flag (`modalHolds.ts`). Menu commands and
     shortcuts wait until the last hold is released, whichever prompt closes
     first.
+  - **Quit and window close (W-17, HF-08; Codex r1).** Quit SWBPIPE (⌘Q) is
+    the app's own menu item, not AppKit's `terminate:`, which tao 0.35 cannot
+    hold. The host (`src-tauri/src/close_guard.rs`) holds every quit and main
+    window close and asks the webview; it never decides from the synced
+    dirty flag. Dock Quit and logout/shutdown still use `terminate:` and are
+    not guarded.
+    - **Acknowledgement.** The webview acknowledges each attempt and asks
+      the user only once the host accepted it. An accepted attempt has no
+      deadline. An attempt not acknowledged within 10 s proceeds, and the
+      late acknowledgement is refused, so a crashed or hung webview cannot
+      hold the app open and no prompt shows on a closing window. A repeat
+      quit or close is a new attempt with a fresh deadline.
+    - **A dialog or prompt is open.** Quit and close do nothing, even
+      without edits: the status line says to finish or cancel the dialog
+      first. This is the modal rule the menu commands follow.
+    - **A project operation is running**, including the save chosen in the
+      prompt (a repeat quit while it runs): the user chooses between Keep
+      waiting (the default) and Quit / Close without saving. Nothing quits
+      silently.
+    - **Otherwise** the unsaved-changes prompt asks while the model has
+      edits (Cancel, Save Local Project then quit, Discard edits and quit),
+      and the request goes ahead at once without them.
   - **New Blank.** A New Blank whose time-stamped id is already stored takes a
     suffixed id, since a new blank has no identity of its own to keep.
     - **When the blank becomes the session.** Create closes the units dialog

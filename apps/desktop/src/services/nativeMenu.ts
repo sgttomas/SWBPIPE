@@ -56,23 +56,28 @@ export async function syncNativeShellState(state: NativeShellState): Promise<voi
   await invoke("sync_native_shell_state", { state });
 }
 
-/** A window close or quit the native host holds while the working model has
- * unsaved edits (`src-tauri/src/close_guard.rs`), dispatched to the webview as
- * the `openpipestress-native-close-request` DOM event. */
+/** A window close or quit the native host holds (`src-tauri/src/close_guard.rs`):
+ * every attempt is dispatched to the webview as the
+ * `openpipestress-native-close-request` DOM event. */
 export const NATIVE_CLOSE_REQUEST_DOM_EVENT = "openpipestress-native-close-request";
-export type NativeCloseRequest = { requestId: number; kind: "window" | "quit" };
+export type NativeCloseRequest = { requestId: number; attempt: number; kind: "window" | "quit" };
 
 export function nativeCloseRequestFrom(detail: unknown): NativeCloseRequest | null {
   if (typeof detail !== "object" || detail === null) return null;
-  const { requestId, kind } = detail as Record<string, unknown>;
-  if (typeof requestId !== "number" || !Number.isSafeInteger(requestId) || (kind !== "window" && kind !== "quit")) return null;
-  return { requestId, kind };
+  const { requestId, attempt, kind } = detail as Record<string, unknown>;
+  if (typeof requestId !== "number" || !Number.isSafeInteger(requestId)) return null;
+  if (typeof attempt !== "number" || !Number.isSafeInteger(attempt)) return null;
+  if (kind !== "window" && kind !== "quit") return null;
+  return { requestId, attempt, kind };
 }
 
-/** Tells the host the request arrived; an unacknowledged request proceeds after the host's deadline. */
-export async function acknowledgeNativeCloseRequest(requestId: number): Promise<void> {
-  if (!isTauriRuntime()) return;
-  await invoke("acknowledge_close_request", { requestId });
+/** Acknowledges an attempt. True only when the host accepted it (the current
+ * attempt, before its deadline); the webview asks the user only then. A
+ * refused or failed acknowledgement means the host closes on its own
+ * deadline, so nothing is shown. */
+export async function acknowledgeNativeCloseRequest(requestId: number, attempt: number): Promise<boolean> {
+  if (!isTauriRuntime()) return false;
+  return (await invoke("acknowledge_close_request", { requestId, attempt })) === true;
 }
 
 /** The user's decision: `proceed` closes or quits; otherwise the app stays open. */
