@@ -3823,7 +3823,7 @@
     {
       "id": "result:moment:pipe-CD:bending-y:end-j",
       "kind": "element_local_bending_moment_y",
-      "value": -2.0391275408766028e-42,
+      "value": -1.349419366015401e-42,
       "unit": "N*m",
       "entity_ref": "pipe:CD",
       "basis_ref": {
@@ -3859,7 +3859,7 @@
     {
       "id": "result:moment:pipe-CD:bending-z:end-j",
       "kind": "element_local_bending_moment_z",
-      "value": 1.1861994433812273e-40,
+      "value": -4.405111626526447e-40,
       "unit": "N*m",
       "entity_ref": "pipe:CD",
       "basis_ref": {
@@ -4291,7 +4291,7 @@
     {
       "id": "result:stress:pipe-CD:end-j:bending-normal-y",
       "kind": "element_local_bending_normal_stress_y",
-      "value": -2.5074612233116667e-38,
+      "value": 2.5074599687516433e-38,
       "unit": "MPa",
       "entity_ref": "pipe:CD",
       "basis_ref": {
@@ -4309,7 +4309,7 @@
     {
       "id": "result:stress:pipe-CD:end-j:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -1.7865274151527114e-38,
+      "value": 1.786408239628355e-38,
       "unit": "MPa",
       "entity_ref": "pipe:CD",
       "basis_ref": {
@@ -4741,7 +4741,7 @@
     {
       "id": "result:element-global-end:pipe-CD:end_j:mx",
       "kind": "element_global_end_moment_v1",
-      "value": 2.0391275408766028e-42,
+      "value": 1.349419366015401e-42,
       "unit": "N*m",
       "entity_ref": "pipe:CD",
       "basis_ref": {
@@ -4777,7 +4777,7 @@
     {
       "id": "result:element-global-end:pipe-CD:end_j:mz",
       "kind": "element_global_end_moment_v1",
-      "value": 1.1861994433812273e-40,
+      "value": -4.405111626526447e-40,
       "unit": "N*m",
       "entity_ref": "pipe:CD",
       "basis_ref": {
@@ -7233,7 +7233,7 @@
     {
       "id": "result:loadcase:case-uniform_z:moment:pipe-BC:torsion:end-j",
       "kind": "element_local_torsional_moment",
-      "value": -2.2229067430718838e-36,
+      "value": -2.2229082844194834e-36,
       "unit": "N*m",
       "entity_ref": "pipe:BC",
       "basis_ref": {
@@ -7773,7 +7773,7 @@
     {
       "id": "result:loadcase:case-uniform_z:stress:pipe-BC:end-j:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": -4.114993849284046e-39,
+      "value": -4.11499670259128e-39,
       "unit": "MPa",
       "entity_ref": "pipe:BC",
       "basis_ref": {
@@ -8601,7 +8601,7 @@
     {
       "id": "result:loadcase:case-uniform_z:force:pipe-CD:shear-z:end-j",
       "kind": "element_local_shear_force_z",
-      "value": -3.978388211455193e-42,
+      "value": 3.3552782766777334e-42,
       "unit": "N",
       "entity_ref": "pipe:CD",
       "basis_ref": {
@@ -8619,7 +8619,7 @@
     {
       "id": "result:loadcase:case-uniform_z:moment:pipe-CD:torsion",
       "kind": "element_local_torsional_moment",
-      "value": 3.557570250861208e-43,
+      "value": 0.0,
       "unit": "N*m",
       "entity_ref": "pipe:CD",
       "basis_ref": {
@@ -8637,7 +8637,7 @@
     {
       "id": "result:loadcase:case-uniform_z:moment:pipe-CD:torsion:end-j",
       "kind": "element_local_torsional_moment",
-      "value": -3.557570250861208e-43,
+      "value": 0.0,
       "unit": "N*m",
       "entity_ref": "pipe:CD",
       "basis_ref": {
@@ -8673,7 +8673,7 @@
     {
       "id": "result:loadcase:case-uniform_z:moment:pipe-CD:bending-y:end-j",
       "kind": "element_local_bending_moment_y",
-      "value": 3.437848412656241e-42,
+      "value": 7.849263614701592e-42,
       "unit": "N*m",
       "entity_ref": "pipe:CD",
       "basis_ref": {
@@ -8781,7 +8781,7 @@
     {
       "id": "result:loadcase:case-uniform_z:moment:pipe-CD:quarter-1:torsion",
       "kind": "element_local_torsional_moment",
-      "value": -3.557570250861208e-43,
+      "value": 0.0,
       "unit": "N*m",
       "entity_ref": "pipe:CD",
       "basis_ref": {
@@ -8889,7 +8889,7 @@
     {
       "id": "result:loadcase:case-uniform_z:moment:pipe-CD:midspan:torsion",
       "kind": "element_local_torsional_moment",
-      "value": -3.557570250861208e-43,
+      "value": 0.0,
       "unit": "N*m",
       "entity_ref": "pipe:CD",
       "basis_ref": {
@@ -8997,7 +8997,7 @@
     {
       "id": "result:loadcase:case-uniform_z:moment:pipe-CD:quarter-3:torsion",
       "kind": "element_local_torsional_moment",
-      "value": -3.557570250861208e-43,
+      "value": 0.0,
       "unit": "N*m",
       "entity_ref": "pipe:CD",
       "basis_ref": {
@@ -9105,7 +9105,7 @@
     {
       "id": "result:loadcase:case-uniform_z:stress:pipe-CD:end-i:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": -6.58569224566717e-46,
+      "value": 0.0,
       "unit": "MPa",
       "entity_ref": "pipe:CD",
       "basis_ref": {
@@ -9141,7 +9141,7 @@
     {
       "id": "result:loadcase:case-uniform_z:stress:pipe-CD:end-j:bending-normal-y",
       "kind": "element_local_bending_normal_stress_y",
-      "value": 2.2796372810057657e-38,
+      "value": -3.115235577486048e-38,
       "unit": "MPa",
       "entity_ref": "pipe:CD",
       "basis_ref": {
@@ -9177,7 +9177,7 @@
     {
       "id": "result:loadcase:case-uniform_z:stress:pipe-CD:end-j:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": -6.58569224566717e-46,
+      "value": 0.0,
       "unit": "MPa",
       "entity_ref": "pipe:CD",
       "basis_ref": {
@@ -9249,7 +9249,7 @@
     {
       "id": "result:loadcase:case-uniform_z:stress:pipe-CD:quarter-1:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": -6.58569224566717e-46,
+      "value": 0.0,
       "unit": "MPa",
       "entity_ref": "pipe:CD",
       "basis_ref": {
@@ -9321,7 +9321,7 @@
     {
       "id": "result:loadcase:case-uniform_z:stress:pipe-CD:midspan:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": -6.58569224566717e-46,
+      "value": 0.0,
       "unit": "MPa",
       "entity_ref": "pipe:CD",
       "basis_ref": {
@@ -9393,7 +9393,7 @@
     {
       "id": "result:loadcase:case-uniform_z:stress:pipe-CD:quarter-3:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": -6.58569224566717e-46,
+      "value": 0.0,
       "unit": "MPa",
       "entity_ref": "pipe:CD",
       "basis_ref": {
@@ -9501,7 +9501,7 @@
     {
       "id": "result:loadcase:case-uniform_z:element-global-end:pipe-CD:end_i:my",
       "kind": "element_global_end_moment_v1",
-      "value": 3.557570250861208e-43,
+      "value": 0.0,
       "unit": "N*m",
       "entity_ref": "pipe:CD",
       "basis_ref": {
@@ -9573,7 +9573,7 @@
     {
       "id": "result:loadcase:case-uniform_z:element-global-end:pipe-CD:end_j:fz",
       "kind": "element_global_end_force_v1",
-      "value": -3.978388211455193e-42,
+      "value": 3.3552782766777334e-42,
       "unit": "N",
       "entity_ref": "pipe:CD",
       "basis_ref": {
@@ -9591,7 +9591,7 @@
     {
       "id": "result:loadcase:case-uniform_z:element-global-end:pipe-CD:end_j:mx",
       "kind": "element_global_end_moment_v1",
-      "value": -3.437848412656241e-42,
+      "value": -7.849263614701592e-42,
       "unit": "N*m",
       "entity_ref": "pipe:CD",
       "basis_ref": {
@@ -9609,7 +9609,7 @@
     {
       "id": "result:loadcase:case-uniform_z:element-global-end:pipe-CD:end_j:my",
       "kind": "element_global_end_moment_v1",
-      "value": -3.557570250861208e-43,
+      "value": 0.0,
       "unit": "N*m",
       "entity_ref": "pipe:CD",
       "basis_ref": {
@@ -9699,7 +9699,7 @@
     {
       "id": "result:loadcase:case-uniform_z:stress:pipe-CD:end-j:sigma-plus",
       "kind": "element_local_normal_stress_extreme",
-      "value": 2.2796372810057657e-38,
+      "value": 3.115235577486048e-38,
       "unit": "MPa",
       "entity_ref": "pipe:CD",
       "basis_ref": {
@@ -9717,7 +9717,7 @@
     {
       "id": "result:loadcase:case-uniform_z:stress:pipe-CD:end-j:sigma-minus",
       "kind": "element_local_normal_stress_extreme",
-      "value": -2.2796372810057657e-38,
+      "value": -3.115235577486048e-38,
       "unit": "MPa",
       "entity_ref": "pipe:CD",
       "basis_ref": {
@@ -9735,7 +9735,7 @@
     {
       "id": "result:loadcase:case-uniform_z:stress:pipe-CD:end-j:transverse-shear-max",
       "kind": "element_local_transverse_shear_stress_maximum",
-      "value": 1.38688362701579e-45,
+      "value": 1.1696647633851742e-45,
       "unit": "MPa",
       "entity_ref": "pipe:CD",
       "basis_ref": {

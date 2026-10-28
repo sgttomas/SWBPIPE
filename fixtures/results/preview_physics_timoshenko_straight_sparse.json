@@ -274,7 +274,7 @@
     {
       "id": "result:disp:node-B",
       "kind": "displacement_magnitude",
-      "value": 0.0066037600566181505,
+      "value": 0.006603760056618151,
       "unit": "mm",
       "entity_ref": "node:B",
       "basis_ref": {
@@ -411,7 +411,7 @@
     {
       "id": "result:disp:node-B:uy",
       "kind": "global_nodal_displacement_y",
-      "value": 0.0066037600566181505,
+      "value": 0.006603760056618151,
       "unit": "mm",
       "entity_ref": "node:B",
       "basis_ref": {
@@ -843,7 +843,7 @@
     {
       "id": "result:moment:pipe-AB:bending-z:end-j",
       "kind": "element_local_bending_moment_z",
-      "value": 9.780998030595794e-46,
+      "value": 3.605288079290154e-46,
       "unit": "N*m",
       "entity_ref": "pipe:AB",
       "basis_ref": {
@@ -1293,7 +1293,7 @@
     {
       "id": "result:stress:pipe-AB:end-j:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": 3.621271730017826e-48,
+      "value": 1.3348052784863339e-48,
       "unit": "MPa",
       "entity_ref": "pipe:AB",
       "basis_ref": {
@@ -1761,7 +1761,7 @@
     {
       "id": "result:element-global-end:pipe-AB:end_j:mz",
       "kind": "element_global_end_moment_v1",
-      "value": 9.780998030595794e-46,
+      "value": 3.605288079290154e-46,
       "unit": "N*m",
       "entity_ref": "pipe:AB",
       "basis_ref": {
@@ -1833,7 +1833,7 @@
     {
       "id": "result:stress:pipe-AB:end-j:sigma-plus",
       "kind": "element_local_normal_stress_extreme",
-      "value": 3.621271730017826e-48,
+      "value": 1.3348052784863339e-48,
       "unit": "MPa",
       "entity_ref": "pipe:AB",
       "basis_ref": {
@@ -1851,7 +1851,7 @@
     {
       "id": "result:stress:pipe-AB:end-j:sigma-minus",
       "kind": "element_local_normal_stress_extreme",
-      "value": -3.621271730017826e-48,
+      "value": -1.3348052784863339e-48,
       "unit": "MPa",
       "entity_ref": "pipe:AB",
       "basis_ref": {
@@ -2078,7 +2078,7 @@
     {
       "id": "result:loadcase:case-tip_y_reversed:disp:node-B",
       "kind": "displacement_magnitude",
-      "value": 0.0066037600566181505,
+      "value": 0.006603760056618151,
       "unit": "mm",
       "entity_ref": "node:B",
       "basis_ref": {
@@ -2215,7 +2215,7 @@
     {
       "id": "result:loadcase:case-tip_y_reversed:disp:node-B:uy",
       "kind": "global_nodal_displacement_y",
-      "value": -0.0066037600566181505,
+      "value": -0.006603760056618151,
       "unit": "mm",
       "entity_ref": "node:B",
       "basis_ref": {
@@ -2647,7 +2647,7 @@
     {
       "id": "result:loadcase:case-tip_y_reversed:moment:pipe-AB:bending-z:end-j",
       "kind": "element_local_bending_moment_z",
-      "value": -9.780998030595794e-46,
+      "value": -3.605288079290154e-46,
       "unit": "N*m",
       "entity_ref": "pipe:AB",
       "basis_ref": {
@@ -3097,7 +3097,7 @@
     {
       "id": "result:loadcase:case-tip_y_reversed:stress:pipe-AB:end-j:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -3.621271730017826e-48,
+      "value": -1.3348052784863339e-48,
       "unit": "MPa",
       "entity_ref": "pipe:AB",
       "basis_ref": {
@@ -3565,7 +3565,7 @@
     {
       "id": "result:loadcase:case-tip_y_reversed:element-global-end:pipe-AB:end_j:mz",
       "kind": "element_global_end_moment_v1",
-      "value": -9.780998030595794e-46,
+      "value": -3.605288079290154e-46,
       "unit": "N*m",
       "entity_ref": "pipe:AB",
       "basis_ref": {
@@ -3637,7 +3637,7 @@
     {
       "id": "result:loadcase:case-tip_y_reversed:stress:pipe-AB:end-j:sigma-plus",
       "kind": "element_local_normal_stress_extreme",
-      "value": 3.621271730017826e-48,
+      "value": 1.3348052784863339e-48,
       "unit": "MPa",
       "entity_ref": "pipe:AB",
       "basis_ref": {
@@ -3655,7 +3655,7 @@
     {
       "id": "result:loadcase:case-tip_y_reversed:stress:pipe-AB:end-j:sigma-minus",
       "kind": "element_local_normal_stress_extreme",
-      "value": -3.621271730017826e-48,
+      "value": -1.3348052784863339e-48,
       "unit": "MPa",
       "entity_ref": "pipe:AB",
       "basis_ref": {
@@ -3882,7 +3882,7 @@
     {
       "id": "result:loadcase:case-tip_z:disp:node-B",
       "kind": "displacement_magnitude",
-      "value": 0.0066037600566181505,
+      "value": 0.006603760056618151,
       "unit": "mm",
       "entity_ref": "node:B",
       "basis_ref": {
@@ -4037,7 +4037,7 @@
     {
       "id": "result:loadcase:case-tip_z:disp:node-B:uz",
       "kind": "global_nodal_displacement_z",
-      "value": 0.0066037600566181505,
+      "value": 0.006603760056618151,
       "unit": "mm",
       "entity_ref": "node:B",
       "basis_ref": {
@@ -4415,7 +4415,7 @@
     {
       "id": "result:loadcase:case-tip_z:moment:pipe-AB:bending-y:end-j",
       "kind": "element_local_bending_moment_y",
-      "value": -9.780998030595794e-46,
+      "value": -3.605288079290154e-46,
       "unit": "N*m",
       "entity_ref": "pipe:AB",
       "basis_ref": {
@@ -4883,7 +4883,7 @@
     {
       "id": "result:loadcase:case-tip_z:stress:pipe-AB:end-j:bending-normal-y",
       "kind": "element_local_bending_normal_stress_y",
-      "value": -3.621271730017826e-48,
+      "value": -1.3348052784863339e-48,
       "unit": "MPa",
       "entity_ref": "pipe:AB",
       "basis_ref": {
@@ -5351,7 +5351,7 @@
     {
       "id": "result:loadcase:case-tip_z:element-global-end:pipe-AB:end_j:my",
       "kind": "element_global_end_moment_v1",
-      "value": -9.780998030595794e-46,
+      "value": -3.605288079290154e-46,
       "unit": "N*m",
       "entity_ref": "pipe:AB",
       "basis_ref": {
@@ -5441,7 +5441,7 @@
     {
       "id": "result:loadcase:case-tip_z:stress:pipe-AB:end-j:sigma-plus",
       "kind": "element_local_normal_stress_extreme",
-      "value": 3.621271730017826e-48,
+      "value": 1.3348052784863339e-48,
       "unit": "MPa",
       "entity_ref": "pipe:AB",
       "basis_ref": {
@@ -5459,7 +5459,7 @@
     {
       "id": "result:loadcase:case-tip_z:stress:pipe-AB:end-j:sigma-minus",
       "kind": "element_local_normal_stress_extreme",
-      "value": -3.621271730017826e-48,
+      "value": -1.3348052784863339e-48,
       "unit": "MPa",
       "entity_ref": "pipe:AB",
       "basis_ref": {

@@ -5,8 +5,10 @@
 //! members included) with the exact route's element and shear-factor
 //! definition, applied to PF's own section and moduli: κ_E on PF's stiffness
 //! annulus (r_o = OD/2, r_i = OD/2 − (t − c_m)) with ν = E/(2G) − 1 from the
-//! member's unscaled case-resolved moduli, in the operation order of PF's
-//! stress recovery (`u4b_rows::preview_poisson_ratio`). Realized arcs stay
+//! member's unscaled case-resolved moduli. The range check and every reported ν
+//! use PF's stress-recovery order (`u4b_rows::preview_poisson_ratio`); κ_E itself
+//! is formed from E and G without 1 + ν (`shear::annulus_energy_shear_factor_of_moduli`).
+//! Realized arcs stay
 //! Euler–Bernoulli and are disclosed by name (§4).
 //!
 //! Admission follows consumption (§2): the bases the cases consume are known
@@ -139,7 +141,17 @@ pub(crate) fn shear_area(
     let outer_radius = pipe.section.outside_diameter.value / 2.0;
     let inner_radius = outer_radius - derived.wall_thickness;
     let cases = basis.case_ids.join(", ");
-    let factor = shear::annulus_energy_shear_factor(inner_radius, outer_radius, nu)
+    // §2: admission is the factor's range on this ν, unchanged; κ_E is then formed from
+    // the moduli without 1 + ν, so it keeps its accuracy as E/(2G) approaches 0.
+    let admitted = if !nu.is_finite() {
+        Err(shear::ShearFactorError::NonFiniteInput { name: "poisson_ratio", value: nu })
+    } else if !(nu > -1.0 && nu < 0.5) {
+        Err(shear::ShearFactorError::PoissonRatioOutOfRange { value: nu })
+    } else {
+        Ok(())
+    };
+    let factor = admitted
+        .and_then(|()| shear::annulus_energy_shear_factor_of_moduli(inner_radius, outer_radius, elastic_modulus, shear_modulus))
         .and_then(|kappa| shear::shear_area(kappa, derived.area));
     let shear_area = match factor {
         Ok(shear_area) => shear_area,

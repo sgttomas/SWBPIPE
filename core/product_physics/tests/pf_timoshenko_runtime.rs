@@ -326,6 +326,60 @@ fn an_out_of_range_selected_basis_blocks_by_name() {
     }
 }
 
+/// The guided cantilever of the independent review (Codex, #1663), its moduli in GPa (an
+/// integral Pa value above 2^53 is refused at the wire): E = 1 GPa and G = 1.5·2^52 GPa, so
+/// E/(2G) = 1/(3·2^52) ≈ 7.4e-17 and ν = E/(2G) − 1 lies within 2^-53 of −1. Node B is
+/// restrained in every freedom but UY, under 1e-18 N along global Y.
+fn near_minus_one(elastic_gpa: f64, shear_gpa: f64) -> Value {
+    let mut request = template(CANTILEVER);
+    let model = &mut request["model"];
+    model["load_cases"].as_array_mut().unwrap().truncate(1);
+    model["load_cases"][0]["primitive_loads"][0]["magnitude"]["value"] = json!(1e-18);
+    let mut guide = model["supports"][0].clone();
+    guide["id"] = json!("support:B");
+    guide["node"] = json!("node:B");
+    guide["restraints"] = json!(["UX", "UZ", "RX", "RY", "RZ"]);
+    model["supports"].as_array_mut().unwrap().push(guide);
+    let material = &mut model["materials"][0];
+    material["elastic_modulus"] = json!({"value": elastic_gpa, "unit": "GPa"});
+    material["shear_modulus"] = json!({"value": shear_gpa, "unit": "GPa"});
+    request
+}
+
+/// §2: κ_E is formed from E and G without 1 + ν, so ν within ulps of −1 keeps the
+/// factor's accuracy. The review's model published UY 55.6% low through the re-formed
+/// 1 + ν; it now agrees with the review's independent exact value. At E/(2G) = 2^-54
+/// the binary64 ν = E/(2G) − 1 rounds to −1 and the unchanged range check refuses it.
+#[test]
+fn nu_within_ulps_of_minus_one_keeps_the_factor_accurate() {
+    // The review's exact UY, in mm: 8.313929798027449761e-12 m.
+    let expected = 8.313929798027449761e-9;
+    let shear = 6755399441055744.0;
+    let request = near_minus_one(1.0, shear);
+    for mode in MODES {
+        let envelope = solve(&request, mode);
+        solved(&envelope, &format!("{mode:?}"));
+        assert_eq!(envelope["producer"]["semantic_contract_id"], json!(TIMOSHENKO_ID));
+        let uy = envelope["results"].as_array().unwrap().iter()
+            .find(|r| r["id"] == json!("result:disp:node-B:uy")).unwrap()["value"].as_f64().unwrap();
+        let error = (uy - expected).abs() / expected;
+        eprintln!("{mode:?}: UY {uy:e} mm, relative error {error:e}");
+        assert!(error <= 1e-14, "{mode:?}: UY {uy:e} mm against {expected:e} mm ({error:e})");
+    }
+    // E = 0.75 GPa gives E/(2G) = 2^-54 exactly, whose ν rounds to −1 (ties to even): refused
+    // by name. One ulp above (E = 7.5e8 Pa + 1 ulp, so E/(2G) rounds to 2^-54·(1 + 2^-52)),
+    // ν = −1 + 2^-53 is admitted.
+    for mode in MODES {
+        let above = 0.75 * (1.0 + f64::EPSILON);
+        solved(&solve(&near_minus_one(above, shear), mode), &format!("{mode:?}: just above 2^-54"));
+        let envelope = solve(&near_minus_one(0.75, shear), mode);
+        let refusal = blocked_by(&envelope, FACTOR, TIMOSHENKO_ID, &format!("{mode:?}: at 2^-54"));
+        let message = refusal["message"].as_str().unwrap();
+        assert!(message.contains("nu = E/(2G) - 1 = -1.0 from material mat:A"), "{message}");
+        assert!(message.contains("Poisson ratio must satisfy -1 < nu < 1/2, got -1"), "{message}");
+    }
+}
+
 // ------------------------------------------------------------- arc disclosure
 
 /// §4: a Timoshenko result with a realized arc names it once; a result without one, and an
