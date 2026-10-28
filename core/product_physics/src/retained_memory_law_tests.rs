@@ -460,8 +460,15 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // beside preview-physics-2: its profile and its table). The closed `b7b_current_table_tests`
             // and E14 modules are main's, byte for byte; the Timoshenko table's E14 check is in
             // result_export's tests/preview_timoshenko_identity.rs. No include, path module, static or
-            // OnceLock entered the suffix; the Timoshenko table's one include is in the inspected prefix,
-            // parsed only for a source of that identity. This re-pin is registered at #1663's D3 turn.
+            // OnceLock entered the suffix; the Timoshenko table's one include and its OnceLock cache are in
+            // the inspected prefix, parsed only for a source of that identity, then resident for the
+            // process (pf-timoshenko.md §6). This re-pin is registered at #1663's D3 turn.
+            // Re-audited on the merge with main 66a83a2b68, whose suffix pin (6dc09d33…) is unmoved: main
+            // changed only two table-hash constants in the inspected prefix. The closed
+            // `b7b_current_table_tests` (head 389–481, main 329–421) and E14 (head 1047–1071, main
+            // 981–1005) modules are main's, byte for byte; every other line differing from main lies in
+            // the inspected prefix or the inspected production after the resume (head 482–1046, main
+            // 422–980). The value is unchanged.
             complete_suffix_sha256: "0d01d7e25d89e3214322197da2bbf26e6cd76bdcc09783c4a25a14971343ee79",
             production_resume: Some("/// Header dispatch only; canonical envelopes have no raw rows. This does not"),
             trailing_test: Some(SEMANTIC_E14_TEST_ITEM),
