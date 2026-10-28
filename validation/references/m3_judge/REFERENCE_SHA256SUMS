@@ -1,0 +1,9 @@
+# The committed reference files of the M3 judge (Agent 0, the judge's final round): a reference set or controls file is
+# judged only if its sha256 is listed here for its route; this file must be tracked and unchanged in the judge's checkout.
+# <sha256> <route> <set|controls> <what>
+93249c22a79767d290cb704b091882e3390896cde868b61587f4e157f3e4f6aa pf set pf_timoshenko_m3t: pft_generate.py full set.jsonl (906 models; generator at decb1dbb61)
+1a6984ec2ad6db6ccd89e171700196fb272a8a8962d535a85eef6657e43c9a9e pf set pf_timoshenko_m3t/frozen/pft_frozen_subset.jsonl (100 models)
+8dd7841161850ada950bcd416c0e973e03e212a981eb2d08b8b1ea2eb00017ac pf set m3_judge/selftest/pf_set.jsonl (20 models, verbatim lines of the PF frozen subset)
+6b8b4e0c9bf9848f239d35e7940c9a0441352e8d7b8dd3aff01bf9058847f9ba exact set kd5_timoshenko: kd5t_generate.py full set.jsonl (964 models)
+a3b260323e25f9b5e7c0c8ec038c2361727f74631e1d0c40c6b681148632d32a exact controls kd5_timoshenko: kd5t_generate.py full controls.jsonl (E perturbed by 2^-20)
+8e2f858b5e0326103ed19b36220035056baf4e698f5109189fa31635fa19e440 exact set kd5_timoshenko/frozen/kd5t_frozen_subset.jsonl (64 models)
