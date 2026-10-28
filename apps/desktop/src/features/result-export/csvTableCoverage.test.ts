@@ -10,13 +10,6 @@ import { CSV_EXPORT_ATTRIBUTE } from "./CsvExportControl";
 
 const features = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
-/** Tables still without CSV export, each named with why. The results row tables of
- * `ResultsPanel.tsx` (the per-group tables and the endpoint pair) show values through the
- * session's display-unit converter (`useDisplayQuantity`), which converts SI and US units in
- * binary64 in the Rust unit engine; their exact basis is HELP_HUMAN's open choice (RT-R6 slice 3).
- * Nothing else may be added here. */
-const PENDING: Readonly<Record<string, number>> = { "results/ResultsPanel.tsx": 2 };
-
 function sources(): string[] {
   return ["results", "comparison"].flatMap((dir) =>
     readdirSync(path.join(features, dir)).filter((name) => name.endsWith(".tsx") && !/\.test\.tsx$/.test(name)).map((name) => `${dir}/${name}`));
@@ -33,10 +26,10 @@ describe("every results and comparison table exports to CSV", () => {
       if (unmarked.length > 0) missing[file] = unmarked.length;
       const markedHere = tables.length - unmarked.length;
       marked += markedHere;
-      if (markedHere > 0) expect(text.match(/<CsvExportControl\b/g)?.length ?? 0, file).toBeGreaterThanOrEqual(markedHere === 2 && file.includes("Weight") ? 2 : 1);
+      expect(text.match(/<CsvExportControl\b/g)?.length ?? 0, file).toBeGreaterThanOrEqual(markedHere);
     }
-    expect(marked).toBeGreaterThanOrEqual(7);
-    expect(missing).toEqual(PENDING);
+    expect(marked).toBe(9);
+    expect(missing).toEqual({});
   });
 
   it("finds the tables it guards (the scan reads the real sources)", () => {

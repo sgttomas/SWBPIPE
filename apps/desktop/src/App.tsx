@@ -749,6 +749,8 @@ function AppSession() {
               </button>
               {historicalRun ? <HistoricalRunPanel key={historicalRun.runId} context={historicalRun} /> : <ResultsPanel
                 result={result}
+                model={model}
+                exportAnalysisRun={currentSolvedResult !== null && result === currentSolvedResult ? analysisRun : null}
                 knowledge={knowledge}
                 analysisRun={analysisRun}
                 selectedResultId={selectedReviewTarget?.target_type === "result" ? selectedReviewTarget.id : null}
