@@ -132,18 +132,19 @@ pub fn saint_venant_shear_factor(
     }
 }
 
-/// c_b of [`saint_venant_shear_factor`] from x = 1/(1+ν) = 2G/E instead of ν
-/// (the preview route's ν = E/(2G) − 1 below E/(2G) = 1/2, where 1+ν formed
-/// from that ν is inexact), with no 1+ν formed: c_b = RN(num/den), with
+/// c_b of [`saint_venant_shear_factor`] from x, a binary64 value of
+/// 2G/E = 1/(1+ν*) for the exact ν* = E/(2G) − 1, instead of a rounded ν (the
+/// preview route below RN(E/(2G)) = 1/2, where 1+ν formed from the rounded
+/// ν = RN(RN(E/(2G)) − 1) is inexact), with no 1+ν formed: c_b = RN(num/den), with
 /// num = RN(RN(2·RN(RN(r_o·r_o) + RN(r_i,b·r_i,b))) + RN(x·RN(RN(r_o − r_i,b)·RN(r_o + r_i,b))))
 /// and den = RN(4·I_b) (m⁻²). x is open_pipe_stress_frame_kernel's
 /// `shear::moduli_ratio_terms` x = RN(RN(2·G)/E).
 ///
-/// **Identity.** (3+2ν)/(1+ν) = 2 + x and (1+2ν)/(1+ν) = 2 − x (each
-/// (a+bν)/(1+ν) is a·x + b·t with t = 1 − x), so
-/// ((3+2ν)r_o² + (1+2ν)r_i²)/(4(1+ν)I) = ((2+x)r_o² + (2−x)r_i²)/(4I)
-/// = (2(r_o² + r_i²) + x(r_o − r_i)(r_o + r_i))/(4I). Every term is
-/// nonnegative for x > 0, so no sum cancels, even for ν < −1/2 where 1+2ν < 0.
+/// **Identity** (exact arithmetic, x* = 1/(1+ν*)): (3+2ν*)/(1+ν*) = 2 + x* and
+/// (1+2ν*)/(1+ν*) = 2 − x* (each (a+bν*)/(1+ν*) is a·x* + b·t*, t* = 1 − x*), so
+/// ((3+2ν*)r_o² + (1+2ν*)r_i²)/(4(1+ν*)I) = ((2+x*)r_o² + (2−x*)r_i²)/(4I)
+/// = (2(r_o² + r_i²) + x*(r_o − r_i)(r_o + r_i))/(4I). Every term is
+/// nonnegative for x* > 0, so no sum cancels, even for ν* < −1/2 where 1+2ν* < 0.
 ///
 /// **Error.** With u = 2^-53, x = x*(1 + e), |e| ≤ u, and r_o, r_i,b, I_b
 /// taken as exact, to first order: the squares u each and their sum 2u (2·

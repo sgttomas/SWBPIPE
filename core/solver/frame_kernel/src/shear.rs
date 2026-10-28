@@ -148,16 +148,19 @@ pub fn shear_area(kappa: f64, area: f64) -> Result<f64, ShearFactorError> {
     Ok(shear_area)
 }
 
-/// The moduli terms of an isotropic material whose Poisson ratio is
-/// nu = E/(2G) - 1, formed without 1 + nu, in this fixed binary64 order:
+/// The moduli terms of an isotropic material whose Poisson ratio is the exact
+/// nu* = E/(2G) - 1, formed from E and G without any nu, in this fixed
+/// binary64 order:
 ///
 /// ```text
-/// x = (2*G)/E   (= 1/(1 + nu))
-/// t = 1 - x     (= nu/(1 + nu))
+/// x = (2*G)/E   (rounds 2G/E = 1/(1 + nu*))
+/// t = 1 - x     (rounds 1 - 2G/E = nu*/(1 + nu*))
 /// ```
 ///
-/// A ratio (a + b*nu)/(1 + nu) is then a*x + b*t exactly in real arithmetic,
-/// since 1/(1 + nu) = 2G/E and nu/(1 + nu) = 1 - 2G/E.
+/// In exact arithmetic a ratio (a + b*nu*)/(1 + nu*) is a*x* + b*t* with
+/// x* = 2G/E and t* = 1 - x*. x and t are not functions of a rounded nu:
+/// at E/(2G) = 1/(3*2^52), fl(fl(E/(2G)) - 1) = -1 + 2^-53, whose
+/// 1/(1 + nu) is 2^53, while x = 3*2^52.
 ///
 /// **Exactness.** Let u = 2^-53 and x* = 2G/E. 2*G is exact (a power-of-two
 /// scaling) and x = x*(1 + e) with |e| <= u. For x in [1/2, 2], 1 - x is
