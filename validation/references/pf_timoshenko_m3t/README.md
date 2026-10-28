@@ -57,6 +57,33 @@ being hardened a third time; no frozen value moved:
   are refused as input;
 - a final `OVERALL:` line, with exit 0 only on PASS.
 
+**Round 4** (Codex, at `b81867df9d`) found the values standing (19,566 publications, 9 refusals,
+`1a6984ec…`, 737/130/12 checks), every round-3 reproduction closed and all 28 genuine probe records
+valid, and refuted the judge's totality. Repaired here, on the principle that the judge is total and
+fail-closed; no frozen value moved:
+
+- **Outcomes.** Exactly one standing per load case, from a closed recognised set, or exactly one
+  recognised refusal code; zero, several or unknown fail on schema. Before, the first code won, and a
+  contradictory or fabricated code passed.
+- **Strict JSON.** Duplicate keys, NaN and Infinity are refused in every JSON read: raw outputs, the
+  reference, and the twin control's report in `run.sh`.
+- **An established head.** `--product-head` (40 lowercase hex), `--runner-sha256` and `--checkout`
+  are mandatory, and the head must resolve with `git rev-parse --verify <head>^{commit}`.
+  - `run.sh` builds the runner itself from that checkout and passes the binary's sha256 and the
+    head.
+  - `build.sh` refuses a dirty build input: `core/`, `fixtures/`, `schemas/` and `validation/` (the
+    runner sources and `Cargo.lock`). `apps/` is not linked.
+- **Outputs never destroy inputs.** `--eval-out` and `--json` are created exclusively. A path that
+  exists, or that aliases an input through a symlink or a hard link, is refused before anything is
+  written.
+- **The twin control** counts only from a completed report with provenance and inventory PASS and
+  M3 FAIL. The driver's final line is `OVERALL: FAIL` whenever its exit is nonzero, a runner exiting 7
+  after valid records included.
+- **Totality.** Every nested field the judge reads is validated (summary headline, contract evidence,
+  rows' model binding), and the rest is documented as unread. The reference is fully typed. An
+  unforeseen exception is a named `OVERALL: FAIL`, never a traceback.
+- **Regressions.** Every attack from rounds 1–4 is a committed regression case (below).
+
 **Independence.** The engine, generator, comparison and census are standard-library Python. They
 import and read no product code. They import `kd5t_engine.py`, `kd5t_generate.py`, `kd5t_compare.py`
 and `kd5t_census.py` from `../kd5_timoshenko/` (read-only, no bytecode written there), which are
@@ -84,10 +111,10 @@ reference: it links the product crate by path and calls only `run_linear_static_
 | `pft_engine.py` | Exact PF reference engine: a PF request in, every expected published row out (110-digit `decimal`; ν, κ_E and φ exact rationals). `--check` runs its self-check (130 checks; one of them runs kd5t_engine's 58). |
 | `pft_generate.py` | Judged-set generator: `full <dir>` writes the set, `freeze` the frozen subset, `split` runner inputs, `probes` the format probes, `precision` a re-solve at more digits, `composition` the counts, `check` verifies everything. |
 | `pft_compare.py` | The judging library: kd5t_compare's reconstructed judge with a single-section adapter, the strict raw-output and reference schemas, the request binding, the inventory, the design-conformance clause C10 and the derived-row clauses C11, C11tau_b and C11ops. `--selftest <set>` exercises every rule and clause; `--probe-format` prints the format facts of the probes. |
-| `pft_report.py` | The one judging pass: the whole collection of raw runner outputs judged against the reference, with kd5t_report's tables, the four verdicts (provenance, inventory, M3 and design conformance) and the final `OVERALL:` line. |
+| `pft_report.py` | The one judging pass: the whole collection of raw runner outputs judged against the reference, total and fail-closed, with kd5t_report's tables, the four verdicts (provenance, inventory, M3 and design conformance) and the final `OVERALL:` line. |
 | `pft_census.py` | Premise census: kd5t_census with its engine bound to the PF reference (`hager`, `probe`, `standings`, `--selftest`). |
 | `runner/` | The product-driving runner (harness): `Cargo.toml`, `Cargo.lock`, `build.rs`, `src/main.rs` (kd5's, plus each record's provenance) and `build.sh`. |
-| `run.sh` | Driver: the runner over every chunk (raw outputs only, fresh each time), then the judging pass. |
+| `run.sh` | Driver: builds the runner from a clean checkout, runs it over every chunk (raw outputs only, fresh each time), then the judging pass. |
 | `frozen/pft_frozen_subset.jsonl` | 100 models (50 designs in both theories), each line `{tag, meta, ref, request}`, with exact expected rows. |
 | `SHA256SUMS` | Digests of the files above, except this README. |
 
@@ -273,34 +300,57 @@ byte, runs the engine self-check and the comparison self-test, and verifies `SHA
   - the global end rows are checked against the ideal target only, because the rotation's binary64
     order is not prescribed.
 
-**The judging pass** (`pft_report.py <set.jsonl> <raw output.jsonl>...`). It reads only the reference set
-and the raw runner outputs, and judges the whole collection in one invocation, every time. It may chunk
-internally for speed, but only from the raw outputs. All of a model's records are judged together, so
-C4 and C4b come from the canonical published fields of the raw records. `--eval-out` writes the judged
-records as an output; nothing reads them back. Four verdicts follow, then `OVERALL: PASS` only if all
-four pass, with exit 0 only then.
+**The judging pass** (`pft_report.py <set.jsonl> <raw output.jsonl>... --runner-sha256 <hex64>
+--product-head <hex40> --checkout <dir>`). It reads only the reference set and the raw runner outputs,
+and judges the whole collection in one invocation, every time. It may chunk internally for speed, but
+only from the raw outputs. All of a model's records are judged together, so C4 and C4b come from the
+canonical published fields of the raw records. `--eval-out` and `--json` write outputs, created
+exclusively and never aliasing an input; nothing reads them back. Four verdicts follow, then
+`OVERALL: PASS` only if all four pass, with exit 0 only then. The judge is total: anything it cannot
+fully validate, including a usage error or an unforeseen exception, ends in a named `OVERALL: FAIL`.
 
-1. **Provenance** (refutation round 3).
-   - The reference set is validated exactly: line, `meta` and `ref` keys, and the case shapes. The twins
-     must be present when judging against them.
-   - Every raw line must parse, and every raw record must match `pft_compare.RAW_SCHEMA` exactly:
-     required keys, types and no unknown keys, so a missing or null clause list fails. That shape is
-     taken from the probe outputs. Older-format records and evaluation records are refused.
+1. **Provenance** (refutation rounds 3 and 4).
+   - Every JSON input is read strictly (`pft_compare.strict_loads`): a duplicate key, NaN or Infinity
+     is refused.
+   - The reference set is validated exactly, every field the judge reads typed: line, `meta` and `ref`
+     keys, sections, node coordinates, the case rows and maxima, the request's nodes, pipes, supports
+     and load cases, and the twins when judging against them. With an invalid reference nothing is
+     judged.
+   - Every raw record must match `pft_compare.RAW_SCHEMA` exactly. That shape is taken from the probe
+     outputs, and all 28 genuine probe records validate and bind. It covers:
+     - required keys, types and no unknown keys;
+     - the nested fields the judge reads (the summary headline; the contract evidence's cases and
+       extrema);
+     - exactly one outcome: one standing per load case from `STANDINGS` (DEL-07-05
+       `numerical-health-indicator.md` §1's table; only `CHECKS_PASSED` is Passed), naming its case,
+       or blocking diagnostics of exactly one code from `REFUSALS` (the PF refusals pf-timoshenko.md
+       names) and no standing. A refusal publishes no rows; a standing publishes rows;
+     - its binding to its model: rows of the model's cases and nodes, pipes or supports (the
+       `linear_solver_mode_basis` row names `solver:linear_static_preview`), and evidence of its cases
+       and pipes.
+
+     `numerical_quality`, the summary's other members, and the evidence's `intensified_measures`,
+     `stress_maximum_coverage` and `support_attribution` are not read. Older-format records and
+     evaluation records are refused.
    - The runner records on every run:
      - `request_sha256`, the sha256 of the exact input line `{tag, request}` it solved. This must equal
        the sha256 of `pft_compare.request_line` formed from the reference request, so a changed request
        under the same tag fails;
      - `runner_sha256`, its own executable's sha256;
      - `product_head`, the product commit baked in at build.
-   - The collection must carry exactly one runner and one head, equal to `--runner-sha256` and
-     `--product-head` where given (`run.sh` passes the binary's sha256), and the head must be a commit,
-     not `unknown` or `-dirty`. The pass prints both.
-2. **Inventory** (refuter P1). Every model × entry × mode exactly once, as a successful, schema-valid
-   record, and nothing else. The entries are typed and captured, and the modes SparseInteractive and
-   DenseScrutiny. That is 3,624 runs for the full set and 400 for the frozen subset.
+   - `--runner-sha256` (64 lowercase hex), `--product-head` (40 lowercase hex) and `--checkout` are
+     mandatory. The head must resolve with `git rev-parse --verify <head>^{commit}` in the checkout,
+     and every record must carry exactly that runner and head. The pass prints both. These record
+     fields are assertions of the local build, bound by `run.sh`; they are not authentication (see
+     "Threat model").
+2. **Inventory** (refuter P1). Every model × entry × mode exactly once, as a successful, schema-valid,
+   bound record, and nothing else. The entries are typed and captured, and the modes
+   SparseInteractive and DenseScrutiny. That is 3,624 runs for the full set and 400 for the frozen
+   subset.
    - Unsuccessful records fail the inventory and C0; they are never skipped. They are: a runner error
-     (any `error` key, null included, or an error beside a result, which is schema-invalid), a run with
-     neither an integrity standing nor a blocking refusal, and a schema-invalid record.
+     (any `error` key, null included, or an error beside a result, which is schema-invalid), and a
+     schema-invalid or misbound record, which includes a run with no outcome or contradictory
+     outcomes.
    - A run identity received more than once is rejected before judging: none of its records is judged,
      so a later correct record can never replace an earlier failure. A record of a model outside the
      set fails C0.
@@ -309,7 +359,9 @@ four pass, with exit 0 only then.
    and the inventory. The clauses apply to every run, whatever the admission expectation, so a Passed
    publication on a model the design refuses is judged against its exact rows like any other.
    kd5t_compare's own `judge_run` returns no failure for a run with an `error` key. The PF judge never
-   passes such a run to it, and kd5's directory is not edited.
+   passes such a run to it, and kd5's directory is not edited. By the criterion (K-D5 §4.3), a
+   collection whose every run is Sensitive judges no rows and passes M3 (`bad_rows_sensitive_only`).
+   The report prints the standings.
 4. **Design conformance** (admission, separate from M3): C10, pf-timoshenko.md §2. It fails on an
    expected refusal that publishes or is refused under another code, on an admitted model that is
    refused, and on any unjudged record. It also requires provenance and the inventory.
@@ -325,7 +377,7 @@ Information clauses: kd5t_compare's C3lit, C4b, C5, C6i and C7, and:
 C11 uses the coupled scale, not each group's own q, because σ⁻ = σ_N − h and τ are binary64
 functions of certified rows and may cancel legitimately.
 
-**`--selftest` passes 737 checks on the frozen subset.** On ten models (Euler–Bernoulli and
+**`--selftest` passes 775 checks on the frozen subset.** On ten models (Euler–Bernoulli and
 Timoshenko cantilevers, a prescribed-motion run, an L-line with a guide, a skew multi-span with guides
 and springs, a c_m > 0 model, a skewed UTM cantilever, Codex's case, the skewed auxetic model (φ ≈ 2)
 and a two-element cantilever at E/(2G) = 1e-12) it checks:
@@ -364,51 +416,19 @@ Beyond those ten models it checks:
 - the known τ defect and the operations: on Codex's case, τ by the prescribed operations is C11tau_b
   (not C11 or C11ops), and τ at the ideal target is C11ops (not C11); σ⁻ one ulp off the operations
   is C11ops on two models; the correctly rounded norm2 on hard cases;
-- **the collection**, through the judging pass on raw synthetic records (refutation rounds 1–3), through
-  `run.sh` with synthetic runners (Python scripts that bind their records to each input line and to
-  their own sha256; no product can run), and through the CLI:
-  - the positive controls pass:
-    - `small_positive`;
-    - `frozen_positive` (400 runs);
-    - the same collection in two raw files;
-    - `--runner-sha256` and `--product-head` equal;
-    - `driver_positive` and `synthetic_good_initial` through run.sh;
-    - a stale raw output from an earlier chunking, which run.sh removes and does not judge;
-    - the CLI's final line `OVERALL: PASS` with exit 0;
-  - the twin sensitivity control fails M3 on the frozen positive, with provenance and inventory
-    passing;
-  - the full set's inventory is 3,624 runs and the frozen subset's 400;
-  - each of these fails OVERALL:
-    - rounds 1–2, on raw outputs: round 1's three replays; duplicate-then-correct,
-      correct-then-duplicate, a single run, an empty file, an unpaired pair and an unexpected tag
-      (inventory); an unknown entry and an unknown mode (schema); a unique bad record (M3); an
-      admission failure (design conformance on 4 records, M3 passing); one chunk of two; a raw file
-      given twice; the typed Passed and captured Sensitive records split across raw files, unsplit, and
-      split on the full frozen subset (C4 = 2 each);
-    - round 3's runner errors (`new-results.json`): `runner_errors_only`, `passed_plus_runner_error`,
-      `no_standing_no_results`, `null_error_bypass`, `error_bypasses_wrong_rows` (the 55.6%-low Passed
-      record with `"error": null`), and `frozen_all_runner_errors` (400 schema-valid runner errors:
-      400 unsuccessful, 400 failing C0);
-    - round 3's schema attacks: an unknown key (a forged `pairing`), a missing key, a null clause list,
-      a row with an unknown key, a diagnostic without `id`, a string value, a wrong `results_count`,
-      and an older-format record without provenance;
-    - evaluation records given as input, which replace round 3's cache and stamp attacks
-      (`pairing_lie_*`, `legacy_c4_*`, `missing_verdict_failures`, `missing_design_failures`,
-      `null_design_failures`, `forged_stamp_legacy`, `false_row_digest`, `twin_*`,
-      `current/stale_then_*_chunk`, `*_eval_reuse`): the evaluation output of a passing run, one with a
-      forged pairing, one without `verdict_failures`, one with `design_failures: null`, and one with a
-      forged stamp. Each record is schema-invalid. Also empty, truncated and invalid-JSON raw files, a
-      blank line, and a raw file that does not exist;
-    - round 3's provenance attacks (`additional-results.json`): runs of the L = 2 m request under the
-      L = 1 m model's tag (`changed_member_length_same_tag`), mixed runner sha256 and mixed product
-      heads across raw files, `--runner-sha256` or `--product-head` differing, a `-dirty` head, and a
-      reference set with an unknown key;
-    - through run.sh: chunks duplicated across chunks, a missing chunk, `driver_changed_request` (the
-      chunk solves L = 2 m under the reference's tag), `synthetic_bad_resumed` (a different runner on
-      the same run directory re-runs every chunk, `runner-cache-results.json`), and
-      `synthetic_bad_fresh`;
-    - the CLI's final line `OVERALL: FAIL` with exit 1 on a failing collection;
-  - `sensitive_rows_differ`: C4b (information) is derived from the raw rows, on both modes.
+- **every refutation round's attacks (1–4) as committed regression cases**, 101 in all, each printing a
+  `TABLE round | attack | case | outcome` line. They run through the judging pass on raw synthetic
+  records; through `run.sh`, with a synthetic builder whose runners are Python scripts binding their
+  records to each input line, their own sha256 and the checkout's head, so no product can run; through
+  `build.sh`, on a throwaway repository with cargo set to `false`; and through the CLI. The head is the
+  self-test checkout's real `HEAD`. They comprise:
+  - the positive controls, which pass: a small collection, the frozen subset (400 runs), two raw
+    files, reordered and escaped keys, the product's solver-mode row, run.sh with and without the twin
+    control, recovery from a partial or stale earlier output, and the CLI;
+  - every attack, which fails for its stated reason (inventory, schema, provenance, M3, C4,
+    outputs refused, or run.sh's exit and final line);
+  - `forged_identical_provenance` and `bad_rows_sensitive_only`, which pass: the first is outside the
+    model (see "Threat model"), the second is the criterion.
 
 **Controls.** `--ref twin` judges each run against its twin theory's reference. The Timoshenko
 product against the Euler–Bernoulli reference must fail at high φ. The stale-vector mutant is not
@@ -433,21 +453,38 @@ locked graph. Each record carries:
 
 - `request_sha256`, the sha256 of the input line it parsed and solved;
 - `runner_sha256`, its own executable's sha256;
-- `product_head`, the product commit. `build.sh` passes it to `build.rs` as `PFM3T_PRODUCT_HEAD`, with
-  `-dirty` when the checkout's `core/` has uncommitted changes.
+- `product_head`, the product commit, which `build.sh` passes to `build.rs` as `PFM3T_PRODUCT_HEAD`.
 
-`build.sh <checkout> <target dir> <binary out>` builds it with `--locked`; cargo is `$PFM3T_CARGO`
-(default `cargo`). It was built through the host's cargo wrapper at `c4b7bac39b`, whose product is
-#1663's `8d70bcceee` unchanged. On the 28 probe runs the rebuilt runner's records are schema-valid, and
-their `request_sha256` equals the judging pass's recomputation from each request. Inputs are lines
-`{tag, request}`, written by `pft_generate.py split` as `pft_compare.request_line` forms them.
-`KD5_IN`, `KD5_OUT`, `KD5_ENTRIES` and `KD5_MODES` control a run.
+`build.sh <checkout> <target dir> <binary out>` builds the checkout's own committed runner with
+`--locked`; cargo is `$PFM3T_CARGO` (default `cargo`). It refuses (exit 3) when any build input is
+dirty or untracked in git:
 
-`run.sh <runner> <set dir> <run dir> [own] [twin]` empties `<run>/out` and runs the runner on every
-chunk, so it writes only raw outputs and reuses none. It then runs the judging pass over all of them
-for each variant, with `--runner-sha256` set to the binary's sha256. It writes `report.<v>.json`,
-`report.<v>.log` and `eval.<v>.jsonl`, as outputs. It exits 0 only when every runner invocation
-succeeded, the own judgement is `OVERALL: PASS` and a twin control fails.
+- `core/`, which holds the product crate and all its path dependencies;
+- `fixtures/`, `schemas/` and `validation/`: files the product embeds, plus the runner sources and
+  its `Cargo.lock`.
+
+The runner links nothing under `apps/`. `PFM3T_ALLOW_DIRTY=1` builds anyway with the head marked
+`-dirty`, which the judging pass refuses.
+
+The round-3 runner was built through the host's cargo wrapper at `c4b7bac39b`, whose product is
+#1663's `8d70bcceee` unchanged. On its 28 probe runs every record is schema-valid under the round-4
+schema and binds to its model, and every `request_sha256` equals the judging pass's recomputation.
+Inputs are lines `{tag, request}`, written by `pft_generate.py split` as `pft_compare.request_line`
+forms them. `KD5_IN`, `KD5_OUT`, `KD5_ENTRIES` and `KD5_MODES` control a run.
+
+`run.sh <checkout> <set dir> <run dir> own [twin]` proceeds as follows:
+
+- it builds the runner itself from the checkout (`runner/build.sh`, or `$PFM3T_BUILD`), computes the
+  binary's sha256 and reads the checkout's head;
+- it empties `<run>/out` and runs the runner on every chunk, so it writes only raw outputs and reuses
+  none;
+- it runs the judging pass per variant with the runner, head and checkout. `report.<v>.json`,
+  `report.<v>.log` and `eval.<v>.jsonl` are outputs.
+
+It exits 0, with the final line `OVERALL: PASS`, only when the build and every runner invocation
+succeeded and the own judgement passed. If a twin control is requested, its report must also have
+completed with provenance and inventory PASS and M3 FAIL; the report is parsed strictly. Otherwise the
+final line is `OVERALL: FAIL`.
 
 **Probes.** Seven invented models outside the judged set, in both entries and both modes (28
 runs): six Euler–Bernoulli probes and one Timoshenko probe read for format only. Every run was
@@ -470,6 +507,20 @@ What they established:
 - **Envelope format.** The Timoshenko probe's envelope has the same kinds and diagnostics, by format
   only.
 
+## Threat model
+
+Inputs are the committed runner's output on a clean build at the stated head; the judge fails closed on malformed, contradictory, duplicated, missing or misbound input. It is not authentication against a rebuilt, lying runner.
+
+### Outside the model
+
+Findings that a later round places outside this model, each with its reason:
+
+- **Raw hash and head fields are assertions: identical forged values pass** (round 4,
+  `forged_identical_provenance`). A record's `runner_sha256` and `product_head` are what the runner
+  says. The judge binds them to `--runner-sha256` and a head that is a commit of `--checkout`, and
+  `run.sh` binds those to the binary it built from that clean checkout. A party who writes records
+  with the same forged values, and states them, is a lying runner.
+
 ## Not covered
 
 - Realized arcs (an Euler–Bernoulli arc between Timoshenko tangents), out of scope for this set.
@@ -482,6 +533,7 @@ What they established:
   already refuses.
 - PF's binary64 section arithmetic (`derive_pipe_section`) is not reproduced bit for bit. The exact
   annulus differs from it by ulps, far inside RD(1e-9).
+- Anything outside the threat model (above).
 
 ## Reproduce
 
@@ -491,10 +543,9 @@ python3 -I -B pft_generate.py check                  # self-check, frozen bytes,
 python3 -I -B pft_generate.py full <set> 8
 python3 -I -B pft_generate.py precision <set>/set.jsonl
 python3 -I -B pft_generate.py split <set>/set.jsonl <run>/chunks all 40     # or: eb, ts
-runner/build.sh <checkout> <target dir> <runner.bin>
-./run.sh <runner.bin> <set> <run> own twin             # raw outputs in <run>/out, then the judging pass per variant
-python3 -I -B pft_report.py <set>/set.jsonl <run>/out/c.*.out.jsonl --runner-sha256 <hex> --by theory --phi-table   # the same pass by hand
-python3 -I -B pft_report.py <set>/set.jsonl <run>/out/c.*.out.jsonl --ref twin                # the sensitivity control (must fail M3)
+./run.sh <clean checkout> <set> <run> own twin         # builds the runner, raw outputs in <run>/out, the judging pass per variant
+python3 -I -B pft_report.py <set>/set.jsonl <run>/out/c.*.out.jsonl --runner-sha256 <hex64> --product-head <hex40> --checkout <dir> \
+        --by theory --phi-table                         # the same pass by hand; add --ref twin for the sensitivity control (must fail M3)
 python3 -I -B pft_census.py hager <set>/set.jsonl <run>/out/c.*.out.jsonl --out <census.jsonl>
 python3 -I -B pft_census.py standings <run>/out/c.*.out.jsonl
 python3 -I -B pft_generate.py probes <probes.in.jsonl>   # then the runner, then:
