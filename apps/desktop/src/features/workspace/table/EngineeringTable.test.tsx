@@ -469,3 +469,35 @@ it("does not swallow a genuine supported-popover state-query failure", () => {
     expect(observed).toBe(failure); expect(hide).not.toHaveBeenCalled();
   } finally { window.removeEventListener("error", captureExpected, true); stateQuery.mockRestore(); Reflect.deleteProperty(info, "hidePopover"); }
 });
+
+describe("a pending focus request in a hidden or inert table", () => {
+  it("is cleared without focusing the footer when its row vanishes while the table is inert", async () => {
+    let resolveApply: (result: TableApplyResult) => void = () => {};
+    const control: { setRows: ((rows: TableRow[]) => void) | null } = { setRows: null };
+    function InertHarness() {
+      const [model, setModel] = useState(rows(3));
+      control.setRows = setModel;
+      return <div data-testid="inert-host"><EngineeringTable label="Node coordinates" rows={model} columns={columns} generation="p:1" density="comfortable" filter="" selectedKey={model[0].key} onSelect={() => {}}
+        onApply={() => new Promise<TableApplyResult>((resolve) => { resolveApply = resolve; })} /></div>;
+    }
+    render(<InertHarness />);
+    const input = edit(0);
+    fireEvent.change(input, { target: { value: "5" } });
+    // Enter applies and asks to focus the next row's cell once the Apply settles.
+    fireEvent.keyDown(input, { key: "Enter" });
+    expect(input).toHaveFocus();
+    // Meanwhile a modal makes the workspace inert, and the next row leaves the table.
+    screen.getByTestId("inert-host").setAttribute("inert", "");
+    act(() => control.setRows!(rows(3).filter((_, index) => index !== 1)));
+    await act(async () => { resolveApply({ applied: true, messages: [] }); });
+    const footer = document.querySelector(".engineering-table-footer");
+    expect(footer).not.toHaveFocus();
+    expect(screen.getByTestId("inert-host").contains(document.activeElement)).toBe(false);
+    // The request was cleared, not kept: when the row returns, its cell is not focused (a kept
+    // request would focus it; the table's own removal recovery may still take its footer).
+    screen.getByTestId("inert-host").removeAttribute("inert");
+    act(() => control.setRows!(rows(3)));
+    expect(cell(1)).not.toHaveFocus();
+  });
+});
+

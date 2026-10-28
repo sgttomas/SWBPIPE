@@ -142,6 +142,8 @@ import {
 } from "./features/viewport/PipeViewport";
 import type { RuleCheckStatus } from "./services/ruleCheckService";
 import { isTauriRuntime } from "./services/nativeMenu";
+import type { RunSheetHost } from "./features/model-tree/runSheet/RunSheet";
+import { useRunSheetStore } from "./features/model-tree/runSheet/runSheetStore";
 import type {
   AgentProposal,
   AnalysisRunEnvelope,
@@ -266,7 +268,10 @@ function AppSession() {
     handleQueueEditorIntent,
     handleClearReviewQueue,
     handleQueueOperationBatch,
+    registerOperationBatch,
     handleRunOperationBatch,
+    handleDismissRetiredBatch,
+    sessionEvents,
     handleAddDraftReview,
     handleApplyDraftReview,
     handleValidateIntent,
@@ -275,6 +280,10 @@ function AppSession() {
     handleRedoSessionModelEdit,
     invalidateDirectDraftContext
   } = session.operations;
+  // Run sheet S2 (DEL-07-02 Design `run-sheet-entry.md` §3.6): the sheet's
+  // transient state follows the session's events whichever surface is shown.
+  const runSheetStore = useRunSheetStore(sessionEvents, activeModelIndex, model?.project.id ?? null);
+  const runSheetHost: RunSheetHost = { store: runSheetStore, queuedBatches, editorIntents, registerBatch: registerOperationBatch };
   const {
     storageCapability,
     projectSummary,
@@ -499,6 +508,7 @@ function AppSession() {
               showAllAvailable={hiddenEntityKeys.size > 0 || isolationActive}
               onChangeSelected={openBulkChange}
               onSplitPipe={openSplitIntoParts}
+              runSheet={runSheetHost}
               onApplyCellIntent={async (intent) => {
                 const owned: { current?: Readonly<OperationOutcome> } = {};
                 const applied = await handleApplyIntent(intent, owned);
@@ -648,6 +658,7 @@ function AppSession() {
                 revision={modelRevision.current} busy={operationBusy} message={batchMessage}
                 onValidate={(entry) => void handleRunOperationBatch(entry, false)}
                 onApply={(entry) => void handleRunOperationBatch(entry, true)}
+                onDismiss={(entry) => handleDismissRetiredBatch(entry.key)}
                 onSelectRef={(ref) => { const target = resolveEntitySelection(model, ref); if (target) handleSelectEntity(target); }}
               />
               <OperationApplyPanel
