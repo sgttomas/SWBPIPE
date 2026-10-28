@@ -704,14 +704,16 @@ pub fn solve_active_set_frame_with_mode_and_springs(
     linear_solve_mode: LinearSolveMode,
     springs: &[(usize, f64)],
 ) -> Result<NonlinearFrameSolveResult, NonlinearIntegrationError> {
-    validate_input(input)?;
-    // §8.30 correction 2: in both modes, before the first n^2 allocation.
+    // §8.30 correction 2: in both modes, before the first n^2 allocation and
+    // ahead of `validate_input`, whose DOF count is unchecked arithmetic: an
+    // overflowing node count refuses here instead of panicking there.
     dense_loop_memory_guard(
         input.node_count,
         &input.base_restrained_dofs,
         dense_loop_ceiling_bytes(),
     )
     .map_err(NonlinearIntegrationError::DenseMemoryLimitExceeded)?;
+    validate_input(input)?;
 
     let mut stiffness = assemble_global_stiffness_with_connectors(
         input.node_count,

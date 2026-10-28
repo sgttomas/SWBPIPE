@@ -41,7 +41,7 @@ pub(crate) const SHARED_TERMINAL_JUNCTION: &str =
     "EXACT_PRESSURE_SHARED_TERMINAL_JUNCTION_UNSUPPORTED";
 /// The static tail of [`SHARED_TERMINAL_JUNCTION`]'s text, after the node,
 /// its regions and the compensated regions are named.
-pub(crate) const SHARED_TERMINAL_JUNCTION_TEXT: &str = "3.0.0/exact_pressure_v3 has no junction representation yet, and a compensated terminal at a junction drops its member's share (p*Ai along the member's outward axis) of the junction's pressure load -sum(p*Ai*s) from the pipe solve, so the exact route refuses the junction rather than analyse it without that load; where the members share one fluid space, transfers_to_wall at every terminal of the node carries that load";
+pub(crate) const SHARED_TERMINAL_JUNCTION_TEXT: &str = "3.0.0/exact_pressure_v3 has no junction representation yet, and a compensated terminal at a junction can omit its member's share (p*Ai along the member's outward axis) of the junction's pressure load -sum(p*Ai*s) from the pipe solve, so the exact route refuses the junction rather than analyse it without that load; this temporary refusal also applies where the omitted share or the resultant is zero or cancels, such as a zero-pressure compensated branch or equal opposed compensated caps; where the members share one fluid space, transfers_to_wall at every terminal of the node carries that load";
 
 /// The sole exact pressure contract declared on a current model document.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

@@ -98,7 +98,7 @@ An ordinary-route lease needs a whole-invocation bound over its existing support
 
 The nonlinear active-set loop is dense in both solver modes (NI `lib.rs`, FK `structural.rs` `prepare_bound`). Since §8.30 correction 2 (RT-U4, RT-A2), an invocation with a nonlinear support is refused before any case or n² allocation when the loop's estimated leading dense storage, 88·n² + 16·n_f² bytes (n global DOFs, n_f free), exceeds 11,596,411,699 bytes. The estimate uses checked arithmetic, and overflow refuses. The refusal is `NONLINEAR_DENSE_MEMORY_LIMIT_EXCEEDED` (PP `lib.rs`; NI `dense_loop_memory_guard`), and it states the estimate and the limit in bytes. The estimate counts only the leading buffers, so it is not a complete memory bound.
 
-The limit is floor(0.9 M) with M = 12 GiB, the per-invocation budget on the 16 GiB base machine. It applies the existing 0.9 M margin and leaves 0.1 M for what the estimate does not count. It admits about 1,759 nodes when every DOF is free. The limit is fixed and does not scale with a larger desktop budget. It is provisional, to be revisited with R-4 stage P (the sparse nonlinear loop).
+The limit is floor(0.9 M) with M = 12 GiB, the per-invocation budget on the 16 GiB base machine. It applies the existing 0.9 M margin and leaves 0.1 M for what the estimate does not count. It admits about 1,759 nodes when every DOF is free. The smallest refused models are 1,760 nodes with no base restraints (11,597,414,400 B) and 1,761 nodes with six restrained DOFs (11,608,568,928 B). The limit is fixed and does not scale with a larger desktop budget. It is provisional, to be revisited with R-4 stage P (the sparse nonlinear loop).
 
 ## Platform evidence and qualification
 

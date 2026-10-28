@@ -153,7 +153,7 @@ fn a_compensated_terminal_at_a_shared_tee_is_refused_by_name() {
     refused(
         &request(),
         &[CASE, "node:T", "region:C"],
-        "pressure regions region:A, region:B, region:C each end at node node:T, so the node is a shared-terminal pressure junction, and separately_supported_or_compensated is declared there by region:C; 3.0.0/exact_pressure_v3 has no junction representation yet, and a compensated terminal at a junction drops its member's share (p*Ai along the member's outward axis) of the junction's pressure load -sum(p*Ai*s) from the pipe solve, so the exact route refuses the junction rather than analyse it without that load; where the members share one fluid space, transfers_to_wall at every terminal of the node carries that load",
+        "pressure regions region:A, region:B, region:C each end at node node:T, so the node is a shared-terminal pressure junction, and separately_supported_or_compensated is declared there by region:C; 3.0.0/exact_pressure_v3 has no junction representation yet, and a compensated terminal at a junction can omit its member's share (p*Ai along the member's outward axis) of the junction's pressure load -sum(p*Ai*s) from the pipe solve, so the exact route refuses the junction rather than analyse it without that load; this temporary refusal also applies where the omitted share or the resultant is zero or cancels, such as a zero-pressure compensated branch or equal opposed compensated caps; where the members share one fluid space, transfers_to_wall at every terminal of the node carries that load",
     );
 }
 
@@ -164,7 +164,7 @@ fn every_compensated_terminal_at_the_junction_is_named() {
     refused(
         &document,
         &[CASE, "node:T", "region:A", "region:C"],
-        "pressure regions region:A, region:B, region:C each end at node node:T, so the node is a shared-terminal pressure junction, and separately_supported_or_compensated is declared there by region:A, region:C; 3.0.0/exact_pressure_v3 has no junction representation yet, and a compensated terminal at a junction drops its member's share (p*Ai along the member's outward axis) of the junction's pressure load -sum(p*Ai*s) from the pipe solve, so the exact route refuses the junction rather than analyse it without that load; where the members share one fluid space, transfers_to_wall at every terminal of the node carries that load",
+        "pressure regions region:A, region:B, region:C each end at node node:T, so the node is a shared-terminal pressure junction, and separately_supported_or_compensated is declared there by region:A, region:C; 3.0.0/exact_pressure_v3 has no junction representation yet, and a compensated terminal at a junction can omit its member's share (p*Ai along the member's outward axis) of the junction's pressure load -sum(p*Ai*s) from the pipe solve, so the exact route refuses the junction rather than analyse it without that load; this temporary refusal also applies where the omitted share or the resultant is zero or cancels, such as a zero-pressure compensated branch or equal opposed compensated caps; where the members share one fluid space, transfers_to_wall at every terminal of the node carries that load",
     );
 }
 
@@ -176,7 +176,7 @@ fn a_compensated_terminal_at_a_two_region_continuation_is_refused() {
     refused(
         &document,
         &[CASE, "node:T", "region:B"],
-        "pressure regions region:A, region:B each end at node node:T, so the node is a shared-terminal pressure junction, and separately_supported_or_compensated is declared there by region:B; 3.0.0/exact_pressure_v3 has no junction representation yet, and a compensated terminal at a junction drops its member's share (p*Ai along the member's outward axis) of the junction's pressure load -sum(p*Ai*s) from the pipe solve, so the exact route refuses the junction rather than analyse it without that load; where the members share one fluid space, transfers_to_wall at every terminal of the node carries that load",
+        "pressure regions region:A, region:B each end at node node:T, so the node is a shared-terminal pressure junction, and separately_supported_or_compensated is declared there by region:B; 3.0.0/exact_pressure_v3 has no junction representation yet, and a compensated terminal at a junction can omit its member's share (p*Ai along the member's outward axis) of the junction's pressure load -sum(p*Ai*s) from the pipe solve, so the exact route refuses the junction rather than analyse it without that load; this temporary refusal also applies where the omitted share or the resultant is zero or cancels, such as a zero-pressure compensated branch or equal opposed compensated caps; where the members share one fluid space, transfers_to_wall at every terminal of the node carries that load",
     );
 }
 

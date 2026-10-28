@@ -96,6 +96,23 @@ fn overflow_refuses_instead_of_wrapping() {
     assert!(refusal.to_string().contains("more than u128::MAX bytes"));
 }
 
+/// The loop entry runs the guard before input validation, so a node count
+/// whose DOF count overflows usize refuses by name in both modes instead of
+/// panicking in validation's unchecked `node_count * 6`.
+#[test]
+fn the_loop_entry_refuses_an_overflowing_node_count_before_validation() {
+    let mut input = cantilever();
+    input.node_count = usize::MAX;
+    for mode in [LinearSolveMode::SparseInteractive, LinearSolveMode::DenseScrutiny] {
+        let error = solve_active_set_frame_with_mode_and_springs(&input, mode, &[]).unwrap_err();
+        let NonlinearIntegrationError::DenseMemoryLimitExceeded(refusal) = &error else {
+            panic!("{mode:?}: {error:?}");
+        };
+        assert_eq!((refusal.global_dofs, refusal.free_dofs, refusal.estimated_bytes), (None, None, None));
+        assert_eq!(refusal.ceiling_bytes, DENSE_LOOP_MEMORY_CEILING_BYTES);
+    }
+}
+
 #[test]
 fn the_loop_entry_refuses_in_both_modes_below_the_estimate() {
     let input = cantilever();

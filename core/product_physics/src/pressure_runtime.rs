@@ -511,8 +511,9 @@ pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagn
 /// cap there is p*Ai along its member's outward axis -s_k, so when every
 /// terminal at the node transfers, the caps sum to the junction load
 /// -sum(p*Ai*s_k). A `separately_supported_or_compensated` terminal at such a
-/// node drops its member's term, which no admitted representation restores,
-/// so the node is refused. Every terminal transferring, a single region's
+/// node can omit its member's term, which no admitted representation restores,
+/// so the node is refused, also where that term or the resultant is zero or
+/// cancels (a zero-pressure compensated branch, equal opposed compensated caps). Every terminal transferring, a single region's
 /// closure (beside unpressurized pipes included) and every other node are
 /// unchanged.
 fn refuse_compensated_shared_terminals(
