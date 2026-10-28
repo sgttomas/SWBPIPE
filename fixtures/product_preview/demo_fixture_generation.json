@@ -226,7 +226,7 @@
     "core/product_physics/tests/w16_exact_combinations.rs": "21133565ff842c1295ba29cc8f0ac7c82ea0a7b0eb7ff009b2c6293e770fdcf8",
     "core/product_physics/tests/w16_exact_equivalent_static.rs": "8713073ad22836eb2d0998c1bd6dd69c0d62b7bd994f61a664d4f070eff59f5f",
     "core/product_physics/tests/w16_imposed_motion.rs": "162d68318e563579eb0abaf84b0341bdf89da0c07269701895e7c59ecc5d470f",
-    "core/product_physics/tests/w16_timoshenko_partial_wind.rs": "627617b0caf1ce8273508715175e48d4f83964be43cecda107cf07975c2c215c",
+    "core/product_physics/tests/w16_timoshenko_partial_wind.rs": "dacfa4df1f26081420b0775db067cc64d76f8a6a56cbe8c27f4db7b70053bba5",
     "core/product_physics/tests/w9_solver_benchmarks.rs": "f5a7c5e0af3c46fc84c163e9dcf81e4821b3f4ddffab8cac4dcad965c4aa3a8f",
     "core/reporting/result_export/.gitignore": "9cc2c8cc102e0b2a0a177c8f594abc9b9776300a04473c24b45d52c1007a4119",
     "core/reporting/result_export/Cargo.lock": "02e13c1980d6c1a5f223ef8127528d491c641a205c7f294d23c37bfb658e4a17",
@@ -811,7 +811,7 @@
     "core/product_physics/tests/w16_exact_combinations.rs": "21133565ff842c1295ba29cc8f0ac7c82ea0a7b0eb7ff009b2c6293e770fdcf8",
     "core/product_physics/tests/w16_exact_equivalent_static.rs": "8713073ad22836eb2d0998c1bd6dd69c0d62b7bd994f61a664d4f070eff59f5f",
     "core/product_physics/tests/w16_imposed_motion.rs": "162d68318e563579eb0abaf84b0341bdf89da0c07269701895e7c59ecc5d470f",
-    "core/product_physics/tests/w16_timoshenko_partial_wind.rs": "627617b0caf1ce8273508715175e48d4f83964be43cecda107cf07975c2c215c",
+    "core/product_physics/tests/w16_timoshenko_partial_wind.rs": "dacfa4df1f26081420b0775db067cc64d76f8a6a56cbe8c27f4db7b70053bba5",
     "core/product_physics/tests/w9_solver_benchmarks.rs": "f5a7c5e0af3c46fc84c163e9dcf81e4821b3f4ddffab8cac4dcad965c4aa3a8f",
     "core/reporting/result_export/.gitignore": "9cc2c8cc102e0b2a0a177c8f594abc9b9776300a04473c24b45d52c1007a4119",
     "core/reporting/result_export/Cargo.lock": "02e13c1980d6c1a5f223ef8127528d491c641a205c7f294d23c37bfb658e4a17",
@@ -1185,7 +1185,7 @@
     "schemas/viewport_editor.schema.yaml": "d23ce086b82ff6196edec81319257515bf5aa12dee3e2b79ae0c17246a56fcb3",
     "tools/serialization/generate_product_preview_mechanics.mjs": "a5bdbab5b10c4d127574cf91da1693b919bc5fdf6db9801a853608eea4b265a4"
   },
-  "inventory_json_sha256": "13b3db6cd3060838b80f24da26e0882552a0141f4125712263d571c7545cdee5",
+  "inventory_json_sha256": "bd319928b86807e7b6da1740a199f9ba3a8ad886fcc00837a596438a600b0cd8",
   "dependencies": [
     {
       "name": "block-buffer",
