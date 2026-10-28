@@ -5,7 +5,9 @@ The judging and coverage logic is kd5t_compare.py's reconstructed M3 harness, im
 the pressure-free (PF) route and adds the PF-only rows and expectations. No product code is read.
 
 Usage:
-  python3 -I -B pft_compare.py <set.jsonl> <runs.jsonl> <out.jsonl> [--ref own|twin] [--workers N]
+  python3 -I -B pft_compare.py <set.jsonl> <runs.jsonl> <out.jsonl> [--ref own|twin] [--expect <runner input>] [--workers N]
+      writes the judged records to <out.jsonl> and the collection inventory to <out.jsonl>.inventory.json;
+      exits 3 when the inventory fails
   python3 -I -B pft_compare.py --selftest <set.jsonl>
   python3 -I -B pft_compare.py --probe-format <probes.in.jsonl> <probes.out.jsonl>
 
@@ -28,20 +30,34 @@ What PF publishes, established from the public result format on Euler-Bernoulli 
   u4b-u5b-implementation.md sections 2.3, 2.4). These carry no certificate ("No certificate";
   "receive no certificate of their own"), so they are judged here as information (C11), not as C1.
 
-Acceptance: kd5t_compare's clauses C0-C4, C6, C8 and C9 (the K-D5 M3 criterion and the soundness of its
+Inventory [refuter P1]: every expected model x entry x mode (typed, captured; SparseInteractive,
+DenseScrutiny) exactly once and nothing else; expected models are the set's or a chunk's (`--expect`). A run
+identity received more than once is rejected before judging (C0 on that identity; no record of it is judged,
+so a later record cannot replace an earlier failure); a record of a model outside the set fails C0.
+
+M3 acceptance: kd5t_compare's clauses C0-C4, C6, C8 and C9 (the K-D5 M3 criterion and the soundness of its
 judging), applied to every run, whatever the model's admission expectation: a Passed publication on a
 model the design refuses is judged against the exact reference like any other.
 
-Information clauses added for PF (counted per run in `info`, reported beside the verdict):
+Design conformance (separate from M3; `design_failures`, `design_verdict`):
 - C10 [design pf-timoshenko.md section 2, admission]: a Timoshenko model the design refuses by name
   (binary64 nu_d outside (-1, 1/2), or the moduli-form factor not representable) that is not refused,
   or is refused without `PF_TIMOSHENKO_SHEAR_FACTOR_UNAVAILABLE`; or a model the design admits that is
   refused.
+
+Information clauses added for PF (counted per run in `info`):
 - C11 [own; DEL-04-07 section 2.3, 2.4; DEL-04-01 global end actions]: on Passed cases, a derived
   row group (global end force or moment vector per end, sigma+- pair, tau_v,max) beyond RD(1e-9) of
-  its body's coupled scale in the row's unit (SF; SM; SM/Z; SF c), or an expected derived row
-  unpublished; a tau row on a member whose nu_d is out of domain, or the
-  `TRANSVERSE_SHEAR_POISSON_OUT_OF_DOMAIN` warning missing or unexpected.
+  its body's coupled scale in the row's unit (SF; SM; SM/Z; SF c), unless it is the known tau defect
+  below; or an expected derived row unpublished; or the `TRANSVERSE_SHEAR_POISSON_OUT_OF_DOMAIN`
+  warning missing or unexpected (a tau row on an out-of-domain member is C6i).
+- C11tau_b: a tau_v,max group beyond that scale which equals section 2.4's prescribed binary64 operations:
+  the known defect on main (RN(1 + nu_d) cancels as E/(2G) -> 0), ruled by Agent 0 a separate correction
+  (option (b)).
+- C11ops: the derived rows against the design's prescribed binary64 operations on the published operands:
+  sigma+- bit for bit (section 2.3: norm2 correctly rounded, then RN(sigma_N +- h)); tau_v,max within 2^-40
+  (section 2.4's sequence; only I_b's binary64 order is not prescribed). Global end rows are judged against
+  the ideal target only (their rotation's binary64 order is not prescribed).
 kd5t_compare's information clauses C3lit, C4b, C5, C6i and C7 are reported as there.
 """
 
@@ -69,10 +85,18 @@ REFUSAL_CODE = "PF_TIMOSHENKO_SHEAR_FACTOR_UNAVAILABLE"
 TAU_WARNING = "TRANSVERSE_SHEAR_POISSON_OUT_OF_DOMAIN"
 DERIVED = {"element_global_end_force_v1", "element_global_end_moment_v1", "element_local_normal_stress_extreme",
            "element_local_transverse_shear_stress_maximum"}
-INFO = dict(KC.INFO)
-INFO.update({"C10": "admission differs from design section 2 (an expected refusal published or refused under another code, or an admitted model refused)",
-             "C11": "derived row (global end action, sigma+-, tau_v,max) beyond 1e-9 of its coupled scale, unpublished, or its tau-domain warning differs (Passed)"})
+ENTRIES = ("typed", "captured")
+MODES = ("SparseInteractive", "DenseScrutiny")
+TAU_OPS_TOL = Q(1, 2 ** 40)    # tau against the prescribed binary64 operations: I_b's binary64 order is not prescribed
 CLAUSES = KC.CLAUSES
+DESIGN = {"C10": "admission differs from design section 2 (an expected refusal published or refused under another code, or an admitted model refused)"}
+INFO = dict(KC.INFO)
+INFO.update({"C11": "derived row (global end action, sigma+-, tau_v,max) beyond 1e-9 of its coupled scale and not the known tau defect, "
+                    "unpublished, or its tau-domain warning differs (Passed)",
+             "C11tau_b": "tau_v,max beyond 1e-9 of its coupled scale but equal to the prescribed binary64 operations: the known defect on main "
+                         "(RN(1 + nu_d) cancels), ruled by Agent 0 a separate correction (option (b)) (Passed)",
+             "C11ops": "sigma+- not bit for bit RN(sigma_N +- norm2(sigma_y, sigma_z)) of the station's published rows, or tau_v,max not within "
+                       "2^-40 of the prescribed operations on the published shear rows (Passed)"})
 
 
 def fq(text):
@@ -103,7 +127,7 @@ def refused(run):
 
 
 def admission_info(ref, run):
-    """C10: the run's admission against the design's (information)."""
+    """C10: the run's admission against the design's (design-conformance verdict, separate from M3)."""
     if run.get("error"):
         return 0
     codes = {d["code"] for d in run.get("diagnostics") or [] if d.get("severity") == "blocking"}
@@ -112,10 +136,53 @@ def admission_info(ref, run):
     return 1 if codes else 0
 
 
-def derived_info(ref, run, rec, derived_rows):
-    """C11 on a Passed case: derived groups beyond 1e-9 of their coupled scale, unpublished derived rows, and the tau warning."""
+def rn_norm2(a: float, b: float) -> float:
+    """The correctly rounded binary64 sqrt(a^2 + b^2) of two binary64 values (the shared norm2, E15)."""
+    X = Q(a) ** 2 + Q(b) ** 2
+    if X == 0:
+        return 0.0
+    c = math.hypot(a, b)              # within an ulp or so; corrected exactly below
+    if not math.isfinite(c):
+        return c
+    while True:
+        lo, hi = (Q(math.nextafter(c, 0.0)) + Q(c)) / 2, (Q(c) + Q(math.nextafter(c, math.inf))) / 2
+        if X < lo * lo:
+            c = math.nextafter(c, 0.0)
+        elif X > hi * hi:
+            c = math.nextafter(c, math.inf)
+        else:
+            return c
+
+
+def sigma_ops(sN: float, sy: float, sz: float):
+    """u4b-u5b-implementation.md section 2.3's fixed sequence: h = norm2(sigma_y, sigma_z); RN(sigma_N + h), RN(sigma_N - h)."""
+    h = rn_norm2(sy, sz)
+    return sN + h, sN - h
+
+
+def tau_cb(sec):
+    """Section 2.4's c_b in its fixed binary64 sequence, from the model's E, G, OD, wall and mill tolerance; I_b is the
+    exact I rounded once (the product's binary64 I_b order is not prescribed; it agrees to ulps)."""
+    E, G = float(sec["E"]), float(sec["G"])
+    nu = E / (2.0 * G) - 1.0
+    ro = float(sec["od"]) / 2.0
+    ri = ro - (float(sec["wall"]) - float(sec["mill"]))
+    num = (3.0 + 2.0 * nu) * (ro * ro) + (1.0 + 2.0 * nu) * (ri * ri)
+    den = (4.0 * (1.0 + nu)) * float(Decimal(sec["I"]))
+    return num / den
+
+
+def tau_ops(sec, vy: float, vz: float) -> float:
+    """Section 2.4: tau = RN(RN(norm2(V_y, V_z) * c_b)/1e6), on the station's published shear rows."""
+    return (rn_norm2(vy, vz) * tau_cb(sec)) / 1e6
+
+
+def derived_info(ref, run, rec, derived_rows, core_rows):
+    """On a Passed case: C11 (derived groups beyond 1e-9 of their coupled scale, unpublished derived rows, the tau
+    warning), C11tau_b (the known tau defect: beyond, but equal to the prescribed operations) and C11ops (the derived
+    rows against the design's prescribed binary64 operations on the published operands)."""
     sections = ref["sections"]
-    out = {"n_groups": 0, "beyond": [], "missing": 0, "unexpected": 0, "warning_mismatch": 0, "worst": 0.0}
+    out = {"n_groups": 0, "beyond": [], "tau_b": [], "ops": [], "missing": 0, "unexpected": 0, "warning_mismatch": 0, "worst": 0.0}
     codes = {d["code"] for d in run.get("diagnostics") or []}
     out["warning_mismatch"] = int((TAU_WARNING in codes) != (TAU_WARNING in ref.get("expected_warnings", [])))
     for cid, c in ref["cases"].items():
@@ -125,6 +192,10 @@ def derived_info(ref, run, rec, derived_rows):
         SF = max(Q(cs["SF"]), Q(cs["SF_ref"]))
         SM = max(Q(cs["SM"]), Q(cs["SM_ref"]))
         refrows = {(k, e, l, comp): fq(v) for k, e, l, comp, _, v in c["rows"] if k in DERIVED}
+        operands = {}
+        for r in core_rows:
+            if r.get("case") == cid and KC.finite_value(r.get("value")):
+                operands.setdefault((r["kind"], r["entity_ref"], r.get("location")), r["value"])
         pub = {}
         for r in derived_rows:
             if r.get("case") != cid:
@@ -133,29 +204,44 @@ def derived_info(ref, run, rec, derived_rows):
             if key not in refrows or key in pub or not KC.finite_value(r.get("value")):
                 out["unexpected"] += 1
                 continue
-            pub[key] = Q(r["value"])
+            pub[key] = r["value"]
         out["missing"] += sum(1 for k in refrows if k not in pub)
         groups = collections.defaultdict(list)
         for key, v in pub.items():
             kind, pid, loc, comp = key
-            groups[(kind, pid, loc)].append((v, refrows[key]))
+            groups[(kind, pid, loc)].append((comp, v, refrows[key]))
         for (kind, pid, loc), vals in groups.items():
             s = sections[pid]
+            op = lambda k: operands.get((k, pid, loc))
+            consistent = None
             if kind == "element_global_end_force_v1":
                 scale = SF
             elif kind == "element_global_end_moment_v1":
                 scale = SM
             elif kind == "element_local_normal_stress_extreme":
                 scale = SM / (fq(s["Z"]) * KC.MPA)
+                ops = (op("element_local_axial_normal_stress"), op("element_local_bending_normal_stress_y"), op("element_local_bending_normal_stress_z"))
+                if None not in ops:
+                    sp, sm = sigma_ops(*ops)
+                    consistent = all(v == (sp if comp == "sigma_plus" else sm) for comp, v, _ in vals)
             else:
                 scale = SF * fq(s["tau_c"]) / KC.MPA
-            e2 = sum((a - b) ** 2 for a, b in vals)
+                ops = (op("element_local_shear_force_y"), op("element_local_shear_force_z"))
+                if None not in ops:
+                    t = tau_ops(s, *ops)
+                    consistent = all(abs(Q(v) - Q(t)) <= TAU_OPS_TOL * abs(Q(t)) for _, v, _ in vals)
+            e2 = sum((Q(v) - t) ** 2 for _, v, t in vals)
             out["n_groups"] += 1
             ratio = KC.qratio(e2, CRIT ** 2 * scale * scale)
-            out["worst"] = max(out["worst"], ratio)
+            item = [cid, kind, pid, loc, ratio]
+            if consistent is False:
+                out["ops"].append(item)
             if e2 > CRIT ** 2 * scale * scale:
-                out["beyond"].append([cid, kind, pid, loc, ratio])
-    out["beyond"] = out["beyond"][:20] + ([["...", len(out["beyond"]) - 20]] if len(out["beyond"]) > 20 else [])
+                if kind == "element_local_transverse_shear_stress_maximum" and consistent:
+                    out["tau_b"].append(item)
+                else:
+                    out["beyond"].append(item)
+                    out["worst"] = max(out["worst"], ratio)
     return out
 
 
@@ -165,14 +251,18 @@ def judge(gen, ref, run):
     rec = KC.judge_run(gen, kd5_ref(ref), core, PRODUCER)
     rec["producer"] = "pf"
     info = collections.Counter(rec.get("info") or {})
-    adm = admission_info(ref, run)
     rec["expect"] = ref.get("expect", "rows")
-    info["C10"] += adm
+    rec["design_failures"] = {"C10": admission_info(ref, run)}
     if rec.get("cls") == "passed" and run.get("results") and not refused(run):
-        d = derived_info(ref, run, rec, derived)
-        rec["derived"] = d
-        info["C11"] += len([b for b in d["beyond"] if b[0] != "..."]) + max(0, len(d["beyond"]) - 20) + d["missing"] + d["warning_mismatch"]
+        d = derived_info(ref, run, rec, derived, core["results"])
+        info["C11"] += len(d["beyond"]) + d["missing"] + d["warning_mismatch"]
+        info["C11tau_b"] += len(d["tau_b"])
+        info["C11ops"] += len(d["ops"])
         info["C6i"] += d["unexpected"]
+        for k in ("beyond", "tau_b", "ops"):
+            d["n_" + k] = len(d[k])
+            d[k] = d[k][:20]
+        rec["derived"] = d
     rec["info"] = {k: v for k, v in info.items() if v}
     return rec
 
@@ -180,6 +270,14 @@ def judge(gen, ref, run):
 def work(job):
     """kd5t_compare.work's typed/captured pairing (C4, C4b) around the PF judge."""
     gen, ref, runs = job
+    ident = collections.Counter((r.get("entry"), r.get("mode")) for r in runs)
+    dup = {k for k, n in ident.items() if n > 1}
+    if dup:
+        # a run identity received more than once is rejected before judging: no record of it is judged, so a later
+        # record can never replace an earlier failure (refuter P1); the collection inventory fails as well
+        return [{"tag": gen["tag"], "entry": e, "mode": m, "duplicate_identity": n, "verdict_failures": {"C0": 1}, "info": {}, "verdict": "fail",
+                 "meta": {k: gen["meta"].get(k) for k in ("design", "family", "theory", "placement", "section_variant", "twin", "E", "G")}}
+                for (e, m), n in sorted(ident.items()) if (e, m) in dup] + work((gen, ref, [r for r in runs if (r.get("entry"), r.get("mode")) not in dup]))
     by = {(r["entry"], r["mode"]): r for r in runs}
     judged = {}
     for run in runs:
@@ -209,14 +307,34 @@ def work(job):
         rec["meta"] = {k: gen["meta"].get(k) for k in ("design", "family", "theory", "placement", "section_variant", "twin", "E", "G")}
         rec["verdict_failures"] = {k: v for k, v in rec["verdict_failures"].items() if v}
         rec["info"] = {k: v for k, v in rec.get("info", {}).items() if v}
+        rec["design_failures"] = {k: v for k, v in (rec.get("design_failures") or {}).items() if v}
         rec["verdict"] = "fail" if rec["verdict_failures"] else "pass"
+        rec["design_verdict"] = "fail" if rec["design_failures"] else "pass"
         out.append(rec)
     return out
 
 
+def inventory(expected_tags, identities):
+    """The collection check (refuter P1): every expected model x entry x mode exactly once, and nothing else.
+    `identities` are (tag, entry, mode) tuples of the received records."""
+    want = {(t, e, m) for t in expected_tags for e in ENTRIES for m in MODES}
+    got = collections.Counter(identities)
+    out = {"expected": len(want), "received": sum(got.values()),
+           "missing": sorted(want - set(got)), "duplicate": sorted(k for k, n in got.items() if n > 1),
+           "unexpected": sorted(k for k in got if k not in want)}
+    out["pass"] = not (out["missing"] or out["duplicate"] or out["unexpected"])
+    return out
+
+
+def inventory_text(inv):
+    return (f"INVENTORY (model x entry x mode): {'PASS' if inv['pass'] else 'FAIL'} ({inv['received']} records against {inv['expected']} expected; "
+            f"{len(inv['missing'])} missing, {len(inv['duplicate'])} duplicate, {len(inv['unexpected'])} unexpected)")
+
+
 # ----------------------------------------------------------------- self-test
-def synthetic_run(gen, upper_scale=1.0 + 1e-12, entry="typed"):
-    """A PF-shaped run that publishes the reference rows themselves (rounded to binary64), Passed."""
+def synthetic_run(gen, upper_scale=1.0 + 1e-12, entry="typed", mode="SparseInteractive"):
+    """A PF-shaped run that publishes the reference rows themselves (rounded to binary64), with the derived sigma+-
+    and tau_v,max formed by the design's binary64 operations from those rows, Passed."""
     ref = gen["ref"]
     rows, cases_ev = [], []
     for cid, c in ref["cases"].items():
@@ -229,13 +347,24 @@ def synthetic_run(gen, upper_scale=1.0 + 1e-12, entry="typed"):
                          "location": "governing_station", "component": "maximum_absolute_normal_stress", "metadata": {"basis": "x"}})
             ev.append({"pipe_id": pid, "value_upper_pa": float(Decimal(val)) * upper_scale, "value_lower_pa": float(Decimal(val)) / upper_scale})
         cases_ev.append({"load_case_id": cid, "pipe_stress_extrema": ev})
+    # sigma+- and tau_v,max as the design prescribes them: binary64 operations on the published operand rows
+    val = {(r["case"], r["kind"], r["entity_ref"], r["location"]): r["value"] for r in rows}
+    for r in rows:
+        k = (r["case"], r["entity_ref"], r["location"])
+        if r["kind"] == "element_local_normal_stress_extreme":
+            sp, sm = sigma_ops(*(val[(k[0], kind, k[1], k[2])] for kind in ("element_local_axial_normal_stress", "element_local_bending_normal_stress_y",
+                                                                            "element_local_bending_normal_stress_z")))
+            r["value"] = sp if r["component"] == "sigma_plus" else sm
+        elif r["kind"] == "element_local_transverse_shear_stress_maximum":
+            r["value"] = tau_ops(ref["sections"][r["entity_ref"]], val[(k[0], "element_local_shear_force_y", k[1], k[2])],
+                                 val[(k[0], "element_local_shear_force_z", k[1], k[2])])
     mx = [r["value"] for r in rows if r["kind"] == "pipe_elastic_normal_stress_maximum_v2"]
     diags = [{"code": "NUMERICAL_INTEGRITY_CHECKS_PASSED", "severity": "info", "message": "synthetic"}]
     diags += [{"code": w, "severity": "warning", "message": "synthetic"} for w in ref.get("expected_warnings", [])]
     if ref.get("expect") == "refused":
         diags = [{"code": REFUSAL_CODE, "severity": "blocking", "message": "synthetic"}]
         rows, cases_ev, mx = [], [], []
-    return {"tag": gen["tag"], "entry": entry, "mode": "SparseInteractive", "results": rows,
+    return {"tag": gen["tag"], "entry": entry, "mode": mode, "results": rows,
             "summary": {"max_open_formula_stress": {"value": max(mx), "unit": "Pa"}} if mx else {},
             "diagnostics": diags, "contract_evidence": {"preview_cases": cases_ev}}
 
@@ -272,6 +401,13 @@ def selftest(set_path):
         return next(g for g in gens if g["meta"]["design"] == design and g["meta"]["placement"] == placement
                     and g["meta"]["section_variant"] == variant and g["tag"].endswith("|" + th))
 
+    def onepnu_error(g):
+        """Relative error of RN(1 + nu_d) against the exact 1 + nu = E/(2G), the known tau defect's size."""
+        sec = next(iter(g["ref"]["sections"].values()))
+        E, G = float(sec["E"]), float(sec["G"])
+        x = Q(E) / (2 * Q(G))
+        return abs(Q(1.0 + (E / (2.0 * G) - 1.0)) - x) / x
+
     chosen = [pick("CANT03"), pick("CANT03", th="eb"), pick("FF05"), pick("L13"), pick("SPAN04"), pick("CANT09", variant="cm"),
               pick("CANT07", "utmskew"), pick("NCcodexS8"), pick("NCauxfree", "utmskew"), pick("NCtwoxe-12S8")]
     pinned = set()
@@ -279,9 +415,12 @@ def selftest(set_path):
         name = g["tag"].split("|", 1)[1]
         run = synthetic_run(g)
         rec = J(g, run)
-        check(f"{name}: the reference published as itself passes every clause and raises no information clause",
-              not rec["verdict_failures"] and not rec["info"] and rec["n_judged"] > 0 and rec["n_judged_ref_only"] == 0
-              and rec["derived"]["n_groups"] > 0 and not rec["derived"]["beyond"])
+        tau_b = rec["info"].get("C11tau_b", 0)
+        check(f"{name}: the reference published as itself (sigma+- and tau by the prescribed operations) passes every clause; "
+              f"its only information is the known tau defect, exactly where RN(1 + nu_d) is off by more than 1e-12 ({tau_b} groups)",
+              not rec["verdict_failures"] and not rec["design_failures"].get("C10") and set(rec["info"]) <= {"C11tau_b"}
+              and (tau_b > 0) == (onepnu_error(g) > Q(1, 10 ** 12)) and rec["n_judged"] > 0 and rec["n_judged_ref_only"] == 0
+              and rec["derived"]["n_groups"] > 0 and not rec["derived"]["beyond"] and not rec["derived"]["ops"])
         # CRIT from both sides on the largest judged group of every group kind present
         idx = collections.defaultdict(list)
         for i, r in enumerate(run["results"]):
@@ -408,12 +547,13 @@ def selftest(set_path):
         cap["diagnostics"] = [{"code": "NUMERICAL_INTEGRITY_SENSITIVE", "severity": "warning", "message": "synthetic"}]
         res = {r["entry"]: r for r in W(g, [run, cap])}
         check(f"{name}: a captured integrity code that differs fails C4", res["captured"]["verdict_failures"].get("C4", 0) == 1)
-        # C5 and C10: a refusal of an admitted model fails no acceptance clause and raises C5 and C10
+        # C5 and C10: a refusal of an admitted model fails no M3 acceptance clause, raises C5 and fails design conformance (C10)
         r2 = copy.deepcopy(run)
         r2["diagnostics"] = [{"code": REFUSAL_CODE, "severity": "blocking", "message": "x"}]
         r2["results"] = []
-        rr = J(g, r2)
-        check(f"{name}: refusing an admitted model raises C5 and C10, fails no acceptance clause", not rr["verdict_failures"] and rr["info"].get("C5") == 1 and rr["info"].get("C10") == 1)
+        rr = W(g, [r2])[0]
+        check(f"{name}: refusing an admitted model fails design conformance (C10) and raises C5; M3 passes",
+              rr["verdict"] == "pass" and rr["info"].get("C5") == 1 and rr["design_verdict"] == "fail" and rr["design_failures"].get("C10") == 1)
         # C11: derived rows from both sides of 1e-9 of their coupled scale; unpublished; unexpected
         d = J(g, run)
         SF, SM = Q(d["cases"]["case:1"]["SF"]), Q(d["cases"]["case:1"]["SM"])
@@ -421,7 +561,7 @@ def selftest(set_path):
                                      ("element_local_normal_stress_extreme", "sigma_plus", lambda s: SM / (fq(s["Z"]) * KC.MPA)),
                                      ("element_local_transverse_shear_stress_maximum", "tau_v_max", lambda s: SF * fq(s["tau_c"]) / KC.MPA)):
             ii = [i for i, r in enumerate(run["results"]) if r["kind"] == kind and r["component"] == comp]
-            if not ii:
+            if not ii or (kind == "element_local_transverse_shear_stress_maximum" and tau_b):
                 continue
             i = ii[0]
             sc = scale_of(g["ref"]["sections"][run["results"][i]["entity_ref"]])
@@ -479,16 +619,17 @@ def selftest(set_path):
     for g in gs[:3]:
         name = g["tag"].split("|", 1)[1]
         run = synthetic_run(g)
-        rr = J(g, run)
-        check(f"{name}: refused by name passes, C10 0, C5 1", not rr["verdict_failures"] and rr["info"].get("C10", 0) == 0 and rr["info"].get("C5") == 1)
+        rr = W(g, [run])[0]
+        check(f"{name}: refused by name passes M3 and design conformance, C5 1", rr["verdict"] == "pass" and rr["design_verdict"] == "pass" and rr["info"].get("C5") == 1)
         r2 = copy.deepcopy(run)
         r2["diagnostics"][0]["code"] = "MODEL_SECTION_INVALID"
-        check(f"{name}: refused under another code raises C10", J(g, r2)["info"].get("C10", 0) == 1)
+        check(f"{name}: refused under another code fails design conformance (C10)", W(g, [r2])[0]["design_failures"].get("C10", 0) == 1)
         g2 = copy.deepcopy(g)
         g2["ref"]["expect"] = "rows"
         pub = synthetic_run(g2)
-        rr = J(g, pub)
-        check(f"{name}: publishing the exact rows of an expected refusal raises C10 and passes the M3 clauses", rr["info"].get("C10", 0) == 1 and not rr["verdict_failures"])
+        rr = W(g, [pub])[0]
+        check(f"{name}: publishing the exact rows of an expected refusal fails design conformance (C10) and passes M3",
+              rr["design_verdict"] == "fail" and rr["verdict"] == "pass")
         r2 = copy.deepcopy(pub)
         for r in r2["results"]:
             if r["kind"] == "global_nodal_displacement_y":
@@ -506,6 +647,84 @@ def selftest(set_path):
     r2["results"].append({"kind": "element_local_transverse_shear_stress_maximum", "value": 1.0, "entity_ref": "pipe:N01", "case": "case:1",
                           "location": "midspan", "component": "tau_v_max", "metadata": {}})
     check(f"{g['tag'].split('|', 1)[1]}: a tau row on an out-of-domain member raises C6i", J(g, r2)["info"].get("C6i", 0) == 1)
+    # the known tau defect (C11tau_b) and the prescribed operations (C11ops), on Codex's case
+    g = pick("NCcodexS8")
+    run = synthetic_run(g)
+    rr = J(g, run)
+    check("Codex's case: tau by the prescribed operations is the known defect (C11tau_b > 0), not C11, and passes the operations check",
+          rr["info"].get("C11tau_b", 0) > 0 and not rr["info"].get("C11") and not rr["info"].get("C11ops"))
+    ideal = {(c[1], c[2]): float(Decimal(c[5])) for c in g["ref"]["cases"]["case:1"]["rows"] if c[0] == "element_local_transverse_shear_stress_maximum"}
+    r2 = copy.deepcopy(run)
+    for r in r2["results"]:
+        if r["kind"] == "element_local_transverse_shear_stress_maximum":
+            r["value"] = ideal[(r["entity_ref"], r["location"])]
+    rr = J(g, r2)
+    check("Codex's case: tau published at the ideal target is not the prescribed operations (C11ops), and is neither C11 nor C11tau_b",
+          rr["info"].get("C11ops", 0) > 0 and not rr["info"].get("C11") and not rr["info"].get("C11tau_b") and not rr["verdict_failures"])
+    for g in (pick("NCcodexS8"), pick("CANT03")):
+        run = synthetic_run(g)
+        r2 = copy.deepcopy(run)
+        i = next(i for i, r in enumerate(r2["results"]) if r["kind"] == "element_local_normal_stress_extreme" and r["component"] == "sigma_minus" and r["value"] != 0)
+        r2["results"][i]["value"] = math.nextafter(r2["results"][i]["value"], math.inf)
+        rr = J(g, r2)
+        check(f"{g['tag'].split('|', 1)[1]}: sigma- one ulp off the prescribed operations raises C11ops (bit for bit), not C11",
+              rr["info"].get("C11ops", 0) == 1 and not rr["info"].get("C11"))
+    check("rn_norm2 is correctly rounded on hard cases", rn_norm2(3.0, 4.0) == 5.0 and rn_norm2(1.0, 2.0 ** -27) == 1.0
+          and rn_norm2(1e-200, 1e-200) == float(Decimal(2).sqrt() * Decimal("1e-200")) and rn_norm2(1e200, 1e200) == float(Decimal(2).sqrt() * Decimal("1e200")))
+    # the collection (refuter P1): duplicates, missing runs and unexpected records fail; the complete collection passes
+    import tempfile
+    import pft_report
+    g = pick("NCcodexS8")
+    clean = synthetic_run(g)
+    bad = copy.deepcopy(clean)
+    for r in bad["results"]:
+        if r["kind"] in ("global_nodal_displacement_y", "displacement_magnitude") and r["entity_ref"] == "node:N1":
+            r["value"] *= 1 - 0.556
+    for label, runs in (("duplicate-then-correct", [bad, clean]), ("correct-then-duplicate", [clean, bad])):
+        recs = W(g, runs)
+        check(f"{label} (r1's 55.6%-low UY and a correct record of one identity): the identity is rejected (C0), never judged PASS",
+              len(recs) == 1 and recs[0]["verdict"] == "fail" and recs[0]["verdict_failures"] == {"C0": 1} and recs[0]["duplicate_identity"] == 2)
+    full_tags = [t for t, _, _ in __import__("pft_generate").model_list()]
+    check(f"the full set's inventory is 3,624 runs ({len(full_tags)} models x 2 entries x 2 modes)", inventory(full_tags, [])["expected"] == 3624)
+    frozen_tags = [x["tag"] for x in gens]
+    check(f"the frozen subset's inventory is {4 * len(frozen_tags)} runs", inventory(frozen_tags, [])["expected"] == 4 * len(frozen_tags) == 400)
+    complete = [synthetic_run(x, entry=e, mode=m) for x in gens for e in ENTRIES for m in MODES]
+    scenarios = {"complete (positive control)": (complete, True),
+                 "duplicate-then-correct": ([bad, clean] + [r for r in complete if (r["tag"], r["entry"], r["mode"]) != (g["tag"], "typed", "SparseInteractive")], False),
+                 "correct-then-duplicate": (complete + [bad], False),
+                 "a single run": ([clean], False),
+                 "an empty file": ([], False),
+                 "an unexpected tag": (complete + [dict(clean, tag="pft|NOSUCH|S8NC|o|m0|ts")], False),
+                 "unpaired typed sparse and captured dense": ([clean, dict(clean, entry="captured", mode="DenseScrutiny")], False)}
+    with tempfile.TemporaryDirectory() as tmp:
+        for label, (runs, want) in scenarios.items():
+            rp, ep = os.path.join(tmp, "runs.jsonl"), os.path.join(tmp, "eval.jsonl")
+            with open(rp, "w") as f:
+                f.writelines(json.dumps(r) + "\n" for r in runs)
+            inv, _ = compare(set_path, rp, ep, workers=4)
+            rep_ = pft_report.report(set_path, [ep], quiet=True)
+            check(f"collection '{label}': compare inventory {'passes' if want else 'fails'} and the report's M3 verdict {'passes' if want else 'fails'}",
+                  inv["pass"] == want and rep_["inventory"]["pass"] == want and rep_["m3_pass"] == want and rep_["pass"] == want)
+        # the CLIs: the compare exits 3 and the report exits 1 on an empty collection
+        import subprocess
+        rp, ep = os.path.join(tmp, "runs.jsonl"), os.path.join(tmp, "eval.jsonl")
+        open(rp, "w").close()
+        c1 = subprocess.run([sys.executable, "-I", "-B", os.path.join(HERE, "pft_compare.py"), set_path, rp, ep], capture_output=True, text=True)
+        c2 = subprocess.run([sys.executable, "-I", "-B", os.path.join(HERE, "pft_report.py"), set_path, ep], capture_output=True, text=True)
+        check("empty collection through the CLIs: pft_compare exits 3 and pft_report exits 1 with INVENTORY FAIL and M3 VERDICT FAIL",
+              c1.returncode == 3 and c2.returncode == 1 and "INVENTORY (model x entry x mode): FAIL" in c2.stdout and "M3 VERDICT" in c2.stdout
+              and ": FAIL" in c2.stdout.split("M3 VERDICT", 1)[1].split("\n", 1)[0])
+        # an admission mismatch fails the design-conformance verdict and leaves M3 passing
+        adm = [copy.deepcopy(r) for r in complete]
+        for r in adm:
+            if r["tag"] == pick("CANT03")["tag"]:
+                r["diagnostics"], r["results"] = [{"code": REFUSAL_CODE, "severity": "blocking", "message": "x"}], []
+        with open(rp, "w") as f:
+            f.writelines(json.dumps(r) + "\n" for r in adm)
+        compare(set_path, rp, ep, workers=4)
+        rep_ = pft_report.report(set_path, [ep], quiet=True)
+        check("an admitted model refused in a complete collection: M3 passes, design conformance fails (4 records)",
+              rep_["m3_pass"] and not rep_["design_pass"] and rep_["design_failing_records"] == 4 and not rep_["pass"])
     bad = [n for n, ok in out if not ok]
     print(f"compare self-test: {len(out) - len(bad)} of {len(out)} checks pass")
     if bad:
@@ -555,6 +774,61 @@ def probe_format(in_path, out_path):
     print("unmatched EB probe rows by kind:", dict(unmatched))
 
 
+def compare(set_path, runs_path, out_path, variant="own", workers=6, expect_paths=None):
+    """Judge every received run, write the records, and return (inventory, summary). Expected tags are the set's,
+    or those of the given runner inputs (a chunk). Records of tags outside the set are not judged (unexpected)."""
+    gens = {}
+    for line in open(set_path):
+        x = json.loads(line)
+        gens[x["tag"]] = x
+    expected = list(gens)
+    if expect_paths:
+        expected = [json.loads(line)["tag"] for p in expect_paths for line in open(p) if line.strip()]
+    runs = collections.defaultdict(list)
+    idents = []
+    for line in open(runs_path):
+        if not line.strip():
+            continue
+        x = json.loads(line)
+        idents.append((x.get("tag"), x.get("entry"), x.get("mode")))
+        runs[x.get("tag")].append(x)
+    inv = inventory(expected, idents)
+    jobs = []
+    stray = []
+    for tag, rs in runs.items():
+        if tag not in gens:
+            # a record of a model outside the set is not judged; it is written as a failing record (C0) so that
+            # the report's inventory sees it too
+            stray += [{"tag": tag, "entry": r.get("entry"), "mode": r.get("mode"), "unexpected_tag": True, "verdict_failures": {"C0": 1},
+                       "info": {}, "verdict": "fail", "ref_variant": variant} for r in rs]
+            continue
+        gen = gens[tag]
+        ref = gen["ref"] if variant == "own" else gens[gen["meta"]["twin"]]["ref"]
+        jobs.append((gen, ref, rs))
+    import multiprocessing as mp
+    summary = collections.Counter()
+    with open(out_path, "w") as f:
+        for rec in stray:
+            summary["records"] += 1
+            summary["M3 failing"] += 1
+            f.write(json.dumps(rec) + "\n")
+        if workers <= 1 or len(jobs) <= 1:
+            results = map(work, jobs)
+        else:
+            pool = mp.get_context("fork").Pool(workers)
+            results = pool.imap_unordered(work, jobs, chunksize=2)
+        for result in results:
+            for rec in result:
+                rec["ref_variant"] = variant
+                summary["records"] += 1
+                summary["M3 failing"] += bool(rec.get("verdict_failures"))
+                summary["design failing"] += bool(rec.get("design_failures"))
+                f.write(json.dumps(rec) + "\n")
+    with open(out_path + ".inventory.json", "w") as f:
+        json.dump(inv, f, indent=1)
+    return inv, summary
+
+
 def main():
     args = sys.argv[1:]
     if args and args[0] == "--selftest":
@@ -563,7 +837,11 @@ def main():
     if args and args[0] == "--probe-format":
         probe_format(args[1], args[2])
         return
-    variant, workers = "own", 6
+    variant, workers, expect = "own", 6, None
+    if "--expect" in args:
+        i = args.index("--expect")
+        expect = [args[i + 1]]
+        del args[i:i + 2]
     for flag in ("--ref", "--workers"):
         if flag in args:
             i = args.index(flag)
@@ -576,30 +854,12 @@ def main():
     if variant not in ("own", "twin"):
         raise SystemExit("--ref own|twin")
     set_path, runs_path, out_path = args
-    gens = {}
-    for line in open(set_path):
-        x = json.loads(line)
-        gens[x["tag"]] = x
-    runs = collections.defaultdict(list)
-    for line in open(runs_path):
-        x = json.loads(line)
-        runs[x["tag"]].append(x)
-    jobs = []
-    for tag, rs in runs.items():
-        gen = gens[tag]
-        ref = gen["ref"] if variant == "own" else gens[gen["meta"]["twin"]]["ref"]
-        jobs.append((gen, ref, rs))
-    import multiprocessing as mp
-    with open(out_path, "w") as f:
-        if workers <= 1:
-            results = map(work, jobs)
-        else:
-            pool = mp.get_context("fork").Pool(workers)
-            results = pool.imap_unordered(work, jobs, chunksize=2)
-        for result in results:
-            for rec in result:
-                rec["ref_variant"] = variant
-                f.write(json.dumps(rec) + "\n")
+    inv, summary = compare(set_path, runs_path, out_path, variant, workers, expect)
+    print(inventory_text(inv))
+    print(f"M3 records failing an acceptance clause: {summary['M3 failing']} of {summary['records']}; "
+          f"design-conformance (admission) records failing: {summary['design failing']}")
+    if not inv["pass"]:
+        raise SystemExit(3)
 
 
 if __name__ == "__main__":
