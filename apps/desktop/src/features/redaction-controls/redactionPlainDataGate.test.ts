@@ -108,6 +108,95 @@ describe("DEL-12-02 plain-data gate: Codex r3 repros", () => {
   });
 });
 
+describe("DEL-12-02 plain-data gate: Codex r4 repros (the single-read snapshot)", () => {
+  // HELP_HUMAN ruling, 2026-10-28, (i): one pass validates and copies, reading each descriptor once;
+  // any exception in it is a refusal; everything downstream reads only the snapshot.
+  const flipFlop = (target: Item) => {
+    const reads: string[] = [];
+    const proxy = new Proxy(target, {
+      getOwnPropertyDescriptor(object, key) {
+        const descriptor = Reflect.getOwnPropertyDescriptor(object, key);
+        if (key !== "privacy_classification" || descriptor === undefined) return descriptor;
+        reads.push("privacy_classification");
+        return { ...descriptor, value: reads.length === 1 ? "protected_suspected" : "public" };
+      }
+    });
+    return { proxy, reads };
+  };
+  const throwing = () =>
+    new Proxy({ value: "x", ...P } as Item, {
+      ownKeys() {
+        throw new Error("trap ran");
+      }
+    });
+
+  it("reads a flip-flopping Proxy once, at all four entry points, and never includes it", () => {
+    const item = flipFlop({ value: "x", ...P });
+    expect(codes([classifyExportItem(item.proxy, { exportContext: "public_report" })])).toEqual([["block_export", "PROTECTED_CONTENT_BLOCKED"]]);
+    expect(item.reads).toEqual(["privacy_classification"]);
+    const walked = flipFlop({ value: "x", ...P });
+    expect(codes(redactExportPayload({ item: walked.proxy }, { exportContext: "public_report" }).decisions)).toEqual([
+      ["block_export", "PROTECTED_CONTENT_BLOCKED"]
+    ]);
+    expect(walked.reads).toEqual(["privacy_classification"]);
+    const record = flipFlop({ ...P, note: "INVENTED" });
+    const route = controlRouteExport({ record: record.proxy }, { routeId: "DREP-JSON-002", exportContext: "public_report" });
+    const note = route.decisions.filter((decision) => decision.path.replaceAll("__route_key__", "") === "$.record.note");
+    expect(codes(note)).toEqual([["redact_value", "REDISTRIBUTION_STATUS_UNKNOWN"]]);
+    expect(record.reads).toEqual(["privacy_classification"]);
+    const released = flipFlop({ ...P, note: "INVENTED" });
+    const release = controlUserReleasedReportPackageRequest({ record: released.proxy }, {}, true);
+    expect(release.blocked).toBe(true);
+    expect(codes(release.decisions)).toContainEqual(["block_export", "PROTECTED_CONTENT_BLOCKED"]);
+    expect(released.reads).toEqual(["privacy_classification"]);
+  });
+
+  it("refuses a throwing Proxy at all four entry points instead of throwing", () => {
+    expect(codes([classifyExportItem(throwing(), { exportContext: "public_report" })])).toEqual([REFUSED]);
+    expect(codes(redactExportPayload({ item: throwing() }, { exportContext: "public_report" }).decisions)).toEqual([REFUSED]);
+    expect(codes(controlRouteExport({ record: throwing() }, { routeId: "DREP-JSON-002", exportContext: "public_report" }).decisions)).toEqual([REFUSED]);
+    expect(codes(controlUserReleasedReportPackageRequest({ record: throwing() }, {}, true).decisions)).toEqual([REFUSED]);
+    expect(codes(controlUserReleasedReportPackageRequest({}, throwing(), true).decisions)).toEqual([REFUSED]);
+  });
+
+  it("refuses the array key 4294967295, which is not an array index", () => {
+    const items = new Array(1) as unknown[];
+    (items as unknown as Item)["4294967295"] = "x";
+    refusedEverywhere(items, "key 4294967295");
+    const filled: unknown[] = ["x"];
+    (filled as unknown as Item)["4294967295"] = "x";
+    refusedEverywhere(filled, "key 4294967295 beside a full array");
+  });
+
+  it("refuses a cycle behind more than 10,000 ancestors, object and array, without overflowing", () => {
+    const head: Item = {};
+    let tail = head;
+    for (let depth = 0; depth < 12_000; depth += 1) {
+      const next: Item = {};
+      tail.next = next;
+      tail = next;
+    }
+    tail.next = head;
+    refusedEverywhere(head, "deep object cycle");
+    const first: unknown[] = [];
+    let last = first;
+    for (let depth = 0; depth < 12_000; depth += 1) {
+      const next: unknown[] = [];
+      last.push(next);
+      last = next;
+    }
+    last.push(first);
+    refusedEverywhere(first, "deep array cycle");
+  });
+
+  it("refuses a reparented boxed Boolean and a reparented Map by their internal slots", () => {
+    refusedEverywhere(Object.setPrototypeOf(new Boolean(true), Object.prototype), "reparented Boolean");
+    refusedEverywhere(Object.setPrototypeOf(new Map([["a", 1]]), Object.prototype), "reparented Map");
+    refusedEverywhere(Object.setPrototypeOf(new Date(0), null), "reparented Date");
+    refusedEverywhere(Object.setPrototypeOf(new Uint8Array(2), Object.prototype), "reparented typed array");
+  });
+});
+
 describe("DEL-12-02 plain-data gate: refused shapes", () => {
   class Instance {
     label = "INVENTED";

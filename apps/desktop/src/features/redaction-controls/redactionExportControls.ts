@@ -438,86 +438,169 @@ function setMember(target: PlainObject, key: string, value: unknown): void {
  * points. It removes the class instead of modelling JS semantics one primitive at a time."; "An
  * undefined own data property on an object is treated as absent: skipped, never classified, exactly
  * as JSON.stringify writes it. An undefined array element still fails closed."; "Admit shared
- * references in an acyclic graph and refuse only cycles."). Every entry point runs it before it
- * reads its input, and refuses the whole export with `EXPORT_INPUT_NOT_PLAIN_DATA` unless the input
- * is a JSON-data graph:
- * - objects whose prototype is this realm's `Object.prototype` or null, and arrays whose prototype
- *   is `Array.prototype`, with only index keys and `length` and no holes;
+ * references in an acyclic graph and refuse only cycles."; and (i), the single-read snapshot). Every
+ * entry point takes this snapshot of its input first and classifies and exports only the snapshot;
+ * the input is never read again. One iterative pass (an explicit stack, no recursion) validates and
+ * copies, reading each own property's descriptor exactly once, and refuses the whole export with
+ * `EXPORT_INPUT_NOT_PLAIN_DATA` unless the input is a JSON-data graph:
+ * - objects whose prototype is this realm's `Object.prototype` or null, and arrays
+ *   (`Array.isArray`) whose prototype is `Array.prototype`; an object with an exotic internal slot
+ *   (boxed primitive, Map, Set, WeakMap, WeakSet, Date, RegExp, ArrayBuffer, typed array or
+ *   DataView) is refused by its brand check, whatever its prototype;
  * - strings, finite numbers, booleans and null;
- * - own enumerable data members only, enumerated with `Reflect.ownKeys` and read through their
- *   descriptors, so that no getter, setter or method of the input ever runs; no symbol key. A
- *   non-enumerable member is refused, `__proto__` included: parsed JSON has none;
+ * - own enumerable data members only, read through their descriptors, so that no getter, setter or
+ *   method of the input ever runs; no symbol key; a non-enumerable member is refused, `__proto__`
+ *   included;
+ * - array keys that are real indices (canonical, below 2^32 - 1 and below `length`), contiguous from
+ *   0 to `length` - 1: a hole is refused;
  * - an object member whose value is `undefined` is absent; an `undefined` array element is refused;
- * - an object reached twice is admitted when the graph is acyclic (JSON writes it once per
- *   position); a cycle is refused (JSON cannot express it). The ancestor set holds the current path.
- * The first refusal, as its path and shape, or null. */
-function plainDataRefusal(
-  value: unknown,
-  path = "$",
-  ancestors: Set<object> = new Set()
-): { path: string; shape: string } | null {
-  if (value === null || typeof value === "string" || typeof value === "boolean") return null;
-  if (typeof value === "number") return Number.isFinite(value) ? null : { path, shape: "non-finite number" };
-  if (typeof value !== "object") return { path, shape: typeof value };
-  if (ancestors.has(value)) return { path, shape: "cycle" };
-  const array = Array.isArray(value);
-  const prototype = Object.getPrototypeOf(value);
-  if (array ? prototype !== Array.prototype : prototype !== Object.prototype && prototype !== null) {
-    return { path, shape: array ? "array of another kind" : "not a plain object" };
-  }
-  const keys = Reflect.ownKeys(value);
-  ancestors.add(value);
-  try {
-    for (const key of keys) {
-      if (typeof key === "symbol") return { path, shape: "symbol key" };
-      if (array && key === "length") continue;
-      if (array && !/^(0|[1-9][0-9]*)$/.test(key)) return { path, shape: `array key ${JSON.stringify(key)}` };
-      const descriptor = Object.getOwnPropertyDescriptor(value, key) as PropertyDescriptor;
-      if (!("value" in descriptor)) return { path, shape: `accessor ${JSON.stringify(key)}` };
-      if (!descriptor.enumerable) return { path, shape: `non-enumerable member ${JSON.stringify(key)}` };
-      const at = array ? `${path}[${key}]` : `${path}.${key}`;
-      if (descriptor.value === undefined) {
-        if (array) return { path: at, shape: "undefined array element" };
-        continue;
+ * - an object reached twice in an acyclic graph is copied once per position; a cycle is refused (the
+ *   ancestor set holds the current path).
+ * Any exception during the pass (a Proxy trap, for instance) is a refusal too. */
+type PlainDataRefusal = { path: string; shape: string };
+
+class PlainDataRefused {
+  constructor(readonly refusal: PlainDataRefusal) {}
+}
+
+const MAX_ARRAY_INDEX = 4294967294; // 2^32 - 2: the largest array index
+
+/** The exotic kind of an object whose internal slot a brand check finds, else null. Each check
+ * throws on any other object and runs no code of the input. */
+function exoticKind(value: object): string | null {
+  const brands: [string, () => unknown][] = [
+    [
+      "typed array or DataView",
+      () => {
+        if (!ArrayBuffer.isView(value)) throw new TypeError("not a view");
       }
-      const refused = plainDataRefusal(descriptor.value, at, ancestors);
-      if (refused !== null) return refused;
+    ],
+    ["ArrayBuffer", () => (Object.getOwnPropertyDescriptor(ArrayBuffer.prototype, "byteLength") as PropertyDescriptor).get!.call(value)],
+    ["Map", () => Map.prototype.has.call(value, undefined)],
+    ["Set", () => Set.prototype.has.call(value, undefined)],
+    ["WeakMap", () => WeakMap.prototype.has.call(value, {})],
+    ["WeakSet", () => WeakSet.prototype.has.call(value, {})],
+    ["Date", () => Date.prototype.getTime.call(value)],
+    ["RegExp", () => (Object.getOwnPropertyDescriptor(RegExp.prototype, "source") as PropertyDescriptor).get!.call(value)],
+    ["boxed Boolean", () => Boolean.prototype.valueOf.call(value)],
+    ["boxed Number", () => Number.prototype.valueOf.call(value)],
+    ["boxed String", () => String.prototype.valueOf.call(value)],
+    ["boxed Symbol", () => Symbol.prototype.valueOf.call(value)],
+    ["boxed BigInt", () => BigInt.prototype.valueOf.call(value)]
+  ];
+  for (const [kind, check] of brands) {
+    try {
+      check();
+      return kind;
+    } catch {
+      // Not this kind.
     }
-  } finally {
-    ancestors.delete(value);
-  }
-  if (array) {
-    const length = (Object.getOwnPropertyDescriptor(value, "length") as PropertyDescriptor).value as number;
-    if (keys.length - 1 !== length) return { path, shape: "array hole" };
   }
   return null;
 }
 
-/** A copy of a gated input, one fresh object or array per position (a shared object is
- * duplicated, so redacting one position never touches another); an `undefined` member is left
- * out. It reads only own data members through their descriptors and calls no method of the
- * input. */
+function isArrayIndexKey(key: string, length: number): boolean {
+  if (!/^(0|[1-9][0-9]*)$/.test(key)) return false;
+  const index = Number(key);
+  return index <= MAX_ARRAY_INDEX && index < length;
+}
+
+type SnapshotFrame = {
+  source: object;
+  target: PlainObject | unknown[];
+  keys: (string | symbol)[];
+  next: number;
+  path: string;
+  array: boolean;
+};
+
+/** The snapshot of `input` (`{ value }`), or the first refusal (`{ refusal }`). */
+function plainDataSnapshot(input: unknown, rootPath = "$"): { value: unknown } | { refusal: PlainDataRefusal } {
+  let path = rootPath;
+  const refuse = (at: string, shape: string): never => {
+    throw new PlainDataRefused({ path: at, shape });
+  };
+  try {
+    const ancestors = new Set<object>();
+    const stack: SnapshotFrame[] = [];
+    // A value's copy: itself when it is a primitive, else a fresh container whose frame is pushed.
+    const open = (value: unknown, at: string): unknown => {
+      if (value === null || typeof value === "string" || typeof value === "boolean") return value;
+      if (typeof value === "number") return Number.isFinite(value) ? value : refuse(at, "non-finite number");
+      if (typeof value !== "object") return refuse(at, typeof value);
+      if (ancestors.has(value)) return refuse(at, "cycle");
+      const exotic = exoticKind(value);
+      if (exotic !== null) return refuse(at, exotic);
+      const array = Array.isArray(value);
+      const prototype = Reflect.getPrototypeOf(value);
+      if (array ? prototype !== Array.prototype : prototype !== Object.prototype && prototype !== null) {
+        return refuse(at, array ? "array of another kind" : "not a plain object");
+      }
+      const keys = Reflect.ownKeys(value);
+      if (array) {
+        const lengthDescriptor = Reflect.getOwnPropertyDescriptor(value, "length");
+        const length: unknown = lengthDescriptor && "value" in lengthDescriptor ? lengthDescriptor.value : undefined;
+        if (typeof length !== "number") return refuse(at, "array length");
+        let indices = 0;
+        for (const key of keys) {
+          if (key === "length") continue;
+          if (typeof key === "symbol") return refuse(at, "symbol key");
+          if (!isArrayIndexKey(key, length)) return refuse(at, `array key ${JSON.stringify(key)}`);
+          indices += 1;
+        }
+        if (indices !== length) return refuse(at, "array hole");
+      }
+      const target: PlainObject | unknown[] = array ? [] : {};
+      ancestors.add(value);
+      stack.push({ source: value, target, keys, next: 0, path: at, array });
+      return target;
+    };
+    const root = open(input, rootPath);
+    while (stack.length > 0) {
+      const frame = stack[stack.length - 1];
+      if (frame.next === frame.keys.length) {
+        stack.pop();
+        ancestors.delete(frame.source);
+        continue;
+      }
+      const key = frame.keys[frame.next];
+      frame.next += 1;
+      if (typeof key === "symbol") refuse(frame.path, "symbol key");
+      const name = key as string;
+      if (frame.array && name === "length") continue;
+      path = frame.array ? `${frame.path}[${name}]` : `${frame.path}.${name}`;
+      const descriptor = Reflect.getOwnPropertyDescriptor(frame.source, name);
+      if (descriptor === undefined) refuse(frame.path, `member ${JSON.stringify(name)} vanished`);
+      if (!("value" in descriptor!)) refuse(frame.path, `accessor ${JSON.stringify(name)}`);
+      if (!descriptor!.enumerable) refuse(frame.path, `non-enumerable member ${JSON.stringify(name)}`);
+      const value: unknown = descriptor!.value;
+      if (value === undefined) {
+        if (frame.array) refuse(path, "undefined array element");
+        continue;
+      }
+      const copy = open(value, path);
+      if (frame.array) (frame.target as unknown[])[Number(name)] = copy;
+      else setMember(frame.target as PlainObject, name, copy);
+    }
+    return { value: root };
+  } catch (error) {
+    if (error instanceof PlainDataRefused) return { refusal: error.refusal };
+    return { refusal: { path, shape: "exception while reading the input" } };
+  }
+}
+
+/** A copy of the module's own snapshot data, one fresh object or array per position. */
 function copyPlain(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(copyPlain);
   if (typeof value !== "object" || value === null) return value;
-  const member = (key: string) => (Object.getOwnPropertyDescriptor(value, key) as PropertyDescriptor).value as unknown;
-  if (Array.isArray(value)) {
-    const output: unknown[] = [];
-    const length = member("length") as number;
-    for (let index = 0; index < length; index += 1) output.push(copyPlain(member(String(index))));
-    return output;
-  }
   const output: PlainObject = {};
-  for (const key of Reflect.ownKeys(value) as string[]) {
-    const item = member(key);
-    if (item !== undefined) setMember(output, key, copyPlain(item));
-  }
+  for (const [key, item] of Object.entries(value)) setMember(output, key, copyPlain(item));
   return output;
 }
 
-/** The whole-export block of a refused input (`plainDataRefusal`), as one decision and its
- * blocking finding. */
+/** The whole-export block of a refused input, as one decision and its blocking finding. */
 function plainDataBlock(
-  refusal: { path: string; shape: string },
+  refusal: PlainDataRefusal,
   exportContext: ControlExportContext
 ): { decision: RedactionDecision; finding: RedactionFinding } {
   const decision: RedactionDecision = {
@@ -536,10 +619,7 @@ function plainDataBlock(
   return { decision, finding: { ...finding, message: `${finding.message} (${refusal.shape})` } };
 }
 
-function plainDataBlockedExport(
-  refusal: { path: string; shape: string },
-  exportContext: ControlExportContext
-): RedactionRunResult {
+function plainDataBlockedExport(refusal: PlainDataRefusal, exportContext: ControlExportContext): RedactionRunResult {
   const { decision, finding } = plainDataBlock(refusal, exportContext);
   return { payload: null, decisions: [decision], findings: [finding], blocked: true, summary: summarize([decision], [finding]) };
 }
@@ -994,9 +1074,9 @@ export function classifyExportItem(
 ): RedactionDecision {
   assertContext(options.exportContext);
   assertUserReleaseIntentContext(options.exportContext, options.explicitUserReleaseIntent);
-  const refusal = plainDataRefusal(item, options.path ?? "$");
-  if (refusal !== null) return plainDataBlock(refusal, options.exportContext).decision;
-  return classify(copyPlain(item) as PlainObject, {
+  const snapshot = plainDataSnapshot(item, options.path ?? "$");
+  if ("refusal" in snapshot) return plainDataBlock(snapshot.refusal, options.exportContext).decision;
+  return classify(snapshot.value as PlainObject, {
     path: options.path ?? "$",
     exportContext: options.exportContext,
     explicitLocalPrivateIntent: options.explicitLocalPrivateIntent ?? false,
@@ -1107,11 +1187,11 @@ export function redactExportPayload(
   assertContext(options.exportContext);
   assertUserReleaseIntentContext(options.exportContext, options.explicitUserReleaseIntent);
   assertRedactionWalkContext(options.exportContext);
-  const refusal = plainDataRefusal(payload);
-  if (refusal !== null) return plainDataBlockedExport(refusal, options.exportContext);
+  const snapshot = plainDataSnapshot(payload);
+  if ("refusal" in snapshot) return plainDataBlockedExport(snapshot.refusal, options.exportContext);
   const decisions: RedactionDecision[] = [];
   const findings: RedactionFinding[] = [];
-  const redacted = walk(copyPlain(payload), {
+  const redacted = walk(snapshot.value, {
     path: "$",
     exportContext: options.exportContext,
     explicitLocalPrivateIntent: options.explicitLocalPrivateIntent ?? false,
@@ -1407,15 +1487,15 @@ export function controlRouteExport(
   assertUserReleaseIntentContext(options.exportContext, options.explicitUserReleaseIntent);
   assertGenericRouteExport(options.routeId, options.exportContext);
   const localFirst = enforceLocalFirstRoute(options);
-  const refusal = plainDataRefusal(payload);
-  if (refusal !== null) {
-    const refused = plainDataBlockedExport(refusal, options.exportContext);
+  const snapshot = plainDataSnapshot(payload);
+  if ("refusal" in snapshot) {
+    const refused = plainDataBlockedExport(snapshot.refusal, options.exportContext);
     return {
       ...refused,
       summary: { ...refused.summary, route_id: options.routeId, materialization_withheld: false, local_first: localFirst }
     };
   }
-  const source = copyPlain(payload);
+  const source = snapshot.value;
   const structuralProjection = structuralProjectionFor(source, options.routeId);
   const projected = projectRouteValue(stripRouteIntent(source), {
     routeId: options.routeId,
@@ -1656,20 +1736,23 @@ export function controlUserReleasedReportPackageRequest(
     exportContext: USER_RELEASED_REPORT_CONTEXT,
     explicitUserReleaseIntent: releaseIntent
   });
-  const refusal = plainDataRefusal(payload, "$.request") ?? plainDataRefusal(model, "$.model");
-  if (refusal !== null) {
-    const refused = plainDataBlockedExport(refusal, USER_RELEASED_REPORT_CONTEXT);
+  const requestSnapshot = plainDataSnapshot(payload, "$.request");
+  const modelSnapshot = plainDataSnapshot(model, "$.model");
+  const refusal =
+    "refusal" in requestSnapshot ? requestSnapshot.refusal : "refusal" in modelSnapshot ? modelSnapshot.refusal : null;
+  if (refusal !== null || !("value" in requestSnapshot) || !("value" in modelSnapshot)) {
+    const refused = plainDataBlockedExport(refusal as PlainDataRefusal, USER_RELEASED_REPORT_CONTEXT);
     return {
       ...refused,
       summary: { ...refused.summary, route_id: routeId, materialization_withheld: false, local_first: localFirst }
     };
   }
-  const request = copyPlain(payload);
+  const request = requestSnapshot.value;
   const decisions: RedactionDecision[] = [];
   const findings: RedactionFinding[] = [];
   const screen = { routeId, label: USER_RELEASE_DEFAULT_LABEL, explicitUserReleaseIntent: releaseIntent, decisions, findings };
   screenUserReleaseValue(request, { ...screen, path: "$.request" });
-  screenUserReleaseValue(copyPlain(model), { ...screen, path: "$.model" });
+  screenUserReleaseValue(modelSnapshot.value, { ...screen, path: "$.model" });
   const decisionsBlock = decisions.some((decision) => decision.action === "block_export");
   const materializationWithheld = decisions.some((decision) =>
     ["redact_value", "redact_field", "omit_field", "block_export"].includes(decision.action)
