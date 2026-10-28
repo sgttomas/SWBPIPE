@@ -53,7 +53,7 @@ describe("the New support form's family", () => {
       { value: "variable_spring_hanger", label: `Variable spring hanger (${hanger})`, disabled: true },
       { value: "spring_hanger", label: `Spring hanger (${hanger})`, disabled: true },
       { value: "constant_effort_support", label: `Constant-effort support (${hanger})`, disabled: true },
-      { value: "nonlinear", label: "Nonlinear support", disabled: false }
+      { value: "nonlinear", label: "Nonlinear support (Needs a nonlinear law: use Support configuration)", disabled: true }
     ]);
     expect(compactOptionRecords(family()).slice(1).map((item) => item.value)).toEqual(SUPPORT_FAMILIES.map((item) => item.value));
   });

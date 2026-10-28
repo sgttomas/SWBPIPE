@@ -63,7 +63,8 @@ Choosing in a select sets nothing by itself.
   true of such a model. DEL-07-02's "New support" form suggests `anchor` from six checked rigid DOFs
   with no stiffness, visibly and changeably, and writes the family only when the user queues the
   form. It lists every family; spring and the hanger families, which the applier refuses from that
-  form, are disabled with a reason naming Support configuration. No open, load or migration path
+  form, and nonlinear, which the applier admits without a nonlinear law but the solve would lower
+  to a rigid restraint, are disabled with a reason naming Support configuration. No open, load or migration path
   adds a family to an existing support
   (`App.supportFamilyOpen.test.tsx`).
 - **Support contact and lift-off.** The product emits one `nonlinear_support_active_set_state_code`

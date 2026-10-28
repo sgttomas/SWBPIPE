@@ -4,14 +4,18 @@ import { SUPPORT_FAMILIES } from "../results/displacementExtremes";
 /** The six rigid DOFs whose full restraint suggests an anchor. */
 const RIGID_DOFS = ["UX", "UY", "UZ", "RX", "RY", "RZ"] as const;
 
-/** Why the "New support" form cannot supply a family: the operation applier refuses it from this
- * form's `create_support` (spring: explicit stiffness with its DOF; hangers: a hanger object), as
- * `PropertyInspector.supportFamilyEngine.test.tsx` checks against the Wasm engine. */
+/** Why the "New support" form cannot supply a family. The operation applier refuses spring and the
+ * hangers from this form's `create_support` (explicit stiffness with its DOF; a hanger object), as
+ * `PropertyInspector.supportFamilyEngine.test.tsx` checks against the Wasm engine. The applier admits
+ * `nonlinear` without a nonlinear law, but the solve then builds no nonlinear support and lowers it
+ * to a rigid restraint (`core/product_physics` support lowering), so the model would declare a
+ * nonlinear support while solving a linear one (review r1 P2). */
 export const SUPPORT_FAMILY_ELSEWHERE: Readonly<Record<string, string>> = Object.freeze({
   spring: "Needs stiffness with its DOF: use Support configuration",
   variable_spring_hanger: "Needs hanger data: use Support configuration",
   spring_hanger: "Needs hanger data: use Support configuration",
-  constant_effort_support: "Needs hanger data: use Support configuration"
+  constant_effort_support: "Needs hanger data: use Support configuration",
+  nonlinear: "Needs a nonlinear law: use Support configuration"
 });
 
 /** The "New support" form's family options: no family, then the model document's
