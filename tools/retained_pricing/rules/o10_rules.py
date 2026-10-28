@@ -3108,9 +3108,20 @@ if fnkey("case_prescribed", _W16_IM):
     _w16_pf_else = ("let LoadTargetInput::Support { support: support_id, dof } = &load.target else {\n"
                     "                if load.category == CATEGORY {\n"
                     "                    refuse(diagnostics, case, load, TARGET_INVALID,")
-    _w16_solve = ("    let before = diagnostics.len();\n    let pf_motion = match load_state {\n        Some(_) => None,\n"
+    # W-16 stage 2 (§8.29): `before` precedes the spring-base map (case_spring_ground), which pushes a refusal only after
+    # its let-else on a spring target; the motion maps follow, and the early return tests every push since `before`.
+    _w16_solve_a = ("    let before = diagnostics.len();\n    let spring_ground = match load_state {\n"
+                    "        Some(_) => vec![0.0; spring_entries.len()],\n"
+                    "        None => imposed_motion::case_spring_ground(model, load_case, spring_entries, diagnostics),\n    };\n")
+    _w16_solve = ("    let pf_motion = match load_state {\n        Some(_) => None,\n"
                   "        None => imposed_motion::case_prescribed(model, load_case, restrained_dofs, diagnostics),\n    };\n"
+                  "    // W-16 stage 2 (R-b): the case's moved nonlinear grounds, by support id.\n"
+                  "    let ground_motion = match load_state {\n        Some(_) => Vec::new(),\n"
+                  "        None => imposed_motion::case_ground_motion(model, load_case),\n    };\n"
                   "    if has_blocking(&diagnostics[before..]) {\n")
+    _W16_TA = _fn_text("target_acting", _W16_IM)
+    _W16_SG = _fn_text("case_spring_ground", _W16_IM)
+    _W16_GM = _fn_text("case_ground_motion", _W16_IM)
     # W16-NS (guard): D1.7 refuses every support-targeted primitive on both routes (family_clauses' exhaustive match over
     # every case's primitive loads), so an admitted request has none. Every imposed_motion site behind a support target is
     # then unreached: validate's exact-branch loop (it iterates only support targets), validate_pressure_free's body
@@ -3128,15 +3139,26 @@ if fnkey("case_prescribed", _W16_IM):
         _W16_PF.count(_w16_pf_else) == 1,
         _W16_PF.split(_w16_pf_else, 1)[0].count("refuse(") == 0 and _W16_PF.split(_w16_pf_else, 1)[0].count("diag(") == 0,
         _W16_PF.split(_w16_pf_else, 1)[1].split("continue;", 1)[0].count("refuse(") == 0,
-        _W16_PF.count("motion = true;") == 1 and _W16_PF.index("motion = true;") > _W16_PF.index(_w16_pf_else),
-        _W16_PF.count("if motion && nonlinear {") == 1,
+        # Stage 2: no motion-only push remains; every per-target check sits after the let-else.
+        _W16_PF.count("motion = ") == 0 and _W16_PF.count("if motion") == 0 and _W16_PF.count("diagnostics.push(") == 0,
+        all(_W16_PF.count(_c) == 1 and _W16_PF.index(_c) > _W16_PF.index(_w16_pf_else) for _c in (
+            "validate_ground_motion(", "validate_spring_base(", "validate_rigid_base(", "dimension_valid(", "acting(support, dof)")),
         _W16_CP.count("let LoadTargetInput::Support { support, dof } = &load.target else { continue };") == 1,
         _W16_CP.count("refuse(") == 1 and _W16_CP.count(".insert(") == 1 and _W16_CP.count("any = true;") == 1,
         _W16_CP.index("any = true;") > _W16_CP.index("&load.target else { continue };"),
-        _W16_SOLVE.count(_w16_solve) == 1,
+        _W16_SOLVE.count(_w16_solve_a) == 1 and _W16_SOLVE.count(_w16_solve) == 1
+        and _W16_SOLVE.index(_w16_solve_a) < _W16_SOLVE.index(_w16_solve)
+        and "diagnostics" not in _W16_SOLVE[_W16_SOLVE.index(_w16_solve_a) + len(_w16_solve_a):_W16_SOLVE.index(_w16_solve)],
+        _W16_TA.split("\n", 2)[1].strip() == "let LoadTargetInput::Support { support, dof } = &load.target else { return None };",
+        _W16_SG.count("let Some((record, dof, Acting::Spring)) = target_acting(model, load) else { continue };") == 1
+        and _W16_SG.count("refuse(") == 2
+        and _W16_SG.index("refuse(") > _W16_SG.index("target_acting(model, load) else { continue };"),
+        _W16_GM.count("Some((record, _, Acting::Nonlinear)) => Some((record.id.clone(), load.magnitude.value)),") == 1
+        and _W16_GM.count("_ => None,") == 1,
+        _text_of(_LIB).count("imposed_motion::case_spring_ground(") == 1 and _text_of(_LIB).count("imposed_motion::case_ground_motion(") == 1,
         _text_of(_LIB).count("imposed_motion::case_prescribed(") == 1,
         _text_of(_LIB).count("imposed_motion::validate(&model, &mut diagnostics)") == 1,
-        _re.sub(r"//[^\n]*", "", _production(_W16_IM)).count("refuse(") == 12,
+        _re.sub(r"//[^\n]*", "", _production(_W16_IM)).count("refuse(") == 20,
     )
     if not all(_w16_ns):
         raise SystemExit(f"W16-NS: the support-target premise or its D1.7 refusal changed; re-review its zeros: {_w16_ns}")
@@ -3173,24 +3195,23 @@ if fnkey("case_prescribed", _W16_IM):
                           "the exact route takes support and anchor motion only as",))] + [
                       (_k, _W16_NS + " (validate_pressure_free's support-target branch)") for _k in _w16_lines("validate_pressure_free", (
                           "targets support {support_id} with category {}", "which is not in the model",
-                          "names target DOF {dof} and direction {}", "which is a spring, a variable spring hanger",
-                          "which does not restrain that DOF", "a translation needs dimension displacement",
-                          "but another rigid restraint also holds {name}", "both prescribe {name} at node {}",
-                          "imposes a support displacement in a model with nonlinear supports",
-                          "vec![case.id.clone()],"))] + [
-                      (site("validate_pressure_free", _W16_IM, "exact_source_identity(&[&case.id, WITH_NONLINEAR_SUPPORTS])",
-                            row="&format!("), _W16_NS + " (the motion-only nonlinear push's id; D1.6 also refuses nonlinear supports)"),
-                      (site("validate_pressure_free", _W16_IM, "exact_source_identity(&[&case.id, WITH_NONLINEAR_SUPPORTS])",
-                            row="diagnostics.push(diag("), _W16_NS + " (the motion-only nonlinear push: no count in D; D1.6 also refuses nonlinear supports)"),
+                          "names target DOF {dof} and direction {}", "which is a constant-effort device",
+                          "on spring support {support_id}, which acts on another DOF",
+                          "which does not restrain that DOF"))] + [
                       (site("case_prescribed", _W16_IM, "does not address one prepared rigid boundary DOF"),
-                       _W16_NS + " (case_prescribed's body after its let-else)"),
+                       _W16_NS + " (case_prescribed's body after its let-else)")] + [
+                      # W-16 stage 2 (§8.29): case_spring_ground's two refusals follow its let-else on a spring target.
+                      (_k, _W16_NS + " (case_spring_ground's body after its let-else)") for _k in _w16_lines("case_spring_ground", (
+                          "moves the base of spring {} a second time", "does not address one prepared spring of support {}"))] + [
                       (site_after("solve_prepared_load_case", _LIB, "if has_blocking(&diagnostics[before..]) {", "load_case_id: load_case.id.clone(),"),
                        _W16_NS + " (the case solve's early return: case_prescribed pushes nothing on D1)")]
     # W16-ID: the reachable refusal's texts. refuse's refs clone the load and case ids (IN128); its id is
     # `diagnostic:imposed-displacement:` + exact_source_identity over (case id, load id, code): `{len}:{part}` per part,
     # each id <= 4 + 128 B and the code <= 3 + the longest code constant passed to refuse (read at the snapshot).
     _W16_CODES = _re.findall(r'pub\(crate\) const [A-Z_]+: &str = "([A-Z_]+)";', _production(_W16_IM))
-    if len(_W16_CODES) != 10:
+    # W-16 stage 2 (§8.29): eleven constants (WITH_NONLINEAR_SUPPORTS retired; NONLINEAR_DOF_MISMATCH and
+    # GAP_CLOSURE_INEXACT added); the longest is still EXACT_IMPOSED_DISPLACEMENT_PRIMITIVE_UNSUPPORTED (48 B).
+    if len(_W16_CODES) != 11:
         raise SystemExit(f"W16-ID: imposed_motion's code constants changed; re-review the id bound: {_W16_CODES}")
     _W16_CODE = max(len(_c) for _c in _W16_CODES)
     _W16_IDENT = {"bytes": 2 * (len("128:") + 128) + len(str(_W16_CODE)) + 1 + _W16_CODE,
@@ -3209,10 +3230,8 @@ if fnkey("case_prescribed", _W16_IM):
     O10_ID_AUDIT += [
         (site("validate_pressure_free", _W16_IM, "which does not restrain that DOF", full=True),
          {"dof.as_str().to_ascii_uppercase()": _W16_DOF}),
-        (site("validate_pressure_free", _W16_IM, "both prescribe {name} at node {}", full=True), {"first": IN}),
-        (site("validate_pressure_free", _W16_IM, "exact_source_identity(&[&case.id, WITH_NONLINEAR_SUPPORTS])", full=True, row="&format!("),
-         {"exact_source_identity(&[&case.id,WITH_NONLINEAR_SUPPORTS])": {"bytes": len("128:") + 128 + len(str(_W16_CODE)) + 1 + _W16_CODE,
-          "source": O10 + "W16-ID: exact_source_identity over one IN128 id and a code"}}),
+        (site("validate_pressure_free", _W16_IM, "on spring support {support_id}, which acts on another DOF", full=True),
+         {"dof.as_str().to_ascii_uppercase()": _W16_DOF}),
         (site_after("solve_prepared_load_case", _LIB, "if has_blocking(&diagnostics[before..]) {", "load_case_id: load_case.id.clone(),"),
          {"load_case.id": IN}),
     ]

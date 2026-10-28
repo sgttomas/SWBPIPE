@@ -31,7 +31,10 @@ PINS = {
         # blocking early return; carriers, staging and prepared-pressure calls unchanged.
         # W-16 slice c D3 (§8.27, W16C-ES): the generated equivalent-static evidence record, only on an admitted
         # equivalent_static case (refused on every retained branch); carriers, staging and prepared-pressure calls unchanged.
-        "solve_prepared_load_case": "223dba958940f4947790bf907b2039e8d83e1b4e4852585d63ab162b40a44e2f",
+        # W-16 stage 2 D3 (§8.29): the moved nonlinear grounds (R-b, empty on D1) and the spring bases with their formed
+        # loads (R-c: zero bases and no term on D1, W16S-SG), passed to the loop and the spring rows; `before` moves above
+        # the spring-base map. Carriers, staging and prepared-pressure calls unchanged.
+        "solve_prepared_load_case": "067f5f620f66549ae511cacb0f7f8fcc49306aab139a93a69444ce46df988dcb",
         "append_curved_bend_macro_element_results": "9e9b5010a84aa73268d72fabcf99c5cb2012f6f35ef5a15adb41bb30bf045a4e",
     },
     # B7b: branch E is 0.5.0 with {3.0.0, exact_pressure_v3, euler_bernoulli}; the
