@@ -768,6 +768,7 @@ function AppSession() {
                 <SupportLoadSummaryPanel
                   model={model}
                   result={result}
+                  analysisRun={currentSolvedResult !== null && result === currentSolvedResult ? analysisRun : null}
                   standing={viewportResultStanding}
                   focusSupportId={selection.type === "support" ? selection.id : null}
                   focusRequest={keyResults.supportRequest}
@@ -779,6 +780,7 @@ function AppSession() {
                 <StressRatioTablePanel
                   model={model}
                   result={result}
+                  analysisRun={currentSolvedResult !== null && result === currentSolvedResult ? analysisRun : null}
                   standing={viewportResultStanding}
                   ruleCheckRun={currentSolvedResult !== null && result === currentSolvedResult ? ruleCheckReportRun : null}
                   selectedResultId={selectedReviewTarget?.target_type === "result" ? selectedReviewTarget.id : null}
@@ -796,6 +798,7 @@ function AppSession() {
                 <DisplacementExtremesPanel
                   model={model}
                   result={result}
+                  analysisRun={currentSolvedResult !== null && result === currentSolvedResult ? analysisRun : null}
                   standing={viewportResultStanding}
                   selectedNodeId={selection.type === "node" ? selection.id : null}
                   onSelectNode={(nodeId) => {

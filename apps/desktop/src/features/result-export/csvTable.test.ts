@@ -1,6 +1,12 @@
 // RT-R6 serializer tests (DEL-08-04 AC-002; Design `csv-export.md` §3, §5 slice 2).
 import { describe, expect, it } from "vitest";
 import {
+  CSV_NOT_APPLICABLE,
+  CSV_NOT_RECORDED,
+  CSV_PAIR_PROVENANCE_KEYS,
+  CSV_PROVENANCE_TOKENS,
+  csvDecimal,
+  isCsvHashValue,
   CSV_BOM,
   CSV_PREAMBLE_KEYS,
   CSV_PREAMBLE_NOTICE,
@@ -25,8 +31,8 @@ const BS_VALID =
 const preamble = {
   table: "stress-ratio",
   softwareVersion: "0.9.0+abc1234",
-  modelHash: "sha256:1111",
-  resultHash: "sha256:2222",
+  modelHash: "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+  resultHash: "sha256:2222222222222222222222222222222222222222222222222222222222222222",
   analysisRoutes: ["linear-static"],
   caseOrFilter: "SUS",
   unitBasis: "SI display (mm, N, MPa)"
@@ -86,8 +92,8 @@ describe("CSV preamble and layout", () => {
       ["released_report", "false"],
       ["table", "stress-ratio"],
       ["software_version", "0.9.0+abc1234"],
-      ["model_hash", "sha256:1111"],
-      ["result_hash", "sha256:2222"],
+      ["model_hash", "sha256:1111111111111111111111111111111111111111111111111111111111111111"],
+      ["result_hash", "sha256:2222222222222222222222222222222222222222222222222222222222222222"],
       ["analysis_route", "linear-static nonlinear-supports"],
       ["case_or_filter", "SUS"],
       ["unit_basis", "SI display (mm, N, MPa)"],
@@ -331,5 +337,63 @@ describe("CSV file names (DEL-07-01 export-file-names.md)", () => {
     for (const name of ["swbpipe-results.csv", "swbpipe-stress-ratio.json", "swbpipe-stress-ratio (1).csv", "../swbpipe-stress-ratio.csv", "swbpipe-stress-ratio-.csv", "openpipestress-preview-results-run-1.csv"]) {
       expect(isCsvExportFileName(name), name).toBe(false);
     }
+  });
+});
+
+
+const HASH_A = `sha256:${"a".repeat(64)}`;
+const HASH_B = `sha256:${"b".repeat(64)}`;
+
+describe("CSV provenance tokens and two-sided preambles (RT-R6 slice 3)", () => {
+  it("writes not_recorded and not_applicable as explicit tokens, never as hashes", () => {
+    for (const token of [CSV_NOT_RECORDED, CSV_NOT_APPLICABLE]) {
+      expect(CSV_PROVENANCE_TOKENS).toContain(token);
+      expect(isCsvHashValue(token)).toBe(false);
+      expect(token).not.toMatch(/^[0-9a-f]+$/i);
+      expect(token.startsWith("sha256:")).toBe(false);
+    }
+    expect(isCsvHashValue(HASH_A)).toBe(true);
+    for (const bad of ["sha256:", `sha256:${"A".repeat(64)}`, "a".repeat(64), `sha256:${"a".repeat(63)}`, `sha256:not_recorded`, null, 1]) {
+      expect(isCsvHashValue(bad), String(bad)).toBe(false);
+    }
+    const rows = parse(serializeCsvTable(table({
+      preamble: { ...preamble, modelHash: HASH_A, resultHash: CSV_NOT_APPLICABLE, analysisRoutes: [CSV_NOT_APPLICABLE] }
+    })));
+    expect(rows.slice(5, 8)).toEqual([["model_hash", HASH_A], ["result_hash", "not_applicable"], ["analysis_route", "not_applicable"]]);
+  });
+
+  it("refuses a hash value that is neither a hash nor a token, and a token beside a route", () => {
+    for (const change of [{ modelHash: "abc" }, { resultHash: "sha256:22" }, { resultHash: "missing" }, { analysisRoutes: ["route-a", CSV_NOT_RECORDED] }]) {
+      expect(() => serializeCsvTable(table({ preamble: { ...preamble, ...change } as never })), JSON.stringify(change)).toThrowError(CsvSerializationError);
+    }
+  });
+
+  it("writes a two-sided table's _a and _b keys in a fixed order", () => {
+    const rows = parse(serializeCsvTable(table({
+      preamble: {
+        table: "run-comparison", softwareVersion: "0.1.0", caseOrFilter: "left run-3 / right current-run", unitBasis: "stored",
+        sides: {
+          a: { modelHash: HASH_A, resultHash: HASH_B, analysisRoutes: ["contract-a"] },
+          b: { modelHash: HASH_B, resultHash: CSV_NOT_RECORDED, analysisRoutes: [CSV_NOT_RECORDED] }
+        }
+      }
+    })));
+    expect(rows.slice(0, 14).map((row) => row[0])).toEqual([
+      "notice", "export_context", "released_report", "table", "software_version", ...CSV_PAIR_PROVENANCE_KEYS, "case_or_filter", "unit_basis", ""
+    ]);
+    expect(rows.slice(5, 11)).toEqual([
+      ["model_hash_a", HASH_A], ["model_hash_b", HASH_B], ["result_hash_a", HASH_B], ["result_hash_b", "not_recorded"],
+      ["analysis_route_a", "contract-a"], ["analysis_route_b", "not_recorded"]
+    ]);
+    expect(() => serializeCsvTable(table({ preamble: { ...preamble, sides: { a: { modelHash: HASH_A, resultHash: HASH_A, analysisRoutes: ["r"] } } } as never }))).toThrowError(CsvSerializationError);
+  });
+
+  it("writes an exact decimal cell as its own text, unguarded, only in a numeric column", () => {
+    const rows = parse(serializeCsvTable(table({ rows: [[csvText("10"), csvDecimal("-0.12345678901234567891"), csvText("x")]] })));
+    expect(rows[12]).toEqual(["10", "-0.12345678901234567891", "x"]);
+    for (const bad of ["", "1,5", "=1", "1e5", "0x10", " 1"]) {
+      expect(() => serializeCsvTable(table({ rows: [[csvText("10"), csvDecimal(bad), csvText("x")]] })), bad).toThrowError(/CSV_DECIMAL_INVALID/);
+    }
+    expect(() => serializeCsvTable(table({ rows: [[csvDecimal("1"), csvNumber(1), csvText("x")]] }))).toThrowError(/CSV_CELL_KIND_INVALID/);
   });
 });
