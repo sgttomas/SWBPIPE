@@ -61,7 +61,7 @@ PREVIEW_PHYSICS_PROFILE = "product_preview_mechanics_v1"
 # DEL-05-03 Design pf-timoshenko.md §4: the pressure-free Timoshenko identity, a second complete identity on the
 # preview-physics route (preview-physics-2's table with its identity, profile and limitation 0 replaced).
 PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1"
-PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_SHA256 = "94538daa46b4795550a8c9e6b4ec05d8eb40d5be34b78c1a630613dc7ae2732f"
+PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_SHA256 = "a7b83c37a4af9bf70f56513f80883003a2a3860387319311ea2e967dd0cf764b"
 _PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_preview_physics_timoshenko_1.json"
 PREVIEW_PHYSICS_TIMOSHENKO_PROFILE = "product_preview_mechanics_timoshenko_v1"
 # The preview-physics route's identities: id -> (sha256, table path, profile).

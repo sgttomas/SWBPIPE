@@ -1,7 +1,7 @@
 {
   "schema_version": "0.3.0",
-  "source_signature_count": 79,
-  "source_kind_count": 52,
+  "source_signature_count": 81,
+  "source_kind_count": 53,
   "canonical_metadata_vocabulary": {
     "component": {
       "type": "string",
@@ -1303,6 +1303,36 @@
       "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
       "governing_ratio_eligible": false,
       "combination_algebra": "signed_linear"
+    },
+    {
+      "signature_id": "supported-source-080",
+      "kind": "nonlinear_support_final_relative_displacement",
+      "unit": "mm",
+      "component": "nonlinear_support_final_relative_displacement",
+      "source_physical_semantic_dimension": "length",
+      "derivative_target_dimension": "length",
+      "category": "physical_quantity",
+      "family": "displacement",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": "length",
+      "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false,
+      "combination_algebra": "never_combined"
+    },
+    {
+      "signature_id": "supported-source-081",
+      "kind": "nonlinear_support_final_relative_displacement",
+      "unit": "rad",
+      "component": "nonlinear_support_final_relative_displacement",
+      "source_physical_semantic_dimension": "angle",
+      "derivative_target_dimension": "angle",
+      "category": "physical_quantity",
+      "family": "rotation",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": "length",
+      "legacy_run_creation_admission": "accepts_with_preserved_legacy_dimension_different_from_new_semantics",
+      "governing_ratio_eligible": false,
+      "combination_algebra": "never_combined"
     }
   ],
   "hash_vectors": [

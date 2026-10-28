@@ -468,7 +468,9 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // `b7b_current_table_tests` (head 389–481, main 329–421) and E14 (head 1047–1071, main
             // 981–1005) modules are main's, byte for byte; every other line differing from main lies in
             // the inspected prefix or the inspected production after the resume (head 482–1046, main
-            // 422–980). The value is unchanged.
+            // 422–980). The value is unchanged. Re-audited on the merge with main 14344b87e0 (suffix pin
+            // still 6dc09d33…; main changed only PREVIEW_PHYSICS_SHA256 in the inspected prefix): the
+            // same ranges, the closed modules main's byte for byte, the merged suffix #1663's; unchanged.
             complete_suffix_sha256: "0d01d7e25d89e3214322197da2bbf26e6cd76bdcc09783c4a25a14971343ee79",
             production_resume: Some("/// Header dispatch only; canonical envelopes have no raw rows. This does not"),
             trailing_test: Some(SEMANTIC_E14_TEST_ITEM),
