@@ -267,6 +267,34 @@ def test_execute_refuses_a_source_outside_git(tmp_path):
     assert not (tmp_path / "out" / PIPE.STAGING_DIR_NAME).exists()
 
 
+def test_no_symlink_is_exported_at_any_level(tmp_path):
+    # Review finding 2: a root-file symlink bypassed the subtree exclusion and
+    # copied bytes from outside the tree.
+    outside = tmp_path / "outside.txt"
+    outside.write_text("external bytes\n", encoding="utf-8")
+
+    source = make_source_tree(tmp_path / "root_case")
+    (source / "README.md").unlink()
+    (source / "README.md").symlink_to(outside)
+    commit_all(source)
+    with pytest.raises(SystemExit) as excinfo:
+        PIPE.select_files(source)
+    assert "SYMLINKED_ROOT" in str(excinfo.value)
+
+    source = make_source_tree(tmp_path / "subtree_case")
+    (source / "docs" / "linked.md").symlink_to(outside)
+    commit_all(source)
+    selected, exclusions, _ = PIPE.select_files(source)
+    assert "docs/linked.md" not in {rel.as_posix() for rel in selected}
+    assert exclusions.get("symlink") == 1
+
+    staging = tmp_path / "staging"
+    (staging / "docs").mkdir(parents=True)
+    (staging / "docs" / "linked.md").symlink_to(outside)
+    kinds = {f["kind"] for f in PIPE.boundary_findings(staging)}
+    assert "symlink" in kinds
+
+
 def test_selection_fails_closed_when_allowlisted_root_is_missing(tmp_path):
     source = make_source_tree(tmp_path)
     shutil.rmtree(source / "schemas")

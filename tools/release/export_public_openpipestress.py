@@ -483,6 +483,20 @@ def select_files(source_root: Path) -> tuple[list[Path], dict, list[str]]:
             "a git commit"
         )
 
+    # No symlink is ever exported. An allowlisted root that HEAD holds as a
+    # symlink refuses the export rather than ship its link text, its target's
+    # bytes, or an incomplete tree; deeper symlinks are excluded and counted.
+    symlinked_roots = sorted(
+        name
+        for name in (*ROOT_FILES, *ROOT_DIRS)
+        if entries.get(name, ("",))[0] == MODE_SYMLINK
+    )
+    if symlinked_roots:
+        raise SystemExit(
+            "export refused (SYMLINKED_ROOT): allowlisted roots are symlinks in "
+            "HEAD: " + ", ".join(symlinked_roots)
+        )
+
     missing = [name for name in ROOT_FILES if name not in entries] + [
         name for name in ROOT_DIRS if not any(p.startswith(name + "/") for p in entries)
     ]
@@ -641,6 +655,9 @@ def boundary_findings(staging: Path) -> list[dict]:
 
         if rel.parts and rel.parts[0] not in allowlisted:
             add("non_allowlisted_top_level", rel_posix)
+        if path.is_symlink():
+            add("symlink", rel_posix)
+            continue
         for part in rel.parts:
             if part in SKIP_DIR_NAMES or part in EXCLUDED_TOP_LEVEL:
                 add("forbidden_path_segment", rel_posix)
