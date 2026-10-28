@@ -57,7 +57,16 @@ Choosing in a select sets nothing by itself.
   node" drawing stays its default and is not offered here.
 - **Anchors and equipment connections.** A support is listed when its family is `anchor`, or when
   the A2 summary gives it an equipment boundary association or an equipment interface at its node.
-  The list is in model order. Other supports remain one step away in the A2 panel.
+  The list is in model order. Other supports remain one step away in the A2 panel. The list reads
+  declarations, not restraints: a support fixed in all six DOFs with no `family` is not listed. With
+  none listed the panel says "No support is declared as an anchor or equipment connection.", which is
+  true of such a model. DEL-07-02's "New support" form suggests `anchor` from six checked rigid DOFs
+  with no stiffness, visibly and changeably, and writes the family only when the user queues the
+  form. It lists every family; spring and the hanger families, which the applier refuses from that
+  form, and nonlinear, which the applier admits without a nonlinear law but the solve would lower
+  to a rigid restraint, are disabled with a reason naming Support configuration. No open, load or migration path
+  adds a family to an existing support
+  (`App.supportFamilyOpen.test.tsx`).
 - **Support contact and lift-off.** The product emits one `nonlinear_support_active_set_state_code`
   row per nonlinear support and case (DEL-04-04's classifier through DEL-04-07's loop). Each row
   states its own meaning: "0=inactive, 1=active, 2=sticking, 3=sliding". The panel only counts the

@@ -1355,20 +1355,34 @@ describe("user-released context: payload-carried local-private intent is not rea
   };
 
   it("never reads the intent members in user_released_report, and still reads them in local_private", () => {
-    const releasedReads: string[] = [];
+    // The intent members as data: they grant nothing in user_released_report and are read in
+    // local_private.
+    const withIntent = (): Record<string, unknown> => ({
+      field_id: "invented.project.name",
+      privacy_classification: "private_project_data",
+      redistribution_status: "private_only",
+      value: "Invented value",
+      local_private_intent: true,
+      explicit_local_private_intent: true,
+      user_intent: true,
+      export_policy: { local_private_intent: true }
+    });
     expect(
-      classifyExportItem(withIntentGetters(releasedReads), {
-        exportContext: USER_RELEASED_REPORT_CONTEXT,
-        explicitUserReleaseIntent: false
-      })
+      classifyExportItem(withIntent(), { exportContext: USER_RELEASED_REPORT_CONTEXT, explicitUserReleaseIntent: false })
     ).toMatchObject({ reason_code: "USER_RELEASE_INTENT_REQUIRED" });
-    expect(releasedReads).toEqual([]);
-
-    const localReads: string[] = [];
-    expect(classifyExportItem(withIntentGetters(localReads), { exportContext: "local_private" })).toMatchObject({
+    expect(classifyExportItem(withIntent(), { exportContext: "local_private" })).toMatchObject({
       reason_code: "PRIVATE_LOCAL_ALLOWED_WITH_WARNING"
     });
-    expect(localReads.length).toBeGreaterThan(0);
+    // As getters they are refused unread in every context by the plain-data gate (HELP_HUMAN
+    // ruling, 2026-10-28: "(a), the plain-data gate at the TS entry points.").
+    for (const exportContext of [USER_RELEASED_REPORT_CONTEXT, "local_private"] as const) {
+      const reads: string[] = [];
+      expect(classifyExportItem(withIntentGetters(reads), { exportContext })).toMatchObject({
+        action: "block_export",
+        reason_code: "EXPORT_INPUT_NOT_PLAIN_DATA"
+      });
+      expect(reads).toEqual([]);
+    }
   });
 });
 
