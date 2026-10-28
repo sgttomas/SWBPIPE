@@ -481,6 +481,136 @@ Passed, Sensitive, fail-closed and refused counts by shear model, with the EB �
 probes (6 models, 0 failures), and on those probes diag(D·K·D) lies in [1, 4), confirming the
 mapping.
 
+## Census probe (`census-probe.patch`)
+
+`census-probe.patch` is test-only product instrumentation, kept here as a reproducibility artifact of
+this reference set (Agent 0's route (A)). It exposes what PF does not publish: the gate's values, ε_E
+and its parts, and every judged group's bound B, so that a census can check B ≥ |error| against this
+set's exact rows. Nothing in the repository compiles or reads it. Product source and every pin are
+unchanged; the patch applies only in a scratch checkout.
+
+- **Base:** `b52900b3efdd68ab301131c6a9da8076fd504c16` (#1663's head).
+- **sha256:** `a8b2b9de4da1b3f82d28203d493ae7406c27233d416b0166bc2f9292cf858fd5`.
+- **Not in `SHA256SUMS`.** That file lists, by name, the reference files `pft_generate.py check`
+  verifies, and those files must stay outside every pin and read list. The patch is not a reference
+  input, and its digest is stated here instead.
+
+**Apply, build and run.** The runner is the shared `../m3_judge/runner/`. A patched checkout is
+dirty, so the build records the head as `<base>-dirty`, and the judging pass refuses those records.
+They are census inputs, not judged outputs.
+
+```
+git worktree add --detach <scratch> b52900b3efdd68ab301131c6a9da8076fd504c16
+git -C <scratch> apply <this dir>/census-probe.patch
+M3J_ALLOW_DIRTY=1 <scratch>/projects/chirality-piping/validation/references/m3_judge/runner/build.sh \
+    <scratch> <target dir> <runner>
+KD5_PROBE_OUT=<dump.jsonl> KD5_IN=<chunk>.in.jsonl KD5_OUT=<raw>.jsonl [KD5_ENTRIES=typed] <runner>
+```
+
+**Inert.** Unless `KD5_PROBE_OUT` names a file, every probe entry point is a no-op. When it is set,
+the probe only appends lines to that file. It re-forms ε_E with the product's own `epsilon_e` where
+the product formed none, and discards the result after writing it. Nothing it computes returns to the
+product. Built at the base from the unpatched checkout and from the patched one:
+
+- the 12 models used here are 6 Timoshenko, `CANT09` in both theories, `SPAN04` in both, `SHORTL01` in
+  both, `NCcodexS8` (GPa moduli) and `NCedge2m54+0S8` (an expected refusal, typed entry only).
+  The 6 Timoshenko models are `L13`, `SOFTRX03`, `PHI2S4FF`, `FF07` and the two twins above. The set
+  includes `SOFTRX03` and `SHORTL01`, both near the Sensitive boundary. The raw records, with `ns`,
+  `runner_sha256` and `product_head` removed, are byte-identical across four runs: unpatched, patched
+  with the probe unset, patched with it set, and unpatched with it set. That is 46 records and 12,532
+  rows, both entries and both modes;
+- the same holds for the whole frozen subset (100 models, 372 records, 73,464 rows), unpatched against
+  patched with the probe unset and set;
+- the same holds for two invented models outside the set: PP's D5C-1 true positive
+  `RF-SKEW-T-CANT-OFF-122` (`core/product_physics/tests/formation_check_runtime.rs`) and its Timoshenko
+  twin (8 records). These exercise the line for an evaluation that ends before step 7.
+
+The dumps parse strictly (no duplicate keys, NaN or Infinity), with one evaluation line per K-D5
+evaluation. Every `_bits` field equals its decimal. Every groups line binds to its evaluation by
+`lambda_sigma_bits`. Every group's q equals the 2-norm of the published rows it names. Over all 394
+evaluation lines, max(parts) ≤ ε_E ≤ the sum of the parts. The elements part lies between the largest
+and the sum of its by-theory parts, and a theory's part is nonzero only where that theory is present.
+`pft_census.py probe` reads the evaluation lines unchanged.
+
+**Instrumented sites.**
+
+- FK `structural/formation_check.rs`:
+  - `check_at` writes the evaluation line once `evaluate` returns, or when the source is unavailable.
+    `evaluate` has no other caller, and `check_at` is reached from `check` (dense and sparse) and
+    from the nonlinear confirmation's `evaluate_at`, so every K-D5 evaluation passes through it.
+  - `evaluate` records σ, ε_E, 2^10·est·ε_E, Λ and Λ·σ as step 7 forms them.
+  - `epsilon_e` optionally charges each part's row and column sums with the same upward values it
+    charges ε_E with. Its return value is unchanged.
+- FK `kd5_probe.rs` (new): the switch, the labels, the sequence number and the line writer.
+- PP `lib.rs`:
+  - `solve_prepared_load_case` labels the case. Every PF load case enters there.
+  - just before `formation_guard::recovery_finding`, the groups line is written. The case's complete
+    recovery records exist there, and they are the input of the unified predicate's decision.
+- PP `formation_guard.rs` (`probe_groups`): forms each group's s_star and decision exactly as
+  `recovery_finding` does.
+- `formation_check_tests.rs`: one call takes the new argument, so FK's tests still build.
+
+**Dump format.** One JSON object per line, in two kinds. Every binary64 is written twice: as a JSON
+number (shortest round-trip decimal, which is exact as binary64; `null` if not finite) and as
+`<name>_bits`, its 16 hex digits.
+
+*Evaluation line* (`"record":"evaluation"`), one per K-D5 evaluation:
+
+| Field | Content |
+|---|---|
+| `tag`, `entry`, `mode` | the runner's `KD5_ACTIVE_TAG`, `_ENTRY`, `_MODE` (`SparseInteractive`, `DenseScrutiny`) |
+| `case` | the load case being solved |
+| `eval` | sequence number, 1, 2, … within the runner process (contiguous) |
+| `judged` | the D5C-1 row rule is on (false only for the nonlinear influence system) |
+| `step7`, `outcome` | whether step 7 was reached; `bound`, `sensitive:estimate` (D5C-1) or `fail_closed:<detail>` (the product's own detail, e.g. `Neumann`, `contraction`) |
+| `n_free` | free DOFs |
+| `r_hat`, `est`, `norm1_Ks` | the gate's (r̂, est, ‖K̃_s‖₁) |
+| `epsilon_E`, `epsilon_E_source` | ε_E. The source is `step7` (the product's own), `cache` (the attempt's cached value) or `probe` (formed with `epsilon_e` on the same inputs, before step 7). Null means it could not be formed, and `epsilon_E_error` says why |
+| `neumann_2p10_est_epsE` | 2^10·est·ε_E: the product's at step 7, otherwise the same two upward products |
+| `epsilon_E_parts` | [elements, assembly rounding, projection change], each the larger of its own row- and column-sum norms (with `epsilon_E_parts_bits`) |
+| `epsilon_E_element_parts` | the elements part over `euler_bernoulli` frames, `timoshenko` frames and `other` elements (connectors, tie rods, arcs) |
+| `sigma`, `lambda`, `lambda_sigma` | σ, Λ and Λ·σ of step 7; null where not formed |
+| `demotion` | on `sensitive:estimate`: the D5C-1 row's `global_dof`, `doubled_correction`, `scale`, `ratio` |
+| `scale_exponents` | D, one exponent per free DOF in free-DOF order |
+| `elements` | counts of frames, connectors, tie rods, arcs and springs |
+| `frames` | per straight member in formation order: `member` (`member:{len}:{id}:`; the published `entity_ref` is `{id}`), `node_i`, `node_j`, `theory`, and the resolved binary64 `E`, `G` (Pa), `A`, `Iy`, `Iz`, `J` (m², m⁴) and `A_s` (null for Euler–Bernoulli) that K-D5 re-formed with. A GPa request carries its resolved Pa values here |
+| `Ks` | K̃_s, the prepared scaled symmetric matrix the factor sees, by rows in free-DOF order; only when `n_free` ≤ 160 |
+
+*Groups line* (`"record":"groups"`), one per recovery decision of a load case:
+
+| Field | Content |
+|---|---|
+| `tag`, `entry`, `mode`, `case`, `case_id` | labels as above; `case_id` is the decision's own load case |
+| `eval` | the last evaluation line's `eval` before this line |
+| `pre_guard_passed`, `load_row_finding`, `member_bound` | the decision's preconditions |
+| `lambda_sigma` | Λ·σ of the member bound used (null without one). It equals the producing evaluation's `lambda_sigma_bits`, which binds the two lines when a case has several evaluations |
+| `groups` | every judged group, in the product's order. Each has `entity`, `body`, `location`, `kind`, `moment`, `q`, `q_hat`, `B`, `s_star` (the body's coupled force or moment scale the decision uses), `absolute_scale`, `published_scale`, `zero_compatible`, `fires` and `unavailable`. `fires` is the unified predicate's decision for that group; an unavailable bound or comparison sets `fires` true and gives the reason, with `B` null if the bound itself is unavailable |
+
+**Matching B to published rows.** A group is named in the published namespace as
+(`entity` = `entity_ref`, `location`, `kind`). In kd5t_compare's group names:
+
+- `axial`, `shear`, `torsion` and `bending` are the groups of the same name, at `end_i`, `end_j`,
+  `quarter_1`, `midspan` and `quarter_3`;
+- on supports (`location` `node`), `support_force` and `support_moment` are `reactF` and `reactM`.
+  `support_force_magnitude` and `support_moment_magnitude` are `reactFmag` and `reactMmag`;
+- the product forms no stress group. Stress rows are judged through the resultant they scale (K-D5
+  §3.2): `s_axial`, `s_bending` and `s_torsion` take the B of `axial`, `bending` and `torsion` at the
+  same entity and location, divided by the reference's conversion;
+- `cut_i` and `cut_j` (the endpoint section cuts) are judged groups with no published row. In every
+  dumped case their q equals, bit for bit, the q of `end_i` or `end_j`, but their B is their own (it
+  differed in 32 of the 12 models' 960). A consumer judges them against the end rows' values with
+  their own B.
+
+**Limits.**
+
+- No evaluation line is written for a case K-D5 does not evaluate: the ordinary gate is already
+  Sensitive (as for `SHORTL01`'s Euler–Bernoulli twin), or the model is refused.
+- The case label and the sequence number are process-wide, which suits the sequential runner. A
+  caller that runs cases concurrently would interleave them.
+- A probe that panics re-forming ε_E is caught and reported in `epsilon_E_error`; no run raised one.
+- `pft_census.py probe` reads every line, so pass it the evaluation lines only (filter on
+  `"record":"evaluation"`). Groups lines are for the B consumer.
+
 ## Runner and probes (`runner/`, `pft_generate.py probes`)
 
 The runner is `../kd5_timoshenko/runner/` plus each record's provenance (refutation round 3): a
