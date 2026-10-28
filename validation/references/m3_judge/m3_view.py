@@ -31,7 +31,7 @@ from decimal import Decimal
 from fractions import Fraction as Q
 
 import m3_json
-from m3_types import (SECTION_BASES, Expected, ExpectedCase, Extremum, Headline, ModelView, PipeSection, Row, RunView, SectionProps,
+from m3_types import (ENTRIES, SECTION_BASES, Expected, ExpectedCase, Extremum, Headline, ModelView, PipeSection, Row, RunView, SectionProps,
                       Standing, TauInputs)
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -63,7 +63,6 @@ SOURCE_RECOVERY_SCHEMA = "physics_source_recovery.schema.json"
 SOURCE_RECOVERY_EVIDENCE = {False: "/$defs/pressure_source_ordinary_evidence", True: "/$defs/pressure_source_resolved_evidence"}
 SCHEMA_FILES = ("results_pressure_2.v0.3.schema.json", "load_reference_state.schema.json", SOURCE_RECOVERY_SCHEMA)
 
-ENTRIES = ("typed", "captured")
 MODES = ("SparseInteractive", "DenseScrutiny")
 HEX64 = re.compile(r"\A[0-9a-f]{64}\Z")
 HEX40 = re.compile(r"\A[0-9a-f]{40}\Z")
@@ -861,7 +860,8 @@ def recovery_case_keys():
 # the committed REFERENCE_SHA256SUMS as part of provenance. Nothing else in a reference is read.
 #   (a) the request: node ids and positions (L_b, bodies), pipe ids and ends, support ids and nodes, load case ids,
 #       components; every run binds it through request_sha256 = sha256(request_line(tag, request)).
-#   (b) the reference line, besides its request: meta family, theory, twin and the reporting keys REPORT_META; and
+#   (b) the reference line, besides its request: meta family, theory, twin, the reporting keys REPORT_META and entries
+#       (the entries the inventory expects; both when absent); and
 #       ref: on PF expect, refusal.code, expected_warnings, sections[pipe] {ro, A, Z, J, I, tau_c, E, G, od, wall,
 #       mill}; on the exact route sections[pipe] {ro, nominal_section and reduced_section {A, Z, J}}; and on both
 #       cases[case] {rows, maxima}. The controls file (exact route): one {tag, pertE} per model with a control,
@@ -1086,6 +1086,9 @@ def _reference_model(x, route, variant, by_tag, ctl):
     m = x["meta"]
     if not all(type(m.get(k)) is str for k in REPORT_META):
         return None, ["meta (" + ", ".join(REPORT_META) + " must be strings)"]
+    entries = m.get("entries", list(ENTRIES))
+    if type(entries) is not list or not entries or not all(type(e) is str and e in ENTRIES for e in entries) or len(set(entries)) != len(entries):
+        return None, [f"meta entries {entries!r} (a non-empty list of distinct entries of {ENTRIES})"]
     facts, Lb, bodies, components, out = request_model(x["request"])
     if facts is None:
         return None, out
@@ -1108,7 +1111,8 @@ def _reference_model(x, route, variant, by_tag, ctl):
     elif bodies != 1:
         harness = f"a model with {bodies} bodies: per-body scales are not implemented"
     view = ModelView(route=route, tag=x["tag"], family=m["family"], theory=m["theory"], twin=m["twin"], cases=facts.cases, Lb=float(Lb),
-                     request_sha256=request_sha256(x["tag"], x["request"]), harness_error=harness, meta=tuple((k, m[k]) for k in REPORT_META))
+                     request_sha256=request_sha256(x["tag"], x["request"]), harness_error=harness, meta=tuple((k, m[k]) for k in REPORT_META),
+                     entries=tuple(e for e in ENTRIES if e in entries))
     return Model(view, facts, expected), out
 
 

@@ -245,6 +245,33 @@ reference: it links the product crate by path and calls only `run_linear_static_
   combinations, K-D5 §3.3), nonlinear supports, W-15 rigid components, generated self-weight and
   temperature-selected moduli.
 
+### Moduli and the value entry (Agent 0, stage B)
+
+The value (captured) entry reads the request under the checked-JSON profile `openpipestress_jcs_ijson_v1`,
+which refuses an integral float of magnitude 2^53 or more (`CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT`); "only
+the typed entry reaches the gate with them". Stage B's first run found 80 near-cancellation models
+with such a shear modulus. No judging criterion moved, and no expected row changed:
+
+- **48 models are re-authored in GPa.** The references are computed from the Pa operands (meta `E`,
+  `G`) as before; the request then carries both moduli in GPa, the largest unit of the units
+  authority's stress catalog (Pa, kPa, MPa, GPa, bar, psi, ksi), which makes every number of these
+  requests a safe integer or non-integral. `pft_generate.py units <set.jsonl>` proves on the product's
+  own conversion (the units authority binary, `$OPENPIPESTRESS_UNITS_BIN`, dimension `stress`) that
+  each of the 96 GPa moduli resolves bit for bit (hex) to its Pa operand. Run through the stage-B
+  runner, the typed entry publishes byte-identical records for the GPa and Pa requests.
+- **32 models are judged through their typed entry alone.** Their shear modulus is 2^53 GPa or more,
+  so it is an integral float of at least 2^53 in every catalog unit: every binary64 of that magnitude
+  is integral, and GPa gives the smallest magnitude. Their requests keep the Pa operands and their
+  reference lines declare `meta.entries = ["typed"]`; `split` writes them to `c.NNN.typed.in.jsonl`,
+  which the driver runs with the typed entry alone, and the judge's inventory expects exactly those
+  runs. Each is judged through its typed entry, so nonvacuity still holds. Both theories of 16 designs:
+  NCxe-17S8, NCxe-20S8, NCxe-50S8, NCxe-100S8, NCxe-154S8, NCxe-200S8, NCg1e300S8, NCg2infS8,
+  NCedge2m54+0S8, NCedge2m54+1S8, NCedge2m54+1S7, NCedge2m54+1S9, NCedge2m54+2S8, NCttover-1S8,
+  NCttover+0S8 and NCttover+1S8 (all at placement `o`, variant `m0`).
+
+The set's pins moved for request bytes and meta only (`93249c22…` → `283b6745…`; frozen subset
+`1a6984ec…` → `eaa573a6…`); every expected row of all 906 models is unchanged.
+
 ## The frozen subset (`freeze`, `check`)
 
 100 models, 50 designs in both theories: cantilevers 10, fixed-fixed 8, L-lines 8, U/Z/3D 6, skew
@@ -444,6 +471,9 @@ identical, and PF refuses Timoshenko partial spans by name (pf-timoshenko.md §3
 
 ## Premise census (`pft_census.py`)
 
+Its `hager` mode solves the set's requests with the engine, which reads Pa moduli only; on the 48
+GPa requests it needs their Pa operands (`pft_generate.pa_request`) when the census is next used.
+
 kd5t_census with its engine bound to pft_engine. `hager` gives κ₁(D·K·D)·r̂ from the published r̂
 and scale exponents with the exact PF free-DOF stiffness (at most 72 free DOFs). `standings` gives
 Passed, Sensitive, fail-closed and refused counts by shear model, with the EB → Timoshenko moves.
@@ -549,7 +579,8 @@ python3 -I -B pft_engine.py --check
 python3 -I -B pft_generate.py check                  # self-check, frozen bytes, compare self-test, SHA256SUMS
 python3 -I -B pft_generate.py full <set> 8
 python3 -I -B pft_generate.py precision <set>/set.jsonl
-python3 -I -B pft_generate.py split <set>/set.jsonl <run>/chunks all 40     # or: eb, ts
+python3 -I -B pft_generate.py split <set>/set.jsonl <run>/chunks all 40     # or: eb, ts; typed-entry-only models in c.NNN.typed
+OPENPIPESTRESS_UNITS_BIN=<units authority> python3 -I -B pft_generate.py units <set>/set.jsonl   # GPa moduli bit-identical to Pa
 ./run.sh <clean checkout> <set> <run> own twin         # ../m3_judge/run.sh pf: builds the runner, raw outputs in <run>/out, the judging pass per variant
 python3 -I -B ../m3_judge/m3_report.py --route pf <set>/set.jsonl <run>/out/c.*.out.jsonl --runner-sha256 <hex64> \
         --product-head <hex40> --checkout <dir>         # the same pass by hand; add --ref twin for the sensitivity control (must fail M3)

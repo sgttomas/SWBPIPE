@@ -39,7 +39,7 @@ runner (`runner/`) is harness, not reference.
 | `run.sh` | The driver: builds the runner from a clean checkout, runs every chunk, judges each variant. |
 | `runner/` | The shared runner: `Cargo.toml`, `Cargo.lock`, `build.rs`, `src/main.rs`, `build.sh`. |
 | `m3_selftest.py`, `m3_regress.py`, `m3_synth.py` | Self-test: isolation, contract units, rules on both views, and the round 1–7 regression table. |
-| `selftest/pf_set.jsonl` | 20 lines copied verbatim from `pf_timoshenko_m3t/frozen/pft_frozen_subset.jsonl` (sha256 `1a6984ec…`) for the PF view's self-test. |
+| `selftest/pf_set.jsonl` | 20 lines copied verbatim from `pf_timoshenko_m3t/frozen/pft_frozen_subset.jsonl` (sha256 `eaa573a6…`) for the PF view's self-test. |
 | `REFERENCE_SHA256SUMS` | The committed digests of the reference files the judge may judge against (provenance), read from HEAD's blob. |
 | `m3_reproduce.py` | Regenerates every pinned reference file from its committed generator and requires its pin. |
 | `SHA256SUMS` | Digests of the files above, except this README; the self-test verifies them. |
@@ -244,6 +244,10 @@ never an input.
    runner and head, and its request sha256 must equal its model's runner-input line. The reference
    must be admitted (above).
 2. **INVENTORY.** Every model × entry × mode exactly once, as a successful view, and nothing else.
+   A model's entries are those its reference line declares in `meta.entries`, both by default. The PF
+   set declares the typed entry alone for models whose moduli no catalog unit makes safe for the value
+   entry (`../pf_timoshenko_m3t/README.md`); `run.sh` runs `chunks/c.NNN.typed.in.jsonl` with that entry
+   alone.
 3. **M3 VERDICT.** C0–C4, C6, C8 and C9.
 4. **DESIGN-CONFORMANCE VERDICT.** C10, PF only.
 5. **NONVACUITY.**

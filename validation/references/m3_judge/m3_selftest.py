@@ -4,7 +4,7 @@ run.sh and runner/build.sh, on synthetic records only (no product runs).
 
 Usage: python3 -I -B m3_selftest.py [--quick]
   The PF view uses selftest/pf_set.jsonl (20 lines copied verbatim from pf_timoshenko_m3t/frozen/pft_frozen_subset.jsonl,
-  sha256 1a6984ec...); the exact view uses ../kd5_timoshenko/frozen/kd5t_frozen_subset.jsonl. --quick skips the rule
+  sha256 eaa573a6...); the exact view uses ../kd5_timoshenko/frozen/kd5t_frozen_subset.jsonl. --quick skips the rule
   checks and runs the isolation checks and the regression table only.
 Each regression case prints a TABLE line: round | attack | case | outcome.
 """

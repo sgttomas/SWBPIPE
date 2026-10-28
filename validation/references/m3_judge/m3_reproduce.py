@@ -97,7 +97,7 @@ def main():
             ("exact", "controls", True, lambda: full(KD5, "kd5t_generate.py", S("kd5-full"), "controls.jsonl", workers)),
         "kd5_timoshenko/frozen/kd5t_frozen_subset.jsonl (64 models)":
             ("exact", "set", True, lambda: frozen(KD5, "kd5t_generate", S("kd5t_frozen_subset.jsonl"), workers)),
-        "pf_timoshenko_m3t: pft_generate.py full set.jsonl (906 models; generator at decb1dbb61)":
+        "pf_timoshenko_m3t: pft_generate.py full set.jsonl (906 models; moduli re-authored in GPa where the value entry needs it)":
             ("pf", "set", True, lambda: full(pf_dir, "pft_generate.py", S("pf-full"), "set.jsonl", workers)),
         "pf_timoshenko_m3t/frozen/pft_frozen_subset.jsonl (100 models)":
             ("pf", "set", True, lambda: frozen(pf_dir, "pft_generate", S("pft_frozen_subset.jsonl"), workers)),

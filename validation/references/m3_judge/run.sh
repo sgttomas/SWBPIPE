@@ -6,7 +6,9 @@
 #     <route>    pf (the PF M3-T set) or exact (the K-D5 M3-T set, kd5_timoshenko/)
 #     <checkout> a clean git checkout whose committed runner and product are judged (runner/build.sh refuses a dirty one)
 #     <set dir>  holds set.jsonl (the generator's full set) and, for control, controls.jsonl (exact route)
-#     <run dir>  holds chunks/c.NNN.in.jsonl (the generator's split); runner.bin, out/, report.*, eval.* are rewritten
+#     <run dir>  holds chunks/c.NNN.in.jsonl (the generator's split; each run with both entries) and
+#                chunks/c.NNN.typed.in.jsonl (models whose reference declares the typed entry alone, run with it alone);
+#                runner.bin, out/, report.*, eval.* are rewritten
 #     own        required; twin (the twin theory's reference) and control (exact route: E perturbed by 2^-20) are
 #                sensitivity controls
 # Environment: M3J_PY (python, default python3); M3J_WRAP (a command prefix for the build, the runner and the judging
@@ -47,10 +49,11 @@ RUNNER_SHA=$(shasum -a 256 "$D/runner.bin" | cut -d' ' -f1)
 HEAD_SHA=$(git -C "$CHECKOUT" rev-parse --verify HEAD^{commit}) || finish 1
 echo "runner $RUNNER_SHA at $HEAD_SHA"
 status=0
-for f in "$D"/chunks/c.[0-9][0-9][0-9].in.jsonl; do
+for f in "$D"/chunks/c.[0-9][0-9][0-9].in.jsonl "$D"/chunks/c.[0-9][0-9][0-9].typed.in.jsonl; do
   [ -e "$f" ] || continue
   n=$(basename "$f" .in.jsonl)
-  KD5_IN=$f KD5_OUT=$D/out/$n.out.jsonl KD5_ENTRIES=typed,captured $WRAP "$D/runner.bin"
+  case $n in *.typed) entries=typed ;; *) entries=typed,captured ;; esac
+  KD5_IN=$f KD5_OUT=$D/out/$n.out.jsonl KD5_ENTRIES=$entries $WRAP "$D/runner.bin"
   rc=$?
   [ $rc = 0 ] || { echo "runner exited $rc on $n" >&2; status=1; }
   echo "$(date -u +%T) ran $n (exit $rc)"

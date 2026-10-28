@@ -100,9 +100,10 @@ def failing(ident, why):
             "design_failures": {"unjudged": 1}, "verdict": "fail", "design_verdict": "fail"}
 
 
-def inventory(expected_tags, identities, unsuccessful=()):
-    """Every expected model x entry x mode exactly once as a successful view, and nothing else."""
-    want = {(t, e, m) for t in expected_tags for e in MV.ENTRIES for m in MV.MODES}
+def inventory(expected, identities, unsuccessful=()):
+    """Every expected model x entry x mode exactly once as a successful view, and nothing else. `expected` maps each
+    model's tag to the entries its reference line declares (ModelView.entries: both, or the typed entry alone)."""
+    want = {(t, e, m) for t, entries in expected.items() for e in entries for m in MV.MODES}
     got = collections.Counter(identities)
     out = {"expected": len(want), "received": sum(got.values()) + len(unsuccessful), "missing": sorted(want - set(got)),
            "duplicate": sorted(k for k, n in got.items() if n > 1), "unexpected": sorted(k for k in got if k not in want),
@@ -153,7 +154,7 @@ def judge_collection(route, set_path, raw_paths, variant="own", workers=6, runne
     except Exception as e:
         import traceback
         return ({"pass": False, "internal_error": f"{type(e).__name__}: {e}", "traceback": traceback.format_exc()[-2000:], "provenance": ["internal error"],
-                 "provenance_pass": False, "inventory": inventory([], [], [("internal error", None, None)]), "m3_pass": False, "design_pass": False,
+                 "provenance_pass": False, "inventory": inventory({}, [], [("internal error", None, None)]), "m3_pass": False, "design_pass": False,
                  "nonvacuity": {"pass": False, "families": {}, "overall": {}, "vacuous_families": [], "exempt": {}}, "m3_failing_records": 0,
                  "design_failing_records": 0, "records": 0, "info_records": {}, "c4_failures": 0, "runner_errors": 0, "schema_invalid": 0,
                  "runners": {}, "product_heads": {}, "set_aside": 0}, [])
@@ -203,7 +204,7 @@ def _judge_collection(route, set_path, raw_paths, variant, workers, runner_sha, 
         prov.append(f"records carry product heads {sorted(heads)[:3]}, not exactly --product-head")
     if mismatch:
         prov.append(f"{len(mismatch)} runs of a request other than the reference's (request sha256 differs), first {mismatch[:3]}")
-    inv = inventory(list(models), [v.identity for v in successful], [v.identity for v in errored] + [i for i, _ in invalid])
+    inv = inventory({t: m.view.entries for t, m in models.items()}, [v.identity for v in successful], [v.identity for v in errored] + [i for i, _ in invalid])
     records = [failing(i, "refused by the view: " + "; ".join(p[:5])) for i, p in invalid]
     by_tag = collections.defaultdict(list)
     for v in valid:

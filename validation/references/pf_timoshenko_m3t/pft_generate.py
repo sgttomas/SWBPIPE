@@ -15,6 +15,8 @@ Usage (from this directory; heavy modes run under the host's slot wrapper):
                                                            memory and compare it byte for byte; compare
                                                            self-test; verify SHA256SUMS
   python3 -I -B pft_generate.py split <set.jsonl> <dir> <all|eb|ts|probe> [per_chunk]
+  python3 -I -B pft_generate.py units <set.jsonl>           the GPa moduli against the product's units authority
+                                                           ($OPENPIPESTRESS_UNITS_BIN): bit-identical to the Pa operands
   python3 -I -B pft_generate.py list | composition
 
 Each set line: {"tag", "meta", "ref", "request"}. `ref.expect` is "rows" or "refused" (a Timoshenko
@@ -27,6 +29,7 @@ decimal strings in published units; `ref.cases[case].maxima` are [pipe, null, va
 from __future__ import annotations
 
 import collections
+import copy
 import hashlib
 import json
 import math
@@ -57,6 +60,63 @@ Design, chain, line_points, rot, sig4 = KG.Design, KG.chain, KG.line_points, KG.
 
 def q(v, u):
     return {"value": v, "unit": u}
+
+
+# The value entry's checked-JSON profile (openpipestress_jcs_ijson_v1) refuses an integral float of magnitude 2^53 or more
+# (CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT); only the typed entry reaches the gate with one (Agent 0). The references are
+# computed from the Pa operands; a request with such a modulus is then re-authored with both moduli in GPa, the largest
+# unit of the units authority's stress catalog (Pa, kPa, MPa, GPa, bar, psi, ksi), when that makes every number safe.
+# Otherwise no catalog unit can (every binary64 of magnitude 2^53 or more is integral, and GPa gives the smallest
+# magnitude), so the request keeps its Pa operands and its reference line declares the typed entry alone.
+# `units` proves on the product's own conversion that every GPa modulus resolves to the Pa operand's bits.
+SAFE_INTEGER = 2 ** 53 - 1
+CATALOG_UNIT, CATALOG_EXPONENT = "GPa", 9
+MODULI = (("elastic_modulus", "E"), ("shear_modulus", "G"))
+TYPED_ONLY_REASON = ("a modulus is an integral binary64 of magnitude 2^53 or more in every catalog unit (GPa included): the "
+                     "value entry refuses it (CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT); only the typed entry reaches the gate with it")
+
+
+def json_safe(x):
+    return type(x) is not float or not x.is_integer() or abs(x) <= SAFE_INTEGER
+
+
+def unsafe_paths(x, path=""):
+    if isinstance(x, dict):
+        for k, v in x.items():
+            yield from unsafe_paths(v, f"{path}.{k}")
+    elif isinstance(x, list):
+        for i, v in enumerate(x):
+            yield from unsafe_paths(v, f"{path}[{i}]")
+    elif type(x) in (int, float) and not json_safe(float(x)):
+        yield path
+
+
+def catalog_request(req):
+    """(request, typed_only): the request with its moduli in GPa when it carries an unsafe number and GPa makes every
+    number safe; the Pa request and typed_only when nothing does. Only moduli are ever unsafe in this set."""
+    unsafe = list(unsafe_paths(req))
+    if not unsafe:
+        return req, False
+    if not all(any(p.endswith(f".{k}.value") for k, _ in MODULI) for p in unsafe):
+        raise ValueError(f"an unsafe number other than a modulus: {unsafe[:3]}")
+    out = copy.deepcopy(req)
+    for m in out["model"]["materials"]:
+        for k, _ in MODULI:
+            assert m[k]["unit"] == "Pa"
+            m[k] = q(float(K.D(repr(m[k]["value"])).scaleb(-CATALOG_EXPONENT)), CATALOG_UNIT)
+    if any(True for _ in unsafe_paths(out)):
+        return req, True
+    return out, False
+
+
+def pa_request(g):
+    """A set line's request with its moduli as the Pa operands the reference was computed from (meta E and G)."""
+    req = copy.deepcopy(g["request"])
+    for m in req["model"]["materials"]:
+        for k, mk in MODULI:
+            if m[k]["unit"] == CATALOG_UNIT:
+                m[k] = q(float(g["meta"][mk]), "Pa")
+    return req
 
 
 def mill_for(sec):
@@ -636,7 +696,11 @@ def reference_of(request, theory=None):
 
 def work(item):
     tag, meta, req = item
-    line = {"tag": tag, "meta": meta, "ref": reference_of(req), "request": req}
+    ref = reference_of(req)                     # from the Pa operands, before any re-authoring
+    req, typed_only = catalog_request(req)
+    if typed_only:
+        meta = dict(meta, entries=["typed"], entries_reason=TYPED_ONLY_REASON)
+    line = {"tag": tag, "meta": meta, "ref": ref, "request": req}
     return json.dumps(line, sort_keys=True, separators=(",", ":"))
 
 
@@ -662,6 +726,50 @@ FROZEN_WANT = {("CANT03", "o", "m0"), ("CANT07", "utmskew", "m0"), ("CANT09", "o
                ("NCedge1p5-1S8", "o", "m0"), ("NCedge1p5+0S8", "o", "m0"), ("NCx0p3S8", "o", "m0"),
                ("NCfreexe-6S8", "o", "m0"), ("NCtwoxe-12S8", "o", "m0"), ("NCauxguided", "o", "m0"), ("NCauxfree", "utmskew", "m0"),
                ("NCauxtwo", "o", "m0"), ("NCauxff", "o", "m0")}
+
+
+def units_check(set_path):
+    """Every GPa modulus of the set, converted by the product's units authority ($OPENPIPESTRESS_UNITS_BIN, its public
+    batch interface, dimension stress), must give bit for bit the Pa operand the reference was computed from (meta E,
+    G); every typed-only line keeps Pa moduli that GPa cannot make safe. Prints one row per modulus (hex bits)."""
+    import struct
+    import subprocess
+    exe = os.environ.get("OPENPIPESTRESS_UNITS_BIN")
+    if not exe:
+        raise SystemExit("OPENPIPESTRESS_UNITS_BIN is required (the units authority built from the head under test)")
+    hexf = lambda x: struct.pack(">d", x).hex()
+    rows, typed_only, problems = [], [], []
+    for line in open(set_path):
+        g = json.loads(line)
+        if g["meta"].get("entries") == ["typed"]:
+            typed_only.append(g["tag"])
+            if not any(True for _ in unsafe_paths(g["request"])) or catalog_request(g["request"]) != (g["request"], True):
+                problems.append(f"{g['tag']}: typed entry only, yet GPa would make it safe")
+            continue
+        if any(True for _ in unsafe_paths(g["request"])):
+            problems.append(f"{g['tag']}: an unsafe number on a line run on both entries")
+        for m in g["request"]["model"]["materials"]:
+            for k, mk in MODULI:
+                if m[k]["unit"] == CATALOG_UNIT:
+                    rows.append((g["tag"], m["id"], k, m[k]["value"], float(g["meta"][mk])))
+    batch = {"protocol_version": "1.0.0", "quantities": [{"id": str(i), "value": r[3], "unit": CATALOG_UNIT, "dimension": "stress"}
+                                                         for i, r in enumerate(rows)]}
+    out = json.loads(subprocess.run([exe], input=json.dumps(batch), capture_output=True, text=True, check=True).stdout)
+    got = {x["id"]: x for x in out.get("quantities", [])}
+    report = []
+    for i, (tag, mid, k, gpa, pa) in enumerate(rows):
+        x = got.get(str(i))
+        ok = x is not None and x["unit"] == "Pa" and type(x["value"]) is float and hexf(x["value"]) == hexf(pa)
+        report.append(f"{'OK  ' if ok else 'DIFF'} {tag} {mid} {k}: {gpa!r} GPa -> {hexf(x['value']) if x else None} (product), "
+                      f"Pa operand {pa!r} {hexf(pa)}")
+        if not ok:
+            problems.append(f"{tag} {k}: not bit-identical")
+    report.append(f"UNITS: {'PASS' if not problems and 'error' not in out else 'FAIL'} ({len(rows)} GPa moduli bit-identical to their Pa "
+                  f"operands on {len({r[0] for r in rows})} models; {len(typed_only)} models typed entry only)" + "".join(f"\n  {p}" for p in problems))
+    if problems or "error" in out:
+        print("\n".join(report))
+        raise SystemExit(1)
+    return "\n".join(report)
 
 
 def frozen_selection(items):
@@ -695,7 +803,7 @@ def precision(set_path, families, digits):
     worst, n = (K.ZERO, None), 0
     try:
         for g in sel:
-            r2 = reference_of(g["request"])
+            r2 = reference_of(pa_request(g))
             for cid, c in g["ref"]["cases"].items():
                 a = {tuple(x[:5]): K.D(x[5]) for x in c["rows"]}
                 b = {tuple(x[:5]): K.D(x[5]) for x in r2["cases"][cid]["rows"]}
@@ -773,16 +881,23 @@ def main():
         set_path, out_dir, sel = sys.argv[2], sys.argv[3], sys.argv[4]
         per = int(sys.argv[5]) if len(sys.argv) > 5 else 60
         os.makedirs(out_dir, exist_ok=True)
-        chosen = []
+        chosen, typed = [], []
         for line in open(set_path):
             x = json.loads(line)
             th = x["meta"]["theory"]
             if sel == "all" or (sel == "eb" and th == E.EULER) or (sel == "ts" and th == E.TIMOSHENKO):
-                chosen.append(json.dumps({"tag": x["tag"], "request": x["request"]}, sort_keys=True, separators=(",", ":")))
-        for k in range(0, len(chosen), per):
-            with open(os.path.join(out_dir, f"c.{k // per:03d}.in.jsonl"), "w") as f:
-                f.write("\n".join(chosen[k:k + per]) + "\n")
-        print(f"{len(chosen)} models in {(len(chosen) + per - 1) // per} chunks under {out_dir}")
+                (typed if x["meta"].get("entries") == ["typed"] else chosen).append(
+                    json.dumps({"tag": x["tag"], "request": x["request"]}, sort_keys=True, separators=(",", ":")))
+        n = 0
+        # models whose reference declares the typed entry alone go to c.NNN.typed.in.jsonl, run with that entry alone
+        for group, suffix in ((chosen, ""), (typed, ".typed")):
+            for k in range(0, len(group), per):
+                with open(os.path.join(out_dir, f"c.{n:03d}{suffix}.in.jsonl"), "w") as f:
+                    f.write("\n".join(group[k:k + per]) + "\n")
+                n += 1
+        print(f"{len(chosen) + len(typed)} models ({len(typed)} typed entry only) in {n} chunks under {out_dir}")
+    elif mode == "units":
+        print(units_check(sys.argv[2]))
     elif mode == "probes":
         # format probes (harness): invented models outside the judged set, Euler-Bernoulli except one Timoshenko
         # probe used for the envelope's format only (identity, kinds, diagnostics), never for values
