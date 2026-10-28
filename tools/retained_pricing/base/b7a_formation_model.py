@@ -217,14 +217,14 @@ def decisions(snapshot, resolved):
     fc = "core/solver/frame_kernel/src/structural/formation_check.rs:"
     # ForceTerm.source is the bare admitted load_id, not the separately
     # owned member_source identity in LoadPrimitive/manifest entries.
-    for line in (528, 534, 544, 620, 633, 640):
+    for line in (530, 536, 546, 622, 635, 642):
         audit.append((resolved(fc + str(line)), {
             "terms[p.term_index].source": {"bytes": 128, "source": "IN128"},
         }))
     # U5B-TR (T4-U5b): the TieRodReference binding refusal formats the formed term's source,
     # "tie_rod_reference:{len}:{component}:{len}:{rod}" (18 + 4 + 128 + 1 + 4 + 128 = 283 B); tie rods exist only on
     # connectors, so it is unreached on D1 (P3), and it is still charged at its full class.
-    audit.append((resolved(fc + "580"), {
+    audit.append((resolved(fc + "582"), {
         "terms[p.term_index].source": {"bytes": 283, "source": "U5B-TR: formed tie-rod reference source"},
     }))
     for line in (674, 684, 690, 696, FIRST_RETURN_LINE):

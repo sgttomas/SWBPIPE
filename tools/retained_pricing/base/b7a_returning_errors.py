@@ -163,7 +163,10 @@ MODE_SOURCE = {
            "89c969952ff197bc2024e58cd9e24c925a6adff6b870c1346c4ba9eccf76297f",
            # W-16 slices b and c D3 (§8.27): the same _X emitter, with retained_w1 carried to lib.rs:3915 (its only
            # difference from 89c96995…).
-           "bd33a1027f4df2dfdb441976f3491243dbfa70f1cf3c8aff888abe93de6479ad"},
+           "bd33a1027f4df2dfdb441976f3491243dbfa70f1cf3c8aff888abe93de6479ad",
+           # W-16 stage 2 D3 (§8.29): the same _X emitter, with retained_w1 carried from lib.rs:3907 (bd33a102…'s
+           # carried key at main 7e73491054) to lib.rs:3915, its only difference.
+           "0b796a7c6e69b5a59d0facc18ce916664359edee2d48dee90a67218cddbc2630"},
 }
 
 
