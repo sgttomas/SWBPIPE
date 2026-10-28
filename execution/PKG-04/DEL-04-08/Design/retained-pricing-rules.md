@@ -1659,7 +1659,7 @@ The run at `03436d1ff0` completes on all four points with exit 0, no unmapped he
   - The law tests' phase record: every phase, both modes, +10,392 B.
   - The challenge binary's `W1_PHASE_BYTES` (6,559,543,400 and 6,618,674,744) and `MAX_PHASE_BYTES` (8,855,720,621 and 8,914,851,965).
 
-The `profile_` law tests pass in the registered build. The block and these pins are registered at `bbf42daf6f`. AC-004's six stack-headroom witnesses have not been run for this D3. Coefficients and the registration move, and FK's formation adds the unconditional stack `planes` array on the retained W1 path, so Agent 0's ruling quoted in §8.28 applies: "if coefficients move, re-register and re-run AC-004 with my exclusive grant". The witnesses wait for that grant.
+The `profile_` law tests pass in the registered build. The block and these pins are registered at `bbf42daf6f`. The run at `8c7ed91142` (the head carrying the block, the pins, the tests and this text) and the run at `03436d1ff0` are coefficient-identical but for the basis line. AC-004's six stack-headroom witnesses have not been run for this D3. Coefficients and the registration move, and FK's formation adds the unconditional stack `planes` array on the retained W1 path, so Agent 0's ruling quoted in §8.28 applies: "if coefficients move, re-register and re-run AC-004 with my exclusive grant". The witnesses wait for that grant.
 
 The merged tree at native atoms, against ⌊0.9M⌋:
 
