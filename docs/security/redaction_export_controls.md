@@ -341,13 +341,16 @@ or restrict a record by accident". The rule applies in each place that reads lab
   basis, whatever its own `privacy_classification`, `classification` alias or
   redistribution state. Its siblings are labelled by their paths, as under a
   null primary label.
-- *Item classifier.* The member reads as an unknown label only where that is
-  stricter. It bars the safe-and-public pairing and nothing else:
-  - in the five existing contexts an item that would be included takes the
-    unknown-label decision (`redact_value`, `warning_only` in `local_private`,
+- *Item classifier.* The member reads as an unknown label only where the
+  decision would otherwise be an inclusion. It is the last step of the decision
+  order, after the concrete-path redaction:
+  - in the five existing contexts a final `include` becomes the unknown-label
+    decision (`redact_value`, `warning_only` in `local_private`,
     `UNKNOWN_PROVENANCE_WARNING`);
-  - in `user_released_report` it takes `USER_RELEASE_VALUE_UNBOUND`;
-  - every other decision stands.
+  - in `user_released_report` a final `include` becomes
+    `USER_RELEASE_VALUE_UNBOUND`;
+  - every other decision stands, the concrete-path redaction and every earlier
+    block or redaction included.
   
   Replacing the item's stated labels with `unknown` was not chosen: it would
   turn a protected block into a redaction, and a private label's
@@ -357,6 +360,13 @@ or restrict a record by accident". The rule applies in each place that reads lab
   label past it.
 - *Not affected.* `export_policy` carries no labels; only its intent keys are
   read. The runners' `control_local_private` reads no labels.
+
+TypeScript's copies (the intent strip, the redaction walk and its input copy,
+the redaction copy without unsafe detail, the user-release screen's iteration)
+keep an own `__proto__` member even when it is not enumerable, so the bar
+survives every copy. Python and Rust can be handed a programmatically built
+mapping (a dict, a serde_json map) as well as parsed JSON, but neither has
+non-enumerable keys, so a `__proto__` key is always visible there.
 
 This is deliberately stricter than Python's previous reading, which took the
 key as an ordinary member. The member itself is kept in the payload, and its
