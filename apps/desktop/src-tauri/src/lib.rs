@@ -1,5 +1,6 @@
 mod atomic_report_package_save;
 mod autosave;
+mod autosave_commands;
 mod command_ingress;
 mod exact_source_binding;
 mod export_disposition_screen;
@@ -5142,6 +5143,12 @@ macro_rules! app_invoke_handler {
             analysis_runs::edit_analysis_run_labels,
             analysis_runs::delete_analysis_run,
             analysis_runs::admit_analysis_run_comparison,
+            autosave_commands::write_project_autosave,
+            autosave_commands::list_project_autosaves,
+            autosave_commands::read_project_autosave,
+            autosave_commands::discard_project_autosave,
+            autosave_commands::get_autosave_settings,
+            autosave_commands::set_autosave_settings,
             sync_native_shell_state,
             validate_rule_pack,
             compute_rule_pack_document_checksum,
