@@ -1101,17 +1101,34 @@ pub(crate) const OPERAND_STATES_DIFFER: &str = "COMBINATION_OPERAND_SUPPORT_STAT
 /// §2.2: some operand's numerical integrity checks did not pass.
 pub(crate) const OPERAND_CHECKS_NOT_PASSED: &str = "COMBINATION_OPERAND_CHECKS_NOT_PASSED";
 const STATE_CODE_KIND: &str = "nonlinear_support_active_set_state_code";
+const DISPLACEMENT_KIND: &str = "nonlinear_support_final_displacement";
+const RELATIVE_DISPLACEMENT_KIND: &str = "nonlinear_support_final_relative_displacement";
 const STATES_NAMED: usize = 8;
 
-fn state_token(code: Option<f64>) -> &'static str {
-    match code {
+/// §2.2: an operand's reported state of one support: the published state code and,
+/// for a sliding friction support, its slip sense, from the relative-displacement row
+/// when the case publishes one and otherwise the zero-ground displacement row.
+pub(crate) fn reported_state(results: &[ResultItem], case: &str, support: &str) -> &'static str {
+    let row = |kind: &str| {
+        results.iter().find(|r| r.kind == kind && r.entity_ref == support && r.basis_ref.as_ref().is_some_and(|b| b.ref_type == "load_case" && b.ref_id == case))
+    };
+    match row(STATE_CODE_KIND).map(|r| r.value) {
+        None => "unreported",
         Some(c) if c == 0.0 => "inactive",
         Some(c) if c == 1.0 => "active",
         Some(c) if c == 2.0 => "sticking",
-        Some(c) if c == 3.0 => "sliding",
+        Some(c) if c == 3.0 => match row(RELATIVE_DISPLACEMENT_KIND).or_else(|| row(DISPLACEMENT_KIND)).map(|r| r.value) {
+            Some(v) if v > 0.0 => "sliding (positive slip)",
+            Some(v) if v < 0.0 => "sliding (negative slip)",
+            _ => "sliding (slip sense unavailable)",
+        },
         Some(_) => "unknown",
-        None => "unreported",
     }
+}
+
+/// §2.2: equal reported states, with every slip sense available.
+pub(crate) fn same_state(states: &[&str]) -> bool {
+    states.iter().all(|s| *s == states[0] && *s != "unreported" && !s.contains("unavailable"))
 }
 
 /// Slice 1a §2.1: in a model with nonlinear supports, one operand record per
@@ -1155,12 +1172,9 @@ fn operand_states_diagnostic(id: &str, operands: &[&str], results: &[ResultItem]
     }
     let mut differing: Vec<(&str, Vec<&'static str>)> = Vec::new();
     for support in supports {
-        let codes: Vec<Option<f64>> = operands
-            .iter()
-            .map(|case| results.iter().find(|r| in_case(r, case) && r.entity_ref == support).map(|r| r.value))
-            .collect();
-        if codes.iter().any(|c| c.is_none() || c.map(f64::to_bits) != codes[0].map(f64::to_bits)) {
-            differing.push((support, codes.into_iter().map(state_token).collect()));
+        let states: Vec<&'static str> = operands.iter().map(|case| reported_state(results, case, support)).collect();
+        if !same_state(&states) {
+            differing.push((support, states));
         }
     }
     if differing.is_empty() {

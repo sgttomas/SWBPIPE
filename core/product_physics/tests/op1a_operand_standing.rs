@@ -297,8 +297,124 @@ fn v3_friction_slides_in_both_cases_static_history_free() {
     write_corpus("v3", corpus);
 }
 
-/// V-4: swapping a subtraction's operands negates every finite nonzero row, and
-/// the case order changes no case row.
+/// Codex r1 finding 1: two operands that both slide, in opposite senses, differ in
+/// reported state. Sustained +2048 N, operating −2048 N: S slides + (u = 2^-10 m,
+/// friction −1024 N on the pipe), O slides − (u = −2^-10 m, +1024 N). The notice names
+/// the slip senses, for the subtraction and the range envelope alike.
+fn slip_reversal() -> Value {
+    bar(
+        vec![friction()],
+        json!([case("case:S", json!([force("f-s", 2048.0)])), case("case:O", json!([force("f-o", -2048.0)]))]),
+        json!([subtraction("comb:o-s", "case:O", "case:S"), range("comb:range", &["case:S", "case:O"])]),
+    )
+}
+
+#[test]
+fn opposite_slip_senses_differ_in_reported_state() {
+    let mut corpus = Vec::new();
+    for mode in MODES {
+        let v = solve(&slip_reversal(), mode);
+        assert_eq!((state_code(&v, "case:S", "support:shoe"), state_code(&v, "case:O", "support:shoe")), (3.0, 3.0));
+        check(&v, ("load_case", "case:S"), "support:shoe", p(-10), 1024.0, -1024.0, 2048.0, "S");
+        check(&v, ("load_case", "case:O"), "support:shoe", -p(-10), -1024.0, 1024.0, 2048.0, "O");
+        check(&v, ("combination", "comb:o-s"), "support:shoe", -p(-9), -2048.0, 2048.0, 2048.0, "O-S");
+        let notices = diagnostics(&v, STATES_DIFFER);
+        assert_eq!(notices.len(), 2);
+        for (id, notice) in ["comb:o-s", "comb:range"].iter().zip(&notices) {
+            assert_eq!(notice["affected_refs"], json!([id, "support:shoe"]));
+            assert_eq!(
+                notice["message"],
+                format!("combination {id}: the reported final state of 1 nonlinear support(s) differs between its operand cases: support:shoe (case:O: sliding (negative slip), case:S: sliding (positive slip)){STATES_TAIL}")
+            );
+        }
+        if mode == PreviewSolverMode::SparseInteractive {
+            corpus.push(json!({"name": "slip_reversal", "mode": "sparse_interactive", "model": slip_reversal()["model"], "document": v}));
+        }
+    }
+    write_corpus("slip", corpus);
+}
+
+/// V-2 (design note §1.5; stage 2 R-a, W-16 A-1 operands): the A-1 propped
+/// cantilever (L = 4 m, P at midspan, one-way prop at the tip on UZ) whose
+/// anchor rises by s, with s* = 5PL^3/(48EI) = 2^-10 m by A-1's construction.
+/// Sustained: prop active, R = 5P/16, anchor My = RL - PL/2 = -3PL/16. Anchor
+/// rise s = 2s*: the prop lifts off, u_tip = s*, My = -PL/2; O−S: ΔR = -5P/16,
+/// ΔMy = -5PL/16. s = s*/2: R = 5P/32, My = -11PL/32; O−S: ΔR = -5P/32,
+/// ΔMy = -5PL/32. Only the lifted difference changes the prop's state.
+fn v2() -> Value {
+    let request: Value = serde_json::from_str(include_str!("../../../validation/references/w16_nonlinear_motion/requests/a1.json")).unwrap();
+    let mut wire = request.clone();
+    let loads = &request["model"]["load_cases"][0]["primitive_loads"];
+    let point = loads.as_array().unwrap().iter().find(|l| l["category"] == "concentrated_force").unwrap().clone();
+    let rise = |id: &str, s: f64| {
+        let mut motion = loads.as_array().unwrap().iter().find(|l| l["category"] == "imposed_displacement").unwrap().clone();
+        motion["id"] = json!(format!("{id}-S"));
+        motion["magnitude"]["value"] = json!(s);
+        motion
+    };
+    let with = |id: &str, extra: Option<Value>| {
+        let mut p = point.clone();
+        p["id"] = json!(format!("{id}-P"));
+        let mut loads = vec![p];
+        loads.extend(extra);
+        json!({"id": id, "primitive_loads": loads, "provenance": "op1a"})
+    };
+    wire["model"]["load_cases"] = json!([with("case:S", None), with("case:O-LIFT", Some(rise("case:O-LIFT", p(-9)))), with("case:O-ACT", Some(rise("case:O-ACT", p(-11))))]);
+    wire["model"]["combinations"] = json!([subtraction("comb:lift", "case:O-LIFT", "case:S"), subtraction("comb:act", "case:O-ACT", "case:S"), range("comb:range", &["case:S", "case:O-LIFT"])]);
+    wire
+}
+
+#[test]
+fn v2_anchor_rise_lifts_the_prop_in_one_operand_only() {
+    let wire = v2();
+    let point = wire["model"]["load_cases"][0]["primitive_loads"][0]["magnitude"]["value"].as_f64().unwrap().abs();
+    let (pl, s_star) = (point * 4.0, p(-10));
+    let mut corpus = Vec::new();
+    for mode in MODES {
+        let v = solve(&wire, mode);
+        let at = |basis: (&str, &str)| {
+            (value(&v, "global_nodal_displacement_z", "node:T", basis, None, None),
+             value(&v, "support_reaction_component_v2", "support:PROP", basis, Some("Fz"), None),
+             value(&v, "support_reaction_component_v2", "support:ANCHOR", basis, Some("My"), None))
+        };
+        let expect = |basis: (&str, &str), u_m: f64, r: f64, my: f64| {
+            let (u, rr, m) = at(basis);
+            close(u, u_m * 1000.0, s_star * 1000.0, &format!("{basis:?} u"));
+            close(rr, r, point, &format!("{basis:?} R"));
+            close(m, my, pl, &format!("{basis:?} My"));
+        };
+        assert_eq!(state_code(&v, "case:S", "support:PROP"), 1.0);
+        assert_eq!(state_code(&v, "case:O-LIFT", "support:PROP"), 0.0);
+        assert_eq!(state_code(&v, "case:O-ACT", "support:PROP"), 1.0);
+        expect(("load_case", "case:S"), 0.0, 5.0 * point / 16.0, -3.0 * pl / 16.0);
+        expect(("load_case", "case:O-LIFT"), s_star, 0.0, -pl / 2.0);
+        expect(("load_case", "case:O-ACT"), 0.0, 5.0 * point / 32.0, -11.0 * pl / 32.0);
+        expect(("combination", "comb:lift"), s_star, -5.0 * point / 16.0, -5.0 * pl / 16.0);
+        expect(("combination", "comb:act"), 0.0, -5.0 * point / 32.0, -5.0 * pl / 32.0);
+        let notices = diagnostics(&v, STATES_DIFFER);
+        let ids: Vec<&str> = notices.iter().map(|d| d["affected_refs"][0].as_str().unwrap()).collect();
+        assert_eq!(ids, ["comb:lift", "comb:range"], "only the lifted operand changes the prop's state");
+        assert_eq!(
+            notices[0]["message"],
+            format!("combination comb:lift: the reported final state of 1 nonlinear support(s) differs between its operand cases: support:PROP (case:O-LIFT: inactive, case:S: active){STATES_TAIL}")
+        );
+        let records = v["contract_evidence"]["combination_operands"].as_array().unwrap();
+        assert_eq!(records.iter().map(|r| r["combination_id"].as_str().unwrap()).collect::<Vec<_>>(), ["comb:lift", "comb:act", "comb:range"]);
+        for record in records {
+            for operand in record["operands"].as_array().unwrap() {
+                assert_eq!(operand["numerical_quality"], quality(&v, operand["load_case_id"].as_str().unwrap()));
+            }
+        }
+        if mode == PreviewSolverMode::SparseInteractive {
+            corpus.push(json!({"name": "v2_anchor_rise", "mode": "sparse_interactive", "model": wire["model"], "document": v}));
+        }
+    }
+    write_corpus("v2", corpus);
+}
+
+/// V-4: swapping a subtraction's operands negates every finite nonzero signed row;
+/// displacement and support-action magnitudes are unchanged, and zero comparisons
+/// ignore the sign bit. The case order changes no case row.
 #[test]
 fn v4_operand_swap_negates_and_case_order_changes_no_case_row() {
     for mode in MODES {

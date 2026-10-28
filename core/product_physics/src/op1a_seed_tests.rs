@@ -125,3 +125,33 @@ fn every_friction_case_starts_from_the_authored_seed_in_every_order() {
     let cases = vec![case("case:S", 2048.0, 0.0), case("case:O", 2048.0, -8.0), case("case:L", 512.0, 0.0)];
     check(shoe, cases, &[&[0, 1, 2], &[1, 0, 2], &[2, 0, 1]], "sticking");
 }
+
+/// Codex r1 finding 1 (§2.2): a sliding support's slip sense is read from the
+/// relative-displacement row when the case publishes one, and otherwise from the
+/// zero-ground displacement row; a zero or absent sense is unavailable, and an
+/// unavailable sense never establishes equal states.
+#[test]
+fn slip_sense_prefers_the_relative_row_and_unavailable_never_matches() {
+    use crate::preview_physics::{reported_state, same_state};
+    let row = |kind: &str, case: &str, value: f64| ResultItem {
+        component_body: None, id: format!("result:{kind}:{case}"), kind: kind.into(), value, unit: "mm".into(),
+        entity_ref: "support:shoe".into(), basis_ref: Some(ResultBasisRef { ref_type: "load_case".into(), ref_id: case.into() }),
+        source_result_refs: Vec::new(), metadata: None,
+    };
+    let sliding = |case: &str| row("nonlinear_support_active_set_state_code", case, 3.0);
+    let rows = vec![
+        sliding("a"), row("nonlinear_support_final_displacement", "a", 1.0),
+        sliding("b"), row("nonlinear_support_final_displacement", "b", 1.0), row("nonlinear_support_final_relative_displacement", "b", -0.5),
+        sliding("c"), row("nonlinear_support_final_displacement", "c", 0.0),
+        sliding("d"),
+    ];
+    assert_eq!(reported_state(&rows, "a", "support:shoe"), "sliding (positive slip)");
+    assert_eq!(reported_state(&rows, "b", "support:shoe"), "sliding (negative slip)");
+    assert_eq!(reported_state(&rows, "c", "support:shoe"), "sliding (slip sense unavailable)");
+    assert_eq!(reported_state(&rows, "d", "support:shoe"), "sliding (slip sense unavailable)");
+    assert_eq!(reported_state(&rows, "e", "support:shoe"), "unreported");
+    assert!(same_state(&["sliding (positive slip)", "sliding (positive slip)"]));
+    assert!(!same_state(&["sliding (positive slip)", "sliding (negative slip)"]));
+    assert!(!same_state(&["sliding (slip sense unavailable)", "sliding (slip sense unavailable)"]));
+    assert!(!same_state(&["unreported", "unreported"]));
+}
