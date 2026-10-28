@@ -36,10 +36,10 @@ Document unchanged. No new model-document member is added (§7).
 (as `project_id_from_model` reads it, `project:untitled-local` when absent).
 The name therefore carries no project name or id. It does carry the record's
 own hash, so a read checks the bytes against the name with no second file.
-Writing a new name each time and then removing the slot's older records means
-that every moment has at least one complete record. No file is ever replaced
-in place, so the writer's macOS-only replace claim is not needed on any
-platform.
+Writing a new name each time, and removing only records strictly older than
+it once it is durable (§5), means that every moment has at least one complete
+record. No file is replaced in place, except when one writer rewrites a
+record that fails to verify under the same name.
 
 **What it never touches.** An autosave does not open the store. It never writes
 the stored project's row, its envelope hash or revision, its model states
@@ -60,6 +60,12 @@ therefore refused `PROJECT-ID-EXISTS`, and the existing replace prompt shows
 the stored revision and asks (HELP_HUMAN rulings 2026-10-10). Recovery never
 replaces the stored project silently.
 
+The slot is a consistency check, not authentication. It shows that a record's
+document belongs to the project its name records. It cannot show who wrote
+it: anything that can write the app's data directory can write a record that
+passes every check. Recovery therefore always remains an explicit offer the
+user accepts or declines (§3).
+
 **Session content (checked against `workspaceSession.ts` and `write_project_rows`).**
 - Applied edits are in the model document, so they are captured.
 - Queued batches are operations not yet applied to the model. A project save
@@ -75,13 +81,18 @@ replaces the stored project silently.
 
 **When.** The timer (§2) writes only while the session's `modelEdited` is
 true (the unsaved-changes guard's one notion of "edited"). It writes only when
-the model hash differs from the slot's newest record (`unchanged` otherwise),
-and only when no project operation or prompt owns the session.
+the model hash differs from the slot's newest record, and only when no project
+operation or prompt owns the session. `unchanged` (nothing written) needs that
+newest record to read back as its hash; a record truncated or altered under its
+name does not count, and a new record is written.
 
-**Retention.** A slot keeps only its newest record. After a new record is
-written and read back, the slot's older records are removed: names that parse
-as that slot's records, regular files only (never a symlink), in that
-directory only. When Save Local Project lands with the same model hash, the
+**Retention.** A slot normally keeps only its newest record. After a new
+record is written, read back and made durable (§5), the slot's records strictly
+older than it, by written time, are removed. Only names that parse as that
+slot's records are removed, regular files only (never a symlink), in that
+directory only. A record that another window wrote later is kept. This pruning
+replaces retained records automatically; only applying a recovery needs the
+user. When Save Local Project lands with the same model hash, the
 desktop discards the slot's records, since the store now holds that model.
 These are the app's own recovery records in its data directory, not files the
 user saved. The settings text says that autosaves are removed once saved.
@@ -200,19 +211,49 @@ or rolls back a save.
   stages report `AUTOSAVE-WRITE-FAILED`, `-FLUSH-FAILED`, `-FILE-SYNC-FAILED`
   and `-RENAME-FAILED`, each with the OS error kind and code. The temporary
   file is removed on failure.
+- **One transaction per slot.** The newest-record check, the write, the
+  read-back and the pruning run while the slot's exclusive lock is held. The
+  lock is `flock(LOCK_EX)`, through std `File::try_lock`, on `<slot>.lock` in
+  the records directory, polled every 10 ms for at most 5 s
+  (`AUTOSAVE-LOCK-BUSY` after that). An flock lock belongs to the open file
+  description, so two threads that each open the file, two windows and two
+  processes exclude each other on macOS, while separate slots never contend.
+  The kernel releases it when the file closes, also when a process crashes.
+  The lock file is never removed, because removing it would let a later opener
+  lock a different file. Two openers creating it at once can see `ENOENT` from
+  `O_CREAT` on macOS; that open is retried, at most 16 times. Even without the
+  lock, pruning only strictly older records keeps the newest record of every
+  writer.
+- **Durability before pruning.** Creating `autosave/` syncs its parent
+  directory. When that sync, or the directory sync after the rename, fails,
+  is suppressed or times out, the write reports `saved_durability_uncertain`
+  with `AUTOSAVE-PRUNE-DEFERRED`, and every older record is kept. The next
+  durable write prunes them.
 - **Failure.** A failed write leaves the store unread and untouched, the
   previous record in place and the failure reported. A crash before the rename
   leaves at most a `.swbpipe-autosave-*.tmp` file, which no listing or recovery
-  ever reads. A failed directory sync after the rename is reported as
-  `saved_durability_uncertain`.
+  ever reads.
 - **Read-back.** After the rename, the file is streamed through SHA-256 in
   64 KiB blocks and compared with the model hash. On a mismatch
   (`AUTOSAVE-READBACK-MISMATCH`) or a read error (`AUTOSAVE-READBACK-FAILED`),
   that new file alone is removed and the previous record is kept.
+- **Containment.** Every read, including the read-back and the `unchanged`
+  check, opens the records directory `O_DIRECTORY | O_NOFOLLOW`, so a symlinked
+  `autosave/` is refused (`AUTOSAVE-DIRECTORY-UNAVAILABLE`). It then resolves
+  each name once, relative to that handle. A record is first inspected with
+  `fstatat(AT_SYMLINK_NOFOLLOW)`: it must be a regular file within the cap.
+  It is opened `O_NOFOLLOW | O_NONBLOCK`, and `fstat` on the descriptor must
+  show a regular file with the inspected device, inode and size. A record
+  swapped for a symlink, replaced or grown after inspection is refused
+  (`AUTOSAVE-UNREADABLE`). The read is hard-capped at the inspected size, which
+  is the size reserved; the buffer is allocated once, and a longer or shorter
+  file is refused. Enumeration keeps one entry at a time for writes and
+  pruning. A listing keeps at most 1,024 newest entries in a bounded heap,
+  reserved first (512 bytes an entry), and counts the rest.
 - **Read for recovery.** The name must parse, which also refuses path
-  separators. The file must be a regular file within the cap, and its SHA-256
-  must equal the hash in its name (`AUTOSAVE-INTEGRITY`). Then the content
-  checks above run again, and the document's slot must be the name's slot.
+  separators. Under the containment above, the file's SHA-256 must equal the
+  hash in its name (`AUTOSAVE-INTEGRITY`). Then the content checks above run
+  again, and the document's slot must be the name's slot.
 
 ## 6. Memory
 
@@ -227,8 +268,12 @@ Slice 2 adds these native commands under the DEL-04-07 ingress rules
 | `write_project_backup` | `{projectId}` | `admit_within` 256 KiB. The stored text's read as the recovery export's (`StoreLibraryReads`, 1.5 MiB before the store opens), the screening and the read-back block. |
 | `get_autosave_settings`, `set_autosave_settings`, `choose_backup_folder` | scalars | `admit_within` 4 KiB. |
 
-The slice-1 functions take `&dyn ReadMemory` and reserve exactly these terms,
-so the commands only seed the memory from their lease.
+The slice-1 functions take `&dyn ReadMemory` and reserve these terms
+themselves: the parse, the canonical copy, the read-back block, the file's
+load and the listing's entries. The commands only seed the memory from their
+lease. Slice 2 still has to verify the admission of `write_project_autosave`
+(envelope + materialization + 4 KiB) against its measured peak, with the
+counting-allocator tests the other model-sized commands use.
 
 ## 7. Boundaries
 
@@ -253,7 +298,7 @@ so the commands only seed the memory from their lease.
 
 | Slice | Content | Tests | Gate |
 |---|---|---|---|
-| 1 | This design. `autosave.rs`: slot and name, verified atomic record write with read-back and own-slot pruning, listing, verified read. The writer's I/O seam shared at crate visibility. | Rust: exact bytes and hash; `unchanged`; injected disk full (ENOSPC) at write; real permission denied (read-only directory); injected interrupted rename; crash-before-rename temp ignored; read-back mismatch removes only the new file; store file untouched in every case; tampered and renamed records refused on read; non-current and malformed documents refused; pruning removes only the slot's own records. | Independent review of the module (persistence) before slice 2 builds on it. |
+| 1 | This design. `autosave.rs`: slot and name, the per-slot locked write transaction with read-back, durability-gated pruning of strictly older records, a bounded listing and a contained, verified read. The writer's I/O seam, including its directory sync, shared at crate visibility. | Rust: exact bytes and hash; `unchanged`; injected disk full (ENOSPC) at write; real permission denied (read-only directory); injected interrupted rename; crash-before-rename temp ignored; read-back mismatch removes only the new file; store file untouched in every case; tampered and renamed records refused on read; non-current and malformed documents refused; pruning removes only the slot's own strictly older records. Review r1: two writers on one slot always leave a valid record; a write waits for its slot's lock and another slot does not; a failed directory sync keeps older records; creating the directory syncs its parent; an `unchanged` record that does not verify is rewritten; a listing beyond its limit is bounded and reserved; a symlinked directory, a record swapped for a symlink and a record that grows are refused; the capped read never reads past its cap. | Independent review of the module (persistence) before slice 2 builds on it. |
 | 2 | Commands of §6 for autosave and settings; the desktop timer, status lines, recovery offer and discard; discard after a landed save. | Rust: command arguments and leases. Vitest: Off by default; writes only while edited and on the interval; one in flight; refusal display; offer shown only for a newer record; shows what it replaces; never auto-applied; Open goes through the guard; Discard confirms. | Independent review. Native smoke stays with the owner. |
 | 3 | Backup: folder chooser, settings, write after a landed save, rotation, refusal display. | Rust: backup equals the stored text and hash; rotation with All deletes nothing; N deletes only that project's pattern, never symlinks or other files; missing, read-only and full folder refusals; screening refusal. Vitest: settings, refusal line after a landed save. | Independent review (rotation deletes files). |
 

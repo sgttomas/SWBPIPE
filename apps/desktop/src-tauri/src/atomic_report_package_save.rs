@@ -64,8 +64,9 @@ pub const MODEL_DOCUMENT_FORMAT: AtomicSaveFormat = AtomicSaveFormat {
     log_label: "model-document",
 };
 
+/// The bounded parent-directory sync's result.
 #[derive(Debug, PartialEq, Eq)]
-enum DirectorySyncResult {
+pub(crate) enum DirectorySyncResult {
     Durable,
     Failed {
         kind: String,
@@ -353,6 +354,11 @@ pub(crate) trait AtomicSaveIo {
     fn sync_temp(&mut self, temp: &File) -> io::Result<()>;
     fn rename(&mut self, source: &Path, destination: &Path) -> io::Result<()>;
     fn cleanup_temp(&mut self, temp_path: &Path) -> io::Result<()>;
+    /// The bounded sync of `parent` after the rename (the system's, by
+    /// default; a test may report a failed sync).
+    fn sync_parent(&mut self, parent: &Path) -> DirectorySyncResult {
+        sync_parent_directory_bounded(parent)
+    }
 }
 
 pub(crate) struct SystemAtomicSaveIo;
@@ -455,7 +461,7 @@ pub(crate) fn atomic_save_bytes_as_with_io(
             .with_cleanup(format, operations.cleanup_temp(&temp_path)));
     }
 
-    let directory_sync = sync_parent_directory_bounded(&parent);
+    let directory_sync = operations.sync_parent(&parent);
     let durability = match &directory_sync {
         DirectorySyncResult::Durable => "durable",
         DirectorySyncResult::Failed { kind, raw_os_error } => {

@@ -161,6 +161,6 @@ checks:
 - apps/desktop/src-tauri/src/lib.rs
 - apps/desktop/src-tauri/src/model_document_file.rs
 - apps/desktop/src-tauri/src/model_document_version.rs
-- apps/desktop/src-tauri/src/autosave.rs
+- apps/desktop/src-tauri/src/autosave_tests.rs
 - apps/desktop/src/features/model-file/modelDocumentOpen.test.tsx
 - apps/desktop/e2e/b3b-project-persistence.spec.ts

@@ -7,28 +7,43 @@
 //! Its name `<slot>-<written unix millis, 13 digits>-<model hash hex>.json`
 //! carries its identity: `slot` is the first 32 hex digits of the SHA-256 of
 //! the document's `project.id`, so no project name or id is in a name, and the
-//! hash lets every read check the bytes with no second file.
+//! hash lets every read check the bytes with no second file. The slot is a
+//! consistency check, not authentication: anything that can write the app's
+//! data directory can write a record, so recovery is always an explicit offer.
 //!
 //! Before anything is written, the text must be within the open cap, hash to
 //! the claim, be its own canonical form and pass the open path's checks
-//! (`model_document_save::open_path_checks`), so every record re-opens. The
-//! record is written by the extension-neutral atomic writer (temporary file,
-//! flush, fsync, rename, bounded directory sync), then read back through
-//! SHA-256 in fixed blocks. Only after that are the slot's other records
-//! removed (regular files whose names parse as that slot's records). A failure
-//! at any step leaves the previous record in place and is reported by name;
-//! the store is never opened. Nothing here approves, accepts or issues
-//! anything: a record is a recovery copy of the user's model.
+//! (`model_document_save::open_path_checks`), so every record re-opens. Then,
+//! holding the slot's exclusive lock (`<slot>.lock`, `flock` through
+//! `File::try_lock`, across threads, windows and processes), the transaction
+//! checks the slot's newest record, writes the new one with the
+//! extension-neutral atomic writer (temporary file, flush, fsync, rename,
+//! bounded directory sync), reads it back through SHA-256 in fixed blocks and,
+//! only when the write is durable, removes the slot's records strictly older
+//! than it. A failure at any step leaves the previous record in place and is
+//! reported by name; the store is never opened. Nothing here approves,
+//! accepts or issues anything: a record is a recovery copy of the user's model.
+//!
+//! Every read is contained: the directory is opened `O_DIRECTORY |
+//! O_NOFOLLOW`, each name is resolved once relative to that handle, files are
+//! opened `O_NOFOLLOW | O_NONBLOCK` and checked by `fstat` against what was
+//! inspected (a regular file, the same device and inode, the same size), and
+//! read with a hard cap at that size. Directory enumeration keeps O(1) state
+//! for writes and pruning, and at most [`MAX_LISTED_AUTOSAVES`] reserved
+//! entries for a listing.
 //!
 //! Memory: each function takes the command's `ReadMemory` and reserves the
-//! text's parse, its canonical copy, a file's load and the read-back block
-//! before it makes them (DEL-04-07 "Model-sized interactive commands").
+//! text's parse, its canonical copy, a file's load, the read-back block and a
+//! listing's entries before it makes them (DEL-04-07 "Model-sized interactive
+//! commands").
 
 // Slice 2 wires these functions into native commands; until then only the
 // tests call them.
 #![cfg_attr(not(test), allow(dead_code))]
 
-use crate::atomic_report_package_save::{atomic_save_bytes_as_with_io, AtomicSaveFormat, AtomicSaveIo, SystemAtomicSaveIo};
+use crate::atomic_report_package_save::{
+    atomic_save_bytes_as_with_io, AtomicSaveFormat, AtomicSaveIo, DirectorySyncResult, SystemAtomicSaveIo,
+};
 use crate::export_disposition_screen::{diagnostic, DispositionDiagnostic};
 use crate::model_document_file::MAX_MODEL_DOCUMENT_BYTES;
 use crate::model_document_save::{open_path_checks, writer_diagnostic};
@@ -37,9 +52,14 @@ use open_pipe_stress_operation_applier::sha256_hex;
 use serde::Serialize;
 use serde_json::Value;
 use sha2::{Digest, Sha256};
-use std::fs::{self, File};
+use std::cmp::Reverse;
+use std::collections::BinaryHeap;
+use std::fs::{self, File, TryLockError};
 use std::io::{self, Read};
+use std::os::fd::{AsRawFd, FromRawFd, OwnedFd};
+use std::os::unix::fs::MetadataExt;
 use std::path::Path;
+use std::time::{Duration, Instant};
 
 /// The records' directory, beside the store file in the app's local data directory.
 pub(crate) const AUTOSAVE_DIRECTORY: &str = "autosave";
@@ -58,9 +78,12 @@ pub(crate) const TOO_LARGE: &str = "AUTOSAVE-TOO-LARGE";
 pub(crate) const VERSION_NOT_CURRENT: &str = "AUTOSAVE-VERSION-NOT-CURRENT";
 pub(crate) const DIRECTORY_UNAVAILABLE: &str = "AUTOSAVE-DIRECTORY-UNAVAILABLE";
 pub(crate) const CLOCK_INVALID: &str = "AUTOSAVE-CLOCK-INVALID";
+pub(crate) const LOCK_BUSY: &str = "AUTOSAVE-LOCK-BUSY";
+pub(crate) const LOCK_FAILED: &str = "AUTOSAVE-LOCK-FAILED";
 pub(crate) const READBACK_MISMATCH: &str = "AUTOSAVE-READBACK-MISMATCH";
 pub(crate) const READBACK_FAILED: &str = "AUTOSAVE-READBACK-FAILED";
 pub(crate) const PRUNE_FAILED: &str = "AUTOSAVE-PRUNE-FAILED";
+pub(crate) const PRUNE_DEFERRED: &str = "AUTOSAVE-PRUNE-DEFERRED";
 pub(crate) const NAME_INVALID: &str = "AUTOSAVE-NAME-INVALID";
 pub(crate) const NOT_FOUND: &str = "AUTOSAVE-NOT-FOUND";
 pub(crate) const UNREADABLE: &str = "AUTOSAVE-UNREADABLE";
@@ -70,6 +93,15 @@ pub(crate) const INTEGRITY: &str = "AUTOSAVE-INTEGRITY";
 pub(crate) const READBACK_BLOCK_BYTES: usize = 64 * 1024;
 /// The most records one listing names; the rest are counted.
 pub(crate) const MAX_LISTED_AUTOSAVES: usize = 1024;
+/// One retained listing entry: its heap slot and name, and the entry built
+/// from it (three strings of at most 64 bytes and two integers), with margin.
+pub(crate) const LISTED_ENTRY_BYTES: u64 = 512;
+/// How long a write waits for its slot's lock before it is refused.
+pub(crate) const LOCK_WAIT: Duration = Duration::from_secs(5);
+const LOCK_POLL: Duration = Duration::from_millis(10);
+const LOCK_CREATE_RETRIES: u32 = 16;
+/// The most pruning warnings named; the rest are counted in one more.
+const MAX_PRUNE_WARNINGS: usize = 16;
 
 const SLOT_HEX_DIGITS: usize = 32;
 const MILLIS_DIGITS: usize = 13;
@@ -101,7 +133,7 @@ impl AutosaveName {
     }
 
     /// The name of a record, or `None` for any other name (a temporary file, a
-    /// path with a separator, another file).
+    /// lock file, a path with a separator, another file).
     pub(crate) fn parse(file_name: &str) -> Option<Self> {
         let stem = file_name.strip_suffix(".json")?;
         let mut parts = stem.split('-');
@@ -116,7 +148,316 @@ impl AutosaveName {
         }
         Some(Self { slot: slot.to_string(), written_unix_millis: millis.parse().ok()?, model_hash_hex: hash.to_string() })
     }
+
+    /// The order of records: by written time, then by name.
+    fn key(&self) -> (u64, String) {
+        (self.written_unix_millis, self.file_name())
+    }
 }
+
+// ---------------------------------------------------------------------------
+// The contained directory handle.
+// ---------------------------------------------------------------------------
+
+const DIR_FLAGS: libc::c_int = libc::O_RDONLY | libc::O_DIRECTORY | libc::O_NOFOLLOW | libc::O_NONBLOCK | libc::O_CLOEXEC;
+const FILE_READ_FLAGS: libc::c_int = libc::O_RDONLY | libc::O_NOFOLLOW | libc::O_NONBLOCK | libc::O_CLOEXEC;
+const LOCK_FILE_FLAGS: libc::c_int = libc::O_RDWR | libc::O_CREAT | libc::O_NOFOLLOW | libc::O_NONBLOCK | libc::O_CLOEXEC;
+
+fn check(result: libc::c_int) -> io::Result<libc::c_int> {
+    if result < 0 { Err(io::Error::last_os_error()) } else { Ok(result) }
+}
+
+fn c_name(name: &str) -> io::Result<std::ffi::CString> {
+    if name.is_empty() || name.contains('/') || name == "." || name == ".." {
+        return Err(io::Error::new(io::ErrorKind::InvalidInput, "not one path component"));
+    }
+    Ok(std::ffi::CString::new(name)?)
+}
+
+fn is_regular(stat: &libc::stat) -> bool {
+    (stat.st_mode as u32 & libc::S_IFMT as u32) == libc::S_IFREG as u32
+}
+
+/// The `autosave/` directory, opened `O_DIRECTORY | O_NOFOLLOW` (a symlinked
+/// directory is refused). Every name below is one component resolved relative
+/// to this handle, and no symlink is followed.
+struct RecordDir(OwnedFd);
+
+/// A record entry as inspected (`fstatat`, no symlink followed).
+#[derive(Clone, Copy)]
+struct Inspected {
+    device: u64,
+    inode: u64,
+    len: u64,
+}
+
+/// Why a contained open did not yield the inspected regular file.
+enum Access {
+    NotFound,
+    NotRegular,
+    TooLarge(u64),
+    Changed(&'static str),
+    Io(io::Error),
+}
+
+impl From<io::Error> for Access {
+    fn from(error: io::Error) -> Self {
+        if error.kind() == io::ErrorKind::NotFound { Access::NotFound } else { Access::Io(error) }
+    }
+}
+
+impl Access {
+    fn describe(&self, file_name: &str) -> (String, &'static str) {
+        match self {
+            Access::NotFound => (format!("The autosave `{file_name}` is no longer there."), NOT_FOUND),
+            Access::NotRegular => (format!("The autosave `{file_name}` is not a regular file."), UNREADABLE),
+            Access::TooLarge(len) => (format!("The autosave is {len} bytes; a model document may be at most {MAX_MODEL_DOCUMENT_BYTES} bytes."), TOO_LARGE),
+            Access::Changed(what) => (format!("The autosave `{file_name}` {what}."), UNREADABLE),
+            Access::Io(error) => (format!("The autosave `{file_name}` could not be read: {error}."), UNREADABLE),
+        }
+    }
+}
+
+#[cfg(test)]
+thread_local! {
+    /// Runs once between a record's inspection and its open (the swap and
+    /// growth tests).
+    static BEFORE_OPEN: std::cell::RefCell<Option<Box<dyn FnOnce()>>> = std::cell::RefCell::new(None);
+}
+
+impl RecordDir {
+    fn open(path: &Path) -> io::Result<Self> {
+        use std::os::unix::ffi::OsStrExt;
+        let path = std::ffi::CString::new(path.as_os_str().as_bytes())?;
+        // SAFETY: a NUL-terminated path; the descriptor is owned on success.
+        let fd = check(unsafe { libc::open(path.as_ptr(), DIR_FLAGS) })?;
+        Ok(Self(unsafe { OwnedFd::from_raw_fd(fd) }))
+    }
+
+    fn fd(&self) -> libc::c_int {
+        self.0.as_raw_fd()
+    }
+
+    fn stat_child(&self, name: &str) -> io::Result<libc::stat> {
+        let name = c_name(name)?;
+        // SAFETY: `stat` is plain data that `fstatat` fills; AT_SYMLINK_NOFOLLOW
+        // reports a link itself.
+        let mut stat: libc::stat = unsafe { std::mem::zeroed() };
+        check(unsafe { libc::fstatat(self.fd(), name.as_ptr(), &mut stat, libc::AT_SYMLINK_NOFOLLOW) })?;
+        Ok(stat)
+    }
+
+    /// The entry `name`: a regular file within `bound` bytes.
+    fn inspect(&self, name: &str, bound: u64) -> Result<Inspected, Access> {
+        let stat = self.stat_child(name)?;
+        if !is_regular(&stat) {
+            return Err(Access::NotRegular);
+        }
+        let len = stat.st_size.max(0) as u64;
+        if len > bound {
+            return Err(Access::TooLarge(len));
+        }
+        Ok(Inspected { device: stat.st_dev as u64, inode: stat.st_ino as u64, len })
+    }
+
+    /// Opens `name` as inspected: `O_NOFOLLOW | O_NONBLOCK` (a symlink is
+    /// refused, a FIFO never blocks), and `fstat` on the descriptor must show a
+    /// regular file with the inspected device, inode and size.
+    fn open_inspected(&self, name: &str, inspected: Inspected) -> Result<File, Access> {
+        #[cfg(test)]
+        BEFORE_OPEN.with(|hook| {
+            let hook = hook.borrow_mut().take();
+            if let Some(hook) = hook {
+                hook()
+            }
+        });
+        let c = c_name(name)?;
+        // SAFETY: a valid directory descriptor and a NUL-terminated name; the
+        // descriptor is owned by the File.
+        let fd = check(unsafe { libc::openat(self.fd(), c.as_ptr(), FILE_READ_FLAGS) })?;
+        let file = unsafe { File::from_raw_fd(fd) };
+        let metadata = file.metadata()?;
+        if !metadata.is_file() {
+            return Err(Access::NotRegular);
+        }
+        if (metadata.dev(), metadata.ino()) != (inspected.device, inspected.inode) {
+            return Err(Access::Changed("was replaced after it was inspected"));
+        }
+        if metadata.len() != inspected.len {
+            return Err(Access::Changed("changed size after it was inspected"));
+        }
+        Ok(file)
+    }
+
+    /// The slot's lock file `<slot>.lock`, created if absent, never through a link.
+    /// Two openers creating it at once can see `ENOENT` from `O_CREAT` on
+    /// macOS (observed by the two-writer test); the open is then retried, a
+    /// bounded number of times, while the directory handle stays valid.
+    fn open_lock(&self, slot: &str) -> io::Result<File> {
+        let c = c_name(&format!("{slot}.lock"))?;
+        let mut attempts = 0;
+        loop {
+            // SAFETY: as above; mode 0600.
+            match check(unsafe { libc::openat(self.fd(), c.as_ptr(), LOCK_FILE_FLAGS, 0o600 as libc::c_uint) }) {
+                Ok(fd) => return Ok(unsafe { File::from_raw_fd(fd) }),
+                Err(error) if error.kind() == io::ErrorKind::NotFound && attempts < LOCK_CREATE_RETRIES => {
+                    attempts += 1;
+                    std::thread::yield_now();
+                }
+                Err(error) => return Err(error),
+            }
+        }
+    }
+
+    fn unlink(&self, name: &str) -> io::Result<()> {
+        let c = c_name(name)?;
+        // SAFETY: as above; `unlinkat` never follows a link.
+        check(unsafe { libc::unlinkat(self.fd(), c.as_ptr(), 0) }).map(|_| ())
+    }
+
+    /// Calls `each` with every record entry: a name that parses as a record and
+    /// a regular file (inspected without following a link), with its length.
+    /// The enumeration holds one entry at a time.
+    fn each_record(&self, mut each: impl FnMut(AutosaveName, u64)) -> io::Result<()> {
+        // SAFETY: `fdopendir` takes ownership of the duplicated descriptor and
+        // `closedir` releases both; each `readdir` entry is read before the next call.
+        let duplicate = check(unsafe { libc::fcntl(self.fd(), libc::F_DUPFD_CLOEXEC, 0) })?;
+        let stream = unsafe { libc::fdopendir(duplicate) };
+        if stream.is_null() {
+            let error = io::Error::last_os_error();
+            unsafe { libc::close(duplicate) };
+            return Err(error);
+        }
+        struct Stream(*mut libc::DIR);
+        impl Drop for Stream {
+            fn drop(&mut self) {
+                unsafe { libc::closedir(self.0) };
+            }
+        }
+        let stream = Stream(stream);
+        // The duplicate shares the handle's offset: read from the start each time.
+        unsafe { libc::rewinddir(stream.0) };
+        loop {
+            let entry = unsafe { libc::readdir(stream.0) };
+            if entry.is_null() {
+                return Ok(());
+            }
+            let name = unsafe { std::ffi::CStr::from_ptr((*entry).d_name.as_ptr()) };
+            let Some(name) = name.to_str().ok().and_then(AutosaveName::parse) else {
+                continue;
+            };
+            match self.stat_child(&name.file_name()) {
+                Ok(stat) if is_regular(&stat) => each(name, stat.st_size.max(0) as u64),
+                Ok(_) => {}
+                // Removed since it was listed.
+                Err(error) if error.kind() == io::ErrorKind::NotFound => {}
+                Err(error) => return Err(error),
+            }
+        }
+    }
+}
+
+/// Reads an opened record of `len` bytes with a hard cap at `len`: the buffer
+/// is allocated once at `len + 1`, and a file that yields more or fewer bytes
+/// is refused.
+fn read_capped(file: &File, len: u64) -> Result<Vec<u8>, Access> {
+    let bytes = read_at_most(file, len)?;
+    if file.metadata().map_err(Access::Io)?.len() != len {
+        return Err(Access::Changed("changed while it was read"));
+    }
+    Ok(bytes)
+}
+
+/// The capped read itself: at most `len + 1` bytes are taken from `reader`.
+fn read_at_most(reader: impl Read, len: u64) -> Result<Vec<u8>, Access> {
+    let capacity = usize::try_from(len.saturating_add(1)).map_err(|_| Access::TooLarge(len))?;
+    let mut bytes = Vec::with_capacity(capacity);
+    reader.take(len.saturating_add(1)).read_to_end(&mut bytes).map_err(Access::Io)?;
+    if bytes.len() as u64 != len {
+        return Err(Access::Changed("changed while it was read"));
+    }
+    Ok(bytes)
+}
+
+/// SHA-256 (bare hex) of an opened record of `len` bytes, streamed through one
+/// block of [`READBACK_BLOCK_BYTES`] with a hard cap at `len`.
+fn stream_sha256_hex(file: &File, len: u64) -> Result<String, Access> {
+    let mut hasher = Sha256::new();
+    let mut block = vec![0_u8; READBACK_BLOCK_BYTES];
+    let mut reader = file.take(len.saturating_add(1));
+    let mut total = 0_u64;
+    loop {
+        let count = reader.read(&mut block).map_err(Access::Io)?;
+        if count == 0 {
+            break;
+        }
+        total += count as u64;
+        hasher.update(&block[..count]);
+    }
+    if total != len {
+        return Err(Access::Changed("changed while it was read"));
+    }
+    Ok(hasher.finalize().iter().map(|byte| format!("{byte:02x}")).collect())
+}
+
+/// SHA-256 (bare hex) of the record `name`, contained, within `memory`.
+fn record_sha256_hex(dir: &RecordDir, name: &str, memory: &dyn ReadMemory) -> Result<String, String> {
+    let _block: ReadReservation = memory.reserve("the autosave read-back block", READBACK_BLOCK_BYTES as u64)?;
+    let hashed = dir.inspect(name, MAX_MODEL_DOCUMENT_BYTES).and_then(|inspected| {
+        let file = dir.open_inspected(name, inspected)?;
+        stream_sha256_hex(&file, inspected.len)
+    });
+    hashed.map_err(|access| access.describe(name).0)
+}
+
+// ---------------------------------------------------------------------------
+// The slot lock.
+// ---------------------------------------------------------------------------
+
+/// A slot's exclusive lock, held until dropped. It is `flock(LOCK_EX)` (std
+/// `File::try_lock`) on `<slot>.lock` in the records' directory: an advisory
+/// lock of the open file description, so two threads that each open the file,
+/// two windows and two processes exclude each other, while different slots
+/// never contend. The kernel releases it when the file closes, also when the
+/// process ends or crashes. The lock file is never removed (removing it would
+/// let a later opener lock a different file).
+pub(crate) struct SlotLock {
+    _file: File,
+}
+
+fn lock_slot(dir: &RecordDir, slot: &str, wait: Duration) -> Result<SlotLock, DispositionDiagnostic> {
+    let file = dir
+        .open_lock(slot)
+        .map_err(|error| diagnostic(LOCK_FAILED, "", format!("The autosave lock could not be opened: {error}. Nothing was written.")))?;
+    let deadline = Instant::now() + wait;
+    loop {
+        match file.try_lock() {
+            Ok(()) => return Ok(SlotLock { _file: file }),
+            Err(TryLockError::WouldBlock) if Instant::now() < deadline => std::thread::sleep(LOCK_POLL),
+            Err(TryLockError::WouldBlock) => {
+                return Err(diagnostic(
+                    LOCK_BUSY,
+                    "",
+                    format!("Another autosave of this project held its lock for over {} ms. Nothing was written.", wait.as_millis()),
+                ))
+            }
+            Err(TryLockError::Error(error)) => {
+                return Err(diagnostic(LOCK_FAILED, "", format!("The autosave lock could not be taken: {error}. Nothing was written.")))
+            }
+        }
+    }
+}
+
+/// The lock of `slot`'s records in `directory` (an existing records directory).
+pub(crate) fn lock_slot_at(directory: &Path, slot: &str, wait: Duration) -> Result<SlotLock, DispositionDiagnostic> {
+    let dir = RecordDir::open(directory)
+        .map_err(|error| diagnostic(DIRECTORY_UNAVAILABLE, "", format!("The autosave directory is unavailable: {error}.")))?;
+    lock_slot(&dir, slot, wait)
+}
+
+// ---------------------------------------------------------------------------
+// Records.
+// ---------------------------------------------------------------------------
 
 /// One record a listing names (no content is read).
 #[derive(Debug, Clone, Serialize, PartialEq, Eq)]
@@ -147,13 +488,16 @@ pub(crate) enum AutosaveWriteOutcome {
         /// `sha256:<hex>` of the bytes written and read back: the model hash.
         model_hash: String,
         byte_count: u64,
-        /// `durable`, or `saved_durability_uncertain` when the directory sync
-        /// after the rename did not complete.
+        /// `durable`, or `saved_durability_uncertain` when a directory sync
+        /// (after the rename, or after creating the directory) did not
+        /// complete; the older records are then kept.
         durability: String,
-        /// Older records of the slot that could not be removed.
+        /// Older records kept (`AUTOSAVE-PRUNE-DEFERRED`) or not removed
+        /// (`AUTOSAVE-PRUNE-FAILED`).
         warnings: Vec<DispositionDiagnostic>,
     },
-    /// The slot's newest record already holds this model; nothing was written.
+    /// The slot's newest record holds this model and reads back as its hash;
+    /// nothing was written.
     Unchanged { file_name: String, slot: String, model_hash: String },
     Refused { diagnostics: Vec<DispositionDiagnostic> },
 }
@@ -217,105 +561,118 @@ fn admit_text(text: &str, claimed_hex: &str, mismatch: &str, memory: &dyn ReadMe
     Ok(AdmittedText { document: Metered::new(document).holding(reservation), slot, model_hash_hex: hex })
 }
 
-/// The directory exists as a real directory (created if absent, under an
-/// existing parent); a symlink or another file there is refused.
-fn ensure_directory(directory: &Path) -> Result<(), DispositionDiagnostic> {
+/// The directory exists as a real directory. When it is created here (under
+/// an existing parent), the parent is synced through `io`, so the new
+/// directory entry is durable; the result says whether that sync completed.
+fn ensure_directory(directory: &Path, io: &mut impl AtomicSaveIo) -> Result<bool, DispositionDiagnostic> {
     let unavailable = |detail: String| diagnostic(DIRECTORY_UNAVAILABLE, "", format!("The autosave directory is unavailable: {detail}. Nothing was written."));
+    let existing = |metadata: fs::Metadata| {
+        if metadata.is_dir() && !metadata.file_type().is_symlink() { Ok(true) } else { Err(unavailable("it is not a directory".to_string())) }
+    };
     match fs::symlink_metadata(directory) {
-        Ok(metadata) if metadata.is_dir() && !metadata.file_type().is_symlink() => Ok(()),
-        Ok(_) => Err(unavailable("it is not a directory".to_string())),
-        Err(error) if error.kind() == io::ErrorKind::NotFound => fs::create_dir(directory).map_err(|error| unavailable(error.to_string())),
+        Ok(metadata) => existing(metadata),
+        Err(error) if error.kind() == io::ErrorKind::NotFound => match fs::create_dir(directory) {
+            Ok(()) => {
+                let parent = directory.parent().ok_or_else(|| unavailable("it has no parent".to_string()))?;
+                Ok(io.sync_parent(parent) == DirectorySyncResult::Durable)
+            }
+            // Another writer created it first.
+            Err(error) if error.kind() == io::ErrorKind::AlreadyExists => {
+                fs::symlink_metadata(directory).map_err(|error| unavailable(error.to_string())).and_then(existing)
+            }
+            Err(error) => Err(unavailable(error.to_string())),
+        },
         Err(error) => Err(unavailable(error.to_string())),
     }
 }
 
-/// Every record in `directory` (regular files whose names parse), with its
-/// length; a missing directory holds none. Names only: no content is read.
-fn scan(directory: &Path) -> io::Result<Vec<(AutosaveName, u64)>> {
-    let entries = match fs::read_dir(directory) {
-        Ok(entries) => entries,
-        Err(error) if error.kind() == io::ErrorKind::NotFound => return Ok(Vec::new()),
-        Err(error) => return Err(error),
-    };
-    let mut records = Vec::new();
-    for entry in entries {
-        let entry = entry?;
-        // `DirEntry::file_type` does not follow a symlink.
-        if !entry.file_type()?.is_file() {
-            continue;
+/// The newest record of `slot` (O(1) state over the enumeration).
+fn newest_of_slot(dir: &RecordDir, slot: &str) -> io::Result<Option<AutosaveName>> {
+    let mut newest: Option<AutosaveName> = None;
+    dir.each_record(|name, _| {
+        if name.slot == slot && newest.as_ref().is_none_or(|current| name.key() > current.key()) {
+            newest = Some(name);
         }
-        let Some(name) = entry.file_name().to_str().and_then(AutosaveName::parse) else {
-            continue;
-        };
-        records.push((name, entry.metadata()?.len()));
-    }
-    records.sort_by(|(left, _), (right, _)| {
-        right.written_unix_millis.cmp(&left.written_unix_millis).then_with(|| right.file_name().cmp(&left.file_name()))
-    });
-    Ok(records)
+    })?;
+    Ok(newest)
 }
 
-/// The records in `directory`, newest first, at most [`MAX_LISTED_AUTOSAVES`].
-pub(crate) fn list_autosaves(directory: &Path) -> Result<AutosaveListing, DispositionDiagnostic> {
-    if let Ok(metadata) = fs::symlink_metadata(directory) {
-        if !metadata.is_dir() || metadata.file_type().is_symlink() {
-            return Err(diagnostic(DIRECTORY_UNAVAILABLE, "", "The autosave directory is not a directory."));
+/// Removes the records of `slot` strictly older than `written` (by written
+/// time): regular files whose names parse as that slot's records, in the
+/// handle's directory only. Each failure is a warning.
+fn prune_older(dir: &RecordDir, slot: &str, written: &AutosaveName) -> Vec<DispositionDiagnostic> {
+    let mut warnings = Vec::new();
+    let mut unnamed = 0_usize;
+    let enumerated = dir.each_record(|name, _| {
+        if name.slot != slot || name.written_unix_millis >= written.written_unix_millis {
+            return;
         }
+        let file_name = name.file_name();
+        if let Err(error) = dir.unlink(&file_name) {
+            if error.kind() == io::ErrorKind::NotFound {
+                return;
+            }
+            if warnings.len() < MAX_PRUNE_WARNINGS {
+                warnings.push(diagnostic(PRUNE_FAILED, "", format!("The older autosave `{file_name}` was not removed: {error}.")));
+            } else {
+                unnamed += 1;
+            }
+        }
+    });
+    if let Err(error) = enumerated {
+        warnings.push(diagnostic(PRUNE_FAILED, "", format!("The slot's older autosaves could not be listed: {error}.")));
     }
-    let records = scan(directory)
-        .map_err(|error| diagnostic(DIRECTORY_UNAVAILABLE, "", format!("The autosave directory could not be listed: {error}.")))?;
-    let not_listed = records.len().saturating_sub(MAX_LISTED_AUTOSAVES);
-    let entries = records
+    if unnamed > 0 {
+        warnings.push(diagnostic(PRUNE_FAILED, "", format!("{unnamed} more older autosaves were not removed.")));
+    }
+    warnings
+}
+
+/// The records in `directory`, newest first, at most [`MAX_LISTED_AUTOSAVES`]
+/// of them; the rest are counted. The retained entries are reserved in
+/// `memory` before the enumeration, which keeps at most that many.
+pub(crate) fn list_autosaves(directory: &Path, memory: &dyn ReadMemory) -> Result<Metered<AutosaveListing>, DispositionDiagnostic> {
+    let unavailable = |detail: String| diagnostic(DIRECTORY_UNAVAILABLE, "", format!("The autosave directory could not be listed: {detail}."));
+    match fs::symlink_metadata(directory) {
+        Err(error) if error.kind() == io::ErrorKind::NotFound => {
+            return Ok(Metered::new(AutosaveListing { entries: Vec::new(), not_listed: 0 }))
+        }
+        Err(error) => return Err(unavailable(error.to_string())),
+        Ok(metadata) if !metadata.is_dir() || metadata.file_type().is_symlink() => {
+            return Err(diagnostic(DIRECTORY_UNAVAILABLE, "", "The autosave directory is not a directory."))
+        }
+        Ok(_) => {}
+    }
+    let reservation = memory
+        .reserve("the autosave listing", (MAX_LISTED_AUTOSAVES as u64).saturating_mul(LISTED_ENTRY_BYTES))
+        .map_err(|message| diagnostic(STORE_READ_MEMORY_UNAVAILABLE, "", message))?;
+    let dir = RecordDir::open(directory).map_err(|error| unavailable(error.to_string()))?;
+    // A min-heap of the newest `MAX_LISTED_AUTOSAVES`: the oldest retained is popped.
+    let mut newest: BinaryHeap<Reverse<((u64, String), u64)>> = BinaryHeap::with_capacity(MAX_LISTED_AUTOSAVES + 1);
+    let mut total = 0_usize;
+    dir.each_record(|name, len| {
+        total += 1;
+        newest.push(Reverse((name.key(), len)));
+        if newest.len() > MAX_LISTED_AUTOSAVES {
+            newest.pop();
+        }
+    })
+    .map_err(|error| unavailable(error.to_string()))?;
+    let entries: Vec<AutosaveEntry> = newest
+        .into_sorted_vec()
         .into_iter()
-        .take(MAX_LISTED_AUTOSAVES)
-        .map(|(name, byte_count)| AutosaveEntry {
-            file_name: name.file_name(),
-            slot: name.slot,
-            written_unix_millis: name.written_unix_millis,
-            model_hash: format!("sha256:{}", name.model_hash_hex),
-            byte_count,
+        .filter_map(|Reverse(((_, file_name), byte_count))| {
+            AutosaveName::parse(&file_name).map(|name| AutosaveEntry {
+                slot: name.slot,
+                written_unix_millis: name.written_unix_millis,
+                model_hash: format!("sha256:{}", name.model_hash_hex),
+                file_name,
+                byte_count,
+            })
         })
         .collect();
-    Ok(AutosaveListing { entries, not_listed })
-}
-
-/// SHA-256 (bare hex) of a file, streamed through one block of
-/// [`READBACK_BLOCK_BYTES`], which `memory` reserves first.
-fn file_sha256_hex(path: &Path, memory: &dyn ReadMemory) -> Result<String, String> {
-    let _block: ReadReservation = memory.reserve("the autosave read-back block", READBACK_BLOCK_BYTES as u64)?;
-    let read = || -> io::Result<String> {
-        let mut file = File::open(path)?;
-        let mut hasher = Sha256::new();
-        let mut block = vec![0_u8; READBACK_BLOCK_BYTES];
-        loop {
-            let count = file.read(&mut block)?;
-            if count == 0 {
-                break;
-            }
-            hasher.update(&block[..count]);
-        }
-        Ok(hasher.finalize().iter().map(|byte| format!("{byte:02x}")).collect())
-    };
-    read().map_err(|error| error.to_string())
-}
-
-/// Removes the slot's records other than `keep`: regular files whose names
-/// parse as that slot's records, in `directory` only. Each failure is a warning.
-fn remove_slot_records(directory: &Path, slot: &str, keep: Option<&str>) -> Vec<DispositionDiagnostic> {
-    let records = match scan(directory) {
-        Ok(records) => records,
-        Err(error) => return vec![diagnostic(PRUNE_FAILED, "", format!("The slot's older autosaves could not be listed: {error}."))],
-    };
-    records
-        .into_iter()
-        .filter(|(name, _)| name.slot == slot && Some(name.file_name().as_str()) != keep)
-        .filter_map(|(name, _)| {
-            let file_name = name.file_name();
-            fs::remove_file(directory.join(&file_name))
-                .err()
-                .map(|error| diagnostic(PRUNE_FAILED, "", format!("The older autosave `{file_name}` was not removed: {error}.")))
-        })
-        .collect()
+    let not_listed = total - entries.len();
+    Ok(Metered::new(AutosaveListing { entries, not_listed }).holding(reservation))
 }
 
 /// Writes the session's canonical model document text as the newest record of
@@ -348,84 +705,99 @@ pub(crate) fn write_autosave_with_io(
         Ok(admitted) => admitted,
         Err(diagnostics) => return AutosaveWriteOutcome::Refused { diagnostics },
     };
-    if let Err(refusal) = ensure_directory(directory) {
-        return AutosaveWriteOutcome::Refused { diagnostics: vec![refusal] };
-    }
-    let records = match scan(directory) {
-        Ok(records) => records,
-        Err(error) => return AutosaveWriteOutcome::refused_one(DIRECTORY_UNAVAILABLE, format!("The autosave directory could not be listed: {error}. Nothing was written.")),
+    let directory_durable = match ensure_directory(directory, io) {
+        Ok(durable) => durable,
+        Err(refusal) => return AutosaveWriteOutcome::Refused { diagnostics: vec![refusal] },
+    };
+    let dir = match RecordDir::open(directory) {
+        Ok(dir) => dir,
+        Err(error) => return AutosaveWriteOutcome::refused_one(DIRECTORY_UNAVAILABLE, format!("The autosave directory is unavailable: {error}. Nothing was written.")),
+    };
+    // The whole check, write, read-back and prune is one transaction of the slot.
+    let _lock = match lock_slot(&dir, &admitted.slot, LOCK_WAIT) {
+        Ok(lock) => lock,
+        Err(refusal) => return AutosaveWriteOutcome::Refused { diagnostics: vec![refusal] },
     };
     let model_hash = format!("sha256:{}", admitted.model_hash_hex);
-    if let Some((newest, _)) = records.iter().find(|(name, _)| name.slot == admitted.slot) {
-        if newest.model_hash_hex == admitted.model_hash_hex {
-            return AutosaveWriteOutcome::Unchanged { file_name: newest.file_name(), slot: admitted.slot, model_hash };
+    match newest_of_slot(&dir, &admitted.slot) {
+        // The newest record already holds this model: unchanged only if it
+        // still reads back as its hash; otherwise a new record is written.
+        Ok(Some(newest)) if newest.model_hash_hex == admitted.model_hash_hex => {
+            if record_sha256_hex(&dir, &newest.file_name(), memory).is_ok_and(|hex| hex == admitted.model_hash_hex) {
+                return AutosaveWriteOutcome::Unchanged { file_name: newest.file_name(), slot: admitted.slot, model_hash };
+            }
         }
+        Ok(_) => {}
+        Err(error) => return AutosaveWriteOutcome::refused_one(DIRECTORY_UNAVAILABLE, format!("The autosave directory could not be listed: {error}. Nothing was written.")),
     }
     let name = AutosaveName { slot: admitted.slot.clone(), written_unix_millis, model_hash_hex: admitted.model_hash_hex.clone() };
     let file_name = name.file_name();
-    let destination = directory.join(&file_name);
-    let saved = match atomic_save_bytes_as_with_io(&AUTOSAVE_FORMAT, &destination, canonical_text.as_bytes(), io) {
+    let saved = match atomic_save_bytes_as_with_io(&AUTOSAVE_FORMAT, &directory.join(&file_name), canonical_text.as_bytes(), io) {
         Ok(saved) => saved,
         Err(error) => return AutosaveWriteOutcome::Refused { diagnostics: vec![writer_diagnostic(error)] },
     };
     // The record is read back before any older record is removed; a record
     // that does not read back as its hash is removed and the older one kept.
-    match file_sha256_hex(&destination, memory) {
+    let removal = |dir: &RecordDir| dir.unlink(&file_name).err().map(|error| format!(" It could not be removed: {error}.")).unwrap_or_default();
+    match record_sha256_hex(&dir, &file_name, memory) {
         Ok(read_back) if read_back == admitted.model_hash_hex => {}
         Ok(read_back) => {
-            let removal = fs::remove_file(&destination).err().map(|error| format!(" It could not be removed: {error}.")).unwrap_or_default();
             return AutosaveWriteOutcome::refused_one(
                 READBACK_MISMATCH,
-                format!("The written autosave reads back as sha256:{read_back}, not {model_hash}; the previous autosave is kept.{removal}"),
+                format!("The written autosave reads back as sha256:{read_back}, not {model_hash}; the previous autosave is kept.{}", removal(&dir)),
             );
         }
         Err(error) => {
-            let removal = fs::remove_file(&destination).err().map(|error| format!(" It could not be removed: {error}.")).unwrap_or_default();
             return AutosaveWriteOutcome::refused_one(
                 READBACK_FAILED,
-                format!("The written autosave could not be read back ({error}); the previous autosave is kept.{removal}"),
+                format!("The written autosave could not be read back ({error}); the previous autosave is kept.{}", removal(&dir)),
             );
         }
     }
     drop(admitted.document);
-    let warnings = remove_slot_records(directory, &name.slot, Some(&file_name));
+    // Older records are removed only once this one is durable.
+    let durable = directory_durable && saved.durability == "durable";
+    let warnings = if durable {
+        prune_older(&dir, &name.slot, &name)
+    } else {
+        vec![diagnostic(PRUNE_DEFERRED, "", "The autosave's directory sync did not complete, so the older autosaves are kept until a later autosave is durable.")]
+    };
     AutosaveWriteOutcome::Written {
         file_name,
         slot: name.slot,
         written_unix_millis,
         model_hash,
         byte_count: canonical_text.len() as u64,
-        durability: saved.durability,
+        durability: if durable { "durable" } else { "saved_durability_uncertain" }.to_string(),
         warnings,
     }
 }
 
-/// Reads one record for recovery (§3, §5): the name must parse, the file must
-/// be a regular file within the open cap whose SHA-256 is its name's hash, its
-/// text must be canonical and pass the open path's checks, and its document's
-/// slot must be its name's. The file's load is reserved before it is read.
+/// Reads one record for recovery (§3, §5), contained: the name must parse; the
+/// directory must be a real directory; the entry must be a regular file within
+/// the open cap, opened without following a link and confirmed by `fstat` as
+/// the inspected file; it is read with a hard cap at the inspected size, which
+/// is reserved first; its SHA-256 must be its name's hash; its text must be
+/// canonical and pass the open path's checks; and its document's slot must be
+/// its name's.
 pub(crate) fn read_autosave(directory: &Path, file_name: &str, memory: &dyn ReadMemory) -> Result<Metered<VerifiedAutosave>, Vec<DispositionDiagnostic>> {
     let one = |code: &str, message: String| vec![diagnostic(code, "", message)];
+    let refused = |access: Access| {
+        let (message, code) = access.describe(file_name);
+        vec![diagnostic(code, "", message)]
+    };
     let Some(name) = AutosaveName::parse(file_name) else {
         return Err(one(NAME_INVALID, "The name is not an autosave record's name.".to_string()));
     };
-    let path = directory.join(file_name);
-    let metadata = match fs::symlink_metadata(&path) {
-        Ok(metadata) => metadata,
-        Err(error) if error.kind() == io::ErrorKind::NotFound => return Err(one(NOT_FOUND, format!("The autosave `{file_name}` is no longer there."))),
-        Err(error) => return Err(one(UNREADABLE, format!("The autosave `{file_name}` could not be inspected: {error}."))),
-    };
-    if !metadata.file_type().is_file() {
-        return Err(one(UNREADABLE, format!("The autosave `{file_name}` is not a regular file.")));
-    }
-    if metadata.len() > MAX_MODEL_DOCUMENT_BYTES {
-        return Err(one(TOO_LARGE, format!("The autosave is {} bytes; a model document may be at most {MAX_MODEL_DOCUMENT_BYTES} bytes.", metadata.len())));
-    }
-    let load = memory.reserve("the autosave's file", loaded_text_bytes(metadata.len())).map_err(memory_refusal)?;
-    let mut bytes = Vec::new();
-    File::open(&path)
-        .and_then(|file| file.take(MAX_MODEL_DOCUMENT_BYTES + 1).read_to_end(&mut bytes))
-        .map_err(|error| one(UNREADABLE, format!("The autosave `{file_name}` could not be read: {error}.")))?;
+    let dir = RecordDir::open(directory).map_err(|error| match error.kind() {
+        io::ErrorKind::NotFound => one(NOT_FOUND, format!("The autosave `{file_name}` is no longer there.")),
+        _ => one(DIRECTORY_UNAVAILABLE, format!("The autosave directory is unavailable: {error}.")),
+    })?;
+    let inspected = dir.inspect(file_name, MAX_MODEL_DOCUMENT_BYTES).map_err(refused)?;
+    let load = memory.reserve("the autosave's file", loaded_text_bytes(inspected.len)).map_err(memory_refusal)?;
+    let file = dir.open_inspected(file_name, inspected).map_err(refused)?;
+    let bytes = read_capped(&file, inspected.len).map_err(refused)?;
+    drop(file);
     let hex = {
         let mut hasher = Sha256::new();
         hasher.update(&bytes);
@@ -453,451 +825,5 @@ pub(crate) fn read_autosave(directory: &Path, file_name: &str, memory: &dyn Read
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::atomic_report_package_save::test_support::atomic_save_test_lock;
-    use crate::model_document_file::{read_model_document_file, ModelDocumentOpenOutcome};
-    use crate::stored_read::UnmeteredReadMemory;
-    use open_pipe_stress_operation_applier::canonical_json;
-    use serde_json::json;
-    use std::io::Write;
-    use std::path::PathBuf;
-
-    const DEMO: &str = include_str!("../../../../fixtures/product_preview/invented_demo_model.json");
-    const EVERY_SLOT: &str = include_str!("../../../../fixtures/model_document/invented_every_slot_model.json");
-    const STORE_SENTINEL: &[u8] = b"invented store bytes: never opened by an autosave";
-
-    fn canonical(source: &str, edit: impl FnOnce(&mut Value)) -> (String, String) {
-        let mut document: Value = serde_json::from_str(source).unwrap();
-        edit(&mut document);
-        let text = canonical_json(&document);
-        let hash = format!("sha256:{}", sha256_hex(&text));
-        (text, hash)
-    }
-
-    fn demo() -> (String, String) {
-        canonical(DEMO, |_| {})
-    }
-
-    /// A temporary app data directory holding a sentinel store file, and its
-    /// autosave directory path (not created).
-    struct Sandbox {
-        root: PathBuf,
-    }
-
-    impl Sandbox {
-        fn new(label: &str) -> Self {
-            let root = std::env::temp_dir().join(format!(
-                "swbpipe-autosave-{label}-{}-{}",
-                std::process::id(),
-                std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()
-            ));
-            fs::create_dir_all(&root).unwrap();
-            fs::write(root.join("openpipestress-projects.sqlite3"), STORE_SENTINEL).unwrap();
-            Self { root }
-        }
-
-        fn directory(&self) -> PathBuf {
-            self.root.join(AUTOSAVE_DIRECTORY)
-        }
-
-        fn names(&self) -> Vec<String> {
-            let mut names: Vec<String> = fs::read_dir(self.directory())
-                .map(|entries| entries.map(|entry| entry.unwrap().file_name().to_string_lossy().into_owned()).collect())
-                .unwrap_or_default();
-            names.sort();
-            names
-        }
-
-        fn assert_store_untouched(&self) {
-            assert_eq!(fs::read(self.root.join("openpipestress-projects.sqlite3")).unwrap(), STORE_SENTINEL);
-            let mut root_names: Vec<String> = fs::read_dir(&self.root).unwrap().map(|entry| entry.unwrap().file_name().to_string_lossy().into_owned()).collect();
-            root_names.sort();
-            root_names.retain(|name| name != AUTOSAVE_DIRECTORY);
-            assert_eq!(root_names, vec!["openpipestress-projects.sqlite3".to_string()], "nothing else is written beside the store");
-        }
-    }
-
-    impl Drop for Sandbox {
-        fn drop(&mut self) {
-            // Only this test's own temporary directory.
-            #[cfg(unix)]
-            {
-                use std::os::unix::fs::PermissionsExt;
-                let _ = fs::set_permissions(self.directory(), fs::Permissions::from_mode(0o755));
-            }
-            if self.root.starts_with(std::env::temp_dir()) {
-                let _ = fs::remove_dir_all(&self.root);
-            }
-        }
-    }
-
-    fn write(directory: &Path, text: &str, hash: &str, millis: u64) -> AutosaveWriteOutcome {
-        write_autosave(directory, text, hash, millis, &UnmeteredReadMemory)
-    }
-
-    fn written_name(outcome: &AutosaveWriteOutcome) -> String {
-        match outcome {
-            AutosaveWriteOutcome::Written { file_name, .. } => file_name.clone(),
-            other => panic!("not written: {other:?}"),
-        }
-    }
-
-    fn refused_codes(outcome: &AutosaveWriteOutcome) -> Vec<String> {
-        match outcome {
-            AutosaveWriteOutcome::Refused { diagnostics } => diagnostics.iter().map(|item| item.code.clone()).collect(),
-            other => panic!("not refused: {other:?}"),
-        }
-    }
-
-    fn read_codes(result: Result<Metered<VerifiedAutosave>, Vec<DispositionDiagnostic>>) -> Vec<String> {
-        match result {
-            Ok(_) => vec!["read".to_string()],
-            Err(diagnostics) => diagnostics.into_iter().map(|item| item.code).collect(),
-        }
-    }
-
-    #[derive(Clone, Copy, PartialEq)]
-    enum Fault {
-        DiskFullAtWrite,
-        InterruptedRename,
-        CorruptWrite,
-    }
-
-    struct FaultyIo(Fault);
-
-    impl AtomicSaveIo for FaultyIo {
-        fn write_all(&mut self, temp: &mut File, bytes: &[u8]) -> io::Result<()> {
-            match self.0 {
-                // ENOSPC as the OS reports a full disk.
-                Fault::DiskFullAtWrite => {
-                    temp.write_all(&bytes[..bytes.len() / 2])?;
-                    Err(io::Error::from_raw_os_error(28))
-                }
-                // A write the OS reports as complete whose bytes differ.
-                Fault::CorruptWrite => {
-                    let mut altered = bytes.to_vec();
-                    let last = altered.len() - 2;
-                    altered[last] = if altered[last] == b'1' { b'2' } else { b'1' };
-                    temp.write_all(&altered)
-                }
-                Fault::InterruptedRename => temp.write_all(bytes),
-            }
-        }
-
-        fn flush(&mut self, temp: &mut File) -> io::Result<()> {
-            temp.flush()
-        }
-
-        fn sync_temp(&mut self, temp: &File) -> io::Result<()> {
-            temp.sync_all()
-        }
-
-        fn rename(&mut self, source: &Path, destination: &Path) -> io::Result<()> {
-            if self.0 == Fault::InterruptedRename {
-                return Err(io::Error::new(io::ErrorKind::Interrupted, "injected interrupted rename"));
-            }
-            fs::rename(source, destination)
-        }
-
-        fn cleanup_temp(&mut self, temp_path: &Path) -> io::Result<()> {
-            fs::remove_file(temp_path)
-        }
-    }
-
-    fn assert_no_temp(sandbox: &Sandbox) {
-        assert!(sandbox.names().iter().all(|name| !name.starts_with(AUTOSAVE_FORMAT.temp_prefix)), "{:?}", sandbox.names());
-    }
-
-    /// A record holds exactly the canonical bytes, is named by slot, time and
-    /// hash, re-opens through Open Model Document as the current version, and
-    /// reads back verified as the same document and hash.
-    #[test]
-    fn a_record_is_the_canonical_document_named_by_its_slot_time_and_hash() {
-        let _lock = atomic_save_test_lock();
-        let sandbox = Sandbox::new("exact");
-        let (text, hash) = demo();
-        let outcome = write(&sandbox.directory(), &text, &hash, 1_700_000_000_123);
-        let AutosaveWriteOutcome::Written { file_name, slot, model_hash, byte_count, durability, warnings, .. } = outcome.clone() else {
-            panic!("{outcome:?}");
-        };
-        assert_eq!(slot, autosave_slot("project:invented-demo-loop-01"));
-        assert_eq!(file_name, format!("{slot}-1700000000123-{}.json", &hash["sha256:".len()..]));
-        assert!(!file_name.contains("invented"), "a record's name carries no project name or id");
-        assert_eq!((model_hash.as_str(), byte_count, durability.as_str(), warnings.len()), (hash.as_str(), text.len() as u64, "durable", 0));
-        let path = sandbox.directory().join(&file_name);
-        assert_eq!(fs::read(&path).unwrap(), text.as_bytes());
-        let ModelDocumentOpenOutcome::Opened { schema_status, document, .. } = read_model_document_file(&path) else {
-            panic!("the record does not re-open");
-        };
-        assert_eq!(schema_status, "current");
-        assert_eq!(canonical_json(&document), text);
-        let verified = read_autosave(&sandbox.directory(), &file_name, &UnmeteredReadMemory).unwrap().into_unreserved().unwrap();
-        assert_eq!((verified.model_hash.as_str(), verified.written_unix_millis, verified.byte_count), (hash.as_str(), 1_700_000_000_123, text.len() as u64));
-        assert_eq!(canonical_json(&verified.document), text);
-        let listing = list_autosaves(&sandbox.directory()).unwrap();
-        assert_eq!(listing.entries.len(), 1);
-        assert_eq!(listing.entries[0].file_name, file_name);
-        assert_eq!(listing.not_listed, 0);
-        assert_no_temp(&sandbox);
-        sandbox.assert_store_untouched();
-    }
-
-    #[test]
-    fn the_same_model_again_is_unchanged_and_writes_nothing() {
-        let _lock = atomic_save_test_lock();
-        let sandbox = Sandbox::new("unchanged");
-        let (text, hash) = demo();
-        let first = written_name(&write(&sandbox.directory(), &text, &hash, 1_000));
-        let again = write(&sandbox.directory(), &text, &hash, 2_000);
-        assert_eq!(again, AutosaveWriteOutcome::Unchanged { file_name: first.clone(), slot: autosave_slot("project:invented-demo-loop-01"), model_hash: hash });
-        assert_eq!(sandbox.names(), vec![first]);
-    }
-
-    /// A newer record of the slot removes the slot's older records, and only
-    /// them: another project's record, other files, a symlink and a directory
-    /// named like the slot's records stay.
-    #[test]
-    fn a_new_record_removes_only_its_own_slots_older_records() {
-        let _lock = atomic_save_test_lock();
-        let sandbox = Sandbox::new("prune");
-        let directory = sandbox.directory();
-        let (first, first_hash) = demo();
-        let (second, second_hash) = canonical(DEMO, |document| document["project"]["name"] = json!("Invented Utility Loop Demo, edited"));
-        let (other, other_hash) = canonical(EVERY_SLOT, |_| {});
-        let first_name = written_name(&write(&directory, &first, &first_hash, 1_000));
-        let other_name = written_name(&write(&directory, &other, &other_hash, 1_500));
-        let slot = autosave_slot("project:invented-demo-loop-01");
-        let lookalike_dir = format!("{slot}-0000000000900-{}.json", "a".repeat(64));
-        fs::create_dir(directory.join(&lookalike_dir)).unwrap();
-        fs::write(directory.join("notes.json"), b"invented").unwrap();
-        #[cfg(unix)]
-        let lookalike_link = {
-            let link = format!("{slot}-0000000000800-{}.json", "b".repeat(64));
-            std::os::unix::fs::symlink(directory.join("notes.json"), directory.join(&link)).unwrap();
-            link
-        };
-        let second_name = written_name(&write(&directory, &second, &second_hash, 2_000));
-        let names = sandbox.names();
-        assert!(!names.contains(&first_name), "the slot's older record is removed: {names:?}");
-        for kept in [&second_name, &other_name, &lookalike_dir, &"notes.json".to_string()] {
-            assert!(names.contains(kept), "{kept} is kept: {names:?}");
-        }
-        #[cfg(unix)]
-        assert!(names.contains(&lookalike_link), "a symlink is never removed: {names:?}");
-        let listed: Vec<String> = list_autosaves(&directory).unwrap().entries.into_iter().map(|entry| entry.file_name).collect();
-        assert_eq!(listed, vec![second_name, other_name], "newest first; only regular record files are listed");
-        sandbox.assert_store_untouched();
-    }
-
-    /// Content refusals come before the directory is touched.
-    #[test]
-    fn a_text_that_is_not_a_current_canonical_document_of_its_hash_is_refused_before_any_write() {
-        let sandbox = Sandbox::new("refusals");
-        let directory = sandbox.directory();
-        let (text, hash) = demo();
-        let other_hash = format!("sha256:{}", "0".repeat(64));
-        let pretty = serde_json::to_string_pretty(&serde_json::from_str::<Value>(&text).unwrap()).unwrap();
-        let pretty_hash = format!("sha256:{}", sha256_hex(&pretty));
-        let (retired, retired_hash) = canonical(DEMO, |document| document["schema_version"] = json!("0.7.0"));
-        let (newer, newer_hash) = canonical(DEMO, |document| document["schema_version"] = json!("0.9.0"));
-        let (kind, kind_hash) = canonical(DEMO, |document| document["document_kind"] = json!("openpipestress.other"));
-        for (label, text, claim, code) in [
-            ("hash", text.as_str(), other_hash.as_str(), HASH_MISMATCH),
-            ("claim form", text.as_str(), "sha256:ABC", HASH_MISMATCH),
-            ("not canonical", pretty.as_str(), pretty_hash.as_str(), HASH_MISMATCH),
-            ("retired", retired.as_str(), retired_hash.as_str(), "MODEL-FILE-SCHEMA-REFUSED"),
-            ("newer", newer.as_str(), newer_hash.as_str(), "MODEL-FILE-SCHEMA-REFUSED"),
-            ("kind", kind.as_str(), kind_hash.as_str(), "MODEL-FILE-DOCUMENT-KIND"),
-        ] {
-            let outcome = write(&directory, text, claim, 1_000);
-            assert_eq!(refused_codes(&outcome)[0], code, "{label}");
-            assert!(!directory.exists(), "{label}: nothing is created");
-        }
-        let _ = hash;
-        sandbox.assert_store_untouched();
-    }
-
-    /// A memory refusal refuses the record before its text is parsed.
-    #[test]
-    fn a_memory_refusal_refuses_before_parsing() {
-        struct Refusing;
-        impl ReadMemory for Refusing {
-            fn reserve(&self, what: &str, bytes: u64) -> Result<ReadReservation, String> {
-                Err(format!("{STORE_READ_MEMORY_UNAVAILABLE}: reading {what} needs {bytes} bytes; refused."))
-            }
-        }
-        let sandbox = Sandbox::new("memory");
-        let (text, hash) = demo();
-        let outcome = write_autosave(&sandbox.directory(), &text, &hash, 1_000, &Refusing);
-        assert_eq!(refused_codes(&outcome), vec![STORE_READ_MEMORY_UNAVAILABLE.to_string()]);
-        assert!(!sandbox.directory().exists());
-    }
-
-    /// Disk full during the write: refused by name with the OS error, the
-    /// temporary file removed, the previous record kept and the store untouched.
-    #[test]
-    fn disk_full_is_reported_and_keeps_the_previous_record() {
-        let _lock = atomic_save_test_lock();
-        let sandbox = Sandbox::new("enospc");
-        let directory = sandbox.directory();
-        let (first, first_hash) = demo();
-        let (second, second_hash) = canonical(DEMO, |document| document["project"]["name"] = json!("edited"));
-        let first_name = written_name(&write(&directory, &first, &first_hash, 1_000));
-        let outcome = write_autosave_with_io(&directory, &second, &second_hash, 2_000, &UnmeteredReadMemory, &mut FaultyIo(Fault::DiskFullAtWrite));
-        let AutosaveWriteOutcome::Refused { diagnostics } = &outcome else { panic!("{outcome:?}") };
-        assert_eq!(diagnostics[0].code, "AUTOSAVE-WRITE-FAILED");
-        assert!(diagnostics[0].message.contains("os error 28"), "{}", diagnostics[0].message);
-        assert_eq!(sandbox.names(), vec![first_name.clone()]);
-        assert_eq!(fs::read(directory.join(&first_name)).unwrap(), first.as_bytes());
-        assert_no_temp(&sandbox);
-        sandbox.assert_store_untouched();
-    }
-
-    /// Interrupted rename: refused by name, the temporary file removed, the
-    /// previous record kept.
-    #[test]
-    fn an_interrupted_rename_is_reported_and_keeps_the_previous_record() {
-        let _lock = atomic_save_test_lock();
-        let sandbox = Sandbox::new("rename");
-        let directory = sandbox.directory();
-        let (first, first_hash) = demo();
-        let (second, second_hash) = canonical(DEMO, |document| document["project"]["name"] = json!("edited"));
-        let first_name = written_name(&write(&directory, &first, &first_hash, 1_000));
-        let outcome = write_autosave_with_io(&directory, &second, &second_hash, 2_000, &UnmeteredReadMemory, &mut FaultyIo(Fault::InterruptedRename));
-        let AutosaveWriteOutcome::Refused { diagnostics } = &outcome else { panic!("{outcome:?}") };
-        assert_eq!(diagnostics[0].code, "AUTOSAVE-RENAME-FAILED");
-        assert!(diagnostics[0].message.contains("rename stage"), "{}", diagnostics[0].message);
-        assert_eq!(sandbox.names(), vec![first_name.clone()]);
-        assert_eq!(read_codes(read_autosave(&directory, &first_name, &UnmeteredReadMemory)), vec!["read".to_string()]);
-        assert_no_temp(&sandbox);
-        sandbox.assert_store_untouched();
-    }
-
-    /// Permission denied (a real read-only directory): refused by name, the
-    /// previous record kept.
-    #[cfg(unix)]
-    #[test]
-    fn permission_denied_is_reported_and_keeps_the_previous_record() {
-        use std::os::unix::fs::PermissionsExt;
-        let _lock = atomic_save_test_lock();
-        let sandbox = Sandbox::new("eacces");
-        let directory = sandbox.directory();
-        let (first, first_hash) = demo();
-        let (second, second_hash) = canonical(DEMO, |document| document["project"]["name"] = json!("edited"));
-        let first_name = written_name(&write(&directory, &first, &first_hash, 1_000));
-        fs::set_permissions(&directory, fs::Permissions::from_mode(0o555)).unwrap();
-        if File::create(directory.join("probe.tmp")).is_ok() {
-            eprintln!("skipped: this user can write a read-only directory");
-            return;
-        }
-        let outcome = write(&directory, &second, &second_hash, 2_000);
-        let AutosaveWriteOutcome::Refused { diagnostics } = &outcome else { panic!("{outcome:?}") };
-        assert_eq!(diagnostics[0].code, "AUTOSAVE-TEMP-CREATE-FAILED");
-        assert!(diagnostics[0].message.to_lowercase().contains("permission denied"), "{}", diagnostics[0].message);
-        fs::set_permissions(&directory, fs::Permissions::from_mode(0o755)).unwrap();
-        assert_eq!(sandbox.names(), vec![first_name]);
-        sandbox.assert_store_untouched();
-    }
-
-    /// A write the OS reports complete but whose bytes differ is caught by the
-    /// read-back: that new file alone is removed and the previous record kept.
-    #[test]
-    fn a_record_that_does_not_read_back_as_its_hash_is_removed() {
-        let _lock = atomic_save_test_lock();
-        let sandbox = Sandbox::new("readback");
-        let directory = sandbox.directory();
-        let (first, first_hash) = demo();
-        let (second, second_hash) = canonical(DEMO, |document| document["project"]["name"] = json!("edited"));
-        let first_name = written_name(&write(&directory, &first, &first_hash, 1_000));
-        let outcome = write_autosave_with_io(&directory, &second, &second_hash, 2_000, &UnmeteredReadMemory, &mut FaultyIo(Fault::CorruptWrite));
-        assert_eq!(refused_codes(&outcome), vec![READBACK_MISMATCH.to_string()]);
-        assert_eq!(sandbox.names(), vec![first_name]);
-        sandbox.assert_store_untouched();
-    }
-
-    /// A crash before the rename leaves a temporary file: it is never listed or
-    /// read, and the previous record is still the one recovery finds.
-    #[test]
-    fn a_temporary_file_left_by_a_crash_is_never_listed_or_read() {
-        let _lock = atomic_save_test_lock();
-        let sandbox = Sandbox::new("crash");
-        let directory = sandbox.directory();
-        let (first, first_hash) = demo();
-        let first_name = written_name(&write(&directory, &first, &first_hash, 1_000));
-        let temp = format!("{}{}.tmp", AUTOSAVE_FORMAT.temp_prefix, "c".repeat(32));
-        fs::write(directory.join(&temp), &first.as_bytes()[..first.len() / 3]).unwrap();
-        let listed: Vec<String> = list_autosaves(&directory).unwrap().entries.into_iter().map(|entry| entry.file_name).collect();
-        assert_eq!(listed, vec![first_name]);
-        assert_eq!(read_codes(read_autosave(&directory, &temp, &UnmeteredReadMemory)), vec![NAME_INVALID.to_string()]);
-    }
-
-    /// A read verifies the record's bytes against its name, its content and its
-    /// slot; a name that is not a record's (with a separator, say) is refused.
-    #[test]
-    fn a_read_refuses_a_tampered_renamed_or_foreign_record() {
-        let _lock = atomic_save_test_lock();
-        let sandbox = Sandbox::new("read");
-        let directory = sandbox.directory();
-        let (text, hash) = demo();
-        let name = written_name(&write(&directory, &text, &hash, 1_000));
-        let parsed = AutosaveName::parse(&name).unwrap();
-        // Another valid canonical document of the slot under this record's
-        // hash: only the check of the bytes against the name refuses it.
-        let (tampered, _) = canonical(DEMO, |document| document["project"]["name"] = json!("Invented, altered"));
-        let tampered_name = AutosaveName { written_unix_millis: 2_000, ..parsed.clone() }.file_name();
-        fs::write(directory.join(&tampered_name), &tampered).unwrap();
-        assert_eq!(read_codes(read_autosave(&directory, &tampered_name, &UnmeteredReadMemory)), vec![INTEGRITY.to_string()]);
-        // The right bytes under another project's slot.
-        let foreign_name = AutosaveName { slot: autosave_slot("project:another"), ..parsed.clone() }.file_name();
-        fs::copy(directory.join(&name), directory.join(&foreign_name)).unwrap();
-        assert_eq!(read_codes(read_autosave(&directory, &foreign_name, &UnmeteredReadMemory)), vec![INTEGRITY.to_string()]);
-        // A canonical document of another version, honestly named.
-        let (retired, retired_hash) = canonical(DEMO, |document| document["schema_version"] = json!("0.7.0"));
-        let retired_name = AutosaveName { written_unix_millis: 3_000, model_hash_hex: retired_hash["sha256:".len()..].to_string(), ..parsed.clone() }.file_name();
-        fs::write(directory.join(&retired_name), &retired).unwrap();
-        assert_eq!(read_codes(read_autosave(&directory, &retired_name, &UnmeteredReadMemory)), vec!["MODEL-FILE-SCHEMA-REFUSED".to_string()]);
-        for bad in ["../openpipestress-projects.sqlite3", "notes.json", &format!("{}/{}", AUTOSAVE_DIRECTORY, name)] {
-            assert_eq!(read_codes(read_autosave(&directory, bad, &UnmeteredReadMemory)), vec![NAME_INVALID.to_string()], "{bad}");
-        }
-        let missing = AutosaveName { written_unix_millis: 9_000, ..parsed.clone() }.file_name();
-        assert_eq!(read_codes(read_autosave(&directory, &missing, &UnmeteredReadMemory)), vec![NOT_FOUND.to_string()]);
-        #[cfg(unix)]
-        {
-            let link = AutosaveName { written_unix_millis: 4_000, ..parsed.clone() }.file_name();
-            std::os::unix::fs::symlink(directory.join(&name), directory.join(&link)).unwrap();
-            assert_eq!(read_codes(read_autosave(&directory, &link, &UnmeteredReadMemory)), vec![UNREADABLE.to_string()]);
-        }
-        assert_eq!(read_codes(read_autosave(&directory, &name, &UnmeteredReadMemory)), vec!["read".to_string()]);
-        sandbox.assert_store_untouched();
-    }
-
-    #[test]
-    fn names_parse_only_in_their_exact_form() {
-        let hex = "a".repeat(64);
-        let slot = "b".repeat(32);
-        let good = format!("{slot}-0000000001000-{hex}.json");
-        assert_eq!(AutosaveName::parse(&good).map(|name| name.file_name()), Some(good));
-        for bad in [
-            format!("{slot}-1000-{hex}.json"),
-            format!("{slot}-0000000001000-{hex}.JSON"),
-            format!("{}-0000000001000-{hex}.json", "B".repeat(32)),
-            format!("{slot}-0000000001000-{hex}-x.json"),
-            format!("{slot}-000000000100a-{hex}.json"),
-            format!("x/{slot}-0000000001000-{hex}.json"),
-        ] {
-            assert_eq!(AutosaveName::parse(&bad), None, "{bad}");
-        }
-        assert_eq!(autosave_slot("project:x").len(), 32);
-        assert_ne!(autosave_slot("project:x"), autosave_slot("project:y"));
-    }
-
-    #[test]
-    fn a_directory_that_is_not_a_directory_is_refused() {
-        let sandbox = Sandbox::new("not-dir");
-        fs::write(sandbox.directory(), b"invented").unwrap();
-        let (text, hash) = demo();
-        assert_eq!(refused_codes(&write(&sandbox.directory(), &text, &hash, 1_000)), vec![DIRECTORY_UNAVAILABLE.to_string()]);
-        assert_eq!(list_autosaves(&sandbox.directory()).unwrap_err().code, DIRECTORY_UNAVAILABLE);
-    }
-}
+#[path = "autosave_tests.rs"]
+mod tests;
