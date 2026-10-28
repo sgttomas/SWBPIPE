@@ -309,7 +309,7 @@ fn spring_support_on_pipe_sign_and_exact_signed_equilibrium() {
     let mut b = bound(12);
     b.w[0] = 0.125;
     b.w2[0] = 0.0625;
-    let spring = certify_spring_reaction(0, 16.0, &u, &b).unwrap();
+    let spring = certify_spring_reaction(0, 16.0, 0.0, &u, &b).unwrap();
     assert_eq!(spring.published, -7.0);
     let source = FormationSource {
         node_count: 2,
@@ -327,10 +327,43 @@ fn spring_support_on_pipe_sign_and_exact_signed_equilibrium() {
         let mut scaled = b.clone();
         scaled.exponents.fill(e);
         scaled.lambda_sigma = 2.0_f64.powi(-e);
-        let row = certify_spring_reaction(0, 16.0, &u, &scaled).unwrap();
+        let row = certify_spring_reaction(0, 16.0, 0.0, &u, &scaled).unwrap();
         assert_eq!(row.published, -7.0);
         assert!(row.remainder >= 16.0 && row.remainder < 16.0 * (1.0 + 1e-14));
     }
+}
+/// W-16 R-c: a moved spring base adds the exact +k·g to the row that holds
+/// -k·u, -k·w and -k·w₂; a base equal to zero, of either sign, is the
+/// fixed-base row bit for bit; the evaluation scale includes |k·g|.
+#[test]
+fn spring_base_motion_adds_the_exact_product_and_zero_is_the_fixed_base_row() {
+    let u = [0.25, 0.0, 0.0, 0.0, 0.0, 0.0];
+    let mut b = bound(6);
+    b.w[0] = 0.125;
+    b.w2[0] = 0.0625;
+    let fixed = certify_spring_reaction(0, 16.0, 0.0, &u, &b).unwrap();
+    assert_eq!(fixed.published, -7.0);
+    for zero in [0.0, -0.0] {
+        let row = certify_spring_reaction(0, 16.0, zero, &u, &b).unwrap();
+        assert_eq!(format!("{row:?}"), format!("{fixed:?}"), "g = {zero:?}");
+        assert_eq!(row.published.to_bits(), fixed.published.to_bits());
+    }
+    // -16·(0.4375 - 0.5) = +1, exactly.
+    let moved = certify_spring_reaction(0, 16.0, 0.5, &u, &b).unwrap();
+    assert_eq!(moved.published, 1.0);
+    assert!(moved.absolute_scale >= 16.0 * 0.5 + 16.0 * 0.4375);
+    // An inexact product k·g: the published row is the once-rounded exact
+    // -k·(u + w + w₂) + k·g, with no binary64 fold of k·g or u - g first.
+    let (k, g) = (3.0, 0.1);
+    let row = certify_spring_reaction(0, k, g, &u, &b).unwrap();
+    let mut exact = crate::exact_sum::ExactAccumulator::new();
+    for x in [u[0], b.w[0], b.w2[0]] {
+        exact.add_product(-k, x).unwrap();
+    }
+    exact.add_product(k, g).unwrap();
+    assert_eq!(row.published.to_bits(), exact.round().unwrap().to_bits());
+    assert_ne!(row.published, -k * (0.4375 - g), "the folded form differs here");
+    assert!(row.radius >= 0.0 && row.radius.is_finite());
 }
 #[test]
 fn scalar_and_magnitude_publication_precede_stress_scaling() {

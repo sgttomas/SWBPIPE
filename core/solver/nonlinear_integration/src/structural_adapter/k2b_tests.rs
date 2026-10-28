@@ -1494,6 +1494,8 @@ fn k2b_nonlinear_loop_reaches_no_force_scaled_entry() {
                 .unwrap();
         assert_eq!(outcome.solution.force_scale.exponent(), 734);
         let input = NonlinearFrameSolveInput {
+            base_prescribed: Vec::new(),
+            ground_motion: Vec::new(),
             node_count: 2,
             elements: model.frames.clone(),
             connectors: Vec::new(),
@@ -1764,7 +1766,7 @@ fn k2b_rv11d_spring_action_at_scale_is_refused_never_a_wrong_normal() {
             assert_eq!(bits(u0), bits(&today.displacements), "{ctx}");
             let expected = -(spring.1 * u0[1]);
             assert!(expected.is_normal() && expected.abs() > 1.3e-300 && expected.abs() < 1.4e-300);
-            let published = force_scaled_spring_action(spring, u0, ForceScale::UNSCALED).unwrap();
+            let published = force_scaled_spring_action(spring, 0.0, u0, ForceScale::UNSCALED).unwrap();
             assert_eq!(published.value.to_bits(), expected.to_bits(), "{ctx}");
             assert_eq!(published.representability, Representability::Normal);
             let outcome =
@@ -1778,7 +1780,7 @@ fn k2b_rv11d_spring_action_at_scale_is_refused_never_a_wrong_normal() {
             );
             let u = &outcome.solution.solution.displacements;
             assert_eq!(u[1].to_bits(), u0[1].to_bits(), "{ctx}");
-            assert_eq!(force_scaled_spring_action(spring, u, b), refused, "{ctx}");
+            assert_eq!(force_scaled_spring_action(spring, 0.0, u, b), refused, "{ctx}");
         }
     }
 }

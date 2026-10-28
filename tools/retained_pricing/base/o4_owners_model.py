@@ -79,7 +79,11 @@ BODY_PINS = {
     # W-16 slice c D3 (§8.27, W16C-ES): the case evidence's equivalent_static record, formed only under
     # `load_case.equivalent_static.is_some()` (none on D1: D1.5). The second composite maximum and its payload keys are
     # unchanged.
-    (LIB, "solve_prepared_load_case"): "d100a2ea59e493d4b2b6572adb2e5e01819a4ab1e54cab3e70f539968ee566da",
+    # W-16 stage 2 D3 (§8.29): the pressure-free case's spring-base vector and formed k·g ledger terms (W16S-SG), the
+    # moved nonlinear grounds and their relative-displacement rows (W16S-L1, none on D1), the spring's -k·(u - g)
+    # action and the ground vector passed to certified_publication::support. The second composite maximum and its
+    # payload keys are unchanged.
+    (LIB, "solve_prepared_load_case"): "b935ee2c971ce36ca8cf339dee7f71e77e1e48cf448c6d8bc4230178ebbbb2a9",
     (SRC, "distinct_reduced_section"): "179e447476ae2a7cf8b01d1e5da22bddd66b9057403453ffc79f9e57747fd100",
     (SRC, "stress_operands"): "de7a26eb0574635be8c808bc42070cdb132f8f8b67fee83542bd79f667cb6050",
     (SRC, "commitment"): "279ce112036664d7802e2952d87a67abe6dd7fe04879a4d498fd2544fe86753d",

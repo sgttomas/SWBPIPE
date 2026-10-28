@@ -1263,8 +1263,16 @@ impl FrameElement {
 ///   b = 0 is today's -(k * u_dof), bit for bit.
 /// - A missing or non-finite displacement is
 ///   `InvalidInput("displacement vector")`.
+/// - W-16 R-c (DEL-04-03 Design `pf-nonlinear-imposed-motion.md` §11.1): a
+///   spring whose base moves by `ground` acts with -(k * 2^b) * (u_dof - g).
+///   When `ground` compares equal to zero, of either sign, the fixed-base
+///   arithmetic above is used unchanged. Otherwise the exact sum
+///   -(k * 2^b) * u_dof + (k * 2^b) * g is rounded once; a nonzero exact sum
+///   must round to a normal value. A non-finite `ground` is
+///   `InvalidInput("spring base motion")`.
 pub fn force_scaled_spring_action(
     spring: (usize, f64),
+    ground: f64,
     u: &[f64],
     scale: ForceScale,
 ) -> Result<structural::PublishedValue, structural::ForceScaledError> {
@@ -1282,10 +1290,28 @@ pub fn force_scaled_spring_action(
     let outside = structural::ForceScaleReason::PublicationOutsideBinary64 {
         global_dof: Some(dof),
     };
-    let action = -(scaled * displacement);
-    if scaled != 0.0 && displacement != 0.0 && !action.is_normal() {
-        return Err(structural::ForceScaledError::refused(outside));
-    }
+    let action = if ground == 0.0 {
+        let action = -(scaled * displacement);
+        if scaled != 0.0 && displacement != 0.0 && !action.is_normal() {
+            return Err(structural::ForceScaledError::refused(outside));
+        }
+        action
+    } else {
+        if !ground.is_finite() {
+            return Err(structural::ForceScaledError::Structural(
+                structural::StructuralError::InvalidInput("spring base motion"),
+            ));
+        }
+        let mut sum = exact_sum::ExactAccumulator::new();
+        let formed = sum
+            .add_product(-scaled, displacement)
+            .and_then(|()| sum.add_product(scaled, ground))
+            .and_then(|()| sum.round());
+        match formed {
+            Ok(action) if sum.is_zero() || action.is_normal() => action,
+            _ => return Err(structural::ForceScaledError::refused(outside)),
+        }
+    };
     structural::unscale_for_publication(action, scale, Some(dof))
         .map_err(structural::ForceScaledError::refused)
 }
