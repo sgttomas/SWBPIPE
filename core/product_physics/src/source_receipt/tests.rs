@@ -625,3 +625,122 @@ fn transform_declines_map_to_unsupported_source_closure() {
         );
     }
 }
+
+/// Every support id under a `support_ids` key anywhere in `value`: a plan's
+/// strings, or the `id` of an id-map record.
+fn support_ids_anywhere(value: &Value, found: &mut Vec<String>) {
+    match value {
+        Value::Object(map) => {
+            for (key, item) in map {
+                if key == "support_ids" {
+                    for id in item.as_array().into_iter().flatten() {
+                        if let Some(id) = id.as_str().or_else(|| id["id"].as_str()) {
+                            found.push(id.to_owned());
+                        }
+                    }
+                }
+                support_ids_anywhere(item, found);
+            }
+        }
+        Value::Array(items) => items.iter().for_each(|item| support_ids_anywhere(item, found)),
+        _ => {}
+    }
+}
+
+/// PR #1686 (HELP_HUMAN, 2026-10-27, condition (1)): no solver-produced
+/// receipt puts a constant-effort support (`is_constant_effort_support`, by
+/// the solver's own reading) in a plan's `support_ids`, which result_export's
+/// reader therefore refuses (`SOURCE_BLOCKS_CONSTANT_EFFORT_SUPPORT`). The plan's
+/// `support_ids` are `selected.support_actions()` (`source.rs`), built only
+/// from `source.support_ids` (`source_recovery.rs` `solve`), which
+/// `prepare_sources` fills only from `built.supports`; the linear-support
+/// assembly (`lib.rs`) puts no constant-effort support there. `prepare_sources`
+/// also declines any model holding one before that: first at its dimension
+/// closure (`built.supports` is then shorter than the model's supports), and
+/// again by name (`non-nodal load producer present`). The exact route also
+/// refuses the family at admission (`pressure_runtime.rs`).
+/// Each declaration, by family, by explicit type, padded as `str::trim`
+/// removes (the padded types are accepted by the solver's validation; the
+/// padded families are refused as tokens), is added to the exact n05 control:
+/// the solver reads it as constant effort, builds no support from it, source
+/// recovery declines the model, and no publication in either mode names it.
+#[test]
+fn constant_effort_supports_never_enter_a_plan() {
+    const CE: &str = "support:ce";
+    let limits = || exact::Limits {
+        operations: PHYSICS_SOURCE_WORK_LIMIT,
+        ..Default::default()
+    };
+    let modes = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
+    let published = |request: &Value, mode| {
+        let envelope = crate::run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap();
+        let mut found = Vec::new();
+        support_ids_anywhere(&serde_json::to_value(envelope).unwrap(), &mut found);
+        found
+    };
+    // The control: the plan names the n05 supports, so the walk reaches it.
+    let base = exact_raw();
+    let control = exact_fixture(&base);
+    let selected = source_recovery::solve(control.input(), limits()).unwrap();
+    let ids = selected
+        .support_actions()
+        .iter()
+        .map(|s| s.support_id.as_str())
+        .collect::<Vec<_>>();
+    assert_eq!(ids, ["anchor", "independent-spring"]);
+    for mode in modes {
+        let found = published(&base, mode);
+        assert!(ids.iter().all(|id| found.iter().any(|f| f == id)), "{found:?}");
+    }
+    let provenance = base["model"]["supports"][0]["provenance"].clone();
+    let nel = "\u{85}";
+    let declarations: [(&str, Option<String>); 9] = [
+        ("constant_effort_support", Some("constant_effort_support".into())),
+        ("constant_effort_support", None),
+        ("constant_effort_support", Some("  ".into())),
+        ("guide", Some("constant_effort_support".into())),
+        ("spring", Some("constant_effort_support".into())),
+        ("vertical_support", Some(" constant_effort_support ".into())),
+        ("spring", Some(format!("{nel}constant_effort_support{nel}"))),
+        (" constant_effort_support ", None),
+        ("\u{85}constant_effort_support\u{85}", None),
+    ];
+    for (family, hanger_type) in declarations {
+        let mut hanger = json!({"constant_load": {"value": 375.0, "unit": "N"},
+            "travel_range": {"value": 0.05, "unit": "m"}, "source_reference": "invented"});
+        if let Some(hanger_type) = &hanger_type {
+            hanger["hanger_type"] = json!(hanger_type);
+        }
+        let support = json!({"id": CE, "node": "independent-tip", "family": family,
+            "restraints": ["UY"], "hanger": hanger, "provenance": provenance});
+        let at = format!("{family:?} / {hanger_type:?}");
+        let typed: PreviewSupport = serde_json::from_value(support.clone()).unwrap();
+        assert!(crate::is_constant_effort_support(&typed), "{at}");
+        let mut request = base.clone();
+        request["model"]["supports"].as_array_mut().unwrap().push(support);
+        let fixture = exact_fixture(&request);
+        let built = fixture
+            .built
+            .supports
+            .iter()
+            .map(|s| s.support_id.as_str())
+            .collect::<Vec<_>>();
+        assert_eq!(built, ["anchor", "independent-spring"], "{at}");
+        let declined = source_recovery::solve(fixture.input(), limits());
+        assert!(
+            matches!(
+                &declined,
+                Err(source_recovery::RecoveryFailure {
+                    error: source_recovery::RecoveryError::SourceMismatch("actual model/source dimensions"),
+                    ..
+                })
+            ),
+            "{at}: {:?}",
+            declined.err()
+        );
+        for mode in modes {
+            let found = published(&request, mode);
+            assert!(!found.iter().any(|f| f == CE), "{at}: {found:?}");
+        }
+    }
+}

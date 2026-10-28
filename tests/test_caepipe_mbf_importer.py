@@ -1638,6 +1638,49 @@ def test_tranche_3_support_refusals(rows, code, at):
     refused(run(data), code, layout_line(data, at))
 
 
+def test_stiff_rigid_reads_exactly_as_a_row_without_stiff():
+    # STIFF=Rigid (observed format behaviour) is the rigid default of guides and limit stops (technical reference,
+    # Guide; Limit Stop): the import is the one a row without STIFF gives, comment order included.
+    rows = ("F10,KA,MM1,PP1,CL=L1", "T20,X3000,CG{}", "T30,Y2000,CTAG=,G{}", "T40,Z1500,CLS(0,0),DV(0,-3,0){}",
+            "L40,CLS(0.000,0.000),DV(0.0000,0.0000,1.0000),MU=0.000{}", "T50,KA,X1000")
+    plain_data = mbf(*(row.format("") for row in rows))
+    rigid_data = mbf(*(row.format(",STIFF=Rigid") for row in rows))
+    plain, rigid = run(plain_data), run(rigid_data)
+    assert plain.status == rigid.status == "imported", rigid.diagnostics
+
+    def masked(model, data):  # the model names its source file by hash; everything else must be identical
+        digest = hashlib.sha256(data).hexdigest()
+        return json.dumps(model, sort_keys=True).replace(digest, "<source>").replace(digest[:12], "<source>")
+
+    assert masked(rigid.model, rigid_data) == masked(plain.model, plain_data)
+    assert masked(rigid.id_map, rigid_data) == masked(plain.id_map, plain_data)
+    assert [(item["code"], item["severity"]) for item in rigid.diagnostics] == \
+        [(item["code"], item["severity"]) for item in plain.diagnostics]
+
+
+@pytest.mark.parametrize("rows, code, at", [
+    (("T20,X3000,CG,STIFF=rigid",), "MBF-IMPORT-NUMBER-INVALID", "T20"),  # only the spelling Rigid is read
+    (("T20,X3000,CG,STIFF=R",), "MBF-IMPORT-NUMBER-INVALID", "T20"),
+    (("T20,X3000,CG,STIFF(Rigid)",), "MBF-IMPORT-COMMENT-INVALID", "T20"),
+    (("T20,X3000,CSTIFF=Rigid",), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "T20"),  # data without its support
+    (("T20,X3000,CK=Rigid,DV(0,1,0)",), "MBF-IMPORT-NUMBER-INVALID", "T20"),  # K is a value, not STIFF
+    (("T20,X3000,CG,GGAP=5,STIFF=Rigid",), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "T20"),  # the gap stays refused
+    # None is a blank limit, free on that side (technical reference, Limit Stop): a one-way stop, refused by name
+    (("T20,X3000,CLS(0.000,None),DV(0,1,0),STIFF=Rigid",), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "T20"),
+    (("T20,X3000,CLS(None,0),DV(0,1,0)",), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "T20"),
+    (("T20,X3000,CLS(None,None),DV(0,1,0)",), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "T20"),
+    (("T20,X3000,CLS(0,NONE),DV(0,1,0)",), "MBF-IMPORT-NUMBER-INVALID", "T20"),  # only the spelling None is read
+])
+def test_the_rigid_and_blank_limit_spellings(rows, code, at):
+    data = mbf("F10,KA,MM1,PP1,CL=L1", *rows)
+    result = run(data)
+    refused(result, code, layout_line(data, at))
+    if rows[0].startswith("T20,X3000,CLS(") and "NONE" not in rows[0]:
+        # a None limit is refused as the one-way stop it is, never as an unreadable number
+        assert not any(item["code"] == "MBF-IMPORT-NUMBER-INVALID" for item in result.diagnostics)
+        assert any("one-way" in item["message"] for item in result.diagnostics if item["severity"] == "error")
+
+
 def test_a_guide_whose_element_is_not_determined_is_refused():
     # Its first node has no preceding element and two following ones.
     data = mbf("F10,MM1,PP1,CL=L1,G", "T20,KA,X3000", "F10", "T30,KA,Y1000")

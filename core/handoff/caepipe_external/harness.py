@@ -291,6 +291,12 @@ def _quote(path: str) -> str:
     return f'"{path}"'
 
 
+def _ensure_dir(path: str) -> str:
+    """A guest command creating `path` when absent. Bracketed: in `cmd`, an unbracketed `if` takes the rest of the
+    line, `& ...` included, as its body, so the commands after it would run only when the folder was absent."""
+    return f"(if not exist {_quote(path)} mkdir {_quote(path)})"
+
+
 def _win(*parts: str) -> str:
     """Join guest (Windows) path parts with a backslash."""
     return "\\".join(parts)
@@ -426,7 +432,7 @@ def _round_trip(config: HarnessConfig, case_id: str, mbf_text: str, paths: dict[
     # The guest work copy of the MBF is deleted before the copy, so a failed copy can never leave an older MBF
     # to be solved; a failed prepare step stops the round trip before solving.
     stale_guest = " ".join(_quote(_win(work, name)) for name in ("model*.csv", "model.mbf", *OUTPUT_NAMES))
-    prepare = step("prepare", f"if not exist {_quote(work)} mkdir {_quote(work)} & del /Q {stale_guest} 2>nul & "
+    prepare = step("prepare", f"{_ensure_dir(work)} & del /Q {stale_guest} 2>nul & "
                               f"copy /Y {_quote(_win(guest_in, 'model.mbf'))} {_quote(guest_mbf)}")
     script_location = "exchange_share"
     solve: dict[str, Any] = {"exit_status": None, "stdout": "", "stderr": ""}
@@ -620,7 +626,7 @@ def _mbf_export(config: HarnessConfig, case_id: str, mbf_sha256: str, paths: dic
         return _guest_step(config, runner, timeout_s, steps, name, command)
 
     # As for the solve: the guest copies are deleted first, so a failed copy can never leave an older model open.
-    prepare = step("export_prepare", f"if not exist {_quote(work)} mkdir {_quote(work)} & del /Q {_quote(guest_mod)} "
+    prepare = step("export_prepare", f"{_ensure_dir(work)} & del /Q {_quote(guest_mod)} "
                                      f"{_quote(guest_mbf)} 2>nul & copy /Y {_quote(_win(guest_out, 'model.mod'))} "
                                      f"{_quote(guest_mod)}")
     script_location = "exchange_share"

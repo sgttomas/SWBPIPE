@@ -370,6 +370,47 @@ def _not_qualified(treatment: Mapping[str, Any], row: Mapping[str, Any], inputs:
         _require(metadata.get("component") == "tau_v_max" and type(value) in (int, float) and math.isfinite(value) and value >= 0, "NOT_QUALIFIED_VALUE")
 
 
+# The characters Rust's `str::trim` removes from each end: those with the Unicode White_Space property (Rust std
+# `char::is_whitespace`). Python's `str.strip()` also removes U+001C-U+001F, which Rust keeps, so the set is explicit.
+RUST_WHITESPACE = frozenset(map(chr, [*range(0x09, 0x0E), 0x20, 0x85, 0xA0, 0x1680, *range(0x2000, 0x200B),
+                                      0x2028, 0x2029, 0x202F, 0x205F, 0x3000]))
+
+
+def _rust_trim(value: str) -> str:
+    """Rust's `str::trim`."""
+    start, end = 0, len(value)
+    while start < end and value[start] in RUST_WHITESPACE: start += 1
+    while end > start and value[end - 1] in RUST_WHITESPACE: end -= 1
+    return value[start:end]
+
+
+def _solver_support_hanger_type(support: Mapping[str, Any]) -> str | None:
+    """The solver's `support_hanger_type` (core/product_physics/src/lib.rs), as Rust's reader mirrors it
+    (`solver_support_hanger_type`, core/reporting/result_export/src/source_blocks.rs): the trimmed explicit
+    `hanger.hanger_type` when non-empty, otherwise the trimmed family."""
+    hanger = support.get("hanger")
+    explicit = hanger.get("hanger_type") if isinstance(hanger, Mapping) else None
+    reading = _rust_trim(explicit) if isinstance(explicit, str) else ""
+    if not reading:
+        family = support.get("family")
+        reading = _rust_trim(family) if isinstance(family, str) else None
+    return reading
+
+
+def _solver_spring_support(support: Mapping[str, Any]) -> bool:
+    """Whether the solver makes an authored support a ground spring, as Rust's reader mirrors it
+    (`solver_spring_support`): family `spring` exactly, or a variable spring hanger as `support_hanger_type` reads it."""
+    return support.get("family") == "spring" or _solver_support_hanger_type(support) in ("variable_spring_hanger", "spring_hanger")
+
+
+def _solver_constant_effort_support(support: Mapping[str, Any]) -> bool:
+    """The solver's `is_constant_effort_support`, as Rust's reader mirrors it (`solver_constant_effort_support`):
+    `support_hanger_type` is `constant_effort_support`; a family `spring` does not override it. The solver builds no
+    support from such a declaration and source recovery declines any model holding one, so no solver-produced plan
+    names one in `support_ids` (CONSTANT_EFFORT_SUPPORT)."""
+    return _solver_support_hanger_type(support) == "constant_effort_support"
+
+
 def _supports(case: Mapping[str, Any], raw: dict[str, Any], projections: dict[str, Any], model: Mapping[str, Any] | None, context: Any) -> None:
     records = case["supports"]; plan = case["source"]
     _require([s["support_id"] for s in records] == plan["support_ids"], "SUPPORT_COVERAGE")
@@ -391,7 +432,8 @@ def _supports(case: Mapping[str, Any], raw: dict[str, Any], projections: dict[st
             if actual is not None:
                 authored = actual[support["support_id"]]
                 stiffness = authored.get("stiffness") or (authored.get("hanger") or {}).get("stiffness")
-                spring = authored.get("family") in {"spring","variable_spring_hanger","spring_hanger"} or (authored.get("hanger") or {}).get("hanger_type") in {"variable_spring_hanger","spring_hanger"}
+                _require(not _solver_constant_effort_support(authored), "CONSTANT_EFFORT_SUPPORT")
+                spring = _solver_spring_support(authored)
                 dof_name = ("UX","UY","UZ","RX","RY","RZ")[slot]
                 expected_kind = "ground_spring" if spring and stiffness and stiffness.get("dof") == dof_name else "ideal_constraint" if not spring and dof_name in authored.get("restraints",[]) else "structural_zero"
                 _require(len(terms) == 1 and terms[0]["kind"] == expected_kind, "ACTUAL_SUPPORT_LAW")

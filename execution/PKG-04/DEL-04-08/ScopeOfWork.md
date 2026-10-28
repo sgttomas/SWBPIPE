@@ -321,10 +321,10 @@ The registered checks are those in `software-workflow.json`.
   - the independent review that the Root `AGENTS.md` requires for numerical changes.
 - **VER-008** — For REQ-008:
   - `macos-release-sweep`: the pinned notice and successor-byte tests in `retained_facade_tests.rs` and `w1_domain_stage1_tests.rs`;
-  - `harness-self-check`: GEN-13, `tools/validation/validate_claims_language.py`. GEN-13 scans the desktop TS sources and `docs/`, not Rust constants or JSON tables, and its ScopeOfWork glob matches no file in the flat deliverable layout;
+  - `harness-self-check`, and Repository checks in hosted CI when one of its inputs changes: GEN-13, repository-root `tools/validation/validate_claims_language.py`. GEN-13 scans the desktop TS sources, `docs/` and every `execution/PKG-*/DEL-*/ScopeOfWork.md`, this one included, not Rust constants or JSON tables;
   - `piping-pytest`: `tests/test_claims_language_surface.py`.
 
-  Each text change is also reviewed against `docs/claims_registry.md`; for this document, that review stands in for the lint.
+  Each text change is also reviewed against `docs/claims_registry.md`.
 
 ## Governing Values and Decisions — Axiology
 
