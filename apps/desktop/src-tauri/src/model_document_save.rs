@@ -312,11 +312,28 @@ pub(crate) fn admit_model_document_text_screened_with<V: std::borrow::Borrow<Val
         )]);
     }
     let suggested_file_name = suggested_model_document_file_name(&document);
+    let document = open_path_checks(byte_count, document, VERSION_NOT_CURRENT)?;
+    before_screening(&document)?;
+    let warnings = screen_model_document_dispositions_with(&document, stored_members, lookup)?;
+    drop(document);
+    Ok(AdmittedModelDocument { text: canonical_text, suggested_file_name, warnings })
+}
+
+/// The open path's checks of a parsed document about to be written, so every
+/// written file re-opens: `check_model_document` (kind, current version, the
+/// W-13 validator's blocking findings) and the desktop shape check. A document
+/// whose version status is not `current` is refused `version_not_current`.
+/// Shared by Save Model Document and the autosave record (`autosave.rs`).
+pub(crate) fn open_path_checks(
+    byte_count: u64,
+    document: Value,
+    version_not_current: &str,
+) -> Result<Value, Vec<ModelDocumentSaveDiagnostic>> {
     let document = match check_model_document(String::new(), byte_count, document) {
         ModelDocumentOpenOutcome::Opened { schema_status, document, .. } if schema_status == "current" => document,
         ModelDocumentOpenOutcome::Opened { schema_status, .. } => {
             return Err(vec![diagnostic(
-                VERSION_NOT_CURRENT,
+                version_not_current,
                 "schema_version",
                 format!("The model document's version status is `{schema_status}`; only the current version is saved."),
             )]);
@@ -333,10 +350,7 @@ pub(crate) fn admit_model_document_text_screened_with<V: std::borrow::Borrow<Val
     if !shape.is_empty() {
         return Err(shape.into_iter().map(|item| diagnostic(MODEL_FILE_SHAPE, &item.path, item.message)).collect());
     }
-    before_screening(&document)?;
-    let warnings = screen_model_document_dispositions_with(&document, stored_members, lookup)?;
-    drop(document);
-    Ok(AdmittedModelDocument { text: canonical_text, suggested_file_name, warnings })
+    Ok(document)
 }
 
 /// `<project id without "project:">.json`, restricted to `[A-Za-z0-9._-]`;
@@ -362,7 +376,7 @@ pub fn default_save_directory(documents: Option<PathBuf>, home: Option<PathBuf>)
     documents.filter(|path| path.is_absolute()).or_else(|| home.filter(|path| path.is_absolute()))
 }
 
-fn writer_diagnostic(error: AtomicSaveError) -> ModelDocumentSaveDiagnostic {
+pub(crate) fn writer_diagnostic(error: AtomicSaveError) -> ModelDocumentSaveDiagnostic {
     let mut message = format!("{} ({} stage).", error.message, error.stage);
     if let (Some(code), Some(detail)) = (error.cleanup_code, error.cleanup_message) {
         message.push_str(&format!(" {code}: {detail}."));
