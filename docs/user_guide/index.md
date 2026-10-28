@@ -59,13 +59,22 @@ A model solves on one of two routes:
 
 **What you can do today**, with invented data or your own private data:
 
-- **Projects.** Use File › Open Model Document…, New Blank Project or New
-  Local Project to start. Save Local Project writes the project to the local
-  store (§3.2), and Open Local Project… reopens it.
+- **Projects.** Use File › New Blank Project (an empty model) or Open Model
+  Document… to start. Save Local Project writes the project to the local
+  store (§3.2), and Open Local Project… reopens it; ⌘S is Save Local Project.
+  Save as New Local Project stores the model on screen as a local project of
+  its own; it does not start an empty model. Quitting (⌘Q) or closing the
+  window while the model has unsaved edits (the toolbar shows "Edited") asks
+  first: Save Local Project and quit, discard the edits and quit, or Cancel.
+  While a dialog is open, ⌘Q and the close button do nothing; finish or
+  cancel the dialog first. If a save is still running when you quit again,
+  you choose between waiting for it and quitting without saving. Quitting
+  from the Dock or at logout does not ask yet.
 - **Authoring.** Place nodes and pipes in the 3D viewport. Assign materials and
   sections, and add bends, expansion joints, supports, load cases and
   combinations. Each edit is a validated operation that you can review and
-  undo (Edit › Undo Model Edit, Redo Model Edit).
+  undo (Edit › Undo Model Edit, Redo Model Edit). Undo keeps the last 25
+  edits of this session; it is not kept when you quit or open another project.
 - **Solving.** The pressure-free route covers linear and nonlinear supports,
   wind, seismic loads and load combinations. The exact route covers pressure,
   load/reference states and objective-connector joints.
@@ -307,8 +316,8 @@ When a required value is missing:
 
 In the desktop app the workflow is:
 
-1. Start a project: File › Open Model Document…, New Blank Project or New
-   Local Project. The project lives in the local SQLite store (§3.2). Storage
+1. Start a project: File › New Blank Project (an empty model) or Open Model
+   Document…. The project lives in the local SQLite store (§3.2). Storage
    roots for other operating systems and a portable project export/copy
    remain `TBD`.
 2. Choose the units. New Blank Project opens a units dialog: SI (the

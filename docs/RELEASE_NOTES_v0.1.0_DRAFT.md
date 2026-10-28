@@ -50,7 +50,7 @@ What the SWBPIPE 0.1.0 desktop application does in this source tree. It describe
 
 ### Model authoring
 
-- Projects: New Local Project, New Blank Project, Open, Save and List Local Projects, and Open Model Document… for a model JSON file (model schema 0.8.0; other versions are refused by name). An invented demo model is bundled.
+- Projects: New Blank Project, Open, Save, Save as New Local Project and List Local Projects, and Open Model Document… for a model JSON file (model schema 0.8.0; other versions are refused by name). An invented demo model is bundled.
 - 3D centerline viewport: place nodes by coordinates, connect pipes between explicit endpoints (automatic node creation while routing is not provided), box and filtered selection, labels, load arrows, grid and view cube.
 - Model tree with a table view for browsing and inline editing, and a property inspector for the selected entity.
 - Every edit is a model operation: validated by the operation engine, shown as a diff, applied explicitly and recorded in an operation ledger. Undo and redo cover up to 25 edits.
