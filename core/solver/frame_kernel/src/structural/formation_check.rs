@@ -198,7 +198,9 @@ pub enum PressureCoefficient {
 }
 #[derive(Debug, Clone, PartialEq)]
 pub enum LoadFormula {
-    /// The explicit 0.4 source-factor product, before its ordinary binary64 fold.
+    /// A product of two binary64 operands at one nodal DOF, before its
+    /// ordinary binary64 fold: the explicit 0.4 source-factor product
+    /// (magnitude × factor), or W-16 R-c's spring base load (k × g).
     NodalProduct {
         global_dof: usize,
         magnitude: f64,

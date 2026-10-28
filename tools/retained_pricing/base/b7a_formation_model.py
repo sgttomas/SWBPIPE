@@ -217,17 +217,17 @@ def decisions(snapshot, resolved):
     fc = "core/solver/frame_kernel/src/structural/formation_check.rs:"
     # ForceTerm.source is the bare admitted load_id, not the separately
     # owned member_source identity in LoadPrimitive/manifest entries.
-    for line in (528, 534, 544, 620, 633, 640):
+    for line in (530, 536, 546, 622, 635, 642):
         audit.append((resolved(fc + str(line)), {
             "terms[p.term_index].source": {"bytes": 128, "source": "IN128"},
         }))
     # U5B-TR (T4-U5b): the TieRodReference binding refusal formats the formed term's source,
     # "tie_rod_reference:{len}:{component}:{len}:{rod}" (18 + 4 + 128 + 1 + 4 + 128 = 283 B); tie rods exist only on
     # connectors, so it is unreached on D1 (P3), and it is still charged at its full class.
-    audit.append((resolved(fc + "580"), {
+    audit.append((resolved(fc + "582"), {
         "terms[p.term_index].source": {"bytes": 283, "source": "U5B-TR: formed tie-rod reference source"},
     }))
-    for line in (672, 682, 688, 694, FIRST_RETURN_LINE):
+    for line in (674, 684, 690, 696, FIRST_RETURN_LINE):
         audit.append((resolved(fc + str(line)), {
             "term.source": {"bytes": 128, "source": "IN128"},
         }))
@@ -374,17 +374,18 @@ def site_totals(snapshot, resolved):
 
 
 FIRST_RETURN_FILE = "core/solver/frame_kernel/src/structural/formation_check.rs"
-FIRST_RETURN_ROOT = FIRST_RETURN_FILE + ":914:evaluate"
-FIRST_RETURN_PARENT = FIRST_RETURN_FILE + ":474:check_at"
+FIRST_RETURN_ROOT = FIRST_RETURN_FILE + ":916:evaluate"
+FIRST_RETURN_PARENT = FIRST_RETURN_FILE + ":476:check_at"
 # T4-U8: evaluate's added `straight_frames_bound(source)?;` (the line after load_closure) moves the reformation
 # map_err site from 895 (B7b) to 896 with unchanged text; PP's member-identity binding moves evaluate (850),
 # check_at (441) and the site by 13 more (909), text unchanged.
 # T4-S5 (epoch): the TieRodReference variant and binding arm move check_at (+19), evaluate and the site (+50), and the
 # load_closure sites (+19/+45), text unchanged.
-FIRST_RETURN_LINE = 960
+# W-16 stage 2 D3 (§8.29): formation_check.rs's NodalProduct doc comment adds two lines; these keys move +2, text unchanged.
+FIRST_RETURN_LINE = 962
 FIRST_RETURN_SITE = "structural/formation_check.rs:%d" % FIRST_RETURN_LINE
 FIRST_RETURN_WHY = "B7aFK895: map_err formats only on Err and immediate? returns evaluate; preserve full evaluate calls/content/capacity and every helper/loop/copy cost"
-FIRST_RETURN_RULE = {"from": ["structural/formation_check.rs:914:evaluate"],
+FIRST_RETURN_RULE = {"from": ["structural/formation_check.rs:916:evaluate"],
                      "per": "1", "why": FIRST_RETURN_WHY}
 
 
