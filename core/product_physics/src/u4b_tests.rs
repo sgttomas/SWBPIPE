@@ -1046,7 +1046,8 @@ const PREVIEW_SHEAR_FAMILY: [(usize, u64, u64, u64, u64); 38] = [
 
 /// DEL-04-07 §2.4: on preview-physics-2, c_b from the moduli is within 8.5u of the exact
 /// Saint-Venant value for every E/(2G) in (0, 3/2), down to E/(2G) → 0. Forming 1 + ν as
-/// RN(RN(E/(2G)) − 1) + 1 lost up to 2^-54/(E/(2G)) relative below E/(2G) = 1/2 (33% at
+/// RN(RN(E/(2G)) − 1) + 1 recovered 1+ν* only to within u + 2^-54/q* relative to the exact
+/// q* = E/(2G), below E/(2G) = 1/2 (33% at
 /// Codex's pair). Admission is unchanged: a member whose ν = RN(q − 1) is −1 is out of the
 /// domain, and its x-form value is still checked (7u) through the shared moduli terms.
 #[test]

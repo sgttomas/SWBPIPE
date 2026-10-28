@@ -166,8 +166,9 @@ pub fn shear_area(kappa: f64, area: f64) -> Result<f64, ShearFactorError> {
 /// scaling) and x = x*(1 + e) with |e| <= u. For x in [1/2, 2], 1 - x is
 /// exact (Sterbenz), so t carries only x's rounding: |t - t*| <= u*x*. For
 /// x > 2, |1 - x| >= x/2 and 1 - x rounds once, so t's relative error is at
-/// most 3u. Forming 1 + nu = fl(fl(E/(2G)) - 1) + 1 instead loses up to
-/// 2^-54/(E/(2G)) relative below E/(2G) = 1/2 (x > 2).
+/// most 3u. Forming 1 + nu = fl(fl(E/(2G)) - 1) + 1 instead recovers 1 + nu*
+/// only to within u + 2^-54/q* relative to the exact q* = E/(2G), below
+/// E/(2G) = 1/2 (x > 2).
 ///
 /// **Refusals.** A non-finite input, E or G not positive, and an x that is
 /// not a positive normal number (2*G overflowing, or x out of range). The

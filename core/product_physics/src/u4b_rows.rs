@@ -600,7 +600,8 @@ impl ShearPoisson {
 ///   1+ν = q and 1+2ν = 2q − 1 are exact (Sterbenz), so its bits stand;
 /// - q < 1/2 (ν < −1/2, G > E): `saint_venant_shear_factor_of_ratio` of
 ///   x = RN(RN(2·G)/E) (frame kernel `shear::moduli_ratio_terms`), where
-///   1+ν = RN(q − 1) + 1 would lose up to 2^-54/q relative.
+///   1+ν = RN(q − 1) + 1 would recover 1+ν* only to within u + 2^-54/q*
+///   relative to the exact q* = E/(2G) (u = 2^-53).
 ///
 /// **Error** (u = 2^-53, E, G, r_o, r_i,b and I_b exact, first order): on
 /// q ≥ 1/2, 3+2ν = RN(2q + 1) carries (3/4 + 1)u, its product with RN(r_o²)
