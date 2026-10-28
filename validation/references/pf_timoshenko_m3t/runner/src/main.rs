@@ -1,4 +1,7 @@
-// PF M3-T runner (harness, not reference): kd5_timoshenko/runner/src/main.rs, unchanged in behaviour.
+// PF M3-T runner (harness, not reference): kd5_timoshenko/runner/src/main.rs, plus the provenance of each
+// record (refutation round 3): request_sha256, the sha256 of the exact input line ({tag, request}) it parsed
+// and solved; runner_sha256, the sha256 of this executable's bytes; product_head, the product commit it was
+// built from (build.sh sets PFM3T_PRODUCT_HEAD, "-dirty" when the checkout's core/ has uncommitted changes).
 // It calls only the two public entry points
 //   run_linear_static_preview_with_mode        (typed: the request is deserialized first)
 //   run_linear_static_preview_value_with_mode  (captured: the request JSON value)
@@ -14,7 +17,12 @@ use open_pipe_stress_product_physics::{
     LinearStaticPreviewRequest, PreviewSolverMode,
 };
 use serde_json::{json, Value};
+use sha2::{Digest, Sha256};
 use std::io::{BufRead, Write};
+
+fn hex_sha256(bytes: &[u8]) -> String {
+    Sha256::digest(bytes).iter().map(|b| format!("{b:02x}")).collect()
+}
 
 fn main() {
     let input = std::env::var("KD5_IN").expect("KD5_IN");
@@ -30,10 +38,15 @@ fn main() {
         }
     }
     let slim = std::env::var("KD5_SLIM").is_ok();
+    let exe = std::env::current_exe().expect("current_exe");
+    let runner_sha256 = hex_sha256(&std::fs::read(&exe).expect("read own executable"));
+    let product_head = env!("PFM3T_PRODUCT_HEAD");
     let mut out = std::io::BufWriter::new(std::fs::File::create(output).unwrap());
     let reader = std::io::BufReader::new(std::fs::File::open(input).unwrap());
     for line in reader.lines() {
-        let item: Value = serde_json::from_str(&line.unwrap()).unwrap();
+        let line = line.unwrap();
+        let request_sha256 = hex_sha256(line.as_bytes());
+        let item: Value = serde_json::from_str(&line).unwrap();
         let tag = item["tag"].as_str().unwrap().to_string();
         for entry in entries.split(',') {
             for mode in modes.iter().copied() {
@@ -76,9 +89,11 @@ fn main() {
                         json!({"tag":tag,"entry":entry,"mode":format!("{mode:?}"),"ns":ns,
                         "diagnostics":v["diagnostics"],"results":rows,"results_count":results_count,
                         "numerical_quality":v["numerical_quality"],"summary":v["summary"],
-                        "contract_evidence":evidence,"publication":"ordinary"})
+                        "contract_evidence":evidence,"publication":"ordinary",
+                        "request_sha256":request_sha256,"runner_sha256":runner_sha256,"product_head":product_head})
                     }
-                    Err(error) => json!({"tag":tag,"entry":entry,"mode":format!("{mode:?}"),"ns":ns,"error":error}),
+                    Err(error) => json!({"tag":tag,"entry":entry,"mode":format!("{mode:?}"),"ns":ns,"error":error,
+                        "request_sha256":request_sha256,"runner_sha256":runner_sha256,"product_head":product_head}),
                 };
                 writeln!(out, "{}", serde_json::to_string(&record).unwrap()).unwrap();
             }

@@ -12,6 +12,8 @@ publish = false
 [dependencies]
 open_pipe_stress_product_physics = { path = "../../../../core/product_physics" }
 serde_json = { version = "=1.0.149", features = ["float_roundtrip"] }
+# already in the product's locked graph; hashes the request lines and the runner itself
+sha2 = "=0.10.9"
 
 [profile.release]
 debug = false

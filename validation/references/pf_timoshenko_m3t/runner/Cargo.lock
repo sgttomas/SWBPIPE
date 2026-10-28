@@ -63,14 +63,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8f42a60cbdf9a97f5d2305f08a87dc4e09308d1276d28c869c684d7777685682"
 
 [[package]]
-name = "pft_m3t_runner"
-version = "0.0.0"
-dependencies = [
- "open_pipe_stress_product_physics",
- "serde_json",
-]
-
-[[package]]
 name = "libc"
 version = "0.2.189"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -222,6 +214,15 @@ dependencies = [
 [[package]]
 name = "open_pipe_stress_units"
 version = "0.1.0"
+
+[[package]]
+name = "pft_m3t_runner"
+version = "0.0.0"
+dependencies = [
+ "open_pipe_stress_product_physics",
+ "serde_json",
+ "sha2",
+]
 
 [[package]]
 name = "proc-macro2"
