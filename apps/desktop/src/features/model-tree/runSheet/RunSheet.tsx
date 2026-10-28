@@ -14,7 +14,7 @@ import type { QueuedBatch } from "../../toolkit/BatchReviewPanel";
 import { ContextMenu, isContextMenuKey, keyboardMenuRequest, type ContextMenuEntry, type ContextMenuRequest } from "../../workspace/contextMenu/ContextMenu";
 import type { ViewportViewCommand } from "../../viewport/viewportSelection";
 import { mapOutcomeToRows } from "./runSheetBatch";
-import { adoptCurrentValues, applySessionEvent, currentEntry, removeRowFromSheet, type RunSheetState } from "./runSheetLedger";
+import { adoptCurrentValues, applySessionEvent, currentEntry, reconcileRunSheet, removeRowFromSheet, type RunSheetState } from "./runSheetLedger";
 import { KIND_CODES, QUANTITY_COLUMNS, SUPPORT_CODES, reservedOperationIds, type QuantityColumn, type RunSheetFinding } from "./runSheetModel";
 import type { RunSheetStore } from "./runSheetStore";
 import {
@@ -56,10 +56,10 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
   const [conversions, setConversions] = useState<Map<string, number | null>>(() => new Map());
   const [engine, setEngine] = useState<{ version: number; refusals: Map<string, RunSheetFinding[]> }>({ version: -1, refusals: new Map() });
   const [version, setVersion] = useState(0);
-  const baseView = useMemo(() => sheetView({ state, statuses: store.statuses, model, conversions, reservedIds }), [state, store.statuses, model, conversions, reservedIds]);
+  const baseView = useMemo(() => sheetView({ state, statuses: store.statuses, model, conversions, reservedIds, lookup: store.lookup }), [state, store.statuses, model, conversions, reservedIds, store.lookup]);
   const view = useMemo(() => engine.version === version && engine.refusals.size
-    ? sheetView({ state, statuses: store.statuses, model, conversions, reservedIds, engineRefusals: engine.refusals })
-    : baseView, [baseView, engine, version, state, store.statuses, model, conversions, reservedIds]);
+    ? sheetView({ state, statuses: store.statuses, model, conversions, reservedIds, engineRefusals: engine.refusals, lookup: store.lookup })
+    : baseView, [baseView, engine, version, state, store.statuses, model, conversions, reservedIds, store.lookup]);
   const [showExtras, setShowExtras] = useState(false);
   const columns = useMemo(() => SHEET_COLUMNS.filter((column) => !column.extra || showExtras), [showExtras]);
   const [focus, setFocus] = useState<Address | null>(null);
@@ -88,7 +88,7 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
   }, []);
   // Conversions through the engine's display-conversion facade (§6.2); never a reimplemented factor.
   useEffect(() => {
-    const missing = baseView.resolved.missingConversions;
+    const missing = [...baseView.resolved.missingConversions, ...baseView.displayConversions];
     if (missing.length === 0) return;
     let active = true;
     convertDisplayQuantities(missing).then((results) => {
@@ -100,7 +100,7 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
       });
     }).catch(() => { /* The rows keep "converting"; Queue stays disabled. */ });
     return () => { active = false; };
-  }, [baseView.resolved.missingConversions]);
+  }, [baseView.resolved.missingConversions, baseView.displayConversions]);
   // The engine's rules (§4.2): the built batch is validated after each committed change, debounced.
   useEffect(() => {
     if (baseView.queueBlocked || queueing) return;
@@ -167,11 +167,11 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
     setVersion((value) => value + 1);
   }
   function commit(rowKey: string, column: SheetColumnKey, text: string) {
-    const before = sheetView({ state: store.current(), statuses: store.statuses, model, conversions, reservedIds });
+    const before = sheetView({ state: store.current(), statuses: store.statuses, model, conversions, reservedIds, lookup: store.lookup });
     let next = setCell(store.current(), rowKey, column, text);
     if (text.trim()) next = assignIds(next, rowKey, model, reservedIds);
     update(() => next);
-    const after = sheetView({ state: next, statuses: store.statuses, model, conversions, reservedIds });
+    const after = sheetView({ state: next, statuses: store.statuses, model, conversions, reservedIds, lookup: store.lookup });
     markChanges(before, after, rowKey);
     const row = after.rows.find((item) => item.sheetRow.key === rowKey);
     if (row?.refusals.length) announce(`Row ${row.resolved.number} refused: ${sentenceFragment(row.refusals[0].message)}.`);
@@ -233,19 +233,36 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
   }
 
   // ---- Queue (§3.5): one batch from all draft rows, validated, then handed to the review queue.
+  // Queue never reads a render: an edit committed in the same keystroke (Ctrl/Cmd+Enter in an
+  // editor) is already in the store's latest state. The batch and the ledger's queued values come
+  // from one snapshot of that state, resolved against the latest model; if the sheet changes while
+  // the batch is built, nothing is queued.
+  const queueingRef = useRef(false);
+  const latest = useRef({ model, reservedIds, conversions });
+  latest.current = { model, reservedIds, conversions };
   async function queue() {
-    if (queueing || operationBusy || view.queueBlocked) {
-      if (view.queueBlocked) announce(`Queue disabled: ${view.queueBlocked}`);
+    if (queueingRef.current || operationBusy) return;
+    const snapshot = store.current();
+    const { model: basis, reservedIds: reserved, conversions: known } = latest.current;
+    const fresh = sheetView({ state: snapshot, statuses: reconcileRunSheet(snapshot, store.lookup), model: basis, conversions: known, reservedIds: reserved, lookup: store.lookup });
+    if (fresh.queueBlocked) {
+      announce(`Queue disabled: ${fresh.queueBlocked}`);
       return;
     }
+    queueingRef.current = true;
     setQueueing(true);
     clearMarks();
     try {
-      const build = await buildDraftBatch(baseView, model);
+      const build = await buildDraftBatch(fresh, basis);
       const batchId = build.batch.batch_id;
-      const acting = baseView.draftRows;
+      const acting = fresh.draftRows;
+      if (store.current() !== snapshot) {
+        announce("The sheet changed while the batch was built; nothing was queued. Queue again.");
+        return;
+      }
       // The rows are queued, read-only, while the batch is checked and registered.
-      store.update((current) => markSubmitted(current, baseView, build));
+      store.update(() => markSubmitted(snapshot, fresh, build));
+      const model = basis;
       const hash = await computeModelHash(model);
       if (!hash) throw new Error("The current model hash is unavailable.");
       const outcome = await validateOperationBatch(model, build.batch, hash);
@@ -267,6 +284,7 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
       store.update((current) => ({ ...current, rows: current.rows.map((row) => row.pending?.registrationKey === null ? { ...row, pending: null } : row) }));
       announce(`Queue failed: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
+      queueingRef.current = false;
       setQueueing(false);
       setVersion((value) => value + 1);
     }

@@ -222,6 +222,30 @@ describe("run sheet keyboard flow (§5.1)", () => {
   });
 });
 
+describe("run sheet Queue reads the committed sheet (Codex r1 P1)", () => {
+  it("Ctrl+Enter inside an editor commits the new dX and queues a batch built from it; the ledger records the same value", async () => {
+    renderSheet();
+    typeStart();
+    fireEvent.click(screen.getByTestId("run-sheet-add-row"));
+    type("r2", "dx", "2", { key: "Tab" });
+    type("r2", "od", "0.1143", { key: "Tab" });
+    type("r2", "wall", "0.00602", { key: "Tab" });
+    type("r2", "material", "material:steel", { key: "Tab" });
+    type("r2", "orientation", "0 0 1", { key: "Tab" });
+    await waitFor(() => expect(screen.getByTestId("run-sheet-queue")).toBeEnabled());
+    // Change dX from 2 to 5 and press Ctrl+Enter inside the editor.
+    type("r2", "dx", "5", { key: "Enter", ctrlKey: true });
+    await waitFor(() => expect(register).toHaveBeenCalledOnce());
+    const batch = register.mock.calls[0][0] as OperationBatch;
+    const created = batch.operations.find((operation) => operation.change.change_kind === "create_node")!;
+    // node:E is at (0, 6, 0): the end node is at x = 5.
+    expect(JSON.parse(created.change.after).position).toEqual({ x: 5, y: 6, z: 0 });
+    const submitted = harness.store!.current().submitted[batch.batch_id];
+    expect(submitted.values.r2.dx).toBe("5");
+    expect(submitted.batch).toEqual(batch);
+  });
+});
+
 describe("run sheet focus recovery (§5.1)", () => {
   it("after Queue focus stays on the same cell, now read-only", async () => {
     renderSheet();

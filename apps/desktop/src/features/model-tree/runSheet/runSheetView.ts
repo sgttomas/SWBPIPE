@@ -9,11 +9,13 @@ import type { PreviewModel } from "../../../types";
 import { buildRunSheetBatch, type RunSheetBuild } from "./runSheetBatch";
 import {
   INHERITING_CELLS, MESSAGES, QUANTITY_COLUMNS, assignRowNumber, idsForNumber, modelIds, resolveRunSheet,
-  type CellOrigin, type QuantityColumn, type ResolvedRunSheet, type ResolvedRunSheetRow, type RunSheetConversions, type RunSheetFinding, type RunSheetRowInput,
+  conversionKey,
+  type CellOrigin, type QuantityColumn, type ResolvedRunSheet, type ResolvedRunSheetRow, type RunSheetConversions, type RunSheetFinding, type RunSheetRowInput, type Vec3,
 } from "./runSheetModel";
+import type { DisplayQuantityRequest } from "../../../services/displayQuantityService";
 import {
   blankRow, currentEntry, editedNotApplied, shownValues,
-  type OwnedRef, type RowReconciliation, type RowStatus, type RowValues, type RunSheetState, type SheetRow, type SubmittedBatch,
+  type OwnedRef, type RecordLookup, type RowReconciliation, type RowStatus, type RowValues, type RunSheetState, type SheetRow, type SubmittedBatch,
 } from "./runSheetLedger";
 
 export type SheetColumnKey =
@@ -64,10 +66,28 @@ export const CODE_LISTS = {
   support: "A anchor, G guide, L line stop, V vertical support; blank is no support",
 } as const;
 
-/** The row input as entered, for any row (draft rows read their buffer; others their in-effect values). */
-export function rowInput(state: RunSheetState, row: SheetRow, status: RowStatus): RunSheetRowInput {
-  const values = status === "draft" || status === "queued" ? shownValues(state, row) : currentEntry(state.ledger, row.key)?.valuesAfter ?? {};
-  return { key: row.key, ...values };
+/** The row input as entered, for any row (draft rows read their buffer; others their in-effect
+ * values). An applied or detached row that created its end node carries that node's stored
+ * position, so the chain after it continues from stored geometry (§3.4, §6.2 x_{k−1}). */
+export function rowInput(state: RunSheetState, row: SheetRow, status: RowStatus, lookup?: RecordLookup): RunSheetRowInput {
+  if (status === "draft" || status === "queued") return { key: row.key, ...shownValues(state, row) };
+  const entry = currentEntry(state.ledger, row.key);
+  const values = entry?.valuesAfter ?? {};
+  const input: RunSheetRowInput = { key: row.key, ...values };
+  const stored = storedEndOf(entry, values, lookup);
+  if (stored) input.storedEnd = stored;
+  return input;
+}
+/** The stored position of the end node a run or P row created, when the model still holds it. */
+function storedEndOf(entry: ReturnType<typeof currentEntry>, values: RowValues, lookup: RecordLookup | undefined): Vec3 | null {
+  if (!entry || !lookup) return null;
+  const kind = (values.kind ?? "").trim().toUpperCase();
+  const createsEnd = ((kind === "" || kind === "R") && !(values.node ?? "").trim()) || kind === "P";
+  if (!createsEnd) return null;
+  const node = entry.ownedIds.find((ref) => ref.type === "node");
+  const record = node ? lookup(node) as { position?: Vec3 } | undefined : undefined;
+  const position = record?.position;
+  return position && [position.x, position.y, position.z].every((value) => typeof value === "number" && Number.isFinite(value)) ? { x: position.x, y: position.y, z: position.z } : null;
 }
 
 /** The model without the entities the sheet's applied rows own (the chain resolves as drafted). */
@@ -101,6 +121,9 @@ export type ViewRow = Readonly<{
   editedNotApplied: readonly string[];
   /** The entered values shown: the in-effect values, overlaid by `restored` and `edits`. */
   values: RowValues;
+  /** An applied or detached row's increments, `stored(end) − stored(predecessor)`, for display only
+   * (§3.4): in the sheet unit once converted, else in the stored unit. Absolute for a P row. */
+  storedIncrements: Readonly<{ value: Vec3; unit: string }> | null;
 }>;
 export type SheetView = Readonly<{
   resolved: ResolvedRunSheet;
@@ -111,6 +134,8 @@ export type SheetView = Readonly<{
   queueBlocked: string | null;
   /** True when any draft row was released from a retired or abandoned batch. */
   requeue: boolean;
+  /** Display-only conversions of applied rows' stored increments still to fetch. */
+  displayConversions: readonly DisplayQuantityRequest[];
 }>;
 
 export const LIFECYCLE_MESSAGES = {
@@ -128,6 +153,8 @@ export function sheetView(input: {
   conversions: RunSheetConversions;
   reservedIds: Iterable<string>;
   engineRefusals?: ReadonlyMap<string, readonly RunSheetFinding[]>;
+  /** The current records by entity (the session's index); applied rows read stored positions here. */
+  lookup?: RecordLookup;
 }): SheetView {
   const { state, statuses, model } = input;
   const shown = state.rows.filter((row) => statuses.get(row.key)?.status !== "deleted");
@@ -135,9 +162,10 @@ export function sheetView(input: {
   const resolved = resolveRunSheet({
     sheetKey: state.sheetKey, batchSeq: state.batchSeq, lengthUnit: state.header.lengthUnit, source: state.header.source,
     numbering: state.header.numbering, columnUnits: state.columnUnits,
-    rows: shown.map((row) => rowInput(state, row, statusOf(row))),
+    rows: shown.map((row) => rowInput(state, row, statusOf(row), input.lookup ?? modelLookup(model))),
   }, { model: sheetBasisModel(model, state, statuses), idState: state.idState, reservedIds: input.reservedIds, conversions: input.conversions });
   const inModel = modelIds(model);
+  const displayConversions: DisplayQuantityRequest[] = [];
   const rows: ViewRow[] = shown.map((sheetRow, index) => {
     const status = statusOf(sheetRow);
     const row = resolved.rows[index];
@@ -158,7 +186,15 @@ export function sheetView(input: {
       for (const diagnostic of sheetRow.engineRefusal?.diagnostics ?? []) refusals.push({ rule: "incomplete", message: LIFECYCLE_MESSAGES.engine(diagnostic.code, diagnostic.message) });
       refusals.push(...(input.engineRefusals?.get(sheetRow.key) ?? []));
     }
-    return { sheetRow, status, resolved: row, refusals, editedNotApplied: editedNotApplied(state, sheetRow), values: shownValues(state, sheetRow) };
+    let storedIncrements: ViewRow["storedIncrements"] = null;
+    if ((status === "applied" || status === "detached") && row.end && !row.end.existing) {
+      const from = row.kind === "point" ? { x: 0, y: 0, z: 0 } : row.startPosition;
+      if (from && (row.kind === "run" || row.kind === "bend" || row.kind === "point")) {
+        const stored = { x: row.end.position.x - from.x, y: row.end.position.y - from.y, z: row.end.position.z - from.z };
+        storedIncrements = displayIncrements(stored, resolved.storedLengthUnit, resolved.sheetLengthUnit, input.conversions, displayConversions);
+      }
+    }
+    return { sheetRow, status, resolved: row, refusals, editedNotApplied: editedNotApplied(state, sheetRow), values: shownValues(state, sheetRow), storedIncrements };
   });
   const draftRows = rows.filter((row) => row.status === "draft" && hasValues(row));
   const refused = draftRows.filter((row) => row.refusals.length > 0);
@@ -167,7 +203,25 @@ export function sheetView(input: {
     : draftRows.length === 0 ? "No draft rows to queue."
     : refused.length ? `Refused rows: ${refused.map((row) => row.resolved.number).join(", ")}. Correct them to queue.`
     : null;
-  return { resolved, rows, draftRows, queueBlocked, requeue: draftRows.some((row) => row.sheetRow.requeueNeeded) };
+  return { resolved, rows, draftRows, queueBlocked, requeue: draftRows.some((row) => row.sheetRow.requeueNeeded), displayConversions };
+}
+
+/** A lookup over the model's own collections, where no index is supplied. */
+function modelLookup(model: PreviewModel): RecordLookup {
+  const nodes = new Map(model.nodes.map((node) => [node.id, node]));
+  return (ref) => ref.type === "node" ? nodes.get(ref.id) : undefined;
+}
+/** Stored increments in the sheet unit through the engine's conversions (display only), else in the stored unit. */
+function displayIncrements(stored: Vec3, storedUnit: string, sheetUnit: string, conversions: RunSheetConversions, requests: DisplayQuantityRequest[]): { value: Vec3; unit: string } {
+  if (!sheetUnit || sheetUnit === storedUnit) return { value: stored, unit: storedUnit };
+  const out: number[] = [];
+  for (const value of [stored.x, stored.y, stored.z]) {
+    const key = conversionKey(value, storedUnit, sheetUnit, "length");
+    const converted = conversions.get(key);
+    if (typeof converted === "number") out.push(converted);
+    else if (!conversions.has(key)) requests.push({ id: key, value: value === 0 ? 0 : value, from_unit: storedUnit, to_unit: sheetUnit, dimension_id: "length" });
+  }
+  return out.length === 3 ? { value: { x: out[0], y: out[1], z: out[2] }, unit: sheetUnit } : { value: stored, unit: storedUnit };
 }
 
 const hasValues = (row: ViewRow) => Object.values(shownLike(row)).some((value) => value !== undefined && value !== "");
@@ -260,6 +314,11 @@ export function cellView(view: SheetView, row: ViewRow, column: SheetColumn, col
   const base = { unit: "", muted: false, italic: false, refusal: cellRefusal(row, column) };
   switch (column.key) {
     case "dx": case "dy": case "dz": {
+      if (row.storedIncrements) {
+        const axis = column.key === "dx" ? "x" : column.key === "dy" ? "y" : "z";
+        return { ...base, text: fmt(row.storedIncrements.value[axis]), unit: row.storedIncrements.unit, italic: true,
+          origin: row.resolved.kind === "point" ? "derived: the stored position" : "derived: stored end − stored predecessor" };
+      }
       const text = entered(column.key);
       if (text.trim()) return { ...base, text, unit: view.resolved.sheetLengthUnit, origin: "entered" };
       const none = resolvedRow.kind === "from" || resolvedRow.kind === "support" || Boolean(entered("node").trim());

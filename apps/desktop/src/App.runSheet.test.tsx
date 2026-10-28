@@ -249,6 +249,41 @@ describe("run sheet through the shell", () => {
     expect(treeRow("pipe", "pipe:P20")).toBeInTheDocument();
   });
 
+  it("an applied row reads stored geometry: after its end node moves outside and Adopt, it shows the stored end and a new row continues from it (Codex r1 P1)", async () => {
+    await renderSheet();
+    code("r1", "kind", "f");
+    type("r1", "node", "node:E");
+    const r2 = addRow();
+    type(r2, "dx", "2"); type(r2, "od", "0.1143"); type(r2, "wall", "0.00602"); type(r2, "material", "material:steel"); type(r2, "orientation", "0 0 1");
+    await queueRows();
+    await previewAndApply("batch:run-sheet-sheet-1-1");
+    expect(cell(r2, "position")).toHaveTextContent("2, 6, 0");
+    // The last node moves on another surface from x = 2 to x = 12.
+    fireEvent.click(screen.getByTestId("entity-grid-type-nodes"));
+    const x = () => screen.getByTestId("table-cell-node:N20-x");
+    fireEvent.click(x()); fireEvent.click(x());
+    fireEvent.change(screen.getByRole("textbox", { name: "node:N20 X [m]" }), { target: { value: "12" } });
+    fireEvent.click(within(screen.getByTestId("engineering-table")).getByRole("button", { name: "Apply" }));
+    await waitFor(() => expect(x()).toHaveTextContent("12"));
+    fireEvent.click(screen.getByTestId("entity-grid-type-run-sheet"));
+    await waitFor(() => expect(status(r2)).toBe("detached"));
+    act(() => cell(r2, "dx").focus());
+    fireEvent.keyDown(cell(r2, "dx"), { key: "F10", shiftKey: true });
+    fireEvent.click(within(screen.getByRole("menu")).getByText("Adopt current values").closest("[role='menuitem']")!);
+    expect(status(r2)).toBe("applied");
+    expect(cell(r2, "position")).toHaveTextContent("12, 6, 0");
+    expect(cell(r2, "dx")).toHaveAccessibleName("Row 2 dX: 12 m");
+    expect(cell(r2, "dx")).toHaveAccessibleDescription(/^derived: stored end − stored predecessor/);
+    const r3 = addRow();
+    type(r3, "dx", "1");
+    expect(cell(r3, "position")).toHaveTextContent("13, 6, 0");
+    expect(screen.getByTestId(`run-sheet-row-header-${r3}`)).toHaveAccessibleName(/^Row 3, run, draft$/);
+    await queueRows();
+    await previewAndApply("batch:run-sheet-sheet-1-2");
+    fireEvent.click(screen.getByTestId("entity-grid-type-nodes"));
+    expect(screen.getByTestId("table-cell-node:N30-x")).toHaveTextContent("13");
+  });
+
   it("a model edit on another surface after Queue retires the registration; the rows return to draft marked Requeue needed; Requeue queues a new batch that applies", async () => {
     await renderSheet();
     const [r2, r3] = typeChain();

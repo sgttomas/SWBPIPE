@@ -63,6 +63,9 @@ export type RunSheetRowInput = {
   label?: string;
   /** Ids the user overwrote (§3.2); otherwise derived from the row's number. */
   ids?: { node?: string; pipe?: string; support?: string };
+  /** An applied row's stored end position (§3.4, §6.2): the resolver uses it in
+   * place of `x_{k−1} + c(Δ)`, so later rows continue from stored geometry. */
+  storedEnd?: Vec3;
 };
 
 export type RunSheetNumbering = { nodePrefix: string; pipePrefix: string; start: number; step: number };
@@ -577,7 +580,10 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
     } else if (kind === "point") {
       increments = parseIncrements();
       const converted = increments ? convertAll(increments) : null;
-      if (converted) {
+      if (raw.storedEnd) {
+        const id = text(overrides.node) || derivedIds?.node || "";
+        end = { id, position: { x: normalizeZero(raw.storedEnd.x), y: normalizeZero(raw.storedEnd.y), z: normalizeZero(raw.storedEnd.z) }, existing: false };
+      } else if (converted) {
         // §6.2 x_P = c(X), normalized.
         const id = text(overrides.node) || derivedIds?.node || "";
         end = { id, position: { x: normalizeZero(converted.x), y: normalizeZero(converted.y), z: normalizeZero(converted.z) }, existing: false };
@@ -593,7 +599,11 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
         }
       } else {
         increments = parseIncrements();
-        if (increments) {
+        if (raw.storedEnd) {
+          // An applied row: its stored end, not the sum of its historical increments (§3.4).
+          const id = text(overrides.node) || derivedIds?.node || "";
+          end = { id, position: { x: normalizeZero(raw.storedEnd.x), y: normalizeZero(raw.storedEnd.y), z: normalizeZero(raw.storedEnd.z) }, existing: false };
+        } else if (increments) {
           if (increments.x === 0 && increments.y === 0 && increments.z === 0) refusals.push({ rule: "zero-length", message: MESSAGES.zeroLength });
           const converted = convertAll(increments);
           if (converted) {
