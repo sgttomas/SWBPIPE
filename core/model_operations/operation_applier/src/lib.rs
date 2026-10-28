@@ -4206,6 +4206,12 @@ fn resolve_connect_pipe_run(
     }
 
     let (yrx, yry, yrz) = y_reference.unwrap();
+    // O4 (DEL-07-02 `run-sheet-entry.md` §8): the kernel orientation predicate
+    // reconnect applies as R6/R7, so a pipe the solve's frame constructor
+    // would refuse is refused here, by name, when it is authored.
+    if !connect_orientation(model, target_ref, from, to, stored_unit, [yrx, yry, yrz], checker) {
+        return None;
+    }
     Some(serde_json::json!({
         "id": id,
         "label": label,
@@ -4216,6 +4222,63 @@ fn resolve_connect_pipe_run(
         "y_reference": { "x": yrx, "y": yry, "z": yrz },
         "provenance": provenance,
     }))
+}
+
+/// `connect_pipe_run`'s orientation check (O4): the shared kernel predicate
+/// (`pipe_reconnect::kernel_orientation`) on the new pipe's chord `from` →
+/// `to` and its `y_reference`. Codes are connect's siblings of reconnect's R6
+/// and R7 (`OP-CONNECT-PIPE-*`, the connect vocabulary); the rule is one.
+fn connect_orientation(
+    model: &Value,
+    target_ref: &str,
+    from: &str,
+    to: &str,
+    unit: &str,
+    y: [f64; 3],
+    checker: &mut Checker,
+) -> bool {
+    let refs = vec![target_ref.to_string(), from.to_string(), to.to_string()];
+    let position = |node: &str| {
+        find_entity(model, "nodes", node)
+            .ok_or(())
+            .and_then(|record| geometry_operations::vector(&record["position"]).map_err(|_| ()))
+    };
+    let (Ok(from_at), Ok(to_at)) = (position(from), position(to)) else {
+        checker.push(
+            "OP-CONNECT-PIPE-GEOMETRY-DEGENERATE",
+            "blocking",
+            format!("Cannot connect {target_ref}: endpoint {from} or {to} has no explicit finite position {{x, y, z}}, so the pipe has no direction."),
+            "Repair the endpoint node's position before connecting a pipe segment.",
+            refs,
+        );
+        return false;
+    };
+    match pipe_reconnect::kernel_orientation(from_at, to_at, unit, Some(y)) {
+        Ok(()) => true,
+        Err(pipe_reconnect::OrientationFault::Chord(detail)) => {
+            checker.push(
+                "OP-CONNECT-PIPE-GEOMETRY-DEGENERATE",
+                "blocking",
+                format!("Cannot connect {target_ref}: the chord {from} -> {to} {detail}."),
+                "Connect endpoint nodes at distinct finite positions.",
+                refs,
+            );
+            false
+        }
+        Err(pipe_reconnect::OrientationFault::Orientation(error)) => {
+            checker.push(
+                "OP-CONNECT-PIPE-ORIENTATION-DEGENERATE",
+                "blocking",
+                format!(
+                    "Cannot connect {target_ref}: the frame kernel refuses its y_reference ({}, {}, {}) for the chord {from} -> {to} ({error:?}); the local axes would not be an orthonormal right-handed basis within 1e-12.",
+                    y[0], y[1], y[2]
+                ),
+                "Enter a y_reference that is not parallel to the pipe direction.",
+                refs,
+            );
+            false
+        }
+    }
 }
 
 fn check_section_geometry(section: &Value, target_ref: &str, checker: &mut Checker) {

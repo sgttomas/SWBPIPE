@@ -285,8 +285,16 @@ kept `y_reference` (1.00001, 1, 0) passes `frame` (perpendicular norm about
 7.07e-6) but the kernel's |x·y| is about 4.4e-11 > 1e-12.
 
 So the module calls `FrameOrientation::from_x_axis_and_y_reference` on the new
-chord in metres (converted as `frame` converts, `:322-325`) and the effective
-`y_reference`. This needs a direct dependency on `open_pipe_stress_frame_kernel`
+chord in metres and the effective `y_reference`. Each endpoint position is
+converted to metres and then subtracted, `to - from`, the order the solve uses
+(node positions normalized to metres, then `FrameElement::local_x_axis`), so the
+chord is the solve's chord bit for bit. The predicate is
+`pipe_reconnect::kernel_orientation`; `connect_pipe_run` applies the same one
+(O4, DEL-07-02 `run-sheet-entry.md` §8) under its own codes
+`OP-CONNECT-PIPE-GEOMETRY-DEGENERATE` (R6) and
+`OP-CONNECT-PIPE-ORIENTATION-DEGENERATE` (R7).
+
+This needs a direct dependency on `open_pipe_stress_frame_kernel`
 in the applier's `Cargo.toml`. That is not a D3-pinned file (the pinned list,
 `b7a_domain_model.py:74`, holds `.rs` sources; using the kernel's public API
 edits none of them). The crate is already in the wasm engine's closure through
@@ -308,11 +316,9 @@ check on the same metre vector at the same threshold (norm ≤ 1e-12 or
 nonfinite → R6) and calls `from_x_axis_and_y_reference` only on a chord that
 passes it. Any `DegenerateAxis` from that call therefore comes from the y or z
 normalization and maps to R7; the sources are told apart by call order, not by
-`detail`. Missing `y_reference` → chord check only, plus the §1 warning. Residual: a
-case on the 1e-12 boundary could differ between the applier's metre conversion
-and the product's unit normalization; the solve then refuses it by name
-(`PIPE_ELEMENT_INPUT_INVALID`, `product_physics/src/lib.rs:8148-8160`), never a
-silent result.
+`detail`. Missing `y_reference` → chord check only, plus the §1 warning. Because the chord is formed in the solve's order through the same unit conversion,
+the applier and the solve's frame constructor admit the same chords and
+orientations; the solve refuses any other by name (`PIPE_ELEMENT_INPUT_INVALID`, `product_physics/src/lib.rs`), never a silent result.
 
 ### 2.4 Warnings (non-blocking; the user may be mid-edit)
 
