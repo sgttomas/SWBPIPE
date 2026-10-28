@@ -15,7 +15,8 @@ Reconciliation evidence: the retired D-41 current-declaration snapshots are pres
 
 This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and package objectives [OBJ-007, OBJ-009].
 
-- **OUT-001** — A schema-first machine-readable JSON result-envelope contract for review, regression comparison, report generation, GUI consumption, automation, and governed downstream adapters is produced while additional concrete export formats remain TBD.
+- **OUT-001** — A schema-first machine-readable JSON result-envelope contract for review, regression comparison, report generation, GUI consumption, automation, and governed downstream adapters is produced while additional concrete export formats, other than OUT-002's CSV, remain TBD.
+- **OUT-002** — CSV export of every results table in the desktop (DEL-08-04-R14) is produced.
 
 ## Deliverable Definition — Ontology
 
@@ -49,7 +50,7 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 > |---|---|
 > | Primary artifact family | Machine-readable result export contract for review, regression comparison, and downstream tooling. |
 > | Baseline format | Schema-first JSON result envelopes. Source: `docs/_Registers/ScopeLedger.csv` row SOW-046; `_CONTEXT.md` Architecture Basis Injection. |
-> | Additional export formats | TBD; this setup deliverable does not choose CSV, HDF5, neutral-file, spreadsheet, or external tool formats as final. |
+> | Additional export formats | CSV of every results table in the desktop (DEL-08-04-R14). HDF5, neutral-file, spreadsheet and external tool formats remain TBD. |
 > | Anticipated implementation artifacts Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | `schemas/results.schema.yaml`, exporter source, and tests. Source: `_CONTEXT.md` Anticipated Artifacts; not created or edited in the original setup session. |
 > | Envelope content categories | Result identity, model/run references, unit-aware value arrays, diagnostics, provenance, analysis status, warnings, and reproducibility references. Source: `docs/SPEC.md` sections 4.5, 7, 8, and 9; `execution/_Decomposition/SOFTWARE_DECOMP.md` architecture basis rows AB-00-03, AB-00-04, AB-00-06, and AB-00-07. |
 > | Review boundary | Exports support review and comparison. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). Source: `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/TYPES.md` section 4. |
@@ -65,7 +66,7 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 >
 >
 > - This session is setup/document production only; no schema file, exporter source, tests, docs outside this folder, or repository-level artifacts are modified.
-> - The export baseline is a JSON result envelope contract. Any additional export format remains `TBD` until a later bounded decision or implementation brief.
+> - The export baseline is a JSON result envelope contract. CSV export of the desktop results tables is chosen (DEL-08-04-R14); any other additional export format remains `TBD` until a later bounded decision or implementation brief.
 > - Result exports must preserve the PKG-00 no-bypass baseline: adapters and downstream tools cannot bypass unit checks, diagnostics, provenance, public/private data boundaries, or professional-responsibility notices.
 > - Mechanics results, user-rule-check results, and human review/approval states must remain distinguishable in exported data.
 > - Exported diagnostics must carry enough structured information for review and regression triage without relying on prose-only warnings.
@@ -84,7 +85,7 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 > | Provenance and reproducibility references | Links to model hash, manifest, rule-pack checksum, source/provenance notes, and input/run identifiers where available. | References private data safely; does not copy protected or private payloads into public artifacts. |
 > | Analysis status fields | Distinguishes `MECHANICS_SOLVED`, `RULE_INPUTS_INCOMPLETE`, `USER_RULE_CHECKED`, `HUMAN_REVIEW_REQUIRED`, and related statuses. | Must not emit automatic `CODE_COMPLIANT` or professional approval status. |
 > | Regression comparison surface | Provides stable identifiers, deterministic ordering, and numeric/unit metadata suitable for comparison tests. | Exact comparison tolerances and tooling remain future validation work. |
-> | Downstream tooling handoff | Provides a stable machine-readable contract for headless CLI, report generation, GUI results viewer, and adapters. | External transport and concrete non-JSON formats remain `TBD`. |
+> | Downstream tooling handoff | Provides a stable machine-readable contract for headless CLI, report generation, GUI results viewer, and adapters. | External transport and concrete non-JSON formats other than DEL-08-04-R14's CSV remain `TBD`. |
 >
 
 ### CLM-007 — References
@@ -128,7 +129,7 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 > | ID | Requirement | Source |
 > |---|---|---|
 > | DEL-08-04-R1 | The result export baseline shall be a schema-first JSON result envelope. | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row SOW-046; `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) Architecture Basis Injection |
-> | DEL-08-04-R2 | Additional concrete export formats shall remain `TBD` unless later approved and scoped; this deliverable shall not finalize CSV, spreadsheet, FEA, HDF5, or other external formats. | `execution/_Decomposition/SOFTWARE_DECOMP.md` OI-004; sealed brief acceptance notes |
+> | DEL-08-04-R2 | Additional concrete export formats shall remain `TBD` unless later approved and scoped. CSV export of the desktop results tables is approved and scoped by DEL-08-04-R14; this deliverable shall not finalize spreadsheet, FEA, HDF5, or other external formats. | `execution/_Decomposition/SOFTWARE_DECOMP.md` OI-004; sealed brief acceptance notes; `docs/RELEASE_TARGET_v1.0.md` RT-R6 |
 > | DEL-08-04-R3 | Result envelopes shall preserve units and dimensional metadata for exported values and shall not rely on hidden unit defaults. | `docs/CONTRACT.md` OPS-K-UNIT-1; `docs/SPEC.md` section 8 |
 > | DEL-08-04-R4 | Result envelopes shall carry or reference provenance and reproducibility metadata, including model/run identity, solver version basis, rule-pack checksum where applicable, warnings, assumptions, and source notes. | `docs/SPEC.md` sections 4.5 and 8; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04 |
 > | DEL-08-04-R5 | Result envelopes shall carry structured diagnostics using the PKG-00 baseline fields: code, class, severity, source, affected object, message, remediation, and provenance. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-06; `docs/SPEC.md` section 7 |
@@ -140,6 +141,7 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 > | DEL-08-04-R11 | Missing solve-required, rule-check-required, provenance, or unit metadata shall be represented as diagnostics/findings, not silently filled with defaults. | `docs/CONTRACT.md` OPS-K-DATA-2; `docs/SPEC.md` section 7 |
 > | DEL-08-04-R12 | The contract shall support downstream consumption by report generation, GUI results review, headless automation, and import/export adapters without creating a bypass around governed result envelopes. | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) rows DEL-07-05, DEL-08-01, DEL-10-02, DEL-10-05; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-03 and AB-00-07 |
 > | DEL-08-04-R13 | Define and accept the result-export vocabulary for nonlinear active-set count, flags, state codes and residual observations supplied by DEL-04-04. Preserve producer meaning, unit/status context and omission diagnostics at the export boundary; do not infer unpublished naming or acceptance thresholds. | DEL-04-04 current residual; governed result-export boundary |
+> | DEL-08-04-R14 | Every results table in the desktop, including comparison tables, shall export to CSV through one serializer that reads the view model the table renders. Export adapters and the save route shall preserve the governed result-envelope boundary and the applicable R3–R13 and AC-001 requirements. Each file shall begin with a provenance preamble (the notice, model and result hashes, analysis route or routes, case or filter, unit basis and software version), then a blank row, then the table. Every numeric column shall state its unit, and existing stable row identifiers shall be preserved. Each numeric value shall be the unrounded value returned by the table's own conversion function for the column's displayed unit, written as the shortest decimal that parses back to that converted value exactly. An absent value shall never be a blank number: it carries the table's stated status, and missing values and metadata retain their diagnostics under R6 and R11. Rule outcomes shall use the table's own wording, subject to R6 and R7. The file shall use UTF-8 with a byte-order mark and CRLF line endings; text cells that a spreadsheet would read as formulas shall be neutralized. Identical source data, provenance and table settings shall produce identical bytes. Saving shall require explicit user intent through the governed local-private route `DOTH-CSV-011`, with matching identity and admission policy in the Python, TypeScript and Rust route catalogues; file names follow DEL-07-01 Design `export-file-names.md`. The CSV is not a released report. | `docs/RELEASE_TARGET_v1.0.md` RT-R6 and §4 item 5; HELP_HUMAN design adoption, 2026-10-28; DEL-07-01 Design `export-file-names.md` (#1711) |
 >
 
 ### CLM-012 — Standards
@@ -190,6 +192,7 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 >
 > Future implementation artifacts anticipated by the register are `schemas/results.schema.yaml`, exporter source, and tests; they are not created or edited in this setup session.
 - **AC-001** — The contract preserves explicit units and dimensional metadata, structured diagnostics, provenance and reproducibility references, stable identifiers and ordering, mechanics/rule/human status distinctions, public/private content boundaries, and no-bypass or professional-authority constraints.
+- **AC-002** — Every results table in the desktop, including comparison tables, exports to CSV as DEL-08-04-R14 requires. A guard test fails when any such table lacks CSV export. Parsing each exported numeric field returns exactly the unrounded value produced by the table's conversion function for the displayed column unit. Repeated exports with identical source data, provenance and table settings are byte-identical. Serializer tests cover R14's preamble and table layout, units and identifiers, missing-value handling, UTF-8 byte-order mark, CRLF line endings and formula-leading text neutralization. Adapter tests demonstrate preservation of AC-001 and the R9/R12 no-bypass boundary. Route-catalogue parity and native-save tests show that `DOTH-CSV-011` is admitted only for local-private output with explicit user intent, with matching policy in Python, TypeScript and Rust.
 
 ## Production and Verification Method — Praxeology
 
@@ -248,7 +251,7 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 > |---|---|
 > | Scope of Work contract | `ScopeOfWork.md` exist with stable default sections. |
 > | Scope boundary Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | No files outside `execution/PKG-08/DEL-08-04/**` are edited. |
-> | Format boundary | JSON result envelope baseline is stated; additional export formats remain `TBD`. |
+> | Format boundary | JSON result envelope baseline is stated; CSV export of the desktop results tables is selected (DEL-08-04-R14); other additional export formats remain `TBD`. |
 > | Unit/provenance/diagnostic boundary | Unit-aware values, provenance, diagnostics, and no-bypass adapter constraints are visible in the specification. |
 > | Protected/private boundary | No protected standards text, copied tables, proprietary formulas, private rule-pack payloads, private project data, or certification/compliance claims are introduced. |
 > | Dependency register | `Dependencies.csv` validates against v3.1 schema and `_DEPENDENCIES.md` counts match the CSV. |
@@ -266,7 +269,8 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 > - Dependency artifacts: `Dependencies.csv`, `_DEPENDENCIES.md`
 > - Run records: `_run_records/TASK_RUN_2026-04-30_*.md`
 > - Lifecycle status: `_STATUS.md`
-- **VER-001** — Validate the contract and review source parity, schema-first JSON baseline, retained TBD format choices, unit and diagnostic completeness, deterministic comparison identity, provenance and rule-pack references, adapter no-bypass behavior, protected-content limits, and every governed residual.
+- **VER-001** — Validate the contract and review source parity, schema-first JSON baseline, retained TBD format choices other than R14's CSV, unit and diagnostic completeness, deterministic comparison identity, provenance and rule-pack references, adapter no-bypass behavior, protected-content limits, and every governed residual.
+- **VER-002** — For AC-002, provide passing CSV serializer, table-adapter and table-coverage guard tests; route-catalogue parity tests across Python, TypeScript and Rust; and native-save tests demonstrating admission with explicit user intent for local-private output and rejection without that intent or for other output audiences. Identify the test names and tested pull-request head in the pull request, and include the independent review required by Root `AGENTS.md` for persistence and permissions.
 
 ## Governing Values and Decisions — Axiology
 
@@ -279,7 +283,7 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 
 > ##### Purpose
 >
-> The result export format exists to make solver and rule-check outputs reviewable, reproducible, comparable, and consumable by downstream tools without losing the project boundaries that make SWBPIPE code-neutral. The setup baseline is a schema-first JSON result envelope; other export formats remain `TBD`.
+> The result export format exists to make solver and rule-check outputs reviewable, reproducible, comparable, and consumable by downstream tools without losing the project boundaries that make SWBPIPE code-neutral. The baseline is a schema-first JSON result envelope; CSV export of the desktop results tables is selected (DEL-08-04-R14), and other additional export formats remain `TBD`.
 >
 
 ### CLM-024 — Principles
@@ -292,7 +296,7 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 > - Keep diagnostics structured. Review and regression tools need stable diagnostic codes/classes/severities and affected-object references, not prose-only warnings.
 > - Carry reproducibility references without copying private payloads. Model hashes, manifest IDs, solver versions, and rule-pack checksums are appropriate references; protected standards text, proprietary formulas, private rule-pack internals, and owner data are not public export payloads by default.
 > - Prefer deterministic ordering and stable identifiers for regression comparison.
-> - Use `TBD` for unresolved format decisions. Do not imply that a spreadsheet, CSV, FEA handoff, or other external export has been selected.
+> - Use `TBD` for unresolved format decisions. CSV export of the desktop results tables is selected (DEL-08-04-R14); do not imply that a spreadsheet, FEA handoff, or other external export has been selected.
 >
 
 ### CLM-025 — Considerations
@@ -306,7 +310,7 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 > | Mechanics vs rule checks | Mechanics result values and user-rule-check outcomes should remain separately identifiable. A user-rule check is not professional approval. |
 > | Diagnostics | Export consumers should be able to filter by diagnostic class, severity, source, affected object, remediation, and provenance. |
 > | Regression comparison | Stable object identifiers, result-station identifiers, load-case/combination references, deterministic ordering, and unit metadata are more important than display formatting. |
-> | Interoperability | Downstream tools need a governed envelope first. Concrete external formats and transport protocols are later decisions. |
+> | Interoperability | Downstream tools need a governed envelope first. CSV export of the desktop results tables is selected (DEL-08-04-R14); other concrete external formats and transport protocols remain later decisions. |
 > | Privacy and protected data | Public fixtures should use invented or permissively licensed data only. User-private exports remain user controlled and should not become public defaults. |
 >
 
@@ -316,7 +320,7 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 >
 > | Trade-off | Setup position |
 > |---|---|
-> | Single JSON envelope vs many early formats | Use the JSON envelope as the baseline. Additional formats remain `TBD` to avoid premature commitments and governance bypasses. |
+> | Single JSON envelope vs many early formats | Use the JSON envelope as the baseline. CSV export of the desktop results tables is selected (DEL-08-04-R14); other additional formats remain `TBD` to avoid premature commitments and governance bypasses. |
 > | Verbose metadata vs compact exports | Preserve units, diagnostics, provenance, and status semantics even when compactness is desirable. Reviewability takes precedence over minimal payload size. |
 > | Human-readable labels vs stable machine keys | Include stable identifiers for comparison and downstream tooling. Human-readable labels may supplement them but should not be the only references. |
 > | Private rule-pack detail vs reproducibility references | Export identifiers, versions, checksums, source notes, and redistribution status; do not copy private formulas or protected values into public artifacts. |
@@ -348,6 +352,7 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-046 OBJ-007 OBJ-009 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+| OUT-002 | SOW-046 OBJ-007 OBJ-009 | DEL-08-04-R14 | AC-002 | VER-002 | CSV serializer, adapter, guard and route tests at the pull-request head, and the independent review |
 
 ## SCA-011 — Interface responsibility and verification hook
 
