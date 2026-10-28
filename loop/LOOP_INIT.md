@@ -101,7 +101,20 @@ go with only static for now."). Benchmark agreement with CAEPIPE is published
 That part should be out in the open because the whole point is to feed into
 CAEPIPE and expect the results to come out the same (but validated to Code and
 to the reputation of CAEPIPE)."); `docs/IP_AND_DATA_BOUNDARY.md` §6.2 is to be
-amended to match, and other evaluation stays private.
+amended to match, and other evaluation stays private. The target's rows and exit
+criteria are in `docs/RELEASE_TARGET_v1.0.md`. Briefs and PRs for work toward the
+target name the `RT-` row they serve (HELP_HUMAN's coordination rule, adopted in
+its HELP_HUMAN role).
+
+Review is proportionate to the stake (HELP_HUMAN's proposal, approved by the
+owner on 2026-10-28: "These are all good changes to bring about and I
+approve."). Independent review rounds are for numerical meaning, persistence
+and permissions; another change gets at most one review round. Verification
+tooling (scanners, judges, guards) is reviewed against a threat model stated in
+its brief, for at most three adversarial rounds: a finding outside the model is
+recorded, not repaired, and a new kind of finding inside it goes to Agent 0.
+Re-pricing registrations whose coefficients do not move may share one D3 turn.
+Returns and briefs are as short as their content allows.
 
 Agent 0 checks that the implementation and its declarations agree before
 integration.

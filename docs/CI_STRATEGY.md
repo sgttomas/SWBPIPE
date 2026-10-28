@@ -62,6 +62,10 @@ tests cover; it builds no frontend. It restores the main-scoped
 - Rust or a `Cargo.toml` or `Cargo.lock` in a crate it compiles: its normal,
   build and dev path dependencies, and their normal and build path
   dependencies, transitively;
+- any other `Cargo.toml` or `Cargo.lock` under the project, matched in any
+  letter case: the shell's W-18b reach scan finds manifests by name
+  case-insensitively and reads every project package's dependencies through
+  `cargo metadata`, so a new or changed manifest can change its result;
 - a file that the crate or those dependencies read by a literal `include*!` or
   `#[path]` in `src/` or `build.rs`, or that a declared runtime read in their
   `src/` or `build.rs` names;
@@ -117,6 +121,23 @@ sources or registration-dependent tests, run the selected numerical suite
 locally in the registered build and in an emulated unregistered build (a
 build-identity-changing flag such as `RUSTFLAGS=--cap-lints=warn`, in its own
 target directory).
+
+GEN-13, the claims-language check
+(`tools/validation/validate_claims_language.py`, SWBPIPE surfaces only), runs
+in hosted CI as a step of Repository checks (`governance-harness.yml`). The
+step is selected by the `claims_language` output of
+`tools/run_affected_tests.py --dry-run`, which is true when a changed path
+matches the validator's own `input_patterns()` (`--list-inputs` prints them):
+`apps/desktop/src/`, `docs/`, every `execution/PKG-*/DEL-*/ScopeOfWork.md`, the
+anchor surfaces `docs/PRD.md` and
+`core/reporting/report_renderer/src/lib.rs`, `docs/claims_registry.md`, and the
+validator itself. A dispatch run (`--all`) or an unresolvable base selects it
+too; the selection step treats a schedule event as it does dispatch, though the
+workflow has no schedule trigger. If the selector cannot load the validator, it selects
+the step as well, so a broken validator fails closed rather than going unchecked. Other
+changes skip it. The patterns are lexical paths; the repository has no tracked symlinks
+into these surfaces, and adding one would need its target covered too. A finding fails Repository checks, and so
+the `harness` result.
 
 No automatic nightly or post-merge duplicate suite is required. Reuse passing
 hosted results rather than repeating the same suite locally without a change or

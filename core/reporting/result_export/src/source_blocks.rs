@@ -22,7 +22,7 @@ const STRESS_ARITHMETIC_BOUND: f64 = 128.0 * f64::EPSILON;
 const STRESS_INPUT_RELATIVE_LIMIT: f64 =
     (1.0e-9 - STRESS_ARITHMETIC_BOUND) / (1.0 + STRESS_ARITHMETIC_BOUND);
 const EXACT: &str = "retained_source_blocks_exact_v1";
-const COMPONENTS: [&str; 6] = ["Fx", "Fy", "Fz", "Mx", "My", "Mz"];
+pub(crate) const COMPONENTS: [&str; 6] = ["Fx", "Fy", "Fz", "Mx", "My", "Mz"];
 macro_rules! require {
     ($condition:expr, $code:literal) => {
         if !$condition {
@@ -1117,7 +1117,7 @@ pub(crate) fn validate_source_contract_in(
         && usable
         && source["status"]["mechanics"] == "MECHANICS_SOLVED")
 }
-fn supports(
+pub(crate) fn supports(
     case: &Value,
     raw: &HashMap<&str, &Value>,
     ps: &[Value],
@@ -1208,12 +1208,12 @@ fn supports(
                     .get("stiffness")
                     .filter(|v| !v.is_null())
                     .unwrap_or(&authored["hanger"]["stiffness"]);
-                let spring = matches!(
-                    authored["family"].as_str(),
-                    Some("spring" | "variable_spring_hanger" | "spring_hanger")
-                ) || matches!(
-                    authored["hanger"]["hanger_type"].as_str(),
-                    Some("variable_spring_hanger" | "spring_hanger")
+                // The solver's support decisions, mirrored before this file's tests:
+                // a constant-effort support is refused (`solver_built_support`), as
+                // the solver builds none; a spring is family `spring` exactly or a
+                // variable spring hanger, as `support_hanger_type` reads them.
+                let spring = solver_spring_support(
+                    solver_built_support(authored)?,
                 );
                 let dof = ["UX", "UY", "UZ", "RX", "RY", "RZ"][slot];
                 let expected = if spring && stiffness["dof"] == dof {
@@ -1486,6 +1486,63 @@ fn summary(
         );
     }
     Ok(())
+}
+
+/// Whether the solver makes an authored support a ground spring: the decision
+/// `supports` checks the published action terms against (ACTUAL_SUPPORT_LAW).
+/// result_export does not depend on product_physics (product_physics depends
+/// on it), so this mirrors `core/product_physics/src/lib.rs`, whose
+/// linear-support assembly builds `LinearSupport::spring` when
+/// `support.family.as_deref() == Some("spring") || is_variable_spring_hanger(support)`
+/// and a rigid support otherwise. `is_variable_spring_hanger` reads
+/// `support_hanger_type`: the explicit `hanger.hanger_type` trimmed by
+/// `str::trim` when that is non-empty, otherwise the trimmed `family`, matched
+/// against `variable_spring_hanger` and `spring_hanger`. An explicit hanger type
+/// therefore decides over a hanger family, while family `spring` (a plain
+/// ground spring, not a hanger) counts untrimmed whatever the hanger type says.
+/// `solver_spring_rule_tests` guards that solver text and checks this function
+/// and the reader against a table read from it.
+pub(crate) fn solver_spring_support(support: &Value) -> bool {
+    support["family"].as_str() == Some("spring")
+        || matches!(
+            solver_support_hanger_type(support),
+            Some("variable_spring_hanger" | "spring_hanger")
+        )
+}
+
+/// The solver's `support_hanger_type`, mirrored: the explicit
+/// `hanger.hanger_type` trimmed by `str::trim` when that is non-empty,
+/// otherwise the trimmed `family`.
+fn solver_support_hanger_type(support: &Value) -> Option<&str> {
+    support["hanger"]["hanger_type"]
+        .as_str()
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+        .or_else(|| support["family"].as_str().map(str::trim))
+}
+
+/// The solver's `is_constant_effort_support`, mirrored: `support_hanger_type`
+/// is `constant_effort_support`. A family `spring` does not override it.
+pub(crate) fn solver_constant_effort_support(support: &Value) -> bool {
+    matches!(
+        solver_support_hanger_type(support),
+        Some("constant_effort_support")
+    )
+}
+
+/// The authored support, refused (CONSTANT_EFFORT_SUPPORT) when the solver
+/// builds no support from it. The solver's linear-support assembly
+/// (`core/product_physics/src/lib.rs`) drops a support for which
+/// `is_constant_effort_support` holds before its spring decision, and source
+/// recovery declines any model holding one (`source_recovery.rs`
+/// `prepare_sources`), so no solver-produced plan names one in `support_ids`
+/// (`source_receipt::tests::constant_effort_supports_never_enter_a_plan`).
+fn solver_built_support(support: &Value) -> Result<&Value, String> {
+    require!(
+        !solver_constant_effort_support(support),
+        "CONSTANT_EFFORT_SUPPORT"
+    );
+    Ok(support)
 }
 
 #[cfg(test)]
