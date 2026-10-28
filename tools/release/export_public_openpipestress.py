@@ -47,7 +47,7 @@ from datetime import datetime, timezone
 from pathlib import Path, PureWindowsPath
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from release_members import is_text_member, suffix_of  # noqa: E402
+from release_members import inspect_binary, is_text_member, suffix_of  # noqa: E402
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -644,9 +644,21 @@ def boundary_findings(staging: Path) -> list[dict]:
             add("secret_material_filename", rel_posix)
 
         text = read_text_if_utf8(path)
-        if text is None:
-            if suffix_of(path) not in ALLOWED_BINARY_SUFFIXES:
-                add("non_allowlisted_binary", rel_posix)
+        if suffix_of(path) in ALLOWED_BINARY_SUFFIXES:
+            # A declared binary suffix admits only content that parses as that
+            # format (`release_members.BINARY_INSPECTORS`); textual metadata
+            # inside it is a finding. Content that does not match is linted as
+            # text when it decodes, and blocked when it does not.
+            inspection = inspect_binary(path)
+            if inspection is not None and inspection["well_formed"]:
+                if inspection["metadata"]:
+                    add("binary_text_metadata", rel_posix)
+                continue
+            if text is None:
+                add("binary_format_mismatch", rel_posix)
+                continue
+        elif text is None:
+            add("non_allowlisted_binary", rel_posix)
             continue
 
         if PRIVATE_PATH_RESIDUE_MARKER in text:

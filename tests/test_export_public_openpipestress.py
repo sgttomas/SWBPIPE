@@ -45,6 +45,25 @@ def load_module():
 PIPE = load_module()
 
 
+def png_chunk(kind: bytes, body: bytes) -> bytes:
+    import struct
+    import zlib
+
+    return (struct.pack(">I", len(body)) + kind + body
+            + struct.pack(">I", zlib.crc32(kind + body) & 0xFFFFFFFF))
+
+
+def make_png(*extra_chunks: bytes) -> bytes:
+    """A well-formed 1x1 greyscale PNG, with `extra_chunks` before IDAT."""
+    import struct
+    import zlib
+
+    header = png_chunk(b"IHDR", struct.pack(">IIBBBBB", 1, 1, 8, 0, 0, 0, 0))
+    pixels = png_chunk(b"IDAT", zlib.compress(b"\x00\x00"))
+    return (b"\x89PNG\r\n\x1a\n" + header + b"".join(extra_chunks) + pixels
+            + png_chunk(b"IEND", b""))
+
+
 # ---------------------------------------------------------------------------
 # Profile: fail-toward-exclusion allowlist shape.
 # ---------------------------------------------------------------------------
@@ -105,7 +124,7 @@ def test_lint_selection_is_derived_shared_and_case_insensitive(tmp_path):
             "DATA.JSONL", "SHA256SUMS", "model.MBF"]
     for name in text:
         (staging / "docs" / name).write_text("invented\n", encoding="utf-8")
-    (staging / "docs" / "icon.PNG").write_bytes(b"\x89PNG\r\n\x1a\n\xff\xfe")
+    (staging / "docs" / "icon.PNG").write_bytes(make_png())
     (staging / "docs" / "server.PEM").write_text("not a real key\n", encoding="utf-8")
     (staging / "docs" / "run.LOG").write_text("x\n", encoding="utf-8")
 
@@ -389,10 +408,66 @@ def test_boundary_findings_flag_planted_risks(tmp_path):
 
 
 def test_allowed_binary_suffix_is_not_flagged(tmp_path):
+    # A well-formed PNG with no textual metadata passes and is not linted.
     staging = tmp_path / "staging"
     (staging / "apps").mkdir(parents=True)
-    (staging / "apps" / "icon.png").write_bytes(b"\x89PNG\r\n\x1a\n\x00")
+    (staging / "apps" / "icon.png").write_bytes(make_png())
     assert PIPE.boundary_findings(staging) == []
+    assert PIPE.lintable_staged_files(staging) == []
+
+
+def test_allowed_binary_suffix_admits_only_matching_content(tmp_path):
+    # Review r3 finding 2: non-UTF-8 content named .png got neither content
+    # inspection nor linting (zero boundary findings, zero lint targets).
+    staging = tmp_path / "staging"
+    (staging / "apps").mkdir(parents=True)
+    (staging / "apps" / "not_a.png").write_bytes(b"\x00\xff invented bytes \xfe")
+    (staging / "apps" / "text_named.png").write_text("invented text\n", encoding="utf-8")
+    phrase = ("OPS_SYNTHETIC" + "_PROTECTED_TABLE").encode("ascii")
+    (staging / "apps" / "with_text.png").write_bytes(
+        make_png(png_chunk(b"tEXt", b"Comment\x00" + phrase))
+    )
+    bad_crc = bytearray(make_png())
+    bad_crc[30] ^= 0xFF
+    (staging / "apps" / "bad_crc.png").write_bytes(bytes(bad_crc))
+
+    findings = {(f["path"], f["kind"]) for f in PIPE.boundary_findings(staging)}
+    assert ("apps/not_a.png", "binary_format_mismatch") in findings
+    assert ("apps/bad_crc.png", "binary_format_mismatch") in findings
+    assert ("apps/with_text.png", "binary_text_metadata") in findings
+    assert not any(path == "apps/text_named.png" for path, _ in findings)
+    linted = {p.name for p in PIPE.lintable_staged_files(staging)}
+    assert linted == {"text_named.png"}
+
+
+def test_every_allowed_binary_suffix_has_a_content_inspector():
+    import release_members
+
+    assert set(PIPE.ALLOWED_BINARY_SUFFIXES) <= set(release_members.BINARY_INSPECTORS)
+
+
+def test_icns_inspection_checks_structure_and_embedded_png_metadata():
+    import struct
+
+    import release_members
+
+    def icns(*elements: bytes) -> bytes:
+        body = b"".join(elements)
+        return b"icns" + struct.pack(">I", 8 + len(body)) + body
+
+    def element(kind: bytes, data: bytes) -> bytes:
+        return kind + struct.pack(">I", 8 + len(data)) + data
+
+    clean = icns(element(b"ic07", make_png()))
+    assert release_members.inspect_icns(clean) == {"well_formed": True, "metadata": []}
+    texted = icns(element(b"ic07", make_png(png_chunk(b"tEXt", b"k\x00v"))),
+                  element(b"info", b"invented"))
+    assert release_members.inspect_icns(texted)["metadata"] == ["ic07/tEXt", "info"]
+    assert not release_members.inspect_icns(clean[:-1])["well_formed"]
+    toc = element(b"TOC ", b"ic07" + struct.pack(">I", 8 + len(make_png())))
+    assert release_members.inspect_icns(icns(toc, element(b"ic07", make_png())))["well_formed"]
+    wrong_toc = element(b"TOC ", b"ic08" + struct.pack(">I", 8))
+    assert not release_members.inspect_icns(icns(wrong_toc, element(b"ic07", make_png())))["well_formed"]
 
 
 def test_classify_boundary_findings_splits_expected_and_unexpected():
