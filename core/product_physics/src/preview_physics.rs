@@ -1093,6 +1093,140 @@ pub(crate) fn append_combination_results(
     gates
 }
 
+/// Operating-case slice 1a (DEL-05-02 Design `pf-nonlinear-operand-standing.md`):
+/// the evidence member stating each operand's standing.
+pub(crate) const OPERANDS_MEMBER: &str = "combination_operands";
+/// §2.2: some nonlinear support's published final state differs between the operands.
+pub(crate) const OPERAND_STATES_DIFFER: &str = "COMBINATION_OPERAND_SUPPORT_STATES_DIFFER";
+/// §2.2: some operand's numerical integrity checks did not pass.
+pub(crate) const OPERAND_CHECKS_NOT_PASSED: &str = "COMBINATION_OPERAND_CHECKS_NOT_PASSED";
+const STATE_CODE_KIND: &str = "nonlinear_support_active_set_state_code";
+const STATES_NAMED: usize = 8;
+
+fn state_token(code: Option<f64>) -> &'static str {
+    match code {
+        Some(c) if c == 0.0 => "inactive",
+        Some(c) if c == 1.0 => "active",
+        Some(c) if c == 2.0 => "sticking",
+        Some(c) if c == 3.0 => "sliding",
+        Some(_) => "unknown",
+        None => "unreported",
+    }
+}
+
+/// Slice 1a §2.1: in a model with nonlinear supports, one operand record per
+/// admitted combination (always a subtraction or a range envelope there, since every
+/// mechanics combination is withheld). The operands' numerical quality and both
+/// notices are stated on the published envelope (`state_operand_standing`), so a
+/// blocked envelope carries neither. Returns no record for any other model.
+pub(crate) fn append_operand_standing(model: &PreviewModel, rendered: &Rendered, gates: &[serde_json::Value]) -> Vec<serde_json::Value> {
+    if !rendered.nonlinear {
+        return Vec::new();
+    }
+    model
+        .combinations
+        .iter()
+        .filter(|c| gates.iter().any(|g| g["combination_id"] == c.id.as_str() && g["withheld"] == false))
+        .filter_map(|combination| {
+            let expression = CombinationExpression::resolve(combination)?;
+            Some(serde_json::json!({
+                "combination_id": combination.id,
+                "basis": combination.basis,
+                "expression": exact_combinations::expression_evidence(combination),
+                "operands": expression.operand_ids().iter().map(|case| exact_combinations::operand_evidence(model, case)).collect::<Vec<_>>(),
+                "standing": exact_combinations::STANDING,
+            }))
+        })
+        .collect()
+}
+
+/// §2.2: the support-state notice of one record, from the published state rows.
+fn operand_states_diagnostic(id: &str, operands: &[&str], results: &[ResultItem]) -> Option<Diagnostic> {
+    let in_case = |r: &&ResultItem, case: &str| r.kind == STATE_CODE_KIND && r.basis_ref.as_ref().is_some_and(|b| b.ref_type == "load_case" && b.ref_id == case);
+    // Supports in order of first appearance over the operands, each operand's
+    // state rows in published order.
+    let mut supports: Vec<&str> = Vec::new();
+    for case in operands {
+        for row in results.iter().filter(|r| in_case(r, case)) {
+            if !supports.contains(&row.entity_ref.as_str()) {
+                supports.push(&row.entity_ref);
+            }
+        }
+    }
+    let mut differing: Vec<(&str, Vec<&'static str>)> = Vec::new();
+    for support in supports {
+        let codes: Vec<Option<f64>> = operands
+            .iter()
+            .map(|case| results.iter().find(|r| in_case(r, case) && r.entity_ref == support).map(|r| r.value))
+            .collect();
+        if codes.iter().any(|c| c.is_none() || c.map(f64::to_bits) != codes[0].map(f64::to_bits)) {
+            differing.push((support, codes.into_iter().map(state_token).collect()));
+        }
+    }
+    if differing.is_empty() {
+        return None;
+    }
+    let mut named = differing
+        .iter()
+        .take(STATES_NAMED)
+        .map(|(support, states)| {
+            let per_case = operands.iter().zip(states).map(|(case, state)| format!("{case}: {state}")).collect::<Vec<_>>().join(", ");
+            format!("{support} ({per_case})")
+        })
+        .collect::<Vec<_>>()
+        .join("; ");
+    if differing.len() > STATES_NAMED {
+        named.push_str(&format!("; and {} more", differing.len() - STATES_NAMED));
+    }
+    Some(diag(
+        &format!("diagnostic:preview-physics:combination-operand-states:{}", identity(&[id])),
+        OPERAND_STATES_DIFFER,
+        "info",
+        format!(
+            "combination {id}: the reported final state of {} nonlinear support(s) differs between its operand cases: {named}. Each operand case is solved independently from the model's authored initial support states, under the static, history-free support model, and keeps its own reported support state; the combination's rows are derived from those case results and are not one solved state.",
+            differing.len()
+        ),
+        std::iter::once(id.to_string()).chain(differing.iter().map(|(s, _)| s.to_string())).collect(),
+    ))
+}
+
+/// Slice 1a §2.1-§2.2, on the published envelope: each operand's numerical quality
+/// (the case's assessed record, verbatim), the support-state and not-passed
+/// notices, and the member, placed only when there is a record.
+pub(crate) fn state_operand_standing(envelope: &mut MechanicsEnvelope, mut records: Vec<serde_json::Value>) {
+    if records.is_empty() {
+        return;
+    }
+    exact_combinations::state_operand_standing(&mut records, &envelope.numerical_quality);
+    for record in &records {
+        let id = record["combination_id"].as_str().unwrap_or_default();
+        let operands: Vec<&serde_json::Value> = record["operands"].as_array().into_iter().flatten().collect();
+        let cases: Vec<&str> = operands.iter().map(|o| o["load_case_id"].as_str().unwrap_or_default()).collect();
+        if let Some(notice) = operand_states_diagnostic(id, &cases, &envelope.results) {
+            envelope.diagnostics.push(notice);
+        }
+        let failing: Vec<(&str, &str)> = operands
+            .iter()
+            .map(|o| (o["load_case_id"].as_str().unwrap_or_default(), o["numerical_quality"]["solve_quality"].as_str().unwrap_or("not_assessed")))
+            .filter(|(_, quality)| *quality != "checks_passed")
+            .collect();
+        if failing.is_empty() {
+            continue;
+        }
+        let named = failing.iter().map(|(case, quality)| format!("{case} ({quality})")).collect::<Vec<_>>().join(", ");
+        envelope.diagnostics.push(diag(
+            &format!("diagnostic:preview-physics:combination-operand-standing:{}", identity(&[id])),
+            OPERAND_CHECKS_NOT_PASSED,
+            "warning",
+            format!("combination {id} uses operand case(s) whose numerical integrity checks did not pass: {named}; its rows are still published, as derived inspection results without their own numerical enclosure; each operand's standing is stated in contract_evidence.combination_operands"),
+            std::iter::once(id.to_string()).chain(failing.iter().map(|(case, _)| case.to_string())).collect(),
+        ));
+    }
+    if let Some(evidence) = envelope.contract_evidence.as_mut().and_then(serde_json::Value::as_object_mut) {
+        evidence.insert(OPERANDS_MEMBER.to_string(), serde_json::Value::Array(records));
+    }
+}
+
 #[cfg(test)]
 #[path = "silent_drop_unit_tests.rs"]
 mod silent_drop_unit_tests;

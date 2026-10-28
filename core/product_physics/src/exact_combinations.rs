@@ -699,7 +699,7 @@ fn build(combination: &PreviewCombination, expression: &CombinationExpression<'_
     built
 }
 
-fn expression_evidence(combination: &PreviewCombination) -> Value {
+pub(crate) fn expression_evidence(combination: &PreviewCombination) -> Value {
     match combination.basis.as_str() {
         "mechanics" => json!({"terms": combination.terms.iter().map(|t| json!({"load_case_id": t.load_case, "factor": t.factor})).collect::<Vec<_>>()}),
         "result_state_subtraction" => json!({"minuend_id": combination.minuend_id, "subtrahend_id": combination.subtrahend_id}),
@@ -707,7 +707,7 @@ fn expression_evidence(combination: &PreviewCombination) -> Value {
     }
 }
 
-fn operand_evidence(model: &PreviewModel, case: &str) -> Value {
+pub(crate) fn operand_evidence(model: &PreviewModel, case: &str) -> Value {
     let load_case = model.load_cases.iter().find(|c| c.id == case);
     json!({
         "load_case_id": case,
