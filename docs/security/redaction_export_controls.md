@@ -369,7 +369,15 @@ parsed JSON, but neither has non-enumerable keys, so a `__proto__` key is
 always visible there.
 
 This is deliberately stricter than Python's previous reading, which took the
-key as an ordinary member. The member itself is kept in the payload, and its
+key as an ordinary member. On the same reasoning, the route exporter blocks
+the whole export, in all three implementations, when its input carries any of
+its internal names. These are a member named with the `__route_key__` prefix,
+`_route_projected_leaf` or `_route_value_record`, at any depth. The block is
+one `block_export` decision per such member, with reason
+`EXPORT_INPUT_RESERVED_NAME`, naming the member's path and never its value
+(HELP_HUMAN ruling, 2026-10-28: "fail closed on reserved internal names, in
+all three implementations. ... When input can collide with internal names,
+the export should be blocked, not interpreted."). The member itself is kept in the payload, and its
 leaves are labelled like any other.
 
 **Value records.** The route projector decides whether a `{value, ...}` record
@@ -409,12 +417,8 @@ and the redaction walk decides it as follows:
 
 The walk knows the projector's value-record node by identity, a module-private
 `WeakSet` in TypeScript and a private class in Python, never by a member an
-input could carry. An input record carrying the old `_route_value_record`
-marker with `item` and `projected` members is decided as itself. The
-materializer still reads the `_route_projected_leaf` and `__route_key__`
-markers by name, after every decision is taken. An input can carry them only
-inside an item, where they can drop or rename that item's members but never
-skip or weaken a decision.
+input could carry. An input carrying any of the exporter's internal names is
+blocked before projection (see the `__proto__` member rule above).
 
 The Rust test mirror now carries the projector and this walk.
 
@@ -446,15 +450,12 @@ decisions:
 - TypeScript and Python give the contract payload and decisions case for case.
   The Rust mirror, which does not materialize a payload, gives the contract
   decisions case for case and has no before column.
-- No case is less strict than Python before. Exactly one case is less strict
-  than TypeScript before, and it is pinned: `{value: "outer", field_class,
-  "__route_key__value": "SECRET"}` in `local_private` with intent.
-  TypeScript then exported only `value: "SECRET"`, because the input member's
-  reserved prefix collided with the item's own `value`. The item's own value
-  `"outer"`, which its decision kept, is now exported beside it, as Python
-  exported both.
-- The sweep is stricter than Python in 1,735 cases and than TypeScript in
-  1,574.
+- No case is less strict than either before column. One case is pinned as
+  blocked: `{value: "outer", field_class, "__route_key__value": "SECRET"}` in
+  `local_private` with intent, whose reserved name TypeScript once let
+  collide with the item's own `value`.
+- The sweep is stricter than Python in 1,762 cases and than TypeScript in
+  1,593.
 
 No existing sweep case changes.
 
