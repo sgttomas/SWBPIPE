@@ -41,7 +41,13 @@ export const INGRESS_COMMANDS: ReadonlySet<string> = new Set([
   "admit_analysis_run_comparison",
   "save_model_document_file",
   "save_stored_model_document_file",
-  "save_handoff_package"
+  "save_handoff_package",
+  "write_project_autosave",
+  "list_project_autosaves",
+  "read_project_autosave",
+  "discard_project_autosave",
+  "get_autosave_settings",
+  "set_autosave_settings"
 ]);
 
 type InvokeOptions = { headers?: Record<string, string> } | undefined;
