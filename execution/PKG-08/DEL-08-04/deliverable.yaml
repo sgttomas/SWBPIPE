@@ -186,6 +186,11 @@ needs:
     tokens of stress rows and the D-5 `pipe_sections` geometry in `PhysicsGeometry` (DEL-05-03 Design `section-bases-and-timoshenko.md`
     §2.4).'
   evidence: schemas/results.v0.3.schema.yaml
+- from: DEL-07-01
+  condition: >-
+    DEL-08-04's CSV and result JSON exports suggest file names by DEL-07-01
+    Design `export-file-names.md`, the shared export file-name convention.
+  evidence: execution/PKG-07/DEL-07-01/Design/export-file-names.md
 code_paths:
 - schemas/results.schema.yaml
 - schemas/results.v0.3.schema.yaml

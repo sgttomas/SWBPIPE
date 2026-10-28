@@ -270,7 +270,7 @@ Each slice also gets the independent review that the Root `AGENTS.md` requires f
 - **AX-003** — *No new numerical dependency* (DEC-023). Both paths are in-house, std only.
 - **AX-004** — *No relaxation.* A check is never loosened to obtain a pass. Tolerances are measured under DEC-026 and only tightened. Frozen references are never altered to make an implementation pass.
 - **AX-005** — *Independent scrutiny.* Numerical changes get targeted regression checks and independent review by a separate agent (Root `AGENTS.md`).
-- **AX-006** — *Scope.* Modal analysis only. Response spectrum and time history stay deferred under DEC-078; any further dynamics scope needs its own scope change.
+- **AX-006** — *Scope.* Modal analysis only. Response spectrum re-entered scope by SCA-014 (owner, 2026-10-28) and is not yet assigned to a deliverable; time history stays deferred under DEC-078.
 - **AX-007** — *Held by the owner:* release, acceptance and issuance, risk acceptance and holds (F-PIP-3), and the review of any report held for uncertain rights. This deliverable activates nothing beyond its own entry.
 
 ## Output and Evaluation Matrix

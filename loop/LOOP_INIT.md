@@ -101,7 +101,10 @@ go with only static for now."). Benchmark agreement with CAEPIPE is published
 That part should be out in the open because the whole point is to feed into
 CAEPIPE and expect the results to come out the same (but validated to Code and
 to the reputation of CAEPIPE)."); `docs/IP_AND_DATA_BOUNDARY.md` §6.2 is to be
-amended to match, and other evaluation stays private.
+amended to match, and other evaluation stays private. The target's rows and exit
+criteria are in `docs/RELEASE_TARGET_v1.0.md`. Briefs and PRs for work toward the
+target name the `RT-` row they serve (HELP_HUMAN's coordination rule, adopted in
+its HELP_HUMAN role).
 
 Agent 0 checks that the implementation and its declarations agree before
 integration.
