@@ -5,8 +5,8 @@
 **Product type:** Analysis-grade piping design engine and stress-model authoring environment  
 **Document version:** 0.4 Draft  
 **Date:** 2026-05-02  
-**Amended:** 2026-07-16; 2026-09-18; 2026-10-12; 2026-10-17 (§12.8, verified result bounds); 2026-10-27 (FR-SOL-016 and §12.9, modal analysis)  
-**Status:** Adopted PRD authority per D-21 / DEC-056 / SCA-005, as amended by D-47 / DEC-080 / SCA-007 (2026-07-16) by D-71 / DEC-101 / SCA-010 (2026-09-18, product name only), by SCA-012 (2026-10-12, elastic tie rods), by the owner-approved 2026-10-17 §12.8 amendment (verified result bounds) and by SCA-013 (2026-10-27, modal analysis)  
+**Amended:** 2026-07-16; 2026-09-18; 2026-10-12; 2026-10-17 (§12.8, verified result bounds); 2026-10-27 (FR-SOL-016 and §12.9, modal analysis); 2026-10-28 (v1.0 target: §1, §7, §11.5, §12.9, §17.5, §23, §24 R4 and V1)  
+**Status:** Adopted PRD authority per D-21 / DEC-056 / SCA-005, as amended by D-47 / DEC-080 / SCA-007 (2026-07-16) by D-71 / DEC-101 / SCA-010 (2026-09-18, product name only), by SCA-012 (2026-10-12, elastic tie rods), by the owner-approved 2026-10-17 §12.8 amendment (verified result bounds), by SCA-013 (2026-10-27, modal analysis), by SCA-014 (2026-10-28, response spectrum) and by the owner's v1.0-target rulings of 2026-10-28 (§2)  
 **Intended audience:** Piping designers, piping stress engineers, software architects, numerical-method developers, open-source contributors, owner-operators, EPC engineering managers, and technical reviewers
 
 ---
@@ -49,11 +49,11 @@ and [maintainer policy](../governance/MAINTAINERS.md).
 
 SWBPIPE is a proposed free and open-source, local-first, analysis-grade piping design engine with an integrated piping flexibility and stress-analysis core. It enables engineers and designers to create, modify, analyze, compare, and export piping route and support concepts in a schema-backed graphical environment.
 
-The product is not intended to become an industry-standard professional stress-analysis platform or to replace authenticated commercial stress-analysis software. Instead, it is intended to operate earlier in the design workflow, where routes, supports, constraints, equipment interfaces, and design assumptions are still evolving.
+The product does not replace authenticated commercial stress-analysis software for code compliance. It is the design-iteration environment, from first route through the standard non-code analyses to a model the user takes to accepted professional software for code-compliance work (owner, 2026-10-27: "This software does all the design iteration.").
 
 SWBPIPE shall maintain a robust physical model, apply user-supplied design knowledge and constraints, solve the piping flexibility/stress model using transparent analytical methods, and produce schema-compliant model data suitable for downstream 3D modeling and professional piping stress-analysis validation.
 
-The software shall include a serious analytical engine. Its results must be as correct, deterministic, auditable, and useful as practical. However, those results are design-engine results. They may support engineering iteration, screening, comparison, and model authoring, but they are not professional reliance results. Final project reliance requires validation in accepted industry software and competent human review.
+The software shall include a serious analytical engine. Its results must be as correct, deterministic, auditable, and useful as practical. However, those results are design-engine results. They may support engineering iteration, screening, comparison, and model authoring. The user's responsible engineer may issue SWBPIPE's mechanics results (support and equipment loads, displacements, frequencies and fundamental stresses) under their own professional responsibility (owner, 2026-10-28). SWBPIPE does not establish code compliance; the user establishes it separately in accepted professional software, with competent human review.
 
 The governing product distinction is:
 
@@ -80,6 +80,8 @@ This PRD was amended on 2026-10-12 by SCA-012 on the owner's choice "Lift for ti
 This PRD was amended on 2026-10-17: §12.8 gained a requirement for verified result bounds (decomposition revision 0.15, SOW-080). The owner approved its text in PR #1405: "I approve #1405 as required."
 
 This PRD was amended on 2026-10-27 by SCA-013: modal analysis (natural frequencies and mode shapes) re-entered scope as FR-SOL-016 and §12.9 (decomposition revision 0.16, SOW-081, DEL-04-09), reversing the DEC-078 deferral of the v0.1 FR-024 for modal analysis only. Response-spectrum and time-history analysis remain deferred. HELP_HUMAN decided the change under the owner's delegation of 2026-10-27 (`loop/LOOP_INIT.md`: "Yes, decide them too").
+
+This PRD was amended on 2026-10-28 to implement the owner's rulings on the v1.0 target. §1 now states that the user's engineer may issue SWBPIPE's mechanics results under their own responsibility and establishes code compliance separately. Response-spectrum seismic analysis, with snubbers as dynamic-only restraints, entered scope (§7 item 15, §12.9, §23) because the condition the owner set is met (owner, 2026-10-28: "I said you should only develop a response spectrum capability for seismic analysis if that's a functionality that CAEPIPE has, otherwise you can go with only static for now."); the governed scope change DEC-078 requires is SCA-014. User-rule outcomes read "within or exceeds user limit" (FR-RULE-003, §17.5, §24 R4). §24 gained milestone V1, whose rows and exit criteria are in `docs/RELEASE_TARGET_v1.0.md`. The SCA-013 sentence above that response spectrum remains deferred is superseded.
 
 ---
 
@@ -252,7 +254,7 @@ In addition, the following special analysis domains are recorded as current non-
 12. Model jacketed (pipe-in-pipe) piping.
 13. Model FRP or other orthotropic pipe materials.
 14. Compute slug-flow or two-phase-flow dynamic forces.
-15. Model snubbers.
+15. Model snubbers, except as dynamic-only restraints in response-spectrum analysis (§12.9; SCA-014).
 16. Perform fatigue cycle counting.
 17. Provide first-class nozzle-flexibility objects.
 18. Provide mitered-bend or stepped-reducer element formulations.
@@ -532,7 +534,7 @@ Key needs:
 |---|---|---:|---|
 | FR-RULE-001 | Provide rule-pack schema | Must | Users can define private required inputs, stress categories, expressions, allowables, load mappings, and blocking conditions. |
 | FR-RULE-002 | Provide unit-aware expression evaluator | Must | Expressions reject incompatible units and run without arbitrary filesystem/network access. |
-| FR-RULE-003 | Block incomplete rule checks | Must | Software refuses to report pass/fail when required rule-pack values are missing. |
+| FR-RULE-003 | Block incomplete rule checks | Must | Software refuses to report a user-rule outcome (within or exceeds user limit) when required rule-pack values are missing. |
 | FR-RULE-004 | Mark private rule packs by default | Must | User-created rule packs are excluded from public examples, telemetry, and issue bundles unless explicitly exported. |
 | FR-RULE-005 | Support private material libraries | Must | Users can define and import materials with units, temperature-dependent properties, allowables, and provenance. |
 | FR-RULE-006 | Support private component libraries | Should | Users can define and import components with dimensions, weights, stiffnesses, metadata, and provenance. |
@@ -807,7 +809,7 @@ The engine shall compute the natural frequencies and mode shapes of the linear m
 - refuse by name what it does not admit, such as nonlinear supports, rather than linearizing it silently;
 - reproduce closed-form beam, rod and ring frequencies, and compare with at least one published piping benchmark, transcribed only with that source's own redistribution evidence, at a stated tolerance, as comparison evidence.
 
-Response-spectrum, harmonic and time-history analysis are not required. A modal result is a numerical statement about the discrete model: it establishes neither physical correctness nor a code-compliance determination (§21.2).
+Response-spectrum seismic analysis on this modal basis is required for v1.0 (SCA-014; `docs/RELEASE_TARGET_v1.0.md` RT-A8); harmonic and time-history analysis are not required. A modal result is a numerical statement about the discrete model: it establishes neither physical correctness nor a code-compliance determination (§21.2).
 
 ---
 
@@ -1188,7 +1190,7 @@ Private rule packs may represent licensed codes, owner standards, or company pra
 
 ### 17.5 Missing Data Behavior
 
-The software may run a mechanics-only solve if sufficient physical data exists. It shall not report user-rule pass/fail results unless all rule-required values are present.
+The software may run a mechanics-only solve if sufficient physical data exists. It shall not report a user-rule outcome (within or exceeds user limit) unless all rule-required values are present.
 
 ---
 
@@ -1528,7 +1530,9 @@ MVP shall not include:
 - forced prover-status lifecycle;
 - protected standards data;
 - automatic professional acceptance records;
-- advanced nonlinear/dynamic modules unless otherwise prioritized (modal analysis, §12.9, is prioritized by SCA-013; response-spectrum and time-history modules are not).
+- advanced nonlinear/dynamic modules unless otherwise prioritized (modal analysis, §12.9, is prioritized by SCA-013, and response spectrum by the v1.0 target, §24 V1; time-history modules are not).
+
+The first publication-ready release is SWBPIPE v1.0 (§24 V1). Where its target differs from this MVP list, the target governs.
 
 ---
 
@@ -1619,7 +1623,7 @@ Deliverables:
 Exit criteria:
 
 - user can create a private non-code rule pack and run checks;
-- software blocks pass/fail when required values are missing.
+- software blocks a user-rule outcome (within or exceeds user limit) when required values are missing.
 
 ### R5: Piping Components and Nonlinear Supports
 
@@ -1670,6 +1674,12 @@ Exit criteria:
 - agents can propose schema-valid operations;
 - user can accept/reject proposals;
 - accepted operations are auditable and reversible.
+
+### V1: SWBPIPE v1.0 (publication-ready)
+
+Definition (owner, 2026-10-27): a version "good enough to publish engineering results with". SWBPIPE performs the design iteration and does not state code compliance; the user establishes code compliance in accepted professional software.
+
+Its rows, exit criteria and their maintenance are in `docs/RELEASE_TARGET_v1.0.md`, accepted by the owner on 2026-10-28 ("Accepted."). Meeting the exit criteria is evidence for the owner's release decision, not the decision.
 
 ---
 
