@@ -123,12 +123,15 @@ export function endpointPairCsv(input: Context & {
 
 /** The unit basis of these tables, in one deterministic text:
  * - `display units entered; values as stored, exact`; or
- * - `display units <SI|US>; converted in binary64 by the session's display converter, value =
- *   stored x factor + offset; <dimension> <stored>-><display> factor <f>[ offset <o>]; ...;
+ * - `display units <SI|US>; converted in binary64 by the session's display converter (core/units:
+ *   stored unit to its canonical unit, then to the display unit); each formula below is
+ *   approximate, from the converter's outputs for 0 and 1 stored unit;
+ *   <dimension> <stored>-><display> approximately v*<factor>[+<offset>]; ...;
  *   as entered: <dimension> <unit>, ...`
- * Conversions are listed by dimension, stored unit and display unit, each once. A factor and an
- * offset are the converter's own outputs for one stored unit and for zero (the factor is the
- * difference of the two), so the listing reverses the conversion as the converter performs it. */
+ * The converter's unit definitions (`core/units` transforms) are not exposed to the webview,
+ * so the formula is stated as approximate: applied in binary64 it is close to the CSV value but
+ * need not reproduce it bit for bit. No converted value is called exact. Conversions are listed
+ * by dimension, stored unit and display unit, each once. */
 export async function displayConversionBasis(input: {
   preference: DisplayUnitPreference;
   rows: readonly { quantity: DisplaySourceQuantity; display: DisplayQuantity }[];
@@ -146,17 +149,31 @@ export async function displayConversionBasis(input: {
   const parts: string[] = [];
   for (const key of [...converted.keys()].sort()) {
     const item = converted.get(key)!;
-    const at = async (value: number) => {
-      const result = await input.convertRaw({ value, from_unit: item.from, to_unit: item.to, dimension_id: item.dimension });
-      return result && result.status === "converted" && Number.isFinite(result.value) ? result.value : null;
-    };
-    const zero = await at(0);
-    const one = await at(1);
-    if (zero === null || one === null) { parts.push(`${item.dimension} ${item.from}->${item.to} factor not_recorded`); continue; }
-    const factor = one - zero;
-    parts.push(`${item.dimension} ${item.from}->${item.to} factor ${String(factor)}${Object.is(zero, 0) || zero === 0 ? "" : ` offset ${String(zero)}`}`);
+    const formula = await approximateFormula(item, input.convertRaw);
+    parts.push(`${item.dimension} ${item.from}->${item.to} ${formula ? `approximately ${formulaText(formula)}` : "formula not_recorded"}`);
   }
-  const head = `display units ${input.preference}; converted in binary64 by the session's display converter, value = stored x factor + offset`;
+  const head = `display units ${input.preference}; converted in binary64 by the session's display converter (core/units: stored unit to its canonical unit, then to the display unit); each formula below is approximate, from the converter's outputs for 0 and 1 stored unit`;
   const tail = entered.size > 0 ? [`as entered: ${[...entered].sort().join(", ")}`] : [];
   return [head, ...parts, ...tail].join("; ");
+}
+
+/** An approximate formula `v*factor+offset`: the converter's output for 0 is the offset, and
+ * its output for 1 less that is the factor. */
+export type ApproximateFormula = Readonly<{ factor: number; offset: number }>;
+
+export async function approximateFormula(
+  item: Readonly<{ dimension: string; from: string; to: string }>,
+  convertRaw: (request: Omit<DisplayQuantityRequest, "id">) => Promise<DisplayQuantityResult | null>
+): Promise<ApproximateFormula | null> {
+  const at = async (value: number) => {
+    const result = await convertRaw({ value, from_unit: item.from, to_unit: item.to, dimension_id: item.dimension });
+    return result && result.status === "converted" && Number.isFinite(result.value) ? result.value : null;
+  };
+  const zero = await at(0);
+  const one = await at(1);
+  return zero === null || one === null ? null : { factor: one - zero, offset: zero === 0 ? 0 : zero };
+}
+
+export function formulaText(formula: ApproximateFormula): string {
+  return `v*${String(formula.factor)}${formula.offset === 0 ? "" : `${formula.offset < 0 ? "" : "+"}${String(formula.offset)}`}`;
 }

@@ -40,7 +40,12 @@ export function CsvExportControl({ tableLabel, build, testId, save = saveCsvTabl
   const [status, setStatus] = useState<Status | null>(null);
   const mounted = useRef(true);
   const inFlight = useRef(false);
-  useEffect(() => () => { mounted.current = false; }, []);
+  // Set in setup as well as cleared in cleanup: React.StrictMode replays effects (cleanup, then
+  // setup), and a ref left false would keep the button disabled and hide the outcome.
+  useEffect(() => {
+    mounted.current = true;
+    return () => { mounted.current = false; };
+  }, []);
   const onExport = async () => {
     if (inFlight.current) return;
     inFlight.current = true;

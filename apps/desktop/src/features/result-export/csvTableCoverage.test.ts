@@ -2,7 +2,8 @@
 // `features/results` and `features/comparison` carries `data-csv-export`, the stable marker of a
 // table whose panel renders a CSV export control (`CsvExportControl`). A new table without CSV
 // export fails here.
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
@@ -10,30 +11,54 @@ import { CSV_EXPORT_ATTRIBUTE } from "./CsvExportControl";
 
 const features = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
-function sources(): string[] {
-  return ["results", "comparison"].flatMap((dir) =>
-    readdirSync(path.join(features, dir)).filter((name) => name.endsWith(".tsx") && !/\.test\.tsx$/.test(name)).map((name) => `${dir}/${name}`));
+/** Every non-test `.tsx` under `root`'s `results` and `comparison` folders, nested folders
+ * included, as paths relative to `root`. */
+export function guardedSources(root: string): string[] {
+  const walk = (dir: string): string[] => readdirSync(path.join(root, dir), { withFileTypes: true }).flatMap((entry) => {
+    const rel = `${dir}/${entry.name}`;
+    if (entry.isDirectory()) return walk(rel);
+    return entry.isFile() && entry.name.endsWith(".tsx") && !/\.test\.tsx$/.test(entry.name) ? [rel] : [];
+  });
+  return ["results", "comparison"].filter((dir) => existsSync(path.join(root, dir))).flatMap(walk).sort();
+}
+
+/** Per file: the unmarked `<table` count; and the marked and control counts. */
+export function scanTables(root: string): { missing: Record<string, number>; marked: number; controlsShort: string[] } {
+  const missing: Record<string, number> = {};
+  const controlsShort: string[] = [];
+  let marked = 0;
+  for (const file of guardedSources(root)) {
+    const text = readFileSync(path.join(root, file), "utf8");
+    const tables = text.match(/<table\b[^>]*>/g) ?? [];
+    const unmarked = tables.filter((tag) => !tag.includes(`${CSV_EXPORT_ATTRIBUTE}=`));
+    if (unmarked.length > 0) missing[file] = unmarked.length;
+    const markedHere = tables.length - unmarked.length;
+    marked += markedHere;
+    if ((text.match(/<CsvExportControl\b/g)?.length ?? 0) < markedHere) controlsShort.push(file);
+  }
+  return { missing, marked, controlsShort };
 }
 
 describe("every results and comparison table exports to CSV", () => {
   it("marks each <table> with data-csv-export, and its panel renders the export control", () => {
-    const missing: Record<string, number> = {};
-    let marked = 0;
-    for (const file of sources()) {
-      const text = readFileSync(path.join(features, file), "utf8");
-      const tables = text.match(/<table\b[^>]*>/g) ?? [];
-      const unmarked = tables.filter((tag) => !tag.includes(`${CSV_EXPORT_ATTRIBUTE}=`));
-      if (unmarked.length > 0) missing[file] = unmarked.length;
-      const markedHere = tables.length - unmarked.length;
-      marked += markedHere;
-      expect(text.match(/<CsvExportControl\b/g)?.length ?? 0, file).toBeGreaterThanOrEqual(markedHere);
-    }
-    expect(marked).toBe(9);
-    expect(missing).toEqual({});
+    const scan = scanTables(features);
+    expect(scan.missing).toEqual({});
+    expect(scan.controlsShort).toEqual([]);
+    expect(scan.marked).toBe(9);
   });
 
-  it("finds the tables it guards (the scan reads the real sources)", () => {
-    const all = sources().flatMap((file) => readFileSync(path.join(features, file), "utf8").match(/<table\b[^>]*>/g) ?? []);
-    expect(all.length).toBe(9);
+  it("scans nested component folders, so an unmarked table there fails (Codex review of #1726)", () => {
+    const root = mkdtempSync(path.join(tmpdir(), "csv-guard-"));
+    try {
+      mkdirSync(path.join(root, "results", "nested"), { recursive: true });
+      mkdirSync(path.join(root, "comparison"));
+      writeFileSync(path.join(root, "results", "Marked.tsx"), `<CsvExportControl /><table ${CSV_EXPORT_ATTRIBUTE}="weight">`);
+      writeFileSync(path.join(root, "results", "nested", "X.tsx"), "export const X = () => <table><tbody /></table>;");
+      writeFileSync(path.join(root, "results", "nested", "X.test.tsx"), "<table>");
+      expect(guardedSources(root)).toEqual(["results/Marked.tsx", "results/nested/X.tsx"]);
+      expect(scanTables(root).missing).toEqual({ "results/nested/X.tsx": 1 });
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
   });
 });

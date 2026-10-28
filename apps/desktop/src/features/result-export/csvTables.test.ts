@@ -38,7 +38,7 @@ type Row = MechanicsResult["results"][number];
 
 /** Values chosen so the exact step and binary64 both show: a 17-digit Pa stress shifts to a
  * decimal no binary64 reads back, and a shortest decimal that does. */
-const AWKWARD_PA = 123456789.12345679;
+const AWKWARD_PA = 123456789.12345678;
 
 function overlayRows(): Row[] {
   const node = (id: string, x: number, y: number, z: number, extra: Partial<Row> = {}) => [
@@ -203,8 +203,13 @@ describe("stress and ratio table CSV (stress-ratio)", () => {
       expectExactDisplayField(got, source.stress!.value, source.stress!.unit);
       expect(textField(csv, line, "Stress result id")).toBe(source.stress!.resultId);
       if (source.stress!.value === AWKWARD_PA) {
-        // 123.45678912345679 Pa shifted is exactly 123.45678912345679e-6: written as that decimal.
-        expect(got.field).toBe("123.45678912345679");
+        // Codex review of #1726, finding 3: 123456789.12345678 Pa shifts to the decimal text
+        // 123.45678912345678, while that text's nearest binary64 prints as ...679. So the cell
+        // is the exact decimal text, not a number.
+        expect(String(AWKWARD_PA)).toBe("123456789.12345678");
+        expect(String(Number("123.45678912345678"))).toBe("123.45678912345679");
+        expect(exactValueCell(AWKWARD_PA, "Pa")).toEqual({ kind: "decimal", text: "123.45678912345678" });
+        expect(got.field).toBe("123.45678912345678");
         exactDecimal += 1;
       }
     }

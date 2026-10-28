@@ -74,14 +74,25 @@ engine (`core/units` `convert`) applies factors such as 0.0254,
 - **`unit_basis`.** It is one value, in a fixed text form:
   - for entered units, `display units entered; values as stored, exact`;
   - otherwise, `display units <SI|US>; converted in binary64 by the session's
-    display converter, value = stored x factor + offset`, then one entry per
-    conversion, `<dimension> <stored>-><display> factor <f>[ offset <o>]`,
-    then `as entered: <dimension> <unit>, ...` for readouts left as entered.
+    display converter (core/units: stored unit to its canonical unit, then to
+    the display unit); each formula below is approximate, from the
+    converter's outputs for 0 and 1 stored unit`, then one entry per
+    conversion, `<dimension> <stored>-><display> approximately
+    v*<factor>[+<offset>]`, then `as entered: <dimension> <unit>, ...` for
+    readouts left as entered.
 
   The entries are sorted by dimension, stored unit and display unit, and
-  separated by `; `. The offset is the converter's output for zero. The
-  factor is its output for one stored unit, less the offset. A value is not
-  called exact where a factor was applied.
+  separated by `; `.
+  - **Why approximate.** The converter performs two steps in binary64: the
+    stored unit to its canonical unit, then the canonical unit to the display
+    unit. Its unit definitions (`core/units` transforms) are not exposed to
+    the webview; the catalogue command carries only prose, and only on the
+    desktop. So the formula cannot restate the converter's operations, and
+    it is labelled approximate. Applied in binary64 it is close to the CSV
+    value, but it need not reproduce that value bit for bit. For example,
+    `1000 degC` to `degF` is `1832`, while the formula gives
+    `1832.0000000000043` (Codex review of #1726).
+  - A value is never called exact where a factor was applied.
 - **The other seven tables** keep the exact step of §3.
 
 Later results tables join when they are built, through the same serializer.

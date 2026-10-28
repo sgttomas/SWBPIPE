@@ -2,6 +2,7 @@
 // keyboard-reachable button named after its table; pressing it saves the adapter's file through
 // `saveCsvTable` with explicit local-private intent, and the status line names the saved file.
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { StrictMode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { healthStanding, overlayModel, overlayResult, reaction, row } from "../../test-support/resultOverlayFixtures";
 import type { AnalysisRunEnvelope } from "../../types";
@@ -41,6 +42,24 @@ describe("CsvExportControl", () => {
     expect(save).toHaveBeenCalledOnce();
     expect(save.mock.calls[0][0]).toMatchObject({ fileName: "swbpipe-weight-model.csv", explicitLocalPrivateIntent: true });
     expect(screen.getByRole("status").textContent).toContain("swbpipe-weight-model (1).csv");
+  });
+
+  it("re-enables and shows each outcome under React.StrictMode's effect replay (Codex review of #1726)", async () => {
+    let fail = false;
+    const save = vi.fn(async (input: { fileName: string }) => {
+      if (fail) throw { code: "WRITE_FAILED", message: "Local result save did not complete." };
+      return { mode: "browser" as const, file_name: input.fileName, byte_count: 7 };
+    });
+    render(<StrictMode><CsvExportControl tableLabel="T" testId="s" build={() => ({ table, fileName: "swbpipe-weight.csv" })} save={save as never} /></StrictMode>);
+    const button = screen.getByRole("button", { name: "Export CSV: T" });
+    fireEvent.click(button);
+    await waitFor(() => expect(screen.getByTestId("s-status").textContent).toBe("Downloaded swbpipe-weight.csv (7 bytes)."));
+    expect(button).not.toBeDisabled();
+    fail = true;
+    fireEvent.click(button);
+    await waitFor(() => expect(screen.getByTestId("s-status").textContent).toBe("CSV export did not complete (WRITE_FAILED): Local result save did not complete.."));
+    expect(button).not.toBeDisabled();
+    expect(save).toHaveBeenCalledTimes(2);
   });
 
   it("states a refusal without throwing", async () => {

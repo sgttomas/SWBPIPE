@@ -44,7 +44,7 @@ function Probe({ quantity, onText }: { quantity: DisplaySourceQuantity; onText: 
   );
 }
 
-async function exportUnder(preference: DisplayUnitPreference, quantity: DisplaySourceQuantity) {
+async function exportUnder(preference: DisplayUnitPreference, quantity: DisplaySourceQuantity): Promise<{ csv: ReturnType<typeof readCsv>; readout: string }> {
   let text = "";
   render(<DisplayUnitsProvider initialPreference={preference}><Probe quantity={quantity} onText={(value) => { text = value; }} /></DisplayUnitsProvider>);
   const readout = within(screen.getByTestId("readout")).getByText((_, element) => element?.tagName === "SPAN" && element.hasAttribute("data-display-status"));
@@ -78,10 +78,33 @@ describe("ResultsPanel row tables: the panel's own converted value, bit for bit"
       expect(Object.is(Number(numericField(csv, csv.rows[0], "Entered value").field), quantity.value)).toBe(true);
       const [one] = await convertDisplayQuantities([{ id: "1", value: 1, from_unit: quantity.unit, to_unit: to, dimension_id: quantity.dimension_id }]);
       const basis = preambleValue(csv, "unit_basis")!;
-      expect(basis).toContain(`${quantity.dimension_id} ${quantity.unit}->${to} factor ${String((one as { value: number }).value)}`);
+      expect(basis).toContain(`${quantity.dimension_id} ${quantity.unit}->${to} approximately v*${String((one as { value: number }).value)}`);
       expect(basis).toContain("binary64");
+      expect(basis).toContain("approximate");
       expect(basis).not.toMatch(/exact/);
       expect(textField(csv, csv.rows[0], "Display")).toBe("converted");
+    });
+  }
+
+  // Codex review of #1726, finding 2: the stated formula is approximate. The converter's unit
+  // definitions (`core/units`) are not reachable from the webview, so the formula is the
+  // converter's outputs at 0 and 1, labelled approximate; it is close to the CSV value, and it is
+  // never offered as a bit-for-bit reconstruction.
+  for (const { quantity, to, preference } of [
+    ...FACTORS.map((item) => ({ ...item, preference: "SI" as const })),
+    { factor: "affine", quantity: { value: 1000, unit: "degC", dimension_id: "temperature" }, to: "degF", preference: "US" as const }
+  ]) {
+    it(`states ${quantity.unit}->${to} as an approximate formula close to the CSV value`, async () => {
+      const { csv } = await exportUnder(preference, quantity);
+      const value = Number(numericField(csv, csv.rows[0], "Value").field);
+      const basis = preambleValue(csv, "unit_basis")!;
+      const entry = basis.split("; ").find((part) => part.startsWith(`${quantity.dimension_id} ${quantity.unit}->${to} `))!;
+      const match = /approximately v\*(\S+?)(?:([+-]\S+))?$/.exec(entry);
+      expect(match, entry).not.toBeNull();
+      const formula = Number(match![1]) * (quantity.value as number) + (match![2] ? Number(match![2]) : 0);
+      expect(Math.abs(formula - value)).toBeLessThanOrEqual(1e-12 * Math.max(1, Math.abs(value)));
+      expect(basis).toContain("each formula below is approximate");
+      expect(basis).not.toMatch(/exact/);
     });
   }
 
