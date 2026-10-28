@@ -230,6 +230,9 @@ thread_local! {
     /// Runs once between a write's read-back and its prune, while the slot's
     /// lock is held (the forced-interleaving test).
     static BEFORE_PRUNE: std::cell::RefCell<Option<Box<dyn FnOnce()>>> = std::cell::RefCell::new(None);
+    /// Runs once when a writer first finds its slot's lock held (the
+    /// forced-interleaving test's handshake).
+    static ON_LOCK_BUSY: std::cell::RefCell<Option<Box<dyn FnOnce()>>> = std::cell::RefCell::new(None);
 }
 
 impl RecordDir {
@@ -475,7 +478,16 @@ fn lock_slot(dir: &RecordDir, slot: &str, wait: Duration) -> Result<SlotLock, Di
         loop {
             match file.try_lock() {
                 Ok(()) => break,
-                Err(TryLockError::WouldBlock) if Instant::now() < deadline => std::thread::sleep(LOCK_POLL),
+                Err(TryLockError::WouldBlock) if Instant::now() < deadline => {
+                    #[cfg(test)]
+                    ON_LOCK_BUSY.with(|hook| {
+                        let hook = hook.borrow_mut().take();
+                        if let Some(hook) = hook {
+                            hook()
+                        }
+                    });
+                    std::thread::sleep(LOCK_POLL)
+                }
                 Err(TryLockError::WouldBlock) => {
                     return Err(diagnostic(
                         LOCK_BUSY,

@@ -774,7 +774,8 @@ fn a_capped_read_never_reads_past_its_cap() {
 /// Review r2: the critical interleaving, forced. Writer A stops between its
 /// read-back and its prune, holding the slot's lock, and starts writer B of a
 /// newer model there. B must wait for A's transaction, and afterwards the
-/// slot holds B's valid record.
+/// slot holds B's valid record. A resumes only after B reports finding the
+/// lock held (review r3), so the test cannot pass with B unscheduled.
 #[test]
 fn a_writer_started_between_read_back_and_prune_waits_and_a_record_survives() {
     let _lock = atomic_save_test_lock();
@@ -784,15 +785,19 @@ fn a_writer_started_between_read_back_and_prune_waits_and_a_record_survives() {
     written_name(&write(&directory, &first, &first_hash, 1_000));
     let (sender, receiver) = mpsc::channel();
     let finished_inside = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+    let saw_busy = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
     let writer_b = std::sync::Arc::new(std::sync::Mutex::new(None));
     {
-        let (directory, finished_inside, writer_b) = (directory.clone(), finished_inside.clone(), writer_b.clone());
+        let (directory, finished_inside, saw_busy, writer_b) = (directory.clone(), finished_inside.clone(), saw_busy.clone(), writer_b.clone());
         BEFORE_PRUNE.with(|hook| {
             *hook.borrow_mut() = Some(Box::new(move || {
+                let (busy_sender, busy_receiver) = mpsc::channel();
                 let handle = std::thread::spawn(move || {
+                    ON_LOCK_BUSY.with(|hook| *hook.borrow_mut() = Some(Box::new(move || busy_sender.send(()).unwrap())));
                     let (text, hash) = demo_named("Invented, window B");
                     sender.send(write(&directory, &text, &hash, 3_000)).unwrap();
                 });
+                saw_busy.store(busy_receiver.recv_timeout(Duration::from_secs(5)).is_ok(), std::sync::atomic::Ordering::SeqCst);
                 finished_inside.store(receiver.recv_timeout(Duration::from_millis(300)).is_ok(), std::sync::atomic::Ordering::SeqCst);
                 *writer_b.lock().unwrap() = Some((handle, receiver));
             }))
@@ -800,6 +805,7 @@ fn a_writer_started_between_read_back_and_prune_waits_and_a_record_survives() {
     }
     let (second, second_hash) = demo_named("Invented, window A");
     let a_name = written_name(&write(&directory, &second, &second_hash, 2_000));
+    assert!(saw_busy.load(std::sync::atomic::Ordering::SeqCst), "writer B never found A's lock held");
     assert!(!finished_inside.load(std::sync::atomic::Ordering::SeqCst), "writer B ran inside A's transaction");
     let (handle, receiver) = writer_b.lock().unwrap().take().unwrap();
     let b_name = written_name(&receiver.recv_timeout(Duration::from_secs(5)).unwrap());
