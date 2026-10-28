@@ -16,6 +16,13 @@
 //!    module uses the public roots;
 //! 5. no variant is declared `pub fn`.
 //!
+//! W-18b (DEL-08-01 Design `report-user-release.md` §2.8) adds one root to
+//! `assemble_wire_request_in`'s row: `user_release::assemble_derived`, the
+//! producer's one admitting entry, which passes `admitted::PRODUCTION` (its
+//! producer entry argument, before the set, is pinned by
+//! `user_release_reach_scan`). No variant becomes `pub fn` and no second set
+//! exists.
+//!
 //! The scan rule (test-item removal, and the rejection of any use of a graph
 //! function other than a direct call by an allowed caller) is
 //! `forwarding_graph_scan`'s, shared with the desktop native render's scan.
@@ -37,7 +44,11 @@ const ROWS: [Row; 6] = [
             ("reader.rs", "verify_members", Arg::Admitted),
         ],
     ),
-    ("assemble_wire_request_in", "wire.rs", &[("wire.rs", "assemble_wire_request", Arg::Production)]),
+    (
+        "assemble_wire_request_in",
+        "wire.rs",
+        &[("wire.rs", "assemble_wire_request", Arg::Production), ("user_release.rs", "assemble_derived", Arg::Production)],
+    ),
     (
         "check_request_in",
         "bindings.rs",
@@ -180,6 +191,16 @@ pub(crate) fn read_report_package_container_in(bytes: &[u8], admitted: AdmittedS
 }
 fn verify_members(bytes: &[u8], archive: &A, admitted: AdmittedSet) -> R {
     document_form::check_route_admitted_in(&document, admitted).map_err(&defect)?;
+}
+"),
+        ),
+        (
+            "user_release.rs".to_string(),
+            file("
+use crate::admitted;
+pub fn assemble_derived(request: R, basis: &B) -> O {
+    let derived = check_derived(basis, &request)?;
+    crate::wire::assemble_wire_request_in(request, &ProducerEntry::UserRelease(derived), admitted::PRODUCTION)
 }
 "),
         ),

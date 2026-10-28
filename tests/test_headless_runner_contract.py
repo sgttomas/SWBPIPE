@@ -6,6 +6,7 @@ import hashlib
 import io
 import sys
 from pathlib import Path
+import copy
 import subprocess
 import tomllib
 import zipfile
@@ -54,6 +55,12 @@ EXPORT_MISSING_INPUT = (
 # one edit each, as validation/witness/inputs/generate_del1005_export_results_inputs.py
 # derives them; they are made in memory rather than committed.
 EXPORT_MISMATCH_INPUT = "binding_mismatch"
+# W-18b (DEL-08-01 Design report-user-release.md §2.8, §6): the committed
+# derivation of the first user-release vector, a coherent user-released
+# request that only the desktop's route DREP-PACKAGE-USER-RELEASE-010 admits.
+USER_RELEASE_REQUEST = (
+    ROOT / "fixtures/reports/invented/user_release_runner_refusal_request.json"
+)
 EXPORT_BLOCKED_INPUT = "producer_blocked"
 
 REQUIRED_ROOT = {
@@ -946,6 +953,67 @@ def test_final_runner_export_results_native_size_is_exact_with_constant_cardinal
         )
         == 1
     )
+
+
+def _user_release_markers():
+    coherent = json.loads(USER_RELEASE_REQUEST.read_text(encoding="utf-8"))
+    profile_only = copy.deepcopy(coherent)
+    profile_only["report"]["report_context"].pop("user_release")
+    profile_only["report"]["report_context"]["export_context"] = "local_private"
+    runner_record = json.loads(EXPORT_SUCCESS_INPUT.read_text(encoding="utf-8"))[
+        "export_results"
+    ]
+    assert runner_record["export_profile_id"] == "runner_local_private_report_package_1"
+    runner_record["report"]["report_context"]["user_release"] = copy.deepcopy(
+        coherent["report"]["report_context"]["user_release"]
+    )
+    desktop_context = copy.deepcopy(coherent)
+    desktop_context["export_profile_id"] = "desktop_local_private_report_package_1"
+    desktop_context["report"]["report_context"].pop("user_release")
+    return [
+        ("coherent", coherent, "export_profile_id"),
+        ("profile only", profile_only, "export_profile_id"),
+        ("runner record", runner_record, "report.report_context.user_release"),
+        ("desktop context", desktop_context, "report.report_context.export_context"),
+    ]
+
+
+def test_user_release_runner_refused(runner_binaries, tmp_path):
+    """W-18b (DEL-08-01 Design report-user-release.md §2.8 refusal 1, §6): the
+    headless runner's export-results packages no user-released report. The
+    coherent request and each user-release marker alone exit 1 with no
+    report_package and no --output file, with and without the local-private
+    intent; with it, the diagnostic names the marker's fixed path."""
+    final, _ = runner_binaries
+    for label, payload, marker in _user_release_markers():
+        for intent in (True, False):
+            output = tmp_path / f"{label.replace(' ', '-')}-{intent}.json"
+            body = json.loads(EXPORT_SUCCESS_INPUT.read_text(encoding="utf-8"))
+            body["export_results"] = payload
+            args = ["--output", str(output)]
+            if intent:
+                args.append("--explicit-local-private-intent")
+            completed = run_final(final, "export-results", body, *args)
+            assert completed.returncode == 1, (label, intent, completed.stderr)
+            assert not output.exists(), (label, intent)
+            controlled = json.loads(completed.stdout)
+            assert "user_statement_of_data_rights_only" not in completed.stdout
+            if intent:
+                payload_out = controlled["payload"]
+                assert "report_package" not in payload_out, label
+                message = (
+                    "REPORT-USER-RELEASE-RUNNER-NOT-ADMITTED: the headless runner "
+                    "packages no user-released report; only the desktop's route "
+                    f"DREP-PACKAGE-USER-RELEASE-010 builds one (marker: {marker})"
+                )
+                assert any(
+                    diagnostic["code"] == "HEADLESS_RUNNER_EXPORT_RESULTS_PAYLOAD_INVALID"
+                    and diagnostic["message"] == message
+                    for diagnostic in payload_out["diagnostics"]
+                ), (label, payload_out["diagnostics"])
+            else:
+                assert controlled["payload"] is None, label
+                assert "LOCAL_PRIVATE_INTENT_REQUIRED" in completed.stdout, label
 
 
 def test_final_runner_subprocess_malformed_input_exits_two(runner_binaries):
