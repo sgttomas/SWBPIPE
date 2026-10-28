@@ -5,6 +5,7 @@ import { SelfWeightPlanPanel } from "./features/self-weight-authoring";
 import { OfflineProposalIntakePanel } from "./features/offline-proposal-intake";
 import operationSchema from "../../../schemas/model_operation.schema.json";
 import { GeometryToolsPanel } from "./features/geometry-tools/GeometryToolsPanel";
+import { SplitIntoPartsPanel, type SplitPartsOpenRequest } from "./features/geometry-tools/SplitIntoPartsPanel";
 import { operationExamples } from "./features/geometry-tools/reconnectExample";
 import { resolveEntitySelection } from "./features/results/resultInterpretation";
 import { BoundaryAuthoringPanel } from "./features/boundary-authoring/BoundaryAuthoringPanel";
@@ -368,6 +369,14 @@ function AppSession() {
     setOperationTab("bulk");
     setBulkChangeFocusRequest((current) => current + 1);
   };
+  // B5 (DEL-07-01 Design `split-and-slope-entry.md`): Split into N… in the entity menus opens
+  // Split into equal parts on the pipe, under the Geometry tab, with focus on its parts field.
+  const [splitPartsRequest, setSplitPartsRequest] = useState<SplitPartsOpenRequest | null>(null);
+  const openSplitIntoParts = (pipeId: string) => {
+    setActiveSection("operations");
+    setOperationTab("geometry");
+    setSplitPartsRequest((current) => ({ pipeId, serial: (current?.serial ?? 0) + 1 }));
+  };
 
   if (!model || !selection) {
     return <div className="loading-screen">Loading local SWBPIPE preview fixture.</div>;
@@ -488,6 +497,7 @@ function AppSession() {
               viewCommandRef={viewportViewCommandRef}
               showAllAvailable={hiddenEntityKeys.size > 0 || isolationActive}
               onChangeSelected={openBulkChange}
+              onSplitPipe={openSplitIntoParts}
               onApplyCellIntent={async (intent) => {
                 const owned: { current?: Readonly<OperationOutcome> } = {};
                 const applied = await handleApplyIntent(intent, owned);
@@ -612,6 +622,13 @@ function AppSession() {
                 onQueueBatch={handleQueueOperationBatch}
                 busy={operationBusy}
                 requestEpoch={requestEpoch}
+              />
+              <SplitIntoPartsPanel
+                model={model}
+                selectedPipeRefs={selectedPipeRefs}
+                onQueueBatch={handleQueueOperationBatch}
+                busy={operationBusy}
+                openRequest={splitPartsRequest}
               />
               </div>
               <div className="operation-tool-page" hidden={operationTab !== "supports"}>
@@ -927,6 +944,7 @@ function AppSession() {
               onInvalidateDraft={invalidateDirectDraftContext}
               onQueueIntent={handleQueueEditorIntent}
               onChangeSelected={openBulkChange}
+              onSplitPipe={openSplitIntoParts}
               operationBusy={operationBusy}
               onSelect={handleSelectEntity}
               queuedIntents={editorIntents}
