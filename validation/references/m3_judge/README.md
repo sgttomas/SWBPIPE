@@ -38,9 +38,10 @@ runner (`runner/`) is harness, not reference.
 | `m3_report.py` | The judging pass: provenance, inventory, M3, design conformance, nonvacuity, `OVERALL`. |
 | `run.sh` | The driver: builds the runner from a clean checkout, runs every chunk, judges each variant. |
 | `runner/` | The shared runner: `Cargo.toml`, `Cargo.lock`, `build.rs`, `src/main.rs`, `build.sh`. |
-| `m3_selftest.py`, `m3_regress.py`, `m3_synth.py` | Self-test: isolation, contract units, rules on both views, and the round 1–6 regression table. |
+| `m3_selftest.py`, `m3_regress.py`, `m3_synth.py` | Self-test: isolation, contract units, rules on both views, and the round 1–7 regression table. |
 | `selftest/pf_set.jsonl` | 20 lines copied verbatim from `pf_timoshenko_m3t/frozen/pft_frozen_subset.jsonl` (sha256 `1a6984ec…`) for the PF view's self-test, since that set is not on main yet. |
-| `REFERENCE_SHA256SUMS` | The committed digests of the reference files the judge may judge against (provenance). |
+| `REFERENCE_SHA256SUMS` | The committed digests of the reference files the judge may judge against (provenance), read from HEAD's blob. |
+| `m3_reproduce.py` | Regenerates every pinned reference file from its committed generator and requires its pin. |
 | `SHA256SUMS` | Digests of the files above, except this README; the self-test verifies them. |
 
 ## The canonical view
@@ -132,11 +133,26 @@ other member are not read. The view holds only exact immutable types: `type(x) i
 field and container, so no subclass of `str`, `float`, `Fraction`, `tuple`, `frozenset` or a view type
 is admitted.
 
-`REFERENCE_SHA256SUMS` lists the six reference files: each route's full set (and the exact route's
+`REFERENCE_SHA256SUMS` is read from HEAD's blob, and the working file must equal it byte for byte
+(round 7, below). It lists the six reference files: each route's full set (and the exact route's
 controls), which regenerate byte for byte from their committed generators, and the two frozen
 subsets and the PF selftest set. A new or changed reference set is judged only after its digest is
 committed there. The judging library's `references` argument lets the self-test declare its synthetic
 sets; the CLI and `run.sh` always read the committed file.
+
+**Reproducible, not only unchanged** (Agent 0: "regenerating each set from its committed generator
+reproduces the pinned digest. Otherwise the pin only says 'unchanged', not 'reproducible'").
+`python3 -I -B m3_reproduce.py <new scratch dir> [--pf-dir <pf_timoshenko_m3t>]` regenerates every
+pinned file from its committed generator and requires its sha256 to equal the pin. Every pin needs a
+recipe and every recipe a pin:
+
+- the exact route's full set, controls and frozen subset (`kd5t_generate.py`) are mandatory;
+- the PF full set, frozen subset and selftest set (`pft_generate.py`; the selftest set is the 20
+  named lines of the regenerated frozen subset) run when the PF generator is present. They are
+  reported SKIPPED by name otherwise, which is the case on main today, since that generator is on
+  `claude/piping-pf-timoshenko-m3t-20261027`. They become mandatory once that branch merges this one.
+
+All six reproduce their pins, with the PF generator taken from that branch at `decb1dbb61`.
 
 The `twin` variant takes the twin's reference. The exact route's `control` variant takes the
 `controls.jsonl` `pertE` reference; models without a control are set aside and counted.
@@ -258,16 +274,25 @@ Findings that a later round places outside this model, each with its reason:
   `run.sh` binds those to the binary it built from that clean checkout. A party who writes records
   with the same forged values, and states them, is a lying runner.
 
+**At the edge of the model: the judge's own checkout** (round 7). Index-flag tampering of the judge's
+own checkout sits at the edge of the stated threat model. With `git update-index --assume-unchanged`
+or `--skip-worktree`, an edited `REFERENCE_SHA256SUMS` passed the earlier `git ls-files` and
+`git diff --quiet HEAD` checks, so an uncommitted reference could judge `OVERALL: PASS`. The judge
+closes it by reading HEAD's blob: `pinned_references` takes the manifest from
+`git cat-file blob HEAD:<path>` (`git show HEAD:<path>` without text conversion), and requires the
+working file to exist and be byte-identical to that blob, with no index, status or diff shortcut. This
+closure is not subject to further adversarial review (#1714).
+
 ## Self-test
 
-`python3 -I -B m3_selftest.py` checks 1,362 of 1,362. It covers:
+`python3 -I -B m3_selftest.py` checks 1,369 of 1,369. It covers:
 
 - isolation (above), the exact-type gates (ten subclass probes, refused), and the contract units of
   the judged kinds;
 - every rule and clause on both views: CRIT from both sides on every group kind, C3 from both sides,
   F1–F4, C2, C4/C4b, C6/C6i, C7, C8, C10, C11, the τ defect, σ± and τ operations, the twin control,
   the Lamé and nominal/reduced mutants;
-- 223 regression cases.
+- 230 regression cases.
 
 `--quick` runs only the isolation checks and the regression cases. Each regression case prints
 `TABLE round | attack | case | outcome`. By round:
@@ -281,6 +306,7 @@ Findings that a later round places outside this model, each with its reason:
 | 4 | 55 |
 | 5 | 82 |
 | 6 (the final round) | 36 |
+| 7 (the judge's own checkout) | 7 |
 
 - **PF view.** Rounds 1–4 are the PF judge's table, replayed. Round 5 covers:
   - the shadow evidence: nested, and in an unread member;
@@ -299,6 +325,9 @@ Findings that a later round places outside this model, each with its reason:
   (unknown entry, malformed `pertE`, both, duplicate tag, extra key, file not committed); the committed
   digests themselves (untracked, edited); a reference not committed, a hash mismatch and the other
   route's file, through the CLI and `run.sh`.
+- **Round 7.** In a throwaway checkout of the judge, through the library and the CLI: a clean
+  checkout and a committed pin pass; an unstaged edit, a staged edit, `--assume-unchanged` plus an
+  edit, `--skip-worktree` plus an edit, and the manifest absent from HEAD each fail provenance.
 - **Exact view.** Agent 0's required three (null error, missing run, duplicate run), and round 5's
   four: shadow, duplicate, unit and inverted interval. Also the twin and control variants, and
   cross-route records.
