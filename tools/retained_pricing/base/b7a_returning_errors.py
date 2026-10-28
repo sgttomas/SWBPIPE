@@ -44,19 +44,21 @@ SOURCES = {
 # caller.
 # Model document 0.8.0 D3 (§8.26): every lib.rs owner, site and caller moves with unchanged text (+21 to the case solve,
 # +36 after it); no owner gains a caller.
+# W-16 stage 2 D3 (§8.29): every lib.rs owner, site and caller moves with unchanged text (+8 before the case solve, +55
+# after it).
 # W-16 slice b/c D3 (§8.27): every lib.rs owner, site and caller moves with unchanged text (+28 to the case solve, +193
 # after it: the hoisted connector evidence, the combination and equivalent-static records and their helpers); no owner
 # gains a caller.
 SITES = [
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 11857,
+    "line": 11912,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:11815:exact_straight_summary_extrema",
-    "short": "lib.rs:11857",
-    "from": "lib.rs:11815:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:11870:exact_straight_summary_extrema",
+    "short": "lib.rs:11912",
+    "from": "lib.rs:11870:exact_straight_summary_extrema",
     "parents": [
-      "core/product_physics/src/lib.rs:5072:solve_prepared_load_case",
+      "core/product_physics/src/lib.rs:5080:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
       "core/product_physics/src/membrane_publication_range.rs:243:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
       'core/product_physics/src/retained_product.rs:6191:prepared_maxima'
@@ -64,13 +66,13 @@ SITES = [
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 11863,
+    "line": 11918,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:11815:exact_straight_summary_extrema",
-    "short": "lib.rs:11863",
-    "from": "lib.rs:11815:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:11870:exact_straight_summary_extrema",
+    "short": "lib.rs:11918",
+    "from": "lib.rs:11870:exact_straight_summary_extrema",
     "parents": [
-      "core/product_physics/src/lib.rs:5072:solve_prepared_load_case",
+      "core/product_physics/src/lib.rs:5080:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
       "core/product_physics/src/membrane_publication_range.rs:243:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
       'core/product_physics/src/retained_product.rs:6191:prepared_maxima'
@@ -78,13 +80,13 @@ SITES = [
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 12526,
+    "line": 12581,
     "kind": "to_string",
-    "owner": "core/product_physics/src/lib.rs:12507:recover_curved_bend_local_forces",
-    "short": "lib.rs:12526",
-    "from": "lib.rs:12507:recover_curved_bend_local_forces",
+    "owner": "core/product_physics/src/lib.rs:12562:recover_curved_bend_local_forces",
+    "short": "lib.rs:12581",
+    "from": "lib.rs:12562:recover_curved_bend_local_forces",
     "parents": [
-      "core/product_physics/src/lib.rs:5072:solve_prepared_load_case"
+      "core/product_physics/src/lib.rs:5080:solve_prepared_load_case"
     ]
   },
   {
@@ -123,45 +125,48 @@ MODE_SOURCE = {
              "b175a455bb7e5e4c0cc5b8d1d3cb9a70baf116b98d71e7903d0c5e97235ac923"},
     "run": {"5cb207a921dd8a22509e5ee6381cfb43d7fedece747041acdd8394f4ce823c5d"},
     # Exact base emitter and its ordinary SQ2 _X cap transport. ENV behavior is identical.
-    # B7b: the transport's only change is the carried retained_w1 key (lib.rs:3489 -> 3474).
-    # T4-U6/U8 (PP 20c6126a16): again only that key (lib.rs:3474 -> 3510; B7b's 221aa563c6d5e533...).
+    # B7b: the transport's only change is the carried retained_w1 key (lib.rs:3497 -> 3474).
+    # T4-U6/U8 (PP 20c6126a16): again only that key (lib.rs:3482 -> 3510; B7b's 221aa563c6d5e533...).
     # W1-L5: same _X emitter, with retained_w1 carried from3510 to3512.
     "tb": {"c6aad8333e010583195c24b3d8effe125d5386f04209c2cffe651486c2a4eb83",
            "0de99a4ac9ca186b441654d8434053ca626474b769d11aa4a3b6f93180b78471",
            "f8f52f6d35ee56b09dc9f8c554211b4f61d929146863d7e71688bcb671bc98a4",
-           # T4-S5: the same _X emitter, with retained_w1 carried to lib.rs:3528 (its only difference).
+           # T4-S5: the same _X emitter, with retained_w1 carried to lib.rs:3536 (its only difference).
            "ed2cadd1171a34588c2279ade89c3cf5aa5c5b8b0d424b73dad06291759d1ab1",
-           # O4 S5: the same _X emitter, with retained_w1 carried to lib.rs:3531 (its only difference).
+           # O4 S5: the same _X emitter, with retained_w1 carried to lib.rs:3539 (its only difference).
            "5addba6352f50241e19ed6004c97cb4c7c6949b2cc3b219d6ffa485449e32e0b",
-           # Pre-0.4 failure unification D3 (§8.14): the same _X emitter, with retained_w1 carried to lib.rs:3616.
+           # Pre-0.4 failure unification D3 (§8.14): the same _X emitter, with retained_w1 carried to lib.rs:3624.
            "49accb86c11cdfb6a045246c0610226a1f9cb4715e2d48bdf4f58e80e88ef83b",
-           # W-8 topology warnings D3 (§8.16): the same _X emitter, with retained_w1 carried to lib.rs:3618.
+           # W-8 topology warnings D3 (§8.16): the same _X emitter, with retained_w1 carried to lib.rs:3626.
            "779a5d3019558c983accbb7e19e5c0507be150138d226c5baa0ea829ea9d07ec",
-           # Silent-zero guard D3 (§8.15), merged on W-8: the same _X emitter, with retained_w1 carried to lib.rs:3619.
+           # Silent-zero guard D3 (§8.15), merged on W-8: the same _X emitter, with retained_w1 carried to lib.rs:3627.
            "d8f2b65c5788b7e4104a6faa2acc4b666f54709fec7de0909422a8dbc0cf1c72",
-           # Model document 0.7.0 D3 (§8.17), on the silent-zero guard: the same _X emitter, with retained_w1 carried to lib.rs:3626.
+           # Model document 0.7.0 D3 (§8.17), on the silent-zero guard: the same _X emitter, with retained_w1 carried to lib.rs:3634.
            "b8ad36562dbc2091bf1e83b297aac99a364a245944acad2aeeb68187253d709a",
-           # Silent-drop guard D3 (§8.19): the same _X emitter, with retained_w1 carried to lib.rs:3689 (its only
+           # Silent-drop guard D3 (§8.19): the same _X emitter, with retained_w1 carried to lib.rs:3697 (its only
            # difference from b8ad3656…).
            "836d05df66da34b1464bb5c067c6d8f68662e15d67b048f32662ea06901ad6f8",
-           # W-7 D3 (§8.20): the same _X emitter, with retained_w1 carried to lib.rs:3694 (its only difference from
+           # W-7 D3 (§8.20): the same _X emitter, with retained_w1 carried to lib.rs:3702 (its only difference from
            # 836d05df…).
            "0955cc3338597f527e0d849d7dc58161059f2d1ea6af59fa04fae572b79448a8",
-           # W-15 D3 (§8.21): the same _X emitter, with retained_w1 carried to lib.rs:3745 (its only difference from
+           # W-15 D3 (§8.21): the same _X emitter, with retained_w1 carried to lib.rs:3753 (its only difference from
            # 0955cc33…).
            "3f1e9c513fcafda1d2efd9232791644a3a863697d6d5c41d985bf87a72859af7",
-           # W-16 slice a D3 (§8.23): the same _X emitter, with retained_w1 carried to lib.rs:3752 (its only difference
+           # W-16 slice a D3 (§8.23): the same _X emitter, with retained_w1 carried to lib.rs:3760 (its only difference
            # from 3f1e9c51…).
            "59bffb88632df3012358721e4ca240a5f509d79b750bf00f12e5883843ff2276",
-           # Nested-record closure D3 (§8.25): the same _X emitter, with retained_w1 carried to lib.rs:3858 (its only
+           # Nested-record closure D3 (§8.25): the same _X emitter, with retained_w1 carried to lib.rs:3866 (its only
            # difference from 59bffb88…).
            "8e2d83e55c6ea57935ecc58fe87619d240b079de80b5f9daf13deda07252cc1c",
-           # Model document 0.8.0 D3 (§8.26): the same _X emitter, with retained_w1 carried to lib.rs:3879 (its only
+           # Model document 0.8.0 D3 (§8.26): the same _X emitter, with retained_w1 carried to lib.rs:3887 (its only
            # difference from 8e2d83e5…).
            "89c969952ff197bc2024e58cd9e24c925a6adff6b870c1346c4ba9eccf76297f",
-           # W-16 slices b and c D3 (§8.27): the same _X emitter, with retained_w1 carried to lib.rs:3907 (its only
+           # W-16 slices b and c D3 (§8.27): the same _X emitter, with retained_w1 carried to lib.rs:3915 (its only
            # difference from 89c96995…).
-           "bd33a1027f4df2dfdb441976f3491243dbfa70f1cf3c8aff888abe93de6479ad"},
+           "bd33a1027f4df2dfdb441976f3491243dbfa70f1cf3c8aff888abe93de6479ad",
+           # W-16 stage 2 D3 (§8.29): the same _X emitter, with retained_w1 carried from lib.rs:3907 (bd33a102…'s
+           # carried key at main 7e73491054) to lib.rs:3915, its only difference.
+           "0b796a7c6e69b5a59d0facc18ce916664359edee2d48dee90a67218cddbc2630"},
 }
 
 

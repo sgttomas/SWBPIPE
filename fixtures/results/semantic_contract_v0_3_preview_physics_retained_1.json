@@ -1,7 +1,7 @@
 {
   "schema_version": "0.3.0",
-  "source_signature_count": 80,
-  "source_kind_count": 53,
+  "source_signature_count": 82,
+  "source_kind_count": 54,
   "canonical_metadata_vocabulary": {
     "component": {
       "type": "string",
@@ -1305,6 +1305,36 @@
       "combination_algebra": "signed_linear"
     },
     {
+      "signature_id": "supported-source-080",
+      "kind": "nonlinear_support_final_relative_displacement",
+      "unit": "mm",
+      "component": "nonlinear_support_final_relative_displacement",
+      "source_physical_semantic_dimension": "length",
+      "derivative_target_dimension": "length",
+      "category": "physical_quantity",
+      "family": "displacement",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": "length",
+      "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false,
+      "combination_algebra": "never_combined"
+    },
+    {
+      "signature_id": "supported-source-081",
+      "kind": "nonlinear_support_final_relative_displacement",
+      "unit": "rad",
+      "component": "nonlinear_support_final_relative_displacement",
+      "source_physical_semantic_dimension": "angle",
+      "derivative_target_dimension": "angle",
+      "category": "physical_quantity",
+      "family": "rotation",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": "length",
+      "legacy_run_creation_admission": "accepts_with_preserved_legacy_dimension_different_from_new_semantics",
+      "governing_ratio_eligible": false,
+      "combination_algebra": "never_combined"
+    },
+    {
       "signature_id": "preview-physics-retained-requested-mode-basis",
       "kind": "retained_precision_requested_mode_basis",
       "unit": "mode_code",
@@ -1368,7 +1398,7 @@
   },
   "metadata_policy": "preserve_source_producer_numerical_quality_formulation_basis_contract_evidence",
   "reserved_inactive_successors": [],
-  "inherited_semantic_contract_sha256": "5a6630d9157ad1f4232c558d0cd57414677add8d1c95cc0a5d19a2579fb3a05b",
+  "inherited_semantic_contract_sha256": "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2",
   "source_basis_signature_policy": "where_declared_require_exact_metadata_basis_first_match_in_table_order",
   "formulation_profile_id": "product_preview_retained_w1a_v2",
   "contract_evidence_policy": "closed_preview_case_extrema_coverage_attribution_intensification_and_combination_gate_binding_v1",

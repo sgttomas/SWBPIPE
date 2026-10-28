@@ -555,6 +555,8 @@ import w16_owners_model as _w16_model
 if _snapshot and _w16_model.inspect(_snapshot):
     add("Imposed-motion case node index (W16-NI)", "CasePrefix", _w16_model.node_index(n))
     add("Imposed-motion validation findings backing (W16-VF)", "BuildScratch", _w16_model.validation_findings(LL))
+    # W-16 stage 2 D3 (§8.29): case_spring_ground's base vectors over the case's s springs (W16S-SG).
+    add("Imposed-motion spring base vectors (W16S-SG)", "CasePrefix", _w16_model.spring_ground(sp))
 # Closed formed guard construction pays the native row headers, both source
 # lists, maps, fired backing/moving storage and six independently cloned items.
 if _wide:

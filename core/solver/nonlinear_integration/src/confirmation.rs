@@ -150,6 +150,14 @@ pub(crate) fn confirm_with_applied(
     if prescribed_row_mismatch(u, &prescribed) {
         return not_established("prescribed row mismatch");
     }
+    // §2.4 item 2, revision 2 (W-16 stage 2): that map against the case's
+    // motion, built here independently of the loop's boundary, bit for bit.
+    if prescribed_map_mismatch(
+        intended_prescribed_map(input, &solve.final_states).as_deref(),
+        &prescribed,
+    ) {
+        return not_established("prescribed row mismatch");
+    }
     let free = (0..n)
         .filter(|dof| !last.active_restrained_dofs.contains(dof))
         .collect::<Vec<_>>();
@@ -246,7 +254,7 @@ pub(crate) fn confirm_with_applied(
             global_dof: dof,
             coefficient: mu,
             normal,
-            direction: sign_or_zero(u[dof]),
+            direction: sign_or_zero(relative(u[dof], ground_of(input, &support.support_id))),
         });
     }
     let coupled = sliding
@@ -335,6 +343,7 @@ pub(crate) fn confirm_with_applied(
                 }
             };
             certify_state(
+                input,
                 context,
                 &supports,
                 &states,
@@ -361,6 +370,124 @@ pub(crate) fn prescribed_row_mismatch(u: &[f64], prescribed: &[(usize, f64)]) ->
     prescribed
         .iter()
         .any(|&(dof, value)| dof >= u.len() || u[dof].to_bits() != value.to_bits())
+}
+
+/// §2.4 item 2, revision 2: the intended prescribed map of the case's motion
+/// and the converged state, formed without the loop's boundary code: every
+/// base-restrained DOF at its case value g_b (+0 when the case prescribes
+/// none), and every Active or Sticking support's DOF at its prescribed value
+/// (+0, or ±c for an active gap; a support's ground is fixed under R-a). The
+/// map is sorted by DOF. `None` when it cannot be formed: a state missing or
+/// repeated, a base value off the base set or repeated, an active gap without
+/// its clearance, or a DOF prescribed twice.
+pub(crate) fn intended_prescribed_map(
+    input: &NonlinearFrameSolveInput,
+    final_states: &[open_pipe_stress_nonlinear_supports::SupportStateRecord],
+) -> Option<Vec<(usize, f64)>> {
+    let mut map = Vec::with_capacity(input.base_restrained_dofs.len());
+    for &dof in &input.base_restrained_dofs {
+        let mut values = input.base_prescribed.iter().filter(|(d, _)| *d == dof);
+        let value = match (values.next(), values.next()) {
+            (None, _) => 0.0,
+            (Some(&(_, value)), None) => value,
+            (Some(_), Some(_)) => return None,
+        };
+        map.push((dof, value));
+    }
+    if input
+        .base_prescribed
+        .iter()
+        .any(|(dof, _)| !input.base_restrained_dofs.contains(dof))
+        || input
+            .ground_motion
+            .iter()
+            .any(|(id, _)| !input.nonlinear_supports.iter().any(|s| &s.support_id == id))
+    {
+        return None;
+    }
+    for support in &input.nonlinear_supports {
+        let mut states = final_states.iter().filter(|s| s.support_id == support.support_id);
+        let state = match (states.next(), states.next()) {
+            (Some(record), None) => record.state,
+            _ => return None,
+        };
+        let mut grounds = input.ground_motion.iter().filter(|(id, _)| *id == support.support_id);
+        let ground = match (grounds.next(), grounds.next()) {
+            (None, _) => None,
+            (Some(&(_, g)), None) => Some(g),
+            (Some(_), Some(_)) => return None,
+        };
+        let value = match (state, support.behavior) {
+            (ActiveSetState::Inactive | ActiveSetState::Sliding, _) => continue,
+            (ActiveSetState::Active, NonlinearSupportBehavior::Gap { closes_when }) => {
+                let gap = support.gap?;
+                let sigma = match closes_when {
+                    open_pipe_stress_nonlinear_supports::GapDirection::PositiveDisplacement => 1.0,
+                    open_pipe_stress_nonlinear_supports::GapDirection::NegativeDisplacement => -1.0,
+                };
+                match ground {
+                    None => sigma * gap,
+                    Some(g) => {
+                        // c + sigma*g_s, exact by TwoSum (a zero residual), formed here.
+                        let shifted = sigma * g;
+                        let sum = gap + shifted;
+                        let virtual_shifted = sum - gap;
+                        if !sum.is_finite() || (gap - (sum - virtual_shifted)) + (shifted - virtual_shifted) != 0.0 {
+                            return None;
+                        }
+                        sigma * sum
+                    }
+                }
+            }
+            (ActiveSetState::Active | ActiveSetState::Sticking, _) => ground.unwrap_or(0.0),
+        };
+        map.push((support_dof(support), value));
+    }
+    if final_states.len() != input.nonlinear_supports.len() {
+        return None;
+    }
+    map.sort_by_key(|&(dof, _)| dof);
+    if map.windows(2).any(|pair| pair[0].0 == pair[1].0) {
+        return None;
+    }
+    Some(map)
+}
+
+/// §2.4 item 2, revision 2: the complete intended map against the loop's
+/// active prescribed map, entry for entry: the same DOFs in the same order
+/// and the same bits (a -0.0 against a +0.0 is a mismatch). An intended map
+/// that cannot be formed is a mismatch.
+pub(crate) fn prescribed_map_mismatch(
+    intended: Option<&[(usize, f64)]>,
+    actual: &[(usize, f64)],
+) -> bool {
+    let Some(intended) = intended else {
+        return true;
+    };
+    intended.len() != actual.len()
+        || intended
+            .iter()
+            .zip(actual)
+            .any(|(a, b)| a.0 != b.0 || a.1.to_bits() != b.1.to_bits())
+}
+
+/// The support's ground offset g_s (W-16 stage 2, R-b), 0 when fixed.
+fn ground_of(input: &NonlinearFrameSolveInput, support_id: &str) -> f64 {
+    input
+        .ground_motion
+        .iter()
+        .find(|(id, _)| id == support_id)
+        .map_or(0.0, |&(_, g)| g)
+}
+
+/// fl(u - g_s): for finite operands its sign is the exact sign of u - g_s.
+/// With a fixed ground it is u itself, bit for bit.
+fn relative(u: f64, ground: f64) -> f64 {
+    if ground == 0.0 && ground.is_sign_positive() {
+        u
+    } else {
+        u - ground
+    }
 }
 
 fn sign_or_zero(value: f64) -> f64 {
@@ -645,6 +772,9 @@ pub(crate) enum SupportEvidence {
         positive: bool,
         active: bool,
         ball: CertifiedRow,
+        /// The support's ground g_s (§2.2, revision 2): an inactive
+        /// support's displacement ball is compared with it.
+        ground: f64,
     },
     ExplicitFriction {
         coefficient: f64,
@@ -652,6 +782,8 @@ pub(crate) enum SupportEvidence {
         state: ActiveSetState,
         tangential: CertifiedRow,
         direction: f64,
+        /// g_t: a sliding support's slip is established on u_t - g_t.
+        ground: f64,
     },
     DerivedFriction {
         coefficient: f64,
@@ -660,14 +792,17 @@ pub(crate) enum SupportEvidence {
         tangential: CertifiedRow,
         direction: f64,
         beta: Option<f64>,
+        ground: f64,
     },
 }
 
-fn slip_established(tangential: &CertifiedRow, direction: f64) -> bool {
+/// lower(u_t) > g_t for dir = +1, upper(u_t) < g_t for dir = -1 (§2.2,
+/// revision 2); g_t is an exact binary64 threshold, so the comparison is exact.
+fn slip_established(tangential: &CertifiedRow, direction: f64, ground: f64) -> bool {
     if direction > 0.0 {
-        tangential.lower_exceeds(0.0)
+        tangential.lower_exceeds(ground)
     } else if direction < 0.0 {
-        tangential.upper_below(0.0)
+        tangential.upper_below(ground)
     } else {
         false
     }
@@ -681,11 +816,15 @@ pub(crate) fn support_reason(evidence: &SupportEvidence) -> Option<&'static str>
             positive,
             active,
             ball,
+            ground,
         } => {
+            // Active: the reaction against 0; inactive: the displacement
+            // against the ground g_s (lower(u_d) > g_s, or upper(u_d) < g_s).
+            let threshold = if active { 0.0 } else { ground };
             let holds = if positive {
-                ball.lower_exceeds(0.0)
+                ball.lower_exceeds(threshold)
             } else {
-                ball.upper_below(0.0)
+                ball.upper_below(threshold)
             };
             (!holds).then_some(if active {
                 "contact force sign not established"
@@ -699,6 +838,7 @@ pub(crate) fn support_reason(evidence: &SupportEvidence) -> Option<&'static str>
             state,
             tangential,
             direction,
+            ground,
         } => match state {
             ActiveSetState::Inactive => (normal > 0.0).then_some("friction normal not established"),
             ActiveSetState::Sticking => (!CertifiedRow::stick_capacity_exceeds_explicit(
@@ -710,7 +850,7 @@ pub(crate) fn support_reason(evidence: &SupportEvidence) -> Option<&'static str>
             ActiveSetState::Sliding => {
                 if !(normal > 0.0) {
                     Some("friction normal not established")
-                } else if !slip_established(&tangential, direction) {
+                } else if !slip_established(&tangential, direction, ground) {
                     Some("slip direction not established")
                 } else {
                     None
@@ -725,6 +865,7 @@ pub(crate) fn support_reason(evidence: &SupportEvidence) -> Option<&'static str>
             tangential,
             direction,
             beta,
+            ground,
         } => match state {
             ActiveSetState::Inactive => Some("friction normal not established"),
             ActiveSetState::Sticking => {
@@ -740,7 +881,7 @@ pub(crate) fn support_reason(evidence: &SupportEvidence) -> Option<&'static str>
                 let sign = normal.established_sign();
                 if sign.is_none() || (coefficient > 0.0 && sign != beta) {
                     Some("friction normal not established")
-                } else if !slip_established(&tangential, direction) {
+                } else if !slip_established(&tangential, direction, ground) {
                     Some("slip direction not established")
                 } else {
                     None
@@ -793,6 +934,7 @@ pub(crate) fn ball_failure_reason(
 
 #[allow(clippy::too_many_arguments)]
 fn certify_state(
+    input: &NonlinearFrameSolveInput,
     context: &ConfirmationContext<'_>,
     supports: &[&NonlinearSupport],
     states: &HashMap<&str, ActiveSetState>,
@@ -813,6 +955,7 @@ fn certify_state(
         let id = support.support_id.as_str();
         let dof = support_dof(support);
         let state = states[id];
+        let ground = ground_of(input, id);
         let constrained = matches!(state, ActiveSetState::Active | ActiveSetState::Sticking);
         let ball = if constrained {
             context.reaction(&force, dof, u, &bound)
@@ -832,6 +975,7 @@ fn certify_state(
                     positive: active_when == ActivationSense::PositiveReaction,
                     active: state == ActiveSetState::Active,
                     ball,
+                    ground,
                 },
                 if constrained { ball } else { zero },
             ),
@@ -843,10 +987,10 @@ fn certify_state(
                 let coefficient = support.friction_coefficient.unwrap_or(0.0);
                 let term = sliding.iter().find(|t| t.support_id == id);
                 // dir: opposite the applied force for mu > 0 (§1.1); the sign
-                // of the loop's u_t for mu = 0.
+                // of the loop's u_t - g_t for mu = 0 (revision 2).
                 let direction = match term {
                     Some(_) => applied_force(applied, id).map_or(0.0, |f| -sign_or_zero(f)),
-                    None => sign_or_zero(u[dof]),
+                    None => sign_or_zero(relative(u[dof], ground)),
                 };
                 let slot = match (state, term) {
                     (ActiveSetState::Sticking, _) => ball,
@@ -880,6 +1024,7 @@ fn certify_state(
                         state,
                         tangential: ball,
                         direction,
+                        ground,
                     },
                     (None, Some(&source)) => {
                         let Ok(normal) = context.reaction(&force, source, u, &bound) else {
@@ -900,6 +1045,7 @@ fn certify_state(
                             tangential: ball,
                             direction,
                             beta: coupled.filter(|_| term.is_some()).map(|c| c.beta),
+                            ground,
                         }
                     }
                     (None, None) => {
