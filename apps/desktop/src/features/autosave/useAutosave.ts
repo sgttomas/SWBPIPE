@@ -188,13 +188,15 @@ export function useAutosave(deps: AutosaveDeps) {
   }
 
   /** Save Local Project landed for `projectId` with `savedHash`: the store now
-   * holds that model, so the project's records written up to now, and any
-   * holding that model, are discarded. A running autosave finishes first. */
+   * holds that model, so the project's records holding exactly that model are
+   * discarded. A record with any other hash is never removed by a save: only
+   * its hash proves its work is in the store, and no time can (another window
+   * may write newer edits after the save; the user may have kept it for
+   * later). A running autosave finishes first, so its record is checked too. */
   async function afterProjectSaved(projectId: string, savedHash: string | null): Promise<void> {
-    if (!depsRef.current.native) return;
+    if (!depsRef.current.native || savedHash === null) return;
     try {
       await inFlight.current;
-      const landedAt = Date.now();
       const slot = await autosaveSlot(projectId);
       const listed = await listProjectAutosaves();
       if (listed?.outcome !== "listed") {
@@ -202,7 +204,7 @@ export function useAutosave(deps: AutosaveDeps) {
         return;
       }
       for (const entry of listed.entries) {
-        if (entry.slot !== slot || (entry.model_hash !== savedHash && entry.written_unix_millis > landedAt)) continue;
+        if (entry.slot !== slot || entry.model_hash !== savedHash) continue;
         const discarded = await discardProjectAutosave(entry.file_name);
         if (discarded.outcome === "refused" && mounted.current) setStatusLine(`Autosave not removed after the save: ${diagnosticsText(discarded.diagnostics)}`);
       }

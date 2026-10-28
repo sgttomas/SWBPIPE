@@ -11,6 +11,7 @@ vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test
 
 import demoModel from "../../../../../fixtures/product_preview/invented_demo_model.json";
 import { App } from "../../App";
+import { computeModelHash } from "../../services/hashService";
 import type { LocalProjectEnvelope, PreviewModel } from "../../types";
 import { formatAutosaveTime } from "./autosaveRecovery";
 import { autosaveSlot, type AutosaveEntry } from "./autosaveService";
@@ -45,9 +46,13 @@ const called = (command: string) => invokeMock.mock.calls.filter(([name]) => nam
 const toolbarProject = () => screen.getByTestId("toolbar-project-name");
 const projectMessage = () => screen.getByTestId("local-project-message");
 
+type Listing = AutosaveEntry[] | (() => Promise<AutosaveEntry[]>);
+/** The model the last Save Local Project sent. */
+let savedModel: PreviewModel | null = null;
+
 /** The native commands the flows reach; `listings` are returned in turn by
  * `list_project_autosaves` (the last one thereafter). */
-function nativeCommands(listings: AutosaveEntry[][]) {
+function nativeCommands(listings: Listing[]) {
   invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
     switch (command) {
       case "sync_native_shell_state": return Promise.resolve(null);
@@ -55,13 +60,17 @@ function nativeCommands(listings: AutosaveEntry[][]) {
       case "find_local_project": return Promise.resolve(null);
       case "list_local_projects": return Promise.resolve([]);
       case "get_autosave_settings": return Promise.resolve({ settings: { autosave_minutes: 5, backup_folder: null, backup_keep: null }, source: "default", status: null });
-      case "list_project_autosaves": return Promise.resolve({ outcome: "listed", entries: listings.length > 1 ? listings.shift()! : listings[0], not_listed: 0 });
+      case "list_project_autosaves": {
+        const listing = listings.length > 1 ? listings.shift()! : listings[0];
+        return (typeof listing === "function" ? listing() : Promise.resolve(listing)).then((entries) => ({ outcome: "listed", entries, not_listed: 0 }));
+      }
       case "read_project_autosave": {
         const document = recovered();
         return Promise.resolve({ outcome: "read", file_name: args!.fileName, slot: "", written_unix_millis: WRITTEN, model_hash: "sha256:" + "d".repeat(64), byte_count: 2048, document });
       }
       case "discard_project_autosave": return Promise.resolve({ outcome: "discarded", file_name: args!.fileName });
       case "save_local_project":
+        savedModel = (args!.request as { model: PreviewModel }).model;
         return Promise.resolve(envelope((args!.request as { model: PreviewModel }).model, "Saved current project model snapshot without external file copies."));
       default: return Promise.reject(new Error(`Unexpected command ${command}`));
     }
@@ -89,7 +98,7 @@ async function applyNodeEdit() {
 
 /** The bundled demo with one unsaved edit, then the desktop runtime, whose
  * autosave starts at the session's next render. */
-async function editedNativeSession(listings: AutosaveEntry[][]) {
+async function editedNativeSession(listings: Listing[]) {
   await renderApp();
   await applyNodeEdit();
   (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
@@ -135,14 +144,20 @@ describe("Open autosave", () => {
 });
 
 describe("Save Local Project", () => {
-  it("discards the project's autosave once the save has landed", async () => {
+  it("discards the project's autosave holding the saved model once the save has landed, and keeps one with another hash", async () => {
     const slot = await autosaveSlot(DEMO.project.id);
-    const record: AutosaveEntry = { file_name: `${slot}-${WRITTEN - 1}-${"a".repeat(64)}.json`, slot, written_unix_millis: 1_000_000_000_000, model_hash: "sha256:" + "a".repeat(64), byte_count: 10 };
-    // The start's check finds nothing; the check after the save finds the record.
-    await editedNativeSession([[], [record]]);
+    const other: AutosaveEntry = { file_name: `${slot}-1000000000000-${"a".repeat(64)}.json`, slot, written_unix_millis: 1_000_000_000_000, model_hash: "sha256:" + "a".repeat(64), byte_count: 10 };
+    let same: AutosaveEntry | null = null;
+    // The start's check finds nothing; the check after the save finds a record
+    // of the saved model and an older one of another model.
+    await editedNativeSession([[], async () => {
+      const hash = (await computeModelHash(savedModel!))!.value;
+      same = { file_name: `${slot}-1000000000001-${hash.slice(7)}.json`, slot, written_unix_millis: 1_000_000_000_001, model_hash: hash, byte_count: 10 };
+      return [same, other];
+    }]);
     await waitFor(() => expect(called("list_project_autosaves")).toHaveLength(1));
     act(() => { window.dispatchEvent(new CustomEvent("openpipestress-native-menu-command", { detail: "file.save-local" })); });
     await waitFor(() => expect(called("save_local_project")).toHaveLength(1));
-    await waitFor(() => expect(called("discard_project_autosave").map(([, args]) => args)).toEqual([{ fileName: record.file_name }]));
+    await waitFor(() => expect(called("discard_project_autosave").map(([, args]) => args)).toEqual([{ fileName: same!.file_name }]));
   });
 });

@@ -241,19 +241,25 @@ describe("the autosave timer", () => {
 });
 
 describe("after a save lands", () => {
-  it("discards that project's autosaves up to the save and any holding the saved model, and no other", async () => {
+  // Codex r1 P1: only a record holding the saved model's hash is proven to be
+  // in the store. A record with another hash is kept, whatever its time: an
+  // older one the user kept for later, and one another window wrote just
+  // before or after the save.
+  it("discards only that project's autosaves holding the saved model, never one with another hash", async () => {
     const state = native();
     const { session } = mount();
     await waitFor(() => expect(screen.getByTestId("autosave-interval")).toHaveValue("5"));
-    const later = Date.now() + 3_600_000;
-    const older = entry(DEMO_SLOT, 1_000_000_000_000, "sha256:" + "a".repeat(64));
-    const same = entry(DEMO_SLOT, later, DEMO_HASH);
-    const newer = entry(DEMO_SLOT, later + 1, "sha256:" + "b".repeat(64));
-    const otherProject = entry(OTHER_SLOT, 1_000_000_000_000, "sha256:" + "c".repeat(64));
-    state.entries = [newer, same, older, otherProject];
+    const now = Date.now();
+    const keptForLater = entry(DEMO_SLOT, 1_000_000_000_000, "sha256:" + "a".repeat(64));
+    const otherWindowBeforeCutoff = entry(DEMO_SLOT, now - 1, "sha256:" + "b".repeat(64));
+    const otherWindowAfter = entry(DEMO_SLOT, now + 3_600_000, "sha256:" + "c".repeat(64));
+    const sameOlder = entry(DEMO_SLOT, 1_000_000_000_001, DEMO_HASH);
+    const sameNewer = entry(DEMO_SLOT, now + 3_600_001, DEMO_HASH);
+    const otherProject = entry(OTHER_SLOT, 1_000_000_000_000, DEMO_HASH);
+    state.entries = [sameNewer, otherWindowAfter, otherWindowBeforeCutoff, sameOlder, keptForLater, otherProject];
     await act(async () => { await session().afterProjectSaved(DEMO.project.id, DEMO_HASH); });
-    expect(calls("discard_project_autosave").map(([, args]) => args.fileName).sort()).toEqual([older.file_name, same.file_name].sort());
-    expect(state.entries.map((item) => item.file_name)).toEqual([newer.file_name, otherProject.file_name]);
+    expect(calls("discard_project_autosave").map(([, args]) => args.fileName).sort()).toEqual([sameNewer.file_name, sameOlder.file_name].sort());
+    expect(state.entries.map((item) => item.file_name)).toEqual([otherWindowAfter.file_name, otherWindowBeforeCutoff.file_name, keptForLater.file_name, otherProject.file_name]);
   });
 });
 
