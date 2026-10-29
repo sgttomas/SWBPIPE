@@ -1128,7 +1128,10 @@ const G_ABOVE_E_DOCUMENTS: [(&str, f64, f64, f64, u64, u64); 2] = [
 fn u4b_preview_shear_maximum_with_g_above_e() {
     let (od, t) = (0.2_f64, 0.01_f64);
     let id = od - 2.0 * t;
-    let inertia = PI * (od.powi(4) - id.powi(4)) / 64.0;
+    // The product forms x^4 at run time as (x·x)·(x·x). `powi` on these constants is not reproducible: the hosted
+    // x86_64 Linux build gives the correctly rounded x^4 (compile-time folding), whose I is 9 ulps away.
+    let (od2, id2) = (od * od, id * id);
+    let inertia = PI * (od2 * od2 - id2 * id2) / 64.0;
     assert_eq!(((od / 2.0).to_bits(), (id / 2.0).to_bits(), inertia.to_bits()), (0x3fb999999999999a, 0x3fb70a3d70a3d70b, 0x3efc52664442210e));
     for (name, e, g, force, hi, lo) in G_ABOVE_E_DOCUMENTS {
         let (hi, lo) = (f64::from_bits(hi), f64::from_bits(lo));
