@@ -44,16 +44,24 @@ probe does not establish a production GetLastError classifier.
 | worker::native_separate_deadline | An unrelated earlier expired operation does not consume the next growth window. |
 | worker::native_commit_retry_deadline | Delayed grant and classified commit fault still expire at the original deadline, not a new retry window. |
 
-The runner verifies the complete 13-entry inventory (12 witnesses and one
-internal child entry), executes every witness once/nonignored, and checks a
-missing-selection negative control. Compiler/link, case, child failure and
+The runner verifies the complete 14-entry inventory (12 witnesses and two
+internal child/timeout-control entries), executes every witness once/nonignored, and checks missing-selection and forced-timeout cleanup negative controls. Compiler/link, case, child failure and
 cleanup diagnostics stream immediately. Native OS/process x64, Rust1.97.1 MSVC,
 exact candidate, fresh runner-local target and --locked dependency-free crate
 are checked. The supplemental workflow remains outside required harness and
 uses product sparse checkout for historical MAX_PATH. No guest/local-heavy
 route or registry acquisition is needed.
 
-At most two children and two 4 MiB VA arenas exist; metadata/control/buffers are
+At most two arena workers and two 4 MiB VA arenas exist, with a case controller
+and an external Rust supervisor. The supervisor owns the case's creation-time
+outer Job independently of the case and arena workers. On timeout/abort/error,
+it drains the Job to zero active processes and observes case exit before emitting
+the cleanup marker required by PowerShell. The timeout negative control first
+establishes a real blocked arena descendant, then confirms external termination
+of both case and descendant. It introduces no additional arena worker. If the
+supervisor cannot confirm cleanup, the case fails without a confirmation marker;
+PowerShell's 45 s last backstop labels such cleanup unconfirmed and kill-on-close
+remains a backstop, not invented observation. Metadata/control/buffers are
 bounded and deliberate memory stays below 64 MiB. Loader, framework and native
 process memory is not claimed covered by that payload allowance. Creation-time
 Job lists, handle allowlists, process-exit waits and bounded Job drain are

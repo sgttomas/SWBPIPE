@@ -27,11 +27,17 @@ Samples are scripted, not native host reservations or an OS error classifier.
 
 Native children use creation-time Job assignment and restricted inheritance.
 Cancellation/kill requests do not release authority; real process exit does.
-Per-case execution has a 30 s external deadline and bounded process cleanup;
-internal child waits and Job drain also have short deadlines. The runner
+A separate Rust case supervisor holds a creation-time outer Job around each
+case and its arena descendants. It applies a 30 s case deadline, independently
+drains that Job to zero active processes, and observes the case process exit
+before emitting a required cleanup-confirmed marker. A negative control starts
+a blocked arena worker then deliberately hangs its case; external Job cleanup
+must end both. PowerShell's 45 s last backstop reports cleanup unconfirmed if
+the Rust supervisor itself fails; it never invents a confirmed Job drain.
+Internal child waits and Job drain also have short deadlines. The runner
 streams diagnostics, verifies exact candidate/OS architecture, enumerates 12
-required witnesses plus the internal child entry, runs each witness exactly
-once and checks missing-selection/child-failure negative controls. No ignored
+required witnesses plus two internal entries, runs each witness exactly
+once and checks missing-selection, child-failure and external-timeout negative controls. No ignored
 or empty case can count as a pass. The workflow is supplemental, outside the
 required harness, and uses a fresh target with Rust 1.97.1 MSVC on windows-2025.
 

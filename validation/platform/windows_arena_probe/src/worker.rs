@@ -361,3 +361,20 @@ fn native_commit_retry_deadline() {
     assert_eq!(ledger.lock().unwrap().held[0], s.authorized.load(SeqCst) as usize);
     finish(&mut child, &ledger, 0);
 }
+
+/// Internal negative control, invoked only by the external case controller.
+/// It creates a real blocked child, then deliberately does not clean it up.
+#[test]
+fn cleanup_timeout_entry() {
+    if std::env::var_os("NATIVE_FIXTURE_GUARD_MAPPING").is_none() { return; }
+    let view = win32::map(handle("GUARD_MAPPING"), 4096);
+    let ready = unsafe { &*view.0.cast::<AtomicU32>() };
+    let changed = handle("GUARD_CHANGED");
+    let job = Job(win32::job());
+    let mut child = Child::start(job.0.0, "blocked");
+    until(&mut child, |s| s.request.load(SeqCst) != 0);
+    ready.store(1, SeqCst); win32::signal(changed);
+    let deadline = Instant::now() + Duration::from_secs(8);
+    while Instant::now() < deadline { std::thread::sleep(Duration::from_millis(50)); }
+    panic!("external controller failed to enforce the cleanup negative timeout");
+}

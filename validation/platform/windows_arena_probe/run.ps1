@@ -9,8 +9,12 @@ $manifest = Join-Path $root 'Cargo.toml'
 New-Item -ItemType Directory -Force -Path $env:CARGO_TARGET_DIR | Out-Null
 $clock = [Diagnostics.Stopwatch]::StartNew()
 Write-Host 'START compile-link'
-& cargo test --locked --manifest-path $manifest --target x86_64-pc-windows-msvc --no-run 2>&1 | Tee-Object -FilePath (Join-Path $env:CARGO_TARGET_DIR 'compile.log')
+& cargo test --locked --manifest-path $manifest --target x86_64-pc-windows-msvc --lib --no-run 2>&1 | Tee-Object -FilePath (Join-Path $env:CARGO_TARGET_DIR 'compile.log')
 if ($LASTEXITCODE -ne 0) { throw "compile-link failed: $LASTEXITCODE" }
+& cargo build --locked --manifest-path $manifest --target x86_64-pc-windows-msvc --bin arena_case_guard 2>&1 | Tee-Object -FilePath (Join-Path $env:CARGO_TARGET_DIR 'guard-compile.log')
+if ($LASTEXITCODE -ne 0) { throw "external guard compile-link failed: $LASTEXITCODE" }
+$guard = Join-Path $env:CARGO_TARGET_DIR 'x86_64-pc-windows-msvc/debug/arena_case_guard.exe'
+if (-not (Test-Path $guard)) { throw 'missing external custody executable' }
 Write-Host "END compile-link elapsed=$($clock.Elapsed)"
 $bins = @(Get-ChildItem (Join-Path $env:CARGO_TARGET_DIR 'x86_64-pc-windows-msvc/debug/deps/windows_arena_probe-*.exe'))
 if ($bins.Count -ne 1) { throw "Expected one test executable, found $($bins.Count)" }
@@ -32,7 +36,8 @@ $cases = @(
     'worker::native_commit_retry_deadline'
 )
 foreach ($case in $cases) { if (($inventory | Where-Object { $_ -eq "${case}: test" }).Count -ne 1) { throw "missing case $case" } }
-if (($inventory | Where-Object { $_ -eq 'worker::child_entry: test' }).Count -ne 1 -or $inventory.Count -ne 13) { throw 'unexpected case inventory' }
+if (($inventory | Where-Object { $_ -eq 'worker::child_entry: test' }).Count -ne 1 -or $inventory.Count -ne 14) { throw 'unexpected case inventory' }
+if (($inventory | Where-Object { $_ -eq 'worker::cleanup_timeout_entry: test' }).Count -ne 1) { throw 'missing cleanup negative control' }
 Write-Host "Inventory: $($inventory -join ', ')"
 function Run-Case([string]$case, [bool]$expectOne) {
     $timer = [Diagnostics.Stopwatch]::StartNew()
@@ -40,8 +45,8 @@ function Run-Case([string]$case, [bool]$expectOne) {
     $out = Join-Path $env:CARGO_TARGET_DIR 'case.stdout'
     $err = Join-Path $env:CARGO_TARGET_DIR 'case.stderr'
     $log = Join-Path $env:CARGO_TARGET_DIR 'cases.log'
-    $p = Start-Process -FilePath $exe -ArgumentList @('--exact', $case, '--nocapture', '--test-threads=1') -NoNewWindow -PassThru -RedirectStandardOutput $out -RedirectStandardError $err
-    $positions = @(0,0); $lines = [Collections.Generic.List[string]]::new()
+    $p = Start-Process -FilePath $guard -ArgumentList @(('"{0}"' -f $exe), $case) -NoNewWindow -PassThru -RedirectStandardOutput $out -RedirectStandardError $err
+    $positions = @(0,0); $confirmed = $false
     try {
         $finished = $false
         do {
@@ -51,19 +56,22 @@ function Run-Case([string]$case, [bool]$expectOne) {
                     $stream = [IO.File]::Open($path, 'Open', 'Read', 'ReadWrite')
                     try {
                         $stream.Position = $positions[$i]; $reader = [IO.StreamReader]::new($stream)
-                        while (-not $reader.EndOfStream) { $line = $reader.ReadLine(); $lines.Add($line); $line | Tee-Object -FilePath $log -Append }
+                        while (-not $reader.EndOfStream) { $line = $reader.ReadLine(); $line | Tee-Object -FilePath $log -Append }
                         $positions[$i] = $stream.Position
                     } finally { $stream.Dispose() }
                 }
             }
             $p.Refresh()
-            if ($timer.Elapsed.TotalSeconds -gt 30 -and -not $p.HasExited) { $p.Kill(); if (-not $p.WaitForExit(5000)) { throw "case cleanup not confirmed: $case" }; throw "case timeout: $case" }
+            if ($timer.Elapsed.TotalSeconds -gt 45 -and -not $p.HasExited) { $p.Kill(); if (-not $p.WaitForExit(5000)) { throw "case cleanup not confirmed: $case" }; throw "case timeout: $case" }
             if ($p.HasExited) { if ($finished) { break }; $finished = $true }
             else { Start-Sleep -Milliseconds 100 }
         } while ($true)
         $p.WaitForExit()
         # Read the final complete output once for verdict; live output above is streamed.
         $final = (Get-Content $out -Raw) + (Get-Content $err -Raw)
+        $confirmed = $final.Contains("ARENA_CLEANUP_CONFIRMED case=$case active=0")
+        if (-not $confirmed) { throw "external cleanup unconfirmed: $case" }
+        if ($case -eq 'worker::cleanup_timeout_entry' -and -not $final.Contains("ARENA_TIMEOUT_NEGATIVE_CONFIRMED case=$case")) { throw 'timeout cleanup negative control was not exercised' }
         if ($p.ExitCode -ne 0) { throw "case failed: $case ($($p.ExitCode))" }
         $one = [regex]::Matches($final, '(?m)^test result: ok\. 1 passed; 0 failed; 0 ignored;').Count -eq 1
         if ($expectOne -and -not $one) { throw "empty, ignored, or failed selection: $case" }
@@ -71,10 +79,11 @@ function Run-Case([string]$case, [bool]$expectOne) {
         Write-Host "END execute $case elapsed=$($timer.Elapsed)"
     } finally {
         if (-not $p.HasExited) { $p.Kill(); if (-not $p.WaitForExit(5000)) { throw "case cleanup not confirmed: $case" } }
-        Write-Host "END cleanup $case elapsed=$($timer.Elapsed)"
+        Write-Host "END cleanup $case confirmed=$confirmed elapsed=$($timer.Elapsed)"
     }
 }
 Run-Case 'missing::negative_control' $false
+Run-Case 'worker::cleanup_timeout_entry' $false
 foreach ($case in $cases) { Run-Case $case $true }
 
-Write-Host "Completed all $($cases.Count) required cases plus missing-selection negative control; no production bound established."
+Write-Host "Completed all $($cases.Count) required cases plus missing-selection and external-timeout cleanup negative controls; no production bound established."

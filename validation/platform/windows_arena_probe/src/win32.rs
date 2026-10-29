@@ -333,8 +333,7 @@ pub fn job() -> Handle {
 /// External cleanup backstop: terminate any remaining member and observe
 /// the Job's active-process count reach zero even when no worker handle was
 /// published before a caretaker failure. The loop is bounded.
-pub fn drain_job(job: Raw) {
-    fn active(job: Raw) -> u32 {
+pub fn job_active(job: Raw) -> u32 {
         let mut a = JobAccounting::default();
         ok(
             unsafe {
@@ -349,8 +348,9 @@ pub fn drain_job(job: Raw) {
             "QueryInformationJobObject",
         );
         a.active_processes
-    }
-    if active(job) == 0 {
+}
+pub fn drain_job(job: Raw) {
+    if job_active(job) == 0 {
         return;
     }
     if unsafe { TerminateJobObject(job, 93) } == 0 {
@@ -358,7 +358,7 @@ pub fn drain_job(job: Raw) {
         std::process::abort();
     }
     let deadline = std::time::Instant::now() + std::time::Duration::from_secs(5);
-    while active(job) != 0 {
+    while job_active(job) != 0 {
         if std::time::Instant::now() >= deadline {
             eprintln!("fixture cleanup: Job still has active processes");
             std::process::abort();
@@ -397,11 +397,20 @@ fn wide(s: &OsStr) -> Vec<u16> {
 /// The only process launcher: suspended at creation inside the supplied Job,
 /// and inheriting only the explicit handles. No breakaway or assign fallback.
 pub fn spawn_suspended(job: Raw, handles: &[Raw], mode: &str, values: &[(&str, usize)]) -> Process {
+    let exe = std::env::current_exe().expect("current executable");
+    spawn_exact(job, handles, &exe, "worker::child_entry", mode, values, false)
+}
+/// External case controller: keep its Job/observation capability outside the
+/// tested process, including when that process aborts or is force-terminated.
+pub fn spawn_case(job: Raw, handles: &[Raw], exe: &std::path::Path, case: &str, values: &[(&str, usize)]) -> Process {
+    assert!(!case.is_empty() && case.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'_' || b == b':'));
+    spawn_exact(job, handles, exe, case, "case", values, true)
+}
+fn spawn_exact(job: Raw, handles: &[Raw], exe: &std::path::Path, case: &str, mode: &str, values: &[(&str, usize)], forward_stdout: bool) -> Process {
     assert_eq!(size_of::<Startup>(), 104);
     assert_eq!(size_of::<StartupEx>(), 112);
     assert_eq!(size_of::<BasicLimit>(), 64);
     assert_eq!(size_of::<ExtendedLimit>(), 144);
-    assert!(!handles.is_empty());
     // libtest needs valid standard streams. The inherited NUL handle is
     // explicitly allowlisted, and does not expose an ambient parent handle.
     let nul_name = wide(OsStr::new("NUL"));
@@ -430,6 +439,12 @@ pub fn spawn_suspended(job: Raw, handles: &[Raw], mode: &str, values: &[(&str, u
     );
     let stderr = Handle::new(stderr_raw, "duplicated stderr");
     inherited.push(stderr.0);
+    let stdout = if forward_stdout {
+        let mut raw = NULL;
+        ok(unsafe { DuplicateHandle(GetCurrentProcess(), GetStdHandle((-11i32) as u32), GetCurrentProcess(), &mut raw, 0, 1, DUPLICATE_SAME_ACCESS) }, "duplicate stdout");
+        Some(Handle::new(raw, "duplicated stdout"))
+    } else { None };
+    if let Some(h) = &stdout { inherited.push(h.0); }
     let mut bytes = 0usize;
     unsafe {
         InitializeProcThreadAttributeList(NULL, 2, 0, &mut bytes);
@@ -474,10 +489,9 @@ pub fn spawn_suspended(job: Raw, handles: &[Raw], mode: &str, values: &[(&str, u
         },
         "job-list attribute",
     );
-    let exe = std::env::current_exe().expect("current executable");
     let mut command = wide(OsStr::new(&format!(
-        "\"{}\" --exact worker::child_entry --test-threads=1",
-        exe.display()
+        "\"{}\" --exact {} --nocapture --test-threads=1",
+        exe.display(), case
     )));
     let app = wide(exe.as_os_str());
     let mut env: Vec<(std::ffi::OsString, std::ffi::OsString)> = std::env::vars_os()
@@ -500,7 +514,7 @@ pub fn spawn_suspended(job: Raw, handles: &[Raw], mode: &str, values: &[(&str, u
     startup.startup.cb = size_of::<StartupEx>() as u32;
     startup.startup.flags = 0x100; // STARTF_USESTDHANDLES
     startup.startup.stdin = nul.0;
-    startup.startup.stdout = nul.0;
+    startup.startup.stdout = stdout.as_ref().map_or(nul.0, |h| h.0);
     startup.startup.stderr = stderr.0;
     startup.attributes = ap;
     let mut pi: ProcessInformation = unsafe { zeroed() };
