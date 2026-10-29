@@ -77,10 +77,80 @@ def test_private_coordination_surfaces_are_excluded_top_level():
 
 
 def test_monorepo_bound_root_files_are_documented_exclusions():
-    # RT-V8 P3: both were out only by construction before.
+    # RT-V8 P3: software-workflow.json is excluded; .gitattributes is not
+    # copied but generated (P3 amendment, owner 2026-10-29).
+    assert "software-workflow.json" in PIPE.EXCLUDED_TOP_LEVEL
+    assert ".gitattributes" not in PIPE.EXCLUDED_TOP_LEVEL
+    assert ".gitattributes" in PIPE.GENERATED_MEMBERS
     for name in (".gitattributes", "software-workflow.json"):
-        assert name in PIPE.EXCLUDED_TOP_LEVEL
         assert name not in PIPE.ROOT_FILES
+
+
+PROJECT_GITATTRIBUTES = """# Byte-bound fixtures keep their committed bytes.
+core/** -text
+fixtures/** -text
+
+# Excluded evidence.
+validation/evidence/** -diff -merge -text
+"""
+
+
+def test_gitattributes_is_cut_down_to_rules_for_shipped_paths():
+    text, kept, dropped = PIPE.cut_down_gitattributes(
+        PROJECT_GITATTRIBUTES, ["core/a.rs", "docs/README.md"])
+    assert (kept, dropped) == (1, 2)
+    assert "core/** -text" in text and "Byte-bound" in text
+    assert "validation/evidence" not in text and "fixtures/**" not in text
+    assert PIPE.cut_down_gitattributes("validation/evidence/** -text\n", ["core/a.rs"])[0] is None
+
+
+def test_windows_autocrlf_clone_keeps_committed_bytes_under_shipped_rules(tmp_path):
+    # RT-V8 P3 amendment (Windows Agent 0's recommendation): a staged export,
+    # committed and cloned with core.autocrlf=true, keeps the committed bytes of
+    # every file a shipped `-text` rule governs; without the generated
+    # .gitattributes the LF fixture changes.
+    source = make_source_tree(tmp_path / "src")
+    (source / ".gitattributes").write_text(PROJECT_GITATTRIBUTES, encoding="utf-8")
+    (source / "core" / "crlf_fixture.txt").write_bytes(b"row one\r\nrow two\r\n")
+    (source / "core" / "lf_fixture.txt").write_bytes(b"row one\nrow two\n")
+    commit_all(source)
+    selected = PIPE.select_files(source)[0]
+    staging = tmp_path / "export"
+    PIPE.stage_files(source, staging, selected)
+    generated = PIPE.write_generated_members(source, staging, selected)
+    assert generated[0]["written"] and (generated[0]["rules_kept"], generated[0]["rules_dropped"]) == (2, 1)
+    assert len(generated[0]["source_blob"]) == 40
+    assert not [f for f in PIPE.boundary_findings(staging, reviewed={})
+                if f["path"] == ".gitattributes"]
+
+    def committed_then_cloned(with_attributes: bool) -> tuple[Path, Path]:
+        repo = tmp_path / ("repo-with" if with_attributes else "repo-without")
+        shutil.copytree(staging, repo)
+        if not with_attributes:
+            (repo / ".gitattributes").unlink()
+        git(repo, "-c", "core.autocrlf=false", "init", "-q")
+        git(repo, "-c", "core.autocrlf=false", "add", "-A", "-f")
+        git(repo, "-c", "core.autocrlf=false", "commit", "-q", "-m", "staged export")
+        clone = tmp_path / (repo.name + "-clone")
+        subprocess.run(["git", "-c", "core.autocrlf=true", "clone", "-q", "--config",
+                        "core.autocrlf=true", str(repo), str(clone)],
+                       env=GIT_ENV, check=True, capture_output=True)
+        return repo, clone
+
+    def changed(repo: Path, clone: Path, prefix: str) -> list[str]:
+        files = subprocess.run(["git", "ls-files", "-z"], cwd=repo, env=GIT_ENV,
+                               capture_output=True, text=True, check=True).stdout.split("\0")
+        return [f for f in files if f.startswith(prefix)
+                and (clone / f).read_bytes() != (repo / f).read_bytes()]
+
+    repo, clone = committed_then_cloned(True)
+    assert changed(repo, clone, "core/") == []
+    assert (clone / "core" / "crlf_fixture.txt").read_bytes() == b"row one\r\nrow two\r\n"
+    assert (clone / "core" / "lf_fixture.txt").read_bytes() == b"row one\nrow two\n"
+    assert changed(repo, clone, "docs/"), "autocrlf must be active for the check to mean anything"
+
+    repo, clone = committed_then_cloned(False)
+    assert "core/lf_fixture.txt" in changed(repo, clone, "core/")
 
 
 def test_export_detection_matches_what_the_export_leaves_out():
