@@ -495,15 +495,76 @@ def test_provenance_scope_is_pinned_by_file_hash_and_label_pair(tmp_path):
     assert changed["scoped_record_count"] == 0 and changed["violations"]
 
 
-def test_committed_provenance_scope_is_well_formed():
-    module = load_module()
-    document = json.loads(module.PROVENANCE_SCOPE.read_text(encoding="utf-8"))
-    paths = [member["path"] for member in document["members"]]
-    assert len(paths) == len(set(paths))
-    for member in document["members"]:
-        assert (ROOT / member["path"]).is_file(), member["path"]
-        assert len(member["sha256"]) == 64 and member["reason"].strip()
-        assert member["labels"] and all(len(pair) == 2 for pair in member["labels"])
+def load_scope_generator():
+    spec = importlib.util.spec_from_file_location(
+        "generate_provenance_scope", ROOT / "tools" / "release" / "generate_provenance_scope.py"
+    )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_committed_provenance_scope_is_the_generators_output():
+    # RT-V8 P7 review: the committed scope is derived, not hand-kept; any
+    # hash drift, new label or ineligible file fails here.
+    assert load_scope_generator().main(["--check"]) == 0
+
+
+def make_export_shaped_repo(tmp_path: Path) -> Path:
+    """A committed invented tree carrying the export's allowlisted roots."""
+    spec = importlib.util.spec_from_file_location(
+        "export_probe", ROOT / "tools" / "release" / "export_public_openpipestress.py"
+    )
+    export = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(export)
+    root = tmp_path / "project"
+    for name in export.ROOT_FILES:
+        (root / name).parent.mkdir(parents=True, exist_ok=True)
+        (root / name).write_text("invented\n", encoding="utf-8")
+    for name in export.ROOT_DIRS:
+        (root / name).mkdir(parents=True, exist_ok=True)
+        (root / name / "README.md").write_text("invented\n", encoding="utf-8")
+    (root / "tools" / "release").mkdir(parents=True, exist_ok=True)
+    declared = dict(ACCEPTED_PROVENANCE, source_name="Invented test fixture",
+                    redistribution_status="private_only", review_status="pending")
+    undeclared = dict(ACCEPTED_PROVENANCE, source_name="Example project data",
+                      contributor_certification="Example values only",
+                      redistribution_status="private_only", review_status="pending")
+    (root / "fixtures" / "eligible.json").write_text(
+        json.dumps({"provenance": declared}), encoding="utf-8")
+    (root / "fixtures" / "invented_named_but_undeclared.json").write_text(
+        json.dumps({"provenance": undeclared}), encoding="utf-8")
+    env = {**__import__("os").environ, "GIT_CONFIG_GLOBAL": "/dev/null", "GIT_CONFIG_NOSYSTEM": "1",
+           "GIT_AUTHOR_NAME": "invented", "GIT_AUTHOR_EMAIL": "invented@example.invalid",
+           "GIT_COMMITTER_NAME": "invented", "GIT_COMMITTER_EMAIL": "invented@example.invalid"}
+    for command in (["init", "-q"], ["add", "-A"], ["commit", "-q", "-m", "invented"]):
+        subprocess.run(["git", *command], cwd=root, env=env, check=True, capture_output=True)
+    return root
+
+
+def test_provenance_scope_check_refuses_ineligible_stale_and_underived_data(tmp_path):
+    generator = load_scope_generator()
+    root = make_export_shaped_repo(tmp_path)
+    assert generator.main(["--root", str(root)]) == 0
+    listing = root / generator.SCOPE_PATH
+    generated = json.loads(listing.read_text(encoding="utf-8"))
+    # Eligibility is by declaration: the undeclared file is never listed.
+    assert [m["path"] for m in generated["members"]] == ["fixtures/eligible.json"]
+    assert generator.main(["--root", str(root), "--check"]) == 0
+
+    def check_with(document) -> int:
+        listing.write_text(json.dumps(document, indent=2) + "\n", encoding="utf-8")
+        return generator.main(["--root", str(root), "--check"])
+
+    ineligible = json.loads(json.dumps(generated))
+    ineligible["members"].append(dict(generated["members"][0], path="fixtures/invented_named_but_undeclared.json"))
+    assert check_with(ineligible) == 1
+    stale = json.loads(json.dumps(generated))
+    stale["members"][0]["sha256"] = "0" * 64
+    assert check_with(stale) == 1
+    underived = json.loads(json.dumps(generated))
+    underived["members"][0]["labels"].append(['"public_permissive"', '"TBD"'])
+    assert check_with(underived) == 1
 
 
 def test_quarantine_hygiene_flags_quarantine_paths(tmp_path):
