@@ -215,7 +215,6 @@ fn child_entry() {
     let view = win32::map(mapping, MAP_SIZE);
     let s = shared(&view);
     if mode == "caretaker" || mode == "caretaker_retained" {
-        let observer = get("OBSERVER") as Raw;
         let inner_job = win32::job();
         let handles = [mapping, cmd, changed, channel];
         let values = [
@@ -225,11 +224,11 @@ fn child_entry() {
             ("CHANNEL", channel as usize),
         ];
         let mut child = win32::spawn_suspended(inner_job.0, &handles, "checkpoint", &values);
-        // Publish a genuine observer-owned process handle first. Thus an
-        // intentionally retained Job handle is never introduced without an
-        // external termination handle already available to the observer.
-        s.worker_handle
-            .store(win32::duplicate_into(child.handle.0, observer), SeqCst);
+        // Publish a caretaker-owned source handle, not a handle created in
+        // another process. The observer duplicates it under its own guard
+        // while this caretaker is alive, so a publication failure cannot leak
+        // an unidentified observer-owned handle.
+        s.worker_handle.store(child.handle.value(), SeqCst);
         if mode == "caretaker_retained" {
             s.retained_job.store(inner_job.value(), SeqCst);
         }
@@ -259,7 +258,7 @@ struct Fixture {
     channel: Handle,
 }
 impl Fixture {
-    fn new(mode: &str, observer: Option<Raw>) -> Self {
+    fn new(mode: &str) -> Self {
         assert!(std::mem::size_of::<Shared>() <= MAP_SIZE);
         assert!(BUFFER + MAP_SIZE + 64 <= SAFETY_CAP && SAFETY_CAP <= 64 * 1024 * 1024);
         eprintln!("phase=spawn mode={mode} safety_allowance_bytes={SAFETY_CAP}");
@@ -272,17 +271,13 @@ impl Fixture {
         let changed = win32::event();
         let channel = win32::mutex();
         let job = win32::job();
-        let mut handles = vec![mapping.0, cmd.0, changed.0, channel.0];
-        let mut values = vec![
+        let handles = vec![mapping.0, cmd.0, changed.0, channel.0];
+        let values = vec![
             ("MAPPING", mapping.value()),
             ("CMD", cmd.value()),
             ("CHANGED", changed.value()),
             ("CHANNEL", channel.value()),
         ];
-        if let Some(h) = observer {
-            handles.push(h);
-            values.push(("OBSERVER", h as usize));
-        }
         let mut process = win32::spawn_suspended(job.0, &handles, mode, &values);
         process.resume();
         Self {
@@ -350,14 +345,8 @@ impl Drop for Fixture {
         if let Some(p) = self.process.as_mut() {
             p.terminate_and_wait();
         }
-        // A caretaker may have published an observer-owned worker handle even
-        // if setup panics. Stop its publisher first, then kill and reap that
-        // worker as well; the Job value in shared memory belongs to caretaker.
-        let worker = self.s().worker_handle.swap(0, SeqCst);
-        if worker != 0 {
-            let h = unsafe { Handle::from_value(worker) };
-            win32::terminate_and_wait(h.0);
-        }
+        // No raw caretaker-owned handle is closed in this process. The
+        // outer Job also covers a worker whose handle was not yet published.
         win32::drain_job(self.job.0);
         self.lease = 0;
         // Explicitly keep handles and mapping alive until after process exit.
@@ -375,7 +364,7 @@ impl Drop for Fixture {
 #[test]
 fn native_grow_blocked_control_and_cancellation() {
     let _serial = SERIAL.lock().unwrap_or_else(|e| e.into_inner());
-    let mut f = Fixture::new("grow", None);
+    let mut f = Fixture::new("grow");
     f.wait_for("allocator GROW", |s| {
         s.grow.load(SeqCst) == 1 && s.phase.load(SeqCst) == GROW_BLOCKED
     });
@@ -408,16 +397,13 @@ fn native_grow_blocked_control_and_cancellation() {
 fn native_cancel_reset_across_worker_phases() {
     let _serial = SERIAL.lock().unwrap_or_else(|e| e.into_inner());
     for mode in ["running", "grow", "requested", "parked"] {
-        let mut f = Fixture::new(
-            if mode == "grow" {
-                "grow"
-            } else if mode == "requested" {
-                "unchecked"
-            } else {
-                "checkpoint"
-            },
-            None,
-        );
+        let mut f = Fixture::new(if mode == "grow" {
+            "grow"
+        } else if mode == "requested" {
+            "unchecked"
+        } else {
+            "checkpoint"
+        });
         f.wait_for("worker start", |s| s.phase.load(SeqCst) != 0);
         if mode == "grow" {
             f.wait_for("blocked grow", |s| s.grow.load(SeqCst) == 1);
@@ -485,7 +471,7 @@ impl ScriptedPool {
 #[test]
 fn native_admission_fresh_samples_release_and_absolute_deadline() {
     let _serial = SERIAL.lock().unwrap_or_else(|e| e.into_inner());
-    let mut f = Fixture::new("checkpoint", None);
+    let mut f = Fixture::new("checkpoint");
     f.wait_for("running mutator", |s| s.phase.load(SeqCst) == RUNNING);
     let pool = ScriptedPool::new(vec![0, 64, 128]);
     let release = win32::event();
@@ -580,7 +566,7 @@ fn native_admission_fresh_samples_release_and_absolute_deadline() {
 #[test]
 fn native_uncheckpointed_work_fails_quiescence_but_supervisor_reaches_deadline() {
     let _serial = SERIAL.lock().unwrap_or_else(|e| e.into_inner());
-    let mut f = Fixture::new("unchecked", None);
+    let mut f = Fixture::new("unchecked");
     f.wait_for("unchecked work", |s| {
         s.phase.load(SeqCst) == RUNNING && s.progress.load(SeqCst) > 0
     });
@@ -620,29 +606,27 @@ fn native_uncheckpointed_work_fails_quiescence_but_supervisor_reaches_deadline()
 
 struct DeathWitness {
     caretaker: Fixture,
+    worker: Handle,
     retained: Option<Handle>,
 }
 impl DeathWitness {
     fn new(retained: bool) -> Self {
-        let observer = win32::current_process_inheritable();
-        let mut caretaker = Fixture::new(
-            if retained {
-                "caretaker_retained"
-            } else {
-                "caretaker"
-            },
-            Some(observer.0),
-        );
-        caretaker.wait_for("duplicated observer process handle and worker start", |s| {
+        let mut caretaker = Fixture::new(if retained {
+            "caretaker_retained"
+        } else {
+            "caretaker"
+        });
+        caretaker.wait_for("published caretaker process handle and worker start", |s| {
             s.worker_handle.load(SeqCst) != 0
                 && s.phase.load(SeqCst) == RUNNING
                 && (!retained || s.retained_job.load(SeqCst) != 0)
         });
+        let worker = win32::duplicate_from(
+            caretaker.process.as_ref().unwrap().handle.0,
+            caretaker.s().worker_handle.load(SeqCst) as Raw,
+        );
         assert!(
-            win32::is_in_job(
-                caretaker.s().worker_handle.load(SeqCst) as Raw,
-                caretaker.job.0
-            ),
+            win32::is_in_job(worker.0, caretaker.job.0),
             "worker escaped outer cleanup Job"
         );
         caretaker.pause(1);
@@ -660,11 +644,12 @@ impl DeathWitness {
         };
         Self {
             caretaker,
+            worker,
             retained,
         }
     }
     fn worker_handle(&self) -> Raw {
-        self.caretaker.s().worker_handle.load(SeqCst) as Raw
+        self.worker.0
     }
     fn end_caretaker(&mut self) {
         self.caretaker
@@ -684,11 +669,7 @@ impl Drop for DeathWitness {
             .as_mut()
             .unwrap()
             .terminate_and_wait();
-        let worker = self.caretaker.s().worker_handle.swap(0, SeqCst);
-        if worker != 0 {
-            let h = unsafe { Handle::from_value(worker) };
-            win32::terminate_and_wait(h.0);
-        }
+        win32::terminate_and_wait(self.worker.0);
         self.retained.take();
         win32::drain_job(self.caretaker.job.0);
         self.caretaker.lease = 0;
@@ -739,7 +720,7 @@ fn native_retained_job_handle_requires_external_cleanup() {
 #[test]
 fn native_grow_grant_only_allocates_after_current_resume() {
     let _serial = SERIAL.lock().unwrap_or_else(|e| e.into_inner());
-    let mut f = Fixture::new("grow", None);
+    let mut f = Fixture::new("grow");
     f.wait_for("blocked grow", |s| s.phase.load(SeqCst) == GROW_BLOCKED);
     f.pause(1);
     f.wait_for("grow parked", |s| {
@@ -762,7 +743,7 @@ fn native_grow_grant_only_allocates_after_current_resume() {
 fn native_grow_waits_for_transient_or_persistent_headroom() {
     let _serial = SERIAL.lock().unwrap_or_else(|e| e.into_inner());
     for persistent in [false, true] {
-        let mut f = Fixture::new("grow", None);
+        let mut f = Fixture::new("grow");
         f.wait_for("allocator before allocation", |s| {
             s.phase.load(SeqCst) == GROW_BLOCKED
         });

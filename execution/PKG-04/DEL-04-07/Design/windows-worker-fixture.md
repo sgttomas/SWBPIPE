@@ -22,8 +22,7 @@ allowance, nor used as production budget evidence. No test pressures the host.
 `native_fixture.rs` self-spawns the same libtest executable through the single
 launcher in `win32.rs`. `PROC_THREAD_ATTRIBUTE_JOB_LIST` assigns the child to its
 Job during suspended creation; explicit inherited handle lists include only the
-shared page, control events/mutex, selected observer capability and standard
-streams. There is no create-then-assign fallback or breakaway flag. Membership is
+shared page, control events/mutex and standard streams. There is no create-then-assign fallback or breakaway flag. Membership is
 checked before resume. X64 ABI sizes/offsets are checked at the FFI boundary.
 Child stdout is NUL so a child libtest summary cannot mimic a parent pass; child
 stderr remains live for failures. The parent checks exit status.
@@ -35,8 +34,11 @@ loops end after 8 s, caretaker waits after 10 s, and termination/drain checks
 are bounded at 5 s. Unexpected failure to confirm cleanup aborts the case
 process with its kill-on-close Job, rather than claiming zero survivors.
 
-In the parent-death witness, the observer keeps a real worker process handle,
-but no inner Job handle. It kills the caretaker while the worker is parked and
+In the parent-death witness, the observer duplicates the published caretaker-owned
+worker handle under its own RAII guard while the caretaker is alive; the
+caretaker never creates an observer-owned handle before publishing its identity.
+No observer-process capability is inherited. The observer keeps a real worker
+process handle, but no inner Job handle. It kills the caretaker while the worker is parked and
 observes last-inner-handle termination. In the adversarial variant the observer
 intentionally duplicates/retains the inner Job, observes the worker survive the
 caretaker, then externally terminates and waits for it. An independently held

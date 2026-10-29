@@ -214,11 +214,6 @@ impl Handle {
         }
         Self(raw)
     }
-    /// Only for handles already duplicated into this process or explicitly inherited.
-    pub unsafe fn from_value(v: usize) -> Self {
-        assert_ne!(v, 0);
-        Self(v as Raw)
-    }
     pub fn value(&self) -> usize {
         self.0 as usize
     }
@@ -279,24 +274,6 @@ pub fn wait(h: Raw, ms: u32) -> bool {
         _ => error("WaitForSingleObject"),
     }
 }
-pub fn current_process_inheritable() -> Handle {
-    let mut out = NULL;
-    ok(
-        unsafe {
-            DuplicateHandle(
-                GetCurrentProcess(),
-                GetCurrentProcess(),
-                GetCurrentProcess(),
-                &mut out,
-                0,
-                1,
-                DUPLICATE_SAME_ACCESS,
-            )
-        },
-        "duplicate current process",
-    );
-    Handle::new(out, "duplicate current process")
-}
 pub fn duplicate_local(source: Raw) -> Handle {
     let mut out = NULL;
     ok(
@@ -332,24 +309,6 @@ pub fn duplicate_from(source_process: Raw, source: Raw) -> Handle {
         "DuplicateHandle from caretaker",
     );
     Handle::new(out, "duplicated caretaker handle")
-}
-pub fn duplicate_into(source: Raw, target_process: Raw) -> usize {
-    let mut out = NULL;
-    ok(
-        unsafe {
-            DuplicateHandle(
-                GetCurrentProcess(),
-                source,
-                target_process,
-                &mut out,
-                0,
-                0,
-                DUPLICATE_SAME_ACCESS,
-            )
-        },
-        "DuplicateHandle into observer",
-    );
-    out as usize
 }
 pub fn job() -> Handle {
     let h = Handle::new(
