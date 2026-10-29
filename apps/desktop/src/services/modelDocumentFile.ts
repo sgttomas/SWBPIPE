@@ -16,7 +16,7 @@ export type ModelDocumentOpenOutcome =
   | { outcome: "opened"; file_name: string; byte_count: number; schema_status: string; document: PreviewModel; warnings: ModelFileDiagnostic[] }
   | { outcome: "refused"; file_name: string; diagnostics: ModelFileDiagnostic[] };
 
-type NativeOutcome =
+export type NativeModelDocumentOutcome =
   | { outcome: "cancelled" }
   | { outcome: "opened"; file_name: string; byte_count: number; schema_status: string; document: unknown; warnings?: ModelFileDiagnostic[] }
   | { outcome: "refused"; file_name: string; diagnostics: ModelFileDiagnostic[] };
@@ -31,11 +31,31 @@ export async function openModelDocumentFile(): Promise<ModelDocumentOpenOutcome>
       diagnostics: [{ code: MODEL_FILE_NATIVE_ONLY, path: "", message: "Opening a model document file needs the desktop app." }]
     };
   }
-  return checkNativeOutcome(await invoke<NativeOutcome>("open_model_document_file"));
+  return checkNativeOutcome(await invoke<NativeModelDocumentOutcome>("open_model_document_file"));
 }
 
+/** Where Open Model Document reads its document from: a file the user
+ * chooses, or an autosave record (`features/autosave`). The session adopts an
+ * `opened` outcome the same way from either. */
+export type ModelDocumentSource = {
+  /** The unsaved-changes prompt's subject ("Opening a model document"). */
+  action: string;
+  read: () => Promise<ModelDocumentOpenOutcome>;
+  /** The status line's first sentence for an opened document. */
+  opened: (opened: Extract<ModelDocumentOpenOutcome, { outcome: "opened" }>) => string;
+  /** The session's project operation for a landed open. */
+  operation: string;
+};
+
+export const MODEL_DOCUMENT_FILE_SOURCE: ModelDocumentSource = {
+  action: "Opening a model document",
+  read: openModelDocumentFile,
+  opened: (opened) => `Opened model document ${opened.file_name} (${opened.byte_count} bytes; schema_version ${opened.document.schema_version}, ${opened.schema_status}).`,
+  operation: "open_model"
+};
+
 /** Apply the desktop shape check and the document validator to the native outcome. */
-export function checkNativeOutcome(native: NativeOutcome): ModelDocumentOpenOutcome {
+export function checkNativeOutcome(native: NativeModelDocumentOutcome): ModelDocumentOpenOutcome {
   if (native.outcome !== "opened") return native;
   const diagnostics = modelDocumentShapeDiagnostics(native.document);
   if (diagnostics.length > 0) return { outcome: "refused", file_name: native.file_name, diagnostics };

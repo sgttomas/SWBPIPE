@@ -1,6 +1,10 @@
 id: DEL-16-06
 name: Controlled model operation application
 needs:
+- from: DEL-16-04
+  condition: 'The RT-E1 embedded host must preserve agent rationale, original attribution and FR-AGENT-005/DEC-081 professional-boundary controls on new agent-emitting surfaces before enabling them. Reference-module tests alone do not establish native-session conformance.'
+  gating: true
+  evidence: execution/PKG-16/DEL-16-06/Design/embedded-agent-host.md
 - from: DEL-16-01
   condition: 'DEL-16-06 consumes Structured model operation schema from DEL-16-01: application requires
     schema-valid preview, current-model basis and the pre-application acceptance decision, with persistence
@@ -132,6 +136,7 @@ needs:
   gating: true
   evidence: execution/PKG-16/DEL-16-06/ScopeOfWork.md
 code_paths:
+- execution/PKG-16/DEL-16-06/Design/agent-capability-catalog.json
 - apps/desktop/src/services/operationService.ts
 - core/model_operations/operation_applier/**
 - fixtures/model_operations/contract_corpus/**

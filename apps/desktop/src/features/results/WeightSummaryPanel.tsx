@@ -13,6 +13,9 @@ import { computeModelHash } from "../../services/hashService";
 import { generateSelfWeightPlan } from "../../services/selfWeightPlanService";
 import type { PreviewModel } from "../../types";
 import { displayQuantity, displayQuantityParts } from "../report/reportQuantityDisplay";
+import { CsvExportControl } from "../result-export/CsvExportControl";
+import { CSV_SOFTWARE_VERSION, CSV_UNIT_BASIS_DISPLAY_RULE, csvModelOnlyProvenance, csvRecordedModelHash, csvUnitBasis } from "../result-export/csvProvenance";
+import { WEIGHT_COG_CSV_KIND, WEIGHT_COMPONENTS_LABEL, WEIGHT_CSV_KIND, WEIGHT_PIPES_LABEL, weightCogCsv, weightSummaryCsv } from "./weightSummaryCsv";
 import {
   computeWeightSummary,
   parseWeightGravity,
@@ -154,13 +157,25 @@ export function WeightSummaryPanel({
           ) : null}
         </div>
       ) : null}
-      {summary?.state === "available" ? <SummaryView summary={summary} tid={tid} /> : null}
+      {summary?.state === "available" ? (
+        <SummaryView
+          summary={summary}
+          tid={tid}
+          csvContext={async () => ({
+            provenance: csvModelOnlyProvenance(csvRecordedModelHash((await hash(computed!.model))?.value)),
+            softwareVersion: CSV_SOFTWARE_VERSION,
+            unitBasis: csvUnitBasis(computed!.model, CSV_UNIT_BASIS_DISPLAY_RULE)
+          })}
+        />
+      ) : null}
       <small>{WEIGHT_SUMMARY_BOUNDARY_TEXT}</small>
     </section>
   );
 }
 
-function SummaryView({ summary, tid }: { summary: Extract<WeightSummary, { state: "available" }>; tid: (suffix: string) => string }) {
+type CsvContext = () => Promise<Pick<Parameters<typeof weightSummaryCsv>[0], "provenance" | "softwareVersion" | "unitBasis">>;
+
+function SummaryView({ summary, tid, csvContext }: { summary: Extract<WeightSummary, { state: "available" }>; tid: (suffix: string) => string; csvContext: CsvContext }) {
   const counted = summary.pipes.count + summary.components.count;
   const lengthUnit = safeNumber(0, summary.lengthUnit).unit;
   const gravity = safeQuantity(summary.gravity.value, summary.gravity.unit);
@@ -177,18 +192,23 @@ function SummaryView({ summary, tid }: { summary: Extract<WeightSummary, { state
           Partial: {qualifier}. The total and centre of gravity are those of the counted weights only; what is left out is listed below.
         </p>
       ) : null}
-      <table aria-label={`Weight summary: ${summary.scope.label}`} data-testid={tid("table")}>
+      <CsvExportControl
+        tableLabel={`Weight summary: ${summary.scope.label}`}
+        testId={tid("export-csv")}
+        build={async () => weightSummaryCsv({ summary, totalLabel, ...await csvContext() })}
+      />
+      <table aria-label={`Weight summary: ${summary.scope.label}`} data-testid={tid("table")} data-csv-export={WEIGHT_CSV_KIND}>
         <thead>
           <tr><th scope="col">Category</th><th scope="col">Counted</th><th scope="col">Weight</th></tr>
         </thead>
         <tbody>
           <tr data-testid={tid("row-pipes")}>
-            <th scope="row">Pipes (metal with any stated contents and insulation)</th>
+            <th scope="row">{WEIGHT_PIPES_LABEL}</th>
             <td>{summary.pipes.count}</td>
             <td>{totalsText(summary.pipes)}</td>
           </tr>
           <tr data-testid={tid("row-components")}>
-            <th scope="row">Components (weight in place of their member's)</th>
+            <th scope="row">{WEIGHT_COMPONENTS_LABEL}</th>
             <td>{summary.components.count}</td>
             <td>{totalsText(summary.components)}</td>
           </tr>
@@ -200,7 +220,13 @@ function SummaryView({ summary, tid }: { summary: Extract<WeightSummary, { state
         </tbody>
       </table>
       {summary.centreOfGravity ? (
-        <table aria-label={cogLabel} data-testid={tid("cog")}>
+        <>
+        <CsvExportControl
+          tableLabel={cogLabel}
+          testId={tid("export-csv-cog")}
+          build={async () => weightCogCsv({ summary, cogLabel, ...await csvContext() })}
+        />
+        <table aria-label={cogLabel} data-testid={tid("cog")} data-csv-export={WEIGHT_COG_CSV_KIND}>
           <thead>
             <tr><th scope="col">{cogLabel} ({lengthUnit})</th><th scope="col">X</th><th scope="col">Y</th><th scope="col">Z</th></tr>
           </thead>
@@ -214,6 +240,7 @@ function SummaryView({ summary, tid }: { summary: Extract<WeightSummary, { state
             </tr>
           </tbody>
         </table>
+        </>
       ) : (
         <p data-testid={tid("no-cog")}>{summary.note}</p>
       )}

@@ -688,7 +688,7 @@ async function buildReportContext(
   };
 }
 
-async function rulePackReference(run: SessionRuleCheckRun) {
+export async function rulePackReference(run: SessionRuleCheckRun) {
   const document = record(run.rulePackDocument);
   const metadata = record(document.metadata);
   const classification = record(document.classification);

@@ -130,11 +130,13 @@ code_paths:
 - apps/desktop/e2e/b3b-project-persistence.spec.ts
 - apps/desktop/src-tauri/src/lib.rs
 - apps/desktop/src-tauri/src/autosave.rs
+- apps/desktop/src-tauri/src/autosave_commands.rs
 - apps/desktop/src/services/reportPackageSaveService.test.ts
 - core/security/local_first_storage/**
 - docs/security/local_first_storage_policy.md
 - apps/desktop/src-tauri/tauri.conf.json
 checks:
 - tests/security/test_local_first_storage_policy.py
+- apps/desktop/src-tauri/src/autosave_commands_tests.rs
 - apps/desktop/e2e/b3b-project-persistence.spec.ts
 - apps/desktop/src/services/reportPackageSaveService.test.ts

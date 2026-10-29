@@ -13,9 +13,23 @@
  * changes no model, result, run or export, and it persists and sends nothing. */
 
 import { useEffect, useMemo, useState } from "react";
-import type { MechanicsResult, PreviewModel } from "../../types";
-import type { SessionRuleCheckRun } from "../report/renderableReportInput";
+import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
+import { rulePackReference, type SessionRuleCheckRun } from "../report/renderableReportInput";
 import { displayQuantityParts } from "../report/reportQuantityDisplay";
+import { CsvExportControl } from "../result-export/CsvExportControl";
+import { CSV_SOFTWARE_VERSION, CSV_UNIT_BASIS_DISPLAY_RULE, csvResultProvenance, csvUnitBasis } from "../result-export/csvProvenance";
+import {
+  RATIO_DIRECTION_TEXT,
+  STRESS_RATIO_CSV_KIND,
+  STRESS_RATIO_NONE,
+  STRESS_RATIO_NOT_RANKED,
+  STRESS_RATIO_NO_LOCATION,
+  STRESS_RATIO_NO_RATIO,
+  STRESS_RATIO_STATUS_TEXT as STATUS_TEXT,
+  STRESS_RATIO_WITHHELD,
+  csvRulePackRef,
+  stressRatioCsv
+} from "./stressRatioTableCsv";
 import type { ResultOverlayStanding } from "./numericalHealth";
 import {
   THRESHOLD_INVALID_NOTE,
@@ -64,25 +78,19 @@ export function stressRatioSummaryText(view: StressRatioView, page: StressRatioP
   const later = page.notListedCount > 0 ? `; ${page.notListedCount} more not yet listed` : "";
   return `Showing ${page.listedCount} of ${view.totalCount} rows${hidden}${later}.`;
 }
-/** Each ratio row's direction (§3.1), in the Direction column. */
-export const RATIO_DIRECTION_TEXT: Readonly<Record<RatioDirection, string>> = Object.freeze({
-  upper: "Upper bound: computed ÷ limit",
-  lower: "Lower bound: limit ÷ computed"
-});
+/** Each ratio row's direction (§3.1), in the Direction column (defined beside the CSV adapter). */
+export { RATIO_DIRECTION_TEXT };
 /** The formula in a ratio's title. */
 const RATIO_FORMULA: Readonly<Record<RatioDirection, string>> = Object.freeze({ upper: "computed ÷ limit", lower: "limit ÷ computed" });
 export const RATIO_DISABLED_NO_RUN = "No rule-check run in this session";
 export const RATIO_DISABLED_EMITTED = "Emitted stress: no rule outcome";
 
-const STATUS_TEXT: Readonly<Record<string, string>> = Object.freeze({
-  RULE_INPUTS_INCOMPLETE: "Incomplete (RULE_INPUTS_INCOMPLETE)",
-  USER_RULE_FAILED: "Failed by your rule (USER_RULE_FAILED)",
-  USER_RULE_CHECKED: "Checked by your rule (USER_RULE_CHECKED)"
-});
 
 export type StressRatioTablePanelProps = Readonly<{
   model: PreviewModel;
   result: MechanicsResult | null;
+  /** The result's analysis-run record, for the CSV preamble's result hash (RT-R6). */
+  analysisRun?: AnalysisRunEnvelope | null;
   /** The reader's numerical standing and the session's numerical health view (the overlays' input). */
   standing: ResultOverlayStanding | null | undefined;
   /** The session's rule-check run, only while it is a run of `result`. */
@@ -116,7 +124,7 @@ function headerWithUnit(label: string, unit: string | null): string {
 }
 
 export function StressRatioTablePanel({
-  model, result, standing, ruleCheckRun = null, selectedResultId = null, onSelectLocation, testIdPrefix = "stress-ratio"
+  model, result, analysisRun = null, standing, ruleCheckRun = null, selectedResultId = null, onSelectLocation, testIdPrefix = "stress-ratio"
 }: StressRatioTablePanelProps) {
   const table = useMemo(() => buildStressRatioTable({ model, result, standing, ruleCheckRun }), [model, result, standing, ruleCheckRun]);
   const [chosenId, setChosenId] = useState<string | null>(null);
@@ -156,6 +164,19 @@ export function StressRatioTablePanel({
           <small data-testid={tid("key")}>{keyText(view, group)}</small>
           {view.unitNote ? <p data-testid={tid("unit-note")}>{view.unitNote}</p> : null}
           {group.source === "rule_category" ? <small data-testid={tid("pinned-note")}>{STRESS_RATIO_PINNED_TEXT}</small> : null}
+          <CsvExportControl
+            tableLabel={group.label}
+            testId={tid("export-csv")}
+            build={async () => stressRatioCsv({
+              group,
+              view,
+              provenance: await csvResultProvenance({ model, result, analysisRun }),
+              rulePacks: table.run.state === "used" && ruleCheckRun ? [csvRulePackRef(await rulePackReference(ruleCheckRun))] : [],
+              softwareVersion: CSV_SOFTWARE_VERSION,
+              unitBasis: csvUnitBasis(model, CSV_UNIT_BASIS_DISPLAY_RULE),
+              threshold: thresholds[view.mode]
+            })}
+          />
           <RowsTable group={group} view={view} page={page} selectedResultId={selectedResultId} onSelectLocation={onSelectLocation} tid={tid} />
           <p aria-live="polite" data-testid={tid("summary")}>{stressRatioSummaryText(view, page)}</p>
           {page.notListedCount > 0 ? (
@@ -266,7 +287,7 @@ function RowsTable({ group, view, page, selectedResultId, onSelectLocation, tid 
   const tableLabel = view.sorted ? `${group.label}: sorted by ${keyLabel}` : `${group.label}: in source order, ${keyLabel} not sorted (units differ)`;
   return (
     <div className="stress-ratio-table-scroll">
-      <table aria-label={tableLabel} data-testid={tid("table")} data-group={group.id}>
+      <table aria-label={tableLabel} data-testid={tid("table")} data-group={group.id} data-csv-export={STRESS_RATIO_CSV_KIND}>
         <thead>
           <tr>
             <th scope="col">{view.sorted ? "Rank" : "Position"}</th>
@@ -292,7 +313,7 @@ function RowsTable({ group, view, page, selectedResultId, onSelectLocation, tid 
         <tbody>
           {group.withheldCases.map((item) => (
             <tr key={`withheld:${item.case.key}`} data-testid={tid(`withheld-${item.case.key}`)} data-part="pinned" data-standing="withheld">
-              <th scope="row"><Dash label="not ranked" /></th>
+              <th scope="row"><Dash label={STRESS_RATIO_NOT_RANKED} /></th>
               <td colSpan={3}>{item.case.label}: {item.rowCount} row{item.rowCount === 1 ? "" : "s"} withheld. {item.reason}</td>
             </tr>
           ))}
@@ -316,7 +337,7 @@ function RowsTable({ group, view, page, selectedResultId, onSelectLocation, tid 
 }
 
 function LocationCell({ row, onSelectLocation }: { row: StressRatioRow; onSelectLocation?: (target: StressRatioTarget) => void }) {
-  const text = row.locations.length > 0 ? row.locations.map(stressRatioLocationText).join("; ") : "No location stated";
+  const text = row.locations.length > 0 ? row.locations.map(stressRatioLocationText).join("; ") : STRESS_RATIO_NO_LOCATION;
   const selectable = onSelectLocation && (row.target.resultId !== null || row.target.entityRef !== null);
   return (
     <td>
@@ -353,11 +374,11 @@ function PinnedRow({ row, valueColumns, selectedResultId, onSelectLocation, tid 
   const incomplete = outcome.status === "RULE_INPUTS_INCOMPLETE";
   return (
     <tr {...rowAttributes(row, "pinned", selectedResultId, tid)}>
-      <th scope="row"><Dash label="not ranked" /></th>
+      <th scope="row"><Dash label={STRESS_RATIO_NOT_RANKED} /></th>
       <LocationCell row={row} onSelectLocation={onSelectLocation} />
       <td>{row.caseLabel}</td>
       <td>{outcome.checkId}</td>
-      <td data-testid={tid(`status-${row.key}`)}>{incomplete ? STATUS_TEXT.RULE_INPUTS_INCOMPLETE : "Withheld"}</td>
+      <td data-testid={tid(`status-${row.key}`)}>{incomplete ? STATUS_TEXT.RULE_INPUTS_INCOMPLETE : STRESS_RATIO_WITHHELD}</td>
       <td colSpan={valueColumns} data-testid={tid(`reason-${row.key}`)}>
         {incomplete ? outcome.incompleteReason : row.withheldReason}
         {incomplete && row.standing === "withheld" ? ` ${row.withheldReason}` : ""}
@@ -381,7 +402,7 @@ function Row({ row, rank, part, mode, rule, units, selectedResultId, onSelectLoc
   const direction = outcome && outcome.ratio !== null ? ratioDirection(outcome.relation) : null;
   return (
     <tr {...rowAttributes(row, part, selectedResultId, tid)}>
-      <th scope="row">{rank === null ? <Dash label="not ranked" /> : rank}</th>
+      <th scope="row">{rank === null ? <Dash label={STRESS_RATIO_NOT_RANKED} /> : rank}</th>
       <LocationCell row={row} onSelectLocation={onSelectLocation} />
       <td>{row.caseLabel}</td>
       {rule && outcome ? <><td>{outcome.checkId}</td><td data-testid={tid(`status-${row.key}`)}>{STATUS_TEXT[outcome.status] ?? outcome.status}</td></> : null}
@@ -393,16 +414,16 @@ function Row({ row, rank, part, mode, rule, units, selectedResultId, onSelectLoc
           <td data-testid={tid(`value-${row.key}`)}>
             {outcome.ratio !== null && direction
               ? <span title={`${displayQuantityParts(outcome.ratio, "").number} (${RATIO_FORMULA[direction]}; ${outcome.identity})`}>{displayQuantityParts(outcome.ratio, "").number}</span>
-              : <small>{outcome.ratioNote ?? "No ratio is formed"}</small>}
+              : <small>{outcome.ratioNote ?? STRESS_RATIO_NO_RATIO}</small>}
           </td>
-          <td data-testid={tid(`direction-${row.key}`)}>{direction ? RATIO_DIRECTION_TEXT[direction] : <Dash label="none" />}</td>
+          <td data-testid={tid(`direction-${row.key}`)}>{direction ? RATIO_DIRECTION_TEXT[direction] : <Dash label={STRESS_RATIO_NONE} />}</td>
           <td>{outcome.relation}</td>
         </>
       ) : null}
       {rule && outcome && mode === "stress" ? (
         <>
-          <td data-testid={tid(`value-${row.key}`)}>{outcome.computed ? <ValueText value={outcome.computed} id={outcome.identity} shareUnit={units.computed !== null} /> : <Dash label="none" />}</td>
-          <td data-testid={tid(`limit-${row.key}`)}>{outcome.limit ? <ValueText value={outcome.limit} id={outcome.identity} shareUnit={units.limit !== null} /> : <Dash label="none" />}</td>
+          <td data-testid={tid(`value-${row.key}`)}>{outcome.computed ? <ValueText value={outcome.computed} id={outcome.identity} shareUnit={units.computed !== null} /> : <Dash label={STRESS_RATIO_NONE} />}</td>
+          <td data-testid={tid(`limit-${row.key}`)}>{outcome.limit ? <ValueText value={outcome.limit} id={outcome.identity} shareUnit={units.limit !== null} /> : <Dash label={STRESS_RATIO_NONE} />}</td>
         </>
       ) : null}
     </tr>
