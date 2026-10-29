@@ -117,6 +117,13 @@ inventories with `numerical_ci.source_read_dependencies` and run both
 before integrating such changes. Stale declarations, missing inputs, unresolved dependencies,
 unknown paths and shared execution controls select all discovered crates. Existing
 numerical oracles remain unchanged. Python coverage is gated independently;
+
+Remaining selection gap: adding or removing a `.rs` or `Cargo.toml` under
+`projects/chirality-piping` should select Root's `software_workflow` routing
+suite and the project's `tests/test_ci_numerical.py`. The inventory refresh
+does not implement that selection rule; until it is added, a green `harness`
+alone does not establish that these routing self-checks ran.
+
 Python-test-only edits retain their Python checks with zero Cargo crates. Python PR coverage keeps security and constraint/source-block validation, then
 adds qualification, schema and canonical-JSON families when their inputs change.
 Established shared test helper edits also select their direct importing tests;
