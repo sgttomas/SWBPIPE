@@ -2,15 +2,23 @@ import { useMemo, useState } from "react";
 import { GitCompare } from "lucide-react";
 import type { RunComparisonResult } from "../history/useModelStateHistory";
 import type { RunComparisonSide } from "./runComparisonSides";
-import {
-  SUPPORTED_RESULT_FAMILIES,
-  type NotComparedReason,
-  type RunComparisonPair,
-  type RunRowIdentity,
-  type UnmatchedReason,
-  type UnmatchedRunRow
-} from "./runComparison";
+import type { RunComparisonPair, UnmatchedRunRow } from "./runComparison";
 import { COMPARISON_PAGE_ROWS, storedValueText } from "./StateComparisonView";
+import { CsvExportControl } from "../result-export/CsvExportControl";
+import { CSV_SOFTWARE_VERSION, CSV_UNIT_BASIS_STORED } from "../result-export/csvProvenance";
+import {
+  NOT_COMPARED_LABELS,
+  RUN_COMPARISON_CSV_KIND,
+  basisText,
+  matchesRunComparisonFilters,
+  notComparedText,
+  runComparisonCsv,
+  runComparisonEntries,
+  runSideProvenance,
+  unmatchedReasonText,
+  type RunComparisonEntry,
+  type RunComparisonStatusFilter
+} from "./runComparisonCsv";
 
 // The comparison of two runs (W-12 S3b; DEL-14-01 Design
 // `desktop-states-runs-comparison.md` §4.2, §4.3): each side's standing, the
@@ -19,66 +27,40 @@ import { COMPARISON_PAGE_ROWS, storedValueText } from "./StateComparisonView";
 // rows filterable by status, family and result id, paged at `COMPARISON_PAGE_ROWS`
 // rows so every row is reachable. A delta is `right − left` in the rows' own unit;
 // a pair the standing gate does not admit is shown `not compared` with its
-// reasons. View-only: comparison export is v0.2 (FR-CMP-010). It reports
+// reasons. The table exports to a local-private CSV (RT-R6, `runComparisonCsv.ts`); the
+// comparison envelope export is v0.2 (FR-CMP-010). It reports
 // differences and establishes nothing about either run (F-PIP-2, F-PIP-3).
 
-export const NOT_COMPARED_LABELS: Record<NotComparedReason, string> = {
-  semantic_identity_differs: "the runs' results have different semantic identities (route or producer contract)",
-  left_run_needs_recompute: "the left run reads needs_recompute",
-  right_run_needs_recompute: "the right run reads needs_recompute",
-  family_not_compared: `no delta for this result family (deltas are computed for ${SUPPORTED_RESULT_FAMILIES.join(", ")} results, as in the reference comparison)`,
-  units_differ: "the units differ (nothing is converted)",
-  value_not_numeric: "a value is not a finite number"
-};
+export { NOT_COMPARED_LABELS };
 
-const UNMATCHED_LABELS: Record<UnmatchedReason, string> = {
-  no_row_with_this_result_id: "the other run has no row with this result id",
-  identity_differs: "the other run's row with this result id differs in",
-  duplicate_result_id: "this result id repeats within a run, so it is not mapped",
-  result_id_missing: "the row has no result id"
-};
+type StatusFilter = RunComparisonStatusFilter;
 
-type StatusFilter = "all" | "compared" | "changed" | "not_compared" | "left_only" | "right_only";
-
-type TableRow = {
-  key: string;
-  status: Exclude<StatusFilter, "all" | "changed">;
-  nonzero: boolean;
-  identity: RunRowIdentity;
+type TableRow = RunComparisonEntry & {
   left: string;
   right: string;
   outcome: string;
 };
 
-function basisText(identity: RunRowIdentity): string {
-  return identity.basis_ref ? `${identity.basis_ref.ref_type} ${identity.basis_ref.ref_id}` : "(none)";
-}
-
 function quantity(value: unknown, unit: string): string {
   return typeof value === "number" ? `${String(value)} ${unit}`.trim() : storedValueText(value);
 }
 
-function pairRow(pair: RunComparisonPair): TableRow {
+function pairRow(entry: RunComparisonEntry, pair: RunComparisonPair): TableRow {
   if (pair.status === "compared") {
-    return {
-      key: `pair:${pair.result_id}`, status: "compared", nonzero: pair.delta !== 0, identity: pair.identity,
-      left: quantity(pair.left, pair.unit), right: quantity(pair.right, pair.unit), outcome: `Δ ${quantity(pair.delta, pair.unit)}`
-    };
+    return { ...entry, left: quantity(pair.left, pair.unit), right: quantity(pair.right, pair.unit), outcome: `Δ ${quantity(pair.delta, pair.unit)}` };
   }
+  return { ...entry, left: quantity(pair.left, pair.left_unit), right: quantity(pair.right, pair.right_unit), outcome: notComparedText(pair) };
+}
+
+function unmatchedRow(entry: RunComparisonEntry, row: UnmatchedRunRow): TableRow {
+  const shown = quantity(row.value, row.unit);
   return {
-    key: `pair:${pair.result_id}`, status: "not_compared", nonzero: false, identity: pair.identity,
-    left: quantity(pair.left, pair.left_unit), right: quantity(pair.right, pair.right_unit),
-    outcome: `Not compared: ${pair.reasons.map((reason) => NOT_COMPARED_LABELS[reason]).join("; ")}.`
+    ...entry, left: row.side === "left" ? shown : "—", right: row.side === "right" ? shown : "—", outcome: `Unmatched: ${unmatchedReasonText(row)}.`
   };
 }
 
-function unmatchedRow(row: UnmatchedRunRow, index: number): TableRow {
-  const reason = row.reason === "identity_differs" ? `${UNMATCHED_LABELS.identity_differs} ${row.differing_fields.join(", ")}` : UNMATCHED_LABELS[row.reason];
-  const shown = quantity(row.value, row.unit);
-  return {
-    key: `${row.side}:${index}`, status: row.side === "left" ? "left_only" : "right_only", nonzero: false, identity: row.identity,
-    left: row.side === "left" ? shown : "—", right: row.side === "right" ? shown : "—", outcome: `Unmatched: ${reason}.`
-  };
+function tableRow(entry: RunComparisonEntry): TableRow {
+  return entry.source.kind === "pair" ? pairRow(entry, entry.source.pair) : unmatchedRow(entry, entry.source.row);
 }
 
 function SideText({ name, side }: { name: string; side: RunComparisonSide }) {
@@ -104,16 +86,9 @@ export function RunComparisonView({ result, onClose }: { result: RunComparisonRe
   const [idFilter, setIdFilter] = useState("");
   const [page, setPage] = useState(0);
   const filtered = <T,>(set: (value: T) => void) => (value: T) => { set(value); setPage(0); };
-  const rows = useMemo(
-    () => [...comparison.pairs.map(pairRow), ...comparison.unmatched.map(unmatchedRow)],
-    [comparison]
-  );
+  const rows = useMemo(() => runComparisonEntries(comparison).map(tableRow), [comparison]);
   const families = useMemo(() => [...new Set(rows.map((row) => row.identity.family ?? "other"))].sort(), [rows]);
-  const matching = rows.filter((row) =>
-    (status === "all" || (status === "changed" ? row.status === "compared" && row.nonzero : row.status === status))
-    && (family === "all" || (row.identity.family ?? "other") === family)
-    && (!idFilter.trim() || row.identity.result_id.includes(idFilter.trim()))
-  );
+  const matching = rows.filter((row) => matchesRunComparisonFilters(row, { status, family, idFilter }));
   const pages = Math.max(1, Math.ceil(matching.length / COMPARISON_PAGE_ROWS));
   const shownPage = Math.min(page, pages - 1);
   const first = shownPage * COMPARISON_PAGE_ROWS;
@@ -214,7 +189,17 @@ export function RunComparisonView({ result, onClose }: { result: RunComparisonRe
         </label>
         <button type="button" data-testid="run-comparison-close" onClick={onClose}>Close comparison</button>
       </div>
-      <table className="state-comparison-table" data-testid="run-comparison-table">
+      <CsvExportControl
+        tableLabel="Run comparison"
+        testId="run-comparison-export-csv"
+        build={async () => runComparisonCsv({
+          leftId: left.id, rightId: right.id, leftDescription: left.description, rightDescription: right.description,
+          sides: { a: await runSideProvenance(left.csv), b: await runSideProvenance(right.csv) },
+          entries: matching, filters: { status, family, idFilter },
+          softwareVersion: CSV_SOFTWARE_VERSION, unitBasis: CSV_UNIT_BASIS_STORED
+        })}
+      />
+      <table className="state-comparison-table" data-testid="run-comparison-table" data-csv-export={RUN_COMPARISON_CSV_KIND}>
         <thead>
           <tr>
             <th scope="col">Result</th><th scope="col">Family</th><th scope="col">Entity</th><th scope="col">Basis</th>

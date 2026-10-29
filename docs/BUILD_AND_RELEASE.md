@@ -159,10 +159,12 @@ The packaging checklist for a release candidate:
   Linux enter only through the evidence-gated matrix-expansion rider
   (packaged build + recorded packaged-run smoke + §8 record per platform).
 - **Bundle:** `apps/desktop/src-tauri/tauri.conf.json` enables the bundler
-  (`bundle.active: true`, explicit `targets: ["app"]`) with the invented
-  SWBPIPE mark as a real multi-resolution `.icns`
-  (`apps/desktop/src-tauri/icons/icon.icns`; regenerate deterministically
-  with `python3 tools/release/generate_app_icon.py`). Build the signed `.app`
+  (`bundle.active: true`, explicit `targets: ["app"]`) with the SWB mark
+  (the website's mark; owner, RT-V8 P1) as a real multi-resolution `.icns`
+  (`apps/desktop/src-tauri/icons/icon.icns`, with `icon.png`; regenerate
+  deterministically from `apps/desktop/SWBPIPE_logo.png` with
+  `python3 tools/release/generate_app_icon.py`, then list the new bytes in
+  `tools/release/reviewed_binaries.json`). Build the signed `.app`
   with:
 
   ```bash

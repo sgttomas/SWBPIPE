@@ -40,7 +40,9 @@ import subprocess
 import sys
 from typing import Any, Iterable, Mapping
 
+from . import correctly_rounded
 from .si_writer import (
+    BEND_SIF_FIELDS,
     INVENTED_CERTIFICATION,
     LOAD_CASE_LABELS,
     MATERIAL_ORIGINS,
@@ -186,7 +188,7 @@ _DOCUMENTED_REFUSED_COMMENTS = {
         *{f"WINR{n}" for n in range(1, 5)}},
     "MBF-IMPORT-LOAD-UNSUPPORTED": {"CWGT", "U", "UNIF", "T", "TEMP", "P", "PRES", "SG", "AMB", "HSG", "HPRES",
                                     "FRE", "PH"},
-    "MBF-IMPORT-BEND-UNSUPPORTED": {"IN1", "IN2", "BTHK", "BMAT", "BSIF", "WS"},
+    "MBF-IMPORT-BEND-UNSUPPORTED": {"IN1", "IN2", "BTHK", "BMAT", "WS"},
     "MBF-IMPORT-ROW-KEY-UNSUPPORTED": {
         "WGT", "VWGT", "AWGT", "ES", "TA", "OD1", "OD2", "THK1", "THK2", "CONE", "FLANGE", "BDIA", "GDIA", "BK",
         "BETA", "FFOR", "FTOR", "FRCT", "GAP", "KTIE", "INSF", "LONG", "SHORT", "MAT", "SEC", "LOAD", "LXAX",
@@ -236,7 +238,7 @@ _N_PER_M_PER_UNIT = {"N/mm": 1000.0, "lbf/in": 4.448_221_615_260_5 / 0.0254}
 # MAX_SAFE_INTEGER and `validate_checked_value`): no integer, and no integral float, beyond 2^53 - 1 in magnitude.
 MAX_SAFE_INTEGER = 9_007_199_254_740_991
 _DOCUMENTED_COMMENTS = {*_FORCE_NAMES, *_MOMENT_NAMES, *_DISPLACEMENT_NAMES, *_ROTATION_NAMES, *_FIXD_NAMES,
-                        *_FIXR_NAMES, "FLC", "FF", "LA", "TAG", "LTAG", *_SUPPORT_TYPES, *_SUPPORT_DATA,
+                        *_FIXR_NAMES, "FLC", "FF", "BSIF", "LA", "TAG", "LTAG", *_SUPPORT_TYPES, *_SUPPORT_DATA,
                         *_TBD_010_COMMENTS, *_ANCHOR_STIFFNESS,
                         *(name for names in _DOCUMENTED_REFUSED_COMMENTS.values() for name in names)}
 _INCH_MARKS = ('"', "\u201d")
@@ -342,10 +344,77 @@ class Num:
     text: str
 
 
+# Reading an untrusted numeral computes nothing proportional to a length or exponent before bounding it, in the Rust
+# port's order (rational.rs `parse_fraction_with`): each digit run is refused beyond Python's default int() digit
+# limit before it is converted (int()'s ValueError and message, whatever the runtime's own limit), so 10^(fraction
+# digits) is at most 10^4300; then a zero mantissa is 0 at any exponent; then a non-zero value whose decimal exponent
+# (its exponent less its fraction digits) is beyond 10^5, or whose magnitude is beyond 10^+-400, lies far outside
+# binary64 and is refused without forming 10^n, which at an exponent such as -9223372036854775808 would not finish.
+INT_MAX_STR_DIGITS = 4300
+DECIMAL_EXPONENT_LIMIT = 100_000
+DECIMAL_MAGNITUDE_LIMIT = 400
+
+
+def _int_digits(digits: str) -> int:
+    """int(digits) for a run of digits, refused before conversion beyond INT_MAX_STR_DIGITS as int() refuses it."""
+    if len(digits) > INT_MAX_STR_DIGITS:
+        raise ValueError(f"Exceeds the limit ({INT_MAX_STR_DIGITS} digits) for integer string conversion: value has "
+                         f"{len(digits)} digits; use sys.set_int_max_str_digits() to increase the limit")
+    return int(digits)
+
+
+def _decimal_digits(value: int) -> int:
+    """The number of decimal digits of value > 0 (Rust's `numerator.to_string().len()`), from its magnitude, so a
+    Unicode zero digit counts as a leading zero exactly as an ASCII one does."""
+    count = max(1, (value.bit_length() - 1) * 30103 // 100000 + 1)  # within one of the digit count
+    while 10 ** count <= value:
+        count += 1
+    while count > 1 and 10 ** (count - 1) > value:
+        count -= 1
+    return count
+
+
+def exact_decimal(text: str, *, bounded: bool = True) -> Fraction | None:
+    """`Fraction(text)` for a numeral `_REAL` matches, or None for a non-zero value far outside binary64: a decimal
+    exponent beyond DECIMAL_EXPONENT_LIMIT or, when `bounded` (the Rust port's `parse_fraction`), a magnitude
+    beyond 10^+-DECIMAL_MAGNITUDE_LIMIT. A digit run beyond INT_MAX_STR_DIGITS raises int()'s ValueError, as
+    `Fraction(text)` does."""
+    negative = text.startswith("-")
+    mantissa, _, exponent = text.lstrip("+-").lower().partition("e")
+    whole, _, fraction = mantissa.partition(".")
+    numerator = _int_digits(whole) if whole else 0
+    if fraction:
+        digits = _int_digits(fraction)  # first: it bounds len(fraction) before 10^len(fraction) is formed
+        numerator = numerator * 10 ** len(fraction) + digits
+    power = 0
+    if exponent:
+        power = _int_digits(exponent.lstrip("+-"))
+        if exponent.startswith("-"):
+            power = -power
+    if numerator == 0:
+        return Fraction(0)
+    power -= len(fraction)
+    if not -DECIMAL_EXPONENT_LIMIT <= power <= DECIMAL_EXPONENT_LIMIT:
+        return None
+    if bounded and not -DECIMAL_MAGNITUDE_LIMIT <= power + _decimal_digits(numerator) <= DECIMAL_MAGNITUDE_LIMIT:
+        return None  # |value| >= 10^400 overflows and |value| < 10^-400 underflows to 0: refused either way
+    magnitude = Fraction(numerator * 10 ** power) if power >= 0 else Fraction(numerator, 10 ** -power)
+    return -magnitude if negative else magnitude
+
+
+def fraction_of(text: str) -> Fraction:
+    """`Fraction(text)` exactly, whatever its magnitude, for a numeral `_REAL` matches (the Rust port's
+    `fraction_of`): the same digit-run checks first; a decimal exponent beyond 10^5 is not computed."""
+    value = exact_decimal(text, bounded=False)
+    if value is None:
+        raise ValueError("a decimal exponent beyond 10^5 is not computed")
+    return value
+
+
 def half_unit(text: str) -> Fraction:
     """Half a unit in the last printed digit of a decimal (§10.1 conflict bound); 0 for an exact zero."""
     mantissa, _, exponent = text.lstrip("+-").lower().partition("e")
-    if Fraction(mantissa or "0") == 0:
+    if exact_decimal(mantissa or "0") == 0:
         return Fraction(0)
     decimals = len(mantissa.partition(".")[2])
     return Fraction(1, 2) * Fraction(10) ** (int(exponent or 0) - decimals)
@@ -370,7 +439,7 @@ def parse_english_length(text: str) -> Fraction | None:
     """Exact inches for one documented English length form (§5.4), or None when the form is not documented."""
     match = _FEET_ONLY.match(text)
     if match:
-        value = Fraction(match.group(2)) * 12
+        value = fraction_of(match.group(2)) * 12
         return -value if match.group(1) == "-" else value
     match = _FEET_INCH.match(text)
     if not match:
@@ -427,7 +496,7 @@ def standard_gravity_as_printed(text: str, standard: Fraction) -> bool:
     """True when `text` is `standard` correctly rounded to its own printed digits, with at least three significant
     digits: |p - g0| <= half a unit in p's last digit."""
     mantissa = text.lstrip("+-").lower().partition("e")[0].replace(".", "").lstrip("0")
-    return len(mantissa) >= GRAVITY_MIN_DIGITS and abs(Fraction(text) - standard) <= half_unit(text)
+    return len(mantissa) >= GRAVITY_MIN_DIGITS and abs(fraction_of(text) - standard) <= half_unit(text)
 
 
 def split_fields(text: str) -> list[str] | None:
@@ -1244,6 +1313,7 @@ class _Element:
     ti: bool = False
     radius: Num | None = None
     factor: Num | None = None
+    sifs: tuple[Num, Num] | None = None  # BSIF(in-plane,out-plane)
     row: int = -1  # its T row's index among the layout's F and T rows (a legacy sidecar's layout_row)
 
 
@@ -1484,9 +1554,9 @@ class _Importer:
         if not _REAL.match(text):
             self.refuse("MBF-IMPORT-NUMBER-INVALID", line, location, f"{location} is not a real number")
             return None
-        exact = Fraction(text)
+        exact = exact_decimal(text)
         value = float(text)
-        if not math.isfinite(value) or (exact != 0 and value == 0):
+        if exact is None or not math.isfinite(value) or (exact != 0 and value == 0):
             self.refuse("MBF-IMPORT-VALUE-UNREPRESENTABLE", line, location,
                         f"{location} is outside the binary64 range: it overflows, or a non-zero value underflows to 0")
             return None
@@ -1867,7 +1937,7 @@ class _Importer:
     def protected(self, value: str, line: int, location: str, column: str, position: int) -> bool:
         if value == "":
             return False
-        if _REAL.match(value) and Fraction(value) == 0:
+        if _REAL.match(value) and exact_decimal(value) == 0:
             return False
         self.refuse("MBF-IMPORT-MATERIAL-PROTECTED-SUSPECTED", line, f"{location} field {position} ({column})",
                     f"{location} carries a value in its {column} column; strength, allowable and fatigue data never "
@@ -2042,7 +2112,7 @@ class _Importer:
                     if not text:
                         continue
                     for index, value in enumerate(split_fields(text) or ["?"]):
-                        if value != "" and not (_REAL.match(value) and Fraction(value) == 0):
+                        if value != "" and not (_REAL.match(value) and exact_decimal(value) == 0):
                             ok = False
                 if ok:
                     self.listed("omitted", "MBF-IMPORT-SECTION-ZERO-OMITTED", header, name,
@@ -2570,6 +2640,23 @@ class _Importer:
                 if number is not None:
                     self.elements[-1].factor = number
                 record["comment_lines"].remove(line)  # FF is bend data, not a node comment
+            elif name == "BSIF":  # Format of .MBF, BSIF: a bend's SIFs, in-plane then out-of-plane (§11)
+                if row.keys.get("K") != "I":
+                    self.refuse("MBF-IMPORT-COMMENT-INVALID", line, where, "BSIF is read on a KI bend row only")
+                    continue
+                parts = split_fields(args) if args is not None else None
+                if parts is None or len(parts) != 2:
+                    self.refuse("MBF-IMPORT-COMMENT-INVALID", line, where,
+                                "BSIF needs two values in parentheses, in-plane then out-of-plane")
+                    continue
+                numbers = [self.real(part, line, f"{where} value {index + 1}") for index, part in enumerate(parts)]
+                if None in numbers:
+                    continue
+                if not all(number.value > 0 for number in numbers):
+                    self.refuse("MBF-IMPORT-VALUE-OUT-OF-RANGE", line, where, "a bend SIF must be positive")
+                    continue
+                self.elements[-1].sifs = (numbers[0], numbers[1])
+                record["comment_lines"].remove(line)  # BSIF is bend data, not a node comment
             elif name == "LA":
                 number = self.real(value or "", line, where)
                 if number is not None and number.exact != 0:
@@ -2834,13 +2921,13 @@ class _Importer:
             p, ti, q = self.positions[element.start], self.positions[n], self.positions[outgoing.end]
             d_in, d_out = _unit(_sub(ti, p)), _unit(_sub(q, ti))
             cosine = max(-1.0, min(1.0, sum(a * b for a, b in zip(d_in, d_out))))
-            theta = math.acos(cosine)
+            theta = correctly_rounded.acos(cosine)
             if theta <= 1e-9 or theta >= math.pi - 1e-9:
                 self.refuse("MBF-IMPORT-BEND-GEOMETRY-INVALID", element.line, location,
                             f"the legs at tangent intersection {n} are parallel or reversed; there is no bend angle")
                 continue
-            t = self.binary64(element.radius.value * math.tan(theta / 2.0), element.line, location, "tangent length",
-                              nonzero=True)  # R > 0 and theta > 0: a zero tangent length is an underflow
+            t = self.binary64(element.radius.value * correctly_rounded.tan(theta / 2.0), element.line, location,
+                              "tangent length", nonzero=True)  # R > 0 and theta > 0: a zero tangent length underflowed
             self.bend_geometry[n] = {"theta": theta, "t": t, "d_in": d_in, "d_out": d_out, "ti": ti,
                                      "element": index, "start": element.start, "next": outgoing.end}
         tol = _BEND_RELATIVE_TOLERANCE
@@ -3209,17 +3296,22 @@ class _Importer:
             "mechanics_interface": {"solver_consumption": "curved_bend_macro_element"},
             "provenance": provenance(element.line),
         }
+        comments = "comments FF and BSIF" if element.sifs is not None else "comment FF"
         if element.factor is not None:
             component["modifiers"] = {"flexibility_factor_user_value": {"value": element.factor.value, "unit": "none"},
-                                      "source_reference": f"MBF sha256:{self.sha}, line {element.line}, comment FF"}
+                                      "source_reference": f"MBF sha256:{self.sha}, line {element.line}, {comments}"}
         else:
             component["modifiers"] = {"source_reference": f"MBF sha256:{self.sha}, line {element.line}: the MBF "
-                                                          "supplies no flexibility factor"}
+                                                          "supplies no flexibility factor"
+                                                          + (", comment BSIF" if element.sifs is not None else "")}
             unresolved.append({"assumption_id": f"assumption:mbf-bend-{n}-flexibility", "kind": "open_issue",
                                "statement": f"bend {n} has no flexibility factor in the MBF; enter a user factor",
                                "status": "unresolved", "affected_refs": [component_id]})
             self.listed("omitted", "MBF-IMPORT-BEND-FLEXIBILITY-MISSING", element.line, f"bend {n}",
                         f"bend {n} has no FF comment; SWBPIPE never supplies a factor, so the bend is incomplete")
+        if element.sifs is not None:
+            component["modifiers"].update({name: {"value": number.value, "unit": "none"}
+                                           for name, number in zip(BEND_SIF_FIELDS, element.sifs)})
         return component
 
     def weight_per_length(self, element: _Element) -> float:
@@ -3905,7 +3997,8 @@ class _Importer:
         def corner(before: str, node: str, after: str) -> bool:
             a = _unit(_sub(metres(node), metres(before)))
             t = _unit(_sub(metres(after), metres(node)))
-            theta = 2 * math.atan2(correct_norm3(*_sub(a, t)), correct_norm3(*(a[i] + t[i] for i in range(3))))
+            theta = 2 * correctly_rounded.atan2(correct_norm3(*_sub(a, t)),
+                                                correct_norm3(*(a[i] + t[i] for i in range(3))))
             return theta > TANGENCY_TOLERANCE_RAD
 
         runs, collinear, failures = self.route_checks(pressures, ends, arcs, point_of, name_of)
@@ -4140,11 +4233,11 @@ class _Importer:
             spread = sum(math.hypot(*(float(value) for value in self.writer_bound(k))) for k in (a, b))
             spread += 4 * 2.0 ** -52 * (_norm(self.positions[a]) + _norm(self.positions[b]))
             length = _norm(_sub(self.positions[b], self.positions[a]))
-            return math.asin(min(1.0, spread / length))
+            return correctly_rounded.asin(min(1.0, spread / length))
 
         theta = geometry["theta"]
         allowed = (subtended(geometry["start"], n) + subtended(n, geometry["next"])
-                   + 64 * 2.0 ** -52 / max(math.sin(theta), 2.0 ** -26))
+                   + 64 * 2.0 ** -52 / max(correctly_rounded.sin(theta), 2.0 ** -26))
         if not abs(math.radians(record["angle_deg"]) - theta) <= allowed:
             self.refuse("MBF-IMPORT-SIDECAR-CONFLICT", element.line, f"{where}.bend.angle_deg",
                         f"the sidecar records bend {n}'s angle as {record['angle_deg']!r} deg, but its legs in the MBF "

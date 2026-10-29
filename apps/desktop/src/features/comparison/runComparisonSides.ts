@@ -10,6 +10,8 @@
 // - the current run uses the session's live verdict (the same call
 //   `resultsSessionState.ts` makes).
 import type { MechanicsResult } from "../../types";
+import { csvAnalysisRoute, csvRecordedModelHash, csvResultHash } from "../result-export/csvProvenance";
+import type { RunSideCsvProvenance } from "./runComparisonCsv";
 import { recordableRun, runDescription, type AnalysisRunRead, type AnalysisRunSummary, type CurrentRunSlot } from "../../services/analysisRunService";
 import { buildRecordedRunContext, recordedRunBindingFindings } from "../results/HistoricalRunContext";
 import { numericalResultStanding, type NumericalStanding } from "../results/resultStanding";
@@ -42,6 +44,8 @@ export type RunComparisonSide = {
   state: string | null;
   standing: NumericalStanding;
   input: RunComparisonInput;
+  /** RT-R6: what the side states for a CSV preamble (absent sides state `not_recorded`). */
+  csv?: RunSideCsvProvenance;
 };
 
 export const CURRENT_RUN_DESCRIPTION = "the current run (this session's solve, not recorded)";
@@ -108,7 +112,8 @@ export async function recordedRunSide(read: AnalysisRunRead): Promise<RunCompari
     createdAt: read.run.created_at,
     state: `"${read.state.state_name}" (${read.state.state_id})`,
     standing,
-    input: sideInput(result, manifest, read.record, standing)
+    input: sideInput(result, manifest, read.record, standing),
+    csv: { modelHash: csvRecordedModelHash(read.state.model_hash), model: null, resultHash: csvResultHash(result, read.record), analysisRoute: csvAnalysisRoute(result) }
   };
 }
 
@@ -147,6 +152,7 @@ export function currentRunSide(slot: CurrentRunSlot): RunComparisonSide {
     createdAt: null,
     state: null,
     standing,
-    input: sideInput(result, inputManifest.manifest, analysisRun, standing)
+    input: sideInput(result, inputManifest.manifest, analysisRun, standing),
+    csv: { modelHash: null, model: inputManifest.manifest.model_basis.model_payload, resultHash: csvResultHash(result, analysisRun), analysisRoute: csvAnalysisRoute(result) }
   };
 }

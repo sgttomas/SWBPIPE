@@ -12,8 +12,19 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
-import type { MechanicsResult, PreviewModel } from "../../types";
+import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
 import { displayQuantityParts } from "../report/reportQuantityDisplay";
+import { CsvExportControl } from "../result-export/CsvExportControl";
+import { CSV_SOFTWARE_VERSION, CSV_UNIT_BASIS_DISPLAY_RULE, csvResultProvenance, csvUnitBasis } from "../result-export/csvProvenance";
+import {
+  SUPPORT_LOADS_ALL_CSV_KIND,
+  SUPPORT_LOADS_CSV_KIND,
+  SUPPORT_LOAD_NOT_EMITTED,
+  SUPPORT_LOAD_NO_EXTREME,
+  supportLoadAbsenceText,
+  supportLoadCsv,
+  supportLoadsAllCsv
+} from "./supportLoadSummaryCsv";
 import type { ResultOverlayStanding } from "./numericalHealth";
 import {
   SUPPORT_LOAD_COLUMNS,
@@ -34,6 +45,8 @@ export const SUPPORT_LOAD_ALLOWABLES_TEXT = "No allowable loads are shown: the s
 export type SupportLoadSummaryPanelProps = Readonly<{
   model: PreviewModel;
   result: MechanicsResult | null;
+  /** The result's analysis-run record, for the CSV preamble's result hash (RT-R6). */
+  analysisRun?: AnalysisRunEnvelope | null;
   /** The reader's numerical standing and the session's numerical health view (the overlays' input). */
   standing: ResultOverlayStanding | null | undefined;
   /** When this names a support of the model (for example the session's selection), the panel shows it. */
@@ -47,11 +60,6 @@ export type SupportLoadSummaryPanelProps = Readonly<{
 
 const REACTION_COLUMN_COUNT = SUPPORT_LOAD_COLUMNS.filter((item) => item.of === "support").length;
 
-const ABSENCE_TEXT: Readonly<Record<NonNullable<SupportLoadRow["reactionAbsence"]>, string>> = Object.freeze({
-  attribution_withheld: "Reaction attribution withheld by the solver",
-  no_rows: "No reaction rows",
-  frame_not_global: "Reaction rows in another frame; not tabulated"
-});
 
 function columnUnit(rows: readonly SupportLoadRow[], item: SupportLoadColumn): string | null {
   const units = new Set(rows.flatMap((row) => (row.values[item.id] ? [row.values[item.id]!.unit] : [])));
@@ -86,7 +94,7 @@ function exclusionText(summary: SupportLoadSummary): string {
   return parts.length > 0 ? `${base}; not included: ${parts.join(", ")}.` : `${base}.`;
 }
 
-export function SupportLoadSummaryPanel({ model, result, standing, focusSupportId = null, focusRequest = 0, testIdPrefix = "support-load" }: SupportLoadSummaryPanelProps) {
+export function SupportLoadSummaryPanel({ model, result, analysisRun = null, standing, focusSupportId = null, focusRequest = 0, testIdPrefix = "support-load" }: SupportLoadSummaryPanelProps) {
   const summaries = useMemo(() => buildSupportLoadSummaries({ model, result, standing }), [model, result, standing]);
   const supports = summaries.supports;
   const [chosenId, setChosenId] = useState<string | null>(null);
@@ -115,6 +123,11 @@ export function SupportLoadSummaryPanel({ model, result, standing, focusSupportI
   };
   const health = standing?.health ?? null;
   const tid = (suffix: string) => `${testIdPrefix}-${suffix}`;
+  const csvContext = async () => ({
+    provenance: await csvResultProvenance({ model, result, analysisRun }),
+    softwareVersion: CSV_SOFTWARE_VERSION,
+    unitBasis: csvUnitBasis(model, CSV_UNIT_BASIS_DISPLAY_RULE)
+  });
 
   return (
     <section className="result-detail-panel support-load-summary" aria-label="Support load summary" data-testid={tid("summary")} onKeyDown={onKeyDown}>
@@ -140,6 +153,18 @@ export function SupportLoadSummaryPanel({ model, result, standing, focusSupportI
             {equipmentText(summary) ? <> <span data-testid={tid("equipment")}>{equipmentText(summary)}.</span></> : null}
           </p>
           {health ? <p data-testid={tid("standing")}>{health.headline}{health.outputSentence ? `. ${health.outputSentence}` : ""}</p> : null}
+          <div className="csv-export-controls">
+            <CsvExportControl
+              tableLabel={`Loads and movements at support ${summary.label}`}
+              testId={tid("export-csv")}
+              build={async () => supportLoadCsv({ summary, ...await csvContext() })}
+            />
+            <CsvExportControl
+              tableLabel="Loads and movements at every support"
+              testId={tid("export-csv-all")}
+              build={async () => supportLoadsAllCsv({ summaries, ...await csvContext() })}
+            />
+          </div>
           <SupportLoadTable summary={summary} tid={tid} />
           <p data-testid={tid("extremes-note")}>{exclusionText(summary)}</p>
           {summary.rows.some((row) => row.case.envelope && row.standing === "admitted") ? <small data-testid={tid("envelope-note")}>{SUPPORT_LOAD_ENVELOPE_TEXT}</small> : null}
@@ -161,7 +186,7 @@ function SupportLoadTable({ summary, tid }: { summary: SupportLoadSummary; tid: 
   const extremes = new Map(summary.extremes.map((item) => [item.column, item] as const));
   return (
     <div className="support-load-table-scroll">
-      <table aria-label={`Loads and movements at support ${summary.label}`} data-testid={tid("table")}>
+      <table aria-label={`Loads and movements at support ${summary.label}`} data-testid={tid("table")} data-csv-export={`${SUPPORT_LOADS_CSV_KIND} ${SUPPORT_LOADS_ALL_CSV_KIND}`}>
         <thead>
           <tr>
             <th scope="col">Case</th>
@@ -178,7 +203,7 @@ function SupportLoadTable({ summary, tid }: { summary: SupportLoadSummary; tid: 
                 <>
                   {row.reactionAbsence ? (
                     <td colSpan={REACTION_COLUMN_COUNT} data-testid={tid(`absence-${row.case.key}`)}>
-                      {ABSENCE_TEXT[row.reactionAbsence]}{row.reactionAbsenceDetail ? ` (${row.reactionAbsenceDetail})` : ""}
+                      {supportLoadAbsenceText(row)}
                     </td>
                   ) : (
                     SUPPORT_LOAD_COLUMNS.filter((item) => item.of === "support").map((item) => <ValueCell key={item.id} row={row} item={item} shareUnit={units.get(item.id) !== null} tid={tid} />)
@@ -198,7 +223,7 @@ function SupportLoadTable({ summary, tid }: { summary: SupportLoadSummary; tid: 
                 const value = extreme?.[which] ?? null;
                 return (
                   <td key={item.id} data-testid={tid(`extreme-${which}-${item.id}`)}>
-                    {value ? <><ValueText value={value} shareUnit={units.get(item.id) !== null} /><br /><small>{value.caseLabel}</small></> : extreme?.note ? <small>{extreme.note}</small> : <Dash label="none" />}
+                    {value ? <><ValueText value={value} shareUnit={units.get(item.id) !== null} /><br /><small>{value.caseLabel}</small></> : extreme?.note ? <small>{extreme.note}</small> : <Dash label={SUPPORT_LOAD_NO_EXTREME} />}
                   </td>
                 );
               })}
@@ -212,7 +237,7 @@ function SupportLoadTable({ summary, tid }: { summary: SupportLoadSummary; tid: 
 
 function ValueCell({ row, item, shareUnit, tid }: { row: SupportLoadRow; item: SupportLoadColumn; shareUnit: boolean; tid: (suffix: string) => string }) {
   const value = row.values[item.id];
-  return <td data-testid={tid(`cell-${row.case.key}-${item.id}`)}>{value ? <ValueText value={value} shareUnit={shareUnit} /> : <Dash label="not emitted" />}</td>;
+  return <td data-testid={tid(`cell-${row.case.key}-${item.id}`)}>{value ? <ValueText value={value} shareUnit={shareUnit} /> : <Dash label={SUPPORT_LOAD_NOT_EMITTED} />}</td>;
 }
 
 /** An empty cell: a dash on screen, a word for a screen reader. */

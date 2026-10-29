@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from fractions import Fraction
+import hashlib
 import json
 import math
 from pathlib import Path
@@ -23,7 +24,8 @@ from core.handoff.caepipe_mbf import (  # noqa: E402
     MbfSiResult,
     render_caepipe_mbf_si,
 )
-from core.handoff.caepipe_mbf.si_writer import MODEL_SCHEMA_PATH, current_model_schema_version  # noqa: E402
+from core.handoff.caepipe_mbf.si_writer import (  # noqa: E402
+    IMPORTED_PROJECT_UNITS, MODEL_SCHEMA_PATH, current_model_schema_version)
 
 
 SIX = ["UX", "UY", "UZ", "RX", "RY", "RZ"]
@@ -168,7 +170,15 @@ def test_cantilever_matches_hand_written_mbf():
         "F10,KA,MM1,PP1,CL=L1",
         "T20,X3000,CFOR(0,-6000,0)",
     )
-    assert result.diagnostics == []
+    # No piping code was chosen: none is written, and that is stated, not silent. The field sweep (Design §17.1)
+    # lists what the MBF does not keep; nothing else is diagnosed.
+    assert sorted((item["severity"], item["code"], item["entity"]) for item in result.diagnostics) == sorted([
+        ("info", "MBF-SI-PIPING-CODE-NOT-WRITTEN", next(item["entity"] for item in result.diagnostics
+                                                         if item["code"] == "MBF-SI-PIPING-CODE-NOT-WRITTEN")),
+        ("warning", "MBF-SI-MEMBER-NOT-EXPORTED", "model.analysis_status"),
+        ("warning", "MBF-SI-FIELD-NOT-EXPORTED", "model.project.id"),
+        ("warning", "MBF-SI-FIELD-NOT-EXPORTED", "model.project.units"),
+    ])
     assert result.node_map == {"N0": "10", "N1": "20"}
     assert result.element_map["S1"]["from"] == "10"
     assert result.element_map["S1"]["to"] == "20"
@@ -181,6 +191,73 @@ def test_cantilever_matches_hand_written_mbf():
     as_dict = result.to_dict()
     assert as_dict["profile_id"] == MBF_SI_PROFILE_ID
     assert as_dict["status"] == "written"
+
+
+_SWEEP_CODES = {"MBF-SI-MEMBER-NOT-EXPORTED", "MBF-SI-FIELD-NOT-EXPORTED"}
+
+
+def test_a_chosen_b31_piping_code_is_written_with_b31j_off():
+    default = render_caepipe_mbf_si(cantilever(), title="INVENTED CANTILEVER")
+    result = render_caepipe_mbf_si(cantilever(), title="INVENTED CANTILEVER", piping_code="B311-80")
+    assert result.status == "written", result.diagnostics
+    lines = result.text.split("\r\n")
+    assert lines[3:9] == ["OPTIONS", "HGRA,B311-80,SI", "OPCODE", "0,0,0", "OPTEMP", "20"]
+    # Only the OPTIONS token and the OPCODE section differ from the text written without a code.
+    assert result.text.replace("HGRA,B311-80,SI\r\nOPCODE\r\n0,0,0\r\n", "HGRA,SI\r\n") == default.text
+    # Only the field sweep's omitted entries (Design §17.1) are diagnosed.
+    assert {item["code"] for item in result.diagnostics} <= _SWEEP_CODES
+    assert any(note.startswith("Piping code B311-80, chosen by the caller") and "B31J off" in note
+               for note in result.assumptions)
+    assert result.node_map == default.node_map and result.element_map == default.element_map
+
+
+def test_without_a_piping_code_every_pilot_mbf_is_unchanged_and_a_code_changes_only_options_and_opcode():
+    cases = sorted((ROOT / "validation" / "caepipe_correlation" / "cases").glob("*.json"))
+    assert cases
+    for path in cases:
+        case = json.loads(path.read_text(encoding="utf-8"))
+        arguments = {"title": case.get("title", case["case_id"]),
+                     "reference_temperature_c": case.get("reference_temperature_c", 20.0)}
+        default = render_caepipe_mbf_si(case["model"], **arguments)
+        assert render_caepipe_mbf_si(case["model"], **arguments, piping_code=None).text == default.text
+        assert "MBF-SI-PIPING-CODE-NOT-WRITTEN" in {item["code"] for item in default.diagnostics}
+        assert "\r\nOPTIONS\r\nHGRA,SI\r\nOPTEMP\r\n" in default.text
+        chosen = render_caepipe_mbf_si(case["model"], **arguments, piping_code="B311-80")
+        assert chosen.text.replace("HGRA,B311-80,SI\r\nOPCODE\r\n0,0,0\r\n", "HGRA,SI\r\n") == default.text
+        assert chosen.sidecar("x") == default.sidecar("x")
+
+
+def test_a_non_b31_piping_code_is_written_without_opcode():
+    result = render_caepipe_mbf_si(cantilever(), title="INVENTED CANTILEVER", piping_code="EUROPEAN")
+    assert result.status == "written", result.diagnostics
+    assert "\r\nOPTIONS\r\nHGRA,EUROPEAN,SI\r\nOPTEMP\r\n" in result.text
+    assert "OPCODE" not in result.text
+
+
+def test_a_code_that_locks_b31j_is_written_with_a_warning():
+    result = render_caepipe_mbf_si(cantilever(), title="INVENTED CANTILEVER", piping_code="B311")
+    assert result.status == "written", result.diagnostics
+    assert "HGRA,B311,SI\r\nOPCODE\r\n0,0,0\r\n" in result.text
+    assert codes(result, "warning") - _SWEEP_CODES == {"MBF-SI-PIPING-CODE-B31J-LOCKED"}
+
+
+@pytest.mark.parametrize("code", ["NONE", "B31.1", "b311", "", 311])
+def test_an_undocumented_piping_code_is_refused(code):
+    assert_refused(render_caepipe_mbf_si(cantilever(), title="X", piping_code=code), "MBF-SI-PIPING-CODE-UNSUPPORTED")
+
+
+def test_a_written_piping_code_survives_the_bound_reimport():
+    from hashlib import sha256
+    from core.handoff.caepipe_mbf.importer import import_caepipe_mbf
+
+    result = render_caepipe_mbf_si(branched(), title="INVENTED BRANCH", piping_code="B313")
+    assert result.status == "written", result.diagnostics
+    data = result.text.encode("ascii")
+    back = import_caepipe_mbf(data, sidecar=result.sidecar(sha256(data).hexdigest()), source_label="test",
+                              material_provenance={"M1": {"origin": "project_invented", "source_name": "test"}})
+    assert back.status == "imported", back.diagnostics
+    assert back.target_options["OPTIONS.piping_code"] == ["B313"]
+    assert back.target_options["OPCODE"] == {"fields": ["0", "0", "0"]}
 
 
 def test_branched_model_with_restraint_moment_thermal_and_imposed_displacement():
@@ -217,8 +294,10 @@ def test_branched_model_with_restraint_moment_thermal_and_imposed_displacement()
     assert result.support_map["R4"]["caepipe_kind"] == "restraint"
     assert result.load_case_map == {"case:sus": "Sustained (W+P)", "case:th": "Expansion (T1)"}
     assert result.load_map["case:th/r3"]["mbf"] == "ROT"
-    assert codes(result, "warning") == {"MBF-SI-COMBINATION-NOT-EXPORTED"}
-    assert [item["entity"] for item in result.loss_report] == ["combination:combo:ope"]
+    assert codes(result, "warning") == {"MBF-SI-COMBINATION-NOT-EXPORTED", "MBF-SI-MEMBER-NOT-EXPORTED",
+                                        "MBF-SI-FIELD-NOT-EXPORTED"}
+    assert [item["entity"] for item in result.loss_report] == ["combination:combo:ope", "model.analysis_status",
+                                                               "model.project.id"]
     assert any("rad are written in degrees" in note for note in result.assumptions)
 
 
@@ -633,6 +712,173 @@ def test_bend_is_written_at_its_tangent_intersection():
     assert any("tangent intersection" in note for note in result.assumptions)
     omitted = [item for item in result.loss_report if item["code"] == "MBF-SI-ORIENTATION-NOT-EXPORTED"]
     assert omitted and "BEND" not in omitted[0]["reason"]
+
+
+def bent_l_with_sifs(in_plane=2.5, out_of_plane=2.0, unit="none"):
+    model = bent_l()
+    model["components"][0]["modifiers"]["sif_in_plane_user_value"] = q(in_plane, unit)
+    model["components"][0]["modifiers"]["sif_out_of_plane_user_value"] = q(out_of_plane, unit)
+    return model
+
+
+def test_bend_user_sifs_are_never_dropped_silently():
+    """W-17's probe: a bend's directional SIF pair either changes the text or is listed by name in the loss report."""
+    base = render_caepipe_mbf_si(bent_l(), title="INVENTED L")
+    result = render_caepipe_mbf_si(bent_l_with_sifs(), title="INVENTED L")
+    listed = [item for item in result.loss_report if item["entity"] == "component:bend-1"
+              and "sif_in_plane_user_value" in item["reason"] and "sif_out_of_plane_user_value" in item["reason"]]
+    assert result.text != base.text or listed
+
+
+def test_bend_user_sifs_are_written_as_bsif():
+    # Format of .MBF (users_manual/import_mbf.htm): BSIF(in-plane,out-plane) is a bend's SIF comment.
+    result = render_caepipe_mbf_si(bent_l_with_sifs(), title="INVENTED L")
+    assert result.status == "written", result.diagnostics
+    lines = result.text.split("\r\n")
+    assert lines[lines.index("LAYOUT") + 1:] == [
+        "F10,KA,MM1,PP1,CL=L1",
+        "T20,KI,B250,X4000,CFF=1,BSIF(2.5,2)",
+        "T30,KA,Z3000",
+        "",
+    ]
+    bend = result.element_map["BEND"]["bend"]
+    assert (bend["sif_in_plane"], bend["sif_out_of_plane"]) == (2.5, 2.0)
+    assert not [item for item in result.loss_report if "sif" in item["reason"].lower()]
+
+
+@pytest.mark.parametrize("change, code, fragment", [
+    (lambda m: m["components"][0]["modifiers"].pop("sif_out_of_plane_user_value"), "MBF-SI-BEND-SIF-INCOMPLETE",
+     "only one of"),
+    (lambda m: m["components"][0]["modifiers"].update(sif_in_plane_user_value=q(0.0, "none")),
+     "MBF-SI-VALUE-OUT-OF-RANGE", "must be positive"),
+    (lambda m: m["components"][0]["modifiers"].update(sif_in_plane_user_value=q(2.0, "mm")), "MBF-SI-UNIT-UNSUPPORTED",
+     "sif_in_plane_user_value"),
+])
+def test_bend_sifs_the_writer_cannot_write_are_refused_by_name(change, code, fragment):
+    model = bent_l_with_sifs()
+    change(model)
+    assert_refused(render_caepipe_mbf_si(model, title="B"), code, "component:bend-1", fragment)
+
+
+def decorated_bent_l():
+    """bent_l with every member and field the MBF does not keep (Design §17.1), each non-empty."""
+    model = bent_l_with_sifs()
+    meta = {"label": "invented", "provenance": "invented", "tags": ["t"], "notes": "n"}
+    record = {"contributor_certification": "invented", "redistribution_status": "public_permissive"}
+    model.update(data_boundary={"public_examples_policy": "invented"}, sections=[{"id": "sec"}],
+                 diagnostics=[{"code": "X", "severity": "info", "message": "m"}], lines=[{"id": "line"}],
+                 unresolved_assumptions=[{"assumption_id": "a"}], rule_pack_refs=[{"rule_pack_id": "r"}],
+                 constraints=[{"constraint_id": "c"}], equipment_interfaces=[{"id": "e"}])
+    model["project"].update(name="P", description="D", tags=["t"], notes="n")
+    model["project"]["units"].update(moment="N*m", angle="rad")
+    model["materials"][0].update(meta, constitutive_basis="invented", provenance_record=record)
+    for member in ("nodes", "pipe_segments", "supports", "load_cases"):
+        for item in model[member]:
+            item.update(meta)
+    model["pipe_segments"][0]["section_ref"] = "sec"
+    model["supports"][0].update(boundary_association={"boundary_id": "b"}, properties={"linear_stiffness": q(1, "N/m")},
+                                provenance_record=record)
+    model["load_cases"][0].update(kind="thermal", status="draft")
+    model["load_cases"][0]["primitive_loads"][0]["provenance"] = "invented"
+    bend = model["components"][0]
+    bend.update(meta, completeness={"status": "complete"}, provenance_record=record)
+    bend["geometry"].update(bend_plane_orientation="+Y", bend_geometry_source_reference="invented")
+    bend["modifiers"].update(sif_user_value=q(1.5, "none"), source_reference="invented")
+    bend["mechanics_interface"]["rule_check_consumption"] = "invented"
+    return model
+
+
+SWEPT = {  # entity -> the model entities its reason names (Design §17.1)
+    **{f"model.{name}": () for name in ("data_boundary", "analysis_status", "sections", "diagnostics", "lines",
+                                        "unresolved_assumptions", "rule_pack_refs", "constraints",
+                                        "equipment_interfaces")},
+    **{f"model.project.{name}": ("project",) for name in ("id", "name", "description", "tags", "notes")},
+    "model.project.units": ("length m", "angle rad"),
+    **{f"model.materials.{name}": ("material:mat:CS",)
+       for name in ("label", "provenance", "tags", "notes", "constitutive_basis", "provenance_record")},
+    **{f"model.nodes.{name}": ("node:A", "node:T1", "node:T2", "node:B")
+       for name in ("label", "provenance", "tags", "notes")},
+    **{f"model.pipe_segments.{name}": ("pipe:S1", "pipe:BEND", "pipe:S2")
+       for name in ("label", "provenance", "tags", "notes")},
+    "model.pipe_segments.section_ref": ("pipe:S1",),
+    **{f"model.supports.{name}": ("support:SA", "support:SB") for name in ("label", "provenance", "tags", "notes")},
+    **{f"model.supports.{name}": ("support:SA",) for name in ("boundary_association", "properties",
+                                                              "provenance_record")},
+    **{f"model.components.{name}": ("component:bend-1",)
+       for name in ("label", "provenance", "tags", "notes", "completeness", "provenance_record",
+                    "geometry.bend_plane_orientation", "geometry.bend_geometry_source_reference",
+                    "modifiers.sif_user_value", "modifiers.source_reference",
+                    "mechanics_interface.rule_check_consumption")},
+    **{f"model.load_cases.{name}": ("load_case:case:th",)
+       for name in ("label", "provenance", "tags", "notes", "kind", "status")},
+    "model.load_cases.primitive_loads.provenance": ("load:case:th/t:S1",),
+}
+
+
+def test_every_unwritten_member_and_field_is_one_omitted_loss_entry():
+    plain = render_caepipe_mbf_si(bent_l_with_sifs(), title="INVENTED L")
+    result = render_caepipe_mbf_si(decorated_bent_l(), title="INVENTED L")
+    assert result.status == "written", result.diagnostics
+    assert result.text == plain.text  # the sweep lists; it changes nothing written
+    swept = {item["entity"]: item for item in result.loss_report
+             if item["code"] in {"MBF-SI-MEMBER-NOT-EXPORTED", "MBF-SI-FIELD-NOT-EXPORTED"}}
+    assert set(swept) == set(SWEPT)
+    for entity, named in SWEPT.items():
+        assert swept[entity]["category"] == "omitted"
+        assert all(name in swept[entity]["reason"] for name in named), swept[entity]
+    assert len(result.loss_report) == len({(item["code"], item["entity"]) for item in result.loss_report})
+
+
+def test_empty_members_and_fields_are_not_listed():
+    model = bent_l()
+    model.update(diagnostics=[], lines=[], data_boundary={})
+    model["nodes"][0].update(label="", tags=[], notes=None)
+    swept = {item["entity"] for item in render_caepipe_mbf_si(model, title="L").loss_report}
+    assert not swept & {"model.diagnostics", "model.lines", "model.data_boundary", "model.nodes.label",
+                        "model.nodes.tags", "model.nodes.notes"}
+
+
+def test_project_units_the_import_restores_are_not_listed():
+    from core.handoff.caepipe_mbf.importer import import_caepipe_mbf  # deferred, as the writer's own preflight
+    written = render_caepipe_mbf_si(cantilever("mm"), title="C")
+    data = written.text.encode("ascii")
+    back = import_caepipe_mbf(data, sidecar=written.sidecar(hashlib.sha256(data).hexdigest()), source_label="units",
+                              material_provenance={"*": {"origin": "project_invented", "source_name": "invented"}})
+    assert back.status == "imported", back.diagnostics
+    assert back.model["project"]["units"] == IMPORTED_PROJECT_UNITS
+    model = cantilever("mm")
+    model["project"]["units"] = dict(IMPORTED_PROJECT_UNITS)
+    assert "model.project.units" not in {item["entity"] for item in render_caepipe_mbf_si(model, title="C").loss_report}
+
+
+def test_a_pressure_region_provenance_is_listed_as_omitted():
+    result = render_caepipe_mbf_si(pressurized_l(), title="PRESSURE L")
+    assert result.status == "written", result.diagnostics
+    [entry] = [item for item in result.loss_report if item["entity"] == "model.load_cases.pressure_regions.provenance"]
+    assert entry["category"] == "omitted" and "case:p/region:region:L" in entry["reason"], entry
+
+
+def test_an_authored_shear_modulus_the_poisson_ratio_overrides_is_listed_as_omitted():
+    model = cantilever()
+    model["materials"][0]["poisson_ratio"] = q(0.25, "1")
+    model["materials"][0]["shear_modulus"] = q(7.0e10, "Pa")  # E/(2(1+nu)) = 80 GPa
+    result = render_caepipe_mbf_si(model, title="NU")
+    assert result.status == "written", result.diagnostics
+    [entry] = [item for item in result.loss_report if item["code"] == "MBF-SI-SHEAR-MODULUS-NOT-EXPORTED"]
+    assert entry["category"] == "omitted" and entry["entity"] == "material:mat:CS", entry
+    model["materials"][0]["shear_modulus"] = q(8.0e10, "Pa")  # consistent: nothing lost
+    assert "MBF-SI-SHEAR-MODULUS-NOT-EXPORTED" not in {
+        item["code"] for item in render_caepipe_mbf_si(model, title="NU").loss_report}
+
+
+def test_a_material_no_pipe_segment_uses_is_listed_as_omitted():
+    model = cantilever()
+    model["materials"].append(dict(model["materials"][0], id="mat:unused"))
+    result = render_caepipe_mbf_si(model, title="C")
+    assert result.status == "written", result.diagnostics
+    [entry] = [item for item in result.loss_report if item["entity"] == "model.materials"]
+    assert entry["category"] == "omitted" and "mat:unused" in entry["reason"] and "mat:CS" not in entry["reason"]
+    assert result.text == render_caepipe_mbf_si(cantilever(), title="C").text
 
 
 def test_bend_traversed_from_the_far_side_swaps_a_and_b():

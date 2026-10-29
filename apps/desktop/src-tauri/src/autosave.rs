@@ -37,8 +37,8 @@
 //! listing's entries before it makes them (DEL-04-07 "Model-sized interactive
 //! commands").
 
-// Slice 2 wires these functions into native commands; until then only the
-// tests call them.
+// The commands of slice 2 (`autosave_commands.rs`) call these functions; the
+// test-only seams (`lock_slot_at`, the hooks) stay unused outside the tests.
 #![cfg_attr(not(test), allow(dead_code))]
 
 use crate::atomic_report_package_save::{
@@ -90,6 +90,7 @@ pub(crate) const VERIFY_UNAVAILABLE: &str = "AUTOSAVE-VERIFY-UNAVAILABLE";
 pub(crate) const NOT_FOUND: &str = "AUTOSAVE-NOT-FOUND";
 pub(crate) const UNREADABLE: &str = "AUTOSAVE-UNREADABLE";
 pub(crate) const INTEGRITY: &str = "AUTOSAVE-INTEGRITY";
+pub(crate) const DISCARD_FAILED: &str = "AUTOSAVE-DISCARD-FAILED";
 
 /// The read-back's block: the only buffer the hash of a written file needs.
 pub(crate) const READBACK_BLOCK_BYTES: usize = 64 * 1024;
@@ -908,6 +909,52 @@ pub(crate) fn read_autosave(directory: &Path, file_name: &str, memory: &dyn Read
         document,
     });
     Ok(verified.holding(load))
+}
+
+/// What a discard did (§3, Discard).
+#[derive(Debug, Clone, Serialize, PartialEq)]
+#[serde(tag = "outcome", rename_all = "snake_case")]
+pub(crate) enum AutosaveDiscardOutcome {
+    Discarded { file_name: String },
+    /// No record of that name is there; nothing was removed.
+    NotFound { file_name: String },
+    Refused { diagnostics: Vec<DispositionDiagnostic> },
+}
+
+/// Removes one record the user chose to discard (§3), contained as every read
+/// is: the name must parse as a record's, the directory must be a real
+/// directory (opened `O_DIRECTORY | O_NOFOLLOW`), and the entry, resolved once
+/// relative to it, must be a regular file (never a symlink, which is refused
+/// and left in place). The removal runs under the slot's lock, so it never
+/// interleaves with a write transaction of the same slot.
+pub(crate) fn discard_autosave(directory: &Path, file_name: &str) -> AutosaveDiscardOutcome {
+    let refused = |code: &str, message: String| AutosaveDiscardOutcome::Refused { diagnostics: vec![diagnostic(code, "", message)] };
+    let not_found = || AutosaveDiscardOutcome::NotFound { file_name: file_name.to_string() };
+    let Some(name) = AutosaveName::parse(file_name) else {
+        return refused(NAME_INVALID, "The name is not an autosave record's name; nothing was removed.".to_string());
+    };
+    let dir = match RecordDir::open(directory) {
+        Ok(dir) => dir,
+        Err(error) if error.kind() == io::ErrorKind::NotFound => return not_found(),
+        Err(error) => return refused(DIRECTORY_UNAVAILABLE, format!("The autosave directory is unavailable: {error}. Nothing was removed.")),
+    };
+    let _lock = match lock_slot(&dir, &name.slot, LOCK_WAIT) {
+        Ok(lock) => lock,
+        Err(refusal) => return AutosaveDiscardOutcome::Refused { diagnostics: vec![refusal] },
+    };
+    match dir.stat_child(file_name) {
+        Err(error) if error.kind() == io::ErrorKind::NotFound => return not_found(),
+        Err(error) => return refused(DISCARD_FAILED, format!("The autosave `{file_name}` could not be inspected ({error}); nothing was removed.")),
+        Ok(stat) if !is_regular(&stat) => {
+            return refused(UNREADABLE, format!("The entry `{file_name}` is not a regular file; nothing was removed."))
+        }
+        Ok(_) => {}
+    }
+    match dir.unlink(file_name) {
+        Ok(()) => AutosaveDiscardOutcome::Discarded { file_name: file_name.to_string() },
+        Err(error) if error.kind() == io::ErrorKind::NotFound => not_found(),
+        Err(error) => refused(DISCARD_FAILED, format!("The autosave `{file_name}` was not removed: {error}.")),
+    }
 }
 
 #[cfg(test)]
