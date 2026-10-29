@@ -525,8 +525,8 @@ def make_export_shaped_repo(tmp_path: Path) -> Path:
         (root / name).mkdir(parents=True, exist_ok=True)
         (root / name / "README.md").write_text("invented\n", encoding="utf-8")
     (root / "tools" / "release").mkdir(parents=True, exist_ok=True)
-    declared = dict(ACCEPTED_PROVENANCE, source_name="Invented test fixture",
-                    redistribution_status="private_only", review_status="pending")
+    declared = dict(ACCEPTED_PROVENANCE, redistribution_status="invented_non_engineering_example",
+                    review_status="pending")
     undeclared = dict(ACCEPTED_PROVENANCE, source_name="Example project data",
                       contributor_certification="Example values only",
                       redistribution_status="private_only", review_status="pending")
@@ -565,6 +565,28 @@ def test_provenance_scope_check_refuses_ineligible_stale_and_underived_data(tmp_
     underived = json.loads(json.dumps(generated))
     underived["members"][0]["labels"].append(['"public_permissive"', '"TBD"'])
     assert check_with(underived) == 1
+    # Byte-exact: the same content with CRLF line endings is drift.
+    listing.write_bytes((json.dumps(generated, indent=2) + "\n").replace("\n", "\r\n").encode("utf-8"))
+    assert generator.main(["--root", str(root), "--check"]) == 1
+
+
+@pytest.mark.parametrize("field, text", [
+    ("origin", "not invented; supplied by a customer"),
+    ("source_name", "invented-by: a real person"),
+])
+def test_free_text_never_qualifies_a_file_for_the_p7_scope(field, text):
+    # P7 re-review: whole-word "invented" in free text qualified a file, and
+    # check (c) then suppressed its private_only/pending records. Only the
+    # product label redistribution_status == invented_non_engineering_example
+    # qualifies a file.
+    generator = load_scope_generator()
+    record = dict(ACCEPTED_PROVENANCE, redistribution_status="private_only",
+                  review_status="pending", source_name="Example project data",
+                  contributor_certification="Example values only")
+    record[field] = text
+    assert generator.invented_declaration({"provenance": record}) is None
+    labelled = dict(record, redistribution_status="invented_non_engineering_example")
+    assert generator.invented_declaration({"provenance": labelled}) is not None
 
 
 def test_quarantine_hygiene_flags_quarantine_paths(tmp_path):
