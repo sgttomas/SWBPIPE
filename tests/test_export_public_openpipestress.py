@@ -546,6 +546,44 @@ def test_reviewed_invented_home_paths_still_catch_a_real_one(tmp_path):
     assert len(reviewed) == 8
 
 
+def test_reviewed_lint_findings_are_pinned_by_line_content(tmp_path):
+    # RT-V8 P8: a reviewed finding matches only its file, code, policy and
+    # exact line text, up to its count; anything else fails the gate.
+    import hashlib
+
+    staging = tmp_path / "staging"
+    (staging / "core").mkdir(parents=True)
+    (staging / "core" / "deny.rs").write_text('let refused = "x";\nother\n', encoding="utf-8")
+    line = hashlib.sha256('let refused = "x";'.encode("utf-8")).hexdigest()
+    key = ("core/deny.rs", "PROHIBITED_PROFESSIONAL_CLAIM", "OPS-K-AUTH-1", line)
+    reviewed = {key: {"count": 1, "reason": "invented denylist"}}
+
+    def finding(n):
+        return {"path": "core/deny.rs", "severity": "BLOCKING", "code": key[1],
+                "matched_policy": key[2], "line": n}
+
+    gate = PIPE.classify_lint_gate(stub_lint_result([finding(1)]), staging, reviewed)
+    assert gate["gate_pass"] and gate["expected_blocking"][0]["expected_justification"] == "invented denylist"
+    twice = PIPE.classify_lint_gate(stub_lint_result([finding(1), finding(1)]), staging, reviewed)
+    assert not twice["gate_pass"] and len(twice["unexpected_blocking"]) == 1
+    other = PIPE.classify_lint_gate(stub_lint_result([finding(2)]), staging, reviewed)
+    assert not other["gate_pass"]
+    assert any("core/deny.rs" in item for item in other["stale_expectations"])
+
+
+def test_committed_reviewed_lint_findings_match_their_lines():
+    import collections
+    import hashlib
+
+    document = json.loads((ROOT / PIPE.REVIEWED_LINT_FINDINGS_PATH).read_text(encoding="utf-8"))
+    assert document["findings"]
+    for entry in document["findings"]:
+        lines = (ROOT / entry["path"]).read_text(encoding="utf-8").splitlines()
+        hashes = collections.Counter(hashlib.sha256(l.encode("utf-8")).hexdigest() for l in lines)
+        assert hashes[entry["line_sha256"]] >= 1, entry["path"]
+        assert entry["count"] >= 1 and entry["reason"].strip() and entry["matched_policy"]
+
+
 def test_classify_boundary_findings_splits_expected_and_unexpected():
     expected_key = next(iter(PIPE.EXPECTED_BOUNDARY_FINDINGS))
     findings = [

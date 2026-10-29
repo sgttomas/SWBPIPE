@@ -866,9 +866,50 @@ def relativize_finding_path(finding_path: str, staging: Path) -> str:
         return finding_path
 
 
-def classify_lint_gate(lint_result: dict, staging: Path) -> dict:
+# RT-V8 P8 (owner, 2026-10-28, as recommended): blocking findings in source
+# code and tests that are claim-phrase denylists, negative assertions or the
+# linter's own patterns are reviewed one by one. Each entry in the committed
+# list pins the file, the finding code and matched policy, and the SHA-256 of
+# the exact line text, with an occurrence count; a finding is expected only
+# while all of these match, so a new or changed line still fails the gate.
+REVIEWED_LINT_FINDINGS_PATH = "tools/release/reviewed_lint_findings.json"
+
+
+def line_sha256(staging: Path, rel_path: str, line: int | None) -> str | None:
+    """SHA-256 of the staged file's exact line text (no line terminator)."""
+    try:
+        lines = (staging / rel_path).read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeDecodeError):
+        return None
+    if not isinstance(line, int) or not 1 <= line <= len(lines):
+        return None
+    return hashlib.sha256(lines[line - 1].encode("utf-8")).hexdigest()
+
+
+def load_reviewed_lint_findings(path: Path) -> dict[tuple, dict]:
+    """(path, code, matched_policy, line_sha256) -> {"count", "reason"}."""
+    if not path.is_file():
+        return {}
+    document = json.loads(path.read_text(encoding="utf-8"))
+    reviewed = {}
+    for entry in document["findings"]:
+        key = (entry["path"], entry["code"], entry["matched_policy"], entry["line_sha256"])
+        reviewed[key] = {"count": int(entry["count"]), "reason": entry["reason"]}
+    return reviewed
+
+
+def classify_lint_gate(
+    lint_result: dict, staging: Path, reviewed: dict[tuple, dict] | None = None
+) -> dict:
     """Split blocking findings into reviewed-expected and unexpected; any
-    unexpected blocking finding (or an unavailable engine) fails the gate."""
+    unexpected blocking finding (or an unavailable engine) fails the gate.
+    `reviewed` defaults to the reviewed-finding list in the staged tree."""
+    if reviewed is None:
+        reviewed = (
+            load_reviewed_lint_findings(staging / REVIEWED_LINT_FINDINGS_PATH)
+            if isinstance(staging, Path)
+            else {}
+        )
     if lint_result["status"] in {"engine_unavailable", "engine_error"}:
         return {
             "gate_pass": False,
@@ -885,6 +926,7 @@ def classify_lint_gate(lint_result: dict, staging: Path) -> dict:
     unexpected: list[dict] = []
     warning_count = 0
     matched_keys = set()
+    remaining = {key: entry["count"] for key, entry in reviewed.items()}
 
     for finding in lint_result.get("findings", []):
         rel_path = relativize_finding_path(finding.get("path", ""), staging)
@@ -898,6 +940,17 @@ def classify_lint_gate(lint_result: dict, staging: Path) -> dict:
             matched_keys.add(key)
             finding["expected_justification"] = EXPECTED_BLOCKING_LINT_FINDINGS[key]
             expected.append(finding)
+            continue
+        pinned = (
+            (rel_path, finding.get("code"), finding.get("matched_policy"),
+             line_sha256(staging, rel_path, finding.get("line")))
+            if remaining
+            else None
+        )
+        if pinned is not None and remaining.get(pinned, 0) > 0:
+            remaining[pinned] -= 1
+            finding["expected_justification"] = reviewed[pinned]["reason"]
+            expected.append(finding)
         else:
             unexpected.append(finding)
 
@@ -905,6 +958,10 @@ def classify_lint_gate(lint_result: dict, staging: Path) -> dict:
         f"{path} :: {code}"
         for path, code in EXPECTED_BLOCKING_LINT_FINDINGS
         if (path, code) not in matched_keys
+    ) + sorted(
+        f"{key[0]} :: {key[1]} :: line {key[3][:12]} (x{count})"
+        for key, count in remaining.items()
+        if count > 0
     )
 
     return {
