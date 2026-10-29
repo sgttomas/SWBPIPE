@@ -1,8 +1,7 @@
 //! CPython's own floating-point algorithms the importer calls: `math.hypot` (`vector_norm`), `sum()` of floats
 //! (Neumaier compensated, from the int 0 start), `math.atan2`'s special cases, `math.radians`/`degrees`, and the
-//! importer's exact `correct_norm3`. The functions CPython takes from the C library (acos, tan, asin, sin, atan2) are
-//! evaluated correctly rounded (decimal90), so native and wasm builds agree with each other and with a platform
-//! library that rounds the same inputs correctly.
+//! importer's exact `correct_norm3`. The importer takes acos, asin, atan2, sin and tan from its `correctly_rounded`
+//! module, ported in `correctly_rounded`; these wrappers add `math`'s special values and domain errors.
 
 use crate::pystr::PyError;
 use crate::rational::{ratio_to_f64, Q};
@@ -116,22 +115,22 @@ pub fn sum(values: &[f64]) -> f64 {
     total
 }
 
-/// `math.atan2(y, x)` (CPython's `m_atan2` special cases, then the C library).
-pub fn atan2(y: f64, x: f64) -> f64 {
+/// `correctly_rounded.atan2(y, x)`: CPython's `m_atan2` special cases, then the correctly rounded value.
+pub fn atan2(y: f64, x: f64) -> Result<f64, PyError> {
     use std::f64::consts::PI;
     if x.is_nan() || y.is_nan() {
-        return f64::NAN;
+        return Ok(f64::NAN);
     }
     if y.is_infinite() {
         if x.is_infinite() {
-            return if x.is_sign_positive() { (0.25 * PI).copysign(y) } else { (0.75 * PI).copysign(y) };
+            return Ok(if x.is_sign_positive() { (0.25 * PI).copysign(y) } else { (0.75 * PI).copysign(y) });
         }
-        return (0.5 * PI).copysign(y);
+        return Ok((0.5 * PI).copysign(y));
     }
     if x.is_infinite() || y == 0.0 {
-        return if x.is_sign_positive() { 0.0f64.copysign(y) } else { PI.copysign(y) };
+        return Ok(if x.is_sign_positive() { 0.0f64.copysign(y) } else { PI.copysign(y) });
     }
-    crate::decimal90::atan2(y, x)
+    crate::correctly_rounded::atan2(y, x)
 }
 
 /// `math.radians(x)` and `math.degrees(x)`.
@@ -150,24 +149,24 @@ fn domain(result: f64, input: f64) -> Result<f64, PyError> {
     }
 }
 
-/// `math.acos`, `math.asin`, `math.tan`, `math.sin` (C library, Python's domain errors).
+/// `correctly_rounded.acos`, `.asin`, `.tan`, `.sin`, with `math`'s domain errors.
 pub fn acos(value: f64) -> Result<f64, PyError> {
-    domain(crate::decimal90::acos(value), value)
+    domain(crate::correctly_rounded::acos(value)?, value)
 }
 pub fn asin(value: f64) -> Result<f64, PyError> {
-    domain(crate::decimal90::asin(value), value)
+    domain(crate::correctly_rounded::asin(value)?, value)
 }
 pub fn tan(value: f64) -> Result<f64, PyError> {
     if value.is_infinite() {
         return Err(PyError::value("math domain error"));
     }
-    domain(crate::decimal90::tan(value), value)
+    domain(crate::correctly_rounded::tan(value)?, value)
 }
 pub fn sin(value: f64) -> Result<f64, PyError> {
     if value.is_infinite() {
         return Err(PyError::value("math domain error"));
     }
-    domain(crate::decimal90::sin(value), value)
+    domain(crate::correctly_rounded::sin(value)?, value)
 }
 
 /// `min(a, b)` and `max(a, b)` as Python evaluates them: the first unless the second compares below (above) it.

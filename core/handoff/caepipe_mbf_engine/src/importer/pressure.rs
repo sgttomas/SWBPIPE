@@ -5,6 +5,7 @@ use super::{Element, Importer, Num, Stop, R};
 use crate::dict;
 use crate::pyfmt::{py_float_repr, py_format_g};
 use crate::pymath::{atan2, correct_norm3};
+use crate::pystr::PyError;
 use crate::rational::Q;
 use crate::runtime::{bore_radius_m, bores_equal, collinear, kink, sub, unit, AXIS_TOLERANCE, TANGENCY_TOLERANCE_RAD, V3};
 use crate::sidecar::CLOSURE_TRANSFERS;
@@ -438,7 +439,7 @@ impl<'a> Importer<'a> {
                 _ => None,
             }
         };
-        let corner = |before: &str, node: &str, after: &str| -> bool {
+        let corner = |before: &str, node: &str, after: &str| -> Result<bool, PyError> {
             let a = unit(&sub(&route.metres(node), &route.metres(before)));
             let t = unit(&sub(&route.metres(after), &route.metres(node)));
             let difference = sub(&a, &t);
@@ -446,8 +447,8 @@ impl<'a> Importer<'a> {
                 * atan2(
                     correct_norm3(difference[0], difference[1], difference[2]),
                     correct_norm3(a[0] + t[0], a[1] + t[1], a[2] + t[2]),
-                );
-            theta > TANGENCY_TOLERANCE_RAD
+                )?;
+            Ok(theta > TANGENCY_TOLERANCE_RAD)
         };
         let mut chains: Vec<(Vec<String>, String, String)> = Vec::new();
         let mut seen: HashSet<String> = HashSet::new();
@@ -497,7 +498,7 @@ impl<'a> Importer<'a> {
                 let reversed: Vec<String> = stretch.iter().rev().cloned().collect();
                 if !route.collinear(&stretch) && !route.collinear(&reversed) {
                     for k in low + 1..high {
-                        if corner(&nodes[k - 1], &nodes[k], &nodes[k + 1]) {
+                        if corner(&nodes[k - 1], &nodes[k], &nodes[k + 1])? {
                             cuts.insert(k);
                         }
                     }

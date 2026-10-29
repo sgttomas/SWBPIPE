@@ -11,9 +11,11 @@ This writer records what the Python does, and the two checks hold each side to t
   fixtures and the authored cases (#1702), each imported as the private regression imports it, and each imported
   model written back by the SI writer and imported again bound; and the correlation cases written by the writer and
   imported bound and unbound. Corpus vectors keep their full output text. It records the writer's regenerated
-  sidecar for each bound import (the Rust port takes the writer as an input until slice 2 ports it), the C library
-  calls the import made, and numerical boundary vectors (float formatting and parsing at rounding boundaries,
-  `math.hypot`, `sum`, the exact norm, the 90-digit arctangent, JSON errors and UTF-8 offsets).
+  sidecar for each bound import (the Rust port takes the writer as an input until slice 2 ports it), the
+  correctly rounded trigonometric calls (`correctly_rounded`) and `math.hypot` calls the import made, and numerical
+  boundary vectors (float formatting and parsing at rounding boundaries, `math.hypot`, `sum`, the exact norm, the
+  90-digit arctangent, the correctly rounded acos/asin/atan2/sin/tan at hard, reduction, special and sampled
+  inputs, JSON errors and UTF-8 offsets).
 - `--check` replays every recorded input through the Python and fails at the first output that differs: the Python
   side cannot change alone. The Rust test `tests/parity.rs` replays the same file: the Rust side cannot either.
 
@@ -63,7 +65,8 @@ CORPUS_MBF = sorted([*(PROJECT / "fixtures/caepipe_mbf/invented/import").glob("*
 AUTHORED = PROJECT / "validation/caepipe_correlation/authored"
 CASES = PROJECT / "validation/caepipe_correlation/cases"
 DOCUMENT_KIND = "openpipestress.caepipe_mbf_engine.import_parity_vectors"
-LIBM = ("acos", "asin", "atan2", "sin", "tan", "hypot")
+TRIG = ("acos", "asin", "atan2", "sin", "tan")  # taken from `correctly_rounded`
+LIBM = (*TRIG, "hypot")
 ORIGINAL_CHECKED_JSON = importer._Importer.checked_json_domain
 
 
@@ -287,6 +290,7 @@ class Recorder:
         original_init, original_run = importer._Importer.__init__, importer._Importer.run
         original_regenerate = importer.regenerate_caepipe_sidecar
         original_math = importer.math
+        original_trig = importer.correctly_rounded
 
         def init(self, data, sidecar, provenance, rebind, source_label, closure=None, shear_model=None,
                  derive_only=False):
@@ -330,13 +334,15 @@ class Recorder:
 
         importer._Importer.__init__, importer._Importer.run = init, run
         importer.regenerate_caepipe_sidecar = regenerate
-        importer.math = LibmProxy(original_math, self.libm)
+        importer.math = LibmProxy(original_math, self.libm, ("hypot",))
+        importer.correctly_rounded = LibmProxy(original_trig, self.libm, TRIG)
         try:
             yield
         finally:
             importer._Importer.__init__, importer._Importer.run = original_init, original_run
             importer.regenerate_caepipe_sidecar = original_regenerate
             importer.math = original_math
+            importer.correctly_rounded = original_trig
 
     def encode_input(self, data, sidecar, provenance, rebind, source_label, closure, shear_model, derive_only):
         if not isinstance(data, (bytes, bytearray)):
@@ -418,14 +424,14 @@ def regeneration_key(model, mbf_sha256: str, derived: Any, reference: dict) -> s
 
 
 class LibmProxy:
-    """The importer's `math` module, recording the C library (and hypot) calls the import makes."""
+    """The importer's `math` or `correctly_rounded` module, recording the calls of `names` the import makes."""
 
-    def __init__(self, module, calls: dict) -> None:
-        self._module, self._calls = module, calls
+    def __init__(self, module, calls: dict, names: tuple[str, ...]) -> None:
+        self._module, self._calls, self._names = module, calls, names
 
     def __getattr__(self, name: str):
         target = getattr(self._module, name)
-        if name not in LIBM:
+        if name not in self._names:
             return target
         calls = self._calls
 
@@ -653,7 +659,48 @@ def numeric_vectors() -> dict:
         atan_vectors.append([bits(y), bits(x), None if result is None else bits(result)])
     return {"repr": repr_vectors, "format_g6": g_vectors, "parse": parse_vectors, "hypot": hypot_vectors,
             "sum": sum_vectors, "correct_norm3": norm_vectors, "twice_atan2": atan_vectors,
-            "json_errors": json_vectors(), "utf8_offsets": utf8_vectors()}
+            "correctly_rounded": trig_vectors(), "json_errors": json_vectors(), "utf8_offsets": utf8_vectors()}
+
+
+TRIG_SAMPLES = 400
+
+
+def trig_vectors() -> list:
+    """`correctly_rounded`'s acos, asin, atan2, sin and tan as [name, [argument bits], result bits, "nan" (a NaN's sign
+    and payload are the platform's) or [exception type, message]]: the hard-to-round and argument-reduction cases, special values and the node 20B calls of its test
+    (`tests/test_caepipe_mbf_correctly_rounded.py`), large reductions, and sampled inputs from the test's own input
+    distributions with a seed of their own."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("parity_correctly_rounded",
+                                                  PROJECT / "tests/test_caepipe_mbf_correctly_rounded.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    cr = importer.correctly_rounded
+    calls: list[tuple[str, tuple[float, ...]]] = []
+    for name, cases in module.HARD_CASES.items():
+        calls += [(name, tuple(float.fromhex(value) for value in args)) for args in cases]
+    for text in module.REDUCTION_CASES + ["-0x1.ba2c250b601fcp+33", "0x1.921fb54442d18p+0", "0x1.921fb52442d18p+0",
+                                          "0x1.fffffffffffffp+1023", "0x1p+20", "0x1.0000000000001p+20", "0x1p+60"]:
+        x = float.fromhex(text)
+        calls += [(name, (value,)) for name in ("sin", "tan") for value in (x, -x)]
+    calls += [(name, tuple(float.fromhex(value) for value in args)) for name, args, _ in module.REPRO_CALLS]
+    for name in ("sin", "tan", "asin", "acos"):
+        calls += [(name, (x,)) for x in module.SPECIAL]
+    calls += [("atan2", (y, x)) for y in module.ATAN2_SPECIAL for x in module.ATAN2_SPECIAL]
+    calls += [("atan2", (5e-324, 2.0)), ("atan2", (5e-324, math.nextafter(2.0, 0.0))), ("atan2", (-1e-300, -1e300))]
+    rng = random.Random(0x7216)
+    for _ in range(TRIG_SAMPLES):
+        calls += [("sin", (module._angle(rng),)), ("tan", (module._angle(rng),)), ("asin", (module._unit(rng),)),
+                  ("acos", (module._unit(rng),)), ("atan2", module._pair(rng))]
+    out = []
+    for name, args in calls:
+        try:
+            value = getattr(cr, name)(*args)
+            result: Any = "nan" if math.isnan(value) else bits(value)
+        except (ValueError, OverflowError, ArithmeticError) as error:
+            result = [type(error).__name__, str(error)]
+        out.append([name, [bits(arg) for arg in args], result])
+    return out
 
 
 def exact_decimal(value: Fraction) -> str:

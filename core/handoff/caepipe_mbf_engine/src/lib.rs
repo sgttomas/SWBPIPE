@@ -5,10 +5,10 @@
 //! (`swbpipe.caepipe_mbf_import_report`) and an id map, with the Python's codes, messages, maps and JSON outputs:
 //! [`ImportResult::model_bytes`], [`ImportResult::report_bytes`] and [`ImportResult::id_map_bytes`] are
 //! byte-identical to `MbfImportResult.model_bytes()`, `report_bytes()` and `id_map_bytes()` (the committed parity
-//! vectors check this both ways). CPython takes acos, asin, atan2, sin and tan from the platform C library, whose
-//! last bit differs between platforms; the port evaluates them correctly rounded, the same natively and in wasm, so
-//! it is the Python's bytes wherever that library rounds the import's inputs correctly. The crate does no file I/O
-//! and depends on no reporting crate.
+//! vectors check this both ways). Both twins take acos, asin, atan2, sin and tan correctly rounded, by one algorithm
+//! (the Python's `correctly_rounded`, ported in `correctly_rounded.rs`), not from the platform C library, whose last
+//! bit differs between platforms; so the bytes agree on every platform, natively and in wasm. The crate does no file
+//! I/O and depends on no reporting crate.
 //!
 //! A bound import with a format 2 or 3 sidecar ends with the regeneration identity: the SI writer regenerates the
 //! sidecar from the imported model and the given sidecar must equal it (Design `caepipe-mbf-import.md` §14). The
@@ -22,6 +22,7 @@
 // The port keeps the Python's negated comparisons (`not x > 0`), which a NaN makes differ from `x <= 0`.
 #![allow(clippy::neg_cmp_op_on_partial_ord, clippy::nonminimal_bool)]
 
+mod correctly_rounded;
 mod decimal90;
 mod importer;
 mod pyfmt;
@@ -237,7 +238,7 @@ pub mod ports {
     pub fn dumps_sorted(value: &crate::Value) -> Result<String, crate::PyError> {
         crate::pyfmt::dumps_sorted(value)
     }
-    /// `math.atan2`, `math.acos`, `math.asin`, `math.sin`, `math.tan` as the importer calls them.
+    /// `correctly_rounded.atan2`, `.acos`, `.asin`, `.sin`, `.tan` as the importer calls them.
     pub use crate::pymath::{acos, asin, atan2, sin, tan};
     /// `float(Fraction(text))` for a decimal numeral (Python's correctly rounded conversion).
     pub fn fraction_to_f64(text: &str) -> Option<f64> {

@@ -501,16 +501,10 @@ fn the_ninety_digit_arctangent_rounds_as_the_python() {
     assert!(failures.is_empty(), "{failures:?}");
 }
 
-/// Recorded C-library results that the platform which wrote the vectors (macOS) does not round correctly, with the
-/// correctly rounded value, each confirmed independently (a 120-digit series and mpmath at 400 bits). The import that
-/// made the call does not carry that last bit into its outputs: its vector passes with the correctly rounded value.
-const NOT_CORRECTLY_ROUNDED_WHERE_RECORDED: &[(&str, &str)] = &[("tan:182d4452fb21f93f", "747696fbffff9f41")];
-
 #[test]
-fn the_c_library_calls_the_imports_made_are_correctly_rounded_as_recorded() {
-    // CPython takes acos, asin, atan2, sin and tan from the platform C library, whose rounding differs between
-    // platforms; the port evaluates them correctly rounded, the same native and in wasm. Every call the recorded
-    // imports made must equal the Python's result there, or be listed above with its correctly rounded value.
+fn the_trig_and_hypot_calls_the_imports_made_are_the_pythons() {
+    // Both twins take acos, asin, atan2, sin and tan correctly rounded (the Python's `correctly_rounded`), so every
+    // call the recorded imports made gives the Python's bits, natively and in wasm; hypot is CPython's algorithm.
     let mut failures = Vec::new();
     let mut calls = 0;
     for (key, want) in document().get("libm").and_then(Value::as_dict).expect("libm").iter() {
@@ -521,25 +515,49 @@ fn the_c_library_calls_the_imports_made_are_correctly_rounded_as_recorded() {
             "asin" => ports::asin(inputs[0]).ok(),
             "sin" => ports::sin(inputs[0]).ok(),
             "tan" => ports::tan(inputs[0]).ok(),
-            "atan2" => Some(ports::atan2(inputs[0], inputs[1])),
+            "atan2" => ports::atan2(inputs[0], inputs[1]).ok(),
             "hypot" => Some(ports::hypot(&inputs)),
             _ => None,
         };
         calls += usize::from(name != "hypot");
-        let recorded = want.as_str().expect("bits");
-        let expected = match NOT_CORRECTLY_ROUNDED_WHERE_RECORDED.iter().find(|(call, _)| call == key) {
-            Some((_, correct)) => {
-                assert_ne!(*correct, recorded, "{key} is listed but recorded correctly rounded");
-                *correct
-            }
-            None => recorded,
-        };
-        let want = f64_bits(expected);
+        let want = f64_bits(want.as_str().expect("bits"));
         if got.map(f64::to_bits) != Some(want.to_bits()) {
             failures.push(format!("{name}{inputs:?}: {got:?} vs {want:e}"));
         }
     }
-    assert!(calls >= 30, "{calls} C-library calls recorded");
+    assert!(calls >= 30, "{calls} trigonometric calls recorded");
+    assert!(failures.is_empty(), "{failures:?}");
+}
+
+#[test]
+fn the_correctly_rounded_functions_are_the_pythons() {
+    // `numeric.correctly_rounded`: the Python module's results at its test's hard, reduction, special and repro
+    // inputs and at sampled inputs of every binade, with `math`'s domain errors.
+    let mut failures = Vec::new();
+    let mut count = 0;
+    for item in numeric("correctly_rounded") {
+        let item = item.as_list().expect("item");
+        let name = item[0].as_str().expect("name");
+        let args: Vec<f64> = item[1].as_list().expect("args").iter().map(|arg| f64_bits(arg.as_str().expect("bits"))).collect();
+        let got = match name {
+            "acos" => ports::acos(args[0]),
+            "asin" => ports::asin(args[0]),
+            "sin" => ports::sin(args[0]),
+            "tan" => ports::tan(args[0]),
+            "atan2" => ports::atan2(args[0], args[1]),
+            _ => panic!("{name}"),
+        };
+        let got = match got {
+            Ok(value) if value.is_nan() => Value::str("nan"), // a NaN's sign and payload are the platform's
+            Ok(value) => Value::Str(f64_hex(value)),
+            Err(error) => Value::List(vec![Value::Str(error.kind.into()), Value::Str(error.message)]),
+        };
+        if !mbf::py_eq(&got, &item[2]) {
+            failures.push(format!("{name}{args:?}: {got:?} vs {:?}", item[2]));
+        }
+        count += 1;
+    }
+    assert!(count >= 2000, "{count} vectors");
     assert!(failures.is_empty(), "{failures:?}");
 }
 
@@ -556,10 +574,10 @@ fn the_correctly_rounded_functions_hold_at_their_edges() {
     assert_eq!(ports::sin(5e-324).unwrap(), 5e-324);
     assert_eq!(ports::tan(1e-300).unwrap(), 1e-300);
     assert!(ports::tan(f64::INFINITY).is_err() && ports::sin(f64::NEG_INFINITY).is_err());
-    assert_eq!(ports::atan2(1.0, 0.0), FRAC_PI_2);
-    assert_eq!(ports::atan2(-1.0, -1.0), -3.0 * PI / 4.0);
-    assert_eq!(ports::atan2(0.0, -1.0), PI);
-    assert_eq!(ports::atan2(-0.0, 1.0).to_bits(), (-0.0f64).to_bits());
+    assert_eq!(ports::atan2(1.0, 0.0).unwrap(), FRAC_PI_2);
+    assert_eq!(ports::atan2(-1.0, -1.0).unwrap(), -3.0 * PI / 4.0);
+    assert_eq!(ports::atan2(0.0, -1.0).unwrap(), PI);
+    assert_eq!(ports::atan2(-0.0, 1.0).unwrap().to_bits(), (-0.0f64).to_bits());
     // values mpmath (400 bits) rounds as the port does and macOS's library does not
     assert_eq!(ports::tan(0.6193291121562982).unwrap(), 0.7128966747523655);
     assert_eq!(ports::acos(-0.32021055557652045).unwrap(), 1.8967480640184062);
