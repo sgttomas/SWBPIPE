@@ -270,7 +270,9 @@ A derived enclosure, rounded up from Σ|fᵢ|·rᵢ plus δ_publication, would b
 needed for numerical eligibility. It is not part of this slice.
 
 A subtraction keeps `SUBTRACTION_SIGN`, meaning it is not an equilibrium state.
-A range envelope keeps its row-envelope meaning.
+A range envelope keeps its row-envelope meaning. On PF, a subtraction or range
+envelope of a model with nonlinear supports states its operands' standing in the
+same operand-record shape (`pf-nonlinear-operand-standing.md`).
 
 ## 6. Contract and readers
 

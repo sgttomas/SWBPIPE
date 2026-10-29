@@ -212,7 +212,9 @@ def inspect_directed_helpers(snapshot):
 # W-16 slices b and c D3 (§8.27): lib.rs's combination append, operand standing, equivalent-static record and generator
 # checks add no `.min(`/`.max(` call.
 # §8.30 D3: lib.rs's dense-memory guard and the generator's dropped refusal add no `.min(`/`.max(` call.
-B7A_PRIMITIVE_LIB_SOURCE_PIN = '8dea48cd8210e8f9f8a6fedfc5dd614a6e9336f2f4ab48d62737e08e057e7593'
+# Slice 1a D3 (§8.31): reviewed nonlinear operand producer/reader additions; D1.6 empties the producer
+# records, OP1A-RD retains the reader scans and OP1A-OWN prices its borrowed gate vector.
+B7A_PRIMITIVE_LIB_SOURCE_PIN = 'd12b423af9d1d1a684e055ef4f1f205ba8e8f9872886bb491326ee28baa636ce'
 
 
 def primitive_lib_minmax_callers(snapshot):

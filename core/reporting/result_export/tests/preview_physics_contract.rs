@@ -70,6 +70,11 @@ const COMB: &str = "combination:C-OPER-ALT";
 /// the reader checks structure and representation only, not the sums.
 fn with_admitted_combination() -> Value {
     let mut raw = invented();
+    // Operating-case slice 1a (DEL-05-02 `pf-nonlinear-operand-standing.md` §3): a
+    // document that admits a mechanics combination is a linear one, since a nonlinear
+    // model withholds every mechanics combination. The invented document's nonlinear
+    // state rows, which mark it nonlinear, are removed from this synthetic copy.
+    rows(&mut raw).retain(|r| r["kind"] != "nonlinear_support_active_set_state_code");
     raw["contract_evidence"]["combination_gates"] =
         json!([{"combination_id":COMB,"withheld":false,"reason":null}]);
     raw["diagnostics"]

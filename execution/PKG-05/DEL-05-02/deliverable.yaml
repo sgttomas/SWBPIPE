@@ -134,6 +134,12 @@ code_paths:
 - core/reporting/result_export/tests/section_bases.rs
 - core/reporting/result_export/tests/connector_contract.rs
 - core/reporting/result_export/tests/preview_physics_contract.rs
+- core/reporting/result_export/src/preview_combination_operands.rs
+- core/reporting/result_export/tests/preview_combination_operands_contract.rs
+- core/product_physics/tests/op1a_operand_standing.rs
+- core/product_physics/src/op1a_seed_tests.rs
+- tests/verifiers/preview_combination_operands.py
+- tests/test_preview_combination_operands.py
 - core/reporting/result_export/tests/physics_*contract.rs
 - core/reporting/result_export/tests/load_reference*_contract.rs
 - core/reporting/result_export/tests/pressure*_contract.rs

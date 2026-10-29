@@ -3628,3 +3628,61 @@ if fnkey("timoshenko_partial_bounds", _C30_SP):
                 "both routes (W16C-ES); every D1 span is [0, 1]")
     O10_EDGE_ZERO += [(fnkey("equivalent_global_nodal_loads_with_spans_formed", _C30_SP), fnkey("timoshenko_partial_bounds", _C30_SP), _W16T_SP)]
     O10_LOOPS_LAST += [("for spanned in uniform_loads.iter()", "0", _W16T_SP, ["lib.rs:timoshenko_partial_bounds"])]
+
+# Slice 1a retained D3 (§8.31). The current route L base is preview-physics-2:
+# the reader's unconditional scans remain reached. D1.6 empties only the
+# nonlinear producer's records and the reader's record/notice bodies.
+_OP1A_PP = PP_ + "preview_physics.rs"
+_OP1A_RE = RE_ + "preview_combination_operands.rs"
+if fnkey("append_operand_standing", _OP1A_PP):
+    # Raw pins bind the complete early-return/dataflow and all new owning sites.
+    # Existing lib.rs and admission pins separately bind the call and D1.6.
+    _op1a_pins = {'core/product_physics/src/preview_physics.rs': 'bc037bd1c58565d12784948f84decaac8b61d7a4c3782d8ffac4d2e730ee7347', 'core/reporting/result_export/src/preview_combination_operands.rs': 'ba74ebe99e42c932506f0c8dfb4329b3bd0dccdd43ba241e1e7d5922dfc5b3e5', 'core/reporting/result_export/src/preview_physics_evidence.rs': '63db8075e4e1b83d3e3bcd48a6ab001073635ff6841ef22bae923f9829c152b0', 'core/reporting/result_export/src/reader_verdict.rs': '6e191149751edece74e14172d134dd9ae850441c4c5b4979521d49a708ebafb1'}
+    for _f, _digest in _op1a_pins.items():
+        if __import__("hashlib").sha256(_text_of(_f).encode()).hexdigest() != _digest:
+            raise SystemExit("OP1A-PF/RD: reviewed source changed: " + _f)
+    _OP1A_PF = O10 + "OP1A-PF: D1.6 excludes nonlinear supports; append_operand_standing returns Vec::new before its traversal; state_operand_standing returns on the empty records before every allocation or helper call"
+    O10_EDGE_ZERO += [(fnkey("run_linear_static_preview_observed_inner", _LIB), fnkey("append_operand_standing", _OP1A_PP), _OP1A_PF),
+                     (fnkey("run_linear_static_preview_observed_inner", _LIB), fnkey("state_operand_standing", _OP1A_PP), _OP1A_PF)]
+    # The reader receives the actual projected publication, with no nonlinear
+    # state row or evidence member. Keep its row, gate and diagnostic scans.
+    _OP1A_RD = O10 + "OP1A-RD: D1.6 has no nonlinear state row, the producer inserts no combination_operands member, and neither new notice; records and expected/stated notices are empty"
+    O10_LOOPS_LAST += [
+        ("for (record, gate_id) in records.iter().zip(&admitted)", "0", _OP1A_RD, ["preview_combination_operands.rs:check"]),
+        ("for notice in &expected", "0", _OP1A_RD, ["preview_combination_operands.rs:check"]),
+        ("iter:stated.iter().filter", "0", _OP1A_RD, ["preview_combination_operands.rs:check"]),
+    ]
+    # Nested headers are still inventoried even under a zero ancestor.
+    O10_LOOPS_LAST += [(h, b, _OP1A_RD + "; nested in the zero record loop", ["preview_combination_operands.rs:check"]) for h, b in (
+        ("for row in rows.iter().filter(|r| combination_of(r) == Some(id))", "Pall"),
+        ("for (operand, case) in operands.iter().zip(&order)", "3"),
+        ("for (reference, (component_kind, component)) in refs.iter().zip(components)", "6"),
+        ("for (reference, case) in refs.iter().zip(&order)", "3"))]
+    # The name-only scanner mistakes patterns/local bindings for calls to these
+    # private helpers. Rust visibility rules exclude all four edges.
+    for _n, _f, _callee in (("publish", _LIB, "notice"), ("identity_match", _W16_RM, "text"),
+                           ("pending_error_bytes", PP_ + "retained_product.rs", "text"),
+                           ("expression_matches", RE_ + "retained_precision.rs", "text")):
+        if not _re.match(r"fn " + _callee + r"\b", _fn_text(_callee, _OP1A_RE)):
+            raise SystemExit("OP1A-BN: helper is no longer private")
+        O10_EDGE_ZERO += [(fnkey(_n, _f), fnkey(_callee, _OP1A_RE), O10 + "OP1A-BN: private module helper; caller's same-name token is a pattern or local binding, not this function")]
+    # Only require's returning error is live; every caller propagates it with ?.
+    O10_SITE_FROM += [(site("require", _OP1A_RE, 'Err(format!'),
+                       {"from": [fnkey("check", _OP1A_RE), fnkey("model_checks", _OP1A_RE)], "per": "1",
+                        "why": O10 + "OP1A-ER: require allocates only on Err; every require call propagates with ?, at most one per check/model_checks"})]
+    O10_ID_AUDIT += [(site("require", _OP1A_RE, 'Err(format!', full=True),
+                      {"code": {"bytes": 128, "source": O10 + "OP1A-ID: require callers pass static literal suffixes, all <=128 bytes"}})]
+    for _file, _fn, _needle, _args in (
+        (_OP1A_PP, "operand_states_diagnostic", 'format!("{case}: {state}")', {"case": IN, "state": {"bytes": 40, "source": "OP1A-ID: literal reported state"}}),
+        (_OP1A_RE, "states_notice", 'format!("{case}: {state}")', {"case": IN, "state": {"bytes": 40, "source": "OP1A-ID: literal reported state"}}),
+        (_OP1A_PP, "operand_states_diagnostic", 'format!("{support} ({per_case})")', {"support": IN, "per_case": {"bytes": 1024, "source": "OP1A-ID: <=3 IN128 cases and 40-byte literal states, joined"}}),
+        (_OP1A_RE, "states_notice", 'format!("{support} ({per_case})")', {"support": IN, "per_case": {"bytes": 1024, "source": "OP1A-ID: <=3 IN128 cases and 40-byte literal states, joined"}}),
+        (_OP1A_PP, "state_operand_standing", 'format!("{case} ({quality})")', {"case": IN, "quality": {"bytes": 128, "source": "OP1A-ID: literal solve quality"}}),
+        (_OP1A_RE, "standing_notice", 'format!("{case} ({quality})")', {"case": IN, "quality": {"bytes": 128, "source": "OP1A-ID: literal solve quality"}})):
+        O10_ID_AUDIT += [(site(_fn, _file, _needle, full=True), _args)]
+    # OP1A-OWN: admitted Vec<&str> is push-collected from <=z gates, with
+    # old backing during growth. expected/stated are empty on D1. The full
+    # requested+moving sum beside V5 is conservative; native &str is witnessed.
+    O10_TYPED_PATCHES = list(globals().get("O10_TYPED_PATCHES", [])) + [("g4_caps.py", ' + _W7_RD + _W15_RB,',
+                          ' + _W7_RD + _W15_RB + s("&str") * (pushcap(CAPS.get("z", 0)) + pushcap(CAPS.get("z", 0)) // 2),',
+                          O10 + "OP1A-OWN: V5 also holds admitted's <=z borrowed str entries and previous push backing; all other new Vecs are empty on D1")]

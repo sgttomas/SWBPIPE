@@ -74,12 +74,14 @@ RF_PINS = {
 # the L5 guard, shadow, insert and call texts are unchanged.
 # §8.30 D3: lib.rs's dense-memory guard and dropped Timoshenko partial-span refusal, FK formation_check.rs's and SP
 # lib.rs's Timoshenko partial-span formation change no reduction's owner or lifetime; the L5 texts are unchanged.
+# Slice 1a D3 (§8.31): reviewed nonlinear operand producer/reader additions; D1.6 empties the producer
+# records, OP1A-RD retains the reader scans and OP1A-OWN prices its borrowed gate vector.
 REDUCED_PINS = {
-    "core/product_physics/src/lib.rs": "8dea48cd8210e8f9f8a6fedfc5dd614a6e9336f2f4ab48d62737e08e057e7593",
+    "core/product_physics/src/lib.rs": "d12b423af9d1d1a684e055ef4f1f205ba8e8f9872886bb491326ee28baa636ce",
     "core/product_physics/src/retained_wire.rs": "b457aff075c67f6eb93000dff2ca0cf4bab43119fe34db1316c78356bf1864b3",
     "core/product_physics/src/certified_publication.rs": "89cdb23e172136b55ff980f7d4a4cd3643e43894fb2a9ad40c92fd3cd4adcf87",
     "core/product_physics/src/certified_loads.rs": "da7d3decc3a0170da65b38670ec215aaebdb9d8d799e3c76e41879a80589bc73",
-    "core/product_physics/src/preview_physics.rs": "bc3d93c28744cb8ec68f324c21809caff9bba007ea50876f2fa425238c9edacc",
+    "core/product_physics/src/preview_physics.rs": "bc037bd1c58565d12784948f84decaac8b61d7a4c3782d8ffac4d2e730ee7347",
     "core/solver/frame_kernel/src/structural/formation_check.rs": "ac56893815b552074dc4d3acc85ebe4b57579fecd311698729f2bbac225f954a",
     "core/solver/frame_kernel/src/structural/certified_recovery.rs": "8f69bb9bea7c7696b1f78fc985998faa03a507dfc47be13cc6a2b6aa062980c9",
     "core/solver/frame_kernel/src/load_ledger.rs": "8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f",
