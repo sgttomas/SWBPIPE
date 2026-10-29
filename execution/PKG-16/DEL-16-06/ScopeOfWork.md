@@ -19,6 +19,7 @@ Apply only explicitly accepted, contract-valid structured operations to their cu
 - **OUT-002** — Verified contract for DEL-16-06-REQ-002.
 - **OUT-003** — Verified contract for DEL-16-06-REQ-003.
 - **OUT-004** — Verified contract for DEL-16-06-REQ-004.
+- **OUT-005** — Proposal-only embedded agent host and SWBPIPE-owned capability catalog for RT-E1, with candidate-bound protocol, session-binding and controlled-application evidence.
 
 ## Deliverable Definition — Ontology
 
@@ -38,6 +39,10 @@ Use the sole DEC-020 operation engine with equivalent native/wasm behavior for s
 
 Return deterministic changed-state/result evidence for the accepted change and hand actual outcomes to DEL-16-03 audit and DEL-02-05 persistence without creating another mutation route.
 
+### CLM-005 — DEL-16-06-REQ-005
+
+Embed a stock Codex app-server client over private stdio using the SWBPIPE-owned catalog in `Design/agent-capability-catalog.json` and the session contract in `Design/embedded-agent-host.md`. Validate and bind calls to the live webview session; all agent changes enter the existing review queue and require the person's explicit action through the sole operation engine. Preserve original agent attribution, current-model basis, bounded reads and truthful rejected, withdrawn, applied or unknown outcomes. Built-in shell, file/patch and web capabilities must be disabled and their actual isolation checked for the selected supplier pin. No direct autonomy, professional acceptance, issuance or release is conferred.
+
 ## Completion and Reliance Basis — Epistemology
 
 Each requirement needs named candidate-bound evidence. Existing code, route visibility or historical tests alone do not establish current conformance.
@@ -46,6 +51,7 @@ Each requirement needs named candidate-bound evidence. Existing code, route visi
 - **AC-002** — CLM-002 is supported by the corresponding witness, including invalid/unsupported paths and declared limitations.
 - **AC-003** — CLM-003 is supported by the corresponding witness, including invalid/unsupported paths and declared limitations.
 - **AC-004** — CLM-004 is supported by the corresponding witness, including invalid/unsupported paths and declared limitations.
+- **AC-005** — CLM-005 is supported by a pinned actual local-model dynamic-tool round trip, permission/isolation checks and a native-session proposal/review witness, including stale basis, invalid binding, duplicate completion and interruption outcomes. Catalog projection or component tests alone do not establish integration. The initial coordinate-only catalog is not evidence for criterion 17's full build/solve/explain journey.
 
 ## Production and Verification Method — Praxeology
 
@@ -53,10 +59,11 @@ Each requirement needs named candidate-bound evidence. Existing code, route visi
 - **VER-002** — Compare before/after accepted-state identity for each rejected path and ensure truthful failure/unchanged-state evidence reaches callers.
 - **VER-003** — Run the same supported-operation corpus through native and wasm routes and compare contract-visible outcomes; Python preview tests alone do not establish product application conformance.
 - **VER-004** — Trace operation/accepted-basis/result identity through application, receipt and save/reopen; distinguish pre-application acceptance from actual post-application outcome and retain persistence-policy residuals.
+- **VER-005** — Follow `Design/embedded-agent-host.md`'s verification sequence on the named candidate and supplier/model pins; independently review new Tauri permission surfaces and the ingress-admitted completion command, update pinned reach evidence, and keep unrun or unsupported paths explicit.
 
 ## Governing Values and Decisions — Axiology
 
-DEL-16-01 owns schema/taxonomy, DEL-16-02 validation/preview, DEL-16-03 acceptance/audit policy, DEL-02-05 persistence and DEL-16-04 professional-boundary controls. A user actor-type string is not identity evidence. Retention, actor policy and unsupported-operation decisions remain open; no live agent/provider activation.
+DEL-16-01 owns schema/taxonomy, DEL-16-02 validation/preview, DEL-16-03 acceptance/audit policy, DEL-02-05 persistence and DEL-16-04 professional-boundary controls. A user actor-type string is not identity evidence. Retention, actor policy and unsupported-operation decisions remain open. The owner authorized the RT-E1 embedded host on 2026-10-28; activation follows CLM-005's proposal-only, session-binding and verified-isolation contract. Durable audit/history completion is not inferred from session operation.
 
 Apply existing schema, units, provenance, protected-content and professional-boundary contracts. Source integration, internal checking, engineering acceptance and release remain distinct. Standard claim fence applies (F-PIP-2; DEC-081 claims taxonomy).
 
@@ -68,6 +75,7 @@ Apply existing schema, units, provenance, protected-content and professional-bou
 | OUT-002 | OBJ-015 | CLM-002 | AC-002 | VER-002 | Named claim-bound contract witness with valid/invalid cases and candidate identity |
 | OUT-003 | OBJ-015 | CLM-003 | AC-003 | VER-003 | Named claim-bound contract witness with valid/invalid cases and candidate identity |
 | OUT-004 | OBJ-015 | CLM-004 | AC-004 | VER-004 | Named claim-bound contract witness with valid/invalid cases and candidate identity |
+| OUT-005 | OBJ-015 | CLM-005 | AC-005 | VER-005 | Pinned dynamic-tool and native-session witnesses, permissions scrutiny and explicit evidence limits |
 
 ## Delivery commitments and evidence limits
 
