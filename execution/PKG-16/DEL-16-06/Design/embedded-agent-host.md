@@ -285,6 +285,14 @@ references, interruption/detachment, terminal suppression, backing lifetime and
 an admitted 16-call burst. The live host coordinator/session bridge remains
 unimplemented and none of these checks establishes AC-005.
 
+The protocol also treats the selected pin's unoffered built-in tool-activity
+items as terminal on start/completion, including command/file/web, MCP,
+sub-agent and image activity. Pending calls become lost references, never
+fabricated application failures or cancellation. This observes a configuration
+or isolation mismatch; notification timing cannot prove that an action was
+prevented. The native process owner must still stop/clean up its supplier, and
+actual disablement/OS isolation remains a separate activation proof obligation.
+
 The macOS-only `macos.rs`/`sandbox.rs` launcher is not connected to product
 startup. It verifies and copies the selected binary, uses private home/cwd and
 an environment-held credential, and denies reads outside fixed OS locations and

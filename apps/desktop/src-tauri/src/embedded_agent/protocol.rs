@@ -199,6 +199,26 @@ fn turn_status(v: &Value) -> Result<&str, Error> {
         .ok_or(Error("invalid turn status"))
 }
 
+// Tool activity tags from stock 0.160.0's ThreadItem schema. Only this host's
+// offered dynamic tools belong to the integration. This is an observation
+// tripwire, not proof that configuration/OS isolation prevented an action.
+fn unoffered_activity(item: &Value) -> bool {
+    matches!(
+        item.get("type").and_then(Value::as_str),
+        Some(
+            "commandExecution"
+                | "fileChange"
+                | "mcpToolCall"
+                | "collabAgentToolCall"
+                | "subAgentActivity"
+                | "webSearch"
+                | "imageView"
+                | "sleep"
+                | "imageGeneration"
+        )
+    )
+}
+
 impl Protocol {
     /// Token must be host-generated, unpredictable and unique per connection;
     /// it is never supplied by the model. The caller must not reuse it.
@@ -492,8 +512,14 @@ impl Protocol {
                     .to_owned();
                 actions.events.push(Event::MessageDelta { item_id, text });
             }
+            "item/started" if p.get("item").is_some_and(unoffered_activity) => {
+                return Err(Error("unoffered supplier tool activity"));
+            }
             "item/completed" => {
                 self.check_turn(&p)?;
+                if p.get("item").is_some_and(unoffered_activity) {
+                    return Err(Error("unoffered supplier tool activity"));
+                }
                 let item = p
                     .get("item")
                     .and_then(Value::as_object)
@@ -727,6 +753,52 @@ mod tests {
     }
     fn call_summary(rpc: Value, id: &str) -> Value {
         call(rpc, id, Tool::Summary.name(), json!({}))
+    }
+
+    #[test]
+    fn unoffered_supplier_tool_activity_closes_with_pending_calls_preserved() {
+        for method in ["item/started", "item/completed"] {
+            for kind in [
+                "commandExecution",
+                "fileChange",
+                "mcpToolCall",
+                "collabAgentToolCall",
+                "subAgentActivity",
+                "webSearch",
+                "imageView",
+                "sleep",
+                "imageGeneration",
+            ] {
+                let mut p = active();
+                let reference = requested(
+                    p.handle_frame(call_summary(json!(7), "pending"), &basis())
+                        .unwrap(),
+                );
+                let result = p.handle_frame(notification(method, json!({"threadId":"thread-1","turnId":"turn-1","item":{"id":"unoffered","type":kind}})), &basis());
+                assert!(result.is_err(), "{method}: {kind}");
+                assert!(
+                    matches!(p.disconnect().as_slice(), [Event::ToolLost { request_ref, .. }] if request_ref == &reference)
+                );
+                assert!(p.disconnect().is_empty());
+            }
+        }
+    }
+
+    #[test]
+    fn offered_dynamic_activity_and_reasoning_do_not_close_the_protocol() {
+        let mut p = active();
+        for method in ["item/started", "item/completed"] {
+            for kind in ["dynamicToolCall", "reasoning", "plan", "functionCallOutput"] {
+                p.handle_frame(notification(method, json!({"threadId":"thread-1","turnId":"turn-1","item":{"id":"informational","type":kind}})), &basis()).unwrap();
+            }
+        }
+        assert!(matches!(
+            p.handle_frame(call_summary(json!(7), "valid"), &basis())
+                .unwrap()
+                .events
+                .as_slice(),
+            [Event::ToolRequested { .. }]
+        ));
     }
 
     #[test]
