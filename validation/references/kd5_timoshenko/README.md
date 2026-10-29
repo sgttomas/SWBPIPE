@@ -133,10 +133,10 @@ not reference: it links the product crate by path and calls only `run_linear_sta
   uniform load on a prismatic member the Timoshenko consistent vector is [wL/2, wL²/12, wL/2, −wL²/12],
   identical to the Euler–Bernoulli one (SHEAR_REFERENCE §4; Design §3.4), so a product that used the
   stale Euler–Bernoulli vector with Timoshenko K would publish the same bits as a correct one, in
-  assembly and in recovery. The only load where the two vectors differ is a partial span, and partial
-  spans cannot reach the exact route: their extents arise only from equivalent-static wind, which the
-  exact route refuses (Design §3.4), and K-D5 records a Timoshenko frame with a partial-span primitive as
-  unavailable (Design §4 item 4). The mutant is killed at element level by t4_u8's
+  assembly and in recovery. The only load where the two vectors differ is a partial span. This judged
+  set contains only full-span member loads and cannot observe the stale partial-span vector.
+  Exact-route partial-span wind is covered by `../w16_timoshenko_partial_wind/`. The mutant is killed at
+  element level by t4_u8's
   `timoshenko_distal_half_load_kills_the_stale_vector` (54/384 against 53/384). The product-level
   sensitivity control that remains is the Timoshenko product judged against the Euler–Bernoulli
   reference (`--ref twin` on the Timoshenko runs), which must breach at high φ.

@@ -94,8 +94,13 @@ fn solve(input: Value, mode: PreviewSolverMode) -> MechanicsEnvelope {
     run_linear_static_preview_with_mode(request, mode)
 }
 
-#[test]
-fn strongly_cancelling_distinct_pressure_factors_are_explicitly_unqualified() {
+/// The two-pipe geometry this control used before §8.30 correction 1: two
+/// parallel pipes between A and B, each its own region, region 2 separately
+/// supported at both terminals. Its terminals share A and B, so it is a
+/// shared-terminal pressure junction with a dropped cap and is refused by name
+/// before assembly (the expected code moved from
+/// PRESSURE_ASSEMBLY_CANCELLATION_UNRESOLVED; Agent 0, 2026-10-28).
+fn two_parallel_regions() -> Value {
     let mut input = model(false, true, 0.0);
     let second_pipe = pipe("pipe:parallel", ROOT, TIP, 0.16, 0.02, "material:one");
     input["model"]["pipe_segments"]
@@ -105,12 +110,6 @@ fn strongly_cancelling_distinct_pressure_factors_are_explicitly_unqualified() {
     let mut second = input["model"]["load_cases"][0]["pressure_regions"][0].clone();
     second["id"] = json!("region:other-source");
     second["member_pipe_ids"] = json!(["pipe:parallel"]);
-    // T4-U0: v2 refuses p < 0 by name, so the cancellation no longer comes
-    // from a negative second pressure. Region 2 is separately supported at
-    // both terminals, so its only group at each node is Poisson, -2*nu*p2*Ai2;
-    // region 1's groups are cap +p1*Ai1 and Poisson -2*nu*p1*Ai1. With
-    // Ai1/Ai2 = 25/36 and p2 = p1*(25/36)*((1-2nu)/(2nu))*(1+1e-13), the node
-    // sum is about -1e-13*p1*Ai1*(1-2nu), so the guard's ratio is about 1e13.
     second["terminals"] = json!([terminal(ROOT, false), terminal(TIP, false)]);
     let nu = 0.3;
     second["pressure"]["value"] =
@@ -119,6 +118,30 @@ fn strongly_cancelling_distinct_pressure_factors_are_explicitly_unqualified() {
         .as_array_mut()
         .unwrap()
         .push(second);
+    input
+}
+
+#[test]
+fn strongly_cancelling_distinct_pressure_factors_are_explicitly_unqualified() {
+    // One region over two collinear pipes A-M-B, transferring at both
+    // terminals, so no terminal is shared. Pressure groups are keyed by
+    // pressure and bore. The second pipe's outside diameter is one ulp above
+    // the first's: its bore differs within the region's equal-bore guard (64
+    // epsilon of the radius), so at M the two members' Poisson groups,
+    // -2*nu*p*Ai1 and +2*nu*p*Ai2, are distinct and strongly cancel. With
+    // nu = 0.5*(1 - 1e-13) each terminal's cap and Poisson terms share a group
+    // whose load (1 - 2*nu)*p*Ai is about 1e-13*p*Ai, so the whole
+    // translational RHS is tiny and the guard's ratio is about 1e13.
+    let mut input = model(false, true, 0.0);
+    let middle = "node:M";
+    let document = &mut input["model"];
+    document["nodes"].as_array_mut().unwrap().push(node(middle, [LENGTH / 2.0, 0.0, 0.0]));
+    document["pipe_segments"] = json!([
+        pipe(PIPE, ROOT, middle, 0.12, 0.01, "material:one"),
+        pipe("pipe:M-B", middle, TIP, f64::from_bits(0.12_f64.to_bits() + 1), 0.01, "material:one"),
+    ]);
+    document["materials"] = json!([material("material:one", 200e9, 0.5 * (1.0 - 1e-13))]);
+    document["load_cases"][0]["pressure_regions"][0]["member_pipe_ids"] = json!([PIPE, "pipe:M-B"]);
     for mode in MODES {
         let output = solve(input.clone(), mode);
         assert_eq!(output.status.mechanics, "MODEL_INCOMPLETE");
@@ -130,6 +153,24 @@ fn strongly_cancelling_distinct_pressure_factors_are_explicitly_unqualified() {
                 .any(|d| d.code == "PRESSURE_ASSEMBLY_CANCELLATION_UNRESOLVED"),
             "{:?}",
             output.diagnostics
+        );
+    }
+}
+
+#[test]
+fn the_former_two_parallel_region_control_is_a_refused_shared_terminal_junction() {
+    for mode in MODES {
+        let output = solve(two_parallel_regions(), mode);
+        assert_eq!(output.status.mechanics, "MODEL_INCOMPLETE");
+        assert!(output.results.is_empty());
+        let codes = output.diagnostics.iter().filter(|d| d.severity == "blocking").map(|d| (d.code.as_str(), d.affected_refs.clone())).collect::<Vec<_>>();
+        assert_eq!(
+            codes,
+            [
+                ("EXACT_PRESSURE_SHARED_TERMINAL_JUNCTION_UNSUPPORTED", vec![CASE.to_string(), ROOT.to_string(), "region:other-source".to_string()]),
+                ("EXACT_PRESSURE_SHARED_TERMINAL_JUNCTION_UNSUPPORTED", vec![CASE.to_string(), TIP.to_string(), "region:other-source".to_string()]),
+            ],
+            "{mode:?}"
         );
     }
 }

@@ -4,6 +4,7 @@ import { sourceContract } from "./resultReader";
 import { KnownSemanticNotices } from "./KnownSemanticNotices";
 import { resultRowLabel } from "./knownSemanticLimitations";
 import { componentBodyNotice } from "./componentBody";
+import { hangerPreloadStanding } from "./hangerPreload";
 import { retainedPrecisionStandingText } from "./retainedPrecisionStanding";
 import type { ReactNode } from "react";
 import { QuantityReadout, useDisplayQuantityResolver, type DisplaySourceQuantity } from "../display-units";
@@ -357,7 +358,7 @@ export function ResultsPanel({
             <p className="numerical-health-header-line" data-testid="numerical-health-header-line"><NumericalHealthBadgeText badge={health.badge} text={health.headline} testId="numerical-health-header" />{health.outputSentence ? <>. <span data-testid="numerical-health-output-sentence">{health.outputSentence}</span></> : null}</p>
           ) : null}
           {health ? <NumericalHealthDetail health={health} resolveCauseLocation={resolveCauseLocation} onSelectCauseLocation={onSelectCauseLocation} onShowDiagnostic={onShowDiagnostic} /> : null}
-          <p data-testid="numerical-result-standing">{sourceContract(result) === "unsupported" ? "Unsupported numerical contract; historical values only. Needs recompute." : isRetainedRoute(sourceContract(result)) ? retainedPrecisionStandingText(result) : sourceContract(result) === "pressure_source" ? `Ordinary solve: ${result.numerical_quality!.status}. Producer recovery receipt: ${(result.source_block_recovery as {body:{status:string}}).body.status}. ${result.formulation_basis!.limitations.join(" ")} Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness.` : `Numerical integrity: ${result.numerical_quality!.status}. ${result.formulation_basis!.limitations.join(" ")} Numerical checks do not establish engineering correctness.`}</p>
+          <p data-testid="numerical-result-standing">{sourceContract(result) === "unsupported" ? "Unsupported numerical contract; historical values only. Needs recompute." : isRetainedRoute(sourceContract(result)) ? retainedPrecisionStandingText(result) : sourceContract(result) === "pressure_source" ? `Ordinary solve: ${result.numerical_quality!.status}. Producer recovery receipt: ${(result.source_block_recovery as {body:{status:string}}).body.status}. ${result.formulation_basis!.limitations.join(" ")} Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness.` : `Numerical integrity: ${result.numerical_quality!.status}. ${result.formulation_basis!.limitations.join(" ")} Numerical checks do not establish engineering correctness.`}{hangerPreloadStanding(result) ? ` ${hangerPreloadStanding(result)}` : null}</p>
           <KnownSemanticNotices result={result} testIdPrefix="results" />
           <SectionBasisHeadlines result={result} />
           <PhysicsSourceEvidencePanel result={result} />

@@ -4615,13 +4615,13 @@ constraints.
 - **The record:** a new `scope.not_carried` value and `record_version` for each
   widening. The reader admits each version it writes.
 
-**Returns to the owner (not in the list above): exact-route results under user
-release.** Under R, route 010 refuses `pressure-2` and `pressure-source-1`
-results (§0). Admitting them is not part of the later slice the owner kept in
-v0.1. HELP_HUMAN, 2026-10-26: "Opening a surface to sharing is the owner's
-call, as the local-private opening was, so don't build it without that." It is
-not built without the owner's decision. If the owner opens it, route 010 would
-need these, on the same record, attestation and reader:
+**Exact-route results under user release — owner decision, 2026-10-29:**
+"Open it, as recommended". This opens route 010 to `pressure-2` and
+`pressure-source-1` results subject to the four requirements below. §11 adds
+the design for this slice on the same record, attestation and reader. This
+supersedes the exact-route refusal in §0, §2.2, §2.5 step 2a, §2.8 and §2.9;
+it records the owner's scope decision, not a user release or product release.
+The implementation must carry:
 - W-11's exact source binding (W-11 design §3.6): custody, the resubmitted
   delivered and intake texts, and the native reader's eligible standing;
 - the exact sections in the derivation (the `exact_route` block, the exact
@@ -4629,8 +4629,65 @@ need these, on the same record, attestation and reader:
 - the Diagnostics binding (`check_report_diagnostics`, #1659);
 - the producer's item 9 under the user-released profile.
 
-Lifting the refusal of §2.2, §2.5 step 2a, §2.8 and §2.9 would then be that
-change's edit.
+§11 governs lifting the refusal of §2.2, §2.5 step 2a, §2.8 and §2.9 for
+this slice.
+
+## 11. D-6: exact-route results under user release (RT-R5)
+
+Owner, 2026-10-29: "Open it, as recommended". This section governs the
+exact-route extension where earlier sections describe the pressure-free-only
+implementation. It changes no other sharing surface or later-slice scope.
+
+**Native admission and attestation.** Route 010 retains the canonical solve
+attestation and checked transient run record. For either exact identity it
+additionally runs W-11 §3.6's existing `bind_exact_save_source`: live delivered
+custody, raw hashes of the resubmitted delivered and intake texts, native
+eligible standing, and equality to the request source and canonical model.
+Both exact texts are capped and priced through `parse_lease_bytes_with_exact`
+before parsing, in addition to route 010's existing derivation and refusal
+reservation. Partial texts, absent custody, substituted bytes and an ineligible
+native reading refuse. The existing custody recheck after the picker applies.
+A pressure-free request still refuses extraneous exact texts. No lease limit,
+cap or working-memory factor changes.
+
+**Derivation and producer.** `user_release::derive_exact` extends the existing
+whole-request derivation with the two custody facts native admission checks:
+job id and raw delivered-byte hash. All other admission fields are derived
+from M, S, I and the derived document through `expected_exact_route_section`.
+The minimal renderer input appends `expected_exact_limitations` after the
+technical-preview limitation, with its effect and session provenance, and
+recomputes the sections checksum. Headlines use the existing display rule;
+Diagnostics use `expected_report_diagnostics`. The TypeScript mirror takes
+W-11's `admitExactReportSource` admission and retains its pre-IPC submission
+registration. Producer item 9 and `check_report_diagnostics` run under the
+user-released profile as they do on route 009. General producer entries and
+the standalone render continue refusing user-release markers.
+
+**Record and reader.** The container stays 2.0.0. Existing record 1.0.0 and
+its pressure-free scope remain readable and unchanged. The widened record is
+1.1.0, with `scope.not_carried` equal to the six existing entries followed by
+`ineligible_exact_route_results`. That record admits the two eligible exact
+identities; 1.0.0 continues to refuse them. No new member is added to the
+record. The existing document derivative hash binds the exact source identity;
+the writer's content binding covers every resulting member. The reader admits
+both forms, checks record version against the result identity, and retains all
+identity, member-hash and notice checks. Its guarantee remains equality only;
+it does not retrospectively establish custody or attest a user's rights.
+
+**Notice.** The existing user-release notice, analysis disclosures and
+Professional Boundary notice remain verbatim. Exact reports also retain the
+exact standing line, load/reference disclosure, both headlines and every exact
+limitation. The selection still covers one report only.
+
+**Regression plan.** Add invented vectors for pressure-2 and pressure-source-1,
+without rewriting existing reference output. Show failing tests before repair
+for admission, both mirrors, required disclosures and writer/reader round trip.
+Exercise missing, partial and forged admission bindings, missing/substituted
+texts, released custody, ineligible standing and missing/altered Diagnostics.
+Run the desktop Rust library, touched reporting crates, report-folder vitest
+with three workers, TypeScript build, routing tests, GEN-13 and deliverables
+check. Independent scrutiny remains the implementation coordinator's fan-in
+responsibility; this TASK does not delegate. No release act is recorded.
 
 ## Appendix A. Wording-route drafts (old → new; not applied)
 
