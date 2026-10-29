@@ -108,9 +108,22 @@ runtime-read declarations therefore refreshes that crate's digest in the same
 change. Without the refresh, `tests/test_ci_numerical.py` fails, and hosted
 selection falls back to every crate. The required `harness` check does not catch
 a missing refresh (it passed on #1511's first head, `c42f11bdf7`, which lacked
-one), so run that test, or the full registered pytest, before asking for merge. Stale declarations, missing inputs, unresolved dependencies,
+one), so run that test, or the full registered pytest, before asking for merge.
+New or removed Rust files and Cargo manifests also refresh the declared runtime
+`scan.files` inventories, including project-wide scans that cover fixture-only
+crates with no runtime-read declaration of their own. Validate the regenerated
+inventories with `numerical_ci.source_read_dependencies` and run both
+`tests/test_ci_numerical.py` and Root `tools/software_workflow/test_hosted_ci.py`
+before integrating such changes. Stale declarations, missing inputs, unresolved dependencies,
 unknown paths and shared execution controls select all discovered crates. Existing
-numerical oracles remain unchanged. Python coverage is gated independently;
+numerical oracles remain unchanged. Python coverage is gated independently.
+
+Remaining selection gap: adding or removing a `.rs` or `Cargo.toml` under
+`projects/chirality-piping` should select Root's `software_workflow` routing
+suite and the project's `tests/test_ci_numerical.py`. The inventory refresh
+does not implement that selection rule; until it is added, a green `harness`
+alone does not establish that these routing self-checks ran.
+
 Python-test-only edits retain their Python checks with zero Cargo crates. Python PR coverage keeps security and constraint/source-block validation, then
 adds qualification, schema and canonical-JSON families when their inputs change.
 Established shared test helper edits also select their direct importing tests;
