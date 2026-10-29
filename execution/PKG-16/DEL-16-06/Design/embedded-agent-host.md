@@ -187,6 +187,81 @@ Neither standalone App qualification nor workflow-act machinery is inferred.
 
 ## Verification sequence and open observations
 
+### Rust component implementation
+
+The desktop declares `embedded_agent` but exposes no agent command, start
+control, session dispatcher or webview route yet. `catalog.rs` embeds a generated
+byte-identical product resource of this catalog, expands its references for the
+six dynamic declarations, validates
+inputs/results and checks proposal assumption membership. `protocol.rs` owns
+the fixed initialization/thread/turn RPC sequence and opaque pending-call
+references. Invalid inputs fail before dispatch; turn end/disconnect detaches
+pending calls without claiming cancellation or reversing an applied change.
+The caller must still authenticate the session, supply a trusted error basis,
+and retain admission leases through all derived events and outbound values.
+
+`framing.rs` caps a complete private-stdio frame at 128 KiB before any `Value`
+materialization. It uses the existing general interactive ingress reservation,
+checks borrowed argument/outcome spans against catalog limits, and poisons a
+reader after invalid/oversized input. `numeric.rs` rejects delivered number
+tokens that change decimal value on materialization. This protects the RPC
+bytes received from Codex; the pinned supplier protocol does not establish
+preservation of the model's original number lexemes upstream. Native operation
+decimal strings remain strings. The only dependency-feature change is enabling
+the existing `serde_json` dependency's `raw_value`; Cargo.lock is unchanged.
+
+`tools/agent_catalog_resource.py` generates
+`apps/desktop/src-tauri/resources/agent-capability-catalog.json` directly from
+the authoritative Design bytes; do not edit the product resource independently.
+The registered project check `agent-catalog-resource` uses `--check` to fail on
+absent, linked, oversized or differing input. Both project and Root selectors
+route its inputs. The Root software-workflow regression suite executes this
+registered command in the existing full-checkout Repository checks job. Sparse
+desktop builds and public source exports compile the product resource without
+requiring the excluded execution tree. No workflow file, required status or
+harness aggregate is changed. Equality establishes source correspondence, not
+catalog semantics or runtime conformance.
+
+The macOS-only `macos.rs`/`sandbox.rs` launcher is not connected to product
+startup. It verifies and copies the selected binary, uses private home/cwd and
+an environment-held credential, and denies reads outside fixed OS locations and
+its private runtime. Literal root-directory reading and metadata on fixed OS
+aliases are needed for the selected pin's startup; these do not grant reads of
+descendant user files. Only private home/cwd writes and outbound loopback port
+8000 are offered. No hosted-provider profile is implemented. Production stderr
+is discarded; the native startup test uses an invented credential and checks
+that its bounded diagnostic does not contain it. Real credential acquisition,
+crash-diagnostic absence and a complete native-session witness remain unproved.
+
+On shutdown the launcher retains the original unreaped `Child` through every
+group observation and signal, then reaps it only after observing no live group
+members. A census is evidence, not authority to signal an unrelated numeric
+PID. Unknown cleanup retains a nonsecret exclusive marker and refuses the next
+launch; no saved numeric PID is signalled. Parent-crash termination and absence
+of escaped descendants remain unqualified. **Do not expose this launcher until
+those cleanup duties and the remaining native-session isolation duties have
+been established.** The early solver-worker dispatch and solver-specific memory
+machinery are unchanged.
+
+The opt-in native probes establish bounded observations on the selected Mac:
+the actual pinned supplier initializes under this profile without a model;
+owned-group stopping preserves an unrelated group; and the standalone invented
+probe in `tools/agent_host_sandbox_probe.rs` checks 13 filesystem/network/process
+outcomes. Private-home/cwd writes and the configured loopback endpoint succeed;
+outside canary reads/writes, symlink escape, another loopback port, an off-host
+address, listener creation and both other/self executable launches are denied.
+The canaries named project/documents/keychain are invented files outside the
+private runtime, not actual private documents or keychain files. These component
+checks do not establish model execution under this Rust launcher, crash cleanup,
+Windows capability, review-queue conformance or AC-005 completion.
+
+Remaining implementation is the responsive runtime client/dispatcher, trusted
+session bridge and ingress completion command, proposal-only review wiring,
+minimal explicit-start panel, operation expansion and criterion 17. Existing
+ScopeOfWork commitments and dependency conditions remain open and unchanged.
+
+### Integration sequence
+
 1. Validate all catalog schemas and standalone dynamic projections; compare the
    adopted fields with the identified App proposal. Review exact commitment
    wording independently and obtain Agent 0's confirmation.
