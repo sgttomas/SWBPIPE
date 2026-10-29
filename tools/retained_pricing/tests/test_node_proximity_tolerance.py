@@ -87,8 +87,7 @@ def test_the_shear_model_refusal_is_priced_at_its_audited_bytes(monkeypatch):
     sizes = {"SHEAR_MODEL_PATH": len("model_settings.shear_model"), "SHEAR_MODEL_EULER_BERNOULLI": len("euler_bernoulli"),
              "SHEAR_MODEL_TIMOSHENKO": len("timoshenko_annulus_energy_v1")}
     for fn, names in (("shear_model_unknown_message", sizes),
-                      ("shear_model_with_pressure_contract_message", ["SHEAR_MODEL_PATH"]),
-                      ("shear_model_timoshenko_unsupported_message", sizes)):
+                      ("shear_model_with_pressure_contract_message", ["SHEAR_MODEL_PATH"])):
         entry = audit[f"{SETTINGS}:{line_of(SETTINGS, f'pub fn {fn}(') + 1}"]
         assert {n: entry[n]["bytes"] for n in names} == {n: sizes[n] for n in names} and set(entry) == set(names)
     refs = line_of(VALIDATION, "vec![crate::model_settings::SHEAR_MODEL_PATH.to_string()],")
@@ -100,7 +99,7 @@ def test_the_shear_model_refusal_is_priced_at_its_audited_bytes(monkeypatch):
 
 
 @pytest.mark.parametrize("path, old, new, match", [
-    (SETTINGS, "is not yet solved on a pressure-free document;", "is not yet solved on a pressure-free document {SHEAR_MODEL_PATH};", "NP-MS"),
+    (SETTINGS, "has_pressure_contract.then(|| ModelSettingError {", "true.then(|| ModelSettingError {", "TIM-PF/RD/CD-ID"),
     (SETTINGS, "deserializer.deserialize_any(ShearModelVisitor).map(Some)",
      "serde_json::Value::deserialize(deserializer).map(|value| Some(ShearModelSetting::of(&value)))", "NP-MS"),
     (SETTINGS, "while seq.next_element::<serde::de::IgnoredAny>()?.is_some() {}",

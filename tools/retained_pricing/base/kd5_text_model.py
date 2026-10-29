@@ -14,7 +14,7 @@ import hashlib, os, re
 # first-return alternative changes.
 # W-16 slice c D3 (§8.27, W16C-ES): solve_prepared_load_case's equivalent_static record is formed only under
 # `load_case.equivalent_static.is_some()` (none on D1); no record constructor, label or route string changes.
-PINS = {'core/product_physics/src/certified_publication.rs': {'group': 'ec5db3c8e95c345590bf4472a4310f155259cb9ced56b58da3c0316b62b0f394', 'magnitude_group': '600d0d42c5dbb53c489b4bf86a1fba82fdcc8d00440e4f86a2cfb6e6d7bfd953', 'member_record': '201b9a9c9390794c15207731efe9f524d1c14f0c80a15afa02b1e3b601580547', 'support_record': '1b5b46b845578a05a14879b1bae657f832f48a5b2122b404350588490571fd44', 'unavailable_record': '79931f5662ae9277f7ddbc008799340757f0e581e29a053cbdd90ff7a0eaf1a6', 'connector_record': '42cbb33f9c55a26951f72198fdbdc017670a472ce85fb80caf83acd5b09e477a', 'straight_stress_spans': '8fa6015c0c0b6ae5c87f241c29b1187f6e3e4a3bc3e624969d37aff1c3164efe', 'fallback_circular_maximum': 'bf5ab4f4c3577ffb0b068e1a9b918793e22b04a8c68764610cec3fe6e648210c', 'fallback_product_up': '5476bd4c93f66d5aee68c465b7da0ee39ab1d123dc75825931f2502cf0b607bb'}, 'core/product_physics/src/formation_guard.rs': {'recovery_finding': 'c499ed59986310186a5825c2043363ca131a5b44d41755a7700e1f7d6c1f5f9b', 'member_group_decision': '76a37c824097b528c638214d913166d24ffa81698222ad9199a511f32f0d5e59'}, 'core/product_physics/src/preview_physics.rs': {'extrema_evidence': 'a79bfa6c33095f97bc672ea78e27a3b768d901399978fac58d5ed9d804f3aac3'}, 'core/product_physics/src/lib.rs': {'solve_load_case_observed': '5a70782515a2e66790c8d570cc13d49ead9d22614e0f99b288d2632e8fc4e061', 'solve_prepared_load_case': '067f5f620f66549ae511cacb0f7f8fcc49306aab139a93a69444ce46df988dcb'}}
+PINS = {'core/product_physics/src/certified_publication.rs': {'group': 'ec5db3c8e95c345590bf4472a4310f155259cb9ced56b58da3c0316b62b0f394', 'magnitude_group': '600d0d42c5dbb53c489b4bf86a1fba82fdcc8d00440e4f86a2cfb6e6d7bfd953', 'member_record': '201b9a9c9390794c15207731efe9f524d1c14f0c80a15afa02b1e3b601580547', 'support_record': '1b5b46b845578a05a14879b1bae657f832f48a5b2122b404350588490571fd44', 'unavailable_record': '79931f5662ae9277f7ddbc008799340757f0e581e29a053cbdd90ff7a0eaf1a6', 'connector_record': '42cbb33f9c55a26951f72198fdbdc017670a472ce85fb80caf83acd5b09e477a', 'straight_stress_spans': '8fa6015c0c0b6ae5c87f241c29b1187f6e3e4a3bc3e624969d37aff1c3164efe', 'fallback_circular_maximum': 'bf5ab4f4c3577ffb0b068e1a9b918793e22b04a8c68764610cec3fe6e648210c', 'fallback_product_up': '5476bd4c93f66d5aee68c465b7da0ee39ab1d123dc75825931f2502cf0b607bb'}, 'core/product_physics/src/formation_guard.rs': {'recovery_finding': 'c499ed59986310186a5825c2043363ca131a5b44d41755a7700e1f7d6c1f5f9b', 'member_group_decision': '76a37c824097b528c638214d913166d24ffa81698222ad9199a511f32f0d5e59'}, 'core/product_physics/src/preview_physics.rs': {'extrema_evidence': 'a79bfa6c33095f97bc672ea78e27a3b768d901399978fac58d5ed9d804f3aac3'}, 'core/product_physics/src/lib.rs': {'solve_load_case_observed': '5a70782515a2e66790c8d570cc13d49ead9d22614e0f99b288d2632e8fc4e061', 'solve_prepared_load_case': '94fbe3706ce20357cf723546b6e0d22d168f570084df16a2745ee9c816cf0e83'}}
 # Epoch addbdc030e: solve_prepared_load_case's `pipe_sections` is `exact_pipe_sections(built)`, the same entries plus
 # the realized-arc marker on a realized arc (none on D1); no record constructor or label changes.
 # T4-U6/U8 D3 (retained-pricing-rules.md, "T4-U6/U8: actual-source D3"): straight_stress_spans,
@@ -214,7 +214,7 @@ def inspect_directed_helpers(snapshot):
 # §8.30 D3: lib.rs's dense-memory guard and the generator's dropped refusal add no `.min(`/`.max(` call.
 # Slice 1a D3 (§8.31): reviewed nonlinear operand producer/reader additions; D1.6 empties the producer
 # records, OP1A-RD retains the reader scans and OP1A-OWN prices its borrowed gate vector.
-B7A_PRIMITIVE_LIB_SOURCE_PIN = 'd12b423af9d1d1a684e055ef4f1f205ba8e8f9872886bb491326ee28baa636ce'
+B7A_PRIMITIVE_LIB_SOURCE_PIN = '7c3be9bab1a0e5dac865c86d2274fa58ca4566aebba7582f6ec9def1353bbec4'
 
 
 def primitive_lib_minmax_callers(snapshot):
@@ -277,7 +277,7 @@ FALLBACK_OUTSIDE_CALLERS = (
     # (`Impl::name`: the fn inside the one top-level `impl SourceAnnulus {` block).
     ("pressure_exact/source_geometry.rs", "SourceAnnulus::pressure_group_value", ("mul",), "ed2e3f79a1b883da9a7b6e9ff6a5cf05c03937b6a89a77ec681c40594e6689e5"),
     ("pressure_exact/source_geometry.rs", "SourceAnnulus::surface_stresses", ("add",), "98a1e66fcdfeea1249ec0ed2d6aaaf28cacb8708761aa7a723500d67bf8765a9"),
-    ("case_state/temperature.rs", "exact_kelvin", ("mul",), "4b7c432e3c502bfd1fd0f32a43e73a93c1bed6710bd44e2958ee497d10afa02d"),
+    ("case_state/temperature.rs", "exact_kelvin", (), "5c9dc86dfae668665462e44ece8b28bbca63e5f83528bb489092cefdc9e06702"),
     # The join's J7 census (#[cfg(test)] only): both `.mul(` receivers are the
     # validation crate's exact rational `Exact` (`e`, and `r1_exact::tolerance`'s
     # result), whose own `Exact::mul` is called; never FallbackError::mul.
@@ -377,7 +377,7 @@ def inspect_fallback_boundary(snapshot):
     # B7a E11 retired the unused interior Lamé caller; its product surface
     # stress path is already the separately pinned source_geometry caller.
     # 16 surviving K-D5 pairs and the join's J7 census caller.
-    callers, expected = FALLBACK_OUTSIDE_CALLERS, 17
+    callers, expected = FALLBACK_OUTSIDE_CALLERS, 16
     bend_pressure = os.path.join(snapshot, "core/product_physics/src/bend_pressure.rs")
     if os.path.exists(bend_pressure):
         with open(bend_pressure, encoding="utf-8") as stream:

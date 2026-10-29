@@ -337,8 +337,9 @@ def test_every_existing_analysis_run_branch_refuses_a_receipt():
         assert refused is (sid not in SUCCESSORS), sid
         assert ("retained_precision" in branch.get("required", [])) is (sid in SUCCESSORS), sid
     # T4-U2 added pressure-1; the pressure-source join added pressure-source-1;
-    # B1 removed precision-1 and B4/D1 (b) source-blocks-1; B7b the four exact v2 identities.
-    assert ids.count(SUCC) == 1 and ids.count(EXACT) == 1 and ids.count(PRESSURE_SOURCE) == 1 and len(ids) == 5
+    # B1 removed precision-1 and B4/D1 (b) source-blocks-1; B7b the four exact v2 identities;
+    # PF Timoshenko added preview-physics-timoshenko-1 (pf-timoshenko.md §4), which refuses a receipt above.
+    assert ids.count(SUCC) == 1 and ids.count(EXACT) == 1 and ids.count(PRESSURE_SOURCE) == 1 and len(ids) == 6
     contract = schema["$defs"]["SemanticContract"]
     assert {"properties": {"id": {"const": SUCC}, "sha256": {"const": SUCC_SHA}}} in contract["oneOf"]
     # Two receipt-carrying identities without a former `not` now refuse a receipt.
@@ -417,8 +418,9 @@ def test_every_existing_stress_neutral_branch_refuses_a_receipt():
         assert ({"required": ["retained_precision"]} in branch.get("not", {}).get("anyOf", [])) is (sid not in SUCCESSORS), sid
         assert ("retained_precision" in branch.get("required", [])) is (sid in SUCCESSORS), sid
     # T4-U2 added pressure-1; B1 removed precision-1 and B4/D1 (b) source-blocks-1; B7b the four exact v2
-    # identities and added pressure-source-1's branch.
-    assert ids.count(SUCC) == 1 and ids.count(EXACT) == 1 and ids.count(PRESSURE_SOURCE) == 1 and len(ids) == 5
+    # identities and added pressure-source-1's branch; PF Timoshenko added preview-physics-timoshenko-1's
+    # (pf-timoshenko.md §4), which refuses a receipt above.
+    assert ids.count(SUCC) == 1 and ids.count(EXACT) == 1 and ids.count(PRESSURE_SOURCE) == 1 and len(ids) == 6
 
 
 # ---- B3b (I101, lane T): the exact successor's carrier branches (B3-D §7; REVISION_01 §6).

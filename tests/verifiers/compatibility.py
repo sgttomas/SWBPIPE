@@ -57,6 +57,19 @@ PRESSURE_PROFILE = "exact_pressure_v3"
 PREVIEW_PHYSICS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-2"
 PREVIEW_PHYSICS_CONTRACT_SHA256 = "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2"
 _PREVIEW_PHYSICS_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_preview_physics_2.json"
+PREVIEW_PHYSICS_PROFILE = "product_preview_mechanics_v1"
+# DEL-05-03 Design pf-timoshenko.md §4: the pressure-free Timoshenko identity, a second complete identity on the
+# preview-physics route (preview-physics-2's table with its identity, profile and limitation 0 replaced).
+PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1"
+PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_SHA256 = "a7b83c37a4af9bf70f56513f80883003a2a3860387319311ea2e967dd0cf764b"
+_PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_preview_physics_timoshenko_1.json"
+PREVIEW_PHYSICS_TIMOSHENKO_PROFILE = "product_preview_mechanics_timoshenko_v1"
+# The preview-physics route's identities: id -> (sha256, table path, profile).
+PREVIEW_PHYSICS_CONTRACTS = {
+    PREVIEW_PHYSICS_CONTRACT_ID: (PREVIEW_PHYSICS_CONTRACT_SHA256, _PREVIEW_PHYSICS_CONTRACT_PATH, PREVIEW_PHYSICS_PROFILE),
+    PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID: (PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_SHA256, _PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_PATH,
+                                             PREVIEW_PHYSICS_TIMOSHENKO_PROFILE),
+}
 # U6b (D-U6-6; D2 4.7 S-1, 4.9.6): the F2a preview successor. Its statements are
 # checked only by the accepted reader (`retained_precision`), and its standing
 # comes only from that reader's verified receipt (D1 5 item 3).
@@ -78,7 +91,7 @@ RULE_QUANTITY_NOT_COVERED = "RULE_QUANTITY_NOT_COVERED"
 # pressure-2 has no transport (metadata-only) reading outside the exact successor's G7 step (Rust `reader_verdict`).
 PRESSURE_TRANSPORT_UNSUPPORTED = "SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED"
 # Static fresh-publication identities (S1 §10; Rust `FRESH_IDENTITIES`); no route predicate.
-FRESH_CONTRACT_IDS = frozenset({PREVIEW_PHYSICS_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID,
+FRESH_CONTRACT_IDS = frozenset({PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID,
                                 # T4-U2: pressure-2 (`3.0.0/exact_pressure_v3`).
                                 PRESSURE_CONTRACT_ID,
                                 # U6b (D-U6-6): membership is not standing.
@@ -267,7 +280,7 @@ def _source_contract(source: Mapping[str, Any], *, check_receipt: bool = True, r
     # B7b (A4/A5): a stored v2 result is refused by name, never read or reinterpreted.
     if isinstance(producer, Mapping) and producer.get("semantic_contract_id") in RETIRED_EXACT_V2_IDS and producer == {"component_name": "open_pipe_stress_product_physics", "component_version": "0.2.0", "semantic_contract_id": producer.get("semantic_contract_id")}:
         raise ValueError(SOURCE_EXACT_PRESSURE_V2_RETIRED_TEXT)
-    if not isinstance(producer, Mapping) or not isinstance(producer.get("semantic_contract_id"), str) or producer.get("semantic_contract_id") not in {PRESSURE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID} or producer != {"component_name": "open_pipe_stress_product_physics", "component_version": "0.2.0", "semantic_contract_id": producer.get("semantic_contract_id")}:
+    if not isinstance(producer, Mapping) or not isinstance(producer.get("semantic_contract_id"), str) or producer.get("semantic_contract_id") not in {PRESSURE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, *PREVIEW_PHYSICS_CONTRACTS} or producer != {"component_name": "open_pipe_stress_product_physics", "component_version": "0.2.0", "semantic_contract_id": producer.get("semantic_contract_id")}:
         raise ValueError("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
     # Rust `current_header`, after the identity allowlist and before the recovery downgrade check: the
     # load/reference-state group owns no carrier namespace (the retired load-reference routes' guard, kept on
@@ -276,7 +289,7 @@ def _source_contract(source: Mapping[str, Any], *, check_receipt: bool = True, r
         raise ValueError("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
     pressure_source = producer["semantic_contract_id"] == PRESSURE_SOURCE_CONTRACT_ID
     pressure = producer["semantic_contract_id"] == PRESSURE_CONTRACT_ID
-    preview = producer["semantic_contract_id"] == PREVIEW_PHYSICS_CONTRACT_ID
+    preview = producer["semantic_contract_id"] in PREVIEW_PHYSICS_CONTRACTS
     if pressure_source:
         from .physics_source import SourceContract
         SourceContract.PRESSURE_V3.check_received(source)
@@ -303,7 +316,7 @@ def _source_contract(source: Mapping[str, Any], *, check_receipt: bool = True, r
             # RV108 N1: the same string guard on each case enum.
             raise ValueError("SOURCE_NUMERICAL_CASE_INVALID")
     formulation = source.get("formulation_basis")
-    if not isinstance(formulation, Mapping) or set(formulation) != {"profile_id", "limitations"} or formulation.get("profile_id") != (PRESSURE_PROFILE if pressure_source or pressure else "product_preview_mechanics_v1") or not isinstance(formulation.get("limitations"), list) or not formulation["limitations"] or not all(isinstance(item, str) and item for item in formulation["limitations"]):
+    if not isinstance(formulation, Mapping) or set(formulation) != {"profile_id", "limitations"} or formulation.get("profile_id") != (PRESSURE_PROFILE if pressure_source or pressure else PREVIEW_PHYSICS_CONTRACTS[producer["semantic_contract_id"]][2]) or not isinstance(formulation.get("limitations"), list) or not formulation["limitations"] or not all(isinstance(item, str) and item for item in formulation["limitations"]):
         raise ValueError("SOURCE_FORMULATION_BASIS_UNSUPPORTED")
     # F-5 (C1 G6): no raw row outside the successor carries the W1 method token.
     if check_receipt and _has_retained_rows(source):
@@ -329,7 +342,8 @@ def _source_contract(source: Mapping[str, Any], *, check_receipt: bool = True, r
     if preview:
         from .preview_physics_evidence import validate_preview_physics_evidence, validate_transport_metadata as validate_preview_transport_metadata
         (validate_preview_physics_evidence if check_receipt else validate_preview_transport_metadata)(source)
-        return PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_SHA256, _PREVIEW_PHYSICS_CONTRACT_PATH
+        identity = producer["semantic_contract_id"]
+        return identity, *PREVIEW_PHYSICS_CONTRACTS[identity][:2]
     raise ValueError("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
 
 
@@ -364,7 +378,7 @@ def numerical_use_standing(source: Mapping[str, Any], requested_basis_refs: list
             return "numerically_eligible" if qualified else "needs_recompute"
         except ValueError:
             return "unsupported"
-    if contract not in {PREVIEW_PHYSICS_CONTRACT_ID, PRESSURE_CONTRACT_ID}:
+    if contract not in {*PREVIEW_PHYSICS_CONTRACTS, PRESSURE_CONTRACT_ID}:
         return "needs_recompute"
     quality = source["numerical_quality"]
     # Sensitive evidence remains inspectable but does not qualify source-answer accuracy.

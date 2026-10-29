@@ -56,14 +56,24 @@ PRESSURE_PROFILE = c.PRESSURE_PROFILE
 PRESSURE_CONTRACT_SHA256 = c.PRESSURE_CONTRACT_SHA256
 PRESSURE_TRANSPORT_UNSUPPORTED = c.PRESSURE_TRANSPORT_UNSUPPORTED
 ROUTE_READERS = {"preview_physics": "preview-physics", "pressure_source": "pressure-source", "pressure": "pressure"}
+# pf-timoshenko.md §4: the preview-physics route admits two identities; a source's binding is keyed by its
+# `semantic_contract_id` (`binding_of`), and a route's default binding is its first identity here.
 _IDENTITY_ROUTES = {c.PRESSURE_SOURCE_CONTRACT_ID: "pressure_source", c.PREVIEW_PHYSICS_CONTRACT_ID: "preview_physics",
+                    c.PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID: "preview_physics",
                     PRESSURE_CONTRACT_ID: "pressure",
                     c.PREVIEW_PHYSICS_RETAINED_CONTRACT_ID: "retained_preview_physics", c.PHYSICS_RETAINED_CONTRACT_ID: "retained_physics"}
-_BINDINGS = {route: identity for identity, route in _IDENTITY_ROUTES.items()}
-_SHA256 = {c.PRESSURE_SOURCE_CONTRACT_ID: c.PRESSURE_SOURCE_CONTRACT_SHA256, c.PREVIEW_PHYSICS_CONTRACT_ID: c.PREVIEW_PHYSICS_CONTRACT_SHA256,
+_BINDINGS: dict[str, str] = {}
+for _identity, _route in _IDENTITY_ROUTES.items():
+    _BINDINGS.setdefault(_route, _identity)
+_SHA256 = {c.PRESSURE_SOURCE_CONTRACT_ID: c.PRESSURE_SOURCE_CONTRACT_SHA256,
+           **{identity: pinned[0] for identity, pinned in c.PREVIEW_PHYSICS_CONTRACTS.items()},
            PRESSURE_CONTRACT_ID: PRESSURE_CONTRACT_SHA256, **{identity: pinned[0] for identity, pinned in c.RETAINED_CONTRACTS.items()}}
-_TABLE_PATHS = {c.PRESSURE_SOURCE_CONTRACT_ID: c._PRESSURE_SOURCE_CONTRACT_PATH, c.PREVIEW_PHYSICS_CONTRACT_ID: c._PREVIEW_PHYSICS_CONTRACT_PATH,
+_TABLE_PATHS = {c.PRESSURE_SOURCE_CONTRACT_ID: c._PRESSURE_SOURCE_CONTRACT_PATH,
+                **{identity: pinned[1] for identity, pinned in c.PREVIEW_PHYSICS_CONTRACTS.items()},
                 PRESSURE_CONTRACT_ID: c._PRESSURE_CONTRACT_PATH, **{identity: pinned[1] for identity, pinned in c.RETAINED_CONTRACTS.items()}}
+SHEAR_MODEL_IDENTITY = "SOURCE_PREVIEW_PHYSICS_SHEAR_MODEL_IDENTITY"
+# An absent `model_settings.shear_model`, distinct from an authored `null`.
+_ABSENT = object()
 _QUALITY_STATUSES = ("not_assessed", "checks_passed", "sensitive", "unresolved", "failed")
 _SUPPORT_KINDS = {"support_reaction_component_v2", "support_reaction_force_magnitude_v2", "support_reaction_moment_magnitude_v2"}
 _TABLES: dict[str, Any] = {}
@@ -147,7 +157,7 @@ def _metadata_header(source: Any) -> str:
         raise Refused("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
     if identity != c.PRESSURE_SOURCE_CONTRACT_ID and "source_block_recovery" in source:
         raise Refused("SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN")
-    if identity == c.PREVIEW_PHYSICS_CONTRACT_ID and not isinstance(source.get("contract_evidence"), Mapping):
+    if identity in c.PREVIEW_PHYSICS_CONTRACTS and not isinstance(source.get("contract_evidence"), Mapping):
         raise Refused("SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED")
     if identity == c.PRESSURE_SOURCE_CONTRACT_ID:
         try: physics_source.SourceContract.PRESSURE_V3.check_received(source)
@@ -168,7 +178,8 @@ def _metadata_header(source: Any) -> str:
                 or not isinstance(case["evidence_refs"], list) or not all(_text(item) for item in case["evidence_refs"])
                 or not _keys(basis, {"ref_type", "ref_id"}) or not _text(basis["ref_type"]) or not _text(basis["ref_id"])):
             raise Refused("SOURCE_NUMERICAL_CASE_INVALID")
-    profile = {PRESSURE_CONTRACT_ID: PRESSURE_PROFILE, c.PRESSURE_SOURCE_CONTRACT_ID: PRESSURE_PROFILE}.get(identity, "product_preview_mechanics_v1")
+    profile = {PRESSURE_CONTRACT_ID: PRESSURE_PROFILE, c.PRESSURE_SOURCE_CONTRACT_ID: PRESSURE_PROFILE,
+               **{i: pinned[2] for i, pinned in c.PREVIEW_PHYSICS_CONTRACTS.items()}}.get(identity, c.PREVIEW_PHYSICS_PROFILE)
     formulation = source.get("formulation_basis")
     if (not _keys(formulation, {"profile_id", "limitations"}) or formulation["profile_id"] != profile
             or not isinstance(formulation["limitations"], list) or not formulation["limitations"] or not all(_text(item) for item in formulation["limitations"])):
@@ -205,6 +216,40 @@ def route(source: Any) -> str:
 def binding(name: str) -> dict[str, str] | None:
     identity = _BINDINGS.get(name)
     return None if identity is None else {"id": identity, "sha256": _SHA256[identity]}
+
+
+def binding_of(name: str, source: Any) -> dict[str, str] | None:
+    """A routed source's binding, keyed by its `semantic_contract_id` within its route (Rust `binding_of`)."""
+    producer = source.get("producer") if isinstance(source, Mapping) else None
+    identity = producer.get("semantic_contract_id") if isinstance(producer, Mapping) else None
+    if not isinstance(identity, str) or _IDENTITY_ROUTES.get(identity) != name:
+        return None
+    return {"id": identity, "sha256": _SHA256[identity]}
+
+
+def bind_preview_shear_model(source: Mapping[str, Any], model: Mapping[str, Any]) -> None:
+    """pf-timoshenko.md §4 (model-bound; Rust `bind_preview_shear_model`): the identity the model's
+    `model_settings.shear_model` selects. An absent member (or absent `model_settings`) or `euler_bernoulli`
+    selects preview-physics-2, `timoshenko_annulus_energy_v1` the Timoshenko identity; a crossed pair is
+    refused. A setting the producer and validator refuse is refused naming their code: a `model_settings`
+    that is not an object, `null` included (MODEL-SLOT-SHAPE), and a `shear_model` that is not one of the
+    two names, `null` and non-strings included (MODEL-SETTING-SHEAR-MODEL-UNKNOWN)."""
+    selected: Any = _ABSENT
+    if isinstance(model, Mapping) and "model_settings" in model:
+        settings = model["model_settings"]
+        if not isinstance(settings, Mapping):
+            raise Refused(f"{SHEAR_MODEL_IDENTITY}: MODEL-SLOT-SHAPE: model_settings is not an object, so it selects no beam theory")
+        selected = settings.get("shear_model", _ABSENT)
+    if selected is _ABSENT or selected == "euler_bernoulli":
+        expected = c.PREVIEW_PHYSICS_CONTRACT_ID
+    elif selected == "timoshenko_annulus_energy_v1":
+        expected = c.PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID
+    else:
+        raise Refused(f"{SHEAR_MODEL_IDENTITY}: MODEL-SETTING-SHEAR-MODEL-UNKNOWN: model_settings.shear_model must be "
+                      "`euler_bernoulli` or `timoshenko_annulus_energy_v1`")
+    producer = source.get("producer") if isinstance(source, Mapping) else None
+    if not isinstance(producer, Mapping) or producer.get("semantic_contract_id") != expected:
+        raise Refused(f"{SHEAR_MODEL_IDENTITY}: the result's semantic contract is not the one the model's shear model selects ({expected})")
 
 
 def _model_section_bound(section: Any, segments: list[Any]) -> bool:
@@ -312,6 +357,8 @@ def validate(reader: str, source: Any, model: Any = None, invocation: Any = None
         if reader == "preview-physics":
             preview_physics_evidence.validate_preview_physics_evidence(source)
             if model is not None:
+                # pf-timoshenko.md §4: with the model, a crossed identity is refused first.
+                bind_preview_shear_model(source, model)
                 # T4-U4b (§5.1): τ bit for bit with the captured model (G2).
                 from . import u4b_model
                 u4b_model.preview_model_checks(source, model)
@@ -500,7 +547,7 @@ def dispatch(source: Any, model: Any = None, invocation: Any = None) -> dict[str
         name, refusal = route(source), None
     except Refused as error:
         name, refusal = UNSUPPORTED, error_json(str(error))
-    return {"ok": refusal is None, "route": name, "binding": binding(name), "error": refusal, "standing": standing(source, model, invocation)}
+    return {"ok": refusal is None, "route": name, "binding": binding_of(name, source), "error": refusal, "standing": standing(source, model, invocation)}
 
 
 def signature(table: Mapping[str, Any], row: Mapping[str, Any]) -> Mapping[str, Any] | None:
@@ -553,7 +600,7 @@ def row_semantics(row: Any, source: Any = None) -> dict[str, Any]:
         name = route(source)
     except Refused:
         return _refusal("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED")
-    table = _table(_BINDINGS.get(name))
+    table = _table((binding_of(name, source) or {"id": _BINDINGS.get(name)})["id"])
     try:
         found = signature(table, row)
     except Refused as error:

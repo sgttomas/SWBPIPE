@@ -14,8 +14,7 @@ import type { CurrentSessionInputManifestEvidence } from "../../services/inputMa
 import type { NumericalHealthView } from "../results/numericalHealth";
 import type { ControlledRouteExport } from "../redaction-controls/redactionExportControls";
 import type { ExactRenderSubmission } from "../../services/reportRenderService";
-import { admitExactReportSource, exactSourceSubmission, type ExactReportAdmission } from "./exactReportAdmission";
-import { isExactReportSource } from "./exactReportSections";
+import { admitExactReportSource, exactSourceSubmission, takesReportAdmission, type ExactReportAdmission } from "./exactReportAdmission";
 import {
   buildRenderableReportInput,
   type ReportExportContext,
@@ -49,7 +48,8 @@ export type RenderedReportAssembly = {
 
 export async function assembleRenderedReport(inputs: RenderedReportAssemblyInputs): Promise<RenderedReportAssembly> {
   const { model, result, analysisRun, projectSummary, inputManifest, ruleCheckRun, numericalHealth, context, intent, generatedAt } = inputs;
-  const exact = isExactReportSource(result);
+  // DEL-05-03 `pf-timoshenko.md` §4: a pressure-free Timoshenko source takes the admission too.
+  const exact = takesReportAdmission(result);
   const admission = exact
     ? await admitExactReportSource({ model, result, analysisRun, inputManifest: inputManifest as CurrentSessionInputManifestEvidence })
     : null;

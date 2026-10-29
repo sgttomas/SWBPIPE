@@ -887,6 +887,7 @@ pub(crate) const TARGETS: [(&str, &[(&str, &str, &str)]); 5] = [
             ("test", "container", "report_package/tests/container.rs"),
             ("test", "current_result_package", "report_package/tests/current_result_package.rs"),
             ("test", "exact_sections_parity", "report_package/tests/exact_sections_parity.rs"),
+            ("test", "pf_timoshenko_package", "report_package/tests/pf_timoshenko_package.rs"),
             ("test", "quantity_display_parity", "report_package/tests/quantity_display_parity.rs"),
             ("test", "reader", "report_package/tests/reader.rs"),
             ("test", "reader_allocation", "report_package/tests/reader_allocation.rs"),

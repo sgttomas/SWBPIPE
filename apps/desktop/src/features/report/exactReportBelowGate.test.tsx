@@ -179,7 +179,8 @@ describe("the exact-section projection against the shared vectors (§3.5)", () =
 
   it("names Rust's admitted set as the package's (REPORT_PACKAGE_ADMITTED_CONTRACT_IDS)", () => {
     expect([...REPORT_PACKAGE_ADMITTED_CONTRACT_IDS]).toEqual(parity.admitted_semantic_contracts);
-    expect([...REPORT_PACKAGE_ADMITTED_CONTRACT_IDS]).toEqual([...ALL_IDS]);
+    // DEL-05-03 `pf-timoshenko.md` §4: the pressure-free Timoshenko identity follows preview-physics-2.
+    expect([...REPORT_PACKAGE_ADMITTED_CONTRACT_IDS]).toEqual([ALL_IDS[0], "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1", ...ALL_IDS.slice(1)]);
   });
 });
 

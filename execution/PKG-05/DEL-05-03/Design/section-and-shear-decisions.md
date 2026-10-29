@@ -1,6 +1,6 @@
 # Section bases and shear model
 
-The owner ruled D-5 and D-6 on 2026-10-10: "D-5 and D-6 as recommended". Both apply to `3.0.0/exact_pressure_v3` documents, the only exact contract since B7b deleted `2.0.0/exact_straight_pressure_v2`. Pressure-free documents keep their current single basis and Euler–Bernoulli model, byte-identical (H-1, DEL-04-07 Design). On 2026-10-12 the owner answered O1–O4 and HELP_HUMAN ruled H1, H4 and H5 (both relayed to T4's WORKING_ITEMS); O2–O4, H1, H4 and H5 are applied below where they govern. On PRD non-goal 19 the owner chose "Lift for tie rods only" (O1), recorded by SCA-012 and its PRD amendment.
+The owner ruled D-5 and D-6 on 2026-10-10: "D-5 and D-6 as recommended". Both apply to `3.0.0/exact_pressure_v3` documents, the only exact contract since B7b deleted `2.0.0/exact_straight_pressure_v2`. Pressure-free documents keep their current single basis, byte-identical (H-1, DEL-04-07 Design); their beam theory is under D-6. On 2026-10-12 the owner answered O1–O4 and HELP_HUMAN ruled H1, H4 and H5 (both relayed to T4's WORKING_ITEMS); O2–O4, H1, H4 and H5 are applied below where they govern. On PRD non-goal 19 the owner chose "Lift for tie rods only" (O1), recorded by SCA-012 and its PRD amendment.
 
 ## The two fields (O2, O3, H1)
 
@@ -22,6 +22,7 @@ Both fields are defined in T3's model format 0.5.0 (H1: "no 0.6.0" for these fie
 - Before T4-U8 the field admitted only `euler_bernoulli`. From T4-U8 it admits both, and the evidence names each straight member's theory (`beam_theory`) and each realized arc's Euler–Bernoulli formulation.
 - **Implementation (H5).** The selection is per document. Whether Timoshenko is a new FK element type or a re-priced `s(FrameElement)` is the implementer's choice; either way it is priced positively. Realized arcs stay Euler–Bernoulli, with a disclosure.
 - References T4-RV4 marked as shear-affected are re-frozen deliberately.
+- **Pressure-free documents** (no `pressure_contract`). Straight members are Euler–Bernoulli unless the document's `model_settings.shear_model` selects `timoshenko_annulus_energy_v1`: the same element and shear-factor definition, with ν = E/(2G) − 1 from the authored moduli. An absent member is Euler–Bernoulli, and authoring never writes it unprompted. Realized arcs stay Euler–Bernoulli, with a disclosure. Design: [pf-timoshenko.md](pf-timoshenko.md).
 
 ## Reference preparation (T4-U6, T4-U8)
 

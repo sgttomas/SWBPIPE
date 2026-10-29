@@ -31,6 +31,14 @@ import {
   receivedResultBytes
 } from "../../services/previewService";
 import { isExactReportSource } from "./exactReportSections";
+import { isPfTimoshenkoReportSource } from "./pfTimoshenkoReport";
+
+/** Whether a rendered report of `result` takes the admission: an exact-route source, or a
+ * pressure-free Timoshenko source (DEL-05-03 `pf-timoshenko.md` §4), whose `pf_timoshenko`
+ * section the native render binds the same way. */
+export function takesReportAdmission(result: MechanicsResult | null | undefined): boolean {
+  return isExactReportSource(result) || isPfTimoshenkoReportSource(result);
+}
 
 export const REPORT_EXACT_ADMISSION_BINDING_MISMATCH = "REPORT-EXACT-ADMISSION-BINDING-MISMATCH";
 export const REPORT_EXACT_ADMISSION_REQUIRED = "REPORT-EXACT-ADMISSION-REQUIRED";
@@ -96,7 +104,7 @@ async function utf8Sha256(text: string): Promise<string> {
  * whose document value and recomputed value differ. */
 export async function admitExactReportSource(inputs: ExactReportAdmissionInputs): Promise<ExactReportAdmission> {
   const { model, result, analysisRun, inputManifest } = inputs;
-  if (!isExactReportSource(result)) throw mismatch("semantic_contract_id");
+  if (!takesReportAdmission(result)) throw mismatch("semantic_contract_id");
   // The four inputs' checked text, before the first await: an edit made at any later
   // point, including after Export Result JSON admitted them, makes the admission stale.
   let text: string;

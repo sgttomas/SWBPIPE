@@ -37,6 +37,17 @@
 //! (`exact_source_binding.rs`). An input that carries the texts without
 //! `exact_route` refuses. Standard claim fence applies (claims taxonomy per
 //! DEC-081).
+//!
+//! The pressure-free Timoshenko projection (DEL-05-03 Design `pf-timoshenko.md`
+//! §4, "Source binding on PF") is bound the same way: an input with a top-level
+//! `pf_timoshenko` section (`{semantic_contract_id, admission}`, the admission
+//! field for field the exact one) takes steps 1-5 on its admission, then the
+//! re-derivation of the rows, their references and checksums, the unit display
+//! summary, the Diagnostics and the identity's limitation 0 entry from the
+//! delivered result. The renderer ignores the member, so it changes no rendered
+//! byte; an input with a Timoshenko limitation entry and no section refuses, as
+//! does one with both sections. Euler–Bernoulli pressure-free inputs carry
+//! neither and render as before.
 
 use crate::command_ingress::{text_parse_bytes, Args, ArgsDecoding, CommandError, REPORT_PACKAGE_WORKING_MEMORY_FACTOR};
 use crate::exact_source_binding::{self as binding, sections_mismatch, ExactRefusal};
@@ -47,6 +58,10 @@ use open_pipe_stress_report_package::bindings::{
     check_report_diagnostics, check_report_result_refs, check_unit_display_summary, expected_report_result_rows,
 };
 use open_pipe_stress_report_package::exact_sections::{check_exact_limitation_entries, expected_exact_limitations, expected_exact_route_core};
+use open_pipe_stress_report_package::pf_timoshenko::{
+    check_limitation_entries as check_pf_timoshenko_limitations, is_pf_timoshenko_limitation_id,
+};
+use open_pipe_stress_result_export::derivative::digest;
 use open_pipe_stress_result_export::semantic_contract::{PHYSICS_RETAINED_ID, PRESSURE_ID, PRESSURE_SOURCE_ID};
 use serde_json::Value;
 use std::fmt::Write as _;
@@ -61,6 +76,9 @@ pub(crate) const RENDER_ADMITTED_EXACT_CONTRACTS: [&str; 2] = [PRESSURE_ID, PRES
 pub(crate) const EXACT_IDENTITIES: [&str; 3] = [PRESSURE_ID, PRESSURE_SOURCE_ID, PHYSICS_RETAINED_ID];
 
 pub(crate) const RENDER_ROUTE_NOT_ADMITTED: &str = "REPORT-RENDER-ROUTE-NOT-ADMITTED";
+
+/// The render input's top-level pressure-free Timoshenko section (`pf-timoshenko.md` §4).
+pub(crate) const PF_TIMOSHENKO_SECTION: &str = "pf_timoshenko";
 
 /// An exact-route render whose `report_context.export_context` is not
 /// `local_private` (Codex review round 1 of #1648): refused natively before
@@ -106,11 +124,19 @@ pub(crate) fn render_calculation_report_args_in(
         input_manifest: args.decode("inputManifestText")?,
     };
     let exact = input.get("exact_route").is_some_and(|route| !route.is_null());
+    let pf_timoshenko = input.get(PF_TIMOSHENKO_SECTION).is_some_and(|section| !section.is_null());
+    if exact && pf_timoshenko {
+        return Err(CommandError::Command(sections_mismatch(PF_TIMOSHENKO_SECTION).message));
+    }
     if exact {
         check_exact_render_context(&input).map_err(CommandError::Command)?;
         bind_exact_render_input(&input, &texts, registry, lease)?;
+    } else if pf_timoshenko {
+        bind_pf_timoshenko_render_input(&input, &texts, registry, lease)?;
     } else if texts.any() {
         return Err(CommandError::Command(sections_mismatch("exact_route").message));
+    } else if limitations(&input).filter_map(|item| item.get("limitation_id").and_then(Value::as_str)).any(is_pf_timoshenko_limitation_id) {
+        return Err(CommandError::Command(sections_mismatch(PF_TIMOSHENKO_SECTION).message));
     }
     drop(texts);
     crate::render_calculation_report_value(input).map_err(CommandError::Command)
@@ -209,8 +235,31 @@ fn bind_exact_render_input(
     registry: &SolveJobRegistry,
     lease: &mut Lease,
 ) -> Result<(), CommandError> {
-    let route = &input["exact_route"];
-    let admission = &route["admission"];
+    bind_render_admission(input, &input["exact_route"]["admission"], texts, registry, lease, rederive)
+}
+
+/// The pressure-free Timoshenko section's binding (`pf-timoshenko.md` §4): the
+/// exact steps on its admission, then [`rederive_pf_timoshenko`].
+fn bind_pf_timoshenko_render_input(
+    input: &Value,
+    texts: &ExactRenderTexts,
+    registry: &SolveJobRegistry,
+    lease: &mut Lease,
+) -> Result<(), CommandError> {
+    bind_render_admission(input, &input[PF_TIMOSHENKO_SECTION]["admission"], texts, registry, lease, rederive_pf_timoshenko)
+}
+
+type Rederive = fn(&Value, &Value, &str, &crate::solve_jobs::CustodyDigests) -> Result<(), String>;
+
+/// Steps 1-5 and the input manifest on `admission`, then `rederive`.
+fn bind_render_admission(
+    input: &Value,
+    admission: &Value,
+    texts: &ExactRenderTexts,
+    registry: &SolveJobRegistry,
+    lease: &mut Lease,
+    rederive: Rederive,
+) -> Result<(), CommandError> {
     // Step 1: custody.
     let digests = binding::check_custody(admission, &|job| registry.custody_binding(job)).map_err(refused)?;
     // The caps, then step 2: the delivered bytes, hashed in place.
@@ -300,6 +349,46 @@ fn rederive(input: &Value, source: &Value, model_sha256: &str, digests: &crate::
     let entries = expected_exact_limitations(source, &core.run_ref).map_err(|_| "limitations".to_string())?;
     let limitations = input.pointer("/report_sections/limitations").and_then(Value::as_array).map(Vec::as_slice).unwrap_or(&[]);
     check_exact_limitation_entries(&entries, &core.run_ref, limitations).map_err(|detail| format!("limitations: {detail}"))
+}
+
+/// The pressure-free Timoshenko re-derivation (`pf-timoshenko.md` §4), with the
+/// package's functions: the result rows exactly, their references and
+/// checksums, the unit display summary, the Diagnostics
+/// (`check_report_diagnostics`, so the arc diagnostic's text and references are
+/// the result's), the identity's limitation 0 entry, and the section's identity
+/// and admission against the delivered result. `Err` names the section.
+fn rederive_pf_timoshenko(input: &Value, source: &Value, model_sha256: &str, digests: &crate::solve_jobs::CustodyDigests) -> Result<(), String> {
+    let rows = expected_report_result_rows(source).map_err(|_| "result_rows".to_string())?;
+    let found = input["result_rows"].as_array().map(Vec::as_slice).unwrap_or(&[]);
+    if found != rows.as_slice() {
+        return Err("result_rows".to_string());
+    }
+    check_report_result_refs(input, source).map_err(|_| "result_export_refs".to_string())?;
+    check_unit_display_summary(input, source).map_err(|_| "unit_display_summary".to_string())?;
+    check_report_diagnostics(input, source).map_err(|_| "diagnostics".to_string())?;
+    let section = &input[PF_TIMOSHENKO_SECTION];
+    let admission = &section["admission"];
+    let text = |value: &Value| value.as_str().unwrap_or("").to_string();
+    let identity = text(&source["producer"]["semantic_contract_id"]);
+    let run = text(&source["run_id"]);
+    let received = digest(source).map_err(|_| "admission.received_result_sha256".to_string())?;
+    for (field, found, expected) in [
+        ("semantic_contract_id", text(&section["semantic_contract_id"]), identity.clone()),
+        ("admission.semantic_contract_id", text(&admission["semantic_contract_id"]), identity),
+        ("admission.run_ref", text(&admission["run_ref"]), run.clone()),
+        ("admission.result_envelope_id", text(&admission["result_envelope_id"]), format!("result-envelope:{run}")),
+        ("admission.received_result_sha256", text(&admission["received_result_sha256"]), received),
+        ("admission.model_sha256", text(&admission["model_sha256"]), model_sha256.to_string()),
+    ] {
+        if found != expected {
+            return Err(format!("{PF_TIMOSHENKO_SECTION}.{field}"));
+        }
+    }
+    if !binding::hex_equals(&digests.result_sha256, admission["received_bytes_sha256"].as_str().unwrap_or("")) {
+        return Err(format!("{PF_TIMOSHENKO_SECTION}.admission.received_bytes_sha256"));
+    }
+    let limitations = input.pointer("/report_sections/limitations").and_then(Value::as_array).map(Vec::as_slice).unwrap_or(&[]);
+    check_pf_timoshenko_limitations(source, &run, limitations).map_err(|_| "limitations".to_string())
 }
 
 /// Step 0 (§3.6). It reads only structured markers at the input's defined

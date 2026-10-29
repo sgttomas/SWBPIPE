@@ -15,7 +15,10 @@ derived from it is regenerated here, never edited by hand:
           physics-retained-1's inherited members (rows, vocabulary, counts, policies,
           hash vectors) copied from pressure-2, and its
           `inherited_semantic_contract_sha256` set to pressure-2's actual SHA-256.
-          `--check` reports a difference instead of writing.
+          The Timoshenko preview table (preview-physics-timoshenko-1, DEL-05-03 Design
+          pf-timoshenko.md §4) is derived from the committed preview-physics-2 table:
+          its identity, its profile and limitation 0 replaced, every other member and
+          byte preview-physics-2's. `--check` reports a difference instead of writing.
   repin   every tracked literal pin of an old table or result-schema SHA-256 (PINNED)
           replaced by the current file's SHA-256. The old values are read from the
           given revisions (`--from-rev`, repeatable; after a merge pass both parents).
@@ -45,7 +48,7 @@ derived from it is regenerated here, never edited by hand:
 Typical sequence after editing pressure-2 (or merging another edit of it):
 
   python3 tools/serialization/semantic_contract_tables.py apply-u4b
-  python3 tools/serialization/semantic_contract_tables.py derive
+  python3 tools/serialization/semantic_contract_tables.py derive   # also after editing preview-physics-2
   python3 tools/serialization/semantic_contract_tables.py repin --from-rev HEAD [--from-rev MERGE_HEAD] [--dry-run]
   # then run the printed carrier writers and the audited-suffix and generation-record
   # refreshes the change requires (those bind source text, not these tables).
@@ -67,6 +70,19 @@ from pathlib import Path
 PROJECT = Path(__file__).resolve().parents[2]
 PRESSURE = "fixtures/results/semantic_contract_v0_3_pressure_2.json"
 RETAINED = "fixtures/results/semantic_contract_v0_3_physics_retained_1.json"
+# DEL-05-03 Design pf-timoshenko.md §4: the pressure-free Timoshenko identity, preview-physics-2
+# with its identity, profile and limitation 0 replaced. Never hand-edited.
+PREVIEW = "fixtures/results/semantic_contract_v0_3_preview_physics_2.json"
+TIMOSHENKO = "fixtures/results/semantic_contract_v0_3_preview_physics_timoshenko_1.json"
+TIMOSHENKO_ID = "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1"
+TIMOSHENKO_PROFILE = "product_preview_mechanics_timoshenko_v1"
+PREVIEW_LIMITATION_0 = ("Small-displacement, linear-elastic Euler-Bernoulli frame preview; "
+                        "numerical integrity does not establish physical correctness.")
+TIMOSHENKO_LIMITATION_0 = (
+    "Small-displacement, linear-elastic frame preview: straight members, including geometry-only bends, are "
+    "Timoshenko with the energy-matched annular shear factor (timoshenko_annulus_energy_v1) and Poisson's ratio "
+    "E/(2G) - 1, and realized arcs are Euler-Bernoulli; a straight member's published nodal rotations are section "
+    "rotations, not slopes; numerical integrity does not establish physical correctness.")
 SCHEMA = "schemas/results_pressure_2.v0.3.schema.json"
 # The members physics-retained-1 inherits unchanged from pressure-2. The retained
 # table's own members (identity, profile, limitations, receipt and formation
@@ -547,6 +563,10 @@ def results_schema(schema, preview_limitations: list) -> None:
         identity = branch.get("properties", {}).get("producer", {}).get("properties", {}).get("semantic_contract_id", {}).get("const")
         if identity in PREVIEW_IDENTITIES:
             branch["properties"]["formulation_basis"]["properties"]["limitations"] = {"const": list(preview_limitations)}
+        elif identity == TIMOSHENKO_ID:
+            # pf-timoshenko.md §4: preview-physics-2's texts with limitation 0 replaced, as the table.
+            branch["properties"]["formulation_basis"]["properties"]["limitations"] = {
+                "const": [TIMOSHENKO_LIMITATION_0] + list(preview_limitations[1:])}
 
 
 def pressure_schema(schema) -> None:
@@ -648,13 +668,30 @@ def derived_tables() -> dict[str, bytes]:
             raise SystemExit(f"{RETAINED}: inherited member {key} missing")
         retained[key] = pressure[key]
     retained["inherited_semantic_contract_sha256"] = sha256(pressure_bytes)
-    return {PRESSURE: pressure_bytes, RETAINED: dumps(retained)}
+    return {PRESSURE: pressure_bytes, RETAINED: dumps(retained), TIMOSHENKO: timoshenko_table()}
+
+
+def timoshenko_table() -> bytes:
+    """preview-physics-timoshenko-1 from the committed preview-physics-2 bytes: the same members in
+    the same order, with the identity, the profile and limitation 0 replaced. A preview-physics-2
+    whose limitation 0 is not the Euler-Bernoulli sentence is refused, so a later edit of that
+    sentence is reviewed here rather than carried silently."""
+    preview = json.loads((PROJECT / PREVIEW).read_bytes())
+    if preview["semantic_contract_id"] != PREVIEW_IDENTITIES[0] or preview["formulation_profile_id"] != "product_preview_mechanics_v1":
+        raise SystemExit(f"{PREVIEW}: unexpected identity or profile")
+    if preview["supported_profile_limitations"][0] != PREVIEW_LIMITATION_0:
+        raise SystemExit(f"{PREVIEW}: limitation 0 is not the Euler-Bernoulli sentence this derivation replaces")
+    preview["semantic_contract_id"] = TIMOSHENKO_ID
+    preview["formulation_profile_id"] = TIMOSHENKO_PROFILE
+    preview["supported_profile_limitations"][0] = TIMOSHENKO_LIMITATION_0
+    return dumps(preview)
 
 
 def derive(check: bool) -> int:
     changed = 0
     for path, data in derived_tables().items():
-        current = (PROJECT / path).read_bytes()
+        target = PROJECT / path
+        current = target.read_bytes() if target.exists() else b""
         state = "unchanged" if current == data else ("differs" if check else "written")
         if current != data:
             changed += 1
@@ -706,7 +743,7 @@ def classify(consumers: list[str]) -> tuple[list[str], list[str], list[str]]:
 
 # The pinned files, tables before the schemas that embed their hashes: pressure-2, the
 # inheriting and preview tables (T4-U4b), the result schemas and the analysis-run schema.
-PINNED = (PRESSURE, RETAINED, TABLE % "preview_physics_2", TABLE % "preview_physics_retained_1", SCHEMA,
+PINNED = (PRESSURE, RETAINED, TABLE % "preview_physics_2", TIMOSHENKO, TABLE % "preview_physics_retained_1", SCHEMA,
           "schemas/results.v0.3.schema.yaml", "schemas/stress_neutral_export.v0.3.schema.json",
           "schemas/component.schema.yaml", "schemas/analysis_run.v0.3.schema.json",
           # T4-U4b S4: the pressure-source-1 table, the source receipt schema (reviewed input 1)

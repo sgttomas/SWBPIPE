@@ -31,7 +31,7 @@ from decimal import Decimal
 from fractions import Fraction as Q
 
 import m3_json
-from m3_types import (SECTION_BASES, Expected, ExpectedCase, Extremum, Headline, ModelView, PipeSection, Row, RunView, SectionProps,
+from m3_types import (ENTRIES, SECTION_BASES, Expected, ExpectedCase, Extremum, Headline, ModelView, PipeSection, Row, RunView, SectionProps,
                       Standing, TauInputs)
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -40,10 +40,16 @@ FIXTURES = os.path.normpath(os.path.join(HERE, "..", "..", "..", "fixtures", "re
 # under the first contract whose table every one of its rows matches; rows are never matched across two contracts.
 # The exact route publishes pressure-2 and, for retained-source maxima, pressure-source-1, which alone declares
 # `retained_source_endpoint_normal_max_v1` (results.v0.3.schema.yaml: "published only under pressure-source-1").
-CONTRACTS = {"pf": (("openpipestress.result_semantics/0.3.0/preview-physics-2", "semantic_contract_v0_3_preview_physics_2.json"),),
+# PF publishes Euler-Bernoulli results under preview-physics-2 and Timoshenko results under preview-physics-timoshenko-1
+# (DEL-05-03 Design/pf-timoshenko.md: the same rows, its own identity). The two tables' rows are identical, so rows cannot
+# tell them apart: a PF record is matched against the one table its request's model_settings.shear_model selects.
+CONTRACTS = {"pf": (("openpipestress.result_semantics/0.3.0/preview-physics-2", "semantic_contract_v0_3_preview_physics_2.json"),
+                    ("openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1",
+                     "semantic_contract_v0_3_preview_physics_timoshenko_1.json")),
              "exact": (("openpipestress.result_semantics/0.3.0/pressure-2", "semantic_contract_v0_3_pressure_2.json"),
                        ("openpipestress.result_semantics/0.3.0/pressure-source-1", "semantic_contract_v0_3_pressure_source_1.json"))}
-CONTRACT_FILES = {"pf": CONTRACTS["pf"][0][1], "exact": CONTRACTS["exact"][0][1], "exact:pressure-source-1": CONTRACTS["exact"][1][1]}
+CONTRACT_FILES = {"pf": CONTRACTS["pf"][0][1], "pf:preview-physics-timoshenko-1": CONTRACTS["pf"][1][1], "exact": CONTRACTS["exact"][0][1],
+                  "exact:pressure-source-1": CONTRACTS["exact"][1][1]}
 CONTRACT_IDS = {"pf": CONTRACTS["pf"][0][0], "exact": CONTRACTS["exact"][0][0]}
 SCHEMAS = os.path.normpath(os.path.join(HERE, "..", "..", "..", "schemas"))
 # The exact route's contract_evidence: its members (required and admitted) and their shapes are read from this schema
@@ -57,7 +63,6 @@ SOURCE_RECOVERY_SCHEMA = "physics_source_recovery.schema.json"
 SOURCE_RECOVERY_EVIDENCE = {False: "/$defs/pressure_source_ordinary_evidence", True: "/$defs/pressure_source_resolved_evidence"}
 SCHEMA_FILES = ("results_pressure_2.v0.3.schema.json", "load_reference_state.schema.json", SOURCE_RECOVERY_SCHEMA)
 
-ENTRIES = ("typed", "captured")
 MODES = ("SparseInteractive", "DenseScrutiny")
 HEX64 = re.compile(r"\A[0-9a-f]{64}\Z")
 HEX40 = re.compile(r"\A[0-9a-f]{40}\Z")
@@ -272,9 +277,16 @@ def request_lines(gens):
 class Facts:
     """What the validator binds a record to (not part of the view): the model's entities and load cases."""
 
-    def __init__(self, nodes, pipes, supports, cases):
+    def __init__(self, nodes, pipes, supports, cases, shear_model=None):
         self.nodes, self.pipes, self.supports, self.cases = frozenset(nodes), frozenset(pipes), frozenset(supports), tuple(cases)
         self.entities = self.nodes | self.pipes | self.supports
+        self.shear_model = shear_model     # the request's model_settings.shear_model (None when absent)
+
+    def contract_names(self, route):
+        """The contracts a record of this model is matched against, in order: on PF the one its shear model selects."""
+        if route == "pf":
+            return [CONTRACTS["pf"][1 if self.shear_model == TIMOSHENKO else 0][0]]
+        return [n for n, _ in CONTRACTS[route]]
 
     def entity_ok(self, kind, entity):
         cls = ENTITY_CLASS.get(kind)
@@ -339,7 +351,7 @@ def _run_view(r, route, facts):
         out.append("numerical_quality")
     standings, refusal, warnings, probs = _outcome(r["diagnostics"], route, facts)
     out += probs
-    names = [n for n, _ in CONTRACTS[route]]
+    names = facts.contract_names(route)
     first, chosen = None, None
     for name in names:
         rows, by_id, probs = _rows(r["results"], route, facts, name)
@@ -848,7 +860,8 @@ def recovery_case_keys():
 # the committed REFERENCE_SHA256SUMS as part of provenance. Nothing else in a reference is read.
 #   (a) the request: node ids and positions (L_b, bodies), pipe ids and ends, support ids and nodes, load case ids,
 #       components; every run binds it through request_sha256 = sha256(request_line(tag, request)).
-#   (b) the reference line, besides its request: meta family, theory, twin and the reporting keys REPORT_META; and
+#   (b) the reference line, besides its request: meta family, theory, twin, the reporting keys REPORT_META and entries
+#       (the entries the inventory expects; both when absent); and
 #       ref: on PF expect, refusal.code, expected_warnings, sections[pipe] {ro, A, Z, J, I, tau_c, E, G, od, wall,
 #       mill}; on the exact route sections[pipe] {ro, nominal_section and reduced_section {A, Z, J}}; and on both
 #       cases[case] {rows, maxima}. The controls file (exact route): one {tag, pertE} per model with a control,
@@ -932,7 +945,9 @@ def request_model(q):
     for p in mdl["pipe_segments"]:
         parent[find(p["from"])] = find(p["to"])
     bodies = len({find(a) for a in parent})
-    return Facts(nodes, pipes, sups, cases), Lb, bodies, len(mdl["components"]), []
+    settings = mdl.get("model_settings")
+    shear = settings.get("shear_model") if type(settings) is dict else None
+    return Facts(nodes, pipes, sups, cases, shear if type(shear) is str else None), Lb, bodies, len(mdl["components"]), []
 
 
 def _ref_rows(c, facts, route, cid):
@@ -1071,6 +1086,9 @@ def _reference_model(x, route, variant, by_tag, ctl):
     m = x["meta"]
     if not all(type(m.get(k)) is str for k in REPORT_META):
         return None, ["meta (" + ", ".join(REPORT_META) + " must be strings)"]
+    entries = m.get("entries", list(ENTRIES))
+    if type(entries) is not list or not entries or not all(type(e) is str and e in ENTRIES for e in entries) or len(set(entries)) != len(entries):
+        return None, [f"meta entries {entries!r} (a non-empty list of distinct entries of {ENTRIES})"]
     facts, Lb, bodies, components, out = request_model(x["request"])
     if facts is None:
         return None, out
@@ -1093,7 +1111,8 @@ def _reference_model(x, route, variant, by_tag, ctl):
     elif bodies != 1:
         harness = f"a model with {bodies} bodies: per-body scales are not implemented"
     view = ModelView(route=route, tag=x["tag"], family=m["family"], theory=m["theory"], twin=m["twin"], cases=facts.cases, Lb=float(Lb),
-                     request_sha256=request_sha256(x["tag"], x["request"]), harness_error=harness, meta=tuple((k, m[k]) for k in REPORT_META))
+                     request_sha256=request_sha256(x["tag"], x["request"]), harness_error=harness, meta=tuple((k, m[k]) for k in REPORT_META),
+                     entries=tuple(e for e in ENTRIES if e in entries))
     return Model(view, facts, expected), out
 
 

@@ -51,11 +51,14 @@ pub const RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE: &str =
 /// pressure-2 statement is refused by this name, never admitted unchecked.
 pub const PRESSURE_TRANSPORT_UNSUPPORTED: &str = "SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED";
 
-/// Each route's pinned table binding `{id, sha256}` (the table file's sha256;
-/// `binding_hashes_are_the_table_files` checks them).
-const BINDINGS: [(&str, &str, &str); 5] = [
+/// Each route's pinned table bindings `{id, sha256}` (the table file's sha256;
+/// `binding_hashes_are_the_table_files` checks them). A route's first binding is its
+/// default; the preview-physics route admits two identities (pf-timoshenko.md §4), and a
+/// source's binding is keyed by its `semantic_contract_id` (`binding_of`).
+const BINDINGS: [(&str, &str, &str); 6] = [
     ("pressure_source", sc::PRESSURE_SOURCE_ID, sc::PRESSURE_SOURCE_TABLE_SHA256),
     ("preview_physics", sc::PREVIEW_PHYSICS_ID, sc::PREVIEW_PHYSICS_SHA256),
+    ("preview_physics", sc::PREVIEW_PHYSICS_TIMOSHENKO_ID, sc::PREVIEW_PHYSICS_TIMOSHENKO_SHA256),
     ("pressure", sc::PRESSURE_ID, sc::PRESSURE_TABLE_SHA256),
     ("retained_preview_physics", sc::PREVIEW_PHYSICS_RETAINED_ID, sc::PREVIEW_PHYSICS_RETAINED_SHA256),
     ("retained_physics", sc::PHYSICS_RETAINED_ID, sc::PHYSICS_RETAINED_SHA256),
@@ -105,7 +108,7 @@ pub fn route(source: &Value) -> Result<(&'static str, &'static Value), String> {
             crate::physics_source::validate_receipt_shape_in(receipt, crate::physics_source::SourceContract::PressureV3)?;
             "pressure_source"
         }
-        Some(sc::PREVIEW_PHYSICS_ID) => "preview_physics",
+        Some(sc::PREVIEW_PHYSICS_ID | sc::PREVIEW_PHYSICS_TIMOSHENKO_ID) => "preview_physics",
         Some(sc::PRESSURE_ID) => {
             if !evidence_object {
                 return Err(SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED.into());
@@ -118,12 +121,52 @@ pub fn route(source: &Value) -> Result<(&'static str, &'static Value), String> {
     };
     Ok((route, table))
 }
-/// A route's table binding `{id, sha256}`; null for unsupported.
+/// A route's default table binding `{id, sha256}`; null for unsupported.
 pub fn binding(route: &str) -> Value {
     BINDINGS
         .iter()
         .find(|b| b.0 == route)
         .map_or(Value::Null, |b| json!({"id": b.1, "sha256": b.2}))
+}
+/// A routed source's table binding, keyed by its `semantic_contract_id` within its route's
+/// admitted set (pf-timoshenko.md §4); null for unsupported or an identity outside the set.
+pub fn binding_of(route: &str, source: &Value) -> Value {
+    let id = source["producer"]["semantic_contract_id"].as_str().unwrap_or_default();
+    BINDINGS
+        .iter()
+        .find(|b| b.0 == route && b.1 == id)
+        .map_or(Value::Null, |b| json!({"id": b.1, "sha256": b.2}))
+}
+
+/// pf-timoshenko.md §4 (model-bound): a preview-physics identity binds the beam theory
+/// the model selects. `model_settings.shear_model = timoshenko_annulus_energy_v1` selects
+/// the Timoshenko identity; an absent member (or an absent `model_settings`) or
+/// `euler_bernoulli` selects preview-physics-2. A crossed pair is refused by name. A
+/// present setting the producer and the document validator refuse is never a result, so
+/// it binds neither identity and is refused naming their code: a `model_settings` that is
+/// not an object, `null` included (`MODEL-SLOT-SHAPE`), and a `shear_model` that is not one
+/// of the two names, `null` and non-strings included (`MODEL-SETTING-SHEAR-MODEL-UNKNOWN`).
+pub const SHEAR_MODEL_IDENTITY: &str = "SOURCE_PREVIEW_PHYSICS_SHEAR_MODEL_IDENTITY";
+pub fn bind_preview_shear_model(source: &Value, model: &Value) -> Result<(), String> {
+    let selected = match model.get("model_settings") {
+        None => None,
+        Some(Value::Object(settings)) => settings.get("shear_model"),
+        Some(_) => {
+            return Err(format!("{SHEAR_MODEL_IDENTITY}: MODEL-SLOT-SHAPE: model_settings is not an object, so it selects no beam theory"));
+        }
+    };
+    let expected = match selected.map(|value| value.as_str()) {
+        None => sc::PREVIEW_PHYSICS_ID,
+        Some(Some("euler_bernoulli")) => sc::PREVIEW_PHYSICS_ID,
+        Some(Some("timoshenko_annulus_energy_v1")) => sc::PREVIEW_PHYSICS_TIMOSHENKO_ID,
+        Some(_) => {
+            return Err(format!("{SHEAR_MODEL_IDENTITY}: MODEL-SETTING-SHEAR-MODEL-UNKNOWN: model_settings.shear_model must be `euler_bernoulli` or `timoshenko_annulus_energy_v1`"));
+        }
+    };
+    if source["producer"]["semantic_contract_id"] != expected {
+        return Err(format!("{SHEAR_MODEL_IDENTITY}: the result's semantic contract is not the one the model's shear model selects ({expected})"));
+    }
+    Ok(())
 }
 
 /// G2: the checks against the current model, after the reader admitted the
@@ -247,11 +290,15 @@ pub fn validate(reader: &str, source: &Value, model: Option<&Value>, invocation:
     match reader {
         "source-recovery" => checked(source_recovery(source)),
         // T4-U4b (§5.1): with the captured model, τ bit for bit (G2).
+        // pf-timoshenko.md §4: with the model, a crossed identity is refused first.
         "preview-physics" => checked(sc::validate_preview_physics_evidence(source).and_then(|()| {
             // Operating-case slice 1a (DEL-05-02 `pf-nonlinear-operand-standing.md` §3):
             // the operand records bound to the model's combinations.
-            model.map_or(Ok(()), |m| crate::u4b_evidence::preview_model_checks(source, m)
-                .and_then(|()| crate::preview_combination_operands::model_checks(source, m)))
+            model.map_or(Ok(()), |m| {
+                bind_preview_shear_model(source, m)
+                    .and_then(|()| crate::u4b_evidence::preview_model_checks(source, m))
+                    .and_then(|()| crate::preview_combination_operands::model_checks(source, m))
+            })
         })),
         // Current pressure-2 reader, then G2's model checks,
         // which read only the cases, members, connectors and support rows.
@@ -556,7 +603,7 @@ pub fn dispatch(source: &Value, model: Option<&Value>, invocation: Option<&Value
         Ok((route, _)) => (route, Value::Null),
         Err(code) => (UNSUPPORTED, error_json(&code)),
     };
-    json!({"ok": refusal.is_null(), "route": route_name, "binding": binding(route_name),
+    json!({"ok": refusal.is_null(), "route": route_name, "binding": binding_of(route_name, source),
         "error": refusal, "standing": standing(source, model, invocation)})
 }
 

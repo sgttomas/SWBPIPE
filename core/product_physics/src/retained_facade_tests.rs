@@ -5088,3 +5088,38 @@ fn w15b_hand_written_nodal_weight_stays_admitted() {
         }
     }
 }
+/// PF Timoshenko (DEL-05-03 Design `pf-timoshenko.md` §3): a pressure-free document selecting
+/// `timoshenko_annulus_energy_v1` is declined at D1 under `ShearModel`, before any charged work:
+/// no W1 and no successor, and the publication is the ordinary route's bytes, under the
+/// Timoshenko identity. An explicit `euler_bernoulli` document is not declined by it, and exact
+/// route E keeps its Timoshenko admission.
+#[test]
+fn pf_timoshenko_is_declined_at_d1_and_takes_the_ordinary_route_unchanged() {
+    use super::retained_memory::{AdmissionRefusal, D1Clause, FamilyFact};
+    let declined = Some(AdmissionRefusal::Family(D1Clause::Namespace, FamilyFact::ShearModel));
+    let with_setting = |value: &str| {
+        let mut raw = raw();
+        let model = raw["model"].as_object_mut().unwrap();
+        model.entry("model_settings").or_insert_with(|| json!({}))["shear_model"] = json!(value);
+        raw
+    };
+    let timoshenko = with_setting("timoshenko_annulus_energy_v1");
+    let explicit = with_setting("euler_bernoulli");
+    let mut exact = m3x();
+    exact["model"]["pressure_contract"]["shear_model"] = json!("timoshenko_annulus_energy_v1");
+    for mode in MODES {
+        let (output, _) = direct(&timoshenko, mode);
+        assert_eq!(output.admission().unwrap().law().domain, declined, "{mode:?}");
+        assert!(output.retained().is_none(), "{mode:?}: no W1");
+        assert!(output.successor().is_none(), "{mode:?}: no successor");
+        let ordinary = plain(mode, &timoshenko);
+        assert!(published(output) == ordinary, "{mode:?}: the ordinary bytes");
+        let envelope: Value = serde_json::from_slice(&ordinary).unwrap();
+        assert_eq!(envelope["status"]["mechanics"], json!("MECHANICS_SOLVED"), "{mode:?}");
+        assert_eq!(envelope["producer"]["semantic_contract_id"], json!(super::pf_timoshenko::ID));
+        for (label, other) in [("explicit euler_bernoulli", &explicit), ("exact route E", &exact)] {
+            let (output, _) = direct(other, mode);
+            assert_ne!(output.admission().unwrap().law().domain, declined, "{label} {mode:?}");
+        }
+    }
+}

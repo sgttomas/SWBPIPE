@@ -29,7 +29,7 @@ NI = "core/solver/nonlinear_integration/src/structural_adapter.rs"
 BODY_PINS = {
     (LIB, "published_nodal_displacements"): "83648eba3d0101586f558439d1198591659ecd706db07b5447feed75421dbe02",
     (U4B, "member_bases"): "760afaf0e6145df8f837cb75c6976d87afd98b3d20f873789ab4427fd0c8e372",
-    (U4B, "append_station_quantities"): "778a4751ce9402583307ce8ae1b3a153fe9b40ee483b601722d43786fe73f06a",
+    (U4B, "append_station_quantities"): "6780f23ae92ab6bb6aa96675979140f3bda6306d9eb25a3f40beb4d2952fcb5f",
     (SPARSE, "sparse_contribution_sums"): "3a7bb0911b4646798f6cbc6f104f0b852ba5beaf3ef439d6535004b06c8f4a7a",
     # W-7 D3 (retained-pricing-rules.md §8.20): failed_manifest adds each member's twelve global end placeholders after
     # its maximum (rows inside FAILED_MEMBER_ROWS = 78, W7-RL; their texts are TEXT sites), and prepared_not_covered
@@ -38,10 +38,10 @@ BODY_PINS = {
     # W-15 D3 (§8.21): failed_manifest's rows name `component_body: None` (no owner moves); preview_model_checks first
     # calls component_body::model_checks, whose working set is W15-RB (w15_owners_model); U4B-RD's sets are unchanged.
     (RP, "failed_manifest"): "e394440d8fba5059d51168bb5919c2d52f2a119fc0f43b81c990c4394092eb93",
-    (RP, "prepared_not_covered"): "373fc109510882da46338c0a81da6e91b0eb9f5d4803dd2a1954be0a429bcd19",
+    (RP, "prepared_not_covered"): "697dd47f3ab31b2f8b7aca8b1711426dad26cc4411187f30091afa453bec710c",
     (EVID, "member_stations"): "422def17cd2b550f2654109416449ee04276fddd13a42175dcfe5606b7f93cad",
     (EVID, "poisson_exempt"): "087720dfa55869d73d7b277affd80e7dffb34a83f2488b85900387caae4f33d4",
-    (EVID, "preview_model_checks"): "14832c4f79d882883367834aa8c5b168160c4295d5cced0fff960187eb6fb8f3",
+    (EVID, "preview_model_checks"): "74fa3f2ea6fb6fd5df859f7c837c7fb2581d6bf9ddfa9519b6c0f8a2abd239b8",
     (PHYS, "u4b_cases"): "ef840d771fad2b50bef538f1e6b57466bc1902ba4b7c4406de53a9a31b5849ed",
     (ROWS, "not_qualified_for"): "c76bc3bdb40be7ca80e348223b7cf3a7373bd7d05f74013f93567020b0abf222",
     (ROWS, "not_qualified_inputs"): "14c9b4d161963de572fe32bcd9fc1c58191eebea441728054a624b998f97e4e3",
@@ -127,7 +127,7 @@ def inspect(snapshot):
     out["station_quantities"] = _pinned(snapshot, [(U4B, "member_bases"), (U4B, "append_station_quantities")], "U4B-ST")
     if out["station_quantities"]:
         _once(lib, "            let bases = u4b_rows::member_bases(section, exact_bases);\n", "U4B-ST")
-        _once(lib, "                bases: bases.clone(), poisson_ratio, directional, toroidal,\n", "U4B-ST")
+        _once(lib, "                bases: bases.clone(), poisson, directional, toroidal,\n", "U4B-ST")
     # U5B-AB: the absorbed-diagonal refusal's free-DOF flags, one Vec<bool> of N per contribution-sum call.
     fks = _read(snapshot, FKS)
     block = _span(fks, "pub(crate) struct ElementAbsorption<'g> {", "fn contribution_differences(", "U5B-AB")

@@ -19,6 +19,7 @@ from dataclasses import dataclass
 from fractions import Fraction
 
 ROUTES = ("pf", "exact")
+ENTRIES = ("typed", "captured")
 SECTION_BASES = ("nominal_section", "reduced_section")
 
 
@@ -274,9 +275,12 @@ class ModelView:
     request_sha256: str
     harness_error: str | None   # a model this judge does not model (more than one body, components): C0
     meta: tuple
+    entries: tuple = ENTRIES     # the entries the inventory expects of this model (its reference line's meta; both by default)
 
     def __post_init__(self):
         _require(_str(self.route) and self.route in ROUTES and all(_str(x) for x in (self.tag, self.family, self.theory, self.request_sha256)), "model")
         _require(_ostr(self.twin) and _ostr(self.harness_error) and _tuple_of(self.cases, _str) and len(self.cases) > 0, "model cases")
         _require(type(self.Lb) is float and math.isfinite(self.Lb) and self.Lb >= 0.0, "model L_b")
         _require(_tuple_of(self.meta, lambda m: type(m) is tuple and len(m) == 2 and _str(m[0]) and _str(m[1])), "model meta")
+        _require(_tuple_of(self.entries, _str) and len(self.entries) > 0 and self.entries == tuple(e for e in ENTRIES if e in self.entries),
+                 "model entries (a non-empty subset of ENTRIES, in their order)")

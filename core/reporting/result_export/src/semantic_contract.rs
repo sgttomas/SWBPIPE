@@ -126,6 +126,42 @@ pub const SOURCE_PREVIEW_PHYSICS_1_RETIRED: &str = "SOURCE_PREVIEW_PHYSICS_1_RET
 pub const PREVIEW_PHYSICS_ID: &str = "openpipestress.result_semantics/0.3.0/preview-physics-2";
 pub const PREVIEW_PHYSICS_SHA256: &str =
     "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2";
+pub const PREVIEW_PHYSICS_PROFILE: &str = "product_preview_mechanics_v1";
+/// DEL-05-03 Design `pf-timoshenko.md` §4: the pressure-free Timoshenko identity, a
+/// second complete identity on the preview-physics route. Its table is preview-physics-2's
+/// with the identity, the profile and limitation 0 replaced (`semantic_contract_tables.py
+/// derive`); preview-physics-2's bytes and hash are unchanged.
+pub const PREVIEW_PHYSICS_TIMOSHENKO_ID: &str =
+    "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1";
+pub const PREVIEW_PHYSICS_TIMOSHENKO_PROFILE: &str = "product_preview_mechanics_timoshenko_v1";
+pub const PREVIEW_PHYSICS_TIMOSHENKO_SHA256: &str =
+    "a7b83c37a4af9bf70f56513f80883003a2a3860387319311ea2e967dd0cf764b";
+/// The preview-physics route's admitted identities, `(id, profile)`, in one place: every
+/// identity-aware site keys by the envelope's `semantic_contract_id` through this list.
+pub const PREVIEW_PHYSICS_IDENTITIES: [(&str, &str); 2] = [
+    (PREVIEW_PHYSICS_ID, PREVIEW_PHYSICS_PROFILE),
+    (PREVIEW_PHYSICS_TIMOSHENKO_ID, PREVIEW_PHYSICS_TIMOSHENKO_PROFILE),
+];
+/// Either preview-physics identity (Euler–Bernoulli or Timoshenko).
+pub fn is_preview_physics_id(id: &str) -> bool {
+    PREVIEW_PHYSICS_IDENTITIES.iter().any(|(i, _)| *i == id)
+}
+/// A preview-physics identity's `(table, profile)`; `None` for any other identity.
+pub fn preview_physics_identity(id: &str) -> Option<(&'static Value, &'static str)> {
+    match id {
+        PREVIEW_PHYSICS_ID => Some((preview_physics_contract(), PREVIEW_PHYSICS_PROFILE)),
+        PREVIEW_PHYSICS_TIMOSHENKO_ID => {
+            Some((preview_physics_timoshenko_contract(), PREVIEW_PHYSICS_TIMOSHENKO_PROFILE))
+        }
+        _ => None,
+    }
+}
+/// A preview-physics source's identity, by its producer's `semantic_contract_id`: the
+/// Timoshenko identity when named, else preview-physics-2 (the readers' unchanged default).
+pub fn preview_physics_identity_of(source: &Value) -> (&'static Value, &'static str) {
+    preview_physics_identity(source["producer"]["semantic_contract_id"].as_str().unwrap_or_default())
+        .unwrap_or_else(|| (preview_physics_contract(), PREVIEW_PHYSICS_PROFILE))
+}
 /// U6a (D-U6-6; D2 4.7 S-1, 4.9.6): the F2a preview successor. Its raw and
 /// transport statements are checked only by the accepted reader
 /// (`crate::retained_precision`), never by this module's ordinary branches, and
@@ -299,6 +335,30 @@ pub fn preview_physics_contract() -> &'static Value {
             "../../../../fixtures/results/semantic_contract_v0_3_preview_physics_2.json"
         ))
         .expect("pinned preview-physics semantic contract")
+    })
+}
+/// Pinned Timoshenko table bytes: identity, profile and sha256 are checked.
+pub fn verify_preview_physics_timoshenko_table(bytes: &[u8]) -> Result<Value, String> {
+    use sha2::{Digest, Sha256};
+    if format!("{:x}", Sha256::digest(bytes)) != PREVIEW_PHYSICS_TIMOSHENKO_SHA256 {
+        return Err("SOURCE_PREVIEW_PHYSICS_TIMOSHENKO_TABLE_HASH".into());
+    }
+    let table: Value = serde_json::from_slice(bytes)
+        .map_err(|_| "SOURCE_PREVIEW_PHYSICS_TIMOSHENKO_TABLE_HASH".to_string())?;
+    if table["semantic_contract_id"] != PREVIEW_PHYSICS_TIMOSHENKO_ID
+        || table["formulation_profile_id"] != PREVIEW_PHYSICS_TIMOSHENKO_PROFILE
+    {
+        return Err("SOURCE_PREVIEW_PHYSICS_TIMOSHENKO_TABLE_IDENTITY".into());
+    }
+    Ok(table)
+}
+pub fn preview_physics_timoshenko_contract() -> &'static Value {
+    static CONTRACT: OnceLock<Value> = OnceLock::new();
+    CONTRACT.get_or_init(|| {
+        verify_preview_physics_timoshenko_table(include_bytes!(
+            "../../../../fixtures/results/semantic_contract_v0_3_preview_physics_timoshenko_1.json"
+        ))
+        .expect("pinned preview-physics-timoshenko semantic contract")
     })
 }
 /// Verify the independent current source table. Its full reviewed-byte digest
@@ -510,7 +570,7 @@ fn current_header(source: &Value) -> Result<(&'static Value, &'static str), Stri
             if !matches!(
                 p["semantic_contract_id"].as_str(),
                 Some(
-                    PRESSURE_ID | PRESSURE_SOURCE_ID | PREVIEW_PHYSICS_ID
+                    PRESSURE_ID | PRESSURE_SOURCE_ID | PREVIEW_PHYSICS_ID | PREVIEW_PHYSICS_TIMOSHENKO_ID
                 )
             ) {
                 return Err("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into());
@@ -527,7 +587,7 @@ fn current_header(source: &Value) -> Result<(&'static Value, &'static str), Stri
             {
                 return Err("SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN".into());
             }
-            if p["semantic_contract_id"] == PREVIEW_PHYSICS_ID
+            if p["semantic_contract_id"].as_str().is_some_and(is_preview_physics_id)
                 && !source.get("contract_evidence").is_some_and(Value::is_object)
             {
                 return Err("SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED".into());
@@ -602,7 +662,9 @@ fn current_header(source: &Value) -> Result<(&'static Value, &'static str), Stri
             let profile = match p["semantic_contract_id"].as_str() {
                 // T4-U2a: the only profile of pressure-1, on 0.3.0 and 0.4.0.
                 Some(PRESSURE_ID | PRESSURE_SOURCE_ID) => PRESSURE_PROFILE,
-                _ => "product_preview_mechanics_v1",
+                // pf-timoshenko.md §4: each preview identity has its own profile.
+                Some(PREVIEW_PHYSICS_TIMOSHENKO_ID) => PREVIEW_PHYSICS_TIMOSHENKO_PROFILE,
+                _ => PREVIEW_PHYSICS_PROFILE,
             };
             if !exact_keys(f, &["profile_id", "limitations"])
                 || f["profile_id"] != profile
@@ -618,6 +680,7 @@ fn current_header(source: &Value) -> Result<(&'static Value, &'static str), Stri
                 Some(PRESSURE_ID) => pressure_rows_contract(),
                 Some(PRESSURE_SOURCE_ID) => pressure_source_contract(),
                 Some(PREVIEW_PHYSICS_ID) => preview_physics_contract(),
+                Some(PREVIEW_PHYSICS_TIMOSHENKO_ID) => preview_physics_timoshenko_contract(),
                 _ => return Err("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into()),
             };
             Ok((table, RESULT_EXPORT_VERSION))
@@ -636,7 +699,7 @@ pub fn for_source(source: &Value) -> Result<(&'static Value, &'static str), Stri
     let selected = for_source_metadata(source)?;
     forbid_retained_rows(source)?;
     match source["producer"]["semantic_contract_id"].as_str() {
-        Some(PREVIEW_PHYSICS_ID) => validate_preview_physics_evidence(source)?,
+        Some(PREVIEW_PHYSICS_ID | PREVIEW_PHYSICS_TIMOSHENKO_ID) => validate_preview_physics_evidence(source)?,
         Some(PRESSURE_ID) => validate_pressure_evidence(source)?,
         Some(PRESSURE_SOURCE_ID) => {
             crate::physics_source::validate_in(source, None, crate::physics_source::SourceContract::PressureV3)?;
@@ -661,6 +724,9 @@ pub use crate::preview_physics_evidence::validate_preview_physics_evidence;
 /// every language, never a route predicate. T1 added its identities on activation.
 pub const FRESH_IDENTITIES: &[&str] = &[
     PREVIEW_PHYSICS_ID,
+    // pf-timoshenko.md §4: a pressure-free document whose `model_settings.shear_model`
+    // selects `timoshenko_annulus_energy_v1`.
+    PREVIEW_PHYSICS_TIMOSHENKO_ID,
     PRESSURE_SOURCE_ID,
     // T4-U2: pressure-1 (`3.0.0/exact_pressure_v3`) on 0.3.0 and 0.4.0.
     PRESSURE_ID,

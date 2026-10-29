@@ -1,0 +1,274 @@
+{
+ "model": {
+  "schema_version": "0.8.0",
+  "document_kind": "openpipestress.product_preview.model",
+  "analysis_status": {
+   "mechanics": "ready_for_preview_diagnostics",
+   "rule_check": "not_performed_user_rule_inputs_missing",
+   "professional_acceptance": "not_provided"
+  },
+  "project": {
+   "id": "invented:pf-timoshenko:PFT-IMPOSED-EULER-BERNOULLI",
+   "units": {
+    "length": "m",
+    "force": "N",
+    "angle": "rad",
+    "pressure": "Pa",
+    "stress": "Pa",
+    "temperature": "degC"
+   }
+  },
+  "nodes": [
+   {
+    "id": "node:A",
+    "position": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   },
+   {
+    "id": "node:C",
+    "position": {
+     "x": 1.5,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   },
+   {
+    "id": "node:D",
+    "position": {
+     "x": 1.5,
+     "y": 1.0,
+     "z": 0.0
+    },
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   }
+  ],
+  "pipe_segments": [
+   {
+    "id": "pipe:AC",
+    "from": "node:A",
+    "to": "node:C",
+    "material": "mat:A",
+    "y_reference": {
+     "x": 0.0,
+     "y": 1.0,
+     "z": 0.0
+    },
+    "section": {
+     "outside_diameter": {
+      "value": 0.2,
+      "unit": "m"
+     },
+     "wall_thickness": {
+      "value": 0.01,
+      "unit": "m"
+     }
+    },
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   },
+   {
+    "id": "pipe:CD",
+    "from": "node:C",
+    "to": "node:D",
+    "material": "mat:A",
+    "y_reference": {
+     "x": -1.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "section": {
+     "outside_diameter": {
+      "value": 0.2,
+      "unit": "m"
+     },
+     "wall_thickness": {
+      "value": 0.01,
+      "unit": "m"
+     }
+    },
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   }
+  ],
+  "materials": [
+   {
+    "id": "mat:A",
+    "elastic_modulus": {
+     "value": 200000000000.0,
+     "unit": "Pa"
+    },
+    "shear_modulus": {
+     "value": 77000000000.0,
+     "unit": "Pa"
+    },
+    "thermal_expansion_coefficient": {
+     "value": 1.2e-05,
+     "unit": "1/degC"
+    },
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   }
+  ],
+  "supports": [
+   {
+    "id": "support:a",
+    "node": "node:A",
+    "family": "anchor",
+    "restraints": [
+     "UX",
+     "UY",
+     "UZ",
+     "RX",
+     "RY",
+     "RZ"
+    ],
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   },
+   {
+    "id": "support:d",
+    "node": "node:D",
+    "family": "anchor",
+    "restraints": [
+     "UX",
+     "UY",
+     "UZ",
+     "RX",
+     "RY",
+     "RZ"
+    ],
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   }
+  ],
+  "components": [],
+  "load_cases": [
+   {
+    "id": "case:motion",
+    "kind": "primitive_user_load",
+    "primitive_loads": [
+     {
+      "id": "load:motion:0",
+      "category": "imposed_displacement",
+      "target": {
+       "type": "support",
+       "support": "support:d",
+       "dof": "UX"
+      },
+      "direction": "UX",
+      "magnitude": {
+       "value": 0.003,
+       "unit": "m"
+      },
+      "dimension": "displacement",
+      "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+     },
+     {
+      "id": "load:motion:1",
+      "category": "imposed_displacement",
+      "target": {
+       "type": "support",
+       "support": "support:d",
+       "dof": "UY"
+      },
+      "direction": "UY",
+      "magnitude": {
+       "value": -0.005,
+       "unit": "m"
+      },
+      "dimension": "displacement",
+      "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+     },
+     {
+      "id": "load:motion:2",
+      "category": "imposed_displacement",
+      "target": {
+       "type": "support",
+       "support": "support:d",
+       "dof": "UZ"
+      },
+      "direction": "UZ",
+      "magnitude": {
+       "value": 0.008,
+       "unit": "m"
+      },
+      "dimension": "displacement",
+      "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+     },
+     {
+      "id": "load:motion:3",
+      "category": "imposed_displacement",
+      "target": {
+       "type": "support",
+       "support": "support:d",
+       "dof": "RY"
+      },
+      "direction": "RY",
+      "magnitude": {
+       "value": 0.002,
+       "unit": "rad"
+      },
+      "dimension": "rotation",
+      "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+     }
+    ],
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   },
+   {
+    "id": "case:thermal",
+    "kind": "primitive_user_load",
+    "primitive_loads": [
+     {
+      "id": "load:thermal:0",
+      "category": "thermal",
+      "target": {
+       "type": "element",
+       "pipe": "pipe:AC"
+      },
+      "direction": "global_z",
+      "magnitude": {
+       "value": 80.0,
+       "unit": "degC"
+      },
+      "dimension": "temperature_interval",
+      "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+     },
+     {
+      "id": "load:thermal:1",
+      "category": "thermal",
+      "target": {
+       "type": "element",
+       "pipe": "pipe:CD"
+      },
+      "direction": "global_z",
+      "magnitude": {
+       "value": 80.0,
+       "unit": "degC"
+      },
+      "dimension": "temperature_interval",
+      "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+     }
+    ],
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   }
+  ],
+  "combinations": [
+   {
+    "id": "combination:motion_plus_half_thermal",
+    "basis": "mechanics",
+    "terms": [
+     {
+      "load_case": "case:motion",
+      "factor": 1.0
+     },
+     {
+      "load_case": "case:thermal",
+      "factor": 0.5
+     }
+    ],
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   }
+  ]
+ },
+ "materials": []
+}

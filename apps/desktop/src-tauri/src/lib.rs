@@ -41,6 +41,8 @@ mod report_render_exact;
 #[cfg(test)]
 mod report_render_exact_tests;
 #[cfg(test)]
+mod report_render_pf_timoshenko_tests;
+#[cfg(test)]
 mod object_form_tests;
 mod rule_solver_selection;
 mod solve_attestation;

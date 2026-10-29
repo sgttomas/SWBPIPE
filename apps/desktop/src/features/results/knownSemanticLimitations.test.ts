@@ -30,9 +30,11 @@ describe("static fresh-identity set and standing reasons", () => {
   it("equals Rust's FRESH_IDENTITIES: preview-physics-2, pressure-2, pressure-source-1 and U6's preview-physics-retained-1 (epoch 8); B7b retired the v2 identities", () => {
     // Epoch 8 (DEL-04-07 Design `desktop-exact-outputs.md` §4.1): the desktop's set equals
     // Rust's `FRESH_IDENTITIES` (`semantic_contract.rs`), one static set in every language.
+    // DEL-05-03 `pf-timoshenko.md` §4 adds the pressure-free Timoshenko identity.
     expect([...FRESH_SEMANTIC_CONTRACT_IDS].sort()).toEqual([
       "openpipestress.result_semantics/0.3.0/pressure-2", "openpipestress.result_semantics/0.3.0/pressure-source-1",
-      "openpipestress.result_semantics/0.3.0/preview-physics-2", "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"]);
+      "openpipestress.result_semantics/0.3.0/preview-physics-2", "openpipestress.result_semantics/0.3.0/preview-physics-retained-1",
+      "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1"]);
     expect(new Set(FRESH_SEMANTIC_CONTRACT_IDS).size).toBe(FRESH_SEMANTIC_CONTRACT_IDS.length);
     expect(isFreshSemanticResult(clone(connectedSparse))).toBe(true);
     // pressure-2 and pressure-source-1 are fresh: membership is not standing, which stays

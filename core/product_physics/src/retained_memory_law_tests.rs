@@ -454,7 +454,26 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // Re-audited for model 0.8.0 (W-15 slice c): only the inspected production's
             // current_header v2 re-author text changed its model version token (0.7.0 -> 0.8.0,
             // same length); the closed `b7b_current_table_tests` module and E14 are byte-identical.
-            complete_suffix_sha256: "6dc09d339738a7ac30ef674a4d017d266433b3be8d95f7596d1b2fb23a420428",
+            // Re-audited for PF Timoshenko (DEL-05-03 pf-timoshenko.md §4), on the merged halves
+            // against main 187b67bb6b: only the inspected production after the resume changed
+            // (`current_header`, `for_source` and FRESH_IDENTITIES dispatch preview-physics-timoshenko-1
+            // beside preview-physics-2: its profile and its table). The closed `b7b_current_table_tests`
+            // and E14 modules are main's, byte for byte; the Timoshenko table's E14 check is in
+            // result_export's tests/preview_timoshenko_identity.rs. No include, path module, static or
+            // OnceLock entered the suffix; the Timoshenko table's one include and its OnceLock cache are in
+            // the inspected prefix, parsed only for a source of that identity, then resident for the
+            // process (pf-timoshenko.md §6). This re-pin is registered at #1663's D3 turn.
+            // Re-audited on the merge with main 66a83a2b68, whose suffix pin (6dc09d33…) is unmoved: main
+            // changed only two table-hash constants in the inspected prefix. The closed
+            // `b7b_current_table_tests` (head 389–481, main 329–421) and E14 (head 1047–1071, main
+            // 981–1005) modules are main's, byte for byte; every other line differing from main lies in
+            // the inspected prefix or the inspected production after the resume (head 482–1046, main
+            // 422–980). The value is unchanged. Re-audited on the merge with main 14344b87e0 (suffix pin
+            // still 6dc09d33…; main changed only PREVIEW_PHYSICS_SHA256 in the inspected prefix): the
+            // same ranges, the closed modules main's byte for byte, the merged suffix #1663's; unchanged.
+            // Combined D3 at fc0e6dd877 versus main 7a43b7dde9: rechecked
+            // 0d01d7e2… versus 6dc09d33…; only inspected identity dispatch differs.
+            complete_suffix_sha256: "0d01d7e25d89e3214322197da2bbf26e6cd76bdcc09783c4a25a14971343ee79",
             production_resume: Some("/// Header dispatch only; canonical envelopes have no raw rows. This does not"),
             trailing_test: Some(SEMANTIC_E14_TEST_ITEM),
         })),
@@ -529,7 +548,7 @@ fn actual_reader_include(reader: &str, input: &str) -> bool {
 /// The full registration law and the focused pre-registration check share this
 /// guard. Only the exact pressure result schema path is exempt from resident includes.
 fn assert_reviewed_reader_input_bindings() {
-    const CURRENT: [&str; 12] = [
+    const CURRENT: [&str; 13] = [
         "Cargo.lock",
         "../../schemas/physics_source_recovery.schema.json",
         "../../schemas/retained_precision_mp_v2.schema.json",
@@ -542,6 +561,7 @@ fn assert_reviewed_reader_input_bindings() {
         PRESSURE_SOURCE_BINDING_INPUT,
         PRESSURE_SCHEMA_BINDING_INPUT,
         PRESSURE_TABLE_INPUT,
+        "../../fixtures/results/semantic_contract_v0_3_preview_physics_timoshenko_1.json",
     ];
     // B7a E2: the retired v0_2 table left; B1: the precision-1 table left;
     // B4/D1 (b): the source-blocks-1 table and its receipt schema left; B7b
@@ -841,6 +861,7 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         "609a4e92ac19de0f5a1dd067dab64b4abeb7b3b70511e2095455f1d000d28e2c",
         "ce085117a3501ecc87e08afa478e187c770cc11057b9d9c637022c8ec3fea9b9",
         "be61c6ea828797ad5664d06a2c835b28deffaff07cc33fec6bb4d48a8fcb0919",
+        "a7b83c37a4af9bf70f56513f80883003a2a3860387319311ea2e967dd0cf764b",
     ];
     // The same files, read here at compile time (test-only), by the sha2 dependency.
     let files: [&[u8]; build_identity::REVIEWED_INPUT_COUNT] = [
@@ -856,6 +877,7 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         include_bytes!("../../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json"),
         include_bytes!("../../../schemas/results_pressure_2.v0.3.schema.json"),
         include_bytes!("../../../fixtures/results/semantic_contract_v0_3_pressure_2.json"),
+        include_bytes!("../../../fixtures/results/semantic_contract_v0_3_preview_physics_timoshenko_1.json"),
     ];
     let compiled = COMPILED_REVIEWED_INPUTS.expect("build.rs sets the reviewed inputs");
     assert_eq!(option_env!("OPS_RETAINED_REVIEWED_INPUTS"), Some(compiled));
@@ -1929,9 +1951,11 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 /// 6,278,516 B and W3 and W4 by 6,278,945 B in both modes. X3 is new (PU-X3): the republication's
 /// second ordinary span. The build identity, atoms and native values are unchanged; reviewed-input
 /// registration is separate below.
+// §8.32 candidate: independent resident table +322,013 B; source TEXT
+// +12,908 B in W and +13,204 B in X. The AC-004 stack witnesses passed 6/6 at 84824b20f0.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_559_543_400, 6_901_537_961, 8_855_720_621, 8_643_881_048, 7_721_909_275, 8_607_146_108, 7_338_546_770, 7_011_836_646],
-    [6_618_674_744, 6_960_669_305, 8_914_851_965, 8_703_012_392, 7_781_040_619, 8_666_277_452, 7_397_678_114, 7_070_967_990],
+    [6_559_878_321, 6_901_872_882, 8_856_055_542, 8_644_215_969, 7_722_244_196, 8_607_481_325, 7_338_881_987, 7_012_171_863],
+    [6_619_009_665, 6_961_004_226, 8_915_186_886, 8_703_347_313, 7_781_375_540, 8_666_612_669, 7_398_013_331, 7_071_303_207],
 ];
 
 #[test]

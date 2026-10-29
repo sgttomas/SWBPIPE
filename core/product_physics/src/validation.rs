@@ -41,8 +41,7 @@ fn validate_model_settings(model: &PreviewModel, diagnostics: &mut Vec<Diagnosti
         ));
     }
     // Model document 0.8.0: `model_settings.shear_model` is refused by name when it is not one of
-    // the two names, on a document with `pressure_contract`, or (the 0.8.0 interim)
-    // `timoshenko_annulus_energy_v1` on a pressure-free document. Nothing is then solved.
+    // the two names, or on a document with `pressure_contract`. Nothing is then solved.
     let authored = model.model_settings.as_ref().and_then(|settings| settings.shear_model);
     if let Some(error) = authored.and_then(|setting| crate::model_settings::shear_model_refusal(setting, model.pressure_contract.is_some())) {
         diagnostics.push(diag(

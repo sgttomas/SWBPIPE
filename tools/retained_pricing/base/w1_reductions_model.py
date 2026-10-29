@@ -77,7 +77,7 @@ RF_PINS = {
 # Slice 1a D3 (§8.31): reviewed nonlinear operand producer/reader additions; D1.6 empties the producer
 # records, OP1A-RD retains the reader scans and OP1A-OWN prices its borrowed gate vector.
 REDUCED_PINS = {
-    "core/product_physics/src/lib.rs": "d12b423af9d1d1a684e055ef4f1f205ba8e8f9872886bb491326ee28baa636ce",
+    "core/product_physics/src/lib.rs": "7c3be9bab1a0e5dac865c86d2274fa58ca4566aebba7582f6ec9def1353bbec4",
     "core/product_physics/src/retained_wire.rs": "b457aff075c67f6eb93000dff2ca0cf4bab43119fe34db1316c78356bf1864b3",
     "core/product_physics/src/certified_publication.rs": "89cdb23e172136b55ff980f7d4a4cd3643e43894fb2a9ad40c92fd3cd4adcf87",
     "core/product_physics/src/certified_loads.rs": "da7d3decc3a0170da65b38670ec215aaebdb9d8d799e3c76e41879a80589bc73",

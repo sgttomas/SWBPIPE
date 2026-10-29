@@ -257,7 +257,9 @@ fn preview_arcs(rows: &[Value]) -> HashSet<&str> {
 
 /// Every S1 section 9 check. A failure makes the source unsupported.
 pub fn validate_preview_physics_evidence(source: &Value) -> Check {
-    let table = crate::semantic_contract::preview_physics_contract();
+    // pf-timoshenko.md §4: the source's identity selects one complete identity (table,
+    // profile and limitation array together); a mixed array is FORMULATION_BASIS.
+    let (table, profile) = crate::semantic_contract::preview_physics_identity_of(source);
     finite_tree(source)?;
     // 1. Header and closed evidence shape.
     require(
@@ -265,7 +267,7 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
         "FOREIGN_METHOD_EVIDENCE",
     )?;
     require(
-        source["formulation_basis"]["profile_id"] == "product_preview_mechanics_v1"
+        source["formulation_basis"]["profile_id"] == profile
             && source["formulation_basis"]["limitations"] == table["supported_profile_limitations"],
         "FORMULATION_BASIS",
     )?;

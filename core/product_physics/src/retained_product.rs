@@ -6431,9 +6431,9 @@ impl ProductCapture {
                 let (vy,vz)=(operand(SHEAR_Y)?,operand(SHEAR_Z)?);
                 let f=self.facts.get(mi).ok_or("derived section facts")?;
                 let m=source.members().get(mi).ok_or("derived source member")?;
-                let nu=match route {
-                    W1Route::Preview=>u4b_rows::preview_poisson_ratio(m.elastic_modulus,m.shear_modulus),
-                    W1Route::Exact=>self.material_nu.get(self.members[mi].material).copied().flatten().ok_or("derived material Poisson ratio")?,
+                let poisson=match route {
+                    W1Route::Preview=>u4b_rows::ShearPoisson::Moduli{elastic_modulus:m.elastic_modulus,shear_modulus:m.shear_modulus},
+                    W1Route::Exact=>u4b_rows::ShearPoisson::Authored(self.material_nu.get(self.members[mi].material).copied().flatten().ok_or("derived material Poisson ratio")?),
                 };
                 // The captured section's annulus, as the successor's own evidence states it.
                 // Route E: r_o = D/2, r_i = D/2 − t and the regenerated I (the prepared facts',
@@ -6448,7 +6448,7 @@ impl ProductCapture {
                     (W1Route::Exact,None)=>(f.diameter*0.5-f.effective_wall,f.second_moment),
                     (W1Route::Exact,Some(e))=>{let rf=&self.reduced_facts[e];(f.diameter*0.5-rf.effective_wall,rf.second_moment)}
                 };
-                let factor=open_pipe_stress_stress_recovery::section_stress_quantities::saint_venant_shear_factor(nu,f.radius,inner,inertia)
+                let factor=poisson.shear_factor(f.radius,inner,inertia)
                     .map_err(|_|CaptureError::Association("derived transverse-shear factor".into()))?;
                 open_pipe_stress_stress_recovery::section_stress_quantities::transverse_shear_maximum_mpa(vy,vz,factor)
             }

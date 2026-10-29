@@ -85,7 +85,9 @@ def collection_scenarios(check):
     for r in bad["results"]:
         if r["kind"] == "global_nodal_displacement_y" and r["entity_ref"] == "node:N1":
             r["value"] *= 0.444
-    complete = [run(x, e, m) for x in pf_gens for e, m in EM]
+    # each model's entries are those its reference line declares (meta entries; both by default)
+    EMS = lambda g: [(e, m) for e, m in EM if e in g["meta"].get("entries", MV.ENTRIES)]
+    complete = [run(x, e, m) for x in pf_gens for e, m in EMS(x)]
     rows = []
 
     def table(rnd, attack, case, outcome, ok):
@@ -147,8 +149,9 @@ def collection_scenarios(check):
         ev = lambda r: r["contract_evidence"]["preview_cases"][0]
         # ---- positive controls
         judge(0, "positive control", "small_positive", small, [write(T("small_positive.raw.jsonl"), eight)], True)
-        judge(0, "positive control", "pf_selftest_set_positive_80", pf_set, [write(T("set.raw.jsonl"), complete)], True,
-              lambda j: j["inventory"]["expected"] == 80, workers=4)
+        # 20 models x 4 runs, less the captured runs of the set's two typed-entry-only models (round 13)
+        judge(0, "positive control", "pf_selftest_set_positive_76", pf_set, [write(T("set.raw.jsonl"), complete)], True,
+              lambda j: j["inventory"]["expected"] == 76, workers=4)
         judge(0, "positive control", "chunks_complete_positive (two raw files)", small, [write(T("a.raw.jsonl"), four), write(T("b.raw.jsonl"), eight[4:])], True)
         judge(4, "key order is not meaning", "key_order_positive", small,
               [write(T("ko.raw.jsonl"), "".join(json.dumps(dict(reversed(list(r.items())))) + "\n" for r in eight), raw=True)], True)
@@ -192,7 +195,7 @@ def collection_scenarios(check):
         judge_runs(3, "a run with no outcome", "r3_no_outcome", small, mut(eight, lambda r: r.update(results=[], results_count=0, diagnostics=[])), False,
                    schema, "refused: no outcome")
         judge_runs(3, "every run a runner error", "r3_set_all_errors", pf_set, mut(complete, err_only), False,
-                   lambda j: j["runner_errors"] == 80 and len(j["inventory"]["unsuccessful"]) == 80 and j["m3_failing_records"] == 80, "C0 x80", workers=4)
+                   lambda j: j["runner_errors"] == 76 and len(j["inventory"]["unsuccessful"]) == 76 and j["m3_failing_records"] == 76, "C0 x76", workers=4)
         judge_runs(3, "a forged pairing", "r3_unknown_pairing", small, mut(eight[:1], lambda r: r.update(pairing={"integrity": ["x"]})) + eight[1:],
                    False, schema, "refused by the view")
         for case, f in (("r3_replay_pairing_lie_rehashed", lambda r: r.update(pairing={"integrity": r.get("integrity"), "row_digest": "0" * 64})),
@@ -400,14 +403,15 @@ def collection_scenarios(check):
                        (lambda j: j["pass"]) if code == PASSED else vacuous, "" if code == PASSED else "nonvacuity: 0 judged Passed groups")
             judge_runs(5, "a standing given twice", "double_standing_" + short, small,
                        mut(eight, lambda r, code=code: r["diagnostics"].append(S.diag(code, "warning", n=9))), False, schema, "refused by the view")
-        ref_runs = [run(refused_g, e, m) for e, m in EM] + four
+        ref_runs = [run(refused_g, e, m) for e, m in EMS(refused_g)] + four
+        nr = len(EMS(refused_g))
         for code in sorted(MV.REFUSALS["pf"]):
             ok = code == MV.PF_REFUSAL_CODE
             judge_runs(5, "an expected refusal under each recognised code", "refusal_" + code, withref,
-                       mut(ref_runs[:4], refusal(code)) + ref_runs[4:], ok, (lambda j: j["pass"]) if ok else design,
+                       mut(ref_runs[:nr], refusal(code)) + ref_runs[nr:], ok, (lambda j: j["pass"]) if ok else design,
                        "" if ok else "design conformance: C10")
             judge_runs(5, "the same refusal given twice (distinct ids)", "same_refusal_code_twice_" + code, withref,
-                       mut(ref_runs[:4], lambda r, code=code: r.update(diagnostics=[S.diag(code, "blocking"), S.diag(code, "blocking", n=1)])) + ref_runs[4:],
+                       mut(ref_runs[:nr], lambda r, code=code: r.update(diagnostics=[S.diag(code, "blocking"), S.diag(code, "blocking", n=1)])) + ref_runs[nr:],
                        False, schema, "refused by the view")
         for loc in ("row", "evidence", "headline", "unread"):
             text = []
@@ -850,6 +854,54 @@ def collection_scenarios(check):
         finally:
             MV._SCHEMA_DOCS.clear()
             MV._SCHEMA_DOCS.update(saved_docs)
+        # ---- round 12 (#1663 at 9fbb2b7b6f): PF publishes Timoshenko results under preview-physics-timoshenko-1, the same
+        # rows as preview-physics-2 with its own identity; the view matches a record against the table its request's shear
+        # model selects. Its new kind (supported-source-080/081) is admitted from the table, never judged
+        pp2_id, pts_id = MV.CONTRACTS["pf"][0][0], MV.CONTRACTS["pf"][1][0]
+        eb_twin = by_tag[codex["meta"]["twin"]]
+        judge_runs(12, "PF view: a Timoshenko and an Euler-Bernoulli model (control)", "pf_contract_by_shear_model",
+                   write(T("r12-set.jsonl"), [codex, eb_twin]), four + [run(eb_twin, e, m) for e, m in EM], True,
+                   lambda j: j.get("contracts") == {pts_id: 4, pp2_id: 4}, "Timoshenko under its own identity, EB under preview-physics-2")
+        new_kind = "nonlinear_support_final_relative_displacement"
+
+        def nl_row(unit):
+            def f(r):
+                sup = codex["request"]["model"]["supports"][0]["id"]
+                r["results"].append({"kind": new_kind, "value": 0.25, "unit": unit, "entity_ref": sup, "case": "case:1", "location": "final_state",
+                                     "component": new_kind, "id": f"result:nl:{unit}",
+                                     "metadata": {"basis": "nonlinear_support_final_state", "component": new_kind, "coordinate_system": "global",
+                                                  "location": "final_state", "sign_convention": "relative"}})
+                r["results_count"] = len(r["results"])
+            return f
+        jn = judge_runs(12, "PF view: the new nonlinear-support kind in mm on a Timoshenko run", "pf_timoshenko_new_kind_mm", one,
+                        mut(four, nl_row("mm")), True, lambda j: j.get("contracts") == {pts_id: 4} and j.get("schema_invalid", 0) == 0,
+                        "admitted from preview-physics-timoshenko-1; not judged", eval_out=T("r12-nl.eval.jsonl"))
+        base12 = judge_runs(12, "PF view: the same runs without it (control)", "pf_timoshenko_without_new_kind", one, four, True,
+                            eval_out=T("r12-base.eval.jsonl"))
+        table(12, "the same: every record's clauses and information equal those without it", "pf_timoshenko_new_kind_records_equal",
+              "records equal" if verdicts(T("r12-nl.eval.jsonl")) == verdicts(T("r12-base.eval.jsonl")) else "records differ",
+              verdicts(T("r12-nl.eval.jsonl")) == verdicts(T("r12-base.eval.jsonl")) and jn["pass"] == base12["pass"])
+        judge_runs(12, "PF view: the new kind in rad (the table's second row)", "pf_timoshenko_new_kind_rad", one, mut(four, nl_row("rad")), True,
+                   lambda j: j.get("schema_invalid", 0) == 0, "admitted")
+        judge_runs(12, "PF view: the new kind in m (a unit no row of the table declares)", "pf_timoshenko_new_kind_unit_m", one,
+                   mut(four, nl_row("m")), False, schema, "refused by the view: unit")
+        # ---- round 13 (Agent 0): models whose moduli no catalog unit makes safe for the value entry are run and judged
+        # through their typed entry alone; the inventory expects exactly the entries the reference line declares
+        typed_only = [g for g in pf_gens if g["meta"].get("entries") == ["typed"]]
+        want_n = sum(len(EMS(g)) for g in pf_gens)
+        jt = judge_runs(13, "the PF selftest set with its typed-entry-only models run on that entry alone (control)", "typed_only_inventory_positive",
+                        pf_set, complete, True, lambda j: j["inventory"]["expected"] == want_n == len(complete) and len(typed_only) == 2,
+                        f"{len(typed_only)} typed-entry-only models; {want_n} runs expected")
+        extra = [run(typed_only[0], "captured", m) for m in MV.MODES]
+        judge_runs(13, "a captured run of a typed-entry-only model", "typed_only_captured_run_unexpected", pf_set, complete + extra, False,
+                   lambda j: inv(j) and len(j["inventory"]["unexpected"]) == 2, "inventory: 2 unexpected")
+        judge_runs(13, "a typed-entry-only model's typed run missing", "typed_only_typed_run_missing", pf_set,
+                   [r for r in complete if not (r["tag"] == typed_only[0]["tag"] and r["mode"] == MV.MODES[0])], False,
+                   lambda j: inv(j) and len(j["inventory"]["missing"]) == 1, "inventory: 1 missing")
+        for case, entries in (("typed_only_meta_entries_repeated", ["typed", "typed"]), ("typed_only_meta_entries_empty", []),
+                              ("typed_only_meta_entries_unknown", ["typed", "replayed"]), ("typed_only_meta_entries_string", "typed")):
+            bad_set = write(T(case + ".set.jsonl"), [dict(g, meta=dict(g["meta"], entries=entries)) if g is typed_only[0] else g for g in pf_gens])
+            judge_runs(13, "a reference line declaring malformed entries", case, bad_set, complete, False, prov, "provenance: the reference is refused")
         # ---- round 7 (Codex at cb60446a01): index flags hid an edited manifest; it is now read from HEAD's blob (Agent 0)
         jr = T("r7-judge-repo")
         rel_j = os.path.join("projects", "chirality-piping", "validation", "references", "m3_judge")
@@ -925,7 +977,7 @@ def collection_scenarios(check):
                 "    if not line: continue\n"
                 "    tag = json.loads(line)['tag']\n"
                 "    for r in runs:\n"
-                "        if r['tag'] == tag:\n"
+                "        if r['tag'] == tag and r['entry'] in os.environ.get('KD5_ENTRIES', 'typed,captured').split(','):\n"
                 "            out.write(json.dumps(dict(r, request_sha256=hashlib.sha256(line).hexdigest(), runner_sha256=me, product_head=head)) + '\\n')\n"
                 f"sys.exit({exit_code})\n")
             os.chmod(src, 0o755)
@@ -953,8 +1005,12 @@ def collection_scenarios(check):
         os.chmod(failing_twin_py, 0o755)
 
         def driver(rnd, attack, case, runner_bin, rundir, chunks, variants, want, setdir=sd, why=lambda d: True, route="pf", python=sys.executable):
-            for i, tags in enumerate(chunks):
-                write(os.path.join(rundir, "chunks", f"c.{i:03d}.in.jsonl"), MV.request_lines(tags), raw=True)
+            for i, tags in enumerate(chunks):   # as the generator's split: a typed-entry-only model in a .typed chunk
+                both = [g for g in tags if "captured" in g["meta"].get("entries", MV.ENTRIES)]
+                if both:
+                    write(os.path.join(rundir, "chunks", f"c.{i:03d}.in.jsonl"), MV.request_lines(both), raw=True)
+                if len(both) < len(tags):
+                    write(os.path.join(rundir, "chunks", f"c.{i:03d}.typed.in.jsonl"), MV.request_lines([g for g in tags if g not in both]), raw=True)
             env = dict(os.environ, M3J_PY=python, M3J_WORKERS="2", M3J_BUILD=builder, M3J_FAKE_RUNNER=runner_bin)
             d = subprocess.run(["bash", os.path.join(HERE, "run.sh"), route, checkout, setdir, rundir, *variants], capture_output=True, text=True, env=env)
             last = d.stdout.strip().splitlines()[-1] if d.stdout.strip() else ""
@@ -972,7 +1028,7 @@ def collection_scenarios(check):
         driver(3, "a replaced runner", "driver_resume_bad_new_runner", badr, T("d/resume"), [[codex], others], ["own"], False)
         write(os.path.join(T("d/partial"), "out", "c.000.out.jsonl"), [bad])          # a partial earlier output of the same chunk
         driver(4, "a partial earlier output", "driver_recover_good_clear_partial", good, T("d/partial"), [[codex], others], ["own"], True,
-               why=lambda d: sorted(os.listdir(os.path.join(d, "out"))) == ["c.000.out.jsonl", "c.001.out.jsonl"])
+               why=lambda d: sorted(os.listdir(os.path.join(d, "out"))) == sorted(f.replace(".in.", ".out.") for f in os.listdir(os.path.join(d, "chunks"))))
         write(os.path.join(T("d/partial2"), "out", "c.007.out.jsonl"), [bad])
         driver(4, "a stale output from an earlier chunking", "driver_stale_out_removed", good, T("d/partial2"), [[codex], others], ["own"], True,
                why=lambda d: not os.path.exists(os.path.join(d, "out", "c.007.out.jsonl")))

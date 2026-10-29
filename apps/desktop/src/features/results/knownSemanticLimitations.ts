@@ -1,7 +1,7 @@
 /** Frozen T0R notices, gate reasons and standing reasons (S1_INTERFACE §10).
  * Text only. N-A: these strings are UI labels and reasons; they are never
  * written into an exported results or stress-neutral document or its manifest. */
-import { PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, PRESSURE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, isRetainedIdentity, isRetainedRoute } from "./numericalResultQuality";
+import { PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID, PRESSURE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, isRetainedIdentity, isRetainedRoute } from "./numericalResultQuality";
 import { currentSemanticContract, sourceContract } from "./resultReader";
 import { classificationSummary, retainedRowClasses } from "./retainedPrecisionStanding";
 import { decodeBinary64, type AccuracyClass } from "./retainedPrecisionTypes";
@@ -17,6 +17,8 @@ import type { MechanicsResult } from "../../types";
  * `outputPolicy.ts`. */
 export const FRESH_SEMANTIC_CONTRACT_IDS: readonly string[] = Object.freeze([
   PREVIEW_PHYSICS_CONTRACT_ID,
+  // DEL-05-03 pf-timoshenko.md §4: the pressure-free Timoshenko identity (Rust's set too).
+  PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID,
   PRESSURE_SOURCE_CONTRACT_ID,
   PRESSURE_CONTRACT_ID,
   PREVIEW_PHYSICS_RETAINED_CONTRACT_ID,

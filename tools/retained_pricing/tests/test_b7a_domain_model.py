@@ -200,23 +200,23 @@ def test_new_uniform_identifier_classes_are_site_specific_input_bounds():
     # T4-U6/U8: the same sites on the priced source's unchanged lines (B7b's 10632.. + 359; certified_loads + 3;
     # the final source 588de796a4: lib.rs + 5 more; T4-S5 epoch 4: lib.rs + 314 more; pre-0.4 unification: + 103; W-8: + 2; silent-zero guard: + 1; model document 0.7.0: + 7; W-7: + 37; W-15: + 103; W-16 slices b and c: + 193; W-16 stage 2: + 55; §8.30: + 2 (+ 23 for the two prefix formats), unchanged text; certified_loads' two prefix formats moved into lib.rs's is_generated_equivalent_static_load).
     sites = {
-        "lib.rs:12071": {"load_case_id"},
-        "lib.rs:12085": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
-        "lib.rs:12092": {"load.load_id", "bend.pipe_id"},
-        "lib.rs:12097": {"load.load_id"},
-        "lib.rs:12098": {"bend.pipe_id"},
-        "lib.rs:12099": {"bend.component_id"},
-        "lib.rs:12100": {"load_case_id"},
-        "lib.rs:12159": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
-        "lib.rs:12166": {"load.load_id", "bend.pipe_id"},
-        "lib.rs:12171": {"load.load_id"},
-        "lib.rs:12172": {"bend.pipe_id"},
-        "lib.rs:12173": {"bend.component_id"},
-        "lib.rs:12174": {"load_case_id"},
-        "lib.rs:12213": {"stable_suffix(&load.load_id)"},
-        "lib.rs:12220": {"load.load_id", "load_case_id"},
-        "lib.rs:10637": {"load_case.id"},
-        "lib.rs:10638": {"load_case.id"},
+        "lib.rs:12103": {"load_case_id"},
+        "lib.rs:12117": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
+        "lib.rs:12124": {"load.load_id", "bend.pipe_id"},
+        "lib.rs:12129": {"load.load_id"},
+        "lib.rs:12130": {"bend.pipe_id"},
+        "lib.rs:12131": {"bend.component_id"},
+        "lib.rs:12132": {"load_case_id"},
+        "lib.rs:12191": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
+        "lib.rs:12198": {"load.load_id", "bend.pipe_id"},
+        "lib.rs:12203": {"load.load_id"},
+        "lib.rs:12204": {"bend.pipe_id"},
+        "lib.rs:12205": {"bend.component_id"},
+        "lib.rs:12206": {"load_case_id"},
+        "lib.rs:12245": {"stable_suffix(&load.load_id)"},
+        "lib.rs:12252": {"load.load_id", "load_case_id"},
+        "lib.rs:10669": {"load_case.id"},
+        "lib.rs:10670": {"load_case.id"},
     }
     assert sum(map(len, sites.values())) == 22
     for key, args in sites.items():
@@ -233,7 +233,7 @@ def test_actual_reader_cached_allocations_include_all_live_owners_and_duplicates
     # B7b (A4/A5, O-10): eleven distinct inputs, thirteen actual OnceLock allocations;
     # the pressure-source and ordinary pressure tables are resident, the result schema is
     # not; load_reference's transport schema cache is a surviving owner (D3 review, D2).
-    assert len(paths) == 13 and len(counts) == 11
+    assert len(paths) == 14 and len(counts) == 12
     assert counts["fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json"] == 2
     assert counts["fixtures/results/semantic_contract_v0_3_physics_retained_1.json"] == 2
     assert counts["fixtures/results/semantic_contract_v0_3_pressure_source_1.json"] == 1

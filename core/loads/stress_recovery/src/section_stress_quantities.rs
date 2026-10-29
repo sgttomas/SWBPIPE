@@ -132,6 +132,59 @@ pub fn saint_venant_shear_factor(
     }
 }
 
+/// c_b of [`saint_venant_shear_factor`] from x, a binary64 value of
+/// 2G/E = 1/(1+ν*) for the exact ν* = E/(2G) − 1, instead of a rounded ν (the
+/// preview route below RN(E/(2G)) = 1/2, where 1+ν formed from the rounded
+/// ν = RN(RN(E/(2G)) − 1) is inexact), with no 1+ν formed: c_b = RN(num/den), with
+/// num = RN(RN(2·RN(RN(r_o·r_o) + RN(r_i,b·r_i,b))) + RN(x·RN(RN(r_o − r_i,b)·RN(r_o + r_i,b))))
+/// and den = RN(4·I_b) (m⁻²). x is open_pipe_stress_frame_kernel's
+/// `shear::moduli_ratio_terms` x = RN(RN(2·G)/E).
+///
+/// **Identity** (exact arithmetic, x* = 1/(1+ν*)): (3+2ν*)/(1+ν*) = 2 + x* and
+/// (1+2ν*)/(1+ν*) = 2 − x* (each (a+bν*)/(1+ν*) is a·x* + b·t*, t* = 1 − x*), so
+/// ((3+2ν*)r_o² + (1+2ν*)r_i²)/(4(1+ν*)I) = ((2+x*)r_o² + (2−x*)r_i²)/(4I)
+/// = (2(r_o² + r_i²) + x*(r_o − r_i)(r_o + r_i))/(4I). Every term is
+/// nonnegative for x* > 0, so no sum cancels, even for ν* < −1/2 where 1+2ν* < 0.
+///
+/// **Error.** With u = 2^-53, x = x*(1 + e), |e| ≤ u, and r_o, r_i,b, I_b
+/// taken as exact, to first order: the squares u each and their sum 2u (2·
+/// exact); r_o − r_i,b and r_o + r_i,b u each, their product 3u, times x 5u;
+/// num 6u; den exact; |c_b/c_b* − 1| ≤ 7u for every x > 0, barring overflow
+/// and underflow. Requires a finite x > 2/3 (ν < 1/2) and 0 < r_i,b < r_o.
+/// Its bits are not in `section_quantity_bits.json`; product_physics's
+/// `u4b_preview_shear_factor_from_moduli_is_within_its_bound` binds it to
+/// exact rational values.
+pub fn saint_venant_shear_factor_of_ratio(
+    ratio: f64,
+    outer_radius: f64,
+    inner_radius: f64,
+    second_moment: f64,
+) -> Result<f64, SectionQuantityError> {
+    if !(ratio.is_finite() && ratio > 2.0 / 3.0) {
+        return Err(SectionQuantityError::InvalidInput {
+            name: "modulus_ratio",
+        });
+    }
+    let ro = positive("outer_radius", outer_radius)?;
+    let ri = positive("inner_radius", inner_radius)?;
+    let inertia = positive("second_moment", second_moment)?;
+    if ri >= ro {
+        return Err(SectionQuantityError::InvalidInput {
+            name: "inner_radius",
+        });
+    }
+    let num = 2.0 * (ro * ro + ri * ri) + ratio * ((ro - ri) * (ro + ri));
+    let den = 4.0 * inertia;
+    let factor = num / den;
+    if factor.is_finite() && factor > 0.0 {
+        Ok(factor)
+    } else {
+        Err(SectionQuantityError::InvalidInput {
+            name: "saint_venant_shear_factor",
+        })
+    }
+}
+
 /// τ_v,max = RN(RN(t·c_b)/1e6) (MPa), t = `norm2`(V_y, V_z) (N): the largest
 /// Saint-Venant transverse shear, on the inner surface at the two fibres
 /// normal to V.

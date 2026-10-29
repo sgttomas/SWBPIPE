@@ -8,13 +8,13 @@ from __future__ import annotations
 import math
 from typing import Any, Mapping
 
-from .u4b import SHEAR_MAX, Rows, _case, _require, bits, directional_model_checks, poisson_exempt, shear_factor, shear_maximum
+from .u4b import SHEAR_MAX, Rows, _case, _require, bits, directional_model_checks, poisson_exempt, preview_shear_factor, shear_maximum
 from .units import to_canonical
 
 
 def preview_model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) -> None:
-    """Every member of every case (review items 3 and 4): ν = E/(2G) - 1 from the moduli the solve uses (named point
-    or base E and G). In the domain no Poisson warning names the member and each τ is bit for bit; outside it the
+    """Every member of every case (review items 3 and 4): c_b from the moduli the solve uses (named point or base E
+    and G) by ``preview_shear_factor``, admission by ν = RN(RN(E/RN(2G)) - 1). In the domain no Poisson warning names the member and each τ is bit for bit; outside it the
     warning names it. Interpolated moduli (modulus_basis_temperature) keep the model-free checks; no preview case
     carries analysis_state (the producer refuses it without the exact pressure contract)."""
     def _normalized(quantity: Mapping[str, Any], dimension: str) -> float:
@@ -54,7 +54,7 @@ def preview_model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) ->
             t = wall if section.get("mill_tolerance") is None else wall - _normalized(section["mill_tolerance"], "length")
             inner = od - 2.0 * t
             inertia = math.pi * ((od * od) * (od * od) - (inner * inner) * (inner * inner)) / 64.0
-            factor = shear_factor(e / (2.0 * g) - 1.0, od / 2.0, inner / 2.0, inertia)
+            factor = preview_shear_factor(e, g, od / 2.0, inner / 2.0, inertia)
             _require((factor is None) == (pid in exempt), "Poisson warning does not match the member's nu")
             if factor is None:
                 continue

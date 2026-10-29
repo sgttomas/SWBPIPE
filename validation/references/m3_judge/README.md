@@ -39,7 +39,7 @@ runner (`runner/`) is harness, not reference.
 | `run.sh` | The driver: builds the runner from a clean checkout, runs every chunk, judges each variant. |
 | `runner/` | The shared runner: `Cargo.toml`, `Cargo.lock`, `build.rs`, `src/main.rs`, `build.sh`. |
 | `m3_selftest.py`, `m3_regress.py`, `m3_synth.py` | Self-test: isolation, contract units, rules on both views, and the round 1–7 regression table. |
-| `selftest/pf_set.jsonl` | 20 lines copied verbatim from `pf_timoshenko_m3t/frozen/pft_frozen_subset.jsonl` (sha256 `1a6984ec…`) for the PF view's self-test, since that set is not on main yet. |
+| `selftest/pf_set.jsonl` | 20 lines copied verbatim from `pf_timoshenko_m3t/frozen/pft_frozen_subset.jsonl` (sha256 `eaa573a6…`) for the PF view's self-test. |
 | `REFERENCE_SHA256SUMS` | The committed digests of the reference files the judge may judge against (provenance), read from HEAD's blob. |
 | `m3_reproduce.py` | Regenerates every pinned reference file from its committed generator and requires its pin. |
 | `SHA256SUMS` | Digests of the files above, except this README; the self-test verifies them. |
@@ -82,8 +82,13 @@ not read are type-checked where the public format fixes their shape, then droppe
   Nothing else in `contract_evidence` enters the view. An entry placed anywhere else, nested or in a
   well-typed but unread member, does not exist for judging.
 
-**PF** (`semantic_contract_v0_3_preview_physics_2.json`, `product_preview_mechanics_v1`):
+**PF** (`semantic_contract_v0_3_preview_physics_2.json`, `product_preview_mechanics_v1`, for
+Euler–Bernoulli results; `semantic_contract_v0_3_preview_physics_timoshenko_1.json`,
+`product_preview_mechanics_timoshenko_v1`, for Timoshenko results):
 
+- the table is the one the request's `model_settings.shear_model` selects (DEL-05-03
+  `Design/pf-timoshenko.md`: a Timoshenko PF result has its own identity with preview-physics-2's
+  rows). The two tables' rows are identical, so a record's rows cannot select between them;
 - one section family: no row may carry a section-basis token, and the view's basis is `None`;
 - `contract_evidence` is `{combination_gates: [], preview_cases}`, each case
   `{load_case_id, pipe_stress_extrema, intensified_measures: [], stress_maximum_coverage,
@@ -142,17 +147,15 @@ sets; the CLI and `run.sh` always read the committed file.
 
 **Reproducible, not only unchanged** (Agent 0: "regenerating each set from its committed generator
 reproduces the pinned digest. Otherwise the pin only says 'unchanged', not 'reproducible'").
-`python3 -I -B m3_reproduce.py <new scratch dir> [--pf-dir <pf_timoshenko_m3t>]` regenerates every
+`python3 -I -B m3_reproduce.py <new scratch dir>` regenerates every
 pinned file from its committed generator and requires its sha256 to equal the pin. Every pin needs a
 recipe and every recipe a pin:
 
-- the exact route's full set, controls and frozen subset (`kd5t_generate.py`) are mandatory;
-- the PF full set, frozen subset and selftest set (`pft_generate.py`; the selftest set is the 20
-  named lines of the regenerated frozen subset) run when the PF generator is present. They are
-  reported SKIPPED by name otherwise, which is the case on main today, since that generator is on
-  `claude/piping-pf-timoshenko-m3t-20261027`. They become mandatory once that branch merges this one.
+- the exact route's full set, controls and frozen subset (`kd5t_generate.py`);
+- the PF full set, frozen subset and selftest set (`../pf_timoshenko_m3t/pft_generate.py`; the
+  selftest set is the 20 named lines of the regenerated frozen subset).
 
-All six reproduce their pins, with the PF generator taken from that branch at `decb1dbb61`.
+All six are mandatory, and all six reproduce their pins.
 
 The `twin` variant takes the twin's reference. The exact route's `control` variant takes the
 `controls.jsonl` `pertE` reference; models without a control are set aside and counted.
@@ -241,6 +244,10 @@ never an input.
    runner and head, and its request sha256 must equal its model's runner-input line. The reference
    must be admitted (above).
 2. **INVENTORY.** Every model × entry × mode exactly once, as a successful view, and nothing else.
+   A model's entries are those its reference line declares in `meta.entries`, both by default. The PF
+   set declares the typed entry alone for models whose moduli no catalog unit makes safe for the value
+   entry (`../pf_timoshenko_m3t/README.md`); `run.sh` runs `chunks/c.NNN.typed.in.jsonl` with that entry
+   alone.
 3. **M3 VERDICT.** C0–C4, C6, C8 and C9.
 4. **DESIGN-CONFORMANCE VERDICT.** C10, PF only.
 5. **NONVACUITY.**

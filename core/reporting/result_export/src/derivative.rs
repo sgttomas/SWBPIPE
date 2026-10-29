@@ -161,6 +161,7 @@ pub fn derive_document(
                 crate::semantic_contract::PRESSURE_ID
                     | crate::semantic_contract::PRESSURE_SOURCE_ID
                     | crate::semantic_contract::PREVIEW_PHYSICS_ID
+                    | crate::semantic_contract::PREVIEW_PHYSICS_TIMOSHENKO_ID
                     | PREVIEW_PHYSICS_RETAINED_ID
                     | PHYSICS_RETAINED_ID
             )

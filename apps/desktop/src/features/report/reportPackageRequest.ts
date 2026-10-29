@@ -21,7 +21,7 @@
 // immediately before IPC and yields the texts the native save binds.
 // Standard claim fence applies (claims taxonomy per DEC-081).
 import { refuseSurfaceOutput, surfaceRouteRefusal } from "../results/outputPolicy";
-import { PRESSURE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID } from "../results/numericalResultQuality";
+import { PRESSURE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID } from "../results/numericalResultQuality";
 import { buildCurrentResultExport, type JsonObject as ResultDocument } from "../result-export/resultExportAdapter";
 import {
   admitExactReportSource,
@@ -57,7 +57,13 @@ export const REPORT_PACKAGE_ROUTE_NOT_ADMITTED = "REPORT-PACKAGE-ROUTE-NOT-ADMIT
  * (`report_package/src/document_form.rs`), kept equal by the exact-section parity vectors.
  * The exact identities were added when the owner opened exact-route packages (§5.1;
  * owner, 2026-10-26). */
-export const REPORT_PACKAGE_ADMITTED_CONTRACT_IDS: readonly string[] = Object.freeze([PREVIEW_PHYSICS_CONTRACT_ID, PRESSURE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID]);
+export const REPORT_PACKAGE_ADMITTED_CONTRACT_IDS: readonly string[] = Object.freeze([
+  PREVIEW_PHYSICS_CONTRACT_ID,
+  // DEL-05-03 pf-timoshenko.md §4: the pressure-free Timoshenko identity, with its projection.
+  PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID,
+  PRESSURE_CONTRACT_ID,
+  PRESSURE_SOURCE_CONTRACT_ID,
+]);
 /** The rule-check aggregate, the rule-check run and the analysis record do not name one rule check. */
 export const REPORT_PACKAGE_RULE_CHECK_BINDING_MISMATCH = "REPORT-PACKAGE-RULE-CHECK-BINDING-MISMATCH";
 /** A rule-pack checksum whose declared pair has no audit basis the package can name (§2.4). */

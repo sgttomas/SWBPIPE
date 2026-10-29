@@ -746,6 +746,10 @@ pub(crate) fn check_request_in(
     if exact_document {
         check_report_diagnostics(report, source)?;
     }
+    // DEL-05-03 `pf-timoshenko.md` §4: a pressure-free Timoshenko report's
+    // Diagnostics and its limitation 0 entry are the source's; no other
+    // identity carries that entry.
+    crate::pf_timoshenko::check_sections(source, report)?;
     exact_sections::check_exact_sections(source, document, audit_manifest, report)?;
 
     // Item 10 (W-18b §2.8): the record against the request's members.

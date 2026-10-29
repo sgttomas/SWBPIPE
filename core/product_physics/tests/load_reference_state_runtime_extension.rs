@@ -1287,6 +1287,32 @@ fn temperature_identity_binary64_order_inversion_blocks() {
 }
 
 #[test]
+fn temperature_outside_the_identity_domain_is_refused_by_its_code() {
+    // Model document 0.9.0 section 1.5.1's domain: |value| <= 1e6 in the
+    // authored unit with a canonical decimal exponent >= -24.
+    let (cold, hot) = (pair_cold(), pair_hot());
+    let above = f64::from_bits(1e6f64.to_bits() + 1);
+    for (control, temperature) in [
+        ("above_1e6_degC", (above, "degC")),
+        ("exponent_below_minus_24", (1.5e-24, "K")),
+    ] {
+        let request = cantilever(
+            vec![
+                point("point:a", temperature, cold),
+                point("point:c", (WARM_K, "K"), hot),
+            ],
+            sel_interp("material:m", 550.0, "K"),
+            None,
+        );
+        blocked_with(
+            &request,
+            control,
+            &["LOAD_STATE_TEMPERATURE_RANGE_UNSUPPORTED"],
+        );
+    }
+}
+
+#[test]
 fn duplicate_class_material_points_are_refused() {
     let (cold, hot) = (pair_cold(), pair_hot());
     // Two exact-class-equal points in different units whose binary64

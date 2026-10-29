@@ -4,6 +4,7 @@ import { hasCurrentSourceContract, readerDispatch, readerValidate, ResultReaderE
 import pressureTable from "../../../../fixtures/results/semantic_contract_v0_3_pressure_2.json";
 import pressureSourceTable from "../../../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json";
 import previewPhysicsTable from "../../../../fixtures/results/semantic_contract_v0_3_preview_physics_2.json";
+import previewPhysicsTimoshenkoTable from "../../../../fixtures/results/semantic_contract_v0_3_preview_physics_timoshenko_1.json";
 import previewPhysicsRetainedTable from "../../../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json";
 import physicsRetainedTable from "../../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json";
 import type { AnalysisRunEnvelope, CanonicalResultDimension, MechanicsResult, ObjectRef, PreviewModel } from "../types";
@@ -40,6 +41,8 @@ const RECORD_TABLES: Readonly<Record<string, RecordTable>> = Object.freeze({
   [pressureTable.semantic_contract_id]: pressureTable,
   [pressureSourceTable.semantic_contract_id]: pressureSourceTable,
   [previewPhysicsTable.semantic_contract_id]: previewPhysicsTable,
+  // DEL-05-03 pf-timoshenko.md §4: the pressure-free Timoshenko identity's own table.
+  [previewPhysicsTimoshenkoTable.semantic_contract_id]: previewPhysicsTimoshenkoTable,
   [previewPhysicsRetainedTable.semantic_contract_id]: previewPhysicsRetainedTable,
   [physicsRetainedTable.semantic_contract_id]: physicsRetainedTable,
 } as Record<string, RecordTable>);

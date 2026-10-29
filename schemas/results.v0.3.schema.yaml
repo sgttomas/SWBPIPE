@@ -995,6 +995,7 @@
               "enum": [
                 "openpipestress.result_semantics/0.3.0/pressure-source-1",
                 "openpipestress.result_semantics/0.3.0/preview-physics-2",
+                "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1",
                 "openpipestress.result_semantics/0.3.0/pressure-2",
                 "openpipestress.result_semantics/0.3.0/preview-physics-retained-1",
                 "openpipestress.result_semantics/0.3.0/physics-retained-1"
@@ -1017,6 +1018,7 @@
               "enum": [
                 "openpipestress.result_semantics/0.3.0/pressure-source-1",
                 "openpipestress.result_semantics/0.3.0/preview-physics-2",
+                "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1",
                 "openpipestress.result_semantics/0.3.0/pressure-2",
                 "openpipestress.result_semantics/0.3.0/preview-physics-retained-1",
                 "openpipestress.result_semantics/0.3.0/physics-retained-1"
@@ -1035,6 +1037,7 @@
             "profile_id": {
               "enum": [
                 "product_preview_mechanics_v1",
+                "product_preview_mechanics_timoshenko_v1",
                 "exact_pressure_v3",
                 "product_preview_retained_w1a_v2",
                 "exact_straight_retained_w1a_v2"
@@ -1258,6 +1261,91 @@
                 "limitations": {
                   "const": [
                     "Small-displacement, linear-elastic Euler-Bernoulli frame preview; numerical integrity does not establish physical correctness.",
+                    "Nonzero pressure is refused on this route.",
+                    "On every member the section normal-stress extremes are N/A ± hypot(My,Mz)/Z at each station and the transverse shear maximum is the straight-annulus Saint-Venant value, with ν = E/(2G) − 1 assuming an isotropic material. On straight members the normal-stress maximum is |N/A| + hypot(My,Mz)/Z, bounded over all statics intervals. Torsional shear is separate. No equivalent stress or code stress.",
+                    "On arcs: signed tangent-frame resultants, nominal stress components and section extremes; endpoint force rows are node-on-element actions in the tangent frame at their end. The normal-stress maximum is bounded along the arc and enters the stress headline. The transverse shear uses the straight-annulus field without curvature correction.",
+                    "Intensified measures are i*hypot(My,Mz)/Z with the user's scalar SIF at member ends adjacent to markers and branches, using member Z. They are not code stresses and are never combined. A flexibility factor never multiplies stress. On realized arcs with directional SIFs, intensified bending is hypot(i_ip*Mz, i_op*My)/Z in the tangent frame, with its along-arc maximum.",
+                    "Signed support actions for rigid restraints, springs, consuming constant effort and attributable nonlinear supports. Ambiguous attribution is withheld.",
+                    "Headlines cover all load cases. Mechanics combinations are withheld for nonlinear supports, constant effort with sum of factors other than 1, or mixed moduli. Subtraction is a labelled difference. No combination maxima and no code compliance.",
+                    "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+                    "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64 in SI units and then converted to the published unit as every other row is, and each displacement magnitude is the correctly rounded norm of the node's three published translation components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
+                  ]
+                }
+              }
+            },
+            "contract_evidence": {
+              "$ref": "#/$defs/PreviewPhysicsContractEvidence"
+            },
+            "result_sets": {
+              "items": {
+                "$ref": "#/$defs/PreviewPhysicsResultSet"
+              }
+            }
+          },
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "source_block_recovery"
+                ]
+              }
+            ]
+          },
+          "allOf": [
+            {
+              "not": {
+                "required": [
+                  "retained_precision"
+                ]
+              }
+            },
+            {
+              "properties": {
+                "row_disclosures": {
+                  "items": {
+                    "properties": {
+                      "reason_code": {
+                        "not": {
+                          "enum": [
+                            "retained_precision_absolute_verified",
+                            "retained_precision_not_covered"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "required": [
+            "contract_evidence"
+          ],
+          "properties": {
+            "producer": {
+              "properties": {
+                "semantic_contract_id": {
+                  "const": "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1"
+                }
+              }
+            },
+            "semantic_contract_ref": {
+              "properties": {
+                "ref_id": {
+                  "const": "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1"
+                }
+              }
+            },
+            "formulation_basis": {
+              "properties": {
+                "profile_id": {
+                  "const": "product_preview_mechanics_timoshenko_v1"
+                },
+                "limitations": {
+                  "const": [
+                    "Small-displacement, linear-elastic frame preview: straight members, including geometry-only bends, are Timoshenko with the energy-matched annular shear factor (timoshenko_annulus_energy_v1) and Poisson's ratio E/(2G) - 1, and realized arcs are Euler-Bernoulli; a straight member's published nodal rotations are section rotations, not slopes; numerical integrity does not establish physical correctness.",
                     "Nonzero pressure is refused on this route.",
                     "On every member the section normal-stress extremes are N/A ± hypot(My,Mz)/Z at each station and the transverse shear maximum is the straight-annulus Saint-Venant value, with ν = E/(2G) − 1 assuming an isotropic material. On straight members the normal-stress maximum is |N/A| + hypot(My,Mz)/Z, bounded over all statics intervals. Torsional shear is separate. No equivalent stress or code stress.",
                     "On arcs: signed tangent-frame resultants, nominal stress components and section extremes; endpoint force rows are node-on-element actions in the tangent frame at their end. The normal-stress maximum is bounded along the arc and enters the stress headline. The transverse shear uses the straight-annulus field without curvature correction.",

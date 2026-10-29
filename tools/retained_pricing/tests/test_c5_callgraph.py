@@ -29,8 +29,9 @@ def test_current_exact_inventory():
     # H4 retires unused interior Lame; the join adds its exact-rational J7
     # caller. U2 adds two callers; batch 5 adds finish_source_groups' Scaled mul.
     # E11 from_radii is an exactly guarded cfg(test) item, absent from R1k.
-    assert len(rules) == 19
-    assert len({r["caller"] for r in rules}) == 18
+    # §8.32: exact_kelvin deletes Rational::mul; its body pin remains.
+    assert len(rules) == 18
+    assert len({r["caller"] for r in rules}) == 17
     assert all(not r["caller"].endswith(":from_radii") for r in rules)
     # T4-U6/U8: FallbackError's methods at the priced source's lines, unchanged text (B7b: 744, 747, 763;
     # T4-U6/U8: 754, 757, 773; T4-S5 epoch 4: five lines added above them; W-16 stage 2 R-c (§8.29): +4, the
