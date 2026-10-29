@@ -415,6 +415,19 @@ reproduces the previously reviewed exact hash. This text guard is not native
 enforcement evidence.
 Alias/address coverage, actual per-start profile bytes, no-fork/exec/filesystem
 and network denial still need native qualification on the selected candidate.
+On code candidate `25228fe0994e5a9cb87292b3d6d5d86ffc3bedf5`, the guarded
+`embedded_agent::sandbox::tests::native_permission_probes --exact --ignored`
+run passed on the current arm64 Mac. The freshly copied standalone Rust probe
+returned success only after all 15 checks passed: private home/cwd writes;
+outside project/document/keychain reads and writes plus symlink-read denial;
+both named loopback TCP endpoints; EPERM for `127.0.0.2` at the same port,
+another loopback port, an off-host endpoint, listener creation and both forbidden
+and self-spawn execution. No supplier, provider/model or credential was used.
+The source-defined 15-check predicate and test exit status establish this bounded
+observation; the generated per-run root/port profile bytes were not retained.
+This is not comprehensive alias/UDP coverage, listener non-inheritance, explicit
+C fork qualification, a stock-Codex round trip, EOF/crash cleanup or Intel proof.
+
 No HTTP service, provider connection, keychain/settings route, credential file,
 new FFI/import, supervisor registration, packaging or platform-minimum change is
 introduced here. Production stderr remains discarded. The ignored startup test
