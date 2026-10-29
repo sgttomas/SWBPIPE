@@ -98,11 +98,11 @@ quotes the option's drafted text; the owner's own words are quoted as such.
   the deliverables). I'm not interested in having all the governance for the
   workflows working perfectly, my focus is just on getting the agent harness
   into SWBPIPE and able to operate that application effectively."). The
-  Chirality App v4 agent harness is embedded in the desktop (RT-E1). The
-  earlier decision is DEC-041 (2026-06-18): consume the harness as versioned
-  packages, not a re-implementation. Its stack facts have since changed (App
-  v4 is a Tauri host of stock Codex), and DEC-091 left its delivery mechanism
-  unresolved, so the connection is agreed with App v4's HELP_HUMAN and
+  Chirality App v4 agent harness is embedded in the desktop (RT-E1). Earlier
+  designs, DEC-041 among them, are historical context only (owner, 2026-10-28,
+  relayed from the App session: "take note of what was done in the past, but
+  don't take from it. There's better examples now elsewhere and just from your
+  own ideas."). The connection is designed afresh with App v4's HELP_HUMAN and
   recorded in the owning Design.
 
 ## 2. Capability rows
