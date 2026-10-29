@@ -1,35 +1,33 @@
 //! Explicit-start macOS supplier custody. No initializer, worker reuse or threads.
 //! Parent crash termination and absence of escaped descendants are NOT guaranteed.
-use super::sandbox;
+use super::{loopback::Loopback, sandbox};
 use crate::memory_pool::{Lease, LeasePurpose};
 use sha2::{Digest, Sha256};
-use std::fmt;
 use std::fs::{self, DirBuilder, File, OpenOptions};
 use std::io::{Read, Write};
 use std::os::unix::fs::{symlink, DirBuilderExt, OpenOptionsExt, PermissionsExt};
 use std::os::unix::process::CommandExt;
 use std::path::{Path, PathBuf};
 use std::process::{Child, ChildStdin, ChildStdout, Command, Stdio};
+use std::sync::Arc;
 use std::time::{Duration, Instant};
 
 pub(crate) const STARTUP_BYTES: u64 = 4 * 1024 * 1024;
 const PIN_BYTES: u64 = 241_555_024;
 const PIN_SHA: &str = "112fae7a5a1223e673c8a1791d32338f37df8b527ff1159bb8adac6c4dbf1b4b";
-const KEY_ENV: &str = "SWBPIPE_OMLX_API_KEY";
-const CONFIG: &str = r#"model = "Qwen3.6-35B-A3B-8bit"
-model_provider = "swbpipe_local"
+const CAPABILITY_ENV: &str = "SWBPIPE_AGENT_RELAY_CAPABILITY";
+const CONFIG_BODY: &str = r#"model_provider = "swbpipe_relay"
 model_context_window = 8192
 model_reasoning_effort = "low"
 sandbox_mode = "read-only"
 approval_policy = "never"
 cli_auth_credentials_store = "file"
 web_search = "disabled"
-[model_providers.swbpipe_local]
-name = "SWBPIPE local"
-base_url = "http://127.0.0.1:8000/v1"
+[model_providers.swbpipe_relay]
+name = "SWBPIPE provider"
 wire_api = "responses"
 requires_openai_auth = false
-env_key = "SWBPIPE_OMLX_API_KEY"
+env_key = "SWBPIPE_AGENT_RELAY_CAPABILITY"
 [analytics]
 enabled = false
 [features]
@@ -51,9 +49,26 @@ view_image = false
 skill_search = false
 "#;
 
+/// JSON string escaping is a subset of TOML basic-string escaping for the
+/// accepted, control-free model identifier. No raw model text is interpolated.
+fn supplier_config(model: &str, relay: &Loopback) -> Result<String, Error> {
+    if model.is_empty() || model.len() > 1024 || model.chars().any(char::is_control) {
+        return Err(Error::InvalidConfiguration);
+    }
+    let model = serde_json::to_string(model).map_err(|_| Error::InvalidConfiguration)?;
+    let base_url = format!("base_url = \"http://127.0.0.1:{}/v1\"\n", relay.port());
+    Ok(format!(
+        "model = {model}\n{}",
+        CONFIG_BODY.replace(
+            "name = \"SWBPIPE provider\"\n",
+            &format!("name = \"SWBPIPE provider\"\n{base_url}")
+        )
+    ))
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum Error {
-    InvalidCredential,
+    InvalidConfiguration,
     StartupReservation,
     InvalidPath,
     StaleScope,
@@ -61,36 +76,25 @@ pub(crate) enum Error {
     PinMismatch,
     Spawn,
 }
-pub(crate) struct Credential(String);
-impl Credential {
-    pub(crate) fn new(value: String) -> Result<Self, Error> {
-        if value.is_empty() || value.len() > 8192 || value.contains('\0') {
-            return Err(Error::InvalidCredential);
-        }
-        Ok(Self(value))
-    }
-}
-impl fmt::Debug for Credential {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str("Credential([REDACTED])")
-    }
-}
-// No Serialize/Clone/Display or public secret accessor. Safe std cannot promise
-// allocator-level zeroization; Command's environment copy is dropped after spawn.
+// The provider credential never enters this module. The child receives only
+// the per-start loopback capability held by the private relay scope.
 pub(crate) struct LaunchConfig {
     pub binary: PathBuf,
     pub state_dir: PathBuf,
+    pub model: String,
+    pub relay: Arc<Loopback>,
 }
 
 struct Runtime {
     root: PathBuf,
     marker: PathBuf,
     scope: String,
+    // Retain both loopback endpoints through original supplier-group cleanup.
+    relay: Arc<Loopback>,
     _lease: Lease,
 }
 pub(crate) struct Prepared {
     runtime: Option<Runtime>,
-    credential: Option<Credential>,
 }
 pub(crate) struct Launched {
     runtime: Option<Runtime>,
@@ -211,15 +215,12 @@ impl Runtime {
         own_marker && fs::remove_file(&self.marker).is_ok()
     }
 }
-pub(crate) fn prepare(
-    config: LaunchConfig,
-    credential: Credential,
-    lease: Lease,
-) -> Result<Prepared, Error> {
+pub(crate) fn prepare(config: LaunchConfig, lease: Lease) -> Result<Prepared, Error> {
     // Before random/path/profile/config/copy/hash allocations.
     if lease.bytes() < STARTUP_BYTES || lease.purpose() != LeasePurpose::Ingress {
         return Err(Error::StartupReservation);
     }
+    let supplier_config = supplier_config(&config.model, &config.relay)?;
     let scope = random_scope()?;
     let marker = claim_marker(&config.state_dir, &scope)?;
     // Fixed OS temp avoids inherited TMPDIR and the real home entirely.
@@ -232,6 +233,7 @@ pub(crate) fn prepare(
         root,
         marker,
         scope,
+        relay: config.relay,
         _lease: lease,
     };
     let result = (|| {
@@ -248,7 +250,7 @@ pub(crate) fn prepare(
             private_dir(&path)?;
         }
         copy_pin(&config.binary, &root.join("codex"))?;
-        readonly_file(&root.join("config.toml"), CONFIG.as_bytes())?;
+        readonly_file(&root.join("config.toml"), supplier_config.as_bytes())?;
         symlink(
             root.join("config.toml"),
             root.join("home/codex/config.toml"),
@@ -259,6 +261,7 @@ pub(crate) fn prepare(
             &root.join("home"),
             &root.join("work"),
             &root.join("codex"),
+            &runtime.relay,
         )
         .map_err(|_| Error::InvalidPath)?;
         readonly_file(&root.join("sandbox.sb"), profile.as_bytes())?;
@@ -270,7 +273,6 @@ pub(crate) fn prepare(
     }
     Ok(Prepared {
         runtime: Some(runtime),
-        credential: Some(credential),
     })
 }
 impl Prepared {
@@ -280,7 +282,6 @@ impl Prepared {
     fn spawn_inner(mut self, diagnostic_stderr: bool) -> Result<Launched, Error> {
         let runtime = self.runtime.as_ref().ok_or(Error::Spawn)?;
         let root = &runtime.root;
-        let credential = self.credential.take().ok_or(Error::Spawn)?;
         let result = {
             let mut command = Command::new("/usr/bin/sandbox-exec");
             command
@@ -298,7 +299,7 @@ impl Prepared {
                 .env("XDG_DATA_HOME", root.join("home/data"))
                 .env("PATH", "/usr/bin:/bin")
                 .env("LANG", "en_US.UTF-8")
-                .env(KEY_ENV, &credential.0)
+                .env(CAPABILITY_ENV, runtime.relay.capability())
                 .stdin(Stdio::piped())
                 .stdout(Stdio::piped())
                 .stderr(if diagnostic_stderr {
@@ -309,7 +310,6 @@ impl Prepared {
                 .process_group(0);
             command.spawn()
         };
-        drop(credential);
         let child = result.map_err(|_| Error::Spawn)?;
         Ok(Launched {
             runtime: self.runtime.take(),
@@ -497,14 +497,46 @@ mod tests {
         root
     }
     #[test]
-    fn credential_bounds_and_redaction() {
-        let credential = Credential::new("invented-secret".into()).unwrap();
-        assert_eq!(format!("{credential:?}"), "Credential([REDACTED])");
-        assert!(Credential::new(String::new()).is_err());
-        assert!(Credential::new("x\0y".into()).is_err());
-        assert!(Credential::new("x".repeat(8193)).is_err());
-        assert!(!CONFIG.contains("invented-secret"));
-        assert!(CONFIG.contains("env_key = \"SWBPIPE_OMLX_API_KEY\""));
+    fn portable_configuration_excludes_provider_secrets_and_escapes_model() {
+        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let relay = Loopback::bind(&registry).unwrap();
+        let text = supplier_config("invented \"model\" \\ variant", &relay).unwrap();
+        assert!(text.starts_with("model = \"invented \\\"model\\\" \\\\ variant\"\n"));
+        assert!(text.contains(&format!(
+            "base_url = \"http://127.0.0.1:{}/v1\"",
+            relay.port()
+        )));
+        assert!(text.contains("env_key = \"SWBPIPE_AGENT_RELAY_CAPABILITY\""));
+        assert!(!text.contains(relay.capability()));
+        assert!(!CONFIG_BODY.contains("8000"));
+        assert!(!text.contains("Qwen"));
+        assert!(!text.contains("OMLX"));
+        for bad in ["", "x\ny", "x\0y", &"x".repeat(1025)] {
+            assert_eq!(
+                supplier_config(bad, &relay),
+                Err(Error::InvalidConfiguration)
+            );
+        }
+    }
+    #[test]
+    fn invalid_configuration_is_refused_before_runtime_or_marker_creation() {
+        let state = fixture();
+        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let relay = Loopback::bind(&registry).unwrap();
+        let lease = registry.acquire_interactive_ingress(STARTUP_BYTES).unwrap();
+        let result = prepare(
+            LaunchConfig {
+                binary: state.join("never-opened"),
+                state_dir: state.clone(),
+                model: "bad\nmodel".into(),
+                relay: relay.clone(),
+            },
+            lease,
+        );
+        assert!(matches!(result, Err(Error::InvalidConfiguration)));
+        assert_eq!(fs::read_dir(&state).unwrap().count(), 0);
+        assert_eq!(Arc::strong_count(&relay), 1);
+        fs::remove_dir_all(state).unwrap();
     }
     #[test]
     fn stale_marker_refuses_without_numeric_recovery() {
@@ -541,12 +573,14 @@ mod tests {
         let state = fixture();
         let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
         let lease = registry.acquire_interactive_ingress(STARTUP_BYTES).unwrap();
+        let relay = Loopback::bind(&registry).unwrap();
         let prepared = prepare(
             LaunchConfig {
                 binary: binary.into(),
                 state_dir: state.clone(),
+                model: "invented-native-probe-model".into(),
+                relay: relay.clone(),
             },
-            Credential::new("invented-native-probe-token".into()).unwrap(),
             lease,
         )
         .unwrap();
@@ -570,7 +604,8 @@ mod tests {
         }
         let mut diagnostic = String::new();
         stderr.take(8192).read_to_string(&mut diagnostic).unwrap();
-        assert!(!diagnostic.contains("invented-native-probe-token"));
+        assert!(!diagnostic.contains(relay.capability()));
+        // No provider credential was supplied or read by this probe.
         assert_eq!(stopped, CleanupOutcome::GroupStopped);
         let frame = received
             .expect("supplier frame deadline")

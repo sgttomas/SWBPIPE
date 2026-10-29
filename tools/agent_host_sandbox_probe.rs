@@ -19,7 +19,14 @@ fn main() {
     let home = PathBuf::from(env::var_os("HOME").expect("private home"));
     let cwd = env::current_dir().expect("private cwd");
     let outside = PathBuf::from(env::var_os("SWBPIPE_PROBE_OUTSIDE").expect("invented fixture"));
-    let allowed: SocketAddr = "127.0.0.1:8000".parse().unwrap();
+    let port: u16 = env::var("SWBPIPE_PROBE_ALLOWED_PORT")
+        .expect("owned fixture port")
+        .parse()
+        .unwrap();
+    assert_ne!(port, 0);
+    let allowed: SocketAddr = format!("127.0.0.1:{port}").parse().unwrap();
+    let allowed_ipv6: SocketAddr = format!("[::1]:{port}").parse().unwrap();
+    let alias: SocketAddr = format!("127.0.0.2:{port}").parse().unwrap();
     let forbidden: SocketAddr = env::var("SWBPIPE_PROBE_FORBIDDEN_ENDPOINT")
         .unwrap()
         .parse()
@@ -51,6 +58,16 @@ fn main() {
     checks.push((
         "provider_endpoint",
         TcpStream::connect_timeout(&allowed, Duration::from_secs(1)).is_ok(),
+    ));
+    checks.push((
+        "provider_ipv6_endpoint",
+        TcpStream::connect_timeout(&allowed_ipv6, Duration::from_secs(1)).is_ok(),
+    ));
+    // A permitted alias with no listener is not a denial. This deliberately
+    // requires EPERM, not connection refusal, before certifying the boundary.
+    checks.push((
+        "unowned_loopback_alias",
+        denied(TcpStream::connect_timeout(&alias, Duration::from_secs(1))),
     ));
     checks.push((
         "other_loopback",

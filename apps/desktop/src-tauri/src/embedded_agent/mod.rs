@@ -5,6 +5,8 @@ pub(crate) mod catalog;
 pub(crate) mod dispatcher;
 pub(crate) mod framing;
 #[cfg(target_os = "macos")]
+pub(crate) mod loopback;
+#[cfg(target_os = "macos")]
 pub(crate) mod macos;
 pub(crate) mod numeric;
 pub(crate) mod protocol;

@@ -1,4 +1,5 @@
 //! Deny-by-default Seatbelt recipe. Native probes, not this text, qualify it.
+use super::loopback::Loopback;
 use std::path::{Component, Path};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -24,13 +25,28 @@ fn quote(path: &Path) -> Result<String, InvalidPath> {
 /// All paths must be canonical, privately owned, disjoint from real user data.
 /// The manager may use this builder with an invented native probe executable;
 /// the production launcher always supplies its verified private supplier copy.
-/// Fork remains denied by default. Its compatibility is unqualified until probed.
+/// Fork remains explicitly denied. Runtime port/alias coverage still needs native
+/// qualification; an existing fixed-port witness is not that evidence.
 pub(crate) fn profile(
     root: &Path,
     home: &Path,
     cwd: &Path,
     executable: &Path,
+    relay: &Loopback,
 ) -> Result<String, InvalidPath> {
+    profile_at_port(root, home, cwd, executable, relay.port())
+}
+
+fn profile_at_port(
+    root: &Path,
+    home: &Path,
+    cwd: &Path,
+    executable: &Path,
+    port: u16,
+) -> Result<String, InvalidPath> {
+    if port == 0 {
+        return Err(InvalidPath);
+    }
     for path in [root, home, cwd, executable] {
         quote(path)?;
     }
@@ -103,8 +119,10 @@ pub(crate) fn profile(
         quote(executable)?
     ));
     // Seatbelt's IP filter accepts only * or localhost, not a numeric host.
-    // The sole configured URL is IPv4 loopback; this grants loopback port 8000.
-    result.push_str("(allow network-outbound (remote ip \"localhost:8000\"))\n");
+    // Both named loopback endpoints remain owned by the Rust relay scope.
+    result.push_str(&format!(
+        "(allow network-outbound (remote ip \"localhost:{port}\"))\n"
+    ));
     Ok(result)
 }
 
@@ -116,11 +134,12 @@ mod tests {
     fn reviewed_libinfo_profile_hash_and_single_allow_delta() {
         use sha2::{Digest, Sha256};
         let root = Path::new("/private/tmp/swbpipe-agent-invented");
-        let profile = profile(
+        let profile = profile_at_port(
             root,
             &root.join("home"),
             &root.join("work"),
             &root.join("codex"),
+            8000,
         )
         .unwrap();
         let normalized = profile.replace(root.to_str().unwrap(), "<private-runtime>");
@@ -138,11 +157,62 @@ mod tests {
         );
     }
 
+    #[test]
+    fn runtime_port_changes_only_the_single_network_grant() {
+        use crate::{
+            memory_pool::{test_host::ScriptedHost, MemoryPool},
+            solve_jobs::SolveJobRegistry,
+        };
+        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let relay = Loopback::bind(&registry).unwrap();
+        for invented in [
+            "/private/tmp/neutral-person-runtime",
+            "/tmp/swbpipe-invented-home",
+        ] {
+            let root = Path::new(invented);
+            let actual = profile(
+                root,
+                &root.join("home"),
+                &root.join("work"),
+                &root.join("codex"),
+                &relay,
+            )
+            .unwrap();
+            let qualified = profile_at_port(
+                root,
+                &root.join("home"),
+                &root.join("work"),
+                &root.join("codex"),
+                8000,
+            )
+            .unwrap();
+            assert_eq!(
+                actual.replace(&format!("localhost:{}", relay.port()), "localhost:8000"),
+                qualified
+            );
+            assert_eq!(actual.matches("(allow network-outbound ").count(), 1);
+            assert!(actual.contains("(deny process-fork)"));
+            assert_eq!(actual.matches("(allow process-exec ").count(), 1);
+            assert!(profile_at_port(
+                root,
+                &root.join("home"),
+                &root.join("work"),
+                &root.join("codex"),
+                0
+            )
+            .is_err());
+        }
+    }
+
     /// Compile tools/agent_host_sandbox_probe.rs through t3_slot.sh, then pass
     /// its path as SWBPIPE_SANDBOX_PROBE. No real documents or keys are read.
     #[test]
     #[ignore = "manager-owned native filesystem/network/process probes"]
     fn native_permission_probes() {
+        use crate::{
+            memory_pool::{test_host::ScriptedHost, MemoryPool},
+            solve_jobs::SolveJobRegistry,
+        };
         use std::fs;
         use std::net::TcpListener;
         use std::os::unix::fs::PermissionsExt;
@@ -173,10 +243,18 @@ mod tests {
         let executable = root.join("probe");
         fs::copy(probe, &executable).unwrap();
         fs::set_permissions(&executable, fs::Permissions::from_mode(0o500)).unwrap();
-        let policy = profile(&root, &root.join("home"), &root.join("work"), &executable).unwrap();
+        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let relay = Loopback::bind(&registry).unwrap();
+        let policy = profile(
+            &root,
+            &root.join("home"),
+            &root.join("work"),
+            &executable,
+            &relay,
+        )
+        .unwrap();
         // Invented endpoints, no provider/model/key. Refuse a busy port rather
         // than inspect or interfere with another server.
-        let _allowed = TcpListener::bind("127.0.0.1:8000").expect("provider port must be idle");
         let forbidden = TcpListener::bind("127.0.0.1:0").unwrap();
         let result = Command::new("/usr/bin/sandbox-exec")
             .args(["-p", &policy])
@@ -186,6 +264,7 @@ mod tests {
             .env("HOME", root.join("home"))
             .env("TMPDIR", root.join("home"))
             .env("SWBPIPE_PROBE_OUTSIDE", &outside)
+            .env("SWBPIPE_PROBE_ALLOWED_PORT", relay.port().to_string())
             .env(
                 "SWBPIPE_PROBE_FORBIDDEN_ENDPOINT",
                 forbidden.local_addr().unwrap().to_string(),
@@ -209,11 +288,12 @@ mod tests {
             "\"/private/tmp/a\\\"b\""
         );
         let root = Path::new("/private/tmp/invented");
-        let p = profile(
+        let p = profile_at_port(
             root,
             &root.join("home"),
             &root.join("work"),
             &root.join("codex"),
+            8000,
         )
         .unwrap();
         assert!(p.starts_with("(version 1)\n(deny default)"));
@@ -222,11 +302,12 @@ mod tests {
         assert!(!p.contains("network-inbound"));
         assert!(!p.contains("allow process-fork"));
         assert_eq!(p.matches("(allow file-write* ").count(), 2);
-        assert!(profile(
+        assert!(profile_at_port(
             root,
             Path::new("/tmp/swbpipe-invented-home"),
             &root.join("work"),
-            &root.join("codex")
+            &root.join("codex"),
+            8000
         )
         .is_err());
     }
