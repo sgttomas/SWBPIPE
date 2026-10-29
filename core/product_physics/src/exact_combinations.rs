@@ -830,7 +830,8 @@ pub(crate) fn append(model: &PreviewModel, facts: Facts<'_>, results: &mut Vec<R
 }
 
 /// §5: each operand's standing and numerical findings, from the envelope's own
-/// assessed numerical quality (its case record, verbatim).
+/// assessed numerical quality (its load-case record, verbatim; keyed on the record's
+/// `basis_ref` type and id, as both readers key it).
 pub(crate) fn state_operand_standing(records: &mut [Value], quality: &NumericalQuality) {
     let cases = serde_json::to_value(&quality.cases).unwrap_or(Value::Null);
     for record in records {
@@ -839,7 +840,7 @@ pub(crate) fn state_operand_standing(records: &mut [Value], quality: &NumericalQ
                 let case = operand["load_case_id"].clone();
                 operand["numerical_quality"] = cases
                     .as_array()
-                    .and_then(|cases| cases.iter().find(|c| c["basis_ref"]["ref_id"] == case))
+                    .and_then(|cases| cases.iter().find(|c| c["basis_ref"]["ref_type"] == "load_case" && c["basis_ref"]["ref_id"] == case))
                     .cloned()
                     .unwrap_or(Value::Null);
             }
@@ -944,4 +945,26 @@ mod tests {
         assert_ne!(key(MEMBRANE, "c", "midspan", "f", "nominal_section"), key(MEMBRANE, "c", "midspan", "f", "reduced_section"));
     }
 
+    /// An operand's standing is its load case's record: a quality record of another
+    /// basis type that shares the case's id is never copied (keyed as the readers key it).
+    #[test]
+    fn operand_standing_is_keyed_on_the_load_case_basis_type() {
+        let entry = |ref_type: &str, solve_quality: NumericalQualityStatus| NumericalCaseQuality {
+            basis_ref: ResultBasisRef { ref_type: ref_type.into(), ref_id: "case:S".into() },
+            structural_status: StructuralStatus::PassiveModelBasis,
+            solve_quality,
+            model_matrix_fidelity: ModelMatrixFidelity::NotAssessed,
+            accuracy_evidence: AccuracyEvidence::NotClaimed,
+            evidence_refs: Vec::new(),
+        };
+        let quality = NumericalQuality {
+            cases: vec![entry("combination", NumericalQualityStatus::Unresolved), entry("load_case", NumericalQualityStatus::ChecksPassed)],
+            ..unassessed_numerical_quality()
+        };
+        let mut records = vec![json!({"operands": [{"load_case_id": "case:S", "numerical_quality": null}]})];
+        state_operand_standing(&mut records, &quality);
+        let stated = &records[0]["operands"][0]["numerical_quality"];
+        assert_eq!(stated["basis_ref"], json!({"ref_type": "load_case", "ref_id": "case:S"}));
+        assert_eq!(stated, &serde_json::to_value(&quality.cases[1]).unwrap());
+    }
 }
