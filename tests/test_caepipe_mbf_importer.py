@@ -347,9 +347,58 @@ def test_decimal_exponents_beyond_1e5_are_refused_without_computing_the_power():
     ]
     assert importer_module.exact_decimal("1.5e-3") == Fraction(3, 2000)
     assert importer_module.exact_decimal("0.0e9223372036854775807") == 0
-    assert importer_module.exact_decimal("1e100000") == 10 ** 100000
-    assert importer_module.exact_decimal("1.5e-99999") == Fraction(15, 10 ** 100000)
-    assert importer_module.exact_decimal("1.5e-100000") is None and importer_module.exact_decimal("1e100001") is None
+    # beyond 10^+-400 a non-zero value is refused unformed, as the Rust port's bounded `parse_fraction` does
+    assert importer_module.exact_decimal("1e399") == 10 ** 399 and importer_module.exact_decimal("1e400") is None
+    assert importer_module.exact_decimal("-1e-401") == -Fraction(1, 10 ** 401)
+    assert importer_module.exact_decimal("1e-402") is None
+    assert importer_module.exact_decimal("1e100000") is None and importer_module.exact_decimal("1.5e-100000") is None
+
+
+_DIGIT_RUN_PROBE = r"""
+import json, sys
+sys.path.insert(0, sys.argv[1])
+import test_caepipe_mbf_importer as t
+cases = [dict(optemp="0." + "0" * 20_000_000 + "1e-200000"), dict(optemp="1" * 20_000_000),
+         dict(optemp="1e-" + "1" * 20_000_000), dict(optemp="1" * 4301), dict(optemp="1" * 4300),
+         dict(optemp="0." + "0" * 4299 + "1e-200000"),
+         dict(material=("M1,0,0.3,1,1,CS,x," + "1" * 5000, "M1,20,200000,1.2e-05"))]
+out = []
+for options in cases:
+    try:
+        result = t.run(t.mbf(**options))
+        out.append([result.status, sorted({item["code"] for item in result.diagnostics if item["severity"] == "error"})])
+    except ValueError as error:
+        out.append(["ValueError", str(error)])
+print(json.dumps(out))
+"""
+
+
+def _digit_limit(count: int) -> list:
+    return ["ValueError", f"Exceeds the limit (4300 digits) for integer string conversion: value has {count} digits; "
+                          "use sys.set_int_max_str_digits() to increase the limit"]
+
+
+def test_long_digit_runs_are_refused_before_any_power_of_ten_is_formed():
+    # Each digit run of a numeral is checked against Python's default int() digit limit before it is converted and
+    # before 10^(its length) is formed, in the Rust port's order (rational.rs `parse_fraction_with`); 10^20000000
+    # takes far longer than the timeout. The outcome is int()'s ValueError, as Fraction(text) raises it and as the
+    # Rust port returns it (ImportError::Python); within the limit, a value beyond binary64 is refused by name.
+    try:
+        done = subprocess.run([sys.executable, "-c", _DIGIT_RUN_PROBE, str(Path(__file__).resolve().parent)],
+                              capture_output=True, text=True, timeout=10, cwd=ROOT)
+    except subprocess.TimeoutExpired:
+        pytest.fail("the importer did not finish within 10 s on a 20000000-digit numeral")
+    assert done.returncode == 0, done.stderr
+    unrepresentable = ["refused", ["MBF-IMPORT-VALUE-UNREPRESENTABLE"]]
+    assert json.loads(done.stdout) == [
+        _digit_limit(20_000_001),  # the fraction digits of the reviewer's input
+        _digit_limit(20_000_000),  # a long integer part
+        _digit_limit(20_000_000),  # a long exponent
+        _digit_limit(4301),
+        unrepresentable,  # 4300 digits: within the limit, beyond binary64
+        unrepresentable,  # 4300 fraction digits, then the exponent beyond 10^5
+        _digit_limit(5000),  # a protected material column's zero test reads the numeral the same way
+    ]
 
 
 def test_the_gravitational_direction_is_refused_in_a_bound_import_too():

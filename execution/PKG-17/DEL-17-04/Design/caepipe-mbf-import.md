@@ -236,11 +236,14 @@ modulus option of §20.2 (O-7), within its existing boundary.
   0.49999999999999999 reads as 0.5 (independent review VER-002 r6).
 - **Binary64 range.** A value whose binary64 reading overflows, or a non-zero value that
   reads as 0, is refused (`MBF-IMPORT-VALUE-UNREPRESENTABLE`); it never imports as zero or
-  infinity. A non-zero numeral whose decimal exponent (its exponent less its fraction digits)
-  lies beyond ±10⁵ is far outside binary64 and is refused by the same code before its exact
-  value is formed, so an exponent at the i64 limits such as `1e-9223372036854775808` never
-  computes a power of ten (the Rust engine's signed range test refuses the same numerals); a
-  zero mantissa is 0 at any exponent. Every derived value is rounded through the same guard, which refuses by the same
+  infinity. A numeral is read without computing anything proportional to an untrusted length
+  or exponent before bounding it, in the Rust engine's order (`parse_fraction`): each digit run
+  beyond Python's default 4300-digit `int()` limit raises `int()`'s `ValueError` before it is
+  converted, as `Fraction` raises it; a zero mantissa is 0 at any exponent; and a non-zero
+  numeral whose decimal exponent (its exponent less its fraction digits) lies beyond ±10⁵, or
+  whose magnitude lies beyond 10^±400, is far outside binary64 and is refused by the same code
+  before its exact value is formed, so an exponent at the i64 limits such as
+  `1e-9223372036854775808` never computes a power of ten. Every derived value is rounded through the same guard, which refuses by the same
   code: E in Pa, G, node coordinates, the temperature change, summed loads, tangent lengths
   and nodes, and the weight per length of a non-zero weight density. Norms and unit
   directions use the scaled `hypot`, so neither tiny nor huge lengths overflow or underflow

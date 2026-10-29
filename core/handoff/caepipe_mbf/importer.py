@@ -344,26 +344,51 @@ class Num:
     text: str
 
 
-# A non-zero numeral whose decimal exponent (its exponent less its fraction digits) is beyond 10^5 lies far outside
-# binary64 (each digit run is within Python's int() digit limit), so it is refused without computing 10^n, which at an
-# exponent such as -9223372036854775808 would not finish. The Rust port's `parse_fraction` tests the same signed range.
+# Reading an untrusted numeral computes nothing proportional to a length or exponent before bounding it, in the Rust
+# port's order (rational.rs `parse_fraction_with`): each digit run is refused beyond Python's default int() digit
+# limit before it is converted (int()'s ValueError and message, whatever the runtime's own limit), so 10^(fraction
+# digits) is at most 10^4300; then a zero mantissa is 0 at any exponent; then a non-zero value whose decimal exponent
+# (its exponent less its fraction digits) is beyond 10^5, or whose magnitude is beyond 10^+-400, lies far outside
+# binary64 and is refused without forming 10^n, which at an exponent such as -9223372036854775808 would not finish.
+INT_MAX_STR_DIGITS = 4300
 DECIMAL_EXPONENT_LIMIT = 100_000
+DECIMAL_MAGNITUDE_LIMIT = 400
+
+
+def _int_digits(digits: str) -> int:
+    """int(digits) for a run of digits, refused before conversion beyond INT_MAX_STR_DIGITS as int() refuses it."""
+    if len(digits) > INT_MAX_STR_DIGITS:
+        raise ValueError(f"Exceeds the limit ({INT_MAX_STR_DIGITS} digits) for integer string conversion: value has "
+                         f"{len(digits)} digits; use sys.set_int_max_str_digits() to increase the limit")
+    return int(digits)
 
 
 def exact_decimal(text: str) -> Fraction | None:
-    """`Fraction(text)` for a numeral `_REAL` matches, or None for a non-zero value whose decimal exponent is beyond
-    DECIMAL_EXPONENT_LIMIT. Fraction's own int() conversions run first, in its order, so its errors are unchanged."""
+    """`Fraction(text)` for a numeral `_REAL` matches, or None for a non-zero value far outside binary64: a decimal
+    exponent beyond DECIMAL_EXPONENT_LIMIT or a magnitude beyond 10^+-DECIMAL_MAGNITUDE_LIMIT. A digit run beyond
+    INT_MAX_STR_DIGITS raises int()'s ValueError, as `Fraction(text)` does."""
+    negative = text.startswith("-")
     mantissa, _, exponent = text.lstrip("+-").lower().partition("e")
     whole, _, fraction = mantissa.partition(".")
-    numerator = int(whole or "0")
+    numerator = _int_digits(whole) if whole else 0
     if fraction:
-        numerator = numerator * 10 ** len(fraction) + int(fraction)
-    power = int(exponent) if exponent else 0
+        digits = _int_digits(fraction)  # first: it bounds len(fraction) before 10^len(fraction) is formed
+        numerator = numerator * 10 ** len(fraction) + digits
+    power = 0
+    if exponent:
+        power = _int_digits(exponent.lstrip("+-"))
+        if exponent.startswith("-"):
+            power = -power
     if numerator == 0:
         return Fraction(0)
-    if not -DECIMAL_EXPONENT_LIMIT <= power - len(fraction) <= DECIMAL_EXPONENT_LIMIT:
+    power -= len(fraction)
+    if not -DECIMAL_EXPONENT_LIMIT <= power <= DECIMAL_EXPONENT_LIMIT:
         return None
-    return Fraction(text)
+    digits = len((whole + fraction).lstrip("0"))  # the numerator's digit count, without converting it to text
+    if not -DECIMAL_MAGNITUDE_LIMIT <= power + digits <= DECIMAL_MAGNITUDE_LIMIT:
+        return None  # |value| >= 10^400 overflows and |value| < 10^-400 underflows to 0: refused either way
+    magnitude = Fraction(numerator * 10 ** power) if power >= 0 else Fraction(numerator, 10 ** -power)
+    return -magnitude if negative else magnitude
 
 
 def half_unit(text: str) -> Fraction:
