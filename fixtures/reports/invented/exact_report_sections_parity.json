@@ -1276,7 +1276,7 @@
             "model_sha256": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
             "native_job_id": "invented-solve-job-1",
             "received_bytes_sha256": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
-            "received_result_sha256": "bc151ee5d389f9511abbb4aa94b0a29e4aef857d6fda339b220caf76674ecaf2",
+            "received_result_sha256": "1ce8b1a5933f11dbf619670bc63d5f767edecbed50b1a9d071fc63d2179a58d2",
             "result_envelope_id": "result-envelope:run:preview-linear-static-001",
             "run_ref": "run:preview-linear-static-001",
             "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -1318,7 +1318,7 @@
             }
           ],
           "load_reference_states": null,
-          "received_result_sha256": "bc151ee5d389f9511abbb4aa94b0a29e4aef857d6fda339b220caf76674ecaf2",
+          "received_result_sha256": "1ce8b1a5933f11dbf619670bc63d5f767edecbed50b1a9d071fc63d2179a58d2",
           "result_envelope_id": "result-envelope:run:preview-linear-static-001",
           "run_ref": "run:preview-linear-static-001",
           "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -1487,7 +1487,7 @@
             "model_sha256": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
             "native_job_id": "invented-solve-job-1",
             "received_bytes_sha256": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
-            "received_result_sha256": "f009405558e8dea842358f3477a9a1912d4122b2c545d809446e57d740cb9227",
+            "received_result_sha256": "63609c9a3827dc9323288d979b8fd948e6b31116fd31b9dd4d6bd8b8f033ffa1",
             "result_envelope_id": "result-envelope:run:preview-linear-static-001",
             "run_ref": "run:preview-linear-static-001",
             "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"
@@ -1529,7 +1529,7 @@
             }
           ],
           "load_reference_states": "This result includes resolved load/reference states (reference configuration reference:installed; load cases load:L-100, load:L-200, load:L-300; history independent_equilibrium). Their published limitations are listed under Limitations.",
-          "received_result_sha256": "f009405558e8dea842358f3477a9a1912d4122b2c545d809446e57d740cb9227",
+          "received_result_sha256": "63609c9a3827dc9323288d979b8fd948e6b31116fd31b9dd4d6bd8b8f033ffa1",
           "result_envelope_id": "result-envelope:run:preview-linear-static-001",
           "run_ref": "run:preview-linear-static-001",
           "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"

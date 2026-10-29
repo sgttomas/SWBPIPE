@@ -1062,8 +1062,31 @@ fn validate_variable_spring_hanger(
             "info",
             "variable spring hanger carries explicit user-entered stiffness, installed/cold/hot load metadata, travel metadata, and source reference under DEC-049; no catalog/default values are supplied",
         ));
+        // §8.30 correction 3 (RT-S3): only the stiffness is consumed; each
+        // entered load is review evidence and is never applied as preload.
+        for (field, name, quantity) in [
+            ("hanger.installed_load", "installed load", &hanger.installed_load),
+            ("hanger.cold_load", "cold load", &hanger.cold_load),
+            ("hanger.hot_load", "hot load", &hanger.hot_load),
+        ] {
+            if quantity.as_ref().is_some_and(|value| value.value != 0.0) {
+                diagnostics.push(spring_hanger_diag(
+                    support_id,
+                    field,
+                    SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD,
+                    "warning",
+                    &format!("variable spring hanger {support_id}: its {name} ({field}) is not applied as preload; results treat the hanger as a linear spring from zero load, whose force is its stiffness times the displacement at its DOF, and the entered load remains review evidence only"),
+                ));
+            }
+        }
     }
 }
+
+/// §8.30 correction 3 (RT-S3): a variable spring hanger's entered installed,
+/// cold or hot load is not applied as preload (one warning per support and
+/// field). Hanger sizing (RT-A11) and preload (RT-S3) lift it.
+pub(crate) const SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD: &str =
+    "SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD";
 
 fn validate_constant_effort_support(
     support_id: &str,

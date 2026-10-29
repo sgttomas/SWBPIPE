@@ -1,0 +1,20 @@
+[package]
+name = "open_pipe_stress_caepipe_mbf"
+version = "0.1.0"
+edition = "2021"
+description = "CAEPIPE MBF engine: a byte-faithful Rust port of the DEL-17-04 MBF importer, for native and wasm use"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+# Exact rationals (Python's Fraction), the 90-digit decimal arctangent and the correctly rounded trigonometric
+# functions' fixed-point intervals need arbitrary-precision integers.
+num-bigint = "0.4"
+num-integer = "0.1"
+num-traits = "0.2"
+# Shortest round-trip digits for Python's repr(float): the closest candidate, exact ties to even (as the
+# canonical_json crate uses it); the std formatter breaks ties differently.
+ryu = "1"
+sha2 = "0.10"
