@@ -20,6 +20,7 @@ pub enum Admission {
     Minimal,
     Retry,
     Expired,
+    MissingQuiescence,
     Cancelled,
 }
 
@@ -74,8 +75,13 @@ impl Supervisor {
         }
         assert!(matches!(self.state, State::Waiting | State::Parked));
         if now >= self.deadline {
+            let outcome = if self.state == State::Parked {
+                Admission::Expired
+            } else {
+                Admission::MissingQuiescence
+            };
             self.state = State::Refused;
-            return Admission::Expired;
+            return outcome;
         }
         if self.state != State::Parked {
             return Admission::Retry;
@@ -134,7 +140,10 @@ mod tests {
         assert!(!s.ack(g));
         let mut no_ack = Supervisor::new(4);
         no_ack.request(ms(0));
-        assert_eq!(no_ack.attempt(ms(2000), 100, 8, 3), Admission::Expired);
+        assert_eq!(
+            no_ack.attempt(ms(2000), 100, 8, 3),
+            Admission::MissingQuiescence
+        );
     }
     #[test]
     fn cancellation_dominates_late_ack_and_resume() {
@@ -154,3 +163,6 @@ mod tests {
 
 #[cfg(all(test, windows, target_arch = "x86_64"))]
 mod windows_accounting;
+
+#[cfg(all(test, windows, target_arch = "x86_64"))]
+mod native_fixture;

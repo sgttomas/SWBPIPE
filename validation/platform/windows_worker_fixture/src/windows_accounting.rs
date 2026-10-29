@@ -19,6 +19,13 @@ struct CountersEx2 {
     private_working_set_size: usize,
     shared_commit_usage: u64,
 }
+// Documented x64 PROCESS_MEMORY_COUNTERS_EX2 layout. This is an FFI ABI
+// check, not an assertion that commit and residency have equal meaning.
+const _: () = assert!(size_of::<CountersEx2>() == 96);
+const _: () = assert!(std::mem::offset_of!(CountersEx2, private_usage) == 72);
+const _: () = assert!(std::mem::offset_of!(CountersEx2, private_working_set_size) == 80);
+const _: () = assert!(std::mem::offset_of!(CountersEx2, shared_commit_usage) == 88);
+
 #[link(name = "kernel32")]
 unsafe extern "system" {
     fn GetCurrentProcess() -> Handle;
@@ -31,7 +38,7 @@ const MEM_RESERVE: u32 = 0x2000;
 const MEM_RELEASE: u32 = 0x8000;
 const PAGE_READWRITE: u32 = 0x04;
 const BYTES: usize = 4 * 1024 * 1024;
-fn sample(label: &str) {
+fn sample(label: &str) -> CountersEx2 {
     let mut c = CountersEx2 {
         cb: size_of::<CountersEx2>() as u32,
         ..Default::default()
@@ -45,7 +52,19 @@ fn sample(label: &str) {
         "{label}: private_commit={} private_working_set={} total_working_set={} shared_commit={}",
         c.private_usage, c.private_working_set_size, c.working_set_size, c.shared_commit_usage
     );
+    c
 }
+
+struct Mapping(*mut c_void);
+impl Drop for Mapping {
+    fn drop(&mut self) {
+        if !self.0.is_null() {
+            // SAFETY: this guard owns the allocation base until release.
+            assert_ne!(unsafe { VirtualFree(self.0, 0, MEM_RELEASE) }, 0);
+        }
+    }
+}
+
 #[test]
 fn mapping_commit_touch_and_release_are_distinct_observations() {
     sample("before");
@@ -59,14 +78,17 @@ fn mapping_commit_touch_and_release_are_distinct_observations() {
         )
     } as *mut u8;
     assert!(!p.is_null(), "VirtualAlloc failed");
+    let mapping = Mapping(p.cast());
     sample("committed_untouched");
+    // No exact OS delta, retained-heap behavior or residency credit is inferred.
+    eprintln!("residency_credit=not_computed; fixture mappings are fully reserved");
     for offset in (0..BYTES).step_by(4096) {
         // SAFETY: every offset is within the committed writable range.
         unsafe { p.add(offset).write_volatile(1) };
     }
     sample("touched");
-    // SAFETY: release uses the base address and zero size as required by VirtualFree.
-    assert_ne!(unsafe { VirtualFree(p.cast(), 0, MEM_RELEASE) }, 0);
+    // Release before the heap case; unwind paths own the same cleanup guard.
+    drop(mapping);
     sample("released");
     let mut heap = vec![0u8; BYTES];
     for offset in (0..BYTES).step_by(4096) {
