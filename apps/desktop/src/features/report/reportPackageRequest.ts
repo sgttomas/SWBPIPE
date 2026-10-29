@@ -337,7 +337,7 @@ export type UserReleasedReportPackageRequestInput = {
 };
 
 /** The user-released request's assembly (§2.6; scope R, §2.1): the Export Result JSON
- * document of a pressure-free (preview-physics-2) result, the minimal renderer input, an
+ * document of a pressure-free or eligible exact result, the minimal renderer input, an
  * audit manifest with no rule-pack reference or asset, and no state/comparison/handoff
  * record. The run record carries the solve's own rule status. The native host derives the
  * same request from its bound basis and requires canonical equality
@@ -346,15 +346,14 @@ export type UserReleasedReportPackageRequestInput = {
  * only: it grants nothing, and the route's own cell and dialog are the desktop slice's. */
 export async function assembleUserReleasedReportPackageRequest(input: UserReleasedReportPackageRequestInput) {
   const { model, result, analysisRun, inputManifest, userRelease } = input;
-  if (isExactReportSource(result)) {
-    throw new Error("REPORT-USER-RELEASE-EXACT-ROUTE-NOT-ADMITTED: a shareable report package carries pressure-free (preview-physics-2) results only; this exact-route result can be saved in a local private package.");
-  }
-  const document: ResultDocument = await buildCurrentResultExport({ model, result, analysisRun, inputManifest });
+  const exactInputs = isExactReportSource(result) ? { model, result, analysisRun, inputManifest } : null;
+  const admission = exactInputs ? await admitExactReportSource(exactInputs) : null;
+  const document: ResultDocument = admission ? admission.document : await buildCurrentResultExport({ model, result, analysisRun, inputManifest });
   const envelope = document.result_envelope as JsonRecord;
   const identity = envelope?.producer?.semantic_contract_id;
-  if (identity !== PREVIEW_PHYSICS_CONTRACT_ID) {
+  if (!REPORT_PACKAGE_ADMITTED_CONTRACT_IDS.includes(identity)) {
     throw new Error(
-      `${REPORT_PACKAGE_ROUTE_NOT_ADMITTED}: a shareable report package admits only ${PREVIEW_PHYSICS_CONTRACT_ID} results; this document is ${String(identity ?? "unidentified")}.`
+      `${REPORT_PACKAGE_ROUTE_NOT_ADMITTED}: a shareable report package admits ${REPORT_PACKAGE_ADMITTED_CONTRACT_IDS.join(", ")}; this document is ${String(identity ?? "unidentified")}.`
     );
   }
   const run = analysisRun.analysis_run;
@@ -362,7 +361,7 @@ export async function assembleUserReleasedReportPackageRequest(input: UserReleas
   if (recordedTokens.length !== 1 || recordedTokens[0] !== result.status.rule_check) {
     throw ruleCheckMismatch(`the analysis record's rule status (${recordedTokens.join(", ") || "none"}) is not the solve's (${result.status.rule_check}).`);
   }
-  const report = await userReleasedRenderableReportInput({ model, result, analysisRun, inputManifest, userRelease });
+  const report = await userReleasedRenderableReportInput({ model, result, analysisRun, inputManifest, userRelease, exactAdmission: admission });
   if (JSON.stringify(report.result_rows) !== JSON.stringify(reportResultRows(result))) {
     throw new Error(`${REPORT_PACKAGE_REPORT_ROWS_MISMATCH}: the report's result rows are not the source rows' projection.`);
   }
@@ -373,7 +372,7 @@ export async function assembleUserReleasedReportPackageRequest(input: UserReleas
   const solver = envelope.solver_version as { solver_name: string; solver_version: string; solver_build_ref: string };
   const loadBasisRefs = (envelope.load_basis_refs as Array<{ ref_type: string; ref_id: string }>).map((item) => reference(item.ref_type, item.ref_id));
   const manifestRef = inputManifest.manifest_ref.ref;
-  return {
+  const request = {
     package_id: `desktop-user-released-report-${safeId(result.run_id)}`,
     export_profile_id: REPORT_PACKAGE_USER_RELEASED_PROFILE,
     source_model_ref: reference("model", model.project.id),
@@ -395,4 +394,9 @@ export async function assembleUserReleasedReportPackageRequest(input: UserReleas
     rule_check_aggregate: null,
     solve_rule_check_status: result.status.rule_check
   };
+  if (admission && exactInputs) {
+    exactRequests.set(request, { admission, inputs: exactInputs });
+    exactSourceSubmission(admission, exactInputs);
+  }
+  return request;
 }

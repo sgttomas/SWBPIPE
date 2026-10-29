@@ -59,8 +59,8 @@
 //! the evidence selects the branch. Route `DREP-PACKAGE-USER-RELEASE-010`
 //! saves a user-released package, after the user's per-report user release of
 //! their own project data: it takes the solve's run record text as well;
-//! refuses an exact-route request (`REPORT-USER-RELEASE-EXACT-ROUTE-NOT-ADMITTED`)
-//! directly after the object-form check and its exact texts in the outer
+//! admits an exact-route request only with W-11's native source binding
+//! after the object-form check and prices its exact texts in the outer
 //! command, before they are priced; renders under `user_released_report`
 //! with the user-released profile and the record; and then checks the
 //! record's form and bindings, refuses a model with a library or rule-pack
@@ -106,7 +106,7 @@ use open_pipe_stress_operation_applier::{canonical_json, sha256_hex};
 use open_pipe_stress_product_physics::PreviewSolverMode;
 use open_pipe_stress_report_package::bindings::{DESKTOP_PROFILE, REPORT_CONTEXT_NOT_LOCAL_PRIVATE};
 use open_pipe_stress_report_package::user_release::{
-    self as user_release, SoftwareIdentity, EXACT_ROUTE_NOT_ADMITTED, LIBRARY_REFERENCED, NOT_THIS_ROUTE, RECORD_INVALID,
+    self as user_release, SoftwareIdentity, LIBRARY_REFERENCED, NOT_THIS_ROUTE, RECORD_INVALID,
     RESULT_NOT_ATTESTED, UNBOUND, USER_RELEASED_CONTEXT, USER_RELEASED_DESKTOP_PROFILE,
 };
 use open_pipe_stress_report_package::ReportPackageContainerOutcome;
@@ -555,21 +555,6 @@ pub fn parse_lease_bytes_with_exact(
     Ok(base.saturating_add(priced("exact_result", exact_result_text)?).saturating_add(priced("exact_intake", exact_intake_text)?))
 }
 
-/// Route 010 refuses the exact texts (W-18b §0, §2.5 "The outer command",
-/// step 2a), naming the member, before any size cap, prescan or pricing.
-fn refuse_exact_texts(exact_result_text: Option<&str>, exact_intake_text: Option<&str>) -> Result<(), ReportPackageSaveCommandError> {
-    for (member, text) in [("exact_result_text", exact_result_text), ("exact_intake_text", exact_intake_text)] {
-        if text.is_some() {
-            return Err(refuse(
-                EXACT_ROUTE_NOT_ADMITTED,
-                &format!("/{member}"),
-                format!("A shareable report package carries pressure-free (preview-physics-2) results only; the request carries {member}, which only an exact-route result's local private package resubmits."),
-            ));
-        }
-    }
-    Ok(())
-}
-
 /// The run record text of route 010 (§2.5 step 2): present, within
 /// [`MAX_ANALYSIS_RUN_TEXT_BYTES`].
 fn analysis_run_text_of(analysis_run_text: Option<&str>) -> Result<&str, ReportPackageSaveCommandError> {
@@ -587,10 +572,8 @@ fn analysis_run_text_of(analysis_run_text: Option<&str>) -> Result<&str, ReportP
 /// `report-user-release.md` §2.5, "The outer command"), after the evidence:
 /// - route 009: [`parse_lease_bytes_with_exact`], unchanged; a run record text
 ///   is refused (it is route 010's);
-/// - route 010, in order: the exact texts refused
-///   (`REPORT-USER-RELEASE-EXACT-ROUTE-NOT-ADMITTED`, before they are sized,
-///   prescanned or priced, so the lease stays at the ingress admission's
-///   bytes); then the ordinary reservation: [`parse_lease_bytes`] over the
+/// - route 010: D-6 adds the exact texts' capped, priced parse through
+///   [`parse_lease_bytes_with_exact`], retaining the ordinary reservation over the
 ///   request, model and input-manifest texts and the run record text's
 ///   priced parse after its cap; plus route 010's own working memory:
 ///   - the derivation's request and input manifest, priced as one more
@@ -620,8 +603,10 @@ pub fn ingress_lease_bytes(request: &ReportPackageSaveRequest) -> Result<u64, Re
             request.exact_intake_text.as_deref(),
         );
     }
-    refuse_exact_texts(request.exact_result_text.as_deref(), request.exact_intake_text.as_deref())?;
-    let ordinary = parse_lease_bytes(&request.request_text, &request.model_text, &request.input_manifest_text)?;
+    let ordinary = parse_lease_bytes_with_exact(
+        &request.request_text, &request.model_text, &request.input_manifest_text,
+        request.exact_result_text.as_deref(), request.exact_intake_text.as_deref(),
+    )?;
     let priced = |what: &str, text: &str| {
         text_parse_bytes(text, ArgsDecoding::Moved).map_err(|invalid| {
             refuse(NOT_CANONICAL, &format!("/{what}"), format!("The {what} text is not JSON ({} at byte {}).", invalid.reason, invalid.offset))
@@ -1164,7 +1149,7 @@ impl From<ReportPackageSaveCommandError> for SaveRefusal {
 /// The admission of both routes, before any file is chosen. The route id in
 /// the evidence selects the branch (W-18b §2.5). Every existing check runs on
 /// both routes in its order; route 010 adds the run record text (step 2), the
-/// exact-route refusal directly after the object-form check (step 2a), its
+/// exact-route source binding after the object-form check (D-6), its
 /// context (step 3) and, after the rule-pack agreement, steps 4-9: the
 /// record's form and bindings, the library and rule-pack refusals, the
 /// private classes, the solve attestation, the run record and the one
@@ -1446,9 +1431,7 @@ fn admit_both_routes(
     let local_first = local_first.expect("validated local-first evidence");
     check_text_sizes(&request_text, &model_text, &input_manifest_text)?;
     if user_release_route {
-        // Step 2: the outer command has already refused these; a caller that
-        // did not come through it gets the same refusal (step 2a).
-        refuse_exact_texts(exact_result_text.as_deref(), exact_intake_text.as_deref())?;
+        check_exact_text_sizes(exact_result_text.as_deref(), exact_intake_text.as_deref())?;
         analysis_run_text_of(analysis_run_text.as_deref())?;
     } else {
         check_exact_text_sizes(exact_result_text.as_deref(), exact_intake_text.as_deref())?;
@@ -1470,16 +1453,8 @@ fn admit_both_routes(
     let request_value = parse_canonical("request", &request_text)?;
     drop(request_text);
     check_request_object_form(&request_value)?;
-    // W-18b step 2a: route 010 refuses an exact-route request directly after
-    // the object-form check, before any custody query or exact-text parse.
-    if user_release_route && exact_request(&request_value) {
-        return Err(refuse(
-            EXACT_ROUTE_NOT_ADMITTED,
-            "/request/result_documents/0",
-            "A shareable report package carries pressure-free (preview-physics-2) results only; this exact-route result can be saved in a local private package.",
-        )
-        .into());
-    }
+    // D-6: both routes require W-11's exact source binding below. Route 010
+    // additionally retains its solve attestation and whole-request derivation.
     // W-11 (§3.6): the native source binding of an exact-route request, before
     // the other content checks; a pressure-free request carries no texts.
     let exact_custody = if exact_request(&request_value) {

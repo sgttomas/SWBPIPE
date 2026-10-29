@@ -401,8 +401,10 @@ pub(crate) fn check_request_in(
             return Err(user_release::general_entry_refusal(marker));
         }
     }
-    // §0: the user-released profile carries pressure-free results only.
-    exact_sections::check_user_released_profile(&request.export_profile_id, document)?;
+    // D-6 (§11): legacy record 1.0.0 retains its pressure-free scope.
+    if request.report.pointer("/report_context/user_release/record_version").and_then(Value::as_str) != Some(open_pipe_stress_report_renderer::USER_RELEASE_EXACT_RECORD_VERSION) {
+        exact_sections::check_user_released_profile(&request.export_profile_id, document)?;
+    }
     document_form::validate_result_export_form(document)?;
     let header_table = document_form::check_transported_header(document)?;
     document_form::check_self_hash(document)?;

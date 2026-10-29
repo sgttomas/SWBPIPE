@@ -107,6 +107,8 @@ pub const USER_RELEASE_RECORD_KIND: &str = "user_release_of_own_project_data";
 /// The user-release record's version (§2.3). A later slice that widens what a
 /// user-released package carries changes `scope.not_carried` and this.
 pub const USER_RELEASE_RECORD_VERSION: &str = "1.0.0";
+/// D-6 widened scope, retaining the legacy record form.
+pub const USER_RELEASE_EXACT_RECORD_VERSION: &str = "1.1.0";
 /// The statement the user ticks in the dialog, verbatim (§2.2, §2.3).
 pub const USER_RELEASE_STATEMENT: &str =
     "I hold the right to share this project's data, and I release my project data in this report for sharing.";
@@ -196,7 +198,6 @@ impl UserReleaseRecord {
     pub fn form_defect(&self) -> Option<&'static str> {
         let constants = [
             ("record_kind", self.record_kind.as_str(), USER_RELEASE_RECORD_KIND),
-            ("record_version", self.record_version.as_str(), USER_RELEASE_RECORD_VERSION),
             ("statement", self.statement.as_str(), USER_RELEASE_STATEMENT),
             ("statement_basis", self.statement_basis.as_str(), USER_RELEASE_STATEMENT_BASIS),
             ("standing", self.standing.as_str(), USER_RELEASE_STANDING),
@@ -206,7 +207,12 @@ impl UserReleaseRecord {
         if let Some((member, _, _)) = constants.iter().find(|(_, found, expected)| found != expected) {
             return Some(member);
         }
-        if self.scope.not_carried.iter().map(String::as_str).ne(USER_RELEASE_NOT_CARRIED) {
+        let exact = self.record_version == USER_RELEASE_EXACT_RECORD_VERSION;
+        if !exact && self.record_version != USER_RELEASE_RECORD_VERSION {
+            return Some("record_version");
+        }
+        let expected = USER_RELEASE_NOT_CARRIED.into_iter().chain(exact.then_some("ineligible_exact_route_results"));
+        if self.scope.not_carried.iter().map(String::as_str).ne(expected) {
             return Some("scope.not_carried");
         }
         let bound = &self.bound_to;

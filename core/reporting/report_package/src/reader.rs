@@ -43,9 +43,10 @@
 //! §2.9) is the same 2.0.0 container selected by the manifest's optional
 //! `user_release` record. When the record is present the reader requires an
 //! unblocked package under the `desktop_user_released_report_package_1`
-//! profile; exactly one HTML, PDF, audit and result member and no
-//! state/comparison/handoff member; a pressure-free (`preview-physics-2`)
-//! result member; the record's constants and forms; its bound model
+//! profile (legacy record 1.0.0 pressure-free, D-6 record 1.1.0 also exact);
+//! exactly one HTML, PDF, audit and result member and no
+//! state/comparison/handoff member; a result within that record's scope;
+//! the record's constants and forms; its bound model
 //! reference and hash, input-manifest hash and reference, result-document
 //! identity and derivative hash, run, report and package identities equal to
 //! the manifest's, the audit member's and the result member's; a
@@ -278,7 +279,9 @@ pub(crate) fn read_report_package_container_in(
     // A record, or the user-released profile, selects the user-released
     // member rule; the record's own checks then decide (W-18b §2.9).
     let user_released = fields.user_release.is_some() || fields.export_profile_id == crate::user_release::USER_RELEASED_DESKTOP_PROFILE;
-    let members = verify_members(bytes, &archive, &rows, fields.export_blocked, &fields.export_profile_id, user_released, admitted)?;
+    let exact_user_release = fields.user_release.as_ref().and_then(|record| record["record_version"].as_str())
+        == Some(open_pipe_stress_report_renderer::USER_RELEASE_EXACT_RECORD_VERSION);
+    let members = verify_members(bytes, &archive, &rows, fields.export_blocked, &fields.export_profile_id, user_released, exact_user_release, admitted)?;
     // W-18b (§2.9): the record's checks, after the members are verified and
     // before the rebuild; the rebuild then holds the record's form exactly.
     let caller_record = match &fields.user_release {
@@ -886,6 +889,7 @@ fn verify_members(
     export_blocked: bool,
     export_profile_id: &str,
     user_released: bool,
+    exact_user_release: bool,
     admitted: AdmittedSet,
 ) -> Result<Vec<ContainerMember>, PackageReadRefusal> {
     let content_entries = &archive.entries[1..];
@@ -1008,11 +1012,10 @@ fn verify_members(
                             document_form::check_route_admitted_in(&document, admitted).map_err(&defect)?;
                             // W-11 §3.5: the runner profile packages no exact identity.
                             exact_sections::check_runner_profile(export_profile_id, &document).map_err(&defect)?;
-                            // W-18b (§0, §2.9): a user-released package carries
-                            // pressure-free results only.
-                            if user_released || export_profile_id == crate::user_release::USER_RELEASED_DESKTOP_PROFILE {
+                            // Keep the legacy record's refusal and its precedence.
+                            if user_released && !exact_user_release {
                                 exact_sections::check_user_released_profile(crate::user_release::USER_RELEASED_DESKTOP_PROFILE, &document)
-                                    .map_err(|reason| user_release_unbound(format!("the result member is not pressure-free: {reason}")))?;
+                                    .map_err(user_release_unbound)?;
                             }
                             let (manifest_id, model_hash) = audit_identity
                                 .as_ref()

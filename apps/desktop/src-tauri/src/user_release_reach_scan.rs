@@ -531,6 +531,10 @@ const ENTRY_RULES: [(&str, &str, Entry); 6] = [
 /// `read_project_autosave`, `discard_project_autosave`, `get_autosave_settings`
 /// and `set_autosave_settings` (each reviewed: no `mod`, no `$parameter ::`,
 /// no scanned name added). The
+/// D-6 review: save_report_package's command signature and handler tokens are
+/// unchanged; the existing macro digest was reproduced from macro_rules through
+/// the closing brace before changing route-010 admission. No new command,
+/// module, parameter path or scanned name is added. The
 /// headless runner's two (code review r9 at #1682) each write one `Reader`
 /// literal of its own reader table (reviewed: no `mod`, no `$parameter ::`,
 /// no scanned name).

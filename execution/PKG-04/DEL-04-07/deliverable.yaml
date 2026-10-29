@@ -324,6 +324,7 @@ code_paths:
 - apps/desktop/src-tauri/src/worker_alloc.rs
 # The temperature identity's canonical-decimal corpus writer (pressure-contract.md).
 - tools/fixtures/temperature_canonical_decimal_corpus.py
+- validation/platform/windows_arena_probe/**
 - validation/platform/windows_worker_fixture/**
 checks:
 - core/product_physics/tests/exact_admission_seam.rs
@@ -352,4 +353,5 @@ checks:
 - core/product_physics/src/case_state/temperature.rs
 - core/product_physics/src/case_state/temperature/canonical_decimal.rs
 - core/product_physics/tests/load_reference_state_runtime_extension.rs
+- validation/platform/windows_arena_probe/run.ps1
 - validation/platform/windows_worker_fixture/run.ps1
