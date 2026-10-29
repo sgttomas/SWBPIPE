@@ -92,6 +92,18 @@ quotes the option's drafted text; the owner's own words are quoted as such.
   users enter their own k and SIF.
 - **Public repository** (owner, 2026-10-28: "Yes."). The public sanitized
   repository export (DEL-10-04:1) is in v1.0 (RT-V8).
+- **Embedded agent** (owner, 2026-10-28: "I want you to add the App v4
+  integration into SWBPIPE for the v1.0 target. I want you two to discuss how
+  to make it connect, but I thought this had already been decided on (check
+  the deliverables). I'm not interested in having all the governance for the
+  workflows working perfectly, my focus is just on getting the agent harness
+  into SWBPIPE and able to operate that application effectively."). The
+  Chirality App v4 agent harness is embedded in the desktop (RT-E1). Earlier
+  designs, DEC-041 among them, are historical context only (owner, 2026-10-28,
+  relayed from the App session: "take note of what was done in the past, but
+  don't take from it. There's better examples now elsewhere and just from your
+  own ideas."). The connection is designed afresh with App v4's HELP_HUMAN and
+  recorded in the owning Design.
 
 ## 2. Capability rows
 
@@ -169,8 +181,14 @@ deliverable; "new" means a scope change assigns it.
 | RT-V4 | User guide and theory notes for every Must analysis | Must | Statics only (`docs/theory/centerline_analysis.md`) | DEL-11-01, DEL-11-03 |
 | RT-V5 | Claim fence on every surface (notice, GEN-13, release labels) | Must | GEN-13 clean (#1701) and run in hosted CI (#1705) | release labels / DEL-09-05, DEL-16-04 |
 | RT-V6 | Signed, notarized macOS build; MIT licence recorded consistently | Must | Signing decided (D-06b), not executed; MIT in `LICENSE.md` (D-74) and DEL-01-01 | DEL-10-04 |
-| RT-V7 | Windows build | Later (revisited immediately after v1.0) | macOS Apple Silicon only (DEC-057) | — |
+| RT-V7 | Windows build | Later (revisited immediately after v1.0) | Release baseline: macOS Apple Silicon only (DEC-057); Windows development authorized alongside macOS v1.0; native x64 desktop unqualified | DEL-10-04 Design/windows-port.md |
 | RT-V8 | Public sanitized repository export | Must | Pipeline exists; not activated (DEL-10-04:1) | owner-signed export scan, public repository and allowlist review / DEL-10-04 |
+
+### Embedded agent
+
+| Row | Capability | Level | Current (evidence) | Open work / owner |
+|---|---|---|---|---|
+| RT-E1 | The App v4 agent harness embedded in the desktop: a conversation panel, SWBPIPE's capability catalog of reads and changes, and changes through the one operation route, applied on the person's acceptance or within the autonomy the person granted | Must | Operation engine, batch review queue and offline proposal intake built; no embedded harness, catalog or agent transport (DEL-16-03:2) | connection design with App v4 / new, PKG-16 |
 
 ## 3. Benchmark method (summary)
 
@@ -269,6 +287,12 @@ after the walkthrough.
     recorded consistently.
 16. **Public repository.** The sanitized export is staged at the release
     candidate, and its scan is signed off by the owner (DEL-10-04:1).
+17. **Embedded agent.** From a person's request in the desktop's conversation
+    panel, the embedded agent builds the reference system, solves it and
+    reports its key results, through SWBPIPE's capability catalog. Every change
+    goes through the one operation route and is applied on the person's
+    acceptance or within autonomy the person granted; the agent records no
+    acceptance, approval or reliance (F-PIP-3).
 
 ## 5. Maintaining this target
 
