@@ -101,3 +101,53 @@ fn an_exponent_at_the_i64_limits_is_refused_like_any_huge_exponent_without_panic
         assert_eq!(outcome(extreme), huge, "exponent {extreme}");
     }
 }
+
+/// A JSON value `levels` deep: arrays, or objects keyed "a".
+fn nested(levels: usize, objects: bool) -> String {
+    if objects {
+        format!("{}1{}", "{\"a\":".repeat(levels), "}".repeat(levels))
+    } else {
+        format!("{}1{}", "[".repeat(levels), "]".repeat(levels))
+    }
+}
+
+/// Sidecars that put a value `levels` deep where the importer reads, quotes or compares it.
+fn deep_sidecars(levels: usize) -> Vec<String> {
+    let mut out = Vec::new();
+    for objects in [false, true] {
+        let value = nested(levels, objects);
+        out.push(value.clone());
+        out.push(format!("{{\"node_map\": {{\"n\": {value}}}}}"));
+        out.push(format!("{{\"sidecar_format\": {value}}}"));
+        out.push(format!("{{\"sidecar_format\": 3, \"mbf_sha256\": {value}, \"node_map\": {{}}}}"));
+        out.push(format!("{{\"unknown\": {value}, \"node_map\": {{\"10\": \"node:10\"}}}}"));
+    }
+    out
+}
+
+#[test]
+fn sidecar_json_at_the_nesting_limit_imports_or_refuses_and_beyond_it_returns_no_result() {
+    // Review r1 robustness: at the former limit of 512 an array 402 deep overflowed this debug test thread's 2 MiB
+    // stack and aborted the process. Nesting is bounded before recursion can exhaust a stack, and every consumer of
+    // the parsed value (scanner, conversion, the importer's reads and quotes) stays within the bound.
+    let limit = mbf::MAX_SIDECAR_NESTING;
+    // the outermost container of each placement is at most two levels above the nested value
+    for sidecar in deep_sidecars(limit - 2) {
+        let mut options = ImportOptions::new("invented-test");
+        options.material_provenance = Some(invented());
+        options.sidecar = Some(SidecarInput::Json(sidecar.clone().into_bytes()));
+        match mbf::import(MBF.as_bytes(), &options) {
+            Ok(_) | Err(ImportError::Python(_)) => {}
+            Err(other) => panic!("{}: {other:?}", &sidecar[..40.min(sidecar.len())]),
+        }
+    }
+    for sidecar in deep_sidecars(limit + 1) {
+        let mut options = ImportOptions::new("invented-test");
+        options.material_provenance = Some(invented());
+        options.sidecar = Some(SidecarInput::Json(sidecar.clone().into_bytes()));
+        match mbf::import(MBF.as_bytes(), &options) {
+            Err(ImportError::Unsupported(reason)) => assert!(reason.contains("nests deeper"), "{reason}"),
+            other => panic!("{}: {other:?}", &sidecar[..40.min(sidecar.len())]),
+        }
+    }
+}

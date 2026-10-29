@@ -5,8 +5,11 @@
 use crate::rational::py_int_digits;
 use crate::value::{Dict, Value};
 
-/// Nesting deeper than this is refused (CPython raises RecursionError at a depth this port does not reproduce).
-pub const MAX_NESTING: usize = 512;
+/// Nesting deeper than this returns no result (`ImportError::Unsupported`) before any recursion can exhaust a stack.
+/// CPython parses deeper and raises RecursionError at a depth this port does not reproduce; the sidecars the writer
+/// produces nest at most 8 deep. Review r1: at 512, an array 402 deep overflowed a debug build's 2 MiB thread stack
+/// (about 5 KB a level) and 436 deep a debug wasm build's 1 MiB; at 64 the margin is over sixfold in each.
+pub const MAX_NESTING: usize = 64;
 
 /// What `parse_sidecar_json` refuses.
 #[derive(Clone, Debug, PartialEq)]

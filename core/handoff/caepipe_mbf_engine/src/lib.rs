@@ -35,7 +35,7 @@ mod sidecar;
 mod unicode_tables;
 pub mod value;
 
-pub use pyjson::SidecarJsonError;
+pub use pyjson::{SidecarJsonError, MAX_NESTING as MAX_SIDECAR_NESTING};
 pub use pystr::PyError;
 pub use value::{py_eq, Dict, OMap, Value};
 
