@@ -209,8 +209,9 @@ Neither standalone App qualification nor workflow-act machinery is inferred.
    journey must not be mislabeled as a local-model witness. Native packaging and
    product release remain separate owner acts.
 
-Current supplier pin and runtime observations: not yet selected or run. The App
-used stock 0.160.0 for preparation, not a qualified SWBPIPE pin. The current
+The selected supplier/model pin and actual harmless round trip are recorded in
+[`agent-local-witness.md`](agent-local-witness.md). Those bounded observations do
+not establish the desktop bridge or complete AC-005. The current
 [official app-server guide](https://learn.chatgpt.com/docs/app-server), read
 2026-10-28, documents stdio, initialization, generated version-specific schemas
 and experimental opt-in. The selected binary's generated schema and actual

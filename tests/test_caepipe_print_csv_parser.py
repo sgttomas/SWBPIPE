@@ -161,6 +161,38 @@ def test_empty_weight_and_operating_header_variants_are_accepted():
     assert set(result["load_cases"]) == {"Empty Weight (W)", "Operating (W+P1+T1)"}
 
 
+def test_the_local_axes_layout_is_skipped_never_read_by_guess():
+    text = text_of(
+        "Sustained (W+P): Pipe element forces (local),",
+        ",fx,fy,fz,mx,my,mz,SIF,,,",
+        "Node,(N),(N),(N),(Nm),(Nm),(Nm),,,,",
+        "10,,-1.5,,,12.25,,1,,,",
+        "20,,1.5,,,-8.75,,1,,,",
+        "",
+        *displacement_block("Sustained (W+P)"),
+    )
+    result = parse_caepipe_print_csv(text)
+    assert errors(result) == []
+    assert {"title": "Sustained (W+P): Pipe element forces (local)", "line": 4, "reason": "local_axes_layout"} in \
+        result["sections_skipped"]
+    tables = result["load_cases"]["Sustained (W+P)"]
+    assert not tables["element_forces_local"] and set(tables["displacements"]) == {"10"}
+    # With the case's stress column, as the other layout prints it.
+    stressed = parse_caepipe_print_csv(text.replace(",fx,fy,fz,mx,my,mz,SIF,,,", ",fx,fy,fz,mx,my,mz,SIF,SL,,")
+                                       .replace("Node,(N),(N),(N),(Nm),(Nm),(Nm),,,,", "Node,(N),(N),(N),(Nm),(Nm),(Nm),,(MPa),,"))
+    assert errors(stressed) == [] and "local_axes_layout" in {item["reason"] for item in stressed["sections_skipped"]}
+    # Any other header in that section is still an error.
+    other = parse_caepipe_print_csv(text.replace(",fx,fy,fz,mx,my,mz,SIF", ",fx,fy,fz,mx,mz,my,SIF"))
+    assert [item["code"] for item in errors(other)] == ["CAEPIPE-PRINT-COLUMN-HEADER-MISMATCH"]
+    # The skip needs valid, consistent unit labels: a length in a force column, or two systems, is refused.
+    units = "Node,(N),(N),(N),(Nm),(Nm),(Nm),,,,"
+    for label, code in (("Node,(mm),(N),(N),(Nm),(Nm),(Nm),,,,", "CAEPIPE-PRINT-COLUMN-HEADER-MISMATCH"),
+                        ("Node,(lb),(N),(N),(Nm),(Nm),(Nm),,,,", "CAEPIPE-PRINT-UNITS-MIXED")):
+        refused = parse_caepipe_print_csv(text.replace(units, label))
+        assert [item["code"] for item in errors(refused)] == [code]
+        assert "local_axes_layout" not in {item["reason"] for item in refused["sections_skipped"]}
+
+
 def test_unparseable_number_is_an_error_for_that_row():
     lines = displacement_block(SUSTAINED)
     lines.append("20,*****,,,,,,,")
@@ -192,3 +224,89 @@ def test_coverage_records_and_fixture_provenance():
     assert provenance["origin"] == "invented_by_project"
     assert provenance["redistribution_status"] == "public_permissive"
     assert FIXTURE.read_bytes().count(b"\r\n") > 10
+
+
+# English and radian prints (invented text). Hand-derived conversions from the unit catalog's exact definitions:
+# 1 inch = 0.0254 m = 25.4 mm; 1 lbf = 4.4482216152605 N; 1 ft-lb = 4.4482216152605 N x 0.3048 m
+# = 1.35581794833140040 N*m; 1 rad = 180/pi deg.
+def anchor_block(case: str, force: str = "N", moment: str = "Nm", row: str = "10,,100,,-2.5,,10,,") -> list[str]:
+    return [
+        f"Loads on Anchors in Global Coordinates: {case},",
+        f"Node,Tag,FX ({force}),FY ({force}),FZ ({force}),MX ({moment}),MY ({moment}),MZ ({moment}),,",
+        row,
+    ]
+
+
+def close(value: float, expected: float) -> bool:
+    return abs(value - expected) <= 4e-16 * max(1.0, abs(expected))
+
+
+def test_english_rows_are_read_and_normalized_by_exact_definitions():
+    text = text_of(*anchor_block(SUSTAINED, "lb", "ft-lb"),
+                   *displacement_block(SUSTAINED, "Node,(inch),(inch),(inch),(deg),(deg),(deg),,")[:4],
+                   "20,1.000,-0.250,,0.5000,,,,")
+    result = parse_caepipe_print_csv(text)
+    assert errors(result) == []
+    anchor = result["load_cases"][SUSTAINED]["anchor_loads_global"]["10"]
+    assert close(anchor["fx"], 444.82216152605)           # 100 lbf x 4.4482216152605 N/lbf
+    assert close(anchor["fz"], -11.12055403815125)        # -2.5 lbf x 4.4482216152605 N/lbf
+    assert close(anchor["my"], 13.558179483314004)        # 10 ft-lb x 1.3558179483314004 N*m/ft-lb
+    node = result["load_cases"][SUSTAINED]["displacements"]["20"]
+    assert node["ux"] == 25.4 and node["uy"] == -6.35      # 1 in and -0.25 in, x 25.4 mm/in
+    assert node["rx"] == 0.5                                # degrees stay degrees
+    assert result["units"] == {"length": "mm", "rotation": "deg", "force": "N", "moment": "N*m"}
+    assert result["source_units"] == {"system": "English", "rotation": "deg"}
+    units = {item["kind"]: item["source_units"] for item in result["sections_parsed"]}
+    assert units["anchor_loads_global"] == {"fx": "lb", "fy": "lb", "fz": "lb", "mx": "ft-lb", "my": "ft-lb",
+                                            "mz": "ft-lb"}
+    assert units["displacements"] == {"ux": "inch", "uy": "inch", "uz": "inch", "rx": "deg", "ry": "deg", "rz": "deg"}
+
+
+def test_radian_rows_are_read_in_degrees():
+    text = text_of(*displacement_block(SUSTAINED, "Node,(mm),(mm),(mm),(rad),(rad),(rad),,")[:4],
+                   "20,1.500,,,1.0000,-0.5000,,,")
+    result = parse_caepipe_print_csv(text)
+    assert errors(result) == []
+    node = result["load_cases"][SUSTAINED]["displacements"]["20"]
+    assert node["ux"] == 1.5                                    # millimetres unchanged
+    assert close(node["rx"], 57.29577951308232)                 # 1 rad x 180/pi
+    assert close(node["ry"], -28.64788975654116)                # -0.5 rad x 180/pi
+    assert result["source_units"] == {"system": "SI", "rotation": "rad"}
+
+
+def test_mixed_units_are_refused():
+    # Within one section: inches beside millimetres.
+    result = parse_caepipe_print_csv(text_of(*displacement_block(SUSTAINED, "Node,(inch),(mm),(mm),(deg),(deg),(deg),,")))
+    assert [item["code"] for item in errors(result)] == ["CAEPIPE-PRINT-UNITS-MIXED"]
+    assert result["load_cases"] == {} and result["sections_skipped"][-1]["reason"] == "units_mixed"
+    # Across sections: an English section after an SI one, and radians after degrees.
+    for second in (anchor_block(EXPANSION, "lb", "ft-lb"),
+                   displacement_block(EXPANSION, "Node,(mm),(mm),(mm),(rad),(rad),(rad),,")):
+        result = parse_caepipe_print_csv(text_of(*displacement_block(SUSTAINED), *second))
+        assert [item["code"] for item in errors(result)] == ["CAEPIPE-PRINT-UNITS-MIXED"]
+        assert list(result["load_cases"]) == [SUSTAINED]          # the first section stands, the second is refused
+    # Force and moment of different systems in one row of headers.
+    result = parse_caepipe_print_csv(text_of(*anchor_block(SUSTAINED, "lb", "Nm")))
+    assert [item["code"] for item in errors(result)] == ["CAEPIPE-PRINT-UNITS-MIXED"]
+
+
+def test_unknown_unit_labels_are_refused_by_name():
+    for block, label in ((anchor_block(SUSTAINED, "kip", "ft-lb"), "kip"),
+                         (anchor_block(SUSTAINED, "N", "kNm"), "kNm"),
+                         (displacement_block(SUSTAINED, "Node,(mm),(mm),(mm),(grad),(grad),(grad),,"), "grad")):
+        result = parse_caepipe_print_csv(text_of(*block))
+        found = errors(result)
+        assert [item["code"] for item in found] == ["CAEPIPE-PRINT-COLUMN-HEADER-MISMATCH"]
+        assert f"unit label {label!r}" in found[0]["message"] and result["load_cases"] == {}
+
+
+def test_a_value_that_overflows_on_conversion_is_refused():
+    # 1e307 in x 25.4 mm/in and 4e306 rad x 180/pi deg/rad both exceed the largest binary64 (about 1.8e308).
+    for block, row in ((displacement_block(SUSTAINED, "Node,(inch),(inch),(inch),(deg),(deg),(deg),,")[:4],
+                        "20,1e307,,,,,,,"),
+                       (displacement_block(SUSTAINED, "Node,(mm),(mm),(mm),(rad),(rad),(rad),,")[:4],
+                        "20,,,,4e306,,,,")):
+        result = parse_caepipe_print_csv(text_of(*block, row))
+        assert [item["code"] for item in errors(result)] == ["CAEPIPE-PRINT-VALUE-UNREPRESENTABLE"]
+        assert result["load_cases"][SUSTAINED]["displacements"] == {}  # the row is not read
+        json.dumps(result, allow_nan=False)                              # strictly serializable
