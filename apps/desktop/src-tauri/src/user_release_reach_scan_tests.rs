@@ -2072,9 +2072,11 @@ fn a_reachable_dependent_outside_the_project_is_a_finding() {
     let expected_finding = format!("the package r8_helper ({}) depends on open_pipe_stress_report_renderer and is not on its allowed dependent list", helper_manifest.display());
     let (_, findings) = dependents_in(&project, &expected);
     assert_eq!(findings, [expected_finding.clone()]);
-    // The resolved graph, after an offline lock update.
+    // Refresh the lock for the same host graph resolved_identities checks.
+    // An unfiltered metadata request also needs inactive-platform source caches
+    // (for example Android JNI), which a locked macOS build need not download.
     let cargo = std::env::var_os("CARGO").unwrap_or_else(|| env!("CARGO").into());
-    let status = std::process::Command::new(cargo).args(["metadata", "--format-version", "1", "--offline", "--manifest-path"]).arg(shell.join("Cargo.toml")).current_dir(&shell).stdout(std::process::Stdio::null()).status().unwrap();
+    let status = std::process::Command::new(cargo).args(["metadata", "--format-version", "1", "--offline", "--filter-platform", "host-tuple", "--manifest-path"]).arg(shell.join("Cargo.toml")).current_dir(&shell).stdout(std::process::Stdio::null()).status().unwrap();
     assert!(status.success());
     let allowed = allowed_dependents(&dependent_locations(&project, &expected)).unwrap();
     let repository = repository_root(&real).unwrap();

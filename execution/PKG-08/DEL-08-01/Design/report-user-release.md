@@ -2489,7 +2489,11 @@ build configuration as well as the sources:
     route change. Build dependencies, dev parser standing, FFI fences and the
     headless dependency pin are unchanged. This boundary update accompanies
     the relay permissions review; no reporting commitment, acceptance
-    criterion, dependency condition or release standing is changed.
+    criterion, dependency condition or release standing is changed. The
+    outside-dependent fixture's offline lock refresh uses the same
+    `--filter-platform host-tuple` graph as `resolved_identities`; it must not
+    depend on cached sources for inactive targets such as Android JNI. Its
+    manifest-walk and resolved-graph finding assertions are unchanged.
 - **`cfg(test)` in product builds.** Two compile-time guards hold on the
   toolchain the hosted jobs pin (Rust 1.97.1, through
   `dtolnay/rust-toolchain`; the repository has no `rust-toolchain` file).
