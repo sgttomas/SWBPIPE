@@ -1,47 +1,56 @@
 # Windows arena and admission investigation
 
-This standalone, dependency-free native-x64 experiment is a controlled arena API,
-not a global allocator, solver, worker integration, or production transition
-proof. It reserves 4 MiB of virtual address space per arena; that reservation
-is not a full-budget lease. Deliberate committed allocations stay well below
-64 MiB, and the process fixture creates at most two workers. Querying
-`GetSystemInfo` supplies the actual Windows page and allocation granularity.
+This dependency-free native-x64 probe exercises a controlled arena API, not a
+global allocator, solver, Tauri/agent runtime connection or production worker
+bound. Each arena reserves 4 MiB of virtual addresses; this is not a full-budget
+lease. At most two native child workers exist, deliberate buffers stay below
+64 MiB aggregate, and no case pressures the runner. Page/allocation granularity
+comes from GetSystemInfo. Loader/libtest/OS process overhead is not qualified.
 
-The arena commits its fixed 256-entry slot metadata inside the arena and charges
-its rounded pages. Data pages are admitted before their first commit, counted
-once, and remain charged while free slots or pages are retained. Alignment gaps,
-fragmentation, live capacity, committed data and metadata are reported. Fresh
-and reused blocks are zeroed. Moving reallocation holds both blocks during the
-copy. The deterministic commit and decommit faults are injections, not induced
-OS pressure. A failed multi-page allocation can retain already committed pages
-and admission; its old block remains live. These conservative reservations
-are not a production accounting design.
+Fixed 256-entry slot metadata is committed inside the arena; fixed control
+arrays have a separate page-rounded allowance. Data pages are admitted before
+commit, counted once, and remain charged while retained free. A failed commit
+keeps its page authority for retry. This probe conservatively retains authority
+even after successful decommit until observed exit; it does not claim a
+production reclamation/availability profile. Moving realloc asserts old+new
+live overlap and preserves old data on failure. Fault hooks distinguish
+synthetic headroom, synthetic other failures and real OS error codes.
 
-The child fixture uses a creation-time Job list, an explicit inherited handle
-list, and an external bounded Job drain adapted from the pinned worker fixture
-`226de967`. Its parent admits each page before the child commits it, carries
-reservations through cancellation, and releases them after observed process
-exit. The separate ledger examples vary physical and commit availability and
-start with zero residency credit; actual committed bytes are recorded separately
-from held liability. Neither the scripted numbers nor the 4 MiB reservation
-establish production headroom, non-arena native/startup costs, or performance.
+The child protocol gives each separate growth operation its own absolute 2 s
+window. Its headroom requests and a classified injected post-grant commit retry
+share that same window; grants/replies/retries never restart it. Separate
+physical/commit refusals, stale replies, cancellation/reset, nonheadroom errors,
+persistent shortage, late commit failure and unrelated-operation deadlines have
+named cases. Held authority, actual committed arena bytes and future liability
+are separate. All realized credits start at zero, deliberately conservative.
+Samples are scripted, not native host reservations or an OS error classifier.
 
-Run on native Windows x64 with Rust 1.97.1 and `CARGO_TARGET_DIR` set to an
-isolated temporary directory:
+Native children use creation-time Job assignment and restricted inheritance.
+Cancellation/kill requests do not release authority; real process exit does.
+Per-case execution has a 30 s external deadline and bounded process cleanup;
+internal child waits and Job drain also have short deadlines. The runner
+streams diagnostics, verifies exact candidate/OS architecture, enumerates 12
+required witnesses plus the internal child entry, runs each witness exactly
+once and checks missing-selection/child-failure negative controls. No ignored
+or empty case can count as a pass. The workflow is supplemental, outside the
+required harness, and uses a fresh target with Rust 1.97.1 MSVC on windows-2025.
+
+The arena observation reports requested/live capacity, committed data, metadata,
+retained empty pages, syscall count and reserved-span unused bytes. The last
+includes uncommitted alignment gaps and must not be read as committed waste;
+committed slack is reported separately. Small-block slab packing is compared
+with per-allocation pages on a scripted pattern. Hosted timings are diagnostic,
+not qualified performance. Real OS exhaustion and every cancellation race are
+not established by synthetic faults or passing fixtures.
+
+Hosted command (PowerShell7; EXPECTED_HEAD and fresh CARGO_TARGET_DIR required):
 
 ```powershell
 ./run.ps1
 ```
 
-The script builds with `--locked`, checks the complete case inventory, runs each
-case with a 30-second external timeout, streams its output, and rejects an empty
-or ignored case. The deliberately missing selection is a negative control. CI is
-supplemental and outside the required harness. Results are pending until the
-hosted job actually executes; no local compilation or execution was performed.
-
-The child retries an explicitly injected headroom refusal within one absolute
-2-second window, and its injected post-admission commit failure is followed by
-a successful realloc under that same window. The timeout classifier is also
-tested separately. This does not yet exercise a real OS commitment failure or
-prove every retry and cancellation race; the observations have not yet been
-reviewed as native cost evidence. The CI result cannot establish those missing properties.
+All compilation/execution is hosted. No local Cargo, guest access, acquisitions
+or provisioning belongs to this task. Existing CAEPIPE guest is permanently
+off-limits. R64 MiB remains unqualified for Windows; retained registration stays
+Stale. See DEL-04-07 Design/windows-arena-probe.md for startup/bypass audit,
+pending solver guard basis, threat model and remaining finite proof.
