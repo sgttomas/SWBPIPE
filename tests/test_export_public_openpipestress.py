@@ -362,25 +362,15 @@ def test_no_symlink_is_exported_at_any_level(tmp_path):
     assert "symlink" in kinds
 
 
-def test_only_the_issue_templates_ship_from_github_dirs(tmp_path):
-    # RT-V8 P4: the issue templates ship; no workflow or other .github path.
+def test_nothing_under_github_ships(tmp_path):
+    # RT-V8 P4 (keep out; revisit with the public repository's CI, DEC-059).
     source = make_source_tree(tmp_path)
-    for rel in (".github/ISSUE_TEMPLATE/bug_report.yml", ".github/workflows/ci.yml",
-                ".github/CODEOWNERS", "apps/.github/ISSUE_TEMPLATE/x.yml",
-                ".github/ISSUE_TEMPLATE/.github/y.yml"):
+    for rel in (".github/ISSUE_TEMPLATE/bug_report.yml", ".github/workflows/ci.yml"):
         (source / rel).parent.mkdir(parents=True, exist_ok=True)
         (source / rel).write_text("invented: true\n", encoding="utf-8")
     commit_all(source)
     posix = {rel.as_posix() for rel in PIPE.select_files(source)[0]}
-    assert ".github/ISSUE_TEMPLATE/bug_report.yml" in posix
-    assert not {p for p in posix if p.startswith(".github/") and "ISSUE_TEMPLATE/" not in p}
-    assert "apps/.github/ISSUE_TEMPLATE/x.yml" not in posix
-    assert ".github/ISSUE_TEMPLATE/.github/y.yml" not in posix
-
-    staging = tmp_path / "staging"
-    PIPE.stage_files(source, staging, PIPE.select_files(source)[0])
-    assert not [f for f in PIPE.boundary_findings(staging, reviewed={})
-                if f["path"].startswith(".github/")]
+    assert not any(p.startswith(".github/") for p in posix)
 
 
 def test_only_validation_reference_run_records_ship(tmp_path):

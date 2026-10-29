@@ -113,8 +113,6 @@ ROOT_DIRS = (
     "tests",
     "tools",
     "validation",
-    # RT-V8 P4: only `.github/ISSUE_TEMPLATE/` ships (SKIPPED_NAME_EXCEPTIONS).
-    ".github",
 )
 
 # Private working/coordination surfaces deliberately kept out of the public
@@ -179,9 +177,6 @@ SKIP_DIR_NAMES = {
 # named directory ships only under the prefix, and only when it is the sole
 # segment of that name; everywhere else it is skipped.
 SKIPPED_NAME_EXCEPTIONS = (
-    # RT-V8 P4 (owner, 2026-10-28): the public issue templates (DEL-01-03,
-    # written for the public repository). No workflow ships (DEC-059).
-    (".github", ".github/ISSUE_TEMPLATE/"),
     # RT-V8 P5 (owner, 2026-10-28): the reference generators and checksum
     # lists that staged validation references cite. Run records elsewhere
     # (for example core/units/_run_records) stay out.
@@ -348,8 +343,7 @@ GUARANTEES = {
         "Comparability preserved: the staged tree carries the provider-"
         "neutral BUILD_AND_RELEASE.md section 7 command basis (tools/release "
         "scripts, tests, five-surface sweep entrypoint) unmodified, and "
-        "ships no CI workflow of its own (every .github path is excluded "
-        "except the issue templates under .github/ISSUE_TEMPLATE)."
+        "ships no CI workflow of its own (.github is excluded)."
     ),
     "G7": (
         "Drift managed: each export is cut from the named canonical commit "
