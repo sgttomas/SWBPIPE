@@ -428,9 +428,7 @@ async fn serve(
         || response.status().as_u16() > 599
         || headers.len() > policy::HEADER_COUNT
         || header_bytes > policy::HEADER_BYTES
-        || headers
-            .get(http::header::CONTENT_ENCODING)
-            .is_some_and(|v| v.as_bytes() != b"identity")
+        || !unencoded_response(headers)
         || headers.get(http::header::CONTENT_LENGTH).is_some_and(|n| {
             n.to_str()
                 .ok()
@@ -485,6 +483,23 @@ async fn serve(
     write(&mut stream, b"0\r\n\r\n").await?;
     let _ = stream.shutdown().await;
     Ok(())
+}
+/// Hyper removes chunk framing but does not decompress representation or other
+/// transfer codings. Check every field before projecting JSON/SSE headers.
+fn unencoded_response(headers: &http::HeaderMap) -> bool {
+    if headers
+        .get_all(http::header::CONTENT_ENCODING)
+        .iter()
+        .any(|value| !value.as_bytes().eq_ignore_ascii_case(b"identity"))
+    {
+        return false;
+    }
+    let mut transfer = headers.get_all(http::header::TRANSFER_ENCODING).iter();
+    match (transfer.next(), transfer.next()) {
+        (None, None) => true,
+        (Some(value), None) => value.as_bytes().eq_ignore_ascii_case(b"chunked"),
+        _ => false,
+    }
 }
 struct Connection(tokio::task::JoinHandle<Result<(), hyper::Error>>);
 impl Drop for Connection {
@@ -849,6 +864,63 @@ mod tests {
         );
         stop(&mut relay);
         owner.join().unwrap();
+    }
+    #[test]
+    fn provider_encoding_rejects_duplicate_content_encoding() {
+        let payload: &[u8] = &[
+            31, 139, 8, 0, 0, 0, 0, 0, 2, 255, 171, 86, 202, 207, 86, 178, 42, 41, 42, 77, 173, 5,
+            0, 144, 95, 212, 167, 11, 0, 0, 0,
+        ];
+        let backend = TcpListener::bind("127.0.0.1:0").unwrap();
+        let addr = backend.local_addr().unwrap();
+        let mut response = format!("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Encoding: identity\r\nContent-Encoding: gzip\r\nContent-Length: {}\r\nConnection: close\r\n\r\n", payload.len()).into_bytes();
+        response.extend_from_slice(payload);
+        let owner = upstream_once(backend, vec![response], Arc::new(Mutex::new(Vec::new())));
+        let (mut relay, scope) = start(&format!("http://{addr}/v1"), false);
+        let out = exchange(&scope, &wire(&scope, ""), false);
+        stop(&mut relay);
+        owner.join().unwrap();
+        assert!(
+            out.starts_with(b"HTTP/1.1 502"),
+            "compressed content reached the supplier"
+        );
+    }
+    #[test]
+    fn provider_encoding_rejects_compressed_transfer_coding() {
+        let payload: &[u8] = &[
+            31, 139, 8, 0, 0, 0, 0, 0, 2, 255, 171, 86, 202, 207, 86, 178, 42, 41, 42, 77, 173, 5,
+            0, 144, 95, 212, 167, 11, 0, 0, 0,
+        ];
+        let backend = TcpListener::bind("127.0.0.1:0").unwrap();
+        let addr = backend.local_addr().unwrap();
+        let mut response = format!("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nTransfer-Encoding: gzip, chunked\r\nConnection: close\r\n\r\n{:x}\r\n", payload.len()).into_bytes();
+        response.extend_from_slice(payload);
+        response.extend_from_slice(b"\r\n0\r\n\r\n");
+        let owner = upstream_once(backend, vec![response], Arc::new(Mutex::new(Vec::new())));
+        let (mut relay, scope) = start(&format!("http://{addr}/v1"), false);
+        let out = exchange(&scope, &wire(&scope, ""), false);
+        stop(&mut relay);
+        owner.join().unwrap();
+        assert!(
+            out.starts_with(b"HTTP/1.1 502"),
+            "compressed transfer reached the supplier"
+        );
+    }
+    #[test]
+    fn provider_encoding_keeps_identity_and_plain_chunked() {
+        for response in [
+            b"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Encoding: identity\r\nContent-Length: 2\r\nConnection: close\r\n\r\n{}".as_slice(),
+            b"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Encoding: identity\r\nTransfer-Encoding: chunked\r\nConnection: close\r\n\r\n2\r\n{}\r\n0\r\n\r\n".as_slice(),
+        ] {
+            let backend = TcpListener::bind("127.0.0.1:0").unwrap();
+            let addr = backend.local_addr().unwrap();
+            let owner = upstream_once(backend, vec![response.to_vec()], Arc::new(Mutex::new(Vec::new())));
+            let (mut relay, scope) = start(&format!("http://{addr}/v1"), false);
+            let out = exchange(&scope, &wire(&scope, ""), false);
+            stop(&mut relay); owner.join().unwrap();
+            assert!(out.starts_with(b"HTTP/1.1 200"));
+            assert!(out.ends_with(b"0\r\n\r\n"));
+        }
     }
     #[test]
     fn reflected_credential_is_not_released_even_across_provider_chunks() {

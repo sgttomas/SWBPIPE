@@ -112,6 +112,9 @@ Child/group custody and unknown-cleanup refusal remain separate duties.
 Responses permit JSON and SSE. Only a fixed content-type projection and numeric
 status reach the supplier; hop/routing/cookie/redirect headers do not. Provider
 redirects, compressed output and oversized headers/declared bodies are refused.
+Every Content-Encoding field must be identity, and Transfer-Encoding must be
+absent or one supported chunked field; duplicate/compound compression codings
+are refused before any supplier response header or body is released.
 A streaming overflow/error ends without a successful final HTTP chunk. Exact
 provider-key bytes are withheld across chunk boundaries; a detected reflection
 terminates delivery. This is not detection of encoded/partial disclosure by a
@@ -128,7 +131,8 @@ cannot cause tool replay. The dispatcher/domain owners retain those records.
 Focused automated fixtures use invented loopback providers and credentials;
 no stock supplier, oMLX/model, keychain or App GUI session runs. They exercise
 both local families, path/auth/framing refusal without provider contact,
-header replacement, no-key mode, redirect refusal, no delivery replay,
+header replacement, no-key mode, duplicate/compound compression refusal, redirect
+refusal, no delivery replay,
 pre-completion streaming, response limits, stalled consumer/provider shutdown,
 readiness/one-shot endpoint revocation and retained abandoned-worker accounting.
 
