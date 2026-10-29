@@ -9,3 +9,6 @@ validation/references/** -text
 # Exact reproduction stdout/stderr are checksum-governed byte evidence.
 validation/evidence/reproduction/REPRO_DEL0904_*/stdout/*.txt -diff -merge -text
 validation/evidence/reproduction/REPRO_DEL0904_*/stderr/*.txt -diff -merge -text
+
+# Shipped startup diagnostic fixtures bind generated P7 hashes to committed bytes.
+validation/platform/windows_runner_startup_probe/fixtures/*.json -text

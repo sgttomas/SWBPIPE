@@ -187,6 +187,152 @@ Neither standalone App qualification nor workflow-act machinery is inferred.
 
 ## Verification sequence and open observations
 
+### Rust component implementation
+
+The desktop declares `embedded_agent` but exposes no agent command, start
+control, session dispatcher or webview route yet. `catalog.rs` embeds a generated
+byte-identical product resource of this catalog, expands its references for the
+six dynamic declarations, validates
+inputs/results and checks proposal assumption membership. `protocol.rs` owns
+the fixed initialization/thread/turn RPC sequence and opaque pending-call
+references. Invalid inputs fail before dispatch; turn end/disconnect detaches
+pending calls without claiming cancellation or reversing an applied change.
+The caller must still authenticate the session, supply a trusted error basis,
+and retain admission leases through all derived events and outbound values.
+
+`framing.rs` caps a complete private-stdio frame at 128 KiB before any `Value`
+materialization. It uses the existing general interactive ingress reservation,
+checks borrowed argument/outcome spans against catalog limits, and poisons a
+reader after invalid/oversized input. `numeric.rs` rejects delivered number
+tokens that change decimal value on materialization. This protects the RPC
+bytes received from Codex; the pinned supplier protocol does not establish
+preservation of the model's original number lexemes upstream. Native operation
+decimal strings remain strings. The only dependency-feature change is enabling
+the existing `serde_json` dependency's `raw_value`; Cargo.lock is unchanged.
+
+`tools/agent_catalog_resource.py` generates
+`apps/desktop/src-tauri/resources/agent-capability-catalog.json` directly from
+the authoritative Design bytes; do not edit the product resource independently.
+The registered project check `agent-catalog-resource` uses `--check` to fail on
+absent, linked, oversized or differing input. Both project and Root selectors
+route its inputs. The Root software-workflow regression suite executes this
+registered command in the existing full-checkout Repository checks job. Sparse
+desktop builds and public source exports compile the product resource without
+requiring the excluded execution tree. No workflow file, required status or
+harness aggregate is changed. Equality establishes source correspondence, not
+catalog semantics or runtime conformance.
+
+`stdio_pump.rs` supplies an explicitly constructed portable stdio pump, with
+32-slot incoming/outgoing queues and separate reader/writer threads. The catalog
+admits 16 pending calls; the extra slots accommodate their control/status burst
+without requiring a coordinator timeslice between each frame. It does
+not launch a process or own protocol/session authorization. GENERAL interactive
+admission reserves two 512 KiB stacks plus a 128 KiB bookkeeping allowance
+before queue allocation/spawn; framing's reader buffers and each frame's backing
+are separately admitted. Outbound values are moved and serialized to the stream,
+with a byte-counting pass before enqueue and no full encoded-frame copy. Shared
+backing references preserve custody, not a fresh budget for each clone. Queue
+exhaustion is a terminal fault; no unknown operation is resubmitted.
+
+Both workers wait behind a start gate. A second-spawn failure aborts that gate
+and returns typed partial custody, rather than claiming completed rollback.
+Stop request, terminal I/O, EOF and actual joined worker completion are separate
+observations. A blocked generic read/write cannot be interrupted by this pump;
+its caller must close/stop the owned process/streams and retain the pump until
+workers can be joined. Observing joined workers confers no process-group or
+descendant-empty evidence. Bookkeeping/finished joins have no hard wall-clock
+guarantee. Abandoning unfinished custody deliberately retains it and its startup
+reservation, even if a worker later finishes; integrating owners must keep that
+custody rather than silently drop it and release live-stack accounting. This is
+a fail-closed memory-retention limit, not crash cleanup qualification.
+
+Pump component tests cover frame/backing custody, EOF before joined
+completion, queue exhaustion, streamed output/newline/flush, serialization cap,
+stalled read/write retention, second-spawn partial custody, static I/O faults and
+constructor heap against the control/buffer reservations (not an OS/RSS proof).
+They use controlled synthetic streams, not a supplier/model or native session.
+
+`session_driver.rs` connects the pump to the fixed protocol operations. A trusted
+host owner calls bounded polling continuously while domain/human work proceeds
+asynchronously elsewhere. Each poll handles at most one frame and returns at
+most 17 events, including the catalog's 16 detachments at turn end. This module
+adds no scheduler, threads, process authority, Tauri route or live-model binding.
+The host supplies a unique unpredictable connection token and current fallback
+error basis; authenticating the generation/workspace and each call-specific
+basis remains the dispatcher/webview's duty.
+
+GENERAL admission reserves a nominal 8 MiB for v2 catalog/protocol bookkeeping,
+then separate 2 MiB allowances before control construction, outcome encoding or
+incoming-frame derivatives. Caller-owned input/outcome heap must already be
+admitted. Leased event batches retain the incoming/derivative and session
+backing; borrowers copying their payload must admit and retain that copy's
+backing. Queue submission reports `Queued`, never peer delivery or application.
+Control `Busy` refusals occur before protocol state changes; their admitted
+input can be retried. Polling may instead defer one leased batch until a fresh
+terminal observation. Invalid schema/reference completions leave valid pending
+calls intact. Fallback-basis updates never substitute a newer basis into an
+actual supplied outcome.
+
+On observed EOF, I/O failure or invalid peer protocol, the driver stops dispatch
+and disconnects once, reporting unresolved references without cancellation,
+rollback or an invented domain outcome. Already-observed terminal state
+suppresses queued new tool work. Partial startup returns custody for subsequent
+observation; blocked I/O still needs the external process/stream owner. Actual
+domain results remain outside the driver, including when an admitted completion
+cannot be queued or its peer delivery becomes unknown. Synthetic driver cases
+exercise handshake/declarations, original-RPC completion, preserved pending
+references, interruption/detachment, terminal suppression, backing lifetime and
+an admitted 16-call burst. The live host coordinator/session bridge remains
+unimplemented and none of these checks establishes AC-005.
+
+The protocol also treats the selected pin's unoffered built-in tool-activity
+items as terminal on start/completion, including command/file/web, MCP,
+sub-agent and image activity. Pending calls become lost references, never
+fabricated application failures or cancellation. This observes a configuration
+or isolation mismatch; notification timing cannot prove that an action was
+prevented. The native process owner must still stop/clean up its supplier, and
+actual disablement/OS isolation remains a separate activation proof obligation.
+
+The macOS-only `macos.rs`/`sandbox.rs` launcher is not connected to product
+startup. It verifies and copies the selected binary, uses private home/cwd and
+an environment-held credential, and denies reads outside fixed OS locations and
+its private runtime. Literal root-directory reading and metadata on fixed OS
+aliases are needed for the selected pin's startup; these do not grant reads of
+descendant user files. Only private home/cwd writes and outbound loopback port
+8000 are offered. No hosted-provider profile is implemented. Production stderr
+is discarded; the native startup test uses an invented credential and checks
+that its bounded diagnostic does not contain it. Real credential acquisition,
+crash-diagnostic absence and a complete native-session witness remain unproved.
+
+On shutdown the launcher retains the original unreaped `Child` through every
+group observation and signal, then reaps it only after observing no live group
+members. A census is evidence, not authority to signal an unrelated numeric
+PID. Unknown cleanup retains a nonsecret exclusive marker and refuses the next
+launch; no saved numeric PID is signalled. Parent-crash termination and absence
+of escaped descendants remain unqualified. **Do not expose this launcher until
+those cleanup duties and the remaining native-session isolation duties have
+been established.** The early solver-worker dispatch and solver-specific memory
+machinery are unchanged.
+
+The opt-in native probes establish bounded observations on the selected Mac:
+the actual pinned supplier initializes under this profile without a model;
+owned-group stopping preserves an unrelated group; and the standalone invented
+probe in `tools/agent_host_sandbox_probe.rs` checks 13 filesystem/network/process
+outcomes. Private-home/cwd writes and the configured loopback endpoint succeed;
+outside canary reads/writes, symlink escape, another loopback port, an off-host
+address, listener creation and both other/self executable launches are denied.
+The canaries named project/documents/keychain are invented files outside the
+private runtime, not actual private documents or keychain files. These component
+checks do not establish model execution under this Rust launcher, crash cleanup,
+Windows capability, review-queue conformance or AC-005 completion.
+
+Remaining implementation is the responsive runtime client/dispatcher, trusted
+session bridge and ingress completion command, proposal-only review wiring,
+minimal explicit-start panel, operation expansion and criterion 17. Existing
+ScopeOfWork commitments and dependency conditions remain open and unchanged.
+
+### Integration sequence
+
 1. Validate all catalog schemas and standalone dynamic projections; compare the
    adopted fields with the identified App proposal. Review exact commitment
    wording independently and obtain Agent 0's confirmation.
