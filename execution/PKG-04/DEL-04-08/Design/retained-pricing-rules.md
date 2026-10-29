@@ -1607,7 +1607,7 @@ Against the basis the priced source moves in these files:
   - `append_equivalent_static_generated_loads` loses the Timoshenko partial-span refusal and its two locals.
 - PP `exact_admission.rs`: the shared-terminal junction code and its text (in Codex's wording) replace W-16 slice c's Timoshenko partial-span code and text.
 - PP `pressure_runtime.rs`: `validate_profile` calls the new `refuse_compensated_shared_terminals` once per exact case after its region loop. That function maps the case's region terminals by node in a `BTreeMap` of two `Vec`s per node, and refuses a node with two or more ending regions and a compensated terminal.
-- PP `validation.rs`: `validate_variable_spring_hanger` warns, per support and field, that an entered installed, cold or hot load is not applied as preload (`SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD`).
+- PP `validation.rs`: after the variable spring hanger metadata passes validation, `validate_variable_spring_hanger` warns once for each entered nonzero installed, cold or hot load that it is not applied as preload (`SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD`).
 - NI `lib.rs`:
   - `DenseLoopMemoryRefusal`, `dense_loop_memory_estimate` (a `HashSet` of the in-range restrained DOFs) and `dense_loop_memory_guard`;
   - the error's `DenseMemoryLimitExceeded` arm and its Display;
