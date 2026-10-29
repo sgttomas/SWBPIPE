@@ -124,6 +124,12 @@ EXCLUDED_TOP_LEVEL = (
     "init",
     "loop",
     "plans",
+    # RT-V8 P3 (owner, 2026-10-28, as recommended): documented exclusions.
+    # `.gitattributes` governs only `validation/evidence`, which is excluded;
+    # `software-workflow.json` is the Root software-workflow manifest
+    # (`workspace_root: ../..`), bound to the monorepo.
+    ".gitattributes",
+    "software-workflow.json",
 )
 
 # Allowlisted roots whose subtrees are partially private or generated.

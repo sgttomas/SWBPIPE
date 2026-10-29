@@ -76,6 +76,13 @@ def test_private_coordination_surfaces_are_excluded_top_level():
         assert name not in PIPE.ROOT_FILES
 
 
+def test_monorepo_bound_root_files_are_documented_exclusions():
+    # RT-V8 P3: both were out only by construction before.
+    for name in (".gitattributes", "software-workflow.json"):
+        assert name in PIPE.EXCLUDED_TOP_LEVEL
+        assert name not in PIPE.ROOT_FILES
+
+
 def test_export_detection_matches_what_the_export_leaves_out():
     # tests/public_export.py and the readiness tool tell the export by these two
     # excluded directories; an export that kept either would run monorepo-only tests.
