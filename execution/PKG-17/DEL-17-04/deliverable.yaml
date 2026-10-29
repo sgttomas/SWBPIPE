@@ -108,6 +108,7 @@ code_paths:
 - tools/fixtures/caepipe_mbf_import_vectors.py
 - tools/fixtures/caepipe_mbf_engine_unicode.py
 - fixtures/caepipe_mbf/invented/parity/
+- core/handoff/caepipe_mbf/correctly_rounded.py
 - schemas/caepipe_mbf_export.schema.json
 - apps/desktop/src/features/caepipe-mbf/CaepipeMbfExportPanel.tsx
 checks:
@@ -119,6 +120,7 @@ checks:
 - tests/test_caepipe_mbf_import_parity.py
 - core/handoff/caepipe_mbf_engine/tests/parity.rs
 - core/handoff/caepipe_mbf_engine/tests/fail_closed.rs
+- tests/test_caepipe_mbf_correctly_rounded.py
 - apps/desktop/src/features/results/loadReferenceOutputRefusal.test.tsx
 - apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx
 - apps/desktop/src/App.test.tsx
