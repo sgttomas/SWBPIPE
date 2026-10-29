@@ -161,6 +161,55 @@ success, rejection or a retry that might duplicate mutation.
 
 ## Proposal and interruption behavior
 
+### Rust dispatcher component
+
+`embedded_agent/dispatcher.rs` is an explicit host-driven component, still
+unwired to commands or a live model. It consumes the existing protocol's tool
+events in order, checks the original host-session token, confirmed thread/turn,
+admitted webview/workspace/generation and catalog input, and issues a borrowed
+dispatch view. It stores no argument clone and exposes no vendor RPC id.
+The coordinator must serialize/retain any outgoing webview copy under its own
+admission; the event batch's borrowed backing cannot be silently transferred.
+
+Summary captures current basis; nodes/proposal/solve admission requires current
+basis and the native claimed hash for changes/solve. Observation/result reads
+require a trusted lookup of the exact retained proposal/run handle and basis,
+including after a live revision changes. These lookup/evidence inputs are
+Rust-only obligations on the future coordinator; they must come from actual
+webview/domain records, not copied model arguments or completion assertions.
+The future command derives invocation origin from the real webview/session.
+
+The dispatcher reserves GENERAL state (8 MiB), at most 16 concurrent completion
+parses (32 MiB each) and each raw record's 64 KiB envelope plus 128 KiB metadata
+allowance **before dispatch**. The actual prescan price must fit the reserved
+parse allowance before numeric checking/materialization. Schema/basis/evidence
+validation precedes capturing a record; invalid input does not consume the
+pending call. Current-basis read success must still match at completion.
+Proposal/run completion instead preserves original record basis, handles,
+run id/evaluated hash and actual standing across later live edits. Applied
+observation requires a non-null outcome hash vouched by the record owner.
+Applied completion retains that schema-valid hash alongside the raw outcome,
+including when the proposal-submission wire result carries only its handle.
+
+Validated raw outcome bytes, original provenance and their backing are retained
+before any session-driver completion attempt. Queued, detached, lost and
+unconfirmed delivery remain separate from the domain outcome. Closing the
+connection loses vendor references but can still capture a correlated late
+domain outcome; it cannot reopen or redispatch a call. Duplicate completion and
+older-reference replay remain refused after custody transfer. At 64 retained
+entries the dispatcher refuses further work; it never evicts an unresolved or
+completed record implicitly. `take_actual` transfers an Arc with its reservation
+to the actual outcome owner, who must preserve the domain/receipt evidence.
+Dropping a delivery object does not remove the ledger's outcome.
+
+These are requested-allocation/GENERAL reservations, not RSS or retained-solver
+pricing claims. No allocator, pool, solver policy, thread/process startup,
+listener, credential, persistence or mutation route is changed. The 16 focused
+dispatcher checks exercise binding, invalid/rounded-byte outcomes, history,
+applied outcome retention through failed delivery, admission pressure and
+bounded custody. They do not establish the future coordinator's actual record
+lookups, command authentication, native cleanup or model integration.
+
 Require `claimedModelHash == basis.modelHash == current session hash` before
 `registerOperationBatch`; repeat the existing current-basis check at application.
 Construct the batch in the host and stamp `author_type: agent` plus original

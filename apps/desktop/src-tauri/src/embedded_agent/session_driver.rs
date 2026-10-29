@@ -450,10 +450,10 @@ fn map_fault(f: stdio_pump::Fault) -> Refusal {
         Refusal::Transport(f)
     }
 }
-fn control(s: &str, cap: usize) -> bool {
+pub(super) fn control(s: &str, cap: usize) -> bool {
     !s.is_empty() && s.len() <= cap && !s.chars().any(char::is_control)
 }
-fn validate_basis(catalog: &Catalog, basis: &Value) -> Result<(), Refusal> {
+pub(super) fn validate_basis(catalog: &Catalog, basis: &Value) -> Result<(), Refusal> {
     let output = json!({"status":"execution_error","basis":basis,"message":"Tool request could not be admitted.","data":null});
     for tool in Tool::ALL {
         catalog
@@ -464,7 +464,7 @@ fn validate_basis(catalog: &Catalog, basis: &Value) -> Result<(), Refusal> {
 }
 // Allocation-free, depth/node/size precheck before streaming a caller Value.
 // This checks size; caller remains responsible for admission of existing heap.
-fn bounded_value(v: &Value, cap: usize) -> bool {
+pub(super) fn bounded_value(v: &Value, cap: usize) -> bool {
     fn walk(v: &Value, depth: usize, nodes: &mut usize, bytes: &mut usize) -> bool {
         if depth > 32 || *nodes == 0 {
             return false;
