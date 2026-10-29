@@ -874,6 +874,21 @@ def check_vector(document: dict, row: list, caches: tuple[dict, dict]) -> str | 
     return None if got == want else f"outputs differ (now {result.status})"
 
 
+def numeric_difference(recorded: dict, computed: dict) -> str:
+    """Name each differing numeric family, its differing-row count and its first differing row (diagnosis only)."""
+    parts = []
+    for key in sorted(set(recorded) | set(computed)):
+        old, new = recorded.get(key), computed.get(key)
+        if old == new:
+            continue
+        if isinstance(old, list) and isinstance(new, list) and len(old) == len(new):
+            rows = [index for index, (a, b) in enumerate(zip(old, new)) if a != b]
+            parts.append(f"{key}: {len(rows)} of {len(old)} rows, first #{rows[0]} recorded {old[rows[0]]!r} computed {new[rows[0]]!r}")
+        else:
+            parts.append(f"{key}: shape differs")
+    return "; ".join(parts) or "unknown"
+
+
 def check(document: dict, part: int | None = None, parts: int = 1) -> list[str]:
     failures = []
     caches: tuple[dict, dict] = ({}, {})
@@ -889,11 +904,11 @@ def check(document: dict, part: int | None = None, parts: int = 1) -> list[str]:
         numeric = numeric_vectors()
         if version_matches(document):
             if document["numeric"] != numeric:
-                failures.append("numeric vectors differ")
+                failures.append("numeric vectors differ: " + numeric_difference(document["numeric"], numeric))
         else:  # another Python minor version: its JSON error texts for a trailing comma differ (3.13 names it)
             recorded = {key: value for key, value in document["numeric"].items() if key != "json_errors"}
             if recorded != {key: value for key, value in numeric.items() if key != "json_errors"}:
-                failures.append("numeric vectors differ")
+                failures.append("numeric vectors differ: " + numeric_difference(recorded, numeric))
             kept = [item for item in document["numeric"]["json_errors"] if "trailing comma" not in json.dumps(item)]
             texts = {item[0] for item in kept}
             if kept != [item for item in numeric["json_errors"] if item[0] in texts]:
