@@ -40,7 +40,7 @@ BODY_PINS = {
     (RP, "reduced_section_set"): "298ecb9242a154133aa1d3a45510999d81e48778bccc53830a9906387b33e6fc",
     (RP, "distinct_copy"): "951b22a65be7c1590c2f01c772234eb22655a865a52fc9068fc977b28205ba6c",
     # W-7 D3 (§8.20): prepared_not_covered adds the end-action table (W7-NC); the reduced table and bound bitmap are unchanged.
-    (RP, "prepared_not_covered"): "373fc109510882da46338c0a81da6e91b0eb9f5d4803dd2a1954be0a429bcd19",
+    (RP, "prepared_not_covered"): "697dd47f3ab31b2f8b7aca8b1711426dad26cc4411187f30091afa453bec710c",
     (RP, "prepared_maxima"): "10f81029578641e0c05914cab95b3a8cfefc0a45cb9b21fd94fbd27aba8adaa0",
     (RP, "prepared_sections"): "9b5b2b6a6094db92c72790e22d7c956f2a5215ae08e25aa3990f32a38eed9ed2",
     # Stack-headroom repair D3 (b7-plan 5a, retained-pricing-rules.md §8.10): read 27e4dfa972;
@@ -83,7 +83,7 @@ BODY_PINS = {
     # moved nonlinear grounds and their relative-displacement rows (W16S-L1, none on D1), the spring's -k·(u - g)
     # action and the ground vector passed to certified_publication::support. The second composite maximum and its
     # payload keys are unchanged.
-    (LIB, "solve_prepared_load_case"): "b935ee2c971ce36ca8cf339dee7f71e77e1e48cf448c6d8bc4230178ebbbb2a9",
+    (LIB, "solve_prepared_load_case"): "4061553a4b7f0476245f96ee9582741099c065b8c06de04272aa0646b7f7b185",
     (SRC, "distinct_reduced_section"): "179e447476ae2a7cf8b01d1e5da22bddd66b9057403453ffc79f9e57747fd100",
     (SRC, "stress_operands"): "de7a26eb0574635be8c808bc42070cdb132f8f8b67fee83542bd79f667cb6050",
     (SRC, "commitment"): "279ce112036664d7802e2952d87a67abe6dd7fe04879a4d498fd2544fe86753d",

@@ -46,7 +46,7 @@ PINS = {'checked': 'f6462ce3e9b91123fc8c424e4e932ca6ae2e06773c3c8ea4ca9a233ea006
 # (a borrow), passing it to certify_spring_reaction; no pinned helper, root or C6 site changes. solve_prepared_load_case
 # forms the moved nonlinear grounds (R-b) and the spring bases with their formed loads (R-c, W16S-SG); its consumption
 # of the fallback attempts and every first-return alternative are unchanged.
-LIB_PINS = {'solve_load_case_observed': '5a70782515a2e66790c8d570cc13d49ead9d22614e0f99b288d2632e8fc4e061', 'solve_prepared_load_case': '067f5f620f66549ae511cacb0f7f8fcc49306aab139a93a69444ce46df988dcb', 'exact_straight_summary_extrema': '1c15fd171ea49543bb3c7372e93a79545dfb63d5f877a5c232b423ec4ebd4ce0'}
+LIB_PINS = {'solve_load_case_observed': '5a70782515a2e66790c8d570cc13d49ead9d22614e0f99b288d2632e8fc4e061', 'solve_prepared_load_case': '94fbe3706ce20357cf723546b6e0d22d168f570084df16a2745ee9c816cf0e83', 'exact_straight_summary_extrema': '1c15fd171ea49543bb3c7372e93a79545dfb63d5f877a5c232b423ec4ebd4ce0'}
 PRIVATE = ("checked", "exact", "rounded", "accumulate", "add", "mul", "divided", "exact_scaled", "divided_scaled", "min", "max", "active_length")
 ENTRY = ("summary_row", "stress_mpa", "maximum_summary_mpa", "fallback_section_errors", "fallback_circular_maximum")
 PRIVATE_ROOTS = ("fallback_circular_maximum", "summary_row", "stress_mpa", "maximum_summary_mpa")

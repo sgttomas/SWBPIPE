@@ -34,7 +34,7 @@ PINS = {
         # W-16 stage 2 D3 (§8.29): the moved nonlinear grounds (R-b, empty on D1) and the spring bases with their formed
         # loads (R-c: zero bases and no term on D1, W16S-SG), passed to the loop and the spring rows; `before` moves above
         # the spring-base map. Carriers, staging and prepared-pressure calls unchanged.
-        "solve_prepared_load_case": "067f5f620f66549ae511cacb0f7f8fcc49306aab139a93a69444ce46df988dcb",
+        "solve_prepared_load_case": "94fbe3706ce20357cf723546b6e0d22d168f570084df16a2745ee9c816cf0e83",
         "append_curved_bend_macro_element_results": "9e9b5010a84aa73268d72fabcf99c5cb2012f6f35ef5a15adb41bb30bf045a4e",
     },
     # B7b: branch E is 0.5.0 with {3.0.0, exact_pressure_v3, euler_bernoulli}; the
@@ -52,7 +52,7 @@ PINS = {
     # narrows admission. The component, region and load-state refusals are unchanged.
     "core/product_physics/src/retained_memory.rs": {
         "namespace_branch": "b1f8f02df1f10552a69c357ebc329fa801243addc94d595403ab9313f79cf805",
-        "family_clauses": "dc1eb90fc5475c1b682011cb8c0bd486aa68e05638ba1a700007fdf57904b84e",
+        "family_clauses": "72130bdb1b87bde04fd1746fb33f86bbdaf14c6d288ce3d3e273ea86f72711b4",
     },
 }
 # B7b: the production prefix deletes v2's declaration, refusal and negative-pressure

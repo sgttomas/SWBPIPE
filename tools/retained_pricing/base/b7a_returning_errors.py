@@ -54,13 +54,13 @@ SOURCES = {
 SITES = [
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 11926,
+    "line": 11958,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:11884:exact_straight_summary_extrema",
-    "short": "lib.rs:11926",
-    "from": "lib.rs:11884:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:11916:exact_straight_summary_extrema",
+    "short": "lib.rs:11958",
+    "from": "lib.rs:11916:exact_straight_summary_extrema",
     "parents": [
-      "core/product_physics/src/lib.rs:5112:solve_prepared_load_case",
+      "core/product_physics/src/lib.rs:5122:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
       "core/product_physics/src/membrane_publication_range.rs:243:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
       'core/product_physics/src/retained_product.rs:6191:prepared_maxima'
@@ -68,13 +68,13 @@ SITES = [
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 11932,
+    "line": 11964,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:11884:exact_straight_summary_extrema",
-    "short": "lib.rs:11932",
-    "from": "lib.rs:11884:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:11916:exact_straight_summary_extrema",
+    "short": "lib.rs:11964",
+    "from": "lib.rs:11916:exact_straight_summary_extrema",
     "parents": [
-      "core/product_physics/src/lib.rs:5112:solve_prepared_load_case",
+      "core/product_physics/src/lib.rs:5122:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
       "core/product_physics/src/membrane_publication_range.rs:243:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
       'core/product_physics/src/retained_product.rs:6191:prepared_maxima'
@@ -82,13 +82,13 @@ SITES = [
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 12595,
+    "line": 12627,
     "kind": "to_string",
-    "owner": "core/product_physics/src/lib.rs:12576:recover_curved_bend_local_forces",
-    "short": "lib.rs:12595",
-    "from": "lib.rs:12576:recover_curved_bend_local_forces",
+    "owner": "core/product_physics/src/lib.rs:12608:recover_curved_bend_local_forces",
+    "short": "lib.rs:12627",
+    "from": "lib.rs:12608:recover_curved_bend_local_forces",
     "parents": [
-      "core/product_physics/src/lib.rs:5112:solve_prepared_load_case"
+      "core/product_physics/src/lib.rs:5122:solve_prepared_load_case"
     ]
   },
   {
@@ -173,7 +173,9 @@ MODE_SOURCE = {
            # from 0b796a7c….
            "5d3c3d417c98c1a2eb4316c5d256eaa0b4c2814e9bf91480950d8acde6ad5a80",
            # OP1A: only retained_w1 moves 3938 -> 3947 in the carried emitter.
-           "bd15658cb9c3c15ebd0eea4421eda9cb2290b8768161d09e423bf0916f53954a"},
+           "bd15658cb9c3c15ebd0eea4421eda9cb2290b8768161d09e423bf0916f53954a",
+           # §8.32: only retained_w1 moves 3947 -> 3957.
+           "50cfe83d72e70a2f04a5c9da970e3380e312b47bd41a4cb3a46d87e43e9448f2"},
 }
 
 

@@ -816,6 +816,7 @@ if _os.path.exists(_os.path.join(_SNAP, _CN)):
 # producer.semantic_contract_id to route.base_id, one of two literals (preview-physics-1 on route L, physics-1 on
 # route E; retained_precision.rs ROUTE base_id). So the arm is never taken: R1's and G4 (T17)'s argument for the
 # sibling arms.
+_BUILD_FN = "build_model_for_basis" if fnkey("build_model_for_basis", PP_ + "lib.rs") else "build_model_for_members"
 _SC = RE_ + "semantic_contract.rs"
 if fnkey("for_source", _SC) and fnkey("validate_in", RE_ + "physics_source.rs"):
     site("for_source", _SC, "Some(PRESSURE_SOURCE_ID) =>")
@@ -1432,7 +1433,7 @@ if _D5:
     # U6-L1 (route-specific): the stress-finding `bases` has two entries only when the member has a reduced
     # stress, i.e. a reduced section: exact_basis_section of built.exact_sections, which build_model_for_members fills
     # only under `if pressure_runtime::is_exact(model)` (checked). Route L has no exact contract: one entry.
-    _bm = _fn_text("build_model_for_members", _LIB)
+    _bm = _fn_text(_BUILD_FN, _LIB)
     if _bm.count("exact_sections.insert(") != 2 or "        if pressure_runtime::is_exact(model) {" not in _bm \
             or "let reduced_section = exact_bases.map(|bases| exact_basis_section(bases, pressure_exact::SectionBasis::Reduced));" not in _cs_body \
             or "let exact_bases = built.exact_sections.get(&pipe.element_id).copied();" not in _cs_body \
@@ -1555,10 +1556,10 @@ if _D5:
         (site("reduced_twin", _RPX, "b.ends_with(&format!(\"{}{}\", crate::section_basis::TOKEN_SEPARATOR, crate::section_basis::REDUCED))", full=True),
          {"crate::section_basis::TOKEN_SEPARATOR": _st(_SEP, "the TOKEN_SEPARATOR literal"), "crate::section_basis::REDUCED": _st(_B, "a BASES literal")}),
         # D-6 (U8): the Timoshenko shear factor's diagnostic, errors and section map; the reaction's frame binding
-        (site("build_model_for_members", _LIB, "exact_sections.insert(pipe.id.clone(), bases.with_timoshenko(kappa, shear_area));", full=True), {"pipe.id": IN}),
-        (site("build_model_for_members", _LIB, 'diagnostics.push(diag(&format!("diagnostic:exact-section:{}:shear", stable_suffix(&pipe.id)),', full=True),
+        (site(_BUILD_FN, _LIB, "exact_sections.insert(pipe.id.clone(), bases.with_timoshenko(kappa, shear_area));", full=True), {"pipe.id": IN}),
+        (site(_BUILD_FN, _LIB, 'diagnostics.push(diag(&format!("diagnostic:exact-section:{}:shear", stable_suffix(&pipe.id)),', full=True),
          {"stable_suffix(&pipe.id)": IN}),
-        (site("build_model_for_members", _LIB, 'format!("a timoshenko_annulus_energy_v1 member requires {missing}; no default shear factor is used"), vec![pipe.id.clone()]));', full=True),
+        (site(_BUILD_FN, _LIB, 'format!("a timoshenko_annulus_energy_v1 member requires {missing}; no default shear factor is used"), vec![pipe.id.clone()]));', full=True),
          {"pipe.id": IN}),
         (site("fmt", FK_ + "shear.rs", 'Self::NonFiniteInput { name, value } => write!(f, "{name} must be finite, got {value}"),', full=True),
          {"name": _st(_SHN, "a &'static str literal of shear.rs (finite() / NumericalRange)")}),
@@ -2313,7 +2314,6 @@ if fnkey("validate_model_settings", _W8V) and fnkey("tolerance_not_finite_messag
     _SM_T = {
         "shear_model_unknown_message": 'format!("{SHEAR_MODEL_PATH} must be `{SHEAR_MODEL_EULER_BERNOULLI}` or `{SHEAR_MODEL_TIMOSHENKO}`.")',
         "shear_model_with_pressure_contract_message": 'format!("{SHEAR_MODEL_PATH} is set on a document that declares pressure_contract; that document\'s shear model is pressure_contract.shear_model, so remove {SHEAR_MODEL_PATH}.")',
-        "shear_model_timoshenko_unsupported_message": 'format!("{SHEAR_MODEL_PATH} `{SHEAR_MODEL_TIMOSHENKO}` is not yet solved on a pressure-free document; set `{SHEAR_MODEL_EULER_BERNOULLI}` or remove the member.")',
     }
     _SM_C = {n: _re.findall(r'^pub const ' + n + r': &str = "([^"\\{}]*)";$', _NP_TEXT, _re.M)
              for n in ("SHEAR_MODEL_PATH", "SHEAR_MODEL_EULER_BERNOULLI", "SHEAR_MODEL_TIMOSHENKO")}
@@ -2336,9 +2336,9 @@ if fnkey("validate_model_settings", _W8V) and fnkey("tolerance_not_finite_messag
         _text_of(_W8V).count("shear_model_refusal(") == 1,
         all(fnkey(fn, _NP_MS) and _fn_text(fn, _NP_MS).count(t) == 1 for fn, t in _SM_T.items()),
         all(len(v) == 1 for v in _SM_C.values()),
-        _SM_DOC.count("shear_model_unknown_message()") == 1 and _SM_DOC.count("shear_model_with_pressure_contract_message()") == 1,
-        _SM_REF.count("shear_model_document_refusal(setting, has_pressure_contract)") == 1,
-        _SM_REF.count("shear_model_timoshenko_unsupported_message()") == 1,
+        _SM_REF.count("shear_model_unknown_message()") == 1 and _SM_REF.count("shear_model_with_pressure_contract_message()") == 1,
+        not fnkey("shear_model_document_refusal", _NP_MS),
+        "shear_model_timoshenko_unsupported_message" not in _SM_REF,
         all(_re.sub(r"//[^\n]*", "", _NP_TEXT.split("#[cfg(test)]")[0]).count(fn + "()") == 2 for fn in _SM_T),  # def + one call
         # The decoder builds no value: one visitor through deserialize_any, IgnoredAny draining, no owner.
         _SM_DEC.count("deserializer.deserialize_any(ShearModelVisitor).map(Some)") == 1,
@@ -2936,7 +2936,7 @@ if fnkey("applied_scales", _W15_RC) or fnkey("source_bodies", _W15_CB):
         raise SystemExit("W15: the producer's rigid_component.rs and the readers' component_body.rs are partly present; re-review")
     _W15_APPLIED = _fn_text("applied_scales", _W15_RC)
     _W15_ANNOTATE = _fn_text("annotate_component_bodies", _W15_RC)
-    _W15_BUILD = _fn_text("build_model_for_members", _LIB)
+    _W15_BUILD = _fn_text(_BUILD_FN, _LIB)
     # W15-NZ (guard): under P2 (`model.components` empty on D1) no member is scaled. applied_scales' only source is
     # `model.components` (a filter_map over it, collected), the build reads the result only in its one
     # `rigid_scales.get(` match, a ScaledMember is made only in that `Some(applied)` arm and inserted only from it, and
@@ -2955,13 +2955,13 @@ if fnkey("applied_scales", _W15_RC) or fnkey("source_bodies", _W15_CB):
     if not all(_w15_nz):
         raise SystemExit(f"W15-NZ: the scaled-member path or its premise changed; re-review its zeros: {_w15_nz}")
     _W15_P2 = O10 + "W15-NZ: P2 (no component on D1): applied_scales is empty, so no member is scaled"
-    O10_SITE_ZERO += [(site("build_model_for_members", _LIB, _t), _W15_P2 + " (the rigid-scale refusal of the `Some(applied)` arm)")
+    O10_SITE_ZERO += [(site(_BUILD_FN, _LIB, _t), _W15_P2 + " (the rigid-scale refusal of the `Some(applied)` arm)")
                       for _t in ('&format!("diagnostic:pipe-section:{}:rigid-scale", stable_suffix(&pipe.id)),',
                                  'format!("rigid/semi-rigid component {} scales member {} by {}: the scaled moduli',
                                  "vec![pipe.id.clone(), applied.component_id.clone()],",
                                  "component_id: applied.component_id.clone(),")] + [
-        (site("build_model_for_members", _LIB, "scaled_members.insert(pipe.id.clone(), member);"), _W15_P2 + " (the formed body's key)"),
-        (site("build_model_for_members", _LIB, '&format!("diagnostic:pipe-section:{}:rigid-scale", stable_suffix(&pipe.id)),',
+        (site(_BUILD_FN, _LIB, "scaled_members.insert(pipe.id.clone(), member);"), _W15_P2 + " (the formed body's key)"),
+        (site(_BUILD_FN, _LIB, '&format!("diagnostic:pipe-section:{}:rigid-scale", stable_suffix(&pipe.id)),',
               row="diagnostics.push(diag("), _W15_P2 + " (the rigid-scale refusal's diagnostic: no count in D)")]
     # W15-L1 (loops), each only in its own function. Producer: conflicts' member order and a shared member's component
     # list hold one entry per rigid-family component's mapped member (0 by P2); annotate_component_bodies' loops follow
@@ -3637,7 +3637,7 @@ _OP1A_RE = RE_ + "preview_combination_operands.rs"
 if fnkey("append_operand_standing", _OP1A_PP):
     # Raw pins bind the complete early-return/dataflow and all new owning sites.
     # Existing lib.rs and admission pins separately bind the call and D1.6.
-    _op1a_pins = {'core/product_physics/src/preview_physics.rs': 'bc037bd1c58565d12784948f84decaac8b61d7a4c3782d8ffac4d2e730ee7347', 'core/reporting/result_export/src/preview_combination_operands.rs': 'ba74ebe99e42c932506f0c8dfb4329b3bd0dccdd43ba241e1e7d5922dfc5b3e5', 'core/reporting/result_export/src/preview_physics_evidence.rs': '63db8075e4e1b83d3e3bcd48a6ab001073635ff6841ef22bae923f9829c152b0', 'core/reporting/result_export/src/reader_verdict.rs': '6e191149751edece74e14172d134dd9ae850441c4c5b4979521d49a708ebafb1'}
+    _op1a_pins = {'core/product_physics/src/preview_physics.rs': 'bc037bd1c58565d12784948f84decaac8b61d7a4c3782d8ffac4d2e730ee7347', 'core/reporting/result_export/src/preview_combination_operands.rs': 'ba74ebe99e42c932506f0c8dfb4329b3bd0dccdd43ba241e1e7d5922dfc5b3e5', 'core/reporting/result_export/src/preview_physics_evidence.rs': 'a9cca373d01efcd4823ea622974958a677ee4dabe9b3fd0c460fb980740dfbba', 'core/reporting/result_export/src/reader_verdict.rs': 'b43843aa298e56e4fea78f110348d08b4f0827caff3ff090441607caee09e12a'}
     for _f, _digest in _op1a_pins.items():
         if __import__("hashlib").sha256(_text_of(_f).encode()).hexdigest() != _digest:
             raise SystemExit("OP1A-PF/RD: reviewed source changed: " + _f)
@@ -3686,3 +3686,68 @@ if fnkey("append_operand_standing", _OP1A_PP):
     O10_TYPED_PATCHES = list(globals().get("O10_TYPED_PATCHES", [])) + [("g4_caps.py", ' + _W7_RD + _W15_RB,',
                           ' + _W7_RD + _W15_RB + s("&str") * (pushcap(CAPS.get("z", 0)) + pushcap(CAPS.get("z", 0)) // 2),',
                           O10 + "OP1A-OWN: V5 also holds admitted's <=z borrowed str entries and previous push backing; all other new Vecs are empty on D1")]
+
+# §8.32 combined D3: PF Timoshenko declines D1 before charged work.
+# TIM-PF binds the selection, early returns and consumed-basis dataflow.
+# TIM-RD binds identity dispatch and model-bound readers; retained projections
+# still name preview-physics-2 / pressure-2 (J1's guarded base ids).
+# CD-ID binds the allocation-free canonical-decimal replacement of Rational.
+_TIM = PP_ + "pf_timoshenko.rs"
+if fnkey("selects", _TIM):
+    _TIM_PINS = {'core/product_physics/src/pf_timoshenko.rs': '0546472cfba9ca61bff68838cb5add237c70485411c124f5fc14f9aa90217f45', 'core/product_physics/src/model_settings.rs': 'd2f9d52db54bd97b19708c5a8580d484282f97649f08df408f6e0b206a999d8b', 'core/reporting/result_export/src/reader_verdict.rs': 'b43843aa298e56e4fea78f110348d08b4f0827caff3ff090441607caee09e12a', 'core/reporting/result_export/src/preview_physics_evidence.rs': 'a9cca373d01efcd4823ea622974958a677ee4dabe9b3fd0c460fb980740dfbba', 'core/product_physics/src/case_state/temperature.rs': 'eed9dc272dd37c669cc090d3f4c9c30293a0793e0d0b770ddd25fdd5d08ed9b2', 'core/product_physics/src/case_state/temperature/canonical_decimal.rs': '152ed6c3470ca3cfedf60db97878e7b6ad7701e3fe36a91a1ccf901f90e38882'}
+    _TIM_PINS[FK_ + "shear.rs"] = "12b854db0252398a8d61a643eba4fe7162f81e228a1c6239860433fd3188d2c3"
+    for _file, _pin in _TIM_PINS.items():
+        if __import__("hashlib").sha256(open(_os.path.join(_SNAP, _file), "rb").read()).hexdigest() != _pin:
+            raise SystemExit("TIM-PF/RD/CD-ID: reviewed source changed: " + _file)
+    # TIM-PF: no selected PF shear basis on either D1 route. Exact E also
+    # returns false from selects; its pre-existing Timoshenko path is retained.
+    for _caller, _callee in [
+        ("run_linear_static_preview_observed_inner", "of"),
+        ("run_linear_static_preview_observed_inner", "append_partial_span_refusals"),
+        ("run_linear_static_preview_observed_inner", "append_arc_disclosure"),
+        (_BUILD_FN, "shear_area"),
+    ]:
+        O10_EDGE_ZERO += [(fnkey(_caller, _LIB), fnkey(_callee, _TIM),
+            O10 + "TIM-PF: D1's PF ShearModel refusal and exact-route selects=false; the allocating tail is unreachable")]
+    # TIM-RD: the projection selects only the two guarded base identities.
+    # The independent OnceLock remains positively priced in STATIC_OWNERS.
+    for _caller in ("current_header", "preview_physics_identity"):
+        O10_EDGE_ZERO += [(fnkey(_caller, _SC), fnkey("preview_physics_timoshenko_contract", _SC),
+            O10 + "TIM-RD: J1's projection has no Timoshenko PF identity; resident cache is charged in every phase")]
+
+    # CD-ID: every max receiver here is a primitive i32 exponent; the
+    # private FallbackError::max in another module is not nameable.
+    CG_RULES += [{"caller": Resolved(PP_ + "case_state/temperature/canonical_decimal.rs:" + fnkey("canonical_decimal", PP_ + "case_state/temperature/canonical_decimal.rs").split(":", 1)[1]),
+        "name": "max", "exclude_targets": [Resolved(_CP + ":" + fnkey("max", _CP).split(":", 1)[1])], "added": "CD-ID",
+        "evidence": "p and q are i32 decimal exponents; raw canonical-decimal source pin above"}]
+
+    # TIM-ID: bounded texts even in zero tails. D1 caps bind three IN128
+    # case ids; description is a point id plus 40 literal bytes, or one
+    # f64 Debug plus 55. Intrinsic floats use the existing 24-byte Debug class.
+    _tim_in = {"bytes": 128, "source": O10 + "TIM-ID: D1 IN128"}
+    _tim_debug = {"bytes": 24, "source": O10 + "TIM-ID: f64_debug"}
+    _tim_desc = {"bytes": 168, "source": O10 + "TIM-ID: max(40+128,55+24)"}
+    _tim_cases = {"bytes": 388, "source": O10 + "TIM-ID: three IN128 case ids and two separators"}
+    _tim_int = {"bytes": 20, "source": O10 + "TIM-ID: usize decimal"}
+    for _fn, _text, _audit in [
+                ("shear_area", "let mut refs = vec![pipe.id.clone(), material.id.clone()]", {"pipe.id": _tim_in, "material.id": _tim_in}),
+        ("shear_area", '&format!("diagnostic:pf-timoshenko:{}:shear-factor:{}",', {"stable_suffix(&pipe.id)": _tim_in, "stable_suffix(&basis.case_ids[0])": _tim_in}),
+        ("shear_area", '"timoshenko_annulus_energy_v1 member {} has no energy-matched', {"pipe.id": _tim_in, "material.id": _tim_in, "basis.description": _tim_desc, "cases": _tim_cases, **{n + "|?": _tim_debug for n in ("nu", "elastic_modulus", "shear_modulus", "inner_radius", "outer_radius")}}),
+        ("shear_area", 'warned.insert(material.id.clone())', {"material.id": _tim_in}),
+        ("shear_area", 'let mut refs = vec![material.id.clone()]', {"material.id": _tim_in}),
+        ("shear_area", '&format!("diagnostic:pf-timoshenko:{}:authored-poisson-ratio:{}",', {"stable_suffix(&material.id)": _tim_in, "stable_suffix(&basis.case_ids[0])": _tim_in}),
+        ("shear_area", '"material {} authors poisson_ratio', {"material.id": _tim_in, "basis.description": _tim_desc, "cases": _tim_cases, **{n + "|?": _tim_debug for n in ("nu", "authored", "elastic_modulus", "shear_modulus")}}),
+        ("arc_disclosure_message", "let plural =", {"one": {"bytes": 32, "source": O10 + "TIM-ID: fixed singular literal"}, "many": {"bytes": 32, "source": O10 + "TIM-ID: fixed plural literal"}}),
+        ("arc_disclosure_message", 'message += &format!', {"rest": _tim_int}),
+    ]:
+        O10_ID_AUDIT += [(site(_fn, _TIM, _text, full=True, row="format!(" if _text.startswith('"timoshenko_annulus_energy_v1 member') or _text.startswith('"material {} authors') else None), _audit)]
+    O10_ID_AUDIT += [(site("fmt", FK_ + "shear.rs", 'write!(f, "{name} must be positive, got {value}")', full=True),
+                      {"name": {"bytes": 128, "source": O10 + "TIM-ID: source-pinned static modulus name"}})]
+
+    # TIM-BN: shear_area is a scalar match binding in exact_section_evidence,
+    # not a call into the PF module. The existing lib.rs raw pin binds it.
+    O10_EDGE_ZERO += [(fnkey("exact_section_evidence", _LIB), fnkey("shear_area", _TIM),
+        O10 + "TIM-BN: Some((shear_factor, shear_area)) binds an f64, never PF's private function")]
+    O10_SITE_SIZE = list(globals().get("O10_SITE_SIZE", [])) + [
+        (site("shear_area", _TIM, "let cases = basis.case_ids.join"), 0,
+         O10 + "TIM-ID: the joined-case owner stays at multiplicity zero under TIM-PF and TIM-BN")]

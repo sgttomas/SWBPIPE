@@ -153,7 +153,7 @@ pub(crate) const REVIEWED_INPUTS_VARIABLE: &str = "OPS_RETAINED_REVIEWED_INPUTS"
 /// lock, then the reader's statics in G4's ORIGINS.json order, followed by the
 /// pressure-source table, the pressure result schema and the pressure table.
 #[allow(dead_code)]
-pub(crate) const REVIEWED_INPUT_COUNT: usize = 12;
+pub(crate) const REVIEWED_INPUT_COUNT: usize = 13;
 #[allow(dead_code)]
 pub(crate) const REVIEWED_INPUTS: [&str; REVIEWED_INPUT_COUNT] = [
     "Cargo.lock",
@@ -178,6 +178,8 @@ pub(crate) const REVIEWED_INPUTS: [&str; REVIEWED_INPUT_COUNT] = [
     "../../schemas/results_pressure_2.v0.3.schema.json",
     // B7b (O-10): the resident ordinary pressure table (`pressure_rows_contract()`).
     "../../fixtures/results/semantic_contract_v0_3_pressure_2.json",
+    // PF Timoshenko D3: independent process-lifetime reader cache.
+    "../../fixtures/results/semantic_contract_v0_3_preview_physics_timoshenko_1.json",
 ];
 
 /// The reviewed-input text for the given digests (`None`: unreadable).
