@@ -85,6 +85,13 @@ fixtures and frozen references. This is a checkout constraint, not a solver
 failure or a reason to rename historical records. A full guest developer
 checkout also needs an explicit long-path Git/filesystem strategy.
 
+The project `.gitattributes` disables newline conversion for core sources and
+locks, fixtures, schemas and frozen references. These inputs include byte-pinned
+hashes and exact text witnesses, so a Windows checkout must preserve the committed
+bytes even with `core.autocrlf=true`. Both Root and project attributes select the
+Windows lane. Do not normalize reference text at assertion time or replace its
+expected hashes to accommodate checkout conversion.
+
 ## One source tree, narrow native boundaries
 
 Keep React/Three.js, engineering algorithms, model/operation schemas, canonical
