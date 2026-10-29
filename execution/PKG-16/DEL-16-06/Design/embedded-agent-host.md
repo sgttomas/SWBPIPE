@@ -186,7 +186,12 @@ parse allowance before numeric checking/materialization. Schema/basis/evidence
 validation precedes capturing a record; invalid input does not consume the
 pending call. Current-basis read success must still match at completion.
 Proposal/run completion instead preserves original record basis, handles,
-run id/evaluated hash and actual standing across later live edits. Applied
+run id/evaluated hash and actual standing across later live edits. Solve reply
+status must equal trusted catalog standing derived from the actual job owner;
+a successful result read requires a completed run. Matching run identities
+alone cannot establish completion. Standing mismatch preserves both pending
+reservations and allows the truthful failure/unfinished outcome to be recorded.
+Applied
 observation requires a non-null outcome hash vouched by the record owner.
 Applied completion retains that schema-valid hash alongside the raw outcome,
 including when the proposal-submission wire result carries only its handle.
@@ -204,7 +209,7 @@ Dropping a delivery object does not remove the ledger's outcome.
 
 These are requested-allocation/GENERAL reservations, not RSS or retained-solver
 pricing claims. No allocator, pool, solver policy, thread/process startup,
-listener, credential, persistence or mutation route is changed. The 18 focused
+listener, credential, persistence or mutation route is changed. The 19 focused
 dispatcher checks exercise binding, invalid/rounded-byte outcomes, history,
 applied outcome retention through failed delivery, admission pressure and
 bounded custody. They do not establish the future coordinator's actual record

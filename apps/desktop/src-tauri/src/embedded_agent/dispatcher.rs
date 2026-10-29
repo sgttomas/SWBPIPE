@@ -74,6 +74,8 @@ pub enum Evidence<'a> {
         handle: Option<&'a str>,
         run_id: Option<&'a str>,
         basis: &'a Value,
+        /// Catalog standing derived from the actual job owner, not reply JSON.
+        status: &'a str,
     },
     Failure,
 }
@@ -590,7 +592,15 @@ impl Dispatcher {
                 handle,
                 run_id,
                 basis,
+                status: actual_status,
             } if matches!(call.tool, Tool::Solve | Tool::ReadResults) => {
+                if (call.tool == Tool::Solve && status != actual_status)
+                    || (call.tool == Tool::ReadResults
+                        && status == "ok"
+                        && actual_status != "completed")
+                {
+                    return Err(Refusal::MissingEvidence);
+                }
                 if status == "completed" && (handle.is_none() || run_id.is_none()) {
                     return Err(Refusal::MissingEvidence);
                 }
@@ -1278,6 +1288,7 @@ mod tests {
                 &raw,
                 Some(&live),
                 Evidence::Run {
+                    status: "completed",
                     handle: Some("run-2"),
                     run_id: Some("native-run-1"),
                     basis: &evaluated
@@ -1293,8 +1304,25 @@ mod tests {
                 &raw,
                 Some(&live),
                 Evidence::Run {
+                    status: "completed",
                     handle: Some("run-1"),
                     run_id: Some("native-run-2"),
+                    basis: &evaluated
+                }
+            )
+            .unwrap_err(),
+            Refusal::MissingEvidence
+        );
+        assert_eq!(
+            d.record_completion(
+                origin(),
+                reference(&e),
+                &raw,
+                Some(&live),
+                Evidence::Run {
+                    status: "execution_error",
+                    handle: Some("run-1"),
+                    run_id: Some("native-run-1"),
                     basis: &evaluated
                 }
             )
@@ -1308,6 +1336,7 @@ mod tests {
                 &raw,
                 Some(&live),
                 Evidence::Run {
+                    status: "completed",
                     handle: Some("run-1"),
                     run_id: Some("native-run-1"),
                     basis: &evaluated,
@@ -1341,6 +1370,7 @@ mod tests {
                 &absent,
                 None,
                 Evidence::Run {
+                    status: "completed",
                     handle: None,
                     run_id: None,
                     basis: &evaluated
@@ -1363,6 +1393,7 @@ mod tests {
                 &wrong,
                 None,
                 Evidence::Run {
+                    status: "completed",
                     handle: Some("run-1"),
                     run_id: Some("native-run-1"),
                     basis: &evaluated
@@ -1382,6 +1413,7 @@ mod tests {
             &raw,
             None,
             Evidence::Run {
+                status: "completed",
                 handle: Some("run-1"),
                 run_id: Some("native-run-1"),
                 basis: &evaluated,
@@ -1428,5 +1460,78 @@ mod tests {
         );
         let e = request(&mut p, 4, Tool::ProposeOperations, input);
         d.admit(&e, &live, History::Live).unwrap();
+    }
+
+    #[test]
+    fn unfinished_or_failed_job_cannot_be_reported_completed_or_consume_custody() {
+        let (mut d, mut p) = setup();
+        let mut evaluated = basis(2);
+        evaluated["modelHash"] = model_hash();
+        let e = request(
+            &mut p,
+            1,
+            Tool::Solve,
+            json!({"workspaceHandle":"workspace-invented","basis":evaluated,"claimedModelHash":model_hash()}),
+        );
+        d.admit(&e, &evaluated, History::Live).unwrap();
+        let index = d.index(reference(&e)).unwrap();
+        let reservation = d.records[index]
+            .completion_backing
+            .as_ref()
+            .unwrap()
+            .clone();
+        let record_bytes = d.records[index].record_backing.as_ref().unwrap().bytes();
+        let raw = outcome(
+            "completed",
+            evaluated.clone(),
+            json!({"runHandle":"run-1","runId":"native-run-1","evaluatedModelHash":model_hash(),"health":"invented","solverMode":"invented"}),
+        );
+        for actual_status in ["unknown", "execution_error", "rejected"] {
+            assert_eq!(
+                d.record_completion(
+                    origin(),
+                    reference(&e),
+                    &raw,
+                    None,
+                    Evidence::Run {
+                        handle: Some("run-1"),
+                        run_id: Some("native-run-1"),
+                        basis: &evaluated,
+                        status: actual_status
+                    }
+                )
+                .unwrap_err(),
+                Refusal::MissingEvidence
+            );
+            assert!(d.actual(origin(), reference(&e)).unwrap().is_none());
+            assert!(Arc::ptr_eq(
+                &reservation,
+                d.records[index].completion_backing.as_ref().unwrap()
+            ));
+            assert_eq!(
+                d.records[index].record_backing.as_ref().unwrap().bytes(),
+                record_bytes
+            );
+        }
+        let truthful = outcome(
+            "execution_error",
+            evaluated.clone(),
+            json!({"runHandle":"run-1","runId":"native-run-1","evaluatedModelHash":model_hash(),"health":"invented failure","solverMode":"invented"}),
+        );
+        let captured = d
+            .record_completion(
+                origin(),
+                reference(&e),
+                &truthful,
+                None,
+                Evidence::Run {
+                    handle: Some("run-1"),
+                    run_id: Some("native-run-1"),
+                    basis: &evaluated,
+                    status: "execution_error",
+                },
+            )
+            .unwrap();
+        assert_eq!(captured.actual().raw_outcome(), truthful);
     }
 }
