@@ -119,6 +119,24 @@ pub(crate) fn shear_factor(nu: f64, ro: f64, ri: f64, inertia: f64) -> Option<f6
     Some(num / den).filter(|c| c.is_finite() && *c > 0.0)
 }
 
+/// c_b on preview-physics-2 from the moduli (§2.4): the ν sequence of
+/// [`shear_factor`] with ν = RN(RN(E/RN(2·G)) − 1) while RN(E/RN(2·G)) >= 1/2,
+/// where its 1+ν is exact; below, with no 1+ν formed, x = RN(RN(2·G)/E) and
+/// c_b = RN(RN(RN(2·RN(RN(r_o·r_o) + RN(r_i·r_i))) + RN(x·RN(RN(r_o − r_i)·RN(r_o + r_i))))/RN(4·I)).
+/// `None` outside -1 < ν < 1/2.
+pub(crate) fn preview_shear_factor(e: f64, g: f64, ro: f64, ri: f64, inertia: f64) -> Option<f64> {
+    let ratio = e / (2.0 * g);
+    if !(ratio < 0.5) {
+        return shear_factor(ratio - 1.0, ro, ri, inertia);
+    }
+    if !(ratio - 1.0 > -1.0 && e > 0.0 && g > 0.0 && ri > 0.0 && ri < ro && inertia > 0.0) {
+        return None;
+    }
+    let x = (2.0 * g) / e;
+    let num = 2.0 * (ro * ro + ri * ri) + x * ((ro - ri) * (ro + ri));
+    Some(num / (4.0 * inertia)).filter(|c| c.is_finite() && *c > 0.0)
+}
+
 /// The toroidal hoop (intrados, crown, extrados) by the normative sequence,
 /// `None` unless R > r_o.
 pub(crate) fn toroidal_hoop(p: f64, ri: f64, wall: f64, ro: f64, r: f64) -> Option<[f64; 3]> {
@@ -549,7 +567,7 @@ pub(crate) fn preview_model_checks(source: &Value, model: &Value) -> Check {
             let t = if section["mill_tolerance"].is_null() { wall } else { wall - length(&section["mill_tolerance"])? };
             let id = od - 2.0 * t;
             let inertia = std::f64::consts::PI * (od.powi(4) - id.powi(4)) / 64.0;
-            let factor = shear_factor(e / (2.0 * g) - 1.0, od / 2.0, id / 2.0, inertia);
+            let factor = preview_shear_factor(e, g, od / 2.0, id / 2.0, inertia);
             route.require(factor.is_none() == exempt.contains(pipe_id), "SHEAR_POISSON_EXEMPTION")?;
             let Some(factor) = factor else { continue };
             for row in rows.iter().filter(|r| r["kind"] == SHEAR_MAX && case_of(r) == Some(case_id) && r["entity_ref"] == pipe_id) {

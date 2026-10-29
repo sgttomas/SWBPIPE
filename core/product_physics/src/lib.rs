@@ -6874,20 +6874,20 @@ fn solve_prepared_load_case(
             let exact_bases = built.exact_sections.get(&pipe.element_id).copied();
             let exact = pressure_runtime::is_exact(model);
             let pressure_state = exact_pressure.as_ref().and_then(|case| case.pipe_states.get(&pipe_index));
-            let poisson_ratio = if exact {
-                load_state
+            let poisson = if exact {
+                u4b_rows::ShearPoisson::Authored(load_state
                     .and_then(|state| state.members.iter().find(|m| m.pipe_index == pipe_index))
                     .map(|m| m.material.pair.poisson_ratio())
                     .or_else(|| model.pipe_segments.iter().find(|p| p.id == pipe.element_id)
                         .and_then(|p| material_map.get(p.material.as_str()))
                         .and_then(|m| m.poisson_ratio.as_ref())
                         .map(|q| q.value))
-                    .unwrap_or(f64::NAN)
+                    .unwrap_or(f64::NAN))
             } else {
                 // W-15 §2.2: a component body's nu is that of the selected
                 // unscaled E/G pair, never of its scaled section.
                 let (elastic_modulus, shear_modulus) = built.unscaled_moduli(pipe);
-                u4b_rows::preview_poisson_ratio(elastic_modulus, shear_modulus)
+                u4b_rows::ShearPoisson::Moduli { elastic_modulus, shear_modulus }
             };
             let bases = u4b_rows::member_bases(section, exact_bases);
             let directional = macro_bend.and_then(|bend| u4b_rows::directional_pair(model, bend));
@@ -6897,7 +6897,7 @@ fn solve_prepared_load_case(
             };
             let station = u4b_rows::append_station_quantities(model, &mut results, diagnostics, &u4b_rows::MemberQuantities {
                 case_id: &load_case.id, pipe_id: &pipe.element_id, arc: macro_bend.is_some(), exact,
-                bases: bases.clone(), poisson_ratio, directional, toroidal,
+                bases: bases.clone(), poisson, directional, toroidal,
             });
             directional_measures.extend(station.directional_records);
             if let Some(bend) = macro_bend {

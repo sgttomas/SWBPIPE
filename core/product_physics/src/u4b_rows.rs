@@ -251,7 +251,7 @@ pub(crate) struct MemberQuantities<'a> {
     pub exact: bool,
     pub bases: Vec<BasisSection>,
     /// ν by the route's rule (§2.4); out of domain is checked here.
-    pub poisson_ratio: f64,
+    pub poisson: ShearPoisson,
     /// (i_ip, i_op) of a realized arc with the directional pair (§2.6).
     pub directional: Option<(f64, f64)>,
     /// (p, R) of a pressurized pressure-2 arc (§2.5).
@@ -299,7 +299,7 @@ pub(crate) fn append_station_quantities(
     let factors: Vec<Result<f64, q::SectionQuantityError>> = m
         .bases
         .iter()
-        .map(|b| q::saint_venant_shear_factor(m.poisson_ratio, b.outer_radius, b.inner_radius, b.inertia))
+        .map(|b| m.poisson.shear_factor(b.outer_radius, b.inner_radius, b.inertia))
         .collect();
     if let Some(Err(q::SectionQuantityError::PoissonOutOfDomain { nu })) = factors.first() {
         diagnostics.push(poisson_out_of_domain(m.case_id, m.pipe_id, *nu));
@@ -572,4 +572,53 @@ pub(crate) fn directional_pair(model: &PreviewModel, bend: &CurvedBendMacroBuild
 /// solve uses for this member and case.
 pub(crate) fn preview_poisson_ratio(elastic_modulus: f64, shear_modulus: f64) -> f64 {
     elastic_modulus / (2.0 * shear_modulus) - 1.0
+}
+
+/// A member's ν by its route (§2.4).
+#[derive(Debug, Clone, Copy)]
+pub(crate) enum ShearPoisson {
+    /// pressure-2: the member's authored ν.
+    Authored(f64),
+    /// preview-physics-2: ν = E/(2G) − 1 from the moduli the solve uses.
+    Moduli { elastic_modulus: f64, shear_modulus: f64 },
+}
+
+impl ShearPoisson {
+    /// c_b of the annulus (r_o, r_i,b, I_b) by this route's ν rule.
+    pub(crate) fn shear_factor(self, outer_radius: f64, inner_radius: f64, second_moment: f64) -> Result<f64, q::SectionQuantityError> {
+        match self {
+            Self::Authored(nu) => q::saint_venant_shear_factor(nu, outer_radius, inner_radius, second_moment),
+            Self::Moduli { elastic_modulus, shear_modulus } => preview_shear_factor(elastic_modulus, shear_modulus, outer_radius, inner_radius, second_moment),
+        }
+    }
+}
+
+/// §2.4: c_b on preview-physics-2 from the moduli. Admission is ν's
+/// ([`preview_poisson_ratio`], −1 < ν < 1/2, `TRANSVERSE_SHEAR_POISSON_OUT_OF_DOMAIN`).
+/// With q = RN(E/RN(2·G)):
+/// - q ≥ 1/2 (and a NaN q): `saint_venant_shear_factor` of that ν, whose
+///   1+ν = q and 1+2ν = 2q − 1 are exact (Sterbenz), so its bits stand;
+/// - q < 1/2 (ν < −1/2, G > E): `saint_venant_shear_factor_of_ratio` of
+///   x = RN(RN(2·G)/E) (frame kernel `shear::moduli_ratio_terms`), where
+///   1+ν = RN(q − 1) + 1 would recover 1+ν* only to within u + 2^-54/q*
+///   relative to the exact q* = E/(2G) (u = 2^-53).
+///
+/// **Error** (u = 2^-53, E, G, r_o, r_i,b and I_b exact, first order): on
+/// q ≥ 1/2, 3+2ν = RN(2q + 1) carries (3/4 + 1)u, its product with RN(r_o²)
+/// 3.75u, RN(1+2ν)·RN(r_i,b²) an absolute 2q*·u·r_i,b² (≤ (3/4)(2q*+1)u·r_o²)
+/// plus 2u of its own, so num 5.5u, den 2u and c_b 8.5u; on q < 1/2, 7u. So
+/// |c_b/c_b* − 1| ≤ 8.5u for every E/(2G) in (0, 3/2), and τ_v,max, three
+/// more correctly rounded operations, is within 11.5u of |V|·c_b*/1e6.
+pub(crate) fn preview_shear_factor(elastic_modulus: f64, shear_modulus: f64, outer_radius: f64, inner_radius: f64, second_moment: f64) -> Result<f64, q::SectionQuantityError> {
+    let ratio = elastic_modulus / (2.0 * shear_modulus);
+    let nu = ratio - 1.0;
+    if !(ratio < 0.5) {
+        return q::saint_venant_shear_factor(nu, outer_radius, inner_radius, second_moment);
+    }
+    if !(nu > -1.0) {
+        return Err(q::SectionQuantityError::PoissonOutOfDomain { nu });
+    }
+    let (x, _) = open_pipe_stress_frame_kernel::shear::moduli_ratio_terms(elastic_modulus, shear_modulus)
+        .map_err(|_| q::SectionQuantityError::InvalidInput { name: "moduli" })?;
+    q::saint_venant_shear_factor_of_ratio(x, outer_radius, inner_radius, second_moment)
 }

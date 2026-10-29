@@ -871,3 +871,45 @@ fn every_sequence_matches_the_independent_expected_bits() {
     assert_eq!(counts.values().sum::<usize>(), 908);
     println!("bit vectors: {counts:?}");
 }
+
+/// The x = 1/(1+ν) sequence (§2.4, the preview route below E/(2G) = 1/2):
+/// its fixed operations, its refusals, and the same value as the ν sequence
+/// where that sequence is exact (x = 1, 4/5, 1/(1+ν) with ν + 1 exact).
+#[test]
+fn shear_factor_of_ratio_sequence_and_refusals() {
+    let (ro, ri, inertia) = (0.1_f64, 0.09_f64, 2.6e-5_f64);
+    for x in [0.7, 1.0, 1.6, 2.0, 2.5, 3.0 * 2f64.powi(52), 1e300] {
+        let factor = saint_venant_shear_factor_of_ratio(x, ro, ri, inertia).unwrap();
+        let num = 2.0 * (ro * ro + ri * ri) + x * ((ro - ri) * (ro + ri));
+        assert_eq!(factor.to_bits(), (num / (4.0 * inertia)).to_bits(), "{x}");
+    }
+    // ν = 0 and ν = 1/4 (x = 4/5 is inexact, so compare values within 8u).
+    for (nu, x) in [(0.0, 1.0), (0.25, 0.8)] {
+        let a = saint_venant_shear_factor(nu, ro, ri, inertia).unwrap();
+        let b = saint_venant_shear_factor_of_ratio(x, ro, ri, inertia).unwrap();
+        assert!((a - b).abs() <= 8.0 * f64::EPSILON * a, "{nu}: {a} vs {b}");
+    }
+    for x in [0.0, -1.0, 0.5, 2.0 / 3.0, f64::NAN, f64::INFINITY] {
+        assert!(
+            matches!(
+                saint_venant_shear_factor_of_ratio(x, ro, ri, inertia),
+                Err(SectionQuantityError::InvalidInput {
+                    name: "modulus_ratio"
+                })
+            ),
+            "{x}"
+        );
+    }
+    assert!(matches!(
+        saint_venant_shear_factor_of_ratio(1.0, ro, ro, inertia),
+        Err(SectionQuantityError::InvalidInput {
+            name: "inner_radius"
+        })
+    ));
+    assert!(matches!(
+        saint_venant_shear_factor_of_ratio(f64::MAX, ro, ri, inertia),
+        Err(SectionQuantityError::InvalidInput {
+            name: "saint_venant_shear_factor"
+        })
+    ));
+}

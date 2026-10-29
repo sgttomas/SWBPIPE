@@ -268,6 +268,23 @@ def shear_factor(nu, outer, inner, inertia):
     return factor if math.isfinite(factor) and factor > 0.0 else None
 
 
+def preview_shear_factor(elastic, shear, outer, inner, inertia):
+    """c_b from the moduli (DEL-04-07 §2.4): the nu sequence while RN(E/RN(2G)) >= 1/2, else the x = RN(RN(2G)/E)
+    form without 1 + nu; None outside -1 < nu < 1/2 (admission by the rounded nu)."""
+    ratio = elastic / (2.0 * shear)
+    if not ratio < 0.5:
+        return shear_factor(ratio - 1.0, outer, inner, inertia)
+    if not (ratio - 1.0 > -1.0 and elastic > 0.0 and shear > 0.0):
+        return None
+    if not all(math.isfinite(v) and v > 0.0 for v in (outer, inner, inertia)) or inner >= outer:
+        return None
+    x = (2.0 * shear) / elastic
+    if not (math.isfinite(x) and x > 2.0 / 3.0):
+        return None
+    factor = (2.0 * (outer * outer + inner * inner) + x * ((outer - inner) * (outer + inner))) / (4.0 * inertia)
+    return factor if math.isfinite(factor) and factor > 0.0 else None
+
+
 def shear_maximum(shear_y, shear_z, factor):
     return norm2(shear_y, shear_z) * factor / 1e6
 
@@ -386,7 +403,7 @@ def regenerate_base(base, template, forms, definitions):
         prefix = axial_ids[0].rsplit(":", 2)[0]
         elastic, shear = _moduli(model, body, case_id, pipe)
         outer, inner, inertia = _section(model, pipe)
-        factor = shear_factor(elastic / (2.0 * shear) - 1.0, outer, inner, inertia)
+        factor = preview_shear_factor(elastic, shear, outer, inner, inertia)
         for location, token in STATIONS:
             n = _one(own, case_id, pipe, "element_local_axial_normal_stress", location, "axial_normal_stress")
             y = _one(own, case_id, pipe, "element_local_bending_normal_stress_y", location, "bending_normal_stress_y")

@@ -250,3 +250,46 @@ pub fn shear_area(kappa: f64, area: f64) -> Result<f64, ShearFactorError> {
     }
     Ok(shear_area)
 }
+
+/// The moduli terms of an isotropic material whose Poisson ratio is the exact
+/// nu* = E/(2G) - 1, formed from E and G without any nu, in this fixed
+/// binary64 order:
+///
+/// ```text
+/// x = (2*G)/E   (rounds 2G/E = 1/(1 + nu*))
+/// t = 1 - x     (rounds 1 - 2G/E = nu*/(1 + nu*))
+/// ```
+///
+/// In exact arithmetic a ratio (a + b*nu*)/(1 + nu*) is a*x* + b*t* with
+/// x* = 2G/E and t* = 1 - x*. x and t are not functions of a rounded nu:
+/// at E/(2G) = 1/(3*2^52), fl(fl(E/(2G)) - 1) = -1 + 2^-53, whose
+/// 1/(1 + nu) is 2^53, while x = 3*2^52.
+///
+/// **Exactness.** Let u = 2^-53 and x* = 2G/E. 2*G is exact (a power-of-two
+/// scaling) and x = x*(1 + e) with |e| <= u. For x in [1/2, 2], 1 - x is
+/// exact (Sterbenz), so t carries only x's rounding: |t - t*| <= u*x*. For
+/// x > 2, |1 - x| >= x/2 and 1 - x rounds once, so t's relative error is at
+/// most 3u. Forming 1 + nu = fl(fl(E/(2G)) - 1) + 1 instead recovers 1 + nu*
+/// only to within u + 2^-54/q* relative to the exact q* = E/(2G), below
+/// E/(2G) = 1/2 (x > 2).
+///
+/// **Refusals.** A non-finite input, E or G not positive, and an x that is
+/// not a positive normal number (2*G overflowing, or x out of range). The
+/// Poisson domain is the caller's.
+pub fn moduli_ratio_terms(
+    elastic_modulus: f64,
+    shear_modulus: f64,
+) -> Result<(f64, f64), ShearFactorError> {
+    let e = finite("elastic_modulus", elastic_modulus)?;
+    let g = finite("shear_modulus", shear_modulus)?;
+    for (name, value) in [("elastic_modulus", e), ("shear_modulus", g)] {
+        if value <= 0.0 {
+            return Err(ShearFactorError::NonPositiveModulus { name, value });
+        }
+    }
+    let x = (2.0 * g) / e;
+    if !(x.is_normal() && x > 0.0) {
+        return Err(ShearFactorError::NumericalRange { name: "x: (2*G)/E" });
+    }
+    Ok((x, 1.0 - x))
+}
