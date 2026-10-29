@@ -68,10 +68,26 @@
         "tools/release/run_evidence_sweep.py",
         "--execute"
       ]
+    },
+    "agent-host-witness-offline": {
+      "cwd": ".",
+      "command": [
+        "python3",
+        "tools/agent_host_witness_test.py"
+      ]
     }
   },
   "always_checks": [],
   "path_rules": [
+    {
+      "paths": [
+        "tools/agent_host_witness.py",
+        "tools/agent_host_witness_test.py"
+      ],
+      "checks": [
+        "agent-host-witness-offline"
+      ]
+    },
     {
       "paths": [
         "apps/desktop/**"

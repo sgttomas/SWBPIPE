@@ -310,6 +310,144 @@ def test_optemp_and_opmisc_records():
     listed(result, "MBF-IMPORT-TARGET-OPTION-DELEGATED", "delegated")
 
 
+_EXPONENT_PROBE = r"""
+import json, sys
+sys.path.insert(0, sys.argv[1])
+import test_caepipe_mbf_importer as t
+out = []
+for optemp in sys.argv[2:]:
+    result = t.run(t.mbf(optemp=optemp))
+    out.append([result.status, sorted({item["code"] for item in result.diagnostics if item["severity"] == "error"})])
+material = t.run(t.mbf(material=("M1,0,0.3,1,1,CS,x,1e-9223372036854775808", "M1,20,200000,1.2e-05")))
+zero = t.run(t.mbf(material=("M1,0,0.3,1,1,CS,x,0e-9223372036854775808", "M1,20,200000,1.2e-05")))
+out.append([material.status, sorted({item["code"] for item in material.diagnostics if item["severity"] == "error"})])
+out.append([zero.status, []])
+print(json.dumps(out))
+"""
+
+
+def test_decimal_exponents_beyond_1e5_are_refused_without_computing_the_power():
+    # A non-zero numeral with a decimal exponent beyond 10^5 (here at the i64 limits) is refused as unrepresentable
+    # before any Fraction or 10^n is formed; computing 10^9223372036854775808 never finishes, so the import runs in a
+    # subprocess and a timeout is a failure. A zero mantissa is an exact zero at any exponent. The Rust port refuses
+    # the same numerals with the same code (rational.rs `parse_fraction`, a signed range test).
+    optemps = ["1e-9223372036854775808", "1e9223372036854775807", "-1e-9223372036854775808", "1e-200000",
+               "1e200000", "0e-9223372036854775808"]
+    try:
+        done = subprocess.run([sys.executable, "-c", _EXPONENT_PROBE, str(Path(__file__).resolve().parent), *optemps],
+                              capture_output=True, text=True, timeout=10, cwd=ROOT)
+    except subprocess.TimeoutExpired:
+        pytest.fail("the importer did not finish within 10 s on a decimal exponent at the i64 limits")
+    assert done.returncode == 0, done.stderr
+    unrepresentable = ["refused", ["MBF-IMPORT-VALUE-UNREPRESENTABLE"]]
+    assert json.loads(done.stdout) == [unrepresentable] * 5 + [
+        ["imported", []],  # OPTEMP 0e-9223372036854775808 is 0
+        ["refused", ["MBF-IMPORT-MATERIAL-PROTECTED-SUSPECTED"]],  # a non-zero value in a protected column
+        ["imported", []],  # a zero there is no value
+    ]
+    assert importer_module.exact_decimal("1.5e-3") == Fraction(3, 2000)
+    assert importer_module.exact_decimal("0.0e9223372036854775807") == 0
+    # beyond 10^+-400 a non-zero value is refused unformed, as the Rust port's bounded `parse_fraction` does
+    assert importer_module.exact_decimal("1e399") == 10 ** 399 and importer_module.exact_decimal("1e400") is None
+    assert importer_module.exact_decimal("-1e-401") == -Fraction(1, 10 ** 401)
+    assert importer_module.exact_decimal("1e-402") is None
+    assert importer_module.exact_decimal("1e100000") is None and importer_module.exact_decimal("1.5e-100000") is None
+
+
+_DIGIT_RUN_PROBE = r"""
+import json, sys
+sys.path.insert(0, sys.argv[1])
+import test_caepipe_mbf_importer as t
+cases = [dict(optemp="0." + "0" * 20_000_000 + "1e-200000"), dict(optemp="1" * 20_000_000),
+         dict(optemp="1e-" + "1" * 20_000_000), dict(optemp="1" * 4301), dict(optemp="1" * 4300),
+         dict(optemp="0." + "0" * 4299 + "1e-200000"),
+         dict(material=("M1,0,0.3,1,1,CS,x," + "1" * 5000, "M1,20,200000,1.2e-05"))]
+out = []
+for options in cases:
+    try:
+        result = t.run(t.mbf(**options))
+        out.append([result.status, sorted({item["code"] for item in result.diagnostics if item["severity"] == "error"})])
+    except ValueError as error:
+        out.append(["ValueError", str(error)])
+print(json.dumps(out))
+"""
+
+
+def _digit_limit(count: int) -> list:
+    return ["ValueError", f"Exceeds the limit (4300 digits) for integer string conversion: value has {count} digits; "
+                          "use sys.set_int_max_str_digits() to increase the limit"]
+
+
+def test_long_digit_runs_are_refused_before_any_power_of_ten_is_formed():
+    # Each digit run of a numeral is checked against Python's default int() digit limit before it is converted and
+    # before 10^(its length) is formed, in the Rust port's order (rational.rs `parse_fraction_with`); 10^20000000
+    # takes far longer than the timeout. The outcome is int()'s ValueError, as Fraction(text) raises it and as the
+    # Rust port returns it (ImportError::Python); within the limit, a value beyond binary64 is refused by name.
+    try:
+        done = subprocess.run([sys.executable, "-c", _DIGIT_RUN_PROBE, str(Path(__file__).resolve().parent)],
+                              capture_output=True, text=True, timeout=10, cwd=ROOT)
+    except subprocess.TimeoutExpired:
+        pytest.fail("the importer did not finish within 10 s on a 20000000-digit numeral")
+    assert done.returncode == 0, done.stderr
+    unrepresentable = ["refused", ["MBF-IMPORT-VALUE-UNREPRESENTABLE"]]
+    assert json.loads(done.stdout) == [
+        _digit_limit(20_000_001),  # the fraction digits of the reviewer's input
+        _digit_limit(20_000_000),  # a long integer part
+        _digit_limit(20_000_000),  # a long exponent
+        _digit_limit(4301),
+        unrepresentable,  # 4300 digits: within the limit, beyond binary64
+        unrepresentable,  # 4300 fraction digits, then the exponent beyond 10^5
+        _digit_limit(5000),  # a protected material column's zero test reads the numeral the same way
+    ]
+
+
+_ENGLISH_FEET_PROBE = r"""
+import json, sys
+sys.path.insert(0, sys.argv[1])
+import test_caepipe_mbf_importer as t
+from core.handoff.caepipe_mbf.importer import parse_english_length
+out = []
+for feet in ("0." + "0" * 20_000_000 + "1", "1" * 20_000_000):
+    for read in (lambda: parse_english_length(feet),
+                 lambda: t.run(t.mbf("F10,KA,MM1,PP1,CL=L1", "T20,X" + feet, options="HGRA")).status):
+        try:
+            out.append(["value", str(read())])
+        except ValueError as error:
+            out.append(["ValueError", str(error)])
+print(json.dumps(out))
+"""
+
+
+def test_english_decimal_feet_bound_their_digit_runs_before_any_power_of_ten():
+    # English decimal feet are read by the bounded decimal path (the Rust port's `fraction_of`): each digit run is
+    # checked against the int() digit limit before 10^(its length) is formed. Fraction(text) formed 10^20000000
+    # first, far beyond the timeout; the outcome is int()'s ValueError, as the Rust port returns it.
+    try:
+        done = subprocess.run([sys.executable, "-c", _ENGLISH_FEET_PROBE, str(Path(__file__).resolve().parent)],
+                              capture_output=True, text=True, timeout=10, cwd=ROOT)
+    except subprocess.TimeoutExpired:
+        pytest.fail("English decimal feet of 20000000 digits did not finish within 10 s")
+    assert done.returncode == 0, done.stderr
+    assert json.loads(done.stdout) == [_digit_limit(20_000_001)] * 2 + [_digit_limit(20_000_000)] * 2
+    assert parse_english_length("7.25") == Fraction(87) and parse_english_length("1." + "0" * 4299 + "1") == 12 * (
+        1 + Fraction(1, 10 ** 4300))
+
+
+def test_unicode_digits_count_as_the_rust_port_counts_them():
+    # The numeral helpers count a numeral's digits from its value, as the Rust port does
+    # (`numerator.to_string().len()`), so a Unicode zero is a leading zero like an ASCII one. The import itself
+    # refuses non-ASCII numerals before reading them, on both sides (MBF-IMPORT-CHARACTER-UNSUPPORTED).
+    exact_decimal = importer_module.exact_decimal
+    assert exact_decimal("٠1e399") == exact_decimal("٠٠1e399") == exact_decimal("01e399") == 10 ** 399
+    assert exact_decimal("٠1e400") is None and exact_decimal("١e400") is None
+    assert exact_decimal("١٢.5") == Fraction(25, 2) and exact_decimal("٠.٠e-9223372036854775808") == 0
+    assert importer_module.fraction_of("٠1e1000") == 10 ** 1000  # fraction_of has no magnitude bound
+    for value in (1, 9, 10, 99, 100, 10 ** 399 - 1, 10 ** 399, 10 ** 4000 + 7):
+        assert importer_module._decimal_digits(value) == len(str(value))
+    result = run(mbf(material=("M1,0,0.3,1,1,CS,x,٠1e399", "M1,20,200000,1.2e-05")))
+    refused(result, "MBF-IMPORT-CHARACTER-UNSUPPORTED")
+
+
 def test_the_gravitational_direction_is_refused_in_a_bound_import_too():
     data = mbf(extra=("OPMISC", "33,20,1,1,1,2,2,1,9.80665,1"))
     sidecar = {"mbf_sha256": hashlib.sha256(data).hexdigest(),

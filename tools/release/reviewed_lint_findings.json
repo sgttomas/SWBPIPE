@@ -1,0 +1,445 @@
+{
+  "purpose": "RT-V8 P8 (owner, 2026-10-28, as recommended): reviewed blocking lint findings in source code and tests. Each entry pins the file, the finding code and matched policy, the SHA-256 of the exact line text, and how many such findings that line produces. A finding is expected only while all of these match; any other blocking finding fails the export gate.",
+  "findings": [
+    {
+      "path": "apps/desktop/src-tauri/src/lib.rs",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "c7db2392787e071130a279aec8b0d949f434c2932a223e0048a7c08736f0a6e9",
+      "count": 1,
+      "reason": "In-file test asserting the claim phrase is absent from a rendered report"
+    },
+    {
+      "path": "apps/desktop/src/features/report-lint/ReportLintPanel.tsx",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "c96c4f94a851658538d80fac05221f16e778404229ddfd6a862850bf2edd3ff3",
+      "count": 1,
+      "reason": "Claim-phrase denylist in product code (phrases the product refuses)"
+    },
+    {
+      "path": "core/product_preview/service.py",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "9bd5a3440ce6a875a685b2204b136ff30f7ecf81f2b246ad10ff5a6e816ceefa",
+      "count": 1,
+      "reason": "Claim-phrase denylist in product code (phrases the product refuses)"
+    },
+    {
+      "path": "core/reporting/pdf_emitter/tests/emit.rs",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "ba5e0aeb49805b35e0d668603a554ed00928575096747f336f94f9c0f37038ff",
+      "count": 1,
+      "reason": "Test payload or assertion that the phrase is refused or absent"
+    },
+    {
+      "path": "core/reporting/protected_content_linter/src/lib.rs",
+      "code": "PRIVATE_DATA_SYNTHETIC_MARKER",
+      "matched_policy": "OPS-K-PRIV-1",
+      "line_sha256": "555e7dcb156c175b2a0a9373fc73cd02193bb0228b5e972a3f970c0d28d79dc7",
+      "count": 1,
+      "reason": "The protected-content linter's own detection pattern, claim denylist or test payload"
+    },
+    {
+      "path": "core/reporting/protected_content_linter/src/lib.rs",
+      "code": "PRIVATE_DATA_SYNTHETIC_MARKER",
+      "matched_policy": "OPS-K-PRIV-1",
+      "line_sha256": "aa519e24298d056915a5001dbeeddf82bdc19f826ceb30c29f3c44d190d51949",
+      "count": 1,
+      "reason": "The protected-content linter's own detection pattern, claim denylist or test payload"
+    },
+    {
+      "path": "core/reporting/protected_content_linter/src/lib.rs",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "2635a081c64830ed29f6ad8a0d5657ba1eb569aa9c09276f9c4a37f484a29090",
+      "count": 1,
+      "reason": "The protected-content linter's own detection pattern, claim denylist or test payload"
+    },
+    {
+      "path": "core/reporting/protected_content_linter/src/lib.rs",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "9dee66ad640cff5430da748368ec4cd4227631cfbb2c41998e9a66bb4276ab9a",
+      "count": 1,
+      "reason": "The protected-content linter's own detection pattern, claim denylist or test payload"
+    },
+    {
+      "path": "core/reporting/protected_content_linter/src/lib.rs",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "ad7808815fdc5bfa98f85d68b7ec4e83cf4f604f96b34556e93c1e8214a08585",
+      "count": 1,
+      "reason": "The protected-content linter's own detection pattern, claim denylist or test payload"
+    },
+    {
+      "path": "core/reporting/protected_content_linter/src/lib.rs",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "b49e06567e10ed6db2c9c28b2e2c18b99e07e2b22b1fdbd18ac633b480949e1f",
+      "count": 1,
+      "reason": "The protected-content linter's own detection pattern, claim denylist or test payload"
+    },
+    {
+      "path": "core/reporting/protected_content_linter/src/lib.rs",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "df16fc5ca1f095529e16de47579c1b43b4547b205e6cde71119b5e95eba1545a",
+      "count": 1,
+      "reason": "The protected-content linter's own detection pattern, claim denylist or test payload"
+    },
+    {
+      "path": "core/reporting/protected_content_linter/src/lib.rs",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "f55f032fcbb848b9588c87b9a6080fc130d442786918e7e22171a99417c16c84",
+      "count": 1,
+      "reason": "The protected-content linter's own detection pattern, claim denylist or test payload"
+    },
+    {
+      "path": "core/reporting/protected_content_linter/src/lib.rs",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "fe2045e4607caf7c9219fbae140a339c986c1772a94335f308a7415bfaec52b7",
+      "count": 1,
+      "reason": "The protected-content linter's own detection pattern, claim denylist or test payload"
+    },
+    {
+      "path": "core/reporting/protected_content_linter/src/lib.rs",
+      "code": "PROTECTED_CONTENT_SYNTHETIC_MARKER",
+      "matched_policy": "OPS-K-IP-1",
+      "line_sha256": "0f40b4b036c8f9c58c2eae125fce543f56f6b58f3d05848543885d33779987ca",
+      "count": 2,
+      "reason": "The protected-content linter's own detection pattern, claim denylist or test payload"
+    },
+    {
+      "path": "core/reporting/protected_content_linter/src/lib.rs",
+      "code": "PROTECTED_CONTENT_SYNTHETIC_MARKER",
+      "matched_policy": "OPS-K-IP-1",
+      "line_sha256": "10b7a1ab3b237225d753190215c6c50597f8c88298c233bf6b08d75239ddd23a",
+      "count": 1,
+      "reason": "The protected-content linter's own detection pattern, claim denylist or test payload"
+    },
+    {
+      "path": "core/reporting/protected_content_linter/src/lib.rs",
+      "code": "PROTECTED_CONTENT_SYNTHETIC_MARKER",
+      "matched_policy": "OPS-K-IP-1",
+      "line_sha256": "1a8dc57e37ad673611ecbd7f54aa76fa020f0c43375821e3b068fe8e2406f9e4",
+      "count": 1,
+      "reason": "The protected-content linter's own detection pattern, claim denylist or test payload"
+    },
+    {
+      "path": "core/reporting/protected_content_linter/src/lib.rs",
+      "code": "PROTECTED_CONTENT_SYNTHETIC_MARKER",
+      "matched_policy": "OPS-K-IP-1",
+      "line_sha256": "aa519e24298d056915a5001dbeeddf82bdc19f826ceb30c29f3c44d190d51949",
+      "count": 1,
+      "reason": "The protected-content linter's own detection pattern, claim denylist or test payload"
+    },
+    {
+      "path": "core/reporting/protected_content_linter/src/lib.rs",
+      "code": "PROTECTED_CONTENT_SYNTHETIC_MARKER",
+      "matched_policy": "OPS-K-IP-1",
+      "line_sha256": "aca9df40ca210bde93ac0b247bb404ee6b3fee3bb0ac2ae21c8852e2129e20e8",
+      "count": 1,
+      "reason": "The protected-content linter's own detection pattern, claim denylist or test payload"
+    },
+    {
+      "path": "core/reporting/protected_content_linter/tests/cli_scope.rs",
+      "code": "PROTECTED_CONTENT_SYNTHETIC_MARKER",
+      "matched_policy": "OPS-K-IP-1",
+      "line_sha256": "51777a8321d11261c3927190408959b7b1a68ce50929213893bbfec0d362c822",
+      "count": 2,
+      "reason": "The protected-content linter's own detection pattern, claim denylist or test payload"
+    },
+    {
+      "path": "core/reporting/protected_content_linter/tests/cli_scope.rs",
+      "code": "PROTECTED_CONTENT_SYNTHETIC_MARKER",
+      "matched_policy": "OPS-K-IP-1",
+      "line_sha256": "7869064399e21556913136e6505a342ffe426c8218a4fc74753064337915a0ec",
+      "count": 1,
+      "reason": "The protected-content linter's own detection pattern, claim denylist or test payload"
+    },
+    {
+      "path": "core/reporting/protected_content_linter/tests/cli_scope.rs",
+      "code": "PROTECTED_CONTENT_SYNTHETIC_MARKER",
+      "matched_policy": "OPS-K-IP-1",
+      "line_sha256": "c0a8f69d575e93651e58b13c46e14770b3399e46dab097f60759886acbff2aa1",
+      "count": 1,
+      "reason": "The protected-content linter's own detection pattern, claim denylist or test payload"
+    },
+    {
+      "path": "core/reporting/report_renderer/tests/render.rs",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "ba5e0aeb49805b35e0d668603a554ed00928575096747f336f94f9c0f37038ff",
+      "count": 1,
+      "reason": "Test payload or assertion that the phrase is refused or absent"
+    },
+    {
+      "path": "tests/product_preview/test_product_preview_service.py",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "9f14c1745f4f3dac86a9fdcf179f0e8b224f1b43147d186c2275eb5ac5c2c632",
+      "count": 1,
+      "reason": "Test payload or assertion that the phrase is refused or absent"
+    },
+    {
+      "path": "tests/product_preview/test_product_preview_service.py",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "bb93e510a796651758558e9103e3723e1ec7dace28ced51cbf5ef4a5d9516b2c",
+      "count": 1,
+      "reason": "Test payload or assertion that the phrase is refused or absent"
+    },
+    {
+      "path": "tests/test_agent_rationale_boundary.py",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "48e6fd3900efb7deddfd50ffb7ba55581ff0c5897f5e318603e5eb2b2cb710f2",
+      "count": 1,
+      "reason": "Test payload or assertion that the phrase is refused or absent"
+    },
+    {
+      "path": "tests/test_agent_rationale_boundary.py",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "48ffe9b6a7e641465ffb74ff639335bc06799bbdb84d4274e1ca778963228254",
+      "count": 1,
+      "reason": "Test payload or assertion that the phrase is refused or absent"
+    },
+    {
+      "path": "tests/test_agent_rationale_boundary.py",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "9dee66ad640cff5430da748368ec4cd4227631cfbb2c41998e9a66bb4276ab9a",
+      "count": 1,
+      "reason": "Test payload or assertion that the phrase is refused or absent"
+    },
+    {
+      "path": "tests/test_component_section_schema.py",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "61226c4e1b47bba051f6c34ac07b1e7a9a1fcdb445050e6b195d94fe0b519751",
+      "count": 1,
+      "reason": "Test payload or assertion that the phrase is refused or absent"
+    },
+    {
+      "path": "tests/test_constraint_schema.py",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "61226c4e1b47bba051f6c34ac07b1e7a9a1fcdb445050e6b195d94fe0b519751",
+      "count": 1,
+      "reason": "Test payload or assertion that the phrase is refused or absent"
+    },
+    {
+      "path": "tests/test_constraint_schema.py",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "9bd5a3440ce6a875a685b2204b136ff30f7ecf81f2b246ad10ff5a6e816ceefa",
+      "count": 1,
+      "reason": "Test payload or assertion that the phrase is refused or absent"
+    },
+    {
+      "path": "tests/test_design_authoring_comparison_workspace.py",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "9bd5a3440ce6a875a685b2204b136ff30f7ecf81f2b246ad10ff5a6e816ceefa",
+      "count": 1,
+      "reason": "Test payload or assertion that the phrase is refused or absent"
+    },
+    {
+      "path": "tests/test_design_knowledge_schema.py",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "61226c4e1b47bba051f6c34ac07b1e7a9a1fcdb445050e6b195d94fe0b519751",
+      "count": 1,
+      "reason": "Test payload or assertion that the phrase is refused or absent"
+    },
+    {
+      "path": "tests/test_design_knowledge_schema.py",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "9bd5a3440ce6a875a685b2204b136ff30f7ecf81f2b246ad10ff5a6e816ceefa",
+      "count": 1,
+      "reason": "Test payload or assertion that the phrase is refused or absent"
+    },
+    {
+      "path": "tests/test_handoff_package_schema.py",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "61226c4e1b47bba051f6c34ac07b1e7a9a1fcdb445050e6b195d94fe0b519751",
+      "count": 1,
+      "reason": "Test payload or assertion that the phrase is refused or absent"
+    },
+    {
+      "path": "tests/test_handoff_package_schema.py",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "9bd5a3440ce6a875a685b2204b136ff30f7ecf81f2b246ad10ff5a6e816ceefa",
+      "count": 1,
+      "reason": "Test payload or assertion that the phrase is refused or absent"
+    },
+    {
+      "path": "tests/test_material_schema.py",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "61226c4e1b47bba051f6c34ac07b1e7a9a1fcdb445050e6b195d94fe0b519751",
+      "count": 1,
+      "reason": "Test payload or assertion that the phrase is refused or absent"
+    },
+    {
+      "path": "tests/test_model_operation_schema.py",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "61226c4e1b47bba051f6c34ac07b1e7a9a1fcdb445050e6b195d94fe0b519751",
+      "count": 1,
+      "reason": "Test payload or assertion that the phrase is refused or absent"
+    },
+    {
+      "path": "tests/test_model_operation_schema.py",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "9bd5a3440ce6a875a685b2204b136ff30f7ecf81f2b246ad10ff5a6e816ceefa",
+      "count": 1,
+      "reason": "Test payload or assertion that the phrase is refused or absent"
+    },
+    {
+      "path": "tests/test_model_schema.py",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "61226c4e1b47bba051f6c34ac07b1e7a9a1fcdb445050e6b195d94fe0b519751",
+      "count": 1,
+      "reason": "Test payload or assertion that the phrase is refused or absent"
+    },
+    {
+      "path": "tests/test_model_state_comparison.py",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "9dee66ad640cff5430da748368ec4cd4227631cfbb2c41998e9a66bb4276ab9a",
+      "count": 1,
+      "reason": "Test payload or assertion that the phrase is refused or absent"
+    },
+    {
+      "path": "tests/test_model_state_schema.py",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "61226c4e1b47bba051f6c34ac07b1e7a9a1fcdb445050e6b195d94fe0b519751",
+      "count": 1,
+      "reason": "Test payload or assertion that the phrase is refused or absent"
+    },
+    {
+      "path": "tests/test_model_state_schema.py",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "9bd5a3440ce6a875a685b2204b136ff30f7ecf81f2b246ad10ff5a6e816ceefa",
+      "count": 1,
+      "reason": "Test payload or assertion that the phrase is refused or absent"
+    },
+    {
+      "path": "tests/test_model_tree_property_inspector.py",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "90678089302e503b546ac4ef20c9fd80e0e89a2774603739dd46edfe466150f2",
+      "count": 1,
+      "reason": "Test payload or assertion that the phrase is refused or absent"
+    },
+    {
+      "path": "tests/test_operation_audit_trail.py",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "9dee66ad640cff5430da748368ec4cd4227631cfbb2c41998e9a66bb4276ab9a",
+      "count": 1,
+      "reason": "Test payload or assertion that the phrase is refused or absent"
+    },
+    {
+      "path": "tests/test_operation_validation_preview.py",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "9dee66ad640cff5430da748368ec4cd4227631cfbb2c41998e9a66bb4276ab9a",
+      "count": 1,
+      "reason": "Test payload or assertion that the phrase is refused or absent"
+    },
+    {
+      "path": "tests/test_physical_to_analytical_transform.py",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "9bd5a3440ce6a875a685b2204b136ff30f7ecf81f2b246ad10ff5a6e816ceefa",
+      "count": 1,
+      "reason": "Test payload or assertion that the phrase is refused or absent"
+    },
+    {
+      "path": "tests/test_physical_transform_model_schema.py",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "61226c4e1b47bba051f6c34ac07b1e7a9a1fcdb445050e6b195d94fe0b519751",
+      "count": 1,
+      "reason": "Test payload or assertion that the phrase is refused or absent"
+    },
+    {
+      "path": "tests/test_report_protected_content_linter.py",
+      "code": "PROTECTED_CONTENT_SYNTHETIC_MARKER",
+      "matched_policy": "OPS-K-IP-1",
+      "line_sha256": "9cc2e202fc87deec884bddf9110abe1a0c1e46acc6404ee756f8318bdd8f8d9b",
+      "count": 1,
+      "reason": "Test payload or assertion that the phrase is refused or absent"
+    },
+    {
+      "path": "tests/test_results_viewer_contract.py",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "a3b20949d499fda9a124af3674f4c509ea4d5e5b534e260534ddca6fbb64bcc0",
+      "count": 1,
+      "reason": "Test payload or assertion that the phrase is refused or absent"
+    },
+    {
+      "path": "tests/test_rule_pack_schema.py",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "61226c4e1b47bba051f6c34ac07b1e7a9a1fcdb445050e6b195d94fe0b519751",
+      "count": 1,
+      "reason": "Test payload or assertion that the phrase is refused or absent"
+    },
+    {
+      "path": "tests/test_security_threat_model.py",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "c123662bcf63dcedaf29278a5ab1fd291082585c4949ae69d4fd0cdd24d4d20d",
+      "count": 1,
+      "reason": "Test payload or assertion that the phrase is refused or absent"
+    },
+    {
+      "path": "tests/test_security_threat_model.py",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "c54327e0e5839073674c13a05d43834bac0837f12e2462cacb460700b4c5f040",
+      "count": 1,
+      "reason": "Test payload or assertion that the phrase is refused or absent"
+    },
+    {
+      "path": "tests/test_target_mapping_contract.py",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "9dee66ad640cff5430da748368ec4cd4227631cfbb2c41998e9a66bb4276ab9a",
+      "count": 1,
+      "reason": "Test payload or assertion that the phrase is refused or absent"
+    },
+    {
+      "path": "tests/test_viewport_editor_contract.py",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "9bd5a3440ce6a875a685b2204b136ff30f7ecf81f2b246ad10ff5a6e816ceefa",
+      "count": 1,
+      "reason": "Test payload or assertion that the phrase is refused or absent"
+    },
+    {
+      "path": "validation/benchmarks/mechanics/src/lib.rs",
+      "code": "PROHIBITED_PROFESSIONAL_CLAIM",
+      "matched_policy": "OPS-K-AUTH-1",
+      "line_sha256": "9bd5a3440ce6a875a685b2204b136ff30f7ecf81f2b246ad10ff5a6e816ceefa",
+      "count": 1,
+      "reason": "Claim-phrase denylist in product code (phrases the product refuses)"
+    }
+  ]
+}

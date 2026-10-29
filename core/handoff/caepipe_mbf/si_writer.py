@@ -28,6 +28,8 @@ import math
 from pathlib import Path
 from typing import Any, Iterable, Mapping
 
+from . import correctly_rounded
+
 
 MBF_SI_PROFILE_ID = "caepipe-mbf-si-pilot-1"
 STANDARD_GRAVITY = 9.80665  # m/s^2; converts SWBPIPE weight per length to CAEPIPE weight density only.
@@ -105,6 +107,12 @@ _CLOSURE_TRANSFERS = ("transfers_to_wall", "separately_supported_or_compensated"
 # OPPRES as written with pressure: PD/4t, Bourdon effect off, pressure correction for bends off, peak pressure
 # factor 1, Bourdon (off) in expansion cases. SWBPIPE's exact pressure route models neither effect (DEL-04-07 D-3).
 OPPRES_LINE = "0,0,0,1,0"
+# The OPCODE line written with an ASME B31 piping code (Format of .MBF, OPCODE): axial force in the code stress off,
+# liberal allowable off (both code-stress settings only), B31J off. The other fields are not written.
+OPCODE_LINE = "0,0,0"
+# The piping code whose current edition the public manual names as computing SIFs and flexibility factors by B31J
+# whatever OPCODE says (Analysis: "for ASME B31.1 (2020 or later)"); the writer warns rather than refuses.
+B31J_LOCKED_CODES = ("B311",)
 # The importer's refusals of a restored region by the exact route's value checks (straight runs, bores), which the
 # printed digits can change; the writer's preflight reports them as MBF-SI-PRESSURE-REGION-FORMAT.
 _REGION_CHECK_CODES = ("MBF-IMPORT-PRESSURE-RUN-NONCOLLINEAR", "MBF-IMPORT-PRESSURE-BORE-MISMATCH",
@@ -389,15 +397,22 @@ def render_caepipe_mbf_si(
     reference_temperature_c: float = 20.0,
     max_layout_rows: int | None = 20,
     reference_temperature_f: float | None = None,
+    piping_code: str | None = None,
 ) -> MbfSiResult:
     """Render the pilot subset of a SWBPIPE preview model as SI MBF text, or refuse by name.
 
     `reference_temperature_f`, when given, replaces `reference_temperature_c` by the exact definition
-    (T - 32) x 5/9, and the normalization is listed."""
+    (T - 32) x 5/9, and the normalization is listed.
+
+    `piping_code` is the caller's choice of one documented OPTIONS piping-code token (Format of .MBF, OPTIONS). It
+    is written as `OPTIONS HGRA,<code>,SI`, and an ASME B31 code also gets `OPCODE 0,0,0` (B31J off). Without one
+    the text is unchanged (no code token) and the info diagnostic MBF-SI-PIPING-CODE-NOT-WRITTEN states that the
+    target program's default code applies."""
 
     writer = _Writer(model, title, reference_temperature_c, max_layout_rows)
     if reference_temperature_f is not None:
         writer.t_ref_f = reference_temperature_f
+    writer.piping_code = piping_code
     return writer.run()
 
 
@@ -459,6 +474,7 @@ class _Writer:
         self.regions: list[dict[str, Any]] = []
         self.pressure_case: str | None = None
         self.regenerating: frozenset[str] | None = None  # regenerate_caepipe_sidecar: the derived straights
+        self.piping_code: Any = None
 
     # -- diagnostics -----------------------------------------------------
     def diag(self, code: str, severity: str, entity: str, message: str) -> None:
@@ -565,6 +581,7 @@ class _Writer:
                       f"reference temperature must be a finite number (got {self.t_ref!r})")
             return self.refused()
         self.t_ref = float(self.t_ref)
+        self.check_piping_code()
         self.check_document()
         self.check_project_units()
         if self.has_errors():
@@ -594,6 +611,25 @@ class _Writer:
             loss_report=self.loss,
             assumptions=self.assumptions,
         )
+
+    def check_piping_code(self) -> None:
+        """The caller's piping code: a documented OPTIONS token, or none, which is stated, never defaulted."""
+        from .importer import PIPING_CODE_OPTIONS  # deferred: the importer imports this module
+
+        code = self.piping_code
+        if code is None:
+            self.diag("MBF-SI-PIPING-CODE-NOT-WRITTEN", "info", "OPTIONS",
+                      "no piping code was chosen, so OPTIONS carries none and the target program's default piping code "
+                      "applies; the code decides the load cases offered and which code-dependent settings are "
+                      "honoured (Analysis)")
+        elif not isinstance(code, str) or code not in PIPING_CODE_OPTIONS:
+            self.refuse("MBF-SI-PIPING-CODE-UNSUPPORTED", "OPTIONS",
+                        f"piping code {code!r} is not one of the documented OPTIONS piping-code tokens (Format of .MBF)")
+        elif code in B31J_LOCKED_CODES:
+            self.diag("MBF-SI-PIPING-CODE-B31J-LOCKED", "warning", "OPTIONS",
+                      f"piping code {code} is the current edition, for which the target program computes SIFs and "
+                      "flexibility factors by B31J whatever OPCODE says (Analysis); OPCODE B31J off is written but "
+                      "not honoured, and a tee's flexibility then differs from SWBPIPE's, which assembles none")
 
     def check_document(self) -> None:
         version = self.model.get("schema_version")
@@ -946,8 +982,8 @@ class _Writer:
         ti = tuple(p[axis] + t1 * d1[axis] for axis in range(3))
         residual = _norm(_sub(_sub(q, tuple(t2 * value for value in d2)), ti))
         chord_length = _norm(chord)
-        theta = math.acos(cosine)
-        tangent_length = bend["radius"] * math.tan(theta / 2.0)
+        theta = correctly_rounded.acos(cosine)
+        tangent_length = bend["radius"] * correctly_rounded.tan(theta / 2.0)
         if not self.finite([*ti, t1, t2, residual, tangent_length], entity, "tangent intersection"):
             return None
         tol = _BEND_RELATIVE_TOLERANCE
@@ -1606,7 +1642,11 @@ class _Writer:
         if self.has_errors():
             return self.refused()
 
-        lines = [_title(self.title), "VERSION", MBF_VERSION, "OPTIONS", "HGRA,SI", "OPTEMP", _num(self.t_ref)]
+        lines = [_title(self.title), "VERSION", MBF_VERSION, "OPTIONS",
+                 f"HGRA,{self.piping_code},SI" if self.piping_code is not None else "HGRA,SI"]
+        if self.piping_code is not None and self.piping_code.startswith("B31"):
+            lines += ["OPCODE", OPCODE_LINE]
+        lines += ["OPTEMP", _num(self.t_ref)]
         if self.pipe_pressure:
             lines += ["OPPRES", OPPRES_LINE]
         lines.append("MATERIAL")
@@ -1839,6 +1879,14 @@ class _Writer:
             + " and specific gravity 0 (empty pipe); Temperature 1 = reference "
             "temperature + the element's SWBPIPE thermal change (summed when several primitives act on one element).",
         ]
+        if self.piping_code is not None:
+            notes.append(f"Piping code {self.piping_code}, chosen by the caller, is written in OPTIONS"
+                         + (f"; OPCODE is written {OPCODE_LINE}: axial force in the code stress off and liberal "
+                            "allowable off (code-stress settings only), and B31J off, so SIFs and flexibility "
+                            "factors come from the code's own appendix and a tee assembles no branch flexibility "
+                            "(Analysis; Format of .MBF, OPCODE)" if self.piping_code.startswith("B31") else
+                            "; OPCODE is not written (its B31J field applies to ASME B31 codes only)")
+                         + ". Every bend carries the user flexibility factor, which replaces the code's value (Bend).")
         if self.node_springs:
             notes.append("Spring supports are written as flexible anchors KA,TRAK(kx,ky,kz),ROTK(0,0,0), stiffness "
                          "in N/mm; a zero component leaves its DOF free and ROTK(0,0,0) leaves rotations free "
