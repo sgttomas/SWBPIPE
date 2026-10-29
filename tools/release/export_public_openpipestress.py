@@ -182,6 +182,10 @@ SKIPPED_NAME_EXCEPTIONS = (
     # RT-V8 P4 (owner, 2026-10-28): the public issue templates (DEL-01-03,
     # written for the public repository). No workflow ships (DEC-059).
     (".github", ".github/ISSUE_TEMPLATE/"),
+    # RT-V8 P5 (owner, 2026-10-28): the reference generators and checksum
+    # lists that staged validation references cite. Run records elsewhere
+    # (for example core/units/_run_records) stay out.
+    ("_run_records", "validation/references/"),
 )
 
 

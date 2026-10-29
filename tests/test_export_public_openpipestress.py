@@ -383,6 +383,27 @@ def test_only_the_issue_templates_ship_from_github_dirs(tmp_path):
                 if f["path"].startswith(".github/")]
 
 
+def test_only_validation_reference_run_records_ship(tmp_path):
+    # RT-V8 P5: staged references cite their generators in _run_records.
+    source = make_source_tree(tmp_path)
+    for rel in ("validation/references/t1/_run_records/gen.py",
+                "validation/references/t1/round/_run_records/SHA256SUMS",
+                "core/units/_run_records/TASK_RUN.md",
+                "validation/_run_records/x.md"):
+        (source / rel).parent.mkdir(parents=True, exist_ok=True)
+        (source / rel).write_text("invented\n", encoding="utf-8")
+    commit_all(source)
+    posix = {rel.as_posix() for rel in PIPE.select_files(source)[0]}
+    assert {"validation/references/t1/_run_records/gen.py",
+            "validation/references/t1/round/_run_records/SHA256SUMS"} <= posix
+    assert "core/units/_run_records/TASK_RUN.md" not in posix
+    assert "validation/_run_records/x.md" not in posix
+    staging = tmp_path / "staging"
+    PIPE.stage_files(source, staging, PIPE.select_files(source)[0])
+    assert not [f for f in PIPE.boundary_findings(staging, reviewed={})
+                if "_run_records" in f["path"]]
+
+
 def test_selection_fails_closed_when_allowlisted_root_is_missing(tmp_path):
     source = make_source_tree(tmp_path)
     shutil.rmtree(source / "schemas")
