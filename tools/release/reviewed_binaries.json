@@ -1,0 +1,23 @@
+{
+  "purpose": "Binaries (files that do not decode as UTF-8) the public export may ship. Each entry is one reviewed file: its project-relative path, exact size and SHA-256, and the reason it ships. Any other binary is blocked, whatever its suffix. Entries are added only from the owner's allowlist decisions (RT-V8 P1 and P9).",
+  "binaries": [
+    {
+      "path": "apps/desktop/SWBPIPE_logo.png",
+      "sha256": "9f9ccd8a255fadedf5ec117ff9cf7a8c3067bc1f15fd619fe59512f81ee24109",
+      "size_bytes": 483813,
+      "reason": "P9 owner decision"
+    },
+    {
+      "path": "apps/desktop/src-tauri/icons/icon.icns",
+      "sha256": "a3baac3f01d2402b6c83eaecea8cbd63169021cea5b05ae9a073d973dd54b5a6",
+      "size_bytes": 646916,
+      "reason": "P1 owner decision"
+    },
+    {
+      "path": "apps/desktop/src-tauri/icons/icon.png",
+      "sha256": "3cef4c26b4ab81ddbab16103ae303ef2442c35a7256e3ba406388400d36fe16c",
+      "size_bytes": 102172,
+      "reason": "P1 owner decision"
+    }
+  ]
+}

@@ -170,12 +170,15 @@ def test_cantilever_matches_hand_written_mbf():
         "F10,KA,MM1,PP1,CL=L1",
         "T20,X3000,CFOR(0,-6000,0)",
     )
-    # The field sweep (Design §17.1) lists what the MBF does not keep; nothing else is diagnosed.
-    assert [(item["severity"], item["code"], item["entity"]) for item in result.diagnostics] == [
+    # No piping code was chosen: none is written, and that is stated, not silent. The field sweep (Design §17.1)
+    # lists what the MBF does not keep; nothing else is diagnosed.
+    assert sorted((item["severity"], item["code"], item["entity"]) for item in result.diagnostics) == sorted([
+        ("info", "MBF-SI-PIPING-CODE-NOT-WRITTEN", next(item["entity"] for item in result.diagnostics
+                                                         if item["code"] == "MBF-SI-PIPING-CODE-NOT-WRITTEN")),
         ("warning", "MBF-SI-MEMBER-NOT-EXPORTED", "model.analysis_status"),
         ("warning", "MBF-SI-FIELD-NOT-EXPORTED", "model.project.id"),
         ("warning", "MBF-SI-FIELD-NOT-EXPORTED", "model.project.units"),
-    ]
+    ])
     assert result.node_map == {"N0": "10", "N1": "20"}
     assert result.element_map["S1"]["from"] == "10"
     assert result.element_map["S1"]["to"] == "20"
@@ -188,6 +191,73 @@ def test_cantilever_matches_hand_written_mbf():
     as_dict = result.to_dict()
     assert as_dict["profile_id"] == MBF_SI_PROFILE_ID
     assert as_dict["status"] == "written"
+
+
+_SWEEP_CODES = {"MBF-SI-MEMBER-NOT-EXPORTED", "MBF-SI-FIELD-NOT-EXPORTED"}
+
+
+def test_a_chosen_b31_piping_code_is_written_with_b31j_off():
+    default = render_caepipe_mbf_si(cantilever(), title="INVENTED CANTILEVER")
+    result = render_caepipe_mbf_si(cantilever(), title="INVENTED CANTILEVER", piping_code="B311-80")
+    assert result.status == "written", result.diagnostics
+    lines = result.text.split("\r\n")
+    assert lines[3:9] == ["OPTIONS", "HGRA,B311-80,SI", "OPCODE", "0,0,0", "OPTEMP", "20"]
+    # Only the OPTIONS token and the OPCODE section differ from the text written without a code.
+    assert result.text.replace("HGRA,B311-80,SI\r\nOPCODE\r\n0,0,0\r\n", "HGRA,SI\r\n") == default.text
+    # Only the field sweep's omitted entries (Design §17.1) are diagnosed.
+    assert {item["code"] for item in result.diagnostics} <= _SWEEP_CODES
+    assert any(note.startswith("Piping code B311-80, chosen by the caller") and "B31J off" in note
+               for note in result.assumptions)
+    assert result.node_map == default.node_map and result.element_map == default.element_map
+
+
+def test_without_a_piping_code_every_pilot_mbf_is_unchanged_and_a_code_changes_only_options_and_opcode():
+    cases = sorted((ROOT / "validation" / "caepipe_correlation" / "cases").glob("*.json"))
+    assert cases
+    for path in cases:
+        case = json.loads(path.read_text(encoding="utf-8"))
+        arguments = {"title": case.get("title", case["case_id"]),
+                     "reference_temperature_c": case.get("reference_temperature_c", 20.0)}
+        default = render_caepipe_mbf_si(case["model"], **arguments)
+        assert render_caepipe_mbf_si(case["model"], **arguments, piping_code=None).text == default.text
+        assert "MBF-SI-PIPING-CODE-NOT-WRITTEN" in {item["code"] for item in default.diagnostics}
+        assert "\r\nOPTIONS\r\nHGRA,SI\r\nOPTEMP\r\n" in default.text
+        chosen = render_caepipe_mbf_si(case["model"], **arguments, piping_code="B311-80")
+        assert chosen.text.replace("HGRA,B311-80,SI\r\nOPCODE\r\n0,0,0\r\n", "HGRA,SI\r\n") == default.text
+        assert chosen.sidecar("x") == default.sidecar("x")
+
+
+def test_a_non_b31_piping_code_is_written_without_opcode():
+    result = render_caepipe_mbf_si(cantilever(), title="INVENTED CANTILEVER", piping_code="EUROPEAN")
+    assert result.status == "written", result.diagnostics
+    assert "\r\nOPTIONS\r\nHGRA,EUROPEAN,SI\r\nOPTEMP\r\n" in result.text
+    assert "OPCODE" not in result.text
+
+
+def test_a_code_that_locks_b31j_is_written_with_a_warning():
+    result = render_caepipe_mbf_si(cantilever(), title="INVENTED CANTILEVER", piping_code="B311")
+    assert result.status == "written", result.diagnostics
+    assert "HGRA,B311,SI\r\nOPCODE\r\n0,0,0\r\n" in result.text
+    assert codes(result, "warning") - _SWEEP_CODES == {"MBF-SI-PIPING-CODE-B31J-LOCKED"}
+
+
+@pytest.mark.parametrize("code", ["NONE", "B31.1", "b311", "", 311])
+def test_an_undocumented_piping_code_is_refused(code):
+    assert_refused(render_caepipe_mbf_si(cantilever(), title="X", piping_code=code), "MBF-SI-PIPING-CODE-UNSUPPORTED")
+
+
+def test_a_written_piping_code_survives_the_bound_reimport():
+    from hashlib import sha256
+    from core.handoff.caepipe_mbf.importer import import_caepipe_mbf
+
+    result = render_caepipe_mbf_si(branched(), title="INVENTED BRANCH", piping_code="B313")
+    assert result.status == "written", result.diagnostics
+    data = result.text.encode("ascii")
+    back = import_caepipe_mbf(data, sidecar=result.sidecar(sha256(data).hexdigest()), source_label="test",
+                              material_provenance={"M1": {"origin": "project_invented", "source_name": "test"}})
+    assert back.status == "imported", back.diagnostics
+    assert back.target_options["OPTIONS.piping_code"] == ["B313"]
+    assert back.target_options["OPCODE"] == {"fields": ["0", "0", "0"]}
 
 
 def test_branched_model_with_restraint_moment_thermal_and_imposed_displacement():
