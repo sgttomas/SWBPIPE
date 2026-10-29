@@ -320,6 +320,7 @@ code_paths:
 - apps/desktop/src-tauri/src/solve_attestation.rs
 - apps/desktop/src-tauri/src/solve_worker.rs
 - apps/desktop/src-tauri/src/worker_alloc.rs
+- validation/platform/windows_runner_startup_probe/**
 - validation/platform/windows_arena_probe/**
 - validation/platform/windows_worker_fixture/**
 checks:
@@ -345,5 +346,6 @@ checks:
 - apps/desktop/src-tauri/src/report_render_exact_tests.rs
 - apps/desktop/src-tauri/src/solve_attestation.rs
 - apps/desktop/src-tauri/src/solve_worker.rs
+- validation/platform/windows_runner_startup_probe/run.ps1
 - validation/platform/windows_arena_probe/run.ps1
 - validation/platform/windows_worker_fixture/run.ps1

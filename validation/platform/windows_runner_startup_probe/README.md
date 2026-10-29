@@ -15,13 +15,15 @@ bounded simple public names; unsupported names fail rather than print paths.
 
 The workflow has a separate full committed public-export boundary/lint job. Its
 unchanged exporter invokes the empty-dependencies protected-content Rust linter.
-No exporter is run locally. Before parent integration of generated P7 scope,
-that job explicitly reports preliminary evidence and fails its final-candidate
-gate. Parent must regenerate `tools/release/provenance_scope.json` on integrated
-source, then commit that output with every new file before final export evidence.
+No exporter is run locally. Before export starts, that job requires every
+fixture hash in the committed generated P7 scope. Final evidence must bind
+`tools/release/provenance_scope.json` and every new file to the same candidate.
+The existing exporter's fixed-size lint batches exceed Windows command capacity
+for this tree; final export evidence awaits its separately owned batching repair.
+No reduced scan or batching change is introduced by this diagnostic.
 The exporter is not the separate DEC-058 owner scan or P7 scanner check.
 
-The checked-in JSON preserves the supported runner request metadata schema and
+The checked-in JSON preserves the actual Rust runner request metadata shape and
 actual `invented_non_engineering_example` provenance. It copies the maintained
 invented metadata shape and uses the exact current
 `fixtures/model_operations/precision_connected_ui_model.json` model used by the
@@ -31,7 +33,10 @@ changes both operation fields to `validate_input` and omits the solve payload;
 that verb checks request metadata, not model validity. The missing-payload case
 is a deliberate refusal. Malformed JSON is a one-character hosted scratch
 input, not a falsely valid committed JSON file. P7 scope and routing outputs
-are owned by the integrating parent and are not edited here.
+are generated on integrated source by the parent. The published
+`HeadlessRunnerRequest` definition excludes `tbd_decisions`, while actual Rust
+requires it. These CLI fixtures follow the maintained source shape; they do not
+claim conformance to that inconsistent schema definition or change it.
 
 ## Source-bound gate and custody
 

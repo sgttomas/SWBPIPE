@@ -30,7 +30,7 @@ $tests = Join-Path $work 'pe-tests.exe'
 # independent review, rather than inferring pipe support from a package graph.
 # A network/source mismatch is a blocker, never an alternate runner wrapper.
 $official = @{}
-foreach ($relative in @('fs.rs','sys/fs/windows.rs','sys/handle/windows.rs')) {
+foreach ($relative in @('fs.rs','sys/fs/windows.rs','sys/pal/windows/handle.rs')) {
     $url = 'https://raw.githubusercontent.com/rust-lang/rust/1.97.1/library/std/src/' + $relative
     $response = Invoke-WebRequest -Uri $url -TimeoutSec 30
     $text = [string]$response.Content
@@ -43,7 +43,7 @@ foreach ($relative in @('fs.rs','sys/fs/windows.rs','sys/handle/windows.rs')) {
         foreach ($i in ([Math]::Max(0,$hit-2))..([Math]::Min($sourceLines.Count-1,$hit+12))) { Write-Host ("official_source_line={0}:{1} {2}" -f $relative,($i+1),$sourceLines[$i]) }
     }
 }
-if ($official['fs.rs'] -notmatch 'fn read_to_string' -or $official['sys/handle/windows.rs'] -notmatch 'ERROR_BROKEN_PIPE') { throw 'Official pinned pipe-read source needs review; compatibility not established' }
+if ($official['fs.rs'] -notmatch 'fn read_to_string' -or $official['sys/pal/windows/handle.rs'] -notmatch 'ERROR_BROKEN_PIPE') { throw 'Official pinned pipe-read source needs review; compatibility not established' }
 Write-Host 'START unchanged runner fresh release compile/link'
 & cargo build --locked --release --manifest-path projects/chirality-piping/core/runner/headless/Cargo.toml --bin openpipestress-runner --target x86_64-pc-windows-msvc --target-dir $target 2>&1 | ForEach-Object { "$_".Replace($sourcePath,'<source>').Replace($top,'<source>').Replace($env:USERPROFILE,'<account>').Replace($env:RUNNER_TEMP,'<temp>') }
 if ($LASTEXITCODE -ne 0) { throw 'Unchanged runner build failed' }

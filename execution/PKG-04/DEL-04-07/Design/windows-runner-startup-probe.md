@@ -50,17 +50,27 @@ for the maintained invented supported sparse solve and request-metadata
 validation; malformed JSON and missing solve payload check typed refusals.
 
 All new validation source/fixtures ship in the existing public export. The JSON
-uses the supported genuine runner provenance schema and the actual
+uses the actual Rust runner request/provenance shape and the actual
 `invented_non_engineering_example` label for invented diagnostic content. It
 reuses the CLI test's maintained precision-connected model without changing its
-bytes or claiming numerical validation. The parent owns additive pointers,
-source-tree routing/digests, source-read graph and generated
-`tools/release/provenance_scope.json`; this slice does not write shared outputs.
-No schema change is introduced. Final export evidence must run `--execute` on
+bytes or claiming numerical validation. Additive DEL-04-07 pointers include this probe. The authoritative P7 generator
+adds its three invented fixtures to `tools/release/provenance_scope.json`,
+preserving existing entries. All runtime scans are re-derived: the three new
+standalone `.rs` files enter the project scan despite having no Cargo manifest.
+The full source-read graph has 41 normal release manifests and 1,362 inputs;
+registered caller-tree digests and reader/anchor identities remain unchanged.
+No schema change is introduced. `schemas/headless_runner.schema.yaml`'s
+`HeadlessRunnerRequest` excludes `tbd_decisions` under `additionalProperties:false`,
+whereas Rust `RunnerRequest` requires it and maintained CLI examples include it.
+These CLI fixtures follow that source contract; full schema conformance is not
+claimed and the independent schema inconsistency is not repaired here. Final export evidence must run `--execute` on
 the committed raw integrated candidate containing all new files and generated
-P7 entries. The hosted export step stages the full public tree and builds the
-unchanged empty-dependencies native protected-content linter; before generated
-scope integration it explicitly fails the final-evidence gate as preliminary.
+P7 entries. Before starting export, the hosted step verifies all fixture hashes
+against committed P7 entries. It stages the full public tree and builds the
+unchanged empty-dependencies native protected-content linter. The exporter's
+current fixed-size lint argv batches exceed Windows command capacity for this
+tree; final export evidence awaits the separately owned batching repair. No
+batching change or reduced scan is part of this probe.
 No local Cargo-backed export, private-term suppression or widened allowance is
 used. P7 scanner checks and the owner's DEC-058 release scan remain separate.
 

@@ -666,6 +666,39 @@
       "reason": "declares invented provenance (redistribution_status=invented_non_engineering_example)"
     },
     {
+      "path": "validation/platform/windows_runner_startup_probe/fixtures/missing_payload.json",
+      "sha256": "be356e6fb2c83c6ef7a573a4c946ebf3a8df48489c80c9feaa3ddc63593bb812",
+      "labels": [
+        [
+          "\"invented_non_engineering_example\"",
+          "\"pending\""
+        ]
+      ],
+      "reason": "declares invented provenance (redistribution_status=invented_non_engineering_example)"
+    },
+    {
+      "path": "validation/platform/windows_runner_startup_probe/fixtures/solve.json",
+      "sha256": "1a25500d9fe97ed9b25aebddd16a4df34f0db715fe99098ce06aa5f4d7a72ffa",
+      "labels": [
+        [
+          "\"invented_non_engineering_example\"",
+          "\"pending\""
+        ]
+      ],
+      "reason": "declares invented provenance (redistribution_status=invented_non_engineering_example)"
+    },
+    {
+      "path": "validation/platform/windows_runner_startup_probe/fixtures/validate_metadata.json",
+      "sha256": "35f3f1da6ce3187b383d4e4e075beb0c74f6773ff2b3b340f2082dc9feedac62",
+      "labels": [
+        [
+          "\"invented_non_engineering_example\"",
+          "\"pending\""
+        ]
+      ],
+      "reason": "declares invented provenance (redistribution_status=invented_non_engineering_example)"
+    },
+    {
       "path": "validation/qualification/fixtures/first_static/axial.runner_input.candidate.json",
       "sha256": "ee8fe54222fa5bf6aaa39219b7353a95ff77b91177cccd9c665575229023ff74",
       "labels": [
