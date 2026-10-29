@@ -489,6 +489,33 @@ impl Dispatcher {
             arguments,
         })
     }
+    /// Native bridge claim gate, immediately before exposing execution input.
+    /// The caller derives Origin from the invoking webview/session. Historical
+    /// calls retain their admitted record basis; new work rechecks live basis.
+    pub(super) fn claimable(
+        &self,
+        origin: Origin<'_>,
+        reference: &str,
+        live_basis: &Value,
+    ) -> Result<&CallIdentity, Refusal> {
+        self.origin(&origin)?;
+        let record = &self.records[self.index(reference)?];
+        if self.closed || record.vendor != VendorState::Active {
+            return Err(Refusal::Closed);
+        }
+        if record.actual.is_some() {
+            return Err(Refusal::Duplicate);
+        }
+        self.scoped_basis(live_basis)?;
+        if matches!(
+            record.identity.tool,
+            Tool::Summary | Tool::Nodes | Tool::ProposeOperations | Tool::Solve
+        ) && !same_basis(&record.identity.basis, live_basis)
+        {
+            return Err(Refusal::WrongBasis);
+        }
+        Ok(&record.identity)
+    }
     pub fn record_completion(
         &mut self,
         origin: Origin<'_>,
