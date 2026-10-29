@@ -258,6 +258,41 @@ def load_schema_manifest(path: Path = SCHEMA_MANIFEST) -> dict[str, str]:
     return {entry["path"]: entry["sha256"] for entry in document["schemas"]}
 
 
+# RT-V8 P7 (owner, 2026-10-28, as recommended): check (c) is scoped so it
+# does not block the product's own provenance labels inside invented
+# fixtures, test-support data, validation witnesses and refusal cases. A
+# provenance object with violations is scoped out only when (1) its file is
+# listed by path in the committed `provenance_scope.json`, (2) the file's
+# bytes hash to the listed SHA-256, and (3) its exact
+# (redistribution_status, review_status) value pair is listed for that file.
+# Scoped objects are counted and their files named in the record; any other
+# file, a changed file, or a new value pair is checked as before.
+PROVENANCE_SCOPE = Path(__file__).resolve().parent / "provenance_scope.json"
+MISSING_LABEL = "<missing>"
+
+
+def load_provenance_scope(path: Path = PROVENANCE_SCOPE) -> dict[str, dict]:
+    """Listed file -> {"sha256", "labels"}. A missing scope scopes nothing."""
+    if not path.is_file():
+        return {}
+    document = json.loads(path.read_text(encoding="utf-8"))
+    return {
+        member["path"]: {
+            "sha256": member["sha256"],
+            "labels": {tuple(pair) for pair in member["labels"]},
+        }
+        for member in document["members"]
+    }
+
+
+def label_pair(record: dict) -> tuple[str, str]:
+    """The record's exact (redistribution_status, review_status) values."""
+    return tuple(
+        json.dumps(record[field], sort_keys=True) if field in record else MISSING_LABEL
+        for field in ("redistribution_status", "review_status")
+    )
+
+
 def is_trusted_schema(relative_path: str, member: Path, manifest: dict[str, str]) -> bool:
     expected = manifest.get(relative_path.replace("\\", "/"))
     return expected is not None and sha256_of(member) == expected
@@ -312,12 +347,18 @@ def provenance_record_violations(json_path: str, record: dict) -> list[str]:
 
 
 def run_provenance_check(
-    json_paths: list[tuple[str, Path]], schema_manifest: dict[str, str] | None = None
+    json_paths: list[tuple[str, Path]],
+    schema_manifest: dict[str, str] | None = None,
+    provenance_scope: dict[str, dict] | None = None,
 ) -> dict:
     """Check (c): IP_AND_DATA_BOUNDARY section 4 provenance-manifest check."""
     if schema_manifest is None:
         schema_manifest = load_schema_manifest()
+    if provenance_scope is None:
+        provenance_scope = load_provenance_scope()
     records_checked = 0
+    scoped_records = 0
+    scoped_members = set()
     violations = []
     unparseable = []
     for member_label, path in json_paths:
@@ -334,9 +375,17 @@ def run_provenance_check(
             continue
         relative = member_label.split(":", 1)[-1]
         in_schema = is_trusted_schema(relative, path, schema_manifest)
+        scope = provenance_scope.get(relative)
+        if scope is not None and sha256_of(path) != scope["sha256"]:
+            scope = None
         for json_path, record in iter_provenance_records(document, in_schema=in_schema):
             records_checked += 1
-            for violation in provenance_record_violations(json_path, record):
+            found = provenance_record_violations(json_path, record)
+            if found and scope is not None and label_pair(record) in scope["labels"]:
+                scoped_records += 1
+                scoped_members.add(member_label)
+                continue
+            for violation in found:
                 violations.append(f"{member_label} {violation}")
     status = "findings_present" if (violations or unparseable) else "pass"
     return {
@@ -345,6 +394,9 @@ def run_provenance_check(
         "provenance_records_checked": records_checked,
         "violations": sorted(violations),
         "unparseable_members": sorted(unparseable),
+        # RT-V8 P7: records scoped out by provenance_scope.json, shown, not hidden.
+        "scoped_record_count": scoped_records,
+        "scoped_members": sorted(scoped_members),
     }
 
 

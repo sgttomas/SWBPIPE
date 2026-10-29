@@ -468,6 +468,44 @@ def test_schema_manifest_is_generated_from_the_real_schemas(tmp_path):
         generator.build_manifest(root)
 
 
+def test_provenance_scope_is_pinned_by_file_hash_and_label_pair(tmp_path):
+    # RT-V8 P7: product labels inside listed invented fixtures are scoped out
+    # of check (c) only by exact path, file SHA-256 and value pair.
+    import hashlib
+
+    module = load_module()
+    label = dict(ACCEPTED_PROVENANCE, redistribution_status="private_only", review_status="pending")
+    tbd = dict(ACCEPTED_PROVENANCE, source_license="TBD", review_status="pending")
+    member = tmp_path / "invented_fixture.json"
+    member.write_text(json.dumps({"a": {"provenance": label}, "b": {"provenance": tbd}}), encoding="utf-8")
+    scope = {"fixtures/invented_fixture.json": {
+        "sha256": hashlib.sha256(member.read_bytes()).hexdigest(),
+        "labels": {('"private_only"', '"pending"')},
+    }}
+    entry = [("AC-4:fixtures/invented_fixture.json", member)]
+    result = module.run_provenance_check(entry, {}, scope)
+    assert result["scoped_record_count"] == 1
+    assert result["scoped_members"] == ["AC-4:fixtures/invented_fixture.json"]
+    assert result["violations"] and all("$.b.provenance" in v for v in result["violations"])
+
+    moved = module.run_provenance_check([("AC-4:fixtures/other.json", member)], {}, scope)
+    assert moved["scoped_record_count"] == 0 and any("$.a.provenance" in v for v in moved["violations"])
+    member.write_text(json.dumps({"a": {"provenance": label}}) + " ", encoding="utf-8")
+    changed = module.run_provenance_check(entry, {}, scope)
+    assert changed["scoped_record_count"] == 0 and changed["violations"]
+
+
+def test_committed_provenance_scope_is_well_formed():
+    module = load_module()
+    document = json.loads(module.PROVENANCE_SCOPE.read_text(encoding="utf-8"))
+    paths = [member["path"] for member in document["members"]]
+    assert len(paths) == len(set(paths))
+    for member in document["members"]:
+        assert (ROOT / member["path"]).is_file(), member["path"]
+        assert len(member["sha256"]) == 64 and member["reason"].strip()
+        assert member["labels"] and all(len(pair) == 2 for pair in member["labels"])
+
+
 def test_quarantine_hygiene_flags_quarantine_paths(tmp_path):
     module = load_module()
     candidate_root = make_candidate_tree(tmp_path)
