@@ -58,6 +58,8 @@ mod tie_rod_tests;
 #[cfg(test)]
 mod corrected_displacement_tests;
 #[cfg(test)]
+mod op1a_seed_tests;
+#[cfg(test)]
 mod w16_nonlinear_motion_tests;
 
 use open_pipe_stress_curved_bend::CurvedBendMacroElement;
@@ -3369,6 +3371,12 @@ fn run_linear_static_preview_observed_inner(
     } else {
         Vec::new()
     };
+    // Operating-case slice 1a (DEL-05-02 Design `pf-nonlinear-operand-standing.md`):
+    // a nonlinear model's admitted combinations state their operands' standing.
+    let preview_operands = match &preview {
+        Some(rendered) if combining => preview_physics::append_operand_standing(&model, rendered, &preview_gates),
+        _ => Vec::new(),
+    };
     // W-16 slice b (DEL-05-02 Design `exact-combinations.md`): an exact-route
     // document's combinations, formed from its published case rows and evidence
     // (a document with a combination is never source-selected).
@@ -3507,6 +3515,7 @@ fn run_linear_static_preview_observed_inner(
         envelope.formulation_basis = basis;
         validation::state_applied_branch_factors(&model.components, &rendered.preview_cases, &mut envelope.diagnostics); envelope.contract_evidence = Some(rendered.evidence(preview_gates));
     }
+    preview_physics::state_operand_standing(&mut envelope, preview_operands);
     // B4/D1 (b): only an exact-route composite is ever selected (`source_eligible`).
     if let (true, Some(context)) = (source_selected, composite_context) {
         if let Some(basis) = source_formulation { envelope.formulation_basis = basis; }
@@ -7330,6 +7339,9 @@ fn append_nonlinear_support_loop_results(
         convergence,
     };
 
+    // Slice 1a V-4: the seed each case's loop starts from, observed in tests only.
+    #[cfg(test)]
+    op1a_seed_tests::observe_seed(&load_case.id, &input.initial_states);
     let springs = spring_entries
         .iter()
         .map(|spring| (spring.node_dof.global_index(), spring.stiffness.value))

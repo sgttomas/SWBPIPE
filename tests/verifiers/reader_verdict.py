@@ -365,6 +365,9 @@ def validate(reader: str, source: Any, model: Any = None, invocation: Any = None
                 # W-15 slice d (DEL-03-05 Design §5): the model's bodies and their records.
                 from . import component_body
                 component_body.model_checks(source, model, preview_physics_evidence.TABLE)
+                # Operating-case slice 1a (§3): the operand records bound to the model's combinations.
+                from . import preview_combination_operands
+                preview_combination_operands.model_checks(source, model)
             return {"ok": True}
         if reader == "pressure":
             pressure_2.validate_pressure_evidence(source)

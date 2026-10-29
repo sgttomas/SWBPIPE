@@ -46,11 +46,13 @@ import runpy
 # gates read 0.8.0 (same length). No owner this model prices changes.
 # W-16 slices b and c D3 (§8.27): RE lib.rs declares `mod exact_combination_evidence;` and retained_precision.rs's
 # table hash follows the pressure-2 table. No owner this model prices changes.
+# Slice 1a D3 (§8.31): reviewed nonlinear operand producer/reader additions; D1.6 empties the producer
+# records, OP1A-RD retains the reader scans and OP1A-OWN prices its borrowed gate vector.
 SOURCE_FILES = {
     "core/product_physics/src/retained_product.rs": 'df90ded63eb1b0b35684b5372fffbfda4296f26d1fe57e73308838da729a9b64',
     "core/product_physics/src/retained_wire.rs": "b457aff075c67f6eb93000dff2ca0cf4bab43119fe34db1316c78356bf1864b3",
     "core/product_physics/src/retained_receipt.rs": "bf10f382e247fe84164dac5916e0b6fc69134e4b4934fd832132f59e86ca7251",
-    "core/reporting/result_export/src/lib.rs": "8ccd823a040dc7b480157a5323405e6ff6772137180f7945dab8370feaaa0ad3",
+    "core/reporting/result_export/src/lib.rs": "76c2e7c71c30f2d35c8ca11cb3a8044df675c199a112a9e24f41f28c1e89db55",
     "core/reporting/result_export/src/retained_precision.rs": "2cbbee89f8e5b395a39e3dc38d6ab9b4f7b5e574db95db1de22be8d532b235f8",
     "core/reporting/result_export/src/declared_member_load.rs": '93787b8894f752cd4c577c58513449471672956e934d35157e31178e9c53a52c',
     "core/solver/frame_kernel/src/structural/retained_resource.rs": "ca0516b5b88ed0d55abf9780c0782f42acd68f4f80b73543415c920fd3da5b7b",

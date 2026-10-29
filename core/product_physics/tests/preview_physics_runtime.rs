@@ -239,7 +239,16 @@ fn assert_contract(v: &Value) {
         }
     }
     let evidence = &v["contract_evidence"];
-    assert_eq!(evidence.as_object().unwrap().len(), 2);
+    // Operating-case slice 1a (RT-A5; DEL-05-02 `pf-nonlinear-operand-standing.md` §2.1):
+    // a nonlinear model's admitted combinations add `combination_operands`.
+    let keys: HashSet<&str> = evidence.as_object().unwrap().keys().map(String::as_str).collect();
+    let nonlinear = results(v).iter().any(|r| r["kind"] == "nonlinear_support_active_set_state_code");
+    let admitted = evidence["combination_gates"].as_array().unwrap().iter().any(|g| g["withheld"] == false);
+    if nonlinear && admitted {
+        assert_eq!(keys, HashSet::from(["preview_cases", "combination_gates", "combination_operands"]));
+    } else {
+        assert_eq!(keys, HashSet::from(["preview_cases", "combination_gates"]));
+    }
     let cases = evidence["preview_cases"].as_array().unwrap();
     let mut all_complete = true;
     for c in cases {
@@ -799,6 +808,13 @@ fn nonlinear_mechanics_combinations_are_withheld_subtraction_kept() {
         }
         assert_eq!(gate(&v, "comb:diff")["withheld"], false);
         assert!(!combination_rows(&v, "comb:diff").is_empty());
+        // Slice 1a §2.1: the admitted subtraction states its operands, each with its
+        // case's own numerical-quality record; the withheld mechanics one has none.
+        let quality = |case: &str| v["numerical_quality"]["cases"].as_array().unwrap().iter().find(|c| c["basis_ref"]["ref_id"] == case).unwrap().clone();
+        let operand = |case: &str| json!({"load_case_id": case, "modulus_basis_ref": null, "modulus_basis_temperature": null, "numerical_quality": quality(case)});
+        assert_eq!(v["contract_evidence"]["combination_operands"], json!([{"combination_id": "comb:diff", "basis": "result_state_subtraction",
+            "expression": {"minuend_id": "case:P1", "subtrahend_id": "case:P2"}, "operands": [operand("case:P1"), operand("case:P2")],
+            "standing": "derived_from_case_results"}]));
         assert!(!combination_rows(&v, "comb:diff").iter().any(|r| r["kind"].as_str().unwrap().starts_with("nonlinear")));
     }
 }

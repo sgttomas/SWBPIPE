@@ -544,6 +544,11 @@ def _nonlinear_row(support, kind="nonlinear_support_final_displacement", unit="m
 
 def test_a1_b_per_support_nonlinear_rows_name_listed_supports():
     source = envelope()
+    # Operating-case slice 1a (DEL-05-02 `pf-nonlinear-operand-standing.md` §3): a document that publishes a
+    # nonlinear state row withholds every mechanics combination, so this copy withholds the admitted one.
+    source["results"] = [row for row in source["results"] if (row.get("basis_ref") or {}).get("ref_type") != "combination"]
+    for gate in source["contract_evidence"]["combination_gates"]:
+        gate.update(withheld=True, reason="NONLINEAR_COMBINATION_REQUIRES_SOLVE")
     source["results"].append(_nonlinear_row("support:NL"))  # withheld but listed: allowed
     source["results"].append(_nonlinear_row("support:S1", "nonlinear_support_active_set_state_code", "state_code"))
     source["results"].append(_nonlinear_row("support:S1", "nonlinear_support_final_reaction", "N"))

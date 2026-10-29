@@ -20,6 +20,7 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path, PureWindowsPath
+from types import SimpleNamespace
 
 import pytest
 
@@ -682,6 +683,82 @@ def stub_lint_result(findings: list[dict]) -> dict:
         "findings": findings,
         "note": None,
     }
+
+
+def test_windows_lint_batches_bound_serialized_utf16_command(tmp_path, monkeypatch):
+    monkeypatch.setattr(PIPE, "platform", SimpleNamespace(system=lambda: "Windows"))
+    paths = [
+        PureWindowsPath("C:/staged")
+        / ("long folder with spaces and \U0001f9ea " * 8)
+        / f"example {i:04d}.txt"
+        for i in range(450)
+    ]
+    visited = []
+
+    def lint(command, cwd):
+        units = len(subprocess.list2cmdline(command).encode("utf-16-le")) // 2 + 1
+        assert units <= 30_000, f"Windows lint command has {units} UTF-16 units"
+        batch = command[command.index("external") + 1 :]
+        visited.extend(batch)
+        return subprocess.CompletedProcess(command, 0, json.dumps({
+            "summary": {"target_count": len(batch), "scanned_target_count": len(batch)},
+            "findings": [],
+        }), "")
+
+    monkeypatch.setattr(PIPE, "run_command", lint)
+    result = PIPE.run_engine_lint(paths, tmp_path)
+    assert result["status"] == "pass"
+    assert result["summary"]["target_count"] == len(paths)
+    assert result["summary"]["scanned_target_count"] == len(paths)
+    assert visited == [str(path) for path in paths]
+
+
+def test_windows_lint_batch_fails_closed_if_one_path_cannot_fit(tmp_path, monkeypatch):
+    monkeypatch.setattr(PIPE, "platform", SimpleNamespace(system=lambda: "Windows"))
+
+    def must_not_run(command, cwd):
+        pytest.fail("an over-budget path must not be skipped or executed")
+
+    monkeypatch.setattr(PIPE, "run_command", must_not_run)
+    path = PureWindowsPath("C:/staged") / ("long directory/" * 2300) / "example.txt"
+    result = PIPE.run_engine_lint([path], tmp_path)
+    assert result["status"] == "engine_unavailable"
+    assert result["summary"] is None
+    assert "Fails toward review" in result["note"]
+
+
+@pytest.mark.parametrize("system", ["Windows", "Darwin"])
+def test_lint_batches_visit_every_path_and_preserve_every_finding(tmp_path, monkeypatch, system):
+    monkeypatch.setattr(PIPE, "platform", SimpleNamespace(system=lambda: system))
+    paths = [Path(f"example-{i:04d}.txt") for i in range(801)]
+    expected = [{
+        "path": str(path), "code": "FIXTURE_BATCH",
+        "severity": "BLOCKING" if i % 7 == 0 else "WARNING", "line": 1,
+    } for i, path in enumerate(paths)]
+    by_path = {finding["path"]: finding for finding in expected}
+    batches = []
+
+    def lint(command, cwd):
+        batch = command[command.index("external") + 1 :]
+        batches.append(batch)
+        return subprocess.CompletedProcess(command, 0, json.dumps({
+            "summary": {"target_count": len(batch), "scanned_target_count": len(batch)},
+            "findings": [by_path[path] for path in batch],
+        }), "")
+
+    monkeypatch.setattr(PIPE, "run_command", lint)
+    result = PIPE.run_engine_lint(paths, tmp_path)
+    assert [path for batch in batches for path in batch] == [str(path) for path in paths]
+    assert result["findings"] == expected
+    assert result["summary"] == {
+        "target_count": len(paths), "scanned_target_count": len(paths),
+        "finding_count": len(expected),
+        "blocking_finding_count": sum(f["severity"] == "BLOCKING" for f in expected),
+        "clean_scan_is_clearance": False,
+    }
+    if system == "Windows":
+        # These short paths fit together: a fixed path-count cap is not the limit.
+        assert len(batches) == 1
 
 
 def test_classify_lint_gate_expected_unexpected_and_warnings(tmp_path):

@@ -46,10 +46,11 @@ LN = {
     # +36 (unit_message) and +36 (the three helpers), unchanged text.
     # §8.30 D3: +23 (unit_message) and +2 (the three helpers), unchanged text.
     # W-16 stage 2 D3 (§8.29): +55 (unit_message) and +106 (the three helpers), unchanged text.
-    'unit_message': 10322, # lib.rs `message.into()` (9162) [9159]
-    'suffix': 15295,      # lib.rs `id.replace(':', "-")` (13614) [13619]
-    'diag_fn': 15244,     # lib.rs fn diag (13563) [13568]
-    'suffix_fn': 15294,   # lib.rs fn stable_suffix (13613) [13618]
+    # OP1A (§8.31): all four lib.rs sites +12, unchanged text.
+    'unit_message': 10334, # lib.rs `message.into()` (9162) [9159]
+    'suffix': 15307,      # lib.rs `id.replace(':', "-")` (13614) [13619]
+    'diag_fn': 15256,     # lib.rs fn diag (13563) [13568]
+    'suffix_fn': 15306,   # lib.rs fn stable_suffix (13613) [13618]
     'require': 125,       # physics_source.rs `Err(format!("PHYSICS_SOURCE_{detail}"))` (89; 62 before ccb19ba0bf) [78]
 }
 PR = PP + 'pressure_runtime.rs:'

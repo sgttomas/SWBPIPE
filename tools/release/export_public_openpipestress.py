@@ -361,6 +361,9 @@ EXPECTED_BOUNDARY_FINDINGS = {
 LINTER_MANIFEST = "core/reporting/protected_content_linter/Cargo.toml"
 LINT_CLI_BIN = "protected_content_lint_cli"
 LINT_BATCH_SIZE = 400
+# CreateProcessW permits 32,767 UTF-16 units including the terminating NUL.
+# Keep margin for Windows; non-Windows retains the existing grouping.
+WINDOWS_LINT_COMMAND_UNITS = 30_000
 
 
 # Reviewed expected blocking findings: exact (staging-relative path, code)
@@ -842,6 +845,49 @@ def lintable_staged_files(staging: Path) -> list[Path]:
     ]
 
 
+def lint_path_batches(paths: list[Path], base_command: list[str]) -> list[list[Path]]:
+    if platform.system() != "Windows":
+        return [paths[start : start + LINT_BATCH_SIZE]
+                for start in range(0, len(paths), LINT_BATCH_SIZE)]
+
+    def units(arguments: list[str]) -> int:
+        # Match subprocess's Windows serialization, including quotes/escapes,
+        # astral characters and any raw UTF-16 code units in a path.
+        command = subprocess.list2cmdline(arguments)
+        return len(command.encode("utf-16-le", errors="surrogatepass")) // 2
+
+    base_units = units(base_command) + 1  # terminating NUL
+    batches: list[list[Path]] = []
+    batch: list[Path] = []
+    batch_units = base_units
+    for path in paths:
+        added_units = 1 + units([str(path)])  # argument separator
+        if base_units + added_units > WINDOWS_LINT_COMMAND_UNITS:
+            raise OSError("A lint path cannot fit the Windows command budget")
+        if batch and batch_units + added_units > WINDOWS_LINT_COMMAND_UNITS:
+            batches.append(batch)
+            batch = []
+            batch_units = base_units
+        batch.append(path)
+        batch_units += added_units
+    if batch:
+        batches.append(batch)
+    return batches
+
+
+def lint_engine_unavailable(base_command: list[str], error: OSError) -> dict:
+    return {
+        "status": "engine_unavailable",
+        "command": " ".join(base_command[:8]) + " ...",
+        "summary": None,
+        "findings": [],
+        "note": (
+            f"Engine CLI unavailable ({type(error).__name__}). "
+            "Fails toward review."
+        ),
+    }
+
+
 def run_engine_lint(paths: list[Path], engine_root: Path) -> dict:
     """DEL-08-05 protected-content lint over staged text members via the
     engine CLI (same surface as run_release_candidate_scan.py check (b)).
@@ -867,25 +913,20 @@ def run_engine_lint(paths: list[Path], engine_root: Path) -> dict:
             "note": "No lintable text members staged.",
         }
 
+    try:
+        batches = lint_path_batches(paths, base_command)
+    except OSError as error:
+        return lint_engine_unavailable(base_command, error)
+
     findings: list[dict] = []
     target_count = 0
     scanned_count = 0
-    for start in range(0, len(paths), LINT_BATCH_SIZE):
-        batch = paths[start : start + LINT_BATCH_SIZE]
+    for batch in batches:
         command = base_command + [str(path) for path in batch]
         try:
             completed = run_command(command, engine_root)
         except OSError as error:
-            return {
-                "status": "engine_unavailable",
-                "command": " ".join(base_command[:8]) + " ...",
-                "summary": None,
-                "findings": [],
-                "note": (
-                    f"Engine CLI unavailable ({type(error).__name__}). "
-                    "Fails toward review."
-                ),
-            }
+            return lint_engine_unavailable(base_command, error)
         if completed.returncode != 0:
             # Engine output can carry host paths: it goes to the console only.
             print(completed.stderr.strip()[-2000:], file=sys.stderr)

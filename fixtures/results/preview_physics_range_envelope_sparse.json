@@ -12,6 +12,58 @@
         "withheld": false
       }
     ],
+    "combination_operands": [
+      {
+        "basis": "range_envelope",
+        "combination_id": "combination:U4B-RANGE-MAX",
+        "expression": {
+          "mode": "max",
+          "operand_ids": [
+            "load:L-100",
+            "load:L-200"
+          ]
+        },
+        "operands": [
+          {
+            "load_case_id": "load:L-100",
+            "modulus_basis_ref": null,
+            "modulus_basis_temperature": null,
+            "numerical_quality": {
+              "accuracy_evidence": "not_claimed",
+              "basis_ref": {
+                "ref_id": "load:L-100",
+                "ref_type": "load_case"
+              },
+              "evidence_refs": [
+                "diagnostic:numerical-integrity:load:L-100"
+              ],
+              "model_matrix_fidelity": "represented_equations_retained",
+              "solve_quality": "checks_passed",
+              "structural_status": "passive_model_basis"
+            }
+          },
+          {
+            "load_case_id": "load:L-200",
+            "modulus_basis_ref": null,
+            "modulus_basis_temperature": null,
+            "numerical_quality": {
+              "accuracy_evidence": "not_claimed",
+              "basis_ref": {
+                "ref_id": "load:L-200",
+                "ref_type": "load_case"
+              },
+              "evidence_refs": [
+                "diagnostic:numerical-integrity:load:L-200"
+              ],
+              "model_matrix_fidelity": "represented_equations_retained",
+              "solve_quality": "checks_passed",
+              "structural_status": "passive_model_basis"
+            }
+          }
+        ],
+        "standing": "derived_from_case_results"
+      }
+    ],
     "preview_cases": [
       {
         "intensified_measures": [
