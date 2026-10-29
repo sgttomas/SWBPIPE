@@ -5,6 +5,21 @@ fails if any selected verification fails, is cancelled or never runs. Unselected
 product jobs are explicitly skipped. Selection uses the complete PR diff;
 missing diff information conservatively selects coverage.
 
+`piping-windows-core.yml` supplies supplemental RT-V7 feasibility evidence on
+`windows-2025` with Rust 1.97.1 and `x86_64-pc-windows-msvc`. It runs the existing
+frame-kernel, curved-bend (including frozen formation bits), sparse-direct and
+canonical-JSON tests, then checks the product-physics library. Its PR path filter
+covers core sources, fixtures, frozen references, schemas and ancestor
+Cargo/toolchain configuration; manual dispatch
+is also available. It is separate from `harness` while Windows remains outside
+the Must v1.0 release conditions. It checks native x64 OS/toolchain identity and
+uses a runner-local target directory. This establishes only the named core
+tests and compilation: desktop memory controls, persistence, WebView2, native
+journeys, packaging and retained-memory qualification need their own Windows
+evidence. Parallels Windows on Arm and emulated x64 runs are labelled separately.
+The proposed native-service boundaries and remaining work are in DEL-10-04
+`Design/windows-port.md`.
+
 On a relevant PR, desktop coverage is a production build and one Chromium
 project (`chromium-desktop`) running core specs: the R2 smoke and save/reopen
 journey, the rotation-glyph browser evidence (DEL-07-05:1) and the result

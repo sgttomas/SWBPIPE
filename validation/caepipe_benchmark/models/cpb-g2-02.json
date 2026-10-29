@@ -1,0 +1,440 @@
+{
+  "closed_form": [],
+  "document_kind": "openpipestress.caepipe_benchmark.model",
+  "family": "G2",
+  "family_description": "single bends: anchored L, R/D 1-5, 45 and 90 degrees, user k",
+  "generator": {
+    "seed": 20261028,
+    "version": "caepipe-benchmark-generator-1"
+  },
+  "inexact_inputs": {
+    "case:expansion": [
+      "shear_deformation",
+      "bend_flexibility_application",
+      "bend_transverse_shear"
+    ],
+    "case:sustained": [
+      "shear_deformation",
+      "bend_flexibility_application",
+      "bend_transverse_shear"
+    ],
+    "operating": [
+      "bend_flexibility_application",
+      "bend_transverse_shear",
+      "shear_deformation"
+    ]
+  },
+  "model": {
+    "analysis_status": {
+      "mechanics": "ready_for_preview_diagnostics",
+      "professional_acceptance": "not_provided",
+      "rule_check": "not_performed_user_rule_inputs_missing"
+    },
+    "combinations": [],
+    "components": [
+      {
+        "geometry": {
+          "bend_angle": {
+            "unit": "rad",
+            "value": 0.7853981633965701
+          },
+          "bend_geometry_source_reference": "invented benchmark bend (seeded generator)",
+          "bend_pipe_ref": "pipe:BEND1",
+          "bend_radius": {
+            "unit": "m",
+            "value": 0.18869999999999998
+          }
+        },
+        "id": "component:BEND1",
+        "kind": "bend",
+        "mechanics_interface": {
+          "solver_consumption": "curved_bend_macro_element"
+        },
+        "modifiers": {
+          "flexibility_factor_user_value": {
+            "unit": "none",
+            "value": 3.41
+          },
+          "source_reference": "invented benchmark value (seeded generator)"
+        },
+        "node": "node:BEND1-near",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, RT-V2); seeded generator; not library, component, catalog, standard or code-rule data"
+      }
+    ],
+    "document_kind": "openpipestress.product_preview.model",
+    "load_cases": [
+      {
+        "id": "case:sustained",
+        "primitive_loads": [
+          {
+            "category": "concentrated_force",
+            "dimension": "force",
+            "direction": "global_y",
+            "id": "load:mid",
+            "magnitude": {
+              "unit": "N",
+              "value": -16600.0
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05, RT-V2); seeded generator; not library, component, catalog, standard or code-rule data",
+            "target": {
+              "node": "node:M",
+              "type": "node"
+            }
+          },
+          {
+            "category": "weight",
+            "dimension": "force_per_length",
+            "direction": "global_y",
+            "id": "load:weight:pipe:BEND1",
+            "magnitude": {
+              "unit": "N/m",
+              "value": -171.18498284728497
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05, RT-V2); seeded generator; not library, component, catalog, standard or code-rule data; w = -rho A g with g = 9.80665 m/s2 and A the bare metal area",
+            "target": {
+              "pipe": "pipe:BEND1",
+              "type": "element"
+            }
+          },
+          {
+            "category": "weight",
+            "dimension": "force_per_length",
+            "direction": "global_y",
+            "id": "load:weight:pipe:P1",
+            "magnitude": {
+              "unit": "N/m",
+              "value": -171.18498284728497
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05, RT-V2); seeded generator; not library, component, catalog, standard or code-rule data; w = -rho A g with g = 9.80665 m/s2 and A the bare metal area",
+            "target": {
+              "pipe": "pipe:P1",
+              "type": "element"
+            }
+          },
+          {
+            "category": "weight",
+            "dimension": "force_per_length",
+            "direction": "global_y",
+            "id": "load:weight:pipe:P2",
+            "magnitude": {
+              "unit": "N/m",
+              "value": -171.18498284728497
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05, RT-V2); seeded generator; not library, component, catalog, standard or code-rule data; w = -rho A g with g = 9.80665 m/s2 and A the bare metal area",
+            "target": {
+              "pipe": "pipe:P2",
+              "type": "element"
+            }
+          },
+          {
+            "category": "weight",
+            "dimension": "force_per_length",
+            "direction": "global_y",
+            "id": "load:weight:pipe:P3",
+            "magnitude": {
+              "unit": "N/m",
+              "value": -171.18498284728497
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05, RT-V2); seeded generator; not library, component, catalog, standard or code-rule data; w = -rho A g with g = 9.80665 m/s2 and A the bare metal area",
+            "target": {
+              "pipe": "pipe:P3",
+              "type": "element"
+            }
+          }
+        ],
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, RT-V2); seeded generator; not library, component, catalog, standard or code-rule data"
+      },
+      {
+        "id": "case:expansion",
+        "primitive_loads": [
+          {
+            "category": "thermal",
+            "dimension": "temperature_interval",
+            "direction": "global_x",
+            "id": "load:thermal:pipe:BEND1",
+            "magnitude": {
+              "unit": "degC",
+              "value": 55.74
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05, RT-V2); seeded generator; not library, component, catalog, standard or code-rule data",
+            "target": {
+              "pipe": "pipe:BEND1",
+              "type": "element"
+            }
+          },
+          {
+            "category": "thermal",
+            "dimension": "temperature_interval",
+            "direction": "global_x",
+            "id": "load:thermal:pipe:P1",
+            "magnitude": {
+              "unit": "degC",
+              "value": 55.74
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05, RT-V2); seeded generator; not library, component, catalog, standard or code-rule data",
+            "target": {
+              "pipe": "pipe:P1",
+              "type": "element"
+            }
+          },
+          {
+            "category": "thermal",
+            "dimension": "temperature_interval",
+            "direction": "global_x",
+            "id": "load:thermal:pipe:P2",
+            "magnitude": {
+              "unit": "degC",
+              "value": 55.74
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05, RT-V2); seeded generator; not library, component, catalog, standard or code-rule data",
+            "target": {
+              "pipe": "pipe:P2",
+              "type": "element"
+            }
+          },
+          {
+            "category": "thermal",
+            "dimension": "temperature_interval",
+            "direction": "global_x",
+            "id": "load:thermal:pipe:P3",
+            "magnitude": {
+              "unit": "degC",
+              "value": 55.74
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05, RT-V2); seeded generator; not library, component, catalog, standard or code-rule data",
+            "target": {
+              "pipe": "pipe:P3",
+              "type": "element"
+            }
+          }
+        ],
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, RT-V2); seeded generator; not library, component, catalog, standard or code-rule data"
+      }
+    ],
+    "materials": [
+      {
+        "elastic_modulus": {
+          "unit": "Pa",
+          "value": 195000000000.0
+        },
+        "id": "material:bench-b",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, RT-V2); seeded generator; not library, component, catalog, standard or code-rule data",
+        "shear_modulus": {
+          "unit": "Pa",
+          "value": 75000000000.0
+        },
+        "temperature_points": [],
+        "thermal_expansion_coefficient": {
+          "unit": "1/degC",
+          "value": 1.6e-05
+        }
+      }
+    ],
+    "nodes": [
+      {
+        "id": "node:A",
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, RT-V2); seeded generator; not library, component, catalog, standard or code-rule data"
+      },
+      {
+        "id": "node:BEND1-near",
+        "position": {
+          "x": 2.8,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, RT-V2); seeded generator; not library, component, catalog, standard or code-rule data"
+      },
+      {
+        "id": "node:BEND1-far",
+        "position": {
+          "x": 2.93343104961,
+          "y": 0.0,
+          "z": 0.0552689503901
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, RT-V2); seeded generator; not library, component, catalog, standard or code-rule data"
+      },
+      {
+        "id": "node:M",
+        "position": {
+          "x": 4.66937819742,
+          "y": 0.0,
+          "z": 1.7912160982
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, RT-V2); seeded generator; not library, component, catalog, standard or code-rule data"
+      },
+      {
+        "id": "node:B",
+        "position": {
+          "x": 6.40532534524,
+          "y": 0.0,
+          "z": 3.52716324602
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, RT-V2); seeded generator; not library, component, catalog, standard or code-rule data"
+      }
+    ],
+    "pipe_segments": [
+      {
+        "from": "node:BEND1-near",
+        "id": "pipe:BEND1",
+        "material": "material:bench-b",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, RT-V2); seeded generator; not library, component, catalog, standard or code-rule data",
+        "section": {
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.18869999999999998
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.0038039999999999997
+          }
+        },
+        "to": "node:BEND1-far",
+        "y_reference": {
+          "x": 0.3826834323636782,
+          "y": 0.0,
+          "z": -0.9238795325118715
+        }
+      },
+      {
+        "from": "node:A",
+        "id": "pipe:P1",
+        "material": "material:bench-b",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, RT-V2); seeded generator; not library, component, catalog, standard or code-rule data",
+        "section": {
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.18869999999999998
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.0038039999999999997
+          }
+        },
+        "to": "node:BEND1-near",
+        "y_reference": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        }
+      },
+      {
+        "from": "node:BEND1-far",
+        "id": "pipe:P2",
+        "material": "material:bench-b",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, RT-V2); seeded generator; not library, component, catalog, standard or code-rule data",
+        "section": {
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.18869999999999998
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.0038039999999999997
+          }
+        },
+        "to": "node:M",
+        "y_reference": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        }
+      },
+      {
+        "from": "node:M",
+        "id": "pipe:P3",
+        "material": "material:bench-b",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, RT-V2); seeded generator; not library, component, catalog, standard or code-rule data",
+        "section": {
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.18869999999999998
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.0038039999999999997
+          }
+        },
+        "to": "node:B",
+        "y_reference": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        }
+      }
+    ],
+    "project": {
+      "id": "project:cpb-g2-02",
+      "name": "project:cpb-g2-02",
+      "units": {
+        "angle": "rad",
+        "force": "N",
+        "length": "m",
+        "pressure": "Pa",
+        "stress": "Pa",
+        "temperature": "degC"
+      }
+    },
+    "schema_version": "0.8.0",
+    "supports": [
+      {
+        "family": "anchor",
+        "id": "support:A",
+        "node": "node:A",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, RT-V2); seeded generator; not library, component, catalog, standard or code-rule data",
+        "restraints": [
+          "UX",
+          "UY",
+          "UZ",
+          "RX",
+          "RY",
+          "RZ"
+        ]
+      },
+      {
+        "family": "anchor",
+        "id": "support:B",
+        "node": "node:B",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, RT-V2); seeded generator; not library, component, catalog, standard or code-rule data",
+        "restraints": [
+          "UX",
+          "UY",
+          "UZ",
+          "RX",
+          "RY",
+          "RZ"
+        ]
+      }
+    ]
+  },
+  "model_id": "cpb-g2-02",
+  "parameters": {
+    "angle": 45.0,
+    "clear_1": 2.8,
+    "clear_2": 4.91,
+    "delta_t": 55.74,
+    "dt": 49.6,
+    "force": -16600.0,
+    "k": 3.41,
+    "material": 1,
+    "od": 188.7,
+    "rd": 1.0
+  },
+  "piping_code": "B311-80",
+  "provenance": {
+    "contributor_note": "invented CAEPIPE benchmark input (DEL-17-05, RT-V2); seeded generator; not library, component, catalog, standard or code-rule data",
+    "license": "project-original",
+    "origin": "invented",
+    "produced_by_caepipe": false,
+    "redistribution_status": "public_permissive"
+  },
+  "reference_temperature_c": 20.0,
+  "sampling": "corner",
+  "series": [
+    "bend-k-rd1-a45"
+  ]
+}

@@ -1779,7 +1779,7 @@ input.
 
 | Writer (`si_writer.py` and its `assumptions`) | Importer |
 |---|---|
-| `OPTIONS HGRA,SI`; always Y vertical; X, Y, Z unchanged (§5.1) | SI mode; Y vertical, or Z rotated exactly (X, Y, Z) → (X, Z, −Y); HGRA is `delegated` |
+| `OPTIONS HGRA,SI`, or `HGRA,<code>,SI` with the caller's documented piping code (and `OPCODE 0,0,0`, B31J off, for an ASME B31 code; no code is stated by `MBF-SI-PIPING-CODE-NOT-WRITTEN`; DEL-17-05 Design §11.2); always Y vertical; X, Y, Z unchanged (§5.1) | SI mode; Y vertical, or Z rotated exactly (X, Y, Z) → (X, Z, −Y); HGRA, the piping code and OPCODE are `delegated` |
 | Lengths in mm, scaled by powers of ten from m or mm | Lengths kept in `mm`; project length `mm` |
 | E in N/mm², from Pa, kPa, MPa or GPa | E in `MPa` |
 | ν as given, or E/(2G) − 1 | ν as given; G = E/(2(1+ν)) with basis `homogeneous_isotropic_E_nu_v1` |

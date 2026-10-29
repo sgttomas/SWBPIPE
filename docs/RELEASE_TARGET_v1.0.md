@@ -181,7 +181,7 @@ deliverable; "new" means a scope change assigns it.
 | RT-V4 | User guide and theory notes for every Must analysis | Must | Statics only (`docs/theory/centerline_analysis.md`) | DEL-11-01, DEL-11-03 |
 | RT-V5 | Claim fence on every surface (notice, GEN-13, release labels) | Must | GEN-13 clean (#1701) and run in hosted CI (#1705) | release labels / DEL-09-05, DEL-16-04 |
 | RT-V6 | Signed, notarized macOS build; MIT licence recorded consistently | Must | Signing decided (D-06b), not executed; MIT in `LICENSE.md` (D-74) and DEL-01-01 | DEL-10-04 |
-| RT-V7 | Windows build | Later (revisited immediately after v1.0) | macOS Apple Silicon only (DEC-057) | — |
+| RT-V7 | Windows build | Later (revisited immediately after v1.0) | Release baseline: macOS Apple Silicon only (DEC-057); Windows development authorized alongside macOS v1.0; native x64 desktop unqualified | DEL-10-04 Design/windows-port.md |
 | RT-V8 | Public sanitized repository export | Must | Pipeline exists; not activated (DEL-10-04:1) | owner-signed export scan, public repository and allowlist review / DEL-10-04 |
 
 ### Embedded agent
