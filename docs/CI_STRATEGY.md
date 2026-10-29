@@ -9,7 +9,8 @@ missing diff information conservatively selects coverage.
 `windows-2025` with Rust 1.97.1 and `x86_64-pc-windows-msvc`. It runs the existing
 frame-kernel, curved-bend (including frozen formation bits), sparse-direct and
 canonical-JSON tests, then checks the product-physics library. Its PR path filter
-covers core sources and ancestor Cargo/toolchain configuration; manual dispatch
+covers core sources, fixtures, frozen references, schemas and ancestor
+Cargo/toolchain configuration; manual dispatch
 is also available. It is separate from `harness` while Windows remains outside
 the Must v1.0 release conditions. It checks native x64 OS/toolchain identity and
 uses a runner-local target directory. This establishes only the named core
