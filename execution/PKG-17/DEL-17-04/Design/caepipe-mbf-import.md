@@ -243,7 +243,10 @@ modulus option of §20.2 (O-7), within its existing boundary.
   numeral whose decimal exponent (its exponent less its fraction digits) lies beyond ±10⁵, or
   whose magnitude lies beyond 10^±400, is far outside binary64 and is refused by the same code
   before its exact value is formed, so an exponent at the i64 limits such as
-  `1e-9223372036854775808` never computes a power of ten. Every derived value is rounded through the same guard, which refuses by the same
+  `1e-9223372036854775808` never computes a power of ten. English decimal feet and the
+  zero tests of numerals read the same digit-run checks first; a numeral's digit count is that
+  of its value, so a Unicode zero digit leads like an ASCII one (as in the Rust engine), though
+  the import refuses a non-ASCII numeral before reading it (`MBF-IMPORT-CHARACTER-UNSUPPORTED`). Every derived value is rounded through the same guard, which refuses by the same
   code: E in Pa, G, node coordinates, the temperature change, summed loads, tangent lengths
   and nodes, and the weight per length of a non-zero weight density. Norms and unit
   directions use the scaled `hypot`, so neither tiny nor huge lengths overflow or underflow

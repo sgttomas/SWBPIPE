@@ -401,6 +401,53 @@ def test_long_digit_runs_are_refused_before_any_power_of_ten_is_formed():
     ]
 
 
+_ENGLISH_FEET_PROBE = r"""
+import json, sys
+sys.path.insert(0, sys.argv[1])
+import test_caepipe_mbf_importer as t
+from core.handoff.caepipe_mbf.importer import parse_english_length
+out = []
+for feet in ("0." + "0" * 20_000_000 + "1", "1" * 20_000_000):
+    for read in (lambda: parse_english_length(feet),
+                 lambda: t.run(t.mbf("F10,KA,MM1,PP1,CL=L1", "T20,X" + feet, options="HGRA")).status):
+        try:
+            out.append(["value", str(read())])
+        except ValueError as error:
+            out.append(["ValueError", str(error)])
+print(json.dumps(out))
+"""
+
+
+def test_english_decimal_feet_bound_their_digit_runs_before_any_power_of_ten():
+    # English decimal feet are read by the bounded decimal path (the Rust port's `fraction_of`): each digit run is
+    # checked against the int() digit limit before 10^(its length) is formed. Fraction(text) formed 10^20000000
+    # first, far beyond the timeout; the outcome is int()'s ValueError, as the Rust port returns it.
+    try:
+        done = subprocess.run([sys.executable, "-c", _ENGLISH_FEET_PROBE, str(Path(__file__).resolve().parent)],
+                              capture_output=True, text=True, timeout=10, cwd=ROOT)
+    except subprocess.TimeoutExpired:
+        pytest.fail("English decimal feet of 20000000 digits did not finish within 10 s")
+    assert done.returncode == 0, done.stderr
+    assert json.loads(done.stdout) == [_digit_limit(20_000_001)] * 2 + [_digit_limit(20_000_000)] * 2
+    assert parse_english_length("7.25") == Fraction(87) and parse_english_length("1." + "0" * 4299 + "1") == 12 * (
+        1 + Fraction(1, 10 ** 4300))
+
+
+def test_unicode_digits_count_as_the_rust_port_counts_them():
+    # The numeral helpers count a numeral's digits from its value, as the Rust port does
+    # (`numerator.to_string().len()`), so a Unicode zero is a leading zero like an ASCII one. The import itself
+    # refuses non-ASCII numerals before reading them, on both sides (MBF-IMPORT-CHARACTER-UNSUPPORTED).
+    exact_decimal = importer_module.exact_decimal
+    assert exact_decimal("٠1e399") == exact_decimal("٠٠1e399") == exact_decimal("01e399") == 10 ** 399
+    assert exact_decimal("٠1e400") is None and exact_decimal("١e400") is None
+    assert exact_decimal("١٢.5") == Fraction(25, 2) and exact_decimal("٠.٠e-9223372036854775808") == 0
+    assert importer_module.fraction_of("٠1e1000") == 10 ** 1000  # fraction_of has no magnitude bound
+    for value in (1, 9, 10, 99, 100, 10 ** 399 - 1, 10 ** 399, 10 ** 4000 + 7):
+        assert importer_module._decimal_digits(value) == len(str(value))
+    result = run(mbf(material=("M1,0,0.3,1,1,CS,x,٠1e399", "M1,20,200000,1.2e-05")))
+    refused(result, "MBF-IMPORT-CHARACTER-UNSUPPORTED")
+
+
 def test_the_gravitational_direction_is_refused_in_a_bound_import_too():
     data = mbf(extra=("OPMISC", "33,20,1,1,1,2,2,1,9.80665,1"))
     sidecar = {"mbf_sha256": hashlib.sha256(data).hexdigest(),

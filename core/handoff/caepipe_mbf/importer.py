@@ -363,10 +363,22 @@ def _int_digits(digits: str) -> int:
     return int(digits)
 
 
-def exact_decimal(text: str) -> Fraction | None:
+def _decimal_digits(value: int) -> int:
+    """The number of decimal digits of value > 0 (Rust's `numerator.to_string().len()`), from its magnitude, so a
+    Unicode zero digit counts as a leading zero exactly as an ASCII one does."""
+    count = max(1, (value.bit_length() - 1) * 30103 // 100000 + 1)  # within one of the digit count
+    while 10 ** count <= value:
+        count += 1
+    while count > 1 and 10 ** (count - 1) > value:
+        count -= 1
+    return count
+
+
+def exact_decimal(text: str, *, bounded: bool = True) -> Fraction | None:
     """`Fraction(text)` for a numeral `_REAL` matches, or None for a non-zero value far outside binary64: a decimal
-    exponent beyond DECIMAL_EXPONENT_LIMIT or a magnitude beyond 10^+-DECIMAL_MAGNITUDE_LIMIT. A digit run beyond
-    INT_MAX_STR_DIGITS raises int()'s ValueError, as `Fraction(text)` does."""
+    exponent beyond DECIMAL_EXPONENT_LIMIT or, when `bounded` (the Rust port's `parse_fraction`), a magnitude
+    beyond 10^+-DECIMAL_MAGNITUDE_LIMIT. A digit run beyond INT_MAX_STR_DIGITS raises int()'s ValueError, as
+    `Fraction(text)` does."""
     negative = text.startswith("-")
     mantissa, _, exponent = text.lstrip("+-").lower().partition("e")
     whole, _, fraction = mantissa.partition(".")
@@ -384,17 +396,25 @@ def exact_decimal(text: str) -> Fraction | None:
     power -= len(fraction)
     if not -DECIMAL_EXPONENT_LIMIT <= power <= DECIMAL_EXPONENT_LIMIT:
         return None
-    digits = len((whole + fraction).lstrip("0"))  # the numerator's digit count, without converting it to text
-    if not -DECIMAL_MAGNITUDE_LIMIT <= power + digits <= DECIMAL_MAGNITUDE_LIMIT:
+    if bounded and not -DECIMAL_MAGNITUDE_LIMIT <= power + _decimal_digits(numerator) <= DECIMAL_MAGNITUDE_LIMIT:
         return None  # |value| >= 10^400 overflows and |value| < 10^-400 underflows to 0: refused either way
     magnitude = Fraction(numerator * 10 ** power) if power >= 0 else Fraction(numerator, 10 ** -power)
     return -magnitude if negative else magnitude
 
 
+def fraction_of(text: str) -> Fraction:
+    """`Fraction(text)` exactly, whatever its magnitude, for a numeral `_REAL` matches (the Rust port's
+    `fraction_of`): the same digit-run checks first; a decimal exponent beyond 10^5 is not computed."""
+    value = exact_decimal(text, bounded=False)
+    if value is None:
+        raise ValueError("a decimal exponent beyond 10^5 is not computed")
+    return value
+
+
 def half_unit(text: str) -> Fraction:
     """Half a unit in the last printed digit of a decimal (§10.1 conflict bound); 0 for an exact zero."""
     mantissa, _, exponent = text.lstrip("+-").lower().partition("e")
-    if Fraction(mantissa or "0") == 0:
+    if exact_decimal(mantissa or "0") == 0:
         return Fraction(0)
     decimals = len(mantissa.partition(".")[2])
     return Fraction(1, 2) * Fraction(10) ** (int(exponent or 0) - decimals)
@@ -419,7 +439,7 @@ def parse_english_length(text: str) -> Fraction | None:
     """Exact inches for one documented English length form (§5.4), or None when the form is not documented."""
     match = _FEET_ONLY.match(text)
     if match:
-        value = Fraction(match.group(2)) * 12
+        value = fraction_of(match.group(2)) * 12
         return -value if match.group(1) == "-" else value
     match = _FEET_INCH.match(text)
     if not match:
@@ -476,7 +496,7 @@ def standard_gravity_as_printed(text: str, standard: Fraction) -> bool:
     """True when `text` is `standard` correctly rounded to its own printed digits, with at least three significant
     digits: |p - g0| <= half a unit in p's last digit."""
     mantissa = text.lstrip("+-").lower().partition("e")[0].replace(".", "").lstrip("0")
-    return len(mantissa) >= GRAVITY_MIN_DIGITS and abs(Fraction(text) - standard) <= half_unit(text)
+    return len(mantissa) >= GRAVITY_MIN_DIGITS and abs(fraction_of(text) - standard) <= half_unit(text)
 
 
 def split_fields(text: str) -> list[str] | None:
