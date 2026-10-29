@@ -5,8 +5,10 @@ import queue
 import signal
 import subprocess
 import sys
+import tempfile
 import threading
 import unittest
+from pathlib import Path
 
 import jsonschema
 
@@ -51,6 +53,13 @@ class WitnessAdmissionTest(unittest.TestCase):
         for raw in [b'{}', b'[]\n', b'{invalid}\n', b' ' * FRAME_BYTES + b'\n']:
             with self.assertRaises(WitnessError): parse_frame(raw)
         self.assertEqual(parse_frame(b'{"id":8,"result":{}}\n'), {"id": 8, "result": {}})
+
+    def test_invalid_endpoint_refused_before_configuration_is_written(self):
+        for endpoint in ["http://invented-user@127.0.0.1:8000/v1", "http://127.0.0.1:bad-port/v1", "https://example.com/v1"]:
+            with tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                with self.assertRaises(WitnessError): Supplier(Path("/invented/binary"), root, endpoint, "invented-model")
+                self.assertEqual(list(root.iterdir()), [])
 
 
 class DenialEvidenceTest(unittest.TestCase):

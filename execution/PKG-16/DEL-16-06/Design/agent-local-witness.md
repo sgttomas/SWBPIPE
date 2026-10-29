@@ -27,9 +27,12 @@ download, model substitution or server-setting change occurred.
 
 The tested catalog is `swbpipe-catalog/2`, SHA-256
 `fe1439998d709e5f3e9641a4d39567000ced56c498fab5b6b8f2028df7c9f669`,
-integrated through #1736 (merge `31084e1f79`). The exact tested tool source
-`tools/agent_host_witness.py` has SHA-256
+integrated through #1736 (merge `31084e1f79`). The live run used
+`tools/agent_host_witness.py` from `a024468e03`, SHA-256
 `29103be6ba846d681e634c23b0fa4fdd4078c59b317b123a94916be0befe6e3e`.
+The subsequent prelaunch validation repair rejects malformed or credential-bearing
+endpoints before writing configuration; the observed localhost configuration's
+protocol path is unchanged. A focused offline regression covers that refusal.
 Its source and focused offline tests are maintained in this project; there is
 no dependency on the App checkout or uncommitted App specimen.
 

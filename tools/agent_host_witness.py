@@ -104,14 +104,22 @@ def admit_call(frame, thread_id, turn_id, used, validator):
 
 class Native:
     def __init__(self, binary, root, provider_url, model, api_key=None):
+        try:
+            endpoint = urlsplit(provider_url)
+            port = endpoint.port or 80
+        except ValueError:
+            raise WitnessError("Invalid local provider endpoint") from None
+        if (endpoint.scheme != "http" or endpoint.hostname != "127.0.0.1"
+                or endpoint.username is not None or endpoint.password is not None):
+            raise WitnessError("Witness requires the configured loopback HTTP endpoint without credentials")
         home, work = root / "home", root / "work"
         home.mkdir(mode=0o700)
         work.mkdir(mode=0o700)
         (root / "os-home").mkdir(mode=0o700)
         (root / "tmp").mkdir(mode=0o700)
         # No inherited provider credentials, Codex configuration, proxies or
-        # project instruction roots. Provider authentication is not supported by
-        # this local-only witness; never fall back to a developer's login.
+        # project instruction roots. Explicit keychain provider authentication
+        # uses the child environment; never fall back to a developer's login.
         env = {"PATH": "/usr/bin:/bin:/usr/sbin:/sbin", "LANG": "en_US.UTF-8",
                "CODEX_HOME": str(home), "HOME": str(root / "os-home"), "TMPDIR": str(root / "tmp")}
         if api_key is not None:
@@ -130,13 +138,10 @@ class Native:
                   'browser_use = false\nbrowser_use_external = false\ncomputer_use = false\n'
                   'image_generation = false\nview_image = false\nskill_search = false\n')
         (home / "config.toml").write_text(config)
-        endpoint = urlsplit(provider_url)
-        if endpoint.scheme != "http" or endpoint.hostname != "127.0.0.1" or endpoint.username or endpoint.password:
-            raise WitnessError("Witness requires the configured loopback HTTP endpoint without credentials")
         # Deny outbound destinations except the selected local provider, deny
         # reading other user-home data and deny executing arbitrary children.
         profile = ('(version 1)\n(allow default)\n(deny network*)\n'
-                   f'(allow network-outbound (remote ip "localhost:{endpoint.port or 80}"))\n'
+                   f'(allow network-outbound (remote ip "localhost:{port}"))\n'
                    f'(deny file-write* (require-not (subpath {json.dumps(str(root))})))\n'
                    f'(deny file-read* (require-all (subpath {json.dumps(str(Path.home()))}) '
                    f'(require-not (subpath {json.dumps(str(root))})) '
