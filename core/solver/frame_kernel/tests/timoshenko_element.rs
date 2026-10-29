@@ -326,8 +326,9 @@ fn timoshenko_bending_planes_and_rotation_covariance() {
 /// gives tip v 53/384, theta 7/48, root Fy -1/2, Mz -3/8; the stale
 /// Euler–Bernoulli vector [3/32, 5/192, 13/32, -11/192] with the same
 /// Timoshenko K gives v 9/64 = 54/384 and the same theta (the killed mutant:
-/// rotation and balance alone cannot see it). K-D5 refuses to form a
-/// Timoshenko partial span at all (`kd5_timoshenko_partial_span_is_unavailable`).
+/// rotation and balance alone cannot see it). K-D5 re-forms a Timoshenko
+/// partial span as a ball enclosing this vector
+/// (`kd5_timoshenko_partial_span_closes_and_passes`).
 #[test]
 fn timoshenko_distal_half_load_kills_the_stale_vector() {
     let model = run(abstract_section(1.0, 1.0, 12.0), 1.0, 1);

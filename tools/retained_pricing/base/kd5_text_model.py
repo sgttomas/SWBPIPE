@@ -211,7 +211,8 @@ def inspect_directed_helpers(snapshot):
 # remove no `.min(`/`.max(` call (rigid_component.rs's arc_evidence receivers are f64, W15C-CG).
 # W-16 slices b and c D3 (§8.27): lib.rs's combination append, operand standing, equivalent-static record and generator
 # checks add no `.min(`/`.max(` call.
-B7A_PRIMITIVE_LIB_SOURCE_PIN = 'e4a08ba9637316489bad25066d8103e3d0be9aaef73e35228cfd9fef267b40e0'
+# §8.30 D3: lib.rs's dense-memory guard and the generator's dropped refusal add no `.min(`/`.max(` call.
+B7A_PRIMITIVE_LIB_SOURCE_PIN = '8dea48cd8210e8f9f8a6fedfc5dd614a6e9336f2f4ab48d62737e08e057e7593'
 
 
 def primitive_lib_minmax_callers(snapshot):
