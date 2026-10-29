@@ -13,9 +13,9 @@ if ($bins.Count -ne 1) { throw "Expected one test executable, found $($bins.Coun
 $exe = $bins[0].FullName
 $inventory = @(& $exe --list --format terse)
 if ($LASTEXITCODE -ne 0) { throw 'case inventory failed' }
-$cases = @('arena::tests::native_arena', 'ledger::tests::ledgers_and_cancellation', 'ledger::tests::retry_classifier', 'worker::two_native_workers')
+$cases = @('arena::tests::native_arena', 'ledger::tests::ledgers_and_cancellation', 'ledger::tests::retry_classifier', 'worker::two_native_workers', 'worker::blocked_child_termination', 'worker::child_failure_negative_control')
 foreach ($case in $cases) { if (($inventory | Where-Object { $_ -eq "${case}: test" }).Count -ne 1) { throw "missing case $case" } }
-if (($inventory | Where-Object { $_ -eq 'worker::child_entry: test' }).Count -ne 1 -or $inventory.Count -ne 5) { throw 'unexpected case inventory' }
+if (($inventory | Where-Object { $_ -eq 'worker::child_entry: test' }).Count -ne 1 -or $inventory.Count -ne 7) { throw 'unexpected case inventory' }
 Write-Host "Inventory: $($inventory -join ', ')"
 function Run-Case([string]$case, [bool]$expectOne) {
     $timer = [Diagnostics.Stopwatch]::StartNew()

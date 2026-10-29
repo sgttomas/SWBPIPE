@@ -85,6 +85,7 @@ impl Arena {
         let s = unsafe { self.slots().add(old).read() }; assert_eq!(s.live, 1);
         let new = self.alloc(size, alignment, admit, inject)?;
         let n = unsafe { self.slots().add(new).read() };
+        println!("moving overlap requested,capacity,data,metadata,fragmentation,syscalls={:?} retained_pages={}", self.stats(), self.retained_pages());
         unsafe { ptr::copy_nonoverlapping(self.base.add(s.offset), self.base.add(n.offset), s.size.min(size)); }
         self.free(old); Ok(new)
     }

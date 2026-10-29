@@ -3,30 +3,47 @@ use crate::{arena::Arena, ledger::{Failure, Ledger}, win32};
 use std::{sync::{atomic::{AtomicU32, Ordering::SeqCst}, Mutex}, time::{Duration, Instant}};
 const MAP_SIZE: u32 = 4096;
 #[repr(C)]
-struct Shared { request: AtomicU32, grant: AtomicU32, cancel: AtomicU32, phase: AtomicU32, page: AtomicU32, committed: AtomicU32 }
-impl Shared { fn new() -> Self { Self { request: AtomicU32::new(0), grant: AtomicU32::new(0), cancel: AtomicU32::new(0), phase: AtomicU32::new(0), page: AtomicU32::new(0), committed: AtomicU32::new(0) } } }
+struct Shared { request: AtomicU32, grant: AtomicU32, reject: AtomicU32, cancel: AtomicU32, phase: AtomicU32, page: AtomicU32, committed: AtomicU32 }
+impl Shared { fn new() -> Self { Self { request: AtomicU32::new(0), grant: AtomicU32::new(0), reject: AtomicU32::new(0), cancel: AtomicU32::new(0), phase: AtomicU32::new(0), page: AtomicU32::new(0), committed: AtomicU32::new(0) } } }
 fn shared(view: &win32::View) -> &Shared { unsafe { &*view.0.cast::<Shared>() } }
 fn handle(name: &str) -> win32::Raw { std::env::var(format!("NATIVE_FIXTURE_{name}")).unwrap().parse::<usize>().unwrap() as win32::Raw }
 #[test]
 fn child_entry() {
-    if std::env::var("NATIVE_FIXTURE_MODE").is_err() { return; }
+    let Ok(mode) = std::env::var("NATIVE_FIXTURE_MODE") else { return; };
+    if mode == "negative" { panic!("injected child failure negative control"); }
+    assert_eq!(mode, "arena");
     let view = win32::map(handle("MAPPING"), MAP_SIZE as usize);
     let s = shared(&view); let command = handle("COMMAND"); let changed = handle("CHANGED");
     let deadline = Instant::now() + Duration::from_secs(2);
     let mut epoch = 0;
     let mut admit = |n: usize| {
-        epoch += 1; s.page.store(n as u32, SeqCst); s.request.store(epoch, SeqCst); win32::signal(changed);
+        // All attempts, including after a rejected grant, share the original
+        // absolute deadline. Only the explicit headroom reply can retry.
         loop {
             if s.cancel.load(SeqCst) != 0 { return Err(Failure::Cancelled); }
-            if s.grant.load(SeqCst) == epoch {
+            if Instant::now() >= deadline { return Err(Failure::Headroom); }
+            epoch += 1; s.page.store(n as u32, SeqCst); s.request.store(epoch, SeqCst); win32::signal(changed);
+            loop {
                 if s.cancel.load(SeqCst) != 0 { return Err(Failure::Cancelled); }
-                return Ok(());
+                if Instant::now() >= deadline { return Err(Failure::Headroom); }
+                if s.reject.load(SeqCst) == epoch { break; }
+                if s.grant.load(SeqCst) == epoch {
+                    if s.cancel.load(SeqCst) != 0 { return Err(Failure::Cancelled); }
+                    return Ok(());
+                }
+                win32::wait(command, 20);
             }
-            assert!(Instant::now() < deadline, "child grant deadline");
-            win32::wait(command, 20);
         }
     };
-    let result = (|| { let mut arena = Arena::new(&mut admit)?; arena.alloc(8192, 64, &mut admit, false)?;
+    let result = (|| { let mut arena = Arena::new(&mut admit)?;
+        let old = arena.alloc(8192, 64, &mut admit, false)?;
+        unsafe { *arena.byte(old, 0) = 73; }
+        // The injected failure runs after a real page grant, through the same
+        // allocation transaction. It must leave the old block intact.
+        assert_eq!(arena.realloc(old, 128*1024, 64, &mut admit, true), Err(Failure::Commit(0)));
+        assert_eq!(unsafe { *arena.byte(old, 0) }, 73);
+        let moved = arena.realloc(old, 128*1024, 64, &mut admit, false)?;
+        assert_eq!(unsafe { *arena.byte(moved, 0) }, 73);
         let (_,_,data,meta,_,_) = arena.stats(); s.committed.store((data+meta) as u32, SeqCst); s.phase.store(1, SeqCst); win32::signal(changed);
         let finish_deadline = Instant::now() + Duration::from_secs(8);
         while s.cancel.load(SeqCst) == 0 { assert!(Instant::now() < finish_deadline, "child finish deadline"); win32::wait(command, 20); }
@@ -36,12 +53,13 @@ fn child_entry() {
 }
 struct Child { process: win32::Process, _map: win32::Handle, view: win32::View, command: win32::Handle, changed: win32::Handle }
 impl Child {
-    fn start(job: win32::Raw) -> Self {
+    fn start(job: win32::Raw) -> Self { Self::start_mode(job, "arena") }
+    fn start_mode(job: win32::Raw, mode: &str) -> Self {
         let (map, view) = win32::mapping(MAP_SIZE); unsafe { view.0.cast::<Shared>().write(Shared::new()); }
         let command = win32::event(); let changed = win32::event();
         let hs = [map.0, command.0, changed.0];
         let values = [("MAPPING", map.value()), ("COMMAND", command.value()), ("CHANGED", changed.value())];
-        let mut process = win32::spawn_suspended(job, &hs, "arena", &values); process.resume();
+        let mut process = win32::spawn_suspended(job, &hs, mode, &values); process.resume();
         Self { process, _map: map, view, command, changed }
     }
 }
@@ -59,15 +77,19 @@ fn two_native_workers() {
     until(&mut a, |s| s.request.load(SeqCst) == 1); until(&mut b, |s| s.request.load(SeqCst) == 1);
     let p = shared(&a.view).page.load(SeqCst) as usize;
     assert_eq!(shared(&b.view).page.load(SeqCst) as usize, p);
-    { let mut l = ledger.lock().unwrap(); assert_eq!(l.grant(0,p,p), Ok(p)); assert_eq!(l.grant(1,p,p), Ok(p)); l.cancelled[1] = true; }
+    { let mut l = ledger.lock().unwrap(); assert_eq!(l.grant(1,p,p), Ok(p)); l.cancelled[1] = true; }
+    // A positive headroom refusal retries with the original absolute deadline.
+    shared(&a.view).reject.store(1, SeqCst); win32::signal(a.command.0);
+    until(&mut a, |s| s.request.load(SeqCst) == 2);
+    assert_eq!(ledger.lock().unwrap().grant(0,p,p), Ok(p));
     // Publish a deliberately late grant after cancellation. It must not commit.
     shared(&b.view).cancel.store(1, SeqCst); shared(&b.view).grant.store(1, SeqCst); win32::signal(b.command.0);
     until(&mut b, |s| s.phase.load(SeqCst) == 2);
     assert_eq!(shared(&b.view).committed.load(SeqCst), 0);
     assert_eq!(ledger.lock().unwrap().held[1], p);
     assert!(b.process.exited(5000)); assert_eq!(b.process.code(), 0); ledger.lock().unwrap().observed_exit(1);
-    shared(&a.view).grant.store(1, SeqCst); win32::signal(a.command.0);
-    let mut granted = 1;
+    shared(&a.view).grant.store(2, SeqCst); win32::signal(a.command.0);
+    let mut granted = 2;
     loop {
         until(&mut a, |s| s.phase.load(SeqCst) == 1 || s.request.load(SeqCst) > granted);
         let s = shared(&a.view);
@@ -77,11 +99,38 @@ fn two_native_workers() {
         granted = epoch; s.grant.store(epoch, SeqCst); win32::signal(a.command.0);
     }
     let committed = shared(&a.view).committed.load(SeqCst) as usize;
-    { let mut l = ledger.lock().unwrap(); l.committed(0, committed).unwrap(); assert_eq!(l.held[0], committed); }
+    { let mut l = ledger.lock().unwrap(); l.committed(0, committed).unwrap(); assert!(l.held[0] > committed); } // failed commit admission remains held
     // Cancellation and a termination request do not release a live child's lease.
-    shared(&a.view).cancel.store(1, SeqCst); win32::signal(a.command.0);
-    assert_eq!(ledger.lock().unwrap().held[0], committed);
-    assert!(a.process.exited(5000)); assert_eq!(a.process.code(), 0); ledger.lock().unwrap().observed_exit(0);
+    let held = ledger.lock().unwrap().held[0];
+    assert_eq!(ledger.lock().unwrap().held[0], held);
+    a.process.terminate_and_wait(); // returns only after the process handle signals
+    assert_eq!(a.process.code(), 91);
+    assert_eq!(ledger.lock().unwrap().held[0], held);
+    ledger.lock().unwrap().observed_exit(0);
     assert_eq!(ledger.lock().unwrap().held, [0,0]);
-    println!("two child admissions page={p} committed={committed}, cancellation held until observed exit");
+    println!("two child admissions page={p} committed={committed}, injected commit failure and moving realloc; cancellation/termination held until observed exit");
+}
+#[test]
+fn blocked_child_termination() {
+    let job = Job(win32::job());
+    let mut child = Child::start(job.0.0);
+    let mut ledger = Ledger::new(1024*1024, 1024*1024);
+    until(&mut child, |s| s.request.load(SeqCst) == 1);
+    let page = shared(&child.view).page.load(SeqCst) as usize;
+    ledger.grant(0, page, page).unwrap();
+    assert_eq!(shared(&child.view).committed.load(SeqCst), 0);
+    assert_eq!(ledger.held[0], page);
+    child.process.terminate_and_wait();
+    assert_eq!(child.process.code(), 91);
+    assert_eq!(ledger.held[0], page);
+    ledger.observed_exit(0);
+    assert_eq!(ledger.held[0], 0);
+}
+
+#[test]
+fn child_failure_negative_control() {
+    let job = Job(win32::job());
+    let mut child = Child::start_mode(job.0.0, "negative");
+    assert!(child.process.exited(5000), "negative child did not exit");
+    assert_ne!(child.process.code(), 0, "negative child failure was swallowed");
 }

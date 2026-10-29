@@ -39,9 +39,9 @@ or ignored case. The deliberately missing selection is a negative control. CI is
 supplemental and outside the required harness. Results are pending until the
 hosted job actually executes; no local compilation or execution was performed.
 
-The current experiment is incomplete: the two-worker path does not yet exercise
-an injected commit failure or moving realloc across its process boundary; the
-2-second retry classifier is tested separately, not wired to a real retrying
-commit transaction; a live blocked/terminating child is not held through a
-forced kill test; and the observations have not yet been reviewed as native
-cost evidence. The CI result cannot establish those missing properties.
+The child retries an explicitly injected headroom refusal within one absolute
+2-second window, and its injected post-admission commit failure is followed by
+a successful realloc under that same window. The timeout classifier is also
+tested separately. This does not yet exercise a real OS commitment failure or
+prove every retry and cancellation race; the observations have not yet been
+reviewed as native cost evidence. The CI result cannot establish those missing properties.

@@ -14,12 +14,13 @@ availability profiles are not claimed.
 
 The ledger holds future liability separately from actual committed bytes and
 uses zero residency credit; physical and commit headroom are independent inputs.
-The current test does not yet bind the 2-second retry classifier to a retrying
-native transaction, cover the injected commit failure and moving reallocation
-through a child, or prove custody during forced termination of a blocked child.
-Those are required remaining investigation cases, alongside hosted Windows
-execution and independent scrutiny. Main/global allocator and native startup
-costs still require a separate audit; this probe proves no production source
+A child retries an injected headroom refusal within one absolute 2-second
+window and follows an injected post-admission commit failure with a realloc
+retry under that same window. A separate case terminates a child blocked on a
+grow grant and holds the liability through observed exit. These cases still
+require hosted Windows execution and independent scrutiny; they do not exercise
+a real operating-system commitment failure or prove every cancellation race.
+Main/global allocator and native startup costs still require a separate audit; this probe proves no production source
 path or complete worker bound.
 
 Pending solver work at `9b73234e50f5ac151ad9f8a80c4c961c5a488170` adds a
