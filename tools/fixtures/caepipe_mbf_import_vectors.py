@@ -586,6 +586,13 @@ def bits(value: float) -> str:
     return struct.pack("<d", value).hex()
 
 
+def result_bits(value: float) -> str:
+    """A computed result's bits, with any NaN recorded as the canonical quiet NaN: the sign and payload of a NaN that
+    arithmetic produces are platform-defined (inf + -inf gives 0x7ff8... on arm64 and 0xfff8... on x86-64) and carry
+    no meaning; the Rust replay already compares NaN results by NaN-ness."""
+    return bits(math.nan if math.isnan(value) else value)
+
+
 def boundary_floats() -> list[float]:
     """Floats at formatting and rounding boundaries, then a seeded random spread over every binade."""
     values = [0.0, -0.0, 5e-324, -5e-324, 2.2250738585072014e-308, 2.225073858507201e-308, 1.7976931348623157e308,
@@ -630,24 +637,24 @@ def numeric_vectors() -> dict:
     hypot_vectors = []
     for _ in range(2000):
         args = [rng.uniform(-1, 1) * 2.0 ** rng.randint(-1074, 1023) for _ in range(rng.choice((2, 3)))]
-        hypot_vectors.append([[bits(arg) for arg in args], bits(math.hypot(*args))])
+        hypot_vectors.append([[bits(arg) for arg in args], result_bits(math.hypot(*args))])
     for args in ([3.0, 4.0], [5e-324, 5e-324], [1e308, 1e308], [0.0, -0.0], [1e-310, 3e-310, 2e-320],
                  [1.0, 1e-17, 1e-17], [math.inf, math.nan], [math.nan, 1.0]):
-        hypot_vectors.append([[bits(arg) for arg in args], bits(math.hypot(*args))])
+        hypot_vectors.append([[bits(arg) for arg in args], result_bits(math.hypot(*args))])
     sum_vectors = []
     for _ in range(2000):
         args = [rng.uniform(-1, 1) * 10.0 ** rng.randint(-20, 20) for _ in range(rng.choice((2, 3)))]
-        sum_vectors.append([[bits(arg) for arg in args], bits(sum(args))])
+        sum_vectors.append([[bits(arg) for arg in args], result_bits(sum(args))])
     for args in ([-0.0, -0.0], [1e308, 1e308, -1e308], [0.1, 0.2, 0.3], [1.0, 1e100, 1.0, -1e100],
                  [-0.0], [math.inf, -math.inf], [1e16, 1.0, -1e16]):
-        sum_vectors.append([[bits(arg) for arg in args], bits(sum(args))])
+        sum_vectors.append([[bits(arg) for arg in args], result_bits(sum(args))])
     norm_vectors = []
     for _ in range(1500):
         args = [rng.uniform(-1, 1) * 2.0 ** rng.randint(-1074, 1023) for _ in range(3)]
-        norm_vectors.append([[bits(arg) for arg in args], bits(importer.correct_norm3(*args))])
+        norm_vectors.append([[bits(arg) for arg in args], result_bits(importer.correct_norm3(*args))])
     for args in ([3.0, 4.0, 0.0], [1e-200, 1e-200, 0.0], [2.0 ** -1074, 0.0, 0.0], [3 * 2.0 ** -1074, 4 * 2.0 ** -1074, 0.0],
                  [1e308, 1e308, 1e308], [0.0, 0.0, 0.0]):
-        norm_vectors.append([[bits(arg) for arg in args], bits(importer.correct_norm3(*args))])
+        norm_vectors.append([[bits(arg) for arg in args], result_bits(importer.correct_norm3(*args))])
     atan_vectors = []
     for _ in range(1500):
         y, x = abs(rng.uniform(0, 1) * 2.0 ** rng.randint(-60, 60)), abs(rng.uniform(0, 1) * 2.0 ** rng.randint(-60, 60))
