@@ -40,6 +40,7 @@ import csv
 import hashlib
 import json
 import platform
+import re
 import shutil
 import subprocess
 import sys
@@ -203,17 +204,35 @@ PUBLIC_REPLACEMENTS = (
 )
 
 PRIVATE_PATH_RESIDUE_MARKER = "/Users" + "/"
+_HOME_SEGMENT = re.compile(re.escape(PRIVATE_PATH_RESIDUE_MARKER) + r"([A-Za-z0-9_.-]*)")
+INVENTED_HOME_SEGMENTS = {"invented", "invented-user"}
 _PRIVATE_KEY_BLOCK_PARTS = ("-----" + "BEGIN", "PRIVATE" + " KEY")
 
 # Reviewed expected boundary findings: exact (staging-relative path, kind)
 # pairs the gate treats as known-and-reviewed. Still recorded in the export
 # record and report; any boundary finding NOT listed fails the run.
+# RT-V8 P2 (owner, 2026-10-28, as recommended): redaction and default-path
+# tests whose only home-directory paths use the invented placeholder account
+# names in INVENTED_HOME_SEGMENTS, not a real account.
+_INVENTED_HOME_PATH = (
+    "Test payload: invented placeholder home-directory paths (account "
+    "'invented' or 'invented-user') in a redaction or default-path test; no "
+    "real account (RT-V8 P2)."
+)
 EXPECTED_BOUNDARY_FINDINGS = {
     ("tests/security/test_local_first_storage_policy.py", "private_path_residue"): (
         "Policy-test fixture data: the generic macOS home-directory prefix "
         "is itself the forbidden-prefix assertion payload of the local-first "
         "storage policy test."
     ),
+    ("apps/desktop/src/features/report/renderedReport.test.tsx", "private_path_residue_invented"): _INVENTED_HOME_PATH,
+    ("apps/desktop/src-tauri/src/model_document_save.rs", "private_path_residue_invented"): _INVENTED_HOME_PATH,
+    ("apps/desktop/src-tauri/src/report_package_save.rs", "private_path_residue_invented"): _INVENTED_HOME_PATH,
+    ("apps/desktop/src-tauri/src/report_render_exact_tests.rs", "private_path_residue_invented"): _INVENTED_HOME_PATH,
+    ("core/reporting/pdf_emitter/tests/emit.rs", "private_path_residue_invented"): _INVENTED_HOME_PATH,
+    ("core/reporting/report_package/src/wire.rs", "private_path_residue_invented"): _INVENTED_HOME_PATH,
+    ("core/reporting/report_renderer/tests/render.rs", "private_path_residue_invented"): _INVENTED_HOME_PATH,
+    ("core/runner/headless/tests/refused_package_ids.rs", "private_path_residue_invented"): _INVENTED_HOME_PATH,
 }
 
 # The sanitize pass and the lint gate cover every staged member that decodes
@@ -661,7 +680,13 @@ def boundary_findings(staging: Path, reviewed: dict[str, dict] | None = None) ->
             continue
 
         if PRIVATE_PATH_RESIDUE_MARKER in text:
-            add("private_path_residue", rel_posix)
+            # Only the invented placeholders make the narrower kind, so a real
+            # home path added to a reviewed file still fails (RT-V8 P2).
+            segments = set(_HOME_SEGMENT.findall(text))
+            if segments and segments <= INVENTED_HOME_SEGMENTS:
+                add("private_path_residue_invented", rel_posix)
+            else:
+                add("private_path_residue", rel_posix)
         if all(part in text for part in _PRIVATE_KEY_BLOCK_PARTS):
             add("private_key_block", rel_posix)
 

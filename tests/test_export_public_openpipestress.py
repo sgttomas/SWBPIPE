@@ -479,6 +479,24 @@ def test_committed_reviewed_binary_list_matches_its_files():
         assert entry["size_bytes"] == len(data) and entry["reason"].strip()
 
 
+def test_reviewed_invented_home_paths_still_catch_a_real_one(tmp_path):
+    # RT-V8 P2: the eight reviewed test files hold only invented placeholder
+    # home paths; the reviewed kind applies only while that stays true.
+    home = "/Users" + "/"
+    staging = tmp_path / "staging"
+    (staging / "core").mkdir(parents=True)
+    (staging / "core" / "invented_only.rs").write_text(
+        f'"{home}invented/Documents" "{home}invented-user/x.pdf"\n', encoding="utf-8")
+    (staging / "core" / "mixed.rs").write_text(
+        f'"{home}invented/Documents" "{home}someone-real/x"\n', encoding="utf-8")
+    kinds = {(f["path"], f["kind"]) for f in PIPE.boundary_findings(staging, reviewed={})}
+    assert ("core/invented_only.rs", "private_path_residue_invented") in kinds
+    assert ("core/mixed.rs", "private_path_residue") in kinds
+    reviewed = [path for (path, kind) in PIPE.EXPECTED_BOUNDARY_FINDINGS
+                if kind == "private_path_residue_invented"]
+    assert len(reviewed) == 8
+
+
 def test_classify_boundary_findings_splits_expected_and_unexpected():
     expected_key = next(iter(PIPE.EXPECTED_BOUNDARY_FINDINGS))
     findings = [
