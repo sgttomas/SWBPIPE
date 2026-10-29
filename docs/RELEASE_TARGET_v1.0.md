@@ -18,7 +18,7 @@ collide with survey item or benchmark family ids.
 
 ## 1. Target
 
-**Definition** (owner, 2026-10-27, `loop/LOOP_INIT.md`):
+**Definition** (owner, 2026-10-27):
 - Publication-ready means "a version good enough to publish engineering results
   with".
 - Analyses: "We should be able to do seismic plus hydrostatic, and the
@@ -78,8 +78,11 @@ quotes the option's drafted text; the owner's own words are quoted as such.
 - **Benchmarks (OC-10)** (owner, 2026-10-28): "first screen the results with
   the tolerance profile and flag anything of merit, then I will review the full
   record." Benchmark agreement with CAEPIPE will be published (owner,
-  2026-10-28, `loop/LOOP_INIT.md`), subject to the owner's check of the CAEPIPE
-  licence for benchmark clauses.
+  2026-10-28: "Benchmark agreement with CAEPIPE will indeed be published. That
+  part should be out in the open because the whole point is to feed into
+  CAEPIPE and expect the results to come out the same (but validated to Code
+  and to the reputation of CAEPIPE)."), subject to the owner's check of the
+  CAEPIPE licence for benchmark clauses.
   The 23 human-disposition and review holds (RF-001/RF-002, PDU-019, PDU-035
   and PDU-060 findings) do not gate v1.0; they are dispositioned in one batch
   (OC-10 (b); owner, 2026-10-28: "As recommended").

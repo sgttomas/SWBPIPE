@@ -41,6 +41,7 @@ import sys
 from typing import Any, Iterable, Mapping
 
 from .si_writer import (
+    BEND_SIF_FIELDS,
     INVENTED_CERTIFICATION,
     LOAD_CASE_LABELS,
     MATERIAL_ORIGINS,
@@ -186,7 +187,7 @@ _DOCUMENTED_REFUSED_COMMENTS = {
         *{f"WINR{n}" for n in range(1, 5)}},
     "MBF-IMPORT-LOAD-UNSUPPORTED": {"CWGT", "U", "UNIF", "T", "TEMP", "P", "PRES", "SG", "AMB", "HSG", "HPRES",
                                     "FRE", "PH"},
-    "MBF-IMPORT-BEND-UNSUPPORTED": {"IN1", "IN2", "BTHK", "BMAT", "BSIF", "WS"},
+    "MBF-IMPORT-BEND-UNSUPPORTED": {"IN1", "IN2", "BTHK", "BMAT", "WS"},
     "MBF-IMPORT-ROW-KEY-UNSUPPORTED": {
         "WGT", "VWGT", "AWGT", "ES", "TA", "OD1", "OD2", "THK1", "THK2", "CONE", "FLANGE", "BDIA", "GDIA", "BK",
         "BETA", "FFOR", "FTOR", "FRCT", "GAP", "KTIE", "INSF", "LONG", "SHORT", "MAT", "SEC", "LOAD", "LXAX",
@@ -236,7 +237,7 @@ _N_PER_M_PER_UNIT = {"N/mm": 1000.0, "lbf/in": 4.448_221_615_260_5 / 0.0254}
 # MAX_SAFE_INTEGER and `validate_checked_value`): no integer, and no integral float, beyond 2^53 - 1 in magnitude.
 MAX_SAFE_INTEGER = 9_007_199_254_740_991
 _DOCUMENTED_COMMENTS = {*_FORCE_NAMES, *_MOMENT_NAMES, *_DISPLACEMENT_NAMES, *_ROTATION_NAMES, *_FIXD_NAMES,
-                        *_FIXR_NAMES, "FLC", "FF", "LA", "TAG", "LTAG", *_SUPPORT_TYPES, *_SUPPORT_DATA,
+                        *_FIXR_NAMES, "FLC", "FF", "BSIF", "LA", "TAG", "LTAG", *_SUPPORT_TYPES, *_SUPPORT_DATA,
                         *_TBD_010_COMMENTS, *_ANCHOR_STIFFNESS,
                         *(name for names in _DOCUMENTED_REFUSED_COMMENTS.values() for name in names)}
 _INCH_MARKS = ('"', "\u201d")
@@ -1244,6 +1245,7 @@ class _Element:
     ti: bool = False
     radius: Num | None = None
     factor: Num | None = None
+    sifs: tuple[Num, Num] | None = None  # BSIF(in-plane,out-plane)
     row: int = -1  # its T row's index among the layout's F and T rows (a legacy sidecar's layout_row)
 
 
@@ -2570,6 +2572,23 @@ class _Importer:
                 if number is not None:
                     self.elements[-1].factor = number
                 record["comment_lines"].remove(line)  # FF is bend data, not a node comment
+            elif name == "BSIF":  # Format of .MBF, BSIF: a bend's SIFs, in-plane then out-of-plane (§11)
+                if row.keys.get("K") != "I":
+                    self.refuse("MBF-IMPORT-COMMENT-INVALID", line, where, "BSIF is read on a KI bend row only")
+                    continue
+                parts = split_fields(args) if args is not None else None
+                if parts is None or len(parts) != 2:
+                    self.refuse("MBF-IMPORT-COMMENT-INVALID", line, where,
+                                "BSIF needs two values in parentheses, in-plane then out-of-plane")
+                    continue
+                numbers = [self.real(part, line, f"{where} value {index + 1}") for index, part in enumerate(parts)]
+                if None in numbers:
+                    continue
+                if not all(number.value > 0 for number in numbers):
+                    self.refuse("MBF-IMPORT-VALUE-OUT-OF-RANGE", line, where, "a bend SIF must be positive")
+                    continue
+                self.elements[-1].sifs = (numbers[0], numbers[1])
+                record["comment_lines"].remove(line)  # BSIF is bend data, not a node comment
             elif name == "LA":
                 number = self.real(value or "", line, where)
                 if number is not None and number.exact != 0:
@@ -3209,17 +3228,22 @@ class _Importer:
             "mechanics_interface": {"solver_consumption": "curved_bend_macro_element"},
             "provenance": provenance(element.line),
         }
+        comments = "comments FF and BSIF" if element.sifs is not None else "comment FF"
         if element.factor is not None:
             component["modifiers"] = {"flexibility_factor_user_value": {"value": element.factor.value, "unit": "none"},
-                                      "source_reference": f"MBF sha256:{self.sha}, line {element.line}, comment FF"}
+                                      "source_reference": f"MBF sha256:{self.sha}, line {element.line}, {comments}"}
         else:
             component["modifiers"] = {"source_reference": f"MBF sha256:{self.sha}, line {element.line}: the MBF "
-                                                          "supplies no flexibility factor"}
+                                                          "supplies no flexibility factor"
+                                                          + (", comment BSIF" if element.sifs is not None else "")}
             unresolved.append({"assumption_id": f"assumption:mbf-bend-{n}-flexibility", "kind": "open_issue",
                                "statement": f"bend {n} has no flexibility factor in the MBF; enter a user factor",
                                "status": "unresolved", "affected_refs": [component_id]})
             self.listed("omitted", "MBF-IMPORT-BEND-FLEXIBILITY-MISSING", element.line, f"bend {n}",
                         f"bend {n} has no FF comment; SWBPIPE never supplies a factor, so the bend is incomplete")
+        if element.sifs is not None:
+            component["modifiers"].update({name: {"value": number.value, "unit": "none"}
+                                           for name, number in zip(BEND_SIF_FIELDS, element.sifs)})
         return component
 
     def weight_per_length(self, element: _Element) -> float:

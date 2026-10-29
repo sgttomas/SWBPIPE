@@ -294,6 +294,9 @@ def canonical(model: Mapping[str, Any], names: Mapping[str, str], case_kinds: Ma
         modifiers = component.get("modifiers") or {}
         if modifiers.get("flexibility_factor_user_value"):
             out.values[("bend", key, "k")] = si(modifiers["flexibility_factor_user_value"])
+        for name, label in (("sif_in_plane_user_value", "i_ip"), ("sif_out_of_plane_user_value", "i_op")):
+            if modifiers.get(name):  # the directional SIF pair travels as BSIF (Design §11)
+                out.values[("bend", key, label)] = si(modifiers[name])
         out.sets[("bend", key, "plane")] = direction
         out.sets[("bend", key, "node")] = names[component["node"]]
     if model.get("pressure_contract") is not None:
@@ -449,6 +452,10 @@ def bounds(model: Mapping[str, Any], writer: Any, printed: Printed, names: Mappi
         out[("bend", key, "R")] = printed_bound(row["radius"], 1e-3)
         factor = next(comment[3:] for comment in row["comments"] if comment.startswith("FF="))
         out[("bend", key, "k")] = printed_bound(factor)
+        for comment in row["comments"]:
+            if comment.startswith("BSIF("):  # the directional SIF pair, printed directly
+                for label, value in zip(("i_ip", "i_op"), comment[len("BSIF("):-1].split(",")):
+                    out[("bend", key, label)] = printed_bound(value)
         res = bend_residuals(model, pipe_id)
         r, theta = res["radius"], res["theta"]
         ti_bound = max(printed.node_bound[bend["caepipe_row_node"]])

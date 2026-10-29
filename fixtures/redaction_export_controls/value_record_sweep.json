@@ -1,0 +1,468 @@
+{
+  "description": "Generated value-record sweep for the DEL-12-02 route projector (docs/security/redaction_export_controls.md, 'Value records'; HELP_HUMAN decision 2026-10-28: \"take the stricter decision per case\"). Each implementation expands it identically: every combination of the axes, in order with the last axis varying fastest, that sets at most max_axes axes on {value: 'INVENTED'} (a value equal to absent leaves its member out), then the extra_records (among them the three repros of the Codex privacy review of #1722, nested value records, arrays of them, raised items with extra metadata and records carrying the projector's key prefix); each record is projected as {record_key: record} on route_id in the contexts in order. A case's exposure is 'B' when the export is blocked, else the sorted list of every key path ('k:') and every visible scalar leaf with its value ('v:', any scalar but '[REDACTED]') of the exported payload. Every value is invented.",
+  "deliverable_id": "DEL-12-02",
+  "absent": "__absent__",
+  "max_axes": 3,
+  "axes": [
+    [
+      "privacy_classification",
+      [
+        "__absent__",
+        "public",
+        "private_project_data",
+        [
+          "public"
+        ]
+      ]
+    ],
+    [
+      "classification",
+      [
+        "__absent__",
+        "public"
+      ]
+    ],
+    [
+      "redistribution_status",
+      [
+        "__absent__",
+        "public_permissive",
+        [
+          "public_permissive"
+        ]
+      ]
+    ],
+    [
+      "review_status",
+      [
+        "__absent__",
+        "quarantined"
+      ]
+    ],
+    [
+      "field_class",
+      [
+        "__absent__",
+        "note"
+      ]
+    ],
+    [
+      "professional_claim",
+      [
+        "__absent__",
+        true
+      ]
+    ],
+    [
+      "contains_payload",
+      [
+        "__absent__",
+        true
+      ]
+    ],
+    [
+      "concrete_path_present",
+      [
+        "__absent__",
+        true
+      ]
+    ],
+    [
+      "note",
+      [
+        "__absent__",
+        "INVENTED"
+      ]
+    ],
+    [
+      "file_path",
+      [
+        "__absent__",
+        "INVENTED"
+      ]
+    ],
+    [
+      "provenance",
+      [
+        "__absent__",
+        {},
+        {
+          "privacy_classification": "public",
+          "redistribution_status": "public_permissive"
+        },
+        {
+          "note": "INVENTED"
+        }
+      ]
+    ],
+    [
+      "export_policy",
+      [
+        "__absent__",
+        {}
+      ]
+    ]
+  ],
+  "extra_records": [
+    {
+      "value": "INVENTED",
+      "secret_material_present": true
+    },
+    {
+      "value": "INVENTED",
+      "secret_material_present": true,
+      "note": "INVENTED"
+    },
+    {
+      "value": "INVENTED",
+      "secret_material_present": true,
+      "field_class": "note"
+    },
+    {
+      "value": "INVENTED",
+      "secret_material_present": true,
+      "field_class": "note",
+      "note": "INVENTED"
+    },
+    {
+      "value": "INVENTED",
+      "cloud_or_network_reference": true
+    },
+    {
+      "value": "INVENTED",
+      "cloud_or_network_reference": true,
+      "note": "INVENTED"
+    },
+    {
+      "value": "INVENTED",
+      "cloud_or_network_reference": true,
+      "field_class": "note"
+    },
+    {
+      "value": "INVENTED",
+      "cloud_or_network_reference": true,
+      "field_class": "note",
+      "note": "INVENTED"
+    },
+    {
+      "value": "INVENTED",
+      "direct_sql_access": true
+    },
+    {
+      "value": "INVENTED",
+      "direct_sql_access": true,
+      "note": "INVENTED"
+    },
+    {
+      "value": "INVENTED",
+      "direct_sql_access": true,
+      "field_class": "note"
+    },
+    {
+      "value": "INVENTED",
+      "direct_sql_access": true,
+      "field_class": "note",
+      "note": "INVENTED"
+    },
+    {
+      "value": "INVENTED",
+      "storage_bypass": true
+    },
+    {
+      "value": "INVENTED",
+      "storage_bypass": true,
+      "note": "INVENTED"
+    },
+    {
+      "value": "INVENTED",
+      "storage_bypass": true,
+      "field_class": "note"
+    },
+    {
+      "value": "INVENTED",
+      "storage_bypass": true,
+      "field_class": "note",
+      "note": "INVENTED"
+    },
+    {
+      "value": "INVENTED",
+      "path_class": "INVENTED"
+    },
+    {
+      "value": "INVENTED",
+      "path_class": "INVENTED",
+      "note": "INVENTED"
+    },
+    {
+      "value": "INVENTED",
+      "path_class": "INVENTED",
+      "field_class": "note"
+    },
+    {
+      "value": "INVENTED",
+      "path_class": "INVENTED",
+      "field_class": "note",
+      "note": "INVENTED"
+    },
+    {
+      "value": "INVENTED",
+      "symbolic_path_class": "INVENTED"
+    },
+    {
+      "value": "INVENTED",
+      "symbolic_path_class": "INVENTED",
+      "note": "INVENTED"
+    },
+    {
+      "value": "INVENTED",
+      "symbolic_path_class": "INVENTED",
+      "field_class": "note"
+    },
+    {
+      "value": "INVENTED",
+      "symbolic_path_class": "INVENTED",
+      "field_class": "note",
+      "note": "INVENTED"
+    },
+    {
+      "value": "INVENTED",
+      "storage_locality": "INVENTED"
+    },
+    {
+      "value": "INVENTED",
+      "storage_locality": "INVENTED",
+      "note": "INVENTED"
+    },
+    {
+      "value": "INVENTED",
+      "storage_locality": "INVENTED",
+      "field_class": "note"
+    },
+    {
+      "value": "INVENTED",
+      "storage_locality": "INVENTED",
+      "field_class": "note",
+      "note": "INVENTED"
+    },
+    {
+      "value": null,
+      "field_class": "note",
+      "note": "INVENTED"
+    },
+    {
+      "value": "INVENTED",
+      "text": "INVENTED",
+      "field_class": "note"
+    },
+    {
+      "value": {
+        "inner": "INVENTED"
+      },
+      "field_class": "note"
+    },
+    {
+      "value": "INVENTED",
+      "field_class": "note",
+      "child": {
+        "value": "INVENTED",
+        "field_class": "note",
+        "note": "INVENTED"
+      }
+    },
+    {
+      "value": "SECRET",
+      "privacy_classification": "protected_suspected",
+      "_route_value_record": true,
+      "item": {
+        "value": "safe",
+        "privacy_classification": "public",
+        "redistribution_status": "public_permissive"
+      },
+      "projected": {
+        "__route_key__leak": "SECRET"
+      }
+    },
+    {
+      "value": "SECRET",
+      "privacy_classification": "public",
+      "redistribution_status": "public_permissive",
+      "_route_value_record": true,
+      "projected": {
+        "__route_key__leak": "SECRET"
+      }
+    },
+    {
+      "value": "outer",
+      "field_class": "note",
+      "text": {
+        "value": "safe",
+        "privacy_classification": "public",
+        "redistribution_status": "public_permissive",
+        "note": "SECRET"
+      }
+    },
+    {
+      "value": "outer",
+      "concrete_path_present": true,
+      "text": {
+        "value": "SECRET",
+        "export_policy": {}
+      }
+    },
+    {
+      "value": "outer",
+      "field_class": "note",
+      "text": {
+        "value": "inner",
+        "field_class": "note",
+        "note": "INVENTED"
+      }
+    },
+    {
+      "value": "outer",
+      "concrete_path_present": true,
+      "text": {
+        "value": "inner",
+        "field_class": "note",
+        "file_path": "INVENTED",
+        "text": {
+          "value": "deepest",
+          "export_policy": {}
+        }
+      }
+    },
+    {
+      "value": "outer",
+      "concrete_path_present": true,
+      "text": [
+        {
+          "value": "SECRET",
+          "export_policy": {}
+        },
+        {
+          "value": "SECRET",
+          "field_class": "note",
+          "note": "INVENTED"
+        }
+      ]
+    },
+    {
+      "value": "outer",
+      "field_class": "note",
+      "note": "INVENTED",
+      "child": [
+        {
+          "value": "inner",
+          "field_class": "note",
+          "note": "INVENTED"
+        },
+        {
+          "value": "inner",
+          "professional_claim": true
+        }
+      ]
+    },
+    {
+      "value": "outer",
+      "concrete_path_present": true,
+      "text": {
+        "value": "safe",
+        "privacy_classification": "public",
+        "redistribution_status": "public_permissive",
+        "note": "SECRET",
+        "field_id": "INVENTED"
+      }
+    },
+    {
+      "value": "outer",
+      "concrete_path_present": true,
+      "privacy_classification": {
+        "value": "SECRET",
+        "export_policy": {}
+      }
+    },
+    {
+      "value": "outer",
+      "concrete_path_present": true,
+      "privacy_classification": [
+        "SECRET",
+        {
+          "value": "SECRET",
+          "field_class": "note"
+        }
+      ]
+    },
+    {
+      "value": "outer",
+      "file_path": {
+        "value": "SECRET",
+        "field_class": "note",
+        "note": "INVENTED"
+      },
+      "concrete_path_present": true
+    },
+    {
+      "value": "outer",
+      "concrete_path_present": true,
+      "text": {
+        "value": "inner",
+        "professional_claim": true
+      }
+    },
+    {
+      "value": "outer",
+      "field_class": "note",
+      "__route_key__value": "SECRET"
+    },
+    {
+      "value": "safe",
+      "privacy_classification": "public",
+      "redistribution_status": "public_permissive",
+      "__route_key__value": "SECRET"
+    }
+  ],
+  "record_key": "record",
+  "route_id": "DREP-JSON-002",
+  "contexts": [
+    [
+      "public_report",
+      false
+    ],
+    [
+      "public_report",
+      true
+    ],
+    [
+      "public_example",
+      false
+    ],
+    [
+      "public_example",
+      true
+    ],
+    [
+      "shared_model",
+      false
+    ],
+    [
+      "shared_model",
+      true
+    ],
+    [
+      "downstream_tool",
+      false
+    ],
+    [
+      "downstream_tool",
+      true
+    ],
+    [
+      "local_private",
+      false
+    ],
+    [
+      "local_private",
+      true
+    ]
+  ]
+}

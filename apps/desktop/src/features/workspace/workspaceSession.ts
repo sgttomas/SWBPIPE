@@ -121,7 +121,7 @@ import {
 } from "../results/resultInterpretation";
 import { MODEL_SCHEMA_VERSION } from "../../services/modelSchemaVersion";
 import type { RuleCheckRunBasis } from "../rule-check/RuleCheckRunPanel";
-import { batchRequiresPreview, previewSatisfied, PREVIEW_REQUIRED_REASON, type QueuedBatch } from "../toolkit/BatchReviewPanel";
+import { batchRequiresPreview, operationRequiresPreview, previewSatisfied, PREVIEW_REQUIRED_REASON, type QueuedBatch } from "../toolkit/BatchReviewPanel";
 import { capabilityAvailability, capabilityRoute } from "../toolkit/capabilityCatalog";
 import type { ToolkitCapability } from "../toolkit/capabilityCatalog";
 import type { CreationTool, ViewportExposureInteraction } from "../viewport/PipeViewport";
@@ -216,6 +216,7 @@ import type { UiDensityPreference, UiThemePreference } from "./uiPreferences";
 import { updateUiPreferences, writeUiPreferences } from "./uiPreferences";
 import { observeWorkspaceCanvasBudget } from "./workspaceCanvasBudget";
 import { EXPENSIVE_LIFECYCLE_SECTIONS } from "./workspaceSections";
+import { createSessionEventChannel } from "./sessionEvents";
 import type { WorkspaceSectionId } from "./workspaceSections";
 
 /** W-13 §3.5 / W-17 §2.7: the model's library references checked against the
@@ -474,6 +475,13 @@ export function useWorkspaceSession() {
     projectBusy, setProjectBusy
   } = useProjectSessionState();
 
+  // Run sheet S2 (DEL-07-02 Design `run-sheet-entry.md` §3.6): the session's
+  // one transient event callback. A listener's failure outside a publication
+  // is reported in the batch message and changes nothing else.
+  const [sessionEvents] = useState(() => createSessionEventChannel((error, event) => {
+    setBatchMessage(`The run sheet did not follow the session's ${event.type} event: ${nativeFailureText(error)}`);
+  }));
+
   const ruleCheckRunBasis: RuleCheckRunBasis = {
     projectSessionGeneration,
     modelRevision: uiModelRevision,
@@ -677,6 +685,8 @@ export function useWorkspaceSession() {
     const retained = referencePersistence.current;
     if (retained && (retained.model !== model || retained.generation !== projectSessionGenerationRef.current)) referencePersistence.current = null;
     modelRevision.current += 1;
+    // Run sheet S2 (§3.6 step 1): a registration prepared on an earlier model is retired.
+    retireStaleBatchRegistrations();
     solveRunGate.current.invalidate();
     activeSolveJob.current = null;
     setRunning(false);
@@ -1322,12 +1332,42 @@ export function useWorkspaceSession() {
   const batchRegistrations = useRef(new Map<string, BatchRegistration>());
   const batchQueueEpoch = useRef(0);
   function withdrawBatchRegistrations() {
+    const withdrawn = [...batchRegistrations.current.values()];
     batchRegistrations.current.clear();
     batchQueueEpoch.current += 1;
+    for (const { entry } of withdrawn) sessionEvents.emit({ type: "withdrawn", batchId: entry.batch.batch_id, key: entry.key });
+  }
+  // Run sheet S2 (DEL-07-02 Design `run-sheet-entry.md` §3.6 step 1): after the
+  // revision advances, every registration prepared on another revision is
+  // revoked, whatever its producer (none of them could run). Its Pending
+  // changes entry becomes a retired notice whose only action is Dismiss, and
+  // `invalidated` is emitted once per registration. An applied batch is
+  // deregistered in its own Publish block, so it is never retired here.
+  function retireStaleBatchRegistrations() {
+    const stale = [...batchRegistrations.current.values()].filter(({ entry }) => entry.basisRevision !== modelRevision.current);
+    if (stale.length === 0) return;
+    const keys = new Set(stale.map(({ entry }) => entry.key));
+    for (const key of keys) batchRegistrations.current.delete(key);
+    setQueuedBatches((current) => current.map((entry) => keys.has(entry.key) && !entry.retired ? { ...entry, retired: RETIRED_BATCH_NOTICE } : entry));
+    for (const { entry } of stale) sessionEvents.emit({ type: "invalidated", batchId: entry.batch.batch_id, key: entry.key, reason: RETIRED_BATCH_NOTICE });
+  }
+  function handleDismissRetiredBatch(key: string) {
+    setQueuedBatches((current) => current.filter((entry) => !(entry.key === key && entry.retired)));
+    setBatchOutcomes((current) => {
+      if (!(key in current)) return current;
+      const { [key]: _dismissed, ...rest } = current;
+      return rest;
+    });
   }
 
-  async function handleQueueOperationBatch(batch: OperationBatch) {
-    if (!model) return;
+  async function handleQueueOperationBatch(batch: OperationBatch): Promise<void> {
+    await registerOperationBatch(batch);
+  }
+
+  /** Queue a batch and return its registration key, or null when it was not registered.
+   * `reveal: false` (the run sheet, §5.1) leaves the section and focus where they are. */
+  async function registerOperationBatch(batch: OperationBatch, options: { reveal?: boolean } = {}): Promise<string | null> {
+    if (!model) return null;
     const revision = modelRevision.current;
     const epoch = requestEpochRef.current;
     const queueEpoch = batchQueueEpoch.current;
@@ -1335,7 +1375,7 @@ export function useWorkspaceSession() {
     const submitted = structuredClone(batch);
     try {
       const basisHash = await computeModelHash(basisModel);
-      if (revision !== modelRevision.current || epoch !== requestEpochRef.current || queueEpoch !== batchQueueEpoch.current) return;
+      if (revision !== modelRevision.current || epoch !== requestEpochRef.current || queueEpoch !== batchQueueEpoch.current) return null;
       if (!basisHash) throw new Error("The current model hash is unavailable.");
       const key = `operation-batch-${++batchSequence.current}`;
       // W-10: derived centrally from the batch contents, whatever its producer
@@ -1347,13 +1387,18 @@ export function useWorkspaceSession() {
       batchRegistrations.current.set(key, { entry: registered, epoch: queueEpoch });
       setQueuedBatches((current) => [...current, registered]);
       setBatchMessage("Batch queued for validation and explicit application.");
-      setActiveSection("operations");
-      setOperationTab("review");
-      setToolkitFocus({ testId: "", elementId: "batch-review" });
+      if (options.reveal !== false) {
+        setActiveSection("operations");
+        setOperationTab("review");
+        setToolkitFocus({ testId: "", elementId: "batch-review" });
+      }
+      sessionEvents.emit({ type: "queued", batchId: submitted.batch_id, key, basisRevision: revision, basisHash: basisHash.value });
+      return key;
     } catch (error) {
       if (revision === modelRevision.current && epoch === requestEpochRef.current) {
         setBatchMessage(`Batch could not be queued: ${nativeFailureText(error)}`);
       }
+      return null;
     }
   }
 
@@ -1372,7 +1417,7 @@ export function useWorkspaceSession() {
     // predicate as the Apply button, and the preview must be of this exact
     // batch content (its canonical fingerprint at validation).
     const gated = apply && batchRequiresPreview(entry.batch);
-    const refusePreview = () => setBatchMessage(`Batch ${entry.batch.batch_id} was not applied. ${PREVIEW_REQUIRED_REASON}`);
+    const refusePreview = () => setBatchMessage(`Batch ${entry.batch.batch_id} was not applied. ${PREVIEW_REQUIRED_REASON(entry.batch)}`);
     if (gated && (!registration.validated || !previewSatisfied(entry, registration.validated.outcome, modelRevision.current))) {
       refusePreview();
       return;
@@ -1381,24 +1426,29 @@ export function useWorkspaceSession() {
     const request = ++operationRequest.current.sequence;
     operationRequest.current.busy = true;
     const stillCurrent = () => operationRequest.current.sequence === request && modelRevision.current === revision;
+    // §3.6 step 3: a run that ends with neither an outcome nor a retirement or
+    // withdrawal of its registration (both emit their own event) is abandoned.
+    const abandon = (reason: string) => {
+      if (registered()) sessionEvents.emit({ type: "abandoned", batchId: entry.batch.batch_id, key: entry.key, reason });
+    };
     setOperationBusy(true);
     setBatchMessage(null);
     try {
-      if (!currentModel.current) return;
+      if (!currentModel.current) return abandon("The session holds no model.");
       const fingerprint = await canonicalSha256Hex(entry.batch);
-      if (!stillCurrent()) return;
+      if (!stillCurrent()) return abandon("The request was superseded before the batch ran.");
       if (!registered()) throw new Error("The batch was withdrawn from the review queue; it was not run.");
       if (gated && fingerprint !== registration.validated?.fingerprint) {
         refusePreview();
         return;
       }
       const initialHash = await computeModelHash(currentModel.current);
-      if (!stillCurrent()) return;
+      if (!stillCurrent()) return abandon("The request was superseded before the batch ran.");
       if (!initialHash || initialHash.value !== entry.basisHash.value) throw new Error("The model changed. Prepare a new batch.");
       const outcome = await (apply ? applyOperationBatch : validateOperationBatch)(entry.basisModel, entry.batch, entry.basisHash);
-      if (!stillCurrent() || !currentModel.current) return;
+      if (!stillCurrent() || !currentModel.current) return abandon("The request was superseded while the batch ran; its result was discarded.");
       const currentHash = await computeModelHash(currentModel.current);
-      if (!stillCurrent()) return;
+      if (!stillCurrent()) return abandon("The request was superseded while the batch ran; its result was discarded.");
       if (
         currentHash?.value !== initialHash.value ||
         outcome.initial_model_hash?.value !== initialHash.value ||
@@ -1416,6 +1466,8 @@ export function useWorkspaceSession() {
       // preparation keeps the earlier preview and its Apply gate.
       if (!apply || outcome.validation.application_status !== "applied_to_session_model") {
         setBatchOutcomes((current) => ({ ...current, [entry.key]: outcome }));
+        const passed = outcome.validation.batch_validation_status === "passed" && outcome.simulation_disposition !== "rolled_back_no_model_published";
+        sessionEvents.emit({ type: passed ? "validated" : "refused", batchId: entry.batch.batch_id, key: entry.key, outcome });
         return;
       }
       if (!outcome.applied_model || !outcome.acceptance || outcome.simulation_disposition !== "committed_as_one_batch") {
@@ -1451,6 +1503,8 @@ export function useWorkspaceSession() {
       };
       const prunedSelection = prunedSelectionForPublication(appliedModel);
       const appliedSolveJob = sessionHistoryChangedSolveJob("batch", entry.batch.batch_id);
+      // Run sheet S2: the session event listeners' staged transition (§3.6).
+      const publishEvents = sessionEvents.stage({ type: "checkpoint", operationId: entry.batch.batch_id, appliedModel, operationOutcomes: outcome.operation_outcomes });
 
       // Publish: one synchronous block of state setters and session-owned ref
       // writes; nothing here throws.
@@ -1464,6 +1518,7 @@ export function useWorkspaceSession() {
       commitSelectionState(prunedSelection, appliedModel);
       batchRegistrations.current.delete(entry.key);
       setQueuedBatches((current) => current.filter((candidate) => candidate.key !== entry.key));
+      publishEvents();
       clearComputedModelState(appliedSolveJob);
       setProposal(null);
       setSelectedReviewTarget(null);
@@ -1618,11 +1673,13 @@ export function useWorkspaceSession() {
           orderedSelectionRef.current
         );
         const appliedSolveJob = sessionHistoryChangedSolveJob("batch", frozenSubmission.batch.batch_id);
+        const publishEvents = sessionEvents.stage({ type: "checkpoint", operationId: checkpoint.operation_id });
 
         // Publish: one synchronous block of state setters and session-owned ref
         // writes; nothing here throws.
         setUndoStack((current) => [checkpoint, ...current].slice(0, 25));
         setRedoStack([]);
+        publishEvents();
         setBatchReceipts((current) => [...current, batchReceipt]);
         setRetainedReviewContext((current) => [...current, ...reviewContext]);
         setAppliedOperations((current) => [...current, { receipt_id: `applied-${review.reviewId}`, sequence: current.length + 1, ...appliedFields }]);
@@ -1681,6 +1738,7 @@ export function useWorkspaceSession() {
         orderedSelectionRef.current
       );
       const appliedSolveJob = modelChangedSolveJob(outcome);
+      const publishEvents = sessionEvents.stage({ type: "checkpoint", operationId: checkpoint.operation_id });
 
       // Publish: one synchronous block of state setters and session-owned ref
       // writes; nothing here throws.
@@ -1688,6 +1746,7 @@ export function useWorkspaceSession() {
       setRetainedReviewContext((current) => [...current, reviewContext]);
       setUndoStack((current) => [checkpoint, ...current].slice(0, 25));
       setRedoStack([]);
+      publishEvents();
       publishModel(publication, review.reviewId);
       commitSelectionState(appliedSelection, appliedModel);
       clearComputedModelState(appliedSolveJob);
@@ -1734,10 +1793,14 @@ export function useWorkspaceSession() {
 
   async function handleApplyIntent(intent: EditorOperationIntent, ownedOutcome?: { current?: Readonly<OperationOutcome> }): Promise<boolean> {
     if (!model || operationRequest.current.busy) return false;
-    // W-10: a reconnect is never applied without preview; route it to batch review.
-    if (intent?.change?.change_kind === "reconnect_pipe_run") {
-      setOperationMessage("Reconnect is applied through batch review; it has been queued there.");
-      await handleQueueOperationBatch({ batch_id: `reconnect-${intentKey(intent)}`, operations: [structuredClone(intent)] });
+    // W-10, O6: an operation that requires preview (a reconnect, a bend
+    // insertion) is never applied without one; route it to batch review.
+    if (operationRequiresPreview(intent?.change?.change_kind)) {
+      const reconnect = intent.change.change_kind === "reconnect_pipe_run";
+      setOperationMessage(reconnect
+        ? "Reconnect is applied through batch review; it has been queued there."
+        : `${intent.change.change_kind} is applied through batch review after a preview; it has been queued there.`);
+      await handleQueueOperationBatch({ batch_id: `${reconnect ? "reconnect" : "preview"}-${intentKey(intent)}`, operations: [structuredClone(intent)] });
       return false;
     }
     const revision = modelRevision.current;
@@ -1804,6 +1867,7 @@ export function useWorkspaceSession() {
         : prunedSelectionForPublication(appliedModel);
       const appliedIntentKey = intentKey(intent);
       const appliedSolveJob = modelChangedSolveJob(outcome);
+      const publishEvents = sessionEvents.stage({ type: "checkpoint", operationId: checkpoint.operation_id });
 
       // Publish: one synchronous block of state setters and session-owned ref
       // writes; nothing here throws.
@@ -1812,6 +1876,7 @@ export function useWorkspaceSession() {
       setRetainedReviewContext((current) => [...current, reviewContext]);
       setUndoStack((current) => [checkpoint, ...current].slice(0, 25));
       setRedoStack([]);
+      publishEvents();
       publishModel(publication);
       commitSelectionState(appliedSelection, appliedModel);
       setEditorIntents((current) => current.filter((queued) => intentKey(queued) !== appliedIntentKey));
@@ -1889,6 +1954,7 @@ export function useWorkspaceSession() {
       reverse: SessionModelCheckpoint;
       restoredSelection: OrderedSelectionState;
       solveJob: SolveJobAuditState;
+      publishEvents: () => void;
     }>;
     try {
       const restoredModel = clonePreviewModel(checkpoint.model);
@@ -1902,7 +1968,8 @@ export function useWorkspaceSession() {
           selection
         },
         restoredSelection: singletonSelection(checkpoint.selection, orderedSelectionRef.current),
-        solveJob: sessionHistoryChangedSolveJob(action, checkpoint.operation_id)
+        solveJob: sessionHistoryChangedSolveJob(action, checkpoint.operation_id),
+        publishEvents: sessionEvents.stage({ type: action === "undo" ? "undone" : "redone", operationId: checkpoint.operation_id })
       };
     } catch (error) {
       const failure = `${action === "undo" ? "Undo" : "Redo"} failed to run: ${nativeFailureText(error)}`;
@@ -1920,6 +1987,7 @@ export function useWorkspaceSession() {
       setRedoStack(remaining);
       setUndoStack((current) => [prepared.reverse, ...current].slice(0, 25));
     }
+    prepared.publishEvents();
     publishModel(prepared.publication);
     commitSelectionState(prepared.restoredSelection, prepared.restoredModel);
     clearComputedModelState(prepared.solveJob);
@@ -2049,6 +2117,7 @@ export function useWorkspaceSession() {
     preserveAndPruneSelection(renamed);
     // Undo checkpoints hold the old identity; Save as new starts a fresh history.
     setUndoStack([]);
+    sessionEvents.emit({ type: "history-reset", projectId: renamed.project.id });
     setRedoStack([]);
     setProjectSummary(null);
     setProjectEnvelopeHash(null);
@@ -2362,6 +2431,7 @@ export function useWorkspaceSession() {
       setSelection(defaultSelection(created.model));
       modelEpoch = modelCommitEpochRef.current;
       setUndoStack([]);
+      sessionEvents.emit({ type: "history-reset", projectId: created.model.project.id });
       setRedoStack([]);
       setAppliedOperations([]);
       withdrawBatchRegistrations();
@@ -2449,6 +2519,7 @@ export function useWorkspaceSession() {
       setSelection(defaultSelection(opened.model));
       epoch = requestEpochRef.current;
       setUndoStack([]);
+      sessionEvents.emit({ type: "history-reset", projectId: opened.model.project.id });
       setRedoStack([]);
       setAppliedOperations([]);
       withdrawBatchRegistrations();
@@ -2579,6 +2650,7 @@ export function useWorkspaceSession() {
       setSavedModelBasis({ generation, revision, hash: null, source: "loaded-source" });
       setSelection(defaultSelection(document));
       setUndoStack([]);
+      sessionEvents.emit({ type: "history-reset", projectId: document.project.id });
       setRedoStack([]);
       setAppliedOperations([]);
       withdrawBatchRegistrations();
@@ -3809,6 +3881,7 @@ export function useWorkspaceSession() {
     setSavedModelBasis({ generation: projectSessionGenerationRef.current, revision: uiModelRevisionRef.current, hash: snapshotHash.value, source: "open" });
     setSelection(defaultSelection(opened.model));
     setUndoStack([]);
+    sessionEvents.emit({ type: "history-reset", projectId: opened.model.project.id });
     setRedoStack([]);
     setAppliedOperations([]);
     withdrawBatchRegistrations();
@@ -3982,7 +4055,10 @@ export function useWorkspaceSession() {
       handleQueueEditorIntent,
       handleClearReviewQueue,
       handleQueueOperationBatch,
+      registerOperationBatch,
       handleRunOperationBatch,
+      handleDismissRetiredBatch,
+      sessionEvents,
       handleAddDraftReview,
       handleApplyDraftReview,
       handleValidateIntent,
@@ -4079,6 +4155,9 @@ function deepFreeze<T>(value: T): T {
 }
 
 /** W-10: one queued submission as the live registry holds it. */
+/** The retired notice of a queued batch whose basis is no longer current (§3.6 step 1). */
+export const RETIRED_BATCH_NOTICE = "Prepared on an earlier model and withdrawn. Prepare it again.";
+
 type BatchRegistration = {
   entry: QueuedBatch;
   epoch: number;
