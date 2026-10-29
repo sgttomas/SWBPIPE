@@ -116,7 +116,7 @@ inventories with `numerical_ci.source_read_dependencies` and run both
 `tests/test_ci_numerical.py` and Root `tools/software_workflow/test_hosted_ci.py`
 before integrating such changes. Stale declarations, missing inputs, unresolved dependencies,
 unknown paths and shared execution controls select all discovered crates. Existing
-numerical oracles remain unchanged. Python coverage is gated independently;
+numerical oracles remain unchanged. Python coverage is gated independently.
 
 Remaining selection gap: adding or removing a `.rs` or `Cargo.toml` under
 `projects/chirality-piping` should select Root's `software_workflow` routing
