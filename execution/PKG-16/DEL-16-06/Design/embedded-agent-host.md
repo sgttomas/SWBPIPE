@@ -222,6 +222,34 @@ requiring the excluded execution tree. No workflow file, required status or
 harness aggregate is changed. Equality establishes source correspondence, not
 catalog semantics or runtime conformance.
 
+`transport.rs` supplies an explicitly constructed portable stdio pump, with
+four-slot incoming/outgoing queues and separate reader/writer threads. It does
+not launch a process or own protocol/session authorization. GENERAL interactive
+admission reserves two 512 KiB stacks plus a 128 KiB bookkeeping allowance
+before queue allocation/spawn; framing's reader buffers and each frame's backing
+are separately admitted. Outbound values are moved and serialized to the stream,
+with a byte-counting pass before enqueue and no full encoded-frame copy. Shared
+backing references preserve custody, not a fresh budget for each clone. Queue
+exhaustion is a terminal fault; no unknown operation is resubmitted.
+
+Both workers wait behind a start gate. A second-spawn failure aborts that gate
+and returns typed partial custody, rather than claiming completed rollback.
+Stop request, terminal I/O, EOF and actual joined worker completion are separate
+observations. A blocked generic read/write cannot be interrupted by this pump;
+its caller must close/stop the owned process/streams and retain the pump until
+workers can be joined. Observing joined workers confers no process-group or
+descendant-empty evidence. Bookkeeping/finished joins have no hard wall-clock
+guarantee. Abandoning unfinished custody deliberately retains it and its startup
+reservation, even if a worker later finishes; integrating owners must keep that
+custody rather than silently drop it and release live-stack accounting. This is
+a fail-closed memory-retention limit, not crash cleanup qualification.
+
+Nine guarded component tests cover frame/backing custody, EOF before joined
+completion, queue exhaustion, streamed output/newline/flush, serialization cap,
+stalled read/write retention, second-spawn partial custody and static I/O faults.
+They use controlled synthetic streams, not a supplier/model or native session.
+The responsive protocol coordinator and live dispatcher remain to be built.
+
 The macOS-only `macos.rs`/`sandbox.rs` launcher is not connected to product
 startup. It verifies and copies the selected binary, uses private home/cwd and
 an environment-held credential, and denies reads outside fixed OS locations and

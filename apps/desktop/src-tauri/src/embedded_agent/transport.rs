@@ -281,7 +281,8 @@ impl Pump {
         }
     }
 
-    /// Nonblocking observation, including at most two already-finished joins.
+    /// No stream/condition-variable wait; joins only workers std reports finished.
+    /// This is not a hard deadline guarantee for OS/TLS cleanup or bookkeeping.
     /// Busy means a short queue bookkeeping lock is held; it is not an exit.
     pub fn observe(&mut self) -> Result<Status, Fault> {
         let custody = self.custody.as_mut().unwrap();

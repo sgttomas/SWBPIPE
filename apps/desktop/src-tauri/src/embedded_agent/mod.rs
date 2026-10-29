@@ -7,5 +7,6 @@ pub(crate) mod framing;
 pub(crate) mod macos;
 pub(crate) mod numeric;
 pub(crate) mod protocol;
+pub(crate) mod transport;
 #[cfg(target_os = "macos")]
 pub(crate) mod sandbox;
