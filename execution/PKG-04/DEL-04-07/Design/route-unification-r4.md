@@ -1,9 +1,12 @@
 # R-4: route unification. The exact pressure route admits every family the pressure-free route has
 
-> **Status: adopted plan; not built; superseded by any later Design text.**
+> **Status: adopted plan; S1–S8/P unbuilt; stage 2 built (#1671); §8.30 corrections in flight (`31bc02cd0e`); superseded by any later Design text.**
 > Committed from the solver lane's working note so that the adopted decisions are
 > discoverable on main. The text is unchanged except that local absolute paths are
 > shortened to `scratch/…`; those name working files that are not retained.
+
+**Known stale statements (main at `3be888a820`):**
+- The “open” stage-2 status in Bases read and §6.4 is historical: R-a/R-b/R-d and R-c are already on main through #1671 (`ab30066ca9`); the stage-2 merge prerequisite is satisfied.
 
 Design note for the SWBPIPE solver lane (TASK, research and design only). No code was
 changed, nothing was built or run, and no measurement was taken. Nothing here records or

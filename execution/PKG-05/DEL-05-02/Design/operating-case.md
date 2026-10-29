@@ -1,9 +1,17 @@
 # Operating case with nonlinear supports, and the kernel side of skewed restraints
 
-> **Status: adopted plan; not built; superseded by any later Design text.**
+> **Status: adopted plan; truthfulness fixes (#1695) and stage 2 (#1671) built; slice 1a in flight (`503d9495f8`); R-6 unbuilt; superseded by any later Design text.**
 > Committed from the solver lane's working note so that the adopted decisions are
 > discoverable on main. The text is unchanged except that local absolute paths are
-> shortened to `scratch/…`; those name working files that are not retained.
+> shortened to `scratch/…`. Working-file references (`scratch/…` and
+> `truthfulness_fixes.md`) are not retained.
+
+**Known stale statements (main at `3be888a820`):**
+- Bases read: stage 2 is already on main through #1671 (`ab30066ca9`), including R-a/R-b/R-d and R-c; “Both PRs are open” is historical.
+- “The source item”: the cited MBF-import Design now marks §20.3 item 3 implemented and explicitly discusses the operating case in its gaps/ruling text (§20.3, lines 2384–2396); it no longer contains “no operating-case text”.
+- “The importer currently” refuses `LS` with `DV`, `STIFF` and `MU`: main admits axis-aligned `LS(0,0)` with `DV`, optional positive `STIFF` or `STIFF=Rigid`, and zero/empty `MU`; nonzero friction and nonlinear limits remain refused (importer Design §12; `importer.py:2738–2800`).
+- §0 “Truthfulness fixes” and §1.1 “Text mismatch”: #1695 (`ce5ea3da23`) already corrected K-D5's nonlinear-combination wording and CLM-012's friction/seed qualification; those defects are no longer present on main.
+- §1.1 “Thermal plus sustained”: main admits PF imposed motion with nonlinear supports (R-a/R-b/R-d and R-c); `IMPOSED_DISPLACEMENT_WITH_NONLINEAR_SUPPORTS` is no longer the main refusal (`imposed_motion.rs:13–29`).
 
 Design note for the SWBPIPE solver lane: research and design only, and no code was
 changed. This is revision 2. It applies Codex's numerical scrutiny (round 1) and Agent
