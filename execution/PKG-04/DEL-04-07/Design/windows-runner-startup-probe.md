@@ -1,0 +1,94 @@
+# Windows actual headless artifact/startup diagnostic — RT-V7 Later
+
+Maturity: implemented experimental diagnostic; hosted compilation/native evidence
+and independent review pending. Source basis is integrated main
+`8e9392f10d22d217e34ffc5c28407024fed269d0`. This adds one finite investigation
+after `windows-arena-probe.md`'s production startup audit. macOS-first is unchanged.
+
+The maintained implementation and detailed protocol are in
+`validation/platform/windows_runner_startup_probe/README.md`. The supplemental
+`.github/workflows/piping-windows-runner-startup-probe.yml` builds the actual
+unchanged `openpipestress-runner` in native x64 Windows, Rust 1.97.1 MSVC, default
+features, `--locked --release`, into a fresh hosted target. The runner lock
+SHA256 is `14397ed0733124d4dd8ac34ea14ec15b0274b30a0a0c2a65f2955e57b9e35e2c`.
+The independent controller compiles directly with rustc, without another Cargo
+manifest, lock or registry package. Existing source, methods, guards, fixtures,
+reference values and workflows are untouched.
+
+The runner's `main` parses arguments then calls `read_input` on the named path
+using `std::fs::read_to_string`; only after its complete read does it parse JSON
+and execute the request. A local pipe server verifies the connected runner PID
+while withholding every byte and EOF. The exact marker
+`INPUT_CONNECTED_PAYLOAD_WITHHELD` establishes input-path open only. It is not
+ReadFile quiescence, settled startup, worker or allocator initialization, or
+time-based readiness. Pinned official std source context is streamed by the
+hosted script; token checks establish source availability only. Native success
+must independently establish complete input/EOF behavior on this artifact. A
+source/API incompatibility fails with no wrapper or runner modification.
+
+The actual PE parser enforces bounded structural validity, PE32+ and AMD64,
+then reports regular/delay imports, image sizes and main-thread stack header
+facts. It does not enforce an import allowlist or a resource budget. Hashes and
+actual process image paths bind observations to the executable. The gate samples
+private usage, WS/peak WS, VirtualQueryEx private/image/mapped commit/reserve,
+thread count and module basenames separately. These snapshots are observations
+with timing gaps and module races, not maxima or exact allocator attribution.
+No sampled counter isolates Native/System bypass. PE stack values do not bound
+other stacks. The first fresh and repeated launches are not a cold-cache proof.
+
+The outer observer owns creation-time Job custody independently of the case
+and runner. No Job handle inherits. Exact standard-stream handle lists, bounded
+OVERLAPPED input IO and bounded capture threads prevent a stalled case from
+blocking the independent timeout/drain observer. At most one runner, two outer
+Job processes, inputs <=64 KiB and output <=1 MiB exist. The conservative 512 MiB
+Job cap is diagnostic safety only; a hit invalidates the observation. Handles
+must signal before exit codes are read, including code 259. Cleanup requires
+observed active zero, not a kill request or EOF. The deliberately blocked actual
+runner control proves external descendant cleanup separately from successful
+runner witnesses. Positive cases check the actual output/status/exit contracts
+for the maintained invented supported sparse solve and request-metadata
+validation; malformed JSON and missing solve payload check typed refusals.
+
+All new validation source/fixtures ship in the existing public export. The JSON
+uses the supported genuine runner provenance schema and the actual
+`invented_non_engineering_example` label for invented diagnostic content. It
+reuses the CLI test's maintained precision-connected model without changing its
+bytes or claiming numerical validation. The parent owns additive pointers,
+source-tree routing/digests, source-read graph and generated
+`tools/release/provenance_scope.json`; this slice does not write shared outputs.
+No schema change is introduced. Final export evidence must run `--execute` on
+the committed raw integrated candidate containing all new files and generated
+P7 entries. The hosted export step stages the full public tree and builds the
+unchanged empty-dependencies native protected-content linter; before generated
+scope integration it explicitly fails the final-evidence gate as preliminary.
+No local Cargo-backed export, private-term suppression or widened allowance is
+used. P7 scanner checks and the owner's DEC-058 release scan remain separate.
+
+DEL-04-07 ScopeOfWork, needs and governing memory policy retain their meaning.
+DEL-07-11 shell remains unproven; DEL-10-04 gets supplemental diagnostic evidence
+only, without discharge of required harness or release duties. DEL-04-08 Windows
+retained registration remains Stale. No governing wording is adopted. The
+parent must preserve previous fixture/arena/numeric/temperature pointers while
+adding this diagnostic, regenerate shared outputs on integrated source, and run
+both routing selfchecks and selected Root checks with no Cargo locally.
+
+This is a headless CLI artifact, not the desktop PE or same-app solver worker.
+RT-E1 constructor reader/writer threads belong to the parent general interactive
+path and are not observed here. Startup/nonarena/native/CRT/TLS/helper/mapping,
+kernel IO and future stack-touch costs remain unknown; this establishes no
+R64, Nphysical/Ncommit/native/stack bound, production global allocator or retained
+qualification, and no numerical meaning. Any future memory finding relevant to
+retained registration goes through the parent to MacAgent0 before action. Next
+minimal evidence is native execution and independent review of this artifact's
+source/EOF/import witnesses, then a separately steered actual worker boundary
+and enforced nonarena accounting.
+
+Independent review uses the brief's threat model: stale/wrong artifact/platform;
+inferred imports/stacks; unobserved phases or fake readiness; conflated counters
+or missed Native/System costs; changed methods/data; leaked handles, EOF, exit259
+or cancellation errors; timeout descendant escape; path/private-data/config or
+authority overreach. At most three tooling rounds, owned by the parent. Record
+out-of-model findings and route a new kind inside the model to Agent0. No review
+is started by this Type2 contribution. Official PE, std and Win32 references are
+linked in the implementation README; native evidence is not inferred from this
+design or from successful light source checks.
