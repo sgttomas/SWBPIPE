@@ -65,6 +65,8 @@ Each requirement needs named candidate-bound evidence. Existing code, route visi
 
 DEL-16-01 owns schema/taxonomy, DEL-16-02 validation/preview, DEL-16-03 acceptance/audit policy, DEL-02-05 persistence and DEL-16-04 professional-boundary controls. A user actor-type string is not identity evidence. Retention, actor policy and unsupported-operation decisions remain open. The owner authorized the RT-E1 embedded host on 2026-10-28; activation follows CLM-005's proposal-only, session-binding and verified-isolation contract. Durable audit/history completion is not inferred from session operation.
 
+On 2026-10-29 the owner directed, “Switch it on. The app should be built so it will work on other machines too.” This lifts the owner activation hold and accepts the libinfo later-binding residual as recorded in Design. It does not discharge CLM-005/AC-005's implementation, controlled-application, isolation or cleanup duties. The portable design requires person-configured providers, generic keychain custody, a Rust-owned loopback relay, pinned stock supplier resources for supported Mac architectures and unavailability where isolation is unqualified. No direct autonomy or release is conferred.
+
 Apply existing schema, units, provenance, protected-content and professional-boundary contracts. Source integration, internal checking, engineering acceptance and release remain distinct. Standard claim fence applies (F-PIP-2; DEC-081 claims taxonomy).
 
 ## Output and Evaluation Matrix

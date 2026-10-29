@@ -3,9 +3,21 @@
 **Standing: source/manual characterization, one refused synthetic-identity
 diagnostic and accepted exact-libinfo config admission; no caller-capture run.**
 The single allow is fixture-qualified and now emitted by the unwired host
-profile source. There is no production activation, risk acceptance, or proof
-of necessity. The focused hash/delta guard binds this source to the reviewed
-and executed profile bytes.
+profile source. The owner has authorized activation and accepted the specific
+later-binding residual below; that decision is not missing implementation
+evidence or proof of necessity. The focused hash/delta guard binds this source
+to the reviewed and executed profile bytes.
+
+**Subsequent owner activation basis, 2026-10-29:** Agent 0 relayed the owner's
+“Switch it on. The app should be built so it will work on other machines too.”
+as lifting the activation gate and accepting this libinfo later-binding
+residual. The earlier fixture-only status and pending-owner statements below
+describe their historical evidence. The condition that an AD, LDAP or NIS
+binding added later reopens the allow for review remains the accepted residual;
+it is not silently removed or converted to a no-brokered-network guarantee.
+The earlier host queries remain a snapshot, not portable isolation evidence.
+Cleanup, credential, relay and native-session qualification still precede
+launcher exposure; their missing proof is not supplied by the owner's decision.
 
 ## Source basis
 

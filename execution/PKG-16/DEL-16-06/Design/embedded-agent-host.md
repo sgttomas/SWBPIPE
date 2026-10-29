@@ -4,6 +4,31 @@ Status: implementation design for RT-E1, 2026-10-28. No live bridge or
 supplier/model round trip is established by this document. SWBPIPE owns the
 catalog and host; App v4 owns its separate implementation and release evidence.
 
+## Activation basis and portable delivery
+
+On 2026-10-29 the owner directed, verbatim: **“Switch it on. The app should be
+built so it will work on other machines too.”** Agent 0 relayed this as lifting
+the owner activation gate and accepting the libinfo later-binding residual
+recorded in [agent-libinfo-elimination.md](agent-libinfo-elimination.md).
+It authorizes implementation and automated qualification while the owner is
+AFK; it is not evidence that isolation, cleanup or integration already works.
+The pre-exposure cleanup/native-isolation duties below still apply.
+
+The current delivery order is runtime client/dispatcher, webview bridge and
+ingress-admitted completion, proposal review, then a minimal functional panel.
+Every change remains a proposal for the person's review through the sole
+operation engine. Substantial UI/interaction design and App's owner-attended
+A/B GUI sessions wait for the owner's return. The Decisions API stays excluded.
+
+[Portable runtime design](embedded-agent-portability.md) governs user-configured
+providers and generic keychain custody, the Rust-owned loopback relay, runtime
+profile/path derivation, dual-architecture stock supplier packaging, automated
+cleanup/isolation proof and explicit unavailability on unqualified platforms.
+Current fixed-model/endpoint/credential-name launcher code is an unwired
+prototype, not that portable implementation. Historical experiment paragraphs
+below retain their actual then-current holds; this activation basis supersedes
+their pending-owner-authorization status, not their unestablished evidence.
+
 The unwired macOS profile now emits the fixture-qualified exact libinfo lookup
 and explicit fork denial. The [permission basis and qualification](agent-libinfo-elimination.md)
 records the decision, later-binding review condition, pinned old/new profile
@@ -25,13 +50,11 @@ It introduces no autonomy grant, acceptance tool, issuance or release act.
 DEC-041 and earlier App designs are historical context, not implementation
 instructions. The Decisions API is excluded entirely.
 
-The order is catalog/design, a pinned harmless local-model round trip, Rust
-client/dispatcher, webview bridge/completion command, proposal review, then a
-minimal functional panel. Substantial UI and interaction design awaits the
-owner's focused discussion. The owner authorized official stock Codex binary
-downloads, use of the existing oMLX server, and a hosted model provider if
-needed. No other downloads are authorized; credentials remain owner supplied
-and keychain held. Local and hosted evidence must identify which was used.
+The current implementation order and activation authorization are stated above.
+Official stock Codex acquisition and user-configured local or hosted providers
+are authorized within the portable design. Credentials remain person-supplied
+and keychain-held; local and hosted evidence identifies which route was used.
+Publication/release and broader UI design remain distinct owner acts.
 
 ## Catalog ownership
 
