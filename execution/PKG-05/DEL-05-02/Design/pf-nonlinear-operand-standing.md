@@ -193,4 +193,8 @@ model binding.
 
 The producer, reader and table-free evidence changes touch priced files (PP `lib.rs`,
 `preview_physics.rs`, `exact_combinations.rs`; RE `preview_physics_evidence.rs` and the
-new reader). This slice is priced after #1678 (§8.31); nothing is registered here.
+new reader). DEL-04-08 Design `retained-pricing-rules.md` §8.31 prices source `0fdda050b0`
+against main’s §8.30 registration. All 1,586 merged coefficients are unchanged;
+that registration carries. The reached reader scans and its gate-vector backing
+remain priced, while D1.6 excludes the nonlinear record and notice bodies.
+AC-004 witnesses are not required for this coefficient-identical repricing.
