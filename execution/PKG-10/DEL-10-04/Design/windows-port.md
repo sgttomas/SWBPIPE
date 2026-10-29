@@ -23,29 +23,41 @@ These checks do not rule out tools in other locations. No guest installation,
 download, VM change, account inspection or unrelated-data modification was done.
 WebView2 registration does not establish an exercised Tauri application.
 
-The App implementation manager is the sole common-guest provisioning writer.
-Before any common-guest download, that lane supplies exact files, official
-sources, sizes and subsequent bootstrapper payloads for owner authorization.
-SWBPIPE's proposed requirements, **not installed tools**, are:
+That discovery is historical evidence only. The existing CAEPIPE VM is
+permanently excluded from Windows development: no discovery, sessions, probes,
+configuration or power changes, cloning, or use of its data/settings/exchange.
+The separate, never-booted build-VM hardware remains dormant and untouched.
+
+The active route is hosted Windows CI on native x64 runners; it does not depend
+on a local Windows VM. The guest/VM provisioning route is **on hold** under the
+owner's correction:
+
+> If a second instance is absolutely required and we can't work around it, then I would look at cloud solutions.
+
+No further VM image acquisition, setup or boot is authorized by this design.
+If a future requirement cannot be met by existing hosted CI, identify the exact
+capability gap and assess cloud options for the owner. No new cloud provisioning
+or spending is authorized.
+
+SWBPIPE's hosted-runner toolchain basis, **to verify against each job's actual
+image and installed components**, is:
 
 - VS Build Tools 2022 17.14 Current (17.14 has no LTSC channel), C++ x64/x86 tools and Windows SDK
-  10.0.26100; verify the exact components and Arm-hosted x64 build path.
+  10.0.26100; verify the actual compiler/SDK versions and native x64 build path.
 - Rust 1.97.1 MSVC, `x86_64-pc-windows-msvc` and
-  `wasm32-unknown-unknown`; use an Arm-native host toolchain if the selected
-  linker/tool host supports it, or label an x64-hosted toolchain as emulated.
-- Node 24 LTS, Git 2.x (exact patch versions supplied by provisioning), and
+  `wasm32-unknown-unknown`, with a native x64 MSVC host toolchain.
+- Node 24 LTS, Git 2.x (record exact patch versions from the hosted job), and
   `wasm-bindgen-cli` **0.2.123**, matching the pinned crate dependency.
-  The provisioner proposes the prebuilt Windows x64 archive (7,554,935 bytes),
-  avoiding a separate Cargo installation dependency tree; it remains a download
-  proposal, not an authorized or installed prerequisite.
+  The earlier prebuilt Windows x64 archive proposal (7,554,935 bytes) avoids a
+  separate Cargo installation dependency tree; it remains a proposal, not proof
+  of an installed prerequisite or authority for local acquisition.
 
-CMake, PowerShell 7 and winget are not established requirements. Windows
-PowerShell already supports discovery. Use a separate guest-native NTFS
-SWBPIPE checkout and Cargo target; the shared Mac mount is visible but is not
-the persistence qualification filesystem. Do not share generated wasm output
-with another checkout or app. No VM reset, power change or duplicate installer
-belongs to the SWBPIPE lane. Native x64 Windows runners supply separate evidence;
-Parallels Arm and x64 emulation cannot substitute for that qualification.
+CMake and winget are not established requirements. Record the PowerShell version
+used by each hosted job. Use a job-local Windows checkout and isolated Cargo
+target; persistence qualification must identify the actual filesystem and
+operation semantics. Do not share generated wasm output with another checkout
+or app. Hosted native x64 evidence does not establish Arm/emulation or interactive
+desktop qualification.
 
 Host Rust is 1.97.1 (`8bab26f4f`, LLVM 22.1.6), host
 `aarch64-apple-darwin`. Only the Windows x64 Rust standard library was added on
@@ -82,8 +94,9 @@ historical nested `execution/_ScopeChange/` paths exceed Windows MAX_PATH.
 The lane now uses the existing numerical workflow's sparse product checkout
 (excluding Root/project execution records), retaining core sources, schemas,
 fixtures and frozen references. This is a checkout constraint, not a solver
-failure or a reason to rename historical records. A full guest developer
-checkout also needs an explicit long-path Git/filesystem strategy.
+failure or a reason to rename historical records. Any future full Windows
+developer checkout also needs an explicit long-path Git/filesystem strategy;
+it is not a prerequisite to the active sparse hosted-CI route.
 
 The project `.gitattributes` disables newline conversion for core sources and
 locks, fixtures, schemas and frozen references. These inputs include byte-pinned
@@ -220,8 +233,9 @@ Planning estimates below are engineering work days for bounded implementation
 and focused repair, **not elapsed delivery promises**, and exclude owner release
 acts, licensing/download authorization and external test access:
 
-1. Provision and prove a guest-native checkout/toolchain, run native-x64 core
-   CI and separately labelled guest checks: 1–2 days after provisioning.
+1. Use hosted Windows CI on native x64 runners to prove the checkout/toolchain
+   and run core checks: 1–2 engineering days for setup and focused repair;
+   reuse applicable passing evidence. No local guest provisioning prerequisite.
 2. Build-lock custody/stamp portability and a compiling desktop skeleton with
    explicit unavailable services: 2–4 days. Do not hide runtime refusals.
 3. Host/worker/memory and ingress envelope qualification: 5–9 days, dependent
