@@ -77,6 +77,14 @@ inspection findings, not compiler diagnostics from that run. Installing the
 Rust target alone is insufficient. No check was bypassed to get past SQLite.
 No exclusive AC-004 stack witness or generated-wasm build was run.
 
+The first valid hosted Windows job reached checkout and failed before Rust:
+historical nested `execution/_ScopeChange/` paths exceed Windows MAX_PATH.
+The lane now uses the existing numerical workflow's sparse product checkout
+(excluding Root/project execution records), retaining core sources, schemas,
+fixtures and frozen references. This is a checkout constraint, not a solver
+failure or a reason to rename historical records. A full guest developer
+checkout also needs an explicit long-path Git/filesystem strategy.
+
 ## One source tree, narrow native boundaries
 
 Keep React/Three.js, engineering algorithms, model/operation schemas, canonical
