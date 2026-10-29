@@ -510,7 +510,8 @@ Each slice is one PR. Every test must fail without its wiring.
 | 7 | Unbound pressure closure declaration; rebinding by node name | Vitest and engine tests for both | Independent review |
 | 8+ | Coverage tranches (CAEPIPE lane, each designed in the import Design §20.3), in Python and Rust together | Parity; each new family moves from `refused` to `covered` in §5's table | That Design's gates |
 
-Slices 2 and 3 can run in parallel. Slice 4 needs slice 2, slice 5 needs slice 3, and slice 6
+A bound format 2 or 3 import in slice 3 needs slice 2's writer, which it takes through the
+`SidecarRegenerator` trait. Slice 4 needs slice 2, slice 5 needs slice 3, and slice 6
 needs slices 4 and 5.
 
 ## 7. Boundaries

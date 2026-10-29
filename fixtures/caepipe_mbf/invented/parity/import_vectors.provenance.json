@@ -1,0 +1,6 @@
+{
+  "description": "Parity vectors of the MBF importer and its Rust port: inputs the importer's own test suites, the invented MBF corpus and two invented coverage files give it, and the digests or text of its outputs",
+  "license": "project-original",
+  "origin": "invented for the DEL-17-04 MBF engine parity check; written by tools/fixtures/caepipe_mbf_import_vectors.py",
+  "produced_by_caepipe": false
+}

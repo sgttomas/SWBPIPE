@@ -104,6 +104,10 @@ needs:
   evidence: execution/PKG-17/DEL-17-02/Specification.md
 code_paths:
 - core/handoff/caepipe_mbf/
+- core/handoff/caepipe_mbf_engine/
+- tools/fixtures/caepipe_mbf_import_vectors.py
+- tools/fixtures/caepipe_mbf_engine_unicode.py
+- fixtures/caepipe_mbf/invented/parity/
 - core/handoff/caepipe_mbf/correctly_rounded.py
 - schemas/caepipe_mbf_export.schema.json
 - apps/desktop/src/features/caepipe-mbf/CaepipeMbfExportPanel.tsx
@@ -113,6 +117,10 @@ checks:
 - tests/test_caepipe_mbf_importer.py
 - tests/test_caepipe_mbf_round_trip.py
 - tests/test_caepipe_private_mbf_import.py
+- tests/test_caepipe_mbf_import_parity.py
+- core/handoff/caepipe_mbf_engine/tests/parity.rs
+- core/handoff/caepipe_mbf_engine/tests/fail_closed.rs
+- core/handoff/caepipe_mbf_engine/tests/correctly_rounded.rs
 - tests/test_caepipe_mbf_correctly_rounded.py
 - apps/desktop/src/features/results/loadReferenceOutputRefusal.test.tsx
 - apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx
