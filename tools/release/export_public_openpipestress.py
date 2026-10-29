@@ -113,6 +113,8 @@ ROOT_DIRS = (
     "tests",
     "tools",
     "validation",
+    # RT-V8 P4: only `.github/ISSUE_TEMPLATE/` ships (SKIPPED_NAME_EXCEPTIONS).
+    ".github",
 )
 
 # Private working/coordination surfaces deliberately kept out of the public
@@ -172,6 +174,28 @@ SKIP_DIR_NAMES = {
     "out",
     "target",
 }
+
+# Narrow exceptions to SKIP_DIR_NAMES: (directory name, path prefix). The
+# named directory ships only under the prefix, and only when it is the sole
+# segment of that name; everywhere else it is skipped.
+SKIPPED_NAME_EXCEPTIONS = (
+    # RT-V8 P4 (owner, 2026-10-28): the public issue templates (DEL-01-03,
+    # written for the public repository). No workflow ships (DEC-059).
+    (".github", ".github/ISSUE_TEMPLATE/"),
+)
+
+
+def is_skipped_name_exception(rel: Path, part: str) -> bool:
+    """True for a path under an exception prefix, or a directory on the
+    prefix's own path (the staged tree's walk also visits directories)."""
+    with_slash = rel.as_posix() + "/"
+    return any(
+        part == name
+        and (with_slash.startswith(prefix) or prefix.startswith(with_slash))
+        and rel.parts.count(name) == 1
+        for name, prefix in SKIPPED_NAME_EXCEPTIONS
+    )
+
 
 SKIP_FILE_NAMES = {".DS_Store"}
 
@@ -320,7 +344,8 @@ GUARANTEES = {
         "Comparability preserved: the staged tree carries the provider-"
         "neutral BUILD_AND_RELEASE.md section 7 command basis (tools/release "
         "scripts, tests, five-surface sweep entrypoint) unmodified, and "
-        "ships no CI workflow of its own (.github is excluded)."
+        "ships no CI workflow of its own (every .github path is excluded "
+        "except the issue templates under .github/ISSUE_TEMPLATE)."
     ),
     "G7": (
         "Drift managed: each export is cut from the named canonical commit "
@@ -400,7 +425,7 @@ def skip_reason(rel: Path) -> str | None:
     """Why a candidate relative path stays out of staging (None = staged)."""
     rel_posix = rel.as_posix()
     for part in rel.parts:
-        if part in SKIP_DIR_NAMES:
+        if part in SKIP_DIR_NAMES and not is_skipped_name_exception(rel, part):
             return "skip_dir_name"
         if part.lower().startswith(".env"):
             return "env_file"
@@ -658,7 +683,9 @@ def boundary_findings(staging: Path, reviewed: dict[str, dict] | None = None) ->
             add("symlink", rel_posix)
             continue
         for part in rel.parts:
-            if part in SKIP_DIR_NAMES or part in EXCLUDED_TOP_LEVEL:
+            if (
+                part in SKIP_DIR_NAMES and not is_skipped_name_exception(rel, part)
+            ) or part in EXCLUDED_TOP_LEVEL:
                 add("forbidden_path_segment", rel_posix)
                 break
         if "quarantine" in (part.lower() for part in rel.parts):
