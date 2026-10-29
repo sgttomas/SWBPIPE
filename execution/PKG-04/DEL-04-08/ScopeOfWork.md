@@ -165,7 +165,7 @@ In these commitments, "exact solution" means the exact solution of the recorded 
 ### Memory-pricing law
 
 - **REQ-004** — Retained-precision invocations are admitted only within the registered memory profile.
-  - **Admission.** An invocation is admitted only through the Direct entry, and only in a build whose exact compiled identity, reviewed-input digests (`REVIEWED_INPUTS`, 12 files) and reader layouts match an entry of `REGISTERED_PROFILES`. The caller supplies an immutable byte limit L. The invocation is admitted only when its priced requirement is within L and L ≤ M.
+  - **Admission.** An invocation is admitted only through the Direct entry, and only in a build whose exact compiled identity, reviewed-input digests (`REVIEWED_INPUTS`) and reader layouts match an entry of `REGISTERED_PROFILES`. The caller supplies an immutable byte limit L. The invocation is admitted only when its priced requirement is within L and L ≤ M.
   - **M and its margins.** The registered profile's M is the owner-selected 12 GiB (12,884,901,888 bytes). A profile is registered only if every priced phase, in both modes, satisfies requested + moving + R + ⌈TEXT/20⌉ ≤ ⌊0.9 M⌋ = 11,596,411,699 bytes. Here R = 64 MiB of reserved stack, and ⌈TEXT/20⌉ is the 5 % TEXT reserve.
   - **Registration.** Registration is a reviewed source change. `tools/retained_pricing` prices the actual source (D3), and `generate --check` reproduces the generated profile block. Any change to a priced source or to a reviewed input requires a new actual-source D3 audit.
   - **Other builds and limits.** Every other build identity reports `Stale` or `Missing` and takes the ordinary route. A caller limit above M is refused as `Unqualified`.
