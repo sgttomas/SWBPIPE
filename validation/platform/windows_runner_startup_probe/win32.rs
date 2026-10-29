@@ -481,8 +481,8 @@ impl Drop for Process {
     }
 }
 #[repr(C)]
-#[derive(Default)]
 struct Overlapped { internal: usize, internal_high: usize, offset: u64, event: Raw }
+impl Default for Overlapped { fn default() -> Self { Self { internal: 0, internal_high: 0, offset: 0, event: NULL } } }
 #[link(name="kernel32")]
 unsafe extern "system" {
     fn CreateNamedPipeW(name: *const u16, access: u32, mode: u32, instances: u32, output: u32, input: u32, timeout: u32, security: *const Security) -> Raw;
@@ -578,8 +578,8 @@ pub fn bind_image(process: Raw, candidate: &std::path::Path) {
 #[derive(Default)]
 struct MemoryCounters { cb: u32, faults: u32, peak_ws: usize, ws: usize, peak_paged: usize, paged: usize, peak_nonpaged: usize, nonpaged: usize, pagefile: usize, peak_pagefile: usize, private_usage: usize }
 #[repr(C)]
-#[derive(Default)]
 struct MemoryBasic { base: Raw, allocation: Raw, protection: u32, partition: u16, size: usize, state: u32, protect: u32, kind: u32 }
+impl Default for MemoryBasic { fn default() -> Self { Self { base: NULL, allocation: NULL, protection: 0, partition: 0, size: 0, state: 0, protect: 0, kind: 0 } } }
 #[repr(C)]
 #[derive(Default)]
 struct ThreadEntry { size: u32, usage: u32, tid: u32, pid: u32, base: i32, delta: i32, flags: u32 }
