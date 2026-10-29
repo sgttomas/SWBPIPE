@@ -136,6 +136,7 @@ needs:
   gating: true
   evidence: execution/PKG-16/DEL-16-06/ScopeOfWork.md
 code_paths:
+- tools/agent_host_witness.py
 - execution/PKG-16/DEL-16-06/Design/agent-capability-catalog.json
 - apps/desktop/src/services/operationService.ts
 - core/model_operations/operation_applier/**
@@ -143,6 +144,7 @@ code_paths:
 - apps/desktop/src/services/operationBatchService.ts
 - apps/desktop/src-tauri/src/lib.rs
 checks:
+- tools/agent_host_witness_test.py
 - apps/desktop/src/services/operationService.test.ts
 - apps/desktop/src/services/operationContractCorpus.test.ts
 - core/model_operations/operation_applier/tests/contract_corpus.rs
