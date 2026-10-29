@@ -154,6 +154,8 @@ checks:
 - apps/desktop/src-tauri/src/embedded_agent/numeric.rs
 - apps/desktop/src-tauri/src/embedded_agent/protocol.rs
 - apps/desktop/src-tauri/src/embedded_agent/framing.rs
+- apps/desktop/src-tauri/src/embedded_agent/stdio_pump.rs
+- apps/desktop/src-tauri/src/embedded_agent/session_driver.rs
 - apps/desktop/src-tauri/src/embedded_agent/macos.rs
 - apps/desktop/src-tauri/src/embedded_agent/sandbox.rs
 - apps/desktop/src/services/operationService.test.ts

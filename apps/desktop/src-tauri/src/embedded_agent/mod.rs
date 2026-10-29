@@ -7,5 +7,7 @@ pub(crate) mod framing;
 pub(crate) mod macos;
 pub(crate) mod numeric;
 pub(crate) mod protocol;
+pub(crate) mod session_driver;
 #[cfg(target_os = "macos")]
 pub(crate) mod sandbox;
+pub(crate) mod stdio_pump;
