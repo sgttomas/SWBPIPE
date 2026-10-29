@@ -222,7 +222,7 @@ requiring the excluded execution tree. No workflow file, required status or
 harness aggregate is changed. Equality establishes source correspondence, not
 catalog semantics or runtime conformance.
 
-`transport.rs` supplies an explicitly constructed portable stdio pump, with
+`stdio_pump.rs` supplies an explicitly constructed portable stdio pump, with
 four-slot incoming/outgoing queues and separate reader/writer threads. It does
 not launch a process or own protocol/session authorization. GENERAL interactive
 admission reserves two 512 KiB stacks plus a 128 KiB bookkeeping allowance
