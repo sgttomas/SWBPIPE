@@ -6,11 +6,15 @@ import { resultRowLabel } from "./knownSemanticLimitations";
 import { componentBodyNotice } from "./componentBody";
 import { retainedPrecisionStandingText } from "./retainedPrecisionStanding";
 import type { ReactNode } from "react";
-import { QuantityReadout } from "../display-units";
+import { QuantityReadout, useDisplayQuantityResolver, type DisplaySourceQuantity } from "../display-units";
+import { CsvExportControl, type CsvExport } from "../result-export/CsvExportControl";
+import { CSV_SOFTWARE_VERSION, csvAnalysisRoute, csvModelHash, csvResultHash } from "../result-export/csvProvenance";
+import { CSV_NOT_RECORDED, type CsvProvenance } from "../result-export/csvTable";
+import { ENDPOINT_PAIR_CSV_KIND, displayConversionBasis, endpointPairCsv, resultGroupCsv, resultGroupCsvKind, type ResultRowsCsvRow } from "./resultRowsCsv";
 import { semanticDimension, semanticLabels, type RowLabels } from "./resultSemantics";
 import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
-import type { AnalysisRunEnvelope, DesignKnowledge, MechanicsGap, MechanicsResult, ResultInterpretation } from "../../types";
+import type { AnalysisRunEnvelope, DesignKnowledge, MechanicsGap, MechanicsResult, PreviewModel, ResultInterpretation } from "../../types";
 import { buildResultInterpretation, mechanicsGaps } from "./resultInterpretation";
 import type { EntityRef } from "../../types";
 import { numericalResultStanding } from "./resultStanding";
@@ -76,7 +80,9 @@ export function ResultsPanel({
   onSelectCauseLocation,
   onShowDiagnostic,
   selectedEntity = null,
-  viewRequest = null
+  viewRequest = null,
+  model = null,
+  exportAnalysisRun = null
 }: {
   result: MechanicsResult | null;
   knowledge: DesignKnowledge | null;
@@ -96,7 +102,13 @@ export function ResultsPanel({
    * rows of exactly `kind`, marks the rows it lists as withheld, and returns every other filter to its
    * default. A request for another run is ignored. The user clears the kind filter. */
   viewRequest?: ResultsViewRequest | null;
+  /** RT-R6: the model the result is shown with, for the CSV preamble's model hash. */
+  model?: PreviewModel | null;
+  /** RT-R6: the result's own analysis-run record (the current solved run's), for the CSV
+   * preamble's result hash; null for any other result. */
+  exportAnalysisRun?: AnalysisRunEnvelope | null;
 }) {
+  const displayResolver = useDisplayQuantityResolver();
   const [filterText, setFilterText] = useState("");
   const [selectionOnly, setSelectionOnly] = useState(false);
   const [frameFilter, setFrameFilter] = useState<string>(ALL_FRAMES);
@@ -174,6 +186,44 @@ export function ResultsPanel({
   const ownHealth = useMemo(() => (numericalHealth === undefined && result ? standaloneNumericalHealth(result) : null), [numericalHealth, result]);
   const route = result ? sourceContract(result) : "unsupported";
   const health = routeHealth(route, numericalHealth === undefined ? ownHealth : numericalHealth);
+  // RT-R6: what a CSV export of these tables states (Design `csv-export.md` §2, §3).
+  const csvProvenance = async (): Promise<CsvProvenance> => ({
+    modelHash: model ? await csvModelHash(model) : CSV_NOT_RECORDED,
+    resultHash: csvResultHash(result, exportAnalysisRun),
+    analysisRoutes: [csvAnalysisRoute(result)]
+  });
+  const csvFilters = [
+    `case: ${activeCase}`, `family: ${familyFilter}`, `frame: ${activeFrame}`, `text: ${filterText.trim() || "none"}`,
+    `kind: ${kindFilter?.kind ?? "any"}`, `selected entity only: ${selectionOnly ? selectionEntityId ?? "none selected" : "off"}`
+  ].join("; ");
+  const csvRows = async (items: MechanicsResult["results"]): Promise<ResultRowsCsvRow[]> => Promise.all(items.map(async (item) => {
+    const quantity: DisplaySourceQuantity = { value: item.value, unit: item.unit, dimension_id: labels!.dimension(item) ?? "unknown" };
+    const state = rowHealthState(health, item);
+    return {
+      id: item.id,
+      category: labels!.category(item),
+      label: (labelSource && resultRowLabel(item, labelSource)) || "",
+      health: state ? NUMERICAL_HEALTH_STATE_TEXT[state] : "",
+      withheld: kindFilter?.withheld[item.id] ?? "",
+      componentBody: item.component_body ? `reference section of component body ${item.component_body.component_ref}` : "",
+      entity: item.entity_ref,
+      location: item.metadata?.location ?? "summary",
+      frame: frameLabel(resultFrame(item)),
+      quantity,
+      display: await displayResolver.resolve(quantity)
+    };
+  }));
+  const exportGroup = async (title: string) => {
+    // Every row the filters admit, across all pages, grouped as the table groups them.
+    const allGroups = result && labels ? groupResults(filteredResults, labels) : [];
+    const rows = await csvRows(allGroups.find((group) => group.title === title)?.items ?? []);
+    return resultGroupCsv({
+      title, rows, provenance: await csvProvenance(), softwareVersion: CSV_SOFTWARE_VERSION,
+      unitBasis: await displayConversionBasis({ preference: displayResolver.preference, rows, convertRaw: displayResolver.convertRaw }),
+      caseOrFilter: `group: ${title}; ${csvFilters}`,
+      caseQualifier: activeCase !== ALL_CASES ? activeCase : undefined
+    });
+  };
   useEffect(() => {
     setPageIndex((current) => Math.min(current, page.pageCount - 1));
   }, [page.pageCount]);
@@ -354,7 +404,19 @@ export function ResultsPanel({
             onStep={(axis, delta) => navigate(axis, delta)}
             onChooseCase={(caseKey) => chooseCase(caseKey)}
           />
-          <ResultDetail interpretation={interpretation} result={result} />
+          <ResultDetail interpretation={interpretation} result={result} exportEndpointPair={async (values) => {
+            const rows = await Promise.all(values.map(async (item) => {
+              const row = result?.results.find((candidate) => candidate.id === item.result_id) ?? null;
+              const quantity = row ? { value: row.value, unit: row.unit, dimension_id: semanticDimension(row, result ?? undefined) ?? "unknown" } : null;
+              return { location: item.location, resultId: item.result_id, fallback: item.value_label, quantity, display: quantity ? await displayResolver.resolve(quantity) : null };
+            }));
+            const held = rows.flatMap((row) => (row.quantity && row.display ? [{ quantity: row.quantity, display: row.display }] : []));
+            return endpointPairCsv({
+              rows, provenance: await csvProvenance(), softwareVersion: CSV_SOFTWARE_VERSION,
+              unitBasis: await displayConversionBasis({ preference: displayResolver.preference, rows: held, convertRaw: displayResolver.convertRaw }),
+              caseOrFilter: `endpoint pair of ${interpretation?.result_id ?? "the selected result"}`
+            });
+          }} />
           <GoverningRatioState ratioCount={0} />
           <div className="result-groups">
             {groups.length > 0 ? (
@@ -366,7 +428,8 @@ export function ResultsPanel({
                   data-testid={`result-group-${group.title.toLowerCase()}`}
                 >
                   <h3>{group.title}</h3>
-                  <table>
+                  <CsvExportControl tableLabel={`${group.title} results`} testId={`result-group-${group.title.toLowerCase()}-export-csv`} build={() => exportGroup(group.title)} />
+                  <table data-csv-export={resultGroupCsvKind(group.title)}>
                     <thead>
                       <tr>
                         <th>ID</th>
@@ -685,7 +748,9 @@ function compareResultUnits(left: string, right: string) {
   return left.localeCompare(right);
 }
 
-function ResultDetail({ interpretation, result }: { interpretation: ResultInterpretation | null; result: MechanicsResult | null }) {
+type EndpointPairExport = (values: NonNullable<ResultInterpretation["endpoint_pair"]>["values"]) => Promise<CsvExport>;
+
+function ResultDetail({ interpretation, result, exportEndpointPair }: { interpretation: ResultInterpretation | null; result: MechanicsResult | null; exportEndpointPair?: EndpointPairExport }) {
   if (!interpretation) {
     return (
       <section className="result-detail-panel" aria-label="Result detail" data-testid="result-detail-panel">
@@ -748,18 +813,20 @@ function ResultDetail({ interpretation, result }: { interpretation: ResultInterp
         />
         <DetailLine label="Boundary" value={interpretation.professional_boundary} />
       </dl>
-      {interpretation.endpoint_pair ? <EndpointPairTable interpretation={interpretation} result={result} /> : null}
+      {interpretation.endpoint_pair ? <EndpointPairTable interpretation={interpretation} result={result} exportEndpointPair={exportEndpointPair} /> : null}
     </section>
   );
 }
 
-function EndpointPairTable({ interpretation, result }: { interpretation: ResultInterpretation; result: MechanicsResult | null }) {
+function EndpointPairTable({ interpretation, result, exportEndpointPair }: { interpretation: ResultInterpretation; result: MechanicsResult | null; exportEndpointPair?: EndpointPairExport }) {
   if (!interpretation.endpoint_pair) return null;
+  const values = interpretation.endpoint_pair.values;
 
   return (
     <section className="endpoint-pair" aria-label="Endpoint pair results" data-testid="endpoint-pair-table">
       <h4>Endpoint Pair</h4>
-      <table>
+      {exportEndpointPair ? <CsvExportControl tableLabel="Endpoint pair results" testId="endpoint-pair-export-csv" build={() => exportEndpointPair(values)} /> : null}
+      <table data-csv-export={ENDPOINT_PAIR_CSV_KIND}>
         <thead>
           <tr>
             <th>Location</th>

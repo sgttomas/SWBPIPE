@@ -4391,11 +4391,17 @@ body { min-width: 760px; min-height: 540px; }
 .model-tree[data-bounded-grid="true"] > .model-tree-controls { flex: 0 0 auto; }
 .model-tree[data-bounded-grid="true"] > .model-grid-frame { flex: 1 1 0; min-height: 0; }
 .entity-grid.bounded { height: 100%; display: flex; flex-direction: column; min-height: 0; }
+/* Run sheet S2: the entity families sit in one wrapper beside the Run sheet tab. It adds no box
+   (display: contents), so its children stay flex items of the bounded grid, and the rules below
+   reach them through it. */
+.entity-grid-families { display: contents; }
+.entity-grid-families[hidden] { display: none; }
+.entity-grid.bounded > .run-sheet { flex: 1 1 0; min-height: 0; overflow: auto; }
 .entity-grid.bounded > .entity-grid-tabs, .retained-direct-draft { flex: 0 0 auto; }
 .retained-direct-draft { margin: 0; font-size: 12px; }
-.entity-grid.bounded > .direct-coordinate-workarea { flex: 1 1 0; min-height: 0; }
-.entity-grid.bounded > .entity-grid-review { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; }
-.entity-grid.bounded > .entity-grid-review-toggle { flex: 0 0 auto; }
+:is(.entity-grid.bounded, .entity-grid.bounded > .entity-grid-families) > .direct-coordinate-workarea { flex: 1 1 0; min-height: 0; }
+:is(.entity-grid.bounded, .entity-grid.bounded > .entity-grid-families) > .entity-grid-review { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; }
+:is(.entity-grid.bounded, .entity-grid.bounded > .entity-grid-families) > .entity-grid-review-toggle { flex: 0 0 auto; }
 .entity-grid.bounded .entity-grid-review-content { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; gap: 8px; }
 .entity-grid.bounded .entity-grid-review-content > :not(.entity-grid-scroll) { flex: 0 0 auto; }
 .entity-grid.bounded .entity-grid-scroll { flex: 1 1 0; min-height: 0; max-height: none; overscroll-behavior-y: contain; }

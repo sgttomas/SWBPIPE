@@ -1,6 +1,6 @@
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { BatchReviewPanel, batchRequiresPreview, previewSatisfied, PREVIEW_REQUIRED_REASON, type QueuedBatch } from "./BatchReviewPanel";
+import { BatchReviewPanel, batchRequiresPreview, operationRequiresPreview, previewSatisfied, PREVIEW_REQUIRED_REASON, type QueuedBatch } from "./BatchReviewPanel";
 import type { OperationBatch, OperationBatchOutcome } from "../../services/operationBatchService";
 import type { EditorOperationIntent, ModelHashEvidence, PreviewModel } from "../../types";
 
@@ -37,7 +37,7 @@ describe("reconnect preview gate in batch review", () => {
     expect(reconnect.requiresPreview).toBe(true);
     renderPanel([reconnect], {});
     expect(apply("r")).toBeDisabled();
-    expect(apply("r")).toHaveAttribute("title", PREVIEW_REQUIRED_REASON);
+    expect(apply("r")).toHaveAttribute("title", PREVIEW_REQUIRED_REASON(reconnect.batch));
     expect(screen.getByTestId("preview-required-r")).toHaveTextContent("Validate it on the current model first");
     cleanup();
     const { onApply } = renderPanel([reconnect], { r: outcome("batch:r") });
@@ -75,5 +75,31 @@ describe("reconnect preview gate in batch review", () => {
     expect(shown).toHaveTextContent("Affected: pipe:P, component:tee, node:B");
     fireEvent.click(within(shown).getByRole("button", { name: "component:tee" }));
     expect(onSelectRef).toHaveBeenCalledWith("component:tee");
+  });
+});
+
+describe("one preview predicate (run sheet S2 prerequisite, O6)", () => {
+  it("is true for reconnect_pipe_run and insert_bend_at_corner only", () => {
+    expect(operationRequiresPreview("reconnect_pipe_run")).toBe(true);
+    expect(operationRequiresPreview("insert_bend_at_corner")).toBe(true);
+    for (const kind of ["create_node", "connect_pipe_run", "assign_section", "create_support", "set_field", "split_pipe_run", "transform_pipe_run", "delete_pipe_run", "", undefined]) {
+      expect(operationRequiresPreview(kind), String(kind)).toBe(false);
+    }
+  });
+  it("gates a batch containing a bend insertion, and the reason names the operation kind", () => {
+    const bend = entry("b", ["create_node", "connect_pipe_run", "insert_bend_at_corner"]);
+    expect(bend.requiresPreview).toBe(true);
+    expect(PREVIEW_REQUIRED_REASON(bend.batch)).toContain("insert_bend_at_corner");
+    expect(PREVIEW_REQUIRED_REASON(bend.batch)).not.toContain("reconnect");
+    expect(PREVIEW_REQUIRED_REASON(entry("r", ["reconnect_pipe_run"]).batch)).toContain("reconnect_pipe_run");
+    expect(PREVIEW_REQUIRED_REASON(entry("rb", ["reconnect_pipe_run", "insert_bend_at_corner"]).batch)).toMatch(/reconnect_pipe_run.*insert_bend_at_corner/);
+    renderPanel([bend], {});
+    expect(apply("b")).toBeDisabled();
+    expect(apply("b")).toHaveAttribute("title", PREVIEW_REQUIRED_REASON(bend.batch));
+    expect(screen.getByTestId("preview-required-b")).toHaveTextContent("insert_bend_at_corner");
+    cleanup();
+    const clean = outcome("batch:b");
+    renderPanel([bend], { b: clean });
+    expect(apply("b")).toBeEnabled();
   });
 });

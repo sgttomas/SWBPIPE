@@ -10,7 +10,7 @@ vi.mock("@tauri-apps/api/core", () => ({ invoke: vi.fn() }));
 afterEach(() => { delete (window as any).__TAURI_INTERNALS__; vi.mocked(invoke).mockReset(); vi.restoreAllMocks(); });
 
 const text = serializeCsvTable({
-  preamble: { table: "stress-ratio", softwareVersion: "0.9.0", modelHash: "sha256:11", resultHash: "sha256:22",
+  preamble: { table: "stress-ratio", softwareVersion: "0.9.0", modelHash: "sha256:1111111111111111111111111111111111111111111111111111111111111111", resultHash: "sha256:2222222222222222222222222222222222222222222222222222222222222222",
     analysisRoutes: ["linear-static"], caseOrFilter: "=SUS, \"case\"", unitBasis: "SI" },
   columns: [{ kind: "text", label: "Node" }, { kind: "number", label: "S", unit: "MPa" }],
   rows: [[csvText("10"), csvNumber(-12.5)], [csvText("é ☃ %25"), csvNumber(1e-7)]]
