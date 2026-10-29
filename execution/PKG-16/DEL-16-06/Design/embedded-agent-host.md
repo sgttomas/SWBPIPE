@@ -4,6 +4,13 @@ Status: implementation design for RT-E1, 2026-10-28. No live bridge or
 supplier/model round trip is established by this document. SWBPIPE owns the
 catalog and host; App v4 owns its separate implementation and release evidence.
 
+The unwired macOS profile now emits the fixture-qualified exact libinfo lookup
+and explicit fork denial. The [permission basis and qualification](agent-libinfo-elimination.md)
+records the decision, later-binding review condition, pinned old/new profile
+hash guard, C/Rust boundary probes and no-tools loaded-config snapshot. The
+device and shell metadata denials remain. This introduces no activation route;
+cleanup, credential diagnostics, full round trip and criterion 17 remain open.
+
 ## Basis and scope
 
 The owner authorized SWBPIPE's App v4 integration for v1.0 and then explicitly
