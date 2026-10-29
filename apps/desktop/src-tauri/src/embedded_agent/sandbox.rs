@@ -198,7 +198,7 @@ mod tests {
         assert_eq!(p.matches("(allow file-write* ").count(), 2);
         assert!(profile(
             root,
-            Path::new("/Users/invented"),
+            Path::new("/tmp/swbpipe-invented-home"),
             &root.join("work"),
             &root.join("codex")
         )
