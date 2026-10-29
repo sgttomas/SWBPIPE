@@ -137,6 +137,8 @@ needs:
   evidence: execution/PKG-16/DEL-16-06/ScopeOfWork.md
 code_paths:
 - tools/agent_host_witness.py
+- tools/agent_host_sandbox_probe.rs
+- apps/desktop/src-tauri/src/embedded_agent/**
 - execution/PKG-16/DEL-16-06/Design/agent-capability-catalog.json
 - apps/desktop/src/services/operationService.ts
 - core/model_operations/operation_applier/**
@@ -145,6 +147,12 @@ code_paths:
 - apps/desktop/src-tauri/src/lib.rs
 checks:
 - tools/agent_host_witness_test.py
+- apps/desktop/src-tauri/src/embedded_agent/catalog.rs
+- apps/desktop/src-tauri/src/embedded_agent/numeric.rs
+- apps/desktop/src-tauri/src/embedded_agent/protocol.rs
+- apps/desktop/src-tauri/src/embedded_agent/framing.rs
+- apps/desktop/src-tauri/src/embedded_agent/macos.rs
+- apps/desktop/src-tauri/src/embedded_agent/sandbox.rs
 - apps/desktop/src/services/operationService.test.ts
 - apps/desktop/src/services/operationContractCorpus.test.ts
 - core/model_operations/operation_applier/tests/contract_corpus.rs

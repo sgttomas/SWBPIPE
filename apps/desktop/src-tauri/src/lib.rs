@@ -10,6 +10,7 @@ mod autosave;
 mod autosave_commands;
 mod close_guard;
 mod command_ingress;
+mod embedded_agent;
 mod exact_source_binding;
 mod export_disposition_screen;
 #[allow(unsafe_code)]
