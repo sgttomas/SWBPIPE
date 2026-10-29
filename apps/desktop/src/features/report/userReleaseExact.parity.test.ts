@@ -4,12 +4,13 @@ import path from "node:path";
 import { afterEach, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
+import { copiedMembersHint, parseLossless, plainOf, writeLossless } from "../../test/losslessJson";
 import { createSolveJobTransport } from "../../test/nativeMechanicsReplay";
 import { buildAnalysisRunPreview, resetSessionResultCustodyForTests, runPreviewMechanics } from "../../services/previewService";
-import { canonicalSha256Hex } from "../../services/hashService";
+import { canonicalJsonString, canonicalSha256Hex } from "../../services/hashService";
 import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
 import { buildCurrentResultExport } from "../result-export/resultExportAdapter";
-import { assembleUserReleasedReportPackageRequest, reportPackageExactSubmission } from "./reportPackageRequest";
+import { assembleUserReleasedReportPackageRequest, buildReportPackageRequest, reportPackageExactSubmission } from "./reportPackageRequest";
 
 const root = path.resolve(__dirname, "../../../../..");
 const load = (p: string) => JSON.parse(readFileSync(path.join(root, p), "utf8"));
@@ -43,6 +44,29 @@ for (const shape of ["pressure_2_straight", "pressure_source_1"]) {
       result_document_derivative_sha256: (document as any).result_envelope.reproducibility.derivative_hash.value
     };
     const request = await assembleUserReleasedReportPackageRequest({ model, result, analysisRun, inputManifest, userRelease });
+    // Both product builders retain the same delivered source and exact submission.
+    // IPC canonicalizes JSON numbers on both routes; the separately submitted raw
+    // text is the number-preserving native binding basis.
+    const localPrivate = await buildReportPackageRequest({ model, result, analysisRun, inputManifest,
+      projectSummary: null, comparison: null, ruleCheckAggregate: null, ruleCheckRun: null });
+    const delivered = parseLossless(bytes) as any;
+    for (const built of [request, localPrivate]) {
+      expect(built.source_results[0]).toBe(result);
+      expect(built.source_results[0]).toEqual(plainOf(delivered));
+      expect(reportPackageExactSubmission(built)!.exactResultText).toBe(bytes);
+      for (const key of ["source_block_recovery", "retained_precision"]) {
+        if (Object.hasOwn(delivered, key)) {
+          expect((built.result_documents[0].result_envelope as any)[key]).toEqual(plainOf(delivered[key]));
+        }
+      }
+    }
+    expect(await canonicalJsonString(request.source_results)).toBe(await canonicalJsonString(localPrivate.source_results));
+    for (const key of ["source_block_recovery", "retained_precision"]) {
+      if (Object.hasOwn(delivered, key)) {
+        expect(await canonicalJsonString((request.result_documents[0].result_envelope as any)[key]))
+          .toBe(await canonicalJsonString((localPrivate.result_documents[0].result_envelope as any)[key]));
+      }
+    }
     const report = request.report as any;
     expect(report.exact_route.admission.semantic_contract_id).toBe(result.producer!.semantic_contract_id);
     expect(report.exact_route.admission.received_bytes_sha256).toMatch(/^[0-9a-f]{64}$/);
@@ -55,8 +79,31 @@ for (const shape of ["pressure_2_straight", "pressure_source_1"]) {
     const vector = { shape, model, source: result, solver_mode: "sparse_interactive", software: { name: "SWBPIPE", version: "0.1.0" },
       run_record: analysisRun, input_manifest: inputManifest.manifest, user_release: userRelease, request,
       exact_intake_text: fixture.exact_intake_text, exact_result_text: bytes };
+    // Keep producer number lexemes in each copied subtree, as the W-11 writer does.
+    const hint = {
+      source: delivered,
+      run_record: { analysis_run: copiedMembersHint(analysisRun.analysis_run, delivered) },
+      request: {
+        source_results: [delivered],
+        result_documents: [{ result_envelope: copiedMembersHint(request.result_documents[0].result_envelope, delivered) }]
+      }
+    };
+    const content = `${writeLossless(vector, hint)}\n`;
+    const written = parseLossless(content) as any;
+    const exactText = (tree: unknown) => writeLossless(plainOf(tree), tree);
+    expect(exactText(written.source)).toBe(exactText(delivered));
+    expect(exactText(written.request.source_results[0])).toBe(exactText(delivered));
+    for (const key of ["source_block_recovery", "retained_precision"]) {
+      if (Object.hasOwn(delivered, key)) {
+        expect(exactText(written.request.result_documents[0].result_envelope[key])).toBe(exactText(delivered[key]));
+        if (Object.hasOwn(analysisRun.analysis_run, key)) {
+          expect(exactText(written.run_record.analysis_run[key])).toBe(exactText(delivered[key]));
+        }
+      }
+    }
     const target = process.env.OPENPIPESTRESS_WRITE_D6_VECTORS;
-    if (target) writeFileSync(path.join(target, `${shape}.json`), JSON.stringify(vector) + "\n");
-    else expect(JSON.parse(JSON.stringify(vector))).toEqual(load(`fixtures/reports/invented/user_release_exact/${shape}.json`));
+    if (target) writeFileSync(path.join(target, `${shape}.json`), content);
+    else expect(readFileSync(path.join(root, `fixtures/reports/invented/user_release_exact/${shape}.json`), "utf8") === content,
+      `${shape}.json is stale; regenerate with OPENPIPESTRESS_WRITE_D6_VECTORS=<dir>`).toBe(true);
   });
 }
