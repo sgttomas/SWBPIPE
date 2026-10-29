@@ -11,6 +11,9 @@ use crate::value::{py_eq, str_in, Dict, OMap, Value};
 use crate::MODEL_SCHEMA_VERSION;
 use std::collections::{BTreeSet, HashMap, HashSet};
 
+/// si_writer `BEND_SIF_FIELDS`: a bend's directional SIF pair, from the comment BSIF(in-plane,out-plane).
+const BEND_SIF_FIELDS: [&str; 2] = ["sif_in_plane_user_value", "sif_out_of_plane_user_value"];
+
 pub(crate) const SUSTAINED_CASE: &str = "case:mbf-sustained";
 pub(crate) const EXPANSION_CASE: &str = "case:mbf-expansion-t1";
 pub(crate) const LABEL_SUSTAINED: &str = "Sustained (W+P)";
@@ -615,12 +618,13 @@ impl<'a> Importer<'a> {
         );
         component.insert("mechanics_interface".into(), dict![("solver_consumption", Value::str("curved_bend_macro_element"))]);
         component.insert("provenance".into(), Value::str(self.provenance(element.line)));
+        let comments = if element.sifs.is_some() { "comments FF and BSIF" } else { "comment FF" };
         if let Some(factor) = &element.factor {
             component.insert(
                 "modifiers".into(),
                 dict![
                     ("flexibility_factor_user_value", dict![("value", Value::Float(factor.value)), ("unit", Value::str("none"))]),
-                    ("source_reference", Value::Str(format!("MBF sha256:{}, line {}, comment FF", self.sha, element.line))),
+                    ("source_reference", Value::Str(format!("MBF sha256:{}, line {}, {comments}", self.sha, element.line))),
                 ],
             );
         } else {
@@ -628,7 +632,12 @@ impl<'a> Importer<'a> {
                 "modifiers".into(),
                 dict![(
                     "source_reference",
-                    Value::Str(format!("MBF sha256:{}, line {}: the MBF supplies no flexibility factor", self.sha, element.line))
+                    Value::Str(format!(
+                        "MBF sha256:{}, line {}: the MBF supplies no flexibility factor{}",
+                        self.sha,
+                        element.line,
+                        if element.sifs.is_some() { ", comment BSIF" } else { "" }
+                    ))
                 )],
             );
             unresolved.push(dict![
@@ -640,6 +649,16 @@ impl<'a> Importer<'a> {
             ]);
             let message = format!("bend {n} has no FF comment; SWBPIPE never supplies a factor, so the bend is incomplete");
             self.listed("omitted", "MBF-IMPORT-BEND-FLEXIBILITY-MISSING", element.line, &format!("bend {n}"), &message);
+        }
+        if let Some((in_plane, out_of_plane)) = &element.sifs {
+            if let Some(Value::Dict(modifiers)) = component.get_mut(&"modifiers".to_string()) {
+                for (name, number) in BEND_SIF_FIELDS.iter().zip([in_plane, out_of_plane]) {
+                    modifiers.insert(
+                        (*name).into(),
+                        dict![("value", Value::Float(number.value)), ("unit", Value::str("none"))],
+                    );
+                }
+            }
         }
         Value::Dict(component)
     }

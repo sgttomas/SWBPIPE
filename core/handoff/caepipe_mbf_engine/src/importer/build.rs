@@ -174,7 +174,7 @@ fn refused_comment_code(name: &str) -> Option<&'static str> {
         || windy("WINR")
         || ["LD", "DISD", "ROTD", "SETT", "STRO", "SEIS", "SEIS2", "SEIS3", "SERO", "SERO2", "SERO3"].contains(&name);
     let load: &[&str] = &["CWGT", "U", "UNIF", "T", "TEMP", "P", "PRES", "SG", "AMB", "HSG", "HPRES", "FRE", "PH"];
-    let bend: &[&str] = &["IN1", "IN2", "BTHK", "BMAT", "BSIF", "WS"];
+    let bend: &[&str] = &["IN1", "IN2", "BTHK", "BMAT", "WS"];
     let row_key: &[&str] = &[
         "WGT", "VWGT", "AWGT", "ES", "TA", "OD1", "OD2", "THK1", "THK2", "CONE", "FLANGE", "BDIA", "GDIA", "BK", "BETA",
         "FFOR", "FTOR", "FRCT", "GAP", "KTIE", "INSF", "LONG", "SHORT", "MAT", "SEC", "LOAD", "LXAX", "LYAX", "RLIM",
@@ -209,7 +209,7 @@ fn documented(name: &str) -> bool {
         || rotation_axis(name).is_some()
         || fixd_axis(name).is_some()
         || fixr_axis(name).is_some()
-        || ["FLC", "FF", "LA", "TAG", "LTAG", "TRAK", "ROTK"].contains(&name)
+        || ["FLC", "FF", "BSIF", "LA", "TAG", "LTAG", "TRAK", "ROTK"].contains(&name)
         || SUPPORT_TYPES.iter().any(|(key, _)| *key == name)
         || SUPPORT_DATA.iter().any(|(key, _)| *key == name)
         || tbd_010(name).is_some()
@@ -658,6 +658,7 @@ impl<'a> Importer<'a> {
             ti: false,
             radius: None,
             factor: None,
+            sifs: None,
             row: -1,
         };
         if row.keys.get(&'K').map(String::as_str) == Some("I") {
@@ -833,6 +834,38 @@ impl<'a> Importer<'a> {
                     let Some(last) = self.build.elements.last_mut() else { return Err(index_error()) };
                     last.factor = Some(number);
                 }
+                let lines = &mut self.nd(node).comment_lines;
+                if let Some(at) = lines.iter().position(|&item| item == line) {
+                    lines.remove(at);
+                }
+            } else if name == "BSIF" {
+                // Format of .MBF, BSIF: a bend's SIFs, in-plane then out-of-plane (§11)
+                if row.keys.get(&'K').map(String::as_str) != Some("I") {
+                    self.refuse("MBF-IMPORT-COMMENT-INVALID", line, &where_, "BSIF is read on a KI bend row only");
+                    continue;
+                }
+                let parts = match args.as_deref() {
+                    Some(text) => split_fields(text),
+                    None => None,
+                };
+                let Some(parts) = parts.filter(|parts| parts.len() == 2) else {
+                    self.refuse(
+                        "MBF-IMPORT-COMMENT-INVALID",
+                        line,
+                        &where_,
+                        "BSIF needs two values in parentheses, in-plane then out-of-plane",
+                    );
+                    continue;
+                };
+                let first = self.real(&parts[0], line, &format!("{where_} value 1"))?;
+                let second = self.real(&parts[1], line, &format!("{where_} value 2"))?;
+                let (Some(first), Some(second)) = (first, second) else { continue };
+                if !(first.value > 0.0 && second.value > 0.0) {
+                    self.refuse("MBF-IMPORT-VALUE-OUT-OF-RANGE", line, &where_, "a bend SIF must be positive");
+                    continue;
+                }
+                let Some(last) = self.build.elements.last_mut() else { return Err(index_error()) };
+                last.sifs = Some((first, second));
                 let lines = &mut self.nd(node).comment_lines;
                 if let Some(at) = lines.iter().position(|&item| item == line) {
                     lines.remove(at);

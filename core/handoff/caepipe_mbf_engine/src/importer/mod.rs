@@ -168,6 +168,8 @@ pub(crate) struct Element {
     pub ti: bool,
     pub radius: Option<Num>,
     pub factor: Option<Num>,
+    /// BSIF(in-plane,out-plane)
+    pub sifs: Option<(Num, Num)>,
     pub row: i64,
 }
 
