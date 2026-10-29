@@ -1952,7 +1952,7 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 /// second ordinary span. The build identity, atoms and native values are unchanged; reviewed-input
 /// registration is separate below.
 // §8.32 candidate: independent resident table +322,013 B; source TEXT
-// +12,908 B in W and +13,204 B in X. Exclusive AC-004 evidence is pending.
+// +12,908 B in W and +13,204 B in X. The AC-004 stack witnesses passed 6/6 at 84824b20f0.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
     [6_559_878_321, 6_901_872_882, 8_856_055_542, 8_644_215_969, 7_722_244_196, 8_607_481_325, 7_338_881_987, 7_012_171_863],
     [6_619_009_665, 6_961_004_226, 8_915_186_886, 8_703_347_313, 7_781_375_540, 8_666_612_669, 7_398_013_331, 7_071_303_207],
