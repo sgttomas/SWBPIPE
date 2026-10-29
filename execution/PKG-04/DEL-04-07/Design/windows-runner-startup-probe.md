@@ -2,8 +2,10 @@
 
 Maturity: experimental finite diagnostic. The four partial native statements
 executed on `bba14a5cef7659457771281eb5f376673ccffef5`; the source repair from
-round-2 review and its 39 mutation controls await exact-head native evidence. Integrated production basis is main
-`9ef6c4c46938b6ee7fe7dddf785cbb707bbf7577`. The runner entry/manifest/lock are
+round-2 warning-map repair and all 39 diagnostic mutations passed natively at
+`ab1c7c0c256e13fabc998e1bcad53c7b39fe48b1`. Final integrated export and exact-head
+checks remain pending. Integrated production basis is main
+`1c5591f4ab09ca5d3f1041b71a57d9274211a14b`. The runner entry/manifest/lock are
 unchanged by this unit; inherited solver corrections/guards remain intact.
 macOS-first release, governing memory policy and retained qualification do not
 change. Implementation: `validation/platform/windows_runner_startup_probe/`.
@@ -156,16 +158,21 @@ The source-compatible CLI request shape includes required `tbd_decisions`; its
 published HeadlessRunnerRequest definition excludes that field. No schema is
 changed and full conformance to that inconsistent definition is not claimed.
 
-Full committed-candidate export is still required before fan-in. Its job is
-explicitly deferred while the separate exporter batching fix is unverified;
-after the verified repair merges, merge main, regenerate source-bound shared
-outputs, enable it and require a successful full raw-HEAD boundary/lint run.
-Skipped/deferred export is not passing evidence or publication authority.
-No fixed-batch or allowance edit is part of this diagnostic.
+The verified separate exporter batching repair is included from merged main.
+The full committed-candidate export job is enabled and must pass before fan-in:
+raw-HEAD identity, P7 fixture hashes, all eight committed public probe files and
+the actual exported attribute rule are checked. A separate temporary data-only
+Git index materializes all three exported fixtures with `core.autocrlf=true` and
+compares their bytes against committed P7 hashes; no commit, remote, identity or
+global configuration is involved. No fixed-batch/allowance edit is owned by this
+diagnostic. This is local hosted staging evidence, not publication authority.
 
 DEL-04-07 ScopeOfWork and needs keep their meaning. Additive pointers preserve
 all fixture/arena/numerical/temperature entries; all scan.files and applicable
-caller/reader/anchor digests are re-derived on integrated source. Both routing
+caller/reader/anchor digests are re-derived on integrated source. The graph has
+42 normal release manifests and 1,390 read inputs; all 13 scans were re-derived
+and registered caller/reader/anchor bindings match actual source. Inherited
+engine/fixture/arena/numerical inputs are retained. Both routing
 selfchecks and selected Root checks run with no local Cargo. DEL-07-11 shell
 remains unproven; DEL-10-04 receives supplemental diagnostic evidence only;
 DEL-04-08 Windows registration remains Stale. No governing commitment changes.
@@ -188,6 +195,9 @@ pass. The direct repair now requires fixed-case source-defined warning paths,
 reasons, classifications and finding text, independently of supplied counts.
 A thirteenth mutation per captured baseline consistently suppresses the
 `$.result_validation` warning while updating classifications/findings/counts;
-it must fail the same predicate. Expected current total: 39. That native
-regression, final export and exact-head required checks remain pending; no
-additional review round is selected for this small repair.
+it must fail the same predicate. Native run `40863949664` at
+`ab1c7c0c256e13fabc998e1bcad53c7b39fe48b1` passed all four partial cases, nine
+PE tests and 39 mutations, rejecting the consistent warning suppression on all
+three captured baselines and observing active-zero cleanup. Final integrated
+native/export and exact-head required checks remain pending; no additional
+review round is selected for this small repair or unchanged-code integration.

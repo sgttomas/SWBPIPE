@@ -128,10 +128,12 @@ autocrlf and survives the public cutdown. Actual Rust request shape requires
 this unit does not change that schema or claim full schema conformance.
 
 The full raw-committed-candidate exporter remains required before fan-in, including
-all new files and generated P7 entries. Its job is explicitly deferred until the
-separate verified exporter batching repair is merged, then must be enabled and
-pass; a skipped export is not boundary evidence or release authority. No exporter
-source is edited here. Full solve representation cost remains an item in the
+all new files and generated P7 entries. The separately verified exporter batching
+repair is integrated from main and the full export job is enabled. It checks
+inclusion of all eight committed public probe files, the actual exported byte
+rule, staged P7 hashes and real `autocrlf=true` Git materialization of the three
+exported fixtures in a data-only temporary index. Final exact-head export must
+pass; it grants no release authority. No exporter source is edited here. Full solve representation cost remains an item in the
 owning DEL-04-07 Design, cross-referenced to DEL-10-05 and #1742's source-qualified
 F-1 observation. Actual failed runs and the maintained-carrier size illustration
 are retained there; no limit, method, projection or serializer is changed.
