@@ -47,7 +47,8 @@ observed active zero, not a kill request or EOF. The deliberately blocked actual
 runner control proves external descendant cleanup separately from successful
 runner witnesses. Positive cases check the actual output/status/exit contracts
 for the small invented supported sparse solve and request-metadata
-validation. Completed-job identity, clean nested diagnostics/validation and
+validation. Completed-job identity, clean request/result validations and runner diagnostics,
+nonblocking mechanics diagnostics (preserving normal warning rows), and
 nonempty rows/references are required; ten mutations of actual successful
 output must be refused by the same predicate; malformed JSON and missing solve payload check typed refusals.
 
@@ -107,3 +108,53 @@ out-of-model findings and route a new kind inside the model to Agent0. No review
 is started by this Type2 contribution. Official PE, std and Win32 references are
 linked in the implementation README; native evidence is not inferred from this
 design or from successful light source checks.
+
+## Bounded solve-response constraint
+
+Native run `40854395895` at `d945106fa377cc9174ccf501e05ddc3c5b1e2a18`
+built the unchanged runner and controller, passed all nine PE tests, reached
+the PID-bound input-open gate, and observed Job active zero after the 1 MiB
+capture guard rejected output. The solve did not produce a captured successful
+contract witness. Later metadata/error/blocked-timeout cases were not reached.
+No successful solve, metadata or error execution is inferred from that run.
+
+The output constraint is in the existing CLI exposure, not simply numerical
+payload size. `openpipestress-runner.rs` lines 166–173 applies
+`redaction_binding::control_local_private` then pretty-serializes the entire
+controlled object. `redaction_binding.rs` lines 997–1175 walks every scalar and
+publishes its decision and, for private/unknown fields, a finding with its path.
+Mechanics/runner fields require the existing explicit local-private intent;
+the probe command currently omits that flag. Adding it would retain warnings
+and payload, not remove the audit records or solve the size constraint. No
+exposure rule, flag behavior, projection or serializer is changed here.
+
+`validation.rs` lines 176–225 requires at least two nodes, one pipe and an
+explicit load on the ordinary path. Component, station and signed-support rows
+are published even when their value is zero; fewer loaded coordinates does not
+remove their fields. As a source-only size illustration, the maintained
+`fixtures/results/preview_physics_connected_sparse.json` two-node/one-pipe/
+one-support carrier has 89 result rows and 1,179 mechanics scalar leaves. Applying
+the current scalar-walk record shapes to those paths produces 1,070,408 bytes
+of pretty-serialized decisions/findings alone without intent, or 1,089,272 with
+intent, excluding payload, runner metadata and result references. This is a
+representation calculation on an existing carrier, not a new solve or proof
+that every possible mechanics response has that size. Current global end rows
+also add fields. Both actual tested inputs exceeded the unchanged capture cap;
+no smaller supported positive response fitting it has been established. No
+further input/native attempt is selected from this investigation.
+
+A second source correction preserves the product's unconditional
+`RULE_CHECK_INPUTS_MISSING` warning (`product_physics/src/lib.rs` lines 3381–3387):
+mechanics diagnostics must be present and nonblocking, rather than empty.
+Request/result validations and runner diagnostics still require their clean
+shapes, and the ten negative mutations still use the same predicate. Their
+native execution remains pending because a successful captured solve is absent.
+
+The actual inspected PE recorded a 1,048,576-byte main stack reserve and
+4,096-byte stack commit; at the input gate one sample recorded 778,240 private
+usage bytes, 4,341,760 working-set bytes and four threads. These are diagnostic
+facts for the headless artifact only. They do not bound Native/System bypass,
+other stacks or future page touch, qualify R64, or activate retained registration.
+A different artifact, projection, cap or method is not adopted to obtain green
+solve evidence. Metadata/error execution and final committed export remain
+separate outstanding evidence; the latter waits for the verified exporter fix.

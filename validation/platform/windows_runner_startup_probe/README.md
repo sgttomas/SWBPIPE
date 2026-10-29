@@ -118,7 +118,8 @@ markers fail; the deliberately blocked control requires only its three live
 markers and the external drain marker. Wrong candidate, empty/unknown selection
 and missing marker controls exercise the same predicates as actual witnesses.
 Successful solves also require an identified completed job, present clean
-request/result validations, empty runner/mechanics diagnostics, and nonempty
+request/result validations, empty runner diagnostics, no blocking mechanics
+diagnostics (normal warning rows remain), and nonempty
 result references and rows. Ten mutations of the actual first successful output
 must fail this same predicate: failed job, blocking diagnostics in each of four
 nested locations, empty runner, missing request/result validation, empty result

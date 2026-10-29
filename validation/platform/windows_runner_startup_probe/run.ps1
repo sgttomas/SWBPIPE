@@ -107,7 +107,12 @@ function Assert-SolveOutput($p) {
     Assert-EmptyDiagnostics $p.request_validation 'request validation'
     Assert-EmptyDiagnostics $p.result_validation 'result validation'
     Assert-EmptyDiagnostics $p.runner_result 'runner result'
-    Assert-EmptyDiagnostics $p.mechanics_envelope 'mechanics'
+    # The product deliberately emits RULE_CHECK_INPUTS_MISSING as a warning.
+    # Preserve warnings; a missing, malformed or blocking diagnostic fails.
+    if ($null -eq $p.mechanics_envelope -or $null -eq $p.mechanics_envelope.PSObject.Properties['diagnostics'] -or $p.mechanics_envelope.diagnostics -isnot [array]) { throw 'Missing mechanics diagnostics' }
+    foreach ($diagnostic in $p.mechanics_envelope.diagnostics) {
+        if ($diagnostic.severity -cnotin @('info','warning') -or [string]::IsNullOrWhiteSpace($diagnostic.code)) { throw 'Blocking or malformed mechanics diagnostic' }
+    }
     if ($p.mechanics_envelope.status.mechanics -cne 'MECHANICS_SOLVED' -or $p.runner_result.result_refs -isnot [array] -or @($p.runner_result.result_refs).Count -eq 0 -or $p.mechanics_envelope.results -isnot [array] -or @($p.mechanics_envelope.results).Count -eq 0) { throw 'Supported solve requires nonempty successful result rows and references' }
 }
 function Assert-SolveMutationControls($good) {
