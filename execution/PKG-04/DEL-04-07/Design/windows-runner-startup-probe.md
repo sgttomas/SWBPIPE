@@ -1,7 +1,8 @@
 # PARTIAL Windows headless artifact/startup diagnostics — RT-V7 Later
 
-Maturity: experimental finite diagnostic; current partial native execution and
-round-2 independent review pending. Integrated production basis is main
+Maturity: experimental finite diagnostic. The four partial native statements
+executed on `bba14a5cef7659457771281eb5f376673ccffef5`; the source repair from
+round-2 review and its 39 mutation controls await exact-head native evidence. Integrated production basis is main
 `9ef6c4c46938b6ee7fe7dddf785cbb707bbf7577`. The runner entry/manifest/lock are
 unchanged by this unit; inherited solver corrections/guards remain intact.
 macOS-first release, governing memory policy and retained qualification do not
@@ -55,15 +56,15 @@ source, affected reference and request-validation state. Job, mechanics,
 result-validation and suite fields must be present and null. Input refs are
 checked against the bound fixture because the CLI does not echo them; no echo
 or model validation is inferred. Audit decision paths cover every payload
-scalar, warning/findings paths and summary counts agree, and expected local-
+scalar, source-defined warning paths/reasons and findings are required even if supplied counts remain consistent, and expected local-
 private warnings remain. Nonblocking warnings do not themselves fail.
 
-Twelve mutations of each actual captured baseline exercise this same predicate:
+Thirteen mutations of each actual captured baseline exercise this same predicate:
 empty/malformed object, absent payload, wrong operation/exit/runner status/
 validation/refs, wrong or missing typed diagnostics, missing audit, stripped
 warnings and unexpected privacy blocking. Wrong input refs mutate the paired
 bound fixture context; other mutations alter captured output or observed exit.
-The expected count is 36 diagnostic mutations across three baselines. They do
+The expected count is 39 diagnostic mutations across three baselines. They do
 not count as the original ten live solve mutations. Case count, inventory,
 missing-marker, wrong-candidate and empty/unknown-selection controls are explicit.
 
@@ -173,7 +174,20 @@ Round 1 independent Sol/medium/default review at `1f2a250585` supported custody/
 resource qualifications and found a solve-output false-green predicate plus a
 stale official link. Repairs are preserved in Git; their ten live solve mutations
 remain unexecuted. The material partial-coverage and operation-specific validator
-changes require one round-2 independent review under the existing false-green,
+changes received round-2 independent review under the existing false-green,
 source/platform identity, fake quiescence, custody/EOF/259, timeout/leak/privacy
-threat model (maximum three rounds). Current native statements, diagnostic
-mutation controls, final export and exact-head required checks remain pending.
+threat model (maximum three rounds). Native run `40862607292` at `bba14a5cef7659457771281eb5f376673ccffef5`
+passed nine PE tests, all four partial cases, the substitute-input guard,
+independent active-zero cleanup and the original 36 diagnostic mutations.
+Captured metadata/malformed/missing-payload outputs were 11,198 / 20,358 /
+19,535 bytes. This establishes only those named statements on that candidate.
+
+Round 2 source review found a P2 false-green audit check: changing a required
+warning decision to include, removing its finding and decrementing counts could
+pass. The direct repair now requires fixed-case source-defined warning paths,
+reasons, classifications and finding text, independently of supplied counts.
+A thirteenth mutation per captured baseline consistently suppresses the
+`$.result_validation` warning while updating classifications/findings/counts;
+it must fail the same predicate. Expected current total: 39. That native
+regression, final export and exact-head required checks remain pending; no
+additional review round is selected for this small repair.

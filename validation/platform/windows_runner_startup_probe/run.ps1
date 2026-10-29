@@ -146,7 +146,19 @@ function Assert-InputBinding($context, [string]$case) {
     if ($r.project_ref.ref_type -cne 'project' -or $r.project_ref.ref_id -cne 'project:precision-connected-fixture' -or $r.model_ref.ref_type -cne 'model' -or $r.model_ref.ref_id -cne 'project:precision-connected-fixture') { throw 'Project/model reference binding mismatch' }
     if ($r.provenance.redistribution_status -cne 'invented_non_engineering_example' -or $r.provenance.review_status -cne 'pending' -or $null -ne $context.PSObject.Properties['solve']) { throw 'Diagnostic fixture must be genuinely invented metadata without a solve payload' }
 }
-function Assert-Controlled($controlled) {
+function Assert-Controlled($controlled, [string]$case) {
+    # Independent source expectations for the fixed base_output shapes. Do not
+    # derive expected warnings from the supplied decisions/counts themselves.
+    $requiredWarnings = @{
+        '$.result_validation' = 'UNKNOWN_PROVENANCE_WARNING'
+        '$.runner_result' = 'UNKNOWN_PROVENANCE_WARNING'
+        '$.mechanics_envelope' = 'UNKNOWN_PROVENANCE_WARNING'
+        '$.suite_run' = 'UNKNOWN_PROVENANCE_WARNING'
+    }
+    if ($case -eq 'malformed_json') { $requiredWarnings['$.request_validation']='UNKNOWN_PROVENANCE_WARNING' }
+    if ($case -in @('malformed_json','missing_payload')) {
+        $requiredWarnings['$.diagnostics[0].provenance.source_location']='PRIVATE_LOCAL_ALLOWED_WITH_WARNING'
+    } elseif ($case -ne 'validate_metadata') { throw 'No source-defined audit for this case' }
     Assert-Object $controlled 'controlled export'
     if ($controlled.blocked -isnot [bool] -or $controlled.blocked -ne $false -or $controlled.decisions -isnot [array] -or $controlled.findings -isnot [array]) { throw 'Malformed or unexpectedly blocked privacy outcome' }
     Assert-Object $controlled.payload 'controlled payload'
@@ -154,19 +166,29 @@ function Assert-Controlled($controlled) {
     $leaves = @(Get-LeafPaths $controlled.payload '$' | Sort-Object)
     $decisions = @($controlled.decisions.path | Sort-Object)
     if ($leaves.Count -eq 0 -or ($leaves -join "`n") -cne ($decisions -join "`n")) { throw 'Missing or extra privacy audit decision paths' }
-    $warningPaths = @($controlled.decisions | Where-Object { $_.action -ceq 'warning_only' } | ForEach-Object { $_.path } | Sort-Object)
+    $warningPaths = @($requiredWarnings.Keys | Sort-Object)
     $findingPaths = @($controlled.findings.path | Sort-Object)
     if (($warningPaths -join "`n") -cne ($findingPaths -join "`n")) { throw 'Privacy warnings were removed or fabricated' }
     foreach ($decision in $controlled.decisions) {
-        if ($decision.action -cnotin @('include','warning_only') -or [string]::IsNullOrWhiteSpace($decision.reason_code)) { throw 'Unexpected privacy decision' }
+        $reason = if ($requiredWarnings.ContainsKey($decision.path)) { $requiredWarnings[$decision.path] } else { 'SAFE_PUBLIC_METADATA' }
+        $action = if ($requiredWarnings.ContainsKey($decision.path)) { 'warning_only' } else { 'include' }
+        $unknown = $reason -ceq 'UNKNOWN_PROVENANCE_WARNING'
+        $private = $reason -ceq 'PRIVATE_LOCAL_ALLOWED_WITH_WARNING'
+        $privacy = if ($unknown) { 'unknown' } elseif ($private) { 'private_project_data' } else { 'public_metadata' }
+        $redistribution = if ($unknown) { 'unknown' } elseif ($private) { 'private_only' } else { 'public_permissive' }
+        $review = if ($unknown) { 'pending' } else { 'accepted' }
+        if ($decision.action -cne $action -or $decision.reason_code -cne $reason -or $decision.privacy_classification -cne $privacy -or $decision.redistribution_status -cne $redistribution -or $decision.review_status -cne $review -or $decision.export_context -cne 'local_private' -or $decision.source_metadata_present -isnot [bool] -or $decision.source_metadata_present -ne (-not $unknown)) { throw 'Privacy decision differs from source-defined fixed-case classification' }
     }
     foreach ($finding in $controlled.findings) {
-        if ($finding.severity -cne 'WARNING' -or $finding.action -cne 'warning_only' -or [string]::IsNullOrWhiteSpace($finding.code)) { throw 'Unexpected blocking or malformed privacy finding' }
+        if (-not $requiredWarnings.ContainsKey($finding.path)) { throw 'Unexpected privacy finding path' }
+        $reason = $requiredWarnings[$finding.path]
+        $class = if ($reason -ceq 'UNKNOWN_PROVENANCE_WARNING') { 'PROVENANCE_WARNING' } else { 'PRIVATE_DATA_WARNING' }
+        if ($finding.severity -cne 'WARNING' -or $finding.action -cne 'warning_only' -or $finding.code -cne $reason -or $finding.class -cne $class -or $finding.message -cne 'Export retained the value in a local/private context with an explicit warning.' -or $finding.remediation -cne "Use the runner's explicit local-private intent flag for known private values.") { throw 'Required source-defined warning differs or is incomplete' }
     }
     if ($controlled.summary.decision_count -ne $decisions.Count -or $controlled.summary.finding_count -ne $findingPaths.Count -or $controlled.summary.warning_count -ne $findingPaths.Count -or $controlled.summary.blocking_count -ne 0 -or $controlled.summary.redacted_count -ne 0 -or $controlled.summary.omitted_count -ne 0 -or $controlled.summary.cloud_transmission_attempted -ne $false -or $controlled.summary.professional_claims_made -ne $false) { throw 'Privacy summary disagrees with retained audit' }
 }
 function Assert-DiagnosticOutput($controlled, [string]$case, $context, [int]$observedExit) {
-    Assert-Controlled $controlled
+    Assert-Controlled $controlled $case
     $p = $controlled.payload
     $verb = if ($case -eq 'validate_metadata') { 'validate-input' } else { 'solve' }
     $operation = if ($case -eq 'validate_metadata') { 'validate_input' } else { 'solve' }
@@ -204,7 +226,7 @@ function Assert-DiagnosticOutput($controlled, [string]$case, $context, [int]$obs
     if ($intentWarnings.Count -ne 1) { throw 'Explicit diagnostic intent warning was not preserved' }
 }
 function Assert-DiagnosticMutationControls($captured, [string]$case, $context, [int]$observedExit) {
-    $mutations = @('empty','malformed','missing_payload','wrong_operation','wrong_exit','wrong_runner_status','wrong_validation','wrong_refs','typed_diagnostics','missing_audit','stripped_warnings','blocked_privacy')
+    $mutations = @('empty','malformed','missing_payload','wrong_operation','wrong_exit','wrong_runner_status','wrong_validation','wrong_refs','typed_diagnostics','missing_audit','stripped_warnings','consistent_single_warning_suppression','blocked_privacy')
     foreach ($kind in $mutations) {
         $changed = $captured | ConvertTo-Json -Depth 100 -Compress | ConvertFrom-Json -Depth 100
         $bound = if ($null -eq $context) { $null } else { $context | ConvertTo-Json -Depth 100 -Compress | ConvertFrom-Json -Depth 100 }
@@ -221,6 +243,18 @@ function Assert-DiagnosticMutationControls($captured, [string]$case, $context, [
             'typed_diagnostics' { if ($case -eq 'validate_metadata') { $changed.payload.diagnostics=@([pscustomobject]@{code='INVENTED_BAD_DIAGNOSTIC'}) } else { $changed.payload.diagnostics[0].code='INVENTED_WRONG_CODE' } }
             'missing_audit' { $changed.decisions=@(); $changed.summary.decision_count=0 }
             'stripped_warnings' { $changed.findings=@(); $changed.summary.finding_count=0; $changed.summary.warning_count=0 }
+            'consistent_single_warning_suppression' {
+                $target = '$.result_validation'
+                $targetDecisions = @($changed.decisions | Where-Object { $_.path -ceq $target })
+                if ($targetDecisions.Count -ne 1) { throw 'Suppression control baseline missing required warning' }
+                $decision = $targetDecisions[0]
+                $decision.action='include'; $decision.reason_code='SAFE_PUBLIC_METADATA'
+                $decision.privacy_classification='public_metadata'; $decision.redistribution_status='public_permissive'
+                $decision.review_status='accepted'; $decision.source_metadata_present=$true
+                $changed.findings=@($changed.findings | Where-Object { $_.path -cne $target })
+                $changed.summary.finding_count=$changed.findings.Count
+                $changed.summary.warning_count=$changed.findings.Count
+            }
             'blocked_privacy' { $changed.blocked=$true }
             default { throw 'Unknown diagnostic mutation selection' }
         }
@@ -251,12 +285,12 @@ foreach ($case in $expected) {
         $captured = Get-Content $output -Raw | ConvertFrom-Json -Depth 100
         Assert-DiagnosticOutput $captured $case $context $observedExit
         Assert-DiagnosticMutationControls $captured $case $context $observedExit
-        $mutationCount += 12
+        $mutationCount += 13
     }
     $executed++
     Write-Host "END PARTIAL case=$case statement=pass"
 }
-if ($executed -ne 4 -or $mutationCount -ne 36) { throw 'Partial execution/mutation count mismatch' }
+if ($executed -ne 4 -or $mutationCount -ne 39) { throw 'Partial execution/mutation count mismatch' }
 if ((Get-FileHash $runner -Algorithm SHA256).Hash.ToLowerInvariant() -ne $hash) { throw 'Runner artifact changed during cases' }
 Write-Host "PARTIAL_DIAGNOSTICS executed=$executed captured_output_mutations=$mutationCount solve=BLOCKED_UNVERIFIED live_solve_mutations=UNVERIFIED"
 # No raw JSON, PE, compiler logs or absolute paths are uploaded by this script.

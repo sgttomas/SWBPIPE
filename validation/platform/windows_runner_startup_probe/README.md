@@ -62,16 +62,18 @@ request/operation binding and exact refusal code/class/severity/source/affected
 reference. Metadata checks bound input refs because the CLI does not echo them;
 no output reference echo is invented. Null job/mechanics/result-validation fields
 are required, rather than accepting a fabricated completed status. Audit decision
-paths must cover every payload scalar; warning paths, findings and summary counts
-must agree. Nonblocking privacy warnings are preserved and do not fail by
+paths must cover every payload scalar; the source-defined warning paths, reason
+codes and classifications for each fixed case must be present. Findings and
+counts must match those independently required warnings. Consistently removing
+a warning and adjusting counts must still fail. Nonblocking privacy warnings are preserved and do not fail by
 themselves. A refusal's local-private source-location warning is required.
 
-After each of the three successful captured baselines, twelve mutations exercise
+After each of the three successful captured baselines, thirteen mutations exercise
 the same predicate: empty/malformed controlled object, missing payload, wrong
 operation, exit, runner status, validation or refs, wrong/missing typed diagnostic,
-missing audit, stripped warnings and unexpected privacy blocking. Wrong input
+missing audit, stripped warnings, consistent suppression of one required warning and unexpected privacy blocking. Wrong input
 refs mutate the paired bound fixture context; other mutations alter the actual
-captured output or observed exit. Expected total: **36 diagnostic mutations**,
+captured output or observed exit. Expected total: **39 diagnostic mutations**,
 not the ten unexecuted live solve mutations. Missing-marker, wrong-candidate,
 empty/unknown-selection and blocked-inventory controls remain separate.
 
