@@ -142,6 +142,7 @@ code_paths:
 - apps/desktop/src-tauri/resources/agent-capability-catalog.json
 - apps/desktop/src-tauri/src/embedded_agent/**
 - execution/PKG-16/DEL-16-06/Design/agent-capability-catalog.json
+- apps/desktop/src/services/embeddedAgentBridge.ts
 - apps/desktop/src/services/operationService.ts
 - core/model_operations/operation_applier/**
 - fixtures/model_operations/contract_corpus/**
@@ -157,6 +158,8 @@ checks:
 - apps/desktop/src-tauri/src/embedded_agent/stdio_pump.rs
 - apps/desktop/src-tauri/src/embedded_agent/session_driver.rs
 - apps/desktop/src-tauri/src/embedded_agent/dispatcher.rs
+- apps/desktop/src-tauri/src/embedded_agent/webview_bridge.rs
+- apps/desktop/src/services/embeddedAgentBridge.test.ts
 - apps/desktop/src-tauri/src/embedded_agent/loopback.rs
 - apps/desktop/src-tauri/src/embedded_agent/macos.rs
 - apps/desktop/src-tauri/src/embedded_agent/sandbox.rs

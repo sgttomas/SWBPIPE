@@ -14,3 +14,4 @@ pub(crate) mod protocol;
 pub(crate) mod sandbox;
 pub(crate) mod session_driver;
 pub(crate) mod stdio_pump;
+pub(crate) mod webview_bridge;

@@ -216,6 +216,46 @@ applied outcome retention through failed delivery, admission pressure and
 bounded custody. They do not establish the future coordinator's actual record
 lookups, command authentication, native cleanup or model integration.
 
+### Claimed webview transport component
+
+`embedded_agent/webview_bridge.rs` and `services/embeddedAgentBridge.ts` implement
+the next transport seam, explicitly constructed and still without a live Tauri
+command, listener or workspace registration. A notice carries only `requestRef`.
+Native code retains the original validated argument envelope; the actual invoking
+webview/session must claim it before any webview domain work. A claim rechecks
+origin and current basis for live calls, preserves admitted historical basis,
+and consumes execution authority before returning its response. Response loss
+never reopens the claim. Detachment/close retires unclaimed work; an already
+claimed operation can still report its correlated late actual outcome.
+
+The native transport serializes borrowed arguments without cloning their Value,
+under a separate 512 KiB GENERAL allowance per offered claim (64 KiB wire cap).
+Its 128 KiB state allowance covers 64 bounded entries. Offered buffers are moved
+with their leases into claims and discarded on retirement; 64 claim tombstones
+remain until bridge destruction, including after actual-outcome custody transfer.
+These allowances price requested allocations, not RSS or retained solver usage.
+The eventual native adapter must serialize responses while holding claim backing;
+framework-owned IPC copies retain the existing command-ingress residual.
+
+The webview transport accepts only the native claim response as execution input,
+rechecks actual workspace state immediately before execution, bounds UTF-8 claim
+and completion bytes, limits active calls to 16, and retains 64 tombstones without
+implicit eviction. It retains the actual record reference and raw catalog outcome
+before its single completion attempt. Queued/detached/lost/unconfirmed delivery
+cannot erase it or trigger domain replay; taking actual custody keeps the
+execution tombstone. Execution exceptions yield delivery uncertainty rather than
+invented rejection or rollback. The authoritative domain owner must retain
+actual/unknown records even if its execute hook throws after an effect.
+
+This seam does not authenticate an installed command or prove actual record
+lookups: the future adapter must derive native Origin from the real invoking
+webview, admit its raw command bytes, construct trusted Evidence from actual
+queue/job owners, and admit retained frontend IPC copies before use. Domain
+producer hooks must recheck basis across asynchronous preparation and bound reads
+at the producer. No execute hook is attached to workspaceSession by this PR.
+The focused transport regressions establish one-shot binding/custody behavior,
+not native-session isolation, cleanup, integration, AC-005 or criterion 17.
+
 Require `claimedModelHash == basis.modelHash == current session hash` before
 `registerOperationBatch`; repeat the existing current-basis check at application.
 Construct the batch in the host and stamp `author_type: agent` plus original
