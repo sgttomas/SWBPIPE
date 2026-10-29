@@ -285,6 +285,310 @@ def test_provenance_violations_are_blocking_findings(tmp_path):
     assert record["blocking_finding_count"] >= 1
 
 
+@pytest.mark.parametrize("licence", [{"spdx": "MIT"}, None, 7])
+def test_non_string_licence_is_a_violation_not_a_crash(licence):
+    # The staged export's dry run aborted with AttributeError on a record whose
+    # source_license was an object; the check must record it and continue.
+    module = load_module()
+    record = dict(ACCEPTED_PROVENANCE)
+    record["source_license"] = licence
+    violations = module.provenance_record_violations("$.provenance", record)
+    assert violations == ["$.provenance: missing or empty 'source_license'"]
+
+
+def test_schema_property_maps_are_not_provenance_records():
+    # The staged export ships JSON Schemas whose $defs.Provenance.properties
+    # declares the provenance fields; those subschemas are not data records.
+    module = load_module()
+    schema = {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$defs": {
+            "Provenance": {
+                "type": "object",
+                "properties": {
+                    "redistribution_status": {"type": "string"},
+                    "source_license": {"type": "string"},
+                },
+            }
+        },
+        "examples": [{"provenance": dict(ACCEPTED_PROVENANCE)}],
+        "properties": {"redistribution_status": "unknown"},
+    }
+    paths = [path for path, _ in module.iter_provenance_records(schema, in_schema=True)]
+    # The example record and a malformed string-valued record are still checked.
+    assert paths == ["$.examples[0].provenance", "$.properties"]
+
+
+def test_property_map_outside_a_json_schema_is_still_checked(tmp_path):
+    # Review finding 4: any `.properties` object with an object-valued
+    # redistribution_status escaped validation, even outside a JSON Schema.
+    module = load_module()
+    data = {
+        "properties": {
+            "source_name": "invented",
+            "source_location": "invented/inline",
+            "source_license": "TBD",
+            "contributor": "invented",
+            "contributor_certification": "invented",
+            "redistribution_status": {"status": "rejected"},
+            "review_status": "rejected",
+        }
+    }
+    member = tmp_path / "data.json"
+    member.write_text(json.dumps(data), encoding="utf-8")
+    result = module.run_provenance_check([("AC-4:data.json", member)])
+    assert result["status"] == "findings_present"
+    assert result["provenance_records_checked"] == 1
+    assert "AC-4:data.json $.properties: source_license is 'TBD'" in result["violations"]
+    assert any("review_status is 'rejected'" in v for v in result["violations"])
+
+    # The same object in a document that only looks like a schema still blocks.
+    data["$schema"] = "urn:invented:not-json-schema"
+    member.write_text(json.dumps(data), encoding="utf-8")
+    assert module.run_provenance_check([("AC-4:data.json", member)])["provenance_records_checked"] == 1
+
+
+def test_scan_record_carries_no_host_paths_or_captured_logs(tmp_path, monkeypatch):
+    # Review leak surfaces: captured security logs, absolute class roots and
+    # raw engine finding paths must not reach the record. No cargo runs.
+    module = load_module()
+    candidate_root = make_candidate_tree(tmp_path)
+    host_text = str(tmp_path / "host-only" / "pytest-rootdir")
+
+    def fake_lint(paths, root):
+        return {"status": "findings_present", "command": "cargo run ...",
+                "finding_count": 1, "note": None,
+                "findings": [{"path": str(paths[0]), "severity": "WARNING",
+                              "code": "UNKNOWN_PROVENANCE_REVIEW_REQUIRED", "line": 1,
+                              "column": 1, "class": "invented", "excerpt": "invented",
+                              "matched_policy": "invented", "message": "invented",
+                              "remediation": "invented", "review_route": "invented"}]}
+
+    monkeypatch.setattr(module, "run_engine_lint", fake_lint)
+    monkeypatch.setattr(
+        module, "run_command",
+        lambda command, cwd: subprocess.CompletedProcess(command, 1, host_text, host_text),
+    )
+    _, output_dir = run_scan(module, tmp_path, candidate_root, lint_mode="engine",
+                             extra=["--security-profile", "run"])
+    path, record = read_single_record(output_dir)
+    text = path.read_text(encoding="utf-8")
+    for host in (str(tmp_path), str(tmp_path.resolve()), host_text):
+        assert host not in text
+    assert record["checks"]["security_profile"]["status"] == "findings_present"
+    assert "not recorded" in record["checks"]["security_profile"]["note"]
+    assert record["artifact_classes"]["AC-4"]["root"] == "<absolute path>/candidate"
+    assert "resolved_root" not in record["artifact_classes"]["AC-4"]
+    lint_paths = {f["path"] for f in record["checks"]["protected_content_lint"]["findings"]}
+    assert lint_paths <= {"AC-4:README.md", "AC-4:example.json"}
+
+
+INVALID_RECORD_DOCUMENT = {
+    "properties": {
+        "source_name": "invented",
+        "source_location": "invented/inline",
+        "source_license": "TBD",
+        "contributor": "invented",
+        "contributor_certification": "invented",
+        "redistribution_status": {"status": "rejected"},
+        "review_status": "rejected",
+    },
+}
+
+
+@pytest.mark.parametrize(
+    "declared",
+    [
+        None,
+        "https://json-schema.org.invented.invalid/draft/2020-12/schema",
+        "https://json-schema.org/draft/2020-12/schema",
+    ],
+)
+def test_data_at_a_schema_path_is_checked_whatever_it_declares(tmp_path, declared):
+    # Review r3 P1: a data document at schemas/x.schema.json passed a path
+    # pattern with zero records checked; r2 P1: a spoofed or genuine `$schema`
+    # in data hid the record. Only the committed manifest, by path and
+    # SHA-256, makes a file a schema.
+    module = load_module()
+    data = dict(INVALID_RECORD_DOCUMENT)
+    if declared is not None:
+        data["$schema"] = declared
+    member = tmp_path / "x.schema.json"
+    member.write_text(json.dumps(data), encoding="utf-8")
+    for label in ("AC-4:schemas/x.schema.json", "AC-4:fixtures/data.json"):
+        result = module.run_provenance_check([(label, member)])
+        assert result["provenance_records_checked"] == 1, label
+        assert f"{label} $.properties: source_license is 'TBD'" in result["violations"]
+
+
+def test_listed_schema_is_trusted_only_while_its_hash_matches(tmp_path):
+    import hashlib
+
+    module = load_module()
+    schema = {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {"redistribution_status": {"type": "string"},
+                       "review_status": {"type": "string"}},
+    }
+    member = tmp_path / "invented.schema.json"
+    member.write_text(json.dumps(schema), encoding="utf-8")
+    manifest = {"schemas/invented.schema.json": hashlib.sha256(member.read_bytes()).hexdigest()}
+    label = "AC-4:schemas/invented.schema.json"
+    assert module.run_provenance_check([(label, member)], manifest)["provenance_records_checked"] == 0
+
+    member.write_text(json.dumps(INVALID_RECORD_DOCUMENT), encoding="utf-8")
+    changed = module.run_provenance_check([(label, member)], manifest)
+    assert changed["provenance_records_checked"] == 1
+    assert f"{label} $.properties: source_license is 'TBD'" in changed["violations"]
+
+
+def load_generator():
+    spec = importlib.util.spec_from_file_location(
+        "generate_schema_manifest", ROOT / "tools" / "release" / "generate_schema_manifest.py"
+    )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_schema_manifest_is_generated_from_the_real_schemas(tmp_path):
+    # Changing a schema requires regenerating the manifest; every listed schema
+    # validates against the JSON Schema 2020-12 metaschema (pinned validator).
+    generator = load_generator()
+    assert generator.main(["--check"]) == 0
+    manifest = json.loads((ROOT / generator.MANIFEST_PATH).read_text(encoding="utf-8"))
+    assert manifest["schemas"]
+    for entry in manifest["schemas"]:
+        generator.check_against_metaschema(json.loads((ROOT / entry["path"]).read_text(encoding="utf-8")))
+
+    root = tmp_path / "project"
+    (root / "schemas").mkdir(parents=True)
+    (root / "schemas" / "bad.schema.json").write_text(json.dumps({"type": 5}), encoding="utf-8")
+    with pytest.raises(Exception):
+        generator.build_manifest(root)
+
+
+def test_provenance_scope_is_pinned_by_file_hash_and_label_pair(tmp_path):
+    # RT-V8 P7: product labels inside listed invented fixtures are scoped out
+    # of check (c) only by exact path, file SHA-256 and value pair.
+    import hashlib
+
+    module = load_module()
+    label = dict(ACCEPTED_PROVENANCE, redistribution_status="private_only", review_status="pending")
+    tbd = dict(ACCEPTED_PROVENANCE, source_license="TBD", review_status="pending")
+    member = tmp_path / "invented_fixture.json"
+    member.write_text(json.dumps({"a": {"provenance": label}, "b": {"provenance": tbd}}), encoding="utf-8")
+    scope = {"fixtures/invented_fixture.json": {
+        "sha256": hashlib.sha256(member.read_bytes()).hexdigest(),
+        "labels": {('"private_only"', '"pending"')},
+    }}
+    entry = [("AC-4:fixtures/invented_fixture.json", member)]
+    result = module.run_provenance_check(entry, {}, scope)
+    assert result["scoped_record_count"] == 1
+    assert result["scoped_members"] == ["AC-4:fixtures/invented_fixture.json"]
+    assert result["violations"] and all("$.b.provenance" in v for v in result["violations"])
+
+    moved = module.run_provenance_check([("AC-4:fixtures/other.json", member)], {}, scope)
+    assert moved["scoped_record_count"] == 0 and any("$.a.provenance" in v for v in moved["violations"])
+    member.write_text(json.dumps({"a": {"provenance": label}}) + " ", encoding="utf-8")
+    changed = module.run_provenance_check(entry, {}, scope)
+    assert changed["scoped_record_count"] == 0 and changed["violations"]
+
+
+def load_scope_generator():
+    spec = importlib.util.spec_from_file_location(
+        "generate_provenance_scope", ROOT / "tools" / "release" / "generate_provenance_scope.py"
+    )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_committed_provenance_scope_is_the_generators_output():
+    # RT-V8 P7 review: the committed scope is derived, not hand-kept; any
+    # hash drift, new label or ineligible file fails here.
+    assert load_scope_generator().main(["--check"]) == 0
+
+
+def make_export_shaped_repo(tmp_path: Path) -> Path:
+    """A committed invented tree carrying the export's allowlisted roots."""
+    spec = importlib.util.spec_from_file_location(
+        "export_probe", ROOT / "tools" / "release" / "export_public_openpipestress.py"
+    )
+    export = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(export)
+    root = tmp_path / "project"
+    for name in export.ROOT_FILES:
+        (root / name).parent.mkdir(parents=True, exist_ok=True)
+        (root / name).write_text("invented\n", encoding="utf-8")
+    for name in export.ROOT_DIRS:
+        (root / name).mkdir(parents=True, exist_ok=True)
+        (root / name / "README.md").write_text("invented\n", encoding="utf-8")
+    (root / "tools" / "release").mkdir(parents=True, exist_ok=True)
+    declared = dict(ACCEPTED_PROVENANCE, redistribution_status="invented_non_engineering_example",
+                    review_status="pending")
+    undeclared = dict(ACCEPTED_PROVENANCE, source_name="Example project data",
+                      contributor_certification="Example values only",
+                      redistribution_status="private_only", review_status="pending")
+    (root / "fixtures" / "eligible.json").write_text(
+        json.dumps({"provenance": declared}), encoding="utf-8")
+    (root / "fixtures" / "invented_named_but_undeclared.json").write_text(
+        json.dumps({"provenance": undeclared}), encoding="utf-8")
+    env = {**__import__("os").environ, "GIT_CONFIG_GLOBAL": "/dev/null", "GIT_CONFIG_NOSYSTEM": "1",
+           "GIT_AUTHOR_NAME": "invented", "GIT_AUTHOR_EMAIL": "invented@example.invalid",
+           "GIT_COMMITTER_NAME": "invented", "GIT_COMMITTER_EMAIL": "invented@example.invalid"}
+    for command in (["init", "-q"], ["add", "-A"], ["commit", "-q", "-m", "invented"]):
+        subprocess.run(["git", *command], cwd=root, env=env, check=True, capture_output=True)
+    return root
+
+
+def test_provenance_scope_check_refuses_ineligible_stale_and_underived_data(tmp_path):
+    generator = load_scope_generator()
+    root = make_export_shaped_repo(tmp_path)
+    assert generator.main(["--root", str(root)]) == 0
+    listing = root / generator.SCOPE_PATH
+    generated = json.loads(listing.read_text(encoding="utf-8"))
+    # Eligibility is by declaration: the undeclared file is never listed.
+    assert [m["path"] for m in generated["members"]] == ["fixtures/eligible.json"]
+    assert generator.main(["--root", str(root), "--check"]) == 0
+
+    def check_with(document) -> int:
+        listing.write_text(json.dumps(document, indent=2) + "\n", encoding="utf-8")
+        return generator.main(["--root", str(root), "--check"])
+
+    ineligible = json.loads(json.dumps(generated))
+    ineligible["members"].append(dict(generated["members"][0], path="fixtures/invented_named_but_undeclared.json"))
+    assert check_with(ineligible) == 1
+    stale = json.loads(json.dumps(generated))
+    stale["members"][0]["sha256"] = "0" * 64
+    assert check_with(stale) == 1
+    underived = json.loads(json.dumps(generated))
+    underived["members"][0]["labels"].append(['"public_permissive"', '"TBD"'])
+    assert check_with(underived) == 1
+    # Byte-exact: the same content with CRLF line endings is drift.
+    listing.write_bytes((json.dumps(generated, indent=2) + "\n").replace("\n", "\r\n").encode("utf-8"))
+    assert generator.main(["--root", str(root), "--check"]) == 1
+
+
+@pytest.mark.parametrize("field, text", [
+    ("origin", "not invented; supplied by a customer"),
+    ("source_name", "invented-by: a real person"),
+])
+def test_free_text_never_qualifies_a_file_for_the_p7_scope(field, text):
+    # P7 re-review: whole-word "invented" in free text qualified a file, and
+    # check (c) then suppressed its private_only/pending records. Only the
+    # product label redistribution_status == invented_non_engineering_example
+    # qualifies a file.
+    generator = load_scope_generator()
+    record = dict(ACCEPTED_PROVENANCE, redistribution_status="private_only",
+                  review_status="pending", source_name="Example project data",
+                  contributor_certification="Example values only")
+    record[field] = text
+    assert generator.invented_declaration({"provenance": record}) is None
+    labelled = dict(record, redistribution_status="invented_non_engineering_example")
+    assert generator.invented_declaration({"provenance": labelled}) is not None
+
+
 def test_quarantine_hygiene_flags_quarantine_paths(tmp_path):
     module = load_module()
     candidate_root = make_candidate_tree(tmp_path)
