@@ -81,8 +81,8 @@ hosted timing observations are not a qualified resource/performance profile.
 
 Source basis initially main31084e1f792b0612013e508b30e2a5dabdc151e7; the
 worker/backend/core memory paths were identical to1560bbf7 in that scoped diff.
-Current integrated main cb562efbfdbaf4072d52bd400fa241e5ca098f9f contains
-#1735/#1737 and is merged into the probe candidate; their
+Integrated main c5c1c8f089702572bbdeddc288284cbc6dedfd58 contains
+#1735/#1737 and #1741's routing repair and is merged into the probe candidate; their
 fixture evidence does not qualify this arena or a complete Windows worker.
 No Windows desktop PE was built or examined in this tranche, so actual imports,
 loaded modules and PE stack reservations remain unknown rather than inferred
@@ -128,6 +128,20 @@ refuses. This is a provisional COMPONENT estimate, not a complete worker
 bound, and does not scale with larger desktop budgets. Preserve/reconcile that
 text and #1739 numerical pointers when they land; do not use this guard to
 price arena/non-arena liabilities or alter its limit.
+
+After merging #1741, every declared scan was regenerated from the integrated
+source using its actual anchor/exclusion/name-or-suffix policy. The two project
+inventories add this probe's six .rs files (external guard included) and
+Cargo.toml; no inputs are removed. Existing fixture/numerical entries remain.
+The full source_read_dependencies graph validates 41 manifests and 1,359 read
+inputs. All registered crate-tree digests were recomputed and matched; reader
+and source-anchor hashes likewise matched, so none was blindly repinned. The
+two source inventories over product_physics also received canonical ordering.
+Both routing suites pass under OPENPIPESTRESS_NO_CARGO_BUILD=1 (65 tests and
+87 subtests). The selected Root software_workflow suite also passes (76 tests,
+80 subtests, one existing PytestReturnNotNoneWarning), using the existing venv
+on PATH for its nested Python commands and the same no-Cargo guard. The remaining selector-rule gap recorded by #1741 is unchanged;
+a green harness is not substituted for these explicit checks.
 
 DEL-04-07 gains this Design and additive code/check pointers. Its ScopeOfWork,
 needs and governing memory-budget Design are unchanged. Ready-first integration
