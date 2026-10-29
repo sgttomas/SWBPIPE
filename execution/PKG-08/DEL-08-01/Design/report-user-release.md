@@ -4629,8 +4629,8 @@ The implementation must carry:
 - the Diagnostics binding (`check_report_diagnostics`, #1659);
 - the producer's item 9 under the user-released profile.
 
-Lifting the refusal of §2.2, §2.5 step 2a, §2.8 and §2.9 would then be that
-change's edit.
+§11 governs lifting the refusal of §2.2, §2.5 step 2a, §2.8 and §2.9 for
+this slice.
 
 ## 11. D-6: exact-route results under user release (RT-R5)
 

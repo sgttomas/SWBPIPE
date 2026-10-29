@@ -3,6 +3,11 @@
 //! native admission does not label or bound caller content: it derives the
 //! whole request from the bound basis and requires canonical equality.
 //!
+//! D-6 extends this derivation to exact results with record 1.1.0 (§11):
+//! native admission checks custody and delivered texts, then the derivation
+//! rebuilds exact sections, limitations and Diagnostics from the bound source.
+//! The older pressure-free record and its vectors remain unchanged.
+//!
 //! The bound basis is the model `M`, the source carrier `S` (attested for `M`
 //! with the solver mode `m`), the run record `R` (checked by native
 //! admission, §2.5 step 8), the host's software identity `H` and the user's
@@ -516,8 +521,14 @@ pub fn current_result_document_base(model: &Value, source: &Value, run_record: &
     let diagnostics = source_diagnostics.iter().map(document_diagnostic).collect::<Result<Vec<_>, _>>()?;
     let load_basis_refs = array(run, "/load_basis_refs")?
         .iter()
-        .map(|item| mapped_object_ref(item, "a load basis reference"))
-        .collect::<Result<Vec<_>, _>>()?;
+        .map(|item| {
+            let mut mapped = mapped_object_ref(item, "a load basis reference")?;
+            if item["object_type"] == "LoadCase" && source.pointer("/producer/semantic_contract_id").and_then(Value::as_str).is_some_and(crate::exact_sections::is_exact_identity) {
+                mapped["ref_type"] = json!("load_case");
+            }
+            Ok(mapped)
+        })
+        .collect::<Result<Vec<_>, String>>()?;
     let run_hashes = array(run, "/hashes")?
         .iter()
         .map(|hash| {
@@ -712,7 +723,7 @@ pub fn minimal_renderer_input(
         "human_review_required": true,
         "human_acceptance_ref": null
     }));
-    let report_sections = json!({
+    let mut report_sections = json!({
         "report_section_id": format!("sections:{source_run}"),
         "model_ref": reference("model", source_model),
         "run_ref": reference("analysis_run", source_run),
@@ -742,6 +753,17 @@ pub fn minimal_renderer_input(
         })).collect::<Vec<_>>(),
         "professional_boundary": boundary()
     });
+    if source.pointer("/producer/semantic_contract_id").and_then(Value::as_str).is_some_and(crate::exact_sections::is_exact_identity) {
+        let entries = crate::exact_sections::expected_exact_limitations(source, source_run)?;
+        let preview = report_sections["limitations"][0].clone();
+        for entry in entries {
+            report_sections["limitations"].as_array_mut().ok_or_else(|| invalid("limitations"))?.push(json!({
+                "limitation_id": entry.limitation_id, "source": entry.source,
+                "affected_scope": entry.affected_scope, "statement": entry.statement,
+                "effect": preview["effect"], "provenance": preview["provenance"]
+            }));
+        }
+    }
     let sections_checksum = digest(&report_sections)?;
 
     let units = model.pointer("/project/units").filter(|units| units.is_object()).ok_or_else(|| invalid("/project/units is not an object"))?;
@@ -865,8 +887,28 @@ fn check_pressure_free(source: &Value) -> Result<(), String> {
 /// own row-checksum and unit-summary checks, so a source whose rows are not
 /// the run record's is refused here as by the producer.
 pub fn derive(basis: &UserReleaseBasis<'_>) -> Result<UserReleaseDerivation, String> {
+    derive_in(basis, None)
+}
+
+/// D-6: derive exact sections from the bound basis, taking only the two custody
+/// facts that native admission has checked against the delivered texts.
+pub fn derive_exact(basis: &UserReleaseBasis<'_>, native_job_id: &str, received_bytes_sha256: &str) -> Result<UserReleaseDerivation, String> {
+    derive_in(basis, Some((native_job_id, received_bytes_sha256)))
+}
+
+fn derive_in(basis: &UserReleaseBasis<'_>, custody: Option<(&str, &str)>) -> Result<UserReleaseDerivation, String> {
     let UserReleaseBasis { model, source, solver_mode, run_record, software, record } = *basis;
-    check_pressure_free(source)?;
+    let exact = source.pointer("/producer/semantic_contract_id").and_then(Value::as_str).is_some_and(crate::exact_sections::is_exact_identity);
+    if exact {
+        if record.record_version != open_pipe_stress_report_renderer::USER_RELEASE_EXACT_RECORD_VERSION {
+            check_pressure_free(source)?;
+        }
+        if let Some(defect) = record.form_defect() { return Err(invalid(format_args!("record {defect}"))); }
+        if custody.is_none() { return Err(invalid("exact custody facts are required")); }
+    } else {
+        check_pressure_free(source)?;
+        if custody.is_some() { return Err(invalid("pressure-free source carries exact custody facts")); }
+    }
     let run = run_record.get("analysis_run").ok_or_else(|| invalid("the run record has no analysis_run"))?;
     let model_id = text(model, "/project/id")?;
     if text(source, "/model_ref")? != model_id {
@@ -907,7 +949,7 @@ pub fn derive(basis: &UserReleaseBasis<'_>) -> Result<UserReleaseDerivation, Str
     for item in array(&document, "/result_envelope/load_basis_refs")? {
         source_basis_refs.push(reference(text(item, "/ref_type")?, text(item, "/ref_id")?));
     }
-    let request = json!({
+    let mut request = json!({
         "package_id": format!("{USER_RELEASED_PACKAGE_PREFIX}{}", safe_token(text(source, "/run_id")?, "report-package")),
         "export_profile_id": USER_RELEASED_DESKTOP_PROFILE,
         "source_model_ref": reference("model", model_id),
@@ -945,6 +987,20 @@ pub fn derive(basis: &UserReleaseBasis<'_>) -> Result<UserReleaseDerivation, Str
         "rule_check_aggregate": null,
         "solve_rule_check_status": rule_check
     });
+    if let Some((job, bytes_hash)) = custody {
+        let solver = &request["audit_manifest"]["solver_version"];
+        let linked = LinkedSolverIdentity {
+            solver_name: text(solver, "/solver_name")?,
+            solver_version: text(solver, "/solver_version")?,
+            solver_build_ref: text(solver, "/solver_build_ref")?,
+        };
+        let audit = crate::wire::audit_manifest(serde_json::from_value(request["audit_manifest"].clone()).map_err(|_| invalid("audit form"))?, &linked)?;
+        request["report"]["exact_route"] = serde_json::to_value(crate::exact_sections::expected_exact_route_section(
+            source, &document, &audit, job, bytes_hash,
+        )?).map_err(|_| invalid("exact section serialization"))?;
+        crate::bindings::check_report_diagnostics(&request["report"], source)?;
+        crate::exact_sections::check_exact_sections(source, &document, &audit, &request["report"])?;
+    }
     Ok(UserReleaseDerivation { input_manifest, input_manifest_sha256, input_manifest_ref: manifest_ref, request })
 }
 
@@ -1126,7 +1182,10 @@ pub fn check_matches_derivation(derivation: &UserReleaseDerivation, input_manife
 /// [`assemble_derived`] calls it, and only it constructs a
 /// [`DerivedUserRelease`].
 fn check_derived(basis: &UserReleaseBasis<'_>, input_manifest: &Value, request: &Value) -> Result<DerivedUserRelease, String> {
-    let derivation = derive(basis)?;
+    let derivation = if basis.source.pointer("/producer/semantic_contract_id").and_then(Value::as_str).is_some_and(crate::exact_sections::is_exact_identity) {
+        let binding = request.pointer("/report/exact_route/admission").ok_or_else(|| invalid("exact admission binding is required"))?;
+        derive_exact(basis, text(binding, "/native_job_id")?, text(binding, "/received_bytes_sha256")?)?
+    } else { derive(basis)? };
     check_matches_derivation(&derivation, input_manifest, request)?;
     Ok(DerivedUserRelease { _derived: () })
 }
@@ -1155,7 +1214,9 @@ pub fn assemble_derived(
 ) -> Result<crate::ReportPackageContainerOutcome, String> {
     for document in request.get("result_documents").and_then(Value::as_array).into_iter().flatten() {
         crate::document_form::check_route_admitted(document)?;
-        crate::exact_sections::check_user_released_profile(USER_RELEASED_DESKTOP_PROFILE, document)?;
+        if inputs.record.record_version != open_pipe_stress_report_renderer::USER_RELEASE_EXACT_RECORD_VERSION {
+            crate::exact_sections::check_user_released_profile(USER_RELEASED_DESKTOP_PROFILE, document)?;
+        }
     }
     let source = request.pointer("/source_results/0").unwrap_or(&Value::Null);
     let derived = check_derived(&inputs.with_source(source), input_manifest, &request)?;
