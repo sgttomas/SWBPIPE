@@ -178,8 +178,9 @@ pub fn annulus_energy_shear_factor(
 /// in [0, 1] and every other term is finite); with D finite, kappa >= 6/D is
 /// normal, so its check is a backstop that does not fire. Separately, 2G
 /// itself overflows for G > f64::MAX/2 whatever the ratio (E = G = 1e308 has
-/// E/(2G) = 1/2 but no finite 2G), and that also refuses with NumericalRange;
-/// on the pressure-free route the nu range check refuses such moduli first.
+/// E/(2G) = 1/2 but no finite 2G), and that also refuses with NumericalRange
+/// (at x, in [`moduli_ratio_terms`], which forms x and t here); on the
+/// pressure-free route the nu range check refuses such moduli first.
 pub fn annulus_energy_shear_factor_of_moduli(
     inner_radius: f64,
     outer_radius: f64,
@@ -212,8 +213,7 @@ pub fn annulus_energy_shear_factor_of_moduli(
     let m2 = m * m;
     let a = 1.0 + m2;
     let b = 1.0 - m2;
-    let x = (2.0 * g) / e;
-    let t = 1.0 - x;
+    let (x, t) = moduli_ratio_terms(e, g)?;
     let d = (7.0 + t * t) * (b * b) + 48.0 * m2;
     if !(d.is_normal() && d > 0.0) {
         return Err(ShearFactorError::NumericalRange {
