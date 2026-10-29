@@ -28,14 +28,14 @@ struct Shared {
     request: AtomicU32, reply: AtomicU32, verdict: AtomicU32, amount: AtomicU32,
     cancel: AtomicU32, phase: AtomicU32, start: AtomicU32, finish: AtomicU32,
     result: AtomicU32, detail: AtomicU32, actual: AtomicU32, authorized: AtomicU32,
-    faults: AtomicU32, retries: AtomicU32, old_intact: AtomicU32, elapsed_ms: AtomicU32,
+    faults: AtomicU32, retries: AtomicU32, revalidations: AtomicU32, old_intact: AtomicU32, elapsed_ms: AtomicU32,
 }
 impl Shared {
     fn new() -> Self { Self {
         request: AtomicU32::new(0), reply: AtomicU32::new(0), verdict: AtomicU32::new(0), amount: AtomicU32::new(0),
         cancel: AtomicU32::new(0), phase: AtomicU32::new(0), start: AtomicU32::new(0), finish: AtomicU32::new(0),
         result: AtomicU32::new(0), detail: AtomicU32::new(0), actual: AtomicU32::new(0), authorized: AtomicU32::new(0),
-        faults: AtomicU32::new(0), retries: AtomicU32::new(0), old_intact: AtomicU32::new(0), elapsed_ms: AtomicU32::new(0),
+        faults: AtomicU32::new(0), retries: AtomicU32::new(0), revalidations: AtomicU32::new(0), old_intact: AtomicU32::new(0), elapsed_ms: AtomicU32::new(0),
     } }
 }
 fn shared(view: &win32::View) -> &Shared { unsafe { &*view.0.cast::<Shared>() } }
@@ -82,7 +82,7 @@ fn request(s: &Shared, command: win32::Raw, changed: win32::Raw, epoch: &mut u32
         let reason = last.expect("headroom reply classified");
         if !w.retry(reason) { return Err(reason); }
         s.retries.fetch_add(1, SeqCst);
-        win32::wait(command, 10);
+        win32::wait(command, 50);
     }
 }
 #[test]
@@ -150,6 +150,11 @@ fn child_entry() {
                 s.old_intact.store(1, SeqCst);
                 if !w.retry(f) { break Err(f); }
                 s.retries.fetch_add(1, SeqCst);
+                // Already-held page authority survives the fault. Revalidate
+                // fresh physical+commit headroom under the parent lock without
+                // asking for that authority again, on the SAME deadline.
+                if let Err(stop) = request(s, command, changed, &mut epoch, &w, 0) { break Err(stop); }
+                s.revalidations.fetch_add(1, SeqCst);
             }
         }
     };
@@ -233,7 +238,7 @@ fn native_recovery() {
     }
     let s = shared(&child.view);
     assert_eq!(s.result.load(SeqCst), OK); assert_eq!(s.faults.load(SeqCst), 1);
-    assert!(s.retries.load(SeqCst) >= 3); assert_eq!(s.old_intact.load(SeqCst), 1);
+    assert!(s.retries.load(SeqCst) >= 3); assert_eq!(s.revalidations.load(SeqCst), 1); assert_eq!(s.old_intact.load(SeqCst), 1);
     assert!(s.elapsed_ms.load(SeqCst) < 2000);
     // Equality shows the post-grant injected commit retry did not re-grant
     // the already authorized page, even with partial progress.
@@ -267,7 +272,7 @@ fn native_nonheadroom_no_retry() {
         handled = s.request.load(SeqCst); reply(&child, &ledger, 0, handled, None);
     }
     let s = shared(&child.view); assert_eq!(s.result.load(SeqCst), OTHER);
-    assert_eq!(s.faults.load(SeqCst), 1); assert_eq!(s.retries.load(SeqCst), 0);
+    assert_eq!(s.faults.load(SeqCst), 1); assert_eq!(s.retries.load(SeqCst), 0); assert_eq!(s.revalidations.load(SeqCst), 0);
     assert_eq!(s.old_intact.load(SeqCst), 1); assert_eq!(s.request.load(SeqCst), handled);
     finish(&mut child, &ledger, 0);
 }

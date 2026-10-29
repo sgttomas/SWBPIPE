@@ -63,14 +63,18 @@ adapted from committed fixture source226de967 (now integrated on main as
 Cost output separates requested/live capacity, committed data, metadata,
 retained empty pages, committed slack, VA-span unused bytes and syscall count.
 VA-span unused includes uncommitted alignment gaps; it is not physical waste.
-Scripted small-slot packing exposes per-allocation-page overhead. Counter or
+Scripted small-slot packing exposes per-allocation-page overhead. A classified
+post-admission commit retry revalidates physical and commit headroom under the
+parent lock with a zero-delta request: existing authority is neither lost nor
+granted twice, and the original growth deadline is retained. Counter or
 hosted timing observations are not a qualified resource/performance profile.
 
 ## Production non-arena/startup audit (read-only)
 
 Source basis initially main31084e1f792b0612013e508b30e2a5dabdc151e7; the
 worker/backend/core memory paths were identical to1560bbf7 in that scoped diff.
-The integrated #1735/#1737 source is used when merging current main; their
+Current integrated main cb562efbfdbaf4072d52bd400fa241e5ca098f9f contains
+#1735/#1737 and is merged into the probe candidate; their
 fixture evidence does not qualify this arena or a complete Windows worker.
 No Windows desktop PE was built or examined in this tranche, so actual imports,
 loaded modules and PE stack reservations remain unknown rather than inferred
