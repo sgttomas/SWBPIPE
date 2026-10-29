@@ -666,6 +666,9 @@
           "enum": [
             "pending_review",
             "rejected",
+            "withdrawn",
+            "applied",
+            "unknown",
             "unavailable",
             "stale_basis",
             "execution_error"
