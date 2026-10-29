@@ -176,6 +176,7 @@ deliverable; "new" means a scope change assigns it.
 | RT-U3 | Autosave and backup | Must | Absent | unscheduled / DEL-12-01, DEL-02-05 |
 | RT-U4 | Performance on large models | Must | No thresholds (DEL-04-05:3) | harness run / DEL-04-05 |
 | RT-U5 | States, runs, comparisons | Should | Built (W-12); mapping editor, tolerance profiles and export are Later | — / PKG-14 |
+| RT-U6 | Delete a stored project | Later | No delete-project command; stored projects are not removed from the desktop (owner, 2026-10-26: "I agree with your recommendation and approve (a)", where (a) was no delete-project command in v0.1, listed as a later candidate; recorded from superseded #1642) | — / new |
 | RT-V1 | Closed-form benchmarks for every Must analysis | Must | §22.2 and §22.3 suites; none yet for RT-A4 SRSS/absolute sum, RT-A6, RT-A7, RT-A8, RT-A11 | with each row / PKG-09 |
 | RT-V2 | Benchmark set against CAEPIPE (§3) | Must | Proposal (validation lane); correlation pilot (#1652, #1672) | §3 / DEL-17-05 |
 | RT-V3 | Validation manual and a fresh reproduction bundle | Must | Procedure current; last bundle predates W-12 | W-2 / DEL-09-04 |
