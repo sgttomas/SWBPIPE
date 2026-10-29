@@ -28,6 +28,7 @@ from .correlation import (
     build_comparison_record,
     canonical_model_hash,
 )
+from .benchmark import build_benchmark_record
 
 __all__ = [
     "CAEPIPE_EXTERNAL_RUN_VERSION",
@@ -35,6 +36,7 @@ __all__ = [
     "HarnessSkip",
     "PARSER_VERSION",
     "PRINT_CSV_COVERAGE",
+    "build_benchmark_record",
     "build_caepipe_external_run_package",
     "build_comparison_record",
     "build_skipped_caepipe_external_run_package",

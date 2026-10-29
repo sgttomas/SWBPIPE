@@ -56,6 +56,14 @@ It imports the MBF, writes `<model>.mod` and `<model>.res`, and is documented to
 `<model>.csv` beside the MBF. The harness always runs this route first and uses its CSV
 whenever one appears.
 
+The batch print's extension follows the print-file extension saved in the tool's preferences,
+so the same print may be written as `<model>.txt`. The harness collects either and records the
+name collected (`print_file`). `<model>.csv` is taken as named; `<model>.txt` is accepted only
+when the print-CSV parser (§6) recognises its header, parses at least one section and reports no
+error, and is otherwise refused as `print_file_unrecognised` and not read as results. When both
+files are written, neither is taken (`print_file_ambiguous`) and no fallback runs. The saved
+extension itself is never changed.
+
 **Fallback when the batch route yields no result file.** The guest script then stops
 the process it started, opens the solved results in a fresh CAEPIPE instance that it
 starts itself, and prints the results to CSV through the documented print-to-file
@@ -133,6 +141,162 @@ An authored case (§3; DEL-17-04 Design §18.3) uses the same folder under its o
 (`cases/cpa-nn-…/`). Its `caepipe_in/model.mbf` is the tracked authored file, written as is; it
 has no `id_map.json` or `mbf_render.json`, and its `swbpipe/`, `parsed/` and `comparison/` layers
 stay empty. Its `caepipe_out/` and `imported/` layers are as above and equally private.
+`run_pilot --authored --authored-dir <path>` takes the authored cases from another directory with
+the same `manifest.json` layout instead of the tracked one, so authored files that are themselves
+private are run without entering the repository. The directory must lie inside the exchange folder
+with no symbolic link on the way (else the run stops before any case), and its case ids must not
+name a tracked writer or authored case, whose case folders the run would otherwise replace. Such a run
+wants only the solve and its printed results, so it never runs the export step; `--no-export` leaves
+the export out of a tracked authored run too.
+
+**Saved settings.** The tool keeps saved settings in the guest registry, among them a recent-files
+list that a solve may update. The configuration may name that registry key (`settings_guard`: `key`,
+an `HKCU\…` path; `recent_files_subkey`, the list's subkey; `restore_recent_files`, `false` unless
+set, which needs the subkey; `restore_scope`, `"recent_files"` unless set to `"key"`, which enables
+restoring by itself and widens it to the whole key; `call_timeout_s`, default 20, and `section_budget_s`, default 120, both in
+seconds); `--authored-dir` runs require it. Every guard call (registry reads and writes, process
+queries) runs with `call_timeout_s`; the solve keeps its own timeout. Guard reads (process lists,
+registry readings, the restore's read-back) have no side effect, so a transport failure of the prlctl
+client (exit 255) is retried up to six attempts in all, 2 s apart, every attempt within the call's
+`call_timeout_s` (and, in the restore, the section budget); no attempt starts that would pass either
+limit, and a read that still fails stops the run as before. Writes keep the single settled retry
+described under **Restore**.
+
+- **Precondition.** Before the first case and again before each round trip, the guest's process
+  list (`tasklist`) must be readable and show no instance of the tool: none is the run's own yet, so
+  any one is another user's instance (`foreign_instance_running`), and an unreadable or malformed list
+  is `precondition_unknown`. Either way nothing starts. The check starts, closes and signals nothing.
+- **Before.** The whole key, every subkey included, is read (`reg query /s`). The reading keeps every
+  key it prints, empty ones included, and every value, and counts only when every line of it is
+  understood and every key it prints is the configured key or lies under it; when it fails nothing runs
+  (`settings_check_failed`). `reg query /s` prints no header for the queried key while that key holds no
+  values of its own (observed on the guest); its printed subkeys show that it exists, so it is recorded
+  as present. An output that prints no key at all is no reading.
+- **During.** The guest script appends the id of each process it starts to `owned_pids.txt` in the
+  case's work folder (and lists them in its report), the GUI print instance included. An
+  `--authored-dir` run falls back to printing through the GUI only with `restore_scope` `"key"`, whose
+  restore covers the settings that route writes; otherwise a batch run that leaves no CSV ends
+  `batch_no_csv`.
+- **After**, whatever happened in between (a timeout of the host's call or an error while collecting
+  included), in checks guarded separately so that a failure in one skips neither the other nor the
+  result:
+  - the record of ids must be complete and valid (readable, at least one id, one decimal id per line,
+    equal to the report's list when there is one), and the process list valid `tasklist` CSV. A
+    process of ours still listed is `owned_process_running`; another instance of the tool, the
+    precondition checked again, is `foreign_instance_running`; a record or list that falls short is
+    `owned_process_state_unknown`;
+  - the whole key is read again. When the two readings are identical (keys and values) the result is
+    `unchanged`.
+- **Restore.** Only when the configuration enables it, the process checks are clean, and every
+  difference lies in the restore scope, the harness writes the scope back to the first reading in one
+  routine. With `"recent_files"` the scope is the values of the recent-files subkey (no key added or
+  removed, nothing else changed); with `"key"` it is everything strictly inside the configured key: its
+  values, and its subkeys at any depth, which may be created or deleted. The configured key itself, its
+  parent and anything else are never written; the plan checks every difference against the scope and
+  refuses the whole restore, before any write, when one lies outside it (with `"recent_files"` such a
+  difference is `settings_changed`). It plans the writes (subkeys that were removed are created,
+  shallowest first; values that changed or were removed are set to their earlier type and data, in the
+  first reading's order; values that appeared are deleted, except inside a subkey that appeared;
+  subkeys that appeared are deleted with their contents, deepest first; a key or value name outside
+  the allowed characters, or a value that cannot be written back exactly, stops it before any write)
+  and keeps a write log: each value or subkey, what it restores and what it replaces,
+  its attempts and its outcome. Each write counts as completed only on exit 0 with the command's success
+  message, and is never repeated blindly (the retry the harness applies to reads does not apply to
+  writes). A reported failure is logged `failed` and other output `unknown`; either stops the restore
+  at that write. A value set, value delete or subkey delete whose outcome a transport failure (the
+  client's exit 255, or a timeout) left unknown is settled first: the process list is checked, and the
+  value or subkey is read back (a subkey with every value in it). If it is already as intended (the
+  value at its restored data; the value or subkey absent, as reg reports a missing key or value), the
+  write is completed; if it is still as the run left it, the write is issued once more (attempt 2), at
+  most once; any other read-back (other data or content, an unreadable read-back) or another instance
+  stops the restore with the write `unknown`. Every attempt and the read-back are logged. Creating a
+  subkey is not retried. It checks
+  the process list before each write, after the last write,
+  and once more before declaring success, reads the key a third time and compares it exactly with the
+  first reading. The result is `recent_files_restored` (`settings_restored` with `"key"`) only when every
+  step completed and the
+  comparison found no difference. Any other outcome, a check that finds another instance or cannot
+  tell, or an exception or cancellation at any step, the comparison and the failure path itself
+  included, takes one failure path: the key is read once more (best effort), the result is
+  `settings_restore_failed` with the write log, so the record shows exactly which writes happened, the
+  run record is written, and the first exception, if any, is raised afterwards unchanged with the
+  result attached. The first exception is kept from the moment it occurs, before any diagnostic or
+  logging; the failure path's bookkeeping, its reading, its comparison, the attachment and the record
+  each run under their own guard, so a later exception or cancellation is recorded as secondary and
+  neither replaces the first nor skips the reading. Once the restore has been entered, the final
+  reading is attempted whether or not anything was logged. A record never says nothing was written
+  when its log shows writes. A difference anywhere else is `settings_changed`, and nothing is written.
+- **Recorded restore.** With `restore_scope` `"key"`, value differences that an earlier round trip
+  recorded but did not restore can be written back to their recorded `before` values through the same
+  plan and routine (`restore_recorded_settings`), outside any round trip: only after the precondition is
+  clear, the key reads whole, and every recorded value still has its recorded `after` state
+  (`changed_since_record` otherwise, nothing written); the third reading is compared with the intended
+  one, and each recorded value's status is listed.
+
+**Interruption (threat model).** For the whole guarded round trip, SIGTERM (and SIGBREAK where it
+exists) is made catchable on the main thread: it raises a cancellation (`TerminationRequested`, a kind
+of `KeyboardInterrupt`) as SIGINT does, instead of ending the process unrecorded; the previous handler
+is restored when the round trip ends. Signals are deferred only across the restore's
+registry-mutation section: the check before each write, the writes, the check after them and the
+verification reading. There SIGINT, SIGTERM and SIGBREAK only record themselves, so no signal can cut
+between a check and its write or leave a write half-logged; the previous handlers are restored when
+the section closes, and the signals it deferred are reported then (`deferred_signals`) and stop the
+run as a `KeyboardInterrupt` raised after the restore's outcome is recorded in memory, or are kept as
+a secondary error beside a primary error that is raised instead. **Bound:** the section has a total
+budget, `section_budget_s` (120 s by default). Each call in it is given at most the guard call timeout
+and never more than the budget still remaining, and no retry starts after the budget has run out; when
+it runs out the restore stops as `settings_restore_failed` with its write log and the stop is raised
+(`SectionBudgetExceeded`). The worst case of the deferred section is therefore the section budget.
+Everything else (the post-run checks, the recovery, the attachment and the record I/O) runs in
+normal signal context: a signal there interrupts as usual. The post-run checks (the process query,
+the precondition, the readings) are each guarded against any exception, so a cancellation raised by
+one is kept (raised as the first error, or kept beside it) and the settings reading still runs; an
+ordinary error there leaves the state unknown and stops the run. The guard result, with its write
+log, is attached to the error before any record I/O begins and is then written on its own to
+`caepipe_out/settings_guard.json` before the run record. That write stays interruptible; a cancellation
+during it is retried once and is then raised. So a signal or failure during the record (the first such
+failure included, recorded as `run_record_error`) cannot lose the log. The reporting and persistence
+steps between the checks and the end of the round trip are covered by an outer recovery as well: an
+exception leaving the round trip before its records are done first has the guard result attached (the
+round trip's own, else the restore's, else one built from the write log), and that result is then
+written to `settings_guard.json` once more, best effort and still interruptible, naming the exception
+(`round_trip_error`). Each `TerminationRequested` also carries the guard result as it stands when the
+signal arrives, so a second termination request, during that write or anywhere else, still leaves with
+the write log. Exceptions raised by callees take
+the deferred path above, with the first one raised. An exception raised by one of the guard's own
+bookkeeping statements would be a defect in the harness; beyond the tests that inject failures at each
+callee and recovery step, that case is not designed for.
+
+**Known limits.**
+- A failure inside the recovery's own callbacks (its bookkeeping, final reading, comparison or reason)
+  can leave out the diagnostics that step would have added; the failed status and the write log are
+  kept.
+- If every attachment of the guard result to the raised error fails (the signal handler's, the round
+  trip's and the outer recovery's), the result is only in
+  `settings_guard.json` and the run record, not on the error.
+- Signal deferral, and the catchable SIGTERM, are available only on the main thread; elsewhere the
+  record says deferral is unavailable (`signal_deferral`) and signals act as they normally do.
+- Whether `reg query /s` prints a subkey that holds no values has not been observed on the guest (every
+  subkey read there has values). If it does not, such a subkey added or removed during a round trip is
+  not seen; every value change is. With `restore_scope` `"key"` this includes an empty parent left
+  behind when a subkey that appeared is deleted.
+- Each process check, the session precondition before the first case included, is a guard read: all
+  its attempts together take at most `call_timeout_s` (20 s by default). It writes nothing and stays
+  interruptible.
+
+The restore is safe only because no other instance of the tool runs during the round trip: the
+precondition admits none before it, and the checks inside the restore look again before each write
+and before success. A check and the write after it are not atomic: another instance starting in
+between would not be seen until the next check, and excluding other writers outright would need a
+change to the guest environment, which the harness does not make. That residual window is accepted
+because, under the operating agreement, no other instance runs during these sessions. A breach of it
+is detected after the fact by the following check or by the comparison, and is recorded as
+`settings_restore_failed` with the write log; it is never reported as a successful restore.
+
+The run stops at the first case whose result is anything but `unchanged`, `recent_files_restored` or
+`settings_restored`, whose round trip raised (the guard result travels with the exception), or that ended
+`batch_no_csv` where the GUI fallback is refused. The guard
+result is checked before any other test of the record, so a rejected input hash does not pass over it.
 
 `caepipe_in/` holds only SWBPIPE-derived content or the invented authored file. Every layer from `caepipe_out/` on
 is CAEPIPE output or derived from it and stays private (§8). Every directory and
@@ -196,9 +360,23 @@ refuse such a run (`input_hash_mismatch`); the bracket makes the re-run replace 
   diagnostic, and pairs element-force rows in from/to order (a weak, row-order
   correlation per REQ-010, bound back to SWBPIPE ids through the writer's id map).
 
-  The section titles, header and unit rows, the blank-as-zero rule and the row order
-  are observed format behaviour of the CSV CAEPIPE writes; the public documentation
-  does not list them. The public test fixture is invented and labelled.
+  Unit labels: each unit-bearing column must carry a label the layout prints for its
+  quantity: length `mm` or `inch`, rotation `deg` or `rad`, force `N` or `lb`, moment
+  `Nm` or `ft-lb`, stress (checked, not read) `MPa` or `psi`. A file prints one system
+  (SI or English) and one angle unit; a section that mixes them, or departs from the
+  sections read before it, is refused (`CAEPIPE-PRINT-UNITS-MIXED`), and any other
+  label is refused by name (`CAEPIPE-PRINT-COLUMN-HEADER-MISMATCH`). English and radian
+  values are normalized to the output units (mm, deg, N, N·m) with the unit catalog's
+  exact definitions (`core/units`: inch 0.0254 m, foot 0.3048 m, pound-force
+  4.4482216152605 N, degree π/180 rad), each factor formed exactly and rounded once;
+  SI values are read unchanged. A value that is not finite after conversion refuses its
+  row (`CAEPIPE-PRINT-VALUE-UNREPRESENTABLE`). Each parsed section records the label every value was
+  printed in (`source_units`), and the result records the file's system and angle unit.
+
+  The section titles, header and unit rows (the English and radian labels included),
+  the blank-as-zero rule and the row order are observed format behaviour of the CSV
+  CAEPIPE writes; the public documentation does not list them. The public test fixture
+  and the English and radian test texts are invented and labelled.
 - **Comparison record.** Each case produces one record naming what PRD §22.5 lists:
   internal model hash, exported MBF hash, target tool and version, import/export
   assumptions, manual changes (none), load-case mapping, support mapping, comparison
@@ -371,7 +549,7 @@ classification. It never prints external-prover values outside the local run.
 - The desktop `.mbf` export (`CaepipeMbfExportPanel.tsx`) still writes the placeholder
   smoke text; it should use the SI writer's record subset.
 - A wider correlation corpus (larger models, more load types) under the full licence.
-- Non-unit bend flexibility factors are untested: the bend case uses k = 1.
+- The pilot's own bend case uses k = 1. Non-unit factors are exercised only by the benchmark's G2 set (§11.1).
 - CAEPIPE's pipe shear shape factor and default gravitational acceleration
   (CQ-17-01-010); κ = 0.5 stays an `ASSUMPTION` until answered.
 - Two-way iteration: the export step (§3) writes `caepipe_out/exported.mbf` for
@@ -379,3 +557,206 @@ classification. It never prints external-prover values outside the local run.
   for the writer cases and for the authored cases (§3, §5), whose outcomes are recorded
   privately in `imported/`. The authored set grows with each importer tranche: each new
   mapping or named refusal gets an authored file.
+- Benchmark (§11): tranche 1 has run under the settings guard. Its screening and §3 triage are held
+  privately (§8), for the owner's review of the full record. Still open:
+  - further VM batches and the later tranches (T2 at scale, then T3–T6 as their constructs land). Each
+    starts only on Agent 0's go-ahead;
+  - closed forms for G2 (anchored L with k) and G3 (elastic centre);
+  - a clean one-parameter R/D series for bend transverse shear;
+  - the pressure family;
+  - parser sections for frequencies and spectra;
+  - declare rigid stiffness as an inexact input (§11.3) for models with a rigid element or line stop,
+    so their screening class is `named_inexact`;
+  - the VM reruns that the private tranche-1 triage lists: G4-05 and G6-03, as authored and with every
+    modulus divided by 100;
+  - a possible convention option in SWBPIPE: straight-pipe shear with shape factor 2 (κ = 0.5, the
+    assumption above) and bend transverse shear with the same factor. This is a scope call for Agent 0
+    or the owner, not started;
+  - DEL-17-04 §18.3's private importer round trip on the MBF that benchmark runs export
+    (`--export-mbf`).
+- Source rows for the remaining component and support families (Q-3, for W-17's coverage criterion).
+  One row per family, citing CAEPIPE's public manual page by URL, in our own words, in reference-system
+  order. The families are a tee with user SIF modifiers, an eccentric reducer, valves, flanges, an
+  expansion joint with tie rods, a gap, lift-off, friction, a variable spring and a constant-effort
+  support. A family with no public page becomes a limitation candidate.
+- DEL-17-04 importer: the revised O-7 (Agent 0), to be recorded in DEL-17-04 Design §20.2 in place of
+  the hot basis. CQ-17-01-016 and CQ-17-01-017 were resolved by experiment, not sent. The change:
+  - the modulus basis follows the MBF's cold-modulus flag, absent meaning cold, except under the codes
+    whose flag is ignored. For those, map that code's basis and cite it;
+  - map the per-case modulus basis explicitly to DEC-092, never by default;
+  - take thermal expansion as the mean from the `OPTEMP` reference temperature;
+  - map rotational stiffness units per degree, with English-unit moments in inch-pounds;
+  - refuse by name an element temperature outside the material table;
+  - pin the mapping to version 15.10;
+  - close TBD-17-04-010.
+- DEL-17-04 writer, `OPPRES`: Agent 0's decision (b). Write the pressure-elongation option for the
+  sustained case only when the pressure contract applies `transfers_to_wall` closure, otherwise off. The
+  export report names the remaining modelling differences, with tests.
+- Publication policy and checker for benchmark agreement (D15). Branch
+  `claude/piping-caepipe-publication-20261028` at `bf7a2b9e53` holds the gated design: a structured ruling
+  record and a fixed summary rendering. Still open:
+  - reconcile `IP_AND_DATA_BOUNDARY.md` §6.2 with D15;
+  - fix review r3's findings. A threshold or unit misrepresented, or a partial quote, blocks; the other
+    findings are listed known limits;
+  - cite licence clause numbers only.
+
+  One owner-reserved choice stays open: AC-001's "implying compatibility" could read "implying general
+  compatibility (benchmark agreement may be published only under Design §8.1)". If that wording is not
+  approved, publication relies on reading agreement on stated cases as no compatibility claim.
+
+## 11. Benchmark set, tranche 1 (RT-V2)
+
+This section records the method for the benchmark set against CAEPIPE that RT-V2 of
+`docs/RELEASE_TARGET_v1.0.md` requires (§2; method in §3). It compares mechanics only:
+displacements, rotations, element forces and moments, and support loads. Stresses and code
+checks are left out. Tranche 1 covers families G1–G8: linear, Y vertical, temperature-independent
+materials, no pressure. The models, the settings, the comparison rule and the code are public.
+Every run, result, comparison and classification stays in the exchange folder (§8). Nothing in
+this section claims agreement, and nothing in it records, implies or derives acceptance (F-PIP-3).
+
+### 11.1 Models
+
+`tools/caepipe_correlation/benchmark_models.py` writes the invented models to
+`validation/caepipe_benchmark/models/` and their `manifest.json` (seed, generator version, family,
+sampling, parameters, series, model hash and file hash). The generator draws only `random()` from
+`random.Random(seed)`, and its JSON is canonical, so the same seed gives the same bytes. `--check`
+compares the tracked files with a fresh generation. The default seed is 20261028.
+
+| Family | Models | Content |
+|---|---|---|
+| G1 straight spans | 10 | cantilevers (the shear D/t series and two opposite corners), guided cantilever, two- and three-span continuous, fixed–fixed |
+| G2 single bends | 16 | anchored L; R/D 1, 1.5, 3, 5 × 45°, 90° × k = 1 and a sampled k of 3–15 |
+| G3 Z and U loops | 12 | six of each: two opposite corners and four Latin hypercube points |
+| G4 multi-plane | 6 | X leg, riser, Z leg: two opposite corners and four Latin hypercube points |
+| G5 branch tees | 6 | the tee-ratio series (0.3, 0.5, 0.75, 1.0) and two vertical branches |
+| G6, G7 support mixes | 3 + 3 | risers with guides, a spring and a line stop; runs with restraints, guides, line stops and springs |
+| G8 anchor movement | 4 | fixed–fixed translations and a rotation; an L with a general movement |
+
+G1 to G4 take their corner or series points plus a Latin hypercube. G5 to G8 enumerate their
+configurations (and G5 its tee series) and sample the rest by the hypercube. Run sections span
+OD 60–610 mm and D/t 10–100 (log-uniform); a tee branch is the run OD times its ratio. The three
+invented materials are temperature-independent (E 200, 195 and 70 GPa class). Each model has a sustained case (weight
+and forces) and an expansion case (a uniform thermal change, or the anchor movement for G8). Every
+bend carries a user flexibility factor. Closed-form Euler–Bernoulli values are attached to the
+straight members where one exists (G1 cantilevers and fixed–fixed; G8). They are the third,
+independent value, and each agrees with SWBPIPE's solve to binary64 round-off (a focused test).
+Concentrated forces act only at nodes that carry no support.
+
+Each model names, per case, the inputs that cannot be held exactly equal (§11.3). A case with none
+is in the exact class.
+
+### 11.2 Writer settings
+
+The benchmark writes an explicit piping code, which the writer then honours (DEL-17-04):
+`render_caepipe_mbf_si(..., piping_code=...)` takes one documented OPTIONS piping-code token
+(*Format of .MBF*, OPTIONS) and writes `OPTIONS HGRA,<code>,SI`. For an ASME B31 code it also
+writes `OPCODE 0,0,0`: B31J is off (field 3), and fields 1 and 2 are code-stress settings only.
+An undocumented token is refused (`MBF-SI-PIPING-CODE-UNSUPPORTED`). The current B31.1 token
+`B311` is written with the warning `MBF-SI-PIPING-CODE-B31J-LOCKED`, because the user's manual
+states that B31.1 (2020 or later) computes SIFs and flexibility factors by B31J (*Analysis*).
+
+Without a code, the text is unchanged (no code token), byte for byte. The info diagnostic
+`MBF-SI-PIPING-CODE-NOT-WRITTEN` then states that the target program's default code applies.
+
+The generator chooses `B311-80` for every model. This is an ASME B31.1 edition that predates
+B31J, so OPCODE's B31J off stands. It is not `NONE`, under which a single static case applies every
+load together (*Analysis*), and the benchmark never relies on the code the target program would
+otherwise take from its saved settings. Pressure correction does not arise, because tranche 1
+has no pressure. Gravity is the earth default, with Y vertical, as the writer always writes. A
+user-entered k replaces the code's bend flexibility factor (*Bend*). With temperature-independent
+materials the code's hot or cold modulus choice has no effect.
+
+### 11.3 Inputs not held exactly
+
+| Input | Where | Carried by |
+|---|---|---|
+| `shear_deformation`: SWBPIPE's frame route is Euler–Bernoulli, and CAEPIPE's pipe element has a shear term (§7.1) | every case with bending | the `shear-dt` series (G1) and the span series (§7) |
+| `bend_flexibility_application`: whether k also applies to torsion is unpublished | bends | the `bend-k-*` pairs (G2) |
+| `bend_transverse_shear`: SWBPIPE's curved bend has none | bends | R/D 1–5 across G2 |
+
+Branch flexibility is held equal (B31J off, and SWBPIPE assembles none). The `tee-ratio` series
+checks that.
+
+### 11.4 Binding
+
+Results are bound through the writer's id map and never by position:
+
+- **Nodes:** through `node_map`.
+- **Element forces:** `bind_element_rows` binds each element-force row pair to the member whose
+  `element_map` entry names the same two node labels. Each row belongs to the member end at its
+  node, taking `reversed` into account. Pairs in another order or position are bound and noted.
+  A pair that names no member or several members, a second pair for a member, and a member with
+  no pair are each listed as unmatched.
+- **Supports:** through `support_map` by node. SWBPIPE's reactions at one node are summed,
+  because the printed table has one row per node. A restraint row prints forces only, so moments
+  are compared at anchors alone.
+
+The global element-force rows are the end action on the element at its node, which is the same
+sign convention as SWBPIPE's `element_global_end_*_v1` rows (observed format behaviour). The
+printed support loads are the pipe's load on the support, so they are sign-flipped (§6).
+
+### 11.5 Two-way comparison and screening
+
+`core/handoff/caepipe_external/benchmark.py` compares SWBPIPE's own results, from the headless
+runner, with CAEPIPE's printed results. No analytic value is needed. The compared cases are each
+mapped primitive case and the operating case. For the operating case, SWBPIPE's side is the sum
+of its primitive cases (superposition, linear models) and CAEPIPE's side is its
+`Operating (W+P1+T1)` case.
+
+Each scalar is screened with the RT-V2 §3 **screening profile**. Under the owner's ruling,
+Agent 0 screens with it and the owner's review of the full record decides. The values are only
+tightened:
+
+`|S − C| ≤ a_k + r · max(|S|, |C|, 10⁻³ · Q_k)`
+
+- r = 1e-4 when every input is held exactly, and 5e-3 when a named inexact input remains;
+- a_k = one printed unit: 1e-6 m, 0.0001° (1.745e-6 rad), 1 N, 1 N·m;
+- Q_k = the case maximum of kind k.
+
+Each result is classed `within_profile`, `finding` (outside the profile), `unmatched` or
+`status_mismatch` (a case solved on one side but not printed on the other). `unmatched` covers:
+- a value on one side only;
+- a printed row that binds to nothing;
+- a SWBPIPE value with a contribution that is missing from one of the summed cases, is not a
+  finite number, or sums to a non-finite value. It is never screened on a partial sum;
+- each parser error, such as a refused section or a conflicting duplicate row, as one row
+  under case `parser`.
+
+No non-finite value is ever `within_profile` (record version 2). The parser skips the fx..mz
+local element-force layout only when its unit labels are valid and of one system; otherwise it
+refuses the section (parser `caepipe-print-csv-4`). A closed-form value is kept as the third value with two checks:
+against SWBPIPE (rel 1e-6, binary64 scale) and against CAEPIPE (the profile). A closed form that
+disagrees with SWBPIPE makes the result a finding.
+
+The nonlinear and modal classes of RT-V2 §3 wait for their tranches. The triage order is RT-V2's.
+
+### 11.6 Running
+
+`run_pilot --benchmark <manifest>` checks each model file against the manifest's hashes, then
+runs the selected models one at a time (`--case`, and serial batches by `--batch-size` and
+`--batch`). For each model it:
+
+1. solves the model in SWBPIPE (headless runner);
+2. writes the MBF with the model's piping code;
+3. runs the guarded round trip and collects the batch print (`model.csv` or `model.txt`);
+4. parses the print and builds the two-way record.
+
+It writes `comparison/benchmark_comparison.json` and the case manifest, which is the model's run
+record (outcome, route and attempt), to the model's case folder in the exchange folder.
+
+A live run needs `settings_guard`, `--freeze-file` and `--exclusive-file`. It uses the GUI print
+fallback only with `restore_scope` `"key"`, whose restore covers the settings that route writes
+(§5). Models are paced `--pace-s` apart, 60 s by default. Before each model, the run:
+
+- stops if the freeze file exists;
+- holds, polling every 30 s for up to 30 min, while the exclusive file names a running process;
+- asks the guest for `cmd /c ver`, and asks once more 2 min later before it stops;
+- checks that no instance of the tool is running (§5).
+
+A model whose round trip raised, or left no CSV, with a clean settings check is retried once,
+2 min later. A model that again leaves no CSV is recorded as such and the run goes on. The run
+stops at the first settings check that is not clean, at a check before a model that fails, and at
+a round trip that raised twice.
+
+`--offline` rebuilds the records from the stored, bound prints, with no wait. Standard output
+carries operational status only.
