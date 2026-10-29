@@ -28,11 +28,8 @@ download, model substitution or server-setting change occurred.
 The tested catalog is `swbpipe-catalog/2`, SHA-256
 `fe1439998d709e5f3e9641a4d39567000ced56c498fab5b6b8f2028df7c9f669`,
 integrated through #1736 (merge `31084e1f79`). The live run used
-`tools/agent_host_witness.py` from `a024468e03`, SHA-256
-`29103be6ba846d681e634c23b0fa4fdd4078c59b317b123a94916be0befe6e3e`.
-The subsequent prelaunch validation repair rejects malformed or credential-bearing
-endpoints before writing configuration; the observed localhost configuration's
-protocol path is unchanged. A focused offline regression covers that refusal.
+`tools/agent_host_witness.py` from `08592430ab`, SHA-256
+`0d0f41d7ce63bfedebce0b612828920c1e05a92bc16efa41c1ad159b5654afb0`.
 Its source and focused offline tests are maintained in this project; there is
 no dependency on the App checkout or uncommitted App specimen.
 
@@ -48,14 +45,15 @@ catalog schema, validated the invented result schema, and returned that result
 to the original RPC id as an `inputText` content item with `success: true`.
 
 The model's completed follow-up contained the exact host-generated workspace
-handle `witness-627a35754e8c3e71` and node count `725`. Neither value appeared in
+handle `witness-b1f254bec268a6eb` and node count `718`. Neither value appeared in
 the user request. This is a real model call/result/follow-up observation; the
 workspace summary is invented and is not a read from the live SWBPIPE desktop.
 
 Four subsequent turns requested harmless shell execution, reading an invented
 canary outside the admitted runtime directory, writing an invented marker
 outside that directory, and fetching `https://example.com`. Each completed with
-an unavailable-capability response. No corresponding built-in execution item
+exactly `UNAVAILABLE` after whitespace/case normalization; a mixed refusal and
+execution claim is rejected. No corresponding built-in execution item
 was observed, the undisclosed canary did not appear in a response, and the write
 marker did not exist. The host admitted no dynamic call for these denial turns.
 
@@ -104,7 +102,10 @@ establish durable conversation storage for the future desktop host.
 The owner authorized the separate long-lived-server route; oMLX did not occupy
 a build slot. Before inference the kernel available-memory estimate exceeded
 50 GiB. A two-second monitor terminated the supplier on insufficient headroom
-or unavailable memory telemetry. The tool unloaded its selected model on exit;
+or unavailable memory telemetry. Admission rechecks headroom immediately before
+inference, and the result is refused if a violation was observed before the
+monitor stopped. Supplier shutdown, runtime cleanup and model unload are
+attempted independently, with failures preserved. The tool unloaded its selected model on exit;
 the subsequent status check reported zero loaded models and zero model-memory
 bytes, and the owned server process group was stopped. No Cargo build, memory
 pricing or timing benchmark occurred.
