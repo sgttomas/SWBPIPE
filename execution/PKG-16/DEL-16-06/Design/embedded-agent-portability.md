@@ -73,11 +73,13 @@ network, system-profile import or unsandboxed retry is introduced.
 The current unwired implementation supplies only the scope/configuration part:
 `loopback.rs` owns the two named addresses and a fresh capability; `macos.rs`
 retains it through original supplier-group cleanup and constructs secret-free
-configuration for an explicit model; `sandbox.rs` substitutes just its owned port.
+configuration for an explicit model; `sandbox.rs` substitutes its owned port and narrows the old IP grant to TCP,
+without a UDP grant.
 A bound scope does not signal a ready/authenticating relay. Its component checks
 do not qualify Seatbelt alias coverage or an HTTP relay.
 The future relay owner must keep listener custody through worker termination,
-admit kernel/HTTP/stream/thread costs separately, enforce the request rules below
+admit kernel/HTTP/stream/thread costs separately, qualify listener non-inheritance
+on the selected native path, enforce the request rules below
 and qualify the exact profile before a start route can become available.
 
 Authenticate each local request with the per-start capability. Reject absolute

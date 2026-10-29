@@ -119,9 +119,10 @@ fn profile_at_port(
         quote(executable)?
     ));
     // Seatbelt's IP filter accepts only * or localhost, not a numeric host.
-    // Both named loopback endpoints remain owned by the Rust relay scope.
+    // Both named TCP loopback endpoints remain owned by the Rust relay scope.
+    // Restrict to TCP: the IP filter alone would also grant unowned UDP.
     result.push_str(&format!(
-        "(allow network-outbound (remote ip \"localhost:{port}\"))\n"
+        "(allow network-outbound (remote tcp \"localhost:{port}\"))\n"
     ));
     Ok(result)
 }
@@ -142,7 +143,12 @@ mod tests {
             8000,
         )
         .unwrap();
-        let normalized = profile.replace(root.to_str().unwrap(), "<private-runtime>");
+        let actual = profile.replace(root.to_str().unwrap(), "<private-runtime>");
+        assert_eq!(actual.matches("(remote tcp ").count(), 1);
+        assert!(!actual.contains("(remote ip "));
+        // Invert only the reviewed narrowing from IP to TCP. All remaining
+        // fixed-port bytes must reproduce the exact prior qualification hash.
+        let normalized = actual.replacen("(remote tcp ", "(remote ip ", 1);
         assert_eq!(
             format!("{:x}", Sha256::digest(normalized.as_bytes())),
             "be2fe1d54fcc5c60a00ed7d304bf2e4c4885d662d84bfe5a9c7fe6ff9c6f4d7c"
@@ -158,7 +164,7 @@ mod tests {
     }
 
     #[test]
-    fn runtime_port_changes_only_the_single_network_grant() {
+    fn runtime_port_and_tcp_narrowing_change_only_the_single_network_grant() {
         use crate::{
             memory_pool::{test_host::ScriptedHost, MemoryPool},
             solve_jobs::SolveJobRegistry,

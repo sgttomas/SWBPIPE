@@ -382,7 +382,7 @@ The macOS-only `macos.rs`/`sandbox.rs` launcher is not connected to product
 startup. It verifies/copies the selected arm64 pin and derives private home/cwd
 and exact exec paths at runtime. It accepts a validated explicit model identifier
 and an Arc of the Rust-owned loopback scope; the sandbox's only network grant
-uses that scope's runtime port. The child's environment contains a fresh relay
+uses that scope's runtime TCP port. The child's environment contains a fresh relay
 capability, never the configured provider key. Config files contain neither
 secret. Model strings are escaped before TOML construction. The provider alias
 is now `swbpipe_relay`. The retained EOF fixture needs adaptation to the new
@@ -404,9 +404,15 @@ The future relay owner must also retain its Arc through actual worker shutdown.
 Literal root-directory reading and metadata on fixed OS aliases are needed for
 the selected pin's startup; these do not grant reads of descendant user files.
 The deny-by-default file restrictions, exact single exec, explicit fork deny and
-accepted libinfo condition are unchanged. A test-only 8000 rendering retains
-the previously reviewed exact hash; replacing only `localhost:<runtime-port>`
-reproduces those bytes. This text guard is not native enforcement evidence.
+accepted libinfo condition are unchanged. The one network line changes from
+`(allow network-outbound (remote ip "localhost:8000"))` to
+`(allow network-outbound (remote tcp "localhost:<owned-port>"))`. TCP-only
+narrows the former IP rule because the scope does not own UDP endpoints.
+Apple's installed `/usr/share/sandbox/com.apple.netbiosd.sb` uses `remote tcp`
+with explicit ports; that is syntax precedent, not qualification of this recipe.
+A test-only 8000 rendering, with only `remote tcp` inverted to `remote ip`,
+reproduces the previously reviewed exact hash. This text guard is not native
+enforcement evidence.
 Alias/address coverage, actual per-start profile bytes, no-fork/exec/filesystem
 and network denial still need native qualification on the selected candidate.
 No HTTP service, provider connection, keychain/settings route, credential file,
