@@ -386,6 +386,8 @@ code_paths:
 - core/runner/headless/src/bin/openpipestress-runner.rs
 - fixtures/reports/invented/user_release_record.json
 - fixtures/reports/invented/user_release_runner_refusal_request.json
+# D-6: exact-route user-release vectors, Rust derivation and native custody checks.
+- fixtures/reports/invented/user_release_exact/
 checks:
 - core/reporting/report_package/tests/container.rs
 - core/reporting/report_package/tests/reader.rs
@@ -437,3 +439,5 @@ checks:
 - apps/desktop/src-tauri/src/user_release_reach_scan_tests.rs
 - core/runner/headless/tests/user_release_runner_refused.rs
 - tests/test_headless_runner_contract.py
+# D-6 / RT-R5: both exact identities, fail-closed source binding and reader round trip.
+- apps/desktop/src/features/report/userReleaseExact.parity.test.ts

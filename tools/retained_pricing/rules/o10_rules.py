@@ -3518,3 +3518,113 @@ if fnkey("validate", _W16B_EV):
     ]
 if fnkey("append", _W16B_EC):
     O10_ID_AUDIT += [(site("append", _W16B_EC, "is missing in operand case {cases}", full=True), {"cases": _W16_JOIN3})]
+
+# ---- §8.30: the three corrections (shared-terminal junction refusal, nonlinear dense memory guard, hanger-load warning;
+# DEL-04-07 Design pressure-contract.md and memory-budget-decision.md) and W-16t (partial-span wind on Timoshenko members,
+# DEL-05-01 Design exact-equivalent-static.md §3). Each rule is added only where its source exists.
+_C30_PR = PP_ + "pressure_runtime.rs"
+_C30_SP = "core/solver/straight_pipe/src/lib.rs"
+_C30_NI = "core/solver/nonlinear_integration/src/lib.rs"
+
+
+def _c30_const_len(f, name):
+    m = _re.search(r"const\s+" + _re.escape(name) + r'\s*:\s*&str\s*=\s*"((?:[^"\\]|\\.)*)"\s*;', _text_of(f))
+    if not m:
+        raise SystemExit(f"§8.30: const {name} not found in {f}")
+    return len(m.group(1).encode())
+
+
+if fnkey("refuse_compensated_shared_terminals", _C30_PR):
+    # C30-JR (guard): validate_profile calls refuse_compensated_shared_terminals once per exact case, after the region
+    # loop, with the case's own `regions` (bound by `let Some(regions) = &case.pressure_regions else { ...; continue; }`).
+    # The node map is filled only inside `for region in regions`, so with D1.5's explicitly empty E regions (L never
+    # reaches the exact branch) it stays empty: an empty BTreeMap holds no node, its node loop runs zero times, and
+    # nothing is formed or pushed.
+    _c30_vp = _fn_text("validate_profile", _C30_PR)
+    _c30_rc = _fn_text("refuse_compensated_shared_terminals", _C30_PR)
+    _c30_jr = (
+        _c30_vp.count("refuse_compensated_shared_terminals(&case.id, regions, diagnostics);") == 1,
+        _c30_vp.count("let Some(regions) = &case.pressure_regions else {") == 1
+        and _c30_vp.index("let Some(regions) = &case.pressure_regions else {")
+        < _c30_vp.index("refuse_compensated_shared_terminals(&case.id, regions, diagnostics);"),
+        _c30_rc.count("let mut at_node: BTreeMap<&str, (Vec<&str>, Vec<&str>)> = BTreeMap::new();") == 1,
+        _c30_rc.count("at_node.entry(") == 1
+        and _c30_rc.index("for region in regions {") < _c30_rc.index("at_node.entry(")
+        < _c30_rc.index("for (node, (ending, compensated)) in at_node {"),
+        _c30_rc.count("problem(") == 1
+        and _c30_rc.index("problem(") > _c30_rc.index("for (node, (ending, compensated)) in at_node {"),
+    )
+    if not all(_c30_jr):
+        raise SystemExit(f"C30-JR: the shared-terminal premise changed; re-review its zero: {_c30_jr}")
+    O10_LOOPS_LAST += [("for (node, (ending, compensated)) in at_node", "0",
+                        O10 + "C30-JR: the node map is filled only from the case's pressure regions, explicitly empty on "
+                        "E and never reached on L (D1.5)", ["pressure_runtime.rs:refuse_compensated_shared_terminals"])]
+    # C30-ID: the unreached message's arguments keep classes. Each joined list names regions ending at one node; on D1
+    # it is empty (D1.5), classed at one IN128 id. The tail is the static constant, its literal length.
+    _C30_TEXT = _c30_const_len(PP_ + "exact_admission.rs", "SHARED_TERMINAL_JUNCTION_TEXT")
+    O10_ARGS_FIRST = list(globals().get("O10_ARGS_FIRST", [])) + [
+        {"re": r'^(ending|compensated)\.join\(", "\)$', "max": 128,
+         "why": O10 + "C30-ID: region ids at one shared-terminal node joined by \", \"; empty on D1 (D1.5), classed at one IN128 id"},
+        {"re": r"^exact_admission::SHARED_TERMINAL_JUNCTION_TEXT$", "max": _C30_TEXT,
+         "why": O10 + "C30-ID: the &'static str const SHARED_TERMINAL_JUNCTION_TEXT, its literal length read at the snapshot"}]
+
+if fnkey("dense_loop_memory_guard", _C30_NI):
+    # C30-DG (guard): the case solve's dense-memory guard runs only under `if !built.nonlinear_supports.is_empty()`; D1.6
+    # admits no nonlinear support, so the guard (its restraint HashSet included), its refusal text and the diagnostic
+    # are unreached. NI's own call sits in the active-set loop entry, reached only through the nonlinear loop (D1.6).
+    _c30_obs = _fn_text("run_linear_static_preview_observed_inner", _LIB)
+    _c30_if = "    if !built.nonlinear_supports.is_empty() {\n        if let Err(refusal) = dense_loop_memory_guard("
+    _c30_dg = (
+        _c30_obs.count(_c30_if) == 1,
+        _text_of(_LIB).count("dense_loop_memory_guard(") == 1,
+        _c30_obs.count('"NONLINEAR_DENSE_MEMORY_LIMIT_EXCEEDED"') == 1
+        and _c30_obs.index(_c30_if) < _c30_obs.index('"NONLINEAR_DENSE_MEMORY_LIMIT_EXCEEDED"')
+        < _c30_obs.index(_c30_if) + 900,
+    )
+    if not all(_c30_dg):
+        raise SystemExit(f"C30-DG: the dense-memory guard's premise changed; re-review its zero: {_c30_dg}")
+    _C30_DG = O10 + "C30-DG: the dense-memory guard runs only with a nonlinear support, which D1.6 refuses"
+    O10_EDGE_ZERO += [(fnkey("run_linear_static_preview_observed_inner", _LIB), fnkey("dense_loop_memory_guard", _C30_NI), _C30_DG)]
+    O10_SITE_ZERO += [
+        (site("run_linear_static_preview_observed_inner", _LIB, '"diagnostic:physics:nonlinear-dense-memory-guard",', row="diag("), _C30_DG),
+        (site("run_linear_static_preview_observed_inner", _LIB, 'format!("{refusal}; it applies in sparse_interactive and dense_scrutiny alike")'), _C30_DG),
+        # The refs' lexical clone is keyed by its short file key, as every lexicon row is.
+        (Resolved(str(site_after("run_linear_static_preview_observed_inner", _LIB, '"NONLINEAR_DENSE_MEMORY_LIMIT_EXCEEDED",',
+                                 'vec!["model".to_string()],', within=4)).split("/src/")[-1]), _C30_DG),
+    ]
+    # Not zeroed (conservative, as every Display arm is priced): NI's error Display gains the DenseMemoryLimitExceeded
+    # arm and DenseLoopMemoryRefusal's Display, each charged once per invocation at its class like the other arms.
+    # The refusal's Display arguments keep classes: a u128 in decimal (<= 39 B) or "more than u128::MAX" (19 B).
+    if _text_of(_C30_NI).count("            self.ceiling_bytes,\n") != 1 or _text_of(_C30_NI).count("let estimated = self") != 1:
+        raise SystemExit("C30-DG: the refusal's Display arguments changed; re-review their classes")
+    O10_ARGS_FIRST = list(globals().get("O10_ARGS_FIRST", [])) + [
+        {"re": r"^(estimated|self\.ceiling_bytes)$", "max": 39,
+         "why": O10 + "C30-DG: the dense-memory refusal's u128 byte counts in decimal (<= 39 B; \"more than u128::MAX\" is 19 B)"}]
+
+if fnkey("timoshenko_partial_bounds", _C30_SP):
+    # W16T-SP (guard): SP's Timoshenko partial-span bound runs only when a uniform load's span is a proper fraction. A
+    # proper extent is formed only by wind equivalent-static generation (primitive_loads' exposed_extent; PP's user
+    # element loads carry no extent), and D1.5 refuses every case with equivalent_static on both routes (W16C-ES). So on
+    # D1 every span is [0, 1], the branch is never entered, and its expansion vectors, accumulators and bounds Vec are
+    # never allocated.
+    _c30_eq = _fn_text("equivalent_global_nodal_loads_with_spans_formed", _C30_SP)
+    _c30_sp = (
+        _c30_eq.count("timoshenko_partial_bounds(") == 1,
+        _c30_eq.count("if self.section.beam_theory.is_timoshenko() && uniform_loads.iter().any(partial) {") == 1
+        and _c30_eq.index("if self.section.beam_theory.is_timoshenko() && uniform_loads.iter().any(partial) {")
+        < _c30_eq.index("timoshenko_partial_bounds("),
+        _c30_eq.count("!(load.span.start_fraction == 0.0 && load.span.end_fraction == 1.0)") == 1,
+        # PP forms a span only from a primitive's extent; the primitive crate's only extent-bearing constructor call is
+        # the wind exposure's `Some(extent)` arm.
+        _text_of(_LIB).count("UniformLoadSpan::new(") == 1
+        and _fn_text("straight_global_uniform_load", _LIB).count("Some(extent) => UniformLoadSpan::new(extent.start_fraction, extent.end_fraction)?,") == 1,
+        _production("core/loads/primitive_loads/src/lib.rs").count("PrimitiveLoad::partial_uniform_element_load(") == 1
+        and _production("core/loads/primitive_loads/src/lib.rs").count("match exposed.exposed_extent {") == 1
+        and _production("core/loads/primitive_loads/src/lib.rs").count("Some(extent) => loads.push(PrimitiveLoad::partial_uniform_element_load(") == 1,
+    )
+    if not all(_c30_sp):
+        raise SystemExit(f"W16T-SP: the Timoshenko partial-span premise changed; re-review its zero: {_c30_sp}")
+    _W16T_SP = (O10 + "W16T-SP: a proper span arises only from wind equivalent-static generation, which D1.5 refuses on "
+                "both routes (W16C-ES); every D1 span is [0, 1]")
+    O10_EDGE_ZERO += [(fnkey("equivalent_global_nodal_loads_with_spans_formed", _C30_SP), fnkey("timoshenko_partial_bounds", _C30_SP), _W16T_SP)]
+    O10_LOOPS_LAST += [("for spanned in uniform_loads.iter()", "0", _W16T_SP, ["lib.rs:timoshenko_partial_bounds"])]

@@ -750,10 +750,15 @@ impl StraightPipeElement {
     /// upward); a bound that cannot be represented is `+inf`, which fires.
     ///
     /// T4-U8: the intended formula is the Euler–Bernoulli one, which a
-    /// Timoshenko element shares only on a full span. A Timoshenko element
-    /// with a partial span has no exact intended formula here, so every slot
-    /// is `Formation::CannotBound` (the case demotes, fail closed); its values
-    /// are the Timoshenko equivalents.
+    /// Timoshenko element shares only on a full span, so a full span keeps
+    /// this path bit for bit. W-16t (DEL-05-03 Design
+    /// `section-bases-and-timoshenko.md` §4 item 4 (i), TPS-G): a Timoshenko
+    /// element with a proper span records every slot as `Formation::Bounded`
+    /// with the exact a-posteriori bound of `timoshenko_partial_bounds`
+    /// against the corrected held-operand formula (the element's own
+    /// binary64 phi_y and phi_z held); a range failure there makes every slot
+    /// `Formation::CannotBound` (the case demotes, fail closed). The values
+    /// are the Timoshenko equivalents, unchanged.
     pub fn equivalent_global_nodal_loads_with_spans_formed(
         &self,
         uniform_loads: &[SpannedGlobalUniformLoad],
@@ -765,7 +770,17 @@ impl StraightPipeElement {
             !(load.span.start_fraction == 0.0 && load.span.end_fraction == 1.0)
         };
         if self.section.beam_theory.is_timoshenko() && uniform_loads.iter().any(partial) {
-            return Ok((values, vec![Formation::CannotBound; ELEMENT_DOF]));
+            let bounds = self.timoshenko_phi()?.and_then(|phi| {
+                timoshenko_partial_bounds(&orientation, length, phi, uniform_loads, &values)
+            });
+            let formations = match bounds {
+                Some(bounds) => bounds
+                    .into_iter()
+                    .map(|bound| Formation::Bounded { bound })
+                    .collect(),
+                None => vec![Formation::CannotBound; ELEMENT_DOF],
+            };
+            return Ok((values, formations));
         }
         let formations = match exact_scaled_intended(&orientation, length, uniform_loads) {
             Some(rows) => rows
@@ -2042,6 +2057,199 @@ fn monomial_bounds(
         .collect()
 }
 
+// ------------------------------------------------ W-16t TPS-G (Timoshenko partial span)
+
+/// W-16t TPS-G (DEL-05-03 Design `section-bases-and-timoshenko.md` §4 item 4
+/// (i)): the S11-G bound of each global slot of a Timoshenko element's
+/// uniform loads, at least one of them on a proper span. It is generic in the
+/// frame and in phi and serves both routes: it depends only on the element's
+/// own binary64 operands, so the exact route and a pressure-free Timoshenko
+/// member use it unchanged.
+///
+/// Held operands: each load's q_g and (a, b), L, the orientation T and
+/// `phi` = [phi_y, phi_z], the stiffness formation's own bits
+/// (`timoshenko_phi`). The intended local slot is today's Euler–Bernoulli
+/// polynomial plus, on local y (phi_z) and local z (phi_y), the correction
+/// c = rho * l_d * L * (P0 - P2) with rho = phi/(1+phi) (P0 the axial_i and P2
+/// the transverse_i polynomial, so P0 - P2 = (g(a) - g(b))/2,
+/// g(x) = x^2 (1-x)^2), entering [V_i, M_i, V_j, M_j] as [1, L/2, -1, L/2]
+/// (r_y takes the moments negated). rho is a quotient, so the intended value
+/// is not a finite expansion; with D = (1+phi_y)(1+phi_z) >= 1 (exact), the
+/// scaled defect S_r = s_r D (v_r - I_r) is (s_r the slot scale, 3 on
+/// rotation slots). The bound is RU(RU(|S_r|) / RD(s_r D)), the quotient
+/// rounded upward by one exact check.
+///
+/// `None` (every slot `CannotBound`) when an exact step leaves the binary64
+/// range, a remainder underflows, or a bound is not finite.
+fn timoshenko_partial_bounds(
+    orientation: &FrameOrientation,
+    length: f64,
+    phi: [f64; 2],
+    uniform_loads: &[SpannedGlobalUniformLoad],
+    values: &[f64; ELEMENT_DOF],
+) -> Option<Vec<f64>> {
+    let [phi_y, phi_z] = phi;
+    if !(phi_y.is_finite() && phi_y > 0.0 && phi_z.is_finite() && phi_z > 0.0) {
+        return None;
+    }
+    let one_plus = |phi: f64| -> Option<Vec<f64>> {
+        let mut accumulator = ExactAccumulator::new();
+        accumulator.add(1.0).ok()?;
+        accumulator.add(phi).ok()?;
+        expansion_components(accumulator)
+    };
+    let (d_y, d_z) = (one_plus(phi_y)?, one_plus(phi_z)?);
+    let d = expansion_product(&d_y, &d_z)?;
+    // D * rho per local direction: Y (the Iz plane) phi_z D_y, Z phi_y D_z.
+    let cleared_ratio = [
+        Vec::new(),
+        expansion_product(&d_y, &[phi_z])?,
+        expansion_product(&d_z, &[phi_y])?,
+    ];
+    let mut cleared_local: Vec<ExactAccumulator> =
+        (0..ELEMENT_DOF).map(|_| ExactAccumulator::new()).collect();
+    for spanned in uniform_loads.iter() {
+        let polynomials = uniform_polynomial_expansions(
+            spanned.span.end_fraction,
+            spanned.span.start_fraction,
+        )?;
+        // P0 - P2, exactly (both carry one power of L).
+        let mut difference = ExactAccumulator::new();
+        for &component in &polynomials[0] {
+            difference.add(component).ok()?;
+        }
+        for &component in &polynomials[2] {
+            difference.add(-component).ok()?;
+        }
+        let shear_polynomial = expansion_components(difference)?;
+        for (direction, slots) in UNIFORM_SLOTS.iter().enumerate() {
+            let mut intensity = ExactAccumulator::new();
+            for (axis, &value) in spanned.force_per_length.iter().enumerate() {
+                intensity
+                    .add_product(orientation.local_axes[direction][axis], value)
+                    .ok()?;
+            }
+            let local = expansion_components(intensity)?;
+            for &(slot, polynomial, sign) in *slots {
+                let mut term = expansion_product(&local, &polynomials[polynomial])?;
+                for _ in 0..UNIFORM_POLYNOMIALS[polynomial].0 {
+                    term = expansion_product(&term, &[length])?;
+                }
+                for component in expansion_product(&term, &d)? {
+                    cleared_local[slot].add(sign * component).ok()?;
+                }
+            }
+            if direction == 0 {
+                continue;
+            }
+            // D * c, and the scaled moment term 3 * (c * L / 2) = 1.5 * c * L.
+            let mut shear = expansion_product(&local, &shear_polynomial)?;
+            shear = expansion_product(&shear, &[length])?;
+            shear = expansion_product(&shear, &cleared_ratio[direction])?;
+            let moment = expansion_product(&expansion_product(&shear, &[length])?, &[1.5])?;
+            let (v, m, m_sign) = if direction == 1 { (UY, RZ, 1.0) } else { (UZ, RY, -1.0) };
+            for &component in &shear {
+                cleared_local[v].add(component).ok()?;
+                cleared_local[DOF_PER_NODE + v].add(-component).ok()?;
+            }
+            for &component in &moment {
+                cleared_local[m].add(m_sign * component).ok()?;
+                cleared_local[DOF_PER_NODE + m].add(m_sign * component).ok()?;
+            }
+        }
+    }
+    let mut local_components = Vec::with_capacity(ELEMENT_DOF);
+    for accumulator in cleared_local {
+        local_components.push(expansion_components(accumulator)?);
+    }
+    let transform = orientation.transformation_matrix();
+    let mut bounds = Vec::with_capacity(ELEMENT_DOF);
+    for (row, &value) in values.iter().enumerate() {
+        let scale = slot_scale(row);
+        let scaled_denominator = expansion_product(&d, &[scale])?;
+        // S_r = s_r D v_r - D (s_r I_r).
+        let mut defect = ExactAccumulator::new();
+        for component in expansion_product(&scaled_denominator, &[value])? {
+            defect.add(component).ok()?;
+        }
+        for (col, components) in local_components.iter().enumerate() {
+            for &component in components {
+                defect.add_product(-transform[col][row], component).ok()?;
+            }
+        }
+        let sign = if defect.signum() < 0 { -1.0 } else { 1.0 };
+        let mut magnitude = ExactAccumulator::new();
+        for component in expansion_components(defect)? {
+            magnitude.add(sign * component).ok()?;
+        }
+        let numerator = round_upward(&magnitude).ok()?;
+        let denominator = round_downward_positive(&scaled_denominator)?;
+        let bound = quotient_upward(numerator, denominator)?;
+        bounds.push(bound);
+    }
+    Some(bounds)
+}
+
+/// The six `UNIFORM_POLYNOMIALS` at (b, a), each as exact components.
+fn uniform_polynomial_expansions(b: f64, a: f64) -> Option<Vec<Vec<f64>>> {
+    let mut power_tables = Vec::with_capacity(2);
+    for variable in [b, a] {
+        let mut table = vec![vec![variable]];
+        for p in 1..4 {
+            let next = expansion_product(&table[p - 1], &[variable])?;
+            table.push(next);
+        }
+        power_tables.push(table);
+    }
+    let mut polynomials = Vec::with_capacity(UNIFORM_POLYNOMIALS.len());
+    for (_, monomials) in UNIFORM_POLYNOMIALS {
+        let mut accumulator = ExactAccumulator::new();
+        for &(coefficient, variable, power) in monomials {
+            for &component in &power_tables[variable][(power - 1) as usize] {
+                accumulator.add_product(coefficient, component).ok()?;
+            }
+        }
+        polynomials.push(expansion_components(accumulator)?);
+    }
+    Some(polynomials)
+}
+
+/// The exact positive sum of `components`, rounded downward to binary64.
+fn round_downward_positive(components: &[f64]) -> Option<f64> {
+    let mut accumulator = ExactAccumulator::new();
+    for &component in components {
+        accumulator.add(component).ok()?;
+    }
+    if accumulator.signum() <= 0 {
+        return None;
+    }
+    let nearest = accumulator.round().ok()?;
+    accumulator.add(-nearest).ok()?;
+    let value = if accumulator.signum() < 0 {
+        nearest.next_down()
+    } else {
+        nearest
+    };
+    (value.is_finite() && value > 0.0).then_some(value)
+}
+
+/// x / y rounded upward, for finite x >= 0 and y > 0: fl(x / y), raised one
+/// step when y * fl(x / y) < x exactly. `None` when not finite.
+fn quotient_upward(x: f64, y: f64) -> Option<f64> {
+    if !(x.is_finite() && x >= 0.0 && y.is_finite() && y > 0.0) {
+        return None;
+    }
+    let q = x / y;
+    if !q.is_finite() {
+        return None;
+    }
+    let mut check = ExactAccumulator::new();
+    check.add_product(q, y).ok()?;
+    check.add(-x).ok()?;
+    let q = if check.signum() < 0 { q.next_up() } else { q };
+    q.is_finite().then_some(q)
+}
+
 fn validate_finite_slice(name: &'static str, values: &[f64]) -> Result<(), StraightPipeError> {
     for &value in values {
         if !value.is_finite() {
@@ -2092,6 +2300,9 @@ fn validate_station_resultants(resultants: &StationResultants) -> Result<(), Str
 
 #[cfg(test)]
 mod s11k_tests;
+
+#[cfg(test)]
+mod tps_g_tests;
 
 /// S11-G tests of the SP part: T7 (the formation variant), T17 (R-b's bound
 /// on a skew member, V1 DN-1) and T14's SP range fallback.

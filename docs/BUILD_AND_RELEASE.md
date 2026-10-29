@@ -227,6 +227,57 @@ Producing a package under this path is packaging mechanics, not a release:
 an actual release additionally requires the `D-20` scan record, gate
 records, and the human release authority's acceptance.
 
+### 6.2 Public sanitized export: the owner's remaining acts (RT-V8)
+
+The export pipeline (DEL-10-04:1; #1727) stages HEAD blobs of `projects/chirality-piping`. Binaries ship only
+by reviewed SHA-256 (`tools/release/reviewed_binaries.json`), schemas only by the generated
+`tools/release/schema_manifest.json`, and the public `.gitattributes` is cut down to the rules for shipped
+paths. The owner's allowlist decisions P1 to P9 (2026-10-28 and 2026-10-29) are applied. An unsigned agent dry
+run passed the export gate. These acts remain the owner's, in this order. Agents never perform, sign or imply
+them (F-PIP-3).
+
+**1. Signed export scan (`D-20`/`DEC-058`), including the full-list private-term scan.** On clean `main`, from
+`projects/chirality-piping`:
+
+```
+python3 tools/release/export_public_openpipestress.py --execute --target <OUT>   # must exit 0
+python3 tools/release/export_public_openpipestress.py --verify <OUT>
+cp -R <OUT>/staging <REPO> && cd <REPO> && git init -q && git add -A -f
+python3 <monorepo>/tools/validation/validate_private_terms.py --staged --from-host --terms-file <your private list> --require-terms
+git commit -q -m "SWBPIPE export <commit12>"
+python3 <monorepo>/tools/validation/validate_run_record_leaks.py --base 4b825dc642cb6eb9a060e54bf8d69288fbee4904 --head HEAD
+python3 -m pytest -q tests && python3 tools/release/check_release_readiness.py --profile skeleton --execute
+cd <monorepo>/projects/chirality-piping
+python3 tools/release/run_release_candidate_scan.py --execute --candidate v1.0-export \
+  --artifact-class AC-4=<OUT>/staging \
+  --not-applicable "AC-1=no package ships with the export" --not-applicable "AC-2=no report artifact ships" \
+  --not-applicable "AC-3=no installer in this candidate" --not-applicable "AC-5=shipped inside AC-4" \
+  --not-applicable "AC-6=no release notes in this candidate"
+```
+
+Review every finding. At the 2026-10-29 dry run these were 62 blocking lint findings (the scan's lint check
+does not read the reviewed-findings list) and 27,460 provenance findings in the 97 files that carry no
+`invented_non_engineering_example` label. Then complete the `owner_sign_off` block in
+`validation/evidence/releases/SCAN_v1.0-export_<utc>_<commit12>.json`: `signed`, `signatory`, `signed_utc`,
+`per_finding_dispositions_recorded` and `acceptance_statement`. Only the owner signs. A Blocking finding halts
+publication.
+
+**2. Name and create the public repository (`DEC-057`), after 1.**
+
+```
+gh repo create <account>/<name> --public --description "<description>"
+```
+
+**3. Publish, after 1 and 2.**
+
+```
+cd <REPO> && git branch -M main && git remote add origin https://github.com/<account>/<name>.git && git push -u origin main
+```
+
+Hosted CI on the public repository (`DEC-059`) is a later, separate act: no workflow ships in the export.
+Recorded, not fixed: the ICNS `ic07` element check is dormant because `.icns` ships only by reviewed hash; the
+DEC-058 scan lints text files only.
+
 ## 7. Hosted verification
 
 The Root `.github/workflows/governance-harness.yml` calls selected product

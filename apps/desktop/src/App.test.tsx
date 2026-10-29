@@ -10990,10 +10990,13 @@ describe("SWBPIPE desktop preview", () => {
       within(diagnostics).getByTestId("diagnostic-filter-summary").textContent,
     ).toContain(`${expectedDiagnostics.length} of ${expectedDiagnostics.length} diagnostics visible`);
     // C-120 fix: the demo drops the tee component:C-120, so BRANCH_TOPOLOGY_INVALID no longer warns.
+    // §8.30 correction 3 (RT-S3): 6 -> 9, the hanger support:SH-140's three
+    // SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD warnings (installed, cold, hot load).
+    expect(source.diagnostics.filter(item => item.code === "SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD")).toHaveLength(3);
     expect(
       within(diagnostics).getByTestId("diagnostic-severity-warning")
         .textContent,
-    ).toContain("6 Warnings");
+    ).toContain("9 Warnings");
     expect(
       within(diagnostics).getByTestId("diagnostic-severity-info").textContent,
     ).toContain(`${expectedDiagnostics.filter(item => item.severity === "info").length} Info`);

@@ -78,7 +78,7 @@ fn distal_half(direction: LocalLoadDirection) -> SpannedUniformLocalLoad {
 /// Fy -1/2, Mz -3/8. The stale Euler–Bernoulli vector
 /// [3/32, 5/192, 13/32, -11/192] with Timoshenko K gives v 9/64 = 54/384
 /// with the same theta (the killed mutant), so rotation and balance alone
-/// cannot see it; the formed S11-G record refuses to certify it.
+/// cannot see it; the formed S11-G record bounds the Timoshenko vector.
 #[test]
 fn timoshenko_distal_half_load_kills_the_stale_vector() {
     let member = pipe("T", 0, 1, 0.0, 1.0, timoshenko());
@@ -149,13 +149,16 @@ fn timoshenko_distal_half_load_kills_the_stale_vector() {
     close(z[j + UZ], 25.0 / 64.0, 1e-15, "z V_j");
     close(z[j + RY], 19.0 / 384.0, 1e-15, "z r_y moment j");
 
-    // S11-G: no exact intended Timoshenko partial-span formula exists, so
-    // every slot cannot be bounded (the case demotes); a full span keeps
-    // the exact Euler–Bernoulli formula.
+    // S11-G (W-16t TPS-G): a Timoshenko partial span records every slot as
+    // `Bounded` against the corrected held-operand formula (its soundness and
+    // tightness are judged by `tps_g_tests`); a full span keeps the exact
+    // Euler–Bernoulli formula.
     let global = [SpannedGlobalUniformLoad::new([0.0, 1.0, 0.0], UniformLoadSpan::new(0.5, 1.0).unwrap()).unwrap()];
     let (values, formations) = member.equivalent_global_nodal_loads_with_spans_formed(&global).unwrap();
     assert_eq!(values, feq);
-    assert!(formations.iter().all(|f| *f == Formation::CannotBound));
+    assert!(formations
+        .iter()
+        .all(|f| matches!(f, Formation::Bounded { bound } if bound.is_finite() && *bound <= 1e-15)));
     let full = [SpannedGlobalUniformLoad::full([0.0, 1.0, 0.0]).unwrap()];
     let (_, formations) = member.equivalent_global_nodal_loads_with_spans_formed(&full).unwrap();
     assert!(formations.iter().all(|f| matches!(f, Formation::Exact { .. })));
