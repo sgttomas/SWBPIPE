@@ -728,7 +728,9 @@ describe("project handlers: a landed write records snapshot verification even wh
       `NEW-BLANK-SUPERSEDED: the new blank project "${storedBlank.name}" (${storedBlank.id}) was created but not opened, because the model changed while it was being created. This session keeps the changed model. The blank is stored locally: open it from List Local Projects.`);
     const commands = invokeMock.mock.calls.map(([command]) => String(command));
     const afterCreate = commands.slice(commands.indexOf("create_local_project") + 1);
-    expect(afterCreate.filter((command) => /create|save|delete|remove|replace/.test(command))).toEqual([]);
+    // Reads are not writes: the autosave settings read and listing (D5) match
+    // "save" only through "autosave"; an autosave write or discard still counts.
+    expect(afterCreate.filter((command) => /create|save|delete|remove|replace/.test(command) && !/^(get|list)_/.test(command))).toEqual([]);
     expect(modelHashLine()).toHaveTextContent("integrity=mismatch_review_required");
     expect(envelopeHashLine()).toHaveTextContent("integrity=mismatch_review_required");
     expect(workspace).toHaveAttribute("data-stage", "loads");

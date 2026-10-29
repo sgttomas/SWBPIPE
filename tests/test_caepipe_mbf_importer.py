@@ -606,6 +606,32 @@ def test_a_bend_without_ff_imports_with_an_open_issue():
         "affected_refs": ["component:bend-20"]}]
 
 
+@pytest.mark.parametrize("comment", ["BSIF(2.5,2)", "BSIF (2.5,2.0)"])
+def test_a_bend_sif_pair_is_read_from_bsif(comment):
+    # Format of .MBF (users_manual/import_mbf.htm), BSIF: a bend's SIFs, in-plane then out-of-plane.
+    result = run(mbf("F10,KA,MM1,PP1,CL=L1", f"T20,KI,B250,X4000,CFF=1,{comment}", "T30,KA,Z3000"))
+    assert result.status == "imported", result.diagnostics
+    modifiers = result.model["components"][0]["modifiers"]
+    assert modifiers["sif_in_plane_user_value"] == {"value": 2.5, "unit": "none"}
+    assert modifiers["sif_out_of_plane_user_value"] == {"value": 2.0, "unit": "none"}
+    assert modifiers["source_reference"].endswith("comments FF and BSIF")
+    assert not [item for item in result.loss_report if "BSIF" in item["reason"]]
+
+
+@pytest.mark.parametrize("rows, code, at", [
+    (("F10,KA,MM1,PP1,CL=L1", "T20,X4000,CBSIF(2,2)"), "MBF-IMPORT-COMMENT-INVALID", "T20"),
+    (("F10,KA,MM1,PP1,CL=L1", "T20,KI,B250,X4000,CFF=1,BSIF=2", "T30,Z3000"), "MBF-IMPORT-COMMENT-INVALID", "T20"),
+    (("F10,KA,MM1,PP1,CL=L1", "T20,KI,B250,X4000,CFF=1,BSIF(2)", "T30,Z3000"), "MBF-IMPORT-COMMENT-INVALID", "T20"),
+    (("F10,KA,MM1,PP1,CL=L1", "T20,KI,B250,X4000,CFF=1,BSIF(2,2,2)", "T30,Z3000"), "MBF-IMPORT-COMMENT-INVALID",
+     "T20"),
+    (("F10,KA,MM1,PP1,CL=L1", "T20,KI,B250,X4000,CFF=1,BSIF(2,0)", "T30,Z3000"), "MBF-IMPORT-VALUE-OUT-OF-RANGE",
+     "T20"),
+])
+def test_bsif_refusals(rows, code, at):
+    data = mbf(*rows)
+    refused(run(data), code, layout_line(data, at))
+
+
 def test_two_bends_with_a_straight_between_them():
     result = run(mbf("F10,KA,MM1,PP1,CL=L1", "T20,KI,B250,X4000,CFF=1", "T30,KI,B250,Z3000,CFF=1", "T40,KA,X-2000"))
     assert result.status == "imported", result.diagnostics

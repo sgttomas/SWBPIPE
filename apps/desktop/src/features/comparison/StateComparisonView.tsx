@@ -2,10 +2,12 @@ import { useMemo, useState } from "react";
 import { GitCompare } from "lucide-react";
 import { modelStateDescription } from "../../services/modelStateService";
 import type { StateComparisonResult } from "../history/useModelStateHistory";
+import { CsvExportControl } from "../result-export/CsvExportControl";
+import { CSV_SOFTWARE_VERSION, CSV_UNIT_BASIS_STORED } from "../result-export/csvProvenance";
+import { CHANGE_LABELS, CLASSIFICATION_LABELS, STATE_COMPARISON_CSV_KIND, stateComparisonCsv, storedValueFullText } from "./stateComparisonCsv";
 import {
   ENTITY_FAMILIES,
   FAMILY_LABELS,
-  isQuantity,
   pathText,
   ROW_CLASSIFICATIONS,
   type EntityFamily,
@@ -20,8 +22,9 @@ import {
 // id, and each changed entity's field paths with both values and their units.
 // Values are shown as stored: a quantity whose unit differs is marked
 // `unit changed` and is never converted or subtracted. The table pages at
-// `COMPARISON_PAGE_ROWS` rows, so every matching row is reachable. View-only: comparison
-// export is v0.2 (FR-CMP-010). It reports differences and establishes nothing
+// `COMPARISON_PAGE_ROWS` rows, so every matching row is reachable. The table exports to a
+// local-private CSV (RT-R6, `stateComparisonCsv.ts`); the comparison envelope export is v0.2
+// (FR-CMP-010). It reports differences and establishes nothing
 // about either state (F-PIP-2, F-PIP-3).
 
 /** The table's page size: at most this many rows are rendered at once, and
@@ -32,20 +35,6 @@ const MAX_VALUE_CHARS = 160;
 
 type ClassificationFilter = "differences" | "all" | RowClassification;
 
-const CLASSIFICATION_LABELS: Record<RowClassification, string> = {
-  added: "Added",
-  removed: "Removed",
-  changed: "Changed",
-  unchanged: "Unchanged"
-};
-
-const CHANGE_LABELS: Record<FieldChange["kind"], string> = {
-  added: "added",
-  removed: "removed",
-  changed: "changed",
-  unit_changed: "unit changed (not converted)"
-};
-
 function cut(text: string): string {
   const characters = [...text];
   return characters.length > MAX_VALUE_CHARS ? `${characters.slice(0, MAX_VALUE_CHARS).join("")}…` : text;
@@ -53,15 +42,7 @@ function cut(text: string): string {
 
 /** A stored value as shown: a quantity as its number(s) and its own unit, anything else as JSON. */
 export function storedValueText(value: unknown): string {
-  if (value === undefined) return "(absent)";
-  if (isQuantity(value)) {
-    const numbers = Object.entries(value).filter(([key]) => key !== "unit");
-    const shownNumbers = numbers.length === 1 && numbers[0][0] === "value"
-      ? String(numbers[0][1])
-      : `{${numbers.map(([key, number]) => `${key}: ${String(number)}`).join(", ")}}`;
-    return cut(`${shownNumbers} ${value.unit}`);
-  }
-  return cut(JSON.stringify(value));
+  return cut(storedValueFullText(value));
 }
 
 function testIdOf(row: Pick<StateComparisonRow, "family" | "key">): string {
@@ -152,7 +133,15 @@ export function StateComparisonView({ result, onClose }: { result: StateComparis
         </label>
         <button type="button" data-testid="state-comparison-close" onClick={onClose}>Close comparison</button>
       </div>
-      <table className="state-comparison-table" data-testid="state-comparison-table">
+      <CsvExportControl
+        tableLabel="Saved state comparison"
+        testId="state-comparison-export-csv"
+        build={() => stateComparisonCsv({
+          left, right, rows: matching, filters: { classification, family, idFilter },
+          softwareVersion: CSV_SOFTWARE_VERSION, unitBasis: CSV_UNIT_BASIS_STORED
+        })}
+      />
+      <table className="state-comparison-table" data-testid="state-comparison-table" data-csv-export={STATE_COMPARISON_CSV_KIND}>
         <thead>
           <tr><th scope="col">Family</th><th scope="col">Id</th><th scope="col">Classification</th><th scope="col">Fields</th></tr>
         </thead>

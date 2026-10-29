@@ -1042,7 +1042,8 @@ the solve requires, so the importer assigns one deterministically:
 ## 11. Bends
 
 The writer places a curved bend at its tangent intersection (TI) and writes
-`T<n>,KI,B<R>` with the factor as comment `FF=<k>`. CAEPIPE generates the near and far end
+`T<n>,KI,B<R>` with the factor as comment `FF=<k>`, and a directional SIF pair as comment
+`BSIF(<in-plane>,<out-of-plane>)`. CAEPIPE generates the near and far end
 nodes of the bend's curved portion as `nA` and `nB` (documented: `CAEPIPE-BEND`, technical
 reference *Bend*; *Node*). The inverse:
 
@@ -1094,6 +1095,11 @@ reference *Bend*; *Node*). The inverse:
    - `mechanics_interface.solver_consumption: curved_bend_macro_element`;
    - `modifiers.flexibility_factor_user_value` from `FF`, with the dimensionless token the
      pilot cases use (`none`), and `modifiers.source_reference` naming the MBF line;
+   - `modifiers.sif_in_plane_user_value` and `modifiers.sif_out_of_plane_user_value` from
+     `BSIF`, read on a `KI` row only. The public format gives `BSIF` as the bend's SIFs, two
+     values in parentheses, in-plane first (*Format of .MBF*, comment `BSIF`). Both values are
+     required and must be positive. Otherwise the import refuses (`MBF-IMPORT-COMMENT-INVALID`,
+     `MBF-IMPORT-VALUE-OUT-OF-RANGE`). The source reference then names comments `FF` and `BSIF`;
    - no `bend_angle`: geometry governs, and the writer only checks it when it is present.
 6. **Bend without `FF`.** The `FF` comment is optional in the public format (*Format of
    .MBF*, comment `FF`). SWBPIPE never supplies a factor (the ComponentModifiers rule), so:
@@ -1104,9 +1110,8 @@ reference *Bend*; *Node*). The inverse:
    - the loss report lists `MBF-IMPORT-BEND-FLEXIBILITY-MISSING` (warning, `omitted`);
    - the existing bend-modifier validation then reports the bend as incomplete.
 7. **Refused bend data** (`MBF-IMPORT-BEND-UNSUPPORTED`, naming the keyword):
-   intermediate nodes `IN1` and `IN2`, `BTHK`, `BMAT`, `BSIF`, the miter code `KM` and
-   `WS`, and jacketed bends (`JI`). `BSIF` could later map to SWBPIPE's in-plane and
-   out-of-plane SIF user values; that is tranche 2.
+   intermediate nodes `IN1` and `IN2`, `BTHK`, `BMAT`, the miter code `KM` and `WS`, and
+   jacketed bends (`JI`).
 
 ## 12. Supports
 
@@ -1690,7 +1695,7 @@ involved.
   (independent review VER-002 r15).
 - **Support families** when the sidecar entry has no `family` (§12).
 - **Bend component nodes** (§11 item 5).
-- **Members the writer does not export** (§17's last rows).
+- **Members the writer does not export** (§17.1).
 
 **Unbound** (no sidecar, or hashes differ: a CAEPIPE re-export, or an edit). The MBF
 governs every value, and ids are formed by §10.4. A sidecar is not applied unless the
@@ -1796,12 +1801,70 @@ input.
 | Spring (`family: spring`, one translation) → `KA,TRAK(kx,ky,kz),ROTK(0,0,0)` in N/mm; rotational springs refused | Flexible anchor → one spring per non-zero TRAK component, ids restored from `support_map` |
 | Hangers, nonlinear supports refused | Hangers refused (§12) |
 | Curved bend → `T<n>,KI,B<R>,…,CFF=<k>` at the TI; ends `nA`/`nB` | Tangent nodes from TI, R and the adjacent legs; bend pipe, y_reference and component reconstructed |
+| Bend SIF pair → `BSIF(<in-plane>,<out-of-plane>)` after `FF`; one of the pair alone refused (`MBF-SI-BEND-SIF-INCOMPLETE`) | The pair, unit `none` (§11 item 5) |
 | Straight-pipe `y_reference` not in the MBF; recorded in `element_map` | Restored in bound imports; otherwise the documented local y (§10.5) |
 | US-customary model units → exact normalization to SI (`MBF-SI-UNITS-NORMALIZED`, §5.2) | SI import of the normalized values |
 | `M`, `P`, `L=` written only when changed | M and P carried until changed (documented). `L=` carried the same way in bound imports; unbound imports refuse it, except where an explicitly retained bounded profile decision admits it |
 | Node numbers 10, 20, … in layout order; sidecar maps | Ids from the sidecar, or formed from numbers |
-| Unread members (`analysis_status`, `lines`, `unresolved_assumptions`, `constraints`, `equipment_interfaces`, `rule_pack_refs`, …) not exported | Not recoverable from the MBF; the importer writes only §16.1's desktop-profile members |
+| Members and fields the MBF does not keep: one `omitted` loss entry each (§17.1) | Not recoverable from the MBF; the importer writes only §16.1's desktop-profile members |
 | CRLF line ends; printable ASCII; 10 significant digits | CRLF or LF; UTF-8 with the listed marks; any precision |
+
+### 17.1 What the writer writes, omits and refuses
+
+Every model member and field the writer reads or could receive is written, refused by name
+or listed as omitted (REQ-003, REQ-004). An omitted field gets one `omitted` loss entry.
+Its code is `MBF-SI-FIELD-NOT-EXPORTED`, its entity is `model.<member>.<field>`, and its
+reason names every entity that has the field. A whole member gets `MBF-SI-MEMBER-NOT-EXPORTED`
+with entity `model.<member>`. A field is listed only when it holds a value: an empty
+string, list or object is not listed. The sweep is generic. A field not named below, such as
+a newer schema's, is listed as omitted, never dropped. "Sidecar" means it travels in the
+writer sidecar for a bound import (§15).
+
+| Member or field | Writer | Reason |
+|---|---|---|
+| `schema_version` | Written (implied) / refused | Only the current version is read; the import writes it |
+| `document_kind` | Written (implied) | A schema constant the import writes |
+| `pressure_contract` | Written / refused | `OPPRES` and Pressure 1 (§9.4); contract in the sidecar; `shear_model` omitted (`MBF-SI-SHEAR-MODEL-NOT-EXPORTED`) |
+| `shear_model`, `reference_configurations` | Refused | Not exported |
+| `project.units` length, force, temperature | Written / refused | Values converted into the MBF's SI set (§5.2) |
+| `project.units` any unit other than the import's (mm, N, N*m, MPa, Pa, degC, deg) | Omitted | A display choice the MBF does not keep |
+| `project` other fields (`id`, `name`, `description`, `tags`, `notes`) | Omitted | No MBF field; the title is the caller's |
+| `data_boundary`, `analysis_status` | Omitted | The import writes its own |
+| `sections` (library), `pipe_segments.section_ref` | Omitted | Each pipe's own section is written as a `PIPE` record |
+| `diagnostics` | Omitted | The import's validation forms its own |
+| `lines`, `unresolved_assumptions`, `rule_pack_refs`, `constraints`, `equipment_interfaces` | Omitted | No MBF record |
+| `combinations` | Omitted (`MBF-SI-COMBINATION-NOT-EXPORTED`) | The target program forms its own |
+| `model_settings` | Omitted (`MBF-SI-MODEL-SETTINGS-NOT-EXPORTED`) | Input validation settings |
+| `materials` `id`, `elastic_modulus`, `poisson_ratio`, `thermal_expansion_coefficient` | Written | `MATERIAL` (§7) for each material a pipe segment uses; id as description and in the sidecar |
+| `materials` `shear_modulus` | Written as ν = E/(2G) − 1 when no `poisson_ratio` is given; omitted (`MBF-SI-SHEAR-MODULUS-NOT-EXPORTED`) when both are given and E/(2(1+ν)) differs from G | The MBF carries ν; the import derives G from E and ν |
+| `materials` that no pipe segment uses | Omitted (`MBF-SI-FIELD-NOT-EXPORTED`, entity `model.materials`, naming each id) | The MBF writes only the materials its pipes use |
+| `materials` `temperature_points`, `expansion_laws` | Refused | Temperature-dependent properties |
+| `materials` `constitutive_basis` | Omitted | The import forms its own basis from E and ν |
+| `materials` `provenance_record` | Omitted | Only its origin classification travels, in the sidecar (§7.4) |
+| `nodes` `id`, `position` | Written | Layout coordinates; ids in the sidecar |
+| `pipe_segments` `id`, `from`, `to`, `material`, `section` OD and wall | Written | Layout, `M`, `P` |
+| `pipe_segments` `y_reference` | Omitted (`MBF-SI-ORIENTATION-NOT-EXPORTED`); sidecar | Straights only; a bend's fixes its plane |
+| `section` `corrosion_allowance`, `mill_tolerance`, `insulation_thickness` | Written as 0 / refused if non-zero | Bare pipe only |
+| `section` densities | Omitted (`MBF-SI-SECTION-FIELD-NOT-EXPORTED`) | Weight only from weight primitives |
+| `supports` `id`, `node`, `restraints`, `family`, `stiffness` | Written / refused | `KA`, `FIXD`, `TRAK` (§12); family in the sidecar |
+| `supports` `hanger`, `nonlinear` | Refused | Not exported |
+| `supports` `properties` | Omitted | Display properties the solve ignores |
+| `supports` `boundary_association` | Omitted | No MBF field |
+| `components` other than a realized curved bend | Refused | §11 |
+| Bend `geometry` `bend_pipe_ref`, `bend_radius`; `mechanics_interface.solver_consumption` | Written | `KI`, `B` at the TI |
+| Bend `geometry.bend_angle` | Written (implied) | Checked against the straights; geometry governs |
+| Bend `modifiers.flexibility_factor_user_value` | Written | `FF` |
+| Bend `modifiers.sif_in_plane_user_value`, `sif_out_of_plane_user_value` | Written / refused if one alone | `BSIF` |
+| Bend `modifiers.sif_user_value` | Omitted | A different SWBPIPE field from the pair; `BSIF(s,s)` would import as the pair |
+| Bend `modifiers.source_reference` | Omitted | The import names the MBF line |
+| Bend `completeness`, `geometry.bend_plane_orientation`, `geometry.bend_geometry_source_reference`, `mechanics_interface.rule_check_consumption` | Omitted | No MBF field, or derived |
+| `load_cases` `id`, `primitive_loads`, `pressure_regions` | Written | §9; ids in the sidecar |
+| `load_cases` `equivalent_static`, `modulus_basis_ref`, `modulus_basis_temperature`, `analysis_state` | Refused | Not exported |
+| `load_cases` `label`, `kind`, `status` | Omitted | The import forms them from the target program's case |
+| `primitive_loads` `id`, `category`, `target`, `direction`, `magnitude`, `dimension` | Written / refused | §9, §13; summed per target |
+| Pressure region fields other than `provenance` | Written (sidecar) / refused | `member_connector_ids` refused |
+| Pressure region `provenance` | Omitted | The import names the MBF line as the region's provenance |
+| `label`, `provenance`, `tags`, `notes`, `provenance_record` of any entity not named above | Omitted | No MBF field, and the sidecar does not carry it |
 
 ## 18. How the importer is exercised
 
@@ -1967,7 +2030,7 @@ reproduction by name.
 - `y_reference` on straights, which the MBF does not carry (bound imports restore it from
   the sidecar; unbound imports take §10.5's documented local y);
 - support families, which `support_map` does not carry (§12);
-- labels, provenance and the members of §17's last rows;
+- labels, provenance and the other members and fields §17.1 lists as omitted;
 - several primitives on one target, which are compared as their sum;
 - zero-valued primitives, which are dropped;
 - absent versus zero α, and absent versus zero section fields;
@@ -2345,7 +2408,8 @@ carrying no self-digest.
 blank, one-way limit, refused by name.
 
 Later, in proposed order: concentrated weight and uniform load; contents, insulation and
-lining; rigid and valve joints; reducers (0.8.0); SIF user values; multiple thermal loads;
+lining; rigid and valve joints; reducers (0.8.0); node SIF user values (the bend pair travels as
+`BSIF`, §11); multiple thermal loads;
 intermediate bend nodes; loops.
 
 ## 21. Reconciliation with this Design

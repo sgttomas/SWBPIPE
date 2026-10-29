@@ -525,13 +525,17 @@ const ENTRY_RULES: [(&str, &str, Entry); 6] = [
 /// The allowed production macro definitions: (file, name, SHA-256 of its
 /// text). `app_invoke_handler` was re-pinned after #1665 added two ordinary
 /// handler entries, `check_preview_model` and `cancel_model_checks`, and
-/// after #1717 added `acknowledge_close_request` and `resolve_close_request`
-/// (each reviewed: no `mod`, no `$parameter ::`, no scanned name added). The
+/// after #1717 added `acknowledge_close_request` and `resolve_close_request`,
+/// and after #1718 (D5 slice 2, RT-U3) added the six `autosave_commands::`
+/// entries `write_project_autosave`, `list_project_autosaves`,
+/// `read_project_autosave`, `discard_project_autosave`, `get_autosave_settings`
+/// and `set_autosave_settings` (each reviewed: no `mod`, no `$parameter ::`,
+/// no scanned name added). The
 /// headless runner's two (code review r9 at #1682) each write one `Reader`
 /// literal of its own reader table (reviewed: no `mod`, no `$parameter ::`,
 /// no scanned name).
 const MACRO_DEFINITIONS: [(&str, &str, &str); 3] = [
-    ("src-tauri/src/lib.rs", "app_invoke_handler", "f2a4bc95b5a24b5a5a5cfbfd32bfea885d59f2216c62d192a6ac7e1712d40d04"),
+    ("src-tauri/src/lib.rs", "app_invoke_handler", "d7e1ccc99b1e58b0189b065b71ef923a888c925149baca07648e677358235f77"),
     ("headless/src/reader_binding.rs", "base", "e4ca54306ec20645a40f7658e2d9f63508fd5ab234c9d29b83f95c7ac0bd5aea"),
     ("headless/src/reader_binding.rs", "transport", "b000ef8eab3fc5711dbb04be30705f8902c19adfee232aec9114210f6d48fd79"),
 ];

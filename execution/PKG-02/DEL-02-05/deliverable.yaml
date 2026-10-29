@@ -149,6 +149,8 @@ code_paths:
 - apps/desktop/src-tauri/src/lib.rs
 - apps/desktop/src-tauri/src/model_document_file.rs
 - apps/desktop/src-tauri/src/autosave.rs
+- apps/desktop/src-tauri/src/autosave_commands.rs
+- apps/desktop/src/features/autosave/**
 - apps/desktop/src/services/modelDocumentFile.ts
 - apps/desktop/src/features/model-file/modelDocumentOpen.test.tsx
 - apps/desktop/e2e/b3b-project-persistence.spec.ts
@@ -162,5 +164,9 @@ checks:
 - apps/desktop/src-tauri/src/model_document_file.rs
 - apps/desktop/src-tauri/src/model_document_version.rs
 - apps/desktop/src-tauri/src/autosave_tests.rs
+- apps/desktop/src-tauri/src/autosave_commands_tests.rs
+- apps/desktop/src/features/autosave/useAutosave.test.tsx
+- apps/desktop/src/features/autosave/autosaveRecovery.test.ts
+- apps/desktop/src/features/autosave/autosave.session.test.tsx
 - apps/desktop/src/features/model-file/modelDocumentOpen.test.tsx
 - apps/desktop/e2e/b3b-project-persistence.spec.ts

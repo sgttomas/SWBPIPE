@@ -178,7 +178,8 @@ function nativeStore(options: { projectStored?: boolean; find?: StoredProjectEnt
 }
 
 const calls = (command: string) => invokeMock.mock.calls.filter(([name]) => name === command).map(([, args]) => args as Record<string, unknown>);
-const commandOrder = () => invokeMock.mock.calls.map(([name]) => name as string).filter((name) => name !== "sync_native_shell_state" && name !== "list_model_states" && name !== "list_analysis_runs");
+// Read-only listings, including D5 autosave's settings read and record listing (RT-U3), are not part of the save order.
+const commandOrder = () => invokeMock.mock.calls.map(([name]) => name as string).filter((name) => name !== "sync_native_shell_state" && name !== "list_model_states" && name !== "list_analysis_runs" && name !== "get_autosave_settings" && name !== "list_project_autosaves");
 const historyMessage = () => screen.getByTestId("model-history-message");
 
 async function renderApp() {

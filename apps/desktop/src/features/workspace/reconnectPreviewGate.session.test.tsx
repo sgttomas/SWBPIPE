@@ -57,7 +57,7 @@ describe("reconnect preview gate (central, producer-independent)", () => {
     await act(async () => { await result.current.operations.handleRunOperationBatch(entry, true); });
     expect(result.current.model.model).toEqual(original);
     expect(result.current.operations.undoStack).toHaveLength(0);
-    expect(result.current.operations.batchMessage).toContain("was not applied. This batch contains a reconnect.");
+    expect(result.current.operations.batchMessage).toContain("was not applied. This batch contains reconnect_pipe_run.");
     await act(async () => { await result.current.operations.handleRunOperationBatch(entry, false); });
     expect(result.current.operations.batchOutcomes[entry.key].validation.batch_validation_status).toBe("passed");
     await act(async () => { await result.current.operations.handleRunOperationBatch(result.current.operations.queuedBatches[0], true); });
@@ -91,7 +91,7 @@ describe("reconnect preview gate (central, producer-independent)", () => {
     await act(async () => { await result.current.operations.handleRunOperationBatch(withoutFlag as typeof registered, true); });
     expect(result.current.model.model).toEqual(original);
     expect(result.current.operations.undoStack).toHaveLength(0);
-    expect(result.current.operations.batchMessage).toContain("This batch contains a reconnect.");
+    expect(result.current.operations.batchMessage).toContain("This batch contains reconnect_pipe_run.");
   });
 
   it("(b) applies only the registered batch that was previewed, never an altered batch under the same key", async () => {
