@@ -200,7 +200,7 @@ Changing the preview-physics-2 table would move its hash. Every recorded run bou
     - its cache joins the static-owner inventory (`STATIC_OWNERS`, the §3.6 owner list) and is priced as resident in every phase;
     - the affected shared-reader work is priced: `current_header`'s and `for_source`'s identity dispatch, `reader_verdict.rs`'s identity-keyed bindings and `bind_preview_shear_model`, and the model-free readers' second identity.
 
-    Until then `REVIEWED_INPUTS`, the registered profile and every price are unchanged: registering them changes the build identity, which is D3's act. The only FK change is the shear module's new function; no straight_pipe source changes.
+    The table is now a registered `REVIEWED_INPUTS` entry, its `OnceLock` is a priced process-lifetime static owner in every phase, and the shared readers above are priced under DEL-04-08 [retained-pricing-rules.md](../../../PKG-04/DEL-04-08/Design/retained-pricing-rules.md) §8.32 (combined candidate `84824b20f0`, confirmed at `21fe23fed1`). The registered profile and prices include these changes; the preceding twelve reviewed-input digests and the reader layouts are unchanged. The only FK change is the shear module's new function; no straight_pipe source changes.
 - **Order.** The unit builds after #1649 (0.8.0) merges. D3 is queued after #1649, W-16b/c and #1654, and is priced only on Agent 0's go. The AC-004 witnesses run if D1's change or the stack moves them.
 - **Size.**
   - About 600–900 lines of product, reader, table-derivation and desktop change.
