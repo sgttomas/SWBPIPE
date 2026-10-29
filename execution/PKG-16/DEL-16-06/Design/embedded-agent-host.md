@@ -223,7 +223,9 @@ harness aggregate is changed. Equality establishes source correspondence, not
 catalog semantics or runtime conformance.
 
 `stdio_pump.rs` supplies an explicitly constructed portable stdio pump, with
-four-slot incoming/outgoing queues and separate reader/writer threads. It does
+32-slot incoming/outgoing queues and separate reader/writer threads. The catalog
+admits 16 pending calls; the extra slots accommodate their control/status burst
+without requiring a coordinator timeslice between each frame. It does
 not launch a process or own protocol/session authorization. GENERAL interactive
 admission reserves two 512 KiB stacks plus a 128 KiB bookkeeping allowance
 before queue allocation/spawn; framing's reader buffers and each frame's backing
@@ -244,11 +246,44 @@ reservation, even if a worker later finishes; integrating owners must keep that
 custody rather than silently drop it and release live-stack accounting. This is
 a fail-closed memory-retention limit, not crash cleanup qualification.
 
-Nine guarded component tests cover frame/backing custody, EOF before joined
+Pump component tests cover frame/backing custody, EOF before joined
 completion, queue exhaustion, streamed output/newline/flush, serialization cap,
-stalled read/write retention, second-spawn partial custody and static I/O faults.
+stalled read/write retention, second-spawn partial custody, static I/O faults and
+constructor heap against the control/buffer reservations (not an OS/RSS proof).
 They use controlled synthetic streams, not a supplier/model or native session.
-The responsive protocol coordinator and live dispatcher remain to be built.
+
+`session_driver.rs` connects the pump to the fixed protocol operations. A trusted
+host owner calls bounded polling continuously while domain/human work proceeds
+asynchronously elsewhere. Each poll handles at most one frame and returns at
+most 17 events, including the catalog's 16 detachments at turn end. This module
+adds no scheduler, threads, process authority, Tauri route or live-model binding.
+The host supplies a unique unpredictable connection token and current fallback
+error basis; authenticating the generation/workspace and each call-specific
+basis remains the dispatcher/webview's duty.
+
+GENERAL admission reserves a nominal 8 MiB for v2 catalog/protocol bookkeeping,
+then separate 2 MiB allowances before control construction, outcome encoding or
+incoming-frame derivatives. Caller-owned input/outcome heap must already be
+admitted. Leased event batches retain the incoming/derivative and session
+backing; borrowers copying their payload must admit and retain that copy's
+backing. Queue submission reports `Queued`, never peer delivery or application.
+Control `Busy` refusals occur before protocol state changes; their admitted
+input can be retried. Polling may instead defer one leased batch until a fresh
+terminal observation. Invalid schema/reference completions leave valid pending
+calls intact. Fallback-basis updates never substitute a newer basis into an
+actual supplied outcome.
+
+On observed EOF, I/O failure or invalid peer protocol, the driver stops dispatch
+and disconnects once, reporting unresolved references without cancellation,
+rollback or an invented domain outcome. Already-observed terminal state
+suppresses queued new tool work. Partial startup returns custody for subsequent
+observation; blocked I/O still needs the external process/stream owner. Actual
+domain results remain outside the driver, including when an admitted completion
+cannot be queued or its peer delivery becomes unknown. Synthetic driver cases
+exercise handshake/declarations, original-RPC completion, preserved pending
+references, interruption/detachment, terminal suppression, backing lifetime and
+an admitted 16-call burst. The live host coordinator/session bridge remains
+unimplemented and none of these checks establishes AC-005.
 
 The macOS-only `macos.rs`/`sandbox.rs` launcher is not connected to product
 startup. It verifies and copies the selected binary, uses private home/cwd and

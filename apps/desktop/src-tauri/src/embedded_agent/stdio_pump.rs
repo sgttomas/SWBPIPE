@@ -16,7 +16,9 @@ use std::io::{self, Read, Write};
 use std::sync::{Arc, Condvar, Mutex, MutexGuard, TryLockError};
 use std::thread::{self, JoinHandle};
 
-pub const QUEUE_CAPACITY: usize = 4;
+// Catalog v2 permits 16 concurrent calls; leave room for their control/status
+// notifications without requiring the coordinator to run between each frame.
+pub const QUEUE_CAPACITY: usize = 32;
 pub const STACK_BYTES: usize = 512 * 1024;
 // Both requested stacks, plus a deliberately separate 128 KiB allowance for
 // thread/Arc/Mutex/Condvar control allocations, queue slots, closure captures,
@@ -711,7 +713,7 @@ mod tests {
     #[test]
     fn read_queue_exhaustion_is_terminal_and_retains_queued_frames() {
         let registry = registry();
-        let raw = b"{}\n{}\n{}\n{}\n{}\n";
+        let raw = "{}\n".repeat(QUEUE_CAPACITY + 1);
         let pump = Pump::start(Cursor::new(raw), io::sink(), registry.clone(), limits()).unwrap();
         let mut harness = Harness::new(pump, None);
         harness.wait(|s| s.reader_io.is_some());
@@ -723,6 +725,30 @@ mod tests {
             drop(harness.pump.try_receive().unwrap().unwrap());
         }
         assert!(harness.pump.try_receive().unwrap().is_none());
+        drop(harness);
+        assert_eq!(registry.pool().reserved_total(), 0);
+    }
+
+    #[test]
+    fn constructor_heap_fits_control_and_reader_reservations() {
+        let registry = registry();
+        let stall = Arc::new(Stall::default());
+        let _release_on_failure = Release(stall.clone());
+        // The caller constructs Limits; catalog loading is not Pump's heap.
+        let caps = limits();
+        let (started, measured) = crate::ingress::counting::measure(|| {
+            Pump::start(BlockRead(stall.clone()), io::sink(), registry.clone(), caps)
+        });
+        let pump = started.unwrap();
+        let mut harness = Harness::new(pump, Some(stall.clone()));
+        stall.entered();
+        let heap_allowance = registry.pool().reserved_total() - (2 * STACK_BYTES) as u64;
+        assert!(
+            measured.peak_priced <= heap_allowance,
+            "{} > {heap_allowance}",
+            measured.peak_priced
+        );
+        harness.finish();
         drop(harness);
         assert_eq!(registry.pool().reserved_total(), 0);
     }

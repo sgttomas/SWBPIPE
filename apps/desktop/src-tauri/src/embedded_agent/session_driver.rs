@@ -41,6 +41,8 @@ pub enum Refusal {
     InvalidCompletion,
     Oversized,
     Closed,
+    /// A fixed control has not changed protocol state; retain/retry its input.
+    /// Polling may instead have deferred one owned batch for its next attempt.
     Busy,
     Transport(stdio_pump::Fault),
 }
@@ -217,12 +219,11 @@ impl SessionDriver {
         Ok(())
     }
     fn send(&mut self, value: Value, backing: Arc<Lease>) -> Result<Submission, Refusal> {
-        // A Busy observation AFTER protocol state changed is an unsent terminal
-        // failure too: leaving an outstanding control dangling is not retryable.
-        if let Err(r) = self.live() {
-            self.close(Terminal::Send);
-            return Err(r);
-        }
+        // Callers checked liveness before changing protocol state. Do not add a
+        // fallible try-lock observation after that transition: ordinary queue
+        // contention would otherwise turn a valid control into a disconnect.
+        // Enqueue checks stop/writer failure under its bookkeeping lock. A later
+        // EOF is still observed by poll; queued never means delivered to a peer.
         match self.pump.try_send(value, backing) {
             Ok(()) => Ok(Submission::Queued),
             Err(f) => {
@@ -617,6 +618,21 @@ mod tests {
         fn d(&mut self) -> &mut SessionDriver {
             self.driver.as_mut().unwrap()
         }
+        fn control<T>(
+            &mut self,
+            mut action: impl FnMut(&mut SessionDriver) -> Result<T, Refusal>,
+        ) -> Result<T, Refusal> {
+            let deadline = Instant::now() + Duration::from_secs(5);
+            loop {
+                match action(self.d()) {
+                    Err(Refusal::Busy) => {
+                        assert!(Instant::now() < deadline, "control contention timeout");
+                        std::thread::sleep(Duration::from_millis(1));
+                    }
+                    result => return result,
+                }
+            }
+        }
         // Bounded fixture wait; yields between observations, never busy-spins.
         fn wait(&mut self, mut done: impl FnMut(&Observation) -> bool) -> Observation {
             let deadline = Instant::now() + Duration::from_secs(5);
@@ -649,17 +665,23 @@ mod tests {
                 .collect()
         }
         fn ready(&mut self) {
-            assert_eq!(self.d().initialize("test", "1"), Ok(Submission::Queued));
+            assert_eq!(
+                self.control(|d| d.initialize("test", "1")),
+                Ok(Submission::Queued)
+            );
             assert_eq!(self.sent(1)[0]["method"], "initialize");
             // Queueing alone did not initialize the protocol.
             assert_eq!(
-                self.d().start_thread(&options()),
+                self.control(|d| d.start_thread(&options())),
                 Err(Refusal::InvalidControl)
             );
             self.input.frame(json!({"id":1,"result":{"codexHome":"/test","platformFamily":"test","platformOs":"test","userAgent":"test"}}));
             assert!(matches!(self.event().events(), [Event::Initialized]));
             assert_eq!(self.sent(2)[1]["method"], "initialized");
-            assert_eq!(self.d().start_thread(&options()), Ok(Submission::Queued));
+            assert_eq!(
+                self.control(|d| d.start_thread(&options())),
+                Ok(Submission::Queued)
+            );
             let sent = self.sent(3);
             assert_eq!(sent[2]["method"], "thread/start");
             assert_eq!(
@@ -667,7 +689,10 @@ mod tests {
                 6
             );
             assert_eq!(sent[2]["params"]["approvalPolicy"], "never");
-            assert_eq!(self.d().submit_text("early"), Err(Refusal::InvalidControl));
+            assert_eq!(
+                self.control(|d| d.submit_text("early")),
+                Err(Refusal::InvalidControl)
+            );
             self.input.frame(json!({"id":2,"result":{"thread":{"id":"thread-1"},"approvalPolicy":"never","sandbox":{"type":"readOnly","networkAccess":false}}}));
             assert!(matches!(
                 self.event().events(),
@@ -676,7 +701,10 @@ mod tests {
         }
         fn active(&mut self) {
             self.ready();
-            assert_eq!(self.d().submit_text("hello"), Ok(Submission::Queued));
+            assert_eq!(
+                self.control(|d| d.submit_text("hello")),
+                Ok(Submission::Queued)
+            );
             self.sent(4);
             self.input.frame(
                 json!({"id":3,"result":{"turn":{"id":"turn-1","items":[],"status":"inProgress"}}}),
@@ -692,7 +720,10 @@ mod tests {
                     .acquire_interactive_ingress(DERIVED_BYTES)
                     .unwrap(),
             );
-            self.d().complete(reference, value, lease)
+            let result = self.control(|d| d.complete(reference, value.clone(), lease.clone()));
+            drop(value);
+            drop(lease);
+            result
         }
         fn finish(&mut self) {
             // Unconditional release paths also run on assertion unwind.
@@ -768,7 +799,7 @@ mod tests {
         let r = reference(&batch);
         let unpriced = Arc::new(h.registry.acquire_interactive_ingress(1).unwrap());
         assert_eq!(
-            h.d().complete(&r, outcome(), unpriced),
+            h.control(|d| d.complete(&r, outcome(), unpriced.clone())),
             Err(Refusal::Admission)
         );
         assert_eq!(
@@ -783,9 +814,12 @@ mod tests {
             h.complete(&r, Value::String("x".repeat(65537))),
             Err(Refusal::Oversized)
         );
-        assert_eq!(h.d().initialize("bad", "1"), Err(Refusal::InvalidControl));
         assert_eq!(
-            h.d().submit_text(&"x".repeat(65537)),
+            h.control(|d| d.initialize("bad", "1")),
+            Err(Refusal::InvalidControl)
+        );
+        assert_eq!(
+            h.control(|d| d.submit_text(&"x".repeat(65537))),
             Err(Refusal::InvalidControl)
         );
         assert_eq!(h.complete(&r, outcome()), Ok(Submission::Queued));
@@ -798,7 +832,7 @@ mod tests {
         h.active();
         h.call("rpc");
         let r = reference(&h.event());
-        assert_eq!(h.d().interrupt(), Ok(Submission::Queued));
+        assert_eq!(h.control(|d| d.interrupt()), Ok(Submission::Queued));
         assert_eq!(h.sent(5)[4]["method"], "turn/interrupt");
         h.input.frame(json!({"method":"turn/completed","params":{"threadId":"thread-1","turn":{"id":"turn-1","items":[],"status":"interrupted"}}}));
         assert!(matches!(
@@ -824,7 +858,7 @@ mod tests {
             [Event::ToolLost { .. }]
         ));
         assert!(h.wait(|_| true).events.is_none());
-        assert_eq!(h.d().submit_text("again"), Err(Refusal::Closed));
+        assert_eq!(h.control(|d| d.submit_text("again")), Err(Refusal::Closed));
     }
     #[test]
     fn observed_eof_or_read_fault_suppresses_already_queued_calls() {
@@ -850,16 +884,20 @@ mod tests {
     }
     #[test]
     fn malformed_frame_fault_and_stop_are_separate_from_worker_completion() {
-        let mut h = Harness::new();
-        h.input.frame(json!([])); // Grammar valid, protocol invalid.
-        assert_eq!(
-            h.wait(|o| o.terminal.is_some()).terminal,
-            Some(Terminal::Protocol)
-        );
-        h.finish();
-        let o = h.wait(|_| true);
-        assert_eq!(o.io.reader_completion, stdio_pump::Completion::Joined);
-        assert_eq!(o.io.writer_completion, stdio_pump::Completion::Joined);
+        for (frame, terminal) in [
+            // Framing requires an RPC object before Value materialization.
+            (json!([]), Terminal::Io),
+            // A valid RPC object with an unsolicited response reaches Protocol.
+            (json!({"id":999,"result":{}}), Terminal::Protocol),
+        ] {
+            let mut h = Harness::new();
+            h.input.frame(frame);
+            assert_eq!(h.wait(|o| o.terminal.is_some()).terminal, Some(terminal));
+            h.finish();
+            let o = h.wait(|_| true);
+            assert_eq!(o.io.reader_completion, stdio_pump::Completion::Joined);
+            assert_eq!(o.io.writer_completion, stdio_pump::Completion::Joined);
+        }
         let mut h = Harness::new();
         h.d().stop();
         let o = h.wait(|_| true);
@@ -869,13 +907,64 @@ mod tests {
         assert!(h.registry.pool().reserved_total() >= SESSION_BYTES + stdio_pump::STARTUP_BYTES);
     }
     #[test]
+    fn completion_after_observed_eof_reports_loss_without_queuing_a_reply() {
+        let mut h = Harness::new();
+        h.active();
+        h.call("rpc");
+        let r = reference(&h.event());
+        h.input.end(false);
+        let deadline = Instant::now() + Duration::from_secs(5);
+        loop {
+            if h.d().pump.observe().is_ok_and(|s| s.reader_io.is_some()) {
+                break;
+            }
+            assert!(Instant::now() < deadline);
+            std::thread::sleep(Duration::from_millis(1));
+        }
+        assert_eq!(h.complete(&r, outcome()), Err(Refusal::Closed));
+        let lost = h.event();
+        assert!(
+            matches!(lost.events(), [Event::ToolLost { request_ref, .. }] if request_ref.as_str() == r)
+        );
+        assert_eq!(h.output.state.lock().unwrap().1, 4);
+        assert!(h.wait(|_| true).events.is_none());
+    }
+    #[test]
+    fn catalog_sized_request_burst_reaches_the_host_without_queue_failure() {
+        let mut h = Harness::new();
+        h.active();
+        let count = Catalog::load().unwrap().limits().pending_calls as usize;
+        for id in 0..count {
+            h.call(&format!("rpc-{id}"));
+        }
+        // Let the peer's admitted burst reach the transport before consuming.
+        let deadline = Instant::now() + Duration::from_secs(5);
+        loop {
+            if h.d()
+                .pump
+                .observe()
+                .is_ok_and(|s| s.fault.is_some() || s.read_queued == count)
+            {
+                break;
+            }
+            assert!(Instant::now() < deadline);
+            std::thread::sleep(Duration::from_millis(1));
+        }
+        assert!(h.d().pump.observe().unwrap().fault.is_none());
+        for _ in 0..count {
+            let batch = h.event();
+            assert!(matches!(batch.events(), [Event::ToolRequested { .. }]));
+        }
+        assert_eq!(h.wait(|_| true).terminal, None);
+    }
+    #[test]
     fn stalled_writer_queue_fault_keeps_custody_until_release() {
         let mut h = Harness::new();
         h.active();
         h.output.state.lock().unwrap().2 = true;
         // Unknown requests generate fixed protocol error replies, never dispatch.
         let mut terminal = false;
-        for id in 100..112 {
+        for id in 100..100 + stdio_pump::QUEUE_CAPACITY + 2 {
             h.input
                 .frame(json!({"id":id,"method":"unsupported","params":{}}));
             let o = h.wait(|o| o.terminal.is_some() || o.events.is_some());
@@ -931,7 +1020,10 @@ mod tests {
     #[test]
     fn queued_reply_and_event_share_grown_frame_custody() {
         let mut h = Harness::new();
-        assert_eq!(h.d().initialize("test", "1"), Ok(Submission::Queued));
+        assert_eq!(
+            h.control(|d| d.initialize("test", "1")),
+            Ok(Submission::Queued)
+        );
         h.sent(1);
         h.output.state.lock().unwrap().2 = true;
         h.input.frame(json!({"id":1,"result":{"codexHome":"/test","platformFamily":"test","platformOs":"test","userAgent":"test"}}));
@@ -979,5 +1071,38 @@ mod tests {
             &Value::String("x".repeat(BASIS_BYTES + 1)),
             BASIS_BYTES
         ));
+    }
+    #[test]
+    fn constructor_catalog_heap_fits_the_admitted_session_allowance() {
+        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let input = Arc::new(Input::default());
+        let output = Arc::new(Output::default());
+        let current_basis = basis();
+        let (started, measured) = crate::ingress::counting::measure(|| {
+            SessionDriver::start(
+                Source(input.clone()),
+                Sink(output.clone()),
+                registry.clone(),
+                "0123456789abcdef",
+                16,
+                &current_basis,
+            )
+        });
+        let mut h = Harness {
+            driver: Some(started.unwrap()),
+            input,
+            output,
+            registry,
+        };
+        let allowance = h.registry.pool().reserved_total() - (2 * stdio_pump::STACK_BYTES) as u64;
+        assert!(
+            measured.peak_priced <= allowance,
+            "{} > {allowance}",
+            measured.peak_priced
+        );
+        h.finish();
+        let registry = h.registry.clone();
+        drop(h);
+        assert_eq!(registry.pool().reserved_total(), 0);
     }
 }
