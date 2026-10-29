@@ -678,7 +678,7 @@
     },
     {
       "path": "validation/platform/windows_runner_startup_probe/fixtures/solve.json",
-      "sha256": "1a25500d9fe97ed9b25aebddd16a4df34f0db715fe99098ce06aa5f4d7a72ffa",
+      "sha256": "f538f67f594335f9124b4ba94f8983ccfd3dc551709bbc6dca881c21829bc8b6",
       "labels": [
         [
           "\"invented_non_engineering_example\"",

@@ -97,6 +97,44 @@ $caught = $false
 try { Assert-Candidate ('0' * 40) } catch { $caught = $true }
 if (-not $caught) { throw 'Wrong candidate negative control falsely passed' }
 Write-Host 'identity/selection/missing-marker negative controls rejected'
+# This is the same predicate used for live solves and mutated live outputs.
+function Assert-EmptyDiagnostics($owner, [string]$label) {
+    if ($null -eq $owner -or $null -eq $owner.PSObject.Properties['diagnostics'] -or $owner.diagnostics -isnot [array] -or @($owner.diagnostics).Count -ne 0) { throw "Missing or non-clean $label diagnostics" }
+}
+function Assert-SolveOutput($p) {
+    if ($p.operation -cne 'solve' -or $null -eq $p.runner_result -or $p.runner_result.job.state -cne 'COMPLETED' -or [string]::IsNullOrWhiteSpace($p.runner_result.run_id) -or [string]::IsNullOrWhiteSpace($p.runner_result.job.job_id)) { throw 'Supported solve requires a completed identified job' }
+    Assert-EmptyDiagnostics $p 'CLI'
+    Assert-EmptyDiagnostics $p.request_validation 'request validation'
+    Assert-EmptyDiagnostics $p.result_validation 'result validation'
+    Assert-EmptyDiagnostics $p.runner_result 'runner result'
+    Assert-EmptyDiagnostics $p.mechanics_envelope 'mechanics'
+    if ($p.mechanics_envelope.status.mechanics -cne 'MECHANICS_SOLVED' -or $p.runner_result.result_refs -isnot [array] -or @($p.runner_result.result_refs).Count -eq 0 -or $p.mechanics_envelope.results -isnot [array] -or @($p.mechanics_envelope.results).Count -eq 0) { throw 'Supported solve requires nonempty successful result rows and references' }
+}
+function Assert-SolveMutationControls($good) {
+    $mutations = @('failed_job','runner_blocking','request_blocking','result_blocking','mechanics_blocking','empty_runner','missing_request_validation','missing_result_validation','empty_result_refs','empty_mechanics_rows')
+    foreach ($kind in $mutations) {
+        $badOutput = $good | ConvertTo-Json -Depth 100 -Compress | ConvertFrom-Json -Depth 100
+        $blocking = @([pscustomobject]@{ code='INVENTED_NEGATIVE_CONTROL'; severity='blocking' })
+        switch ($kind) {
+            'failed_job' { $badOutput.runner_result.job.state='FAILED' }
+            'runner_blocking' { $badOutput.runner_result.diagnostics=$blocking }
+            'request_blocking' { $badOutput.request_validation.diagnostics=$blocking }
+            'result_blocking' { $badOutput.result_validation.diagnostics=$blocking }
+            'mechanics_blocking' { $badOutput.mechanics_envelope.diagnostics=$blocking }
+            'empty_runner' { $badOutput.runner_result=[pscustomobject]@{} }
+            'missing_request_validation' { $badOutput.request_validation=$null }
+            'missing_result_validation' { $badOutput.result_validation=$null }
+            'empty_result_refs' { $badOutput.runner_result.result_refs=@() }
+            'empty_mechanics_rows' { $badOutput.mechanics_envelope.results=@() }
+            default { throw 'Unknown mutation selection' }
+        }
+        $rejected=$false
+        try { Assert-SolveOutput $badOutput } catch { $rejected=$true }
+        if (-not $rejected) { throw "Solve output mutation falsely accepted: $kind" }
+        Write-Host "solve_output_mutation=$kind rejected=true"
+    }
+    Write-Host "SOLVE_OUTPUT_NEGATIVE_CONTROLS count=$($mutations.Count)"
+}
 foreach ($case in $expected) {
     $verb = 'solve'; $payloadPath = Join-Path $root 'fixtures/solve.json'
     if ($case -eq 'validate_metadata') { $verb='validate-input'; $payloadPath=Join-Path $root 'fixtures/validate_metadata.json' }
@@ -114,7 +152,8 @@ foreach ($case in $expected) {
     $p = $controlled.payload
     if ($p.artifact -cne 'openpipestress.headless_runner_cli_output' -or $p.schema_version -cne '1.0.0' -or $p.command -cne $verb -or $p.policy.policy_ref -cne 'DEC-065') { throw 'Wrong output envelope' }
     if ($case -in @('solve_first','solve_repeat')) {
-        if ($p.operation -cne 'solve' -or $null -eq $p.runner_result -or $p.mechanics_envelope.status.mechanics -cne 'MECHANICS_SOLVED' -or @($p.diagnostics).Count -ne 0) { throw 'Supported invented sparse solve did not succeed' }
+        Assert-SolveOutput $p
+        if ($case -eq 'solve_first') { Assert-SolveMutationControls $p }
     } elseif ($case -eq 'validate_metadata') {
         if ($p.operation -cne 'validate_input' -or $null -eq $p.request_validation -or @($p.request_validation.diagnostics).Count -ne 0 -or @($p.diagnostics).Count -ne 0 -or $null -ne $p.runner_result -or $null -ne $p.mechanics_envelope) { throw 'Metadata-only validation contract mismatch' }
     } else {

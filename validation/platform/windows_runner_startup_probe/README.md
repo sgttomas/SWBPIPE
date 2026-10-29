@@ -25,9 +25,10 @@ The exporter is not the separate DEC-058 owner scan or P7 scanner check.
 
 The checked-in JSON preserves the actual Rust runner request metadata shape and
 actual `invented_non_engineering_example` provenance. It copies the maintained
-invented metadata shape and uses the exact current
-`fixtures/model_operations/precision_connected_ui_model.json` model used by the
-CLI's `solve_runs_invented_preview_model_with_stdout_json_contract` test. It
+invented metadata shape. Its model derives from
+`fixtures/model_operations/precision_connected_ui_model.json`: retain only the
+axial nodal force and restrain the other five tip coordinates to keep this
+startup/API exercise small. The maintained source model is unchanged. It
 claims no engineering reference or numerical agreement. Metadata validation
 changes both operation fields to `validate_input` and omits the solve payload;
 that verb checks request metadata, not model validity. The missing-payload case
@@ -116,6 +117,13 @@ EXIT_OBSERVED and JOB_DRAINED. Missing, duplicate or out-of-order required
 markers fail; the deliberately blocked control requires only its three live
 markers and the external drain marker. Wrong candidate, empty/unknown selection
 and missing marker controls exercise the same predicates as actual witnesses.
+Successful solves also require an identified completed job, present clean
+request/result validations, empty runner/mechanics diagnostics, and nonempty
+result references and rows. Ten mutations of the actual first successful output
+must fail this same predicate: failed job, blocking diagnostics in each of four
+nested locations, empty runner, missing request/result validation, empty result
+references and empty mechanics rows. Those mutations are controls, not solver
+or numerical qualification.
 
 At the gated live phase, separate counters report GetProcessMemoryInfo private
 usage, working set and peak working set; VirtualQueryEx sums private/image/mapped
@@ -141,7 +149,7 @@ Official basis: [PE/COFF](https://learn.microsoft.com/en-us/windows/win32/debug/
 [Rust fs::read_to_string](https://doc.rust-lang.org/std/fs/fn.read_to_string.html),
 [pinned Rust fs source](https://github.com/rust-lang/rust/blob/1.97.1/library/std/src/fs.rs),
 [pinned Windows fs source](https://github.com/rust-lang/rust/blob/1.97.1/library/std/src/sys/fs/windows.rs),
-[pinned Windows handle source](https://github.com/rust-lang/rust/blob/1.97.1/library/std/src/sys/handle/windows.rs),
+[pinned Windows handle source](https://github.com/rust-lang/rust/blob/1.97.1/library/std/src/sys/pal/windows/handle.rs),
 [named pipe security](https://learn.microsoft.com/en-us/windows/win32/ipc/named-pipe-security-and-access-rights),
 [pipe operations](https://learn.microsoft.com/en-us/windows/win32/ipc/synchronous-and-overlapped-pipe-i-o),
 [ReadFile](https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-readfile),

@@ -46,14 +46,19 @@ must signal before exit codes are read, including code 259. Cleanup requires
 observed active zero, not a kill request or EOF. The deliberately blocked actual
 runner control proves external descendant cleanup separately from successful
 runner witnesses. Positive cases check the actual output/status/exit contracts
-for the maintained invented supported sparse solve and request-metadata
-validation; malformed JSON and missing solve payload check typed refusals.
+for the small invented supported sparse solve and request-metadata
+validation. Completed-job identity, clean nested diagnostics/validation and
+nonempty rows/references are required; ten mutations of actual successful
+output must be refused by the same predicate; malformed JSON and missing solve payload check typed refusals.
 
 All new validation source/fixtures ship in the existing public export. The JSON
 uses the actual Rust runner request/provenance shape and the actual
 `invented_non_engineering_example` label for invented diagnostic content. It
-reuses the CLI test's maintained precision-connected model without changing its
-bytes or claiming numerical validation. Additive DEL-04-07 pointers include this probe. The authoritative P7 generator
+derives a small one-free-UX-coordinate axial diagnostic from the CLI test's
+precision-connected model, retaining one axial force and restraining the other
+five tip coordinates. The maintained model is unchanged; this is no numerical
+reference. The 1 MiB output cap remains fixed. Project attributes preserve all
+three shipped fixture byte streams for P7 hashes under Windows autocrlf. Additive DEL-04-07 pointers include this probe. The authoritative P7 generator
 adds its three invented fixtures to `tools/release/provenance_scope.json`,
 preserving existing entries. All runtime scans are re-derived: the three new
 standalone `.rs` files enter the project scan despite having no Cargo manifest.
