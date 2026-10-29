@@ -220,7 +220,10 @@ def _header(source: Mapping[str, Any]) -> None:
     _shape(formulation, {"profile_id", "limitations"}, "formulation basis")
     _require(formulation["profile_id"] == PROFILE and formulation["limitations"] == LIMITATIONS, "formulation profile or limitations")
     evidence = source.get("contract_evidence")
-    _shape(evidence, {"preview_cases", "combination_gates"}, "contract evidence namespace")
+    # Operating-case slice 1a: `combination_operands` only beside a nonlinear model's admitted combinations.
+    _require(isinstance(evidence, Mapping) and set(evidence) in ({"preview_cases", "combination_gates"},
+                                                                 {"preview_cases", "combination_gates", "combination_operands"}),
+             "contract evidence namespace")
     _require(isinstance(evidence["preview_cases"], list) and isinstance(evidence["combination_gates"], list), "contract evidence lists")
     _finite_tree(evidence)
 
@@ -346,6 +349,10 @@ def _validate(source: Mapping[str, Any]) -> None:
     for field, headline in summary.items():
         if isinstance(headline, Mapping) and headline.get("result_ref") is not None:
             _require(headline["result_ref"] in rows, f"dangling summary result reference {field}")
+
+    # Operating-case slice 1a (DEL-05-02 `pf-nonlinear-operand-standing.md` §3): the operand records and their notices.
+    from . import preview_combination_operands
+    preview_combination_operands.check(source, source.get("status", {}).get("mechanics") == "MECHANICS_SOLVED")
 
     # 4. Case scope.
     quality = source.get("numerical_quality", {}).get("cases", [])

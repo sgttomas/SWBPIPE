@@ -358,6 +358,27 @@ helpers' unreached format arguments. See the governing rules' §8.29 and `tests/
 
 The hanger-load warning inherits the basis's hanger zero. `base/batch5_model.py`'s pressure prefix and `base/b7a_scoped_text_model.py`'s `problem` parents follow the junction refusal. See the governing rules' §8.30 and `tests/test_830_corrections.py`.
 
+### §8.31: nonlinear pressure-free combination operand standing (slice 1a)
+
+Route L's current projected base is preview-physics-2, so the new reader is
+reached through `semantic_contract::for_source`; R1's original preview-physics-1
+wording is historical. `rules/o10_rules.py` adds OP1A-PF (empty nonlinear-only
+producer tails under D1.6), OP1A-RD (empty record/notice loops, with the reader
+scans retained), OP1A-BN (four private-helper name collisions), OP1A-ER (one
+returning error per reader call), OP1A-ID (site-specific literal/list classes)
+and OP1A-OWN (positive borrowed-gate-vector backing beside V5, including its
+previous push backing). Raw producer/reader pins and mutation tests in
+`tests/test_op1a_operand_standing.py` guard the premises.
+
+The merged tree remains §8.30's 1,586 coefficients; use §8.30's registered basis
+line with `generate --check`. The two unmerged combination points additionally
+use native `Node(String,BTreeMap)` = 648 B; §8.31 gives its collector expression
+and the atom-log supplement needed by `eval`. To replay the preceding registration while keeping
+the new rules, recover main `9ef6c4c469`'s complete tool cohort into scratch,
+replace only its `rules/o10_rules.py` with this turn's, and run main
+`9ef6c4c469` with `--repo` pointing at the repository. OP1A's branch is inactive
+on that source. See the governing rules' §8.31 and §10.
+
 The current source pins fail closed outside the reviewed stage-2 cohort.
 Reproduce either RF or the pre-stage-2 reductions using its committed tool and
 source revision. A complete `run` is a pricing-completeness result; actual
