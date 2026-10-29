@@ -348,6 +348,16 @@ helpers, `target_acting` and the two new resolvers; W16S-SG zeroes `spring_base_
 `g == 0.0`; W16S-L1 bounds the relative-displacement loop at 0 on D1 and zeroes its clause; W16S-ID classifies the
 helpers' unreached format arguments. See the governing rules' §8.29 and `tests/test_w16_imposed_motion.py`.
 
+### §8.30: the three corrections and W-16t partial-span wind on Timoshenko members
+
+`rules/o10_rules.py` adds the following rules; none adds an owner on D1:
+- C30-JR: the shared-terminal junction refusal's node map is empty on D1 (D1.5), so its node loop is bounded at 0.
+- C30-ID: the junction message's argument classes.
+- C30-DG: the nonlinear dense-memory guard runs only with a nonlinear support (D1.6). Its edge and diagnostic sites are zero; NI's two Display forms stay priced.
+- W16T-SP: a Timoshenko proper span arises only from wind generation (D1.5, W16C-ES), so SP's partial-span bound is zero.
+
+The hanger-load warning inherits the basis's hanger zero. `base/batch5_model.py`'s pressure prefix and `base/b7a_scoped_text_model.py`'s `problem` parents follow the junction refusal. See the governing rules' §8.30 and `tests/test_830_corrections.py`.
+
 The current source pins fail closed outside the reviewed stage-2 cohort.
 Reproduce either RF or the pre-stage-2 reductions using its committed tool and
 source revision. A complete `run` is a pricing-completeness result; actual

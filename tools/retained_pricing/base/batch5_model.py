@@ -82,7 +82,11 @@ PINS = {
 # state document (exact_admission::EQUIVALENT_STATIC_LOAD_STATE), inside the existing `case.equivalent_static.is_some()`
 # arm; every retained branch refuses equivalent_static (D1), so it is unreachable there. Diagnostics only; no carrier,
 # child or staging changes.
-PRESSURE_PREFIX_PIN = "6905aec336a943fb592a107456541d6a47d12f973ae22c033bb1bdd7c160d591"
+# §8.30 D3 (correction 1): validate_profile calls refuse_compensated_shared_terminals once per exact case after its
+# region loop; it maps terminals of the case's regions by node (a BTreeMap and two Vecs per node) and refuses a shared
+# terminal node with a compensated terminal (diagnostics only). Every admitted E case has `pressure_regions: []` (D1.5),
+# so the map stays empty (no allocation) and nothing is pushed; L never reaches it. No carrier, child or staging changes.
+PRESSURE_PREFIX_PIN = "4922de7d03256f051775e5f09efd30f932db5652381f9bb25dfe9de0e12bc5bb"
 LEGACY_PRESSURE_PREFIX_PIN = "d335b7c22bee4bf5832a4e2b9f82f63a77930aa2bbcedeab15369e62c205b017"
 LEGACY_CASE_PIN = "273d31e03921bad5b4d28852b54b17ba7e70acd85d590b4213a3d5d8141aa00c"
 

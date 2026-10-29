@@ -1206,6 +1206,14 @@ pub(super) struct RegisteredProfile {
 static REGISTERED_PROFILES: &[RegisteredProfile] = &[RegisteredProfile {
     // aarch64-apple-darwin, rustc 1.97.1 (8bab26f4f68e), profile=debug, opt_level=0,
     // debug_assertions=true, panic=unwind, no RUSTFLAGS.
+    // §8.30 D3 at 03436d1ff0 (the shared-terminal junction refusal, the nonlinear dense memory
+    // guard, the hanger-load warning and W-16t's partial-span wind on Timoshenko members, on main
+    // 47774b4727; retained-pricing-rules.md §8.30): D1.5 empties the junction's node map, D1.6
+    // keeps the dense-memory guard unreached, D1 refuses hangers and every equivalent_static case,
+    // so their code is zero there (C30-JR, C30-DG, W16T-SP). The nonlinear integration error's two
+    // new Display forms raise TAV_W and TAV_X by 10,392 B (6 coefficients rise, none fall). No
+    // reviewed input moves; the identity, inputs, reader layouts and threshold are unchanged.
+    // W-16 stage 2's registration below was the previous one.
     // W-16 stage 2 D3 at 0bf192cbf8 (imposed displacement with nonlinear supports and on spring
     // bases, on main 7e73491054; retained-pricing-rules.md §8.29): D1.7 refuses every
     // support-targeted primitive and D1.6 every nonlinear support, so the per-target checks, the
@@ -1384,7 +1392,7 @@ pub(super) fn priced_maximum(estimates: usize, mode: crate::PreviewSolverMode) -
 /// U4 G5 part 2: the cap-priced admission maximum as named in-build expressions. Every term is a
 /// linear form over layout atoms at the D1 caps (l <= 128); every maximum (stages, phases, moving
 /// candidates) is taken here, in the build. Source: the G4 chain with RV84/RV87's corrections at
-/// SQ2 G5 at 0bf192cbf8: the maximum over routes L (C_eq <= 3: worst shape c = 3, z = 0) and E (c = 3), SQ2 rules; text at l <= 128.
+/// SQ2 G5 at 03436d1ff0: the maximum over routes L (C_eq <= 3: worst shape c = 3, z = 0) and E (c = 3), SQ2 rules; text at l <= 128.
 pub(super) mod profile {
     #![allow(clippy::all, dead_code)]
     use open_pipe_stress_frame_kernel::structural::retained_resource as fkr;
@@ -1419,8 +1427,8 @@ pub(super) mod profile {
     /// longest-string atoms of the hash route (RV84 C-N1; RV87 N-3).
     pub(crate) const TEXT_D: u64 = 76356; // D
     pub(crate) const TEXT_D_ENV: u64 = 28775; // D_env
-    pub(crate) const TEXT_TAV_TEXT_MOVING: u64 = 7400298862; // TAV_text_moving
-    pub(crate) const TEXT_TAV_TEXT_REQUESTED: u64 = 7397698162; // TAV_text_requested
+    pub(crate) const TEXT_TAV_TEXT_MOVING: u64 = 7400309254; // TAV_text_moving
+    pub(crate) const TEXT_TAV_TEXT_REQUESTED: u64 = 7397708554; // TAV_text_requested
     pub(crate) const TEXT_TEXT_AUDIT_ERROR: u64 = 16384; // Text(audit_error)
     pub(crate) const TEXT_TEXT_DIAG_ENV: u64 = 274415016; // Text(diag_env)
     pub(crate) const TEXT_TEXT_DIAG_TOTAL: u64 = 449831490; // Text(diag_total)
@@ -2793,8 +2801,8 @@ pub(super) mod profile {
         Form { name: "T25_S5", constant: 131646371, terms: &[(11, 25833), (25, 96), (116, 1), (139, 1), (165, 3), (224, 2048), (251, 4131), (301, 17137)] },
         Form { name: "T25_carried_case", constant: 251153031, terms: &[(11, 40308), (25, 288), (116, 3), (224, 6144), (251, 12393), (301, 26625)] },
         Form { name: "T25_moving", constant: 12278238, terms: &[] },
-        Form { name: "TAV_W", constant: 5063953646, terms: &[] },
-        Form { name: "TAV_X", constant: 5516246892, terms: &[] },
+        Form { name: "TAV_W", constant: 5063964038, terms: &[] },
+        Form { name: "TAV_X", constant: 5516257284, terms: &[] },
         Form { name: "TXT_moving", constant: 6139118, terms: &[] },
         Form { name: "W1_MEMBER_READER", constant: 6291456, terms: &[] },
         Form { name: "success__BODY", constant: 228635850, terms: &[(11, 127033), (301, 142979)] },
@@ -2843,8 +2851,8 @@ pub(super) mod profile {
         Form { name: "success__T25_S5", constant: 131646371, terms: &[(11, 25833), (25, 96), (116, 1), (139, 1), (165, 3), (224, 2048), (251, 4131), (301, 17137)] },
         Form { name: "success__T25_carried_case", constant: 251153031, terms: &[(11, 40308), (25, 288), (116, 3), (224, 6144), (251, 12393), (301, 26625)] },
         Form { name: "success__T25_moving", constant: 12278238, terms: &[] },
-        Form { name: "success__TAV_W", constant: 5063953646, terms: &[] },
-        Form { name: "success__TAV_X", constant: 5516246892, terms: &[] },
+        Form { name: "success__TAV_W", constant: 5063964038, terms: &[] },
+        Form { name: "success__TAV_X", constant: 5516257284, terms: &[] },
         Form { name: "success__TXT_moving", constant: 6139118, terms: &[] },
         Form { name: "success__W1_MEMBER_READER", constant: 6291456, terms: &[] },
     ];
@@ -3072,7 +3080,7 @@ pub(super) mod profile {
     pub(crate) const DENSE: Option<(u64, usize)> = maximum(&phases_dense(&ATOM_VALUES));
     /// The Python chain's own evaluation (ASSUMED strides), for the transcription check.
     #[cfg(test)]
-    pub(crate) const PYTHON_CHECK: [(u64, &str); 2] = [(8638426882, "W3 publication (T16) with the staged copy"), (8697558226, "W3 publication (T16) with the staged copy")];
+    pub(crate) const PYTHON_CHECK: [(u64, &str); 2] = [(8638437274, "W3 publication (T16) with the staged copy"), (8697568618, "W3 publication (T16) with the staged copy")];
 }
 // ---- END GENERATED PROFILE ----
 
