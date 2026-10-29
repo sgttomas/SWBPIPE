@@ -23,7 +23,8 @@ error in the group's norm as the M3 judge defines it, against the exact solution
 - A run is bound to the dump by its labels (tag, entry, mode, case) and by its operands: every evaluation line of
   the model carries the same frames, one per pipe, with E and G bit-equal to the reference's Pa operands (meta E,
   G); those frames are the intended system's operands. Stress groups convert with the intended section.
-- The groups line of a case is the last one written for it, and its lambda_sigma must equal an evaluation line's.
+- The groups line of a case is the last one written for it. Its `eval` must name an evaluation line of the same
+  run and load case whose lambda_sigma equals the groups line's (the two lines' ID, case and lambda_sigma together).
 - Alongside: the margin B/|error| (its distribution and the worst group) and, per evaluation line, kd5t_census's
   probe record: epsilon_E/||K~_s||_1 against 2^-40 (go) and 2^-36 (no-go) and the A1 Hager margin
   2^10 est/||K~_s^-1||_1 (typed entries only with --hager typed, the default: the gate is entry-independent).
@@ -170,15 +171,20 @@ def judge_model_bounds(model, runs, dumps, intended=None):
         if not evals:
             problems.append(f"{rid}: no evaluation line in the dumps")
             continue
-        ls_bits = {ev.get("lambda_sigma_bits") for ev in evals}
+        by_eval = {}
+        for ev in evals:
+            by_eval.setdefault(ev.get("eval"), []).append(ev)
         counts["runs bound"] += 1
         for case in {k[0] for k in ex}:
             gl = glines.get(case)
             if gl is None:
                 problems.append(f"{rid} {case}: a Passed case without a groups line")
                 continue
-            if gl.get("lambda_sigma_bits") not in ls_bits:
-                problems.append(f"{rid} {case}: groups line's lambda_sigma matches no evaluation line")
+            named = by_eval.get(gl.get("eval"), [])
+            if not (type(gl.get("eval")) is int and len(named) == 1 and named[0].get("case") == case == gl.get("case")
+                    and named[0].get("lambda_sigma_bits") == gl.get("lambda_sigma_bits")):
+                problems.append(f"{rid} {case}: the groups line's eval {gl.get('eval')!r} does not name one evaluation line of this "
+                                "run and case with its lambda_sigma")
             probe = {}
             for g in gl["groups"]:
                 kind = PROBE_GROUP.get(g["kind"])
@@ -432,13 +438,13 @@ def selftest():
     ex = exact_groups(m, v)
     key = next(k for k in ex if k[1] == "axial" and k[2] == row["entity_ref"] and k[3] == row["location"])
     err = math.sqrt(MC.qf(ex[key][1]))
-    ev = {"record": "evaluation", "tag": g["tag"], "entry": "typed", "mode": "SparseInteractive", "case": "case:1", "lambda_sigma_bits": "0" * 16,
+    ev = {"record": "evaluation", "tag": g["tag"], "entry": "typed", "mode": "SparseInteractive", "case": "case:1", "eval": 1, "lambda_sigma_bits": "0" * 16,
           "frames": [{"member": "m", "E": float(g["meta"]["E"]), "E_bits": bits(float(g["meta"]["E"])), "G": float(g["meta"]["G"]),
                       "G_bits": bits(float(g["meta"]["G"]))}]}
 
-    def run_with(B):
+    def run_with(B, eval_id=1, case="case:1", ls="0" * 16):
         groups = [{"entity": key[2], "location": key[3], "kind": "axial", "B": B, "fires": False}]
-        gl = {"record": "groups", "case_id": "case:1", "lambda_sigma_bits": "0" * 16, "groups": groups}
+        gl = {"record": "groups", "case": case, "case_id": "case:1", "eval": eval_id, "lambda_sigma_bits": ls, "groups": groups}
         return judge_model_bounds(m, [v], {(g["tag"], "typed", "SparseInteractive"): ([ev], {"case:1": gl})})
 
     ok = []
@@ -473,6 +479,11 @@ def selftest():
     _, p6 = model_frames(m, [v], {(g["tag"], "typed", "SparseInteractive"): ([bad], {})})
     ok.append(("a resolved G one ulp off the reference's operand is a problem", any("Pa operands" in p for p in p6)))
     ok.append(("the judged groups without a probe group are named", any("no probe group" in p for p in p1)))
+    bind = lambda ps: any("does not name one evaluation line" in p for p in ps)
+    ok.append(("a groups line naming its evaluation, case and lambda_sigma binds", not bind(p1)))
+    for name, kw in (("a wrong evaluation ID", {"eval_id": 999999999}), ("a wrong case label", {"case": "case:2"}),
+                     ("a lambda_sigma of another evaluation", {"ls": "1" * 16})):
+        ok.append((f"{name} on the groups line is a problem", bind(run_with(err * 4, **kw)[2])))
     for name, good in ok:
         print(("PASS " if good else "FAIL ") + name)
     print(f"bound census self-test: {sum(bool(x) for _, x in ok)} of {len(ok)} checks pass")

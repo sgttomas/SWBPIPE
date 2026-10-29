@@ -486,7 +486,8 @@ judges that gap.
 
 **Criterion.** B ≥ |published − intended exact|, exactly, on every judged resultant and pipe-wall group
 of every Passed case (PF publishes no pipe-wall group), B read from the probe's groups line and the
-group's norm the M3 judge's. The section cuts `cut_i`/`cut_j` are checked with their own B against the
+group's norm the M3 judge's. A case's groups line is bound to its evaluation line by the line's
+evaluation ID, load case and Λσ together. The section cuts `cut_i`/`cut_j` are checked with their own B against the
 end rows. Inputs: the stage-B raw records of `b52900b3ef` (runner `86acccd7…`), judged by the shared
 judge, and the dumps of the probe build of the same head, whose raw records are byte-identical to
 them apart from `ns`, runner and head.
@@ -507,8 +508,8 @@ the published stress, with c the intended section's A (axial), Z = I/r_o (bendin
 (torsion) (Agent 0). The first term is the resultant's certified error carried through the scaling;
 the second covers the product's binary64 representation of the section modulus and the final
 rounding of the stress. Every stress row of a judged stress group of a Passed case held: 4,556, 8,680
-and 154,080 in (a), (b) and (c), with the worst usage 0.304 (`NCauxff|S7NC|o|m0|eb`, N01 end_j,
-bending y, 1.22 ulps). Among the near-zero rows below, the worst usage is 0.096.
+and 154,080 in (a), (b) and (c). The worst usage overall is 0.304060 (`NCauxff|S7NC|o|m0|eb`, N01
+end_j, bending y, 1.22 ulps); among the near-zero rows below, the worst is 0.096207.
 
 *Information: |error| in ulps of the published stress, maximum per kind.*
 
