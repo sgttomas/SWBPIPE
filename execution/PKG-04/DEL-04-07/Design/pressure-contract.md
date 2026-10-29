@@ -353,12 +353,17 @@ it when two of that length do, and the even one when they are equally close
 (the rule of Python's `repr` and ECMAScript's `Number::toString`; Rust's
 `{:e}` takes the other candidate on such 16- or 17-digit ties). It is computed
 on integers, never by a float formatter, in
-`case_state/temperature/canonical_decimal.rs`, the one implementation C1's
-lowering reuses.
+`case_state/temperature/canonical_decimal.rs`, the implementation C1's future
+lowering shall reuse.
 - **Domain:** |value| ≤ 10^6 in the authored unit, with a canonical decimal
-  exponent e ≥ −24 (§1.5.1's admitted operand range). A temperature outside it
-  is refused with its own blocking code,
-  `LOAD_STATE_TEMPERATURE_RANGE_UNSUPPORTED`. Inside it |N| < 10^31, so
+  exponent e ≥ −24 (§1.5.1's admitted operand range). Normalization runs
+  first: a consumed quantity it cannot convert, a non-finite one or one below
+  zero kelvin is refused with `LOAD_STATE_QUANTITY_INVALID`, whatever its
+  magnitude. An otherwise valid consumed absolute temperature outside the
+  domain is refused with its own blocking code,
+  `LOAD_STATE_TEMPERATURE_RANGE_UNSUPPORTED`. Called directly, `exact_kelvin`
+  maps a non-finite value or a negative exact kelvin to
+  `LOAD_STATE_TEMPERATURE_IDENTITY_UNRESOLVED`. Inside the domain |N| < 10^31, so
   equality and order are integer comparisons that cannot overflow.
 - **Representatives:** exactly equal temperatures share the binary64 kelvin of
   the first one registered. Distinct ones stay distinct, and a member whose
