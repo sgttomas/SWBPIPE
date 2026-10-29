@@ -4,7 +4,8 @@ compile_error!("hosted native x64 Windows only");
 mod pe;
 mod win32;
 use std::{io::Read, path::{Path}, time::{Duration,Instant}};
-const CASES: &[&str] = &["solve_first","solve_repeat","validate_metadata","malformed_json","missing_payload","blocked_timeout"];
+const CASES: &[&str] = &["validate_metadata","malformed_json","missing_payload","blocked_timeout"];
+const BLOCKED: &[&str] = &["solve_first=BLOCKED_UNVERIFIED_CAPTURE_CAP", "solve_repeat=BLOCKED_UNVERIFIED_CAPTURE_CAP", "ten_live_solve_mutations=UNVERIFIED"];
 struct Job(win32::Handle);
 impl Drop for Job { fn drop(&mut self) { win32::drain_job(self.0.0); } }
 fn string(s: &std::ffi::OsStr) -> String { s.to_str().expect("UTF8 argument").to_string() }
@@ -14,6 +15,7 @@ fn main() {
     assert!(!a.is_empty(), "empty selection");
     match string(&a[0]).as_str() {
         "--inventory" => { assert_eq!(a.len(),1); for case in CASES { println!("{case}"); } }
+        "--blocked-inventory" => { assert_eq!(a.len(),1); for item in BLOCKED { println!("{item}"); } }
         "--pe" => {
             assert_eq!(a.len(),2);
             let f=std::fs::File::open(&a[1]).expect("candidate open"); let mut b=Vec::new();
@@ -53,7 +55,8 @@ fn main() {
             assert_eq!(a.len(),7);
             let case=string(&a[1]); assert!(CASES.contains(&case.as_str()));
             let verb=string(&a[5]);
-            assert!(matches!(verb.as_str(),"solve"|"validate-input"),"unsupported probe verb");
+            let expected = if matches!(case.as_str(),"validate_metadata"|"blocked_timeout") { "validate-input" } else { "solve" };
+            assert_eq!(verb,expected,"case verb mismatch");
             let ready=string(&a[6]).parse::<usize>().expect("ready handle") as win32::Raw;
             run_case(&case,Path::new(&a[2]),Path::new(&a[3]),Path::new(&a[4]),&verb,ready);
         }
@@ -80,13 +83,27 @@ fn run_case(case:&str,exe:&Path,input:&Path,output:&Path,verb:&str,ready:win32::
     let mut payload=Vec::new();
     std::fs::File::open(input).expect("fixture open").take(65537).read_to_end(&mut payload).expect("fixture read");
     assert!(!payload.is_empty() && payload.len()<=65536,"input limit");
+    // Closed, compiled byte inputs: no case can substitute a real solve or user data.
+    let expected: &[u8] = match case {
+        "validate_metadata"|"blocked_timeout" => include_bytes!("fixtures/validate_metadata.json"),
+        "missing_payload" => include_bytes!("fixtures/missing_payload.json"),
+        "malformed_json" => b"{",
+        _ => panic!("case is outside PARTIAL diagnostic inventory"),
+    };
+    assert!(payload.as_slice()==expected,"diagnostic input differs from compiled invented fixture");
     let pipe=win32::InputPipe::new(); let job=Job(win32::job());
     let (stdout_read,stdout_write)=win32::output_pipe(); let (stderr_read,stderr_write)=win32::output_pipe();
     // stdin=NUL (owned inside spawn); stdout/stderr=only these explicit writers.
     // No pipe server, Job, process, thread or output reader handle inherits.
     let nul=std::fs::OpenOptions::new().read(true).write(true).open("NUL").expect("NUL input");
     use std::os::windows::io::AsRawHandle;
-    let args=vec![verb.to_string(),"--input".into(),pipe.name.clone()];
+    let mut args=vec![verb.to_string(),"--input".into(),pipe.name.clone()];
+    if case!="blocked_timeout" {
+        // Explicit test intent for only the compiled invented diagnostic records.
+        // Source flag semantics, privacy warnings and audit records stay unchanged.
+        args.push("--explicit-local-private-intent".into());
+        println!("test_intent=invented_diagnostic_only case={case}");
+    }
     let mut runner=win32::spawn(job.0.0,&[],exe,&args,Some([nul.as_raw_handle(),stdout_write.0,stderr_write.0]));
     drop(stdout_write); drop(stderr_write);
     phase("CREATED_SUSPENDED"); // pre-loader, not settled startup.
@@ -116,6 +133,7 @@ fn run_case(case:&str,exe:&Path,input:&Path,output:&Path,verb:&str,ready:win32::
     assert_eq!(runner.code(),expected,"unexpected runner exit code");
     assert!(stderr.is_empty(),"unexpected runner stderr (withheld from log)");
     assert!(!stdout.is_empty(),"empty runner output");
+    println!("captured_output_bytes={} case={case}",stdout.len());
     std::fs::write(output,stdout).expect("bounded output write");
     println!("runner_exit_code={} case={case}",runner.code());
     win32::drain_job(job.0.0); assert_eq!(win32::job_active(job.0.0),0);

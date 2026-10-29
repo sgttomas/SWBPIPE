@@ -1,159 +1,145 @@
-# Actual headless Windows artifact/startup diagnostic
+# PARTIAL actual headless Windows startup diagnostics
 
-Experimental RT-V7 Later investigation. Native execution is pending until this
-candidate's supplemental hosted Windows job succeeds. This directory ships in
-the public export. It contains no production startup or allocator connection.
+Experimental RT-V7 Later diagnostic. The selected statements are request-metadata
+validation, two typed input refusals, input-open observations and independent
+blocked-input cleanup. **Full solve response is BLOCKED/UNVERIFIED at the
+unchanged 1 MiB capture cap.** A successful supplemental job establishes only the
+four named partial cases. It does not discharge the two original solve witnesses
+or their ten proposed live-output mutations.
 
-`run.ps1` is intended for the committed exact PR head on `windows-2025`, native
-x64 OS/process, Rust 1.97.1 MSVC. It builds the existing headless runner unchanged,
-with default features, its existing locked dependency graph and a fresh release
-target directory. The controller and its PE tests use `rustc` directly: no new
-manifest, lock, dependency or registry package. Compile/link/case output streams
-live; raw runner JSON stays in hosted scratch and is never uploaded. Paths are
-redacted in build/export output. Import and module observations accept only
-bounded simple public names; unsupported names fail rather than print paths.
+`run.ps1` builds the existing `openpipestress-runner` entry unchanged with
+Rust 1.97.1 MSVC, `--locked --release`, default features and a fresh target on
+native x64 `windows-2025`. The controller and nine PE tests compile directly with
+rustc; there is no new manifest, lock or registry dependency. Exact candidate,
+architecture, lock, executable hash and launched process path are checked.
+Compile/link/case diagnostics stream live. Raw captured JSON remains in hosted
+scratch. Names and counters are sanitized; private paths and identities do not
+enter maintained outputs.
 
-The workflow has a separate full committed public-export boundary/lint job. Its
-unchanged exporter invokes the empty-dependencies protected-content Rust linter.
-No exporter is run locally. Before export starts, that job requires every
-fixture hash in the committed generated P7 scope. Final evidence must bind
-`tools/release/provenance_scope.json` and every new file to the same candidate.
-The existing exporter's fixed-size lint batches exceed Windows command capacity
-for this tree; final export evidence awaits its separately owned batching repair.
-No reduced scan or batching change is introduced by this diagnostic.
-The exporter is not the separate DEC-058 owner scan or P7 scanner check.
+The executable inventory is exactly:
 
-The checked-in JSON preserves the actual Rust runner request metadata shape and
-actual `invented_non_engineering_example` provenance. It copies the maintained
-invented metadata shape. Its model derives from
-`fixtures/model_operations/precision_connected_ui_model.json`: retain only the
-axial nodal force and restrain the other five tip coordinates to keep this
-startup/API exercise small. The maintained source model is unchanged. It
-claims no engineering reference or numerical agreement. Metadata validation
-changes both operation fields to `validate_input` and omits the solve payload;
-that verb checks request metadata, not model validity. The missing-payload case
-is a deliberate refusal. Malformed JSON is a one-character hosted scratch
-input, not a falsely valid committed JSON file. P7 scope and routing outputs
-are generated on integrated source by the parent. The published
-`HeadlessRunnerRequest` definition excludes `tbd_decisions`, while actual Rust
-requires it. These CLI fixtures follow the maintained source shape; they do not
-claim conformance to that inconsistent schema definition or change it.
+- `validate_metadata`: a valid invented request, matching operation/reference
+  metadata, clean actual metadata validation, exit 0 and no runner/mechanics result.
+- `malformed_json`: exactly `{`, typed `HEADLESS_RUNNER_CLI_INPUT_JSON_INVALID`,
+  `RUNNER_BLOCKING`/`blocking`, exit 2, correct affected input and no request
+  validation, job or mechanics result.
+- `missing_payload`: valid invented metadata without `solve`, typed
+  `HEADLESS_RUNNER_SOLVE_PAYLOAD_MISSING`, `RUNNER_BLOCKING`/`blocking`, exit 1,
+  correct request reference and no job or mechanics result.
+- `blocked_timeout`: the actual CLI receives `validate-input` with its named
+  input connected but no bytes/EOF. The observer times out and confirms exit
+  and zero surviving Job members.
 
-## Source-bound gate and custody
+The separate blocked inventory names `solve_first`, `solve_repeat` and the ten
+live solve-output mutations. None runs automatically or counts as diagnostic
+success. The controller compares each input with its compiled fixture bytes
+(or the single malformed byte) before creating the runner. Unknown selections,
+wrong verbs and substitute payloads fail. Metadata and missing-payload fixtures
+have no solve payload; both typed refusal paths return before mechanics.
+`fixtures/solve.json` remains the exact failed diagnostic input/evidence basis,
+not an active case or an admitted response fallback.
 
-At the starting main revision `8e9392f10d22d217e34ffc5c28407024fed269d0`,
-`core/runner/headless/src/bin/openpipestress-runner.rs` calls `parse_args`, then
-`read_input` (named path uses `std::fs::read_to_string`), then
-`execute_json_with_mode` only after the full string read returns. The controller
-creates one local, byte-mode, outbound named pipe with remote clients rejected,
-first-instance exclusivity and protected SDDL
-`D:P(A;;GA;;;SY)(A;;GA;;;OW)` (System and object owner full access). The server
-handle is noninheritable. Its unique name is not logged. The connected client
-PID must equal the actual launched runner PID. No bytes or EOF are sent before
-`INPUT_CONNECTED_PAYLOAD_WITHHELD`. This marker proves the named path was opened
-inside `read_input`; it does not prove a pending ReadFile, quiescence, settled
-startup, allocator or worker initialization. A still-live process is checked.
-The pipe connection and write use bounded OVERLAPPED waits and cancellation;
-the independent observer can terminate a case stuck in a native operation.
+Metadata/refusal outputs have no mechanics rows. Their fixed source shapes have
+at most 40 scalar leaves, paths below 128 ASCII bytes and messages below 512
+bytes. Allowing 2 KiB per audit decision/finding pair plus payload/framing gives
+a conservative bound below 128 KiB for these selected inputs, below the unchanged
+1 MiB runtime guard. This source sizing is not native execution or a bound for
+any solve/user input.
 
-The script reads the pinned official Rust source over HTTPS in hosted Windows
-and streams bounded relevant source context and hashes for review. Its token
-checks are source-availability checks, not a semantic proof. The actual solve,
-metadata and malformed/refusal cases must demonstrate completed buffered input
-and broken-pipe EOF with this exact Rust/Windows artifact. If the std file path
-or pipe behavior fails, the job fails; no runner edit or wrapper fallback is
-allowed. A native success must be reviewed together with that source context.
-Until then compatibility remains unverified.
+## Explicit diagnostic intent and validation
 
-One observer outside the Job launches one case suspended with creation-time Job
-assignment, then resumes it. That case creates one unchanged runner suspended
-inside a nested Job; Windows also retains inherited outer Job membership. Both
-Jobs are kill-on-close, active-process limit 2 and job-memory limit 512 MiB. The
-outer Job therefore contains at most case+runner; observer is outside. These are
-diagnostic safety caps, never production admission equivalence. Any cap hit or
-abnormal exit fails the observation; counters do not identify the cause alone.
-No Job handle is inherited. The case inherits only NUL stdin, explicit duplicated
-stdout/stderr and its ready event. Runner inherits only NUL stdin and the two
-explicit stdout/stderr capture writers. The input server, read ends, process and
-thread handles are absent from both handle lists. Ambient environment is retained
-for normal native loading, never logged or qualified as a production environment.
+The three output-bearing cases add the existing documented
+`--explicit-local-private-intent` flag. This is explicit test intent only for the
+compiled, genuinely invented P7-labelled diagnostic records and their fixed
+invented error. It grants no user-data, protected-write, `--output` path,
+user-release or public-export authority. No payload-carried intent is trusted.
+The argv changes; the flag's source/semantics and all existing warnings/audits
+remain unchanged. The blocked-input case has no flag and never releases input.
+No solve is retried under the flag.
 
-The external observer keeps custody through case/runner faults. It terminates
-remaining members, observes the Job's active-process count at zero and the case
-process HANDLE signaled before `JOB_DRAINED`. Runner exit code is read only after
-its HANDLE signals; exit code 259 is never used as a liveness predicate. The real
-blocked-descendant control connects the unchanged runner, withholds all bytes
-and EOF, signals its gate, verifies two active outer members, then deliberately
-times out and kills both. It is a cleanup control, not a successful runner case.
-Job/handle layouts and launch/drain patterns are adapted into standalone source
-from committed `windows_arena_probe/src/win32.rs` and `arena_case_guard.rs`;
-there is no include or inherited claim from their tests.
+Operation-specific predicates check the real controlled export, observed exit,
+request/operation binding and exact refusal code/class/severity/source/affected
+reference. Metadata checks bound input refs because the CLI does not echo them;
+no output reference echo is invented. Null job/mechanics/result-validation fields
+are required, rather than accepting a fabricated completed status. Audit decision
+paths must cover every payload scalar; warning paths, findings and summary counts
+must agree. Nonblocking privacy warnings are preserved and do not fail by
+themselves. A refusal's local-private source-location warning is required.
 
-Each pipe phase waits at most 5 s (plus 1 s cancel); output completion 8 s,
-runner exit 3 s, case observer 25 s plus bounded 5 s drain/exit. Blocked control
-setup is 10 s plus a deliberate 200 ms timeout. Case bodies have the independent
-observer backstop. Each input is at most 64 KiB; combined captured stdout/stderr
-is at most 1 MiB. At most two bounded capture threads run in the case, outside
-the runner. They are diagnostic overhead. The six serial cases form a finite
-selection; workflow steps bound total time including a 45 minute fresh build
-budget and a separate 20 minute exporter budget.
+After each of the three successful captured baselines, twelve mutations exercise
+the same predicate: empty/malformed controlled object, missing payload, wrong
+operation, exit, runner status, validation or refs, wrong/missing typed diagnostic,
+missing audit, stripped warnings and unexpected privacy blocking. Wrong input
+refs mutate the paired bound fixture context; other mutations alter the actual
+captured output or observed exit. Expected total: **36 diagnostic mutations**,
+not the ten unexecuted live solve mutations. Missing-marker, wrong-candidate,
+empty/unknown-selection and blocked-inventory controls remain separate.
 
-## Observations and limits
+## Gate, custody and observations
 
-PE inspection parses the actual executable's PE32+ AMD64 headers, stack
-reserve/commit, image/header/file sizes and regular/delay DLLs and imported
-symbols/ordinals. It validates bounded raw/RVA/section/directory/string/thunk
-ranges and checked arithmetic; unsupported/malformed input fails. Hosted
-`rustc --test pe.rs` runs the exact nine-test inventory including every truncated
-prefix of the synthetic bounded PE, empty/wrong-machine/overflow/bad-directory/
-unbacked-import/unterminated-import/raw-bounds controls. Synthetic PE tests do
-not count as actual runner inspection. The SHA256 is checked before/after all
-cases, and QueryFullProcessImageNameW binds each actual launched process to the
-candidate path. Cargo metadata is never PE evidence.
+The CLI parses args, calls `read_input` through `std::fs::read_to_string`, then
+parses/executes only after complete input/EOF. A local byte-mode outbound named
+pipe rejects remote clients, uses first-instance exclusivity and protected SDDL
+`D:P(A;;GA;;;SY)(A;;GA;;;OW)` (System/object owner). The noninheritable server
+verifies the client's actual runner PID while withholding every byte/EOF.
+`INPUT_CONNECTED_PAYLOAD_WITHHELD` proves this source-bound input open only,
+not pending ReadFile, quiescence, settled startup or allocator initialization.
+Pinned official std source context/hashes are streamed; actual compatibility
+requires the native diagnostic outputs and cleanup witnesses.
 
-Markers are CREATED_SUSPENDED (pre-loader only), RESUMED,
-INPUT_CONNECTED_PAYLOAD_WITHHELD, PAYLOAD_SENT_EOF, OUTPUT_COMPLETE,
-EXIT_OBSERVED and JOB_DRAINED. Missing, duplicate or out-of-order required
-markers fail; the deliberately blocked control requires only its three live
-markers and the external drain marker. Wrong candidate, empty/unknown selection
-and missing marker controls exercise the same predicates as actual witnesses.
-Successful solves also require an identified completed job, present clean
-request/result validations, empty runner diagnostics, no blocking mechanics
-diagnostics (normal warning rows remain), and nonempty
-result references and rows. Ten mutations of the actual first successful output
-must fail this same predicate: failed job, blocking diagnostics in each of four
-nested locations, empty runner, missing request/result validation, empty result
-references and empty mechanics rows. Those mutations are controls, not solver
-or numerical qualification.
+The independent observer launches the case with creation-time Job assignment;
+the case creates the runner in a nested Job, retaining outer membership. Job
+handles never inherit. Only named standard handles and the case's ready event
+inherit. There is at most one runner and two outer Job processes. Kill-on-close,
+active-process limit 2 and 512 MiB Job memory are diagnostic safety guards,
+not production memory admission. Any guard hit fails the statement.
 
-At the gated live phase, separate counters report GetProcessMemoryInfo private
-usage, working set and peak working set; VirtualQueryEx sums private/image/mapped
-commit/reserve; a Toolhelp snapshot counts threads; module basenames use bounded
-PSAPI enumeration with three retries and explicit failure. These operations
-race with normal runtime activity, occur sequentially with timing gaps, and
-cannot establish a maximum, exact heap attribution, liability, physical backing
-or Native/System bypass isolation. Module enumeration may still race even when
-an API call succeeds. The main PE stack facts do not bound other thread stacks.
-First fresh and repeated launches are observations, not true cold-cache proof
-or a performance claim. No transient running samples or upper bounds are claimed.
+IO phases use bounded OVERLAPPED waits (5 s plus 1 s cancellation); capture has
+an 8 s deadline, exit wait 3 s, outer case timeout 25 s and drain/exit 5 s. The
+blocked control uses a 10 s gate setup and deliberate 200 ms timeout. Input stays
+at most 64 KiB; combined capture stays at most 1 MiB. Capture threads belong to
+the case, not the runner. EOF/kill requests do not release custody: process
+HANDLE signalling precedes exit-code inspection (including 259), and independent
+Job drain must observe active zero. Markers are ordered and checked once each:
+CREATED_SUSPENDED, RESUMED, INPUT_CONNECTED_PAYLOAD_WITHHELD, PAYLOAD_SENT_EOF,
+OUTPUT_COMPLETE, EXIT_OBSERVED, JOB_DRAINED. The blocked case stops at its gate
+and requires the external termination/drain markers.
 
-This is not the desktop PE, same-app solver worker or parent general interactive
-constructor path. RT-E1 reader/writer threads are parent liabilities and are not
-observed by this headless artifact. R64, Nphysical/Ncommit/native/stack bounds,
-production global allocator and numerical meaning remain unqualified. Retained
-Windows registration remains Stale. Private/native/CRT/TLS, mappings, kernel IO,
-helpers and future stack touch costs remain unknown. Next minimal evidence is
-independent review of native source/artifact witnesses, followed by a separately
-steered actual worker boundary and enforceable nonarena accounting.
+Actual PE32+ AMD64 parsing reports imports, delay imports, sizes and main-stack
+headers with bounded RVA/raw/section/string/table checks. The exact nine-test
+inventory includes truncation, wrong machine and malformed bounds controls.
+Live gated samples separately report private usage, WS/peak WS, VA region types,
+thread counts and module basenames with bounded failure/retry handling. These
+are sequential observations with races/gaps, not maxima, exact heap attribution,
+physical/commit liabilities or other-thread stack bounds. No cold-cache or
+performance claim follows. This is not the desktop PE, same-app solver worker or
+RT-E1 parent framing threads. R64 and Nphysical/Ncommit/native/stack bounds remain
+unqualified; Windows retained registration remains Stale.
+
+## Public boundary and remaining solve constraint
+
+Every file here ships in the existing public export. Fixtures honestly retain
+`invented_non_engineering_example`/`pending`; authoritative P7 generation binds
+their exact bytes. The narrow project attribute rule preserves those bytes under
+autocrlf and survives the public cutdown. Actual Rust request shape requires
+`tbd_decisions`, which the published HeadlessRunnerRequest definition excludes;
+this unit does not change that schema or claim full schema conformance.
+
+The full raw-committed-candidate exporter remains required before fan-in, including
+all new files and generated P7 entries. Its job is explicitly deferred until the
+separate verified exporter batching repair is merged, then must be enabled and
+pass; a skipped export is not boundary evidence or release authority. No exporter
+source is edited here. Full solve representation cost remains an item in the
+owning DEL-04-07 Design, cross-referenced to DEL-10-05 and #1742's source-qualified
+F-1 observation. Actual failed runs and the maintained-carrier size illustration
+are retained there; no limit, method, projection or serializer is changed.
 
 Official basis: [PE/COFF](https://learn.microsoft.com/en-us/windows/win32/debug/pe-format),
-[Rust fs::read_to_string](https://doc.rust-lang.org/std/fs/fn.read_to_string.html),
 [pinned Rust fs source](https://github.com/rust-lang/rust/blob/1.97.1/library/std/src/fs.rs),
 [pinned Windows fs source](https://github.com/rust-lang/rust/blob/1.97.1/library/std/src/sys/fs/windows.rs),
 [pinned Windows handle source](https://github.com/rust-lang/rust/blob/1.97.1/library/std/src/sys/pal/windows/handle.rs),
 [named pipe security](https://learn.microsoft.com/en-us/windows/win32/ipc/named-pipe-security-and-access-rights),
 [pipe operations](https://learn.microsoft.com/en-us/windows/win32/ipc/synchronous-and-overlapped-pipe-i-o),
-[ReadFile](https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-readfile),
 [client PID](https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getnamedpipeclientprocessid),
 [process attributes](https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-updateprocthreadattribute),
 [Jobs](https://learn.microsoft.com/en-us/windows/win32/procthread/job-objects),

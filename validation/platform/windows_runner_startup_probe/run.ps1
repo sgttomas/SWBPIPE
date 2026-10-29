@@ -13,6 +13,16 @@ Assert-Candidate $env:EXPECTED_HEAD
 if ((& git status --porcelain --untracked-files=all)) { throw 'Committed clean candidate required' }
 $root = $PSScriptRoot
 $project = Join-Path $top 'projects/chirality-piping'
+$p7 = Get-Content (Join-Path $project 'tools/release/provenance_scope.json') -Raw | ConvertFrom-Json -Depth 100
+$fixtureFiles = @(Get-ChildItem (Join-Path $root 'fixtures/*.json') | Sort-Object Name)
+if (($fixtureFiles.Name -join ',') -cne 'missing_payload.json,solve.json,validate_metadata.json') { throw 'Changed approved fixture inventory' }
+foreach ($file in $fixtureFiles) {
+    $relative = 'validation/platform/windows_runner_startup_probe/fixtures/' + $file.Name
+    $entry = @($p7.members | Where-Object { $_.path -ceq $relative })
+    $record = Get-Content $file.FullName -Raw | ConvertFrom-Json -Depth 100
+    if ($entry.Count -ne 1 -or $entry[0].sha256 -cne (Get-FileHash $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant() -or $record.request.provenance.redistribution_status -cne 'invented_non_engineering_example' -or $record.request.provenance.review_status -cne 'pending') { throw 'Approved invented P7 fixture bytes/labels differ from candidate' }
+}
+Write-Host 'P7 committed fixture hashes/labels checked; solve fixture remains inactive'
 $lock = Join-Path $project 'core/runner/headless/Cargo.lock'
 $lockHash = '14397ed0733124d4dd8ac34ea14ec15b0274b30a0a0c2a65f2955e57b9e35e2c'
 if ((Get-FileHash $lock -Algorithm SHA256).Hash.ToLowerInvariant() -ne $lockHash) { throw 'Runner lock identity mismatch' }
@@ -62,13 +72,24 @@ $hash = (Get-FileHash $runner -Algorithm SHA256).Hash.ToLowerInvariant()
 Write-Host "artifact=openpipestress-runner.exe sha256=$hash"
 & $controller --pe $runner
 if ($LASTEXITCODE -ne 0) { throw 'Actual runner PE inspection failed' }
-$expected = @('solve_first','solve_repeat','validate_metadata','malformed_json','missing_payload','blocked_timeout')
+$expected = @('validate_metadata','malformed_json','missing_payload','blocked_timeout')
+$blockedExpected = @('solve_first=BLOCKED_UNVERIFIED_CAPTURE_CAP','solve_repeat=BLOCKED_UNVERIFIED_CAPTURE_CAP','ten_live_solve_mutations=UNVERIFIED')
+$blockedActual = @(& $controller --blocked-inventory)
+if ($LASTEXITCODE -ne 0 -or ($blockedActual -join ',') -cne ($blockedExpected -join ',')) { throw 'Blocked solve inventory mismatch' }
+$blockedActual | ForEach-Object { Write-Host "NOT_EXECUTED $_" }
+Write-Host 'COVERAGE=PARTIAL metadata/typed-error/blocked-input/cleanup; solve=BLOCKED_UNVERIFIED'
+
 $actual = @(& $controller --inventory)
 if ($LASTEXITCODE -ne 0 -or ($actual -join ',') -cne ($expected -join ',')) { throw 'Missing or extra case selection' }
-& $controller --supervise wrong_candidate $runner unused unused solve 2>&1 | Out-Null
+& $controller --supervise wrong_candidate $runner unused unused validate-input 2>&1 | Out-Null
 if ($LASTEXITCODE -eq 0) { throw 'Wrong selection control falsely passed' }
 & $controller 2>&1 | Out-Null
 if ($LASTEXITCODE -eq 0) { throw 'Empty selection control falsely passed' }
+# The closed input guard must reject another approved fixture before spawning
+# any runner, while the independent observer still confirms case cleanup.
+$substitution = @(& $controller --supervise validate_metadata $runner (Join-Path $root 'fixtures/missing_payload.json') (Join-Path $work 'rejected.output') validate-input 2>&1 | ForEach-Object { Write-Host $_; $_ })
+if ($LASTEXITCODE -eq 0 -or -not (($substitution -join "`n").Contains('phase=JOB_DRAINED case=validate_metadata active=0 case_exit_observed=true')) -or (($substitution -join "`n").Contains('phase=CREATED_SUSPENDED'))) { throw 'Substitute-input guard or cleanup falsely passed' }
+Write-Host 'INPUT_SUBSTITUTION_REJECTED cleanup_active=0 runner_created=false'
 # Malformed JSON is created in hosted scratch from an explicitly invented
 # one-character truncation. It is not a falsely valid checked-in JSON document.
 $bad = Join-Path $work 'malformed-input'
@@ -87,87 +108,156 @@ function Assert-Markers([string[]]$lines, [string]$case, [bool]$blocked) {
     if ($blocked -and -not ($lines -contains 'BLOCKED_DESCENDANT_TIMEOUT_CONFIRMED')) { throw 'Real blocked descendant was not exercised' }
 }
 # A removed gate must fail the same marker checker used for actual witnesses.
-$synthetic = @('CREATED_SUSPENDED','RESUMED','PAYLOAD_SENT_EOF','OUTPUT_COMPLETE','EXIT_OBSERVED') | ForEach-Object { "phase=$_ case=solve_first" }
-$synthetic += 'phase=JOB_DRAINED case=solve_first active=0 case_exit_observed=true'
+$synthetic = @('CREATED_SUSPENDED','RESUMED','PAYLOAD_SENT_EOF','OUTPUT_COMPLETE','EXIT_OBSERVED') | ForEach-Object { "phase=$_ case=validate_metadata" }
+$synthetic += 'phase=JOB_DRAINED case=validate_metadata active=0 case_exit_observed=true'
 $caught = $false
-try { Assert-Markers $synthetic 'solve_first' $false } catch { $caught = $true }
+try { Assert-Markers $synthetic 'validate_metadata' $false } catch { $caught = $true }
 if (-not $caught) { throw 'Missing-marker negative control falsely passed' }
 # Wrong candidate identity check uses the actual expected-head predicate.
 $caught = $false
 try { Assert-Candidate ('0' * 40) } catch { $caught = $true }
 if (-not $caught) { throw 'Wrong candidate negative control falsely passed' }
 Write-Host 'identity/selection/missing-marker negative controls rejected'
-# This is the same predicate used for live solves and mutated live outputs.
+# Source-bound small outputs only: metadata carries no runner/mechanics result;
+# each refusal carries one fixed-shape diagnostic and no mechanics rows. At most
+# 40 scalar leaves, paths <128 ASCII bytes and fixed messages <512 bytes give a
+# conservative <128 KiB serialized control/audit bound, below the unchanged 1 MiB
+# runtime guard. This bound does not apply to a solve response.
+function Assert-Object($value, [string]$label) {
+    if ($value -isnot [pscustomobject]) { throw "Missing or malformed $label object" }
+}
 function Assert-EmptyDiagnostics($owner, [string]$label) {
-    if ($null -eq $owner -or $null -eq $owner.PSObject.Properties['diagnostics'] -or $owner.diagnostics -isnot [array] -or @($owner.diagnostics).Count -ne 0) { throw "Missing or non-clean $label diagnostics" }
+    Assert-Object $owner $label
+    if ($null -eq $owner.PSObject.Properties['diagnostics'] -or $owner.diagnostics -isnot [array] -or @($owner.diagnostics).Count -ne 0) { throw "Missing or non-clean $label diagnostics" }
 }
-function Assert-SolveOutput($p) {
-    if ($p.operation -cne 'solve' -or $null -eq $p.runner_result -or $p.runner_result.job.state -cne 'COMPLETED' -or [string]::IsNullOrWhiteSpace($p.runner_result.run_id) -or [string]::IsNullOrWhiteSpace($p.runner_result.job.job_id)) { throw 'Supported solve requires a completed identified job' }
-    Assert-EmptyDiagnostics $p 'CLI'
-    Assert-EmptyDiagnostics $p.request_validation 'request validation'
-    Assert-EmptyDiagnostics $p.result_validation 'result validation'
-    Assert-EmptyDiagnostics $p.runner_result 'runner result'
-    # The product deliberately emits RULE_CHECK_INPUTS_MISSING as a warning.
-    # Preserve warnings; a missing, malformed or blocking diagnostic fails.
-    if ($null -eq $p.mechanics_envelope -or $null -eq $p.mechanics_envelope.PSObject.Properties['diagnostics'] -or $p.mechanics_envelope.diagnostics -isnot [array]) { throw 'Missing mechanics diagnostics' }
-    foreach ($diagnostic in $p.mechanics_envelope.diagnostics) {
-        if ($diagnostic.severity -cnotin @('info','warning') -or [string]::IsNullOrWhiteSpace($diagnostic.code)) { throw 'Blocking or malformed mechanics diagnostic' }
+function Get-LeafPaths($value, [string]$path) {
+    if ($value -is [pscustomobject]) {
+        foreach ($property in $value.PSObject.Properties) { Get-LeafPaths $property.Value ($path + '.' + $property.Name) }
+    } elseif ($value -is [array]) {
+        for ($index=0; $index -lt $value.Count; $index++) { Get-LeafPaths $value[$index] ($path + '[' + $index + ']') }
+    } else { $path }
+}
+function Assert-InputBinding($context, [string]$case) {
+    Assert-Object $context 'bound fixture'
+    Assert-Object $context.request 'request'
+    $operation = if ($case -eq 'validate_metadata') { 'validate_input' } else { 'solve' }
+    $r = $context.request
+    if ($r.request_id -cne 'invented-startup-diagnostic' -or $r.operation -cne $operation -or $r.operation_ref.ref_type -cne 'api_operation' -or $r.operation_ref.ref_id -cne $operation) { throw 'Request/operation reference binding mismatch' }
+    if ($r.project_ref.ref_type -cne 'project' -or $r.project_ref.ref_id -cne 'project:precision-connected-fixture' -or $r.model_ref.ref_type -cne 'model' -or $r.model_ref.ref_id -cne 'project:precision-connected-fixture') { throw 'Project/model reference binding mismatch' }
+    if ($r.provenance.redistribution_status -cne 'invented_non_engineering_example' -or $r.provenance.review_status -cne 'pending' -or $null -ne $context.PSObject.Properties['solve']) { throw 'Diagnostic fixture must be genuinely invented metadata without a solve payload' }
+}
+function Assert-Controlled($controlled) {
+    Assert-Object $controlled 'controlled export'
+    if ($controlled.blocked -isnot [bool] -or $controlled.blocked -ne $false -or $controlled.decisions -isnot [array] -or $controlled.findings -isnot [array]) { throw 'Malformed or unexpectedly blocked privacy outcome' }
+    Assert-Object $controlled.payload 'controlled payload'
+    Assert-Object $controlled.summary 'privacy summary'
+    $leaves = @(Get-LeafPaths $controlled.payload '$' | Sort-Object)
+    $decisions = @($controlled.decisions.path | Sort-Object)
+    if ($leaves.Count -eq 0 -or ($leaves -join "`n") -cne ($decisions -join "`n")) { throw 'Missing or extra privacy audit decision paths' }
+    $warningPaths = @($controlled.decisions | Where-Object { $_.action -ceq 'warning_only' } | ForEach-Object { $_.path } | Sort-Object)
+    $findingPaths = @($controlled.findings.path | Sort-Object)
+    if (($warningPaths -join "`n") -cne ($findingPaths -join "`n")) { throw 'Privacy warnings were removed or fabricated' }
+    foreach ($decision in $controlled.decisions) {
+        if ($decision.action -cnotin @('include','warning_only') -or [string]::IsNullOrWhiteSpace($decision.reason_code)) { throw 'Unexpected privacy decision' }
     }
-    if ($p.mechanics_envelope.status.mechanics -cne 'MECHANICS_SOLVED' -or $p.runner_result.result_refs -isnot [array] -or @($p.runner_result.result_refs).Count -eq 0 -or $p.mechanics_envelope.results -isnot [array] -or @($p.mechanics_envelope.results).Count -eq 0) { throw 'Supported solve requires nonempty successful result rows and references' }
+    foreach ($finding in $controlled.findings) {
+        if ($finding.severity -cne 'WARNING' -or $finding.action -cne 'warning_only' -or [string]::IsNullOrWhiteSpace($finding.code)) { throw 'Unexpected blocking or malformed privacy finding' }
+    }
+    if ($controlled.summary.decision_count -ne $decisions.Count -or $controlled.summary.finding_count -ne $findingPaths.Count -or $controlled.summary.warning_count -ne $findingPaths.Count -or $controlled.summary.blocking_count -ne 0 -or $controlled.summary.redacted_count -ne 0 -or $controlled.summary.omitted_count -ne 0 -or $controlled.summary.cloud_transmission_attempted -ne $false -or $controlled.summary.professional_claims_made -ne $false) { throw 'Privacy summary disagrees with retained audit' }
 }
-function Assert-SolveMutationControls($good) {
-    $mutations = @('failed_job','runner_blocking','request_blocking','result_blocking','mechanics_blocking','empty_runner','missing_request_validation','missing_result_validation','empty_result_refs','empty_mechanics_rows')
+function Assert-DiagnosticOutput($controlled, [string]$case, $context, [int]$observedExit) {
+    Assert-Controlled $controlled
+    $p = $controlled.payload
+    $verb = if ($case -eq 'validate_metadata') { 'validate-input' } else { 'solve' }
+    $operation = if ($case -eq 'validate_metadata') { 'validate_input' } else { 'solve' }
+    $expectedExit = switch ($case) { 'validate_metadata' { 0 } 'malformed_json' { 2 } 'missing_payload' { 1 } default { throw 'Not an output-bearing diagnostic case' } }
+    if ($observedExit -ne $expectedExit -or $p.artifact -cne 'openpipestress.headless_runner_cli_output' -or $p.schema_version -cne '1.0.0' -or $p.deliverable_id -cne 'DEL-10-05' -or $p.package_id -cne 'PKG-10' -or $p.command -cne $verb -or $p.operation -cne $operation) { throw 'Wrong diagnostic identity, operation or observed exit' }
+    Assert-Object $p.policy 'CLI policy'
+    if ($p.policy.policy_ref -cne 'DEC-065' -or $p.policy.binary -cne 'openpipestress-runner') { throw 'Wrong existing CLI policy identity' }
+    foreach ($key in @('stdout_default','explicit_output_path_only','local_foreground_process','network_allowed','telemetry_allowed','daemon_allowed','hidden_filesystem_mutation_allowed','direct_sql_access_allowed')) {
+        $wanted = $key -cin @('stdout_default','explicit_output_path_only','local_foreground_process')
+        if ($p.policy.$key -isnot [bool] -or $p.policy.$key -ne $wanted) { throw 'Wrong existing CLI policy flag' }
+    }
+    foreach ($key in @('runner_result','mechanics_envelope','result_validation','suite_run')) {
+        if ($null -eq $p.PSObject.Properties[$key] -or $null -ne $p.$key) { throw 'Metadata/refusal case must not claim a completed job or mechanics result' }
+    }
+    if ($p.diagnostics -isnot [array]) { throw 'Missing diagnostics array' }
+    if ($case -eq 'validate_metadata') {
+        Assert-InputBinding $context $case
+        Assert-EmptyDiagnostics $p.request_validation 'actual request metadata validation'
+        if ($p.diagnostics.Count -ne 0) { throw 'Unexpected metadata diagnostic' }
+        return
+    }
+    if ($p.diagnostics.Count -ne 1) { throw 'Expected exactly one typed diagnostic' }
+    $d = $p.diagnostics[0]
+    $expectedCode = if ($case -eq 'malformed_json') { 'HEADLESS_RUNNER_CLI_INPUT_JSON_INVALID' } else { 'HEADLESS_RUNNER_SOLVE_PAYLOAD_MISSING' }
+    if ($d.code -cne $expectedCode -or $d.class -cne 'RUNNER_BLOCKING' -or $d.severity -cne 'blocking' -or $d.source.ref_type -cne 'headless_runner' -or $d.source.ref_id -cne 'DEL-10-05') { throw 'Wrong typed refusal code, severity, class or source' }
+    if ($case -eq 'missing_payload') {
+        Assert-InputBinding $context $case
+        Assert-EmptyDiagnostics $p.request_validation 'pre-refusal metadata validation'
+        if ($d.affected_object.ref_type -cne 'runner_request' -or $d.affected_object.ref_id -cne $context.request.request_id -or $d.message -cne 'solve command requires solve.preview_model in the schema-first input JSON') { throw 'Wrong missing-payload refusal binding' }
+    } else {
+        if ($null -ne $p.request_validation -or $d.affected_object.ref_type -cne 'cli_input' -or $d.affected_object.ref_id -cne 'stdin-or-file' -or -not $d.message.StartsWith('input must be a JSON object with request metadata: ')) { throw 'Malformed input unexpectedly reached request validation or has wrong typed binding' }
+    }
+    if ($d.provenance.redistribution_status -cne 'invented_non_engineering_example' -or $d.provenance.source_location -cne 'core/runner/headless') { throw 'Wrong existing diagnostic provenance' }
+    $intentWarnings = @($controlled.findings | Where-Object { $_.path -ceq '$.diagnostics[0].provenance.source_location' -and $_.code -ceq 'PRIVATE_LOCAL_ALLOWED_WITH_WARNING' })
+    if ($intentWarnings.Count -ne 1) { throw 'Explicit diagnostic intent warning was not preserved' }
+}
+function Assert-DiagnosticMutationControls($captured, [string]$case, $context, [int]$observedExit) {
+    $mutations = @('empty','malformed','missing_payload','wrong_operation','wrong_exit','wrong_runner_status','wrong_validation','wrong_refs','typed_diagnostics','missing_audit','stripped_warnings','blocked_privacy')
     foreach ($kind in $mutations) {
-        $badOutput = $good | ConvertTo-Json -Depth 100 -Compress | ConvertFrom-Json -Depth 100
-        $blocking = @([pscustomobject]@{ code='INVENTED_NEGATIVE_CONTROL'; severity='blocking' })
+        $changed = $captured | ConvertTo-Json -Depth 100 -Compress | ConvertFrom-Json -Depth 100
+        $bound = if ($null -eq $context) { $null } else { $context | ConvertTo-Json -Depth 100 -Compress | ConvertFrom-Json -Depth 100 }
+        $changedExit = $observedExit
         switch ($kind) {
-            'failed_job' { $badOutput.runner_result.job.state='FAILED' }
-            'runner_blocking' { $badOutput.runner_result.diagnostics=$blocking }
-            'request_blocking' { $badOutput.request_validation.diagnostics=$blocking }
-            'result_blocking' { $badOutput.result_validation.diagnostics=$blocking }
-            'mechanics_blocking' { $badOutput.mechanics_envelope.diagnostics=$blocking }
-            'empty_runner' { $badOutput.runner_result=[pscustomobject]@{} }
-            'missing_request_validation' { $badOutput.request_validation=$null }
-            'missing_result_validation' { $badOutput.result_validation=$null }
-            'empty_result_refs' { $badOutput.runner_result.result_refs=@() }
-            'empty_mechanics_rows' { $badOutput.mechanics_envelope.results=@() }
-            default { throw 'Unknown mutation selection' }
+            'empty' { $changed=[pscustomobject]@{} }
+            'malformed' { $changed='not a controlled object' }
+            'missing_payload' { $changed.payload=$null }
+            'wrong_operation' { $changed.payload.operation='run_benchmark' }
+            'wrong_exit' { $changedExit=99 }
+            'wrong_runner_status' { $changed.payload.runner_result=[pscustomobject]@{job=[pscustomobject]@{state='COMPLETED'}} }
+            'wrong_validation' { $changed.payload.request_validation=if ($case -eq 'malformed_json') { [pscustomobject]@{diagnostics=@()} } else { $null } }
+            'wrong_refs' { if ($null -ne $bound) { $bound.request.operation_ref.ref_id='wrong-reference' } else { $changed.payload.diagnostics[0].affected_object.ref_id='wrong-reference' } }
+            'typed_diagnostics' { if ($case -eq 'validate_metadata') { $changed.payload.diagnostics=@([pscustomobject]@{code='INVENTED_BAD_DIAGNOSTIC'}) } else { $changed.payload.diagnostics[0].code='INVENTED_WRONG_CODE' } }
+            'missing_audit' { $changed.decisions=@(); $changed.summary.decision_count=0 }
+            'stripped_warnings' { $changed.findings=@(); $changed.summary.finding_count=0; $changed.summary.warning_count=0 }
+            'blocked_privacy' { $changed.blocked=$true }
+            default { throw 'Unknown diagnostic mutation selection' }
         }
         $rejected=$false
-        try { Assert-SolveOutput $badOutput } catch { $rejected=$true }
-        if (-not $rejected) { throw "Solve output mutation falsely accepted: $kind" }
-        Write-Host "solve_output_mutation=$kind rejected=true"
+        try { Assert-DiagnosticOutput $changed $case $bound $changedExit } catch { $rejected=$true }
+        if (-not $rejected) { throw "Diagnostic mutation falsely accepted: case=$case mutation=$kind" }
+        Write-Host "diagnostic_mutation=$kind case=$case rejected=true"
     }
-    Write-Host "SOLVE_OUTPUT_NEGATIVE_CONTROLS count=$($mutations.Count)"
+    Write-Host "DIAGNOSTIC_OUTPUT_NEGATIVE_CONTROLS case=$case count=$($mutations.Count)"
 }
+$executed = 0
+$mutationCount = 0
 foreach ($case in $expected) {
-    $verb = 'solve'; $payloadPath = Join-Path $root 'fixtures/solve.json'
-    if ($case -eq 'validate_metadata') { $verb='validate-input'; $payloadPath=Join-Path $root 'fixtures/validate_metadata.json' }
-    if ($case -eq 'missing_payload') { $payloadPath=Join-Path $root 'fixtures/missing_payload.json' }
-    if ($case -eq 'malformed_json') { $payloadPath=$bad }
+    $verb = if ($case -in @('validate_metadata','blocked_timeout')) { 'validate-input' } else { 'solve' }
+    $payloadPath = if ($case -eq 'missing_payload') { Join-Path $root 'fixtures/missing_payload.json' } elseif ($case -eq 'malformed_json') { $bad } else { Join-Path $root 'fixtures/validate_metadata.json' }
+    $context = if ($case -eq 'malformed_json') { $null } else { Get-Content $payloadPath -Raw | ConvertFrom-Json -Depth 100 }
+    if ($case -eq 'validate_metadata' -or $case -eq 'missing_payload') { Assert-InputBinding $context $case }
     $output = Join-Path $work ($case + '.output')
-    Write-Host "START case=$case"
+    Write-Host "START PARTIAL case=$case"
     $lines = @(& $controller --supervise $case $runner $payloadPath $output $verb | ForEach-Object { Write-Host $_; $_ })
-    if ($LASTEXITCODE -ne 0) { throw "Case failed: $case" }
+    if ($LASTEXITCODE -ne 0) { throw "Partial diagnostic case failed: $case" }
     Assert-Markers $lines $case ($case -eq 'blocked_timeout')
-    if ($case -eq 'blocked_timeout') { continue }
-    if ((Get-Item $output).Length -gt 1048576) { throw 'Output limit exceeded' }
-    $controlled = Get-Content $output -Raw | ConvertFrom-Json -Depth 100
-    if ($controlled.blocked -ne $false -or $null -eq $controlled.payload) { throw 'Unexpected redaction outcome' }
-    $p = $controlled.payload
-    if ($p.artifact -cne 'openpipestress.headless_runner_cli_output' -or $p.schema_version -cne '1.0.0' -or $p.command -cne $verb -or $p.policy.policy_ref -cne 'DEC-065') { throw 'Wrong output envelope' }
-    if ($case -in @('solve_first','solve_repeat')) {
-        Assert-SolveOutput $p
-        if ($case -eq 'solve_first') { Assert-SolveMutationControls $p }
-    } elseif ($case -eq 'validate_metadata') {
-        if ($p.operation -cne 'validate_input' -or $null -eq $p.request_validation -or @($p.request_validation.diagnostics).Count -ne 0 -or @($p.diagnostics).Count -ne 0 -or $null -ne $p.runner_result -or $null -ne $p.mechanics_envelope) { throw 'Metadata-only validation contract mismatch' }
-    } else {
-        $code = if ($case -eq 'malformed_json') { 'HEADLESS_RUNNER_CLI_INPUT_JSON_INVALID' } else { 'HEADLESS_RUNNER_SOLVE_PAYLOAD_MISSING' }
-        if (@($p.diagnostics).Count -ne 1 -or $p.diagnostics[0].code -cne $code -or $null -ne $p.runner_result) { throw 'Typed refusal contract mismatch' }
+    if ($case -ne 'blocked_timeout') {
+        if ((Get-Item $output).Length -gt 1048576) { throw 'Output cap exceeded' }
+        $exitMatches = @($lines | Where-Object { $_ -cmatch "^runner_exit_code=([0-9]+) case=$case`$" })
+        if ($exitMatches.Count -ne 1 -or $exitMatches[0] -cnotmatch "^runner_exit_code=([0-9]+) case=$case`$") { throw 'Missing or ambiguous observed exit evidence' }
+        $observedExit = [int]$Matches[1]
+        $captured = Get-Content $output -Raw | ConvertFrom-Json -Depth 100
+        Assert-DiagnosticOutput $captured $case $context $observedExit
+        Assert-DiagnosticMutationControls $captured $case $context $observedExit
+        $mutationCount += 12
     }
-    Write-Host "END case=$case output_contract=pass"
+    $executed++
+    Write-Host "END PARTIAL case=$case statement=pass"
 }
+if ($executed -ne 4 -or $mutationCount -ne 36) { throw 'Partial execution/mutation count mismatch' }
 if ((Get-FileHash $runner -Algorithm SHA256).Hash.ToLowerInvariant() -ne $hash) { throw 'Runner artifact changed during cases' }
-Write-Host 'Finite startup diagnostic complete; first/repeated launches are not a cold-cache or performance proof.'
+Write-Host "PARTIAL_DIAGNOSTICS executed=$executed captured_output_mutations=$mutationCount solve=BLOCKED_UNVERIFIED live_solve_mutations=UNVERIFIED"
 # No raw JSON, PE, compiler logs or absolute paths are uploaded by this script.
 Remove-Item -Recurse -Force $work

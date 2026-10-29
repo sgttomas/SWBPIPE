@@ -1,160 +1,179 @@
-# Windows actual headless artifact/startup diagnostic — RT-V7 Later
+# PARTIAL Windows headless artifact/startup diagnostics — RT-V7 Later
 
-Maturity: implemented experimental diagnostic; hosted compilation/native evidence
-and independent review pending. Source basis is integrated main
-`8e9392f10d22d217e34ffc5c28407024fed269d0`. This adds one finite investigation
-after `windows-arena-probe.md`'s production startup audit. macOS-first is unchanged.
+Maturity: experimental finite diagnostic; current partial native execution and
+round-2 independent review pending. Integrated production basis is main
+`9ef6c4c46938b6ee7fe7dddf785cbb707bbf7577`. The runner entry/manifest/lock are
+unchanged by this unit; inherited solver corrections/guards remain intact.
+macOS-first release, governing memory policy and retained qualification do not
+change. Implementation: `validation/platform/windows_runner_startup_probe/`.
 
-The maintained implementation and detailed protocol are in
-`validation/platform/windows_runner_startup_probe/README.md`. The supplemental
-`.github/workflows/piping-windows-runner-startup-probe.yml` builds the actual
-unchanged `openpipestress-runner` in native x64 Windows, Rust 1.97.1 MSVC, default
-features, `--locked --release`, into a fresh hosted target. The runner lock
-SHA256 is `14397ed0733124d4dd8ac34ea14ec15b0274b30a0a0c2a65f2955e57b9e35e2c`.
-The independent controller compiles directly with rustc, without another Cargo
-manifest, lock or registry package. Existing source, methods, guards, fixtures,
-reference values and workflows are untouched.
+## Selected statements and exclusions
 
-The runner's `main` parses arguments then calls `read_input` on the named path
-using `std::fs::read_to_string`; only after its complete read does it parse JSON
-and execute the request. A local pipe server verifies the connected runner PID
-while withholding every byte and EOF. The exact marker
-`INPUT_CONNECTED_PAYLOAD_WITHHELD` establishes input-path open only. It is not
-ReadFile quiescence, settled startup, worker or allocator initialization, or
-time-based readiness. Pinned official std source context is streamed by the
-hosted script; token checks establish source availability only. Native success
-must independently establish complete input/EOF behavior on this artifact. A
-source/API incompatibility fails with no wrapper or runner modification.
+The supplemental workflow is explicitly labelled **PARTIAL metadata/errors/
+cleanup — solve BLOCKED**. Exactly four serial cases execute:
 
-The actual PE parser enforces bounded structural validity, PE32+ and AMD64,
-then reports regular/delay imports, image sizes and main-thread stack header
-facts. It does not enforce an import allowlist or a resource budget. Hashes and
-actual process image paths bind observations to the executable. The gate samples
-private usage, WS/peak WS, VirtualQueryEx private/image/mapped commit/reserve,
-thread count and module basenames separately. These snapshots are observations
-with timing gaps and module races, not maxima or exact allocator attribution.
-No sampled counter isolates Native/System bypass. PE stack values do not bound
-other stacks. The first fresh and repeated launches are not a cold-cache proof.
+- Valid invented request metadata: matching request/operation refs, clean actual
+  `validate-input` metadata validation, exit 0, no job or mechanics result.
+- Exactly `{`: typed `HEADLESS_RUNNER_CLI_INPUT_JSON_INVALID`, exit 2, correct
+  runner diagnostic source and affected input, no request validation or mechanics.
+- Invented metadata without `solve`: typed `HEADLESS_RUNNER_SOLVE_PAYLOAD_MISSING`,
+  exit 1, correct affected request and clean pre-refusal metadata validation.
+- Actual CLI blocked at input open with no payload/EOF, followed by independent
+  timeout termination and observed zero-survivor cleanup.
 
-The outer observer owns creation-time Job custody independently of the case
-and runner. No Job handle inherits. Exact standard-stream handle lists, bounded
-OVERLAPPED input IO and bounded capture threads prevent a stalled case from
-blocking the independent timeout/drain observer. At most one runner, two outer
-Job processes, inputs <=64 KiB and output <=1 MiB exist. The conservative 512 MiB
-Job cap is diagnostic safety only; a hit invalidates the observation. Handles
-must signal before exit codes are read, including code 259. Cleanup requires
-observed active zero, not a kill request or EOF. The deliberately blocked actual
-runner control proves external descendant cleanup separately from successful
-runner witnesses. Positive cases check the actual output/status/exit contracts
-for the small invented supported sparse solve and request-metadata
-validation. Completed-job identity, clean request/result validations and runner diagnostics,
-nonblocking mechanics diagnostics (preserving normal warning rows), and
-nonempty rows/references are required; ten mutations of actual successful
-output must be refused by the same predicate; malformed JSON and missing solve payload check typed refusals.
+The first/repeated successful solve witnesses remain BLOCKED/UNVERIFIED at the
+unchanged 1 MiB capture cap. Their ten proposed live-output mutations have never
+executed. They are listed separately by `--blocked-inventory`, not included in
+passes or replaced with an error response. Metadata success does not establish
+model checking or mechanics. No Windows/desktop/solver/Nbound qualification follows.
 
-All new validation source/fixtures ship in the existing public export. The JSON
-uses the actual Rust runner request/provenance shape and the actual
-`invented_non_engineering_example` label for invented diagnostic content. It
-derives a small one-free-UX-coordinate axial diagnostic from the CLI test's
-precision-connected model, retaining one axial force and restraining the other
-five tip coordinates. The maintained model is unchanged; this is no numerical
-reference. The 1 MiB output cap remains fixed. Project attributes preserve all
-three shipped fixture byte streams for P7 hashes under Windows autocrlf. Additive DEL-04-07 pointers include this probe. The authoritative P7 generator
-adds its three invented fixtures to `tools/release/provenance_scope.json`,
-preserving existing entries. All runtime scans are re-derived: the three new
-standalone `.rs` files enter the project scan despite having no Cargo manifest.
-The full source-read graph has 41 normal release manifests and 1,362 inputs;
-registered caller-tree digests and reader/anchor identities remain unchanged.
-No schema change is introduced. `schemas/headless_runner.schema.yaml`'s
-`HeadlessRunnerRequest` excludes `tbd_decisions` under `additionalProperties:false`,
-whereas Rust `RunnerRequest` requires it and maintained CLI examples include it.
-These CLI fixtures follow that source contract; full schema conformance is not
-claimed and the independent schema inconsistency is not repaired here. Final export evidence must run `--execute` on
-the committed raw integrated candidate containing all new files and generated
-P7 entries. Before starting export, the hosted step verifies all fixture hashes
-against committed P7 entries. It stages the full public tree and builds the
-unchanged empty-dependencies native protected-content linter. The exporter's
-current fixed-size lint argv batches exceed Windows command capacity for this
-tree; final export evidence awaits the separately owned batching repair. No
-batching change or reduced scan is part of this probe.
-No local Cargo-backed export, private-term suppression or widened allowance is
-used. P7 scanner checks and the owner's DEC-058 release scan remain separate.
+The controller accepts only the compiled bytes of the two selected invented
+fixtures or the exact malformed byte. Case/verb mismatch and substitute inputs
+fail before runner creation, preventing automatic dispatch of a full solve.
+`fixtures/solve.json` remains the failed evidence basis and is not an active
+case. Input <=64 KiB and combined captured stdout/stderr <=1 MiB remain enforced.
 
-DEL-04-07 ScopeOfWork, needs and governing memory policy retain their meaning.
-DEL-07-11 shell remains unproven; DEL-10-04 gets supplemental diagnostic evidence
-only, without discharge of required harness or release duties. DEL-04-08 Windows
-retained registration remains Stale. No governing wording is adopted. The
-parent must preserve previous fixture/arena/numeric/temperature pointers while
-adding this diagnostic, regenerate shared outputs on integrated source, and run
-both routing selfchecks and selected Root checks with no Cargo locally.
+The selected output shapes have no mechanics rows and at most 40 scalar leaves.
+With bounded ASCII paths (<128 bytes), fixed messages (<512 bytes) and a
+conservative 2 KiB allowance per decision/finding pair plus payload/framing,
+these outputs fit below 128 KiB. This source sizing applies only to these fixed
+metadata/error paths; the runtime guard and actual native checks remain required.
 
-This is a headless CLI artifact, not the desktop PE or same-app solver worker.
-RT-E1 constructor reader/writer threads belong to the parent general interactive
-path and are not observed here. Startup/nonarena/native/CRT/TLS/helper/mapping,
-kernel IO and future stack-touch costs remain unknown; this establishes no
-R64, Nphysical/Ncommit/native/stack bound, production global allocator or retained
-qualification, and no numerical meaning. Any future memory finding relevant to
-retained registration goes through the parent to MacAgent0 before action. Next
-minimal evidence is native execution and independent review of this artifact's
-source/EOF/import witnesses, then a separately steered actual worker boundary
-and enforced nonarena accounting.
+## Explicit test intent and operation-specific verification
 
-Independent review uses the brief's threat model: stale/wrong artifact/platform;
-inferred imports/stacks; unobserved phases or fake readiness; conflated counters
-or missed Native/System costs; changed methods/data; leaked handles, EOF, exit259
-or cancellation errors; timeout descendant escape; path/private-data/config or
-authority overreach. At most three tooling rounds, owned by the parent. Record
-out-of-model findings and route a new kind inside the model to Agent0. No review
-is started by this Type2 contribution. Official PE, std and Win32 references are
-linked in the implementation README; native evidence is not inferred from this
-design or from successful light source checks.
+The three output-bearing cases explicitly add the documented
+`--explicit-local-private-intent` argument for genuine invented P7-labelled
+records and their fixed invented diagnostic only. The argv changes; existing
+flag semantics, guard behavior, warnings and audit records are unchanged. This
+is no user-data, protected-write, `--output` path, user-release or public-export
+authority. Payload-carried intent is not used. The blocked-input case uses no
+flag and sends no bytes. No solve is retried under this argument.
 
-## Bounded solve-response constraint
+Predicates require exact CLI identity, operation, observed exit and privacy
+outcome; clean metadata validation; or the exact refusal code/class/severity,
+source, affected reference and request-validation state. Job, mechanics,
+result-validation and suite fields must be present and null. Input refs are
+checked against the bound fixture because the CLI does not echo them; no echo
+or model validation is inferred. Audit decision paths cover every payload
+scalar, warning/findings paths and summary counts agree, and expected local-
+private warnings remain. Nonblocking warnings do not themselves fail.
 
-Native run `40854395895` at `d945106fa377cc9174ccf501e05ddc3c5b1e2a18`
-built the unchanged runner and controller, passed all nine PE tests, reached
-the PID-bound input-open gate, and observed Job active zero after the 1 MiB
-capture guard rejected output. The solve did not produce a captured successful
-contract witness. Later metadata/error/blocked-timeout cases were not reached.
-No successful solve, metadata or error execution is inferred from that run.
+Twelve mutations of each actual captured baseline exercise this same predicate:
+empty/malformed object, absent payload, wrong operation/exit/runner status/
+validation/refs, wrong or missing typed diagnostics, missing audit, stripped
+warnings and unexpected privacy blocking. Wrong input refs mutate the paired
+bound fixture context; other mutations alter captured output or observed exit.
+The expected count is 36 diagnostic mutations across three baselines. They do
+not count as the original ten live solve mutations. Case count, inventory,
+missing-marker, wrong-candidate and empty/unknown-selection controls are explicit.
 
-The output constraint is in the existing CLI exposure, not simply numerical
-payload size. `openpipestress-runner.rs` lines 166–173 applies
-`redaction_binding::control_local_private` then pretty-serializes the entire
-controlled object. `redaction_binding.rs` lines 997–1175 walks every scalar and
-publishes its decision and, for private/unknown fields, a finding with its path.
-Mechanics/runner fields require the existing explicit local-private intent;
-the probe command currently omits that flag. Adding it would retain warnings
-and payload, not remove the audit records or solve the size constraint. No
-exposure rule, flag behavior, projection or serializer is changed here.
+## Artifact, startup gate and independent custody
 
-`validation.rs` lines 176–225 requires at least two nodes, one pipe and an
-explicit load on the ordinary path. Component, station and signed-support rows
-are published even when their value is zero; fewer loaded coordinates does not
-remove their fields. As a source-only size illustration, the maintained
-`fixtures/results/preview_physics_connected_sparse.json` two-node/one-pipe/
-one-support carrier has 89 result rows and 1,179 mechanics scalar leaves. Applying
-the current scalar-walk record shapes to those paths produces 1,070,408 bytes
-of pretty-serialized decisions/findings alone without intent, or 1,089,272 with
-intent, excluding payload, runner metadata and result references. This is a
-representation calculation on an existing carrier, not a new solve or proof
-that every possible mechanics response has that size. Current global end rows
-also add fields. Both actual tested inputs exceeded the unchanged capture cap;
-no smaller supported positive response fitting it has been established. No
-further input/native attempt is selected from this investigation.
+Hosted native x64 `windows-2025`, Rust 1.97.1 MSVC, builds the unchanged existing
+`core/runner/headless` stable CLI with default features, `--locked --release`
+and a fresh target. The existing runner lock SHA256 remains
+`14397ed0733124d4dd8ac34ea14ec15b0274b30a0a0c2a65f2955e57b9e35e2c`.
+The controller/nine PE tests use rustc directly; no new Cargo graph or registry
+input is introduced. Exact candidate, native architecture, lock, executable hash
+and launched process image are checked. Build/link/case diagnostics stream live.
 
-A second source correction preserves the product's unconditional
-`RULE_CHECK_INPUTS_MISSING` warning (`product_physics/src/lib.rs` lines 3381–3387):
-mechanics diagnostics must be present and nonblocking, rather than empty.
-Request/result validations and runner diagnostics still require their clean
-shapes, and the ten negative mutations still use the same predicate. Their
-native execution remains pending because a successful captured solve is absent.
+CLI `main` parses arguments then `read_input` uses `std::fs::read_to_string`;
+execution/JSON parsing follows complete input/EOF. A noninheritable local pipe
+server rejects remote clients, restricts its DACL and verifies the actual runner
+PID while withholding every byte/EOF. `INPUT_CONNECTED_PAYLOAD_WITHHELD` proves
+source-bound input open only, not ReadFile quiescence or settled startup. Pinned
+std source context is inspected; native statements establish actual IO behavior.
 
-The actual inspected PE recorded a 1,048,576-byte main stack reserve and
-4,096-byte stack commit; at the input gate one sample recorded 778,240 private
-usage bytes, 4,341,760 working-set bytes and four threads. These are diagnostic
-facts for the headless artifact only. They do not bound Native/System bypass,
-other stacks or future page touch, qualify R64, or activate retained registration.
-A different artifact, projection, cap or method is not adopted to obtain green
-solve evidence. Metadata/error execution and final committed export remain
-separate outstanding evidence; the latter waits for the verified exporter fix.
+Creation-time Job assignment, explicit inherited standard handles and independent
+outer observer custody cover case plus one runner. No Job handle inherits. The
+outer Job holds at most two processes and uses a 512 MiB diagnostic safety cap,
+not an admission/grant state machine. IO waits, cancellation, capture, case exit
+and Job drain all have finite deadlines. Process HANDLE signalling precedes
+exit-code inspection, including 259. Custody ends only after observed active
+zero; EOF and kill requests do not suffice. The actual blocked-descendant case
+separately exercises this backstop. Detailed phase/deadline/handle limits are in
+the maintained README, alongside official Win32/std references.
+
+PE parsing reports actual import/delay-import/main-stack/image header facts,
+with bounded structural checks and nine positive/negative parser tests. Live
+input-gate samples separately expose private usage, working set/peak, VA region
+types, thread count and sanitized module basenames. These sequential samples
+have timing gaps/races and cannot price Native/System bypass, other stacks,
+commit/physical liability or future page touch. No desktop PE or RT-E1 parent
+thread is observed. R64 and Nphysical/Ncommit/native/stack bounds remain unqualified.
+
+## Remaining item: ControlledExport representation cost (DEL-10-05)
+
+This is a product-owner-visible remaining item, not a selected fix. Actual
+`1f2a25058543bfcf6bd6c4796e493820050775ad` run `40853089288` and
+`d945106fa377cc9174ccf501e05ddc3c5b1e2a18` run `40854395895` both built the
+unchanged runner/controller, passed nine PE tests, reached the PID-bound gate,
+and rejected the supported/tested solve invocation's ControlledExport output at
+1 MiB. Independent cleanup observed zero survivors. Neither captured a successful
+solve contract; later metadata/error/blocked-timeout cases were not reached.
+
+`core/runner/headless/src/bin/openpipestress-runner.rs` main applies
+`redaction_binding::control_local_private` then pretty-serializes all of it.
+`redaction_binding.rs::walk` emits a decision per scalar and a finding for each
+private/unknown leaf, including full field paths. The old probe command omitted
+local-private intent, so a successful captured private payload would also have
+been blocked. Supported intent retains warnings/payload; it removes no audit.
+The partial cases correct that invocation detail only for their approved data.
+
+Ordinary required-collection validation needs two nodes, one pipe and an explicit
+load. Zero-valued node/component/station/support rows remain published. A source-
+only illustration on maintained `fixtures/results/preview_physics_connected_sparse.json`
+(two nodes, one pipe, one support; 89 rows/1,179 mechanics leaves) yields
+**1,070,408 bytes of audit records alone before payload** without intent, or
+1,089,272 with intent, under the current record shapes. This is not a new solve,
+universal minimum, Windows bound or claim that every possible response has that
+size. It explains why reducing loaded coordinates did not establish a fitting
+response; no further solve input/native attempt is selected.
+
+Related source-qualified input: [solver PR #1742](https://github.com/sgttomas/chirality/pull/1742),
+**Open / RT-U4 finding F-1**, read at PR head
+`0be06842da58968b5be55b3535dd5eb7ebac3f0a`. It reports a separate release-CLI
+measurement on main `6ff1e9e88d` with explicit intent, per-output-field audit
+expansion and peak RSS, and leaves the large-model RT-U4 timing unmeasured. That
+Mac observation is not this Windows evidence, nor a Windows bound. The item is
+relevant to DEL-10-05's headless CLI exposure. The desktop worker's different
+compact producer transport is not qualified by this diagnostic. This unit does
+not edit #1742, CLI methods, projections, serializer, cap or engineering data.
+
+The actual d945 PE recorded a 1,048,576-byte main-stack reserve and 4,096-byte
+stack commit. One input-gate sample recorded private usage 778,240 B, working
+set 4,341,760 B and four threads. They remain candidate-bound diagnostic facts,
+not other-stack/Native/System allowances or retained registration evidence.
+
+## Public boundary, reconciliation and remaining evidence
+
+All validation source/fixtures ship in the existing public export. Invented
+fixtures honestly retain `invented_non_engineering_example`/`pending`; the
+maintained generator derives exact P7 hashes, and a narrow project attribute
+rule preserves their committed bytes under autocrlf and survives public cutdown.
+The source-compatible CLI request shape includes required `tbd_decisions`; its
+published HeadlessRunnerRequest definition excludes that field. No schema is
+changed and full conformance to that inconsistent definition is not claimed.
+
+Full committed-candidate export is still required before fan-in. Its job is
+explicitly deferred while the separate exporter batching fix is unverified;
+after the verified repair merges, merge main, regenerate source-bound shared
+outputs, enable it and require a successful full raw-HEAD boundary/lint run.
+Skipped/deferred export is not passing evidence or publication authority.
+No fixed-batch or allowance edit is part of this diagnostic.
+
+DEL-04-07 ScopeOfWork and needs keep their meaning. Additive pointers preserve
+all fixture/arena/numerical/temperature entries; all scan.files and applicable
+caller/reader/anchor digests are re-derived on integrated source. Both routing
+selfchecks and selected Root checks run with no local Cargo. DEL-07-11 shell
+remains unproven; DEL-10-04 receives supplemental diagnostic evidence only;
+DEL-04-08 Windows registration remains Stale. No governing commitment changes.
+
+Round 1 independent Sol/medium/default review at `1f2a250585` supported custody/
+resource qualifications and found a solve-output false-green predicate plus a
+stale official link. Repairs are preserved in Git; their ten live solve mutations
+remain unexecuted. The material partial-coverage and operation-specific validator
+changes require one round-2 independent review under the existing false-green,
+source/platform identity, fake quiescence, custody/EOF/259, timeout/leak/privacy
+threat model (maximum three rounds). Current native statements, diagnostic
+mutation controls, final export and exact-head required checks remain pending.
