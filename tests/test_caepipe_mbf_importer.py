@@ -310,6 +310,48 @@ def test_optemp_and_opmisc_records():
     listed(result, "MBF-IMPORT-TARGET-OPTION-DELEGATED", "delegated")
 
 
+_EXPONENT_PROBE = r"""
+import json, sys
+sys.path.insert(0, sys.argv[1])
+import test_caepipe_mbf_importer as t
+out = []
+for optemp in sys.argv[2:]:
+    result = t.run(t.mbf(optemp=optemp))
+    out.append([result.status, sorted({item["code"] for item in result.diagnostics if item["severity"] == "error"})])
+material = t.run(t.mbf(material=("M1,0,0.3,1,1,CS,x,1e-9223372036854775808", "M1,20,200000,1.2e-05")))
+zero = t.run(t.mbf(material=("M1,0,0.3,1,1,CS,x,0e-9223372036854775808", "M1,20,200000,1.2e-05")))
+out.append([material.status, sorted({item["code"] for item in material.diagnostics if item["severity"] == "error"})])
+out.append([zero.status, []])
+print(json.dumps(out))
+"""
+
+
+def test_decimal_exponents_beyond_1e5_are_refused_without_computing_the_power():
+    # A non-zero numeral with a decimal exponent beyond 10^5 (here at the i64 limits) is refused as unrepresentable
+    # before any Fraction or 10^n is formed; computing 10^9223372036854775808 never finishes, so the import runs in a
+    # subprocess and a timeout is a failure. A zero mantissa is an exact zero at any exponent. The Rust port refuses
+    # the same numerals with the same code (rational.rs `parse_fraction`, a signed range test).
+    optemps = ["1e-9223372036854775808", "1e9223372036854775807", "-1e-9223372036854775808", "1e-200000",
+               "1e200000", "0e-9223372036854775808"]
+    try:
+        done = subprocess.run([sys.executable, "-c", _EXPONENT_PROBE, str(Path(__file__).resolve().parent), *optemps],
+                              capture_output=True, text=True, timeout=10, cwd=ROOT)
+    except subprocess.TimeoutExpired:
+        pytest.fail("the importer did not finish within 10 s on a decimal exponent at the i64 limits")
+    assert done.returncode == 0, done.stderr
+    unrepresentable = ["refused", ["MBF-IMPORT-VALUE-UNREPRESENTABLE"]]
+    assert json.loads(done.stdout) == [unrepresentable] * 5 + [
+        ["imported", []],  # OPTEMP 0e-9223372036854775808 is 0
+        ["refused", ["MBF-IMPORT-MATERIAL-PROTECTED-SUSPECTED"]],  # a non-zero value in a protected column
+        ["imported", []],  # a zero there is no value
+    ]
+    assert importer_module.exact_decimal("1.5e-3") == Fraction(3, 2000)
+    assert importer_module.exact_decimal("0.0e9223372036854775807") == 0
+    assert importer_module.exact_decimal("1e100000") == 10 ** 100000
+    assert importer_module.exact_decimal("1.5e-99999") == Fraction(15, 10 ** 100000)
+    assert importer_module.exact_decimal("1.5e-100000") is None and importer_module.exact_decimal("1e100001") is None
+
+
 def test_the_gravitational_direction_is_refused_in_a_bound_import_too():
     data = mbf(extra=("OPMISC", "33,20,1,1,1,2,2,1,9.80665,1"))
     sidecar = {"mbf_sha256": hashlib.sha256(data).hexdigest(),

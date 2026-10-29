@@ -28,6 +28,8 @@ import math
 from pathlib import Path
 from typing import Any, Iterable, Mapping
 
+from . import correctly_rounded
+
 
 MBF_SI_PROFILE_ID = "caepipe-mbf-si-pilot-1"
 STANDARD_GRAVITY = 9.80665  # m/s^2; converts SWBPIPE weight per length to CAEPIPE weight density only.
@@ -946,8 +948,8 @@ class _Writer:
         ti = tuple(p[axis] + t1 * d1[axis] for axis in range(3))
         residual = _norm(_sub(_sub(q, tuple(t2 * value for value in d2)), ti))
         chord_length = _norm(chord)
-        theta = math.acos(cosine)
-        tangent_length = bend["radius"] * math.tan(theta / 2.0)
+        theta = correctly_rounded.acos(cosine)
+        tangent_length = bend["radius"] * correctly_rounded.tan(theta / 2.0)
         if not self.finite([*ti, t1, t2, residual, tangent_length], entity, "tangent intersection"):
             return None
         tol = _BEND_RELATIVE_TOLERANCE

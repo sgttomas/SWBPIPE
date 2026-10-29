@@ -491,22 +491,32 @@ def test_the_trig_values_that_feed_node_20b(name, args, result):
     assert same(expected(name, *inputs), float.fromhex(result))
 
 
-def test_node_20b_is_the_rust_value_when_the_importer_uses_the_module(monkeypatch):
+def test_node_20b_is_the_rust_value(monkeypatch):
     import test_caepipe_mbf_importer as importer_tests
     from core.handoff.caepipe_mbf import importer as importer_module
+    from core.handoff.caepipe_mbf import si_writer as si_writer_module
 
+    data = importer_tests.mbf(*REPRO_LAYOUT, loads=None)
+    result = importer_tests.run(data)
+    assert result.status == "imported", result.diagnostics
+    nodes = {node["id"]: node["position"] for node in result.model["nodes"]}
+    assert nodes["node:20B"]["y"] == 122.07995677558971  # the Rust port's value, on every platform
+
+    # The importer and the SI writer take every acos, asin, atan2, sin and tan from the module, none from `math`.
+    assert importer_module.correctly_rounded is cr and si_writer_module.correctly_rounded is cr
     calls = []
-    proxy = types.SimpleNamespace(**{key: getattr(math, key) for key in dir(math) if not key.startswith("_")})
+    proxy = types.SimpleNamespace()
     for name in ("acos", "asin", "atan2", "sin", "tan"):
-        def correctly_rounded(*args, _name=name):
+        def recorded(*args, _name=name):
             value = getattr(cr, _name)(*args)
             calls.append((_name, tuple(arg.hex() for arg in args), value.hex()))
             return value
-        setattr(proxy, name, correctly_rounded)
-    monkeypatch.setattr(importer_module, "math", proxy)
-    result = importer_tests.run(importer_tests.mbf(*REPRO_LAYOUT, loads=None))
-    assert result.status == "imported", result.diagnostics
-    nodes = {node["id"]: node["position"] for node in result.model["nodes"]}
-    assert nodes["node:20B"]["y"] == 122.07995677558971  # the Rust port's value
+        setattr(proxy, name, recorded)
+    monkeypatch.setattr(importer_module, "correctly_rounded", proxy)
+    trigless = types.SimpleNamespace(**{key: getattr(math, key) for key in dir(math)
+                                        if not key.startswith("_") and key not in ("acos", "asin", "atan2", "sin", "tan")})
+    monkeypatch.setattr(importer_module, "math", trigless)  # a remaining math trig call would fail
+    again = importer_tests.run(data)
+    assert again.model_bytes() == result.model_bytes()
     assert calls == [(name, tuple(float.fromhex(a).hex() for a in args), float.fromhex(value).hex())
                      for name, args, value in REPRO_CALLS]

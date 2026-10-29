@@ -40,6 +40,7 @@ import subprocess
 import sys
 from typing import Any, Iterable, Mapping
 
+from . import correctly_rounded
 from .si_writer import (
     BEND_SIF_FIELDS,
     INVENTED_CERTIFICATION,
@@ -341,6 +342,28 @@ class Num:
     value: float
     exact: Fraction
     text: str
+
+
+# A non-zero numeral whose decimal exponent (its exponent less its fraction digits) is beyond 10^5 lies far outside
+# binary64 (each digit run is within Python's int() digit limit), so it is refused without computing 10^n, which at an
+# exponent such as -9223372036854775808 would not finish. The Rust port's `parse_fraction` tests the same signed range.
+DECIMAL_EXPONENT_LIMIT = 100_000
+
+
+def exact_decimal(text: str) -> Fraction | None:
+    """`Fraction(text)` for a numeral `_REAL` matches, or None for a non-zero value whose decimal exponent is beyond
+    DECIMAL_EXPONENT_LIMIT. Fraction's own int() conversions run first, in its order, so its errors are unchanged."""
+    mantissa, _, exponent = text.lstrip("+-").lower().partition("e")
+    whole, _, fraction = mantissa.partition(".")
+    numerator = int(whole or "0")
+    if fraction:
+        numerator = numerator * 10 ** len(fraction) + int(fraction)
+    power = int(exponent) if exponent else 0
+    if numerator == 0:
+        return Fraction(0)
+    if not -DECIMAL_EXPONENT_LIMIT <= power - len(fraction) <= DECIMAL_EXPONENT_LIMIT:
+        return None
+    return Fraction(text)
 
 
 def half_unit(text: str) -> Fraction:
@@ -1486,9 +1509,9 @@ class _Importer:
         if not _REAL.match(text):
             self.refuse("MBF-IMPORT-NUMBER-INVALID", line, location, f"{location} is not a real number")
             return None
-        exact = Fraction(text)
+        exact = exact_decimal(text)
         value = float(text)
-        if not math.isfinite(value) or (exact != 0 and value == 0):
+        if exact is None or not math.isfinite(value) or (exact != 0 and value == 0):
             self.refuse("MBF-IMPORT-VALUE-UNREPRESENTABLE", line, location,
                         f"{location} is outside the binary64 range: it overflows, or a non-zero value underflows to 0")
             return None
@@ -1869,7 +1892,7 @@ class _Importer:
     def protected(self, value: str, line: int, location: str, column: str, position: int) -> bool:
         if value == "":
             return False
-        if _REAL.match(value) and Fraction(value) == 0:
+        if _REAL.match(value) and exact_decimal(value) == 0:
             return False
         self.refuse("MBF-IMPORT-MATERIAL-PROTECTED-SUSPECTED", line, f"{location} field {position} ({column})",
                     f"{location} carries a value in its {column} column; strength, allowable and fatigue data never "
@@ -2044,7 +2067,7 @@ class _Importer:
                     if not text:
                         continue
                     for index, value in enumerate(split_fields(text) or ["?"]):
-                        if value != "" and not (_REAL.match(value) and Fraction(value) == 0):
+                        if value != "" and not (_REAL.match(value) and exact_decimal(value) == 0):
                             ok = False
                 if ok:
                     self.listed("omitted", "MBF-IMPORT-SECTION-ZERO-OMITTED", header, name,
@@ -2853,13 +2876,13 @@ class _Importer:
             p, ti, q = self.positions[element.start], self.positions[n], self.positions[outgoing.end]
             d_in, d_out = _unit(_sub(ti, p)), _unit(_sub(q, ti))
             cosine = max(-1.0, min(1.0, sum(a * b for a, b in zip(d_in, d_out))))
-            theta = math.acos(cosine)
+            theta = correctly_rounded.acos(cosine)
             if theta <= 1e-9 or theta >= math.pi - 1e-9:
                 self.refuse("MBF-IMPORT-BEND-GEOMETRY-INVALID", element.line, location,
                             f"the legs at tangent intersection {n} are parallel or reversed; there is no bend angle")
                 continue
-            t = self.binary64(element.radius.value * math.tan(theta / 2.0), element.line, location, "tangent length",
-                              nonzero=True)  # R > 0 and theta > 0: a zero tangent length is an underflow
+            t = self.binary64(element.radius.value * correctly_rounded.tan(theta / 2.0), element.line, location,
+                              "tangent length", nonzero=True)  # R > 0 and theta > 0: a zero tangent length underflowed
             self.bend_geometry[n] = {"theta": theta, "t": t, "d_in": d_in, "d_out": d_out, "ti": ti,
                                      "element": index, "start": element.start, "next": outgoing.end}
         tol = _BEND_RELATIVE_TOLERANCE
@@ -3929,7 +3952,8 @@ class _Importer:
         def corner(before: str, node: str, after: str) -> bool:
             a = _unit(_sub(metres(node), metres(before)))
             t = _unit(_sub(metres(after), metres(node)))
-            theta = 2 * math.atan2(correct_norm3(*_sub(a, t)), correct_norm3(*(a[i] + t[i] for i in range(3))))
+            theta = 2 * correctly_rounded.atan2(correct_norm3(*_sub(a, t)),
+                                                correct_norm3(*(a[i] + t[i] for i in range(3))))
             return theta > TANGENCY_TOLERANCE_RAD
 
         runs, collinear, failures = self.route_checks(pressures, ends, arcs, point_of, name_of)
@@ -4164,11 +4188,11 @@ class _Importer:
             spread = sum(math.hypot(*(float(value) for value in self.writer_bound(k))) for k in (a, b))
             spread += 4 * 2.0 ** -52 * (_norm(self.positions[a]) + _norm(self.positions[b]))
             length = _norm(_sub(self.positions[b], self.positions[a]))
-            return math.asin(min(1.0, spread / length))
+            return correctly_rounded.asin(min(1.0, spread / length))
 
         theta = geometry["theta"]
         allowed = (subtended(geometry["start"], n) + subtended(n, geometry["next"])
-                   + 64 * 2.0 ** -52 / max(math.sin(theta), 2.0 ** -26))
+                   + 64 * 2.0 ** -52 / max(correctly_rounded.sin(theta), 2.0 ** -26))
         if not abs(math.radians(record["angle_deg"]) - theta) <= allowed:
             self.refuse("MBF-IMPORT-SIDECAR-CONFLICT", element.line, f"{where}.bend.angle_deg",
                         f"the sidecar records bend {n}'s angle as {record['angle_deg']!r} deg, but its legs in the MBF "

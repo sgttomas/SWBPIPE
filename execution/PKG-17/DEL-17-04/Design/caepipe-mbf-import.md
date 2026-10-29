@@ -236,7 +236,11 @@ modulus option of §20.2 (O-7), within its existing boundary.
   0.49999999999999999 reads as 0.5 (independent review VER-002 r6).
 - **Binary64 range.** A value whose binary64 reading overflows, or a non-zero value that
   reads as 0, is refused (`MBF-IMPORT-VALUE-UNREPRESENTABLE`); it never imports as zero or
-  infinity. Every derived value is rounded through the same guard, which refuses by the same
+  infinity. A non-zero numeral whose decimal exponent (its exponent less its fraction digits)
+  lies beyond ±10⁵ is far outside binary64 and is refused by the same code before its exact
+  value is formed, so an exponent at the i64 limits such as `1e-9223372036854775808` never
+  computes a power of ten (the Rust engine's signed range test refuses the same numerals); a
+  zero mantissa is 0 at any exponent. Every derived value is rounded through the same guard, which refuses by the same
   code: E in Pa, G, node coordinates, the temperature change, summed loads, tangent lengths
   and nodes, and the weight per length of a non-zero weight density. Norms and unit
   directions use the scaled `hypot`, so neither tiny nor huge lengths overflow or underflow
@@ -1062,6 +1066,10 @@ reference *Bend*; *Node*). The inverse:
 3. **Geometry.**
    - d_in = unit(TI − P) and d_out = unit(Q − TI); θ = acos(d_in·d_out).
    - Tangent length t = R·tan(θ/2). Near end N = TI − t·d_in; far end F = TI + t·d_out.
+   - acos, tan and the importer's other trigonometric functions (asin, atan2, sin), and the
+     SI writer's, are correctly rounded to binary64 (`core/handoff/caepipe_mbf/correctly_rounded.py`),
+     not taken from the platform C library, so the Python and the Rust engine produce the same
+     bits on every platform (parity ruling (a)).
    - **Refused** (`MBF-IMPORT-BEND-GEOMETRY-INVALID`): θ within 1e-9 of 0 or of π;
      |TI − P| − t ≤ 1e-9·|TI − P|; or |Q − TI| − t ≤ 1e-9·|Q − TI|, unless Q is itself a TI
      whose own tangent length still leaves a positive straight between the two bends.
