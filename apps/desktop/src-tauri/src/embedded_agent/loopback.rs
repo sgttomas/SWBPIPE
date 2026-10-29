@@ -2,21 +2,51 @@
 //! an HTTP relay, authentication server, process starter or background worker.
 //! No listener is created until bind is called after GENERAL admission.
 use crate::{memory_pool::Lease, solve_jobs::SolveJobRegistry};
+use socket2::{Domain, Protocol, Socket, Type};
 use std::{
     fmt, io,
     net::{Ipv4Addr, Ipv6Addr, SocketAddr, TcpListener, TcpStream},
-    sync::Arc,
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Arc,
+    },
 };
 
 /// Userspace state, capability and socket wrapper allowance, not kernel socket
 /// queues/RSS or future HTTP/worker pricing. Those need separate admission.
 pub const STATE_BYTES: u64 = 64 * 1024;
 const ATTEMPTS: usize = 16;
+/// Per-family pending accept backlog and requested socket buffers. Kernel
+/// bookkeeping and platform rounding are separately allowed by relay admission.
+const BACKLOG: i32 = 8;
+pub const SOCKET_BUFFER: usize = 16 * 1024;
+fn listener(address: SocketAddr) -> io::Result<TcpListener> {
+    // socket2::Socket::new sets close-on-exec on Unix; no descriptor is exported.
+    let socket = Socket::new(
+        if address.is_ipv4() {
+            Domain::IPV4
+        } else {
+            Domain::IPV6
+        },
+        Type::STREAM,
+        Some(Protocol::TCP),
+    )?;
+    if address.is_ipv6() {
+        socket.set_only_v6(true)?;
+    }
+    socket.set_recv_buffer_size(SOCKET_BUFFER)?;
+    socket.set_send_buffer_size(SOCKET_BUFFER)?;
+    socket.set_nonblocking(true)?;
+    socket.bind(&address.into())?;
+    socket.listen(BACKLOG)?;
+    Ok(socket.into())
+}
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Error {
     Admission,
     Entropy,
     Bind,
+    InUse,
 }
 
 /// Both named loopback endpoints are held at one port. No mutable listener
@@ -27,6 +57,7 @@ pub struct Loopback {
     ipv6: TcpListener,
     port: u16,
     capability: String,
+    service_claimed: AtomicBool,
     _backing: Lease,
 }
 impl Loopback {
@@ -38,9 +69,10 @@ impl Loopback {
         getrandom::fill(&mut random).map_err(|_| Error::Entropy)?;
         let capability: String = random.iter().map(|b| format!("{b:02x}")).collect();
         for _ in 0..ATTEMPTS {
-            let ipv4 = TcpListener::bind((Ipv4Addr::LOCALHOST, 0)).map_err(|_| Error::Bind)?;
+            let ipv4 =
+                listener(SocketAddr::from((Ipv4Addr::LOCALHOST, 0))).map_err(|_| Error::Bind)?;
             let port = ipv4.local_addr().map_err(|_| Error::Bind)?.port();
-            let ipv6 = match TcpListener::bind((Ipv6Addr::LOCALHOST, port)) {
+            let ipv6 = match listener(SocketAddr::from((Ipv6Addr::LOCALHOST, port))) {
                 Ok(listener) => listener,
                 Err(error) if error.kind() == io::ErrorKind::AddrInUse => continue,
                 Err(_) => return Err(Error::Bind),
@@ -52,10 +84,17 @@ impl Loopback {
                 ipv6,
                 port,
                 capability,
+                service_claimed: AtomicBool::new(false),
                 _backing: backing,
             }));
         }
         Err(Error::Bind)
+    }
+    pub(super) fn claim_service(&self) -> Result<(), Error> {
+        self.service_claimed
+            .compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst)
+            .map(|_| ())
+            .map_err(|_| Error::InUse)
     }
     pub fn port(&self) -> u16 {
         self.port

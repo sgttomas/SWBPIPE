@@ -24,9 +24,11 @@ A/B GUI sessions wait for the owner's return. The Decisions API stays excluded.
 providers and generic keychain custody, the Rust-owned loopback relay, runtime
 profile/path derivation, dual-architecture stock supplier packaging, automated
 cleanup/isolation proof and explicit unavailability on unqualified platforms.
-The unwired launcher now takes an explicit model and an owned dynamic-loopback
-scope; the HTTP relay, provider configuration/keychain custody and packaged
-supplier selection still need portable implementation. Historical experiment paragraphs
+The unwired launcher now takes an explicit model and a one-shot endpoint from
+an observed-ready HTTP relay; generic provider settings/keychain custody,
+packaged supplier selection and actual workspace integration remain incomplete.
+[HTTP relay design](embedded-agent-relay.md) records its origin/authentication,
+TLS, bounds, shutdown and evidence limits. Historical experiment paragraphs
 below retain their actual then-current holds; this activation basis supersedes
 their pending-owner-authorization status, not their unestablished evidence.
 
@@ -421,7 +423,7 @@ actual disablement/OS isolation remains a separate activation proof obligation.
 The macOS-only `macos.rs`/`sandbox.rs` launcher is not connected to product
 startup. It verifies/copies the selected arm64 pin and derives private home/cwd
 and exact exec paths at runtime. It accepts a validated explicit model identifier
-and an Arc of the Rust-owned loopback scope; the sandbox's only network grant
+and a ready endpoint retaining the Rust-owned loopback scope; the sandbox's only network grant
 uses that scope's runtime TCP port. The child's environment contains a fresh relay
 capability, never the configured provider key. Config files contain neither
 secret. Model strings are escaped before TOML construction. The provider alias
@@ -435,11 +437,12 @@ fixture reports remain historical; they do not qualify this dynamic-port path.
 `loopback.rs` explicitly binds `127.0.0.1` and `::1` at the same OS-selected port,
 refuses if either cannot be held, and exposes nonblocking accepts without giving
 out listener ownership. Both listeners and the per-start random 256-bit capability
-share a 64 KiB GENERAL userspace allowance. This does not price kernel socket
-queues or future HTTP buffers, streams, workers and TLS; those require separate
-admission before relay activation. The launcher retains an Arc through supplier
+share a 64 KiB GENERAL userspace allowance. The relay separately admits its
+90 MiB state/stack/kernel/connection allowances as described in its Design;
+these are not an integrated native RSS/pricing qualification. The launcher retains an Arc through supplier
 group cleanup, including retained Runtime custody on an unconfirmed live scope.
-The future relay owner must also retain its Arc through actual worker shutdown.
+The relay owner retains listener/backing custody through actual worker shutdown;
+its ready endpoint carries listener custody without the provider credential.
 
 Literal root-directory reading and metadata on fixed OS aliases are needed for
 the selected pin's startup; these do not grant reads of descendant user files.
@@ -468,7 +471,8 @@ observation; the generated per-run root/port profile bytes were not retained.
 This is not comprehensive alias/UDP coverage, listener non-inheritance, explicit
 C fork qualification, a stock-Codex round trip, EOF/crash cleanup or Intel proof.
 
-No HTTP service, provider connection, keychain/settings route, credential file,
+The relay component adds explicit HTTP service/provider connections as described
+in embedded-agent-relay.md; no product start or keychain/settings route, credential file,
 new FFI/import, supervisor registration, packaging or platform-minimum change is
 introduced here. Production stderr remains discarded. The ignored startup test
 checks that bounded diagnostic text omits its fresh capability. Actual relay

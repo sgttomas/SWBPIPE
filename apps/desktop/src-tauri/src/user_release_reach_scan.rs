@@ -609,10 +609,16 @@ pub(crate) const BUILD_SCRIPTS: [(&str, usize, &str); 1] =
 /// dependencies they would let a build that sets `cfg(test)` compile the
 /// scan's test modules, so moving one, like any other change here, is a
 /// finding until reviewed.
-pub(crate) const SHELL_DEPENDENCIES: [&str; 22] = [
+pub(crate) const SHELL_DEPENDENCIES: [&str; 34] = [
     "dev proc-macro2",
     "dev syn",
+    "normal bytes (cfg(target_os = \"macos\"))",
     "normal getrandom",
+    "normal http (cfg(target_os = \"macos\"))",
+    "normal http-body-util (cfg(target_os = \"macos\"))",
+    "normal httparse (cfg(target_os = \"macos\"))",
+    "normal hyper (cfg(target_os = \"macos\"))",
+    "normal hyper-util (cfg(target_os = \"macos\"))",
     "normal libc (cfg(unix))",
     "normal open_pipe_stress_audit_manifest",
     "normal open_pipe_stress_canonical_json",
@@ -627,11 +633,17 @@ pub(crate) const SHELL_DEPENDENCIES: [&str; 22] = [
     "normal open_pipe_stress_self_weight_wasm",
     "normal open_pipe_stress_units",
     "normal rusqlite",
+    "normal rustls (cfg(target_os = \"macos\"))",
+    "normal rustls-platform-verifier (cfg(target_os = \"macos\"))",
     "normal serde",
     "normal serde_json",
     "normal sha2",
+    "normal socket2 (cfg(target_os = \"macos\"))",
     "normal tauri",
     "normal tauri-plugin-dialog",
+    "normal tokio (cfg(target_os = \"macos\"))",
+    "normal tokio-rustls (cfg(target_os = \"macos\"))",
+    "normal url (cfg(target_os = \"macos\"))",
 ];
 
 /// The macro invocations admitted, by path as written (§2.8 macro rule 2).

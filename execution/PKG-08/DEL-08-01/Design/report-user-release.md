@@ -2475,10 +2475,21 @@ build configuration as well as the sources:
     dependencies was not caught before. `src-tauri`'s normal and
     development dependencies are now pinned exactly, from the same
     per-crate `cargo metadata`, as `<kind> <package>`, with any rename and
-    platform (`SHELL_DEPENDENCIES`, 22 entries). The parser crates are
+    platform (`SHELL_DEPENDENCIES`, 34 entries). The parser crates are
     development dependencies only. Any move, addition, removal or rename is
     a finding. The headless runner's are pinned the same way since code
-    review r9 (`RUNNER_DEPENDENCIES`, *Allowed dependents* below).
+    review r9 (`RUNNER_DEPENDENCIES`, *Allowed dependents* below). The RT-E1
+    HTTP relay adds exactly twelve Cargo-reported normal dependencies, all
+    `cfg(target_os = "macos")`: `bytes`, `http`, `http-body-util`, `httparse`,
+    `hyper`, `hyper-util`, `rustls`, `rustls-platform-verifier`, `socket2`,
+    `tokio`, `tokio-rustls` and `url`. They provide the authorized host relay's
+    finite HTTP/socket transport and OS-trust TLS verification outside the
+    report-release defining subtree. The exact-set check remains in force;
+    this is not a wildcard permission for future dependencies or a report
+    route change. Build dependencies, dev parser standing, FFI fences and the
+    headless dependency pin are unchanged. This boundary update accompanies
+    the relay permissions review; no reporting commitment, acceptance
+    criterion, dependency condition or release standing is changed.
 - **`cfg(test)` in product builds.** Two compile-time guards hold on the
   toolchain the hosted jobs pin (Rust 1.97.1, through
   `dtolnay/rust-toolchain`; the repository has no `rust-toolchain` file).

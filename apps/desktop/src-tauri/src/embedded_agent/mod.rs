@@ -15,3 +15,7 @@ pub(crate) mod sandbox;
 pub(crate) mod session_driver;
 pub(crate) mod stdio_pump;
 pub(crate) mod webview_bridge;
+#[cfg(target_os = "macos")]
+pub(crate) mod relay_policy;
+#[cfg(target_os = "macos")]
+pub(crate) mod http_relay;

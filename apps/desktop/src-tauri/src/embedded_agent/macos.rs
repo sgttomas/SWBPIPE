@@ -1,6 +1,6 @@
 //! Explicit-start macOS supplier custody. No initializer, worker reuse or threads.
 //! Parent crash termination and absence of escaped descendants are NOT guaranteed.
-use super::{loopback::Loopback, sandbox};
+use super::{http_relay::Endpoint, loopback::Loopback, sandbox};
 use crate::memory_pool::{Lease, LeasePurpose};
 use sha2::{Digest, Sha256};
 use std::fs::{self, DirBuilder, File, OpenOptions};
@@ -9,7 +9,6 @@ use std::os::unix::fs::{symlink, DirBuilderExt, OpenOptionsExt, PermissionsExt};
 use std::os::unix::process::CommandExt;
 use std::path::{Path, PathBuf};
 use std::process::{Child, ChildStdin, ChildStdout, Command, Stdio};
-use std::sync::Arc;
 use std::time::{Duration, Instant};
 
 pub(crate) const STARTUP_BYTES: u64 = 4 * 1024 * 1024;
@@ -82,7 +81,7 @@ pub(crate) struct LaunchConfig {
     pub binary: PathBuf,
     pub state_dir: PathBuf,
     pub model: String,
-    pub relay: Arc<Loopback>,
+    pub relay: Endpoint,
 }
 
 struct Runtime {
@@ -90,7 +89,7 @@ struct Runtime {
     marker: PathBuf,
     scope: String,
     // Retain both loopback endpoints through original supplier-group cleanup.
-    relay: Arc<Loopback>,
+    relay: Endpoint,
     _lease: Lease,
 }
 pub(crate) struct Prepared {
@@ -220,7 +219,10 @@ pub(crate) fn prepare(config: LaunchConfig, lease: Lease) -> Result<Prepared, Er
     if lease.bytes() < STARTUP_BYTES || lease.purpose() != LeasePurpose::Ingress {
         return Err(Error::StartupReservation);
     }
-    let supplier_config = supplier_config(&config.model, &config.relay)?;
+    if !config.relay.is_ready() {
+        return Err(Error::InvalidConfiguration);
+    }
+    let supplier_config = supplier_config(&config.model, config.relay.scope())?;
     let scope = random_scope()?;
     let marker = claim_marker(&config.state_dir, &scope)?;
     // Fixed OS temp avoids inherited TMPDIR and the real home entirely.
@@ -261,7 +263,7 @@ pub(crate) fn prepare(config: LaunchConfig, lease: Lease) -> Result<Prepared, Er
             &root.join("home"),
             &root.join("work"),
             &root.join("codex"),
-            &runtime.relay,
+            runtime.relay.scope(),
         )
         .map_err(|_| Error::InvalidPath)?;
         readonly_file(&root.join("sandbox.sb"), profile.as_bytes())?;
@@ -281,6 +283,9 @@ impl Prepared {
     }
     fn spawn_inner(mut self, diagnostic_stderr: bool) -> Result<Launched, Error> {
         let runtime = self.runtime.as_ref().ok_or(Error::Spawn)?;
+        if !runtime.relay.is_ready() {
+            return Err(Error::Spawn);
+        }
         let root = &runtime.root;
         let result = {
             let mut command = Command::new("/usr/bin/sandbox-exec");
@@ -299,7 +304,7 @@ impl Prepared {
                 .env("XDG_DATA_HOME", root.join("home/data"))
                 .env("PATH", "/usr/bin:/bin")
                 .env("LANG", "en_US.UTF-8")
-                .env(CAPABILITY_ENV, runtime.relay.capability())
+                .env(CAPABILITY_ENV, runtime.relay.scope().capability())
                 .stdin(Stdio::piped())
                 .stdout(Stdio::piped())
                 .stderr(if diagnostic_stderr {
@@ -490,6 +495,33 @@ mod tests {
     use super::*;
     use crate::memory_pool::{test_host::ScriptedHost, MemoryPool};
     use crate::solve_jobs::SolveJobRegistry;
+    fn ready_relay(registry: &SolveJobRegistry) -> super::super::http_relay::Relay {
+        use super::super::{
+            http_relay::{Relay, State},
+            relay_policy::Provider,
+        };
+        let mut relay = Relay::start(
+            registry,
+            Loopback::bind(registry).unwrap(),
+            Provider::new("http://127.0.0.1:9/v1").unwrap(),
+            None,
+        )
+        .unwrap();
+        let deadline = Instant::now() + Duration::from_secs(5);
+        while relay.poll().state != State::Ready {
+            assert!(Instant::now() < deadline);
+            std::thread::sleep(Duration::from_millis(5));
+        }
+        relay
+    }
+    fn stop_relay(relay: &mut super::super::http_relay::Relay) {
+        relay.request_stop();
+        let deadline = Instant::now() + Duration::from_secs(5);
+        while !relay.poll().joined {
+            assert!(Instant::now() < deadline);
+            std::thread::sleep(Duration::from_millis(5));
+        }
+    }
     fn fixture() -> PathBuf {
         let root = Path::new("/private/tmp")
             .join(format!("swbpipe-launcher-test-{}", random_scope().unwrap()));
@@ -522,20 +554,41 @@ mod tests {
     fn invalid_configuration_is_refused_before_runtime_or_marker_creation() {
         let state = fixture();
         let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
-        let relay = Loopback::bind(&registry).unwrap();
+        let mut relay = ready_relay(&registry);
         let lease = registry.acquire_interactive_ingress(STARTUP_BYTES).unwrap();
         let result = prepare(
             LaunchConfig {
                 binary: state.join("never-opened"),
                 state_dir: state.clone(),
                 model: "bad\nmodel".into(),
-                relay: relay.clone(),
+                relay: relay.endpoint().unwrap(),
             },
             lease,
         );
         assert!(matches!(result, Err(Error::InvalidConfiguration)));
         assert_eq!(fs::read_dir(&state).unwrap().count(), 0);
-        assert_eq!(Arc::strong_count(&relay), 1);
+        stop_relay(&mut relay);
+        fs::remove_dir_all(state).unwrap();
+    }
+    #[test]
+    fn stopped_relay_endpoint_cannot_prepare_a_supplier_scope() {
+        let state = fixture();
+        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let mut relay = ready_relay(&registry);
+        let endpoint = relay.endpoint().unwrap();
+        stop_relay(&mut relay);
+        let lease = registry.acquire_interactive_ingress(STARTUP_BYTES).unwrap();
+        let result = prepare(
+            LaunchConfig {
+                binary: state.join("never-opened"),
+                state_dir: state.clone(),
+                model: "invented-model".into(),
+                relay: endpoint,
+            },
+            lease,
+        );
+        assert!(matches!(result, Err(Error::InvalidConfiguration)));
+        assert_eq!(fs::read_dir(&state).unwrap().count(), 0);
         fs::remove_dir_all(state).unwrap();
     }
     #[test]
@@ -573,13 +626,13 @@ mod tests {
         let state = fixture();
         let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
         let lease = registry.acquire_interactive_ingress(STARTUP_BYTES).unwrap();
-        let relay = Loopback::bind(&registry).unwrap();
+        let mut relay = ready_relay(&registry);
         let prepared = prepare(
             LaunchConfig {
                 binary: binary.into(),
                 state_dir: state.clone(),
                 model: "invented-native-probe-model".into(),
-                relay: relay.clone(),
+                relay: relay.endpoint().unwrap(),
             },
             lease,
         )
@@ -604,7 +657,7 @@ mod tests {
         }
         let mut diagnostic = String::new();
         stderr.take(8192).read_to_string(&mut diagnostic).unwrap();
-        assert!(!diagnostic.contains(relay.capability()));
+        assert!(!diagnostic.contains(relay.scope().capability()));
         // No provider credential was supplied or read by this probe.
         assert_eq!(stopped, CleanupOutcome::GroupStopped);
         let frame = received
@@ -617,6 +670,7 @@ mod tests {
         let frame = frame.unwrap();
         assert_eq!(frame.value["id"], 1);
         assert!(frame.value["result"].is_object());
+        stop_relay(&mut relay);
         fs::remove_dir_all(state).unwrap();
     }
     /// Opt-in native custody qualification; never run by this source assignment.

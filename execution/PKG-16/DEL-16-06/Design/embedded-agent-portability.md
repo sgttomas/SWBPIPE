@@ -70,20 +70,13 @@ denied and permits exec only at the verified supplier resource's runtime path.
 The accepted libinfo rule/condition remains explicit. No general outbound
 network, system-profile import or unsandboxed retry is introduced.
 
-The current unwired implementation supplies only the scope/configuration part:
-`loopback.rs` owns the two named addresses and a fresh capability; `macos.rs`
-retains it through original supplier-group cleanup and constructs secret-free
-configuration for an explicit model; `sandbox.rs` substitutes its owned port and narrows the old IP grant to TCP,
-without a UDP grant.
-A bound scope does not signal a ready/authenticating relay. Its component checks
-do not qualify an HTTP relay. The bounded arm64 native probe subsequently
-passed the 15 checks recorded in embedded-agent-host.md, including both named
-families and denial of one unowned alias; comprehensive address coverage and
-listener non-inheritance remain open.
-The future relay owner must keep listener custody through worker termination,
-admit kernel/HTTP/stream/thread costs separately, qualify listener non-inheritance
-on the selected native path, enforce the request rules below
-and qualify the exact profile before a start route can become available.
+The implemented component now includes an explicit HTTP relay and a one-shot
+ready endpoint. [Relay design](embedded-agent-relay.md) gives the request/origin,
+credential, TLS, admission and shutdown contract and its focused evidence limits.
+The launcher accepts only the observed-ready endpoint, then rechecks standing
+before spawn. It remains unwired to product commands and the actual workspace.
+The earlier 15-check arm64 profile observation remains bounded evidence; complete
+stock-session/cleanup, actual pricing and supported-platform proof remain open.
 
 Authenticate each local request with the per-start capability. Reject absolute
 request targets, CONNECT, upgrades and routing headers that could select

@@ -51,3 +51,19 @@ proc-macro2 = { version = "=1.0.106", features = ["span-locations"] }
 # the capped solve worker's process control and raw channel (`src/solve_worker.rs`,
 # `src/worker_alloc.rs`).
 libc = "0.2"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+# Explicit embedded-provider relay. No default proxy, redirect, compression or
+# HTTP/2 features. Published platform verifier uses OS trust and hostname policy.
+hyper = { version = "=1.9.0", features = ["client", "http1"] }
+hyper-util = { version = "=0.1.20", features = ["tokio"] }
+http = "1"
+http-body-util = "0.1"
+tokio-rustls = { version = "=0.26.6", default-features = false, features = ["ring", "tls12"] }
+url = "=2.5.8"
+tokio = { version = "=1.52.3", features = ["rt", "net", "time", "sync", "io-util"] }
+bytes = "1"
+httparse = "=1.10.1"
+socket2 = "=0.6.3"
+rustls = { version = "=0.23.40", default-features = false, features = ["std", "ring", "tls12"] }
+rustls-platform-verifier = "=0.7.1"
