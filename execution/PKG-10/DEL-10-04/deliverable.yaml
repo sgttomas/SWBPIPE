@@ -98,6 +98,7 @@ needs:
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 code_paths:
+- .gitattributes
 - package.json
 - apps/desktop/package.json
 - apps/desktop/src-tauri/Cargo.toml
