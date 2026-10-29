@@ -204,7 +204,7 @@ Dropping a delivery object does not remove the ledger's outcome.
 
 These are requested-allocation/GENERAL reservations, not RSS or retained-solver
 pricing claims. No allocator, pool, solver policy, thread/process startup,
-listener, credential, persistence or mutation route is changed. The 16 focused
+listener, credential, persistence or mutation route is changed. The 18 focused
 dispatcher checks exercise binding, invalid/rounded-byte outcomes, history,
 applied outcome retention through failed delivery, admission pressure and
 bounded custody. They do not establish the future coordinator's actual record

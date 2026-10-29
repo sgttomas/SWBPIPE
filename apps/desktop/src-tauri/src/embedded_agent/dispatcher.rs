@@ -591,6 +591,9 @@ impl Dispatcher {
                 run_id,
                 basis,
             } if matches!(call.tool, Tool::Solve | Tool::ReadResults) => {
+                if status == "completed" && (handle.is_none() || run_id.is_none()) {
+                    return Err(Refusal::MissingEvidence);
+                }
                 if !value["data"].is_object()
                     || !same_basis(basis, &call.basis)
                     || value.pointer("/data/runHandle").and_then(Value::as_str) != handle
@@ -1312,5 +1315,118 @@ mod tests {
             )
             .unwrap();
         assert_eq!(completion.actual().identity().basis(), &evaluated);
+    }
+
+    #[test]
+    fn completed_solve_requires_real_run_identity_and_matching_evaluated_hash() {
+        let (mut d, mut p) = setup();
+        let mut evaluated = basis(2);
+        evaluated["modelHash"] = model_hash();
+        let e = request(
+            &mut p,
+            1,
+            Tool::Solve,
+            json!({"workspaceHandle":"workspace-invented","basis":evaluated,"claimedModelHash":model_hash()}),
+        );
+        d.admit(&e, &evaluated, History::Live).unwrap();
+        let absent = outcome(
+            "completed",
+            evaluated.clone(),
+            json!({"runHandle":null,"runId":null,"evaluatedModelHash":model_hash(),"health":"invented","solverMode":"invented"}),
+        );
+        assert_eq!(
+            d.record_completion(
+                origin(),
+                reference(&e),
+                &absent,
+                None,
+                Evidence::Run {
+                    handle: None,
+                    run_id: None,
+                    basis: &evaluated
+                }
+            )
+            .unwrap_err(),
+            Refusal::MissingEvidence
+        );
+        let mut changed = model_hash();
+        changed["value"] = json!("f".repeat(64));
+        let wrong = outcome(
+            "completed",
+            evaluated.clone(),
+            json!({"runHandle":"run-1","runId":"native-run-1","evaluatedModelHash":changed,"health":"invented","solverMode":"invented"}),
+        );
+        assert_eq!(
+            d.record_completion(
+                origin(),
+                reference(&e),
+                &wrong,
+                None,
+                Evidence::Run {
+                    handle: Some("run-1"),
+                    run_id: Some("native-run-1"),
+                    basis: &evaluated
+                }
+            )
+            .unwrap_err(),
+            Refusal::WrongBasis
+        );
+        let raw = outcome(
+            "completed",
+            evaluated.clone(),
+            json!({"runHandle":"run-1","runId":"native-run-1","evaluatedModelHash":model_hash(),"health":"invented","solverMode":"invented"}),
+        );
+        d.record_completion(
+            origin(),
+            reference(&e),
+            &raw,
+            None,
+            Evidence::Run {
+                handle: Some("run-1"),
+                run_id: Some("native-run-1"),
+                basis: &evaluated,
+            },
+        )
+        .unwrap();
+    }
+
+    #[test]
+    fn proposals_need_the_current_hash_revision_and_host_operation_cap() {
+        let (mut d, mut p) = setup();
+        d.proposal_cap = 1;
+        let mut live = basis(2);
+        live["modelHash"] = model_hash();
+        let op = json!({"operation_id":"op1","operation_kind":"modify","operation_status":"proposed","author_type":"agent","target":{"object_type":"Node","ref":"n1"},
+            "change":{"change_id":"c1","change_kind":"set_field","field_label":"x","field_path":"position.x","before":"0","after":"1","unit":"m","dimension":"length","source_note":"invented"},
+            "validation":{"schema_validation":"","constraint_validation":"","unit_validation":"","diff_preview_status":"","application_status":""},
+            "audit_boundary":{"mutation_route":"structured_operations_only","direct_model_mutation_allowed":false,"requires_user_acceptance":true,"mutates_accepted_model_state":false},
+            "professional_boundary":{"human_review_required":true,"software_makes_compliance_claim":false,"software_makes_certification_claim":false,"software_makes_sealing_claim":false,"software_makes_approval_claim":false,"software_makes_authentication_claim":false},"rationale":"invented"});
+        let input = json!({"workspaceHandle":"workspace-invented","basis":live,"claimedModelHash":model_hash(),"operations":[op.clone()],"assumptions":[]});
+        let mut wrong = input.clone();
+        wrong["claimedModelHash"]["value"] = json!("f".repeat(64));
+        let e = request(&mut p, 1, Tool::ProposeOperations, wrong);
+        assert_eq!(
+            d.admit(&e, &live, History::Live).unwrap_err(),
+            Refusal::WrongBasis
+        );
+        let e = request(&mut p, 2, Tool::ProposeOperations, input.clone());
+        let mut edited = live.clone();
+        edited["modelRevision"] = json!(3);
+        assert_eq!(
+            d.admit(&e, &edited, History::Live).unwrap_err(),
+            Refusal::WrongBasis
+        );
+        let mut over = input.clone();
+        let mut second = op;
+        second["operation_id"] = json!("op2");
+        second["change"]["change_id"] = json!("c2");
+        over["operations"].as_array_mut().unwrap().push(second);
+        let e = request(&mut p, 3, Tool::ProposeOperations, over);
+        assert_eq!(
+            d.admit(&e, &live, History::Live).unwrap_err(),
+            Refusal::InvalidInput
+        );
+        let e = request(&mut p, 4, Tool::ProposeOperations, input);
+        d.admit(&e, &live, History::Live).unwrap();
     }
 }
