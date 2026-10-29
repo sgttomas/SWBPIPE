@@ -190,7 +190,7 @@ Old:
 
 Proposed (not applied by this Type 1 owner):
 
-> | RT-V7 | Windows build | Later (revisited immediately after v1.0) | Development authorized alongside macOS v1.0; native x64 desktop unqualified; macOS-first release preserved | DEL-10-04 Design/windows-port.md |
+> | RT-V7 | Windows build | Later (revisited immediately after v1.0) | Release baseline: macOS Apple Silicon only (DEC-057); Windows development authorized alongside macOS v1.0; native x64 desktop unqualified | DEL-10-04 Design/windows-port.md |
 
 This distinguishes authorized development from release qualification. The
 owner's steer is “Windows does not become a Must v1.0 release condition through
