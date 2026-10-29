@@ -320,3 +320,23 @@ fn the_derivation_refuses_a_basis_outside_scope_r() {
     let manifest = derive_input_manifest(&case.model, &case.source, "dense_scrutiny").unwrap();
     assert_eq!(first_difference(&other.vector["input_manifest"], &manifest), None);
 }
+
+/// D-6 Rust/TypeScript parity over both exact routes, without altering legacy vectors.
+#[test]
+fn d6_exact_derivation_vectors_match_typescript() {
+    for text in [
+        include_str!("../../../../fixtures/reports/invented/user_release_exact/pressure_2_straight.json"),
+        include_str!("../../../../fixtures/reports/invented/user_release_exact/pressure_source_1.json"),
+    ] {
+        let v: Value = serde_json::from_str(text).unwrap();
+        let record = serde_json::from_value(v["user_release"].clone()).unwrap();
+        let software = SoftwareIdentity { name: "SWBPIPE".into(), version: "0.1.0".into() };
+        let basis = UserReleaseBasis { model: &v["model"], source: &v["source"], solver_mode: "sparse_interactive", run_record: &v["run_record"], software: &software, record: &record };
+        let binding = &v["request"]["report"]["exact_route"]["admission"];
+        let derived = open_pipe_stress_report_package::user_release::derive_exact(&basis, binding["native_job_id"].as_str().unwrap(), binding["received_bytes_sha256"].as_str().unwrap()).unwrap();
+        if let Some(pointer) = first_difference(&v["request"]["result_documents"], &derived.request["result_documents"]) {
+            panic!("{} document {pointer}: TS {:?}, Rust {:?}", v["shape"], v["request"]["result_documents"].pointer(&pointer), derived.request["result_documents"].pointer(&pointer));
+        }
+        assert_eq!(first_difference(&v["request"], &derived.request), None, "{}", v["shape"]);
+    }
+}
