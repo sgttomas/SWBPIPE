@@ -201,22 +201,13 @@ DEL-08-01 publication, DEL-15-01 model-save and DEL-07-06 native UX obligations
 are unchanged. Their ScopeOfWork and needs conditions are left unchanged; this
 candidate design and supplemental CI do not satisfy the remaining Windows
 conditions. DEL-10-04's existing project-relative code/check pointers are unchanged; the
-Root workflow is referenced through `docs/CI_STRATEGY.md`. RT-V7's
-post-v1.0 revisit wording needs Agent 0 reconciliation with the owner's parallel
-development steer; no Must condition or macOS exit criterion is changed here.
-For Agent 0's exact-text review, the proposed row reconciliation is:
-
-Old:
-
-> | RT-V7 | Windows build | Later (revisited immediately after v1.0) | macOS Apple Silicon only (DEC-057) | — |
-
-Proposed (not applied by this Type 1 owner):
-
-> | RT-V7 | Windows build | Later (revisited immediately after v1.0) | Release baseline: macOS Apple Silicon only (DEC-057); Windows development authorized alongside macOS v1.0; native x64 desktop unqualified | DEL-10-04 Design/windows-port.md |
-
-This distinguishes authorized development from release qualification. The
-owner's steer is “Windows does not become a Must v1.0 release condition through
-this assignment.” Agent 0 owns adoption of the Later-row wording under §5.
+Root workflow is referenced through `docs/CI_STRATEGY.md`. RT-V7 distinguishes
+authorized parallel development from release qualification: Windows remains
+Later, with the immediate post-v1.0 revisit and the macOS Apple Silicon-only
+release baseline under DEC-057 preserved. No Must condition or macOS exit
+criterion changes. The owner authorized proceeding with this orchestration
+(“Proceed accordingly.”); the independently reviewed row wording is adopted
+under HELP_HUMAN's §5 Later-row delegation.
 
 Planning estimates below are engineering work days for bounded implementation
 and focused repair, **not elapsed delivery promises**, and exclude owner release
