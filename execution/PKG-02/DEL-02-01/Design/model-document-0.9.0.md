@@ -330,14 +330,14 @@ lowering) give the same bits. No step uses a language's float formatter.
   cannot occur: a dyadic N/D has its lowest bit at 2^−24 or above (D's power of
   two is 2^24), so 54 significant bits would need |ΔT| ≥ 2^29, outside the
   range. Ties-to-even is stated for completeness.
-- **`exact_kelvin` is not used and not changed.** It takes the decimal from
-  Rust's formatter (`format!("{value:e}")`), which differs from the canonical
-  decimal on 16- or 17-digit ties (the `0x3f80010000000000` regression), and it uses
-  bounded `i128` rationals. C1's lowering uses only the rule above. The EX
-  route's temperature identity therefore keeps its own decimal on such ties.
-  Whether to align it with the canonical decimal is a separate numerical change
-  for DEL-04-07, reported here and not made by C1. E3 compares the two only on
-  rows where they agree, and lists the rows where they differ.
+- **One implementation.** The canonical decimal, the domain and the integer
+  form above are implemented once, in PP `case_state/temperature/canonical_decimal.rs`
+  (`canonical_decimal`, `kelvin_numerator`, `KELVIN_DENOMINATOR`), which the EX
+  route's temperature identity (`exact_kelvin`) uses; outside the domain it
+  blocks with `LOAD_STATE_TEMPERATURE_RANGE_UNSUPPORTED`. C1's lowering is not
+  built yet. When it is, it shall call the same functions and add only the
+  rounding step, so the two agree on every row, ties included; E3 then compares
+  them on all rows.
 
 Then, for every document: remove `condition_use` from each case,
 `condition_set_ref` from each pipe and `condition_sets` from the model; and
