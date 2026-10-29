@@ -44,7 +44,7 @@ pub(crate) fn profile(
         return Err(InvalidPath);
     }
     let mut result = String::from(
-        "(version 1)\n(deny default)\n(allow process-info* (target self))\n(allow sysctl-read)\n",
+        "(version 1)\n(deny default)\n(deny process-fork)\n(allow process-info* (target self))\n(allow sysctl-read)\n(allow mach-lookup (global-name \"com.apple.system.opendirectoryd.libinfo\"))\n",
     );
     // These OS locations are intentionally narrower than /System or /private.
     for path in ["/System/Library", "/usr/lib", "/usr/share/locale"] {
@@ -111,6 +111,32 @@ pub(crate) fn profile(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn reviewed_libinfo_profile_hash_and_single_allow_delta() {
+        use sha2::{Digest, Sha256};
+        let root = Path::new("/private/tmp/swbpipe-agent-invented");
+        let profile = profile(
+            root,
+            &root.join("home"),
+            &root.join("work"),
+            &root.join("codex"),
+        )
+        .unwrap();
+        let normalized = profile.replace(root.to_str().unwrap(), "<private-runtime>");
+        assert_eq!(
+            format!("{:x}", Sha256::digest(normalized.as_bytes())),
+            "be2fe1d54fcc5c60a00ed7d304bf2e4c4885d662d84bfe5a9c7fe6ff9c6f4d7c"
+        );
+        let allow =
+            "(allow mach-lookup (global-name \"com.apple.system.opendirectoryd.libinfo\"))\n";
+        assert_eq!(normalized.matches(allow).count(), 1);
+        let reviewed_old = normalized.replacen(allow, "", 1);
+        assert_eq!(
+            format!("{:x}", Sha256::digest(reviewed_old.as_bytes())),
+            "80936c838f26fef039bbb9733f714fb68414baaec97d03709a17ba397b794f66"
+        );
+    }
 
     /// Compile tools/agent_host_sandbox_probe.rs through t3_slot.sh, then pass
     /// its path as SWBPIPE_SANDBOX_PROBE. No real documents or keys are read.
