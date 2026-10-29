@@ -1,21 +1,22 @@
 #!/usr/bin/env python3
-"""Deterministic SWBPIPE application-icon generator (DEC-057 / E5).
+"""Deterministic SWBPIPE application-icon generator (DEC-057 / E5; RT-V8 P1).
 
-Renders the invented SWBPIPE mark — a pipe cross-section (annulus)
-with an amber stressed sector on a dark steel rounded square — procedurally
-from this file alone, then writes:
+Derives the desktop icons from the SWB mark in
+``apps/desktop/SWBPIPE_logo.png`` (owner decision RT-V8 P1, 2026-10-28: the
+app icon is the SWB mark the project website uses), then writes:
 
-- ``apps/desktop/src-tauri/icons/icon.png``   (512x512 RGBA source mark)
+- ``apps/desktop/src-tauri/icons/icon.png``   (512x512 RGBA)
 - ``apps/desktop/src-tauri/icons/icon.icns``  (multi-resolution macOS icon)
 
-The ``.icns`` is assembled in pure Python as PNG-typed members (icp4..ic14,
-16px through 1024px, including the @2x pairs), so no host icon tooling is
-required and the committed bytes are reproducible from this script alone
-(modulo the host zlib's compressed-stream bytes: the decoded pixels are
-exact; "deterministic where feasible" per the DEC-057 packaging posture).
-
-The mark is original invented content created for this project. It contains
-no third-party art, fonts, logos, or trademarked material.
+These are the two files ``tauri.conf.json`` lists under ``bundle.icon`` for
+the macOS-only ``app`` target. The logo is read only in its canonical
+encoding (IHDR/IDAT/IEND, 8-bit RGBA, filter 0 on every row; RT-V8 P9), and
+anything else is refused: this is not a general PNG decoder. The 1254px mark
+is resampled to the 1024px base by exact area averaging on premultiplied
+alpha in integer arithmetic, then box-downscaled by integer factors, and the
+``.icns`` is assembled in pure Python as PNG-typed members (icp4..ic14, 16px
+through 1024px, including the @2x pairs). No host icon tooling is needed and
+the committed bytes are reproducible from this script and the logo.
 
 This script produces desktop icon assets only. It is not a release act,
 publication, signing, notarization, or release-readiness claim.
@@ -24,7 +25,6 @@ publication, signing, notarization, or release-readiness claim.
 from __future__ import annotations
 
 import argparse
-import math
 import struct
 import sys
 import zlib
@@ -33,23 +33,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 ICON_DIR = ROOT / "apps" / "desktop" / "src-tauri" / "icons"
+LOGO = ROOT / "apps" / "desktop" / "SWBPIPE_logo.png"
 
 BASE_SIZE = 1024
-
-# Palette (invented; flat mark, no third-party art).
-BG_TOP = (37, 62, 92)  # steel blue, top of gradient
-BG_BOTTOM = (17, 31, 49)  # steel blue, bottom of gradient
-PIPE = (240, 244, 247)  # pipe-wall annulus
-STRESS = (232, 138, 52)  # amber stressed sector
-
-# Geometry at the 1024 base canvas (scaled linearly for other sizes).
-SQUARE_INSET = 100.0
-SQUARE_RADIUS = 185.0
-ANNULUS_OUTER = 300.0
-ANNULUS_INNER = 168.0
-# Stressed sector angular span, radians, y-up, 0 at +x (upper-right sector).
-SECTOR_START = math.radians(-15.0)
-SECTOR_END = math.radians(105.0)
+PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 
 # icns member types that carry raw PNG data, per size.
 ICNS_PNG_TYPES: tuple[tuple[bytes, int], ...] = (
@@ -67,89 +54,91 @@ ICNS_PNG_TYPES: tuple[tuple[bytes, int], ...] = (
 )
 
 
-def _coverage(distance: float) -> float:
-    """Linear one-pixel antialias coverage from a signed distance (px)."""
-    if distance <= -0.5:
-        return 1.0
-    if distance >= 0.5:
-        return 0.0
-    return 0.5 - distance
+def read_logo(path: Path = LOGO) -> tuple[int, bytes]:
+    """The logo's side and straight-alpha RGBA bytes, from its canonical
+    encoding only (IHDR, IDAT..., IEND; square 8-bit RGBA; filter 0)."""
+    data = path.read_bytes()
+    if not data.startswith(PNG_SIGNATURE):
+        raise ValueError("logo is not a PNG")
+    offset, header, idat = len(PNG_SIGNATURE), None, []
+    while offset < len(data):
+        length, kind = struct.unpack(">I4s", data[offset : offset + 8])
+        body = data[offset + 8 : offset + 8 + length]
+        if kind == b"IHDR":
+            header = struct.unpack(">IIBBBBB", body)
+        elif kind == b"IDAT":
+            idat.append(body)
+        elif kind != b"IEND":
+            raise ValueError("logo must be the canonical IHDR/IDAT/IEND encoding")
+        offset += 12 + length
+        if kind == b"IEND":
+            break
+    if header is None or header[0] != header[1] or header[2:] != (8, 6, 0, 0, 0):
+        raise ValueError("logo must be square, 8-bit RGBA and not interlaced")
+    side, stride = header[0], header[0] * 4
+    raw = zlib.decompress(b"".join(idat))
+    if len(raw) != side * (stride + 1) or any(raw[y * (stride + 1)] for y in range(side)):
+        raise ValueError("logo rows must all use filter 0")
+    pixels = b"".join(raw[y * (stride + 1) + 1 : (y + 1) * (stride + 1)] for y in range(side))
+    return side, pixels
 
 
-def _rounded_square_distance(x: float, y: float) -> float:
-    """Signed distance to the background rounded square (negative inside)."""
-    half = (BASE_SIZE - 2.0 * SQUARE_INSET) / 2.0
-    cx = abs(x - BASE_SIZE / 2.0) - (half - SQUARE_RADIUS)
-    cy = abs(y - BASE_SIZE / 2.0) - (half - SQUARE_RADIUS)
-    ox = max(cx, 0.0)
-    oy = max(cy, 0.0)
-    outside = math.hypot(ox, oy)
-    inside = min(max(cx, cy), 0.0)
-    return outside + inside - SQUARE_RADIUS
+def _area_taps(source: int, target: int) -> list[list[tuple[int, int]]]:
+    """Per output index, (source index, overlap) pairs in integer units where
+    a source pixel spans `target` and an output pixel spans `source`."""
+    taps = []
+    for x in range(target):
+        lo, hi = x * source, (x + 1) * source
+        taps.append([
+            (s, min(hi, (s + 1) * target) - max(lo, s * target))
+            for s in range(lo // target, (hi - 1) // target + 1)
+        ])
+    return taps
 
 
-def _annulus_distance(x: float, y: float) -> float:
-    """Signed distance to the pipe-wall annulus (negative inside the wall)."""
-    r = math.hypot(x - BASE_SIZE / 2.0, y - BASE_SIZE / 2.0)
-    mid = (ANNULUS_OUTER + ANNULUS_INNER) / 2.0
-    halfwidth = (ANNULUS_OUTER - ANNULUS_INNER) / 2.0
-    return abs(r - mid) - halfwidth
+def _round_div(numerator: int, denominator: int) -> int:
+    return (2 * numerator + denominator) // (2 * denominator)
 
 
-def _sector_distance(x: float, y: float) -> float:
-    """Signed distance to the stressed annulus sector (negative inside)."""
-    dx = x - BASE_SIZE / 2.0
-    dy = (BASE_SIZE / 2.0) - y  # y-up
-    r = math.hypot(dx, dy)
-    theta = math.atan2(dy, dx)
-    if theta < SECTOR_START:
-        angular_inside = (theta - SECTOR_START) * max(r, 1.0)
-    elif theta > SECTOR_END:
-        angular_inside = (SECTOR_END - theta) * max(r, 1.0)
-    else:
-        angular_inside = min(theta - SECTOR_START, SECTOR_END - theta) * max(r, 1.0)
-    return max(_annulus_distance(x, y), -angular_inside)
-
-
-def render_base() -> list[list[tuple[int, int, int, int]]]:
-    """Render the 1024x1024 RGBA mark, straight (non-premultiplied) alpha."""
-    rows: list[list[tuple[int, int, int, int]]] = []
-    span = BASE_SIZE - 2.0 * SQUARE_INSET
-    for py in range(BASE_SIZE):
-        y = py + 0.5
-        t = min(max((y - SQUARE_INSET) / span, 0.0), 1.0)
-        bg = tuple(
-            round(BG_TOP[i] + (BG_BOTTOM[i] - BG_TOP[i]) * t) for i in range(3)
-        )
-        row: list[tuple[int, int, int, int]] = []
-        for px in range(BASE_SIZE):
-            x = px + 0.5
-            a_bg = _coverage(_rounded_square_distance(x, y))
-            if a_bg == 0.0:
-                row.append((0, 0, 0, 0))
+def render_base(logo: Path = LOGO) -> list[list[tuple[int, int, int, int]]]:
+    """The 1024x1024 RGBA base (straight alpha), area-resampled from the logo."""
+    side, pixels = read_logo(logo)
+    taps = _area_taps(side, BASE_SIZE)
+    stride = side * 4
+    # Horizontal pass over premultiplied channels (integer sums).
+    rows = []
+    for y in range(side):
+        line = pixels[y * stride : (y + 1) * stride]
+        out = []
+        for column in taps:
+            r = g = b = a = 0
+            for s, weight in column:
+                alpha = line[4 * s + 3] * weight
+                r += line[4 * s] * alpha
+                g += line[4 * s + 1] * alpha
+                b += line[4 * s + 2] * alpha
+                a += alpha
+            out.append((r, g, b, a))
+        rows.append(out)
+    # Vertical pass, then back to straight alpha.
+    total = side * side
+    base = []
+    for column in taps:
+        out_row = []
+        for x in range(BASE_SIZE):
+            r = g = b = a = 0
+            for s, weight in column:
+                pr, pg, pb, pa = rows[s][x]
+                r += pr * weight
+                g += pg * weight
+                b += pb * weight
+                a += pa * weight
+            if a == 0:
+                out_row.append((0, 0, 0, 0))
                 continue
-            # Composite pipe wall, then stressed sector, over the gradient.
-            r, g, b = float(bg[0]), float(bg[1]), float(bg[2])
-            a_pipe = _coverage(_annulus_distance(x, y))
-            if a_pipe > 0.0:
-                r += (PIPE[0] - r) * a_pipe
-                g += (PIPE[1] - g) * a_pipe
-                b += (PIPE[2] - b) * a_pipe
-            a_stress = _coverage(_sector_distance(x, y))
-            if a_stress > 0.0:
-                r += (STRESS[0] - r) * a_stress
-                g += (STRESS[1] - g) * a_stress
-                b += (STRESS[2] - b) * a_stress
-            row.append(
-                (
-                    min(255, max(0, round(r))),
-                    min(255, max(0, round(g))),
-                    min(255, max(0, round(b))),
-                    min(255, max(0, round(a_bg * 255.0))),
-                )
-            )
-        rows.append(row)
-    return rows
+            out_row.append((_round_div(r, a), _round_div(g, a), _round_div(b, a), _round_div(a, total)))
+        base.append(out_row)
+    return base
 
 
 def downscale(
@@ -240,8 +229,8 @@ def generate(icon_dir: Path) -> list[Path]:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "Render the invented SWBPIPE mark and write the desktop "
-            "icon assets (icon.png 512px + multi-resolution icon.icns)."
+            "Derive the desktop icon assets (icon.png 512px + "
+            "multi-resolution icon.icns) from the SWB mark logo."
         )
     )
     parser.add_argument(
