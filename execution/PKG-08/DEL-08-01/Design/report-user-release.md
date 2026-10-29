@@ -4615,13 +4615,13 @@ constraints.
 - **The record:** a new `scope.not_carried` value and `record_version` for each
   widening. The reader admits each version it writes.
 
-**Returns to the owner (not in the list above): exact-route results under user
-release.** Under R, route 010 refuses `pressure-2` and `pressure-source-1`
-results (§0). Admitting them is not part of the later slice the owner kept in
-v0.1. HELP_HUMAN, 2026-10-26: "Opening a surface to sharing is the owner's
-call, as the local-private opening was, so don't build it without that." It is
-not built without the owner's decision. If the owner opens it, route 010 would
-need these, on the same record, attestation and reader:
+**Exact-route results under user release — owner decision, 2026-10-29:**
+"Open it, as recommended". This opens route 010 to `pressure-2` and
+`pressure-source-1` results subject to the four requirements below. §11 adds
+the design for this slice on the same record, attestation and reader. This
+supersedes the exact-route refusal in §0, §2.2, §2.5 step 2a, §2.8 and §2.9;
+it records the owner's scope decision, not a user release or product release.
+The implementation must carry:
 - W-11's exact source binding (W-11 design §3.6): custody, the resubmitted
   delivered and intake texts, and the native reader's eligible standing;
 - the exact sections in the derivation (the `exact_route` block, the exact
