@@ -96,7 +96,7 @@
     },
     {
       "path": "schemas/stress_neutral_export.v0.3.schema.json",
-      "sha256": "03a4bb8f24f4809af131996668e97707788185e6da845a2e88ac3b54e1d59220"
+      "sha256": "e1361e7ee104fbc628293daf275ad887792a027a52a28043f2bf0ec21fa04d3d"
     },
     {
       "path": "schemas/target_mapping.schema.json",
