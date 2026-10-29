@@ -32,6 +32,17 @@ pub(crate) const REDUCER_IN_REGION: &str = "EXACT_PRESSURE_REDUCER_IN_REGION";
 /// The static text of [`REDUCER_IN_REGION`] (the seam composes no text).
 pub(crate) const REDUCER_IN_REGION_TEXT: &str = "reducer maps a member of this pressure region; a reducer's thrust from a bore change is not modelled under 3.0.0/exact_pressure_v3, and the equal-bore region check never reads the reducer, so the exact route refuses it rather than analyse it as equal-bore pipe; a reducer whose mapped member lies outside every pressure region is admitted with its DEC-045 stiffness scale";
 
+/// §8.30 correction 1 (RT-A3; R-4 design C-1): the case-specific refusal of a
+/// node where terminals of two or more pressure regions meet and at least one
+/// of them is `separately_supported_or_compensated`
+/// (`pressure_runtime::refuse_compensated_shared_terminals`). Temporary: R-4
+/// stage S1's junction admission replaces it.
+pub(crate) const SHARED_TERMINAL_JUNCTION: &str =
+    "EXACT_PRESSURE_SHARED_TERMINAL_JUNCTION_UNSUPPORTED";
+/// The static tail of [`SHARED_TERMINAL_JUNCTION`]'s text, after the node,
+/// its regions and the compensated regions are named.
+pub(crate) const SHARED_TERMINAL_JUNCTION_TEXT: &str = "3.0.0/exact_pressure_v3 has no junction representation yet, and a compensated terminal at a junction can omit its member's share (p*Ai along the member's outward axis) of the junction's pressure load -sum(p*Ai*s) from the pipe solve, so the exact route refuses the junction rather than analyse it without that load; this temporary refusal also applies where the omitted share or the resultant is zero or cancels, such as a zero-pressure compensated branch or equal opposed compensated caps; where the members share one fluid space, transfers_to_wall at every terminal of the node carries that load";
+
 /// The sole exact pressure contract declared on a current model document.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ExactContract {
@@ -132,13 +143,6 @@ pub(crate) fn pressure_v3_formulation_basis_with_source(
 pub(crate) const EQUIVALENT_STATIC_LOAD_STATE: &str = "EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED";
 /// The static text of [`EQUIVALENT_STATIC_LOAD_STATE`].
 pub(crate) const EQUIVALENT_STATIC_LOAD_STATE_TEXT: &str = "equivalent_static generation is not provided on a load/reference-state document: a case's applied loads there are exactly its declared source ledger, and generated seismic or wind loads have no ledger class; the exact route refuses the generation rather than apply loads outside the ledger";
-/// W-16 slice c (§3): a wind marking of a proper fraction of a straight span
-/// on a document selecting `timoshenko_annulus_energy_v1`. Neither formation
-/// path bounds a Timoshenko partial-span uniform load, so it is refused.
-pub(crate) const EQUIVALENT_STATIC_PARTIAL_SPAN_TIMOSHENKO: &str =
-    "EXACT_EQUIVALENT_STATIC_PARTIAL_SPAN_TIMOSHENKO_UNSUPPORTED";
-/// The static text of [`EQUIVALENT_STATIC_PARTIAL_SPAN_TIMOSHENKO`].
-pub(crate) const EQUIVALENT_STATIC_PARTIAL_SPAN_TIMOSHENKO_TEXT: &str = "a wind marking of part of a straight span is not provided under shear_model timoshenko_annulus_energy_v1: no formation of a partial-span uniform load on a Timoshenko member is available; mark the whole span (exactly [0, 1] or exposed_pipe_refs), model the exposed part as its own pipe, or select euler_bernoulli";
 
 /// Every object family the exact route can meet besides its straight base.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -295,8 +299,9 @@ pub(crate) fn admission(contract: ExactContract, family: ExactFamily) -> Admissi
         (ExactContract::PressureV3, ExactFamily::RealizedBend) => Admission::Admitted,
         // W-16 slice c (DEL-05-01 Design `exact-equivalent-static.md`): a
         // case's DEC-068 seismic or wind generation on a plain v3 document,
-        // on the route's D-5 mass basis; load/reference-state documents,
-        // Timoshenko partial spans and replaced spans keep named refusals.
+        // on the route's D-5 mass basis; load/reference-state documents and
+        // replaced spans keep named refusals; a Timoshenko partial span takes
+        // the exact Timoshenko vector (W-16t).
         (ExactContract::PressureV3, ExactFamily::EquivalentStatic) => Admission::Admitted,
         // W-16 slice b (DEL-05-02 Design `exact-combinations.md`): model-authored
         // combinations over the primitive cases, formed from their published

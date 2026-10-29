@@ -16,7 +16,7 @@ use crate::memory_pool::test_host::ScriptedHost;
 use crate::memory_pool::Lease;
 use crate::report_package_save::test_support::{args_body, hash_of, no_store, sandbox, save_request_with, software};
 use crate::report_package_save::{
-    admit_report_package_session, ingress_lease_bytes, parse_lease_bytes, save_admitted_report_package_in, ReportPackageSaveRequest,
+    admit_report_package_session, ingress_lease_bytes, save_admitted_report_package_in, ReportPackageSaveRequest,
     SaveRefusal, UserReleaseSession, REPORT_PACKAGE_USER_RELEASE_ROUTE_ID,
 };
 use crate::solve_attestation::SolveAttestation;
@@ -27,7 +27,7 @@ use open_pipe_stress_product_physics::PreviewSolverMode;
 use open_pipe_stress_report_package::read_report_package_container;
 use open_pipe_stress_report_package::user_release::{
     derive, derive_input_manifest, input_manifest_ref, SoftwareIdentity, UserReleaseBasis, ANALYSIS_RECORD_UNBOUND, CONTENT_NOT_DERIVED,
-    EXACT_ROUTE_NOT_ADMITTED, LIBRARY_REFERENCED, NOT_THIS_ROUTE, PRIVATE_CLASS, RECORD_INVALID, RESULT_NOT_ATTESTED, RULE_PACK_REFERENCED,
+    LIBRARY_REFERENCED, NOT_THIS_ROUTE, PRIVATE_CLASS, RECORD_INVALID, RESULT_NOT_ATTESTED, RULE_PACK_REFERENCED,
     UNBOUND,
 };
 use open_pipe_stress_report_renderer::UserReleaseRecord;
@@ -36,7 +36,6 @@ use serde_json::{json, Value};
 const VECTORS: &str = include_str!("../../../../fixtures/reports/invented/user_release_derivation_vectors.json");
 const MODEL: &str = include_str!("../../../../fixtures/model_operations/precision_connected_ui_model.json");
 const SOURCE: &str = include_str!("../../../../fixtures/results/preview_physics_connected_sparse.json");
-const EXACT_STRAIGHT: &str = include_str!("../../../../fixtures/reports/invented/exact_report_package_requests/pressure_2_straight.json");
 
 /// The first vector's basis: the model, its committed sparse solve, the run
 /// record, the input manifest and the record.
@@ -203,59 +202,18 @@ fn route_010_admits_saves_and_reads_back_a_user_released_package() {
 
 // --- The outer command (§2.5, "The outer command") ---------------------------
 
-/// `user_release_exact_route_refused`, the native cases (§6): entering as the
-/// command does (`command_ingress::admit` with a `save_report_package` body,
-/// then `ingress_lease_bytes`), a route-010 request carrying an exact text,
-/// valid JSON, not JSON or over its cap, is refused with the exact-route code
-/// before the text is sized, prescanned or priced, so the lease never grows.
-/// A request whose result document is exact, or whose report carries an
-/// `exact_route`, is priced by route 010's reservation alone and refused at
-/// step 2a, with no custody query and nothing saved. The same exact request on
-/// route 009 is still admitted to its own pricing.
+/// D-6: pressure-free requests still refuse extraneous exact texts; an exact
+/// request with no live custody refuses before any text parse or picker.
 #[test]
-fn user_release_exact_route_refused() {
+fn user_release_unbound_exact_route_refused() {
     let basis = basis();
-    let registry = registry(ScriptedHost::normal());
-    let over = "x".repeat((crate::report_package_save::MAX_REQUEST_TEXT_BYTES + 1) as usize);
-    for member in ["exact_result_text", "exact_intake_text"] {
-        for text in ["{\"valid\":true}", "not json", over.as_str()] {
-            let mut args = basis.args();
-            match member {
-                "exact_result_text" => args.exact_result_text = Some(text.to_string()),
-                _ => args.exact_intake_text = Some(text.to_string()),
-            }
-            let mut body = args_body(&args);
-            body["analysisRunCanonicalText"] = json!(args.analysis_run_text);
-            body["exactResultText"] = json!(args.exact_result_text);
-            body["exactIntakeText"] = json!(args.exact_intake_text);
-            let (mut decoded, lease) = admit_json(&registry, "save_report_package", ArgsDecoding::Moved, &body).unwrap();
-            let admitted_bytes = lease.bytes();
-            let request = crate::report_package_save::save_report_package_args(&mut decoded).unwrap();
-            let refusal = ingress_lease_bytes(&request).unwrap_err();
-            assert_eq!(refusal.code, EXACT_ROUTE_NOT_ADMITTED, "{member} {}: {}", text.len(), refusal.message);
-            assert_eq!(refusal.diagnostics[0].path, format!("/{member}"));
-            assert_eq!(lease.bytes(), admitted_bytes, "no growth at all");
-            // A direct caller of the admission gets the same refusal.
-            refused(request, &registry, EXACT_ROUTE_NOT_ADMITTED);
-        }
-    }
-    // Step 2a: an exact document, and an exact_route in a pressure-free report.
-    let exact_document = serde_json::from_str::<Value>(EXACT_STRAIGHT).unwrap()["request"]["result_documents"][0].clone();
-    let mut with_exact = basis.request();
-    with_exact["result_documents"][0] = exact_document;
-    let mut with_route = basis.request();
-    with_route["report"]["exact_route"] = json!({"semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"});
-    for request in [&with_exact, &with_route] {
-        let args = basis.args_for(request, &basis.model, &basis.manifest);
-        let reservation = ingress_lease_bytes(&args).unwrap();
-        let ordinary = parse_lease_bytes(&args.request_text, &args.model_text, &args.input_manifest_text).unwrap();
-        let run = text_parse_bytes(args.analysis_run_text.as_deref().unwrap(), ArgsDecoding::Moved).unwrap();
-        let derivation = text_parse_bytes(&args.request_text, ArgsDecoding::Moved).unwrap() + text_parse_bytes(&args.input_manifest_text, ArgsDecoding::Moved).unwrap();
-        let formatting = refusal_formatting_bytes(args.request_text.len() as u64, args.model_text.len() as u64);
-        assert_eq!(reservation, ordinary + run + derivation + formatting, "route 010's reservation, no exact-text growth");
-        let (path, _) = refused(args, &registry, EXACT_ROUTE_NOT_ADMITTED);
-        assert_eq!(path, "/request/result_documents/0");
-    }
+    let (registry, _) = basis.session(PreviewSolverMode::SparseInteractive);
+    let mut args = basis.args();
+    args.exact_result_text = Some("{}".into());
+    refused(args, &registry, "REPORT-EXACT-SECTIONS-MISMATCH");
+    let mut request = basis.request();
+    request["report"]["exact_route"] = json!({"semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"});
+    refused(basis.args_for(&request, &basis.model, &basis.manifest), &registry, "REPORT-EXACT-CUSTODY-RELEASED");
 }
 
 // --- Steps 1-9: each refusal (§2.5, §2.10, §6) -------------------------------
@@ -1100,4 +1058,155 @@ fn user_release_render_admits_only_the_user_released_class() {
     assert!(error.starts_with("REPORT-RENDER-INPUT-POSITIONAL:") && error.contains("user_release"), "{error}");
     let (_, message) = refused(basis.args_for(&positional, &basis.model, &basis.manifest), &registry, crate::report_package_save::REQUEST_POSITIONAL);
     assert!(message.contains("user_release"), "{message}");
+}
+
+/// D-6: the widened record is a supported form, while legacy records remain readable.
+#[test]
+fn d6_exact_record_form_is_supported() {
+    let mut record = basis().record;
+    record.record_version = "1.1.0".into();
+    record.scope.not_carried.push("ineligible_exact_route_results".into());
+    assert_eq!(record.form_defect(), None);
+}
+
+/// D-6: exact texts receive the same additive priced parse on route 010.
+#[test]
+fn d6_route_010_prices_exact_source_texts() {
+    let mut args = basis().args();
+    let ordinary = ingress_lease_bytes(&args).unwrap();
+    args.exact_result_text = Some("{}".into());
+    args.exact_intake_text = Some("{}".into());
+    let extra = 2 * text_parse_bytes("{}", ArgsDecoding::Moved).unwrap();
+    assert_eq!(ingress_lease_bytes(&args).unwrap(), ordinary + extra);
+}
+
+const D6_VECTORS: [&str; 2] = [
+    include_str!("../../../../fixtures/reports/invented/user_release_exact/pressure_2_straight.json"),
+    include_str!("../../../../fixtures/reports/invented/user_release_exact/pressure_source_1.json"),
+];
+
+fn d6_args(vector: &Value, request: &Value) -> ReportPackageSaveRequest {
+    let mut args = save_request_with(request, &vector["model"], &vector["input_manifest"]);
+    user_release_evidence(&mut args);
+    args.analysis_run_text = Some(canonical_json(&vector["run_record"]));
+    args.exact_result_text = Some(vector["exact_result_text"].as_str().unwrap().into());
+    args.exact_intake_text = Some(vector["exact_intake_text"].as_str().unwrap().into());
+    args
+}
+
+fn d6_custody(vector: &Value) -> crate::solve_jobs::CustodyDigests {
+    crate::solve_jobs::CustodyDigests {
+        result_sha256: crate::solve_jobs::sha256_in_place(vector["exact_result_text"].as_str().unwrap().as_bytes()),
+        intake_sha256: crate::solve_jobs::sha256_in_place(vector["exact_intake_text"].as_str().unwrap().as_bytes()),
+        solver_mode: PreviewSolverMode::SparseInteractive,
+    }
+}
+
+/// Each new TypeScript vector passes native source binding and Rust derivation,
+/// then writes a package its reader reads back, including every notice.
+#[test]
+fn d6_route_010_exact_vectors_save_and_read_back_with_disclosures() {
+    for text in D6_VECTORS {
+        let v: Value = serde_json::from_str(text).unwrap();
+        let registry = registry(ScriptedHost::normal());
+        registry.record_attested_solve_for_tests(1, PreviewSolverMode::SparseInteractive, SolveAttestation::of(&v["model"], &v["source"]).unwrap());
+        let mut lease = registry.acquire_interactive_ingress(1024).unwrap();
+        let args = d6_args(&v, &v["request"]);
+        lease.grow_to(1024 + ingress_lease_bytes(&args).unwrap()).unwrap();
+        let job = v["request"]["report"]["exact_route"]["admission"]["native_job_id"].as_str().unwrap();
+        let custody = |id: &str| (id == job).then(|| d6_custody(&v));
+        let mut session = UserReleaseSession { registry: &registry, lease: &mut lease };
+        let admitted = admit_report_package_session(args, &software(), &mut no_store, &custody, Some(&mut session)).unwrap_or_else(|e| panic!("{}: {e:?}", v["shape"]));
+        let dir = sandbox("d6-exact");
+        let mut chosen = None;
+        let receipt = save_admitted_report_package_in(admitted, &custody, |name| {
+            let path = dir.join(name); chosen = Some(path.clone()); Some(Ok(path))
+        }).unwrap();
+        let read = read_report_package_container(&std::fs::read(chosen.unwrap()).unwrap()).unwrap();
+        assert_eq!(read.container_sha256_hex, receipt.container_sha256_hex);
+        assert_eq!(read.user_release.as_ref().unwrap()["record_version"], "1.1.0");
+        let html = read.members.iter().find(|m| m.file_name == "calculation_report.html").unwrap();
+        let html = std::str::from_utf8(&html.bytes).unwrap();
+        assert!(html.contains("USER-RELEASED REPORT"));
+        assert!(html.contains("Professional Boundary"));
+        assert!(html.contains("Nominal section (nominal wall)"));
+        assert!(html.contains("Reduced section"));
+        for limitation in v["request"]["report"]["report_sections"]["limitations"].as_array().unwrap() {
+            assert!(html.contains(&open_pipe_stress_report_renderer::escape_html(limitation["statement"].as_str().unwrap())));
+        }
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+}
+
+/// A complete-looking binding must still match native custody, delivered texts,
+/// eligible standing, the source diagnostics and every derived section.
+#[test]
+fn d6_route_010_refuses_missing_partial_and_forged_exact_bindings() {
+    for text in D6_VECTORS {
+        let v: Value = serde_json::from_str(text).unwrap();
+        let registry = registry(ScriptedHost::normal());
+        registry.record_attested_solve_for_tests(1, PreviewSolverMode::SparseInteractive, SolveAttestation::of(&v["model"], &v["source"]).unwrap());
+        let job = v["request"]["report"]["exact_route"]["admission"]["native_job_id"].as_str().unwrap();
+        let custody = |id: &str| (id == job).then(|| d6_custody(&v));
+        for pointer in [
+            "/report/exact_route/admission", "/report/exact_route/admission/native_job_id",
+            "/report/exact_route/admission/received_bytes_sha256", "/report/exact_route/admission/received_result_sha256",
+            "/report/exact_route/admission/model_sha256", "/report/exact_route/admission/input_manifest_sha256",
+            "/report/exact_route/admission/derivative_sha256", "/report/exact_route/headlines",
+            "/report/report_sections/diagnostics", "/report/report_sections/limitations",
+        ] {
+            let mut request = v["request"].clone();
+            let target = request.pointer_mut(pointer).unwrap();
+            *target = match target {
+                Value::String(_) => json!("0".repeat(64)),
+                Value::Array(_) => json!([]),
+                Value::Object(_) => json!({"native_job_id": job}),
+                _ => Value::Null,
+            };
+            let args = d6_args(&v, &request);
+            let mut lease = registry.acquire_interactive_ingress(1024).unwrap();
+            lease.grow_to(1024 + ingress_lease_bytes(&args).unwrap()).unwrap();
+            let mut session = UserReleaseSession { registry: &registry, lease: &mut lease };
+            assert!(admit_report_package_session(args, &software(), &mut no_store, &custody, Some(&mut session)).is_err(), "{pointer}");
+        }
+        for kind in 0..6 {
+            let mut request = v["request"].clone();
+            if kind == 5 { request["report"]["exact_route"].as_object_mut().unwrap().remove("admission"); }
+            let mut args = d6_args(&v, &request);
+            match kind {
+                0 => args.exact_result_text = None,
+                1 => args.exact_intake_text = None,
+                2 => args.exact_result_text.as_mut().unwrap().push(' '),
+                3 => args.exact_intake_text.as_mut().unwrap().push(' '),
+                _ => {}
+            }
+            let mut lease = registry.acquire_interactive_ingress(1024).unwrap();
+            lease.grow_to(1024 + ingress_lease_bytes(&args).unwrap()).unwrap();
+            let mut session = UserReleaseSession { registry: &registry, lease: &mut lease };
+            let lookup: &crate::report_package_save::CustodyLookup<'_> = if kind == 4 { &crate::report_package_save::no_custody } else { &custody };
+            assert!(admit_report_package_session(args, &software(), &mut no_store, lookup, Some(&mut session)).is_err(), "texts/custody {kind}");
+        }
+    }
+}
+
+/// D-6 keeps the native reader's eligibility check, even with genuine delivered
+/// bytes and coherent raw custody digests for an ineligible source.
+#[test]
+fn d6_ineligible_delivered_exact_source_is_refused() {
+    let mut v: Value = serde_json::from_str(D6_VECTORS[1]).unwrap();
+    let raw = include_str!("../../../../fixtures/product_preview/pressure_source/load_reference_source/n05-sparse_interactive.raw.json");
+    let input: Value = serde_json::from_str(include_str!("../../../../fixtures/product_preview/pressure_source/load_reference_source/n05.request.json")).unwrap();
+    v["exact_result_text"] = json!(raw);
+    v["exact_intake_text"] = json!(canonical_json(&input["model"]));
+    v["request"]["report"]["exact_route"]["admission"]["received_bytes_sha256"] = json!(sha256_hex(raw));
+    let registry = registry(ScriptedHost::normal());
+    let mut lease = registry.acquire_interactive_ingress(1024).unwrap();
+    let args = d6_args(&v, &v["request"]);
+    lease.grow_to(1024 + ingress_lease_bytes(&args).unwrap()).unwrap();
+    let mut session = UserReleaseSession { registry: &registry, lease: &mut lease };
+    let outcome = admit_report_package_session(args, &software(), &mut no_store, &|_| Some(d6_custody(&v)), Some(&mut session));
+    match outcome {
+        Err(SaveRefusal::Command(error)) => assert_eq!(error.code, "REPORT-EXACT-STANDING-NOT-ELIGIBLE", "{}", error.message),
+        _ => panic!("the native reader must refuse ineligible standing"),
+    }
 }

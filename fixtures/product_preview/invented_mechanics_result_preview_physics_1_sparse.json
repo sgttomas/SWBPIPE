@@ -141,6 +141,39 @@
       ]
     },
     {
+      "id": "diagnostic:spring-hanger:support-SH-140:hanger.installed_load",
+      "code": "SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD",
+      "severity": "warning",
+      "message": "variable spring hanger support:SH-140: its installed load (hanger.installed_load) is not applied as preload; results treat the hanger as a linear spring from zero load, whose force is its stiffness times the displacement at its DOF, and the entered load remains review evidence only",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "support:SH-140",
+        "hanger.installed_load"
+      ]
+    },
+    {
+      "id": "diagnostic:spring-hanger:support-SH-140:hanger.cold_load",
+      "code": "SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD",
+      "severity": "warning",
+      "message": "variable spring hanger support:SH-140: its cold load (hanger.cold_load) is not applied as preload; results treat the hanger as a linear spring from zero load, whose force is its stiffness times the displacement at its DOF, and the entered load remains review evidence only",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "support:SH-140",
+        "hanger.cold_load"
+      ]
+    },
+    {
+      "id": "diagnostic:spring-hanger:support-SH-140:hanger.hot_load",
+      "code": "SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD",
+      "severity": "warning",
+      "message": "variable spring hanger support:SH-140: its hot load (hanger.hot_load) is not applied as preload; results treat the hanger as a linear spring from zero load, whose force is its stiffness times the displacement at its DOF, and the entered load remains review evidence only",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "support:SH-140",
+        "hanger.hot_load"
+      ]
+    },
+    {
       "id": "diagnostic:spring-hanger:support-CE-120:hanger",
       "code": "CONSTANT_EFFORT_USER_DATA_REVIEWED",
       "severity": "info",

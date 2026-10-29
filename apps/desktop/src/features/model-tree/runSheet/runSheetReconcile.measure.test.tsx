@@ -45,6 +45,7 @@ const fixture = fixtureJson as unknown as { basis_model: PreviewModel };
 
 const ROWS = 500;
 const BEND_ROWS = 50;
+const FIXTURE_LOAD_MS = 15_000; // the two session loads below; within the test's own timeout
 const MATERIAL = { id: "material:steel" }; // a material of the fixture basis
 const section = { outside_diameter: { value: 0.1143, unit: "m" }, wall_thickness: { value: 0.00602, unit: "m" } };
 
@@ -144,7 +145,9 @@ describe("run sheet reconciliation cost (§3.6), indicative", () => {
       handle.session = null;
       handle.store = null;
       const view = render(mounted ? <SessionWithSheet /> : <SessionOnly />);
-      await waitFor(() => expect(handle.session?.model.model).toBeTruthy());
+      // Setup, not the measurement: the session opens the 5,000-entity model
+      // clone, which can exceed waitFor's 1 s default on a loaded CI runner.
+      await waitFor(() => expect(handle.session?.model.model).toBeTruthy(), { timeout: FIXTURE_LOAD_MS });
       if (mounted) {
         act(() => handle.store!.update(() => appliedSheet(handle.session!.model.model!, owned, 50)));
         await waitFor(() => expect(view.getByTestId("run-sheet-row-r50")).toHaveAttribute("data-status", "applied"));
@@ -173,7 +176,7 @@ describe("run sheet reconciliation cost (§3.6), indicative", () => {
     }
     console.log(`RUN_SHEET_INDEX_BUILDS ${JSON.stringify({ without: counts[0], with: counts[1] })}`);
     expect(counts[1]).toEqual(counts[0]);
-  });
+  }, 2 * FIXTURE_LOAD_MS + 30_000);
 });
 
 const handle: { session: ReturnType<typeof useWorkspaceSession> | null; store: ReturnType<typeof useRunSheetStore> | null } = { session: null, store: null };

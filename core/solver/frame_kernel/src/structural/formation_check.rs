@@ -2153,14 +2153,29 @@ fn uniform_straight_balls(
         let d = b.sub(pb[k], pa[k])?;
         v[k] = b.mul(if k == 3 || k == 5 { l2 } else { l }, d)?;
     }
+    // Each bending plane's [V_i, M_i, V_j, M_j] per unit intensity: local y
+    // (the Iz plane) first, then local z (the Iy plane). Euler–Bernoulli and
+    // a full span keep v unchanged; a Timoshenko proper span adds
+    // dV [1, l/2, -1, l/2] (W-16t TPS-K, `timoshenko_partial_shear_terms`).
+    let mut planes = [[v[2], v[3], v[4], v[5]]; 2];
+    if let Some(shear) = timoshenko_partial_shear_terms(b, f, l, l2, start, end)? {
+        for (terms, dv) in planes.iter_mut().zip(shear) {
+            let dvl = b.mul(dv, l)?;
+            let dm = b.half(dvl)?;
+            terms[0] = b.add(terms[0], dv)?;
+            terms[1] = b.add(terms[1], dm)?;
+            terms[2] = b.sub(terms[2], dv)?;
+            terms[3] = b.add(terms[3], dm)?;
+        }
+    }
     let mut local = [Ball::ZERO; 12];
     for end in 0..2 {
         let offset = end * 6;
         local[offset] = b.mul(local_w[0], v[end])?;
-        local[offset + 1] = b.mul(local_w[1], v[2 + 2 * end])?;
-        local[offset + 2] = b.mul(local_w[2], v[2 + 2 * end])?;
-        local[offset + 5] = b.mul(local_w[1], v[3 + 2 * end])?;
-        local[offset + 4] = b.mul(local_w[2], v[3 + 2 * end])?.neg();
+        local[offset + 1] = b.mul(local_w[1], planes[0][2 * end])?;
+        local[offset + 2] = b.mul(local_w[2], planes[1][2 * end])?;
+        local[offset + 5] = b.mul(local_w[1], planes[0][1 + 2 * end])?;
+        local[offset + 4] = b.mul(local_w[2], planes[1][1 + 2 * end])?.neg();
     }
     let mut out = [Ball::ZERO; 12];
     for block in 0..4 {
@@ -2174,6 +2189,62 @@ fn uniform_straight_balls(
         }
     }
     Ok(out)
+}
+/// W-16t TPS-K (DEL-05-03 Design `section-bases-and-timoshenko.md` §4 item
+/// 4 (ii)): the shear correction dV = rho J per unit intensity of a
+/// Timoshenko frame's uniform load on the proper span [start, end], for local
+/// y (phi_z, the Iz plane) and local z (phi_y, the Iy plane); `None` for an
+/// Euler–Bernoulli frame or a full span, which keep their vector. It is
+/// generic in the frame and serves both routes: it reads only the frame's own
+/// binary64 leaves (E, G, I_y, I_z, A_s) and the chord ball l, so the exact
+/// route and a pressure-free Timoshenko member use it unchanged.
+///
+/// phi = (12 (E I)) / ((G A_s) l^2) in `frame_matrix`'s operation order (one
+/// definition of phi for K_int's element and its load), rho = phi/(1+phi),
+/// and J = l (g(a) - g(b))/2 with g(x) = (x - x^2)^2: the exact
+/// R_ss - V0_EB, a different algebraic route from the binary64 value's.
+/// Every step is ball arithmetic, so the result encloses the exact
+/// correction; any failure (sites "timoshenko phi", "timoshenko ratio") makes
+/// the case unavailable (fail closed).
+fn timoshenko_partial_shear_terms(
+    b: &mut Balls,
+    f: &FrameElement,
+    l: Ball,
+    l2: Ball,
+    start: f64,
+    end: f64,
+) -> Result<Option<[Ball; 2]>, LoadFailure> {
+    let BeamTheory::Timoshenko { shear_area } = f.section.beam_theory else {
+        return Ok(None);
+    };
+    if start == 0.0 && end == 1.0 {
+        return Ok(None);
+    }
+    let g = |b: &mut Balls, x: f64| -> Result<Ball, LoadFailure> {
+        let x = b.lift(x)?;
+        let x2 = b.mul(x, x)?;
+        let d = b.sub(x, x2)?;
+        b.mul(d, d)
+    };
+    let (ga, gb) = (g(b, start)?, g(b, end)?);
+    let difference = b.sub(ga, gb)?;
+    let half = b.half(difference)?;
+    let j = b.mul(l, half)?;
+    let s = &f.section;
+    let (em, gm) = (b.lift(s.elastic_modulus)?, b.lift(s.shear_modulus)?);
+    let gas = b.mul(gm, b.lift(shear_area)?)?;
+    let gasl2 = b.mul(gas, l2)?;
+    let twelve = b.lift(12.0)?;
+    let mut shear = [Ball::ZERO; 2];
+    for (dv, moment) in shear.iter_mut().zip([s.second_moment_z, s.second_moment_y]) {
+        let ei = b.mul(em, b.lift(moment)?)?;
+        let t12 = b.mul(twelve, ei)?;
+        let phi = b.div(t12, gasl2, "timoshenko phi")?;
+        let one_plus = b.add(Ball::ONE, phi)?;
+        let ratio = b.div(phi, one_plus, "timoshenko ratio")?;
+        *dv = b.mul(ratio, j)?;
+    }
+    Ok(Some(shear))
 }
 fn curved_strain_balls(
     b: &mut Balls,
@@ -2225,17 +2296,10 @@ pub(super) fn load_reformation(p: &LoadPrimitive) -> Result<([Wide2; 12], [f64; 
             end_fraction,
         } => {
             // T4-U8 (Design §3.4, §4 item 4): a full span has the
-            // Euler–Bernoulli vector in a Timoshenko element; a partial span
-            // does not, and its exact Timoshenko vector is not re-formed
-            // here, so it is unavailable (fail closed), never formed with the
-            // stale Euler–Bernoulli vector.
-            if frame.section.beam_theory.is_timoshenko()
-                && !(*start_fraction == 0.0 && *end_fraction == 1.0)
-            {
-                return Err(LoadFailure::Wide(WideError::CountRange(
-                    "timoshenko partial-span uniform load: unavailable",
-                )));
-            }
+            // Euler–Bernoulli vector in a Timoshenko element; W-16t (TPS-K):
+            // a proper span is re-formed with its exact Timoshenko vector
+            // (`timoshenko_partial_shear_terms`), never the stale
+            // Euler–Bernoulli one.
             let w = intensity_balls(&mut b, intensity)?;
             uniform_straight_balls(&mut b, frame, w, *start_fraction, *end_fraction)?
         }

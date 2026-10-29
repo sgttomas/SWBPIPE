@@ -92,6 +92,7 @@ quotes the option's drafted text; the owner's own words are quoted as such.
   users enter their own k and SIF.
 - **Public repository** (owner, 2026-10-28: "Yes."). The public sanitized
   repository export (DEL-10-04:1) is in v1.0 (RT-V8).
+- **Exact-route results under user release** (owner, 2026-10-29: "Open it, as recommended"). Route 010 admits exact-route results with exact source binding, exact sections and limitations, Diagnostics binding and producer item 9 (RT-R5; DEL-08-01 Design `report-user-release.md` §11).
 - **Embedded agent** (owner, 2026-10-28: "I want you to add the App v4
   integration into SWBPIPE for the v1.0 target. I want you two to discuss how
   to make it connect, but I thought this had already been decided on (check

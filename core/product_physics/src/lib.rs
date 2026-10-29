@@ -104,7 +104,8 @@ use open_pipe_stress_nonlinear_integration::confirmation::{
     confirm_converged_state, Confirmation,
 };
 use open_pipe_stress_nonlinear_integration::{
-    eligible_contact_dofs, solve_active_set_frame_with_mode_and_springs_assembled,
+    dense_loop_memory_guard, eligible_contact_dofs,
+    solve_active_set_frame_with_mode_and_springs_assembled, DENSE_LOOP_MEMORY_CEILING_BYTES,
     ConvergenceControl, ConvergencePolicyStatus, CurvedBendStiffnessElement,
     DerivedFrictionNormalReaction, FrictionNormalReaction, LinearSolveMode,
     NonlinearFrameSolveInput, NonlinearFrameSolveResult, NonlinearIntegrationError,
@@ -3064,6 +3065,28 @@ fn run_linear_static_preview_observed_inner(
         Ok(stiffness) => stiffness,
         Err(error) => return solver_blocked(model, diagnostics, error),
     };
+    // §8.30 correction 2 (RT-U4, RT-A2): the nonlinear active-set loop is
+    // dense in both modes; an invocation with a nonlinear support is refused,
+    // once and before any case or n^2 allocation (ahead of F1b's dense-scrutiny
+    // guard, so both modes name the same refusal), when the loop's estimated
+    // leading dense storage exceeds its provisional limit (NI
+    // `dense_loop_memory_guard`).
+    if !built.nonlinear_supports.is_empty() {
+        if let Err(refusal) = dense_loop_memory_guard(
+            built.nodes.len(),
+            &boundary.restrained_dofs,
+            DENSE_LOOP_MEMORY_CEILING_BYTES,
+        ) {
+            diagnostics.push(diag(
+                "diagnostic:physics:nonlinear-dense-memory-guard",
+                "NONLINEAR_DENSE_MEMORY_LIMIT_EXCEEDED",
+                "blocking",
+                format!("{refusal}; it applies in sparse_interactive and dense_scrutiny alike"),
+                vec!["model".to_string()],
+            ));
+            return blocked_envelope(model, diagnostics);
+        }
+    }
     // F1b (§4.8 resource guard; ROOT Q8): dense scrutiny refuses, once per
     // invocation and before any n^2 allocation, a model whose dense-path
     // estimate exceeds the provisional ceiling.
@@ -10657,13 +10680,12 @@ fn append_equivalent_static_generated_loads(
     };
     let case_id = load_case.id.as_str();
     // W-16 slice c (DEL-05-01 Design `exact-equivalent-static.md`): the exact
-    // route generates on its own mass basis, never on a connector-replaced
-    // span, and never as a Timoshenko partial-span load. Off the exact route
-    // these are false and empty, and generation is unchanged.
+    // route generates on its own mass basis and never on a connector-replaced
+    // span; a Timoshenko partial span takes the exact Timoshenko vector
+    // (W-16t, §3). Off the exact route these are false and empty, and
+    // generation is unchanged.
     let exact = pressure_runtime::is_exact(model);
     let replaced = joint::replaced_span_ids(model);
-    let timoshenko = pressure_runtime::selects_timoshenko(model);
-    let arcs = curved_bend_realized_pipe_ids(model);
     let generated_from = loads.len();
     if equivalent_static.seismic.is_none() && equivalent_static.wind.is_none() {
         diagnostics.push(diag(
@@ -10947,26 +10969,6 @@ fn append_equivalent_static_generated_loads(
                     continue;
                 }
             };
-            // §3: after ordinary fraction validation, a proper fraction of a
-            // straight span under the Timoshenko member is refused by name
-            // (exactly [0, 1] is full span; arcs keep their own refusal).
-            if timoshenko
-                && !arcs.contains(pipe_ref.as_str())
-                && !(extent.start_fraction == 0.0 && extent.end_fraction == 1.0)
-            {
-                diagnostics.push(diag(
-                    &equivalent_static_diag_id(
-                        case_id,
-                        &format!("wind:exposed-span-{index}:timoshenko-partial-span"),
-                    ),
-                    exact_admission::EQUIVALENT_STATIC_PARTIAL_SPAN_TIMOSHENKO,
-                    "blocking",
-                    exact_admission::EQUIVALENT_STATIC_PARTIAL_SPAN_TIMOSHENKO_TEXT,
-                    vec![case_id.to_string(), pipe_ref.clone(), "exposed_spans".to_string()],
-                ));
-                refs_blocked = true;
-                continue;
-            }
             extents_by_pipe.entry(pipe_index).or_default().push(extent);
             let section = &model.pipe_segments[pipe_index].section;
             let insulation = section

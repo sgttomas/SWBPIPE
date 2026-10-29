@@ -797,7 +797,8 @@ export type UserReleaseRecordValue = Record<string, unknown>;
  * record `userRelease`. It leaves out every component, spring-hanger, material, section and
  * support provenance entry, the library references and library-store findings, every
  * provenance diagnostic, rule-pack references and user-rule outcomes; its persistence
- * reference is `TBD`. A pressure-free source only. The Rust mirror is
+ * reference is `TBD`. D-6 exact sources require the recorded W-11 admission and
+ * retain their exact sections and limitations. The Rust mirror is
  * `report_package::user_release::minimal_renderer_input`, held equal by
  * `fixtures/reports/invented/user_release_derivation_vectors.json`. */
 export async function userReleasedRenderableReportInput({
@@ -805,19 +806,18 @@ export async function userReleasedRenderableReportInput({
   result,
   analysisRun,
   inputManifest,
-  userRelease
+  userRelease,
+  exactAdmission = null
 }: {
   model: PreviewModel;
   result: MechanicsResult;
   analysisRun: AnalysisRunEnvelope;
   inputManifest: CurrentSessionInputManifestEvidence;
   userRelease: UserReleaseRecordValue;
+  exactAdmission?: ExactReportAdmission | null;
 }) {
-  if (isExactReportSource(result)) {
-    throw new Error("REPORT-USER-RELEASE-EXACT-ROUTE-NOT-ADMITTED: a shareable report package carries pressure-free (preview-physics-2) results only; this exact-route result can be saved in a local private package.");
-  }
   return renderableReportInput(
-    { model, result, analysisRun, projectSummary: null, inputManifest, renderContext: { exportContext: "local_private", generatedAt: null } },
+    { model, result, analysisRun, projectSummary: null, inputManifest, exactAdmission, renderContext: { exportContext: "local_private", generatedAt: null } },
     userRelease
   );
 }
