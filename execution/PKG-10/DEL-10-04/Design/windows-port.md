@@ -116,6 +116,20 @@ routing. Future worker, filesystem, build and UI contributors receive disjoint
 files; numerical/persistence/permission slices get targeted tests and independent
 scrutiny. No shared App library is a prerequisite.
 
+SWBPIPE's existing memory-budget design ends solve/model-check workers on app
+death, including paused workers; cancellation/session reset kills them and leases
+release after reap. Preserve that policy explicitly: a Windows kill request or
+pipe EOF is not confirmed exit, and reservations stay held until process/job
+termination is observed. Test inheritance that accidentally retains the Job
+Object's lifetime, death during creation, death while paused, descendants and
+unconfirmed survivors. Job memory limits do not replace counted-heap grants,
+measured process memory or fresh host-headroom admission. App's independently
+owned ready-EOF/stop/parent-death policies differ; sharing OS mechanisms must not
+replace either application's semantics. The peer's committed Windows design at
+`sgttomas/chirality-app` revision
+`61e12b8e92445903e5fb3edc90b9098d121fb043` identifies that distinction and
+its own Unix-VFS identity blocker; neither is an adopted SWBPIPE implementation.
+
 ## Persistence and durable outcomes
 
 Autosave uses unconditional `std::os::fd` / Unix `MetadataExt`, `openat`,
