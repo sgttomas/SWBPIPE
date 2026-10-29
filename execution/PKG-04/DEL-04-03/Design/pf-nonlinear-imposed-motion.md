@@ -711,6 +711,13 @@ loads, travel ranges and movement limits remain authored review data; base
 motion neither recalculates them nor establishes preload, available travel or
 suitability.
 
+**Current limitation (§8.30 correction 3).** A variable spring hanger's
+installed, cold and hot loads are not applied as preload. Results treat the
+hanger as a linear spring from zero load. Each non-zero entered load gets a
+warning, `SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD` (PP `validation.rs`), per
+support and field. The Diagnostics panel, the results standing line and the
+report carry it. RT-S3 and RT-A11 (hanger sizing) lift this limitation.
+
 **The ledger term.** One formed term is added per moved spring, at d, with
 value fl(k·g):
 - Formation `RoundedProduct{k: 1, a: k, b: g}`;

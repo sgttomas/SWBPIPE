@@ -76,7 +76,7 @@ With t_r = (t − c_m) − c_a, r_n = R − t and r_p = R − t_r:
 Load q over x ∈ [aL, bL] (seismic: a = 0, b = 1):
 - |R| = q·L·(b − a) and |M₀| = q·L²·(b² − a²)/2;
 - u_L = q·L⁴·[(b³ − a³) − (b⁴ − a⁴)/4]/(6EI); Timoshenko adds q·L²/(2G·A_s),
-  A_s = κ_E·A_n (full span only; EX refuses a partial span on Timoshenko);
+  A_s = κ_E·A_n (full span only here; partial spans on Timoshenko are in `../w16_timoshenko_partial_wind/`);
 - θ_L = q·L³·(b³ − a³)/(6EI), a section rotation (no shear term);
 - V(x) = q·(bL − max(x, aL))⁺ and M(x) = q·[((bL − x)⁺)² − ((aL − x)⁺)²]/2;
 - bending normal stress M/Z with Z = I/R on each published basis.
