@@ -33,8 +33,11 @@ implementation contract. Its origin is App commit
 `e1e3f4615b6f766b313c3492506f68254afd8a06`, path
 `execution/PKG-09/DEL-09-06/Design/SWBPIPE_CATALOG_PROPOSAL.json`, SHA-256
 `64aad707acd1d409f3d255381fc597e2ee74e7a4d048aadc5382414d63c64f8c`.
-The initial adoption changes catalog identity/standing and adds origin metadata;
-tool schemas, limits, projection and policies are unchanged. The App copy stays
+The initial local version 1 changed catalog identity/standing and added origin
+metadata. Version 2 also adds bounded proposal assumptions and distinguishes
+live-basis admission from completion against retained proposal/run evidence,
+repairing independent review findings. Native operation intents, limits and
+dynamic projection are unchanged. The App copy stays
 origin evidence and is not a second editable catalog. A local contract commit,
 integration into main, and demonstrated runtime conformance are distinct facts.
 
@@ -93,12 +96,16 @@ not proof of network destination control.
 On `item/tool/call`, Rust admits size/count budgets and validates the full
 arguments against the SWBPIPE schema, irrespective of provider schema handling.
 It captures the original RPC id, conversation/turn/call/tool, host application
-generation, workspace handle and model basis/revision. Check initial binding
-against the live session before dispatch. Issue an opaque `requestRef` for that
+generation, workspace handle and model basis/revision. Check workspace and
+generation against the admitted session before dispatch. Summary captures a live
+basis; node reads, new proposals and solve require the current live basis.
+Proposal observation instead binds its retained proposal basis, and result
+reads bind the retained run's evaluated basis. A current-model revision change
+does not alone invalidate those historical records. Issue an opaque `requestRef` for that
 pending call and forward only to the admitted webview. Handles are scoped to
 that generation/workspace and are neither filesystem paths nor identity proof.
 
-The webview rechecks its generation, revision and hash before executing. The
+The webview rechecks its generation and the call-specific revision/hash before executing. The
 summary bootstraps the current handle/basis without caller-supplied paths.
 Reads are bounded at the producer, not serialized wholesale and then truncated.
 Page cursors bind tool, workspace, basis, run and next offset; drift yields an
@@ -108,7 +115,16 @@ proposed units must match those units exactly. No silent conversion is allowed.
 One new ingress-admitted completion command returns `requestRef` and the bounded
 outcome. Rust looks up the original RPC destination; the webview cannot supply
 an arbitrary RPC id. Reject unknown, duplicate, wrong-session, wrong-generation
-or mismatched completions. Invalidate detached sessions and outstanding handles;
+or mismatched completions. Binding means correspondence to the immutable pending
+call, not requiring every call's revision to equal the latest live revision.
+Summary/node completion requires an unchanged live revision. Proposal submission
+completion binds the actual immutable queue registration; observation binds its
+proposal record and original basis; solve completion binds the admitted job and
+evaluated hash; result reads bind the retained run/cursor basis. These last four
+may complete after a live edit with explicitly captured/historical standing.
+The returned basis must never be rewritten to the newer live model. A human
+Apply advancing the revision does not erase its correlated applied outcome.
+Invalidate detached sessions and outstanding handles;
 never automatically redispatch. Validate output schema and standing before
 answering Codex. Missing/uncertain application evidence yields `unknown`, not
 success, rejection or a retry that might duplicate mutation.
@@ -119,7 +135,15 @@ Require `claimedModelHash == basis.modelHash == current session hash` before
 `registerOperationBatch`; repeat the existing current-basis check at application.
 Construct the batch in the host and stamp `author_type: agent` plus original
 conversation/turn/call ids. Caller-supplied validation, attribution or source
-fields are untrusted. Preserve native intent shape, rationale and assumptions;
+fields are untrusted. Preserve native intent shape and per-operation rationale.
+The proposal envelope also requires a separate `assumptions` array: at most 16
+records, each with a bounded stable id, statement and affected native operation
+ids. An empty array declares none. Reject duplicate assumption ids or references
+outside the submitted operation ids. Capture these records immutably alongside
+the proposal handle, batch id, attribution and original basis; display them in
+review and retain them with session outcomes/receipts, including reject,
+withdrawal and unknown. Do not flatten them into rationale or add undeclared
+fields to the native intent. This context storage is not durable audit history;
 attribution is not authenticated identity. Queue registration never applies.
 
 Use existing validation, immutable registration, diff/review and human Apply.
@@ -173,7 +197,9 @@ Neither standalone App qualification nor workflow-act machinery is inferred.
    isolation separately. Greeting/listing/request capture alone is not a pass.
 3. Exercise malformed/oversized frames and arguments, wrong initial binding,
    duplicate/unsolicited completions, revision/session replacement, interruption
-   and uncertain outcomes with controlled protocol/session checks.
+   and uncertain outcomes with controlled protocol/session checks. Include a
+   human Apply advancing revision while observation waits, solve completion
+   after an edit, historical result pages, and retained structured assumptions.
 4. Exercise actual proposal review, reject, stale refusal and one human-applied
    edit through the native route. Obtain independent permissions review for new
    Tauri/ingress commands and repin the reach scan as #1718 did. Preserve existing

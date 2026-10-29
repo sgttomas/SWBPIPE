@@ -1,5 +1,5 @@
 {
-  "catalogVersion": "swbpipe-catalog/1",
+  "catalogVersion": "swbpipe-catalog/2",
   "standing": "design_contract_not_live",
   "owner": "SWBPIPE",
   "source": {
@@ -62,12 +62,14 @@
     "handles": "Host-issued opaque workspace/proposal/run/page handles; scoped to admitted generation and workspace; never filesystem paths. Restart invalidates handles; unavailable/unknown, never redispatch. Cursor binds tool, basis, run and next offset.",
     "attribution": "Host stamps author_type=agent and original conversation/turn/call; never accepts user attribution from tool arguments.",
     "proposal": "Require claimedModelHash == basis.modelHash == current session hash before queue registration. Pass operations in native EditorOperationIntent shape to a host-created OperationBatch; no alternate field-edit language. Current discriminator is native operation_kind=modify, target.object_type=Node, change.change_kind=set_field with position.x/y/z. Extend those native discriminators and subschemas, not tool names. Rust applier remains semantic validator. Treat validation/source/id fields as untrusted; host stamps conversation attribution and queues immutable submission via existing preview/human apply route.",
-    "completion": "Resolve host-issued requestRef against pending call; webview cannot choose RPC destination. Check binding and current session generation/revision before completing; serialize queue/apply/interrupt transitions.",
+    "completion": "Resolve requestRef to the immutable original pending call and require its conversation/turn/call/tool, workspace and application-generation binding. The submitting webview must remain the admitted session. For summary/node reads require unchanged live revision through completion. For queued proposals, observations, solves and result reads validate the host-retained proposal/run record against its captured basis; a later live revision is permitted only as an explicitly historical/applied outcome, never rebased to current. Duplicate or forged completions and wrong/detached sessions are refused. Preserve already admitted application outcome as actual or unknown on loss; never redispatch.",
     "interruption": "Withdraw pending review only; application already admitted yields actual outcome or unknown. Turn interruption is not solve cancellation or rollback.",
     "limits": "Apply the smaller of catalog caps and existing admission budgets before parsing/allocating argument or result payloads; bounded producers, no whole-model serialization followed by truncation.",
     "results": "Use existing permitted view/value-record semantics and redaction floors. No raw private row bypass. Preserve exact decimal where required; withheld/unavailable has no numeric value. A run handle binds its evaluated model hash, never relabel historical results as current.",
     "autonomy": "No apply/accept/release/grant tools. Any later autonomy needs separately authorized host policy and implementation.",
-    "solve": "Require claimedModelHash == basis.modelHash == current session hash before handleRun; retain evaluated hash even if run id changes. Return session solverMode, health and run handle; progress only to existing supported notifications/panel."
+    "solve": "Require claimedModelHash == basis.modelHash == current session hash before handleRun; retain evaluated hash even if run id changes. Return session solverMode, health and run handle; progress only to existing supported notifications/panel.",
+    "proposalContext": "Require an explicit bounded assumptions array (empty means none declared), separate from unchanged native operation intents and per-operation rationale. Each assumption has a stable id, statement and existing affected operation ids. Validate id uniqueness and operation membership; capture immutable context with proposal handle, batch id, original attribution and basis. Display it with the queue and retain it with session outcomes/receipts, including reject/withdraw/unknown; do not inject extra fields into native intents or claim durable persistence.",
+    "basisAdmission": "Summary has no caller basis. Node reads, proposal submission and solve admission require the current live basis. Proposal observation uses the host-retained proposal basis; result reads use the host-retained evaluated run basis. All require the admitted workspace/application generation. Historical calls are not refused solely because the current model revision advanced."
   },
   "definitions": {
     "handle": {
@@ -302,7 +304,8 @@
         "workspaceHandle",
         "basis",
         "claimedModelHash",
-        "operations"
+        "operations",
+        "assumptions"
       ],
       "properties": {
         "workspaceHandle": {
@@ -320,6 +323,9 @@
           "items": {
             "$ref": "#/definitions/operationIntent"
           }
+        },
+        "assumptions": {
+          "$ref": "#/definitions/assumptions"
         }
       }
     },
@@ -366,7 +372,8 @@
         "proposalHandle",
         "proposalBasis",
         "outcomeModelHash",
-        "author_type"
+        "author_type",
+        "assumptions"
       ],
       "properties": {
         "proposalHandle": {
@@ -387,6 +394,9 @@
         },
         "author_type": {
           "const": "agent"
+        },
+        "assumptions": {
+          "$ref": "#/definitions/assumptions"
         }
       }
     },
@@ -1175,6 +1185,45 @@
           ]
         }
       }
+    },
+    "assumption": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "assumptionId",
+        "statement",
+        "affectedOperationIds"
+      ],
+      "properties": {
+        "assumptionId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "statement": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "affectedOperationIds": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          }
+        }
+      }
+    },
+    "assumptions": {
+      "type": "array",
+      "maxItems": 16,
+      "items": {
+        "$ref": "#/definitions/assumption"
+      }
     }
   },
   "tools": [
@@ -1196,7 +1245,7 @@
       "availability": "admitted live webview workspace; adapters not yet implemented",
       "sourceRoute": "workspaceSession.ts model/modelHash/results; PreviewModel record-family counts",
       "canonicalUnits": "node coordinates: exact project.units.length; result values: source row unit, no display conversion",
-      "basisPolicy": "explicit workspace handle; exact model hash/revision/generation; pages retain snapshot basis"
+      "basisPolicy": "Host captures current live workspace/hash/revision; unchanged live revision required through completion or return stale/unavailable, never mixed-state success."
     },
     {
       "name": "swbpipe_read_nodes",
@@ -1216,7 +1265,7 @@
       "availability": "admitted live webview workspace; adapters not yet implemented",
       "sourceRoute": "workspaceSession.ts model/modelHash; PreviewModel.nodes",
       "canonicalUnits": "node coordinates: exact project.units.length; result values: source row unit, no display conversion",
-      "basisPolicy": "explicit workspace handle; exact model hash/revision/generation; pages retain snapshot basis"
+      "basisPolicy": "Current live basis required at admission and completion; pages retain that basis; revision drift is stale/unavailable."
     },
     {
       "name": "swbpipe_propose_operations",
@@ -1236,7 +1285,7 @@
       "availability": "admitted live webview workspace; adapters not yet implemented",
       "sourceRoute": "workspaceSession.ts registerOperationBatch; operationBatchService.ts validateOperationBatch; operation_applier set_field Node position.x/y/z",
       "canonicalUnits": "node coordinates: exact project.units.length; result values: source row unit, no display conversion",
-      "basisPolicy": "explicit workspace handle; exact model hash/revision/generation; pages retain snapshot basis"
+      "basisPolicy": "Current live basis and claimedModelHash required before queue registration. Completion binds immutable registration/proposal basis and actual recorded standing; a subsequent revision change does not erase the acknowledged registration or an actual applied outcome."
     },
     {
       "name": "swbpipe_observe_proposal",
@@ -1256,7 +1305,7 @@
       "availability": "admitted live webview workspace; adapters not yet implemented",
       "sourceRoute": "workspaceSession.ts batchRegistrations/sessionEvents and handleRunOperationBatch outcomes",
       "canonicalUnits": "node coordinates: exact project.units.length; result values: source row unit, no display conversion",
-      "basisPolicy": "explicit workspace handle; exact model hash/revision/generation; pages retain snapshot basis"
+      "basisPolicy": "Input basis must match the host-retained proposal basis and same admitted workspace/generation. Completion may span later live revisions; report original proposalBasis and actual outcomeModelHash without relabeling them current."
     },
     {
       "name": "swbpipe_solve",
@@ -1276,7 +1325,7 @@
       "availability": "admitted live webview workspace; adapters not yet implemented",
       "sourceRoute": "workspaceSession.ts handleRun; previewService.ts startPreviewMechanicsJob/takePreviewMechanicsJobResult",
       "canonicalUnits": "node coordinates: exact project.units.length; result values: source row unit, no display conversion",
-      "basisPolicy": "explicit workspace handle; exact model hash/revision/generation; pages retain snapshot basis"
+      "basisPolicy": "Current claimed/live basis required at job admission. Completion binds captured job/evaluated hash/run identity even if live revision advances; no result implies current-state applicability."
     },
     {
       "name": "swbpipe_read_results",
@@ -1296,7 +1345,7 @@
       "availability": "admitted live webview workspace; adapters not yet implemented",
       "sourceRoute": "MechanicsResult.results; features/results/resultReader.ts; features/result-export/csvTable.ts view/value policy",
       "canonicalUnits": "node coordinates: exact project.units.length; result values: source row unit, no display conversion",
-      "basisPolicy": "explicit workspace handle; exact model hash/revision/generation; pages retain snapshot basis"
+      "basisPolicy": "Input basis and cursor must match retained evaluated run basis in the same admitted workspace/generation. Later live model edits do not invalidate an available historical run; disappearance is unavailable, never a fabricated current run."
     }
   ],
   "limitsStanding": "Fixture/default host configuration only, reported by summary; operation batch count is not a schema constant. Production host config may choose another bounded count."
