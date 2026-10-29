@@ -90,6 +90,12 @@ def reversed_bend():
     return model
 
 
+def bend_with_sifs():
+    model = writer_tests.bent_l_with_sifs()
+    model["components"][0]["modifiers"]["source_reference"] = "invented round-trip SIF pair"
+    return model
+
+
 def bend_boundary(residual: bool = True):
     """Invented 90 degree bend, R = 999 mm, tangent lengths 999.0000008991 mm, adjacent straights 0.5 mm (§18.1 item 5)."""
     tangent = 999.0000008991 if residual else 999.0
@@ -145,6 +151,7 @@ def models() -> dict[str, tuple[dict, str, float]]:
         "writer-branched": (writer_tests.branched(), "INVENTED BRANCH", 20.0),
         "writer-weight": (weighted(), "WEIGHT", 20.0),
         "writer-bent-l": (writer_tests.bent_l(), "INVENTED L", 20.0),
+        "writer-bent-l-sifs": (bend_with_sifs(), "INVENTED L SIF", 20.0),
         "writer-nu-and-g": (both_given_material(), "NU AND G", 20.0),
         "writer-straight-run": (writer_tests.straight_run(20), "RUN", 20.0),
         "bend-boundary": (bend_boundary(), "BEND BOUNDARY", 20.0),
@@ -2190,7 +2197,7 @@ def test_every_comparison_model_regenerates_its_sidecar_identically_or_with_iden
         if groups(trip.bound):
             excluded_models.add(name)
     assert excluded_models == {"writer-cancelling-forces"}
-    assert len(REVERSIBLE) == 23  # tranche 3 added writer-springs
+    assert len(REVERSIBLE) == 24  # tranche 3 added writer-springs; the bend SIF pair added writer-bent-l-sifs
 
 
 def test_a_straight_recorded_as_a_bend_is_refused_on_both_routes():
