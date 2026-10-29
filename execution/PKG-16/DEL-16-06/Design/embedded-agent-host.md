@@ -190,8 +190,9 @@ Neither standalone App qualification nor workflow-act machinery is inferred.
 ### Rust component implementation
 
 The desktop declares `embedded_agent` but exposes no agent command, start
-control, session dispatcher or webview route yet. `catalog.rs` embeds this
-catalog, expands its references for the six dynamic declarations, validates
+control, session dispatcher or webview route yet. `catalog.rs` embeds a generated
+byte-identical product resource of this catalog, expands its references for the
+six dynamic declarations, validates
 inputs/results and checks proposal assumption membership. `protocol.rs` owns
 the fixed initialization/thread/turn RPC sequence and opaque pending-call
 references. Invalid inputs fail before dispatch; turn end/disconnect detaches
@@ -208,6 +209,18 @@ bytes received from Codex; the pinned supplier protocol does not establish
 preservation of the model's original number lexemes upstream. Native operation
 decimal strings remain strings. The only dependency-feature change is enabling
 the existing `serde_json` dependency's `raw_value`; Cargo.lock is unchanged.
+
+`tools/agent_catalog_resource.py` generates
+`apps/desktop/src-tauri/resources/agent-capability-catalog.json` directly from
+the authoritative Design bytes; do not edit the product resource independently.
+The registered project check `agent-catalog-resource` uses `--check` to fail on
+absent, linked, oversized or differing input. Both project and Root selectors
+route its inputs. The Root software-workflow regression suite executes this
+registered command in the existing full-checkout Repository checks job. Sparse
+desktop builds and public source exports compile the product resource without
+requiring the excluded execution tree. No workflow file, required status or
+harness aggregate is changed. Equality establishes source correspondence, not
+catalog semantics or runtime conformance.
 
 The macOS-only `macos.rs`/`sandbox.rs` launcher is not connected to product
 startup. It verifies and copies the selected binary, uses private home/cwd and

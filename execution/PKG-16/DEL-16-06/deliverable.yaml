@@ -138,6 +138,8 @@ needs:
 code_paths:
 - tools/agent_host_witness.py
 - tools/agent_host_sandbox_probe.rs
+- tools/agent_catalog_resource.py
+- apps/desktop/src-tauri/resources/agent-capability-catalog.json
 - apps/desktop/src-tauri/src/embedded_agent/**
 - execution/PKG-16/DEL-16-06/Design/agent-capability-catalog.json
 - apps/desktop/src/services/operationService.ts
@@ -147,6 +149,7 @@ code_paths:
 - apps/desktop/src-tauri/src/lib.rs
 checks:
 - tools/agent_host_witness_test.py
+- tools/agent_catalog_resource.py
 - apps/desktop/src-tauri/src/embedded_agent/catalog.rs
 - apps/desktop/src-tauri/src/embedded_agent/numeric.rs
 - apps/desktop/src-tauri/src/embedded_agent/protocol.rs
