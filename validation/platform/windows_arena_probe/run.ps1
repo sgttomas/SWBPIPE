@@ -3,7 +3,7 @@ $root = $PSScriptRoot
 if (-not $IsWindows -or [System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString() -ne 'X64' -or [System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture.ToString() -ne 'X64') { throw 'Native x64 Windows and x64 PowerShell required' }
 $actual = git rev-parse HEAD
 if ($LASTEXITCODE -ne 0 -or -not $env:EXPECTED_HEAD -or $actual -ne $env:EXPECTED_HEAD) { throw 'Wrong or unspecified probe candidate' }
-Write-Host "candidate=$actual native_os=X64 process=X64
+Write-Host "candidate=$actual native_os=X64 process=X64"
 if (-not $env:CARGO_TARGET_DIR) { throw 'Set CARGO_TARGET_DIR to an isolated temporary directory' }
 $manifest = Join-Path $root 'Cargo.toml'
 New-Item -ItemType Directory -Force -Path $env:CARGO_TARGET_DIR | Out-Null
