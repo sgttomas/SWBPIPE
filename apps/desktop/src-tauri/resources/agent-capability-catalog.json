@@ -1,5 +1,5 @@
 {
-  "catalogVersion": "swbpipe-catalog/2",
+  "catalogVersion": "swbpipe-catalog/3",
   "standing": "design_contract_not_live",
   "owner": "SWBPIPE",
   "source": {
@@ -61,7 +61,7 @@
     "bootstrap": "Host binds the conversation to an admitted session; read_model_summary takes no arguments and returns its handle and basis. Handles do not establish identity or authority.",
     "handles": "Host-issued opaque workspace/proposal/run/page handles; scoped to admitted generation and workspace; never filesystem paths. Restart invalidates handles; unavailable/unknown, never redispatch. Cursor binds tool, basis, run and next offset.",
     "attribution": "Host stamps author_type=agent and original conversation/turn/call; never accepts user attribution from tool arguments.",
-    "proposal": "Require claimedModelHash == basis.modelHash == current session hash before queue registration. Pass operations in native EditorOperationIntent shape to a host-created OperationBatch; no alternate field-edit language. Current discriminator is native operation_kind=modify, target.object_type=Node, change.change_kind=set_field with position.x/y/z. Extend those native discriminators and subschemas, not tool names. Rust applier remains semantic validator. Treat validation/source/id fields as untrusted; host stamps conversation attribution and queues immutable submission via existing preview/human apply route.",
+    "proposal": "Require claimedModelHash == basis.modelHash == current session hash before queue registration. The agent supplies native EditorOperationIntent operation_id, operation_kind, target, change and rationale for the admitted discriminators only; the host stamps operation_status=proposed, author_type=agent, queue_id, source, not-run validation and the constant audit and professional boundary records, and passes the complete native intents to a host-created OperationBatch. No alternate field-edit language. Admitted: set_field Node position.x/y/z; create_material; create_node; connect_pipe_run; create_support; create_load_case; create_primitive_load; update_load pressure_regions; set_field Model pressure_profile. Extend native discriminators and subschemas, not tool names. The Rust applier remains the semantic validator; it refuses agent-written bend flexibility factors. Queue the immutable submission via the existing preview/human apply route.",
     "completion": "Resolve requestRef to the immutable original pending call and require its conversation/turn/call/tool, workspace and application-generation binding. The submitting webview must remain the admitted session. For summary/node reads require unchanged live revision through completion. For queued proposals, observations, solves and result reads validate the host-retained proposal/run record against its captured basis; a later live revision is permitted only as an explicitly historical/applied outcome, never rebased to current. Duplicate or forged completions and wrong/detached sessions are refused. Preserve already admitted application outcome as actual or unknown on loss; never redispatch.",
     "interruption": "Withdraw pending review only; application already admitted yields actual outcome or unknown. Turn interruption is not solve cancellation or rollback.",
     "limits": "Apply the smaller of catalog caps and existing admission budgets before parsing/allocating argument or result payloads; bounded producers, no whole-model serialization followed by truncation.",
@@ -489,6 +489,37 @@
         },
         "page": {
           "$ref": "#/definitions/page"
+        },
+        "filter": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kinds",
+            "entityRefs"
+          ],
+          "properties": {
+            "kinds": {
+              "type": "array",
+              "maxItems": 16,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160
+              }
+            },
+            "entityRefs": {
+              "type": "array",
+              "maxItems": 16,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160
+              }
+            }
+          },
+          "description": "Optional. Keep only rows whose kind is listed (if kinds is non-empty) and whose entityRef is listed (if entityRefs is non-empty). A cursor is bound to its filter."
         }
       }
     },
@@ -815,239 +846,35 @@
       }
     },
     "operationIntent": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "operation_id",
-        "operation_kind",
-        "operation_status",
-        "author_type",
-        "target",
-        "change",
-        "validation",
-        "audit_boundary",
-        "professional_boundary",
-        "rationale"
-      ],
-      "properties": {
-        "operation_id": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 160
+      "anyOf": [
+        {
+          "$ref": "#/definitions/intentNodePosition"
         },
-        "operation_kind": {
-          "const": "modify"
+        {
+          "$ref": "#/definitions/intentCreateMaterial"
         },
-        "operation_status": {
-          "const": "proposed"
+        {
+          "$ref": "#/definitions/intentCreateNode"
         },
-        "author_type": {
-          "const": "agent"
+        {
+          "$ref": "#/definitions/intentConnectPipeRun"
         },
-        "target": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "object_type",
-            "ref"
-          ],
-          "properties": {
-            "object_type": {
-              "const": "Node"
-            },
-            "ref": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 160
-            }
-          }
+        {
+          "$ref": "#/definitions/intentCreateSupport"
         },
-        "change": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "change_id",
-            "change_kind",
-            "field_label",
-            "field_path",
-            "before",
-            "after",
-            "unit",
-            "dimension",
-            "source_note"
-          ],
-          "properties": {
-            "change_id": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 160
-            },
-            "change_kind": {
-              "const": "set_field"
-            },
-            "field_label": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 160
-            },
-            "field_path": {
-              "enum": [
-                "position.x",
-                "position.y",
-                "position.z"
-              ]
-            },
-            "before": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 128
-            },
-            "after": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 128
-            },
-            "unit": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 40
-            },
-            "dimension": {
-              "const": "length"
-            },
-            "source_note": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 1000
-            }
-          }
+        {
+          "$ref": "#/definitions/intentCreateLoadCase"
         },
-        "validation": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "schema_validation",
-            "constraint_validation",
-            "unit_validation",
-            "diff_preview_status",
-            "application_status"
-          ],
-          "properties": {
-            "schema_validation": {
-              "type": "string",
-              "maxLength": 100
-            },
-            "constraint_validation": {
-              "type": "string",
-              "maxLength": 100
-            },
-            "unit_validation": {
-              "type": "string",
-              "maxLength": 100
-            },
-            "diff_preview_status": {
-              "type": "string",
-              "maxLength": 100
-            },
-            "application_status": {
-              "type": "string",
-              "maxLength": 100
-            }
-          }
+        {
+          "$ref": "#/definitions/intentCreatePrimitiveLoad"
         },
-        "audit_boundary": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "mutation_route",
-            "direct_model_mutation_allowed",
-            "requires_user_acceptance",
-            "mutates_accepted_model_state"
-          ],
-          "properties": {
-            "mutation_route": {
-              "const": "structured_operations_only"
-            },
-            "direct_model_mutation_allowed": {
-              "const": false
-            },
-            "requires_user_acceptance": {
-              "const": true
-            },
-            "mutates_accepted_model_state": {
-              "const": false
-            }
-          }
+        {
+          "$ref": "#/definitions/intentPressureRegions"
         },
-        "professional_boundary": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "human_review_required",
-            "software_makes_compliance_claim",
-            "software_makes_certification_claim",
-            "software_makes_sealing_claim",
-            "software_makes_approval_claim",
-            "software_makes_authentication_claim"
-          ],
-          "properties": {
-            "human_review_required": {
-              "const": true
-            },
-            "software_makes_compliance_claim": {
-              "const": false
-            },
-            "software_makes_certification_claim": {
-              "const": false
-            },
-            "software_makes_sealing_claim": {
-              "const": false
-            },
-            "software_makes_approval_claim": {
-              "const": false
-            },
-            "software_makes_authentication_claim": {
-              "const": false
-            }
-          }
-        },
-        "rationale": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 1000
-        },
-        "queue_id": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 160
-        },
-        "source": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "source_ref",
-            "source_channel",
-            "source_role"
-          ],
-          "properties": {
-            "source_ref": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 160
-            },
-            "source_channel": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 160
-            },
-            "source_role": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 160
-            }
-          }
+        {
+          "$ref": "#/definitions/intentPressureProfile"
         }
-      }
+      ]
     },
     "standing": {
       "type": "object",
@@ -1090,6 +917,10 @@
       "additionalProperties": false,
       "required": [
         "workspaceHandle",
+        "projectId",
+        "schemaVersion",
+        "pressureContract",
+        "pressureProfileBefore",
         "projectUnits",
         "objectCounts",
         "admittedOperationKinds",
@@ -1098,6 +929,44 @@
       "properties": {
         "workspaceHandle": {
           "$ref": "#/definitions/handle"
+        },
+        "projectId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "schemaVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "pressureContract": {
+          "anyOf": [
+            {
+              "type": "object",
+              "maxProperties": 8,
+              "additionalProperties": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "pressureProfileBefore": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1000
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "projectUnits": {
           "$ref": "#/definitions/units"
@@ -1112,10 +981,21 @@
         },
         "admittedOperationKinds": {
           "type": "array",
+          "uniqueItems": true,
+          "maxItems": 9,
           "items": {
-            "const": "modify/Node/set_field/position"
-          },
-          "maxItems": 1
+            "enum": [
+              "modify/Node/set_field/position",
+              "create/Material/create_material",
+              "create/Node/create_node",
+              "connect/Element/connect_pipe_run",
+              "create/Support/create_support",
+              "create/Load/create_load_case",
+              "create/Load/create_primitive_load",
+              "modify/Load/update_load/pressure_regions",
+              "modify/Model/set_field/pressure_profile"
+            ]
+          }
         },
         "limits": {
           "type": "object",
@@ -1227,12 +1107,929 @@
       "items": {
         "$ref": "#/definitions/assumption"
       }
+    },
+    "intentNodePosition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "operation_id",
+        "operation_kind",
+        "target",
+        "change",
+        "rationale"
+      ],
+      "properties": {
+        "operation_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "operation_kind": {
+          "const": "modify"
+        },
+        "target": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "object_type",
+            "ref"
+          ],
+          "properties": {
+            "object_type": {
+              "const": "Node"
+            },
+            "ref": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160,
+              "description": "Existing node id"
+            }
+          }
+        },
+        "change": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "change_id",
+            "change_kind",
+            "field_label",
+            "field_path",
+            "before",
+            "after",
+            "unit",
+            "dimension",
+            "source_note"
+          ],
+          "properties": {
+            "change_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "change_kind": {
+              "const": "set_field"
+            },
+            "field_label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "field_path": {
+              "enum": [
+                "position.x",
+                "position.y",
+                "position.z"
+              ]
+            },
+            "before": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "description": "Current coordinate as decimal text"
+            },
+            "after": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "description": "New coordinate as decimal text"
+            },
+            "unit": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40,
+              "description": "Exact project.units.length"
+            },
+            "dimension": {
+              "const": "length"
+            },
+            "source_note": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1000
+            }
+          }
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        }
+      }
+    },
+    "intentCreateMaterial": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "operation_id",
+        "operation_kind",
+        "target",
+        "change",
+        "rationale"
+      ],
+      "properties": {
+        "operation_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "operation_kind": {
+          "const": "create"
+        },
+        "target": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "object_type",
+            "ref"
+          ],
+          "properties": {
+            "object_type": {
+              "const": "Material"
+            },
+            "ref": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160,
+              "description": "New material id"
+            }
+          }
+        },
+        "change": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "change_id",
+            "change_kind",
+            "field_label",
+            "field_path",
+            "before",
+            "after",
+            "unit",
+            "dimension",
+            "source_note"
+          ],
+          "properties": {
+            "change_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "change_kind": {
+              "const": "create_material"
+            },
+            "field_label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "field_path": {
+              "const": "materials"
+            },
+            "before": {
+              "const": "not_present"
+            },
+            "after": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048,
+              "description": "JSON text of the material: id, label, elastic_modulus {value, unit}, then either shear_modulus {value, unit} (default route) or constitutive_basis \"homogeneous_isotropic_E_nu_v1\" with poisson_ratio {value, unit \"1\"} (exact route); optional thermal_expansion_coefficient {value, unit \"1/<project temperature unit>\"}; provenance (non-empty text naming the person's stated source)"
+            },
+            "unit": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40,
+              "description": "Exact project.units.pressure"
+            },
+            "dimension": {
+              "const": "stress"
+            },
+            "source_note": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1000
+            }
+          }
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        }
+      }
+    },
+    "intentCreateNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "operation_id",
+        "operation_kind",
+        "target",
+        "change",
+        "rationale"
+      ],
+      "properties": {
+        "operation_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "operation_kind": {
+          "const": "create"
+        },
+        "target": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "object_type",
+            "ref"
+          ],
+          "properties": {
+            "object_type": {
+              "const": "Node"
+            },
+            "ref": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160,
+              "description": "New node id"
+            }
+          }
+        },
+        "change": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "change_id",
+            "change_kind",
+            "field_label",
+            "field_path",
+            "before",
+            "after",
+            "unit",
+            "dimension",
+            "source_note"
+          ],
+          "properties": {
+            "change_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "change_kind": {
+              "const": "create_node"
+            },
+            "field_label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "field_path": {
+              "const": "nodes"
+            },
+            "before": {
+              "const": "not_present"
+            },
+            "after": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048,
+              "description": "JSON text of the node: id, label, position {x, y, z} as numbers in project.units.length, provenance (non-empty text naming the person's stated source)"
+            },
+            "unit": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40,
+              "description": "Exact project.units.length"
+            },
+            "dimension": {
+              "const": "length"
+            },
+            "source_note": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1000
+            }
+          }
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        }
+      }
+    },
+    "intentConnectPipeRun": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "operation_id",
+        "operation_kind",
+        "target",
+        "change",
+        "rationale"
+      ],
+      "properties": {
+        "operation_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "operation_kind": {
+          "const": "connect"
+        },
+        "target": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "object_type",
+            "ref"
+          ],
+          "properties": {
+            "object_type": {
+              "const": "Element"
+            },
+            "ref": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160,
+              "description": "New pipe id"
+            }
+          }
+        },
+        "change": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "change_id",
+            "change_kind",
+            "field_label",
+            "field_path",
+            "before",
+            "after",
+            "unit",
+            "dimension",
+            "source_note"
+          ],
+          "properties": {
+            "change_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "change_kind": {
+              "const": "connect_pipe_run"
+            },
+            "field_label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "field_path": {
+              "const": "pipe_segments"
+            },
+            "before": {
+              "const": "not_present"
+            },
+            "after": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048,
+              "description": "JSON text of the straight pipe: id, label, from and to (existing or earlier-in-batch node ids), section {outside_diameter {value, unit}, wall_thickness {value, unit}, and corrosion_allowance {value, unit} before the exact route is activated}, material (material id), y_reference {x, y, z} (a direction not parallel to the pipe), provenance (non-empty text naming the person's stated source)"
+            },
+            "unit": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40,
+              "description": "Exact project.units.length"
+            },
+            "dimension": {
+              "const": "length"
+            },
+            "source_note": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1000
+            }
+          }
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        }
+      }
+    },
+    "intentCreateSupport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "operation_id",
+        "operation_kind",
+        "target",
+        "change",
+        "rationale"
+      ],
+      "properties": {
+        "operation_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "operation_kind": {
+          "const": "create"
+        },
+        "target": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "object_type",
+            "ref"
+          ],
+          "properties": {
+            "object_type": {
+              "const": "Support"
+            },
+            "ref": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160,
+              "description": "New support id"
+            }
+          }
+        },
+        "change": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "change_id",
+            "change_kind",
+            "field_label",
+            "field_path",
+            "before",
+            "after",
+            "unit",
+            "dimension",
+            "source_note"
+          ],
+          "properties": {
+            "change_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "change_kind": {
+              "const": "create_support"
+            },
+            "field_label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "field_path": {
+              "const": "supports"
+            },
+            "before": {
+              "const": "not_present"
+            },
+            "after": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048,
+              "description": "JSON text of the support: id, label, node (node id), family (for example \"anchor\"), restraints (subset of UX, UY, UZ, RX, RY, RZ), provenance (non-empty text naming the person's stated source)"
+            },
+            "unit": {
+              "const": "none"
+            },
+            "dimension": {
+              "const": "dimensionless"
+            },
+            "source_note": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1000
+            }
+          }
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        }
+      }
+    },
+    "intentCreateLoadCase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "operation_id",
+        "operation_kind",
+        "target",
+        "change",
+        "rationale"
+      ],
+      "properties": {
+        "operation_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "operation_kind": {
+          "const": "create"
+        },
+        "target": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "object_type",
+            "ref"
+          ],
+          "properties": {
+            "object_type": {
+              "const": "Load"
+            },
+            "ref": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160,
+              "description": "New load case id"
+            }
+          }
+        },
+        "change": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "change_id",
+            "change_kind",
+            "field_label",
+            "field_path",
+            "before",
+            "after",
+            "unit",
+            "dimension",
+            "source_note"
+          ],
+          "properties": {
+            "change_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "change_kind": {
+              "const": "create_load_case"
+            },
+            "field_label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "field_path": {
+              "const": "load_cases"
+            },
+            "before": {
+              "const": "not_present"
+            },
+            "after": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048,
+              "description": "JSON text of the load case: id, label, kind \"primitive_user_load\", status \"preview_only\", provenance (non-empty text naming the person's stated source)"
+            },
+            "unit": {
+              "const": "none"
+            },
+            "dimension": {
+              "const": "dimensionless"
+            },
+            "source_note": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1000
+            }
+          }
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        }
+      }
+    },
+    "intentCreatePrimitiveLoad": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "operation_id",
+        "operation_kind",
+        "target",
+        "change",
+        "rationale"
+      ],
+      "properties": {
+        "operation_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "operation_kind": {
+          "const": "create"
+        },
+        "target": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "object_type",
+            "ref"
+          ],
+          "properties": {
+            "object_type": {
+              "const": "Load"
+            },
+            "ref": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160,
+              "description": "Existing or earlier-in-batch load case id"
+            }
+          }
+        },
+        "change": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "change_id",
+            "change_kind",
+            "field_label",
+            "field_path",
+            "before",
+            "after",
+            "unit",
+            "dimension",
+            "source_note"
+          ],
+          "properties": {
+            "change_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "change_kind": {
+              "const": "create_primitive_load"
+            },
+            "field_label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "field_path": {
+              "const": "primitive_loads"
+            },
+            "before": {
+              "const": "not_present"
+            },
+            "after": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048,
+              "description": "JSON text of the primitive load: id, category (thermal, concentrated_force, distributed_force, concentrated_moment or imposed_displacement), target (for a pipe: {type \"element\", pipe}; for a node: {type \"node\", node}), direction (for example global_x), magnitude {value, unit}, dimension (the same as change.dimension), provenance (non-empty text naming the person's stated source)"
+            },
+            "unit": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40,
+              "description": "The magnitude's unit, matching the project unit for its dimension"
+            },
+            "dimension": {
+              "enum": [
+                "force",
+                "force_per_length",
+                "moment",
+                "temperature_interval",
+                "displacement",
+                "rotation"
+              ]
+            },
+            "source_note": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1000
+            }
+          }
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        }
+      }
+    },
+    "intentPressureRegions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "operation_id",
+        "operation_kind",
+        "target",
+        "change",
+        "rationale"
+      ],
+      "properties": {
+        "operation_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "operation_kind": {
+          "const": "modify"
+        },
+        "target": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "object_type",
+            "ref"
+          ],
+          "properties": {
+            "object_type": {
+              "const": "Load"
+            },
+            "ref": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160,
+              "description": "Existing or earlier-in-batch load case id"
+            }
+          }
+        },
+        "change": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "change_id",
+            "change_kind",
+            "field_label",
+            "field_path",
+            "before",
+            "after",
+            "unit",
+            "dimension",
+            "source_note"
+          ],
+          "properties": {
+            "change_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "change_kind": {
+              "const": "update_load"
+            },
+            "field_label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "field_path": {
+              "const": "pressure_regions"
+            },
+            "before": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096,
+              "description": "\"not_present\" for a case without pressure_regions, otherwise the case's current regions as canonical JSON text"
+            },
+            "after": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096,
+              "description": "JSON text of the case's pressure_regions array; \"[]\" declares none"
+            },
+            "unit": {
+              "const": "none"
+            },
+            "dimension": {
+              "const": "dimensionless"
+            },
+            "source_note": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1000
+            }
+          }
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        }
+      }
+    },
+    "intentPressureProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "operation_id",
+        "operation_kind",
+        "target",
+        "change",
+        "rationale"
+      ],
+      "properties": {
+        "operation_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "operation_kind": {
+          "const": "modify"
+        },
+        "target": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "object_type",
+            "ref"
+          ],
+          "properties": {
+            "object_type": {
+              "const": "Model"
+            },
+            "ref": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160,
+              "description": "The summary's projectId"
+            }
+          }
+        },
+        "change": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "change_id",
+            "change_kind",
+            "field_label",
+            "field_path",
+            "before",
+            "after",
+            "unit",
+            "dimension",
+            "source_note"
+          ],
+          "properties": {
+            "change_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "change_kind": {
+              "const": "set_field"
+            },
+            "field_label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "field_path": {
+              "const": "pressure_profile"
+            },
+            "before": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1000,
+              "description": "The summary's pressureProfileBefore text, exactly"
+            },
+            "after": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1000,
+              "description": "JSON text {schema_version, pressure_contract {version \"3.0.0\", mode \"exact_pressure_v3\", shear_model \"euler_bernoulli\" or \"timoshenko_annulus_energy_v1\"}} activating the exact route; every pipe needs section.corrosion_allowance and every load case a pressure_regions array first"
+            },
+            "unit": {
+              "const": "none"
+            },
+            "dimension": {
+              "const": "dimensionless"
+            },
+            "source_note": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1000
+            }
+          }
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        }
+      }
     }
   },
   "tools": [
     {
       "name": "swbpipe_read_model_summary",
-      "description": "Orient to the admitted live workspace: handle, basis, units, object counts, operation kinds and configured limits; takes no arguments.",
+      "description": "Orient to the admitted live workspace: handle, basis, project id, model version, pressure contract, units, object counts, admitted operation kinds and configured limits; takes no arguments.",
       "inputSchema": {
         "$ref": "#/definitions/summaryInput"
       },
@@ -1272,7 +2069,7 @@
     },
     {
       "name": "swbpipe_propose_operations",
-      "description": "Queue native operation intents for human review; currently only modify/Node/set_field on position.x/y/z. Never applies them. Respect summary host limits.",
+      "description": "Queue native operation intents as one atomic batch for the person's review; never applies them. Each operation is an applier step on the document the previous step left, so later operations may name ids created earlier in the same batch. To build a model, order: materials, nodes, pipes, supports, load cases, then (exact route only) pressure_regions and pressure_profile, then primitive loads. Use the summary's current basis and model hash. After the person applies it, observe the proposal, re-read the summary for the new basis, then solve. The host stamps attribution, status and boundary fields; do not send them. Respect the summary's limits.",
       "inputSchema": {
         "$ref": "#/definitions/proposeInput"
       },
@@ -1286,7 +2083,7 @@
       },
       "effect": "proposal_only",
       "availability": "admitted live webview workspace; adapters not yet implemented",
-      "sourceRoute": "workspaceSession.ts registerOperationBatch; operationBatchService.ts validateOperationBatch; operation_applier set_field Node position.x/y/z",
+      "sourceRoute": "workspaceSession.ts registerOperationBatch; operationBatchService.ts validateOperationBatch; operation_applier atomic batch (admitted change kinds listed by summary)",
       "canonicalUnits": "node coordinates: exact project.units.length; result values: source row unit, no display conversion",
       "basisPolicy": "Current live basis and claimedModelHash required before queue registration. Completion binds immutable registration/proposal basis and actual recorded standing; a subsequent revision change does not erase the acknowledged registration or an actual applied outcome."
     },
@@ -1332,7 +2129,7 @@
     },
     {
       "name": "swbpipe_read_results",
-      "description": "Read a bounded page of permitted result values from an explicit run handle; preserve withheld values.",
+      "description": "Read a bounded page of permitted result values from an explicit run handle, optionally filtered by result kind and entity; preserve withheld values.",
       "inputSchema": {
         "$ref": "#/definitions/resultsInput"
       },

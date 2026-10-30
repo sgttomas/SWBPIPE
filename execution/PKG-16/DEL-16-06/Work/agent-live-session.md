@@ -57,9 +57,11 @@ Read producers bound pages before collecting rows. Cursors bind tool, basis,
 offset and run. Summary counts do not serialize the model. Node pages preserve
 source units and negative zero. Results use existing numerical overlay policy;
 this initial adapter conservatively withholds retained-precision values rather
-than substituting rounded binary64. Full criterion 17 operation discriminators,
-retained source-value presentation and the actual desktop review witness remain
-open; the canonical v2 catalog bytes are unchanged.
+than substituting rounded binary64. Catalog version 3 adds the W9-A build
+discriminators, a host stamp for the constant intent fields and a filter on
+result reads ([host design](embedded-agent-host.md)). Criterion 17's remaining
+discriminators, retained source-value presentation and the actual desktop
+review witness remain open.
 
 ## Native lifecycle and the qualification harness
 
@@ -219,3 +221,4 @@ contexts that may still own a late actual are kept.
 Evidence limits: component and frontend tests cover the panel and these bounds.
 Actual webview command/review evidence, a native panel journey and criterion
 17's expanded catalog journey remain open; this section does not qualify AC-005.
+Version 3's W9-A component evidence does not supply them.

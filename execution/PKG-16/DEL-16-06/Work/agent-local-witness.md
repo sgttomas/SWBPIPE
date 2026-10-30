@@ -31,7 +31,10 @@ integrated through #1736 (merge `31084e1f79`). The live run used
 `tools/agent_host_witness.py` from `08592430ab`, SHA-256
 `0d0f41d7ce63bfedebce0b612828920c1e05a92bc16efa41c1ad159b5654afb0`.
 Its source and focused offline tests are maintained in this project; there is
-no dependency on the App checkout or uncommitted App specimen.
+no dependency on the App checkout or uncommitted App specimen. Catalog version
+3 (RT-E1 milestone 1) repins the maintained tool to the v3 catalog bytes and
+summary fields for a future run. The observation below and
+`agent-witness-pin.json` remain the record of the v2 run.
 
 ## Observed round trip
 

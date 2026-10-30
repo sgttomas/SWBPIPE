@@ -26,7 +26,7 @@ import jsonschema
 
 TOOL = "swbpipe_read_model_summary"
 BINARY_SHA256 = "112fae7a5a1223e673c8a1791d32338f37df8b527ff1159bb8adac6c4dbf1b4b"
-CATALOG_SHA256 = "fe1439998d709e5f3e9641a4d39567000ced56c498fab5b6b8f2028df7c9f669"
+CATALOG_SHA256 = "e27cad66309ab46fd29fae20f6d3bc6b9b001f64609c322a30fb5f700104985c"
 FRAME_BYTES = 1024 * 1024
 FORBIDDEN_ITEMS = {"commandExecution", "fileChange", "webSearch", "imageView", "imageGeneration", "browserUse", "computerUse"}
 
@@ -74,7 +74,9 @@ def summary(catalog, nonce, count):
         "basis": {"workspaceHandle": nonce, "applicationGeneration": 1,
                   "modelRevision": 1, "modelHash": None, "stateId": None, "runId": None},
         "message": "Invented witness data; no live SWBPIPE workspace is attached.",
-        "data": {"workspaceHandle": nonce, "projectUnits": {"length": "m", "force": "N", "temperature": "C"},
+        "data": {"workspaceHandle": nonce, "projectId": "project:invented-witness", "schemaVersion": "0.8.0",
+                 "pressureContract": None, "pressureProfileBefore": '{"schema_version":"0.8.0"}',
+                 "projectUnits": {"length": "m", "force": "N", "temperature": "C"},
                  "objectCounts": {"Node": count}, "admittedOperationKinds": [], "limits": catalog["limits"]},
     }
 
