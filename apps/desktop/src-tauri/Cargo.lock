@@ -2389,6 +2389,7 @@ name = "openpipestress-desktop"
 version = "0.1.0"
 dependencies = [
  "bytes",
+ "core-foundation",
  "getrandom 0.3.4",
  "http",
  "http-body-util",
@@ -2412,6 +2413,8 @@ dependencies = [
  "rusqlite",
  "rustls",
  "rustls-platform-verifier",
+ "security-framework",
+ "security-framework-sys",
  "serde",
  "serde_json",
  "sha2",

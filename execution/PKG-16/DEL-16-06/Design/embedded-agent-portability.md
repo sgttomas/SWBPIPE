@@ -58,6 +58,15 @@ explicit configuration for an endpoint that needs none, not an auth fallback.
 The minimal panel must not show configuration/credential entry on platforms
 where this route is unavailable.
 
+The implemented core in [provider custody](agent-provider-custody.md) now
+provides canonical metadata, revision-bound SQLite journaling and generic native
+Keychain operations. It remains synchronous/unwired: command origin/ingress,
+blocking-worker custody and the minimal credential form are future integration.
+The approved legacy process-local no-UI policy is applied before credential
+operations and TLS initialization and is never restored; stale access maps to
+an explicit re-entry state. No live/minimum-version Keychain success is inferred
+from mocked persistence tests. Native credential qualification follows review.
+
 ## Rust-owned loopback relay
 
 Use the relay for both local and hosted providers, so Codex always has the same

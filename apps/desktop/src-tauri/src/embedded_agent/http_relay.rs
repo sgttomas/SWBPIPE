@@ -254,6 +254,7 @@ impl Drop for Relay {
     }
 }
 fn tls_config() -> Result<rustls::ClientConfig, Failure> {
+    super::keychain_native::disallow_ui().map_err(|_| Failure::Startup)?;
     use rustls_platform_verifier::BuilderVerifierExt;
     // Agent 0 selected the published platform verifier with ordinary SecTrust
     // validation traffic. No extra roots, custom verifier, fetch disable or

@@ -2475,7 +2475,7 @@ build configuration as well as the sources:
     dependencies was not caught before. `src-tauri`'s normal and
     development dependencies are now pinned exactly, from the same
     per-crate `cargo metadata`, as `<kind> <package>`, with any rename and
-    platform (`SHELL_DEPENDENCIES`, 34 entries). The parser crates are
+    platform (`SHELL_DEPENDENCIES`, 37 entries). The parser crates are
     development dependencies only. Any move, addition, removal or rename is
     a finding. The headless runner's are pinned the same way since code
     review r9 (`RUNNER_DEPENDENCIES`, *Allowed dependents* below). The RT-E1
@@ -2493,7 +2493,18 @@ build configuration as well as the sources:
     outside-dependent fixture's offline lock refresh uses the same
     `--filter-platform host-tuple` graph as `resolved_identities`; it must not
     depend on cached sources for inactive targets such as Android JNI. Its
-    manifest-walk and resolved-graph finding assertions are unchanged.
+    manifest-walk and resolved-graph finding assertions are unchanged. The
+    provider-custody core adds only three more Cargo-reported normal macOS
+    dependencies: `core-foundation`, `security-framework` and
+    `security-framework-sys`. Its exact twelfth unsafe boundary is
+    `embedded_agent/keychain_native.rs`, declared at embedded_agent/mod.rs;
+    the exact second foreign block contains only the three SDK-public CFString
+    constants absent from the sys crate. Other unsafe modules, foreign blocks,
+    target/macro rules, headless pins and all scan predicates remain in force.
+    Agent 0 approved checked, never-restored process-local legacy no-UI policy;
+    its source scope and credential/SQLite journal qualification are recorded
+    in DEL-16-06 Design/agent-provider-custody.md and receive independent
+    credentials/persistence scrutiny. No release-route permission is granted.
 - **`cfg(test)` in product builds.** Two compile-time guards hold on the
   toolchain the hosted jobs pin (Rust 1.97.1, through
   `dtolnay/rust-toolchain`; the repository has no `rust-toolchain` file).
