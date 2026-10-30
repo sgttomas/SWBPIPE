@@ -189,7 +189,7 @@ The seven new working files were screened using the repository credential
 finding function and private-term patterns derived from the inspection host
 at runtime: zero findings. No private terms file was opened. Manager integration's committed 13-path
 private-term and credential/link scans pass with zero findings. The actual
-hosted pytest entrypoint passes 31 tests and 15 subtests (17 acquisition tests
+hosted pytest entrypoint passes 31 tests and 19 subtests (17 acquisition tests
 plus 14 Python-routing checks); each of the six source/manifest/notice input
 paths selects the offline check, including hosted Python selection. Reproduced licence/notice sizes and
 hashes were checked against the manifest. Independent review found inherited
