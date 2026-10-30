@@ -509,22 +509,29 @@ def select_paths(paths: list[str], profile: dict, root: Path = ROOT,
 
 
 REGULAR_FILE_MODES = {"100644", "100755"}
+# One `git diff --raw --no-abbrev -z` header: both modes, both full object
+# ids and a single status letter (no similarity score under --no-renames).
+RAW_DIFF_HEADER = re.compile(r":([0-7]{6}) ([0-7]{6}) ([0-9a-f]{40}|[0-9a-f]{64}) ([0-9a-f]{40}|[0-9a-f]{64}) ([ACDMTUX])")
 
 
 def changed_paths(root: Path, merge_base: str, head: str) -> tuple[list[str], frozenset[str]]:
     """Every changed path, and those whose content changed in place: a regular
     file before and after, not added, deleted, renamed, typechanged or a
     symlink, so its existence and kind are unchanged. --no-renames gives both
-    sides of a rename; NUL delimiters preserve paths."""
-    fields = [f for f in git(root, "diff", "--raw", "--no-renames", "--no-abbrev", "-z", merge_base, head, "--").split("\0") if f]
-    if len(fields) % 2:
+    sides of a rename; NUL delimiters preserve paths. Any malformed record
+    raises, so callers keep full coverage."""
+    raw = git(root, "diff", "--raw", "--no-renames", "--no-abbrev", "-z", merge_base, head, "--")
+    if raw and not raw.endswith("\0"):
+        raise ValueError("Unterminated raw diff")
+    fields = raw[:-1].split("\0") if raw else []
+    if len(fields) % 2 or any(not field for field in fields):
         raise ValueError("Malformed raw diff")
     paths, edits = set(), set()
     for header, path in zip(fields[0::2], fields[1::2]):
-        parts = header.lstrip(":").split()
-        if not header.startswith(":") or len(parts) != 5:
+        match = RAW_DIFF_HEADER.fullmatch(header)
+        if match is None:
             raise ValueError("Malformed raw diff entry")
-        old_mode, new_mode, _, _, status = parts
+        old_mode, new_mode, _, _, status = match.groups()
         paths.add(path)
         if status == "M" and old_mode == new_mode and new_mode in REGULAR_FILE_MODES:
             edits.add(path)

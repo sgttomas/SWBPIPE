@@ -571,6 +571,23 @@ class HostedCITests(unittest.TestCase):
                 self.commit()
                 self.assertEqual(self.repository(base)["mode"], "full")
 
+    def test_malformed_raw_diff_keeps_every_regression(self):
+        # Review r2: a record that does not parse exactly must never yield an
+        # in-place edit.
+        valid = ":100644 100644 " + "a" * 40 + " " + "b" * 40 + " M\0docs/BUILD_AND_RELEASE.md\0"
+        for raw in [":100644 100644 BAD BAD M\0docs/BUILD_AND_RELEASE.md\0", valid[:-1], valid + "extra",
+                    valid.replace(" M\0", " M100\0"), valid.replace(":100644", "100644"), "\0" + valid,
+                    valid.replace("docs/BUILD_AND_RELEASE.md", "")]:
+            with self.subTest(raw=raw):
+                with patch("hosted_ci.git", side_effect=lambda root, *args: raw if args[0] == "diff" else self.git(*args)):
+                    with self.assertRaises(ValueError):
+                        hosted_ci.changed_paths(self.root, self.base, "HEAD")
+                    plan = hosted_ci.repository_plan(self.root, "pull_request", self.base, "HEAD")
+                    self.assertEqual((plan["mode"], plan["deselect"]), ("full", []))
+        with patch("hosted_ci.git", side_effect=lambda root, *args: valid if args[0] == "diff" else self.git(*args)):
+            self.assertEqual(hosted_ci.changed_paths(self.root, self.base, "HEAD"),
+                             (["docs/BUILD_AND_RELEASE.md"], frozenset({"docs/BUILD_AND_RELEASE.md"})))
+
     def test_symlinked_or_typechanged_markdown_keeps_every_regression(self):
         self.write("docs/target.md", "Prose.\n")
         self.write("docs/plain.md", "Prose.\n")
