@@ -3,6 +3,8 @@ import type { OperationBatch, OperationBatchOutcome } from "../../services/opera
 import type { ModelHashEvidence, OperationOutcomeDiagnostic, PreviewModel } from "../../types";
 
 export type QueuedBatch = {
+  /** Immutable original agent attribution and assumptions, outside native intents. */
+  agentContext?: import("../../services/embeddedAgentSession").AgentContext;
   key: string;
   batch: OperationBatch;
   basisModel: PreviewModel;
@@ -59,7 +61,7 @@ export function PREVIEW_REQUIRED_REASON(batch: OperationBatch): string {
   const named = (kinds.length ? kinds : ["an operation that requires preview"]).join(" and ");
   return `This batch contains ${named}. Validate it on the current model first; Apply is enabled only after a preview with no blocking finding.`;
 }
-export type BatchReceipt = { batch: OperationBatch; outcome: OperationBatchOutcome };
+export type BatchReceipt = { batch: OperationBatch; outcome: OperationBatchOutcome; agentContext?: import("../../services/embeddedAgentSession").AgentContext };
 type Props = {
   batches: QueuedBatch[];
   outcomes: Record<string, OperationBatchOutcome>;

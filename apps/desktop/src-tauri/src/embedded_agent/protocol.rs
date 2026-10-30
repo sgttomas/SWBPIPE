@@ -5,6 +5,7 @@
 //! `disconnect` to recover unresolved references. It must keep reading while
 //! dispatchers work; none of these methods waits for a domain operation.
 
+use serde::Serialize;
 use super::catalog::{Catalog, Tool};
 use serde_json::{json, Value};
 use std::io::{self, Write};
@@ -23,6 +24,43 @@ impl std::fmt::Display for Error {
     }
 }
 impl std::error::Error for Error {}
+
+/// Allowlisted rejection telemetry. No supplier text, paths, tool names or key.
+#[derive(Clone, Copy, Debug, Serialize, PartialEq, Eq)]
+pub struct RpcRejection {
+    pub method: &'static str,
+    pub code: Option<i64>,
+    pub class: &'static str,
+}
+fn rejection(kind: Rpc, error: &Value) -> RpcRejection {
+    let method = match kind {
+        Rpc::Initialize => "initialize",
+        Rpc::ThreadStart => "thread/start",
+        Rpc::TurnStart => "turn/start",
+        Rpc::Interrupt => "turn/interrupt",
+    };
+    let code = error.get("code").and_then(Value::as_i64);
+    let text = error.get("message").and_then(Value::as_str).unwrap_or("");
+    let class = if text.contains("dynamic tool input schema") {
+        "dynamic_tool_schema_unsupported"
+    } else if text.contains("configuration") || text.contains("config load") {
+        "configuration_load_error"
+    } else if text.contains("tool name") {
+        "tool_name_invalid"
+    } else {
+        match code {
+            Some(-32600) => "invalid_request",
+            Some(-32601) => "method_not_found",
+            Some(-32602) => "invalid_params",
+            _ => "request_rejected",
+        }
+    };
+    RpcRejection {
+        method,
+        code,
+        class,
+    }
+}
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct RequestRef(String);
@@ -144,6 +182,7 @@ pub struct Protocol {
     pending: Vec<Pending>,
     seen_rpc: Vec<Value>,
     seen_call: Vec<String>,
+    last_rejection: Option<RpcRejection>,
 }
 
 fn bounded(s: &str, max: usize) -> bool {
@@ -220,6 +259,10 @@ fn unoffered_activity(item: &Value) -> bool {
 }
 
 impl Protocol {
+    pub fn last_rejection(&self) -> Option<RpcRejection> {
+        self.last_rejection
+    }
+
     /// Token must be host-generated, unpredictable and unique per connection;
     /// it is never supplied by the model. The caller must not reuse it.
     pub fn new(catalog: Catalog, token: String, proposal_cap: u64) -> Result<Self, Error> {
@@ -246,6 +289,7 @@ impl Protocol {
             pending: Vec::new(),
             seen_rpc: Vec::new(),
             seen_call: Vec::new(),
+            last_rejection: None,
         })
     }
     fn request(&mut self, kind: Rpc, method: &'static str, params: Value) -> Result<Value, Error> {
@@ -363,6 +407,10 @@ impl Protocol {
                 .position(|(n, _)| *n == id)
                 .ok_or(Error("unexpected response identity"))?;
             if object.contains_key("error") || !object.contains_key("result") {
+                self.last_rejection = Some(rejection(
+                    self.outstanding[pos].1,
+                    object.get("error").unwrap_or(&Value::Null),
+                ));
                 return Err(Error("client request failed"));
             }
             let result = object.remove("result").ok_or(Error("missing response"))?;
@@ -683,6 +731,15 @@ impl Protocol {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn safe_rpc_rejection_excludes_arbitrary_supplier_text() {
+        let error=serde_json::json!({"code":-32600,"message":"configuration load failed: invented-sensitive-marker"});
+        let safe=super::rejection(super::Rpc::ThreadStart,&error);
+        assert_eq!(safe.method,"thread/start");assert_eq!(safe.code,Some(-32600));
+        assert_eq!(safe.class,"configuration_load_error");
+        assert!(!serde_json::to_string(&safe).unwrap().contains("invented-sensitive-marker"));
+    }
+
     use super::*;
 
     fn basis() -> Value {

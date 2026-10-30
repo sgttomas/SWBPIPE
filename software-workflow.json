@@ -79,10 +79,34 @@
         "python3",
         "tools/agent_supplier_bundle_test.py"
       ]
+    },
+    "agent-live-session-offline": {
+      "cwd": ".",
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tools/agent_live_session_fixture_test.py"
+      ]
     }
   },
   "always_checks": [],
   "path_rules": [
+    {
+      "paths": [
+        "tools/agent_live_session_fixture.py",
+        "tools/agent_live_session_fixture_test.py",
+        "tools/agent_host_process_probe.c",
+        "tools/agent_host_sandbox_probe.rs",
+        "apps/desktop/src-tauri/src/embedded_agent/session_fixture.rs",
+        "apps/desktop/src-tauri/src/embedded_agent/process_scope.rs",
+        "software-workflow.json"
+      ],
+      "checks": [
+        "agent-live-session-offline"
+      ]
+    },
     {
       "paths": [
         "tools/agent_supplier_resource.py",

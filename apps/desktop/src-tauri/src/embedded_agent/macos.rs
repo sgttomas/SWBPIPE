@@ -1,6 +1,7 @@
 //! Explicit-start macOS supplier custody. No initializer, worker reuse or threads.
-//! Parent crash termination and absence of escaped descendants are NOT guaranteed.
-use super::{http_relay::Endpoint, loopback::Loopback, sandbox, supplier};
+//! Selected ARM pin/profile has bounded native EOF/app-death qualification.
+//! Unknown scope standing retains the marker and refuses restart.
+use super::{http_relay::Endpoint, loopback::Loopback, process_scope, sandbox, supplier};
 use crate::memory_pool::{Lease, LeasePurpose};
 use std::fs::{self, DirBuilder, File, OpenOptions};
 use std::io::{Read, Write};
@@ -97,12 +98,13 @@ pub(crate) struct Prepared {
 pub(crate) struct Launched {
     runtime: Option<Runtime>,
     child: Option<Child>,
+    observer: process_scope::Observer,
     outcome: Option<CleanupOutcome>,
 }
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum CleanupOutcome {
     /// Original group had no live members, leader reaped, owned files removed.
-    /// Does not establish absence of descendants that escaped the group.
+    /// Whole-scope proof also relies on the qualified inherited no-fork policy.
     GroupStopped,
     /// No more signals will be attempted; marker and runtime remain for refusal.
     Unknown,
@@ -286,9 +288,11 @@ impl Prepared {
             command.spawn()
         };
         let child = result.map_err(|_| Error::Spawn)?;
+        let observer = process_scope::Observer::new(&child);
         Ok(Launched {
             runtime: self.runtime.take(),
             child: Some(child),
+            observer,
             outcome: None,
         })
     }
@@ -420,18 +424,27 @@ impl Launched {
     pub(crate) fn take_stdout(&mut self) -> Option<ChildStdout> {
         self.child.as_mut()?.stdout.take()
     }
+    #[cfg(any(test, feature="native-smoke"))]
+    pub(super) fn fixture_identity(&self) -> Option<(u32,&str)> { Some((self.child.as_ref()?.id(), self.runtime.as_ref()?.scope.as_str())) }
+    pub(crate) fn observe_scope(&mut self) -> process_scope::Status {
+        self.observer.poll()
+    }
     pub(crate) fn close(&mut self) -> CleanupOutcome {
         if let Some(outcome) = self.outcome {
             return outcome;
         }
+        self.observer.poll();
         let stopped = if let Some(child) = self.child.as_mut() {
             child.stdin.take();
             stop_owned_group(child)
         } else {
             false
         };
-        let outcome = if stopped {
+        let certified = self.observer.poll().certified_exit();
+        if stopped {
             self.child.take();
+        }
+        let outcome = if stopped && certified {
             if self.runtime.take().map(Runtime::remove).unwrap_or(false) {
                 CleanupOutcome::GroupStopped
             } else {

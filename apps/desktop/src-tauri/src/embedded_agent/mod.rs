@@ -26,3 +26,15 @@ pub(crate) mod provider_store;
 #[cfg(target_os = "macos")]
 #[allow(unsafe_code)]
 mod keychain_native;
+
+#[cfg(target_os = "macos")]
+#[allow(unsafe_code)]
+mod process_scope;
+
+#[cfg(target_os = "macos")]
+pub(crate) mod live_host;
+#[cfg(target_os = "macos")]
+mod live_runtime;
+
+#[cfg(all(target_os = "macos", feature = "native-smoke"))]
+pub(crate) mod session_fixture;
