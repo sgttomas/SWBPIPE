@@ -114,6 +114,10 @@ pub struct SessionDriver {
     session: Arc<Lease>,
 }
 impl SessionDriver {
+    pub fn last_rejection(&self) -> Option<protocol::RpcRejection> {
+        self.protocol.last_rejection()
+    }
+
     /// Stream destructors must be nonblocking, including constructor refusals;
     /// this inherits Pump's generic-stream contract and no wall-clock guarantee.
     pub fn start<R: Read + Send + 'static, W: Write + Send + 'static>(

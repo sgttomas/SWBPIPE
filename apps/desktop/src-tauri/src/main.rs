@@ -8,6 +8,10 @@ fn main() {
     if std::env::args_os().nth(1).as_deref() == Some(std::ffi::OsStr::new(openpipestress_desktop_lib::SOLVE_WORKER_FLAG)) {
         std::process::exit(openpipestress_desktop_lib::run_solve_worker());
     }
+    #[cfg(all(target_os = "macos", feature = "native-smoke"))]
+    if std::env::args_os().nth(1).as_deref() == Some(std::ffi::OsStr::new("--native-agent-session-fixture")) {
+        std::process::exit(openpipestress_desktop_lib::run_agent_session_fixture());
+    }
     if std::env::args().any(|argument| argument == "--self-test-saved-edited-load") {
         match openpipestress_desktop_lib::run_packaged_saved_edited_load_self_test() {
             Ok(evidence) => {

@@ -15,6 +15,7 @@ export const NATIVE_INGRESS_FORMAT = "args-json-v1";
 
 /** The commands the native host takes as a raw body. */
 export const NATIVE_INGRESS_COMMANDS = [
+  "embedded_agent_host",
   "render_calculation_report",
   "sample_agent_proposal",
   "validate_model_operation",

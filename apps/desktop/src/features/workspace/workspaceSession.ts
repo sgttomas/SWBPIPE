@@ -1,3 +1,4 @@
+import { EmbeddedAgentSession, type AgentContext, type AgentRunReceipt } from "../../services/embeddedAgentSession";
 import { hasCurrentSourceContract } from "../results/resultReader";
 import type React from "react";
 import {
@@ -938,7 +939,9 @@ export function useWorkspaceSession() {
     }
   }
 
-  async function handleRun() {
+  async function handleRun(): Promise<void> { await handleRunWithAgentReceipt(); }
+
+  async function handleRunWithAgentReceipt(): Promise<AgentRunReceipt | undefined> {
     const runGeneration = solveRunGate.current.tryStart();
     if (runGeneration === null) return;
     invalidateReportPackageComputedState();
@@ -1164,6 +1167,8 @@ export function useWorkspaceSession() {
         result_model_ref: output.model_ref,
         result_row_count: output.results.length
       });
+      return { jobId: startedJob.job_id, runId: output.run_id, modelHash: solveModelHash,
+        solverMode, health: output.status.mechanics };
     } catch (error) {
       if (solveRunGate.current.isCurrent(runGeneration)) {
         setSolveJob((current) =>
@@ -1360,13 +1365,22 @@ export function useWorkspaceSession() {
     });
   }
 
+  const agentApplyingRef = useRef(new Set<string>());
+  const agentProposalStandingRef = useRef(new Map<string, {status:"pending_review"|"withdrawn"|"applied"|"unknown";outcomeModelHash:ModelHashEvidence|null}>());
+  useEffect(() => sessionEvents.listen(event => {
+    if (event.type !== "withdrawn" && event.type !== "abandoned" && event.type !== "invalidated") return;
+    const retained = agentProposalStandingRef.current.get(event.key);
+    if (!retained || retained.status === "applied") return;
+    return () => { retained.status = event.type === "withdrawn" ? "withdrawn" : "unknown"; };
+  }), [sessionEvents]);
+
   async function handleQueueOperationBatch(batch: OperationBatch): Promise<void> {
     await registerOperationBatch(batch);
   }
 
   /** Queue a batch and return its registration key, or null when it was not registered.
    * `reveal: false` (the run sheet, §5.1) leaves the section and focus where they are. */
-  async function registerOperationBatch(batch: OperationBatch, options: { reveal?: boolean } = {}): Promise<string | null> {
+  async function registerOperationBatch(batch: OperationBatch, options: { reveal?: boolean; agentContext?: AgentContext } = {}): Promise<string | null> {
     if (!model) return null;
     const revision = modelRevision.current;
     const epoch = requestEpochRef.current;
@@ -1383,8 +1397,10 @@ export function useWorkspaceSession() {
       const requiresPreview = batchRequiresPreview(submitted);
       // The registered submission is immutable: runs resolve it by key and never
       // read a caller's entry contents.
-      const registered = deepFreeze({ key, batch: submitted, basisModel, basisHash, basisRevision: revision, requiresPreview });
+      const registered = deepFreeze({ key, batch: submitted, basisModel, basisHash, basisRevision: revision, requiresPreview,
+        ...(options.agentContext ? { agentContext: structuredClone(options.agentContext) } : {}) });
       batchRegistrations.current.set(key, { entry: registered, epoch: queueEpoch });
+      if (options.agentContext) agentProposalStandingRef.current.set(key, {status:"pending_review",outcomeModelHash:null});
       setQueuedBatches((current) => [...current, registered]);
       setBatchMessage("Batch queued for validation and explicit application.");
       if (options.reveal !== false) {
@@ -1424,6 +1440,7 @@ export function useWorkspaceSession() {
     }
     const revision = modelRevision.current;
     const request = ++operationRequest.current.sequence;
+    if (apply) agentApplyingRef.current.add(entry.key);
     operationRequest.current.busy = true;
     const stillCurrent = () => operationRequest.current.sequence === request && modelRevision.current === revision;
     // §3.6 step 3: a run that ends with neither an outcome nor a retirement or
@@ -1477,6 +1494,8 @@ export function useWorkspaceSession() {
       // changes. A failure here leaves the history, receipts, review context,
       // applied operations, registration and queue as they were.
       const appliedModel = outcome.applied_model;
+      const agentStanding = agentProposalStandingRef.current.get(entry.key);
+      const agentAppliedHash = outcome.applied_model_backend_hash ? { ...entry.basisHash, value: outcome.applied_model_backend_hash } : null;
       const publication = prepareModelPublication(appliedModel);
       const checkpoint: SessionModelCheckpoint = {
         checkpoint_id: `undo-${entry.key}`,
@@ -1484,7 +1503,7 @@ export function useWorkspaceSession() {
         model: clonePreviewModel(entry.basisModel),
         selection: selection ?? defaultSelection(entry.basisModel)
       };
-      const batchReceipt = { batch: entry.batch, outcome };
+      const batchReceipt = { batch: entry.batch, outcome, ...(entry.agentContext ? {agentContext:entry.agentContext} : {}) };
       const reviewContext = structuredClone(entry.batch.operations);
       const appliedReceiptId = `applied-${entry.key}`;
       const appliedFields: Omit<AppliedOperationReceipt, "receipt_id" | "sequence"> = {
@@ -1515,6 +1534,7 @@ export function useWorkspaceSession() {
       setRetainedReviewContext((current) => [...current, ...reviewContext]);
       setAppliedOperations((current) => [...current, { receipt_id: appliedReceiptId, sequence: current.length + 1, ...appliedFields }]);
       publishModel(publication);
+      if (agentStanding) { agentStanding.status = "applied"; agentStanding.outcomeModelHash = agentAppliedHash; }
       commitSelectionState(prunedSelection, appliedModel);
       batchRegistrations.current.delete(entry.key);
       setQueuedBatches((current) => current.filter((candidate) => candidate.key !== entry.key));
@@ -1535,6 +1555,7 @@ export function useWorkspaceSession() {
     } catch (error) {
       if (stillCurrent()) setBatchMessage(`Batch request failed: ${nativeFailureText(error)}`);
     } finally {
+      agentApplyingRef.current.delete(entry.key);
       if (operationRequest.current.sequence === request) {
         operationRequest.current.busy = false;
         setOperationBusy(false);
@@ -3965,7 +3986,34 @@ export function useWorkspaceSession() {
     runSlot: { result, analysisRun, inputManifest, restored: historicalRun?.designation === "historical_saved_run" }
   });
 
+  // Pure registration over the actual owner; no native owner/timer/process is
+  // created until a later explicit panel action requests start/configuration.
+  const agentOwnerRef = useRef<import("../../services/embeddedAgentSession").WorkspaceExecution | null>(null);
+  agentOwnerRef.current = {
+    snapshot: () => ({ model: currentModel.current, hash: currentHashOwned && uiModelRevision === modelRevision.current && projectSessionGeneration === projectSessionGenerationRef.current ? modelHash : null,
+      revision: modelRevision.current, generation: projectSessionGenerationRef.current,
+      result: currentSolvedResultRef.current, standing: { eligible: numericallyEligible, health: numericalHealth } }),
+    register: (batch, context) => registerOperationBatch(batch, { agentContext: context }),
+    proposal: (key) => agentProposalStandingRef.current.get(key) ?? null,
+    solve: () => handleRunWithAgentReceipt(),
+    withdraw: key => {
+      const standing=agentProposalStandingRef.current.get(key);
+      const registration=batchRegistrations.current.get(key);
+      if(!registration || standing?.status!=="pending_review" || agentApplyingRef.current.has(key))return;
+      batchRegistrations.current.delete(key);
+      setQueuedBatches(current=>current.filter(entry=>entry.key!==key));
+      sessionEvents.emit({type:"withdrawn",batchId:registration.entry.batch.batch_id,key});
+    }
+  };
+  const agentSessionRef = useRef<EmbeddedAgentSession | null>(null);
+  if (!agentSessionRef.current) agentSessionRef.current = new EmbeddedAgentSession({
+    snapshot: () => agentOwnerRef.current!.snapshot(), register: (batch, context) => agentOwnerRef.current!.register(batch, context),
+    proposal: (key) => agentOwnerRef.current!.proposal(key), solve: () => agentOwnerRef.current!.solve(), withdraw: key => agentOwnerRef.current!.withdraw(key)
+  });
+  useEffect(() => () => { void agentSessionRef.current?.close(); }, []);
+
   return {
+    agent: agentSessionRef.current,
     model: {
       model,
       knowledge,

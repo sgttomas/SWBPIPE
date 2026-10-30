@@ -277,7 +277,8 @@ pub(crate) const PROC_MACRO_PACKAGES: [&str; 0] = [];
 /// `allow(warnings)` and the lint groups do
 /// not lift a `deny(unsafe_code)` (no rustc group holds `unsafe_code`;
 /// checked on Rust 1.97.1), so they need no rule.
-pub(crate) const SHELL_UNSAFE_MODULES: [(&str, &str, &str); 12] = [
+pub(crate) const SHELL_UNSAFE_MODULES: [(&str, &str, &str); 13] = [
+    ("src-tauri/src/embedded_agent/mod.rs", "process_scope", "SDK kqueue/kevent observation of the original retained Child only, no tracking or signal authority"),
     ("src-tauri/src/embedded_agent/mod.rs", "keychain_native", "generic provider credential SecItem calls and SDK-public constants, no-UI exact-item queries"),
     // HELP_HUMAN's ruling on #1709's autosave (code review r9 follow-up at
     // #1682): pinned as the eleventh; its test module `tests`
@@ -543,7 +544,7 @@ const ENTRY_RULES: [(&str, &str, Entry); 6] = [
 /// literal of its own reader table (reviewed: no `mod`, no `$parameter ::`,
 /// no scanned name).
 const MACRO_DEFINITIONS: [(&str, &str, &str); 3] = [
-    ("src-tauri/src/lib.rs", "app_invoke_handler", "d7e1ccc99b1e58b0189b065b71ef923a888c925149baca07648e677358235f77"),
+    ("src-tauri/src/lib.rs", "app_invoke_handler", "1260b32b13fb6a12443b27442533556730781b961dd5fc0a2f7443eabb298d79"),
     ("headless/src/reader_binding.rs", "base", "e4ca54306ec20645a40f7658e2d9f63508fd5ab234c9d29b83f95c7ac0bd5aea"),
     ("headless/src/reader_binding.rs", "transport", "b000ef8eab3fc5711dbb04be30705f8902c19adfee232aec9114210f6d48fd79"),
 ];

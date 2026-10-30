@@ -1,5 +1,5 @@
 //! The desktop shell. `unsafe` code is denied here and in every module but
-//! the twelve that carry `#[allow(unsafe_code)]` on their `mod` line, a list the
+//! the thirteen that carry `#[allow(unsafe_code)]` on their `mod` line, a list the
 //! user-release reach scan pins (DEL-08-01 Design `report-user-release.md`
 //! §2.8, "Symbol-level FFI"; code review r9 at #1682).
 #![deny(unsafe_code)]
@@ -61,6 +61,9 @@ mod user_release_save_tests;
 mod worker_alloc;
 #[cfg(test)]
 mod rule_check_object_form_tests;
+
+#[cfg(all(target_os = "macos", feature = "native-smoke"))]
+pub fn run_agent_session_fixture() -> i32 { embedded_agent::session_fixture::run() }
 
 pub use solve_worker::{run_solve_worker, WORKER_FLAG as SOLVE_WORKER_FLAG};
 
@@ -5281,10 +5284,57 @@ fn save_local_result_json_args(args: &mut Args) -> Result<native_result_download
     args.decode("request")
 }
 
+/// Raw, bounded native session surface. No caller-supplied path or webview
+/// identity is accepted. The actual Wry window and loaded app origin bind it.
+#[tauri::command]
+async fn embedded_agent_host(
+    app: AppHandle,
+    webview: tauri::WebviewWindow,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    let (mut args, mut lease) = command_ingress::admit_within(&registry, &invoke, "embedded_agent_host", ArgsDecoding::Moved, 256 * 1024)?;
+    let url = webview.url().map_err(|_| CommandError::Command("AGENT-ORIGIN-UNAVAILABLE".into()))?;
+    if webview.label() != "main" || !((url.scheme() == "tauri" && url.host_str() == Some("localhost")) ||
+        (matches!(url.scheme(), "http" | "https") && url.host_str() == Some("tauri.localhost") && url.port().is_none())) {
+        return Err(CommandError::Command("AGENT-ORIGIN-REFUSED".into()));
+    }
+    // Inner outcome JSON, bounded serialization/transients and typed controls,
+    // before parsing/queueing derived values or touching native resources.
+    lease.grow_to(lease.bytes().saturating_add(32 * 1024 * 1024)).map_err(|error| CommandError::Ingress(registry.refuse(error)))?;
+    #[cfg(target_os = "macos")]
+    {
+        let action: embedded_agent::live_host::Action = args.decode("request")?;
+        drop(args);
+        if matches!(action, embedded_agent::live_host::Action::Availability) {
+            let response = respond(Ok::<_, CommandError<String>>(json!({"available":embedded_agent::live_host::NATIVE_QUALIFIED,"reason":if embedded_agent::live_host::NATIVE_QUALIFIED {"qualified_mac_runtime"} else {"native_qualification_pending"}})));
+            drop(lease);
+            return response;
+        }
+        let paths = embedded_agent::live_host::Paths {
+            data: app.path().app_local_data_dir().map_err(|_| CommandError::Command("AGENT-DATA-UNAVAILABLE".into()))?,
+            resources: app.path().resource_dir().map_err(|_| CommandError::Command("AGENT-RESOURCE-UNAVAILABLE".into()))?,
+        };
+        let host = app.state::<embedded_agent::live_host::Host>();
+        let reply = host.request(webview.label(), action, paths, lease).await.map_err(|_| CommandError::Command("AGENT-HOST-UNAVAILABLE".into()))?;
+        let response = respond(reply.value.map_err(|error| CommandError::Command(format!("AGENT-{error:?}"))));
+        drop(reply._backing);
+        response
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        let _ = (&app, &mut args);
+        let response = respond(Ok::<_, CommandError<String>>(serde_json::json!({"available":false,"reason":"qualified_isolation_unavailable"})));
+        drop(lease);
+        response
+    }
+}
+
 /// The app's commands; the `native-smoke` build appends the harness's own.
 macro_rules! app_invoke_handler {
     ($($extra:path),* $(,)?) => {
         tauri::generate_handler![
+            embedded_agent_host,
             load_preview_model,
             load_design_knowledge,
             open_model_document_file,
@@ -5358,9 +5408,10 @@ macro_rules! app_invoke_handler {
 }
 
 pub fn run() {
+    let registry = SolveJobRegistry::new(memory_pool::MemoryPool::new(Arc::new(host_memory::MacHostMemory)));
     let builder = tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
-        .manage(SolveJobRegistry::new(memory_pool::MemoryPool::new(Arc::new(host_memory::MacHostMemory))))
+        .manage(registry.clone())
         .manage(native_result_download::SaveAdmission::default())
         .manage(close_guard::CloseGuard::default())
         .menu(|handle| build_app_menu(handle))
@@ -5381,6 +5432,8 @@ pub fn run() {
                 }
             }
         });
+    #[cfg(target_os = "macos")]
+    let builder = builder.manage(embedded_agent::live_host::Host::new(registry.clone()));
     #[cfg(not(feature = "native-smoke"))]
     let builder = builder.invoke_handler(app_invoke_handler!());
     #[cfg(feature = "native-smoke")]
@@ -5396,8 +5449,18 @@ pub fn run() {
         native_smoke::native_smoke_finish,
     ));
     builder
-        .run(tauri::generate_context!())
-        .expect("error while running SWBPIPE");
+        .build(tauri::generate_context!())
+        .expect("error while building SWBPIPE")
+        .run(|app, event| {
+            #[cfg(target_os = "macos")]
+            if let tauri::RunEvent::ExitRequested { api, .. } = event {
+                if !app.state::<embedded_agent::live_host::Host>().shutdown(app) {
+                    api.prevent_exit();
+                }
+            }
+            #[cfg(not(target_os = "macos"))]
+            let _ = (app, event);
+        });
 }
 
 /// The ordinary solve's bytes for a supplied model, read as a value, for tests

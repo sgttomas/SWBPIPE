@@ -5,6 +5,7 @@ use std::fs;
 use std::io::ErrorKind;
 use std::net::{SocketAddr, TcpListener, TcpStream};
 use std::path::PathBuf;
+use std::os::unix::net::UnixDatagram;
 use std::process::Command;
 use std::time::Duration;
 
@@ -83,6 +84,8 @@ fn main() {
             Duration::from_secs(1),
         )),
     ));
+    checks.push(("syslog", denied(UnixDatagram::unbound().and_then(|socket| socket.connect("/private/var/run/syslog")))));
+    checks.push(("users_read", denied(fs::read_dir("/Users"))));
     checks.push(("listener", denied(TcpListener::bind("127.0.0.1:0"))));
     checks.push((
         "other_exec",

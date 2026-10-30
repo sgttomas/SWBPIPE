@@ -2669,7 +2669,7 @@ headless runner) is a scanned crate under the shell's rules:
   reporting crates' library roots (`UNSAFE_FORBIDDING_DEPENDENTS`), and the
   token and parsed-tree `unsafe` findings apply to it, so a call through a
   declared foreign symbol, which needs `unsafe`, is refused by the compiler
-  and by the scan. The shell holds `unsafe` code in eleven modules and is not
+  and by the scan. The shell holds `unsafe` code in thirteen modules and is not
   on that list; it carries the deny layer instead (*Symbol-level FFI*
   below).
 - **Dependency pins.** The runner's normal and development dependencies are
@@ -2748,13 +2748,22 @@ shell holds some. HELP_HUMAN ruled for the repair below in this PR, with
 removing all `unsafe` from the shell recorded as the follow-up.
 - **Deny layer.** `src-tauri`'s library root (`src/lib.rs`) and binary root
   (`src/main.rs`), the only roots Cargo reports, carry
-  `#![deny(unsafe_code)]`, and exactly eleven `mod` items carry
+  `#![deny(unsafe_code)]`, and exactly thirteen `mod` items carry
   `#[allow(unsafe_code)]`: `autosave` (#1709; HELP_HUMAN's ruling, its test
   module `tests` declared inside it), `worker_alloc`, `host_memory`,
   `handoff_package_publish`, `solve_worker`, `handoff_package`, `ingress`,
   `stored_model_document_export`, `stored_read` and `solve_jobs` in
   `lib.rs`, and `analysis_runs.rs`'s test module `tests`
-  (`analysis_runs_tests.rs`). These are the shell's modules with real
+  (`analysis_runs_tests.rs`), plus the reviewed macOS `embedded_agent` modules
+  `keychain_native` and `process_scope` declared in `embedded_agent/mod.rs`.
+  The latter adds only SDK-public kqueue/kevent observation of the retained
+  original supplier Child (NOTE_EXIT, NOTE_EXITSTATUS and NOTE_FORK), checked
+  FD_CLOEXEC and OwnedFd custody. It supplies no signals, descendant tracking,
+  foreign declarations or new dependency. Errors and fork events latch forever;
+  later group cleanup cannot clear them or remove the runtime marker.
+  The exact `app_invoke_handler` macro pin is refreshed for the bounded
+  `embedded_agent_host` command; report-release reach remains unchanged.
+  These are the shell's modules with real
   `unsafe` code; the shell builds and its tests compile under the layer,
   which confirms the list. `ingress.rs` is unchanged (#1676's envelope); its
   allow is on its `mod` line, as is `autosave`'s, whose content is
@@ -2814,7 +2823,7 @@ removing all `unsafe` from the shell recorded as the follow-up.
   passes.
 - **Follow-up (option (c)).** Moving all `unsafe` code out of the shell
   would let it carry `forbid` as the other scanned crates do. It is a
-  separate change: about 122 real `unsafe` uses in the eleven modules,
+  separate change: the bounded native `unsafe` uses in the thirteen modules,
   about 105 in the first ten, among them `handoff_package_publish.rs` 27,
   `solve_worker.rs` 35 and `worker_alloc.rs` 21, and 17 in `autosave`
   (16 in `autosave.rs`, 1 in `autosave_tests.rs`), plus the counting
