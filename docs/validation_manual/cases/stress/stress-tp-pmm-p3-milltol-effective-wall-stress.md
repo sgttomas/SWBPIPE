@@ -61,7 +61,7 @@ expectations. The section-modulus comparison is benchmark arithmetic.
 The product's own effective-wall derivation is exercised by the
 product-physics unit tests named in the reference note.
 
-Reproduction (from `projects/chirality-piping`):
+Reproduction (from the repository root):
 
 ```bash
 cargo test --manifest-path validation/benchmarks/stress/Cargo.toml recovers_milltol_effective_wall_fixture

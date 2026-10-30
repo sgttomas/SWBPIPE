@@ -14,5 +14,5 @@
 ## Example (from repository root)
 
 ```bash
-python3 -m tools.deliverables --project projects/chirality-piping neighborhood DEL-04-07
+python3 -m tools.deliverables --project . neighborhood DEL-04-07
 ```

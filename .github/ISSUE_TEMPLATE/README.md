@@ -13,7 +13,7 @@ refs:
     to: OPS-CONTRIBUTING
 ---
 
-# Public Issue Templates (Future Public Repository)
+# Public Issue Templates
 
 This directory holds the SWBPIPE **public issue templates** named as a
 PRD §22.6 deliverable ("Public issue templates"; completion-plan row E6 in
@@ -28,13 +28,8 @@ PRD §22.6 deliverable ("Public issue templates"; completion-plan row E6 in
 
 ## Where these templates live and where they apply
 
-The public SWBPIPE repository **does not exist yet**; its creation is
-an owner-gated publication act. These templates are therefore authored
-in-project at `projects/chirality-piping/.github/ISSUE_TEMPLATE/` and are
-**inert here** — GitHub only reads `.github/` at a repository root, so nothing
-in this directory changes the behavior of the private monorepo. They are
-intended to ship with the future public export, landing at the public
-repository's root `.github/ISSUE_TEMPLATE/`.
+These templates are at this repository's root `.github/ISSUE_TEMPLATE/`, so
+GitHub applies them to issues opened on `sgttomas/SWBPIPE`.
 
 ## Contribution posture (controlling governance)
 

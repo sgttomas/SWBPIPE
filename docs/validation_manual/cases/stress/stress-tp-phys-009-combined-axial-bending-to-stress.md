@@ -47,7 +47,7 @@ The measured-vs-reference comparison executes inside the named suite
 test(s) `combined_axial_effect_and_bending_resultants_feed_station_stress_recovery`, which run the current in-repo solver path on the fixture
 and assert agreement with the reference expectations.
 
-Reproduction (from `projects/chirality-piping`):
+Reproduction (from the repository root):
 
 ```bash
 cargo test --manifest-path validation/benchmarks/stress/Cargo.toml combined_axial_effect_and_bending_resultants_feed_station_stress_recovery

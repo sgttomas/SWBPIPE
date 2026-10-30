@@ -11,7 +11,7 @@ issuance and release remain the owner's acts (F-PIP-3). SWBPIPE computes mechani
 the user's own rule packs; it does not certify, approve or establish code
 compliance. Standard claim fence applies (claims taxonomy per DEC-081).
 
-Paths are under `projects/chirality-piping/`. **PF** is the pressure-free solve
+Paths are relative to the repository root. **PF** is the pressure-free solve
 route (a model with no `pressure_contract`); **EX** is the exact pressure route
 (`3.0.0/exact_pressure_v3`). Row ids carry the prefix `RT-` so they do not
 collide with survey item or benchmark family ids.

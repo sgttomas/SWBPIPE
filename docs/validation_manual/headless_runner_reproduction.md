@@ -329,7 +329,7 @@ The committed generated witness outputs are:
 
 ### Reproduction Procedure (frozen E1)
 
-From `projects/chirality-piping`:
+From the repository root:
 
 ```bash
 python3 validation/witness/inputs/generate_tp_runner_015_inputs.py
@@ -390,7 +390,7 @@ The committed generated witness outputs are:
 
 ### Reproduction Procedure (bound path)
 
-From `projects/chirality-piping`:
+From the repository root:
 
 ```bash
 python3 validation/witness/inputs/generate_del1005_payload_binding_inputs.py

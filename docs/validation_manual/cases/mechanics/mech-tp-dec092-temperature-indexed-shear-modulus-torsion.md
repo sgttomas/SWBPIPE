@@ -44,7 +44,7 @@ and assert agreement with the reference expectations.
 
 Product-physics tests separately prove that exact-ID selection consumes the selected point's explicit `G`; temperature selection uses the strictly adjacent bracket and records both source IDs plus `method=linear_temperature_interpolation`; and combination records carry the same basis. They also prove that selection blocks at or outside stored range endpoints without extrapolation, blocks missing, non-positive, non-finite, or dimensionally wrong selected-point `G`, rejects duplicate temperatures and conflicting exact/temperature selectors, and never falls back to base `G`. A load case with no modulus basis continues to consume the explicit base `G`. The mechanics test is an independent numeric oracle; it does not by itself prove product selection behavior.
 
-Reproduction (from `projects/chirality-piping`):
+Reproduction (from the repository root):
 
 ```bash
 cargo test --offline --manifest-path validation/benchmarks/mechanics/Cargo.toml temperature_indexed_shear_modulus_torsion_matches_independent_oracle
