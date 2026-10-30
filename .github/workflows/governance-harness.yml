@@ -50,6 +50,9 @@ jobs:
         # owner-signed D-20/DEC-058 full-list check is the v1.0 release gate.
   piping:
     uses: ./.github/workflows/piping-desktop-e2e.yml
+    with:
+      # repository-checks above runs tests/test_ci_numerical.py on every run.
+      repository-checks-run: true
   harness:
     name: harness
     needs: [repository-checks, piping]

@@ -175,6 +175,9 @@ def test_repository_numerical_routing_checks_are_not_duplicated_in_product_job()
          'piping_numerical_selection': {'classification': 'full-fallback'}},
     ]
     for plan in plans:
-        chosen = ci.select(PROJECT, plan)
-        assert 'tests/test_ci_numerical.py' not in chosen, plan
+        assert 'tests/test_ci_numerical.py' not in ci.select(PROJECT, plan, repository_checks_run=True), plan
+    # Review r1: without the harness's Repository checks (a direct dispatch of
+    # the product workflow), the routing suite stays wherever it was selected.
+    for path in ('tests/conftest.py', 'tests/test_ci_numerical.py'):
+        assert 'tests/test_ci_numerical.py' in ci.select(PROJECT, {'event': 'pull_request', 'paths': [path]}), path
     assert 'tests/test_ci_python.py' in selected('tests/test_ci_python.py')

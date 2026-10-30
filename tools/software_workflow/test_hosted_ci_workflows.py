@@ -227,3 +227,17 @@ def test_repository_checks_run_claims_language_on_its_selection():
     steps = workflow('governance-harness.yml')['jobs']['repository-checks']['steps']
     [step] = [s for s in steps if s.get('run') == 'python3 tools/validation/validate_claims_language.py']
     assert 'if' not in step  # the standalone repository always checks product claims
+
+
+def test_only_the_harness_lets_the_product_job_skip_the_repository_routing_suite():
+    harness = workflow('governance-harness.yml')['jobs']
+    assert harness['piping']['with']['repository-checks-run'] == 'true'
+    assert 'tests/test_ci_numerical.py' in harness['repository-checks']['steps'][
+        [s.get('name') for s in harness['repository-checks']['steps']].index('Bounded shared-tool and routing regressions')]['run']
+    product = workflow('piping-desktop-e2e.yml')
+    assert product['on']['workflow_call']['inputs']['repository-checks-run']['default'] == 'false'
+    assert 'inputs' not in (product['on'].get('workflow_dispatch') or {})
+    [step] = [s for s in product['jobs']['python-product']['steps']
+              if s.get('name') == 'Selected Python product contracts and qualification oracles']
+    assert step['env']['REPOSITORY_CHECKS_RUN'] == '${{ inputs.repository-checks-run }}'
+    assert '--repository-checks-run' in step['run']
