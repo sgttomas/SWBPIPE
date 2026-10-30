@@ -47,7 +47,7 @@ The measured-vs-reference comparison executes inside the named suite
 test(s) `partial_span_load_to_stress_fixture_recovers_midspan_bending_from_spanned_load`, which run the current in-repo solver path on the fixture
 and assert agreement with the reference expectations.
 
-Reproduction (from `projects/chirality-piping`):
+Reproduction (from the repository root):
 
 ```bash
 cargo test --manifest-path validation/benchmarks/stress/Cargo.toml partial_span_load_to_stress_fixture_recovers_midspan_bending_from_spanned_load

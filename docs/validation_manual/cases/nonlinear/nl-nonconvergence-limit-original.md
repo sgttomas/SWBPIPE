@@ -45,7 +45,7 @@ The measured-vs-reference comparison executes inside the named suite
 test(s) `nonconvergence_fixture_reports_failure_diagnostic`, `expected_reports_preserve_warning_and_failure_statuses`, which run the current in-repo solver path on the fixture
 and assert agreement with the reference expectations.
 
-Reproduction (from `projects/chirality-piping`):
+Reproduction (from the repository root):
 
 ```bash
 cargo test --manifest-path validation/benchmarks/nonlinear/Cargo.toml nonconvergence_fixture_reports_failure_diagnostic

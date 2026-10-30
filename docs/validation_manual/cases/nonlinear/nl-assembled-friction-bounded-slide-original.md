@@ -49,7 +49,7 @@ The measured-vs-reference comparison executes inside the named suite
 test(s) `assembled_global_loop_seed_cases_converge_under_governed_policy`, `assembled_convergence_observations_record_measured_fixture_values_only`, `assembled_force_displacement_residual_observations_use_free_dof_force_moment_thresholds`, `dec_067_transition_fixtures_witness_state_switched_and_bounded_outcomes`, which run the current in-repo solver path on the fixture
 and assert agreement with the reference expectations.
 
-Reproduction (from `projects/chirality-piping`):
+Reproduction (from the repository root):
 
 ```bash
 cargo test --manifest-path validation/benchmarks/nonlinear/Cargo.toml assembled_global_loop_seed_cases_converge_under_governed_policy

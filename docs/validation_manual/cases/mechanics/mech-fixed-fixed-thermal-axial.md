@@ -50,7 +50,7 @@ The free thermal strain is asserted as reference arithmetic only. With
 both ends fully restrained no free degree of freedom remains, so no
 global stiffness solve is involved.
 
-Reproduction (from `projects/chirality-piping`):
+Reproduction (from the repository root):
 
 ```bash
 cargo test --manifest-path validation/benchmarks/mechanics/Cargo.toml thermal_growth_fixture_records_open_axial_restraint_formula

@@ -47,7 +47,7 @@ states dependency conditions and code/check pointers.
 From the Chirality repository root, query the relevant inputs and consumers:
 
 ```sh
-python3 -m tools.deliverables --project projects/chirality-piping neighborhood DEL-nn-nn
+python3 -m tools.deliverables --project . neighborhood DEL-nn-nn
 ```
 
 Replace `DEL-nn-nn` with the affected deliverable ID. The

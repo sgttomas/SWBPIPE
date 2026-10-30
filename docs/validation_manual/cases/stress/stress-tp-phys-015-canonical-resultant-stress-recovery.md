@@ -53,7 +53,7 @@ expectations. The canonical payload is not solved in this test; the
 mechanics case `MECH-TP-PHYS-014-CANONICAL-ANALYTICAL-PAYLOAD` solves it
 and asserts those midspan values.
 
-Reproduction (from `projects/chirality-piping`):
+Reproduction (from the repository root):
 
 ```bash
 cargo test --manifest-path validation/benchmarks/stress/Cargo.toml canonical_analytical_payload_resultants_feed_station_stress_recovery

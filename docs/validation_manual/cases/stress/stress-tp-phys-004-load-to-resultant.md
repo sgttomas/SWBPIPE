@@ -51,7 +51,7 @@ stresses from them, and assert agreement with the reference
 expectations. The frame itself is solved in
 `MECH-TP-PHYS-004-LOAD-TO-RESULTANT`, not here.
 
-Reproduction (from `projects/chirality-piping`):
+Reproduction (from the repository root):
 
 ```bash
 cargo test --manifest-path validation/benchmarks/stress/Cargo.toml load_to_resultant_station_stress_fixture_recovers_bending_component

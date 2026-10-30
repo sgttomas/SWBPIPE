@@ -45,7 +45,7 @@ The measured-vs-reference comparison executes inside the named suite
 test(s) `primitive_load_fixture_prepares_all_contribution_types`, which run the current in-repo solver path on the fixture
 and assert agreement with the reference expectations.
 
-Reproduction (from `projects/chirality-piping`):
+Reproduction (from the repository root):
 
 ```bash
 cargo test --manifest-path validation/benchmarks/mechanics/Cargo.toml primitive_load_fixture_prepares_all_contribution_types

@@ -129,8 +129,8 @@ The biggest gaps:
 ## 2. Outcome table
 
 Each row gives the PRD requirement (`docs/PRD.md` line), its priority and
-class, the evidence, and the deliverables. Paths are under
-`projects/chirality-piping/`. "Desktop `lib.rs`" is `apps/desktop/src-tauri/src/lib.rs`;
+class, the evidence, and the deliverables. Paths are relative to the repository
+root. "Desktop `lib.rs`" is `apps/desktop/src-tauri/src/lib.rs`;
 "PP `lib.rs`" is `core/product_physics/src/lib.rs`.
 
 ### 2.1 Model, schema, design knowledge (PRD §10.1, §11.1–11.2, §13)

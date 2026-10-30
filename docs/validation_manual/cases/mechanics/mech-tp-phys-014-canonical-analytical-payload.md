@@ -48,7 +48,7 @@ The measured-vs-reference comparison executes inside the named suite
 test(s) `tp_phys_014_canonical_analytical_payload_drives_solver_consumption`, which run the current in-repo solver path on the fixture
 and assert agreement with the reference expectations.
 
-Reproduction (from `projects/chirality-piping`):
+Reproduction (from the repository root):
 
 ```bash
 cargo test --manifest-path validation/benchmarks/mechanics/Cargo.toml tp_phys_014_canonical_analytical_payload_drives_solver_consumption

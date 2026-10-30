@@ -45,7 +45,7 @@ The measured-vs-reference comparison executes inside the named suite
 test(s) `inclined_member_transform_fixture_checks_direction_cosines_and_symmetry`, which run the current in-repo solver path on the fixture
 and assert agreement with the reference expectations.
 
-Reproduction (from `projects/chirality-piping`):
+Reproduction (from the repository root):
 
 ```bash
 cargo test --manifest-path validation/benchmarks/mechanics/Cargo.toml inclined_member_transform_fixture_checks_direction_cosines_and_symmetry
