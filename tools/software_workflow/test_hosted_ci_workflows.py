@@ -260,6 +260,41 @@ def test_exact_wasm_cache_wiring_and_main_build_only_warmer():
     assert warmer['steps'][-1] == {'uses': './.github/actions/setup-piping-e2e', 'with': {'build-only': 'true'}}
 
 
+REGRESSION_TARGETS = ("tools/software_workflow tools/deliverables tools/validation tests/test_ci_numerical.py "
+                      "tests/test_ci_apt_sources.py tests/test_release_members.py tests/test_release_candidate_scan.py "
+                      "tests/test_repository_history.py")
+
+
+def test_repository_regressions_follow_their_own_plan_and_keep_every_target(tmp_path):
+    import os
+    import subprocess
+    steps = workflow('governance-harness.yml')['jobs']['repository-checks']['steps']
+    names = [s.get('name') for s in steps]
+    plan_step = steps[names.index('Select repository regressions')]
+    tests = steps[names.index('Bounded shared-tool and routing regressions')]
+    assert names.index('Select repository regressions') < names.index('Bounded shared-tool and routing regressions')
+    assert 'hosted_ci.py repository' in plan_step['run'] and '--output repository-ci-plan.json' in plan_step['run']
+    assert 'if' not in plan_step and 'if' not in tests
+    assert REGRESSION_TARGETS in tests['run']
+    # The step passes exactly the plan's omissions to pytest, and none when
+    # the plan lists none.
+    stub = tmp_path / 'bin'
+    stub.mkdir()
+    (stub / 'pytest-args').write_text('')
+    python = stub / 'python3'
+    python.write_text('#!/bin/bash\nif [ "$1" = "-m" ]; then printf "%s\\n" "$@" > "$ARGS_OUT"; exit 0; fi\n'
+                      f'exec {__import__("sys").executable} "$@"\n')
+    python.chmod(0o755)
+    for deselect in ([], ['a.py::T::one', 'b.py::T::two']):
+        (tmp_path / 'repository-ci-plan.json').write_text(json.dumps({'deselect': deselect}))
+        out = tmp_path / 'args.txt'
+        subprocess.run(['bash', '-e', '-c', tests['run']], cwd=tmp_path, check=True,
+                       env={**os.environ, 'PATH': f'{stub}:{os.environ["PATH"]}', 'ARGS_OUT': str(out)})
+        args = out.read_text().split('\n')
+        assert [a for a in args if a.startswith('--deselect')] == [f'--deselect={t}' for t in deselect]
+        assert '-n' in args and 'auto' in args
+
+
 def test_numerical_matrix_keeps_all_shards_and_gates_selected_coverage():
     import os
     import subprocess
