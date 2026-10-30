@@ -10069,9 +10069,9 @@ describe("SWBPIPE desktop preview", () => {
     expect(openedByIdStoragePacket.summary.persisted_analysis_run_ref).toBe(
       "run:preview-linear-static-001",
     );
-    // Heavy full-<App/> Three.js render: inherit the 30s global testTimeout
-    // (vite.config.ts); a tight per-test override flaked under DEC-025 sweep load.
-  });
+    // Heavy full-<App/> render plus local save and open: the 30s global
+    // testTimeout (vite.config.ts) timed out on the hosted full-suite runner.
+  }, 120_000); // hosted full-suite runner is several times slower than local
 
   it("renders all preserved reference result families, values and recovery annotations without Current", async () => {
     const reference = await loadBundledMechanicsReference(), expectedModel = reference.model, expectedSource = reference.source;
