@@ -389,7 +389,24 @@ def affected_manifests(project, manifests, paths, declarations=None, ignored_pat
     return [Path(m) for m in selection['manifests']]
 
 
-def cargo_plan(project, paths=None, selection=None):
+# Named heavy crates keep their complete command groups, including witnesses.
+# Every other current or future manifest belongs to the catch-all shard.
+SHARDS = ('physics', 'reporting-runner', 'other')
+SHARD_MANIFESTS = {
+    'physics': frozenset({'core/product_physics/Cargo.toml'}),
+    'reporting-runner': frozenset({'core/reporting/result_export/Cargo.toml',
+                                   'core/runner/headless/Cargo.toml'}),
+}
+
+
+def manifest_shard(manifest):
+    owners = [name for name, manifests in SHARD_MANIFESTS.items() if str(manifest) in manifests]
+    if len(owners) > 1:
+        raise ValueError('Overlapping numerical shard assignments: ' + str(manifest))
+    return owners[0] if owners else 'other'
+
+
+def cargo_plan(project, paths=None, selection=None, shard=None):
     """Use the real readiness discovery and commands, adding locked resolution."""
     manifests = readiness.discover_cargo_manifests(project)
     if not manifests:
@@ -404,6 +421,10 @@ def cargo_plan(project, paths=None, selection=None):
     chosen = [Path(m) for m in selection['manifests']] if selection is not None else (affected_manifests(project, manifests, paths) if paths is not None else manifests)
     if len(set(chosen)) != len(chosen) or not set(chosen) <= set(manifests):
         raise ValueError('Selection contains duplicate or unknown Cargo manifests')
+    if shard is not None:
+        if shard not in SHARDS:
+            raise ValueError('Unknown numerical shard: ' + shard)
+        chosen = [m for m in chosen if manifest_shard(m) == shard]
     tests = []
     for manifest, step in zip(manifests, steps):
         if manifest not in chosen:
@@ -499,18 +520,19 @@ def execute_commands(project, commands, evidence, evidence_dir, env=None):
     return 0
 
 
-def run(root, plan, evidence_dir, build_only=False):
+def run(root, plan, evidence_dir, build_only=False, shard=None, dry_run=False):
     root, evidence_dir = Path(root).resolve(), Path(evidence_dir).resolve()
     evidence_dir.mkdir(parents=True, exist_ok=True)
     evidence = dict(status='failed', head=plan.get('head'), target_base=plan.get('target_base'),
                     plan=plan, commands=[], manifests=[], plan_validated=False,
-                    execution='build-only' if build_only else 'tests')
+                    execution='dry-run' if dry_run else ('build-only' if build_only else 'tests'),
+                    shard=shard, empty=False)
     code = 1
     try:
         validate_plan(root, plan)
         evidence['plan_validated'] = True
         project = root / PROJECT
-        manifests, commands = cargo_plan(project, selection=plan['piping_numerical_selection'])
+        manifests, commands = cargo_plan(project, selection=plan['piping_numerical_selection'], shard=shard)
         if build_only:
             commands = build_commands(commands)
             print('Build-only: compiling selected profiles; no tests execute.', flush=True)
@@ -518,6 +540,12 @@ def run(root, plan, evidence_dir, build_only=False):
         evidence['input_sha256'] = {p.as_posix(): hashlib.sha256((project / p).read_bytes()).hexdigest()
             for m in manifests for p in (m, m.with_name('Cargo.lock'))}
         evidence['planned_commands'] = commands
+        evidence['empty'] = not manifests
+        if not manifests or dry_run:
+            code = 0
+            evidence['status'] = 'planned' if dry_run else 'success'
+            print(f"Numerical shard {shard or 'all'}: " + ('empty; no Cargo commands selected.' if not manifests else 'dry run; no commands executed.'), flush=True)
+            return code
         env = os.environ.copy()
         env.pop('CARGO_NET_OFFLINE', None)  # Fetch first; every test explicitly uses --offline.
         env['CARGO_TARGET_DIR'] = str(evidence_dir / 'target')
@@ -560,8 +588,10 @@ def main():
     parser.add_argument('--plan', required=True)
     parser.add_argument('--evidence-dir', required=True)
     parser.add_argument('--build-only', action='store_true', help='Compile the selected test profiles without running tests')
+    parser.add_argument('--shard', choices=SHARDS, help='Run only this partition of the validated selection')
+    parser.add_argument('--dry-run', action='store_true', help='Validate and record commands without executing them')
     args = parser.parse_args()
-    return run(HERE.parents[1], json.loads(Path(args.plan).read_text()), args.evidence_dir, build_only=args.build_only)
+    return run(HERE.parents[1], json.loads(Path(args.plan).read_text()), args.evidence_dir, build_only=args.build_only, shard=args.shard, dry_run=args.dry_run)
 
 
 if __name__ == '__main__':
