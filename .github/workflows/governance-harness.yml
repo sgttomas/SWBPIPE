@@ -25,9 +25,20 @@ jobs:
           toolchain: '1.97.1'
       - name: Install check dependencies
         run: python3 -m pip install pytest pytest-xdist pyyaml jsonschema
+      - name: Select repository regressions
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: python3 tools/software_workflow/hosted_ci.py repository --event "$EVENT" --base "$BASE" --head "$HEAD" --output repository-ci-plan.json
       - name: Bounded shared-tool and routing regressions
-        # Always run these, including Rust/manifest additions and deletions.
-        run: python3 -m pytest -q tools/software_workflow tools/deliverables tools/validation tests/test_ci_numerical.py tests/test_ci_apt_sources.py tests/test_release_members.py tests/test_release_candidate_scan.py tests/test_repository_history.py
+        # Every regression runs, including for Rust/manifest additions and
+        # deletions, except that a Markdown-only pull request omits the
+        # source-reachability tests, which read no Markdown.
+        run: |
+          deselect=()
+          while IFS= read -r test; do deselect+=("--deselect=$test"); done < <(python3 -c 'import json; [print(t) for t in json.load(open("repository-ci-plan.json"))["deselect"]]')
+          python3 -m pytest -q -n auto "${deselect[@]}" tools/software_workflow tools/deliverables tools/validation tests/test_ci_numerical.py tests/test_ci_apt_sources.py tests/test_release_members.py tests/test_release_candidate_scan.py tests/test_repository_history.py
       - name: Deliverable dependency structure
         run: python3 -m tools.deliverables --project . check > deliverable-check.json
       - name: Product claims language

@@ -503,6 +503,107 @@ class HostedCITests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     select_paths(['apps/desktop/src/App.tsx'], profile, self.root)
 
+    # Repository regressions scale with the class of change.
+
+    def repository(self, base=None, event="pull_request"):
+        return hosted_ci.repository_plan(self.root, event, base or self.base, "HEAD")
+
+    def test_markdown_only_pr_omits_only_the_source_reachability_regressions(self):
+        for path in ["docs/BUILD_AND_RELEASE.md", "execution/PKG-01/DEL-01-01/Design/note.md", "README.md"]:
+            self.write(path, "Prose.\n")
+        self.commit()
+        plan = self.repository()
+        self.assertEqual(plan["mode"], "markdown-only")
+        self.assertEqual(plan["deselect"], list(hosted_ci.SOURCE_REACHABILITY_TESTS))
+
+    def test_any_other_change_keeps_every_repository_regression(self):
+        for path, content in [("core/x/src/lib.rs", "fn main() {}\n"), ("docs/table.csv", "a,b\n"),
+                              ("tools/release/README.md", "Tool notes.\n"), ("tests/fixtures/x.md", "Fixture.\n"),
+                              (".github/ISSUE_TEMPLATE/bug.md", "Template.\n"), ("docs/binary.md", "a\0b")]:
+            with self.subTest(path=path):
+                base = self.git("rev-parse", "HEAD")
+                self.write("docs/also-changed.md", path)
+                self.write(path, content)
+                self.commit()
+                plan = self.repository(base)
+                self.assertEqual(plan["mode"], "full")
+                self.assertEqual(plan["deselect"], [])
+
+    def test_repository_regressions_fail_toward_running_everything(self):
+        self.write("docs/note.md", "Prose.\n")
+        self.commit()
+        for event, base in [("workflow_dispatch", self.base), ("pull_request", "0" * 40)]:
+            with self.subTest(event=event, base=base):
+                plan = hosted_ci.repository_plan(self.root, event, base, "HEAD")
+                self.assertEqual((plan["mode"], plan["deselect"]), ("full", []))
+        plan = hosted_ci.repository_plan(self.root, "pull_request", "", "HEAD")
+        self.assertEqual((plan["mode"], plan["deselect"]), ("full", []))
+        empty = self.git("rev-parse", "HEAD")
+        self.assertEqual(hosted_ci.repository_plan(self.root, "pull_request", empty, "HEAD")["mode"], "full")
+
+    def test_a_deleted_markdown_file_is_markdown_only(self):
+        self.git("rm", "-q", "README.md")
+        self.git("commit", "-qm", "delete")
+        self.assertEqual(self.repository()["mode"], "markdown-only")
+
+    def test_every_omitted_regression_exists(self):
+        for node in hosted_ci.SOURCE_REACHABILITY_TESTS:
+            with self.subTest(node=node):
+                path, *names = node.split("::")
+                source = (SOURCE_ROOT / path).read_text()
+                self.assertIn(f"class {names[0]}(", source)
+                self.assertIn(f"def {names[1]}(", source)
+
+    # A document desktop source only names: in-place edits do not select the
+    # desktop suite; additions, deletions and renames still do.
+
+    def test_named_only_document_content_edit_selects_no_desktop_suite(self):
+        self.assertTrue(hosted_ci.named_only_document(SOURCE_ROOT, "docs/BUILD_AND_RELEASE.md"))
+        selection = select_paths(["docs/BUILD_AND_RELEASE.md"], PROFILE, SOURCE_ROOT,
+                                 frozenset({"docs/BUILD_AND_RELEASE.md"}))
+        self.assertEqual(selection["modes"]["piping-desktop"], "not-applicable")
+        self.assertEqual(selection["modes"]["piping"], "not-applicable")
+        self.assertEqual(selection["piping_desktop_selection"]["named_document_edits"], ["docs/BUILD_AND_RELEASE.md"])
+        # Added, deleted or renamed: the named path's existence changed.
+        selection = select_paths(["docs/BUILD_AND_RELEASE.md"], PROFILE, SOURCE_ROOT)
+        self.assertEqual(selection["modes"]["piping-desktop"], "full")
+
+    def test_documents_a_desktop_test_or_loading_line_names_stay_selected(self):
+        for path in ["docs/claims_registry.md", "docs/IP_AND_DATA_BOUNDARY.md"]:
+            with self.subTest(path=path):
+                self.assertFalse(hosted_ci.named_only_document(SOURCE_ROOT, path))
+                selection = select_paths([path], PROFILE, SOURCE_ROOT, frozenset({path}))
+                self.assertEqual(selection["modes"]["piping-desktop"], "full")
+
+    def test_named_reference_sites_distinguish_display_from_reads(self):
+        sources = self.root / "apps/desktop/src"
+        (sources / "features").mkdir(parents=True)
+        (sources / "features/Panel.tsx").write_text('const paths = ["docs/shown.md", "docs/both.md"];\n'
+                                                     'import notes from "docs/imported.md?raw";\n'
+                                                     'const dir = "docs/guide";\n')
+        (sources / "features/Panel.test.tsx").write_text('readFileSync(path.join(root, "docs/both.md"));\n')
+        (sources / "test-support").mkdir()
+        (sources / "test-support/load.ts").write_text('const p = "docs/support.md";\n')
+        hosted_ci.desktop_reference_sites.cache_clear()
+        self.addCleanup(hosted_ci.desktop_reference_sites.cache_clear)
+        self.assertTrue(hosted_ci.named_only_document(self.root, "docs/shown.md"))
+        for path in ["docs/both.md", "docs/imported.md", "docs/support.md", "docs/guide/page.md", "docs/unnamed.md"]:
+            with self.subTest(path=path):
+                self.assertFalse(hosted_ci.named_only_document(self.root, path))
+
+    def test_plan_reads_in_place_edits_from_the_complete_diff(self):
+        self.write("docs/a.md", "one\n")
+        self.write("docs/b.md", "one\n")
+        base = self.commit()
+        self.write("docs/a.md", "two\n")
+        self.git("rm", "-q", "docs/b.md")
+        self.write("docs/c.md", "new\n")
+        head = self.commit()
+        merge_base = self.git("merge-base", base, head)
+        paths, edits = hosted_ci.changed_paths(self.root, merge_base, head)
+        self.assertEqual(paths, ["docs/a.md", "docs/b.md", "docs/c.md"])
+        self.assertEqual(edits, frozenset({"docs/a.md"}))
+
 
 if __name__ == "__main__":
     unittest.main()
