@@ -115,7 +115,7 @@ quotes the option's drafted text; the owner's own words are quoted as such.
 **Must**: required by the exit criteria; a gap ships only as a limitation the
 owner accepts (§4 item 3). **Should**: expected; may ship
 declared as a limitation with the owner's acceptance. **Later**: after v1.0.
-"Current" is the state on `main` with its evidence. "Owner" is the owning
+"Current" is the state on `main` with its evidence, last surveyed on 2026-10-30 at `b5b19eb2d`. "Owner" is the owning
 deliverable; "new" means a scope change assigns it.
 
 ### Analyses
@@ -123,15 +123,15 @@ deliverable; "new" means a scope change assigns it.
 | Row | Capability | Level | Current (evidence) | Open work / owner |
 |---|---|---|---|---|
 | RT-A1 | Linear static | Must | Built on both routes (W-9 benchmarks) | — / DEL-04-01 |
-| RT-A2 | Nonlinear static operating (gaps, lift-off, friction) | Must | PF only. Mechanics combinations of nonlinear models are withheld; differences and envelopes are formed from rows (#1695) | #1654, #1671 / DEL-04-04, DEL-04-07 |
-| RT-A3 | One route: EX admits every family PF has (tees, nonlinear and constant-effort supports, reducers in pressure regions) | Must | EX refuses these by name (`EXACT_PRESSURE_FAMILY_NOT_ADMITTED`, `EXACT_PRESSURE_REDUCER_IN_REGION`, PP `exact_admission.rs`) | unscheduled / DEL-04-07 |
+| RT-A2 | Nonlinear static operating (gaps, lift-off, friction) | Must | PF only, stage 2 built (#1671); a dense-memory guard refuses oversized nonlinear models (#1742). Mechanics combinations of nonlinear models are withheld; combinations publish operand standing (#1752) | R-4 (EX admission) / DEL-04-04, DEL-04-07 |
+| RT-A3 | One route: EX admits every family PF has (tees, nonlinear and constant-effort supports, reducers in pressure regions) | Must | EX refuses these by name (`EXACT_PRESSURE_FAMILY_NOT_ADMITTED`, `EXACT_PRESSURE_REDUCER_IN_REGION`) and, since #1742, compensated shared-terminal junctions (`exact_admission.rs`). Route unification R-4 is designed (#1743, DEL-04-07 `Work/route-unification-r4.md`), not built | R-4 S1–S8 / DEL-04-07 |
 | RT-A4 | Combinations: algebraic, difference, envelope, absolute sum, SRSS | Must | Algebraic, difference and envelope on both routes (`load_case_algebra`, #1698). No absolute sum or SRSS | unscheduled / DEL-05-02 |
-| RT-A5 | Sustained, operating and expansion sets. The expansion basis is recorded; sustained can take the operating support status | Must (basis), Should (status) | `difference_basis` designed in model document 0.9.0 (#1703) | build unscheduled / DEL-05-02, DEL-02-01 |
+| RT-A5 | Sustained, operating and expansion sets. The expansion basis is recorded; sustained can take the operating support status | Must (basis), Should (status) | Slice 1a built: nonlinear PF operand standing (#1752). `difference_basis` designed in model document 0.9.0 (#1703); the document is still 0.8.0 | slice 1b with 0.9.0 / DEL-05-02, DEL-02-01 |
 | RT-A6 | Hydrostatic test: test pressure, test contents, springs held, marked as a test case | Must | PF blocks hydrotest pressure (PP `validation.rs:62-66`); no test condition exists | unscheduled / DEL-05-01, after RT-G5 |
 | RT-A7 | Modal analysis (PRD §12.9) | Must | Design only (DEL-04-09 CLM-003) | M1a–M3 / DEL-04-09 |
-| RT-A8 | Response spectrum, uniform support motion: user spectra, mode and directional combination, missing mass; snubbers as dynamic-only restraints. Independent (multi-level) support motion is Should | Must (uniform), Should (independent) | Absent | SCA-014 / new |
-| RT-A9 | Static occasional: wind, three-axis seismic g | Must | DEC-068 generators on PF and plain EX documents (#1698). Refused on EX load/reference-state documents | #1678 / DEL-05-01 |
-| RT-A10 | Imposed displacement, including seismic anchor movement | Must | EX `boundary_motion`. PF stage 1 (#1615); PF with nonlinear supports is refused | #1654, #1671 / DEL-04-03 |
+| RT-A8 | Response spectrum, uniform support motion: user spectra, mode and directional combination, missing mass; snubbers as dynamic-only restraints. Independent (multi-level) support motion is Should | Must (uniform), Should (independent) | Absent | SCA-014 / owning deliverable to be assigned |
+| RT-A9 | Static occasional: wind, three-axis seismic g | Must | DEC-068 generators on PF and plain EX documents (#1698); partial-span wind on Timoshenko members (#1742). Refused on EX load/reference-state documents | EX load/reference-state documents / DEL-05-01 |
+| RT-A10 | Imposed displacement, including seismic anchor movement | Must | EX `boundary_motion`. PF imposed motion with nonlinear supports built (#1671); constant-effort targets refused | constant-effort targets; EX via R-4 / DEL-04-03 |
 | RT-A11 | Hanger sizing from the user's private catalogue, with a hanger table | Must | Records import and apply one to a support (`features/hanger-selection`); no sizing procedure | unscheduled / new |
 | RT-A12 | Cold spring | Should | Absent | unscheduled / DEL-05-01 |
 | RT-A13 | Numerical diagnostics and health | Must | Built (FR-SOL-015; #1544, #1665) | — / DEL-04-06 |
@@ -142,7 +142,7 @@ deliverable; "new" means a scope change assigns it.
 | Row | Capability | Level | Current (evidence) | Open work / owner |
 |---|---|---|---|---|
 | RT-G1 | Model document, persistence, units (SI, US, custom) | Must | Document 0.8.0 (#1649); units at creation and after (#1569, #1627) | 0.9.0 build / DEL-02-01, DEL-02-02 |
-| RT-G2 | Authoring: viewport, run sheet, bulk change, split into parts, slope entry, context menus | Must | #1693, #1679, #1667. B1 run-sheet rules and builder (#1699); B5 split and slope (#1700) | run-sheet UI slices / DEL-07-01, DEL-07-02 |
+| RT-G2 | Authoring: viewport, run sheet, bulk change, split into parts, slope entry, context menus | Must | #1693, #1679, #1667. B1 run-sheet rules and builder (#1699); B5 split and slope (#1700); run-sheet slice S2 (#1721) | run-sheet slices 3–4 / DEL-07-01, DEL-07-02 |
 | RT-G3 | Materials, sections, temperature-dependent modulus, mass properties | Must | Libraries with provenance (#1566); per-case modulus basis (DEC-092) | GUI entry of `modulus_basis_records` (DEL-07-02:5) |
 | RT-G4 | Model checks | Must | Built (W-8; #1665) | — / DEL-04-06 |
 | RT-G5 | Operating-condition sets along runs | Must | Designed (#1703) | build / DEL-02-01, DEL-05-01 |
@@ -150,10 +150,10 @@ deliverable; "new" means a scope change assigns it.
 | RT-K2 | Tees with user modifiers; branch flexibility | Must (tee), Should (branch flexibility) | PF only, with user SIF; branch flexibility not assembled | RT-A3 / DEL-03-04 |
 | RT-K3 | Reducers, valves, flanges, rigid items, weight at CoG | Must | Built (#1604, #1608, #1649) | RT-A3 for reducers in pressure regions / DEL-03-05 |
 | RT-K4 | Expansion joints, tie rods, pressure thrust | Must | EX only; `movement_limit` not enforced | — / DEL-03-06 |
-| RT-K5 | Timoshenko straights on PF | Should | EX only | #1663 / DEL-05-03 |
+| RT-K5 | Timoshenko straights on PF | Should | Built: opt-in Timoshenko straights on PF (#1663, DEL-05-03 `Work/pf-timoshenko.md`) | — / DEL-05-03 |
 | RT-S1 | Linear restraints and springs | Must | Built on both routes | — / DEL-04-03 |
 | RT-S2 | Gaps, lift-off, friction | Must | PF only. Friction is static and history-free; rotational gap and rotational friction are refused | RT-A3 / DEL-04-04 |
-| RT-S3 | Variable spring and constant-effort supports | Must | Variable spring = user-stiffness spring; whether the installed load acts as a preload is not yet settled (open work). Constant effort on PF only | RT-A3 / DEL-04-03 |
+| RT-S3 | Variable spring and constant-effort supports | Must | Variable spring = user-stiffness spring; entered installed, cold and hot loads are not applied as preload and each warns `SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD` (#1742). Constant effort on PF only | R-4 / DEL-04-03 |
 | RT-L1 | Weight, pressure, thermal (many cases), user forces including relief thrust, wind | Must | Pressure on EX only; thermal per case; DEC-068 wind | RT-A3, RT-G5 / DEL-05-01, DEL-05-05 |
 | RT-L2 | Bourdon effect (pressure elongation) as an option, off by default and clearly labelled. Pressure-dependent flexibility and SIF corrections are out of scope; users enter their own k and SIF | Should | EX excludes Bourdon opening and pressure stiffening of k/SIF, and discloses it (DEL-04-07 `Work/pressure-contract.md` D-3) | unscheduled / DEL-04-07 |
 
@@ -164,37 +164,37 @@ deliverable; "new" means a scope change assigns it.
 | RT-R1 | Results review: navigator, contours, deflected shape, key results, support loads, extremes, weight/CoG, sorted stresses | Must | #1687, #1689, #1667, #1694, #1668, #1675, #1677, #1674 | hanger table with RT-A11 / DEL-07-05 |
 | RT-R2 | Frequencies, mode shapes and participation views | Must | Absent | M3 / DEL-04-09 |
 | RT-R3 | User rule packs as a design aid; outcomes "within / exceeds user limit". Survey extensions C2, E1, E2, E5 and E6 and the plugin/adapter runtime are deferred until after v1.0; E3 and E4 are dropped | Should | Format 0.5.0 (#1629); outcome wording still pass/fail | wording / DEL-06-01, DEL-07-03, DEL-08-01 |
-| RT-R4 | Calculation report with a section composer | Must | Local-private render and package on both routes (W-3, #1648); no composer | composer / DEL-08-01 |
-| RT-R5 | Shareable report released by the user | Must | W-18b r1–r2b (#1661, #1664, #1673); EX refused on route 010 | #1682 / DEL-08-01 |
-| RT-R6 | CSV export of every results table | Must | Absent; result JSON and stress-neutral JSON exist | unscheduled / DEL-08-04 |
-| RT-R7 | MBF export from the desktop | Must | Headless SI pilot writer (#1652); the desktop panel is a preview and withholds MBF text | unscheduled / DEL-17-04 |
-| RT-R8 | MBF import into the desktop | Must | Headless importer tranches 1–3 (#1670, #1685, #1697) and authored cases (#1702) | unscheduled / DEL-17-04 |
+| RT-R4 | Calculation report with a section composer | Must | Local-private render and package on both routes (W-3, #1648); section composer designed (DEL-08-01 `Work/report-section-composer.md`), not built | composer build / DEL-08-01 |
+| RT-R5 | Shareable report released by the user | Must | Built on both routes: route 010 native admission (W-18b r2c, #1682) and exact-route results (D-6, #1745); privacy fixes (#1692, #1722) | later slice in `report-user-release.md` §10 / DEL-08-01, DEL-12-02 |
+| RT-R6 | CSV export of every results table | Must | Built: CSV serializer and export on every results and comparison table, with a coverage guard; saving requires explicit local-private intent (#1720, #1726) | — / DEL-08-04 |
+| RT-R7 | MBF export from the desktop | Must | Headless SI pilot writer writes bend SIFs as BSIF (#1730); desktop design adopted. Rust writer port and desktop export not built; the desktop panel is a preview | slices 2, 4, 6 / DEL-17-04, DEL-07-12 |
+| RT-R8 | MBF import into the desktop | Must | Rust MBF engine crate with an importer port byte-identical to the Python importer and parity tests (#1728, #1734); not yet used by the desktop | slices 5–7 / DEL-17-04, DEL-07-12 |
 | RT-R9 | PCF, glTF, handoff package, native JSON | Should | Save Handoff (#1600); PCF and glTF text withheld | — / DEL-17-07, DEL-17-08, DEL-15-01 |
 
 ### Human factors, validation, release
 
 | Row | Capability | Level | Current (evidence) | Open work / owner |
 |---|---|---|---|---|
-| RT-U1 | Coherent visual design, keyboard routes, accessibility of touched controls | Must | Bounded D-68 baseline (DEL-07-06) | walkthrough findings |
+| RT-U1 | Coherent visual design, keyboard routes, accessibility of touched controls | Must | Bounded D-68 baseline (DEL-07-06); work-loss fixes: Save as New, ⌘S, quit and close guard (#1717) | walkthrough findings |
 | RT-U2 | Usability basis: Agent 0 use-case walkthrough, then owner-arranged user testing | Must | Absent | walkthrough / DEL-07-06 |
-| RT-U3 | Autosave and backup | Must | Absent | unscheduled / DEL-12-01, DEL-02-05 |
-| RT-U4 | Performance on large models | Must | No thresholds (DEL-04-05:3) | harness run / DEL-04-05 |
+| RT-U3 | Autosave and backup | Must | Autosave built: native writer, timer, settings and recovery offer (#1709, #1718). Backup copy (slice 3) not built | slice 3 backup / DEL-02-05 |
+| RT-U4 | Performance on large models | Must | No thresholds (DEL-04-05:3); nonlinear dense-memory guard only (#1742) | harness run / DEL-04-05 |
 | RT-U5 | States, runs, comparisons | Should | Built (W-12); mapping editor, tolerance profiles and export are Later | — / PKG-14 |
 | RT-U6 | Delete a stored project | Later | No delete-project command; stored projects are not removed from the desktop (owner, 2026-10-26: "I agree with your recommendation and approve (a)", where (a) was no delete-project command in v0.1, listed as a later candidate; recorded from superseded #1642) | — / new |
-| RT-V1 | Closed-form benchmarks for every Must analysis | Must | §22.2 and §22.3 suites; none yet for RT-A4 SRSS/absolute sum, RT-A6, RT-A7, RT-A8, RT-A11 | with each row / PKG-09 |
-| RT-V2 | Benchmark set against CAEPIPE (§3) | Must | Proposal (validation lane); correlation pilot (#1652, #1672) | §3 / DEL-17-05 |
+| RT-V1 | Closed-form benchmarks for every Must analysis | Must | §22.2 and §22.3 suites; shared M3 judge (#1716) and W-16t references (#1742); none yet for RT-A4 SRSS/absolute sum, RT-A6, RT-A7, RT-A8, RT-A11 | with each row / PKG-09 |
+| RT-V2 | Benchmark set against CAEPIPE (§3) | Must | Tranche 1 built: 60 invented models, two-way screening against the §3 profile, settings guard and print parser (#1733). Method and harness only; no agreement established | further tranches, publication checker / DEL-17-05 |
 | RT-V3 | Validation manual and a fresh reproduction bundle | Must | Procedure current; last bundle predates W-12 | W-2 / DEL-09-04 |
 | RT-V4 | User guide and theory notes for every Must analysis | Must | Statics only (`docs/theory/centerline_analysis.md`) | DEL-11-01, DEL-11-03 |
 | RT-V5 | Claim fence on every surface (notice, GEN-13, release labels) | Must | GEN-13 clean (#1701) and run in hosted CI (#1705) | release labels / DEL-09-05, DEL-16-04 |
-| RT-V6 | Signed, notarized macOS build; MIT licence recorded consistently | Must | Signing decided (D-06b), not executed; MIT in `LICENSE.md` (D-74) and DEL-01-01 | DEL-10-04 |
+| RT-V6 | Signed, notarized macOS build; MIT licence recorded consistently | Must | Signing decided (D-06b), not executed. MIT in `LICENSE.md` (D-74) and DEL-01-01; the repository's `LICENSE` (initial commit) and `LICENSE.md` spell the holder's name differently | DEL-10-04; the holder's name is the owner's to state |
 | RT-V7 | Windows build | Later (revisited immediately after v1.0) | Release baseline: macOS Apple Silicon only (DEC-057); Windows development authorized alongside macOS v1.0; native x64 desktop unqualified | DEL-10-04 Work/windows-port.md |
-| RT-V8 | Independent public SWBPIPE repository | Must | Owner created public `sgttomas/SWBPIPE`; migration evidence in `reference/migration/`; unsigned scan findings remain; no signed scan or release acceptance | complete the split; owner-signed D-20/DEC-058 repository scan including full private-term scan and finding dispositions before v1.0 / DEL-10-04 |
+| RT-V8 | Independent public SWBPIPE repository | Must | Split done: verified import (SWBPIPE #1) and standalone governance; unsigned scan findings remain; no signed scan or release acceptance | owner-signed D-20/DEC-058 repository scan including full private-term scan and finding dispositions before v1.0 / DEL-10-04 |
 
 ### Embedded agent
 
 | Row | Capability | Level | Current (evidence) | Open work / owner |
 |---|---|---|---|---|
-| RT-E1 | The App v4 agent harness embedded in the desktop: a conversation panel, SWBPIPE's capability catalog of reads and changes, and changes through the one operation route, applied on the person's acceptance or within the autonomy the person granted | Must | Operation engine, batch review queue and offline proposal intake built; no embedded harness, catalog or agent transport (DEL-16-03:2) | connection design with App v4 / new, PKG-16 |
+| RT-E1 | The App v4 agent harness embedded in the desktop: a conversation panel, SWBPIPE's capability catalog of reads and changes, and changes through the one operation route, applied on the person's acceptance or within the autonomy the person granted | Must | Host, catalog, stdio transport, provider relay, keychain custody, tool dispatch, live session and minimal panel built (SWBPIPE #2, #3); catalog admits node coordinate edits only | native panel journey, webview command/review evidence, criterion 17 catalog journey / DEL-16-06 |
 
 ## 3. Benchmark method (summary)
 
