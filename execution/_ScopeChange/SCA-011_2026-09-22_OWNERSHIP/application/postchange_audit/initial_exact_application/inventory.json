@@ -1,0 +1,1911 @@
+[
+  {
+    "DeliverableID": "DEL-00-01",
+    "PackageID": "PKG-00",
+    "Folder": "projects/chirality-piping/execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-01_Architecture decision record baseline",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "ARCHITECTURE_BASIS_REFERENCE",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-013"
+    ],
+    "ScopeItems": [
+      "SOW-056"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-00-02",
+    "PackageID": "PKG-00",
+    "Folder": "projects/chirality-piping/execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-02_Repository and module boundary architecture",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "ARCHITECTURE_BASIS_REFERENCE",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-013"
+    ],
+    "ScopeItems": [
+      "SOW-057",
+      "SOW-062"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-00-03",
+    "PackageID": "PKG-00",
+    "Folder": "projects/chirality-piping/execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-03_Application service command-query-job model",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "ARCHITECTURE_BASIS_REFERENCE",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-013"
+    ],
+    "ScopeItems": [
+      "SOW-058",
+      "SOW-062"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-00-04",
+    "PackageID": "PKG-00",
+    "Folder": "projects/chirality-piping/execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-04_Persistence and schema versioning architecture",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "ARCHITECTURE_BASIS_REFERENCE",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-013"
+    ],
+    "ScopeItems": [
+      "SOW-059"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-00-05",
+    "PackageID": "PKG-00",
+    "Folder": "projects/chirality-piping/execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-05_GUI state and interaction architecture",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "ARCHITECTURE_BASIS_REFERENCE",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-013"
+    ],
+    "ScopeItems": [
+      "SOW-060"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-00-06",
+    "PackageID": "PKG-00",
+    "Folder": "projects/chirality-piping/execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-06_Diagnostics, warning, and result-envelope contract",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "ARCHITECTURE_BASIS_REFERENCE",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-013"
+    ],
+    "ScopeItems": [
+      "SOW-061"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-00-07",
+    "PackageID": "PKG-00",
+    "Folder": "projects/chirality-piping/execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-07_API boundary and adapter contract map",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "ARCHITECTURE_BASIS_REFERENCE",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-013"
+    ],
+    "ScopeItems": [
+      "SOW-062"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-00-08",
+    "PackageID": "PKG-00",
+    "Folder": "projects/chirality-piping/execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-08_Layered software test and acceptance strategy",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "ARCHITECTURE_BASIS_REFERENCE",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-013"
+    ],
+    "ScopeItems": [
+      "SOW-063"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-01-01",
+    "PackageID": "PKG-01",
+    "Folder": "projects/chirality-piping/execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-01_Project governance baseline",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "ISSUED",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-001",
+      "OBJ-002"
+    ],
+    "ScopeItems": [
+      "SOW-001",
+      "SOW-048"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-01-02",
+    "PackageID": "PKG-01",
+    "Folder": "projects/chirality-piping/execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-02_Copyright and protected-data boundary policy",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-002"
+    ],
+    "ScopeItems": [
+      "SOW-003",
+      "SOW-028"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-01-03",
+    "PackageID": "PKG-01",
+    "Folder": "projects/chirality-piping/execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-03_Contributor certification workflow",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-002"
+    ],
+    "ScopeItems": [
+      "SOW-028",
+      "SOW-048"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-01-04",
+    "PackageID": "PKG-01",
+    "Folder": "projects/chirality-piping/execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-04_Professional responsibility and product-claims policy",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-011",
+      "OBJ-018"
+    ],
+    "ScopeItems": [
+      "SOW-034",
+      "SOW-064"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-02-01",
+    "PackageID": "PKG-02",
+    "Folder": "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-01_Canonical domain model schema",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-001",
+      "OBJ-012",
+      "OBJ-014"
+    ],
+    "ScopeItems": [
+      "SOW-041",
+      "SOW-065"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-02-02",
+    "PackageID": "PKG-02",
+    "Folder": "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-02_Unit system and dimensional-analysis core contract",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-001",
+      "OBJ-012"
+    ],
+    "ScopeItems": [
+      "SOW-025"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-02-03",
+    "PackageID": "PKG-02",
+    "Folder": "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-03_Code-neutral analysis boundary model",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-001",
+      "OBJ-011"
+    ],
+    "ScopeItems": [
+      "SOW-002"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-02-04",
+    "PackageID": "PKG-02",
+    "Folder": "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-04_Plugin and extension domain contracts",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-009"
+    ],
+    "ScopeItems": [
+      "SOW-038"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-02-05",
+    "PackageID": "PKG-02",
+    "Folder": "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-05_Project persistence and round-trip serialization",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-001",
+      "OBJ-012"
+    ],
+    "ScopeItems": [
+      "SOW-041",
+      "SOW-050"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-03-01",
+    "PackageID": "PKG-03",
+    "Folder": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-01_Material library schema with provenance",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-004"
+    ],
+    "ScopeItems": [
+      "SOW-017"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-03-02",
+    "PackageID": "PKG-03",
+    "Folder": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-02_Pipe section and component library schema",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-004"
+    ],
+    "ScopeItems": [
+      "SOW-018"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-03-03",
+    "PackageID": "PKG-03",
+    "Folder": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-03_Bend and elbow component model fields",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-004"
+    ],
+    "ScopeItems": [
+      "SOW-007"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-03-04",
+    "PackageID": "PKG-03",
+    "Folder": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-04_Branch connection component model fields",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-004"
+    ],
+    "ScopeItems": [
+      "SOW-008"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-03-05",
+    "PackageID": "PKG-03",
+    "Folder": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-05_Rigid component models for valves, flanges, reducers, and specialty items",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-004"
+    ],
+    "ScopeItems": [
+      "SOW-009"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-03-06",
+    "PackageID": "PKG-03",
+    "Folder": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-06_Expansion joint component model",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-004"
+    ],
+    "ScopeItems": [
+      "SOW-010"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-03-07",
+    "PackageID": "PKG-03",
+    "Folder": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-002",
+      "OBJ-004"
+    ],
+    "ScopeItems": [
+      "SOW-019",
+      "SOW-044"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-03-08",
+    "PackageID": "PKG-03",
+    "Folder": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-08_Pipe section property and mass-property calculator",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-004",
+      "OBJ-012"
+    ],
+    "ScopeItems": [
+      "SOW-018",
+      "SOW-051"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-04-01",
+    "PackageID": "PKG-04",
+    "Folder": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-003"
+    ],
+    "ScopeItems": [
+      "SOW-005",
+      "SOW-035"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-04-02",
+    "PackageID": "PKG-04",
+    "Folder": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-003"
+    ],
+    "ScopeItems": [
+      "SOW-006"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-04-03",
+    "PackageID": "PKG-04",
+    "Folder": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-03_Linear support and restraint models",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-003"
+    ],
+    "ScopeItems": [
+      "SOW-011"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-04-04",
+    "PackageID": "PKG-04",
+    "Folder": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-003"
+    ],
+    "ScopeItems": [
+      "SOW-012"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-04-05",
+    "PackageID": "PKG-04",
+    "Folder": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-05_Sparse solver performance harness",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-003",
+      "OBJ-008"
+    ],
+    "ScopeItems": [
+      "SOW-035"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-04-06",
+    "PackageID": "PKG-04",
+    "Folder": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-003",
+      "OBJ-008",
+      "OBJ-012"
+    ],
+    "ScopeItems": [
+      "SOW-035",
+      "SOW-053"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-05-01",
+    "PackageID": "PKG-05",
+    "Folder": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-003"
+    ],
+    "ScopeItems": [
+      "SOW-013"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-05-02",
+    "PackageID": "PKG-05",
+    "Folder": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-02_Load-case algebra engine",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-003",
+      "OBJ-005"
+    ],
+    "ScopeItems": [
+      "SOW-014"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-05-03",
+    "PackageID": "PKG-05",
+    "Folder": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-003"
+    ],
+    "ScopeItems": [
+      "SOW-015"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-05-04",
+    "PackageID": "PKG-05",
+    "Folder": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-04_Analysis status semantics",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-005",
+      "OBJ-011"
+    ],
+    "ScopeItems": [
+      "SOW-047"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-05-05",
+    "PackageID": "PKG-05",
+    "Folder": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-05_Concentrated and distributed user load application",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-003",
+      "OBJ-012"
+    ],
+    "ScopeItems": [
+      "SOW-013",
+      "SOW-052"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-06-01",
+    "PackageID": "PKG-06",
+    "Folder": "projects/chirality-piping/execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-01_Rule-pack schema",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-005"
+    ],
+    "ScopeItems": [
+      "SOW-016",
+      "SOW-042"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-06-02",
+    "PackageID": "PKG-06",
+    "Folder": "projects/chirality-piping/execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-02_Sandboxed unit-aware expression evaluator",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-005"
+    ],
+    "ScopeItems": [
+      "SOW-045"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-06-03",
+    "PackageID": "PKG-06",
+    "Folder": "projects/chirality-piping/execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-03_Required-input completeness checker",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-002",
+      "OBJ-005"
+    ],
+    "ScopeItems": [
+      "SOW-004"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-06-04",
+    "PackageID": "PKG-06",
+    "Folder": "projects/chirality-piping/execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-04_Private rule-pack lifecycle and checksum handling",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-002",
+      "OBJ-005"
+    ],
+    "ScopeItems": [
+      "SOW-042"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-06-05",
+    "PackageID": "PKG-06",
+    "Folder": "projects/chirality-piping/execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-05_Invented non-code example rule pack",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-005",
+      "OBJ-011"
+    ],
+    "ScopeItems": [
+      "SOW-016"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-07-01",
+    "PackageID": "PKG-07",
+    "Folder": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-006"
+    ],
+    "ScopeItems": [
+      "SOW-020",
+      "SOW-077"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-07-02",
+    "PackageID": "PKG-07",
+    "Folder": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-006"
+    ],
+    "ScopeItems": [
+      "SOW-020",
+      "SOW-021",
+      "SOW-077"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-07-03",
+    "PackageID": "PKG-07",
+    "Folder": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-006"
+    ],
+    "ScopeItems": [
+      "SOW-021",
+      "SOW-077"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-07-04",
+    "PackageID": "PKG-07",
+    "Folder": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-006",
+      "OBJ-011"
+    ],
+    "ScopeItems": [
+      "SOW-022"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-07-05",
+    "PackageID": "PKG-07",
+    "Folder": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-006",
+      "OBJ-007"
+    ],
+    "ScopeItems": [
+      "SOW-023"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-07-06",
+    "PackageID": "PKG-07",
+    "Folder": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-006"
+    ],
+    "ScopeItems": [
+      "SOW-036"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-07-07",
+    "PackageID": "PKG-07",
+    "Folder": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-006",
+      "OBJ-007"
+    ],
+    "ScopeItems": [
+      "SOW-055"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-08-01",
+    "PackageID": "PKG-08",
+    "Folder": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-01_Calculation report generator",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-007"
+    ],
+    "ScopeItems": [
+      "SOW-024"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-08-02",
+    "PackageID": "PKG-08",
+    "Folder": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-02_Audit manifest and model hash",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-007",
+      "OBJ-012"
+    ],
+    "ScopeItems": [
+      "SOW-039"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-08-03",
+    "PackageID": "PKG-08",
+    "Folder": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-03_Warnings, assumptions, and provenance report section",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-007",
+      "OBJ-011"
+    ],
+    "ScopeItems": [
+      "SOW-024"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-08-04",
+    "PackageID": "PKG-08",
+    "Folder": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-007",
+      "OBJ-009"
+    ],
+    "ScopeItems": [
+      "SOW-046"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-08-05",
+    "PackageID": "PKG-08",
+    "Folder": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-05_Report protected-content linter",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-002",
+      "OBJ-007"
+    ],
+    "ScopeItems": [
+      "SOW-043"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-09-01",
+    "PackageID": "PKG-09",
+    "Folder": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-008"
+    ],
+    "ScopeItems": [
+      "SOW-026"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-09-02",
+    "PackageID": "PKG-09",
+    "Folder": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-02_Stress recovery benchmark suite",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-008"
+    ],
+    "ScopeItems": [
+      "SOW-026"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-09-03",
+    "PackageID": "PKG-09",
+    "Folder": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-008"
+    ],
+    "ScopeItems": [
+      "SOW-026"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-09-04",
+    "PackageID": "PKG-09",
+    "Folder": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-008",
+      "OBJ-011"
+    ],
+    "ScopeItems": [
+      "SOW-027"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-09-05",
+    "PackageID": "PKG-09",
+    "Folder": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-05_Release quality gate checklist",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-008"
+    ],
+    "ScopeItems": [
+      "SOW-026",
+      "SOW-027"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-10-01",
+    "PackageID": "PKG-10",
+    "Folder": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-01_Public API and plugin boundary",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-009"
+    ],
+    "ScopeItems": [
+      "SOW-030"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-10-02",
+    "PackageID": "PKG-10",
+    "Folder": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-02_Import-export adapter framework",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-009"
+    ],
+    "ScopeItems": [
+      "SOW-030"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-10-03",
+    "PackageID": "PKG-10",
+    "Folder": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-03_Local FEA handoff data contract",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-009"
+    ],
+    "ScopeItems": [
+      "SOW-031",
+      "SOW-049"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-10-04",
+    "PackageID": "PKG-10",
+    "Folder": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-04_Build, packaging, and CI-CD pipeline",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-008",
+      "OBJ-009"
+    ],
+    "ScopeItems": [
+      "SOW-032"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-10-05",
+    "PackageID": "PKG-10",
+    "Folder": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-05_Headless CLI and structured I-O analysis runner",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-008",
+      "OBJ-009",
+      "OBJ-012"
+    ],
+    "ScopeItems": [
+      "SOW-032",
+      "SOW-054"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-11-01",
+    "PackageID": "PKG-11",
+    "Folder": "projects/chirality-piping/execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-01_User guide skeleton",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-001",
+      "OBJ-011"
+    ],
+    "ScopeItems": [
+      "SOW-033"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-11-02",
+    "PackageID": "PKG-11",
+    "Folder": "projects/chirality-piping/execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-02_Developer guide for solver and rule packs",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-001",
+      "OBJ-002"
+    ],
+    "ScopeItems": [
+      "SOW-033"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-11-03",
+    "PackageID": "PKG-11",
+    "Folder": "projects/chirality-piping/execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-03_Theory notes- classical to modern centerline analysis",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-001",
+      "OBJ-003"
+    ],
+    "ScopeItems": [
+      "SOW-033"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-11-04",
+    "PackageID": "PKG-11",
+    "Folder": "projects/chirality-piping/execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-04_Invented educational example models",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-001",
+      "OBJ-008"
+    ],
+    "ScopeItems": [
+      "SOW-033"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-11-05",
+    "PackageID": "PKG-11",
+    "Folder": "projects/chirality-piping/execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-05_Contributor tutorial and onboarding",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-001",
+      "OBJ-002"
+    ],
+    "ScopeItems": [
+      "SOW-033"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-12-01",
+    "PackageID": "PKG-12",
+    "Folder": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-01_Local-first storage and private data paths",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-010"
+    ],
+    "ScopeItems": [
+      "SOW-029"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-12-02",
+    "PackageID": "PKG-12",
+    "Folder": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-02_Private data redaction and export controls",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-010"
+    ],
+    "ScopeItems": [
+      "SOW-040"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-12-03",
+    "PackageID": "PKG-12",
+    "Folder": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-03_Telemetry off-by-default design",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-010"
+    ],
+    "ScopeItems": [
+      "SOW-037"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-12-04",
+    "PackageID": "PKG-12",
+    "Folder": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-04_Secret and private-library handling",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-010"
+    ],
+    "ScopeItems": [
+      "SOW-029",
+      "SOW-040"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-12-05",
+    "PackageID": "PKG-12",
+    "Folder": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-05_Security threat model",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-010"
+    ],
+    "ScopeItems": [
+      "SOW-040"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-07-08",
+    "PackageID": "PKG-07",
+    "Folder": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-015",
+      "OBJ-016"
+    ],
+    "ScopeItems": [
+      "SOW-076"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-08-06",
+    "PackageID": "PKG-08",
+    "Folder": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-06_State, comparison, and handoff report sections",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-007",
+      "OBJ-016",
+      "OBJ-017",
+      "OBJ-018"
+    ],
+    "ScopeItems": [
+      "SOW-024"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-13-01",
+    "PackageID": "PKG-13",
+    "Folder": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-01_Design knowledge schema and provenance model",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-014"
+    ],
+    "ScopeItems": [
+      "SOW-067"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-13-02",
+    "PackageID": "PKG-13",
+    "Folder": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-02_Constraint entity and provenance model",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-014",
+      "OBJ-018"
+    ],
+    "ScopeItems": [
+      "SOW-067",
+      "SOW-068"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-13-03",
+    "PackageID": "PKG-13",
+    "Folder": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-03_Constraint validation engine",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-014"
+    ],
+    "ScopeItems": [
+      "SOW-068"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-13-04",
+    "PackageID": "PKG-13",
+    "Folder": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-014"
+    ],
+    "ScopeItems": [
+      "SOW-066"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-14-01",
+    "PackageID": "PKG-14",
+    "Folder": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-01_Immutable model state records",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-016"
+    ],
+    "ScopeItems": [
+      "SOW-071"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-14-02",
+    "PackageID": "PKG-14",
+    "Folder": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-016"
+    ],
+    "ScopeItems": [
+      "SOW-072"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-14-03",
+    "PackageID": "PKG-14",
+    "Folder": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-03_Model-state comparison engine",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-016"
+    ],
+    "ScopeItems": [
+      "SOW-071",
+      "SOW-073"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-14-04",
+    "PackageID": "PKG-14",
+    "Folder": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-04_Analysis-run comparison engine",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-016"
+    ],
+    "ScopeItems": [
+      "SOW-072",
+      "SOW-073"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-14-05",
+    "PackageID": "PKG-14",
+    "Folder": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-05_Comparison mapping, tolerance, and export contracts",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-016"
+    ],
+    "ScopeItems": [
+      "SOW-073"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-15-01",
+    "PackageID": "PKG-15",
+    "Folder": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-01_Canonical handoff package schema and manifest",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-017"
+    ],
+    "ScopeItems": [
+      "SOW-074"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-15-02",
+    "PackageID": "PKG-15",
+    "Folder": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-02_Target mapping and unsupported-behavior contract",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-017"
+    ],
+    "ScopeItems": [
+      "SOW-074"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-15-03",
+    "PackageID": "PKG-15",
+    "Folder": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-03_Downstream modeling export workflow",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-017"
+    ],
+    "ScopeItems": [
+      "SOW-074"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-15-04",
+    "PackageID": "PKG-15",
+    "Folder": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-04_External prover boundary metadata",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-017",
+      "OBJ-018"
+    ],
+    "ScopeItems": [
+      "SOW-075"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-16-01",
+    "PackageID": "PKG-16",
+    "Folder": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-01_Structured model operation schema",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-015"
+    ],
+    "ScopeItems": [
+      "SOW-069"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-16-02",
+    "PackageID": "PKG-16",
+    "Folder": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-015"
+    ],
+    "ScopeItems": [
+      "SOW-069"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-16-03",
+    "PackageID": "PKG-16",
+    "Folder": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-015"
+    ],
+    "ScopeItems": [
+      "SOW-069",
+      "SOW-070"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-16-04",
+    "PackageID": "PKG-16",
+    "Folder": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-04_Agent rationale and professional-boundary controls",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-015",
+      "OBJ-018"
+    ],
+    "ScopeItems": [
+      "SOW-070"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-17-01",
+    "PackageID": "PKG-17",
+    "Folder": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-01_CAEPIPE and export-format source basis",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-009",
+      "OBJ-017",
+      "OBJ-018"
+    ],
+    "ScopeItems": [
+      "SOW-030",
+      "SOW-074",
+      "SOW-075"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-17-02",
+    "PackageID": "PKG-17",
+    "Folder": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-02_Export package, profile, and stable ID map contracts",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-009",
+      "OBJ-017"
+    ],
+    "ScopeItems": [
+      "SOW-030",
+      "SOW-074"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-17-03",
+    "PackageID": "PKG-17",
+    "Folder": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-03_Native open JSON export package",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-009",
+      "OBJ-017"
+    ],
+    "ScopeItems": [
+      "SOW-030",
+      "SOW-074"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-17-04",
+    "PackageID": "PKG-17",
+    "Folder": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-04_CAEPIPE MBF export profile and deterministic writer",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-009",
+      "OBJ-017",
+      "OBJ-018"
+    ],
+    "ScopeItems": [
+      "SOW-030",
+      "SOW-074",
+      "SOW-075"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-17-05",
+    "PackageID": "PKG-17",
+    "Folder": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-05_CAEPIPE external run harness and CSV parser",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-007",
+      "OBJ-009",
+      "OBJ-017",
+      "OBJ-018"
+    ],
+    "ScopeItems": [
+      "SOW-030",
+      "SOW-046",
+      "SOW-075"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-17-06",
+    "PackageID": "PKG-17",
+    "Folder": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-06_Stress-neutral CSV JSON package",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-007",
+      "OBJ-017",
+      "OBJ-018"
+    ],
+    "ScopeItems": [
+      "SOW-046",
+      "SOW-074"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-17-07",
+    "PackageID": "PKG-17",
+    "Folder": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-07_Conservative PCF subset exporter",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-009",
+      "OBJ-017",
+      "OBJ-018"
+    ],
+    "ScopeItems": [
+      "SOW-030",
+      "SOW-074"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-17-08",
+    "PackageID": "PKG-17",
+    "Folder": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-08_GLB glTF review geometry export",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-009",
+      "OBJ-017"
+    ],
+    "ScopeItems": [
+      "SOW-030",
+      "SOW-074"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-17-09",
+    "PackageID": "PKG-17",
+    "Folder": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-09_Export adapter SDK and additional targets",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "IN_PROGRESS",
+    "MemoryPresent": true,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-009",
+      "OBJ-017",
+      "OBJ-018"
+    ],
+    "ScopeItems": [
+      "SOW-030",
+      "SOW-074",
+      "SOW-075"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-07-09",
+    "PackageID": "PKG-07",
+    "Folder": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "OPEN",
+    "MemoryPresent": false,
+    "CoreContract": "ACCEPTED_OPEN_CUSTOM_CONTRACT",
+    "CoreArtifactFound": 3,
+    "CoreArtifactExpected": 3,
+    "Objectives": [
+      "OBJ-006",
+      "OBJ-015"
+    ],
+    "ScopeItems": [
+      "SOW-077"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-04-07",
+    "PackageID": "PKG-04",
+    "Folder": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "OPEN",
+    "MemoryPresent": false,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-003",
+      "OBJ-012"
+    ],
+    "ScopeItems": [
+      "SOW-005",
+      "SOW-011",
+      "SOW-012",
+      "SOW-052",
+      "SOW-053"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-07-11",
+    "PackageID": "PKG-07",
+    "Folder": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "OPEN",
+    "MemoryPresent": false,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-006",
+      "OBJ-010",
+      "OBJ-015"
+    ],
+    "ScopeItems": [
+      "SOW-078"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-07-12",
+    "PackageID": "PKG-07",
+    "Folder": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "OPEN",
+    "MemoryPresent": false,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-006",
+      "OBJ-007",
+      "OBJ-018"
+    ],
+    "ScopeItems": [
+      "SOW-079"
+    ]
+  },
+  {
+    "DeliverableID": "DEL-16-06",
+    "PackageID": "PKG-16",
+    "Folder": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application",
+    "ContextMatch": "MATCH",
+    "LifecycleState": "OPEN",
+    "MemoryPresent": false,
+    "CoreContract": "SOW_V1",
+    "CoreArtifactFound": 1,
+    "CoreArtifactExpected": 1,
+    "Objectives": [
+      "OBJ-015"
+    ],
+    "ScopeItems": [
+      "SOW-069",
+      "SOW-070"
+    ]
+  }
+]

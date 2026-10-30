@@ -1,0 +1,30 @@
+{
+  "python": "3.13.7 (v3.13.7:bcee1c32211, Aug 14 2025, 19:10:51) [Clang 16.0.0 (clang-1600.0.26.6)]",
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "raw_check_count": 29,
+  "failed_raw_checks": [],
+  "matrix_rows": 106,
+  "artifact_sha256": {
+    "register_validation.txt": "96ed741c228f790427a834cdf4c527a2da93ba08c753be7abc33105b79d321c8",
+    "audit_poststate.py": "27bd7086a5f59adaf9602dd718734d2c7cfcf504ba4b0da4921d6b4d4c554c68",
+    "SOURCES.json": "14aeb9662dae8975d97c50d985e6ab05faeef6060a1a1424883a34e62917b501",
+    "register_validation.json": "19122e7d34714f12e106ce1bc023572a73aa05a392ce9e4dd7fb00d3a0698e8d",
+    "artifact_inventory.json": "d0caf98df3eb825d86818b8e622e90fc9a0136085f28e416f5541158fc2c92bd",
+    "RUN_SUMMARY.md": "f0c3460420300d8e212403c09c5d7e3c299add3225df64c38538f5d28312a5c9",
+    "Decomp_Coverage_IssueLog.csv": "ffc7fce11c94622ccfa1757cab0c37345b010f4528aec830e5feffbcedda4748",
+    "Decomp_Coverage_Matrix.csv": "4929303733222ab4a8799d2f95ff09064f4cea5fc226b6d43b5ae75c7ba98322",
+    "Decomp_Coverage_Report.md": "2be80a5837f88477a7ef5889b320502498fa6ea0bf059f13fed68d332565b764",
+    "audit_stdout.json.txt": "e5e421827eb2a5ef685894a7362a5882148051a00c6fc3d41aab393552ec66f1",
+    "sow_validation.json": "d048531d2971e629e39866041eea9f65ab6eb7092b0b19cb3c64891df2fb4c2e",
+    "Decision_Log.md": "89d8724c523c2a6a71606c74614a9f9e542a7e20696ef99328597038d71d85c6",
+    "raw_checks.json": "278de97b93fdbd0c2da00df0d20d99e89a7ab0759cedacbbf78b43e01c98eaef",
+    "inventory.json": "4dbbbd37fdbbfadef196ddeb820ce5fca497c22d7b03726ba4e2c7aa09305963",
+    "Brief.md": "bc80506a1ea237691eef8baa077909041bf55238c54a181e564ab565805dfd42",
+    "register_comparison.json": "0c0bc66ff0c965916b954f0916ec7f00ff286708c3b4b260c6c9ab741a72042b",
+    "coverage_summary.json": "b09b74e6a4e2ddbc3e5732233766fbd397a44872e4b0520480f17fa83d0ced89",
+    "QA_Report.md": "b885a5e03df36c005e195cdd4b2fbe3eb4eb307776cf5e4971a58200140815ad",
+    "assemble_report.py": "cd8f33dcc032cc6c6154ccf131af05c3ad509624cfecd60729ff8c453d56237c"
+  },
+  "binding_refresh_artifact": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/postchange_audit/downstream_count_disclosure_refresh/BINDING_REFRESH.json",
+  "binding_refresh_sha256": "342519d195f4bcbd7dc25ab3cc3a0e9e406ecfdd6e0bf0bc5b0e2c86107339a2"
+}

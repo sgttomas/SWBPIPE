@@ -1,0 +1,153 @@
+{
+  "artifact": "openpipestress.evidence_sweep_summary",
+  "schema_version": 2,
+  "decision_basis": "DEC-025",
+  "boundary_note": "Local-only development evidence. Not a release claim, professional approval, certification, sealing, authentication, or code-compliance determination.",
+  "git": {
+    "commit_hash": "0da28bd79613eb239af66d585362b66c4bde0808",
+    "branch": "main",
+    "status_capture_failed": false,
+    "working_tree_dirty": true,
+    "dirty_paths": [
+      "domains/chirality/_Decomposition/Chirality_Domain_Decomposition.md",
+      "domains/chirality/_Decomposition/Companion_Inventory.csv",
+      "domains/chirality/_Decomposition/Intake_Telemetry.csv",
+      "domains/chirality/_Decomposition/Intake_Telemetry.json",
+      "domains/chirality/_Decomposition/Open_Issues_Register.csv",
+      "domains/chirality/_Decomposition/Source_Decomp_Prefix_Map.csv",
+      "domains/chirality/_Decomposition/Validation_Checks.csv",
+      "domains/chirality/_Decomposition/source_asset_manifests/",
+      "domains/chirality/_Decomposition/source_dispatch_plans/",
+      "domains/chirality/_Decomposition/source_review_html/",
+      "domains/chirality/_Decomposition/source_section_nodes/",
+      "domains/chirality/_Decomposition/source_skeletons/",
+      "domains/chirality/_Sources/Source_Manifest.csv",
+      "init/NEXT_SESSION_PROMPT.md",
+      "init/init-prompt.md",
+      "projects/chirality-piping/init/NEXT_SESSION_PROMPT.md",
+      "projects/chirality-piping/init/init-prompt.md",
+      "tools/decomp/build_manifest_domain_adapter.py"
+    ]
+  },
+  "runtime": {
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.7",
+    "node": "v24.5.0",
+    "npm": "11.5.2",
+    "cargo": "cargo 1.92.0 (344c4567c 2025-10-21)",
+    "rustc": "rustc 1.92.0 (ded5c06cf 2025-12-08)"
+  },
+  "started_utc": "2026-06-14T00:48:23+00:00",
+  "finished_utc": "2026-06-14T00:49:35+00:00",
+  "duration_seconds": 71.779,
+  "surfaces": [
+    {
+      "order": 1,
+      "surface_id": "cargo_crate_sweep",
+      "description": "Rust crate tests across all discovered crate manifests.",
+      "commands": [
+        {
+          "argv": [
+            "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+            "tools/release/check_release_readiness.py",
+            "--profile",
+            "cargo",
+            "--execute"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 4.186
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "order": 2,
+      "surface_id": "python_pytest",
+      "description": "Repository Python contract, governance, and validation tests.",
+      "commands": [
+        {
+          "argv": [
+            "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+            "-m",
+            "pytest",
+            "-q",
+            "tests"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 6.886
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "order": 3,
+      "surface_id": "desktop_vitest",
+      "description": "Desktop unit/contract tests; wasm engine built first.",
+      "commands": [
+        {
+          "argv": [
+            "npm",
+            "run",
+            "build:wasm:desktop"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 0.443
+        },
+        {
+          "argv": [
+            "npm",
+            "run",
+            "test:desktop"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 21.834
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "order": 4,
+      "surface_id": "desktop_playwright_e2e",
+      "description": "Playwright end-to-end smoke in a real Chrome browser: dev-server lane, then production-dist lane via vite preview (TP-APP-R2-WASMPKG-001).",
+      "commands": [
+        {
+          "argv": [
+            "npm",
+            "run",
+            "test:e2e:desktop"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 21.71
+        },
+        {
+          "argv": [
+            "npm",
+            "run",
+            "test:e2e:dist:desktop"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 10.313
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "order": 5,
+      "surface_id": "desktop_production_build",
+      "description": "Desktop production build (tsc -b && vite build).",
+      "commands": [
+        {
+          "argv": [
+            "npm",
+            "run",
+            "build:desktop"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 6.406
+        }
+      ],
+      "status": "pass"
+    }
+  ],
+  "overall_status": "pass"
+}

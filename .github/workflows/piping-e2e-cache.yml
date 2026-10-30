@@ -1,0 +1,41 @@
+name: Piping E2E dependency cache
+
+# Prepare reusable main-scope dependencies without running another test suite.
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/piping-e2e-cache.yml
+      - .github/actions/setup-piping-e2e/action.yml
+      - package.json
+      - package-lock.json
+      - apps/desktop/package.json
+      - apps/desktop/scripts/build-wasm-engine.mjs
+      - core/model_operations/operation_applier/Cargo.lock
+      - core/loads/self_weight_wasm/Cargo.lock
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: piping-e2e-dependency-cache-main
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    # The public source projection omits the internal Piping workspace.
+    if: github.repository == 'sgttomas/SWBPIPE' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            /*
+            !/execution/
+            !/execution/
+          sparse-checkout-cone-mode: false
+      - name: Populate pinned Piping E2E dependency caches
+        uses: ./.github/actions/setup-piping-e2e

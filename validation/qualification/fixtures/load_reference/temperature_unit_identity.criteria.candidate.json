@@ -1,0 +1,25 @@
+{
+  "schema_version": "0.1.0",
+  "tolerance_profile": {
+    "profile_id": "load-reference-vp-static-temperature_unit_identity-v1",
+    "profile_status": "reviewed",
+    "scope": "This case only. Comparison rules proposed per assertion family from the reference README consumer rule and admitted after the independent freeze named in ADMISSION.json; not a release criterion.",
+    "rules": [
+      {
+        "rule_id": "criterion:load_reference_temperature:temperature:K:relative_1e-9",
+        "dimension_id": "temperature",
+        "result_family": "load_reference_temperature",
+        "unit_ref": {
+          "ref_type": "unit",
+          "ref": "K"
+        },
+        "normalization_basis": "same_unit_required",
+        "tolerance_value_status": "project_specific_review_required",
+        "review": "reviewed in the independent WP6 freeze named in ADMISSION.json (verdict FREEZE, admit as changed); admitted as a project-specific development criterion, not a release criterion",
+        "relative_tolerance_value": 1e-09,
+        "absolute_tolerance_value": 0.0,
+        "provenance": "reference_cases.json README consumer rule: |observed - expected| <= 1e-9*|expected| (existing protected relative criterion); no new or relaxed threshold"
+      }
+    ]
+  }
+}

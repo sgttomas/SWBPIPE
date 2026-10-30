@@ -1,0 +1,21 @@
+{
+  "basis": "2fabfcda85bbb7f89f17c2365d8046e025bcf292",
+  "status": "historical snapshot; not active instructions",
+  "files": [
+    {
+      "source": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "snapshot": "loop_LOOP_INIT.pre-clarification.md",
+      "sha256": "2ad6d398c6631bd144fd891330bd55f736d5d955793d1b03e8b7f9f8065bf3da"
+    },
+    {
+      "source": "projects/chirality-piping/init/dev-loop-init-prompt.md",
+      "snapshot": "init_dev-loop-init-prompt.pre-clarification.md",
+      "sha256": "275ca09aed3681cec4871b80c6bcb23c85ef30c4d9d54c3fa7501757bd686d92"
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.json",
+      "snapshot": "UI_WORK_GRAPH.pre-clarification.json",
+      "sha256": "ab77092154271801623cdd5e7daa6403cb5e39f2bf57f74a89e94d3e13100cf9"
+    }
+  ]
+}

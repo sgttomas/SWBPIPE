@@ -1,0 +1,262 @@
+{
+  "model": {
+    "document_kind": "openpipestress.product_preview.model",
+    "schema_version": "0.4.0",
+    "diagnostics": [],
+    "analysis_status": {
+      "mechanics": "ready_for_preview_diagnostics",
+      "professional_acceptance": "not_provided",
+      "rule_check": "not_performed_user_rule_inputs_missing"
+    },
+    "data_boundary": {
+      "private_data_policy": "no_private_project_data",
+      "professional_boundary": "technical_preview_requires_human_engineering_review",
+      "protected_source_policy": "no_bundled_protected_owner_or_standards_data",
+      "public_examples_policy": "invented_or_cleared_data_only"
+    },
+    "project": {
+      "id": "synthetic:load-reference-join",
+      "name": "Invented join control",
+      "units": {
+        "length": "m",
+        "force": "N",
+        "angle": "rad",
+        "pressure": "Pa",
+        "stress": "Pa",
+        "temperature": "degC"
+      }
+    },
+    "pressure_contract": {
+      "version": "2.0.0",
+      "mode": "exact_straight_pressure_v2"
+    },
+    "nodes": [
+      {
+        "id": "root",
+        "position": {
+          "x": 5000000.0,
+          "y": 7300000.0,
+          "z": 1200000.0
+        },
+        "provenance": "invented KD5 rigid thermal L"
+      },
+      {
+        "id": "tip",
+        "position": {
+          "x": 5000003.0,
+          "y": 7300004.0,
+          "z": 1200005.0
+        },
+        "provenance": "invented KD5 rigid thermal L"
+      },
+      {
+        "id": "free",
+        "position": {
+          "x": 4999999.0,
+          "y": 7300007.0,
+          "z": 1200005.0
+        },
+        "provenance": "invented KD5 rigid thermal L"
+      }
+    ],
+    "pipe_segments": [
+      {
+        "id": "member",
+        "from": "root",
+        "to": "tip",
+        "material": "material",
+        "section": {
+          "outside_diameter": {
+            "value": 0.2,
+            "unit": "m"
+          },
+          "wall_thickness": {
+            "value": 0.01,
+            "unit": "m"
+          }
+        },
+        "y_reference": {
+          "x": 0.3,
+          "y": 0.1,
+          "z": 1.0
+        },
+        "provenance": "invented_load_reference_source_companion_not_library_data"
+      },
+      {
+        "id": "member2",
+        "from": "tip",
+        "to": "free",
+        "material": "material",
+        "section": {
+          "outside_diameter": {
+            "value": 0.2,
+            "unit": "m"
+          },
+          "wall_thickness": {
+            "value": 0.01,
+            "unit": "m"
+          }
+        },
+        "y_reference": {
+          "x": 0.3,
+          "y": 0.1,
+          "z": 1.0
+        },
+        "provenance": "invented_load_reference_source_companion_not_library_data"
+      }
+    ],
+    "materials": [
+      {
+        "id": "material",
+        "provenance": "invented_load_reference_source_companion_not_library_data",
+        "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+        "elastic_modulus": {
+          "value": 200000000000.0,
+          "unit": "Pa"
+        },
+        "poisson_ratio": {
+          "value": 0.25,
+          "unit": "1"
+        }
+      }
+    ],
+    "supports": [
+      {
+        "id": "anchor",
+        "node": "root",
+        "family": "anchor",
+        "restraints": [
+          "UX",
+          "UY",
+          "UZ",
+          "RX",
+          "RY",
+          "RZ"
+        ],
+        "provenance": "invented_load_reference_source_companion_not_library_data"
+      }
+    ],
+    "reference_configurations": [
+      {
+        "id": "reference:join",
+        "geometry_ref": {
+          "kind": "authored_model_geometry"
+        },
+        "member_references": [
+          {
+            "pipe_ref": "member",
+            "basis": {
+              "kind": "direct_strain_reference"
+            },
+            "fit": {
+              "kind": "none"
+            },
+            "provenance": "invented KD5 rigid thermal L"
+          },
+          {
+            "pipe_ref": "member2",
+            "basis": {
+              "kind": "direct_strain_reference"
+            },
+            "fit": {
+              "kind": "none"
+            },
+            "provenance": "invented KD5 rigid thermal L"
+          }
+        ],
+        "provenance": "invented_load_reference_source_companion_not_library_data"
+      }
+    ],
+    "load_cases": [
+      {
+        "id": "case:join",
+        "kind": "primitive_user_load",
+        "status": "user_entered",
+        "provenance": "invented_load_reference_source_companion_not_library_data",
+        "primitive_loads": [],
+        "pressure_regions": [],
+        "analysis_state": {
+          "contract": "openpipestress.load_reference_state/1.0.0",
+          "reference_configuration_ref": "reference:join",
+          "element_states": [
+            {
+              "pipe_ref": "member",
+              "material_selection": {
+                "kind": "explicit_base_properties",
+                "material_ref": "material",
+                "applicability_reference": "invented KD5 reference"
+              },
+              "thermal_state": {
+                "kind": "explicit_interval_strain",
+                "strain": {
+                  "value": 0.00012,
+                  "unit": "1"
+                },
+                "interval_reference": "invented thermal interval",
+                "provenance": "invented KD5 reference"
+              }
+            },
+            {
+              "pipe_ref": "member2",
+              "material_selection": {
+                "kind": "explicit_base_properties",
+                "material_ref": "material",
+                "applicability_reference": "invented KD5 reference"
+              },
+              "thermal_state": {
+                "kind": "explicit_interval_strain",
+                "strain": {
+                  "value": 0.00012,
+                  "unit": "1"
+                },
+                "interval_reference": "invented thermal interval",
+                "provenance": "invented KD5 reference"
+              }
+            }
+          ],
+          "support_states": [
+            {
+              "support_ref": "anchor",
+              "participation": {
+                "kind": "active_model_device"
+              },
+              "boundary_motion": [
+                {
+                  "dof": "RX",
+                  "value": {
+                    "value": 0.01,
+                    "unit": "rad"
+                  },
+                  "meaning": "absolute_reference_displacement"
+                },
+                {
+                  "dof": "RY",
+                  "value": {
+                    "value": -0.005,
+                    "unit": "rad"
+                  },
+                  "meaning": "absolute_reference_displacement"
+                },
+                {
+                  "dof": "RZ",
+                  "value": {
+                    "value": 0.007,
+                    "unit": "rad"
+                  },
+                  "meaning": "absolute_reference_displacement"
+                }
+              ]
+            }
+          ],
+          "load_sources": [],
+          "history": {
+            "kind": "independent_equilibrium"
+          },
+          "provenance": "invented_load_reference_source_companion_not_library_data"
+        }
+      }
+    ],
+    "combinations": [],
+    "components": []
+  }
+}

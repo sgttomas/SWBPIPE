@@ -1,0 +1,1216 @@
+{
+  "artifact": "openpipestress.coverage_telemetry",
+  "schema_version": 1,
+  "decision_basis": "DEC-060",
+  "boundary_note": "Local-only opt-in coverage telemetry per DEC-060: recorded, never blocking; no numeric floor exists. Not a release claim, professional approval, certification, sealing, authentication, or code-compliance determination.",
+  "git": {
+    "commit_hash": "e9cd806811b3725de9de4ba1bbb948b989921dfb",
+    "branch": "claude/piping-e8-coverage-telemetry",
+    "status_capture_failed": false,
+    "working_tree_dirty": false,
+    "dirty_paths": []
+  },
+  "runtime": {
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.7",
+    "node": "v24.5.0",
+    "npm": "11.5.2",
+    "cargo": "cargo 1.92.0 (344c4567c 2025-10-21)",
+    "rustc": "rustc 1.92.0 (ded5c06cf 2025-12-08)"
+  },
+  "started_utc": "2026-07-10T23:26:06+00:00",
+  "finished_utc": "2026-07-10T23:28:18+00:00",
+  "duration_seconds": 132.088,
+  "lanes": [
+    {
+      "lane_id": "cargo_llvm_cov",
+      "tool": "cargo-llvm-cov",
+      "description": "Rust line/function/region coverage per discovered crate manifest via host-installed cargo llvm-cov.",
+      "tool_version": "cargo-llvm-cov 0.8.7",
+      "status": "measured",
+      "reason": null,
+      "commands": [
+        {
+          "argv": [
+            "cargo",
+            "llvm-cov",
+            "--manifest-path",
+            "core/gui/viewport_editor/Cargo.toml",
+            "--summary-only",
+            "--json"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 0.63
+        },
+        {
+          "argv": [
+            "cargo",
+            "llvm-cov",
+            "--manifest-path",
+            "core/library_import/library_import_document/Cargo.toml",
+            "--summary-only",
+            "--json"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 1.089
+        },
+        {
+          "argv": [
+            "cargo",
+            "llvm-cov",
+            "--manifest-path",
+            "core/loads/load_case_algebra/Cargo.toml",
+            "--summary-only",
+            "--json"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 0.723
+        },
+        {
+          "argv": [
+            "cargo",
+            "llvm-cov",
+            "--manifest-path",
+            "core/loads/primitive_loads/Cargo.toml",
+            "--summary-only",
+            "--json"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 0.933
+        },
+        {
+          "argv": [
+            "cargo",
+            "llvm-cov",
+            "--manifest-path",
+            "core/loads/stress_recovery/Cargo.toml",
+            "--summary-only",
+            "--json"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 0.722
+        },
+        {
+          "argv": [
+            "cargo",
+            "llvm-cov",
+            "--manifest-path",
+            "core/loads/user_loads/Cargo.toml",
+            "--summary-only",
+            "--json"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 0.763
+        },
+        {
+          "argv": [
+            "cargo",
+            "llvm-cov",
+            "--manifest-path",
+            "core/model_operations/operation_applier/Cargo.toml",
+            "--summary-only",
+            "--json"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 2.319
+        },
+        {
+          "argv": [
+            "cargo",
+            "llvm-cov",
+            "--manifest-path",
+            "core/product_physics/Cargo.toml",
+            "--summary-only",
+            "--json"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 2.319
+        },
+        {
+          "argv": [
+            "cargo",
+            "llvm-cov",
+            "--manifest-path",
+            "core/reporting/audit_manifest/Cargo.toml",
+            "--summary-only",
+            "--json"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 0.835
+        },
+        {
+          "argv": [
+            "cargo",
+            "llvm-cov",
+            "--manifest-path",
+            "core/reporting/protected_content_linter/Cargo.toml",
+            "--summary-only",
+            "--json"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 0.684
+        },
+        {
+          "argv": [
+            "cargo",
+            "llvm-cov",
+            "--manifest-path",
+            "core/reporting/report_generator/Cargo.toml",
+            "--summary-only",
+            "--json"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 0.797
+        },
+        {
+          "argv": [
+            "cargo",
+            "llvm-cov",
+            "--manifest-path",
+            "core/reporting/report_renderer/Cargo.toml",
+            "--summary-only",
+            "--json"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 1.499
+        },
+        {
+          "argv": [
+            "cargo",
+            "llvm-cov",
+            "--manifest-path",
+            "core/reporting/report_sections/Cargo.toml",
+            "--summary-only",
+            "--json"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 0.654
+        },
+        {
+          "argv": [
+            "cargo",
+            "llvm-cov",
+            "--manifest-path",
+            "core/reporting/result_export/Cargo.toml",
+            "--summary-only",
+            "--json"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 0.791
+        },
+        {
+          "argv": [
+            "cargo",
+            "llvm-cov",
+            "--manifest-path",
+            "core/rules/completeness_checker/Cargo.toml",
+            "--summary-only",
+            "--json"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 0.753
+        },
+        {
+          "argv": [
+            "cargo",
+            "llvm-cov",
+            "--manifest-path",
+            "core/rules/expression_evaluator/Cargo.toml",
+            "--summary-only",
+            "--json"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 1.255
+        },
+        {
+          "argv": [
+            "cargo",
+            "llvm-cov",
+            "--manifest-path",
+            "core/rules/rule_check_runner/Cargo.toml",
+            "--summary-only",
+            "--json"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 1.468
+        },
+        {
+          "argv": [
+            "cargo",
+            "llvm-cov",
+            "--manifest-path",
+            "core/rules/rule_pack_document/Cargo.toml",
+            "--summary-only",
+            "--json"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 1.992
+        },
+        {
+          "argv": [
+            "cargo",
+            "llvm-cov",
+            "--manifest-path",
+            "core/rules/rule_pack_lifecycle/Cargo.toml",
+            "--summary-only",
+            "--json"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 0.664
+        },
+        {
+          "argv": [
+            "cargo",
+            "llvm-cov",
+            "--manifest-path",
+            "core/runner/headless/Cargo.toml",
+            "--summary-only",
+            "--json"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 2.222
+        },
+        {
+          "argv": [
+            "cargo",
+            "llvm-cov",
+            "--manifest-path",
+            "core/serialization/canonical_json/Cargo.toml",
+            "--summary-only",
+            "--json"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 0.657
+        },
+        {
+          "argv": [
+            "cargo",
+            "llvm-cov",
+            "--manifest-path",
+            "core/solver/curved_bend/Cargo.toml",
+            "--summary-only",
+            "--json"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 0.67
+        },
+        {
+          "argv": [
+            "cargo",
+            "llvm-cov",
+            "--manifest-path",
+            "core/solver/diagnostics/Cargo.toml",
+            "--summary-only",
+            "--json"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 0.687
+        },
+        {
+          "argv": [
+            "cargo",
+            "llvm-cov",
+            "--manifest-path",
+            "core/solver/frame_kernel/Cargo.toml",
+            "--summary-only",
+            "--json"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 0.781
+        },
+        {
+          "argv": [
+            "cargo",
+            "llvm-cov",
+            "--manifest-path",
+            "core/solver/linear_supports/Cargo.toml",
+            "--summary-only",
+            "--json"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 0.706
+        },
+        {
+          "argv": [
+            "cargo",
+            "llvm-cov",
+            "--manifest-path",
+            "core/solver/nonlinear_integration/Cargo.toml",
+            "--summary-only",
+            "--json"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 0.903
+        },
+        {
+          "argv": [
+            "cargo",
+            "llvm-cov",
+            "--manifest-path",
+            "core/solver/nonlinear_supports/Cargo.toml",
+            "--summary-only",
+            "--json"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 0.721
+        },
+        {
+          "argv": [
+            "cargo",
+            "llvm-cov",
+            "--manifest-path",
+            "core/solver/performance_harness/Cargo.toml",
+            "--summary-only",
+            "--json"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 10.638
+        },
+        {
+          "argv": [
+            "cargo",
+            "llvm-cov",
+            "--manifest-path",
+            "core/solver/sparse_direct/Cargo.toml",
+            "--summary-only",
+            "--json"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 0.884
+        },
+        {
+          "argv": [
+            "cargo",
+            "llvm-cov",
+            "--manifest-path",
+            "core/solver/straight_pipe/Cargo.toml",
+            "--summary-only",
+            "--json"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 0.807
+        },
+        {
+          "argv": [
+            "cargo",
+            "llvm-cov",
+            "--manifest-path",
+            "core/units/Cargo.toml",
+            "--summary-only",
+            "--json"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 0.8
+        },
+        {
+          "argv": [
+            "cargo",
+            "llvm-cov",
+            "--manifest-path",
+            "validation/benchmarks/mechanics/Cargo.toml",
+            "--summary-only",
+            "--json"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 1.877
+        },
+        {
+          "argv": [
+            "cargo",
+            "llvm-cov",
+            "--manifest-path",
+            "validation/benchmarks/nonlinear/Cargo.toml",
+            "--summary-only",
+            "--json"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 1.586
+        },
+        {
+          "argv": [
+            "cargo",
+            "llvm-cov",
+            "--manifest-path",
+            "validation/benchmarks/stress/Cargo.toml",
+            "--summary-only",
+            "--json"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 1.046
+        }
+      ],
+      "metrics": {
+        "crates": [
+          {
+            "manifest": "core/gui/viewport_editor/Cargo.toml",
+            "measured": true,
+            "lines": {
+              "count": 366,
+              "covered": 337,
+              "percent": 92.0765
+            },
+            "functions": {
+              "count": 36,
+              "covered": 30,
+              "percent": 83.3333
+            },
+            "regions": {
+              "count": 471,
+              "covered": 416,
+              "percent": 88.3227
+            }
+          },
+          {
+            "manifest": "core/library_import/library_import_document/Cargo.toml",
+            "measured": true,
+            "lines": {
+              "count": 485,
+              "covered": 442,
+              "percent": 91.134
+            },
+            "functions": {
+              "count": 43,
+              "covered": 40,
+              "percent": 93.0233
+            },
+            "regions": {
+              "count": 777,
+              "covered": 710,
+              "percent": 91.3771
+            }
+          },
+          {
+            "manifest": "core/loads/load_case_algebra/Cargo.toml",
+            "measured": true,
+            "lines": {
+              "count": 697,
+              "covered": 647,
+              "percent": 92.8264
+            },
+            "functions": {
+              "count": 56,
+              "covered": 55,
+              "percent": 98.2143
+            },
+            "regions": {
+              "count": 1013,
+              "covered": 944,
+              "percent": 93.1885
+            }
+          },
+          {
+            "manifest": "core/loads/primitive_loads/Cargo.toml",
+            "measured": true,
+            "lines": {
+              "count": 2794,
+              "covered": 2493,
+              "percent": 89.2269
+            },
+            "functions": {
+              "count": 179,
+              "covered": 175,
+              "percent": 97.7654
+            },
+            "regions": {
+              "count": 3499,
+              "covered": 3067,
+              "percent": 87.6536
+            }
+          },
+          {
+            "manifest": "core/loads/stress_recovery/Cargo.toml",
+            "measured": true,
+            "lines": {
+              "count": 1220,
+              "covered": 1178,
+              "percent": 96.5574
+            },
+            "functions": {
+              "count": 91,
+              "covered": 90,
+              "percent": 98.9011
+            },
+            "regions": {
+              "count": 1380,
+              "covered": 1321,
+              "percent": 95.7246
+            }
+          },
+          {
+            "manifest": "core/loads/user_loads/Cargo.toml",
+            "measured": true,
+            "lines": {
+              "count": 1447,
+              "covered": 1290,
+              "percent": 89.15
+            },
+            "functions": {
+              "count": 89,
+              "covered": 84,
+              "percent": 94.382
+            },
+            "regions": {
+              "count": 1880,
+              "covered": 1654,
+              "percent": 87.9787
+            }
+          },
+          {
+            "manifest": "core/model_operations/operation_applier/Cargo.toml",
+            "measured": true,
+            "lines": {
+              "count": 7659,
+              "covered": 6194,
+              "percent": 80.8722
+            },
+            "functions": {
+              "count": 214,
+              "covered": 208,
+              "percent": 97.1963
+            },
+            "regions": {
+              "count": 11482,
+              "covered": 9341,
+              "percent": 81.3534
+            }
+          },
+          {
+            "manifest": "core/product_physics/Cargo.toml",
+            "measured": true,
+            "lines": {
+              "count": 11635,
+              "covered": 10213,
+              "percent": 87.7783
+            },
+            "functions": {
+              "count": 629,
+              "covered": 607,
+              "percent": 96.5024
+            },
+            "regions": {
+              "count": 14540,
+              "covered": 12590,
+              "percent": 86.5887
+            }
+          },
+          {
+            "manifest": "core/reporting/audit_manifest/Cargo.toml",
+            "measured": true,
+            "lines": {
+              "count": 672,
+              "covered": 623,
+              "percent": 92.7083
+            },
+            "functions": {
+              "count": 52,
+              "covered": 52,
+              "percent": 100.0
+            },
+            "regions": {
+              "count": 910,
+              "covered": 829,
+              "percent": 91.0989
+            }
+          },
+          {
+            "manifest": "core/reporting/protected_content_linter/Cargo.toml",
+            "measured": true,
+            "lines": {
+              "count": 318,
+              "covered": 300,
+              "percent": 94.3396
+            },
+            "functions": {
+              "count": 23,
+              "covered": 22,
+              "percent": 95.6522
+            },
+            "regions": {
+              "count": 283,
+              "covered": 271,
+              "percent": 95.7597
+            }
+          },
+          {
+            "manifest": "core/reporting/report_generator/Cargo.toml",
+            "measured": true,
+            "lines": {
+              "count": 752,
+              "covered": 691,
+              "percent": 91.8883
+            },
+            "functions": {
+              "count": 72,
+              "covered": 71,
+              "percent": 98.6111
+            },
+            "regions": {
+              "count": 855,
+              "covered": 802,
+              "percent": 93.8012
+            }
+          },
+          {
+            "manifest": "core/reporting/report_renderer/Cargo.toml",
+            "measured": true,
+            "lines": {
+              "count": 545,
+              "covered": 481,
+              "percent": 88.2569
+            },
+            "functions": {
+              "count": 28,
+              "covered": 26,
+              "percent": 92.8571
+            },
+            "regions": {
+              "count": 847,
+              "covered": 752,
+              "percent": 88.7839
+            }
+          },
+          {
+            "manifest": "core/reporting/report_sections/Cargo.toml",
+            "measured": true,
+            "lines": {
+              "count": 594,
+              "covered": 536,
+              "percent": 90.2357
+            },
+            "functions": {
+              "count": 52,
+              "covered": 51,
+              "percent": 98.0769
+            },
+            "regions": {
+              "count": 656,
+              "covered": 613,
+              "percent": 93.4451
+            }
+          },
+          {
+            "manifest": "core/reporting/result_export/Cargo.toml",
+            "measured": true,
+            "lines": {
+              "count": 1229,
+              "covered": 1136,
+              "percent": 92.4329
+            },
+            "functions": {
+              "count": 74,
+              "covered": 73,
+              "percent": 98.6486
+            },
+            "regions": {
+              "count": 1366,
+              "covered": 1276,
+              "percent": 93.4114
+            }
+          },
+          {
+            "manifest": "core/rules/completeness_checker/Cargo.toml",
+            "measured": true,
+            "lines": {
+              "count": 538,
+              "covered": 509,
+              "percent": 94.6097
+            },
+            "functions": {
+              "count": 38,
+              "covered": 37,
+              "percent": 97.3684
+            },
+            "regions": {
+              "count": 610,
+              "covered": 577,
+              "percent": 94.5902
+            }
+          },
+          {
+            "manifest": "core/rules/expression_evaluator/Cargo.toml",
+            "measured": true,
+            "lines": {
+              "count": 1498,
+              "covered": 1407,
+              "percent": 93.9252
+            },
+            "functions": {
+              "count": 90,
+              "covered": 89,
+              "percent": 98.8889
+            },
+            "regions": {
+              "count": 1869,
+              "covered": 1723,
+              "percent": 92.1883
+            }
+          },
+          {
+            "manifest": "core/rules/rule_check_runner/Cargo.toml",
+            "measured": true,
+            "lines": {
+              "count": 1205,
+              "covered": 926,
+              "percent": 76.8465
+            },
+            "functions": {
+              "count": 70,
+              "covered": 64,
+              "percent": 91.4286
+            },
+            "regions": {
+              "count": 1718,
+              "covered": 1393,
+              "percent": 81.0827
+            }
+          },
+          {
+            "manifest": "core/rules/rule_pack_document/Cargo.toml",
+            "measured": true,
+            "lines": {
+              "count": 949,
+              "covered": 770,
+              "percent": 81.138
+            },
+            "functions": {
+              "count": 61,
+              "covered": 48,
+              "percent": 78.6885
+            },
+            "regions": {
+              "count": 1535,
+              "covered": 1263,
+              "percent": 82.2801
+            }
+          },
+          {
+            "manifest": "core/rules/rule_pack_lifecycle/Cargo.toml",
+            "measured": true,
+            "lines": {
+              "count": 575,
+              "covered": 559,
+              "percent": 97.2174
+            },
+            "functions": {
+              "count": 41,
+              "covered": 40,
+              "percent": 97.561
+            },
+            "regions": {
+              "count": 756,
+              "covered": 737,
+              "percent": 97.4868
+            }
+          },
+          {
+            "manifest": "core/runner/headless/Cargo.toml",
+            "measured": true,
+            "lines": {
+              "count": 1384,
+              "covered": 1120,
+              "percent": 80.9249
+            },
+            "functions": {
+              "count": 101,
+              "covered": 92,
+              "percent": 91.0891
+            },
+            "regions": {
+              "count": 1566,
+              "covered": 1274,
+              "percent": 81.3538
+            }
+          },
+          {
+            "manifest": "core/serialization/canonical_json/Cargo.toml",
+            "measured": true,
+            "lines": {
+              "count": 205,
+              "covered": 202,
+              "percent": 98.5366
+            },
+            "functions": {
+              "count": 15,
+              "covered": 15,
+              "percent": 100.0
+            },
+            "regions": {
+              "count": 371,
+              "covered": 367,
+              "percent": 98.9218
+            }
+          },
+          {
+            "manifest": "core/solver/curved_bend/Cargo.toml",
+            "measured": true,
+            "lines": {
+              "count": 725,
+              "covered": 706,
+              "percent": 97.3793
+            },
+            "functions": {
+              "count": 52,
+              "covered": 51,
+              "percent": 98.0769
+            },
+            "regions": {
+              "count": 1208,
+              "covered": 1158,
+              "percent": 95.8609
+            }
+          },
+          {
+            "manifest": "core/solver/diagnostics/Cargo.toml",
+            "measured": true,
+            "lines": {
+              "count": 737,
+              "covered": 612,
+              "percent": 83.0393
+            },
+            "functions": {
+              "count": 61,
+              "covered": 53,
+              "percent": 86.8852
+            },
+            "regions": {
+              "count": 896,
+              "covered": 732,
+              "percent": 81.6964
+            }
+          },
+          {
+            "manifest": "core/solver/frame_kernel/Cargo.toml",
+            "measured": true,
+            "lines": {
+              "count": 1203,
+              "covered": 1133,
+              "percent": 94.1812
+            },
+            "functions": {
+              "count": 112,
+              "covered": 111,
+              "percent": 99.1071
+            },
+            "regions": {
+              "count": 2051,
+              "covered": 1901,
+              "percent": 92.6865
+            }
+          },
+          {
+            "manifest": "core/solver/linear_supports/Cargo.toml",
+            "measured": true,
+            "lines": {
+              "count": 590,
+              "covered": 513,
+              "percent": 86.9492
+            },
+            "functions": {
+              "count": 51,
+              "covered": 47,
+              "percent": 92.1569
+            },
+            "regions": {
+              "count": 816,
+              "covered": 708,
+              "percent": 86.7647
+            }
+          },
+          {
+            "manifest": "core/solver/nonlinear_integration/Cargo.toml",
+            "measured": true,
+            "lines": {
+              "count": 1485,
+              "covered": 1213,
+              "percent": 81.6835
+            },
+            "functions": {
+              "count": 101,
+              "covered": 86,
+              "percent": 85.1485
+            },
+            "regions": {
+              "count": 1879,
+              "covered": 1655,
+              "percent": 88.0788
+            }
+          },
+          {
+            "manifest": "core/solver/nonlinear_supports/Cargo.toml",
+            "measured": true,
+            "lines": {
+              "count": 817,
+              "covered": 743,
+              "percent": 90.9425
+            },
+            "functions": {
+              "count": 66,
+              "covered": 60,
+              "percent": 90.9091
+            },
+            "regions": {
+              "count": 1054,
+              "covered": 947,
+              "percent": 89.8482
+            }
+          },
+          {
+            "manifest": "core/solver/performance_harness/Cargo.toml",
+            "measured": true,
+            "lines": {
+              "count": 1425,
+              "covered": 1366,
+              "percent": 95.8596
+            },
+            "functions": {
+              "count": 106,
+              "covered": 102,
+              "percent": 96.2264
+            },
+            "regions": {
+              "count": 1830,
+              "covered": 1743,
+              "percent": 95.2459
+            }
+          },
+          {
+            "manifest": "core/solver/sparse_direct/Cargo.toml",
+            "measured": true,
+            "lines": {
+              "count": 794,
+              "covered": 734,
+              "percent": 92.4433
+            },
+            "functions": {
+              "count": 61,
+              "covered": 59,
+              "percent": 96.7213
+            },
+            "regions": {
+              "count": 1416,
+              "covered": 1337,
+              "percent": 94.4209
+            }
+          },
+          {
+            "manifest": "core/solver/straight_pipe/Cargo.toml",
+            "measured": true,
+            "lines": {
+              "count": 1744,
+              "covered": 1456,
+              "percent": 83.4862
+            },
+            "functions": {
+              "count": 125,
+              "covered": 106,
+              "percent": 84.8
+            },
+            "regions": {
+              "count": 2313,
+              "covered": 1893,
+              "percent": 81.8418
+            }
+          },
+          {
+            "manifest": "core/units/Cargo.toml",
+            "measured": true,
+            "lines": {
+              "count": 961,
+              "covered": 831,
+              "percent": 86.4724
+            },
+            "functions": {
+              "count": 60,
+              "covered": 52,
+              "percent": 86.6667
+            },
+            "regions": {
+              "count": 1235,
+              "covered": 1036,
+              "percent": 83.8866
+            }
+          },
+          {
+            "manifest": "validation/benchmarks/mechanics/Cargo.toml",
+            "measured": true,
+            "lines": {
+              "count": 4743,
+              "covered": 4440,
+              "percent": 93.6116
+            },
+            "functions": {
+              "count": 369,
+              "covered": 229,
+              "percent": 62.0596
+            },
+            "regions": {
+              "count": 5116,
+              "covered": 4460,
+              "percent": 87.1775
+            }
+          },
+          {
+            "manifest": "validation/benchmarks/nonlinear/Cargo.toml",
+            "measured": true,
+            "lines": {
+              "count": 4361,
+              "covered": 4328,
+              "percent": 99.2433
+            },
+            "functions": {
+              "count": 163,
+              "covered": 159,
+              "percent": 97.546
+            },
+            "regions": {
+              "count": 3270,
+              "covered": 3231,
+              "percent": 98.8073
+            }
+          },
+          {
+            "manifest": "validation/benchmarks/stress/Cargo.toml",
+            "measured": true,
+            "lines": {
+              "count": 1852,
+              "covered": 1826,
+              "percent": 98.5961
+            },
+            "functions": {
+              "count": 94,
+              "covered": 89,
+              "percent": 94.6809
+            },
+            "regions": {
+              "count": 1565,
+              "covered": 1527,
+              "percent": 97.5719
+            }
+          }
+        ],
+        "aggregation": "count_weighted_sum_across_crates",
+        "aggregate": {
+          "lines": {
+            "count": 58204,
+            "covered": 51955,
+            "percent": 89.2636
+          },
+          "functions": {
+            "count": 3475,
+            "covered": 3173,
+            "percent": 91.3094
+          },
+          "regions": {
+            "count": 73033,
+            "covered": 64248,
+            "percent": 87.9712
+          }
+        }
+      }
+    },
+    {
+      "lane_id": "python_coverage",
+      "tool": "coverage.py",
+      "description": "Python line coverage over the repository pytest suite via coverage.py (requirements-dev.txt).",
+      "tool_version": "Coverage.py, version 7.15.0 with C extension",
+      "status": "measured",
+      "reason": null,
+      "commands": [
+        {
+          "argv": [
+            "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+            "-m",
+            "coverage",
+            "run",
+            "--data-file=/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/opsy-coverage-py-297g_30p/coverage.sqlite",
+            "--source=.",
+            "--omit=*/node_modules/*,.archive/*,*/target/*",
+            "-m",
+            "pytest",
+            "-q",
+            "tests"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 12.617
+        },
+        {
+          "argv": [
+            "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+            "-m",
+            "coverage",
+            "json",
+            "--data-file=/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/opsy-coverage-py-297g_30p/coverage.sqlite",
+            "-o",
+            "/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/opsy-coverage-py-297g_30p/coverage.json"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 0.938
+        }
+      ],
+      "metrics": {
+        "statements": {
+          "count": 17031,
+          "covered": 14820,
+          "percent": 87.0178
+        }
+      }
+    },
+    {
+      "lane_id": "desktop_vitest_coverage",
+      "tool": "@vitest/coverage-v8",
+      "description": "Desktop TS unit-test coverage via Vitest --coverage with the v8 provider (apps/desktop devDependency); wasm engine built first. Playwright e2e coverage stays unmeasured per the D-04b O-A lane scope.",
+      "tool_version": "4.1.10",
+      "status": "measured",
+      "reason": null,
+      "commands": [
+        {
+          "argv": [
+            "npm",
+            "run",
+            "build:wasm:desktop"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 0.396
+        },
+        {
+          "argv": [
+            "npx",
+            "--no-install",
+            "vitest",
+            "run",
+            "--coverage.enabled=true",
+            "--coverage.provider=v8",
+            "--coverage.reporter=json-summary",
+            "--coverage.reportsDirectory=/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/opsy-coverage-ts-evvutxv2"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 72.057
+        }
+      ],
+      "metrics": {
+        "lines": {
+          "count": 6360,
+          "covered": 5365,
+          "percent": 84.3553
+        },
+        "statements": {
+          "count": 7213,
+          "covered": 5971,
+          "percent": 82.7811
+        },
+        "functions": {
+          "count": 2685,
+          "covered": 2428,
+          "percent": 90.4283
+        },
+        "branches": {
+          "count": 6950,
+          "covered": 5170,
+          "percent": 74.3885
+        }
+      }
+    }
+  ],
+  "lanes_measured": 3,
+  "lanes_not_measured": 0
+}

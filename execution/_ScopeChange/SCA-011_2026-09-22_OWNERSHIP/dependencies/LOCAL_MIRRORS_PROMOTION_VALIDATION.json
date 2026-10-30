@@ -1,0 +1,126 @@
+{
+  "status": "PASS",
+  "actual_application_executed": false,
+  "files": [
+    {
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_DEPENDENCIES.md",
+      "group2_hash_pass": true,
+      "group3_hash_pass": true,
+      "canonical_placement_links_pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+      "group2_hash_pass": true,
+      "group3_hash_pass": true,
+      "canonical_placement_links_pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_DEPENDENCIES.md",
+      "group2_hash_pass": true,
+      "group3_hash_pass": true,
+      "canonical_placement_links_pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/Dependencies.csv",
+      "group2_hash_pass": true,
+      "group3_hash_pass": true,
+      "canonical_placement_links_pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_DEPENDENCIES.md",
+      "group2_hash_pass": true,
+      "group3_hash_pass": true,
+      "canonical_placement_links_pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/Dependencies.csv",
+      "group2_hash_pass": true,
+      "group3_hash_pass": true,
+      "canonical_placement_links_pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/_DEPENDENCIES.md",
+      "group2_hash_pass": true,
+      "group3_hash_pass": true,
+      "canonical_placement_links_pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/Dependencies.csv",
+      "group2_hash_pass": true,
+      "group3_hash_pass": true,
+      "canonical_placement_links_pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_DEPENDENCIES.md",
+      "group2_hash_pass": true,
+      "group3_hash_pass": true,
+      "canonical_placement_links_pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/Dependencies.csv",
+      "group2_hash_pass": true,
+      "group3_hash_pass": true,
+      "canonical_placement_links_pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_DEPENDENCIES.md",
+      "group2_hash_pass": true,
+      "group3_hash_pass": true,
+      "canonical_placement_links_pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/Dependencies.csv",
+      "group2_hash_pass": true,
+      "group3_hash_pass": true,
+      "canonical_placement_links_pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_DEPENDENCIES.md",
+      "group2_hash_pass": true,
+      "group3_hash_pass": true,
+      "canonical_placement_links_pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+      "group2_hash_pass": true,
+      "group3_hash_pass": true,
+      "canonical_placement_links_pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_DEPENDENCIES.md",
+      "group2_hash_pass": true,
+      "group3_hash_pass": true,
+      "canonical_placement_links_pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/Dependencies.csv",
+      "group2_hash_pass": true,
+      "group3_hash_pass": true,
+      "canonical_placement_links_pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_DEPENDENCIES.md",
+      "group2_hash_pass": true,
+      "group3_hash_pass": true,
+      "canonical_placement_links_pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/Dependencies.csv",
+      "group2_hash_pass": true,
+      "group3_hash_pass": true,
+      "canonical_placement_links_pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_DEPENDENCIES.md",
+      "group2_hash_pass": true,
+      "group3_hash_pass": true,
+      "canonical_placement_links_pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/Dependencies.csv",
+      "group2_hash_pass": true,
+      "group3_hash_pass": true,
+      "canonical_placement_links_pass": true
+    }
+  ]
+}

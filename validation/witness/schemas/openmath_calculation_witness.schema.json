@@ -1,0 +1,499 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openpipestress.org/validation/witness/openmath_calculation_witness.schema.json",
+  "title": "OpenPipeStress OpenMath Calculation Witness",
+  "description": "Strict JSON witness envelope for validation-local hand calculations. OpenMath semantic objects are the source for formula validation and generated human-readable renderings.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "witness_id",
+    "title",
+    "status",
+    "openmath_binding",
+    "provenance",
+    "professional_boundary",
+    "unit_basis",
+    "content_dictionaries",
+    "result_export",
+    "constants",
+    "inputs",
+    "formulas",
+    "outputs",
+    "generated_artifacts"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.1.0"
+    },
+    "witness_id": {
+      "$ref": "#/$defs/Identifier"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "validation_pilot"
+      ]
+    },
+    "openmath_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "semantic_source",
+        "json_binding",
+        "mathml_rendering"
+      ],
+      "properties": {
+        "semantic_source": {
+          "const": "OpenMath abstract objects"
+        },
+        "json_binding": {
+          "const": "ops_openmath_json_binding_v0"
+        },
+        "mathml_rendering": {
+          "const": "generated_strict_content_mathml"
+        }
+      }
+    },
+    "provenance": {
+      "$ref": "#/$defs/Provenance"
+    },
+    "professional_boundary": {
+      "$ref": "#/$defs/ProfessionalBoundary"
+    },
+    "unit_basis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "unit_system_ref",
+        "conversion_policy",
+        "dimension_basis"
+      ],
+      "properties": {
+        "unit_system_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "conversion_policy": {
+          "const": "fixture_local_explicit_units_no_conversions"
+        },
+        "dimension_basis": {
+          "const": "PKG-02 canonical semantic dimensions with validation-local exponent vectors"
+        }
+      }
+    },
+    "content_dictionaries": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "cd",
+          "status",
+          "path"
+        ],
+        "properties": {
+          "cd": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "openmath_standard_reference",
+              "repo_local_experimental"
+            ]
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "result_export": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "comparison_policy"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "comparison_policy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "default_abs_tolerance_decimal"
+          ],
+          "properties": {
+            "default_abs_tolerance_decimal": {
+              "$ref": "#/$defs/DecimalString"
+            }
+          }
+        }
+      }
+    },
+    "constants": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/QuantityBinding"
+      }
+    },
+    "inputs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/QuantityBinding"
+      }
+    },
+    "formulas": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/Formula"
+      }
+    },
+    "outputs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/OutputBinding"
+      }
+    },
+    "generated_artifacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "markdown_path",
+        "mathml_path"
+      ],
+      "properties": {
+        "markdown_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "mathml_path": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  },
+  "$defs": {
+    "Identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9:_\\-\\.]*$"
+    },
+    "DecimalString": {
+      "type": "string",
+      "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?([eE][+-]?[0-9]+)?$"
+    },
+    "Provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_name",
+        "source_location",
+        "source_license",
+        "contributor",
+        "contributor_certification",
+        "redistribution_status",
+        "review_status"
+      ],
+      "properties": {
+        "source_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_location": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_license": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contributor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contributor_certification": {
+          "type": "string",
+          "minLength": 1
+        },
+        "redistribution_status": {
+          "type": "string",
+          "enum": [
+            "invented_non_engineering_example",
+            "project_original_public_content"
+          ]
+        },
+        "review_status": {
+          "type": "string",
+          "enum": [
+            "accepted"
+          ]
+        }
+      }
+    },
+    "ProfessionalBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "human_review_required",
+        "software_makes_compliance_claim",
+        "software_makes_certification_claim",
+        "software_makes_sealing_claim",
+        "software_makes_approval_claim",
+        "software_makes_authentication_claim"
+      ],
+      "properties": {
+        "human_review_required": {
+          "const": true
+        },
+        "software_makes_compliance_claim": {
+          "const": false
+        },
+        "software_makes_certification_claim": {
+          "const": false
+        },
+        "software_makes_sealing_claim": {
+          "const": false
+        },
+        "software_makes_approval_claim": {
+          "const": false
+        },
+        "software_makes_authentication_claim": {
+          "const": false
+        }
+      }
+    },
+    "Quantity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "decimal",
+        "unit",
+        "dimension"
+      ],
+      "properties": {
+        "decimal": {
+          "$ref": "#/$defs/DecimalString"
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dimension": {
+          "type": "string",
+          "enum": [
+            "dimensionless",
+            "length",
+            "force",
+            "moment",
+            "stress",
+            "area",
+            "section_modulus",
+            "second_moment_area"
+          ]
+        }
+      }
+    },
+    "QuantityBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "label",
+        "display",
+        "quantity",
+        "openmath",
+        "provenance"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Identifier"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "display": {
+          "type": "string",
+          "minLength": 1
+        },
+        "quantity": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "openmath": {
+          "$ref": "#/$defs/OpenMath"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "Formula": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "label",
+        "display",
+        "openmath",
+        "expected_unit",
+        "expected_dimension",
+        "provenance"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Identifier"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "display": {
+          "type": "string",
+          "minLength": 1
+        },
+        "openmath": {
+          "$ref": "#/$defs/OpenMath"
+        },
+        "expected_unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "expected_dimension": {
+          "$ref": "#/$defs/Quantity/properties/dimension"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "OutputBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "formula_id",
+        "result_id",
+        "abs_tolerance_decimal",
+        "provenance"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Identifier"
+        },
+        "formula_id": {
+          "$ref": "#/$defs/Identifier"
+        },
+        "result_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "abs_tolerance_decimal": {
+          "$ref": "#/$defs/DecimalString"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "OpenMath": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "om_type",
+            "name"
+          ],
+          "properties": {
+            "om_type": {
+              "const": "OMV"
+            },
+            "name": {
+              "$ref": "#/$defs/Identifier"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "om_type",
+            "cd",
+            "name"
+          ],
+          "properties": {
+            "om_type": {
+              "const": "OMS"
+            },
+            "cd": {
+              "type": "string",
+              "minLength": 1
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "om_type",
+            "decimal"
+          ],
+          "properties": {
+            "om_type": {
+              "enum": [
+                "OMI",
+                "OMF"
+              ]
+            },
+            "decimal": {
+              "$ref": "#/$defs/DecimalString"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "om_type",
+            "operator",
+            "arguments"
+          ],
+          "properties": {
+            "om_type": {
+              "const": "OMA"
+            },
+            "operator": {
+              "$ref": "#/$defs/OpenMath"
+            },
+            "arguments": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/OpenMath"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "bindings": [],
+  "case_id": "case_04_accept_compare_equal_and_not_equal",
+  "declared_grammar_version": "1.0.0",
+  "description": "Equality and inequality comparisons combined with AND.",
+  "expected": {
+    "findings": [],
+    "source_variable_ids": [],
+    "statuses": [
+      "mechanics_solved"
+    ],
+    "value": {
+      "kind": "boolean",
+      "value": true
+    }
+  },
+  "expression": {
+    "left": {
+      "left": {
+        "node": "literal",
+        "quantity": {
+          "dimension": "dimensionless",
+          "unit_ref": "ratio",
+          "value": 5.0
+        }
+      },
+      "node": "compare",
+      "operator": "equal",
+      "right": {
+        "node": "literal",
+        "quantity": {
+          "dimension": "dimensionless",
+          "unit_ref": "ratio",
+          "value": 5.0
+        }
+      }
+    },
+    "node": "logical",
+    "operator": "and",
+    "right": {
+      "left": {
+        "node": "literal",
+        "quantity": {
+          "dimension": "dimensionless",
+          "unit_ref": "ratio",
+          "value": 5.0
+        }
+      },
+      "node": "compare",
+      "operator": "not_equal",
+      "right": {
+        "node": "literal",
+        "quantity": {
+          "dimension": "dimensionless",
+          "unit_ref": "ratio",
+          "value": 6.0
+        }
+      }
+    }
+  },
+  "required_variable_ids": [],
+  "statuses": [
+    "mechanics_solved"
+  ]
+}

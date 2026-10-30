@@ -1,0 +1,7 @@
+id: DEL-00-05
+name: GUI state and interaction architecture
+needs: []
+code_paths:
+- apps/desktop/package.json
+- apps/desktop/src/features/
+- core/gui/

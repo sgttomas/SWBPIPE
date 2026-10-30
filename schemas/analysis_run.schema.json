@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openpipestress.org/schemas/analysis_run.schema.json",
+  "title": "OpenPipeStress analysis record exact-version dispatcher",
+  "description": "One current analysis-run version, 0.3.0. Records of 0.1.0 and 0.2.0 are retired and refused by name (ANALYSIS_RUN_SCHEMA_VERSION_RETIRED); no migration exists. Re-run the analysis to record a current run.",
+  "allOf": [
+    {
+      "type": "object",
+      "required": [
+        "schema_version"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "0.3.0"
+        }
+      }
+    },
+    {
+      "$ref": "analysis_run.v0.3.schema.json"
+    }
+  ]
+}

@@ -1,0 +1,81 @@
+import { invokeWithIngress } from "./nativeIngress";
+import type { PreviewModel } from "../types";
+import { loadSelfWeightEngine } from "./wasmEngine/loadSelfWeightEngine";
+export type SelfWeightRequest = {
+  case_id: string;
+  label: string;
+  pipe_refs: string[];
+  gravity: {
+    value: number;
+    unit: string;
+    axis: string;
+  };
+  provenance: string;
+  source_model_hash: string;
+};
+export type SelfWeightRefreshRequest = {
+  mode: "refresh";
+  case_id: string;
+  source_model_hash: string;
+  manual_overrides: "block" | "preserve";
+};
+export type SelfWeightOperationDraft = {
+  object_type: string;
+  target_ref: string;
+  operation_kind: string;
+  change_kind: string;
+  field_label: string;
+  field_path: string;
+  before: string;
+  after: string;
+  unit: string;
+  dimension: string;
+  source_note: string;
+};
+export type SelfWeightOperationPlan = {
+  source_model_hash: string;
+  changes: SelfWeightOperationDraft[];
+  source_evidence: unknown[];
+  scope_label: string;
+  /** W-15: a selected member whose rigid-family component fails a weight
+   * condition keeps its pipe weight, and the generator says so here. */
+  warnings?: {
+    id: string;
+    code: string;
+    severity: "warning";
+    message: string;
+    affected_refs?: string[];
+  }[];
+};
+/** The plan scopes the desktop queues: the selected pipes' own mass, and (W-15)
+ * the same with a component's weight in place of its mapped member's. */
+export const SELF_WEIGHT_SCOPES = ["selected_pipe_mass_only", "selected_pipe_mass_and_component_weight"] as const;
+export type SelfWeightPlanOutcome = {
+  document_kind: "openpipestress.desktop.self_weight_plan_outcome";
+  status: "ready" | "blocked";
+  input_model_unchanged: true;
+  source_model_hash: string | null;
+  plan: SelfWeightOperationPlan | null;
+  diagnostics: {
+    code: string;
+    severity: "blocking";
+    message: string;
+    remediation: string;
+    affected_objects: string[];
+  }[];
+  mutation_route: "structured_operations_only";
+  requires_user_acceptance: true;
+};
+export async function generateSelfWeightPlan(
+  model: PreviewModel,
+  request: SelfWeightRequest | SelfWeightRefreshRequest
+): Promise<SelfWeightPlanOutcome> {
+  if (typeof window !== "undefined" && "__TAURI_INTERNALS__" in window) {
+    return invokeWithIngress<SelfWeightPlanOutcome>("generate_self_weight_operation_plan", { model, request });
+  }
+  const engine = await loadSelfWeightEngine();
+  return JSON.parse(engine.generateSelfWeightPlanJson(
+    JSON.stringify(model),
+    JSON.stringify(request)
+  )) as SelfWeightPlanOutcome;
+}

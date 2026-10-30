@@ -1,0 +1,21 @@
+[package]
+name = "open_pipe_stress_stress_benchmarks"
+version = "0.1.0"
+edition = "2021"
+description = "Original stress recovery verification benchmarks for OpenPipeStress"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+open_pipe_stress_frame_kernel = { path = "../../../core/solver/frame_kernel" }
+# STRESS-PRESSURE-HOOP-LONGITUDINAL-ORIGINAL drives the product's exact-pressure
+# preview entry, the only public path to its straight-pipe Lame and axial
+# membrane stress rows.
+open_pipe_stress_product_physics = { path = "../../../core/product_physics" }
+open_pipe_stress_result_export = { path = "../../../core/reporting/result_export" }
+open_pipe_stress_stress_recovery = { path = "../../../core/loads/stress_recovery" }
+open_pipe_stress_straight_pipe = { path = "../../../core/solver/straight_pipe" }
+serde_json = "1"
+sha2 = "0.10"

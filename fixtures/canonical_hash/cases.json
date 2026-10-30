@@ -1,0 +1,126 @@
+{
+  "cases": [
+    {
+      "case_id": "scalar-null",
+      "expected_canonical": "null",
+      "expected_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "input_json": "null"
+    },
+    {
+      "case_id": "scalar-string-unicode",
+      "expected_canonical": "\"pipe élément 日本語 \\\"quoted\\\" \\\\backslash\\\\ \\n\"",
+      "expected_sha256": "938c038c080b15dfdfd68cf59d01cc190e88ad1e7b607b6c0707cf6fe1446a9d",
+      "input_json": "\"pipe \\u00e9l\\u00e9ment 日本語 \\\"quoted\\\" \\\\backslash\\\\ \\n\""
+    },
+    {
+      "case_id": "scalar-bool-true",
+      "expected_canonical": "true",
+      "expected_sha256": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+      "input_json": "true"
+    },
+    {
+      "case_id": "number-simple-decimal",
+      "expected_canonical": "0.5",
+      "expected_sha256": "d2cbad71ff333de67d07ec676e352ab7f38248eb69c942950157220607c55e84",
+      "input_json": "0.5"
+    },
+    {
+      "case_id": "number-integer",
+      "expected_canonical": "42",
+      "expected_sha256": "73475cb40a568e8da8a045ced110137e159f890ac4da883b6b17dc651b3a8049",
+      "input_json": "42"
+    },
+    {
+      "case_id": "number-negative-decimal",
+      "expected_canonical": "-2.25",
+      "expected_sha256": "805fc768f9b682818a37b950815f89359472a0b342a0bb23291b87ac43e73103",
+      "input_json": "-2.25"
+    },
+    {
+      "case_id": "number-exponent-form",
+      "expected_canonical": "1000000000",
+      "expected_sha256": "52a5d4a071d82caea87329868d22f6b8390ac3d227c6fde0d4525e69510ec479",
+      "input_json": "1e9"
+    },
+    {
+      "case_id": "number-large-exponent",
+      "expected_canonical": "1e+21",
+      "expected_sha256": "241c4643fa70b1dcde1205b71be4e3bebb17e9f880c8e1a33d0ead6c27271d3c",
+      "input_json": "1e21"
+    },
+    {
+      "case_id": "number-small-exponent",
+      "expected_canonical": "1e-7",
+      "expected_sha256": "5b33e02f2c5103a05d32f6ba9cb058294452bfbf393967f68bb30c1bdcbbab22",
+      "input_json": "1e-7"
+    },
+    {
+      "case_id": "empty-containers",
+      "expected_canonical": "{\"empty_array\":[],\"empty_object\":{}}",
+      "expected_sha256": "0f2158204145fd606c11e64e0161a9a78eb7c27fb39b7b5cb6fee328fb5b99da",
+      "input_json": "{\"empty_array\":[],\"empty_object\":{}}"
+    },
+    {
+      "case_id": "object-keys-unsorted",
+      "expected_canonical": "{\"alpha\":2,\"mid\":{\"a\":false,\"b\":true},\"zeta\":1}",
+      "expected_sha256": "174e0a23575b668f67793f8f91bfe90d440798a113fcc7f52ffce32f757c4e1c",
+      "input_json": "{\"zeta\":1,\"alpha\":2,\"mid\":{\"b\":true,\"a\":false}}"
+    },
+    {
+      "case_id": "array-order-preserved",
+      "expected_canonical": "[3,1,2,{\"x\":\"first\",\"y\":\"last\"}]",
+      "expected_sha256": "96fd2d417d9274fefcbb73b6baced1758e089cc6813753ddaf76702187922bd4",
+      "input_json": "[3,1,2,{\"y\":\"last\",\"x\":\"first\"}]"
+    },
+    {
+      "case_id": "nested-invented-model-slice",
+      "expected_canonical": "{\"nodes\":[{\"id\":\"node:N-1\",\"x\":0,\"y\":1.5,\"z\":-3.25},{\"id\":\"node:N-2\",\"x\":2,\"y\":0,\"z\":0}],\"project\":{\"id\":\"project:INVENTED-001\",\"label\":\"invented hash parity slice\"},\"supports\":[{\"id\":\"support:S-1\",\"node_ref\":\"node:N-1\",\"restraints\":[\"UX\",\"UY\",\"UZ\"]}]}",
+      "expected_sha256": "2adea024e7dc14c9784b107b60f852f38ea5dcc423048c14bcaa5a1faa9e51f7",
+      "input_json": "{\"project\":{\"id\":\"project:INVENTED-001\",\"label\":\"invented hash parity slice\"},\"nodes\":[{\"id\":\"node:N-1\",\"x\":0.0,\"y\":1.5,\"z\":-3.25},{\"id\":\"node:N-2\",\"x\":2.0,\"y\":0.0,\"z\":0.0}],\"supports\":[{\"id\":\"support:S-1\",\"node_ref\":\"node:N-1\",\"restraints\":[\"UX\",\"UY\",\"UZ\"]}]}"
+    },
+    {
+      "case_id": "key-sort-ascii-keys",
+      "expected_canonical": "{\"10\":4,\"2\":5,\"B\":1,\"_underscore\":3,\"a\":2}",
+      "expected_sha256": "8138af18a134c5d0c1152403bc80c92d7bf51f7654100a95c3183857fa467bd0",
+      "input_json": "{\"B\":1,\"a\":2,\"_underscore\":3,\"10\":4,\"2\":5}"
+    },
+    {
+      "case_id": "number-float-integral-renders-integer",
+      "expected_canonical": "{\"transported\":200,\"value\":200}",
+      "expected_sha256": "cd053f655eb7bcb8ec8aa064479c829ffd371b95cc8d0bda0710a553797d649f",
+      "input_json": "{\"value\": 200.0, \"transported\": 200}"
+    },
+    {
+      "case_id": "number-negative-zero-renders-zero",
+      "expected_canonical": "[0,0,0]",
+      "expected_sha256": "2a08979e8002252124e861b2816490b04fe03b6b779f9287fb7c25652bbc4052",
+      "input_json": "[-0.0, 0.0, 0]"
+    },
+    {
+      "case_id": "number-ecma-notation-boundaries",
+      "expected_canonical": "[100000000000000000000,1e+21,0.000001,1e-7,0.000001234,1.23e+21,-1.5e+25]",
+      "expected_sha256": "eea3674aa2476c9bc78fd2396beea3f01fbc65764f72071fe5cb0568e99fc022",
+      "input_json": "[1e20, 1e21, 1e-6, 1e-7, 0.000001234, 1.23e21, -1.5e25]"
+    },
+    {
+      "case_id": "number-shortest-tie-rounds-to-even",
+      "expected_canonical": "[2153998317200749.2,1837336310915449.2]",
+      "expected_sha256": "cdae7dc6910bf39b045e8176b901cca598700b9c7ba33a798cb61b78feaf1d82",
+      "input_json": "[2153998317200749.3, 1837336310915449.3]"
+    },
+    {
+      "case_id": "number-beyond-2-53-integer-kept-exact",
+      "expected_canonical": "{\"i_json_envelope_note\":\"raw-text u64 beyond 2^53 keeps exact digits; a JS lane cannot produce this text distinct from its rounded double\",\"value\":9007199254740993}",
+      "expected_sha256": "1ca9e22320536f7594a46039aed21a0350db96629fc2ed61d977289d8103dbcb",
+      "input_json": "{\"i_json_envelope_note\": \"raw-text u64 beyond 2^53 keeps exact digits; a JS lane cannot produce this text distinct from its rounded double\", \"value\": 9007199254740993}"
+    },
+    {
+      "case_id": "key-sort-utf16-code-units",
+      "expected_canonical": "{\"a\":1,\"😀\":\"supplementary plane\",\"ｚ\":\"BMP private-use-adjacent\"}",
+      "expected_sha256": "adc24289a5548c56d3cd2b34808eff6aec67150d6db7be36ecffd1ed08ed11e5",
+      "input_json": "{\"\\uff5a\": \"BMP private-use-adjacent\", \"\\ud83d\\ude00\": \"supplementary plane\", \"a\": 1}"
+    }
+  ],
+  "document_kind": "openpipestress.fixtures.canonical_hash_parity_corpus",
+  "provenance": "invented values only; expectations blessed from the native Rust engine via CANONICAL_HASH_BLESS=1"
+}

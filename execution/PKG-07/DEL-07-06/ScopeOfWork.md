@@ -1,0 +1,432 @@
+---
+schema: chirality-deliverable-sow/v1
+deliverable_id: DEL-07-06
+package_id: PKG-07
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
+project_scope_refs: [SOW-036]
+package_objective_refs: [OBJ-006]
+---
+
+# Scope of Work — DEL-07-06
+
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+## Purpose and Objective Traceability
+
+This Scope of Work defines `DEL-07-06` in service of project scope [SOW-036] and package objectives [OBJ-006].
+
+- **OUT-001** — An accessibility and engineering-review usability baseline covering keyboard access, labels, readability, large-model navigation, unit and diagnostic visibility, warning separation, and report-facing review boundaries is produced without asserting an unapproved conformance level.
+
+## Current bounded target — D-68, 2026-09-15
+
+The owner-approved professional modelling workspace foundation plan and `execution/_Coordination/_DECISIONS/D-68_RULING_2026-09-15.md` select WCAG 2.2 AA criteria for controls touched by that tranche. The selected checks include visible focus, keyboard alternatives, 4.5:1 ordinary-text contrast, 3:1 required graphical contrast and applicable minimum target sizes. Their applicability covers the changed interactive desktop workspace, including its changed review/results controls; it does not select a target for untouched report/export surfaces or generated report files.
+
+For this bounded scope, target-selection wording below that remains `TBD_by_human_project_authority` records the earlier setup and PDU history and is superseded by D-68. It remains applicable outside the selected scope. Target selection supplies an acceptance criterion, not runtime evidence or a conformance verdict. Tranche verification must cite the actual tested candidate and retain failures. PDU-045 and PDU-046 remain `VERIFIED_NOT_VALIDATED`; the separately held independent-usability work is not closed by project-owned testing. The original packets and their recorded target-unavailable findings remain unchanged.
+
+Current D-72 performance boundary: Redesigned-product performance acceptance, settled-frame behavior and owned-resource obligations remain open under D-72 and its final addendum. Apply the five inherited D-68 numeric limits, the accepted reference profile, geometry, workload and observation rules, and the S-1/S-2 run/pass rule; S-3 was not accepted. The decision records govern exact criteria. No present implementation or historical demonstration qualifies a later candidate. Select and run a successor demonstration before asserting acceptance. Sources: `execution/_Coordination/_DECISIONS/D-72_RULING_2026-09-18.md` and `D-72_RULING_ADDENDUM_2026-09-18.md`.
+
+Current observed usability limit: The accepted bounded UI foundation observed that short panels may require scrolling between a label and its fully visible control. Its transient inspector accessibility-tree omission remains unexplained even though fresh processes expose the controls. Preserve that observation for candidate-bound repair/review and independent practitioner usability; it is not a whole-product WCAG or security finding and creates no extra publication gate. Source: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_ACCEPTANCE.json`. DEL-07-01, DEL-07-02 and DEL-07-09 source clauses point to this shared carrier while retaining their own functional contracts.
+
+## Deliverable Definition — Ontology
+
+### CLM-001 — Datasheet: DEL-07-06 Accessibility and usability baseline
+
+> #### Datasheet: DEL-07-06 Accessibility and usability baseline
+>
+> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+
+### CLM-003 — Identification
+
+> ##### Identification
+>
+> | Field | Value |
+> |---|---|
+> | Deliverable ID | DEL-07-06 |
+> | Deliverable name | Accessibility and usability baseline |
+> | Package ID | PKG-07 |
+> | Package name | Graphical User Interface and Engineering Workflow |
+> | Type | UX_UI_SLICE |
+> | Scope coverage | SOW-036 |
+> | Objective support | OBJ-006 |
+> | Context envelope | M |
+> | Setup state | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle is recorded in `_STATUS.md`; current work follows this Scope of Work, owning decisions, and the selected graph. Setup-only restrictions describe the originating setup run, not standing product scope. |
+>
+
+### CLM-004 — Attributes
+
+> ##### Attributes
+>
+> | Attribute | Baseline value |
+> |---|---|
+> | Work surface Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | GUI workflow and report-facing review surfaces, limited to setup documentation in this run |
+> | Baseline topics | Keyboard navigation, labels/tooltips, contrast/readability, search/filter, copy/export, undo/redo discoverability, inline validation, warning separation |
+> | Engineering review focus | Model creation, missing data, results, assumptions, diagnostics, provenance, and human-review boundaries remain visible |
+> | Architecture basis | Tauri 2 desktop shell, TypeScript/React/Vite GUI, Three.js where viewport-facing, schema-first command/query/job/result envelopes |
+> | Accessibility conformance target | D-68 (`execution/_Coordination/_DECISIONS/D-68_RULING_2026-09-15.md`) adopts WCAG 2.2 AA criteria for touched desktop controls. Independent usability remains held; this is neither a conformance result nor a target selection for generated report/export files. |
+> | Report-facing accessibility target | TBD separately for report preview/export and generated report artifacts |
+> | Implementation status | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle is recorded in `_STATUS.md`; current work follows this Scope of Work, owning decisions, and the selected graph. Setup-only restrictions describe the originating setup run, not standing product scope. |
+>
+
+### CLM-005 — Conditions
+
+> ##### Conditions
+>
+> | Condition | Handling |
+> |---|---|
+> | Missing solve-required data | Must remain visible as a `SOLVE_BLOCKING` diagnostic rather than being silently defaulted |
+> | Missing rule-check data | Must remain visible as a `RULE_CHECK_BLOCKING` diagnostic distinct from solve blocking |
+> | Weak or missing provenance | Must remain visible as provenance or assumption review information where engineering reliance may be affected |
+> | Result or report review | Must preserve units, warnings, assumptions, provenance, and professional-boundary notices |
+> | Accessibility evidence artifacts | Screenshots, fixtures, and exported examples must pass protected-content and private-data review before public use |
+> | Protected standards or private project data | Must not be introduced into public examples, screenshots, tests, reports, or setup artifacts |
+> | Compliance or certification language | Must not be claimed by the GUI, report, software, or agent output |
+>
+
+### CLM-006 — Construction
+
+> ##### Construction
+>
+> Current deliverable obligation: Define and implement baseline keyboard, contrast, readability, and review-workflow usability requirements. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
+> This setup deliverable defines the future baseline checklist and verification hooks for accessibility and engineering-review usability. It does not select component libraries, implement UI behavior, create automated tests, choose final WCAG conformance, or change report templates.
+>
+> Future implementation should translate the checklist into GUI and report tests only after the relevant GUI framework choices and human accessibility target are accepted. Any implementation work remains outside the original setup session.
+>
+> Current implementation (at `62c1efd75b`): theme styling comes from the design tokens `apps/desktop/src/design/tokens.json` and `apps/desktop/src/tokens.css`; theme and density preferences are held in `apps/desktop/src/features/workspace/uiPreferences.ts` and set from the shell toolbar in `apps/desktop/src/features/workspace/shell/`. Density sizing is not tokenized: `apps/desktop/src/styles.css` sets control heights per `data-density` and `apps/desktop/src/features/model-tree/ModelTree.tsx` selects its row heights directly. Keyboard, focus and layout behaviour is exercised by `apps/desktop/e2e/b3-accessibility.spec.ts`, `ui-foundation.spec.ts` and `workspace-layout.spec.ts`. The accessibility review export is `apps/desktop/src/features/accessibility-baseline/AccessibilityBaselinePanel.tsx`. `core/gui/accessibility/engine.py` is a reference module exercised by `tests/test_accessibility_usability_baseline.py` and is not called by the desktop.
+>
+### CLM-007 — References
+
+> ##### References
+>
+> | Source | Relevant source slice |
+> |---|---|
+> | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) | DEL-07-06 identity, SOW-036, OBJ-006, architecture basis injection |
+> | `docs/PRD.md` | Sections 6.5, 7, 8, 14, 15, 20, and 21 |
+> | `docs/SPEC.md` | Sections 1, 7, and 8 |
+> | `docs/CONTRACT.md` | OPS-K-DATA-1/2/3, OPS-K-UNIT-1, OPS-K-AUTH-1, OPS-K-IP-1/2/3, OPS-K-PRIV-1/2, OPS-K-AGENT-1..4 |
+> | `docs/TYPES.md` | Analysis-status vocabulary, provenance labels, report/result boundary |
+> | `docs/IP_AND_DATA_BOUNDARY.md` | Public/private data and report boundary |
+> | `docs/VALIDATION_STRATEGY.md` | GUI workflow validation and report reproducibility validation |
+> | `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-07, DEL-07-06, AB-00-03, AB-00-05, AB-00-06, AB-00-08, OI-002 |
+> | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) | DEL-07-06 register row |
+> | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) | SOW-036 row |
+>
+
+### CLM-008 — D-41 R5 T5 PDU-045 current state
+
+> ##### D-41 R5 T5 PDU-045 current state
+>
+> | Item | State |
+> |---|---|
+> | Evidence classification | `VERIFIED_NOT_VALIDATED` |
+> | Review grain | Deterministic project-owned contract records |
+> | Independent usability basis | Not present |
+> | Desktop runtime evaluation | Not performed |
+> | Contrast/readability target | Historical PDU source field: `TBD_by_human_project_authority`. Current touched-control criterion follows D-68; the old record does not establish current target absence. Independent usability remains held. |
+> | Conformance claim | False |
+
+## Completion and Reliance Basis — Epistemology
+
+### CLM-009 — Specification: DEL-07-06 Accessibility and usability baseline
+
+> #### Specification: DEL-07-06 Accessibility and usability baseline
+>
+> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+
+### CLM-011 — Scope
+
+> ##### Scope
+>
+> Current deliverable obligation: Define and implement baseline keyboard, contrast, readability, and review-workflow usability requirements. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
+> This deliverable specifies setup evidence for a future accessibility and engineering-review usability baseline for the SWBPIPE GUI and report-facing review surfaces. It covers baseline keyboard access, labels/tooltips, contrast/readability, large-model navigation, result table copy/export, undo/redo discoverability, inline validation messages, warning separation, and visibility of assumptions needed by engineering reviewers.
+>
+> The original setup pass does not implement UI behavior, edit GUI source, edit tests, edit schemas, edit package manifests, select a final accessibility standard, assert a WCAG conformance target, or alter report templates. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+>
+### CLM-012 — Requirements
+
+> ##### Requirements
+>
+> | Req ID | Requirement | Source basis | Verification hook |
+> |---|---|---|---|
+> | DEL-07-06-RQ-001 | The baseline shall keep model creation, missing data, results, assumptions, provenance, and diagnostics visible enough for engineering review. | OBJ-006; PRD sections 6.5, 8, 14, 15; SPEC sections 7 and 8 | Future GUI workflow validation checks review visibility across create, solve, review, and report-preview surfaces. |
+> | DEL-07-06-RQ-002 | Major GUI panels and review workflows shall support keyboard navigation paths. | PRD section 21 | Future keyboard navigation tests for major panels and modal/task flows after UI implementation is authorized. |
+> | DEL-07-06-RQ-003 | Icon actions, engineering status indicators, and compact controls shall have clear labels or tooltips. | PRD section 21 | Future UI tests or accessibility-tree checks for accessible names and tooltips. |
+> | DEL-07-06-RQ-004 | Result visualization and review surfaces shall include high-contrast/readability options sufficient for engineering review, with the exact measurable target marked `TBD` until human ruling. | PRD section 21; SOW-036; OI-002 | Future visual/a11y tests after the human accessibility target and component stack are selected. |
+> | DEL-07-06-RQ-005 | Large model-tree and result-review surfaces shall support search/filter and copy/export paths where PRD section 21 identifies them. | PRD section 21; PRD section 14 | Future tests for searchable/filterable model trees and copy/export behavior from result tables. |
+> | DEL-07-06-RQ-006 | Inline validation messages shall distinguish solve-blocking, rule-check-blocking, provenance, assumption, nonlinear, and IP-boundary warning classes where applicable. | SPEC section 7; AB-00-06 | Future tests assert diagnostic class display and no collapse of solve warnings into code-check warnings. |
+> | DEL-07-06-RQ-007 | Unit-bearing values, result quantities, and report-facing data shall display units and preserve unit-safety context. | OPS-K-UNIT-1; PRD section 6.6; SPEC section 8 | Future UI/report checks verify units remain visible in fields, tables, exports, and report previews. |
+> | DEL-07-06-RQ-008 | Undo/redo affordances shall apply only to reversible model edits and shall preserve diagnostics when solve readiness changes. | PRD section 21; AB-00-05 | Future interaction tests verify undo/redo state and diagnostic refresh after reversible edits. |
+> | DEL-07-06-RQ-009 | Public GUI fixtures, screenshots, report examples, and checklist examples shall not include protected standards content, proprietary values, private project data, or copied commercial examples. | OPS-K-IP-1/2/3; OPS-K-PRIV; IP_AND_DATA_BOUNDARY sections 2, 3, and 7 | Protected-content/provenance review for public fixtures and templates. |
+> | DEL-07-06-RQ-010 | GUI and report-facing language shall not claim certification, sealing, approval, authentication, or automatic engineering code compliance (PRD §21.2). | OPS-K-AUTH-1; TYPES section 4; PRD sections 8.4 and 15 | Product-claims review and future text snapshot tests for prohibited status/language. |
+>
+
+### CLM-013 — Standards
+
+> ##### Standards
+>
+> D-68 (`execution/_Coordination/_DECISIONS/D-68_RULING_2026-09-15.md`) adopts WCAG 2.2 AA criteria for touched desktop controls. Independent usability remains held; this is neither a conformance result nor a target selection for generated report/export files.
+> Protected standards text, protected tables, proprietary engineering values, and private project content are not available or needed for this baseline. Clause-level requirements are `TBD` unless later supplied from redistributable sources or a human-approved policy.
+>
+
+### CLM-014 — Verification
+
+> ##### Verification
+>
+> | Verification area | Minimum setup expectation |
+> |---|---|
+> | Keyboard access | Future tests cover traversal of major panels, dialogs, and review workflows. |
+> | Labels/tooltips | Future checks confirm icon controls and status indicators have accessible names or equivalent labels. |
+> | Contrast/readability | Future checks use the human-selected target; until then, review notes remain `TBD` rather than claiming conformance. |
+> | Warning separation | Future tests confirm `SOLVE_BLOCKING`, `RULE_CHECK_BLOCKING`, `PROVENANCE_WARNING`, `ASSUMPTION_WARNING`, `NONLINEAR_WARNING`, and `IP_BOUNDARY_WARNING` remain distinguishable. |
+> | Engineering review workflow | Future validation walks through model creation, missing-data review, result review, assumptions, and report preview/export. |
+> | Unit/provenance visibility | Future UI/report checks confirm unit labels, source/provenance notes, and private/public status remain visible where relevant. |
+> | Protected content and privacy | Public fixtures, screenshots, reports, and examples pass protected-content and private-data review. |
+> | Professional boundary | Text, diagnostics, statuses, and reports do not use automatic `CODE_COMPLIANT` language or professional approval claims. |
+>
+> Pass 3 lensing source rereads: `_SEMANTIC_LENSING.md` items A-001, A-002, F-001, F-002, F-003, and D-001 were checked against `docs/PRD.md` section 21, `docs/CONTRACT.md` OPS-K-AUTH-1, `docs/TYPES.md` section 4, `docs/_Registers/ScopeLedger.csv` SOW-036, and `execution/_Decomposition/SOFTWARE_DECOMP.md` OBJ-006 before this enrichment.
+>
+
+### CLM-015 — Documentation
+
+> ##### Documentation
+>
+> Maintain the accessibility checklist, UI repairs and candidate-bound checks for keyboard paths, labels, contrast/readability and engineering-review use. D-68 selects WCAG 2.2 AA for touched controls; implementation-local tooling/filenames follow accepted bounded work and current desktop tests. Generated report/export targets are not selected by D-68. Preserve independent-usability validation as a separate held obligation.
+
+### CLM-016 — Conflict Table (for human ruling)
+
+> ##### Conflict Table (for human ruling)
+>
+> | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
+> |---|---|---|---|---|---|---|
+> | Historical setup conflict: target was unresolved before D-68; current touched-control criteria are ruled. | SOW-036 requires baseline accessibility/usability, but the detailed WCAG target is explicitly TBD. | `ScopeLedger.csv` SOW-036 notes | `Specification.md#Standards` | Requirements, Standards, Verification | Apply D-68 to touched desktop controls. Preserve the original qualitative setup proposal as historical; report/export targets and independent-usability evidence retain their separate holds. | D-68 (`execution/_Coordination/_DECISIONS/D-68_RULING_2026-09-15.md`) adopts WCAG 2.2 AA criteria for touched desktop controls. Independent usability remains held; this is neither a conformance result nor a target selection for generated report/export files. |
+>
+
+### CLM-017 — D-41 R5 T5 PDU-045 evidence boundary
+
+> ##### D-41 R5 T5 PDU-045 evidence boundary
+>
+> The historical PDU deterministic contract review remains project-owned verification,
+> not independent usability validation. In that PDU record, desktop runtime evaluation was not
+> performed, no accessibility conformance claim is emitted, and
+> contrast/readability findings remain warnings while the measurable target is
+> `TBD_by_human_project_authority`.
+>
+
+> Current criterion: D-68 (`execution/_Coordination/_DECISIONS/D-68_RULING_2026-09-15.md`) adopts WCAG 2.2 AA criteria for touched desktop controls. Independent usability remains held; this is neither a conformance result nor a target selection for generated report/export files. Historical PDU fields and results remain bound to their original source revision.
+
+### CLM-018 — D-41 R5 T6 PDU-046 measurable-target hold
+
+> ##### D-41 R5 T6 PDU-046 measurable-target hold
+>
+> `DEL-07-06-RQ-004` remains `VERIFIED_NOT_VALIDATED`. The qualitative
+> contrast/readability review is project-owned verification only; that record supplied no independent
+> usability basis or human-selected measurable target. PDU-046
+> cannot be upgraded by the existing warning evidence.
+
+> Current criterion: D-68 (`execution/_Coordination/_DECISIONS/D-68_RULING_2026-09-15.md`) adopts WCAG 2.2 AA criteria for touched desktop controls. Independent usability remains held; this is neither a conformance result nor a target selection for generated report/export files. Historical PDU fields and results remain bound to their original source revision.
+
+- **AC-001** — The contract preserves the accessibility and engineering-review baseline, keeps the measurable contrast/readability target explicitly human-owned and TBD, separates diagnostic classes, and preserves units and provenance. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+
+## Production and Verification Method — Praxeology
+
+### CLM-019 — Procedure: DEL-07-06 Accessibility and usability baseline
+
+> #### Procedure: DEL-07-06 Accessibility and usability baseline
+>
+> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+
+### CLM-021 — Purpose
+
+> ##### Purpose
+>
+> Current deliverable obligation: Define and implement baseline keyboard, contrast, readability, and review-workflow usability requirements. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
+> Define the setup procedure for producing and later using the accessibility and usability baseline for engineering-review GUI and report-facing workflows.
+>
+### CLM-022 — Prerequisites
+
+> ##### Prerequisites
+>
+> Current deliverable obligation: Define and implement baseline keyboard, contrast, readability, and review-workflow usability requirements. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
+> - Sealed DEL-07-06 context with write scope limited to this deliverable folder.
+> - Register scope: SOW-036 and OBJ-006.
+> - Applicable invariants: OPS-K-DATA-1/2/3, OPS-K-UNIT-1, OPS-K-AUTH-1, OPS-K-IP-1/2/3, OPS-K-PRIV, OPS-K-AGENT-1..4.
+> - Architecture basis: AB-00-03, AB-00-05, AB-00-06, AB-00-08 where relevant to GUI commands, state, diagnostics, result envelopes, and tests.
+> - Human ruling remains required for the final accessibility conformance target.
+>
+### CLM-023 — Steps
+
+> ##### Steps
+>
+> 1. Confirm the work is setup/document production only and does not edit GUI source, tests, schemas, manifests, package files, or repo-level docs.
+> 2. Read the deliverable context, registers, contract, decomposition, and relevant product/specification source slices.
+> 3. Record the accessibility/usability baseline topics from PRD section 21: keyboard navigation, icon labels/tooltips, high-contrast result visualization, search/filter, copy/export, undo/redo, project templates, inline validation, and solve-vs-code-check warning separation.
+> 4. Map baseline topics to engineering review needs from OBJ-006: model creation, missing data, results, and assumptions must be visible.
+> 5. Preserve diagnostic class boundaries from SPEC section 7 and AB-00-06.
+> 6. Mark exact WCAG or equivalent conformance target as `TBD` pending human decision, including whether the target applies to desktop GUI, report preview/export, generated report files, or separate surfaces.
+> 7. Define verification hooks for future GUI workflow validation, report reproducibility validation, protected-content review, private-data review, and product-claims review.
+> 8. Generate semantic and dependency setup artifacts without treating semantic matrices as engineering authority.
+> 9. Set `_STATUS.md` to `SEMANTIC_READY` only if the Scope of Work contract, semantic matrix, lensing register, dependency register, and local validation checks pass.
+>
+### CLM-024 — Verification
+
+> ##### Verification
+>
+> | Check | Expected result |
+> |---|---|
+> | `ScopeOfWork.md` | `ScopeOfWork.md` exists with default sections. |
+> | Scope control Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | No files outside the DEL-07-06 working folder are modified by this task. |
+> | Accessibility target | D-68 (`execution/_Coordination/_DECISIONS/D-68_RULING_2026-09-15.md`) adopts WCAG 2.2 AA criteria for touched desktop controls. Independent usability remains held; this is neither a conformance result nor a target selection for generated report/export files. |
+> | Data boundary | No protected standards content, proprietary values, or private project data are introduced. |
+> | Warning boundary | Solve-blocking and rule-check-blocking warnings remain distinct in future verification hooks. |
+> | Fixture boundary | Future screenshots, public examples, and exported report fixtures are checked for protected standards content and private project data. |
+> | Professional boundary | Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). |
+> | Dependency register | `Dependencies.csv` validates against v3.1 schema. |
+>
+> Pass 3 lensing source rereads: `_SEMANTIC_LENSING.md` items X-001 and X-002 were checked against `docs/SPEC.md` section 7, `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-06, `docs/IP_AND_DATA_BOUNDARY.md` section 3, and this procedure's verification table before this enrichment.
+>
+
+### CLM-025 — Records
+
+> ##### Records
+>
+> - `ScopeOfWork.md`
+> - `_SEMANTIC.md`
+> - `_SEMANTIC_LENSING.md`
+> - `Dependencies.csv`
+> - `_DEPENDENCIES.md`
+> - `_run_records/*`
+> - `_STATUS.md`
+>
+### CLM-026 — D-41 R5 T5 PDU-045 hold check
+
+> ##### D-41 R5 T5 PDU-045 hold check
+>
+> 1. Build the deterministic accessibility/usability baseline from invented GUI
+>    contract records.
+> 2. Confirm desktop runtime evaluation is `not_performed`.
+> 3. Confirm the accessibility target remains
+>    `TBD_by_human_project_authority`.
+> 4. Confirm contrast/readability findings remain warnings and no accessibility
+>    conformance claim is emitted.
+> 5. Preserve `VERIFIED_NOT_VALIDATED`; do not infer independent usability
+>    validation.
+
+> Current criterion: D-68 (`execution/_Coordination/_DECISIONS/D-68_RULING_2026-09-15.md`) adopts WCAG 2.2 AA criteria for touched desktop controls. Independent usability remains held; this is neither a conformance result nor a target selection for generated report/export files. Historical PDU fields and results remain bound to their original source revision.
+
+- **VER-001** — Validate the contract and review source parity, keyboard and labeling expectations, diagnostic and warning separation, unit/provenance visibility, protected-content boundaries, professional-boundary language, and every retained TBD or governed residual.
+
+## Governing Values and Decisions — Axiology
+
+### CLM-027 — Guidance: DEL-07-06 Accessibility and usability baseline
+
+> #### Guidance: DEL-07-06 Accessibility and usability baseline
+>
+
+### CLM-028 — Purpose
+
+> ##### Purpose
+>
+> This deliverable frames accessibility and usability as engineering-review support, not as a standalone visual polish task. The baseline should help a user navigate major GUI panels, find missing inputs, understand warnings, review results, and inspect assumptions without hiding the project boundaries defined by SWBPIPE governance.
+>
+
+### CLM-029 — Principles
+
+> ##### Principles
+>
+> - Accessibility supports auditability: keyboard paths, readable statuses, copy/export, and clear labels help reviewers inspect the model and evidence.
+> - Missing data remains visible. The GUI must not hide or silently repair missing solve-required values, rule-check inputs, weak provenance, or assumptions.
+> - Warning classes should stay distinct. Solve readiness, rule-check readiness, provenance, assumptions, nonlinear uncertainty, and IP boundary warnings have different engineering meanings.
+> - Units and provenance are part of readability. A readable table that omits units or source status is not adequate for engineering review.
+> - D-68 (`execution/_Coordination/_DECISIONS/D-68_RULING_2026-09-15.md`) adopts WCAG 2.2 AA criteria for touched desktop controls. Independent usability remains held; this is neither a conformance result nor a target selection for generated report/export files.
+> - Public fixtures and report examples must remain protected-data-free and private-data-free.
+> - The software may support review; acceptance and professional judgment remain with the responsible engineer.
+>
+
+### CLM-030 — Considerations
+
+> ##### Considerations
+>
+> Keyboard navigation should cover primary work surfaces before detailed shortcuts are optimized. Major panels include the model tree, property inspector, editor surfaces, solver/diagnostic surfaces, results browser, and report preview/export paths named in PRD section 14 and PRD section 21.
+>
+> Contrast/readability should be evaluated against engineering review content, not only decorative UI elements. Result color maps, warning badges, units, provenance labels, and status text are high-risk because they affect interpretation of the model and results.
+>
+> Search/filter and copy/export matter because engineering models can grow large. These functions should preserve context such as object identity, units, warning class, and source/provenance notes.
+>
+> Undo/redo needs a review-aware boundary. It should help users recover reversible modeling edits while preserving diagnostics and not implying that solved or checked states remain valid after content changes.
+>
+> Reports are in scope only as report-facing review surfaces and output expectations. This deliverable does not edit report templates, but it preserves the need for readable warnings, assumptions, units, provenance, and professional-boundary notices.
+>
+> The target decision is a human project-authority decision, not a TASK inference. Until that decision exists, implementation work should use the qualitative baseline in PRD section 21 and mark measurable conformance claims as `TBD`.
+>
+
+### CLM-031 — Trade-offs
+
+> ##### Trade-offs
+>
+> | Decision area | Setup guidance |
+> |---|---|
+> | Qualitative baseline vs. formal target | Use the qualitative PRD baseline now; record the formal target as `TBD` until a human decision. |
+> | Visual density vs. readability | Engineering review surfaces may be dense, but units, warning classes, and object identity must remain legible. |
+> | Color maps vs. status clarity | Color can help but must not be the only signal for result state, warning class, or rule-check status. |
+> | Keyboard workflow vs. shortcut breadth | Establish reliable navigation and focus order before broad shortcut catalogs. |
+> | Report preview vs. report template design | Preserve report accessibility requirements without changing report templates in this setup deliverable. |
+>
+
+### CLM-032 — Examples
+
+> ##### Examples
+>
+> - A keyboard user can move from the model tree to the property inspector, inspect a selected component, see that a required rule-pack input is missing, and reach the diagnostic details without using a mouse.
+> - A result table copy/export action preserves the quantity name, object identifier, unit, result status, and relevant warning class.
+> - A stress-ratio visualization uses color plus a textual/status cue so review does not depend on color alone.
+> - A public screenshot fixture uses invented or neutral data and does not expose protected standards content, proprietary values, or private project data.
+>
+
+### CLM-033 — Pass 3 Source Rereads
+
+> ##### Pass 3 Source Rereads
+>
+> The semantic lensing items were treated as candidate improvements only. Enrichments above were checked against `_SEMANTIC_LENSING.md` items B-001 and E-001, `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` section 1, `docs/DIRECTIVE.md` section 2.2, and `docs/TYPES.md` section 4.
+>
+
+### CLM-034 — Conflict Table (for human ruling)
+
+> ##### Conflict Table (for human ruling)
+>
+> | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
+> |---|---|---|---|---|---|---|
+> | Historical setup conflict: target was unresolved before D-68; current touched-control criteria are ruled. | Baseline accessibility is in scope, but the detailed WCAG target is unresolved. | `docs/_Registers/ScopeLedger.csv` SOW-036 | `execution/_Decomposition/SOFTWARE_DECOMP.md` OI-002 and DEL-07-06 note | Specification Standards and Verification; Guidance Principles | Apply D-68 to touched desktop controls. Preserve the original qualitative setup proposal as historical; report/export targets and independent-usability evidence retain their separate holds. | D-68 (`execution/_Coordination/_DECISIONS/D-68_RULING_2026-09-15.md`) adopts WCAG 2.2 AA criteria for touched desktop controls. Independent usability remains held; this is neither a conformance result nor a target selection for generated report/export files. |
+>
+
+### CLM-035 — D-41 R5 T5 PDU-045 guidance
+
+> ##### D-41 R5 T5 PDU-045 guidance
+>
+> Keep project-authored accessibility/usability checks classified as
+> verification. Do not upgrade them to usability validation or measurable
+> contrast/readability conformance without a separately authorized independent
+> basis and a selected target.
+
+## Output and Evaluation Matrix
+
+| Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
+|---|---|---|---|---|---|
+| OUT-001 | SOW-036 OBJ-006 | CLM-009 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-07-06:1** — Bounded UI foundation: the implemented slice comprises themes and density, keyboard/focus routes and the D-68 criteria for touched workspace controls, including contrast and applicable target sizes. The [final ROOT acceptance record](../../../_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_ACCEPTANCE.json) accepts this bounded functional technical slice; only its expressly accepted scope narrows the functional obligation, while broader duties below stay open. PDU-045/PDU-046 remain VERIFIED_NOT_VALIDATED pending separately authorized independent usability. Independent security and untouched report/export/generated-file target limitations survive; this does not claim whole-product WCAG conformance.
+- **DEL-07-06:2** — Performance acceptance, settled-frame and owned-resource obligations remain open on the redesigned product under [D-72](../../../_Coordination/_DECISIONS/D-72_RULING_2026-09-18.md) and its [final addendum](../../../_Coordination/_DECISIONS/D-72_RULING_ADDENDUM_2026-09-18.md). All six criteria are ruled and frozen: item 5 uses S-1/S-2, with S-3 not accepted. The addendum removes the fresh former-interface baseline cohort; the original D-70 failures and successor demonstration retain their distinct attribution. Independent-usability holds remain. Qualification requires the ruled candidate evidence; no performance acceptance or lifecycle promotion follows from the criteria ruling.
+- **DEL-07-06:3** — No open pre-merge action remains for PR #789: it merged on 2026-09-17 at `8468a33c`. The [final ROOT acceptance record](../../../_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_ACCEPTANCE.json) records bounded functional technical acceptance and its source/verification bindings. Its resource evidence retains the recorded applicability limits; no final-binary resource cohort is claimed. Performance qualification, independent usability/security validation and broader functional residuals remain with their owning records.
+- **DEL-07-06:4** — Short panels can require scrolling between a label and its fully visible control. The original transient inspector AX omission remains unexplained although fresh processes expose controls; no independent macOS audit or whole-product WCAG conformance is claimed. Independent practitioner usability/security remain separate held work, not extra publication gates.
+- **DEL-07-06:5** — Preserve PDU-046 / `DEL-07-06-RQ-004` as `VERIFIED_NOT_VALIDATED` pending owner-arranged user testing, the usability basis that follows Agent 0's use-case walkthrough (owner, 2026-10-28; `docs/RELEASE_TARGET_v1.0.md` RT-U2). D-68 selects WCAG 2.2 AA criteria for controls touched by the professional modelling workspace foundation tranche, including measurable contrast and applicable target sizes. Verification of the actual candidate remains required; target selection does not supply conformance evidence. The historical packet and its target-unavailable findings remain unchanged.
+- **DEL-07-06:6** — Obtain owner-arranged user testing, the usability basis that follows Agent 0's use-case walkthrough (owner, 2026-10-28; `docs/RELEASE_TARGET_v1.0.md` RT-U2), before upgrading PDU-045 beyond `VERIFIED_NOT_VALIDATED`. The selected D-68 target is bounded to touched interactive workspace controls; untouched report/export surfaces and generated report files retain their unresolved target. See `ScopeOfWork.md` current bounded target declaration.

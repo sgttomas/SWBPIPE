@@ -1,0 +1,45 @@
+# SCA-011 independent applied-poststate review
+
+**Verdict: WARN — suitable for Group-3 presentation; no unresolved blocking or actionable candidate finding.** Retained warnings concern the unchanged stock-validation/package-shape baseline and the disclosed limits below. This review does not accept Group 3, adopt DAG-011, establish product conformance, or approve release.
+
+## Reviewed identity and independence
+
+- Frozen candidate: `application/APPLIED_REVIEW_MANIFEST.csv`, **232 files**, SHA-256 `0d0d1d4700bc41e7ec3e5fe88cec4a24af9b2f71b7dde5017bf0c4f48345e2d3`. Every listed byte count and hash verified at completion. No subsequent author change is covered without backcheck.
+- Accepted source: commit `3e18334eca72509475684cc86786b3eeade83572`; Group-1 and Group-2 immutable checkpoint manifests verified against their historical source bytes. The verbatim Group-2 direction authorizes application and audited-result preparation, not future poststate acceptance. Mutable manager handoffs were not mistaken for historical accepted bytes.
+- Reviewer: fresh TASK `/root/piping_scope_manager/piping_final_poststate_review`; parent WORKING_ITEMS `/root/piping_scope_manager`; Codex native collaboration, inherited model/effort, no model-diversity claim. Reviewer did not author/apply the candidate and created no descendants. All commands used the assigned checkout. Writes were limited to this report and `application/review/`; no Git mutation, canonical edit, pointer update, product test, or App/Root review occurred.
+- Method: `bundled:chirality-root/scope-change`, Group-3 independent-review stage; bounded repository `software-code-review` guidance. Actual Root/TASK/Piping/loop instructions, selected method bodies, SPEC and inspected sources are hashed in `review/INDEPENDENT_CHECKS.json` (455 source entries). All **106 status/memory pairs** were read; available memory remained continuity evidence, not authority.
+
+## Findings and disposition
+
+Two documentary findings were returned to the manager and repaired before this freeze:
+
+1. The linked dependency return initially described original exact postimages and obsolete replay commands as current. Its new opening banner identifies historical scope and links the correction/current validator; the original return is preserved byte-for-byte under `application/dependencies/initial_exact_application/`. Backcheck passed.
+2. Final metadata promotion changes carrier hashes, so the current reconciliation builder's `AppliedSHA256` assertions and source-bound derivatives cannot be advertised as current afterward. `Handoff_State.md` now specifies the append-only postacceptance source/derivative transition, and `GROUP3_PACKAGE.md` makes that transition part of finalization. It preserves reviewed evidence, original R6 keys/mappings/residuals and pending prerequisites, and requires actual final-source checks before accepted-state CURRENT claims. Backcheck passed. That future work remains unexecuted and is required upon actual acceptance.
+
+No remaining repair is requested for this applied candidate. Parent-owned Root practitioner count changes are excluded; the Piping disclosure accurately assigns their review and retest to the combined closeout.
+
+## Evidence and coverage
+
+All 232 frozen files were read and checked for identity; structured artifacts were parsed. Review inspected the applied decomposition/carrier changes, four new complete scopes, source-owner boundaries, decision/handoff records, staged contracts, repair fields, and residual source implementations. Large derived files were checked deterministically across their complete row sets, with semantic review concentrated on changed responsibilities, all three staged bindings, the three residual allocations, and representative local dependency input families. This is not a fresh semantic recertification of all historical rows or all product claims.
+
+| Area | Independent result |
+|---|---|
+| Application containment | All 83 targets verified: 63 retain exact accepted postimages, 20 local dependency files match explicit repaired hashes. Accepted APPLY_MANIFEST bytes remain unchanged. All 25 declared repair paths verify. Active SCA-010/DAG-010 pointers and protected Piping production/history paths remain unchanged. |
+| Decomposition and controls | 18 packages/18 objectives preserved; 102→106 deliverables and 77→79 scope items. Four homes have finite L/L/L/M boundaries, OPEN lifecycle and required controls. Existing 102 lifecycle states unchanged. Register/decomposition/context parity passes. OBJ-018 corrects summary support to the existing DEL-13-02 mapping and adds DEL-07-12 without changing objective meaning. |
+| Claims and boundaries | 24 affected SoWs and all 97 current SoWs pass structural validation; old claim/acceptance/verification/output IDs retained. Integration does not absorb primitives or convergence policy; shell does not absorb feature/persistence/security policy; interoperability GUI does not absorb schemas/exporters/licensed execution; controlled application remains distinct from validation/acceptance/audit/persistence. Wire drafts remain unaccepted and excluded. |
+| Dependency repair | Independent dictionary comparison preserves all 1,487 old rows and 102 nodes. The 84-row bijection changes only DependencyID, EvidenceFile, SourceRef, EvidenceQuote and Notes; all other fields equal the accepted delta. Each quote is literal, ≤30 words and in its cited locus; owner-qualified IDs conform to SPEC §6.8. Ten local schemas pass. All 62 added execution inputs remain SEMANTIC_READY-required, actual TBD, satisfaction PENDING. |
+| Graphs | Stock strict audit passes: 106 nodes, 1,571 rows, 1,034 active deliverable edges, zero endpoint/canonical/cycle/duplicate/bidirectional findings. Separate stage graph has 1,041 edges; reviewer-authored Kahn traversal independently finds no cycle. All nine metadata/graph negative probes reject expected defects. |
+| Reconciliation | Read-only reconstruction passes, including six missing/duplicate/invalid-key probes. Independently compared all 598 capability keys and copied original values on 121 claim links against the 9,889-key source. There are 120 bounded facet links, 478 explicitly outside this slice and 13 GUI source-owner bindings. No original remainder or disposition is closed. |
+| Conditional finalization | Simulated all three final metadata manifests in memory: 71 distinct targets with exact input/output hashes. The repaired dependency manifest contains 10 index-text transitions and 10 CSV no-ops. No dependency content or readiness promotion follows. None executed. |
+
+The three stage resolutions have substantive artifact boundaries: organization contract before palette implementation and later coverage; existing base envelope before common comparison contract and later export mapping; explicit acceptance decision before application and actual outcome before final audit. The drafts specify readiness and negative witnesses rather than hiding reciprocal dependencies through a type change. The stock audit omits DOCUMENT edges; the separate model covers these three bindings and internal stages, not every historical document relation.
+
+Residual allocations are source-grounded: session bootstrap/native fallback is shell coordination under DEL-07-11 while DEL-13-01 retains schema/provenance; shared preparation is split by offline-review versus hanger/self-weight consumers under DEL-07-08/03, with validation constraints retained; expansion-joint adapters map component data into existing stiffness/load contracts under DEL-04-07 without taking component/kernel/load mathematics or ER-35 engineering acceptance. Source inspection supports ownership only, not measured behavior.
+
+## Replay and limits
+
+Recoverable output is in `review/`: `APPLICATION_VALIDATION.json`, `REPAIRED_VALIDATION.json`, `DAG_Audit.json`, `CROSSWALK_REPLAY.json`, `raw_checks.json`, `register_comparison.json`, and `INDEPENDENT_CHECKS.json`. The three `*_replay_binding.json` files record exact validator-source hashes and output-only rebinding; predicates were not weakened. `independent_checks.py` supplies the separately authored preservation, source-locus, key/value, lifecycle, topological and conditional-transformation checks.
+
+The full audit replay passes all **29 raw checks**. Stock decomposition validation still exits 1 with **2,097 identical baseline findings, zero new and zero silently resolved**; the initial +168 failure evidence remains preserved. Its skipped companion-register family is supplemented by direct canonical-register parity checks. Baseline missing companion inventory/heavy duplication remains a warning. Anticipated production-artifact realization remains incomplete; no production/native/engineering tests or readiness are claimed. Estimates/schedules require their owning refresh before future planning relies on them.
+
+The reviewed poststate supports the existing Group-3 decision with these explicit obligations. Finalization must follow the new append-only transition in the handoff; this report stays evidence of the pending applied bytes.

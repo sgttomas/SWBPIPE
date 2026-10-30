@@ -1,0 +1,14 @@
+{
+  "fixture": "fixtures/caepipe_external/invented/print_to_file_results.csv",
+  "origin": "invented_by_project",
+  "produced_by_caepipe": false,
+  "values": "Every number is invented (round, made-up values); none is an analysis result.",
+  "layout_basis": "Section titles, column-header rows and unit rows follow the printed-results layout of the external prover recorded in private notes, with no values; the print-to-file command itself is publicly documented. No output of the external prover is included.",
+  "purpose": "Parser contract test for core/handoff/caepipe_external/print_csv.py (tests/test_caepipe_print_csv_parser.py).",
+  "redistribution_status": "public_permissive",
+  "privacy_classification": "invented_public_example",
+  "source_license": "project-governed",
+  "contributor": "OpenPipeStress Type 2 worker",
+  "contributor_certification": "implementation-only-no-professional-claim",
+  "claims": "None. The fixture asserts no agreement or compatibility with CAEPIPE, solver validation, code compliance or professional reliance."
+}

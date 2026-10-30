@@ -1,0 +1,516 @@
+{
+  "description": "T0R S1 amendments A2/A3/A4 shared tamper vector. Each variant applies its ops (RFC 6901 JSON pointers) to a copy of its base fixture; every reader (Rust, Python, TS) must give the expected outcome. Bases are actual producer output. Ops: replace, remove, reverse, and add (append with '-'). A variant with \"transport\" is also read by each reader's metadata-only transport check, with that outcome.",
+  "bases": {
+    "unicode": "fixtures/results/preview_physics_unicode_ids_sparse.json",
+    "blocked": "fixtures/product_preview/invented_mechanics_result_preview_physics_1_sparse.json",
+    "u4b_arc": "fixtures/results/preview_physics_u4b_arc_sparse.json"
+  },
+  "variants": [
+    {
+      "id": "C1-unicode-unchanged",
+      "base": "unicode",
+      "ops": [],
+      "expect": "accepted"
+    },
+    {
+      "id": "C2-blocked-unchanged",
+      "base": "blocked",
+      "ops": [],
+      "expect": "accepted"
+    },
+    {
+      "id": "V1-station-fraction-above-1",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/pipe_stress_extrema/0/station_fraction",
+          "value": 1.5
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "V2-subdivisions-above-cap",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/pipe_stress_extrema/0/subdivisions",
+          "value": 200000
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "V3-negative-span-index",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/pipe_stress_extrema/0/span_index",
+          "value": -1
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "V4-preview-cases-reordered",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "reverse",
+          "path": "/contract_evidence/preview_cases"
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "V5-combination-support-row-not-global",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/results/449/metadata/coordinate_system",
+          "value": "element_local"
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "V6-null-affected-refs",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/diagnostics/0/affected_refs",
+          "value": null
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "V7-blocked-modifier-count-nonzero",
+      "base": "blocked",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/summary/component_stress_modifier_count",
+          "value": 3
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "V8-empty-sif-source-reference",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/intensified_measures/0/sif_source_reference",
+          "value": ""
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "V9-missing-entity-ref",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "remove",
+          "path": "/results/0/entity_ref"
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "V10-negative-intensified-value",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/results/162/value",
+          "value": -1.0
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "V11-support-both-attributed-and-withheld",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "add",
+          "path": "/contract_evidence/preview_cases/0/support_attribution/withheld/-",
+          "value": {
+            "support_id": "support:锚",
+            "reason": "CONSTANT_EFFORT_NOT_CONSUMED"
+          }
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "A4-N1-intensified-metadata-extra-key",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "add",
+          "path": "/results/162/metadata/extra",
+          "value": "x"
+        }
+      ],
+      "expect": "accepted"
+    },
+    {
+      "id": "A4-N2-basis-ref-extra-key",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "add",
+          "path": "/results/22/basis_ref/extra",
+          "value": "x"
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "A4-N3-diagnostic-without-id",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "remove",
+          "path": "/diagnostics/15/id"
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "A4-N4-combination-source-result-refs-null",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/results/328/source_result_refs",
+          "value": null
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "A4-N5-duplicate-combination-force-magnitude",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "add",
+          "path": "/results/-",
+          "value": {
+            "id": "result:combination:combination-Σ:support-action:11:support:锚:force_magnitude:duplicate",
+            "kind": "support_reaction_force_magnitude_v2",
+            "value": 1118.033988749895,
+            "unit": "N",
+            "entity_ref": "support:锚",
+            "basis_ref": {
+              "ref_type": "combination",
+              "ref_id": "combination:Σ"
+            },
+            "source_result_refs": [
+              "result:combination:combination-Σ:support-action:11:support:锚:Fx",
+              "result:combination:combination-Σ:support-action:11:support:锚:Fy",
+              "result:combination:combination-Σ:support-action:11:support:锚:Fz",
+              "result:combination:combination-Σ:support-action:11:support:锚:Mx",
+              "result:combination:combination-Σ:support-action:11:support:锚:My",
+              "result:combination:combination-Σ:support-action:11:support:锚:Mz"
+            ],
+            "metadata": {
+              "component": "force_magnitude",
+              "coordinate_system": "global",
+              "location": "node",
+              "basis": "explicit_user_linear_combination",
+              "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+            }
+          }
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "A4-N6-support-row-without-basis-ref-element-local",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "remove",
+          "path": "/results/22/basis_ref"
+        },
+        {
+          "op": "replace",
+          "path": "/results/22/metadata/coordinate_system",
+          "value": "element_local"
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "A4-N7-integer-count-written-as-float",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/summary/component_stress_modifier_count",
+          "value": 4.0
+        }
+      ],
+      "expect": "accepted"
+    },
+    {
+      "id": "A4-N8-blocked-envelope-without-summary",
+      "base": "blocked",
+      "ops": [
+        {
+          "op": "remove",
+          "path": "/summary"
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "A4-N10-integer-span-index-written-as-float",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/pipe_stress_extrema/0/span_index",
+          "value": 0.0
+        }
+      ],
+      "expect": "accepted"
+    },
+    {
+      "id": "U4B-sigma-plus-changed",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/results/81/value",
+          "value": 11.396537565350796
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "U4B-sigma-minus-missing",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "remove",
+          "path": "/results/82"
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "U4B-transverse-shear-negative",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/results/83/value",
+          "value": -0.6188852080335594
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "U4B-arc-outside-domain-revived",
+      "base": "u4b_arc",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/stress_maximum_coverage",
+          "value": {
+            "complete": false,
+            "outside_domain_pipe_ids": [
+              "pipe:BEND2"
+            ],
+            "unavailable_pipe_ids": []
+          }
+        },
+        {
+          "op": "remove",
+          "path": "/contract_evidence/preview_cases/0/pipe_stress_extrema/3"
+        },
+        {
+          "op": "remove",
+          "path": "/results/305"
+        },
+        {
+          "op": "replace",
+          "path": "/summary/max_open_formula_stress",
+          "value": null
+        }
+      ],
+      "expect": "refused",
+      "transport": "refused"
+    },
+    {
+      "id": "U4B-arc-station-cover",
+      "base": "u4b_arc",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/pipe_stress_extrema/3/value_lower_pa",
+          "value": 35620986.99546099
+        },
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/pipe_stress_extrema/3/value_upper_pa",
+          "value": 35620986.99546099
+        },
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/pipe_stress_extrema/3/global_upper_bound_pa",
+          "value": 35620986.99546099
+        },
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/pipe_stress_extrema/3/certified_gap_pa",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/results/305/value",
+          "value": 35620986.99546099
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "U4B-transport-directional-bare",
+      "base": "u4b_arc",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/intensified_measures/0",
+          "value": {
+            "result_id": "result:intensified-directional:pipe-BEND1:end-i",
+            "i_in_plane": null,
+            "i_out_of_plane": -2
+          }
+        }
+      ],
+      "expect": "refused",
+      "transport": "refused"
+    },
+    {
+      "id": "U4B-transport-station-factor-negative",
+      "base": "u4b_arc",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/intensified_measures/1/i_out_of_plane",
+          "value": -2
+        }
+      ],
+      "expect": "refused",
+      "transport": "refused"
+    },
+    {
+      "id": "U4B-transport-station-location",
+      "base": "u4b_arc",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/intensified_measures/2/location",
+          "value": "governing_station"
+        }
+      ],
+      "expect": "refused",
+      "transport": "refused"
+    },
+    {
+      "id": "U4B-transport-station-extra-key",
+      "base": "u4b_arc",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/intensified_measures/3",
+          "value": {
+            "i_in_plane": 2.2,
+            "i_out_of_plane": 1.6,
+            "location": "midspan",
+            "pipe_id": "pipe:BEND1",
+            "result_id": "result:intensified-directional:pipe-BEND1:midspan",
+            "extra": 1
+          }
+        }
+      ],
+      "expect": "refused",
+      "transport": "refused"
+    },
+    {
+      "id": "U4B-transport-maximum-approximation",
+      "base": "u4b_arc",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/intensified_measures/5/approximation",
+          "value": "arc_closed_form_section_statics"
+        }
+      ],
+      "expect": "refused",
+      "transport": "refused"
+    },
+    {
+      "id": "U4B-transport-maximum-span-index",
+      "base": "u4b_arc",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/intensified_measures/5/span_index",
+          "value": 1
+        }
+      ],
+      "expect": "refused",
+      "transport": "refused"
+    },
+    {
+      "id": "U4B-transport-maximum-subdivisions",
+      "base": "u4b_arc",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/intensified_measures/5/subdivisions",
+          "value": 131073
+        }
+      ],
+      "expect": "refused",
+      "transport": "refused"
+    },
+    {
+      "id": "U4B-transport-maximum-gap-missing",
+      "base": "u4b_arc",
+      "ops": [
+        {
+          "op": "remove",
+          "path": "/contract_evidence/preview_cases/0/intensified_measures/11/certified_gap_pa"
+        }
+      ],
+      "expect": "refused",
+      "transport": "refused"
+    },
+    {
+      "id": "U4B-transport-maximum-pipe-empty",
+      "base": "u4b_arc",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/intensified_measures/11/pipe_id",
+          "value": ""
+        }
+      ],
+      "expect": "refused",
+      "transport": "refused"
+    }
+  ]
+}

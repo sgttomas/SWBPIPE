@@ -1,0 +1,63 @@
+{
+  "schema": "o4_declared_problem_bound_v1",
+  "status": "Frozen before any product output; see BOUND.md",
+  "claim_fence": "Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).",
+  "unit_roundoff_log2": -53,
+  "rho": "rho_k = (1 - eps)^(-k) - 1, exact rationals; half-integer k uses a rational upper bound of sqrt",
+  "length_count": {
+    "declared_length_leaf": "0",
+    "from_binary64_coordinates": "7/2"
+  },
+  "phi_count": {"constant": "6", "per_ell": "2"},
+  "roles": {
+    "timoshenko": {
+      "k_vv":        {"constant": "13", "per_ell": "5", "scale": "abs_exact"},
+      "k_vtheta":    {"constant": "12", "per_ell": "4", "scale": "abs_exact"},
+      "k_thth":      {"constant": "18", "per_ell": "5", "scale": "abs_exact"},
+      "k_ththprime": {"constant": "18", "per_ell": "5", "scale": "(phi + |2 - phi|)*E*I/(L*(1+phi))"},
+      "k_axial":     {"constant": "2",  "per_ell": "1", "scale": "abs_exact"},
+      "k_torsion":   {"constant": "2",  "per_ell": "1", "scale": "abs_exact"}
+    },
+    "euler_bernoulli": {
+      "k_vv":        {"constant": "5", "per_ell": "3", "scale": "abs_exact"},
+      "k_vtheta":    {"constant": "4", "per_ell": "2", "scale": "abs_exact"},
+      "k_thth":      {"constant": "3", "per_ell": "1", "scale": "abs_exact"},
+      "k_ththprime": {"constant": "3", "per_ell": "1", "scale": "abs_exact"},
+      "k_axial":     {"constant": "2", "per_ell": "1", "scale": "abs_exact"},
+      "k_torsion":   {"constant": "2", "per_ell": "1", "scale": "abs_exact"}
+    }
+  },
+  "derivation_restated": {
+    "timoshenko.k_vv": "(7-1) + 3*ell + (phi + 1)",
+    "timoshenko.k_vtheta": "(6-1) + 2*ell + (phi + 1)",
+    "timoshenko.k_thth": "(5-1) + ell + 2*(phi + 1)",
+    "timoshenko.k_ththprime": "(phi + 1) + [(5-1) + ell + (phi + 1)]",
+    "timoshenko.k_axial": "(3-1) + ell",
+    "timoshenko.k_torsion": "(3-1) + ell",
+    "euler_bernoulli.k_vv": "(6-1) + 3*ell",
+    "euler_bernoulli.k_vtheta": "(5-1) + 2*ell",
+    "euler_bernoulli.k_thth": "(4-1) + ell",
+    "euler_bernoulli.k_ththprime": "(4-1) + ell",
+    "euler_bernoulli.k_axial": "(3-1) + ell",
+    "euler_bernoulli.k_torsion": "(3-1) + ell"
+  },
+  "layout": {
+    "dof_order": ["ux_i", "uy_i", "uz_i", "rx_i", "ry_i", "rz_i", "ux_j", "uy_j", "uz_j", "rx_j", "ry_j", "rz_j"],
+    "upper_triangle": [
+      [0, 0, "k_axial", "z", 1], [6, 6, "k_axial", "z", 1], [0, 6, "k_axial", "z", -1],
+      [3, 3, "k_torsion", "z", 1], [9, 9, "k_torsion", "z", 1], [3, 9, "k_torsion", "z", -1],
+      [1, 1, "k_vv", "z", 1], [7, 7, "k_vv", "z", 1], [1, 7, "k_vv", "z", -1],
+      [1, 5, "k_vtheta", "z", 1], [1, 11, "k_vtheta", "z", 1], [5, 7, "k_vtheta", "z", -1], [7, 11, "k_vtheta", "z", -1],
+      [5, 5, "k_thth", "z", 1], [11, 11, "k_thth", "z", 1], [5, 11, "k_ththprime", "z", 1],
+      [2, 2, "k_vv", "y", 1], [8, 8, "k_vv", "y", 1], [2, 8, "k_vv", "y", -1],
+      [2, 4, "k_vtheta", "y", -1], [2, 10, "k_vtheta", "y", -1], [4, 8, "k_vtheta", "y", 1], [8, 10, "k_vtheta", "y", 1],
+      [4, 4, "k_thth", "y", 1], [10, 10, "k_thth", "y", 1], [4, 10, "k_ththprime", "y", 1]
+    ],
+    "plane_inertia": {"z": "I_z (v = u_y, theta = r_z)", "y": "I_y (v = u_z, theta = -r_y)"},
+    "other_entries": "structural zero, declared exactly +0 or -0"
+  },
+  "supplementary": {
+    "section_leaf_screen_log2_relative": -40,
+    "shear_area_rule": "A_s bits == RN(kappa_hat * A_n), kappa_hat in U8 section 3.1 fixed binary64 order from r_o = D/2, r_i = fl(D/2 - t), nu"
+  }
+}

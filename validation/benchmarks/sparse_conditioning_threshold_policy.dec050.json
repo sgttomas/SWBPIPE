@@ -1,0 +1,49 @@
+{
+  "record_kind": "governed_sparse_generated_grid_pivot_conditioning_policy",
+  "record_id": "DEC-050-SPARSE-GENERATED-GRID-PIVOT-CONDITIONING-POLICY-v1",
+  "decision_ref": "DEC-050",
+  "status": "accepted_for_generated_grid_pivot_ratio_observation_set",
+  "scope": "invented_generated_grid_sparse_suitability_observation_set_only",
+  "source_observation_record": "DEC-050-SPARSE-SUITABILITY-OBSERVATION-v1",
+  "dense_path_role": "default_solver_and_parity_oracle",
+  "sparse_path_role": "evidence_lane_only",
+  "metric_basis": {
+    "name": "sparse_pivot_condition_ratio_estimate",
+    "unit": "dimensionless",
+    "basis": "sparse LDLT factorization report max absolute accepted pivot divided by min absolute accepted pivot",
+    "proxy_notice": "Pivot-ratio proxy only; not a true matrix condition number."
+  },
+  "change_provenance": {
+    "fixture_local_overrides": "tighten_only",
+    "loosening_rule": "loosening the governed generated-grid pivot-conditioning threshold requires a new governance event"
+  },
+  "entries": [
+    {
+      "fixture_family": "invented_planar_grid_frame",
+      "sparse_pivot_condition_ratio_estimate_limit": 1.0e16,
+      "policy_ref": "DEC-050-SPARSE-GENERATED-GRID-PIVOT-CONDITIONING-POLICY-v1",
+      "observation_ref": "DEC-050-SPARSE-SUITABILITY-OBSERVATION-v1",
+      "evidence_fixture_ids": [
+        "invented-grid-frame-4x3",
+        "invented-grid-frame-6x8"
+      ]
+    }
+  ],
+  "still_tbd": [
+    "default_sparse_promotion",
+    "timing_thresholds",
+    "allocator_rss_memory_thresholds",
+    "ci_gate_thresholds",
+    "hardware_normalization_methodology",
+    "true_condition_number_thresholds",
+    "practical_size_band_thresholds",
+    "release_or_external_validation_thresholds"
+  ],
+  "limitations": [
+    "Applies only to the generated-grid sparse suitability observation set named in the source observation record.",
+    "Uses the sparse factorization pivot-ratio proxy only; it is not a true condition-number policy.",
+    "Does not make the sparse path the default product or release solve path.",
+    "Does not define timing, allocator/RSS memory, CI, hardware-normalized, release, external validation, professional, or code-compliance thresholds."
+  ],
+  "boundary_notice": "Sparse conditioning verification policy evidence only; not a release, reliance, certification, sealing, authentication, or code-compliance claim."
+}

@@ -1,0 +1,28 @@
+{
+  "bindings": [],
+  "case_id": "case_41_block_min_empty_operands",
+  "declared_grammar_version": "1.0.0",
+  "description": "MIN with no operands is an unsupported expression form.",
+  "expected": {
+    "findings": [
+      {
+        "code": "unsupported_expression_form",
+        "subject_id": "min"
+      }
+    ],
+    "source_variable_ids": [],
+    "statuses": [
+      "mechanics_solved"
+    ],
+    "value": null
+  },
+  "expression": {
+    "function": "min",
+    "node": "aggregate",
+    "operands": []
+  },
+  "required_variable_ids": [],
+  "statuses": [
+    "mechanics_solved"
+  ]
+}

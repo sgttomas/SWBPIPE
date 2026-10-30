@@ -1,0 +1,77 @@
+{
+  "schema": "chirality.reproduction_prechecksum_qa/v1",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "claims-language",
+      "argv": ["python3", "tools/validation/validate_claims_language.py", "--repo-root", "."],
+      "environment": {"PYTHONDONTWRITEBYTECODE": "1"},
+      "exit_code": 0,
+      "result": "VALID claims-language surfaces: 262 files scanned; DEC-081 registry taxonomy satisfied"
+    },
+    {
+      "id": "path-anchors",
+      "argv": ["python3", "tools/validation/validate_path_anchors.py", ".", "--text"],
+      "environment": {"PYTHONDONTWRITEBYTECODE": "1"},
+      "exit_code": 0,
+      "result": "PASS: no literal home-dir absolute paths found in 453 live path-anchor surfaces"
+    },
+    {
+      "id": "loop-receipts",
+      "argv": ["python3", "tools/validation/validate_piping_loop_receipts.py", "--repo-root", "."],
+      "environment": {"PYTHONDONTWRITEBYTECODE": "1"},
+      "exit_code": 0,
+      "result": "VALID projects/chirality-piping/loop/LOOP_RECEIPTS.md: frozen through Receipt-44; versioned receipt contract satisfied"
+    },
+    {
+      "id": "git-diff-check",
+      "argv": ["git", "diff", "--check"],
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "id": "change-scope",
+      "argv": ["python3", "tools/software_workflow/validate_change_scope.py", ".", "--base", "525ef0903e68b536ff5b22f985263ca737a67986", "--allowed", "projects/chirality-piping/validation/evidence/reproduction/REPRO_DEL0904_20260719T023848Z_525ef0903e68", "--allowed", "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/_run_records/WORKING_ITEMS_RUN_2026-07-19_DEL0904_CLEAN_REPRO_R7_BLOCKED.md", "--allowed", "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260718-DEL0904-CLEAN-REPRO-R7"],
+      "environment": {"PYTHONDONTWRITEBYTECODE": "1"},
+      "exit_code": 0,
+      "result": "PASS",
+      "violations": []
+    },
+    {
+      "id": "json-parse",
+      "argv": ["python3", "-c", "standard-library json parse of all bundle .json and commands.jsonl records"],
+      "environment": {"PYTHONDONTWRITEBYTECODE": "1"},
+      "exit_code": 0,
+      "result": "PASS after all prechecksum files were final: 5 JSON files and 3 JSONL records"
+    }
+  ],
+  "protected_surfaces": {
+    "del0904_status": {
+      "unchanged_from_head": true,
+      "sha256": "e1ed7b6dd757f37ecbdaaf844687f6ac5cc07a07e905d5830bae61ab162d92e1"
+    },
+    "del0904_memory": {
+      "unchanged_from_head": true,
+      "sha256": "cee73c9cdb9493534a831afaf76164ab0ea974b2473e754ec17577d93e8841f1"
+    },
+    "loop_receipts": {
+      "unchanged_from_head": true,
+      "sha256": "2ad81234ee45ce396bd02a254c0a7e687e6b04ea430c6d5dfdf7a67035173dce"
+    }
+  },
+  "sweep_artifacts": {
+    "before_count": 280,
+    "after_count": 280,
+    "new_artifact_count": 0,
+    "sorted_path_list_sha256_before": "5019c446e7f010860efdea6cfba24e52eaa4c5fa12dd20708bca04172015cf62",
+    "sorted_path_list_sha256_after": "5019c446e7f010860efdea6cfba24e52eaa4c5fa12dd20708bca04172015cf62"
+  },
+  "run_record_count": {
+    "expected": 1,
+    "actual": 1,
+    "path": "execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/_run_records/WORKING_ITEMS_RUN_2026-07-19_DEL0904_CLEAN_REPRO_R7_BLOCKED.md"
+  },
+  "runtime_and_profile_surfaces_executed": false,
+  "installation_or_download_performed": false,
+  "network_or_external_effect": false
+}

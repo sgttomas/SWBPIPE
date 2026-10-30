@@ -1,0 +1,306 @@
+RF-CHAIN-T-n03-r1e-04                              53 values  basis=intended  negative controls discriminating 1/4
+RF-CHAIN-T-n03-r1e-06                              53 values  basis=intended  negative controls discriminating 1/4
+RF-CHAIN-T-n03-r1e-08                              53 values  basis=intended  negative controls discriminating 4/4
+RF-CHAIN-T-n03-r1e-10                              53 values  basis=intended  negative controls discriminating 4/4
+RF-CHAIN-T-n03-r1e-12                              53 values  basis=intended  negative controls discriminating 4/4
+RF-CHAIN-T-n05-r1e-04                              79 values  basis=intended  negative controls discriminating 1/4
+RF-CHAIN-T-n05-r1e-06                              79 values  basis=intended  negative controls discriminating 1/4
+RF-CHAIN-T-n05-r1e-08                              79 values  basis=intended  negative controls discriminating 4/4
+RF-CHAIN-T-n05-r1e-10                              79 values  basis=intended  negative controls discriminating 4/4
+RF-CHAIN-T-n05-r1e-12                              79 values  basis=intended  negative controls discriminating 4/4
+RF-CHAIN-T-n10-r1e-04                             144 values  basis=intended  negative controls discriminating 1/4
+RF-CHAIN-T-n10-r1e-06                             144 values  basis=intended  negative controls discriminating 2/4
+RF-CHAIN-T-n10-r1e-08                             144 values  basis=intended  negative controls discriminating 4/4
+RF-CHAIN-T-n10-r1e-10                             144 values  basis=intended  negative controls discriminating 4/4
+RF-CHAIN-T-n10-r1e-12                             144 values  basis=intended  negative controls discriminating 4/4
+RF-CHAIN-A-n03-r1e-04                              53 values  basis=intended  negative controls discriminating 1/4
+RF-CHAIN-A-n03-r1e-06                              53 values  basis=intended  negative controls discriminating 1/4
+RF-CHAIN-A-n03-r1e-08                              53 values  basis=intended  negative controls discriminating 3/4
+RF-CHAIN-A-n03-r1e-10                              53 values  basis=intended  negative controls discriminating 4/4
+RF-CHAIN-A-n03-r1e-12                              53 values  basis=intended  negative controls discriminating 4/4
+RF-CHAIN-A-n05-r1e-04                              79 values  basis=intended  negative controls discriminating 1/4
+RF-CHAIN-A-n05-r1e-06                              79 values  basis=intended  negative controls discriminating 1/4
+RF-CHAIN-A-n05-r1e-08                              79 values  basis=intended  negative controls discriminating 3/4
+RF-CHAIN-A-n05-r1e-10                              79 values  basis=intended  negative controls discriminating 4/4
+RF-CHAIN-A-n05-r1e-12                              79 values  basis=intended  negative controls discriminating 4/4
+RF-CHAIN-A-n10-r1e-04                             144 values  basis=intended  negative controls discriminating 1/4
+RF-CHAIN-A-n10-r1e-06                             144 values  basis=intended  negative controls discriminating 1/4
+RF-CHAIN-A-n10-r1e-08                             144 values  basis=intended  negative controls discriminating 3/4
+RF-CHAIN-A-n10-r1e-10                             144 values  basis=intended  negative controls discriminating 4/4
+RF-CHAIN-A-n10-r1e-12                             144 values  basis=intended  negative controls discriminating 4/4
+RF-SKEW-T-PIN-AX-345-r1e-04                        28 values  basis=intended  negative controls discriminating 1/3
+RF-SKEW-T-PIN-AX-345-r1e-08                        28 values  basis=intended  negative controls discriminating 3/3
+RF-SKEW-T-PIN-AX-345-r1e-12                        28 values  basis=intended  negative controls discriminating 3/3
+RF-SKEW-T-PIN-AX-122-r1e-04                        28 values  basis=intended  negative controls discriminating 1/3
+RF-SKEW-T-PIN-AX-122-r1e-08                        28 values  basis=intended  negative controls discriminating 2/3
+RF-SKEW-T-PIN-AX-122-r1e-12                        28 values  basis=intended  negative controls discriminating 3/3
+RF-SKEW-T-PIN-OFF-345-r1e-04                       28 values  basis=intended  negative controls discriminating 2/4
+RF-SKEW-T-PIN-OFF-345-r1e-08                       28 values  basis=intended  negative controls discriminating 4/4
+RF-SKEW-T-PIN-OFF-345-r1e-12                       28 values  basis=intended  negative controls discriminating 4/4
+RF-SKEW-T-PIN-OFF-122-r1e-04                       28 values  basis=intended  negative controls discriminating 2/4
+RF-SKEW-T-PIN-OFF-122-r1e-08                       28 values  basis=intended  negative controls discriminating 4/4
+RF-SKEW-T-PIN-OFF-122-r1e-12                       28 values  basis=intended  negative controls discriminating 4/4
+RF-SKEW-T-CANT-AX-345-r1e-04                       31 values  basis=intended  negative controls discriminating 2/4
+RF-SKEW-T-CANT-AX-345-r1e-08                       31 values  basis=intended  negative controls discriminating 4/4
+RF-SKEW-T-CANT-AX-345-r1e-12                       31 values  basis=intended  negative controls discriminating 4/4
+RF-SKEW-T-CANT-AX-122-r1e-04                       31 values  basis=intended  negative controls discriminating 2/4
+RF-SKEW-T-CANT-AX-122-r1e-08                       31 values  basis=intended  negative controls discriminating 2/4
+RF-SKEW-T-CANT-AX-122-r1e-12                       31 values  basis=intended  negative controls discriminating 4/4
+RF-SKEW-T-CANT-OFF-345-r1e-04                      31 values  basis=intended  negative controls discriminating 2/4
+RF-SKEW-T-CANT-OFF-345-r1e-08                      31 values  basis=intended  negative controls discriminating 4/4
+RF-SKEW-T-CANT-OFF-345-r1e-12                      31 values  basis=intended  negative controls discriminating 4/4
+RF-SKEW-T-CANT-OFF-122-r1e-04                      31 values  basis=intended  negative controls discriminating 2/4
+RF-SKEW-T-CANT-OFF-122-r1e-08                      31 values  basis=intended  negative controls discriminating 3/4
+RF-SKEW-T-CANT-OFF-122-r1e-12                      31 values  basis=intended  negative controls discriminating 4/4
+RF-SKEW-A-CANT-AX-345-r1e-04                       31 values  basis=intended  negative controls discriminating 2/4
+RF-SKEW-A-CANT-AX-345-r1e-08                       31 values  basis=intended  negative controls discriminating 4/4
+RF-SKEW-A-CANT-AX-345-r1e-12                       31 values  basis=intended  negative controls discriminating 4/4
+RF-SKEW-A-CANT-AX-122-r1e-04                       31 values  basis=intended  negative controls discriminating 2/4
+RF-SKEW-A-CANT-AX-122-r1e-08                       31 values  basis=intended  negative controls discriminating 3/4
+RF-SKEW-A-CANT-AX-122-r1e-12                       31 values  basis=represented  negative controls discriminating 4/4
+RF-SKEW-A-CANT-OFF-345-r1e-04                      31 values  basis=intended  negative controls discriminating 2/4
+RF-SKEW-A-CANT-OFF-345-r1e-08                      31 values  basis=intended  negative controls discriminating 2/4
+RF-SKEW-A-CANT-OFF-345-r1e-12                      31 values  basis=intended  negative controls discriminating 4/4
+RF-SKEW-A-CANT-OFF-122-r1e-04                      31 values  basis=intended  negative controls discriminating 2/4
+RF-SKEW-A-CANT-OFF-122-r1e-08                      31 values  basis=intended  negative controls discriminating 2/4
+RF-SKEW-A-CANT-OFF-122-r1e-12                      31 values  basis=intended  negative controls discriminating 4/4
+RF-WEAK-W-AX-rho1e-04                              83 values  basis=intended  negative controls discriminating 2/4
+RF-WEAK-W-AX-rho1e-08                              83 values  basis=intended  negative controls discriminating 3/4
+RF-WEAK-W-AX-rho1e-12                              83 values  basis=intended  negative controls discriminating 3/4
+RF-WEAK-W-L-r1e-04                                 40 values  basis=intended  negative controls discriminating 2/4
+RF-WEAK-W-L-r1e-08                                 40 values  basis=intended  negative controls discriminating 3/4
+RF-WEAK-W-L-r1e-12                                 40 values  basis=intended  negative controls discriminating 3/4
+RF-WEAK-W-3D-rho1e-04                              83 values  basis=intended  negative controls discriminating 2/4
+RF-WEAK-W-3D-rho1e-08                              83 values  basis=intended  negative controls discriminating 2/4
+RF-WEAK-W-3D-rho1e-12                              83 values  basis=intended  negative controls discriminating 3/4
+RF-LARGE-CHAIN-n00010-AX                          142 values  basis=intended  negative controls discriminating 3/3
+RF-LARGE-CHAIN-n00010-ROT                         142 values  basis=intended  negative controls discriminating 3/3
+RF-LARGE-TREE-n00010-AX                           142 values  basis=intended  negative controls discriminating 3/3
+RF-LARGE-TREE-n00010-ROT                          142 values  basis=intended  negative controls discriminating 3/3
+RF-LARGE-CONT-n00010-AX                           157 values  basis=intended  negative controls discriminating 4/4
+RF-LARGE-CONT-n00010-ROT                          157 values  basis=intended  negative controls discriminating 3/3
+RF-LARGE-CHAIN-n00100-AX                         1312 values  basis=intended  negative controls discriminating 3/3
+RF-LARGE-CHAIN-n00100-ROT                        1312 values  basis=intended  negative controls discriminating 3/3
+RF-LARGE-TREE-n00100-AX                          1312 values  basis=intended  negative controls discriminating 3/3
+RF-LARGE-TREE-n00100-ROT                         1312 values  basis=intended  negative controls discriminating 3/3
+RF-LARGE-CONT-n00100-AX                          1462 values  basis=intended  negative controls discriminating 4/4
+RF-LARGE-CONT-n00100-ROT                         1462 values  basis=intended  negative controls discriminating 3/3
+RF-LARGE-CHAIN-n01000-AX                          103 values  basis=intended  negative controls discriminating 3/3
+RF-LARGE-CHAIN-n01000-ROT                         103 values  basis=intended  negative controls discriminating 3/3
+RF-LARGE-TREE-n01000-AX                           194 values  basis=intended  negative controls discriminating 3/3
+RF-LARGE-TREE-n01000-ROT                          194 values  basis=intended  negative controls discriminating 3/3
+RF-LARGE-CONT-n01000-AX                           215 values  basis=intended  negative controls discriminating 4/4
+RF-LARGE-CONT-n01000-ROT                          215 values  basis=intended  negative controls discriminating 3/3
+RF-LARGE-CHAIN-n10000-AX                          103 values  basis=intended  negative controls discriminating 3/3
+RF-LARGE-CHAIN-n10000-ROT                         103 values  basis=intended  negative controls discriminating 3/3
+RF-LARGE-TREE-n10000-AX                           194 values  basis=intended  negative controls discriminating 3/3
+RF-LARGE-TREE-n10000-ROT                          194 values  basis=intended  negative controls discriminating 3/3
+RF-LARGE-CONT-n10000-AX                           215 values  basis=intended  negative controls discriminating 4/4
+RF-LARGE-CONT-n10000-ROT                          215 values  basis=intended  negative controls discriminating 3/3
+RF-INVARIANCE-PINTOR-BASE                          92 values  basis=intended  negative controls discriminating 1/2
+RF-INVARIANCE-PINTOR-ROT-Q3                        92 values  basis=intended  negative controls discriminating 2/2
+RF-INVARIANCE-PINTOR-ROT-Q9                        92 values  basis=intended  negative controls discriminating 2/2
+RF-INVARIANCE-PINTOR-OFF-1e3                       92 values  basis=intended  negative controls discriminating 1/2
+RF-INVARIANCE-PINTOR-OFF-1e6                       92 values  basis=intended  negative controls discriminating 1/2
+RF-INVARIANCE-PINTOR-RELABEL                       92 values  basis=intended  negative controls discriminating 2/3
+RF-INVARIANCE-PINTOR-UNITS-mm                      92 values  basis=intended  negative controls discriminating 2/2
+RF-INVARIANCE-LFRAME-BASE                          44 values  basis=intended  negative controls discriminating 1/2
+RF-INVARIANCE-LFRAME-ROT-Q3                        44 values  basis=intended  negative controls discriminating 2/2
+RF-INVARIANCE-LFRAME-ROT-Q9                        44 values  basis=intended  negative controls discriminating 2/2
+RF-INVARIANCE-LFRAME-OFF-1e3                       44 values  basis=intended  negative controls discriminating 2/2
+RF-INVARIANCE-LFRAME-OFF-1e6                       44 values  basis=intended  negative controls discriminating 2/2
+RF-INVARIANCE-LFRAME-RELABEL                       44 values  basis=intended  negative controls discriminating 3/3
+RF-INVARIANCE-LFRAME-UNITS-mm                      44 values  basis=intended  negative controls discriminating 2/2
+RF-INVARIANCE-CONT4-BASE                          128 values  basis=intended  negative controls discriminating 1/2
+RF-INVARIANCE-CONT4-ROT-Q3                        128 values  basis=intended  negative controls discriminating 2/2
+RF-INVARIANCE-CONT4-ROT-Q9                        128 values  basis=intended  negative controls discriminating 2/2
+RF-INVARIANCE-CONT4-OFF-1e3                       128 values  basis=intended  negative controls discriminating 2/2
+RF-INVARIANCE-CONT4-OFF-1e6                       128 values  basis=intended  negative controls discriminating 2/2
+RF-INVARIANCE-CONT4-RELABEL                       128 values  basis=intended  negative controls discriminating 3/3
+RF-INVARIANCE-CONT4-UNITS-mm                      128 values  basis=intended  negative controls discriminating 2/2
+RF-INVARIANCE-TREE100-BASE                       1312 values  basis=intended  negative controls discriminating 1/2
+RF-INVARIANCE-TREE100-OFF-1e3                    1312 values  basis=intended  negative controls discriminating 2/2
+RF-INVARIANCE-TREE100-OFF-1e6                    1312 values  basis=intended  negative controls discriminating 2/2
+RF-INVARIANCE-TREE100-RELABEL                    1312 values  basis=intended  negative controls discriminating 3/3
+RF-RANGE-CHAIN-L-240                               79 values  basis=intended  negative controls discriminating 3/3
+RF-RANGE-CHAIN-L+240                               79 values  basis=intended  negative controls discriminating 3/3
+RF-RANGE-CHAIN-E-1000                              79 values  basis=intended  negative controls discriminating 2/3
+RF-RANGE-CHAIN-E+960                               79 values  basis=intended  negative controls discriminating 2/3
+RF-RANGE-CHAIN-F-960                               79 values  basis=intended  negative controls discriminating 2/3
+RF-RANGE-CHAIN-F+960                               79 values  basis=intended  negative controls discriminating 2/3
+RF-RANGE-CHAIN-LEF-small                           79 values  basis=intended  negative controls discriminating 3/3
+RF-RANGE-CHAIN-LEF-large                           79 values  basis=intended  negative controls discriminating 3/3
+RF-RANGE-CHAIN-SIM-a                               79 values  basis=intended  negative controls discriminating 3/3
+RF-RANGE-CHAIN-SIM-b                               79 values  basis=intended  negative controls discriminating 3/3
+RF-RANGE-SKEW-L-240                                31 values  basis=intended  negative controls discriminating 3/3
+RF-RANGE-SKEW-L+240                                31 values  basis=intended  negative controls discriminating 3/3
+RF-RANGE-SKEW-E-1000                               31 values  basis=intended  negative controls discriminating 2/3
+RF-RANGE-SKEW-E+960                                31 values  basis=intended  negative controls discriminating 2/3
+RF-RANGE-SKEW-F-960                                31 values  basis=intended  negative controls discriminating 2/3
+RF-RANGE-SKEW-F+960                                31 values  basis=intended  negative controls discriminating 2/3
+RF-RANGE-SKEW-LEF-small                            31 values  basis=intended  negative controls discriminating 3/3
+RF-RANGE-SKEW-LEF-large                            31 values  basis=intended  negative controls discriminating 3/3
+RF-RANGE-SKEW-SIM-a                                31 values  basis=intended  negative controls discriminating 3/3
+RF-RANGE-SKEW-SIM-b                                31 values  basis=intended  negative controls discriminating 3/3
+RF-RANGE-CONT-L-240                               157 values  basis=intended  negative controls discriminating 3/3
+RF-RANGE-CONT-L+240                               157 values  basis=intended  negative controls discriminating 3/3
+RF-RANGE-CONT-E-1000                              157 values  basis=intended  negative controls discriminating 2/3
+RF-RANGE-CONT-E+960                               157 values  basis=intended  negative controls discriminating 2/3
+RF-RANGE-CONT-F-960                               157 values  basis=intended  negative controls discriminating 2/3
+RF-RANGE-CONT-F+960                               157 values  basis=intended  negative controls discriminating 2/3
+RF-RANGE-CONT-LEF-small                           157 values  basis=intended  negative controls discriminating 3/3
+RF-RANGE-CONT-LEF-large                           157 values  basis=intended  negative controls discriminating 3/3
+RF-RANGE-CONT-SIM-a                               157 values  basis=intended  negative controls discriminating 3/3
+RF-RANGE-CONT-SIM-b                               157 values  basis=intended  negative controls discriminating 3/3
+RF-RANGE-THIN-A                                    25 values  basis=intended  negative controls discriminating 1/1
+RF-RANGE-THIN-B                                    25 values  basis=intended  negative controls discriminating 1/1
+RF-ZERO-SYM                                        70 values  basis=intended  negative controls discriminating 2/2
+RF-ZERO-TORSION                                    25 values  basis=intended  negative controls discriminating 2/2
+RF-ZERO-PLANAR                                     38 values  basis=intended  negative controls discriminating 2/2
+RF-ZERO-TINY                                       25 values  basis=intended  negative controls discriminating 3/3
+RF-FINITE-THIRDS-O0                               142 values  basis=intended  negative controls discriminating 1/2
+RF-FINITE-THIRDS-O1e3                             142 values  basis=intended  negative controls discriminating 1/2
+RF-FINITE-THIRDS-O1e6                             142 values  basis=intended  negative controls discriminating 1/2
+RF-FINITE-TENTHS-O1e6                             142 values  basis=intended  negative controls discriminating 1/2
+RF-FINITE-THIRTIETHS-O1e6                         142 values  basis=represented  negative controls discriminating 1/2
+RF-FINITE-ROT-Q9-NONMULT                           38 values  basis=intended  negative controls discriminating 1/2
+RF-MECH-LINE122-TORQUE                         refuse: mechanism, nullity 1
+RF-MECH-LINE122-PERP                           refuse: mechanism, nullity 1
+RF-MECH-LINE122-UNLOADED                       refuse: mechanism, nullity 1
+RF-MECH-LINE345-RZ                             refuse: mechanism, nullity 1
+RF-MECH-K0                                     refuse: mechanism, nullity 1
+RF-MECH-DISC-CHAIN100                          refuse: mechanism, nullity 6
+RF-MECH-DISC-CHAIN100-SPRING                   refuse: mechanism, nullity 5
+RF-MECH-LINE-IN-CHAIN1000                      refuse: mechanism, nullity 1
+RF-MECH-LINE345-RX-COMPANION                       26 values  basis=intended  negative controls discriminating 2/2
+RF-CANCEL-F-G1e5-GnG                               38 values  basis=intended  negative controls discriminating 1/4
+RF-CANCEL-F-G1e5-GGn                               38 values  basis=intended  negative controls discriminating 1/4
+RF-CANCEL-F-G1e5-nGG                               38 values  basis=intended  negative controls discriminating 1/4
+RF-CANCEL-F-G1e6-GnG                               38 values  basis=intended  negative controls discriminating 1/4
+RF-CANCEL-F-G1e6-GGn                               38 values  basis=intended  negative controls discriminating 1/4
+RF-CANCEL-F-G1e6-nGG                               38 values  basis=intended  negative controls discriminating 1/4
+RF-CANCEL-F-G1e7-GnG                               38 values  basis=intended  negative controls discriminating 3/4
+RF-CANCEL-F-G1e7-GGn                               38 values  basis=intended  negative controls discriminating 3/4
+RF-CANCEL-F-G1e7-nGG                               38 values  basis=intended  negative controls discriminating 3/4
+RF-CANCEL-F-G1e8-GnG                               38 values  basis=intended  negative controls discriminating 3/4
+RF-CANCEL-F-G1e8-GGn                               38 values  basis=intended  negative controls discriminating 3/4
+RF-CANCEL-F-G1e8-nGG                               38 values  basis=intended  negative controls discriminating 3/4
+RF-CANCEL-F-G1e8-GnG-ORTHO                         38 values  basis=intended  negative controls discriminating 3/4
+RF-CANCEL-F-G1e8-GnG-INPLANE                       38 values  basis=intended  negative controls discriminating 3/4
+RF-CANCEL-F-G1e80-GnG                              38 values  basis=intended  negative controls discriminating 3/4
+RF-CANCEL-F-G1e80-GGn                              38 values  basis=intended  negative controls discriminating 3/4
+RF-CANCEL-F-G1e80-nGG                              38 values  basis=intended  negative controls discriminating 3/4
+RF-CANCEL-F-G1e80-GnG-ORTHO                        38 values  basis=intended  negative controls discriminating 3/4
+RF-CANCEL-F-G1e80-GnG-INPLANE                      38 values  basis=intended  negative controls discriminating 3/4
+RF-CANCEL-M-G1e5-GnG                               38 values  basis=intended  negative controls discriminating 1/4
+RF-CANCEL-M-G1e5-GGn                               38 values  basis=intended  negative controls discriminating 1/4
+RF-CANCEL-M-G1e5-nGG                               38 values  basis=intended  negative controls discriminating 1/4
+RF-CANCEL-M-G1e6-GnG                               38 values  basis=intended  negative controls discriminating 1/4
+RF-CANCEL-M-G1e6-GGn                               38 values  basis=intended  negative controls discriminating 1/4
+RF-CANCEL-M-G1e6-nGG                               38 values  basis=intended  negative controls discriminating 1/4
+RF-CANCEL-M-G1e7-GnG                               38 values  basis=intended  negative controls discriminating 3/4
+RF-CANCEL-M-G1e7-GGn                               38 values  basis=intended  negative controls discriminating 3/4
+RF-CANCEL-M-G1e7-nGG                               38 values  basis=intended  negative controls discriminating 3/4
+RF-CANCEL-M-G1e8-GnG                               38 values  basis=intended  negative controls discriminating 3/4
+RF-CANCEL-M-G1e8-GGn                               38 values  basis=intended  negative controls discriminating 3/4
+RF-CANCEL-M-G1e8-nGG                               38 values  basis=intended  negative controls discriminating 3/4
+RF-CANCEL-M-G1e8-GnG-ORTHO                         38 values  basis=intended  negative controls discriminating 3/4
+RF-CANCEL-M-G1e8-GnG-INPLANE                       38 values  basis=intended  negative controls discriminating 3/4
+RF-CANCEL-M-G1e80-GnG                              38 values  basis=intended  negative controls discriminating 3/4
+RF-CANCEL-M-G1e80-GGn                              38 values  basis=intended  negative controls discriminating 3/4
+RF-CANCEL-M-G1e80-nGG                              38 values  basis=intended  negative controls discriminating 3/4
+RF-CANCEL-M-G1e80-GnG-ORTHO                        38 values  basis=intended  negative controls discriminating 3/4
+RF-CANCEL-M-G1e80-GnG-INPLANE                      38 values  basis=intended  negative controls discriminating 3/4
+RF-CANCEL-UDL-W1e5                                 47 values  basis=intended  negative controls discriminating 1/3
+RF-CANCEL-UDL-W1e8                                 47 values  basis=intended  negative controls discriminating 3/3
+RF-CANCEL-UDL-W1e80                                47 values  basis=intended  negative controls discriminating 2/3
+{
+ "cases": 216,
+ "published_expected_values": 27893,
+ "by_family": {
+  "RF-CHAIN": {
+   "cases": 30,
+   "values": 2760,
+   "refusal_cases": 0,
+   "negative_controls": 120,
+   "discriminating_negative_controls": 82,
+   "represented_basis_cases": []
+  },
+  "RF-SKEW": {
+   "cases": 36,
+   "values": 1080,
+   "refusal_cases": 0,
+   "negative_controls": 138,
+   "discriminating_negative_controls": 105,
+   "represented_basis_cases": [
+    "RF-SKEW-A-CANT-AX-122-r1e-12"
+   ]
+  },
+  "RF-WEAK": {
+   "cases": 9,
+   "values": 618,
+   "refusal_cases": 0,
+   "negative_controls": 36,
+   "discriminating_negative_controls": 23,
+   "represented_basis_cases": []
+  },
+  "RF-LARGE": {
+   "cases": 24,
+   "values": 11102,
+   "refusal_cases": 0,
+   "negative_controls": 76,
+   "discriminating_negative_controls": 76,
+   "represented_basis_cases": []
+  },
+  "RF-INVARIANCE": {
+   "cases": 25,
+   "values": 7096,
+   "refusal_cases": 0,
+   "negative_controls": 54,
+   "discriminating_negative_controls": 47,
+   "represented_basis_cases": []
+  },
+  "RF-RANGE": {
+   "cases": 32,
+   "values": 2720,
+   "refusal_cases": 0,
+   "negative_controls": 92,
+   "discriminating_negative_controls": 80,
+   "represented_basis_cases": []
+  },
+  "RF-ZERO": {
+   "cases": 4,
+   "values": 158,
+   "refusal_cases": 0,
+   "negative_controls": 9,
+   "discriminating_negative_controls": 9,
+   "represented_basis_cases": []
+  },
+  "RF-FINITE": {
+   "cases": 6,
+   "values": 748,
+   "refusal_cases": 0,
+   "negative_controls": 12,
+   "discriminating_negative_controls": 6,
+   "represented_basis_cases": [
+    "RF-FINITE-THIRTIETHS-O1e6"
+   ]
+  },
+  "RF-MECH": {
+   "cases": 9,
+   "values": 26,
+   "refusal_cases": 8,
+   "negative_controls": 26,
+   "discriminating_negative_controls": 26,
+   "represented_basis_cases": []
+  },
+  "RF-CANCEL": {
+   "cases": 41,
+   "values": 1585,
+   "refusal_cases": 0,
+   "negative_controls": 161,
+   "discriminating_negative_controls": 96,
+   "represented_basis_cases": []
+  }
+ }
+}

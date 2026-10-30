@@ -1,0 +1,74 @@
+compare {"model": "E1", "max_ratio_to_criterion": "9.346E-12", "binary64_equal": "48/48"}
+compare {"model": "E6", "max_ratio_to_criterion": "1.533E-11", "binary64_equal": "78/78"}
+compare {"model": "CSKEW_8_5", "max_ratio_to_criterion": "1.170E-11", "binary64_equal": "7/9"}
+compare {"model": "CSKEW_9", "max_ratio_to_criterion": "3.419E-11", "binary64_equal": "7/9"}
+compare {"model": "CSKEW_10", "max_ratio_to_criterion": "4.998E-11", "binary64_equal": "7/9"}
+compare {"model": "CSKEW_30", "max_ratio_to_criterion": "4.288E-11", "binary64_equal": "7/9"}
+compare {"model": "CPLANAR_60", "max_ratio_to_criterion": "2.828E-11", "binary64_equal": "9/9"}
+compare {"model": "CSKEW_30_N122", "max_ratio_to_criterion": "3.342E-11", "binary64_equal": "9/9"}
+compare {"model": "PP_UTM_2", "max_ratio_to_criterion": "4.212E-11", "binary64_equal": "9/9"}
+compare {"model": "C122K120-R100-Y100", "max_ratio_to_criterion": "3.535E-12", "binary64_equal": "8/9"}
+compare {"model": "C122-R10-Y100", "max_ratio_to_criterion": "1.326E-11", "binary64_equal": "8/9"}
+compare {"model": "C122-R10-YM100", "max_ratio_to_criterion": "1.326E-11", "binary64_equal": "8/9"}
+compare {"model": "C122-R100-Y011", "max_ratio_to_criterion": "7.167E-12", "binary64_equal": "8/9"}
+compare {"model": "C122-R100-Y01M1", "max_ratio_to_criterion": "7.167E-12", "binary64_equal": "9/9"}
+compare {"model": "C122-R100-Y100", "max_ratio_to_criterion": "7.167E-12", "binary64_equal": "8/9"}
+compare {"model": "C122-R10-Y01M1", "max_ratio_to_criterion": "1.326E-11", "binary64_equal": "9/9"}
+compare {"model": "K1-IP", "max_ratio_to_criterion": "4.195E-11", "binary64_equal": "9/9"}
+compare {"model": "K1-SK", "max_ratio_to_criterion": "2.104E-11", "binary64_equal": "9/9"}
+compare {"model": "K1F-IP", "max_ratio_to_criterion": "3.767E-11", "binary64_equal": "9/9"}
+compare {"model": "K1F-SK", "max_ratio_to_criterion": "2.617E-11", "binary64_equal": "9/9"}
+compare {"model": "K1-IP-1E-8-X0", "max_ratio_to_criterion": "4.195E-11", "binary64_equal": "9/9"}
+compare {"model": "K1-IP-1E-8-X5e6", "max_ratio_to_criterion": "4.195E-11", "binary64_equal": "9/9"}
+compare {"model": "K1-IP-1E-4-X0", "max_ratio_to_criterion": "1.843E-11", "binary64_equal": "9/9"}
+compare {"model": "K1-IP-1E-4-X5e6", "max_ratio_to_criterion": "1.843E-11", "binary64_equal": "9/9"}
+compare {"model": "K1-SK-1E-8-X0", "max_ratio_to_criterion": "2.104E-11", "binary64_equal": "9/9"}
+compare {"model": "K1-SK-1E-8-X5e6", "max_ratio_to_criterion": "2.104E-11", "binary64_equal": "9/9"}
+compare {"model": "K1-SK-1E-4-X0", "max_ratio_to_criterion": "1.227E-11", "binary64_equal": "9/9"}
+compare {"model": "K1-SK-1E-4-X5e6", "max_ratio_to_criterion": "1.227E-11", "binary64_equal": "9/9"}
+compare {"model": "ACC-1E-3-IP-X0", "max_ratio_to_criterion": "3.767E-11", "binary64_equal": "9/9"}
+compare {"model": "ACC-1E-3-IP-X7E6", "max_ratio_to_criterion": "3.767E-11", "binary64_equal": "9/9"}
+compare {"model": "ACC-1E-3-SK-X0", "max_ratio_to_criterion": "3.204E-11", "binary64_equal": "9/9"}
+compare {"model": "ACC-1E-3-SK-X7E6", "max_ratio_to_criterion": "3.204E-11", "binary64_equal": "9/9"}
+compare {"model": "ACC-1E-2-IP-X0", "max_ratio_to_criterion": "3.767E-11", "binary64_equal": "9/9"}
+compare {"model": "ACC-1E-2-IP-X7E6", "max_ratio_to_criterion": "3.767E-11", "binary64_equal": "9/9"}
+compare {"model": "ACC-1E-2-SK-X0", "max_ratio_to_criterion": "2.617E-11", "binary64_equal": "9/9"}
+compare {"model": "ACC-1E-2-SK-X7E6", "max_ratio_to_criterion": "2.617E-11", "binary64_equal": "9/9"}
+compare {"model": "ACC-0.1-IP-X0", "max_ratio_to_criterion": "3.768E-11", "binary64_equal": "9/9"}
+compare {"model": "ACC-0.1-IP-X7E6", "max_ratio_to_criterion": "3.768E-11", "binary64_equal": "9/9"}
+compare {"model": "ACC-0.1-SK-X0", "max_ratio_to_criterion": "2.617E-11", "binary64_equal": "9/9"}
+compare {"model": "ACC-0.1-SK-X7E6", "max_ratio_to_criterion": "2.617E-11", "binary64_equal": "9/9"}
+compare {"model": "ACC-1.0-IP-X0", "max_ratio_to_criterion": "3.768E-11", "binary64_equal": "9/9"}
+compare {"model": "ACC-1.0-IP-X7E6", "max_ratio_to_criterion": "3.768E-11", "binary64_equal": "9/9"}
+compare {"model": "ACC-1.0-SK-X0", "max_ratio_to_criterion": "4.194E-11", "binary64_equal": "9/9"}
+compare {"model": "ACC-1.0-SK-X7E6", "max_ratio_to_criterion": "4.194E-11", "binary64_equal": "9/9"}
+compare {"model": "ACC-2.0-IP-X0", "max_ratio_to_criterion": "3.852E-11", "binary64_equal": "9/9"}
+compare {"model": "ACC-2.0-IP-X7E6", "max_ratio_to_criterion": "3.852E-11", "binary64_equal": "9/9"}
+compare {"model": "ACC-2.0-SK-X0", "max_ratio_to_criterion": "3.013E-11", "binary64_equal": "9/9"}
+compare {"model": "ACC-2.0-SK-X7E6", "max_ratio_to_criterion": "3.013E-11", "binary64_equal": "9/9"}
+compare {"model": "ACC-3.0-IP-X0", "max_ratio_to_criterion": "3.715E-11", "binary64_equal": "9/9"}
+compare {"model": "ACC-3.0-IP-X7E6", "max_ratio_to_criterion": "3.715E-11", "binary64_equal": "9/9"}
+compare {"model": "ACC-3.0-SK-X0", "max_ratio_to_criterion": "3.764E-11", "binary64_equal": "9/9"}
+compare {"model": "ACC-3.0-SK-X7E6", "max_ratio_to_criterion": "3.764E-11", "binary64_equal": "9/9"}
+compare {"model": "ACC-PI-1E-3-IP-X0", "max_ratio_to_criterion": "2.166E-11", "binary64_equal": "9/9"}
+compare {"model": "ACC-PI-1E-3-IP-X7E6", "max_ratio_to_criterion": "2.166E-11", "binary64_equal": "9/9"}
+compare {"model": "ACC-PI-1E-3-SK-X0", "max_ratio_to_criterion": "1.767E-11", "binary64_equal": "9/9"}
+compare {"model": "ACC-PI-1E-3-SK-X7E6", "max_ratio_to_criterion": "1.767E-11", "binary64_equal": "9/9"}
+compare {"model": "ACC-PI-1E-4-IP-X0", "max_ratio_to_criterion": "2.184E-11", "binary64_equal": "9/9"}
+compare {"model": "ACC-PI-1E-4-IP-X7E6", "max_ratio_to_criterion": "2.184E-11", "binary64_equal": "9/9"}
+compare {"model": "ACC-PI-1E-4-SK-X0", "max_ratio_to_criterion": "1.624E-11", "binary64_equal": "9/9"}
+compare {"model": "ACC-PI-1E-4-SK-X7E6", "max_ratio_to_criterion": "1.624E-11", "binary64_equal": "9/9"}
+compare {"model": "ACC-PI-1E-5-IP-X0", "max_ratio_to_criterion": "3.034E-11", "binary64_equal": "9/9"}
+compare {"model": "ACC-PI-1E-5-IP-X7E6", "max_ratio_to_criterion": "3.034E-11", "binary64_equal": "9/9"}
+compare {"model": "ACC-PI-1E-5-SK-X0", "max_ratio_to_criterion": "1.624E-11", "binary64_equal": "9/9"}
+compare {"model": "ACC-PI-1E-5-SK-X7E6", "max_ratio_to_criterion": "1.624E-11", "binary64_equal": "9/9"}
+compare {"model": "ACC-PI-1E-7-IP-X0", "max_ratio_to_criterion": "2.114E-11", "binary64_equal": "9/9"}
+compare {"model": "ACC-PI-1E-7-IP-X7E6", "max_ratio_to_criterion": "2.114E-11", "binary64_equal": "9/9"}
+compare {"model": "ACC-PI-1E-7-SK-X0", "max_ratio_to_criterion": "3.298E-11", "binary64_equal": "9/9"}
+compare {"model": "ACC-PI-1E-7-SK-X7E6", "max_ratio_to_criterion": "3.298E-11", "binary64_equal": "9/9"}
+F122 {"dense": {"outcome": "Passed", "cond": 38365949.8101902, "actual_ratio": 2.413364146964414, "trigger_ratio": 4.826728293925875}, "sparse": {"outcome": "Passed", "cond": 38365949.94938997, "actual_ratio": 1.2139461639783815, "trigger_ratio": 2.4278923279576334}}
+F345 {"dense": {"outcome": "Passed", "cond": 864405.0982796852, "actual_ratio": 0.005855067030731647, "trigger_ratio": 0.011710134061463297}, "sparse": {"outcome": "Passed", "cond": 864405.0982872063, "actual_ratio": 0.014552096635744133, "trigger_ratio": 0.029104193271488273}}
+PROBE_C {"dense": {"outcome": "Passed", "cond": 65476194.24432851, "actual_ratio": 3.5411651789057146, "trigger_ratio": 7.082330357811425}, "sparse": {"outcome": "Passed", "cond": 65476194.40465827, "actual_ratio": 1.0924927242415519, "trigger_ratio": 2.1849854484831033}}
+PROBE_D {"dense": {"outcome": "Passed", "cond": 66000003.80420267, "actual_ratio": 2.6503337190098053, "trigger_ratio": 5.300667438019611}, "sparse": {"outcome": "Passed", "cond": 66000003.9791247, "actual_ratio": 1.7301448238433e-07, "trigger_ratio": 3.4602896476866e-07}}
+BENDING_SOFT {"dense": {"outcome": "Passed", "cond": 57293626.01494299, "actual_ratio": 0.1341105360330582, "trigger_ratio": 0.2682210720661162}, "sparse": {"outcome": "Passed", "cond": 57293625.969267815, "actual_ratio": 0.9313222918765431, "trigger_ratio": 1.8626445837530858}}
+M11 {"note": "V1 probe_d5_realistic: Passed both modes, first-order error <= 1.5e-4 of the criterion"}

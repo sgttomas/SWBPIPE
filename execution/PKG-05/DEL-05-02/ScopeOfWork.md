@@ -1,0 +1,293 @@
+---
+schema: chirality-deliverable-sow/v1
+deliverable_id: DEL-05-02
+package_id: PKG-05
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
+project_scope_refs: [SOW-014]
+package_objective_refs: [OBJ-003, OBJ-005]
+---
+
+# Scope of Work — DEL-05-02
+
+Reconciliation evidence: the retired D-41 current-declaration snapshots remain retrievable at source `00115c71931bcae79909602d653740d3bb72dfa1`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`. This deliverable's dependency conditions and code and check pointers are in `deliverable.yaml`, and its current technical rulings are in `Design/`. Open obligations remain in this Scope of Work and the owning decisions. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+
+## Purpose and Objective Traceability
+
+This Scope of Work defines `DEL-05-02` in service of project scope [SOW-014] and package objectives [OBJ-003, OBJ-005].
+
+- **OUT-001** — A load-case-algebra contract covering unit-aware user-defined combinations, deterministic expression evaluation, result-state addition, subtraction, scaling, envelopes and ranges, diagnostics, provenance, and mechanics-only outputs is produced for the declared scope and objectives.
+
+## Deliverable Definition — Ontology
+
+### CLM-001 — Datasheet: DEL-05-02 Load-case algebra engine
+
+> #### Datasheet: DEL-05-02 Load-case algebra engine
+>
+
+### CLM-002 — Identification
+
+> ##### Identification
+>
+> | Field | Value |
+> |---|---|
+> | Deliverable ID | DEL-05-02 |
+> | Name | Load-case algebra engine |
+> | Package | PKG-05 Loads, Load Cases, and Stress Recovery |
+> | Type | BACKEND_FEATURE_SLICE |
+> | Scope items | SOW-014 |
+> | Objectives | OBJ-003, OBJ-005 |
+> | Context envelope | M |
+>
+
+### CLM-003 — Attributes
+
+> ##### Attributes
+>
+> | Attribute | Evidence value | Source |
+> |---|---|---|
+> | Primary subject | Unit-aware algebra for user-defined load-case combinations and result-state subtraction/ranging. | `execution/_Decomposition/SOFTWARE_DECOMP.md` rows DEL-05-02 and SOW-014 |
+> | Mechanics boundary | Combination results remain mechanics solver/result states; code acceptability is evaluated by user rule packs. | `docs/CONTRACT.md` OPS-K-MECH-2 |
+> | Unit discipline | Implemented algebra quantities carry `LoadDimension`; combinations, subtraction, and range envelopes block incompatible dimensions instead of converting or repairing them. | `core/loads/load_case_algebra/README.md`; `core/loads/load_case_algebra/src/lib.rs` |
+> | Result boundary metadata | Result-boundary export requires explicit unit metadata, provenance reference, result schema binding, payload reference, and payload-hash reference. Load-record schema bindings are rejected for result quantities. | `core/loads/load_case_algebra/README.md`; `core/loads/load_case_algebra/src/lib.rs` |
+> | Data boundary | Code-specific combinations, allowables, protected standards content, and project-specific rule content are not bundled defaults. | `docs/CONTRACT.md` OPS-K-DATA-1; `core/loads/load_case_algebra/README.md` |
+> | Rule-pack boundary | The crate does not implement the rule-pack expression evaluator or arbitrary executable rules; rule-pack integration remains outside this deliverable slice. | SOW-014; OPS-K-RULE-2; `core/loads/load_case_algebra/README.md` |
+> | Expression grammar/library | Rule-pack grammar is resolved by DEC-022 as a declarative typed AST with no text parser. This does not add code-specific combinations or expand the algebra contract. The implemented API uses explicit enum variants and terms rather than a parser or code-specific syntax. | DEC-022; `core/loads/load_case_algebra/src/lib.rs` |
+>
+
+### CLM-004 — Conditions
+
+> ##### Conditions
+>
+> - Missing combination inputs, missing result states, duplicate operands, non-finite factors, incompatible dimensions, empty expressions, unsupported expression shapes, and status-boundary violations are represented as deterministic findings rather than silent defaults. Source: `core/loads/load_case_algebra/README.md`; `core/loads/load_case_algebra/src/lib.rs`; OPS-K-DATA-2.
+> - Solver/rule changes require deterministic verification before release. Current crate evidence includes targeted unit tests for the bounded algebra surface. Source: OPS-K-SOLVER-1; AB-00-08; `core/loads/load_case_algebra/src/lib.rs`.
+> - Result envelopes must preserve mechanics-solved, user-rule-checked, human-review-required, and human-approved distinctions; the crate rejects automatic propagation of `HumanApprovedForProject`. Source: AB-00-03; `core/loads/load_case_algebra/src/lib.rs`.
+> - Diagnostics and result envelopes must carry code, class, severity, source, affected object, message, remediation, and provenance where applicable. Source: AB-00-06.
+>
+
+### CLM-005 — Construction
+
+> ##### Construction
+>
+> | Artifact | Description | Evidence status |
+> |---|---|---|
+> | Combination engine | `open_pipe_stress_load_case_algebra` exposes explicit linear combinations, result-state subtraction, and range envelopes over compatible mechanics quantities. A linear combination is one exact sum of the exact products of its factors and operands, rounded once (E13, through DEL-04-01's `exact_sum::ExactAccumulator`). | Implemented in `core/loads/load_case_algebra` |
+> | Expression tests | Unit tests cover compatible combinations, subtraction, range envelopes, dimension mismatch, missing/duplicate operands, non-finite factors, result boundary metadata, status propagation, and human-approval rejection; S11-K's K6 tests cover exact cancelling combinations. | Implemented in `core/loads/load_case_algebra/src/lib.rs` and `src/s11k_tests.rs` |
+> | Rule-pack handoff | Boundary allows explicit mechanics/result operands while excluding rule-pack expression evaluation, code-specific defaults, protected standard formulas, and professional reliance claims. | Implemented boundary. DEL-06-02's expression evaluator exists (`core/rules/expression_evaluator`); no interface yet supplies rule-pack combinations to the algebra (DEL-05-02:1) |
+> | Diagnostics | Finding vocabulary covers missing operands, empty expressions, non-finite factors, dimension mismatches, duplicate operands, unsupported expression shapes, missing result states, and status-boundary violations. | Implemented finding vocabulary and deterministic blocking behavior |
+> | Product use | The product preview route and the exact pressure route evaluate model-authored `combinations` (bases `mechanics`, `result_state_subtraction` and `range_envelope`) through this crate; on the exact route the rows are derived from the case results (W-16 slice b, `Design/exact-combinations.md`), and the retained exact route refuses a combination by name. On the product preview route, a subtraction or range envelope of a model with nonlinear supports is published with each operand's numerical standing and a notice naming supports whose reported state differs between its operands (`Design/pf-nonlinear-operand-standing.md`). | Implemented in DEL-04-07's `core/product_physics` |
+> | Retained-precision Designs | Held here: `Design/retained-combinations.md` (the W1 retained combination contract). Held in DEL-04-08's `Design/`: `b7-plan.md` (one Rust product result reader, native and in wasm, with test-only Python verifiers and shared conformance corpora, and the current model document version); `rf-source-method-extension.md` and `w1-member-load-certification.md` (retained-source and W1 method extensions); `retained-pricing-rules.md` (the rules behind `tools/retained_pricing`, which generates the registered memory profile). | Technical rulings; DEL-04-08 holds the retained method's commitments and acceptance criteria. This Scope of Work's OUT, REQ and AC entries cover the load-case algebra only |
+>
+
+### CLM-006 — References
+
+> ##### References
+>
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` rows DEL-05-02 and SOW-014 (accepted authority; see the project decision register)
+> - `docs/CONTRACT.md`
+> - `core/loads/load_case_algebra/README.md`
+> - `deliverable.yaml` (needs, conditions, and code and check pointers)
+> - `Design/` (current technical rulings)
+>
+
+### CLM-007 — Load-case material-selection requirements
+
+> Under `DEC-077` and `DEC-092`, a load case may preserve exact `modulus_basis_ref` selection or provide an explicit solve temperature. Exact selection consumes the user-entered point E and G; declared solve temperatures linearly interpolate user-entered E, G, and applicable alpha only between strictly bracketing adjacent temperature points. Both selected paths record their point-level sources and method, require valid point G, and block at or beyond range edges, on missing/invalid G, or on simultaneous selectors without extrapolating or falling back to base G. The structured operation and private desktop material-authoring surfaces expose explicit point-G value/unit/reference input with user provenance and no inferred point, curve, catalog, code table, or default. The selection is implemented in DEL-04-07's product solve (`core/product_physics/src/lib.rs`, exercised over the invented `fixtures/product_preview/invented_dec092_temperature_g_request.json`); the load-case and material fields are in `schemas/model.schema.yaml` and `schemas/material.schema.yaml`. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+
+## Completion and Reliance Basis — Epistemology
+
+### CLM-008 — Specification: DEL-05-02 Load-case algebra engine
+
+> #### Specification: DEL-05-02 Load-case algebra engine
+>
+
+### CLM-009 — Scope
+
+> ##### Scope
+>
+> This specification records the bounded implementation evidence for a backend load-case algebra deliverable covering unit-aware user-defined combinations and result-state subtraction/ranging. The implemented crate is `core/loads/load_case_algebra`. It does not define code-specific combinations, choose a general expression grammar/library, bundle protected rule data, execute arbitrary rule-pack code, or claim code compliance.
+>
+
+### CLM-010 — Requirements
+
+> ##### Requirements
+>
+> | ReqID | Requirement | Source |
+> |---|---|---|
+> | REQ-05-02-001 | The deliverable shall preserve unit-aware algebra for user-defined combinations. | SOW-014 |
+> | REQ-05-02-002 | Combination expressions shall reject or report dimensionally incompatible operations as explicit findings. | OPS-K-UNIT-1; OPS-K-DATA-2 |
+> | REQ-05-02-003 | Result-state subtraction and ranging shall remain mechanics-result operations and shall not imply code compliance. | DEL-05-02 description; OPS-K-MECH-2 |
+> | REQ-05-02-004 | Code-specific load combinations shall be supplied by user rule packs, not by bundled public defaults. | SOW-014 notes; OPS-K-DATA-1 |
+> | REQ-05-02-005 | The algebra surface shall not require arbitrary executable rules. | OPS-K-RULE-2 |
+> | REQ-05-02-006 | Missing primitive load cases, referenced result states, or rule-required inputs shall be reported explicitly, not silently defaulted. | OPS-K-DATA-2 |
+> | REQ-05-02-007 | Command/query/job result envelopes shall preserve mechanics solved, user-rule checked, and human-approved state separation. | AB-00-03 |
+> | REQ-05-02-008 | Diagnostics produced by the algebra layer shall carry provenance-compatible envelope fields when applicable. | AB-00-06 |
+> | REQ-05-02-009 | Deterministic tests shall cover valid unit-compatible combinations, invalid dimensional mixes, missing operands, subtraction/ranging, and no-default rule-pack boundaries before release use. | OPS-K-SOLVER-1; AB-00-08 |
+>
+
+### CLM-011 — Standards
+
+> ##### Standards
+>
+> No external protected standard text is introduced by this deliverable. Governing local standards are the project invariant catalog, the sealed architecture-basis rows AB-00-01, AB-00-02, AB-00-03, AB-00-06, and AB-00-08, and the `execution/_Decomposition/SOFTWARE_DECOMP.md` rows for DEL-05-02, SOW-014, OBJ-003, and OBJ-005.
+>
+
+### CLM-012 — Verification
+
+> ##### Verification
+>
+> | Requirement | Verification approach |
+> |---|---|
+> | REQ-05-02-001 | Implemented unit test `linear_combination_sums_compatible_quantities` validates explicit factors over compatible mechanics quantities. |
+> | REQ-05-02-002 | Implemented test `dimension_mismatch_blocks_result` verifies incompatible dimensions block the result and emit `FindingCode::DimensionMismatch`. |
+> | REQ-05-02-003 | Implemented tests `subtraction_requires_distinct_compatible_result_states` and `range_envelope_selects_extreme_value` verify mechanics-only subtraction and range-envelope behavior. |
+> | REQ-05-02-004 | Crate README/source boundary states no bundled design-code combinations, public default factors, protected standards content, or professional/code-compliance claims. |
+> | REQ-05-02-005 | Implementation uses explicit `AlgebraExpression` enum variants and does not include a parser, arbitrary execution path, or rule-pack expression evaluator. |
+> | REQ-05-02-006 | Implemented tests and finding paths cover missing operands, duplicate operands, missing result states, empty expressions, and non-finite factors as explicit findings or boundary errors. |
+> | REQ-05-02-007 | Implemented status propagation preserves mechanics/rule statuses, adds `HumanReviewRequired`, and blocks automatic `HumanApprovedForProject` propagation. |
+> | REQ-05-02-008 | Implemented result-boundary tests verify explicit unit metadata, provenance-compatible record fields, result-schema binding, payload/hash references, and rejection of load-record schema binding for result quantities. |
+> | REQ-05-02-009 | Targeted crate verification is `cargo test --manifest-path core/loads/load_case_algebra/Cargo.toml`; the hosted numerical selection runs the crate's tests when the crate or one of its Cargo dependencies changes (`docs/CI_STRATEGY.md`); release acceptance remains separate. |
+>
+
+### CLM-013 — Documentation
+
+> ##### Documentation
+>
+> Deliverable-local artifacts are `ScopeOfWork.md` (commitments and acceptance criteria), `deliverable.yaml` (needs, conditions, and code and check pointers), and `Design/` (technical rulings). Implementation evidence for the algebra is `core/loads/load_case_algebra/README.md` and `core/loads/load_case_algebra/src/lib.rs`.
+
+- **AC-001** — The contract preserves the accepted bounded algebra surface, explicit units and operand compatibility, user-supplied expressions and factors, deterministic ordering and findings, and the DEC-022 grammar boundary and unresolved integration obligations without embedding proprietary code combinations, allowables, silent conversions, or compliance meaning.
+
+## Production and Verification Method — Praxeology
+
+### CLM-014 — Procedure: DEL-05-02 Load-case algebra engine
+
+> #### Procedure: DEL-05-02 Load-case algebra engine
+>
+
+### CLM-015 — Purpose
+
+> ##### Purpose
+>
+> Define the procedure for maintaining and verifying the bounded load-case algebra implementation evidence without introducing code-specific defaults, protected content, or professional/code-compliance claims.
+>
+
+### CLM-016 — Prerequisites
+
+> ##### Prerequisites
+>
+> - This Scope of Work, `deliverable.yaml`, and `Design/`.
+> - Governing invariants in `docs/CONTRACT.md`.
+> - Decomposition rows for DEL-05-02, SOW-014, OBJ-003, and OBJ-005.
+> - Implementation evidence in `core/loads/load_case_algebra/README.md` and `core/loads/load_case_algebra/src/lib.rs`.
+> - Human authorization before implementing a general expression grammar/library, code-specific load combinations/defaults, protected rule content, or rule-pack execution behavior.
+>
+
+### CLM-017 — Steps
+
+> ##### Steps
+>
+> 1. Confirm the deliverable scope is limited to unit-aware load-case algebra, user-defined explicit combinations, result-state subtraction, and range envelopes.
+> 2. Confirm exclusions: no code-specific load combinations/defaults, no protected standards content, no arbitrary executable rules, no rule-pack evaluator, and no certification or professional-reliance claims.
+> 3. Maintain the data boundary: code-specific combinations are supplied by user rule packs and remain outside bundled public defaults.
+> 4. Verify deterministic implementation evidence for compatible-unit combinations, incompatible dimensions, missing operands, duplicate operands, missing result states, non-finite factors, subtraction/ranging, result-boundary metadata, status propagation, and human-approval rejection.
+> 5. Apply DEC-022 for expression grammar, and verify through the registered checks and CI policy (`software-workflow.json`, `docs/CI_STRATEGY.md`). Retain unresolved evaluator/interface and result-envelope/persistence integration as explicit delivery tasks with bound evidence; any unselected decision remains `TBD`.
+> 6. Keep commitments in `ScopeOfWork.md`, dependency conditions and code and check pointers in `deliverable.yaml`, and technical rulings in `Design/`; the pull request is the change record.
+>
+
+### CLM-018 — Verification
+
+> ##### Verification
+>
+> | Check | Expected result |
+> |---|---|
+> | `ScopeOfWork.md` exists | `ScopeOfWork.md` is present. |
+> | Implementation evidence present | `core/loads/load_case_algebra/README.md`, `Cargo.toml`, and `src/lib.rs` exist. |
+> | Algebra crate tests | `cargo test --manifest-path core/loads/load_case_algebra/Cargo.toml` passes before claiming current implementation evidence is validated. |
+> | Data boundary preserved | No code-specific combinations, allowables, or protected standard formulas are introduced. |
+> | Dependency conditions current | `deliverable.yaml` states current needs and pointers; `python3 -m tools.deliverables --project projects/chirality-piping check` reports no errors. |
+> | No issuance implied | Nothing records or implies acceptance, issuance, or release of this deliverable (F-PIP-3). |
+>
+
+### CLM-019 — Records
+
+> ##### Records
+>
+> - `ScopeOfWork.md`.
+> - `deliverable.yaml`.
+> - `Design/`.
+> - The pull request, as the change record.
+
+- **VER-001** — Validate the contract and review source parity, algebra and result-state operations, dimensional compatibility, expression/provenance boundaries, deterministic diagnostics and tests, rule-pack separation, protected-content controls, and all unresolved governed items.
+
+## Governing Values and Decisions — Axiology
+
+### CLM-020 — Guidance: DEL-05-02 Load-case algebra engine
+
+> #### Guidance: DEL-05-02 Load-case algebra engine
+>
+
+### CLM-021 — Purpose
+
+> ##### Purpose
+>
+> This deliverable documents the bounded load-case algebra implementation that combines explicit mechanics quantities and result states in a unit-aware way while leaving code-specific combinations and acceptance decisions to user-owned rule packs and human authority.
+>
+
+### CLM-022 — Principles
+
+> ##### Principles
+>
+> - Keep algebra mechanics-focused: addition, scaling, subtraction, and ranging describe load/result relationships, not code compliance.
+> - Treat units and dimensions as first-class constraints; an expression that mixes incompatible dimensions is a finding, not a repair opportunity.
+> - Keep code-specific combinations outside the product baseline unless supplied by lawful/private user rule packs.
+> - Keep rule-pack evaluation declarative and sandboxed; this implementation does not include arbitrary executable rules or the rule-pack expression evaluator.
+> - Preserve status separation between mechanics solved, rule-pack checked, and human-approved outputs.
+>
+
+### CLM-023 — Considerations
+
+> ##### Considerations
+>
+> | Topic | Guidance | Evidence |
+> |---|---|---|
+> | Expression grammar | DEC-022 resolves the rule-pack typed AST grammar; the algebra retains its own bounded enum/term contract. Current implementation uses explicit `AlgebraExpression` variants and `CombinationTerm` values, not a parser or code-specific syntax. | DEC-022; `core/loads/load_case_algebra/src/lib.rs`; OPS-K-RULE-2 |
+> | Primitive load and result dependencies | Inputs must arrive as explicit mechanics/result operands with dimensions and boundary metadata already governed upstream. What DEL-05-02 needs from DEL-05-01 and DEL-05-04 is stated in `deliverable.yaml`. | `deliverable.yaml`; `core/loads/load_case_algebra/README.md` |
+> | Rule-pack combinations | User rule packs may supply code-specific combinations through a governed interface, but the crate does not provide code-specific defaults or a rule-pack evaluator. DEL-06-02's expression evaluator exists; no interface yet supplies rule-pack combinations to the algebra (DEL-05-02:1). | SOW-014; OBJ-005; `core/rules/expression_evaluator` |
+> | Diagnostics | Missing operands, empty expressions, non-finite factors, dimensional mismatch, duplicate operands, unsupported expression shapes, missing result states, and status-boundary violations are deterministic findings or boundary errors. | OPS-K-DATA-2; AB-00-06; `core/loads/load_case_algebra/src/lib.rs` |
+> | Result boundary metadata | Boundary export requires explicit unit metadata, result schema binding, provenance reference, payload reference, and payload-hash reference; load-record schema binding is rejected for result quantities. | `core/loads/load_case_algebra/README.md`; `core/loads/load_case_algebra/src/lib.rs` |
+>
+
+### CLM-024 — Trade-offs
+
+> ##### Trade-offs
+>
+> - A more expressive grammar can help users define combinations, but increases validation and sandboxing risk. DEC-022 fixes the rule-pack typed AST; richer syntax remains outside that decision.
+> - Hard-coded combinations might appear convenient, but would violate the data boundary for code-specific and project-specific rule content.
+> - Implemented subtraction/ranging support deliberately stays deterministic and mechanics-focused instead of broadening into expression-language flexibility.
+>
+
+### CLM-025 — Examples
+
+> ##### Examples
+>
+> Examples remain intentionally abstract. No code-specific load combination, allowable, or protected standard formula is provided in this deliverable.
+>
+
+### CLM-026 — Conflict Table (for human ruling)
+
+> ##### Conflict Table (for human ruling)
+>
+> | Conflict ID | Topic | Contenders | Human ruling |
+> |---|---|---|---|
+> | None | No source conflict identified during this implementation-evidence alignment. | N/A | N/A |
+
+## Output and Evaluation Matrix
+
+| Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
+|---|---|---|---|---|---|
+| OUT-001 | SOW-014 OBJ-003 OBJ-005 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-05-02:1** — Deferred until after v1.0 (owner, 2026-10-28, accepting OC-6 "as stated"; `docs/RELEASE_TARGET_v1.0.md` RT-R3). Define and evidence the rule-pack combination supply interface, or obtain the owning interpretation of user-authored combinations, and carry/verify the AB-00-06 diagnostic fields through the algebra/product mapping. (R5 continuation claim references: DEL-05-02:SOW#CLM-010/REQ-05-02-004; REQ-05-02-008; CLM-012/REQ-05-02-008.)

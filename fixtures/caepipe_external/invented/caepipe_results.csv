@@ -1,0 +1,4 @@
+section,stable_id,target_id,load_case,ux,uy,uz,axial,shear_y,shear_z,unit
+NODE_DISPLACEMENTS,node:invented:A,N001,L001,0,0,0,,,,m
+NODE_DISPLACEMENTS,node:invented:B,N002,L001,0.001,0,0,,,,m
+ELEMENT_FORCES,pipe:invented:001,P001,L001,,,,12.5,0.1,0.2,N

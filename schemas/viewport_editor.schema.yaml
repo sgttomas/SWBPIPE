@@ -1,0 +1,713 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openpipestress.org/schemas/viewport_editor.schema.yaml",
+  "title": "OpenPipeStress Viewport Editor Contract",
+  "description": "Strict JSON syntax schema for the DEL-07-01 3D centerline viewport/editor contract. It records transient viewport state, view primitives, selection, diagnostics, and application-service command intents without defining a Tauri/React/Three.js app shell, mutating persisted project payloads directly, bundling protected standards data, or making professional/code-compliance claims.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "deliverable_id",
+    "package_id",
+    "scope_item",
+    "objectives",
+    "viewport_status",
+    "viewport_session"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "deliverable_id": {
+      "const": "DEL-07-01"
+    },
+    "package_id": {
+      "const": "PKG-07"
+    },
+    "scope_item": {
+      "const": "SOW-020"
+    },
+    "objectives": {
+      "type": "array",
+      "minItems": 1,
+      "contains": {
+        "const": "OBJ-006"
+      },
+      "items": {
+        "type": "string",
+        "enum": [
+          "OBJ-006"
+        ]
+      }
+    },
+    "viewport_status": {
+      "$ref": "#/$defs/ViewportStatus"
+    },
+    "viewport_session": {
+      "$ref": "#/$defs/ViewportSession"
+    }
+  },
+  "$defs": {
+    "Reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ref_type",
+        "ref_id"
+      ],
+      "properties": {
+        "ref_type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ref_id": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "Provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_name",
+        "source_location",
+        "source_license",
+        "contributor",
+        "contributor_certification",
+        "redistribution_status",
+        "review_status",
+        "privacy_classification"
+      ],
+      "properties": {
+        "source_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_location": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_license": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contributor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contributor_certification": {
+          "type": "string",
+          "minLength": 1
+        },
+        "redistribution_status": {
+          "$ref": "#/$defs/RedistributionStatus"
+        },
+        "review_status": {
+          "$ref": "#/$defs/ReviewStatus"
+        },
+        "privacy_classification": {
+          "$ref": "#/$defs/PrivacyClassification"
+        }
+      }
+    },
+    "RedistributionStatus": {
+      "type": "string",
+      "enum": [
+        "public_permissive",
+        "private_only",
+        "unknown",
+        "protected_suspected",
+        "invented_non_engineering_example",
+        "TBD"
+      ]
+    },
+    "ReviewStatus": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "accepted",
+        "rejected",
+        "quarantined",
+        "not_applicable",
+        "TBD"
+      ]
+    },
+    "PrivacyClassification": {
+      "type": "string",
+      "enum": [
+        "public_metadata",
+        "invented_public_example",
+        "private_project_data",
+        "private_rule_pack_data",
+        "private_library_data",
+        "protected_suspected",
+        "redacted",
+        "TBD"
+      ]
+    },
+    "ViewportStatus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "baseline_runtime",
+        "frontend_app_shell",
+        "viewport_renderer",
+        "durable_state_mutation",
+        "transient_state_policy",
+        "command_transport",
+        "dependency_versions",
+        "professional_boundary"
+      ],
+      "properties": {
+        "baseline_runtime": {
+          "const": "Tauri_2_TypeScript_React_Vite_Three_js_when_GUI_scaffold_exists"
+        },
+        "frontend_app_shell": {
+          "const": "TBD"
+        },
+        "viewport_renderer": {
+          "const": "Three_js_runtime_integration_TBD"
+        },
+        "durable_state_mutation": {
+          "const": "application_service_command_intents_only"
+        },
+        "transient_state_policy": {
+          "const": "camera_hover_selection_drag_snap_are_not_persisted_project_payload"
+        },
+        "command_transport": {
+          "const": "TBD"
+        },
+        "dependency_versions": {
+          "const": "TBD"
+        },
+        "professional_boundary": {
+          "$ref": "#/$defs/ProfessionalBoundary"
+        }
+      }
+    },
+    "ProfessionalBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "human_review_required",
+        "software_makes_compliance_claim",
+        "software_makes_certification_claim",
+        "software_makes_sealing_claim",
+        "software_makes_approval_claim",
+        "software_makes_authentication_claim"
+      ],
+      "properties": {
+        "human_review_required": {
+          "const": true
+        },
+        "software_makes_compliance_claim": {
+          "const": false
+        },
+        "software_makes_certification_claim": {
+          "const": false
+        },
+        "software_makes_sealing_claim": {
+          "const": false
+        },
+        "software_makes_approval_claim": {
+          "const": false
+        },
+        "software_makes_authentication_claim": {
+          "const": false
+        }
+      }
+    },
+    "ViewportSession": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "session_id",
+        "model_ref",
+        "camera",
+        "interaction_state",
+        "view_primitives",
+        "selected_refs",
+        "command_intents",
+        "diagnostics",
+        "provenance"
+      ],
+      "properties": {
+        "session_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "camera": {
+          "$ref": "#/$defs/CameraState"
+        },
+        "interaction_state": {
+          "$ref": "#/$defs/InteractionState"
+        },
+        "view_primitives": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ViewPrimitive"
+          }
+        },
+        "selected_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "command_intents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CommandIntent"
+          }
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ViewportDiagnostic"
+          }
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "CameraState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "projection",
+        "target",
+        "position",
+        "up",
+        "zoom"
+      ],
+      "properties": {
+        "projection": {
+          "enum": [
+            "perspective",
+            "orthographic",
+            "TBD"
+          ]
+        },
+        "target": {
+          "$ref": "#/$defs/Point3"
+        },
+        "position": {
+          "$ref": "#/$defs/Point3"
+        },
+        "up": {
+          "$ref": "#/$defs/Vector3"
+        },
+        "zoom": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      }
+    },
+    "InteractionState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "active_tool",
+        "hover_ref",
+        "drag_state",
+        "snap_state",
+        "undo_redo_policy"
+      ],
+      "properties": {
+        "active_tool": {
+          "$ref": "#/$defs/ViewportTool"
+        },
+        "hover_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reference"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "drag_state": {
+          "enum": [
+            "idle",
+            "previewing",
+            "dragging",
+            "blocked",
+            "TBD"
+          ]
+        },
+        "snap_state": {
+          "enum": [
+            "none",
+            "node",
+            "centerline",
+            "axis",
+            "grid",
+            "TBD"
+          ]
+        },
+        "undo_redo_policy": {
+          "const": "command_intents_are_undo_redo_candidates_when_reversible"
+        }
+      }
+    },
+    "ViewportTool": {
+      "type": "string",
+      "enum": [
+        "select",
+        "create_node",
+        "connect_pipe_run",
+        "insert_bend",
+        "insert_branch_symbol",
+        "insert_component_symbol",
+        "pan_orbit",
+        "TBD"
+      ]
+    },
+    "Point3": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "x",
+        "y",
+        "z",
+        "unit",
+        "dimension"
+      ],
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "z": {
+          "type": "number"
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dimension": {
+          "const": "length"
+        }
+      }
+    },
+    "Vector3": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "x",
+        "y",
+        "z"
+      ],
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "z": {
+          "type": "number"
+        }
+      }
+    },
+    "ViewPrimitive": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "primitive_id",
+        "primitive_type",
+        "source_ref",
+        "geometry",
+        "style",
+        "diagnostic_refs",
+        "provenance"
+      ],
+      "properties": {
+        "primitive_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "primitive_type": {
+          "$ref": "#/$defs/ViewPrimitiveType"
+        },
+        "source_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "geometry": {
+          "$ref": "#/$defs/ViewGeometry"
+        },
+        "style": {
+          "$ref": "#/$defs/ViewStyle"
+        },
+        "diagnostic_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "ViewPrimitiveType": {
+      "type": "string",
+      "enum": [
+        "node",
+        "pipe_run",
+        "bend_arc",
+        "branch_symbol",
+        "valve_symbol",
+        "flange_symbol",
+        "reducer_symbol",
+        "expansion_joint_symbol",
+        "support_symbol",
+        "label",
+        "TBD"
+      ]
+    },
+    "ViewGeometry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "points",
+        "symbol",
+        "radius",
+        "radius_unit"
+      ],
+      "properties": {
+        "points": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Point3"
+          }
+        },
+        "symbol": {
+          "type": "string",
+          "enum": [
+            "none",
+            "simple_component",
+            "bend_arc",
+            "branch_tee",
+            "support",
+            "TBD"
+          ]
+        },
+        "radius": {
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "radius_unit": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "ViewStyle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "visibility",
+        "selection_state",
+        "status_color",
+        "label"
+      ],
+      "properties": {
+        "visibility": {
+          "enum": [
+            "visible",
+            "hidden",
+            "ghosted",
+            "TBD"
+          ]
+        },
+        "selection_state": {
+          "enum": [
+            "none",
+            "hovered",
+            "selected",
+            "editing",
+            "blocked",
+            "TBD"
+          ]
+        },
+        "status_color": {
+          "enum": [
+            "neutral",
+            "selected",
+            "warning",
+            "blocking",
+            "review_required",
+            "TBD"
+          ]
+        },
+        "label": {
+          "type": "string"
+        }
+      }
+    },
+    "CommandIntent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "intent_id",
+        "command_type",
+        "target_ref",
+        "payload_refs",
+        "unit_policy",
+        "reversible",
+        "validation_state",
+        "diagnostic_refs",
+        "provenance"
+      ],
+      "properties": {
+        "intent_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "command_type": {
+          "$ref": "#/$defs/CommandType"
+        },
+        "target_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "payload_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "unit_policy": {
+          "const": "unit_aware_domain_validation_required"
+        },
+        "reversible": {
+          "type": "boolean"
+        },
+        "validation_state": {
+          "enum": [
+            "valid",
+            "blocked_by_missing_data",
+            "blocked_by_unit_mismatch",
+            "pending_service_validation",
+            "TBD"
+          ]
+        },
+        "diagnostic_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "CommandType": {
+      "type": "string",
+      "enum": [
+        "create_node",
+        "connect_pipe_run",
+        "insert_bend",
+        "insert_branch_symbol",
+        "insert_component_symbol",
+        "select_entities",
+        "clear_selection",
+        "TBD"
+      ]
+    },
+    "ViewportDiagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "diagnostic_id",
+        "code",
+        "class",
+        "severity",
+        "affected_ref",
+        "message",
+        "remediation",
+        "provenance"
+      ],
+      "properties": {
+        "diagnostic_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "code": {
+          "$ref": "#/$defs/ViewportDiagnosticCode"
+        },
+        "class": {
+          "$ref": "#/$defs/DiagnosticClass"
+        },
+        "severity": {
+          "$ref": "#/$defs/DiagnosticSeverity"
+        },
+        "affected_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "remediation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "ViewportDiagnosticCode": {
+      "type": "string",
+      "enum": [
+        "VIEWPORT_MODEL_REF_MISSING",
+        "VIEWPORT_UNIT_MISMATCH",
+        "VIEWPORT_COMMAND_REQUIRES_SERVICE_VALIDATION",
+        "VIEWPORT_COMPONENT_DATA_MISSING",
+        "VIEWPORT_PROVENANCE_MISSING",
+        "VIEWPORT_PROTECTED_CONTENT_SUSPECTED",
+        "VIEWPORT_TRANSIENT_STATE_NOT_PERSISTED",
+        "TBD"
+      ]
+    },
+    "DiagnosticClass": {
+      "type": "string",
+      "enum": [
+        "SOLVE_BLOCKING",
+        "RULE_CHECK_BLOCKING",
+        "PROVENANCE_WARNING",
+        "ASSUMPTION_WARNING",
+        "NONLINEAR_WARNING",
+        "IP_BOUNDARY_WARNING",
+        "UNIT_WARNING",
+        "GUI_STATE_WARNING"
+      ]
+    },
+    "DiagnosticSeverity": {
+      "type": "string",
+      "enum": [
+        "info",
+        "warning",
+        "blocking"
+      ]
+    }
+  }
+}

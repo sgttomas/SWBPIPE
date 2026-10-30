@@ -1,0 +1,43 @@
+{
+  "bindings": [],
+  "case_id": "case_67_block_compare_dimension_mismatch",
+  "declared_grammar_version": "1.0.0",
+  "description": "Comparing different dimensions blocks.",
+  "expected": {
+    "findings": [
+      {
+        "code": "dimension_mismatch",
+        "subject_id": "comparison"
+      }
+    ],
+    "source_variable_ids": [],
+    "statuses": [
+      "mechanics_solved"
+    ],
+    "value": null
+  },
+  "expression": {
+    "left": {
+      "node": "literal",
+      "quantity": {
+        "dimension": "force",
+        "unit_ref": "invented_force_unit",
+        "value": 10.0
+      }
+    },
+    "node": "compare",
+    "operator": "less_than",
+    "right": {
+      "node": "literal",
+      "quantity": {
+        "dimension": "stress",
+        "unit_ref": "invented_stress_unit",
+        "value": 10.0
+      }
+    }
+  },
+  "required_variable_ids": [],
+  "statuses": [
+    "mechanics_solved"
+  ]
+}

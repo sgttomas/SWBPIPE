@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "tested_commit": "cf58e6fe452b56351446311a1c3bab903af4ab8f",
+  "practitioner_harness": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 {QUALIFIED_PYTHON} -m pytest -q tools/practitioner_harness",
+    "exit_code": 0,
+    "passed": 379,
+    "duration_seconds": 39.04,
+    "raw_log": {
+      "path": "execution/_Change/VIEWPORT_ROUTING_20260909/_run_records/PRACTITIONER_LOG_V1.base64.json",
+      "wrapper_sha256": "e1432babe75f0fb86e3a742d8cc43c2b02df43de0c00dd36e0f40f9aa8be6b07",
+      "decoded_sha256": "44c9256cf0632ab01b54e06acb5ae5c5be79ea56f49e1dce4be5338139dd442c"
+    }
+  },
+  "self_check": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 {QUALIFIED_PYTHON} tools/practitioner_harness/harness.py self-check",
+    "exit_code": 0,
+    "finding_counts": {
+      "INFO": 14,
+      "NOT_APPLICABLE": 1,
+      "REVIEW": 4,
+      "WARN": 55
+    },
+    "disposition": "PASS with the established qualified findings inventory; no new blocker identified.",
+    "raw_log": {
+      "path": "execution/_Change/VIEWPORT_ROUTING_20260909/_run_records/SELFCHECK_LOG_V1.base64.json",
+      "wrapper_sha256": "19baf82a43626661dcd93c536f1c64ac7d6f08ae16fe87a28083269dfcadfa4d",
+      "decoded_sha256": "d764facd4ac71406c694fda44eabdd9b08b371bfbf208522b301c69085329945"
+    }
+  }
+}

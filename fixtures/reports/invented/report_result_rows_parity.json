@@ -1,0 +1,59 @@
+{
+  "schema_version": "1.0.0",
+  "description": "Shared parity vectors for the report-row contract (DEL-08-01 Design report-package-current-results.md section 2.3 item 6): the desktop's reportResultRows (apps/desktop/src/features/report/reportResultRows.ts) and the report package's expected_report_result_rows (core/reporting/report_package/src/bindings.rs) must both turn source_results into expected_rows. Exponent forms are exercised by 1e-7, 1.5e-6 and 5e-324; large exponent forms cannot reach a row (guard_refused_sources). Invented values only.",
+  "display_rule_description": "quantity_display is the report's display rule (DEL-08-01 Design report-package-current-results.md section 2.3 item 6; vectors report_quantity_display_parity.json): a Pa value is shifted six decimal places as text and shown in MPa, and every value is rounded to six significant digits, half away from zero, in the ECMAScript Number-to-String layout. Four expected rows changed when the rule was adopted (stored values unchanged): result:d 1e-7 Pa -> 1e-13 MPa (Pa shown in MPa); result:e 9007199254740991 Pa -> 9007200000 MPa (Pa shown in MPa, six significant digits); result:f 0.30000000000000004 N*m -> 0.3 N*m (six significant digits); result:g -123456789.125 kN -> -123457000 kN (six significant digits, half away from zero). The other twelve rows have at most six significant digits and are not in Pa, so they are unchanged.",
+  "source_results": {
+    "results": [
+      {"id": "result:a", "kind": "axial_force", "value": 12.5, "unit": "N", "entity_ref": "pipe:P-1", "metadata": {"component": "Fx", "basis": "invented"}, "basis_ref": {"ref_type": "load_case", "ref_id": "case:one"}},
+      {"id": "result:b", "kind": "displacement", "value": 2.0, "unit": "m", "entity_ref": "node:N-1"},
+      {"id": "result:c", "kind": "rotation", "value": -0.0, "unit": "rad", "entity_ref": "node:N-1", "basis_ref": {"ref_type": "analysis_run", "ref_id": "run:x"}},
+      {"id": "result:d", "kind": "stress", "value": 1e-7, "unit": "Pa", "entity_ref": "pipe:P-1", "metadata": {"component": "sigma_plus"}},
+      {"id": "result:e", "kind": "stress", "value": 9007199254740991, "unit": "Pa", "entity_ref": "pipe:P-1"},
+      {"id": "result:f", "kind": "moment", "value": 0.30000000000000004, "unit": "N*m", "entity_ref": "pipe:P-1"},
+      {"id": "result:g", "kind": "force", "value": -123456789.125, "unit": "kN", "entity_ref": "pipe:P-1"},
+      {"id": "result:h", "kind": "reaction", "value": 5e-324, "unit": "N", "entity_ref": "support:S-1"},
+      {"id": "result:i", "kind": "count", "value": 7, "unit": "1", "entity_ref": "model"},
+      {"id": "résultat:ü", "kind": "température", "value": 1.5e-6, "unit": "°C", "entity_ref": "pipe:Ω", "metadata": {"component": "θ"}, "basis_ref": {"ref_type": "load_case", "ref_id": "cas:é"}}
+    ]
+  },
+  "expected_rows": [
+    {"row_id": "row:result:a", "label": "axial_force (Fx)", "case_ref": "load_case:case:one", "quantity_display": "12.5 N", "source_ref": "result:result:a"},
+    {"row_id": "row:result:b", "label": "displacement", "case_ref": "TBD", "quantity_display": "2 m", "source_ref": "result:result:b"},
+    {"row_id": "row:result:c", "label": "rotation", "case_ref": "analysis_run:run:x", "quantity_display": "0 rad", "source_ref": "result:result:c"},
+    {"row_id": "row:result:d", "label": "stress (sigma_plus)", "case_ref": "TBD", "quantity_display": "1e-13 MPa", "source_ref": "result:result:d"},
+    {"row_id": "row:result:e", "label": "stress", "case_ref": "TBD", "quantity_display": "9007200000 MPa", "source_ref": "result:result:e"},
+    {"row_id": "row:result:f", "label": "moment", "case_ref": "TBD", "quantity_display": "0.3 N*m", "source_ref": "result:result:f"},
+    {"row_id": "row:result:g", "label": "force", "case_ref": "TBD", "quantity_display": "-123457000 kN", "source_ref": "result:result:g"},
+    {"row_id": "row:result:h", "label": "reaction", "case_ref": "TBD", "quantity_display": "5e-324 N", "source_ref": "result:result:h"},
+    {"row_id": "row:result:i", "label": "count", "case_ref": "TBD", "quantity_display": "7 1", "source_ref": "result:result:i"},
+    {"row_id": "row:résultat:ü", "label": "température (θ)", "case_ref": "load_case:cas:é", "quantity_display": "0.0000015 °C", "source_ref": "result:résultat:ü"}
+  ],
+  "guard_refused_sources_description": "Integer-valued binary64 values above 2^53 - 1 (so every magnitude from 1e21, where the exponent form starts) fail guard_json before any row is formed; the producer refuses the source and no package is assembled. The desktop helper is not run on these.",
+  "guard_refused_sources": [
+    {"results": [{"id": "result:large", "kind": "stress", "value": 1e21, "unit": "Pa", "entity_ref": "pipe:P-1"}]},
+    {"results": [{"id": "result:unsafe", "kind": "count", "value": 9007199254740993, "unit": "1", "entity_ref": "model"}]}
+  ],
+  "exact_route_description": "W-11 (DEL-08-01 Design exact-route-report-sections.md section 3.4): metadata.basis is split on ';' and each token trimmed; exactly one section_basis=nominal_section token adds ' [nominal section]' and exactly one section_basis=reduced_section token adds ' [reduced section]' to the label; no section_basis= token adds nothing (a W-7 global end-force row, a row without metadata, metadata without basis). Any other section_basis= value, or more than one such token, refuses (section_basis_refused_sources). Invented values only.",
+  "exact_route_source_results": {
+    "results": [
+      {"id": "result:stress:pipe-invented:end-i:axial-normal:nominal-section", "kind": "element_local_axial_normal_stress", "value": 1.5, "unit": "MPa", "entity_ref": "pipe:invented", "metadata": {"component": "axial_normal_stress", "basis": "recovered_from_local_element_stiffness; section_basis=nominal_section"}, "basis_ref": {"ref_type": "load_case", "ref_id": "case:invented"}},
+      {"id": "result:stress:pipe-invented:end-i:axial-normal:reduced-section", "kind": "element_local_axial_normal_stress", "value": 1.75, "unit": "MPa", "entity_ref": "pipe:invented", "metadata": {"component": "axial_normal_stress", "basis": "recovered_from_local_element_stiffness;section_basis=reduced_section"}, "basis_ref": {"ref_type": "load_case", "ref_id": "case:invented"}},
+      {"id": "result:stress:pipe-invented:end-j:hoop:reduced-section", "kind": "element_local_hoop_stress", "value": -2.5e-7, "unit": "MPa", "entity_ref": "pipe:invented", "metadata": {"component": "hoop_stress", "basis": "  section_basis=reduced_section  ; lame_annulus"}},
+      {"id": "result:global-end-force:pipe-invented:end-i:fx", "kind": "element_global_end_force_v1", "value": 120, "unit": "N", "entity_ref": "pipe:invented", "metadata": {"component": "fx", "basis": "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action"}, "basis_ref": {"ref_type": "load_case", "ref_id": "case:invented"}},
+      {"id": "result:displacement:node-invented:ux", "kind": "displacement", "value": 0.25, "unit": "mm", "entity_ref": "node:invented"},
+      {"id": "result:reaction:support-invented:fy", "kind": "support_reaction", "value": -40, "unit": "N", "entity_ref": "support:invented", "metadata": {"component": "fy"}}
+    ]
+  },
+  "exact_route_expected_rows": [
+    {"row_id": "row:result:stress:pipe-invented:end-i:axial-normal:nominal-section", "label": "element_local_axial_normal_stress (axial_normal_stress) [nominal section]", "case_ref": "load_case:case:invented", "quantity_display": "1.5 MPa", "source_ref": "result:result:stress:pipe-invented:end-i:axial-normal:nominal-section"},
+    {"row_id": "row:result:stress:pipe-invented:end-i:axial-normal:reduced-section", "label": "element_local_axial_normal_stress (axial_normal_stress) [reduced section]", "case_ref": "load_case:case:invented", "quantity_display": "1.75 MPa", "source_ref": "result:result:stress:pipe-invented:end-i:axial-normal:reduced-section"},
+    {"row_id": "row:result:stress:pipe-invented:end-j:hoop:reduced-section", "label": "element_local_hoop_stress (hoop_stress) [reduced section]", "case_ref": "TBD", "quantity_display": "-2.5e-7 MPa", "source_ref": "result:result:stress:pipe-invented:end-j:hoop:reduced-section"},
+    {"row_id": "row:result:global-end-force:pipe-invented:end-i:fx", "label": "element_global_end_force_v1 (fx)", "case_ref": "load_case:case:invented", "quantity_display": "120 N", "source_ref": "result:result:global-end-force:pipe-invented:end-i:fx"},
+    {"row_id": "row:result:displacement:node-invented:ux", "label": "displacement", "case_ref": "TBD", "quantity_display": "0.25 mm", "source_ref": "result:result:displacement:node-invented:ux"},
+    {"row_id": "row:result:reaction:support-invented:fy", "label": "support_reaction (fy)", "case_ref": "TBD", "quantity_display": "-40 N", "source_ref": "result:result:reaction:support-invented:fy"}
+  ],
+  "section_basis_refused_sources": [
+    {"results": [{"id": "result:stress:invented:governing", "kind": "element_local_axial_normal_stress", "value": 1, "unit": "MPa", "entity_ref": "pipe:invented", "metadata": {"component": "axial_normal_stress", "basis": "recovered_from_local_element_stiffness; section_basis=governing_section"}}]},
+    {"results": [{"id": "result:stress:invented:both", "kind": "element_local_axial_normal_stress", "value": 1, "unit": "MPa", "entity_ref": "pipe:invented", "metadata": {"component": "axial_normal_stress", "basis": "section_basis=nominal_section; section_basis=reduced_section"}}]}
+  ]
+}

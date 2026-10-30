@@ -1,0 +1,308 @@
+{
+ "basis": "exact rational solve of independently formed Euler-Bernoulli frames, every support state enumerated",
+ "cases": {
+  "load:FREE": {
+   "strict_states": [
+    {
+     "groups": {
+      "pipe:AB": {
+       "cut_i": {
+        "axial": [
+         10.0,
+         10.0
+        ],
+        "bending": [
+         0.0,
+         0.0
+        ],
+        "shear": [
+         0.0,
+         0.0
+        ],
+        "torsion": [
+         0.0,
+         0.0
+        ]
+       },
+       "cut_j": {
+        "axial": [
+         10.0,
+         10.0
+        ],
+        "bending": [
+         0.0,
+         0.0
+        ],
+        "shear": [
+         0.0,
+         0.0
+        ],
+        "torsion": [
+         0.0,
+         0.0
+        ]
+       },
+       "end_i": {
+        "axial": [
+         10.0,
+         10.0
+        ],
+        "bending": [
+         0.0,
+         0.0
+        ],
+        "shear": [
+         0.0,
+         0.0
+        ],
+        "torsion": [
+         0.0,
+         0.0
+        ]
+       },
+       "end_j": {
+        "axial": [
+         10.0,
+         10.0
+        ],
+        "bending": [
+         0.0,
+         0.0
+        ],
+        "shear": [
+         0.0,
+         0.0
+        ],
+        "torsion": [
+         0.0,
+         0.0
+        ]
+       },
+       "midspan": {
+        "axial": [
+         10.0,
+         10.0
+        ],
+        "bending": [
+         0.0,
+         0.0
+        ],
+        "shear": [
+         0.0,
+         0.0
+        ],
+        "torsion": [
+         0.0,
+         0.0
+        ]
+       },
+       "quarter_1": {
+        "axial": [
+         10.0,
+         10.0
+        ],
+        "bending": [
+         0.0,
+         0.0
+        ],
+        "shear": [
+         0.0,
+         0.0
+        ],
+        "torsion": [
+         0.0,
+         0.0
+        ]
+       },
+       "quarter_3": {
+        "axial": [
+         10.0,
+         10.0
+        ],
+        "bending": [
+         0.0,
+         0.0
+        ],
+        "shear": [
+         0.0,
+         0.0
+        ],
+        "torsion": [
+         0.0,
+         0.0
+        ]
+       }
+      },
+      "support:ANCHOR": {
+       "node": {
+        "support_force": [
+         10.0,
+         10.0
+        ],
+        "support_force_magnitude": [
+         10.0,
+         10.0
+        ],
+        "support_moment": [
+         0.0,
+         0.0
+        ],
+        "support_moment_magnitude": [
+         0.0,
+         0.0
+        ]
+       }
+      },
+      "support:NL-F": {
+       "node": {
+        "support_force": [
+         0.0,
+         0.0
+        ],
+        "support_force_magnitude": [
+         0.0,
+         0.0
+        ],
+        "support_moment": [
+         0.0,
+         0.0
+        ],
+        "support_moment_magnitude": [
+         0.0,
+         0.0
+        ]
+       }
+      },
+      "support:S-N": {
+       "node": {
+        "support_force": [
+         100.0,
+         100.0
+        ],
+        "support_force_magnitude": [
+         100.0,
+         100.0
+        ],
+        "support_moment": [
+         0.0,
+         0.0
+        ],
+        "support_moment_magnitude": [
+         0.0,
+         0.0
+        ]
+       }
+      }
+     },
+     "signed": {
+      "support:ANCHOR": {
+       "components": [
+        [
+         -10.0,
+         -10.0
+        ],
+        [
+         0.0,
+         0.0
+        ],
+        [
+         0.0,
+         0.0
+        ],
+        [
+         0.0,
+         0.0
+        ],
+        [
+         0.0,
+         0.0
+        ],
+        [
+         0.0,
+         0.0
+        ]
+       ]
+      },
+      "support:NL-F": {
+       "components": [
+        [
+         0.0,
+         0.0
+        ],
+        [
+         0.0,
+         0.0
+        ],
+        [
+         0.0,
+         0.0
+        ],
+        [
+         0.0,
+         0.0
+        ],
+        [
+         0.0,
+         0.0
+        ],
+        [
+         0.0,
+         0.0
+        ]
+       ],
+       "slot": "UX",
+       "value": [
+        0.0,
+        0.0
+       ]
+      },
+      "support:S-N": {
+       "components": [
+        [
+         0.0,
+         0.0
+        ],
+        [
+         100.0,
+         100.0
+        ],
+        [
+         0.0,
+         0.0
+        ],
+        [
+         0.0,
+         0.0
+        ],
+        [
+         0.0,
+         0.0
+        ],
+        [
+         0.0,
+         0.0
+        ]
+       ]
+      }
+     },
+     "standing": "strict",
+     "states": {
+      "support:NL-F": "sliding"
+     }
+    }
+   ],
+   "weak_states": []
+  }
+ },
+ "elastic_modulus_pa": 200000000000.0,
+ "normalized_sections": {
+  "pipe:AB": {
+   "As_m2": 0.003540574920595698,
+   "I_m4": 1.1493591335983782e-05,
+   "J_m4": 2.2987182671967564e-05
+  }
+ },
+ "request": "f1_mu0_request.json",
+ "request_sha256": "78a91e7098c04eb73dadebb3645fe963281aa9e547b3bc78b73b4fcf9491dbe7",
+ "shear_modulus_pa": 80000000000.0
+}

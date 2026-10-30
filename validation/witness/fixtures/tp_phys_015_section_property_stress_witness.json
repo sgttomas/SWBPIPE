@@ -1,0 +1,893 @@
+{
+  "schema_version": "0.1.0",
+  "witness_id": "WITNESS-TP-PHYS-015-SECTION-PROPERTY-STRESS",
+  "title": "TP-PHYS-015 section-property-to-stress formal OpenMath witness",
+  "status": "validation_pilot",
+  "openmath_binding": {
+    "semantic_source": "OpenMath abstract objects",
+    "json_binding": "ops_openmath_json_binding_v0",
+    "mathml_rendering": "generated_strict_content_mathml"
+  },
+  "provenance": {
+    "source_name": "OpenPipeStress original formal witness pilot",
+    "source_location": "validation/witness/fixtures/tp_phys_015_section_property_stress_witness.json",
+    "source_license": "project-original-public-content",
+    "contributor": "OpenPipeStress agentic development workflow",
+    "contributor_certification": "Generated from elementary open mechanics; not copied from protected standards, commercial software examples, proprietary data, allowables, SIF/flexibility factors, fatigue criteria, or code-specific acceptance criteria.",
+    "redistribution_status": "project_original_public_content",
+    "review_status": "accepted"
+  },
+  "professional_boundary": {
+    "human_review_required": true,
+    "software_makes_compliance_claim": false,
+    "software_makes_certification_claim": false,
+    "software_makes_sealing_claim": false,
+    "software_makes_approval_claim": false,
+    "software_makes_authentication_claim": false
+  },
+  "unit_basis": {
+    "unit_system_ref": "PKG09-STRESS-FIXTURE-UNITS-EXPLICIT-N-M-PA",
+    "conversion_policy": "fixture_local_explicit_units_no_conversions",
+    "dimension_basis": "PKG-02 canonical semantic dimensions with validation-local exponent vectors"
+  },
+  "content_dictionaries": [
+    {
+      "cd": "arith1",
+      "status": "openmath_standard_reference",
+      "path": "validation/witness/content_dictionaries/ops_mechanics_cd.json"
+    },
+    {
+      "cd": "nums1",
+      "status": "openmath_standard_reference",
+      "path": "validation/witness/content_dictionaries/ops_mechanics_cd.json"
+    },
+    {
+      "cd": "ops_mechanics",
+      "status": "repo_local_experimental",
+      "path": "validation/witness/content_dictionaries/ops_mechanics_cd.json"
+    }
+  ],
+  "result_export": {
+    "path": "fixtures/results/invented/tp_phys_015_section_property_stress_evidence_envelope.json",
+    "comparison_policy": {
+      "default_abs_tolerance_decimal": "1e-12"
+    }
+  },
+  "constants": [
+    {
+      "id": "pi",
+      "label": "Pi",
+      "display": "pi",
+      "quantity": {
+        "decimal": "3.141592653589793",
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "openmath": {
+        "om_type": "OMS",
+        "cd": "nums1",
+        "name": "pi"
+      },
+      "provenance": {
+        "source_name": "elementary mathematical constant",
+        "source_location": "OpenMath nums1 pi symbol",
+        "source_license": "mathematical constant",
+        "contributor": "OpenPipeStress",
+        "contributor_certification": "Mathematical constant used for deterministic validation arithmetic; not protected standards content or proprietary data.",
+        "redistribution_status": "project_original_public_content",
+        "review_status": "accepted"
+      }
+    }
+  ],
+  "inputs": [
+    {
+      "id": "outside_diameter",
+      "label": "Outside diameter",
+      "display": "D_o",
+      "quantity": {
+        "decimal": "2.0",
+        "unit": "m",
+        "dimension": "length"
+      },
+      "openmath": {
+        "om_type": "OMV",
+        "name": "outside_diameter"
+      },
+      "provenance": {
+        "source_name": "invented mechanics fixture",
+        "source_location": "TP-STRESS-016 section-property evidence",
+        "source_license": "project invented",
+        "contributor": "OpenPipeStress",
+        "contributor_certification": "Invented non-engineering example.",
+        "redistribution_status": "invented_non_engineering_example",
+        "review_status": "accepted"
+      }
+    },
+    {
+      "id": "wall_thickness",
+      "label": "Wall thickness",
+      "display": "t",
+      "quantity": {
+        "decimal": "0.25",
+        "unit": "m",
+        "dimension": "length"
+      },
+      "openmath": {
+        "om_type": "OMV",
+        "name": "wall_thickness"
+      },
+      "provenance": {
+        "source_name": "invented mechanics fixture",
+        "source_location": "TP-STRESS-016 section-property evidence",
+        "source_license": "project invented",
+        "contributor": "OpenPipeStress",
+        "contributor_certification": "Invented non-engineering example.",
+        "redistribution_status": "invented_non_engineering_example",
+        "review_status": "accepted"
+      }
+    },
+    {
+      "id": "axial_resultant",
+      "label": "Midspan axial resultant",
+      "display": "N",
+      "quantity": {
+        "decimal": "0.0",
+        "unit": "N",
+        "dimension": "force"
+      },
+      "openmath": {
+        "om_type": "OMV",
+        "name": "axial_resultant"
+      },
+      "provenance": {
+        "source_name": "invented mechanics fixture",
+        "source_location": "TP-PHYS-014 canonical midspan resultants",
+        "source_license": "project invented",
+        "contributor": "OpenPipeStress",
+        "contributor_certification": "Invented non-engineering example.",
+        "redistribution_status": "invented_non_engineering_example",
+        "review_status": "accepted"
+      }
+    },
+    {
+      "id": "bending_moment_y",
+      "label": "Midspan bending moment about Y",
+      "display": "M_y",
+      "quantity": {
+        "decimal": "0.0",
+        "unit": "N-m",
+        "dimension": "moment"
+      },
+      "openmath": {
+        "om_type": "OMV",
+        "name": "bending_moment_y"
+      },
+      "provenance": {
+        "source_name": "invented mechanics fixture",
+        "source_location": "TP-PHYS-014 canonical midspan resultants",
+        "source_license": "project invented",
+        "contributor": "OpenPipeStress",
+        "contributor_certification": "Invented non-engineering example.",
+        "redistribution_status": "invented_non_engineering_example",
+        "review_status": "accepted"
+      }
+    },
+    {
+      "id": "bending_moment_z",
+      "label": "Midspan bending moment about Z",
+      "display": "M_z",
+      "quantity": {
+        "decimal": "4.0",
+        "unit": "N-m",
+        "dimension": "moment"
+      },
+      "openmath": {
+        "om_type": "OMV",
+        "name": "bending_moment_z"
+      },
+      "provenance": {
+        "source_name": "invented mechanics fixture",
+        "source_location": "TP-PHYS-014 canonical midspan resultants",
+        "source_license": "project invented",
+        "contributor": "OpenPipeStress",
+        "contributor_certification": "Invented non-engineering example.",
+        "redistribution_status": "invented_non_engineering_example",
+        "review_status": "accepted"
+      }
+    },
+    {
+      "id": "torsional_moment",
+      "label": "Midspan torsional moment",
+      "display": "T",
+      "quantity": {
+        "decimal": "0.0",
+        "unit": "N-m",
+        "dimension": "moment"
+      },
+      "openmath": {
+        "om_type": "OMV",
+        "name": "torsional_moment"
+      },
+      "provenance": {
+        "source_name": "invented mechanics fixture",
+        "source_location": "TP-PHYS-014 canonical midspan resultants",
+        "source_license": "project invented",
+        "contributor": "OpenPipeStress",
+        "contributor_certification": "Invented non-engineering example.",
+        "redistribution_status": "invented_non_engineering_example",
+        "review_status": "accepted"
+      }
+    }
+  ],
+  "formulas": [
+    {
+      "id": "inside_diameter",
+      "label": "Inside diameter",
+      "display": "D_i",
+      "openmath": {
+        "om_type": "OMA",
+        "operator": {
+          "om_type": "OMS",
+          "cd": "arith1",
+          "name": "minus"
+        },
+        "arguments": [
+          {
+            "om_type": "OMV",
+            "name": "outside_diameter"
+          },
+          {
+            "om_type": "OMA",
+            "operator": {
+              "om_type": "OMS",
+              "cd": "arith1",
+              "name": "times"
+            },
+            "arguments": [
+              {
+                "om_type": "OMI",
+                "decimal": "2"
+              },
+              {
+                "om_type": "OMV",
+                "name": "wall_thickness"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_unit": "m",
+      "expected_dimension": "length",
+      "provenance": {
+        "source_name": "elementary open geometry",
+        "source_location": "validation/witness/fixtures/tp_phys_015_section_property_stress_witness.json",
+        "source_license": "project-original-public-content",
+        "contributor": "OpenPipeStress",
+        "contributor_certification": "Generated from elementary open mechanics; not copied from protected standards or proprietary data.",
+        "redistribution_status": "project_original_public_content",
+        "review_status": "accepted"
+      }
+    },
+    {
+      "id": "section_area",
+      "label": "Pipe section area",
+      "display": "A",
+      "openmath": {
+        "om_type": "OMA",
+        "operator": {
+          "om_type": "OMS",
+          "cd": "arith1",
+          "name": "times"
+        },
+        "arguments": [
+          {
+            "om_type": "OMA",
+            "operator": {
+              "om_type": "OMS",
+              "cd": "arith1",
+              "name": "divide"
+            },
+            "arguments": [
+              {
+                "om_type": "OMS",
+                "cd": "nums1",
+                "name": "pi"
+              },
+              {
+                "om_type": "OMI",
+                "decimal": "4"
+              }
+            ]
+          },
+          {
+            "om_type": "OMA",
+            "operator": {
+              "om_type": "OMS",
+              "cd": "arith1",
+              "name": "minus"
+            },
+            "arguments": [
+              {
+                "om_type": "OMA",
+                "operator": {
+                  "om_type": "OMS",
+                  "cd": "arith1",
+                  "name": "power"
+                },
+                "arguments": [
+                  {
+                    "om_type": "OMV",
+                    "name": "outside_diameter"
+                  },
+                  {
+                    "om_type": "OMI",
+                    "decimal": "2"
+                  }
+                ]
+              },
+              {
+                "om_type": "OMA",
+                "operator": {
+                  "om_type": "OMS",
+                  "cd": "arith1",
+                  "name": "power"
+                },
+                "arguments": [
+                  {
+                    "om_type": "OMV",
+                    "name": "inside_diameter"
+                  },
+                  {
+                    "om_type": "OMI",
+                    "decimal": "2"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "expected_unit": "m^2",
+      "expected_dimension": "area",
+      "provenance": {
+        "source_name": "elementary open circular-section geometry",
+        "source_location": "validation/witness/fixtures/tp_phys_015_section_property_stress_witness.json",
+        "source_license": "project-original-public-content",
+        "contributor": "OpenPipeStress",
+        "contributor_certification": "Generated from elementary open mechanics; not copied from protected standards or proprietary data.",
+        "redistribution_status": "project_original_public_content",
+        "review_status": "accepted"
+      }
+    },
+    {
+      "id": "second_moment_area",
+      "label": "Second moment of area",
+      "display": "I",
+      "openmath": {
+        "om_type": "OMA",
+        "operator": {
+          "om_type": "OMS",
+          "cd": "arith1",
+          "name": "times"
+        },
+        "arguments": [
+          {
+            "om_type": "OMA",
+            "operator": {
+              "om_type": "OMS",
+              "cd": "arith1",
+              "name": "divide"
+            },
+            "arguments": [
+              {
+                "om_type": "OMS",
+                "cd": "nums1",
+                "name": "pi"
+              },
+              {
+                "om_type": "OMI",
+                "decimal": "64"
+              }
+            ]
+          },
+          {
+            "om_type": "OMA",
+            "operator": {
+              "om_type": "OMS",
+              "cd": "arith1",
+              "name": "minus"
+            },
+            "arguments": [
+              {
+                "om_type": "OMA",
+                "operator": {
+                  "om_type": "OMS",
+                  "cd": "arith1",
+                  "name": "power"
+                },
+                "arguments": [
+                  {
+                    "om_type": "OMV",
+                    "name": "outside_diameter"
+                  },
+                  {
+                    "om_type": "OMI",
+                    "decimal": "4"
+                  }
+                ]
+              },
+              {
+                "om_type": "OMA",
+                "operator": {
+                  "om_type": "OMS",
+                  "cd": "arith1",
+                  "name": "power"
+                },
+                "arguments": [
+                  {
+                    "om_type": "OMV",
+                    "name": "inside_diameter"
+                  },
+                  {
+                    "om_type": "OMI",
+                    "decimal": "4"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "expected_unit": "m^4",
+      "expected_dimension": "second_moment_area",
+      "provenance": {
+        "source_name": "elementary open circular-section geometry",
+        "source_location": "validation/witness/fixtures/tp_phys_015_section_property_stress_witness.json",
+        "source_license": "project-original-public-content",
+        "contributor": "OpenPipeStress",
+        "contributor_certification": "Generated from elementary open mechanics; not copied from protected standards or proprietary data.",
+        "redistribution_status": "project_original_public_content",
+        "review_status": "accepted"
+      }
+    },
+    {
+      "id": "torsion_constant",
+      "label": "Torsion constant",
+      "display": "J",
+      "openmath": {
+        "om_type": "OMA",
+        "operator": {
+          "om_type": "OMS",
+          "cd": "arith1",
+          "name": "times"
+        },
+        "arguments": [
+          {
+            "om_type": "OMA",
+            "operator": {
+              "om_type": "OMS",
+              "cd": "arith1",
+              "name": "divide"
+            },
+            "arguments": [
+              {
+                "om_type": "OMS",
+                "cd": "nums1",
+                "name": "pi"
+              },
+              {
+                "om_type": "OMI",
+                "decimal": "32"
+              }
+            ]
+          },
+          {
+            "om_type": "OMA",
+            "operator": {
+              "om_type": "OMS",
+              "cd": "arith1",
+              "name": "minus"
+            },
+            "arguments": [
+              {
+                "om_type": "OMA",
+                "operator": {
+                  "om_type": "OMS",
+                  "cd": "arith1",
+                  "name": "power"
+                },
+                "arguments": [
+                  {
+                    "om_type": "OMV",
+                    "name": "outside_diameter"
+                  },
+                  {
+                    "om_type": "OMI",
+                    "decimal": "4"
+                  }
+                ]
+              },
+              {
+                "om_type": "OMA",
+                "operator": {
+                  "om_type": "OMS",
+                  "cd": "arith1",
+                  "name": "power"
+                },
+                "arguments": [
+                  {
+                    "om_type": "OMV",
+                    "name": "inside_diameter"
+                  },
+                  {
+                    "om_type": "OMI",
+                    "decimal": "4"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "expected_unit": "m^4",
+      "expected_dimension": "second_moment_area",
+      "provenance": {
+        "source_name": "elementary open circular-section geometry",
+        "source_location": "validation/witness/fixtures/tp_phys_015_section_property_stress_witness.json",
+        "source_license": "project-original-public-content",
+        "contributor": "OpenPipeStress",
+        "contributor_certification": "Generated from elementary open mechanics; not copied from protected standards or proprietary data.",
+        "redistribution_status": "project_original_public_content",
+        "review_status": "accepted"
+      }
+    },
+    {
+      "id": "torsion_radius",
+      "label": "Outer torsion radius",
+      "display": "r",
+      "openmath": {
+        "om_type": "OMA",
+        "operator": {
+          "om_type": "OMS",
+          "cd": "arith1",
+          "name": "divide"
+        },
+        "arguments": [
+          {
+            "om_type": "OMV",
+            "name": "outside_diameter"
+          },
+          {
+            "om_type": "OMI",
+            "decimal": "2"
+          }
+        ]
+      },
+      "expected_unit": "m",
+      "expected_dimension": "length",
+      "provenance": {
+        "source_name": "elementary open circular-section geometry",
+        "source_location": "validation/witness/fixtures/tp_phys_015_section_property_stress_witness.json",
+        "source_license": "project-original-public-content",
+        "contributor": "OpenPipeStress",
+        "contributor_certification": "Generated from elementary open mechanics; not copied from protected standards or proprietary data.",
+        "redistribution_status": "project_original_public_content",
+        "review_status": "accepted"
+      }
+    },
+    {
+      "id": "section_modulus_y",
+      "label": "Section modulus about Y",
+      "display": "Z_y",
+      "openmath": {
+        "om_type": "OMA",
+        "operator": {
+          "om_type": "OMS",
+          "cd": "arith1",
+          "name": "divide"
+        },
+        "arguments": [
+          {
+            "om_type": "OMV",
+            "name": "second_moment_area"
+          },
+          {
+            "om_type": "OMV",
+            "name": "torsion_radius"
+          }
+        ]
+      },
+      "expected_unit": "m^3",
+      "expected_dimension": "section_modulus",
+      "provenance": {
+        "source_name": "elementary open circular-section geometry",
+        "source_location": "validation/witness/fixtures/tp_phys_015_section_property_stress_witness.json",
+        "source_license": "project-original-public-content",
+        "contributor": "OpenPipeStress",
+        "contributor_certification": "Generated from elementary open mechanics; not copied from protected standards or proprietary data.",
+        "redistribution_status": "project_original_public_content",
+        "review_status": "accepted"
+      }
+    },
+    {
+      "id": "section_modulus_z",
+      "label": "Section modulus about Z",
+      "display": "Z_z",
+      "openmath": {
+        "om_type": "OMA",
+        "operator": {
+          "om_type": "OMS",
+          "cd": "arith1",
+          "name": "divide"
+        },
+        "arguments": [
+          {
+            "om_type": "OMV",
+            "name": "second_moment_area"
+          },
+          {
+            "om_type": "OMV",
+            "name": "torsion_radius"
+          }
+        ]
+      },
+      "expected_unit": "m^3",
+      "expected_dimension": "section_modulus",
+      "provenance": {
+        "source_name": "elementary open circular-section geometry",
+        "source_location": "validation/witness/fixtures/tp_phys_015_section_property_stress_witness.json",
+        "source_license": "project-original-public-content",
+        "contributor": "OpenPipeStress",
+        "contributor_certification": "Generated from elementary open mechanics; not copied from protected standards or proprietary data.",
+        "redistribution_status": "project_original_public_content",
+        "review_status": "accepted"
+      }
+    },
+    {
+      "id": "axial_normal_stress",
+      "label": "Axial normal stress",
+      "display": "sigma_axial",
+      "openmath": {
+        "om_type": "OMA",
+        "operator": {
+          "om_type": "OMS",
+          "cd": "arith1",
+          "name": "divide"
+        },
+        "arguments": [
+          {
+            "om_type": "OMV",
+            "name": "axial_resultant"
+          },
+          {
+            "om_type": "OMV",
+            "name": "section_area"
+          }
+        ]
+      },
+      "expected_unit": "Pa",
+      "expected_dimension": "stress",
+      "provenance": {
+        "source_name": "elementary open mechanics stress recovery",
+        "source_location": "validation/witness/fixtures/tp_phys_015_section_property_stress_witness.json",
+        "source_license": "project-original-public-content",
+        "contributor": "OpenPipeStress",
+        "contributor_certification": "Generated from elementary open mechanics; not copied from protected standards, code formulas, or proprietary data.",
+        "redistribution_status": "project_original_public_content",
+        "review_status": "accepted"
+      }
+    },
+    {
+      "id": "bending_normal_stress_z",
+      "label": "Bending normal stress from M_z",
+      "display": "sigma_bending_z",
+      "openmath": {
+        "om_type": "OMA",
+        "operator": {
+          "om_type": "OMS",
+          "cd": "arith1",
+          "name": "divide"
+        },
+        "arguments": [
+          {
+            "om_type": "OMV",
+            "name": "bending_moment_z"
+          },
+          {
+            "om_type": "OMV",
+            "name": "section_modulus_z"
+          }
+        ]
+      },
+      "expected_unit": "Pa",
+      "expected_dimension": "stress",
+      "provenance": {
+        "source_name": "elementary open mechanics stress recovery",
+        "source_location": "validation/witness/fixtures/tp_phys_015_section_property_stress_witness.json",
+        "source_license": "project-original-public-content",
+        "contributor": "OpenPipeStress",
+        "contributor_certification": "Generated from elementary open mechanics; not copied from protected standards, code formulas, or proprietary data.",
+        "redistribution_status": "project_original_public_content",
+        "review_status": "accepted"
+      }
+    },
+    {
+      "id": "bending_normal_stress_y",
+      "label": "Bending normal stress from M_y",
+      "display": "sigma_bending_y",
+      "openmath": {
+        "om_type": "OMA",
+        "operator": {
+          "om_type": "OMS",
+          "cd": "arith1",
+          "name": "divide"
+        },
+        "arguments": [
+          {
+            "om_type": "OMV",
+            "name": "bending_moment_y"
+          },
+          {
+            "om_type": "OMV",
+            "name": "section_modulus_y"
+          }
+        ]
+      },
+      "expected_unit": "Pa",
+      "expected_dimension": "stress",
+      "provenance": {
+        "source_name": "elementary open mechanics stress recovery",
+        "source_location": "validation/witness/fixtures/tp_phys_015_section_property_stress_witness.json",
+        "source_license": "project-original-public-content",
+        "contributor": "OpenPipeStress",
+        "contributor_certification": "Generated from elementary open mechanics; not copied from protected standards, code formulas, or proprietary data.",
+        "redistribution_status": "project_original_public_content",
+        "review_status": "accepted"
+      }
+    },
+    {
+      "id": "torsional_shear_stress",
+      "label": "Torsional shear stress",
+      "display": "tau_torsion",
+      "openmath": {
+        "om_type": "OMA",
+        "operator": {
+          "om_type": "OMS",
+          "cd": "arith1",
+          "name": "divide"
+        },
+        "arguments": [
+          {
+            "om_type": "OMA",
+            "operator": {
+              "om_type": "OMS",
+              "cd": "arith1",
+              "name": "times"
+            },
+            "arguments": [
+              {
+                "om_type": "OMV",
+                "name": "torsional_moment"
+              },
+              {
+                "om_type": "OMV",
+                "name": "torsion_radius"
+              }
+            ]
+          },
+          {
+            "om_type": "OMV",
+            "name": "torsion_constant"
+          }
+        ]
+      },
+      "expected_unit": "Pa",
+      "expected_dimension": "stress",
+      "provenance": {
+        "source_name": "elementary open mechanics stress recovery",
+        "source_location": "validation/witness/fixtures/tp_phys_015_section_property_stress_witness.json",
+        "source_license": "project-original-public-content",
+        "contributor": "OpenPipeStress",
+        "contributor_certification": "Generated from elementary open mechanics; not copied from protected standards, code formulas, or proprietary data.",
+        "redistribution_status": "project_original_public_content",
+        "review_status": "accepted"
+      }
+    }
+  ],
+  "outputs": [
+    {
+      "id": "output_section_area",
+      "formula_id": "section_area",
+      "result_id": "result:section-property:tp-stress-016:area",
+      "abs_tolerance_decimal": "1e-12",
+      "provenance": {
+        "source_name": "formal witness output binding",
+        "source_location": "fixtures/results/invented/tp_phys_015_section_property_stress_evidence_envelope.json",
+        "source_license": "project invented",
+        "contributor": "OpenPipeStress",
+        "contributor_certification": "Invented validation binding to project result export; not protected standards content.",
+        "redistribution_status": "invented_non_engineering_example",
+        "review_status": "accepted"
+      }
+    },
+    {
+      "id": "output_section_modulus_y",
+      "formula_id": "section_modulus_y",
+      "result_id": "result:section-property:tp-stress-016:section-modulus-y",
+      "abs_tolerance_decimal": "1e-12",
+      "provenance": {
+        "source_name": "formal witness output binding",
+        "source_location": "fixtures/results/invented/tp_phys_015_section_property_stress_evidence_envelope.json",
+        "source_license": "project invented",
+        "contributor": "OpenPipeStress",
+        "contributor_certification": "Invented validation binding to project result export; not protected standards content.",
+        "redistribution_status": "invented_non_engineering_example",
+        "review_status": "accepted"
+      }
+    },
+    {
+      "id": "output_section_modulus_z",
+      "formula_id": "section_modulus_z",
+      "result_id": "result:section-property:tp-stress-016:section-modulus-z",
+      "abs_tolerance_decimal": "1e-12",
+      "provenance": {
+        "source_name": "formal witness output binding",
+        "source_location": "fixtures/results/invented/tp_phys_015_section_property_stress_evidence_envelope.json",
+        "source_license": "project invented",
+        "contributor": "OpenPipeStress",
+        "contributor_certification": "Invented validation binding to project result export; not protected standards content.",
+        "redistribution_status": "invented_non_engineering_example",
+        "review_status": "accepted"
+      }
+    },
+    {
+      "id": "output_torsion_constant",
+      "formula_id": "torsion_constant",
+      "result_id": "result:section-property:tp-stress-016:torsion-constant",
+      "abs_tolerance_decimal": "1e-12",
+      "provenance": {
+        "source_name": "formal witness output binding",
+        "source_location": "fixtures/results/invented/tp_phys_015_section_property_stress_evidence_envelope.json",
+        "source_license": "project invented",
+        "contributor": "OpenPipeStress",
+        "contributor_certification": "Invented validation binding to project result export; not protected standards content.",
+        "redistribution_status": "invented_non_engineering_example",
+        "review_status": "accepted"
+      }
+    },
+    {
+      "id": "output_torsion_radius",
+      "formula_id": "torsion_radius",
+      "result_id": "result:section-property:tp-stress-016:torsion-radius",
+      "abs_tolerance_decimal": "1e-12",
+      "provenance": {
+        "source_name": "formal witness output binding",
+        "source_location": "fixtures/results/invented/tp_phys_015_section_property_stress_evidence_envelope.json",
+        "source_license": "project invented",
+        "contributor": "OpenPipeStress",
+        "contributor_certification": "Invented validation binding to project result export; not protected standards content.",
+        "redistribution_status": "invented_non_engineering_example",
+        "review_status": "accepted"
+      }
+    },
+    {
+      "id": "output_bending_normal_stress_z",
+      "formula_id": "bending_normal_stress_z",
+      "result_id": "result:stress:element-E-1:midspan:bending-normal-z",
+      "abs_tolerance_decimal": "1e-12",
+      "provenance": {
+        "source_name": "formal witness output binding",
+        "source_location": "fixtures/results/invented/tp_phys_015_section_property_stress_evidence_envelope.json",
+        "source_license": "project invented",
+        "contributor": "OpenPipeStress",
+        "contributor_certification": "Invented validation binding to project result export; not protected standards content.",
+        "redistribution_status": "invented_non_engineering_example",
+        "review_status": "accepted"
+      }
+    }
+  ],
+  "generated_artifacts": {
+    "markdown_path": "validation/hand_calcs/stress/generated/tp_phys_015_section_property_stress_witness.md",
+    "mathml_path": "validation/witness/generated/tp_phys_015_section_property_stress_witness.mathml"
+  }
+}

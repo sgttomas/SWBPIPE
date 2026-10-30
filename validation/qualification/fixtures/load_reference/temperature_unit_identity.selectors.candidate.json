@@ -1,0 +1,433 @@
+{
+  "format": "openpipestress.first_static_selector_candidate/1",
+  "case_id": "temperature_unit_identity",
+  "producer_contract": "openpipestress.result_semantics/0.3.0/load-reference-1",
+  "raw_schema_version": "0.2.0",
+  "row_namespace": "payload.mechanics_envelope.results",
+  "assertions": [
+    {
+      "id": "case:minus-50-degC.evidence.member.pipe:identity.operating_temperature_k",
+      "selector": {
+        "id": "evidence:case:minus-50-degC:member:pipe:identity:operating_temperature_k",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:minus-50-degC"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:identity"
+        },
+        "field": "operating_temperature_k",
+        "definition": {
+          "material_id": "material:identity",
+          "material_selection_kind": "exact_point",
+          "reference_basis": "direct_strain_reference",
+          "fit_kind": "none",
+          "thermal_definition": "unchanged_reference"
+        },
+        "unit": "K",
+        "dimension": "temperature"
+      },
+      "criterion_rule_id": "criterion:load_reference_temperature:temperature:K:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_temperature",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/temperature_unit_identity/variants/exact_affine_identity/expected/identity_groups/0/kelvin",
+          "reference_unit": "K",
+          "transform": "identity"
+        },
+        "why_required": "exact affine unit definition (operating temperature in kelvin)"
+      }
+    },
+    {
+      "id": "case:minus-50-degC.evidence.member.pipe:identity.material_selection_temperature_k",
+      "selector": {
+        "id": "evidence:case:minus-50-degC:member:pipe:identity:material_selection_temperature_k",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:minus-50-degC"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:identity"
+        },
+        "field": "material_selection_temperature_k",
+        "definition": {
+          "material_id": "material:identity",
+          "material_selection_kind": "exact_point",
+          "reference_basis": "direct_strain_reference",
+          "fit_kind": "none",
+          "thermal_definition": "unchanged_reference"
+        },
+        "unit": "K",
+        "dimension": "temperature"
+      },
+      "criterion_rule_id": "criterion:load_reference_temperature:temperature:K:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_temperature",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/temperature_unit_identity/variants/exact_affine_identity/expected/identity_groups/0/kelvin",
+          "reference_unit": "K",
+          "transform": "identity"
+        },
+        "why_required": "the exact point selected with no actual-versus-selected override (temperature of the selected material data)"
+      }
+    },
+    {
+      "id": "case:242-degC.evidence.member.pipe:identity.operating_temperature_k",
+      "selector": {
+        "id": "evidence:case:242-degC:member:pipe:identity:operating_temperature_k",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:242-degC"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:identity"
+        },
+        "field": "operating_temperature_k",
+        "definition": {
+          "material_id": "material:identity",
+          "material_selection_kind": "exact_point",
+          "reference_basis": "direct_strain_reference",
+          "fit_kind": "none",
+          "thermal_definition": "unchanged_reference"
+        },
+        "unit": "K",
+        "dimension": "temperature"
+      },
+      "criterion_rule_id": "criterion:load_reference_temperature:temperature:K:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_temperature",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/temperature_unit_identity/variants/exact_affine_identity/expected/identity_groups/1/kelvin",
+          "reference_unit": "K",
+          "transform": "identity"
+        },
+        "why_required": "exact affine unit definition (operating temperature in kelvin)"
+      }
+    },
+    {
+      "id": "case:242-degC.evidence.member.pipe:identity.material_selection_temperature_k",
+      "selector": {
+        "id": "evidence:case:242-degC:member:pipe:identity:material_selection_temperature_k",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:242-degC"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:identity"
+        },
+        "field": "material_selection_temperature_k",
+        "definition": {
+          "material_id": "material:identity",
+          "material_selection_kind": "exact_point",
+          "reference_basis": "direct_strain_reference",
+          "fit_kind": "none",
+          "thermal_definition": "unchanged_reference"
+        },
+        "unit": "K",
+        "dimension": "temperature"
+      },
+      "criterion_rule_id": "criterion:load_reference_temperature:temperature:K:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_temperature",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/temperature_unit_identity/variants/exact_affine_identity/expected/identity_groups/1/kelvin",
+          "reference_unit": "K",
+          "transform": "identity"
+        },
+        "why_required": "the exact point selected with no actual-versus-selected override (temperature of the selected material data)"
+      }
+    },
+    {
+      "id": "case:467p6-degF.evidence.member.pipe:identity.operating_temperature_k",
+      "selector": {
+        "id": "evidence:case:467p6-degF:member:pipe:identity:operating_temperature_k",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:467p6-degF"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:identity"
+        },
+        "field": "operating_temperature_k",
+        "definition": {
+          "material_id": "material:identity",
+          "material_selection_kind": "exact_point",
+          "reference_basis": "direct_strain_reference",
+          "fit_kind": "none",
+          "thermal_definition": "unchanged_reference"
+        },
+        "unit": "K",
+        "dimension": "temperature"
+      },
+      "criterion_rule_id": "criterion:load_reference_temperature:temperature:K:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_temperature",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/temperature_unit_identity/variants/exact_affine_identity/expected/identity_groups/1/kelvin",
+          "reference_unit": "K",
+          "transform": "identity"
+        },
+        "why_required": "exact affine unit definition (operating temperature in kelvin)"
+      }
+    },
+    {
+      "id": "case:467p6-degF.evidence.member.pipe:identity.material_selection_temperature_k",
+      "selector": {
+        "id": "evidence:case:467p6-degF:member:pipe:identity:material_selection_temperature_k",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:467p6-degF"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:identity"
+        },
+        "field": "material_selection_temperature_k",
+        "definition": {
+          "material_id": "material:identity",
+          "material_selection_kind": "exact_point",
+          "reference_basis": "direct_strain_reference",
+          "fit_kind": "none",
+          "thermal_definition": "unchanged_reference"
+        },
+        "unit": "K",
+        "dimension": "temperature"
+      },
+      "criterion_rule_id": "criterion:load_reference_temperature:temperature:K:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_temperature",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/temperature_unit_identity/variants/exact_affine_identity/expected/identity_groups/1/kelvin",
+          "reference_unit": "K",
+          "transform": "identity"
+        },
+        "why_required": "the exact point selected with no actual-versus-selected override (temperature of the selected material data)"
+      }
+    },
+    {
+      "id": "case:20-degC-rankine.evidence.member.pipe:identity.operating_temperature_k",
+      "selector": {
+        "id": "evidence:case:20-degC-rankine:member:pipe:identity:operating_temperature_k",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:20-degC-rankine"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:identity"
+        },
+        "field": "operating_temperature_k",
+        "definition": {
+          "material_id": "material:identity",
+          "material_selection_kind": "exact_point",
+          "reference_basis": "direct_strain_reference",
+          "fit_kind": "none",
+          "thermal_definition": "unchanged_reference"
+        },
+        "unit": "K",
+        "dimension": "temperature"
+      },
+      "criterion_rule_id": "criterion:load_reference_temperature:temperature:K:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_temperature",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/temperature_unit_identity/variants/exact_affine_identity/expected/identity_groups/2/kelvin",
+          "reference_unit": "K",
+          "transform": "identity"
+        },
+        "why_required": "exact affine unit definition (operating temperature in kelvin)"
+      }
+    },
+    {
+      "id": "case:20-degC-rankine.evidence.member.pipe:identity.material_selection_temperature_k",
+      "selector": {
+        "id": "evidence:case:20-degC-rankine:member:pipe:identity:material_selection_temperature_k",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:20-degC-rankine"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:identity"
+        },
+        "field": "material_selection_temperature_k",
+        "definition": {
+          "material_id": "material:identity",
+          "material_selection_kind": "exact_point",
+          "reference_basis": "direct_strain_reference",
+          "fit_kind": "none",
+          "thermal_definition": "unchanged_reference"
+        },
+        "unit": "K",
+        "dimension": "temperature"
+      },
+      "criterion_rule_id": "criterion:load_reference_temperature:temperature:K:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_temperature",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/temperature_unit_identity/variants/exact_affine_identity/expected/identity_groups/2/kelvin",
+          "reference_unit": "K",
+          "transform": "identity"
+        },
+        "why_required": "the exact point selected with no actual-versus-selected override (temperature of the selected material data)"
+      }
+    },
+    {
+      "id": "case:non-equal-control.evidence.member.pipe:identity.operating_temperature_k",
+      "selector": {
+        "id": "evidence:case:non-equal-control:member:pipe:identity:operating_temperature_k",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:non-equal-control"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:identity"
+        },
+        "field": "operating_temperature_k",
+        "definition": {
+          "material_id": "material:identity",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "direct_strain_reference",
+          "fit_kind": "none",
+          "thermal_definition": "unchanged_reference"
+        },
+        "unit": "K",
+        "dimension": "temperature"
+      },
+      "criterion_rule_id": "criterion:load_reference_temperature:temperature:K:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_temperature",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/temperature_unit_identity/variants/exact_affine_identity/expected/non_equal_control/authored_kelvin/0",
+          "reference_unit": "K",
+          "transform": "identity"
+        },
+        "why_required": "the non-equal authored temperature is kept, not snapped to 223.15 K (operating temperature in kelvin)"
+      }
+    }
+  ],
+  "negative_assertions": [
+    {
+      "id": "case:non-equal-control.evidence.member.pipe:identity.operating_temperature_k.not.non_equal_control.snapped_to_223p15_K",
+      "selector": {
+        "id": "evidence:case:non-equal-control:member:pipe:identity:operating_temperature_k",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:non-equal-control"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:identity"
+        },
+        "field": "operating_temperature_k",
+        "definition": {
+          "material_id": "material:identity",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "direct_strain_reference",
+          "fit_kind": "none",
+          "thermal_definition": "unchanged_reference"
+        },
+        "unit": "K",
+        "dimension": "temperature"
+      },
+      "criterion_rule_id": "criterion:load_reference_temperature:temperature:K:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_temperature",
+        "negates_assertion": "case:non-equal-control.evidence.member.pipe:identity.operating_temperature_k",
+        "discriminator": "non_equal_control.snapped_to_223p15_K",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/temperature_unit_identity/variants/exact_affine_identity/expected/non_equal_control/authored_kelvin/1",
+          "reference_unit": "K",
+          "transform": "identity"
+        },
+        "predicate": "observed must fall OUTSIDE this rule around the wrong value: |observed - wrong| > max(absolute, relative*max(|observed|,|wrong|))"
+      }
+    }
+  ],
+  "gaps": [
+    {
+      "id": "case:minus-50-degC.selected_point",
+      "kind": "structural_expectation_not_scored",
+      "detail": "Identity witness: the case solves with exact_point \"point:minus-50-degC-group\" and no override. A failed identity blocks with LOAD_STATE_MATERIAL_TEMPERATURE_OVERRIDE_REQUIRED and leaves every assertion of the case unavailable. material_selection_kind == \"exact_point\" is a definition constraint of the member evidence selectors; consumed_material_points[0].point_id == \"point:minus-50-degC-group\" is not scored.",
+      "load_case": "case:minus-50-degC",
+      "point_id": "point:minus-50-degC-group"
+    },
+    {
+      "id": "case:242-degC.selected_point",
+      "kind": "structural_expectation_not_scored",
+      "detail": "Identity witness: the case solves with exact_point \"point:242-degC-group\" and no override. A failed identity blocks with LOAD_STATE_MATERIAL_TEMPERATURE_OVERRIDE_REQUIRED and leaves every assertion of the case unavailable. material_selection_kind == \"exact_point\" is a definition constraint of the member evidence selectors; consumed_material_points[0].point_id == \"point:242-degC-group\" is not scored.",
+      "load_case": "case:242-degC",
+      "point_id": "point:242-degC-group"
+    },
+    {
+      "id": "case:467p6-degF.selected_point",
+      "kind": "structural_expectation_not_scored",
+      "detail": "Identity witness: the case solves with exact_point \"point:242-degC-group\" and no override. A failed identity blocks with LOAD_STATE_MATERIAL_TEMPERATURE_OVERRIDE_REQUIRED and leaves every assertion of the case unavailable. material_selection_kind == \"exact_point\" is a definition constraint of the member evidence selectors; consumed_material_points[0].point_id == \"point:242-degC-group\" is not scored.",
+      "load_case": "case:467p6-degF",
+      "point_id": "point:242-degC-group"
+    },
+    {
+      "id": "case:20-degC-rankine.selected_point",
+      "kind": "structural_expectation_not_scored",
+      "detail": "Identity witness: the case solves with exact_point \"point:20-degC-rankine-group\" and no override. A failed identity blocks with LOAD_STATE_MATERIAL_TEMPERATURE_OVERRIDE_REQUIRED and leaves every assertion of the case unavailable. material_selection_kind == \"exact_point\" is a definition constraint of the member evidence selectors; consumed_material_points[0].point_id == \"point:20-degC-rankine-group\" is not scored.",
+      "load_case": "case:20-degC-rankine",
+      "point_id": "point:20-degC-rankine-group"
+    },
+    {
+      "id": "non_equal_control.refusal",
+      "kind": "refusal_control",
+      "detail": "Refusal control (not a scalar assertion): replace case:minus-50-degC operating_temperature by the non-equal authored value; exact_point selection must then block with LOAD_STATE_MATERIAL_TEMPERATURE_OVERRIDE_REQUIRED.",
+      "mutation": {
+        "op": "replace",
+        "path": "/model/load_cases/0/analysis_state/element_states/0/operating_temperature",
+        "value_pointer": "/cases/temperature_unit_identity/variants/exact_affine_identity/inputs/non_equal_control/authored/0"
+      },
+      "expected": {
+        "channel": "blocking_diagnostic",
+        "code": "LOAD_STATE_MATERIAL_TEMPERATURE_OVERRIDE_REQUIRED"
+      }
+    },
+    {
+      "id": "binary64_affine_conversion",
+      "kind": "not_representable_under_criterion",
+      "detail": "The binary64-conversion discriminator differs from the identity by about 1e-16 relative, far below the protected 1e-9 criterion, so no scalar negative can separate it. The identity is witnessed by the exact-point selections succeeding without override (see selected_point gaps).",
+      "pointer": "/cases/temperature_unit_identity/wrong_result_discriminators/binary64_affine_conversion"
+    }
+  ],
+  "scoring_readiness": {
+    "status": "authoring_only_pending_independent_freeze",
+    "reference_case_key": "temperature_unit_identity",
+    "family": "reference_temperatures",
+    "load_state_decomposition": "five load cases in one request: four exact-point selections whose operating temperature is authored in a different unit from the point, and the non-equal control on base properties",
+    "limits": [
+      "Temperature identities only; no mechanics assertion is made."
+    ],
+    "identification": "row ids and metadata were identified by running core/product_physics examples/physics_source_connected on this request in both modes; no observed value is used as a reference or criterion and none is committed"
+  }
+}

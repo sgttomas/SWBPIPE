@@ -1,0 +1,127 @@
+{
+  "status": "PASS",
+  "mode": "UPDATE, additive accepted delta only",
+  "strictness": "CONSERVATIVE",
+  "source_docs": [
+    "ScopeOfWork.md",
+    "_CONTEXT.md",
+    "_REFERENCES.md"
+  ],
+  "anchor_doc": "ScopeOfWork.md frontmatter",
+  "execution_doc_order": [
+    "ScopeOfWork.md named claims; _CONTEXT.md boundaries; _REFERENCES.md locator resolution"
+  ],
+  "workflow": "bundled:chirality-root/dependency-extract",
+  "workflow_limits": "Each source pass is deliverable-local plus decomposition. Cross-deliverable aggregate assembly and separate centralized evidence are ad hoc assigned work, not workflow authority. The exact Group-2 index bytes are preserved; these explicit run settings and returned backchecks supplement their accepted application history.",
+  "generic_id_validator": "NONZERO: stock helper expects three-digit package IDs; Piping accepted two-digit identities preserved and independently resolved against actual decomposition. This is a declared format applicability limit, not a waived invalid identity.",
+  "anchor_rows": 22,
+  "execution_rows": 62,
+  "local_owners": [
+    {
+      "owner": "DEL-04-07",
+      "rows": 24,
+      "added_rows": 24,
+      "parent_anchors": 1,
+      "row_equality": "PASS",
+      "schema": "PASS",
+      "index_counts": "PASS",
+      "historical_rows_preserved_not_revalidated": 0
+    },
+    {
+      "owner": "DEL-07-01",
+      "rows": 20,
+      "added_rows": 2,
+      "parent_anchors": 1,
+      "row_equality": "PASS",
+      "schema": "PASS",
+      "index_counts": "PASS",
+      "historical_rows_preserved_not_revalidated": 18
+    },
+    {
+      "owner": "DEL-07-03",
+      "rows": 20,
+      "added_rows": 3,
+      "parent_anchors": 1,
+      "row_equality": "PASS",
+      "schema": "PASS",
+      "index_counts": "PASS",
+      "historical_rows_preserved_not_revalidated": 17
+    },
+    {
+      "owner": "DEL-07-04",
+      "rows": 18,
+      "added_rows": 2,
+      "parent_anchors": 1,
+      "row_equality": "PASS",
+      "schema": "PASS",
+      "index_counts": "PASS",
+      "historical_rows_preserved_not_revalidated": 16
+    },
+    {
+      "owner": "DEL-07-08",
+      "rows": 30,
+      "added_rows": 1,
+      "parent_anchors": 1,
+      "row_equality": "PASS",
+      "schema": "PASS",
+      "index_counts": "PASS",
+      "historical_rows_preserved_not_revalidated": 29
+    },
+    {
+      "owner": "DEL-07-11",
+      "rows": 12,
+      "added_rows": 12,
+      "parent_anchors": 1,
+      "row_equality": "PASS",
+      "schema": "PASS",
+      "index_counts": "PASS",
+      "historical_rows_preserved_not_revalidated": 0
+    },
+    {
+      "owner": "DEL-07-12",
+      "rows": 26,
+      "added_rows": 26,
+      "parent_anchors": 1,
+      "row_equality": "PASS",
+      "schema": "PASS",
+      "index_counts": "PASS",
+      "historical_rows_preserved_not_revalidated": 0
+    },
+    {
+      "owner": "DEL-08-04",
+      "rows": 23,
+      "added_rows": 1,
+      "parent_anchors": 1,
+      "row_equality": "PASS",
+      "schema": "PASS",
+      "index_counts": "PASS",
+      "historical_rows_preserved_not_revalidated": 22
+    },
+    {
+      "owner": "DEL-16-03",
+      "rows": 17,
+      "added_rows": 1,
+      "parent_anchors": 1,
+      "row_equality": "PASS",
+      "schema": "PASS",
+      "index_counts": "PASS",
+      "historical_rows_preserved_not_revalidated": 16
+    },
+    {
+      "owner": "DEL-16-06",
+      "rows": 12,
+      "added_rows": 12,
+      "parent_anchors": 1,
+      "row_equality": "PASS",
+      "schema": "PASS",
+      "index_counts": "PASS",
+      "historical_rows_preserved_not_revalidated": 0
+    }
+  ],
+  "local_missing_source_literal_negative_probe": "DETECTED",
+  "limits": [
+    "Semantic target mapping is a source-grounded TASK judgment, not merely a token search. Script asserts quotes, identities and accepted row equality so later replay can detect drift.",
+    "Historical CSV proposal citations and candidate Notes are retained provenance. Current support is bound separately to applied local source bytes.",
+    "This bounded delta check does not claim a corpus-wide re-extraction, new satisfaction evidence, lifecycle advancement or graph adoption."
+  ]
+}

@@ -1,0 +1,12 @@
+[package]
+name = "open_pipe_stress_linear_supports"
+version = "0.1.0"
+edition = "2021"
+description = "Linear support and restraint models for OpenPipeStress"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+open_pipe_stress_frame_kernel = { path = "../frame_kernel" }

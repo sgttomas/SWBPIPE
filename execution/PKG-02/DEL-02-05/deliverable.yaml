@@ -1,0 +1,172 @@
+id: DEL-02-05
+name: Project persistence and round-trip serialization
+needs:
+- from: DEL-00-01
+  condition: 'DEL-02-05 applies AB-00-01 as an upstream architecture-basis prerequisite for decision-record
+    discipline.
+
+
+    Notes: Normalized from prior aggregate DAG mirror; dependency type collapsed to canonical PREREQUISITE.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-02-05 applies AB-00-02 as an upstream architecture-basis prerequisite for module and
+    boundary constraints.
+
+
+    Notes: Normalized from prior aggregate DAG mirror; dependency type collapsed to canonical PREREQUISITE.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-03
+  condition: 'DEL-02-05 applies AB-00-03 as an upstream prerequisite for schema-first service/result-envelope
+    behavior.
+
+
+    Notes: Normalized from prior aggregate DAG mirror; dependency type collapsed to canonical PREREQUISITE.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-02/DEL-02-05/ScopeOfWork.md
+- from: DEL-00-04
+  condition: 'DEL-02-05 applies AB-00-04 as the direct persistence schema versioning canonicalization
+    and round-trip prerequisite.
+
+
+    Notes: Normalized from prior aggregate DAG mirror; dependency type collapsed to canonical PREREQUISITE.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-02/DEL-02-05/ScopeOfWork.md
+- from: DEL-00-06
+  condition: 'DEL-02-05 applies AB-00-06 as an upstream prerequisite for persistence diagnostics and result-envelope
+    coverage.
+
+
+    Notes: Normalized from prior aggregate DAG mirror; dependency type collapsed to canonical PREREQUISITE.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-02/DEL-02-05/ScopeOfWork.md
+- from: DEL-00-07
+  condition: 'DEL-02-05 applies AB-00-07 as an upstream prerequisite for adapter validation and public/private
+    boundary constraints.
+
+
+    Notes: Normalized from prior aggregate DAG mirror; dependency type collapsed to canonical PREREQUISITE.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-02/DEL-02-05/ScopeOfWork.md
+- from: DEL-00-08
+  condition: 'DEL-02-05 applies AB-00-08 as an upstream prerequisite for its round-trip, schema, hash,
+    version-refusal and protected-content test obligations. There is no migration to test: older model
+    documents are refused by name (owner, 2026-10-10; ScopeOfWork CLM-003).'
+  gating: true
+  evidence: execution/PKG-02/DEL-02-05/ScopeOfWork.md
+- from: DEL-02-01
+  condition: 'DEL-02-05 interfaces with DEL-02-01 because persistence serializes and round-trips the canonical
+    model and schema-backed objects.
+
+
+    Notes: Normalized from prior aggregate DAG mirror; dependency type collapsed to canonical INTERFACE.;
+    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-02/DEL-02-05/ScopeOfWork.md
+- from: DEL-02-02
+  condition: 'DEL-02-05 interfaces with DEL-02-02 because persistence must preserve explicit units and
+    unit-system references for downstream dimensional checks.
+
+
+    Notes: Target deliverable resolved through decomposition PKG-02 row for unit system contract; retained
+    conservatively as interface rather than prerequisite.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-02/DEL-02-05/ScopeOfWork.md
+- from: DEL-02-03
+  condition: 'DEL-02-05 interfaces with DEL-02-03 because persisted statuses and optional review records
+    must preserve the mechanics rule-check and human-review boundary.
+
+
+    Notes: Target deliverable resolved through decomposition PKG-02 row for code-neutral analysis boundary;
+    retained conservatively as interface rather than prerequisite.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
+    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-02/DEL-02-05/ScopeOfWork.md
+- from: doc:execution/PKG-04/DEL-04-08/Design/b7-plan.md
+  condition: 'DEL-02-05''s one current model-document version is 0.8.0 as DEL-04-08 Design `b7-plan.md`
+    ("Current model format") defines it: `pressure_contract` optional, its absence making the document pressure-free,
+    and every non-current model document refused for editing and solving, with the named re-author refusal for
+    older parsed versions and no migration. DEL-02-05''s version
+    check and persistence round trips follow that definition.'
+  gating: true
+  evidence: core/product_physics/src/model_format.rs
+code_paths:
+- schemas/project_persistence.schema.yaml
+- core/project_persistence/**
+- docs/architecture/persistence_contract.md
+- fixtures/persistence/**
+- core/product_physics/src/model_format.rs
+- apps/desktop/src-tauri/src/model_document_version.rs
+- apps/desktop/src/services/projectService.ts
+- tests/test_persistence_schema.py
+- tests/test_project_persistence_service.py
+- apps/desktop/src/services/projectService.test.ts
+- apps/desktop/src/services/blankLoadStateModel.test.ts
+- apps/desktop/src/features/project-validation/ProjectValidationPanel.tsx
+- core/reporting/report_package/src/reader.rs
+- apps/desktop/src-tauri/src/lib.rs
+- apps/desktop/src-tauri/src/model_document_file.rs
+- apps/desktop/src-tauri/src/autosave.rs
+- apps/desktop/src-tauri/src/autosave_commands.rs
+- apps/desktop/src/features/autosave/**
+- apps/desktop/src/services/modelDocumentFile.ts
+- apps/desktop/src/features/model-file/modelDocumentOpen.test.tsx
+- apps/desktop/e2e/b3b-project-persistence.spec.ts
+checks:
+- tests/test_persistence_schema.py
+- tests/test_project_persistence_service.py
+- apps/desktop/src/services/projectService.test.ts
+- apps/desktop/src/services/blankLoadStateModel.test.ts
+- core/reporting/report_package/tests/reader.rs
+- apps/desktop/src-tauri/src/lib.rs
+- apps/desktop/src-tauri/src/model_document_file.rs
+- apps/desktop/src-tauri/src/model_document_version.rs
+- apps/desktop/src-tauri/src/autosave_tests.rs
+- apps/desktop/src-tauri/src/autosave_commands_tests.rs
+- apps/desktop/src/features/autosave/useAutosave.test.tsx
+- apps/desktop/src/features/autosave/autosaveRecovery.test.ts
+- apps/desktop/src/features/autosave/autosave.session.test.tsx
+- apps/desktop/src/features/model-file/modelDocumentOpen.test.tsx
+- apps/desktop/e2e/b3b-project-persistence.spec.ts

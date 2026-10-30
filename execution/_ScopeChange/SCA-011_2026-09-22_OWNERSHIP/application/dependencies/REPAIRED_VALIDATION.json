@@ -1,0 +1,148 @@
+{
+  "status": "PASS",
+  "phase": "REPAIRED_GROUP2_POSTSTATE_GROUP3_PENDING",
+  "actual_edges_sha256": "5c056c2538026f62276a86d88aa9d95f24e262d4d7e38dcdc2f11e1705dc5c47",
+  "actual_nodes_sha256": "91eb889930f4e97594a4b8627708d667473f066e9cde7e5fca0bf9a2b053613f",
+  "rows": 1571,
+  "nodes": 106,
+  "preserved_rows": 1487,
+  "preserved_nodes": 102,
+  "repaired_rows": 84,
+  "changed_fields": [
+    "DependencyID",
+    "EvidenceFile",
+    "EvidenceQuote",
+    "Notes",
+    "SourceRef"
+  ],
+  "unchanged_semantic_fields": "All other CSV fields are equal to accepted candidate; baseline prefix unchanged.",
+  "quote_checks": 84,
+  "stock_evq_drb_findings_on_repaired_rows": 0,
+  "local_registers": [
+    {
+      "owner": "DEL-04-07",
+      "rows": 24,
+      "repaired_rows": 24,
+      "unchanged_baseline_rows": 0,
+      "schema": "PASS",
+      "prefix_preservation": "PASS"
+    },
+    {
+      "owner": "DEL-07-01",
+      "rows": 20,
+      "repaired_rows": 2,
+      "unchanged_baseline_rows": 18,
+      "schema": "PASS",
+      "prefix_preservation": "PASS"
+    },
+    {
+      "owner": "DEL-07-03",
+      "rows": 20,
+      "repaired_rows": 3,
+      "unchanged_baseline_rows": 17,
+      "schema": "PASS",
+      "prefix_preservation": "PASS"
+    },
+    {
+      "owner": "DEL-07-04",
+      "rows": 18,
+      "repaired_rows": 2,
+      "unchanged_baseline_rows": 16,
+      "schema": "PASS",
+      "prefix_preservation": "PASS"
+    },
+    {
+      "owner": "DEL-07-08",
+      "rows": 30,
+      "repaired_rows": 1,
+      "unchanged_baseline_rows": 29,
+      "schema": "PASS",
+      "prefix_preservation": "PASS"
+    },
+    {
+      "owner": "DEL-07-11",
+      "rows": 12,
+      "repaired_rows": 12,
+      "unchanged_baseline_rows": 0,
+      "schema": "PASS",
+      "prefix_preservation": "PASS"
+    },
+    {
+      "owner": "DEL-07-12",
+      "rows": 26,
+      "repaired_rows": 26,
+      "unchanged_baseline_rows": 0,
+      "schema": "PASS",
+      "prefix_preservation": "PASS"
+    },
+    {
+      "owner": "DEL-08-04",
+      "rows": 23,
+      "repaired_rows": 1,
+      "unchanged_baseline_rows": 22,
+      "schema": "PASS",
+      "prefix_preservation": "PASS"
+    },
+    {
+      "owner": "DEL-16-03",
+      "rows": 17,
+      "repaired_rows": 1,
+      "unchanged_baseline_rows": 16,
+      "schema": "PASS",
+      "prefix_preservation": "PASS"
+    },
+    {
+      "owner": "DEL-16-06",
+      "rows": 12,
+      "repaired_rows": 12,
+      "unchanged_baseline_rows": 0,
+      "schema": "PASS",
+      "prefix_preservation": "PASS"
+    }
+  ],
+  "stage_edges": 1041,
+  "negative_probes": {
+    "baseline_damage": [
+      "BASELINE_ROWS_CHANGED"
+    ],
+    "duplicate_row": [
+      "DUPLICATE_DIRECTED_EDGE",
+      "DUPLICATE_ID"
+    ],
+    "dangling_target": [
+      "DANGLING_TARGET"
+    ],
+    "unsupported_satisfaction": [
+      "UNSUPPORTED_MATURITY_OR_SATISFACTION"
+    ],
+    "reverse_stage_SCA011-IF-PALETTE-ORGANIZATION": [
+      "STAGE_CYCLE"
+    ],
+    "reverse_stage_SCA011-IF-COMPARISON-EXPORT": [
+      "STAGE_CYCLE"
+    ],
+    "reverse_stage_SCA011-IF-APPLICATION-OUTCOME": [
+      "STAGE_CYCLE"
+    ],
+    "blank_quote": [
+      "EVQ-003"
+    ],
+    "bad_owner_id": [
+      "DRB-006"
+    ]
+  },
+  "source_validator": {
+    "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/validate_candidate.py",
+    "sha256": "403ab94263c969bd1d308ba5a677e5b674cf803a690f7bdd3aebfc3ca70702cc",
+    "reused_ast_nodes": [
+      "stage_alias",
+      "stage_edges",
+      "check"
+    ]
+  },
+  "limits": [
+    "Only new metadata repaired; all existing satisfaction, owner scopes, endpoints, types and protected constraints preserved.",
+    "Baseline stock-validator findings are not repaired or waived here. Generic validate_id_format.sh uses a conflicting three-digit template; canonical Root SPEC DEP-owner form and stock owner-binding predicate are checked instead.",
+    "No graph adoption or lifecycle, product, native, engineering or release acceptance."
+  ]
+}

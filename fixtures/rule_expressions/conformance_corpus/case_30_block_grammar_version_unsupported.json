@@ -1,0 +1,31 @@
+{
+  "bindings": [],
+  "case_id": "case_30_block_grammar_version_unsupported",
+  "declared_grammar_version": "9.0.0",
+  "description": "A declared grammar version outside the supported set blocks evaluation.",
+  "expected": {
+    "findings": [
+      {
+        "code": "unsupported_grammar_version",
+        "subject_id": "grammar_version"
+      }
+    ],
+    "source_variable_ids": [],
+    "statuses": [
+      "mechanics_solved"
+    ],
+    "value": null
+  },
+  "expression": {
+    "node": "literal",
+    "quantity": {
+      "dimension": "dimensionless",
+      "unit_ref": "ratio",
+      "value": 1.0
+    }
+  },
+  "required_variable_ids": [],
+  "statuses": [
+    "mechanics_solved"
+  ]
+}

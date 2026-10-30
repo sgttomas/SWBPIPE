@@ -1,0 +1,2815 @@
+{
+  "status": "AUTHOR_COMPLETE_PENDING_INDEPENDENT_REVIEW",
+  "candidate_basis": "008ef6a4e370822c65eb26ddd792752b4267c7ab",
+  "sources": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "1bb670ca339a990b153cf033dac2d8e29ca71bdea0accee4200e6dd1feed3d57"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d8a1f4380962efcd258571c6fb563722be9e2e89d4fa5898b7f6d24dc61ab879"
+    },
+    {
+      "path": ".agents/skills/preparation/SKILL.md",
+      "sha256": "4d18f47dec1ff43ffd2c559d486c1a958853b7b728cc13c7e80ef4375faa0fcc"
+    },
+    {
+      "path": ".agents/skills/preparation/references/scaffold-contract.md",
+      "sha256": "801589c833fab1a785aa464c50a681457921e2c08caf3277c3bc8f263473f0b9"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md",
+      "sha256": "e9b0d14daf75205d6b796f6082d9f389ca1a017652266aaef834415bacb1d1fe"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-009_2026-08-20_0000/Vocabulary_Annex.md",
+      "sha256": "f005abbc0d55b047ee7c34628e169aeb3646cd139a9c2c214a33760df4d63c7c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-009_2026-08-20_0000/ACCEPTANCE_RECORD.md",
+      "sha256": "0e4b789920f9a0f8f6f3776555a44352de051f4542e750aa9bc6e8604a785771"
+    },
+    {
+      "path": "projects/chirality-piping/docs/_Registers/Deliverables.csv",
+      "sha256": "f46ea92ab5e5896e86f6b0b8ecbec4e98158886def5d0cf0d7b80d0200f03539"
+    },
+    {
+      "path": "projects/chirality-piping/docs/_Registers/ScopeLedger.csv",
+      "sha256": "97f5a113739e193f07f6d1dfac36f43e08642e12c983f3a3b597a31abe553238"
+    },
+    {
+      "path": "projects/chirality-piping/docs/_Registers/ContextBudgetQA.csv",
+      "sha256": "84497efb81d4b31b085e016d37a285aed3755be7740a632794e355dad259468d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md",
+      "sha256": "fe328b7b8440dde9a94ae2ed2b85a6cb55db66653fe5adf56de8f33e3c6c60c2"
+    },
+    {
+      "path": "workflows/scope-change/WORKFLOW.md",
+      "sha256": "58f5d1d53c655fdc5668d928f6087003590f40e321e25e3d9447805ee64a7a90"
+    },
+    {
+      "path": "workflows/scope-change/resources/contract.md",
+      "sha256": "4453a719f1588c4eba08bdb4a979140ff3541ed5a29f04477ea58a844f344d02"
+    },
+    {
+      "path": "tools/scope_of_work/common.py",
+      "sha256": "61a3472216fc1c6e42730e99952670e2a02a806810cbbc67a382f4a3eb220389"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-02_Pipe section and component library schema/_STATUS.md",
+      "sha256": "de08d24130fcc1a1ddb73cc49ea3af0ac735897f0cc7f4a2089426cbf1e21c3d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-02_Pipe section and component library schema/MEMORY.md",
+      "sha256": "9a20c6e37649ef8fff1c65f42669f7728fd6ab754dc7d16cc69909510d8749b9"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-02_Pipe section and component library schema/_CONTEXT.md",
+      "sha256": "ff9e096d529ca9a25b3c52b8a8e655976ef0144973883b1596fa31965cc8c409"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-02_Pipe section and component library schema/ScopeOfWork.md",
+      "sha256": "b50b42cbe64ad13bfe564e96d4be2238c0555f0e669ebd80002c5da6bd778495"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker/_STATUS.md",
+      "sha256": "b302450a2595365b77a36f95753a4818f634fdcb179cdb02ba9134639b218e66"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker/MEMORY.md",
+      "sha256": "5aa972d0f1f1377bada11fc388fd30f87bc3a29bac28dbcf3fc6abad0386d547"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker/_CONTEXT.md",
+      "sha256": "ef9acca2d333fd62f10181520a3f835a2f0c49dc6e000b4109b2f116527dd121"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker/ScopeOfWork.md",
+      "sha256": "8a8cb1aac0c5fddfef2d03036cc3b08031196428881372dd2a007287b0ace2bc"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-08_Pipe section property and mass-property calculator/_STATUS.md",
+      "sha256": "388cb86faf5a1feddad1d5435fb69b8f8403edabfafb00626c593de0c4dca75a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-08_Pipe section property and mass-property calculator/MEMORY.md",
+      "sha256": "d96739c0ce33d8115057a3489a9c1bb7cbf7a750f2e81f2470da5ef141001acd"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-08_Pipe section property and mass-property calculator/_CONTEXT.md",
+      "sha256": "1029c97d5f9f792edd534017633b4aebea373c8d9b63a0d95fb7c8773ed896aa"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-08_Pipe section property and mass-property calculator/ScopeOfWork.md",
+      "sha256": "4d3d2a9d661b768061badafda1c99abc7d1e4b4cd502e906c843513e2fd458e9"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/_STATUS.md",
+      "sha256": "ac89330b7448c1321600967c41421ac403076f00bdd366c9efb655b927486700"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/MEMORY.md",
+      "sha256": "2ef37078d39cd7f1f22d2a86311226a4f20848e0db1fb3e022a948f09b70d351"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/_CONTEXT.md",
+      "sha256": "60e1dc191fbc38f42b5cafaa19da4303e586b7b957ed7cd1d729d896239ee7ac"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/ScopeOfWork.md",
+      "sha256": "415a9e38b5d44955b6f16bba2ba290499204a30076f4b5e1a0432e64d48124a7"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_STATUS.md",
+      "sha256": "d44d32d78a50283c0c5e05dc732914db8b13c0739a84ba1a9e573af7e6a13a6c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/MEMORY.md",
+      "sha256": "2fcc98ad5f2f8d02cc78e934e5d9e367fcbb5032f0a6b2ba781383ccd775b612"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_CONTEXT.md",
+      "sha256": "80934d9e5c422cf5bbb50ac607edd142c90120ea73e1be23ce5f256d08555c8f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/ScopeOfWork.md",
+      "sha256": "d2d45d57329b8fd12983664386491f05bf68988b47591b522d92b6bfbd676e1f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/_STATUS.md",
+      "sha256": "e203e00bfd3faf4ebaa0899f71be13cf4fdf72c7431c29cd587e9954233da49b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/MEMORY.md",
+      "sha256": "f7536e243870f8bfa2e821680abff5bb16bbaeec1b9a0a9645c48b7e0461c60b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/_CONTEXT.md",
+      "sha256": "75f4050fc688a71a1b55ed228146cb2626f5e9051d598c9939d2eb7d6fe9b073"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/ScopeOfWork.md",
+      "sha256": "e9422ba1ae5518461ea897ef2f84b214ce6cda04ead036b3dcf4a05c125e86bd"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/_STATUS.md",
+      "sha256": "0e85d9e6a51b626a3cd799604ea7d835ebff47abaab68fe2c4a5128bb4d82621"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/MEMORY.md",
+      "sha256": "1cfb82acb6de44de51c4c1cffee3bc3ab37a2b8a97b74ca81641966d9bce8bea"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/_CONTEXT.md",
+      "sha256": "9b56a79757e4fcdc590d1a777ed46dd7e1351cd9210f0ac402c6be39c054621d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/ScopeOfWork.md",
+      "sha256": "06c3e86d622be4006341fec9c5b788d96f6fc5f5eb6b5d244e6fed9fc4c8a3e7"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_STATUS.md",
+      "sha256": "0608b08af9fe8bf6ce5c9d57826018e0489e4da57e1b3edf03cea015af05d42b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/MEMORY.md",
+      "sha256": "2aad93cc158e42bae3d59efd729db6ea11117a8cfd3cdb981439c5a21ad79ed3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_CONTEXT.md",
+      "sha256": "bd170affdaaa58121857635f813529071a4b6945a7acbc1db7554692a7eb6f18"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/ScopeOfWork.md",
+      "sha256": "bcaa5784306dd980ee852b1a440adaa5eb682db94ee1ad5a269ec878b6be40b3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_STATUS.md",
+      "sha256": "6961425bbe6559a0235771d597746021557453b7ffb7b9be9ddc928b149e5850"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/MEMORY.md",
+      "sha256": "3f964e6558fa01a89e00eda76d744bbcf2c9ac05c94b912838c7345f8e928a0f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_CONTEXT.md",
+      "sha256": "4a1f91e447cfc2e9847ac97573bde9a3aeda3e6d953b64ec24eb969fc41828a0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/ScopeOfWork.md",
+      "sha256": "80bc243696753933d909122188c4831a6ab33e525c029120be0de27215fbedfc"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_STATUS.md",
+      "sha256": "a9cef058db84f630efe7c51ad32877cb0d460fd7784f2454133f6cc9bc40358d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/MEMORY.md",
+      "sha256": "25f2ea7e8e5a4b91ee505d339fea4edf322cb239766ca97c9863228c36ed50ff"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_CONTEXT.md",
+      "sha256": "0550105c816729cc86d337e2d7148be08632661715a71b9b1274ff43f06fccd0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/ScopeOfWork.md",
+      "sha256": "2a65686eda78d1fa8489726b7218cce63685526270832b68f307702cbdbbef54"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/_STATUS.md",
+      "sha256": "2d6e69c965296621a766add1ee9f3c353726019a88b9b9d0f8f058526b1e48ee"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/MEMORY.md",
+      "sha256": "9741ef61afca026404d77a9772ae16f45205de8ee8c24c299cafb1dd28c63f76"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/_CONTEXT.md",
+      "sha256": "a4429831866015716263ee368dea09db62334704e6bc9bb7df22bbf6391c3542"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/ScopeOfWork.md",
+      "sha256": "a48fd2d5b337593a3292c5a801b0d2bc01845c18ecf0cd937cb712546763b4a0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_STATUS.md",
+      "sha256": "854a3e4b4428a38b7f19ffce86413a2c6d766631ebe1d6cf1c06c9466945f3b1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/MEMORY.md",
+      "sha256": "273d3e29498b08b4bbdaf39d0a9112eb38f3f941a30f69557c90efeb05c4f30a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_CONTEXT.md",
+      "sha256": "1659c0e4591e4788c6efac9d42655b6750e733f90298e78621616093b2241454"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/ScopeOfWork.md",
+      "sha256": "e367dbf581dab361ad78bcd8aba6d2edc4ea51a063522fc8dd085bc15890c961"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/_STATUS.md",
+      "sha256": "cca642576aa7364945cd4b3917a4732b9a17d109b3796983b28740067342f3dc"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/MEMORY.md",
+      "sha256": "4d17f0f2976ece12a3433ea15628c68f9ec45bad2ea8b90c36649875a000118f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/_CONTEXT.md",
+      "sha256": "f3acd617e3309f46fe2720e67054a085945fbcbb0d8a4f8a0c9f242e9a9a307e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/ScopeOfWork.md",
+      "sha256": "529841e94183ff9b77532c6b0187a795602e8faf585e6b9da21bbfbb9baacaf0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_STATUS.md",
+      "sha256": "60ceeb8eef85c03980c7aae302096c841689cd69fabed52b110253e3db5c54a5"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/MEMORY.md",
+      "sha256": "44aa9d313d36cc9168a6627098842062c0ed5d19d7639afe0c44c64abea7f244"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_CONTEXT.md",
+      "sha256": "09cc5a15c5e78a87fc124039a8fee4d74fa01b3df7d35f4a433544f238cf2640"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/ScopeOfWork.md",
+      "sha256": "8e29df53945f768bbfe831d7c376446e19ee242493936b4d4f98f2bdae41b2fb"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_STATUS.md",
+      "sha256": "bf3e7749e179ea7d666881d4097f19586e3af28429b0ae23e06d5ce2aa2d3ecc"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_CONTEXT.md",
+      "sha256": "74e16027574a01f3f6ce59d8a39847d313529d3cbda9bd3e8e319780581d6641"
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-20260922-DECISION-FOLLOWUP/PIPING_REVIEW.md",
+      "sha256": "a55dec0f4d406fdbb26fe48969d55f48bf9ba1ae43701d6b1ac930331d32a314",
+      "read_scope": "Source-owner assessment and remaining adoption obligations; existing review is publication-only evidence, not inherited candidate acceptance."
+    }
+  ],
+  "changes": [
+    {
+      "target": "projects/chirality-piping/docs/_Registers/Deliverables.csv",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/docs/_Registers/Deliverables.csv",
+      "operation": "REPLACE",
+      "pre_sha256": "f46ea92ab5e5896e86f6b0b8ecbec4e98158886def5d0cf0d7b80d0200f03539",
+      "post_sha256": "d4b96c0c4e499252a7845db9dd135e43f40e2acb10f077aba3a3866e8317d5cf",
+      "rationale": "P-OWN-01\u201306 keyed responsibility and finite sizing metadata"
+    },
+    {
+      "target": "projects/chirality-piping/docs/_Registers/ScopeLedger.csv",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/docs/_Registers/ScopeLedger.csv",
+      "operation": "REPLACE",
+      "pre_sha256": "97f5a113739e193f07f6d1dfac36f43e08642e12c983f3a3b597a31abe553238",
+      "post_sha256": "2d600ac45fb3cc03743e4be69f772eb22d71fd8fdeea18979ae524ef2c2d7bcc",
+      "rationale": "Four new owners, two new scope items and explicit SOW-077 implementation coverage"
+    },
+    {
+      "target": "projects/chirality-piping/docs/_Registers/ContextBudgetQA.csv",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/docs/_Registers/ContextBudgetQA.csv",
+      "operation": "REPLACE",
+      "pre_sha256": "84497efb81d4b31b085e016d37a285aed3755be7740a632794e355dad259468d",
+      "post_sha256": "292c0dc6fd53e4f982b77938927cd0a467b4b35cf708956a8ba9ba12211a0be6",
+      "rationale": "Context-budget assessment retains existing envelopes and adds L/L/L/M"
+    },
+    {
+      "target": "projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md",
+      "operation": "REPLACE",
+      "pre_sha256": "fe328b7b8440dde9a94ae2ed2b85a6cb55db66653fe5adf56de8f33e3c6c60c2",
+      "post_sha256": "0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+      "rationale": "Exact candidate successor; preserve all prior decision rows and histories"
+    },
+    {
+      "target": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/Vocabulary_Annex.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/Vocabulary_Annex.md",
+      "operation": "ADD",
+      "pre_sha256": null,
+      "post_sha256": "cd8ab68dd51e739ea872041562ffe378ebc5a9fff7e94b412a46202ab1d65698",
+      "rationale": "New successor landing clarification; immutable SCA-009 untouched"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_CONTEXT.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_CONTEXT.md",
+      "operation": "ADD",
+      "pre_sha256": null,
+      "post_sha256": "830b4c2931f6665f7fc79d068dac2e8534c775a34695e421c59e9739a5187c15",
+      "rationale": "New unactivated metadata postimage using preparation contract; explicit candidate fields"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_STATUS.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_STATUS.md",
+      "operation": "ADD",
+      "pre_sha256": null,
+      "post_sha256": "075e9aa1fc76a3498646d7d9ef34e337172c125797d947170558ff8bba93d703",
+      "rationale": "Proposed initial OPEN control only; no promotion or completeness claim"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_REFERENCES.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_REFERENCES.md",
+      "operation": "ADD",
+      "pre_sha256": null,
+      "post_sha256": "cbda3503ebd38df19f4c2a97fb3ee1b99916cc0cdf00c3fef5f3bd314ecef101",
+      "rationale": "Candidate source-faithful references with evidence/authority distinction"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_SEMANTIC.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_SEMANTIC.md",
+      "operation": "ADD",
+      "pre_sha256": null,
+      "post_sha256": "a033eff94b5677b357f1d417c784ad27ce52804b06b6d69bea9a0a6234aa8cd9",
+      "rationale": "Preparation placeholder only"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+      "operation": "ADD",
+      "pre_sha256": null,
+      "post_sha256": "7a74b669d8958ed970647f36831dabf6422e3ad1cc0d004786289f85d5a68240",
+      "rationale": "Four stable outcome-level claims and evidence hooks from P-OWN proposal; no mechanism snapshot promises"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_CONTEXT.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_CONTEXT.md",
+      "operation": "ADD",
+      "pre_sha256": null,
+      "post_sha256": "a27e5689cc552ee37e4480626986a937e0b35c0171dc2074950606fa3c2d61b1",
+      "rationale": "New unactivated metadata postimage using preparation contract; explicit candidate fields"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_STATUS.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_STATUS.md",
+      "operation": "ADD",
+      "pre_sha256": null,
+      "post_sha256": "caa53fb246fcb9f4210c96c2beb73c06ba17eea6848fec6c97e23c42408c32a6",
+      "rationale": "Proposed initial OPEN control only; no promotion or completeness claim"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_REFERENCES.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_REFERENCES.md",
+      "operation": "ADD",
+      "pre_sha256": null,
+      "post_sha256": "e7ea8d47f1cdf00e5218166af3a8644e7ea0e1ab97564096b8d313cff164e83d",
+      "rationale": "Candidate source-faithful references with evidence/authority distinction"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_SEMANTIC.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_SEMANTIC.md",
+      "operation": "ADD",
+      "pre_sha256": null,
+      "post_sha256": "5798852d4be54281366e2f25fbfdc5a998acb5cb45daf6fd45a7fdb1348e43a7",
+      "rationale": "Preparation placeholder only"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md",
+      "operation": "ADD",
+      "pre_sha256": null,
+      "post_sha256": "67ae0db70a508c7d6e28773c067f62e5a7de0306b1921ae21efd9ba81d5a1dd8",
+      "rationale": "Four stable outcome-level claims and evidence hooks from P-OWN proposal; no mechanism snapshot promises"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_CONTEXT.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_CONTEXT.md",
+      "operation": "ADD",
+      "pre_sha256": null,
+      "post_sha256": "7ed86f5f65b589741b5074df73f6376a218bc4d9f9cc32864de606549188deda",
+      "rationale": "New unactivated metadata postimage using preparation contract; explicit candidate fields"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_STATUS.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_STATUS.md",
+      "operation": "ADD",
+      "pre_sha256": null,
+      "post_sha256": "3eb3da224a27d5c8ffbb84dc9147643df898a0ea3de839012d0f0dba015d9bd0",
+      "rationale": "Proposed initial OPEN control only; no promotion or completeness claim"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_REFERENCES.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_REFERENCES.md",
+      "operation": "ADD",
+      "pre_sha256": null,
+      "post_sha256": "0762bdeeb0bc2622e22deb20784d7a4ee029f6c9fb5e62d501de7471131ba53d",
+      "rationale": "Candidate source-faithful references with evidence/authority distinction"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_SEMANTIC.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_SEMANTIC.md",
+      "operation": "ADD",
+      "pre_sha256": null,
+      "post_sha256": "9f18e2c61dd89816ec0fde5ace98bd0d24e62d44dd0766fc5d5e9f7c9397065a",
+      "rationale": "Preparation placeholder only"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+      "operation": "ADD",
+      "pre_sha256": null,
+      "post_sha256": "0ffa1d4a38f28762cbe1afd158cf7f484ac87207c0946381bb4a865c68ce8879",
+      "rationale": "Four stable outcome-level claims and evidence hooks from P-OWN proposal; no mechanism snapshot promises"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_CONTEXT.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_CONTEXT.md",
+      "operation": "ADD",
+      "pre_sha256": null,
+      "post_sha256": "b4eb54a757d16736dda36ccba0912cbe2a15560673d239bd487e1a9f448efe78",
+      "rationale": "New unactivated metadata postimage using preparation contract; explicit candidate fields"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_STATUS.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_STATUS.md",
+      "operation": "ADD",
+      "pre_sha256": null,
+      "post_sha256": "6a8ce9314f103151a1492912445a283511745d96e9626358039f264cb8d86cb2",
+      "rationale": "Proposed initial OPEN control only; no promotion or completeness claim"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_REFERENCES.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_REFERENCES.md",
+      "operation": "ADD",
+      "pre_sha256": null,
+      "post_sha256": "41a728af9937ff911699974484312571174a5c393d30d6d87a678d80cd2f3bd8",
+      "rationale": "Candidate source-faithful references with evidence/authority distinction"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_SEMANTIC.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_SEMANTIC.md",
+      "operation": "ADD",
+      "pre_sha256": null,
+      "post_sha256": "ca3512ccd0c1d377a1df2c56fbeadc12301f32007aa916728b6a1e02aad0a065",
+      "rationale": "Preparation placeholder only"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md",
+      "operation": "ADD",
+      "pre_sha256": null,
+      "post_sha256": "0a3bba42db27795c07d9ea22222327230c7cb5ba88d176dedff882d55378641b",
+      "rationale": "Four stable outcome-level claims and evidence hooks from P-OWN proposal; no mechanism snapshot promises"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-02_Pipe section and component library schema/ScopeOfWork.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-02_Pipe section and component library schema/ScopeOfWork.md",
+      "operation": "REPLACE",
+      "pre_sha256": "b50b42cbe64ad13bfe564e96d4be2238c0555f0e669ebd80002c5da6bd778495",
+      "post_sha256": "45b8035fd6aa3a9268860d72780e1252258bd90f98602e237ea6c331fef80ddd",
+      "rationale": "P-OWN exact forward responsibility carrier; retain prior claims and history"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker/ScopeOfWork.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker/ScopeOfWork.md",
+      "operation": "REPLACE",
+      "pre_sha256": "8a8cb1aac0c5fddfef2d03036cc3b08031196428881372dd2a007287b0ace2bc",
+      "post_sha256": "bc07f596c81bfe30dcd1776876d4e9c6741a9928ac033185f1fecff79c00b776",
+      "rationale": "P-OWN exact forward responsibility carrier; retain prior claims and history"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-08_Pipe section property and mass-property calculator/ScopeOfWork.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-08_Pipe section property and mass-property calculator/ScopeOfWork.md",
+      "operation": "REPLACE",
+      "pre_sha256": "4d3d2a9d661b768061badafda1c99abc7d1e4b4cd502e906c843513e2fd458e9",
+      "post_sha256": "fef6b212333da3da1d9534276e35e6ce5b8a0fe422ec5e0fa68876e802d774bc",
+      "rationale": "P-OWN exact forward responsibility carrier; retain prior claims and history"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/ScopeOfWork.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/ScopeOfWork.md",
+      "operation": "REPLACE",
+      "pre_sha256": "415a9e38b5d44955b6f16bba2ba290499204a30076f4b5e1a0432e64d48124a7",
+      "post_sha256": "ce3f44f3650e287528a203511cae9aa2656219e846d421f03812a787ede754f3",
+      "rationale": "P-OWN exact forward responsibility carrier; retain prior claims and history"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/ScopeOfWork.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/ScopeOfWork.md",
+      "operation": "REPLACE",
+      "pre_sha256": "d2d45d57329b8fd12983664386491f05bf68988b47591b522d92b6bfbd676e1f",
+      "post_sha256": "ef7d3ce28df88ce2364f2f7d849d5ddc5817e5a6fdecdeb1d4633081a5b94dcc",
+      "rationale": "P-OWN exact forward responsibility carrier; retain prior claims and history"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/ScopeOfWork.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/ScopeOfWork.md",
+      "operation": "REPLACE",
+      "pre_sha256": "e9422ba1ae5518461ea897ef2f84b214ce6cda04ead036b3dcf4a05c125e86bd",
+      "post_sha256": "ae2f60c212b9a47877713acfa5d7303c67c1122b6b80fb20984e6076ff598469",
+      "rationale": "P-OWN exact forward responsibility carrier; retain prior claims and history"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/ScopeOfWork.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/ScopeOfWork.md",
+      "operation": "REPLACE",
+      "pre_sha256": "06c3e86d622be4006341fec9c5b788d96f6fc5f5eb6b5d244e6fed9fc4c8a3e7",
+      "post_sha256": "3f64606eb959082c63c75b6751b4de23aba039e4de361c5c860e122b0f161fd5",
+      "rationale": "P-OWN exact forward responsibility carrier; retain prior claims and history"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/ScopeOfWork.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/ScopeOfWork.md",
+      "operation": "REPLACE",
+      "pre_sha256": "bcaa5784306dd980ee852b1a440adaa5eb682db94ee1ad5a269ec878b6be40b3",
+      "post_sha256": "fda695882267cb900f31399db5403c066e9a20ff4e7682017c5566094d95840f",
+      "rationale": "P-OWN exact forward responsibility carrier; retain prior claims and history"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_CONTEXT.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_CONTEXT.md",
+      "operation": "REPLACE",
+      "pre_sha256": "bd170affdaaa58121857635f813529071a4b6945a7acbc1db7554692a7eb6f18",
+      "post_sha256": "57182247de7c3ac185467e23b6c7c74ebd3082782404467997c19955cd9ef5d9",
+      "rationale": "Match changed responsibility and scope coverage to companion register; candidate only"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/ScopeOfWork.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/ScopeOfWork.md",
+      "operation": "REPLACE",
+      "pre_sha256": "80bc243696753933d909122188c4831a6ab33e525c029120be0de27215fbedfc",
+      "post_sha256": "54a77c43661a3a29c7d1ae5067d621ed6426804c81b65e3f8cf3f345a482d3c5",
+      "rationale": "P-OWN exact forward responsibility carrier; retain prior claims and history"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_CONTEXT.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_CONTEXT.md",
+      "operation": "REPLACE",
+      "pre_sha256": "4a1f91e447cfc2e9847ac97573bde9a3aeda3e6d953b64ec24eb969fc41828a0",
+      "post_sha256": "0621a27ca3188c7f2fc1d41c87719de6a07925d54c3f378db56e1e974ae7ebfc",
+      "rationale": "Match changed responsibility and scope coverage to companion register; candidate only"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/ScopeOfWork.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/ScopeOfWork.md",
+      "operation": "REPLACE",
+      "pre_sha256": "2a65686eda78d1fa8489726b7218cce63685526270832b68f307702cbdbbef54",
+      "post_sha256": "c69b9f133ce9bb8cf1a9d8ce4f660f4ce89435902d8ee74bf6e6d8733962941c",
+      "rationale": "P-OWN exact forward responsibility carrier; retain prior claims and history"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_CONTEXT.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_CONTEXT.md",
+      "operation": "REPLACE",
+      "pre_sha256": "0550105c816729cc86d337e2d7148be08632661715a71b9b1274ff43f06fccd0",
+      "post_sha256": "191ce2264999880e21d4aa27b9d00ac6e5a9c84a65284e2ad80b5ee6bd778276",
+      "rationale": "Match changed responsibility and scope coverage to companion register; candidate only"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/ScopeOfWork.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/ScopeOfWork.md",
+      "operation": "REPLACE",
+      "pre_sha256": "a48fd2d5b337593a3292c5a801b0d2bc01845c18ecf0cd937cb712546763b4a0",
+      "post_sha256": "d166c911e1034ff1aef05d609381c35c9302057f3d607cbc18e09dca11b59ec8",
+      "rationale": "P-OWN exact forward responsibility carrier; retain prior claims and history"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/_CONTEXT.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/_CONTEXT.md",
+      "operation": "REPLACE",
+      "pre_sha256": "a4429831866015716263ee368dea09db62334704e6bc9bb7df22bbf6391c3542",
+      "post_sha256": "2805018802be5301a77595343a8d9f9fbb588e234fe110c2edee6c2137010a25",
+      "rationale": "Match changed responsibility and scope coverage to companion register; candidate only"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/ScopeOfWork.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/ScopeOfWork.md",
+      "operation": "REPLACE",
+      "pre_sha256": "e367dbf581dab361ad78bcd8aba6d2edc4ea51a063522fc8dd085bc15890c961",
+      "post_sha256": "1a6db950fdbbe30ca60bfd8d878989f6e51f8bc5b9f5ffe68f9a1bb21a1cbb4e",
+      "rationale": "P-OWN exact forward responsibility carrier; retain prior claims and history"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_CONTEXT.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_CONTEXT.md",
+      "operation": "REPLACE",
+      "pre_sha256": "1659c0e4591e4788c6efac9d42655b6750e733f90298e78621616093b2241454",
+      "post_sha256": "9ed0eb1f0a1d36447715190c530fecc76de8e93cae6cf707290386de6e1216b9",
+      "rationale": "Match changed responsibility and scope coverage to companion register; candidate only"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/ScopeOfWork.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/ScopeOfWork.md",
+      "operation": "REPLACE",
+      "pre_sha256": "529841e94183ff9b77532c6b0187a795602e8faf585e6b9da21bbfbb9baacaf0",
+      "post_sha256": "e2f6c64d65110cfeee763e8a1760f001ed7b06525ebc3c5e5df8843321b91442",
+      "rationale": "P-OWN exact forward responsibility carrier; retain prior claims and history"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/ScopeOfWork.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/ScopeOfWork.md",
+      "operation": "REPLACE",
+      "pre_sha256": "8e29df53945f768bbfe831d7c376446e19ee242493936b4d4f98f2bdae41b2fb",
+      "post_sha256": "71be3759762d588180981bba533a945f44f6fa6cdb039dbd3ed445aa91134113",
+      "rationale": "P-OWN exact forward responsibility carrier; retain prior claims and history"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_CONTEXT.md",
+      "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_CONTEXT.md",
+      "operation": "REPLACE",
+      "pre_sha256": "74e16027574a01f3f6ce59d8a39847d313529d3cbda9bd3e8e319780581d6641",
+      "post_sha256": "a74e936c51fd3ce75c7e8139c2be09f012798f830c654d1a418eea548ed9cacf",
+      "rationale": "DEC-094 coverage/implementation distinction, no production claim or OPEN promotion"
+    }
+  ],
+  "new_deliverables": [
+    [
+      "DEL-04-07",
+      "PKG-04",
+      "Product solve integration and nonlinear orchestration",
+      "BACKEND_FEATURE_SLICE",
+      "SOW-005,SOW-011,SOW-012,SOW-052,SOW-053",
+      "OBJ-003,OBJ-012",
+      "L",
+      "Compose accepted model, units, section/load/support contracts and kernel outputs into the product solve service, preserving input identity, missing-data diagnostics and output provenance; execute the DEC-044 assembled nonlinear loop under the existing convergence policy.",
+      "product solve service; nonlinear orchestration; adapter conformance evidence",
+      "Finite integration boundary; mathematical primitives, convergence policy and engineering acceptance remain with their owners."
+    ],
+    [
+      "DEL-07-11",
+      "PKG-07",
+      "Desktop workspace shell and host integration",
+      "UX_UI_SLICE",
+      "SOW-078",
+      "OBJ-006,OBJ-010,OBJ-015",
+      "L",
+      "Provide the desktop workspace shell and native-host boundary for project/session navigation, shared selection/history coordination, panel mounting, jobs and explicit file operations, preserving durable/transient separation and owned service routes.",
+      "workspace shell; session coordinator; native-host route and recovery evidence",
+      "Own common hosting and coordination only; feature-panel semantics, storage, solve UX and architecture remain with their owners."
+    ],
+    [
+      "DEL-07-12",
+      "PKG-07",
+      "Interoperability and evidence-review workspace",
+      "UX_UI_SLICE",
+      "SOW-079",
+      "OBJ-006,OBJ-007,OBJ-018",
+      "L",
+      "Provide the finite interoperability and evidence-review GUI inventory for inspecting, preparing and explicitly handing off already-scoped record families, preserving their contracts and distinguishing illustrative previews from actual generated records.",
+      "record-family review panels; explicit handoff interactions; provenance and preview-state evidence",
+      "Consumption, rendering and explicit dispatch only; no exporters, schema semantics, licensed process invocation or new adapter families."
+    ],
+    [
+      "DEL-16-06",
+      "PKG-16",
+      "Controlled model operation application",
+      "BACKEND_FEATURE_SLICE",
+      "SOW-069,SOW-070",
+      "OBJ-015",
+      "M",
+      "Apply only explicitly accepted, contract-valid structured operations to their current model basis through the sole DEC-020 operation engine; preserve rejected-state nonmutation and hand actual changed-state outcomes to audit and persistence owners.",
+      "controlled operation application; native/wasm conformance; audit and persistence handoff evidence",
+      "One mutation seam; schema, preview, user acceptance, audit policy and durable persistence remain separate responsibilities."
+    ]
+  ],
+  "register_updates": {
+    "DEL-07-01": [
+      "Implement viewport and centerline editing plus palette rendering and operation routing under the DEL-07-09 organization contract.",
+      "Palette implementation has keyed ownership; vocabulary and coverage remain DEL-07-09. No shell, storage or solver ownership transfer."
+    ],
+    "DEL-07-02": [
+      "Implement generic tree/table/selected-entity inspection and create/edit/delete interactions, including support/restraint creation and editing, through the PKG-16 operation seam.",
+      "Generic selected-load inspection belongs here; load-manager editing belongs to DEL-07-03. Dedicated support-editor slice is not activated."
+    ],
+    "DEL-07-03": [
+      "Implement material, section, component, private-library and rule-pack-reference editors plus load-case/combination and self-weight-plan interaction through the PKG-16 operation seam.",
+      "Finite editor surfaces only; support/restraint implementation is DEL-07-02. Generation mathematics, schema and provenance contracts stay with their owners."
+    ],
+    "DEL-07-04": [
+      "Implement missing-data warning/blocking UX, rule-check run interaction and aggregate status, with unit-aware warning presentation preserving owned rule/status semantics.",
+      "GUI consumes PKG-06 runner, DEL-05-04 status and DEL-02-02 units; no numerical or rule-policy ownership transfer."
+    ],
+    "DEL-07-08": [
+      "Implement design knowledge, operation review/apply interaction and ledger presentation, state/run browsing, comparison tables and graphical comparison review.",
+      "Feature interaction remains here; shared shell/session coordination is DEL-07-11, execution DEL-16-06, comparison interface DEL-14-05."
+    ],
+    "DEL-07-09": [
+      "Own the ratified two-class interactive operation vocabulary coverage contract and single-palette organization; route implementation accountability to the named sibling owners through the PKG-16 seam.",
+      "R-005/R-006 are coverage-accountability landings only: load/combination editing DEL-07-03, support editing DEL-07-02, palette rendering/routing DEL-07-01. OPEN lifecycle preserved."
+    ]
+  },
+  "decomposition_candidate_sha256": "0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+  "existing_parity_correction": "OBJ-018 summary: replace DEL-12-02 with DEL-13-02 to match unchanged authoritative Deliverables.csv objectives and SOW-067; no DEL-12-02 scope change.",
+  "application_metadata": {
+    "condition": "Execute only after actual Group 2 decision accepts these exact transformations and candidate bytes. Recheck preimage hashes. This is a preview, not a recorded decision.",
+    "decomposition_sha256": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+    "files": [
+      {
+        "target": "projects/chirality-piping/docs/_Registers/Deliverables.csv",
+        "candidate_sha256": "d4b96c0c4e499252a7845db9dd135e43f40e2acb10f077aba3a3866e8317d5cf",
+        "operations": [],
+        "applied_sha256": "d4b96c0c4e499252a7845db9dd135e43f40e2acb10f077aba3a3866e8317d5cf"
+      },
+      {
+        "target": "projects/chirality-piping/docs/_Registers/ScopeLedger.csv",
+        "candidate_sha256": "2d600ac45fb3cc03743e4be69f772eb22d71fd8fdeea18979ae524ef2c2d7bcc",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "SCA-011 candidate DEC-111",
+            "new": "SCA-011 DEC-111",
+            "expected_occurrences": 10
+          },
+          {
+            "operation": "replace_exact",
+            "old": "SCA-011 ownership amendment candidate",
+            "new": "SCA-011 ownership amendment",
+            "expected_occurrences": 2
+          },
+          {
+            "operation": "replace_exact",
+            "old": "Candidate scope allocation only; no implementation, engineering, release or lifecycle acceptance.",
+            "new": "Scope allocation only; no implementation, engineering, release or lifecycle acceptance.",
+            "expected_occurrences": 2
+          }
+        ],
+        "applied_sha256": "a408a3b9ea0caccc3c4a410fb5a2caa5c5add4fd8460b0daac82cbf1c8f7aab4"
+      },
+      {
+        "target": "projects/chirality-piping/docs/_Registers/ContextBudgetQA.csv",
+        "candidate_sha256": "292c0dc6fd53e4f982b77938927cd0a467b4b35cf708956a8ba9ba12211a0be6",
+        "operations": [],
+        "applied_sha256": "292c0dc6fd53e4f982b77938927cd0a467b4b35cf708956a8ba9ba12211a0be6"
+      },
+      {
+        "target": "projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md",
+        "candidate_sha256": "0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "status: candidate_group2_not_adopted",
+            "new": "status: applied_group3_pending",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "revision: 0.13-candidate",
+            "new": "revision: 0.13",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "Revision v0.13 is the SCA-011 Group 2 ownership-amendment candidate.",
+            "new": "Revision v0.13 applies the exact SCA-011 Group 2 ownership amendment under its recorded approval.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "This file is an unactivated postimage, not the accepted current decomposition.",
+            "new": "Its audited poststate acceptance remains pending checkpoint Group 3.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "|Revision|0.13-candidate \u2014 2026-09-22|",
+            "new": "|Revision|0.13 \u2014 SCA-011 Group 2 application|",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "SCA-011 proposed application:",
+            "new": "SCA-011 application:",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "Owner direction authorizes preparing/applying the agreed ownership plan subject to the selected scope-change gates; exact Group 2 bytes remain a candidate, with no fabricated approval.",
+            "new": "Application follows the recorded SCA-011 checkpoint Group 2 decision on this exact amendment; prior owner directions and decisions retain their original attribution.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "PROPOSED Group 2; DEC-020/044/103 are carried prior rulings.",
+            "new": "APPLIED under Group 2; audited poststate acceptance remains pending Group 3. DEC-020/044/103 are carried prior rulings.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "This v0.13-candidate file is the SCA-011 Group 2 postimage for review. The canonical v0.12 basis remains accepted until the reserved application/adoption gates; neither these candidate bytes nor their publication activates new scope.",
+            "new": "This v0.13 file is applied under the exact SCA-011 Group 2 decision. Audited poststate acceptance and the active amendment snapshot remain pending Group 3; the prior accepted snapshot remains the reliance pointer until that act.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "SCA-011 candidate DEC-111",
+            "new": "SCA-011 DEC-111",
+            "expected_occurrences": 2
+          },
+          {
+            "operation": "replace_exact",
+            "old": "SCA-011 ownership amendment candidate",
+            "new": "SCA-011 ownership amendment",
+            "expected_occurrences": 2
+          }
+        ],
+        "applied_sha256": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577"
+      },
+      {
+        "target": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/Vocabulary_Annex.md",
+        "candidate_sha256": "cd8ab68dd51e739ea872041562ffe378ebc5a9fff7e94b412a46202ab1d65698",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "status: candidate_group2_not_adopted",
+            "new": "status: applied_group3_pending",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "This candidate changes delivery accountability only.",
+            "new": "This amendment changes delivery accountability only under the SCA-011 Group 2 decision.",
+            "expected_occurrences": 1
+          }
+        ],
+        "applied_sha256": "248ce3ed1c5b92c6fcfbc392219bae2a71ed6ef6452f1fcfc18de5a7128ddca6"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_CONTEXT.md",
+        "candidate_sha256": "830b4c2931f6665f7fc79d068dac2e8534c775a34695e421c59e9739a5187c15",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "**Candidate only:** SCA-011 Group 2 postimage; no active deliverable or accepted lifecycle is created by this draft.",
+            "new": "**Application basis:** SCA-011 Group 2 amendment; audited poststate acceptance remains pending Group 3.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+            "new": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "expected_occurrences": 2
+          }
+        ],
+        "applied_sha256": "1d23c2e57d3ed8fa8c20d4374ac022d9cbe13cc5abe391ca9874f29a911730f3"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_STATUS.md",
+        "candidate_sha256": "075e9aa1fc76a3498646d7d9ef34e337172c125797d947170558ff8bba93d703",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "**Candidate only:** SCA-011 Group 2 postimage; no active deliverable or accepted lifecycle is created by this draft.",
+            "new": "**Application basis:** SCA-011 Group 2 amendment; audited poststate acceptance remains pending Group 3.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "- Obtain exact SCA-011 Group 2 application approval and complete its required derivative/owner checks before activating this postimage.",
+            "new": "- Complete required SCA-011 derivative/owner checks and Group 3 audited poststate acceptance; existing product/lifecycle holds remain.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "TASK prepared an OPEN initialization postimage in the SCA-011 candidate directory; no live lifecycle act occurred.",
+            "new": "TASK prepared the OPEN initialization postimage; application is separately recorded by the SCA-011 Group 2 execution evidence.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+            "new": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "expected_occurrences": 1
+          }
+        ],
+        "applied_sha256": "f7a657328b0650935ac8a5955b69ac82c0405170d66e650180e3303460148294"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_REFERENCES.md",
+        "candidate_sha256": "cbda3503ebd38df19f4c2a97fb3ee1b99916cc0cdf00c3fef5f3bd314ecef101",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "**Candidate only:** SCA-011 Group 2 postimage; no active deliverable or accepted lifecycle is created by this draft.",
+            "new": "**Application basis:** SCA-011 Group 2 amendment; audited poststate acceptance remains pending Group 3.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+            "new": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "expected_occurrences": 1
+          }
+        ],
+        "applied_sha256": "008cd4031142eed135a31859a7faff498f97da655ff6f33e000412c17df01dbe"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_SEMANTIC.md",
+        "candidate_sha256": "a033eff94b5677b357f1d417c784ad27ce52804b06b6d69bea9a0a6234aa8cd9",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "PLACEHOLDER \u2014 unactivated SCA-011 Group 2 control postimage.",
+            "new": "PLACEHOLDER \u2014 SCA-011 structural control.",
+            "expected_occurrences": 1
+          }
+        ],
+        "applied_sha256": "0d556a76f60dadb4b20161f5efe708778d5071ec79ccec4c4541791b198edfa1"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+        "candidate_sha256": "7a74b669d8958ed970647f36831dabf6422e3ad1cc0d004786289f85d5a68240",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "**Candidate only:** SCA-011 Group 2 postimage; no active deliverable or accepted lifecycle is created by this draft.",
+            "new": "**Application basis:** SCA-011 Group 2 amendment; audited poststate acceptance remains pending Group 3.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+            "new": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "expected_occurrences": 2
+          }
+        ],
+        "applied_sha256": "4ede61127ae6f3f0c8d1d607f8983e533b4b98a6cc8c2286df2a92eed2766fd2"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_CONTEXT.md",
+        "candidate_sha256": "a27e5689cc552ee37e4480626986a937e0b35c0171dc2074950606fa3c2d61b1",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "**Candidate only:** SCA-011 Group 2 postimage; no active deliverable or accepted lifecycle is created by this draft.",
+            "new": "**Application basis:** SCA-011 Group 2 amendment; audited poststate acceptance remains pending Group 3.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+            "new": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "expected_occurrences": 2
+          }
+        ],
+        "applied_sha256": "5ab3d03e0f21b48c34f4e616107ee17abf3badd3bb8db370724661738e5d1428"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_STATUS.md",
+        "candidate_sha256": "caa53fb246fcb9f4210c96c2beb73c06ba17eea6848fec6c97e23c42408c32a6",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "**Candidate only:** SCA-011 Group 2 postimage; no active deliverable or accepted lifecycle is created by this draft.",
+            "new": "**Application basis:** SCA-011 Group 2 amendment; audited poststate acceptance remains pending Group 3.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "- Obtain exact SCA-011 Group 2 application approval and complete its required derivative/owner checks before activating this postimage.",
+            "new": "- Complete required SCA-011 derivative/owner checks and Group 3 audited poststate acceptance; existing product/lifecycle holds remain.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "TASK prepared an OPEN initialization postimage in the SCA-011 candidate directory; no live lifecycle act occurred.",
+            "new": "TASK prepared the OPEN initialization postimage; application is separately recorded by the SCA-011 Group 2 execution evidence.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+            "new": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "expected_occurrences": 1
+          }
+        ],
+        "applied_sha256": "1af3a408c611dab61ac3be092ff1053cc48bd2cbe3639f4c84626939d69c0327"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_REFERENCES.md",
+        "candidate_sha256": "e7ea8d47f1cdf00e5218166af3a8644e7ea0e1ab97564096b8d313cff164e83d",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "**Candidate only:** SCA-011 Group 2 postimage; no active deliverable or accepted lifecycle is created by this draft.",
+            "new": "**Application basis:** SCA-011 Group 2 amendment; audited poststate acceptance remains pending Group 3.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+            "new": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "expected_occurrences": 1
+          }
+        ],
+        "applied_sha256": "63e893e3c570cb796bef55159322c3b375f6156814e971ff6b2927bc394d1459"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_SEMANTIC.md",
+        "candidate_sha256": "5798852d4be54281366e2f25fbfdc5a998acb5cb45daf6fd45a7fdb1348e43a7",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "PLACEHOLDER \u2014 unactivated SCA-011 Group 2 control postimage.",
+            "new": "PLACEHOLDER \u2014 SCA-011 structural control.",
+            "expected_occurrences": 1
+          }
+        ],
+        "applied_sha256": "c857f5c43808cd4dee74d2f71644cef4a6af6b2d9c082ef35f508144a17c437a"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md",
+        "candidate_sha256": "67ae0db70a508c7d6e28773c067f62e5a7de0306b1921ae21efd9ba81d5a1dd8",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "**Candidate only:** SCA-011 Group 2 postimage; no active deliverable or accepted lifecycle is created by this draft.",
+            "new": "**Application basis:** SCA-011 Group 2 amendment; audited poststate acceptance remains pending Group 3.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+            "new": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "expected_occurrences": 2
+          }
+        ],
+        "applied_sha256": "0511c07f4d741c59b7cffa1fd7c080d754200237bc537bb137882d8b582c79ef"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_CONTEXT.md",
+        "candidate_sha256": "7ed86f5f65b589741b5074df73f6376a218bc4d9f9cc32864de606549188deda",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "**Candidate only:** SCA-011 Group 2 postimage; no active deliverable or accepted lifecycle is created by this draft.",
+            "new": "**Application basis:** SCA-011 Group 2 amendment; audited poststate acceptance remains pending Group 3.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+            "new": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "expected_occurrences": 2
+          }
+        ],
+        "applied_sha256": "7d0c0e74fb9b68953871a999a3a7d5248f9d4a06b4a6534c0f2a129b056a55d8"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_STATUS.md",
+        "candidate_sha256": "3eb3da224a27d5c8ffbb84dc9147643df898a0ea3de839012d0f0dba015d9bd0",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "**Candidate only:** SCA-011 Group 2 postimage; no active deliverable or accepted lifecycle is created by this draft.",
+            "new": "**Application basis:** SCA-011 Group 2 amendment; audited poststate acceptance remains pending Group 3.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "- Obtain exact SCA-011 Group 2 application approval and complete its required derivative/owner checks before activating this postimage.",
+            "new": "- Complete required SCA-011 derivative/owner checks and Group 3 audited poststate acceptance; existing product/lifecycle holds remain.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "TASK prepared an OPEN initialization postimage in the SCA-011 candidate directory; no live lifecycle act occurred.",
+            "new": "TASK prepared the OPEN initialization postimage; application is separately recorded by the SCA-011 Group 2 execution evidence.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+            "new": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "expected_occurrences": 1
+          }
+        ],
+        "applied_sha256": "d179f97739a36081d6ce722f3023cb730da31114f9da910f5df3f4d66bdf018f"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_REFERENCES.md",
+        "candidate_sha256": "0762bdeeb0bc2622e22deb20784d7a4ee029f6c9fb5e62d501de7471131ba53d",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "**Candidate only:** SCA-011 Group 2 postimage; no active deliverable or accepted lifecycle is created by this draft.",
+            "new": "**Application basis:** SCA-011 Group 2 amendment; audited poststate acceptance remains pending Group 3.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+            "new": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "expected_occurrences": 1
+          }
+        ],
+        "applied_sha256": "7f3f5ef675d9afcfb9765ccc3b71deffda5190ad603f302c5cce09c42c1473ec"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_SEMANTIC.md",
+        "candidate_sha256": "9f18e2c61dd89816ec0fde5ace98bd0d24e62d44dd0766fc5d5e9f7c9397065a",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "PLACEHOLDER \u2014 unactivated SCA-011 Group 2 control postimage.",
+            "new": "PLACEHOLDER \u2014 SCA-011 structural control.",
+            "expected_occurrences": 1
+          }
+        ],
+        "applied_sha256": "837983d799a8c818db10994235d273b79ade1d6ec6ed808a0bcf5c4551d55dda"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+        "candidate_sha256": "0ffa1d4a38f28762cbe1afd158cf7f484ac87207c0946381bb4a865c68ce8879",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "**Candidate only:** SCA-011 Group 2 postimage; no active deliverable or accepted lifecycle is created by this draft.",
+            "new": "**Application basis:** SCA-011 Group 2 amendment; audited poststate acceptance remains pending Group 3.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+            "new": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "expected_occurrences": 2
+          }
+        ],
+        "applied_sha256": "6bf61d042b9064bd1232f5290580d868a005ea8b258e851550eb261dcd4e3f1b"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_CONTEXT.md",
+        "candidate_sha256": "b4eb54a757d16736dda36ccba0912cbe2a15560673d239bd487e1a9f448efe78",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "**Candidate only:** SCA-011 Group 2 postimage; no active deliverable or accepted lifecycle is created by this draft.",
+            "new": "**Application basis:** SCA-011 Group 2 amendment; audited poststate acceptance remains pending Group 3.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+            "new": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "expected_occurrences": 2
+          }
+        ],
+        "applied_sha256": "a66bf834f218c877155d9f8faece9be00f8cbae7b97eb8d119439ab01d82cfeb"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_STATUS.md",
+        "candidate_sha256": "6a8ce9314f103151a1492912445a283511745d96e9626358039f264cb8d86cb2",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "**Candidate only:** SCA-011 Group 2 postimage; no active deliverable or accepted lifecycle is created by this draft.",
+            "new": "**Application basis:** SCA-011 Group 2 amendment; audited poststate acceptance remains pending Group 3.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "- Obtain exact SCA-011 Group 2 application approval and complete its required derivative/owner checks before activating this postimage.",
+            "new": "- Complete required SCA-011 derivative/owner checks and Group 3 audited poststate acceptance; existing product/lifecycle holds remain.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "TASK prepared an OPEN initialization postimage in the SCA-011 candidate directory; no live lifecycle act occurred.",
+            "new": "TASK prepared the OPEN initialization postimage; application is separately recorded by the SCA-011 Group 2 execution evidence.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+            "new": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "expected_occurrences": 1
+          }
+        ],
+        "applied_sha256": "0c6a18ff854e766d8d05292109978422d68d1175fcae894bbec7f5741418cffe"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_REFERENCES.md",
+        "candidate_sha256": "41a728af9937ff911699974484312571174a5c393d30d6d87a678d80cd2f3bd8",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "**Candidate only:** SCA-011 Group 2 postimage; no active deliverable or accepted lifecycle is created by this draft.",
+            "new": "**Application basis:** SCA-011 Group 2 amendment; audited poststate acceptance remains pending Group 3.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+            "new": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "expected_occurrences": 1
+          }
+        ],
+        "applied_sha256": "e4707919fca8b377453f2317529901d9974914a869a543648c557e8ee682818c"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_SEMANTIC.md",
+        "candidate_sha256": "ca3512ccd0c1d377a1df2c56fbeadc12301f32007aa916728b6a1e02aad0a065",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "PLACEHOLDER \u2014 unactivated SCA-011 Group 2 control postimage.",
+            "new": "PLACEHOLDER \u2014 SCA-011 structural control.",
+            "expected_occurrences": 1
+          }
+        ],
+        "applied_sha256": "44e8bc3ae2d3a6bb6489018e151b4dbb19b4058a4927952c342ea1ac7dc573e9"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md",
+        "candidate_sha256": "0a3bba42db27795c07d9ea22222327230c7cb5ba88d176dedff882d55378641b",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "**Candidate only:** SCA-011 Group 2 postimage; no active deliverable or accepted lifecycle is created by this draft.",
+            "new": "**Application basis:** SCA-011 Group 2 amendment; audited poststate acceptance remains pending Group 3.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+            "new": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "expected_occurrences": 2
+          }
+        ],
+        "applied_sha256": "541df636affcd119072051128a2b98b483791a94b181b3ef38e023030287391a"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-02_Pipe section and component library schema/ScopeOfWork.md",
+        "candidate_sha256": "45b8035fd6aa3a9268860d72780e1252258bd90f98602e237ea6c331fef80ddd",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "**Unactivated Group 2 amendment:** this keyed allocation supersedes inconsistent forward ownership wording above only when the SCA-011 candidate is adopted; original observations and all other requirements retain their source meaning.",
+            "new": "**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+            "new": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "expected_occurrences": 1
+          }
+        ],
+        "applied_sha256": "5a78bd781c9eb2541d471da206de7957319dfffa91cceef202628003eb362cf7"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker/ScopeOfWork.md",
+        "candidate_sha256": "bc07f596c81bfe30dcd1776876d4e9c6741a9928ac033185f1fecff79c00b776",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "**Unactivated Group 2 amendment:** this keyed allocation supersedes inconsistent forward ownership wording above only when the SCA-011 candidate is adopted; original observations and all other requirements retain their source meaning.",
+            "new": "**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+            "new": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "expected_occurrences": 1
+          }
+        ],
+        "applied_sha256": "e8ebb6fae82aabe3afee115a2eb42301d3948caf1f3c6a8c5cecab68da34af2a"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-08_Pipe section property and mass-property calculator/ScopeOfWork.md",
+        "candidate_sha256": "fef6b212333da3da1d9534276e35e6ce5b8a0fe422ec5e0fa68876e802d774bc",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "**Unactivated Group 2 amendment:** this keyed allocation supersedes inconsistent forward ownership wording above only when the SCA-011 candidate is adopted; original observations and all other requirements retain their source meaning.",
+            "new": "**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+            "new": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "expected_occurrences": 1
+          }
+        ],
+        "applied_sha256": "f604589d87e56074090351b46bfcb4c2bed221c6999788c8ff06beb023aa016d"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/ScopeOfWork.md",
+        "candidate_sha256": "ce3f44f3650e287528a203511cae9aa2656219e846d421f03812a787ede754f3",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "**Unactivated Group 2 amendment:** this keyed allocation supersedes inconsistent forward ownership wording above only when the SCA-011 candidate is adopted; original observations and all other requirements retain their source meaning.",
+            "new": "**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+            "new": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "expected_occurrences": 1
+          }
+        ],
+        "applied_sha256": "2d6249879496a0daaaf06ea4dfe69c7e1190e54ecdf22e7154f591ef0b39645d"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/ScopeOfWork.md",
+        "candidate_sha256": "ef7d3ce28df88ce2364f2f7d849d5ddc5817e5a6fdecdeb1d4633081a5b94dcc",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "**Unactivated Group 2 amendment:** this keyed allocation supersedes inconsistent forward ownership wording above only when the SCA-011 candidate is adopted; original observations and all other requirements retain their source meaning.",
+            "new": "**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+            "new": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "expected_occurrences": 1
+          }
+        ],
+        "applied_sha256": "76265d7548e4035b43598715b2344f35f8de2c177d5e5969bd53ca712d237a10"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/ScopeOfWork.md",
+        "candidate_sha256": "ae2f60c212b9a47877713acfa5d7303c67c1122b6b80fb20984e6076ff598469",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "**Unactivated Group 2 amendment:** this keyed allocation supersedes inconsistent forward ownership wording above only when the SCA-011 candidate is adopted; original observations and all other requirements retain their source meaning.",
+            "new": "**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+            "new": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "expected_occurrences": 1
+          }
+        ],
+        "applied_sha256": "581d78e65f46f9a0e12ef05fbcb1a6ae0a6b2a8ce943cc58fc7a3849a6d3ae0d"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/ScopeOfWork.md",
+        "candidate_sha256": "3f64606eb959082c63c75b6751b4de23aba039e4de361c5c860e122b0f161fd5",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "**Unactivated Group 2 amendment:** this keyed allocation supersedes inconsistent forward ownership wording above only when the SCA-011 candidate is adopted; original observations and all other requirements retain their source meaning.",
+            "new": "**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+            "new": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "expected_occurrences": 1
+          }
+        ],
+        "applied_sha256": "18de37bb54197d67023d654401bb5adfa848d2dca1fcd44f5e81afd97ef90577"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/ScopeOfWork.md",
+        "candidate_sha256": "fda695882267cb900f31399db5403c066e9a20ff4e7682017c5566094d95840f",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "**Unactivated Group 2 amendment:** this keyed allocation supersedes inconsistent forward ownership wording above only when the SCA-011 candidate is adopted; original observations and all other requirements retain their source meaning.",
+            "new": "**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+            "new": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "expected_occurrences": 1
+          }
+        ],
+        "applied_sha256": "f577d714fb911697f58f13d777ea38321150d47fcb93edb59b0fa0174505f080"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_CONTEXT.md",
+        "candidate_sha256": "57182247de7c3ac185467e23b6c7c74ebd3082782404467997c19955cd9ef5d9",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "## SCA-011 candidate responsibility",
+            "new": "## SCA-011 responsibility",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "Unactivated Group 2 postimage.",
+            "new": "Applied under the SCA-011 Group 2 decision; audited poststate acceptance remains pending Group 3.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "The candidate Deliverables and ContextBudgetQA rows govern this proposed allocation;",
+            "new": "The amended Deliverables and ContextBudgetQA rows govern this allocation;",
+            "expected_occurrences": 1
+          }
+        ],
+        "applied_sha256": "3c13bcf8b97e7c3d6404446bb784cdd82338e631b16378003b92f226f69db92c"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/ScopeOfWork.md",
+        "candidate_sha256": "54a77c43661a3a29c7d1ae5067d621ed6426804c81b65e3f8cf3f345a482d3c5",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "**Unactivated Group 2 amendment:** this keyed allocation supersedes inconsistent forward ownership wording above only when the SCA-011 candidate is adopted; original observations and all other requirements retain their source meaning.",
+            "new": "**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+            "new": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "expected_occurrences": 1
+          }
+        ],
+        "applied_sha256": "3de34f4b6f0d12aaa7fa8796d55556a8348c40a1806ffef0f8dc8be1962e85b8"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_CONTEXT.md",
+        "candidate_sha256": "0621a27ca3188c7f2fc1d41c87719de6a07925d54c3f378db56e1e974ae7ebfc",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "## SCA-011 candidate responsibility",
+            "new": "## SCA-011 responsibility",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "Unactivated Group 2 postimage.",
+            "new": "Applied under the SCA-011 Group 2 decision; audited poststate acceptance remains pending Group 3.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "The candidate Deliverables and ContextBudgetQA rows govern this proposed allocation;",
+            "new": "The amended Deliverables and ContextBudgetQA rows govern this allocation;",
+            "expected_occurrences": 1
+          }
+        ],
+        "applied_sha256": "2bfa27e5682e9598558b9b52e9e5f98e6794514d1d5ff8ae56e439d9e8838319"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/ScopeOfWork.md",
+        "candidate_sha256": "c69b9f133ce9bb8cf1a9d8ce4f660f4ce89435902d8ee74bf6e6d8733962941c",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "**Unactivated Group 2 amendment:** this keyed allocation supersedes inconsistent forward ownership wording above only when the SCA-011 candidate is adopted; original observations and all other requirements retain their source meaning.",
+            "new": "**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+            "new": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "expected_occurrences": 1
+          }
+        ],
+        "applied_sha256": "93fdb46065397d7955612a0352fb0ed93ebb87aa66bdb097d11afb8e614abda0"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_CONTEXT.md",
+        "candidate_sha256": "191ce2264999880e21d4aa27b9d00ac6e5a9c84a65284e2ad80b5ee6bd778276",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "## SCA-011 candidate responsibility",
+            "new": "## SCA-011 responsibility",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "Unactivated Group 2 postimage.",
+            "new": "Applied under the SCA-011 Group 2 decision; audited poststate acceptance remains pending Group 3.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "The candidate Deliverables and ContextBudgetQA rows govern this proposed allocation;",
+            "new": "The amended Deliverables and ContextBudgetQA rows govern this allocation;",
+            "expected_occurrences": 1
+          }
+        ],
+        "applied_sha256": "5002561fb8f4ca434c7a846d6d0f25e71debf3bcf2652321bcbdf328f0c4f144"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/ScopeOfWork.md",
+        "candidate_sha256": "d166c911e1034ff1aef05d609381c35c9302057f3d607cbc18e09dca11b59ec8",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "**Unactivated Group 2 amendment:** this keyed allocation supersedes inconsistent forward ownership wording above only when the SCA-011 candidate is adopted; original observations and all other requirements retain their source meaning.",
+            "new": "**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+            "new": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "expected_occurrences": 1
+          }
+        ],
+        "applied_sha256": "c83c2cb287e9b188f0795621db8c0edac1c668fdebaa7282534ea10e8291f693"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/_CONTEXT.md",
+        "candidate_sha256": "2805018802be5301a77595343a8d9f9fbb588e234fe110c2edee6c2137010a25",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "## SCA-011 candidate responsibility",
+            "new": "## SCA-011 responsibility",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "Unactivated Group 2 postimage.",
+            "new": "Applied under the SCA-011 Group 2 decision; audited poststate acceptance remains pending Group 3.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "The candidate Deliverables and ContextBudgetQA rows govern this proposed allocation;",
+            "new": "The amended Deliverables and ContextBudgetQA rows govern this allocation;",
+            "expected_occurrences": 1
+          }
+        ],
+        "applied_sha256": "49c9ae1e7005abf4e127c82b9773ccf832ac2ac37d956cb445d7d18ecb901fd2"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/ScopeOfWork.md",
+        "candidate_sha256": "1a6db950fdbbe30ca60bfd8d878989f6e51f8bc5b9f5ffe68f9a1bb21a1cbb4e",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "**Unactivated Group 2 amendment:** this keyed allocation supersedes inconsistent forward ownership wording above only when the SCA-011 candidate is adopted; original observations and all other requirements retain their source meaning.",
+            "new": "**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+            "new": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "expected_occurrences": 1
+          }
+        ],
+        "applied_sha256": "c70e5d0fcdf37eb794ac448c47692869a81caca8107421f14365b066a605f3f6"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_CONTEXT.md",
+        "candidate_sha256": "9ed0eb1f0a1d36447715190c530fecc76de8e93cae6cf707290386de6e1216b9",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "## SCA-011 candidate responsibility",
+            "new": "## SCA-011 responsibility",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "Unactivated Group 2 postimage.",
+            "new": "Applied under the SCA-011 Group 2 decision; audited poststate acceptance remains pending Group 3.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "The candidate Deliverables and ContextBudgetQA rows govern this proposed allocation;",
+            "new": "The amended Deliverables and ContextBudgetQA rows govern this allocation;",
+            "expected_occurrences": 1
+          }
+        ],
+        "applied_sha256": "ed3517118ef225d30b237031de2259a02f602dcc5bfef547e420a091f42f7aa6"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/ScopeOfWork.md",
+        "candidate_sha256": "e2f6c64d65110cfeee763e8a1760f001ed7b06525ebc3c5e5df8843321b91442",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "**Unactivated Group 2 amendment:** this keyed allocation supersedes inconsistent forward ownership wording above only when the SCA-011 candidate is adopted; original observations and all other requirements retain their source meaning.",
+            "new": "**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "by the SCA-011 candidate",
+            "new": "by SCA-011",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+            "new": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "expected_occurrences": 1
+          }
+        ],
+        "applied_sha256": "490c023a1d52e9087cf9cf6cdd7b9293942619272be6019b825d78271452ea13"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/ScopeOfWork.md",
+        "candidate_sha256": "71be3759762d588180981bba533a945f44f6fa6cdb039dbd3ed445aa91134113",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "**Unactivated Group 2 amendment:** this keyed allocation supersedes inconsistent forward ownership wording above only when the SCA-011 candidate is adopted; original observations and all other requirements retain their source meaning.",
+            "new": "**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+            "new": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "expected_occurrences": 1
+          }
+        ],
+        "applied_sha256": "65008a246f9efe66578ef72a7abe52d49c77ffb667b66f7b4ac1ebc5575dbbbc"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_CONTEXT.md",
+        "candidate_sha256": "a74e936c51fd3ce75c7e8139c2be09f012798f830c654d1a418eea548ed9cacf",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "## SCA-011 candidate responsibility",
+            "new": "## SCA-011 responsibility",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "Unactivated Group 2 postimage.",
+            "new": "Applied under the SCA-011 Group 2 decision; audited poststate acceptance remains pending Group 3.",
+            "expected_occurrences": 1
+          }
+        ],
+        "applied_sha256": "3d45abefed4d97693ef87f4068e1b3ed99aff4219ec750a50e63b9c1a46595fd"
+      }
+    ]
+  },
+  "group3_promotion_metadata": {
+    "condition": "Execute only after actual Group 3 audited poststate acceptance; preserve the owner decision and completed checks before advancing current-basis/snapshot pointers. Any substantive amendment invalidates affected hashes and requires refreshed review.",
+    "decomposition_sha256": "c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984",
+    "files": [
+      {
+        "target": "projects/chirality-piping/docs/_Registers/Deliverables.csv",
+        "applied_sha256": "d4b96c0c4e499252a7845db9dd135e43f40e2acb10f077aba3a3866e8317d5cf",
+        "operations": [],
+        "accepted_sha256": "d4b96c0c4e499252a7845db9dd135e43f40e2acb10f077aba3a3866e8317d5cf"
+      },
+      {
+        "target": "projects/chirality-piping/docs/_Registers/ScopeLedger.csv",
+        "applied_sha256": "a408a3b9ea0caccc3c4a410fb5a2caa5c5add4fd8460b0daac82cbf1c8f7aab4",
+        "operations": [],
+        "accepted_sha256": "a408a3b9ea0caccc3c4a410fb5a2caa5c5add4fd8460b0daac82cbf1c8f7aab4"
+      },
+      {
+        "target": "projects/chirality-piping/docs/_Registers/ContextBudgetQA.csv",
+        "applied_sha256": "292c0dc6fd53e4f982b77938927cd0a467b4b35cf708956a8ba9ba12211a0be6",
+        "operations": [],
+        "accepted_sha256": "292c0dc6fd53e4f982b77938927cd0a467b4b35cf708956a8ba9ba12211a0be6"
+      },
+      {
+        "target": "projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md",
+        "applied_sha256": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "status: applied_group3_pending",
+            "new": "status: current_basis",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "Its audited poststate acceptance remains pending checkpoint Group 3.",
+            "new": "Its audited poststate was accepted at the recorded SCA-011 checkpoint Group 3.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "APPLIED under Group 2; audited poststate acceptance remains pending Group 3.",
+            "new": "ACCEPTED through the recorded SCA-011 Group 3 act.",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "This v0.13 file is applied under the exact SCA-011 Group 2 decision. Audited poststate acceptance and the active amendment snapshot remain pending Group 3; the prior accepted snapshot remains the reliance pointer until that act.",
+            "new": "This v0.13 decomposition is the accepted current basis after the recorded SCA-011 Group 3 act. The active amendment snapshot and derivative handoff are bound in the SCA-011 closure record.",
+            "expected_occurrences": 1
+          }
+        ],
+        "accepted_sha256": "c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984"
+      },
+      {
+        "target": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/Vocabulary_Annex.md",
+        "applied_sha256": "248ce3ed1c5b92c6fcfbc392219bae2a71ed6ef6452f1fcfc18de5a7128ddca6",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "status: applied_group3_pending",
+            "new": "status: accepted",
+            "expected_occurrences": 1
+          }
+        ],
+        "accepted_sha256": "5ed81eba89897337c4806d8e7307acf929afcafa52ee1bd0fdf673ba6820195a"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_CONTEXT.md",
+        "applied_sha256": "1d23c2e57d3ed8fa8c20d4374ac022d9cbe13cc5abe391ca9874f29a911730f3",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "new": "c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984",
+            "expected_occurrences": 2
+          },
+          {
+            "operation": "replace_exact",
+            "old": "audited poststate acceptance remains pending Group 3",
+            "new": "audited poststate acceptance is recorded in the SCA-011 Group 3 closure",
+            "expected_occurrences": 1
+          }
+        ],
+        "accepted_sha256": "77f00da73974d101684903a75b7f76c4320c0af052328d05879487938a5557fb"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_STATUS.md",
+        "applied_sha256": "f7a657328b0650935ac8a5955b69ac82c0405170d66e650180e3303460148294",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "new": "c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "audited poststate acceptance remains pending Group 3",
+            "new": "audited poststate acceptance is recorded in the SCA-011 Group 3 closure",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "- Complete required SCA-011 derivative/owner checks and Group 3 audited poststate acceptance; existing product/lifecycle holds remain.",
+            "new": "- Follow the SCA-011 accepted closure handoff for any explicitly retained derivative obligations; existing product/lifecycle holds remain.",
+            "expected_occurrences": 1
+          }
+        ],
+        "accepted_sha256": "3f2c7ed7da4571b58418955dab427e4e82e0196eb18e213316f404a621e74fb7"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_REFERENCES.md",
+        "applied_sha256": "008cd4031142eed135a31859a7faff498f97da655ff6f33e000412c17df01dbe",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "new": "c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "audited poststate acceptance remains pending Group 3",
+            "new": "audited poststate acceptance is recorded in the SCA-011 Group 3 closure",
+            "expected_occurrences": 1
+          }
+        ],
+        "accepted_sha256": "770429b5f8cbf9ab77611d50569c660c685c9ed1e66fb0cc2f38316aa4fd1a46"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_SEMANTIC.md",
+        "applied_sha256": "0d556a76f60dadb4b20161f5efe708778d5071ec79ccec4c4541791b198edfa1",
+        "operations": [],
+        "accepted_sha256": "0d556a76f60dadb4b20161f5efe708778d5071ec79ccec4c4541791b198edfa1"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+        "applied_sha256": "4ede61127ae6f3f0c8d1d607f8983e533b4b98a6cc8c2286df2a92eed2766fd2",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "new": "c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984",
+            "expected_occurrences": 2
+          },
+          {
+            "operation": "replace_exact",
+            "old": "audited poststate acceptance remains pending Group 3",
+            "new": "audited poststate acceptance is recorded in the SCA-011 Group 3 closure",
+            "expected_occurrences": 1
+          }
+        ],
+        "accepted_sha256": "2631a2fedc5f95723201f10c87ba66367800fd771ebbc86844f25020ca3c3150"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_CONTEXT.md",
+        "applied_sha256": "5ab3d03e0f21b48c34f4e616107ee17abf3badd3bb8db370724661738e5d1428",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "new": "c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984",
+            "expected_occurrences": 2
+          },
+          {
+            "operation": "replace_exact",
+            "old": "audited poststate acceptance remains pending Group 3",
+            "new": "audited poststate acceptance is recorded in the SCA-011 Group 3 closure",
+            "expected_occurrences": 1
+          }
+        ],
+        "accepted_sha256": "e455a7e9fe2f29602a5782070674f0f943ef9602ac44e0962276593b5f8517f1"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_STATUS.md",
+        "applied_sha256": "1af3a408c611dab61ac3be092ff1053cc48bd2cbe3639f4c84626939d69c0327",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "new": "c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "audited poststate acceptance remains pending Group 3",
+            "new": "audited poststate acceptance is recorded in the SCA-011 Group 3 closure",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "- Complete required SCA-011 derivative/owner checks and Group 3 audited poststate acceptance; existing product/lifecycle holds remain.",
+            "new": "- Follow the SCA-011 accepted closure handoff for any explicitly retained derivative obligations; existing product/lifecycle holds remain.",
+            "expected_occurrences": 1
+          }
+        ],
+        "accepted_sha256": "3ad5d5e5e1948ff5d8d2e35825bf6b98e2b036813553e60f4028793774150e37"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_REFERENCES.md",
+        "applied_sha256": "63e893e3c570cb796bef55159322c3b375f6156814e971ff6b2927bc394d1459",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "new": "c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "audited poststate acceptance remains pending Group 3",
+            "new": "audited poststate acceptance is recorded in the SCA-011 Group 3 closure",
+            "expected_occurrences": 1
+          }
+        ],
+        "accepted_sha256": "82b0c35845a21381c113eed1ea11e000e0e2c85fb4250999af41a30ab8cb9005"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_SEMANTIC.md",
+        "applied_sha256": "c857f5c43808cd4dee74d2f71644cef4a6af6b2d9c082ef35f508144a17c437a",
+        "operations": [],
+        "accepted_sha256": "c857f5c43808cd4dee74d2f71644cef4a6af6b2d9c082ef35f508144a17c437a"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md",
+        "applied_sha256": "0511c07f4d741c59b7cffa1fd7c080d754200237bc537bb137882d8b582c79ef",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "new": "c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984",
+            "expected_occurrences": 2
+          },
+          {
+            "operation": "replace_exact",
+            "old": "audited poststate acceptance remains pending Group 3",
+            "new": "audited poststate acceptance is recorded in the SCA-011 Group 3 closure",
+            "expected_occurrences": 1
+          }
+        ],
+        "accepted_sha256": "02d58be021ceac3af30d942d575f0c59d1ae8e5ee1a25e7f6bc8db85a2d2dec7"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_CONTEXT.md",
+        "applied_sha256": "7d0c0e74fb9b68953871a999a3a7d5248f9d4a06b4a6534c0f2a129b056a55d8",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "new": "c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984",
+            "expected_occurrences": 2
+          },
+          {
+            "operation": "replace_exact",
+            "old": "audited poststate acceptance remains pending Group 3",
+            "new": "audited poststate acceptance is recorded in the SCA-011 Group 3 closure",
+            "expected_occurrences": 1
+          }
+        ],
+        "accepted_sha256": "920d2f12425ae42d8f207ff7e50f0e5f4c177ee90b635a4a549fc45affc01e1d"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_STATUS.md",
+        "applied_sha256": "d179f97739a36081d6ce722f3023cb730da31114f9da910f5df3f4d66bdf018f",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "new": "c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "audited poststate acceptance remains pending Group 3",
+            "new": "audited poststate acceptance is recorded in the SCA-011 Group 3 closure",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "- Complete required SCA-011 derivative/owner checks and Group 3 audited poststate acceptance; existing product/lifecycle holds remain.",
+            "new": "- Follow the SCA-011 accepted closure handoff for any explicitly retained derivative obligations; existing product/lifecycle holds remain.",
+            "expected_occurrences": 1
+          }
+        ],
+        "accepted_sha256": "504e60192dd08b470e449ea84a425b26b1374fc557181714467fd3a0c4b805be"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_REFERENCES.md",
+        "applied_sha256": "7f3f5ef675d9afcfb9765ccc3b71deffda5190ad603f302c5cce09c42c1473ec",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "new": "c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "audited poststate acceptance remains pending Group 3",
+            "new": "audited poststate acceptance is recorded in the SCA-011 Group 3 closure",
+            "expected_occurrences": 1
+          }
+        ],
+        "accepted_sha256": "00e40be61a5457b93f2deb7daf0b5d24646ae7887fb51a482327e0875f4eed34"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_SEMANTIC.md",
+        "applied_sha256": "837983d799a8c818db10994235d273b79ade1d6ec6ed808a0bcf5c4551d55dda",
+        "operations": [],
+        "accepted_sha256": "837983d799a8c818db10994235d273b79ade1d6ec6ed808a0bcf5c4551d55dda"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+        "applied_sha256": "6bf61d042b9064bd1232f5290580d868a005ea8b258e851550eb261dcd4e3f1b",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "new": "c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984",
+            "expected_occurrences": 2
+          },
+          {
+            "operation": "replace_exact",
+            "old": "audited poststate acceptance remains pending Group 3",
+            "new": "audited poststate acceptance is recorded in the SCA-011 Group 3 closure",
+            "expected_occurrences": 1
+          }
+        ],
+        "accepted_sha256": "930296e130c972bfa1b28b0d67f70327c618ae11dab599a808bc31e6cb72f11b"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_CONTEXT.md",
+        "applied_sha256": "a66bf834f218c877155d9f8faece9be00f8cbae7b97eb8d119439ab01d82cfeb",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "new": "c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984",
+            "expected_occurrences": 2
+          },
+          {
+            "operation": "replace_exact",
+            "old": "audited poststate acceptance remains pending Group 3",
+            "new": "audited poststate acceptance is recorded in the SCA-011 Group 3 closure",
+            "expected_occurrences": 1
+          }
+        ],
+        "accepted_sha256": "1c1b958427e3c7f35c63bd0a2068162ca038b0e117a8db7c7072cef5a31f4a13"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_STATUS.md",
+        "applied_sha256": "0c6a18ff854e766d8d05292109978422d68d1175fcae894bbec7f5741418cffe",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "new": "c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "audited poststate acceptance remains pending Group 3",
+            "new": "audited poststate acceptance is recorded in the SCA-011 Group 3 closure",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "- Complete required SCA-011 derivative/owner checks and Group 3 audited poststate acceptance; existing product/lifecycle holds remain.",
+            "new": "- Follow the SCA-011 accepted closure handoff for any explicitly retained derivative obligations; existing product/lifecycle holds remain.",
+            "expected_occurrences": 1
+          }
+        ],
+        "accepted_sha256": "52e5b6763d67afd240ca9bfbec54e14e8c65567591704c333a0f6ce48c448ced"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_REFERENCES.md",
+        "applied_sha256": "e4707919fca8b377453f2317529901d9974914a869a543648c557e8ee682818c",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "new": "c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "audited poststate acceptance remains pending Group 3",
+            "new": "audited poststate acceptance is recorded in the SCA-011 Group 3 closure",
+            "expected_occurrences": 1
+          }
+        ],
+        "accepted_sha256": "8804c55c4b6f576bb79959813faf26f915bf425058086e09bdc6b62bba28bc35"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_SEMANTIC.md",
+        "applied_sha256": "44e8bc3ae2d3a6bb6489018e151b4dbb19b4058a4927952c342ea1ac7dc573e9",
+        "operations": [],
+        "accepted_sha256": "44e8bc3ae2d3a6bb6489018e151b4dbb19b4058a4927952c342ea1ac7dc573e9"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md",
+        "applied_sha256": "541df636affcd119072051128a2b98b483791a94b181b3ef38e023030287391a",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "new": "c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984",
+            "expected_occurrences": 2
+          },
+          {
+            "operation": "replace_exact",
+            "old": "audited poststate acceptance remains pending Group 3",
+            "new": "audited poststate acceptance is recorded in the SCA-011 Group 3 closure",
+            "expected_occurrences": 1
+          }
+        ],
+        "accepted_sha256": "44f3ae1326a7800cc7aa70a3e00f66ed7d74a2fef2473e1bda28e81f90334568"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-02_Pipe section and component library schema/ScopeOfWork.md",
+        "applied_sha256": "5a78bd781c9eb2541d471da206de7957319dfffa91cceef202628003eb362cf7",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "new": "c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984",
+            "expected_occurrences": 1
+          }
+        ],
+        "accepted_sha256": "6cfdc7947bd25619fc4c51134d3b040194a474d3939f8a7d8515c78cf9c1c9c3"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker/ScopeOfWork.md",
+        "applied_sha256": "e8ebb6fae82aabe3afee115a2eb42301d3948caf1f3c6a8c5cecab68da34af2a",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "new": "c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984",
+            "expected_occurrences": 1
+          }
+        ],
+        "accepted_sha256": "7157d0669363e27fc0ed593b109c2c535fbf5d7f0048894014d0815b5009d796"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-08_Pipe section property and mass-property calculator/ScopeOfWork.md",
+        "applied_sha256": "f604589d87e56074090351b46bfcb4c2bed221c6999788c8ff06beb023aa016d",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "new": "c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984",
+            "expected_occurrences": 1
+          }
+        ],
+        "accepted_sha256": "432ee8cabab648439933e251991f6cdf200133a116e42d03aecee781a6a1eef2"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/ScopeOfWork.md",
+        "applied_sha256": "2d6249879496a0daaaf06ea4dfe69c7e1190e54ecdf22e7154f591ef0b39645d",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "new": "c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984",
+            "expected_occurrences": 1
+          }
+        ],
+        "accepted_sha256": "93455ce772f5a39855e5d011aaa1897511cc6e584c7fe12c43610d10ae6faa18"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/ScopeOfWork.md",
+        "applied_sha256": "76265d7548e4035b43598715b2344f35f8de2c177d5e5969bd53ca712d237a10",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "new": "c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984",
+            "expected_occurrences": 1
+          }
+        ],
+        "accepted_sha256": "66351fe6118bcabc70c56c7557f814d514ebe6c93b65b33138dd9ac7f53617d6"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/ScopeOfWork.md",
+        "applied_sha256": "581d78e65f46f9a0e12ef05fbcb1a6ae0a6b2a8ce943cc58fc7a3849a6d3ae0d",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "new": "c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984",
+            "expected_occurrences": 1
+          }
+        ],
+        "accepted_sha256": "4d9b30fd3cca190885bf4340241d28ed57a039290947a240739951f80f047052"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/ScopeOfWork.md",
+        "applied_sha256": "18de37bb54197d67023d654401bb5adfa848d2dca1fcd44f5e81afd97ef90577",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "new": "c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984",
+            "expected_occurrences": 1
+          }
+        ],
+        "accepted_sha256": "8a7e5579795cdd8227f80a7caf5225d53c00c289c82b58c247c8f9ef94d06733"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/ScopeOfWork.md",
+        "applied_sha256": "f577d714fb911697f58f13d777ea38321150d47fcb93edb59b0fa0174505f080",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "new": "c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984",
+            "expected_occurrences": 1
+          }
+        ],
+        "accepted_sha256": "c6925679b25ce87c0ce22ae2beb1f9d5113e50b0dd2d2224c52c0f10ca6445f5"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_CONTEXT.md",
+        "applied_sha256": "3c13bcf8b97e7c3d6404446bb784cdd82338e631b16378003b92f226f69db92c",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "audited poststate acceptance remains pending Group 3",
+            "new": "audited poststate acceptance is recorded in the SCA-011 Group 3 closure",
+            "expected_occurrences": 1
+          }
+        ],
+        "accepted_sha256": "6ca091445d0e46f5cd33ced5ba26c56718a2d60b5e89e2122071e2db415231b1"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/ScopeOfWork.md",
+        "applied_sha256": "3de34f4b6f0d12aaa7fa8796d55556a8348c40a1806ffef0f8dc8be1962e85b8",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "new": "c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984",
+            "expected_occurrences": 1
+          }
+        ],
+        "accepted_sha256": "c5dfbee5a2f135c72a88eff2be772972f025d629951265dfe444f3c6ff53b3ca"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_CONTEXT.md",
+        "applied_sha256": "2bfa27e5682e9598558b9b52e9e5f98e6794514d1d5ff8ae56e439d9e8838319",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "audited poststate acceptance remains pending Group 3",
+            "new": "audited poststate acceptance is recorded in the SCA-011 Group 3 closure",
+            "expected_occurrences": 1
+          }
+        ],
+        "accepted_sha256": "5ed2aba14091bdfc375735d4d0f9064598750eee7cbc7d73c50158aaa6abe847"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/ScopeOfWork.md",
+        "applied_sha256": "93fdb46065397d7955612a0352fb0ed93ebb87aa66bdb097d11afb8e614abda0",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "new": "c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984",
+            "expected_occurrences": 1
+          }
+        ],
+        "accepted_sha256": "c1ba81658e3e0a2d5f77db447dddbde03410975f2dbe6d000941ae572a0eda15"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_CONTEXT.md",
+        "applied_sha256": "5002561fb8f4ca434c7a846d6d0f25e71debf3bcf2652321bcbdf328f0c4f144",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "audited poststate acceptance remains pending Group 3",
+            "new": "audited poststate acceptance is recorded in the SCA-011 Group 3 closure",
+            "expected_occurrences": 1
+          }
+        ],
+        "accepted_sha256": "ec6987012a6e2535fbeffc2e7aa00e89b97dbd4b4a7e0582fef339eb8ebab50b"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/ScopeOfWork.md",
+        "applied_sha256": "c83c2cb287e9b188f0795621db8c0edac1c668fdebaa7282534ea10e8291f693",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "new": "c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984",
+            "expected_occurrences": 1
+          }
+        ],
+        "accepted_sha256": "f87b2e7144cc9779e0b768517fab12b4b67e3d08b009ee969cfc84a95ce88907"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/_CONTEXT.md",
+        "applied_sha256": "49c9ae1e7005abf4e127c82b9773ccf832ac2ac37d956cb445d7d18ecb901fd2",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "audited poststate acceptance remains pending Group 3",
+            "new": "audited poststate acceptance is recorded in the SCA-011 Group 3 closure",
+            "expected_occurrences": 1
+          }
+        ],
+        "accepted_sha256": "4c6b8829b0d1846ade1f80db6e6fd873a446984672b58b540aee51ee25ca9125"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/ScopeOfWork.md",
+        "applied_sha256": "c70e5d0fcdf37eb794ac448c47692869a81caca8107421f14365b066a605f3f6",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "new": "c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984",
+            "expected_occurrences": 1
+          }
+        ],
+        "accepted_sha256": "3215dd14bd6757747dab1d0c17b7485feafc08075b8d5afcc2a3032585037eb3"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_CONTEXT.md",
+        "applied_sha256": "ed3517118ef225d30b237031de2259a02f602dcc5bfef547e420a091f42f7aa6",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "audited poststate acceptance remains pending Group 3",
+            "new": "audited poststate acceptance is recorded in the SCA-011 Group 3 closure",
+            "expected_occurrences": 1
+          }
+        ],
+        "accepted_sha256": "4aa9606a1dcb32adefc0f1d5219d287a3e9ac6716c8012a11a0f30f5543619cf"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/ScopeOfWork.md",
+        "applied_sha256": "490c023a1d52e9087cf9cf6cdd7b9293942619272be6019b825d78271452ea13",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "new": "c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984",
+            "expected_occurrences": 1
+          }
+        ],
+        "accepted_sha256": "766f9567c9cb8cc8d33ef596392e2df0dc1f7e8ee18397f383b2870c360c38fb"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/ScopeOfWork.md",
+        "applied_sha256": "65008a246f9efe66578ef72a7abe52d49c77ffb667b66f7b4ac1ebc5575dbbbc",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+            "new": "c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984",
+            "expected_occurrences": 1
+          }
+        ],
+        "accepted_sha256": "d6d1b9854ecc98137082b1a2eb1427b0a65d7602b7ec062d36f2db0db98e0bc1"
+      },
+      {
+        "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_CONTEXT.md",
+        "applied_sha256": "3d45abefed4d97693ef87f4068e1b3ed99aff4219ec750a50e63b9c1a46595fd",
+        "operations": [
+          {
+            "operation": "replace_exact",
+            "old": "audited poststate acceptance remains pending Group 3",
+            "new": "audited poststate acceptance is recorded in the SCA-011 Group 3 closure",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "- **Accepted Revision:** 0.12",
+            "new": "- **Accepted Revision:** 0.13",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "- **Scope Change:** `execution/_ScopeChange/SCA-009_2026-08-20_0000/`",
+            "new": "- **Scope Change:** `execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/`; accepted SCA-009 vocabulary content retained",
+            "expected_occurrences": 1
+          },
+          {
+            "operation": "replace_exact",
+            "old": "- **Decision:** DEC-094",
+            "new": "- **Decision:** DEC-094 with DEC-111 ownership clarification",
+            "expected_occurrences": 1
+          }
+        ],
+        "accepted_sha256": "3bd7565c75fcccbaf07dde7c91448a7384223451d6f555a178de0aca9d524997"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "check": "sow_format_draft",
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+      "result": "PASS"
+    },
+    {
+      "check": "sow_format_applied",
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+      "result": "PASS"
+    },
+    {
+      "check": "sow_format_draft",
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md",
+      "result": "PASS"
+    },
+    {
+      "check": "sow_format_applied",
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md",
+      "result": "PASS"
+    },
+    {
+      "check": "sow_format_draft",
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+      "result": "PASS"
+    },
+    {
+      "check": "sow_format_applied",
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+      "result": "PASS"
+    },
+    {
+      "check": "sow_format_draft",
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md",
+      "result": "PASS"
+    },
+    {
+      "check": "sow_format_applied",
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md",
+      "result": "PASS"
+    },
+    {
+      "check": "sow_format_draft",
+      "target": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-02_Pipe section and component library schema/ScopeOfWork.md",
+      "result": "PASS"
+    },
+    {
+      "check": "sow_format_applied",
+      "target": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-02_Pipe section and component library schema/ScopeOfWork.md",
+      "result": "PASS"
+    },
+    {
+      "check": "sow_format_draft",
+      "target": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker/ScopeOfWork.md",
+      "result": "PASS"
+    },
+    {
+      "check": "sow_format_applied",
+      "target": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker/ScopeOfWork.md",
+      "result": "PASS"
+    },
+    {
+      "check": "sow_format_draft",
+      "target": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-08_Pipe section property and mass-property calculator/ScopeOfWork.md",
+      "result": "PASS"
+    },
+    {
+      "check": "sow_format_applied",
+      "target": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-08_Pipe section property and mass-property calculator/ScopeOfWork.md",
+      "result": "PASS"
+    },
+    {
+      "check": "sow_format_draft",
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/ScopeOfWork.md",
+      "result": "PASS"
+    },
+    {
+      "check": "sow_format_applied",
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/ScopeOfWork.md",
+      "result": "PASS"
+    },
+    {
+      "check": "sow_format_draft",
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/ScopeOfWork.md",
+      "result": "PASS"
+    },
+    {
+      "check": "sow_format_applied",
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/ScopeOfWork.md",
+      "result": "PASS"
+    },
+    {
+      "check": "sow_format_draft",
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/ScopeOfWork.md",
+      "result": "PASS"
+    },
+    {
+      "check": "sow_format_applied",
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/ScopeOfWork.md",
+      "result": "PASS"
+    },
+    {
+      "check": "sow_format_draft",
+      "target": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/ScopeOfWork.md",
+      "result": "PASS"
+    },
+    {
+      "check": "sow_format_applied",
+      "target": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/ScopeOfWork.md",
+      "result": "PASS"
+    },
+    {
+      "check": "sow_format_draft",
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/ScopeOfWork.md",
+      "result": "PASS"
+    },
+    {
+      "check": "sow_format_applied",
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/ScopeOfWork.md",
+      "result": "PASS"
+    },
+    {
+      "check": "sow_format_draft",
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/ScopeOfWork.md",
+      "result": "PASS"
+    },
+    {
+      "check": "sow_format_applied",
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/ScopeOfWork.md",
+      "result": "PASS"
+    },
+    {
+      "check": "sow_format_draft",
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/ScopeOfWork.md",
+      "result": "PASS"
+    },
+    {
+      "check": "sow_format_applied",
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/ScopeOfWork.md",
+      "result": "PASS"
+    },
+    {
+      "check": "sow_format_draft",
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/ScopeOfWork.md",
+      "result": "PASS"
+    },
+    {
+      "check": "sow_format_applied",
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/ScopeOfWork.md",
+      "result": "PASS"
+    },
+    {
+      "check": "sow_format_draft",
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/ScopeOfWork.md",
+      "result": "PASS"
+    },
+    {
+      "check": "sow_format_applied",
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/ScopeOfWork.md",
+      "result": "PASS"
+    },
+    {
+      "check": "sow_format_draft",
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/ScopeOfWork.md",
+      "result": "PASS"
+    },
+    {
+      "check": "sow_format_applied",
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/ScopeOfWork.md",
+      "result": "PASS"
+    },
+    {
+      "check": "sow_format_draft",
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/ScopeOfWork.md",
+      "result": "PASS"
+    },
+    {
+      "check": "sow_format_applied",
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/ScopeOfWork.md",
+      "result": "PASS"
+    },
+    {
+      "check": "prior_decision_rows_preserved",
+      "result": "PASS",
+      "rows": [
+        "DEC-020",
+        "DEC-044",
+        "DEC-046",
+        "DEC-094",
+        "DEC-103"
+      ]
+    },
+    {
+      "check": "register_identity_coverage_counts",
+      "result": "PASS",
+      "deliverables": 106,
+      "scope_items": 79,
+      "context_budget_rows": 106
+    },
+    {
+      "check": "candidate_context_register_parity_and_promotion_replay",
+      "result": "PASS",
+      "context_rows": 6
+    },
+    {
+      "check": "exact_identifier_collision_search_outside_prior_proposal_and_current_SCA",
+      "result": "PASS",
+      "keys": [
+        "DEC-111",
+        "DEL-04-07",
+        "DEL-07-11",
+        "DEL-07-12",
+        "DEL-16-06",
+        "SOW-078",
+        "SOW-079"
+      ]
+    },
+    {
+      "check": "canonical_preimages_unchanged_by_author",
+      "result": "PASS"
+    },
+    {
+      "check": "git_diff_check",
+      "result": "PASS",
+      "limit": "Tracked diff only; separate candidate structural validation covers untracked postimages."
+    },
+    {
+      "check": "fresh_review_reference_authority_wording_backcheck",
+      "result": "PASS",
+      "targets": [
+        "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_REFERENCES.md",
+        "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_REFERENCES.md",
+        "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_REFERENCES.md",
+        "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_REFERENCES.md"
+      ],
+      "reason": "Gate-neutral current-pointer wording remains truthful before and after DAG adoption; exact draft/application/accepted hashes replay. No decomposition or pin changes."
+    }
+  ],
+  "execution": {
+    "agent": "/root/piping_scope_manager/piping_amendment_draft",
+    "parent": "/root/piping_scope_manager",
+    "role": "TASK",
+    "mechanism": "Codex native collaboration spawn",
+    "model_effort": "Inherited; no override or diversity claim",
+    "enforcement": "Actual host workspace permission plus narrower brief-enforced candidate/evidence write scope; no child delegation, network, product execution or Git mutation",
+    "source_selection": "Relevant SoW allocation/verification sections and paired status/history and memory continuity sections; full supplied-source files hashed. Hashing a full file is not a claim that all historical text was semantically reread."
+  },
+  "claim_body_hashes": [
+    {
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+      "claim": "CLM-001",
+      "sha256": "175ae465c2442cc05ecf7a2cdb1c2c5b189eefbea7d620fc06f84db06bad2ae8"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+      "claim": "CLM-002",
+      "sha256": "88109dda0ba7d2485881ed53d3872fdbb688300e418f8c1d420738675a3792cb"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+      "claim": "CLM-003",
+      "sha256": "dcf102b9022a142986e407caffe882324a531e0cffe1798a7729f6cb9d28c015"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+      "claim": "CLM-004",
+      "sha256": "45e6ae10bc741ab30bb003780b8c147c8d972877107ab70aad4482b64da586c8"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md",
+      "claim": "CLM-001",
+      "sha256": "ca394f19fedfa8a2f96fed02b3726a6af55559353de658eb94b5cc949a2dee9d"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md",
+      "claim": "CLM-002",
+      "sha256": "c55ec881eaf5fbc243a877c31e27c970b808b2e8969d99b76e4cff088dc5a1c7"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md",
+      "claim": "CLM-003",
+      "sha256": "913484bf16b871c8b44600da6c2f53335aca5b0eef0d9838cdb81d0c509eee95"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md",
+      "claim": "CLM-004",
+      "sha256": "9979693f167755e92d0b82379a5ed0231dc499002c222ef6d01bc2f3018ebcb5"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+      "claim": "CLM-001",
+      "sha256": "c4dc64e821cab3afaa8540f81fdf27aab1c5406faf9f8bb0975cd2a7a86268c5"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+      "claim": "CLM-002",
+      "sha256": "92b207eace5f4e352345168ff9aefcd152499a7f6bc3bd103a116cf3537cacbe"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+      "claim": "CLM-003",
+      "sha256": "f8dcdaa67ad946af5391bca0fd3e63baee1cdd723f419ba32f2825774975abd6"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+      "claim": "CLM-004",
+      "sha256": "0ca3157d2a8a289d7d2e43ed21eebcb972391229864947dd23a9001bcbbb19ed"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md",
+      "claim": "CLM-001",
+      "sha256": "e0812165bb656bc8ca72d4e5a1e7ba37508c7f3adf917d2a83146326cab5ec6e"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md",
+      "claim": "CLM-002",
+      "sha256": "cc29a58a9146ea2215c1e4b4c2fe8f7f219396c43dd74d470ab2656806ee0d5f"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md",
+      "claim": "CLM-003",
+      "sha256": "ab30e81389ecd6db9eddf7f35f52074f4c83a8be44a9cbd28409e99a48102c5e"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md",
+      "claim": "CLM-004",
+      "sha256": "30027918828abdf01b534d14235cc7916b0527008d6f1b231214882be51032db"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-02_Pipe section and component library schema/ScopeOfWork.md",
+      "claim": "CLM-030",
+      "sha256": "37531daf72401717970e39b5c44436427e84e2086faf90b134c1933aa1843289"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker/ScopeOfWork.md",
+      "claim": "CLM-027",
+      "sha256": "39c7c4dc45484e914510127f86b139050e070180ab23167d8deab2d01b35d543"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-08_Pipe section property and mass-property calculator/ScopeOfWork.md",
+      "claim": "CLM-033",
+      "sha256": "97b2f53f722091200426d9938181c0acbd740b759a9963c5c4dd5878544ebc66"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/ScopeOfWork.md",
+      "claim": "CLM-030",
+      "sha256": "00826988cfa3b1a636d22f50fdec5ebb9598cfd3ef9aa7705cf3aa3896eecf86"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/ScopeOfWork.md",
+      "claim": "CLM-028",
+      "sha256": "9e190e3d9da758ddbf2107a66e60e061d54044a9012f2445e6f295e0102261c7"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/ScopeOfWork.md",
+      "claim": "CLM-034",
+      "sha256": "b1890f0c3b0c6d44bccf99429190dc07050af8fe89b87d92e3d456e0515e7aa9"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/ScopeOfWork.md",
+      "claim": "CLM-035",
+      "sha256": "cbb0d4dc53a9a623d9f9741a57451f090e94adec4225991399892aa5f18bff36"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/ScopeOfWork.md",
+      "claim": "CLM-033",
+      "sha256": "af3226b968da422c5b7369b5189c916ca0a63dcf59fde689c638eeb7fdfed27f"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/ScopeOfWork.md",
+      "claim": "CLM-038",
+      "sha256": "a2e3c587f119fd9290d9adfe4b2750af6c3b29cf647b05a997c1a811e26f45a8"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/ScopeOfWork.md",
+      "claim": "CLM-008",
+      "sha256": "fddbfecda5f3d8d03e3890a94fddb247d91a6a424c0091bd86142632c1e71ba7"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/ScopeOfWork.md",
+      "claim": "CLM-041",
+      "sha256": "be9348777ca48633a4ab78a63b50a2c27f4b71a598286822ce0901e0d63b0a38"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/ScopeOfWork.md",
+      "claim": "CLM-042",
+      "sha256": "abd39a77eafef051e40022137813fee5e6e36d47b01e8bf466fcaae35f2bbd7d"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/ScopeOfWork.md",
+      "claim": "CLM-033",
+      "sha256": "5fb334093a5f0e0999a7fec07c8420d42dbc21cca9c5fcec56a9cf715c64f411"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/ScopeOfWork.md",
+      "claim": "CLM-030",
+      "sha256": "50dbddff522754af658ff7f179a085fed3f7499035e31a95a6c9b014cb22e94a"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/ScopeOfWork.md",
+      "claim": "CLM-010",
+      "sha256": "85a91530df2c0301e46c60f9fea58b9983953f1cf5f1f13a618907f11495725d"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/ScopeOfWork.md",
+      "claim": "CLM-027",
+      "sha256": "4bace2b9a7e1d062f7a934f703d163998f8cfce17c27ac05507ebbfef58a1fef"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/ScopeOfWork.md",
+      "claim": "CLM-005",
+      "sha256": "8eb2dfae8493431e131671dfef1a14fe79d20913debb067fdee965bfbbfbb6aa"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/ScopeOfWork.md",
+      "claim": "CLM-029",
+      "sha256": "b7ac1c9952242f834fd30f869b33dd62061c7060b5e38a503f29e633f013221e"
+    }
+  ]
+}

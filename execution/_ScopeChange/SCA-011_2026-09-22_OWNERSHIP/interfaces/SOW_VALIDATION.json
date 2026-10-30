@@ -1,0 +1,176 @@
+{
+  "python": "3.13.7",
+  "scope": "Six interface SoWs, candidate and Group 2 applied previews",
+  "preview_policy": "Temporary previews computed by INTERFACE_PROMOTION.json exact operations, validated, then removed; canonical files untouched.",
+  "checks": [
+    {
+      "stage": "candidate",
+      "canonical_target": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/ScopeOfWork.md",
+      "validated_sha256": "c3076fe5fd706053505d5797d1f298914f7869661224be0f7ff548a6ba415c1b",
+      "command": [
+        "python3",
+        "tools/scope_of_work/validate_scope_of_work.py",
+        "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/ScopeOfWork.md",
+        "--json"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"format\": \"SOW_V1\",\n  \"issues\": [],\n  \"target\": \"projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/ScopeOfWork.md\",\n  \"valid\": true\n}\n",
+      "stderr": ""
+    },
+    {
+      "stage": "group2_applied_preview",
+      "canonical_target": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/ScopeOfWork.md",
+      "validated_sha256": "922a5c64e067ccec6c391a7144c436dc56e5f80cac1630e8b01f263e4e9ea3fe",
+      "command": [
+        "python3",
+        "tools/scope_of_work/validate_scope_of_work.py",
+        "/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/sow-applied-check-zhj9hxm7/DEL-08-04_Result export format/ScopeOfWork.md",
+        "--json"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"format\": \"SOW_V1\",\n  \"issues\": [],\n  \"target\": \"/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/sow-applied-check-zhj9hxm7/DEL-08-04_Result export format/ScopeOfWork.md\",\n  \"valid\": true\n}\n",
+      "stderr": ""
+    },
+    {
+      "stage": "candidate",
+      "canonical_target": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-03_Constraint validation engine/ScopeOfWork.md",
+      "validated_sha256": "e4a581091ac3962e9a6ef0ec6426fa70e2519ec2c963164a9e3be63fb024658b",
+      "command": [
+        "python3",
+        "tools/scope_of_work/validate_scope_of_work.py",
+        "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-03_Constraint validation engine/ScopeOfWork.md",
+        "--json"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"format\": \"SOW_V1\",\n  \"issues\": [],\n  \"target\": \"projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-03_Constraint validation engine/ScopeOfWork.md\",\n  \"valid\": true\n}\n",
+      "stderr": ""
+    },
+    {
+      "stage": "group2_applied_preview",
+      "canonical_target": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-03_Constraint validation engine/ScopeOfWork.md",
+      "validated_sha256": "8a273182ca2994682fb61ad36e95f840d367bb925218d4129be38b3497506601",
+      "command": [
+        "python3",
+        "tools/scope_of_work/validate_scope_of_work.py",
+        "/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/sow-applied-check-zhj9hxm7/DEL-13-03_Constraint validation engine/ScopeOfWork.md",
+        "--json"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"format\": \"SOW_V1\",\n  \"issues\": [],\n  \"target\": \"/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/sow-applied-check-zhj9hxm7/DEL-13-03_Constraint validation engine/ScopeOfWork.md\",\n  \"valid\": true\n}\n",
+      "stderr": ""
+    },
+    {
+      "stage": "candidate",
+      "canonical_target": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract/ScopeOfWork.md",
+      "validated_sha256": "f90b953dab3607ada0c29205a446f4e2563880319fe8edb5f307fce34eb2f8f1",
+      "command": [
+        "python3",
+        "tools/scope_of_work/validate_scope_of_work.py",
+        "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract/ScopeOfWork.md",
+        "--json"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"format\": \"SOW_V1\",\n  \"issues\": [],\n  \"target\": \"projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract/ScopeOfWork.md\",\n  \"valid\": true\n}\n",
+      "stderr": ""
+    },
+    {
+      "stage": "group2_applied_preview",
+      "canonical_target": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract/ScopeOfWork.md",
+      "validated_sha256": "4c7922a7cffaa3c8b0b8a60e100afacc9c90a1eb7297e88e19356746432fdea0",
+      "command": [
+        "python3",
+        "tools/scope_of_work/validate_scope_of_work.py",
+        "/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/sow-applied-check-zhj9hxm7/DEL-13-04_Physical-to-analytical transformation contract/ScopeOfWork.md",
+        "--json"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"format\": \"SOW_V1\",\n  \"issues\": [],\n  \"target\": \"/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/sow-applied-check-zhj9hxm7/DEL-13-04_Physical-to-analytical transformation contract/ScopeOfWork.md\",\n  \"valid\": true\n}\n",
+      "stderr": ""
+    },
+    {
+      "stage": "candidate",
+      "canonical_target": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-03_Model-state comparison engine/ScopeOfWork.md",
+      "validated_sha256": "78092e6c7b662029962f68711ddbd0c73893c56a02e03400ec363b0c8ab3ada0",
+      "command": [
+        "python3",
+        "tools/scope_of_work/validate_scope_of_work.py",
+        "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-03_Model-state comparison engine/ScopeOfWork.md",
+        "--json"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"format\": \"SOW_V1\",\n  \"issues\": [],\n  \"target\": \"projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-03_Model-state comparison engine/ScopeOfWork.md\",\n  \"valid\": true\n}\n",
+      "stderr": ""
+    },
+    {
+      "stage": "group2_applied_preview",
+      "canonical_target": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-03_Model-state comparison engine/ScopeOfWork.md",
+      "validated_sha256": "87cc15ec3db1bc6fcd19616d29ed67728c32f8d1c1d3efadec9d5e0150b70d63",
+      "command": [
+        "python3",
+        "tools/scope_of_work/validate_scope_of_work.py",
+        "/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/sow-applied-check-zhj9hxm7/DEL-14-03_Model-state comparison engine/ScopeOfWork.md",
+        "--json"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"format\": \"SOW_V1\",\n  \"issues\": [],\n  \"target\": \"/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/sow-applied-check-zhj9hxm7/DEL-14-03_Model-state comparison engine/ScopeOfWork.md\",\n  \"valid\": true\n}\n",
+      "stderr": ""
+    },
+    {
+      "stage": "candidate",
+      "canonical_target": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-04_Analysis-run comparison engine/ScopeOfWork.md",
+      "validated_sha256": "a3c63fbbd862e78b4b828146135d906339bde495d18441bdbb3a81459b6a1771",
+      "command": [
+        "python3",
+        "tools/scope_of_work/validate_scope_of_work.py",
+        "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-04_Analysis-run comparison engine/ScopeOfWork.md",
+        "--json"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"format\": \"SOW_V1\",\n  \"issues\": [],\n  \"target\": \"projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-04_Analysis-run comparison engine/ScopeOfWork.md\",\n  \"valid\": true\n}\n",
+      "stderr": ""
+    },
+    {
+      "stage": "group2_applied_preview",
+      "canonical_target": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-04_Analysis-run comparison engine/ScopeOfWork.md",
+      "validated_sha256": "fc0d225c342b848103322ec39926521b959f3d97d9690e7eee3efd4e8e035548",
+      "command": [
+        "python3",
+        "tools/scope_of_work/validate_scope_of_work.py",
+        "/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/sow-applied-check-zhj9hxm7/DEL-14-04_Analysis-run comparison engine/ScopeOfWork.md",
+        "--json"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"format\": \"SOW_V1\",\n  \"issues\": [],\n  \"target\": \"/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/sow-applied-check-zhj9hxm7/DEL-14-04_Analysis-run comparison engine/ScopeOfWork.md\",\n  \"valid\": true\n}\n",
+      "stderr": ""
+    },
+    {
+      "stage": "candidate",
+      "canonical_target": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-05_Comparison mapping, tolerance, and export contracts/ScopeOfWork.md",
+      "validated_sha256": "7efc563b2b2aec10dcc0f764ccdd62bbf3456208d81bc8939df091ef367c3a21",
+      "command": [
+        "python3",
+        "tools/scope_of_work/validate_scope_of_work.py",
+        "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-05_Comparison mapping, tolerance, and export contracts/ScopeOfWork.md",
+        "--json"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"format\": \"SOW_V1\",\n  \"issues\": [],\n  \"target\": \"projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-05_Comparison mapping, tolerance, and export contracts/ScopeOfWork.md\",\n  \"valid\": true\n}\n",
+      "stderr": ""
+    },
+    {
+      "stage": "group2_applied_preview",
+      "canonical_target": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-05_Comparison mapping, tolerance, and export contracts/ScopeOfWork.md",
+      "validated_sha256": "6c6eed448e62cb01578a96d2cc27a65b2bbd5e035276133b6827f85864eae2f9",
+      "command": [
+        "python3",
+        "tools/scope_of_work/validate_scope_of_work.py",
+        "/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/sow-applied-check-zhj9hxm7/DEL-14-05_Comparison mapping, tolerance, and export contracts/ScopeOfWork.md",
+        "--json"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"format\": \"SOW_V1\",\n  \"issues\": [],\n  \"target\": \"/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/sow-applied-check-zhj9hxm7/DEL-14-05_Comparison mapping, tolerance, and export contracts/ScopeOfWork.md\",\n  \"valid\": true\n}\n",
+      "stderr": ""
+    }
+  ],
+  "passed": true
+}

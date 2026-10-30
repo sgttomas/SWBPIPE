@@ -1,0 +1,74 @@
+{
+  "schema": "change-evidence-correction-manifest/v1",
+  "status": "SUCCESSOR_CORRECTION_COMPLETE",
+  "recorded_utc": "2026-09-08T05:49:00Z",
+  "basis_commit": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "scope": "projects/chirality-piping/execution/_Change/PHYSICS_UI_EXECUTION_20260908",
+  "reason": "Repair staged-whitespace and portable-control findings before final freeze without silently discarding predecessor bytes.",
+  "control_freeze_discovery": {
+    "change_files_referenced_by_control_freeze_v1_or_v2": false,
+    "original_bytes_preserved_defensively": true
+  },
+  "serialized_originals": {
+    "path": "_run_records/CHANGE_EVIDENCE_CORRECTION_V1_ORIGINALS.json",
+    "sha256": "7c21f88e7e53705798eb91250794d5b5b3a44e86270ede46726792747bf38d3a",
+    "encoding": "base64",
+    "round_trip_sha256_verified": true
+  },
+  "successors": [
+    {
+      "path": "MERGE_AND_LANE_SETUP.md",
+      "predecessor_sha256": "82be5c8f73dc0cd8a241e7a27dc84d7c00271e153112db16b548761423a1c81d",
+      "successor_sha256": "ac5483c1c92161e06cee026676837735f96a59d0eaabf2be2a86486ffa24298f",
+      "changes": [
+        "replace host-specific worktree path with {EXECUTION_WORKTREE}",
+        "cite the structural host-path record",
+        "remove the extra blank line at EOF"
+      ]
+    },
+    {
+      "path": "RETURN.md",
+      "predecessor_sha256": "35e277b2df7dee92c2d3227b169509e16a263bd58b36c2e5e2ca1c6dffa4190e",
+      "successor_sha256": "06f6bd1cefe3c52d1c7c762a1bdcff77e6589fcf8ffc88f1c0b4e7e014539c09",
+      "changes": [
+        "replace host-specific worktree path with {EXECUTION_WORKTREE}",
+        "cite the structural host-path record"
+      ]
+    },
+    {
+      "path": "STEP0_CHECKS.json",
+      "predecessor_sha256": "26827e2d00691e1c9684ce048132ebc0f551ab2d37ee79b86ff9c1ec583d45f4",
+      "successor_sha256": "3d4d20e5b724544be6ad5e72b4c6b6ebb994c591107c7de91b824a6fb4377637",
+      "changes": [
+        "replace the transient Python executable with {PREPARATION_PYTHON_VENV}/bin/python",
+        "cite _run_records/TOOLCHAIN_HOST_PATHS.json#python_venv",
+        "remove the extra blank line at EOF"
+      ]
+    }
+  ],
+  "new_structural_record": {
+    "path": "_run_records/CHANGE_EVIDENCE_HOST_PATHS.json",
+    "sha256": "5b7527006519de6bf37b05c9d4525e60fc4af3cda8c757bcd159125093f7825a"
+  },
+  "exact_structural_artifacts_unchanged": [
+    {
+      "path": "_run_records/NATIVE_WALKTHROUGH_HOST_PATHS.json",
+      "sha256": "06ccac8196c309ae528be67f662d0c449f995a35f55eaa49589f148ece252e31"
+    },
+    {
+      "path": "_run_records/TOOLCHAIN_HOST_PATHS.json",
+      "sha256": "86ba998e29f8a6d5f467b0855a35a956ce67ea8479aa0411f5cc4b122b186314"
+    },
+    {
+      "path": "_run_records/NATIVE_WALKTHROUGH_TAURI_OVERLAY.json",
+      "sha256": "6132c122f5e2cbc3bec475ac7d08780e1c860ebe6695ee99855c468ccee34c6f"
+    }
+  ],
+  "actions_not_run": [
+    "git stage",
+    "git commit",
+    "native build",
+    "application launch",
+    "full test sweep"
+  ]
+}

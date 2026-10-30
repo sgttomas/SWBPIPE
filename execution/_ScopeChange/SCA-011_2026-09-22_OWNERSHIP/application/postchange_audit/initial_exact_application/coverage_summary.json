@@ -1,0 +1,1866 @@
+{
+  "run_label": "SCA-011_ACTUAL_POSTSTATE_20260922",
+  "timestamp": "2026-09-22T17:10:57.171890+00:00",
+  "decomp_variant": "SOFTWARE",
+  "expected_source_snapshot": "projects/chirality-piping/execution/_ScopeChange/checkpoint_snapshots/SCA-011_GROUP-2_2026-09-22",
+  "accepted_package_commit": "3e18334eca72509475684cc86786b3eeade83572",
+  "expected_handoff_phase": "APPLIED_GROUP3_PENDING",
+  "decomposition_path": "projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md",
+  "decomposition_revision": "0.13",
+  "scope": "ALL",
+  "repository_topology": {
+    "packages": 18,
+    "deliverables": 106,
+    "objectives": 18,
+    "scope_items": 79,
+    "ledger_rows": 79
+  },
+  "partitions_declared": 18,
+  "partitions_found": 18,
+  "production_units_declared": 106,
+  "production_units_found": 106,
+  "forward_coverage_partitions_pct": 100.0,
+  "forward_coverage_production_units_pct": 100.0,
+  "reverse_coverage_pct": 100.0,
+  "context_fidelity_pct": 100.0,
+  "artifact_presence_pct": null,
+  "artifact_presence_limit": "Core contracts inventoried and validated; anticipated production artifact realization not recounted.",
+  "objective_coverage_pct": 100.0,
+  "deliverables_without_objective_mapping": 0,
+  "in_ledger_rows_without_objective_mapping": 0,
+  "package_shape_conformance": "WARN",
+  "derivative_package_status": "SKIPPED",
+  "active_snapshot_status": "PASS",
+  "handoff_state_status": "PASS",
+  "objective_evidence_integrity": "PASS",
+  "issues_blocker": 0,
+  "issues_warning": 2,
+  "issues_info": 2,
+  "check_count": 12,
+  "lifecycle_distribution": {
+    "IN_PROGRESS": 100,
+    "ISSUED": 1,
+    "OPEN": 5
+  },
+  "overall_status": "WARNINGS",
+  "closure_readiness": "WARN",
+  "concrete_labels": {
+    "partition": "Package",
+    "production_unit": "Deliverable"
+  },
+  "semantic_bindings": {
+    "Ledger": {
+      "heading": "9. Scope ledger summary",
+      "line": 471,
+      "normalized": "scope ledger summary",
+      "match_mode": "prefix",
+      "ambiguity": false
+    },
+    "Objectives_reference": {
+      "heading": "5. Objectives",
+      "line": 191,
+      "normalized": "objectives",
+      "match_mode": "exact",
+      "ambiguity": false
+    },
+    "Partitions": {
+      "heading": "6. Packages",
+      "line": 215,
+      "normalized": "packages",
+      "match_mode": "exact",
+      "ambiguity": false
+    },
+    "Production Units": {
+      "heading": "7. Deliverables",
+      "line": 239,
+      "normalized": "deliverables",
+      "match_mode": "exact",
+      "ambiguity": false
+    }
+  },
+  "comparison": {
+    "baseline": {
+      "packages": 18,
+      "deliverables": 102,
+      "objectives": 18,
+      "scope_items": 77,
+      "ledger_rows": 77
+    },
+    "actual": {
+      "packages": 18,
+      "deliverables": 106,
+      "objectives": 18,
+      "scope_items": 79
+    },
+    "baseline_matrix_scope": [
+      "PKG-02",
+      "PKG-03",
+      "PKG-04",
+      "PKG-05",
+      "PKG-07",
+      "PKG-08",
+      "PKG-09",
+      "PKG-10",
+      "PKG-12",
+      "PKG-13",
+      "PKG-14",
+      "PKG-15",
+      "PKG-16",
+      "PKG-17"
+    ],
+    "baseline_matrix_units": 80,
+    "actual_matrix_units": 106,
+    "methodology_change": "Expanded 14-package/80-unit baseline audit to all 18 packages/106 units, recognizing the existing eight D-43 architecture reference contracts. Compare whole-topology and shared-unit results, not raw lifecycle totals.",
+    "resolved_baseline_warning": "OBJ-018 summary support parity restored",
+    "retained_baseline_warning": "Companion inventory/package shape",
+    "stock_validator": {
+      "command": [
+        "python3",
+        "tools/validation/validate_decomposition_registers.py",
+        "projects/chirality-piping/execution",
+        "--evidence-root",
+        "projects/chirality-piping",
+        "--json",
+        "/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/postchange_audit/register_validation.json",
+        "--max-per-code",
+        "2"
+      ],
+      "exit_code": 1,
+      "before_errors": 2097,
+      "after_errors": 2265,
+      "unchanged_findings": 2097,
+      "resolved": 0,
+      "new_findings": [
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 2,
+          "row_id": "SCA011-E001",
+          "row_class": "ANCHOR",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 3,
+          "row_id": "SCA011-E002",
+          "row_class": "ANCHOR",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 4,
+          "row_id": "SCA011-E003",
+          "row_class": "ANCHOR",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 5,
+          "row_id": "SCA011-E004",
+          "row_class": "ANCHOR",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 6,
+          "row_id": "SCA011-E005",
+          "row_class": "ANCHOR",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 7,
+          "row_id": "SCA011-E006",
+          "row_class": "ANCHOR",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 8,
+          "row_id": "SCA011-E007",
+          "row_class": "ANCHOR",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 9,
+          "row_id": "SCA011-E008",
+          "row_class": "ANCHOR",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 10,
+          "row_id": "SCA011-E023",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 11,
+          "row_id": "SCA011-E024",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 12,
+          "row_id": "SCA011-E025",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 13,
+          "row_id": "SCA011-E026",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 14,
+          "row_id": "SCA011-E027",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 15,
+          "row_id": "SCA011-E028",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 16,
+          "row_id": "SCA011-E029",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 17,
+          "row_id": "SCA011-E030",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 18,
+          "row_id": "SCA011-E031",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 19,
+          "row_id": "SCA011-E032",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 20,
+          "row_id": "SCA011-E033",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 21,
+          "row_id": "SCA011-E034",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 22,
+          "row_id": "SCA011-E035",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 23,
+          "row_id": "SCA011-E036",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 24,
+          "row_id": "SCA011-E037",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 25,
+          "row_id": "SCA011-E038",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 2,
+          "row_id": "SCA011-E001",
+          "row_class": "ANCHOR",
+          "detail": "DependencyID does not start with 'DEP-04-07'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 3,
+          "row_id": "SCA011-E002",
+          "row_class": "ANCHOR",
+          "detail": "DependencyID does not start with 'DEP-04-07'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 4,
+          "row_id": "SCA011-E003",
+          "row_class": "ANCHOR",
+          "detail": "DependencyID does not start with 'DEP-04-07'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 5,
+          "row_id": "SCA011-E004",
+          "row_class": "ANCHOR",
+          "detail": "DependencyID does not start with 'DEP-04-07'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 6,
+          "row_id": "SCA011-E005",
+          "row_class": "ANCHOR",
+          "detail": "DependencyID does not start with 'DEP-04-07'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 7,
+          "row_id": "SCA011-E006",
+          "row_class": "ANCHOR",
+          "detail": "DependencyID does not start with 'DEP-04-07'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 8,
+          "row_id": "SCA011-E007",
+          "row_class": "ANCHOR",
+          "detail": "DependencyID does not start with 'DEP-04-07'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 9,
+          "row_id": "SCA011-E008",
+          "row_class": "ANCHOR",
+          "detail": "DependencyID does not start with 'DEP-04-07'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 10,
+          "row_id": "SCA011-E023",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-04-07'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 11,
+          "row_id": "SCA011-E024",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-04-07'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 12,
+          "row_id": "SCA011-E025",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-04-07'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 13,
+          "row_id": "SCA011-E026",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-04-07'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 14,
+          "row_id": "SCA011-E027",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-04-07'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 15,
+          "row_id": "SCA011-E028",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-04-07'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 16,
+          "row_id": "SCA011-E029",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-04-07'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 17,
+          "row_id": "SCA011-E030",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-04-07'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 18,
+          "row_id": "SCA011-E031",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-04-07'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 19,
+          "row_id": "SCA011-E032",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-04-07'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 20,
+          "row_id": "SCA011-E033",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-04-07'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 21,
+          "row_id": "SCA011-E034",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-04-07'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 22,
+          "row_id": "SCA011-E035",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-04-07'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 23,
+          "row_id": "SCA011-E036",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-04-07'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 24,
+          "row_id": "SCA011-E037",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-04-07'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+          "line": 25,
+          "row_id": "SCA011-E038",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-04-07'"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/Dependencies.csv",
+          "line": 20,
+          "row_id": "SCA011-E075",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/Dependencies.csv",
+          "line": 21,
+          "row_id": "SCA011-E082",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/Dependencies.csv",
+          "line": 20,
+          "row_id": "SCA011-E075",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-07-01'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/Dependencies.csv",
+          "line": 21,
+          "row_id": "SCA011-E082",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-07-01'"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/Dependencies.csv",
+          "line": 19,
+          "row_id": "SCA011-E076",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/Dependencies.csv",
+          "line": 20,
+          "row_id": "SCA011-E077",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/Dependencies.csv",
+          "line": 21,
+          "row_id": "SCA011-E078",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/Dependencies.csv",
+          "line": 19,
+          "row_id": "SCA011-E076",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-07-03'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/Dependencies.csv",
+          "line": 20,
+          "row_id": "SCA011-E077",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-07-03'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/Dependencies.csv",
+          "line": 21,
+          "row_id": "SCA011-E078",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-07-03'"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/Dependencies.csv",
+          "line": 18,
+          "row_id": "SCA011-E079",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/Dependencies.csv",
+          "line": 19,
+          "row_id": "SCA011-E080",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/Dependencies.csv",
+          "line": 18,
+          "row_id": "SCA011-E079",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-07-04'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/Dependencies.csv",
+          "line": 19,
+          "row_id": "SCA011-E080",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-07-04'"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/Dependencies.csv",
+          "line": 31,
+          "row_id": "SCA011-E081",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/Dependencies.csv",
+          "line": 31,
+          "row_id": "SCA011-E081",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-07-08'"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/Dependencies.csv",
+          "line": 2,
+          "row_id": "SCA011-E009",
+          "row_class": "ANCHOR",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/Dependencies.csv",
+          "line": 3,
+          "row_id": "SCA011-E010",
+          "row_class": "ANCHOR",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/Dependencies.csv",
+          "line": 4,
+          "row_id": "SCA011-E011",
+          "row_class": "ANCHOR",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/Dependencies.csv",
+          "line": 5,
+          "row_id": "SCA011-E012",
+          "row_class": "ANCHOR",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/Dependencies.csv",
+          "line": 6,
+          "row_id": "SCA011-E013",
+          "row_class": "ANCHOR",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/Dependencies.csv",
+          "line": 7,
+          "row_id": "SCA011-E039",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/Dependencies.csv",
+          "line": 8,
+          "row_id": "SCA011-E040",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/Dependencies.csv",
+          "line": 9,
+          "row_id": "SCA011-E041",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/Dependencies.csv",
+          "line": 10,
+          "row_id": "SCA011-E042",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/Dependencies.csv",
+          "line": 11,
+          "row_id": "SCA011-E043",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/Dependencies.csv",
+          "line": 12,
+          "row_id": "SCA011-E044",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/Dependencies.csv",
+          "line": 13,
+          "row_id": "SCA011-E045",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/Dependencies.csv",
+          "line": 2,
+          "row_id": "SCA011-E009",
+          "row_class": "ANCHOR",
+          "detail": "DependencyID does not start with 'DEP-07-11'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/Dependencies.csv",
+          "line": 3,
+          "row_id": "SCA011-E010",
+          "row_class": "ANCHOR",
+          "detail": "DependencyID does not start with 'DEP-07-11'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/Dependencies.csv",
+          "line": 4,
+          "row_id": "SCA011-E011",
+          "row_class": "ANCHOR",
+          "detail": "DependencyID does not start with 'DEP-07-11'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/Dependencies.csv",
+          "line": 5,
+          "row_id": "SCA011-E012",
+          "row_class": "ANCHOR",
+          "detail": "DependencyID does not start with 'DEP-07-11'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/Dependencies.csv",
+          "line": 6,
+          "row_id": "SCA011-E013",
+          "row_class": "ANCHOR",
+          "detail": "DependencyID does not start with 'DEP-07-11'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/Dependencies.csv",
+          "line": 7,
+          "row_id": "SCA011-E039",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-07-11'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/Dependencies.csv",
+          "line": 8,
+          "row_id": "SCA011-E040",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-07-11'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/Dependencies.csv",
+          "line": 9,
+          "row_id": "SCA011-E041",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-07-11'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/Dependencies.csv",
+          "line": 10,
+          "row_id": "SCA011-E042",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-07-11'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/Dependencies.csv",
+          "line": 11,
+          "row_id": "SCA011-E043",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-07-11'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/Dependencies.csv",
+          "line": 12,
+          "row_id": "SCA011-E044",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-07-11'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/Dependencies.csv",
+          "line": 13,
+          "row_id": "SCA011-E045",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-07-11'"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 2,
+          "row_id": "SCA011-E014",
+          "row_class": "ANCHOR",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 3,
+          "row_id": "SCA011-E015",
+          "row_class": "ANCHOR",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 4,
+          "row_id": "SCA011-E016",
+          "row_class": "ANCHOR",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 5,
+          "row_id": "SCA011-E017",
+          "row_class": "ANCHOR",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 6,
+          "row_id": "SCA011-E018",
+          "row_class": "ANCHOR",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 7,
+          "row_id": "SCA011-E054",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 8,
+          "row_id": "SCA011-E055",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 9,
+          "row_id": "SCA011-E056",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 10,
+          "row_id": "SCA011-E057",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 11,
+          "row_id": "SCA011-E058",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 12,
+          "row_id": "SCA011-E059",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 13,
+          "row_id": "SCA011-E060",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 14,
+          "row_id": "SCA011-E061",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 15,
+          "row_id": "SCA011-E062",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 16,
+          "row_id": "SCA011-E063",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 17,
+          "row_id": "SCA011-E064",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 18,
+          "row_id": "SCA011-E065",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 19,
+          "row_id": "SCA011-E066",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 20,
+          "row_id": "SCA011-E067",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 21,
+          "row_id": "SCA011-E068",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 22,
+          "row_id": "SCA011-E069",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 23,
+          "row_id": "SCA011-E070",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 24,
+          "row_id": "SCA011-E071",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 25,
+          "row_id": "SCA011-E072",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 26,
+          "row_id": "SCA011-E073",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 27,
+          "row_id": "SCA011-E074",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 2,
+          "row_id": "SCA011-E014",
+          "row_class": "ANCHOR",
+          "detail": "DependencyID does not start with 'DEP-07-12'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 3,
+          "row_id": "SCA011-E015",
+          "row_class": "ANCHOR",
+          "detail": "DependencyID does not start with 'DEP-07-12'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 4,
+          "row_id": "SCA011-E016",
+          "row_class": "ANCHOR",
+          "detail": "DependencyID does not start with 'DEP-07-12'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 5,
+          "row_id": "SCA011-E017",
+          "row_class": "ANCHOR",
+          "detail": "DependencyID does not start with 'DEP-07-12'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 6,
+          "row_id": "SCA011-E018",
+          "row_class": "ANCHOR",
+          "detail": "DependencyID does not start with 'DEP-07-12'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 7,
+          "row_id": "SCA011-E054",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-07-12'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 8,
+          "row_id": "SCA011-E055",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-07-12'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 9,
+          "row_id": "SCA011-E056",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-07-12'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 10,
+          "row_id": "SCA011-E057",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-07-12'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 11,
+          "row_id": "SCA011-E058",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-07-12'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 12,
+          "row_id": "SCA011-E059",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-07-12'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 13,
+          "row_id": "SCA011-E060",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-07-12'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 14,
+          "row_id": "SCA011-E061",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-07-12'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 15,
+          "row_id": "SCA011-E062",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-07-12'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 16,
+          "row_id": "SCA011-E063",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-07-12'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 17,
+          "row_id": "SCA011-E064",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-07-12'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 18,
+          "row_id": "SCA011-E065",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-07-12'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 19,
+          "row_id": "SCA011-E066",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-07-12'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 20,
+          "row_id": "SCA011-E067",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-07-12'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 21,
+          "row_id": "SCA011-E068",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-07-12'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 22,
+          "row_id": "SCA011-E069",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-07-12'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 23,
+          "row_id": "SCA011-E070",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-07-12'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 24,
+          "row_id": "SCA011-E071",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-07-12'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 25,
+          "row_id": "SCA011-E072",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-07-12'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 26,
+          "row_id": "SCA011-E073",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-07-12'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+          "line": 27,
+          "row_id": "SCA011-E074",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-07-12'"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/Dependencies.csv",
+          "line": 24,
+          "row_id": "SCA011-E083",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/Dependencies.csv",
+          "line": 24,
+          "row_id": "SCA011-E083",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-08-04'"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/Dependencies.csv",
+          "line": 18,
+          "row_id": "SCA011-E084",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/Dependencies.csv",
+          "line": 18,
+          "row_id": "SCA011-E084",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-16-03'"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/Dependencies.csv",
+          "line": 2,
+          "row_id": "SCA011-E019",
+          "row_class": "ANCHOR",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/Dependencies.csv",
+          "line": 3,
+          "row_id": "SCA011-E020",
+          "row_class": "ANCHOR",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/Dependencies.csv",
+          "line": 4,
+          "row_id": "SCA011-E021",
+          "row_class": "ANCHOR",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/Dependencies.csv",
+          "line": 5,
+          "row_id": "SCA011-E022",
+          "row_class": "ANCHOR",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/Dependencies.csv",
+          "line": 6,
+          "row_id": "SCA011-E046",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/Dependencies.csv",
+          "line": 7,
+          "row_id": "SCA011-E047",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/Dependencies.csv",
+          "line": 8,
+          "row_id": "SCA011-E048",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/Dependencies.csv",
+          "line": 9,
+          "row_id": "SCA011-E049",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/Dependencies.csv",
+          "line": 10,
+          "row_id": "SCA011-E050",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/Dependencies.csv",
+          "line": 11,
+          "row_id": "SCA011-E051",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/Dependencies.csv",
+          "line": 12,
+          "row_id": "SCA011-E052",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "EVQ-003",
+          "family": "EVQ",
+          "severity": "ERROR",
+          "path": "PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/Dependencies.csv",
+          "line": 13,
+          "row_id": "SCA011-E053",
+          "row_class": "EXECUTION",
+          "detail": "EvidenceQuote is blank; the row asserts a dependency with no quoted source text"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/Dependencies.csv",
+          "line": 2,
+          "row_id": "SCA011-E019",
+          "row_class": "ANCHOR",
+          "detail": "DependencyID does not start with 'DEP-16-06'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/Dependencies.csv",
+          "line": 3,
+          "row_id": "SCA011-E020",
+          "row_class": "ANCHOR",
+          "detail": "DependencyID does not start with 'DEP-16-06'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/Dependencies.csv",
+          "line": 4,
+          "row_id": "SCA011-E021",
+          "row_class": "ANCHOR",
+          "detail": "DependencyID does not start with 'DEP-16-06'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/Dependencies.csv",
+          "line": 5,
+          "row_id": "SCA011-E022",
+          "row_class": "ANCHOR",
+          "detail": "DependencyID does not start with 'DEP-16-06'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/Dependencies.csv",
+          "line": 6,
+          "row_id": "SCA011-E046",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-16-06'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/Dependencies.csv",
+          "line": 7,
+          "row_id": "SCA011-E047",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-16-06'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/Dependencies.csv",
+          "line": 8,
+          "row_id": "SCA011-E048",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-16-06'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/Dependencies.csv",
+          "line": 9,
+          "row_id": "SCA011-E049",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-16-06'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/Dependencies.csv",
+          "line": 10,
+          "row_id": "SCA011-E050",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-16-06'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/Dependencies.csv",
+          "line": 11,
+          "row_id": "SCA011-E051",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-16-06'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/Dependencies.csv",
+          "line": 12,
+          "row_id": "SCA011-E052",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-16-06'"
+        },
+        {
+          "code": "DRB-006",
+          "family": "DRB",
+          "severity": "ERROR",
+          "path": "PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/Dependencies.csv",
+          "line": 13,
+          "row_id": "SCA011-E053",
+          "row_class": "EXECUTION",
+          "detail": "DependencyID does not start with 'DEP-16-06'"
+        }
+      ],
+      "skipped": [
+        "XRG family (Deliverables.csv and/or ScopeLedger.csv absent)"
+      ],
+      "limit": "Stock validator excludes docs/_Registers; explicit parity checks above cover canonical companions."
+    }
+  },
+  "group3_acceptance": false,
+  "core_contracts": {
+    "ARCHITECTURE_BASIS_REFERENCE": 8,
+    "SOW_V1": 97,
+    "ACCEPTED_OPEN_CUSTOM_CONTRACT": 1
+  },
+  "new_control_sets": [
+    {
+      "id": "DEL-04-07",
+      "all_controls_present": true,
+      "envelope": "L",
+      "description_in_context": true,
+      "finite_envelope_notes": "Finite integration boundary; mathematical primitives, convergence policy and engineering acceptance remain with their owners.",
+      "semantic_placeholder": true
+    },
+    {
+      "id": "DEL-07-11",
+      "all_controls_present": true,
+      "envelope": "L",
+      "description_in_context": true,
+      "finite_envelope_notes": "Own common hosting and coordination only; feature-panel semantics, storage, solve UX and architecture remain with their owners.",
+      "semantic_placeholder": true
+    },
+    {
+      "id": "DEL-07-12",
+      "all_controls_present": true,
+      "envelope": "L",
+      "description_in_context": true,
+      "finite_envelope_notes": "Consumption, rendering and explicit dispatch only; no exporters, schema semantics, licensed process invocation or new adapter families.",
+      "semantic_placeholder": true
+    },
+    {
+      "id": "DEL-16-06",
+      "all_controls_present": true,
+      "envelope": "M",
+      "description_in_context": true,
+      "finite_envelope_notes": "One mutation seam; schema, preview, user acceptance, audit policy and durable persistence remain separate responsibilities.",
+      "semantic_placeholder": true
+    }
+  ],
+  "limitations": [
+    "No product tests, engineering acceptance, lifecycle advancement or original evidence recertification.",
+    "Memory read as continuity only, not authority.",
+    "Description intent and all anticipated implementation artifact realization not comprehensively adjudicated."
+  ]
+}

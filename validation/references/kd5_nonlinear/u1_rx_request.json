@@ -1,0 +1,214 @@
+{
+ "model": {
+  "schema_version": "0.1.0",
+  "document_kind": "openpipestress.product_preview.model",
+  "data_boundary": {
+   "public_examples_policy": "invented_or_cleared_data_only",
+   "protected_source_policy": "no_bundled_protected_owner_or_standards_data",
+   "private_data_policy": "no_private_project_data",
+   "professional_boundary": "technical_preview_requires_human_engineering_review"
+  },
+  "project": {
+   "id": "project:kd5-nl-u1rx",
+   "name": "K-D5 nonlinear U-1 rotational twin",
+   "description": "Invented K-D5 nonlinear reference control (DEL-04-01 kd5-nonlinear-active-set.md section 6): U-1 with the one-way support on RX.",
+   "units": {
+    "length": "m",
+    "force": "N",
+    "angle": "rad",
+    "pressure": "Pa",
+    "temperature": "degC",
+    "stress": "MPa"
+   }
+  },
+  "materials": [
+   {
+    "id": "material:ref",
+    "label": "Invented reference material",
+    "elastic_modulus": {
+     "value": 200000000000,
+     "unit": "Pa"
+    },
+    "shear_modulus": {
+     "value": 80000000000,
+     "unit": "Pa"
+    },
+    "thermal_expansion_coefficient": {
+     "value": 1.2e-05,
+     "unit": "1/degC"
+    },
+    "provenance": "invented_kd5_nonlinear_reference"
+   }
+  ],
+  "analysis_status": {
+   "mechanics": "ready_for_preview_diagnostics",
+   "rule_check": "not_performed_user_rule_inputs_missing",
+   "professional_acceptance": "not_provided"
+  },
+  "nodes": [
+   {
+    "id": "node:A",
+    "label": "A",
+    "position": {
+     "x": 0,
+     "y": 0,
+     "z": 0
+    },
+    "provenance": "invented_kd5_nonlinear_reference"
+   },
+   {
+    "id": "node:B",
+    "label": "B",
+    "position": {
+     "x": 2,
+     "y": 0,
+     "z": 0
+    },
+    "provenance": "invented_kd5_nonlinear_reference"
+   },
+   {
+    "id": "node:C",
+    "label": "C",
+    "position": {
+     "x": 2,
+     "y": 2,
+     "z": 0
+    },
+    "provenance": "invented_kd5_nonlinear_reference"
+   }
+  ],
+  "pipe_segments": [
+   {
+    "id": "pipe:AB",
+    "label": "AB",
+    "from": "node:A",
+    "to": "node:B",
+    "section": {
+     "outside_diameter": {
+      "value": 0.168,
+      "unit": "m"
+     },
+     "wall_thickness": {
+      "value": 0.007,
+      "unit": "m"
+     }
+    },
+    "material": "material:ref",
+    "y_reference": {
+     "x": 0,
+     "y": 0,
+     "z": 1
+    },
+    "provenance": "invented_kd5_nonlinear_reference"
+   },
+   {
+    "id": "pipe:BC",
+    "label": "BC",
+    "from": "node:B",
+    "to": "node:C",
+    "section": {
+     "outside_diameter": {
+      "value": 0.168,
+      "unit": "m"
+     },
+     "wall_thickness": {
+      "value": 0.007,
+      "unit": "m"
+     }
+    },
+    "material": "material:ref",
+    "y_reference": {
+     "x": 0,
+     "y": 0,
+     "z": 1
+    },
+    "provenance": "invented_kd5_nonlinear_reference"
+   }
+  ],
+  "supports": [
+   {
+    "id": "support:ANCHOR",
+    "label": "ANCHOR",
+    "node": "node:A",
+    "family": "anchor",
+    "restraints": [
+     "UX",
+     "UY",
+     "UZ",
+     "RX",
+     "RY",
+     "RZ"
+    ],
+    "provenance": "invented_kd5_nonlinear_reference"
+   },
+   {
+    "id": "support:NL-U",
+    "label": "NL-U",
+    "node": "node:C",
+    "family": "nonlinear",
+    "restraints": [],
+    "nonlinear": {
+     "behavior": "one_way",
+     "dof": "RX",
+     "initial_state": "active",
+     "active_when": "positive_reaction"
+    },
+    "provenance": "invented_kd5_nonlinear_reference"
+   }
+  ],
+  "components": [],
+  "load_cases": [
+   {
+    "id": "load:PRESSED",
+    "label": "PRESSED",
+    "kind": "primitive_user_load",
+    "status": "preview_only",
+    "primitive_loads": [
+     {
+      "id": "load:PRESSED-0",
+      "category": "occasional",
+      "target": {
+       "type": "node",
+       "node": "node:C"
+      },
+      "direction": "global_z",
+      "magnitude": {
+       "value": -100,
+       "unit": "N"
+      },
+      "dimension": "force",
+      "provenance": "invented_kd5_nonlinear_reference"
+     }
+    ],
+    "provenance": "invented_kd5_nonlinear_reference"
+   },
+   {
+    "id": "load:LIFTED",
+    "label": "LIFTED",
+    "kind": "primitive_user_load",
+    "status": "preview_only",
+    "primitive_loads": [
+     {
+      "id": "load:LIFTED-0",
+      "category": "occasional",
+      "target": {
+       "type": "node",
+       "node": "node:C"
+      },
+      "direction": "global_z",
+      "magnitude": {
+       "value": 100,
+       "unit": "N"
+      },
+      "dimension": "force",
+      "provenance": "invented_kd5_nonlinear_reference"
+     }
+    ],
+    "provenance": "invented_kd5_nonlinear_reference"
+   }
+  ],
+  "combinations": [],
+  "diagnostics": []
+ },
+ "materials": []
+}

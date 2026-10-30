@@ -1,0 +1,5 @@
+id: DEL-00-07
+name: API boundary and adapter contract map
+needs: []
+checks:
+- tests/test_api_boundary_contract.py

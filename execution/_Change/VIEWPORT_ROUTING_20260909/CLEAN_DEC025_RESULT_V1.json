@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "tested_commit": "cf58e6fe452b56351446311a1c3bab903af4ab8f",
+  "command": "PLAYWRIGHT_WORKERS=1 PYTHONDONTWRITEBYTECODE=1 {QUALIFIED_PYTHON} tools/release/run_evidence_sweep.py --execute",
+  "working_tree_at_sweep_start": "clean",
+  "sweep": {
+    "summary": "validation/evidence/sweeps/SWEEP_20260909T091618Z_cf58e6fe452b.json",
+    "summary_sha256": "d38b91a08946b63dfe6ac84f05e4c6516250ad058d55f0b6fb63e721ae2f409f",
+    "started_utc": "2026-09-09T09:16:18+00:00",
+    "finished_utc": "2026-09-09T09:22:53+00:00",
+    "duration_seconds": 395.054,
+    "overall_status": "pass"
+  },
+  "surfaces": {
+    "G0_cargo_crate_sweep": {
+      "status": "PASS",
+      "crate_manifests": 38
+    },
+    "G1_python_pytest": {
+      "status": "PASS",
+      "passed": 1012
+    },
+    "G2_desktop_vitest": {
+      "status": "PASS",
+      "test_files": 47,
+      "tests": 825
+    },
+    "G3_desktop_playwright_dev": {
+      "status": "PASS",
+      "tests": 30,
+      "workers": 1
+    },
+    "G3_desktop_playwright_dist": {
+      "status": "PASS",
+      "tests": 3,
+      "workers": 1
+    },
+    "G4_desktop_production_build": {
+      "status": "PASS"
+    }
+  },
+  "raw_log": {
+    "path": "execution/_Change/VIEWPORT_ROUTING_20260909/_run_records/CLEAN_DEC025_LOG_V1.base64.json",
+    "wrapper_sha256": "95c2e48bdf7fd70cdf69e9f05791cdf06cd96bae75ad3aa18eef91ae2a224db7",
+    "decoded_sha256": "b732e850baa7c4ecc6bf7f06773abbf1fb16e11197946156c2409dbfcee48a53"
+  },
+  "prior_failures": [
+    "execution/_Change/VIEWPORT_ROUTING_20260909/DEC025_G0_FAILURE_V1.json",
+    "execution/_Change/VIEWPORT_ROUTING_20260909/DEC025_G1_FAILURE_V1.json",
+    "execution/_Change/VIEWPORT_ROUTING_20260909/DEC025_REMAINING_SURFACES_DIAGNOSTIC_V1.json"
+  ],
+  "calibration": "This clean complete run supersedes the failed and nonterminal diagnostic runs for final validation while preserving their evidence."
+}

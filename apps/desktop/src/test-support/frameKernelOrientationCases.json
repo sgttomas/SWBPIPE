@@ -1,0 +1,1892 @@
+{
+ "_description": "Invented inputs and the open_pipe_stress_frame_kernel's own outcome for each: the authored coordinates converted to metres with open_pipe_stress_units::convert_for_dimension, then FrameElement::orientation() (FrameElement::local_x_axis, then FrameOrientation::from_x_axis_and_y_reference). 'metres' are the kernel's converted end coordinates; 'axes' are the kernel's local x, y and z rows in global coordinates; 'refusal' and 'detail' are its error. Produced by compiling a probe against core/solver/frame_kernel and core/units at 55c6a8139f (frame kernel unchanged by this change) and reproduced independently through tools/t3_cargo.sh. Consumed by elementAxes.test.ts.",
+ "cases": [
+  {
+   "id": "m-normal",
+   "unit": "m",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    1.0,
+    1.0,
+    0.0
+   ],
+   "y_reference": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "accepted": true,
+   "axes": [
+    [
+     0.7071067811865476,
+     0.7071067811865476,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0
+    ],
+    [
+     0.7071067811865476,
+     -0.7071067811865476,
+     0.0
+    ]
+   ],
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     1.0,
+     1.0,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "m-near1",
+   "unit": "m",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    1.0,
+    1.0,
+    0.0
+   ],
+   "y_reference": [
+    1.0,
+    1.000001,
+    0.0
+   ],
+   "accepted": false,
+   "refusal": "InvalidOrientation",
+   "detail": "local axes must be mutually orthogonal",
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     1.0,
+     1.0,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "m-near2",
+   "unit": "m",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    1.0,
+    1.0,
+    0.0
+   ],
+   "y_reference": [
+    1.0,
+    1.00006,
+    0.0
+   ],
+   "accepted": true,
+   "axes": [
+    [
+     0.7071067811865476,
+     0.7071067811865476,
+     0.0
+    ],
+    [
+     -0.7071067811865476,
+     0.7071067811865476,
+     0.0
+    ],
+    [
+     0.0,
+     -0.0,
+     1.0
+    ]
+   ],
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     1.0,
+     1.0,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "m-zero",
+   "unit": "m",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    1.0,
+    1.0,
+    0.0
+   ],
+   "y_reference": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "accepted": false,
+   "refusal": "DegenerateAxis",
+   "detail": "y reference parallel to local x axis",
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     1.0,
+     1.0,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "m-parallel",
+   "unit": "m",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    1.0,
+    1.0,
+    0.0
+   ],
+   "y_reference": [
+    1.0,
+    1.0,
+    0.0
+   ],
+   "accepted": false,
+   "refusal": "DegenerateAxis",
+   "detail": "y reference parallel to local x axis",
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     1.0,
+     1.0,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "m-huge",
+   "unit": "m",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    1.0,
+    1.0,
+    0.0
+   ],
+   "y_reference": [
+    1e+308,
+    1e+308,
+    1e+308
+   ],
+   "accepted": false,
+   "refusal": "DegenerateAxis",
+   "detail": "local z axis",
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     1.0,
+     1.0,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "m-small",
+   "unit": "m",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    1.0,
+    1.0,
+    0.0
+   ],
+   "y_reference": [
+    0.0,
+    1e-13,
+    0.0
+   ],
+   "accepted": false,
+   "refusal": "DegenerateAxis",
+   "detail": "y reference parallel to local x axis",
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     1.0,
+     1.0,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "m-kernel-refuses",
+   "unit": "m",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    1.0,
+    2.0,
+    0.0
+   ],
+   "y_reference": [
+    1.0,
+    2.001,
+    0.0
+   ],
+   "accepted": false,
+   "refusal": "InvalidOrientation",
+   "detail": "local axes must be mutually orthogonal",
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     1.0,
+     2.0,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "m-length-8e-13",
+   "unit": "m",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    8e-13,
+    0.0,
+    0.0
+   ],
+   "y_reference": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "accepted": false,
+   "refusal": "DegenerateAxis",
+   "detail": "element length",
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     8e-13,
+     0.0,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "m-length-1e-12",
+   "unit": "m",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    1e-12,
+    0.0,
+    0.0
+   ],
+   "y_reference": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "accepted": false,
+   "refusal": "DegenerateAxis",
+   "detail": "element length",
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     1e-12,
+     0.0,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "m-length-1.2e-12",
+   "unit": "m",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    1.2e-12,
+    0.0,
+    0.0
+   ],
+   "y_reference": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "accepted": true,
+   "axes": [
+    [
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0
+    ],
+    [
+     0.0,
+     -1.0,
+     0.0
+    ]
+   ],
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     1.2e-12,
+     0.0,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "m-translated",
+   "unit": "m",
+   "from": [
+    1024.0,
+    1024.0,
+    1024.0
+   ],
+   "to": [
+    1027.0,
+    1028.0,
+    1024.0
+   ],
+   "y_reference": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "accepted": true,
+   "axes": [
+    [
+     0.6000000000000001,
+     0.8,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0
+    ],
+    [
+     0.8,
+     -0.6000000000000001,
+     0.0
+    ]
+   ],
+   "metres": [
+    [
+     1024.0,
+     1024.0,
+     1024.0
+    ],
+    [
+     1027.0,
+     1028.0,
+     1024.0
+    ]
+   ]
+  },
+  {
+   "id": "mm-normal",
+   "unit": "mm",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    1000.0,
+    1000.0,
+    0.0
+   ],
+   "y_reference": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "accepted": true,
+   "axes": [
+    [
+     0.7071067811865476,
+     0.7071067811865476,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0
+    ],
+    [
+     0.7071067811865476,
+     -0.7071067811865476,
+     0.0
+    ]
+   ],
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     1.0,
+     1.0,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "mm-near1",
+   "unit": "mm",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    1000.0,
+    1000.0,
+    0.0
+   ],
+   "y_reference": [
+    1.0,
+    1.000001,
+    0.0
+   ],
+   "accepted": false,
+   "refusal": "InvalidOrientation",
+   "detail": "local axes must be mutually orthogonal",
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     1.0,
+     1.0,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "mm-near2",
+   "unit": "mm",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    1000.0,
+    1000.0,
+    0.0
+   ],
+   "y_reference": [
+    1.0,
+    1.00006,
+    0.0
+   ],
+   "accepted": true,
+   "axes": [
+    [
+     0.7071067811865476,
+     0.7071067811865476,
+     0.0
+    ],
+    [
+     -0.7071067811865476,
+     0.7071067811865476,
+     0.0
+    ],
+    [
+     0.0,
+     -0.0,
+     1.0
+    ]
+   ],
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     1.0,
+     1.0,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "mm-zero",
+   "unit": "mm",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    1000.0,
+    1000.0,
+    0.0
+   ],
+   "y_reference": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "accepted": false,
+   "refusal": "DegenerateAxis",
+   "detail": "y reference parallel to local x axis",
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     1.0,
+     1.0,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "mm-parallel",
+   "unit": "mm",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    1000.0,
+    1000.0,
+    0.0
+   ],
+   "y_reference": [
+    1.0,
+    1.0,
+    0.0
+   ],
+   "accepted": false,
+   "refusal": "DegenerateAxis",
+   "detail": "y reference parallel to local x axis",
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     1.0,
+     1.0,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "mm-huge",
+   "unit": "mm",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    1000.0,
+    1000.0,
+    0.0
+   ],
+   "y_reference": [
+    1e+308,
+    1e+308,
+    1e+308
+   ],
+   "accepted": false,
+   "refusal": "DegenerateAxis",
+   "detail": "local z axis",
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     1.0,
+     1.0,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "mm-small",
+   "unit": "mm",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    1000.0,
+    1000.0,
+    0.0
+   ],
+   "y_reference": [
+    0.0,
+    1e-13,
+    0.0
+   ],
+   "accepted": false,
+   "refusal": "DegenerateAxis",
+   "detail": "y reference parallel to local x axis",
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     1.0,
+     1.0,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "mm-kernel-refuses",
+   "unit": "mm",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    1000.0,
+    2000.0,
+    0.0
+   ],
+   "y_reference": [
+    1.0,
+    2.001,
+    0.0
+   ],
+   "accepted": false,
+   "refusal": "InvalidOrientation",
+   "detail": "local axes must be mutually orthogonal",
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     1.0,
+     2.0,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "mm-length-8e-13",
+   "unit": "mm",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    8e-10,
+    0.0,
+    0.0
+   ],
+   "y_reference": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "accepted": false,
+   "refusal": "DegenerateAxis",
+   "detail": "element length",
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     8e-13,
+     0.0,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "mm-length-1e-12",
+   "unit": "mm",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    1e-09,
+    0.0,
+    0.0
+   ],
+   "y_reference": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "accepted": true,
+   "axes": [
+    [
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0
+    ],
+    [
+     0.0,
+     -1.0,
+     0.0
+    ]
+   ],
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     1.0000000000000002e-12,
+     0.0,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "mm-length-1.2e-12",
+   "unit": "mm",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    1.2e-09,
+    0.0,
+    0.0
+   ],
+   "y_reference": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "accepted": true,
+   "axes": [
+    [
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0
+    ],
+    [
+     0.0,
+     -1.0,
+     0.0
+    ]
+   ],
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     1.2e-12,
+     0.0,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "mm-translated",
+   "unit": "mm",
+   "from": [
+    1024.0,
+    1024.0,
+    1024.0
+   ],
+   "to": [
+    4024.0,
+    5024.0,
+    1024.0
+   ],
+   "y_reference": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "accepted": true,
+   "axes": [
+    [
+     0.6000000000000001,
+     0.8,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0
+    ],
+    [
+     0.8,
+     -0.6000000000000001,
+     0.0
+    ]
+   ],
+   "metres": [
+    [
+     1.024,
+     1.024,
+     1.024
+    ],
+    [
+     4.024,
+     5.024,
+     1.024
+    ]
+   ]
+  },
+  {
+   "id": "in-normal",
+   "unit": "in",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    39.37007874015748,
+    39.37007874015748,
+    0.0
+   ],
+   "y_reference": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "accepted": true,
+   "axes": [
+    [
+     0.7071067811865476,
+     0.7071067811865476,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0
+    ],
+    [
+     0.7071067811865476,
+     -0.7071067811865476,
+     0.0
+    ]
+   ],
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     1.0,
+     1.0,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "in-near1",
+   "unit": "in",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    39.37007874015748,
+    39.37007874015748,
+    0.0
+   ],
+   "y_reference": [
+    1.0,
+    1.000001,
+    0.0
+   ],
+   "accepted": false,
+   "refusal": "InvalidOrientation",
+   "detail": "local axes must be mutually orthogonal",
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     1.0,
+     1.0,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "in-near2",
+   "unit": "in",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    39.37007874015748,
+    39.37007874015748,
+    0.0
+   ],
+   "y_reference": [
+    1.0,
+    1.00006,
+    0.0
+   ],
+   "accepted": true,
+   "axes": [
+    [
+     0.7071067811865476,
+     0.7071067811865476,
+     0.0
+    ],
+    [
+     -0.7071067811865476,
+     0.7071067811865476,
+     0.0
+    ],
+    [
+     0.0,
+     -0.0,
+     1.0
+    ]
+   ],
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     1.0,
+     1.0,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "in-zero",
+   "unit": "in",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    39.37007874015748,
+    39.37007874015748,
+    0.0
+   ],
+   "y_reference": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "accepted": false,
+   "refusal": "DegenerateAxis",
+   "detail": "y reference parallel to local x axis",
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     1.0,
+     1.0,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "in-parallel",
+   "unit": "in",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    39.37007874015748,
+    39.37007874015748,
+    0.0
+   ],
+   "y_reference": [
+    1.0,
+    1.0,
+    0.0
+   ],
+   "accepted": false,
+   "refusal": "DegenerateAxis",
+   "detail": "y reference parallel to local x axis",
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     1.0,
+     1.0,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "in-huge",
+   "unit": "in",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    39.37007874015748,
+    39.37007874015748,
+    0.0
+   ],
+   "y_reference": [
+    1e+308,
+    1e+308,
+    1e+308
+   ],
+   "accepted": false,
+   "refusal": "DegenerateAxis",
+   "detail": "local z axis",
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     1.0,
+     1.0,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "in-small",
+   "unit": "in",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    39.37007874015748,
+    39.37007874015748,
+    0.0
+   ],
+   "y_reference": [
+    0.0,
+    1e-13,
+    0.0
+   ],
+   "accepted": false,
+   "refusal": "DegenerateAxis",
+   "detail": "y reference parallel to local x axis",
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     1.0,
+     1.0,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "in-kernel-refuses",
+   "unit": "in",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    39.37007874015748,
+    78.74015748031496,
+    0.0
+   ],
+   "y_reference": [
+    1.0,
+    2.001,
+    0.0
+   ],
+   "accepted": false,
+   "refusal": "InvalidOrientation",
+   "detail": "local axes must be mutually orthogonal",
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     1.0,
+     2.0,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "in-length-8e-13",
+   "unit": "in",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    3.149606299212599e-11,
+    0.0,
+    0.0
+   ],
+   "y_reference": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "accepted": false,
+   "refusal": "DegenerateAxis",
+   "detail": "element length",
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     8e-13,
+     0.0,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "in-length-1e-12",
+   "unit": "in",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    3.937007874015748e-11,
+    0.0,
+    0.0
+   ],
+   "y_reference": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "accepted": false,
+   "refusal": "DegenerateAxis",
+   "detail": "element length",
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     1e-12,
+     0.0,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "in-length-1.2e-12",
+   "unit": "in",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    4.724409448818898e-11,
+    0.0,
+    0.0
+   ],
+   "y_reference": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "accepted": true,
+   "axes": [
+    [
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0
+    ],
+    [
+     0.0,
+     -1.0,
+     0.0
+    ]
+   ],
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     1.2e-12,
+     0.0,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "in-translated",
+   "unit": "in",
+   "from": [
+    1024.0,
+    1024.0,
+    1024.0
+   ],
+   "to": [
+    1142.1102362204724,
+    1181.48031496063,
+    1024.0
+   ],
+   "y_reference": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "accepted": true,
+   "axes": [
+    [
+     0.5999999999999996,
+     0.8000000000000003,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0
+    ],
+    [
+     0.8000000000000003,
+     -0.5999999999999996,
+     0.0
+    ]
+   ],
+   "metres": [
+    [
+     26.0096,
+     26.0096,
+     26.0096
+    ],
+    [
+     29.0096,
+     30.009600000000002,
+     26.0096
+    ]
+   ]
+  },
+  {
+   "id": "ft-normal",
+   "unit": "ft",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    3.280839895013123,
+    3.280839895013123,
+    0.0
+   ],
+   "y_reference": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "accepted": true,
+   "axes": [
+    [
+     0.7071067811865476,
+     0.7071067811865476,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0
+    ],
+    [
+     0.7071067811865476,
+     -0.7071067811865476,
+     0.0
+    ]
+   ],
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.9999999999999999,
+     0.9999999999999999,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "ft-near1",
+   "unit": "ft",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    3.280839895013123,
+    3.280839895013123,
+    0.0
+   ],
+   "y_reference": [
+    1.0,
+    1.000001,
+    0.0
+   ],
+   "accepted": false,
+   "refusal": "InvalidOrientation",
+   "detail": "local axes must be mutually orthogonal",
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.9999999999999999,
+     0.9999999999999999,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "ft-near2",
+   "unit": "ft",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    3.280839895013123,
+    3.280839895013123,
+    0.0
+   ],
+   "y_reference": [
+    1.0,
+    1.00006,
+    0.0
+   ],
+   "accepted": true,
+   "axes": [
+    [
+     0.7071067811865476,
+     0.7071067811865476,
+     0.0
+    ],
+    [
+     -0.7071067811865476,
+     0.7071067811865476,
+     0.0
+    ],
+    [
+     0.0,
+     -0.0,
+     1.0
+    ]
+   ],
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.9999999999999999,
+     0.9999999999999999,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "ft-zero",
+   "unit": "ft",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    3.280839895013123,
+    3.280839895013123,
+    0.0
+   ],
+   "y_reference": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "accepted": false,
+   "refusal": "DegenerateAxis",
+   "detail": "y reference parallel to local x axis",
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.9999999999999999,
+     0.9999999999999999,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "ft-parallel",
+   "unit": "ft",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    3.280839895013123,
+    3.280839895013123,
+    0.0
+   ],
+   "y_reference": [
+    1.0,
+    1.0,
+    0.0
+   ],
+   "accepted": false,
+   "refusal": "DegenerateAxis",
+   "detail": "y reference parallel to local x axis",
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.9999999999999999,
+     0.9999999999999999,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "ft-huge",
+   "unit": "ft",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    3.280839895013123,
+    3.280839895013123,
+    0.0
+   ],
+   "y_reference": [
+    1e+308,
+    1e+308,
+    1e+308
+   ],
+   "accepted": false,
+   "refusal": "DegenerateAxis",
+   "detail": "local z axis",
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.9999999999999999,
+     0.9999999999999999,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "ft-small",
+   "unit": "ft",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    3.280839895013123,
+    3.280839895013123,
+    0.0
+   ],
+   "y_reference": [
+    0.0,
+    1e-13,
+    0.0
+   ],
+   "accepted": false,
+   "refusal": "DegenerateAxis",
+   "detail": "y reference parallel to local x axis",
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.9999999999999999,
+     0.9999999999999999,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "ft-kernel-refuses",
+   "unit": "ft",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    3.280839895013123,
+    6.561679790026246,
+    0.0
+   ],
+   "y_reference": [
+    1.0,
+    2.001,
+    0.0
+   ],
+   "accepted": false,
+   "refusal": "InvalidOrientation",
+   "detail": "local axes must be mutually orthogonal",
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.9999999999999999,
+     1.9999999999999998,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "ft-length-8e-13",
+   "unit": "ft",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    2.6246719160104986e-12,
+    0.0,
+    0.0
+   ],
+   "y_reference": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "accepted": false,
+   "refusal": "DegenerateAxis",
+   "detail": "element length",
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     8e-13,
+     0.0,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "ft-length-1e-12",
+   "unit": "ft",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    3.280839895013123e-12,
+    0.0,
+    0.0
+   ],
+   "y_reference": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "accepted": false,
+   "refusal": "DegenerateAxis",
+   "detail": "element length",
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     1e-12,
+     0.0,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "ft-length-1.2e-12",
+   "unit": "ft",
+   "from": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "to": [
+    3.9370078740157476e-12,
+    0.0,
+    0.0
+   ],
+   "y_reference": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "accepted": true,
+   "axes": [
+    [
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0
+    ],
+    [
+     0.0,
+     -1.0,
+     0.0
+    ]
+   ],
+   "metres": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     1.2e-12,
+     0.0,
+     0.0
+    ]
+   ]
+  },
+  {
+   "id": "ft-translated",
+   "unit": "ft",
+   "from": [
+    1024.0,
+    1024.0,
+    1024.0
+   ],
+   "to": [
+    1033.8425196850394,
+    1037.1233595800525,
+    1024.0
+   ],
+   "y_reference": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "accepted": true,
+   "axes": [
+    [
+     0.6000000000000001,
+     0.8,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0
+    ],
+    [
+     0.8,
+     -0.6000000000000001,
+     0.0
+    ]
+   ],
+   "metres": [
+    [
+     312.1152,
+     312.1152,
+     312.1152
+    ],
+    [
+     315.1152,
+     316.1152,
+     312.1152
+    ]
+   ]
+  }
+ ]
+}

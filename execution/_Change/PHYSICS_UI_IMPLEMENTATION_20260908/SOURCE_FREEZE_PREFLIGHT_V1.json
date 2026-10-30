@@ -1,0 +1,72 @@
+{
+  "record_kind": "change_source_freeze_preflight",
+  "schema_version": "1.0",
+  "path_basis": "REPO_ROOT",
+  "recorded_at_utc": "2026-09-08T20:25:41Z",
+  "recorded_by": {
+    "task_identity": "/root/implementation_change",
+    "role": "CHANGE",
+    "model": "gpt-5.6-sol",
+    "reasoning": "high",
+    "delegation": false
+  },
+  "branch": "codex/piping-physics-ui-implementation-20260908",
+  "base_head": "55df51ac3201456e0f181823e3aefefef47a73bb",
+  "refreshed_origin_main": "781b478176db46ca66ebd38991607612e0ce9338",
+  "upstream_since_base": {
+    "path_count": 95,
+    "piping_overlap": false,
+    "classification": "PEC_ONLY"
+  },
+  "accepted_plan_sha256": "0a3a009ca3529b93b08e8243283a1879475ad9022c6e4c4ea838b0af5ca41195",
+  "accepted_prepublication_handoff_sha256": "16a324507dbd7706fe0162cea381f2149de50b0d0ef24bb6b66c0943a9588eaf",
+  "entry_checks": {
+    "receipt_validator": {
+      "exit_code": 0,
+      "result": "VALID",
+      "latest_cursor_read_after_validation": "Receipt-136"
+    },
+    "repository_self_check": {
+      "exit_code": 0,
+      "result": "COMPLETED",
+      "note": "Reported existing repository-level INFO/WARN/REVIEW findings; no new candidate-specific failure."
+    },
+    "path_anchor_validator": {
+      "exit_code": 0,
+      "result": "PASS",
+      "live_surfaces": 4208
+    },
+    "candidate_whitespace_validator": {
+      "exit_code": 0,
+      "result": "PASS",
+      "untracked_binary_or_symlink_paths_safely_skipped": 23
+    },
+    "candidate_json_parse": {
+      "result": "PASS"
+    },
+    "candidate_crlf": {
+      "result": "PASS",
+      "count": 0
+    },
+    "candidate_final_lf": {
+      "result": "PASS",
+      "missing_count": 0
+    },
+    "candidate_allowlist": {
+      "result": "PASS",
+      "status_entries": 22,
+      "candidate_files_inspected": 143
+    }
+  },
+  "source_binding": {
+    "member_count": 10,
+    "all_member_hashes_match": true,
+    "source_member_set_sha256": "1180436540fcb8025a5029b16f8d6e019928eeaa6fab74c434772ca6ec78cefe"
+  },
+  "original_local_handoff": {
+    "path": "projects/chirality-piping/plans/HANDOFF_2026-09-06_agent0_session_transition.md",
+    "sha256": "ebbed866266cc961344151519b2792c6cfc5889eb18143a7809be69700c56035",
+    "preserved": true
+  },
+  "result": "PASS_SOURCE_FREEZE_ALLOWED"
+}

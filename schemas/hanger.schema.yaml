@@ -1,0 +1,337 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openpipestress.org/schemas/hanger.schema.yaml",
+  "title": "User supplied hanger library",
+  "description": "Explicit imported values only; import validity does not establish solve readiness. Duplicate hanger_id values are rejected by the import boundary.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "hanger_library",
+    "hanger_records"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "hanger_library": {
+      "$ref": "#/$defs/LibraryMetadata"
+    },
+    "hanger_records": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/HangerRecord"
+      }
+    }
+  },
+  "$defs": {
+    "PrivacyClass": {
+      "type": "string",
+      "enum": [
+        "public_schema_only",
+        "public_permissive_reviewed",
+        "private_user_supplied",
+        "project_private",
+        "TBD"
+      ]
+    },
+    "RedistributionStatus": {
+      "type": "string",
+      "enum": [
+        "public_permissive",
+        "private_only",
+        "unknown",
+        "protected_suspected",
+        "rejected",
+        "TBD"
+      ]
+    },
+    "ReviewStatus": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "accepted",
+        "rejected",
+        "quarantined",
+        "TBD"
+      ]
+    },
+    "Text": {
+      "type": "string",
+      "pattern": "\\S"
+    },
+    "Provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_name",
+        "source_location",
+        "source_license",
+        "contributor",
+        "contributor_certification",
+        "redistribution_status",
+        "review_status"
+      ],
+      "properties": {
+        "source_name": {
+          "$ref": "#/$defs/Text"
+        },
+        "source_location": {
+          "$ref": "#/$defs/Text"
+        },
+        "source_license": {
+          "$ref": "#/$defs/Text"
+        },
+        "contributor": {
+          "$ref": "#/$defs/Text"
+        },
+        "contributor_certification": {
+          "$ref": "#/$defs/Text"
+        },
+        "redistribution_status": {
+          "$ref": "#/$defs/RedistributionStatus"
+        },
+        "review_status": {
+          "$ref": "#/$defs/ReviewStatus"
+        }
+      }
+    },
+    "LibraryMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "library_id",
+        "name",
+        "provenance"
+      ],
+      "properties": {
+        "library_id": {
+          "$ref": "#/$defs/Text"
+        },
+        "name": {
+          "$ref": "#/$defs/Text"
+        },
+        "library_scope": {
+          "type": "string",
+          "enum": [
+            "public_schema_fixture",
+            "public_permissive_reviewed",
+            "private_user_library",
+            "project_private",
+            "TBD"
+          ]
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "privacy_class": {
+          "$ref": "#/$defs/PrivacyClass"
+        },
+        "redistribution_status": {
+          "$ref": "#/$defs/RedistributionStatus"
+        },
+        "review_status": {
+          "$ref": "#/$defs/ReviewStatus"
+        }
+      }
+    },
+    "ForceQuantity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "magnitude",
+        "unit",
+        "dimension",
+        "provenance"
+      ],
+      "properties": {
+        "magnitude": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "unit": {
+          "type": "string",
+          "enum": [
+            "N",
+            "lbf"
+          ]
+        },
+        "dimension": {
+          "type": "string",
+          "const": "force"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "LengthQuantity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "magnitude",
+        "unit",
+        "dimension",
+        "provenance"
+      ],
+      "properties": {
+        "magnitude": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "unit": {
+          "type": "string",
+          "enum": [
+            "m",
+            "mm",
+            "in",
+            "ft"
+          ]
+        },
+        "dimension": {
+          "type": "string",
+          "const": "length"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "StiffnessQuantity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "magnitude",
+        "unit",
+        "dimension",
+        "provenance"
+      ],
+      "properties": {
+        "magnitude": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "unit": {
+          "type": "string",
+          "enum": [
+            "N/m",
+            "lbf/ft",
+            "lbf/in"
+          ]
+        },
+        "dimension": {
+          "type": "string",
+          "const": "force_per_length"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "Stiffness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dof",
+        "value"
+      ],
+      "properties": {
+        "dof": {
+          "type": "string",
+          "enum": [
+            "UX",
+            "UY",
+            "UZ"
+          ]
+        },
+        "value": {
+          "$ref": "#/$defs/StiffnessQuantity"
+        }
+      }
+    },
+    "Hanger": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hanger_type",
+        "source_reference"
+      ],
+      "properties": {
+        "hanger_type": {
+          "type": "string",
+          "enum": [
+            "variable_spring_hanger",
+            "constant_effort_support"
+          ]
+        },
+        "source_reference": {
+          "$ref": "#/$defs/Text"
+        },
+        "manufacturer_reference": {
+          "$ref": "#/$defs/Text"
+        },
+        "load_side_review_reference": {
+          "$ref": "#/$defs/Text"
+        },
+        "mechanics_consumption": {
+          "$ref": "#/$defs/Text"
+        },
+        "stiffness": {
+          "$ref": "#/$defs/Stiffness"
+        },
+        "installed_load": {
+          "$ref": "#/$defs/ForceQuantity"
+        },
+        "cold_load": {
+          "$ref": "#/$defs/ForceQuantity"
+        },
+        "hot_load": {
+          "$ref": "#/$defs/ForceQuantity"
+        },
+        "constant_load": {
+          "$ref": "#/$defs/ForceQuantity"
+        },
+        "travel_range": {
+          "$ref": "#/$defs/LengthQuantity"
+        },
+        "movement_limit": {
+          "$ref": "#/$defs/LengthQuantity"
+        }
+      }
+    },
+    "HangerRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hanger_id",
+        "name",
+        "hanger",
+        "provenance"
+      ],
+      "properties": {
+        "hanger_id": {
+          "$ref": "#/$defs/Text"
+        },
+        "name": {
+          "$ref": "#/$defs/Text"
+        },
+        "hanger": {
+          "$ref": "#/$defs/Hanger"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "privacy_class": {
+          "$ref": "#/$defs/PrivacyClass"
+        },
+        "redistribution_status": {
+          "$ref": "#/$defs/RedistributionStatus"
+        },
+        "review_status": {
+          "$ref": "#/$defs/ReviewStatus"
+        }
+      }
+    }
+  }
+}

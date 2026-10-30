@@ -1,0 +1,123 @@
+---
+doc_id: OPS-REPORT-NOTICE-TEMPLATE
+doc_kind: report.notice_template
+status: draft
+created: 2026-05-01
+deliverable_id: DEL-01-04
+refs:
+  - rel: governed_by
+    to: OPS-PROFESSIONAL-BOUNDARY
+  - rel: governed_by
+    to: OPS-IP-DATA-BOUNDARY
+---
+
+# Report Notice Template
+
+This template defines baseline notice language for SWBPIPE-generated
+reports and public report-template examples. Report generators may format this
+content for the target output, but the professional-boundary meaning must be
+preserved. Boundary-statement vocabulary for all other surfaces is governed by
+`docs/claims_registry.md` (DEC-081); this template is the home of the PRD
+§19.3 composite notice.
+
+## Current Authority Basis
+
+This draft notice template is aligned to
+the accepted `execution/_Decomposition/SOFTWARE_DECOMP.md` and the approved
+graph selected by `execution/_DAG/_LATEST.md`. The project license has been selected as
+`MIT`; report notices may cite that project license
+notice, but it is not legal advice, professional approval, or code-compliance
+evidence.
+
+Release-label vocabulary, human-acceptance workflow, legal-review authority,
+and jurisdiction-specific professional-practice wording remain `TBD`.
+
+## Required Notice
+
+The required notice is the PRD §19.3 composite, quoted verbatim (changes
+require a PRD-level owner act):
+
+```text
+SWBPIPE is decision-support software for piping design, flexibility,
+and stress-analysis workflows. It computes mechanical results from recorded
+user inputs and may evaluate user-supplied rule packs. It does not certify,
+seal, approve, authenticate, or determine code compliance for professional
+reliance. Code-specific and project-specific data are supplied by the user or
+user-controlled private sources. Competent human review and, where required,
+validation in accepted professional tools remain the responsibility of the
+user and project authority.
+```
+
+Where a report includes design-authoring records, comparison outputs, handoff
+packages, export metadata, or external-prover references, the report must
+also state:
+
+```text
+Design-authoring records, comparison outputs, handoff packages, export
+metadata, and external-prover references are review aids only unless a separate
+competent human acceptance record states otherwise for the bound project basis.
+```
+
+## Report Metadata Slots
+
+Generated reports should include these fields or equivalent structured
+metadata:
+
+| Field | Requirement |
+|---|---|
+| Software version | SWBPIPE version or commit basis used to generate the report. |
+| Project license notice | `MIT` where report packaging includes project governance notices. |
+| Model hash | Hash of the model basis used for the reported results. |
+| Input manifest hash | Hash or reference for the input manifest where implemented. |
+| Rule-pack reference | Rule-pack ID, version, checksum, source note, and public/private marker when rule checks are included. |
+| Report hash | Hash or stable identifier for the rendered report where implemented. |
+| Units basis | Recorded unit system and unit-conversion basis. |
+| Warnings and assumptions | All active warnings, missing-input findings, assumptions, and limitations relevant to review. |
+| Provenance notes | Source/provenance/license or private-source notes for user-supplied data where engineering reliance may be affected. |
+| Human acceptance reference | Optional external human-review record, if one exists, bound to the applicable hashes. |
+| Handoff/export references | Optional handoff packages, export package IDs, comparison records, or external-prover metadata, marked as review evidence only. |
+
+## Optional Human Acceptance Notice
+
+Use this section only when an external human acceptance record exists. Do not
+populate it automatically from solver or rule-pack output.
+
+```text
+Human acceptance reference: <TBD external record ID or location>
+Accepted scope: <TBD scope statement>
+Accepted by: <TBD human authority>
+Acceptance date: <TBD date>
+Bound model hash: <TBD hash>
+Bound rule-pack checksum: <TBD checksum or not applicable>
+Bound report hash: <TBD hash>
+
+This acceptance reference applies only to the bound model, rule-pack, report,
+input manifest, software basis, assumptions, warnings, and limitations recorded
+above. Changes to those bound items require re-review before reliance.
+```
+
+## Protected-Content Notice
+
+Public report templates and public examples must not include protected
+standards text, protected tables, protected examples, proprietary engineering
+values, private project data, private owner standards, private rule packs, or
+proprietary component libraries.
+
+Private project reports may reference user-controlled private material when
+the user intentionally includes it in a private workflow. That private use does
+not make the material suitable for public repository fixtures, public examples,
+or public documentation.
+
+## Review Checklist
+
+Before publication or release of a report template, verify:
+
+| Check | Pass condition |
+|---|---|
+| Boundary notice | Required notice is present or preserved in equivalent wording. |
+| Status separation | Mechanics solve, user-rule check, warnings, and human acceptance are separate. |
+| Hash binding | Human acceptance reference, if present, binds to model, rule-pack, report, and input basis. |
+| Protected content | No protected standards text, tables, examples, copied formulas, or proprietary values appear in public template text. |
+| Private data | Public examples omit private project, owner-standard, material-library, component-library, and rule-pack data. |
+| Claims | The report does not state or imply certification, sealing, endorsement, automatic approval, or code compliance for reliance. |
+| Handoff/export boundary | Handoff, export, comparison, and external-prover references are framed as workflow evidence or review aids only. |

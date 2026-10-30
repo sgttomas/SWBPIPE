@@ -1,0 +1,148 @@
+{
+  "run_label": "SCA-011_PRECHANGE_20260922",
+  "timestamp": "2026-09-22T16:31:24.670118+00:00",
+  "decomp_variant": "SOFTWARE",
+  "expected_source_snapshot": "008ef6a4e370822c65eb26ddd792752b4267c7ab",
+  "expected_handoff_phase": "PRECHANGE_BASELINE_ONLY",
+  "decomposition_path": "projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md",
+  "decomposition_revision": "0.12",
+  "scope": [
+    "PKG-02",
+    "PKG-03",
+    "PKG-04",
+    "PKG-05",
+    "PKG-07",
+    "PKG-08",
+    "PKG-09",
+    "PKG-10",
+    "PKG-12",
+    "PKG-13",
+    "PKG-14",
+    "PKG-15",
+    "PKG-16",
+    "PKG-17"
+  ],
+  "repository_topology": {
+    "packages": 18,
+    "deliverables": 102,
+    "objectives": 18,
+    "scope_items": 77,
+    "ledger_rows": 77
+  },
+  "partitions_declared": 14,
+  "partitions_found": 14,
+  "production_units_declared": 80,
+  "production_units_found": 80,
+  "forward_coverage_partitions_pct": 100.0,
+  "forward_coverage_production_units_pct": 100.0,
+  "reverse_coverage_pct": 100.0,
+  "context_fidelity_pct": 100.0,
+  "context_fidelity_limit": "Identity/name/type/package/envelope fields only; description intent and all anticipated implementation artifacts not comprehensively adjudicated.",
+  "artifact_presence_pct": null,
+  "artifact_presence_limit": "Core SoW or accepted OPEN contract files inventoried; product artifact realization not recounted.",
+  "objective_coverage_pct": 100.0,
+  "deliverables_without_objective_mapping": 0,
+  "in_ledger_rows_without_objective_mapping": 0,
+  "package_shape_conformance": "WARN",
+  "derivative_package_status": "SKIPPED",
+  "active_snapshot_status": "PASS",
+  "handoff_state_status": "PASS",
+  "objective_evidence_integrity": "FAIL",
+  "issues_blocker": 0,
+  "issues_warning": 2,
+  "issues_info": 2,
+  "check_count": 12,
+  "lifecycle_distribution": {
+    "IN_PROGRESS": 79,
+    "OPEN": 1
+  },
+  "overall_status": "WARNINGS",
+  "closure_readiness": "WARN",
+  "concrete_labels": {
+    "partition": "Package",
+    "production_unit": "Deliverable"
+  },
+  "semantic_bindings": {
+    "Ledger": {
+      "heading": "9. Scope ledger summary",
+      "line": 463,
+      "normalized": "scope ledger summary",
+      "match_mode": "prefix",
+      "ambiguity": false
+    },
+    "Objectives_reference": {
+      "heading": "5. Objectives",
+      "line": 187,
+      "normalized": "objectives",
+      "match_mode": "exact",
+      "ambiguity": false
+    },
+    "Partitions": {
+      "heading": "6. Packages",
+      "line": 211,
+      "normalized": "packages",
+      "match_mode": "exact",
+      "ambiguity": false
+    },
+    "Production Units": {
+      "heading": "7. Deliverables",
+      "line": 235,
+      "normalized": "deliverables",
+      "match_mode": "exact",
+      "ambiguity": false
+    }
+  },
+  "baseline_note": "Accepted tracked snapshot only, not concurrent candidate or product completion. SCA-010 is evaluated against its own accepted compact contract; the current full-template difference is informational and creates no retroactive gate.",
+  "objective_coverage_limit": "All 18 ledger objectives have at least one tracked materialized production-unit support. OBJ-018 summary support identities disagree; see issue log.",
+  "core_artifact_validation": {
+    "SoW_validated": 79,
+    "accepted_open_custom_contract": 1,
+    "full_anticipated_artifact_realization": "INCOMPLETE"
+  }
+}
+ISSUES [
+  {
+    "IssueID": "COV-001",
+    "CheckNumber": "7",
+    "Severity": "WARNING",
+    "EntityType": "OBJECTIVE",
+    "ConcreteLabel": "Objective",
+    "EntityID": "OBJ-018",
+    "Description": "Objective summary support IDs differ from deliverable mappings: omitted DEL-13-02; extra DEL-12-02",
+    "DecompositionRef": "projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md section Objectives row OBJ-018",
+    "FilesystemRef": "projects/chirality-piping/docs/_Registers/Deliverables.csv"
+  },
+  {
+    "IssueID": "COV-002",
+    "CheckNumber": "9b",
+    "Severity": "WARNING",
+    "EntityType": "PARTITION",
+    "ConcreteLabel": "Package",
+    "EntityID": "DECOMPOSITION",
+    "Description": "Working-surface label exists but no explicit companion inventory; heavy inline deliverable/ledger duplication requires coordinated parity updates",
+    "DecompositionRef": "projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md:3; sections 7 and 9",
+    "FilesystemRef": "projects/chirality-piping/docs/_Registers"
+  },
+  {
+    "IssueID": "COV-003",
+    "CheckNumber": "10",
+    "Severity": "INFO",
+    "EntityType": "SNAPSHOT",
+    "ConcreteLabel": "Snapshot",
+    "EntityID": "SCA-010",
+    "Description": "The accepted compact rename snapshot follows its own Brief and Acceptance Record. It differs from the currently selected full scope-change template; this is historical-method compatibility, not failed closure, missing accepted obligations, or a new gate.",
+    "DecompositionRef": "projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md section Decision log DEC-101",
+    "FilesystemRef": "projects/chirality-piping/execution/_ScopeChange/SCA-010_2026-09-18_1400"
+  },
+  {
+    "IssueID": "COV-004",
+    "CheckNumber": "8",
+    "Severity": "INFO",
+    "EntityType": "DERIVATIVE_SURFACE",
+    "ConcreteLabel": "Package",
+    "EntityID": "LOCAL_MIRRORS",
+    "Description": "Stock register tool reports 2097 baseline errors in local mirrors and skips cross-register parity because companions live at docs/_Registers; see raw evidence and scope limitations",
+    "DecompositionRef": "projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md section Scope ledger",
+    "FilesystemRef": "projects/chirality-piping/execution/_DAG/_LATEST.md"
+  }
+]

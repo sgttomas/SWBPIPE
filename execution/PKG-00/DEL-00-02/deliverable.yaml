@@ -1,0 +1,7 @@
+id: DEL-00-02
+name: Repository and module boundary architecture
+needs: []
+code_paths:
+- apps/desktop
+- apps/desktop/
+- core/model_operations/operation_applier

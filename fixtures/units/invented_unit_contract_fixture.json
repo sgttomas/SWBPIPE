@@ -1,0 +1,286 @@
+{
+  "schema_version": "0.1.0",
+  "unit_system": {
+    "unit_system_id": "unit-system:invented-foundation",
+    "name": "Invented unit foundation",
+    "basis": "project_declared",
+    "storage_convention": "entered_units_preserved",
+    "base_dimensions": [
+      "length",
+      "mass",
+      "time",
+      "temperature",
+      "angle"
+    ],
+    "units": [
+      {
+        "unit_id": "unit:invented-meter",
+        "symbol": "m",
+        "name": "Invented meter marker",
+        "dimension_id": "length",
+        "quantity_kind": "unit_bearing",
+        "provenance": {
+          "source_name": "PKG-02 invented unit fixture",
+          "source_location": "fixtures/units/invented_unit_contract_fixture.json",
+          "source_license": "project invented public example",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "invented non-engineering example",
+          "redistribution_status": "public_permissive",
+          "review_status": "accepted"
+        },
+        "review_status": "accepted"
+      }
+    ],
+    "provenance": {
+      "source_name": "PKG-02 invented unit fixture",
+      "source_location": "fixtures/units/invented_unit_contract_fixture.json",
+      "source_license": "project invented public example",
+      "contributor": "OpenPipeStress Type 2 worker",
+      "contributor_certification": "invented non-engineering example",
+      "redistribution_status": "public_permissive",
+      "review_status": "accepted"
+    },
+    "review_status": "accepted"
+  },
+  "dimension_records": [
+    {
+      "dimension_id": "length",
+      "name": "Length",
+      "dimension_vector": {
+        "length": 1,
+        "mass": 0,
+        "time": 0,
+        "temperature": 0,
+        "angle": 0,
+        "electric_current": 0,
+        "substance_amount": 0,
+        "luminous_intensity": 0
+      },
+      "status": "accepted"
+    },
+    {
+      "dimension_id": "force",
+      "name": "Force",
+      "dimension_vector": {
+        "length": 1,
+        "mass": 1,
+        "time": -2,
+        "temperature": 0,
+        "angle": 0,
+        "electric_current": 0,
+        "substance_amount": 0,
+        "luminous_intensity": 0
+      },
+      "status": "accepted"
+    }
+  ],
+  "quantity_records": [
+    {
+      "quantity_id": "quantity:invented-missing-load-unit",
+      "name": "Invented missing load unit",
+      "quantity_kind": "unit_bearing",
+      "magnitude": 1.0,
+      "unit_ref": {
+        "ref_type": "UnitDefinition",
+        "ref_id": "unit:TBD"
+      },
+      "dimension_id": "force",
+      "unit_required": true,
+      "missing_unit_behavior": "diagnostic_blocking",
+      "entered_representation": "1.0 with unit intentionally unresolved for diagnostics evidence",
+      "provenance": {
+        "source_name": "PKG-02 invented unit fixture",
+        "source_location": "fixtures/units/invented_unit_contract_fixture.json",
+        "source_license": "project invented public example",
+        "contributor": "OpenPipeStress Type 2 worker",
+        "contributor_certification": "invented non-engineering example",
+        "redistribution_status": "public_permissive",
+        "review_status": "accepted"
+      }
+    }
+  ],
+  "conversion_declarations": [
+    {
+      "conversion_id": "conversion:invented-force-unresolved",
+      "source_unit_ref": {
+        "ref_type": "UnitDefinition",
+        "ref_id": "unit:TBD"
+      },
+      "target_unit_ref": {
+        "ref_type": "UnitDefinition",
+        "ref_id": "unit:TBD"
+      },
+      "dimension_id": "force",
+      "transform_kind": "unsupported_TBD",
+      "factor_representation": "TBD",
+      "provenance": {
+        "source_name": "PKG-02 invented unit fixture",
+        "source_location": "fixtures/units/invented_unit_contract_fixture.json",
+        "source_license": "project invented public example",
+        "contributor": "OpenPipeStress Type 2 worker",
+        "contributor_certification": "invented non-engineering example",
+        "redistribution_status": "public_permissive",
+        "review_status": "pending"
+      },
+      "review_status": "pending"
+    }
+  ],
+  "dimension_checks": [
+    {
+      "check_id": "dimension-check:invented-missing-unit",
+      "operation": "schema_validation",
+      "input_quantity_refs": [
+        {
+          "ref_type": "QuantityRecord",
+          "ref_id": "quantity:invented-missing-load-unit"
+        }
+      ],
+      "expected_dimension_id": "force",
+      "actual_dimension_id": "force",
+      "outcome": "blocked",
+      "diagnostics": [
+        {
+          "ref_type": "UnitDiagnostic",
+          "ref_id": "unit-diagnostic:missing-unit"
+        }
+      ]
+    }
+  ],
+  "operation_rules": [
+    {
+      "operation": "addition",
+      "compatibility_rule": "same_dimension_required",
+      "unsupported_behavior": "blocking_diagnostic",
+      "diagnostic_codes": [
+        "DIMENSION_MISMATCH"
+      ],
+      "review_status": "accepted"
+    },
+    {
+      "operation": "conversion",
+      "compatibility_rule": "unit_registry_lookup_required",
+      "unsupported_behavior": "defer_TBD",
+      "diagnostic_codes": [
+        "CONVERSION_TEST_GATED"
+      ],
+      "review_status": "pending"
+    },
+    {
+      "operation": "rule_evaluation",
+      "compatibility_rule": "same_dimension_required",
+      "unsupported_behavior": "blocking_diagnostic",
+      "diagnostic_codes": [
+        "UNIT_MISSING",
+        "DIMENSION_MISMATCH"
+      ],
+      "review_status": "accepted"
+    }
+  ],
+  "test_obligations": [
+    {
+      "test_id": "unit-test:quantity-required-fields",
+      "test_kind": "quantity_required_fields",
+      "required_for": [
+        "schemas",
+        "imports",
+        "rule_evaluation"
+      ],
+      "fixture_data_policy": "invented_only",
+      "gating_status": "executable_now",
+      "evidence_ref": "tests/test_units_schema.py"
+    },
+    {
+      "test_id": "unit-test:conversion-gated",
+      "test_kind": "conversion_gated_pending_constants",
+      "required_for": [
+        "conversion"
+      ],
+      "fixture_data_policy": "no_numeric_conversion_constants_until_approved",
+      "gating_status": "blocked_pending_decision",
+      "evidence_ref": "tests/test_units_schema.py"
+    }
+  ],
+  "open_decisions": [
+    {
+      "decision_id": "unit-decision:unit-catalog",
+      "topic": "unit_catalog",
+      "status": "open_TBD",
+      "blocking_scope": [
+        "runtime_conversion"
+      ],
+      "required_before": "release-grade unit conversion",
+      "owner": "human project authority",
+      "notes": "The fixture deliberately does not choose a unit catalog."
+    },
+    {
+      "decision_id": "unit-decision:conversion-tolerance",
+      "topic": "conversion_tolerance_policy",
+      "status": "open_TBD",
+      "blocking_scope": [
+        "runtime_conversion"
+      ],
+      "required_before": "deterministic numeric conversion tests",
+      "owner": "human project authority",
+      "notes": "Tolerance policy remains outside this foundation slice."
+    },
+    {
+      "decision_id": "unit-decision:canonical-calculation",
+      "topic": "canonical_calculation_basis",
+      "status": "open_TBD",
+      "blocking_scope": [
+        "solver_runtime"
+      ],
+      "required_before": "canonical calculation unit freeze",
+      "owner": "human project authority",
+      "notes": "Canonical calculation units remain unresolved."
+    },
+    {
+      "decision_id": "unit-decision:offset-temperature",
+      "topic": "offset_temperature_semantics",
+      "status": "open_TBD",
+      "blocking_scope": [
+        "temperature_conversion"
+      ],
+      "required_before": "temperature conversion implementation",
+      "owner": "human project authority",
+      "notes": "Offset temperature behavior remains unresolved."
+    },
+    {
+      "decision_id": "unit-decision:gauge-absolute-pressure",
+      "topic": "gauge_absolute_pressure_semantics",
+      "status": "open_TBD",
+      "blocking_scope": [
+        "pressure_conversion"
+      ],
+      "required_before": "pressure conversion implementation",
+      "owner": "human project authority",
+      "notes": "Gauge versus absolute pressure behavior remains unresolved."
+    }
+  ],
+  "diagnostics": [
+    {
+      "diagnostic_id": "unit-diagnostic:missing-unit",
+      "code": "UNIT_MISSING",
+      "diagnostic_class": "UNIT_CONTRACT_ERROR",
+      "severity": "blocking",
+      "message": "Invented unit-bearing quantity lacks an approved unit reference.",
+      "remediation": "Supply explicit unit metadata from a reviewed source.",
+      "source": "fixtures/units/invented_unit_contract_fixture.json",
+      "affected_refs": [
+        {
+          "ref_type": "QuantityRecord",
+          "ref_id": "quantity:invented-missing-load-unit"
+        }
+      ],
+      "provenance": {
+        "source_name": "PKG-02 invented unit fixture",
+        "source_location": "fixtures/units/invented_unit_contract_fixture.json",
+        "source_license": "project invented public example",
+        "contributor": "OpenPipeStress Type 2 worker",
+        "contributor_certification": "invented non-engineering example",
+        "redistribution_status": "public_permissive",
+        "review_status": "accepted"
+      }
+    }
+  ]
+}

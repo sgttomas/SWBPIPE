@@ -1,0 +1,1633 @@
+//! Explicit composite validation of untouched physical and retained-source records.
+//! Hash/recipe consistency is not custody; numerical use needs captured invocation.
+use crate::section_basis::bit_equal;
+use crate::source_blocks::{domain_hash, shape_in, shape_in_resources};
+use open_pipe_stress_correct_norm::norm3;
+use open_pipe_stress_units::{canonical_unit, convert_for_dimension, unit_by_symbol, Dimension};
+use serde_json::{json, Value};
+use std::collections::{HashMap, HashSet};
+use std::sync::OnceLock;
+
+pub const PRESSURE_CONTRACT_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-source-1";
+pub const PRESSURE_PROFILE: &str = "exact_pressure_v3";
+/// Current source identity selected independently from the actual invocation.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SourceContract { PressureV3 }
+impl SourceContract {
+    pub const fn identity(self) -> &'static str { PRESSURE_CONTRACT_ID }
+    pub const fn profile(self) -> &'static str { PRESSURE_PROFILE }
+    pub const fn policy(self) -> &'static str { "PRESSURE-SOURCE-1" }
+    pub const fn case_domain(self) -> &'static str { "pressure_source_case_evidence_v1" }
+    pub const fn pressure(self) -> crate::physics_evidence::PressureContract {
+        crate::physics_evidence::PressureContract::PressureV3
+    }
+    /// The captured model's contract: a 0.8.0 document whose
+    /// `pressure_contract` is exactly `{version "3.0.0", mode
+    /// "exact_pressure_v3", shear_model}` with `shear_model` either
+    /// `euler_bernoulli` or `timoshenko_annulus_energy_v1` (O4 §3.4), and no
+    /// top-level `shear_model`; anything else is refused.
+    pub fn from_invocation(invocation: &Value) -> Result<Self, String> {
+        let model = &invocation["request"]["model"];
+        let contract = &model["pressure_contract"];
+        if model["schema_version"] == "0.8.0"
+            && model.get("shear_model").is_none()
+            && contract.as_object().is_some_and(|members| members.len() == 3)
+            && contract["version"] == "3.0.0"
+            && contract["mode"] == PRESSURE_PROFILE
+            && contract["shear_model"].as_str().is_some_and(|shear| {
+                [crate::section_basis::EULER_BERNOULLI, crate::section_basis::TIMOSHENKO].contains(&shear)
+            })
+        {
+            Ok(Self::PressureV3)
+        } else {
+            Err("PHYSICS_SOURCE_ACTUAL_CONTRACT_UNSUPPORTED".into())
+        }
+    }
+    pub(crate) fn check_invocation(self, invocation: &Value) -> Result<(), String> {
+        Self::from_invocation(invocation)?;
+        corrosion_allowances(&invocation["request"]["model"])
+    }
+    pub(crate) fn check_received(self, source: &Value) -> Result<(), String> {
+        let header = &source["producer"]["semantic_contract_id"];
+        if *header == crate::semantic_contract::PRESSURE_ID && source.get("source_block_recovery").is_some() {
+            return Err("SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN".into());
+        }
+        require(*header == self.identity() && source["formulation_basis"]["profile_id"] == self.profile(), "IDENTITY")
+    }
+}
+
+/// b7-plan "Exact-contract fields" and O4 (§3.4): every pipe section of the
+/// captured exact document declares an explicit length-valued, finite
+/// corrosion allowance c_a >= 0, with c_m + c_a < t and a positive reduced
+/// wall (t - c_m) - c_a (c_m = 0 where the mill tolerance is absent or null;
+/// a present one must be a finite length c_m >= 0, else the section sum
+/// cannot be established). Absent, null, malformed, non-length, negative or
+/// over-wall allowances are outside the contract the producer admits, so a
+/// statement bound to such an invocation is refused. Zero is no longer required: the mill tolerance and
+/// allowance bind by value through `ACTUAL_SOURCE_GEOMETRY`, and the section
+/// bases through the shared D-5 rederivation (`section_basis::section`).
+fn corrosion_allowances(model: &Value) -> Result<(), String> {
+    for pipe in array(&model["pipe_segments"])? {
+        let section = &pipe["section"];
+        let admitted = (|| {
+            let allowance = normalized_quantity(&section["corrosion_allowance"], Dimension::Length).ok()?;
+            let wall = normalized_quantity(&section["wall_thickness"], Dimension::Length).ok()?;
+            let tolerance = if section["mill_tolerance"].is_null() {
+                0.0
+            } else {
+                normalized_quantity(&section["mill_tolerance"], Dimension::Length).ok()?
+            };
+            Some(
+                allowance >= 0.0
+                    && tolerance >= 0.0
+                    && tolerance + allowance < wall
+                    && crate::section_basis::reduced_wall(wall, tolerance, allowance) > 0.0,
+            )
+        })();
+        require(admitted == Some(true), "ACTUAL_CORROSION_ALLOWANCE")?;
+    }
+    Ok(())
+}
+
+/// O4 (§3.4): one transported `pipe_sections` entry of a composite case,
+/// rederived through the shared D-5 and Timoshenko rule
+/// (`section_basis::section`, `section_basis::beam_theory` with the case's
+/// ν for the member): the walls, inner radii, coincident-basis equality, the
+/// section sum c_m + c_a < t and, on a Timoshenko straight member, κ_E and A_s
+/// bit for bit. A composite carries no realized arc. Returns the member's
+/// beam-theory model.
+fn rederived_section(section: &Value, materials: &[Value]) -> Result<&'static str, String> {
+    let sections = crate::section_basis::section(section)?;
+    let material = materials
+        .iter()
+        .find(|m| m["pipe_id"] == section["pipe_id"])
+        .ok_or("PHYSICS_SOURCE_SECTION_MATERIAL")?;
+    crate::section_basis::beam_theory(&sections, num(&material["nu"])?, false)?;
+    Ok(crate::section_basis::model(&sections))
+}
+
+/// Authored presence selects the optional load/reference-state group.
+/// Null and incomplete values retain the group's validation duties.
+fn model_carries_load_state(model: &Value) -> bool {
+    model.get("reference_configurations").is_some()
+        || model["materials"].as_array().is_some_and(|materials| materials.iter().any(|m| m.get("expansion_laws").is_some()))
+        || model["load_cases"].as_array().is_some_and(|cases| cases.iter().any(|c| c.get("analysis_state").is_some()))
+}
+
+pub const EXACT: &str = "retained_source_blocks_exact_v1";
+pub const MAX_BASIS: &str = "retained_source_endpoint_normal_max_v1";
+pub const MAX_SIGN: &str = "nonnegative maximum absolute axial-plus-bending normal stress over an unloaded circular straight span; retained endpoint actions with projected-action and arithmetic bounds; endpoint witness does not imply uniqueness; torsional shear separate";
+pub const SUPPORT_SIGN: &str = "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate";
+fn require(ok: bool, detail: &str) -> Result<(), String> {
+    if ok {
+        Ok(())
+    } else {
+        Err(format!("PHYSICS_SOURCE_{detail}"))
+    }
+}
+fn array(v: &Value) -> Result<&Vec<Value>, String> {
+    v.as_array().ok_or("PHYSICS_SOURCE_ARRAY".into())
+}
+fn text(v: &Value) -> Result<&str, String> {
+    v.as_str()
+        .filter(|s| !s.is_empty())
+        .ok_or("PHYSICS_SOURCE_TEXT".into())
+}
+fn num(v: &Value) -> Result<f64, String> {
+    v.as_f64()
+        .filter(|v| v.is_finite())
+        .ok_or("PHYSICS_SOURCE_NUMBER".into())
+}
+fn same(a: &Value, b: f64) -> Result<bool, String> {
+    Ok(num(a)?.to_bits() == b.to_bits())
+}
+fn schema() -> &'static Value {
+    static SCHEMA: OnceLock<Value> = OnceLock::new();
+    SCHEMA.get_or_init(|| {
+        serde_json::from_str(include_str!(
+            "../../../../schemas/physics_source_recovery.schema.json"
+        ))
+        .expect("closed composite receipt schema")
+    })
+}
+pub fn validate_receipt_shape(receipt: &Value) -> Result<(), String> {
+    validate_receipt_shape_in(receipt, SourceContract::PressureV3)
+}
+pub fn validate_receipt_shape_in(receipt: &Value, contract: SourceContract) -> Result<(), String> {
+    // The schema's root is the closed PRESSURE-SOURCE-1 receipt.
+    require(receipt["body"]["policy"] == contract.policy() && shape_in(receipt, schema(), schema()), "RECEIPT_SHAPE")
+}
+fn case<'a>(source: &'a Value, cid: &str) -> Result<&'a Value, String> {
+    let found = array(&source["source_block_recovery"]["body"]["cases"])?
+        .iter()
+        .filter(|c| c["basis_ref"]["ref_id"] == cid)
+        .collect::<Vec<_>>();
+    require(found.len() == 1, "CASE_ID")?;
+    Ok(found[0])
+}
+/// Transport statements only: no raw publication hash, invocation, or Current claim.
+pub fn validate_transport_metadata(source: &Value) -> Result<(), String> {
+    validate_transport_metadata_in(source, SourceContract::PressureV3)
+}
+/// Explicit transport context, without an invocation or a freshness claim.
+pub fn validate_transport_metadata_in(source: &Value, contract: SourceContract) -> Result<(), String> {
+    contract.check_received(source)?;
+    let resolved = contract == SourceContract::PressureV3 && source["contract_evidence"].get("load_reference_states").is_some();
+    if resolved { crate::load_reference::prepass(source, false, crate::load_reference::Method::PressureJoined)?; }
+    let receipt = &source["source_block_recovery"];
+    validate_receipt_shape_in(receipt, contract)?;
+    let body = &receipt["body"];
+    require(
+        receipt["receipt_sha256"] == domain_hash("source_blocks_receipt_v1", body)?,
+        "RECEIPT_HASH",
+    )?;
+    let evidence = &source["contract_evidence"];
+    let definition = &schema()["$defs"]["pressure_source_physical_evidence"];
+    let closed_shape = if resolved {
+        // This already pinned resource serves the received resolved state. No
+        // result/schema copy or received-profile inference selects the context.
+        let load_schema = crate::load_reference::transport_schema()?;
+        shape_in_resources(evidence, definition, schema(), &[("load_reference_state.schema.json", load_schema)])
+    } else { shape_in(evidence, definition, schema()) };
+    require(closed_shape, "PHYSICAL_SHAPE")?;
+    let physical = array(&evidence["exact_cases"])?;
+    let records = array(&body["cases"])?;
+    require(
+        physical
+            .iter()
+            .map(|c| &c["load_case_id"])
+            .eq(records.iter().map(|c| &c["basis_ref"]["ref_id"])),
+        "CASE_ORDER",
+    )?;
+    let ids = physical
+        .iter()
+        .map(|c| text(&c["load_case_id"]))
+        .collect::<Result<HashSet<_>, _>>()?;
+    require(ids.len() == physical.len(), "CASE_UNIQUENESS")?;
+    require(
+        records.iter().any(|c| c["selected_method"] == EXACT),
+        "SOURCE_SELECTION_REQUIRED",
+    )?;
+    if resolved {
+        // One received state per case, in case order, each solved in the mode
+        // its receipt case records (the retired load-reference-source-1
+        // receipt's order and requested-mode bindings, kept on the current group).
+        require(
+            array(&evidence["load_reference_states"])?
+                .iter()
+                .map(|s| &s["load_case_id"])
+                .eq(physical.iter().map(|c| &c["load_case_id"])),
+            "LOAD_REFERENCE_CASE_ORDER",
+        )?;
+        for (record, state) in records.iter().zip(array(&evidence["load_reference_states"])?) {
+            require(
+                record["requested_mode"] == state["solve"]["requested_mode"],
+                "LOAD_REFERENCE_REQUESTED_MODE",
+            )?;
+        }
+    }
+    for (record, exact) in records.iter().zip(physical) {
+        let cid = text(&exact["load_case_id"])?;
+        let pressure = array(&evidence["pressure"])?
+            .iter()
+            .filter(|p| p["load_case_id"] == cid)
+            .collect::<Vec<_>>();
+        require(
+            exact["recovery_method"] == record["selected_method"],
+            "RECOVERY_METHOD",
+        )?;
+        // O4 (§3.4): each section entry's nominal section, reduced section and
+        // beam theory are their D-5 and Timoshenko rederivation from its
+        // captured authored values and the case's ν (`rederived_section`),
+        // and the case's straight members share one shear model. Coincident
+        // bases remain bit-equal; distinct bases are admitted.
+        let materials = array(&exact["pipe_materials"])?;
+        let models = array(&exact["pipe_sections"])?
+            .iter()
+            .map(|s| rederived_section(s, materials))
+            .collect::<Result<HashSet<_>, _>>();
+        require(models.is_ok_and(|models| models.len() <= 1), "SECTION_BASES")?;
+        let mut proof = json!({"exact_case":exact,"pressure":pressure});
+        if resolved {
+            let state = array(&evidence["load_reference_states"])?
+                .iter().find(|s| s["load_case_id"] == exact["load_case_id"])
+                .ok_or("PHYSICS_SOURCE_LOAD_REFERENCE_CASE")?;
+            proof["load_reference_state"] = state.clone();
+        }
+        require(record["physical_evidence_sha256"] == domain_hash(contract.case_domain(), &proof)?, "PHYSICAL_CASE_HASH")?;
+        // W-16 slice c (DEL-05-01 Design `exact-equivalent-static.md` §2): an
+        // ordinary companion may carry its generation record (closed by the
+        // schema, checked like pressure-2's); a selected case never does,
+        // since source recovery declines equivalent-static producers.
+        if let Some(generation) = exact.get("equivalent_static") {
+            require(record["selected_method"] != EXACT, "SOURCE_EQUIVALENT_STATIC")?;
+            crate::physics_evidence::equivalent_static_record(cid, generation)?;
+        }
+        if record["selected_method"] == EXACT {
+            require(pressure.is_empty(), "SOURCE_PRESSURE_INVENTORY")?;
+            let plan = &record["source"];
+            for key in ["pipe_sections", "pipe_materials"] {
+                require(
+                    array(&exact[key])?
+                        .iter()
+                        .map(|p| &p["pipe_id"])
+                        .eq(array(&plan["member_ids"])?.iter()),
+                    "PHYSICAL_MEMBER_ORDER",
+                )?;
+            }
+            require(
+                array(&plan["endpoint_sections"])?
+                    .iter()
+                    .map(|p| &p["pipe_id"])
+                    .eq(array(&plan["member_ids"])?.iter()),
+                "ENDPOINT_MEMBER_ORDER",
+            )?;
+            require(
+                exact["stress_maximum_coverage"]
+                    == json!(crate::section_basis::BASES
+                        .map(|b| json!({"section_basis":b,"complete":true,"unavailable_pipe_ids":[]}))),
+                "MAXIMUM_COMPLETE",
+            )?;
+            // T4-U6 (§2.5): one retained maximum per member per basis.
+            let maxima = array(&exact["pipe_stress_extrema"])?;
+            let members = array(&plan["member_ids"])?;
+            require(
+                maxima.len() == 2 * members.len()
+                    && members.iter().all(|m| {
+                        crate::section_basis::BASES.iter().all(|b| {
+                            maxima
+                                .iter()
+                                .filter(|x| x["pipe_id"] == *m && x["section_basis"] == *b)
+                                .count()
+                                == 1
+                        })
+                    }),
+                "MAXIMUM_COVERAGE",
+            )?;
+            section_functionals(record)?;
+            for ex in maxima {
+                maximum_link(exact, ex, record)?;
+            }
+        } else {
+            require(
+                array(&record["derived_checks"])?.is_empty()
+                    && array(&record["section_stress_checks"])?.is_empty()
+                    && record["selected_method"] == ordinary_method(&record["requested_mode"])?,
+                "ORDINARY_METHOD",
+            )?;
+        }
+    }
+    require(
+        array(&evidence["pressure"])?.iter().all(|p| {
+            p["load_case_id"]
+                .as_str()
+                .is_some_and(|id| ids.contains(id))
+        }),
+        "PRESSURE_CASE",
+    )
+}
+fn ordinary_method(mode: &Value) -> Result<&'static str, String> {
+    match mode.as_str() {
+        Some("sparse_interactive") => Ok("ordinary_sparse_structural_v1"),
+        Some("dense_scrutiny") => Ok("ordinary_dense_structural_v1"),
+        _ => Err("PHYSICS_SOURCE_MODE".into()),
+    }
+}
+fn finite(v: f64) -> Result<f64, String> {
+    if v.is_finite() {
+        Ok(v)
+    } else {
+        Err("PHYSICS_SOURCE_ARITHMETIC_RANGE".into())
+    }
+}
+fn out(v: f64, upper: bool) -> Result<f64, String> {
+    require(v.is_finite() && v >= 0.0, "ARITHMETIC_RANGE")?;
+    finite(if upper {
+        v.next_up()
+    } else {
+        v.next_down().max(0.0)
+    })
+}
+fn div(a: f64, b: f64, upper: bool) -> Result<f64, String> {
+    if a == 0.0 || b == 1.0 {
+        Ok(a)
+    } else if a == b {
+        Ok(1.0)
+    } else {
+        out(a / b, upper)
+    }
+}
+fn mul(a: f64, b: f64, upper: bool) -> Result<f64, String> {
+    if a == 0.0 || b == 0.0 {
+        Ok(0.0)
+    } else if a == 1.0 {
+        Ok(b)
+    } else if b == 1.0 {
+        Ok(a)
+    } else {
+        out(a * b, upper)
+    }
+}
+fn add(a: f64, b: f64, upper: bool) -> Result<f64, String> {
+    if a == 0.0 {
+        Ok(b)
+    } else if b == 0.0 {
+        Ok(a)
+    } else {
+        out(a + b, upper)
+    }
+}
+fn interval(v: &Value) -> Result<[f64; 2], String> {
+    let v = array(v)?;
+    require(v.len() == 2, "INTERVAL_SHAPE")?;
+    let p = [num(&v[0])?, num(&v[1])?];
+    require(p[0] <= p[1], "INTERVAL_ORDER")?;
+    Ok(p)
+}
+fn absolute([lo, hi]: [f64; 2]) -> [f64; 2] {
+    if lo >= 0.0 {
+        [lo, hi]
+    } else if hi <= 0.0 {
+        [-hi, -lo]
+    } else {
+        [0.0, (-lo).max(hi)]
+    }
+}
+/// E15: the receipt's declared norm is one correctly rounded `norm3` (a
+/// two-component bending norm is `norm3(y, z, 0)`, the same as `norm2`).
+fn norm(values: &[f64]) -> Result<f64, String> {
+    match *values {
+        [y, z] => finite(norm3(y, z, 0.0)),
+        [x, y, z] => finite(norm3(x, y, z)),
+        _ => Err("PHYSICS_SOURCE_NORM_ARITY".into()),
+    }
+}
+fn norm_bound(values: [f64; 3], upper: bool) -> Result<f64, String> {
+    let scale = values.into_iter().fold(0.0_f64, f64::max);
+    if scale == 0.0 {
+        return Ok(0.0);
+    }
+    let mut square = [0.0; 3];
+    for (i, v) in values.into_iter().enumerate() {
+        square[i] = if v == 0.0 {
+            0.0
+        } else if v == scale {
+            1.0
+        } else {
+            let r = out(v / scale, upper)?;
+            out(r * r, upper)?
+        };
+    }
+    let sum = add(add(square[0], square[1], upper)?, square[2], upper)?;
+    let root = if sum == 1.0 {
+        1.0
+    } else {
+        out(sum.sqrt(), upper)?
+    };
+    if root == 1.0 {
+        Ok(scale)
+    } else {
+        out(scale * root, upper)
+    }
+}
+fn bounds(value: f64, lo: f64, hi: f64) -> Result<(f64, f64), String> {
+    require(
+        lo >= 0.0 && lo <= value && value <= hi && [lo, value, hi].iter().all(|v| v.is_finite()),
+        "ENCLOSURE",
+    )?;
+    let absolute = if lo == value && value == hi {
+        0.0
+    } else {
+        out((value - lo).max(hi - value), true)?
+    };
+    if hi == 0.0 {
+        return Ok((absolute, 0.0));
+    }
+    require(
+        lo.is_normal() && value.is_normal() && hi.is_normal(),
+        "PUBLICATION_RANGE",
+    )?;
+    let relative = if absolute == 0.0 {
+        0.0
+    } else {
+        out(absolute / lo, true)?
+    };
+    require(relative <= 1e-9, "PROTECTED_CRITERION")?;
+    Ok((absolute, relative))
+}
+fn endpoint(area: f64, z: f64, actions: &Value) -> Result<(f64, [f64; 2]), String> {
+    require(area > 0.0 && z > 0.0, "SECTION_RANGE")?;
+    let a = array(actions)?;
+    require(a.len() == 3, "ENDPOINT_ACTION_COUNT")?;
+    let value = finite(
+        finite(num(&a[0]["value"])?.abs() / area)?
+            + norm(&[
+                finite(num(&a[1]["value"])?.abs() / z)?,
+                finite(num(&a[2]["value"])?.abs() / z)?,
+            ])?,
+    )?;
+    let p = [
+        absolute(interval(&a[0]["interval"])?),
+        absolute(interval(&a[1]["interval"])?),
+        absolute(interval(&a[2]["interval"])?),
+    ];
+    let mut bound = [0.0; 2];
+    for (side, upper) in [false, true].into_iter().enumerate() {
+        let axial = div(p[0][side], area, upper)?;
+        let y = div(p[1][side], z, upper)?;
+        let zz = div(p[2][side], z, upper)?;
+        let bending = if y == 0.0 || zz == 0.0 {
+            y.max(zz)
+        } else {
+            let scale = y.max(zz);
+            let a = div(y, scale, upper)?;
+            let b = div(zz, scale, upper)?;
+            mul(
+                scale,
+                out(
+                    add(mul(a, a, upper)?, mul(b, b, upper)?, upper)?.sqrt(),
+                    upper,
+                )?,
+                upper,
+            )?
+        };
+        bound[side] = add(axial, bending, upper)?;
+    }
+    require(bound[0] <= value && value <= bound[1], "ENDPOINT_ENCLOSURE")?;
+    Ok((value, bound))
+}
+fn maximum_link(exact: &Value, ex: &Value, record: &Value) -> Result<(), String> {
+    let plan = &record["source"];
+    require(
+        ex["load_case_id"] == exact["load_case_id"]
+            && ex["basis"] == MAX_BASIS
+            && ex["coefficient_basis"] == "retained_section_functionals_binary64",
+        "MAXIMUM_METHOD",
+    )?;
+    require(
+        ex["source_identity_sha256"] == plan["retained_identity_sha256"],
+        "MAXIMUM_SOURCE_IDENTITY",
+    )?;
+    let section = array(&exact["pipe_sections"])?
+        .iter()
+        .find(|s| s["pipe_id"] == ex["pipe_id"])
+        .ok_or("PHYSICS_SOURCE_MAXIMUM_SECTION")?;
+    let source = array(&plan["endpoint_sections"])?
+        .iter()
+        .find(|s| s["pipe_id"] == ex["pipe_id"])
+        .ok_or("PHYSICS_SOURCE_MAXIMUM_ENDPOINTS")?;
+    // O4 (§3.2, §3.4): each basis's maximum binds that basis's own section,
+    // A and Z bit for bit (both bases' where they coincide).
+    let bound = match crate::section_basis::extremum_basis(ex) {
+        Ok(basis) => {
+            same(&ex["area_m2"], num(&section[basis]["As_m2"])?)?
+                && same(&ex["section_modulus_m3"], num(&section[basis]["Z_m3"])?)?
+        }
+        Err(_) => false,
+    };
+    require(bound, "MAXIMUM_SECTION")?;
+    let ends = array(&ex["endpoints"])?;
+    let claimed = array(&source["endpoints"])?;
+    require(
+        ends.len() == 2 && claimed.len() == 2,
+        "MAXIMUM_ENDPOINT_COUNT",
+    )?;
+    let mut indices = HashSet::new();
+    let cid = text(&exact["load_case_id"])?;
+    for (endpoint, (end, claim)) in ends.iter().zip(claimed).enumerate() {
+        for key in [
+            "station_fraction",
+            "functional_indices",
+            "functional_ids",
+            "actions",
+        ] {
+            // T4-U6 (A2): the maximum's endpoint is the endpoint section's, bit for bit.
+            require(bit_equal(&end[key], &claim[key]), "MAXIMUM_ENDPOINT_SOURCE")?;
+        }
+        require(
+            num(&end["station_fraction"])? == endpoint as f64,
+            "MAXIMUM_ENDPOINT_ORDER",
+        )?;
+        for ((index, id), action) in array(&end["functional_indices"])?
+            .iter()
+            .zip(array(&end["functional_ids"])?)
+            .zip(array(&end["actions"])?)
+        {
+            let i = index.as_u64().ok_or("PHYSICS_SOURCE_FUNCTIONAL_INDEX")?;
+            require(
+                indices.insert(i)
+                    && i < plan["functional_count"]
+                        .as_u64()
+                        .ok_or("PHYSICS_SOURCE_FUNCTIONAL_COUNT")?
+                    && *id == format!("source-functional:{}:{cid}:{i}", cid.len()),
+                "MAXIMUM_FUNCTIONAL_ID",
+            )?;
+            let p = interval(&action["interval"])?;
+            let v = num(&action["value"])?;
+            require(p[0] <= v && v <= p[1], "MAXIMUM_ACTION_INTERVAL")?;
+        }
+    }
+    require(indices.len() == 6, "MAXIMUM_FUNCTIONAL_BIJECTION")
+}
+pub(crate) fn validate_maximum(
+    source: &Value,
+    exact: &Value,
+    ex: &Value,
+    rows: &HashMap<&str, &Value>,
+) -> Result<(), String> {
+    let record = case(source, text(&exact["load_case_id"])?)?;
+    maximum_link(exact, ex, record)?;
+    let row = rows
+        .get(text(&ex["result_id"])?)
+        .ok_or("PHYSICS_SOURCE_MAXIMUM_ROW")?;
+    require(
+        row["kind"] == "pipe_elastic_normal_stress_maximum_v2"
+            && row["entity_ref"] == ex["pipe_id"]
+            && row["basis_ref"] == record["basis_ref"]
+            && row["unit"] == "Pa"
+            && same(&row["value"], num(&ex["value_pa"])?)?
+            && crate::section_basis::split_token(row["metadata"]["basis"].as_str().unwrap_or_default())
+                == Some((MAX_BASIS, crate::section_basis::extremum_basis(ex)?)),
+        "MAXIMUM_ROW",
+    )?;
+    let ends = array(&ex["endpoints"])?;
+    let n0 = interval(&ends[0]["actions"][0]["interval"])?;
+    let n1 = interval(&ends[1]["actions"][0]["interval"])?;
+    require(n0[0] <= n1[1] && n1[0] <= n0[1], "CONSTANT_AXIAL_BOUND")?;
+    for end in ends {
+        let (value, bound) = endpoint(
+            num(&ex["area_m2"])?,
+            num(&ex["section_modulus_m3"])?,
+            &end["actions"],
+        )?;
+        require(
+            same(&end["value_pa"], value)?
+                && same(&end["interval_pa"][0], bound[0])?
+                && same(&end["interval_pa"][1], bound[1])?,
+            "MAXIMUM_ENDPOINT_RECIPE",
+        )?;
+    }
+    let values = [num(&ends[0]["value_pa"])?, num(&ends[1]["value_pa"])?];
+    let intervals = [
+        interval(&ends[0]["interval_pa"])?,
+        interval(&ends[1]["interval_pa"])?,
+    ];
+    let value = values[0].max(values[1]);
+    let lo = intervals[0][0].max(intervals[1][0]);
+    let hi = intervals[0][1].max(intervals[1][1]);
+    let (abs, rel) = bounds(value, lo, hi)?;
+    for (key, v) in [
+        ("value_pa", value),
+        ("value_lower_pa", lo),
+        ("value_upper_pa", hi),
+        ("absolute_error_bound_pa", abs),
+        ("relative_error_bound", rel),
+    ] {
+        require(same(&ex[key], v)?, "MAXIMUM_BOUNDS")?;
+    }
+    require(
+        ex["relative_limit"] == 1e-9
+            && num(&ex["station_fraction"])? == if values[1] > values[0] { 1.0 } else { 0.0 },
+        "MAXIMUM_WITNESS",
+    )?;
+    let equal = |component: usize, magnitude: bool| -> Result<bool, String> {
+        let a = &ends[0]["actions"][component];
+        let b = &ends[1]["actions"][component];
+        let x = interval(&a["interval"])?;
+        let y = interval(&b["interval"])?;
+        Ok(x[0] == x[1]
+            && y[0] == y[1]
+            && if magnitude {
+                x[0].abs() == y[0].abs()
+            } else {
+                x[0] == y[0]
+            })
+    };
+    let locations = if equal(1, false)? && equal(2, false)? {
+        json!({"kind":"whole_span_constant"})
+    } else if intervals[0][0] > intervals[1][1] {
+        json!({"kind":"strict_endpoint","endpoint":"i"})
+    } else if intervals[1][0] > intervals[0][1] {
+        json!({"kind":"strict_endpoint","endpoint":"j"})
+    } else {
+        let mut overlap = true;
+        for c in [1, 2] {
+            let a = interval(&ends[0]["actions"][c]["interval"])?;
+            let b = interval(&ends[1]["actions"][c]["interval"])?;
+            overlap &= a[0] <= b[1] && b[0] <= a[1];
+        }
+        json!({"kind":"endpoint_candidates","exact_tie_proven":equal(1,true)?&&equal(2,true)?,"interior_equal_possible":overlap})
+    };
+    require(ex["locations"] == locations, "MAXIMUM_LOCATION_CLAIM")
+}
+pub(crate) fn is_composite_recipe(recipe: &Value) -> bool {
+    matches!(
+        recipe.as_str(),
+        Some(
+            MAX_BASIS
+                | "support_force_norm_scaled_checked_v1"
+                | "support_moment_norm_scaled_checked_v1"
+                | "retained_source_straight_stress_v1"
+        )
+    )
+}
+pub(crate) fn validate_derived(
+    source: &Value,
+    record: &Value,
+    treatment: &Value,
+    row: &Value,
+    inputs: &[&Value],
+) -> Result<(), String> {
+    let recipe = text(&treatment["recipe_id"])?;
+    if recipe == MAX_BASIS {
+        let exact = array(&source["contract_evidence"]["exact_cases"])?
+            .iter()
+            .find(|c| c["load_case_id"] == record["basis_ref"]["ref_id"])
+            .ok_or("PHYSICS_SOURCE_CASE")?;
+        let ex = array(&exact["pipe_stress_extrema"])?
+            .iter()
+            .find(|e| e["result_id"] == row["id"])
+            .ok_or("PHYSICS_SOURCE_MAXIMUM_DERIVED_BINDING")?;
+        require(inputs.is_empty(), "MAXIMUM_INPUTS")?;
+        let rows = array(&source["results"])?
+            .iter()
+            .map(|r| Ok((text(&r["id"])?, r)))
+            .collect::<Result<HashMap<_, _>, String>>()?;
+        return validate_maximum(source, exact, ex, &rows);
+    }
+    if recipe == "retained_source_straight_stress_v1" {
+        return validate_stress(source, record, row, inputs);
+    }
+    let checks = array(&record["derived_checks"])?
+        .iter()
+        .filter(|c| c["result_id"] == row["id"])
+        .collect::<Vec<_>>();
+    require(checks.len() == 1, "NORM_CHECK_ID")?;
+    let check = checks[0];
+    let force = recipe == "support_force_norm_scaled_checked_v1";
+    let components = if force {
+        ["Fx", "Fy", "Fz"]
+    } else {
+        ["Mx", "My", "Mz"]
+    };
+    require(
+        check["recipe_id"] == recipe
+            && row["kind"]
+                == if force {
+                    "support_reaction_force_magnitude_v2"
+                } else {
+                    "support_reaction_moment_magnitude_v2"
+                }
+            && check["support_id"] == row["entity_ref"]
+            && row["unit"] == if force { "N" } else { "N*m" },
+        "NORM_SIGNATURE",
+    )?;
+    require(inputs.len() == 3, "NORM_INPUT_COUNT")?;
+    let cid = text(&record["basis_ref"]["ref_id"])?;
+    let mut values = [0.0; 3];
+    let mut ranges = [[0.0; 2]; 3];
+    for (i, input) in inputs.iter().enumerate() {
+        require(
+            input["kind"] == "support_reaction_component_v2"
+                && input["metadata"]["component"] == components[i]
+                && input["entity_ref"] == row["entity_ref"]
+                && input["unit"] == row["unit"],
+            "NORM_INPUTS",
+        )?;
+        let p = array(&record["projections"])?
+            .iter()
+            .filter(|p| p["result_id"] == input["id"])
+            .collect::<Vec<_>>();
+        require(p.len() == 1, "NORM_PROJECTION")?;
+        let p = p[0];
+        // T4-U6 (A2): the check's value and interval are its projection's, bit for bit.
+        require(
+            check["functional_ids"][i] == p["functional_id"]
+                && same(&check["values"][i], num(&p["value"])?)?
+                && bit_equal(&check["intervals"][i], &p["interval"]),
+            "NORM_PROJECTION_BINDING",
+        )?;
+        let index = check["functional_indices"][i]
+            .as_u64()
+            .ok_or("PHYSICS_SOURCE_NORM_INDEX")?;
+        require(
+            check["functional_ids"][i] == format!("source-functional:{}:{cid}:{index}", cid.len()),
+            "NORM_FUNCTIONAL_INDEX",
+        )?;
+        values[i] = num(&check["values"][i])?;
+        ranges[i] = absolute(interval(&check["intervals"][i])?);
+    }
+    let lo = norm_bound(ranges.map(|p| p[0]), false)?;
+    let hi = norm_bound(ranges.map(|p| p[1]), true)?;
+    let value = norm(&values)?;
+    let (abs, rel) = bounds(value, lo, hi)?;
+    require(
+        same(&row["value"], value)?
+            && same(&check["value"], value)?
+            && same(&check["interval"][0], lo)?
+            && same(&check["interval"][1], hi)?
+            && same(&check["absolute_error_bound"], abs)?
+            && same(&check["relative_error_bound"], rel)?
+            && check["relative_limit"] == 1e-9,
+        "NORM_RECIPE",
+    )
+}
+pub(crate) fn validate_source_case_in(
+    source: &Value, record: &Value, invocation: Option<&Value>, contract: SourceContract,
+) -> Result<(), String> {
+    require(
+        matches!(
+            record["ordinary_attempt"]["outcome"].as_str(),
+            Some("sensitive" | "rejected")
+        ),
+        "SOURCE_FALLBACK_TRIGGER",
+    )?;
+    let exact = array(&source["contract_evidence"]["exact_cases"])?
+        .iter()
+        .find(|c| c["load_case_id"] == record["basis_ref"]["ref_id"])
+        .ok_or("PHYSICS_SOURCE_CASE")?;
+    let rhs = &exact["pressure_rhs_assembly"];
+    require(array(&rhs["groups"])?.is_empty(), "SOURCE_PRESSURE_RHS")?;
+    for key in [
+        "assembled_pressure_rhs_global",
+        "rounded_cap_rhs_global",
+        "rounded_poisson_rhs_global",
+    ] {
+        require(
+            array(&rhs[key])?.iter().all(|v| v.as_f64() == Some(0.0)),
+            "SOURCE_PRESSURE_RHS",
+        )?;
+    }
+    section_functionals(record)?;
+    let stresses = array(&record["section_stress_checks"])?;
+    let expected_stress = array(&record["rows"])?
+        .iter()
+        .filter(|r| r["recipe_id"] == "retained_source_straight_stress_v1")
+        .map(|r| text(&r["result_id"]))
+        .collect::<Result<HashSet<_>, _>>()?;
+    // T4-U6 (§2.1): twenty source stress rows per member on each basis.
+    require(
+        stresses.len() == expected_stress.len()
+            && stresses.len() == 40 * array(&record["source"]["member_ids"])?.len()
+            && stresses
+                .iter()
+                .map(|r| text(&r["result_id"]))
+                .collect::<Result<HashSet<_>, _>>()?
+                == expected_stress,
+        "STRESS_CHECK_COVERAGE",
+    )?;
+    let checks = array(&record["derived_checks"])?;
+    let expected = array(&record["rows"])?
+        .iter()
+        .filter(|r| {
+            matches!(
+                r["recipe_id"].as_str(),
+                Some(
+                    "support_force_norm_scaled_checked_v1"
+                        | "support_moment_norm_scaled_checked_v1"
+                )
+            )
+        })
+        .map(|r| text(&r["result_id"]))
+        .collect::<Result<HashSet<_>, _>>()?;
+    require(
+        checks.len() == expected.len()
+            && checks.len() == 2 * array(&record["source"]["support_ids"])?.len()
+            && checks
+                .iter()
+                .map(|r| text(&r["result_id"]))
+                .collect::<Result<HashSet<_>, _>>()?
+                == expected,
+        "DERIVED_CHECK_COVERAGE",
+    )?;
+    if let Some(invocation) = invocation {
+        let model = &invocation["request"]["model"];
+        require(
+            model["schema_version"] == "0.8.0"
+                && SourceContract::from_invocation(invocation).ok() == Some(contract),
+            "ACTUAL_EXACT_PROFILE",
+        )?;
+        let actual = array(&model["load_cases"])?
+            .iter()
+            .find(|c| c["id"] == record["basis_ref"]["ref_id"])
+            .ok_or("PHYSICS_SOURCE_ACTUAL_CASE")?;
+        require(
+            actual["pressure_regions"] == json!([]),
+            "ACTUAL_EMPTY_PRESSURE_INVENTORY",
+        )?;
+        require(
+            model["components"].as_array().is_none_or(|a| a.is_empty())
+                && model["combinations"]
+                    .as_array()
+                    .is_none_or(|a| a.is_empty())
+                && actual["equivalent_static"].is_null(),
+            "ACTUAL_SOURCE_FAMILY",
+        )?;
+        require(
+            array(&actual["primitive_loads"])?
+                .iter()
+                .all(|l| (l["target"]["type"] == "node" && l["category"] != "thermal")
+                    || (model_carries_load_state(model)
+                        && l["target"]["type"] == "element" && l["category"] == "thermal"
+                        && matches!(l["dimension"].as_str(), Some("temperature_change" | "temperature_interval")))),
+            "ACTUAL_NODAL_LOADS",
+        )?;
+        require(
+            array(&model["supports"])?.iter().all(|s| {
+                s["nonlinear"].is_null()
+                    && s["family"] != "constant_effort_support"
+                    && s["hanger"]["constant_load"].is_null()
+            }),
+            "ACTUAL_SUPPORT_FAMILY",
+        )?;
+    }
+    Ok(())
+}
+pub(crate) fn normalized_quantity(quantity: &Value, dimension: Dimension) -> Result<f64, String> {
+    // Exact producer normalize_quantity authority, including dimension resolution,
+    // affine temperatures and the identity path; no local conversion catalog.
+    let from = unit_by_symbol(text(&quantity["unit"])?, dimension)
+        .map_err(|e| format!("PHYSICS_SOURCE_ACTUAL_UNIT: {e}"))?;
+    let to = canonical_unit(dimension).ok_or("PHYSICS_SOURCE_ACTUAL_CANONICAL_UNIT")?;
+    finite(
+        convert_for_dimension(num(&quantity["value"])?, dimension, from, to)
+            .map_err(|e| format!("PHYSICS_SOURCE_ACTUAL_UNIT: {e}"))?,
+    )
+}
+#[derive(Clone, Copy)]
+struct MaterialSelection {
+    e: f64,
+    nu: f64,
+    alpha: Option<f64>,
+}
+fn poisson(value: &Value) -> Result<f64, String> {
+    require(value["unit"] == "1", "ACTUAL_POISSON_UNIT")?;
+    let nu = num(&value["value"])?;
+    require(-1.0 < nu && nu < 0.5, "ACTUAL_POISSON_RANGE")?;
+    Ok(nu)
+}
+fn normalize_material_record(record: &Value) -> Result<Value, String> {
+    // Producer normalizes retained optional G too, although E/nu-derived G is
+    // authoritative. All supplied point quantities receive the same unit checks.
+    let mut normalized = record.clone();
+    for (key, dimension) in [
+        ("elastic_modulus", Dimension::Stress),
+        ("shear_modulus", Dimension::Stress),
+        (
+            "thermal_expansion_coefficient",
+            Dimension::ThermalExpansionCoefficient,
+        ),
+        ("temperature", Dimension::Temperature),
+    ] {
+        if !record[key].is_null() {
+            normalized[key] = json!({"value": normalized_quantity(&record[key], dimension)?, "unit": canonical_unit(dimension).unwrap().definition().symbol});
+        }
+    }
+    Ok(normalized)
+}
+// Exact positive normalization used by pressure_exact::Scaled::from_f64.
+// Integer fraction conversion and its power-of-two division are exact for subnormals.
+fn positive_mantissa_exponent(value: f64) -> (f64, i32) {
+    let bits = value.to_bits();
+    let biased = ((bits >> 52) & 0x7ff) as i32;
+    let fraction = bits & ((1u64 << 52) - 1);
+    if biased != 0 {
+        (f64::from_bits((1022u64 << 52) | fraction), biased - 1022)
+    } else {
+        let highest = 63 - fraction.leading_zeros() as i32;
+        let scale = f64::from_bits(((highest + 1 + 1023) as u64) << 52);
+        ((fraction as f64) / scale, highest + 1 - 1074)
+    }
+}
+fn checked_material_pair(e_pa: f64, nu: f64, stage: &str) -> Result<f64, String> {
+    require(
+        e_pa.is_finite() && e_pa > 0.0 && nu.is_finite() && -1.0 < nu && nu < 0.5,
+        &format!("ACTUAL_PAIR_INPUT_RANGE:{stage}"),
+    )?;
+    // In this admitted nu range the producer's Scaled add/mul denominator is
+    // exactly these ordered, bounded, normal binary64 operations. Only division
+    // needs the full Scaled domain; do not admit by a direct E/denominator test.
+    let denominator = 2.0 * (1.0 + nu);
+    let (em, ee) = positive_mantissa_exponent(e_pa);
+    let (dm, de) = positive_mantissa_exponent(denominator);
+    let (gm, ge) = positive_mantissa_exponent(em / dm);
+    let exponent = ee - de + ge;
+    // Preserve Scaled::to_f64 including its strict lower cutoff and split upper
+    // boundary multiply. Positive subnormal G is allowed if it survives rounding.
+    let g_pa = if exponent > 1024 {
+        f64::INFINITY
+    } else if exponent == 1024 {
+        (gm * f64::from_bits(2046u64 << 52)) * 2.0
+    } else if exponent < -1074 {
+        0.0
+    } else {
+        let scale = if exponent >= -1022 {
+            f64::from_bits(((exponent + 1023) as u64) << 52)
+        } else {
+            f64::from_bits(1u64 << (exponent + 1074))
+        };
+        gm * scale
+    };
+    require(
+        g_pa.is_finite() && g_pa > 0.0,
+        &format!("ACTUAL_DERIVED_SHEAR_RANGE:{stage}"),
+    )?;
+    Ok(g_pa)
+}
+fn selected_material(authored: &Value, actual: &Value) -> Result<MaterialSelection, String> {
+    let base = normalize_material_record(authored)?;
+    // Producer resolve_base precedes every exact case, including selected points.
+    checked_material_pair(
+        num(&base["elastic_modulus"]["value"])?,
+        poisson(&base["poisson_ratio"])?,
+        "base",
+    )?;
+    let points = authored["temperature_points"]
+        .as_array()
+        .map_or(Ok(Vec::new()), |points| {
+            points
+                .iter()
+                .map(normalize_material_record)
+                .collect::<Result<Vec<_>, String>>()
+        })?;
+    require(
+        actual["modulus_basis_ref"].is_null() || actual["modulus_basis_temperature"].is_null(),
+        "ACTUAL_MATERIAL_SELECTION_CONFLICT",
+    )?;
+    let selected = if !actual["modulus_basis_ref"].is_null() {
+        points
+            .iter()
+            .find(|p| p["id"] == actual["modulus_basis_ref"])
+            .ok_or("PHYSICS_SOURCE_ACTUAL_POINT")?
+            .clone()
+    } else if actual["modulus_basis_temperature"].is_null() {
+        base
+    } else {
+        let t = normalized_quantity(&actual["modulus_basis_temperature"], Dimension::Temperature)?;
+        let mut points = points
+            .iter()
+            .filter(|p| !p["temperature"].is_null())
+            .collect::<Vec<_>>();
+        points.sort_by(|a, b| {
+            a["temperature"]["value"]
+                .as_f64()
+                .unwrap()
+                .total_cmp(&b["temperature"]["value"].as_f64().unwrap())
+        });
+        require(
+            !points
+                .windows(2)
+                .any(|p| p[0]["temperature"]["value"] == p[1]["temperature"]["value"]),
+            "ACTUAL_MATERIAL_DUPLICATE_TEMPERATURE",
+        )?;
+        // Exact-profile temperature selection has strict brackets, no endpoint fallback.
+        let p = points
+            .windows(2)
+            .find(|p| {
+                p[0]["temperature"]["value"].as_f64().unwrap() < t
+                    && t < p[1]["temperature"]["value"].as_f64().unwrap()
+            })
+            .ok_or("PHYSICS_SOURCE_ACTUAL_BRACKET")?;
+        let a = num(&p[0]["temperature"]["value"])?;
+        let b = num(&p[1]["temperature"]["value"])?;
+        let f = (t - a) / (b - a);
+        let interpolate = |a: f64, b: f64| (1.0 - f) * a + f * b;
+        let e0 = num(&p[0]["elastic_modulus"]["value"])?;
+        let e1 = num(&p[1]["elastic_modulus"]["value"])?;
+        let nu0 = poisson(&p[0]["poisson_ratio"])?;
+        let nu1 = poisson(&p[1]["poisson_ratio"])?;
+        checked_material_pair(e0, nu0, "lower_bracket")?;
+        checked_material_pair(e1, nu1, "upper_bracket")?;
+        let alpha = if p[0]["thermal_expansion_coefficient"].is_null()
+            || p[1]["thermal_expansion_coefficient"].is_null()
+        {
+            None
+        } else {
+            Some(interpolate(
+                num(&p[0]["thermal_expansion_coefficient"]["value"])?,
+                num(&p[1]["thermal_expansion_coefficient"]["value"])?,
+            ))
+        };
+        json!({"elastic_modulus":{"value":interpolate(e0,e1)}, "poisson_ratio":{"value":interpolate(nu0, nu1),"unit":"1"},
+            "thermal_expansion_coefficient":alpha.map(|v|json!({"value":v}))})
+    };
+    let e = num(&selected["elastic_modulus"]["value"])?;
+    let nu = poisson(&selected["poisson_ratio"])?;
+    checked_material_pair(e, nu, "selected")?;
+    let alpha = if selected["thermal_expansion_coefficient"].is_null() {
+        None
+    } else {
+        Some(num(&selected["thermal_expansion_coefficient"]["value"])?)
+    };
+    Ok(MaterialSelection { e, nu, alpha })
+}
+/// S-C (B3D-12): also the exact retained reader's G8 step 5, unchanged.
+pub(crate) fn actual_materials(invocation: &Value, actual: &Value, exact: &Value) -> Result<(), String> {
+    let model = &invocation["request"]["model"];
+    let materials = invocation["request"]
+        .get("materials")
+        .filter(|m| m.as_array().is_some_and(|a| !a.is_empty()))
+        .unwrap_or(&model["materials"]);
+    let pipes = array(&model["pipe_segments"])?;
+    require(
+        pipes.len() == array(&exact["pipe_sections"])?.len()
+            && pipes.len() == array(&exact["pipe_materials"])?.len(),
+        "ACTUAL_MATERIAL_COVERAGE",
+    )?;
+    // T4-U8 (§3.6, §5) and O4 (§3.4): each section states the beam theory
+    // the captured contract selects for its straight member
+    // (`section_basis::selected_model`, arc = false; neither caller admits a
+    // realized arc). A contract naming no admitted model fails closed; G8's
+    // `exact_namespace` still admits only euler_bernoulli contracts.
+    let shear_model = model["pressure_contract"]["shear_model"]
+        .as_str()
+        .filter(|m| [crate::section_basis::EULER_BERNOULLI, crate::section_basis::TIMOSHENKO].contains(m));
+    for ((pipe, section), material) in pipes
+        .iter()
+        .zip(array(&exact["pipe_sections"])?)
+        .zip(array(&exact["pipe_materials"])?)
+    {
+        require(
+            pipe["id"] == section["pipe_id"]
+                && pipe["id"] == material["pipe_id"]
+                && pipe["material"] == material["material_id"],
+            "ACTUAL_MATERIAL_MEMBER",
+        )?;
+        let authored_section = &pipe["section"];
+        let tolerance = if authored_section["mill_tolerance"].is_null() {
+            0.0
+        } else {
+            normalized_quantity(&authored_section["mill_tolerance"], Dimension::Length)?
+        };
+        // T4-U6 (D-5): the section's captured authored values are the
+        // invocation's (D, t, c_m, c_a); the pressure-2 checks rederived its
+        // three geometries from them. D and t bind bit for bit; c_m and c_a
+        // bind by value, so a signed zero (which leaves (t - c_m) - c_a = t bit
+        // for bit) is the zero it denotes.
+        let allowance = normalized_quantity(&authored_section["corrosion_allowance"], Dimension::Length)?;
+        require(
+            same(
+                &section["outside_diameter_m"],
+                normalized_quantity(&authored_section["outside_diameter"], Dimension::Length)?,
+            )? && same(
+                &section["wall_thickness_m"],
+                normalized_quantity(&authored_section["wall_thickness"], Dimension::Length)?,
+            )? && section["mill_tolerance_m"].as_f64() == Some(tolerance)
+                && section["corrosion_allowance_m"].as_f64() == Some(allowance),
+            "ACTUAL_SOURCE_GEOMETRY",
+        )?;
+        require(
+            shear_model.is_some_and(|m| {
+                section["beam_theory"]["model"].as_str() == Some(crate::section_basis::selected_model(m, false))
+            }),
+            "ACTUAL_SHEAR_MODEL",
+        )?;
+        let authored = array(materials)?
+            .iter()
+            .find(|m| m["id"] == pipe["material"])
+            .ok_or("PHYSICS_SOURCE_ACTUAL_MATERIAL")?;
+        require(
+            authored["constitutive_basis"] == material["constitutive_basis"],
+            "ACTUAL_CONSTITUTIVE_BASIS",
+        )?;
+        let selected = selected_material(authored, actual)?;
+        let thermal = array(&actual["primitive_loads"])?.iter().any(|load| {
+            load["category"] == "thermal"
+                && matches!(
+                    load["dimension"].as_str(),
+                    Some("temperature_change" | "temperature_interval")
+                )
+                && load["target"]["type"] == "element"
+                && load["target"]["pipe"] == pipe["id"]
+        });
+        require(
+            same(&material["E_pa"], selected.e)?
+                && same(&material["nu"], selected.nu)?
+                && material["thermal_consumed"] == thermal,
+            "ACTUAL_SELECTED_MATERIAL",
+        )?;
+        require(
+            if thermal {
+                selected.alpha.is_some_and(|alpha| {
+                    material["alpha_per_kelvin"]
+                        .as_f64()
+                        .is_some_and(|claim| claim.to_bits() == alpha.to_bits())
+                })
+            } else {
+                material["alpha_per_kelvin"].is_null()
+            },
+            "ACTUAL_SELECTED_ALPHA",
+        )?;
+    }
+    Ok(())
+}
+fn section_functionals(record: &Value) -> Result<(), String> {
+    let plan = &record["source"];
+    let members = array(&plan["section_functionals"])?;
+    let endpoints = array(&plan["endpoint_sections"])?;
+    require(
+        members
+            .iter()
+            .map(|m| &m["pipe_id"])
+            .eq(array(&plan["member_ids"])?.iter())
+            && members.len() == endpoints.len(),
+        "SECTION_FUNCTIONAL_MEMBERS",
+    )?;
+    let cid = text(&record["basis_ref"]["ref_id"])?;
+    let mut indices = HashSet::new();
+    for (member, endpoint) in members.iter().zip(endpoints) {
+        let stations = array(&member["stations"])?;
+        require(stations.len() == 5, "SECTION_FUNCTIONAL_STATIONS")?;
+        for (slot, station) in stations.iter().enumerate() {
+            require(
+                num(&station["station_fraction"])? == [0.0, 0.25, 0.5, 0.75, 1.0][slot],
+                "SECTION_FUNCTIONAL_STATIONS",
+            )?;
+            for ((i, id), action) in array(&station["functional_indices"])?
+                .iter()
+                .zip(array(&station["functional_ids"])?)
+                .zip(array(&station["actions"])?)
+            {
+                let i = i.as_u64().ok_or("PHYSICS_SOURCE_SECTION_INDEX")?;
+                require(
+                    indices.insert(i)
+                        && i < plan["functional_count"]
+                            .as_u64()
+                            .ok_or("PHYSICS_SOURCE_FUNCTIONAL_COUNT")?
+                        && *id == format!("source-functional:{}:{cid}:{i}", cid.len()),
+                    "SECTION_FUNCTIONAL_ID",
+                )?;
+                let [lo, hi] = interval(&action["interval"])?;
+                let v = num(&action["value"])?;
+                require(lo <= v && v <= hi, "SECTION_FUNCTIONAL_INTERVAL")?;
+                if v == 0.0 {
+                    require(lo == 0.0 && hi == 0.0, "SECTION_ZERO_CERTIFICATE")?;
+                } else {
+                    let arithmetic = 128.0 * f64::EPSILON;
+                    let limit = (1e-9 - arithmetic) / (1.0 + arithmetic);
+                    require(
+                        lo.signum() == hi.signum()
+                            && lo != 0.0
+                            && hi != 0.0
+                            && (v - lo).abs().max((hi - v).abs()) / lo.abs().min(hi.abs()) <= limit,
+                        "SECTION_FUNCTIONAL_CRITERION",
+                    )?;
+                }
+            }
+        }
+        for (i, station) in [0usize, 4].into_iter().map(|s| &stations[s]).enumerate() {
+            let pick = |key: &str| {
+                [0usize, 4, 5]
+                    .into_iter()
+                    .map(|c| station[key][c].clone())
+                    .collect::<Vec<_>>()
+            };
+            // T4-U6 (A2): the endpoint section is its stations', bit for bit.
+            require(
+                bit_equal(
+                    &endpoint["endpoints"][i],
+                    &json!({"station_fraction":station["station_fraction"],"functional_indices":pick("functional_indices"),"functional_ids":pick("functional_ids"),"actions":pick("actions")}),
+                ),
+                "ENDPOINT_SECTION_LINK",
+            )?;
+        }
+    }
+    Ok(())
+}
+fn validate_stress(
+    source: &Value,
+    record: &Value,
+    row: &Value,
+    inputs: &[&Value],
+) -> Result<(), String> {
+    let checks = array(&record["section_stress_checks"])?
+        .iter()
+        .filter(|c| c["result_id"] == row["id"])
+        .collect::<Vec<_>>();
+    require(checks.len() == 1 && inputs.is_empty(), "STRESS_CHECK_ID")?;
+    let check = checks[0];
+    let (component, label) = match text(&row["kind"])? {
+        "element_local_axial_normal_stress" => (0, "axial_normal_stress"),
+        "element_local_bending_normal_stress_y" => (4, "bending_normal_stress_y"),
+        "element_local_bending_normal_stress_z" => (5, "bending_normal_stress_z"),
+        "element_local_torsional_shear_stress" => (3, "torsional_shear_stress"),
+        _ => return Err("PHYSICS_SOURCE_STRESS_KIND".into()),
+    };
+    let location = text(&row["metadata"]["location"])?;
+    let index = ["end_i", "quarter_1", "midspan", "quarter_3", "end_j"]
+        .iter()
+        .position(|s| *s == location)
+        .ok_or("PHYSICS_SOURCE_STRESS_LOCATION")?;
+    require(
+        row["metadata"]["component"] == label
+            && row["unit"] == "MPa"
+            && check["pipe_id"] == row["entity_ref"]
+            && check["location"] == location
+            && check["component"] == label
+            && check["recipe_id"] == "retained_source_straight_stress_v1",
+        "STRESS_SIGNATURE",
+    )?;
+    let member = array(&record["source"]["section_functionals"])?
+        .iter()
+        .find(|m| m["pipe_id"] == row["entity_ref"])
+        .ok_or("PHYSICS_SOURCE_STRESS_MEMBER")?;
+    let station = &member["stations"][index];
+    // T4-U6 (A2): the check's action is its station's, bit for bit.
+    require(
+        check["functional_index"] == station["functional_indices"][component]
+            && check["functional_id"] == station["functional_ids"][component]
+            && bit_equal(&check["action"], &station["actions"][component]),
+        "STRESS_FUNCTIONAL_LINK",
+    )?;
+    let exact = array(&source["contract_evidence"]["exact_cases"])?
+        .iter()
+        .find(|c| c["load_case_id"] == record["basis_ref"]["ref_id"])
+        .ok_or("PHYSICS_SOURCE_STRESS_CASE")?;
+    let section = array(&exact["pipe_sections"])?
+        .iter()
+        .find(|s| s["pipe_id"] == row["entity_ref"])
+        .ok_or("PHYSICS_SOURCE_STRESS_SECTION")?;
+    let params = &check["parameters"];
+    // O4 (§3.2, §3.4): a check's parameters are its own row's basis section
+    // (`As_m2`, `Z_m3`, `J_m4`, `ro_m`). They first name one of the two bases'
+    // sections (both, where the bases coincide); once the row's basis is
+    // read, they must be that basis's.
+    let basis_parameters = |b: &str| {
+        crate::json_value_eq(
+            params,
+            &json!({"area_m2":section[b]["As_m2"],"section_modulus_m3":section[b]["Z_m3"],"torsion_radius_m":section["ro_m"],"torsion_constant_m4":section[b]["J_m4"],"pa_per_mpa":1e6}),
+        )
+    };
+    require(crate::section_basis::BASES.iter().any(|b| basis_parameters(b)), "STRESS_SECTION_PARAMETERS")?;
+    let (token, basis) = crate::section_basis::split_token(row["metadata"]["basis"].as_str().unwrap_or_default())
+        .filter(|(_, b)| row["id"].as_str().and_then(crate::section_basis::id_basis) == Some(*b))
+        .ok_or("PHYSICS_SOURCE_STRESS_SECTION_BASIS")?;
+    require(basis_parameters(basis), "STRESS_SECTION_PARAMETERS")?;
+    // T4-U6 (§5) and O4 (§3.4): a reduced row's check shares recipe, pipe,
+    // location, component, functional and action with its nominal twin, bit
+    // for bit; its parameters are the reduced section's (above) and its value
+    // is recomputed below, so it equals its twin's only where the sections do.
+    if basis == crate::section_basis::REDUCED {
+        let twin_id = row["id"].as_str().and_then(crate::section_basis::twin_id).unwrap_or_default();
+        let twin = array(&source["results"])?
+            .iter()
+            .find(|r| r["id"] == twin_id.as_str())
+            .ok_or("PHYSICS_SOURCE_STRESS_BASIS_TWIN")?;
+        let twins = array(&record["section_stress_checks"])?
+            .iter()
+            .filter(|c| c["result_id"] == twin_id.as_str())
+            .collect::<Vec<_>>();
+        require(
+            twins.len() == 1
+                && crate::section_basis::split_token(twin["metadata"]["basis"].as_str().unwrap_or_default())
+                    == Some((token, crate::section_basis::NOMINAL))
+                && ["recipe_id", "pipe_id", "location", "component", "functional_index", "functional_id"]
+                    .iter()
+                    .all(|k| twins[0][*k] == check[*k])
+                && bit_equal(&twins[0]["action"], &check["action"]),
+            "STRESS_BASIS_TWIN",
+        )?;
+    }
+    let action = num(&check["action"]["value"])?;
+    if component == 3 && action != 0.0 {
+        require(
+            (action * num(&params["torsion_radius_m"])?).is_normal(),
+            "STRESS_TORSION_INTERMEDIATE_RANGE",
+        )?;
+    }
+    let pa = if component == 0 {
+        action / num(&params["area_m2"])?
+    } else if component == 3 {
+        action * num(&params["torsion_radius_m"])? / num(&params["torsion_constant_m4"])?
+    } else {
+        action / num(&params["section_modulus_m3"])?
+    };
+    let value = pa / 1e6;
+    require(
+        if action == 0.0 {
+            pa == 0.0 && value == 0.0
+        } else {
+            pa.is_normal() && value.is_normal()
+        },
+        "STRESS_PUBLICATION_RANGE",
+    )?;
+    require(same(&row["value"], value)?, "STRESS_RECIPE_VALUE")
+}
+pub fn validate(source: &Value, actual_invocation: Option<&Value>) -> Result<bool, String> {
+    validate_in(source, actual_invocation, SourceContract::PressureV3)
+}
+/// Raw admission under a caller-selected source contract. The invocation fixes
+/// its expected contract independently of every received label and profile.
+pub fn validate_in(source: &Value, actual_invocation: Option<&Value>, contract: SourceContract) -> Result<bool, String> {
+    if let Some(invocation) = actual_invocation { contract.check_invocation(invocation)?; }
+    contract.check_received(source)?;
+    let resolved = contract == SourceContract::PressureV3 && source["contract_evidence"].get("load_reference_states").is_some();
+    if contract == SourceContract::PressureV3 {
+        if let Some(invocation) = actual_invocation {
+            let model = &invocation["request"]["model"];
+            require(model["schema_version"] == "0.8.0", "ACTUAL_MODEL_SCHEMA")?;
+            require(resolved == model_carries_load_state(model), "ACTUAL_LOAD_REFERENCE_CONTEXT")?;
+        }
+    }
+    if resolved { crate::load_reference_source::validate_pressure_source_evidence(source, true)?; }
+    validate_transport_metadata_in(source, contract)?;
+    crate::physics_evidence::validate_physics_evidence_in(source, true, contract.pressure())?;
+    let eligible = crate::source_blocks::validate_source_contract_in(source, actual_invocation, contract)?;
+    if let Some(invocation) = actual_invocation.filter(|_| !resolved) {
+        for exact in array(&source["contract_evidence"]["exact_cases"])? {
+            let actual = array(&invocation["request"]["model"]["load_cases"])?
+                .iter()
+                .find(|c| c["id"] == exact["load_case_id"])
+                .ok_or("PHYSICS_SOURCE_ACTUAL_CASE")?;
+            actual_materials(invocation, actual, exact)?;
+        }
+    }
+    // T1 still holds: reading and binding the current resolved state does not
+    // independently rederive it from the captured request (join standing ruling).
+    Ok(eligible && !resolved)
+}
+
+#[cfg(test)]
+mod review_repair_tests {
+    use super::*;
+    fn isolated_torsion(action: f64) -> (Value, Value, Value) {
+        // Isolated scalar helper input, deliberately not full/resealed source evidence.
+        let mut source: Value = serde_json::from_str(include_str!(
+            "../../../../fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json"
+        ))
+        .unwrap();
+        let mut case = source["source_block_recovery"]["body"]["cases"][0].clone();
+        let index = case["section_stress_checks"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .position(|c| c["component"] == "torsional_shear_stress")
+            .unwrap();
+        let check = case["section_stress_checks"][index].clone();
+        let mut row = source["results"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|r| r["id"] == check["result_id"])
+            .unwrap()
+            .clone();
+        let member = case["source"]["section_functionals"]
+            .as_array_mut()
+            .unwrap()
+            .iter_mut()
+            .find(|m| m["pipe_id"] == row["entity_ref"])
+            .unwrap();
+        let station = ["end_i", "quarter_1", "midspan", "quarter_3", "end_j"]
+            .iter()
+            .position(|s| row["metadata"]["location"] == *s)
+            .unwrap();
+        let action_value = json!({"value":action,"interval":[action,action]});
+        member["stations"][station]["actions"][3] = action_value.clone();
+        case["section_stress_checks"][index]["action"] = action_value;
+        let section = source["contract_evidence"]["exact_cases"][0]["pipe_sections"]
+            .as_array_mut()
+            .unwrap()
+            .iter_mut()
+            .find(|s| s["pipe_id"] == row["entity_ref"])
+            .unwrap();
+        section["ro_m"] = json!(1e-40);
+        // T4-U6 (§2.3): the one source section binds both bases.
+        section["nominal_section"]["J_m4"] = json!(1e-160);
+        section["reduced_section"]["J_m4"] = json!(1e-160);
+        case["section_stress_checks"][index]["parameters"]["torsion_radius_m"] = json!(1e-40);
+        case["section_stress_checks"][index]["parameters"]["torsion_constant_m4"] = json!(1e-160);
+        row["value"] = json!(action * 1e-40 / 1e-160 / 1e6);
+        (source, case, row)
+    }
+    /// E15: the composite support and endpoint norms are the correctly rounded
+    /// value; the former max-scaled recipe's last bit is no longer reproduced.
+    #[test]
+    fn e15_composite_norms_are_correctly_rounded() {
+        assert_eq!(norm(&[3.0, 4.0, 0.0]).unwrap().to_bits(), 5.0_f64.to_bits());
+        assert_eq!(
+            norm(&[-1.327, -8.603, -8.186]).unwrap().to_bits(),
+            0x4027_e5fc_308f_80ed
+        );
+        assert_eq!(norm(&[7.944, 6.99]).unwrap().to_bits(), 0x4025_29b4_c153_125e);
+        assert_eq!(norm(&[0.0, -0.0]).unwrap().to_bits(), 0);
+        assert!(norm(&[f64::MAX, f64::MAX]).is_err());
+        assert!(norm(&[1.0]).is_err());
+    }
+    #[test]
+    fn torsion_rejects_subnormal_intermediate_while_preserving_zero_and_normal() {
+        let (source, case, row) = isolated_torsion(1e-280);
+        assert!(num(&row["value"]).unwrap().is_normal());
+        assert_eq!(
+            validate_stress(&source, &case, &row, &[]),
+            Err("PHYSICS_SOURCE_STRESS_TORSION_INTERMEDIATE_RANGE".into())
+        );
+        for action in [0.0, -0.0, 1e-200, -1e-200] {
+            let (source, case, row) = isolated_torsion(action);
+            assert_eq!(validate_stress(&source, &case, &row, &[]), Ok(()));
+        }
+    }
+    #[test]
+    fn actual_materials_bind_each_section_beam_theory_to_the_contract_selection() {
+        // T4-U8 (§3.6, §5) and O4 (§3.4): each captured section states the
+        // model its contract selects for a straight member
+        // (`section_basis::selected_model`, arc = false), under either
+        // admitted contract; a contract naming no admitted model fails closed.
+        let request: Value = serde_json::from_str(include_str!(
+            "../../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json"
+        ))
+        .unwrap();
+        let invocation = json!({"request": request, "solver_mode": "sparse_interactive"});
+        let exact = |invocation: &Value, beam: Value| {
+            let model = &invocation["request"]["model"];
+            let (pipe, authored) = (&model["pipe_segments"][0], &model["materials"][0]);
+            let length = |q: &Value| normalized_quantity(q, Dimension::Length).unwrap();
+            let selected = selected_material(authored, &model["load_cases"][0]).unwrap();
+            json!({"pipe_sections": [{"pipe_id": pipe["id"], "outside_diameter_m": length(&pipe["section"]["outside_diameter"]),
+                "wall_thickness_m": length(&pipe["section"]["wall_thickness"]), "mill_tolerance_m": 0.0,
+                "corrosion_allowance_m": length(&pipe["section"]["corrosion_allowance"]), "beam_theory": beam}],
+                "pipe_materials": [{"pipe_id": pipe["id"], "material_id": pipe["material"],
+                    "constitutive_basis": authored["constitutive_basis"], "E_pa": selected.e, "nu": selected.nu,
+                    "thermal_consumed": false, "alpha_per_kelvin": null}]})
+        };
+        let check = |invocation: &Value, beam: Value| {
+            actual_materials(invocation, &invocation["request"]["model"]["load_cases"][0], &exact(invocation, beam))
+        };
+        let euler = json!({"model": crate::section_basis::EULER_BERNOULLI});
+        let timoshenko = json!({"model": crate::section_basis::TIMOSHENKO, "shear_factor": 0.5, "shear_area_m2": 1e-3});
+        assert_eq!(check(&invocation, euler.clone()), Ok(()));
+        for beam in [timoshenko.clone(), json!({"model": "cowper"}), Value::Null] {
+            assert_eq!(check(&invocation, beam), Err("PHYSICS_SOURCE_ACTUAL_SHEAR_MODEL".into()));
+        }
+        // A Timoshenko contract selects Timoshenko for its straight members
+        // (kappa and A_s are the evidence reader's, `section_basis::beam_theory`).
+        let mut other = invocation.clone();
+        other["request"]["model"]["pressure_contract"]["shear_model"] = json!(crate::section_basis::TIMOSHENKO);
+        assert_eq!(check(&other, timoshenko.clone()), Ok(()));
+        for beam in [euler.clone(), json!({"model": "cowper"}), Value::Null] {
+            assert_eq!(check(&other, beam), Err("PHYSICS_SOURCE_ACTUAL_SHEAR_MODEL".into()));
+        }
+        // A contract naming no admitted model fails closed, whatever the section states.
+        for shear in [json!("cowper"), Value::Null, json!(5)] {
+            let mut unknown = invocation.clone();
+            unknown["request"]["model"]["pressure_contract"]["shear_model"] = shear;
+            for beam in [euler.clone(), timoshenko.clone(), json!({"model": "cowper"})] {
+                assert_eq!(check(&unknown, beam), Err("PHYSICS_SOURCE_ACTUAL_SHEAR_MODEL".into()));
+            }
+        }
+    }
+    #[test]
+    fn normalized_named_point_and_strict_bracket_match_actual_materials() {
+        let request: Value = serde_json::from_str(include_str!(
+            "../../../../fixtures/product_preview/pressure_source/physics_source/mixed_units.request.json"
+        ))
+        .unwrap();
+        let source:Value=serde_json::from_str(include_str!("../../../../fixtures/product_preview/pressure_source/physics_source/mixed_units-sparse_interactive.raw.json")).unwrap();
+        let material = &request["model"]["materials"][0];
+        let case = &request["model"]["load_cases"][1];
+        let selected = selected_material(material, case).unwrap();
+        assert!(same(
+            &source["contract_evidence"]["exact_cases"][1]["pipe_materials"][0]["E_pa"],
+            selected.e
+        )
+        .unwrap());
+        assert_eq!(
+            selected_material(material, &json!({"modulus_basis_ref":"point:lower"}))
+                .unwrap()
+                .e,
+            1000.0
+        );
+        assert!(selected_material(
+            material,
+            &json!({"modulus_basis_temperature":{"value":0,"unit":"degC"}})
+        )
+        .is_err());
+        let mut alpha_material = material.clone();
+        alpha_material["temperature_points"][0]["thermal_expansion_coefficient"] =
+            json!({"value":1e-5,"unit":"1/degC"});
+        alpha_material["temperature_points"][1]["thermal_expansion_coefficient"] =
+            json!({"value":1e-5,"unit":"1/degF"});
+        let selected = selected_material(&alpha_material, case).unwrap();
+        let p0 = &alpha_material["temperature_points"][0];
+        let p1 = &alpha_material["temperature_points"][1];
+        let t = normalized_quantity(&case["modulus_basis_temperature"], Dimension::Temperature)
+            .unwrap();
+        let t0 = normalized_quantity(&p0["temperature"], Dimension::Temperature).unwrap();
+        let t1 = normalized_quantity(&p1["temperature"], Dimension::Temperature).unwrap();
+        let f = (t - t0) / (t1 - t0);
+        let a = normalized_quantity(
+            &p0["thermal_expansion_coefficient"],
+            Dimension::ThermalExpansionCoefficient,
+        )
+        .unwrap();
+        let b = normalized_quantity(
+            &p1["thermal_expansion_coefficient"],
+            Dimension::ThermalExpansionCoefficient,
+        )
+        .unwrap();
+        assert_eq!(
+            selected.alpha.unwrap().to_bits(),
+            ((1.0 - f) * a + f * b).to_bits()
+        );
+    }
+    #[test]
+    fn pair_domain_matches_scaled_adjacent_underflow_overflow_boundaries() {
+        // Source-domain scalar controls, no received result or Current claim.
+        let minimum = f64::from_bits(1);
+        let near_zero = -2.0_f64.powi(-54);
+        let cases = [
+            (minimum, 0.25, None),
+            (minimum, 0.0, None),
+            (minimum, near_zero, None),
+            (minimum, near_zero.next_down(), Some(minimum)),
+            (f64::from_bits(2), 0.25, Some(minimum)),
+            (minimum, -0.5, Some(minimum)),
+            (f64::MAX, -0.5, Some(f64::MAX)),
+            (f64::MAX, (-0.5_f64).next_down(), None),
+            (f64::MAX, (-0.5_f64).next_up(), Some(f64::MAX)),
+            (f64::MAX, 0.0, Some(f64::MAX * 0.5)),
+        ];
+        for (e, nu, expected) in cases {
+            let actual = checked_material_pair(e, nu, "boundary");
+            match expected {
+                Some(value) => assert_eq!(
+                    actual.unwrap().to_bits(),
+                    value.to_bits(),
+                    "E={e:e};nu={nu:e}"
+                ),
+                None => assert_eq!(
+                    actual,
+                    Err("PHYSICS_SOURCE_ACTUAL_DERIVED_SHEAR_RANGE:boundary".into())
+                ),
+            }
+        }
+    }
+    #[test]
+    fn every_consumed_pair_is_checked_before_selected_material_publication() {
+        for stage in ["base", "lower_bracket", "upper_bracket", "selected"] {
+            let request: Value = serde_json::from_str(include_str!(
+                "../../../../fixtures/product_preview/pressure_source/physics_source/mixed_units.request.json"
+            ))
+            .unwrap();
+            let mut material = request["model"]["materials"][0].clone();
+            let mut case = request["model"]["load_cases"][1].clone();
+            let invalid = json!({"value":f64::from_bits(1),"unit":"Pa"});
+            match stage {
+                "base" => material["elastic_modulus"] = invalid,
+                "lower_bracket" => material["temperature_points"][0]["elastic_modulus"] = invalid,
+                "upper_bracket" => material["temperature_points"][1]["elastic_modulus"] = invalid,
+                _ => {
+                    case.as_object_mut()
+                        .unwrap()
+                        .remove("modulus_basis_temperature");
+                    case["modulus_basis_ref"] = json!("point:lower");
+                    material["temperature_points"][0]["elastic_modulus"] = invalid;
+                }
+            }
+            let outcome = selected_material(&material, &case);
+            assert_eq!(
+                outcome.err(),
+                Some(format!("PHYSICS_SOURCE_ACTUAL_DERIVED_SHEAR_RANGE:{stage}"))
+            );
+        }
+    }
+}

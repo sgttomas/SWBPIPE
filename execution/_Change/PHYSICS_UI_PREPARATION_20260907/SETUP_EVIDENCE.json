@@ -1,0 +1,30 @@
+{
+  "timestamp_utc": "2026-09-08T03:25:50.026039+00:00",
+  "classification": "ISOLATED_WORKTREE",
+  "parent_agent": "/root",
+  "agent": "/root/prepare_change",
+  "role": "CHANGE Agent 1",
+  "delegation_class": "delegated-harness-native",
+  "role_enforcement": "instruction-asserted",
+  "non_delegation": "instruction+config asserted; no child dispatch",
+  "model_identity": "Not exposed by runtime; not inferred",
+  "original_root": "/Users/ryan/.codex/worktrees/8728/chirality",
+  "original_head": "35249accf139f52478d029458946e50ed25ee5dc",
+  "original_branch": "codex/piping-physics-audit",
+  "original_upstream": "origin/codex/piping-physics-audit",
+  "original_status_before_after": "?? projects/chirality-piping/plans/HANDOFF_2026-09-06_agent0_session_transition.md",
+  "handoff_path": "/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/plans/HANDOFF_2026-09-06_agent0_session_transition.md",
+  "handoff_sha256_before_after": "ebbed866266cc961344151519b2792c6cfc5889eb18143a7809be69700c56035",
+  "remote_main_verified": "35249accf139f52478d029458946e50ed25ee5dc",
+  "new_root": "/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-preparation-20260907",
+  "new_branch": "codex/piping-physics-ui-preparation-20260907",
+  "base_sha": "35249accf139f52478d029458946e50ed25ee5dc",
+  "new_lane_status_before_evidence": "",
+  "fetch_required": false,
+  "git_operation_in_progress": false,
+  "writes": [
+    "/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-preparation-20260907/projects/chirality-piping/execution/_Change/PHYSICS_UI_PREPARATION_20260907"
+  ],
+  "closure": "SETUP_COMPLETE; preparation not implemented, accepted, committed or pushed",
+  "remaining": "Owning Agent 0 to dispatch bounded preparation and perform validated fan-in; future closeout separately handed to CHANGE"
+}

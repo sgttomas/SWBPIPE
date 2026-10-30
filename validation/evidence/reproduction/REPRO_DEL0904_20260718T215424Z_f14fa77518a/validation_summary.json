@@ -1,0 +1,24 @@
+{
+  "actual_exit_codes": {
+    "run_benchmark": 1,
+    "solve": 0,
+    "validate_input": 1
+  },
+  "all_pass": true,
+  "predicates": {
+    "run_benchmark_code_present": true,
+    "run_benchmark_exit_1": true,
+    "solve_exit_0": true,
+    "solve_job_completed": true,
+    "solve_request_diagnostics_empty": true,
+    "solve_result_diagnostics_empty": true,
+    "solve_result_refs_nonempty": true,
+    "solve_top_diagnostics_empty": true,
+    "validate_input_code_present": true,
+    "validate_input_exit_1": true,
+    "validate_input_no_solver_result": true
+  },
+  "result_refs_count": 830,
+  "run_id": "REPRO_DEL0904_20260718T215424Z_f14fa77518a",
+  "schema": "chirality-reproduction-validation/v1"
+}

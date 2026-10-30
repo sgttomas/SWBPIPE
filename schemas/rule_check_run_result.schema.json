@@ -1,0 +1,169 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openpipestress.org/schemas/rule_check_run_result.schema.json",
+  "title": "OpenPipeStress Rule-Check Run Result",
+  "description": "Strict JSON syntax schema for the rule_check_runner result: one outcome per check and basis (rule-pack format 0.5.0: each check on each required load case or combination its stress category maps, in check order and then mapping order; DEL-06-01 Design rule-pack-0.5.0.md §2.7) plus the pack aggregate over all outcomes. Published by piping DEL-10-03 as the standalone result-schema declaration cited by the tier-0 profile's deterministic_check_result_schema hook. Derived field-by-field from the Rust source of truth core/rules/rule_check_runner/src/lib.rs (DOCUMENT_KIND :74, PROFESSIONAL_BOUNDARY_NOTICE :78-80, RuleCheckStatus :141-150, ComputedQuantity :171-177, BoundInput :179-193, RunFinding :195-202, CheckOutcome :204-223, RuleCheckRunResult :225-232, run_rule_checks :235); on any disagreement the Rust source governs. Software rule-check evidence only; not a professional, certification, sealing, authentication, approval, or code-compliance claim — human review remains required. The wider status vocabulary (MODEL_INCOMPLETE, MECHANICS_SOLVED, HUMAN_REVIEW_REQUIRED) and the external HUMAN_APPROVED_FOR_PROJECT record are intentionally not producible here.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "document_kind",
+    "rule_pack_id",
+    "grammar_version",
+    "aggregate_status",
+    "checks",
+    "professional_boundary_notice"
+  ],
+  "properties": {
+    "document_kind": {
+      "const": "openpipestress.rule_check.run",
+      "description": "DOCUMENT_KIND (lib.rs:74)."
+    },
+    "rule_pack_id": {
+      "type": "string",
+      "description": "Echoed from the rule pack's /metadata/rule_pack_id; empty string when absent (lib.rs:238-242)."
+    },
+    "grammar_version": {
+      "type": "string",
+      "description": "Echoed from the rule pack's /grammar_version; empty string when absent (lib.rs:243-247)."
+    },
+    "aggregate_status": {
+      "$ref": "#/$defs/RuleCheckStatus",
+      "description": "Aggregate precedence across all outcomes (one per check and basis): RULE_INPUTS_INCOMPLETE > USER_RULE_FAILED > USER_RULE_CHECKED, so the pack never headlines pass or fail while any check is incomplete (FR-RULE-003; RuleCheckStatus::aggregate_rank in lib.rs)."
+    },
+    "checks": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/CheckOutcome" },
+      "description": "One CheckOutcome per check and basis, in check order and then mapping order; a check_id repeats once per basis. Outcome identity is (check_id, basis_ref.ref_type, basis_ref.ref_id)."
+    },
+    "professional_boundary_notice": {
+      "type": "string",
+      "minLength": 1,
+      "description": "PROFESSIONAL_BOUNDARY_NOTICE (lib.rs:78-80); carried on every run result. The wording is the producer's and is not pinned by this schema, so documents emitted under earlier wordings stay valid."
+    }
+  },
+  "$defs": {
+    "RuleCheckStatus": {
+      "type": "string",
+      "enum": ["RULE_INPUTS_INCOMPLETE", "USER_RULE_CHECKED", "USER_RULE_FAILED"],
+      "description": "The three automatic rule-check statuses this runner may emit (lib.rs:141-150)."
+    },
+    "ComputedQuantity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "dimension", "unit_ref"],
+      "properties": {
+        "value": { "type": "number" },
+        "dimension": {
+          "type": "string",
+          "description": "snake_case dimension token (e.g. \"dimensionless\", \"stress\"); vocabulary owned by schemas/units.schema.yaml DimensionId."
+        },
+        "unit_ref": { "type": "string" }
+      },
+      "description": "A computed or limit quantity surfaced in a check outcome (lib.rs:171-177)."
+    },
+    "BoundInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["input_id", "source_kind", "supplied"],
+      "properties": {
+        "input_id": { "type": "string" },
+        "source_kind": {
+          "type": "string",
+          "description": "Echoes the rule pack's required_inputs source_kind (e.g. solver_result, user_supplied_rule_value, private_library_value); vocabulary owned by schemas/rule_pack.schema.yaml."
+        },
+        "supplied": { "type": "boolean" },
+        "value": { "type": "number" },
+        "unit": { "type": "string" },
+        "result_id": { "type": "string" },
+        "note": {
+          "type": "string",
+          "description": "Provenance note; for private_library_value inputs the library/record/slot identifiers are carried here — the value itself stays in the private library (IP boundary)."
+        }
+      },
+      "description": "What a single rule-pack input resolved to; value/unit/result_id/note are omitted when absent (serde skip_serializing_if; lib.rs:179-193)."
+    },
+    "RunFinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "severity", "subject_id", "message"],
+      "properties": {
+        "code": { "type": "string" },
+        "severity": {
+          "type": "string",
+          "description": "Open string in the Rust type, one of \"blocking\", \"warning\" or \"info\" (completeness findings carry the completeness checker's FindingSeverity). With interval bounds (run_rule_checks_with_bounds, S-I1), the interval outcome findings carry \"info\" for RULE_INTERVAL_ALL_PASS and RULE_INTERVAL_ALL_FAIL, and \"warning\" for RULE_RESULT_INDETERMINATE and RULE_INTERVAL_DIVIDE_BY_ZERO_RANGE."
+        },
+        "subject_id": { "type": "string" },
+        "message": { "type": "string" }
+      },
+      "description": "A finding from completeness or evaluation, traced to its engine (lib.rs:195-202)."
+    },
+    "CheckOutcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "check_id",
+        "category_ref",
+        "basis_ref",
+        "status",
+        "acceptability_relation",
+        "bound_inputs",
+        "completeness_findings",
+        "evaluator_findings",
+        "diagnostic_codes"
+      ],
+      "properties": {
+        "check_id": { "type": "string" },
+        "category_ref": {
+          "type": "string",
+          "description": "The check's stress category id (the pack's check_definitions[].category_ref.ref_id); empty only when the pack names none, which validation blocks before any run."
+        },
+        "basis_ref": {
+          "oneOf": [{ "$ref": "#/$defs/BasisRef" }, { "type": "null" }],
+          "description": "The load case or combination this outcome was evaluated on; every member of the outcome is for this basis alone. null only when the pack's structure gives the check no basis list (blocked by validation before any run); such an outcome is RULE_INPUTS_INCOMPLETE."
+        },
+        "status": { "$ref": "#/$defs/RuleCheckStatus" },
+        "computed_value": { "$ref": "#/$defs/ComputedQuantity" },
+        "limit_value": { "$ref": "#/$defs/ComputedQuantity" },
+        "acceptability_relation": {
+          "type": "string",
+          "enum": [
+            "less_than",
+            "less_than_or_equal",
+            "greater_than",
+            "greater_than_or_equal",
+            "formula_predicate",
+            "none"
+          ],
+          "description": "The relation that governed the result: one of the four ordering relations for a quantity-vs-limit check (default less_than_or_equal when absent from the pack), formula_predicate for a boolean formula, or none when blocked before acceptability (lib.rs:210-217)."
+        },
+        "bound_inputs": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/BoundInput" }
+        },
+        "completeness_findings": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/RunFinding" }
+        },
+        "evaluator_findings": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/RunFinding" }
+        },
+        "diagnostic_codes": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "description": "The outcome of one check_definition on one basis; computed_value/limit_value are omitted when absent (serde skip_serializing_if; CheckOutcome in lib.rs)."
+    },
+    "BasisRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ref_type", "ref_id"],
+      "properties": {
+        "ref_type": { "type": "string", "enum": ["load_case", "combination"] },
+        "ref_id": { "type": "string", "minLength": 1 }
+      },
+      "description": "A model load case or combination, as a rule pack's required load case names it and as a solved envelope row's basis_ref carries it (rule_pack_document BasisRef, re-exported by rule_check_runner)."
+    }
+  }
+}

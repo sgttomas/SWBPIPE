@@ -1,0 +1,45 @@
+{
+  "bindings": [],
+  "case_id": "case_03_accept_logical_not",
+  "declared_grammar_version": "1.0.0",
+  "description": "Boolean NOT over a false comparison.",
+  "expected": {
+    "findings": [],
+    "source_variable_ids": [],
+    "statuses": [
+      "mechanics_solved"
+    ],
+    "value": {
+      "kind": "boolean",
+      "value": true
+    }
+  },
+  "expression": {
+    "node": "unary",
+    "operand": {
+      "left": {
+        "node": "literal",
+        "quantity": {
+          "dimension": "dimensionless",
+          "unit_ref": "ratio",
+          "value": 1.0
+        }
+      },
+      "node": "compare",
+      "operator": "greater_than",
+      "right": {
+        "node": "literal",
+        "quantity": {
+          "dimension": "dimensionless",
+          "unit_ref": "ratio",
+          "value": 2.0
+        }
+      }
+    },
+    "operator": "not"
+  },
+  "required_variable_ids": [],
+  "statuses": [
+    "mechanics_solved"
+  ]
+}

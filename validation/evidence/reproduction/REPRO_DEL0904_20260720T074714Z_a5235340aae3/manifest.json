@@ -1,0 +1,701 @@
+{
+  "schema": "chirality-reproduction-bundle/v1",
+  "package_type": "derivative_package",
+  "authoritative_truth": false,
+  "run_id": "REPRO_DEL0904_20260720T074714Z_a5235340aae3",
+  "managed_run_id": "HELP-HUMAN-PIPING-20260719-MECHANICS-CAMPAIGN-R14",
+  "wave": "W5",
+  "deliverable_id": "DEL-09-04",
+  "package_id": "PKG-09",
+  "source_commit": "a5235340aae3c41cf227f5617e593b268936f6b3",
+  "adopted_candidate_brief": {
+    "path": "execution/_Coordination/CANDIDATE_BRIEF_2026-07-20_DEL-09-04_CLEAN_REPRO_R14.md",
+    "doc_id": "CB-2026-07-20-DEL-09-04-CLEAN-REPRO-R14-001",
+    "sha256": "702b56012c3d4afe7fe64a1dea4f703beb23571a9abe18f796282ada527539d4",
+    "adoption": "owner standing approval D-52/DEC-085 as refined by D-54/DEC-087, SHA-bound at governance commit f14fa77518a06f112ae72a8fcce4de0fab958d47",
+    "verifier": "COMMIT-SAFE (instances/W5/VERIFY_BRIEF.md)"
+  },
+  "decision_basis": [
+    "DEC-080",
+    "DEC-085",
+    "DEC-087"
+  ],
+  "procedure": {
+    "path": "docs/validation_manual/headless_runner_reproduction.md",
+    "sha256": "fa714cf44d5c3e8a54ff6e2f6883676b81e01755e2e07d36a5bd118576b299c1"
+  },
+  "software_workflow_profile": {
+    "path": "software-workflow.json",
+    "sha256": "123249634475e87207cd75740dc25e5061c08cc7a1708aa239105b27e30c9c2f"
+  },
+  "execution_posture": {
+    "local_clone_only": true,
+    "clone_command": "git clone --no-hardlinks --no-checkout <local REPO_ROOT> <mktemp>/checkout",
+    "detached_at_source_commit": true,
+    "network_used": false,
+    "cargo_offline": true,
+    "cargo_env": {
+      "CARGO_NET_OFFLINE": "true",
+      "CARGO_TARGET_DIR": "<mktemp>/target"
+    },
+    "provisioning_performed": false,
+    "sec44_contingency_used": false,
+    "sec44_contingency_note": "No offline cargo failure of the named gitignored-lockfile/ignored-build-state class occurred; no Cargo.lock copy; no install; no network. R12-ENVREPAIR-01 not invoked.",
+    "temporary_root_removed_after_evidence_copy": true
+  },
+  "commands": [
+    {
+      "command_id": "cmd01_generate_tp_runner_015_inputs",
+      "argv": [
+        "python3",
+        "validation/witness/inputs/generate_tp_runner_015_inputs.py"
+      ],
+      "cwd": "/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout/projects/chirality-piping",
+      "env_overrides": {},
+      "started_utc": "2026-07-20T07:49:24Z",
+      "ended_utc": "2026-07-20T07:49:24Z",
+      "duration_s": 0.024,
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "expected_match": true,
+      "stdout_file": "stdout/cmd01_generate_tp_runner_015_inputs.txt",
+      "stderr_file": "stderr/cmd01_generate_tp_runner_015_inputs.txt"
+    },
+    {
+      "command_id": "cmd02_scoped_diff_tp_runner_015_inputs",
+      "argv": [
+        "git",
+        "diff",
+        "--exit-code",
+        "--",
+        "validation/witness/inputs/tp_runner_015_final_cli_solve_input.json",
+        "validation/witness/inputs/tp_runner_015_final_cli_validation_blocking_input.json",
+        "validation/witness/inputs/tp_runner_015_final_cli_benchmark_stub_input.json"
+      ],
+      "cwd": "/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout/projects/chirality-piping",
+      "env_overrides": {},
+      "started_utc": "2026-07-20T07:49:24Z",
+      "ended_utc": "2026-07-20T07:49:24Z",
+      "duration_s": 0.108,
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "expected_match": true,
+      "stdout_file": "stdout/cmd02_scoped_diff_tp_runner_015_inputs.txt",
+      "stderr_file": "stderr/cmd02_scoped_diff_tp_runner_015_inputs.txt"
+    },
+    {
+      "command_id": "cmd03_solve_case1",
+      "argv": [
+        "cargo",
+        "run",
+        "--offline",
+        "--manifest-path",
+        "core/runner/headless/Cargo.toml",
+        "--bin",
+        "openpipestress-runner",
+        "--",
+        "solve",
+        "--input",
+        "validation/witness/inputs/tp_runner_015_final_cli_solve_input.json",
+        "--output",
+        "/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/outputs/tp_runner_015_solve.json"
+      ],
+      "cwd": "/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout/projects/chirality-piping",
+      "env_overrides": {
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/target"
+      },
+      "started_utc": "2026-07-20T07:49:24Z",
+      "ended_utc": "2026-07-20T07:49:32Z",
+      "duration_s": 7.265,
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "expected_match": true,
+      "stdout_file": "stdout/cmd03_solve_case1.txt",
+      "stderr_file": "stderr/cmd03_solve_case1.txt"
+    },
+    {
+      "command_id": "cmd04_validate_input_case2",
+      "argv": [
+        "cargo",
+        "run",
+        "--offline",
+        "--manifest-path",
+        "core/runner/headless/Cargo.toml",
+        "--bin",
+        "openpipestress-runner",
+        "--",
+        "validate-input",
+        "--input",
+        "validation/witness/inputs/tp_runner_015_final_cli_validation_blocking_input.json",
+        "--output",
+        "/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/outputs/tp_runner_015_validation_blocking.json"
+      ],
+      "cwd": "/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout/projects/chirality-piping",
+      "env_overrides": {
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/target"
+      },
+      "started_utc": "2026-07-20T07:49:32Z",
+      "ended_utc": "2026-07-20T07:49:32Z",
+      "duration_s": 0.374,
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "expected_match": true,
+      "stdout_file": "stdout/cmd04_validate_input_case2.txt",
+      "stderr_file": "stderr/cmd04_validate_input_case2.txt"
+    },
+    {
+      "command_id": "cmd05_run_benchmark_case3",
+      "argv": [
+        "cargo",
+        "run",
+        "--offline",
+        "--manifest-path",
+        "core/runner/headless/Cargo.toml",
+        "--bin",
+        "openpipestress-runner",
+        "--",
+        "run-benchmark",
+        "--input",
+        "validation/witness/inputs/tp_runner_015_final_cli_benchmark_stub_input.json",
+        "--output",
+        "/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/outputs/tp_runner_015_benchmark_stub.json"
+      ],
+      "cwd": "/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout/projects/chirality-piping",
+      "env_overrides": {
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/target"
+      },
+      "started_utc": "2026-07-20T07:49:32Z",
+      "ended_utc": "2026-07-20T07:49:32Z",
+      "duration_s": 0.358,
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "expected_match": true,
+      "stdout_file": "stdout/cmd05_run_benchmark_case3.txt",
+      "stderr_file": "stderr/cmd05_run_benchmark_case3.txt"
+    },
+    {
+      "command_id": "cmd06_generate_del1005_inputs",
+      "argv": [
+        "python3",
+        "validation/witness/inputs/generate_del1005_payload_binding_inputs.py"
+      ],
+      "cwd": "/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout/projects/chirality-piping",
+      "env_overrides": {},
+      "started_utc": "2026-07-20T07:49:32Z",
+      "ended_utc": "2026-07-20T07:49:32Z",
+      "duration_s": 0.041,
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "expected_match": true,
+      "stdout_file": "stdout/cmd06_generate_del1005_inputs.txt",
+      "stderr_file": "stderr/cmd06_generate_del1005_inputs.txt"
+    },
+    {
+      "command_id": "cmd07_scoped_diff_del1005_inputs",
+      "argv": [
+        "git",
+        "diff",
+        "--exit-code",
+        "--",
+        "validation/witness/inputs/del1005_payload_binding_benchmark_single_case_input.json",
+        "validation/witness/inputs/del1005_payload_binding_benchmark_multi_case_input.json",
+        "validation/witness/inputs/del1005_payload_binding_regression_full_suite_input.json",
+        "validation/witness/inputs/del1005_payload_binding_benchmark_payload_missing_input.json",
+        "validation/witness/inputs/del1005_payload_binding_regression_payload_missing_input.json"
+      ],
+      "cwd": "/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout/projects/chirality-piping",
+      "env_overrides": {},
+      "started_utc": "2026-07-20T07:49:32Z",
+      "ended_utc": "2026-07-20T07:49:33Z",
+      "duration_s": 0.142,
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "expected_match": true,
+      "stdout_file": "stdout/cmd07_scoped_diff_del1005_inputs.txt",
+      "stderr_file": "stderr/cmd07_scoped_diff_del1005_inputs.txt"
+    },
+    {
+      "command_id": "cmd08_benchmark_single_case",
+      "argv": [
+        "cargo",
+        "run",
+        "--offline",
+        "--manifest-path",
+        "core/runner/headless/Cargo.toml",
+        "--bin",
+        "openpipestress-runner",
+        "--",
+        "run-benchmark",
+        "--input",
+        "validation/witness/inputs/del1005_payload_binding_benchmark_single_case_input.json",
+        "--output",
+        "/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/outputs/del1005_benchmark_single_case.json"
+      ],
+      "cwd": "/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout/projects/chirality-piping",
+      "env_overrides": {
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/target"
+      },
+      "started_utc": "2026-07-20T07:49:33Z",
+      "ended_utc": "2026-07-20T07:49:33Z",
+      "duration_s": 0.368,
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "expected_match": true,
+      "stdout_file": "stdout/cmd08_benchmark_single_case.txt",
+      "stderr_file": "stderr/cmd08_benchmark_single_case.txt"
+    },
+    {
+      "command_id": "cmd09_benchmark_multi_case",
+      "argv": [
+        "cargo",
+        "run",
+        "--offline",
+        "--manifest-path",
+        "core/runner/headless/Cargo.toml",
+        "--bin",
+        "openpipestress-runner",
+        "--",
+        "run-benchmark",
+        "--input",
+        "validation/witness/inputs/del1005_payload_binding_benchmark_multi_case_input.json",
+        "--output",
+        "/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/outputs/del1005_benchmark_multi_case.json"
+      ],
+      "cwd": "/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout/projects/chirality-piping",
+      "env_overrides": {
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/target"
+      },
+      "started_utc": "2026-07-20T07:49:33Z",
+      "ended_utc": "2026-07-20T07:49:33Z",
+      "duration_s": 0.348,
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "expected_match": true,
+      "stdout_file": "stdout/cmd09_benchmark_multi_case.txt",
+      "stderr_file": "stderr/cmd09_benchmark_multi_case.txt"
+    },
+    {
+      "command_id": "cmd10_regression_full_suite",
+      "argv": [
+        "cargo",
+        "run",
+        "--offline",
+        "--manifest-path",
+        "core/runner/headless/Cargo.toml",
+        "--bin",
+        "openpipestress-runner",
+        "--",
+        "run-regression",
+        "--input",
+        "validation/witness/inputs/del1005_payload_binding_regression_full_suite_input.json",
+        "--output",
+        "/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/outputs/del1005_regression_full_suite.json"
+      ],
+      "cwd": "/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout/projects/chirality-piping",
+      "env_overrides": {
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/target"
+      },
+      "started_utc": "2026-07-20T07:49:33Z",
+      "ended_utc": "2026-07-20T07:49:34Z",
+      "duration_s": 0.356,
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "expected_match": true,
+      "stdout_file": "stdout/cmd10_regression_full_suite.txt",
+      "stderr_file": "stderr/cmd10_regression_full_suite.txt"
+    },
+    {
+      "command_id": "cmd11_benchmark_payload_missing",
+      "argv": [
+        "cargo",
+        "run",
+        "--offline",
+        "--manifest-path",
+        "core/runner/headless/Cargo.toml",
+        "--bin",
+        "openpipestress-runner",
+        "--",
+        "run-benchmark",
+        "--input",
+        "validation/witness/inputs/del1005_payload_binding_benchmark_payload_missing_input.json",
+        "--output",
+        "/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/outputs/del1005_benchmark_payload_missing.json"
+      ],
+      "cwd": "/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout/projects/chirality-piping",
+      "env_overrides": {
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/target"
+      },
+      "started_utc": "2026-07-20T07:49:34Z",
+      "ended_utc": "2026-07-20T07:49:34Z",
+      "duration_s": 0.349,
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "expected_match": true,
+      "stdout_file": "stdout/cmd11_benchmark_payload_missing.txt",
+      "stderr_file": "stderr/cmd11_benchmark_payload_missing.txt"
+    },
+    {
+      "command_id": "cmd12_regression_payload_missing",
+      "argv": [
+        "cargo",
+        "run",
+        "--offline",
+        "--manifest-path",
+        "core/runner/headless/Cargo.toml",
+        "--bin",
+        "openpipestress-runner",
+        "--",
+        "run-regression",
+        "--input",
+        "validation/witness/inputs/del1005_payload_binding_regression_payload_missing_input.json",
+        "--output",
+        "/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/outputs/del1005_regression_payload_missing.json"
+      ],
+      "cwd": "/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout/projects/chirality-piping",
+      "env_overrides": {
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/target"
+      },
+      "started_utc": "2026-07-20T07:49:34Z",
+      "ended_utc": "2026-07-20T07:49:34Z",
+      "duration_s": 0.356,
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "expected_match": true,
+      "stdout_file": "stdout/cmd12_regression_payload_missing.txt",
+      "stderr_file": "stderr/cmd12_regression_payload_missing.txt"
+    },
+    {
+      "command_id": "cmd13_cargo_test_headless",
+      "argv": [
+        "cargo",
+        "test",
+        "--offline",
+        "--manifest-path",
+        "core/runner/headless/Cargo.toml"
+      ],
+      "cwd": "/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout/projects/chirality-piping",
+      "env_overrides": {
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/target"
+      },
+      "started_utc": "2026-07-20T07:49:34Z",
+      "ended_utc": "2026-07-20T07:49:37Z",
+      "duration_s": 2.357,
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "expected_match": true,
+      "stdout_file": "stdout/cmd13_cargo_test_headless.txt",
+      "stderr_file": "stderr/cmd13_cargo_test_headless.txt"
+    },
+    {
+      "command_id": "cmd14_contract_test",
+      "argv": [
+        "python3",
+        "tests/test_headless_runner_contract.py"
+      ],
+      "cwd": "/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout/projects/chirality-piping",
+      "env_overrides": {},
+      "started_utc": "2026-07-20T07:49:37Z",
+      "ended_utc": "2026-07-20T07:49:37Z",
+      "duration_s": 0.023,
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "expected_match": true,
+      "stdout_file": "stdout/cmd14_contract_test.txt",
+      "stderr_file": "stderr/cmd14_contract_test.txt"
+    },
+    {
+      "command_id": "cmd15_post_status_untracked_all",
+      "argv": [
+        "git",
+        "status",
+        "--porcelain=v1",
+        "--untracked-files=all"
+      ],
+      "cwd": "/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout",
+      "env_overrides": {},
+      "started_utc": "2026-07-20T07:49:37Z",
+      "ended_utc": "2026-07-20T07:49:37Z",
+      "duration_s": 0.357,
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "expected_match": true,
+      "stdout_file": "stdout/cmd15_post_status_untracked_all.txt",
+      "stderr_file": "stderr/cmd15_post_status_untracked_all.txt"
+    },
+    {
+      "command_id": "cmd16_post_diff",
+      "argv": [
+        "git",
+        "diff",
+        "--exit-code"
+      ],
+      "cwd": "/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout",
+      "env_overrides": {},
+      "started_utc": "2026-07-20T07:49:37Z",
+      "ended_utc": "2026-07-20T07:49:37Z",
+      "duration_s": 0.062,
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "expected_match": true,
+      "stdout_file": "stdout/cmd16_post_diff.txt",
+      "stderr_file": "stderr/cmd16_post_diff.txt"
+    },
+    {
+      "command_id": "cmd17_post_diff_cached",
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--exit-code"
+      ],
+      "cwd": "/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout",
+      "env_overrides": {},
+      "started_utc": "2026-07-20T07:49:37Z",
+      "ended_utc": "2026-07-20T07:49:37Z",
+      "duration_s": 0.015,
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "expected_match": true,
+      "stdout_file": "stdout/cmd17_post_diff_cached.txt",
+      "stderr_file": "stderr/cmd17_post_diff_cached.txt"
+    }
+  ],
+  "input_hashes": {
+    "validation/witness/inputs/tp_runner_015_final_cli_solve_input.json": "c604e3d418cd3f799fda70a6af1927602a320fb9fb0d64269b7c08e25d47613b",
+    "validation/witness/inputs/tp_runner_015_final_cli_validation_blocking_input.json": "305d933a261e1be06812fbf3f8f79dc58bd84c974ebeb7d0194bb089e1a85a6f",
+    "validation/witness/inputs/tp_runner_015_final_cli_benchmark_stub_input.json": "85939f65312448cf8bec0747e293bc26f2b4bae49debf5194588ec1cb2b51129",
+    "validation/witness/inputs/del1005_payload_binding_benchmark_single_case_input.json": "f030431555bc424bcdecc5500e5c8315edac92d23f6dc6f1c48cd13c48764ed4",
+    "validation/witness/inputs/del1005_payload_binding_benchmark_multi_case_input.json": "aa3b929c1640cbba91625d1520ff3eaaf9d27a19aced5aae2b88497fe5f5a1c9",
+    "validation/witness/inputs/del1005_payload_binding_regression_full_suite_input.json": "008740d68b856d27ffe5cbd43505cacc748ff9b349eb6d2773bb31c22bd4074e",
+    "validation/witness/inputs/del1005_payload_binding_benchmark_payload_missing_input.json": "061f93c1280de67437158ccbcf8124468c3d8e0784c05085345539ed356e5085",
+    "validation/witness/inputs/del1005_payload_binding_regression_payload_missing_input.json": "19f5e715f8d86b8632dbd97b82a5294085436b6fc024ced874a3e0ce839e9b94"
+  },
+  "output_hashes": {
+    "outputs/del1005_benchmark_multi_case.json": "8feb3d25e50e78dcd7fcc85e2253021610faa971a37837eefb63df5cea456d68",
+    "outputs/del1005_benchmark_payload_missing.json": "9596c052c76a178e13bcf29faa5841848df6d9453983b184ebff3fd5fc2449a4",
+    "outputs/del1005_benchmark_single_case.json": "813a702b74be74a88755626d5b4530716d4fd5e27a1b988e48f3da3be3306728",
+    "outputs/del1005_regression_full_suite.json": "2f89adce9e4d6250280cee347822a567f4405eafbb8bc666483c6ce4cbd87593",
+    "outputs/del1005_regression_payload_missing.json": "61cba4f28bcf109510489125b1de11e44796a25285ca64bf9c0714e870d9f518",
+    "outputs/tp_runner_015_benchmark_stub.json": "9596c052c76a178e13bcf29faa5841848df6d9453983b184ebff3fd5fc2449a4",
+    "outputs/tp_runner_015_solve.json": "b3cd85af85655eadb827f366457494387ba4b58807fd5608c676958b37168613",
+    "outputs/tp_runner_015_validation_blocking.json": "5fb2f8a9c8264be665581d58fb55e342a96636a87dc23f7c0db743c3b31a5505"
+  },
+  "witness_compare": [
+    {
+      "output": "outputs/tp_runner_015_solve.json",
+      "committed_witness": "validation/witness/generated/tp_runner_015_final_cli_solve.json",
+      "output_sha256": "b3cd85af85655eadb827f366457494387ba4b58807fd5608c676958b37168613",
+      "witness_sha256": "c406d9c2d8b6e739cd8faf86fcd67ff8f685342f9ee056b5544685a769705188",
+      "byte_identical": false,
+      "identity_required": false,
+      "note": "byte-MISMATCH expected (dated manual note; historical witness)"
+    },
+    {
+      "output": "outputs/tp_runner_015_validation_blocking.json",
+      "committed_witness": "validation/witness/generated/tp_runner_015_final_cli_validation_blocking.json",
+      "output_sha256": "5fb2f8a9c8264be665581d58fb55e342a96636a87dc23f7c0db743c3b31a5505",
+      "witness_sha256": "0d707ee26f4bbdd979f06580b46c658a7e10fdcde7f7833585bb15f2863dd1c1",
+      "byte_identical": false,
+      "identity_required": null,
+      "note": "observation only"
+    },
+    {
+      "output": "outputs/tp_runner_015_benchmark_stub.json",
+      "committed_witness": "validation/witness/generated/tp_runner_015_final_cli_benchmark_stub.json",
+      "output_sha256": "9596c052c76a178e13bcf29faa5841848df6d9453983b184ebff3fd5fc2449a4",
+      "witness_sha256": "420484c82e798b9f0bb12d17d4381dab18b17f0c7468aa6110607c16ded94d4d",
+      "byte_identical": false,
+      "identity_required": false,
+      "note": "byte-MISMATCH expected (dated manual note; historical witness)"
+    },
+    {
+      "output": "outputs/del1005_benchmark_single_case.json",
+      "committed_witness": "validation/witness/generated/del1005_payload_binding_benchmark_single_case.json",
+      "output_sha256": "813a702b74be74a88755626d5b4530716d4fd5e27a1b988e48f3da3be3306728",
+      "witness_sha256": "813a702b74be74a88755626d5b4530716d4fd5e27a1b988e48f3da3be3306728",
+      "byte_identical": true,
+      "identity_required": true,
+      "note": "byte-identity REQUIRED (P7-P11)"
+    },
+    {
+      "output": "outputs/del1005_benchmark_multi_case.json",
+      "committed_witness": "validation/witness/generated/del1005_payload_binding_benchmark_multi_case.json",
+      "output_sha256": "8feb3d25e50e78dcd7fcc85e2253021610faa971a37837eefb63df5cea456d68",
+      "witness_sha256": "8feb3d25e50e78dcd7fcc85e2253021610faa971a37837eefb63df5cea456d68",
+      "byte_identical": true,
+      "identity_required": true,
+      "note": "byte-identity REQUIRED (P7-P11)"
+    },
+    {
+      "output": "outputs/del1005_regression_full_suite.json",
+      "committed_witness": "validation/witness/generated/del1005_payload_binding_regression_full_suite.json",
+      "output_sha256": "2f89adce9e4d6250280cee347822a567f4405eafbb8bc666483c6ce4cbd87593",
+      "witness_sha256": "2f89adce9e4d6250280cee347822a567f4405eafbb8bc666483c6ce4cbd87593",
+      "byte_identical": true,
+      "identity_required": true,
+      "note": "byte-identity REQUIRED (P7-P11)"
+    },
+    {
+      "output": "outputs/del1005_benchmark_payload_missing.json",
+      "committed_witness": "validation/witness/generated/del1005_payload_binding_benchmark_payload_missing.json",
+      "output_sha256": "9596c052c76a178e13bcf29faa5841848df6d9453983b184ebff3fd5fc2449a4",
+      "witness_sha256": "9596c052c76a178e13bcf29faa5841848df6d9453983b184ebff3fd5fc2449a4",
+      "byte_identical": true,
+      "identity_required": true,
+      "note": "byte-identity REQUIRED (P7-P11)"
+    },
+    {
+      "output": "outputs/del1005_regression_payload_missing.json",
+      "committed_witness": "validation/witness/generated/del1005_payload_binding_regression_payload_missing.json",
+      "output_sha256": "61cba4f28bcf109510489125b1de11e44796a25285ca64bf9c0714e870d9f518",
+      "witness_sha256": "61cba4f28bcf109510489125b1de11e44796a25285ca64bf9c0714e870d9f518",
+      "byte_identical": true,
+      "identity_required": true,
+      "note": "byte-identity REQUIRED (P7-P11)"
+    }
+  ],
+  "predicates": {
+    "P1": {
+      "verdict": "PASS",
+      "detail": "generator exit 0; scoped git diff --exit-code clean over 3 tp_runner_015 inputs"
+    },
+    "P2": {
+      "verdict": "PASS",
+      "detail": "exit 0; job COMPLETED; req/res validation diagnostics empty; result_refs=830; 1 occurrence at $.mechanics_envelope.diagnostics[4].code; severity=warning; affected=['support:CE-120', 'node:N-120']"
+    },
+    "P3": {
+      "verdict": "PASS",
+      "detail": "regenerated=b3cd85af85655eadb827f366457494387ba4b58807fd5608c676958b37168613; committed witness=c406d9c2d8b6e739cd8faf86fcd67ff8f685342f9ee056b5544685a769705188; byte-mismatch expected and observed"
+    },
+    "P4": {
+      "verdict": "PASS",
+      "detail": "exit 1; LOAD_BASIS_MISSING at ['$.request_validation.diagnostics[0].code']; runner_result=None"
+    },
+    "P5": {
+      "verdict": "PASS",
+      "detail": "exit 1; BENCHMARK_PAYLOAD_MISSING at ['$.diagnostics[0].code']"
+    },
+    "P6": {
+      "verdict": "PASS",
+      "detail": "generator exit 0; scoped git diff --exit-code clean over 5 del1005 inputs"
+    },
+    "P7": {
+      "verdict": "PASS",
+      "detail": "suite=mechanics; cases={None: 'executed_and_matched'}; sha=813a702b74be74a88755626d5b4530716d4fd5e27a1b988e48f3da3be3306728; problems=[]"
+    },
+    "P8": {
+      "verdict": "PASS",
+      "detail": "suite=stress; cases={None: 'executed_and_matched'}; sha=8feb3d25e50e78dcd7fcc85e2253021610faa971a37837eefb63df5cea456d68; problems=[]"
+    },
+    "P9": {
+      "verdict": "PASS",
+      "detail": "suite=nonlinear; cases={None: 'executed_and_matched'}; sha=2f89adce9e4d6250280cee347822a567f4405eafbb8bc666483c6ce4cbd87593; problems=[]"
+    },
+    "P10": {
+      "verdict": "PASS",
+      "detail": "exit 1; diagnostic at ['$.diagnostics[0].code']; sha=9596c052c76a178e13bcf29faa5841848df6d9453983b184ebff3fd5fc2449a4 == witness"
+    },
+    "P11": {
+      "verdict": "PASS",
+      "detail": "exit 1; diagnostic at ['$.diagnostics[0].code']; sha=61cba4f28bcf109510489125b1de11e44796a25285ca64bf9c0714e870d9f518 == witness"
+    },
+    "P12": {
+      "verdict": "PASS",
+      "detail": "cargo test --offline exit 0; contract test exit 0"
+    },
+    "P13": {
+      "verdict": "PASS",
+      "detail": "post-run: empty porcelain (untracked-files=all), clean diff and cached diff; pre-run proofs identical (recorded)"
+    },
+    "P14": {
+      "verdict": "PASS",
+      "detail": "bundle complete per brief \u00a75.2; SHA256SUMS.txt computed last and verified; INTERNALLY_VERIFIED used on PASS only; adoption basis and no-owner-acceptance statement in README.md"
+    },
+    "P15": {
+      "verdict": "PASS",
+      "detail": "## Remaining byte-identical pre/post (section SHA-256 20dfd8d990949f7e215d286590a28bf4a40db5364955d933a89567a57cab875d); one new History entry; Last Updated 2026-07-20; IN_PROGRESS unchanged; one new MEMORY entry; one new run record WORKING_ITEMS_RUN_2026-07-20_R14_W5_CLEAN_REPRO.md; no receipt append"
+    },
+    "P16": {
+      "verdict": "PASS",
+      "detail": "evidence-sweep PASS with exactly one new SWEEP file (SWEEP_20260720T075521Z_a5235340aae3-dirty.json); validate_claims_language PASS (262 files); validate_path_anchors PASS (701 surfaces); validate_piping_loop_receipts VALID (receipts untouched); git diff --check clean; JSON/JSONL parse of all new files PASS; change-scope containment PASS with zero violations against the seven brief-section-6 allowed entries"
+    }
+  },
+  "observations": {
+    "case1_result_refs_count": 830,
+    "case1_warning_location": "$.mechanics_envelope.diagnostics[4].code",
+    "case1_regenerated_sha256": "b3cd85af85655eadb827f366457494387ba4b58807fd5608c676958b37168613",
+    "case1_witness_sha256": "c406d9c2d8b6e739cd8faf86fcd67ff8f685342f9ee056b5544685a769705188",
+    "case1_matches_w4t7_digest_b3cd85af": true,
+    "case2_regenerated_sha256": "5fb2f8a9c8264be665581d58fb55e342a96636a87dc23f7c0db743c3b31a5505",
+    "case2_witness_sha256": "0d707ee26f4bbdd979f06580b46c658a7e10fdcde7f7833585bb15f2863dd1c1",
+    "case2_byte_identical_to_witness": false,
+    "case3_regenerated_sha256": "9596c052c76a178e13bcf29faa5841848df6d9453983b184ebff3fd5fc2449a4",
+    "case3_witness_sha256_pre287": "420484c82e798b9f0bb12d17d4381dab18b17f0c7468aa6110607c16ded94d4d",
+    "case3_byte_mismatch_vs_pre287_witness_expected": true
+  },
+  "checks": [
+    {
+      "check": "evidence-sweep",
+      "tool": "tools/software_workflow/run_registered_checks.py --check evidence-sweep",
+      "exit": 0,
+      "status": "PASS",
+      "output": "checks/evidence-sweep.json",
+      "delta": "exactly one new file: validation/evidence/sweeps/SWEEP_20260720T075521Z_a5235340aae3-dirty.json (checks/sweeps-before.txt, checks/sweeps-after.txt, checks/sweeps-delta.txt)"
+    },
+    {
+      "check": "claims-language",
+      "tool": "python3 tools/validation/validate_claims_language.py --repo-root .",
+      "exit": 0,
+      "status": "PASS",
+      "note": "262 files scanned; DEC-081 registry taxonomy satisfied"
+    },
+    {
+      "check": "path-anchors",
+      "tool": "python3 tools/validation/validate_path_anchors.py . --text",
+      "exit": 0,
+      "status": "PASS",
+      "note": "no literal home-dir absolute paths in 701 live path-anchor surfaces"
+    },
+    {
+      "check": "piping-loop-receipts",
+      "tool": "python3 tools/validation/validate_piping_loop_receipts.py --repo-root .",
+      "exit": 0,
+      "status": "PASS",
+      "note": "VALID; frozen through Receipt-44 contract satisfied; loop/LOOP_RECEIPTS.md untouched by W5 (cursor Receipt-63)"
+    },
+    {
+      "check": "git-diff-check",
+      "tool": "git diff --check",
+      "exit": 0,
+      "status": "PASS"
+    },
+    {
+      "check": "json-jsonl-parse",
+      "tool": "python3 json module over every new .json/.jsonl file",
+      "exit": 0,
+      "status": "PASS"
+    },
+    {
+      "check": "change-scope",
+      "tool": "python3 tools/software_workflow/validate_change_scope.py --base a5235340aae3c41cf227f5617e593b268936f6b3 (seven allowed entries per brief section 6)",
+      "exit": 0,
+      "status": "PASS",
+      "output": "checks/change-scope.json",
+      "note": "80 changed paths, zero violations"
+    }
+  ],
+  "evidence_sweep_file": "validation/evidence/sweeps/SWEEP_20260720T075521Z_a5235340aae3-dirty.json",
+  "overall_status": "PASS",
+  "evidence_label": "INTERNALLY_VERIFIED",
+  "no_owner_acceptance": "NO owner acceptance of the reproduction result occurred; reproduction acceptance remains an owner gate.",
+  "claim_fence": "Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081)."
+}

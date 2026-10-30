@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OpenPipeStress — Architecture &amp; Convergence Workflows (visual explainer)</title>
+<style>
+  :root{
+    --bg:#eef1f6; --paper:#ffffff; --ink:#1a2233; --muted:#5b6678; --line:#d6dce6;
+    --tier0:#7c5cff; --piping:#0e9f8e; --appdev:#2f6df6;
+    --gate:#e8951f; --held:#e0492f; --done:#1f9d57; --note:#8a93a3;
+    --soft:#f4f6fa; --shadow:0 2px 10px rgba(20,30,50,.07),0 1px 3px rgba(20,30,50,.06);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 22px 90px}
+  header.top{background:linear-gradient(135deg,#1a2233,#26324a);color:#fff;padding:34px 22px 30px;margin-bottom:8px}
+  header.top .inner{max-width:1080px;margin:0 auto}
+  header.top h1{margin:0 0 6px;font-size:26px;letter-spacing:.2px}
+  header.top p{margin:4px 0 0;color:#c4cde0;font-size:14.5px;max-width:780px}
+  .banner{background:#fff7e8;border:1px solid #f0d9a8;color:#7a5a16;border-radius:10px;
+    padding:10px 14px;margin:18px 0 6px;font-size:13px}
+  nav.toc{position:sticky;top:0;z-index:5;background:rgba(238,241,246,.92);backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);padding:10px 0;margin-bottom:10px}
+  nav.toc .inner{max-width:1080px;margin:0 auto;padding:0 22px;display:flex;flex-wrap:wrap;gap:7px}
+  nav.toc a{font-size:12.5px;text-decoration:none;color:var(--muted);background:#fff;border:1px solid var(--line);
+    padding:5px 10px;border-radius:20px}
+  nav.toc a:hover{color:var(--ink);border-color:#b9c2d2}
+  section{background:var(--paper);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);
+    padding:24px 26px 26px;margin:18px 0}
+  section h2{margin:0 0 4px;font-size:20px}
+  section h2 .num{display:inline-block;min-width:30px;height:30px;line-height:30px;text-align:center;
+    background:var(--ink);color:#fff;border-radius:8px;font-size:14px;margin-right:10px;vertical-align:2px}
+  .lede{color:var(--muted);margin:6px 0 16px;font-size:14.5px}
+  .fig{width:100%;height:auto;display:block;border-radius:10px;background:var(--soft);border:1px solid var(--line)}
+  .takeaway{margin-top:16px;border-left:4px solid var(--piping);background:#f0faf8;border-radius:0 8px 8px 0;
+    padding:11px 14px;font-size:13.7px}
+  .takeaway b{color:#0c7d70}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;margin:14px 0 2px;font-size:12.7px;color:var(--muted)}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .sw{width:13px;height:13px;border-radius:3px;display:inline-block}
+  table.gloss{width:100%;border-collapse:collapse;font-size:13.3px;margin-top:6px}
+  table.gloss th,table.gloss td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  table.gloss th{color:var(--muted);font-weight:600;background:var(--soft)}
+  table.gloss code{background:var(--soft);padding:1px 5px;border-radius:4px;font-size:12.3px}
+  .pill{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600;white-space:nowrap}
+  .p-held{background:#fdece7;color:#b5341f;border:1px solid #f3c4b8}
+  .p-done{background:#e7f6ee;color:#1a7a45;border:1px solid #b8e3c9}
+  .p-cur{background:#fff3df;color:#9a6512;border:1px solid #f0d9a8}
+  footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:26px}
+  .svgcap{font-size:12px;color:var(--note);margin:8px 2px 0;text-align:center}
+  text{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="inner">
+    <h1>OpenPipeStress — Architecture &amp; Convergence Workflows</h1>
+    <p>A visual orientation to how the two projects, the governance layers, and the decision workflow fit together — and the exact gate chain to bring the <b>chirality-app-dev</b> agent harness into <b>chirality-piping</b>.</p>
+  </div>
+</header>
+
+<nav class="toc"><div class="inner">
+  <a href="#map">1 · Territory map</a>
+  <a href="#stack">2 · Governance stack</a>
+  <a href="#loop">3 · Decision workflow</a>
+  <a href="#road">4 · Roadmap &amp; position</a>
+  <a href="#gates">5 · The convergence gate chain</a>
+  <a href="#agent">6 · How the embedded agent behaves</a>
+  <a href="#gloss">7 · Glossary</a>
+</div></nav>
+
+<div class="wrap">
+  <div class="banner"><b>Non-normative orientation aid</b> — generated 2026-06-29 to explain the architecture. It is not a governance artifact and rules nothing. The authoritative sources are the cited repo files (PRD, CONTRACT, _COORDINATION, the decision register, SOFTWARE_DECOMP §12). When this page and a repo file disagree, the repo file wins.</div>
+
+  <!-- 1. TERRITORY MAP -->
+  <section id="map">
+    <h2><span class="num">1</span>The territory map — one repo, three governed spaces</h2>
+    <p class="lede">Everything lives in one git repository (<code>/Users/ryan/ai-env/projects/chirality</code>, single <code>main</code> branch). Inside it there are three governed spaces. "Convergence" means the piping app will <b>consume the app-dev agent harness as versioned packages</b> — it does not merge the codebases.</p>
+    <div class="legend">
+      <span><i class="sw" style="background:var(--tier0)"></i>Tier-0 framework (shared, you don't edit from the piping loop)</span>
+      <span><i class="sw" style="background:var(--piping)"></i>chirality-piping (this project)</span>
+      <span><i class="sw" style="background:var(--appdev)"></i>chirality-app-dev (the harness source)</span>
+    </div>
+    <svg class="fig" viewBox="0 0 1040 430" role="img" aria-label="Territory map">
+      <defs>
+        <marker id="ah1" markerWidth="10" markerHeight="10" refX="7.5" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#2f6df6"/></marker>
+        <marker id="ah1b" markerWidth="10" markerHeight="10" refX="7.5" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#7c5cff"/></marker>
+      </defs>
+      <!-- outer repo -->
+      <rect x="14" y="14" width="1012" height="402" rx="16" fill="#fff" stroke="#c7cfdc"/>
+      <text x="34" y="42" font-size="14" font-weight="700" fill="#1a2233">monorepo · git root · single main</text>
+      <text x="34" y="60" font-size="11.5" fill="#8a93a3">projects/chirality</text>
+
+      <!-- tier-0 -->
+      <rect x="34" y="80" width="300" height="316" rx="12" fill="#f5f2ff" stroke="var(--tier0)"/>
+      <text x="50" y="106" font-size="13.5" font-weight="700" fill="#5b40d6">_DomainEngines/ — Tier-0</text>
+      <text x="50" y="128" font-size="11.5" fill="#6a5aa8">Shared domain-engine framework</text>
+      <rect x="50" y="144" width="268" height="60" rx="8" fill="#fff" stroke="#d9d1fb"/>
+      <text x="62" y="166" font-size="11.5" font-weight="600" fill="#4a3aa0">D-T0-04 · Open Residency</text>
+      <text x="62" y="184" font-size="10.5" fill="#7a6cc0">Ruled: harness may see owner's own</text>
+      <text x="62" y="197" font-size="10.5" fill="#7a6cc0">private model + Class-B data at runtime</text>
+      <rect x="50" y="214" width="268" height="48" rx="8" fill="#fff" stroke="#d9d1fb"/>
+      <text x="62" y="234" font-size="10.8" fill="#7a6cc0">RES-RECONCILE assigns each project to</text>
+      <text x="62" y="248" font-size="10.8" fill="#7a6cc0">reconcile its own residency posture</text>
+      <text x="50" y="296" font-size="10.5" fill="#9a8fd0" font-style="italic">Read-only from the piping loop.</text>
+      <text x="50" y="312" font-size="10.5" fill="#9a8fd0" font-style="italic">Rules flow DOWN into both projects.</text>
+
+      <!-- piping -->
+      <rect x="360" y="80" width="320" height="316" rx="12" fill="#eefaf8" stroke="var(--piping)"/>
+      <text x="376" y="106" font-size="13.5" font-weight="700" fill="#0b7d70">chirality-piping</text>
+      <text x="376" y="128" font-size="11.5" fill="#0e9f8e">"OpenPipeStress" — pipe-stress analysis app</text>
+      <rect x="376" y="144" width="288" height="86" rx="8" fill="#fff" stroke="#bfe7e1"/>
+      <text x="388" y="165" font-size="11.3" fill="#0c7d70">• Rust solver core (linear + nonlinear)</text>
+      <text x="388" y="183" font-size="11.3" fill="#0c7d70">• Tauri + React desktop app</text>
+      <text x="388" y="201" font-size="11.3" fill="#0c7d70">• Local-first, private-by-default</text>
+      <text x="388" y="219" font-size="11.3" fill="#0c7d70">• Reserved (empty) agent-panel SEAM</text>
+      <rect x="376" y="244" width="288" height="60" rx="8" fill="#fff" stroke="#bfe7e1"/>
+      <text x="388" y="265" font-size="11.3" font-weight="600" fill="#0b7d70">Where it is now:</text>
+      <text x="388" y="284" font-size="11" fill="#0c7d70">Milestone R4 — components &amp; nonlinear</text>
+      <text x="388" y="298" font-size="11" fill="#0c7d70">supports — currently HELD at exit review</text>
+      <text x="376" y="332" font-size="10.5" fill="#5b9b92" font-style="italic">The agent harness will be plugged into the</text>
+      <text x="376" y="347" font-size="10.5" fill="#5b9b92" font-style="italic">reserved seam — once the gates clear (§5).</text>
+
+      <!-- app-dev -->
+      <rect x="706" y="80" width="300" height="316" rx="12" fill="#eef4ff" stroke="var(--appdev)"/>
+      <text x="722" y="106" font-size="13.5" font-weight="700" fill="#1f56d6">chirality-app-dev</text>
+      <text x="722" y="128" font-size="11.5" fill="#2f6df6">The agent-harness source project</text>
+      <rect x="722" y="144" width="268" height="92" rx="8" fill="#fff" stroke="#c3d6fb"/>
+      <text x="734" y="165" font-size="11.3" fill="#1f56d6">• Claude Agent SDK desktop harness</text>
+      <text x="734" y="183" font-size="11.3" fill="#1f56d6">• Sessions, turns, tools, audit, governance</text>
+      <text x="734" y="201" font-size="11.3" fill="#1f56d6">• Matures under its OWN governance</text>
+      <text x="734" y="219" font-size="11.3" fill="#1f56d6">• Has its own milestones (R5/R6…)</text>
+      <rect x="722" y="250" width="268" height="54" rx="8" fill="#fff" stroke="#c3d6fb"/>
+      <text x="734" y="271" font-size="10.8" fill="#1f56d6">Publishes the harness as versioned pkgs:</text>
+      <text x="734" y="289" font-size="10.6" fill="#3f7af6">contract-TS → React-UI → Node-SDK sidecar</text>
+      <text x="722" y="332" font-size="10.5" fill="#6c93e0" font-style="italic">Must also clear its own "fence F3" before</text>
+      <text x="722" y="347" font-size="10.5" fill="#6c93e0" font-style="italic">live binding. Not the piping loop's to do.</text>
+
+      <!-- arrows -->
+      <path d="M706 300 C 695 300, 692 300, 682 300" fill="none" stroke="#2f6df6" stroke-width="2.4" marker-end="url(#ah1)"/>
+      <text x="688" y="392" font-size="11" font-weight="600" fill="#2f6df6" text-anchor="middle">harness packages →</text>
+      <path d="M184 80 C 184 60, 360 60, 470 78" fill="none" stroke="#7c5cff" stroke-width="2" stroke-dasharray="4 4" marker-end="url(#ah1b)"/>
+      <path d="M250 80 C 360 56, 720 56, 850 78" fill="none" stroke="#7c5cff" stroke-width="2" stroke-dasharray="4 4" marker-end="url(#ah1b)"/>
+    </svg>
+    <div class="svgcap">Dashed purple = tier-0 rulings flow down into both projects · solid blue = the harness is consumed by piping at the live-binding stage.</div>
+    <div class="takeaway"><b>Takeaway:</b> the piping app builds the harness <i>into</i> itself by consuming app-dev's published packages — it never copies or forks the harness code, and it never edits tier-0.</div>
+  </section>
+
+  <!-- 2. GOVERNANCE STACK -->
+  <section id="stack">
+    <h2><span class="num">2</span>The governance stack — how authority is layered</h2>
+    <p class="lede">Each layer answers a different question and is corrected by the layer above it. The golden rule: <b>when a lower layer and a higher authority disagree, the lower layer is corrected — never the authority.</b> Humans rule at every gate marked ⬤.</p>
+    <svg class="fig" viewBox="0 0 1040 470" role="img" aria-label="Governance authority stack">
+      <defs>
+        <marker id="ad" markerWidth="9" markerHeight="9" refX="6.5" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#5b6678"/></marker>
+      </defs>
+      <!-- layers -->
+      <g font-size="12">
+        <!-- L1 -->
+        <rect x="40" y="26" width="640" height="52" rx="9" fill="#fbf5ff" stroke="#cbb8f6"/>
+        <text x="58" y="48" font-size="13" font-weight="700" fill="#5b40d6">INTENT · DIRECTIVE</text>
+        <text x="58" y="66" font-size="11.3" fill="#7a6cc0">Why the product exists; what must always remain true</text>
+        <!-- L2 -->
+        <rect x="40" y="92" width="640" height="58" rx="9" fill="#eef4ff" stroke="#b9d0fb"/>
+        <text x="58" y="114" font-size="13" font-weight="700" fill="#1f56d6">PRD — Product Requirements</text>
+        <text x="58" y="132" font-size="11.3" fill="#3f7af6">§10 functional requirements (FR-001..025) · §22 release milestones (R0..R5) = the release yardstick</text>
+        <!-- L3 -->
+        <rect x="40" y="164" width="640" height="58" rx="9" fill="#eefaf8" stroke="#bfe7e1"/>
+        <text x="58" y="186" font-size="13" font-weight="700" fill="#0b7d70">CONTRACT · SPEC · TYPES</text>
+        <text x="58" y="204" font-size="11.3" fill="#0e9f8e">Binding invariants (OPS-K-*) · mechanics · vocabulary — the rules code &amp; agents must satisfy</text>
+        <!-- L4 -->
+        <rect x="40" y="236" width="640" height="58" rx="9" fill="#fff7ec" stroke="#f0d2a0"/>
+        <text x="58" y="258" font-size="13" font-weight="700" fill="#9a6512">SOFTWARE_DECOMP · DAG-007</text>
+        <text x="58" y="276" font-size="11.3" fill="#b5781f">Packages &amp; deliverables · approved dependency graph (what depends on what) · §12 = the DECISION LOG</text>
+        <!-- L5 -->
+        <rect x="40" y="308" width="640" height="58" rx="9" fill="#f3f6fb" stroke="#cbd5e3"/>
+        <text x="58" y="330" font-size="13" font-weight="700" fill="#33405a">_COORDINATION  ★ authoritative for the current stage</text>
+        <text x="58" y="348" font-size="11.3" fill="#5b6678">The execution loop · the staged "Working Desktop Application Standard" · where the CURRENT TARGET STAGE lives</text>
+        <!-- L6 -->
+        <rect x="40" y="380" width="640" height="58" rx="9" fill="#f3f6fb" stroke="#cbd5e3"/>
+        <text x="58" y="402" font-size="13" font-weight="700" fill="#33405a">Active completion plan + decision register</text>
+        <text x="58" y="420" font-size="11.3" fill="#5b6678">Tactical tranche selection · D-01..D-26 human decisions queued for ruling</text>
+      </g>
+      <!-- down arrows -->
+      <g stroke="#5b6678" stroke-width="1.6" marker-end="url(#ad)">
+        <line x1="360" y1="78" x2="360" y2="90"/>
+        <line x1="360" y1="150" x2="360" y2="162"/>
+        <line x1="360" y1="222" x2="360" y2="234"/>
+        <line x1="360" y1="294" x2="360" y2="306"/>
+        <line x1="360" y1="366" x2="360" y2="378"/>
+      </g>
+      <text x="700" y="20" font-size="11.5" fill="#8a93a3">authority flows down ↓ · lower layers are corrected, never the authority</text>
+
+      <!-- side rail: boundaries + gates -->
+      <rect x="712" y="26" width="294" height="196" rx="11" fill="#fff" stroke="#e6c9c1"/>
+      <text x="730" y="48" font-size="13" font-weight="700" fill="#b5341f">Hard boundaries (never waived)</text>
+      <text x="730" y="70" font-size="11.2" fill="#b5523f">IP / third-party content — OPS-K-IP-1/2/3</text>
+      <text x="730" y="88" font-size="11.2" fill="#b5523f">no protected standards text/tables/SIFs</text>
+      <text x="730" y="110" font-size="11.2" fill="#b5523f">Professional ceiling (APEGA)</text>
+      <text x="730" y="128" font-size="11.2" fill="#b5523f">no certify / seal / approve / code-comply</text>
+      <text x="730" y="150" font-size="11.2" fill="#b5523f">Local-first · no silent defaults</text>
+      <text x="730" y="168" font-size="11.2" fill="#b5523f">private data never committed public</text>
+      <text x="730" y="196" font-size="10.6" fill="#c98373" font-style="italic">These bind regardless of any ruling below.</text>
+
+      <rect x="712" y="236" width="294" height="202" rx="11" fill="#fff7ec" stroke="#f0d2a0"/>
+      <text x="730" y="258" font-size="13" font-weight="700" fill="#9a6512">⬤ Human gates throughout</text>
+      <text x="730" y="280" font-size="11.2" fill="#a8741f">Only a human rules a decision (D-xx).</text>
+      <text x="730" y="298" font-size="11.2" fill="#a8741f">Agents prepare evidence &amp; proposals;</text>
+      <text x="730" y="316" font-size="11.2" fill="#a8741f">they never self-approve or self-advance</text>
+      <text x="730" y="334" font-size="11.2" fill="#a8741f">a stage.</text>
+      <text x="730" y="360" font-size="11.2" fill="#a8741f">A ruling binds to a git SHA when the</text>
+      <text x="730" y="378" font-size="11.2" fill="#a8741f">CHANGE persona publishes it (K-AUTH-2).</text>
+      <text x="730" y="404" font-size="11.2" fill="#a8741f">docs/PLAN.md is a strategic MAP only —</text>
+      <text x="730" y="422" font-size="11.2" fill="#a8741f">it asserts no authority of its own.</text>
+    </svg>
+    <div class="takeaway"><b>Takeaway:</b> if you ever want to know "is X really true / approved?", read DOWN from the top. <code>_COORDINATION.md</code> is the single source of truth for which milestone is current; <code>docs/PLAN.md</code> is just a readable summary that routes to the authorities.</div>
+  </section>
+
+  <!-- 3. DECISION WORKFLOW -->
+  <section id="loop">
+    <h2><span class="num">3</span>The decision workflow — agents propose, the human rules, CHANGE publishes</h2>
+    <p class="lede">Nothing becomes policy because an agent says so. Every governance change runs this loop. This is why your role (the human project authority) sits at the only ruling step.</p>
+    <svg class="fig" viewBox="0 0 1040 330" role="img" aria-label="Decision workflow loop">
+      <defs>
+        <marker id="aw" markerWidth="11" markerHeight="11" refX="7.5" refY="3.2" orient="auto"><path d="M0,0 L8,3.2 L0,6.4 Z" fill="#33405a"/></marker>
+      </defs>
+      <!-- step 1 -->
+      <rect x="28" y="60" width="210" height="120" rx="12" fill="#eefaf8" stroke="var(--piping)"/>
+      <text x="44" y="88" font-size="13" font-weight="700" fill="#0b7d70">1 · Agent proposes</text>
+      <text x="44" y="110" font-size="11.2" fill="#0c7d70">WORKING_ITEMS prepares a</text>
+      <text x="44" y="126" font-size="11.2" fill="#0c7d70">decision packet  D-xx</text>
+      <text x="44" y="148" font-size="10.8" fill="#5b9b92">marked PROPOSAL · gathers</text>
+      <text x="44" y="163" font-size="10.8" fill="#5b9b92">evidence (TP-* tests, sweeps)</text>
+      <!-- step 2 -->
+      <rect x="286" y="60" width="210" height="120" rx="12" fill="#fff7ec" stroke="var(--gate)"/>
+      <text x="302" y="88" font-size="13" font-weight="700" fill="#9a6512">2 · Human rules ⬤</text>
+      <text x="302" y="110" font-size="11.2" fill="#a8741f">You pick an option (O-A /</text>
+      <text x="302" y="126" font-size="11.2" fill="#a8741f">O-B / O-C) or rule directly</text>
+      <text x="302" y="148" font-size="10.8" fill="#b5934a">the ONLY step that creates</text>
+      <text x="302" y="163" font-size="10.8" fill="#b5934a">authority</text>
+      <!-- step 3 -->
+      <rect x="544" y="60" width="210" height="120" rx="12" fill="#f3f6fb" stroke="#cbd5e3"/>
+      <text x="560" y="88" font-size="13" font-weight="700" fill="#33405a">3 · Record</text>
+      <text x="560" y="110" font-size="11.2" fill="#5b6678">DEC-xxx appended to</text>
+      <text x="560" y="126" font-size="11.2" fill="#5b6678">SOFTWARE_DECOMP §12</text>
+      <text x="560" y="148" font-size="10.8" fill="#8a93a3">register row D-xx flips</text>
+      <text x="560" y="163" font-size="10.8" fill="#8a93a3">AWAITING_RULING → RULED</text>
+      <!-- step 4 -->
+      <rect x="802" y="60" width="210" height="120" rx="12" fill="#eef4ff" stroke="var(--appdev)"/>
+      <text x="818" y="88" font-size="13" font-weight="700" fill="#1f56d6">4 · CHANGE publishes</text>
+      <text x="818" y="110" font-size="11.2" fill="#1f56d6">stages · commits · ff-safe</text>
+      <text x="818" y="126" font-size="11.2" fill="#1f56d6">push to origin/main</text>
+      <text x="818" y="148" font-size="10.8" fill="#6c93e0">the ruling now BINDS to</text>
+      <text x="818" y="163" font-size="10.8" fill="#6c93e0">that commit SHA (K-AUTH-2)</text>
+      <!-- arrows -->
+      <g stroke="#33405a" stroke-width="1.8" marker-end="url(#aw)" fill="none">
+        <line x1="238" y1="120" x2="284" y2="120"/>
+        <line x1="496" y1="120" x2="542" y2="120"/>
+        <line x1="754" y1="120" x2="800" y2="120"/>
+      </g>
+      <!-- feedback -->
+      <path d="M907 180 C 907 250, 130 250, 130 182" fill="none" stroke="#8a93a3" stroke-width="1.5" stroke-dasharray="5 5" marker-end="url(#aw)"/>
+      <text x="520" y="244" font-size="11" fill="#8a93a3" text-anchor="middle">next decision builds on the published, SHA-bound record</text>
+      <text x="28" y="36" font-size="12.5" font-weight="700" fill="#33405a">Application Integration &amp; Issuance Loop</text>
+      <text x="300" y="36" font-size="11" fill="#8a93a3">"K-CONFLICT-1": surface conflicts rather than silently resolving them.</text>
+    </svg>
+    <div class="takeaway"><b>Takeaway:</b> a draft packet (D-xx) is a <i>question for you</i>; a DEC-xxx record is <i>your answer, published</i>. An agent that edited a governed doc and committed it <i>before</i> you ruled would be skipping step 2 — that's the line the workflow protects.</div>
+  </section>
+
+  <!-- 4. ROADMAP -->
+  <section id="road">
+    <h2><span class="num">4</span>The roadmap — where the project is, and what's fenced off</h2>
+    <p class="lede">The current PRD (v0.1) runs R0→R5. A separate v0.2 scope draft adds R6 and R7 (the agent features) — but that scope is <b>fenced behind decision D-21</b> and carries no weight until you rule it.</p>
+    <div class="legend">
+      <span><i class="sw" style="background:var(--done)"></i>met / advanced</span>
+      <span><i class="sw" style="background:var(--gate)"></i>current (held at exit review)</span>
+      <span><i class="sw" style="background:#c7cfdc"></i>planned, largely unbuilt</span>
+      <span><i class="sw" style="background:var(--tier0)"></i>v0.2 — fenced behind D-21</span>
+    </div>
+    <svg class="fig" viewBox="0 0 1040 360" role="img" aria-label="Roadmap R0 to R7">
+      <line x1="60" y1="92" x2="980" y2="92" stroke="#c7cfdc" stroke-width="3"/>
+      <!-- nodes -->
+      <g font-size="11.5" text-anchor="middle">
+        <!-- done -->
+        <circle cx="110" cy="92" r="13" fill="var(--done)"/><text x="110" y="96" fill="#fff" font-weight="700" font-size="11">R0</text>
+        <text x="110" y="130" fill="#1a7a45" font-weight="600">Architecture</text><text x="110" y="145" fill="#5b6678">prototype</text>
+        <circle cx="240" cy="92" r="13" fill="var(--done)"/><text x="240" y="96" fill="#fff" font-weight="700" font-size="11">R1</text>
+        <text x="240" y="130" fill="#1a7a45" font-weight="600">Core solver</text><text x="240" y="145" fill="#5b6678">MVP</text>
+        <circle cx="370" cy="92" r="13" fill="var(--done)"/><text x="370" y="96" fill="#fff" font-weight="700" font-size="11">R2</text>
+        <text x="370" y="130" fill="#1a7a45" font-weight="600">GUI MVP</text><text x="370" y="145" fill="#5b6678">DEC-035</text>
+        <circle cx="500" cy="92" r="13" fill="var(--done)"/><text x="500" y="96" fill="#fff" font-weight="700" font-size="11">R3</text>
+        <text x="500" y="130" fill="#1a7a45" font-weight="600">Rule packs +</text><text x="500" y="145" fill="#5b6678">libraries · DEC-048</text>
+        <!-- current -->
+        <circle cx="630" cy="92" r="17" fill="var(--gate)" stroke="#fff" stroke-width="2.5"/><text x="630" y="97" fill="#fff" font-weight="700" font-size="12">R4</text>
+        <text x="630" y="134" fill="#9a6512" font-weight="700">Components +</text><text x="630" y="149" fill="#9a6512" font-weight="700">nonlinear supports</text>
+        <!-- planned -->
+        <circle cx="770" cy="92" r="13" fill="#aab4c4"/><text x="770" y="96" fill="#fff" font-weight="700" font-size="11">R5</text>
+        <text x="770" y="130" fill="#5b6678" font-weight="600">Engineering Beta</text><text x="770" y="145" fill="#8a93a3">(release machinery)</text>
+        <!-- v0.2 fenced -->
+        <circle cx="885" cy="92" r="12" fill="var(--tier0)"/><text x="885" y="96" fill="#fff" font-weight="700" font-size="10.5">R6</text>
+        <circle cx="955" cy="92" r="12" fill="var(--tier0)"/><text x="955" y="96" fill="#fff" font-weight="700" font-size="10.5">R7</text>
+        <text x="920" y="130" fill="#5b40d6" font-weight="600">v0.2 horizon</text>
+        <text x="920" y="145" fill="#7a6cc0">R6 knowledge · R7 AGENT</text>
+      </g>
+      <!-- you-are-here -->
+      <path d="M630 60 L630 48" stroke="#9a6512" stroke-width="2"/>
+      <rect x="556" y="22" width="148" height="26" rx="13" fill="#fff3df" stroke="#f0d9a8"/>
+      <text x="630" y="39" font-size="11.5" font-weight="700" fill="#9a6512" text-anchor="middle">◀ you are here</text>
+
+      <!-- D-21 fence -->
+      <line x1="822" y1="40" x2="822" y2="200" stroke="var(--tier0)" stroke-width="2.4" stroke-dasharray="6 5"/>
+      <rect x="828" y="44" width="196" height="60" rx="9" fill="#f5f2ff" stroke="#cbb8f6"/>
+      <text x="840" y="64" font-size="11.4" font-weight="700" fill="#5b40d6">D-21 fence (held)</text>
+      <text x="840" y="82" font-size="10.6" fill="#7a6cc0">R6/R7 are non-selectable until</text>
+      <text x="840" y="96" font-size="10.6" fill="#7a6cc0">you rule the v0.2 scope-change</text>
+
+      <!-- exit criteria callouts -->
+      <rect x="556" y="210" width="200" height="96" rx="9" fill="#fff7ec" stroke="#f0d2a0"/>
+      <text x="566" y="230" font-size="11.4" font-weight="700" fill="#9a6512">R4 exit criteria (§22.5)</text>
+      <text x="566" y="250" font-size="10.6" fill="#a8741f">① nonlinear support cases converge</text>
+      <text x="566" y="266" font-size="10.6" fill="#a8741f">② component provenance in reports</text>
+      <text x="566" y="288" font-size="10.4" fill="#b5341f" font-weight="600">Status: HELD — DEC-053 (O-B)</text>
+      <text x="566" y="302" font-size="10.2" fill="#c07a52">refreshed exit packet awaits your ruling</text>
+
+      <rect x="770" y="210" width="254" height="96" rx="9" fill="#f3f6fb" stroke="#cbd5e3"/>
+      <text x="780" y="230" font-size="11.4" font-weight="700" fill="#33405a">R5 exit criteria (§22.6)</text>
+      <text x="780" y="250" font-size="10.6" fill="#5b6678">① external engineers reproduce the</text>
+      <text x="780" y="264" font-size="10.6" fill="#5b6678">   validation examples</text>
+      <text x="780" y="282" font-size="10.6" fill="#5b6678">② public repo: no known protected</text>
+      <text x="780" y="296" font-size="10.6" fill="#5b6678">   standards data</text>
+    </svg>
+    <div class="takeaway"><b>Takeaway:</b> R4 is the wall in front of you, and it is <i>held</i>, not closed — the sparse-default repair it was waiting on already landed, so what's left is your exit ruling on the refreshed packet. R7 (the embedded agent) lives beyond the D-21 fence.</div>
+  </section>
+
+  <!-- 5. GATE CHAIN -->
+  <section id="gates">
+    <h2><span class="num">5</span>The convergence gate chain — three gates to land the agent harness</h2>
+    <p class="lede">This is the heart of "convergence." To put a live embedded agent into the piping app, three gates must clear <b>in order</b>. Two downstream prerequisites are already done, and a whole lane of prep can run in parallel right now.</p>
+    <svg class="fig" viewBox="0 0 1040 520" role="img" aria-label="Convergence gate chain">
+      <defs>
+        <marker id="ag" markerWidth="12" markerHeight="12" refX="8" refY="3.4" orient="auto"><path d="M0,0 L9,3.4 L0,6.8 Z" fill="#33405a"/></marker>
+        <marker id="agL" markerWidth="12" markerHeight="12" refX="8" refY="3.4" orient="auto"><path d="M0,0 L9,3.4 L0,6.8 Z" fill="#1f9d57"/></marker>
+      </defs>
+
+      <!-- gate 1 -->
+      <rect x="34" y="40" width="300" height="168" rx="13" fill="#fff7ec" stroke="var(--gate)" stroke-width="2"/>
+      <circle cx="64" cy="70" r="15" fill="var(--gate)"/><text x="64" y="75" fill="#fff" font-weight="700" font-size="13" text-anchor="middle">1</text>
+      <text x="90" y="68" font-size="13.5" font-weight="700" fill="#9a6512">Clear the R4 exit hold</text>
+      <text x="90" y="85" font-size="10.8" fill="#b5934a">needs a NEW human R4-exit ruling</text>
+      <line x1="50" y1="98" x2="318" y2="98" stroke="#f0d9a8"/>
+      <text x="52" y="118" font-size="10.9" fill="#1a7a45">✓ sparse-default repair already landed</text>
+      <text x="64" y="132" font-size="10.2" fill="#5b9b92">(TP-…SPARSEDEFAULTPROMOTE-001 · 26d2cff2f)</text>
+      <text x="52" y="152" font-size="10.9" fill="#a8741f">▢ readiness: clean-head DEC-025 sweep</text>
+      <text x="52" y="168" font-size="10.9" fill="#a8741f">▢ readiness: §16.2 / §16.5 convergence</text>
+      <text x="64" y="182" font-size="10.2" fill="#b5934a">disposition (depth-of-validation note)</text>
+      <text x="52" y="200" font-size="10.4" fill="#b5341f" font-weight="600">rule on the refreshed exit-chain packet</text>
+
+      <!-- gate 2 -->
+      <rect x="370" y="40" width="300" height="168" rx="13" fill="#f5f2ff" stroke="var(--tier0)" stroke-width="2"/>
+      <circle cx="400" cy="70" r="15" fill="var(--tier0)"/><text x="400" y="75" fill="#fff" font-weight="700" font-size="13" text-anchor="middle">2</text>
+      <text x="426" y="68" font-size="13.5" font-weight="700" fill="#5b40d6">Rule D-21 (scope-change)</text>
+      <text x="426" y="85" font-size="10.8" fill="#7a6cc0">held · sequenced for the R4/R5 lead-up</text>
+      <line x1="386" y1="98" x2="654" y2="98" stroke="#cbb8f6"/>
+      <text x="388" y="120" font-size="10.9" fill="#6a5aa8">Promotes the v0.2 PRD to authority:</text>
+      <text x="388" y="138" font-size="10.9" fill="#6a5aa8">• adopts R6 + R7 milestones</text>
+      <text x="388" y="156" font-size="10.9" fill="#6a5aa8">• adopts the v0.2 FR renumber</text>
+      <text x="400" y="170" font-size="10.2" fill="#9a8fd0">(traceability-breaking — needs a crosswalk)</text>
+      <text x="388" y="192" font-size="10.4" fill="#5b40d6" font-weight="600">until ruled, R7 carries no weight</text>
+
+      <!-- gate 3 -->
+      <rect x="706" y="40" width="300" height="168" rx="13" fill="#eefaf8" stroke="var(--piping)" stroke-width="2"/>
+      <circle cx="736" cy="70" r="15" fill="var(--piping)"/><text x="736" y="75" fill="#fff" font-weight="700" font-size="13" text-anchor="middle">3</text>
+      <text x="762" y="68" font-size="13.5" font-weight="700" fill="#0b7d70">R7 / embedded agent enters</text>
+      <text x="762" y="85" font-size="10.8" fill="#5b9b92">Phases G/H/I become selectable</text>
+      <line x1="722" y1="98" x2="990" y2="98" stroke="#bfe7e1"/>
+      <text x="724" y="120" font-size="10.9" fill="#0c7d70">Live binding ALSO needs:</text>
+      <text x="724" y="138" font-size="10.9" fill="#0c7d70">• DEC-041 "no-manual-toil" condition</text>
+      <text x="724" y="156" font-size="10.9" fill="#0c7d70">• app-dev fence F3 (app-dev's job)</text>
+      <text x="724" y="174" font-size="10.9" fill="#0c7d70">• matured harness packages</text>
+      <text x="724" y="194" font-size="10.9" fill="#1a7a45">• runtime residency ✓ already cleared</text>
+
+      <!-- arrows between gates -->
+      <g stroke="#33405a" stroke-width="2.2" marker-end="url(#ag)" fill="none">
+        <line x1="334" y1="124" x2="368" y2="124"/>
+        <line x1="670" y1="124" x2="704" y2="124"/>
+      </g>
+      <text x="351" y="114" font-size="10.5" fill="#33405a" text-anchor="middle">then</text>
+      <text x="687" y="114" font-size="10.5" fill="#33405a" text-anchor="middle">then</text>
+
+      <!-- already cleared row -->
+      <rect x="34" y="240" width="636" height="92" rx="12" fill="#eaf7f0" stroke="#bfe3cc"/>
+      <text x="50" y="264" font-size="12.5" font-weight="700" fill="#1a7a45">✓ Already cleared on the piping side (don't re-open)</text>
+      <rect x="50" y="276" width="296" height="44" rx="8" fill="#fff" stroke="#cdeadb"/>
+      <text x="62" y="294" font-size="11" font-weight="600" fill="#1a7a45">DEC-041 / D-22 — substrate decided</text>
+      <text x="62" y="310" font-size="10.3" fill="#4f9b71">consume app-dev harness as versioned pkgs</text>
+      <rect x="358" y="276" width="296" height="44" rx="8" fill="#fff" stroke="#cdeadb"/>
+      <text x="370" y="294" font-size="11" font-weight="600" fill="#1a7a45">DEC-051 / D-24 — residency reconciled</text>
+      <text x="370" y="310" font-size="10.3" fill="#4f9b71">to tier-0 D-T0-04 "open residency"</text>
+
+      <!-- parallel lane -->
+      <rect x="706" y="240" width="300" height="92" rx="12" fill="#eef4ff" stroke="#c3d6fb"/>
+      <text x="722" y="264" font-size="12.5" font-weight="700" fill="#1f56d6">⇄ Parallel lane — ungated, now</text>
+      <text x="722" y="284" font-size="10.6" fill="#3f7af6">DEC-042 sanctions harness-INDEPENDENT prep:</text>
+      <text x="722" y="300" font-size="10.6" fill="#3f7af6">read tools · proposal→apply bridge · domain</text>
+      <text x="722" y="316" font-size="10.6" fill="#3f7af6">index · candidate-gen · persistence · schema</text>
+
+      <!-- dependency note arrow from cleared to gate3 -->
+      <path d="M520 276 C 560 250, 840 240, 856 210" fill="none" stroke="#1f9d57" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#agL)"/>
+
+      <!-- bottom: what each gate UNLOCKS -->
+      <rect x="34" y="356" width="972" height="140" rx="13" fill="#f7f9fc" stroke="#d6dce6"/>
+      <text x="50" y="380" font-size="12.5" font-weight="700" fill="#33405a">What the piping governance persona prepares (PROPOSALS — you rule each)</text>
+      <g font-size="11">
+        <circle cx="60" cy="404" r="9" fill="var(--gate)"/><text x="60" y="408" fill="#fff" font-weight="700" font-size="10" text-anchor="middle">1</text>
+        <text x="78" y="408" fill="#33405a">Run a clean-head sweep · draft the §16.2/§16.5 disposition · write the successor R4-exit decision packet.</text>
+        <circle cx="60" cy="432" r="9" fill="var(--tier0)"/><text x="60" y="436" fill="#fff" font-weight="700" font-size="10" text-anchor="middle">2</text>
+        <text x="78" y="436" fill="#33405a">After R4 exits: prepare the D-21 SCOPE_CHANGE packet (v0.2 adoption + full FR crosswalk).</text>
+        <circle cx="60" cy="460" r="9" fill="var(--piping)"/><text x="60" y="464" fill="#fff" font-weight="700" font-size="10" text-anchor="middle">3</text>
+        <text x="78" y="460" fill="#33405a">In parallel now: advance the DEC-042 harness-independent pieces against the stable contract.</text>
+        <text x="78" y="484" fill="#b5341f">Guardrail: do NOT apply the superseded D-26 §7 "advance-to-R5" edit — any advance comes from a fresh ruling.</text>
+      </g>
+    </svg>
+    <div class="takeaway"><b>Takeaway &amp; one correction to the common shorthand:</b> people say "clear the R4 hold (the sparse residual)" — but the sparse residual is <i>already repaired</i>. Gate 1 is now purely <b>your exit ruling</b> on the refreshed packet (ideally after two small readiness items), not more build work. Gates run 1 → 2 → 3; the DEC-042 lane needs none of them.</div>
+  </section>
+
+  <!-- 6. EMBEDDED AGENT BEHAVIOR -->
+  <section id="agent">
+    <h2><span class="num">6</span>How the embedded agent will behave — propose-only, through the human's own seam</h2>
+    <p class="lede">When R7 lands, the agent is deliberately constrained. It uses the <b>same structured-operation seam the human uses</b>, and it can only <b>propose</b> — it never writes to the model directly. This is what keeps the professional boundary intact.</p>
+    <svg class="fig" viewBox="0 0 1040 300" role="img" aria-label="Embedded agent operating model">
+      <defs>
+        <marker id="aa" markerWidth="11" markerHeight="11" refX="7.5" refY="3.2" orient="auto"><path d="M0,0 L8,3.2 L0,6.4 Z" fill="#33405a"/></marker>
+      </defs>
+      <!-- agent -->
+      <rect x="34" y="96" width="180" height="108" rx="12" fill="#eefaf8" stroke="var(--piping)"/>
+      <text x="124" y="124" font-size="13" font-weight="700" fill="#0b7d70" text-anchor="middle">Embedded agent</text>
+      <text x="124" y="146" font-size="10.6" fill="#0c7d70" text-anchor="middle">grounded in the engineering</text>
+      <text x="124" y="160" font-size="10.6" fill="#0c7d70" text-anchor="middle">corpus (DEC-043 — no</text>
+      <text x="124" y="174" font-size="10.6" fill="#0c7d70" text-anchor="middle">invented formulas / SIFs)</text>
+      <!-- three tool classes -->
+      <rect x="262" y="40" width="220" height="60" rx="10" fill="#eef4ff" stroke="#c3d6fb"/>
+      <text x="276" y="64" font-size="12" font-weight="700" fill="#1f56d6">READ</text>
+      <text x="276" y="84" font-size="10.6" fill="#3f7af6">model · results · diagnostics (free)</text>
+      <rect x="262" y="120" width="220" height="60" rx="10" fill="#eef4ff" stroke="#c3d6fb"/>
+      <text x="276" y="144" font-size="12" font-weight="700" fill="#1f56d6">QUERY</text>
+      <text x="276" y="164" font-size="10.6" fill="#3f7af6">domain research (read-only)</text>
+      <rect x="262" y="200" width="220" height="60" rx="10" fill="#fdece7" stroke="#f3c4b8"/>
+      <text x="276" y="224" font-size="12" font-weight="700" fill="#b5341f">PROPOSE</text>
+      <text x="276" y="244" font-size="10.6" fill="#c05a42">mutations — NEVER applied directly</text>
+      <!-- seam -->
+      <rect x="540" y="96" width="190" height="108" rx="12" fill="#fff7ec" stroke="var(--gate)"/>
+      <text x="635" y="120" font-size="12.5" font-weight="700" fill="#9a6512" text-anchor="middle">Structured</text>
+      <text x="635" y="138" font-size="12.5" font-weight="700" fill="#9a6512" text-anchor="middle">operation seam</text>
+      <text x="635" y="160" font-size="10.5" fill="#a8741f" text-anchor="middle">validates · diff-preview</text>
+      <text x="635" y="174" font-size="10.5" fill="#a8741f" text-anchor="middle">the SAME seam the human uses</text>
+      <!-- human -->
+      <rect x="772" y="56" width="234" height="80" rx="12" fill="#fff7ec" stroke="var(--gate)" stroke-width="2"/>
+      <text x="889" y="82" font-size="12.5" font-weight="700" fill="#9a6512" text-anchor="middle">⬤ Human judges</text>
+      <text x="889" y="104" font-size="10.6" fill="#a8741f" text-anchor="middle">accept · edit · reject</text>
+      <text x="889" y="120" font-size="10.6" fill="#a8741f" text-anchor="middle">via the diff preview</text>
+      <!-- applied -->
+      <rect x="772" y="160" width="234" height="92" rx="12" fill="#eaf7f0" stroke="#bfe3cc"/>
+      <text x="889" y="184" font-size="12.5" font-weight="700" fill="#1a7a45" text-anchor="middle">Applied + audited</text>
+      <text x="889" y="206" font-size="10.6" fill="#1a7a45" text-anchor="middle">only AFTER acceptance · through</text>
+      <text x="889" y="220" font-size="10.6" fill="#1a7a45" text-anchor="middle">the validated seam · reversible ·</text>
+      <text x="889" y="234" font-size="10.6" fill="#1a7a45" text-anchor="middle">hash-bound receipt</text>
+      <!-- arrows -->
+      <g stroke="#33405a" stroke-width="1.7" marker-end="url(#aa)" fill="none">
+        <line x1="214" y1="150" x2="260" y2="70"/>
+        <line x1="214" y1="150" x2="260" y2="150"/>
+        <line x1="214" y1="150" x2="260" y2="230"/>
+        <line x1="482" y1="230" x2="538" y2="170"/>
+        <line x1="730" y1="135" x2="770" y2="105"/>
+        <line x1="889" y1="136" x2="889" y2="158"/>
+      </g>
+      <text x="889" y="150" font-size="9.6" fill="#9a6512" text-anchor="middle">if accepted ↓</text>
+    </svg>
+    <div class="takeaway"><b>Takeaway:</b> the agent is a fast assistant that drafts schema-valid proposals; <i>you</i> remain the engineer-of-record. It can read and research freely, but every change to the model passes through your accept/reject diff — same as the decision workflow in §3, applied to the modeling surface.</div>
+  </section>
+
+  <!-- 7. GLOSSARY -->
+  <section id="gloss">
+    <h2><span class="num">7</span>Glossary — the IDs you'll keep seeing</h2>
+    <table class="gloss">
+      <tr><th>ID</th><th>What it is</th><th>Status</th></tr>
+      <tr><td><code>R0–R5</code></td><td>The current PRD (v0.1) release milestones, from architecture prototype to engineering beta.</td><td><span class="pill p-cur">R4 current</span></td></tr>
+      <tr><td><code>R6 / R7</code></td><td>v0.2-draft milestones: R6 = design-knowledge &amp; handoff; R7 = agent-assisted design (the embedded agent).</td><td><span class="pill p-held">fenced</span></td></tr>
+      <tr><td><code>D-21</code></td><td>The human decision to promote the v0.2 scope (adopt R6/R7 + FR renumber). The fence in front of the agent work.</td><td><span class="pill p-held">held · not prepared</span></td></tr>
+      <tr><td><code>D-22 / DEC-041</code></td><td>Ruled: consume the app-dev harness as versioned packages; execution gated behind D-21 + a no-manual-toil condition.</td><td><span class="pill p-done">ruled</span></td></tr>
+      <tr><td><code>DEC-042</code></td><td>Sanctions building the harness-INDEPENDENT agent prep now (no live binding, no app-dev dependency yet).</td><td><span class="pill p-done">ruled</span></td></tr>
+      <tr><td><code>DEC-043</code></td><td>Physics-grounding rule: the agent must ground in the corpus, never invent formulas/SIFs/allowables.</td><td><span class="pill p-done">ruled</span></td></tr>
+      <tr><td><code>D-24 / DEC-051</code></td><td>Reconciled the piping runtime residency posture to tier-0 D-T0-04 "open residency." A live-binding prerequisite, now cleared.</td><td><span class="pill p-done">ruled · published</span></td></tr>
+      <tr><td><code>D-25 / DEC-052</code></td><td>R4 exit-scope ruling (O-B): the bounded evidence may proceed to a final exit-chain packet; listed residuals deferred.</td><td><span class="pill p-done">ruled</span></td></tr>
+      <tr><td><code>D-26 / DEC-053</code></td><td>R4 exit review (O-B): HOLD at R4, close the named sparse residual. Repair landed; refreshed packet now awaits your exit ruling.</td><td><span class="pill p-cur">held at R4</span></td></tr>
+      <tr><td><code>D-T0-04</code></td><td>Tier-0 ruling (in _DomainEngines): "open residency" — the harness may see the owner's own private model + Class-B data at runtime.</td><td><span class="pill p-done">ruled</span></td></tr>
+      <tr><td><code>OPS-K-*</code></td><td>The binding invariants in CONTRACT.md (IP boundary, no silent defaults, professional ceiling, privacy, agent-propose-only, …).</td><td>—</td></tr>
+      <tr><td><code>TP-… / sweep</code></td><td>Evidence: a TP-* run record is a landed work item with tests; a DEC-025 "sweep" is a SHA-bound, clean-head verification snapshot.</td><td>—</td></tr>
+      <tr><td><code>fence F3 (app-dev)</code></td><td>The app-dev-side gate for live binding (distinct from the piping plan's own "F3"). The app-dev loop owns it.</td><td><span class="pill p-held">app-dev side</span></td></tr>
+    </table>
+  </section>
+
+  <footer>
+    Non-normative orientation aid · generated 2026-06-29 · authoritative sources: <code>projects/chirality-piping/docs/{PRD,CONTRACT,SPEC,PLAN}.md</code>, <code>execution/_Coordination/_COORDINATION.md</code>, <code>execution/_Coordination/_DECISIONS/_REGISTER.md</code>, <code>execution/_Decomposition/SOFTWARE_DECOMP.md</code> §12.
+  </footer>
+</div>
+</body>
+</html>

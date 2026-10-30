@@ -1,0 +1,21 @@
+[package]
+name = "m3_judge_runner"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+# The M3 judge's runner (harness, not reference), shared by both routes: kd5_timoshenko/runner plus the provenance of
+# each record (pf_timoshenko_m3t/runner, refutation round 3). It drives the product through its two public entry
+# points, run_linear_static_preview_with_mode (typed) and run_linear_static_preview_value_with_mode (captured). The path
+# dependency is the product_physics crate of the checkout this directory sits in.
+[dependencies]
+open_pipe_stress_product_physics = { path = "../../../../core/product_physics" }
+serde_json = { version = "=1.0.149", features = ["float_roundtrip"] }
+# already in the product's locked graph; hashes the request lines and the runner itself
+sha2 = "=0.10.9"
+
+[profile.release]
+debug = false
+
+# A standalone root: this crate joins no workspace and changes no other Cargo.lock.
+[workspace]

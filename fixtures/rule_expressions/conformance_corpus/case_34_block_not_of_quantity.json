@@ -1,0 +1,35 @@
+{
+  "bindings": [],
+  "case_id": "case_34_block_not_of_quantity",
+  "declared_grammar_version": "1.0.0",
+  "description": "Logical NOT over a quantity is a type mismatch.",
+  "expected": {
+    "findings": [
+      {
+        "code": "type_mismatch",
+        "subject_id": "unary_not"
+      }
+    ],
+    "source_variable_ids": [],
+    "statuses": [
+      "mechanics_solved"
+    ],
+    "value": null
+  },
+  "expression": {
+    "node": "unary",
+    "operand": {
+      "node": "literal",
+      "quantity": {
+        "dimension": "dimensionless",
+        "unit_ref": "ratio",
+        "value": 1.0
+      }
+    },
+    "operator": "not"
+  },
+  "required_variable_ids": [],
+  "statuses": [
+    "mechanics_solved"
+  ]
+}

@@ -1,0 +1,696 @@
+{
+ "schema": "openpipestress.t4_u5b_case_description/1",
+ "id": "AS-F-R",
+ "status": "request-agnostic case description for T4-U5b; not a model document of any version. A builder authors the model 0.6.0 request from it once 0.6.0 defines explicit_axial_rods_v1",
+ "description": "AS-F rigidly rotated (J3-1R's rotation, every axis skew) and translated",
+ "derives_from": {
+  "reference": "validation/references/t4_u5a",
+  "request": "requests/J3-3.request.json",
+  "request_sha256": "7598c7b47dac284ac0d84de634682f04b537b71e14fefd11fe01376266816732",
+  "oracle_case": "J3-3",
+  "orientation_pattern": {
+   "request": "requests/J3-1R.request.json",
+   "request_sha256": "c72059741eff1d0d63cbae3add491099cfa0e62b97656d33a59d1d96b3623dd4",
+   "applied": "J3-1R's rigid rotation (rows below) and translation (10, 20, 5) m applied to every position, axis, y_reference, rod offset and load"
+  }
+ },
+ "changes_from_base": [
+  "connector hardware: untied -> explicit_axial_rods_v1, bilateral_linear (1 rod, below)",
+  "no added loads",
+  "supports unchanged from the base",
+  "orientation: J3-1R's rigid rotation (rows below) and translation (10, 20, 5) m applied to every position, axis, y_reference, rod offset and load"
+ ],
+ "unchanged_from_base": [
+  "model 0.5.0 project fields re-expressed in the 0.6.0 form by the builder (project id renamed per case)",
+  "connector installed_reference_temperature, temperature_applicability, reference_state and stiffness provenance",
+  "load case id load:U5A and region id region:U5A, no other primitive loads",
+  "every id other than the rods' and the added loads'"
+ ],
+ "physical_inputs": {
+  "units": {
+   "length": "m",
+   "force": "N",
+   "angle": "rad",
+   "pressure": "Pa",
+   "stress": "Pa"
+  },
+  "pressure_contract": {
+   "version": "3.0.0",
+   "mode": "exact_pressure_v3",
+   "shear_model": "euler_bernoulli"
+  },
+  "material": {
+   "id": "material:invented-steel",
+   "elastic_modulus_pa": {
+    "exact": "200000000000",
+    "decimal": "200000000000",
+    "value": 200000000000.0
+   },
+   "poisson_ratio": {
+    "exact": "3/10",
+    "decimal": "0.3",
+    "value": 0.3
+   },
+   "thermal_expansion_per_degC": {
+    "exact": "3/250000",
+    "decimal": "0.000012",
+    "value": 1.2e-05
+   },
+   "note": "no thermal load; alpha unused"
+  },
+  "nodes": [
+   {
+    "id": "node:A",
+    "position_m": [
+     {
+      "exact": "10",
+      "decimal": "10",
+      "value": 10.0
+     },
+     {
+      "exact": "20",
+      "decimal": "20",
+      "value": 20.0
+     },
+     {
+      "exact": "5",
+      "decimal": "5",
+      "value": 5.0
+     }
+    ]
+   },
+   {
+    "id": "node:B",
+    "position_m": [
+     {
+      "exact": "44/5",
+      "decimal": "8.8",
+      "value": 8.8
+     },
+     {
+      "exact": "532/25",
+      "decimal": "21.28",
+      "value": 21.28
+     },
+     {
+      "exact": "149/25",
+      "decimal": "5.96",
+      "value": 5.96
+     }
+    ]
+   },
+   {
+    "id": "node:C",
+    "position_m": [
+     {
+      "exact": "431/50",
+      "decimal": "8.62",
+      "value": 8.62
+     },
+     {
+      "exact": "2684/125",
+      "decimal": "21.472",
+      "value": 21.472
+     },
+     {
+      "exact": "763/125",
+      "decimal": "6.104",
+      "value": 6.104
+     }
+    ]
+   },
+   {
+    "id": "node:D",
+    "position_m": [
+     {
+      "exact": "371/50",
+      "decimal": "7.42",
+      "value": 7.42
+     },
+     {
+      "exact": "2844/125",
+      "decimal": "22.752",
+      "value": 22.752
+     },
+     {
+      "exact": "883/125",
+      "decimal": "7.064",
+      "value": 7.064
+     }
+    ]
+   }
+  ],
+  "pipes": [
+   {
+    "id": "pipe:L",
+    "from": "node:A",
+    "to": "node:B",
+    "outside_diameter_m": {
+     "exact": "3/50",
+     "decimal": "0.06",
+     "value": 0.06
+    },
+    "wall_thickness_m": {
+     "exact": "1/200",
+     "decimal": "0.005",
+     "value": 0.005
+    },
+    "mill_tolerance_m": {
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    "corrosion_allowance_m": {
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    "material": "material:invented-steel",
+    "y_reference": [
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     {
+      "exact": "-3/5",
+      "decimal": "-0.6",
+      "value": -0.6
+     },
+     {
+      "exact": "4/5",
+      "decimal": "0.8",
+      "value": 0.8
+     }
+    ],
+    "role": "pressurized member; face pipe at node:B"
+   },
+   {
+    "id": "pipe:J",
+    "from": "node:B",
+    "to": "node:C",
+    "outside_diameter_m": {
+     "exact": "3/50",
+     "decimal": "0.06",
+     "value": 0.06
+    },
+    "wall_thickness_m": {
+     "exact": "1/200",
+     "decimal": "0.005",
+     "value": 0.005
+    },
+    "mill_tolerance_m": {
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    "corrosion_allowance_m": {
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    "material": "material:invented-steel",
+    "y_reference": [
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     {
+      "exact": "-3/5",
+      "decimal": "-0.6",
+      "value": -0.6
+     },
+     {
+      "exact": "4/5",
+      "decimal": "0.8",
+      "value": 0.8
+     }
+    ],
+    "role": "replaced span (connector replaces_span); no stiffness, load or result"
+   },
+   {
+    "id": "pipe:R",
+    "from": "node:C",
+    "to": "node:D",
+    "outside_diameter_m": {
+     "exact": "3/50",
+     "decimal": "0.06",
+     "value": 0.06
+    },
+    "wall_thickness_m": {
+     "exact": "1/200",
+     "decimal": "0.005",
+     "value": 0.005
+    },
+    "mill_tolerance_m": {
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    "corrosion_allowance_m": {
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    "material": "material:invented-steel",
+    "y_reference": [
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     {
+      "exact": "-3/5",
+      "decimal": "-0.6",
+      "value": -0.6
+     },
+     {
+      "exact": "4/5",
+      "decimal": "0.8",
+      "value": 0.8
+     }
+    ],
+    "role": "pressurized member; face pipe at node:C"
+   }
+  ],
+  "connector": {
+   "id": "component:C-J",
+   "kind": "expansion_joint",
+   "objective_connector_version": "1.0.0",
+   "motion_basis": "symmetric_midpoint_small_rotation_v1",
+   "end_i": {
+    "node_ref": "node:B",
+    "offset_m": [
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     }
+    ]
+   },
+   "end_j": {
+    "node_ref": "node:C",
+    "offset_m": [
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     }
+    ]
+   },
+   "connector_axes_global": [
+    [
+     {
+      "exact": "-3/5",
+      "decimal": "-0.6",
+      "value": -0.6
+     },
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     {
+      "exact": "4/5",
+      "decimal": "0.8",
+      "value": 0.8
+     }
+    ],
+    [
+     {
+      "exact": "16/25",
+      "decimal": "0.64",
+      "value": 0.64
+     },
+     {
+      "exact": "-3/5",
+      "decimal": "-0.6",
+      "value": -0.6
+     },
+     {
+      "exact": "12/25",
+      "decimal": "0.48",
+      "value": 0.48
+     }
+    ],
+    [
+     {
+      "exact": "12/25",
+      "decimal": "0.48",
+      "value": 0.48
+     },
+     {
+      "exact": "4/5",
+      "decimal": "0.8",
+      "value": 0.8
+     },
+     {
+      "exact": "9/25",
+      "decimal": "0.36",
+      "value": 0.36
+     }
+    ]
+   ],
+   "connector_axes_convention": "the matrix Q whose columns are the connector axes in global coordinates, stored row-major as in t4_u5a's requests (inferred from J3-1R)",
+   "stiffness_diagonal": {
+    "tx_n_per_m": {
+     "exact": "200000",
+     "decimal": "200000",
+     "value": 200000.0
+    },
+    "ty_n_per_m": {
+     "exact": "80000",
+     "decimal": "80000",
+     "value": 80000.0
+    },
+    "tz_n_per_m": {
+     "exact": "80000",
+     "decimal": "80000",
+     "value": 80000.0
+    },
+    "rx_nm_per_rad": {
+     "exact": "600",
+     "decimal": "600",
+     "value": 600.0
+    },
+    "ry_nm_per_rad": {
+     "exact": "900",
+     "decimal": "900",
+     "value": 900.0
+    },
+    "rz_nm_per_rad": {
+     "exact": "900",
+     "decimal": "900",
+     "value": 900.0
+    },
+    "off_diagonal": "zero",
+    "representation": "as the base: scaled_work_coefficients_v1, translation and rotation scales 1"
+   },
+   "q_ref": "zero (stress_free)",
+   "topology": {
+    "type": "replaces_span",
+    "span_ref": "pipe:J"
+   },
+   "calibration": "constant_structural_elasticity_v1, includes_pressure_dependent_tangent false (as the base)",
+   "pressure_model": {
+    "kind": "constant_effective_area_reference_v1",
+    "effective_area_m2": {
+     "exact": "1/250",
+     "decimal": "0.004",
+     "value": 0.004
+    },
+    "pressure_basis": "internal_differential_zero_external_v1",
+    "source_reference": "invented effective area (JR J3); not manufacturer data"
+   },
+   "hardware": {
+    "kind": "explicit_axial_rods_v1",
+    "shape_note": "neutral description in JR's proposed vocabulary (CONTRACT.md section 5); not the fixed 0.6.0 shape",
+    "rods": [
+     {
+      "id": "rod:yp",
+      "end_i": {
+       "node_ref": "node:B",
+       "offset_connector_axes_m": [
+        {
+         "exact": "-1/20",
+         "decimal": "-0.05",
+         "value": -0.05
+        },
+        {
+         "exact": "1/10",
+         "decimal": "0.1",
+         "value": 0.1
+        },
+        {
+         "exact": "0",
+         "decimal": "0",
+         "value": 0.0
+        }
+       ],
+       "offset_global_m": [
+        {
+         "exact": "3/100",
+         "decimal": "0.03",
+         "value": 0.03
+        },
+        {
+         "exact": "-23/250",
+         "decimal": "-0.092",
+         "value": -0.092
+        },
+        {
+         "exact": "7/125",
+         "decimal": "0.056",
+         "value": 0.056
+        }
+       ]
+      },
+      "end_j": {
+       "node_ref": "node:C",
+       "offset_connector_axes_m": [
+        {
+         "exact": "1/20",
+         "decimal": "0.05",
+         "value": 0.05
+        },
+        {
+         "exact": "1/10",
+         "decimal": "0.1",
+         "value": 0.1
+        },
+        {
+         "exact": "0",
+         "decimal": "0",
+         "value": 0.0
+        }
+       ],
+       "offset_global_m": [
+        {
+         "exact": "-3/100",
+         "decimal": "-0.03",
+         "value": -0.03
+        },
+        {
+         "exact": "-7/250",
+         "decimal": "-0.028",
+         "value": -0.028
+        },
+        {
+         "exact": "13/125",
+         "decimal": "0.104",
+         "value": 0.104
+        }
+       ]
+      },
+      "law": {
+       "kind": "bilateral_linear",
+       "stiffness_n_per_m": {
+        "exact": "10000000",
+        "decimal": "10000000",
+        "value": 10000000.0
+       },
+       "reference_extension_m": {
+        "exact": "0",
+        "decimal": "0",
+        "value": 0.0
+       }
+      },
+      "source_reference": "invented T4-U5b tie rod (analytical control); not manufacturer data",
+      "derived": {
+       "attachment_i_global_m": [
+        {
+         "exact": "883/100",
+         "decimal": "8.83",
+         "value": 8.83
+        },
+        {
+         "exact": "5297/250",
+         "decimal": "21.188",
+         "value": 21.188
+        },
+        {
+         "exact": "752/125",
+         "decimal": "6.016",
+         "value": 6.016
+        }
+       ],
+       "attachment_j_global_m": [
+        {
+         "exact": "859/100",
+         "decimal": "8.59",
+         "value": 8.59
+        },
+        {
+         "exact": "5361/250",
+         "decimal": "21.444",
+         "value": 21.444
+        },
+        {
+         "exact": "776/125",
+         "decimal": "6.208",
+         "value": 6.208
+        }
+       ],
+       "length_m": {
+        "exact": "2/5",
+        "decimal": "0.4",
+        "value": 0.4
+       },
+       "direction_global": [
+        {
+         "exact": "-3/5",
+         "decimal": "-0.6",
+         "value": -0.6
+        },
+        {
+         "exact": "16/25",
+         "decimal": "0.64",
+         "value": 0.64
+        },
+        {
+         "exact": "12/25",
+         "decimal": "0.48",
+         "value": 0.48
+        }
+       ]
+      }
+     }
+    ]
+   }
+  },
+  "pressure_region": {
+   "id": "region:U5A",
+   "member_pipe_ids": [
+    "pipe:L",
+    "pipe:R"
+   ],
+   "member_connector_ids": [
+    "component:C-J"
+   ],
+   "pressure_pa": {
+    "exact": "200000",
+    "decimal": "200000",
+    "value": 200000.0
+   },
+   "pressure_basis": "internal_differential_zero_external_v1",
+   "terminals": [
+    {
+     "node_ref": "node:A",
+     "closure_transfer": "transfers_to_wall"
+    },
+    {
+     "node_ref": "node:D",
+     "closure_transfer": "transfers_to_wall"
+    }
+   ]
+  },
+  "supports": [
+   {
+    "id": "support:A",
+    "node": "node:A",
+    "family": "anchor",
+    "restraints": [
+     "UX",
+     "UY",
+     "UZ",
+     "RX",
+     "RY",
+     "RZ"
+    ]
+   }
+  ],
+  "loads": [],
+  "rotation_applied": [
+   [
+    {
+     "exact": "-3/5",
+     "decimal": "-0.6",
+     "value": -0.6
+    },
+    {
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "exact": "4/5",
+     "decimal": "0.8",
+     "value": 0.8
+    }
+   ],
+   [
+    {
+     "exact": "16/25",
+     "decimal": "0.64",
+     "value": 0.64
+    },
+    {
+     "exact": "-3/5",
+     "decimal": "-0.6",
+     "value": -0.6
+    },
+    {
+     "exact": "12/25",
+     "decimal": "0.48",
+     "value": 0.48
+    }
+   ],
+   [
+    {
+     "exact": "12/25",
+     "decimal": "0.48",
+     "value": 0.48
+    },
+    {
+     "exact": "4/5",
+     "decimal": "0.8",
+     "value": 0.8
+    },
+    {
+     "exact": "9/25",
+     "decimal": "0.36",
+     "value": 0.36
+    }
+   ]
+  ],
+  "translation_applied_m": [
+   {
+    "exact": "10",
+    "decimal": "10",
+    "value": 10.0
+   },
+   {
+    "exact": "20",
+    "decimal": "20",
+    "value": 20.0
+   },
+   {
+    "exact": "5",
+    "decimal": "5",
+    "value": 5.0
+   }
+  ]
+ },
+ "provenance": "invented T4-U5b reference fixture (JR J3 values and invented tie rods); not library, catalog, manufacturer or code-rule data"
+}

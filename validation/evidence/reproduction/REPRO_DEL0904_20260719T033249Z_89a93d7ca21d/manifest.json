@@ -1,0 +1,460 @@
+{
+  "schema": "chirality-reproduction-bundle/v1",
+  "artifact": "DEL-09-04 actor-neutral clean-checkout reproduction",
+  "package_type": "derivative_package",
+  "authoritative_truth": false,
+  "run_id": "REPRO_DEL0904_20260719T033249Z_89a93d7ca21d",
+  "managed_run_id": "HELP-HUMAN-PIPING-20260718-DEL0904-CLEAN-REPRO-R8",
+  "source_commit": "89a93d7ca21d64c57cc344955d17deef709fd685",
+  "cleanup_merge_ancestor": "525ef0903e68b536ff5b22f985263ca737a67986",
+  "overall_status": "FAIL",
+  "evidence_label": null,
+  "started_utc": "2026-07-19T03:39:24Z",
+  "finished_utc": "2026-07-19T03:50:31Z",
+  "authority": {
+    "adopted_candidate": "projects/chirality-piping/execution/_Coordination/CANDIDATE_BRIEF_2026-07-18_DEL-09-04_CLEAN_REPRODUCTION.md",
+    "candidate_sha256": "72521c0ae90fc04d5d2e22ff3e3d0be5e96561fe3e2d3847b546c4fa26af1951",
+    "decision_basis": [
+      "DEC-080",
+      "DEC-085"
+    ],
+    "procedure_path": "projects/chirality-piping/docs/validation_manual/headless_runner_reproduction.md",
+    "procedure_sha256": "5fee14dd6ed62e4b75ef833af2ad9de2e711a83889be94d10b9a0a7de230418d",
+    "software_workflow_profile_sha256": "123249634475e87207cd75740dc25e5061c08cc7a1708aa239105b27e30c9c2f",
+    "root_workflow_contract_sha256": "f97af1d323524f9a2be1dab8b5b33c1350c8f48c38cd3c6f8d0f8a9cd9821ea2"
+  },
+  "execution_posture": {
+    "local_clone_only": true,
+    "network_used": false,
+    "installation_or_download_used": false,
+    "cargo_net_offline": true,
+    "cargo_offline_flag": true,
+    "temporary_root_removed": true
+  },
+  "commands": [
+    {
+      "id": "git_clone",
+      "started_utc": "2026-07-19T03:39:24Z",
+      "ended_utc": "2026-07-19T03:39:25Z",
+      "cwd": "/Users/ryan/.codex/worktrees/2faf/chirality",
+      "argv": [
+        "git",
+        "clone",
+        "--no-hardlinks",
+        "--no-checkout",
+        "/Users/ryan/.codex/worktrees/2faf/chirality",
+        "/tmp/del0904-r8.iFx8Aa/checkout"
+      ],
+      "environment_overrides": {},
+      "expected_exit_code": 0,
+      "actual_exit_code": 0
+    },
+    {
+      "id": "git_checkout",
+      "started_utc": "2026-07-19T03:39:25Z",
+      "ended_utc": "2026-07-19T03:39:33Z",
+      "cwd": "/tmp/del0904-r8.iFx8Aa/checkout",
+      "argv": [
+        "git",
+        "checkout",
+        "--detach",
+        "89a93d7ca21d64c57cc344955d17deef709fd685"
+      ],
+      "environment_overrides": {},
+      "expected_exit_code": 0,
+      "actual_exit_code": 0
+    },
+    {
+      "id": "generator",
+      "started_utc": "2026-07-19T03:40:14Z",
+      "ended_utc": "2026-07-19T03:40:14Z",
+      "cwd": "/tmp/del0904-r8.iFx8Aa/checkout/projects/chirality-piping",
+      "argv": [
+        "python3",
+        "validation/witness/inputs/generate_tp_runner_015_inputs.py"
+      ],
+      "environment_overrides": {},
+      "expected_exit_code": 0,
+      "actual_exit_code": 0
+    },
+    {
+      "id": "solve",
+      "started_utc": "2026-07-19T03:40:25Z",
+      "ended_utc": "2026-07-19T03:40:31Z",
+      "cwd": "/tmp/del0904-r8.iFx8Aa/checkout/projects/chirality-piping",
+      "argv": [
+        "cargo",
+        "run",
+        "--offline",
+        "--manifest-path",
+        "core/runner/headless/Cargo.toml",
+        "--bin",
+        "openpipestress-runner",
+        "--",
+        "solve",
+        "--input",
+        "validation/witness/inputs/tp_runner_015_final_cli_solve_input.json",
+        "--output",
+        "/tmp/del0904-r8.iFx8Aa/outputs/tp_runner_015_solve.json"
+      ],
+      "environment_overrides": {
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/tmp/del0904-r8.iFx8Aa/cargo-target"
+      },
+      "expected_exit_code": 0,
+      "actual_exit_code": 0
+    },
+    {
+      "id": "validate_input",
+      "started_utc": "2026-07-19T03:40:42Z",
+      "ended_utc": "2026-07-19T03:40:42Z",
+      "cwd": "/tmp/del0904-r8.iFx8Aa/checkout/projects/chirality-piping",
+      "argv": [
+        "cargo",
+        "run",
+        "--offline",
+        "--manifest-path",
+        "core/runner/headless/Cargo.toml",
+        "--bin",
+        "openpipestress-runner",
+        "--",
+        "validate-input",
+        "--input",
+        "validation/witness/inputs/tp_runner_015_final_cli_validation_blocking_input.json",
+        "--output",
+        "/tmp/del0904-r8.iFx8Aa/outputs/tp_runner_015_validation_blocking.json"
+      ],
+      "environment_overrides": {
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/tmp/del0904-r8.iFx8Aa/cargo-target"
+      },
+      "expected_exit_code": 1,
+      "actual_exit_code": 1
+    },
+    {
+      "id": "run_benchmark",
+      "started_utc": "2026-07-19T03:40:54Z",
+      "ended_utc": "2026-07-19T03:40:54Z",
+      "cwd": "/tmp/del0904-r8.iFx8Aa/checkout/projects/chirality-piping",
+      "argv": [
+        "cargo",
+        "run",
+        "--offline",
+        "--manifest-path",
+        "core/runner/headless/Cargo.toml",
+        "--bin",
+        "openpipestress-runner",
+        "--",
+        "run-benchmark",
+        "--input",
+        "validation/witness/inputs/tp_runner_015_final_cli_benchmark_stub_input.json",
+        "--output",
+        "/tmp/del0904-r8.iFx8Aa/outputs/tp_runner_015_benchmark_stub.json"
+      ],
+      "environment_overrides": {
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/tmp/del0904-r8.iFx8Aa/cargo-target"
+      },
+      "expected_exit_code": 1,
+      "actual_exit_code": 1
+    },
+    {
+      "id": "cargo_test",
+      "started_utc": "2026-07-19T03:41:19Z",
+      "ended_utc": "2026-07-19T03:41:20Z",
+      "cwd": "/tmp/del0904-r8.iFx8Aa/checkout/projects/chirality-piping",
+      "argv": [
+        "cargo",
+        "test",
+        "--offline",
+        "--manifest-path",
+        "core/runner/headless/Cargo.toml"
+      ],
+      "environment_overrides": {
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/tmp/del0904-r8.iFx8Aa/cargo-target"
+      },
+      "expected_exit_code": 0,
+      "actual_exit_code": 0
+    },
+    {
+      "id": "python_contract_test",
+      "started_utc": "2026-07-19T03:41:29Z",
+      "ended_utc": "2026-07-19T03:41:29Z",
+      "cwd": "/tmp/del0904-r8.iFx8Aa/checkout/projects/chirality-piping",
+      "argv": [
+        "python3",
+        "tests/test_headless_runner_contract.py"
+      ],
+      "environment_overrides": {
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "expected_exit_code": 0,
+      "actual_exit_code": 0
+    },
+    {
+      "id": "output_predicates",
+      "started_utc": "2026-07-19T03:42:29Z",
+      "ended_utc": "2026-07-19T03:42:29Z",
+      "cwd": "/tmp/del0904-r8.iFx8Aa/checkout/projects/chirality-piping",
+      "argv": [
+        "python3",
+        "<standard-json-predicate-check>"
+      ],
+      "environment_overrides": {},
+      "expected_exit_code": 0,
+      "actual_exit_code": 0
+    },
+    {
+      "id": "piping-pytest",
+      "started_utc": "2026-07-19T03:43:57Z",
+      "ended_utc": "2026-07-19T03:44:18Z",
+      "cwd": "/Users/ryan/.codex/worktrees/2faf/chirality",
+      "argv": [
+        "python3",
+        "tools/software_workflow/run_registered_checks.py",
+        "/Users/ryan/.codex/worktrees/2faf/chirality/projects/chirality-piping/software-workflow.json",
+        "--check",
+        "piping-pytest",
+        "--output",
+        "/Users/ryan/.codex/worktrees/2faf/chirality/projects/chirality-piping/validation/evidence/reproduction/REPRO_DEL0904_20260719T033249Z_89a93d7ca21d/checks/piping-pytest.json"
+      ],
+      "environment_overrides": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "CARGO_NET_OFFLINE": "true"
+      },
+      "expected_exit_code": 0,
+      "actual_exit_code": 0
+    },
+    {
+      "id": "evidence-sweep",
+      "started_utc": "2026-07-19T03:44:39Z",
+      "ended_utc": "2026-07-19T03:48:58Z",
+      "cwd": "/Users/ryan/.codex/worktrees/2faf/chirality",
+      "argv": [
+        "python3",
+        "tools/software_workflow/run_registered_checks.py",
+        "/Users/ryan/.codex/worktrees/2faf/chirality/projects/chirality-piping/software-workflow.json",
+        "--check",
+        "evidence-sweep",
+        "--output",
+        "/Users/ryan/.codex/worktrees/2faf/chirality/projects/chirality-piping/validation/evidence/reproduction/REPRO_DEL0904_20260719T033249Z_89a93d7ca21d/checks/evidence-sweep.json"
+      ],
+      "environment_overrides": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "CARGO_NET_OFFLINE": "true"
+      },
+      "expected_exit_code": 0,
+      "actual_exit_code": 0
+    },
+    {
+      "id": "harness-pytest",
+      "started_utc": "2026-07-19T03:49:44Z",
+      "ended_utc": "2026-07-19T03:50:31Z",
+      "cwd": "/Users/ryan/.codex/worktrees/2faf/chirality",
+      "argv": [
+        "python3",
+        "tools/software_workflow/run_registered_checks.py",
+        "/Users/ryan/.codex/worktrees/2faf/chirality/projects/chirality-piping/software-workflow.json",
+        "--check",
+        "harness-pytest",
+        "--output",
+        "/Users/ryan/.codex/worktrees/2faf/chirality/projects/chirality-piping/validation/evidence/reproduction/REPRO_DEL0904_20260719T033249Z_89a93d7ca21d/checks/harness-pytest.json"
+      ],
+      "environment_overrides": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "CARGO_NET_OFFLINE": "true"
+      },
+      "expected_exit_code": 0,
+      "actual_exit_code": 1
+    }
+  ],
+  "input_sha256": {
+    "tp_runner_015_final_cli_solve_input.json": "c604e3d418cd3f799fda70a6af1927602a320fb9fb0d64269b7c08e25d47613b",
+    "tp_runner_015_final_cli_validation_blocking_input.json": "305d933a261e1be06812fbf3f8f79dc58bd84c974ebeb7d0194bb089e1a85a6f",
+    "tp_runner_015_final_cli_benchmark_stub_input.json": "85939f65312448cf8bec0747e293bc26f2b4bae49debf5194588ec1cb2b51129"
+  },
+  "output_sha256": {
+    "tp_runner_015_benchmark_stub.json": "420484c82e798b9f0bb12d17d4381dab18b17f0c7468aa6110607c16ded94d4d",
+    "tp_runner_015_solve.json": "9835265859887a9ad9017182346517a4c545e183a815429c24fb431b8edfc3ec",
+    "tp_runner_015_validation_blocking.json": "0d707ee26f4bbdd979f06580b46c658a7e10fdcde7f7833585bb15f2863dd1c1"
+  },
+  "runtime_and_review": {
+    "schema": "chirality-del0904-reproduction-validation/v1",
+    "overall_status": "FAIL",
+    "runtime_review_pass": true,
+    "profile_pass": false,
+    "predicates": {
+      "solve_exit_0": true,
+      "solve_job_completed": true,
+      "solve_request_diagnostics_empty": true,
+      "solve_result_diagnostics_empty": true,
+      "solve_top_level_diagnostics_empty": true,
+      "solve_result_refs_nonempty": true,
+      "validate_input_exit_1": true,
+      "validate_input_required_diagnostic": true,
+      "validate_input_no_solver_result": true,
+      "run_benchmark_exit_1": true,
+      "run_benchmark_required_diagnostic": true,
+      "cargo_test_exit_0": true,
+      "python_contract_test_exit_0": true,
+      "generator_exit_0": true,
+      "fixture_hashes_unchanged": true
+    },
+    "observations": {
+      "solve_result_refs_count": 830,
+      "validate_input_diagnostic_codes": [
+        "HEADLESS_RUNNER_LOAD_BASIS_MISSING"
+      ],
+      "run_benchmark_diagnostic_codes": [
+        "HEADLESS_RUNNER_OPERATION_STUB_REQUIRES_DOWNSTREAM_PAYLOAD"
+      ]
+    },
+    "output_sha256": {
+      "tp_runner_015_benchmark_stub.json": "420484c82e798b9f0bb12d17d4381dab18b17f0c7468aa6110607c16ded94d4d",
+      "tp_runner_015_solve.json": "9835265859887a9ad9017182346517a4c545e183a815429c24fb431b8edfc3ec",
+      "tp_runner_015_validation_blocking.json": "0d707ee26f4bbdd979f06580b46c658a7e10fdcde7f7833585bb15f2863dd1c1"
+    }
+  },
+  "registered_profile": {
+    "schema": "chirality-del0904-profile-summary/v1",
+    "overall_status": "FAIL",
+    "checks": [
+      {
+        "id": "piping-pytest",
+        "status": "PASS",
+        "exit_code": 0
+      },
+      {
+        "id": "evidence-sweep",
+        "status": "PASS",
+        "exit_code": 0,
+        "sweep_delta_count": 1,
+        "sweep_file": "SWEEP_20260719T034442Z_89a93d7ca21d-dirty.json"
+      },
+      {
+        "id": "harness-pytest",
+        "status": "FAIL",
+        "exit_code": 1,
+        "passed": 264,
+        "failed": 2
+      },
+      {
+        "id": "harness-self-check",
+        "status": "NOT_RUN",
+        "exit_code": null
+      }
+    ],
+    "failure_basis": [
+      "tools/practitioner_harness/test_live_baseline.py::test_live_self_check_severity_totals_are_recorded_loop_anchors",
+      "tools/practitioner_harness/test_live_baseline.py::test_live_gen8_abs_path_24_file_baseline"
+    ],
+    "disposition": "Terminal FAIL; no repair authorized."
+  },
+  "sweep": {
+    "delta_count": 1,
+    "file": "projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260719T034442Z_89a93d7ca21d-dirty.json",
+    "sha256": "9994c20815dd1d5a64d90cf93f9956f61085b896ed93ec9b07017a1da0d3dd64"
+  },
+  "failure": {
+    "check": "harness-pytest",
+    "exit_code": 1,
+    "passed": 264,
+    "failed": 2,
+    "basis": [
+      "self-check REVIEW count 38 did not match pinned 30",
+      "GEN8 absolute-path live baseline contained additional source paths, including committed P1 records"
+    ],
+    "repair_attempted": false
+  },
+  "deliverable_state": {
+    "lifecycle": "IN_PROGRESS",
+    "clean_reproduction_remaining_open": true,
+    "status_matches_source_commit": true,
+    "memory_matches_source_commit": true,
+    "receipt_57_appended": false
+  },
+  "preserved_gates": [
+    "reproduction acceptance",
+    "lifecycle/stage advancement",
+    "evidence promotion",
+    "release",
+    "publication",
+    "prover status",
+    "professional reliance",
+    "external effect"
+  ],
+  "file_sha256_before_manifest": {
+    "README.md": "2244350594bebaf9197787f36e84fd4cd3d8b34582d648a1a5a25531967b64e8",
+    "checks/evidence-sweep.json": "040d57e9a3c28cec5048865b5a0302b7a206df8c7ceab5b85619243c5c51510e",
+    "checks/harness-pytest.json": "2ac3cc66997645dad32d2839b63d7b6df3186cec4e2c5ace5444b5f01a52ca45",
+    "checks/input-hashes-after.txt": "60963462c9d63b266bdc59c0a3476f8dfb659db6e41f7f6fee5d83759675c1aa",
+    "checks/input-hashes-before.txt": "60963462c9d63b266bdc59c0a3476f8dfb659db6e41f7f6fee5d83759675c1aa",
+    "checks/not-run.json": "fd54c16e3ddc9d9db27104f3f7260b3331ee479898e6fd81dc8cfff3dee63c9e",
+    "checks/piping-pytest.json": "17645f800e9968ce064e4af975bf6aaf4e4b358b1d8b11eddb3e1cc3d9062ad3",
+    "checks/profile-summary.json": "282a02970315533628ad25ed3b7520bddaa029ade39378a850b1c2be5ad5ee7a",
+    "checks/sweeps-after.txt": "dd0f12b2fd82bfbb8cd7953943a6306bf99ffbfa803d91e2f1067f3dc28c1170",
+    "checks/sweeps-before.txt": "e952d750f4704c03ac082dad3f70188ed443b0e8ac2d81942575c906b473c905",
+    "checks/sweeps-delta.txt": "c768738bb6e2fc583730aaf37e7f2ec6a9f6e4b58952d3e9728af3499ef277aa",
+    "commands.jsonl": "56b4896c47690906cce551ad6b981ac4f9b49c621085546d7810d7d419221cd0",
+    "environment.txt": "d78acf09e4a602afb796bac88dea6b9e78ecf97e01dea12533149dd3a154f8f3",
+    "exit_codes/cargo_test.txt": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "exit_codes/evidence-sweep.txt": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "exit_codes/generator.txt": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "exit_codes/generator_determinism_diff.txt": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "exit_codes/git_checkout.txt": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "exit_codes/git_clone.txt": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "exit_codes/git_diff_after.txt": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "exit_codes/git_diff_before.txt": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "exit_codes/git_diff_cached_after.txt": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "exit_codes/git_diff_cached_before.txt": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "exit_codes/harness-pytest.txt": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+    "exit_codes/piping-pytest.txt": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "exit_codes/python_contract_test.txt": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "exit_codes/run_benchmark.txt": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+    "exit_codes/solve.txt": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "exit_codes/tool_preflight.txt": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "exit_codes/validate_input.txt": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+    "git-status-after.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "git-status-before.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "outputs/tp_runner_015_benchmark_stub.json": "420484c82e798b9f0bb12d17d4381dab18b17f0c7468aa6110607c16ded94d4d",
+    "outputs/tp_runner_015_solve.json": "9835265859887a9ad9017182346517a4c545e183a815429c24fb431b8edfc3ec",
+    "outputs/tp_runner_015_validation_blocking.json": "0d707ee26f4bbdd979f06580b46c658a7e10fdcde7f7833585bb15f2863dd1c1",
+    "procedure.sha256": "de630eb3a8dd48b0a8a0b37d5ce5ba656c889b98b50dcb1bc9271e6c3410f6d2",
+    "source_commit.txt": "183f6a8990b3acd3dc6e77a4ff3aa5de5efb4d11a738b657822e064cc974bced",
+    "stderr/cargo_test.txt": "be9edb087fb2bf8e2d405031ba91d3e4a628b34bce185cce21ac6d6e6e876fae",
+    "stderr/evidence-sweep.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr/generator.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr/generator_determinism_diff.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr/git_checkout.txt": "17249a6950cdeb7abb9f6efef768b1ea23f689949ef4e22594cee41c9955f8a1",
+    "stderr/git_clone.txt": "9543e21fc15ee4428ea63137ab6c32af285ea05fa6cb48a70278777fe7a026d8",
+    "stderr/git_diff_after.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr/git_diff_before.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr/git_diff_cached_after.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr/git_diff_cached_before.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr/harness-pytest.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr/piping-pytest.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr/python_contract_test.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr/run_benchmark.txt": "f0aabc0a547eed518b0243b339d2ab58313047106f94be1dc32ec03956567904",
+    "stderr/solve.txt": "ab9eb345cb8fddcf61c95bad0f3c0f67286d4215d874f7483d10da71eab8a9c8",
+    "stderr/tool_preflight.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr/validate_input.txt": "7cf2a6cd73994a9d92bf0496e0bc48e9d7017c3f59db78fcafe71134686b7904",
+    "stdout/cargo_test.txt": "625969f5f2c2dcf8a450818ce1e370e0aa8f991a70b88ee04a515068829e489e",
+    "stdout/evidence-sweep.txt": "c75f5b914504a5e5db676fbfe9e8ea850493f599c9792d210d72c0d7ed56b221",
+    "stdout/generator.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout/generator_determinism_diff.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout/git_checkout.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout/git_clone.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout/git_diff_after.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout/git_diff_before.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout/git_diff_cached_after.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout/git_diff_cached_before.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout/harness-pytest.txt": "7b2a3e4f758f13ae6dc8035a2f2c81065a0dd0f5254d4ede50ec217e1aa42e99",
+    "stdout/piping-pytest.txt": "8e61b80d58e886066baa8396a23d48a011c197d715ec0b60ad65ff612976a20f",
+    "stdout/python_contract_test.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout/run_benchmark.txt": "420484c82e798b9f0bb12d17d4381dab18b17f0c7468aa6110607c16ded94d4d",
+    "stdout/solve.txt": "9835265859887a9ad9017182346517a4c545e183a815429c24fb431b8edfc3ec",
+    "stdout/validate_input.txt": "0d707ee26f4bbdd979f06580b46c658a7e10fdcde7f7833585bb15f2863dd1c1",
+    "validation_summary.json": "40101ef7b129ec1227158fbcfd83712ff9af0d7cc18580fa1cb9d713f96f7acb"
+  }
+}

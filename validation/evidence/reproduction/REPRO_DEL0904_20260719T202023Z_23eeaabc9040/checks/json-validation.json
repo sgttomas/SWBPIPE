@@ -1,0 +1,24 @@
+{
+  "checks": {
+    "solve_exit_0": true,
+    "solve_completed": true,
+    "solve_result_refs_nonempty": true,
+    "solve_diagnostic_clean": true,
+    "validate_exit_1": true,
+    "validate_diagnostic": true,
+    "validate_no_solver_result": true,
+    "benchmark_exit_1": true,
+    "benchmark_diagnostic": true
+  },
+  "diagnostic_codes": {
+    "solve": [],
+    "validate_input": [
+      "HEADLESS_RUNNER_LOAD_BASIS_MISSING"
+    ],
+    "run_benchmark": [
+      "HEADLESS_RUNNER_OPERATION_STUB_REQUIRES_DOWNSTREAM_PAYLOAD"
+    ]
+  },
+  "result_refs_count": 830,
+  "overall_pass": true
+}

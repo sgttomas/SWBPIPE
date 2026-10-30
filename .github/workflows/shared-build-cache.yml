@@ -1,0 +1,92 @@
+name: Shared build dependency caches
+
+# Main is a cache scope every new PR can read. No product tests run here.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shared-build-dependency-cache-main
+  cancel-in-progress: false
+
+jobs:
+  piping-numerical:
+    name: Warm Piping numerical dependencies (no tests)
+    if: github.repository == 'sgttomas/SWBPIPE' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CARGO_INCREMENTAL: '0'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            /*
+            !/execution/
+            !/execution/
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - uses: dtolnay/rust-toolchain@1.97.1
+      - name: Restore main-scoped numerical build dependencies
+        id: cache
+        uses: ./.github/actions/restore-build-cache
+        with:
+          suite: piping-numerical
+      - name: Plan the full numerical build
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: python3 tools/software_workflow/hosted_ci.py plan --suite piping --event workflow_dispatch --head "$GITHUB_SHA" --output piping-ci-plan.json
+      - name: Compile the numerical job's profiles without tests
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: python3 tools/ci/numerical_ci.py --plan piping-ci-plan.json --evidence-dir piping-numerical-evidence --build-only
+      - name: Remove local crate outputs before saving
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: python3 tools/software_workflow/build_cache.py trim --suite piping-numerical
+      - name: Save main-scoped numerical dependencies
+        if: success() && steps.cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ steps.cache.outputs.paths }}
+          key: ${{ steps.cache.outputs.key }}
+
+  piping-desktop-rust:
+    name: Warm Piping desktop Rust dependencies (no tests)
+    if: github.repository == 'sgttomas/SWBPIPE' && github.ref == 'refs/heads/main'
+    runs-on: macos-26
+    timeout-minutes: 45
+    env:
+      CARGO_INCREMENTAL: '0'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            /*
+            !/execution/
+            !/execution/
+          sparse-checkout-cone-mode: false
+      - uses: dtolnay/rust-toolchain@1.97.1
+      - name: Restore main-scoped desktop Rust build dependencies
+        id: cache
+        uses: ./.github/actions/restore-build-cache
+        with:
+          suite: piping-desktop-rust
+      - name: Compile the desktop Rust job's test profile without tests
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: cargo test --no-run --locked --manifest-path apps/desktop/src-tauri/Cargo.toml
+        working-directory: .
+      - name: Remove local crate outputs before saving
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: python3 tools/software_workflow/build_cache.py trim --suite piping-desktop-rust
+      - name: Save main-scoped desktop Rust dependencies
+        if: success() && steps.cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ steps.cache.outputs.paths }}
+          key: ${{ steps.cache.outputs.key }}

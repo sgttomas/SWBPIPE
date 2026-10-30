@@ -1,0 +1,16 @@
+[package]
+name = "open_pipe_stress_result_export"
+version = "0.1.0"
+edition = "2021"
+description = "Result export envelope support for OpenPipeStress"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+open_pipe_stress_correct_norm = { path = "../../numerics/correct_norm" }
+serde_json = { version = "1", features = ["float_roundtrip"] }
+open_pipe_stress_canonical_json = { path = "../../serialization/canonical_json" }
+sha2 = "0.10"
+open_pipe_stress_units = { path = "../../units" }

@@ -1,0 +1,10 @@
+{
+  "source": "application/postchange_audit/audit_poststate.py",
+  "sha256": "27bd7086a5f59adaf9602dd718734d2c7cfcf504ba4b0da4921d6b4d4c554c68",
+  "io_only_rebindings": [
+    {
+      "old": "O=ROOT/R/'application/postchange_audit'",
+      "new": "O=pathlib.Path('/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/review')"
+    }
+  ]
+}

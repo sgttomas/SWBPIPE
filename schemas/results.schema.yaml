@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openpipestress.org/schemas/results.schema.yaml",
+  "title": "Result export dispatcher",
+  "description": "One result-export version is current (b7-plan E2): the dispatcher is a reference to results.v0.3.schema.yaml, so it admits exactly what that file admits (its external references resolve through the local schema registry). Older export versions are retired and are not read.",
+  "$ref": "results.v0.3.schema.yaml"
+}

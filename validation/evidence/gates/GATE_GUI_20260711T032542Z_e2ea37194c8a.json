@@ -1,0 +1,204 @@
+{
+  "artifact": "openpipestress.release_gate_record",
+  "schema_version": 1,
+  "decision_basis": [
+    "DEC-024",
+    "DEC-025",
+    "DEC-026",
+    "DEC-046",
+    "DEC-058",
+    "DEC-060"
+  ],
+  "gate_doc": "docs/RELEASE_QUALITY_GATES.md",
+  "boundary_note": "Commit-bound record of measured release-quality gate outcomes per docs/RELEASE_QUALITY_GATES.md, built from already-governed sources only. NOT a release, release-readiness, or publication claim; mints no release label or status (release-label vocabulary is human-gated, PB-TBD-003); not a professional approval, certification, sealing, authentication, or code-compliance determination. TBD criteria are unresolved: no value is invented, estimated, or defaulted for them.",
+  "gate_family": "gui",
+  "gate_family_definition": "Model editing, solve workflow, warning display, results viewing (docs/RELEASE_QUALITY_GATES.md sections 2 and 6).",
+  "evaluated_commit": "e2ea37194c8acf8e4a77c5fb2fecf92adb1c939c",
+  "emitted": {
+    "git": {
+      "commit_hash": "6dcb328ac5cf789fefc0586af00b59cd2ae9e819",
+      "branch": "claude/piping-e8-gate-records",
+      "status_capture_failed": false,
+      "working_tree_dirty": false,
+      "dirty_paths": []
+    },
+    "runtime": {
+      "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+      "python": "3.13.7",
+      "node": "v24.5.0",
+      "npm": "11.5.2",
+      "cargo": "cargo 1.92.0 (344c4567c 2025-10-21)",
+      "rustc": "rustc 1.92.0 (ded5c06cf 2025-12-08)"
+    },
+    "started_utc": "2026-07-11T03:25:42+00:00"
+  },
+  "inputs": {
+    "sweep_evidence": {
+      "sweep_dir": "/Users/ryan/ai-env/projects/chirality/.claude/worktrees/agent-a30e381bd027b103d/projects/chirality-piping/validation/evidence/sweeps",
+      "artifacts_at_commit": 1,
+      "clean_artifacts_at_commit": 1,
+      "selected": {
+        "path": "SWEEP_20260711T032140Z_e2ea37194c8a.json",
+        "commit_hash": "e2ea37194c8acf8e4a77c5fb2fecf92adb1c939c",
+        "started_utc": "2026-07-11T03:21:40+00:00",
+        "overall_status": "pass",
+        "surfaces": {
+          "cargo_crate_sweep": "pass",
+          "python_pytest": "pass",
+          "desktop_vitest": "pass",
+          "desktop_playwright_e2e": "pass",
+          "desktop_production_build": "pass"
+        }
+      }
+    },
+    "scan_evidence": {
+      "scan_dir": "/Users/ryan/ai-env/projects/chirality/.claude/worktrees/agent-a30e381bd027b103d/projects/chirality-piping/validation/evidence/releases",
+      "records_at_commit": []
+    },
+    "governed_tolerance_sources": [
+      {
+        "source": "DEC-026 (supersedes DEC-024 Part 1; D-04 Option T-C + riders)",
+        "record": "execution/_Decomposition/SOFTWARE_DECOMP.md section 12, DEC-026",
+        "summary": "Verification tolerances organized by reference-result class (analytic benchmark; cross-engine-exact; regression-golden-exact) as governed relative+absolute pairs; the analytic class is seeded at the measured 1.0e-9 relative where suites pass; unmeasured per-kind values remain TBD with the tolerance_policy_tbd_diagnostic active; fixture-local overrides may only tighten."
+      },
+      {
+        "source": "DEC-046 (D-19 Option CV-B/B)",
+        "record": "execution/_Decomposition/SOFTWARE_DECOMP.md section 12, DEC-046",
+        "summary": "Governed convergence-tolerance record keyed by nonlinear support class (gap, one-way, lift-off, friction): relative residual tolerance, absolute residual floor, governed max-iteration cap; unmeasured entries remain TBD and keep TolerancePolicyTbd active; loosening or cap-raising is a new governance event."
+      },
+      {
+        "source": "docs/RELEASE_QUALITY_GATES.md section 10",
+        "record": "docs/RELEASE_QUALITY_GATES.md",
+        "summary": "Final numerical tolerance policy for solver, stress, and nonlinear benchmarks: TBD. Performance thresholds and permitted variance policy: TBD. These stay TBD in this record; no value is invented."
+      }
+    ]
+  },
+  "coverage_telemetry_context": {
+    "coverage_dir": "/Users/ryan/ai-env/projects/chirality/.claude/worktrees/agent-a30e381bd027b103d/projects/chirality-piping/validation/evidence/coverage",
+    "clean_head_artifacts": 1,
+    "distinct_clean_head_commits": 1,
+    "promotion_prerequisites": "at least five clean-head telemetry artifacts spanning at least two distinct commits per lane, then a NEW owner-ruled decision row (DEC-060)",
+    "artifact_count_prerequisite_met": false,
+    "promotion_performed": false,
+    "numeric_floors": "none exist (DEC-060); coverage is recorded, never blocking, and is not a criterion of any gate family in this record"
+  },
+  "release_labels": {
+    "minted": false,
+    "policy": "This record does not evaluate, assign, or propose any release label or readiness status. The release-label vocabulary and final release policy language remain human-gated (PB-TBD-003, docs/PROFESSIONAL_BOUNDARY.md); the docs/RELEASE_QUALITY_GATES.md section 8 minimum engineering-beta condition is a human release-label consideration outside this record's scope."
+  },
+  "criteria": [
+    {
+      "criterion_id": "common.benchmark_provenance_documented",
+      "gate_doc_section": "3",
+      "text": "Benchmark source/provenance and redistribution status where examples are public.",
+      "basis_kind": "human_gated",
+      "sweep_surfaces": [],
+      "governed_sources": [],
+      "status": "TBD",
+      "tbd_reason": "not_evaluable_by_agent",
+      "notes": "Per-case provenance lives in the validation manual (DEL-09-04) and witness records; confirming redistribution status is a human review act."
+    },
+    {
+      "criterion_id": "common.scan_disposition_recorded",
+      "gate_doc_section": "3",
+      "text": "Protected-content, private-data, and real-secret scan disposition.",
+      "basis_kind": "dec058_scan_record",
+      "sweep_surfaces": [],
+      "governed_sources": [],
+      "status": "TBD",
+      "tbd_reason": "evidence_not_available",
+      "notes": "DEC-058 scan records are emitted UNSIGNED; per-finding dispositions and the release-gate signature are owner acts, so this criterion can never exceed TBD in an agent-emitted record."
+    },
+    {
+      "criterion_id": "common.human_acceptance_or_waiver",
+      "gate_doc_section": "3",
+      "text": "Human governance acceptance or waiver record.",
+      "basis_kind": "human_gated",
+      "sweep_surfaces": [],
+      "governed_sources": [],
+      "status": "TBD",
+      "tbd_reason": "human_gated",
+      "notes": "Only the human release authority can supply this record."
+    },
+    {
+      "criterion_id": "gui.missing_data_visibility",
+      "gate_doc_section": "6",
+      "text": "Missing solve data, missing rule-check data, and missing provenance are visible to users.",
+      "basis_kind": "dec025_sweep_surface",
+      "sweep_surfaces": [
+        "desktop_vitest",
+        "desktop_playwright_e2e"
+      ],
+      "governed_sources": [],
+      "status": "pass",
+      "tbd_reason": null,
+      "notes": "Evidence granularity is the DEC-025 sweep surface (aggregate suite outcome), not an isolated per-benchmark result; the named suites run inside the listed surfaces."
+    },
+    {
+      "criterion_id": "gui.warning_states_not_collapsed",
+      "gate_doc_section": "6",
+      "text": "Warnings, assumptions, nonlinear uncertainty, and result-envelope states are not collapsed into generic success states.",
+      "basis_kind": "dec025_sweep_surface",
+      "sweep_surfaces": [
+        "desktop_vitest",
+        "desktop_playwright_e2e"
+      ],
+      "governed_sources": [],
+      "status": "pass",
+      "tbd_reason": null,
+      "notes": "Evidence granularity is the DEC-025 sweep surface (aggregate suite outcome), not an isolated per-benchmark result; the named suites run inside the listed surfaces."
+    },
+    {
+      "criterion_id": "gui.workflow_tests_recorded",
+      "gate_doc_section": "6",
+      "text": "Workflow tests or screenshots are recorded where practical.",
+      "basis_kind": "dec025_sweep_surface",
+      "sweep_surfaces": [
+        "desktop_vitest",
+        "desktop_playwright_e2e"
+      ],
+      "governed_sources": [],
+      "status": "pass",
+      "tbd_reason": null,
+      "notes": "The commit-bound sweep artifact records the desktop unit and Playwright e2e workflow runs. Evidence granularity is the DEC-025 sweep surface (aggregate suite outcome), not an isolated per-benchmark result; the named suites run inside the listed surfaces."
+    },
+    {
+      "criterion_id": "gui.private_data_stays_local",
+      "gate_doc_section": "6",
+      "text": "Private data stays local and is not sent to unapproved services.",
+      "basis_kind": "human_gated",
+      "sweep_surfaces": [],
+      "governed_sources": [],
+      "status": "TBD",
+      "tbd_reason": "not_evaluable_by_agent",
+      "notes": "Architecture/network-behavior audit is human; tests/security suites give partial machine evidence inside the python_pytest surface."
+    },
+    {
+      "criterion_id": "gui.labels_avoid_compliance_claims",
+      "gate_doc_section": "6",
+      "text": "GUI labels avoid compliance, certification, endorsement, and professional approval claims.",
+      "basis_kind": "human_gated",
+      "sweep_surfaces": [],
+      "governed_sources": [],
+      "status": "TBD",
+      "tbd_reason": "not_evaluable_by_agent",
+      "notes": "Wording review is human and adjacent to the human-gated release-label vocabulary (PB-TBD-003)."
+    },
+    {
+      "criterion_id": "gui.browser_device_matrix_accessibility",
+      "gate_doc_section": "6",
+      "text": "Final browser/device matrix, accessibility threshold, and screenshot tooling.",
+      "basis_kind": "governed_value_tbd",
+      "sweep_surfaces": [],
+      "governed_sources": [],
+      "status": "TBD",
+      "tbd_reason": "governed_value_tbd",
+      "notes": "docs/RELEASE_QUALITY_GATES.md section 6 rules these TBD until governed by a release-policy decision; they stay TBD here and no value is invented."
+    }
+  ],
+  "status_counts": {
+    "pass": 3,
+    "fail": 0,
+    "TBD": 6
+  }
+}

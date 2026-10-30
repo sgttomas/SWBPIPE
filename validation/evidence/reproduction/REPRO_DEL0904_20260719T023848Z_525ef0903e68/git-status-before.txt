@@ -1,0 +1,6 @@
+Command: git status --porcelain=v1 --untracked-files=all
+Observation point: before the first managed-run record write, as verified and frozen by WORKING_ITEMS in the accepted launch basis.
+Result: empty
+Tracked diff: clean
+Cached diff: clean
+Source commit: 525ef0903e68b536ff5b22f985263ca737a67986

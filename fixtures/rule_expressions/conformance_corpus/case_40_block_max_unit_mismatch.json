@@ -1,0 +1,45 @@
+{
+  "bindings": [],
+  "case_id": "case_40_block_max_unit_mismatch",
+  "declared_grammar_version": "1.0.0",
+  "description": "MAX over same-dimension different-unit operands blocks (no conversion).",
+  "expected": {
+    "findings": [
+      {
+        "code": "unit_mismatch",
+        "subject_id": "max"
+      }
+    ],
+    "source_variable_ids": [],
+    "statuses": [
+      "mechanics_solved"
+    ],
+    "value": null
+  },
+  "expression": {
+    "function": "max",
+    "node": "aggregate",
+    "operands": [
+      {
+        "node": "literal",
+        "quantity": {
+          "dimension": "stress",
+          "unit_ref": "invented_stress_unit_a",
+          "value": 10.0
+        }
+      },
+      {
+        "node": "literal",
+        "quantity": {
+          "dimension": "stress",
+          "unit_ref": "invented_stress_unit_b",
+          "value": 12.0
+        }
+      }
+    ]
+  },
+  "required_variable_ids": [],
+  "statuses": [
+    "mechanics_solved"
+  ]
+}

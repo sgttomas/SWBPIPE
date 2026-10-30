@@ -1,0 +1,244 @@
+{
+  "format": "openpipestress.first_static_structural_numeric_addendum/1",
+  "status": "prepared_for_independent_review; no runtime/admission claim",
+  "parent_checkpoint": "74bd1bac253a9d58bac095efd8b8b888a3d351cd",
+  "parent_obligation": "complete_case_material_section",
+  "reference_basis": {
+    "path": "../section.reference.json",
+    "sha256": "df00cc0827ebce33e8af8bf4ea00e0bd80f98ffef41bdf2e9780cc266002b96a",
+    "method": "Reuse checked Decimal100 annulus/pi; add Ai by independent annular/bore geometry, no product output target"
+  },
+  "observation_namespace": "payload.mechanics_envelope.contract_evidence.exact_cases",
+  "selection": {
+    "case_key": "load_case_id",
+    "case_value": "case",
+    "case_match_count": 1,
+    "nested_array": "pipe_sections",
+    "pipe_key": "pipe_id",
+    "pipe_value": "pipe",
+    "pipe_match_count": 1,
+    "geometry_basis": "authored_normalized_od_wall_v1"
+  },
+  "quantities": [
+    {
+      "quantity_id": "section.outside_diameter_m",
+      "observed_field": "outside_diameter_m",
+      "quantity": "outside diameter",
+      "dimension": "length",
+      "unit": "m",
+      "source_formula": "OD=0.20 m",
+      "expected_decimal": "0.2",
+      "reference_value_binary64": 0.2,
+      "criterion_ref": "section.source_length_identity",
+      "bound_input_pointer_for_exact_identity": "/solve/preview_model/model/pipe_segments/0/section/outside_diameter/value"
+    },
+    {
+      "quantity_id": "section.effective_wall_thickness_m",
+      "observed_field": "effective_wall_thickness_m",
+      "quantity": "effective wall",
+      "dimension": "length",
+      "unit": "m",
+      "source_formula": "t_eff=t=0.01 m; no deduction input is present",
+      "expected_decimal": "0.01",
+      "reference_value_binary64": 0.01,
+      "criterion_ref": "section.source_length_identity",
+      "bound_input_pointer_for_exact_identity": "/solve/preview_model/model/pipe_segments/0/section/wall_thickness/value"
+    },
+    {
+      "quantity_id": "section.ro_m",
+      "observed_field": "ro_m",
+      "quantity": "outer radius",
+      "dimension": "length",
+      "unit": "m",
+      "source_formula": "ro=OD/2",
+      "expected_decimal": "0.1",
+      "reference_value_binary64": 0.1,
+      "criterion_ref": "section.derived_length_relative",
+      "bound_input_pointer_for_exact_identity": null
+    },
+    {
+      "quantity_id": "section.ri_m",
+      "observed_field": "ri_m",
+      "quantity": "inner radius",
+      "dimension": "length",
+      "unit": "m",
+      "source_formula": "ri=OD/2-t_eff",
+      "expected_decimal": "0.09",
+      "reference_value_binary64": 0.09,
+      "criterion_ref": "section.derived_length_relative",
+      "bound_input_pointer_for_exact_identity": null
+    },
+    {
+      "quantity_id": "section.As_m2",
+      "observed_field": "As_m2",
+      "quantity": "wall cross-section area",
+      "dimension": "area",
+      "unit": "m^2",
+      "source_formula": "As=pi*(ro^2-ri^2)=0.0019*pi",
+      "expected_decimal": "0.005969026041820607153079022428231055479974621858812701059852394725384851171943797097393266168150022422",
+      "reference_value_binary64": 0.005969026041820607,
+      "criterion_ref": "section.area_relative",
+      "bound_input_pointer_for_exact_identity": null
+    },
+    {
+      "quantity_id": "section.Ai_m2",
+      "observed_field": "Ai_m2",
+      "quantity": "bore area",
+      "dimension": "area",
+      "unit": "m^2",
+      "source_formula": "Ai=pi*ri^2=0.0081*pi",
+      "expected_decimal": "0.02544690049407732523154741140456397336199707213493835714989705119769331289091829288888708208527114822",
+      "reference_value_binary64": 0.025446900494077326,
+      "criterion_ref": "section.area_relative",
+      "bound_input_pointer_for_exact_identity": null
+    },
+    {
+      "quantity_id": "section.I_m4",
+      "observed_field": "I_m4",
+      "quantity": "each equal principal second moment",
+      "dimension": "second_moment_area",
+      "unit": "m^4",
+      "source_formula": "Iy=Iz=I=pi*(ro^4-ri^4)/4=0.0000085975*pi",
+      "expected_decimal": "0.00002700984283923824736768257648774552604688516391112747229583208613236645155304568186570452941087885145",
+      "reference_value_binary64": 2.7009842839238247e-05,
+      "criterion_ref": "section.second_moment_relative",
+      "bound_input_pointer_for_exact_identity": null
+    },
+    {
+      "quantity_id": "section.J_m4",
+      "observed_field": "J_m4",
+      "quantity": "polar second moment/torsion constant",
+      "dimension": "second_moment_area",
+      "unit": "m^4",
+      "source_formula": "J=2I",
+      "expected_decimal": "0.00005401968567847649473536515297549105209377032782225494459166417226473290310609136373140905882175770290",
+      "reference_value_binary64": 5.4019685678476494e-05,
+      "criterion_ref": "section.second_moment_relative",
+      "bound_input_pointer_for_exact_identity": null
+    },
+    {
+      "quantity_id": "section.Z_m3",
+      "observed_field": "Z_m3",
+      "quantity": "circular bending section modulus",
+      "dimension": "section_modulus",
+      "unit": "m^3",
+      "source_formula": "Z=I/ro",
+      "expected_decimal": "0.0002700984283923824736768257648774552604688516391112747229583208613236645155304568186570452941087885145",
+      "reference_value_binary64": 0.00027009842839238247,
+      "criterion_ref": "section.modulus_relative",
+      "bound_input_pointer_for_exact_identity": null
+    }
+  ],
+  "criteria": {
+    "section.source_length_identity": {
+      "kind": "exact_same_unit_input_identity",
+      "unit": "m",
+      "dimension": "length",
+      "relative_tolerance": 0,
+      "absolute_tolerance": 0,
+      "predicate": "finite observed numeric value equals the finite numeric value decoded from the specified bound authored input; reject bool/string/nonfinite/missing",
+      "scope": "OD and effective wall only, for these inputs already authored in m with no mill-tolerance reduction"
+    },
+    "section.derived_length_relative": {
+      "kind": "same_unit_relative",
+      "unit": "m",
+      "dimension": "length",
+      "relative_tolerance": 1e-09,
+      "absolute_tolerance": 0,
+      "predicate": "abs(observed-reference)<=1e-9*max(abs(observed),abs(reference)); require both finite positive numeric values"
+    },
+    "section.area_relative": {
+      "kind": "same_unit_relative",
+      "unit": "m^2",
+      "dimension": "area",
+      "relative_tolerance": 1e-09,
+      "absolute_tolerance": 0,
+      "predicate": "abs(observed-reference)<=1e-9*max(abs(observed),abs(reference)); require both finite positive numeric values"
+    },
+    "section.second_moment_relative": {
+      "kind": "same_unit_relative",
+      "unit": "m^4",
+      "dimension": "second_moment_area",
+      "relative_tolerance": 1e-09,
+      "absolute_tolerance": 0,
+      "predicate": "abs(observed-reference)<=1e-9*max(abs(observed),abs(reference)); require both finite positive numeric values"
+    },
+    "section.modulus_relative": {
+      "kind": "same_unit_relative",
+      "unit": "m^3",
+      "dimension": "section_modulus",
+      "relative_tolerance": 1e-09,
+      "absolute_tolerance": 0,
+      "predicate": "abs(observed-reference)<=1e-9*max(abs(observed),abs(reference)); require both finite positive numeric values"
+    }
+  },
+  "applies_to": [
+    {
+      "case_id": "original_static_axial_v1",
+      "input": {
+        "path": "../axial.runner_input.candidate.json",
+        "sha256": "ee8fe54222fa5bf6aaa39219b7353a95ff77b91177cccd9c665575229023ff74"
+      },
+      "request_id": "first-static-axial-v1",
+      "model_ref": "project:original-static-axial",
+      "load_case_ref": "case",
+      "pipe_ref": "pipe",
+      "modes": [
+        "sparse_interactive",
+        "dense_scrutiny"
+      ],
+      "quantity_ids": [
+        "section.outside_diameter_m",
+        "section.effective_wall_thickness_m",
+        "section.ro_m",
+        "section.ri_m",
+        "section.As_m2",
+        "section.Ai_m2",
+        "section.I_m4",
+        "section.J_m4",
+        "section.Z_m3"
+      ]
+    },
+    {
+      "case_id": "original_static_bending_torsion_v1",
+      "input": {
+        "path": "../bending_torsion.runner_input.candidate.json",
+        "sha256": "1f2b6e4876d352818a9f0c94bbfc285ca245df5ac27f63317b164e7ddf9d4ff2"
+      },
+      "request_id": "first-static-bending_torsion-v1",
+      "model_ref": "project:original-static-bending_torsion",
+      "load_case_ref": "case",
+      "pipe_ref": "pipe",
+      "modes": [
+        "sparse_interactive",
+        "dense_scrutiny"
+      ],
+      "quantity_ids": [
+        "section.outside_diameter_m",
+        "section.effective_wall_thickness_m",
+        "section.ro_m",
+        "section.ri_m",
+        "section.As_m2",
+        "section.Ai_m2",
+        "section.I_m4",
+        "section.J_m4",
+        "section.Z_m3"
+      ]
+    }
+  ],
+  "complete_case_rule": "All nine required subquantities must exist and pass. No skip/omission or coercion; absent/invalid/mismatched data fails the existing structural obligation. This does not add result-row selectors.",
+  "counting": "Nine numeric subchecks per case/mode (36 for two cases and two modes), inside the existing structural check; original73 scalar rows and10 structural obligations per execution are unchanged.",
+  "criterion_authority": "New bounded technical completion for the two named moderate-input development cases. Reuses the selected relative predicate, does not redefine inherited protected assertions or any global/release tolerance.",
+  "near_zero_policy": "None of these nine quantities is zero or near-zero in this fixed fixture. Derived references and observations must be positive; no absolute floor, guessed near-zero fallback or extrapolation to other geometry.",
+  "enclosure_policy": {
+    "additional_numeric_tolerance_selected": false,
+    "exact_relations": [
+      "finite ordered bounds",
+      "published maximum contained in its declared coefficient-only interval",
+      "summary value/unit/reference equals its bound raw row",
+      "declared station fraction is in[0,1]; combined-case witness is exactly0"
+    ],
+    "method_specific_consistency": "Validate certified-gap and bound-field relationships through the pinned ordinary physics-1 validator/method contract. This addendum supplies no substitute epsilon or expected gap value. If unavailable, report the original normal_maximum_evidence check unimplemented/unavailable.",
+    "independent_reference_comparison": "Use the already selected scalar normal-maximum criterion separately. Do not require the ideal-decimal mechanical reference to lie inside a coefficient-only interval."
+  }
+}

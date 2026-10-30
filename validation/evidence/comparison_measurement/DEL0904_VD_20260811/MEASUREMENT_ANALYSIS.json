@@ -1,0 +1,401 @@
+{
+  "artifact": "del0904.vd.measurement_analysis",
+  "basis_commit": "c05fe2d6fbc3bd3d3b690f50075e2c878af0faf3",
+  "blocks": [
+    {
+      "classification": "implementation_binding",
+      "dimensions": [
+        "length",
+        "moment"
+      ],
+      "fixture_id": "MECH-CANTILEVER-TIP-FORCE",
+      "historic_july20_member": true,
+      "reason": "the suite crate does not expose a public value-addressable observed counterpart for every recorded value of this case; its encoded verification for this case lives in crate-internal wiring, so the recorded comparison basis cannot be reused through the runner without re-encoding it. The case fails closed rather than receive an invented tolerance or a new comparison surface.",
+      "recorded_value_count": 2
+    },
+    {
+      "classification": "implementation_binding",
+      "dimensions": [
+        "force",
+        "force_per_length"
+      ],
+      "fixture_id": "MECH-STRAIGHT-PIPE-WEIGHT-RECOVERY",
+      "historic_july20_member": true,
+      "reason": "the suite crate does not expose a public value-addressable observed counterpart for every recorded value of this case; its encoded verification for this case lives in crate-internal wiring, so the recorded comparison basis cannot be reused through the runner without re-encoding it. The case fails closed rather than receive an invented tolerance or a new comparison surface.",
+      "recorded_value_count": 2
+    },
+    {
+      "classification": "implementation_binding",
+      "dimensions": [
+        "rotation",
+        "second_moment_area",
+        "stress"
+      ],
+      "fixture_id": "MECH-TP-DEC092-TEMPERATURE-INDEXED-SHEAR-MODULUS-TORSION",
+      "historic_july20_member": false,
+      "reason": "the suite crate does not expose a public value-addressable observed counterpart for every recorded value of this case; its encoded verification for this case lives in crate-internal wiring, so the recorded comparison basis cannot be reused through the runner without re-encoding it. The case fails closed rather than receive an invented tolerance or a new comparison surface.",
+      "recorded_value_count": 6
+    },
+    {
+      "classification": "implementation_binding",
+      "dimensions": [
+        "dimensionless",
+        "linear_stiffness",
+        "rotation"
+      ],
+      "fixture_id": "MECH-SUPPORT-BOUNDARY-MIXED",
+      "historic_july20_member": true,
+      "reason": "the suite crate does not expose a public value-addressable observed counterpart for every recorded value of this case; its encoded verification for this case lives in crate-internal wiring, so the recorded comparison basis cannot be reused through the runner without re-encoding it. The case fails closed rather than receive an invented tolerance or a new comparison surface.",
+      "recorded_value_count": 3
+    },
+    {
+      "classification": "implementation_binding",
+      "dimensions": [
+        "force",
+        "force_per_length",
+        "length"
+      ],
+      "fixture_id": "MECH-PRIMITIVE-LOAD-PREP",
+      "historic_july20_member": true,
+      "reason": "the suite crate does not expose a public value-addressable observed counterpart for every recorded value of this case; its encoded verification for this case lives in crate-internal wiring, so the recorded comparison basis cannot be reused through the runner without re-encoding it. The case fails closed rather than receive an invented tolerance or a new comparison surface.",
+      "recorded_value_count": 3
+    },
+    {
+      "classification": "implementation_binding",
+      "dimensions": [
+        "dimensionless",
+        "force"
+      ],
+      "fixture_id": "MECH-FIXED-FIXED-THERMAL-AXIAL",
+      "historic_july20_member": true,
+      "reason": "the suite crate does not expose a public value-addressable observed counterpart for every recorded value of this case; its encoded verification for this case lives in crate-internal wiring, so the recorded comparison basis cannot be reused through the runner without re-encoding it. The case fails closed rather than receive an invented tolerance or a new comparison surface.",
+      "recorded_value_count": 2
+    },
+    {
+      "classification": "implementation_binding",
+      "dimensions": [
+        "force"
+      ],
+      "fixture_id": "MECH-IMPOSED-DISPLACEMENT-SPRING",
+      "historic_july20_member": true,
+      "reason": "the suite crate does not expose a public value-addressable observed counterpart for every recorded value of this case; its encoded verification for this case lives in crate-internal wiring, so the recorded comparison basis cannot be reused through the runner without re-encoding it. The case fails closed rather than receive an invented tolerance or a new comparison surface.",
+      "recorded_value_count": 1
+    },
+    {
+      "classification": "implementation_binding",
+      "dimensions": [
+        "dimensionless"
+      ],
+      "fixture_id": "MECH-INCLINED-MEMBER-TRANSFORM",
+      "historic_july20_member": true,
+      "reason": "the suite crate does not expose a public value-addressable observed counterpart for every recorded value of this case; its encoded verification for this case lives in crate-internal wiring, so the recorded comparison basis cannot be reused through the runner without re-encoding it. The case fails closed rather than receive an invented tolerance or a new comparison surface.",
+      "recorded_value_count": 2
+    },
+    {
+      "classification": "implementation_binding",
+      "dimensions": [
+        "displacement",
+        "force",
+        "moment"
+      ],
+      "fixture_id": "MECH-EXPANSION-LOOP-CURVED-BEND-THERMAL",
+      "historic_july20_member": true,
+      "reason": "the suite crate does not expose a public value-addressable observed counterpart for every recorded value of this case; its encoded verification for this case lives in crate-internal wiring, so the recorded comparison basis cannot be reused through the runner without re-encoding it. The case fails closed rather than receive an invented tolerance or a new comparison surface.",
+      "recorded_value_count": 21
+    },
+    {
+      "classification": "implementation_binding",
+      "dimensions": [
+        "force",
+        "moment"
+      ],
+      "fixture_id": "MECH-CURVED-BEND-DISTRIBUTED-FIXED-END",
+      "historic_july20_member": true,
+      "reason": "the suite crate does not expose a public value-addressable observed counterpart for every recorded value of this case; its encoded verification for this case lives in crate-internal wiring, so the recorded comparison basis cannot be reused through the runner without re-encoding it. The case fails closed rather than receive an invented tolerance or a new comparison surface.",
+      "recorded_value_count": 42
+    },
+    {
+      "classification": "implementation_binding",
+      "dimensions": [
+        "displacement",
+        "force"
+      ],
+      "fixture_id": "MECH-CURVED-BEND-PRESSURE-THRUST-ARC",
+      "historic_july20_member": true,
+      "reason": "the suite crate does not expose a public value-addressable observed counterpart for every recorded value of this case; its encoded verification for this case lives in crate-internal wiring, so the recorded comparison basis cannot be reused through the runner without re-encoding it. The case fails closed rather than receive an invented tolerance or a new comparison surface.",
+      "recorded_value_count": 12
+    },
+    {
+      "classification": "implementation_binding",
+      "dimensions": [
+        "force",
+        "force_per_length",
+        "mass_per_length"
+      ],
+      "fixture_id": "MECH-TP-PMM-P3-OCCLOADGEN-EQUIVALENT-STATIC",
+      "historic_july20_member": true,
+      "reason": "the suite crate does not expose a public value-addressable observed counterpart for every recorded value of this case; its encoded verification for this case lives in crate-internal wiring, so the recorded comparison basis cannot be reused through the runner without re-encoding it. The case fails closed rather than receive an invented tolerance or a new comparison surface.",
+      "recorded_value_count": 6
+    },
+    {
+      "classification": "implementation_binding",
+      "dimensions": [
+        "force",
+        "force_per_length"
+      ],
+      "fixture_id": "MECH-TP-PMM-P3-SUBSPAN-WIND-EXPOSURE",
+      "historic_july20_member": true,
+      "reason": "the suite crate does not expose a public value-addressable observed counterpart for every recorded value of this case; its encoded verification for this case lives in crate-internal wiring, so the recorded comparison basis cannot be reused through the runner without re-encoding it. The case fails closed rather than receive an invented tolerance or a new comparison surface.",
+      "recorded_value_count": 8
+    },
+    {
+      "classification": "implementation_binding",
+      "dimensions": [
+        "force",
+        "length",
+        "moment"
+      ],
+      "fixture_id": "MECH-CONSTANT-EFFORT-SUPPORT-APPLIED-LOAD",
+      "historic_july20_member": true,
+      "reason": "the suite crate does not expose a public value-addressable observed counterpart for every recorded value of this case; its encoded verification for this case lives in crate-internal wiring, so the recorded comparison basis cannot be reused through the runner without re-encoding it. The case fails closed rather than receive an invented tolerance or a new comparison surface.",
+      "recorded_value_count": 5
+    }
+  ],
+  "kind_measurements": [
+    {
+      "closest_nonzero_reference_delta": 0.0,
+      "closest_nonzero_reference_magnitude": 1.0,
+      "dimension": "dimensionless",
+      "exact_zero_reference_count": 1,
+      "max_absolute_delta": 0.0,
+      "max_nonzero_reference_relative_delta": 0.0,
+      "measured_exact_zero_floor": 0.0,
+      "measurement_status": "measured",
+      "observed_count": 5,
+      "row_count": 6,
+      "sources": [
+        "mechanics_current"
+      ],
+      "unit": "count",
+      "unobserved_count": 1
+    },
+    {
+      "closest_nonzero_reference_delta": 0.0,
+      "closest_nonzero_reference_magnitude": 0.25,
+      "dimension": "dimensionless",
+      "exact_zero_reference_count": 0,
+      "max_absolute_delta": 0.0,
+      "max_nonzero_reference_relative_delta": 0.0,
+      "measured_exact_zero_floor": null,
+      "measurement_status": "measured",
+      "observed_count": 4,
+      "row_count": 7,
+      "sources": [
+        "mechanics_current"
+      ],
+      "unit": "ratio",
+      "unobserved_count": 3
+    },
+    {
+      "closest_nonzero_reference_delta": 1.734723475976807e-18,
+      "closest_nonzero_reference_magnitude": 0.014,
+      "dimension": "displacement",
+      "exact_zero_reference_count": 1,
+      "max_absolute_delta": 1.734723475976807e-18,
+      "max_nonzero_reference_relative_delta": 1.2390881971262908e-16,
+      "measured_exact_zero_floor": 0.0,
+      "measurement_status": "measured",
+      "observed_count": 6,
+      "row_count": 15,
+      "sources": [
+        "mechanics_current"
+      ],
+      "unit": "m",
+      "unobserved_count": 9
+    },
+    {
+      "closest_nonzero_reference_delta": 0.0,
+      "closest_nonzero_reference_magnitude": 2.0,
+      "dimension": "force",
+      "exact_zero_reference_count": 2,
+      "max_absolute_delta": 1.7763568394002505e-15,
+      "max_nonzero_reference_relative_delta": 4.440892098500626e-16,
+      "measured_exact_zero_floor": 0.0,
+      "measurement_status": "measured",
+      "observed_count": 42,
+      "row_count": 84,
+      "sources": [
+        "mechanics_current"
+      ],
+      "unit": "N",
+      "unobserved_count": 42
+    },
+    {
+      "closest_nonzero_reference_delta": null,
+      "closest_nonzero_reference_magnitude": null,
+      "dimension": "force_per_length",
+      "exact_zero_reference_count": 0,
+      "max_absolute_delta": null,
+      "max_nonzero_reference_relative_delta": null,
+      "measured_exact_zero_floor": null,
+      "measurement_status": "TBD_no_observed_counterpart",
+      "observed_count": 0,
+      "row_count": 6,
+      "sources": [
+        "mechanics_current"
+      ],
+      "unit": "N/m",
+      "unobserved_count": 6
+    },
+    {
+      "closest_nonzero_reference_delta": 0.0,
+      "closest_nonzero_reference_magnitude": 0.004745144915236896,
+      "dimension": "length",
+      "exact_zero_reference_count": 0,
+      "max_absolute_delta": 0.0,
+      "max_nonzero_reference_relative_delta": 0.0,
+      "measured_exact_zero_floor": null,
+      "measurement_status": "measured",
+      "observed_count": 7,
+      "row_count": 12,
+      "sources": [
+        "mechanics_current"
+      ],
+      "unit": "m",
+      "unobserved_count": 5
+    },
+    {
+      "closest_nonzero_reference_delta": 0.0,
+      "closest_nonzero_reference_magnitude": 600.0,
+      "dimension": "linear_stiffness",
+      "exact_zero_reference_count": 0,
+      "max_absolute_delta": 0.0,
+      "max_nonzero_reference_relative_delta": 0.0,
+      "measured_exact_zero_floor": null,
+      "measurement_status": "measured",
+      "observed_count": 2,
+      "row_count": 3,
+      "sources": [
+        "mechanics_current"
+      ],
+      "unit": "N/m",
+      "unobserved_count": 1
+    },
+    {
+      "closest_nonzero_reference_delta": null,
+      "closest_nonzero_reference_magnitude": null,
+      "dimension": "mass_per_length",
+      "exact_zero_reference_count": 0,
+      "max_absolute_delta": null,
+      "max_nonzero_reference_relative_delta": null,
+      "measured_exact_zero_floor": null,
+      "measurement_status": "TBD_no_observed_counterpart",
+      "observed_count": 0,
+      "row_count": 1,
+      "sources": [
+        "mechanics_current"
+      ],
+      "unit": "kg/m",
+      "unobserved_count": 1
+    },
+    {
+      "closest_nonzero_reference_delta": 1.7763568394002505e-15,
+      "closest_nonzero_reference_magnitude": 1.0,
+      "dimension": "moment",
+      "exact_zero_reference_count": 2,
+      "max_absolute_delta": 3.552713678800501e-15,
+      "max_nonzero_reference_relative_delta": 1.7763568394002505e-15,
+      "measured_exact_zero_floor": 1.7763568394002505e-15,
+      "measurement_status": "measured",
+      "observed_count": 20,
+      "row_count": 60,
+      "sources": [
+        "mechanics_current"
+      ],
+      "unit": "N-m",
+      "unobserved_count": 40
+    },
+    {
+      "closest_nonzero_reference_delta": 8.673617379884035e-19,
+      "closest_nonzero_reference_magnitude": 0.004333333333333333,
+      "dimension": "rotation",
+      "exact_zero_reference_count": 0,
+      "max_absolute_delta": 8.673617379884035e-19,
+      "max_nonzero_reference_relative_delta": 2.0016040107424698e-16,
+      "measured_exact_zero_floor": null,
+      "measurement_status": "measured",
+      "observed_count": 5,
+      "row_count": 9,
+      "sources": [
+        "mechanics_current"
+      ],
+      "unit": "rad",
+      "unobserved_count": 4
+    },
+    {
+      "closest_nonzero_reference_delta": null,
+      "closest_nonzero_reference_magnitude": null,
+      "dimension": "second_moment_area",
+      "exact_zero_reference_count": 0,
+      "max_absolute_delta": null,
+      "max_nonzero_reference_relative_delta": null,
+      "measured_exact_zero_floor": null,
+      "measurement_status": "TBD_no_observed_counterpart",
+      "observed_count": 0,
+      "row_count": 1,
+      "sources": [
+        "mechanics_current"
+      ],
+      "unit": "m^4",
+      "unobserved_count": 1
+    },
+    {
+      "closest_nonzero_reference_delta": 0.0,
+      "closest_nonzero_reference_magnitude": 1.0,
+      "dimension": "stress",
+      "exact_zero_reference_count": 1,
+      "max_absolute_delta": 0.0,
+      "max_nonzero_reference_relative_delta": 0.0,
+      "measured_exact_zero_floor": 0.0,
+      "measurement_status": "measured",
+      "observed_count": 11,
+      "row_count": 13,
+      "sources": [
+        "mechanics_current",
+        "stress_committed_r14"
+      ],
+      "unit": "Pa",
+      "unobserved_count": 2
+    }
+  ],
+  "mechanics_capture": {
+    "blocked": 14,
+    "case_count": 25,
+    "matched": 11,
+    "mismatched": 0,
+    "observed_value_count": 91,
+    "requested": 25,
+    "unobserved_value_count": 115,
+    "value_count": 206
+  },
+  "near_zero_method": {
+    "limitations": [
+      "No runner-observed member exists for force_per_length, mass_per_length, or second_moment_area.",
+      "Exact-zero rows are absent for ratio, length, linear_stiffness, rotation, force_per_length, mass_per_length, and second_moment_area.",
+      "Blocked rows are not treated as observations.",
+      "Stress measurements are from the immutable R14 committed output, not the current mechanics run."
+    ],
+    "measured": "For each kind/unit, max abs(observed-recorded) over exact-zero recorded references; this is the direct absolute-floor boundary measurement.",
+    "nearest_nonzero_context": "Also report the smallest absolute nonzero recorded reference and its delta. No scale sweep was available, so this is context, not a measured positive floor."
+  },
+  "public_policy_selected": false,
+  "schema_version": "1.0.0",
+  "status": "non_authoritative_measurement_derivative",
+  "stress_committed_r14": {
+    "blocked": 0,
+    "matched": 3,
+    "mismatched": 0,
+    "observed_value_count": 11,
+    "requested": 3
+  }
+}

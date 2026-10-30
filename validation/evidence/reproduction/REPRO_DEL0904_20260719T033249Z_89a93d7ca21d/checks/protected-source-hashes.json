@@ -1,0 +1,57 @@
+{
+  "schema": "chirality-protected-source-hashes/v1",
+  "source_commit": "89a93d7ca21d64c57cc344955d17deef709fd685",
+  "files": [
+    {
+      "path": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/_STATUS.md",
+      "source_sha256": "e1ed7b6dd757f37ecbdaaf844687f6ac5cc07a07e905d5830bae61ab162d92e1",
+      "current_sha256": "e1ed7b6dd757f37ecbdaaf844687f6ac5cc07a07e905d5830bae61ab162d92e1",
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/MEMORY.md",
+      "source_sha256": "cee73c9cdb9493534a831afaf76164ab0ea974b2473e754ec17577d93e8841f1",
+      "current_sha256": "cee73c9cdb9493534a831afaf76164ab0ea974b2473e754ec17577d93e8841f1",
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_RECEIPTS.md",
+      "source_sha256": "2ad81234ee45ce396bd02a254c0a7e687e6b04ea430c6d5dfdf7a67035173dce",
+      "current_sha256": "2ad81234ee45ce396bd02a254c0a7e687e6b04ea430c6d5dfdf7a67035173dce",
+      "match": true
+    }
+  ],
+  "protected_histories": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260718-DEL0904-EXEC-R3",
+      "tracked_diff_exit": 0,
+      "status_empty": true,
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260718-DEL0904-CLEAN-REPRO-R7",
+      "tracked_diff_exit": 0,
+      "status_empty": true,
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260718-DEL0904-PREREQ-PROVISION-P1",
+      "tracked_diff_exit": 0,
+      "status_empty": true,
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/evidence/reproduction/REPRO_DEL0904_20260718T215424Z_f14fa77518a",
+      "tracked_diff_exit": 0,
+      "status_empty": true,
+      "match": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/evidence/reproduction/REPRO_DEL0904_20260719T023848Z_525ef0903e68",
+      "tracked_diff_exit": 0,
+      "status_empty": true,
+      "match": true
+    }
+  ],
+  "all_match": true
+}

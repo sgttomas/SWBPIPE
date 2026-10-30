@@ -1,0 +1,43 @@
+{
+  "bindings": [],
+  "case_id": "case_57_block_divide_unrepresentable_quotient",
+  "declared_grammar_version": "1.0.0",
+  "description": "Stress / Time has no enumerated dimension quotient and blocks.",
+  "expected": {
+    "findings": [
+      {
+        "code": "unsupported_expression_form",
+        "subject_id": "divide"
+      }
+    ],
+    "source_variable_ids": [],
+    "statuses": [
+      "mechanics_solved"
+    ],
+    "value": null
+  },
+  "expression": {
+    "left": {
+      "node": "literal",
+      "quantity": {
+        "dimension": "stress",
+        "unit_ref": "invented_stress_unit",
+        "value": 12.0
+      }
+    },
+    "node": "binary",
+    "operator": "divide",
+    "right": {
+      "node": "literal",
+      "quantity": {
+        "dimension": "time",
+        "unit_ref": "invented_time_unit",
+        "value": 3.0
+      }
+    }
+  },
+  "required_variable_ids": [],
+  "statuses": [
+    "mechanics_solved"
+  ]
+}

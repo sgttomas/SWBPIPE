@@ -1,0 +1,237 @@
+import { currentSemanticContract } from "../results/resultReader";
+import { numericalResultStanding, type NumericalStanding } from "../results/resultStanding";
+import { numericalHealthHold, numericalHealthView, readNumericalHealth, type NumericalHealthHold } from "../results/numericalHealth";
+import { isFreshSemanticResult } from "../results/knownSemanticLimitations";
+import { useMemo, useRef, useState } from "react";
+import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
+import { hasNativeMechanicsInvocation } from "../../services/previewService";
+import type { PreviewSolverMode } from "../../services/previewService";
+import type { ReportPackageSaveRoute } from "../../services/reportPackageSaveService";
+import type { RuleCheckStatus } from "../../services/ruleCheckService";
+import type { SessionRuleCheckRun } from "../report/renderableReportInput";
+import type {
+  AgentProposal,
+  AnalysisRunEnvelope,
+  MechanicsResult,
+  SelectedReviewTarget,
+  SolveJobAuditState
+} from "../../types";
+import type { ControlledRouteExport } from "../redaction-controls/redactionExportControls";
+import type { HistoricalRunContext } from "../results/HistoricalRunContext";
+import { RuleRevisionGenerationGate, SolveRunGenerationGate } from "./solveGates";
+import { initialSolveJob } from "./solveJobAudit";
+import {
+  droppedBases,
+  fixedPairComparison,
+  packagedComparison,
+  resolveWithinRun,
+  withinRunBasisOptions,
+  type HeldWithinRunSelection
+} from "../comparison/withinRunComparison";
+import type { SolveProofEvidence } from "./solveProof";
+
+/**
+ * Every independent Current requirement other than numerical eligibility: the
+ * fresh semantic identity, the analysis-run record, the input manifest, the producer
+ * and the native invocation with its record binding. `currentSolvedResult` is this
+ * conjunction and numerical eligibility; the numerical health indicator reads the same
+ * conjunction to tell a result held back by its verdict alone (DEL-07-05 numerical
+ * health §3). It admits nothing by itself.
+ */
+export function currentRequirementsExceptNumericalEligibility({ result, analysisRun, inputManifest }: {
+  result: MechanicsResult | null;
+  analysisRun: AnalysisRunEnvelope | null;
+  inputManifest: CurrentSessionInputManifestEvidence | null;
+}): boolean {
+  const currentSolver = inputManifest?.manifest.solver_basis;
+  const currentRecord = analysisRun?.analysis_run;
+  const currentContract = currentSemanticContract(result);
+  return Boolean(result && currentContract && isFreshSemanticResult(result) && analysisRun?.schema_version === "0.3.0"
+    && currentRecord?.run_id === result.run_id
+    && inputManifest?.manifest.model_basis.model_ref === result.model_ref
+    && currentRecord.reproducibility.input_manifest_refs.length === 1
+    && currentRecord.reproducibility.input_manifest_refs[0].ref === inputManifest?.manifest_ref.ref
+    && currentRecord.reproducibility.input_manifest_hashes.length === 1
+    && currentRecord.reproducibility.input_manifest_hashes[0].value === inputManifest?.manifest_sha256
+    && currentRecord.reproducibility.semantic_contract?.id === currentContract.id
+    && currentRecord.reproducibility.semantic_contract?.sha256 === currentContract.sha256
+    && currentSolver?.solver_name === result.producer?.component_name
+    && currentSolver?.solver_version === result.producer?.component_version
+    && currentRecord.solver_version?.solver_name === currentSolver?.solver_name
+    && currentRecord.solver_version?.solver_version === currentSolver?.solver_version
+    && currentRecord.solver_version?.build_ref.ref === currentSolver?.solver_build_ref
+    && hasNativeMechanicsInvocation(result, inputManifest?.manifest.model_basis.model_payload, currentSolver?.solver_mode));
+}
+
+/**
+ * The results cells of the workspace session: the result, the historical run,
+ * the analysis run and the input manifest; the two basis refs with their
+ * render-time bumps; the rule-check aggregate; the proposal and the selected
+ * review target, which are review context cleared and saved with the results;
+ * the solve job, the solve proof, the running flag and the solver mode; the
+ * report-package cells and refs; the two generation gates; the current-result,
+ * current-manifest, rule-check aggregate and rule-check run refs with their
+ * render-time assignments; the active
+ * solve job, the cancellation tombstones, the comparison and the "Within this
+ * run" choice (W-12 S3c) with its view. It declares no
+ * effect and no handler.
+ *
+ * Called only by the session, which is `useWorkspaceSession` in
+ * `workspaceSession.ts`. Apart from the two run options (`setSolverMode`,
+ * `setReportPackagePrivateIntent`), its setters are not for components: a
+ * result is published or cleared only by the session's solve, rule-check,
+ * operation, undo, redo and project handlers.
+ */
+export function useResultsSessionState() {
+  const [result, setResult] = useState<MechanicsResult | null>(null);
+  const [historicalRun, setHistoricalRun] = useState<HistoricalRunContext | null>(null);
+  const [analysisRun, setAnalysisRun] = useState<AnalysisRunEnvelope | null>(null);
+  const resultBasisRef = useRef<{ value: MechanicsResult | null; sequence: number }>({ value: null, sequence: 0 });
+  if (resultBasisRef.current.value !== result) resultBasisRef.current = { value: result, sequence: resultBasisRef.current.sequence + 1 };
+  const analysisBasisRef = useRef<{ value: AnalysisRunEnvelope | null; sequence: number }>({ value: null, sequence: 0 });
+  if (analysisBasisRef.current.value !== analysisRun) analysisBasisRef.current = { value: analysisRun, sequence: analysisBasisRef.current.sequence + 1 };
+  const [inputManifest, setInputManifest] =
+    useState<CurrentSessionInputManifestEvidence | null>(null);
+  let standing: NumericalStanding | null = null;
+  try { standing = result ? numericalResultStanding(result, inputManifest?.manifest.model_basis.model_payload) : null; }
+  catch { /* Malformed retained carriers remain inspectable, never Current. */ }
+  const numericallyEligible = !!standing?.eligible;
+  const otherCurrentRequirementsHold = currentRequirementsExceptNumericalEligibility({ result, analysisRun, inputManifest });
+  // T0R: Current only for the static fresh-identity set with Current standing;
+  // other identities stay readable, never Current.
+  const currentSolvedResult = result && otherCurrentRequirementsHold && numericallyEligible ? result : null;
+  // DEL-07-05 numerical health: the Rust indicator for this result with the reader's
+  // findings from the standing above. Presentation only; it reads nothing back into
+  // Current standing or any output gate.
+  const standingFindingsKey = standing ? JSON.stringify(standing.findings) : null;
+  const numericalHealth = useMemo(
+    () => (result && standingFindingsKey !== null ? readNumericalHealth(result, JSON.parse(standingFindingsKey) as string[]) : null),
+    [result, standingFindingsKey]
+  );
+  const verdictHold = numericalHealthHold({ isCurrent: currentSolvedResult !== null, otherCurrentRequirementsHold, health: numericalHealth });
+  const numericalHealthPresentation = useMemo(
+    () => numericalHealthView(numericalHealth, { eligible: numericallyEligible, verdictHold }),
+    [numericalHealth, numericallyEligible, verdictHold]
+  );
+  const numericalHealthHoldView: NumericalHealthHold | null = verdictHold && numericalHealthPresentation
+    ? { headline: numericalHealthPresentation.headline, shortHeadline: numericalHealthPresentation.shortHeadline, outputSentence: numericalHealthPresentation.outputSentence }
+    : null;
+  // Pack rule-check aggregate from the GUI run panel, lifted so it can be
+  // recorded in the app-held analysis-run envelope (TP-C4-APPAGG-001).
+  const [ruleCheckAggregate, setRuleCheckAggregate] = useState<RuleCheckStatus | null>(null);
+  // The rule-check run (loaded pack + outcomes) behind the lifted aggregate,
+  // for the rendered report's §19.2 rule-check content. It is exposed only
+  // while its aggregate is the session's current aggregate, so every path that
+  // retires the aggregate also retires it.
+  const [heldRuleCheckRun, setRuleCheckReportRun] = useState<SessionRuleCheckRun | null>(null);
+  const ruleCheckReportRun =
+    heldRuleCheckRun && ruleCheckAggregate !== null && heldRuleCheckRun.result.aggregate_status === ruleCheckAggregate
+      ? heldRuleCheckRun
+      : null;
+  // Render-time refs of the aggregate and the exposed run, for a stale-work guard
+  // whose awaited build outlives the render closure (the report-package save).
+  const ruleCheckAggregateRef = useRef<RuleCheckStatus | null>(null);
+  const ruleCheckReportRunRef = useRef<SessionRuleCheckRun | null>(null);
+  ruleCheckAggregateRef.current = ruleCheckAggregate;
+  ruleCheckReportRunRef.current = ruleCheckReportRun;
+  const [proposal, setProposal] = useState<AgentProposal | null>(null);
+  const [selectedReviewTarget, setSelectedReviewTarget] = useState<SelectedReviewTarget | null>(null);
+  const [solveJob, setSolveJob] = useState<SolveJobAuditState>(() => initialSolveJob());
+  const [solveProof, setSolveProof] = useState<SolveProofEvidence | null>(null);
+  const [running, setRunning] = useState(false);
+  const [solverMode, setSolverMode] = useState<PreviewSolverMode>("sparse_interactive");
+  const [reportPackagePrivateIntent, setReportPackagePrivateIntent] = useState(false);
+  const [reportPackageBusy, setReportPackageBusy] = useState(false);
+  const [reportPackageRedaction, setReportPackageRedaction] = useState<ControlledRouteExport | null>(null);
+  const [reportPackageRoute, setReportPackageRoute] = useState<ReportPackageSaveRoute | null>(null);
+  const reportPackageRequestGenerationRef = useRef(0);
+  const reportPackageBusyGenerationRef = useRef<number | null>(null);
+  const solveRunGate = useRef(new SolveRunGenerationGate());
+  const ruleRevisionGate = useRef(new RuleRevisionGenerationGate());
+  const currentSolvedResultRef = useRef<MechanicsResult | null>(null);
+  const currentInputManifestRef = useRef<CurrentSessionInputManifestEvidence | null>(null);
+  currentSolvedResultRef.current = currentSolvedResult;
+  currentInputManifestRef.current = inputManifest;
+  const activeSolveJob = useRef<{
+    generation: number;
+    job: SolveJobAuditState;
+    cancellation_dispatched: boolean;
+  } | null>(null);
+  const solveCancellationTombstones = useRef(new Map<number, {
+    requested: boolean;
+    dispatched: boolean;
+  }>());
+  // The fixed pair's comparison (or its refusal record): what the packages carry
+  // without a choice, exactly as before S3c.
+  const fixedPair = useMemo(() => fixedPairComparison(currentSolvedResult, analysisRun), [analysisRun, currentSolvedResult]);
+  // "Within this run" (W-12 S3c): the user's load case and combination. The choice
+  // stays across solves, edits and replacements and is revalidated against each
+  // Current run; when that run does not offer one of its bases, it is dropped here,
+  // in the render that first shows the run, and the dropped bases are named until
+  // the next choice (never silently carried or reset).
+  const [heldWithinRunSelection, setHeldWithinRunSelection] = useState<HeldWithinRunSelection | null>(null);
+  const [droppedWithinRunBases, setDroppedWithinRunBases] = useState<string[] | null>(null);
+  const solvedModel = inputManifest?.manifest.model_basis.model_payload ?? null;
+  const withinRunOptions = useMemo(
+    () => (currentSolvedResult && analysisRun ? withinRunBasisOptions(currentSolvedResult, solvedModel) : null),
+    [analysisRun, currentSolvedResult, solvedModel]
+  );
+  const dropped = heldWithinRunSelection && withinRunOptions ? droppedBases(heldWithinRunSelection, withinRunOptions) : [];
+  if (dropped.length > 0) {
+    setHeldWithinRunSelection(null);
+    setDroppedWithinRunBases(dropped);
+  }
+  const heldForRun = dropped.length > 0 ? null : heldWithinRunSelection;
+  const resolvedWithinRun = useMemo(
+    () => resolveWithinRun({ result: currentSolvedResult, analysisRun, options: withinRunOptions, held: heldForRun, fixedPair }),
+    [analysisRun, currentSolvedResult, fixedPair, heldForRun, withinRunOptions]
+  );
+  const withinRun = resolvedWithinRun.view;
+  // The report, handoff and export packages: the choice's comparison (or its
+  // refusal record) when a choice applies, else the fixed pair's, as before.
+  const packagedWithinRun = packagedComparison(resolvedWithinRun, fixedPair);
+  const comparison = packagedWithinRun?.comparison ?? null;
+  const comparisonUnavailable = packagedWithinRun?.unavailable ?? null;
+  return {
+    result, setResult,
+    historicalRun, setHistoricalRun,
+    currentSolvedResult,
+    /** The reader's numerical standing of `result` (`standing.eligible`), for the viewport's
+     * result overlays; it admits nothing by itself. */
+    numericallyEligible,
+    numericalHealth: numericalHealthPresentation,
+    numericalHealthHold: numericalHealthHoldView,
+    analysisRun, setAnalysisRun,
+    resultBasisRef,
+    analysisBasisRef,
+    inputManifest, setInputManifest,
+    ruleCheckAggregate, setRuleCheckAggregate,
+    ruleCheckReportRun, heldRuleCheckRun, setRuleCheckReportRun,
+    ruleCheckAggregateRef, ruleCheckReportRunRef,
+    proposal, setProposal,
+    selectedReviewTarget, setSelectedReviewTarget,
+    solveJob, setSolveJob,
+    solveProof, setSolveProof,
+    running, setRunning,
+    solverMode, setSolverMode,
+    reportPackagePrivateIntent, setReportPackagePrivateIntent,
+    reportPackageBusy, setReportPackageBusy,
+    reportPackageRedaction, setReportPackageRedaction,
+    reportPackageRoute, setReportPackageRoute,
+    reportPackageRequestGenerationRef,
+    reportPackageBusyGenerationRef,
+    solveRunGate,
+    ruleRevisionGate,
+    currentSolvedResultRef,
+    currentInputManifestRef,
+    activeSolveJob,
+    solveCancellationTombstones,
+    comparison,
+    comparisonUnavailable,
+    packagedWithinRun,
+    withinRun,
+    droppedWithinRunBases: withinRunOptions ? droppedWithinRunBases : null,
+    setHeldWithinRunSelection,
+    setDroppedWithinRunBases
+  };
+}

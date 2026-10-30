@@ -1,0 +1,375 @@
+{
+  "format": "openpipestress.qualification_reference_values/1",
+  "case_id": "original_static_bending_torsion_v1",
+  "readiness": "pending_independent_review_and_transport_admission",
+  "basis": "independent_reference.py; checked NUMERICAL_REFERENCE and STRESS_REFERENCE mathematical subsets; no production imports",
+  "reference_kind": "analytical",
+  "independent_review_ref": null,
+  "values": [
+    {
+      "assertion_id": "node.root.ux",
+      "value": 0.0,
+      "unit": "mm"
+    },
+    {
+      "assertion_id": "node.root.uy",
+      "value": 0.0,
+      "unit": "mm"
+    },
+    {
+      "assertion_id": "node.root.uz",
+      "value": 0.0,
+      "unit": "mm"
+    },
+    {
+      "assertion_id": "node.root.rx",
+      "value": 0.0,
+      "unit": "rad"
+    },
+    {
+      "assertion_id": "node.root.ry",
+      "value": 0.0,
+      "unit": "rad"
+    },
+    {
+      "assertion_id": "node.root.rz",
+      "value": 0.0,
+      "unit": "rad"
+    },
+    {
+      "assertion_id": "node.root.magnitude",
+      "value": 0.0,
+      "unit": "mm"
+    },
+    {
+      "assertion_id": "node.tip.ux",
+      "value": 0.0,
+      "unit": "mm"
+    },
+    {
+      "assertion_id": "node.tip.uy",
+      "value": 0.014809416048097268,
+      "unit": "mm"
+    },
+    {
+      "assertion_id": "node.tip.uz",
+      "value": -0.01974588806412969,
+      "unit": "mm"
+    },
+    {
+      "assertion_id": "node.tip.rx",
+      "value": 9.255885030060792e-06,
+      "unit": "rad"
+    },
+    {
+      "assertion_id": "node.tip.ry",
+      "value": 1.4809416048097268e-05,
+      "unit": "rad"
+    },
+    {
+      "assertion_id": "node.tip.rz",
+      "value": 1.1107062036072951e-05,
+      "unit": "rad"
+    },
+    {
+      "assertion_id": "node.tip.magnitude",
+      "value": 0.024682360080162113,
+      "unit": "mm"
+    },
+    {
+      "assertion_id": "support.Fx",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "support.Fy",
+      "value": -30.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "support.Fz",
+      "value": 40.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "support.Mx",
+      "value": -20.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "support.My",
+      "value": -80.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "support.Mz",
+      "value": -60.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "support.force_magnitude",
+      "value": 50.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "support.moment_magnitude",
+      "value": 101.9803902718557,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "section.end_i.N",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "section.end_i.Vy",
+      "value": -30.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "section.end_i.Vz",
+      "value": 40.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "section.end_i.T",
+      "value": -20.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "section.end_i.My",
+      "value": -80.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "section.end_i.Mz",
+      "value": -60.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "stress.end_i.axial",
+      "value": 0.0,
+      "unit": "MPa"
+    },
+    {
+      "assertion_id": "stress.end_i.bending_y",
+      "value": 0.29618832096194536,
+      "unit": "MPa"
+    },
+    {
+      "assertion_id": "stress.end_i.bending_z",
+      "value": 0.22214124072145902,
+      "unit": "MPa"
+    },
+    {
+      "assertion_id": "stress.end_i.torsional_shear",
+      "value": 0.03702354012024317,
+      "unit": "MPa"
+    },
+    {
+      "assertion_id": "section.quarter_1.N",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "section.quarter_1.Vy",
+      "value": 30.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "section.quarter_1.Vz",
+      "value": -40.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "section.quarter_1.T",
+      "value": 20.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "section.quarter_1.My",
+      "value": 60.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "section.quarter_1.Mz",
+      "value": 45.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "stress.quarter_1.axial",
+      "value": 0.0,
+      "unit": "MPa"
+    },
+    {
+      "assertion_id": "stress.quarter_1.bending_y",
+      "value": 0.22214124072145902,
+      "unit": "MPa"
+    },
+    {
+      "assertion_id": "stress.quarter_1.bending_z",
+      "value": 0.16660593054109427,
+      "unit": "MPa"
+    },
+    {
+      "assertion_id": "stress.quarter_1.torsional_shear",
+      "value": 0.03702354012024317,
+      "unit": "MPa"
+    },
+    {
+      "assertion_id": "section.midspan.N",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "section.midspan.Vy",
+      "value": 30.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "section.midspan.Vz",
+      "value": -40.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "section.midspan.T",
+      "value": 20.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "section.midspan.My",
+      "value": 40.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "section.midspan.Mz",
+      "value": 30.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "stress.midspan.axial",
+      "value": 0.0,
+      "unit": "MPa"
+    },
+    {
+      "assertion_id": "stress.midspan.bending_y",
+      "value": 0.14809416048097268,
+      "unit": "MPa"
+    },
+    {
+      "assertion_id": "stress.midspan.bending_z",
+      "value": 0.11107062036072951,
+      "unit": "MPa"
+    },
+    {
+      "assertion_id": "stress.midspan.torsional_shear",
+      "value": 0.03702354012024317,
+      "unit": "MPa"
+    },
+    {
+      "assertion_id": "section.quarter_3.N",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "section.quarter_3.Vy",
+      "value": 30.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "section.quarter_3.Vz",
+      "value": -40.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "section.quarter_3.T",
+      "value": 20.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "section.quarter_3.My",
+      "value": 20.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "section.quarter_3.Mz",
+      "value": 15.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "stress.quarter_3.axial",
+      "value": 0.0,
+      "unit": "MPa"
+    },
+    {
+      "assertion_id": "stress.quarter_3.bending_y",
+      "value": 0.07404708024048634,
+      "unit": "MPa"
+    },
+    {
+      "assertion_id": "stress.quarter_3.bending_z",
+      "value": 0.055535310180364755,
+      "unit": "MPa"
+    },
+    {
+      "assertion_id": "stress.quarter_3.torsional_shear",
+      "value": 0.03702354012024317,
+      "unit": "MPa"
+    },
+    {
+      "assertion_id": "section.end_j.N",
+      "value": 0.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "section.end_j.Vy",
+      "value": 30.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "section.end_j.Vz",
+      "value": -40.0,
+      "unit": "N"
+    },
+    {
+      "assertion_id": "section.end_j.T",
+      "value": 20.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "section.end_j.My",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "section.end_j.Mz",
+      "value": 0.0,
+      "unit": "N*m"
+    },
+    {
+      "assertion_id": "stress.end_j.axial",
+      "value": 0.0,
+      "unit": "MPa"
+    },
+    {
+      "assertion_id": "stress.end_j.bending_y",
+      "value": 0.0,
+      "unit": "MPa"
+    },
+    {
+      "assertion_id": "stress.end_j.bending_z",
+      "value": 0.0,
+      "unit": "MPa"
+    },
+    {
+      "assertion_id": "stress.end_j.torsional_shear",
+      "value": 0.03702354012024317,
+      "unit": "MPa"
+    },
+    {
+      "assertion_id": "stress.maximum_absolute_normal",
+      "value": 370235.4012024317,
+      "unit": "Pa"
+    }
+  ]
+}

@@ -1,0 +1,307 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openpipestress.release_gate_record.schema_v1",
+  "title": "OpenPipeStress release-quality gate record (DEL-09-05, schema_version 1)",
+  "description": "Commit-bound record of measured docs/RELEASE_QUALITY_GATES.md gate-family outcomes emitted by tools/release/run_release_gate_records.py from already-governed sources (DEC-025 sweep artifacts, DEC-026/DEC-046 governed tolerance records, DEC-058 scan records, DEC-060 coverage telemetry). Every criterion is pass, fail, or TBD; TBD carries a reason and no invented value. The record mints no release label or readiness status (PB-TBD-003 is human-gated) and is not a release, professional, certification, or code-compliance claim.",
+  "type": "object",
+  "required": [
+    "artifact",
+    "schema_version",
+    "decision_basis",
+    "gate_doc",
+    "boundary_note",
+    "gate_family",
+    "gate_family_definition",
+    "evaluated_commit",
+    "emitted",
+    "inputs",
+    "coverage_telemetry_context",
+    "release_labels",
+    "criteria",
+    "status_counts"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "artifact": { "const": "openpipestress.release_gate_record" },
+    "schema_version": { "const": 1 },
+    "decision_basis": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "pattern": "^DEC-[0-9]+$" }
+    },
+    "gate_doc": { "const": "docs/RELEASE_QUALITY_GATES.md" },
+    "boundary_note": { "type": "string", "minLength": 1 },
+    "gate_family": {
+      "enum": ["solver", "rule_engine", "gui", "report_template", "mixed"]
+    },
+    "gate_family_definition": { "type": "string", "minLength": 1 },
+    "evaluated_commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "emitted": {
+      "type": "object",
+      "required": ["git", "runtime", "started_utc"],
+      "additionalProperties": false,
+      "properties": {
+        "git": { "$ref": "#/$defs/git_state" },
+        "runtime": {
+          "type": "object",
+          "required": ["platform", "python"],
+          "additionalProperties": { "type": ["string", "null"] }
+        },
+        "started_utc": { "type": "string" }
+      }
+    },
+    "inputs": {
+      "type": "object",
+      "required": ["sweep_evidence", "scan_evidence", "governed_tolerance_sources"],
+      "additionalProperties": false,
+      "properties": {
+        "sweep_evidence": {
+          "type": "object",
+          "required": [
+            "sweep_dir",
+            "artifacts_at_commit",
+            "clean_artifacts_at_commit",
+            "selected"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "sweep_dir": { "type": "string" },
+            "artifacts_at_commit": { "type": "integer", "minimum": 0 },
+            "clean_artifacts_at_commit": { "type": "integer", "minimum": 0 },
+            "selected": {
+              "oneOf": [
+                { "type": "null" },
+                {
+                  "type": "object",
+                  "required": [
+                    "path",
+                    "commit_hash",
+                    "started_utc",
+                    "overall_status",
+                    "surfaces"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "path": { "type": "string" },
+                    "commit_hash": { "type": "string" },
+                    "started_utc": { "type": ["string", "null"] },
+                    "overall_status": { "enum": ["pass", "fail"] },
+                    "surfaces": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "enum": ["pass", "fail", "not_run"]
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "scan_evidence": {
+          "type": "object",
+          "required": ["scan_dir", "records_at_commit"],
+          "additionalProperties": false,
+          "properties": {
+            "scan_dir": { "type": "string" },
+            "records_at_commit": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        },
+        "governed_tolerance_sources": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["source", "record", "summary"],
+            "additionalProperties": false,
+            "properties": {
+              "source": { "type": "string", "minLength": 1 },
+              "record": { "type": "string", "minLength": 1 },
+              "summary": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
+      }
+    },
+    "coverage_telemetry_context": {
+      "type": "object",
+      "required": [
+        "coverage_dir",
+        "clean_head_artifacts",
+        "distinct_clean_head_commits",
+        "promotion_prerequisites",
+        "artifact_count_prerequisite_met",
+        "promotion_performed",
+        "numeric_floors"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "coverage_dir": { "type": "string" },
+        "clean_head_artifacts": { "type": "integer", "minimum": 0 },
+        "distinct_clean_head_commits": { "type": "integer", "minimum": 0 },
+        "promotion_prerequisites": { "type": "string", "minLength": 1 },
+        "artifact_count_prerequisite_met": { "type": "boolean" },
+        "promotion_performed": { "const": false },
+        "numeric_floors": { "type": "string", "minLength": 1 }
+      }
+    },
+    "release_labels": {
+      "type": "object",
+      "required": ["minted", "policy"],
+      "additionalProperties": false,
+      "properties": {
+        "minted": { "const": false },
+        "policy": { "type": "string", "minLength": 1 }
+      }
+    },
+    "criteria": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/criterion" }
+    },
+    "status_counts": {
+      "type": "object",
+      "required": ["pass", "fail", "TBD"],
+      "additionalProperties": false,
+      "properties": {
+        "pass": { "type": "integer", "minimum": 0 },
+        "fail": { "type": "integer", "minimum": 0 },
+        "TBD": { "type": "integer", "minimum": 0 }
+      }
+    }
+  },
+  "$defs": {
+    "git_state": {
+      "type": "object",
+      "required": [
+        "commit_hash",
+        "branch",
+        "status_capture_failed",
+        "working_tree_dirty",
+        "dirty_paths"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "commit_hash": { "type": ["string", "null"] },
+        "branch": { "type": ["string", "null"] },
+        "status_capture_failed": { "type": "boolean" },
+        "working_tree_dirty": { "type": ["boolean", "null"] },
+        "dirty_paths": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "criterion": {
+      "type": "object",
+      "required": [
+        "criterion_id",
+        "gate_doc_section",
+        "text",
+        "basis_kind",
+        "sweep_surfaces",
+        "governed_sources",
+        "status",
+        "tbd_reason",
+        "notes"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "criterion_id": {
+          "type": "string",
+          "pattern": "^(common|mixed|solver|rule_engine|gui|report_template)\\.[a-z0-9_]+$"
+        },
+        "gate_doc_section": { "type": "string", "minLength": 1 },
+        "text": { "type": "string", "minLength": 1 },
+        "basis_kind": {
+          "enum": [
+            "dec025_sweep_surface",
+            "governed_decision_record",
+            "dec058_scan_record",
+            "human_gated",
+            "governed_value_tbd"
+          ]
+        },
+        "sweep_surfaces": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "cargo_crate_sweep",
+              "python_pytest",
+              "desktop_vitest",
+              "desktop_playwright_e2e",
+              "desktop_production_build"
+            ]
+          }
+        },
+        "governed_sources": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "status": { "enum": ["pass", "fail", "TBD"] },
+        "tbd_reason": {
+          "oneOf": [
+            { "type": "null" },
+            {
+              "enum": [
+                "human_gated",
+                "governed_value_tbd",
+                "not_evaluable_by_agent",
+                "evidence_not_available"
+              ]
+            }
+          ]
+        },
+        "notes": { "type": ["string", "null"] }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "status": { "const": "TBD" } } },
+          "then": {
+            "properties": {
+              "tbd_reason": {
+                "enum": [
+                  "human_gated",
+                  "governed_value_tbd",
+                  "not_evaluable_by_agent",
+                  "evidence_not_available"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "status": { "enum": ["pass", "fail"] } }
+          },
+          "then": { "properties": { "tbd_reason": { "type": "null" } } }
+        },
+        {
+          "if": {
+            "properties": { "basis_kind": { "const": "dec025_sweep_surface" } }
+          },
+          "then": {
+            "properties": { "sweep_surfaces": { "minItems": 1 } }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "basis_kind": {
+                "enum": [
+                  "human_gated",
+                  "governed_value_tbd",
+                  "dec058_scan_record"
+                ]
+              }
+            }
+          },
+          "then": { "properties": { "status": { "const": "TBD" } } }
+        }
+      ]
+    }
+  }
+}

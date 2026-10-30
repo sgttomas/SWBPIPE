@@ -1,0 +1,181 @@
+{
+  "schema_version": "chirality.change.environment-readiness.v1",
+  "recorded_at_utc": "2026-09-09T05:51:07Z",
+  "status": "READY_FOCUSED_CHECKS; HEAVY_BUILD_HELD",
+  "identity": {
+    "task": "/root/implementation_change",
+    "role": "CHANGE",
+    "model": "gpt-5.6-sol",
+    "reasoning": "high",
+    "delegated": false
+  },
+  "basis": {
+    "branch": "codex/piping-viewport-routing-20260909",
+    "head": "533332349a4607eee561d4ef90fb05a62d86519e",
+    "origin_main": "533332349a4607eee561d4ef90fb05a62d86519e",
+    "profile": "projects/chirality-piping/software-workflow.json",
+    "profile_schema": "chirality-software-workflow/v1"
+  },
+  "locked_install": {
+    "cwd": "{WORKING_ROOT}",
+    "command": [
+      "npm",
+      "ci",
+      "--offline",
+      "--no-audit",
+      "--no-fund"
+    ],
+    "exit_code": 0,
+    "packages_added": 206,
+    "target": "{WORKING_ROOT}/node_modules (ignored, lane-local)",
+    "npm_ls_all_exit_code": 0,
+    "lockfile_changed": false,
+    "log": {
+      "path": "projects/chirality-piping/execution/_Change/VIEWPORT_ROUTING_20260909/_run_records/NPM_CI_LOG_V1.base64.json",
+      "sha256": "3137e9ed03c082b9337794caa2412f773905f31d4a4ef5d762e49a10c0d9f881",
+      "decoded_sha256": "273c2a517f2cd52122be5c5df4ee17c9877b7a306c3445401254b5cdc65fc1e3",
+      "decoded_bytes": 609
+    },
+    "warning": "npm reported three install scripts outside allowScripts; installed Vite and esbuild version probes succeed. No approval/config mutation was made."
+  },
+  "tracked_input_hashes_before_and_after": {
+    "projects/chirality-piping/package-lock.json": "0dd1616e1ef3c596d5cdaa8e56994f26127c20943bfde066f26c9f924c65d732",
+    "projects/chirality-piping/package.json": "7e719791e3ffdc7b57eddb2bb32d682705bf945af5b7207ffc699a2a45648656",
+    "projects/chirality-piping/apps/desktop/package.json": "6dd5540cb4af6170e96ce433bab3630e8606ef6a8abc90b8601403c7542ba776",
+    "projects/chirality-piping/core/model_operations/operation_applier/Cargo.lock": "2c10cb42fe2a439d804b785ee1e2b3e88684737b018b80e0e02698376c5c6181",
+    "projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock": "64e5f32077ffb6dae2f4836ba8d3353c23417bbd73e0f89ca30a042bd577fbb9",
+    "projects/chirality-piping/requirements-dev.txt": "f8dfa6abb1ae5b48c157e8c92599098785d56340c1250a350187ce941cd25c47"
+  },
+  "runtime": {
+    "node": "v24.18.0",
+    "npm": "11.16.0",
+    "vite": "7.3.3",
+    "vitest": "4.1.10",
+    "playwright": "1.60.0",
+    "typescript": "5.9.3",
+    "tauri_cli": "2.11.1",
+    "esbuild": "0.27.7",
+    "cargo": "1.97.1",
+    "rustc": "1.97.1",
+    "rust_toolchain": "stable-aarch64-apple-darwin (environment override)",
+    "wasm_target": "wasm32-unknown-unknown installed",
+    "wasm_bindgen": "0.2.123 (matches build script pin)",
+    "qualified_python": "3.13.14",
+    "pytest": "9.1.1",
+    "pytest_xdist": "3.8.0",
+    "pyyaml": "6.0.3",
+    "host_paths": "projects/chirality-piping/execution/_Change/VIEWPORT_ROUTING_20260909/_run_records/ENVIRONMENT_HOST_PATHS_V1.json"
+  },
+  "preflight": {
+    "dec025_prerequisite_probe": {
+      "cargo_manifest_count": 38,
+      "errors": [],
+      "result": "PASS",
+      "log": {
+        "path": "projects/chirality-piping/execution/_Change/VIEWPORT_ROUTING_20260909/_run_records/DEC025_ENVIRONMENT_PREFLIGHT_LOG_V1.base64.json",
+        "sha256": "1f87cf54c25c3d61abadebf961bd29667ea18a81b24c04f005c40becfaa5435d",
+        "decoded_sha256": "e81bd92dbbe525e5f0d27767be299a926c55b1b68e8d6fab4c4750553693439c",
+        "decoded_bytes": 43
+      }
+    },
+    "python_pip_check": "PASS: no broken requirements",
+    "python_requirements_dry_run": "PASS: all pinned requirements already satisfied",
+    "playwright_chromium": "EXISTS",
+    "node_modules_required_bins": "PASS via DEC-025 prerequisite probe",
+    "generated_outputs": {
+      "apps/desktop/public/wasm-engine": "ABSENT",
+      "apps/desktop/public/self-weight-engine": "ABSENT",
+      "apps/desktop/dist": "ABSENT"
+    },
+    "heavy_build_executed": false,
+    "tests_executed": false
+  },
+  "u7_commands": {
+    "cwd": "{WORKING_ROOT}",
+    "focused_vitest": [
+      "npm",
+      "run",
+      "test:desktop",
+      "--",
+      "--run",
+      "<focused-test-paths>"
+    ],
+    "wasm_prerequisite_when_root_releases_build_slot": [
+      "npm",
+      "run",
+      "build:wasm:desktop"
+    ],
+    "focused_playwright_after_wasm": [
+      "env",
+      "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=${PLAYWRIGHT_CHROMIUM}",
+      "PLAYWRIGHT_WORKERS=1",
+      "npm",
+      "exec",
+      "--workspace",
+      "apps/desktop",
+      "--",
+      "playwright",
+      "test",
+      "<focused-specs>",
+      "--project=chromium-desktop",
+      "--project=chromium-compact"
+    ],
+    "complete_dec025_after_source_freeze": [
+      "${QUALIFIED_PYTHON}",
+      "tools/release/run_evidence_sweep.py",
+      "--execute",
+      "--require-capability",
+      "host"
+    ],
+    "practitioner_from_repo_root": [
+      "${QUALIFIED_PYTHON}",
+      "-m",
+      "pytest",
+      "-q",
+      "tools/practitioner_harness"
+    ]
+  },
+  "hazards_and_controls": [
+    {
+      "hazard": "WASM and dist outputs are generated, ignored, and lane-local.",
+      "control": "Build only after root releases the heavy-build slot; never stage generated outputs."
+    },
+    {
+      "hazard": "WASM build performs atomic directory replacement but concurrent builders in the same lane can still invalidate another process read.",
+      "control": "Keep one serialized builder for the lane."
+    },
+    {
+      "hazard": "Playwright dev and dist configs use fixed loopback ports 5174 and 5175 and local reuseExistingServer behavior.",
+      "control": "Verify ports are free and serialize app-server runs; use the bound browser path from the structural host-path record."
+    },
+    {
+      "hazard": "Cargo registry, npm cache, Playwright browser cache, and qualified Python are host-shared.",
+      "control": "Treat caches and Python environment as read-only during focused checks; install only into lane-local ignored node_modules."
+    },
+    {
+      "hazard": "Another workflow is writing its disjoint AgentRuns scope in this checkout.",
+      "control": "Do not inspect, stage, or alter that scope; source and CHANGE ownership remain disjoint."
+    }
+  ],
+  "invocation_observations": [
+    {
+      "result": "FAILED_INVOCATION",
+      "commands": "five npm exec --workspace version probes",
+      "cwd": "{REPO_ROOT}",
+      "error": "ENOENT because the package manifest is under {WORKING_ROOT}; individual exit codes were not captured",
+      "disposition": "Rerun from {WORKING_ROOT}; all five version probes passed."
+    },
+    {
+      "result": "FAILED_INVOCATION",
+      "command": "git status with repository-relative pathspecs while cwd was {WORKING_ROOT}",
+      "error": "pathspecs were incorrectly doubled; command emitted a directory warning",
+      "disposition": "Subsequent scoped status from {REPO_ROOT} passed with no tracked product or manifest changes."
+    }
+  ],
+  "limits": [
+    "No source edits",
+    "No tests or full sweep",
+    "No WASM, frontend, Cargo, or native build",
+    "No commit, push, PR, or merge"
+  ]
+}

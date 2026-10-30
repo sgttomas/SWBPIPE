@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "errors": [],
+  "accepted_package_commit": "3e18334eca72509475684cc86786b3eeade83572",
+  "actual_postimages_checked": 83,
+  "unchanged_accepted_postimages": 63,
+  "explicitly_repaired_postimages": 20,
+  "repair_manifest_sha256": "9dec14c73faa396de98a9f5eaf86430c6bdfc76b43ce51119393935ce3fafeb5",
+  "accepted_pointers_unchanged": true,
+  "old_history_and_production_paths_unchanged": true,
+  "group3_acceptance": false,
+  "limit": "Accepted initial application plus explicit repaired postimage and preservation checks; no production conformance or original satisfaction recertification."
+}

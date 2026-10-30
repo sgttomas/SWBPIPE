@@ -1,0 +1,33 @@
+{
+  "schema_version": "0.1.0-draft",
+  "record_kind": "TransformResult",
+  "contract_owner": "DEL-13-04",
+  "source_refs": [
+    {
+      "object_type": "invented-shape-only",
+      "ref": "invented-shape-only"
+    }
+  ],
+  "provenance_refs": [
+    {
+      "object_type": "invented-shape-only",
+      "ref": "invented-shape-only"
+    }
+  ],
+  "professional_boundary": {
+    "human_review_required": true,
+    "software_makes_compliance_claim": false,
+    "software_makes_certification_claim": false,
+    "software_makes_sealing_claim": false,
+    "software_makes_approval_claim": false,
+    "software_makes_authentication_claim": false
+  },
+  "payload": {
+    "analytical_model": {
+      "model_role": "analytical_solver_model"
+    },
+    "diagnostics": [],
+    "traceability_links": [],
+    "has_blocking_findings": false
+  }
+}

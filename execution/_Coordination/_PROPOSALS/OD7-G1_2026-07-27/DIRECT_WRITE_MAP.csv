@@ -1,0 +1,6 @@
+CandidateID,Operation,ProposedLivePath,ExactCandidateSource,Precondition,Exclusion
+OD7-G1-C03,APPLY_PATCH,execution/_Coordination/_DECISIONS/D-30_RULING_2026-07-04.md,PIPING_C03_C04.patch,"owner approves exact C03; first-publication/ancestry/current-byte checks pass","D-30 JSON and ruling substance unchanged"
+OD7-G1-C04,APPLY_PATCH,execution/_Decomposition/_LATEST.md,PIPING_C03_C04.patch,"owner approves rescan-corrected 0.10 target","no semantic scope change"
+OD7-G1-C04,APPLY_PATCH,execution/_Decomposition/SOFTWARE_DECOMP.md,PIPING_C03_C04.patch,"owner separately approves visible frontmatter 0.9→0.10 residue; SCA-007 A023/A024 still accepted/current","frontmatter only; no other decomposition byte"
+OD7-G1-C06,COPY_EXACT,execution/_Coordination/NOTICE_2026-07-27_d30_contract_mismatch_and_root_runtime_context.md,PROPOSED_NOTICE_2026-07-27_d30_contract_mismatch_and_root_runtime_context.md,"owner approves exact C06; target absent; combined check still fails as stated","no repin/successor/client scope"
+OD7-G1-C03+C04+C06,APPEND_EXACT,loop/LOOP_RECEIPTS.md,PROPOSED_PIPING_RECEIPT_76.md,"owner approves all three; Receipt-76 still next-free; cursor and parent remain valid","combined receipt must be reissued for a subset"

@@ -1,0 +1,162 @@
+{
+  "record_kind": "native_build_final_dirty_source_binding",
+  "schema_version": "1.0",
+  "recorded_at_utc": "2026-09-08T16:47:21Z",
+  "role": "CHANGE",
+  "actual_task_identity": "/root/implementation_change",
+  "state": "SEALED_BUILD_RELEASED_LAUNCH_HELD",
+  "root_release": {
+    "serialized_native_build": true,
+    "native_launch": false,
+    "source_writers_stopped": true
+  },
+  "committed_base": {
+    "head_sha": "55df51ac3201456e0f181823e3aefefef47a73bb",
+    "contains_bound_source": false,
+    "explanation": "The bound implementation is the exact dirty source member set below, layered on this base. HEAD is not used as a substitute for dirty source identity."
+  },
+  "source_member_count": 10,
+  "source_members": [
+    {
+      "path": "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+      "sha256": "6e163a47db60288179f844d473992d28a53599ad2204149093186c760723ad46",
+      "owner": "F4"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "sha256": "a9217c959bfc2979e21cde5d5baf865f75258f03b902ecdd2c0fd545e5bfbde9",
+      "owner": "U7"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "sha256": "629037c503c6cf9b32ef3cc6b59e3c04234ec2c8ad61879e6ba73ef43cd3a1be",
+      "owner": "U7"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "sha256": "ac3789a6b4e8c452fe398d062183b25d884f55f5763af877ac6f1b3d4cb9f2ad",
+      "owner": "U7"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/routeDraft.ts",
+      "sha256": "cb258db1ab0750b891a023c0723cfbfdb55a898bb4930d4aaf4137cc6992c7a4",
+      "owner": "U7"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/routeDraft.test.ts",
+      "sha256": "9de95189460a18bc67e231308c641978f38ee1d971f9e6c6343e0b5969d94633",
+      "owner": "U7"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+      "sha256": "a6b63807e99e36a1194e3d01d1b91ce604e3b0478f6b29d9255971c1fb9c3a78",
+      "owner": "U7"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/typedInspector.test.tsx",
+      "sha256": "5f42c1d77a479c9cfb00cd9f98d901b7953c4bc7f900dc094e54e2a99c615712",
+      "owner": "U7"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/styles.css",
+      "sha256": "cefbc458a1f2189268e467608dc9be0e24d6c132234d28586551cfb7a599ca26",
+      "owner": "U7"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts",
+      "sha256": "338625b6d893a2aa47804327cec57127464f4bc600c30556d4ff1946b6faa305",
+      "owner": "U7"
+    }
+  ],
+  "source_member_set_sha256": "1180436540fcb8025a5029b16f8d6e019928eeaa6fab74c434772ca6ec78cefe",
+  "all_live_member_hashes_match": true,
+  "f4_binding": {
+    "source_sha256": "6e163a47db60288179f844d473992d28a53599ad2204149093186c760723ad46",
+    "base_diff": {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/successors/RF-F4-001/CANDIDATE_DIFF_BASE_TO_SUCCESSOR.patch",
+      "sha256": "ff74ab001f108f36a6e0f4105b4fe40a7a7d784045e4fc0827518074a62d97cc",
+      "reverse_apply_check": "PASS"
+    },
+    "successor_manifest": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/F4/successors/RF-F4-001/SUCCESSOR_MANIFEST.json",
+      "sha256": "c532b4ac8815545bca286694be35239fcd117e37fb00cb371b6a535d926ae623"
+    },
+    "rf_pass": {
+      "review": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RF/successors/RF-F4-001-BACKCHECK/REVIEW.md",
+        "sha256": "a1b9bab00a3484be384a9afe381c6d4d91f0462934a20ea75e1fe754dbd3a7e5"
+      },
+      "return": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RF/successors/RF-F4-001-BACKCHECK/RETURN.md",
+        "sha256": "429cf1183070d9419f65f4e5e8683714d49d11a00831b4b5bc6490224fd9c2e8"
+      }
+    }
+  },
+  "u7_r3_binding": {
+    "manifest": {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/R3_SUCCESSOR_MANIFEST_V3.json",
+      "sha256": "bd5cdbdb12a71179df68305ef375071743607e91bea0f9d3fac074240247ca30"
+    },
+    "full_base_diff": {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/U7_R3_FULL_BASE.diff",
+      "sha256": "6e013cf88417d02c1f1f75d48fac124ba635f8e39b974c6d2cda2477b01b6b10",
+      "reverse_apply_check": "PASS"
+    },
+    "manager_return": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/MANAGER_RETURN_V3.md",
+      "sha256": "b447bbf0660ea25b6a37942dab871215280becbd945feb11f5b6547b92757a88"
+    },
+    "ru_pass": {
+      "review": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/successors/RU-R3-BACKCHECK/REVIEW.md",
+        "sha256": "89d26315120026c2aa43741e52b6ef01aa8ce0860141ee17f9341ea25df364ca"
+      },
+      "return": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/successors/RU-R3-BACKCHECK/RETURN.md",
+        "sha256": "e86adec6b0cb50fd5e3cce2b0f1f9486c39781e5940f9a9f574933211c116e98"
+      },
+      "validation": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/successors/RU-R3-BACKCHECK/VALIDATION.md",
+        "sha256": "8a7a9b1363cfd074134fc63141e44f1fcbc8ecb9e53bca586c3a63e10772149a"
+      },
+      "inventory": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/successors/RU-R3-BACKCHECK/REVIEWED_INVENTORY.sha256",
+        "sha256": "a6d7e044f50f075ee9fadc3e494363399c4d1fda68a327f56ad3443a1ca418dd"
+      },
+      "status": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/successors/RU-R3-BACKCHECK/STATUS.json",
+        "sha256": "83011b8352badf596c404cc275d9cc1767cd64cc9163625d5a9e9b23be16866e"
+      },
+      "verdict": "PASS",
+      "root_verified_outputs": 5,
+      "root_verified_inventory_members": 37
+    }
+  },
+  "native_witness": {
+    "plan": {
+      "path": "execution/_Change/PHYSICS_UI_IMPLEMENTATION_20260908/NATIVE_WITNESS_PLAN_V1.md",
+      "sha256": "0542f870aa2fd5d8e9e926c09622c50338c21dc550c1417fb57d2e83a25357b3"
+    },
+    "overlay": {
+      "path": "execution/_Change/PHYSICS_UI_IMPLEMENTATION_20260908/_run_records/NATIVE_WITNESS_TAURI_OVERLAY.json",
+      "sha256": "c97845a67e0a7019074868c2fa29e9ddeabfaea6b19e6dcd982396ef8141a4cc"
+    },
+    "identifier": "org.openpipestress.technical-preview.walkthrough-physics-ui-implementation-55df51ac-20260908",
+    "dedicated_store_prebuild": "ABSENT",
+    "expected_bundle_prebuild": "ABSENT",
+    "normal_application_store_inspected": false
+  },
+  "historical_drafts": [
+    {
+      "path": "execution/_Change/PHYSICS_UI_IMPLEMENTATION_20260908/NATIVE_SOURCE_BINDING_DRAFT_V1.json",
+      "sha256": "1a61c24113b50c9db3b5cc18dfadf3bf0e4894e25f802850623b95355702bf31"
+    },
+    {
+      "path": "execution/_Change/PHYSICS_UI_IMPLEMENTATION_20260908/NATIVE_SOURCE_BINDING_DRAFT_V2.json",
+      "sha256": "59833b6d2e1dc1460c7d61b29de626c0f59dfb156b489fd9174883e39868e90d"
+    }
+  ],
+  "allowed_next_action": "Build the isolated macOS app bundle with the exact recorded offline Tauri command; do not launch.",
+  "prohibited_next_action": "Native app launch remains held pending a fresh C0-sealed NATIVE brief.",
+  "result": "PASS_FINAL_BINDING_BUILD_ALLOWED_LAUNCH_HELD"
+}

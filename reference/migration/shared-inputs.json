@@ -1,0 +1,151 @@
+{
+  "source_repository": "sgttomas/chirality",
+  "source_revision": "0828e8166ccefddc5c5b7bd5f75d58c2d656f51a",
+  "files": [
+    {
+      "path": ".github/actions/restore-build-cache/action.yml",
+      "original_sha256": "5f09142f15899c25e8383e7f2b80614653efbc290e2efc807773c47441f10346"
+    },
+    {
+      "path": ".github/actions/setup-piping-e2e/action.yml",
+      "original_sha256": "31113359ce0054d09b132b71e03ee270fdf2ba6a095f26e9a36ae9f715bd9645"
+    },
+    {
+      "path": ".github/workflows/piping-desktop-e2e.yml",
+      "original_sha256": "a2a0e828df6b8cf19399cd21104805e2bffe05a209feef77515e8b263b89a3e1"
+    },
+    {
+      "path": ".github/workflows/piping-e2e-cache.yml",
+      "original_sha256": "cefc07206e8f27d35e397178033e6899f809328fcd80730836ee7ef3ba1e48ba"
+    },
+    {
+      "path": ".github/workflows/piping-windows-arena-probe.yml",
+      "original_sha256": "d6754dc2b881624839d5c0e56c90483e078beb4ec9b0404ee14aad95c3d1180c"
+    },
+    {
+      "path": ".github/workflows/piping-windows-core.yml",
+      "original_sha256": "6a2f15f94aa49b0ff4db9dae42202169f2492f432e8c63d71120e3c857bc89c8"
+    },
+    {
+      "path": ".github/workflows/piping-windows-runner-startup-probe.yml",
+      "original_sha256": "d439d67386cf95a188016ffd3a87c45cd7303c1a45eb45dee23881390c91cb18"
+    },
+    {
+      "path": ".github/workflows/piping-windows-worker-fixture.yml",
+      "original_sha256": "fae77f1dc5548a0187d71d49ac171212382e73e183b8a5e97720d8a6f7f2250f"
+    },
+    {
+      "path": ".github/workflows/shared-build-cache.yml",
+      "original_sha256": "980b87107a8bf1d0c74e2978ba701808113ddd989d90af2fb0f36218ab97633f"
+    },
+    {
+      "path": "tools/deliverables/README.md",
+      "original_sha256": "4fc057f5adaaa72f8101ccdcf13fb86b963ce36cf0edd473f9dd321931487393"
+    },
+    {
+      "path": "tools/deliverables/__main__.py",
+      "original_sha256": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d"
+    },
+    {
+      "path": "tools/deliverables/cli.py",
+      "original_sha256": "cc0ee3a5bc6d566f021d20f94ff9c5f333936a85c4441ba9dc00a970fa5297fd"
+    },
+    {
+      "path": "tools/deliverables/graph.py",
+      "original_sha256": "7f0d839feb13468bf43185e751d5828b4cd9fada232533f0a7abca5309aec1cd"
+    },
+    {
+      "path": "tools/deliverables/test_cli.py",
+      "original_sha256": "4b3d8ed8d61897195c5766b08045a321a14e95e67f8b08ef2e302d665ca51ea2"
+    },
+    {
+      "path": "tools/hosted-ci-routing.json",
+      "original_sha256": "fb59e0d202c0e326f9800240a308dd214ccd4b1db9167a72e318872dd50ee699"
+    },
+    {
+      "path": "tools/software_workflow/build_cache.py",
+      "original_sha256": "c5d8e12bad704a84696373ce2134564a8b86844ce96d6adb5ecaae334196d8ab"
+    },
+    {
+      "path": "tools/software_workflow/compare_structured.py",
+      "original_sha256": "d009399cad55cadc7270beff61f63ad1036ca5373b5ec96a17af082ad279c3d6"
+    },
+    {
+      "path": "tools/software_workflow/discover_repository.py",
+      "original_sha256": "53c54eabb018e0ef2ba790beaf0e877719b96af2e24466a3ecea4b4750e0a2b2"
+    },
+    {
+      "path": "tools/software_workflow/hosted_ci.py",
+      "original_sha256": "b6fb036f499c25e998e831ee0c6188f5ce90bdb32a2370b3396161fccef914be"
+    },
+    {
+      "path": "tools/software_workflow/result_cache.py",
+      "original_sha256": "a64ae492cc3f1606f551e4725a9d8faf78d41f652c26ced9d96898b2e05f551d"
+    },
+    {
+      "path": "tools/software_workflow/run_registered_checks.py",
+      "original_sha256": "665a4ac138b92d0b0a7d4a2b03b47dc05118c8a4cb5c894155976e5eccc1c766"
+    },
+    {
+      "path": "tools/software_workflow/select_affected_checks.py",
+      "original_sha256": "43a1e5b503d858a1a95a407ea8fa01bab92686342df210f2bf9175ee71667144"
+    },
+    {
+      "path": "tools/software_workflow/software_workflow_common.py",
+      "original_sha256": "ed8efd48fd81affd60c49d8b6635d1e04b7e6d859a75e9ffbd6d84b21292b929"
+    },
+    {
+      "path": "tools/software_workflow/test_agent_catalog_resource.py",
+      "original_sha256": "2ea66f93daee75e2704afbccf1e51cf786adfd36fbc18b91746b71f67c31d7ae"
+    },
+    {
+      "path": "tools/software_workflow/test_build_cache.py",
+      "original_sha256": "b9a2dc42eddeae949c10545822ad6bedbf13b629db9499ccb14acc98721b296b"
+    },
+    {
+      "path": "tools/software_workflow/test_hosted_ci.py",
+      "original_sha256": "aec5d8ffb19e9f2753559c5b697997f25bb211980d6939d1a62e859a3e834f6f"
+    },
+    {
+      "path": "tools/software_workflow/test_hosted_ci_workflows.py",
+      "original_sha256": "d6cc75e7c4907761683ef6d4d43d9609e9dfd0ee04b14631e8b278f6e84f84b6"
+    },
+    {
+      "path": "tools/software_workflow/test_result_cache.py",
+      "original_sha256": "7e95678fbbf01237f4d6ae6b5fb88b45dc1694e8cd2f5a57645377e4242509b2"
+    },
+    {
+      "path": "tools/software_workflow/test_software_workflow.py",
+      "original_sha256": "c61936217577d2a14d7cbaa8647b246bc3f7316fbae67da701590ec04a3f4b0b"
+    },
+    {
+      "path": "tools/software_workflow/validate_change_scope.py",
+      "original_sha256": "6275277dcb214f78dfad6c159333decda95f9aa3e086d12e39c7f2f73a70cb0d"
+    },
+    {
+      "path": "tools/software_workflow/verify_generated_manifest.py",
+      "original_sha256": "81cb4e9d49b2e792bc90ebc7b5698bb8ae784cff6ccfbdb9129845c735901d7b"
+    },
+    {
+      "path": "tools/validation/test_validate_claims_language.py",
+      "original_sha256": "06820551338aaac2e7f43f78485f4b85707ddefa7b068cf1834d5bf559569455"
+    },
+    {
+      "path": "tools/validation/validate_claims_language.py",
+      "original_sha256": "07622ab66e7eacdc8a68bcf4c4fc695f6da24a8fb28448d98c5220ae1ab61d3f"
+    },
+    {
+      "path": "tools/validation/validate_conflict_markers.py",
+      "original_sha256": "f59afff9a283e4054cd57bb2edd110c8cc28bd8fade61e4d3a522fb86d30cd8f"
+    },
+    {
+      "path": "tools/validation/validate_private_terms.py",
+      "original_sha256": "528414592b470b2e0b8ef0191d63957c1c74dd58eae68d827cf10ee0055b2fe7"
+    },
+    {
+      "path": "tools/validation/validate_run_record_leaks.py",
+      "original_sha256": "0aae3b551dbf13a38dbfd3b334f36a40a229a2503e398db69ab1f5662de55315"
+    }
+  ],
+  "adaptation": "standalone roots/locators; inspect candidate Git diff against recorded originals"
+}

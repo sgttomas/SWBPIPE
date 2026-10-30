@@ -1,0 +1,46 @@
+[
+  {
+    "name": "staged_whitespace",
+    "command": [
+      "git",
+      "diff",
+      "--cached",
+      "--check"
+    ],
+    "exit": 0,
+    "log": "FINAL_staged_whitespace_V4.log"
+  },
+  {
+    "name": "selfcheck",
+    "command": [
+      "python3",
+      "tools/practitioner_harness/harness.py",
+      "self-check"
+    ],
+    "exit": 0,
+    "log": "FINAL_selfcheck_V4.log"
+  },
+  {
+    "name": "pytest",
+    "command": [
+      "python3",
+      "-m",
+      "pytest",
+      "-q",
+      "tools/practitioner_harness"
+    ],
+    "exit": 0,
+    "log": "FINAL_pytest_V4.log"
+  },
+  {
+    "name": "receipt",
+    "command": [
+      "python3",
+      "tools/validation/validate_piping_loop_receipts.py",
+      "--repo-root",
+      "."
+    ],
+    "exit": 0,
+    "log": "FINAL_receipt_V4.log"
+  }
+]

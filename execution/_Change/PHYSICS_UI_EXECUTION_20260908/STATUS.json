@@ -1,0 +1,23 @@
+{
+  "schema": "change-status/v1",
+  "instance": "/root/implementation_change",
+  "role": "CHANGE Agent 1",
+  "parent": "/root HELP_HUMAN Agent 0",
+  "record_type": "RETROSPECTIVE_R03_REPAIR",
+  "prelaunch_persisted": false,
+  "pristine_governance_claimed": false,
+  "state": "RETROSPECTIVE_R03_REPAIR_COMPLETE_FINAL_CLOSEOUT_HELD",
+  "detailed_status": {
+    "path": "RETROSPECTIVE_STATUS_V1.json",
+    "sha256": "89430b7984949c48c3fd5c8eabe07c33103718d0bb00735f9b2feaca649ca28d"
+  },
+  "detailed_launch": {
+    "path": "RETROSPECTIVE_LAUNCH_BRIEF_V1.md",
+    "sha256": "b93b930415263665c1d0639a506ba5b588d24f5ece5ab9af82ee90bb7fc0afd8"
+  },
+  "source": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "product_source_modified": false,
+  "delegation": "none",
+  "next_owner": "/root",
+  "next_gate": "new root release after required reviews pass"
+}

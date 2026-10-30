@@ -1,0 +1,22 @@
+[
+  {
+    "pointer": "/export_results/result_documents/0/result_envelope/reproducibility/derivative_hash/value",
+    "value": "d6fa556ef710b854cc76559cc313ddc543142fe7fc58d2fdf86e98aa0df1ad41"
+  },
+  {
+    "pointer": "/export_results/result_documents/0/result_envelope/reproducibility/request_hash/value",
+    "value": "51f4f69e29c7ffbfe040a11b4a6f49ba07334d5cc45e507a83615e9433219c33"
+  },
+  {
+    "pointer": "/export_results/result_documents/0/result_envelope/reproducibility/source_origin_bindings/0/request_alias_disclosure",
+    "value": "request model_ref invented-model-alias is a provenance alias; actual model project:precision-connected-fixture"
+  },
+  {
+    "pointer": "/export_results/result_documents/0/result_envelope/reproducibility/source_origin_bindings/0/request_model_ref/ref_id",
+    "value": "invented-model-alias"
+  },
+  {
+    "pointer": "/request/model_ref/ref_id",
+    "value": "invented-model-alias"
+  }
+]

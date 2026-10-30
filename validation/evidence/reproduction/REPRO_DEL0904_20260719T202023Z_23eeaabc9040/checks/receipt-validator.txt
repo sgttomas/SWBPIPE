@@ -1,0 +1,1 @@
+VALID /Users/ryan/.codex/worktrees/2faf/chirality/projects/chirality-piping/loop/LOOP_RECEIPTS.md: frozen through Receipt-44; versioned receipt contract satisfied

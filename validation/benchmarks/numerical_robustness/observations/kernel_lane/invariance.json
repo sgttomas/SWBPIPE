@@ -1,0 +1,191 @@
+[
+  {
+    "at": "th.N3.RY",
+    "base": "RF-INVARIANCE-PINTOR-BASE",
+    "bit_identical": null,
+    "largest_difference_in_allowances": 1.3552505353625656e-7,
+    "rows_compared": 92,
+    "rows_unmatched": 0,
+    "variant": "RF-INVARIANCE-PINTOR-ROT-Q3"
+  },
+  {
+    "at": "th.N1.RY",
+    "base": "RF-INVARIANCE-PINTOR-BASE",
+    "bit_identical": null,
+    "largest_difference_in_allowances": 1.3552505353625656e-7,
+    "rows_compared": 92,
+    "rows_unmatched": 0,
+    "variant": "RF-INVARIANCE-PINTOR-ROT-Q9"
+  },
+  {
+    "at": "",
+    "base": "RF-INVARIANCE-PINTOR-BASE",
+    "bit_identical": 92,
+    "largest_difference_in_allowances": 0.0,
+    "rows_compared": 92,
+    "rows_unmatched": 0,
+    "variant": "RF-INVARIANCE-PINTOR-OFF-1e3"
+  },
+  {
+    "at": "",
+    "base": "RF-INVARIANCE-PINTOR-BASE",
+    "bit_identical": 92,
+    "largest_difference_in_allowances": 0.0,
+    "rows_compared": 92,
+    "rows_unmatched": 0,
+    "variant": "RF-INVARIANCE-PINTOR-OFF-1e6"
+  },
+  {
+    "at": "",
+    "base": "RF-INVARIANCE-PINTOR-BASE",
+    "bit_identical": 92,
+    "largest_difference_in_allowances": 0.0,
+    "rows_compared": 92,
+    "rows_unmatched": 0,
+    "variant": "RF-INVARIANCE-PINTOR-RELABEL"
+  },
+  {
+    "at": "tw.M3",
+    "base": "RF-INVARIANCE-PINTOR-BASE",
+    "bit_identical": null,
+    "largest_difference_in_allowances": 1.2051082421725988e-7,
+    "rows_compared": 92,
+    "rows_unmatched": 0,
+    "variant": "RF-INVARIANCE-PINTOR-UNITS-mm"
+  },
+  {
+    "at": "th.A1.RY",
+    "base": "RF-INVARIANCE-LFRAME-BASE",
+    "bit_identical": null,
+    "largest_difference_in_allowances": 1.35520377425823e-7,
+    "rows_compared": 44,
+    "rows_unmatched": 0,
+    "variant": "RF-INVARIANCE-LFRAME-ROT-Q3"
+  },
+  {
+    "at": "th.A1.RY",
+    "base": "RF-INVARIANCE-LFRAME-BASE",
+    "bit_identical": null,
+    "largest_difference_in_allowances": 1.35520377425823e-7,
+    "rows_compared": 44,
+    "rows_unmatched": 0,
+    "variant": "RF-INVARIANCE-LFRAME-ROT-Q9"
+  },
+  {
+    "at": "",
+    "base": "RF-INVARIANCE-LFRAME-BASE",
+    "bit_identical": 44,
+    "largest_difference_in_allowances": 0.0,
+    "rows_compared": 44,
+    "rows_unmatched": 0,
+    "variant": "RF-INVARIANCE-LFRAME-OFF-1e3"
+  },
+  {
+    "at": "",
+    "base": "RF-INVARIANCE-LFRAME-BASE",
+    "bit_identical": 44,
+    "largest_difference_in_allowances": 0.0,
+    "rows_compared": 44,
+    "rows_unmatched": 0,
+    "variant": "RF-INVARIANCE-LFRAME-OFF-1e6"
+  },
+  {
+    "at": "",
+    "base": "RF-INVARIANCE-LFRAME-BASE",
+    "bit_identical": 44,
+    "largest_difference_in_allowances": 0.0,
+    "rows_compared": 44,
+    "rows_unmatched": 0,
+    "variant": "RF-INVARIANCE-LFRAME-RELABEL"
+  },
+  {
+    "at": "th.A2.RY",
+    "base": "RF-INVARIANCE-LFRAME-BASE",
+    "bit_identical": null,
+    "largest_difference_in_allowances": 6.617205928995264e-11,
+    "rows_compared": 44,
+    "rows_unmatched": 0,
+    "variant": "RF-INVARIANCE-LFRAME-UNITS-mm"
+  },
+  {
+    "at": "Mb.A4.j",
+    "base": "RF-INVARIANCE-CONT4-BASE",
+    "bit_identical": null,
+    "largest_difference_in_allowances": 1.4817388084955128e-7,
+    "rows_compared": 128,
+    "rows_unmatched": 0,
+    "variant": "RF-INVARIANCE-CONT4-ROT-Q3"
+  },
+  {
+    "at": "u.C4.UX",
+    "base": "RF-INVARIANCE-CONT4-BASE",
+    "bit_identical": null,
+    "largest_difference_in_allowances": 1.348360352762395e-7,
+    "rows_compared": 128,
+    "rows_unmatched": 0,
+    "variant": "RF-INVARIANCE-CONT4-ROT-Q9"
+  },
+  {
+    "at": "",
+    "base": "RF-INVARIANCE-CONT4-BASE",
+    "bit_identical": 128,
+    "largest_difference_in_allowances": 0.0,
+    "rows_compared": 128,
+    "rows_unmatched": 0,
+    "variant": "RF-INVARIANCE-CONT4-OFF-1e3"
+  },
+  {
+    "at": "",
+    "base": "RF-INVARIANCE-CONT4-BASE",
+    "bit_identical": 128,
+    "largest_difference_in_allowances": 0.0,
+    "rows_compared": 128,
+    "rows_unmatched": 0,
+    "variant": "RF-INVARIANCE-CONT4-OFF-1e6"
+  },
+  {
+    "at": "Mb.E1.i",
+    "base": "RF-INVARIANCE-CONT4-BASE",
+    "bit_identical": 127,
+    "largest_difference_in_allowances": 4.2485079875940544e-30,
+    "rows_compared": 128,
+    "rows_unmatched": 0,
+    "variant": "RF-INVARIANCE-CONT4-RELABEL"
+  },
+  {
+    "at": "u.C4.UY",
+    "base": "RF-INVARIANCE-CONT4-BASE",
+    "bit_identical": null,
+    "largest_difference_in_allowances": 1.3807210012286924e-7,
+    "rows_compared": 128,
+    "rows_unmatched": 0,
+    "variant": "RF-INVARIANCE-CONT4-UNITS-mm"
+  },
+  {
+    "at": "",
+    "base": "RF-INVARIANCE-TREE100-BASE",
+    "bit_identical": 1312,
+    "largest_difference_in_allowances": 0.0,
+    "rows_compared": 1312,
+    "rows_unmatched": 0,
+    "variant": "RF-INVARIANCE-TREE100-OFF-1e3"
+  },
+  {
+    "at": "",
+    "base": "RF-INVARIANCE-TREE100-BASE",
+    "bit_identical": 1312,
+    "largest_difference_in_allowances": 0.0,
+    "rows_compared": 1312,
+    "rows_unmatched": 0,
+    "variant": "RF-INVARIANCE-TREE100-OFF-1e6"
+  },
+  {
+    "at": "tw.E84",
+    "base": "RF-INVARIANCE-TREE100-BASE",
+    "bit_identical": 1063,
+    "largest_difference_in_allowances": 7.409663449528548e-25,
+    "rows_compared": 1312,
+    "rows_unmatched": 0,
+    "variant": "RF-INVARIANCE-TREE100-RELABEL"
+  }
+]

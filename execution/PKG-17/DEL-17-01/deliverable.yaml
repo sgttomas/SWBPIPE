@@ -1,0 +1,95 @@
+id: DEL-17-01
+name: CAEPIPE and export-format source basis
+needs:
+- from: DEL-00-01
+  condition: 'DEL-17-01 must apply AB-00-01 architecture-basis constraints when future execution touches
+    applicable architecture surfaces.
+
+
+    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
+    Decision baseline for architecture choices and unresolved rulings.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-17-01 must apply AB-00-02 architecture-basis constraints when future execution touches
+    applicable architecture surfaces.
+
+
+    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
+    Repository/module boundaries and inward dependency direction.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-03
+  condition: 'DEL-17-01 must apply AB-00-03 architecture-basis constraints when future execution touches
+    applicable architecture surfaces.
+
+
+    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
+    Schema-first command/query/job result envelope constraints.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-04
+  condition: 'DEL-17-01 must apply AB-00-04 architecture-basis constraints when future execution touches
+    applicable architecture surfaces.
+
+
+    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
+    JSON Schema 2020-12 and canonical JSON/JCS-compatible hash basis.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-17-01 must apply AB-00-06 architecture-basis constraints when future execution touches
+    applicable architecture surfaces.
+
+
+    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
+    Diagnostics, warnings, blockers, and result-envelope obligations.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-07
+  condition: 'DEL-17-01 must apply AB-00-07 architecture-basis constraints when future execution touches
+    applicable architecture surfaces.
+
+
+    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
+    No-bypass API/plugin/adapter validation and boundary controls.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-17-01 must apply AB-00-08 architecture-basis constraints when future execution touches
+    applicable architecture surfaces.
+
+
+    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
+    Layered architecture/schema/service/adapter acceptance strategy.
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: doc:docs/CONTRACT.md
+  condition: 'Project governance constrains source boundary and professional claims.
+
+
+    Notes: No protected or proprietary source material added.; legacy_anchortype=GOVERNANCE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=BOUNDARY; legacy_targettype=REFERENCE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=TASK_EXTRACT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: ACCEPTED_BASELINE; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: Project contract invariants; TargetRefID: CONTRACT; TargetLocation:
+    docs/CONTRACT.md'
+  evidence: execution/PKG-17/DEL-17-01/Specification.md

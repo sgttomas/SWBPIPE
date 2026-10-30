@@ -1,0 +1,43 @@
+{
+  "bindings": [],
+  "case_id": "case_68_block_compare_unit_mismatch",
+  "declared_grammar_version": "1.0.0",
+  "description": "Comparing same-dimension different-unit quantities blocks (no conversion).",
+  "expected": {
+    "findings": [
+      {
+        "code": "unit_mismatch",
+        "subject_id": "comparison"
+      }
+    ],
+    "source_variable_ids": [],
+    "statuses": [
+      "mechanics_solved"
+    ],
+    "value": null
+  },
+  "expression": {
+    "left": {
+      "node": "literal",
+      "quantity": {
+        "dimension": "stress",
+        "unit_ref": "invented_stress_unit_a",
+        "value": 10.0
+      }
+    },
+    "node": "compare",
+    "operator": "less_than",
+    "right": {
+      "node": "literal",
+      "quantity": {
+        "dimension": "stress",
+        "unit_ref": "invented_stress_unit_b",
+        "value": 12.0
+      }
+    }
+  },
+  "required_variable_ids": [],
+  "statuses": [
+    "mechanics_solved"
+  ]
+}

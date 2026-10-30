@@ -1,0 +1,48 @@
+{
+  "bindings": [
+    {
+      "quantity": {
+        "dimension": "force",
+        "unit_ref": "invented_force_unit",
+        "value": 1.0
+      },
+      "source": "rule_pack_required_input",
+      "variable_id": "invented_force_input"
+    },
+    {
+      "quantity": {
+        "dimension": "force",
+        "unit_ref": "invented_force_unit",
+        "value": 2.0
+      },
+      "source": "rule_pack_required_input",
+      "variable_id": "invented_force_input"
+    }
+  ],
+  "case_id": "case_63_block_duplicate_binding",
+  "declared_grammar_version": "1.0.0",
+  "description": "Duplicate variable bindings block.",
+  "expected": {
+    "findings": [
+      {
+        "code": "duplicate_binding",
+        "subject_id": "invented_force_input"
+      }
+    ],
+    "source_variable_ids": [
+      "invented_force_input"
+    ],
+    "statuses": [
+      "mechanics_solved"
+    ],
+    "value": null
+  },
+  "expression": {
+    "node": "variable_ref",
+    "variable_id": "invented_force_input"
+  },
+  "required_variable_ids": [],
+  "statuses": [
+    "mechanics_solved"
+  ]
+}

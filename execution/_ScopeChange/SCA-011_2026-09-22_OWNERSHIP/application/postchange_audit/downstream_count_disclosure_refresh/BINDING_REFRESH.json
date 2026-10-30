@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-09-22T17:23:04.609398+00:00",
+  "purpose": "Bind the single parent-owned downstream practitioner-count disclosure after the completed Piping audit. No Piping semantic-postimage change or broad rerun.",
+  "authority": "Parent WORKING_ITEMS follow-up relays parent HELP_HUMAN Root test-baseline correction; Root edits remain outside audit write scope.",
+  "package_path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/GROUP3_PACKAGE.md",
+  "prior_sha256": "3d6ba97d8cbb3851aae6af937d993fe5352f094cd387c0b1acd52ee36cc04173",
+  "current_sha256": "b4aa22d7a9ae242b59b841098666f7b0544531c0bb2cb80e82ebdf8663aa6b53",
+  "added_paragraph": "The shared practitioner check exposed one expected-count pin left at 102 Piping deliverables after the four accepted additions. Parent HELP_HUMAN owns the corresponding Root test-baseline correction to 106 Piping / 160 combined, preserving the zero-mismatch and unparseable checks; its independent review and rerun are in the combined closeout evidence. This is a necessary count update, not a criterion waiver.",
+  "remove_exact_paragraph_recovers_prior_sha256": true,
+  "piping_count_correspondence": {
+    "current_audit_count": 106,
+    "new_homes": 4,
+    "old_expected_count": 102,
+    "pass": true
+  },
+  "root_harness_evidence_limit": "Parent reported 378 passing checks and one obsolete 102/156 count assertion, actual 106/160 with zero mismatches. Root correction, criterion preservation, fresh review and rerun are owned by parent and independently reviewed in combined closeout; this limited refresh does not claim their completion or perform those checks.",
+  "unchanged_audit_verdict": "WARNINGS; closure WARN; zero blockers; retained baseline warning and2,097 unchanged stock findings.",
+  "rerun": "Remove added_paragraph plus its following blank line from current package bytes and hash; result must equal prior_sha256. Confirm production_units_found=106 in prior_coverage_summary.json."
+}

@@ -1,0 +1,355 @@
+{
+  "status": "APPLIED_ROUTINE_CORRECTION_FOR_GROUP3_REVIEW",
+  "basis": "Original exact Group2 candidate and initial application evidence remain unchanged. Manager relayed Agent0 corrective authority; no new owner acceptance is invented.",
+  "changed_paths": [
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+      "original_group2_applied_sha256": "33991044b75f09fc40726f271cbce0ba5c6f2678c11eb9e10f3e1a05494ef633",
+      "before_repair_sha256": "33991044b75f09fc40726f271cbce0ba5c6f2678c11eb9e10f3e1a05494ef633",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+      "after_repair_sha256": "c9c90753d0d76249b4bd4f041c22902bbf7c3062bf119ff77966a199b12ce19d",
+      "change": "Added-row ID and quoted evidence metadata only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_DEPENDENCIES.md",
+      "original_group2_applied_sha256": "41fb1fd8582391fab88f4e411647ba6e2581e747cb1b7453f659f765e3790137",
+      "before_repair_sha256": "41fb1fd8582391fab88f4e411647ba6e2581e747cb1b7453f659f765e3790137",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_DEPENDENCIES.md",
+      "after_repair_sha256": "d88faab27331b5547c7302659d2706a93c0e3a8ba069a51420cf5a3d49640874",
+      "change": "Current ID display and correction history; prospective Group-3 transformation retained"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/Dependencies.csv",
+      "original_group2_applied_sha256": "96ffe738a7255e2e1473350ae83990bbf158f25a7a2eb74db1909026e7acf675",
+      "before_repair_sha256": "96ffe738a7255e2e1473350ae83990bbf158f25a7a2eb74db1909026e7acf675",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/Dependencies.csv",
+      "after_repair_sha256": "a35d33ddbd465df61ba1344a4522d1aa2129737a51f96151e209cb9f0a1943db",
+      "change": "Added-row ID and quoted evidence metadata only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_DEPENDENCIES.md",
+      "original_group2_applied_sha256": "aa3259fe8008ebb5d296f493df4ca3db38f2eccd4191788fb59f9924c6b197bb",
+      "before_repair_sha256": "aa3259fe8008ebb5d296f493df4ca3db38f2eccd4191788fb59f9924c6b197bb",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_DEPENDENCIES.md",
+      "after_repair_sha256": "ad9234bf3b10d24b43b4b79d9207a24b2aad0947f5c55d61f1881fc4591ab796",
+      "change": "Current ID display and correction history; prospective Group-3 transformation retained"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/Dependencies.csv",
+      "original_group2_applied_sha256": "235fdd05a69b1ef2dddf4896861a80ba72f79b26cf1267347a8b37d0ab7545da",
+      "before_repair_sha256": "235fdd05a69b1ef2dddf4896861a80ba72f79b26cf1267347a8b37d0ab7545da",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/Dependencies.csv",
+      "after_repair_sha256": "694cd5c4db774f24c9f4606e76f833bd783e6e7bd8d3d91877e200b2a35a3fc8",
+      "change": "Added-row ID and quoted evidence metadata only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_DEPENDENCIES.md",
+      "original_group2_applied_sha256": "3f762c2476601232f60e7d8cfb65823adf6949f4910f3482ff25909a505eb5b0",
+      "before_repair_sha256": "3f762c2476601232f60e7d8cfb65823adf6949f4910f3482ff25909a505eb5b0",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_DEPENDENCIES.md",
+      "after_repair_sha256": "10f33d2b87c7b6ffed939b2975752ce2c9ff6fd53f9f6859d03f912763ce893c",
+      "change": "Current ID display and correction history; prospective Group-3 transformation retained"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/Dependencies.csv",
+      "original_group2_applied_sha256": "b703f15c4b5537b1c1d282c633e6d15f0b401f5afbd9d765fe01049413d6fc0a",
+      "before_repair_sha256": "b703f15c4b5537b1c1d282c633e6d15f0b401f5afbd9d765fe01049413d6fc0a",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/Dependencies.csv",
+      "after_repair_sha256": "b8f54c1db189565f03bf2fc76a490c5621b12a3d7a281a1dc9b201749b5a0d15",
+      "change": "Added-row ID and quoted evidence metadata only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/_DEPENDENCIES.md",
+      "original_group2_applied_sha256": "ebff060030a7677540715c72dcf3a0cc3eeead13c64456d7828214c00facb07a",
+      "before_repair_sha256": "ebff060030a7677540715c72dcf3a0cc3eeead13c64456d7828214c00facb07a",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/_DEPENDENCIES.md",
+      "after_repair_sha256": "a66b22005629c9630c4321319f50dfe41f57b6c0c9a60777faea1413e426101e",
+      "change": "Current ID display and correction history; prospective Group-3 transformation retained"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/Dependencies.csv",
+      "original_group2_applied_sha256": "f86596be336d47ec64e010d9d0877034e86922f089e50a56317a86b4d96937fc",
+      "before_repair_sha256": "f86596be336d47ec64e010d9d0877034e86922f089e50a56317a86b4d96937fc",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/Dependencies.csv",
+      "after_repair_sha256": "41d0a23373f70fdc4ebe2e66e4230e077bb1172a3be40451518946cca9376bf7",
+      "change": "Added-row ID and quoted evidence metadata only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_DEPENDENCIES.md",
+      "original_group2_applied_sha256": "b70001828d35be35c361986d25e1eedb18fe7c65761f21de1cdf9da0befd1242",
+      "before_repair_sha256": "b70001828d35be35c361986d25e1eedb18fe7c65761f21de1cdf9da0befd1242",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_DEPENDENCIES.md",
+      "after_repair_sha256": "b60a1dab385028c3ed803efc68562940773a447e715fd5fc51a64535706d81f1",
+      "change": "Current ID display and correction history; prospective Group-3 transformation retained"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/Dependencies.csv",
+      "original_group2_applied_sha256": "32ab9b56319a60ba1daade4eb6e9b674943b52acecdc1be2f5aa3a8a5c6087e9",
+      "before_repair_sha256": "32ab9b56319a60ba1daade4eb6e9b674943b52acecdc1be2f5aa3a8a5c6087e9",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/Dependencies.csv",
+      "after_repair_sha256": "d2bd542d9900446af4bf94b0596931aa9650a290fcd173d572537294d24712d5",
+      "change": "Added-row ID and quoted evidence metadata only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_DEPENDENCIES.md",
+      "original_group2_applied_sha256": "9c48a6692db909a1b89e61db60e88ef414bf63dec5909865df8b38d3057cca01",
+      "before_repair_sha256": "9c48a6692db909a1b89e61db60e88ef414bf63dec5909865df8b38d3057cca01",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_DEPENDENCIES.md",
+      "after_repair_sha256": "01f612c50cbf04b46d73ecdd823b7dfe7a41084be69fdf91dad8451db229634a",
+      "change": "Current ID display and correction history; prospective Group-3 transformation retained"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+      "original_group2_applied_sha256": "fc0913c55445110c0622ba6cf8941dd71d5d0c6ae0910c3af57ee5ee99141112",
+      "before_repair_sha256": "fc0913c55445110c0622ba6cf8941dd71d5d0c6ae0910c3af57ee5ee99141112",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+      "after_repair_sha256": "9a1182c3cb88ccbf18466f2fb87b259d83920f7c4a4f3598e3f41dc85b4ef42f",
+      "change": "Added-row ID and quoted evidence metadata only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_DEPENDENCIES.md",
+      "original_group2_applied_sha256": "7a7c03dd009217bdec795333a7bed20f45ad7c95002e9f7a378e2ace8c86188b",
+      "before_repair_sha256": "7a7c03dd009217bdec795333a7bed20f45ad7c95002e9f7a378e2ace8c86188b",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_DEPENDENCIES.md",
+      "after_repair_sha256": "b7d294f8b56df60a128bd6df1b55a280de3639ddec1214a9c772628cc99e5942",
+      "change": "Current ID display and correction history; prospective Group-3 transformation retained"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/Dependencies.csv",
+      "original_group2_applied_sha256": "2c85a3bcec76f691c959e2fd4d97f3f23263f32fd44f7112f764a031cc42c2d4",
+      "before_repair_sha256": "2c85a3bcec76f691c959e2fd4d97f3f23263f32fd44f7112f764a031cc42c2d4",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/Dependencies.csv",
+      "after_repair_sha256": "bd857ecf51d3e04d719cd91adcf918ac93acd59a704b85704a238fdff4553046",
+      "change": "Added-row ID and quoted evidence metadata only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_DEPENDENCIES.md",
+      "original_group2_applied_sha256": "0d483a701df6dc616dd503838236d435e3353851ffd8199944122782d262ffbb",
+      "before_repair_sha256": "0d483a701df6dc616dd503838236d435e3353851ffd8199944122782d262ffbb",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_DEPENDENCIES.md",
+      "after_repair_sha256": "e50976deede1d669c76979c8832b5ea4c96541e227943f352bc7f029c56a5607",
+      "change": "Current ID display and correction history; prospective Group-3 transformation retained"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/Dependencies.csv",
+      "original_group2_applied_sha256": "52db83caf551c046b66de8380d4fdac9cd08aae3f3b4a2dbaa6b13b4c610af32",
+      "before_repair_sha256": "52db83caf551c046b66de8380d4fdac9cd08aae3f3b4a2dbaa6b13b4c610af32",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/Dependencies.csv",
+      "after_repair_sha256": "d8be711eec39756341d925d56fa86882d60dc630aabe39c3d7374f689cbb74f5",
+      "change": "Added-row ID and quoted evidence metadata only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_DEPENDENCIES.md",
+      "original_group2_applied_sha256": "70668671184a110eb1a5d5f9f44eff34c95c38c703918f2b620ce3fdcce818ae",
+      "before_repair_sha256": "70668671184a110eb1a5d5f9f44eff34c95c38c703918f2b620ce3fdcce818ae",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_DEPENDENCIES.md",
+      "after_repair_sha256": "149a573972639907c9a6b794527363d5453a36a763d1b3b726a92f2bc3a075ba",
+      "change": "Current ID display and correction history; prospective Group-3 transformation retained"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/Dependencies.csv",
+      "original_group2_applied_sha256": "187cc2f09189c80c1ea18ea32e92e2d6fbaae98e4df13bd07daf7179100f94aa",
+      "before_repair_sha256": "187cc2f09189c80c1ea18ea32e92e2d6fbaae98e4df13bd07daf7179100f94aa",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/Dependencies.csv",
+      "after_repair_sha256": "4902039323b9691e1386d0fbc812e74b0a8c98da69af7239c5744d7bc81f9512",
+      "change": "Added-row ID and quoted evidence metadata only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_DEPENDENCIES.md",
+      "original_group2_applied_sha256": "7094b81f5372449e25e867fbaa42f123fd422cac5744b67b919868df87b41769",
+      "before_repair_sha256": "7094b81f5372449e25e867fbaa42f123fd422cac5744b67b919868df87b41769",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_DEPENDENCIES.md",
+      "after_repair_sha256": "1914eff5eb4b78b83d5fcaea3f2fb7362101a9a472ad1ceacf84c2fcc8f0546e",
+      "change": "Current ID display and correction history; prospective Group-3 transformation retained"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/DAG-011/DependencyEdges.csv",
+      "original_group2_applied_sha256": "23165358e5e3e75c2fb90beb353714cbb43bc85858cabb9081b2de899cca2464",
+      "before_repair_sha256": "23165358e5e3e75c2fb90beb353714cbb43bc85858cabb9081b2de899cca2464",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/_DAG/DAG-011/DependencyEdges.csv",
+      "after_repair_sha256": "5c056c2538026f62276a86d88aa9d95f24e262d4d7e38dcdc2f11e1705dc5c47",
+      "change": "Added-row ID and quoted evidence metadata only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/DAG-011/PROVENANCE.json",
+      "original_group2_applied_sha256": "NOT_AN_ACCEPTED_POSTIMAGE; initial staged metadata",
+      "before_repair_sha256": "4d2559b9da349bd62d670b046e4dcb4e1f7eefd9884084d14ab9ad54257f8d30",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/_DAG/DAG-011/PROVENANCE.json",
+      "after_repair_sha256": "b023b377fb8361c580bb970330bf0b2537edb061ee23e40f9ee1975d8e32fc65",
+      "change": "Current staged provenance/validation pointers and truthful unapproved disposition"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/DAG-011/APPROVAL_RECORD.md",
+      "original_group2_applied_sha256": "NOT_AN_ACCEPTED_POSTIMAGE; initial staged metadata",
+      "before_repair_sha256": "39fbf98e395e414f76145dc5d6348ea7e8b82baa748502d6954de0a9511a6917",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/_DAG/DAG-011/APPROVAL_RECORD.md",
+      "after_repair_sha256": "4d316cf493e797a32726d2f5d44d9db7194bc80e2f7556218a88d37d664e9736",
+      "change": "Current staged provenance/validation pointers and truthful unapproved disposition"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/DAG-011/HANDOFF.md",
+      "original_group2_applied_sha256": "NOT_AN_ACCEPTED_POSTIMAGE; initial staged metadata",
+      "before_repair_sha256": "94e982f9a429a37793cee32233d4fd1729c1cefb088d6883535c797865d97525",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/_DAG/DAG-011/HANDOFF.md",
+      "after_repair_sha256": "621988cb190af8bb21c912044050670ddf3102c52b1a68d2f0eac41c8cab717b",
+      "change": "Current staged provenance/validation pointers and truthful unapproved disposition"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/DAG-011/MANIFEST.sha256",
+      "original_group2_applied_sha256": "NOT_AN_ACCEPTED_POSTIMAGE; initial staged metadata",
+      "before_repair_sha256": "f16dd15fc12c1e9156e6d699b40e260f3ce2d7f51f54a0e2fc6bee47fb26ddc9",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/_DAG/DAG-011/MANIFEST.sha256",
+      "after_repair_sha256": "b902bd19d2f6488296e3c8de3b3e73cb0785a4bb5b39518aae4c940a2d27aa48",
+      "change": "Current staged provenance/validation pointers and truthful unapproved disposition"
+    }
+  ],
+  "changed_path_count": 25,
+  "added_row_count": 84,
+  "field_delta": {
+    "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/FIELD_LEVEL_DELTA.csv",
+    "sha256": "762f3a9421e4b8761dfa8f32ecb223f711972bf5ab80642e21695f3c25ced3b0"
+  },
+  "id_crosswalk": {
+    "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/ID_CROSSWALK.csv",
+    "sha256": "7cfafd9cc4b84ae06c8dffa61aeaf2042b1e8f566b06df8c79057ea29db2f7b3"
+  },
+  "quote_checks": {
+    "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/REPAIRED_QUOTE_CHECKS.json",
+    "sha256": "dcb4491cfe023df14e2422c673de0e73ebf3a241fe8410d5134b8742e1f659b9"
+  },
+  "future_group3_transforms": {
+    "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/REPAIRED_GROUP3_PROMOTION.json",
+    "sha256": "ea5433049bc4d7c287e24e99b67b0871cee12c9a3471cf8e5894e689f61c81f6"
+  },
+  "semantic_change": false,
+  "group3_executed": false,
+  "files": [
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+      "AcceptedAppliedSHA256": "33991044b75f09fc40726f271cbce0ba5c6f2678c11eb9e10f3e1a05494ef633",
+      "BeforeRepairSHA256": "33991044b75f09fc40726f271cbce0ba5c6f2678c11eb9e10f3e1a05494ef633",
+      "RepairedSHA256": "c9c90753d0d76249b4bd4f041c22902bbf7c3062bf119ff77966a199b12ce19d"
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_DEPENDENCIES.md",
+      "AcceptedAppliedSHA256": "41fb1fd8582391fab88f4e411647ba6e2581e747cb1b7453f659f765e3790137",
+      "BeforeRepairSHA256": "41fb1fd8582391fab88f4e411647ba6e2581e747cb1b7453f659f765e3790137",
+      "RepairedSHA256": "d88faab27331b5547c7302659d2706a93c0e3a8ba069a51420cf5a3d49640874"
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/Dependencies.csv",
+      "AcceptedAppliedSHA256": "96ffe738a7255e2e1473350ae83990bbf158f25a7a2eb74db1909026e7acf675",
+      "BeforeRepairSHA256": "96ffe738a7255e2e1473350ae83990bbf158f25a7a2eb74db1909026e7acf675",
+      "RepairedSHA256": "a35d33ddbd465df61ba1344a4522d1aa2129737a51f96151e209cb9f0a1943db"
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_DEPENDENCIES.md",
+      "AcceptedAppliedSHA256": "aa3259fe8008ebb5d296f493df4ca3db38f2eccd4191788fb59f9924c6b197bb",
+      "BeforeRepairSHA256": "aa3259fe8008ebb5d296f493df4ca3db38f2eccd4191788fb59f9924c6b197bb",
+      "RepairedSHA256": "ad9234bf3b10d24b43b4b79d9207a24b2aad0947f5c55d61f1881fc4591ab796"
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/Dependencies.csv",
+      "AcceptedAppliedSHA256": "235fdd05a69b1ef2dddf4896861a80ba72f79b26cf1267347a8b37d0ab7545da",
+      "BeforeRepairSHA256": "235fdd05a69b1ef2dddf4896861a80ba72f79b26cf1267347a8b37d0ab7545da",
+      "RepairedSHA256": "694cd5c4db774f24c9f4606e76f833bd783e6e7bd8d3d91877e200b2a35a3fc8"
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_DEPENDENCIES.md",
+      "AcceptedAppliedSHA256": "3f762c2476601232f60e7d8cfb65823adf6949f4910f3482ff25909a505eb5b0",
+      "BeforeRepairSHA256": "3f762c2476601232f60e7d8cfb65823adf6949f4910f3482ff25909a505eb5b0",
+      "RepairedSHA256": "10f33d2b87c7b6ffed939b2975752ce2c9ff6fd53f9f6859d03f912763ce893c"
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/Dependencies.csv",
+      "AcceptedAppliedSHA256": "b703f15c4b5537b1c1d282c633e6d15f0b401f5afbd9d765fe01049413d6fc0a",
+      "BeforeRepairSHA256": "b703f15c4b5537b1c1d282c633e6d15f0b401f5afbd9d765fe01049413d6fc0a",
+      "RepairedSHA256": "b8f54c1db189565f03bf2fc76a490c5621b12a3d7a281a1dc9b201749b5a0d15"
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/_DEPENDENCIES.md",
+      "AcceptedAppliedSHA256": "ebff060030a7677540715c72dcf3a0cc3eeead13c64456d7828214c00facb07a",
+      "BeforeRepairSHA256": "ebff060030a7677540715c72dcf3a0cc3eeead13c64456d7828214c00facb07a",
+      "RepairedSHA256": "a66b22005629c9630c4321319f50dfe41f57b6c0c9a60777faea1413e426101e"
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/Dependencies.csv",
+      "AcceptedAppliedSHA256": "f86596be336d47ec64e010d9d0877034e86922f089e50a56317a86b4d96937fc",
+      "BeforeRepairSHA256": "f86596be336d47ec64e010d9d0877034e86922f089e50a56317a86b4d96937fc",
+      "RepairedSHA256": "41d0a23373f70fdc4ebe2e66e4230e077bb1172a3be40451518946cca9376bf7"
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_DEPENDENCIES.md",
+      "AcceptedAppliedSHA256": "b70001828d35be35c361986d25e1eedb18fe7c65761f21de1cdf9da0befd1242",
+      "BeforeRepairSHA256": "b70001828d35be35c361986d25e1eedb18fe7c65761f21de1cdf9da0befd1242",
+      "RepairedSHA256": "b60a1dab385028c3ed803efc68562940773a447e715fd5fc51a64535706d81f1"
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/Dependencies.csv",
+      "AcceptedAppliedSHA256": "32ab9b56319a60ba1daade4eb6e9b674943b52acecdc1be2f5aa3a8a5c6087e9",
+      "BeforeRepairSHA256": "32ab9b56319a60ba1daade4eb6e9b674943b52acecdc1be2f5aa3a8a5c6087e9",
+      "RepairedSHA256": "d2bd542d9900446af4bf94b0596931aa9650a290fcd173d572537294d24712d5"
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_DEPENDENCIES.md",
+      "AcceptedAppliedSHA256": "9c48a6692db909a1b89e61db60e88ef414bf63dec5909865df8b38d3057cca01",
+      "BeforeRepairSHA256": "9c48a6692db909a1b89e61db60e88ef414bf63dec5909865df8b38d3057cca01",
+      "RepairedSHA256": "01f612c50cbf04b46d73ecdd823b7dfe7a41084be69fdf91dad8451db229634a"
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+      "AcceptedAppliedSHA256": "fc0913c55445110c0622ba6cf8941dd71d5d0c6ae0910c3af57ee5ee99141112",
+      "BeforeRepairSHA256": "fc0913c55445110c0622ba6cf8941dd71d5d0c6ae0910c3af57ee5ee99141112",
+      "RepairedSHA256": "9a1182c3cb88ccbf18466f2fb87b259d83920f7c4a4f3598e3f41dc85b4ef42f"
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_DEPENDENCIES.md",
+      "AcceptedAppliedSHA256": "7a7c03dd009217bdec795333a7bed20f45ad7c95002e9f7a378e2ace8c86188b",
+      "BeforeRepairSHA256": "7a7c03dd009217bdec795333a7bed20f45ad7c95002e9f7a378e2ace8c86188b",
+      "RepairedSHA256": "b7d294f8b56df60a128bd6df1b55a280de3639ddec1214a9c772628cc99e5942"
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/Dependencies.csv",
+      "AcceptedAppliedSHA256": "2c85a3bcec76f691c959e2fd4d97f3f23263f32fd44f7112f764a031cc42c2d4",
+      "BeforeRepairSHA256": "2c85a3bcec76f691c959e2fd4d97f3f23263f32fd44f7112f764a031cc42c2d4",
+      "RepairedSHA256": "bd857ecf51d3e04d719cd91adcf918ac93acd59a704b85704a238fdff4553046"
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_DEPENDENCIES.md",
+      "AcceptedAppliedSHA256": "0d483a701df6dc616dd503838236d435e3353851ffd8199944122782d262ffbb",
+      "BeforeRepairSHA256": "0d483a701df6dc616dd503838236d435e3353851ffd8199944122782d262ffbb",
+      "RepairedSHA256": "e50976deede1d669c76979c8832b5ea4c96541e227943f352bc7f029c56a5607"
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/Dependencies.csv",
+      "AcceptedAppliedSHA256": "52db83caf551c046b66de8380d4fdac9cd08aae3f3b4a2dbaa6b13b4c610af32",
+      "BeforeRepairSHA256": "52db83caf551c046b66de8380d4fdac9cd08aae3f3b4a2dbaa6b13b4c610af32",
+      "RepairedSHA256": "d8be711eec39756341d925d56fa86882d60dc630aabe39c3d7374f689cbb74f5"
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_DEPENDENCIES.md",
+      "AcceptedAppliedSHA256": "70668671184a110eb1a5d5f9f44eff34c95c38c703918f2b620ce3fdcce818ae",
+      "BeforeRepairSHA256": "70668671184a110eb1a5d5f9f44eff34c95c38c703918f2b620ce3fdcce818ae",
+      "RepairedSHA256": "149a573972639907c9a6b794527363d5453a36a763d1b3b726a92f2bc3a075ba"
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/Dependencies.csv",
+      "AcceptedAppliedSHA256": "187cc2f09189c80c1ea18ea32e92e2d6fbaae98e4df13bd07daf7179100f94aa",
+      "BeforeRepairSHA256": "187cc2f09189c80c1ea18ea32e92e2d6fbaae98e4df13bd07daf7179100f94aa",
+      "RepairedSHA256": "4902039323b9691e1386d0fbc812e74b0a8c98da69af7239c5744d7bc81f9512"
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_DEPENDENCIES.md",
+      "AcceptedAppliedSHA256": "7094b81f5372449e25e867fbaa42f123fd422cac5744b67b919868df87b41769",
+      "BeforeRepairSHA256": "7094b81f5372449e25e867fbaa42f123fd422cac5744b67b919868df87b41769",
+      "RepairedSHA256": "1914eff5eb4b78b83d5fcaea3f2fb7362101a9a472ad1ceacf84c2fcc8f0546e"
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/_DAG/DAG-011/DependencyEdges.csv",
+      "AcceptedAppliedSHA256": "23165358e5e3e75c2fb90beb353714cbb43bc85858cabb9081b2de899cca2464",
+      "BeforeRepairSHA256": "23165358e5e3e75c2fb90beb353714cbb43bc85858cabb9081b2de899cca2464",
+      "RepairedSHA256": "5c056c2538026f62276a86d88aa9d95f24e262d4d7e38dcdc2f11e1705dc5c47"
+    }
+  ],
+  "hash_field_contract": "files contains the 20 local APPLY_MANIFEST postimages plus staged DependencyEdges.csv, mapping AcceptedAppliedSHA256 to actual RepairedSHA256. changed_paths additionally records four current staged metadata files."
+}

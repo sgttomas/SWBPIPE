@@ -1,0 +1,139 @@
+id: DEL-10-04
+name: Build, packaging, and CI/CD pipeline
+needs:
+- from: DEL-16-06
+  condition: 'The canonical embedded-agent app build requires the selected stock supplier resource, committed pin manifest and exact licensing payloads; source preparation must verify its explicit input, and the actual app resources must verify before build success. This does not establish native isolation, supported-platform qualification, complete redistribution notices or release acceptance.'
+  gating: true
+  evidence: execution/PKG-16/DEL-16-06/Design/agent-supplier-packaging.md
+- from: DEL-00-01
+  condition: 'DEL-10-04 must apply SCA-001 architecture-basis constraint AB-00-01 from DEL-00-01.
+
+
+    Notes: Explicit SCA-001 architecture-basis edge from assigned _CONTEXT.md; dependency type normalized
+    to CONSTRAINT for v3.1 enum compliance.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-10-04 must apply SCA-001 architecture-basis constraint AB-00-02 from DEL-00-02.
+
+
+    Notes: Explicit SCA-001 architecture-basis edge from assigned _CONTEXT.md; dependency type normalized
+    to CONSTRAINT for v3.1 enum compliance.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-03
+  condition: 'DEL-10-04 must apply SCA-001 architecture-basis constraint AB-00-03 from DEL-00-03.
+
+
+    Notes: Explicit SCA-001 architecture-basis edge from assigned _CONTEXT.md; dependency type normalized
+    to CONSTRAINT for v3.1 enum compliance.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-04
+  condition: 'DEL-10-04 must apply SCA-001 architecture-basis constraint AB-00-04 from DEL-00-04.
+
+
+    Notes: Explicit SCA-001 architecture-basis edge from assigned _CONTEXT.md; dependency type normalized
+    to CONSTRAINT for v3.1 enum compliance.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-10-04 must apply SCA-001 architecture-basis constraint AB-00-06 from DEL-00-06.
+
+
+    Notes: Explicit SCA-001 architecture-basis edge from assigned _CONTEXT.md; dependency type normalized
+    to CONSTRAINT for v3.1 enum compliance.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-07
+  condition: 'DEL-10-04 must apply SCA-001 architecture-basis constraint AB-00-07 from DEL-00-07.
+
+
+    Notes: Explicit SCA-001 architecture-basis edge from assigned _CONTEXT.md; dependency type normalized
+    to CONSTRAINT for v3.1 enum compliance.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-10-04 must apply SCA-001 architecture-basis constraint AB-00-08 from DEL-00-08.
+
+
+    Notes: Explicit SCA-001 architecture-basis edge from assigned _CONTEXT.md; dependency type normalized
+    to CONSTRAINT for v3.1 enum compliance.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-09-05
+  condition: 'DEL-09-05 provides release-gate requirements input for future CI implementation in DEL-10-04.
+
+
+    Notes: Prior candidate retained as ACTIVE downstream enablement because assigned source explicitly
+    names future CI implementation consumption.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=DOWNSTREAM;
+    legacy_dependencytype=ENABLES; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+code_paths:
+- tools/agent_supplier_bundle.py
+- .gitattributes
+- package.json
+- apps/desktop/package.json
+- apps/desktop/src-tauri/Cargo.toml
+- apps/desktop/src-tauri/tauri.conf.json
+- apps/desktop/src/features/build-readiness/BuildReadinessPanel.tsx
+- core/product_preview/**
+- tests/product_preview/**
+- tools/serialization/generate_product_preview_mechanics.mjs
+- tools/ci/**
+- tests/test_ci_*.py
+- tools/validation/validate_dependencies_schema.py
+- fixtures/product_preview/demo_fixture_generation.json
+- fixtures/product_preview/preview_physics_fixture_generation.json
+- docs/BUILD_AND_RELEASE.md
+- docs/CI_STRATEGY.md
+- docs/RELEASE_NOTES_TEMPLATE.md
+- docs/RELEASE_NOTES_v0.1.0_DRAFT.md
+- tools/release/package_release_artifact.py
+- tools/release/notarize_app.py
+- tools/release/build_signed_app.py
+- software-workflow.json
+- apps/desktop/playwright.config.ts
+- apps/desktop/playwright.dist.config.ts
+- apps/desktop/playwright.webkit.config.ts
+- apps/desktop/vite.config.ts
+checks:
+- tools/agent_supplier_bundle_test.py
+- tests/test_ci_python.py
+- tests/test_ci_numerical.py
+- tests/test_ci_apt_sources.py
+- tests/test_release_packaging_script.py
+- tests/test_release_notarize_script.py
+- tests/test_release_signed_build_script.py

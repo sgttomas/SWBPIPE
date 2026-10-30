@@ -1,0 +1,63 @@
+{
+  "record_kind": "governed_sparse_suitability_threshold_policy",
+  "record_id": "DEC-050-SPARSE-SUITABILITY-GENERATED-GRID-THRESHOLD-POLICY-v1",
+  "decision_ref": "DEC-050",
+  "status": "accepted_for_generated_grid_observation_set",
+  "scope": "invented_generated_grid_sparse_suitability_observation_set_only",
+  "source_observation_record": "DEC-050-SPARSE-SUITABILITY-OBSERVATION-v1",
+  "dense_path_role": "default_solver_and_parity_oracle",
+  "sparse_path_role": "evidence_lane_only",
+  "metric_bases": {
+    "sparse_dense_relative_delta": {
+      "name": "sparse_dense_relative_delta",
+      "unit": "dimensionless",
+      "basis": "max_abs_sparse_dense_solution_delta divided by dense_solution_scale"
+    },
+    "sparse_residual_absolute": {
+      "name": "max_abs_sparse_residual",
+      "unit": "force generalized by reduced DOF basis"
+    },
+    "sparse_repeat_solution_delta_absolute": {
+      "name": "max_abs_sparse_repeat_solution_delta",
+      "unit": "solution DOF units"
+    },
+    "nonpositive_pivot_count": {
+      "name": "nonpositive_pivot_count",
+      "unit": "count"
+    }
+  },
+  "change_provenance": {
+    "fixture_local_overrides": "tighten_only",
+    "loosening_rule": "loosening a governed sparse suitability threshold requires a new governance event"
+  },
+  "entries": [
+    {
+      "fixture_family": "invented_planar_grid_frame",
+      "sparse_dense_relative_delta_limit": 1.0e-9,
+      "sparse_residual_absolute_limit": 1.0e-6,
+      "sparse_repeat_solution_delta_absolute_limit": 0.0,
+      "nonpositive_pivot_count_limit": 0,
+      "policy_ref": "DEC-050-SPARSE-SUITABILITY-GENERATED-GRID-THRESHOLD-POLICY-v1",
+      "observation_ref": "DEC-050-SPARSE-SUITABILITY-OBSERVATION-v1",
+      "evidence_fixture_ids": [
+        "invented-grid-frame-4x3",
+        "invented-grid-frame-6x8"
+      ]
+    }
+  ],
+  "still_tbd": [
+    "default_sparse_promotion",
+    "timing_memory_thresholds",
+    "conditioning_thresholds_beyond_generated_grid_pivot_ratio",
+    "ci_gate_thresholds",
+    "hardware_normalization_methodology",
+    "practical_size_band_thresholds",
+    "release_or_external_validation_thresholds"
+  ],
+  "limitations": [
+    "Applies only to the generated-grid sparse suitability observation set named in the source observation record.",
+    "Does not make the sparse path the default product or release solve path.",
+    "Does not define timing, memory, CI, hardware-normalized, release, external validation, professional, or code-compliance thresholds."
+  ],
+  "boundary_notice": "Sparse suitability verification policy evidence only; not a release, reliance, certification, sealing, authentication, or code-compliance claim."
+}

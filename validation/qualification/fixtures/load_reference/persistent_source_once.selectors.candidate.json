@@ -1,0 +1,1257 @@
+{
+  "format": "openpipestress.first_static_selector_candidate/1",
+  "case_id": "persistent_source_once",
+  "producer_contract": "openpipestress.result_semantics/0.3.0/load-reference-1",
+  "raw_schema_version": "0.2.0",
+  "row_namespace": "payload.mechanics_envelope.results",
+  "assertions": [
+    {
+      "id": "case:combined.disp.node:tip.ux",
+      "selector": {
+        "id": "result:disp:node-tip:ux",
+        "kind": "global_nodal_displacement_x",
+        "unit": "mm",
+        "entity_ref": "node:tip",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:combined"
+        },
+        "metadata": {
+          "component": "nodal_displacement_x",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "solved_from_global_linear_system",
+          "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
+        },
+        "dimension": "length"
+      },
+      "criterion_rule_id": "criterion:displacement:length:mm:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-002",
+        "family": "displacement",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/persistent_source_once/variants/annular_companion/expected/combined_displacement",
+          "reference_unit": "m",
+          "transform": "identity"
+        },
+        "why_required": "u = F_combined/k, preload once"
+      }
+    },
+    {
+      "id": "case:combined.reaction.support:root.Fx",
+      "selector": {
+        "id": "result:support-action:13:case:combined:12:support:root:Fx",
+        "kind": "support_reaction_component_v2",
+        "unit": "N",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:combined"
+        },
+        "metadata": {
+          "component": "Fx",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:reaction:force:N:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-060",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/persistent_source_once/variants/annular_companion/expected/root_Fx",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force",
+            "base": {
+              "pointer": "/cases/persistent_source_once/variants/annular_companion/expected/root_Fx",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "reference-defined support-on-member action (all six reactions required, T1_PLAN WP6)"
+      }
+    },
+    {
+      "id": "case:combined.reaction.support:root.Fy",
+      "selector": {
+        "id": "result:support-action:13:case:combined:12:support:root:Fy",
+        "kind": "support_reaction_component_v2",
+        "unit": "N",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:combined"
+        },
+        "metadata": {
+          "component": "Fy",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:reaction:force:N:zero_scale:case_force",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-061",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "axial cantilever with global-X tip actions only: no transverse force or couple",
+          "zero_scale": {
+            "tag": "case_force",
+            "base": {
+              "pointer": "/cases/persistent_source_once/variants/annular_companion/expected/root_Fx",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:combined.reaction.support:root.Fz",
+      "selector": {
+        "id": "result:support-action:13:case:combined:12:support:root:Fz",
+        "kind": "support_reaction_component_v2",
+        "unit": "N",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:combined"
+        },
+        "metadata": {
+          "component": "Fz",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:reaction:force:N:zero_scale:case_force",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-062",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "axial cantilever with global-X tip actions only: no transverse force or couple",
+          "zero_scale": {
+            "tag": "case_force",
+            "base": {
+              "pointer": "/cases/persistent_source_once/variants/annular_companion/expected/root_Fx",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:combined.reaction.support:root.Mx",
+      "selector": {
+        "id": "result:support-action:13:case:combined:12:support:root:Mx",
+        "kind": "support_reaction_component_v2",
+        "unit": "N*m",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:combined"
+        },
+        "metadata": {
+          "component": "Mx",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:reaction:moment:N*m:zero_scale:case_moment",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-063",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "axial cantilever with global-X tip actions only: no transverse force or couple",
+          "zero_scale": {
+            "tag": "case_moment",
+            "base": {
+              "pointer": "/cases/persistent_source_once/variants/annular_companion/expected/root_Fx",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N*m",
+            "multiply_by_sum_of": [
+              {
+                "pointer": "/cases/persistent_source_once/variants/annular_companion/inputs/L",
+                "reference_unit": "m"
+              }
+            ]
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:combined.reaction.support:root.My",
+      "selector": {
+        "id": "result:support-action:13:case:combined:12:support:root:My",
+        "kind": "support_reaction_component_v2",
+        "unit": "N*m",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:combined"
+        },
+        "metadata": {
+          "component": "My",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:reaction:moment:N*m:zero_scale:case_moment",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-064",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "axial cantilever with global-X tip actions only: no transverse force or couple",
+          "zero_scale": {
+            "tag": "case_moment",
+            "base": {
+              "pointer": "/cases/persistent_source_once/variants/annular_companion/expected/root_Fx",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N*m",
+            "multiply_by_sum_of": [
+              {
+                "pointer": "/cases/persistent_source_once/variants/annular_companion/inputs/L",
+                "reference_unit": "m"
+              }
+            ]
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:combined.reaction.support:root.Mz",
+      "selector": {
+        "id": "result:support-action:13:case:combined:12:support:root:Mz",
+        "kind": "support_reaction_component_v2",
+        "unit": "N*m",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:combined"
+        },
+        "metadata": {
+          "component": "Mz",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:reaction:moment:N*m:zero_scale:case_moment",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-065",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "axial cantilever with global-X tip actions only: no transverse force or couple",
+          "zero_scale": {
+            "tag": "case_moment",
+            "base": {
+              "pointer": "/cases/persistent_source_once/variants/annular_companion/expected/root_Fx",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N*m",
+            "multiply_by_sum_of": [
+              {
+                "pointer": "/cases/persistent_source_once/variants/annular_companion/inputs/L",
+                "reference_unit": "m"
+              }
+            ]
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:combined.axial.pipe:cantilever.end_i",
+      "selector": {
+        "id": "result:force:pipe-cantilever:axial",
+        "kind": "element_local_axial_force",
+        "unit": "N",
+        "entity_ref": "pipe:cantilever",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:combined"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-009",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/persistent_source_once/variants/annular_companion/expected/combined_rhs",
+          "reference_unit": "N",
+          "transform": "negate",
+          "zero_scale": {
+            "tag": "case_force",
+            "base": {
+              "pointer": "/cases/persistent_source_once/variants/annular_companion/expected/root_Fx",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "axial cantilever: tension-positive N equals the combined tip action F_combined"
+      }
+    },
+    {
+      "id": "case:combined.axial.pipe:cantilever.quarter_1",
+      "selector": {
+        "id": "result:force:pipe-cantilever:quarter-1:axial",
+        "kind": "element_local_axial_force",
+        "unit": "N",
+        "entity_ref": "pipe:cantilever",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:combined"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "quarter_1",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-009",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/persistent_source_once/variants/annular_companion/expected/combined_rhs",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force",
+            "base": {
+              "pointer": "/cases/persistent_source_once/variants/annular_companion/expected/root_Fx",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "axial cantilever: tension-positive N equals the combined tip action F_combined"
+      }
+    },
+    {
+      "id": "case:combined.axial.pipe:cantilever.midspan",
+      "selector": {
+        "id": "result:force:pipe-cantilever:midspan:axial",
+        "kind": "element_local_axial_force",
+        "unit": "N",
+        "entity_ref": "pipe:cantilever",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:combined"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "midspan",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-009",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/persistent_source_once/variants/annular_companion/expected/combined_rhs",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force",
+            "base": {
+              "pointer": "/cases/persistent_source_once/variants/annular_companion/expected/root_Fx",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "axial cantilever: tension-positive N equals the combined tip action F_combined"
+      }
+    },
+    {
+      "id": "case:combined.axial.pipe:cantilever.quarter_3",
+      "selector": {
+        "id": "result:force:pipe-cantilever:quarter-3:axial",
+        "kind": "element_local_axial_force",
+        "unit": "N",
+        "entity_ref": "pipe:cantilever",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:combined"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "quarter_3",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-009",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/persistent_source_once/variants/annular_companion/expected/combined_rhs",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force",
+            "base": {
+              "pointer": "/cases/persistent_source_once/variants/annular_companion/expected/root_Fx",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "axial cantilever: tension-positive N equals the combined tip action F_combined"
+      }
+    },
+    {
+      "id": "case:combined.axial.pipe:cantilever.end_j",
+      "selector": {
+        "id": "result:force:pipe-cantilever:axial:end-j",
+        "kind": "element_local_axial_force",
+        "unit": "N",
+        "entity_ref": "pipe:cantilever",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:combined"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "end_j",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-009",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/persistent_source_once/variants/annular_companion/expected/combined_rhs",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force",
+            "base": {
+              "pointer": "/cases/persistent_source_once/variants/annular_companion/expected/root_Fx",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "axial cantilever: tension-positive N equals the combined tip action F_combined"
+      }
+    },
+    {
+      "id": "case:combined.evidence.contribution.stored_primitive:source:preload.applied_magnitude",
+      "selector": {
+        "id": "evidence:case:combined:contribution:stored_primitive:source:preload:applied_magnitude",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:combined"
+        },
+        "record": "contribution",
+        "key": {
+          "owner_kind": "stored_primitive",
+          "source_id": "source:preload"
+        },
+        "field": "applied_magnitude",
+        "definition": {
+          "classification": "ordinary_applied",
+          "category": "concentrated_force",
+          "dimension": "force"
+        },
+        "unit": "N",
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:load_reference_applied_load:force:N:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_applied_load",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/persistent_source_once/variants/annular_companion/inputs/preload",
+          "reference_unit": "N",
+          "transform": "identity"
+        },
+        "why_required": "included once with factor 1 (factor times authored normalized magnitude of an included stored primitive)"
+      }
+    },
+    {
+      "id": "case:combined.evidence.contribution.stored_primitive:source:weight.applied_magnitude",
+      "selector": {
+        "id": "evidence:case:combined:contribution:stored_primitive:source:weight:applied_magnitude",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:combined"
+        },
+        "record": "contribution",
+        "key": {
+          "owner_kind": "stored_primitive",
+          "source_id": "source:weight"
+        },
+        "field": "applied_magnitude",
+        "definition": {
+          "classification": "ordinary_applied",
+          "category": "concentrated_force",
+          "dimension": "force"
+        },
+        "unit": "N",
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:load_reference_applied_load:force:N:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_applied_load",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/persistent_source_once/variants/annular_companion/inputs/weight",
+          "reference_unit": "N",
+          "transform": "identity"
+        },
+        "why_required": "included once with factor 1 (factor times authored normalized magnitude of an included stored primitive)"
+      }
+    },
+    {
+      "id": "case:combined.evidence.contribution.stored_primitive:source:independent.applied_magnitude",
+      "selector": {
+        "id": "evidence:case:combined:contribution:stored_primitive:source:independent:applied_magnitude",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:combined"
+        },
+        "record": "contribution",
+        "key": {
+          "owner_kind": "stored_primitive",
+          "source_id": "source:independent"
+        },
+        "field": "applied_magnitude",
+        "definition": {
+          "classification": "ordinary_applied",
+          "category": "concentrated_force",
+          "dimension": "force"
+        },
+        "unit": "N",
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:load_reference_applied_load:force:N:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_applied_load",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/persistent_source_once/variants/annular_companion/inputs/independent_action",
+          "reference_unit": "N",
+          "transform": "identity"
+        },
+        "why_required": "included once with factor 1 (factor times authored normalized magnitude of an included stored primitive)"
+      }
+    },
+    {
+      "id": "case:two-equal-actions.reaction.support:root.Fx",
+      "selector": {
+        "id": "result:support-action:22:case:two-equal-actions:12:support:root:Fx",
+        "kind": "support_reaction_component_v2",
+        "unit": "N",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:two-equal-actions"
+        },
+        "metadata": {
+          "component": "Fx",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:reaction:force:N:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-060",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/persistent_source_once/variants/annular_companion/expected/two_distinct_equal_actions_rhs",
+          "reference_unit": "N",
+          "transform": "negate",
+          "zero_scale": {
+            "tag": "case_force.pair",
+            "base": {
+              "pointer": "/cases/persistent_source_once/variants/annular_companion/expected/two_distinct_equal_actions_rhs",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "reference-defined support-on-member action (all six reactions required, T1_PLAN WP6)"
+      }
+    },
+    {
+      "id": "case:two-equal-actions.reaction.support:root.Fy",
+      "selector": {
+        "id": "result:support-action:22:case:two-equal-actions:12:support:root:Fy",
+        "kind": "support_reaction_component_v2",
+        "unit": "N",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:two-equal-actions"
+        },
+        "metadata": {
+          "component": "Fy",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:reaction:force:N:zero_scale:case_force.pair",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-061",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "axial cantilever with global-X tip actions only: no transverse force or couple",
+          "zero_scale": {
+            "tag": "case_force.pair",
+            "base": {
+              "pointer": "/cases/persistent_source_once/variants/annular_companion/expected/two_distinct_equal_actions_rhs",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:two-equal-actions.reaction.support:root.Fz",
+      "selector": {
+        "id": "result:support-action:22:case:two-equal-actions:12:support:root:Fz",
+        "kind": "support_reaction_component_v2",
+        "unit": "N",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:two-equal-actions"
+        },
+        "metadata": {
+          "component": "Fz",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:reaction:force:N:zero_scale:case_force.pair",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-062",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "axial cantilever with global-X tip actions only: no transverse force or couple",
+          "zero_scale": {
+            "tag": "case_force.pair",
+            "base": {
+              "pointer": "/cases/persistent_source_once/variants/annular_companion/expected/two_distinct_equal_actions_rhs",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:two-equal-actions.reaction.support:root.Mx",
+      "selector": {
+        "id": "result:support-action:22:case:two-equal-actions:12:support:root:Mx",
+        "kind": "support_reaction_component_v2",
+        "unit": "N*m",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:two-equal-actions"
+        },
+        "metadata": {
+          "component": "Mx",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:reaction:moment:N*m:zero_scale:case_moment.pair",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-063",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "axial cantilever with global-X tip actions only: no transverse force or couple",
+          "zero_scale": {
+            "tag": "case_moment.pair",
+            "base": {
+              "pointer": "/cases/persistent_source_once/variants/annular_companion/expected/two_distinct_equal_actions_rhs",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N*m",
+            "multiply_by_sum_of": [
+              {
+                "pointer": "/cases/persistent_source_once/variants/annular_companion/inputs/L",
+                "reference_unit": "m"
+              }
+            ]
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:two-equal-actions.reaction.support:root.My",
+      "selector": {
+        "id": "result:support-action:22:case:two-equal-actions:12:support:root:My",
+        "kind": "support_reaction_component_v2",
+        "unit": "N*m",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:two-equal-actions"
+        },
+        "metadata": {
+          "component": "My",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:reaction:moment:N*m:zero_scale:case_moment.pair",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-064",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "axial cantilever with global-X tip actions only: no transverse force or couple",
+          "zero_scale": {
+            "tag": "case_moment.pair",
+            "base": {
+              "pointer": "/cases/persistent_source_once/variants/annular_companion/expected/two_distinct_equal_actions_rhs",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N*m",
+            "multiply_by_sum_of": [
+              {
+                "pointer": "/cases/persistent_source_once/variants/annular_companion/inputs/L",
+                "reference_unit": "m"
+              }
+            ]
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:two-equal-actions.reaction.support:root.Mz",
+      "selector": {
+        "id": "result:support-action:22:case:two-equal-actions:12:support:root:Mz",
+        "kind": "support_reaction_component_v2",
+        "unit": "N*m",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:two-equal-actions"
+        },
+        "metadata": {
+          "component": "Mz",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:reaction:moment:N*m:zero_scale:case_moment.pair",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-065",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "axial cantilever with global-X tip actions only: no transverse force or couple",
+          "zero_scale": {
+            "tag": "case_moment.pair",
+            "base": {
+              "pointer": "/cases/persistent_source_once/variants/annular_companion/expected/two_distinct_equal_actions_rhs",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N*m",
+            "multiply_by_sum_of": [
+              {
+                "pointer": "/cases/persistent_source_once/variants/annular_companion/inputs/L",
+                "reference_unit": "m"
+              }
+            ]
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:two-equal-actions.axial.pipe:cantilever.end_i",
+      "selector": {
+        "id": "result:loadcase:case-two-equal-actions:force:pipe-cantilever:axial",
+        "kind": "element_local_axial_force",
+        "unit": "N",
+        "entity_ref": "pipe:cantilever",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:two-equal-actions"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-009",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/persistent_source_once/variants/annular_companion/expected/two_distinct_equal_actions_rhs",
+          "reference_unit": "N",
+          "transform": "negate",
+          "zero_scale": {
+            "tag": "case_force.pair",
+            "base": {
+              "pointer": "/cases/persistent_source_once/variants/annular_companion/expected/two_distinct_equal_actions_rhs",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "two distinct equal sources both apply: N equals their sum"
+      }
+    },
+    {
+      "id": "case:two-equal-actions.axial.pipe:cantilever.quarter_1",
+      "selector": {
+        "id": "result:loadcase:case-two-equal-actions:force:pipe-cantilever:quarter-1:axial",
+        "kind": "element_local_axial_force",
+        "unit": "N",
+        "entity_ref": "pipe:cantilever",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:two-equal-actions"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "quarter_1",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-009",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/persistent_source_once/variants/annular_companion/expected/two_distinct_equal_actions_rhs",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force.pair",
+            "base": {
+              "pointer": "/cases/persistent_source_once/variants/annular_companion/expected/two_distinct_equal_actions_rhs",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "two distinct equal sources both apply: N equals their sum"
+      }
+    },
+    {
+      "id": "case:two-equal-actions.axial.pipe:cantilever.midspan",
+      "selector": {
+        "id": "result:loadcase:case-two-equal-actions:force:pipe-cantilever:midspan:axial",
+        "kind": "element_local_axial_force",
+        "unit": "N",
+        "entity_ref": "pipe:cantilever",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:two-equal-actions"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "midspan",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-009",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/persistent_source_once/variants/annular_companion/expected/two_distinct_equal_actions_rhs",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force.pair",
+            "base": {
+              "pointer": "/cases/persistent_source_once/variants/annular_companion/expected/two_distinct_equal_actions_rhs",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "two distinct equal sources both apply: N equals their sum"
+      }
+    },
+    {
+      "id": "case:two-equal-actions.axial.pipe:cantilever.quarter_3",
+      "selector": {
+        "id": "result:loadcase:case-two-equal-actions:force:pipe-cantilever:quarter-3:axial",
+        "kind": "element_local_axial_force",
+        "unit": "N",
+        "entity_ref": "pipe:cantilever",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:two-equal-actions"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "quarter_3",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-009",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/persistent_source_once/variants/annular_companion/expected/two_distinct_equal_actions_rhs",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force.pair",
+            "base": {
+              "pointer": "/cases/persistent_source_once/variants/annular_companion/expected/two_distinct_equal_actions_rhs",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "two distinct equal sources both apply: N equals their sum"
+      }
+    },
+    {
+      "id": "case:two-equal-actions.axial.pipe:cantilever.end_j",
+      "selector": {
+        "id": "result:loadcase:case-two-equal-actions:force:pipe-cantilever:axial:end-j",
+        "kind": "element_local_axial_force",
+        "unit": "N",
+        "entity_ref": "pipe:cantilever",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:two-equal-actions"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "end_j",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-009",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/persistent_source_once/variants/annular_companion/expected/two_distinct_equal_actions_rhs",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force.pair",
+            "base": {
+              "pointer": "/cases/persistent_source_once/variants/annular_companion/expected/two_distinct_equal_actions_rhs",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "two distinct equal sources both apply: N equals their sum"
+      }
+    },
+    {
+      "id": "case:two-equal-actions.evidence.contribution.stored_primitive:source:action-a.applied_magnitude",
+      "selector": {
+        "id": "evidence:case:two-equal-actions:contribution:stored_primitive:source:action-a:applied_magnitude",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:two-equal-actions"
+        },
+        "record": "contribution",
+        "key": {
+          "owner_kind": "stored_primitive",
+          "source_id": "source:action-a"
+        },
+        "field": "applied_magnitude",
+        "definition": {
+          "classification": "ordinary_applied",
+          "category": "concentrated_force",
+          "dimension": "force"
+        },
+        "unit": "N",
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:load_reference_applied_load:force:N:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_applied_load",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/persistent_source_once/variants/annular_companion/inputs/independent_action",
+          "reference_unit": "N",
+          "transform": "identity"
+        },
+        "why_required": "distinct source, not deduplicated (factor times authored normalized magnitude of an included stored primitive)"
+      }
+    },
+    {
+      "id": "case:two-equal-actions.evidence.contribution.stored_primitive:source:action-b.applied_magnitude",
+      "selector": {
+        "id": "evidence:case:two-equal-actions:contribution:stored_primitive:source:action-b:applied_magnitude",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:two-equal-actions"
+        },
+        "record": "contribution",
+        "key": {
+          "owner_kind": "stored_primitive",
+          "source_id": "source:action-b"
+        },
+        "field": "applied_magnitude",
+        "definition": {
+          "classification": "ordinary_applied",
+          "category": "concentrated_force",
+          "dimension": "force"
+        },
+        "unit": "N",
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:load_reference_applied_load:force:N:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_applied_load",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/persistent_source_once/variants/annular_companion/inputs/independent_action",
+          "reference_unit": "N",
+          "transform": "identity"
+        },
+        "why_required": "distinct source, not deduplicated (factor times authored normalized magnitude of an included stored primitive)"
+      }
+    }
+  ],
+  "negative_assertions": [
+    {
+      "id": "case:combined.disp.node:tip.ux.not.naive_total_sum_displacement",
+      "selector": {
+        "id": "result:disp:node-tip:ux",
+        "kind": "global_nodal_displacement_x",
+        "unit": "mm",
+        "entity_ref": "node:tip",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:combined"
+        },
+        "metadata": {
+          "component": "nodal_displacement_x",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "solved_from_global_linear_system",
+          "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
+        },
+        "dimension": "length"
+      },
+      "criterion_rule_id": "criterion:displacement:length:mm:relative_1e-9",
+      "selector_origin": {
+        "family": "displacement",
+        "negates_assertion": "case:combined.disp.node:tip.ux",
+        "discriminator": "naive_total_sum_displacement",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/persistent_source_once/variants/annular_companion/expected/naive_total_sum_displacement",
+          "reference_unit": "m",
+          "transform": "identity"
+        },
+        "predicate": "observed must fall OUTSIDE this rule around the wrong value: |observed - wrong| > max(absolute, relative*max(|observed|,|wrong|))",
+        "semantic_signature_id": "supported-source-002"
+      }
+    },
+    {
+      "id": "case:combined.reaction.support:root.Fx.not.naive_total_sum_rhs",
+      "selector": {
+        "id": "result:support-action:13:case:combined:12:support:root:Fx",
+        "kind": "support_reaction_component_v2",
+        "unit": "N",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:combined"
+        },
+        "metadata": {
+          "component": "Fx",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:reaction:force:N:relative_1e-9",
+      "selector_origin": {
+        "family": "reaction",
+        "negates_assertion": "case:combined.reaction.support:root.Fx",
+        "discriminator": "naive_total_sum_rhs",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/persistent_source_once/variants/annular_companion/expected/naive_total_sum_rhs",
+          "reference_unit": "N",
+          "transform": "negate"
+        },
+        "predicate": "observed must fall OUTSIDE this rule around the wrong value: |observed - wrong| > max(absolute, relative*max(|observed|,|wrong|))",
+        "semantic_signature_id": "supported-source-060"
+      }
+    }
+  ],
+  "gaps": [
+    {
+      "id": "implicit_case_array",
+      "kind": "structural_expectation_not_scored",
+      "detail": "Discriminator implicit_case_array: no contribution entry with source_id \"source:stored-unused\" may exist, and excluded_sources must list it with classification \"excluded\". Not expressible as a scalar assertion; the tip displacement and root reaction assertions exclude the +999 N numerically.",
+      "pointer": "/cases/persistent_source_once/wrong_result_discriminators/implicit_case_array",
+      "load_case": "case:combined"
+    },
+    {
+      "id": "duplicate_source_id",
+      "kind": "refusal_control",
+      "detail": "Refusal control (not a scalar assertion): append a second load_sources entry for source:weight (factor 2); the request must block with LOAD_STATE_SOURCE_DUPLICATE.",
+      "pointer": "/cases/persistent_source_once/wrong_result_discriminators/duplicate_source_id",
+      "mutation": {
+        "op": "add",
+        "path": "/model/load_cases/0/analysis_state/load_sources/-",
+        "value": {
+          "source_ref": "source:weight",
+          "factor": 2.0
+        }
+      },
+      "expected": {
+        "channel": "blocking_diagnostic",
+        "code": "LOAD_STATE_SOURCE_DUPLICATE"
+      }
+    },
+    {
+      "id": "preload_classification",
+      "kind": "representability_limit",
+      "detail": "The reference ledger classifies the preload as a selected device affine_reference. device_reference parses and blocks in this capability, so the preload is an ordinary stored primitive here and its contribution classification is ordinary_applied. No assertion is made on the classification."
+    },
+    {
+      "id": "intermediate_rhs",
+      "kind": "not_published",
+      "detail": "weight_total_rhs, additional_total_rhs and excluded_unreferenced_action_rhs are intermediate sums with no published row; combined_rhs is asserted through the member force.",
+      "pointers": [
+        "/cases/persistent_source_once/variants/annular_companion/expected/weight_total_rhs",
+        "/cases/persistent_source_once/variants/annular_companion/expected/additional_total_rhs",
+        "/cases/persistent_source_once/variants/annular_companion/expected/excluded_unreferenced_action_rhs"
+      ]
+    }
+  ],
+  "scoring_readiness": {
+    "status": "authoring_only_pending_independent_freeze",
+    "reference_case_key": "persistent_source_once",
+    "family": "cold_spring",
+    "load_state_decomposition": "two load cases in one request: the combined preload/weight/independent case and the two distinct equal actions of the numeric_deduplication discriminator",
+    "limits": [],
+    "identification": "row ids and metadata were identified by running core/product_physics examples/physics_source_connected on this request in both modes; no observed value is used as a reference or criterion and none is committed"
+  }
+}

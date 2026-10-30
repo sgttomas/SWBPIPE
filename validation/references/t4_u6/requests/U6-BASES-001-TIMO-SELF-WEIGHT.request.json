@@ -1,0 +1,237 @@
+{
+ "model": {
+  "schema_version": "0.5.0",
+  "document_kind": "openpipestress.product_preview.model",
+  "pressure_contract": {
+   "version": "3.0.0",
+   "mode": "exact_pressure_v3",
+   "shear_model": "timoshenko_annulus_energy_v1"
+  },
+  "project": {
+   "id": "project:invented-t4-u6-u6-bases-001-timo-self-weight",
+   "units": {
+    "length": "m",
+    "force": "N",
+    "angle": "rad",
+    "pressure": "Pa",
+    "stress": "Pa",
+    "temperature": "degC"
+   }
+  },
+  "analysis_status": {
+   "mechanics": "ready_for_preview_diagnostics",
+   "rule_check": "not_performed_user_rule_inputs_missing",
+   "professional_acceptance": "not_provided"
+  },
+  "nodes": [
+   {
+    "id": "node:A",
+    "position": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "provenance": "invented T4-U6 section-basis reference input; not library, catalog, manufacturer or code-rule data"
+   },
+   {
+    "id": "node:B",
+    "position": {
+     "x": 2.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "provenance": "invented T4-U6 section-basis reference input; not library, catalog, manufacturer or code-rule data"
+   }
+  ],
+  "pipe_segments": [
+   {
+    "id": "pipe:A-B",
+    "from": "node:A",
+    "to": "node:B",
+    "section": {
+     "outside_diameter": {
+      "value": 0.2,
+      "unit": "m"
+     },
+     "wall_thickness": {
+      "value": 0.01,
+      "unit": "m"
+     },
+     "mill_tolerance": {
+      "value": 0.00125,
+      "unit": "m"
+     },
+     "corrosion_allowance": {
+      "value": 0.002,
+      "unit": "m"
+     },
+     "material_density": {
+      "value": 7850.0,
+      "unit": "kg/m^3"
+     },
+     "contents_density": {
+      "value": 1000.0,
+      "unit": "kg/m^3"
+     }
+    },
+    "material": "material:u6",
+    "y_reference": {
+     "x": 0.0,
+     "y": 1.0,
+     "z": 0.0
+    },
+    "provenance": "invented T4-U6 section-basis reference input; not library, catalog, manufacturer or code-rule data"
+   }
+  ],
+  "supports": [
+   {
+    "id": "support:A",
+    "node": "node:A",
+    "family": "anchor",
+    "restraints": [
+     "UX",
+     "UY",
+     "UZ",
+     "RX",
+     "RY",
+     "RZ"
+    ],
+    "provenance": "invented T4-U6 section-basis reference input; not library, catalog, manufacturer or code-rule data"
+   }
+  ],
+  "components": [],
+  "materials": [
+   {
+    "id": "material:u6",
+    "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+    "elastic_modulus": {
+     "value": 200000000000.0,
+     "unit": "Pa"
+    },
+    "poisson_ratio": {
+     "value": 0.3,
+     "unit": "1"
+    },
+    "provenance": "invented T4-U6 section-basis reference input; not library, catalog, manufacturer or code-rule data"
+   }
+  ],
+  "load_cases": [
+   {
+    "id": "case:self-weight",
+    "primitive_loads": [
+     {
+      "id": "load:self-weight:16:case:self-weight:8:pipe:A-B",
+      "category": "distributed_force",
+      "target": {
+       "type": "element",
+       "pipe": "pipe:A-B"
+      },
+      "direction": "global_z",
+      "magnitude": {
+       "value": -727.4060052502879,
+       "unit": "N/m"
+      },
+      "dimension": "force_per_length",
+      "provenance": "{\"method\":\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\",\"mass_method\":\"source_od_nominal_wall_pressure_bore_areas/v1\",\"gravity\":{\"value\":-9.80665,\"unit\":\"m/s^2\",\"axis\":\"global_z\"},\"normalized_acceleration_m_per_s2\":-9.80665,\"request_provenance\":\"invented T4-U6 section-basis reference input; not library, catalog, manufacturer or code-rule data\",\"pipe_id\":\"pipe:A-B\",\"pipe_provenance\":\"invented T4-U6 section-basis reference input; not library, catalog, manufacturer or code-rule data\",\"section_ref\":null,\"referenced_section\":null,\"mass_inputs\":{\"outside_diameter\":{\"value\":0.2,\"unit\":\"m\"},\"wall_thickness\":{\"value\":0.01,\"unit\":\"m\"},\"mill_tolerance\":{\"value\":0.00125,\"unit\":\"m\"},\"material_density\":{\"value\":7850.0,\"unit\":\"kg/m^3\"},\"contents_density\":{\"value\":1000.0,\"unit\":\"kg/m^3\"},\"insulation_thickness\":null,\"insulation_density\":null,\"corrosion_allowance\":{\"value\":0.002,\"unit\":\"m\"}},\"mass_kg_per_m\":74.17476969712266,\"contents_absent\":false,\"insulation_absent\":true,\"source_model_hash\":\"sha256:0000000000000000000000000000000000000000000000000000000000000000\",\"normalized_dependencies\":{\"section_ref\":null,\"outside_diameter\":{\"value\":0.2,\"unit\":\"m\"},\"wall_thickness\":{\"value\":0.01,\"unit\":\"m\"},\"mill_tolerance\":{\"value\":0.00125,\"unit\":\"m\"},\"material_density\":{\"value\":7850.0,\"unit\":\"kg/m^3\"},\"contents_density\":{\"value\":1000.0,\"unit\":\"kg/m^3\"},\"insulation_thickness\":null,\"insulation_density\":null,\"corrosion_allowance\":{\"value\":0.002,\"unit\":\"m\"}},\"generated_payload\":{\"id\":\"load:self-weight:16:case:self-weight:8:pipe:A-B\",\"category\":\"distributed_force\",\"target\":{\"type\":\"element\",\"pipe\":\"pipe:A-B\"},\"direction\":\"global_z\",\"magnitude\":{\"value\":-727.4060052502879,\"unit\":\"N/m\"},\"dimension\":\"force_per_length\"}}"
+     }
+    ],
+    "pressure_regions": [],
+    "provenance": "invented T4-U6 section-basis reference input; not library, catalog, manufacturer or code-rule data"
+   },
+   {
+    "id": "case:combined",
+    "primitive_loads": [
+     {
+      "id": "load:tip-force:combined:global_y",
+      "category": "concentrated_force",
+      "target": {
+       "type": "node",
+       "node": "node:B"
+      },
+      "direction": "global_y",
+      "magnitude": {
+       "value": 1200.0,
+       "unit": "N"
+      },
+      "dimension": "force",
+      "provenance": "invented T4-U6 section-basis reference input; not library, catalog, manufacturer or code-rule data"
+     },
+     {
+      "id": "load:tip-force:combined:global_z",
+      "category": "concentrated_force",
+      "target": {
+       "type": "node",
+       "node": "node:B"
+      },
+      "direction": "global_z",
+      "magnitude": {
+       "value": -900.0,
+       "unit": "N"
+      },
+      "dimension": "force",
+      "provenance": "invented T4-U6 section-basis reference input; not library, catalog, manufacturer or code-rule data"
+     },
+     {
+      "id": "load:tip-torque:combined:rotation_x",
+      "category": "concentrated_moment",
+      "target": {
+       "type": "node",
+       "node": "node:B"
+      },
+      "direction": "rotation_x",
+      "magnitude": {
+       "value": 600.0,
+       "unit": "N*m"
+      },
+      "dimension": "moment",
+      "provenance": "invented T4-U6 section-basis reference input; not library, catalog, manufacturer or code-rule data"
+     },
+     {
+      "id": "load:self-weight:13:case:combined:8:pipe:A-B",
+      "category": "distributed_force",
+      "target": {
+       "type": "element",
+       "pipe": "pipe:A-B"
+      },
+      "direction": "global_z",
+      "magnitude": {
+       "value": -727.4060052502879,
+       "unit": "N/m"
+      },
+      "dimension": "force_per_length",
+      "provenance": "{\"method\":\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\",\"mass_method\":\"source_od_nominal_wall_pressure_bore_areas/v1\",\"gravity\":{\"value\":-9.80665,\"unit\":\"m/s^2\",\"axis\":\"global_z\"},\"normalized_acceleration_m_per_s2\":-9.80665,\"request_provenance\":\"invented T4-U6 section-basis reference input; not library, catalog, manufacturer or code-rule data\",\"pipe_id\":\"pipe:A-B\",\"pipe_provenance\":\"invented T4-U6 section-basis reference input; not library, catalog, manufacturer or code-rule data\",\"section_ref\":null,\"referenced_section\":null,\"mass_inputs\":{\"outside_diameter\":{\"value\":0.2,\"unit\":\"m\"},\"wall_thickness\":{\"value\":0.01,\"unit\":\"m\"},\"mill_tolerance\":{\"value\":0.00125,\"unit\":\"m\"},\"material_density\":{\"value\":7850.0,\"unit\":\"kg/m^3\"},\"contents_density\":{\"value\":1000.0,\"unit\":\"kg/m^3\"},\"insulation_thickness\":null,\"insulation_density\":null,\"corrosion_allowance\":{\"value\":0.002,\"unit\":\"m\"}},\"mass_kg_per_m\":74.17476969712266,\"contents_absent\":false,\"insulation_absent\":true,\"source_model_hash\":\"sha256:0000000000000000000000000000000000000000000000000000000000000000\",\"normalized_dependencies\":{\"section_ref\":null,\"outside_diameter\":{\"value\":0.2,\"unit\":\"m\"},\"wall_thickness\":{\"value\":0.01,\"unit\":\"m\"},\"mill_tolerance\":{\"value\":0.00125,\"unit\":\"m\"},\"material_density\":{\"value\":7850.0,\"unit\":\"kg/m^3\"},\"contents_density\":{\"value\":1000.0,\"unit\":\"kg/m^3\"},\"insulation_thickness\":null,\"insulation_density\":null,\"corrosion_allowance\":{\"value\":0.002,\"unit\":\"m\"}},\"generated_payload\":{\"id\":\"load:self-weight:13:case:combined:8:pipe:A-B\",\"category\":\"distributed_force\",\"target\":{\"type\":\"element\",\"pipe\":\"pipe:A-B\"},\"direction\":\"global_z\",\"magnitude\":{\"value\":-727.4060052502879,\"unit\":\"N/m\"},\"dimension\":\"force_per_length\"}}"
+     }
+    ],
+    "pressure_regions": [
+     {
+      "id": "region:combined",
+      "member_pipe_ids": [
+       "pipe:A-B"
+      ],
+      "pressure_basis": "internal_differential_zero_external_v1",
+      "pressure": {
+       "value": 5000000.0,
+       "unit": "Pa"
+      },
+      "terminals": [
+       {
+        "node_ref": "node:A",
+        "closure_transfer": "transfers_to_wall",
+        "provenance": "invented T4-U6 section-basis reference input; not library, catalog, manufacturer or code-rule data"
+       },
+       {
+        "node_ref": "node:B",
+        "closure_transfer": "transfers_to_wall",
+        "provenance": "invented T4-U6 section-basis reference input; not library, catalog, manufacturer or code-rule data"
+       }
+      ],
+      "provenance": "invented T4-U6 section-basis reference input; not library, catalog, manufacturer or code-rule data"
+     }
+    ],
+    "provenance": "invented T4-U6 section-basis reference input; not library, catalog, manufacturer or code-rule data"
+   }
+  ],
+  "combinations": []
+ },
+ "materials": []
+}

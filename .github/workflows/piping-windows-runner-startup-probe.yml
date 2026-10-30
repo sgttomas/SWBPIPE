@@ -1,0 +1,143 @@
+name: Piping Windows PARTIAL startup diagnostics
+on:
+  pull_request:
+    paths:
+      - 'core/**'
+      - 'validation/benchmarks/**'
+      - 'fixtures/**'
+      - 'validation/platform/windows_runner_startup_probe/**'
+      - 'tools/release/**'
+      - 'provenance/**'
+      - '.github/workflows/piping-windows-runner-startup-probe.yml'
+      - '.cargo/**'
+      - 'Cargo.*'
+      - 'rust-toolchain*'
+      - '.gitattributes'
+      - '.cargo/**'
+      - 'Cargo.*'
+      - 'rust-toolchain*'
+      - '.gitattributes'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  partial-startup-diagnostics:
+    name: PARTIAL metadata errors cleanup - solve BLOCKED
+    runs-on: windows-2025
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+          # Product source, all actual dependencies/fixtures/locks are included.
+          # Historical execution long paths are excluded without host Git changes.
+          sparse-checkout: |
+            /*
+            !/execution/
+            !/execution/
+          sparse-checkout-cone-mode: false
+      - uses: dtolnay/rust-toolchain@1.97.1
+        with:
+          targets: x86_64-pc-windows-msvc
+      - name: Unchanged artifact - PARTIAL metadata errors and cleanup only
+        timeout-minutes: 45
+        shell: pwsh
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: ./validation/platform/windows_runner_startup_probe/run.ps1
+  export-boundary:
+    name: Full committed export boundary and autocrlf fixtures
+    runs-on: windows-2025
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+          sparse-checkout: |
+            /*
+            !/execution/
+            !/execution/
+          sparse-checkout-cone-mode: false
+      - uses: dtolnay/rust-toolchain@1.97.1
+        with:
+          targets: x86_64-pc-windows-msvc
+      - name: Full committed public export including dependency-free native linter
+        timeout-minutes: 20
+        shell: pwsh
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $top = git rev-parse --show-toplevel
+          Set-Location $top
+          $sourcePath = [IO.Path]::GetFullPath($top)
+          if ((git rev-parse HEAD) -ne $env:EXPECTED_HEAD -or (git status --porcelain --untracked-files=all)) { throw 'Clean exact committed candidate required' }
+          if (-not $IsWindows -or [Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString() -ne 'X64' -or [Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture.ToString() -ne 'X64') { throw 'Native x64 Windows required' }
+          $rust = (rustc -Vv) -join "`n"
+          if ($LASTEXITCODE -ne 0 -or $rust -notmatch '(?m)^release: 1\.97\.1$' -or $rust -notmatch '(?m)^host: x86_64-pc-windows-msvc$') { throw 'Wrong Rust version/host' }
+          $env:CARGO_TARGET_DIR = Join-Path $env:RUNNER_TEMP ('startup-export-linter-' + [Guid]::NewGuid().ToString('N'))
+          $export = Join-Path $env:RUNNER_TEMP ('startup-public-export-' + [Guid]::NewGuid().ToString('N'))
+          # Parent-owned P7 inventory must already include each actual fixture hash.
+          $scope = Get-Content tools/release/provenance_scope.json -Raw | ConvertFrom-Json -Depth 100
+          $complete = $true
+          foreach ($file in Get-ChildItem validation/platform/windows_runner_startup_probe/fixtures/*.json) {
+            $relative = 'validation/platform/windows_runner_startup_probe/fixtures/' + $file.Name
+            $entry = @($scope.members | Where-Object { $_.path -ceq $relative })
+            if ($entry.Count -ne 1 -or $entry[0].sha256 -cne (Get-FileHash $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant()) { $complete = $false }
+          }
+          if (-not $complete) { throw 'Committed P7 fixture inventory missing or stale; snapshot not started' }
+          Write-Host 'START protected-content linter compile/link (unchanged committed source)'
+          cargo build --locked --manifest-path core/reporting/protected_content_linter/Cargo.toml --bin protected_content_lint_cli 2>&1 | ForEach-Object { "$_".Replace($sourcePath,'<source>').Replace($top,'<source>').Replace($env:USERPROFILE,'<account>').Replace($env:RUNNER_TEMP,'<temp>') }
+          if ($LASTEXITCODE -ne 0) { throw 'Native export linter compile/link failed' }
+          # Exercise the exact tracked standalone repository, not a retired export subset.
+          New-Item -ItemType Directory -Force $export | Out-Null
+          $staging = Join-Path $export 'staging'
+          New-Item -ItemType Directory -Force $staging | Out-Null
+          $snapshot = Join-Path $export 'source.tar'
+          git archive --format=tar --output=$snapshot HEAD
+          if ($LASTEXITCODE -ne 0) { throw 'Committed source snapshot failed' }
+          tar -xf $snapshot -C $staging
+          if ($LASTEXITCODE -ne 0) { throw 'Committed source snapshot extraction failed' }
+          if ((git rev-parse HEAD) -ne $env:EXPECTED_HEAD -or (git status --porcelain --untracked-files=all)) { throw 'Snapshot/build changed raw candidate inputs' }
+          $attributes = Join-Path $staging '.gitattributes'
+          $rule = 'validation/platform/windows_runner_startup_probe/fixtures/*.json -text'
+          if (@(Get-Content $attributes) -cnotcontains $rule) { throw 'Tracked attributes lost the fixture byte rule' }
+          $probeFiles = @(git ls-tree -r --name-only HEAD -- validation/platform/windows_runner_startup_probe)
+          if ($LASTEXITCODE -ne 0 -or $probeFiles.Count -ne 8) { throw 'Committed public probe inventory differs' }
+          foreach ($file in $probeFiles) {
+            $relative = $file.Substring(''.Length)
+            if (-not (Test-Path (Join-Path $staging $relative) -PathType Leaf)) { throw 'Tracked snapshot omitted a committed probe file' }
+          }
+          # A data-only temporary Git index checks the ACTUAL tracked attributes
+          # and raw fixture bytes. No commit, identity, remote or global config.
+          $byteRepo = Join-Path $env:RUNNER_TEMP ('startup-byte-index-' + [Guid]::NewGuid().ToString('N'))
+          $materialized = Join-Path $env:RUNNER_TEMP ('startup-autocrlf-' + [Guid]::NewGuid().ToString('N'))
+          git init --quiet $byteRepo
+          if ($LASTEXITCODE -ne 0) { throw 'Fixture materialization index setup failed' }
+          Copy-Item $attributes (Join-Path $byteRepo '.gitattributes')
+          $relativeFixtures = @($scope.members | Where-Object { $_.path.StartsWith('validation/platform/windows_runner_startup_probe/fixtures/') } | ForEach-Object { $_.path })
+          if ($relativeFixtures.Count -ne 3) { throw 'Wrong tracked P7 fixture inventory' }
+          foreach ($relative in $relativeFixtures) {
+            $entry = @($scope.members | Where-Object { $_.path -ceq $relative })
+            $staged = Join-Path $staging $relative
+            if ((Get-FileHash $staged -Algorithm SHA256).Hash.ToLowerInvariant() -cne $entry[0].sha256) { throw 'Tracked fixture differs from committed P7 bytes' }
+            $destination = Join-Path $byteRepo $relative
+            New-Item -ItemType Directory -Force (Split-Path $destination) | Out-Null
+            Copy-Item $staged $destination
+          }
+          git -C $byteRepo -c core.autocrlf=false add -- .gitattributes @relativeFixtures
+          if ($LASTEXITCODE -ne 0) { throw 'Raw fixture index staging failed' }
+          $prefix = $materialized.Replace([IO.Path]::DirectorySeparatorChar, [char]'/') + '/'
+          git -C $byteRepo -c core.autocrlf=true checkout-index --all "--prefix=$prefix"
+          if ($LASTEXITCODE -ne 0) { throw 'Real autocrlf fixture materialization failed' }
+          foreach ($relative in $relativeFixtures) {
+            $entry = @($scope.members | Where-Object { $_.path -ceq $relative })
+            if ((Get-FileHash (Join-Path $materialized $relative) -Algorithm SHA256).Hash.ToLowerInvariant() -cne $entry[0].sha256) { throw 'Autocrlf materialization changed approved fixture bytes' }
+          }
+          Write-Host "PUBLIC_AUTOCRLF_MATERIALIZATION candidate=$env:EXPECTED_HEAD fixtures=3 matched=3 tracked_attributes=true"
+          Remove-Item -Recurse -Force $byteRepo,$materialized
+          Write-Host "Full committed snapshot checks passed candidate=$env:EXPECTED_HEAD; release/owner scan and P7 scanner checks remain separate."
+          Remove-Item -Recurse -Force $export,$env:CARGO_TARGET_DIR

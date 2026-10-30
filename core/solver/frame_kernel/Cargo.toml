@@ -1,0 +1,41 @@
+[package]
+name = "open_pipe_stress_frame_kernel"
+version = "0.1.0"
+edition = "2021"
+description = "Code-neutral 3D frame stiffness kernel for OpenPipeStress"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+open_pipe_stress_correct_norm = { path = "../../numerics/correct_norm" }
+
+[features]
+# V-K's seeded faults (T3 D1 §4.10): only numerical_robustness's mutation run
+# enables this, through its own `seeded-faults` feature; no product manifest
+# may name it (numerical_robustness's feature-guard test).
+mutation-controls = []
+# RF source-method design §5.4's maintained control: a dev-only, thread-local
+# counter of the exact operations `exact_boundary`'s `Work::mul` and
+# `Work::add` execute, against what they charge. Test builds only: the frame
+# kernel's own tests compile it unconditionally, and a consumer's tests enable
+# it through a dev-dependency only, never a product dependency. It adds no
+# field to any type. It also carries R-A's reference entry (the long
+# evaluation, `evaluate_functionals_long`) and row trace (`take_row_paths`),
+# which the gating tests use (source-work design §3.2).
+exact-operation-count = []
+# W1 coverage repair census (DEL-04-08 Design `w1-coverage-repair.md` §3.2 and
+# `w1e-sharper-exact-coverage.md` §6.2): the shared census probe, its records and
+# its test switches. Opt-in only: product_physics forwards it as its own
+# `census-probe` feature, no `[dev-dependencies]` entry enables it, and only the
+# census commands pass `--features census-probe`. Off, every switch reads as off.
+census-probe = []
+# W1 coverage repair §1.4, option 2 (DEL-04-08 Design `w1-coverage-repair.md`):
+# the loaded-maximum search's capacity hook, which drives a real member to
+# exhaustion at reduced limits for the genuine-exhaustion control. Opt-in only:
+# product_physics forwards it as its own `loaded-maximum-hooks` feature, no
+# `[dev-dependencies]` entry enables it, and only that control's maintained
+# command passes `--features loaded-maximum-hooks`. It stays out of the
+# registered build identity, as `mutation-controls` does.
+loaded-maximum-hooks = []

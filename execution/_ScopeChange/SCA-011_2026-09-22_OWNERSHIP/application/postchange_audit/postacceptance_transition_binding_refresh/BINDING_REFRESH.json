@@ -1,0 +1,40 @@
+{
+  "timestamp": "2026-09-22T17:28:09.013901+00:00",
+  "authorization": "Parent requested narrow check of manager-owned future-transition documentation; no current canonical postimage or ownership changes authorized.",
+  "updated_document_bindings": [
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/Handoff_State.md",
+      "prior_sha256": "de92ae655de80834cdebca313131b4dcd86902f34166e8ff3b7b6e6847c7186d",
+      "current_sha256": "3d29e970c76c40f042b0404873785b49544b797a937e634f7594d2aa150eaf4d",
+      "bytes": 7489,
+      "exact_addition_reversal_recovers_prior_bytes": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/GROUP3_PACKAGE.md",
+      "prior_sha256": "b4aa22d7a9ae242b59b841098666f7b0544531c0bb2cb80e82ebdf8663aa6b53",
+      "current_sha256": "f648d48f3771670432e90f64f5dd8c7749bea9f986cc67c1902a46f09f171dc8",
+      "bytes": 4656,
+      "exact_addition_reversal_recovers_prior_bytes": true
+    }
+  ],
+  "reviewed_addition": "\nFinal Group-3 pin/status transformations change source bytes. The reviewed Group-2 application, source bindings, crosswalks and audit/review reports remain immutable historical evidence; their current-source replay must not be described as passing after those changes. The reconciliation builder currently requires original AppliedSHA256 carrier hashes and is therefore not a live-state validator after promotion.\n\nAs part of the accepted finalization, write a separate append-only record under `_ScopeChange/_PostAcceptanceValidation/SCA-011_<UTC>/`: bind the final accepted carrier hashes from the reviewed Group-3 transform manifests; refresh the source-bound ownership derivative there using those hashes, unchanged original R6 keys, unchanged facet/claim mappings and unchanged residual dispositions. Preserve the reviewed builder and outputs; any adapted refresh routine and its exact input/output hashes belong in that new record. Verify the new derivative against actual accepted carriers rather than the original AppliedSHA256 assertions.\n\nIn that same record, rebind current local EvidenceFile source hashes and quote loci, indexes and DAG adoption provenance to the final accepted bytes; rerun local/aggregate parity, quoted support and graph/stage checks. Quote text and dependency semantics must remain unchanged unless a separately grounded repair is recorded. Preserve the reviewed pending-state DAG provenance and application checks as historical evidence. Complete these bindings and checks before asserting that any derivative is CURRENT for the accepted active state. This is deterministic authority/evidence propagation within the reviewed scope, not another ownership decision, product test or acceptance of contract satisfaction. Use that one canonical postacceptance evidence home. Do not rerun or rewrite the full R1\u2013R6 census; no additional human checkpoint follows Group 3 finalization. Parent HELP_HUMAN coordinates the owning dependency/reconciliation lanes and records actual results.\n",
+  "checks": {
+    "only_stated_section_and_decision_clause_added": true,
+    "prior_source_bytes_recovered_by_exact_removal": true,
+    "single_append_only_postacceptance_evidence_home": true,
+    "accepted_source_hash_rebinding_before_current_claim": true,
+    "preserves_original_keys_mappings_residuals": true,
+    "preserves_frozen_group2_outputs_and_records_adapter_changes": true,
+    "actual_quotes_loci_local_aggregate_and_graph_stage_checks_required": true,
+    "no_full_census_rewrite_or_additional_human_checkpoint": true,
+    "no_assertion_that_postacceptance_work_has_run": true
+  },
+  "reconciliation_builder_corroboration": [
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/reconciliation/build_crosswalk.py",
+      "sha256": "14684d8b78a9040d8c563f66f7399d99e762d8f5adb6f1468ac7f0df8e5c9a4a",
+      "finding": "Existing builder asserts original AppliedSHA256 carrier hashes; future final pin/status bytes require separately recorded accepted-source adaptation, not a false claim this original replay still passes."
+    }
+  ],
+  "audit_effect": "Current applied-state verdict unchanged:WARNINGS, closure WARN, zero blockers. No broad rerun; current mechanics/evidence preserved. Future finalization must perform the explicitly documented checks before accepted-state currentness claims."
+}

@@ -1,0 +1,599 @@
+//! S11-G, the formation-noise guard (`S11G_GUARD.md` revision 2.1, selected
+//! by ROOT; I5 rulings recorded in `ROOT_RULINGS_V1.md`).
+//!
+//! The load-row guard retains the ordinary ledger rule. The recovery guard
+//! judges every certified member and support group against the member-relative
+//! criterion, after repaired values have been published. A fired Passed case
+//! keeps those values and gains a reason sentence in its integrity diagnostic.
+//! The stress-free notice is informational and never changes integrity.
+//!
+//! - **The load-row guard** (section 3) reads the case ledger's formation
+//!   records (`AssembledForce::formation_rows`): per loaded row, the exact
+//!   12-scaled defects of the formed terms in two accumulators (net, and
+//!   self-equilibrated), the bound sum B and the self-equilibrated magnitude
+//!   P. A row fires when any of these holds, each decided exactly:
+//!   - `B > 0` and `B >= T0` (the `B > 0` guard is ROOT's erratum ruling to
+//!     revision 2.1's first clause: at `B = T0 = 0` a zero bound claims
+//!     nothing, which keeps design test T6 silent);
+//!   - `|A_net| + 12 B - 12 T0 > 0` (V1 D21-1: ±12B and ∓12T0 are added
+//!     exactly into a copy of the accumulator, no rounded comparison);
+//!   - `|A_se| - 12 Tf > 0`;
+//!   - a `CannotBound` term (curved consistent vectors, SF-2) or a range
+//!     failure at the row.
+//!
+//!   `T0 = RD(1e-9) * max(|n|, S*)` and `Tf = RD(1e-9) * max(|n|, S*, 2^-10 P)`,
+//!   both rounded downward, with |n| a lower bound of the row's intended net
+//!   and S* the section 4.1.6 coupled body scale of the intended nets (free
+//!   rows over the body's free rows, restrained rows over all its loaded
+//!   rows). The floor applies to the self-equilibrated defect only (DB-1).
+//! - **The recovery guard R-b'** reads every certified end, section, station,
+//!   wall and support group. It fires for a nonfinite bound or exactly
+//!   `B > RD(1e-9) q` with `S* >= 2^-988` and `q_hat >= 2^-34 S*`.
+//!   The force and moment body scales are coupled; the floor uses the
+//!   certified upper magnitude. No resolution conjunct applies. It is the
+//!   one unified predicate for straight members, realized arcs, connectors
+//!   and supports (DEL-04-01 `kd5-member-relative-bound.md` section 3.3); it
+//!   replaces O-13's arc predicate and its B_u. S* is O-13's coupled
+//!   [`ActionScales`] over the repaired published groups.
+//! - **O-13's short-bend rule** (HELP_HUMAN's R-1, option (c)) is removed:
+//!   K-D5 supersedes it (section 4.3), and batch 4 removed it after M3 on the
+//!   integrated closed recovery. A short bend's verdict is the solver's gate
+//!   and this predicate's outcome; the pivot-screen refusal
+//!   (`CURVED_BEND_SHORT_RELATIVE_TO_NEIGHBOURS`) stays.
+
+use super::{Diagnostic, ResultItem, DOF_PER_NODE};
+use open_pipe_stress_frame_kernel::exact_sum::ExactAccumulator;
+use open_pipe_stress_frame_kernel::load_ledger::{
+    product_downward, quotient_downward, AssembledForce, FormationRow,
+};
+use std::collections::{HashMap, HashSet};
+
+/// RD(10^-9): the largest binary64 value not above 10^-9. The binary64
+/// literal `1e-9` lies 6.2e-17 (relative) above 10^-9 (V1 DN-3), so the
+/// threshold uses the value one step below it.
+pub(crate) const CRITERION: f64 = f64::from_bits(1e-9_f64.to_bits() - 1);
+/// 2^-10: the self-equilibrated floor factor (SF-4).
+const FLOOR_FACTOR: f64 = 1.0 / 1024.0;
+/// 2^-34: the DESIGN V1-S8/S8-R floor R.
+const DESIGN_FLOOR: f64 = f64::from_bits(0x3DD0_0000_0000_0000);
+/// S* below 2^-988 makes the floor product inexact (DESIGN N-2): every row of
+/// that body is below the floor.
+const DESIGN_FLOOR_MIN_SCALE: f64 = f64::from_bits((1023 - 988) << 52);
+const PASSED: &str = "NUMERICAL_INTEGRITY_CHECKS_PASSED";
+const SENSITIVE: &str = "NUMERICAL_INTEGRITY_SENSITIVE";
+/// At most this many fired rows or ends are named in a sentence.
+pub(crate) const NAMED: usize = 6;
+
+/// Which guard fired.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum Guard {
+    LoadRow,
+    Recovery,
+}
+
+/// One case's finding: the guard, the reason sentence appended to the
+/// integrity message, and the fired items (for tests and the sentence).
+#[derive(Debug, Clone)]
+pub(crate) struct FormationFinding {
+    /// Read by tests; the verdict itself needs only the sentence.
+    #[allow(dead_code)]
+    pub(crate) guard: Guard,
+    pub(crate) sentence: String,
+    /// Every fired row or end (the sentence names the first few).
+    #[allow(dead_code)]
+    pub(crate) fired: Vec<String>,
+}
+
+// ------------------------------------------------------------------ bodies
+
+/// Connected bodies of the element graph (DESIGN section 4.1.6.1 item 1):
+/// straight members, curved spans and objective connectors connect their
+/// nodes; springs, restraints and imposed motions do not.
+pub(crate) struct Bodies {
+    body_of_node: Vec<usize>,
+    extent: Vec<f64>,
+}
+
+impl Bodies {
+    pub(crate) fn new(coordinates: &[[f64; 3]], edges: &[(usize, usize)]) -> Self {
+        let n = coordinates.len();
+        let mut parent: Vec<usize> = (0..n).collect();
+        fn root(parent: &mut [usize], mut x: usize) -> usize {
+            while parent[x] != x {
+                parent[x] = parent[parent[x]];
+                x = parent[x];
+            }
+            x
+        }
+        for &(a, b) in edges {
+            if a < n && b < n {
+                let (ra, rb) = (root(&mut parent, a), root(&mut parent, b));
+                if ra != rb {
+                    parent[ra.max(rb)] = ra.min(rb);
+                }
+            }
+        }
+        let mut ids = HashMap::new();
+        let mut body_of_node = Vec::with_capacity(n);
+        for node in 0..n {
+            let r = root(&mut parent, node);
+            let next = ids.len();
+            body_of_node.push(*ids.entry(r).or_insert(next));
+        }
+        let bodies = ids.len();
+        let mut low = vec![[f64::INFINITY; 3]; bodies];
+        let mut high = vec![[f64::NEG_INFINITY; 3]; bodies];
+        for (node, point) in coordinates.iter().enumerate() {
+            let body = body_of_node[node];
+            for axis in 0..3 {
+                low[body][axis] = low[body][axis].min(point[axis]);
+                high[body][axis] = high[body][axis].max(point[axis]);
+            }
+        }
+        // DESIGN item 5: d_a = fl(max_a - min_a); L_b = fl(sqrt(fl(fl(fl(dx dx)
+        // + fl(dy dy)) + fl(dz dz)))).
+        let extent = (0..bodies)
+            .map(|body| {
+                let d = [0, 1, 2].map(|axis| high[body][axis] - low[body][axis]);
+                ((d[0] * d[0] + d[1] * d[1]) + d[2] * d[2]).sqrt()
+            })
+            .collect();
+        Self {
+            body_of_node,
+            extent,
+        }
+    }
+
+    pub(crate) fn body_of_node(&self, node: usize) -> Option<usize> {
+        self.body_of_node.get(node).copied()
+    }
+
+    fn extent(&self, body: usize) -> f64 {
+        self.extent[body]
+    }
+}
+
+/// DESIGN section 4.1.6 coupling, rounded downward on the coupled terms:
+/// (fo, mo) = (max(F, M/L_b), max(M, L_b F)); L_b = 0 omits the coupling.
+fn coupled(force: f64, moment: f64, extent: f64) -> (f64, f64) {
+    if extent > 0.0 && extent.is_finite() {
+        (
+            force.max(quotient_downward(moment, extent)),
+            moment.max(product_downward(extent, force)),
+        )
+    } else {
+        (force, moment)
+    }
+}
+
+// ------------------------------------------------------------ load-row guard
+
+/// One row's exact decision and its approximate statistics (the numeric
+/// fields are read by tests and kept for diagnostics).
+#[derive(Debug, Clone)]
+#[allow(dead_code)]
+pub(crate) struct RowDecision {
+    pub(crate) fires: bool,
+    /// T0 (unfloored) and Tf (floored), rounded downward.
+    pub(crate) t0: f64,
+    pub(crate) tf: f64,
+    /// (|A_net|/12 + B) / T0 and (|A_se|/12) / Tf, approximately (text and
+    /// tests only; the decision above is exact).
+    pub(crate) net_ratio: f64,
+    pub(crate) self_equilibrated_ratio: f64,
+    pub(crate) reason: Option<String>,
+}
+
+/// |defect| + 12 bound - 12 threshold > 0, decided exactly. A non-finite
+/// operand decides for firing.
+fn exceeds(defect: &ExactAccumulator, bound: f64, threshold: f64) -> bool {
+    let positive = defect.signum() >= 0;
+    let sign = if positive { 1.0 } else { -1.0 };
+    let mut copy = defect.clone();
+    if copy.add_product(sign * 12.0, bound).is_err()
+        || copy.add_product(-sign * 12.0, threshold).is_err()
+    {
+        return true;
+    }
+    if positive {
+        copy.signum() > 0
+    } else {
+        copy.signum() < 0
+    }
+}
+
+fn ratio(numerator: f64, denominator: f64) -> f64 {
+    if numerator == 0.0 {
+        0.0
+    } else if denominator == 0.0 {
+        f64::INFINITY
+    } else {
+        numerator / denominator
+    }
+}
+
+fn twelfth(accumulator: &ExactAccumulator) -> f64 {
+    accumulator
+        .round()
+        .map_or(f64::INFINITY, |v| (v / 12.0).abs())
+}
+
+/// The exact decision for one loaded row at scale `s_star` (section 3.4, with
+/// ROOT's `B > 0` erratum on the first clause).
+pub(crate) fn decide_row(row: &FormationRow, s_star: f64) -> RowDecision {
+    let base = row.intended_net_lower.max(s_star);
+    let floor = product_downward(row.self_equilibrated_magnitude, FLOOR_FACTOR);
+    let t0 = product_downward(CRITERION, base);
+    let tf = product_downward(CRITERION, base.max(floor));
+    let net = twelfth(&row.net_defect);
+    let self_equilibrated = twelfth(&row.self_equilibrated_defect);
+    let mut decision = RowDecision {
+        fires: false,
+        t0,
+        tf,
+        net_ratio: ratio(net + row.bound, t0),
+        self_equilibrated_ratio: ratio(self_equilibrated, tf),
+        reason: None,
+    };
+    let reason = if let Some(failure) = row.range_failure {
+        Some(format!("range failure ({failure})"))
+    } else if !row.cannot_bound_sources.is_empty() {
+        Some(format!(
+            "no conservative formation bound (CannotBound: curved-span consistent load vector from {:?})",
+            row.cannot_bound_sources
+        ))
+    } else if !row.formed {
+        None
+    } else if (row.bound > 0.0 && row.bound >= t0)
+        || exceeds(&row.net_defect, row.bound, t0)
+        || exceeds(&row.self_equilibrated_defect, 0.0, tf)
+    {
+        Some(format!(
+            "net formation defect {net:e}, self-equilibrated defect {self_equilibrated:e}, bound {:e}, intended net at least {:e}, body scale {s_star:e}, threshold {t0:e} (self-equilibrated threshold {tf:e}); formed sources {:?}",
+            row.bound, row.intended_net_lower, row.formed_sources
+        ))
+    } else {
+        None
+    };
+    decision.fires = reason.is_some();
+    decision.reason = reason;
+    decision
+}
+
+/// Per loaded row, its body scale S* (section 3.4): free rows couple the
+/// body's free-row intended nets; restrained rows couple all of its loaded
+/// rows. Lower bounds of |n| are used, and the coupled terms round downward.
+pub(crate) fn row_scales(
+    rows: &[FormationRow],
+    bodies: &Bodies,
+    restrained: &HashSet<usize>,
+) -> HashMap<usize, f64> {
+    // body -> [free force, free moment, all force, all moment]
+    let mut maxima: HashMap<usize, [f64; 4]> = HashMap::new();
+    for row in rows {
+        let Some(body) = bodies.body_of_node(row.dof / DOF_PER_NODE) else {
+            continue;
+        };
+        let n = row.intended_net_lower;
+        let moment = row.dof % DOF_PER_NODE >= 3;
+        let entry = maxima.entry(body).or_insert([0.0; 4]);
+        let all = if moment { 3 } else { 2 };
+        entry[all] = entry[all].max(n);
+        if !restrained.contains(&row.dof) {
+            let free = if moment { 1 } else { 0 };
+            entry[free] = entry[free].max(n);
+        }
+    }
+    rows.iter()
+        .filter_map(|row| {
+            let body = bodies.body_of_node(row.dof / DOF_PER_NODE)?;
+            let m = maxima[&body];
+            let (force, moment) = if restrained.contains(&row.dof) {
+                (m[2], m[3])
+            } else {
+                (m[0], m[1])
+            };
+            let (fo, mo) = coupled(force, moment, bodies.extent(body));
+            let scale = if row.dof % DOF_PER_NODE >= 3 { mo } else { fo };
+            Some((row.dof, scale))
+        })
+        .collect()
+}
+
+/// The load-row guard's finding for one case, or `None` when no row fires.
+pub(crate) fn load_row_finding(
+    force: &AssembledForce,
+    bodies: &Bodies,
+    restrained_dofs: &[usize],
+    dof_label: impl Fn(usize) -> String,
+    case_id: &str,
+) -> Option<FormationFinding> {
+    if !force.has_formation_records() {
+        return None;
+    }
+    let rows = force.formation_rows();
+    let restrained: HashSet<usize> = restrained_dofs.iter().copied().collect();
+    let scales = row_scales(&rows, bodies, &restrained);
+    let mut fired = Vec::new();
+    for row in &rows {
+        let s_star = scales.get(&row.dof).copied().unwrap_or(0.0);
+        let decision = decide_row(row, s_star);
+        if let Some(reason) = decision.reason {
+            fired.push(format!("{}: {reason}", dof_label(row.dof)));
+        }
+    }
+    (!fired.is_empty()).then(|| FormationFinding {
+        guard: Guard::LoadRow,
+        sentence: format!(
+            "S11-G formation-noise guard: load case {case_id} is Sensitive because {} load row(s) carry formed-term formation noise above the 1e-9 criterion; every value is kept for inspection. Rows: [{}]{}",
+            fired.len(),
+            fired.iter().take(NAMED).cloned().collect::<Vec<_>>().join("; "),
+            if fired.len() > NAMED { format!("; and {} more", fired.len() - NAMED) } else { String::new() }
+        ),
+        fired,
+    })
+}
+
+// ------------------------------------------------------------ recovery guard
+
+/// Every certified member/support group, including groups below the floor.
+#[derive(Debug, Clone)]
+pub(crate) struct RecoveryGroup {
+    pub(crate) location: String,
+    pub(crate) kind: String,
+    pub(crate) moment: bool,
+    pub(crate) q: f64,
+    /// Exact squared norm of the actual published components is at most B².
+    /// Arithmetic unavailability is false; RN norm equality is insufficient.
+    pub(crate) zero_compatible: bool,
+    pub(crate) q_hat: f64,
+    pub(crate) bound: Result<f64, String>,
+    pub(crate) absolute_scale: f64,
+    /// Largest published row in this group (support norms are published rows).
+    pub(crate) published_scale: f64,
+}
+
+#[derive(Debug, Clone)]
+pub(crate) struct RecoveryRecord {
+    pub(crate) member: String,
+    pub(crate) body: Option<usize>,
+    pub(crate) groups: Vec<RecoveryGroup>,
+}
+
+/// Coupled force and moment scales (O-13's [`ActionScales`]) over every
+/// repaired published group.
+pub(crate) fn member_scales(records: &[RecoveryRecord], bodies: &Bodies) -> HashMap<usize, ActionScales> {
+    let mut maxima: HashMap<usize, (f64, f64)> = HashMap::new();
+    for record in records {
+        let Some(body) = record.body else { continue };
+        let entry = maxima.entry(body).or_insert((0.0, 0.0));
+        for group in &record.groups {
+            let scale = group.published_scale;
+            if group.moment { entry.1 = entry.1.max(scale); } else { entry.0 = entry.0.max(scale); }
+        }
+    }
+    maxima.into_iter().map(|(body, (force, moment))| {
+        let extent = bodies.extent(body);
+        let scales = if extent > 0.0 && extent.is_finite() {
+            ActionScales { force: force.max(moment / extent), moment: moment.max(extent * force) }
+        } else { ActionScales { force, moment } };
+        (body, scales)
+    }).collect()
+}
+
+/// DESIGN section 4.1.6.1 closed table, force and moment classes only, with
+/// the pinned unit factors. `None` for every other (kind, unit).
+fn action_class(kind: &str, unit: &str) -> Option<(bool, f64)> {
+    let force_factor = match unit {
+        "N" => Some(1.0),
+        "kN" => Some(1e3),
+        _ => None,
+    };
+    let moment_factor = match unit {
+        "N*m" => Some(1.0),
+        "kN*m" => Some(1e3),
+        _ => None,
+    };
+    match kind {
+        "element_local_axial_force"
+        | "element_local_shear_force_y"
+        | "element_local_shear_force_z"
+        | "pipe_wall_axial_force_v2"
+        | "pipe_effective_axial_force_v2" => force_factor.map(|f| (false, f)),
+        "support_reaction_force_magnitude_v2" | "reaction_resultant" => {
+            (unit == "N").then_some((false, 1.0))
+        }
+        "element_local_torsional_moment"
+        | "element_local_bending_moment_y"
+        | "element_local_bending_moment_z" => moment_factor.map(|f| (true, f)),
+        "support_reaction_moment_magnitude_v2" => (unit == "N*m").then_some((true, 1.0)),
+        "support_reaction_component_v2" | "pipe_wall_endpoint_action_v2" => force_factor
+            .map(|f| (false, f))
+            .or_else(|| moment_factor.map(|f| (true, f))),
+        _ => None,
+    }
+}
+
+/// A body's coupled scales over the case's published rows (DESIGN section
+/// 4.1.6.1 items 5 and 6): fo = max(S(force), fl(S(moment)/L_b)) and
+/// mo = max(S(moment), fl(L_b S(force))).
+#[derive(Debug, Clone, Copy, Default, PartialEq)]
+pub(crate) struct ActionScales {
+    pub(crate) force: f64,
+    pub(crate) moment: f64,
+}
+
+/// The coupled scales per body: S(force) and S(moment) are the largest |row|
+/// of each class in the body. Rows of `excluded` members (realized arcs
+/// without an arc recovery record, entity rule 2b) and rows whose entity has
+/// no body are not covered.
+pub(crate) fn action_scales(
+    results: &[ResultItem],
+    body_of_entity: &HashMap<String, usize>,
+    excluded: &HashSet<String>,
+    bodies: &Bodies,
+) -> HashMap<usize, ActionScales> {
+    let mut maxima: HashMap<usize, (f64, f64)> = HashMap::new();
+    for row in results {
+        let Some((moment, factor)) = action_class(&row.kind, &row.unit) else {
+            continue;
+        };
+        if excluded.contains(&row.entity_ref) {
+            continue;
+        }
+        let Some(&body) = body_of_entity.get(&row.entity_ref) else {
+            continue;
+        };
+        let value = (row.value * factor).abs();
+        let entry = maxima.entry(body).or_insert((0.0, 0.0));
+        if moment {
+            entry.1 = entry.1.max(value);
+        } else {
+            entry.0 = entry.0.max(value);
+        }
+    }
+    maxima
+        .into_iter()
+        .map(|(body, (force, moment))| {
+            let extent = bodies.extent(body);
+            let scales = if extent > 0.0 {
+                ActionScales {
+                    force: force.max(moment / extent),
+                    moment: moment.max(extent * force),
+                }
+            } else {
+                ActionScales { force, moment }
+            };
+            (body, scales)
+        })
+        .collect()
+}
+
+/// Exact finite member-relative decision. Invalid or unrepresentable
+/// comparison inputs are unavailable, never a silent non-firing group.
+pub(crate) fn member_group_decision(q: f64, q_hat: f64, bound: f64, s_star: f64) -> Result<bool, &'static str> {
+    for (value,reason) in [(q,"nonfinite published group norm"),(q_hat,"nonfinite certified group magnitude"),(bound,"nonfinite member bound"),(s_star,"nonfinite body action scale")] {
+        if !value.is_finite() { return Err(reason); }
+    }
+    if q < 0.0 || q_hat < q || bound < 0.0 || s_star < 0.0 { return Err("invalid member comparison inputs"); }
+    let mut comparison = ExactAccumulator::new();
+    comparison.add(bound).map_err(|_| "exact member comparison range")?;
+    comparison.add_product(-CRITERION, q).map_err(|_| "exact member comparison range")?;
+    Ok(comparison.signum() > 0 && s_star >= DESIGN_FLOOR_MIN_SCALE && q_hat >= DESIGN_FLOOR * s_star)
+}
+
+/// Boolean interface used by controls; unavailable comparisons fail closed.
+pub(crate) fn member_group_fires(q: f64, q_hat: f64, bound: f64, s_star: f64) -> bool {
+    member_group_decision(q,q_hat,bound,s_star).unwrap_or(true)
+}
+
+/// Unified finding over all member locations, wall rows and support groups.
+pub(crate) fn recovery_finding(
+    records: &[RecoveryRecord],
+    scales: &HashMap<usize, ActionScales>,
+    case_id: &str,
+) -> Option<FormationFinding> {
+    let mut fired = Vec::new();
+    for record in records {
+        let scales = record.body.and_then(|body| scales.get(&body).copied()).unwrap_or_default();
+        for group in &record.groups {
+            let scale = if group.moment { scales.moment } else { scales.force };
+            match &group.bound {
+                Ok(bound) => match member_group_decision(group.q,group.q_hat,*bound,scale) {
+                    Ok(true) => fired.push(format!("{}.{}.{}: q={:e}, B={bound:e}",record.member,group.location,group.kind,group.q)),
+                    Ok(false) => {},
+                    Err(reason) => fired.push(format!("{}.{}.{}: member comparison unavailable ({reason})",record.member,group.location,group.kind)),
+                },
+                Err(reason) => fired.push(format!("{}.{}.{}: the member bound is unavailable ({reason})", record.member, group.location, group.kind)),
+            }
+        }
+    }
+    (!fired.is_empty()).then(|| FormationFinding {
+        guard: Guard::Recovery,
+        sentence: format!(
+            "S11-G recovery guard (R-b'): load case {case_id} is Sensitive because {} member or support group(s) of the certified rows exceed the 1e-9 member-relative criterion or have an unavailable comparison; every value is kept for inspection. Groups: [{}]{}",
+            fired.len(), fired.iter().take(NAMED).cloned().collect::<Vec<_>>().join("; "),
+            if fired.len() > NAMED { format!("; and {} more", fired.len() - NAMED) } else { String::new() }
+        ),
+        fired,
+    })
+}
+
+/// Notice evidence only: compare Σ(v_i²) <= B² without forming a rounded
+/// norm or product. The accumulator covers the full binary64 product range.
+pub(crate) fn notice_zero_compatible(values:impl IntoIterator<Item=f64>,bound:f64)->bool {
+    if !bound.is_finite() || bound<0.0 {return false;}
+    let mut squared=ExactAccumulator::new();
+    for value in values {
+        if !value.is_finite() || squared.add_product(value,value).is_err() {return false;}
+    }
+    if squared.add_product(-bound,bound).is_err() {return false;}
+    squared.signum()<=0
+}
+
+/// Caller supplies conditions 1 and 2 (§3.3); this checks every group in
+/// every body, including groups not judged by the relative floor.
+pub(crate) fn stress_free_notice(records: &[RecoveryRecord], case_id: &str) -> Option<Diagnostic> {
+    if records.is_empty() || records.iter().any(|record| record.groups.is_empty()) { return None; }
+    let mut force = 0.0_f64;
+    let mut moment = 0.0_f64;
+    for group in records.iter().flat_map(|record| &record.groups) {
+        let bound = group.bound.as_ref().ok()?;
+        // Cancellation-scale smallness alone cannot distinguish a tiny
+        // resolved load from a zero-compatible row. This notice-only check
+        // leaves the integrity predicate and its relative criterion unchanged.
+        if !group.zero_compatible || !bound.is_finite() || *bound < 0.0 || !group.q.is_finite() || group.q < 0.0 || group.q > *bound
+            || !group.q_hat.is_finite() || group.q_hat < group.q || !group.absolute_scale.is_finite() || group.absolute_scale < 0.0
+            || group.q_hat > product_downward(DESIGN_FLOOR, group.absolute_scale) {
+            return None; }
+        // q is correctly rounded for the one-, two- and three-component
+        // product groups. next_up(q) encloses its exact norm; exact squared
+        // zero compatibility also bounds that norm by B. Take the tighter
+        // bound, then add B exactly and round upward once. An unavailable or
+        // infinite upper suppresses information rather than emitting +inf.
+        let norm_upper=if group.q==0.0 {0.0} else {group.q.next_up().min(*bound)};
+        let mut sum=ExactAccumulator::new();sum.add(norm_upper).ok()?;sum.add(*bound).ok()?;
+        let rounded=sum.round().ok()?;sum.add(-rounded).ok()?;
+        let upper=if sum.signum()>0 {rounded.next_up()} else {rounded};
+        if !upper.is_finite() {return None;}
+        if group.moment { moment = moment.max(upper); } else { force = force.max(upper); }
+    }
+    // W-7 (DEL-04-01 Design `global-end-actions.md`): the guarded groups (|N|,
+    // hypot(Vy,Vz), |T|, hypot(My,Mz)) bound the element-local and support rows,
+    // not a rotated global end-action component, so the sentence names them.
+    Some(super::diag(
+        &format!("diagnostic:stress-free-within-numerical-precision:{case_id}"),
+        "STRESS_FREE_WITHIN_NUMERICAL_PRECISION", "info",
+        format!("Load case {case_id}: every element-local member force row and support force row is bounded by {force:e} N and every element-local member moment row and support moment row by {moment:e} N*m at 128-bit precision; the case is stress-free to within numerical precision. The standing remains NUMERICAL_INTEGRITY_SENSITIVE."),
+        vec![case_id.to_string()],
+    ))
+}
+
+// ------------------------------------------------------------------ verdict
+
+/// Demotes an integrity diagnostic that is still `CHECKS_PASSED` to
+/// `SENSITIVE` (warning) and appends the reason sentence. The no-op rule: any
+/// other code (already Sensitive or weaker) is left byte for byte as it is.
+/// Returns whether it demoted.
+pub(crate) fn demote(diagnostic: &mut Diagnostic, finding: &FormationFinding) -> bool {
+    if diagnostic.code != PASSED {
+        return false;
+    }
+    diagnostic.code = SENSITIVE.to_string();
+    diagnostic.severity = "warning".to_string();
+    diagnostic.message = format!("{} {}", diagnostic.message, finding.sentence);
+    true
+}
+
+/// R-b' after the recovery loop: demotes the case's integrity diagnostic
+/// (found by id) under the no-op rule.
+pub(crate) fn amend_integrity_report(
+    diagnostics: &mut [Diagnostic],
+    integrity_id: &str,
+    finding: &FormationFinding,
+) -> bool {
+    diagnostics
+        .iter_mut()
+        .find(|d| d.id == integrity_id)
+        .is_some_and(|d| demote(d, finding))
+}

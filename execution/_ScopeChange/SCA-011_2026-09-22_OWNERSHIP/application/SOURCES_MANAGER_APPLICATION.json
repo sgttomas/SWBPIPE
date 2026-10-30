@@ -1,0 +1,60 @@
+{
+  "role": "WORKING_ITEMS",
+  "agent": "/root/piping_scope_manager",
+  "mechanism": "Codex-native descendants; inherited model/effort; no override",
+  "authority_snapshot": "projects/chirality-piping/execution/_ScopeChange/checkpoint_snapshots/SCA-011_GROUP-2_2026-09-22/",
+  "accepted_package_commit": "3e18334eca72509475684cc86786b3eeade83572",
+  "scope": "Piping exact amendment and evidence only; separately authorized concurrent App/Root writes belong to parent and are excluded from this task",
+  "sources": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "1bb670ca339a990b153cf033dac2d8e29ca71bdea0accee4200e6dd1feed3d57"
+    },
+    {
+      "path": "agents/AGENT_WORKING_ITEMS.md",
+      "sha256": "9ae4bea25bd95750a6878a9d53fbbbd7cd058d72c652a36baf4aa90601799665"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d8a1f4380962efcd258571c6fb563722be9e2e89d4fa5898b7f6d24dc61ab879"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "295ee9e892ea9b572b1be52218ad3ee823c82c4739eefabcab31f4fac97c83c0"
+    },
+    {
+      "path": "workflows/scope-change/WORKFLOW.md",
+      "sha256": "58f5d1d53c655fdc5668d928f6087003590f40e321e25e3d9447805ee64a7a90"
+    },
+    {
+      "path": "workflows/scope-change/resources/contract.md",
+      "sha256": "4453a719f1588c4eba08bdb4a979140ff3541ed5a29f04477ea58a844f344d02"
+    },
+    {
+      "path": "workflows/scope-change/resources/method.md",
+      "sha256": "34187e83856853f655389625e3465e3c2cb9ff8ad38be1f4d138ee7470d167f5"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/Propagation_Plan.md",
+      "sha256": "3d4b8e67defb0f507adaf8dc804656d122557921338c76d9f488bbbbb811d53c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/APPLY_MANIFEST.csv",
+      "sha256": "b96c0adc2b588429a1311606072bc22ee9c5f3c303be2c6701422dcdecbcce7a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/_LATEST.md",
+      "sha256": "7780e448b927aabd1e388bd6740b3d2ab715d107f1ad7d6823bec8f94a924e4f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/_LATEST.md",
+      "sha256": "9da625a75f75819fe39a05532d67697fa6de0d7a84982c4e2e1b89c6d3ef80b3"
+    },
+    {
+      "path": "docs/SPEC.md",
+      "sha256": "2ed0680b458754e4493ad6dc69aa2d883e5fef1434b13bb947bb6aeb0f1485af",
+      "consulted_sections": "6.5\u20136.8; dependency evidence and canonical dependency ID contract for routine postapplication repair"
+    }
+  ],
+  "paired_read_note": "Direct DEL-13-04 status reading paired with sibling MEMORY read; relevant current residuals used as operational context only, not authority. TASKs retain their own full pair-read/source evidence."
+}

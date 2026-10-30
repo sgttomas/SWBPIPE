@@ -1,0 +1,74 @@
+[package]
+name = "openpipestress-desktop"
+version = "0.1.0"
+description = "SWBPIPE macOS desktop shell"
+authors = ["OpenPipeStress contributors"]
+edition = "2021"
+
+[lib]
+name = "openpipestress_desktop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[features]
+# Native smoke harness (`src/native_smoke.rs`, `native-smoke/run.mjs`). Never
+# enabled by a product build.
+native-smoke = []
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+open_pipe_stress_product_physics = { path = "../../../core/product_physics" }
+open_pipe_stress_self_weight_wasm = { path = "../../../core/loads/self_weight_wasm" }
+open_pipe_stress_operation_applier = { path = "../../../core/model_operations/operation_applier" }
+open_pipe_stress_canonical_json = { path = "../../../core/serialization/canonical_json" }
+open_pipe_stress_library_import_document = { path = "../../../core/library_import/library_import_document" }
+open_pipe_stress_report_renderer = { path = "../../../core/reporting/report_renderer" }
+open_pipe_stress_report_package = { path = "../../../core/reporting/report_package" }
+open_pipe_stress_audit_manifest = { path = "../../../core/reporting/audit_manifest" }
+open_pipe_stress_result_export = { path = "../../../core/reporting/result_export" }
+open_pipe_stress_rule_pack_document = { path = "../../../core/rules/rule_pack_document" }
+open_pipe_stress_rule_check_runner = { path = "../../../core/rules/rule_check_runner" }
+open_pipe_stress_units = { path = "../../../core/units" }
+rusqlite = { version = "0.32", features = ["bundled"] }
+sha2 = "0.10"
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["float_roundtrip", "raw_value"] }
+getrandom = "0.3"
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
+
+[dev-dependencies]
+# The user-release reach scan (`src/user_release_reach_scan.rs`; W-18b,
+# DEL-08-01 Design `report-user-release.md` §2.8) parses the production source
+# of four crates. Pinned to the versions already in Cargo.lock: no new
+# package entry, and an offline build needs no fetch.
+syn = { version = "=2.0.117", default-features = false, features = ["full", "parsing", "visit"] }
+proc-macro2 = { version = "=1.0.106", features = ["span-locations"] }
+
+[target.'cfg(unix)'.dependencies]
+# Host memory reader for the aggregate pool (`src/host_memory.rs`, macOS) and
+# the capped solve worker's process control and raw channel (`src/solve_worker.rs`,
+# `src/worker_alloc.rs`).
+libc = "0.2"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+# Explicit embedded-provider relay. No default proxy, redirect, compression or
+# HTTP/2 features. Published platform verifier uses OS trust and hostname policy.
+hyper = { version = "=1.9.0", features = ["client", "http1"] }
+hyper-util = { version = "=0.1.20", features = ["tokio"] }
+http = "1"
+http-body-util = "0.1"
+tokio-rustls = { version = "=0.26.6", default-features = false, features = ["ring", "tls12"] }
+url = "=2.5.8"
+tokio = { version = "=1.52.3", features = ["rt", "net", "time", "sync", "io-util"] }
+bytes = "1"
+httparse = "=1.10.1"
+socket2 = "=0.6.3"
+rustls = { version = "=0.23.40", default-features = false, features = ["std", "ring", "tls12"] }
+rustls-platform-verifier = "=0.7.1"
+
+# Generic credential custody; APIs are isolated in keychain_native.rs.
+core-foundation = "=0.10.1"
+security-framework = "=3.7.0"
+security-framework-sys = "=2.17.0"

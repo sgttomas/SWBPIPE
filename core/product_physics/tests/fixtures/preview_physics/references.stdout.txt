@@ -1,0 +1,956 @@
+{
+ "REF-B1": {
+  "anchor": {
+   "F": [
+    0.0,
+    0.0,
+    -1000.0
+   ],
+   "M": [
+    -1200.0,
+    1200.0,
+    0.0
+   ]
+  },
+  "flexibility_control": "change the user flexibility factor; these resultants are unchanged",
+  "headline": "withheld while the arc has no qualified maximum",
+  "stations": {
+   "arc_i_at_b": {
+    "axial_abs_N": 0.0,
+    "in_plane_bending_abs_Nm": 0.0,
+    "out_of_plane_bending_abs_Nm": 200.00000000000003,
+    "point": [
+     1.0,
+     0.0,
+     0.0
+    ],
+    "shear_normal_to_plane_abs_N": 1000.0,
+    "torsion_abs_Nm": 1200.0
+   },
+   "arc_j_at_c": {
+    "axial_abs_N": 0.0,
+    "in_plane_bending_abs_Nm": 0.0,
+    "out_of_plane_bending_abs_Nm": 1000.0,
+    "point": [
+     1.2,
+     0.2,
+     0.0
+    ],
+    "shear_normal_to_plane_abs_N": 1000.0,
+    "torsion_abs_Nm": 0.0
+   },
+   "arc_mid": {
+    "axial_abs_N": 0.0,
+    "in_plane_bending_abs_Nm": 0.0,
+    "out_of_plane_bending_abs_Nm": 848.5281374238571,
+    "point": [
+     1.1414213562373094,
+     0.05857864376269051,
+     0.0
+    ],
+    "shear_normal_to_plane_abs_N": 1000.0,
+    "torsion_abs_Nm": 765.6854249492379
+   }
+  }
+ },
+ "REF-M05-COMB": {
+  "case_A1": {
+   "F": [
+    0.0,
+    -1000.0,
+    0.0
+   ],
+   "M": [
+    0.0,
+    0.0,
+    -1000.0
+   ]
+  },
+  "case_T": {
+   "F": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "M": [
+    -500.0,
+    0.0,
+    0.0
+   ]
+  },
+  "envelope_max_force_magnitude_N": 1000.0,
+  "mechanics_2A1_minus_T": {
+   "F": [
+    0.0,
+    -2000.0,
+    0.0
+   ],
+   "M": [
+    500.0,
+    0.0,
+    -2000.0
+   ],
+   "force_magnitude_N": 2000.0,
+   "moment_magnitude_Nm": 2061.5528128088304
+  },
+  "negative_control_magnitude_algebra_moment_Nm": 1500.0,
+  "subtraction_A1_minus_T": {
+   "F": [
+    0.0,
+    -1000.0,
+    0.0
+   ],
+   "M": [
+    500.0,
+    0.0,
+    -1000.0
+   ],
+   "force_magnitude_N": 1000.0,
+   "moment_magnitude_Nm": 1118.033988749895
+  }
+ },
+ "REF-M05-R1": {
+  "anchor_F_N": [
+   -10.0,
+   20.0,
+   -30.0
+  ],
+  "anchor_M_Nm": [
+   -4.0,
+   55.0,
+   46.0
+  ],
+  "geometry": "2 m cantilever along +x",
+  "rotated_perm_xyz_to_yzx": {
+   "anchor_F_N": [
+    -30.0,
+    -10.0,
+    26.0
+   ],
+   "anchor_M_Nm": [
+    52.0,
+    -4.0,
+    55.0
+   ],
+   "equals_Q_times_unrotated": [
+    [
+     -30.0,
+     -10.0,
+     26.0
+    ],
+    [
+     52.0,
+     -4.0,
+     55.0
+    ]
+   ]
+  },
+  "rotated_rot_z_30deg": {
+   "anchor_F_N": [
+    -21.660254037844386,
+    17.516660498395407,
+    -30.0
+   ],
+   "anchor_M_Nm": [
+    -30.96410161513775,
+    45.63139720814413,
+    52.0
+   ],
+   "equals_Q_times_unrotated": [
+    [
+     -21.660254037844386,
+     17.516660498395407,
+     -30.0
+    ],
+    [
+     -30.96410161513775,
+     45.63139720814413,
+     52.0
+    ]
+   ]
+  },
+  "with_uniform_0_-3_0_N_per_m": {
+   "anchor_F_N": [
+    -10.0,
+    26.0,
+    -30.0
+   ],
+   "anchor_M_Nm": [
+    -4.0,
+    55.0,
+    52.0
+   ]
+  }
+ },
+ "REF-M05-SPRING": {
+  "anchor_F_N": [
+   0.0,
+   -759.7316494212578,
+   0.0
+  ],
+  "anchor_M_Nm": [
+   0.0,
+   0.0,
+   -759.7316494212578
+  ],
+  "check": "anchor Fy + spring Fy + 1000 = 0; anchor Mz balances the net tip force",
+  "spring_on_pipe_Fy_N": -240.2683505787423,
+  "tip_u_m": 0.00024026835057874228
+ },
+ "REF-M05-T": {
+  "anchor_F_N": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "anchor_M_Nm": [
+   -500.0,
+   0.0,
+   0.0
+  ],
+  "force_magnitude_N": 0.0,
+  "moment_magnitude_Nm": 500.0,
+  "negative_control": "a force-norm-only publication shows 0 N and no moment"
+ },
+ "REF-M08-L": {
+  "anchor_up": {
+   "F": [
+    0.0,
+    0.0,
+    -1000.0
+   ],
+   "M": [
+    -1000.0,
+    1000.0,
+    0.0
+   ]
+  },
+  "combination_up_plus_down": "every signed action, stress and support component is zero",
+  "headline_Pa": 11385152.411938861,
+  "headline_tie": [
+   "pipe:a-b at a",
+   "pipe:b-c at b"
+  ],
+  "member_ab_end_b": "pure torsion 1000 N*m, zero bending",
+  "member_ab_root_bending_Nm": 1000.0,
+  "member_ab_root_torsion_Nm": 1000.0,
+  "member_bc_at_b_bending_Nm": 1000.0,
+  "member_bc_at_b_moment_Nm": [
+   1000.0,
+   0.0,
+   0.0
+  ],
+  "negative_control_multiplier_uses_k": "any published stress that changes with k while actions are fixed",
+  "negative_control_old_multiplier_row_MPa": 28.28071859125613,
+  "per_case_circular_normal_max_Pa": 11385152.411938861
+ },
+ "REF-M14-A": {
+  "circular_normal_max_Pa": 16101036.950648692,
+  "location": "pipe root (x=0), load case A",
+  "negative_control_abs_sum_Pa": 22770304.823877722
+ },
+ "REF-M14-S1": {
+  "axial_Pa": 1999999.999999999,
+  "bending_a_Pa": 2999999.9999999995,
+  "bending_b_Pa": 3999999.999999999,
+  "circular_normal_max_Pa": 6999999.999999998,
+  "negative_control_abs_sum_Pa": 8999999.999999996,
+  "pure_torque_only_normal_max_Pa": 0.0,
+  "rotated_circular_normal_max_Pa": 6999999.999999998,
+  "rotated_variant": "same Fx, transverse tip force Fz=92.25*pi only (bending 5 MPa on one axis)",
+  "with_tip_torque_221.4pi_torsional_shear_Pa": 5999999.999999998
+ },
+ "REF-M14-X1": {
+  "circular_normal_max_Pa": 1134086.2821217075,
+  "dense_sampling_crosscheck_Pa": 1134086.28211349,
+  "end_couple_Nm": 57.96238445873169,
+  "negative_control_abs_sum_objective_max_Pa": 1562500.0,
+  "negative_control_old_eight_sign_candidates_Pa": 1126734.7735824967,
+  "t_star": 0.5732233047033631,
+  "w_z_N_per_m": 463.6990756698535
+ },
+ "REF-M33-G": {
+  "case_A": "tip Fy=1000, Fz=1000 (listed first)",
+  "case_A_max_Pa": 16101036.950648692,
+  "case_B": "tip Fy=3000 (listed second)",
+  "case_B_max_Pa": 34155457.23581658,
+  "displacement_headline_mm": 0.9487627009949051,
+  "headline_Pa": 34155457.23581658,
+  "headline_case": "case_B",
+  "headline_location": "pipe root",
+  "negative_control_first_case_headline_Pa": 16101036.950648692,
+  "permutation": "reverse case order; headline value, case and location unchanged",
+  "tip_displacement_A_mm": 0.44725102640690817,
+  "tip_displacement_B_mm": 0.9487627009949051
+ },
+ "revision_2": {
+  "REF-ATTR": {
+   "anchor_on_pipe": {
+    "value": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "zero_scale": 1000.0
+   },
+   "device_rows": "both tip devices withheld with SUPPORT_ACTION_ATTRIBUTION_WITHHELD",
+   "global_balance_rule": "exempt: both tip devices are withheld, so published rows cannot close the balance; instead assert anchor rows zero, both withheld records present, and no zero-filled tip rows",
+   "if_refused_pre_solve": "a targeted refusal is acceptable; record which the product does",
+   "model": "C1 cantilever 1 m; tip rigid guide on UY (record 1) and one-way support on UY (record 2); tip Fy=-1000",
+   "negative_control": "zero-filling the withheld devices breaks the balance by 1000 N",
+   "one_way_support_json": {
+    "family": "nonlinear",
+    "nonlinear": {
+     "active_when": "positive_reaction",
+     "behavior": "one_way",
+     "dof": "UY",
+     "initial_state": "inactive"
+    },
+    "restraints": []
+   },
+   "tip_nodal_total_on_pipe_Fy_N": 1000.0,
+   "why_anchor_is_zero": "the prop holds the loaded tip at uy=0, so the beam is unstrained"
+  },
+  "REF-B1-SIGNED": {
+   "bend_plane_normal": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "chord_frame": {
+    "cut_face_b": [
+     0.0,
+     0.0,
+     -999.9999999999998,
+     707.1067811865473,
+     989.9494936611663,
+     0.0
+    ],
+    "cut_face_c": [
+     0.0,
+     0.0,
+     -999.9999999999998,
+     707.1067811865473,
+     707.1067811865474,
+     0.0
+    ],
+    "product_end_i_rows_node_on_element": [
+     -0.0,
+     -0.0,
+     999.9999999999998,
+     -707.1067811865473,
+     -989.9494936611663,
+     -0.0
+    ],
+    "product_end_j_rows_node_on_element": [
+     0.0,
+     0.0,
+     -999.9999999999998,
+     707.1067811865473,
+     707.1067811865474,
+     0.0
+    ],
+    "x": [
+     0.7071067811865474,
+     0.7071067811865476,
+     0.0
+    ],
+    "y": [
+     0.7071067811865475,
+     -0.7071067811865475,
+     0.0
+    ],
+    "z": [
+     0.0,
+     0.0,
+     -0.9999999999999998
+    ]
+   },
+   "endpoint_stress_rows_tangent_frame": {
+    "end_i_bending_normal_y_Pa": -2277030.4823877714,
+    "end_i_torsional_shear_Pa": 6831091.447163317,
+    "end_j_bending_normal_y_Pa": -11385152.411938861,
+    "zero_scale_Pa": 11385152.411938861
+   },
+   "section_resultant_convention": "action of everything beyond the cut (j side) reduced to the section point; frame (x tangent b->c, y toward the centre, z bend-plane normal = unit(radial_i x radial_j))",
+   "stations": {
+    "end_i_b": {
+     "My": -199.99999999999994,
+     "Mz": 0.0,
+     "N": 0.0,
+     "T": 1200.0,
+     "Vy": 0.0,
+     "Vz": 1000.0
+    },
+    "end_j_c": {
+     "My": -1000.0,
+     "Mz": 0.0,
+     "N": 0.0,
+     "T": 6.123233995736766e-14,
+     "Vy": 0.0,
+     "Vz": 1000.0
+    },
+    "midspan": {
+     "My": -848.528137423857,
+     "Mz": 0.0,
+     "N": 0.0,
+     "T": 765.685424949238,
+     "Vy": 0.0,
+     "Vz": 1000.0
+    },
+    "quarter_1": {
+     "My": -567.4593388673471,
+     "Mz": 0.0,
+     "N": 0.0,
+     "T": 1047.3428460382688,
+     "Vy": 0.0,
+     "Vz": 1000.0
+    },
+    "quarter_3": {
+     "My": -1000.4162189843046,
+     "Mz": 0.0,
+     "N": 0.0,
+     "T": 397.90752586283253,
+     "Vy": 0.0,
+     "Vz": 1000.0
+    }
+   },
+   "zero_scale": {
+    "force_N": 1000.0,
+    "moment_Nm": 1200.0
+   }
+  },
+  "REF-B1-TANGENCY": {
+   "cases": {
+    "consistent": {
+     "angle_at_b_deg": 0.0,
+     "angle_at_c_deg": 0.0,
+     "centre": [
+      1.0,
+      0.2,
+      0.0
+     ]
+    },
+    "kinked_y_ref_0_0_1": {
+     "angle_at_b_deg": 60.00000000000002,
+     "angle_at_c_deg": 59.99999999999999,
+     "centre": [
+      1.1,
+      0.1,
+      -0.14142135623730953
+     ]
+    }
+   },
+   "expectation": "consistent: no CURVED_BEND_TANGENT_DISCONTINUITY; kinked: warning naming both ends, solve still published"
+  },
+  "REF-B2": {
+   "assumptions": "thin curved beam: bending compliance k/EI, axial 1/EA, no shear or curvature coupling (curved_bend end_flexibility terms)",
+   "chord_frame": "x (1,1,0)/sqrt2, y = y_reference (1,-1,0)/sqrt2, z = x cross y = (0,0,-1); the tangent-frame values name no force row",
+   "k1": {
+    "anchor_on_pipe": [
+     -589.8602225609347,
+     -1000.0,
+     0.0,
+     0.0,
+     0.0,
+     -82.02795548781305
+    ],
+    "chord_frame_cut_face_b": [
+     1124.2009445115905,
+     -290.0126178615044,
+     0.0,
+     0.0,
+     0.0,
+     -82.02795548781306
+    ],
+    "product_end_i_rows_node_on_element": [
+     -1124.2009445115905,
+     290.0126178615044,
+     0.0,
+     0.0,
+     0.0,
+     82.02795548781306
+    ],
+    "roller_on_pipe_Fx_N": 589.8602225609347,
+    "section_at_b_tangent_frame_for_information": {
+     "Mz_in_plane": 82.02795548781305,
+     "N": 589.8602225609347,
+     "Vy_inward": 1000.0
+    }
+   },
+   "k2": {
+    "anchor_on_pipe": [
+     -612.8026573020057,
+     -1000.0,
+     0.0,
+     0.0,
+     0.0,
+     -77.43946853959885
+    ],
+    "chord_frame_cut_face_b": [
+     1140.4236956939317,
+     -273.78986667916325,
+     0.0,
+     0.0,
+     0.0,
+     -77.43946853959886
+    ],
+    "product_end_i_rows_node_on_element": [
+     -1140.4236956939317,
+     273.78986667916325,
+     0.0,
+     0.0,
+     0.0,
+     77.43946853959886
+    ],
+    "roller_on_pipe_Fx_N": 612.8026573020057,
+    "section_at_b_tangent_frame_for_information": {
+     "Mz_in_plane": 77.43946853959885,
+     "N": 612.8026573020057,
+     "Vy_inward": 1000.0
+    }
+   },
+   "k4": {
+    "anchor_on_pipe": [
+     -624.5987830116222,
+     -1000.0,
+     0.0,
+     0.0,
+     0.0,
+     -75.08024339767555
+    ],
+    "chord_frame_cut_face_b": [
+     1148.7648161749305,
+     -265.4487461981645,
+     0.0,
+     0.0,
+     0.0,
+     -75.08024339767556
+    ],
+    "product_end_i_rows_node_on_element": [
+     -1148.7648161749305,
+     265.4487461981645,
+     0.0,
+     0.0,
+     0.0,
+     75.08024339767556
+    ],
+    "roller_on_pipe_Fx_N": 624.5987830116222,
+    "section_at_b_tangent_frame_for_information": {
+     "Mz_in_plane": 75.08024339767555,
+     "N": 624.5987830116222,
+     "Vy_inward": 1000.0
+    }
+   },
+   "model": "arc b(1,0,0)->c(1.2,0.2,0), R 0.2, y_reference as REF-B1, C1 section, E 200 GPa; anchor at b; roller at c restraining UX only; in-plane load Fy=+1000 at c",
+   "point": "resultants change with k (indeterminate), unlike REF-B1; no published stress scales with k at fixed resultants",
+   "quadrature_check_k2_n40000": 612.8026573020016,
+   "s2_confirmation": "S2a confirms the product accepts an arc span with no adjacent straight pipe; if refused, record the refusal"
+  },
+  "REF-CE": {
+   "balance": "anchor + CE action + applied = 0, CE counted once (its force is in the RHS, so it is not also an applied load)",
+   "case_W1_tip_Fy_-1000": {
+    "anchor_F": [
+     0.0,
+     625.0,
+     0.0
+    ],
+    "anchor_M": [
+     0.0,
+     0.0,
+     625.0
+    ],
+    "ce_support_on_pipe": [
+     0.0,
+     375.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "tip_uy_m": -0.00019765889604060524
+   },
+   "case_W2_tip_Fy_-500": {
+    "anchor_F": [
+     0.0,
+     125.0,
+     0.0
+    ],
+    "anchor_M": [
+     0.0,
+     0.0,
+     125.0
+    ],
+    "ce_support_on_pipe": [
+     0.0,
+     375.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "tip_uy_m": -3.9531779208121046e-05
+   },
+   "comb_0.5W1_0.5W2_sum_factors_1": {
+    "anchor_Fy_N": 375.0,
+    "ce_applied_N": 375.0,
+    "published": true
+   },
+   "comb_1.0W1_0.5W2_sum_factors_1.5": {
+    "negative_control_ce_applied_N": 562.5,
+    "negative_control_linear_anchor_Fy_N": 687.5,
+    "published": false,
+    "true_anchor_Fy_N_if_solved": 875.0
+   },
+   "model": "C1 cantilever 1 m along +x, anchor at a; at tip b a constant-effort support with restraints [UY] and constant_load 375 N",
+   "negative_control_main_reaction_resultant_N": {
+    "value": 0.0,
+    "zero_scale": 375.0
+   },
+   "non_consuming_variant": {
+    "anchor_F_W1": [
+     0.0,
+     1000.0,
+     0.0
+    ],
+    "anchor_M_W1": [
+     0.0,
+     0.0,
+     1000.0
+    ],
+    "ce_rows": "absent, withheld as CONSTANT_EFFORT_NOT_CONSUMED",
+    "model": "same CE with restraints []"
+   },
+   "subtraction_W1_minus_W2": {
+    "anchor_Fy_N": 500.0,
+    "ce_applied_N": {
+     "value": 0.0,
+     "zero_scale": 375.0
+    },
+    "equals_difference_of_states": true,
+    "published": true
+   }
+  },
+  "REF-I-L": {
+   "L1_load_c_Fz_1000": {
+    "pipe_ab_end_j_Pa": {
+     "value": 0.0,
+     "zero_scale": 13092925.27372969
+    },
+    "pipe_ab_end_j_torsion_Nm": 1000.0,
+    "pipe_bc_end_i_Pa": 13092925.27372969
+   },
+   "L2_load_c_F_1000_0_1000": {
+    "anchor": {
+     "F": [
+      -1000.0,
+      0.0,
+      -1000.0
+     ],
+     "M": [
+      -1000.0,
+      1000.0,
+      1000.0
+     ]
+    },
+    "negative_control_abs_sum_bc_Pa": 26185850.54745938,
+    "negative_control_axial_added_intensified_ab_Pa": 13425703.791103652,
+    "negative_control_axial_added_unintensified_ab_Pa": 13382297.897533135,
+    "negative_control_with_k_bc_Pa": 19997487.892705675,
+    "pipe_ab_end_j_Pa": 13092925.27372969,
+    "pipe_ab_end_j_axial_N": 1000.0,
+    "pipe_bc_end_i_Pa": 18516192.493245997
+   },
+   "combination_control": "no intensified row for any combination",
+   "flexibility_control": "k 1.08 -> 2.16 leaves every value unchanged",
+   "missing_sif_control": "marker without sif_user_value: no row, and no default factor",
+   "model": "REF-M08-L geometry; geometry-only bend marker at b with user SIF i=1.15 (k=1.08 not consumed)",
+   "no_k_variant": {
+    "model": "L1 marker with sif_user_value 1.15 and no flexibility_factor_user_value",
+    "note": "the measure does not require k (NOTE-1)",
+    "pipe_bc_end_i_Pa": 13092925.27372969
+   }
+  },
+  "REF-I-T": {
+   "branch_bc_end_i_Pa": 29160218.14230111,
+   "branch_bc_end_i_bending_Nm": 1280.6248474865697,
+   "header_ab_end_j_Pa": 13962950.695176592,
+   "header_ab_end_j_bending_Nm": 943.3981132056604,
+   "model": "anchor a(0,0,0); header a-b to b(1,0,0) (branch_header_pipe_ref), header continuation b-e to e(2,0,0) (not referenced), branch b-c to c(1,1,0) (branch_branch_pipe_ref); tee at b with header SIF 1.3 and branch SIF 2.0; loads (Fx=+800, Fz=+1000) at c and Fz=+500 at e",
+   "negative_control_header_equals_unreferenced_be_Pa": 7400349.06776026,
+   "unreferenced_be_bending_Nm_for_information": 500.0,
+   "unreferenced_be_end_i": "no row; COMPONENT_INTENSIFIED_COVERAGE_INCOMPLETE names pipe b-e"
+  },
+  "REF-M05-COMB-2": {
+   "A1_minus_A2_tip_displacement_magnitude_mm": 0.44725102640690817,
+   "A1_plus_A2_anchor": {
+    "F": [
+     0.0,
+     -1000.0,
+     -1000.0
+    ],
+    "M": [
+     0.0,
+     1000.0,
+     -1000.0
+    ]
+   },
+   "A1_plus_A2_tip_displacement_magnitude_mm": 0.44725102640690817,
+   "cases": "A1 tip Fy=+1000, A2 tip Fz=+1000 (1 m, C1)",
+   "moment_envelope_A1_A2": {
+    "envelope_max_moment_magnitude_Nm": 1000.0,
+    "negative_control_sum_Nm": 2000.0
+   },
+   "moment_envelope_A1_T": {
+    "cases": "REF-M05-COMB A1 (tip Fy=+1000) and T (tip Mx=+500)",
+    "envelope_max_moment_magnitude_Nm": 1000.0,
+    "negative_control_sum_Nm": 1500.0
+   },
+   "negative_control_magnitude_difference_mm": {
+    "value": 0.0,
+    "zero_scale": 0.31625423366496835
+   },
+   "negative_control_magnitude_sum_mm": 0.6325084673299367
+  },
+  "REF-M05-R1-TRANSLATED": {
+   "anchor_F_N": [
+    -10.0,
+    26.0,
+    -30.0
+   ],
+   "anchor_M_about_node_Nm": [
+    -4.0,
+    55.0,
+    52.0
+   ],
+   "anchor_node": [
+    5.0,
+    -3.0,
+    2.0
+   ],
+   "negative_control_M_about_global_origin_Nm": [
+    34.0,
+    185.0,
+    152.0
+   ]
+  },
+  "REF-M05-SPRING-GAP": {
+   "anchor_Fy_N": -265.9060772974402,
+   "anchor_Mz_Nm": -265.9060772974402,
+   "attribution": "unique (one residual-determined device): both devices published",
+   "gap_active": false,
+   "gap_on_pipe": {
+    "value": 0.0,
+    "zero_scale": 350.0
+   },
+   "gap_support_json": {
+    "family": "nonlinear",
+    "nonlinear": {
+     "behavior": "gap",
+     "closes_when": "positive_displacement",
+     "dof": "UY",
+     "gap": {
+      "unit": "m",
+      "value": 0.001
+     },
+     "initial_state": "inactive"
+    },
+    "restraints": []
+   },
+   "model": "C1 cantilever 1 m; tip spring k=1e6 N/m on UY and a gap support on UY with 1 mm gap (inactive); tip Fy=+350",
+   "spring_on_pipe_Fy_N": -84.0939227025598,
+   "tip_uy_m": 8.40939227025598e-05
+  },
+  "REF-M05-SPRING2": {
+   "anchor": {
+    "F": [
+     0.0,
+     -759.7316494212578,
+     0.0
+    ],
+    "M": [
+     0.0,
+     0.0,
+     -759.7316494212578
+    ],
+    "note": "tip UX is held by the guide, so the axial load goes to the guide and the anchor Fx is zero"
+   },
+   "guide_on_pipe": [
+    -2000.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "model": "C1 cantilever 1 m; tip spring k=1e6 N/m on UY (record 1) and rigid guide on UX (record 2); tip Fx=+2000, Fy=+1000",
+   "spring_on_pipe": [
+    0.0,
+    -240.2683505787423,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "zero_scale_N": 2000.0
+  },
+  "REF-M14-TH": {
+   "anchor_a_support_on_pipe": [
+    829380.4605477056,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "anchor_b_support_on_pipe": [
+    -829380.4605477056,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "circular_normal_max_Pa": 240000000.0,
+   "model": "C1 pipe, 1 m, anchors at both ends, element thermal change +100 K, alpha 1.2e-5/K (invented)",
+   "wall_axial_force_N": -829380.4605477056,
+   "zero_scale_N": 829380.4605477056,
+   "zero_scale_Nm": 49762.82763286234,
+   "zero_scale_Nm_rationale": "the axial force times the outer radius: the largest moment a misplaced axial force could produce at the section"
+  },
+  "REF-M14-X1-SUPPORTS": {
+   "check": "sum Fz + w_z*L = 0; couple of the Fy pair (-cz about z) cancels the applied +cz",
+   "control_scope": "catches DOF-slot mapping errors in rigid rows that restrain only some DOFs; it does not test attribution",
+   "pin_i_support_on_pipe": [
+    0.0,
+    57.96238445873169,
+    -231.84953783492676,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "roller_j_support_on_pipe": [
+    0.0,
+    -57.96238445873169,
+    -231.84953783492676,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "zero_scale_N_or_Nm": 231.84953783492676
+  },
+  "REF-M33-TIE": {
+   "max_displacement_mm": 0.31625423366496835,
+   "model": "anchor o(0,0,0); cantilevers o->p(1,0,0) and o->q(-1,0,0), C1; case: Fz=+1000 at p and at q",
+   "tie_rule": "record both raw magnitudes in both node orders and both solver modes; if they are bitwise equal, assert the identity tie-break (same node for either order); if not, accept either node when both lie within 1e-9 of the value and report 'tie not exercised'; no new tolerance",
+   "tied_nodes": [
+    "node:p",
+    "node:q"
+   ]
+  },
+  "REF-NL-C3": {
+   "case_stop_active": false,
+   "case_stop_force_N": {
+    "value": 0.0,
+    "zero_scale": 800.0
+   },
+   "case_tip_uy_m": 0.0002530033869319747,
+   "expectation": "mechanics combination rows withheld with NONLINEAR_COMBINATION_REQUIRES_SOLVE; case rows kept; subtraction P1-P2 published as a labelled signed difference",
+   "gap_support_json": {
+    "family": "nonlinear",
+    "nonlinear": {
+     "behavior": "gap",
+     "closes_when": "positive_displacement",
+     "dof": "UY",
+     "gap": {
+      "unit": "m",
+      "value": 0.0004
+     },
+     "initial_state": "inactive"
+    },
+    "restraints": []
+   },
+   "model": "C1 cantilever 1 m; gap stop at the tip closing on +UY after 0.4 mm; cases P1, P2 each tip Fy=+800; mechanics combination P1+P2",
+   "stress_reference_C3_1d": {
+    "F_each": 800.0,
+    "g": 0.001,
+    "k": 1000000.0,
+    "superposed_u": 0.0016,
+    "true_lambda": 600.0,
+    "true_u": 0.001
+   },
+   "superposed_uy_m": 0.0005060067738639494,
+   "superposition_penetrates_stop": true,
+   "true_combined_load_stop_on_pipe_Fy_N": -335.1947976647491,
+   "true_combined_load_uy_m": 0.0004
+  },
+  "case_definitions": {
+   "REF-B1": {
+    "arc_pipe_y_reference": [
+     0.7071067811865475,
+     -0.7071067811865475,
+     0.0
+    ],
+    "note": "the product bows the arc toward +y_reference (PP:4928-4935); this value gives the tangent-consistent arc"
+   },
+   "REF-M14-S1": "length 1 m along +x; anchor at x=0 (all six); loads at the free tip",
+   "REF-M14-X1": {
+    "end_couple": "+z at node j",
+    "length_m": 1.0,
+    "node_i_restraints": [
+     "UX",
+     "UY",
+     "UZ",
+     "RX"
+    ],
+    "node_j_restraints": [
+     "UY",
+     "UZ"
+    ],
+    "w_z": "+z over the whole span"
+   },
+   "zero_scale_rule": "a zero expectation uses the case's governing load-effect magnitude as scale: force components use the case's largest applied force, moments its largest applied moment or force*arm, stresses the case's governing nonzero stress"
+  },
+  "global_balance_rule": "every reference checks force and moment balance from published support rows and applied loads, except REF-ATTR (explicit exemption above)",
+  "tie_rule_REF-M08-L": "record both raw magnitudes in both location orders and both solver modes; if they are bitwise equal, assert the identity tie-break (same location for either order); if not, accept either location when both lie within 1e-9 of the value and report 'tie not exercised'; no new tolerance",
+  "zero_scales_rev1": {
+   "REF-B1.in_plane_and_axial": {
+    "force_N": 1000.0,
+    "moment_Nm": 1200.0
+   },
+   "REF-M05-COMB.zero_components": 2000.0,
+   "REF-M05-R1.zero_components": 60.0,
+   "REF-M05-SPRING.zero_components": 1000.0,
+   "REF-M05-T.force_components_N": 500.0,
+   "REF-M05-T.moment_y_z_Nm": 500.0,
+   "REF-M08-L.combination_zero_rows": {
+    "force_N": 1000.0,
+    "moment_Nm": 1000.0,
+    "stress_Pa": 11385152.411938861
+   },
+   "REF-M08-L.member_ab_end_b_bending": 11385152.411938861,
+   "REF-M14-S1.pure_torque_only_normal_max_Pa": 6000000.0
+  }
+ },
+ "sections": {
+  "C1_od0.12_wall0.01": {
+   "A": 0.0034557519189487734,
+   "I": 5.270021676396878e-06,
+   "J": 1.0540043352793756e-05,
+   "Z": 8.783369460661464e-05,
+   "ri": 0.049999999999999996,
+   "ro": 0.06
+  },
+  "S1_od0.10_wall0.01": {
+   "A": 0.002827433388230815,
+   "I": 2.898119222936585e-06,
+   "J": 5.79623844587317e-06,
+   "Z": 5.7962384458731694e-05,
+   "ri": 0.04,
+   "ro": 0.05
+  }
+ }
+}

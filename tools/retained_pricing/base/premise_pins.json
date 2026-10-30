@@ -1,0 +1,15 @@
+{
+ "about": "G7 Pass B (RV89 G7 S-1(e), N-2): the warrant of the dead is_retained branches. These lines are rule keys: the line map stops (exit 4) if an edit touches them, and the premise gate checks their text (exit 4). If the branch were ever live, dense W4 would exceed 0.9 M (RV89 N-2).",
+ "pins": [
+  {
+   "key": "core/reporting/result_export/src/retained_precision.rs:5775",
+   "text": "projected[\"producer\"][\"semantic_contract_id\"] = json!(route.base_id);",
+   "why": "project(): the projection's producer.semantic_contract_id is the route's base id (Route.base_id: preview-physics-1 or physics-1), so semantic_contract::is_retained is false on it (SQ2 re-key of :4401/:4402; the line found by its text at the snapshot)"
+  },
+  {
+   "key": "core/reporting/result_export/src/retained_precision.rs:5860",
+   "text": "crate::semantic_contract::for_source(&projected).map_err(base_error)?;",
+   "why": "validate's one call into semantic_contract: for_source on the projection"
+  }
+ ]
+}

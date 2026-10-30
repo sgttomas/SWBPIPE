@@ -1,0 +1,235 @@
+id: DEL-04-08
+name: Retained-precision result verification
+needs:
+- from: DEL-04-01
+  condition: >-
+    DEL-04-08 publishes and bounds rows that the frame kernel's retained lanes compute. Through
+    `frame_kernel::structural::retained_api`, DEL-04-01 supplies the retained product proof
+    (`certify_product_case`, `certify_final`) with the coupled and floored final per-body scales its
+    gate judged every row with (`CertifiedProductProof::final_scales`, which the receipt's
+    `body_scales` state; Design `w1-coverage-repair.md` §2.2), the admitted-K and annular-source lanes and their
+    publication predicates, the declared member-load set (`MemberLoadSet`, `UniformMemberLoad`), the
+    loaded-member maximum search with its fixed limits, the retained Timoshenko straight member
+    (natural-mode D recipe, kappa_E lane enclosure and D-entry gap majorants) with its sidecar and the
+    reduced-section certification of distinct-basis rows (O4), and the retained resource layouts that the
+    memory profile prices. For retained-source recovery it supplies the metered exact-boundary blocks.
+    Each lane meets the limits stated in the formation definitions (DEF-O, DEF-C and DEF-E) or refuses;
+    no lane widens a limit to complete. The final case's recipe-free `ProductRecipe::NotCovered` carries the
+    derived section extremes and transverse-shear maxima as `not_covered` rows outside every verified class
+    (DEL-04-07 Design `u4b-u5b-implementation.md` §4.1).
+  gating: true
+  evidence: core/solver/frame_kernel/src/structural/retained/mod.rs
+- from: DEL-04-07
+  condition: >-
+    DEL-04-07's product solve integration hosts the method. Its dispatcher
+    (`run_linear_static_preview_value_dispatch`) runs the census and admission before any retained
+    capture. An admission refusal returns the unchanged ordinary route. A later stage fault returns
+    the ordinary bytes, with one `RETAINED_PRECISION_UNAVAILABLE` notice where retained work ran. Its
+    ordinary exact route attempts retained-source recovery for eligible captured cases whose ordinary
+    report is Sensitive or whose ordinary attempt errs, screens each selection by the captured replay's
+    reservation, and republishes every case of a captured invocation on its ordinary route when a selected
+    source cannot finalize (Design `pre04-failure-unification.md`). Its memory-budget
+    policy fixes the qualified per-invocation M = 12 GiB within the shared 75 % pool. Its desktop host
+    keeps the non-retained entry, so retained-precision results reach no desktop solve until B8
+    (owner-held).
+  gating: true
+  evidence: execution/PKG-04/DEL-04-07/Design/memory-budget-decision.md
+- from: DEL-05-01
+  condition: >-
+    W1 captures each authored full-span uniform member load bit for bit from the primitive load
+    application's `element_uniform_loads` and the case's primitive load records. It forms the exact
+    ledger (K4LED) from those records and the normalized nodal terms. DEL-05-01 supplies these records
+    with their authored identity, direction, dimension and magnitude.
+  gating: true
+  evidence: core/loads/primitive_loads/src/lib.rs
+- from: DEL-05-05
+  condition: >-
+    DEL-05-05's user-load contract defines a full-span uniform member load on a straight member: its
+    consistent equivalent nodal load ((L/2)w at each end, ±(L/12)(d x w) moments) and the member-local
+    end and station recovery with span terms. W1's declared entries are each within 2^-1022 of these
+    exact consistent values, relative to their magnitude. The difference is disclosed, not bounded.
+  gating: true
+  evidence: execution/PKG-05/DEL-05-05/ScopeOfWork.md
+- from: DEL-05-03
+  condition: >-
+    DEL-05-03 supplies the nominal and reduced section bases and their fixed binary64 rederivation
+    (`section_basis`), which the readers apply at G5b and G8 and the verifier repeats. It also supplies
+    the stress definitions (N/A, M/Z, T*c/J and the elastic normal-stress maximum) behind every stress
+    row this method bounds, and the `section_stress_quantities` sequences by which successors and source
+    publications form their derived section extremes and transverse-shear maxima from their own rows. It also supplies the Timoshenko formulation (U8's fixed-order kappa-hat, the energy-matched
+    kappa_E and the shear-area leaf), which both retained routes form and the readers rederive, and the
+    mill-tolerance and corrosion-allowance fields behind the D-5 bases (O4, `o4-source-extension.md`).
+  gating: true
+  evidence: execution/PKG-05/DEL-05-03/Design/section-bases-and-timoshenko.md
+- from: DEL-05-02
+  condition: >-
+    DEL-05-02 supplies the mechanics combination semantics and their withholding gates
+    (`NONLINEAR_COMBINATION_REQUIRES_SOLVE`, `CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE`,
+    `COMBINATION_MODULUS_BASIS_MIXED`). Retained combinations reproduce them under the B2-C contract. It
+    also supplies the base-route readers and standing (`reader_verdict`) that G7 applies to each
+    successor's projected statement.
+  gating: true
+  evidence: execution/PKG-05/DEL-05-02/Design/retained-combinations.md
+- from: DEL-02-02
+  condition: >-
+    DEL-02-02 supplies the unit catalog and conversions (`open_pipe_stress_units`) that the reader's row
+    classification and raw/SI projection use. The verifier matches the crate's committed unit
+    witnesses bit for bit.
+  gating: true
+  evidence: core/units/README.md
+- from: DEL-02-05
+  condition: >-
+    DEL-02-05 supplies the canonical JSON form (`openpipestress_jcs_ijson_v1`, `core/serialization/canonical_json`)
+    and its SHA-256 hashing. These bind each receipt, captured invocation and publication hash. The
+    verifier matches the crate's committed canonical-JSON vectors.
+  gating: true
+  evidence: core/serialization/canonical_json/README.md
+- from: DEL-00-06
+  condition: >-
+    The method's notices and refusal codes (`RETAINED_PRECISION_SELECTED`, `RETAINED_PRECISION_UNAVAILABLE`
+    and the reader's gate codes) are typed diagnostics bound to cases. They follow the diagnostics and
+    result-envelope contract (AB-00-06), including its rule on output claims; the wording of the
+    current product messages is an open terminology choice (ScopeOfWork TBD-001).
+  gating: false
+- from: DEL-10-05
+  condition: >-
+    The headless runner hosts the reader's CLI binding (`openpipestress-runner read`). Python product code
+    takes the reader's verdict through it. The runner's solves take the ordinary route.
+  gating: false
+code_paths:
+- core/product_physics/src/retained_*.rs
+- core/product_physics/src/retained_tests_hooks/**
+- core/product_physics/src/build_identity.rs
+- core/product_physics/build.rs
+- core/product_physics/src/source_recovery.rs
+- core/product_physics/src/source_recovery/**
+- core/product_physics/src/source_receipt.rs
+- core/product_physics/src/source_receipt/**
+- core/product_physics/src/w1_*_tests.rs
+- core/product_physics/src/b7b_admission_tests.rs
+- core/product_physics/src/s4_retained_tests.rs
+- core/product_physics/tests/retained_*.rs
+- core/product_physics/tests/pressure_source_join.rs
+- core/product_physics/tests/pressure_source_join/**
+- core/solver/frame_kernel/src/structural/retained/**
+- core/solver/frame_kernel/src/structural/retained_resource.rs
+- core/solver/frame_kernel/src/structural/exact_boundary.rs
+- core/solver/frame_kernel/src/structural/exact_boundary/**
+- core/solver/frame_kernel/tests/retained_k4/**
+- core/solver/frame_kernel/tests/retained_wide/**
+- core/solver/frame_kernel/tests/retained_wide_k3/**
+- core/numerics/correct_norm/**
+- core/reporting/result_export/src/retained_precision.rs
+- core/reporting/result_export/src/declared_member_load.rs
+- core/reporting/result_export/src/physics_source.rs
+- core/reporting/result_export/src/source_blocks.rs
+- core/reporting/result_export/src/section_basis.rs
+- core/reporting/result_export/tests/retained_precision_*.rs
+- core/reporting/result_export/tests/pressure_source_contract.rs
+- core/reporting/result_export/tests/source_blocks.rs
+- core/reporting/result_export/tests/base_reader_outcomes.rs
+- core/reporting/result_export/tests/corpus_storage.rs
+- core/reporting/result_export/tests/declared_member_load_workspace.rs
+- core/reporting/result_export/tests/support/retained_precision_corpus.rs
+- core/runner/headless/src/reader_binding.rs
+- core/runner/headless/tests/reader_cli.rs
+- core/runner/headless/tests/retained_precision_admission.rs
+- core/model_operations/operation_applier/src/retained_semantics_binding.rs
+- core/model_operations/operation_applier/tests/retained_precision_*.rs
+- core/analysis_runs/rust_reader.py
+- tests/verifiers/**
+- tests/retained_precision_corpus.py
+- tests/base_reader_corpus.py
+- tests/test_u4b_retained_tau.py
+- tests/test_u4b_source_derived_not_qualified.py
+- tools/retained_pricing/**
+- tools/fixtures/retained_precision_corpus.py
+- tools/fixtures/retained_precision_synthetic_bases.py
+- tools/fixtures/j7_rf_census_inputs.py
+- schemas/retained_precision_mp_v2.schema.json
+- schemas/physics_source_recovery.schema.json
+- fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json
+- fixtures/results/semantic_contract_v0_3_physics_retained_1.json
+- fixtures/results/semantic_contract_v0_3_pressure_source_1.json
+- fixtures/results/retained_precision_*.json
+- fixtures/results/base_reader_outcomes.json
+- fixtures/results/pressure_source_reader_corpus.json
+- fixtures/results/j7_rf_census_*.json
+- apps/desktop/src/features/results/retainedPrecision*
+- apps/desktop/src/features/results/retainedPhysicsRoute.test.ts
+- apps/desktop/src/features/results/baseReaderWasmEquivalence.test.ts
+- apps/desktop/src/features/results/pressureSourceCorpusParity.test.ts
+- apps/desktop/src/features/results/outputPolicy.ts
+- apps/desktop/src/test-support/retainedPrecision*
+- apps/desktop/src/test-support/baseReaderInputs.ts
+- tests/test_o4_source_verifier.py
+- tests/test_o4_text_only_envelope_diff.py
+- tests/test_ra_work_only_envelope_diff.py
+- validation/references/o4_retained_source/**
+checks:
+- core/reporting/result_export/tests/retained_precision_contract.rs
+- core/reporting/result_export/tests/retained_precision_carriers.rs
+- core/reporting/result_export/tests/retained_precision_derivative_golden.rs
+- core/reporting/result_export/tests/declared_member_load_workspace.rs
+- core/reporting/result_export/tests/pressure_source_contract.rs
+- core/reporting/result_export/tests/source_blocks.rs
+- core/reporting/result_export/tests/base_reader_outcomes.rs
+- core/reporting/result_export/tests/corpus_storage.rs
+- core/runner/headless/tests/reader_cli.rs
+- core/runner/headless/tests/retained_precision_admission.rs
+- core/model_operations/operation_applier/tests/retained_precision_reader.rs
+- core/model_operations/operation_applier/tests/retained_precision_semantics.rs
+- core/product_physics/src/retained_facade_tests.rs
+- core/product_physics/src/retained_product_tests.rs
+- core/product_physics/src/retained_wire_tests.rs
+- core/product_physics/src/retained_memory_law_tests.rs
+- core/product_physics/src/retained_memory_witness_tests.rs
+- core/product_physics/src/b7b_admission_tests.rs
+- core/product_physics/src/s4_retained_tests.rs
+- core/product_physics/src/w1_domain_stage1_tests.rs
+- core/product_physics/src/w1_source_census_tests.rs
+- core/product_physics/src/w1_successor_census_tests.rs
+- core/product_physics/src/source_recovery/j7_rf_census.rs
+- core/product_physics/tests/retained_memory_challenge.rs
+- core/product_physics/tests/retained_precision_admission.rs
+- core/product_physics/tests/pressure_source_join.rs
+- core/solver/frame_kernel/tests/retained_k4
+- core/solver/frame_kernel/src/structural/exact_boundary/metered_tests.rs
+- core/solver/frame_kernel/src/structural/exact_boundary/functionals/shortcut_tests.rs
+- core/product_physics/src/source_recovery/ra_gating_tests.rs
+- tests/test_verifier_independence.py
+- tests/test_retained_precision_contract.py
+- tests/test_retained_precision_b2.py
+- tests/test_retained_precision_b3.py
+- tests/test_retained_precision_carriers.py
+- tests/test_retained_precision_failed_ordinary.py
+- tests/test_retained_precision_schema.py
+- tests/test_retained_precision_si_first.py
+- tests/test_retained_precision_corpus_storage.py
+- tests/test_retained_precision_synthetic_bases.py
+- tests/test_declared_member_load_reader.py
+- core/product_physics/src/source_receipt/o4_source_tests.rs
+- core/product_physics/src/o4_m3_judging_tests.rs
+- tests/test_o4_source_verifier.py
+- tests/test_o4_text_only_envelope_diff.py
+- tests/test_ra_work_only_envelope_diff.py
+- validation/references/o4_retained_source/declared_problem/run.sh
+- tests/test_rust_reader.py
+- tests/test_base_reader_verifier.py
+- tests/test_pressure_source_verifier.py
+- tests/test_pressure_source_corpus.py
+- tests/test_u4b_retained_tau.py
+- tests/test_u4b_source_derived_not_qualified.py
+- tests/test_j7_rf_census_inputs.py
+- tests/test_retained_pricing_tool.py
+- tests/test_claims_language_surface.py
+- apps/desktop/src/features/results/retainedPrecisionWasmEquivalence.test.ts
+- apps/desktop/src/features/results/baseReaderWasmEquivalence.test.ts
+- apps/desktop/src/features/results/pressureSourceCorpusParity.test.ts
+- apps/desktop/src/features/results/outputPolicy.test.ts
+- apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx
+- apps/desktop/src/features/results/loadReferenceOutputRefusal.test.tsx
+- apps/desktop/src/features/report/reportPackageRequest.test.ts
+- apps/desktop/src/services/ruleCheckService.test.ts
+- apps/desktop/src-tauri/src/lib.rs
+- apps/desktop/src/test-support/retainedPrecisionCorpus.test.ts

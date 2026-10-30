@@ -1,0 +1,292 @@
+{
+ "materials": [],
+ "model": {
+  "analysis_status": {
+   "mechanics": "ready_for_preview_diagnostics",
+   "professional_acceptance": "not_provided",
+   "rule_check": "not_performed_user_rule_inputs_missing"
+  },
+  "combinations": [],
+  "components": [],
+  "document_kind": "openpipestress.product_preview.model",
+  "load_cases": [
+   {
+    "id": "load:STICK",
+    "primitive_loads": [
+     {
+      "category": "concentrated_force",
+      "dimension": "force",
+      "direction": "global_z",
+      "id": "load:STICK-P",
+      "magnitude": {
+       "unit": "N",
+       "value": -126.34770789110348
+      },
+      "provenance": "invented_w16_nonlinear_motion_reference",
+      "target": {
+       "node": "node:T",
+       "type": "node"
+      }
+     },
+     {
+      "category": "concentrated_force",
+      "dimension": "force",
+      "direction": "global_x",
+      "id": "load:STICK-T",
+      "magnitude": {
+       "unit": "N",
+       "value": 15.793463486387935
+      },
+      "provenance": "invented_w16_nonlinear_motion_reference",
+      "target": {
+       "node": "node:T",
+       "type": "node"
+      }
+     },
+     {
+      "category": "imposed_displacement",
+      "dimension": "displacement",
+      "direction": "UZ",
+      "id": "load:STICK-D",
+      "magnitude": {
+       "unit": "m",
+       "value": -0.000244140625
+      },
+      "provenance": "invented_w16_nonlinear_motion_reference",
+      "target": {
+       "dof": "UZ",
+       "support": "support:N",
+       "type": "support"
+      }
+     }
+    ],
+    "provenance": "invented_w16_nonlinear_motion_reference"
+   },
+   {
+    "id": "load:SLIDE",
+    "primitive_loads": [
+     {
+      "category": "concentrated_force",
+      "dimension": "force",
+      "direction": "global_z",
+      "id": "load:SLIDE-P",
+      "magnitude": {
+       "unit": "N",
+       "value": -126.34770789110348
+      },
+      "provenance": "invented_w16_nonlinear_motion_reference",
+      "target": {
+       "node": "node:T",
+       "type": "node"
+      }
+     },
+     {
+      "category": "concentrated_force",
+      "dimension": "force",
+      "direction": "global_x",
+      "id": "load:SLIDE-T",
+      "magnitude": {
+       "unit": "N",
+       "value": 63.17385394555174
+      },
+      "provenance": "invented_w16_nonlinear_motion_reference",
+      "target": {
+       "node": "node:T",
+       "type": "node"
+      }
+     },
+     {
+      "category": "imposed_displacement",
+      "dimension": "displacement",
+      "direction": "UZ",
+      "id": "load:SLIDE-D",
+      "magnitude": {
+       "unit": "m",
+       "value": -0.000244140625
+      },
+      "provenance": "invented_w16_nonlinear_motion_reference",
+      "target": {
+       "dof": "UZ",
+       "support": "support:N",
+       "type": "support"
+      }
+     }
+    ],
+    "provenance": "invented_w16_nonlinear_motion_reference"
+   },
+   {
+    "id": "load:BOUNDARY",
+    "primitive_loads": [
+     {
+      "category": "concentrated_force",
+      "dimension": "force",
+      "direction": "global_z",
+      "id": "load:BOUNDARY-P",
+      "magnitude": {
+       "unit": "N",
+       "value": -126.34770789110348
+      },
+      "provenance": "invented_w16_nonlinear_motion_reference",
+      "target": {
+       "node": "node:T",
+       "type": "node"
+      }
+     },
+     {
+      "category": "concentrated_force",
+      "dimension": "force",
+      "direction": "global_x",
+      "id": "load:BOUNDARY-T",
+      "magnitude": {
+       "unit": "N",
+       "value": 31.58692697277587
+      },
+      "provenance": "invented_w16_nonlinear_motion_reference",
+      "target": {
+       "node": "node:T",
+       "type": "node"
+      }
+     },
+     {
+      "category": "imposed_displacement",
+      "dimension": "displacement",
+      "direction": "UZ",
+      "id": "load:BOUNDARY-D",
+      "magnitude": {
+       "unit": "m",
+       "value": -0.000244140625
+      },
+      "provenance": "invented_w16_nonlinear_motion_reference",
+      "target": {
+       "dof": "UZ",
+       "support": "support:N",
+       "type": "support"
+      }
+     }
+    ],
+    "provenance": "invented_w16_nonlinear_motion_reference"
+   }
+  ],
+  "materials": [
+   {
+    "elastic_modulus": {
+     "unit": "Pa",
+     "value": 171798691840.0
+    },
+    "id": "material:w16nl",
+    "provenance": "invented_w16_nonlinear_motion_reference",
+    "shear_modulus": {
+     "unit": "Pa",
+     "value": 68719476736.0
+    },
+    "thermal_expansion_coefficient": {
+     "unit": "1/degC",
+     "value": 1.2e-05
+    }
+   }
+  ],
+  "nodes": [
+   {
+    "id": "node:A",
+    "position": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "provenance": "invented_w16_nonlinear_motion_reference"
+   },
+   {
+    "id": "node:T",
+    "position": {
+     "x": 4.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "provenance": "invented_w16_nonlinear_motion_reference"
+   }
+  ],
+  "pipe_segments": [
+   {
+    "from": "node:A",
+    "id": "pipe:AT",
+    "material": "material:w16nl",
+    "provenance": "invented_w16_nonlinear_motion_reference",
+    "section": {
+     "outside_diameter": {
+      "unit": "m",
+      "value": 0.206
+     },
+     "wall_thickness": {
+      "unit": "m",
+      "value": 0.011
+     }
+    },
+    "to": "node:T",
+    "y_reference": {
+     "x": 0,
+     "y": 0,
+     "z": 1
+    }
+   }
+  ],
+  "project": {
+   "description": "W-16 stage 2 A-2 (R-a): a settling derived-normal source under a tip friction support.",
+   "id": "project:w16nl-a2",
+   "name": "W-16 stage 2 a2",
+   "units": {
+    "angle": "rad",
+    "force": "N",
+    "length": "m",
+    "pressure": "Pa",
+    "stress": "Pa",
+    "temperature": "degC"
+   }
+  },
+  "schema_version": "0.8.0",
+  "supports": [
+   {
+    "family": "anchor",
+    "id": "support:ANCHOR",
+    "node": "node:A",
+    "provenance": "invented_w16_nonlinear_motion_reference",
+    "restraints": [
+     "UX",
+     "UY",
+     "UZ",
+     "RX",
+     "RY",
+     "RZ"
+    ]
+   },
+   {
+    "family": "guide",
+    "id": "support:N",
+    "node": "node:T",
+    "provenance": "invented_w16_nonlinear_motion_reference",
+    "restraints": [
+     "UZ"
+    ]
+   },
+   {
+    "family": "nonlinear",
+    "id": "support:NL-F",
+    "node": "node:T",
+    "nonlinear": {
+     "behavior": "friction",
+     "dof": "UX",
+     "friction_coefficient": {
+      "unit": "none",
+      "value": 0.5
+     },
+     "initial_state": "sticking",
+     "normal_reaction_source": {
+      "dof": "UZ",
+      "support_ref": "support:N"
+     }
+    },
+    "provenance": "invented_w16_nonlinear_motion_reference",
+    "restraints": []
+   }
+  ]
+ }
+}

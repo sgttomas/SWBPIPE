@@ -1,0 +1,122 @@
+{
+  "schema_version": "0.1.0",
+  "manifest_kind": "openpipestress.plugin_manifest",
+  "metadata": {
+    "plugin_id": "plugin:invented-no-bypass",
+    "name": "Invented no-bypass manifest",
+    "version": "0.1.0",
+    "author": "OpenPipeStress Type 2 worker",
+    "description": "Invented manifest fixture for PKG-02 extension-domain evidence.",
+    "status": "draft"
+  },
+  "api_boundary_compatibility": {
+    "domain_contract_ref": "docs/architecture/extension_domain_contracts.md",
+    "api_boundary_contract_ref": "api/api_boundary_contract.yaml",
+    "boundary_api_version": "0.1.0",
+    "schema_version_contract": "JSON Schema 2020-12",
+    "host_api_status": "draft",
+    "compatible_operation_categories": [
+      "plugin_manifest",
+      "permission",
+      "privacy",
+      "provenance",
+      "checksum",
+      "no_bypass",
+      "diagnostic",
+      "result_envelope"
+    ],
+    "result_envelope_required": true,
+    "transport": "TBD"
+  },
+  "entrypoints": [
+    {
+      "entrypoint_id": "entrypoint:invented-model-import",
+      "extension_point": "model_import_adapter",
+      "domain_surface": "canonical_model",
+      "operation_mode": "job",
+      "handler_ref": "handler:invented-model-import",
+      "governed_boundary_required": true
+    },
+    {
+      "entrypoint_id": "entrypoint:invented-persistence-metadata",
+      "extension_point": "diagnostic_provider",
+      "domain_surface": "project_persistence",
+      "operation_mode": "metadata_only",
+      "handler_ref": "handler:invented-persistence-metadata",
+      "governed_boundary_required": true
+    },
+    {
+      "entrypoint_id": "entrypoint:invented-unit-diagnostic",
+      "extension_point": "validation_hook",
+      "domain_surface": "units",
+      "operation_mode": "query",
+      "handler_ref": "handler:invented-unit-diagnostic",
+      "governed_boundary_required": true
+    }
+  ],
+  "permissions": {
+    "denied_by_default": true,
+    "requested": [
+      "diagnostics_emit"
+    ],
+    "grant_state": "not_granted",
+    "user_consent_required": true,
+    "revocation_supported": true
+  },
+  "provenance": {
+    "source_name": "PKG-02 invented plugin manifest fixture",
+    "source_location": "fixtures/plugin_manifest/invented_manifest_no_bypass.json",
+    "source_license": "project invented public example",
+    "contributor": "OpenPipeStress Type 2 worker",
+    "contributor_certification": "invented non-engineering example",
+    "redistribution_status": "public_permissive",
+    "review_status": "accepted"
+  },
+  "privacy": {
+    "local_first": true,
+    "private_data_transmission_default": false,
+    "telemetry_enabled_by_default": false,
+    "private_data_access": "explicit_permission_required",
+    "export_requires_permission": true,
+    "redaction_supported": true
+  },
+  "checksums": [
+    {
+      "algorithm": "sha256",
+      "canonicalization": "JCS",
+      "payload_ref": "plugin:invented-no-bypass",
+      "value": "invented-plugin-manifest-hash"
+    }
+  ],
+  "sandbox": {
+    "sandbox_required": true,
+    "arbitrary_code_execution_allowed": false,
+    "filesystem_access_default": "denied",
+    "network_access_default": "denied",
+    "process_spawn_default": "denied",
+    "rule_pack_execution_mode": "not_applicable",
+    "capability_declaration_required": true
+  },
+  "no_bypass_constraints": {
+    "unit_controls": true,
+    "provenance_controls": true,
+    "privacy_controls": true,
+    "rule_sandbox_controls": true,
+    "analysis_boundary_controls": true,
+    "persistence_controls": true,
+    "schema_validation": true,
+    "diagnostic_envelope": true,
+    "checksum_controls": true,
+    "protected_content_controls": true,
+    "report_boundary_controls": true,
+    "solver_boundary_controls": true,
+    "human_acceptance_controls": true
+  },
+  "professional_boundary": {
+    "software_makes_compliance_claim": false,
+    "software_makes_certification_claim": false,
+    "software_makes_sealing_claim": false,
+    "human_review_required": true,
+    "human_acceptance_record_software_generated": false
+  }
+}

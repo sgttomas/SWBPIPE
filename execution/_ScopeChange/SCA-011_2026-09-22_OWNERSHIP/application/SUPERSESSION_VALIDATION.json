@@ -1,0 +1,24 @@
+{
+  "command": [
+    "python3",
+    "tools/coordination/accumulate_supersession_map.py",
+    "--prior-map",
+    "projects/chirality-piping/execution/_ScopeChange/SCA-003_2026-05-17_1658/Supersession_Map.csv",
+    "--prior-map",
+    "projects/chirality-piping/execution/_ScopeChange/SCA-009_2026-08-20_0000/Supersession_Map.csv",
+    "--delta",
+    "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/Supersession_Delta.csv",
+    "--output-map",
+    "/private/tmp/sca011-super-gh7yla0u/Supersession_Map.csv",
+    "--check-map",
+    "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/Supersession_Map.csv",
+    "--output-findings",
+    "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/SUPERSESSION_FINDINGS.csv"
+  ],
+  "exit_code": 0,
+  "stdout": "Wrote supersession map: /private/tmp/sca011-super-gh7yla0u/Supersession_Map.csv\nRows: 19\nFindings: 0 total, 0 blocking\n",
+  "stderr": "",
+  "generated_sha256": "b3c06a16348337e3caea01fdd2f138dc059e0c6c93e6bdd955862fd5e1ad06f5",
+  "accepted_sha256": "b3c06a16348337e3caea01fdd2f138dc059e0c6c93e6bdd955862fd5e1ad06f5",
+  "actual_map_unchanged": true
+}

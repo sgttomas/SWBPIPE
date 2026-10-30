@@ -1,0 +1,1 @@
+{"status": "PASS", "output": "/Users/ryan/ai-env/projects/chirality-session-20260718/projects/chirality-piping/validation/evidence/reproduction/REPRO_DEL0904_20260718T215424Z_f14fa77518a/checks/piping-pytest.json", "checks": ["piping-pytest"]}

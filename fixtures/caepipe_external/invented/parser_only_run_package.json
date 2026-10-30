@@ -1,0 +1,294 @@
+{
+  "boundary_notes": [
+    "CAEPIPE external execution is optional and user-owned.",
+    "Public tests use skipped or parser-only evidence and do not require a CAEPIPE executable.",
+    "Parsed CSV output is regression and handoff evidence only.",
+    "Evidence does not assert CAEPIPE compatibility, solver validation, release readiness, code compliance, or professional reliance."
+  ],
+  "checksums": [
+    {
+      "algorithm": "sha256",
+      "canonicalization": "JCS_compatible_json_payload_hash",
+      "payload_ref": {
+        "object_type": "CaePipeExternalRunMember",
+        "ref": "caepipe-run:invented-parser-only:diagnostics"
+      },
+      "payload_scope": "caepipe_external_diagnostics",
+      "value": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "algorithm": "sha256",
+      "canonicalization": "JCS_compatible_json_payload_hash",
+      "payload_ref": {
+        "object_type": "CaePipeExternalRunMember",
+        "ref": "caepipe-run:invented-parser-only:parsed_csv"
+      },
+      "payload_scope": "caepipe_external_parsed_csv",
+      "value": "sha256:fe71e0b1bbef8aa07cb708cee634ff588e986912cf265faed4bb23fb12e36a76"
+    },
+    {
+      "algorithm": "sha256",
+      "canonicalization": "JCS_compatible_json_payload_hash",
+      "payload_ref": {
+        "object_type": "CaePipeExternalRunMember",
+        "ref": "caepipe-run:invented-parser-only:run_metadata"
+      },
+      "payload_scope": "caepipe_external_run_metadata",
+      "value": "sha256:4f0e2481339de64090cf7daff731db8bd8296ceaf1245e25047a3a15452a5d0d"
+    }
+  ],
+  "command_profile": {
+    "command_shape": "not_invoked_public_fixture_only",
+    "invocation_mode": "parser_only_not_invoked",
+    "profile_basis": "TBD-17-05-PH-001",
+    "profile_id": "TBD-17-05-invocation-profile"
+  },
+  "deliverable_id": "DEL-17-05",
+  "diagnostics": [],
+  "executable_config": {
+    "configuration_surface": "TBD-17-05-PH-001",
+    "configured_path_state": "absent",
+    "environment_responsibility_acknowledged": false,
+    "license_responsibility_acknowledged": false,
+    "path_record": "not_configured"
+  },
+  "execution_result": {
+    "attempted": false,
+    "exit_status": null,
+    "skip_reason": "Parser-only public fixture; external CAEPIPE execution was not attempted.",
+    "stderr_capture": "not_available",
+    "stdout_capture": "not_available"
+  },
+  "mbf_package_ref": {
+    "object_type": "CaePipeMbfExportPackage",
+    "ref": "caepipe-mbf:invented-del-17-04"
+  },
+  "objectives": [
+    "OBJ-007",
+    "OBJ-009",
+    "OBJ-017",
+    "OBJ-018"
+  ],
+  "package_id": "PKG-17",
+  "package_status": "parser_only_evidence",
+  "parsed_csv": {
+    "csv_checksum": {
+      "algorithm": "sha256",
+      "canonicalization": "normalized_ascii_lf_text",
+      "payload_ref": {
+        "object_type": "CsvArtifact",
+        "ref": "csv:invented-caepipe-results"
+      },
+      "payload_scope": "caepipe_csv_text",
+      "value": "sha256:135d98998531713e1bd0d4649c3673f9e3159fa453fd3ad036e45315bde72a85"
+    },
+    "diagnostics": [],
+    "parser_status": "parsed_parser_only_fixture",
+    "provenance": {
+      "contributor": "OpenPipeStress Type 2 worker",
+      "contributor_certification": "implementation-only-no-professional-claim",
+      "privacy_classification": "public_metadata",
+      "redistribution_status": "public_permissive",
+      "review_status": "machine_checked",
+      "source_license": "project-governed",
+      "source_location": "core/handoff/caepipe_external/run.py",
+      "source_name": "OpenPipeStress DEL-17-05 CAEPIPE external-run evidence builder"
+    },
+    "row_count": 3,
+    "rows": [
+      {
+        "correlation_status": "canonical_id_map",
+        "load_case": "L001",
+        "provenance": {
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "privacy_classification": "public_metadata",
+          "redistribution_status": "public_permissive",
+          "review_status": "machine_checked",
+          "source_license": "project-governed",
+          "source_location": "core/handoff/caepipe_external/run.py",
+          "source_name": "OpenPipeStress DEL-17-05 CAEPIPE external-run evidence builder"
+        },
+        "row_number": 2,
+        "section": "NODE_DISPLACEMENTS",
+        "source_csv_ref": {
+          "object_type": "CsvArtifact",
+          "ref": "csv:invented-caepipe-results"
+        },
+        "stable_id": "node:invented:A",
+        "target_id": "N001",
+        "unit": "m",
+        "values": {
+          "ux": 0,
+          "uy": 0,
+          "uz": 0
+        }
+      },
+      {
+        "correlation_status": "canonical_id_map",
+        "load_case": "L001",
+        "provenance": {
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "privacy_classification": "public_metadata",
+          "redistribution_status": "public_permissive",
+          "review_status": "machine_checked",
+          "source_license": "project-governed",
+          "source_location": "core/handoff/caepipe_external/run.py",
+          "source_name": "OpenPipeStress DEL-17-05 CAEPIPE external-run evidence builder"
+        },
+        "row_number": 3,
+        "section": "NODE_DISPLACEMENTS",
+        "source_csv_ref": {
+          "object_type": "CsvArtifact",
+          "ref": "csv:invented-caepipe-results"
+        },
+        "stable_id": "node:invented:B",
+        "target_id": "N002",
+        "unit": "m",
+        "values": {
+          "ux": 0.001,
+          "uy": 0,
+          "uz": 0
+        }
+      },
+      {
+        "correlation_status": "canonical_id_map",
+        "load_case": "L001",
+        "provenance": {
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "privacy_classification": "public_metadata",
+          "redistribution_status": "public_permissive",
+          "review_status": "machine_checked",
+          "source_license": "project-governed",
+          "source_location": "core/handoff/caepipe_external/run.py",
+          "source_name": "OpenPipeStress DEL-17-05 CAEPIPE external-run evidence builder"
+        },
+        "row_number": 4,
+        "section": "ELEMENT_FORCES",
+        "source_csv_ref": {
+          "object_type": "CsvArtifact",
+          "ref": "csv:invented-caepipe-results"
+        },
+        "stable_id": "pipe:invented:001",
+        "target_id": "P001",
+        "unit": "N",
+        "values": {
+          "axial": 12.5,
+          "shear_y": 0.1,
+          "shear_z": 0.2
+        }
+      }
+    ],
+    "source_csv_ref": {
+      "object_type": "CsvArtifact",
+      "ref": "csv:invented-caepipe-results"
+    }
+  },
+  "parser_coverage": [
+    {
+      "basis": "invented_public_fixture",
+      "diagnostic_severity": "warning",
+      "expected_columns": [
+        "stable_id",
+        "target_id",
+        "load_case",
+        "axial",
+        "shear_y",
+        "shear_z",
+        "unit"
+      ],
+      "fixture_provenance": "fixtures/caepipe_external/invented/caepipe_results.csv",
+      "provenance": {
+        "contributor": "OpenPipeStress Type 2 worker",
+        "contributor_certification": "implementation-only-no-professional-claim",
+        "privacy_classification": "public_metadata",
+        "redistribution_status": "public_permissive",
+        "review_status": "machine_checked",
+        "source_license": "project-governed",
+        "source_location": "core/handoff/caepipe_external/run.py",
+        "source_name": "OpenPipeStress DEL-17-05 CAEPIPE external-run evidence builder"
+      },
+      "section_name": "ELEMENT_FORCES",
+      "support_status": "parser_only_supported",
+      "unmapped_row_policy": "diagnostic_warning"
+    },
+    {
+      "basis": "invented_public_fixture",
+      "diagnostic_severity": "warning",
+      "expected_columns": [
+        "stable_id",
+        "target_id",
+        "load_case",
+        "ux",
+        "uy",
+        "uz",
+        "unit"
+      ],
+      "fixture_provenance": "fixtures/caepipe_external/invented/caepipe_results.csv",
+      "provenance": {
+        "contributor": "OpenPipeStress Type 2 worker",
+        "contributor_certification": "implementation-only-no-professional-claim",
+        "privacy_classification": "public_metadata",
+        "redistribution_status": "public_permissive",
+        "review_status": "machine_checked",
+        "source_license": "project-governed",
+        "source_location": "core/handoff/caepipe_external/run.py",
+        "source_name": "OpenPipeStress DEL-17-05 CAEPIPE external-run evidence builder"
+      },
+      "section_name": "NODE_DISPLACEMENTS",
+      "support_status": "parser_only_supported",
+      "unmapped_row_policy": "diagnostic_warning"
+    }
+  ],
+  "privacy": {
+    "classification": "invented_public_example",
+    "commercial_tool_payload_embedded": false,
+    "local_only": true,
+    "private_payload_embedded": false,
+    "protected_payload_embedded": false,
+    "redaction_refs": [],
+    "telemetry_allowed": false
+  },
+  "professional_boundary": {
+    "human_review_required": true,
+    "software_bundles_caepipe": false,
+    "software_creates_professional_reliance_record": false,
+    "software_invokes_caepipe_without_user_configuration": false,
+    "software_makes_approval_claim": false,
+    "software_makes_caepipe_compatibility_claim": false,
+    "software_makes_certification_claim": false,
+    "software_makes_compliance_claim": false,
+    "software_makes_release_claim": false,
+    "software_makes_sealing_claim": false,
+    "software_makes_solver_validation_claim": false,
+    "supports_handoff_review_evidence": true,
+    "supports_regression_evidence": true
+  },
+  "provenance": {
+    "contributor": "OpenPipeStress Type 2 worker",
+    "contributor_certification": "implementation-only-no-professional-claim",
+    "privacy_classification": "public_metadata",
+    "redistribution_status": "public_permissive",
+    "review_status": "machine_checked",
+    "source_license": "project-governed",
+    "source_location": "core/handoff/caepipe_external/run.py",
+    "source_name": "OpenPipeStress DEL-17-05 CAEPIPE external-run evidence builder"
+  },
+  "run_directory": {
+    "expected_csv_path": "fixtures/caepipe_external/invented/caepipe_results.csv",
+    "input_mbf_path": "fixtures/caepipe_mbf/invented/caepipe_mbf_export_package.json",
+    "observed_csv_path": "fixtures/caepipe_external/invented/caepipe_results.csv",
+    "output_discovery_status": "fixture_observed",
+    "run_directory_ref": "fixture:caepipe-external-parser-only",
+    "working_directory": "fixtures/caepipe_external/invented"
+  },
+  "run_id": "caepipe-run:invented-parser-only",
+  "schema_version": "0.1.0",
+  "scope_items": [
+    "SOW-030",
+    "SOW-046",
+    "SOW-075"
+  ]
+}

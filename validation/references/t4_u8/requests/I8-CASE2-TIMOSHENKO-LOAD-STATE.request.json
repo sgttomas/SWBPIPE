@@ -1,0 +1,480 @@
+{
+ "model": {
+  "schema_version": "0.5.0",
+  "document_kind": "openpipestress.product_preview.model",
+  "pressure_contract": {
+   "version": "3.0.0",
+   "mode": "exact_pressure_v3",
+   "shear_model": "timoshenko_annulus_energy_v1"
+  },
+  "project": {
+   "id": "project:t4-u8-i8-case2-timoshenko-load-state",
+   "units": {
+    "length": "m",
+    "force": "N",
+    "angle": "rad",
+    "pressure": "Pa",
+    "stress": "Pa",
+    "temperature": "degC"
+   }
+  },
+  "analysis_status": {
+   "mechanics": "ready_for_preview_diagnostics",
+   "rule_check": "not_performed_user_rule_inputs_missing",
+   "professional_acceptance": "not_provided"
+  },
+  "nodes": [
+   {
+    "id": "node:A",
+    "position": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "provenance": "invented T4-I8 rebuilt-case input; not library, component or code-rule data"
+   },
+   {
+    "id": "node:B",
+    "position": {
+     "x": 1.5,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "provenance": "invented T4-I8 rebuilt-case input; not library, component or code-rule data"
+   },
+   {
+    "id": "node:C",
+    "position": {
+     "x": 4.5,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "provenance": "invented T4-I8 rebuilt-case input; not library, component or code-rule data"
+   },
+   {
+    "id": "node:D",
+    "position": {
+     "x": 6.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "provenance": "invented T4-I8 rebuilt-case input; not library, component or code-rule data"
+   }
+  ],
+  "pipe_segments": [
+   {
+    "id": "pipe:A-B",
+    "from": "node:A",
+    "to": "node:B",
+    "section": {
+     "outside_diameter": {
+      "value": 0.2,
+      "unit": "m"
+     },
+     "wall_thickness": {
+      "value": 0.01,
+      "unit": "m"
+     },
+     "mill_tolerance": {
+      "value": 0.0,
+      "unit": "m"
+     },
+     "corrosion_allowance": {
+      "value": 0.0,
+      "unit": "m"
+     }
+    },
+    "material": "material:tp",
+    "y_reference": {
+     "x": 0.0,
+     "y": 1.0,
+     "z": 0.0
+    },
+    "provenance": "invented T4-I8 rebuilt-case input; not library, component or code-rule data"
+   },
+   {
+    "id": "pipe:B-C",
+    "from": "node:B",
+    "to": "node:C",
+    "section": {
+     "outside_diameter": {
+      "value": 0.2,
+      "unit": "m"
+     },
+     "wall_thickness": {
+      "value": 0.01,
+      "unit": "m"
+     },
+     "mill_tolerance": {
+      "value": 0.0,
+      "unit": "m"
+     },
+     "corrosion_allowance": {
+      "value": 0.0,
+      "unit": "m"
+     }
+    },
+    "material": "material:tp",
+    "y_reference": {
+     "x": 0.0,
+     "y": 1.0,
+     "z": 0.0
+    },
+    "provenance": "invented T4-I8 rebuilt-case input; not library, component or code-rule data"
+   },
+   {
+    "id": "pipe:C-D",
+    "from": "node:C",
+    "to": "node:D",
+    "section": {
+     "outside_diameter": {
+      "value": 0.2,
+      "unit": "m"
+     },
+     "wall_thickness": {
+      "value": 0.01,
+      "unit": "m"
+     },
+     "mill_tolerance": {
+      "value": 0.0,
+      "unit": "m"
+     },
+     "corrosion_allowance": {
+      "value": 0.0,
+      "unit": "m"
+     }
+    },
+    "material": "material:tp",
+    "y_reference": {
+     "x": 0.0,
+     "y": 1.0,
+     "z": 0.0
+    },
+    "provenance": "invented T4-I8 rebuilt-case input; not library, component or code-rule data"
+   }
+  ],
+  "supports": [
+   {
+    "id": "support:A",
+    "node": "node:A",
+    "family": "anchor",
+    "restraints": [
+     "UX",
+     "UY",
+     "UZ",
+     "RX",
+     "RY",
+     "RZ"
+    ],
+    "provenance": "invented T4-I8 rebuilt-case input; not library, component or code-rule data"
+   },
+   {
+    "id": "support:D",
+    "node": "node:D",
+    "family": "line_stop",
+    "restraints": [
+     "UX"
+    ],
+    "provenance": "invented T4-I8 rebuilt-case input; not library, component or code-rule data"
+   }
+  ],
+  "components": [],
+  "materials": [
+   {
+    "id": "material:tp",
+    "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+    "elastic_modulus": {
+     "value": 200000000000.0,
+     "unit": "Pa"
+    },
+    "poisson_ratio": {
+     "value": 0.3,
+     "unit": "1"
+    },
+    "provenance": "invented T4-I8 rebuilt-case input; not library, component or code-rule data"
+   }
+  ],
+  "load_cases": [
+   {
+    "id": "case:pressure-half",
+    "primitive_loads": [],
+    "pressure_regions": [
+     {
+      "id": "region:tp",
+      "member_pipe_ids": [
+       "pipe:A-B",
+       "pipe:B-C",
+       "pipe:C-D"
+      ],
+      "pressure_basis": "internal_differential_zero_external_v1",
+      "pressure": {
+       "value": 2000000.0,
+       "unit": "Pa"
+      },
+      "terminals": [
+       {
+        "node_ref": "node:A",
+        "closure_transfer": "transfers_to_wall",
+        "provenance": "invented T4-I8 rebuilt-case input; not library, component or code-rule data"
+       },
+       {
+        "node_ref": "node:D",
+        "closure_transfer": "transfers_to_wall",
+        "provenance": "invented T4-I8 rebuilt-case input; not library, component or code-rule data"
+       }
+      ],
+      "provenance": "invented T4-I8 rebuilt-case input; not library, component or code-rule data"
+     }
+    ],
+    "provenance": "invented T4-I8 rebuilt-case input; not library, component or code-rule data",
+    "analysis_state": {
+     "contract": "openpipestress.load_reference_state/1.0.0",
+     "reference_configuration_ref": "reference:installed",
+     "element_states": [
+      {
+       "pipe_ref": "pipe:A-B",
+       "material_selection": {
+        "kind": "explicit_base_properties",
+        "material_ref": "material:tp",
+        "applicability_reference": "invented analytical basis declared applicable (T4-I8)"
+       },
+       "thermal_state": {
+        "kind": "unchanged_reference",
+        "provenance": "invented T4-I8 rebuilt-case input; not library, component or code-rule data"
+       }
+      },
+      {
+       "pipe_ref": "pipe:B-C",
+       "material_selection": {
+        "kind": "explicit_base_properties",
+        "material_ref": "material:tp",
+        "applicability_reference": "invented analytical basis declared applicable (T4-I8)"
+       },
+       "thermal_state": {
+        "kind": "unchanged_reference",
+        "provenance": "invented T4-I8 rebuilt-case input; not library, component or code-rule data"
+       }
+      },
+      {
+       "pipe_ref": "pipe:C-D",
+       "material_selection": {
+        "kind": "explicit_base_properties",
+        "material_ref": "material:tp",
+        "applicability_reference": "invented analytical basis declared applicable (T4-I8)"
+       },
+       "thermal_state": {
+        "kind": "unchanged_reference",
+        "provenance": "invented T4-I8 rebuilt-case input; not library, component or code-rule data"
+       }
+      }
+     ],
+     "support_states": [
+      {
+       "support_ref": "support:A",
+       "participation": {
+        "kind": "active_model_device"
+       }
+      },
+      {
+       "support_ref": "support:D",
+       "participation": {
+        "kind": "active_model_device"
+       }
+      }
+     ],
+     "load_sources": [],
+     "history": {
+      "kind": "independent_equilibrium"
+     },
+     "provenance": "invented T4-I8 rebuilt-case input; not library, component or code-rule data"
+    }
+   },
+   {
+    "id": "case:combined",
+    "primitive_loads": [
+     {
+      "id": "load:transverse:B-C",
+      "category": "weight",
+      "target": {
+       "type": "element",
+       "pipe": "pipe:B-C"
+      },
+      "direction": "global_y",
+      "magnitude": {
+       "value": -300.0,
+       "unit": "N/m"
+      },
+      "dimension": "force_per_length",
+      "provenance": "invented T4-I8 rebuilt-case input; not library, component or code-rule data"
+     }
+    ],
+    "pressure_regions": [
+     {
+      "id": "region:tp",
+      "member_pipe_ids": [
+       "pipe:A-B",
+       "pipe:B-C",
+       "pipe:C-D"
+      ],
+      "pressure_basis": "internal_differential_zero_external_v1",
+      "pressure": {
+       "value": 2000000.0,
+       "unit": "Pa"
+      },
+      "terminals": [
+       {
+        "node_ref": "node:A",
+        "closure_transfer": "transfers_to_wall",
+        "provenance": "invented T4-I8 rebuilt-case input; not library, component or code-rule data"
+       },
+       {
+        "node_ref": "node:D",
+        "closure_transfer": "transfers_to_wall",
+        "provenance": "invented T4-I8 rebuilt-case input; not library, component or code-rule data"
+       }
+      ],
+      "provenance": "invented T4-I8 rebuilt-case input; not library, component or code-rule data"
+     }
+    ],
+    "provenance": "invented T4-I8 rebuilt-case input; not library, component or code-rule data",
+    "analysis_state": {
+     "contract": "openpipestress.load_reference_state/1.0.0",
+     "reference_configuration_ref": "reference:installed",
+     "element_states": [
+      {
+       "pipe_ref": "pipe:A-B",
+       "material_selection": {
+        "kind": "explicit_base_properties",
+        "material_ref": "material:tp",
+        "applicability_reference": "invented analytical basis declared applicable (T4-I8)"
+       },
+       "thermal_state": {
+        "kind": "constant_alpha_interval",
+        "coefficient": {
+         "value": 1.2e-05,
+         "unit": "1/degC"
+        },
+        "temperature_change": {
+         "value": 5.0,
+         "unit": "degC"
+        },
+        "coefficient_meaning": "engineering_interval",
+        "provenance": "invented T4-I8 rebuilt-case input; not library, component or code-rule data"
+       }
+      },
+      {
+       "pipe_ref": "pipe:B-C",
+       "material_selection": {
+        "kind": "explicit_base_properties",
+        "material_ref": "material:tp",
+        "applicability_reference": "invented analytical basis declared applicable (T4-I8)"
+       },
+       "thermal_state": {
+        "kind": "constant_alpha_interval",
+        "coefficient": {
+         "value": 1.2e-05,
+         "unit": "1/degC"
+        },
+        "temperature_change": {
+         "value": 5.0,
+         "unit": "degC"
+        },
+        "coefficient_meaning": "engineering_interval",
+        "provenance": "invented T4-I8 rebuilt-case input; not library, component or code-rule data"
+       }
+      },
+      {
+       "pipe_ref": "pipe:C-D",
+       "material_selection": {
+        "kind": "explicit_base_properties",
+        "material_ref": "material:tp",
+        "applicability_reference": "invented analytical basis declared applicable (T4-I8)"
+       },
+       "thermal_state": {
+        "kind": "constant_alpha_interval",
+        "coefficient": {
+         "value": 1.2e-05,
+         "unit": "1/degC"
+        },
+        "temperature_change": {
+         "value": 5.0,
+         "unit": "degC"
+        },
+        "coefficient_meaning": "engineering_interval",
+        "provenance": "invented T4-I8 rebuilt-case input; not library, component or code-rule data"
+       }
+      }
+     ],
+     "support_states": [
+      {
+       "support_ref": "support:A",
+       "participation": {
+        "kind": "active_model_device"
+       }
+      },
+      {
+       "support_ref": "support:D",
+       "participation": {
+        "kind": "active_model_device"
+       }
+      }
+     ],
+     "load_sources": [
+      {
+       "source_ref": "load:transverse:B-C",
+       "factor": 1.0
+      }
+     ],
+     "history": {
+      "kind": "independent_equilibrium"
+     },
+     "provenance": "invented T4-I8 rebuilt-case input; not library, component or code-rule data"
+    }
+   }
+  ],
+  "combinations": [],
+  "reference_configurations": [
+   {
+    "id": "reference:installed",
+    "label": "Installed reference",
+    "geometry_ref": {
+     "kind": "authored_model_geometry"
+    },
+    "member_references": [
+     {
+      "pipe_ref": "pipe:A-B",
+      "basis": {
+       "kind": "direct_strain_reference"
+      },
+      "fit": {
+       "kind": "none"
+      },
+      "provenance": "invented T4-I8 rebuilt-case input; not library, component or code-rule data"
+     },
+     {
+      "pipe_ref": "pipe:B-C",
+      "basis": {
+       "kind": "direct_strain_reference"
+      },
+      "fit": {
+       "kind": "none"
+      },
+      "provenance": "invented T4-I8 rebuilt-case input; not library, component or code-rule data"
+     },
+     {
+      "pipe_ref": "pipe:C-D",
+      "basis": {
+       "kind": "direct_strain_reference"
+      },
+      "fit": {
+       "kind": "none"
+      },
+      "provenance": "invented T4-I8 rebuilt-case input; not library, component or code-rule data"
+     }
+    ],
+    "provenance": "invented T4-I8 rebuilt-case input; not library, component or code-rule data"
+   }
+  ]
+ },
+ "materials": []
+}

@@ -1,0 +1,411 @@
+{
+ "model": {
+  "schema_version": "0.5.0",
+  "document_kind": "openpipestress.product_preview.model",
+  "pressure_contract": {
+   "version": "3.0.0",
+   "mode": "exact_pressure_v3",
+   "shear_model": "euler_bernoulli"
+  },
+  "project": {
+   "id": "project:invented-t4-u5a-j3-ae1",
+   "units": {
+    "length": "m",
+    "force": "N",
+    "angle": "rad",
+    "pressure": "Pa",
+    "stress": "Pa",
+    "temperature": "degC"
+   }
+  },
+  "analysis_status": {
+   "mechanics": "ready_for_preview_diagnostics",
+   "rule_check": "not_performed_user_rule_inputs_missing",
+   "professional_acceptance": "not_provided"
+  },
+  "nodes": [
+   {
+    "id": "node:A",
+    "position": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "provenance": "invented T4-U5a reference fixture (JR J3 values); not library, catalog, manufacturer or code-rule data"
+   },
+   {
+    "id": "node:B",
+    "position": {
+     "x": 2.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "provenance": "invented T4-U5a reference fixture (JR J3 values); not library, catalog, manufacturer or code-rule data"
+   },
+   {
+    "id": "node:C",
+    "position": {
+     "x": 2.3,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "provenance": "invented T4-U5a reference fixture (JR J3 values); not library, catalog, manufacturer or code-rule data"
+   },
+   {
+    "id": "node:D",
+    "position": {
+     "x": 4.3,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "provenance": "invented T4-U5a reference fixture (JR J3 values); not library, catalog, manufacturer or code-rule data"
+   }
+  ],
+  "pipe_segments": [
+   {
+    "id": "pipe:L",
+    "from": "node:A",
+    "to": "node:B",
+    "section": {
+     "outside_diameter": {
+      "value": 0.06,
+      "unit": "m"
+     },
+     "wall_thickness": {
+      "value": 0.005,
+      "unit": "m"
+     },
+     "corrosion_allowance": {
+      "value": 0.0,
+      "unit": "m"
+     }
+    },
+    "material": "material:invented-steel",
+    "y_reference": {
+     "x": 0.0,
+     "y": 1.0,
+     "z": 0.0
+    },
+    "provenance": "invented T4-U5a reference fixture (JR J3 values); not library, catalog, manufacturer or code-rule data"
+   },
+   {
+    "id": "pipe:J",
+    "from": "node:B",
+    "to": "node:C",
+    "section": {
+     "outside_diameter": {
+      "value": 0.06,
+      "unit": "m"
+     },
+     "wall_thickness": {
+      "value": 0.005,
+      "unit": "m"
+     },
+     "corrosion_allowance": {
+      "value": 0.0,
+      "unit": "m"
+     }
+    },
+    "material": "material:invented-steel",
+    "y_reference": {
+     "x": 0.0,
+     "y": 1.0,
+     "z": 0.0
+    },
+    "provenance": "invented T4-U5a reference fixture (JR J3 values); not library, catalog, manufacturer or code-rule data"
+   },
+   {
+    "id": "pipe:R",
+    "from": "node:C",
+    "to": "node:D",
+    "section": {
+     "outside_diameter": {
+      "value": 0.06,
+      "unit": "m"
+     },
+     "wall_thickness": {
+      "value": 0.005,
+      "unit": "m"
+     },
+     "corrosion_allowance": {
+      "value": 0.0,
+      "unit": "m"
+     }
+    },
+    "material": "material:invented-steel",
+    "y_reference": {
+     "x": 0.0,
+     "y": 1.0,
+     "z": 0.0
+    },
+    "provenance": "invented T4-U5a reference fixture (JR J3 values); not library, catalog, manufacturer or code-rule data"
+   }
+  ],
+  "supports": [
+   {
+    "id": "support:A",
+    "node": "node:A",
+    "family": "anchor",
+    "restraints": [
+     "UX",
+     "UY",
+     "UZ",
+     "RX",
+     "RY",
+     "RZ"
+    ],
+    "provenance": "invented T4-U5a reference fixture (JR J3 values); not library, catalog, manufacturer or code-rule data"
+   },
+   {
+    "id": "support:D",
+    "node": "node:D",
+    "family": "anchor",
+    "restraints": [
+     "UX",
+     "UY",
+     "UZ",
+     "RX",
+     "RY",
+     "RZ"
+    ],
+    "provenance": "invented T4-U5a reference fixture (JR J3 values); not library, catalog, manufacturer or code-rule data"
+   }
+  ],
+  "components": [
+   {
+    "id": "component:C-J",
+    "label": "Invented expansion joint (objective connector)",
+    "kind": "expansion_joint",
+    "node": "node:C",
+    "provenance": "invented T4-U5a reference fixture (JR J3 values); not library, catalog, manufacturer or code-rule data",
+    "objective_connector": {
+     "version": "1.0.0",
+     "motion_basis": "symmetric_midpoint_small_rotation_v1",
+     "end_i": {
+      "node_ref": "node:B",
+      "initial_node_axes_global": [
+       [
+        1,
+        0,
+        0
+       ],
+       [
+        0,
+        1,
+        0
+       ],
+       [
+        0,
+        0,
+        1
+       ]
+      ],
+      "offset_local": {
+       "x": 0,
+       "y": 0,
+       "z": 0,
+       "unit": "m"
+      }
+     },
+     "end_j": {
+      "node_ref": "node:C",
+      "initial_node_axes_global": [
+       [
+        1,
+        0,
+        0
+       ],
+       [
+        0,
+        1,
+        0
+       ],
+       [
+        0,
+        0,
+        1
+       ]
+      ],
+      "offset_local": {
+       "x": 0,
+       "y": 0,
+       "z": 0,
+       "unit": "m"
+      }
+     },
+     "connector_axes_global": [
+      [
+       1.0,
+       0.0,
+       0.0
+      ],
+      [
+       0.0,
+       1.0,
+       0.0
+      ],
+      [
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     "installed_reference_temperature": {
+      "value": 20,
+      "unit": "degC"
+     },
+     "temperature_applicability": "fixed_installed_parameters_v1",
+     "reference_state": "stress_free",
+     "q_ref": {
+      "translation": {
+       "x": 0.0,
+       "y": 0,
+       "z": 0,
+       "unit": "m"
+      },
+      "rotation": {
+       "x": 0,
+       "y": 0,
+       "z": 0,
+       "unit": "rad"
+      }
+     },
+     "stiffness": {
+      "version": "1.0.0",
+      "representation": "scaled_work_coefficients_v1",
+      "translation_scale": {
+       "value": 1,
+       "unit": "m"
+      },
+      "rotation_scale": {
+       "value": 1,
+       "unit": "rad"
+      },
+      "coefficient_unit": "N*m",
+      "upper_triangle": [
+       200000.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       80000.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       80000.0,
+       0.0,
+       0.0,
+       0.0,
+       600.0,
+       0.0,
+       0.0,
+       900.0,
+       0.0,
+       900.0
+      ],
+      "coordinate_order": [
+       "tx",
+       "ty",
+       "tz",
+       "rx",
+       "ry",
+       "rz"
+      ],
+      "provenance": {
+       "source_reference": "invented T4-U5a uncoupled 6x6 (JR J3 axial rate)",
+       "measurement_restraints": "invented; symmetric midpoint basis declared by the author",
+       "basis_transform_reference": "none (authored directly in the midpoint basis)"
+      }
+     },
+     "topology": {
+      "type": "replaces_span",
+      "span_ref": "pipe:J"
+     },
+     "calibration": {
+      "kind": "constant_structural_elasticity_v1",
+      "includes_pressure_dependent_tangent": false,
+      "installed_geometry": "authored model geometry"
+     },
+     "hardware": {
+      "kind": "untied"
+     },
+     "pressure_model": {
+      "kind": "constant_effective_area_reference_v1",
+      "effective_area": {
+       "value": 0.001963495408493621,
+       "unit": "m^2"
+      },
+      "pressure_basis": "internal_differential_zero_external_v1",
+      "source_reference": "invented T4-U5a effective area (JR J3); not manufacturer data"
+     },
+     "provenance": {
+      "source_reference": "invented T4-U5a reference fixture (JR J3 values); not library, catalog, manufacturer or code-rule data",
+      "measurement_restraints": "invented",
+      "basis_transform_reference": "none",
+      "validity_statement": "invented analytical control; no applicability claim"
+     }
+    }
+   }
+  ],
+  "materials": [
+   {
+    "id": "material:invented-steel",
+    "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+    "elastic_modulus": {
+     "value": 200000000000.0,
+     "unit": "Pa"
+    },
+    "poisson_ratio": {
+     "value": 0.3,
+     "unit": "1"
+    },
+    "thermal_expansion_coefficient": {
+     "value": 1.2e-05,
+     "unit": "1/degC"
+    },
+    "provenance": "invented T4-U5a reference fixture (JR J3 values); not library, catalog, manufacturer or code-rule data"
+   }
+  ],
+  "load_cases": [
+   {
+    "id": "load:U5A",
+    "primitive_loads": [],
+    "pressure_regions": [
+     {
+      "id": "region:U5A",
+      "member_pipe_ids": [
+       "pipe:L",
+       "pipe:R"
+      ],
+      "member_connector_ids": [
+       "component:C-J"
+      ],
+      "pressure_basis": "internal_differential_zero_external_v1",
+      "pressure": {
+       "value": 200000.0,
+       "unit": "Pa"
+      },
+      "terminals": [
+       {
+        "node_ref": "node:A",
+        "closure_transfer": "transfers_to_wall",
+        "provenance": "invented T4-U5a reference fixture (JR J3 values); not library, catalog, manufacturer or code-rule data"
+       },
+       {
+        "node_ref": "node:D",
+        "closure_transfer": "transfers_to_wall",
+        "provenance": "invented T4-U5a reference fixture (JR J3 values); not library, catalog, manufacturer or code-rule data"
+       }
+      ],
+      "provenance": "invented T4-U5a reference fixture (JR J3 values); not library, catalog, manufacturer or code-rule data"
+     }
+    ],
+    "provenance": "invented T4-U5a reference fixture (JR J3 values); not library, catalog, manufacturer or code-rule data"
+   }
+  ],
+  "combinations": []
+ },
+ "materials": []
+}

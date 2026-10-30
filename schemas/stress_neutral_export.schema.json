@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openpipestress.org/schemas/stress_neutral_export.schema.json",
+  "title": "OpenPipeStress current stress-neutral export",
+  "oneOf": [
+    {
+      "$ref": "stress_neutral_export.v0.3.schema.json"
+    }
+  ]
+}

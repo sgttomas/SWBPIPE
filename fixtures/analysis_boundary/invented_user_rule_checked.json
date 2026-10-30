@@ -1,0 +1,100 @@
+{
+  "schema_version": "0.1.0",
+  "boundary_id": "analysis-boundary:invented-rule-checked",
+  "subject_ref": {
+    "ref_type": "Model",
+    "id": "model:invented-analytical-foundation"
+  },
+  "authority_model": {
+    "mechanics_authority": "solver_result_only",
+    "rule_check_authority": "software_computation_using_user_data",
+    "human_acceptance_authority": "external_hash_bound_human_record_only",
+    "automatic_status_scope": [
+      "MODEL_INCOMPLETE",
+      "MECHANICS_SOLVED",
+      "RULE_INPUTS_INCOMPLETE",
+      "USER_RULE_CHECKED",
+      "USER_RULE_FAILED",
+      "HUMAN_REVIEW_REQUIRED"
+    ],
+    "forbidden_software_claims": [
+      "code_compliance",
+      "certification",
+      "sealing",
+      "professional_acceptance"
+    ]
+  },
+  "mechanics_solve": {
+    "status": "MECHANICS_SOLVED",
+    "authority": "solver_result_only",
+    "result_ref": {
+      "ref_type": "Result",
+      "id": "result:invented-mechanics"
+    },
+    "evidence_hashes": [
+      {
+        "algorithm": "sha256",
+        "canonicalization": "JCS",
+        "payload_ref": {
+          "ref_type": "Result",
+          "id": "result:invented-mechanics"
+        },
+        "value": "invented-mechanics-hash"
+      }
+    ]
+  },
+  "user_rule_check": {
+    "status": "USER_RULE_CHECKED",
+    "authority": "software_computation_using_user_data",
+    "rule_pack_ref": {
+      "rule_pack_id": "rule-pack:invented-user",
+      "version": "0.1.0",
+      "checksum": {
+        "algorithm": "sha256",
+        "canonicalization": "JCS",
+        "payload_ref": {
+          "ref_type": "RulePack",
+          "id": "rule-pack:invented-user"
+        },
+        "value": "invented-rule-pack-hash"
+      },
+      "source_notice": "Invented user-supplied non-engineering example.",
+      "supplied_by_user": true,
+      "redistribution_status": "public_permissive",
+      "provenance": {
+        "source_name": "PKG-02 invented analysis boundary fixture",
+        "source_location": "fixtures/analysis_boundary/invented_user_rule_checked.json",
+        "source_license": "project invented public example",
+        "contributor": "OpenPipeStress Type 2 worker",
+        "redistribution_status": "public_permissive",
+        "review_status": "accepted"
+      }
+    },
+    "evaluation_ref": {
+      "ref_type": "RuleEvaluation",
+      "id": "rule-evaluation:invented-checked"
+    },
+    "evidence_hashes": [
+      {
+        "algorithm": "sha256",
+        "canonicalization": "JCS",
+        "payload_ref": {
+          "ref_type": "RuleEvaluation",
+          "id": "rule-evaluation:invented-checked"
+        },
+        "value": "invented-rule-evaluation-hash"
+      }
+    ]
+  },
+  "missing_inputs": [],
+  "diagnostics": [],
+  "human_acceptance_refs": [],
+  "professional_boundary": {
+    "human_review_required": true,
+    "software_makes_compliance_claim": false,
+    "software_makes_certification_claim": false,
+    "software_makes_sealing_claim": false,
+    "software_makes_professional_acceptance_claim": false,
+    "reliance_notice": "Software rule-check status is not professional acceptance."
+  }
+}

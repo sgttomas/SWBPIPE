@@ -1,0 +1,9 @@
+{
+  "schema": "chirality-temp-cleanup/v1",
+  "temp_root": "/tmp/del0904-r8.iFx8Aa",
+  "validated_prefix": "/tmp/del0904-r8.*",
+  "validated_not_broad_target": true,
+  "removed": true,
+  "exists_after_cleanup": false,
+  "cleanup_method": "validated find -depth -delete"
+}

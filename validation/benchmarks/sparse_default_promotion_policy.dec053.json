@@ -1,0 +1,73 @@
+{
+  "record_kind": "sparse_interactive_default_dense_scrutiny_policy",
+  "record_id": "DEC-053-SPARSE-INTERACTIVE-DEFAULT-DENSE-SCRUTINY-POLICY-v1",
+  "decision_ref": "DEC-053",
+  "source_observation_record": "DEC-053-SPARSE-DEFAULT-PROMOTION-OBSERVATION-v1",
+  "status": "accepted_for_r4_sparse_residual_closure_observation_set",
+  "scope": "bounded_r4_sparse_default_promotion_observation_set",
+  "solver_mode_policy": {
+    "default_mode": "sparse_interactive",
+    "default_mode_role": "rapid preview/render iteration of model changes",
+    "explicit_secondary_mode": "dense_scrutiny",
+    "explicit_secondary_mode_role": "pause-and-review solve path for a selected configuration",
+    "fallback_policy": "dense fallback after sparse interactive failure is allowed only with explicit diagnostic and result basis"
+  },
+  "evidence_requirements": {
+    "observation_count": 9,
+    "required_fixture_ids": [
+      "invented-cantilever-chain-8",
+      "invented-cantilever-chain-24",
+      "invented-cantilever-chain-48",
+      "invented-grid-frame-4x3",
+      "invented-grid-frame-6x8",
+      "invented-grid-frame-7x8",
+      "invented-grid-frame-5x5",
+      "invented-cantilever-chain-32",
+      "invented-grid-frame-5x6"
+    ],
+    "required_metrics": [
+      "dense_first_solve_elapsed_nanos",
+      "sparse_first_solve_elapsed_nanos",
+      "dense_reduced_matrix_value_storage_bytes",
+      "sparse_ordered_profile_value_storage_bytes",
+      "allocator_rss_observation_status",
+      "hardware_normalization_status",
+      "true_condition_number_2norm",
+      "sparse_pivot_condition_ratio_estimate",
+      "sparse_dense_relative_delta",
+      "max_abs_sparse_residual",
+      "max_abs_sparse_repeat_solution_delta",
+      "nonpositive_pivot_count"
+    ]
+  },
+  "accepted_thresholds_for_observation_set": {
+    "sparse_dense_relative_delta_limit": 1.0e-9,
+    "sparse_residual_absolute_limit": 1.0e-6,
+    "sparse_repeat_solution_delta_absolute_limit": 0.0,
+    "nonpositive_pivot_count_limit": 0
+  },
+  "observation_only_axes": {
+    "timing": "observed_not_threshold_gated",
+    "allocator_rss_memory": "observed_not_threshold_gated",
+    "hardware_normalization": "hardware_metadata_recorded_no_cross_machine_threshold",
+    "true_condition_number": "recorded_for_bounded_observation_set_no_release_threshold",
+    "hosted_ci": "not_activated; local_DEC025_cargo_pytest_surfaces_cover_the_packet"
+  },
+  "closure_status": {
+    "sparse_default_promotion": "closed_for_r4_interactive_default",
+    "sparse_timing": "closed_for_r4_as_observation_not_threshold",
+    "allocator_rss_memory": "closed_for_r4_as_observation_not_threshold",
+    "ci": "closed_for_r4_by_local_DEC025_cargo_pytest_coverage",
+    "hardware_normalized": "closed_for_r4_by_hardware_metadata_no_cross_machine_threshold",
+    "practical_size_band": "closed_for_r4_by_nine_record_practical_observation_set",
+    "true_condition_number": "closed_for_r4_by_bounded_true_condition_number_observations",
+    "sparse_conditioning_beyond_pivot_proxy": "closed_for_r4_by_true_condition_number_fields_alongside_pivot_proxy"
+  },
+  "limitations": [
+    "This policy promotes sparse only as the interactive preview/render default; it is not a release-performance, external-validation, professional, or code-compliance acceptance.",
+    "Timing and allocator/RSS memory are observed values only; no release timing or memory threshold is asserted.",
+    "Hardware metadata labels the local machine; no cross-machine normalized pass/fail bar is asserted.",
+    "Hosted CI remains deferred under D-05b; this packet is covered by the local DEC-025 evidence sweep only."
+  ],
+  "boundary_notice": "Sparse R4 residual closure evidence only; not a release, reliance, certification, sealing, authentication, or code-compliance claim."
+}

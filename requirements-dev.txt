@@ -1,0 +1,4 @@
+jsonschema==4.26.0
+coverage==7.15.3
+pyyaml==6.0.3
+pytest-xdist==3.8.0

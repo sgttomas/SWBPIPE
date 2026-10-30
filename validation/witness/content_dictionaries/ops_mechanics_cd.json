@@ -1,0 +1,39 @@
+{
+  "cd_group": "open_pipe_stress_validation_witness",
+  "content_dictionaries": [
+    {
+      "cd": "arith1",
+      "status": "openmath_standard_reference",
+      "source": "OpenMath arithmetic content dictionary vocabulary",
+      "symbols_used": [
+        "plus",
+        "minus",
+        "times",
+        "divide",
+        "power"
+      ]
+    },
+    {
+      "cd": "nums1",
+      "status": "openmath_standard_reference",
+      "source": "OpenMath numeric constants vocabulary",
+      "symbols_used": [
+        "pi"
+      ]
+    },
+    {
+      "cd": "ops_mechanics",
+      "status": "repo_local_experimental",
+      "source": "OpenPipeStress validation witness metadata vocabulary",
+      "symbols_used": [
+        "quantity",
+        "unit_ref",
+        "dimension_id",
+        "result_binding",
+        "comparison_policy",
+        "provenance"
+      ],
+      "boundary": "Metadata only; no protected standards values, code-specific acceptance criteria, or professional approval semantics are encoded."
+    }
+  ]
+}
