@@ -10,6 +10,7 @@ the Rust product reader through the explicitly built ``openpipestress-runner rea
 pressure`` named by OPENPIPESTRESS_RUNNER_BIN (the test session builds it).
 """
 from __future__ import annotations
+from tools.repository_history import source_spec as _source_spec
 from copy import deepcopy
 import hashlib
 import json
@@ -46,7 +47,7 @@ def pinned_bytes(path, digest):
         return data
     revisions = subprocess.check_output(['git', 'log', '--format=%H', '-n', '200', '--', path], cwd=PROJECT, text=True).split()
     for revision in revisions:
-        data = subprocess.check_output(['git', 'show', f'{revision}:./{path}'], cwd=PROJECT)
+        data = subprocess.check_output(['git', 'show', _source_spec(PROJECT, revision, path)], cwd=PROJECT)
         if sha256_bytes(data) == digest:
             return data
     raise AssertionError('pinned bytes not found for ' + path)

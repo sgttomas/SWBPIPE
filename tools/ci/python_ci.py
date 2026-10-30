@@ -8,7 +8,7 @@ from pathlib import Path
 import subprocess
 import sys
 
-PREFIX = 'projects/chirality-piping/'
+PREFIX = ''
 BASE = ['tests/security', 'tests/test_constraint_validation.py', 'tests/test_source_block_schema_contract.py']
 FAMILIES = {
     # The report package's schema evaluator against the Draft 2020-12 oracle over the results schemas.
@@ -222,7 +222,7 @@ def main():
     args = parser.parse_args()
     project = Path(__file__).resolve().parents[2]
     plan = json.loads(args.plan.read_text())
-    root = project.parents[1]
+    root = project
     sys.path.insert(0, str(root / 'tools/software_workflow'))
     import hosted_ci
     hosted_ci.validate_plan(root, plan)

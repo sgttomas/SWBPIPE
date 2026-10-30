@@ -1,0 +1,99 @@
+name: Piping Windows core portability
+
+# Supplemental RT-V7 feasibility evidence; this does not qualify the desktop
+# or add Windows to the macOS-first release matrix / required harness result.
+on:
+  pull_request:
+    paths:
+      - .github/workflows/piping-windows-core.yml
+      - .gitattributes
+      - .cargo/**
+      - Cargo.toml
+      - Cargo.lock
+      - rust-toolchain*
+      - .cargo/**
+      - .gitattributes
+      - Cargo.toml
+      - Cargo.lock
+      - rust-toolchain*
+      - core/**
+      - fixtures/**
+      - validation/references/**
+      - schemas/**
+  workflow_dispatch:
+
+permissions:
+  contents: read
+concurrency:
+  group: piping-windows-core-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  core:
+    name: Windows x64 core (MSVC)
+    runs-on: windows-2025
+    # Allow a cold Windows build; keep Cargo output live so a slow compile or
+    # stalled test is visible instead of losing all diagnostics at timeout.
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: .
+    env:
+      CARGO_TERM_COLOR: never
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+          # Match the existing numerical checkout: historical execution records
+          # are not build inputs and include paths beyond Windows MAX_PATH.
+          sparse-checkout: |
+            /*
+            !/execution/
+            !/execution/
+          sparse-checkout-cone-mode: false
+      - uses: dtolnay/rust-toolchain@1.97.1
+      - name: Identify native x64 Windows evidence
+        run: |
+          if (-not $IsWindows -or [System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture -ne 'X64') {
+            throw 'This lane requires native x64 Windows; label Arm/emulated evidence separately.'
+          }
+          $identity = rustc -Vv
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot identify rustc.' }
+          if ($identity -notcontains 'host: x86_64-pc-windows-msvc') { throw 'Expected the x64 MSVC toolchain.' }
+          $identity
+          $candidate = git rev-parse HEAD
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot identify the checked-out candidate.' }
+          "Candidate: $candidate; runner architecture: $env:RUNNER_ARCH"
+          $target = Join-Path $env:RUNNER_TEMP 'swbpipe-windows-core'
+          "CARGO_TARGET_DIR=$target" >> $env:GITHUB_ENV
+      - name: Exercise existing core oracles
+        run: |
+          # No new reference values or tolerances. The curved-bend crate includes
+          # platform_bits_tests::formation_bits_are_frozen; run its whole suite.
+          $manifests = @(
+            'core/solver/frame_kernel/Cargo.toml',
+            'core/solver/curved_bend/Cargo.toml',
+            'core/solver/sparse_direct/Cargo.toml',
+            'core/serialization/canonical_json/Cargo.toml'
+          )
+          foreach ($manifest in $manifests) {
+            Write-Host "Starting $manifest"
+            $elapsed = [System.Diagnostics.Stopwatch]::StartNew()
+            cargo test --locked --target x86_64-pc-windows-msvc --manifest-path $manifest 2>&1 | Tee-Object -Variable output
+            $status = $LASTEXITCODE
+            $elapsed.Stop()
+            Write-Host "Completed $manifest in $($elapsed.Elapsed)"
+            if ($status -ne 0) { throw "Core portability failed: $manifest" }
+            if ($manifest -eq 'core/solver/curved_bend/Cargo.toml') {
+              $witness = @($output | Where-Object { "$_" -match '^test platform_bits_tests::formation_bits_are_frozen \.\.\. ok$' })
+              if ($witness.Count -ne 1) { throw 'The frozen formation witness must execute and pass exactly once.' }
+            }
+          }
+      - name: Check the engineering facade and its dependencies
+        run: |
+          # Compilation only: no retained-profile qualification, stack witness,
+          # native worker, persistence, WebView2 or packaging claim.
+          cargo check --locked --target x86_64-pc-windows-msvc --lib --manifest-path core/product_physics/Cargo.toml
+          if ($LASTEXITCODE -ne 0) { throw 'Product-physics Windows compilation failed.' }

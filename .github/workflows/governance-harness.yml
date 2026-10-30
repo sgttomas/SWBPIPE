@@ -1,0 +1,66 @@
+name: governance-harness
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: governance-harness-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+jobs:
+  repository-checks:
+    name: Repository checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install check dependencies
+        run: python3 -m pip install pytest pytest-xdist pyyaml jsonschema
+      - name: Bounded shared-tool and routing regressions
+        # Always run these, including Rust/manifest additions and deletions.
+        run: python3 -m pytest -q tools/software_workflow tools/deliverables tools/validation tests/test_ci_numerical.py tests/test_ci_apt_sources.py
+      - name: Deliverable dependency structure
+        run: python3 -m tools.deliverables --project . check > deliverable-check.json
+      - name: Product claims language
+        run: python3 tools/validation/validate_claims_language.py
+      - name: Conflict and credential checks
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if ! git rev-parse --verify --quiet "${BASE}^{commit}" >/dev/null; then BASE=HEAD^1; fi
+          python3 tools/validation/validate_conflict_markers.py --base "$BASE" --head HEAD
+          python3 tools/validation/validate_run_record_leaks.py --base "$BASE" --head HEAD
+      - name: Available private-term screen
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          PRIVATE_TERMS: ${{ secrets.PRIVATE_TERMS }}
+        run: |
+          if ! git rev-parse --verify --quiet "${BASE}^{commit}" >/dev/null; then BASE=HEAD^1; fi
+          python3 tools/validation/validate_private_terms.py --base "$BASE" --head HEAD
+        # A missing full list is reported, not claimed as a full scan. The
+        # owner-signed D-20/DEC-058 full-list check is the v1.0 release gate.
+  piping:
+    uses: ./.github/workflows/piping-desktop-e2e.yml
+  harness:
+    name: harness
+    needs: [repository-checks, piping]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require every selected verification to succeed
+        env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: |
+          python3 - <<'PYTHON'
+          import json, os
+          failed = {name: job['result'] for name, job in json.loads(os.environ['RESULTS']).items()
+                    if job['result'] != 'success'}
+          if failed:
+              raise SystemExit(f'Verification did not succeed: {failed}')
+          PYTHON

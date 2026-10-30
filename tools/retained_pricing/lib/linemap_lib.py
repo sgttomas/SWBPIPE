@@ -19,6 +19,7 @@ full (`core/.../src/x.rs`). It maps from OLD to NEW in this order:
 A key never maps silently: every key that is not left as written is reported with how it was mapped.
 """
 import gzip, json, os, re, subprocess
+from source_history import resolve_revision, project_prefix
 P = "projects/chirality-piping/"
 
 
@@ -50,7 +51,11 @@ def load_resolutions(path):
 
 class Mapper:
     def __init__(self, repo, old, new, crates, rows=None, resolutions=None):
+        old, new = resolve_revision(repo, old), resolve_revision(repo, new)
         self.repo, self.old, self.new, self.crates = repo, old, new, crates
+        self.prefix = P = project_prefix(repo, old)
+        if project_prefix(repo, new) != P:
+            raise ValueError("Mixed project layouts in one pricing comparison")
         self.env = dict(os.environ, GIT_OPTIONAL_LOCKS="0")
         changed = [f[len(P):] for f in self.git("diff", "--name-only", old, new, "--", P + "core").split("\n") if f.endswith(".rs")]
         self.changed = [f for f in changed if "/tests/" not in f and not f.endswith("_tests.rs") and any(f.startswith(c + "/") for c in crates)]
@@ -75,7 +80,7 @@ class Mapper:
         cache = self._old if rev == self.old else self._new
         if f not in cache:
             try:
-                cache[f] = self.git("show", f"{rev}:{P}{f}").split("\n")
+                cache[f] = self.git("show", f"{rev}:{self.prefix}{f}").split("\n")
             except subprocess.CalledProcessError:
                 cache[f] = []
         return cache[f]

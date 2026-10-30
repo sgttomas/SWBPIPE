@@ -1,6 +1,7 @@
 """W7-RL, W7-RP, W7-NC, W7-QF, W7-RD, W7-L1 and W7-ID (retained-pricing-rules.md §8.20): W-7's global end rows are
 priced only where their code exists, raise each route's rows per member by twelve, charge their owners positively and
 stop on a changed source."""
+from tools.repository_history import source_spec as _source_spec
 from pathlib import Path
 import runpy
 import shutil
@@ -57,7 +58,7 @@ def test_a_source_without_w7_adds_nothing(tmp_path):
     """The silent-drop guard's registered source (main 2653f87392) has none of W-7's statements."""
     import subprocess
     for path in (LIB, RP):
-        text = subprocess.run(["git", "show", f"2653f8739262251d9fa2cc339f03422f8fea9052:projects/chirality-piping/{path}"],
+        text = subprocess.run(["git", "show", _source_spec(Path(__file__).resolve().parents[3], "2653f8739262251d9fa2cc339f03422f8fea9052", path)],
                               cwd=SOURCE, check=True, capture_output=True, text=True).stdout
         (tmp_path / path).parent.mkdir(parents=True, exist_ok=True)
         (tmp_path / path).write_text(text, encoding="utf-8")

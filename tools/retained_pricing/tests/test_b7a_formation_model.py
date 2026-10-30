@@ -187,7 +187,7 @@ def test_real_prepared_rule_priority_keeps_q_and_function_qualified_n(tmp_path, 
     prepared = inherited
     # Carry the actual base rules before SQ2, as the canonical driver does.
     # The source-local TEXT guards require current authoritative keys.
-    repo = PRICING.parents[3]
+    repo = PRICING.parents[1]
     revision = os.environ.get("B7A_PHASE_TEST_REV")
     if SOURCE != PRICING.parents[1] and not revision:
         raise ValueError("archived test source requires B7A_PHASE_TEST_REV")

@@ -68,6 +68,8 @@ import sys
 from pathlib import Path
 
 PROJECT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(PROJECT / "tools"))
+from repository_history import source_spec
 PRESSURE = "fixtures/results/semantic_contract_v0_3_pressure_2.json"
 RETAINED = "fixtures/results/semantic_contract_v0_3_physics_retained_1.json"
 # DEL-05-03 Design pf-timoshenko.md §4: the pressure-free Timoshenko identity, preview-physics-2
@@ -772,9 +774,9 @@ def repin(revisions: list[str], dry_run: bool = False) -> int:
             olds = set(written[path])
             for revision in revisions:
                 try:
-                    olds.add(sha256(subprocess.run(["git", "show", f"{revision}:./{path}"], cwd=PROJECT, check=True,
+                    olds.add(sha256(subprocess.run(["git", "show", source_spec(PROJECT, revision, path)], cwd=PROJECT, check=True,
                                                    capture_output=True).stdout))
-                except subprocess.CalledProcessError:
+                except (subprocess.CalledProcessError, ValueError):
                     continue
             for old in sorted(olds - {new}):
                 listed = subprocess.run(["git", "grep", "-l", old, "--", "."], cwd=PROJECT, capture_output=True, text=True)

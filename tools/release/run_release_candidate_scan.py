@@ -36,7 +36,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from release_members import is_text_member  # noqa: E402
+from release_members import is_text_member, lint_path_batches  # noqa: E402
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -192,54 +192,35 @@ def run_engine_lint(paths: list[Path], root: Path) -> dict:
             "findings": [],
             "note": "No lintable text/JSON members in the scanned classes.",
         }
-    command = [
-        "cargo",
-        "run",
-        "--quiet",
-        "--manifest-path",
-        LINTER_MANIFEST,
-        "--bin",
-        LINT_CLI_BIN,
-        "--",
-        "--provenance-mode",
-        "external",
-    ] + [str(path) for path in paths]
+    command = ["cargo", "run", "--quiet", "--manifest-path", LINTER_MANIFEST,
+               "--bin", LINT_CLI_BIN, "--", "--provenance-mode", "external"]
+    findings = []
+    engine_summary = {}
+    completed_batches = 0
     try:
-        completed = run_command(command, root)
-    except OSError as error:
-        return {
-            "status": "not_run",
-            "command": " ".join(command[:8]) + " ...",
-            "finding_count": 0,
-            "findings": [],
-            "note": (
-                f"Engine CLI unavailable ({type(error).__name__}). "
-                "Fails toward review."
-            ),
-        }
-    if completed.returncode != 0:
-        return {
-            "status": "not_run",
-            "command": " ".join(command[:8]) + " ...",
-            "finding_count": 0,
-            "findings": [],
-            "note": (
-                "Engine CLI exited "
-                f"{completed.returncode}; its output is not recorded (it can "
-                "carry host paths). "
-                "Fails toward review."
-            ),
-        }
-    payload = json.loads(completed.stdout)
-    findings = payload.get("findings", [])
-    return {
-        "status": "findings_present" if findings else "pass",
-        "command": " ".join(command[:8]) + " ...",
-        "engine_summary": payload.get("summary"),
-        "finding_count": len(findings),
-        "findings": findings,
-        "note": None,
-    }
+        for batch in lint_path_batches(paths, command):
+            completed = run_command(command + [str(path) for path in batch], root)
+            if completed.returncode != 0:
+                raise OSError('engine did not complete a lint batch')
+            payload = json.loads(completed.stdout)
+            findings.extend(payload.get('findings', []))
+            for key, value in (payload.get('summary') or {}).items():
+                if isinstance(value, bool):
+                    engine_summary[key] = engine_summary.get(key, False) or value
+                elif isinstance(value, (int, float)):
+                    engine_summary[key] = engine_summary.get(key, 0) + value
+                else:
+                    raise ValueError('invalid lint summary value')
+            completed_batches += 1
+    except (OSError, ValueError, TypeError) as error:
+        return {'status': 'not_run', 'command': ' '.join(command[:8]) + ' ...',
+                'finding_count': len(findings), 'findings': findings,
+                'completed_batches': completed_batches,
+                'note': f'Engine batch unavailable ({type(error).__name__}); incomplete scan, owner review required.'}
+    return {'status': 'findings_present' if findings else 'pass',
+            'command': ' '.join(command[:8]) + ' ...',
+            'engine_summary': engine_summary or None,
+            'finding_count': len(findings), 'findings': findings, 'note': None}
 
 
 # The scan trusts a JSON member as a schema only when its path is listed in

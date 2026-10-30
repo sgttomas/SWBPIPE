@@ -1,0 +1,53 @@
+name: Piping Windows arena investigation
+on:
+  pull_request:
+    paths:
+      - 'validation/platform/windows_arena_probe/**'
+      - '.github/workflows/piping-windows-arena-probe.yml'
+      - '.gitattributes'
+      - '.cargo/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'rust-toolchain*'
+      - '.gitattributes'
+      - '.cargo/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'rust-toolchain*'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: windows-2025
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+          sparse-checkout: |
+            /*
+            !/execution/
+            !/execution/
+          sparse-checkout-cone-mode: false
+      - name: Verify candidate and native architecture
+        shell: pwsh
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          if (-not $IsWindows -or (git rev-parse HEAD) -ne $env:EXPECTED_HEAD) { throw 'wrong checkout candidate' }
+          if (-not [Environment]::Is64BitOperatingSystem -or -not [Environment]::Is64BitProcess -or [System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture -ne 'X64' -or [System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture -ne 'X64') { throw 'native x64 Windows required' }
+          "CARGO_TARGET_DIR=$env:RUNNER_TEMP\arena-probe-target" >> $env:GITHUB_ENV
+      - uses: dtolnay/rust-toolchain@1.97.1
+        with:
+          targets: x86_64-pc-windows-msvc
+      - name: Compile and execute bounded cases
+        shell: pwsh
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          rustc -Vv | Tee-Object -FilePath "$env:RUNNER_TEMP\arena-rust.txt"
+          if ($LASTEXITCODE -ne 0 -or -not ((Get-Content "$env:RUNNER_TEMP\arena-rust.txt" -Raw) -match 'host: x86_64-pc-windows-msvc') -or -not ((Get-Content "$env:RUNNER_TEMP\arena-rust.txt" -Raw) -match 'release: 1\.97\.1')) { throw 'wrong Rust host or version' }
+          ./validation/platform/windows_arena_probe/run.ps1

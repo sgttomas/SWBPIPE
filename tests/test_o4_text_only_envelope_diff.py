@@ -84,6 +84,7 @@ the silent-drop check reads it at `2653f87392`, and `..._w7_corpus_moves_only_gl
 the committed corpus to it.
 """
 from __future__ import annotations
+from tools.repository_history import source_spec as _source_spec, resolve_revision as _source_revision
 
 import json
 import re
@@ -95,7 +96,7 @@ import pytest
 from tests.retained_precision_corpus import _STORAGE
 
 PROJECT = Path(__file__).resolve().parents[1]
-REPOSITORY = PROJECT.parents[1]
+REPOSITORY = PROJECT
 BASE = "3826a6288173928ed32a554552fec72eb8ff3dd2"
 # R-A's base, and the files R-A regenerates (its own check's list).
 RA_BASE = "9e03991d392f07b578f9fac4e5e39d8d289580ea"
@@ -417,7 +418,7 @@ def load(text: str):
 
 def base_text(name: str) -> str:
     return subprocess.run(
-        ["git", "show", f"{BASE}:projects/chirality-piping/{name}"],
+        ["git", "show", _source_spec(PROJECT, BASE, name)],
         cwd=REPOSITORY, check=True, capture_output=True, text=True,
     ).stdout
 
@@ -425,7 +426,7 @@ def base_text(name: str) -> str:
 def s1b_base_text(name: str) -> str:
     """A file's bytes at the S1b base, before model document 0.7.0 regenerated it."""
     return subprocess.run(
-        ["git", "show", f"{S1B_BASE}:projects/chirality-piping/{name}"],
+        ["git", "show", _source_spec(PROJECT, S1B_BASE, name)],
         cwd=REPOSITORY, check=True, capture_output=True, text=True,
     ).stdout
 
@@ -433,15 +434,15 @@ def s1b_base_text(name: str) -> str:
 def w15c_base_text(name: str) -> str:
     """A file's bytes before model document 0.8.0 regenerated it: at W16BC_BASE for a file the W-16 slices b and
     c changed, otherwise at the W-15c base."""
-    path = f"projects/chirality-piping/{name}"
-    w16bc = subprocess.run(["git", "diff", "--quiet", W16BC_PRE_080_MAIN, W16BC_BASE, "--", path],
+    path = name
+    w16bc = subprocess.run(["git", "diff", "--quiet", _source_revision(PROJECT, W16BC_PRE_080_MAIN), _source_revision(PROJECT, W16BC_BASE), "--", path],
                            cwd=REPOSITORY, capture_output=True).returncode
     assert w16bc in (0, 1), (name, "git diff")
     if w16bc:
-        assert not subprocess.run(["git", "diff", "--quiet", W16BC_PRE_080_MAIN, W15C_BASE, "--", path],
+        assert not subprocess.run(["git", "diff", "--quiet", _source_revision(PROJECT, W16BC_PRE_080_MAIN), _source_revision(PROJECT, W15C_BASE), "--", path],
                                   cwd=REPOSITORY, capture_output=True).returncode, (name, "changed on both sides")
     return subprocess.run(
-        ["git", "show", f"{W16BC_BASE if w16bc else W15C_BASE}:{path}"],
+        ["git", "show", _source_spec(PROJECT, W16BC_BASE if w16bc else W15C_BASE, path)],
         cwd=REPOSITORY, check=True, capture_output=True, text=True,
     ).stdout
 
@@ -458,7 +459,7 @@ def current_text(name: str) -> str:
     at = (W1_CORNER1_BASE if name in W1_REGENERATED else RA_BASE if name in _ra_regenerated()
           else DIAG_BASE if name in DIAG_REGENERATED else SZ_BASE if name in SZ_REGENERATED else S1B_BASE)
     return subprocess.run(
-        ["git", "show", f"{at}:projects/chirality-piping/{name}"],
+        ["git", "show", _source_spec(PROJECT, at, name)],
         cwd=REPOSITORY, check=True, capture_output=True, text=True,
     ).stdout
 
@@ -600,10 +601,14 @@ J2_S1_RETAGGED = "F1-captured-corrosion-allowance-nonzero"
 
 
 def _base_present() -> bool:
-    return subprocess.run(["git", "cat-file", "-e", f"{BASE}^{{commit}}"], cwd=REPOSITORY, capture_output=True).returncode == 0
+    try:
+        _source_revision(PROJECT, BASE)
+        return True
+    except ValueError:
+        return False
 
 
-pytestmark = pytest.mark.skipif(not _base_present(), reason=f"the O4 base {BASE[:10]} is not in this clone's history")
+assert _base_present(), "required O4 historical input is missing from this clone"
 
 
 @pytest.mark.parametrize("name", ENVELOPES)
@@ -671,11 +676,11 @@ def test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_e
     route-E base included, fails here (Opus review, round 3)."""
     name = RETAINED_CORPUS
     base = subprocess.run(
-        ["git", "show", f"{W1_CORNER1_BASE}:projects/chirality-piping/{name}"],
+        ["git", "show", _source_spec(PROJECT, W1_CORNER1_BASE, name)],
         cwd=REPOSITORY, check=True, capture_output=True, text=True,
     ).stdout
     landed = subprocess.run(
-        ["git", "show", f"{W1_CORNER1}:projects/chirality-piping/{name}"],
+        ["git", "show", _source_spec(PROJECT, W1_CORNER1, name)],
         cwd=REPOSITORY, check=True, capture_output=True, text=True,
     ).stdout
     # W-8 regenerated the corpus after corner 1; its moves are bound by the W-8 check below.
@@ -709,7 +714,7 @@ def test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_e
 
 def _corner1_corpus() -> str:
     return subprocess.run(
-        ["git", "show", f"{W1_CORNER1}:projects/chirality-piping/{RETAINED_CORPUS}"],
+        ["git", "show", _source_spec(PROJECT, W1_CORNER1, RETAINED_CORPUS)],
         cwd=REPOSITORY, check=True, capture_output=True, text=True,
     ).stdout
 
@@ -899,7 +904,7 @@ def test_o4_text_only_envelope_diff_retained_corpus_moves_since_main_are_the_sil
     by binding hashes (no number, status, class or work counter); every other entry and member is
     unchanged."""
     base = subprocess.run(
-        ["git", "show", f"{SD_BASE}:projects/chirality-piping/{RETAINED_CORPUS}"],
+        ["git", "show", _source_spec(PROJECT, SD_BASE, RETAINED_CORPUS)],
         cwd=REPOSITORY, check=True, capture_output=True, text=True,
     ).stdout
     now = _before_w7(RETAINED_CORPUS) if current is None else current
@@ -1089,7 +1094,7 @@ def test_o4_text_only_envelope_diff_w7_corpus_enumeration_refuses_other_moves():
 
 def _w16_base_corpus() -> str:
     return subprocess.run(
-        ["git", "show", f"{W16_BASE}:projects/chirality-piping/{RETAINED_CORPUS}"],
+        ["git", "show", _source_spec(PROJECT, W16_BASE, RETAINED_CORPUS)],
         cwd=REPOSITORY, check=True, capture_output=True, text=True,
     ).stdout
 
@@ -1323,7 +1328,7 @@ def test_o4_text_only_envelope_diff_diagnostics_repair_moves_only_the_diagnostic
     # Number tokens stay `Token`s, distinct from JSON strings (Codex review of #1517).
     exact = lambda text: json.loads(text, parse_float=Token, parse_int=Token)
     for name in DIAG_GOLDENS:
-        before = exact(subprocess.run(["git", "show", f"{DIAG_BASE}:projects/chirality-piping/{name}"],
+        before = exact(subprocess.run(["git", "show", _source_spec(PROJECT, DIAG_BASE, name)],
                                       cwd=REPOSITORY, check=True, capture_output=True, text=True).stdout)
         after = exact(s1b_base_text(name) if current is None else current[name])
         moved = _leaf_paths(before, after)
@@ -1358,7 +1363,7 @@ def test_o4_text_only_envelope_diff_diagnostics_repair_refuses_other_moves():
 def _before_w7(name: str) -> str:
     """The file at the W-15c base, or, for a file W-7 regenerated, its bytes before W-7 (`W7_BASE`)."""
     if name in W7_REGENERATED:
-        return subprocess.run(["git", "show", f"{W7_BASE}:projects/chirality-piping/{name}"],
+        return subprocess.run(["git", "show", _source_spec(PROJECT, W7_BASE, name)],
                               cwd=REPOSITORY, check=True, capture_output=True, text=True).stdout
     return w15c_base_text(name)
 
@@ -1374,7 +1379,7 @@ def test_o4_text_only_envelope_diff_silent_zero_moves_only_added_diagnostics(cur
     keeps every earlier diagnostic in order and gains only silent-zero warnings, and nothing
     else moves but the AnalysisRun hashes that bind the received bytes (no number moved)."""
     for name, pointer in SZ_REGENERATED.items():
-        before = load(subprocess.run(["git", "show", f"{SZ_BASE}:projects/chirality-piping/{name}"],
+        before = load(subprocess.run(["git", "show", _source_spec(PROJECT, SZ_BASE, name)],
                                      cwd=REPOSITORY, check=True, capture_output=True, text=True).stdout)
         after = load(s1b_base_text(name) if current is None else current[name])
         lists = []

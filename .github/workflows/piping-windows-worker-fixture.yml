@@ -1,0 +1,60 @@
+name: Piping Windows worker fixture
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/piping-windows-worker-fixture.yml
+      - validation/platform/windows_worker_fixture/**
+      - .cargo/**
+      - Cargo.toml
+      - Cargo.lock
+      - rust-toolchain*
+      - .cargo/**
+      - Cargo.toml
+      - Cargo.lock
+      - rust-toolchain*
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fixture:
+    runs-on: windows-2025
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+          sparse-checkout: |
+            /*
+            !/execution/
+            !/execution/
+          sparse-checkout-cone-mode: false
+      - name: Identify candidate and initialize target directory
+        shell: pwsh
+        env:
+          CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $actual = git rev-parse HEAD
+          if ($LASTEXITCODE -ne 0 -or $actual -ne $env:CANDIDATE_SHA) { throw 'checkout does not match candidate' }
+          if (-not $IsWindows -or [System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString() -ne 'X64' -or [System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture.ToString() -ne 'X64') { throw 'expected native x64 Windows and x64 PowerShell' }
+          Write-Host "candidate=$actual runner=$env:RUNNER_OS architecture=$env:RUNNER_ARCH"
+          "CARGO_TARGET_DIR=$env:RUNNER_TEMP\windows-worker-fixture-target" >> $env:GITHUB_ENV
+      - name: Select pinned Rust toolchain
+        shell: pwsh
+        run: |
+          rustup toolchain install 1.97.1 --profile minimal --target x86_64-pc-windows-msvc
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          rustup run 1.97.1 rustc -vV
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $version = rustup run 1.97.1 rustc -vV
+          if ($LASTEXITCODE -ne 0 -or $version -notcontains 'host: x86_64-pc-windows-msvc' -or $version -notcontains 'release: 1.97.1') { throw 'unexpected Rust host or release' }
+      - name: Exercise native fixture cases
+        shell: pwsh
+        env:
+          CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          & ./validation/platform/windows_worker_fixture/run.ps1 -ExpectedCandidate $env:CANDIDATE_SHA

@@ -17,6 +17,7 @@ from lib.b7a_retired_carry import prepare as prepare_b7a_retired_carry
 from base.b7a_domain_model import prepare as prepare_b7a_domain
 from base.b7a_formation_model import prepare as prepare_b7a_formation
 from base.loopscan import off_build_files
+from lib.source_history import resolve_revision, project_prefix
 
 H = os.path.dirname(os.path.abspath(__file__))
 BASE, LIB, RULES, DATA = (os.path.join(H, d) for d in ("base", "lib", "rules", "data"))
@@ -61,9 +62,10 @@ def default_repo():
 def snapshot(repo, rev, dst):
     """git archive of projects/chirality-piping at rev (execution/ excluded) into dst."""
     os.makedirs(dst)
-    arc = git(repo, "archive", rev, P, f":(exclude){P}/execution")
+    prefix = project_prefix(repo, rev)
+    arc = git(repo, "archive", rev, prefix.rstrip("/") or ".", f":(exclude){prefix}execution")
     subprocess.run(["tar", "-x", "-C", dst], input=arc, check=True)
-    return os.path.join(dst, P)
+    return os.path.join(dst, prefix)
 
 
 CORRECT_NORM = ("core/numerics/correct_norm", "open_pipe_stress_correct_norm")
@@ -180,15 +182,15 @@ def claim_out(out):
 def cmd_run(a):
     repo = a.repo or default_repo()
     out = os.path.abspath(a.out or os.environ.get("RP_OUT") or stop(2, "no output directory: --out or RP_OUT"))
-    rev = git(repo, "rev-parse", "--verify", a.rev + "^{commit}", text=True).strip()
+    rev = resolve_revision(repo, a.rev)
     short = rev[:10]
     try:
-        git(repo, "cat-file", "-e", BASIS + "^{commit}")
-    except subprocess.CalledProcessError:
+        basis_revision = resolve_revision(repo, BASIS)
+    except (subprocess.CalledProcessError, ValueError):
         stop(2, f"the basis {BASIS} is not in {repo}: a full clone (not shallow) is needed")
     claim_out(out)
     os.makedirs(os.path.join(out, "logs"))
-    report = {"rev": rev, "basis": BASIS}
+    report = {"rev": rev, "basis": BASIS, "resolved_basis": basis_revision}
     # 1. the snapshot
     W = snapshot(repo, rev, os.path.join(out, "snap"))
     # 2. the base chain's line-keyed rules, basis -> rev (stops on any key it cannot carry)
@@ -213,7 +215,7 @@ def cmd_run(a):
         prepared.update(formed)
         report["b7a_formed_ownership"] = formation_report
     m = os.path.join(out, "map")
-    r = py([os.path.join(LIB, "linemap_rules.py"), "--prune-deleted", repo, BASIS, rev, m] + [prepared.get(f, os.path.join(BASE, f)) for f in RULE_FILES],
+    r = py([os.path.join(LIB, "linemap_rules.py"), "--prune-deleted", repo, basis_revision, rev, m] + [prepared.get(f, os.path.join(BASE, f)) for f in RULE_FILES],
            env=chain_env(LINEMAP_CRATES=os.path.join(BASE, "crate_dirs.txt"), LINEMAP_ROWS=os.path.join(DATA, "basis_text_rows.json"),
                          LINEMAP_RESOLUTIONS=RESOLUTIONS),
            out=os.path.join(out, "logs", "linemap.json"))
@@ -251,7 +253,7 @@ def cmd_run(a):
     # 5. SQ2 + O-10 rules per route
     for route in ("L", "E"):
         r = py([os.path.join(LIB, "sq2_rules.py"), chain, os.path.join(out, "rc" + route), os.path.join(RULES, f"sq2_decisions_{route}.py")],
-               env=chain_env(SQ2_SNAP=W, SQ2_TARGET=rev, SQ2_REPO=repo, SQ2_DEC_BASIS=BASIS, SQ2_LM=os.path.join(m, "g7_linemap.out.json"),
+               env=chain_env(SQ2_SNAP=W, SQ2_TARGET=rev, SQ2_REPO=repo, SQ2_DEC_BASIS=basis_revision, SQ2_LM=os.path.join(m, "g7_linemap.out.json"),
                              SQ2_RESOLUTIONS=RESOLUTIONS),
                out=os.path.join(out, "logs", f"sq2_rules_{route}.out"))
         if r.returncode:

@@ -2,13 +2,14 @@
 Resolve `REPO_ROOT` with `git rev-parse --show-toplevel`.
 
 Set `WORKING_ROOT` to
-`{REPO_ROOT}/projects/chirality-piping`.
+`{REPO_ROOT}`.
 
 Read `{REPO_ROOT}/AGENTS.md`.
-Read `{REPO_ROOT}/agents/AGENT_HELP_HUMAN.md`.
-Read `{REPO_ROOT}/agents/AGENT_HELPS_HUMANS.md`.
-Read `{REPO_ROOT}/agents/AGENT_WORKING_ITEMS.md`.
-Read `{REPO_ROOT}/agents/AGENT_TASK.md`.
+Resolve `CHIRALITY_LIBRARY` from its shared-library selection.
+Read `{CHIRALITY_LIBRARY}/agents/AGENT_HELP_HUMAN.md`.
+Read `{CHIRALITY_LIBRARY}/agents/AGENT_HELPS_HUMANS.md`.
+Read `{CHIRALITY_LIBRARY}/agents/AGENT_WORKING_ITEMS.md`.
+Read `{CHIRALITY_LIBRARY}/agents/AGENT_TASK.md`.
 Act as `HELP_HUMAN` for `{WORKING_ROOT}`.
 
 Read `{WORKING_ROOT}/loop/LOOP_INIT.md` and follow it within the owner's

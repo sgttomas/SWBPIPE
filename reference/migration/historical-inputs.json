@@ -1,0 +1,59 @@
+{
+  "baseline": {
+    "source_commit": "0828e8166ccefddc5c5b7bd5f75d58c2d656f51a",
+    "imported_commit": "260eceb30138964d645a964da26926e8999f59aa",
+    "tree": "406dd72fd8942ec7694ad12da2d639c50c96be03",
+    "archive_files_without_execution": 4589,
+    "archive_identity_sha256": "11f9163eeba1a235051af21a729643daf7d612b8bcbfd62462702e36ad8bf1a7"
+  },
+  "pricing_basis": {
+    "source_commit": "2243be380ba6f9b45ef62ea25d2ee0dd968b2a25",
+    "imported_commit": "51eb3bcb31279d1e4e99dcd08312e9455773665e",
+    "tree": "97eb89f0dca06a1a5f23432c0d6c2bc399f3ea8f",
+    "archive_files_without_execution": 2961,
+    "archive_identity_sha256": "5639ea1dc78046d1c12dbd0bff6914f791032dbfe32187e8b0f775de9c35c47c"
+  },
+  "retained_archive": {
+    "source_commit": "26d04270617c405fc3ca131d2ea6c86120ecc5ed",
+    "imported_commit": "65514d5c5549abe5e351f4456a87c3597e9b4af8",
+    "tree": "20e3f1a2c22d29fd22ae44009a7cddbab0a5b28a",
+    "archive_files_without_execution": 3115,
+    "archive_identity_sha256": "4f2518aced3412a6e237958782f3236afa8e506495f1f30670446823010325c3"
+  },
+  "a467a1f03799f12ebd02df82a0145cfc958f9dcb": {
+    "source_commit": "a467a1f03799f12ebd02df82a0145cfc958f9dcb",
+    "imported_commit": "0d68ad23150485d558ed485753119501caed5874",
+    "tree": "1c15efa9eb8919e57cef2d62bf0d302f2493331d",
+    "consumer": "historical CI selection regression"
+  },
+  "c986759b21605293e29383dd2b660ab5acb7c3fb": {
+    "source_commit": "c986759b21605293e29383dd2b660ab5acb7c3fb",
+    "imported_commit": "014e3558abcf9329dd694a3b7d2d5face2540aae",
+    "tree": "039abc143bea3874f264bcadcc310515b9e04c33",
+    "consumer": "historical CI selection regression"
+  },
+  "2844f2b32d4b9f30effc41b4b387a302417697dc": {
+    "source_commit": "2844f2b32d4b9f30effc41b4b387a302417697dc",
+    "imported_commit": "330a0edefc886e07b6d8c2c85817e3fffe7d0f30",
+    "tree": "a3ef33b49fd0e1afea590ced195bb8de600fa6c2",
+    "consumer": "historical CI selection regression"
+  },
+  "b137b9c46a0a848a9284e5147391641845c83815": {
+    "source_commit": "b137b9c46a0a848a9284e5147391641845c83815",
+    "imported_commit": "42996137fca4ea4798735edae7e447d65bfab486",
+    "tree": "6d1eab7e679f809d0e5d8dbe90a30fb6616710b3",
+    "consumer": "historical CI selection regression"
+  },
+  "e2055cb35fe71af03caae2c386bd8055fb0afd81": {
+    "source_commit": "e2055cb35fe71af03caae2c386bd8055fb0afd81",
+    "imported_commit": "c7a1d716ca3cc6aebd89abef8f2297b9ff3b2670",
+    "tree": "5de7ef40c72df4084e310ef8294d56a5cf640f89",
+    "consumer": "historical CI selection regression"
+  },
+  "a9524745a3227ff229e22bf6aba9b307e0382701": {
+    "source_commit": "a9524745a3227ff229e22bf6aba9b307e0382701",
+    "imported_commit": "71e7ebb33f7da2fb742d19ed4f78026c9894da49",
+    "tree": "cadd90a57a02c0b559606da1d2e13d7e6227ea6e",
+    "consumer": "historical CI selection regression"
+  }
+}

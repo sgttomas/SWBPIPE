@@ -12,7 +12,7 @@ from tests.public_export import monorepo_only
 # The export ships no CI action (DEC-059).
 pytestmark = monorepo_only("the repository's .github/actions")
 
-ACTION = Path(__file__).resolve().parents[3] / '.github/actions/setup-piping-e2e/action.yml'
+ACTION = Path(__file__).resolve().parents[1] / '.github/actions/setup-piping-e2e/action.yml'
 
 
 def run_blocks(action):
@@ -78,7 +78,7 @@ class UbuntuSourceTests(unittest.TestCase):
                 command = re.search(r'^      run: (.+)$', step, re.MULTILINE)
                 self.assertIsNotNone(command)
                 paths[condition.group(1)] = command.group(1)
-                self.assertIn('      working-directory: projects/chirality-piping', step)
+                self.assertIn('      working-directory: .', step)
         self.assertEqual(paths, {'==': 'npx playwright install-deps chromium',
                                  '!=': 'npx playwright install --with-deps chromium'})
 

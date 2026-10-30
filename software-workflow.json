@@ -1,7 +1,7 @@
 {
   "schema": "chirality-software-workflow/v1",
   "project_root": ".",
-  "workspace_root": "../..",
+  "workspace_root": ".",
   "checks": {
     "desktop-build": {
       "cwd": ".",
@@ -41,24 +41,6 @@
         "auto",
         "--dist",
         "loadscope"
-      ]
-    },
-    "harness-pytest": {
-      "cwd": "../..",
-      "command": [
-        "python3",
-        "-m",
-        "pytest",
-        "-q",
-        "tools/practitioner_harness"
-      ]
-    },
-    "harness-self-check": {
-      "cwd": "../..",
-      "command": [
-        "python3",
-        "tools/practitioner_harness/harness.py",
-        "self-check"
       ]
     },
     "macos-release-sweep": {

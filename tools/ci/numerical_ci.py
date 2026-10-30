@@ -23,7 +23,7 @@ def load_module(name, path):
 
 HERE = Path(__file__).resolve().parent
 readiness = load_module('numerical_release_readiness', HERE.parent / 'release/check_release_readiness.py')
-PROJECT = 'projects/chirality-piping/'
+PROJECT = ''
 
 
 def validate_plan(root, plan):
@@ -111,7 +111,7 @@ def contained(project, path):
 
 
 def runtime_declarations(project):
-    path = project.parents[1] / 'tools/hosted-ci-routing.json'
+    path = project / 'tools/hosted-ci-routing.json'
     empty = {'source_trees': {}, 'reads': {}}
     return json.loads(path.read_text()).get('piping_runtime_reads', empty) if path.is_file() else empty
 
@@ -561,7 +561,7 @@ def main():
     parser.add_argument('--evidence-dir', required=True)
     parser.add_argument('--build-only', action='store_true', help='Compile the selected test profiles without running tests')
     args = parser.parse_args()
-    return run(HERE.parents[3], json.loads(Path(args.plan).read_text()), args.evidence_dir, build_only=args.build_only)
+    return run(HERE.parents[1], json.loads(Path(args.plan).read_text()), args.evidence_dir, build_only=args.build_only)
 
 
 if __name__ == '__main__':

@@ -1,0 +1,31 @@
+name: Restore shared build dependencies
+description: Restore main-scoped registry and compiled dependencies without saving PR outputs
+inputs:
+  suite:
+    description: Dependency family (piping-numerical or piping-desktop-rust)
+    required: true
+outputs:
+  key:
+    description: Exact dependency cache key
+    value: ${{ steps.key.outputs.key }}
+  paths:
+    description: Registry and target directories
+    value: ${{ steps.key.outputs.paths }}
+  cache-hit:
+    description: Whether the exact dependency cache was restored
+    value: ${{ steps.restore.outputs.cache-hit }}
+runs:
+  using: composite
+  steps:
+    - name: Key compiler and locked dependencies
+      id: key
+      shell: bash
+      run: python3 tools/software_workflow/build_cache.py key --suite "${{ inputs.suite }}"
+      working-directory: ${{ github.workspace }}
+    - name: Restore shared build dependencies
+      id: restore
+      uses: actions/cache/restore@v4
+      with:
+        path: ${{ steps.key.outputs.paths }}
+        key: ${{ steps.key.outputs.key }}
+        restore-keys: ${{ steps.key.outputs.prefix }}

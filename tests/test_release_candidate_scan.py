@@ -747,3 +747,37 @@ def test_engine_cli_reports_clean_content_without_findings(tmp_path):
     payload = json.loads(completed.stdout)
     assert payload["summary"]["finding_count"] == 0
     assert payload["summary"]["clean_scan_is_clearance"] is False
+
+
+def test_lint_batches_cover_every_input_and_preserve_summary_types(monkeypatch):
+    module = load_module()
+    paths = [Path(f'invented-{i}.txt') for i in range(5)]
+    monkeypatch.setattr(module, 'lint_path_batches', lambda items, command: [items[:2], items[2:]])
+    seen = []
+    def engine(command, root):
+        selected = command[command.index('external') + 1:]
+        seen.extend(selected)
+        payload = {'summary': {'target_count': len(selected), 'finding_count': len(selected),
+                               'clean_scan_is_clearance': False},
+                   'findings': [{'target_id': path, 'severity': 'BLOCKING'} for path in selected]}
+        return subprocess.CompletedProcess(command, 0, json.dumps(payload), '')
+    monkeypatch.setattr(module, 'run_command', engine)
+    result = module.run_engine_lint(paths, ROOT)
+    assert seen == [str(path) for path in paths]
+    assert result['status'] == 'findings_present'
+    assert result['finding_count'] == result['engine_summary']['target_count'] == 5
+    assert result['engine_summary']['clean_scan_is_clearance'] is False
+
+
+def test_unavailable_lint_batch_cannot_report_pass(monkeypatch):
+    module = load_module()
+    paths = [Path('invented-first.txt'), Path('invented-second.txt')]
+    monkeypatch.setattr(module, 'lint_path_batches', lambda items, command: [[items[0]], [items[1]]])
+    def engine(command, root):
+        if command[-1] == str(paths[1]):
+            raise OSError('invented unavailable engine')
+        return subprocess.CompletedProcess(command, 0, json.dumps({'summary': {'target_count': 1}, 'findings': []}), '')
+    monkeypatch.setattr(module, 'run_command', engine)
+    result = module.run_engine_lint(paths, ROOT)
+    assert result['status'] == 'not_run'
+    assert result['completed_batches'] == 1

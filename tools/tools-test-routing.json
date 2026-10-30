@@ -1,0 +1,63 @@
+{
+  "schema": "chirality-software-workflow/v1",
+  "project_root": "..",
+  "always_checks": [],
+  "checks": {
+    "software_workflow": {
+      "pytest_paths": [
+        "tools/software_workflow",
+        "tests/test_ci_numerical.py",
+        "tests/test_ci_apt_sources.py"
+      ]
+    },
+    "deliverables": {
+      "pytest_paths": [
+        "tools/deliverables"
+      ]
+    },
+    "validation": {
+      "pytest_paths": [
+        "tools/validation"
+      ]
+    }
+  },
+  "path_rules": [
+    {
+      "paths": [
+        ".github/**",
+        "tools/software_workflow/**",
+        "tools/ci/**",
+        "tools/hosted-ci-routing.json",
+        "tools/tools-test-routing.json",
+        "**/*.rs",
+        "**/Cargo.toml",
+        "**/Cargo.lock",
+        "tools/agent_catalog_resource*",
+        "api/agent/**",
+        "apps/desktop/src-tauri/resources/agent-capability-catalog.json",
+        "execution/PKG-16/**"
+      ],
+      "checks": [
+        "software_workflow"
+      ]
+    },
+    {
+      "paths": [
+        "tools/deliverables/**",
+        "execution/**/deliverable.yaml"
+      ],
+      "checks": [
+        "deliverables"
+      ]
+    },
+    {
+      "paths": [
+        "tools/validation/**",
+        "docs/claims_registry.md"
+      ],
+      "checks": [
+        "validation"
+      ]
+    }
+  ]
+}

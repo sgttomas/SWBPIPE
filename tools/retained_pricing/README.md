@@ -11,7 +11,7 @@ It is SQ2's TEXT and cap-priced chain under the O-10 rules, in one Python comman
 Run from any directory:
 
 ```bash
-P=projects/chirality-piping/tools/retained_pricing
+P=tools/retained_pricing
 python3 $P/price.py run <rev> --out <new dir outside any checkout> # price a revision
 python3 $P/price.py compare <tree A> <tree B>                    # coefficient-wise comparison
 python3 $P/price.py generate <tree> <retained_memory.rs>         # rewrite the GENERATED PROFILE block
@@ -43,7 +43,8 @@ For example, main's block at `2c5cf0823b` is the registered tree with:
 
 ## Inputs
 
-**Repository.** A clone with full history that contains the basis `2243be380b`; a shallow clone is refused. The default is this checkout. `--repo` or `RP_REPO` selects another.
+**Repository.** A clone with full history and `reference/migration/commit-map.txt`, which maps
+the original basis `2243be380b` to its equivalent extracted commit; a shallow clone is refused. The default is this checkout. `--repo` or `RP_REPO` selects another.
 
 **Revision.** Any revision whose code the rules cover.
 
@@ -81,7 +82,9 @@ All outputs go to `--out`.
 
 ## Pipeline
 
-1. `git archive` the revision's `projects/chirality-piping`, without `execution/`.
+1. Resolve the revision (use `source:<original-sha>` for an explicit original
+   Chirality identity), then `git archive` its SWBPIPE source tree without
+   `execution/`. Both standalone and original monorepo layouts are supported.
 2. Carry the base chain's line-keyed rules (`base/*.g4.json`, `base/sens.py`, `base/premise_pins.json`) from the basis to the revision with `lib/linemap_rules.py --prune-deleted`.
    - **Keymap.** `lib/linemap_lib.py` maps each key in order:
      1. **Offset:** by the cumulative offset, checked.

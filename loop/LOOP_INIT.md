@@ -6,7 +6,8 @@ release, v1.0. Its target, capability rows and exit criteria are in
 `docs/RELEASE_TARGET_v1.0.md`, which the owner accepted on 2026-10-28. Briefs
 and PRs for that work name the `RT-` row they serve.
 
-Work in `projects/chirality-piping`. Start from the affected
+Work at this repository root. Read local `AGENTS.md` for shared-library
+selection and the applicable active role. Start from the affected
 `execution/PKG-nn/DEL-nn-nn/` and its ScopeOfWork, Design and dependency
 conditions. Consult `docs/PRD.md` and its companions for requirements and
 interfaces involved in this slice, not as a compulsory census.
@@ -14,7 +15,7 @@ interfaces involved in this slice, not as a compulsory census.
 From the repository root:
 
 ```sh
-python3 -m tools.deliverables --project projects/chirality-piping neighborhood DEL-nn-nn
+python3 -m tools.deliverables --project . neighborhood DEL-nn-nn
 ```
 
 Use `impact <DEL>` for downstream reach and `touches <rev|PR:n>` to locate
@@ -100,7 +101,7 @@ Registered checks are in `software-workflow.json`. From the repository root,
 select by project-relative changed paths:
 
 ```sh
-python3 tools/software_workflow/select_affected_checks.py projects/chirality-piping/software-workflow.json <paths>
+python3 tools/software_workflow/select_affected_checks.py software-workflow.json <paths>
 ```
 
 `docs/CI_STRATEGY.md` describes numerical, persistence, browser and Python
@@ -115,7 +116,7 @@ built from the head under test.
 
 Frozen numerical references are in `validation/references/`. Use the existing
 generators and preserve the independent reference basis. Numerical changes
-require the targeted checks and independent scrutiny specified in Root
+require the targeted checks and independent scrutiny specified in local
 `AGENTS.md`.
 
 A change that can move the retained route's memory needs re-pricing with

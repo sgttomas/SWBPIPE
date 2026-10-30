@@ -1,0 +1,479 @@
+name: Piping Desktop E2E
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+concurrency:
+  group: piping-desktop-e2e-${{ github.event.pull_request.number || github.ref }}
+  # Do not queue stale candidates ahead of the current PR head.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+env:
+  CI: "true"
+  PLAYWRIGHT_HTML_OPEN: never
+  PLAYWRIGHT_WORKERS: "1"
+
+jobs:
+  selection:
+    name: Select consequential checks
+    runs-on: ubuntu-latest
+    outputs:
+      mode: ${{ steps.plan.outputs.mode }}
+      numerical_mode: ${{ steps.numeric.outputs.mode }}
+      python_mode: ${{ steps.numeric.outputs.python_mode }}
+      desktop_mode: ${{ steps.numeric.outputs.desktop_mode }}
+      desktop_rust_mode: ${{ steps.numeric.outputs.desktop_rust_mode }}
+      browser_project: ${{ steps.numeric.outputs.browser_project }}
+      browser_specs: ${{ steps.numeric.outputs.browser_specs }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          filter: blob:none
+          sparse-checkout: |
+            /*
+            !/execution/
+            !/execution/
+          sparse-checkout-cone-mode: false
+      - name: Select from the complete PR diff
+        id: plan
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: python3 tools/software_workflow/hosted_ci.py plan --suite piping --event "$EVENT" --base "$BASE" --head "$HEAD" --output piping-ci-plan.json
+      - name: Read numerical selection
+        id: numeric
+        run: |
+          python3 - <<'PYTHON'
+          import json, os, re
+          plan = json.load(open('piping-ci-plan.json'))
+          modes = plan['modes']
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
+              for suite, output in [('piping-numerical', 'mode'), ('piping-python', 'python_mode'), ('piping-desktop', 'desktop_mode'),
+                                    ('piping-desktop-rust', 'desktop_rust_mode')]:
+                  mode = modes[suite]
+                  if mode not in {'full', 'not-applicable'}:
+                      raise SystemExit(f'Invalid {suite} selection')
+                  out.write(f'{output}={mode}\n')
+              # The product job's Chromium project and specs (tools/hosted-ci-routing.json).
+              browser = plan['piping_browser_selection']
+              specs = browser['specs']
+              if (not re.fullmatch(r'[a-z0-9-]+', browser['project'])
+                      or not all(re.fullmatch(r'[A-Za-z0-9_.-]+\.spec\.ts', spec) for spec in specs)
+                      or (modes['piping'] == 'full') != bool(specs)):
+                  raise SystemExit('Invalid browser selection')
+              out.write(f"browser_project={browser['project']}\nbrowser_specs={' '.join(specs)}\n")
+              print(f"Browser specs ({browser['classification']}): {' '.join(specs) or 'none'}")
+          PYTHON
+      - uses: actions/upload-artifact@v4
+        with:
+          name: piping-ci-selection
+          path: piping-ci-plan.json
+          retention-days: 7
+
+  product:
+    name: Build, behaviour and core browser journey
+    needs: selection
+    if: needs.selection.outputs.mode == 'full'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          filter: blob:none
+          sparse-checkout: |
+            /*
+            !/execution/
+            !/execution/
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Fingerprint browser verification inputs
+        id: result-key
+        env:
+          DESKTOP_MODE: ${{ needs.selection.outputs.desktop_mode }}
+          BROWSER_PROJECT: ${{ needs.selection.outputs.browser_project }}
+          BROWSER_SPECS: ${{ needs.selection.outputs.browser_specs }}
+        run: python3 tools/software_workflow/result_cache.py key --suite browser --desktop-mode "$DESKTOP_MODE" --browser-project "$BROWSER_PROJECT" --browser-specs "$BROWSER_SPECS" --record "${{ runner.temp }}/verified-browser/result.json"
+      - name: Restore exact successful verification
+        id: verified
+        if: github.event_name == 'pull_request'
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ runner.temp }}/verified-browser/result.json
+          key: ${{ steps.result-key.outputs.key }}
+      - name: Report reused verification
+        if: steps.verified.outputs.cache-hit == 'true'
+        env:
+          RESULT_KEY: ${{ steps.result-key.outputs.key }}
+        run: python3 tools/software_workflow/result_cache.py reuse --suite browser --record "${{ runner.temp }}/verified-browser/result.json"
+      - uses: ./.github/actions/setup-piping-e2e
+        if: steps.verified.outputs.cache-hit != 'true'
+      - name: Production build
+        if: steps.verified.outputs.cache-hit != 'true'
+        run: npm run build:desktop
+        working-directory: .
+      # The core specs, and the specs the selection adds for the diff's paths
+      # (tools/hosted-ci-routing.json `piping_browser_journeys`).
+      - name: Core browser journey and save/reopen
+        if: steps.verified.outputs.cache-hit != 'true'
+        env:
+          BROWSER_PROJECT: ${{ needs.selection.outputs.browser_project }}
+          BROWSER_SPECS: ${{ needs.selection.outputs.browser_specs }}
+        run: |
+          test -n "$BROWSER_PROJECT"
+          test -n "$BROWSER_SPECS"
+          echo "Selected browser specs on $BROWSER_PROJECT: $BROWSER_SPECS"
+          npm run test:e2e:desktop -- --project="$BROWSER_PROJECT" $BROWSER_SPECS
+        working-directory: .
+      - name: Publish the verified key
+        if: success()
+        env:
+          RESULT_KEY: ${{ steps.result-key.outputs.key }}
+        run: mkdir -p "${{ runner.temp }}/browser-key" && printf '%s' "$RESULT_KEY" > "${{ runner.temp }}/browser-key/key"
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: browser-key-product
+          path: ${{ runner.temp }}/browser-key/key
+          retention-days: 1
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: piping-browser-failure
+          path: |
+            apps/desktop/playwright-report
+            apps/desktop/test-results
+          if-no-files-found: warn
+          retention-days: 7
+
+  desktop:
+    # The full desktop suite in two shards, when the selection finds a desktop
+    # input in the diff. It shares the browser result-reuse key.
+    name: Desktop behaviour (${{ matrix.shard }}/2)
+    needs: selection
+    if: needs.selection.outputs.desktop_mode == 'full'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          filter: blob:none
+          sparse-checkout: |
+            /*
+            !/execution/
+            !/execution/
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Fingerprint browser verification inputs
+        id: result-key
+        env:
+          DESKTOP_MODE: ${{ needs.selection.outputs.desktop_mode }}
+          BROWSER_PROJECT: ${{ needs.selection.outputs.browser_project }}
+          BROWSER_SPECS: ${{ needs.selection.outputs.browser_specs }}
+        run: python3 tools/software_workflow/result_cache.py key --suite browser --desktop-mode "$DESKTOP_MODE" --browser-project "$BROWSER_PROJECT" --browser-specs "$BROWSER_SPECS" --record "${{ runner.temp }}/verified-browser/result.json"
+      - name: Restore exact successful verification
+        id: verified
+        if: github.event_name == 'pull_request'
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ runner.temp }}/verified-browser/result.json
+          key: ${{ steps.result-key.outputs.key }}
+      - name: Report reused verification
+        if: steps.verified.outputs.cache-hit == 'true'
+        env:
+          RESULT_KEY: ${{ steps.result-key.outputs.key }}
+        run: python3 tools/software_workflow/result_cache.py reuse --suite browser --record "${{ runner.temp }}/verified-browser/result.json"
+      - uses: ./.github/actions/setup-piping-e2e
+        if: steps.verified.outputs.cache-hit != 'true'
+      # The root script nests a second `npm run`; pass the shard through the
+      # workspace script so Vitest receives it.
+      - name: Desktop behaviour (including persistence and undo)
+        if: steps.verified.outputs.cache-hit != 'true'
+        run: npm test --workspace apps/desktop -- --shard=${{ matrix.shard }}/2
+        working-directory: .
+      - name: Publish the verified key
+        if: success()
+        env:
+          RESULT_KEY: ${{ steps.result-key.outputs.key }}
+        run: mkdir -p "${{ runner.temp }}/browser-key" && printf '%s' "$RESULT_KEY" > "${{ runner.temp }}/browser-key/key"
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: browser-key-desktop-${{ matrix.shard }}
+          path: ${{ runner.temp }}/browser-key/key
+          retention-days: 1
+
+  browser-record:
+    # A reused pass vouches for the browser journey and every selected desktop
+    # shard. It is recorded only after all of them succeed, and only under the
+    # key each of them actually ran with.
+    name: Record browser verification
+    needs: [selection, product, desktop]
+    if: >-
+      always() && github.event_name == 'pull_request' && needs.product.result == 'success' &&
+      (needs.desktop.result == 'success' || (needs.desktop.result == 'skipped' && needs.selection.outputs.desktop_mode != 'full'))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          filter: blob:none
+          sparse-checkout: |
+            /*
+            !/execution/
+            !/execution/
+          sparse-checkout-cone-mode: false
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: browser-key-*
+          path: ${{ runner.temp }}/browser-keys
+      - name: Require one key across the verifiers
+        id: result-key
+        env:
+          DESKTOP_MODE: ${{ needs.selection.outputs.desktop_mode }}
+        run: |
+          expect=(--expect product)
+          if [ "$DESKTOP_MODE" = full ]; then expect+=(--expect desktop-1 --expect desktop-2); fi
+          python3 tools/software_workflow/result_cache.py agree --suite browser --keys-dir "${{ runner.temp }}/browser-keys" "${expect[@]}"
+      - name: Restore exact successful verification
+        id: verified
+        if: steps.result-key.outputs.key != ''
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ runner.temp }}/verified-browser/result.json
+          key: ${{ steps.result-key.outputs.key }}
+      - name: Record successful browser verification
+        if: steps.result-key.outputs.key != '' && steps.verified.outputs.cache-hit != 'true'
+        env:
+          RESULT_KEY: ${{ steps.result-key.outputs.key }}
+        run: python3 tools/software_workflow/result_cache.py save --suite browser --record "${{ runner.temp }}/verified-browser/result.json"
+      - name: Save successful verification
+        if: success() && steps.result-key.outputs.key != '' && steps.verified.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ runner.temp }}/verified-browser/result.json
+          key: ${{ steps.result-key.outputs.key }}
+
+  desktop-rust:
+    # The desktop shell crate's Cargo tests (store, commands, persistence),
+    # when the selection finds the crate, a path dependency it compiles or a
+    # file either compiles or its tests read in the diff. macOS Apple Silicon
+    # is the product platform (DEC-057); it needs no webview packages and runs
+    # the macOS memory and worker paths the tests cover. No frontend build.
+    name: Desktop Rust (src-tauri)
+    needs: selection
+    if: needs.selection.outputs.desktop_rust_mode == 'full'
+    runs-on: macos-26
+    timeout-minutes: 30
+    env:
+      CARGO_INCREMENTAL: '0'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          filter: blob:none
+          sparse-checkout: |
+            /*
+            !/execution/
+            !/execution/
+          sparse-checkout-cone-mode: false
+      - uses: dtolnay/rust-toolchain@1.97.1
+      # Shared dependency cache contract: docs/CI_SELECTION.md.
+      - name: Restore main-scoped desktop Rust build dependencies
+        uses: ./.github/actions/restore-build-cache
+        with:
+          suite: piping-desktop-rust
+      - name: Locked desktop shell Cargo tests
+        run: cargo test --locked --manifest-path apps/desktop/src-tauri/Cargo.toml
+        working-directory: .
+
+  numerical:
+    name: Numerical Cargo oracles
+    needs: selection
+    if: needs.selection.outputs.numerical_mode == 'full'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      CARGO_INCREMENTAL: '0'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          filter: blob:none
+          sparse-checkout: |
+            /*
+            !/execution/
+            !/execution/
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - uses: actions/download-artifact@v4
+        with:
+          name: piping-ci-selection
+      - name: Fingerprint numerical verification inputs
+        id: result-key
+        run: python3 tools/software_workflow/result_cache.py key --suite numerical --plan piping-ci-plan.json --record "${{ runner.temp }}/verified-numerical/result.json"
+      - name: Restore exact successful verification
+        id: verified
+        if: github.event_name == 'pull_request'
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ runner.temp }}/verified-numerical/result.json
+          key: ${{ steps.result-key.outputs.key }}
+      - name: Report reused verification
+        if: steps.verified.outputs.cache-hit == 'true'
+        env:
+          RESULT_KEY: ${{ steps.result-key.outputs.key }}
+        run: python3 tools/software_workflow/result_cache.py reuse --suite numerical --record "${{ runner.temp }}/verified-numerical/result.json"
+      - uses: dtolnay/rust-toolchain@1.97.1
+        if: steps.verified.outputs.cache-hit != 'true'
+      # Shared dependency cache contract: docs/CI_SELECTION.md.
+      - name: Restore main-scoped numerical build dependencies
+        if: steps.verified.outputs.cache-hit != 'true'
+        uses: ./.github/actions/restore-build-cache
+        with:
+          suite: piping-numerical
+      - name: Locked Cargo numerical suite
+        if: steps.verified.outputs.cache-hit != 'true'
+        run: python3 tools/ci/numerical_ci.py --plan piping-ci-plan.json --evidence-dir piping-numerical-evidence
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: piping-numerical-failure
+          path: |
+            piping-numerical-evidence/numerical.json
+            piping-numerical-evidence/*.log
+            piping-numerical-evidence/cargo-logs/*.log
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Record successful numerical verification
+        if: success() && github.event_name == 'pull_request' && steps.verified.outputs.cache-hit != 'true'
+        env:
+          RESULT_KEY: ${{ steps.result-key.outputs.key }}
+        run: python3 tools/software_workflow/result_cache.py save --suite numerical --record "${{ runner.temp }}/verified-numerical/result.json"
+      - name: Save successful verification
+        if: success() && github.event_name == 'pull_request' && steps.verified.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ runner.temp }}/verified-numerical/result.json
+          key: ${{ steps.result-key.outputs.key }}
+
+  python-product:
+    name: Python product contracts
+    needs: selection
+    if: needs.selection.outputs.python_mode == 'full'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          filter: blob:none
+          # The release-readiness tests read the approved dependency graph.
+          sparse-checkout: |
+            /*
+            !/execution/
+            !/execution/
+            /execution/_DAG/
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install Python check dependencies
+        run: python3 -m pip install -r requirements-dev.txt
+      - uses: actions/download-artifact@v4
+        with:
+          name: piping-ci-selection
+      - name: Selected Python product contracts and qualification oracles
+        run: python3 tools/ci/python_ci.py --plan piping-ci-plan.json
+
+  browser-matrix:
+    name: Broad browser matrix (${{ matrix.shard }}/4)
+    needs: selection
+    if: github.event_name != 'pull_request' && needs.selection.outputs.mode == 'full'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          filter: blob:none
+          sparse-checkout: |
+            /*
+            !/execution/
+            !/execution/
+          sparse-checkout-cone-mode: false
+      - uses: ./.github/actions/setup-piping-e2e
+      # The root script nests a second `npm run`, which takes `--shard` as its own option; pass it
+      # through the workspace script itself so Playwright receives it.
+      - run: npm run test:e2e --workspace apps/desktop -- --shard=${{ matrix.shard }}/4
+        working-directory: .
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: piping-matrix-failure-${{ matrix.shard }}
+          path: apps/desktop/test-results
+          if-no-files-found: warn
+          retention-days: 7
+
+  desktop-e2e:
+    name: Desktop E2E (source mode)
+    needs: [selection, product, desktop, desktop-rust, numerical, python-product]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          filter: blob:none
+          sparse-checkout: |
+            /*
+            !/execution/
+            !/execution/
+          sparse-checkout-cone-mode: false
+      - name: Report selected checks without treating skipped work as passed
+        env:
+          MODE: ${{ needs.selection.outputs.mode }}
+          NUMERICAL_MODE: ${{ needs.selection.outputs.numerical_mode }}
+          PYTHON_MODE: ${{ needs.selection.outputs.python_mode }}
+          DESKTOP_MODE: ${{ needs.selection.outputs.desktop_mode }}
+          DESKTOP_RUST_MODE: ${{ needs.selection.outputs.desktop_rust_mode }}
+          SELECTION: ${{ needs.selection.result }}
+          PRODUCT: ${{ needs.product.result }}
+          DESKTOP: ${{ needs.desktop.result }}
+          DESKTOP_RUST: ${{ needs.desktop-rust.result }}
+          NUMERICAL: ${{ needs.numerical.result }}
+          PYTHON_PRODUCT_RESULT: ${{ needs.python-product.result }}
+        run: |
+          python3 tools/software_workflow/hosted_ci.py aggregate --suite piping --mode "$MODE" --selection "$SELECTION" --product "$PRODUCT"
+          python3 tools/software_workflow/hosted_ci.py aggregate --suite piping-numerical --mode "$NUMERICAL_MODE" --selection "$SELECTION" --product "$NUMERICAL"
+          python3 tools/software_workflow/hosted_ci.py aggregate --suite piping-python --mode "$PYTHON_MODE" --selection "$SELECTION" --product "$PYTHON_PRODUCT_RESULT"
+          python3 tools/software_workflow/hosted_ci.py aggregate --suite piping-desktop --mode "$DESKTOP_MODE" --selection "$SELECTION" --product "$DESKTOP"
+          python3 tools/software_workflow/hosted_ci.py aggregate --suite piping-desktop-rust --mode "$DESKTOP_RUST_MODE" --selection "$SELECTION" --product "$DESKTOP_RUST"

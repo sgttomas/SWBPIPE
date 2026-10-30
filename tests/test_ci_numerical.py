@@ -27,7 +27,7 @@ spec = importlib.util.spec_from_file_location('numerical_ci', MODULE)
 ci = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(ci)
 
-ROOT = MODULE.parents[4]
+ROOT = MODULE.parents[2]
 sys.path.insert(0, str(ROOT / 'tools/software_workflow'))
 import hosted_ci
 from software_workflow_common import load_profile
@@ -285,7 +285,7 @@ class NumericalTests(unittest.TestCase):
 
     def test_real_rust_literal_includes_require_numerical(self):
         project, sources = self.rust_sources()
-        repo = project.parents[1]
+        repo = project
         references = set()
         literal = re.compile(r'\s*"((?:\\[\s\S]|[^"\\])*)"\s*,?\s*\)')
         for source in sources:
@@ -306,7 +306,7 @@ class NumericalTests(unittest.TestCase):
 
     def test_real_rust_runtime_resource_literals_require_numerical(self):
         project, sources = self.rust_sources()
-        repo = project.parents[1]
+        repo = project
         references = set()
         for source in sources:
             for match in re.finditer(r'"((?:\\[\s\S]|[^"\\])*)"', source.read_text()):
@@ -564,7 +564,9 @@ class ReachabilitySafetyTests(unittest.TestCase):
         for base, head in [('a467a1f03799f12ebd02df82a0145cfc958f9dcb','c986759b21605293e29383dd2b660ab5acb7c3fb'),
                            ('2844f2b32d4b9f30effc41b4b387a302417697dc','b137b9c46a0a848a9284e5147391641845c83815'),
                            ('e2055cb35fe71af03caae2c386bd8055fb0afd81','a9524745a3227ff229e22bf6aba9b307e0382701')]:
-            plan = hosted_ci.make_plan(ROOT, profile, 'pull_request', base, head)
+            # Historical source identities survive in the extraction correspondence.
+            mapping = dict(line.split(':') for line in (ROOT / 'reference/migration/commit-map.txt').read_text().splitlines() if line)
+            plan = hosted_ci.make_plan(ROOT, profile, 'pull_request', mapping[base], mapping[head])
             selected = plan['piping_numerical_selection']
             self.assertEqual(selected['classification'], 'reachability', selected['fallback_reasons'])
             # #1246 also edits the desktop manifest read by VR's feature guard.

@@ -27,6 +27,7 @@ full history). The check is bound to R-A's regeneration: a later change to a
 listed file restates its own base here.
 """
 from __future__ import annotations
+from tools.repository_history import source_spec as _source_spec, resolve_revision as _source_revision
 
 from collections import Counter
 import json
@@ -39,7 +40,7 @@ import pytest
 from tests.retained_precision_corpus import _STORAGE
 
 PROJECT = Path(__file__).resolve().parents[1]
-REPOSITORY = PROJECT.parents[1]
+REPOSITORY = PROJECT
 BASE = "9e03991d392f07b578f9fac4e5e39d8d289580ea"
 # Model document 0.7.0 (W-13 S1b) regenerated these files again (version token and the digests
 # binding it) on top of main 116149085a; R-A's check reads each there, before that regeneration.
@@ -170,7 +171,7 @@ def classify(base, current, path=(), out=None):
 
 def base_text(name: str) -> str:
     return subprocess.run(
-        ["git", "show", f"{BASE}:projects/chirality-piping/{name}"],
+        ["git", "show", _source_spec(PROJECT, BASE, name)],
         cwd=REPOSITORY, check=True, capture_output=True, text=True,
     ).stdout
 
@@ -178,7 +179,7 @@ def base_text(name: str) -> str:
 def s1b_base_text(name: str) -> str:
     """A file's bytes at the S1b base, before model document 0.7.0 regenerated it."""
     return subprocess.run(
-        ["git", "show", f"{S1B_BASE}:projects/chirality-piping/{name}"],
+        ["git", "show", _source_spec(PROJECT, S1B_BASE, name)],
         cwd=REPOSITORY, check=True, capture_output=True, text=True,
     ).stdout
 
@@ -237,10 +238,14 @@ J7_PUBLISHED = {
 
 
 def _base_present() -> bool:
-    return subprocess.run(["git", "cat-file", "-e", f"{BASE}^{{commit}}"], cwd=REPOSITORY, capture_output=True).returncode == 0
+    try:
+        _source_revision(PROJECT, BASE)
+        return True
+    except ValueError:
+        return False
 
 
-pytestmark = pytest.mark.skipif(not _base_present(), reason=f"the R-A base {BASE[:10]} is not in this clone's history")
+assert _base_present(), "required R-A historical input is missing from this clone"
 
 
 @pytest.mark.parametrize("name", RAW)
