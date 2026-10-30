@@ -10,6 +10,7 @@ import { operationExamples } from "./features/geometry-tools/reconnectExample";
 import { resolveEntitySelection } from "./features/results/resultInterpretation";
 import { BoundaryAuthoringPanel } from "./features/boundary-authoring/BoundaryAuthoringPanel";
 import { DisplayUnitsProvider } from "./features/display-units";
+import { EmbeddedAgentPanel } from "./features/embedded-agent/EmbeddedAgentPanel";
 import { BatchReviewPanel } from "./features/toolkit/BatchReviewPanel";
 import { BulkChangePanel } from "./features/bulk-change/BulkChangePanel";
 import {
@@ -595,6 +596,7 @@ function AppSession() {
               />
               </div>
               <div className="operation-tool-page" hidden={operationTab !== "agent"}>
+            <EmbeddedAgentPanel session={session.agent} active={activeSection === "operations" && operationTab === "agent"} onReview={() => {setActiveSection("operations");setOperationTab("review");}} />
             <AgentWorkbenchPanel
               appliedOperationCount={appliedOperations.length}
               mechanicsReady={Boolean(result)}
@@ -620,7 +622,7 @@ function AppSession() {
                 capabilityReference={{
                   capabilities: toolkitCapabilities,
                   operation_schema: operationSchema,
-                  provider_status: "Live provider is held; offline proposals require explicit human review."
+                  provider_status: "Imported proposals require explicit human review; live availability is shown by the native agent panel."
                 }}
                 loadOperationExamples={() => operationExamples(model)}
               />

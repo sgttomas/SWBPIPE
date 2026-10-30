@@ -5,7 +5,8 @@
 //! launches it with these environment variables:
 //!
 //! - `SWBPIPE_NATIVE_SMOKE_DRIVER`: a script evaluated in the main webview once
-//!   the page has loaded (`apps/desktop/native-smoke/driver.js`);
+//!   the page has loaded (`apps/desktop/native-smoke/driver.js`); `-` reads it
+//!   from bounded anonymous stdin, so fixture credentials need no script file;
 //! - `SWBPIPE_NATIVE_SMOKE_PLAN`: JSON handed to the driver;
 //! - `SWBPIPE_NATIVE_SMOKE_REPORT`: where `native_smoke_finish` writes the report.
 //!
@@ -17,7 +18,7 @@
 //! open checks to solve, persistence and export, runs on the product's code.
 
 use serde_json::Value;
-use std::{collections::VecDeque, fs, path::PathBuf, sync::Mutex};
+use std::{collections::VecDeque, fs, io::{self, Read}, path::PathBuf, sync::Mutex};
 use tauri::{webview::PageLoadEvent, AppHandle, Builder, Manager, Runtime};
 
 #[derive(Default)]
@@ -100,6 +101,23 @@ pub fn native_smoke_finish(app: AppHandle, report: Value) -> Result<(), String> 
     Ok(())
 }
 
+fn read_stdin_driver(reader: impl Read) -> io::Result<String> {
+    let mut script = String::new();
+    reader.take(256 * 1024 + 1).read_to_string(&mut script)?;
+    if script.len() > 256 * 1024 {
+        return Err(io::Error::new(io::ErrorKind::InvalidData, "native smoke driver exceeds its input limit"));
+    }
+    Ok(script)
+}
+#[cfg(test)]
+mod input_tests {
+    #[test]
+    fn anonymous_driver_input_is_bounded_without_a_file_or_environment_payload() {
+        assert_eq!(super::read_stdin_driver(&b"void 0;"[..]).unwrap(), "void 0;");
+        assert!(super::read_stdin_driver(&vec![b'x'; 256 * 1024 + 1][..]).is_err());
+    }
+}
+
 /// Manage the smoke state and start the driver after the first completed page load.
 pub fn install<R: Runtime>(builder: Builder<R>) -> Builder<R> {
     builder.manage(SmokeState::default()).on_page_load(|webview, payload| {
@@ -115,7 +133,7 @@ pub fn install<R: Runtime>(builder: Builder<R>) -> Builder<R> {
             eprintln!("[native-smoke] SWBPIPE_NATIVE_SMOKE_DRIVER unset; no driver started");
             return;
         };
-        match fs::read_to_string(&driver) {
+        match if driver == "-" { read_stdin_driver(io::stdin().lock()) } else { fs::read_to_string(&driver) } {
             Ok(script) => {
                 *started = true;
                 if let Err(error) = webview.eval(&script) {

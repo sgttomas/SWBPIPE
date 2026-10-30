@@ -114,6 +114,7 @@ export function BatchReviewPanel({ batches, outcomes, receipts, revision, busy, 
         return (
           <article key={entry.key} data-testid={`batch-${entry.key}`}>
             <h4>{entry.batch.batch_id}</h4>
+            <AgentProposalContext context={entry.agentContext} />
             <p>{entry.batch.operations.length} proposed changes. {stale ? reason : "Bound to the model used to prepare this batch."}</p>
             <button type="button" data-testid={`validate-batch-${entry.key}`} disabled={stale || busy} title={reason} onClick={() => onValidate(entry)}>Validate batch</button>
             <button type="button" data-testid={`apply-batch-${entry.key}`} disabled={stale || busy || gated} title={applyReason} onClick={() => onApply(entry)}>Apply entire batch</button>
@@ -126,12 +127,25 @@ export function BatchReviewPanel({ batches, outcomes, receipts, revision, busy, 
       {receipts.map((receipt, index) => (
         <details key={`${index}:${receipt.batch.batch_id}`} data-testid="batch-receipt">
           <summary>Applied batch: {receipt.batch.batch_id}</summary>
+          <AgentProposalContext context={receipt.agentContext} />
           <BatchOutcome outcome={receipt.outcome} onSelectRef={onSelectRef} />
           <pre>{JSON.stringify({ submitted: receipt.batch, outcome: receipt.outcome }, null, 2)}</pre>
         </details>
       ))}
     </section>
   );
+}
+
+function AgentProposalContext({context}:{context:QueuedBatch["agentContext"]}) {
+  if(!context)return null;
+  return <section aria-label="Agent proposal context">
+    <p>Proposed by agent at model revision {context.basis.modelRevision}. Review its rationale and assumptions before Apply.</p>
+    {context.assumptions.length===0?<p>No assumptions declared.</p>:<ul>{context.assumptions.map((value,index)=>{
+      const assumption=value;
+      return <li key={`${index}:${assumption.assumptionId}`}><strong>{assumption.assumptionId}</strong>: {assumption.statement} <span>Operations: {assumption.affectedOperationIds.join(", ")}</span></li>;
+    })}</ul>}
+    <details><summary>Original agent reference</summary><p>{context.threadId} · {context.turnId} · {context.callId}</p><p>{context.requestRef}</p></details>
+  </section>;
 }
 
 function Diagnostic({ item, onSelectRef }: { item: OperationOutcomeDiagnostic; onSelectRef?: (ref: string) => void }) {

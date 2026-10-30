@@ -136,6 +136,7 @@ needs:
   gating: true
   evidence: execution/PKG-16/DEL-16-06/ScopeOfWork.md
 code_paths:
+- apps/desktop/src/features/embedded-agent/EmbeddedAgentPanel.tsx
 - apps/desktop/src/services/embeddedAgentSession.ts
 - apps/desktop/src/features/workspace/workspaceSession.ts
 - tools/agent_live_session_fixture.py
@@ -157,6 +158,7 @@ code_paths:
 - apps/desktop/src/services/operationBatchService.ts
 - apps/desktop/src-tauri/src/lib.rs
 checks:
+- apps/desktop/src/features/embedded-agent/EmbeddedAgentPanel.test.tsx
 - apps/desktop/src/services/embeddedAgentSession.test.ts
 - tools/agent_live_session_fixture_test.py
 - tools/agent_supplier_bundle_test.py
