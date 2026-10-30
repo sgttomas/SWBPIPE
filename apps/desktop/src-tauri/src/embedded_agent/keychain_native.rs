@@ -3,7 +3,7 @@
 //! synchronization, keychain-path input or store fallback. Native probes opt in.
 use super::{
     provider_store::{CredentialKey, KeyError, Keychain},
-    relay_policy::{Secret, SECRET_BYTES},
+    relay_policy::{Provider, Secret, SECRET_BYTES},
 };
 use crate::{memory_pool::Lease, solve_jobs::SolveJobRegistry};
 use core_foundation::{
@@ -96,7 +96,11 @@ impl NativeKeychain {
     }
 }
 impl NativeKeychain {
-    fn load_status(&mut self, key: &CredentialKey) -> Result<Secret, (KeyError, i32)> {
+    fn load_status(
+        &mut self,
+        key: &CredentialKey,
+        endpoint: &str,
+    ) -> Result<Secret, (KeyError, i32)> {
         let mut fields = self.query(key, false).map_err(|e| (e, 0))?;
         unsafe {
             fields.push(pair(kSecReturnData, CFBoolean::true_value().into_CFType()));
@@ -115,26 +119,32 @@ impl NativeKeychain {
             return Err((KeyError::Invalid, -50));
         }
         let object = unsafe { CFType::wrap_under_create_rule(output) };
-        secret_data(object).map_err(|e| (e, -50))
+        secret_data(object, endpoint).map_err(|e| (e, -50))
     }
 }
 impl Keychain for NativeKeychain {
-    fn create(&mut self, key: &CredentialKey, secret: &Secret) -> Result<(), KeyError> {
+    fn create(
+        &mut self,
+        key: &CredentialKey,
+        endpoint: &str,
+        secret: &Secret,
+    ) -> Result<(), KeyError> {
+        let payload = credential_data(endpoint, secret)?;
         let mut fields = self.query(key, true)?;
         // SAFETY: static key, owned data, dictionary and data live through the
         // synchronous call. No result ownership is requested and no upsert exists.
         unsafe {
             fields.push(pair(
                 kSecValueData,
-                CFData::from_buffer(secret.value().as_bytes()).into_CFType(),
+                CFData::from_buffer(&payload).into_CFType(),
             ));
         }
         let query = CFDictionary::from_CFType_pairs(&fields);
         let status = unsafe { SecItemAdd(query.as_concrete_TypeRef(), ptr::null_mut()) };
         status_result(status)
     }
-    fn load(&mut self, key: &CredentialKey) -> Result<Secret, KeyError> {
-        self.load_status(key).map_err(|(class, _)| class)
+    fn load(&mut self, key: &CredentialKey, endpoint: &str) -> Result<Secret, KeyError> {
+        self.load_status(key, endpoint).map_err(|(class, _)| class)
     }
     fn delete(&mut self, key: &CredentialKey) -> Result<(), KeyError> {
         let query = CFDictionary::from_CFType_pairs(&self.query(key, false)?);
@@ -148,12 +158,52 @@ impl fmt::Debug for NativeKeychain {
         f.write_str("NativeKeychain")
     }
 }
-fn secret_data(object: CFType) -> Result<Secret, KeyError> {
-    let data = object.downcast_into::<CFData>().ok_or(KeyError::Invalid)?;
-    if data.len() <= 0 || data.len() > SECRET_BYTES as isize {
+const DATA_MAGIC: &[u8] = b"SWBPIPE-PROVIDER-1\0";
+const ENDPOINT_BYTES: usize = 2048;
+const DATA_BYTES: usize = DATA_MAGIC.len() + 2 + ENDPOINT_BYTES + SECRET_BYTES;
+fn canonical(endpoint: &str) -> bool {
+    endpoint.len() <= ENDPOINT_BYTES
+        && Provider::new(endpoint)
+            .map(|p| p.endpoint() == endpoint)
+            .unwrap_or(false)
+}
+fn credential_data(endpoint: &str, secret: &Secret) -> Result<Vec<u8>, KeyError> {
+    if !canonical(endpoint) {
         return Err(KeyError::Invalid);
     }
-    let value = std::str::from_utf8(data.bytes())
+    let mut bytes =
+        Vec::with_capacity(DATA_MAGIC.len() + 2 + endpoint.len() + secret.value().len());
+    bytes.extend_from_slice(DATA_MAGIC);
+    bytes.extend_from_slice(&(endpoint.len() as u16).to_be_bytes());
+    bytes.extend_from_slice(endpoint.as_bytes());
+    bytes.extend_from_slice(secret.value().as_bytes());
+    Ok(bytes)
+}
+fn secret_data(object: CFType, expected_endpoint: &str) -> Result<Secret, KeyError> {
+    if !canonical(expected_endpoint) {
+        return Err(KeyError::Invalid);
+    }
+    let data = object.downcast_into::<CFData>().ok_or(KeyError::Invalid)?;
+    if data.len() <= 0 || data.len() > DATA_BYTES as isize {
+        return Err(KeyError::Invalid);
+    }
+    let bytes = data.bytes();
+    let rest = bytes.strip_prefix(DATA_MAGIC).ok_or(KeyError::Invalid)?;
+    if rest.len() < 2 {
+        return Err(KeyError::Invalid);
+    }
+    let len = u16::from_be_bytes([rest[0], rest[1]]) as usize;
+    if len > ENDPOINT_BYTES
+        || rest.len() < 2 + len
+        || &rest[2..2 + len] != expected_endpoint.as_bytes()
+    {
+        return Err(KeyError::Invalid);
+    }
+    let secret = &rest[2 + len..];
+    if secret.is_empty() || secret.len() > SECRET_BYTES {
+        return Err(KeyError::Invalid);
+    }
+    let value = std::str::from_utf8(secret)
         .map_err(|_| KeyError::Invalid)?
         .to_owned();
     Secret::new(value).map_err(|_| KeyError::Invalid)
@@ -184,9 +234,43 @@ fn classify(code: i32) -> KeyError {
 mod tests {
     use super::*;
     #[test]
+    fn protected_native_payload_binds_the_recipient_before_releasing_the_secret() {
+        let secret = Secret::new("invented-provider-value".into()).unwrap();
+        let payload = credential_data("https://provider.example/v1", &secret).unwrap();
+        assert!(matches!(
+            secret_data(
+                CFData::from_buffer(&payload).into_CFType(),
+                "https://other.example/v1"
+            ),
+            Err(KeyError::Invalid)
+        ));
+        assert!(
+            matches!(
+                secret_data(
+                    CFData::from_buffer(secret.value().as_bytes()).into_CFType(),
+                    "https://provider.example/v1"
+                ),
+                Err(KeyError::Invalid)
+            ),
+            "unbound legacy values never bypass recipient binding"
+        );
+        assert_eq!(
+            secret_data(
+                CFData::from_buffer(&payload).into_CFType(),
+                "https://provider.example/v1"
+            )
+            .unwrap()
+            .value(),
+            secret.value()
+        );
+    }
+    #[test]
     fn native_results_are_typed_bounded_and_never_render_os_messages() {
         assert!(matches!(
-            secret_data(CFString::from_static_string("not data").into_CFType()),
+            secret_data(
+                CFString::from_static_string("not data").into_CFType(),
+                "https://provider.example/v1"
+            ),
             Err(KeyError::Invalid)
         ));
         for data in [
@@ -195,12 +279,25 @@ mod tests {
             b"invalid\r\nheader".to_vec(),
         ] {
             assert!(matches!(
-                secret_data(CFData::from_buffer(&data).into_CFType()),
+                secret_data(
+                    CFData::from_buffer(&data).into_CFType(),
+                    "https://provider.example/v1"
+                ),
                 Err(KeyError::Invalid)
             ));
         }
-        let secret =
-            secret_data(CFData::from_buffer(b"invented-provider-value").into_CFType()).unwrap();
+        let secret = secret_data(
+            CFData::from_buffer(
+                &credential_data(
+                    "https://provider.example/v1",
+                    &Secret::new("invented-provider-value".into()).unwrap(),
+                )
+                .unwrap(),
+            )
+            .into_CFType(),
+            "https://provider.example/v1",
+        )
+        .unwrap();
         assert_eq!(secret.value(), "invented-provider-value");
         assert_eq!(classify(-25308), KeyError::InteractionRequired);
         assert_eq!(classify(-67050), KeyError::Denied);
@@ -280,7 +377,7 @@ mod qualification {
             let Ok(snapshot) = store.snapshot() else {
                 return false;
             };
-            self.clean = snapshot.provider.is_none() && snapshot.cleanup_pending == 0;
+            self.clean = snapshot.provider.is_none() && snapshot.cleanup_pending == Some(0);
             self.clean
         }
     }
@@ -309,7 +406,7 @@ mod qualification {
         .unwrap();
         let before = store.snapshot().unwrap();
         assert!(
-            before.provider.is_none() && before.cleanup_pending == 0,
+            before.provider.is_none() && before.cleanup_pending == Some(0),
             "fixture was not empty"
         );
         let value = format!("fixture-native-{}", nonce());
@@ -438,7 +535,7 @@ mod qualification {
         let key = CredentialKey::checked(account, owner).unwrap();
         let mut native = NativeKeychain::new(&registry).unwrap();
         assert!(matches!(
-            native.load_status(&key),
+            native.load_status(&key, &profile.endpoint),
             Err((KeyError::InteractionRequired, -25308))
         ));
         let saved = store
@@ -452,7 +549,8 @@ mod qualification {
             )
             .unwrap();
         assert_eq!(
-            saved.cleanup_pending, 0,
+            saved.cleanup_pending,
+            Some(0),
             "stale owned credential was not removed"
         );
         assert!(saved.cleanup_error.is_none());
@@ -460,7 +558,7 @@ mod qualification {
         assert!(store.load(&revision).is_ok());
         let cleared = store.clear(&revision).unwrap();
         assert!(cleared.provider.is_none());
-        assert_eq!(cleared.cleanup_pending, 0);
+        assert_eq!(cleared.cleanup_pending, Some(0));
         println!("SWBPIPE_KEYCHAIN: interaction_not_allowed,reentry,owned_cleanup");
     }
 }

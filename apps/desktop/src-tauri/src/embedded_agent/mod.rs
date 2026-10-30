@@ -23,4 +23,4 @@ pub(crate) mod http_relay;
 pub(crate) mod provider_store;
 #[cfg(target_os = "macos")]
 #[allow(unsafe_code)]
-pub(crate) mod keychain_native;
+mod keychain_native;

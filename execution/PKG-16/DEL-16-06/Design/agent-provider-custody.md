@@ -17,7 +17,12 @@ literal loopback; otherwise HTTPS; no URL credentials/query/fragment/escape) and
 bounded control-free model input. There is no developer provider/model default,
 provider-specific Keychain service, inherited home/config/authentication file or
 implicit credential mode. Keeping a key requires the identical canonical API
-base; it cannot retarget an existing credential to another origin/prefix.
+base. Independently of SQLite, the encrypted native password data contains a
+versioned canonical-endpoint binding followed by the secret. Load compares that
+protected binding before constructing or returning a Secret; changing both SQL
+endpoint columns cannot retarget it. Unbound legacy values are refused. Deletion
+still uses only the exact account/ownership handle, so endpoint corruption cannot
+prevent an authorized stale-item cleanup.
 
 Only native `LoadedProvider` carries a Secret, paired with its original provider
 and model/revision. It has no Serialize/Clone or payload-bearing Debug. Metadata
@@ -111,6 +116,11 @@ this setting does not change their policy or a user's other applications.
 The trusted caller supplies a canonical private directory. The dedicated
 `provider-settings.sqlite3` and OS lock file are private regular files; symlinks,
 unknown schemas/versions and oversized data refuse, with no default overwrite.
+Schema admission requires the exact two table definitions and their one implicit
+primary-key index, application/version identifiers, and no additional persistent
+or temporary objects. Reopen and every operation/phase validate this before
+native effects; matching version fields alone do not admit triggers, views,
+indices or changed constraints.
 SQLite uses synchronous FULL, DELETE journaling, foreign keys, bounded pages and
 cache. Only metadata/custody handles are bound as SQL parameters. At most 16
 credential records exist. A standard-library owned file lock spans SQLite
@@ -129,7 +139,11 @@ of a colliding unowned native item, even after a duplicate-create error.
 
 After commit, old owned items are removed by handle. Cleanup failure preserves
 the actual saved metadata plus explicit pending-count/error standing; it is not
-reported as an unapplied save that invites replay. Explicit recovery deletes
+reported as an unapplied save that invites replay. Save/clear capture the actual
+metadata inside the publication transaction, before commit. Post-commit cleanup
+or read failure returns that committed outcome with `cleanupPending: null`
+(unknown) and an explicit cleanup error, rather than a plain operation error or
+a false zero. A completed cleanup confirms zero. Explicit recovery deletes
 only pending/retired owned items, never an active credential. Failures retain
 journal entries; repeating exact deletion after an already-deleted item is safe.
 Loading is blocked until cleanup is resolved and never returns a different key.
@@ -150,7 +164,12 @@ Mocked-Keychain tests exercise re-entry, exact endpoint/revision binding,
 nonmutation on invalid/stale input, no-key choice, replacement/clear, ownership
 collision, durable crash/failed-commit recovery, cleanup failure, cross-instance
 exclusion, corrupt schema/binding and file-secret/symlink refusal. They establish
-neither real keychain access nor native signature policy.
+neither real keychain access nor native signature policy. Five targeted review
+regressions cover changing both mutable endpoint columns, a malicious trigger,
+reopening an unexpected schema, and post-commit read failures after save and
+clear. All five reject the pre-repair flow; the repaired persistence suite passes
+21 tests. The native payload unit also rejects a mismatched recipient and an
+unbound legacy password value.
 
 The opt-in post-review qualification uses an owned synthetic item and its
 private SQLite journal, a fresh copy of the test executable re-signed to a

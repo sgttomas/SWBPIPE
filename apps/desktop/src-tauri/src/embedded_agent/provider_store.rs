@@ -18,6 +18,9 @@ const MAX_ACCOUNTS: i64 = 16;
 const MAX_DB_BYTES: u64 = 2 * 1024 * 1024;
 const APP_ID: i64 = 0x53574241;
 const DB_NAME: &str = "provider-settings.sqlite3";
+const CREDENTIALS_SQL:&str="CREATE TABLE credentials(account TEXT PRIMARY KEY,owner TEXT NOT NULL,endpoint TEXT NOT NULL,phase TEXT NOT NULL CHECK(phase IN('pending','active','retired')))";
+const PROVIDER_SQL:&str="CREATE TABLE provider(singleton INTEGER PRIMARY KEY CHECK(singleton=1),revision TEXT NOT NULL,endpoint TEXT NOT NULL,model TEXT NOT NULL,account TEXT REFERENCES credentials(account))";
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum Error {
@@ -69,8 +72,13 @@ pub enum KeyError {
 /// The fixed service lives in the native backend. Neither service, account nor
 /// ownership marker is accepted from a webview/provider request.
 pub trait Keychain {
-    fn create(&mut self, key: &CredentialKey, secret: &Secret) -> Result<(), KeyError>;
-    fn load(&mut self, key: &CredentialKey) -> Result<Secret, KeyError>;
+    fn create(
+        &mut self,
+        key: &CredentialKey,
+        endpoint: &str,
+        secret: &Secret,
+    ) -> Result<(), KeyError>;
+    fn load(&mut self, key: &CredentialKey, endpoint: &str) -> Result<Secret, KeyError>;
     fn delete(&mut self, key: &CredentialKey) -> Result<(), KeyError>;
 }
 pub struct CredentialKey {
@@ -131,7 +139,7 @@ pub struct Metadata {
 #[serde(rename_all = "camelCase")]
 pub struct Snapshot {
     pub provider: Option<Metadata>,
-    pub cleanup_pending: usize,
+    pub cleanup_pending: Option<usize>,
     pub cleanup_error: Option<KeyError>,
 }
 struct Stored {
@@ -157,6 +165,8 @@ pub struct Store<K: Keychain> {
     keys: K,
     registry: SolveJobRegistry,
     _state: Lease,
+    #[cfg(test)]
+    faults: tests::Faults,
 }
 impl<K: Keychain> Store<K> {
     /// Directory is supplied by trusted app-local-data resolution and must be
@@ -208,17 +218,22 @@ impl<K: Keychain> Store<K> {
             if app != APP_ID || version != 1 {
                 return Err(Error::Corrupt);
             }
+            validate_schema(&db)?;
         }
         db.execute_batch("PRAGMA trusted_schema=OFF;PRAGMA foreign_keys=ON;PRAGMA journal_mode=DELETE;PRAGMA synchronous=FULL;PRAGMA cache_size=-256;PRAGMA max_page_count=256;").map_err(sql)?;
         if created {
             let tx = db
                 .transaction_with_behavior(TransactionBehavior::Immediate)
                 .map_err(sql)?;
-            tx.execute_batch("CREATE TABLE credentials(account TEXT PRIMARY KEY,owner TEXT NOT NULL,endpoint TEXT NOT NULL,phase TEXT NOT NULL CHECK(phase IN('pending','active','retired')));CREATE TABLE provider(singleton INTEGER PRIMARY KEY CHECK(singleton=1),revision TEXT NOT NULL,endpoint TEXT NOT NULL,model TEXT NOT NULL,account TEXT REFERENCES credentials(account));PRAGMA user_version=1;").map_err(sql)?;
+            tx.execute_batch(&format!(
+                "{CREDENTIALS_SQL};{PROVIDER_SQL};PRAGMA user_version=1;"
+            ))
+            .map_err(sql)?;
             tx.pragma_update(None, "application_id", APP_ID)
                 .map_err(sql)?;
             tx.commit().map_err(sql)?;
         }
+        validate_schema(&db)?;
         // Corrupt contents never become a default provider or credential mode.
         stored(&db)?;
         pending(&db)?;
@@ -228,6 +243,8 @@ impl<K: Keychain> Store<K> {
             keys,
             registry,
             _state: state,
+            #[cfg(test)]
+            faults: tests::Faults::default(),
         })
     }
     fn admission(&self) -> Result<Lease, Error> {
@@ -258,6 +275,7 @@ impl<K: Keychain> Store<K> {
             .db
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(sql)?;
+        validate_schema(&tx)?;
         let current = stored(&tx)?;
         matches_revision(current.as_ref(), expected)?;
         if matches!(change, CredentialChange::Keep)
@@ -270,7 +288,7 @@ impl<K: Keychain> Store<K> {
         if !pending(&tx)?.is_empty() {
             return Err(Error::RecoveryRequired);
         }
-        if let CredentialChange::Replace(secret) = change {
+        let mut result = if let CredentialChange::Replace(secret) = change {
             let key = CredentialKey::fresh()?;
             let count: i64 = tx
                 .query_row("SELECT count(*) FROM credentials", [], |r| r.get(0))
@@ -288,6 +306,7 @@ impl<K: Keychain> Store<K> {
                 .db
                 .transaction_with_behavior(TransactionBehavior::Immediate)
                 .map_err(sql)?;
+            validate_schema(&tx)?;
             let current = stored(&tx)?;
             matches_revision(current.as_ref(), expected)?;
             let present:bool=tx.query_row("SELECT EXISTS(SELECT 1 FROM credentials WHERE account=?1 AND owner=?2 AND phase='pending')",params![key.account,key.owner],|r|r.get(0)).map_err(sql)?;
@@ -296,9 +315,17 @@ impl<K: Keychain> Store<K> {
             }
             // This write gate also excludes concurrent recovery. Failed/uncertain
             // native operations retain the committed pending intent for recovery.
-            self.keys.create(&key, &secret).map_err(Error::Keychain)?;
+            self.keys
+                .create(&key, &endpoint, &secret)
+                .map_err(Error::Keychain)?;
+            #[cfg(test)]
+            if self.faults.fail_publish {
+                tx.pragma_update(None, "query_only", true).unwrap();
+            }
             publish(&tx, current.as_ref(), &endpoint, model, Some(&key))?;
+            let committed = snapshot(&tx)?;
             tx.commit().map_err(sql)?;
+            committed
         } else {
             let key = if matches!(change, CredentialChange::Keep) {
                 current.as_ref().and_then(|c| c.key.as_ref())
@@ -306,13 +333,21 @@ impl<K: Keychain> Store<K> {
                 None
             };
             publish(&tx, current.as_ref(), &endpoint, model, key)?;
+            let committed = snapshot(&tx)?;
             tx.commit().map_err(sql)?;
-        }
+            committed
+        };
+        #[cfg(test)]
+        self.after_commit_fault();
         // Metadata is already committed. Report cleanup trouble with the actual
         // saved snapshot, not as a failure that could invite a duplicate save.
-        let cleanup_error = cleanup(&mut self.db, &mut self.keys).err();
-        let mut result = snapshot(&self.db)?;
-        result.cleanup_error = cleanup_error;
+        match cleanup(&mut self.db, &mut self.keys) {
+            Ok(()) => result.cleanup_pending = Some(0),
+            Err(error) => {
+                result.cleanup_pending = None;
+                result.cleanup_error = Some(error);
+            }
+        }
         Ok(result)
     }
     pub fn clear(&mut self, expected: &str) -> Result<Snapshot, Error> {
@@ -325,6 +360,7 @@ impl<K: Keychain> Store<K> {
             .db
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(sql)?;
+        validate_schema(&tx)?;
         let current = stored(&tx)?;
         matches_revision(current.as_ref(), Some(expected))?;
         tx.execute(
@@ -333,11 +369,25 @@ impl<K: Keychain> Store<K> {
         )
         .map_err(sql)?;
         tx.execute("DELETE FROM provider", []).map_err(sql)?;
+        let mut result = snapshot(&tx)?;
         tx.commit().map_err(sql)?;
-        let cleanup_error = cleanup(&mut self.db, &mut self.keys).err();
-        let mut result = snapshot(&self.db)?;
-        result.cleanup_error = cleanup_error;
+        #[cfg(test)]
+        self.after_commit_fault();
+        match cleanup(&mut self.db, &mut self.keys) {
+            Ok(()) => result.cleanup_pending = Some(0),
+            Err(error) => {
+                result.cleanup_pending = None;
+                result.cleanup_error = Some(error);
+            }
+        }
         Ok(result)
+    }
+    #[cfg(test)]
+    fn after_commit_fault(&mut self) {
+        if self.faults.drop_provider_after_commit {
+            self.faults.drop_provider_after_commit = false;
+            self.db.execute_batch("DROP TABLE provider").unwrap();
+        }
     }
     /// Explicit recovery only. A native error leaves the journal intact, even
     /// for entries deleted earlier in this attempt; exact deletion is idempotent.
@@ -348,6 +398,7 @@ impl<K: Keychain> Store<K> {
             .db
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(sql)?;
+        validate_schema(&tx)?;
         stored(&tx)?;
         for key in pending(&tx)? {
             match self.keys.delete(&key) {
@@ -360,8 +411,9 @@ impl<K: Keychain> Store<K> {
             )
             .map_err(sql)?;
         }
+        let committed = snapshot(&tx)?;
         tx.commit().map_err(sql)?;
-        snapshot(&self.db)
+        Ok(committed)
     }
     pub fn load(&mut self, expected: &str) -> Result<LoadedProvider, Error> {
         let _lease = self.admission()?;
@@ -373,6 +425,7 @@ impl<K: Keychain> Store<K> {
             .db
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(sql)?;
+        validate_schema(&tx)?;
         let current = stored(&tx)?.ok_or(Error::NotConfigured)?;
         matches_revision(Some(&current), Some(expected))?;
         if !pending(&tx)?.is_empty() {
@@ -381,7 +434,7 @@ impl<K: Keychain> Store<K> {
         let secret = match &current.key {
             Some(key) => Some(
                 self.keys
-                    .load(key)
+                    .load(key, &current.metadata.endpoint)
                     .map_err(|reason| Error::ReenterKey { reason })?,
             ),
             None => None,
@@ -466,6 +519,65 @@ fn sql(error: rusqlite::Error) -> Error {
         }
         _ => Error::Corrupt,
     }
+}
+fn validate_schema(db: &Connection) -> Result<(), Error> {
+    let app: i64 = db
+        .pragma_query_value(None, "application_id", |r| r.get(0))
+        .map_err(sql)?;
+    let version: i64 = db
+        .pragma_query_value(None, "user_version", |r| r.get(0))
+        .map_err(sql)?;
+    if app != APP_ID || version != 1 {
+        return Err(Error::Corrupt);
+    }
+    let count: i64 = db
+        .query_row("SELECT count(*) FROM sqlite_schema", [], |r| r.get(0))
+        .map_err(sql)?;
+    if count != 3 {
+        return Err(Error::Corrupt);
+    }
+    let temporary: i64 = db
+        .query_row("SELECT count(*) FROM sqlite_temp_schema", [], |r| r.get(0))
+        .map_err(sql)?;
+    if temporary != 0 {
+        return Err(Error::Corrupt);
+    }
+    let expected = [
+        (
+            "index",
+            "sqlite_autoindex_credentials_1",
+            "credentials",
+            None,
+        ),
+        ("table", "credentials", "credentials", Some(CREDENTIALS_SQL)),
+        ("table", "provider", "provider", Some(PROVIDER_SQL)),
+    ];
+    let mut statement = db
+        .prepare("SELECT type,name,tbl_name,sql FROM sqlite_schema ORDER BY type,name")
+        .map_err(sql)?;
+    let mut rows = statement.query([]).map_err(sql)?;
+    for (kind, name, table, ddl) in expected {
+        let row = rows.next().map_err(sql)?.ok_or(Error::Corrupt)?;
+        let actual: (String, String, String, Option<String>) = (
+            row.get(0).map_err(sql)?,
+            row.get(1).map_err(sql)?,
+            row.get(2).map_err(sql)?,
+            row.get(3).map_err(sql)?,
+        );
+        if (
+            actual.0.as_str(),
+            actual.1.as_str(),
+            actual.2.as_str(),
+            actual.3.as_deref(),
+        ) != (kind, name, table, ddl)
+        {
+            return Err(Error::Corrupt);
+        }
+    }
+    if rows.next().map_err(sql)?.is_some() {
+        return Err(Error::Corrupt);
+    }
+    Ok(())
 }
 fn stored(db: &Connection) -> Result<Option<Stored>, Error> {
     let count: i64 = db
@@ -575,9 +687,10 @@ fn pending(db: &Connection) -> Result<Vec<CredentialKey>, Error> {
     Ok(out)
 }
 fn snapshot(db: &Connection) -> Result<Snapshot, Error> {
+    validate_schema(db)?;
     Ok(Snapshot {
         provider: stored(db)?.map(|s| s.metadata),
-        cleanup_pending: pending(db)?.len(),
+        cleanup_pending: Some(pending(db)?.len()),
         cleanup_error: None,
     })
 }
@@ -585,6 +698,7 @@ fn cleanup<K: Keychain>(db: &mut Connection, keys: &mut K) -> Result<(), KeyErro
     let tx = db
         .transaction_with_behavior(TransactionBehavior::Immediate)
         .map_err(|_| KeyError::Unavailable)?;
+    validate_schema(&tx).map_err(|_| KeyError::Invalid)?;
     stored(&tx).map_err(|_| KeyError::Invalid)?;
     for key in pending(&tx).map_err(|_| KeyError::Invalid)? {
         match keys.delete(&key) {
@@ -636,8 +750,13 @@ mod tests {
         sync::{Arc, Mutex},
     };
     #[derive(Default)]
+    pub(super) struct Faults {
+        pub fail_publish: bool,
+        pub drop_provider_after_commit: bool,
+    }
+    #[derive(Default)]
     struct Vault {
-        items: HashMap<String, (String, String)>,
+        items: HashMap<String, (String, String, String)>,
         loads: usize,
         creates: usize,
         deletes: usize,
@@ -649,7 +768,12 @@ mod tests {
     #[derive(Clone)]
     struct Keys(Arc<Mutex<Vault>>);
     impl Keychain for Keys {
-        fn create(&mut self, key: &CredentialKey, secret: &Secret) -> Result<(), KeyError> {
+        fn create(
+            &mut self,
+            key: &CredentialKey,
+            endpoint: &str,
+            secret: &Secret,
+        ) -> Result<(), KeyError> {
             let mut v = self.0.lock().unwrap();
             v.creates += 1;
             if let Some(e) = v.fail_create {
@@ -660,7 +784,11 @@ mod tests {
             }
             v.items.insert(
                 key.account.clone(),
-                (key.owner.clone(), secret.value().to_owned()),
+                (
+                    key.owner.clone(),
+                    endpoint.to_owned(),
+                    secret.value().to_owned(),
+                ),
             );
             if v.insert_then_fail {
                 Err(KeyError::Unknown)
@@ -668,14 +796,14 @@ mod tests {
                 Ok(())
             }
         }
-        fn load(&mut self, key: &CredentialKey) -> Result<Secret, KeyError> {
+        fn load(&mut self, key: &CredentialKey, endpoint: &str) -> Result<Secret, KeyError> {
             let mut v = self.0.lock().unwrap();
             v.loads += 1;
             if let Some(e) = v.fail_load {
                 return Err(e);
             }
             match v.items.get(&key.account) {
-                Some((owner, value)) if *owner == key.owner => {
+                Some((owner, bound, value)) if *owner == key.owner && bound == endpoint => {
                     Secret::new(value.clone()).map_err(|_| KeyError::Invalid)
                 }
                 _ => Err(KeyError::Missing),
@@ -689,7 +817,7 @@ mod tests {
             }
             if v.items
                 .get(&key.account)
-                .is_some_and(|(owner, _)| *owner == key.owner)
+                .is_some_and(|(owner, _, _)| *owner == key.owner)
             {
                 v.items.remove(&key.account);
                 Ok(())
@@ -727,6 +855,80 @@ mod tests {
         &snapshot.provider.as_ref().unwrap().revision
     }
     #[test]
+    fn review_regression_both_mutable_endpoints_cannot_retarget_a_saved_key() {
+        let (_f, mut s, _k) = setup();
+        let a = s
+            .save(None, "https://provider.example/v1", "model", key())
+            .unwrap();
+        s.db.execute(
+            "UPDATE provider SET endpoint='https://other.example/v1'",
+            [],
+        )
+        .unwrap();
+        s.db.execute(
+            "UPDATE credentials SET endpoint='https://other.example/v1' WHERE phase='active'",
+            [],
+        )
+        .unwrap();
+        assert!(
+            s.load(revision(&a)).is_err(),
+            "mutable metadata retargeted the native secret"
+        );
+    }
+    #[test]
+    fn review_regression_schema_trigger_refused_before_any_native_effect() {
+        let (_f, mut s, k) = setup();
+        s.db.execute_batch("CREATE TRIGGER hostile AFTER INSERT ON provider BEGIN UPDATE credentials SET phase='retired';DELETE FROM provider;END;").unwrap();
+        assert_eq!(
+            s.save(None, "https://provider.example/v1", "model", key())
+                .unwrap_err(),
+            Error::Corrupt
+        );
+        assert_eq!(k.0.lock().unwrap().creates, 0);
+    }
+    #[test]
+    fn review_regression_reopen_rejects_unexpected_schema() {
+        let (f, s, k) = setup();
+        s.db.execute_batch("CREATE VIEW unexpected AS SELECT 1;")
+            .unwrap();
+        drop(s);
+        let r = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        assert!(matches!(Store::open(&f.0, k, r), Err(Error::Corrupt)));
+    }
+    #[test]
+    fn review_regression_postcommit_save_error_preserves_committed_metadata() {
+        let (_f, mut s, _k) = setup();
+        s.faults.drop_provider_after_commit = true;
+        let result = s
+            .save(
+                None,
+                "https://provider.example/v1",
+                "model",
+                CredentialChange::NoKey,
+            )
+            .expect("save committed before read failure");
+        assert_eq!(
+            result.provider.unwrap().endpoint,
+            "https://provider.example/v1"
+        );
+        assert!(result.cleanup_error.is_some());
+        assert!(result.cleanup_pending.is_none());
+    }
+    #[test]
+    fn review_regression_postcommit_clear_error_preserves_committed_removal() {
+        let (_f, mut s, _k) = setup();
+        let a = s
+            .save(None, "https://provider.example/v1", "model", key())
+            .unwrap();
+        s.faults.drop_provider_after_commit = true;
+        let result = s
+            .clear(revision(&a))
+            .expect("clear committed before read failure");
+        assert!(result.provider.is_none());
+        assert!(result.cleanup_error.is_some());
+        assert!(result.cleanup_pending.is_none());
+    }
+    #[test]
     fn no_default_and_no_key_is_an_explicit_choice_with_no_vault_access() {
         let (_f, mut s, k) = setup();
         assert!(s.snapshot().unwrap().provider.is_none());
@@ -755,7 +957,7 @@ mod tests {
                 key(),
             )
             .unwrap();
-        assert_eq!(a.cleanup_pending, 0);
+        assert_eq!(a.cleanup_pending, Some(0));
         assert_eq!(
             a.provider.as_ref().unwrap().endpoint,
             "https://provider.example/v1"
@@ -852,7 +1054,7 @@ mod tests {
             Error::Keychain(KeyError::Unknown)
         );
         assert_eq!(k.0.lock().unwrap().items.len(), 1);
-        assert_eq!(s.snapshot().unwrap().cleanup_pending, 1);
+        assert_eq!(s.snapshot().unwrap().cleanup_pending, Some(1));
         drop(s);
         let r = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
         let mut s = Store::open(&f.0, k.clone(), r).unwrap();
@@ -880,7 +1082,7 @@ mod tests {
         );
         let now = s.snapshot().unwrap();
         assert_eq!(now.provider, a.provider);
-        assert_eq!(now.cleanup_pending, 1);
+        assert_eq!(now.cleanup_pending, Some(1));
         assert_eq!(k.0.lock().unwrap().loads, 0);
     }
     #[test]
@@ -904,7 +1106,7 @@ mod tests {
                 CredentialChange::Replace(Secret::new("invented-reentered-key".into()).unwrap()),
             )
             .unwrap();
-        assert_eq!(b.cleanup_pending, 0);
+        assert_eq!(b.cleanup_pending, Some(0));
         assert_eq!(k.0.lock().unwrap().items.len(), 1);
         assert_eq!(k.0.lock().unwrap().deletes, 1);
         k.0.lock().unwrap().fail_load = None;
@@ -928,7 +1130,8 @@ mod tests {
                 key(),
             )
             .unwrap();
-        assert_eq!(b.cleanup_pending, 1);
+        assert_eq!(b.cleanup_pending, None);
+        assert_eq!(s.snapshot().unwrap().cleanup_pending, Some(1));
         assert_eq!(b.cleanup_error, Some(KeyError::InteractionRequired));
         assert_eq!(
             b.provider.as_ref().unwrap().endpoint,
@@ -973,7 +1176,7 @@ mod tests {
             .unwrap();
         let cleared = s.clear(revision(&a)).unwrap();
         assert!(cleared.provider.is_none());
-        assert_eq!(cleared.cleanup_pending, 0);
+        assert_eq!(cleared.cleanup_pending, Some(0));
         assert!(k.0.lock().unwrap().items.is_empty());
         assert_eq!(s.load(revision(&a)).unwrap_err(), Error::NotConfigured);
     }
@@ -996,7 +1199,11 @@ mod tests {
         s.db.execute("INSERT INTO credentials(account,owner,endpoint,phase) VALUES(?1,?2,'https://provider.example/v1','pending')",params![credential.account,credential.owner]).unwrap();
         k.0.lock().unwrap().items.insert(
             credential.account.clone(),
-            (nonce().unwrap(), "unrelated-fixture-value".into()),
+            (
+                nonce().unwrap(),
+                "https://unrelated.example/v1".into(),
+                "unrelated-fixture-value".into(),
+            ),
         );
         s.recover().unwrap();
         assert_eq!(k.0.lock().unwrap().items.len(), 1);
@@ -1007,7 +1214,7 @@ mod tests {
         let a = s
             .save(None, "https://provider.example/v1", "model", key())
             .unwrap();
-        s.db.execute_batch("CREATE TRIGGER fixture_fail BEFORE UPDATE ON provider BEGIN SELECT RAISE(ABORT,'fixture'); END;").unwrap();
+        s.faults.fail_publish = true;
         assert_eq!(
             s.save(
                 Some(revision(&a)),
@@ -1019,9 +1226,10 @@ mod tests {
             Error::Corrupt
         );
         assert_eq!(s.snapshot().unwrap().provider, a.provider);
-        assert_eq!(s.snapshot().unwrap().cleanup_pending, 1);
+        assert_eq!(s.snapshot().unwrap().cleanup_pending, Some(1));
         assert_eq!(k.0.lock().unwrap().items.len(), 2);
-        s.db.execute_batch("DROP TRIGGER fixture_fail").unwrap();
+        s.db.pragma_update(None, "query_only", false).unwrap();
+        s.faults.fail_publish = false;
         s.recover().unwrap();
         assert_eq!(k.0.lock().unwrap().items.len(), 1);
     }
