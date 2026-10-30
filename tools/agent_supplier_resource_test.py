@@ -6,6 +6,7 @@ import hashlib
 import io
 import json
 import os
+import ssl
 from pathlib import Path
 import struct
 import tarfile
@@ -179,6 +180,67 @@ class SupplierResourceTest(unittest.TestCase):
                         resource.acquire(self.pin, self.output, download=True)
                     self.assertFalse(self.output.exists())
                 self.assertEqual(build.call_args.args[0].proxies, {})
+
+    def test_download_tls_ignores_environment_without_disabling_verification(self):
+        invalid_ca = self.root / 'environment-ca.pem'
+        invalid_ca.write_text('not a certificate')
+        ca_directory = self.root / 'environment-ca-directory'
+        ca_directory.mkdir()
+        original_load = ssl.SSLContext.load_verify_locations
+        test = self
+
+        class Response(io.BytesIO):
+            status = 200
+            headers = {}
+
+        for index, overrides in enumerate([
+                {'SSLKEYLOGFILE': str(self.root / 'must-not-log')},
+                {'SSL_CERT_FILE': str(invalid_ca)},
+                {'SSL_CERT_DIR': str(ca_directory)},
+                {'SSLKEYLOGFILE': str(self.root / 'must-not-log-together'),
+                 'SSL_CERT_FILE': str(invalid_ca), 'SSL_CERT_DIR': str(ca_directory)}]):
+            with self.subTest(variables=sorted(overrides)):
+                contexts, locations = [], []
+
+                def record_load(context, cafile=None, capath=None, cadata=None):
+                    locations.append((cafile, capath))
+                    return original_load(context, cafile, capath, cadata)
+
+                def open_without_network(opener, url, timeout):
+                    https = next(handler for handler in opener.handlers
+                                 if isinstance(handler, resource.urllib.request.HTTPSHandler))
+                    # This is the HTTPSConnection default when a handler supplies
+                    # no context. Exercise it offline, without a TLS handshake.
+                    context = https._context or ssl._create_default_https_context()
+                    contexts.append(context)
+                    return Response(test.archive)
+
+                with patch.dict(os.environ, overrides, clear=True), patch.object(
+                        ssl.SSLContext, 'load_verify_locations', record_load), patch.object(
+                        resource.urllib.request.OpenerDirector, 'open', open_without_network):
+                    resource._download(self.pin['archive'], self.root / f'download-{index}.tar.gz')
+                    self.assertEqual(dict(os.environ), overrides)
+                    context = contexts[0]
+                    self.assertIsNone(context.keylog_filename)
+                    self.assertTrue(context.check_hostname)
+                    self.assertEqual(context.verify_mode, ssl.CERT_REQUIRED)
+                    self.assertGreaterEqual(context.minimum_version, ssl.TLSVersion.TLSv1_2)
+                    self.assertTrue(locations, 'trust must be loaded from explicit compiled locations')
+                    defaults = ssl.get_default_verify_paths()
+                    self.assertTrue(all(cafile in (None, defaults.openssl_cafile) and
+                                        capath in (None, defaults.openssl_capath)
+                                        for cafile, capath in locations))
+                for name in ('must-not-log', 'must-not-log-together'):
+                    self.assertFalse((self.root / name).exists())
+
+    def test_missing_compiled_trust_refuses_before_network_or_publication(self):
+        defaults = ssl.get_default_verify_paths()._replace(openssl_cafile=None, openssl_capath=None)
+        with patch.object(ssl, 'get_default_verify_paths', return_value=defaults), patch.object(
+                resource.urllib.request.OpenerDirector, 'open') as opened:
+            with self.assertRaisesRegex(resource.ResourceError, 'compiled-in TLS trust'):
+                resource._download(self.pin['archive'], self.root / 'download.tar.gz')
+            opened.assert_not_called()
+        self.assertFalse((self.root / 'download.tar.gz').exists())
 
     def test_network_failure_no_fallback_or_publication(self):
         with patch.object(resource.urllib.request, "build_opener") as build:

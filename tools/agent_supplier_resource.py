@@ -15,6 +15,7 @@ import json
 import os
 from pathlib import Path, PurePosixPath
 import re
+import ssl
 import stat
 import struct
 import tarfile
@@ -129,11 +130,29 @@ class _ReleaseRedirect(urllib.request.HTTPRedirectHandler):
         return super().redirect_request(req, fp, code, msg, headers, newurl)
 
 
+def _tls_context():
+    # Raw SSLContext does not opt into SSLKEYLOGFILE. Explicit compiled-in trust
+    # paths avoid the SSL_CERT_FILE/DIR overrides used by default-cert loading.
+    context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+    context.minimum_version = ssl.TLSVersion.TLSv1_2
+    defaults = ssl.get_default_verify_paths()
+    cafile = defaults.openssl_cafile
+    capath = defaults.openssl_capath
+    cafile = cafile if cafile and Path(cafile).is_file() else None
+    capath = capath if capath and Path(capath).is_dir() else None
+    _require(cafile is not None or capath is not None,
+             "No compiled-in TLS trust location is available; use the explicit local archive route.")
+    context.load_verify_locations(cafile=cafile, capath=capath)
+    return context
+
+
 def _download(pin, destination):
-    # No proxy, credentials, auth configuration, or supplier cache discovery.
-    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), _ReleaseRedirect())
-    deadline = time.monotonic() + TRANSFER_SECONDS
+    # No proxy, credentials, auth/TLS environment configuration or cache discovery.
     try:
+        opener = urllib.request.build_opener(
+            urllib.request.ProxyHandler({}), _ReleaseRedirect(),
+            urllib.request.HTTPSHandler(context=_tls_context()))
+        deadline = time.monotonic() + TRANSFER_SECONDS
         with opener.open(pin["url"], timeout=30) as response, destination.open("xb") as output:
             _require(response.status == 200, "Release download did not return HTTP 200.")
             if response.headers.get("Content-Length") is not None:

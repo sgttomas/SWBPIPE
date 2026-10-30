@@ -1,7 +1,8 @@
 # Stock agent supplier build resources
 
-Standing: RT-E1 source/metadata/tooling implementation, 2026-10-29. Offline check registration is integrated; independent packaging/permissions
-scrutiny and actual bundle wiring remain required. No
+Standing: RT-E1 source/metadata/tooling implementation, 2026-10-29. Offline check registration and independent packaging/permissions scrutiny are
+complete for this source-preparation slice; its TLS-environment finding is
+repaired. Actual bundle wiring and distribution qualification remain required. No
 supplier was executed for this work. This document supplements
 [embedded-agent-portability.md](embedded-agent-portability.md); it does not
 change ScopeOfWork, needs, acceptance criteria, platform support or release
@@ -56,7 +57,16 @@ execution, subprocess, provider setting, user home lookup or signing operation.
 The manifest is the trust root; callers must review it rather than accept a
 downloaded replacement. The tool accepts only the named official stock release
 URLs. HTTPS redirects are restricted to GitHub and its release-asset host,
-without proxy environment or auth configuration. Downloads have a 30-second
+without proxy environment or auth configuration. An explicit verifying
+`SSLContext(PROTOCOL_TLS_CLIENT)` supplies the HTTPS handler, requires TLS 1.2
+or later, and retains hostname/certificate checking. It loads only Python's
+compiled-in OpenSSL CA file/directory locations through explicit arguments;
+it does not call default-cert loading or honor `SSL_CERT_FILE`/`SSL_CERT_DIR`.
+Raw context construction does not enable `SSLKEYLOGFILE`, so download cannot
+create that environment-selected secret output. Missing compiled trust refuses
+before network/publication; the explicit verified local-archive route remains
+available. This is build-time tool trust, separate from the product relay's
+unchanged OS trust-store decision. Downloads have a 30-second
 socket timeout, 600-second checked transfer deadline (one bounded read may
 finish after the deadline), exact byte-size bound and streamed hashing. There
 is no retry or fallback. Archive and executable hard caps are 256 and 512 MiB;
@@ -166,7 +176,7 @@ makes no legal sufficiency determination.
 ## Checks and reconciliation for manager
 
 `PYTHONDONTWRITEBYTECODE=1 python3 tools/agent_supplier_resource_test.py`:
-15 offline invented-data tests pass, including committed dual-architecture
+17 offline invented-data tests pass, including committed dual-architecture
 manifest admission and exact licence/notice byte hashes. They exercise correct publication and
 mode, private staging/cleanup, hash/size/truncation rejection, architecture and
 file kind, missing/extra/duplicate/unsafe members, gzip corruption and expansion
@@ -179,14 +189,18 @@ The seven new working files were screened using the repository credential
 finding function and private-term patterns derived from the inspection host
 at runtime: zero findings. No private terms file was opened. Manager integration's committed 13-path
 private-term and credential/link scans pass with zero findings. The actual
-hosted pytest entrypoint passes 29 tests and 15 subtests (15 acquisition tests
+hosted pytest entrypoint passes 31 tests and 15 subtests (17 acquisition tests
 plus 14 Python-routing checks); each of the six source/manifest/notice input
 paths selects the offline check, including hosted Python selection. Reproduced licence/notice sizes and
-hashes were checked against the manifest.
+hashes were checked against the manifest. Independent review found inherited
+TLS environment handling in the default HTTPS context. The repair's two
+regressions exercise real TLS construction/opener wiring without network:
+individual/combined key-log and CA-path overrides, enabled verification, and
+fail-closed missing compiled trust. Both reject the reviewed baseline; no
+session keys or supplier execution are needed for the test.
 
 Unproved: full build-time HTTPS path through this tool (the Intel acquisition
-used a separate public HTTPS fetch), independent tool/permissions review,
-Tauri resource wiring, nested signing/notarization,
+used a separate public HTTPS fetch), Tauri resource wiring, nested signing/notarization,
 distribution notices completeness, actual bundle verification on either Mac
 architecture, Intel/older-OS native compatibility, runtime resource selection,
 isolation/cleanup qualification and integrated session evidence. No GUI,
