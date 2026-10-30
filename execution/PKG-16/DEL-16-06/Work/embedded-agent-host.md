@@ -318,8 +318,9 @@ Neither standalone App qualification nor workflow-act machinery is inferred.
 `Work/agent-live-session.md` describes the native command, private workspace
 producer capability, actual queue/job hooks and original-process observer now
 with the selected ARM pin/profile now qualified as recorded there. Its public
-Start branch permits ARM and refuses unqualified Intel; no panel or automatic
-start is exposed. The
+Start branch permits ARM and refuses unqualified Intel. The minimal panel
+described there starts a session only on the person's explicit action; there is
+no automatic start. The
 following component descriptions retain the evidence limits of their original
 increments. The new candidate does not qualify AC-005 or criterion 17 by source
 integration alone.
@@ -518,7 +519,8 @@ Windows capability, review-queue conformance or AC-005 completion.
 
 Remaining implementation is the responsive runtime client/dispatcher, trusted
 session bridge and ingress completion command, proposal-only review wiring,
-minimal explicit-start panel, operation expansion and criterion 17. Existing
+operation expansion and criterion 17. The minimal explicit-start panel is in
+`Work/agent-live-session.md`; its native journey evidence remains open. Existing
 ScopeOfWork commitments and dependency conditions remain open and unchanged.
 
 ### Integration sequence

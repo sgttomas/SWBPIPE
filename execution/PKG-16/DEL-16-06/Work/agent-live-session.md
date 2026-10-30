@@ -3,7 +3,8 @@
 RT-E1 / DEL-16-06. The owner's activation authority in embedded-agent-host.md
 applies. This increment implements the live binding and native lifecycle while
 the compiled public Start gate permits the qualified ARM pin/profile and
-refuses unqualified Intel. There is no panel, button, automatic supplier start or environment
+refuses unqualified Intel. A minimal panel (below) starts a session only on the
+person's explicit action; there is no automatic supplier start or environment
 bypass. Native qualification uses a separate opt-in native-smoke process mode
 of the actual app executable and the same internal runtime constructor.
 
@@ -15,7 +16,7 @@ It derives the invoking main webview and bundled origin from Tauri, and native
 resource and state paths from AppHandle. The model cannot select them. Windows
 and Linux return isolation unavailable. macOS owns one lazy actor with a bounded
 16-request channel, separately admitted 1 MiB stack/2 MiB thread allowance,
-32 MiB state allowance and 512 KiB response allowance. No worker starts merely
+32 MiB state allowance and 1 MiB response allowance. No worker starts merely
 from constructing the workspace session or checking availability.
 
 Native registration issues a random workspace handle, generation, private
@@ -193,3 +194,28 @@ workspace proposal/review, full operation vocabulary, full numerical source-valu
 presentation, AC-005 and criterion 17 remain open. Intel and other operating
 systems remain unavailable; these observations do not widen the support range
 or establish release, acceptance or a universal termination guarantee.
+
+## Minimal panel
+
+`features/embedded-agent/EmbeddedAgentPanel.tsx` is the Agent tab of the
+Operations section, beside Batch review. It checks availability only when shown,
+and an unqualified platform or a browser build shows unavailability. The person saves
+a provider (local OpenAI-compatible or hosted HTTPS endpoint, model, and no key
+or a key held only in native keychain custody), then explicitly starts, sends
+messages, interrupts a turn and stops. The panel never stores a key in a
+browser store, log, file or conversation. Agent changes enter Batch review for
+the person's explicit Apply; sending a message applies nothing. Batch review and
+applied receipts show an agent proposal's basis revision, declared assumptions
+and original thread/turn/call reference.
+
+The native owner reports turn standing (`turnActive`, `turnId`, `turnStatus`)
+and keeps at most 128 conversation items and 64 KiB of text per workspace;
+exceeding either stops the session with `message_limit`. The response allowance
+is 1 MiB and each retained native actual with its frontend copy is admitted
+within 512 KiB. A closed registration with no claimed work and no retained
+actual is reclaimed so settings retries cannot exhaust the four contexts;
+contexts that may still own a late actual are kept.
+
+Evidence limits: component and frontend tests cover the panel and these bounds.
+Actual webview command/review evidence, a native panel journey and criterion
+17's expanded catalog journey remain open; this section does not qualify AC-005.
