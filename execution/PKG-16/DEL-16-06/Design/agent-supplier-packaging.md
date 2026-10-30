@@ -3,8 +3,8 @@
 Standing: RT-E1 source/metadata/tooling implementation, 2026-10-29. Offline check registration and independent packaging/permissions scrutiny are
 complete for this source-preparation slice; its TLS-environment finding is
 repaired. The bundled-loader/canonical-build increment below is implemented in
-source and awaits independent review and actual artifact verification;
-distribution qualification remains required. No
+source and independently reviewed; actual artifact verification and
+distribution qualification remain required. No
 supplier was executed for this work. This document supplements
 [embedded-agent-portability.md](embedded-agent-portability.md); it does not
 change ScopeOfWork, needs, acceptance criteria, platform support or release
@@ -152,8 +152,18 @@ canonical-build failure standing. A preexisting stdio custody test's occasional
 joins both finite workers before draining the frame and asserts actual Joined
 standing; frame identity and lease-lifetime expectations remain unchanged.
 
-Actual bundle/copy/signature evidence is pending after independent review. The
-planned automated artifact check is an offline ARM debug bundle with the explicit
+Independent permissions/packaging review found one build-output failure path:
+forwarding failure could stop pipe draining before an unconditional wait. The
+repair discards remaining output before waiting, retaining private resources
+through original child completion. A real self-bounded synthetic child writes
+more than pipe capacity; the regression fails on the reviewed baseline and
+passes after repair without signing, supplier execution or saved-PID signals.
+Focused evidence is 130 agent passes/five native gates ignored and 55 Python
+passes/19 subtests, plus current-source reach and structural checks. The one new
+consumer condition adds no new strongly connected component to the existing
+graph. No ScopeOfWork/AC or release-matrix change is made.
+
+Actual bundle/copy/signature evidence is pending. The planned automated artifact check is an offline ARM debug bundle with the explicit
 original cache input, no signing identity, supplier/model/GUI execution or
 acquisition. It verifies all actual resource bytes and then the admitted Rust
 copy path. Any ad-hoc seal is local development evidence, not owner Developer ID,

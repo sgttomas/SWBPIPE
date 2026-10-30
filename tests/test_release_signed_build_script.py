@@ -4,6 +4,9 @@ from __future__ import annotations
 
 import importlib.util
 import io
+import threading
+
+import pytest
 import json
 from types import SimpleNamespace
 import sys
@@ -182,4 +185,51 @@ def test_output_failure_waits_before_private_stage_cleanup(monkeypatch):
     monkeypatch.setattr(build.subprocess, "Popen", popen)
     assert build.main(["--execute", "--supplier-download"]) == 2
     assert [call[0] for call in calls] == ["prepare", "wait"]
+    assert not stages[0].exists()
+
+
+@pytest.mark.skipif(sys.platform == 'win32', reason='POSIX self-bounded build-output child')
+def test_failed_forwarding_drains_real_child_before_waiting(monkeypatch, tmp_path):
+    build = load_module()
+    real_popen = build.subprocess.Popen
+    calls, stages = mock_pipeline(build, monkeypatch)
+    children = []
+
+    def popen(*args, **kwargs):
+        # SIGALRM bounds the synthetic child even against the old deadlocking
+        # wrapper. No saved PID, stock supplier, signing or Keychain operation.
+        child = real_popen([sys.executable, '-c',
+            "import signal,sys; signal.signal(signal.SIGALRM,signal.SIG_DFL); signal.alarm(8); print('SYNTHETIC-BUILD-OUTPUT',flush=True); "
+            "sys.stdout.write('x' * (2 * 1024 * 1024)); sys.stdout.flush()"],
+            stdout=build.subprocess.PIPE, stderr=build.subprocess.STDOUT, text=True)
+        children.append(child)
+        def wait():
+            assert stages[0].exists(), 'staging removed before original child exit'
+            return child.wait(timeout=6)
+        return SimpleNamespace(stdout=child.stdout, wait=wait)
+
+    class BrokenDestination(io.StringIO):
+        def write(self, text):
+            if 'SYNTHETIC-BUILD-OUTPUT' in text:
+                raise BrokenPipeError('synthetic downstream closure')
+            return super().write(text)
+
+    monkeypatch.setattr(build.subprocess, 'Popen', popen)
+    monkeypatch.setattr(build.sys, 'stdout', BrokenDestination())
+    results = []
+    runner = threading.Thread(target=lambda: results.append(build.main(['--execute', '--supplier-download'])))
+    runner.start()
+    runner.join(timeout=4)
+    drained = not runner.is_alive()
+    # The child's own alarm releases a baseline failure without signaling any
+    # discovered PID. Keep fixtures alive until both original owners finish.
+    runner.join(timeout=10)
+    assert not runner.is_alive(), 'self-bounded synthetic build did not finish'
+    for child in children:
+        child.wait(timeout=1)
+        child.stdout.close()
+    assert drained, 'forwarding failure stopped draining a live build pipe'
+    assert results == [2]
+    assert children[0].returncode == 0, 'build should finish before its safety alarm'
+    assert [call[0] for call in calls] == ['prepare']
     assert not stages[0].exists()

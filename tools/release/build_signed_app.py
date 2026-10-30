@@ -144,8 +144,16 @@ def main(argv: list[str] | None = None) -> int:
                 for line in process.stdout:
                     for private in sorted(private_paths, key=len, reverse=True):
                         line = line.replace(private, "<private-supplier-path>")
-                    sys.stdout.write(redact(line))
-                    sys.stdout.flush()
+                    try:
+                        sys.stdout.write(redact(line))
+                        sys.stdout.flush()
+                    except BaseException:
+                        # A downstream closure must not leave a verbose build
+                        # blocked on its full pipe while we wait. Discard the
+                        # rest without forwarding; retain staging until exit.
+                        while process.stdout.read(64 * 1024):
+                            pass
+                        raise
             finally:
                 # Even output-forwarding failure must not remove resources from
                 # beneath the original build while it is still running.
