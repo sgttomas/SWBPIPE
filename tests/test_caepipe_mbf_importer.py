@@ -381,13 +381,16 @@ def _digit_limit(count: int) -> list:
 def test_long_digit_runs_are_refused_before_any_power_of_ten_is_formed():
     # Each digit run of a numeral is checked against Python's default int() digit limit before it is converted and
     # before 10^(its length) is formed, in the Rust port's order (rational.rs `parse_fraction_with`); 10^20000000
-    # takes far longer than the timeout. The outcome is int()'s ValueError, as Fraction(text) raises it and as the
+    # is deliberately avoided. The outcome is int()'s ValueError, as Fraction(text) raises it and as the
     # Rust port returns it (ImportError::Python); within the limit, a value beyond binary64 is refused by name.
+    # This is a bounded-completion guard, not a 10-second performance requirement. The unchanged probe takes
+    # 2.80 s alone locally but exceeded 10 s in the full hosted xdist import suite (9,950 passing tests).
+    # Allow scheduler contention while retaining the 20-million-digit inputs and every refusal assertion.
     try:
         done = subprocess.run([sys.executable, "-c", _DIGIT_RUN_PROBE, str(Path(__file__).resolve().parent)],
-                              capture_output=True, text=True, timeout=10, cwd=ROOT)
+                              capture_output=True, text=True, timeout=30, cwd=ROOT)
     except subprocess.TimeoutExpired:
-        pytest.fail("the importer did not finish within 10 s on a 20000000-digit numeral")
+        pytest.fail("the importer did not finish within 30 s on a 20000000-digit numeral")
     assert done.returncode == 0, done.stderr
     unrepresentable = ["refused", ["MBF-IMPORT-VALUE-UNREPRESENTABLE"]]
     assert json.loads(done.stdout) == [
