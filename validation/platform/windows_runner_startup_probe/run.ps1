@@ -12,7 +12,7 @@ function Assert-Candidate([string]$expected) {
 Assert-Candidate $env:EXPECTED_HEAD
 if ((& git status --porcelain --untracked-files=all)) { throw 'Committed clean candidate required' }
 $root = $PSScriptRoot
-$project = Join-Path $top 'projects/chirality-piping'
+$project = $top
 $p7 = Get-Content (Join-Path $project 'tools/release/provenance_scope.json') -Raw | ConvertFrom-Json -Depth 100
 $fixtureFiles = @(Get-ChildItem (Join-Path $root 'fixtures/*.json') | Sort-Object Name)
 if (($fixtureFiles.Name -join ',') -cne 'missing_payload.json,solve.json,validate_metadata.json') { throw 'Changed approved fixture inventory' }
@@ -55,7 +55,7 @@ foreach ($relative in @('fs.rs','sys/fs/windows.rs','sys/pal/windows/handle.rs')
 }
 if ($official['fs.rs'] -notmatch 'fn read_to_string' -or $official['sys/pal/windows/handle.rs'] -notmatch 'ERROR_BROKEN_PIPE') { throw 'Official pinned pipe-read source needs review; compatibility not established' }
 Write-Host 'START unchanged runner fresh release compile/link'
-& cargo build --locked --release --manifest-path projects/chirality-piping/core/runner/headless/Cargo.toml --bin openpipestress-runner --target x86_64-pc-windows-msvc --target-dir $target 2>&1 | ForEach-Object { "$_".Replace($sourcePath,'<source>').Replace($top,'<source>').Replace($env:USERPROFILE,'<account>').Replace($env:RUNNER_TEMP,'<temp>') }
+& cargo build --locked --release --manifest-path core/runner/headless/Cargo.toml --bin openpipestress-runner --target x86_64-pc-windows-msvc --target-dir $target 2>&1 | ForEach-Object { "$_".Replace($sourcePath,'<source>').Replace($top,'<source>').Replace($env:USERPROFILE,'<account>').Replace($env:RUNNER_TEMP,'<temp>') }
 if ($LASTEXITCODE -ne 0) { throw 'Unchanged runner build failed' }
 if ((Get-FileHash $lock -Algorithm SHA256).Hash.ToLowerInvariant() -ne $lockHash -or (& git status --porcelain --untracked-files=all)) { throw 'Build changed candidate inputs' }
 Write-Host 'START dependency-free controller compile/link'
