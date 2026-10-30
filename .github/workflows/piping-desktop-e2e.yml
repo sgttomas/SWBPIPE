@@ -2,6 +2,11 @@ name: Piping Desktop E2E
 
 on:
   workflow_call:
+    inputs:
+      repository-checks-run:
+        description: The caller's Repository checks job runs tests/test_ci_numerical.py
+        type: boolean
+        default: false
   workflow_dispatch:
 
 permissions:
@@ -413,7 +418,11 @@ jobs:
         with:
           name: piping-ci-selection
       - name: Selected Python product contracts and qualification oracles
-        run: python3 tools/ci/python_ci.py --plan piping-ci-plan.json
+        env:
+          REPOSITORY_CHECKS_RUN: ${{ inputs.repository-checks-run }}
+        run: |
+          if [ "$REPOSITORY_CHECKS_RUN" = true ]; then shared=(--repository-checks-run); else shared=(); fi
+          python3 tools/ci/python_ci.py --plan piping-ci-plan.json "${shared[@]}"
 
   browser-matrix:
     name: Broad browser matrix (${{ matrix.shard }}/4)
