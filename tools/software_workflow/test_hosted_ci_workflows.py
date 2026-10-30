@@ -262,7 +262,6 @@ def test_repository_regressions_follow_their_own_plan_and_keep_every_target(tmp_
         args = out.read_text().split('\n')
         assert [a for a in args if a.startswith('--deselect')] == [f'--deselect={t}' for t in deselect]
         assert '-n' in args and 'auto' in args
-||||||| b8c7e00c8
 
 
 def test_numerical_matrix_keeps_all_shards_and_gates_selected_coverage():
