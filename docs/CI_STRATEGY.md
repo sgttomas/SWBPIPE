@@ -119,8 +119,9 @@ unknown paths and shared execution controls select all discovered crates. Existi
 numerical oracles remain unchanged. Python coverage is gated independently.
 
 The standalone required repository job runs the bounded tool/routing suite and
-`tests/test_ci_numerical.py` on every PR, including Rust and Cargo manifest
-additions/removals. This closes the former monorepo's routing-self-test selection
+`tests/test_ci_numerical.py` on every PR and workflow dispatch, including Rust and Cargo
+manifest additions/removals. The Python product job excludes that routing suite to avoid
+running it twice. This closes the former monorepo's routing-self-test selection
 gap. The local `tools/tools-test-routing.json` records this bounded estate; it
 does not import unrelated Root tool suites. Numerical inventory/source-digest
 refresh and product-selection failure propagation remain required.
@@ -133,8 +134,11 @@ selects every test importing it directly or through other test modules, read
 from the tests' own imports so no non-test module names the verifiers;
 and a declared byte-pinned fixture selects the tests that pin it;
 full-fallback plans retain the broad Python cohort and directly edited tests.
-Edited tests are run directly; shared CI/input changes expand the selection. Full preview, schema and qualification
-suites remain available on dispatch, alongside the full Cargo suite.
+Edited product tests are run directly; shared CI/input changes expand the selection.
+The Python job retains xdist `--dist loadscope`: the current retained-precision
+corpus uses parametrized items across shard classes, and the O4 envelope checks
+use separate classes so these expensive modules can occupy multiple workers.
+Full preview, schema and qualification suites remain available on dispatch, alongside the full Cargo suite.
 
 Hosted builds are unregistered. The retained-memory profile is registered only
 for the qualification host's exact build identity, so a hosted build reports

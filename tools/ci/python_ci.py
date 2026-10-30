@@ -212,7 +212,9 @@ def select(project, plan):
     if plan.get('piping_numerical_selection', {}).get('classification') == 'full-fallback':
         patterns.extend(BROAD)
     # Resolve globs here so shell expansion cannot silently change selection.
-    selected = sorted({p.relative_to(project).as_posix() for pattern in patterns for p in project.glob(pattern)})
+    # Repository checks runs this routing suite on every PR and workflow_dispatch.
+    selected = sorted({p.relative_to(project).as_posix() for pattern in patterns for p in project.glob(pattern)}
+                      - {'tests/test_ci_numerical.py'})
     if not selected:
         raise ValueError('Python selection unexpectedly empty')
     return selected
@@ -231,8 +233,8 @@ def main():
         raise ValueError('Python runner requires explicit selected coverage')
     selected = select(project, plan)
     print(json.dumps({'selected': selected}, indent=2), flush=True)
-    # The full selection runs in parallel, one module per worker as tools/run_affected_tests.py does; the
-    # controller builds the test binaries once before the workers start (tests/conftest.py).
+    # Loadscope groups module functions or class methods on each parallel worker.
+    # The controller builds the test binaries once before workers start (tests/conftest.py).
     # Name each result as it arrives, so a timeout cannot hide failing test identities.
     command = [sys.executable, '-m', 'pytest', '-v', '--tb=short', '--durations=20',
                '-n', 'auto', '--dist', 'loadscope', *selected]

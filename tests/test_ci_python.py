@@ -163,3 +163,18 @@ def test_supplier_bundle_inputs_keep_preparation_and_canonical_build_checks():
         assert {ci.AGENT_SUPPLIER_BUNDLE_TEST, 'tests/test_release_signed_build_script.py'} <= set(selected(path)), path
     assert ci.AGENT_SUPPLIER_BUNDLE_TEST in ci.select(PROJECT, {'event': 'workflow_dispatch'})
     assert ci.AGENT_SUPPLIER_BUNDLE_TEST not in selected('core/security/redaction/controls.py')
+
+
+def test_repository_numerical_routing_checks_are_not_duplicated_in_product_job():
+    plans = [
+        {'event': 'workflow_dispatch'},
+        {'event': 'pull_request', 'paths': []},
+        *({'event': 'pull_request', 'paths': [path]} for path in (
+            'tools/ci/python_ci.py', 'tests/conftest.py', 'tests/test_ci_numerical.py')),
+        {'event': 'pull_request', 'paths': ['tools/unknown-new-input.py'],
+         'piping_numerical_selection': {'classification': 'full-fallback'}},
+    ]
+    for plan in plans:
+        chosen = ci.select(PROJECT, plan)
+        assert 'tests/test_ci_numerical.py' not in chosen, plan
+    assert 'tests/test_ci_python.py' in selected('tests/test_ci_python.py')
