@@ -241,7 +241,6 @@ def test_only_the_harness_lets_the_product_job_skip_the_repository_routing_suite
               if s.get('name') == 'Selected Python product contracts and qualification oracles']
     assert step['env']['REPOSITORY_CHECKS_RUN'] == '${{ inputs.repository-checks-run }}'
     assert '--repository-checks-run' in step['run']
-||||||| b8c7e00c8
 
 
 def test_numerical_matrix_keeps_all_shards_and_gates_selected_coverage():
