@@ -30,7 +30,14 @@ const plain=(x:unknown):x is Record<string,unknown>=>!!x&&typeof x==='object'&&!
 /** The native kinds swbpipe-catalog/3 admits; the catalog schema is their gate and the applier their authority. */
 export const ADMITTED_OPERATION_KINDS=Object.freeze(['modify/Node/set_field/position','create/Material/create_material','create/Node/create_node','connect/Element/connect_pipe_run','create/Support/create_support','create/Load/create_load_case','create/Load/create_primitive_load','modify/Load/update_load/pressure_regions','modify/Model/set_field/pressure_profile']);
 const AUDIT_BOUNDARY=Object.freeze({mutation_route:'structured_operations_only',direct_model_mutation_allowed:false,requires_user_acceptance:true,mutates_accepted_model_state:false} as const);
-const PROFESSIONAL_BOUNDARY=Object.freeze({human_review_required:true,software_makes_compliance_claim:false,software_makes_certification_claim:false,software_makes_sealing_claim:false,software_makes_approval_claim:false,software_makes_authentication_claim:false} as const);
+const PROFESSIONAL_BOUNDARY=Object.freeze({
+ human_review_required:true,
+ software_makes_compliance_claim:false,
+ software_makes_certification_claim:false,
+ software_makes_sealing_claim:false,
+ software_makes_approval_claim:false,
+ software_makes_authentication_claim:false
+} as const);
 /** The agent supplies operation_id, operation_kind, target, change and rationale; the host
  * stamps status, attribution, queue/source and the constant validation and boundary records.
  * A host field in the arguments never survives (the catalog already refuses one). */
