@@ -8,6 +8,9 @@ from pathlib import Path
 import subprocess
 import sys
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'software_workflow'))
+import hosted_ci
+
 PREFIX = ''
 BASE = ['tests/security', 'tests/test_constraint_validation.py', 'tests/test_source_block_schema_contract.py']
 FAMILIES = {
@@ -163,7 +166,7 @@ def select(project, plan):
     else:
         patterns = list(BASE)
         for path in paths:
-            if not path.startswith(PREFIX):
+            if hosted_ci.shared_input(path) or not path.startswith(PREFIX):
                 patterns.extend(BROAD)
                 continue
             local = path[len(PREFIX):]
@@ -223,8 +226,6 @@ def main():
     project = Path(__file__).resolve().parents[2]
     plan = json.loads(args.plan.read_text())
     root = project
-    sys.path.insert(0, str(root / 'tools/software_workflow'))
-    import hosted_ci
     hosted_ci.validate_plan(root, plan)
     if plan.get('modes', {}).get('piping-python') != 'full':
         raise ValueError('Python runner requires explicit selected coverage')
@@ -232,7 +233,9 @@ def main():
     print(json.dumps({'selected': selected}, indent=2), flush=True)
     # The full selection runs in parallel, one module per worker as tools/run_affected_tests.py does; the
     # controller builds the test binaries once before the workers start (tests/conftest.py).
-    command = [sys.executable, '-m', 'pytest', '-q', '-n', 'auto', '--dist', 'loadscope', *selected]
+    # Name each result as it arrives, so a timeout cannot hide failing test identities.
+    command = [sys.executable, '-m', 'pytest', '-v', '--tb=short', '--durations=20',
+               '-n', 'auto', '--dist', 'loadscope', *selected]
     return 0 if args.dry_run else subprocess.run(command, cwd=project).returncode
 
 

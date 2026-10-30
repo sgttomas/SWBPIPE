@@ -385,7 +385,8 @@ jobs:
     needs: selection
     if: needs.selection.outputs.python_mode == 'full'
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    # The initial import selects the complete Python suite on a cold runner.
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
         with:
