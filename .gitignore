@@ -42,3 +42,6 @@ apps/desktop/src/services/wasmEngine/__generated__.old-*/
 apps/desktop/public/self-weight-engine/
 apps/desktop/public/self-weight-engine.tmp-*/
 apps/desktop/public/self-weight-engine.old-*/
+
+# Exact hosted engine-output cache receipt.
+apps/desktop/public/wasm-cache.json
