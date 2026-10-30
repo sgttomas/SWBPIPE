@@ -83,10 +83,31 @@
         "tools/agent_catalog_resource.py",
         "--check"
       ]
+    },
+    "agent-supplier-resource-offline": {
+      "cwd": ".",
+      "command": [
+        "python3",
+        "tools/agent_supplier_resource_test.py"
+      ]
     }
   },
   "always_checks": [],
   "path_rules": [
+    {
+      "paths": [
+        "tools/agent_supplier_resource.py",
+        "tools/agent_supplier_resource_test.py",
+        "apps/desktop/src-tauri/resources/agent-supplier-pins.json",
+        "docs/THIRD_PARTY_NOTICES.md",
+        "docs/third-party/codex-0.160.0-LICENSE.txt",
+        "docs/third-party/codex-0.160.0-NOTICE.txt",
+        "software-workflow.json"
+      ],
+      "checks": [
+        "agent-supplier-resource-offline"
+      ]
+    },
     {
       "paths": [
         "execution/PKG-16/DEL-16-06/Design/agent-capability-catalog.json",

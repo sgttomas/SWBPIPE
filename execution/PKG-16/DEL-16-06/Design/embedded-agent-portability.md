@@ -109,7 +109,11 @@ publication, with no execution before verification. No silent alternate version,
 architecture, search-PATH executable or unverified cache fallback. Signing,
 minimum-OS compatibility and redistribution evidence remain required; no support
 range is changed by assumption. The existing arm64 witness binary declares
-macOS 11.0 minimum; Intel metadata/evidence is still to be established.
+macOS 11.0 minimum. The reviewed source manifest and explicit build-time
+acquisition tool in `agent-supplier-packaging.md` now pin both architectures;
+Intel's static Mach-O floor is 10.12. These load-command floors do not change
+the app's supported range. Actual bundle/signature/runtime resource resolution,
+older-OS/Intel execution and isolation/cleanup evidence remain unestablished.
 
 Private home/cwd, profile and exact exec path are derived at runtime from
 app-owned locations. Test invented homes/usernames, aliases and unrelated data
