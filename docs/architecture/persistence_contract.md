@@ -98,8 +98,8 @@ from model content (DEL-02-05 CLM-003):
 
 There is no product-schema migration: open and save never rewrite a model
 document, and no migration ledger record is written. The current model
-document version is 0.8.0 (`execution/PKG-02/DEL-02-01/Design/model-document-0.8.0.md`
-§1, after `execution/PKG-02/DEL-02-01/Design/model-document-0.7.0.md` §2 and `execution/PKG-04/DEL-04-08/Design/b7-plan.md`, "Current model
+document version is 0.8.0 (`execution/PKG-02/DEL-02-01/Work/model-document-0.8.0.md`
+§1, after `execution/PKG-02/DEL-02-01/Work/model-document-0.7.0.md` §2 and `execution/PKG-04/DEL-04-08/Work/b7-plan.md`, "Current model
 format"), and it is the only version that reports `current`; since B7b, the
 exact pressure model versions 0.3.0 and 0.4.0 are refused by name like every
 other older version, 0.5.0 since 0.6.0, 0.6.0 since 0.7.0, and 0.7.0 since 0.8.0.

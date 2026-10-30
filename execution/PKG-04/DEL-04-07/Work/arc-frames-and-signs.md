@@ -480,7 +480,7 @@ stages.
     - the 168 scored cases need an independent re-review before admission
       statuses rely on them.
   - The arc end groups' K-D5 statuses, measured (§3).
-- **Stage 2:** the B7a C4–C6 radius in [b7-plan.md](../../DEL-04-08/Design/b7-plan.md):
+- **Stage 2:** the B7a C4–C6 radius in [b7-plan.md](../../DEL-04-08/Work/b7-plan.md):
   - both preview tables and `results.v0.3`;
   - the 27 committed files that carry LIMITATIONS[3]: `preview_physics.rs`,
     both tables, the schema, and 23 result, desktop and retained-precision

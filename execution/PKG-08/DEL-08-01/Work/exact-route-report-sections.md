@@ -2356,7 +2356,7 @@ New:
 it also records the provenance of materials, sections, components and supports and lists the library records the model references, with the library store's findings on them.
 ```
 
-**G5. DEL-04-07 Design `desktop-exact-outputs.md` §4.5 :209** (second sub-bullet of the first bullet; slice (b); `execution/PKG-04/DEL-04-07/Design/desktop-exact-outputs.md`; applied in slice (b), #1637)
+**G5. DEL-04-07 Design `desktop-exact-outputs.md` §4.5 :209** (second sub-bullet of the first bullet; slice (b); `execution/PKG-04/DEL-04-07/Work/desktop-exact-outputs.md`; applied in slice (b), #1637)
 
 Old:
 
@@ -2520,7 +2520,7 @@ Old:
 ```text
   - Every report surface refuses exact-route results with
     `PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE` (owner ruling 10A, 2026-10-21;
-    `execution/PKG-04/DEL-04-07/Design/desktop-exact-outputs.md`).
+    `execution/PKG-04/DEL-04-07/Work/desktop-exact-outputs.md`).
 ```
 
 New:
@@ -2571,7 +2571,7 @@ that Export Result JSON admits, and the report package is saved locally for
 the same results (see
 ```
 
-**O13. DEL-04-07 Design `desktop-exact-outputs.md` §4.5 :205** (from the opening line through the report-package bullet, as A.1 G5 leaves them (:205-211); the final "other fifteen surfaces" bullet is kept; after A.1 G5; `execution/PKG-04/DEL-04-07/Design/desktop-exact-outputs.md`)
+**O13. DEL-04-07 Design `desktop-exact-outputs.md` §4.5 :205** (from the opening line through the report-package bullet, as A.1 G5 leaves them (:205-211); the final "other fifteen surfaces" bullet is kept; after A.1 G5; `execution/PKG-04/DEL-04-07/Work/desktop-exact-outputs.md`)
 
 Old:
 

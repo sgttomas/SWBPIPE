@@ -17,7 +17,7 @@ preserving schema validation). Paths are relative to `projects/chirality-piping/
 Both add no operation, no model-document member (the document stays 0.8.0) and no
 engineering default. The batches go through the existing review queue (DEL-16-06),
 so validation, the per-step diff preview, the single all-or-nothing Apply and the
-single Undo are the queue's own. B2 (`execution/PKG-07/DEL-07-02/Design/bulk-change.md`)
+single Undo are the queue's own. B2 (`execution/PKG-07/DEL-07-02/Work/bulk-change.md`)
 is the pattern.
 
 **Risk class:** persistence and numerical meaning. Positions are computed in

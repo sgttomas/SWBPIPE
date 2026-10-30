@@ -7,7 +7,7 @@ through OD-5 as you recommended") selected DEC-045 stiffness scaling for rigid
 and semi-rigid components, and W-15 slice c carries the reducer's offset. It
 replaces the outline formerly in `rigid-component-stiffness-scaling.md` §4. The
 model document part, version 0.8.0, is DEL-02-01 Design
-[`model-document-0.8.0.md`](../../../PKG-02/DEL-02-01/Design/model-document-0.8.0.md).
+[`model-document-0.8.0.md`](../../../PKG-02/DEL-02-01/Work/model-document-0.8.0.md).
 
 **Status.** Design at main `2d4b1bb4bb` (2026-10-26), PR #1649, revised after
 Codex's design reviews and numerical scrutiny r1 and r2, with Agent 0's
@@ -444,7 +444,7 @@ These are recorded as remaining items:
 The member is new on the closed component geometry record
 (`schemas/model.schema.yaml` ~355). It arrives in model document 0.8.0 under
 the one-current-version rule. DEL-02-01 Design
-[`model-document-0.8.0.md`](../../../PKG-02/DEL-02-01/Design/model-document-0.8.0.md)
+[`model-document-0.8.0.md`](../../../PKG-02/DEL-02-01/Work/model-document-0.8.0.md)
 covers:
 - the ripple;
 - the refusals;

@@ -553,7 +553,7 @@ classification. It never prints external-prover values outside the local run.
 - CAEPIPE's pipe shear shape factor and default gravitational acceleration
   (CQ-17-01-010); κ = 0.5 stays an `ASSUMPTION` until answered.
 - Two-way iteration: the export step (§3) writes `caepipe_out/exported.mbf` for
-  DEL-17-04's private import regression (DEL-17-04 `Design/caepipe-mbf-import.md` §18.3),
+  DEL-17-04's private import regression (DEL-17-04 `Work/caepipe-mbf-import.md` §18.3),
   for the writer cases and for the authored cases (§3, §5), whose outcomes are recorded
   privately in `imported/`. The authored set grows with each importer tranche: each new
   mapping or named refusal gets an authored file.

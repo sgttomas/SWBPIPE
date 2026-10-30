@@ -8,7 +8,7 @@ DEC-081).
 
 Requirements: FR-RULE-005 (Must) and FR-RULE-006 (Should). The map rows read
 "Library records cannot be applied to model materials". Related: the W-13 design
-(DEL-02-01 `Design/model-document-0.7.0.md`), §3.5 `provenance_record.library_ref`
+(DEL-02-01 `Work/model-document-0.7.0.md`), §3.5 `provenance_record.library_ref`
 and §6 authoring.
 
 ## 1. Where things stand

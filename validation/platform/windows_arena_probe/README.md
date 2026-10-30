@@ -58,5 +58,5 @@ Hosted command (PowerShell7; EXPECTED_HEAD and fresh CARGO_TARGET_DIR required):
 All compilation/execution is hosted. No local Cargo, guest access, acquisitions
 or provisioning belongs to this task. Existing CAEPIPE guest is permanently
 off-limits. R64 MiB remains unqualified for Windows; retained registration stays
-Stale. See DEL-04-07 Design/windows-arena-probe.md for startup/bypass audit,
+Stale. See DEL-04-07 Work/windows-arena-probe.md for startup/bypass audit,
 pending solver guard basis, threat model and remaining finite proof.

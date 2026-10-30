@@ -4,7 +4,7 @@
 (#1652, profile `caepipe-mbf-si-pilot-1`), the importer `importer.py`, tranches 1–3 (#1670,
 #1685, #1697), the authored cases (#1702), and the import Design `caepipe-mbf-import.md`
 (cited here as "the import Design"). Release target `docs/RELEASE_TARGET_v1.0.md`: rows RT-R7
-and RT-R8 (Must) and exit criterion 6. File names follow DEL-07-01 `Design/export-file-names.md`
+and RT-R8 (Must) and exit criterion 6. File names follow DEL-07-01 `Work/export-file-names.md`
 (#1711).
 
 This is a design before implementation, drafted for Agent 0 and independent review. Risk class:
@@ -25,7 +25,7 @@ Two current texts place the desktop part elsewhere:
   says "A desktop MBF import action would belong to DEL-07-12 and is not part of this
   deliverable."
 - **DEL-07-12.** It owns `apps/desktop/src/features/caepipe-mbf/**`. Its finite inventory
-  lists ".mbf model export" but no import. It has no `Design/` locality.
+  lists ".mbf model export" but no import. It has no `Work/` locality.
 
 This design therefore keeps the panel and dialog code under DEL-07-12's paths. The engine,
 the native MBF file logic and the criterion-6 check stay with DEL-17-04. The ScopeOfWork text
@@ -339,7 +339,7 @@ The command follows the DEL-04-07 ingress rules for model-sized interactive comm
 - **Unsafe code.** The new `src-tauri` module (`mbf_file.rs`) carries no
   `#[allow(unsafe_code)]` and is not added to `SHELL_UNSAFE_MODULES`.
 - **Reach closure.** The engine crate depends on no reporting crate, so the renderer's reach
-  closure is unchanged (DEL-08-01 `Design/report-user-release.md` §2.8).
+  closure is unchanged (DEL-08-01 `Work/report-user-release.md` §2.8).
 
 ## 4. Import (RT-R8)
 

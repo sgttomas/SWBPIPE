@@ -424,7 +424,7 @@ are never deleted by the sheet.
       is set;
     - `create_support`(new), if a support code is set;
     - `reconnect_pipe_run`(pipe_{k+1}, end `from`, target new)
-      (`execution/PKG-16/DEL-16-06/Design/pipe-reconnect.md` §1).
+      (`execution/PKG-16/DEL-16-06/Work/pipe-reconnect.md` §1).
   - `assign_section` is formed as in §3.3. Its `before` is the canonical JSON
     of the new pipe's record in the record projection. Without it, the new
     pipe would carry local quantities, and later edits to the shared section
@@ -899,7 +899,7 @@ keys only while focus is inside it, and stops their propagation.
 - after Undo or Redo, focus stays on the same row's cell when the row is still
   shown, else follows the Delete rule;
 - after a row menu command, the context-menu recovery order applies
-  (`Design/context-menus.md`, Keyboard).
+  (`Work/context-menus.md`, Keyboard).
 
 Native assistive-technology verification (VoiceOver on macOS) remains open.
 
@@ -934,12 +934,12 @@ Codes: …". The cell's accessible description lists its codes.
 **Clashes.** Codes act only inside a focused code cell, and the sheet consumes
 them there. The viewport's unmodified H and I act only while focus is in the
 viewport (`src/features/viewport/PipeViewport.tsx:2442-2448`). A context menu,
-while open, takes every key (`Design/context-menus.md`, Keyboard). No code
+while open, takes every key (`Work/context-menus.md`, Keyboard). No code
 uses a modifier. No clash exists.
 
 ### 5.3 Menus and accessibility
 
-- **Row menu.** Through the shared context menu (`Design/context-menus.md`):
+- **Row menu.** Through the shared context menu (`Work/context-menus.md`):
   Insert row above, Insert row below, Delete row, Fill down, Start branch here
   (appends an `F` row naming this row's end node) and Fit row in viewport.
   On an applied bend row, Start branch here names its outgoing tangent node
@@ -988,7 +988,7 @@ uses a modifier. No clash exists.
 Every value the sheet writes lands in an existing member through an existing
 operation (§1.2, §3.3). The sheet's rows, codes, inheritance, numbering and
 follow state are transient and never written. The model document stays 0.8.0
-(`execution/PKG-02/DEL-02-01/Design/model-document-0.8.0.md` §1), with no
+(`execution/PKG-02/DEL-02-01/Work/model-document-0.8.0.md` §1), with no
 version step. Two later features would need a member, and are not part of B1:
 - an operating-condition column (C1, which brings its own version step);
 - reopening a saved sheet as a sheet (open choice O8).

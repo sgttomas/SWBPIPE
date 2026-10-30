@@ -1,7 +1,7 @@
 # T4-U4b and T4-U5b on model 0.6.0: implementation design
 
 This is the implementation design for shared epoch 4 (DEL-04-08 Design
-[b7-plan.md](../../DEL-04-08/Design/b7-plan.md), "After B7b: the shared epochs", item 4).
+[b7-plan.md](../../DEL-04-08/Work/b7-plan.md), "After B7b: the shared epochs", item 4).
 T4-U4b publishes the arc quantities that U4a withheld, and the straight-member quantities
 qualified with them ([arc-frames-and-signs.md](arc-frames-and-signs.md) §9). T4-U5b admits
 explicit elastic tie rods on an objective connector ([joint-pressure-thrust.md](joint-pressure-thrust.md)

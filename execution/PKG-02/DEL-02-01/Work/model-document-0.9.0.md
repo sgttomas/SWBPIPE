@@ -19,7 +19,7 @@ the format rules of [`model-document-0.7.0.md`](model-document-0.7.0.md). The
 `direction` and `difference_basis` members carry Agent 0's decisions on the
 solver lane's design note (operating case and skewed restraints, revision 2,
 §0 R-7 and "Shape", §1.4, §2.5). The run-sheet column answers DEL-07-02 Design
-[`run-sheet-entry.md`](../../../PKG-07/DEL-07-02/Design/run-sheet-entry.md) §8 O7.
+[`run-sheet-entry.md`](../../../PKG-07/DEL-07-02/Work/run-sheet-entry.md) §8 O7.
 
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). Paths are
 relative to `projects/chirality-piping/`. Nothing here records or implies

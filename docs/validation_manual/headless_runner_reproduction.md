@@ -306,7 +306,7 @@ Re-run on `main` at `084ff961f8`:
   `22452ecd14` (2026-09-25). T3 U3 (`8a12de28db`, 2026-10-08) retired the legacy
   pressure contract product-wide, with zero values included. T4-U3
   (`a601e3706d`, 2026-10-10) refuses legacy finite-span joints. Under the
-  owner's no-compatibility direction (DEL-04-08 `Design/b7-plan.md`, "Decisions
+  owner's no-compatibility direction (DEL-04-08 `Work/b7-plan.md`, "Decisions
   applied"), retired content is refused by name and not migrated.
 - *What stays unchanged.* `tests/test_headless_runner_contract.py` keeps this
   demo as the explicit legacy-pressure refusal control and asserts this exit-1

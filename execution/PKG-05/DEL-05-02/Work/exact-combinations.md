@@ -15,7 +15,7 @@ Paths are relative to `projects/chirality-piping/`. PP is
 ## 1. Inputs
 
 The input is the model's existing `combinations`, in the closed records of
-#1573 (DEL-04-07 `Design/pressure-contract.md` ~122-167). There are three bases:
+#1573 (DEL-04-07 `Work/pressure-contract.md` ~122-167). There are three bases:
 - `mechanics`: a linear combination over primitive load cases;
 - `result_state_subtraction`;
 - `range_envelope`: over primitive load cases, with its mode.

@@ -20,8 +20,8 @@ models with nonlinear supports: gap, one-way, lift-off and friction. It is
 stage 2 of the owner's ruling, 2026-10-23, verbatim: "Row 2 I approve option
 A".
 
-The two stages are described in DEL-04-07 `Design/pressure-contract.md`.
-Stage 1 is `Design/pf-imposed-displacement.md` (W-16 slice a, #1615). Agent 0
+The two stages are described in DEL-04-07 `Work/pressure-contract.md`.
+Stage 1 is `Work/pf-imposed-displacement.md` (W-16 slice a, #1615). Agent 0
 set the scope on 2026-10-25: R-a and R-b, both in stage 2, kept separable in
 design, benchmarks and review. R-b may land as a later slice.
 
@@ -441,7 +441,7 @@ neither seeing the other's findings, before any code.
 
 ## 8. The pressure-contract stage-2 sentence
 
-In DEL-04-07 `Design/pressure-contract.md`, the stage-2 bullet becomes:
+In DEL-04-07 `Work/pressure-contract.md`, the stage-2 bullet becomes:
 
 > **Stage 2:** imposed motion in a model with nonlinear supports, in
 > separable parts. (R-a) Rigid anchors and restraints carry stage-1 primitives
@@ -454,7 +454,7 @@ In DEL-04-07 `Design/pressure-contract.md`, the stage-2 bullet becomes:
 > linear spring's DOF moves its base; the case gains k·g and the spring
 > publishes −k·(u−g). (R-d) A primitive on a mixed nonlinear
 > record's rigid restraint prescribes that restraint's base value. Design:
-> DEL-04-03 `Design/pf-nonlinear-imposed-motion.md`,
+> DEL-04-03 `Work/pf-nonlinear-imposed-motion.md`,
 > with dual numerical review and its own benchmarks; R-b may land as a later
 > slice.
 

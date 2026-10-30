@@ -2,7 +2,7 @@
 
 **Basis:** branch `claude/piping-caepipe-pilot-20261026` at `71272e769c` (PR #1652, current
 `main` merged), which adds the SI writer `core/handoff/caepipe_mbf/si_writer.py`. Model
-document 0.7.0 (DEL-02-01 `Design/model-document-0.7.0.md`); 0.8.0 as proposed in open
+document 0.7.0 (DEL-02-01 `Work/model-document-0.7.0.md`); 0.8.0 as proposed in open
 PR #1649 (head `4291a7ace8`). Design before implementation; draft for independent review.
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). Nothing here records,
 implies or derives acceptance, issuance or lifecycle standing (F-PIP-3).
@@ -323,7 +323,7 @@ A layout data line is a row, a continuation line or a model comment.
 SWBPIPE quantities carry their own unit, and the units catalog (`core/units`) has every
 SI and US-customary unit the tranche-1 records use. The importer therefore writes each
 quantity in its MBF unit and leaves normalization to the existing readers, as the desktop
-does for entered units (DEL-02-02 `Design/project-unit-selection.md` §2, items 6 and 8).
+does for entered units (DEL-02-02 `Work/project-unit-selection.md` §2, items 6 and 8).
 The project units follow the mode.
 
 **English imports and re-export (O-2).** Agent 0 decided this on 2026-10-26, under the

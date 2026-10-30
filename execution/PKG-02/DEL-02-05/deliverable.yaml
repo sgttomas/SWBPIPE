@@ -124,7 +124,7 @@ needs:
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
   evidence: execution/PKG-02/DEL-02-05/ScopeOfWork.md
-- from: doc:execution/PKG-04/DEL-04-08/Design/b7-plan.md
+- from: doc:execution/PKG-04/DEL-04-08/Work/b7-plan.md
   condition: 'DEL-02-05''s one current model-document version is 0.8.0 as DEL-04-08 Design `b7-plan.md`
     ("Current model format") defines it: `pressure_contract` optional, its absence making the document pressure-free,
     and every non-current model document refused for editing and solving, with the named re-author refusal for

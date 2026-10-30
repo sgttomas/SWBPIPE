@@ -41,7 +41,7 @@ Paths below are relative to `projects/chirality-piping`.
 - pressure-1 table `fixtures/results/semantic_contract_v0_3_pressure_1.json`:
   `4dc927893bf139002f44f57c5b464ab4e8b428d1de184c5c637645b440321b4e`.
 - Governing texts:
-  - `execution/PKG-05/DEL-05-03/Design/section-bases-and-timoshenko.md`,
+  - `execution/PKG-05/DEL-05-03/Work/section-bases-and-timoshenko.md`,
     sections 1, 2.1–2.5 and 7 (`be2f3de5f1f5e1974251c1b794891f3ab9f7a16246a73e0c5918a6a107fcfd0e`);
   - the current-document rule in `validation/qualification/GATE_USAGE.md`
     (`896905b5172e157c7dd7b1c81c82c44bf4313f7977d537b889a7f959289e1069`);

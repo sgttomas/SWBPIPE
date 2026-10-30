@@ -6,7 +6,7 @@ benchmark close FR-SOL-002 on PF. It is W-16 slice a in
 `docs/COMPLETENESS_MAP.md` §4.3.
 
 **Ruling.** Owner, 2026-10-23, verbatim: "Row 2 I approve option A". The
-ruling is quoted in DEL-04-07 `Design/pressure-contract.md`, "Imposed
+ruling is quoted in DEL-04-07 `Work/pressure-contract.md`, "Imposed
 displacement on the pressure-free route". It builds the feature in two stages.
 Stage 1 maps a support-targeted primitive into the partitioned reduction of
 prescribed values that the exact route already uses. Stage 2 makes the
@@ -258,7 +258,7 @@ needs no change. Re-pricing must consider any enlarged target/primitive layout,
 even though D1 refuses support primitives. Excluding the variant does not show
 that admitted variants' memory is unchanged.
 
-D3 prices this in DEL-04-08 `Design/retained-pricing-rules.md` §8.23:
+D3 prices this in DEL-04-08 `Work/retained-pricing-rules.md` §8.23:
 `case_prescribed`'s node index and `validate`'s findings vector are priced
 positively on D1 (W16-NI, W16-VF), as is the node/element
 `imposed_displacement` refusal D1.7's dimension-only node arm admits (W16-ID);

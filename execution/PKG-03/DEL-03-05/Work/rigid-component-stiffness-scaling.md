@@ -234,7 +234,7 @@ mapping-conflict check are pricing inputs, to be priced or bounded in the
 registration, not assumed free. The registration must still show every priced
 phase fits M = 12 GiB; a misfit stops for the owner (decision 22).
 
-D3 prices this in DEL-04-08 `Design/retained-pricing-rules.md` §8.21: the
+D3 prices this in DEL-04-08 `Work/retained-pricing-rules.md` §8.21: the
 predicate's member maps and the readers' component-body working set are priced
 positively (W15-PM, W15-RB), the scaled-member path is zero on D1 by its premise
 (no admitted component), P_FINAL is unchanged, and all 80 evaluations fit M,
@@ -400,7 +400,7 @@ the desktop component-creation, inspector and self-weight features):
 
 Slice c is designed in [`eccentric-reducer-offset.md`](eccentric-reducer-offset.md),
 with its model document version in DEL-02-01 Design
-[`model-document-0.8.0.md`](../../../PKG-02/DEL-02-01/Design/model-document-0.8.0.md).
+[`model-document-0.8.0.md`](../../../PKG-02/DEL-02-01/Work/model-document-0.8.0.md).
 That design replaces the outline this section held. It keeps the field
 `geometry.eccentric_offset` and checks it against the node geometry, which
 governs. The check has two parts: a placement tolerance, and a separate

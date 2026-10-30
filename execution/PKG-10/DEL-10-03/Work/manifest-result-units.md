@@ -1,7 +1,7 @@
 # Local FEA handoff: manifest result units (W-17 slice c)
 
 **Basis:** `b9fa486209` (2026-10-26). The governing design is DEL-02-02
-`Design/project-unit-selection.md` §7.4 and §7.7. Standard claim fence applies
+`Work/project-unit-selection.md` §7.4 and §7.7. Standard claim fence applies
 (F-PIP-2; claims taxonomy per DEC-081).
 
 ## What the desktop builder does

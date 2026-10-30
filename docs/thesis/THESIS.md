@@ -630,7 +630,7 @@ their authority. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-
 [D1]: appendix_d_framework_s.md
 [P1]: ../PRD.md
 [P2]: ../architecture/adr/ADR-0001_operation_seam_engine_unification.md
-[P3]: ../../execution/PKG-04/DEL-04-01/Design/curved-numerical-integrity.md
+[P3]: ../../execution/PKG-04/DEL-04-01/Work/curved-numerical-integrity.md
 [P4]: ../IP_AND_DATA_BOUNDARY.md
 [P5]: ../../loop/LOOP_INIT.md
 [P6]: ../PROFESSIONAL_BOUNDARY.md

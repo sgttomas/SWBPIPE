@@ -9,7 +9,7 @@ merge of main `b4b26cdd82` (#1630); §13 records what the build settled.
 **Lineage:** it follows the 0.6.0 → 0.7.0 precedent of
 [`model-document-0.7.0.md`](model-document-0.7.0.md) §2 (W-13 S1b, #1564). The
 member it adds and its solve meaning are in DEL-03-05 Design
-[`eccentric-reducer-offset.md`](../../../PKG-03/DEL-03-05/Design/eccentric-reducer-offset.md).
+[`eccentric-reducer-offset.md`](../../../PKG-03/DEL-03-05/Work/eccentric-reducer-offset.md).
 
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). Paths are
 relative to `projects/chirality-piping/`.

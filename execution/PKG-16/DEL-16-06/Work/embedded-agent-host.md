@@ -340,7 +340,7 @@ the existing `serde_json` dependency's `raw_value`; Cargo.lock is unchanged.
 
 `tools/agent_catalog_resource.py` generates
 `apps/desktop/src-tauri/resources/agent-capability-catalog.json` directly from
-the authoritative Design bytes; do not edit the product resource independently.
+the authoritative Work bytes; do not edit the product resource independently.
 The registered project check `agent-catalog-resource` uses `--check` to fail on
 absent, linked, oversized or differing input. Both project and Root selectors
 route its inputs. The Root software-workflow regression suite executes this

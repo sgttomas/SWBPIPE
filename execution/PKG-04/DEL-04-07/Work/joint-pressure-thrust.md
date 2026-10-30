@@ -230,7 +230,7 @@ T4-U3 added no member key. It did define and admit the content of `objective_con
 | `fixtures/results/pressure_v3_arc_reader_corpus.json` | the limitation text (its connector case); the generator's doc comment in `pressure_arc_readers.rs` |
 | `t4_i12/u3_reference_cases.json`, `joint_case_with_pressure_region` (`expected_round_02`, dated "until T4-U5 (J3/J4)") | Its region on P-100 does not touch C-150, so the case is admitted after B7b re-authors it in 0.5.0 (§1). The frozen file is not edited: the implementing change records the supersession in `t4_i12/README.md` (a C-d note). HR's `a_pressurized_case_with_a_joint_is_refused_without_export_in_both_modes` (`core/runner/headless/tests/objective_connector.rs`) then becomes an admission check (no joint code, results and export present). The numbers are pinned by `t4_u5a` J3-R/J3-RP, and the refusals by `t4_u5a`'s 17 refusal variants (RV-01 to RV-15 with RV-05a–c and RV-06b; there is no RV-10). Its original 0.3.0/0.4.0 document continues to be refused until B7b's format retirement |
 | `core/product_physics/tests/connector_pp_paths.rs` "pressure model" variant | still refused under the same code, with the new text |
-| `execution/PKG-03/DEL-03-06/Design/joint-replacement.md`, "as implemented" | "admitted only on unpressurized v3 documents" is restated |
+| `execution/PKG-03/DEL-03-06/Work/joint-replacement.md`, "as implemented" | "admitted only on unpressurized v3 documents" is restated |
 | Unchanged | v2 and SP-1 twins; straight-only and arc regions' evidence; unpressurized connectors' rows and records; the straight corpus; PP's Cargo.lock and priced layouts (`MemberRecord`, `RecoveryRecord`, Preview inputs); LIMITATIONS of preview-physics |
 
 ## 8. Evidence and mutants

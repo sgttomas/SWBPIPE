@@ -42,7 +42,7 @@ marked M. `preview_physics.rs` has the same line numbers on M and S2.
 | LCA | `core/loads/load_case_algebra/src` |
 | RE | `core/reporting/result_export/src` |
 
-**The source item.** On M, DEL-17-04 `Design/caepipe-mbf-import.md` §20.3 item 3
+**The source item.** On M, DEL-17-04 `Work/caepipe-mbf-import.md` §20.3 item 3
 (:2105) reads "rigid, axis-aligned guides and limit stops". It contains no
 operating-case text; the operating case is Agent 0's framing of what the item needs.
 The importer currently:

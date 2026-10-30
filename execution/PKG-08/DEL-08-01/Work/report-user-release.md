@@ -766,13 +766,13 @@ user-visible condition is the same; native admission now enforces it.
     inside the command's existing ingress lease. Route 010's lease also
     prices the parse of embedded provenance (§2.7).
   - The memory-budget design's worker paragraph
-    (`DEL-04-07/Design/memory-budget-decision.md:37`) names the frame and the
+    (`DEL-04-07/Work/memory-budget-decision.md:37`) names the frame and the
     digest passes. The worker's process-reserve measurement
     (`process_reserve_covers_a_real_workers_measured_footprint`) is run again.
 - **Time:** two linear passes in the worker and two at admission.
 - **Priced files: none.** Every change is in `apps/desktop/src-tauri`, which is
   outside `core/product_physics`'s dependency closure
-  (`DEL-04-07/Design/desktop-exact-outputs.md` §3). `canonical_json` and
+  (`DEL-04-07/Work/desktop-exact-outputs.md` §3). `canonical_json` and
   `result_export` are in that closure (`core/product_physics/Cargo.toml`). R
   uses them only through existing public functions, unchanged:
   `checked_v1_domain_canonical`, `ByteSink` and `derive_document`. The solver
@@ -2503,7 +2503,7 @@ build configuration as well as the sources:
     target/macro rules, headless pins and all scan predicates remain in force.
     Agent 0 approved checked, never-restored process-local legacy no-UI policy;
     its source scope and credential/SQLite journal qualification are recorded
-    in DEL-16-06 Design/agent-provider-custody.md and receive independent
+    in DEL-16-06 Work/agent-provider-custody.md and receive independent
     credentials/persistence scrutiny. No release-route permission is granted.
 - **`cfg(test)` in product builds.** Two compile-time guards hold on the
   toolchain the hosted jobs pin (Rust 1.97.1, through
@@ -4524,7 +4524,7 @@ exact text.
   - The `solve_worker.rs` protocol text (:10-25) names `ATST`; the
     `solve_jobs.rs` module text (:1-55) names the attestation table beside
     the custody digests (§2.4).
-  - DEL-04-07 `Design/memory-budget-decision.md` :37, the worker paragraph,
+  - DEL-04-07 `Work/memory-budget-decision.md` :37, the worker paragraph,
     names the frame, the digest passes and their transient pieces (the key
     vectors on the open path, one sort scratch, one escaped string; §2.4);
     DEL-04-07 `deliverable.yaml`

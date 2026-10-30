@@ -870,7 +870,7 @@ policy, and the literals `moment_unit`, `displacement_unit` and `rotation_unit`
 are not touched. On the routes the panel is open to, the literals equal the
 referenced rows' units.
 
-**Deferred** (recorded in DEL-10-03 `Design/manifest-result-units.md`):
+**Deferred** (recorded in DEL-10-03 `Work/manifest-result-units.md`):
 - **B-a:** stress witnesses with values converted to the declared unit, so that
   rows in other units can be referenced. This is a DEL-10-03 schema change.
 - **B2:** every result-unit member taken from the rows.
@@ -902,7 +902,7 @@ referenced rows' units.
     `exportProjectUnits.ts`;
   - `load-cases/primitiveLoadVocabulary.ts`;
   - the three export panels (§7.4, §7.7);
-  - DEL-10-03 `Design/manifest-result-units.md`;
+  - DEL-10-03 `Work/manifest-result-units.md`;
   - tests.
   No applier, schema, solver or `core/units` file changes. The §7.3 catalog
   entries are a deferred improvement.

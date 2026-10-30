@@ -108,7 +108,7 @@ class DenialEvidenceTest(unittest.TestCase):
 
 class ResourceFailureTest(unittest.TestCase):
     def test_setup_headroom_drop_prevents_first_inference_request(self):
-        catalog = Path(__file__).resolve().parents[1] / "execution/PKG-16/DEL-16-06/Design/agent-capability-catalog.json"
+        catalog = Path(__file__).resolve().parents[1] / "execution/PKG-16/DEL-16-06/Work/agent-capability-catalog.json"
         native, monitor = mock.Mock(), mock.Mock()
         monitor.is_alive.return_value = False
         with tempfile.TemporaryDirectory() as directory, \
