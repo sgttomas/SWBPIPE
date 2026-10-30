@@ -1,7 +1,7 @@
 # Provider configuration and credential custody
 
-Standing: explicit, synchronous macOS core; commands, UI and native credential
-qualification remain unwired/unrun. RT-E1 / exit criterion 17. This implements
+Standing: explicit, synchronous macOS core with current-host synthetic native
+credential qualification; commands and UI remain unwired. RT-E1 / exit criterion 17. This implements
 the provider-config/credential part of embedded-agent-portability.md without
 changing ScopeOfWork commitments, ACs or dependency conditions. No provider
 selection, keychain lookup or persistence happens on module/global startup.
@@ -190,8 +190,9 @@ selects `nullCred` instead of `promptCred` for legacy no-UI item operations;
 authentication failure is a fail-closed result, not evidence of a prompt.
 The requirement remains: no prompt, deny, map to re-entry and recover.
 The first denied load must finish in less than two seconds; the original owned
-child has a twenty-second deadline. The external thirty-second
-`tools/agent_keychain_ui_monitor.swift` harness observes NSWorkspace GUI launch
+child has a twenty-second deadline. The external
+`tools/agent_keychain_ui_monitor.swift` harness (thirty-second command deadline,
+one-second process-probe deadline and one-second owned-group kill/reap bound) observes NSWorkspace GUI launch
 notifications and samples SecurityAgent/authorization UI process identities,
 then drains notifications for one second. It fails on a detected launch,
 incomplete observation, timeout or failing child. It records only static
@@ -212,15 +213,34 @@ that additional cause, so it was corrected without changing the product API.
 The renamed-case recovery helper never broadens service-wide deletion. It never reads a
 real provider key, changes a user's default/search list, enables prompting or
 runs a supplier/model. Native failures retain the journal for recovery; no
-native success is claimed until this fixture has actually run after scrutiny.
+native success is claimed beyond the specific post-review fixture below.
 
 Current bounded evidence: five pre-repair regression failures; repaired agent
 suite 144 passed with eight explicitly gated ignores; release-reach suite
-30 passed; routing 65 tests/87 subtests; public export 3751 files with nine
+30 passed; routing 65 tests/87 subtests; public export 3752 files with nine
 expected and zero unexpected findings. Independent credentials/persistence
-review and its bounded repair confirmation passed before native qualification.
-The same-basename native re-sign experiment passed with raw -25293, successful
-re-entry, stale deletion, fresh load and empty final journal. Its external UI
-monitor reported complete observation and no detected launch. The newly added
-renamed-case/monitor integration awaits exact-candidate confirmation and native
-execution; no minimum-OS, integrated command or release claim follows.
+review, repair confirmation and owner-disposition confirmation inspected the
+changed surfaces. The last confirmation found a monitor timeout defect; the
+repair uses only original unreaped POSIX children/groups, bounded nonblocking
+process-probe reads and bounded kill/reap. Two injected regressions (a child
+ignoring TERM and a hung process probe) timed out on the former helper and
+returned explicit failure within 1.35 seconds on the repair. No required
+expectation was weakened to silence a failure.
+
+On committed implementation `6968d3f108` (2026-10-29, macOS 26), both native
+cases passed in 3.01 seconds total. Each observed raw -25293, mapped Denied,
+loaded the fresh key and ended with an empty provider/credential journal.
+The same-basename case removed its stale item during re-entry. The renamed
+case observed raw -25244, retained its stale handle while using the fresh key,
+and then cleaned both synthetic items using their exact original ownership
+handles. The external monitor reported complete observation, 72 process
+samples and no detected authorization UI launch; source-derived no-UI policy,
+short denied-call bound and GUI launch notifications supplement sampling.
+The two earlier retained synthetic journals were also recovered by their exact
+owned handles, verified empty, and removed along with the other cleaned
+fixture localities. No real provider key, model, supplier or GUI session ran.
+
+This qualifies the current-host synthetic credential/re-sign recovery seam,
+not a live macOS 11 witness, integrated command/worker route, agent session,
+criterion 17, acceptance or release. ScopeOfWork commitments/ACs and all needs
+remain unchanged; only implementation and check pointers are reconciled here.

@@ -637,14 +637,13 @@ mod qualification {
             mapped_interaction && exact_interaction,
             "required no-prompt denial was not established"
         );
+        let fresh_value = format!("fixture-reentered-{}", nonce());
         let saved = store
             .save(
                 Some(&profile.revision),
                 &profile.endpoint,
                 &profile.model,
-                CredentialChange::Replace(
-                    Secret::new(format!("fixture-reentered-{}", nonce())).unwrap(),
-                ),
+                CredentialChange::Replace(Secret::new(fresh_value.clone()).unwrap()),
             )
             .unwrap();
         println!(
@@ -671,7 +670,12 @@ mod qualification {
             assert!(saved.cleanup_error.is_none());
         }
         let revision = saved.provider.unwrap().revision;
-        assert!(store.load(&revision).is_ok());
+        let loaded = store.load(&revision).unwrap();
+        assert!(
+            loaded.secret.as_ref().unwrap().value() == fresh_value,
+            "fresh key did not match its saved value"
+        );
+        drop(loaded);
         println!("SWBPIPE_KEYCHAIN: fresh_committed_key_works");
         let cleared = store.clear(&revision).unwrap();
         assert!(cleared.provider.is_none());
