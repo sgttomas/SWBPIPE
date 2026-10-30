@@ -50,7 +50,11 @@ engines:
   their `src/` or `build.rs` read by `include*!` or `#[path]`.
 
 Python- or Rust-only diffs outside those inputs do not select it. Docs that
-desktop tests read select it, and with it the product job. An unreadable
+desktop tests read select it, and with it the product job. A Markdown file that
+desktop source only names, as a string outside tests, test-support and lines that
+import, require, fetch, read or open it, and under no named directory, is display
+text: an in-place edit of it (a regular file before and after) selects nothing,
+while adding, deleting, renaming or retyping it still selects the suite. The plan lists such edits as `named_document_edits`. An unreadable
 source tree, crate or compile read selects the suite. The selection's reasons
 are in the plan artifact. The browser reuse key includes whether the suite ran,
 so a pass without it is never reused for a run that needs it. The product job
@@ -119,9 +123,20 @@ unknown paths and shared execution controls select all discovered crates. Existi
 numerical oracles remain unchanged. Python coverage is gated independently.
 
 The standalone required repository job runs the bounded tool/routing suite and
-`tests/test_ci_numerical.py` on every PR and workflow dispatch, including Rust and Cargo
-manifest additions/removals. The Python product job excludes that routing suite to avoid
-running it twice. This closes the former monorepo's routing-self-test selection
+`tests/test_ci_numerical.py` on every PR and workflow dispatch, including Rust and Cargo manifest
+additions/removals, in parallel (`pytest -n auto`). Its own plan
+(`hosted_ci.py repository`) omits only the seven source-reachability tests named in
+`SOURCE_REACHABILITY_TESTS`, and only for a pull request whose complete diff is
+in-place edits of UTF-8 Markdown regular files outside `.github/`, `tools/` and
+`tests/`. Adding, deleting, renaming or retyping a file keeps every test, since a
+file's existence can itself be a selection input. Those tests read the real
+tree's Rust, TypeScript, manifests and routing, and dominate the step's time; a
+2026-10-30 trace of every file the step opens found that they read no Markdown.
+Any other diff, an unavailable diff or a non-PR run keeps every test. A test that
+reads Markdown must not join that list. When the governance harness calls the product
+workflow (`repository-checks-run: true`), the Python product job leaves that routing suite
+out to avoid running it twice; a direct dispatch keeps it. This closes the former
+monorepo's routing-self-test selection
 gap. The local `tools/tools-test-routing.json` records this bounded estate; it
 does not import unrelated Root tool suites. Numerical inventory/source-digest
 refresh and product-selection failure propagation remain required.
