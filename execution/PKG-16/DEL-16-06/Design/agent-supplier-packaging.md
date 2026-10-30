@@ -143,9 +143,12 @@ hardened-runtime flag `0x10000`, team `2DC432GLL2`, authority
 `Developer ID Application: OpenAI OpCo, LLC (2DC432GLL2)`, Apple certificate
 chain and runtime version 15.5.0. Displayed timestamps were Oct 1, 2026,
 11:49:46 AM (ARM) and 11:50:08 AM (Intel), in the inspection host's display
-timezone. This was signature **display**, not cryptographic validation,
-Gatekeeper assessment, notarization verification or proof of the eventual
-app's nested-resource signing. The manifest marks those unproved conditions.
+timezone. The initial task performed signature **display** only. Manager integration then
+ran `codesign --verify --strict --verbose=2` read-only against both exact cached
+original executables; both returned zero. This verifies the original code's
+static signatures on this host. It is not Gatekeeper assessment, notarization
+verification, distribution-chain/older-OS qualification or proof of eventual
+nested-resource signing; those broader manifest conditions remain unproved.
 
 The exact commit's root LICENSE and NOTICE were fetched from
 `raw.githubusercontent.com/openai/codex/<commit>/LICENSE` and `/NOTICE`.
@@ -174,8 +177,11 @@ The real ARM and Intel local-archive acquisition commands additionally passed
 the exact size/hash and Mach-O CPU checks without supplier execution.
 The seven new working files were screened using the repository credential
 finding function and private-term patterns derived from the inspection host
-at runtime: zero findings. No private terms file was opened, and no commit/CI
-scan is claimed for these unstaged files. Reproduced licence/notice sizes and
+at runtime: zero findings. No private terms file was opened. Manager integration's committed 13-path
+private-term and credential/link scans pass with zero findings. The actual
+hosted pytest entrypoint passes 29 tests and 15 subtests (15 acquisition tests
+plus 14 Python-routing checks); each of the six source/manifest/notice input
+paths selects the offline check, including hosted Python selection. Reproduced licence/notice sizes and
 hashes were checked against the manifest.
 
 Unproved: full build-time HTTPS path through this tool (the Intel acquisition
