@@ -1,8 +1,16 @@
 name: Setup Piping E2E
 description: Pinned source-mode desktop browser dependencies
+inputs:
+  build-only:
+    description: Build engines without installing browser dependencies (main warmer)
+    default: 'false'
 runs:
   using: composite
   steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
@@ -52,12 +60,64 @@ runs:
         cargo fetch --locked --manifest-path core/loads/self_weight_wasm/Cargo.toml
       working-directory: .
 
-    - name: Build desktop WASM engine
+    - name: Compute exact desktop WASM output key
+      continue-on-error: true
+      id: engine-key
       shell: bash
-      run: npm run build:wasm:desktop
+      run: python3 tools/software_workflow/wasm_cache.py key
+
+    - name: Restore exact desktop WASM outputs
+      id: engine-cache
+      if: steps.engine-key.outputs.key != ''
+      continue-on-error: true
+      uses: actions/cache/restore@v4
+      with:
+        path: |
+          apps/desktop/public/wasm-engine
+          apps/desktop/public/self-weight-engine
+          apps/desktop/public/wasm-cache.json
+        key: ${{ steps.engine-key.outputs.key }}
+
+    - name: Verify restored desktop WASM outputs
+      continue-on-error: true
+      id: engine-verified
+      shell: bash
+      env:
+        ENGINE_KEY: ${{ steps.engine-key.outputs.key }}
+      run: python3 tools/software_workflow/wasm_cache.py verify --key "$ENGINE_KEY"
+
+    - name: Build desktop WASM engine
+      if: steps.engine-verified.outputs.valid != 'true'
+      shell: bash
+      run: |
+        # Partial restores must not let the build script skip an engine based
+        # on its stamp while a generated declaration or glue file is missing.
+        rm -rf apps/desktop/public/wasm-engine apps/desktop/public/self-weight-engine
+        npm run build:wasm:desktop
       working-directory: .
 
+    - name: Record complete desktop WASM outputs
+      continue-on-error: true
+      id: engine-record
+      if: steps.engine-verified.outputs.valid != 'true' && steps.engine-key.outputs.key != ''
+      shell: bash
+      env:
+        ENGINE_KEY: ${{ steps.engine-key.outputs.key }}
+      run: python3 tools/software_workflow/wasm_cache.py record --key "$ENGINE_KEY"
+
+    - name: Save exact desktop WASM outputs
+      if: steps.engine-record.outputs.valid == 'true' && steps.engine-cache.outputs.cache-hit != 'true'
+      continue-on-error: true
+      uses: actions/cache/save@v4
+      with:
+        path: |
+          apps/desktop/public/wasm-engine
+          apps/desktop/public/self-weight-engine
+          apps/desktop/public/wasm-cache.json
+        key: ${{ steps.engine-key.outputs.key }}
+
     - name: Resolve pinned Playwright version
+      if: inputs.build-only != 'true'
       id: playwright-version
       shell: bash
       run: |
@@ -68,6 +128,7 @@ runs:
       working-directory: .
 
     - name: Cache Playwright Chromium
+      if: inputs.build-only != 'true'
       id: playwright-cache
       uses: actions/cache@v4
       with:
@@ -75,6 +136,7 @@ runs:
         key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
 
     - name: Configure canonical Ubuntu package sources
+      if: inputs.build-only != 'true'
       shell: bash
       run: |
         set -euo pipefail
@@ -105,13 +167,13 @@ runs:
         apt-config --version
 
     - name: Install Chromium system dependencies
-      if: steps.playwright-cache.outputs.cache-hit == 'true'
+      if: inputs.build-only != 'true' && steps.playwright-cache.outputs.cache-hit == 'true'
       shell: bash
       run: npx playwright install-deps chromium
       working-directory: .
 
     - name: Install Chromium and system dependencies
-      if: steps.playwright-cache.outputs.cache-hit != 'true'
+      if: inputs.build-only != 'true' && steps.playwright-cache.outputs.cache-hit != 'true'
       shell: bash
       run: npx playwright install --with-deps chromium
       working-directory: .

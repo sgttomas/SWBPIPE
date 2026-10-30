@@ -72,7 +72,9 @@ class UbuntuSourceTests(unittest.TestCase):
         steps = self.action.split('    - name: ')
         paths = {}
         for step in steps:
-            condition = re.search(r"^      if: steps.playwright-cache.outputs.cache-hit (==|!=) 'true'$",
+            # The main WASM warmer (build-only) installs no browser; every
+            # desktop job still takes exactly one of the two paths.
+            condition = re.search(r"^      if: (?:inputs.build-only != 'true' && )?steps.playwright-cache.outputs.cache-hit (==|!=) 'true'$",
                                   step, re.MULTILINE)
             if condition:
                 command = re.search(r'^      run: (.+)$', step, re.MULTILINE)
