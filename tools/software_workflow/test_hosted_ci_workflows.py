@@ -227,3 +227,31 @@ def test_repository_checks_run_claims_language_on_its_selection():
     steps = workflow('governance-harness.yml')['jobs']['repository-checks']['steps']
     [step] = [s for s in steps if s.get('run') == 'python3 tools/validation/validate_claims_language.py']
     assert 'if' not in step  # the standalone repository always checks product claims
+
+
+def test_exact_wasm_cache_wiring_and_main_build_only_warmer():
+    action = yaml.load((ROOT / '.github/actions/setup-piping-e2e/action.yml').read_text(), Loader=yaml.BaseLoader)
+    steps = action['runs']['steps']
+    by_id = {s['id']: s for s in steps if 'id' in s}
+    assert by_id['engine-key']['run'] == 'python3 tools/software_workflow/wasm_cache.py key'
+    assert all(by_id[name]['continue-on-error'] == 'true' for name in ('engine-key', 'engine-verified', 'engine-record'))
+    restore = by_id['engine-cache']
+    assert restore['uses'] == 'actions/cache/restore@v4'
+    assert restore['with']['key'] == '${{ steps.engine-key.outputs.key }}'
+    assert 'restore-keys' not in restore['with']
+    assert restore['continue-on-error'] == 'true'
+    build = next(s for s in steps if s.get('name') == 'Build desktop WASM engine')
+    assert build['if'] == "steps.engine-verified.outputs.valid != 'true'"
+    assert 'rm -rf apps/desktop/public/wasm-engine apps/desktop/public/self-weight-engine' in build['run']
+    assert 'npm run build:wasm:desktop' in build['run']
+    assert 'wasm_cache.py verify --key "$ENGINE_KEY"' in by_id['engine-verified']['run']
+    save = next(s for s in steps if s.get('uses') == 'actions/cache/save@v4')
+    assert "steps.engine-record.outputs.valid == 'true'" in save['if']
+    assert save['with'] == restore['with']
+    assert steps.index(restore) < steps.index(by_id['engine-verified']) < steps.index(build) < steps.index(by_id['engine-record']) < steps.index(save)
+    browser = steps[steps.index(save) + 1:]
+    assert all("inputs.build-only != 'true'" in s['if'] for s in browser)
+    warmer = workflow('shared-build-cache.yml')['jobs']['piping-desktop-wasm']
+    assert "github.ref == 'refs/heads/main'" in warmer['if']
+    assert warmer['runs-on'] == 'ubuntu-latest'
+    assert warmer['steps'][-1] == {'uses': './.github/actions/setup-piping-e2e', 'with': {'build-only': 'true'}}

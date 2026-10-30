@@ -182,3 +182,20 @@ uses an exact key only, and records are saved only after successful execution.
 A hit reports the original run and commit, explicitly saying tests were not
 executed again. Manual runs bypass result reuse. Missing caches run normally;
 this is separate from dependency/build-output caching.
+
+Desktop/browser jobs restore both generated WASM engines under an exact
+`desktop-wasm-v1` content key, without prefix fallback. The key covers every
+tracked file in the engine crates and their transitive path dependencies,
+compile reads discovered by `wasm_engine_inputs`, verified source-bound read
+declarations (including build-script filesystem reads), Cargo manifests/locks and
+toolchain controls, desktop build scripts/helpers, npm manifests/lock,
+`rustc -vV`, wasm-bindgen and Node versions, runner identity and compiler
+environment. The hashed build script supplies target, features, flags and its
+explicit environment settings. Cargo configuration or compiler overrides disable
+reuse. Every generated JS, WASM, declaration and source stamp must be present
+and match the saved content receipt; an absent/invalid receipt, key error or
+incomplete restore builds normally. Before saving, recorded compile reads must
+all belong to the keyed input set and the key must still match. The main-only
+`shared-build-cache.yml` warmer uses the same setup action with `build-only:
+true`, so other PRs can read main-scoped engine outputs without running tests
+or installing browsers in the warmer.

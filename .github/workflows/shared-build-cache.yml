@@ -1,4 +1,4 @@
-name: Shared build dependency caches
+name: Shared build caches
 
 # Main is a cache scope every new PR can read. No product tests run here.
 on:
@@ -90,3 +90,17 @@ jobs:
         with:
           path: ${{ steps.cache.outputs.paths }}
           key: ${{ steps.cache.outputs.key }}
+
+  piping-desktop-wasm:
+    name: Warm Piping desktop WASM outputs (no tests)
+    if: github.repository == 'sgttomas/SWBPIPE' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - uses: ./.github/actions/setup-piping-e2e
+        with:
+          build-only: 'true'
