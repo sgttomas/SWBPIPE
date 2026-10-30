@@ -511,20 +511,12 @@ def test_committed_provenance_scope_is_the_generators_output():
 
 
 def make_export_shaped_repo(tmp_path: Path) -> Path:
-    """A committed invented tree carrying the export's allowlisted roots."""
-    spec = importlib.util.spec_from_file_location(
-        "export_probe", ROOT / "tools" / "release" / "export_public_openpipestress.py"
-    )
-    export = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(export)
+    """A committed invented tree with an explicit reviewed scan-scope source set."""
     root = tmp_path / "project"
-    for name in export.ROOT_FILES:
-        (root / name).parent.mkdir(parents=True, exist_ok=True)
-        (root / name).write_text("invented\n", encoding="utf-8")
-    for name in export.ROOT_DIRS:
-        (root / name).mkdir(parents=True, exist_ok=True)
-        (root / name / "README.md").write_text("invented\n", encoding="utf-8")
-    (root / "tools" / "release").mkdir(parents=True, exist_ok=True)
+    (root / "fixtures").mkdir(parents=True)
+    (root / "tools/release").mkdir(parents=True)
+    (root / "tools/release/provenance_scope_members.json").write_text(json.dumps({
+        'members': ['fixtures/eligible.json', 'fixtures/invented_named_but_undeclared.json']}))
     declared = dict(ACCEPTED_PROVENANCE, redistribution_status="invented_non_engineering_example",
                     review_status="pending")
     undeclared = dict(ACCEPTED_PROVENANCE, source_name="Example project data",
@@ -757,9 +749,7 @@ def test_lint_batches_cover_every_input_and_preserve_summary_types(monkeypatch):
     def engine(command, root):
         selected = command[command.index('external') + 1:]
         seen.extend(selected)
-        payload = {'summary': {'target_count': len(selected), 'finding_count': len(selected),
-                               'clean_scan_is_clearance': False},
-                   'findings': [{'target_id': path, 'severity': 'BLOCKING'} for path in selected]}
+        payload = {'provenance_mode': 'external', 'summary': {'target_count': len(selected), 'scanned_target_count': len(selected), 'skipped_private_target_count': 0, 'skipped_incomplete_target_count': 0, 'finding_count': len(selected), 'blocking_finding_count': len(selected), 'clean_scan_is_clearance': False}, 'findings': [{'path': path, 'severity': 'BLOCKING'} for path in selected]}
         return subprocess.CompletedProcess(command, 0, json.dumps(payload), '')
     monkeypatch.setattr(module, 'run_command', engine)
     result = module.run_engine_lint(paths, ROOT)
@@ -776,8 +766,22 @@ def test_unavailable_lint_batch_cannot_report_pass(monkeypatch):
     def engine(command, root):
         if command[-1] == str(paths[1]):
             raise OSError('invented unavailable engine')
-        return subprocess.CompletedProcess(command, 0, json.dumps({'summary': {'target_count': 1}, 'findings': []}), '')
+        return subprocess.CompletedProcess(command, 0, json.dumps({'provenance_mode': 'external', 'summary': {'target_count': 1, 'scanned_target_count': 1, 'skipped_private_target_count': 0, 'skipped_incomplete_target_count': 0, 'finding_count': 0, 'blocking_finding_count': 0, 'clean_scan_is_clearance': False}, 'findings': []}), '')
     monkeypatch.setattr(module, 'run_command', engine)
     result = module.run_engine_lint(paths, ROOT)
     assert result['status'] == 'not_run'
     assert result['completed_batches'] == 1
+
+
+@pytest.mark.parametrize('payload', [{}, {'summary': {'target_count': 0}, 'findings': []}])
+def test_malformed_engine_response_is_not_a_clean_pass(monkeypatch, payload):
+    module = load_module()
+    monkeypatch.setattr(module, 'run_command', lambda command, root: subprocess.CompletedProcess(command, 0, json.dumps(payload), ''))
+    assert module.run_engine_lint([ROOT / 'invented.txt'], ROOT)['status'] == 'not_run'
+
+
+def test_omitted_partition_input_cannot_pass(monkeypatch):
+    module = load_module()
+    monkeypatch.setattr(module, 'lint_path_batches', lambda paths, command: [paths[:1]])
+    monkeypatch.setattr(module, 'run_command', lambda *args: (_ for _ in ()).throw(AssertionError('engine must not run')))
+    assert module.run_engine_lint([ROOT / 'a.txt', ROOT / 'b.txt'], ROOT)['status'] == 'not_run'

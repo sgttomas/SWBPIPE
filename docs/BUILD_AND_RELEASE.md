@@ -238,56 +238,59 @@ Producing a package under this path is packaging mechanics, not a release:
 an actual release additionally requires the `D-20` scan record, gate
 records, and the human release authority's acceptance.
 
-### 6.2 Public sanitized export: the owner's remaining acts (RT-V8)
+### 6.2 Independent public repository and signed v1.0 scan (RT-V8)
 
-The export pipeline (DEL-10-04:1; #1727) stages HEAD blobs of `projects/chirality-piping`. Binaries ship only
-by reviewed SHA-256 (`tools/release/reviewed_binaries.json`), schemas only by the generated
-`tools/release/schema_manifest.json`, and the public `.gitattributes` is cut down to the rules for shipped
-paths. The owner's allowlist decisions P1 to P9 (2026-10-28 and 2026-10-29) are applied. An unsigned agent dry
-run passed the export gate. These acts remain the owner's, in this order. Agents never perform, sign or imply
-them (F-PIP-3).
+The owner selected public `sgttomas/SWBPIPE` as SWBPIPE's home and created it
+with an MIT license. Owner decisions of 2026-10-29: "Split repo replaces RT-V8"
+and "Push now, sign before v1.0". The verified history import and migration PRs
+may be published before the scan is signed. This replaces the sanitized-export
+pipeline, its include/exclude lists and its pre-push signature prerequisite.
+Repository settings and required-check changes remain owner-controlled.
 
-**1. Signed export scan (`D-20`/`DEC-058`), including the full-list private-term scan.** On clean `main`, from
-`projects/chirality-piping`:
+Before v1.0 release, bind the complete tracked release-candidate tree to its
+Git revision and run the D-20/DEC-058 scan. For example, from this repository,
+using a new output directory outside every checkout:
 
-```
-python3 tools/release/export_public_openpipestress.py --execute --target <OUT>   # must exit 0
-python3 tools/release/export_public_openpipestress.py --verify <OUT>
-cp -R <OUT>/staging <REPO> && cd <REPO> && git init -q && git add -A -f
-python3 <monorepo>/tools/validation/validate_private_terms.py --staged --from-host --terms-file <your private list> --require-terms
-git commit -q -m "SWBPIPE export <commit12>"
-python3 <monorepo>/tools/validation/validate_run_record_leaks.py --base 4b825dc642cb6eb9a060e54bf8d69288fbee4904 --head HEAD
-python3 -m pytest -q tests && python3 tools/release/check_release_readiness.py --profile skeleton --execute
-cd <monorepo>/projects/chirality-piping
-python3 tools/release/run_release_candidate_scan.py --execute --candidate v1.0-export \
-  --artifact-class AC-4=<OUT>/staging \
-  --not-applicable "AC-1=no package ships with the export" --not-applicable "AC-2=no report artifact ships" \
-  --not-applicable "AC-3=no installer in this candidate" --not-applicable "AC-5=shipped inside AC-4" \
-  --not-applicable "AC-6=no release notes in this candidate"
-```
-
-Review every finding. At the 2026-10-29 dry run these were 62 blocking lint findings (the scan's lint check
-does not read the reviewed-findings list) and 27,460 provenance findings in the 97 files that carry no
-`invented_non_engineering_example` label. Then complete the `owner_sign_off` block in
-`validation/evidence/releases/SCAN_v1.0-export_<utc>_<commit12>.json`: `signed`, `signatory`, `signed_utc`,
-`per_finding_dispositions_recorded` and `acceptance_statement`. Only the owner signs. A Blocking finding halts
-publication.
-
-**2. Name and create the public repository (`DEC-057`), after 1.**
-
-```
-gh repo create <account>/<name> --public --description "<description>"
+```bash
+# Set SCAN_OUT to an owner-selected new directory outside the checkout.
+mkdir -p "$SCAN_OUT/tree" "$SCAN_OUT/records"
+git rev-parse HEAD > "$SCAN_OUT/revision.txt"
+git archive --format=tar HEAD | tar -xf - -C "$SCAN_OUT/tree"
+python3 tools/release/run_release_candidate_scan.py --execute --candidate v1.0 \
+  --artifact-class "AC-4=$SCAN_OUT/tree" \
+  --not-applicable "AC-1=no separate package in this repository-tree candidate" \
+  --not-applicable "AC-2=no separate report in this repository-tree candidate" \
+  --not-applicable "AC-3=no installer in this repository-tree candidate" \
+  --not-applicable "AC-5=tracked examples and fixtures included in AC-4" \
+  --not-applicable "AC-6=tracked release documents included in AC-4" \
+  --output-dir "$SCAN_OUT/records"
+# Owner only: supply the complete private list without publishing its values.
+python3 tools/validation/validate_private_terms.py \
+  --base bda65d1adf27f23120ceaaac64a521dc7660f09a --head HEAD \
+  --from-host --terms-file /owner/private/full-term-list --require-terms
 ```
 
-**3. Publish, after 1 and 2.**
+Those not-applicable reasons describe only the repository-tree candidate.
+Separately shipped packages, reports, installers and release notes need their
+own class entries and bound artifacts; repository verification never covers
+an unnamed release artifact. Inventory bytes/modes and source revision must
+match the exact candidate being signed. Original-to-imported history and the
+historical pricing/archive inputs are recorded in `reference/migration/`.
 
-```
-cd <REPO> && git branch -M main && git remote add origin https://github.com/<account>/<name>.git && git push -u origin main
-```
+Review and disposition every finding. The earlier export-scope scan documented
+62 blocking lint and 27,460 provenance findings in 97 files; those were findings,
+not clearance. New full-repository dry runs name their exact candidate, count
+and scope. The original reviewed binary hashes, trusted-schema manifest and
+explicit P7 provenance bindings remain scan policy inputs. Their presence does
+not waive a finding on changed or unlisted bytes; new exemptions require review.
 
-Hosted CI on the public repository (`DEC-059`) is a later, separate act: no workflow ships in the export.
-Recorded, not fixed: the ICNS `ic07` element check is dormant because `.icns` ships only by reviewed hash; the
-DEC-058 scan lints text files only.
+Only the owner completes the emitted record's `owner_sign_off`: `signed`,
+`signatory`, `signed_utc`, `per_finding_dispositions_recorded` and
+`acceptance_statement`. Attach the full private-term scan evidence and retain
+per-finding dispositions. Unresolved blocking findings halt v1.0 release. An
+unsigned tooling record, CI pass or repository merge supplies no signature,
+clearance, engineering acceptance or release authority (F-PIP-3). Packaging,
+notarization and the remaining release gates still apply.
 
 ## 7. Hosted verification
 

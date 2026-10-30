@@ -97,6 +97,8 @@ owner. The product and data boundaries (`docs/PRODUCT_BOUNDARIES.md`,
 
 ## Build and verification
 
+**Windows development (RT-V7).** macOS is the release baseline and leads. The SWBPIPE Agent 0 owns shared code, schemas and design and decides changes to them; Windows work adds platform implementations at the native boundaries in `execution/PKG-10/DEL-10-04/Design/windows-port.md` and does not change shared behaviour without that agreement. Where a Windows change overlaps macOS work, the macOS work integrates first and the Windows change merges main and regenerates generated files with their generators, never by hand. A Windows change must pass the macOS checks unchanged. Local host resources go to macOS work first; Windows evidence comes from hosted Windows runners. Coordinate through draft PRs that list the shared files they touch before editing; talk directly between sessions for timing, conflicts and host-resource windows; record agreed shared-design decisions by editing the governing text.
+
 Registered checks are in `software-workflow.json`. From the repository root,
 select by project-relative changed paths:
 

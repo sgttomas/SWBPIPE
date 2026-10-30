@@ -5,8 +5,9 @@ Owner decision (2026-10-28, P7 as recommended): check (c) does not block the
 product's own provenance labels inside invented fixtures. This generator
 derives the scope from the repository, so it is never hand-typed:
 
-1. Members: every JSON file the public export ships (the export's own
-   `select_files`), read from the working tree of a clean checkout.
+1. Members: the retained reviewed P7 source set in
+   `provenance_scope_members.json`, each required to be tracked. The retired
+   export include/exclude lists are not used; new exemptions need review.
 2. Flagged records: the provenance records check (c) would flag in each file,
    using the scan's own record walk, violation rules and trusted schema
    manifest.
@@ -33,6 +34,7 @@ import argparse
 import hashlib
 import importlib.util
 import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -109,11 +111,18 @@ def build_scope(root: Path, members: list[str]) -> dict:
     return {"purpose": PURPOSE, "members": entries}
 
 
-def shipped_json_members(root: Path) -> list[str]:
-    """The JSON files the public export selects from `root`."""
-    export = _load("rt_v8_export", "export_public_openpipestress.py")
-    selected, _, _ = export.select_files(root)
-    return [rel.as_posix() for rel in selected if rel.suffix.lower() == ".json"]
+def candidate_json_members(root: Path) -> list[str]:
+    """Reviewed scan scope only; newly tracked JSON never gains an implicit waiver."""
+    policy = json.loads((root / 'tools/release/provenance_scope_members.json').read_text())
+    members = policy['members']
+    if (not isinstance(members, list) or len(members) != len(set(members))
+            or any(not isinstance(path, str) or not path.endswith('.json')
+                   or Path(path).is_absolute() or '..' in Path(path).parts for path in members)):
+        raise ValueError('invalid provenance scope source selection')
+    tracked = set(subprocess.check_output(['git', '-C', str(root), 'ls-files', '-z']).decode().split('\0'))
+    if not set(members) <= tracked:
+        raise ValueError('provenance scope member is not tracked')
+    return members
 
 
 def render(document: dict) -> str:
@@ -126,7 +135,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--root", type=Path, default=ROOT, help="Project root.")
     args = parser.parse_args(argv)
     root = args.root.resolve()
-    expected = render(build_scope(root, shipped_json_members(root)))
+    expected = render(build_scope(root, candidate_json_members(root)))
     target = root / SCOPE_PATH
     if args.check:
         actual = target.read_bytes() if target.is_file() else b""

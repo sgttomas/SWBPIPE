@@ -15,6 +15,17 @@ fn project() -> std::path::PathBuf {
 }
 
 #[test]
+fn standalone_repository_root_takes_precedence_over_an_enclosing_layout() {
+    let tree = ScratchTree::new();
+    std::fs::write(tree.base.join("AGENTS.md"), "outer fixture").unwrap();
+    let standalone = tree.base.join("projects/swbpipe");
+    std::fs::create_dir_all(&standalone).unwrap();
+    std::fs::write(standalone.join("AGENTS.md"), "local fixture").unwrap();
+    std::fs::write(standalone.join("software-workflow.json"), "{}").unwrap();
+    assert_eq!(repository_root(&standalone), Some(std::fs::canonicalize(&standalone).unwrap()));
+}
+
+#[test]
 fn user_release_reach_scan() {
     let sources = project_sources(&project());
     let findings = scan(&sources);

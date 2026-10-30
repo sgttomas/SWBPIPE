@@ -32,6 +32,15 @@ def resolve_revision(repo, revision):
                              matches[0][1] + '^{commit}'], capture_output=True, text=True)
     if result.returncode:
         raise ValueError('Mapped source commit unavailable: ' + source)
+    import json
+    trees_path = Path(repo) / 'reference/migration/source-trees.json'
+    if not trees_path.is_file():
+        raise ValueError('Source tree bindings unavailable: ' + source)
+    expected = json.loads(trees_path.read_text()).get(matches[0][0])
+    tree = subprocess.run(['git', '-C', str(repo), 'rev-parse', '--verify',
+                           result.stdout.strip() + '^{tree}'], capture_output=True, text=True)
+    if not isinstance(expected, str) or tree.returncode or tree.stdout.strip() != expected:
+        raise ValueError('Mapped source tree differs from recorded original: ' + source)
     return result.stdout.strip()
 
 

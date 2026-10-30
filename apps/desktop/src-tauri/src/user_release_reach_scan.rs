@@ -3152,10 +3152,14 @@ pub(crate) fn cargo_crate(key: &str, crate_dir: &Path) -> Result<(Vec<CrateTarge
 pub(crate) const CONSUMERS: [(&str, &str, Resolution); 2] =
     [("src-tauri", "apps/desktop/src-tauri/Cargo.toml", Resolution::Graph), ("headless", "core/runner/headless/Cargo.toml", Resolution::Declared)];
 
-/// The repository root: the directory two above the project
-/// (`projects/chirality-piping`), canonical.
+/// The canonical repository root. A standalone SWBPIPE project owns its root;
+/// recognizable historical monorepo fixtures retain their enclosing root.
 pub(crate) fn repository_root(project: &Path) -> Option<PathBuf> {
-    let root = std::fs::canonicalize(project).ok()?.parent()?.parent()?.to_path_buf();
+    let project = std::fs::canonicalize(project).ok()?;
+    if project.join("AGENTS.md").is_file() && project.join("software-workflow.json").is_file() {
+        return Some(project);
+    }
+    let root = project.parent()?.parent()?.to_path_buf();
     (root.join("AGENTS.md").is_file() && root.join("projects").is_dir()).then_some(root)
 }
 
@@ -3224,7 +3228,7 @@ const CRATES_IO: &str = "registry+https://github.com/rust-lang/crates.io-index";
 pub(crate) fn build_configuration(sources: &Sources, project: &Path) -> Vec<String> {
     let mut findings = Vec::new();
     let Some(repository) = repository_root(project) else {
-        return vec![format!("{}: the repository root above the project is not found", project.display())];
+        return vec![format!("{}: the repository root for the project is not found", project.display())];
     };
     findings.extend(cargo_configs(&repository));
     let expected = match expected_manifests(sources) {

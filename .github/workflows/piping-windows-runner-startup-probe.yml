@@ -88,38 +88,30 @@ jobs:
             $entry = @($scope.members | Where-Object { $_.path -ceq $relative })
             if ($entry.Count -ne 1 -or $entry[0].sha256 -cne (Get-FileHash $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant()) { $complete = $false }
           }
-          if (-not $complete) { throw 'Committed P7 fixture inventory missing or stale; export not started' }
+          if (-not $complete) { throw 'Committed P7 fixture inventory missing or stale; snapshot not started' }
           Write-Host 'START protected-content linter compile/link (unchanged committed source)'
           cargo build --locked --manifest-path core/reporting/protected_content_linter/Cargo.toml --bin protected_content_lint_cli 2>&1 | ForEach-Object { "$_".Replace($sourcePath,'<source>').Replace($top,'<source>').Replace($env:USERPROFILE,'<account>').Replace($env:RUNNER_TEMP,'<temp>') }
           if ($LASTEXITCODE -ne 0) { throw 'Native export linter compile/link failed' }
-          # The unchanged exporter stages every committed public member (git blobs),
-          # even when private historical execution files were not checked out.
-          # cargo run inside it uses the just-built same-source linter on this head.
-          python -u tools/release/export_public_openpipestress.py --execute --target $export 2>&1 | ForEach-Object { "$_".Replace($sourcePath,'<source>').Replace($top,'<source>').Replace($env:USERPROFILE,'<account>').Replace($env:RUNNER_TEMP,'<temp>') }
-          $exportCode = $LASTEXITCODE
-          if ($exportCode -ne 0) {
-            $lintPath = Join-Path $export 'lint-run.json'
-            if (Test-Path $lintPath) {
-              $lint = Get-Content $lintPath -Raw | ConvertFrom-Json -Depth 100
-              Write-Host ("export_lint_status={0} note={1}" -f $lint.status,$lint.note)
-            }
-            throw 'Full raw-candidate export boundary/lint failed'
-          }
-          if ((git rev-parse HEAD) -ne $env:EXPECTED_HEAD -or (git status --porcelain --untracked-files=all)) { throw 'Export/build changed raw candidate inputs' }
-          $record = Get-Content (Join-Path $export 'export-record.json') -Raw | ConvertFrom-Json -Depth 100
-          if ($record.source.git.commit_hash -ne $env:EXPECTED_HEAD -or $record.gate_result -ne 'pass') { throw 'Export record candidate/gate mismatch' }
+          # Exercise the exact tracked standalone repository, not a retired export subset.
+          New-Item -ItemType Directory -Force $export | Out-Null
           $staging = Join-Path $export 'staging'
+          New-Item -ItemType Directory -Force $staging | Out-Null
+          $snapshot = Join-Path $export 'source.tar'
+          git archive --format=tar --output=$snapshot HEAD
+          if ($LASTEXITCODE -ne 0) { throw 'Committed source snapshot failed' }
+          tar -xf $snapshot -C $staging
+          if ($LASTEXITCODE -ne 0) { throw 'Committed source snapshot extraction failed' }
+          if ((git rev-parse HEAD) -ne $env:EXPECTED_HEAD -or (git status --porcelain --untracked-files=all)) { throw 'Snapshot/build changed raw candidate inputs' }
           $attributes = Join-Path $staging '.gitattributes'
           $rule = 'validation/platform/windows_runner_startup_probe/fixtures/*.json -text'
-          if (@(Get-Content $attributes) -cnotcontains $rule) { throw 'Exported attributes lost the fixture byte rule' }
-          $manifest = @(Import-Csv (Join-Path $export 'export-manifest.csv'))
+          if (@(Get-Content $attributes) -cnotcontains $rule) { throw 'Tracked attributes lost the fixture byte rule' }
           $probeFiles = @(git ls-tree -r --name-only HEAD -- validation/platform/windows_runner_startup_probe)
           if ($LASTEXITCODE -ne 0 -or $probeFiles.Count -ne 8) { throw 'Committed public probe inventory differs' }
           foreach ($file in $probeFiles) {
             $relative = $file.Substring(''.Length)
-            if (-not (Test-Path (Join-Path $staging $relative) -PathType Leaf) -or @($manifest | Where-Object { $_.path -ceq $relative }).Count -ne 1) { throw 'Full export omitted a committed probe file' }
+            if (-not (Test-Path (Join-Path $staging $relative) -PathType Leaf)) { throw 'Tracked snapshot omitted a committed probe file' }
           }
-          # A data-only temporary Git index checks the ACTUAL exported attributes
+          # A data-only temporary Git index checks the ACTUAL tracked attributes
           # and raw fixture bytes. No commit, identity, remote or global config.
           $byteRepo = Join-Path $env:RUNNER_TEMP ('startup-byte-index-' + [Guid]::NewGuid().ToString('N'))
           $materialized = Join-Path $env:RUNNER_TEMP ('startup-autocrlf-' + [Guid]::NewGuid().ToString('N'))
@@ -127,11 +119,11 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Fixture materialization index setup failed' }
           Copy-Item $attributes (Join-Path $byteRepo '.gitattributes')
           $relativeFixtures = @($scope.members | Where-Object { $_.path.StartsWith('validation/platform/windows_runner_startup_probe/fixtures/') } | ForEach-Object { $_.path })
-          if ($relativeFixtures.Count -ne 3) { throw 'Wrong exported P7 fixture inventory' }
+          if ($relativeFixtures.Count -ne 3) { throw 'Wrong tracked P7 fixture inventory' }
           foreach ($relative in $relativeFixtures) {
             $entry = @($scope.members | Where-Object { $_.path -ceq $relative })
             $staged = Join-Path $staging $relative
-            if ((Get-FileHash $staged -Algorithm SHA256).Hash.ToLowerInvariant() -cne $entry[0].sha256) { throw 'Exported fixture differs from committed P7 bytes' }
+            if ((Get-FileHash $staged -Algorithm SHA256).Hash.ToLowerInvariant() -cne $entry[0].sha256) { throw 'Tracked fixture differs from committed P7 bytes' }
             $destination = Join-Path $byteRepo $relative
             New-Item -ItemType Directory -Force (Split-Path $destination) | Out-Null
             Copy-Item $staged $destination
@@ -145,7 +137,7 @@ jobs:
             $entry = @($scope.members | Where-Object { $_.path -ceq $relative })
             if ((Get-FileHash (Join-Path $materialized $relative) -Algorithm SHA256).Hash.ToLowerInvariant() -cne $entry[0].sha256) { throw 'Autocrlf materialization changed approved fixture bytes' }
           }
-          Write-Host "PUBLIC_AUTOCRLF_MATERIALIZATION candidate=$env:EXPECTED_HEAD fixtures=3 matched=3 exported_attributes=true"
+          Write-Host "PUBLIC_AUTOCRLF_MATERIALIZATION candidate=$env:EXPECTED_HEAD fixtures=3 matched=3 tracked_attributes=true"
           Remove-Item -Recurse -Force $byteRepo,$materialized
-          Write-Host "Full committed export boundary/lint passed candidate=$env:EXPECTED_HEAD; release/owner scan and P7 scanner checks remain separate."
+          Write-Host "Full committed snapshot checks passed candidate=$env:EXPECTED_HEAD; release/owner scan and P7 scanner checks remain separate."
           Remove-Item -Recurse -Force $export,$env:CARGO_TARGET_DIR

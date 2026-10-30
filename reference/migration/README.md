@@ -56,7 +56,11 @@ import may be published before signature. The owner-signed D-20/DEC-058 scan,
 including the full private-term scan and finding dispositions, remains a v1.0
 release gate. Unsigned dry-run findings are evidence for cleanup, not clearance,
 acceptance or a release. No repository protection/settings changes are implicit.
-The old exporter remains only for historical scope comparison and current legacy
-consumers pending Agent 0's reviewed retirement edits; its allowlists do not define
-this development repository's tracked tree. Existing binary/schema/provenance
-policy inputs remain in force where their exact bindings apply.
+The exporter and its export-only reviewed-lint allowance are retired from this
+repository. Historical reproduction remains available in the mapped Git history.
+Reviewed binary hashes, the trusted-schema manifest and P7 provenance bindings
+remain scan policy inputs. `provenance_scope_members.json` retains the already
+reviewed P7 source set; the generator verifies tracking, bytes and exact labels
+without importing an export allowlist or adding implicit exemptions. The Windows
+startup diagnostic uses the tracked repository snapshot. Signed scan and release
+acceptance remain owner acts.

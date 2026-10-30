@@ -824,7 +824,6 @@ def test_protected_content_lint_cli_remains_release_tool_only():
     )
     release_consumers = {
         ROOT / "tools" / "release" / "run_release_candidate_scan.py",
-        ROOT / "tools" / "release" / "export_public_openpipestress.py",
     }
     assert cli.is_file()
     assert all(path.is_file() for path in release_consumers)

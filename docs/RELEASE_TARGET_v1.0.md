@@ -90,8 +90,12 @@ quotes the option's drafted text; the owner's own words are quoted as such.
   effect is a Should option for v1.0, off by default and clearly labelled
   (RT-L2). Pressure-dependent flexibility and SIF corrections are out of scope:
   users enter their own k and SIF.
-- **Public repository** (owner, 2026-10-28: "Yes."). The public sanitized
-  repository export (DEL-10-04:1) is in v1.0 (RT-V8).
+- **Public repository** (owner, 2026-10-29: "Split repo replaces RT-V8" and
+  "Push now, sign before v1.0"). The independent public repository
+  `sgttomas/SWBPIPE` is SWBPIPE's public home, replacing the sanitized-export
+  mechanism. The verified import may be published before scan signature. The
+  owner-signed D-20/DEC-058 repository scan, including the full private-term
+  scan and finding dispositions, gates v1.0 (DEL-10-04:1; RT-V8).
 - **Exact-route results under user release** (owner, 2026-10-29: "Open it, as recommended"). Route 010 admits exact-route results with exact source binding, exact sections and limitations, Diagnostics binding and producer item 9 (RT-R5; DEL-08-01 Design `report-user-release.md` §11).
 - **Embedded agent** (owner, 2026-10-28: "I want you to add the App v4
   integration into SWBPIPE for the v1.0 target. I want you two to discuss how
@@ -184,7 +188,7 @@ deliverable; "new" means a scope change assigns it.
 | RT-V5 | Claim fence on every surface (notice, GEN-13, release labels) | Must | GEN-13 clean (#1701) and run in hosted CI (#1705) | release labels / DEL-09-05, DEL-16-04 |
 | RT-V6 | Signed, notarized macOS build; MIT licence recorded consistently | Must | Signing decided (D-06b), not executed; MIT in `LICENSE.md` (D-74) and DEL-01-01 | DEL-10-04 |
 | RT-V7 | Windows build | Later (revisited immediately after v1.0) | Release baseline: macOS Apple Silicon only (DEC-057); Windows development authorized alongside macOS v1.0; native x64 desktop unqualified | DEL-10-04 Design/windows-port.md |
-| RT-V8 | Public sanitized repository export | Must | Pipeline exists; not activated (DEL-10-04:1) | owner-signed export scan, public repository and allowlist review / DEL-10-04 |
+| RT-V8 | Independent public SWBPIPE repository | Must | Owner created public `sgttomas/SWBPIPE`; migration evidence in `reference/migration/`; unsigned scan findings remain; no signed scan or release acceptance | complete the split; owner-signed D-20/DEC-058 repository scan including full private-term scan and finding dispositions before v1.0 / DEL-10-04 |
 
 ### Embedded agent
 
@@ -287,8 +291,15 @@ after the walkthrough.
       (DEL-08-05:2).
 15. **Build and licence.** The build is signed and notarized, and MIT is
     recorded consistently.
-16. **Public repository.** The sanitized export is staged at the release
-    candidate, and its scan is signed off by the owner (DEL-10-04:1).
+16. **Public repository.** `sgttomas/SWBPIPE` is SWBPIPE's independent public
+    home, with the release candidate bound to its repository revision and
+    standalone build/test/CI verification. Before v1.0 release, the owner has
+    completed and signed the D-20/DEC-058 scan of that repository, including
+    the full private-term scan and per-finding dispositions; unresolved
+    blocking findings prevent release. The verified migration import may be
+    pushed before signature (owner, 2026-10-29: "Split repo replaces RT-V8";
+    "Push now, sign before v1.0"). A merge, passing check or unsigned scan
+    does not supply the owner's signature or release acceptance (DEL-10-04:1).
 17. **Embedded agent.** From a person's request in the desktop's conversation
     panel, the embedded agent builds the reference system, solves it and
     reports its key results, through SWBPIPE's capability catalog. Every change

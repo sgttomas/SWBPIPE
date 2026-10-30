@@ -46,11 +46,18 @@ Never change a result merely to silence a failure. Reuse applicable evidence;
 state unavailable checks and unresolved inputs explicitly.
 
 Commitments, risk acceptance, protected baselines, holds, issuance and release
-remain subject to the owner's authority and explicit local delegations. The
-owner authorized this repository split and its migration PR operations. No
-standing Git grant from Chirality is inferred. Preserve published history;
-use PR merge commits, no force pushes. Repository settings, branch protections
-and required-check changes must be presented to the owner before changing them.
+remain subject to the owner's authority and explicit local delegations.
+Repository settings, branch protections and required-check changes must be
+presented to the owner before changing them.
+
+### Standing Git grant
+
+For `sgttomas/SWBPIPE` only, agents may commit, push, open, update and merge PRs
+within authorized work after the verification above and required checks pass on
+the exact head. Explicit holds and reserved decisions apply. This grant excludes
+protection bypasses, history rewrites, force pushes, permission changes and
+releases. Use `.agents/skills/chirality-change/SKILL.md` for Git conventions.
+
 
 The owner selected this repository as the public home replacing RT-V8's sanitized
 export. Verified migration history may be pushed before scan signature (owner,

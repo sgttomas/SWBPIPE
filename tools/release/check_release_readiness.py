@@ -25,7 +25,7 @@ REQUIRED_PATHS = (
     "execution/_DAG/_LATEST.md",
 )
 # The monorepo's approved dependency graph. The public export
-# (tools/release/export_public_openpipestress.py) leaves out `loop/` and
+# (the historical sanitized export, now retired) leaves out `loop/` and
 # `execution/`, so there neither the path nor its schema check applies.
 DAG_POINTER = "execution/_DAG/_LATEST.md"
 

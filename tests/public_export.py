@@ -1,19 +1,9 @@
-"""Tell the public SWBPIPE export's tree from the monorepo's.
+"""Compatibility detector for historical reduced-source exports.
 
-`tools/release/export_public_openpipestress.py` stages this project without the
-monorepo's `loop/` and `execution/` (its `EXCLUDED_TOP_LEVEL`) and without the
-repository root around it. A test that reads a surface the export leaves out
-runs in the monorepo and, in the export, skips with the surface named
-(DEL-10-04:1, a self-verifying export).
-
-The tree counts as the export only outside a monorepo checkout, and only with
-both directories absent. In a monorepo checkout this project sits at
-`projects/<name>` under the repository root, which holds `.git` (a sparse clone
-or worktree keeps it) or `AGENTS.md`, and this directory has no `.git` of its
-own. The export is a repository of its own, so a `.git` here marks the export
-even where it is checked out inside another repository. A sparse monorepo clone
-that drops the directories, or hosted CI's checkout (which drops `execution/`
-only), is not the export.
+Those trees omitted loop/execution and Root tools. The active standalone SWBPIPE
+repository carries its development localities and local verification tools, so
+these legacy skip markers must remain false there. No current publication
+pipeline trims development or CI files from this repository.
 """
 from pathlib import Path
 

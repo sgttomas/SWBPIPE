@@ -198,13 +198,48 @@ def run_engine_lint(paths: list[Path], root: Path) -> dict:
     engine_summary = {}
     completed_batches = 0
     try:
-        for batch in lint_path_batches(paths, command):
+        batches = lint_path_batches(paths, command)
+        if [path for batch in batches for path in batch] != paths:
+            raise ValueError('lint partition omits, duplicates or reorders an input')
+        for batch in batches:
             completed = run_command(command + [str(path) for path in batch], root)
             if completed.returncode != 0:
                 raise OSError('engine did not complete a lint batch')
             payload = json.loads(completed.stdout)
-            findings.extend(payload.get('findings', []))
-            for key, value in (payload.get('summary') or {}).items():
+            if not isinstance(payload, dict):
+                raise ValueError('invalid engine response envelope')
+            summary = payload.get('summary')
+            batch_findings = payload.get('findings')
+            counts = ('target_count', 'scanned_target_count', 'skipped_private_target_count',
+                      'skipped_incomplete_target_count', 'finding_count', 'blocking_finding_count')
+            if (payload.get('provenance_mode') != 'external' or not isinstance(summary, dict)
+                    or not isinstance(batch_findings, list)
+                    or any(type(summary.get(key)) is not int or summary[key] < 0 for key in counts)
+                    or summary['target_count'] != len(batch)
+                    or summary['scanned_target_count'] != len(batch)
+                    or summary['skipped_private_target_count'] != 0
+                    or summary['skipped_incomplete_target_count'] != 0
+                    or summary['finding_count'] != len(batch_findings)
+                    or summary.get('clean_scan_is_clearance') is not False):
+                raise ValueError('incomplete or inconsistent engine coverage')
+            def logical(path):
+                value = Path(path)
+                value = str((value if value.is_absolute() else root / value).resolve()).replace('\\', '/')
+                if value.startswith('//?/UNC/'):
+                    return 'unc://' + value[8:]
+                if value.startswith('//?/'):
+                    return value[4:]
+                return 'unc://' + value[2:] if value.startswith('//') else value
+            selected = {logical(path) for path in batch}
+            if any(not isinstance(finding, dict) or not isinstance(finding.get('path'), str)
+                   or logical(finding['path']) not in selected
+                   or finding.get('severity') not in {'BLOCKING', 'WARNING', 'INFO'}
+                   for finding in batch_findings):
+                raise ValueError('finding outside selected engine input or invalid severity')
+            if summary['blocking_finding_count'] != sum(f['severity'] == 'BLOCKING' for f in batch_findings):
+                raise ValueError('inconsistent blocking finding count')
+            findings.extend(batch_findings)
+            for key, value in summary.items():
                 if isinstance(value, bool):
                     engine_summary[key] = engine_summary.get(key, False) or value
                 elif isinstance(value, (int, float)):
@@ -515,8 +550,9 @@ def pending_owner_sign_off() -> dict:
         "acceptance_statement": None,
         "note": (
             "This block is completed only by the owner as a human act. "
-            "Tooling never signs. An unsigned record satisfies no "
-            "publication precondition; a Blocking finding halts publication; "
+            "Tooling never signs. An unsigned record supplies no v1.0 release authorization; "
+            "an unresolved Blocking finding halts v1.0 release. The owner authorized "
+            "the verified repository import before signature on 2026-10-29; "
             "no waiver may authorize protected-content copying "
             "(docs/RELEASE_QUALITY_GATES.md)."
         ),
@@ -660,6 +696,8 @@ def build_record(
         ),
         "scan_disposition": scan_disposition(checks, findings),
         "publication_gate": "blocked_pending_owner_sign_off",
+        "publication_gate_scope": "v1.0_release",
+        "migration_push_authorization": "Owner, 2026-10-29: Push now, sign before v1.0",
         "clean_scan_is_clearance": False,
         "known_limitations": KNOWN_LIMITATIONS,
         "owner_sign_off": pending_owner_sign_off(),

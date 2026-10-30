@@ -264,7 +264,7 @@ class HostedCITests(unittest.TestCase):
                 self.assertEqual(selection['piping_desktop_selection']['reasons'], [{'path': project + path, 'kind': kind}])
         for paths in [
             # Python-only: tests and tools the desktop suite neither names nor runs.
-            ['tests/test_export_public_openpipestress.py', 'tools/release/run_evidence_sweep.py'],
+            ['tests/test_release_candidate_scan.py', 'tools/release/run_evidence_sweep.py'],
             # Rust-only: crates outside the wasm engines' normal/build dependencies.
             ['core/solver/performance_harness/src/lib.rs', 'core/reporting/report_package/src/lib.rs'],
             ['docs/note.md'],
@@ -275,7 +275,7 @@ class HostedCITests(unittest.TestCase):
                 self.assertEqual(selection['piping_desktop_selection']['classification'], 'not-applicable')
 
     def test_desktop_selection_fails_toward_the_full_suite(self):
-        selection = select_paths(['tests/test_export_public_openpipestress.py'], PROFILE, self.root)
+        selection = select_paths(['tests/test_release_candidate_scan.py'], PROFILE, self.root)
         self.assertEqual(selection['modes']['piping-desktop'], 'full')
         self.assertEqual(selection['piping_desktop_selection']['classification'], 'full-fallback')
 
@@ -360,7 +360,7 @@ class HostedCITests(unittest.TestCase):
             [project + 'validation/benchmarks/mechanics/src/lib.rs', project + 'core/solver/performance_harness/README.md'],
             # ASCII case only, as Rust's eq_ignore_ascii_case: a Kelvin sign is not a `k`.
             [project + 'core/runner/new_dependent/Cargo.loc\u212a'],
-            [project + 'tests/test_export_public_openpipestress.py', project + 'tools/release/run_evidence_sweep.py'],
+            [project + 'tests/test_release_candidate_scan.py', project + 'tools/release/run_evidence_sweep.py'],
             [project + 'docs/note.md'],
             # A dependency's own `.cargo/` is never read by Cargo.
             [project + 'core/units/.cargo/config.toml'],
@@ -389,13 +389,13 @@ class HostedCITests(unittest.TestCase):
 
     def test_desktop_rust_selection_fails_toward_running_the_tests(self):
         # No readable crate in this fixture checkout.
-        selection = select_paths(['tests/test_export_public_openpipestress.py'], PROFILE, self.root)
+        selection = select_paths(['tests/test_release_candidate_scan.py'], PROFILE, self.root)
         self.assertEqual(selection['modes']['piping-desktop-rust'], 'full')
         self.assertEqual(selection['piping_desktop_rust_selection']['classification'], 'full-fallback')
         # A stale runtime-read declaration in a path dependency also fails toward the tests.
         profile = json.loads(json.dumps(PROFILE))
         profile['piping_runtime_reads']['reads']['core/rules/rule_pack_lifecycle/src/lib.rs']['sha256'] = '0' * 64
-        selection = select_paths(['tests/test_export_public_openpipestress.py'], profile)
+        selection = select_paths(['tests/test_release_candidate_scan.py'], profile)
         self.assertEqual(selection['piping_desktop_rust_selection']['classification'], 'full-fallback')
         self.assertIn('stale runtime read declaration', selection['piping_desktop_rust_selection']['fallback_reasons'][0])
 
