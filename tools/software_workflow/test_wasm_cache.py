@@ -97,6 +97,18 @@ def test_npm_configuration_disables_reuse_or_enters_the_key(tmp_path, monkeypatc
         assert key({'HOME': str(home)}) != original
 
 
+def test_tracked_node_modules_tooling_disables_reuse(tmp_path):
+    # Review r3: a tracked apps/node_modules/.bin/cargo survives npm ci and
+    # shadows the trusted cargo for the workspace build.
+    files = fixture_tree(tmp_path)
+    for shadow in ['apps/node_modules/.bin/cargo', 'node_modules/.bin/wasm-bindgen', 'apps/desktop/node_modules/x/index.js']:
+        with patch.object(wasm_cache, 'wasm_engine_inputs', return_value=({'crate'}, {'schemas/compile.json'})), \
+             patch.object(wasm_cache, 'declared_compiled_reads', return_value={'schemas/compile.json'}), \
+             patch.object(wasm_cache.subprocess, 'check_output', return_value=('\0'.join(files + [shadow]) + '\0').encode()):
+            with pytest.raises(ValueError, match='node_modules'):
+                wasm_cache.input_paths(tmp_path)
+
+
 def test_every_missing_or_modified_output_falls_back(tmp_path):
     for name in wasm_cache.expected_outputs():
         path = tmp_path / name

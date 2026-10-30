@@ -68,6 +68,12 @@ def input_paths(root):
     # anywhere npm looks: refuse any tracked or present project .npmrc.
     if any(Path(name).name == '.npmrc' for name in tracked if name):
         raise ValueError('npm configuration disables engine output reuse')
+    # npm prepends every ancestor's node_modules/.bin to PATH, so a tracked
+    # executable there could shadow cargo, rustc, node or wasm-bindgen. npm ci
+    # creates node_modules from the hashed lockfile; anything tracked under one
+    # is candidate-supplied tooling.
+    if any('node_modules' in Path(name).parts for name in tracked if name):
+        raise ValueError('Tracked node_modules content disables engine output reuse')
     for directory in (root, root / 'apps', root / 'apps/desktop'):
         if (directory / '.npmrc').exists():
             raise ValueError('npm configuration disables engine output reuse')
