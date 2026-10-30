@@ -428,15 +428,27 @@ impl<K: Keychain> Store<K> {
         validate_schema(&tx)?;
         let current = stored(&tx)?.ok_or(Error::NotConfigured)?;
         matches_revision(Some(&current), Some(expected))?;
-        if !pending(&tx)?.is_empty() {
+        // A committed active key remains usable while retired-item deletion is
+        // unresolved (for example after an app rename). Unpublished intents
+        // still block loading; they do not establish a committed credential.
+        pending(&tx)?;
+        let unpublished: bool = tx
+            .query_row(
+                "SELECT EXISTS(SELECT 1 FROM credentials WHERE phase='pending')",
+                [],
+                |row| row.get(0),
+            )
+            .map_err(sql)?;
+        if unpublished {
             return Err(Error::RecoveryRequired);
         }
         let secret = match &current.key {
-            Some(key) => Some(
-                self.keys
-                    .load(key, &current.metadata.endpoint)
-                    .map_err(|reason| Error::ReenterKey { reason })?,
-            ),
+            Some(key) => Some(self.keys.load(key, &current.metadata.endpoint).map_err(
+                |reason| match reason {
+                    KeyError::Missing | KeyError::Denied => Error::ReenterKey { reason },
+                    other => Error::Keychain(other),
+                },
+            )?),
             None => None,
         };
         let provider = Provider::new(&current.metadata.endpoint).map_err(|_| Error::Corrupt)?;
@@ -1137,14 +1149,17 @@ mod tests {
             b.provider.as_ref().unwrap().endpoint,
             "https://other.example/v1"
         );
-        assert_eq!(s.load(revision(&b)).unwrap_err(), Error::RecoveryRequired);
+        assert!(
+            s.load(revision(&b)).is_ok(),
+            "fresh committed key works while stale deletion is pending"
+        );
         k.0.lock().unwrap().fail_delete = None;
         s.recover().unwrap();
         assert_eq!(k.0.lock().unwrap().items.len(), 1);
         assert!(s.load(revision(&b)).is_ok());
     }
     #[test]
-    fn every_credential_load_failure_is_a_clear_reentry_state_without_fallback() {
+    fn only_missing_and_denied_loads_are_reentry_other_failures_remain_errors() {
         let (_f, mut s, k) = setup();
         let a = s
             .save(None, "https://provider.example/v1", "model", key())
@@ -1159,11 +1174,11 @@ mod tests {
         ] {
             k.0.lock().unwrap().fail_load = Some(reason);
             let error = s.load(revision(&a)).unwrap_err();
-            assert_eq!(error, Error::ReenterKey { reason });
-            assert!(error
-                .user_message()
-                .to_ascii_lowercase()
-                .contains("re-enter"));
+            let expected = match reason {
+                KeyError::Missing | KeyError::Denied => Error::ReenterKey { reason },
+                other => Error::Keychain(other),
+            };
+            assert_eq!(error, expected);
         }
         assert_eq!(k.0.lock().unwrap().items.len(), 1);
         assert_eq!(k.0.lock().unwrap().creates, 1);

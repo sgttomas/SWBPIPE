@@ -29,9 +29,10 @@ and model/revision. It has no Serialize/Clone or payload-bearing Debug. Metadata
 responses never contain a password, account or ownership marker. The actual
 credential value never enters SQLite, files, argv, environment or diagnostics.
 Native errors are allowlisted classes, not Security.framework error messages.
-A load failure, including missing item, lock/interaction, ACL/code-signature
-mismatch, unavailable backend or invalid stored data, returns an explicit
-`ReenterKey` state and a static instruction to re-enter the key. No failure
+Only missing native items and the two authorized no-prompt denial statuses
+return `ReenterKey`, with distinct `Missing` and `Denied` reasons. Other native
+statuses (including backend, invalid-data and signature-system errors) remain
+explicit credential errors; they do not masquerade as recoverable denials. No failure
 prompts, changes credential mode, retries another store or substitutes a key.
 Safe heap/CF/header copies are not a zeroization or OS crash-output guarantee.
 
@@ -88,8 +89,8 @@ The three locally declared SDK constants absent from the published sys crate
 are pinned exactly; no private API/string or global OS setting is used.
 
 This is SDK/source compatibility evidence for the minimum, not a live macOS 11
-witness. The current host is macOS 26; the post-review native fixture must verify
-the exact no-prompt outcome there. Native minimum-version qualification remains
+witness. The current host is macOS 26; the post-review native fixture qualifies the
+no-prompt outcome there. Native minimum-version qualification remains
 unrun; no support-range change or universal native guarantee is inferred.
 
 ### Other Keychain uses affected in this SWBPIPE process
@@ -146,9 +147,15 @@ or read failure returns that committed outcome with `cleanupPending: null`
 a false zero. A completed cleanup confirms zero. Explicit recovery deletes
 only pending/retired owned items, never an active credential. Failures retain
 journal entries; repeating exact deletion after an already-deleted item is safe.
-Loading is blocked until cleanup is resolved and never returns a different key.
-Re-entry after an ACL/signature loss creates a fresh item for the current build,
-then removes the stale owned item; failure remains visible and does not prompt.
+Unpublished pending intents block loading. A committed active key remains
+usable when deletion of retired stale items fails: the active native payload
+still binds its recipient independently. Further saves remain blocked until
+cleanup resolves, preventing repeated orphan creation. Re-entry after an
+ACL/signature loss creates a fresh item for the current build, then attempts
+stale deletion by the exact owned handle. Failure remains visible in the
+snapshot and durable journal; it never prompts or removes the active key.
+The regression for failed stale deletion asserts that the fresh key works,
+the old handle remains recoverable, and later cleanup removes only that handle.
 
 ## Admission and verification
 
@@ -174,8 +181,46 @@ unbound legacy password value.
 The opt-in post-review qualification uses an owned synthetic item and its
 private SQLite journal, a fresh copy of the test executable re-signed to a
 different identity, and an original owned Child with a timeout/cleanup guard.
-It must return exact `errSecInteractionNotAllowed` (-25308), map to ReenterKey,
-accept re-entry and remove the old item by ownership handle. It never reads a
+Agent 0 amended the original single-status expectation: only raw
+`errSecInteractionNotAllowed` (-25308) or `errSecAuthFailed` (-25293) qualify
+as the expected denial, both mapping to `ReenterKey { reason: Denied }`.
+The original expectation assumed modern-path semantics. Pinned
+[Globals.cpp:68–71](https://github.com/apple-oss-distributions/Security/blob/41b54a4894b8de0b7569a8695313e617c6f20f59/OSX/libsecurity_keychain/lib/Globals.cpp#L68)
+selects `nullCred` instead of `promptCred` for legacy no-UI item operations;
+authentication failure is a fail-closed result, not evidence of a prompt.
+The requirement remains: no prompt, deny, map to re-entry and recover.
+The first denied load must finish in less than two seconds; the original owned
+child has a twenty-second deadline. The external thirty-second
+`tools/agent_keychain_ui_monitor.swift` harness observes NSWorkspace GUI launch
+notifications and samples SecurityAgent/authorization UI process identities,
+then drains notifications for one second. It fails on a detected launch,
+incomplete observation, timeout or failing child. It records only static
+standing and sample counts, never arbitrary process text. This is combined
+source/return-bound and observed-launch evidence; sampling alone would not
+prove that no short-lived daemon could exist between samples.
+The regular re-sign fixture preserves the executable basename while changing
+its signing identifier, and must accept re-entry and delete the stale item by
+ownership handle. A separate renamed-app case expects native
+`errSecInvalidOwnerEdit` (-25244), retains the stale handle, loads the freshly
+committed key despite retired cleanup debt, and finally uses the two original
+fixture identities to clean only their exact journal handles. Pinned
+[SecItem.cpp:2020–2060](https://github.com/apple-oss-distributions/Security/blob/41b54a4894b8de0b7569a8695313e617c6f20f59/OSX/libsecurity_keychain/lib/SecItem.cpp#L2020)
+extracts executable basenames;
+[2173–2287](https://github.com/apple-oss-distributions/Security/blob/41b54a4894b8de0b7569a8695313e617c6f20f59/OSX/libsecurity_keychain/lib/SecItem.cpp#L2173)
+compares them for legacy safe deletion. Renaming the first fixture introduced
+that additional cause, so it was corrected without changing the product API.
+The renamed-case recovery helper never broadens service-wide deletion. It never reads a
 real provider key, changes a user's default/search list, enables prompting or
 runs a supplier/model. Native failures retain the journal for recovery; no
 native success is claimed until this fixture has actually run after scrutiny.
+
+Current bounded evidence: five pre-repair regression failures; repaired agent
+suite 144 passed with eight explicitly gated ignores; release-reach suite
+30 passed; routing 65 tests/87 subtests; public export 3751 files with nine
+expected and zero unexpected findings. Independent credentials/persistence
+review and its bounded repair confirmation passed before native qualification.
+The same-basename native re-sign experiment passed with raw -25293, successful
+re-entry, stale deletion, fresh load and empty final journal. Its external UI
+monitor reported complete observation and no detected launch. The newly added
+renamed-case/monitor integration awaits exact-candidate confirmation and native
+execution; no minimum-OS, integrated command or release claim follows.

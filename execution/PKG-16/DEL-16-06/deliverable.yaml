@@ -149,6 +149,7 @@ code_paths:
 - apps/desktop/src/services/operationBatchService.ts
 - apps/desktop/src-tauri/src/lib.rs
 checks:
+- tools/agent_keychain_ui_monitor.swift
 - tools/agent_host_witness_test.py
 - tools/agent_catalog_resource.py
 - apps/desktop/src-tauri/src/embedded_agent/catalog.rs

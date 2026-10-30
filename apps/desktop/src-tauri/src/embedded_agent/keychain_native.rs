@@ -221,8 +221,8 @@ fn status_result(code: i32) -> Result<(), KeyError> {
 fn classify(code: i32) -> KeyError {
     match code {
         -25300 => KeyError::Missing,
-        -25308 => KeyError::InteractionRequired,
-        -25293 | -128 | -67050 | -67062 | -67061 | -34018 => KeyError::Denied,
+        -25308 | -25293 => KeyError::Denied,
+        -67050 | -67062 | -67061 | -34018 => KeyError::Invalid,
         -25291 | -25294 => KeyError::Unavailable,
         -25299 => KeyError::Duplicate,
         -50 => KeyError::Invalid,
@@ -299,9 +299,10 @@ mod tests {
         )
         .unwrap();
         assert_eq!(secret.value(), "invented-provider-value");
-        assert_eq!(classify(-25308), KeyError::InteractionRequired);
-        assert_eq!(classify(-67050), KeyError::Denied);
-        assert_eq!(classify(-34018), KeyError::Denied);
+        assert_eq!(classify(-25308), KeyError::Denied);
+        assert_eq!(classify(-25293), KeyError::Denied);
+        assert_eq!(classify(-67050), KeyError::Invalid);
+        assert_eq!(classify(-34018), KeyError::Invalid);
         assert_eq!(classify(-25299), KeyError::Duplicate);
     }
 }
@@ -314,6 +315,7 @@ mod qualification {
     use std::{
         fs,
         io::Read,
+        os::unix::process::ExitStatusExt,
         path::PathBuf,
         process::{Child, Command, Stdio},
         time::{Duration, Instant},
@@ -391,6 +393,14 @@ mod qualification {
     #[test]
     #[ignore = "manager-owned native synthetic Keychain/signature probe after credentials review"]
     fn native_resign_reentry_and_owned_cleanup() {
+        qualify(false);
+    }
+    #[test]
+    #[ignore = "manager-owned renamed-app denial and durable stale-item recovery"]
+    fn native_renamed_reentry_retains_stale_and_uses_fresh_key() {
+        qualify(true);
+    }
+    fn qualify(renamed: bool) {
         let directory = directory();
         let registry = registry();
         let mut recovery = Recovery {
@@ -425,9 +435,16 @@ mod qualification {
         );
         // Never rewrite/re-sign an already-executed Mach-O inode. This is a fresh
         // private copy, deliberately a different code identifier from this owner.
-        let executable = directory.join("resigned-fixture");
+        let original = std::env::current_exe().unwrap();
+        // Apple's legacy safe-delete checks the executable basename as well as
+        // item ownership. Preserve it to model an update, not a renamed app.
+        let executable = if renamed {
+            directory.join("resigned-fixture")
+        } else {
+            directory.join(original.file_name().unwrap())
+        };
         assert!(!executable.exists());
-        fs::copy(std::env::current_exe().unwrap(), &executable).unwrap();
+        fs::copy(original, &executable).unwrap();
         let output = Command::new("/usr/bin/codesign")
             .args(["--force", "--sign", "-", "--identifier"])
             .arg(format!(
@@ -453,6 +470,7 @@ mod qualification {
             .env_clear()
             .env("SWBPIPE_KEYCHAIN_QUALIFY", "1")
             .env("SWBPIPE_KEYCHAIN_FIXTURE_DIR", &directory)
+            .env("SWBPIPE_KEYCHAIN_RENAMED", if renamed { "1" } else { "0" })
             .stdin(Stdio::null())
             .stdout(Stdio::piped())
             .stderr(Stdio::null())
@@ -485,19 +503,77 @@ mod qualification {
             .read_to_string(&mut records)
             .unwrap();
         child.0.take();
+        println!(
+            "SWBPIPE_KEYCHAIN: child_exit={:?},signal={:?}",
+            status.code(),
+            status.signal()
+        );
+        for line in records.lines() {
+            if let Some((_, record)) = line.split_once("SWBPIPE_KEYCHAIN: ") {
+                // Qualification emits only fixed stages, typed errors and OSStatus.
+                println!("SWBPIPE_KEYCHAIN: {record}");
+            }
+        }
         assert!(
             status.success(),
             "signature fixture did not satisfy exact no-UI/reentry/cleanup predicate"
         );
         assert!(records
             .lines()
-            .any(|line| line == "SWBPIPE_KEYCHAIN: interaction_not_allowed,reentry,owned_cleanup"));
+            .any(|line| line == "SWBPIPE_KEYCHAIN: denied,reentry,cleanup_standing_recorded"));
         drop(store);
+        if renamed {
+            // Two executable basenames created the two synthetic items. Each
+            // original identity attempts only the journal's exact owned handles;
+            // partial deletion can be completed idempotently by the other.
+            let _ = recovery.finish();
+            let mut cleaner = OwnedChild(Some(
+                Command::new(&executable)
+                    .args([
+                        "--exact",
+                        "embedded_agent::keychain_native::qualification::recover_owned_fixture",
+                        "--ignored",
+                        "--nocapture",
+                        "--test-threads=1",
+                    ])
+                    .env_clear()
+                    .env("SWBPIPE_KEYCHAIN_QUALIFY", "1")
+                    .env("SWBPIPE_KEYCHAIN_FIXTURE_DIR", &directory)
+                    .stdin(Stdio::null())
+                    .stdout(Stdio::null())
+                    .stderr(Stdio::null())
+                    .spawn()
+                    .unwrap(),
+            ));
+            let deadline = Instant::now() + Duration::from_secs(20);
+            loop {
+                match cleaner.0.as_mut().unwrap().try_wait() {
+                    Ok(Some(_)) => break,
+                    Ok(None) => {
+                        assert!(Instant::now() < deadline, "owned recovery child timed out");
+                        std::thread::sleep(Duration::from_millis(10));
+                    }
+                    Err(_) => panic!("owned recovery observation failed"),
+                }
+            }
+            cleaner.0.take();
+        }
         assert!(
             recovery.finish(),
             "fixture cleanup retained; inspect its owned journal"
         );
         println!("SWBPIPE_KEYCHAIN: owner_roundtrip,resign_reentry,owned_cleanup");
+    }
+    #[test]
+    #[ignore = "manager-owned recovery of an interrupted synthetic Keychain fixture"]
+    fn recover_owned_fixture() {
+        let mut recovery = Recovery {
+            directory: directory(),
+            registry: registry(),
+            clean: false,
+        };
+        assert!(recovery.finish(), "owned fixture journal retained");
+        println!("SWBPIPE_KEYCHAIN: owned_recovery_complete");
     }
     #[test]
     #[ignore = "invoked only by the owned re-signed Keychain fixture"]
@@ -511,11 +587,25 @@ mod qualification {
         )
         .unwrap();
         let profile = store.snapshot().unwrap().provider.unwrap();
-        assert_eq!(
-            store.load(&profile.revision).unwrap_err(),
-            StoreError::ReenterKey {
-                reason: KeyError::InteractionRequired
-            }
+        let started = Instant::now();
+        let result = store.load(&profile.revision);
+        assert!(
+            started.elapsed() < Duration::from_secs(2),
+            "no-prompt load exceeded short bound"
+        );
+        println!(
+            "SWBPIPE_KEYCHAIN: first_load={:?}",
+            result.as_ref().map(|_| ()).map_err(|e| *e)
+        );
+        let mapped_interaction = matches!(
+            result,
+            Err(StoreError::ReenterKey {
+                reason: KeyError::Denied
+            })
+        );
+        assert!(
+            matches!(result, Err(StoreError::ReenterKey { .. })),
+            "re-signed item unexpectedly readable"
         );
         // Exact OSStatus is inspected only in this fixture, never returned as
         // an arbitrary native diagnostic or a credential-bearing error string.
@@ -534,10 +624,19 @@ mod qualification {
         drop(db);
         let key = CredentialKey::checked(account, owner).unwrap();
         let mut native = NativeKeychain::new(&registry).unwrap();
-        assert!(matches!(
-            native.load_status(&key, &profile.endpoint),
-            Err((KeyError::InteractionRequired, -25308))
-        ));
+        let result = native.load_status(&key, &profile.endpoint);
+        println!(
+            "SWBPIPE_KEYCHAIN: exact_status={:?}",
+            result.as_ref().map(|_| ()).map_err(|e| *e)
+        );
+        // Agent 0 disposition: legacy Globals.cpp:68–71 selects nullCred
+        // without UI and can return AuthFailed; the modern path returns
+        // InteractionNotAllowed. Only these two raw statuses qualify.
+        let exact_interaction = matches!(result, Err((KeyError::Denied, -25308 | -25293)));
+        assert!(
+            mapped_interaction && exact_interaction,
+            "required no-prompt denial was not established"
+        );
         let saved = store
             .save(
                 Some(&profile.revision),
@@ -548,17 +647,43 @@ mod qualification {
                 ),
             )
             .unwrap();
-        assert_eq!(
-            saved.cleanup_pending,
-            Some(0),
-            "stale owned credential was not removed"
+        println!(
+            "SWBPIPE_KEYCHAIN: reentry_cleanup={:?},error={:?}",
+            saved.cleanup_pending, saved.cleanup_error
         );
-        assert!(saved.cleanup_error.is_none());
+        let renamed = std::env::var("SWBPIPE_KEYCHAIN_RENAMED").as_deref() == Ok("1");
+        if renamed {
+            assert!(saved.cleanup_pending.is_none());
+            assert_eq!(saved.cleanup_error, Some(KeyError::Unknown));
+            let query = CFDictionary::from_CFType_pairs(&native.query(&key, false).unwrap());
+            let status = unsafe { SecItemDelete(query.as_concrete_TypeRef()) };
+            assert_eq!(
+                status, -25244,
+                "renamed fixture must retain owner-edit refusal"
+            );
+            println!("SWBPIPE_KEYCHAIN: stale_delete_status=-25244,owned_handle_retained");
+        } else {
+            assert_eq!(
+                saved.cleanup_pending,
+                Some(0),
+                "stale owned credential was not removed"
+            );
+            assert!(saved.cleanup_error.is_none());
+        }
         let revision = saved.provider.unwrap().revision;
         assert!(store.load(&revision).is_ok());
+        println!("SWBPIPE_KEYCHAIN: fresh_committed_key_works");
         let cleared = store.clear(&revision).unwrap();
         assert!(cleared.provider.is_none());
-        assert_eq!(cleared.cleanup_pending, Some(0));
-        println!("SWBPIPE_KEYCHAIN: interaction_not_allowed,reentry,owned_cleanup");
+        if renamed {
+            assert!(cleared.cleanup_pending.is_none());
+        } else {
+            assert_eq!(cleared.cleanup_pending, Some(0));
+        }
+        assert!(
+            mapped_interaction && exact_interaction,
+            "required interaction-not-allowed case was not established"
+        );
+        println!("SWBPIPE_KEYCHAIN: denied,reentry,cleanup_standing_recorded");
     }
 }
