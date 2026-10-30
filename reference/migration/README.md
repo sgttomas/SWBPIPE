@@ -10,9 +10,10 @@ No force push or original-history rewrite is part of the split.
 Rehearsal source: `0828e8166ccefddc5c5b7bd5f75d58c2d656f51a`, subtree
 `projects/chirality-piping/`. Unadapted extracted commit
 `260eceb30138964d645a964da26926e8999f59aa` has exactly the same tree:
-`406dd72fd8942ec7694ad12da2d639c50c96be03`. The final execution baseline is selected
-by SWBPIPE Agent 0 after disposition of active RT-E1 work; this rehearsal baseline
-must not silently omit that work.
+`406dd72fd8942ec7694ad12da2d639c50c96be03`. SWBPIPE Agent 0 selected this same commit as the final execution baseline.
+Unmerged RT-E1 lanes are excluded from the import and will be replayed as fresh
+branches/PRs by their manager after cutover; their private evidence stays outside
+the public repository.
 
 `commit-map.txt` maps original source identities to extracted commits, including
 explicit tree-equivalent aliases for original commits that changed no project
