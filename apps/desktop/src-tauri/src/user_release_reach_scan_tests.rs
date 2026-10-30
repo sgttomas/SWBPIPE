@@ -2483,8 +2483,8 @@ fn shell_copy_with(tree: &ScratchTree, edits: &[(&str, &str, String)]) -> Source
 
 /// Also asserted (code review r9 follow-up at #1682; §2.8, "Symbol-level
 /// FFI"): the shell's two roots carry `#![deny(unsafe_code)]`, exactly the
-/// eleven pinned `mod` items carry `#[allow(unsafe_code)]`, the one foreign
-/// block is the pinned one, and no linkage attribute, dynamic lookup or
+/// twelve pinned `mod` items carry `#[allow(unsafe_code)]`, both foreign
+/// blocks are pinned exactly, and no linkage attribute, dynamic lookup or
 /// transmute occurs in any scanned crate (the real scan returns none).
 #[test]
 fn the_real_sources_hold_the_symbol_level_ffi_rules() {
@@ -2514,8 +2514,9 @@ fn the_real_sources_hold_the_symbol_level_ffi_rules() {
         let at = text.find(&format!("\nmod {name};\n")).unwrap();
         assert!(text[..at].rsplit('\n').take(3).any(|line| line == "#[allow(unsafe_code)]"), "{file}: {name}");
     }
-    assert_eq!(FOREIGN_BLOCKS.len(), 1);
+    assert_eq!(FOREIGN_BLOCKS.len(), 2);
     assert_eq!(sources.files[FOREIGN_BLOCKS[0].0].matches("extern \"C\" {\n        fn mach_host_self() -> libc::mach_port_t;\n    }").count(), 1);
+    assert_eq!(sources.files[FOREIGN_BLOCKS[1].0].matches("extern \"C\" {\n    static kSecUseAuthenticationUIFail: CFStringRef;\n    static kSecAttrGeneric: CFStringRef;\n    static kSecMatchLimitOne: CFStringRef;\n}").count(), 1);
 }
 
 /// Code review r9 follow-up at #1682, on scratch copies of `src-tauri` that

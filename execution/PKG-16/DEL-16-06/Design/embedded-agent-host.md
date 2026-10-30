@@ -25,7 +25,8 @@ providers and generic keychain custody, the Rust-owned loopback relay, runtime
 profile/path derivation, dual-architecture stock supplier packaging, automated
 cleanup/isolation proof and explicit unavailability on unqualified platforms.
 The unwired launcher now takes an explicit model and a one-shot endpoint from
-an observed-ready HTTP relay; generic provider settings/keychain custody,
+an observed-ready HTTP relay. [Provider custody](agent-provider-custody.md)
+adds the explicit metadata/Keychain core, still without a command or UI;
 packaged supplier selection and actual workspace integration remain incomplete.
 [HTTP relay design](embedded-agent-relay.md) records its origin/authentication,
 TLS, bounds, shutdown and evidence limits. Historical experiment paragraphs

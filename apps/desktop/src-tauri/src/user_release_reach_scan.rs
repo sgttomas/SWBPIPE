@@ -277,7 +277,8 @@ pub(crate) const PROC_MACRO_PACKAGES: [&str; 0] = [];
 /// `allow(warnings)` and the lint groups do
 /// not lift a `deny(unsafe_code)` (no rustc group holds `unsafe_code`;
 /// checked on Rust 1.97.1), so they need no rule.
-pub(crate) const SHELL_UNSAFE_MODULES: [(&str, &str, &str); 11] = [
+pub(crate) const SHELL_UNSAFE_MODULES: [(&str, &str, &str); 12] = [
+    ("src-tauri/src/embedded_agent/mod.rs", "keychain_native", "generic provider credential SecItem calls and SDK-public constants, no-UI exact-item queries"),
     // HELP_HUMAN's ruling on #1709's autosave (code review r9 follow-up at
     // #1682): pinned as the eleventh; its test module `tests`
     // (`autosave_tests.rs`) is declared inside it and inherits the allow.
@@ -301,7 +302,10 @@ pub(crate) const SHELL_UNSAFE_MODULES: [(&str, &str, &str); 11] = [
 /// any ABI, in any scanned crate, is a finding: a declared symbol can name a
 /// mangled Rust function (`assemble_derived`'s included) under another
 /// identifier.
-pub(crate) const FOREIGN_BLOCKS: [(&str, &str, &str); 1] = [("src-tauri/src/host_memory.rs", "C", "fn mach_host_self() -> libc::mach_port_t;")];
+pub(crate) const FOREIGN_BLOCKS: [(&str, &str, &str); 2] = [
+    ("src-tauri/src/host_memory.rs", "C", "fn mach_host_self() -> libc::mach_port_t;"),
+    ("src-tauri/src/embedded_agent/keychain_native.rs", "C", "static kSecUseAuthenticationUIFail: CFStringRef; static kSecAttrGeneric: CFStringRef; static kSecMatchLimitOne: CFStringRef;"),
+];
 
 /// The linkage attributes, each a finding wherever it is written, through
 /// `cfg_attr` and in the `unsafe(...)` form included (code review r9
@@ -609,10 +613,11 @@ pub(crate) const BUILD_SCRIPTS: [(&str, usize, &str); 1] =
 /// dependencies they would let a build that sets `cfg(test)` compile the
 /// scan's test modules, so moving one, like any other change here, is a
 /// finding until reviewed.
-pub(crate) const SHELL_DEPENDENCIES: [&str; 34] = [
+pub(crate) const SHELL_DEPENDENCIES: [&str; 37] = [
     "dev proc-macro2",
     "dev syn",
     "normal bytes (cfg(target_os = \"macos\"))",
+    "normal core-foundation (cfg(target_os = \"macos\"))",
     "normal getrandom",
     "normal http (cfg(target_os = \"macos\"))",
     "normal http-body-util (cfg(target_os = \"macos\"))",
@@ -635,6 +640,8 @@ pub(crate) const SHELL_DEPENDENCIES: [&str; 34] = [
     "normal rusqlite",
     "normal rustls (cfg(target_os = \"macos\"))",
     "normal rustls-platform-verifier (cfg(target_os = \"macos\"))",
+    "normal security-framework (cfg(target_os = \"macos\"))",
+    "normal security-framework-sys (cfg(target_os = \"macos\"))",
     "normal serde",
     "normal serde_json",
     "normal sha2",

@@ -85,6 +85,7 @@ impl Provider {
         let prefix = url.path().trim_end_matches('/').to_owned();
         Ok(Self { base: url, prefix })
     }
+    pub(super) fn endpoint(&self) -> &str { self.base.as_str().trim_end_matches('/') }
     pub fn target(&self, path: &str) -> Result<Url, Failure> {
         if path.len() > 2048 || !safe_path(path) {
             return Err(Failure::InvalidRequest);

@@ -19,6 +19,10 @@ pub(crate) mod webview_bridge;
 pub(crate) mod relay_policy;
 #[cfg(target_os = "macos")]
 pub(crate) mod http_relay;
-
 #[cfg(target_os = "macos")]
 pub(crate) mod supplier;
+#[cfg(target_os = "macos")]
+pub(crate) mod provider_store;
+#[cfg(target_os = "macos")]
+#[allow(unsafe_code)]
+mod keychain_native;

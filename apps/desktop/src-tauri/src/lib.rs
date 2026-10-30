@@ -1,5 +1,5 @@
 //! The desktop shell. `unsafe` code is denied here and in every module but
-//! the eleven that carry `#[allow(unsafe_code)]` on their `mod` line, a list the
+//! the twelve that carry `#[allow(unsafe_code)]` on their `mod` line, a list the
 //! user-release reach scan pins (DEL-08-01 Design `report-user-release.md`
 //! §2.8, "Symbol-level FFI"; code review r9 at #1682).
 #![deny(unsafe_code)]
