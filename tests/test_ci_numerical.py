@@ -87,6 +87,75 @@ class NumericalTests(unittest.TestCase):
             (crate / 'Cargo.lock').unlink()
             with self.assertRaises(ValueError): ci.cargo_plan(root)
 
+    def assert_partition(self, project, selection):
+        from collections import Counter
+        manifests, commands = ci.cargo_plan(project, selection=selection)
+        partitions = [ci.cargo_plan(project, selection=selection, shard=shard) for shard in ci.SHARDS]
+        self.assertEqual(Counter(m for ms, _ in partitions for m in ms), Counter(manifests))
+        self.assertEqual(Counter(tuple(c) for _, cs in partitions for c in cs), Counter(tuple(c) for c in commands))
+        for shard, (members, actual) in zip(ci.SHARDS, partitions):
+            expected = [c for c in commands if ci.manifest_shard(c[c.index('--manifest-path') + 1]) == shard]
+            self.assertEqual(actual, expected)
+            self.assertTrue(all(ci.manifest_shard(m) == shard for m in members))
+
+    def test_real_plan_partitions_preserve_every_command_and_witness(self):
+        manifests = ci.readiness.discover_cargo_manifests(ROOT)
+        # Full coverage and each possible singleton reduced selection, with
+        # actual discovery, readiness commands and all profile special cases.
+        for members in [manifests, [], *[[m] for m in manifests]]:
+            self.assert_partition(ROOT, {'manifests': [str(m) for m in members]})
+
+    def test_synthetic_partition_is_total_disjoint_and_unknown_crates_run(self):
+        from itertools import combinations
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            names = ['core/product_physics', 'core/reporting/result_export',
+                     'core/runner/headless', 'core/new_crate']
+            for name in names:
+                crate = root / name
+                crate.mkdir(parents=True)
+                (crate / 'Cargo.toml').write_text('[package]\nname="fixture"\nversion="0.1.0"\n')
+                (crate / 'Cargo.lock').write_text('version = 4\n')
+            for count in range(len(names) + 1):
+                for subset in combinations(names, count):
+                    self.assert_partition(root, {'manifests': [n + '/Cargo.toml' for n in subset]})
+            self.assertEqual(ci.manifest_shard('core/new_crate/Cargo.toml'), 'other')
+            with self.assertRaisesRegex(ValueError, 'Unknown numerical shard'):
+                ci.cargo_plan(root, shard='typo')
+            # Filtering must not hide an invalid selection in another shard.
+            with self.assertRaisesRegex(ValueError, 'duplicate or unknown'):
+                ci.cargo_plan(root, selection={'manifests': ['missing/Cargo.toml']}, shard='physics')
+
+    def test_empty_shard_validates_and_records_without_invoking_cargo(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self.fixture(root)
+            plan = {'piping_numerical_selection': {'manifests': ['core/new_crate/Cargo.toml']}}
+            with patch.object(ci, 'validate_plan') as validate, patch.object(ci, 'execute_commands') as execute, patch.object(ci, 'execute_cargo') as cargo:
+                self.assertEqual(ci.run(root, plan, root / 'evidence', shard='physics'), 0)
+                validate.assert_called_once_with(root.resolve(), plan)
+                execute.assert_not_called()
+                cargo.assert_not_called()
+            evidence = json.loads((root / 'evidence/numerical.json').read_text())
+            self.assertEqual((evidence['shard'], evidence['status'], evidence['empty']), ('physics', 'success', True))
+            self.assertTrue(evidence['plan_validated'])
+            self.assertEqual(evidence['planned_commands'], [])
+            with patch.object(ci, 'validate_plan', side_effect=ValueError('wrong candidate')):
+                self.assertEqual(ci.run(root, plan, root / 'evidence', shard='physics'), 1)
+
+    def test_dry_run_records_commands_without_claiming_verification(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self.fixture(root)
+            plan = {'piping_numerical_selection': {'manifests': ['core/new_crate/Cargo.toml']}}
+            with patch.object(ci, 'validate_plan'), patch.object(ci, 'execute_commands') as execute:
+                self.assertEqual(ci.run(root, plan, root / 'evidence', shard='other', dry_run=True), 0)
+                execute.assert_not_called()
+            evidence = json.loads((root / 'evidence/numerical.json').read_text())
+            self.assertEqual(evidence['status'], 'planned')
+            self.assertEqual(len(evidence['planned_commands']), 2)
+            self.assertEqual(evidence['commands'], [])
+
     def test_all_fetches_precede_tests(self):
         with tempfile.TemporaryDirectory() as tmp:
             project = Path(tmp)

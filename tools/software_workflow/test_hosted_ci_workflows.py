@@ -227,3 +227,47 @@ def test_repository_checks_run_claims_language_on_its_selection():
     steps = workflow('governance-harness.yml')['jobs']['repository-checks']['steps']
     [step] = [s for s in steps if s.get('run') == 'python3 tools/validation/validate_claims_language.py']
     assert 'if' not in step  # the standalone repository always checks product claims
+
+
+def test_numerical_matrix_keeps_all_shards_and_gates_selected_coverage():
+    import os
+    import subprocess
+    import importlib.util
+    spec = importlib.util.spec_from_file_location('workflow_numerical', ROOT / 'tools/ci/numerical_ci.py')
+    numerical = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(numerical)
+    jobs = workflow('piping-desktop-e2e.yml')['jobs']
+    job = jobs['numerical']
+    assert job['strategy']['matrix']['shard'] == list(numerical.SHARDS)
+    assert job['strategy']['fail-fast'] == 'false'
+    assert job['if'] == "needs.selection.outputs.numerical_mode == 'full'"
+    for step in job['steps']:
+        run = step.get('run', '')
+        if 'result_cache.py' in run or 'numerical_ci.py' in run:
+            assert '--shard "${{ matrix.shard }}"' in run
+        if 'verified-numerical' in str(step):
+            assert 'verified-numerical-${{ matrix.shard }}' in str(step)
+    evidence = next(s for s in job['steps'] if s.get('uses') == 'actions/upload-artifact@v4')
+    assert evidence['with']['name'] == 'piping-numerical-evidence-${{ matrix.shard }}'
+    assert 'always()' in evidence['if']
+    restore = next(s for s in job['steps'] if s.get('uses') == './.github/actions/restore-build-cache')
+    assert restore['with']['suite'] == 'piping-numerical'
+    # The unsharded main warmer still compiles the entire plan's profiles.
+    warm = workflow('shared-build-cache.yml')['jobs']['piping-numerical']
+    build = next(s['run'] for s in warm['steps'] if 'numerical_ci.py' in s.get('run', ''))
+    assert '--build-only' in build and '--shard' not in build
+    aggregate = jobs['desktop-e2e']
+    assert aggregate['if'] == 'always()' and 'numerical' in aggregate['needs']
+    step = aggregate['steps'][-1]
+    assert step['env']['NUMERICAL'] == '${{ needs.numerical.result }}'
+    script = '\n'.join(line for line in step['run'].splitlines() if '--suite piping-numerical ' in line)
+    assert script
+    # GitHub reduces the matrix children into needs.numerical.result; only
+    # success passes when selected. No shard-level condition can skip a member.
+    assert not any('matrix.shard' in step.get('if', '') for step in job['steps'])
+    for mode, state, passed in [('full', 'success', True), ('full', 'failure', False),
+                                ('full', 'cancelled', False), ('full', 'skipped', False),
+                                ('not-applicable', 'skipped', True), ('not-applicable', 'success', False)]:
+        env = {**os.environ, 'NUMERICAL_MODE': mode, 'SELECTION': 'success', 'NUMERICAL': state}
+        process = subprocess.run(['bash', '-e', '-c', script], cwd=ROOT, env=env, capture_output=True)
+        assert (process.returncode == 0) == passed, (mode, state)
