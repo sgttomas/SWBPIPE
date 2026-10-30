@@ -16,7 +16,16 @@ FAMILIES = {
     'qualification': ['tests/test_qualification*.py'],
     'canonical': ['tests/test_*canonical_json_adapter.py'],
 }
-BROAD = BASE + ['tests/product_preview', 'tests/test_operation_validation_preview.py',
+AGENT_SUPPLIER_TEST = 'tools/agent_supplier_resource_test.py'
+AGENT_SUPPLIER_INPUTS = {
+    'tools/agent_supplier_resource.py',
+    'tools/agent_supplier_resource_test.py',
+    'apps/desktop/src-tauri/resources/agent-supplier-pins.json',
+    'docs/THIRD_PARTY_NOTICES.md',
+    'docs/third-party/codex-0.160.0-LICENSE.txt',
+    'docs/third-party/codex-0.160.0-NOTICE.txt',
+}
+BROAD = BASE + [AGENT_SUPPLIER_TEST, 'tests/product_preview', 'tests/test_operation_validation_preview.py',
                 'tests/test_analytical_solver_boundary_adapter.py',
                 'tests/test_physical_to_analytical_transform.py'] + sum(FAMILIES.values(), [])
 
@@ -152,6 +161,8 @@ def select(project, plan):
                 continue
             local = path[len(PREFIX):]
             patterns.extend(helper_consumers(project, local))
+            if local in AGENT_SUPPLIER_INPUTS:
+                patterns.append(AGENT_SUPPLIER_TEST)
             if local in J7_RF_CENSUS_INPUTS:
                 patterns.append(J7_RF_CENSUS_TEST)
             if local in SYNTHETIC_BASES_INPUTS:

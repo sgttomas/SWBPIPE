@@ -149,3 +149,10 @@ def test_unrelated_changes_select_no_verifier_importers():
     assert selected('core/analysis_runs/compatibility.py') == sorted(ci.BASE)
     assert selected('core/units/schema_vocabulary.py') == sorted(ci.BASE)
     assert not verifier & set(selected('tests/qualification_fixture_support.py'))
+
+
+def test_supplier_acquisition_inputs_select_offline_boundaries_and_notice_hashes():
+    for path in ci.AGENT_SUPPLIER_INPUTS:
+        assert ci.AGENT_SUPPLIER_TEST in selected(path), path
+    assert ci.AGENT_SUPPLIER_TEST in ci.select(PROJECT, {'event': 'workflow_dispatch'})
+    assert ci.AGENT_SUPPLIER_TEST not in selected('core/security/redaction/controls.py')

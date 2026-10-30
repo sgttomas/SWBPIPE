@@ -1,0 +1,91 @@
+{
+  "schema": "swbpipe-agent-supplier-pins/1",
+  "supplier": "openai/codex",
+  "version": "0.160.0",
+  "source": {
+    "tag": "rust-v0.160.0",
+    "commit": "a956835d020762cb2b570053af06f643a11c0ecc",
+    "release_metadata_url": "https://api.github.com/repos/openai/codex/releases/tags/rust-v0.160.0"
+  },
+  "licensing": {
+    "expression": "Apache-2.0",
+    "files": [
+      {
+        "path": "docs/third-party/codex-0.160.0-LICENSE.txt",
+        "upstream_name": "LICENSE",
+        "size": 10926,
+        "sha256": "d17f227e4df5da1600391338865ce0f3055211760a36688f816941d58232d8dc"
+      },
+      {
+        "path": "docs/third-party/codex-0.160.0-NOTICE.txt",
+        "upstream_name": "NOTICE",
+        "size": 242,
+        "sha256": "9d71575ecfd9a843fc1677b0efb08053c6ba9fd686a0de1a6f5382fd3c220915"
+      }
+    ]
+  },
+  "targets": {
+    "aarch64-apple-darwin": {
+      "archive": {
+        "url": "https://github.com/openai/codex/releases/download/rust-v0.160.0/codex-aarch64-apple-darwin.tar.gz",
+        "size": 95893648,
+        "sha256": "07c3c7ca376a8f791115342f53138dda37e97cfa29b8125d0652d93784894b5d",
+        "format": "tar.gz",
+        "member": "codex-aarch64-apple-darwin"
+      },
+      "binary": {
+        "resource_name": "codex-aarch64-apple-darwin",
+        "size": 241555024,
+        "sha256": "112fae7a5a1223e673c8a1791d32338f37df8b527ff1159bb8adac6c4dbf1b4b",
+        "format": "mach-o-64-le",
+        "architecture": "arm64",
+        "minimum_macos": "11.0",
+        "minimum_load_command": "LC_BUILD_VERSION",
+        "sdk": "15.5"
+      },
+      "observed_signature": {
+        "identifier": "codex",
+        "team_identifier": "2DC432GLL2",
+        "authority": "Developer ID Application: OpenAI OpCo, LLC (2DC432GLL2)",
+        "display_only": true
+      },
+      "qualification": {
+        "bundling": "unproved",
+        "signature_validation": "unproved",
+        "native_compatibility": "unproved",
+        "isolation_cleanup": "unproved"
+      }
+    },
+    "x86_64-apple-darwin": {
+      "archive": {
+        "url": "https://github.com/openai/codex/releases/download/rust-v0.160.0/codex-x86_64-apple-darwin.tar.gz",
+        "size": 104691669,
+        "sha256": "a50c10606e4e81b8dd2f7b6bab635595aabc773c84cf2071773fbaf067825fbf",
+        "format": "tar.gz",
+        "member": "codex-x86_64-apple-darwin"
+      },
+      "binary": {
+        "resource_name": "codex-x86_64-apple-darwin",
+        "size": 260633072,
+        "sha256": "5383ef71dd1bd8d2f3658c04a219e2cf165c7969aebd0cceced1bc9f0f68877f",
+        "format": "mach-o-64-le",
+        "architecture": "x86_64",
+        "minimum_macos": "10.12",
+        "minimum_load_command": "LC_VERSION_MIN_MACOSX",
+        "sdk": "15.5"
+      },
+      "observed_signature": {
+        "identifier": "codex",
+        "team_identifier": "2DC432GLL2",
+        "authority": "Developer ID Application: OpenAI OpCo, LLC (2DC432GLL2)",
+        "display_only": true
+      },
+      "qualification": {
+        "bundling": "unproved",
+        "signature_validation": "unproved",
+        "native_compatibility": "unproved",
+        "isolation_cleanup": "unproved"
+      }
+    }
+  }
+}
