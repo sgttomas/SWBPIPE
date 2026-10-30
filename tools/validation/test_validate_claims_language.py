@@ -283,7 +283,7 @@ def test_findings_exit_one_with_invalid_lines(tmp_path, capsys):
 
 
 def test_missing_project_root_is_operational(tmp_path, capsys):
-    assert validator.main(["--repo-root", str(tmp_path)]) == 2
+    assert validator.main(["--repo-root", str(tmp_path / "absent")]) == 2
     assert "OPERATIONAL_ERROR" in capsys.readouterr().err
 
 

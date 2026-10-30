@@ -306,14 +306,14 @@ def input_patterns() -> tuple[str, ...]:
     (a superset of the scan's suffix and exclusion filters). Hosted CI
     (tools/run_affected_tests.py) runs the check when a changed path
     matches one."""
-    project = PROJECT_RELPATH.as_posix()
+    project = PROJECT_RELPATH
     here = Path(__file__).resolve()
     return (
-        f"{project}/{DESKTOP_SRC_RELPATH.as_posix()}/*",
-        f"{project}/{DOCS_RELPATH.as_posix()}/*",
-        f"{project}/{SCOPE_OF_WORK_GLOB}",
-        *(f"{project}/{rel_path}" for _code, rel_path, _fragment in ANCHORS),
-        f"{project}/{REGISTRY_RELPATH.as_posix()}",
+        (project / DESKTOP_SRC_RELPATH / "*").as_posix(),
+        (project / DOCS_RELPATH / "*").as_posix(),
+        (project / SCOPE_OF_WORK_GLOB).as_posix(),
+        *((project / rel_path).as_posix() for _code, rel_path, _fragment in ANCHORS),
+        (project / REGISTRY_RELPATH).as_posix(),
         here.relative_to(here.parents[2]).as_posix(),
     )
 

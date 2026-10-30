@@ -79,7 +79,8 @@ jobs:
     name: Build, behaviour and core browser journey
     needs: selection
     if: needs.selection.outputs.mode == 'full'
-    runs-on: ubuntu-latest
+    # Playwright 1.60.0 supports Ubuntu 24.04; ubuntu-latest may select 26.04.
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
@@ -160,7 +161,8 @@ jobs:
     name: Desktop behaviour (${{ matrix.shard }}/2)
     needs: selection
     if: needs.selection.outputs.desktop_mode == 'full'
-    runs-on: ubuntu-latest
+    # Playwright 1.60.0 supports Ubuntu 24.04; ubuntu-latest may select 26.04.
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     strategy:
       fail-fast: false
@@ -412,7 +414,8 @@ jobs:
     name: Broad browser matrix (${{ matrix.shard }}/4)
     needs: selection
     if: github.event_name != 'pull_request' && needs.selection.outputs.mode == 'full'
-    runs-on: ubuntu-latest
+    # Playwright 1.60.0 supports Ubuntu 24.04; ubuntu-latest may select 26.04.
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     strategy:
       fail-fast: false
