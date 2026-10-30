@@ -508,15 +508,27 @@ def select_paths(paths: list[str], profile: dict, root: Path = ROOT,
     return selection
 
 
+REGULAR_FILE_MODES = {"100644", "100755"}
+
+
 def changed_paths(root: Path, merge_base: str, head: str) -> tuple[list[str], frozenset[str]]:
-    """Every changed path, and those modified in place (not added, deleted or
-    typechanged). --no-renames gives both sides of a rename; NUL delimiters
-    preserve paths."""
-    fields = [f for f in git(root, "diff", "--name-status", "--no-renames", "-z", merge_base, head, "--").split("\0") if f]
+    """Every changed path, and those whose content changed in place: a regular
+    file before and after, not added, deleted, renamed, typechanged or a
+    symlink, so its existence and kind are unchanged. --no-renames gives both
+    sides of a rename; NUL delimiters preserve paths."""
+    fields = [f for f in git(root, "diff", "--raw", "--no-renames", "--no-abbrev", "-z", merge_base, head, "--").split("\0") if f]
     if len(fields) % 2:
-        raise ValueError("Malformed diff status")
-    pairs = list(zip(fields[0::2], fields[1::2]))
-    return sorted({p for _, p in pairs}), frozenset(p for status, p in pairs if status == "M")
+        raise ValueError("Malformed raw diff")
+    paths, edits = set(), set()
+    for header, path in zip(fields[0::2], fields[1::2]):
+        parts = header.lstrip(":").split()
+        if not header.startswith(":") or len(parts) != 5:
+            raise ValueError("Malformed raw diff entry")
+        old_mode, new_mode, _, _, status = parts
+        paths.add(path)
+        if status == "M" and old_mode == new_mode and new_mode in REGULAR_FILE_MODES:
+            edits.add(path)
+    return sorted(paths), frozenset(edits)
 
 
 def text_at(root: Path, head: str, path: str) -> bool:
@@ -538,8 +550,10 @@ def text_at(root: Path, head: str, path: str) -> bool:
 
 def repository_plan(root: Path, event: str, base: str, head: str) -> dict:
     """Always-on repository regressions: all of them, except that a pull
-    request whose complete diff is Markdown text outside tool, test and
-    workflow trees omits SOURCE_REACHABILITY_TESTS, which read no Markdown."""
+    request whose complete diff is in-place edits of Markdown text outside
+    tool, test and workflow trees omits SOURCE_REACHABILITY_TESTS, which read
+    no Markdown. An addition, deletion, rename or typechange keeps them: a
+    file's existence is itself an input."""
     resolved_head = git(root, "rev-parse", "--verify", head + "^{commit}").strip()
     plan = {"schema": "chirality-repository-ci/v1", "event": event, "head": resolved_head,
             "paths": [], "mode": "full", "deselect": [], "reason": "Not a pull request; every regression"}
@@ -549,7 +563,7 @@ def repository_plan(root: Path, event: str, base: str, head: str) -> dict:
         if not base:
             raise ValueError("missing base")
         merge_base = git(root, "merge-base", base, resolved_head).strip()
-        paths, _ = changed_paths(root, merge_base, resolved_head)
+        paths, edits = changed_paths(root, merge_base, resolved_head)
         plan["paths"] = paths
         if not paths:
             plan["reason"] = "Empty diff; every regression"
@@ -558,6 +572,9 @@ def repository_plan(root: Path, event: str, base: str, head: str) -> dict:
             if not path.endswith(".md") or matches(path, MARKDOWN_ONLY_EXCLUDED):
                 plan["reason"] = f"{path} is not Markdown outside tool, test and workflow trees; every regression"
                 return plan
+            if path not in edits:
+                plan["reason"] = f"{path} is added, deleted, renamed or not a regular file; every regression"
+                return plan
             if not text_at(root, resolved_head, path):
                 plan["reason"] = f"{path} is not UTF-8 text; every regression"
                 return plan
@@ -565,7 +582,7 @@ def repository_plan(root: Path, event: str, base: str, head: str) -> dict:
         plan["reason"] = "Unavailable complete PR diff; every regression"
         return plan
     plan.update(mode="markdown-only", deselect=list(SOURCE_REACHABILITY_TESTS),
-                reason="Markdown-only diff; source-reachability regressions, which read no Markdown, omitted")
+                reason="In-place Markdown edits only; source-reachability regressions, which read no Markdown, omitted")
     return plan
 
 

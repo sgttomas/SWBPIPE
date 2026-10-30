@@ -509,10 +509,13 @@ class HostedCITests(unittest.TestCase):
         return hosted_ci.repository_plan(self.root, event, base or self.base, "HEAD")
 
     def test_markdown_only_pr_omits_only_the_source_reachability_regressions(self):
-        for path in ["docs/BUILD_AND_RELEASE.md", "execution/PKG-01/DEL-01-01/Design/note.md", "README.md"]:
+        for path in ["docs/BUILD_AND_RELEASE.md", "execution/PKG-01/DEL-01-01/Design/note.md"]:
             self.write(path, "Prose.\n")
+        base = self.commit()
+        for path in ["docs/BUILD_AND_RELEASE.md", "execution/PKG-01/DEL-01-01/Design/note.md", "README.md"]:
+            self.write(path, "Edited prose.\n")
         self.commit()
-        plan = self.repository()
+        plan = self.repository(base)
         self.assertEqual(plan["mode"], "markdown-only")
         self.assertEqual(plan["deselect"], list(hosted_ci.SOURCE_REACHABILITY_TESTS))
 
@@ -541,10 +544,47 @@ class HostedCITests(unittest.TestCase):
         empty = self.git("rev-parse", "HEAD")
         self.assertEqual(hosted_ci.repository_plan(self.root, "pull_request", empty, "HEAD")["mode"], "full")
 
-    def test_a_deleted_markdown_file_is_markdown_only(self):
-        self.git("rm", "-q", "README.md")
-        self.git("commit", "-qm", "delete")
-        self.assertEqual(self.repository()["mode"], "markdown-only")
+    def test_adding_deleting_or_renaming_markdown_keeps_every_regression(self):
+        # Review r1: deleting a declared runtime input such as
+        # fixtures/model_operations/contract_corpus/README.md changes a
+        # source-reachability result; existence is an input that a trace of
+        # opened files cannot see.
+        self.write("docs/kept.md", "Prose.\n")
+        base = self.commit()
+        for change in (lambda: self.git("rm", "-q", "docs/kept.md"),
+                       lambda: self.write("docs/new.md", "Prose.\n"),
+                       lambda: self.git("mv", "docs/kept.md", "docs/moved.md")):
+            with self.subTest(change=change):
+                self.git("reset", "-q", "--hard", base)
+                change()
+                self.git("add", "-A")
+                self.git("commit", "-qm", "change")
+                plan = self.repository(base)
+                self.assertEqual((plan["mode"], plan["deselect"]), ("full", []))
+
+    def test_markdown_edited_to_binary_keeps_every_regression(self):
+        self.write("docs/note.md", "Prose.\n")
+        base = self.commit()
+        for content in ("a\0b", b"\xff\xfe".decode("latin-1")):
+            with self.subTest(content=content):
+                (self.root / "docs/note.md").write_bytes(content.encode("latin-1"))
+                self.commit()
+                self.assertEqual(self.repository(base)["mode"], "full")
+
+    def test_symlinked_or_typechanged_markdown_keeps_every_regression(self):
+        self.write("docs/target.md", "Prose.\n")
+        self.write("docs/plain.md", "Prose.\n")
+        os.symlink("target.md", self.root / "docs/link.md")
+        base = self.commit()
+        os.remove(self.root / "docs/link.md")
+        os.symlink("plain.md", self.root / "docs/link.md")
+        self.commit()
+        self.assertEqual(self.repository(base)["mode"], "full")
+        self.git("reset", "-q", "--hard", base)
+        os.remove(self.root / "docs/link.md")
+        self.write("docs/link.md", "Now a file.\n")
+        self.commit()
+        self.assertEqual(self.repository(base)["mode"], "full")
 
     def test_every_omitted_regression_exists(self):
         for node in hosted_ci.SOURCE_REACHABILITY_TESTS:
@@ -603,6 +643,10 @@ class HostedCITests(unittest.TestCase):
         paths, edits = hosted_ci.changed_paths(self.root, merge_base, head)
         self.assertEqual(paths, ["docs/a.md", "docs/b.md", "docs/c.md"])
         self.assertEqual(edits, frozenset({"docs/a.md"}))
+        # A mode change is not an in-place content edit.
+        os.chmod(self.root / "docs/a.md", 0o755)
+        head = self.commit()
+        self.assertEqual(hosted_ci.changed_paths(self.root, merge_base, head)[1], frozenset())
 
 
 if __name__ == "__main__":
