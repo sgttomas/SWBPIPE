@@ -1,0 +1,462 @@
+{
+ "rows": [
+  {
+   "fixture": "fields",
+   "mode": "sparse_interactive",
+   "n": 2,
+   "m": 1,
+   "g": 2,
+   "cases": 1,
+   "empty_region_cases": [
+    "case"
+   ],
+   "rows": 102,
+   "rows_by_basis_ref": {
+    "case": 102
+   },
+   "producer": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+   "contract_evidence_keys": [
+    "connector",
+    "exact_cases",
+    "pressure"
+   ],
+   "7n+72m+8g": 102
+  },
+  {
+   "fixture": "fields",
+   "mode": "dense_scrutiny",
+   "n": 2,
+   "m": 1,
+   "g": 2,
+   "cases": 1,
+   "empty_region_cases": [
+    "case"
+   ],
+   "rows": 102,
+   "rows_by_basis_ref": {
+    "case": 102
+   },
+   "producer": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+   "contract_evidence_keys": [
+    "connector",
+    "exact_cases",
+    "pressure"
+   ],
+   "7n+72m+8g": 102
+  },
+  {
+   "fixture": "mixed",
+   "mode": "sparse_interactive",
+   "n": 2,
+   "m": 1,
+   "g": 2,
+   "cases": 2,
+   "empty_region_cases": [
+    "case"
+   ],
+   "rows": 253,
+   "rows_by_basis_ref": {
+    "case": 102,
+    "case:ordinary-pressure": 151
+   },
+   "producer": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+   "contract_evidence_keys": [
+    "connector",
+    "exact_cases",
+    "pressure"
+   ],
+   "7n+72m+8g": 102
+  },
+  {
+   "fixture": "mixed",
+   "mode": "dense_scrutiny",
+   "n": 2,
+   "m": 1,
+   "g": 2,
+   "cases": 2,
+   "empty_region_cases": [
+    "case"
+   ],
+   "rows": 253,
+   "rows_by_basis_ref": {
+    "case": 102,
+    "case:ordinary-pressure": 151
+   },
+   "producer": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+   "contract_evidence_keys": [
+    "connector",
+    "exact_cases",
+    "pressure"
+   ],
+   "7n+72m+8g": 102
+  },
+  {
+   "fixture": "mixed_units",
+   "mode": "sparse_interactive",
+   "n": 2,
+   "m": 1,
+   "g": 2,
+   "cases": 2,
+   "empty_region_cases": [
+    "case"
+   ],
+   "rows": 253,
+   "rows_by_basis_ref": {
+    "case": 102,
+    "case:ordinary-pressure": 151
+   },
+   "producer": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+   "contract_evidence_keys": [
+    "connector",
+    "exact_cases",
+    "pressure"
+   ],
+   "7n+72m+8g": 102
+  },
+  {
+   "fixture": "mixed_units",
+   "mode": "dense_scrutiny",
+   "n": 2,
+   "m": 1,
+   "g": 2,
+   "cases": 2,
+   "empty_region_cases": [
+    "case"
+   ],
+   "rows": 253,
+   "rows_by_basis_ref": {
+    "case": 102,
+    "case:ordinary-pressure": 151
+   },
+   "producer": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+   "contract_evidence_keys": [
+    "connector",
+    "exact_cases",
+    "pressure"
+   ],
+   "7n+72m+8g": 102
+  },
+  {
+   "fixture": "n05",
+   "mode": "sparse_interactive",
+   "n": 2,
+   "m": 1,
+   "g": 2,
+   "cases": 1,
+   "empty_region_cases": [
+    "case"
+   ],
+   "rows": 102,
+   "rows_by_basis_ref": {
+    "case": 102
+   },
+   "producer": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+   "contract_evidence_keys": [
+    "connector",
+    "exact_cases",
+    "pressure"
+   ],
+   "7n+72m+8g": 102
+  },
+  {
+   "fixture": "n05",
+   "mode": "dense_scrutiny",
+   "n": 2,
+   "m": 1,
+   "g": 2,
+   "cases": 1,
+   "empty_region_cases": [
+    "case"
+   ],
+   "rows": 102,
+   "rows_by_basis_ref": {
+    "case": 102
+   },
+   "producer": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+   "contract_evidence_keys": [
+    "connector",
+    "exact_cases",
+    "pressure"
+   ],
+   "7n+72m+8g": 102
+  },
+  {
+   "fixture": "n05_unicode",
+   "mode": "sparse_interactive",
+   "n": 2,
+   "m": 1,
+   "g": 2,
+   "cases": 1,
+   "empty_region_cases": [
+    "case:\u6e29\u5ea6:\u03b1"
+   ],
+   "rows": 102,
+   "rows_by_basis_ref": {
+    "case:\u6e29\u5ea6:\u03b1": 102
+   },
+   "producer": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+   "contract_evidence_keys": [
+    "connector",
+    "exact_cases",
+    "pressure"
+   ],
+   "7n+72m+8g": 102
+  },
+  {
+   "fixture": "n05_unicode",
+   "mode": "dense_scrutiny",
+   "n": 2,
+   "m": 1,
+   "g": 2,
+   "cases": 1,
+   "empty_region_cases": [
+    "case:\u6e29\u5ea6:\u03b1"
+   ],
+   "rows": 102,
+   "rows_by_basis_ref": {
+    "case:\u6e29\u5ea6:\u03b1": 102
+   },
+   "producer": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+   "contract_evidence_keys": [
+    "connector",
+    "exact_cases",
+    "pressure"
+   ],
+   "7n+72m+8g": 102
+  },
+  {
+   "fixture": "n05_units",
+   "mode": "sparse_interactive",
+   "n": 2,
+   "m": 1,
+   "g": 2,
+   "cases": 1,
+   "empty_region_cases": [
+    "case"
+   ],
+   "rows": 102,
+   "rows_by_basis_ref": {
+    "case": 102
+   },
+   "producer": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+   "contract_evidence_keys": [
+    "connector",
+    "exact_cases",
+    "pressure"
+   ],
+   "7n+72m+8g": 102
+  },
+  {
+   "fixture": "n05_units",
+   "mode": "dense_scrutiny",
+   "n": 2,
+   "m": 1,
+   "g": 2,
+   "cases": 1,
+   "empty_region_cases": [
+    "case"
+   ],
+   "rows": 102,
+   "rows_by_basis_ref": {
+    "case": 102
+   },
+   "producer": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+   "contract_evidence_keys": [
+    "connector",
+    "exact_cases",
+    "pressure"
+   ],
+   "7n+72m+8g": 102
+  },
+  {
+   "fixture": "n06",
+   "mode": "sparse_interactive",
+   "n": 2,
+   "m": 1,
+   "g": 2,
+   "cases": 1,
+   "empty_region_cases": [
+    "case"
+   ],
+   "rows": 102,
+   "rows_by_basis_ref": {
+    "case": 102
+   },
+   "producer": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+   "contract_evidence_keys": [
+    "connector",
+    "exact_cases",
+    "pressure"
+   ],
+   "7n+72m+8g": 102
+  },
+  {
+   "fixture": "n06",
+   "mode": "dense_scrutiny",
+   "n": 2,
+   "m": 1,
+   "g": 2,
+   "cases": 1,
+   "empty_region_cases": [
+    "case"
+   ],
+   "rows": 102,
+   "rows_by_basis_ref": {
+    "case": 102
+   },
+   "producer": "openpipestress.result_semantics/0.3.0/pressure-source-1",
+   "contract_evidence_keys": [
+    "connector",
+    "exact_cases",
+    "pressure"
+   ],
+   "7n+72m+8g": 102
+  }
+ ],
+ "rows_per_member": 72,
+ "string_cap": 304,
+ "caps": {
+  "n": 32,
+  "m": 32,
+  "g": 32
+ },
+ "per_pipe_entries": {
+  "pipe_materials": 1,
+  "pipe_sections": 1,
+  "pipe_stress_extrema": 2
+ },
+ "coverage_lists": 2,
+ "locations_shapes": {
+  "strict_endpoint": {
+   "arr": 0,
+   "obj": 1,
+   "ent": 2,
+   "strb": 608,
+   "keyb": 12,
+   "nums": 0,
+   "depth": 2
+  },
+  "whole_span_constant": {
+   "arr": 0,
+   "obj": 1,
+   "ent": 1,
+   "strb": 304,
+   "keyb": 4,
+   "nums": 0,
+   "depth": 2
+  },
+  "endpoint_candidates": {
+   "arr": 0,
+   "obj": 1,
+   "ent": 3,
+   "strb": 304,
+   "keyb": 43,
+   "nums": 0,
+   "depth": 2
+  }
+ },
+ "exact_evidence_case_parts": {
+  "rest": {
+   "arr": 14,
+   "obj": 4,
+   "ent": 29,
+   "strb": 6080,
+   "keyb": 495,
+   "nums": 3,
+   "depth": 4
+  },
+  "per_pipe": {
+   "arr": 76,
+   "obj": 27,
+   "ent": 127,
+   "strb": 11856,
+   "keyb": 1348,
+   "nums": 104,
+   "depth": 7
+  },
+  "per_pipe_by_array": {
+   "pipe_materials": {
+    "arr": 1,
+    "obj": 1,
+    "ent": 9,
+    "strb": 1216,
+    "keyb": 88,
+    "nums": 3,
+    "depth": 2
+   },
+   "pipe_sections": {
+    "arr": 1,
+    "obj": 5,
+    "ent": 26,
+    "strb": 912,
+    "keyb": 218,
+    "nums": 19,
+    "depth": 3
+   },
+   "pipe_stress_extrema": {
+    "arr": 74,
+    "obj": 20,
+    "ent": 92,
+    "strb": 9728,
+    "keyb": 1042,
+    "nums": 82,
+    "depth": 7
+   }
+  },
+  "per_dof": {
+   "arr": 3,
+   "obj": 0,
+   "ent": 0,
+   "strb": 0,
+   "keyb": 0,
+   "nums": 3,
+   "depth": 0
+  },
+  "per_node": {
+   "arr": 1,
+   "obj": 0,
+   "ent": 0,
+   "strb": 304,
+   "keyb": 0,
+   "nums": 0,
+   "depth": 0
+  },
+  "per_unavailable_pipe": {
+   "arr": 2,
+   "obj": 0,
+   "ent": 0,
+   "strb": 608,
+   "keyb": 0,
+   "nums": 0,
+   "depth": 0
+  }
+ },
+ "exact_evidence_per_case_at_caps": {
+  "arr": 3118,
+  "obj": 868,
+  "ent": 4093,
+  "strb": 414656,
+  "keyb": 43631,
+  "nums": 3907,
+  "depth": 7
+ },
+ "preview_tree_per_case_at_caps": {
+  "arr": 160,
+  "obj": 67,
+  "ent": 553,
+  "strb": 66816,
+  "keyb": 22120,
+  "nums": 320,
+  "depth": 6
+ },
+ "componentwise_max": {
+  "arr": 3118,
+  "obj": 868,
+  "ent": 4093,
+  "strb": 414656,
+  "keyb": 43631,
+  "nums": 3907,
+  "depth": 7
+ },
+ "fixture_case_bytes": 6052
+}

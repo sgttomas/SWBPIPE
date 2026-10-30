@@ -1,0 +1,9 @@
+{
+  "logical_path": "projects/chirality-piping/execution/_Change/PHYSICS_UI_PREPARATION_20260907/FINAL_pytest_V2.log",
+  "physical_path": "projects/chirality-piping/execution/_Change/PHYSICS_UI_PREPARATION_20260907/FINAL_pytest_V2.log.b64",
+  "encoding": "base64",
+  "decoded_sha256": "234b7fd8dd9a7fce13fd19fedb3fb359ac1b7f962964553df49593e486d43cac",
+  "decoded_bytes": 1869,
+  "reason": "Second raw pytest failure trace contains trailing whitespace. Lossless representation preserves diagnostic bytes without policy changes.",
+  "materialize": "Base64-decode physical_path to a temporary file outside repository, then verify decoded_sha256. V2 command evidence names logical path."
+}

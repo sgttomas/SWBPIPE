@@ -1,0 +1,43 @@
+{
+  "bindings": [],
+  "case_id": "case_20_accept_multiply_length_length_area",
+  "declared_grammar_version": "1.0.0",
+  "description": "Enumerated dimension product Length x Length -> Area.",
+  "expected": {
+    "findings": [],
+    "source_variable_ids": [],
+    "statuses": [
+      "mechanics_solved"
+    ],
+    "value": {
+      "dimension": "area",
+      "kind": "quantity",
+      "unit_ref": "invented_length_unit*invented_length_unit",
+      "value": 12.0
+    }
+  },
+  "expression": {
+    "left": {
+      "node": "literal",
+      "quantity": {
+        "dimension": "length",
+        "unit_ref": "invented_length_unit",
+        "value": 3.0
+      }
+    },
+    "node": "binary",
+    "operator": "multiply",
+    "right": {
+      "node": "literal",
+      "quantity": {
+        "dimension": "length",
+        "unit_ref": "invented_length_unit",
+        "value": 4.0
+      }
+    }
+  },
+  "required_variable_ids": [],
+  "statuses": [
+    "mechanics_solved"
+  ]
+}

@@ -1,0 +1,246 @@
+{
+  "export_id": "pcf-export:invented-del-17-07",
+  "source_model_ref": {
+    "object_type": "Model",
+    "ref": "model:invented-pcf-export"
+  },
+  "source_model_hash": {
+    "algorithm": "sha256",
+    "canonicalization": "JCS_compatible_json_payload_hash",
+    "payload_ref": {
+      "object_type": "Model",
+      "ref": "model:invented-pcf-export"
+    },
+    "payload_scope": "source_model_hash",
+    "value": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+  },
+  "pcf_payload": {
+    "pipeline_reference": "OPS-INVENTED-PCF-001",
+    "units": {
+      "bore": "INCH",
+      "coordinates": "MM",
+      "bolt_diameter": "INCH",
+      "bolt_length": "MM",
+      "weight": "KG"
+    },
+    "coordinate_basis": "project_xyz_millimeters",
+    "nodes": [
+      {
+        "node_id": "node:invented:A",
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      {
+        "node_id": "node:invented:B",
+        "x": 1500,
+        "y": 0,
+        "z": 0
+      },
+      {
+        "node_id": "node:invented:C",
+        "x": 1500,
+        "y": 750,
+        "z": 0
+      }
+    ],
+    "pipe_segments": [
+      {
+        "element_id": "element:invented:AB",
+        "from_node": "node:invented:A",
+        "to_node": "node:invented:B",
+        "target_component_identifier": "OPS-PIPE-AB",
+        "nominal_size": "NPS2",
+        "outside_diameter": "60.3",
+        "wall_thickness": "3.91",
+        "item_code": "PIPE-INVENTED-NPS2",
+        "material_label": "INVENTED-CARBON-STEEL"
+      },
+      {
+        "element_id": "element:invented:BC",
+        "from_node": "node:invented:B",
+        "to_node": "node:invented:C",
+        "target_component_identifier": "OPS-PIPE-BC",
+        "nominal_size": "NPS2",
+        "outside_diameter": "60.3",
+        "wall_thickness": "3.91",
+        "item_code": "PIPE-INVENTED-NPS2",
+        "material_label": "INVENTED-CARBON-STEEL"
+      }
+    ],
+    "omitted_entities": [
+      {
+        "object_type": "Support",
+        "ref": "support:invented:A"
+      }
+    ],
+    "unsupported_entities": [
+      {
+        "object_type": "BoundaryCondition",
+        "ref": "boundary:invented:free-end"
+      }
+    ],
+    "tbd_entities": [
+      {
+        "object_type": "TargetProfile",
+        "ref": "pcf-target-version"
+      }
+    ]
+  },
+  "stable_id_map": [
+    {
+      "canonical_ref": {
+        "object_type": "PipeSegment",
+        "ref": "element:invented:AB"
+      },
+      "pcf_ref": {
+        "object_type": "PcfRecord",
+        "ref": "PIPE:OPS-PIPE-AB"
+      },
+      "metadata_carrier": "sidecar_id_map",
+      "mapping_status": "mapped",
+      "loss_category": "exported"
+    },
+    {
+      "canonical_ref": {
+        "object_type": "PipeSegment",
+        "ref": "element:invented:BC"
+      },
+      "pcf_ref": {
+        "object_type": "PcfRecord",
+        "ref": "PIPE:OPS-PIPE-BC"
+      },
+      "metadata_carrier": "sidecar_id_map",
+      "mapping_status": "mapped",
+      "loss_category": "exported"
+    }
+  ],
+  "loss_report": [
+    {
+      "loss_id": "loss:invented:pipe-segments-exported",
+      "category": "exported",
+      "severity": "info",
+      "affected_refs": [
+        {
+          "object_type": "PipeSegment",
+          "ref": "element:invented:AB"
+        }
+      ],
+      "target_artifact_ref": {
+        "object_type": "PcfExportMember",
+        "ref": "pcf-export:invented-del-17-07:model_pcf"
+      },
+      "reason": "Invented straight pipe segment emitted as conservative PCF text.",
+      "source_basis_ref": {
+        "object_type": "Deliverable",
+        "ref": "DEL-17-02"
+      },
+      "downstream_implication": "PCF text is export-review evidence only; no downstream import or solver behavior is implied."
+    },
+    {
+      "loss_id": "loss:invented:support-omitted",
+      "category": "omitted",
+      "severity": "warning",
+      "affected_refs": [
+        {
+          "object_type": "Support",
+          "ref": "support:invented:A"
+        }
+      ],
+      "target_artifact_ref": {
+        "object_type": "PcfExportMember",
+        "ref": "pcf-export:invented-del-17-07:model_pcf"
+      },
+      "reason": "Support transfer is outside the v1 conservative PCF foundation.",
+      "source_basis_ref": {
+        "object_type": "Deliverable",
+        "ref": "DEL-17-07"
+      },
+      "downstream_implication": "Support behavior remains visible only through source records and loss report."
+    },
+    {
+      "loss_id": "loss:invented:component-weight-approximated",
+      "category": "approximated",
+      "severity": "warning",
+      "affected_refs": [
+        {
+          "object_type": "ComponentWeight",
+          "ref": "weight:invented:valve-placeholder"
+        }
+      ],
+      "target_artifact_ref": {
+        "object_type": "PcfExportMember",
+        "ref": "pcf-export:invented-del-17-07:model_pcf"
+      },
+      "reason": "Component-weight representation is not emitted by this straight-pipe-only foundation.",
+      "source_basis_ref": {
+        "object_type": "Deliverable",
+        "ref": "DEL-17-07"
+      },
+      "downstream_implication": "No target-side weight behavior may be inferred from the fixture."
+    },
+    {
+      "loss_id": "loss:invented:translator-defaults-delegated",
+      "category": "delegated",
+      "severity": "warning",
+      "affected_refs": [
+        {
+          "object_type": "TranslatorBehavior",
+          "ref": "hidden-defaults"
+        }
+      ],
+      "target_artifact_ref": {
+        "object_type": "PcfExportMember",
+        "ref": "pcf-export:invented-del-17-07:model_pcf"
+      },
+      "reason": "Hidden downstream translator defaults are not interpreted locally.",
+      "source_basis_ref": {
+        "object_type": "Document",
+        "ref": "CAEPIPE-PCF"
+      },
+      "downstream_implication": "Any downstream translator default remains user-owned and non-authoritative."
+    },
+    {
+      "loss_id": "loss:invented:free-end-unsupported",
+      "category": "unsupported",
+      "severity": "warning",
+      "affected_refs": [
+        {
+          "object_type": "BoundaryCondition",
+          "ref": "boundary:invented:free-end"
+        }
+      ],
+      "target_artifact_ref": {
+        "object_type": "PcfExportMember",
+        "ref": "pcf-export:invented-del-17-07:model_pcf"
+      },
+      "reason": "Boundary-condition semantics are not reliably preserved by this foundation.",
+      "source_basis_ref": {
+        "object_type": "Deliverable",
+        "ref": "DEL-17-07"
+      },
+      "downstream_implication": "Boundary behavior must be reviewed outside this exported PCF text."
+    },
+    {
+      "loss_id": "loss:invented:target-profile-tbd",
+      "category": "tbd",
+      "severity": "warning",
+      "affected_refs": [
+        {
+          "object_type": "TargetProfile",
+          "ref": "pcf-target-version"
+        }
+      ],
+      "target_artifact_ref": {
+        "object_type": "PcfExportMember",
+        "ref": "pcf-export:invented-del-17-07:model_pcf"
+      },
+      "reason": "First supported PCF target profile/version remains unresolved.",
+      "source_basis_ref": {
+        "object_type": "Deliverable",
+        "ref": "DEL-17-01"
+      },
+      "downstream_implication": "No target-version support or compatibility claim is made."
+    }
+  ]
+}

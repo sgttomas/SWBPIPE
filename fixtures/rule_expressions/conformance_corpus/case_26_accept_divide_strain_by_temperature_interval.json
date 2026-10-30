@@ -1,0 +1,43 @@
+{
+  "bindings": [],
+  "case_id": "case_26_accept_divide_strain_by_temperature_interval",
+  "declared_grammar_version": "1.0.0",
+  "description": "Unique quotient resolved from the second factor of an enumerated product.",
+  "expected": {
+    "findings": [],
+    "source_variable_ids": [],
+    "statuses": [
+      "mechanics_solved"
+    ],
+    "value": {
+      "dimension": "thermal_expansion_coefficient",
+      "kind": "quantity",
+      "unit_ref": "ratio/invented_delta_t_unit",
+      "value": 2.0
+    }
+  },
+  "expression": {
+    "left": {
+      "node": "literal",
+      "quantity": {
+        "dimension": "dimensionless",
+        "unit_ref": "ratio",
+        "value": 6.0
+      }
+    },
+    "node": "binary",
+    "operator": "divide",
+    "right": {
+      "node": "literal",
+      "quantity": {
+        "dimension": "temperature_interval",
+        "unit_ref": "invented_delta_t_unit",
+        "value": 3.0
+      }
+    }
+  },
+  "required_variable_ids": [],
+  "statuses": [
+    "mechanics_solved"
+  ]
+}

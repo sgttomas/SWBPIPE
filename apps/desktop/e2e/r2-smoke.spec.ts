@@ -1,0 +1,2007 @@
+import { selectCompactOption } from "./workspace-driver";
+import { expect, test, type Page, type Locator } from "@playwright/test";
+import { readFileSync } from "node:fs";
+import { inflateSync } from "node:zlib";
+import {
+  chooseVirtualTarget,
+  closeWorkspacePanels,
+  ensureInspectorExpanded,
+  ensureTreeExpanded,
+  expectNoStatusChip,
+  expectRecordedStatusOnAnalyzePage,
+  expectStatusChip,
+  expectTreeEntity,
+  expectVirtualTarget,
+  confirmProjectUnits,
+  openWorkspaceSection,
+  projectCommand,
+  selectTreeEntity,
+  showCanvas,
+  startPropertyTaskFromTreeEntity,
+  type TreeEntityType,
+} from "./workspace-driver";
+
+type RehearsalStep = {
+  change_kind: string;
+  payload: Record<string, any>;
+  target?: {
+    ref: string;
+  };
+};
+
+type RehearsalFixture = {
+  steps: RehearsalStep[];
+};
+
+const rehearsal = JSON.parse(
+  readFileSync(new URL("../../../fixtures/product_preview/r2_from_blank_rehearsal.json", import.meta.url), "utf8")
+) as RehearsalFixture;
+
+// Immutable recorded-source oracles are separate from browser freshness.
+// No fixture headers, model references, quality flags or values are rewritten.
+// The bundled reference: the valid demo model (the invented loop without its legacy
+// pressure and its joint; also the default session model) and its actual sparse
+// output, read with its own semantics (b7-plan E2: no historical-format carrier).
+const demoModel = JSON.parse(readFileSync(new URL("../../../fixtures/product_preview/invented_demo_model.json", import.meta.url), "utf8"));
+const referenceSource = JSON.parse(readFileSync(new URL("../../../fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json", import.meta.url), "utf8"));
+const referenceSemantics = JSON.parse(readFileSync(new URL("../../../fixtures/results/semantic_contract_v0_3_preview_physics_2.json", import.meta.url), "utf8"));
+
+async function expectBackendRefusal(page: Page): Promise<void> {
+  await expect(page.getByTestId("solve-job-summary")).toContainText("state=failed");
+  await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=0");
+  await expect(page.getByTestId("solve-job-error")).toHaveAttribute("role", "status");
+  await expect(page.getByTestId("solve-job-error")).toContainText(/BROWSER_SOLVE_BACKEND_REQUIRED_(REFERENCE_ONLY|FOR_EDITED_MODEL)/);
+  await expect(page.getByTestId("status-pill-solve-proof")).toHaveCount(0);
+}
+
+async function inspectBundledReference(page: Page): Promise<Locator> {
+  await openWorkspaceSection(page, "solve");
+  await page.getByTestId("workspace-section-solve").getByRole("button", { name: "Inspect bundled reference", exact: true }).click();
+  const reference = page.getByTestId("historical-run-context");
+  await expect(reference).toContainText("Bundled reference — not a solve for the current model");
+  await expect(reference).toContainText("NO_CURRENT_MODEL_INVOCATION");
+  // W-7: the demo publishes 12 global end rows per pipe and case (745 -> 841); the C-120 fix removes the
+  // elbow-placed tee component:C-120 and its 4 intensified rows (841 -> 837).
+  await expect(reference.getByTestId("result-filter-summary")).toContainText("837 of 837 results match filter");
+  return reference;
+}
+
+// The old overlay and packet cardinalities remain recorded-source oracles,
+// not evidence that bundled data was solved for the current browser model.
+test("recorded reference sources retain the original row, quantity, unit and diagnostic oracles", () => {
+  // Per source: [semantics, rows, reaction rows, pipe-P-120 rows, summary quantities].
+  for (const [source, semantics, rows, reactions, p120, headlines] of [
+    // C-120 fix: 4 intensified rows go (2 of them, header P-120 end_i, matched pipe-P-120); reactions unchanged.
+    [referenceSource, referenceSemantics, 837, 102, 154, 2],
+  ] as const) {
+    expect(source.model_ref).toBe(demoModel.project.id);
+    expect(source.results).toHaveLength(rows);
+    const magnitudes = source.results.filter((row: any) => row.kind === "displacement_magnitude");
+    expect(new Set(magnitudes.map((row: any) => row.entity_ref)).size).toBe(5);
+    // W-15 (DEL-03-05 Design §6): valve C-130's member is solved with its scale 15 (was 7.635384 unscaled).
+    expect(Math.max(...magnitudes.map((row: any) => row.value)).toFixed(6)).toBe("7.624972");
+    const vectors = source.results.filter((row: any) => ["global_nodal_displacement_x", "global_nodal_displacement_y", "global_nodal_displacement_z"].includes(row.kind));
+    expect(vectors.length).toBeGreaterThanOrEqual(15);
+    expect(vectors.every((row: any) => row.metadata.coordinate_system === "global" && row.unit === "mm")).toBe(true);
+    const reactionRows = source.results.filter((row: any) => semantics.rows.some((signature: any) => signature.family === "reaction" && signature.kind === row.kind && signature.unit === row.unit && (signature.component === null || signature.component === row.metadata?.component)));
+    expect(reactionRows).toHaveLength(reactions);
+    expect(source.results.filter((row: any) => row.id.includes("pipe-P-120"))).toHaveLength(p120);
+    const summaryQuantities = Object.values(source.summary).filter((item: any) => item && typeof item === "object" && typeof item.value === "number" && typeof item.unit === "string");
+    expect(source.results.length + summaryQuantities.length).toBe(rows + headlines);
+    // No legacy pressure and no joint: no hoop, thrust or joint-stiffness rows.
+    expect(source.results.some((row: any) => row.id.includes("pressure") || row.id.includes("C-150"))).toBe(false);
+    const diagnostic = source.diagnostics.find((item: any) => item.code === "HIGH_DISPLACEMENT_REVIEW" && item.affected_refs.includes("result:disp:node-N-140"));
+    expect(diagnostic).toBeDefined();
+    const linked = source.results.filter((row: any) => diagnostic.affected_refs.includes(row.id));
+    expect(linked).toHaveLength(1);
+    expect(linked[0].unit).toBe("mm");
+    const knowledgeRefs = [source.summary.max_displacement, source.results.find((row: any) => row.id === "result:force:pipe-P-120:axial")];
+    expect(knowledgeRefs).toHaveLength(2);
+    expect(knowledgeRefs.map((item: any) => item.unit).sort()).toEqual(["N", "mm"]);
+    // The spring hanger's stiffness row keeps the N/m unit it was entered in:
+    // it carries its user-entered model value and unit, unconverted.
+    const springRows = source.results.filter((row: any) => ["N*m/rad", "N/m"].includes(row.unit));
+    const hanger = demoModel.supports.find((item: any) => item.id === "support:SH-140").hanger;
+    expect(Object.fromEntries(springRows.map((row: any) => [row.id, { value: row.value, unit: row.unit }]))).toEqual({
+      "result:spring-hanger:support-SH-140:stiffness": hanger.stiffness.value,
+    });
+  }
+  // The accepted witnesses and the two withheld diagnostic-work rows are retained
+  // by the independent pure packet assertions in StressNeutralExportPanel.test.tsx.
+});
+
+test("the pure recorded-source projection retains quantity unit oracles", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
+  // This calls a pure projection in isolation. It neither registers a source nor
+  // puts a result into the App's Current state or export route.
+  const projection = await page.evaluate(async ({ model, result }) => {
+    const modulePath = "/src/features/native-package/NativePackagePanel.tsx";
+    const servicePath = "/src/services/previewService.ts";
+    const { buildUnitPreservationEvidence } = await import(/* @vite-ignore */ modulePath);
+    const { hasNativeMechanicsInvocation } = await import(/* @vite-ignore */ servicePath);
+    const before = JSON.stringify({ model, result });
+    const evidence = buildUnitPreservationEvidence({ model, result });
+    return { summary: evidence.summary, conversion: evidence.conversion_performed, registered: hasNativeMechanicsInvocation(result, model), unchanged: JSON.stringify({ model, result }) === before };
+  }, { model: demoModel, result: referenceSource });
+  expect(projection.summary.project_unit_declaration_count).toBe(6);
+  // C-120 fix: the tee component:C-120 and its 6 quantities (3 geometry, 3 modifiers) go, and its 4 intensified rows.
+  expect(projection.summary.model_quantity_witness_count).toBe(34);
+  expect(projection.summary.result_quantity_witness_count).toBe(839);
+  expect(projection.conversion).toBe(false);
+  expect(projection.registered).toBe(false);
+  expect(projection.unchanged).toBe(true);
+  await expect(page.getByTestId("status-pill-solve-proof")).toHaveCount(0);
+});
+
+// Disclosures are opened through their visible summary, never by DOM mutation.
+async function setDisclosure(details: Locator, open = true): Promise<void> {
+  if ((await details.getAttribute("open") !== null) !== open) {
+    await details.locator(":scope > summary").click();
+  }
+  if (open) await expect(details).toHaveAttribute("open", "");
+  else await expect(details).not.toHaveAttribute("open");
+}
+
+async function openNamedDisclosure(scope: Page | Locator, name: string | RegExp): Promise<void> {
+  const summary = scope.locator("summary").filter({ hasText: typeof name === "string" ? new RegExp(`^${name}$`) : name });
+  await setDisclosure(summary.locator(".."));
+}
+
+async function openReviewTab(page: Page, tab: "review" | "agent" | "details"): Promise<void> {
+  await openWorkspaceSection(page, "operations");
+  const button = page.getByTestId(`operation-tab-${tab}`);
+  if (await button.getAttribute("aria-pressed") !== "true") await button.click();
+  await expect(button).toHaveAttribute("aria-pressed", "true");
+  if (tab === "details") {
+    const toggle = page.getByTestId("review-apply-drawer-toggle");
+    if (await toggle.getAttribute("aria-expanded") !== "true") await toggle.click();
+    await expect(toggle).toHaveAttribute("aria-expanded", "true");
+  }
+}
+
+async function ensureEngineReady(page: Page): Promise<void> {
+  await openReviewTab(page, "review");
+  await expect(page.getByTestId("operation-engine-chip")).toBeVisible();
+  await expect(page.getByTestId("operation-engine-chip")).toContainText("Engine ready");
+  await closeWorkspacePanels(page);
+}
+
+async function chooseToolkit(page: Page, commandId: string, targetTestId: string): Promise<void> {
+  await page.getByTestId("toolkit-entry").click();
+  await page.getByTestId(`toolkit-${commandId}`).click();
+  await expect(page.getByTestId(targetTestId)).toBeVisible();
+  await expect(page.getByTestId(targetTestId)).toBeFocused();
+}
+
+async function openViewportPendingChanges(page: Page): Promise<void> {
+  await openNamedDisclosure(page.getByTestId("viewport-editor-intents"), /^Pending changes \(/);
+  await expect(page.getByTestId("viewport-intent-list")).toBeVisible();
+}
+
+async function ensureCreationToolArmed(page: Page, testId: "command-node" | "command-pipe", label: string): Promise<void> {
+  await showCanvas(page);
+  const button = page.getByTestId(testId);
+  if ((await button.getAttribute("aria-pressed")) !== "true") {
+    await button.click();
+  }
+  await expect(button).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByTestId("armed-creation-tool")).toContainText(label);
+  await expect(page.getByTestId("viewport-editor-intents")).toHaveClass(/active/);
+}
+
+async function ensurePipeEndpointPick(page: Page, testId: "viewport-pick-pipe-from" | "viewport-pick-pipe-to"): Promise<void> {
+  const button = page.getByTestId(testId);
+  if ((await button.getAttribute("aria-pressed")) !== "true") {
+    await button.click();
+  }
+  await expect(button).toHaveAttribute("aria-pressed", "true");
+}
+
+async function expectWorkspaceStatusClearOfTarget(
+  page: Page,
+  targetTestId: string,
+): Promise<void> {
+  const target = page.getByTestId(targetTestId);
+  await target.scrollIntoViewIfNeeded();
+  const [targetBox, statusBox] = await Promise.all([
+    target.boundingBox(),
+    page.getByTestId("workspace-status-bar").boundingBox(),
+  ]);
+  expect(targetBox).not.toBeNull();
+  expect(statusBox).not.toBeNull();
+  const overlaps =
+    targetBox!.x < statusBox!.x + statusBox!.width &&
+    targetBox!.x + targetBox!.width > statusBox!.x &&
+    targetBox!.y < statusBox!.y + statusBox!.height &&
+    targetBox!.y + targetBox!.height > statusBox!.y;
+  // Slice B3: a section lives in the stage's table pane or in a page over the stage. "dock" is
+  // whichever of the two holds the target, and "body" is that holder's scrolling section body.
+  const geometry = await target.evaluate((targetElement) => {
+    const box = (element: HTMLElement | null) => {
+      if (!element) return null;
+      const rect = element.getBoundingClientRect();
+      return { top: rect.top, bottom: rect.bottom, width: rect.width, height: rect.height, clientHeight: element.clientHeight };
+    };
+    const measure = (selector: string) => box(document.querySelector<HTMLElement>(selector));
+    return {
+      dock: box(targetElement.closest<HTMLElement>(".workspace-pane-tree, .workspace-dock")),
+      body: box(targetElement.closest<HTMLElement>(".workspace-dock-body")),
+      modeling: measure(".modeling-workspace"),
+      viewport: measure(".workspace-pane-viewport"),
+    };
+  });
+  const diagnostics = JSON.stringify({ targetTestId, targetBox, statusBox, ...geometry });
+  await test.info().attach("workspace-status-geometry", { body: diagnostics, contentType: "application/json" });
+  expect(overlaps, `${targetTestId} must not be covered by workspace status; ${diagnostics}`).toBe(false);
+  for (const [name, box] of Object.entries(geometry)) {
+    expect(box, `${name} must exist; ${diagnostics}`).not.toBeNull();
+    expect(box!.width, `${name} must have usable width; ${diagnostics}`).toBeGreaterThan(64);
+    expect(box!.clientHeight, `${name} must have usable height; ${diagnostics}`).toBeGreaterThan(64);
+  }
+  expect(geometry.dock!.bottom, `dock must fit above status; ${diagnostics}`).toBeLessThanOrEqual(statusBox!.y);
+  expect(geometry.body!.bottom, `dock body must fit above status; ${diagnostics}`).toBeLessThanOrEqual(statusBox!.y);
+}
+
+test("guided workbench shell keeps journey steps, details, and compact status reachable", async ({ page }) => {
+  await page.goto("/");
+
+  await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
+  await expect(page.getByTestId("app-menu-bar")).toBeVisible();
+  // The model stays visible; the browser default responds to window width,
+  // properties start open, and the agent workbench is an explicit review tab.
+  await expect(page.getByTestId("workspace-dock")).toHaveClass(/collapsed/);
+  await expect(page.getByTestId("toggle-tree")).toHaveAttribute("aria-expanded", String(page.viewportSize()!.width >= 1280));
+  // Slice B3: the Both view's docked inspector is closed at first open (specification §2.3).
+  await expect(page.getByTestId("toggle-inspector")).toHaveAttribute("aria-expanded", "false");
+  await expect(page.getByTestId("viewport-canvas")).toBeVisible();
+  await expect(page.getByTestId("agent-workbench-panel")).toBeHidden();
+  await openReviewTab(page, "agent");
+  await expect(page.getByTestId("agent-workbench-panel")).toBeVisible();
+  await expect(page.getByTestId("agent-focus-selection")).toContainText("project:invented-demo-loop-01");
+  await expect(page.getByTestId("agent-proposal-summary")).toContainText("review_only_local_preview");
+  await expect(page.getByTestId("workspace-status-bar")).toBeVisible();
+  // Slice B3, specification §5.4 rule 4: Human · Human review required is a chip of the Review
+  // page after a solved run only; the recorded value is read in the Analyze page's readiness summary.
+  await expectNoStatusChip(page, "status-pill-professional");
+  await expectRecordedStatusOnAnalyzePage(page, "professional", "HUMAN_REVIEW_REQUIRED");
+  await ensureTreeExpanded(page);
+  await expect(page.getByTestId("toggle-tree")).toHaveAttribute("aria-expanded", "true");
+  await page.getByTestId("layout-mode-grid").click();
+  await openNodeGridReview(page);
+  await expect(page.getByTestId("entity-grid")).toBeVisible();
+  await expect(page.getByTestId("engineering-table-review")).toBeVisible();
+  await page.getByTestId("engineering-table-review").getByRole("rowheader").getByRole("button", { name: "node:N-100", exact: true }).click();
+  await expect(page.getByTestId("agent-focus-selection")).toContainText("node:N-100");
+  // Slice B3: the Both view's docked inspector is closed at first open; open it to read it.
+  await ensureInspectorExpanded(page);
+  await openNamedDisclosure(page.getByRole("region", { name: "Property inspector", exact: true }), "All properties");
+  await expect(page.getByRole("region", { name: "Property inspector", exact: true })).toContainText("node:N-100");
+  await reviewFill(page, "node:N-100-x", "1.25");
+  await reviewFill(page, "node:N-100-y", "0.5");
+  await expect(page.getByTestId("entity-grid-change-count")).toContainText("2 changed cells");
+  await page.getByTestId("queue-entity-grid-intents").click();
+  await expect(page.getByTestId("entity-grid-queued-message")).toContainText("Queued 2 review intents");
+  await openReviewTab(page, "review");
+  await expect(page.getByTestId("operation-apply-row-editor-intent-1")).toContainText(
+    "op:grid-intent-node:N-100-position-x"
+  );
+  await expect(page.getByTestId("operation-apply-row-editor-intent-2")).toContainText(
+    "op:grid-intent-node:N-100-position-y"
+  );
+  // Slice B3: queueing summoned the Review changes tab; the tree's layout switch is on the tree's tab.
+  await ensureTreeExpanded(page);
+  await page.getByTestId("layout-mode-tree").click();
+  await expect(page.getByTestId("audit-boundary-drawer")).toHaveCount(0);
+  await page.getByTestId("audit-drawer-toggle").click();
+  await expect(page.getByTestId("audit-boundary-drawer")).toBeVisible();
+  await expect(page.getByTestId("local-project-status")).toContainText("network=false");
+  await expect(page.getByTestId("local-project-status")).toContainText("telemetry=false");
+  await page.getByTestId("audit-boundary-drawer").getByRole("button", { name: /Close/i }).click();
+  await openReviewTab(page, "details");
+  await expect(page.getByTestId("editor-contract-panel")).toBeVisible();
+  await expect(page.getByTestId("editor-contract-unit-contract")).toContainText("contract=DEL-02-02");
+  await expect(page.getByTestId("editor-contract-unit-contract")).toContainText(
+    "schema=schemas/units.schema.yaml#/$defs/DimensionId"
+  );
+  await expect(page.getByTestId("editor-contract-unit-contract")).toContainText(
+    "policy=unit_bearing_values_require_explicit_unit_metadata"
+  );
+  await expect(page.getByTestId("editor-contract-unit-contract")).toContainText("missing=diagnostic_blocking");
+  await expect(page.getByTestId("diff-preview-panel")).toBeVisible();
+
+  await openWorkspaceSection(page, "rule-packs");
+  await expect(page.getByTestId("workspace-section-rule-packs")).toBeVisible();
+
+  const horizontalOverflow = await page.evaluate(
+    () =>
+      document.documentElement.scrollWidth > document.documentElement.clientWidth ||
+      document.body.scrollWidth > document.body.clientWidth
+  );
+  expect(horizontalOverflow).toBe(false);
+});
+
+test("DEC-077 solve temperature queues an explicit unit-bearing operation", async ({ page }) => {
+  await page.goto("/");
+  await ensureTreeExpanded(page);
+  await ensureInspectorExpanded(page);
+  await startPropertyTaskFromTreeEntity(page, "load", "load:L-100");
+
+  const editorIntentPanel = page.getByTestId("editor-intent-panel");
+  await selectCompactOption(editorIntentPanel
+    .getByTestId("editor-intent-field"), "modulus_basis_temperature.value");
+  // W-17 slice (c) §7.2: the default is project.units.temperature (degC in the demo), no longer K.
+  await expect(editorIntentPanel.getByTestId("editor-intent-unit")).toHaveAttribute("data-value", "degC");
+  await editorIntentPanel.getByTestId("editor-intent-value").fill("400");
+  await openNamedDisclosure(editorIntentPanel, "Operation details");
+  await expect(editorIntentPanel.getByTestId("editor-intent-validation")).toContainText(
+    "model_metadata_unit_dimension_declared"
+  );
+  await expect(editorIntentPanel.getByTestId("queue-editor-intent")).toBeEnabled();
+  await editorIntentPanel.getByTestId("queue-editor-intent").click();
+  await expect(editorIntentPanel.getByTestId("editor-intent-queue")).toContainText(
+    "modulus_basis_temperature.value"
+  );
+  await expect(editorIntentPanel.getByTestId("editor-intent-queue")).toContainText(
+    '{"value":400,"unit":"degC"}'
+  );
+});
+
+test("R2 browser smoke covers authoring, explicit reference results, and qualified-output refusals", async ({ page }) => {
+  await page.goto("/");
+
+  await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "SWBPIPE" })).toBeVisible();
+  // Engine-ready guard (DEC-020 / ADR-0001): browser mode answers operations
+  // through the wasm32 operation_applier build; wait for init before edits.
+  await ensureEngineReady(page);
+  await ensureInspectorExpanded(page);
+  await openNamedDisclosure(page.getByRole("region", { name: "Property inspector", exact: true }), "Sources and units");
+  await expect(page.getByTestId("property-unit-catalog-status")).toContainText(
+    "browser preview uses model metadata"
+  );
+  await expect(page.getByTestId("property-unit-basis-summary")).toContainText("m, model metadata");
+  await expect(page.getByTestId("property-unit-basis-summary")).toContainText("Pa, model metadata");
+  await ensureTreeExpanded(page);
+  await ensureInspectorExpanded(page);
+  await selectTreeEntity(page, "support", "support:S-120");
+  await expect(page.getByTestId("delete-support-intent-panel")).toContainText("delete_support");
+  await expect(page.getByTestId("delete-support-intent-panel")).toContainText("not_required_dimensionless");
+  await expect(page.getByTestId("app-menu-bar")).toContainText("View");
+  await openWorkspaceSection(page, "loads");
+  await expect(page.getByTestId("workspace-section-loads")).toBeVisible();
+  // With a section summoned, the menu bar + open dock must fit the compact
+  // viewport with no horizontal overflow. Missing-element guards return 0 so
+  // the height assertions below fail loudly rather than silently passing.
+  const compactJourneyGeometry = await page.evaluate(() => {
+    const dock = document.querySelector<HTMLElement>(".workspace-dock");
+    const dockBody = document.querySelector<HTMLElement>(".workspace-dock-body");
+    const menuBar = document.querySelector<HTMLElement>(".app-menu-bar");
+    const items = Array.from(document.querySelectorAll<HTMLElement>(".app-menu-trigger"));
+    const body = document.body;
+    if (!dock || !dockBody || !menuBar || items.length === 0) {
+      return { bodyOverflow: 0, dockBodyHeight: 0, itemOverflow: 0, menuBarHeight: 0, viewportOverflow: 0 };
+    }
+    const menuBounds = menuBar.getBoundingClientRect();
+    const bodyBounds = body.getBoundingClientRect();
+    return {
+      bodyOverflow: body.scrollWidth - body.clientWidth,
+      dockBodyHeight: dockBody.getBoundingClientRect().height,
+      itemOverflow: Math.max(
+        0,
+        ...items.map((item) => {
+          const bounds = item.getBoundingClientRect();
+          return Math.max(0, bounds.right - menuBounds.right, menuBounds.left - bounds.left);
+        })
+      ),
+      menuBarHeight: menuBounds.height,
+      viewportOverflow: Math.max(0, menuBounds.right - bodyBounds.right, bodyBounds.left - menuBounds.left)
+    };
+  });
+  expect(compactJourneyGeometry.bodyOverflow).toBe(0);
+  expect(compactJourneyGeometry.viewportOverflow).toBe(0);
+  expect(compactJourneyGeometry.itemOverflow).toBe(0);
+  expect(compactJourneyGeometry.dockBodyHeight).toBeGreaterThan(64);
+  expect(compactJourneyGeometry.menuBarHeight).toBeGreaterThan(0);
+  await startPropertyTaskFromTreeEntity(page, "node", "node:N-110");
+  const editorIntentPanel = page.getByTestId("editor-intent-panel");
+  await selectCompactOption(editorIntentPanel.getByTestId("editor-intent-field"), "position.y");
+  await expect(editorIntentPanel.getByTestId("editor-intent-unit")).toHaveAttribute("data-value", "m");
+  await expect(editorIntentPanel.getByLabel("New y position", { exact: true })).toBeVisible();
+  await expect(editorIntentPanel.getByText("New y position (m)", { exact: true })).toBeVisible();
+  await editorIntentPanel.getByTestId("editor-intent-value").fill("1.25");
+  await openNamedDisclosure(editorIntentPanel, "Operation details");
+  await expect(editorIntentPanel.getByTestId("editor-operation-preview")).toContainText(
+    'after={"value":1.25,"unit":"m"}'
+  );
+  await expect(editorIntentPanel.getByTestId("editor-operation-preview")).toContainText(
+    "entered unit captured explicitly"
+  );
+  await expect(editorIntentPanel.getByTestId("editor-intent-validation")).toContainText(
+    "model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
+  );
+  await expect(editorIntentPanel.getByTestId("queue-editor-intent")).toBeEnabled();
+  await startPropertyTaskFromTreeEntity(page, "load", "load:L-100");
+  await selectCompactOption(editorIntentPanel.getByTestId("editor-intent-field"), "primitive_loads.0.magnitude.value");
+  await expect(editorIntentPanel.getByTestId("editor-intent-unit")).toHaveAttribute("data-value", "N/m");
+  await expect(editorIntentPanel.getByLabel("New first primitive magnitude", { exact: true })).toBeVisible();
+  await expect(editorIntentPanel.getByText("New first primitive magnitude (N/m)", { exact: true })).toBeVisible();
+  await editorIntentPanel.getByTestId("editor-intent-value").fill("-225");
+  await openNamedDisclosure(editorIntentPanel, "Operation details");
+  await expect(editorIntentPanel.getByTestId("editor-operation-preview")).toContainText(
+    'after={"value":-225,"unit":"N/m"}'
+  );
+  await expect(editorIntentPanel.getByTestId("editor-operation-preview")).toContainText("update_load");
+  await expect(editorIntentPanel.getByTestId("editor-operation-preview")).toContainText(
+    "entered unit captured explicitly"
+  );
+  await expect(editorIntentPanel.getByTestId("editor-intent-validation")).toContainText(
+    "model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
+  );
+  await expect(editorIntentPanel.getByTestId("queue-editor-intent")).toBeEnabled();
+  await setDisclosure(page.getByTestId("viewport-deformation-status"));
+  await expect(page.getByTestId("viewport-deformation-status")).toContainText("not started; result rows=0");
+  await setDisclosure(page.getByTestId("viewport-deformation-status"), false);
+  await page.getByTestId("audit-drawer-toggle").click();
+  await expect(page.getByTestId("local-project-status")).toContainText("network=false");
+  await expect(page.getByTestId("local-project-status")).toContainText("telemetry=false");
+  await page.getByTestId("audit-boundary-drawer").getByRole("button", { name: /Close/i }).click();
+  await openWorkspaceSection(page, "loads");
+  await expect(page.getByTestId("load-case-manager-summary")).toContainText(
+    "2 load cases; 5 primitive loads; 1 combinations"
+  );
+  await expect(page.getByTestId("load-manager-create-load-id")).toHaveValue("load:L-300");
+  await expect(page.getByTestId("load-manager-create-load-preview")).toContainText(
+    "op:load-manager-create-load:L-300"
+  );
+  await expect(page.getByTestId("load-manager-create-load-preview")).toContainText("primitive_loads=0");
+  await expect(page.getByTestId("load-manager-create-primitive-id")).toHaveValue("load:L-100-F300");
+  await expectVirtualTarget(page, "load-manager-create-primitive-load-case", "load:L-100");
+  await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
+    "op:load-manager-load:L-100-load:L-100-F300-primitive"
+  );
+  await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
+    "target=node:N-100; direction=global_y; unit=N; force"
+  );
+  await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
+    "unit_validation=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
+  );
+  await page.getByTestId("load-manager-create-primitive-category").selectOption("distributed_force");
+  await expect(page.getByTestId("load-manager-create-primitive-id")).toHaveValue("load:L-100-D300");
+  await expectVirtualTarget(page, "load-manager-create-primitive-pipe", "pipe:P-100");
+  await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
+    "op:load-manager-load:L-100-load:L-100-D300-primitive"
+  );
+  await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
+    "target=pipe:P-100; direction=global_y; unit=N/m; force_per_length"
+  );
+  await page.getByTestId("load-manager-create-primitive-category").selectOption("concentrated_moment");
+  await expect(page.getByTestId("load-manager-create-primitive-id")).toHaveValue("load:L-100-M300");
+  await expectVirtualTarget(page, "load-manager-create-primitive-node", "node:N-100");
+  await expect(page.getByTestId("load-manager-create-primitive-direction")).toHaveValue("rotation_z");
+  await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
+    "op:load-manager-load:L-100-load:L-100-M300-primitive"
+  );
+  await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
+    "target=node:N-100; direction=rotation_z; unit=N*m; moment"
+  );
+  // U3: legacy pressure primitives are retired; pressure is authored as exact regions.
+  await expect(page.getByTestId("load-manager-create-primitive-category").locator('option[value="pressure"]')).toHaveCount(0);
+  await expect(page.getByTestId("load-manager-pressure-primitive-retired")).toContainText("Legacy pressure primitives are retired");
+  await page.getByTestId("load-manager-create-primitive-category").selectOption("thermal");
+  await expect(page.getByTestId("load-manager-create-primitive-id")).toHaveValue("load:L-100-T300");
+  await expectVirtualTarget(page, "load-manager-create-primitive-pipe", "pipe:P-100");
+  await expect(page.getByTestId("load-manager-create-primitive-direction")).toHaveValue("global_z");
+  await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
+    "op:load-manager-load:L-100-load:L-100-T300-primitive"
+  );
+  await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
+    "target=pipe:P-100; direction=global_z; unit=degC; temperature_interval"
+  );
+  await page.getByTestId("load-manager-create-primitive-category").selectOption("imposed_displacement");
+  await expect(page.getByTestId("load-manager-create-primitive-id")).toHaveValue("load:L-100-I300");
+  await expectVirtualTarget(page, "load-manager-create-primitive-support", "support:S-100");
+  await expect(page.getByTestId("load-manager-create-primitive-direction")).toHaveValue("UZ");
+  await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
+    "op:load-manager-load:L-100-load:L-100-I300-primitive"
+  );
+  await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
+    "target=support:S-100; direction=UZ; unit=m; displacement"
+  );
+  await page.getByTestId("load-manager-create-primitive-direction").selectOption("RX");
+  await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
+    "target=support:S-100; direction=RX; unit=rad; rotation"
+  );
+  await expect(page.getByTestId("load-manager-create-combination-id")).toHaveValue("combination:C-300");
+  await expect(page.getByTestId("load-manager-create-combination-preview")).toContainText(
+    "op:load-manager-create-combination:C-300"
+  );
+  await expect(page.getByTestId("load-manager-create-combination-preview")).toContainText(
+    "before=not_present; after=combination:C-300; term=load:L-100 x 1; unit=none; dimensionless"
+  );
+  await page.getByTestId("load-manager-create-combination-factor").fill("0.5");
+  await expect(page.getByTestId("load-manager-create-combination-preview")).toContainText(
+    "before=not_present; after=combination:C-300; term=load:L-100 x 0.5; unit=none; dimensionless"
+  );
+  await page.getByTestId("load-manager-primitive-load:L-100-T").click();
+  await expect(page.getByTestId("load-manager-selected-primitive")).toContainText(
+    "primitive_loads.2.magnitude.value"
+  );
+  await expect(page.getByTestId("load-manager-selected-case")).toContainText("field=status");
+  await expect(page.getByTestId("load-manager-metadata-preview")).toContainText("current=preview_only");
+  await page.getByTestId("load-manager-metadata-value").selectOption("TBD");
+  await expect(page.getByTestId("load-manager-metadata-preview")).toContainText(
+    "op:load-manager-load:L-100-status"
+  );
+  await page.getByTestId("load-manager-metadata-field").selectOption("kind");
+  await expect(page.getByTestId("load-manager-selected-case")).toContainText(
+    "field=kind; current=primitive_user_load"
+  );
+  await page.getByTestId("load-manager-metadata-value").selectOption("TBD");
+  await expect(page.getByTestId("load-manager-metadata-preview")).toContainText(
+    "op:load-manager-load:L-100-kind"
+  );
+  await expect(page.getByTestId("load-manager-load-case-delete-preview")).toContainText(
+    "op:load-manager-load:L-100-delete"
+  );
+  await expect(page.getByTestId("load-manager-load-case-delete-preview")).toContainText(
+    "before=load:L-100; Invented operating gravity, occasional and thermal preview; primitive_user_load; preview_only; primitives=3; after=not_present; unit=none; dimensionless"
+  );
+  await expect(page.getByTestId("load-manager-selected-combination")).toContainText(
+    "field=basis; current=mechanics"
+  );
+  await expect(page.getByTestId("load-manager-combination-basis-preview")).toContainText("current=mechanics");
+  // TP-APP-R2-COMBEXPR-001 behavior change: the basis editor is a closed-set
+  // selector (mechanics | result_state_subtraction | range_envelope) instead
+  // of free text; cross-shape edits stay honest proposals the engine blocks.
+  await page.getByTestId("load-manager-combination-basis-value").selectOption("result_state_subtraction");
+  await expect(page.getByTestId("load-manager-combination-basis-preview")).toContainText(
+    "op:load-manager-combination:C-OPER-ALT-basis"
+  );
+  await expect(page.getByTestId("load-manager-combination-basis-preview")).toContainText(
+    "before=mechanics; after=result_state_subtraction"
+  );
+  await expect(page.getByTestId("load-manager-combination-entity-delete-preview")).toContainText(
+    "op:load-manager-combination:C-OPER-ALT-delete"
+  );
+  await expect(page.getByTestId("load-manager-combination-entity-delete-preview")).toContainText(
+    "before=combination:C-OPER-ALT; Invented explicit operating plus alternate preview; basis=mechanics; terms=load:L-100 x 1; load:L-200 x 0.5"
+  );
+  await expect(page.getByTestId("load-manager-create-combination-term-heading")).toContainText(
+    "combination:C-OPER-ALT"
+  );
+  await expect(page.getByTestId("load-manager-create-combination-term-preview")).toContainText(
+    "op:load-manager-combination:C-OPER-ALT-term-2-create"
+  );
+  await expect(page.getByTestId("load-manager-create-combination-term-preview")).toContainText(
+    "before=not_present; after=load:L-100 x 1; unit=none; dimensionless"
+  );
+  await page.getByTestId("load-manager-create-combination-term-factor").fill("0.25");
+  await expect(page.getByTestId("load-manager-create-combination-term-preview")).toContainText(
+    "before=not_present; after=load:L-100 x 0.25; unit=none; dimensionless"
+  );
+  await page.getByTestId("load-manager-combination-term-combination:C-OPER-ALT-1").click();
+  await expect(page.getByTestId("load-manager-selected-combination-term")).toContainText("terms.1.factor");
+  await expect(page.getByTestId("load-manager-combination-factor-preview")).toContainText("current=0.5");
+  await page.getByTestId("load-manager-combination-factor-value").fill("0.75");
+  await expect(page.getByTestId("load-manager-combination-factor-preview")).toContainText(
+    "op:load-manager-combination:C-OPER-ALT-term-1-factor"
+  );
+  await expect(page.getByTestId("load-manager-combination-factor-preview")).toContainText(
+    "before=0.5; after=0.75"
+  );
+  await expect(page.getByTestId("load-manager-combination-delete-preview")).toContainText(
+    "op:load-manager-combination:C-OPER-ALT-term-1-delete"
+  );
+  await expect(page.getByTestId("load-manager-combination-delete-preview")).toContainText(
+    "before=load:L-200 x 0.5; after=not_present; unit=none; dimensionless"
+  );
+  // Delete previews belong to the explicitly started task, not a new selection.
+  await startPropertyTaskFromTreeEntity(page, "node", "node:N-120");
+  await expect(page.getByTestId("delete-node-intent-panel")).toContainText("delete_node");
+  await expect(page.getByTestId("delete-node-intent-panel")).toContainText(
+    "before=Riser elbow; x=3.2; y=2.4; z=0"
+  );
+  await expect(page.getByTestId("delete-node-intent-panel")).toContainText("after=not_present");
+  await startPropertyTaskFromTreeEntity(page, "pipe", "pipe:P-130");
+  await expect(page.getByTestId("delete-pipe-intent-panel")).toContainText("delete_pipe_run");
+  await expect(page.getByTestId("delete-pipe-intent-panel")).toContainText(
+    "before=Tie-in rise; node:N-130->node:N-140; material=material:invented-carbon-steel"
+  );
+  await expect(page.getByTestId("delete-pipe-intent-panel")).toContainText("after=not_present");
+
+  const canvas = page.locator(".viewport-canvas canvas");
+  await expect(canvas).toBeVisible();
+  await expect(page.getByTestId("viewport-editor-intents")).toHaveClass(/collapsed/);
+  await ensureCreationToolArmed(page, "command-node", "Node tool armed");
+  await openNamedDisclosure(page.getByTestId("viewport-editor-intents"), "Unit source");
+  await expect(page.getByTestId("viewport-unit-catalog-status")).toContainText(
+    "browser preview uses model metadata"
+  );
+  await expect(page.getByTestId("viewport-create-node-unit")).toHaveAttribute("data-value", "m");
+  await expect(page.getByTestId("viewport-create-node-unit-basis")).toContainText(
+    "Coordinates: m, model metadata"
+  );
+  await canvas.click({ position: { x: 64, y: 64 } });
+  await expect(page.getByTestId("viewport-create-node-id")).toHaveValue("node:V-001");
+  await expect(page.getByTestId("viewport-create-node-label")).toHaveValue("Viewport node V-001");
+  await expect(page.getByTestId("viewport-create-node-x")).toHaveValue(/^-?\d/);
+  await expect(page.getByTestId("viewport-create-node-y")).toHaveValue("0");
+  await expect(page.getByTestId("viewport-create-node-z")).toHaveValue(/^-?\d/);
+  await expect(page.getByTestId("queue-explicit-node-intent")).toBeDisabled();
+  await page.getByTestId("viewport-create-node-provenance").fill("invented_synthetic_ui_acceptance_input");
+  await expect(page.getByTestId("queue-explicit-node-intent")).toBeEnabled();
+
+  await ensureCreationToolArmed(page, "command-pipe", "Pipe tool armed");
+  await expect(page.getByTestId("viewport-create-pipe-length-unit")).toHaveAttribute("data-value", "m");
+  await expect(page.getByTestId("viewport-create-pipe-unit-basis")).toContainText(
+    "Pipe geometry: m, model metadata"
+  );
+
+  await ensurePipeEndpointPick(page, "viewport-pick-pipe-from");
+  // Selected entities receive label priority when projected labels overlap.
+  // Tree selection must preserve endpoint capture; the viewport click performs it.
+  await selectTreeEntity(page, "node", "node:N-100");
+  await expect(page.getByTestId("viewport-pick-pipe-from")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByTestId("viewport-select-node:N-100")).toBeVisible();
+  await page.getByTestId("viewport-select-node:N-100").click();
+  await expectVirtualTarget(page, "viewport-create-pipe-from", "node:N-100");
+  await expect(page.getByTestId("viewport-pick-pipe-to")).toHaveAttribute("aria-pressed", "true");
+  await selectTreeEntity(page, "node", "node:N-140");
+  await expect(page.getByTestId("viewport-pick-pipe-to")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByTestId("viewport-select-node:N-140")).toBeVisible();
+  await page.getByTestId("viewport-select-node:N-140").click();
+  await expectVirtualTarget(page, "viewport-create-pipe-to", "node:N-140");
+  await expect(page.getByTestId("viewport-pick-pipe-to")).toHaveAttribute("aria-pressed", "false");
+
+  const before = await canvas.screenshot();
+  expect(pngStats(before).uniqueColors).toBeGreaterThan(100);
+  await expect(page.getByTestId("viewport-axis-triad")).toBeVisible();
+  await expect(page.getByTestId("viewport-view-cube")).toBeVisible();
+  await expect(page.getByTestId("viewport-scale-bar")).toContainText("m");
+  await expect(page.getByTestId("command-bar")).toBeVisible();
+
+  await openWorkspaceSection(page, "solve");
+  await page.getByTestId("issues-drawer-toggle").click();
+  await expect(page.getByTestId("missing-data-unit-policy")).toContainText("required=true");
+  await expect(page.getByTestId("missing-data-unit-policy")).toContainText("default_units=false");
+  await expect(page.getByTestId("missing-data-unit-policy")).toContainText("conversion=false");
+  await page.getByTestId("issues-home").getByRole("button", { name: /Close/i }).click();
+  await page.getByTestId("run-mechanics-preview").click();
+  await expectBackendRefusal(page);
+  await expect(page.getByTestId("solve-job-unit-policy")).toContainText("model=angle=rad,force=N,length=m");
+  // A refused Run records no result units. The bundled rows' N*m/rad and N/m spring units stay
+  // checked, unconverted, by the recorded-source oracle test above, and in the inspected
+  // reference's source units below.
+  await expect(page.getByTestId("solve-job-unit-policy")).toContainText("results=none");
+  await expect(page.getByTestId("solve-job-unit-policy")).toContainText("rows=0");
+  await expect(page.getByTestId("solve-job-unit-policy")).toContainText("conversion=false");
+  await inspectBundledReference(page);
+  await showCanvas(page);
+  await setDisclosure(page.getByTestId("viewport-deformation-status"));
+  await expect(page.getByTestId("viewport-deformation-status")).toContainText("not started; result rows=0");
+  // The preserved 5-node / 7.624972 mm and signed-vector source oracles above
+  // do not grant a current-model overlay from reference inspection.
+  await setDisclosure(page.getByTestId("viewport-deformation-status"), false);
+
+  await page.getByTestId("audit-drawer-toggle").click();
+  const auditDrawer = page.getByTestId("audit-boundary-drawer");
+  await expect(auditDrawer).toBeVisible();
+  await expect(auditDrawer.getByTestId("secret-private-library-unit-policy")).toContainText("unit_refs=2");
+  await expect(auditDrawer.getByTestId("secret-private-library-unit-policy")).toContainText("required=true");
+  await expect(auditDrawer.getByTestId("secret-private-library-unit-policy")).toContainText("payload=false");
+  await expect(auditDrawer.getByTestId("secret-private-library-unit-policy")).toContainText("conversion=false");
+  await expect(auditDrawer.getByTestId("run-audit-empty")).toBeVisible();
+  await expect(auditDrawer.getByTestId("run-audit-units")).toHaveCount(0);
+  await auditDrawer.getByRole("button", { name: /Close/i }).click();
+  await openWorkspaceSection(page, "solve");
+  await expect(page.getByTestId("knowledge-unit-context")).toHaveCount(0);
+  // Recorded computed context (two N/mm refs) remains in the source oracle;
+  // reference inspection does not populate current computed knowledge.
+
+  const referenceCanvasBounds = await canvas.boundingBox();
+  expect(referenceCanvasBounds).not.toBeNull();
+  expect(referenceCanvasBounds!.width).toBeGreaterThanOrEqual(200);
+  expect(referenceCanvasBounds!.height).toBeGreaterThanOrEqual(200);
+  const referenceCanvas = await canvas.screenshot();
+  expect(pngStats(referenceCanvas).uniqueColors).toBeGreaterThan(100);
+
+  await openWorkspaceSection(page, "results");
+  await expect(page.getByTestId("results-panel")).toBeVisible();
+  await expect(page.getByTestId("result-unit-policy")).toContainText("MPa, N, N*m, mm, rad");
+  // The reference's retained source units include its spring hanger row's N/m, as entered.
+  await expect(page.getByTestId("result-unit-policy")).toContainText("mode_code, N/m");
+  // C-120 fix: the demo drops the tee component:C-120 and its 4 intensified rows (841 -> 837); no other row moved.
+  await expect(page.getByTestId("result-unit-policy")).toContainText("837 rows");
+  await expect(page.getByTestId("result-unit-policy")).toContainText("entered units preserved");
+  await expect(page.getByTestId("result-filter-summary")).toContainText("837 of 837 results match filter");
+  await expect(page.getByTestId("result-family-count-reaction")).toContainText("102");
+  await page.getByTestId("result-family-reaction").click();
+  await expect(page.getByTestId("result-filter-summary")).toContainText("102 of 837 results match filter");
+  await expect(page.getByTestId("result-page-summary")).toContainText(
+    "Showing 1 to 50 of 102 matching results; page 1 of 3"
+  );
+  await expect(page.getByTestId("result-row-result:support-action:10:load:L-100:13:support:S-120:Fz")).toBeVisible();
+  await page.getByTestId("result-family-all").click();
+  await expect(page.getByTestId("result-filter-summary")).toContainText("837 of 837 results match filter");
+  await page.getByTestId("result-filter-input").fill("pipe-P-120");
+  // C-120 fix: 2 of the tee's intensified rows (header P-120 end_i, one per case) matched pipe-P-120 (156 -> 154).
+  await expect(page.getByTestId("result-filter-summary")).toContainText("154 of 837 results match filter");
+  await expect(page.getByTestId("result-page-summary")).toContainText(
+    "Showing 1 to 50 of 154 matching results; page 1 of 4"
+  );
+  await expectWorkspaceStatusClearOfTarget(page, "result-row-result:force:pipe-P-120:axial");
+  const inspectorBeforeReferenceSelection = await page.getByTestId("property-inspector").textContent();
+  await page.getByTestId("result-row-result:force:pipe-P-120:axial").click();
+  await expect(page.getByTestId("property-inspector")).toHaveText(inspectorBeforeReferenceSelection ?? "");
+  await expect(page.getByTestId("result-detail-panel")).toContainText("pipe:P-120");
+  await expect(page.getByTestId("result-detail-panel")).toContainText("recovered_from_local_element_stiffness");
+  await expect(page.getByTestId("comparison-empty")).toBeVisible();
+  await expect(page.getByTestId("comparison-unit-policy")).toHaveCount(0);
+  // The design workspace composes Current units only; an inspected reference supplies none.
+  await expect(page.getByTestId("design-workspace-units")).toContainText("model=angle=rad,force=N,length=m");
+  await expect(page.getByTestId("design-workspace-units")).toContainText("results=none");
+  await expect(page.getByTestId("design-workspace-units")).toContainText("comparison=none");
+  await expect(page.getByTestId("design-workspace-units")).toContainText("conversion=false");
+
+  await openWorkspaceSection(page, "report");
+  const report = page.getByLabel("Report packet");
+  // No Current result, so no report packet is assembled: neither raw report DOM nor a JSON export
+  // is offered from an inspected reference. Redaction suppression of an assembled packet stays
+  // checked by the pure ReportPanel renders in App.test.tsx.
+  await expect(report.getByTestId("report-redaction-blocked")).toContainText(
+    "Run the bounded preview mechanics path to assemble a report packet"
+  );
+  await expect(report.getByTestId("report-export-link")).toHaveCount(0);
+  await expect(report.getByTestId("report-packet-body")).toHaveCount(0);
+  await expect(page.getByTestId("rendered-report-render")).toBeDisabled();
+  await expect(page.getByTestId("rendered-report-precondition")).toBeVisible();
+  await expect(page.getByTestId("rendered-report-unit-basis")).toHaveCount(0);
+  await expect(page.getByTestId("report-package-private-intent")).not.toBeChecked();
+  await expect(page.getByTestId("report-package-save")).toBeDisabled();
+  await expect(page.getByTestId("report-package-save")).toHaveAttribute("title", /current mechanics result/);
+  await page.getByTestId("report-package-private-intent").check();
+  await expect(page.getByTestId("report-package-save")).toBeDisabled();
+  await expect(page.getByTestId("report-package-save-status")).toHaveCount(0);
+  await expect(page.getByTestId("report-package-redaction-summary")).toHaveCount(0);
+  // Private intent changes redaction permission, never missing Current evidence.
+  const reportLint = page.getByLabel("Report content lint");
+  await expect(reportLint.getByTestId("report-lint-unit-policy")).toContainText("unit_targets=44");
+  await expect(reportLint.getByTestId("report-lint-unit-policy")).toContainText(
+    "conversion_witness_targets=2"
+  );
+  await expect(reportLint.getByTestId("report-lint-unit-policy")).toContainText("lint_conversion=false");
+  const lintHref = await reportLint.getByTestId("report-lint-export-link").getAttribute("href");
+  expect(lintHref).toBeTruthy();
+  const lintPacket = JSON.parse(decodeURIComponent(lintHref!.split(",", 2)[1]));
+  expect(lintPacket.unit_policy_evidence.unit_policy_target_count).toBe("[REDACTED]");
+  expect(lintPacket.unit_policy_evidence.conversion_witness_target_count).toBe("[REDACTED]");
+  expect(lintPacket.unit_policy_evidence.lint_performs_conversion).toBe("[REDACTED]");
+  expect(lintPacket.unit_policy_evidence.lint_asserts_target_format_compatibility).toBe("[REDACTED]");
+  expect(
+    lintPacket.unit_policy_evidence.target_refs.every(
+      (item: { source_path: string }) => item.source_path === "[REDACTED]"
+    )
+  ).toBe(true);
+  expect(lintPacket.unit_policy_evidence.target_refs).toHaveLength(44);
+  expect(
+    lintPacket.unit_policy_evidence.target_refs.every(
+      (item: { unit_policy_surface_id: string }) => item.unit_policy_surface_id === "[REDACTED]"
+    )
+  ).toBe(true);
+  await openWorkspaceSection(page, "exports");
+  const pcfExport = page.getByLabel("Conservative PCF export");
+  await expect(pcfExport.getByTestId("pcf-export-conversion-witnesses")).toContainText("count=23");
+  await expect(pcfExport.getByTestId("pcf-export-conversion-witnesses")).toContainText(
+    "target_length=MM"
+  );
+  const caepipeMbfExport = page.getByLabel("Model batch file (.mbf) export");
+  await expect(caepipeMbfExport.getByTestId("caepipe-mbf-conversion-witnesses")).toContainText("count=15");
+  await expect(caepipeMbfExport.getByTestId("caepipe-mbf-conversion-witnesses")).toContainText(
+    "target_length=mm"
+  );
+  const caepipeExternalHarness = page.getByLabel("External prover run");
+  await expect(caepipeExternalHarness.getByTestId("caepipe-external-units")).toContainText(
+    "unit-system:dec-018-si-dual-display"
+  );
+  await expect(caepipeExternalHarness.getByTestId("caepipe-external-unit-witnesses")).toContainText(
+    "count=3"
+  );
+  await expect(caepipeExternalHarness.getByTestId("caepipe-external-unit-witnesses")).toContainText(
+    "conversion=false"
+  );
+  const stressNeutralExport = page.getByLabel("Stress-neutral CSV JSON export");
+  await expect(stressNeutralExport.getByTestId("stress-neutral-empty")).toContainText("Bundled references and restored history are unavailable for qualified export");
+  await expect(stressNeutralExport.getByTestId("stress-neutral-unit-witnesses")).toHaveCount(0);
+  await expect(page.getByTestId("result-export-empty")).toBeVisible();
+  await expect(page.getByTestId("result-export-link")).toHaveCount(0);
+  const headlessRunner = page.getByLabel("Headless runner envelope");
+  await expect(headlessRunner.getByTestId("headless-runner-units")).toContainText("unit-system:dec-018-si-dual-display");
+  await expect(headlessRunner.getByTestId("headless-runner-units")).toContainText("conversion=false");
+  await expect(headlessRunner.getByTestId("headless-runner-unit-witnesses")).toContainText("count=0");
+  await expect(headlessRunner.getByTestId("headless-runner-unit-witnesses")).toContainText("conversion=false");
+  const handoffPackage = page.getByLabel("Handoff package");
+  await expect(handoffPackage.getByTestId("handoff-empty")).toBeVisible();
+  await expect(handoffPackage.getByTestId("handoff-unit-witnesses")).toHaveCount(0);
+  // The unchanged raw rows and their qualified dimension witnesses remain
+  // checked by the recorded-source and pure stress-neutral contract tests.
+  const reviewGeometryExport = page.getByLabel("Review geometry export");
+  // C-120 fix: the tee component:C-120 and its 3 geometry quantities go.
+  await expect(reviewGeometryExport.getByTestId("review-geometry-unit-witnesses")).toContainText("count=69");
+  await expect(reviewGeometryExport.getByTestId("review-geometry-unit-witnesses")).toContainText(
+    "target=m"
+  );
+  await openWorkspaceSection(page, "exports");
+  const nativeJsonPackage = page.getByLabel("Native JSON package");
+  await expect(nativeJsonPackage.getByTestId("native-package-empty")).toBeVisible();
+  await expect(nativeJsonPackage.getByTestId("native-package-unit-witnesses")).toHaveCount(0);
+  // The former 832 result-quantity cardinality is preserved as an immutable
+  // source oracle; no current package is assembled from a bundled reference.
+  const adapterFramework = page.getByLabel("Adapter framework envelope");
+  await expect(adapterFramework.getByTestId("adapter-framework-units")).toContainText("conversion=false");
+  await expect(adapterFramework.getByTestId("adapter-framework-units")).toContainText("witnesses=1");
+  await expect(adapterFramework.getByTestId("adapter-framework-units")).toContainText(
+    "unit_validation_required_before_adapter_payload_exchange"
+  );
+  const exportAdapterSdk = page.getByLabel("Export adapter SDK");
+  await expect(exportAdapterSdk.getByTestId("export-adapter-sdk-units")).toContainText("conversion=false");
+  await expect(exportAdapterSdk.getByTestId("export-adapter-sdk-units")).toContainText("witnesses=5");
+  await expect(exportAdapterSdk.getByTestId("export-adapter-sdk-units")).toContainText(
+    "candidate_targets_without_claiming_target_writer_conversion"
+  );
+
+  // Engine-route receipt (TP-SEAM-SWAP-001): Add the prepared explicit node,
+  // review its frozen service validation and exact diff, then Apply it through
+  // the structured-operation seam in a real browser. Runs last because Apply
+  // clears earlier solve results by design.
+  await ensureCreationToolArmed(page, "command-node", "Node tool armed");
+  await applyReviewedDraft(page, {
+    addTestId: "queue-explicit-node-intent",
+    unitTestId: "viewport-create-node-unit",
+    operationId: "op:viewport-create-node-node:V-001-001",
+    diff: "node:V-001 nodes: not_present",
+    reviewSequence: 1,
+    appliedSequence: 1,
+    publishedType: "node",
+    publishedId: "node:V-001",
+    publishedText: "Viewport node V-001"
+  });
+  await openWorkspaceSection(page, "solve");
+  await expect(page.getByTestId("solve-job-summary")).toContainText("state=not_started");
+
+  // TP-APP-R2-COMBEXPR-001: author a result_state_subtraction combination
+  // through the visible create-form controls and apply it through the wasm
+  // engine in browser mode.
+  await openWorkspaceSection(page, "loads");
+  await page.getByTestId("load-manager-create-combination-basis").selectOption("result_state_subtraction");
+  await expectVirtualTarget(page, "load-manager-create-combination-minuend", "load:L-100");
+  await chooseVirtualTarget(page, "load-manager-create-combination-subtrahend", "load:L-200");
+  await page.getByTestId("load-manager-create-combination-label").fill("Operating minus alternate subtraction");
+  await expect(page.getByTestId("load-manager-create-combination-preview")).toContainText(
+    "before=not_present; after=combination:C-300; minuend=load:L-100; subtrahend=load:L-200; unit=none; dimensionless"
+  );
+  await page.getByTestId("queue-create-combination-intent").click();
+  await openWorkspaceSection(page, "operations");
+  const applyPanel = page.getByTestId("operation-apply-panel");
+  await expect(applyPanel.getByTestId("operation-apply-summary")).toContainText("1 queued; 1 applied");
+  await page.getByTestId("apply-intent-editor-intent-1").click();
+  await expect(applyPanel.getByTestId("applied-operation-route-applied-2-editor-intent-1")).toContainText(
+    "Applied through local_wasm_engine"
+  );
+  await expect(applyPanel.getByTestId("operation-apply-summary")).toContainText("0 queued; 2 applied");
+  await openWorkspaceSection(page, "loads");
+  await expect(page.getByTestId("load-case-manager-summary")).toContainText(
+    "2 load cases; 5 primitive loads; 2 combinations"
+  );
+  await expect(page.getByTestId("load-manager-combination-combination:C-300")).toContainText(
+    "basis=result_state_subtraction"
+  );
+  await expect(page.getByTestId("load-manager-combination-combination:C-300")).toContainText(
+    "minuend=load:L-100; subtrahend=load:L-200"
+  );
+});
+
+test("viewport gesture placeholders record unit validation", async ({ page }) => {
+  await page.goto("/");
+
+  await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
+  await ensureEngineReady(page);
+  await expect(page.getByTestId("viewport-editor-intents")).toHaveClass(/collapsed/);
+  await ensureCreationToolArmed(page, "command-node", "Node tool armed");
+  await openNamedDisclosure(page.getByTestId("viewport-editor-intents"), "Unit source");
+  await expect(page.getByTestId("viewport-unit-catalog-status")).toContainText("browser preview uses model metadata");
+  // Slice B3: the project summary is part of the Project page.
+  await openWorkspaceSection(page, "project");
+  await setDisclosure(page.getByLabel("Project summary"));
+  await expect(page.getByTestId("local-project-review-context")).toBeVisible();
+  await expect(page.getByTestId("local-project-review-context")).toContainText("0 pending operations");
+  await setDisclosure(page.getByLabel("Project summary"), false);
+  await showCanvas(page);
+  await expect(page.getByTestId("armed-creation-tool")).toContainText("Node tool armed");
+  await openNamedDisclosure(page.getByTestId("command-bar"), "Selection & navigation");
+  await page.getByTestId("queue-armed-creation-intent").click();
+  await ensureCreationToolArmed(page, "command-pipe", "Pipe tool armed");
+  await page.getByTestId("queue-armed-creation-intent").click();
+  await page.getByTestId("command-component").click();
+  await expect(page.getByTestId("armed-creation-tool")).toContainText("Component tool armed");
+  await page.getByTestId("queue-armed-creation-intent").click();
+  await setDisclosure(page.getByTestId("command-bar").locator(".command-context"), false);
+  await openViewportPendingChanges(page);
+  await expect(page.getByTestId("viewport-intent-unit-validation-create_node")).toContainText(
+    "unit_validation=length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
+  );
+  await expect(page.getByTestId("viewport-intent-unit-validation-connect_pipe_run")).toContainText(
+    "unit_validation=length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
+  );
+  await expect(page.getByTestId("viewport-intent-unit-validation-insert_component_symbol")).toContainText(
+    "unit_validation=not_required_dimensionless"
+  );
+});
+
+test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page }) => {
+  await page.goto("/");
+
+  await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
+  await ensureEngineReady(page);
+  await projectCommand(page, "new-blank");
+  await confirmProjectUnits(page);
+  await expect(page.getByTestId("local-project-message")).toContainText(
+    "Created blank local model document without fixture entities or external file copies."
+  );
+  await expect(page.getByTestId("app-menu-bar")).toBeVisible();
+  await expectStatusChip(page, "status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete");
+  await openWorkspaceSection(page, "loads");
+  await expect(page.getByTestId("workspace-section-loads")).toBeVisible();
+  await openWorkspaceSection(page, "solve");
+  await expect(page.getByTestId("workspace-section-solve")).toBeVisible();
+  await openWorkspaceSection(page, "report");
+  await expect(page.getByTestId("workspace-section-report")).toBeVisible();
+  await openWorkspaceSection(page, "project");
+  await expect(page.getByTestId("workspace-section-project")).toBeVisible();
+  await openWorkspaceSection(page, "operations");
+  await expect(page.getByTestId("workspace-section-operations")).toBeVisible();
+  await openWorkspaceSection(page, "loads");
+  await expect(page.getByTestId("load-case-manager-summary")).toContainText(
+    "0 load cases; 0 primitive loads; 0 combinations"
+  );
+  await ensureInspectorExpanded(page);
+
+  const startNode = stepPayload("create_node", "node:R2-100");
+  await fillNodeDraft(page, startNode);
+  await applyReviewedDraft(page, {
+    addTestId: "queue-explicit-node-intent",
+    unitTestId: "viewport-create-node-unit",
+    operationId: "op:viewport-create-node-node:R2-100-001",
+    diff: "node:R2-100 nodes: not_present",
+    reviewSequence: 1,
+    appliedSequence: 1,
+    publishedType: "node",
+    publishedId: "node:R2-100",
+    publishedText: startNode.label
+  });
+
+  const loadedNode = stepPayload("create_node", "node:R2-110");
+  await fillNodeDraft(page, loadedNode);
+  await applyReviewedDraft(page, {
+    addTestId: "queue-explicit-node-intent",
+    unitTestId: "viewport-create-node-unit",
+    operationId: "op:viewport-create-node-node:R2-110-001",
+    diff: "node:R2-110 nodes: not_present",
+    reviewSequence: 2,
+    appliedSequence: 2,
+    publishedType: "node",
+    publishedId: "node:R2-110",
+    publishedText: loadedNode.label
+  });
+
+  const material = stepPayload("create_material", "material:r2-carbon-steel");
+  await chooseToolkit(page, "properties.material", "create-material-id");
+  await page.getByTestId("create-material-id").fill(material.id);
+  await page.getByTestId("create-material-label").fill(material.label);
+  await page.getByTestId("create-material-elastic").fill(String(material.elastic_modulus.value));
+  await page.getByTestId("create-material-shear").fill(String(material.shear_modulus.value));
+  await page.getByTestId("create-material-provenance").fill(material.provenance);
+  await page.getByTestId("queue-create-material-intent").click();
+  await applyQueuedIntent(page, 1, 3, material.id);
+
+  const section = stepPayload("create_section", "section:r2-pipe");
+  await chooseToolkit(page, "properties.section", "create-section-id");
+  await page.getByTestId("create-section-id").fill(section.id);
+  await page.getByTestId("create-section-name").fill(section.name);
+  await page.getByTestId("create-section-od").fill(String(section.properties.outside_diameter.value));
+  await page.getByTestId("create-section-wall").fill(String(section.properties.wall_thickness.value));
+  await page.getByTestId("create-section-provenance").fill(section.provenance);
+  await page.getByTestId("queue-create-section-intent").click();
+  await applyQueuedIntent(page, 2, 4, section.id);
+
+  const pipe = stepPayload("connect_pipe_run", "pipe:R2-100");
+  await ensureCreationToolArmed(page, "command-pipe", "Pipe tool armed");
+  await page.getByTestId("viewport-create-pipe-id").fill(pipe.id);
+  await page.getByTestId("viewport-create-pipe-label").fill(pipe.label);
+  await chooseVirtualTarget(page, "viewport-create-pipe-from", pipe.from);
+  await chooseVirtualTarget(page, "viewport-create-pipe-to", pipe.to);
+  await chooseVirtualTarget(page, "viewport-create-pipe-material", pipe.material);
+  await page.getByTestId("viewport-create-pipe-od").fill(String(pipe.section.outside_diameter.value));
+  await page.getByTestId("viewport-create-pipe-wall").fill(String(pipe.section.wall_thickness.value));
+  await page.getByTestId("viewport-create-pipe-yref-x").fill(String(pipe.y_reference.x));
+  await page.getByTestId("viewport-create-pipe-yref-y").fill(String(pipe.y_reference.y));
+  await page.getByTestId("viewport-create-pipe-yref-z").fill(String(pipe.y_reference.z));
+  await page.getByTestId("viewport-create-pipe-provenance").fill(pipe.provenance);
+  await applyReviewedDraft(page, {
+    addTestId: "queue-explicit-pipe-intent",
+    unitTestId: "viewport-create-pipe-length-unit",
+    operationId: "op:viewport-connect-pipe-pipe:R2-100-001",
+    diff: "pipe:R2-100 pipe_segments: not_present",
+    reviewSequence: 3,
+    appliedSequence: 5,
+    publishedType: "pipe",
+    publishedId: "pipe:R2-100",
+    publishedText: pipe.label
+  });
+
+  const support = stepPayload("create_support", "support:R2-anchor");
+  await page.getByTestId("command-support").click();
+  await expect(page.getByTestId("create-support-id")).toBeFocused();
+  await expect(page.getByTestId("create-support-id")).toBeVisible();
+  await page.getByTestId("create-support-id").fill(support.id);
+  await page.getByTestId("create-support-label").fill(support.label);
+  await chooseVirtualTarget(page, "create-support-node", support.node);
+  for (const restraint of ["RX", "RY", "RZ"]) {
+    await page.getByTestId(`create-support-restraint-${restraint}`).setChecked(true);
+  }
+  await page.getByTestId("create-support-provenance").fill(support.provenance);
+  await page.getByTestId("queue-create-support-intent").click();
+  await applyQueuedIntent(page, 3, 6, support.id);
+
+  const loadCase = stepPayload("create_load_case", "load:R2-L-100");
+  await openWorkspaceSection(page, "loads");
+  await page.getByTestId("load-manager-create-load-id").fill(loadCase.id);
+  await page.getByTestId("load-manager-create-load-label").fill(loadCase.label);
+  await page.getByTestId("load-manager-create-load-kind").fill(loadCase.kind);
+  await page.getByTestId("load-manager-create-load-status").fill(loadCase.status);
+  await page.getByTestId("load-manager-create-load-provenance").fill(loadCase.provenance);
+  await page.getByTestId("queue-create-load-case-intent").click();
+  await applyQueuedIntent(page, 4, 7, loadCase.id);
+
+  const primitive = stepPayload("create_primitive_load", "load:R2-L-100-FY");
+  await openWorkspaceSection(page, "loads");
+  await chooseVirtualTarget(page, "load-manager-create-primitive-load-case", loadCase.id);
+  await page.getByTestId("load-manager-create-primitive-category").selectOption(primitive.category);
+  await page.getByTestId("load-manager-create-primitive-id").fill(primitive.id);
+  await chooseVirtualTarget(page, "load-manager-create-primitive-node", primitive.target.node);
+  await page.getByTestId("load-manager-create-primitive-direction").selectOption(primitive.direction);
+  await page.getByTestId("load-manager-create-primitive-magnitude").fill(String(primitive.magnitude.value));
+  await page.getByTestId("load-manager-create-primitive-provenance").fill(primitive.provenance);
+  await page.getByTestId("queue-create-primitive-intent").click();
+  await applyQueuedIntent(page, 5, 8, primitive.id);
+
+  const combination = stepPayload("create_combination", "combination:R2-C-100");
+  await openWorkspaceSection(page, "loads");
+  await page.getByTestId("load-manager-create-combination-id").fill(combination.id);
+  await page.getByTestId("load-manager-create-combination-label").fill(combination.label);
+  await chooseVirtualTarget(page, "load-manager-create-combination-load-case", combination.terms[0].load_case);
+  await page.getByTestId("load-manager-create-combination-factor").fill(String(combination.terms[0].factor));
+  await page.getByTestId("load-manager-create-combination-provenance").fill(combination.provenance);
+  await page.getByTestId("load-manager-create-combination-rationale").fill("A8 GUI replay of the A12 invented rehearsal.");
+  await page.getByTestId("queue-create-combination-intent").click();
+  await applyQueuedIntent(page, 6, 9, combination.id);
+
+  await openWorkspaceSection(page, "loads");
+  await expect(page.getByTestId("load-case-manager-summary")).toContainText(
+    "1 load cases; 1 primitive loads; 1 combinations"
+  );
+  await openWorkspaceSection(page, "project");
+  await projectCommand(page, "save-local");
+  await expect(page.getByTestId("local-project-message")).toContainText(
+    "Saved local browser-preview project snapshot without external file copies."
+  );
+  await projectCommand(page, "open-local");
+  await expect(page.getByTestId("local-project-message")).toContainText("Opened local browser-preview project snapshot.");
+  await expect(page.getByTestId("project-storage-unit-round-trip")).toContainText(
+    "status=unit_metadata_preserved_in_local_project_envelope"
+  );
+  await expect(page.getByTestId("project-storage-unit-round-trip")).toContainText("project.units.length=m");
+  await expect(page.getByTestId("project-storage-unit-round-trip")).toContainText("conversion=false");
+  await expect(page.getByTestId("project-validation-unit-round-trip")).toContainText(
+    "status=unit_metadata_preserved_in_local_project_envelope"
+  );
+  await expect(page.getByTestId("project-validation-unit-policy")).toContainText(
+    "round_trip=unit_metadata_preserved_in_local_project_envelope"
+  );
+  await expect(page.getByTestId("project-validation-unit-policy")).toContainText("conversion=false");
+  await page.getByTestId("audit-drawer-toggle").click();
+  const auditDrawer = page.getByTestId("audit-boundary-drawer");
+  await expect(auditDrawer).toBeVisible();
+  await expect(auditDrawer.getByTestId("validation-evidence-unit-policy")).toContainText("model=");
+  await expect(auditDrawer.getByTestId("validation-evidence-unit-policy")).toContainText("force=N");
+  await expect(auditDrawer.getByTestId("validation-evidence-unit-policy")).toContainText("length=m");
+  await expect(auditDrawer.getByTestId("validation-evidence-unit-policy")).toContainText(
+    "manual=unit_and_schema_verification"
+  );
+  await expect(auditDrawer.getByTestId("validation-evidence-unit-policy")).toContainText("conversion=false");
+  await expect(auditDrawer.getByTestId("accessibility-baseline-unit-visibility")).toContainText(
+    "policy=unit_bearing_values_keep_visible_unit_labels_in_review_surfaces"
+  );
+  await expect(auditDrawer.getByTestId("accessibility-baseline-unit-visibility")).toContainText("length=m");
+  await expect(auditDrawer.getByTestId("accessibility-baseline-unit-visibility")).toContainText("conversion=false");
+  await auditDrawer.getByRole("button", { name: /Close/i }).click();
+  await openWorkspaceSection(page, "solve");
+  await page.getByTestId("run-mechanics-preview").click();
+  await expectBackendRefusal(page);
+  await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=0");
+  await expect(page.getByTestId("solve-job-unit-policy")).toContainText("length=m");
+  await expect(page.getByTestId("solve-job-unit-policy")).toContainText("results=none");
+  await expect(page.getByTestId("solve-job-unit-policy")).toContainText("rows=0");
+  await expect(page.getByTestId("solve-job-unit-policy")).toContainText("conversion=false");
+  expect(await page.getByTestId("solve-job-export-link").getAttribute("href")).toBeNull();
+  await expect(page.getByTestId("solve-job-export-link-redaction-summary")).toContainText("blocked=true");
+  await page.getByTestId("solve-job-export-link-local-private-intent").setChecked(true);
+  await expect(page.getByTestId("solve-job-export-link")).toHaveAttribute("href", /^data:application\/json/);
+  const solveJobHref = await page.getByTestId("solve-job-export-link").getAttribute("href");
+  expect(solveJobHref).toBeTruthy();
+  const solveJobPacket = JSON.parse(decodeURIComponent(solveJobHref!.split(",", 2)[1]));
+  expect(solveJobPacket.unit_policy_evidence.unit_system_ref.ref).toBe("unit-system:dec-018-si-dual-display");
+  expect(solveJobPacket.unit_policy_evidence.model_units.length).toBe("m");
+  expect(solveJobPacket.unit_policy_evidence.result_units).toEqual([]);
+  expect(solveJobPacket.unit_policy_evidence.result_row_count).toBe(0);
+  expect(solveJobPacket.unit_policy_evidence.conversion_performed).toBe(false);
+  await expect(page.getByTestId("solve-job-error")).toContainText("BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL");
+  await page.getByTestId("issues-drawer-toggle").click();
+  await expect(page.getByTestId("diagnostic-BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL")).toHaveCount(0);
+  await page.getByTestId("issues-home").getByRole("button", { name: /Close/i }).click();
+  await openWorkspaceSection(page, "report");
+  await expect(page.getByTestId("rendered-report-render")).toBeDisabled();
+  await expect(page.getByTestId("rendered-report-precondition")).toBeVisible();
+  await expect(page.getByTestId("rendered-report-unit-basis")).toHaveCount(0);
+  await expectWorkspaceStatusClearOfTarget(page, "rendered-report-render");
+  await expect(page.getByTestId("rendered-report-route")).toHaveCount(0);
+  await expect(page.getByTestId("rendered-report-preview")).toHaveCount(0);
+});
+
+test("reference result detail retains linked diagnostics and mm units without current diagnostic state", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
+  await ensureEngineReady(page);
+  const reference = await inspectBundledReference(page);
+  await reference.getByTestId("result-filter-input").fill("result:disp:node-N-140");
+  const inspector = page.getByTestId("property-inspector");
+  const before = await inspector.textContent();
+  await reference.getByTestId("result-row-result:disp:node-N-140").click();
+  await expect(reference.getByTestId("selected-result-id")).toContainText("result:disp:node-N-140");
+  await expect(reference.getByTestId("result-detail-panel")).toContainText("mm");
+  await expect(reference.getByTestId("result-detail-panel")).toContainText("diagnostic:physics:high-displacement-review");
+  await expect(inspector).toHaveText(before ?? "");
+  // The exact one-linked-row/mm source relation is preserved in the source
+  // oracle above; reference diagnostics do not enter the current issue drawer.
+  await page.getByTestId("issues-drawer-toggle").click();
+  await expect(page.getByTestId("diagnostic-HIGH_DISPLACEMENT_REVIEW")).toHaveCount(0);
+});
+
+// Phase C2 slice 1 (TP-C2-EDITOR-001): the rule-pack manager authors a
+// private draft in memory and reports the honest desktop-only seam for
+// validation, checksum, persistence, and listing in browser mode — the
+// same recorded boundary pattern as report rendering and the unit catalog.
+test("rule-pack manager drafts privately and reports the desktop-only backend seam", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
+  await ensureEngineReady(page);
+
+  await openWorkspaceSection(page, "rule-packs");
+  await expect(page.getByTestId("rule-pack-scope-status")).toContainText("local SQLite only");
+  await expect(page.getByTestId("rule-pack-boundary-note")).toContainText("DEC-037");
+
+  await page.getByTestId("rule-pack-new-draft").click();
+  const draftText = await page.getByTestId("rule-pack-draft-json").inputValue();
+  const draft = JSON.parse(draftText);
+  expect(draft.rule_pack_kind).toBe("open_pipe_stress_rule_pack");
+  expect(draft.grammar_version).toBe("1.0.0");
+  // Rule-pack format 0.5.0: one category, required load case and mapping to fill.
+  expect(draft.schema_version).toBe("0.5.0");
+  expect(draft.stress_categories).toHaveLength(1);
+  await expect(page.getByTestId("rule-pack-load-case-categories-editor")).toBeVisible();
+  expect(draft.classification.privacy_class).toBe("private_user_data");
+  expect(draft.classification.redistribution_status).toBe("private_only");
+  await expect(page.getByTestId("rule-pack-action-status")).toContainText("private_user_data");
+
+  // Slice 2 (TP-C2-COMPOSER-001) + DEC-037 follow-up: the structured AST
+  // composer rewrites the selected formula's expression through visible
+  // controls. It may render display-only text, but ships no writable text
+  // syntax and no parser. Switching the root node type rewrites the canonical
+  // document JSON the validate/save flow reads.
+  await expect(page.getByTestId("rule-pack-expression-composer")).toBeVisible();
+  await expect(page.getByTestId("rule-pack-variable-browser")).toContainText("user_required_input_1");
+	  await expect(page.getByTestId("rule-pack-expression-text-preview")).toContainText(
+	    "Read-only AST-to-text preview"
+	  );
+	  await expect(page.getByTestId("rule-pack-expression-text-preview")).toContainText(
+	    "user_required_input_1"
+	  );
+  expect(draft.formula_declarations[0].declaration_payload.expression_ast.node).toBe("variable_ref");
+
+  // Slice 4 (TP-C2-DECLEDITOR-001): the declarations editor authors the
+  // required_inputs / value_slots the composer's variable_ref binds to. Add a
+  // required input from blank; the canonical document JSON grows and the
+  // composer's variable picker reflects the new id — no raw JSON. Still
+  // structured-only (D-02b).
+  await expect(page.getByTestId("rule-pack-declarations-editor")).toBeVisible();
+  await page.getByTestId("rule-pack-input-add").click();
+  // TP-UNITS-B2-RULEPACKUNITS-001: browser preview cannot call the desktop
+  // get_unit_catalog command, so declaration unit refs stay editable as stored
+  // unit text here. The desktop catalog-picker path is covered by mocked-Tauri
+  // Vitest; this e2e assertion protects the no-fallback/manual-entry route.
+  await page.getByTestId("rule-pack-input-dimension").last().selectOption("stress");
+  await page.getByTestId("rule-pack-input-unit").last().fill("MPa");
+  await expect(page.getByTestId("rule-pack-declarations-unit-policy")).toContainText(
+    "catalog_route=browser_preview_manual_entry"
+  );
+  await expect(page.getByTestId("rule-pack-declarations-unit-policy")).toContainText(
+    "required_input:user_required_input_2=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview(unit=MPa;dimension=stress)"
+  );
+  const declText = await page.getByTestId("rule-pack-draft-json").inputValue();
+  expect(JSON.parse(declText).required_inputs).toHaveLength(2);
+  expect(JSON.parse(declText).required_inputs[1].quantity_intent).toMatchObject({
+    dimension: "stress",
+    unit_ref: "MPa"
+  });
+  await expect(page.getByTestId("rule-pack-variable-browser")).toContainText(
+    "user_required_input_2 (required_input)"
+  );
+  await page.getByTestId("rule-pack-node-type").first().selectOption("compare");
+  // TP-UNITS-B2-RULEEXPRUNITS-001: browser preview cannot call the desktop
+  // catalog command for expression literal/table units either, so expression
+  // unit refs remain manual stored-unit text in this route. Mocked-Tauri
+  // Vitest covers the desktop catalog-selector path.
+  await page.getByTestId("rule-pack-literal-dimension").selectOption("stress");
+  await page.getByTestId("rule-pack-literal-unit").fill("MPa");
+  await expect(page.getByTestId("rule-pack-expression-unit-policy")).toContainText(
+    "catalog_route=browser_preview_manual_entry"
+  );
+  await expect(page.getByTestId("rule-pack-expression-unit-policy")).toContainText(
+    "expression.right.quantity=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview(unit=MPa;dimension=stress)"
+  );
+	  await expect(page.getByTestId("rule-pack-expression-text-preview")).toContainText("<=");
+	  await expect(page.getByTestId("rule-pack-expression-text-preview")).toContainText("MPa [stress]");
+  const composedText = await page.getByTestId("rule-pack-draft-json").inputValue();
+  expect(JSON.parse(composedText).formula_declarations[0].declaration_payload.expression_ast).toMatchObject({
+    node: "compare",
+    operator: "less_than_or_equal",
+    left: { node: "variable_ref" },
+    right: { node: "literal", quantity: { dimension: "stress", unit_ref: "MPa" } }
+  });
+
+  // Slice 3 (TP-C2-TABLENODE-001): switch the root to a table-backed
+  // interpolate node and edit a row. The canonical document JSON updates with
+  // a schema-valid default table (uppercase "TBD" placeholders, two
+  // strictly-increasing rows) plus the edited result. Still AST-only (D-02b).
+  await page.getByTestId("rule-pack-node-type").first().selectOption("interpolate");
+  await page.getByTestId("rule-pack-table-argument-dimension").selectOption("temperature");
+  await page.getByTestId("rule-pack-table-argument-unit").fill("degC");
+  await page.getByTestId("rule-pack-table-result-dimension").selectOption("stress");
+  await page.getByTestId("rule-pack-table-result-unit").fill("MPa");
+  await expect(page.getByTestId("rule-pack-expression-unit-policy")).toContainText(
+    "expression.table.result=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview(unit=MPa;dimension=stress)"
+  );
+  await page.getByTestId("rule-pack-table-row-result").first().fill("1.5");
+  await expect(page.getByTestId("rule-pack-expression-text-preview")).toContainText(
+    "interpolate(user_table_1, user_required_input_1)"
+  );
+  const tableText = await page.getByTestId("rule-pack-draft-json").inputValue();
+  expect(JSON.parse(tableText).formula_declarations[0].declaration_payload.expression_ast).toMatchObject({
+    node: "interpolate",
+    table: {
+      table_id: "user_table_1",
+      argument_dimension: "temperature",
+      argument_unit_ref: "degC",
+      result_dimension: "stress",
+      result_unit_ref: "MPa",
+      rows: [
+        { argument: 0, result: 1.5 },
+        { argument: 1, result: 0 }
+      ]
+    },
+    argument: { node: "variable_ref" }
+  });
+
+  // Slice 5 (TP-C2-CHECKDEF-001): the check-definitions editor binds the
+  // declared inputs/slots/formula into acceptability checks through visible
+  // controls — no text syntax (D-02b). The template check's formula ref is
+  // bound to the declared formula; add a check and the canonical document JSON
+  // grows; toggling a result status rewrites it.
+  await expect(page.getByTestId("rule-pack-check-definitions-editor")).toBeVisible();
+  await expect(page.getByTestId("rule-pack-check-formula-ref").first()).toHaveValue(
+    "user_formula_1"
+  );
+  await page.getByTestId("rule-pack-check-add").click();
+  const checkText = await page.getByTestId("rule-pack-draft-json").inputValue();
+  expect(JSON.parse(checkText).check_definitions).toHaveLength(2);
+  await page.getByTestId("rule-pack-check-status-MODEL_INCOMPLETE").first().check();
+  const statusText = await page.getByTestId("rule-pack-draft-json").inputValue();
+  expect(JSON.parse(statusText).check_definitions[0].result_statuses).toContain("MODEL_INCOMPLETE");
+
+  // TP-C4-ACCEPTREL-001: the check authors its top-level acceptability relation
+  // (computed <relation> limit) through a structured selector — the template
+  // authors the explicit less_than_or_equal default (no reliance on the runner's
+  // absent->default fallback); choosing another ordering relation rewrites the
+  // canonical document. No text syntax (D-02b); equality acceptance is not offered.
+  await expect(page.getByTestId("rule-pack-check-acceptability-relation").first()).toHaveValue(
+    "less_than_or_equal"
+  );
+  await page
+    .getByTestId("rule-pack-check-acceptability-relation")
+    .first()
+    .selectOption("greater_than_or_equal");
+  const relationText = await page.getByTestId("rule-pack-draft-json").inputValue();
+  expect(JSON.parse(relationText).check_definitions[0].acceptability_relation).toBe(
+    "greater_than_or_equal"
+  );
+
+  // TP-C3-LIBREFAUTHOR-001: an input that draws from a private library authors a
+  // library_value_ref (library_kind/library_id/record_id/slot_id) through
+  // structured controls — the pointer the C4 runner resolves from the local
+  // library store at run time (TP-C3C4-LIBREF-001). Setting source_kind to
+  // private_library_value reveals the sub-form and seeds a complete reference;
+  // the private value itself is never embedded in the pack. Still form-only
+  // (D-02b); no raw JSON. Target the appended (second) input row via .last().
+  await page.getByTestId("rule-pack-input-source-kind").last().selectOption("private_library_value");
+  await expect(page.getByTestId("rule-pack-input-library-ref")).toBeVisible();
+  await expect(page.getByTestId("rule-pack-input-library-ref-note")).toContainText(
+    "never embedded in the rule pack"
+  );
+  await page.getByTestId("rule-pack-input-library-kind").selectOption("material");
+  await page.getByTestId("rule-pack-input-library-id").fill("my_private_lib");
+  await page.getByTestId("rule-pack-input-library-record").fill("rec_A106B");
+  await page.getByTestId("rule-pack-input-library-slot").fill("allowable_stress");
+  const libRefText = await page.getByTestId("rule-pack-draft-json").inputValue();
+  const libRefInputs = JSON.parse(libRefText).required_inputs;
+  expect(libRefInputs[libRefInputs.length - 1]).toMatchObject({
+    source_kind: "private_library_value",
+    library_value_ref: {
+      library_kind: "material",
+      library_id: "my_private_lib",
+      record_id: "rec_A106B",
+      slot_id: "allowable_stress"
+    }
+  });
+
+  // TP-C4-SOLVERREFAUTHOR-001, format 0.5.0: an input that draws from a solved
+  // result authors a solver_result_ref row selector through structured
+  // controls — the one binding route (the run panel's caller selector is
+  // retired), resolved at run time on each required load case. Add a fresh
+  // input and set source_kind to solver_result: the sub-form reveals and seeds
+  // a {result_kind:"TBD", entity_ref:"TBD"} placeholder (unfilled -> blocks,
+  // never a silent pass). Still form-only (D-02b); no raw JSON. Target the
+  // appended (last) input row.
+  await page.getByTestId("rule-pack-input-add").click();
+  await page.getByTestId("rule-pack-input-source-kind").last().selectOption("solver_result");
+  await expect(page.getByTestId("rule-pack-input-solver-ref")).toBeVisible();
+  await expect(page.getByTestId("rule-pack-input-solver-ref-note")).toContainText(
+    "On each required load case of a check"
+  );
+  await page.getByTestId("rule-pack-input-solver-result-kind").fill("element_local_axial_normal_stress");
+  await page.getByTestId("rule-pack-input-solver-entity-ref").fill("pipe:P-100");
+  await page.getByTestId("rule-pack-input-solver-location").fill("end_i");
+  const solverRefText = await page.getByTestId("rule-pack-draft-json").inputValue();
+  const solverRefInputs = JSON.parse(solverRefText).required_inputs;
+  expect(solverRefInputs[solverRefInputs.length - 1]).toMatchObject({
+    source_kind: "solver_result",
+    solver_result_ref: { result_kind: "element_local_axial_normal_stress", entity_ref: "pipe:P-100", location: "end_i" }
+  });
+
+  // Validate routes to the desktop-only seam: the status transitions away
+  // from the just-created "private_user_data" draft message. (Per-button
+  // seam coverage for compute-checksum and save lives in the Vitest panel
+  // suite, where each transition is asserted from a distinct prior state;
+  // asserting them here too would be vacuous — all three write the same
+  // action-status text.)
+  await page.getByTestId("rule-pack-validate").click();
+  await expect(page.getByTestId("rule-pack-action-status")).toContainText(
+    "RULE-PACK-BACKEND-DESKTOP-ONLY"
+  );
+
+  // Refresh reports on a distinct surface (list-status), so this assertion
+  // is independent of the validate result above.
+  await page.getByTestId("rule-pack-refresh-list").click();
+  await expect(page.getByTestId("rule-pack-list-status")).toContainText(
+    "RULE-PACK-BACKEND-DESKTOP-ONLY"
+  );
+
+  await page.getByTestId("rule-pack-discard-draft").click();
+  await expect(page.getByTestId("rule-pack-action-status")).toContainText("Draft discarded");
+});
+
+test("library manager loads an invented private sample and reports the desktop-only backend seam", async ({
+  page
+}) => {
+  await page.goto("/");
+  await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
+  await ensureEngineReady(page);
+
+  await openWorkspaceSection(page, "libraries");
+  await expect(page.getByTestId("library-scope-status")).toContainText("local SQLite only");
+  await expect(page.getByTestId("library-boundary-note")).toContainText("DEC-036");
+  await expect(page.getByTestId("library-boundary-note")).toContainText(
+    "never committed to the repository"
+  );
+
+  // Phase C3 (TP-C3-LIBGUI-001): load the invented private-by-default sample
+  // for the default (material) kind through visible controls. The canonical
+  // import document populates the textarea with a private-classified,
+  // provenance-complete library.
+  await page.getByTestId("library-load-template").click();
+  const materialText = await page.getByTestId("library-draft-json").inputValue();
+  const material = JSON.parse(materialText);
+  expect(material.material_library.privacy_class).toBe("private_user_data");
+  expect(material.material_library.provenance.redistribution_status).toBe("private_only");
+  expect(material.material_records).toEqual([]);
+  await expect(page.getByTestId("library-action-status")).toContainText("private_user_data");
+  await expect(page.getByTestId("material-property-unit-helper")).toBeVisible();
+  await expect(page.getByTestId("material-property-unit-basis")).toContainText(
+    "browser preview mode does not synthesize a fallback catalog"
+  );
+  await expect(page.getByTestId("material-property-unit")).toHaveValue(
+    "unit:kilogram_per_cubic_meter"
+  );
+  await page.getByTestId("material-property-kind").selectOption("elastic_modulus");
+  await expect(page.getByTestId("material-property-unit")).toHaveValue("unit:pascal");
+  await page.getByTestId("material-property-value").fill("210000000000");
+  await page.getByTestId("material-property-apply-draft").click();
+  const materialPropertyText = await page.getByTestId("library-draft-json").inputValue();
+  const materialPropertyDraft = JSON.parse(materialPropertyText);
+  expect(materialPropertyDraft.material_records[0].properties[0]).toMatchObject({
+    property_kind: "elastic_modulus",
+    value_status: "private_user_supplied",
+    value: {
+      magnitude: 210000000000,
+      dimension_id: "stress",
+      quantity_kind: "unit_bearing",
+      unit_required: true,
+      missing_unit_behavior: "diagnostic_blocking",
+      unit_ref: { ref_type: "Unit", ref_id: "unit:pascal" }
+    }
+  });
+
+  materialPropertyDraft.material_records[0].properties[0].temperature_ref = {
+    ref_type: "material_temperature_point",
+    ref_id: "material:user-alpha:temperature:hot"
+  };
+  await page.getByTestId("library-draft-json").fill(JSON.stringify(materialPropertyDraft));
+  await page.getByTestId("material-property-kind").selectOption("shear_modulus");
+  await expect(page.getByTestId("material-property-unit")).toHaveValue("unit:pascal");
+  await expect(page.getByTestId("material-property-temperature-ref")).toBeEnabled();
+  await page
+    .getByTestId("material-property-temperature-ref")
+    .selectOption("material:user-alpha:temperature:hot");
+  await expect(page.getByTestId("material-property-temperature-ref-basis")).toContainText(
+    "no point, value, or catalog entry is synthesized"
+  );
+  await page.getByTestId("material-property-value").fill("50000000000");
+  await page.getByTestId("material-property-apply-draft").click();
+  const shearModulusText = await page.getByTestId("library-draft-json").inputValue();
+  const shearModulusDraft = JSON.parse(shearModulusText);
+  const shearModulus = shearModulusDraft.material_records[0].properties.find(
+    (property: { property_kind?: string }) => property.property_kind === "shear_modulus"
+  );
+  expect(shearModulus).toMatchObject({
+    property_kind: "shear_modulus",
+    temperature_ref: {
+      ref_type: "material_temperature_point",
+      ref_id: "material:user-alpha:temperature:hot"
+    },
+    value_status: "private_user_supplied",
+    value: {
+      magnitude: 50000000000,
+      dimension_id: "stress",
+      quantity_kind: "unit_bearing",
+      unit_required: true,
+      missing_unit_behavior: "diagnostic_blocking",
+      unit_ref: { ref_type: "Unit", ref_id: "unit:pascal" },
+      provenance: { redistribution_status: "private_only", review_status: "pending" }
+    },
+    provenance: { redistribution_status: "private_only", review_status: "pending" }
+  });
+  await expect(page.getByTestId("library-action-status")).toContainText(
+    "temperature_ref=material:user-alpha:temperature:hot"
+  );
+
+  await page.getByTestId("library-kind-select").selectOption("section");
+  await page.getByTestId("library-load-template").click();
+  const sectionText = await page.getByTestId("library-draft-json").inputValue();
+  expect(JSON.parse(sectionText).section_library).toBeTruthy();
+  await expect(page.getByTestId("section-quantity-unit-helper")).toBeVisible();
+  await expect(page.getByTestId("section-quantity-unit-basis")).toContainText(
+    "browser preview mode does not synthesize a fallback catalog"
+  );
+  await expect(page.getByTestId("section-quantity-unit")).toHaveValue("m");
+  await page.getByTestId("section-quantity-value").fill("0.168");
+  await page.getByTestId("section-quantity-apply-draft").click();
+  const sectionDimensionText = await page.getByTestId("library-draft-json").inputValue();
+  const sectionDimensionDraft = JSON.parse(sectionDimensionText);
+  expect(sectionDimensionDraft.section_records[0].dimensions[0]).toMatchObject({
+    dimension_kind: "outside_diameter",
+    value_status: "private_user_supplied",
+    value: {
+      magnitude: 0.168,
+      unit: "m",
+      dimension: "length",
+      value_status: "private_user_supplied"
+    }
+  });
+
+  // Switching the kind selector and reloading yields the matching library
+  // family shape — the component library here.
+  await page.getByTestId("library-kind-select").selectOption("component");
+  await page.getByTestId("library-load-template").click();
+  const componentText = await page.getByTestId("library-draft-json").inputValue();
+  expect(JSON.parse(componentText).component_library).toBeTruthy();
+  await expect(page.getByTestId("component-field-unit-helper")).toBeVisible();
+  await expect(page.getByTestId("component-field-unit-basis")).toContainText(
+    "browser preview mode does not synthesize a fallback catalog"
+  );
+  await expect(page.getByTestId("component-field-unit")).toHaveValue("N/m");
+  await page.getByTestId("component-field-value").fill("12.5");
+  await page.getByTestId("component-field-apply-draft").click();
+  const componentFieldText = await page.getByTestId("library-draft-json").inputValue();
+  const componentFieldDraft = JSON.parse(componentFieldText);
+  expect(componentFieldDraft.component_records[0].fields[0]).toMatchObject({
+    field_kind: "linear_stiffness",
+    public_repository_value_policy: "private_user_supplied_only",
+    value: {
+      magnitude: 12.5,
+      unit: "N/m",
+      dimension: "linear_stiffness",
+      value_status: "private_user_supplied"
+    }
+  });
+
+  // Validate routes to the desktop-only seam in browser preview: the
+  // validate/save/store backend runs in the Tauri runtime only. Accept/store
+  // and §13.5 findings outcomes are covered by the src-tauri Rust tests and
+  // the Vitest desktop-mode mocked panel suite, not by this browser lane.
+  await page.getByTestId("library-validate").click();
+  await expect(page.getByTestId("library-action-status")).toContainText(
+    "LIBRARY-IMPORT-BACKEND-DESKTOP-ONLY"
+  );
+
+  // Refresh reports on a distinct surface (list-status), independent of the
+  // validate result above.
+  await page.getByTestId("library-refresh-list").click();
+  await expect(page.getByTestId("library-list-status")).toContainText(
+    "LIBRARY-IMPORT-BACKEND-DESKTOP-ONLY"
+  );
+
+  await page.getByTestId("library-discard-draft").click();
+  await expect(page.getByTestId("library-action-status")).toContainText("discarded");
+});
+
+test("run-rule-checks panel loads the demo pack, derives bindings, and reports the desktop-only run seam", async ({
+  page
+}) => {
+  await page.goto("/");
+  await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
+
+  // The run-checks panel lives in the Solve section (it consumes solved
+  // results). Phase C4 GUI (TP-C4-CHECKGUI-001): make the R3 exit criterion
+  // GUI-true — load a pack, bind inputs, run, see pass/fail/blocked.
+  await openWorkspaceSection(page, "solve");
+  await expect(page.getByTestId("rule-check-run-panel")).toBeVisible();
+  await expect(page.getByTestId("rule-check-boundary-note")).toContainText(
+    "Rule checks run locally over user-supplied data only.",
+  );
+  await expect(page.getByTestId("rule-check-boundary-note")).not.toContainText("responsible engineer");
+
+  // Load the bundled invented demo pack through a visible control; the binding
+  // plan is derived from the loaded document.
+  await page.getByTestId("rule-check-load-demo").click();
+  await expect(page.getByTestId("rule-check-binding-plan")).toBeVisible();
+  await expect(page.getByTestId("rule-check-unit-catalog-status")).toContainText(
+    "stored manual text"
+  );
+  await expect(page.getByTestId("rule-check-unit-binding-policy")).toContainText("value_inputs=1");
+  await expect(page.getByTestId("rule-check-unit-binding-policy")).toContainText("value_slots=1");
+  await expect(page.getByTestId("rule-check-unit-binding-policy")).toContainText("solver_selectors=1");
+  // Rule-pack format 0.5.0: the demo's one solver input binds through its own
+  // pack selector (no caller selector remains), and none lacks one.
+  await expect(page.getByTestId("rule-check-unit-binding-policy")).toContainText("solver_selectors_missing=0");
+  await expect(page.getByTestId("rule-check-unit-binding-policy")).toContainText("private_library_refs=0");
+  await expect(page.getByTestId("rule-check-unit-binding-policy")).toContainText(
+    "catalog=browser_manual_text_no_fallback"
+  );
+  await expect(page.getByTestId("rule-check-unit-binding-policy")).toContainText("conversion=false");
+  const packText = await page.getByTestId("rule-check-pack-json").inputValue();
+  expect(JSON.parse(packText).metadata.rule_pack_id).toBe("invented_demo_rule_pack");
+
+  // solver_result input -> its authored pack selector (the per-input caller
+  // selector is retired); user value input + value slot -> entry fields.
+  await expect(page.getByTestId("rule-check-solver-selector-demo_actual_quantity")).toContainText(
+    "result_kind=invented_demo_quantity; entity_ref=pipe:P-100"
+  );
+  await expect(page.locator('[data-testid^="rule-check-solver-select-"]')).toHaveCount(0);
+  await expect(page.getByTestId("rule-check-value-input-demo_limit_quantity")).toBeVisible();
+  await expect(page.getByTestId("rule-check-slot-input-demo_limit_slot")).toBeVisible();
+  await expect(page.getByTestId("rule-check-value-unit-demo_limit_quantity")).toHaveValue("demo_unit");
+  await expect(page.getByTestId("rule-check-slot-unit-demo_limit_slot")).toHaveValue("ratio");
+  await expect(page.getByTestId("rule-check-value-unit-basis-demo_limit_quantity")).toContainText(
+    "demo_unit, model metadata"
+  );
+  await expect(page.getByTestId("rule-check-slot-unit-basis-demo_limit_slot")).toContainText(
+    "ratio, model metadata"
+  );
+
+  // Running routes to the desktop-only seam in browser preview: the runner
+  // (completeness gate + frozen-grammar evaluation + acceptability comparison)
+  // runs in the Tauri runtime only. Pass/fail/blocked outcomes are covered by
+  // the src-tauri Rust command tests and the Vitest desktop-mode mocked panel
+  // suite, not by this browser lane.
+  await page.getByTestId("rule-check-run").click();
+  await expect(page.getByTestId("rule-check-run-status")).toContainText(
+    "RULE-CHECK-BACKEND-DESKTOP-ONLY"
+  );
+  await expect(page.getByTestId("rule-check-run-result")).toHaveCount(0);
+
+  // Refresh reports on a distinct surface (list-status), independent of the
+  // run result above.
+  await page.getByTestId("rule-check-refresh-list").click();
+  await expect(page.getByTestId("rule-check-run-list-status")).toContainText(
+    "RULE-PACK-BACKEND-DESKTOP-ONLY"
+  );
+
+  // TP-C3-LIBREFPICKER-001: a private_library_value input gets a
+  // read-only-to-the-pack resolution-preview picker. The browser-reachable part
+  // — the "Preview resolution" control and its honest desktop-only store seam —
+  // is asserted here; the actual resolution/browse against the local private
+  // library store is desktop-only (covered by the Vitest desktop-mode mocked
+  // suite), so in the browser the preview reports the unavailable seam.
+  const libraryPack = JSON.stringify({
+    metadata: { rule_pack_id: "lib_ref_demo" },
+    required_inputs: [
+      {
+        input_id: "lib_allow",
+        name: "Library allowable",
+        source_kind: "private_library_value",
+        quantity_intent: { dimension: "stress", unit_ref: "demo_unit" },
+        library_value_ref: {
+          library_kind: "material",
+          library_id: "lib:steel",
+          record_id: "mat:a",
+          slot_id: "allow:Sh"
+        }
+      }
+    ]
+  });
+  await page.getByTestId("rule-check-pack-json").fill(libraryPack);
+  await expect(page.getByTestId("rule-check-library-input-lib_allow")).toBeVisible();
+  await page.getByTestId("rule-check-library-preview-lib_allow").click();
+  await expect(page.getByTestId("rule-check-library-resolution-lib_allow")).toContainText(
+    "LIBRARY-IMPORT-BACKEND-DESKTOP-ONLY"
+  );
+
+  // TP-C4-SOLVERREFPICKER-001, format 0.5.0: a solver_result input's authored
+  // row selector gets a read-only preview against the current solved envelope,
+  // per required load case. In this browser smoke path no solved rows are
+  // present yet, so the preview honestly reports no_result_rows instead of
+  // inventing a binding. The resolving solved-envelope case is pinned in the
+  // component tests.
+  const solverRefPack = JSON.stringify({
+    metadata: { rule_pack_id: "solver_ref_demo" },
+    required_inputs: [
+      {
+        input_id: "actual_stress",
+        name: "Actual stress",
+        source_kind: "solver_result",
+        quantity_intent: { dimension: "stress", unit_ref: "kPa" },
+        solver_result_ref: { result_kind: "element_local_axial_normal_stress", entity_ref: "pipe:P-100", location: "end_i" }
+      }
+    ],
+    required_load_cases: [
+      { required_load_case_id: "rlc_1", name: "Invented case", basis_ref: { ref_type: "load_case", ref_id: "load:L-100" } }
+    ]
+  });
+  await page.getByTestId("rule-check-pack-json").fill(solverRefPack);
+  await expect(page.getByTestId("rule-check-solver-input-actual_stress")).toContainText(
+    "Bound by the pack's selector (result_kind=element_local_axial_normal_stress; entity_ref=pipe:P-100; location=end_i)"
+  );
+  await page.getByTestId("rule-check-solver-preview-actual_stress").click();
+  await expect(page.getByTestId("rule-check-solver-resolution-actual_stress")).toHaveAttribute(
+    "data-status",
+    "no_result_rows"
+  );
+  await expect(page.getByTestId("rule-check-solver-browse-actual_stress")).toContainText(
+    "Run a solve first"
+  );
+});
+
+test("R3 guided flow routes private library, rule-pack, solve, binding, and blocked check steps", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
+  await ensureEngineReady(page);
+
+  await expect(page.getByTestId("app-menu-bar")).toBeVisible();
+  // Slice B3, specification §5.4 rules 1 and 2: no Rule pack chip before a run; the recorded value
+  // is read in the Analyze page's readiness summary.
+  await expectNoStatusChip(page, "status-pill-rule-check");
+  await expectRecordedStatusOnAnalyzePage(page, "rule", "RULE_INPUTS_INCOMPLETE");
+
+  await openWorkspaceSection(page, "libraries");
+  await expect(page.getByTestId("workspace-section-libraries")).toBeVisible();
+  await page.getByTestId("library-load-template").click();
+  await page.getByTestId("library-validate").click();
+  await expect(page.getByTestId("library-action-status")).toContainText(
+    "LIBRARY-IMPORT-BACKEND-DESKTOP-ONLY"
+  );
+  await page.getByTestId("library-save").click();
+
+  await openWorkspaceSection(page, "rule-packs");
+  await expect(page.getByTestId("workspace-section-rule-packs")).toBeVisible();
+  await page.getByTestId("rule-pack-new-draft").click();
+  await page.getByTestId("rule-pack-validate").click();
+  await expect(page.getByTestId("rule-pack-action-status")).toContainText(
+    "RULE-PACK-BACKEND-DESKTOP-ONLY"
+  );
+  await page.getByTestId("rule-pack-compute-checksum").click();
+  await expect(page.getByTestId("rule-pack-action-status")).toContainText(
+    "RULE-PACK-BACKEND-DESKTOP-ONLY"
+  );
+  await page.getByTestId("rule-pack-save").click();
+
+  await openWorkspaceSection(page, "solve");
+  await expect(page.getByTestId("workspace-section-solve")).toBeVisible();
+  await page.getByTestId("run-mechanics-preview").click();
+  await expectBackendRefusal(page);
+  await inspectBundledReference(page);
+  await openWorkspaceSection(page, "solve");
+  await expect(page.getByTestId("rule-check-run-solve-status")).toContainText("No solved mechanics result in this session");
+
+  await page.getByTestId("rule-check-load-demo").click();
+  await expect(page.getByTestId("rule-check-binding-plan")).toBeVisible();
+  // No solve yet: the demo's selector binds nothing (the retired caller
+  // selector used to be disabled here); its preview says so.
+  await page.getByTestId("rule-check-solver-preview-demo_actual_quantity").click();
+  await expect(page.getByTestId("rule-check-solver-resolution-demo_actual_quantity")).toHaveAttribute(
+    "data-status",
+    "no_result_rows"
+  );
+
+  await page.getByTestId("rule-check-run").click();
+  await expect(page.getByTestId("rule-check-run-status")).toContainText("RULE-CHECK-BACKEND-DESKTOP-ONLY");
+  await page.getByTestId("issues-drawer-toggle").click();
+  // With no Current result, Issues reports the current model's own rule standing: rule inputs
+  // missing and the rule check blocked. A bundled reference never lends its recorded status.
+  const issues = page.getByTestId("issues-home");
+  await expect(issues.getByTestId("missing-data-status-separation")).toContainText(
+    `rule_check=${demoModel.analysis_status.rule_check}`
+  );
+  await expect(issues.getByTestId("missing-data-summary")).toContainText("rule_blocked=true");
+  await expect(issues.getByTestId("missing-data-warning-rule-check-required-inputs")).toContainText("RULE_CHECK_BLOCKING");
+  await expect(issues.getByTestId("diagnostic-RULE_INPUTS_MISSING")).toBeVisible();
+
+  const horizontalOverflow = await page.evaluate(
+    () =>
+      document.documentElement.scrollWidth > document.documentElement.clientWidth ||
+      document.body.scrollWidth > document.body.clientWidth
+  );
+  expect(horizontalOverflow).toBe(false);
+});
+
+function stepPayload(changeKind: string, ref: string): any {
+  const step = rehearsal.steps.find(
+    (candidate) =>
+      candidate.change_kind === changeKind && (candidate.target?.ref === ref || candidate.payload.id === ref)
+  );
+  if (!step) throw new Error(`missing rehearsal step ${changeKind} ${ref}`);
+  return step.payload;
+}
+
+async function fillNodeDraft(page: Page, payload: any): Promise<void> {
+  await ensureCreationToolArmed(page, "command-node", "Node tool armed");
+  await page.getByTestId("viewport-create-node-id").fill(payload.id);
+  await page.getByTestId("viewport-create-node-label").fill(payload.label);
+  await page.getByTestId("viewport-create-node-x").fill(String(payload.position.x));
+  await page.getByTestId("viewport-create-node-y").fill(String(payload.position.y));
+  await page.getByTestId("viewport-create-node-z").fill(String(payload.position.z));
+  await page.getByTestId("viewport-create-node-provenance").fill(payload.provenance);
+}
+
+async function applyReviewedDraft(
+  page: Page,
+  expectation: {
+    addTestId: string;
+    unitTestId: string;
+    operationId: string;
+    diff: string;
+    reviewSequence: number;
+    appliedSequence: number;
+    publishedType: TreeEntityType;
+    publishedId: string;
+    publishedText: string;
+  }
+): Promise<void> {
+  await expect(page.getByTestId(expectation.unitTestId)).toBeVisible();
+  await expect(page.getByTestId(expectation.unitTestId)).toHaveAttribute("data-value", "m");
+  await page.getByTestId(expectation.addTestId).click();
+
+  const review = page.getByTestId("viewport-draft-review-preview");
+  await expect(review).toContainText("Single operation");
+  await expect(review).toContainText(expectation.operationId);
+  await expect(review).toContainText("Validated model hash: sha256:");
+  await expect(review).toContainText(expectation.diff);
+  await expect(review).toContainText("[m]");
+
+  const apply = page.getByTestId("apply-reviewed-draft");
+  await expect(apply).toBeEnabled();
+  await openWorkspaceSection(page, "operations");
+  const applyPanel = page.getByTestId("operation-apply-panel");
+  await expect(applyPanel.getByTestId("operation-apply-summary")).toContainText(
+    `0 queued; ${expectation.appliedSequence - 1} applied`
+  );
+  await apply.click();
+  await expect(applyPanel.getByTestId("operation-apply-message")).toContainText(
+    `Applied reviewed ${expectation.operationId}`
+  );
+  await expectTreeEntity(page, expectation.publishedType, expectation.publishedId, expectation.publishedText);
+  await expect(applyPanel.getByTestId("operation-apply-summary")).toContainText(
+    `0 queued; ${expectation.appliedSequence} applied`
+  );
+  await expect(applyPanel.getByTestId("operation-unit-policy-chip")).toContainText(
+    `${expectation.appliedSequence} applied receipts`
+  );
+
+  const receipt = applyPanel.getByTestId(
+    `applied-operation-route-applied-viewport-draft-review-${expectation.reviewSequence}`
+  );
+  await expect(receipt).toContainText("Applied through local_wasm_engine");
+  await expect(receipt).toContainText("Acceptance basis user_initiated_apply_in_local_session");
+  await expect(receipt).toContainText("persistence session_state_only_not_yet_saved");
+  await expect(receipt).toContainText("professional approval not recorded");
+}
+
+async function applyQueuedIntent(
+  page: Page,
+  queuedSequence: number,
+  appliedSequence: number,
+  expectedOperation: string
+): Promise<void> {
+  // Authoring forms live in the persistent core or the Load Cases section;
+  // the Operation Apply section is the receipt and audit surface.
+  const key = `editor-intent-${queuedSequence}`;
+  await openWorkspaceSection(page, "operations");
+  await expect(page.getByTestId("operation-apply-summary")).toContainText(
+    `1 queued; ${appliedSequence - 1} applied`
+  );
+  await page.getByTestId(`apply-intent-${key}`).click();
+  await expect(page.getByTestId("workspace-section-operations")).toBeVisible();
+  await expect(page.getByTestId("operation-apply-summary")).toContainText(`0 queued; ${appliedSequence} applied`);
+  const receipt = page.getByTestId(`applied-operation-route-applied-${appliedSequence}-${key}`);
+  await expect(receipt).toContainText("Applied through local_wasm_engine");
+  await expect(receipt).toContainText("Acceptance basis user_initiated_apply_in_local_session");
+  await expect(receipt).toContainText("persistence session_state_only_not_yet_saved");
+  await expect(receipt).toContainText("professional approval not recorded");
+  await expect(page.getByTestId(`applied-operation-applied-${appliedSequence}-${key}`)).toContainText(
+    expectedOperation
+  );
+}
+
+type PngImage = {
+  bytesPerPixel: number;
+  data: Uint8Array;
+  height: number;
+  width: number;
+};
+
+function pngStats(buffer: Buffer): { height: number; opaquePixels: number; uniqueColors: number; width: number } {
+  const image = decodePng(buffer);
+  const colors = new Set<string>();
+  let opaquePixels = 0;
+  for (let offset = 0; offset < image.data.length; offset += image.bytesPerPixel) {
+    const alpha = image.bytesPerPixel === 4 ? image.data[offset + 3] : 255;
+    if (alpha > 0) opaquePixels += 1;
+    if (colors.size < 2_000) {
+      colors.add(Array.from(image.data.slice(offset, offset + image.bytesPerPixel)).join(","));
+    }
+  }
+  return { height: image.height, opaquePixels, uniqueColors: colors.size, width: image.width };
+}
+
+function diffPngPixels(leftBuffer: Buffer, rightBuffer: Buffer): number {
+  const left = decodePng(leftBuffer);
+  const right = decodePng(rightBuffer);
+  const compared = Math.min(left.data.length, right.data.length);
+  const bytesPerPixel = Math.min(left.bytesPerPixel, right.bytesPerPixel);
+  let changed = 0;
+  for (let offset = 0; offset + bytesPerPixel <= compared; offset += bytesPerPixel) {
+    const channelDelta =
+      Math.abs(left.data[offset] - right.data[offset]) +
+      Math.abs(left.data[offset + 1] - right.data[offset + 1]) +
+      Math.abs(left.data[offset + 2] - right.data[offset + 2]);
+    if (channelDelta > 6) changed += 1;
+  }
+  return changed;
+}
+
+function decodePng(buffer: Buffer): PngImage {
+  const signature = buffer.subarray(0, 8).toString("hex");
+  if (signature !== "89504e470d0a1a0a") throw new Error("not a PNG");
+
+  let offset = 8;
+  let width = 0;
+  let height = 0;
+  let colorType = -1;
+  const idatChunks: Buffer[] = [];
+
+  while (offset < buffer.length) {
+    const length = buffer.readUInt32BE(offset);
+    const type = buffer.subarray(offset + 4, offset + 8).toString("ascii");
+    const data = buffer.subarray(offset + 8, offset + 8 + length);
+    if (type === "IHDR") {
+      width = data.readUInt32BE(0);
+      height = data.readUInt32BE(4);
+      const bitDepth = data.readUInt8(8);
+      colorType = data.readUInt8(9);
+      if (bitDepth !== 8 || ![2, 6].includes(colorType)) {
+        throw new Error(`unsupported PNG format: bitDepth=${bitDepth}, colorType=${colorType}`);
+      }
+    } else if (type === "IDAT") {
+      idatChunks.push(Buffer.from(data));
+    } else if (type === "IEND") {
+      break;
+    }
+    offset += length + 12;
+  }
+
+  const bytesPerPixel = colorType === 6 ? 4 : 3;
+  const stride = width * bytesPerPixel;
+  const inflated = inflateSync(Buffer.concat(idatChunks));
+  const data = new Uint8Array(height * stride);
+  let sourceOffset = 0;
+
+  for (let row = 0; row < height; row += 1) {
+    const filter = inflated[sourceOffset];
+    sourceOffset += 1;
+    const raw = inflated.subarray(sourceOffset, sourceOffset + stride);
+    sourceOffset += stride;
+    const rowOffset = row * stride;
+    const previousRowOffset = rowOffset - stride;
+    for (let index = 0; index < stride; index += 1) {
+      const left = index >= bytesPerPixel ? data[rowOffset + index - bytesPerPixel] : 0;
+      const up = row > 0 ? data[previousRowOffset + index] : 0;
+      const upLeft = row > 0 && index >= bytesPerPixel ? data[previousRowOffset + index - bytesPerPixel] : 0;
+      data[rowOffset + index] = (raw[index] + filterValue(filter, left, up, upLeft)) & 0xff;
+    }
+  }
+
+  return { bytesPerPixel, data, height, width };
+}
+
+function filterValue(filter: number, left: number, up: number, upLeft: number): number {
+  if (filter === 0) return 0;
+  if (filter === 1) return left;
+  if (filter === 2) return up;
+  if (filter === 3) return Math.floor((left + up) / 2);
+  if (filter === 4) return paeth(left, up, upLeft);
+  throw new Error(`unsupported PNG filter: ${filter}`);
+}
+
+function paeth(left: number, up: number, upLeft: number): number {
+  const estimate = left + up - upLeft;
+  const leftDistance = Math.abs(estimate - left);
+  const upDistance = Math.abs(estimate - up);
+  const upLeftDistance = Math.abs(estimate - upLeft);
+  if (leftDistance <= upDistance && leftDistance <= upLeftDistance) return left;
+  if (upDistance <= upLeftDistance) return up;
+  return upLeft;
+}
+
+// Preserve this journey's reviewed multi-cell operation setup.
+async function openNodeGridReview(page: import("@playwright/test").Page) {
+  const summary = page.getByTestId("node-grid-review-disclosure");
+  if (await summary.getAttribute("aria-expanded") !== "true") {
+    await summary.click();
+  }
+}
+
+async function reviewFill(page: import("@playwright/test").Page, cell: string, value: string) {
+  const table = page.getByTestId("engineering-table-review");
+  const keep = table.getByRole("button", { name: "Keep draft", exact: true });
+  if (await keep.count()) await keep.click();
+  await table.getByTestId(`review-cell-${cell}`).dblclick();
+  await table.getByRole("textbox").fill(value);
+}

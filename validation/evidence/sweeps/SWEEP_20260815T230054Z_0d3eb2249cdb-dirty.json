@@ -1,0 +1,119 @@
+{
+  "artifact": "openpipestress.evidence_sweep_summary",
+  "schema_version": 2,
+  "decision_basis": "DEC-025",
+  "boundary_note": "Local-only development evidence. Not a release claim, professional approval, certification, sealing, authentication, or code-compliance determination.",
+  "git": {
+    "commit_hash": "0d3eb2249cdb09a2a4bda8b7c73f187a8835467b",
+    "branch": "codex/piping-lockless-cargo-preflight",
+    "status_capture_failed": false,
+    "working_tree_dirty": true,
+    "dirty_paths": [
+      "projects/chirality-piping/tests/test_evidence_sweep.py",
+      "projects/chirality-piping/tools/release/run_evidence_sweep.py"
+    ]
+  },
+  "runtime": {
+    "platform": "macOS-26.6-arm64-arm-64bit-Mach-O",
+    "python": "3.13.14",
+    "node": "v24.18.0",
+    "npm": "11.16.0",
+    "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+    "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)"
+  },
+  "started_utc": "2026-08-15T23:00:54+00:00",
+  "finished_utc": "2026-08-15T23:03:54+00:00",
+  "duration_seconds": 179.116,
+  "surfaces": [
+    {
+      "order": 1,
+      "surface_id": "cargo_crate_sweep",
+      "description": "Rust crate tests across all discovered crate manifests.",
+      "execution_capability": "sandboxed",
+      "commands": [
+        {
+          "argv": [
+            "/tmp/chirality-piping-preflight-venv/bin/python",
+            "tools/release/check_release_readiness.py",
+            "--profile",
+            "cargo",
+            "--execute"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 65.506
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "order": 2,
+      "surface_id": "python_pytest",
+      "description": "Repository Python contract, governance, and validation tests.",
+      "execution_capability": "sandboxed",
+      "commands": [
+        {
+          "argv": [
+            "/tmp/chirality-piping-preflight-venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "tests"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 25.222
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "order": 3,
+      "surface_id": "desktop_vitest",
+      "description": "Desktop unit/contract tests; wasm engine built first.",
+      "execution_capability": "sandboxed",
+      "commands": [
+        {
+          "argv": [
+            "npm",
+            "run",
+            "build:wasm:desktop"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 8.05
+        },
+        {
+          "argv": [
+            "npm",
+            "run",
+            "test:desktop"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 75.549
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "order": 4,
+      "surface_id": "desktop_production_build",
+      "description": "Desktop production build (tsc -b && vite build).",
+      "execution_capability": "sandboxed",
+      "commands": [
+        {
+          "argv": [
+            "npm",
+            "run",
+            "build:desktop"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 4.789
+        }
+      ],
+      "status": "pass"
+    }
+  ],
+  "overall_status": "pass",
+  "surface_selection": {
+    "only_capability": "sandboxed",
+    "complete_dec025_sweep": false
+  }
+}

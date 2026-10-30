@@ -1,0 +1,984 @@
+{
+  "format": "openpipestress.first_static_selector_candidate/1",
+  "case_id": "prescribed_rotation_all_fixed",
+  "producer_contract": "openpipestress.result_semantics/0.3.0/load-reference-1",
+  "raw_schema_version": "0.2.0",
+  "row_namespace": "payload.mechanics_envelope.results",
+  "assertions": [
+    {
+      "id": "case:prescribed-root-rotation.rot.node:root.rz",
+      "selector": {
+        "id": "result:disp:node-root:rz",
+        "kind": "global_nodal_rotation_z",
+        "unit": "rad",
+        "entity_ref": "node:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:prescribed-root-rotation"
+        },
+        "metadata": {
+          "component": "nodal_rotation_z",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "solved_from_global_linear_system",
+          "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
+        },
+        "dimension": "angle"
+      },
+      "criterion_rule_id": "criterion:rotation:angle:rad:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-007",
+        "family": "rotation",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/prescribed_rotation_all_fixed/variants/annular_companion/inputs/root_RZ",
+          "reference_unit": "rad",
+          "transform": "identity"
+        },
+        "why_required": "complete u includes the prescribed rotation"
+      }
+    },
+    {
+      "id": "case:prescribed-root-rotation.rot.node:far.rz",
+      "selector": {
+        "id": "result:disp:node-far:rz",
+        "kind": "global_nodal_rotation_z",
+        "unit": "rad",
+        "entity_ref": "node:far",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:prescribed-root-rotation"
+        },
+        "metadata": {
+          "component": "nodal_rotation_z",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "solved_from_global_linear_system",
+          "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
+        },
+        "dimension": "angle"
+      },
+      "criterion_rule_id": "criterion:rotation:angle:rad:zero_scale:prescribed_rotation",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-007",
+        "family": "rotation",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/prescribed_rotation_all_fixed/variants/annular_companion/inputs/far_RZ",
+          "reference_unit": "rad",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "prescribed_rotation",
+            "base": {
+              "pointer": "/cases/prescribed_rotation_all_fixed/variants/annular_companion/inputs/root_RZ",
+              "reference_unit": "rad"
+            },
+            "scale_unit": "rad"
+          }
+        },
+        "why_required": "explicit zero prescribed value"
+      }
+    },
+    {
+      "id": "case:prescribed-root-rotation.disp.node:root.uy",
+      "selector": {
+        "id": "result:disp:node-root:uy",
+        "kind": "global_nodal_displacement_y",
+        "unit": "mm",
+        "entity_ref": "node:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:prescribed-root-rotation"
+        },
+        "metadata": {
+          "component": "nodal_displacement_y",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "solved_from_global_linear_system",
+          "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
+        },
+        "dimension": "length"
+      },
+      "criterion_rule_id": "criterion:displacement:length:mm:zero_scale:rotation_times_length",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-003",
+        "family": "displacement",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/prescribed_rotation_all_fixed/variants/annular_companion/inputs/root_UY",
+          "reference_unit": "m",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "rotation_times_length",
+            "base": {
+              "pointer": "/cases/prescribed_rotation_all_fixed/variants/annular_companion/inputs/root_RZ",
+              "reference_unit": "rad"
+            },
+            "scale_unit": "m",
+            "multiply_by_sum_of": [
+              {
+                "pointer": "/cases/prescribed_rotation_all_fixed/variants/annular_companion/inputs/L",
+                "reference_unit": "m"
+              }
+            ]
+          }
+        },
+        "why_required": "explicit zero prescribed value"
+      }
+    },
+    {
+      "id": "case:prescribed-root-rotation.disp.node:far.uy",
+      "selector": {
+        "id": "result:disp:node-far:uy",
+        "kind": "global_nodal_displacement_y",
+        "unit": "mm",
+        "entity_ref": "node:far",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:prescribed-root-rotation"
+        },
+        "metadata": {
+          "component": "nodal_displacement_y",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "solved_from_global_linear_system",
+          "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
+        },
+        "dimension": "length"
+      },
+      "criterion_rule_id": "criterion:displacement:length:mm:zero_scale:rotation_times_length",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-003",
+        "family": "displacement",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/prescribed_rotation_all_fixed/variants/annular_companion/inputs/far_UY",
+          "reference_unit": "m",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "rotation_times_length",
+            "base": {
+              "pointer": "/cases/prescribed_rotation_all_fixed/variants/annular_companion/inputs/root_RZ",
+              "reference_unit": "rad"
+            },
+            "scale_unit": "m",
+            "multiply_by_sum_of": [
+              {
+                "pointer": "/cases/prescribed_rotation_all_fixed/variants/annular_companion/inputs/L",
+                "reference_unit": "m"
+              }
+            ]
+          }
+        },
+        "why_required": "explicit zero prescribed value"
+      }
+    },
+    {
+      "id": "case:prescribed-root-rotation.evidence.support_component.support:root:RZ.prescribed_value",
+      "selector": {
+        "id": "evidence:case:prescribed-root-rotation:support_component:support:root:RZ:prescribed_value",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:prescribed-root-rotation"
+        },
+        "record": "support_component",
+        "key": {
+          "support_id": "support:root",
+          "dof": "RZ"
+        },
+        "field": "prescribed_value",
+        "definition": {
+          "node_id": "node:root",
+          "law_kind": "rigid_prescribed",
+          "meaning": "absolute_reference_displacement"
+        },
+        "unit": "rad",
+        "dimension": "angle"
+      },
+      "criterion_rule_id": "criterion:load_reference_support_motion:angle:rad:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_support_motion",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/prescribed_rotation_all_fixed/variants/annular_companion/inputs/root_RZ",
+          "reference_unit": "rad",
+          "transform": "identity"
+        },
+        "why_required": "resolved support motion (resolved rigid prescribed boundary value of this support DOF)"
+      }
+    },
+    {
+      "id": "case:prescribed-root-rotation.evidence.support_component.support:root:UY.prescribed_value",
+      "selector": {
+        "id": "evidence:case:prescribed-root-rotation:support_component:support:root:UY:prescribed_value",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:prescribed-root-rotation"
+        },
+        "record": "support_component",
+        "key": {
+          "support_id": "support:root",
+          "dof": "UY"
+        },
+        "field": "prescribed_value",
+        "definition": {
+          "node_id": "node:root",
+          "law_kind": "rigid_prescribed",
+          "meaning": "absolute_reference_displacement"
+        },
+        "unit": "m",
+        "dimension": "length"
+      },
+      "criterion_rule_id": "criterion:load_reference_support_motion:length:m:zero_scale:rotation_times_length",
+      "selector_origin": {
+        "family": "load_reference_support_motion",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/prescribed_rotation_all_fixed/variants/annular_companion/inputs/root_UY",
+          "reference_unit": "m",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "rotation_times_length",
+            "base": {
+              "pointer": "/cases/prescribed_rotation_all_fixed/variants/annular_companion/inputs/root_RZ",
+              "reference_unit": "rad"
+            },
+            "scale_unit": "m",
+            "multiply_by_sum_of": [
+              {
+                "pointer": "/cases/prescribed_rotation_all_fixed/variants/annular_companion/inputs/L",
+                "reference_unit": "m"
+              }
+            ]
+          }
+        },
+        "why_required": "resolved support motion (resolved rigid prescribed boundary value of this support DOF)"
+      }
+    },
+    {
+      "id": "case:prescribed-root-rotation.evidence.support_component.support:far:RZ.prescribed_value",
+      "selector": {
+        "id": "evidence:case:prescribed-root-rotation:support_component:support:far:RZ:prescribed_value",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:prescribed-root-rotation"
+        },
+        "record": "support_component",
+        "key": {
+          "support_id": "support:far",
+          "dof": "RZ"
+        },
+        "field": "prescribed_value",
+        "definition": {
+          "node_id": "node:far",
+          "law_kind": "rigid_prescribed",
+          "meaning": "absolute_reference_displacement"
+        },
+        "unit": "rad",
+        "dimension": "angle"
+      },
+      "criterion_rule_id": "criterion:load_reference_support_motion:angle:rad:zero_scale:prescribed_rotation",
+      "selector_origin": {
+        "family": "load_reference_support_motion",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/prescribed_rotation_all_fixed/variants/annular_companion/inputs/far_RZ",
+          "reference_unit": "rad",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "prescribed_rotation",
+            "base": {
+              "pointer": "/cases/prescribed_rotation_all_fixed/variants/annular_companion/inputs/root_RZ",
+              "reference_unit": "rad"
+            },
+            "scale_unit": "rad"
+          }
+        },
+        "why_required": "resolved support motion (resolved rigid prescribed boundary value of this support DOF)"
+      }
+    },
+    {
+      "id": "case:prescribed-root-rotation.evidence.support_component.support:far:UY.prescribed_value",
+      "selector": {
+        "id": "evidence:case:prescribed-root-rotation:support_component:support:far:UY:prescribed_value",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:prescribed-root-rotation"
+        },
+        "record": "support_component",
+        "key": {
+          "support_id": "support:far",
+          "dof": "UY"
+        },
+        "field": "prescribed_value",
+        "definition": {
+          "node_id": "node:far",
+          "law_kind": "rigid_prescribed",
+          "meaning": "absolute_reference_displacement"
+        },
+        "unit": "m",
+        "dimension": "length"
+      },
+      "criterion_rule_id": "criterion:load_reference_support_motion:length:m:zero_scale:rotation_times_length",
+      "selector_origin": {
+        "family": "load_reference_support_motion",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/prescribed_rotation_all_fixed/variants/annular_companion/inputs/far_UY",
+          "reference_unit": "m",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "rotation_times_length",
+            "base": {
+              "pointer": "/cases/prescribed_rotation_all_fixed/variants/annular_companion/inputs/root_RZ",
+              "reference_unit": "rad"
+            },
+            "scale_unit": "m",
+            "multiply_by_sum_of": [
+              {
+                "pointer": "/cases/prescribed_rotation_all_fixed/variants/annular_companion/inputs/L",
+                "reference_unit": "m"
+              }
+            ]
+          }
+        },
+        "why_required": "resolved support motion (resolved rigid prescribed boundary value of this support DOF)"
+      }
+    },
+    {
+      "id": "case:prescribed-root-rotation.reaction.support:root.Fx",
+      "selector": {
+        "id": "result:support-action:29:case:prescribed-root-rotation:12:support:root:Fx",
+        "kind": "support_reaction_component_v2",
+        "unit": "N",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:prescribed-root-rotation"
+        },
+        "metadata": {
+          "component": "Fx",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:reaction:force:N:zero_scale:case_force",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-060",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "beam bending in the global X-Y plane only: no axial force, out-of-plane force or other couples",
+          "zero_scale": {
+            "tag": "case_force",
+            "base": {
+              "pointer": "/cases/prescribed_rotation_all_fixed/variants/annular_companion/expected/root_Fy",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:prescribed-root-rotation.reaction.support:root.Fy",
+      "selector": {
+        "id": "result:support-action:29:case:prescribed-root-rotation:12:support:root:Fy",
+        "kind": "support_reaction_component_v2",
+        "unit": "N",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:prescribed-root-rotation"
+        },
+        "metadata": {
+          "component": "Fy",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:reaction:force:N:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-061",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/prescribed_rotation_all_fixed/variants/annular_companion/expected/root_Fy",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force",
+            "base": {
+              "pointer": "/cases/prescribed_rotation_all_fixed/variants/annular_companion/expected/root_Fy",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "reference-defined support-on-member action (all six reactions required, T1_PLAN WP6)"
+      }
+    },
+    {
+      "id": "case:prescribed-root-rotation.reaction.support:root.Fz",
+      "selector": {
+        "id": "result:support-action:29:case:prescribed-root-rotation:12:support:root:Fz",
+        "kind": "support_reaction_component_v2",
+        "unit": "N",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:prescribed-root-rotation"
+        },
+        "metadata": {
+          "component": "Fz",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:reaction:force:N:zero_scale:case_force",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-062",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "beam bending in the global X-Y plane only: no axial force, out-of-plane force or other couples",
+          "zero_scale": {
+            "tag": "case_force",
+            "base": {
+              "pointer": "/cases/prescribed_rotation_all_fixed/variants/annular_companion/expected/root_Fy",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:prescribed-root-rotation.reaction.support:root.Mx",
+      "selector": {
+        "id": "result:support-action:29:case:prescribed-root-rotation:12:support:root:Mx",
+        "kind": "support_reaction_component_v2",
+        "unit": "N*m",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:prescribed-root-rotation"
+        },
+        "metadata": {
+          "component": "Mx",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:reaction:moment:N*m:zero_scale:case_moment",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-063",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "beam bending in the global X-Y plane only: no axial force, out-of-plane force or other couples",
+          "zero_scale": {
+            "tag": "case_moment",
+            "base": {
+              "pointer": "/cases/prescribed_rotation_all_fixed/variants/annular_companion/expected/root_Mz",
+              "reference_unit": "N*m"
+            },
+            "scale_unit": "N*m"
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:prescribed-root-rotation.reaction.support:root.My",
+      "selector": {
+        "id": "result:support-action:29:case:prescribed-root-rotation:12:support:root:My",
+        "kind": "support_reaction_component_v2",
+        "unit": "N*m",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:prescribed-root-rotation"
+        },
+        "metadata": {
+          "component": "My",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:reaction:moment:N*m:zero_scale:case_moment",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-064",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "beam bending in the global X-Y plane only: no axial force, out-of-plane force or other couples",
+          "zero_scale": {
+            "tag": "case_moment",
+            "base": {
+              "pointer": "/cases/prescribed_rotation_all_fixed/variants/annular_companion/expected/root_Mz",
+              "reference_unit": "N*m"
+            },
+            "scale_unit": "N*m"
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:prescribed-root-rotation.reaction.support:root.Mz",
+      "selector": {
+        "id": "result:support-action:29:case:prescribed-root-rotation:12:support:root:Mz",
+        "kind": "support_reaction_component_v2",
+        "unit": "N*m",
+        "entity_ref": "support:root",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:prescribed-root-rotation"
+        },
+        "metadata": {
+          "component": "Mz",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:reaction:moment:N*m:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-065",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/prescribed_rotation_all_fixed/variants/annular_companion/expected/root_Mz",
+          "reference_unit": "N*m",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_moment",
+            "base": {
+              "pointer": "/cases/prescribed_rotation_all_fixed/variants/annular_companion/expected/root_Mz",
+              "reference_unit": "N*m"
+            },
+            "scale_unit": "N*m"
+          }
+        },
+        "why_required": "reference-defined support-on-member action (all six reactions required, T1_PLAN WP6)"
+      }
+    },
+    {
+      "id": "case:prescribed-root-rotation.reaction.support:far.Fx",
+      "selector": {
+        "id": "result:support-action:29:case:prescribed-root-rotation:11:support:far:Fx",
+        "kind": "support_reaction_component_v2",
+        "unit": "N",
+        "entity_ref": "support:far",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:prescribed-root-rotation"
+        },
+        "metadata": {
+          "component": "Fx",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:reaction:force:N:zero_scale:case_force",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-060",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "beam bending in the global X-Y plane only: no axial force, out-of-plane force or other couples",
+          "zero_scale": {
+            "tag": "case_force",
+            "base": {
+              "pointer": "/cases/prescribed_rotation_all_fixed/variants/annular_companion/expected/root_Fy",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:prescribed-root-rotation.reaction.support:far.Fy",
+      "selector": {
+        "id": "result:support-action:29:case:prescribed-root-rotation:11:support:far:Fy",
+        "kind": "support_reaction_component_v2",
+        "unit": "N",
+        "entity_ref": "support:far",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:prescribed-root-rotation"
+        },
+        "metadata": {
+          "component": "Fy",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:reaction:force:N:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-061",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/prescribed_rotation_all_fixed/variants/annular_companion/expected/far_Fy",
+          "reference_unit": "N",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_force",
+            "base": {
+              "pointer": "/cases/prescribed_rotation_all_fixed/variants/annular_companion/expected/root_Fy",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "reference-defined support-on-member action (all six reactions required, T1_PLAN WP6)"
+      }
+    },
+    {
+      "id": "case:prescribed-root-rotation.reaction.support:far.Fz",
+      "selector": {
+        "id": "result:support-action:29:case:prescribed-root-rotation:11:support:far:Fz",
+        "kind": "support_reaction_component_v2",
+        "unit": "N",
+        "entity_ref": "support:far",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:prescribed-root-rotation"
+        },
+        "metadata": {
+          "component": "Fz",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:reaction:force:N:zero_scale:case_force",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-062",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "beam bending in the global X-Y plane only: no axial force, out-of-plane force or other couples",
+          "zero_scale": {
+            "tag": "case_force",
+            "base": {
+              "pointer": "/cases/prescribed_rotation_all_fixed/variants/annular_companion/expected/root_Fy",
+              "reference_unit": "N"
+            },
+            "scale_unit": "N"
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:prescribed-root-rotation.reaction.support:far.Mx",
+      "selector": {
+        "id": "result:support-action:29:case:prescribed-root-rotation:11:support:far:Mx",
+        "kind": "support_reaction_component_v2",
+        "unit": "N*m",
+        "entity_ref": "support:far",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:prescribed-root-rotation"
+        },
+        "metadata": {
+          "component": "Mx",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:reaction:moment:N*m:zero_scale:case_moment",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-063",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "beam bending in the global X-Y plane only: no axial force, out-of-plane force or other couples",
+          "zero_scale": {
+            "tag": "case_moment",
+            "base": {
+              "pointer": "/cases/prescribed_rotation_all_fixed/variants/annular_companion/expected/root_Mz",
+              "reference_unit": "N*m"
+            },
+            "scale_unit": "N*m"
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:prescribed-root-rotation.reaction.support:far.My",
+      "selector": {
+        "id": "result:support-action:29:case:prescribed-root-rotation:11:support:far:My",
+        "kind": "support_reaction_component_v2",
+        "unit": "N*m",
+        "entity_ref": "support:far",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:prescribed-root-rotation"
+        },
+        "metadata": {
+          "component": "My",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:reaction:moment:N*m:zero_scale:case_moment",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-064",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "equilibrium_zero",
+          "reason": "beam bending in the global X-Y plane only: no axial force, out-of-plane force or other couples",
+          "zero_scale": {
+            "tag": "case_moment",
+            "base": {
+              "pointer": "/cases/prescribed_rotation_all_fixed/variants/annular_companion/expected/root_Mz",
+              "reference_unit": "N*m"
+            },
+            "scale_unit": "N*m"
+          }
+        },
+        "why_required": "component the reference topology leaves at zero by equilibrium (all six reactions required)"
+      }
+    },
+    {
+      "id": "case:prescribed-root-rotation.reaction.support:far.Mz",
+      "selector": {
+        "id": "result:support-action:29:case:prescribed-root-rotation:11:support:far:Mz",
+        "kind": "support_reaction_component_v2",
+        "unit": "N*m",
+        "entity_ref": "support:far",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:prescribed-root-rotation"
+        },
+        "metadata": {
+          "component": "Mz",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "recovered_from_assembled_support_law",
+          "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:reaction:moment:N*m:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-065",
+        "family": "reaction",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/prescribed_rotation_all_fixed/variants/annular_companion/expected/far_Mz",
+          "reference_unit": "N*m",
+          "transform": "identity",
+          "zero_scale": {
+            "tag": "case_moment",
+            "base": {
+              "pointer": "/cases/prescribed_rotation_all_fixed/variants/annular_companion/expected/root_Mz",
+              "reference_unit": "N*m"
+            },
+            "scale_unit": "N*m"
+          }
+        },
+        "why_required": "reference-defined support-on-member action (all six reactions required, T1_PLAN WP6)"
+      }
+    },
+    {
+      "id": "case:prescribed-root-rotation.end_force.pipe:beam.end_i.shear_y",
+      "selector": {
+        "id": "result:force:pipe-beam:shear-y",
+        "kind": "element_local_shear_force_y",
+        "unit": "N",
+        "entity_ref": "pipe:beam",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:prescribed-root-rotation"
+        },
+        "metadata": {
+          "component": "shear_force_y",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-010",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/prescribed_rotation_all_fixed/variants/annular_companion/expected/root_Fy",
+          "reference_unit": "N",
+          "transform": "identity"
+        },
+        "why_required": "element end action equals the reference support-on-member vector (single element between the two supports; element-local frame equals global for a +X member with y_reference +Y)"
+      }
+    },
+    {
+      "id": "case:prescribed-root-rotation.end_force.pipe:beam.end_i.bending_z",
+      "selector": {
+        "id": "result:moment:pipe-beam:bending-z",
+        "kind": "element_local_bending_moment_z",
+        "unit": "N*m",
+        "entity_ref": "pipe:beam",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:prescribed-root-rotation"
+        },
+        "metadata": {
+          "component": "bending_moment_z",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:moment:moment:N*m:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-014",
+        "family": "moment",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/prescribed_rotation_all_fixed/variants/annular_companion/expected/root_Mz",
+          "reference_unit": "N*m",
+          "transform": "identity"
+        },
+        "why_required": "element end action equals the reference support-on-member vector (single element between the two supports; element-local frame equals global for a +X member with y_reference +Y)"
+      }
+    },
+    {
+      "id": "case:prescribed-root-rotation.end_force.pipe:beam.end_j.shear_y",
+      "selector": {
+        "id": "result:force:pipe-beam:shear-y:end-j",
+        "kind": "element_local_shear_force_y",
+        "unit": "N",
+        "entity_ref": "pipe:beam",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:prescribed-root-rotation"
+        },
+        "metadata": {
+          "component": "shear_force_y",
+          "coordinate_system": "element_local",
+          "location": "end_j",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+        },
+        "dimension": "force"
+      },
+      "criterion_rule_id": "criterion:force:force:N:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-010",
+        "family": "force",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/prescribed_rotation_all_fixed/variants/annular_companion/expected/far_Fy",
+          "reference_unit": "N",
+          "transform": "identity"
+        },
+        "why_required": "element end action equals the reference support-on-member vector (single element between the two supports; element-local frame equals global for a +X member with y_reference +Y)"
+      }
+    },
+    {
+      "id": "case:prescribed-root-rotation.end_force.pipe:beam.end_j.bending_z",
+      "selector": {
+        "id": "result:moment:pipe-beam:bending-z:end-j",
+        "kind": "element_local_bending_moment_z",
+        "unit": "N*m",
+        "entity_ref": "pipe:beam",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:prescribed-root-rotation"
+        },
+        "metadata": {
+          "component": "bending_moment_z",
+          "coordinate_system": "element_local",
+          "location": "end_j",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+        },
+        "dimension": "moment"
+      },
+      "criterion_rule_id": "criterion:moment:moment:N*m:relative_1e-9",
+      "selector_origin": {
+        "semantic_signature_id": "supported-source-014",
+        "family": "moment",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/prescribed_rotation_all_fixed/variants/annular_companion/expected/far_Mz",
+          "reference_unit": "N*m",
+          "transform": "identity"
+        },
+        "why_required": "element end action equals the reference support-on-member vector (single element between the two supports; element-local frame equals global for a +X member with y_reference +Y)"
+      }
+    }
+  ],
+  "negative_assertions": [],
+  "gaps": [
+    {
+      "id": "translation_substitution_or_length_normalized_angle",
+      "kind": "implied_by_positive",
+      "detail": "Text discriminator: all four signed reactions and their balance must be reproduced. Excluded whenever the four reaction and end-action assertions pass.",
+      "pointer": "/cases/prescribed_rotation_all_fixed/wrong_result_discriminators/translation_substitution_or_length_normalized_angle",
+      "assertions": [
+        "case:prescribed-root-rotation.reaction.support:root.Fy",
+        "case:prescribed-root-rotation.reaction.support:root.Mz",
+        "case:prescribed-root-rotation.reaction.support:far.Fy",
+        "case:prescribed-root-rotation.reaction.support:far.Mz"
+      ]
+    }
+  ],
+  "scoring_readiness": {
+    "status": "authoring_only_pending_independent_freeze",
+    "reference_case_key": "prescribed_rotation_all_fixed",
+    "family": "support_motion",
+    "load_state_decomposition": "one load case; one state",
+    "limits": [],
+    "identification": "row ids and metadata were identified by running core/product_physics examples/physics_source_connected on this request in both modes; no observed value is used as a reference or criterion and none is committed"
+  }
+}

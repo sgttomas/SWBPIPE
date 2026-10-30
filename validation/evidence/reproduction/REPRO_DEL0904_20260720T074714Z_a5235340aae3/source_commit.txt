@@ -1,0 +1,3 @@
+SOURCE_COMMIT=a5235340aae3c41cf227f5617e593b268936f6b3
+branch=claude/piping-r14-w5-clean-repro (primary checkout; clone detached at SOURCE_COMMIT)
+clone=git clone --no-hardlinks --no-checkout <local REPO_ROOT> <mktemp>/checkout; git checkout --detach a5235340aae3c41cf227f5617e593b268936f6b3

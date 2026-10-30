@@ -1,0 +1,11 @@
+[package]
+name = "open_pipe_stress_viewport_editor"
+version = "0.1.0"
+edition = "2021"
+description = "Viewport editor command-intent support for OpenPipeStress"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]

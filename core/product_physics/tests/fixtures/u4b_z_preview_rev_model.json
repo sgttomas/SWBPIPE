@@ -1,0 +1,535 @@
+{
+  "analysis_status": {
+    "mechanics": "ready_for_preview_diagnostics",
+    "professional_acceptance": "not_provided",
+    "rule_check": "not_performed_user_rule_inputs_missing"
+  },
+  "combinations": [],
+  "components": [
+    {
+      "geometry": {
+        "bend_angle": {
+          "unit": "rad",
+          "value": 1.5707963267948966
+        },
+        "bend_pipe_ref": "pipe:BEND1",
+        "bend_plane_orientation": "plane of the span chord and the pipe y_reference; the arc bows toward +y_reference",
+        "bend_radius": {
+          "unit": "m",
+          "value": 0.5
+        }
+      },
+      "id": "component:bend:pipe:BEND1",
+      "kind": "bend",
+      "mechanics_interface": {
+        "solver_consumption": "curved_bend_macro_element"
+      },
+      "modifiers": {
+        "flexibility_factor_user_value": {
+          "unit": "none",
+          "value": 2.8
+        },
+        "sif_in_plane_user_value": {
+          "unit": "1",
+          "value": 2.2
+        },
+        "sif_out_of_plane_user_value": {
+          "unit": "1",
+          "value": 1.6
+        },
+        "source_reference": "invented test value"
+      },
+      "node": "node:C",
+      "provenance": "invented T4-U4b arc stress reference input; not library, component or code-rule data; user flexibility factor k and directional SIFs are invented test values"
+    },
+    {
+      "geometry": {
+        "bend_angle": {
+          "unit": "rad",
+          "value": 1.5707963267948966
+        },
+        "bend_pipe_ref": "pipe:BEND2",
+        "bend_plane_orientation": "plane of the span chord and the pipe y_reference; the arc bows toward +y_reference",
+        "bend_radius": {
+          "unit": "m",
+          "value": 0.5
+        }
+      },
+      "id": "component:bend:pipe:BEND2",
+      "kind": "bend",
+      "mechanics_interface": {
+        "solver_consumption": "curved_bend_macro_element"
+      },
+      "modifiers": {
+        "flexibility_factor_user_value": {
+          "unit": "none",
+          "value": 2.8
+        },
+        "sif_in_plane_user_value": {
+          "unit": "1",
+          "value": 1.7
+        },
+        "sif_out_of_plane_user_value": {
+          "unit": "1",
+          "value": 2.5
+        },
+        "source_reference": "invented test value"
+      },
+      "node": "node:D",
+      "provenance": "invented T4-U4b arc stress reference input; not library, component or code-rule data; user flexibility factor k and directional SIFs are invented test values"
+    }
+  ],
+  "document_kind": "openpipestress.product_preview.model",
+  "load_cases": [
+    {
+      "id": "case:u4b",
+      "primitive_loads": [
+        {
+          "category": "concentrated_force",
+          "dimension": "force",
+          "direction": "global_x",
+          "id": "load:force:node:F:global_x",
+          "magnitude": {
+            "unit": "N",
+            "value": -900.0
+          },
+          "provenance": "invented T4-U4b arc stress reference input; not library, component or code-rule data",
+          "target": {
+            "node": "node:F",
+            "type": "node"
+          }
+        },
+        {
+          "category": "concentrated_force",
+          "dimension": "force",
+          "direction": "global_y",
+          "id": "load:force:node:F:global_y",
+          "magnitude": {
+            "unit": "N",
+            "value": 1300.0
+          },
+          "provenance": "invented T4-U4b arc stress reference input; not library, component or code-rule data",
+          "target": {
+            "node": "node:F",
+            "type": "node"
+          }
+        },
+        {
+          "category": "concentrated_force",
+          "dimension": "force",
+          "direction": "global_z",
+          "id": "load:force:node:F:global_z",
+          "magnitude": {
+            "unit": "N",
+            "value": 2100.0
+          },
+          "provenance": "invented T4-U4b arc stress reference input; not library, component or code-rule data",
+          "target": {
+            "node": "node:F",
+            "type": "node"
+          }
+        },
+        {
+          "category": "concentrated_moment",
+          "dimension": "moment",
+          "direction": "rotation_x",
+          "id": "load:moment:node:F:rotation_x",
+          "magnitude": {
+            "unit": "N*m",
+            "value": 400.0
+          },
+          "provenance": "invented T4-U4b arc stress reference input; not library, component or code-rule data",
+          "target": {
+            "node": "node:F",
+            "type": "node"
+          }
+        },
+        {
+          "category": "concentrated_moment",
+          "dimension": "moment",
+          "direction": "rotation_y",
+          "id": "load:moment:node:F:rotation_y",
+          "magnitude": {
+            "unit": "N*m",
+            "value": -250.0
+          },
+          "provenance": "invented T4-U4b arc stress reference input; not library, component or code-rule data",
+          "target": {
+            "node": "node:F",
+            "type": "node"
+          }
+        },
+        {
+          "category": "concentrated_moment",
+          "dimension": "moment",
+          "direction": "rotation_z",
+          "id": "load:moment:node:F:rotation_z",
+          "magnitude": {
+            "unit": "N*m",
+            "value": 650.0
+          },
+          "provenance": "invented T4-U4b arc stress reference input; not library, component or code-rule data",
+          "target": {
+            "node": "node:F",
+            "type": "node"
+          }
+        },
+        {
+          "category": "distributed_force",
+          "dimension": "force_per_length",
+          "direction": "global_z",
+          "id": "load:line:pipe:S1:global_z",
+          "magnitude": {
+            "unit": "N/m",
+            "value": -300.0
+          },
+          "provenance": "invented T4-U4b arc stress reference input; not library, component or code-rule data",
+          "target": {
+            "pipe": "pipe:S1",
+            "type": "element"
+          }
+        },
+        {
+          "category": "distributed_force",
+          "dimension": "force_per_length",
+          "direction": "global_z",
+          "id": "load:line:pipe:BEND1:global_z",
+          "magnitude": {
+            "unit": "N/m",
+            "value": -300.0
+          },
+          "provenance": "invented T4-U4b arc stress reference input; not library, component or code-rule data",
+          "target": {
+            "pipe": "pipe:BEND1",
+            "type": "element"
+          }
+        },
+        {
+          "category": "distributed_force",
+          "dimension": "force_per_length",
+          "direction": "global_x",
+          "id": "load:line:pipe:S2:global_x",
+          "magnitude": {
+            "unit": "N/m",
+            "value": 60.0
+          },
+          "provenance": "invented T4-U4b arc stress reference input; not library, component or code-rule data",
+          "target": {
+            "pipe": "pipe:S2",
+            "type": "element"
+          }
+        },
+        {
+          "category": "distributed_force",
+          "dimension": "force_per_length",
+          "direction": "global_z",
+          "id": "load:line:pipe:S2:global_z",
+          "magnitude": {
+            "unit": "N/m",
+            "value": -300.0
+          },
+          "provenance": "invented T4-U4b arc stress reference input; not library, component or code-rule data",
+          "target": {
+            "pipe": "pipe:S2",
+            "type": "element"
+          }
+        },
+        {
+          "category": "distributed_force",
+          "dimension": "force_per_length",
+          "direction": "global_x",
+          "id": "load:line:pipe:BEND2:global_x",
+          "magnitude": {
+            "unit": "N/m",
+            "value": -40.0
+          },
+          "provenance": "invented T4-U4b arc stress reference input; not library, component or code-rule data",
+          "target": {
+            "pipe": "pipe:BEND2",
+            "type": "element"
+          }
+        },
+        {
+          "category": "distributed_force",
+          "dimension": "force_per_length",
+          "direction": "global_y",
+          "id": "load:line:pipe:BEND2:global_y",
+          "magnitude": {
+            "unit": "N/m",
+            "value": 70.0
+          },
+          "provenance": "invented T4-U4b arc stress reference input; not library, component or code-rule data",
+          "target": {
+            "pipe": "pipe:BEND2",
+            "type": "element"
+          }
+        },
+        {
+          "category": "distributed_force",
+          "dimension": "force_per_length",
+          "direction": "global_z",
+          "id": "load:line:pipe:BEND2:global_z",
+          "magnitude": {
+            "unit": "N/m",
+            "value": -300.0
+          },
+          "provenance": "invented T4-U4b arc stress reference input; not library, component or code-rule data",
+          "target": {
+            "pipe": "pipe:BEND2",
+            "type": "element"
+          }
+        },
+        {
+          "category": "distributed_force",
+          "dimension": "force_per_length",
+          "direction": "global_z",
+          "id": "load:line:pipe:S3:global_z",
+          "magnitude": {
+            "unit": "N/m",
+            "value": -300.0
+          },
+          "provenance": "invented T4-U4b arc stress reference input; not library, component or code-rule data",
+          "target": {
+            "pipe": "pipe:S3",
+            "type": "element"
+          }
+        }
+      ],
+      "provenance": "invented T4-U4b arc stress reference input; not library, component or code-rule data"
+    }
+  ],
+  "materials": [
+    {
+      "elastic_modulus": {
+        "unit": "Pa",
+        "value": 198000000000.0
+      },
+      "id": "material:z",
+      "provenance": "invented T4-U4b arc stress reference input; not library, component or code-rule data",
+      "shear_modulus": {
+        "unit": "Pa",
+        "value": 78571428571.42857
+      },
+      "thermal_expansion_coefficient": {
+        "unit": "1/degC",
+        "value": 0.0000125
+      }
+    }
+  ],
+  "nodes": [
+    {
+      "id": "node:A",
+      "position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "provenance": "invented T4-U4b arc stress reference input; not library, component or code-rule data"
+    },
+    {
+      "id": "node:B",
+      "position": {
+        "x": 2.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "provenance": "invented T4-U4b arc stress reference input; not library, component or code-rule data"
+    },
+    {
+      "id": "node:C",
+      "position": {
+        "x": 2.5,
+        "y": 0.5,
+        "z": 0.0
+      },
+      "provenance": "invented T4-U4b arc stress reference input; not library, component or code-rule data"
+    },
+    {
+      "id": "node:D",
+      "position": {
+        "x": 2.5,
+        "y": 2.0,
+        "z": 0.0
+      },
+      "provenance": "invented T4-U4b arc stress reference input; not library, component or code-rule data"
+    },
+    {
+      "id": "node:E",
+      "position": {
+        "x": 3.0,
+        "y": 2.5,
+        "z": 0.0
+      },
+      "provenance": "invented T4-U4b arc stress reference input; not library, component or code-rule data"
+    },
+    {
+      "id": "node:F",
+      "position": {
+        "x": 4.5,
+        "y": 2.5,
+        "z": 0.0
+      },
+      "provenance": "invented T4-U4b arc stress reference input; not library, component or code-rule data"
+    }
+  ],
+  "pipe_segments": [
+    {
+      "from": "node:A",
+      "id": "pipe:S1",
+      "material": "material:z",
+      "provenance": "invented T4-U4b arc stress reference input; not library, component or code-rule data",
+      "section": {
+        "mill_tolerance": {
+          "unit": "m",
+          "value": 0.0009
+        },
+        "outside_diameter": {
+          "unit": "m",
+          "value": 0.1683
+        },
+        "wall_thickness": {
+          "unit": "m",
+          "value": 0.00711
+        }
+      },
+      "to": "node:B",
+      "y_reference": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      }
+    },
+    {
+      "from": "node:C",
+      "id": "pipe:BEND1",
+      "material": "material:z",
+      "provenance": "invented T4-U4b arc stress reference input; not library, component or code-rule data",
+      "section": {
+        "mill_tolerance": {
+          "unit": "m",
+          "value": 0.0009
+        },
+        "outside_diameter": {
+          "unit": "m",
+          "value": 0.1683
+        },
+        "wall_thickness": {
+          "unit": "m",
+          "value": 0.00711
+        }
+      },
+      "to": "node:B",
+      "y_reference": {
+        "x": 1.0,
+        "y": -1.0,
+        "z": 0.0
+      }
+    },
+    {
+      "from": "node:C",
+      "id": "pipe:S2",
+      "material": "material:z",
+      "provenance": "invented T4-U4b arc stress reference input; not library, component or code-rule data",
+      "section": {
+        "mill_tolerance": {
+          "unit": "m",
+          "value": 0.0009
+        },
+        "outside_diameter": {
+          "unit": "m",
+          "value": 0.1683
+        },
+        "wall_thickness": {
+          "unit": "m",
+          "value": 0.00711
+        }
+      },
+      "to": "node:D",
+      "y_reference": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      }
+    },
+    {
+      "from": "node:D",
+      "id": "pipe:BEND2",
+      "material": "material:z",
+      "provenance": "invented T4-U4b arc stress reference input; not library, component or code-rule data",
+      "section": {
+        "mill_tolerance": {
+          "unit": "m",
+          "value": 0.0009
+        },
+        "outside_diameter": {
+          "unit": "m",
+          "value": 0.1683
+        },
+        "wall_thickness": {
+          "unit": "m",
+          "value": 0.00711
+        }
+      },
+      "to": "node:E",
+      "y_reference": {
+        "x": -1.0,
+        "y": 1.0,
+        "z": 0.0
+      }
+    },
+    {
+      "from": "node:F",
+      "id": "pipe:S3",
+      "material": "material:z",
+      "provenance": "invented T4-U4b arc stress reference input; not library, component or code-rule data",
+      "section": {
+        "mill_tolerance": {
+          "unit": "m",
+          "value": 0.0009
+        },
+        "outside_diameter": {
+          "unit": "m",
+          "value": 0.1683
+        },
+        "wall_thickness": {
+          "unit": "m",
+          "value": 0.00711
+        }
+      },
+      "to": "node:E",
+      "y_reference": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      }
+    }
+  ],
+  "project": {
+    "id": "project:u4b-z-preview-rev",
+    "units": {
+      "angle": "rad",
+      "force": "N",
+      "length": "m",
+      "pressure": "Pa",
+      "stress": "Pa",
+      "temperature": "degC"
+    }
+  },
+  "schema_version": "0.8.0",
+  "supports": [
+    {
+      "family": "anchor",
+      "id": "support:A",
+      "node": "node:A",
+      "provenance": "invented T4-U4b arc stress reference input; not library, component or code-rule data",
+      "restraints": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ]
+    }
+  ]
+}

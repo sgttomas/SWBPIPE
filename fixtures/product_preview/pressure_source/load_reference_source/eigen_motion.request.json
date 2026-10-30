@@ -1,0 +1,272 @@
+{
+  "model": {
+    "analysis_status": {
+      "mechanics": "ready_for_preview_diagnostics",
+      "professional_acceptance": "not_provided",
+      "rule_check": "not_performed_user_rule_inputs_missing"
+    },
+    "combinations": [],
+    "components": [],
+    "data_boundary": {
+      "private_data_policy": "no_private_project_data",
+      "professional_boundary": "technical_preview_requires_human_engineering_review",
+      "protected_source_policy": "no_bundled_protected_owner_or_standards_data",
+      "public_examples_policy": "invented_or_cleared_data_only"
+    },
+    "diagnostics": [],
+    "document_kind": "openpipestress.product_preview.model",
+    "load_cases": [
+      {
+        "analysis_state": {
+          "contract": "openpipestress.load_reference_state/1.0.0",
+          "element_states": [
+            {
+              "material_selection": {
+                "applicability_reference": "invented_load_reference_source_companion_not_library_data",
+                "kind": "explicit_base_properties",
+                "material_ref": "material"
+              },
+              "pipe_ref": "member",
+              "thermal_state": {
+                "interval_reference": "invented interval",
+                "kind": "explicit_interval_strain",
+                "provenance": "invented_load_reference_source_companion_not_library_data",
+                "strain": {
+                  "unit": "1",
+                  "value": 0.00006
+                }
+              }
+            }
+          ],
+          "history": {
+            "kind": "independent_equilibrium"
+          },
+          "load_sources": [
+            {
+              "factor": 1.0,
+              "source_ref": "torque"
+            }
+          ],
+          "provenance": "invented_load_reference_source_companion_not_library_data",
+          "reference_configuration_ref": "reference:join",
+          "support_states": [
+            {
+              "boundary_motion": [
+                {
+                  "dof": "UY",
+                  "meaning": "absolute_reference_displacement",
+                  "value": {
+                    "unit": "mm",
+                    "value": 1.0
+                  }
+                },
+                {
+                  "dof": "RZ",
+                  "meaning": "absolute_reference_displacement",
+                  "value": {
+                    "unit": "rad",
+                    "value": 0.0001
+                  }
+                }
+              ],
+              "participation": {
+                "kind": "active_model_device"
+              },
+              "support_ref": "anchor"
+            },
+            {
+              "participation": {
+                "kind": "active_model_device"
+              },
+              "support_ref": "spring"
+            },
+            {
+              "boundary_motion": [
+                {
+                  "dof": "UX",
+                  "meaning": "absolute_reference_displacement",
+                  "value": {
+                    "unit": "m",
+                    "value": 0.00005
+                  }
+                }
+              ],
+              "participation": {
+                "kind": "active_model_device"
+              },
+              "support_ref": "stop"
+            }
+          ]
+        },
+        "id": "case:join",
+        "kind": "primitive_user_load",
+        "pressure_regions": [],
+        "primitive_loads": [
+          {
+            "category": "concentrated_moment",
+            "dimension": "moment",
+            "direction": "RX",
+            "id": "torque",
+            "magnitude": {
+              "unit": "N*m",
+              "value": 1e-8
+            },
+            "provenance": "invented_load_reference_source_companion_not_library_data",
+            "target": {
+              "node": "tip",
+              "type": "node"
+            }
+          }
+        ],
+        "provenance": "invented_load_reference_source_companion_not_library_data",
+        "status": "user_entered"
+      }
+    ],
+    "materials": [
+      {
+        "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+        "elastic_modulus": {
+          "unit": "Pa",
+          "value": 200000000000.0
+        },
+        "id": "material",
+        "poisson_ratio": {
+          "unit": "1",
+          "value": 0.25
+        },
+        "provenance": "invented_load_reference_source_companion_not_library_data"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "root",
+        "position": {
+          "x": 0.0,
+          "y": 0,
+          "z": 0
+        },
+        "provenance": "invented_load_reference_source_companion_not_library_data"
+      },
+      {
+        "id": "tip",
+        "position": {
+          "x": 2.0,
+          "y": 0,
+          "z": 0
+        },
+        "provenance": "invented_load_reference_source_companion_not_library_data"
+      }
+    ],
+    "pipe_segments": [
+      {
+        "from": "root",
+        "id": "member",
+        "material": "material",
+        "provenance": "invented_load_reference_source_companion_not_library_data",
+        "section": {
+          "corrosion_allowance": {
+            "unit": "m",
+            "value": 0.0
+          },
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.2
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.01
+          }
+        },
+        "to": "tip",
+        "y_reference": {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        }
+      }
+    ],
+    "pressure_contract": {
+      "mode": "exact_pressure_v3",
+      "shear_model": "euler_bernoulli",
+      "version": "3.0.0"
+    },
+    "project": {
+      "id": "synthetic:load-reference-join",
+      "name": "Invented join control",
+      "units": {
+        "angle": "rad",
+        "force": "N",
+        "length": "m",
+        "pressure": "Pa",
+        "stress": "Pa",
+        "temperature": "degC"
+      }
+    },
+    "reference_configurations": [
+      {
+        "geometry_ref": {
+          "kind": "authored_model_geometry"
+        },
+        "id": "reference:join",
+        "member_references": [
+          {
+            "basis": {
+              "kind": "direct_strain_reference"
+            },
+            "fit": {
+              "kind": "fit_strain",
+              "strain": {
+                "unit": "1",
+                "value": 0.00004
+              }
+            },
+            "pipe_ref": "member",
+            "provenance": "invented_load_reference_source_companion_not_library_data"
+          }
+        ],
+        "provenance": "invented_load_reference_source_companion_not_library_data"
+      }
+    ],
+    "schema_version": "0.8.0",
+    "supports": [
+      {
+        "family": "anchor",
+        "id": "anchor",
+        "node": "root",
+        "provenance": "invented_load_reference_source_companion_not_library_data",
+        "restraints": [
+          "UX",
+          "UY",
+          "UZ",
+          "RY",
+          "RZ"
+        ]
+      },
+      {
+        "family": "spring",
+        "id": "spring",
+        "node": "root",
+        "provenance": "invented_load_reference_source_companion_not_library_data",
+        "restraints": [
+          "RX"
+        ],
+        "stiffness": {
+          "dof": "RX",
+          "value": {
+            "unit": "N*m/rad",
+            "value": 0.0001
+          }
+        }
+      },
+      {
+        "family": "line_stop",
+        "id": "stop",
+        "node": "tip",
+        "provenance": "invented_load_reference_source_companion_not_library_data",
+        "restraints": [
+          "UX"
+        ]
+      }
+    ]
+  }
+}

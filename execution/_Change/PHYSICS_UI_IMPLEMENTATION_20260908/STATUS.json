@@ -1,0 +1,38 @@
+{
+  "actual_task_identity": "/root/implementation_change",
+  "approved_exception": {
+    "owner_message": "I approve the prepared [bounded Step 1 exception](.../PROPOSED_OWNER_ACT.md)",
+    "path": "execution/_DAG/PHYSICS_UI_EXECUTION_20260908_CANDIDATE/PROPOSED_OWNER_ACT.md",
+    "sha256": "6866bbf52ef861488277b6a659c7ac0a4e63f42865debb971355db5e553ea142"
+  },
+  "base_sha": "55df51ac3201456e0f181823e3aefefef47a73bb",
+  "branch": "codex/piping-physics-ui-implementation-20260908",
+  "configured_model": "gpt-5.6-sol",
+  "configured_reasoning": "high",
+  "current_write_scope": [
+    "execution/_Change/PHYSICS_UI_IMPLEMENTATION_20260908/**",
+    "Git metadata"
+  ],
+  "delegation": {
+    "used": false
+  },
+  "parent": "/root",
+  "preserved": [
+    "prior lanes",
+    "original local handoff"
+  ],
+  "prohibited_effects": [
+    "dependency-row mutation",
+    "DAG pointer mutation",
+    "lifecycle mutation",
+    "physics choice",
+    "public schema mutation"
+  ],
+  "record_kind": "change_lane_status",
+  "recorded_at_utc": "2026-09-08T11:48:01Z",
+  "role": "CHANGE",
+  "schema_version": "1.0",
+  "source_write_status": "HELD_PENDING_ROOT_C0_RECORD_AND_SEVEN_INTERFACE_VERIFICATION",
+  "status": "LANE_ESTABLISHED_SOURCE_HELD",
+  "worktree": "{HOST_PATH:PHYSICS_UI_IMPLEMENTATION_WORKTREE}"
+}

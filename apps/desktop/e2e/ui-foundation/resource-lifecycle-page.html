@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UI foundation actual App resource lifecycle witness</title>
+  </head>
+  <body>
+    <nav aria-label="Test-only actual App lifecycle controls">
+      <button id="mount-actual-app" type="button">Mount actual App</button>
+      <button id="unmount-actual-app" type="button" disabled>Unmount actual App</button>
+      <span id="lifecycle-status" role="status">Actual App is unmounted.</span>
+    </nav>
+    <div id="actual-app-host"></div>
+    <script type="module" src="./resource-lifecycle-page.tsx"></script>
+  </body>
+</html>

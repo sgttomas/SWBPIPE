@@ -1,0 +1,78 @@
+from pathlib import Path
+import json,csv,hashlib,platform,sys
+O=Path(__file__).resolve().parent;s=json.loads((O/'coverage_summary.json').read_text());raw=json.loads((O/'raw_checks.json').read_text());initial=O/'initial_exact_application'
+checks=[('1','Forward packages','PASS','18/18 packages materialized.'),('2','Forward deliverables','PASS','106/106 deliverables materialized.'),('3','Reverse folders','PASS','No orphan folders; declared and materialized sets equal.'),('4','ID consistency','PASS','102 prior deliverable IDs and77 prior scope IDs retained; four new deliverables and SOW-078/079 added without reuse.84 new dependency IDs corrected by explicit bijection.'),('5','Context fidelity','PASS','106 name/identity/package/type/envelope rows match; four new descriptions and finite boundaries match companion sources.'),('6','Artifact presence','INCOMPLETE','All core contracts present:97 validated SOW_V1,eight D-43 architecture references,one accepted OPEN custom contract. Full anticipated production-artifact realization not recounted.'),('7','Objective mapping','PASS','All18 objective IDs/statements unchanged and supported. Displayed support sets match; OBJ018 baseline discrepancy resolved.'),('8','Ledger integrity','WARNING','79 markdown/CSV scope mappings agree and resolve. Stock validator retains2,097 baseline quality findings; no new findings after84-row metadata repair.'),('9','Derivative package parity','SKIPPED','DOMAIN-specific check not variant-owned; actual SOFTWARE register parity is checked under5,7,8.'),('9b','Package shape','WARNING','Baseline missing companion inventory and heavy inline duplication retained; no derived artifact substituted for amendment authority.'),('10','Snapshot and handoff','PASS','SCA010 compact contract remains active; actual0.13 applied pendingGroup3; stagedDAG011 unapproved. Active pointers unchanged.'),('11','Lifecycle distribution','PASS','All102 existing states unchanged; four additions OPEN. Whole corpus100 IN_PROGRESS,one ISSUED,five OPEN.')]
+s['per_check_verdicts']=[{'check':x[0],'name':x[1],'verdict':x[2],'detail':x[3]}for x in checks]
+s['correction_summary']={'initial_exact_application':'initial_exact_application/','original_manifest_targets':83,'current_original_hash_matches':63,'corrected_local_targets':20,'all_declared_changed_path_hashes_verified':25,'new_dependency_rows_corrected':84,'field_changes_per_row':5,'baseline_aggregate_rows_preserved':1487,'initial_stock_errors':2265,'final_stock_errors':2097,'new_final_stock_findings':0,'authority':'Manager relayed parent Root corrective authorization; docs/SPEC.md §§6.5,6.8; application/dependencies/CORRECTNESS_REPAIR.md','initial_interpretation_superseded':'Optional quote wording and original candidate identities do not override Root identity rule or excuse omission of available actual support.'}
+(O/'coverage_summary.json').write_text(json.dumps(s,indent=2)+'\n')
+t='# SCA-011 corrected actual postchange decomposition audit\n\nOverall: **WARNINGS**. Closure-readiness: **WARN**. No unresolved application or structural blocker was found. The remaining grouped warning is baseline package-shape debt; stock validation still has its2,097 unchanged baseline findings. This is derivative evidence for Group3 preparation, not poststate acceptance or product readiness.\n\nThe original83-target exact application is preserved under `initial_exact_application/`. The current state retains63 original postimage hashes and20 explicitly corrected local dependency postimages. All25 hashes in `application/dependencies/POSTIMAGE_DEVIATIONS.json` verify:20 locals,one staged edge CSV andfour staged provenance/approval/handoff/manifest files. `APPLY_MANIFEST.csv` remains byte-identical to the accepted commit; its hashes were not rewritten to conceal the correction.\n\n| Check | Name | Verdict | Evidence / limit |\n|---|---|---|---|\n'
+t+=''.join('|'+ '|'.join(x)+'|\n'for x in checks)
+t+='''
+## Actual-versus-baseline comparison
+
+The source snapshot is `execution/_ScopeChange/checkpoint_snapshots/SCA-011_GROUP-2_2026-09-22/`, binding exact accepted package commit `3e18334eca72509475684cc86786b3eeade83572`. Whole topology changes from18 packages/102 deliverables/77 scope items/18 objectives to18/106/79/18. New homes are DEL-04-07,DEL-07-11,DEL-07-12,DEL-16-06. Each has complete controls,OPEN lifecycle,PLACEHOLDER semantics and a finite accepted context envelope:three L andone M. Existing IDs,package membership and lifecycle are preserved.
+
+The preserved prechange audit covered14 packages/80 deliverables; this audit covers all18/106. The larger lifecycle and core-contract denominators are disclosed rather than compared as if scope were equal. All102 prior status records were directly compared with immutable accepted-source bytes; status/memory pairs were read,memory only as continuity. The eight PKG00 architecture references retain their D-43 contract rather than being subjected retroactively to the SoW format.
+
+OBJ018’s summary now exactly matches current support in the deliverable register,including DEL-13-02 and new DEL-07-12,and excluding the erroneous prior DEL-12-02 mapping. All18 objective IDs/statements are unchanged. Updated scope/support mappings are accepted amendment effects,not new objectives.
+
+## Dependency defect,repair and independent backcheck
+
+The first actual audit observed stock validation2,097→2,265 errors:84 blank EvidenceQuote findings and84 invalid new ID-prefix findings. That state and its evidence remain frozen under `initial_exact_application/`. The initial interpretation that accepted conventions could be disclosed without repair is superseded:Root SPEC §6.8 binds the DEP-owner identity,and §6.5 calls for available literal support. The parent expressly authorized the bounded correction; no new ownership election or human checkpoint was invented.
+
+The correction changes exactly five metadata fields on each of84 added rows:DependencyID,EvidenceFile,SourceRef,EvidenceQuote,Notes. `ID_CROSSWALK.csv` preserves every old SCA011 identity; `FIELD_LEVEL_DELTA.csv` preserves420 field changes. Original evidence locators and IDs remain in Notes. This audit independently maps all1,571 staged rows through that bijection,checks all1,487 baseline row dictionaries unchanged,and proves every other added-row field unchanged. Endpoints,direction,type,statement,scope,ownership,maturity,satisfaction,status and dates therefore remain unchanged. New execution relations remain PENDING with actual maturity TBD.
+
+For all84 rows,the actual source SHA-256 matches,the quote is nonblank,literal and at most30 words,and it occurs within its named heading,claim,verification bullet or frontmatter field. SourceRef equals the current source file plus that locus. All10 local CSVs preserve their prior rows and their new rows agree with the staged graph. The two optional extension columns are absent in some local schemas and present blank in the aggregate; comparison treats only those empty/missing extension values equivalently,while original local rows are compared exactly.
+
+Final whole-project stock validation returns2,097 errors:all2,097 original finding identities unchanged,zero new findings,none silently waived. The tool still skips cross-register checks because companions live in docs/_Registers. The audit explicitly parses those actual companions and verifies identity,envelopes,scope mappings and objective support against decomposition; that supplement is not mislabeled a stock pass. Raw outputs and exact finding-key comparison are retained.
+
+## Context,claims and authority boundaries
+
+All24 affected SoWs retain their existing CLM/AC/VER/OUT identifiers and pass reference/output-evaluation validation. All97 current SoWs pass. New descriptions and finite boundaries preserve mathematical primitives,convergence policy,schema meanings,feature semantics,persistence,privacy and professional acceptance with their owning contracts. This demonstrates structural traceability,not implementation or claim satisfaction. Full anticipated production-artifact realization remains INCOMPLETE and is not used to manufacture a new acceptance gate.
+
+The decomposition is0.13,`applied_group3_pending`. SCA010 remains the active scope-change snapshot;DAG010 remains current graph authority. SCA010 is evaluated under its accepted compact contract,not retroactively against a newer full-template artifact list. DAG011 remains staged and unapproved. Group3 is the already-selected checkpoint. No lifecycle promotion,product/native test qualification,numerical or engineering acceptance,private-data authorization,external-prover activation,satisfaction recertification or release claim follows.
+
+Canonical product core,apps,schemas and tests;DAG010;SCA009;and original whole-corpus R6 reconciliation paths are unchanged from accepted-package commit. Draft wire schemas remain excluded from canonical application. Concurrent App and Root-owned changes are outside this Piping audit’s containment claim. Manager handoff/summary describe applied state and outstanding review/acceptance rather than pretending a future decision happened.
+
+## Remaining finding and next action
+
+One grouped WARNING remains:main decomposition lacks an explicit companion inventory and duplicates heavy register truth. This was present before the amendment; actual register parity passes. Three INFO entries distinguish the corrected dependency finding,the unchanged stock baseline,and SCA010’s accepted historical compact contract. See the issue log for source references.
+
+Return this audited package to the manager’s separately assigned fresh complete-poststate reviewer. Then present Group3 with the explicit correction,baseline limits and retained obligations. Do not change active pointers or execute conditional Group3 transformations without the actual owning ruling.
+'''
+# Keep ordinary prose readable; identifiers remain unambiguous.
+import re
+t=re.sub(r'(?<=[a-z])(?=\d)', ' ', t); t=re.sub(r'(?<=\d)(?=[a-z])', ' ', t); t=t.replace(',one', ', one').replace(',all', ', all').replace(',four', ', four').replace(',zero', ', zero')
+(O/'Decomp_Coverage_Report.md').write_text(t)
+(O/'Brief.md').write_text((initial/'Brief.md').read_text()+'''\nAdditional parent direction:preserve original accepted application history; repair only84 newly added dependency metadata rows under Root SPEC§6.8 and parent Root corrective authority; final audit must separately bind corrected postimages,actual quote loci and unchanged semantic relations. Dependency writer signaled stable final bytes before this final audit.\n''')
+(O/'Decision_Log.md').write_text((initial/'Decision_Log.md').read_text()+'''\n## Final corrected-state dispositions
+
+- Parent’s explicit corrective direction and Root SPEC§6.8 supersede the initial optional-quote/accepted-ID convention interpretation. Initial evidence is preserved,not rewritten.
+- Final manifest checking recognizes63 unchanged hashes plus20 authorized corrected local targets and independently verifies all25 declared repair hashes. No assertion that corrected files match old accepted hashes is made.
+- Compare existing local rows with their original local rows,and existing aggregate rows with their original aggregate rows. Their historical differences are not created by this repair. New local/aggregate row comparison normalizes only absent/blank optional extension values; all substantive fields remain exact.
+- Exploratory final checks initially assumed21 changed-path entries rather than25 including staged metadata,and incorrectly equated absent local optional extensions with present blank aggregate extensions. The actual bounded contract was rechecked and the audit predicate corrected; no canonical change or suppression followed.
+- Final raw stock comparison retains all2,097 baseline findings and finds zero new issues. Full anticipated artifact realization remains unassessed; it is not a fabricated pass.
+''')
+(O/'QA_Report.md').write_text('''# QA and limits
+
+All12 workflow checks are stated:DOMAIN parity is skipped with variant reason; full anticipated artifact realization is INCOMPLETE while core-contract structural checks pass. Final raw checks verify106 unique materialized deliverables,18 packages,79 scope items,18 unchanged objective statements,83 original manifest targets with20 disclosed authorized local corrections,25 repair hashes,84 metadata-only row corrections and quote loci,1,487 unchanged baseline aggregate rows,all10 affected local CSVs,24 affected SoWs,97 whole-corpus SoWs,102 unchanged lifecycle records andfour OPEN controls.
+
+All current canonical SoW validators exit0. The stock validator exits1,with all2,097 baseline findings and zero new findings; skipped companion discovery is supplemented by independent actual-file parity. Initial2,265-result evidence is preserved. No product checks or engineering claims were made.
+
+Source hashes bind actual consulted bytes. Status/memory pairs were read,memory not as authority. Full descriptions outside the four new controls and every anticipated production artifact were not comprehensively adjudicated. No measured context-budget capacity claim is made. This audit’s explicit output location overrides the workflow’s default _Evaluation pointer; no pointer update is authorized. Shared filesystem scopes are instruction-enforced,not claimed as isolated sandbox enforcement. Exact model/effort not exposed; no override requested. Parent owns final complete-package review and Git.
+
+Rerun from repository root:audit_poststate.py then assemble_report.py under this folder. Those helpers write only this audit root; initial_exact_application is immutable and is not overwritten. If a new audited state is adopted,save a new immutable snapshot before rerunning. Canonical inputs must be stable. Root manager navigation metadata may change after this return and is covered by the separate final review.
+''')
+(O/'RUN_SUMMARY.md').write_text('''# Corrected postchange audit return
+
+RUN_STATUS = WARNINGS
+
+No unresolved application or structural blockers. Actual18 packages/106 deliverables/79 scope items/18 unchanged objective identities/statements. Four new OPEN controls(3L+1M); all97 SoWs validate;24 affected SoWs retain stable IDs/hooks. OBJ018 support parity restored. All102 existing lifecycle states unchanged.
+
+Original83-file exact application remains in initial_exact_application. Current63 original hashes plus20 corrected local hashes are verified; all25 declared repair hashes pass. All84 added dependency rows change only five metadata fields,all1,487 baseline aggregate rows and existing local rows remain unchanged,and all84 actual quote loci/literals/source hashes pass. Stock errors2,097→2,265→2,097;zero new final findings.
+
+One baseline package-shape WARNING and three INFO entries remain;closure-readiness WARN. Fresh separate complete-poststate review remains with parent,then Group3. No current pointer,Group3 acceptance,production qualification,engineering acceptance or release change is claimed.
+''')
+meta={'python':sys.version,'platform':platform.platform(),'raw_check_count':len(raw['checks']),'failed_raw_checks':[x['check']for x in raw['checks']if not x['pass']],'matrix_rows':len(list(csv.DictReader((O/'Decomp_Coverage_Matrix.csv').open()))),'artifact_sha256':{p.name:hashlib.sha256(p.read_bytes()).hexdigest()for p in O.iterdir()if p.is_file()and p.name!='CHECKS.json'}}
+(O/'CHECKS.json').write_text(json.dumps(meta,indent=2)+'\n')
+print(json.dumps({'status':s['overall_status'],'closure':s['closure_readiness'],'matrix_rows':meta['matrix_rows'],'failed_checks':meta['failed_raw_checks']}))

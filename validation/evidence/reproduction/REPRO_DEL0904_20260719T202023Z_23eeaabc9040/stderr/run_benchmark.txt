@@ -1,0 +1,2 @@
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running `/tmp/del0904-r11.aY9RbJ/target/debug/openpipestress-runner run-benchmark --input validation/witness/inputs/tp_runner_015_final_cli_benchmark_stub_input.json --output /tmp/del0904-r11.aY9RbJ/outputs/tp_runner_015_benchmark_stub.json`

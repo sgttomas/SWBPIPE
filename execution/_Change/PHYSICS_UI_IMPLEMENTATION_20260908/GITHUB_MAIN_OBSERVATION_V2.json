@@ -1,0 +1,45 @@
+{
+  "record_kind": "read_only_github_main_observation",
+  "schema_version": "1.0",
+  "path_basis": "REPO_ROOT",
+  "recorded_at_utc": "2026-09-09T02:22:59Z",
+  "recorded_by": {
+    "task_identity": "/root/implementation_change",
+    "role": "CHANGE",
+    "model": "gpt-5.6-sol",
+    "reasoning": "high",
+    "delegation": false
+  },
+  "repository": "sgttomas/chirality",
+  "observation_method": "GitHub read API through gh; no fetch or local-ref mutation",
+  "comparison": {
+    "base": "781b478176db46ca66ebd38991607612e0ce9338",
+    "remote_main": "781b478176db46ca66ebd38991607612e0ce9338",
+    "status": "identical",
+    "ahead_by": 0,
+    "behind_by": 0,
+    "total_commits": 0,
+    "changed_paths": []
+  },
+  "local_state_observed": {
+    "head": "7b73460c5e2d85a9f050344069d211fea4af7b3e",
+    "cached_origin_main": "781b478176db46ca66ebd38991607612e0ce9338"
+  },
+  "overlap": {
+    "piping_source": false,
+    "piping_loop_control_or_receipt": false,
+    "accepted_review_or_contract_bindings": false
+  },
+  "integration_risk_delta": "NONE_REMOTE_MAIN_UNCHANGED",
+  "actions_not_performed": [
+    "fetch",
+    "checkout",
+    "merge",
+    "rebase",
+    "commit",
+    "push",
+    "build",
+    "test",
+    "store access"
+  ]
+}

@@ -1,0 +1,5 @@
+Invented safe metadata fixture.
+Rule pack id: invented-demo.
+Rule pack version: 0.1.0.
+Rule pack checksum reference: sha256:invented-placeholder.
+Notice: human review required; no private formula payload is included.

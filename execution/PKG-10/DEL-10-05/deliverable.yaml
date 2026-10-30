@@ -1,0 +1,127 @@
+id: DEL-10-05
+name: Headless CLI and structured I/O analysis runner
+needs:
+- from: DEL-00-03
+  condition: 'The runner must execute through schema-first command query job and result-envelope boundaries
+    rather than bypassing the solver.
+
+
+    Notes: FACT: Architecture-basis interface dependency; concrete interface language remains TBD.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-10/DEL-10-05/ScopeOfWork.md
+- from: DEL-00-06
+  condition: 'The runner must preserve diagnostics and result envelopes with warning error provenance
+    and no compliance claim.
+
+
+    Notes: FACT: Architecture-basis diagnostics dependency.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-10/DEL-10-05/ScopeOfWork.md
+- from: DEL-08-04
+  condition: 'The runner''s `export-results` output and its solve export documents use DEL-08-04''s current
+    result-export envelope (0.3.0, `schemas/results.v0.3.schema.yaml`), checked by the exporter''s own validation,
+    for regression comparison and report/result export workflows; the runner adds no output shape of its
+    own.'
+  gating: true
+  evidence: core/runner/headless/src/result_envelope_binding.rs
+- from: DEL-10-04
+  condition: 'The runner must stay compatible with DEL-10-04''s build, packaging and CI policy (DEC-025,
+    DEC-057, DEC-059, DEC-093); it adds no CI workflow, release matrix, signing or publication of its own.'
+  gating: true
+  evidence: execution/PKG-10/DEL-10-05/ScopeOfWork.md
+- from: DEL-02-02
+  condition: 'Structured input and output must remain unit-aware across input, solve and output through
+    DEL-02-02''s unit system; missing or incompatible units are blocking diagnostics, not defaults.'
+  gating: true
+  evidence: execution/PKG-10/DEL-10-05/ScopeOfWork.md
+- from: DEL-02-05
+  condition: 'The runner needs DEL-02-05''s model-document version contract (one current version, 0.8.0;
+    every other version refused by name) and its canonical JSON (JCS) hash basis for reproducible structured
+    model data flow. Persisted projects stay behind application-service boundaries, with no direct SQL or
+    SQLite access (DEC-065).'
+  gating: true
+  evidence: execution/PKG-10/DEL-10-05/ScopeOfWork.md
+- from: DEL-08-02
+  condition: 'The runner needs DEL-08-02''s reproducibility metadata: deterministic canonical JSON serialization,
+    JCS hashes where payload hashes are used, and audit-manifest references.'
+  gating: true
+  evidence: core/runner/headless/src/lib.rs
+- from: DEL-04-06
+  condition: 'The runner must surface missing required inputs and solver diagnostic states as blocking
+    diagnostics rather than silent defaults.'
+  gating: true
+  evidence: execution/PKG-10/DEL-10-05/ScopeOfWork.md
+- from: DEL-02-01
+  condition: 'DEL-10-05 depends on DEL-02-01 because headless runner requests carry canonical model references
+    and unit-system references at the schema-first I/O boundary.
+
+
+    Notes: DEV-001 Stage 2 package-local technical finding resolution for PKG10-DEL1005-PKG02-W001; grounded
+    in accepted PKG-02 canonical model contract; local evidence only, not aggregate DAG authority or lifecycle
+    approval.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=SCHEMA_CONTRACT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=PACKAGE_AUDIT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: schemas/headless_runner.schema.yaml
+- from: DEL-02-03
+  condition: 'DEL-10-05 depends on DEL-02-03 because runner results preserve analysis_status, diagnostics,
+    human-review requirements, and professional-boundary controls.
+
+
+    Notes: DEV-001 Stage 2 package-local technical finding resolution for PKG10-DEL1005-PKG02-W001; grounded
+    in accepted PKG-02 authority-status semantics; local evidence only.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=DOMAIN_MODEL; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=PACKAGE_AUDIT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: schemas/headless_runner.schema.yaml
+- from: DEL-04-07
+  condition: 'The runner''s `solve` verb runs DEL-04-07''s captured product solve (`run_linear_static_preview_value_with_retained_headless`,
+    in both solver modes) and needs its admission and refusal outcomes for pressure-free, pressure-2 and
+    pressure-source-1 documents unchanged, so that a headless result is the product''s result for the same
+    request; the runner adds no solver path of its own.'
+  gating: true
+  evidence: core/runner/headless/src/lib.rs
+- from: DEL-05-02
+  condition: >-
+    The runner's `read <reader>` verb consumes DEL-05-02's base-reader dispatch
+    and verdicts (`reader_verdict`). Python product callers take the same verdict
+    through this verb; the runner adds no base-reader logic (DEL-04-08 Design b7-plan, R2).
+  gating: true
+  evidence: core/runner/headless/src/reader_binding.rs
+- from: DEL-04-08
+  condition: >-
+    The runner consumes DEL-04-08's retained validation and transport outcomes
+    (`retained_precision`, retained-source reading) and retained admission report.
+    Its existing binding returns the method's verdict without re-deriving a bound
+    or activating a held surface.
+  gating: true
+  evidence: core/runner/headless/src/reader_binding.rs
+code_paths:
+- core/runner/headless/**
+- schemas/headless_runner.schema.yaml
+- tests/test_headless_runner_contract.py
+- tests/test_load_reference_headless_artifacts.py
+- tests/test_pressure_headless_artifacts.py
+checks:
+# W-18b (DEL-08-01 Design report-user-release.md §2.8 refusal 1): export-results refuses every user-release
+# marker; `user_release_runner_refused` and its CLI case `test_user_release_runner_refused` in the pytest below.
+- core/runner/headless/tests/user_release_runner_refused.rs
+- tests/test_headless_runner_contract.py
+- core/runner/headless/tests/load_reference_cli.rs
+- core/runner/headless/tests/pressure_export.rs

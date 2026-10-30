@@ -1,0 +1,1 @@
+PASS: no literal home-dir absolute paths found in 604 live path-anchor surfaces

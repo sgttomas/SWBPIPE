@@ -1,0 +1,114 @@
+{
+  "allowlist_preflight": {
+    "outside_authorized_paths": 0,
+    "product_source_status_paths": 0,
+    "real_index_staged_paths": 0,
+    "temporary_index_diff_check_exit": 0,
+    "temporary_index_staged_equivalent_paths": 331,
+    "tracked_modified": 9,
+    "untracked": 322,
+    "working_set_records_before_this_record": 331
+  },
+  "control_bindings": {
+    "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/OWNER_DIRECTION.md": "eb67263fbe30bcefb7f4f43450cf96346cdab7370315ff9f924b433bdd4e9174",
+    "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/VERIFICATION_RELEASE_V1.md": "f3899e3a62baf9d03d4a3b6ee6170b645441ce41d7338f753e04c83a372fe831",
+    "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/C0/LAUNCH_BRIEF.md": "013bfb7a2f6adb8bf5fe06e1d2ccf37c6f88b75a351feeaa63fe59c8db250a86",
+    "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/C0/RETURN.md": "a9f769aac61c24c0c499348450fd652f2356e4586cf3c833b75628596154f55c",
+    "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/C0/STATUS.json": "646b3840645a8422a35b235950c2250056c788b7afb38c6311c5706dd1fb5e17",
+    "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/snapshots/CONTROL_FREEZE_V3.json": "a44ea77f389e48fbb7490619623c3a039908c07f711b1e80208822f06772ed04"
+  },
+  "format_preflight": {
+    "active_control_portability": "PASS",
+    "csv_or_tsv_shape_errors": 0,
+    "files_examined": 331,
+    "files_with_cr_bytes": 0,
+    "host_literal_classification": "19 hits across 9 files; reviewed structural execution/provenance records and _Change/_run_records/*HOST_PATHS.json only",
+    "json_or_jsonl_parse_errors": 0,
+    "text_files_missing_final_lf": 0,
+    "utf8_errors": 0
+  },
+  "historical_fan_in_note": "EVIDENCE_FAN_IN_V1 pending-at-cut text remains immutable history; root subsequently verified all five manager document returns and released CHANGE. Final successor/handoff must discharge this without rewriting the frozen record.",
+  "identity": {
+    "actual_task_identity": "/root/implementation_change",
+    "branch": "codex/piping-physics-ui-execution-20260908",
+    "configured_model": "gpt-5.6-sol",
+    "configured_reasoning": "high",
+    "head": "779dedb8670625b36af07b89fc5557470e47c50e",
+    "role": "CHANGE"
+  },
+  "manager_document_manifests": {
+    "F4": {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/F4/CLOSEOUT_MANIFEST_V1.json",
+      "sha256": "022de04e2895155a64db0eb6ca29df704e86f7854cb164956beafb8e67d86dd6"
+    },
+    "K8": {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/K8/CLOSEOUT_MANIFEST.json",
+      "sha256": "bdb543e3eebf6e72ea6bd24003c50b83d55399bfb82be7b7280649559c142419"
+    },
+    "M9": {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/M9/CLOSEOUT_AMENDMENT_MANIFEST.json",
+      "sha256": "8009ba041d985ac3ca30f7e4709c1f51d3bdfd97d96c20681c22b71f7c0a1da4"
+    },
+    "P5": {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/P5/MANIFEST.json",
+      "sha256": "172c96a6af9fbeaec30c4c974ed0614cbdfc0632061dcc127efea104cd90e52f"
+    },
+    "U7": {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/U7/WHITESPACE_REPAIR_MANIFEST_V1.json",
+      "sha256": "403cf4cfef95bae1d7c4147d1a97fce94eb8a845ce5feeda862ea34c7e687b3f"
+    }
+  },
+  "next_gate": "stage the exact allowlist and create the clean whole-repository source-freeze commit; then run unchanged full DEC-025 five-surface sweep from that commit",
+  "original_untracked_handoff": {
+    "observed_unchanged": true,
+    "path": "projects/chirality-piping/plans/HANDOFF_2026-09-06_agent0_session_transition.md",
+    "sha256": "ebbed866266cc961344151519b2792c6cfc5889eb18143a7809be69700c56035",
+    "worktree": "original shared checkout (structural location recorded in prior Change host-path evidence)"
+  },
+  "record_kind": "change_source_freeze_preflight",
+  "recorded_at_utc": "2026-09-08T07:47:01Z",
+  "release_authority": {
+    "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/VERIFICATION_RELEASE_V1.md",
+    "sha256": "f3899e3a62baf9d03d4a3b6ee6170b645441ce41d7338f753e04c83a372fe831",
+    "standing_git_authority": "recorded in OWNER_DIRECTION.md and release act; commit, push, PR open, exact-head green merge authorized; no force or bypass"
+  },
+  "required_checks": {
+    "practitioner_harness": {
+      "elapsed_seconds": 28.01,
+      "exit": 0,
+      "result": "379 passed"
+    },
+    "receipt_validator": {
+      "exit": 0,
+      "result": "VALID; LOOP_RECEIPTS.md frozen through Receipt-44; versioned receipt contract satisfied"
+    },
+    "repo_self_check": {
+      "exit": 0,
+      "finding_summary": {
+        "INFO": 14,
+        "NOT_APPLICABLE": 1,
+        "REVIEW": 4,
+        "WARN": 55
+      },
+      "interpretation": "exit-zero existing repository findings; no newly reported selected-scope blocker"
+    }
+  },
+  "schema_version": "1.0",
+  "scope_fences": {
+    "core_or_apps_writes": false,
+    "lifecycle_or_public_schema_or_physics_adoption": false,
+    "owner_step1_source_exception": "unanswered and ungranted"
+  },
+  "selected_deliverable_documents": {
+    "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/MEMORY.md": "8e864403e29a2b49b1fca5abd0ff6f27d35830660f046c5715ef63fdae4c0e13",
+    "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_STATUS.md": "3b27f3a84e911b10733193ed24552eb830b739c6426b75d3a9ba008c562701a2",
+    "execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/MEMORY.md": "8cd345567c3f5edae7a4a41b902af32bee4f0a7c9e1cc7dda36b4386dc44d29e",
+    "execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/_STATUS.md": "12547879eb3a59c5a29523088a274f5343b4cd9aab6b36d1a232fd3ed394f81a",
+    "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/MEMORY.md": "1db496a5fb3c925e40d86553019eb9a038b364f4bd996555d6a2bbf4de8d5c23",
+    "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_STATUS.md": "c1dce44d58822bcff3ef6fecc7271fba8bcbb84c12e9514ef588ff9cb90a5090",
+    "execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/MEMORY.md": "eeaa25850a0880708f876e602aa6039eaf566313bce4cc4326032ae524add63a",
+    "execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_STATUS.md": "58d5ba902653bd3b8658ffef9af88e246cc2ac7d456aae66bbd394b073144d61",
+    "execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/MEMORY.md": "3bec36bb4fbab84369bf8c8eceef89a1feb437a9fb6de75b169aba8056f6e1b5",
+    "execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/_STATUS.md": "598975923ad9bb1b9b9f75f92478a931a09a42b0d0f252d35ff174d6c7a05404"
+  }
+}

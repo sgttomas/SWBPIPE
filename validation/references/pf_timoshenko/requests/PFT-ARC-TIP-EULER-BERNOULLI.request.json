@@ -1,0 +1,315 @@
+{
+ "model": {
+  "schema_version": "0.8.0",
+  "document_kind": "openpipestress.product_preview.model",
+  "analysis_status": {
+   "mechanics": "ready_for_preview_diagnostics",
+   "rule_check": "not_performed_user_rule_inputs_missing",
+   "professional_acceptance": "not_provided"
+  },
+  "project": {
+   "id": "invented:pf-timoshenko:PFT-ARC-TIP-EULER-BERNOULLI",
+   "units": {
+    "length": "m",
+    "force": "N",
+    "angle": "rad",
+    "pressure": "Pa",
+    "stress": "Pa",
+    "temperature": "degC"
+   }
+  },
+  "nodes": [
+   {
+    "id": "node:A",
+    "position": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   },
+   {
+    "id": "node:B",
+    "position": {
+     "x": 1.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   },
+   {
+    "id": "node:C",
+    "position": {
+     "x": 1.375,
+     "y": 0.375,
+     "z": 0.0
+    },
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   },
+   {
+    "id": "node:D",
+    "position": {
+     "x": 1.375,
+     "y": 1.375,
+     "z": 0.0
+    },
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   }
+  ],
+  "pipe_segments": [
+   {
+    "id": "pipe:AB",
+    "from": "node:A",
+    "to": "node:B",
+    "material": "mat:A",
+    "y_reference": {
+     "x": 0.0,
+     "y": 1.0,
+     "z": 0.0
+    },
+    "section": {
+     "outside_diameter": {
+      "value": 0.2,
+      "unit": "m"
+     },
+     "wall_thickness": {
+      "value": 0.01,
+      "unit": "m"
+     }
+    },
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   },
+   {
+    "id": "pipe:BC",
+    "from": "node:B",
+    "to": "node:C",
+    "material": "mat:A",
+    "y_reference": {
+     "x": 1.0,
+     "y": -1.0,
+     "z": 0.0
+    },
+    "section": {
+     "outside_diameter": {
+      "value": 0.2,
+      "unit": "m"
+     },
+     "wall_thickness": {
+      "value": 0.01,
+      "unit": "m"
+     }
+    },
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   },
+   {
+    "id": "pipe:CD",
+    "from": "node:C",
+    "to": "node:D",
+    "material": "mat:A",
+    "y_reference": {
+     "x": -1.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "section": {
+     "outside_diameter": {
+      "value": 0.2,
+      "unit": "m"
+     },
+     "wall_thickness": {
+      "value": 0.01,
+      "unit": "m"
+     }
+    },
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   }
+  ],
+  "materials": [
+   {
+    "id": "mat:A",
+    "elastic_modulus": {
+     "value": 200000000000.0,
+     "unit": "Pa"
+    },
+    "shear_modulus": {
+     "value": 77000000000.0,
+     "unit": "Pa"
+    },
+    "thermal_expansion_coefficient": {
+     "value": 1.2e-05,
+     "unit": "1/degC"
+    },
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   }
+  ],
+  "supports": [
+   {
+    "id": "support:A",
+    "node": "node:A",
+    "family": "anchor",
+    "restraints": [
+     "UX",
+     "UY",
+     "UZ",
+     "RX",
+     "RY",
+     "RZ"
+    ],
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   }
+  ],
+  "components": [
+   {
+    "id": "component:bend-BC",
+    "kind": "bend",
+    "node": "node:B",
+    "geometry": {
+     "bend_pipe_ref": "pipe:BC",
+     "bend_radius": {
+      "value": 0.375,
+      "unit": "m"
+     },
+     "bend_angle": {
+      "value": 1.5707963267948966,
+      "unit": "rad"
+     },
+     "bend_plane_orientation": "plane of the span chord and the pipe y_reference; the arc bows toward +y_reference"
+    },
+    "modifiers": {
+     "flexibility_factor_user_value": {
+      "value": 2.0,
+      "unit": "none"
+     },
+     "source_reference": "invented test value"
+    },
+    "mechanics_interface": {
+     "solver_consumption": "curved_bend_macro_element"
+    },
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   }
+  ],
+  "load_cases": [
+   {
+    "id": "case:tip",
+    "kind": "primitive_user_load",
+    "primitive_loads": [
+     {
+      "id": "load:tip:0",
+      "category": "concentrated_force",
+      "target": {
+       "type": "node",
+       "node": "node:D"
+      },
+      "direction": "global_x",
+      "magnitude": {
+       "value": 300.0,
+       "unit": "N"
+      },
+      "dimension": "force",
+      "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+     },
+     {
+      "id": "load:tip:1",
+      "category": "concentrated_force",
+      "target": {
+       "type": "node",
+       "node": "node:D"
+      },
+      "direction": "global_y",
+      "magnitude": {
+       "value": -200.0,
+       "unit": "N"
+      },
+      "dimension": "force",
+      "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+     },
+     {
+      "id": "load:tip:2",
+      "category": "concentrated_force",
+      "target": {
+       "type": "node",
+       "node": "node:D"
+      },
+      "direction": "global_z",
+      "magnitude": {
+       "value": 500.0,
+       "unit": "N"
+      },
+      "dimension": "force",
+      "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+     },
+     {
+      "id": "load:tip:3",
+      "category": "concentrated_moment",
+      "target": {
+       "type": "node",
+       "node": "node:D"
+      },
+      "direction": "rotation_y",
+      "magnitude": {
+       "value": 80.0,
+       "unit": "N*m"
+      },
+      "dimension": "moment",
+      "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+     }
+    ],
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   },
+   {
+    "id": "case:uniform_z",
+    "kind": "primitive_user_load",
+    "primitive_loads": [
+     {
+      "id": "load:uniform_z:0",
+      "category": "distributed_force",
+      "target": {
+       "type": "element",
+       "pipe": "pipe:AB"
+      },
+      "direction": "global_z",
+      "magnitude": {
+       "value": -800.0,
+       "unit": "N/m"
+      },
+      "dimension": "force_per_length",
+      "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+     },
+     {
+      "id": "load:uniform_z:1",
+      "category": "distributed_force",
+      "target": {
+       "type": "element",
+       "pipe": "pipe:BC"
+      },
+      "direction": "global_z",
+      "magnitude": {
+       "value": -800.0,
+       "unit": "N/m"
+      },
+      "dimension": "force_per_length",
+      "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+     },
+     {
+      "id": "load:uniform_z:2",
+      "category": "distributed_force",
+      "target": {
+       "type": "element",
+       "pipe": "pipe:CD"
+      },
+      "direction": "global_z",
+      "magnitude": {
+       "value": -800.0,
+       "unit": "N/m"
+      },
+      "dimension": "force_per_length",
+      "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+     }
+    ],
+    "provenance": "invented PF Timoshenko reference fixture; not library, catalog, manufacturer or code-rule data"
+   }
+  ],
+  "combinations": []
+ },
+ "materials": []
+}

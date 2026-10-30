@@ -1,0 +1,80 @@
+{
+  "schema": "openpipestress.ui-foundation.functional-qualification/v1",
+  "status": "frozen-preparation",
+  "governed_source": {
+    "path": "instances/ROOT/WORKSPACE_TASK_ACCEPTANCE_V1.md",
+    "sha256": "43bcf3a72fcab345d495875a8d12e25c50eef2f4235978f8eace007108c7c15b"
+  },
+  "execution": {
+    "suite": "ordinary registered production-browser E2E",
+    "performance_benchmark_separate": true,
+    "skips_count_as_qualified": false,
+    "source_mode_browser_native_separate": true
+  },
+  "appearance_matrix": {
+    "themes": ["light", "dark"],
+    "densities": ["comfortable", "compact"],
+    "viewports_css": [[1024, 768], [1280, 800], [1440, 920]],
+    "required_state_count": 12,
+    "each_state": [
+      "production model loaded with dominant canvas",
+      "ordinary and selected state visible",
+      "focused control state visible",
+      "busy or disabled state visible",
+      "diagnostic state visible",
+      "actual screenshot retained"
+    ],
+    "separate": [
+      "system theme follows changed OS preference",
+      "theme and density persist after reload"
+    ]
+  },
+  "responsive": {
+    "at_or_above_1280": ["tree rail available", "inspector rail available"],
+    "below_1280": [
+      "independent tree and inspector drawers preserve canvas access",
+      "task action footer remains reachable",
+      "active drawer keeps focused controls visible",
+      "inactive drawer controls are outside tab sequence",
+      "closing drawer restores focus to opener"
+    ]
+  },
+  "keyboard": [
+    "command search and category navigation",
+    "tree movement and selection",
+    "task inputs and review/apply/cancel",
+    "viewport presets and Fit",
+    "visibility and measurement",
+    "focusable named separator Arrow-key resize within declared bounds"
+  ],
+  "virtual_tree": [
+    "named tree",
+    "aria-multiselectable true",
+    "typed row test id is tree-row-${encodeURIComponent(type)}-${encodeURIComponent(id)} with components encoded independently",
+    "focus visually and semantically distinct from aria-selected membership",
+    "correct aria-expanded",
+    "full-list aria-level aria-posinset aria-setsize",
+    "off-window keyboard focus scrolls and presents target row",
+    "off-window navigation does not mount every selected row"
+  ],
+  "target_and_contrast": [
+    "effective target boxes checked in both densities",
+    "icon glyph size is not substituted for effective target box",
+    "adopted applicable target-size or spacing alternative recorded",
+    "touched text and graphical contrast checked in actual states"
+  ],
+  "task_witnesses": [
+    "open inspect navigate and Fit actual visible authored geometry",
+    "typed single and ordered multi-selection with aggregate inspector",
+    "filter and collapse preserve valid selection and cannot target draft",
+    "existing engineering edit freezes target and units across navigation",
+    "Add Cancel Review Apply explicit and pending review visibly opens dock",
+    "selected-pipe transform and self-weight copy current validated target only on explicit action",
+    "hidden selected entities remain marked and attachment mask ownership holds",
+    "measurement uses authored endpoints and units; invalid Actual OD explains centerline fallback",
+    "view commands preserve engineering model hash",
+    "Historical cannot produce Current overlays/checks/comparison/report readiness",
+    "fresh successful solve restores Current only for exact input basis"
+  ],
+  "claim_boundary": "Project verification only; no accessibility certification or independent-practitioner usability claim. No unavailable baseline metric becomes candidate PASS."
+}

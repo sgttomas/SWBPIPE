@@ -1,0 +1,385 @@
+{
+  "model": {
+    "schema_version": "0.4.0",
+    "document_kind": "openpipestress.product_preview.model",
+    "pressure_contract": {
+      "version": "2.0.0",
+      "mode": "exact_straight_pressure_v2"
+    },
+    "project": {
+      "id": "project:lr-temperature-unit-identity",
+      "name": "Temperature unit identity",
+      "description": "Invented VP-STATIC load/reference-state qualification request built from reference_cases.json; no libraries or code rules.",
+      "units": {
+        "length": "m",
+        "force": "N",
+        "angle": "rad",
+        "pressure": "Pa",
+        "stress": "Pa",
+        "temperature": "degC"
+      }
+    },
+    "analysis_status": {
+      "mechanics": "ready_for_preview_diagnostics",
+      "rule_check": "not_performed_user_rule_inputs_missing",
+      "professional_acceptance": "not_provided"
+    },
+    "nodes": [
+      {
+        "id": "node:root",
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data; 1 m cantilever (length invented)"
+      },
+      {
+        "id": "node:tip",
+        "position": {
+          "x": 1.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data; 1 m cantilever (length invented)"
+      }
+    ],
+    "pipe_segments": [
+      {
+        "id": "pipe:identity",
+        "from": "node:root",
+        "to": "node:tip",
+        "section": {
+          "outside_diameter": {
+            "value": 0.2,
+            "unit": "m"
+          },
+          "wall_thickness": {
+            "value": 0.01,
+            "unit": "m"
+          }
+        },
+        "material": "material:identity",
+        "y_reference": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        },
+        "provenance": "section from reference_cases.json geometry annulus_od_0p20_wall_0p01; y_reference is an authoring convention"
+      }
+    ],
+    "supports": [
+      {
+        "id": "support:root",
+        "node": "node:root",
+        "family": "anchor",
+        "restraints": [
+          "UX",
+          "UY",
+          "UZ",
+          "RX",
+          "RY",
+          "RZ"
+        ],
+        "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data; rigid anchor representing the reference topology"
+      }
+    ],
+    "components": [],
+    "materials": [
+      {
+        "id": "material:identity",
+        "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+        "elastic_modulus": {
+          "value": 200000000000.0,
+          "unit": "Pa"
+        },
+        "poisson_ratio": {
+          "value": 0.3,
+          "unit": "1"
+        },
+        "provenance": "E/nu invented: this reference defines temperature identities only",
+        "temperature_points": [
+          {
+            "id": "point:minus-50-degC-group",
+            "temperature": {
+              "value": 223.15,
+              "unit": "K"
+            },
+            "elastic_modulus": {
+              "value": 200000000000.0,
+              "unit": "Pa"
+            },
+            "poisson_ratio": {
+              "value": 0.3,
+              "unit": "1"
+            },
+            "provenance": "point temperature authored from the reference identity group; E/nu invented"
+          },
+          {
+            "id": "point:242-degC-group",
+            "temperature": {
+              "value": 515.15,
+              "unit": "K"
+            },
+            "elastic_modulus": {
+              "value": 200000000000.0,
+              "unit": "Pa"
+            },
+            "poisson_ratio": {
+              "value": 0.3,
+              "unit": "1"
+            },
+            "provenance": "point temperature authored from the reference identity group; E/nu invented"
+          },
+          {
+            "id": "point:20-degC-rankine-group",
+            "temperature": {
+              "value": 527.67,
+              "unit": "degR"
+            },
+            "elastic_modulus": {
+              "value": 200000000000.0,
+              "unit": "Pa"
+            },
+            "poisson_ratio": {
+              "value": 0.3,
+              "unit": "1"
+            },
+            "provenance": "point temperature authored from the reference identity group; E/nu invented"
+          }
+        ]
+      }
+    ],
+    "reference_configurations": [
+      {
+        "id": "reference:installed",
+        "label": "Installed reference",
+        "geometry_ref": {
+          "kind": "authored_model_geometry"
+        },
+        "member_references": [
+          {
+            "pipe_ref": "pipe:identity",
+            "basis": {
+              "kind": "direct_strain_reference"
+            },
+            "fit": {
+              "kind": "none"
+            },
+            "provenance": "member reference from the reference case inputs"
+          }
+        ],
+        "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data"
+      }
+    ],
+    "load_cases": [
+      {
+        "id": "case:minus-50-degC",
+        "pressure_regions": [],
+        "primitive_loads": [],
+        "analysis_state": {
+          "contract": "openpipestress.load_reference_state/1.0.0",
+          "reference_configuration_ref": "reference:installed",
+          "element_states": [
+            {
+              "pipe_ref": "pipe:identity",
+              "material_selection": {
+                "kind": "exact_point",
+                "material_ref": "material:identity",
+                "point_ref": "point:minus-50-degC-group"
+              },
+              "thermal_state": {
+                "kind": "unchanged_reference",
+                "provenance": "reference state unchanged (reference strain zero)"
+              },
+              "operating_temperature": {
+                "value": -50.0,
+                "unit": "degC"
+              }
+            }
+          ],
+          "support_states": [
+            {
+              "support_ref": "support:root",
+              "participation": {
+                "kind": "active_model_device"
+              }
+            }
+          ],
+          "load_sources": [],
+          "history": {
+            "kind": "independent_equilibrium"
+          },
+          "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data"
+        },
+        "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data"
+      },
+      {
+        "id": "case:242-degC",
+        "pressure_regions": [],
+        "primitive_loads": [],
+        "analysis_state": {
+          "contract": "openpipestress.load_reference_state/1.0.0",
+          "reference_configuration_ref": "reference:installed",
+          "element_states": [
+            {
+              "pipe_ref": "pipe:identity",
+              "material_selection": {
+                "kind": "exact_point",
+                "material_ref": "material:identity",
+                "point_ref": "point:242-degC-group"
+              },
+              "thermal_state": {
+                "kind": "unchanged_reference",
+                "provenance": "reference state unchanged (reference strain zero)"
+              },
+              "operating_temperature": {
+                "value": 242.0,
+                "unit": "degC"
+              }
+            }
+          ],
+          "support_states": [
+            {
+              "support_ref": "support:root",
+              "participation": {
+                "kind": "active_model_device"
+              }
+            }
+          ],
+          "load_sources": [],
+          "history": {
+            "kind": "independent_equilibrium"
+          },
+          "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data"
+        },
+        "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data"
+      },
+      {
+        "id": "case:467p6-degF",
+        "pressure_regions": [],
+        "primitive_loads": [],
+        "analysis_state": {
+          "contract": "openpipestress.load_reference_state/1.0.0",
+          "reference_configuration_ref": "reference:installed",
+          "element_states": [
+            {
+              "pipe_ref": "pipe:identity",
+              "material_selection": {
+                "kind": "exact_point",
+                "material_ref": "material:identity",
+                "point_ref": "point:242-degC-group"
+              },
+              "thermal_state": {
+                "kind": "unchanged_reference",
+                "provenance": "reference state unchanged (reference strain zero)"
+              },
+              "operating_temperature": {
+                "value": 467.6,
+                "unit": "degF"
+              }
+            }
+          ],
+          "support_states": [
+            {
+              "support_ref": "support:root",
+              "participation": {
+                "kind": "active_model_device"
+              }
+            }
+          ],
+          "load_sources": [],
+          "history": {
+            "kind": "independent_equilibrium"
+          },
+          "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data"
+        },
+        "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data"
+      },
+      {
+        "id": "case:20-degC-rankine",
+        "pressure_regions": [],
+        "primitive_loads": [],
+        "analysis_state": {
+          "contract": "openpipestress.load_reference_state/1.0.0",
+          "reference_configuration_ref": "reference:installed",
+          "element_states": [
+            {
+              "pipe_ref": "pipe:identity",
+              "material_selection": {
+                "kind": "exact_point",
+                "material_ref": "material:identity",
+                "point_ref": "point:20-degC-rankine-group"
+              },
+              "thermal_state": {
+                "kind": "unchanged_reference",
+                "provenance": "reference state unchanged (reference strain zero)"
+              },
+              "operating_temperature": {
+                "value": 20.0,
+                "unit": "degC"
+              }
+            }
+          ],
+          "support_states": [
+            {
+              "support_ref": "support:root",
+              "participation": {
+                "kind": "active_model_device"
+              }
+            }
+          ],
+          "load_sources": [],
+          "history": {
+            "kind": "independent_equilibrium"
+          },
+          "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data"
+        },
+        "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data"
+      },
+      {
+        "id": "case:non-equal-control",
+        "pressure_regions": [],
+        "primitive_loads": [],
+        "analysis_state": {
+          "contract": "openpipestress.load_reference_state/1.0.0",
+          "reference_configuration_ref": "reference:installed",
+          "element_states": [
+            {
+              "pipe_ref": "pipe:identity",
+              "material_selection": {
+                "kind": "explicit_base_properties",
+                "material_ref": "material:identity",
+                "applicability_reference": "invented analytical basis declared applicable to this member (reference_cases.json inputs)"
+              },
+              "thermal_state": {
+                "kind": "unchanged_reference",
+                "provenance": "reference state unchanged (reference strain zero)"
+              },
+              "operating_temperature": {
+                "value": -49.999999,
+                "unit": "degC"
+              }
+            }
+          ],
+          "support_states": [
+            {
+              "support_ref": "support:root",
+              "participation": {
+                "kind": "active_model_device"
+              }
+            }
+          ],
+          "load_sources": [],
+          "history": {
+            "kind": "independent_equilibrium"
+          },
+          "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data"
+        },
+        "provenance": "invented VP-STATIC load-reference qualification input; not library, component or code-rule data"
+      }
+    ],
+    "combinations": []
+  },
+  "materials": []
+}

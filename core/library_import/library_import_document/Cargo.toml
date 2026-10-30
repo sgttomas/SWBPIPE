@@ -1,0 +1,9 @@
+[package]
+name = "open_pipe_stress_library_import_document"
+version = "0.1.0"
+edition = "2021"
+description = "Library-import provenance seam: runtime validation of material/section/component library import payloads (required provenance, redistribution/review disposition, protected-content quarantine, unit and value-level provenance) projected into the PKG-02 import-boundary diagnostic envelope. Runtime Rust port of the DEL-03-07 provenance-checker contract (core/library_import/provenance_checker.py). No external file-format parsing, no legal license determinations, no professional, certification, sealing, authentication, or code-compliance claims."
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

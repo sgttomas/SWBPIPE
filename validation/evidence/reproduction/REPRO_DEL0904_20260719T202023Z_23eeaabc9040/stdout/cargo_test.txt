@@ -1,0 +1,42 @@
+
+running 16 tests
+test tests::analysis_status_for_rule_check_maps_the_runner_vocabulary ... ok
+test tests::privacy_and_professional_boundary_violations_are_blocking ... ok
+test tests::reference_level_validation_still_accepts_without_full_payload ... ok
+test tests::request_requires_load_basis_and_d33_policy ... ok
+test tests::full_payload_validation_blocks_envelope_ref_mismatch_and_missing_checksum ... ok
+test tests::result_requires_human_review_and_result_export_compatibility ... ok
+test tests::result_requires_schema_vocabulary_and_result_envelope_checksum ... ok
+test tests::valid_request_has_no_blocking_diagnostics ... ok
+test tests::valid_result_has_no_blocking_diagnostics ... ok
+test tests::tp_phys_015_result_envelope_payload_validates_when_supplied ... ok
+test tests::preview_bridge_blocks_invalid_runner_metadata_before_solve ... ok
+test tests::preview_bridge_drives_user_rule_checked_into_analysis_status ... ok
+test tests::preview_bridge_drives_user_rule_failed_into_envelope_and_analysis_status ... ok
+test tests::preview_bridge_blocks_unrecognized_rule_check_aggregate ... ok
+test tests::preview_bridge_executes_product_physics_with_deterministic_refs ... ok
+test tests::preview_bridge_incomplete_aggregate_equals_the_no_aggregate_default ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+
+
+running 1 test
+test tests::provisional_request_is_schema_complete ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 5 tests
+test tests::stable_verbs_map_to_runner_operations ... ok
+test tests::validate_input_accepts_d33_policy_request ... ok
+test tests::downstream_operation_verbs_are_stable_but_stubbed ... ok
+test tests::solve_blocks_missing_payload_without_running_solver ... ok
+test tests::solve_runs_invented_preview_model_with_stdout_json_contract ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

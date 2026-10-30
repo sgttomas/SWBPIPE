@@ -1,0 +1,39 @@
+{
+ "about": "Reviewed resolutions for keys the line map cannot carry. Keyed by the key as written at the basis (2243be380b). A function key whose function lost a definition while keeping at least one ('fewer_definitions'): 'as': 'deleted' (this key's own definition is the one removed: its rules are pruned) or n (it is the target's n-th definition of that name, 1-based); such an entry applies only where the map finds fewer definitions for its key. A site key inside a function the revision deleted from its file ('replaced', because its hunk carries other new lines): 'as': 'deleted' with 'fn', the enclosing basis function; it applies only when that function encloses the basis line and is no longer defined in the file at the revision. 'why' names the commit and the code facts.",
+ "keys": {
+  "lib.rs:675:orientation": {
+   "as": "deleted",
+   "why": "FK lib.rs at the basis defines fn orientation in impl FrameElement (604) and impl UserStiffnessElement (675); a601e3706d (T4-U3) deletes UserStiffnessElement with its impl, so where the count falls to 1 the definition left is FrameElement's and this key's is the one gone (DEL-04-08 retained-pricing-rules.md, section A)"
+  },
+  "core/reporting/result_export/src/load_reference_source.rs:47": {
+   "as": "deleted",
+   "fn": "code",
+   "why": "B7b (A4/A5, 54018fe688): load_reference_source.rs is reduced to the current 16-line pre-pass (validate_pressure_source_evidence); the v2-era readers and their private fn code (the format! of SOURCE_LOAD_REFERENCE_{name}) are deleted with the load-reference-source-1 table, so this ID-audit site no longer exists (DEL-04-08 retained-pricing-rules.md, B7b)"
+  },
+  "core/product_physics/src/preview_physics.rs:1093": {
+   "as": "deleted",
+   "fn": "imposed_displacement_refusal",
+   "why": "W-16 slice a (retained-pricing-rules.md §8.23): the pressure-free route maps a support-targeted primitive into the prescribed boundary (imposed_motion.rs), so preview_physics.rs's pre-parse refusal fn imposed_displacement_refusal (basis 1080-1129: the offending tuple's three to_string()s at 1093-1095, the diagnostic id and message format!s at 1119 and 1122) and its one call in lib.rs's value dispatch are deleted with IMPOSED_DISPLACEMENT_REQUIRES_LOAD_STATE_MODEL; these ID-audit sites no longer exist"
+  },
+  "core/product_physics/src/preview_physics.rs:1094": {
+   "as": "deleted",
+   "fn": "imposed_displacement_refusal",
+   "why": "W-16 slice a (retained-pricing-rules.md §8.23): the pressure-free route maps a support-targeted primitive into the prescribed boundary (imposed_motion.rs), so preview_physics.rs's pre-parse refusal fn imposed_displacement_refusal (basis 1080-1129: the offending tuple's three to_string()s at 1093-1095, the diagnostic id and message format!s at 1119 and 1122) and its one call in lib.rs's value dispatch are deleted with IMPOSED_DISPLACEMENT_REQUIRES_LOAD_STATE_MODEL; these ID-audit sites no longer exist"
+  },
+  "core/product_physics/src/preview_physics.rs:1095": {
+   "as": "deleted",
+   "fn": "imposed_displacement_refusal",
+   "why": "W-16 slice a (retained-pricing-rules.md §8.23): the pressure-free route maps a support-targeted primitive into the prescribed boundary (imposed_motion.rs), so preview_physics.rs's pre-parse refusal fn imposed_displacement_refusal (basis 1080-1129: the offending tuple's three to_string()s at 1093-1095, the diagnostic id and message format!s at 1119 and 1122) and its one call in lib.rs's value dispatch are deleted with IMPOSED_DISPLACEMENT_REQUIRES_LOAD_STATE_MODEL; these ID-audit sites no longer exist"
+  },
+  "core/product_physics/src/preview_physics.rs:1119": {
+   "as": "deleted",
+   "fn": "imposed_displacement_refusal",
+   "why": "W-16 slice a (retained-pricing-rules.md §8.23): the pressure-free route maps a support-targeted primitive into the prescribed boundary (imposed_motion.rs), so preview_physics.rs's pre-parse refusal fn imposed_displacement_refusal (basis 1080-1129: the offending tuple's three to_string()s at 1093-1095, the diagnostic id and message format!s at 1119 and 1122) and its one call in lib.rs's value dispatch are deleted with IMPOSED_DISPLACEMENT_REQUIRES_LOAD_STATE_MODEL; these ID-audit sites no longer exist"
+  },
+  "core/product_physics/src/preview_physics.rs:1122": {
+   "as": "deleted",
+   "fn": "imposed_displacement_refusal",
+   "why": "W-16 slice a (retained-pricing-rules.md §8.23): the pressure-free route maps a support-targeted primitive into the prescribed boundary (imposed_motion.rs), so preview_physics.rs's pre-parse refusal fn imposed_displacement_refusal (basis 1080-1129: the offending tuple's three to_string()s at 1093-1095, the diagnostic id and message format!s at 1119 and 1122) and its one call in lib.rs's value dispatch are deleted with IMPOSED_DISPLACEMENT_REQUIRES_LOAD_STATE_MODEL; these ID-audit sites no longer exist"
+  }
+ }
+}

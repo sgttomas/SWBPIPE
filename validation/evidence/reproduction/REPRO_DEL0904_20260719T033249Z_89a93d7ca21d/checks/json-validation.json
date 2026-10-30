@@ -1,0 +1,83 @@
+{
+  "schema": "chirality-json-validation/v1",
+  "json_files": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/2faf/chirality/projects/chirality-piping/validation/evidence/reproduction/REPRO_DEL0904_20260719T033249Z_89a93d7ca21d/checks/change-scope.json",
+      "status": "PASS"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/2faf/chirality/projects/chirality-piping/validation/evidence/reproduction/REPRO_DEL0904_20260719T033249Z_89a93d7ca21d/checks/evidence-sweep.json",
+      "status": "PASS"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/2faf/chirality/projects/chirality-piping/validation/evidence/reproduction/REPRO_DEL0904_20260719T033249Z_89a93d7ca21d/checks/harness-pytest.json",
+      "status": "PASS"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/2faf/chirality/projects/chirality-piping/validation/evidence/reproduction/REPRO_DEL0904_20260719T033249Z_89a93d7ca21d/checks/not-run.json",
+      "status": "PASS"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/2faf/chirality/projects/chirality-piping/validation/evidence/reproduction/REPRO_DEL0904_20260719T033249Z_89a93d7ca21d/checks/piping-pytest.json",
+      "status": "PASS"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/2faf/chirality/projects/chirality-piping/validation/evidence/reproduction/REPRO_DEL0904_20260719T033249Z_89a93d7ca21d/checks/profile-summary.json",
+      "status": "PASS"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/2faf/chirality/projects/chirality-piping/validation/evidence/reproduction/REPRO_DEL0904_20260719T033249Z_89a93d7ca21d/checks/protected-source-hashes.json",
+      "status": "PASS"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/2faf/chirality/projects/chirality-piping/validation/evidence/reproduction/REPRO_DEL0904_20260719T033249Z_89a93d7ca21d/checks/temp-cleanup.json",
+      "status": "PASS"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/2faf/chirality/projects/chirality-piping/validation/evidence/reproduction/REPRO_DEL0904_20260719T033249Z_89a93d7ca21d/manifest.json",
+      "status": "PASS"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/2faf/chirality/projects/chirality-piping/validation/evidence/reproduction/REPRO_DEL0904_20260719T033249Z_89a93d7ca21d/outputs/tp_runner_015_benchmark_stub.json",
+      "status": "PASS"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/2faf/chirality/projects/chirality-piping/validation/evidence/reproduction/REPRO_DEL0904_20260719T033249Z_89a93d7ca21d/outputs/tp_runner_015_solve.json",
+      "status": "PASS"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/2faf/chirality/projects/chirality-piping/validation/evidence/reproduction/REPRO_DEL0904_20260719T033249Z_89a93d7ca21d/outputs/tp_runner_015_validation_blocking.json",
+      "status": "PASS"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/2faf/chirality/projects/chirality-piping/validation/evidence/reproduction/REPRO_DEL0904_20260719T033249Z_89a93d7ca21d/validation_summary.json",
+      "status": "PASS"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/2faf/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260718-DEL0904-CLEAN-REPRO-R8/STATUS.json",
+      "status": "PASS"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/2faf/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260718-DEL0904-CLEAN-REPRO-R8/WORK_GRAPH.json",
+      "status": "PASS"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/2faf/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260718-DEL0904-CLEAN-REPRO-R8/instances/TASK-DEL0904-CLEAN-REPRO-R8-01/STATUS.json",
+      "status": "PASS"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/2faf/chirality/projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260719T034442Z_89a93d7ca21d-dirty.json",
+      "status": "PASS"
+    }
+  ],
+  "jsonl_files": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/2faf/chirality/projects/chirality-piping/validation/evidence/reproduction/REPRO_DEL0904_20260719T033249Z_89a93d7ca21d/commands.jsonl",
+      "rows": 12,
+      "status": "PASS"
+    }
+  ],
+  "json_count": 17,
+  "jsonl_count": 1,
+  "overall_status": "PASS"
+}

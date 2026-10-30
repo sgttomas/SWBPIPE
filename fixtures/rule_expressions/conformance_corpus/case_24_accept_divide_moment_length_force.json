@@ -1,0 +1,43 @@
+{
+  "bindings": [],
+  "case_id": "case_24_accept_divide_moment_length_force",
+  "declared_grammar_version": "1.0.0",
+  "description": "Unique enumerated dimension quotient Moment / Length -> Force.",
+  "expected": {
+    "findings": [],
+    "source_variable_ids": [],
+    "statuses": [
+      "mechanics_solved"
+    ],
+    "value": {
+      "dimension": "force",
+      "kind": "quantity",
+      "unit_ref": "invented_moment_unit/invented_length_unit",
+      "value": 7.5
+    }
+  },
+  "expression": {
+    "left": {
+      "node": "literal",
+      "quantity": {
+        "dimension": "moment",
+        "unit_ref": "invented_moment_unit",
+        "value": 30.0
+      }
+    },
+    "node": "binary",
+    "operator": "divide",
+    "right": {
+      "node": "literal",
+      "quantity": {
+        "dimension": "length",
+        "unit_ref": "invented_length_unit",
+        "value": 4.0
+      }
+    }
+  },
+  "required_variable_ids": [],
+  "statuses": [
+    "mechanics_solved"
+  ]
+}

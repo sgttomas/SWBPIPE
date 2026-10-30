@@ -1,0 +1,346 @@
+{
+  "schema_version": "0.1.0",
+  "deliverable_id": "DEL-08-04",
+  "package_id": "PKG-08",
+  "scope_item": "SOW-046",
+  "objectives": [
+    "OBJ-007",
+    "OBJ-009"
+  ],
+  "export_format_status": {
+    "baseline_format": "schema_first_json_result_envelope",
+    "additional_formats": "TBD",
+    "public_transport_protocol": "TBD",
+    "local_fea_package_format": "TBD",
+    "external_adapter_formats": "TBD"
+  },
+  "result_envelope": {
+    "schema_version": "0.1.0",
+    "envelope_id": "MECH-TP-PHYS-015-CANONICAL-SOLVE-RESULT-ENVELOPE",
+    "model_ref": {
+      "ref_type": "analytical_solver_model",
+      "ref_id": "ANALYTICAL-TP-PHYS-014"
+    },
+    "run_ref": {
+      "ref_type": "analysis_run",
+      "ref_id": "RUN-TP-PHYS-015A-CANONICAL-SOLVE-RESULT-ENVELOPE"
+    },
+    "solver_version": {
+      "solver_name": "open_pipe_stress_validation_mechanics_benchmark",
+      "solver_version": "0.1.0",
+      "solver_build_ref": "validation-local-cargo-test"
+    },
+    "unit_system_ref": {
+      "ref_type": "unit_system",
+      "ref_id": "PKG09-FIXTURE-UNITS-EXPLICIT-N-M-RAD-K"
+    },
+    "load_basis_refs": [
+      {
+        "ref_type": "load_case",
+        "ref_id": "LC-TP-PHYS-014"
+      }
+    ],
+    "result_sets": [
+      {
+        "set_id": "result-set:tp-phys-015:mechanics",
+        "set_type": "mechanics",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "LC-TP-PHYS-014"
+        },
+        "values": [
+          {
+            "result_id": "result:disp:node-N-2:uy",
+            "family": "displacement",
+            "object_ref": {
+              "ref_type": "node",
+              "ref_id": "N-2"
+            },
+            "basis_ref": {
+              "ref_type": "load_case",
+              "ref_id": "LC-TP-PHYS-014"
+            },
+            "magnitude": -0.04533333333333334,
+            "unit": "m",
+            "dimension": "length",
+            "provenance": {
+              "source_name": "invented mechanics fixture",
+              "source_location": "validation/benchmarks/invented",
+              "source_license": "project invented",
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted"
+            }
+          },
+          {
+            "result_id": "result:rotation:node-N-2:rz",
+            "family": "rotation",
+            "object_ref": {
+              "ref_type": "node",
+              "ref_id": "N-2"
+            },
+            "basis_ref": {
+              "ref_type": "load_case",
+              "ref_id": "LC-TP-PHYS-014"
+            },
+            "magnitude": -0.014666666666666668,
+            "unit": "rad",
+            "dimension": "angle",
+            "provenance": {
+              "source_name": "invented mechanics fixture",
+              "source_location": "validation/benchmarks/invented",
+              "source_license": "project invented",
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted"
+            }
+          },
+          {
+            "result_id": "result:reaction:support-N-1:uy",
+            "family": "reaction",
+            "object_ref": {
+              "ref_type": "support",
+              "ref_id": "N-1-anchor"
+            },
+            "basis_ref": {
+              "ref_type": "load_case",
+              "ref_id": "LC-TP-PHYS-014"
+            },
+            "magnitude": 12.0,
+            "unit": "N",
+            "dimension": "force",
+            "provenance": {
+              "source_name": "invented mechanics fixture",
+              "source_location": "validation/benchmarks/invented",
+              "source_license": "project invented",
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted"
+            }
+          }
+        ]
+      },
+      {
+        "set_id": "result-set:tp-phys-015:load-vector",
+        "set_type": "load_vector_evidence",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "LC-TP-PHYS-014"
+        },
+        "values": [
+          {
+            "result_id": "result:load-vector:node-N-1:uy",
+            "family": "force",
+            "object_ref": {
+              "ref_type": "solver_load_vector",
+              "ref_id": "node-N-1"
+            },
+            "basis_ref": {
+              "ref_type": "load_case",
+              "ref_id": "LC-TP-PHYS-014"
+            },
+            "magnitude": -6.0,
+            "unit": "N",
+            "dimension": "force",
+            "provenance": {
+              "source_name": "invented mechanics fixture",
+              "source_location": "validation/benchmarks/invented",
+              "source_license": "project invented",
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted"
+            },
+            "metadata": {
+              "component": "nodal_force_y",
+              "coordinate_system": "global",
+              "location": "node",
+              "basis": "assembled_solver_load_vector",
+              "sign_convention": "positive follows the solver global UY force entry"
+            },
+            "diagnostics": [
+              {
+                "code": "TP_RESULT_017_VALUE_TRACE_NOTE",
+                "class": "ASSUMPTION_WARNING",
+                "severity": "info",
+                "source": {
+                  "ref_type": "result_export_fixture",
+                  "ref_id": "TP-RESULT-017"
+                },
+                "affected_object": {
+                  "ref_type": "result_value",
+                  "ref_id": "result:load-vector:node-N-1:uy"
+                },
+                "message": "Fixture records per-value diagnostics without changing solver behavior.",
+                "remediation": "Use accepted trace-chain ruling before adding multi-hop value trace fields.",
+                "provenance": {
+                  "source_name": "invented mechanics fixture",
+                  "source_location": "validation/benchmarks/invented",
+                  "source_license": "project invented",
+                  "contributor": "OpenPipeStress",
+                  "contributor_certification": "invented non-engineering example",
+                  "redistribution_status": "invented_non_engineering_example",
+                  "review_status": "accepted"
+                }
+              }
+            ],
+            "trace_chain": [
+              {
+                "trace_id": "trace:tp-phys-015:adapter-dto-to-load-vector-uy",
+                "trace_type": "solver_input_to_result_value",
+                "source_ref": {
+                  "ref_type": "adapter_dto",
+                  "ref_id": "dto:load_application:LC-TP-PHYS-014:0"
+                },
+                "target_ref": {
+                  "ref_type": "result_value",
+                  "ref_id": "result:load-vector:node-N-1:uy"
+                },
+                "provenance": {
+                  "source_name": "invented mechanics fixture",
+                  "source_location": "validation/benchmarks/invented",
+                  "source_license": "project invented",
+                  "contributor": "OpenPipeStress",
+                  "contributor_certification": "invented non-engineering example",
+                  "redistribution_status": "invented_non_engineering_example",
+                  "review_status": "accepted"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "set_id": "result-set:tp-phys-015:station-resultants",
+        "set_type": "station_resultants",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "LC-TP-PHYS-014"
+        },
+        "values": [
+          {
+            "result_id": "result:moment:element-E-1:midspan:bending-z",
+            "family": "moment",
+            "object_ref": {
+              "ref_type": "element",
+              "ref_id": "E-1"
+            },
+            "basis_ref": {
+              "ref_type": "load_case",
+              "ref_id": "LC-TP-PHYS-014"
+            },
+            "station_ref": {
+              "ref_type": "result_station",
+              "ref_id": "E-1:midspan"
+            },
+            "magnitude": 4.0,
+            "unit": "N-m",
+            "dimension": "moment",
+            "provenance": {
+              "source_name": "invented mechanics fixture",
+              "source_location": "validation/benchmarks/invented",
+              "source_license": "project invented",
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted"
+            },
+            "metadata": {
+              "component": "bending_moment_z",
+              "coordinate_system": "element_local",
+              "location": "midspan",
+              "basis": "interpolated_from_endpoint_resultants",
+              "sign_convention": "positive follows the element-local z bending resultant convention"
+            }
+          }
+        ]
+      }
+    ],
+    "diagnostics": [
+      {
+        "code": "TP_PHYS_015A_RESULT_BOUNDARY_EVIDENCE",
+        "class": "ASSUMPTION_WARNING",
+        "severity": "info",
+        "source": {
+          "ref_type": "mechanics_benchmark",
+          "ref_id": "DEL-09-01"
+        },
+        "affected_object": {
+          "ref_type": "result_envelope",
+          "ref_id": "MECH-TP-PHYS-015-CANONICAL-SOLVE-RESULT-ENVELOPE"
+        },
+        "message": "Invented validation-local result envelope records canonical payload solve-result evidence.",
+        "remediation": "Use adjacent export and runner contracts before relying on serialized runtime behavior.",
+        "provenance": {
+          "source_name": "invented mechanics fixture",
+          "source_location": "validation/benchmarks/invented",
+          "source_license": "project invented",
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted"
+        }
+      }
+    ],
+    "provenance": {
+      "source_name": "invented mechanics fixture",
+      "source_location": "validation/benchmarks/invented",
+      "source_license": "project invented",
+      "contributor": "OpenPipeStress",
+      "contributor_certification": "invented non-engineering example",
+      "redistribution_status": "invented_non_engineering_example",
+      "review_status": "accepted"
+    },
+    "reproducibility": {
+      "model_hash": {
+        "algorithm": "sha256",
+        "canonicalization": "JCS",
+        "payload_ref": {
+          "ref_type": "payload",
+          "ref_id": "analytical-solver-model"
+        },
+        "value": "analytical-solver-model-hash"
+      },
+      "run_hashes": [
+        {
+          "algorithm": "sha256",
+          "canonicalization": "JCS",
+          "payload_ref": {
+            "ref_type": "payload",
+            "ref_id": "analysis-run"
+          },
+          "value": "analysis-run-hash"
+        }
+      ],
+      "audit_manifest_ref": {
+        "ref_type": "task_run_record",
+        "ref_id": "TASK_RUN_2026-05-17_TP-RESULT-017"
+      },
+      "deterministic_ordering": true
+    },
+    "analysis_status": [
+      "MECHANICS_SOLVED",
+      "HUMAN_REVIEW_REQUIRED"
+    ],
+    "rule_pack_refs": [],
+    "professional_boundary": {
+      "human_review_required": true,
+      "software_makes_compliance_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_sealing_claim": false,
+      "software_makes_approval_claim": false,
+      "software_makes_authentication_claim": false
+    },
+    "downstream_use": {
+      "review": true,
+      "regression_comparison": true,
+      "report_consumption": true,
+      "headless_automation": true,
+      "governed_downstream_tooling": true,
+      "additional_export_formats": "TBD"
+    }
+  }
+}

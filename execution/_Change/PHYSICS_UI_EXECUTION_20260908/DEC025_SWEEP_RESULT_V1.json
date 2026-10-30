@@ -1,0 +1,163 @@
+{
+  "corrected_step5_manager_manifests": {
+    "F4": {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/F4/CLOSEOUT_MANIFEST_V1.json",
+      "sha256": "022de04e2895155a64db0eb6ca29df704e86f7854cb164956beafb8e67d86dd6"
+    },
+    "K8": {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/K8/CLOSEOUT_MANIFEST.json",
+      "sha256": "bdb543e3eebf6e72ea6bd24003c50b83d55399bfb82be7b7280649559c142419"
+    },
+    "M9": {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/M9/CLOSEOUT_AMENDMENT_MANIFEST.json",
+      "sha256": "8009ba041d985ac3ca30f7e4709c1f51d3bdfd97d96c20681c22b71f7c0a1da4"
+    },
+    "P5": {
+      "path": "execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/_run_records/PHYSICS_UI_EXECUTION_20260908/CLOSEOUT_MANIFEST_V1.json",
+      "sha256": "6836a522b3d281506dc73dc47e2f47ddf226e7b1cda5c5a7bf0d15cfd73960a9"
+    },
+    "U7": {
+      "path": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_EXECUTION_20260908/MEMORY_CLOSEOUT_MANIFEST_V1.json",
+      "sha256": "94a5e1fc99dceafb278aff3185ef8975827bd6982367b5bc4d988d4572334602"
+    }
+  },
+  "next_gate": "C0-owned Receipt-136 and final coordination handoff, receipt revalidation, evidence-only commit, push, PR, exact-head CI, authorized merge",
+  "pre_freeze_checks": {
+    "practitioner_harness": "PASS; 379 tests",
+    "receipt_validator": "PASS; Receipt-44 cursor valid",
+    "repo_self_check": "PASS; exit 0"
+  },
+  "record_kind": "change_dec025_sweep_acceptance",
+  "recorded_at_utc": "2026-09-08T07:56:35Z",
+  "runner_summary": {
+    "decision_basis": [
+      "DEC-025",
+      "DEC-093"
+    ],
+    "duration_seconds": 407.851,
+    "finished_utc": "2026-09-08T07:55:00+00:00",
+    "overall_status": "pass",
+    "path": "validation/evidence/sweeps/SWEEP_20260908T074812Z_95a29c444b8d.json",
+    "sha256": "906e7fac800e8f6e98f3ab310246438657708fed2478fc3cf7b41ec8eb418c80",
+    "started_utc": "2026-09-08T07:48:12+00:00"
+  },
+  "schema_version": "1.0",
+  "scope_assertions": {
+    "lifecycle_or_public_schema_or_physics_adoption": false,
+    "partial_waiver": false,
+    "product_source_written_by_verification": false,
+    "source_exception_or_owner_step1_act": false
+  },
+  "source_freeze_commit": "95a29c444b8d28a7eae0c96922fe6a2abfcdd2fa",
+  "source_freeze_parent": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "source_tree_clean_at_sweep_start": true,
+  "surfaces": [
+    {
+      "commands": [
+        {
+          "argv": [
+            "{PYTHON_WITH_PROJECT_DEPS}",
+            "tools/release/check_release_readiness.py",
+            "--profile",
+            "cargo",
+            "--execute"
+          ],
+          "duration_seconds": 86.4,
+          "exit_code": 0
+        }
+      ],
+      "execution_capability": "sandboxed",
+      "order": 1,
+      "status": "pass",
+      "surface_id": "cargo_crate_sweep"
+    },
+    {
+      "commands": [
+        {
+          "argv": [
+            "{PYTHON_WITH_PROJECT_DEPS}",
+            "-m",
+            "pytest",
+            "-q",
+            "tests"
+          ],
+          "duration_seconds": 23.49,
+          "exit_code": 0
+        }
+      ],
+      "execution_capability": "sandboxed",
+      "order": 2,
+      "status": "pass",
+      "surface_id": "python_pytest"
+    },
+    {
+      "commands": [
+        {
+          "argv": [
+            "npm",
+            "run",
+            "build:wasm:desktop"
+          ],
+          "duration_seconds": 14.274,
+          "exit_code": 0
+        },
+        {
+          "argv": [
+            "npm",
+            "run",
+            "test:desktop"
+          ],
+          "duration_seconds": 117.132,
+          "exit_code": 0
+        }
+      ],
+      "execution_capability": "sandboxed",
+      "order": 3,
+      "status": "pass",
+      "surface_id": "desktop_vitest"
+    },
+    {
+      "commands": [
+        {
+          "argv": [
+            "npm",
+            "run",
+            "test:e2e:desktop"
+          ],
+          "duration_seconds": 152.101,
+          "exit_code": 0
+        },
+        {
+          "argv": [
+            "npm",
+            "run",
+            "test:e2e:dist:desktop"
+          ],
+          "duration_seconds": 10.978,
+          "exit_code": 0
+        }
+      ],
+      "execution_capability": "host",
+      "order": 4,
+      "status": "pass",
+      "surface_id": "desktop_playwright_e2e"
+    },
+    {
+      "commands": [
+        {
+          "argv": [
+            "npm",
+            "run",
+            "build:desktop"
+          ],
+          "duration_seconds": 3.471,
+          "exit_code": 0
+        }
+      ],
+      "execution_capability": "sandboxed",
+      "order": 5,
+      "status": "pass",
+      "surface_id": "desktop_production_build"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "project_root": "projects/chirality-piping",
+  "historical_role_overrides": [],
+  "control_path_exceptions": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-54_reasoned_discretion_standing_approval_refinement.md",
+      "sha256": "8d078777a4f77879aca2ff334e6b045e01c63d3d304fd068b9397f1010e10525",
+      "entry_type": "control_path_exception",
+      "role": "CONTROL",
+      "reason": "The governed decision preserves the owner's machine-absolute source direction verbatim.",
+      "authority": "Owner-approved systematic portability repair; D-54 records the governing direction."
+    }
+  ]
+}

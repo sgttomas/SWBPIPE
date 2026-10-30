@@ -1,0 +1,31 @@
+{
+  "bindings": [],
+  "case_id": "case_66_block_status_boundary_violation",
+  "declared_grammar_version": "1.0.0",
+  "description": "Human approval as an evaluation input is a status-boundary violation.",
+  "expected": {
+    "findings": [
+      {
+        "code": "status_boundary_violation",
+        "subject_id": "analysis_status"
+      }
+    ],
+    "source_variable_ids": [],
+    "statuses": [
+      "human_review_required"
+    ],
+    "value": null
+  },
+  "expression": {
+    "node": "literal",
+    "quantity": {
+      "dimension": "dimensionless",
+      "unit_ref": "ratio",
+      "value": 1.0
+    }
+  },
+  "required_variable_ids": [],
+  "statuses": [
+    "human_approved_for_project"
+  ]
+}

@@ -1,0 +1,411 @@
+{
+  "model": {
+    "schema_version": "0.8.0",
+    "document_kind": "openpipestress.product_preview.model",
+    "analysis_status": {
+      "mechanics": "ready_for_preview_diagnostics",
+      "rule_check": "not_performed_user_rule_inputs_missing",
+      "professional_acceptance": "not_provided"
+    },
+    "project": {
+      "id": "kd5-max:u-line-utm-skew",
+      "units": {
+        "length": "m",
+        "force": "N",
+        "angle": "rad",
+        "pressure": "Pa",
+        "temperature": "degC",
+        "stress": "Pa"
+      }
+    },
+    "nodes": [
+      {
+        "id": "N0",
+        "position": {
+          "x": 7300000.0,
+          "y": 4600000.0,
+          "z": 312.5
+        },
+        "provenance": "invented K-D5 maximum-enclosure control"
+      },
+      {
+        "id": "N1",
+        "position": {
+          "x": 7300002.4,
+          "y": 4600001.08,
+          "z": 313.94
+        },
+        "provenance": "invented K-D5 maximum-enclosure control"
+      },
+      {
+        "id": "N2",
+        "position": {
+          "x": 7300002.526113987,
+          "y": 4600001.40578719,
+          "z": 314.01046963026033
+        },
+        "provenance": "invented K-D5 maximum-enclosure control"
+      },
+      {
+        "id": "N3",
+        "position": {
+          "x": 7300001.627470963,
+          "y": 4600004.20420613,
+          "z": 313.40939380002624
+        },
+        "provenance": "invented K-D5 maximum-enclosure control"
+      },
+      {
+        "id": "N4",
+        "position": {
+          "x": 7300001.350384949,
+          "y": 4600004.34855332,
+          "z": 313.2379434302865
+        },
+        "provenance": "invented K-D5 maximum-enclosure control"
+      },
+      {
+        "id": "N5",
+        "position": {
+          "x": 7299998.950384948,
+          "y": 4600003.26855332,
+          "z": 311.7979434302865
+        },
+        "provenance": "invented K-D5 maximum-enclosure control"
+      }
+    ],
+    "pipe_segments": [
+      {
+        "id": "P0",
+        "from": "N0",
+        "to": "N1",
+        "material": "mat",
+        "y_reference": {
+          "x": -0.5198761299388959,
+          "y": 0.016504004125044353,
+          "z": 0.8540822134710433
+        },
+        "section": {
+          "outside_diameter": {
+            "value": 0.168,
+            "unit": "m"
+          },
+          "wall_thickness": {
+            "value": 0.007,
+            "unit": "m"
+          }
+        },
+        "provenance": "invented K-D5 maximum-enclosure control"
+      },
+      {
+        "id": "P1",
+        "from": "N1",
+        "to": "N2",
+        "material": "mat",
+        "y_reference": {
+          "x": 0.8,
+          "y": 0.36,
+          "z": 0.48
+        },
+        "section": {
+          "outside_diameter": {
+            "value": 0.168,
+            "unit": "m"
+          },
+          "wall_thickness": {
+            "value": 0.007,
+            "unit": "m"
+          }
+        },
+        "provenance": "invented K-D5 maximum-enclosure control"
+      },
+      {
+        "id": "P2",
+        "from": "N2",
+        "to": "N3",
+        "material": "mat",
+        "y_reference": {
+          "x": -0.5198761299388959,
+          "y": 0.016504004125044353,
+          "z": 0.8540822134710433
+        },
+        "section": {
+          "outside_diameter": {
+            "value": 0.168,
+            "unit": "m"
+          },
+          "wall_thickness": {
+            "value": 0.007,
+            "unit": "m"
+          }
+        },
+        "provenance": "invented K-D5 maximum-enclosure control"
+      },
+      {
+        "id": "P3",
+        "from": "N3",
+        "to": "N4",
+        "material": "mat",
+        "y_reference": {
+          "x": -0.29954767486955425,
+          "y": 0.9328063131475047,
+          "z": -0.20035861007803799
+        },
+        "section": {
+          "outside_diameter": {
+            "value": 0.168,
+            "unit": "m"
+          },
+          "wall_thickness": {
+            "value": 0.007,
+            "unit": "m"
+          }
+        },
+        "provenance": "invented K-D5 maximum-enclosure control"
+      },
+      {
+        "id": "P4",
+        "from": "N4",
+        "to": "N5",
+        "material": "mat",
+        "y_reference": {
+          "x": -0.5198761299388959,
+          "y": 0.016504004125044353,
+          "z": 0.8540822134710433
+        },
+        "section": {
+          "outside_diameter": {
+            "value": 0.168,
+            "unit": "m"
+          },
+          "wall_thickness": {
+            "value": 0.007,
+            "unit": "m"
+          }
+        },
+        "provenance": "invented K-D5 maximum-enclosure control"
+      }
+    ],
+    "materials": [
+      {
+        "id": "mat",
+        "elastic_modulus": {
+          "value": 200000000000.0,
+          "unit": "Pa"
+        },
+        "shear_modulus": {
+          "value": 80000000000.0,
+          "unit": "Pa"
+        },
+        "thermal_expansion_coefficient": {
+          "value": 1.2e-05,
+          "unit": "1/degC"
+        },
+        "provenance": "invented K-D5 maximum-enclosure control"
+      }
+    ],
+    "supports": [
+      {
+        "id": "aN0",
+        "node": "N0",
+        "family": "anchor",
+        "restraints": [
+          "UX",
+          "UY",
+          "UZ",
+          "RX",
+          "RY",
+          "RZ"
+        ],
+        "provenance": "invented K-D5 maximum-enclosure control"
+      },
+      {
+        "id": "aN5",
+        "node": "N5",
+        "family": "anchor",
+        "restraints": [
+          "UX",
+          "UY",
+          "UZ",
+          "RX",
+          "RY",
+          "RZ"
+        ],
+        "provenance": "invented K-D5 maximum-enclosure control"
+      }
+    ],
+    "components": [
+      {
+        "id": "component:P1",
+        "label": "Invented bend",
+        "kind": "bend",
+        "node": "N2",
+        "geometry": {
+          "bend_pipe_ref": "P1",
+          "bend_radius": {
+            "value": 0.252,
+            "unit": "m"
+          },
+          "bend_geometry_source_reference": "invented_user_entered_preview_geometry",
+          "bend_angle": {
+            "value": 1.5707963252128452,
+            "unit": "rad"
+          }
+        },
+        "modifiers": {
+          "flexibility_factor_user_value": {
+            "value": 1.0,
+            "unit": "none"
+          },
+          "source_reference": "invented_user_entered_preview_no_code_table",
+          "sif_user_value": {
+            "value": 1.0,
+            "unit": "none"
+          }
+        },
+        "mechanics_interface": {
+          "solver_consumption": "curved_bend_macro_element",
+          "rule_check_consumption": "user_rule_pack_inputs_only"
+        },
+        "provenance": "invented K-D5 maximum-enclosure control",
+        "completeness": [
+          {
+            "finding_id": "finding:P1:geometry",
+            "status": "complete",
+            "diagnostic_code": "BEND_GEOMETRY_INCOMPLETE",
+            "missing_field_kinds": []
+          }
+        ]
+      },
+      {
+        "id": "component:P3",
+        "label": "Invented bend",
+        "kind": "bend",
+        "node": "N4",
+        "geometry": {
+          "bend_pipe_ref": "P3",
+          "bend_radius": {
+            "value": 0.252,
+            "unit": "m"
+          },
+          "bend_geometry_source_reference": "invented_user_entered_preview_geometry",
+          "bend_angle": {
+            "value": 1.5707963260603928,
+            "unit": "rad"
+          }
+        },
+        "modifiers": {
+          "flexibility_factor_user_value": {
+            "value": 1.0,
+            "unit": "none"
+          },
+          "source_reference": "invented_user_entered_preview_no_code_table",
+          "sif_user_value": {
+            "value": 1.0,
+            "unit": "none"
+          }
+        },
+        "mechanics_interface": {
+          "solver_consumption": "curved_bend_macro_element",
+          "rule_check_consumption": "user_rule_pack_inputs_only"
+        },
+        "provenance": "invented K-D5 maximum-enclosure control",
+        "completeness": [
+          {
+            "finding_id": "finding:P3:geometry",
+            "status": "complete",
+            "diagnostic_code": "BEND_GEOMETRY_INCOMPLETE",
+            "missing_field_kinds": []
+          }
+        ]
+      }
+    ],
+    "load_cases": [
+      {
+        "id": "case",
+        "label": "STD-U|t24|R0.252|3-3-3|90|w|utm-skew",
+        "kind": "primitive_user_load",
+        "primitive_loads": [
+          {
+            "id": "w:P0",
+            "category": "distributed_force",
+            "target": {
+              "type": "element",
+              "pipe": "P0"
+            },
+            "direction": "global_z",
+            "magnitude": {
+              "value": -450.0,
+              "unit": "N/m"
+            },
+            "dimension": "force_per_length",
+            "provenance": "invented K-D5 maximum-enclosure control"
+          },
+          {
+            "id": "w:P1",
+            "category": "distributed_force",
+            "target": {
+              "type": "element",
+              "pipe": "P1"
+            },
+            "direction": "global_z",
+            "magnitude": {
+              "value": -450.0,
+              "unit": "N/m"
+            },
+            "dimension": "force_per_length",
+            "provenance": "invented K-D5 maximum-enclosure control"
+          },
+          {
+            "id": "w:P2",
+            "category": "distributed_force",
+            "target": {
+              "type": "element",
+              "pipe": "P2"
+            },
+            "direction": "global_z",
+            "magnitude": {
+              "value": -450.0,
+              "unit": "N/m"
+            },
+            "dimension": "force_per_length",
+            "provenance": "invented K-D5 maximum-enclosure control"
+          },
+          {
+            "id": "w:P3",
+            "category": "distributed_force",
+            "target": {
+              "type": "element",
+              "pipe": "P3"
+            },
+            "direction": "global_z",
+            "magnitude": {
+              "value": -450.0,
+              "unit": "N/m"
+            },
+            "dimension": "force_per_length",
+            "provenance": "invented K-D5 maximum-enclosure control"
+          },
+          {
+            "id": "w:P4",
+            "category": "distributed_force",
+            "target": {
+              "type": "element",
+              "pipe": "P4"
+            },
+            "direction": "global_z",
+            "magnitude": {
+              "value": -450.0,
+              "unit": "N/m"
+            },
+            "dimension": "force_per_length",
+            "provenance": "invented K-D5 maximum-enclosure control"
+          }
+        ],
+        "provenance": "invented K-D5 maximum-enclosure control"
+      }
+    ],
+    "combinations": []
+  },
+  "materials": []
+}

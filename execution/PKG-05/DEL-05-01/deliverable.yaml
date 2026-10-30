@@ -1,0 +1,102 @@
+id: DEL-05-01
+name: Primitive load case engine
+needs:
+- from: DEL-00-01
+  condition: 'DEL-05-01 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
+    execution.
+
+
+    Notes: Existing architecture-basis edge preserved and normalized to canonical v3.1 enums for local
+    dependency-extract refresh.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-05-01 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
+    execution.
+
+
+    Notes: Existing architecture-basis edge preserved and normalized to canonical v3.1 enums for local
+    dependency-extract refresh.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-03
+  condition: 'DEL-05-01 requires SCA-001 architecture basis AB-00-03 from DEL-00-03 before sealed product-development
+    execution.
+
+
+    Notes: Existing architecture-basis edge preserved and normalized to canonical v3.1 enums for local
+    dependency-extract refresh.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-05-01 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
+    execution.
+
+
+    Notes: Existing architecture-basis edge preserved and normalized to canonical v3.1 enums for local
+    dependency-extract refresh.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-05-01 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
+    execution.
+
+
+    Notes: Existing architecture-basis edge preserved and normalized to canonical v3.1 enums for local
+    dependency-extract refresh.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+code_paths:
+- core/loads/primitive_loads/**
+- core/loads/self_weight_wasm/**
+- core/product_physics/src/self_weight.rs
+- core/product_physics/src/certified_loads.rs
+- core/product_physics/src/exact_admission.rs
+- core/product_physics/src/pressure_runtime.rs
+- core/product_physics/src/lib.rs
+- core/solver/straight_pipe/src/lib.rs
+- core/solver/frame_kernel/src/structural/formation_check.rs
+- core/product_physics/src/source_receipt/composite.rs
+- core/reporting/result_export/src/physics_evidence.rs
+- core/reporting/result_export/src/physics_source.rs
+- schemas/results_pressure_2.v0.3.schema.json
+- schemas/physics_source_recovery.schema.json
+- core/model_operations/operation_applier/tests/generated_self_weight.rs
+- schemas/model.schema.yaml
+- validation/hand_calcs/mechanics/tp_pmm_p3_subspan_wind_exposure.md
+- apps/desktop/src/features/self-weight-authoring/**
+- apps/desktop/src/features/wind-exposure/WindExposureForm.tsx
+- apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx
+- apps/desktop/src/features/load-cases/primitiveLoadVocabulary.ts
+- apps/desktop/src-tauri/src/lib.rs
+checks:
+- core/loads/primitive_loads/src/lib.rs
+- core/product_physics/tests/w16_exact_equivalent_static.rs
+- validation/references/w16_exact_equivalent_static/generators/w16c_reference.py
+- core/product_physics/tests/w16_timoshenko_partial_wind.rs
+- validation/references/w16_timoshenko_partial_wind/generators/w16t_reference.py
+- core/model_operations/operation_applier/tests/generated_self_weight.rs
+- core/loads/self_weight_wasm/tests/applied_self_weight.rs
+- apps/desktop/src/features/self-weight-authoring/SelfWeightRefresh.test.tsx
+- apps/desktop/src/features/load-cases/primitiveLoadVocabulary.test.ts
+- apps/desktop/src/features/load-cases/LoadCaseManagerPanel.test.tsx

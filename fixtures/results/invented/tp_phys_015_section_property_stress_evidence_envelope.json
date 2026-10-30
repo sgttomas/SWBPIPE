@@ -1,0 +1,362 @@
+{
+  "schema_version": "0.1.0",
+  "deliverable_id": "DEL-08-04",
+  "package_id": "PKG-08",
+  "scope_item": "SOW-046",
+  "objectives": [
+    "OBJ-007",
+    "OBJ-009"
+  ],
+  "export_format_status": {
+    "baseline_format": "schema_first_json_result_envelope",
+    "additional_formats": "TBD",
+    "public_transport_protocol": "TBD",
+    "local_fea_package_format": "TBD",
+    "external_adapter_formats": "TBD"
+  },
+  "result_envelope": {
+    "schema_version": "0.1.0",
+    "envelope_id": "STRESS-TP-PHYS-015-SECTION-EVIDENCE-RESULT-ENVELOPE",
+    "model_ref": {
+      "ref_type": "analytical_solver_model",
+      "ref_id": "ANALYTICAL-TP-PHYS-014"
+    },
+    "run_ref": {
+      "ref_type": "analysis_run",
+      "ref_id": "RUN-TP-SECTION-021-SECTION-EVIDENCE-TRANSPORT"
+    },
+    "solver_version": {
+      "solver_name": "open_pipe_stress_validation_stress_benchmark",
+      "solver_version": "0.1.0",
+      "solver_build_ref": "validation-local-cargo-test"
+    },
+    "unit_system_ref": {
+      "ref_type": "unit_system",
+      "ref_id": "PKG09-FIXTURE-UNITS-EXPLICIT-N-M-RAD-K"
+    },
+    "load_basis_refs": [
+      {
+        "ref_type": "load_case",
+        "ref_id": "LC-TP-PHYS-014"
+      }
+    ],
+    "result_sets": [
+      {
+        "set_id": "result-set:tp-section-021:section-property-evidence",
+        "set_type": "section_property_evidence",
+        "basis_ref": {
+          "ref_type": "section_property_evidence",
+          "ref_id": "SECTION-PROP-TP-STRESS-016-INVENTED-PIPE-OD2-WALL0P25"
+        },
+        "values": [
+          {
+            "result_id": "result:section-property:tp-stress-016:area",
+            "family": "section_property",
+            "object_ref": {
+              "ref_type": "section_property_evidence",
+              "ref_id": "SECTION-PROP-TP-STRESS-016-INVENTED-PIPE-OD2-WALL0P25"
+            },
+            "basis_ref": {
+              "ref_type": "section_property_calculation",
+              "ref_id": "SECTION-PROP-TP-STRESS-016-INVENTED-PIPE-OD2-WALL0P25"
+            },
+            "magnitude": 1.3744467859455345,
+            "unit": "m^2",
+            "dimension": "area",
+            "provenance": {
+              "source_name": "invented mechanics fixture",
+              "source_location": "validation/benchmarks/invented",
+              "source_license": "project invented",
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted"
+            },
+            "metadata": {
+              "component": "section_area",
+              "coordinate_system": "pipe_section",
+              "location": "summary",
+              "basis": "derived_from_user_entered_section_geometry",
+              "sign_convention": "positive scalar section property"
+            }
+          },
+          {
+            "result_id": "result:section-property:tp-stress-016:section-modulus-y",
+            "family": "section_property",
+            "object_ref": {
+              "ref_type": "section_property_evidence",
+              "ref_id": "SECTION-PROP-TP-STRESS-016-INVENTED-PIPE-OD2-WALL0P25"
+            },
+            "basis_ref": {
+              "ref_type": "section_property_calculation",
+              "ref_id": "SECTION-PROP-TP-STRESS-016-INVENTED-PIPE-OD2-WALL0P25"
+            },
+            "magnitude": 0.5368932757599744,
+            "unit": "m^3",
+            "dimension": "section_modulus",
+            "provenance": {
+              "source_name": "invented mechanics fixture",
+              "source_location": "validation/benchmarks/invented",
+              "source_license": "project invented",
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted"
+            },
+            "metadata": {
+              "component": "section_modulus_y",
+              "coordinate_system": "pipe_section",
+              "location": "summary",
+              "basis": "derived_from_user_entered_section_geometry",
+              "sign_convention": "positive scalar section property"
+            }
+          },
+          {
+            "result_id": "result:section-property:tp-stress-016:section-modulus-z",
+            "family": "section_property",
+            "object_ref": {
+              "ref_type": "section_property_evidence",
+              "ref_id": "SECTION-PROP-TP-STRESS-016-INVENTED-PIPE-OD2-WALL0P25"
+            },
+            "basis_ref": {
+              "ref_type": "section_property_calculation",
+              "ref_id": "SECTION-PROP-TP-STRESS-016-INVENTED-PIPE-OD2-WALL0P25"
+            },
+            "magnitude": 0.5368932757599744,
+            "unit": "m^3",
+            "dimension": "section_modulus",
+            "provenance": {
+              "source_name": "invented mechanics fixture",
+              "source_location": "validation/benchmarks/invented",
+              "source_license": "project invented",
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted"
+            },
+            "metadata": {
+              "component": "section_modulus_z",
+              "coordinate_system": "pipe_section",
+              "location": "summary",
+              "basis": "derived_from_user_entered_section_geometry",
+              "sign_convention": "positive scalar section property"
+            }
+          },
+          {
+            "result_id": "result:section-property:tp-stress-016:torsion-constant",
+            "family": "section_property",
+            "object_ref": {
+              "ref_type": "section_property_evidence",
+              "ref_id": "SECTION-PROP-TP-STRESS-016-INVENTED-PIPE-OD2-WALL0P25"
+            },
+            "basis_ref": {
+              "ref_type": "section_property_calculation",
+              "ref_id": "SECTION-PROP-TP-STRESS-016-INVENTED-PIPE-OD2-WALL0P25"
+            },
+            "magnitude": 1.0737865515199487,
+            "unit": "m^4",
+            "dimension": "second_moment_area",
+            "provenance": {
+              "source_name": "invented mechanics fixture",
+              "source_location": "validation/benchmarks/invented",
+              "source_license": "project invented",
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted"
+            },
+            "metadata": {
+              "component": "torsion_constant",
+              "coordinate_system": "pipe_section",
+              "location": "summary",
+              "basis": "derived_from_user_entered_section_geometry",
+              "sign_convention": "positive scalar section property"
+            }
+          },
+          {
+            "result_id": "result:section-property:tp-stress-016:torsion-radius",
+            "family": "section_property",
+            "object_ref": {
+              "ref_type": "section_property_evidence",
+              "ref_id": "SECTION-PROP-TP-STRESS-016-INVENTED-PIPE-OD2-WALL0P25"
+            },
+            "basis_ref": {
+              "ref_type": "section_property_calculation",
+              "ref_id": "SECTION-PROP-TP-STRESS-016-INVENTED-PIPE-OD2-WALL0P25"
+            },
+            "magnitude": 1.0,
+            "unit": "m",
+            "dimension": "length",
+            "provenance": {
+              "source_name": "invented mechanics fixture",
+              "source_location": "validation/benchmarks/invented",
+              "source_license": "project invented",
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted"
+            },
+            "metadata": {
+              "component": "torsion_radius",
+              "coordinate_system": "pipe_section",
+              "location": "summary",
+              "basis": "derived_from_user_entered_section_geometry",
+              "sign_convention": "positive scalar section property"
+            }
+          }
+        ]
+      },
+      {
+        "set_id": "result-set:tp-section-021:stress-recovery",
+        "set_type": "stress_recovery",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "LC-TP-PHYS-014"
+        },
+        "values": [
+          {
+            "result_id": "result:stress:element-E-1:midspan:bending-normal-z",
+            "family": "stress",
+            "object_ref": {
+              "ref_type": "element",
+              "ref_id": "E-1"
+            },
+            "basis_ref": {
+              "ref_type": "load_case",
+              "ref_id": "LC-TP-PHYS-014"
+            },
+            "station_ref": {
+              "ref_type": "result_station",
+              "ref_id": "E-1:midspan"
+            },
+            "magnitude": 7.450270250336039,
+            "unit": "Pa",
+            "dimension": "stress",
+            "provenance": {
+              "source_name": "invented mechanics fixture",
+              "source_location": "validation/benchmarks/invented",
+              "source_license": "project invented",
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted"
+            },
+            "metadata": {
+              "component": "bending_normal_stress_z",
+              "coordinate_system": "element_local",
+              "location": "midspan",
+              "basis": "recovered_from_open_mechanics_stress_components",
+              "sign_convention": "positive follows the element-local z bending stress convention"
+            },
+            "trace_chain": [
+              {
+                "trace_id": "trace:tp-section-021:section-evidence-to-bending-stress-z",
+                "trace_type": "section_property_evidence_to_result_value",
+                "source_ref": {
+                  "ref_type": "section_property_evidence",
+                  "ref_id": "SECTION-PROP-TP-STRESS-016-INVENTED-PIPE-OD2-WALL0P25"
+                },
+                "target_ref": {
+                  "ref_type": "result_value",
+                  "ref_id": "result:stress:element-E-1:midspan:bending-normal-z"
+                },
+                "provenance": {
+                  "source_name": "invented mechanics fixture",
+                  "source_location": "validation/benchmarks/invented",
+                  "source_license": "project invented",
+                  "contributor": "OpenPipeStress",
+                  "contributor_certification": "invented non-engineering example",
+                  "redistribution_status": "invented_non_engineering_example",
+                  "review_status": "accepted"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "diagnostics": [
+      {
+        "code": "TP_SECTION_021_SECTION_EVIDENCE_TRANSPORT",
+        "class": "ASSUMPTION_WARNING",
+        "severity": "info",
+        "source": {
+          "ref_type": "stress_benchmark",
+          "ref_id": "DEL-09-02"
+        },
+        "affected_object": {
+          "ref_type": "result_envelope",
+          "ref_id": "STRESS-TP-PHYS-015-SECTION-EVIDENCE-RESULT-ENVELOPE"
+        },
+        "message": "Invented validation-local result envelope records governed section-property evidence transport.",
+        "remediation": "Use project audit and runner contracts before treating this as public runtime behavior.",
+        "provenance": {
+          "source_name": "invented mechanics fixture",
+          "source_location": "validation/benchmarks/invented",
+          "source_license": "project invented",
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted"
+        }
+      }
+    ],
+    "provenance": {
+      "source_name": "invented mechanics fixture",
+      "source_location": "validation/benchmarks/invented",
+      "source_license": "project invented",
+      "contributor": "OpenPipeStress",
+      "contributor_certification": "invented non-engineering example",
+      "redistribution_status": "invented_non_engineering_example",
+      "review_status": "accepted"
+    },
+    "reproducibility": {
+      "model_hash": {
+        "algorithm": "sha256",
+        "canonicalization": "JCS",
+        "payload_ref": {
+          "ref_type": "payload",
+          "ref_id": "analytical-solver-model"
+        },
+        "value": "analytical-solver-model-hash"
+      },
+      "run_hashes": [
+        {
+          "algorithm": "sha256",
+          "canonicalization": "JCS",
+          "payload_ref": {
+            "ref_type": "payload",
+            "ref_id": "section-evidence-stress-run"
+          },
+          "value": "section-evidence-stress-run-hash"
+        }
+      ],
+      "audit_manifest_ref": {
+        "ref_type": "task_run_record",
+        "ref_id": "TASK_RUN_2026-05-17_TP-SECTION-021A"
+      },
+      "deterministic_ordering": true
+    },
+    "analysis_status": [
+      "MECHANICS_SOLVED",
+      "HUMAN_REVIEW_REQUIRED"
+    ],
+    "rule_pack_refs": [],
+    "professional_boundary": {
+      "human_review_required": true,
+      "software_makes_compliance_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_sealing_claim": false,
+      "software_makes_approval_claim": false,
+      "software_makes_authentication_claim": false
+    },
+    "downstream_use": {
+      "review": true,
+      "regression_comparison": true,
+      "report_consumption": true,
+      "headless_automation": true,
+      "governed_downstream_tooling": true,
+      "additional_export_formats": "TBD"
+    }
+  }
+}

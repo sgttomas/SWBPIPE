@@ -1,0 +1,391 @@
+{
+  "provenance": "Invented synthetic UI benchmark shared endpoint, reduced to its three adjacent nodes and two pipes. Recorded camera fields reconstructed through PerspectiveCamera/lookAt; not historical matrix bits. No engineering validation claim.",
+  "nodes": [
+    {
+      "id": "node:UIF-08785",
+      "label": "UI benchmark node 08785",
+      "position": {
+        "x": 9.9,
+        "y": 0.844703,
+        "z": 0.872572
+      },
+      "provenance": "invented_generated_ui_benchmark_seed_20260915_no_standard_or_catalog_data"
+    },
+    {
+      "id": "node:UIF-08786",
+      "label": "UI benchmark node 08786",
+      "position": {
+        "x": 10,
+        "y": 0.831262,
+        "z": 0.883964
+      },
+      "provenance": "invented_generated_ui_benchmark_seed_20260915_no_standard_or_catalog_data"
+    },
+    {
+      "id": "node:UIF-08787",
+      "label": "UI benchmark node 08787",
+      "position": {
+        "x": 10,
+        "y": 0.986585,
+        "z": 0.879558
+      },
+      "provenance": "invented_generated_ui_benchmark_seed_20260915_no_standard_or_catalog_data"
+    }
+  ],
+  "pipe_segments": [
+    {
+      "id": "pipe:UIF-08786",
+      "label": "UI benchmark pipe 08786",
+      "from": "node:UIF-08785",
+      "to": "node:UIF-08786",
+      "section": {
+        "outside_diameter": {
+          "value": 0.09,
+          "unit": "m"
+        },
+        "wall_thickness": {
+          "value": 0.006,
+          "unit": "m"
+        }
+      },
+      "section_ref": "section:UIF-OD-090",
+      "material": "material:UIF-INVENTED-01",
+      "y_reference": {
+        "x": 0,
+        "y": 1,
+        "z": 0
+      },
+      "provenance": "invented_generated_ui_benchmark_seed_20260915_no_standard_or_catalog_data"
+    },
+    {
+      "id": "pipe:UIF-08787",
+      "label": "UI benchmark pipe 08787",
+      "from": "node:UIF-08786",
+      "to": "node:UIF-08787",
+      "section": {
+        "outside_diameter": {
+          "value": 0.12,
+          "unit": "m"
+        },
+        "wall_thickness": {
+          "value": 0.008,
+          "unit": "m"
+        }
+      },
+      "section_ref": "section:UIF-OD-120",
+      "material": "material:UIF-INVENTED-01",
+      "y_reference": {
+        "x": 0,
+        "y": 1,
+        "z": 0
+      },
+      "provenance": "invented_generated_ui_benchmark_seed_20260915_no_standard_or_catalog_data"
+    }
+  ],
+  "records": [
+    {
+      "attempt": 1,
+      "before": {
+        "sequence": 121,
+        "kind": "perspective",
+        "position": [
+          16.286043062118804,
+          11.916108562118803,
+          11.780985562118804
+        ],
+        "target": [
+          5,
+          0.6300655,
+          0.49494249999999995
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fovDegrees": 42,
+        "near": 0.001,
+        "far": 1000,
+        "aspect": 1.4254937163375225,
+        "localRenderOrigin": [
+          5,
+          0.6299935,
+          0.4950015
+        ]
+      },
+      "after": {
+        "sequence": 122,
+        "kind": "perspective",
+        "position": [
+          16.2860430621188,
+          11.9161085621188,
+          11.780985562118804
+        ],
+        "target": [
+          5,
+          0.6300655,
+          0.49494249999999995
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fovDegrees": 42,
+        "near": 0.001,
+        "far": 1000,
+        "aspect": 1.4254937163375225,
+        "localRenderOrigin": [
+          5,
+          0.6299935,
+          0.4950015
+        ]
+      },
+      "canvas": {
+        "cssLeft": 293,
+        "cssTop": 285.1953125,
+        "cssWidth": 794,
+        "cssHeight": 557,
+        "dpr": 2,
+        "bufferWidth": 1588,
+        "bufferHeight": 1114
+      },
+      "intended": {
+        "x": 839.3801013839062,
+        "y": 657.5079070039999
+      },
+      "delivered": {
+        "x": 839.380126953125,
+        "y": 657.5079345703125
+      }
+    },
+    {
+      "attempt": 2,
+      "before": {
+        "sequence": 121,
+        "kind": "perspective",
+        "position": [
+          16.286043062118804,
+          11.916108562118803,
+          11.780985562118804
+        ],
+        "target": [
+          5,
+          0.6300655,
+          0.49494249999999995
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fovDegrees": 42,
+        "near": 0.001,
+        "far": 1000,
+        "aspect": 1.4254937163375225,
+        "localRenderOrigin": [
+          5,
+          0.6299935,
+          0.4950015
+        ]
+      },
+      "after": {
+        "sequence": 122,
+        "kind": "perspective",
+        "position": [
+          16.2860430621188,
+          11.9161085621188,
+          11.780985562118804
+        ],
+        "target": [
+          5,
+          0.6300655,
+          0.49494249999999995
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fovDegrees": 42,
+        "near": 0.001,
+        "far": 1000,
+        "aspect": 1.4254937163375225,
+        "localRenderOrigin": [
+          5,
+          0.6299935,
+          0.4950015
+        ]
+      },
+      "canvas": {
+        "cssLeft": 293,
+        "cssTop": 285.1953125,
+        "cssWidth": 794,
+        "cssHeight": 557,
+        "dpr": 2,
+        "bufferWidth": 1588,
+        "bufferHeight": 1114
+      },
+      "intended": {
+        "x": 839.3801013839062,
+        "y": 657.5079070039999
+      },
+      "delivered": {
+        "x": 839.380126953125,
+        "y": 657.5079345703125
+      }
+    },
+    {
+      "attempt": 4,
+      "before": {
+        "sequence": 121,
+        "kind": "perspective",
+        "position": [
+          16.286043062118804,
+          11.916108562118803,
+          11.780985562118804
+        ],
+        "target": [
+          5,
+          0.6300655,
+          0.49494249999999995
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fovDegrees": 42,
+        "near": 0.001,
+        "far": 1000,
+        "aspect": 1.4254937163375225,
+        "localRenderOrigin": [
+          5,
+          0.6299935,
+          0.4950015
+        ]
+      },
+      "after": {
+        "sequence": 122,
+        "kind": "perspective",
+        "position": [
+          16.2860430621188,
+          11.9161085621188,
+          11.780985562118804
+        ],
+        "target": [
+          5,
+          0.6300655,
+          0.49494249999999995
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fovDegrees": 42,
+        "near": 0.001,
+        "far": 1000,
+        "aspect": 1.4254937163375225,
+        "localRenderOrigin": [
+          5,
+          0.6299935,
+          0.4950015
+        ]
+      },
+      "canvas": {
+        "cssLeft": 293,
+        "cssTop": 285.1953125,
+        "cssWidth": 794,
+        "cssHeight": 557,
+        "dpr": 2,
+        "bufferWidth": 1588,
+        "bufferHeight": 1114
+      },
+      "intended": {
+        "x": 839.3801013839062,
+        "y": 657.5079070039999
+      },
+      "delivered": {
+        "x": 839.380126953125,
+        "y": 657.5079345703125
+      }
+    },
+    {
+      "attempt": 5,
+      "before": {
+        "sequence": 121,
+        "kind": "perspective",
+        "position": [
+          16.286043062118804,
+          11.916108562118803,
+          11.780985562118804
+        ],
+        "target": [
+          5,
+          0.6300655,
+          0.49494249999999995
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fovDegrees": 42,
+        "near": 0.001,
+        "far": 1000,
+        "aspect": 1.4254937163375225,
+        "localRenderOrigin": [
+          5,
+          0.6299935,
+          0.4950015
+        ]
+      },
+      "after": {
+        "sequence": 122,
+        "kind": "perspective",
+        "position": [
+          16.2860430621188,
+          11.9161085621188,
+          11.780985562118804
+        ],
+        "target": [
+          5,
+          0.6300655,
+          0.49494249999999995
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fovDegrees": 42,
+        "near": 0.001,
+        "far": 1000,
+        "aspect": 1.4254937163375225,
+        "localRenderOrigin": [
+          5,
+          0.6299935,
+          0.4950015
+        ]
+      },
+      "canvas": {
+        "cssLeft": 293,
+        "cssTop": 285.1953125,
+        "cssWidth": 794,
+        "cssHeight": 557,
+        "dpr": 2,
+        "bufferWidth": 1588,
+        "bufferHeight": 1114
+      },
+      "intended": {
+        "x": 839.3801013839062,
+        "y": 657.5079070039999
+      },
+      "delivered": {
+        "x": 839.380126953125,
+        "y": 657.5079345703125
+      }
+    }
+  ]
+}

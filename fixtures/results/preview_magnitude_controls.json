@@ -1,0 +1,12 @@
+{
+  "basis": "DEL-04-08 Design/b7-plan.md E17; published binary64 components, unchanged 64-epsilon guard",
+  "controls": [
+    {"id":"independent_single_rounding_one_ulp","component_bits":["4008000000000000","4010000000000000","0000000000000000"],"magnitude_bits":"4014000000000001","admitted":true},
+    {"id":"fixed_components_plus_81_ulps","component_bits":["4008000000000000","4010000000000000","0000000000000000"],"magnitude_bits":"4014000000000051","admitted":false},
+    {"id":"independent_subnormal_with_published_zeros","component_bits":["0000000000000000","0000000000000000","0000000000000000"],"magnitude_bits":"0000000000000001","admitted":true},
+    {"id":"zero_norm_boundary_64_minsub","component_bits":["0000000000000000","0000000000000000","0000000000000000"],"magnitude_bits":"0000000000000040","admitted":true},
+    {"id":"zero_norm_beyond_boundary_65_minsub","component_bits":["0000000000000000","0000000000000000","0000000000000000"],"magnitude_bits":"0000000000000041","admitted":false},
+    {"id":"negative_minsub_magnitude","component_bits":["0000000000000000","0000000000000000","0000000000000000"],"magnitude_bits":"8000000000000001","admitted":false},
+    {"id":"signed_components_remain_admitted","component_bits":["c008000000000000","4010000000000000","0000000000000000"],"magnitude_bits":"4014000000000000","admitted":true}
+  ]
+}

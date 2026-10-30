@@ -1,0 +1,52 @@
+{
+  "artifact": "openpipestress.headless_runner_cli_output",
+  "schema_version": "1.0.0",
+  "deliverable_id": "DEL-10-05",
+  "package_id": "PKG-10",
+  "command": "validate-input",
+  "operation": "validate_input",
+  "policy": {
+    "policy_ref": "DEC-065",
+    "binary": "openpipestress-runner",
+    "stdout_default": true,
+    "explicit_output_path_only": true,
+    "local_foreground_process": true,
+    "network_allowed": false,
+    "telemetry_allowed": false,
+    "daemon_allowed": false,
+    "hidden_filesystem_mutation_allowed": false,
+    "direct_sql_access_allowed": false
+  },
+  "request_validation": {
+    "diagnostics": [
+      {
+        "code": "HEADLESS_RUNNER_LOAD_BASIS_MISSING",
+        "class": "RUNNER_BLOCKING",
+        "severity": "blocking",
+        "source": {
+          "ref_type": "headless_runner",
+          "ref_id": "DEL-10-05"
+        },
+        "affected_object": {
+          "ref_type": "runner_request",
+          "ref_id": "tp-runner-015-validation-blocking"
+        },
+        "message": "runner request must identify load-case or combination basis references",
+        "remediation": "Provide explicit schema-first runner metadata before relying on this request or result.",
+        "provenance": {
+          "source_name": "OpenPipeStress headless runner validator",
+          "source_location": "core/runner/headless",
+          "source_license": "project",
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "diagnostic metadata only",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted"
+        }
+      }
+    ]
+  },
+  "result_validation": null,
+  "runner_result": null,
+  "mechanics_envelope": null,
+  "diagnostics": []
+}

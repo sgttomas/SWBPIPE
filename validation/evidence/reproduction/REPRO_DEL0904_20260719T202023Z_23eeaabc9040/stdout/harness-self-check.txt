@@ -1,0 +1,1 @@
+{"status": "PASS", "output": "/Users/ryan/.codex/worktrees/2faf/chirality/projects/chirality-piping/validation/evidence/reproduction/REPRO_DEL0904_20260719T202023Z_23eeaabc9040/checks/harness-self-check.json", "checks": ["harness-self-check"]}

@@ -1,0 +1,8 @@
+Command: git status --porcelain=v1 --untracked-files=normal
+Observation point: managed-write state after BLOCKED bundle construction and before checksum finalization.
+Result:
+?? "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/_run_records/WORKING_ITEMS_RUN_2026-07-19_DEL0904_CLEAN_REPRO_R7_BLOCKED.md"
+?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260718-DEL0904-CLEAN-REPRO-R7/
+?? projects/chirality-piping/validation/evidence/reproduction/REPRO_DEL0904_20260719T023848Z_525ef0903e68/
+
+Interpretation: all managed paths are untracked evidence/coordination records relative to source commit 525ef0903e68b536ff5b22f985263ca737a67986. No tracked source file changed. The coordination directory includes manager-owned records; this child wrote only its sealed instance status/return targets when finalized.

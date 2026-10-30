@@ -1,0 +1,27 @@
+{
+  "bindings": [],
+  "case_id": "case_60_block_unsupported_form",
+  "declared_grammar_version": "1.0.0",
+  "description": "Out-of-grammar expression forms are refused.",
+  "expected": {
+    "findings": [
+      {
+        "code": "unsupported_expression_form",
+        "subject_id": "user_defined_loop"
+      }
+    ],
+    "source_variable_ids": [],
+    "statuses": [
+      "mechanics_solved"
+    ],
+    "value": null
+  },
+  "expression": {
+    "form_id": "user_defined_loop",
+    "node": "unsupported_form"
+  },
+  "required_variable_ids": [],
+  "statuses": [
+    "mechanics_solved"
+  ]
+}

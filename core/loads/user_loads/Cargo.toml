@@ -1,0 +1,14 @@
+[package]
+name = "open_pipe_stress_user_loads"
+version = "0.1.0"
+edition = "2021"
+description = "Code-neutral concentrated and distributed user load application for OpenPipeStress"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+open_pipe_stress_frame_kernel = { path = "../../solver/frame_kernel" }
+open_pipe_stress_primitive_loads = { path = "../primitive_loads" }
+open_pipe_stress_straight_pipe = { path = "../../solver/straight_pipe" }

@@ -1,0 +1,44 @@
+{
+  "schema": "chirality.evidence_sweep_prerequisite_preflight/v1",
+  "status": "BLOCKED",
+  "method": "tools/release/run_evidence_sweep.py::preflight_prerequisites(Path.cwd())",
+  "implementation_sha256": "ac13dd8c6c590a6caf0b633c2ae50e47b410408feccbca4af697b2285f9309c4",
+  "cwd": "/Users/ryan/.codex/worktrees/2faf/chirality/projects/chirality-piping",
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "CARGO_NET_OFFLINE": "true"
+  },
+  "invocation_exit_code": 0,
+  "error_count": 20,
+  "errors": [
+    "missing local Node prerequisite: node_modules/.bin/playwright (provision from package-lock.json before the sweep)",
+    "missing local Node prerequisite: node_modules/.bin/tsc (provision from package-lock.json before the sweep)",
+    "missing local Node prerequisite: node_modules/.bin/vite (provision from package-lock.json before the sweep)",
+    "missing local Node prerequisite: node_modules/.bin/vitest (provision from package-lock.json before the sweep)",
+    "offline Cargo cache incomplete for core/loads/load_case_algebra/Cargo.toml: If you want to try to generate the lock file without accessing the network, remove the --locked flag and use --offline instead.",
+    "offline Cargo cache incomplete for core/loads/primitive_loads/Cargo.toml: If you want to try to generate the lock file without accessing the network, remove the --locked flag and use --offline instead.",
+    "offline Cargo cache incomplete for core/reporting/audit_manifest/Cargo.toml: If you want to try to generate the lock file without accessing the network, remove the --locked flag and use --offline instead.",
+    "offline Cargo cache incomplete for core/reporting/report_generator/Cargo.toml: If you want to try to generate the lock file without accessing the network, remove the --locked flag and use --offline instead.",
+    "offline Cargo cache incomplete for core/reporting/result_export/Cargo.toml: If you want to try to generate the lock file without accessing the network, remove the --locked flag and use --offline instead.",
+    "offline Cargo cache incomplete for core/rules/completeness_checker/Cargo.toml: If you want to try to generate the lock file without accessing the network, remove the --locked flag and use --offline instead.",
+    "offline Cargo cache incomplete for core/rules/rule_pack_lifecycle/Cargo.toml: If you want to try to generate the lock file without accessing the network, remove the --locked flag and use --offline instead.",
+    "offline Cargo cache incomplete for core/runner/headless/Cargo.toml: If you want to try to generate the lock file without accessing the network, remove the --locked flag and use --offline instead.",
+    "offline Cargo cache incomplete for core/solver/curved_bend/Cargo.toml: If you want to try to generate the lock file without accessing the network, remove the --locked flag and use --offline instead.",
+    "offline Cargo cache incomplete for core/solver/diagnostics/Cargo.toml: If you want to try to generate the lock file without accessing the network, remove the --locked flag and use --offline instead.",
+    "offline Cargo cache incomplete for core/solver/frame_kernel/Cargo.toml: If you want to try to generate the lock file without accessing the network, remove the --locked flag and use --offline instead.",
+    "offline Cargo cache incomplete for core/solver/linear_supports/Cargo.toml: If you want to try to generate the lock file without accessing the network, remove the --locked flag and use --offline instead.",
+    "offline Cargo cache incomplete for core/solver/nonlinear_supports/Cargo.toml: If you want to try to generate the lock file without accessing the network, remove the --locked flag and use --offline instead.",
+    "offline Cargo cache incomplete for core/solver/performance_harness/Cargo.toml: If you want to try to generate the lock file without accessing the network, remove the --locked flag and use --offline instead.",
+    "offline Cargo cache incomplete for core/solver/sparse_direct/Cargo.toml: If you want to try to generate the lock file without accessing the network, remove the --locked flag and use --offline instead.",
+    "offline Cargo cache incomplete for core/solver/straight_pipe/Cargo.toml: If you want to try to generate the lock file without accessing the network, remove the --locked flag and use --offline instead."
+  ],
+  "orchestration_summary_discrepancy": {
+    "orchestration_plan_reported_node_missing": 4,
+    "orchestration_plan_reported_incomplete_cargo": 15,
+    "direct_revalidation_node_missing": 4,
+    "direct_revalidation_incomplete_cargo": 16,
+    "disposition": "Exact direct function result governs this evidence record; terminal BLOCKED remains required."
+  },
+  "provisioning_performed": false,
+  "network_contact_performed": false
+}

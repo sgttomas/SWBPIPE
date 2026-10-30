@@ -1,0 +1,142 @@
+{
+  "artifact": "openpipestress.evidence_sweep_summary",
+  "schema_version": 3,
+  "decision_basis": [
+    "DEC-025",
+    "DEC-093"
+  ],
+  "boundary_note": "Commit-bound development evidence; the tool performs no network lookup. Not a release claim, professional approval, certification, sealing, authentication, or code-compliance determination.",
+  "git": {
+    "commit_hash": "5bb93dd860fc3c05f26c5a9a8d337be197096c6e",
+    "branch": "codex/piping-r5-engineering-20260820",
+    "status_capture_failed": false,
+    "working_tree_dirty": false,
+    "dirty_paths": []
+  },
+  "runtime": {
+    "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+    "python": "3.13.14",
+    "node": "v24.18.0",
+    "npm": "11.16.0",
+    "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+    "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)"
+  },
+  "started_utc": "2026-08-20T03:48:59+00:00",
+  "finished_utc": "2026-08-20T03:55:45+00:00",
+  "duration_seconds": 406.534,
+  "surfaces": [
+    {
+      "order": 1,
+      "surface_id": "cargo_crate_sweep",
+      "description": "Rust crate tests across all discovered crate manifests.",
+      "execution_capability": "sandboxed",
+      "commands": [
+        {
+          "argv": [
+            "/private/tmp/chirality-dec025-5bb93dd.Ty6L9x/venv/bin/python3",
+            "tools/release/check_release_readiness.py",
+            "--profile",
+            "cargo",
+            "--execute"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 14.132
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "order": 2,
+      "surface_id": "python_pytest",
+      "description": "Repository Python contract, governance, and validation tests.",
+      "execution_capability": "sandboxed",
+      "commands": [
+        {
+          "argv": [
+            "/private/tmp/chirality-dec025-5bb93dd.Ty6L9x/venv/bin/python3",
+            "-m",
+            "pytest",
+            "-q",
+            "tests"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 25.522
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "order": 3,
+      "surface_id": "desktop_vitest",
+      "description": "Desktop unit/contract tests; wasm engine built first.",
+      "execution_capability": "sandboxed",
+      "commands": [
+        {
+          "argv": [
+            "npm",
+            "run",
+            "build:wasm:desktop"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 0.444
+        },
+        {
+          "argv": [
+            "npm",
+            "run",
+            "test:desktop"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 79.461
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "order": 4,
+      "surface_id": "desktop_playwright_e2e",
+      "description": "Playwright end-to-end smoke in a real Chrome browser: dev-server lane, then production-dist lane via vite preview (TP-APP-R2-WASMPKG-001).",
+      "execution_capability": "host",
+      "commands": [
+        {
+          "argv": [
+            "npm",
+            "run",
+            "test:e2e:desktop"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 267.618
+        },
+        {
+          "argv": [
+            "npm",
+            "run",
+            "test:e2e:dist:desktop"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 14.655
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "order": 5,
+      "surface_id": "desktop_production_build",
+      "description": "Desktop production build (tsc -b && vite build).",
+      "execution_capability": "sandboxed",
+      "commands": [
+        {
+          "argv": [
+            "npm",
+            "run",
+            "build:desktop"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 4.697
+        }
+      ],
+      "status": "pass"
+    }
+  ],
+  "overall_status": "pass"
+}

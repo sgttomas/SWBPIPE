@@ -1,0 +1,68 @@
+{
+  "fixture_id": "target-fixture:invented-del-15-03",
+  "target_system_kind": "generic_downstream_modeling",
+  "target_ref": {
+    "object_type": "ExternalReference",
+    "ref": "target:invented-generic"
+  },
+  "capabilities": [
+    {
+      "capability_id": "capability:metadata-export",
+      "label": "provider_neutral_metadata_export",
+      "status": "supported_reference_only"
+    }
+  ],
+  "unsupported_capabilities": [
+    {
+      "capability_id": "capability:external-solver",
+      "behavior_label": "external_solver_not_invoked",
+      "status": "not_implemented",
+      "target_ref": {
+        "object_type": "ExternalReference",
+        "ref": "target:external-solver"
+      },
+      "affected_refs": [
+        {
+          "object_type": "AnalysisRun",
+          "ref": "run:mechanics-reference"
+        }
+      ],
+      "assumption_refs": [
+        {
+          "object_type": "Assumption",
+          "ref": "assumption:invented-review"
+        }
+      ],
+      "warning_refs": [
+        {
+          "object_type": "Diagnostic",
+          "ref": "INVENTED-HANDOFF-WARNING"
+        }
+      ],
+      "provenance": {
+        "source_name": "Invented DEL-15-03 target fixture",
+        "source_location": "execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-03_Downstream modeling export workflow/fixtures/invented_target_fixture.json",
+        "source_license": "project-invented-test-data",
+        "contributor": "OpenPipeStress",
+        "contributor_attestation": "invented non-engineering fixture",
+        "redistribution_status": "invented_non_engineering_example",
+        "review_classification": "machine_checked",
+        "privacy_classification": "invented_public_example"
+      }
+    }
+  ],
+  "notes": [
+    "Invented provider-neutral target fixture for deterministic export workflow tests.",
+    "No commercial parser behavior, external solve execution, protected standards data, or private project data is represented."
+  ],
+  "provenance": {
+    "source_name": "Invented DEL-15-03 target fixture",
+    "source_location": "execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-03_Downstream modeling export workflow/fixtures/invented_target_fixture.json",
+    "source_license": "project-invented-test-data",
+    "contributor": "OpenPipeStress",
+    "contributor_attestation": "invented non-engineering fixture",
+    "redistribution_status": "invented_non_engineering_example",
+    "review_classification": "machine_checked",
+    "privacy_classification": "invented_public_example"
+  }
+}

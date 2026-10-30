@@ -1,0 +1,26 @@
+{
+  "schema": "chirality-del0904-prechecksum-qa/v1",
+  "overall_status": "PASS",
+  "objective_status": "FAIL",
+  "checks": {
+    "checksum_absent_before_finalization": true,
+    "required_top_level_files_present": true,
+    "three_outputs_present": true,
+    "manifest_terminal_fail": true,
+    "runtime_review_pass": true,
+    "profile_fail_recorded": true,
+    "harness_pytest_exit_1": true,
+    "piping_pytest_exit_0": true,
+    "evidence_sweep_exit_0": true,
+    "sweep_delta_exactly_one": true,
+    "change_scope_pass": true,
+    "json_jsonl_pass": true,
+    "protected_source_and_history_match": true,
+    "temp_root_removed": true,
+    "git_diff_check_exit_0": true,
+    "receipt_57_absent_recorded": true,
+    "harness_self_check_not_run_recorded": true
+  },
+  "bundle_file_count_before_prechecksum": 81,
+  "next_operation": "Generate SHA256SUMS.txt last and verify without later bundle mutation."
+}

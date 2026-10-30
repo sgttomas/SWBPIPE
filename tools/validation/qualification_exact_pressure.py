@@ -1,0 +1,1174 @@
+#!/usr/bin/env python3
+"""Closed VP-HARNESS adapter for the exact_pressure_1 raw0.2 transport (T4-U2).
+
+Mirrors the load/reference-state adapter: an explicitly selected foreground
+``openpipestress-runner solve --input - --solver-mode <mode>`` process, the
+ControlledExport/CLI1.0 wrapper and a raw0.2 mechanics envelope whose producer
+is exactly ``openpipestress.result_semantics/0.3.0/pressure-2`` with profile
+``exact_pressure_v3`` on a model document 0.8.0 under the current exact contract
+(with its load/reference-state records when the document carries that group).
+B7b retired the 0.3.0/0.4.0 documents: the package's frozen, hash-bound case
+inputs (0.3.0, or 0.4.0 with the group) are never edited; each run submits their
+declared re-authored copy (``qualification_physics.reauthor_runner_input``, the
+product tests' one re-authoring rule), against which the raw is read. A package
+document authored on model 0.5.0 (T4-U6's MILLTOL owners: 0.5.0 under
+3.0.0/exact_pressure_v3 with an explicit shear model and an explicit corrosion
+allowance on every section) is likewise kept as bound and submitted as its copy
+re-authored by its version alone (model 0.8.0). A package document already current
+(0.8.0) would be submitted unchanged; its ledger records the identity re-authoring,
+with the same hash on both sides. Cases come from a hash-locked
+case manifest (``openpipestress.exact_pressure_qualification_manifest/1``)
+named by a run selection record. Every required selector, including the
+terminal fields of ``contract_evidence.pressure``, resolves exactly once; every
+declared absence (a row withheld on a member, a null terminal field) holds.
+Numerical standing is reported beside, never inside, the comparison outcomes.
+
+Records observed outcomes only: never app Current, independent reference
+approval, physical validation, professional acceptance or release
+qualification. The retired physics-1 and load-reference-1, source/composite namespaces and
+unknown future profiles are refused. No build, network, unit conversion,
+reference regeneration or fallback occurs. The owned reader's verdict is the
+Rust product reader's (``reader_verdict``'s ``pressure`` route), taken from the
+explicitly built ``openpipestress-runner read pressure`` named by
+OPENPIPESTRESS_RUNNER_BIN, as the first-static and load/reference-state gates take
+theirs (b7-plan R2).
+"""
+from __future__ import annotations
+import argparse
+from datetime import datetime, timezone
+import json
+import math
+from pathlib import Path, PurePosixPath
+import platform
+import re
+import struct
+import subprocess
+import sys
+
+PROJECT = Path(__file__).resolve().parents[2]
+if str(PROJECT) not in sys.path:
+    sys.path.insert(0, str(PROJECT))
+try:
+    from .qualification_process import capture, file_sha256, sha256_bytes
+    from . import qualification_gate as gate
+    from . import qualification_physics as physics
+except ImportError:
+    from qualification_process import capture, file_sha256, sha256_bytes
+    import qualification_gate as gate
+    import qualification_physics as physics
+from core.analysis_runs import rust_reader
+
+TRANSPORT = 'exact_pressure_1_cli_1.0_raw0.2'
+RUN_FORMAT = 'openpipestress.exact_pressure_qualification_run/1'
+MANIFEST_FORMAT = 'openpipestress.exact_pressure_qualification_manifest/1'
+SELECTOR_FORMAT = 'openpipestress.first_static_selector_candidate/1'
+REFERENCE_FORMAT = gate.REFERENCE_FORMAT
+# Version 2: the files name the Rust reader's source (version 1 named the test-only Python verifier).
+BINDING_FORMAT = 'openpipestress.exact_pressure_consistency_binding/2'
+READER = 'pressure'
+ENTRYPOINT = 'validate_pressure_evidence'
+CONTRACT = 'openpipestress.result_semantics/0.3.0/pressure-2'
+PROFILE = 'exact_pressure_v3'
+# The submitted (re-authored) document is model 0.8.0 under the current contract; the package's frozen
+# documents keep their 0.3.0/0.4.0 spelling under the former v3 contract object, or their 0.5.0 spelling (the
+# MILLTOL owners, re-authored by their version alone, DEL-04-07 Design u4b-u5b-implementation.md §1.4).
+MODEL_VERSION = physics.MODEL_VERSION
+PRESSURE_CONTRACT = physics.PRESSURE_CONTRACT
+FROZEN_PRESSURE_CONTRACT = {'version': '3.0.0', 'mode': 'exact_pressure_v3'}
+FROZEN_VERSIONS = ('0.3.0', '0.4.0')
+PREVIOUS_VERSIONS = physics.PREVIOUS_MODEL_VERSIONS
+# T4-U6 (manager ruling, 2026-10-16): a package document authored current (the D-5 re-authored T4-I8 MILLTOL) is
+# submitted unchanged. Its contract names its shear model explicitly: Euler-Bernoulli or the T4-U8 Timoshenko model.
+SHEAR_MODELS = ('euler_bernoulli', 'timoshenko_annulus_energy_v1')
+IDENTITY_SCOPE = 'identity: the package document is already current and is submitted unchanged; the frozen input, references and criteria are unchanged'
+TABLE = 'fixtures/results/semantic_contract_v0_3_pressure_2.json'
+# B7b (a43583c625, "Rebase retained exact evidence onto current pressure tables"; O-10): pressure-2's own reviewed
+# resident table; the former pin 07a6a308... named the table before its re-issue. T4-U6 (D-5, §2.4) re-issued it
+# with one stress signature per (recovery token x section basis): 106 signatures, 59 kinds (B7b's was a4e3bf2c...);
+# T4-U5b added the tie-rod force and T4-U4b (§2.2) the new per-basis kinds: 129 signatures, 66 kinds.
+TABLE_SHA256 = 'be61c6ea828797ad5664d06a2c835b28deffaff07cc33fec6bb4d48a8fcb0919'
+# The owned reader is the Rust product reader of pressure-2 (owner, 2026-10-10:
+# "move to one product reader in Rust"): `validate_pressure_evidence` (an envelope
+# carrying the load/reference-state group takes its pre-pass), reached through
+# `reader_verdict`'s pressure route. The binding selects its source with the
+# table and unit authority (read-only, as for the first-static adapter). Reader source bytes as
+# of this conversion (the former pin was the test-only verifier's, 0a0192ee...);
+# re-pin deliberately whenever the reader changes.
+MODULE = 'core/reporting/result_export/src/physics_evidence.rs'
+# B7b re-pin (the reader's B7b source: v2 paths removed, the current pressure reader kept; was 8e05867a...).
+MODULE_SHA256 = physics.DEPENDENCIES[physics.MODULE]
+UNITS = physics.UNITS
+DEPENDENCIES = {
+    MODULE: MODULE_SHA256,
+    TABLE: TABLE_SHA256,
+    UNITS: physics.DEPENDENCIES[UNITS],
+}
+ANALYTICAL_REFERENCES = ('validation/references/t4_i7/u2_reference_cases.json',
+                         'validation/references/t4_i8/rebuilt_reference_cases.json')
+LIMIT = gate.MAX_INPUT_BYTES
+MAX_OUTPUT_LIMIT = 64 * 1024 * 1024
+MODES = ('sparse_interactive', 'dense_scrutiny')
+MODE_CODES = {'sparse_interactive': 1.0, 'dense_scrutiny': 2.0}
+RECOVERY_METHODS = {'sparse_interactive': 'ordinary_sparse_structural_v1', 'dense_scrutiny': 'ordinary_dense_structural_v1'}
+PRODUCER = {'component_name': 'open_pipe_stress_product_physics', 'component_version': '0.2.0', 'semantic_contract_id': CONTRACT}
+# Keyed by the load/reference-state group's authored presence (never by a version).
+EVIDENCE_KEYS = {False: {'pressure', 'connector', 'exact_cases'},
+                 True: {'pressure', 'connector', 'exact_cases', 'load_reference_states'}}
+NOT_JOINED = {'status': 'not_joined', 'code': 'LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED'}
+STATES = gate.STATES
+STANDING_VALUES = ('not_assessed', 'checks_passed', 'sensitive', 'unresolved', 'failed')
+REQUIRED_STRUCTURAL_CHECKS = (
+    'transport_identity_and_mode', 'actual_input_binding', 'pressure_contract', 'numerical_standing',
+    'pressure_record_binding', 'declared_absences', 'owned_reader_consistency', 'complete_unique_selector_coverage',
+)
+MANIFEST_CASE_KEYS = {'case_id', 'runner_input', 'product_request', 'reference', 'selectors', 'criteria',
+                      'analytical_reference', 'modes', 'required_scalar_rows'}
+RUN_KEYS = {'format', 'profile_id', 'purpose', 'transport', 'runner', 'case_manifest', 'reader_binding'}
+RUNNER_KEYS = {'candidate_commit', 'executable_sha256', 'solver_mode', 'explicit_local_private_intent'}
+SELECTOR_FILE_KEYS = {'format', 'case_id', 'producer_contract', 'raw_schema_version', 'row_namespace', 'assertions'}
+SELECTOR_FILE_OPTIONAL = {'gaps', 'scoring_readiness', 'negative_assertions', 'absences'}
+ROW_NAMESPACE = 'payload.mechanics_envelope.results'
+EVIDENCE_NAMESPACE = 'contract_evidence.pressure'
+EVIDENCE_SELECTOR_KEYS = {'id', 'namespace', 'basis_ref', 'record', 'key', 'field', 'component', 'definition', 'unit', 'dimension'}
+# The closed terminal vocabulary: global force vectors of a region terminal.
+TERMINAL_FIELDS = ('closure_pressure_load_global_n', 'pipe_cap_transfer_global_n', 'remote_closure_support_reaction_global_n')
+TERMINAL_FAMILY = 'pressure_terminal_force'
+AXES = ('x', 'y', 'z')
+
+
+class AdmissionError(gate.AdmissionError):
+    pass
+
+
+def require(ok, reason):
+    if not ok:
+        raise AdmissionError('EXACT-PRESSURE: ' + reason)
+
+
+def strict_json_limited(data: bytes, limit: int):
+    """``gate.strict_json`` with a caller-selected byte bound (runner stdout and the reader snapshot)."""
+    require(type(limit) is int and 0 < limit <= MAX_OUTPUT_LIMIT, 'invalid JSON byte limit')
+    require(len(data) <= limit, 'JSON byte limit exceeded')
+    if len(data) <= gate.MAX_INPUT_BYTES:
+        return gate.strict_json(data)
+    def forbidden(value):
+        raise gate.AdmissionError('nonfinite JSON constant: ' + value)
+    def real_token(token):
+        value = float(token)
+        gate.require(math.isfinite(value), 'nonfinite numeric token')
+        significand = token.lower().split('e')[0]
+        gate.require(value != 0.0 or not any(c in '123456789' for c in significand), 'nonzero numeric token underflow')
+        return value
+    try:
+        return json.loads(data.decode('utf-8'), object_pairs_hook=gate._pairs, parse_constant=forbidden, parse_float=real_token)
+    except (UnicodeDecodeError, json.JSONDecodeError, RecursionError) as exc:
+        raise gate.AdmissionError('invalid UTF-8/JSON: ' + type(exc).__name__) from exc
+
+
+def _text(value, label):
+    require(type(value) is str and bool(value.strip()), label + ' missing')
+    return value
+
+
+# --------------------------------------------------------------------------
+# Locked manifest and selectors (admission; no process yet)
+# --------------------------------------------------------------------------
+
+def project_root(source_root: Path) -> Path:
+    if (source_root / MODULE).is_file():
+        return source_root.resolve()
+    candidate = source_root / 'projects/chirality-piping'
+    require((candidate / MODULE).is_file(), 'owned pressure-2 reader not available in selected candidate')
+    return candidate.resolve()
+
+
+def read_project_bound(binding, project: Path):
+    """WORKING_ROOT-relative path/hash binding; no absolute path or escape."""
+    require(type(binding) is dict and type(binding.get('path')) is str, 'exact path/hash binding required')
+    relative = PurePosixPath(binding['path'])
+    require(not relative.is_absolute() and '..' not in relative.parts and '\\' not in binding['path'] and binding['path'],
+            'manifest paths must be WORKING_ROOT-relative without escape')
+    data, path = gate.read_bound(binding, project)
+    require(path.is_relative_to(project), 'bound file leaves the selected candidate root')
+    return data, path
+
+
+def admit_manifest(data: bytes) -> dict:
+    manifest = gate.strict_json(data)
+    require(type(manifest) is dict and set(manifest) == {'format', 'cases'}, 'closed case manifest required')
+    require(manifest['format'] == MANIFEST_FORMAT, 'unsupported case manifest version')
+    cases = manifest['cases']
+    require(type(cases) is list and 0 < len(cases) <= gate.MAX_CASES, 'nonzero bounded case inventory required')
+    seen = set()
+    for case in cases:
+        require(type(case) is dict and set(case) == MANIFEST_CASE_KEYS, 'unknown/missing manifest case fields')
+        cid = _text(case['case_id'], 'case ID')
+        require(cid not in seen, 'duplicate case ID')
+        seen.add(cid)
+        for role in ('runner_input', 'product_request', 'reference', 'selectors', 'criteria'):
+            require(type(case[role]) is dict and set(case[role]) == {'path', 'sha256'}, role + ' binding must be {path, sha256}')
+        analytical = case['analytical_reference']
+        require(type(analytical) is dict and set(analytical) == {'path', 'sha256', 'case_key'}, 'analytical reference binding shape')
+        require(analytical['path'] in ANALYTICAL_REFERENCES, 'unselected analytical reference path')
+        _text(analytical['case_key'], 'analytical case key')
+        modes = case['modes']
+        require(type(modes) is list and modes and len(set(modes)) == len(modes) and set(modes) <= set(MODES),
+                'modes must be a nonempty unique subset of the two closed modes')
+        rows = case['required_scalar_rows']
+        require(type(rows) is int and 0 < rows <= gate.MAX_ASSERTIONS, 'positive required_scalar_rows required')
+    return manifest
+
+
+def _selector_identity(selector):
+    if 'namespace' in selector:
+        return ('evidence', json.dumps([selector.get(k) for k in ('basis_ref', 'record', 'key', 'field', 'component')], sort_keys=True))
+    return ('row', selector.get('id'))
+
+
+def admit_absences(absences) -> list[dict]:
+    """Declared absences: ``{row: {kind, entity_ref}}`` or a null terminal field ``{evidence: {...}}``."""
+    require(type(absences) is list, 'absences must be a list')
+    seen = set()
+    for item in absences:
+        require(type(item) is dict and len(item) == 1 and set(item) <= {'row', 'evidence'}, 'absence must name one row or evidence field')
+        if 'row' in item:
+            row = item['row']
+            require(type(row) is dict and set(row) == {'kind', 'entity_ref'}, 'row absence must be {kind, entity_ref}')
+            _text(row['kind'], 'absent row kind')
+            _text(row['entity_ref'], 'absent row entity')
+        else:
+            evidence = item['evidence']
+            require(type(evidence) is dict and set(evidence) == {'basis_ref', 'record', 'key', 'field'}, 'evidence absence shape')
+            require(evidence['record'] == 'terminal' and evidence['field'] in TERMINAL_FIELDS, 'evidence absence outside the terminal vocabulary')
+            require(type(evidence['key']) is dict and set(evidence['key']) == {'node_ref'}, 'terminal key must be {node_ref}')
+            basis_of(evidence)
+        identity = json.dumps(item, sort_keys=True)
+        require(identity not in seen, 'duplicate absence')
+        seen.add(identity)
+    return absences
+
+
+def admit_selectors(selectors: dict, case: dict) -> tuple[list[dict], list[dict], list[dict]]:
+    """Selector file shape and identities; semantics are checked in prepare_case."""
+    require(type(selectors) is dict and SELECTOR_FILE_KEYS <= set(selectors) <= SELECTOR_FILE_KEYS | SELECTOR_FILE_OPTIONAL,
+            'unknown/missing selector file fields')
+    require(selectors['format'] == SELECTOR_FORMAT and selectors['case_id'] == case['case_id'], 'selector identity/version mismatch')
+    require(selectors['producer_contract'] == CONTRACT, 'selectors bind another producer contract')
+    require(selectors['raw_schema_version'] == '0.2.0' and selectors['row_namespace'] == ROW_NAMESPACE, 'selector raw namespace differs')
+    positive = selectors['assertions']
+    negative = selectors.get('negative_assertions', [])
+    require(type(positive) is list and positive and type(negative) is list, 'nonempty assertion list required')
+    ids = set()
+    for rows, unique_selectors in ((positive, True), (negative, False)):
+        identities = set()
+        for row in rows:
+            require(type(row) is dict and {'id', 'selector', 'criterion_rule_id'} <= set(row) <= {'id', 'selector', 'criterion_rule_id', 'selector_origin'},
+                    'unknown/missing assertion fields')
+            aid = _text(row['id'], 'assertion ID')
+            require(aid not in ids, 'duplicate assertion ID within case')
+            ids.add(aid)
+            require(type(row['selector']) is dict, 'selector must be an object')
+            selector_id = _text(row['selector'].get('id'), 'selector ID')
+            identity = _selector_identity(row['selector'])
+            if unique_selectors:
+                require(identity not in identities and ('id', selector_id) not in identities, 'duplicate required selector')
+                identities.update({identity, ('id', selector_id)})
+    require(len(positive) == case['required_scalar_rows'], 'positive assertion count differs from required_scalar_rows')
+    require(len(ids) <= gate.MAX_ASSERTIONS, 'assertion inventory limit')
+    return positive, negative, admit_absences(selectors.get('absences', []))
+
+
+def case_inventory(case: dict, project: Path) -> dict:
+    """Assertion IDs for predeclaration; an unreadable file keeps the manifest count."""
+    try:
+        data, _ = read_project_bound(case['selectors'], project)
+        positive, negative, _ = admit_selectors(gate.strict_json(data), case)
+        return {'positive': [row['id'] for row in positive], 'negative': [row['id'] for row in negative], 'refusal': None}
+    except (ValueError, OSError, KeyError, TypeError) as exc:
+        width = len(str(case['required_scalar_rows']))
+        return {'positive': ['required-row-%0*d-unresolved' % (width, index + 1) for index in range(case['required_scalar_rows'])],
+                'negative': [], 'refusal': 'selector inventory not admitted: ' + str(exc)}
+
+
+def structural_obligations(state='not_run', reason='not executed'):
+    return [{'id': key, 'state': state, 'reason': reason, 'details': {}} for key in REQUIRED_STRUCTURAL_CHECKS]
+
+
+def predeclare(manifest: dict, mode: str, inventories: dict) -> dict:
+    """Every intelligible required obligation exists before execution."""
+    ledger, excluded = [], []
+    for case in manifest['cases']:
+        if mode not in case['modes']:
+            excluded.append(case['case_id'])
+            continue
+        inventory = inventories[case['case_id']]
+        assertions = ([{'id': aid, 'polarity': 'positive', 'state': 'not_run', 'reason': 'not executed', 'observed': None}
+                       for aid in inventory['positive']] +
+                      [{'id': aid, 'polarity': 'negative', 'state': 'not_run', 'reason': 'not executed', 'observed': None}
+                       for aid in inventory['negative']])
+        ledger.append({'id': case['case_id'], 'state': 'not_run', 'reason': 'not executed', 'assertions': assertions,
+                       'structural_checks': structural_obligations(), 'process': None,
+                       'inventory_basis': 'required_scalar_rows_placeholder' if inventory['refusal'] else 'selectors',
+                       'numerical_standing': {'standing': 'unavailable', 'reason': 'not executed'}})
+    require(bool(ledger), 'no manifest case is required in the selected mode')
+    return {'artifact': 'openpipestress.qualification_development_ledger', 'version': '1.0.0', 'transport': TRANSPORT,
+            'profile_id': None, 'selection_sha256': None, 'case_manifest_sha256': None, 'solver_mode': mode,
+            'qualification': 'not_established_by_this_harness', 'outcome': 'not_run', 'publication_phase': 'in_progress',
+            'cases_not_required_in_mode': excluded, 'cases': ledger, 'summary': {}, 'diagnostics': [],
+            'created_at_utc': datetime.now(timezone.utc).isoformat()}
+
+
+def fail_case(case: dict, state: str, reason: str) -> None:
+    gate.fail_case(case, state, reason)
+    if case['numerical_standing'].get('standing') in (None, 'unavailable'):
+        case['numerical_standing'] = {'standing': 'unavailable', 'reason': reason}
+
+
+def summarize(ledger: dict) -> None:
+    gate.summarize(ledger)
+    rows = [row for case in ledger['cases'] for row in case['assertions']]
+    ledger['summary']['assertions_by_polarity'] = {
+        polarity: {state: sum(row['polarity'] == polarity and row['state'] == state for row in rows) for state in STATES}
+        for polarity in ('positive', 'negative')}
+    standings = [case['numerical_standing'].get('standing', 'unavailable') for case in ledger['cases']]
+    ledger['summary']['numerical_standing'] = {value: standings.count(value) for value in sorted(set(standings) | {'checks_passed', 'sensitive', 'insufficient', 'unavailable'})}
+
+
+# --------------------------------------------------------------------------
+# Per-case preparation: bindings, references, criteria and selector semantics
+# --------------------------------------------------------------------------
+
+def _rule(rules, rule_id, dimension, family, unit):
+    found = [rule for rule in rules if rule.get('rule_id') == rule_id]
+    require(len(found) == 1, 'criterion rule missing')
+    rule = found[0]
+    require(rule.get('dimension_id') == dimension, 'criterion dimension mismatch')
+    require(family is not None and rule.get('result_family') == family, 'criterion result family mismatch')
+    require(type(rule.get('unit_ref')) is dict and rule['unit_ref'].get('ref') == unit, 'criterion same-unit binding required')
+    require(rule.get('normalization_basis') == 'same_unit_required', 'unit conversion not supported')
+    require(rule.get('tolerance_value_status') in ('externally_governed', 'project_specific_review_required'), 'criterion unresolved')
+    require(bool(rule.get('review')) and bool(rule.get('provenance')), 'criterion review/provenance missing')
+    require('relative_tolerance_value' in rule and 'absolute_tolerance_value' in rule, 'relative and absolute tolerance pair required')
+    for key in ('relative_tolerance_value', 'absolute_tolerance_value'):
+        require(gate.finite(rule.get(key)) >= 0, 'negative criterion')
+    return rule
+
+
+def row_semantics(selector, semantic_rows):
+    require(set(selector) == gate.SELECTOR_KEYS, 'complete explicit row selector required')
+    for key in ('id', 'kind', 'unit', 'entity_ref', 'dimension'):
+        _text(selector[key], 'selector ' + key)
+    metadata = selector['metadata']
+    require(type(metadata) is dict and set(metadata) == set(gate.META), 'complete source metadata required')
+    require(all(type(v) is str and v and v != 'TBD' for v in metadata.values()), 'unresolved source metadata')
+    # T4-U6 (D-5, §2.4): one signature per (kind, unit, component, basis); a declared source_basis is matched exactly.
+    signatures = [row for row in semantic_rows if row['kind'] == selector['kind'] and row['unit'] == selector['unit']
+                  and row['component'] == metadata['component']
+                  and ('source_basis' not in row or row['source_basis'] == metadata['basis'])]
+    require(len(signatures) == 1 and signatures[0]['source_physical_semantic_dimension'] == selector['dimension'],
+            'selector contradicts pinned pressure-2 semantics')
+    return signatures[0]['family']
+
+
+def evidence_semantics(selector):
+    """Closed terminal selector of contract_evidence.pressure: its family or refusal."""
+    require(set(selector) == EVIDENCE_SELECTOR_KEYS, 'complete explicit evidence selector required')
+    require(selector['namespace'] == EVIDENCE_NAMESPACE, 'unsupported evidence namespace')
+    require(selector['record'] == 'terminal', 'unsupported pressure evidence record')
+    require(type(selector['key']) is dict and set(selector['key']) == {'node_ref'}, 'exact terminal key required')
+    _text(selector['key']['node_ref'], 'terminal node')
+    definition = selector['definition']
+    require(type(definition) is dict and set(definition) <= {'closure_transfer'}
+            and all(type(v) is str and v for v in definition.values()), 'definition values must be exact text')
+    require(selector['field'] in TERMINAL_FIELDS and selector['component'] in AXES, 'field outside the closed terminal vocabulary')
+    require(selector['unit'] == 'N' and selector['dimension'] == 'force', 'terminal unit/dimension differs from closed vocabulary')
+    return TERMINAL_FAMILY
+
+
+def basis_of(selector):
+    basis = selector.get('basis_ref')
+    require(type(basis) is dict and set(basis) == {'ref_type', 'ref_id'}, 'explicit case basis required')
+    require(basis['ref_type'] == 'load_case', 'pressure-2 selectors bind a load case')
+    return _text(basis['ref_id'], 'case basis ID')
+
+
+def load_case_ids(request):
+    cases = request['solve']['preview_model']['model']['load_cases']
+    ids = [case.get('id') if type(case) is dict else None for case in cases]
+    require(type(cases) is list and ids and all(type(i) is str and i for i in ids) and len(set(ids)) == len(ids),
+            'actual load case inventory invalid')
+    return ids
+
+
+def current_contract(contract) -> bool:
+    """The current exact contract with an explicit shear model."""
+    return (type(contract) is dict and set(contract) == set(PRESSURE_CONTRACT)
+            and all(contract[key] == PRESSURE_CONTRACT[key] for key in ('version', 'mode')) and contract['shear_model'] in SHEAR_MODELS)
+
+
+def current_package_document(model, version: str = MODEL_VERSION) -> bool:
+    """A package document authored complete on ``version`` (current 0.8.0, or 0.5.0, 0.6.0 or 0.7.0 before it): the current
+    contract and an explicit corrosion_allowance on every section."""
+    sections = [pipe.get('section') if type(pipe) is dict else None for pipe in model.get('pipe_segments') or []] if type(model) is dict else []
+    return (type(model) is dict and model.get('schema_version') == version and current_contract(model.get('pressure_contract'))
+            and bool(sections) and all(type(section) is dict and 'corrosion_allowance' in section for section in sections))
+
+
+def model_version(model) -> str:
+    """The package document's version: a frozen 0.3.0 (or 0.4.0 with the load/reference-state group) under the former
+    contract; a 0.5.0 or 0.6.0 document authored complete, re-authored by its version alone; or a document authored current
+    (0.8.0), which is submitted unchanged."""
+    for version in (MODEL_VERSION, *PREVIOUS_VERSIONS):
+        if type(model) is dict and model.get('schema_version') == version:
+            require(current_package_document(model, version), f'a {version} package document requires the current 3.0.0/exact_pressure_v3 '
+                    'contract with an explicit shear_model and an explicit corrosion_allowance on every section')
+            return version
+    require(type(model) is dict and model.get('schema_version') in FROZEN_VERSIONS and model.get('pressure_contract') == FROZEN_PRESSURE_CONTRACT,
+            'frozen 0.3.0/0.4.0 package document under 3.0.0/exact_pressure_v3 required')
+    require(physics.model_carries_load_state(model) == (model['schema_version'] == '0.4.0'),
+            'frozen document version and load/reference-state group disagree')
+    return model['schema_version']
+
+
+def submitted_input(data: bytes, model: dict, version: str) -> tuple[bytes, dict]:
+    """The runner input the run submits: a frozen document's declared re-authored copy, or a current document unchanged."""
+    if version != MODEL_VERSION:
+        return physics.reauthor_runner_input(data)
+    digest = sha256_bytes(data)
+    contract = model['pressure_contract']
+    return data, {'rule': physics.REAUTHORING, 'frozen_input_sha256': digest, 'submitted_input_sha256': digest,
+                  'model_schema_version': [MODEL_VERSION, MODEL_VERSION], 'pressure_contract': [contract, contract],
+                  'explicit_zero_corrosion_allowance': False, 'scope': IDENTITY_SCOPE}
+
+
+def current_model(model) -> bool:
+    """The submitted document: model 0.8.0 under the current contract. Returns the load/reference-state group's presence."""
+    require(type(model) is dict and model.get('schema_version') == MODEL_VERSION and current_contract(model.get('pressure_contract')),
+            f'actual {MODEL_VERSION} model under the current 3.0.0/exact_pressure_v3 contract required')
+    return physics.model_carries_load_state(model)
+
+
+def prepare_case(case: dict, project: Path, purpose: str, semantic_rows: list[dict]) -> dict:
+    files, bindings = {}, []
+    for role in ('runner_input', 'product_request', 'reference', 'selectors', 'criteria'):
+        data, path = read_project_bound(case[role], project)
+        files[role] = data
+        bindings.append({'role': role, 'path': str(path), 'sha256': sha256_bytes(data)})
+    analytical_bytes, analytical_path = read_project_bound(
+        {'path': case['analytical_reference']['path'], 'sha256': case['analytical_reference']['sha256']}, project)
+    bindings.append({'role': 'analytical_reference', 'path': str(analytical_path), 'sha256': sha256_bytes(analytical_bytes)})
+    analytical = gate.strict_json(analytical_bytes)
+    require(type(analytical) is dict and type(analytical.get('cases')) is dict
+            and case['analytical_reference']['case_key'] in analytical['cases'], 'analytical case key not in reference file')
+    request, product, reference, selectors, criterion = (gate.strict_json(files[r]) for r in
+        ('runner_input', 'product_request', 'reference', 'selectors', 'criteria'))
+    require(type(request) is dict and type(request.get('request')) is dict and type(request.get('solve')) is dict
+            and set(request['solve']) == {'preview_model'}, 'input is not a production solve request')
+    require(request['request'].get('operation') == 'solve', 'input operation not solve')
+    _text(request['request'].get('request_id'), 'actual request ID')
+    require(request['solve']['preview_model'] == product, 'runner input preview model differs from bound product request')
+    model = product['model']
+    version = model_version(model)
+    _text(model['project']['id'], 'actual model ID')
+    # The frozen input stays bound by its bytes; the runner receives the declared re-authored copy (a current
+    # document: the input itself).
+    runner_input, reauthoring = submitted_input(files['runner_input'], model, version)
+    request = gate.strict_json(runner_input)
+    load_state = current_model(request['solve']['preview_model']['model'])
+    require(load_state == (version == '0.4.0' or (version in (MODEL_VERSION, *PREVIOUS_VERSIONS) and physics.model_carries_load_state(model))),
+            're-authoring changed the load/reference-state group')
+    request_cases = load_case_ids(request)
+    require(type(reference) is dict and reference.get('format') == REFERENCE_FORMAT and reference.get('case_id') == case['case_id'],
+            'reference identity/version mismatch')
+    require(reference.get('readiness') == 'ready' and bool(reference.get('basis')), 'reference not ready or basis absent')
+    kind = reference.get('reference_kind')
+    require(kind in ('harness_synthetic', 'analytical', 'regression', 'published_numerical'), 'unknown reference kind')
+    require(purpose == 'harness_development' or kind != 'harness_synthetic', 'synthetic target cannot score a development comparison')
+    if purpose != 'harness_development':
+        require(bool(reference.get('independent_review_ref')), 'independent reference admission missing')
+    require(type(criterion) is dict and criterion.get('schema_version') == '0.1.0', 'unsupported tolerance document version')
+    profile = criterion.get('tolerance_profile')
+    require(type(profile) is dict and profile.get('profile_status') == 'reviewed', 'criterion profile not reviewed')
+    rules = profile.get('rules')
+    require(type(rules) is list and rules and all(type(x) is dict for x in rules), 'criterion rules missing')
+    rule_ids = [rule.get('rule_id') for rule in rules]
+    require(all(type(i) is str and i for i in rule_ids) and len(rule_ids) == len(set(rule_ids)), 'duplicate/missing criterion IDs')
+    positive, negative, absences = admit_selectors(selectors, case)
+    expected = {}
+    for key, rows in (('values', positive), ('wrong_values', negative)):
+        values = reference.get(key, [] if key == 'wrong_values' else None)
+        require(type(values) is list and all(type(x) is dict for x in values), 'reference ' + key + ' missing')
+        indexed = {value.get('assertion_id'): value for value in values}
+        require(len(indexed) == len(values) and set(indexed) == {row['id'] for row in rows}, 'reference ' + key + ' denominator mismatch')
+        expected.update(indexed)
+    selected = []
+    for polarity, rows in (('positive', positive), ('negative', negative)):
+        for assertion in rows:
+            selector = assertion['selector']
+            family = evidence_semantics(selector) if 'namespace' in selector else row_semantics(selector, semantic_rows)
+            require(basis_of(selector) in request_cases, 'selector basis is not a load case of the bound input')
+            rule = _rule(rules, assertion['criterion_rule_id'], selector['dimension'], family, selector['unit'])
+            value = expected[assertion['id']]
+            require(value.get('unit') == selector['unit'], 'reference unit mismatch')
+            selected.append({'assertion': assertion, 'polarity': polarity, 'expected': gate.finite(value.get('value')), 'rule': rule})
+    for item in absences:
+        if 'evidence' in item:
+            require(basis_of(item['evidence']) in request_cases, 'absence basis is not a load case of the bound input')
+    # The quantity identity with the wrong value; -0.0 and 0.0 are the same wrong value.
+    pairs = [(_selector_identity(item['assertion']['selector']), item['expected'])
+             for item in selected if item['polarity'] == 'negative']
+    require(len(set(pairs)) == len(pairs), 'duplicate negative (selector, wrong value) pair')
+    return {'input': files['runner_input'], 'runner_input': runner_input, 'reauthoring': reauthoring,
+            'reference_bytes': files['reference'], 'criterion_bytes': files['criteria'],
+            'selector_bytes': files['selectors'], 'request': request, 'request_cases': request_cases, 'selected': selected,
+            'absences': absences, 'profile': profile, 'bindings': bindings, 'reference_kind': kind, 'version': version,
+            'load_state': load_state}
+
+
+# --------------------------------------------------------------------------
+# Transport: wrapper, raw header, standing and identity binding
+# --------------------------------------------------------------------------
+
+def unwrap(raw: bytes, request: dict, mode: str, *, limit: int = LIMIT) -> tuple[dict, list[dict]]:
+    """Controlled wrapper and exact pressure-2 raw0.2 envelope; anything else is refused."""
+    require(mode in MODES, 'unsupported actual mode')
+    doc = strict_json_limited(raw, limit)
+    require(type(doc) is dict and set(doc) == {'payload', 'decisions', 'findings', 'blocked', 'summary'}, 'unsupported controlled wrapper')
+    require(doc['blocked'] is False and type(doc['payload']) is dict, 'controlled output blocked')
+    gate._diagnostics(doc['findings'], 'wrapper')
+    summary = doc['summary']
+    require(type(summary) is dict and type(summary.get('blocking_count')) is int and summary['blocking_count'] == 0, 'wrapper blocking summary missing or inconsistent')
+    require(type(doc['decisions']) is list and type(summary.get('decision_count')) is int and summary['decision_count'] == len(doc['decisions']), 'wrapper decision count inconsistent')
+    require(type(summary.get('finding_count')) is int and summary['finding_count'] == len(doc['findings']), 'wrapper finding count inconsistent')
+    require(type(summary.get('warning_count')) is int and summary['warning_count'] == sum(d['severity'].lower() == 'warning' for d in doc['findings']), 'wrapper warning count inconsistent')
+    payload = doc['payload']
+    require(payload.get('artifact') == 'openpipestress.headless_runner_cli_output' and payload.get('schema_version') == '1.0.0', 'unsupported CLI contract')
+    require(payload.get('command') == 'solve' and payload.get('operation') == 'solve', 'wrong CLI operation')
+    for key in ('request_validation', 'result_validation'):
+        require(type(payload.get(key)) is dict, key + ' missing')
+        gate._diagnostics(payload[key].get('diagnostics'), key)
+    gate._diagnostics(payload.get('diagnostics'), 'CLI')
+    runner = payload.get('runner_result')
+    require(type(runner) is dict and runner.get('run_id') == 'run:headless-preview:' + request['request']['request_id'], 'runner request identity mismatch')
+    require(type(runner.get('job')) is dict and runner['job'].get('state') == 'COMPLETED', 'runner not completed')
+    require('MECHANICS_SOLVED' in runner.get('analysis_status', []), 'runner mechanics not solved')
+    gate._diagnostics(runner.get('diagnostics'), 'runner')
+    mechanics = payload.get('mechanics_envelope')
+    require(type(mechanics) is dict and mechanics.get('document_kind') == 'openpipestress.product_preview.mechanics_result', 'unsupported raw mechanics document')
+    require(mechanics.get('schema_version') == '0.2.0' and mechanics.get('producer') == PRODUCER, 'pressure-2 raw/producer identity required')
+    require('source_block_recovery' not in mechanics and 'carrier_evidence' not in mechanics, 'source/composite namespace refused')
+    formulation = mechanics.get('formulation_basis')
+    require(type(formulation) is dict and set(formulation) == {'profile_id', 'limitations'} and formulation['profile_id'] == PROFILE
+            and type(formulation['limitations']) is list and formulation['limitations']
+            and all(type(x) is str and x for x in formulation['limitations']), 'formulation basis invalid')
+    model = request['solve']['preview_model']['model']
+    load_state = current_model(model)
+    require(mechanics.get('run_id') == 'run:preview-linear-static-001', 'raw run identity mismatch for current profile')
+    require(mechanics.get('model_ref') == model['project']['id'], 'actual model identity mismatch')
+    require(mechanics.get('accepted_model_state_mutated') is False, 'solver reports model mutation')
+    require(type(mechanics.get('status')) is dict and mechanics['status'].get('mechanics') == 'MECHANICS_SOLVED', 'mechanics not solved')
+    gate._diagnostics(mechanics.get('diagnostics'), 'mechanics')
+    quality = mechanics.get('numerical_quality')
+    require(type(quality) is dict and set(quality) == {'value_representation', 'publication_quantization', 'integrity_policy', 'status', 'cases'},
+            'numerical quality shape invalid')
+    require(quality['value_representation'] == 'finite_binary64' and quality['publication_quantization'] == 'none'
+            and quality['integrity_policy'] == 'M03-INTEGRITY-v1', 'numerical publication basis differs')
+    require(type(quality['cases']) is list and all(type(c) is dict and set(c) == {'basis_ref', 'structural_status', 'solve_quality',
+            'model_matrix_fidelity', 'accuracy_evidence', 'evidence_refs'} for c in quality['cases']), 'numerical standing missing or malformed')
+    evidence = mechanics.get('contract_evidence')
+    require(type(evidence) is dict and set(evidence) == EVIDENCE_KEYS[load_state], 'pressure-2 evidence namespace for the document required')
+    rows = mechanics.get('results')
+    require(type(rows) is list and rows and all(type(row) is dict for row in rows), 'result rows missing')
+    ids = [row.get('id') for row in rows]
+    require(all(type(i) is str and i for i in ids) and len(ids) == len(set(ids)), 'missing/duplicate result ID')
+    for row in rows:
+        require(set(row) <= {'id', 'kind', 'value', 'unit', 'entity_ref', 'basis_ref', 'metadata', 'source_result_refs'}, 'unknown raw row field for closed profile')
+        for name in ('id', 'kind', 'unit', 'entity_ref'):
+            _text(row.get(name), 'raw row ' + name)
+        if 'basis_ref' in row:
+            require(type(row['basis_ref']) is dict and set(row['basis_ref']) == {'ref_type', 'ref_id'}, 'invalid raw basis shape')
+            require(row['basis_ref']['ref_type'] in ('load_case', 'combination'), 'unknown raw basis type')
+            _text(row['basis_ref']['ref_id'], 'raw basis ID')
+        if 'metadata' in row:
+            require(type(row['metadata']) is dict and set(row['metadata']) == set(gate.META), 'invalid raw metadata shape')
+            require(all(type(v) is str for v in row['metadata'].values()), 'invalid raw metadata value')
+        gate.finite(row.get('value'))
+    mode_rows = [row for row in rows if row.get('kind') == 'linear_solver_mode_basis']
+    require(bool(mode_rows) and all(gate.finite(row.get('value')) == MODE_CODES[mode] and row.get('unit') == 'mode_code' for row in mode_rows),
+            'actual mode evidence mismatch or fallback')
+    mode_cases = sorted(str(row.get('basis_ref', {}).get('ref_id')) for row in mode_rows)
+    require(mode_cases == sorted(load_case_ids(request)), 'one mode row per actual load case required')
+    return mechanics, rows
+
+
+def combination_binding(mechanics: dict, model: dict) -> None:
+    """W-16 slice b (DEL-05-02 exact-combinations.md §6): the raw combination records and rows are exactly the bound
+    input's combinations. One record per input combination, in input order (an absent or null ``combinations`` is
+    none), each with the input's id, basis, complete expression (terms with their factors bit for bit, the
+    subtraction's operands, or the envelope's operands and mode) and its operands' modulus-basis references; a
+    combination row names a bound combination. The operands' selection temperatures, which the producer records
+    normalized, are bound by the owned reader, which receives the bound model (``consistency_observation``)."""
+    combinations = model.get('combinations')
+    combinations = [] if combinations is None else combinations
+    require(type(combinations) is list and all(type(c) is dict for c in combinations), 'bound input combinations invalid')
+    records = (mechanics.get('contract_evidence') or {}).get('exact_combinations') or []
+    require(type(records) is list and len(records) == len(combinations), 'raw combination records differ from the bound input')
+    cases = {c.get('id'): c for c in model.get('load_cases') or [] if type(c) is dict}
+    for record, combination in zip(records, combinations):
+        require(type(record) is dict and record.get('combination_id') == combination.get('id')
+                and record.get('basis') == combination.get('basis'), 'raw combination records differ from the bound input')
+        basis = combination.get('basis')
+        if basis == 'mechanics':
+            expression = {'terms': [{'load_case_id': t.get('load_case'), 'factor': t.get('factor')} for t in combination.get('terms') or []]}
+        elif basis == 'result_state_subtraction':
+            expression = {'minuend_id': combination.get('minuend_id'), 'subtrahend_id': combination.get('subtrahend_id')}
+        else:
+            expression = {'operand_ids': combination.get('operand_ids'), 'mode': combination.get('mode')}
+        require(_same_bits(record.get('expression'), expression), 'raw combination expression differs from the bound input')
+        for operand in record.get('operands') or []:
+            case = cases.get(operand.get('load_case_id')) if type(operand) is dict else None
+            require(case is not None and operand.get('modulus_basis_ref') == case.get('modulus_basis_ref'),
+                    'raw combination operand selection differs from the bound input')
+    combined = {row['basis_ref']['ref_id'] for row in mechanics['results']
+                if 'basis_ref' in row and row['basis_ref'].get('ref_type') == 'combination'}
+    require(combined <= {c.get('id') for c in combinations}, 'raw rows carry combinations outside the bound input')
+
+
+def _same_bits(a, b) -> bool:
+    """Equal values with every float bit for bit (1.3 is not 1.3000000000000003; -0.0 is not 0.0)."""
+    if isinstance(a, float) or isinstance(b, float):
+        return isinstance(a, (int, float)) and isinstance(b, (int, float)) and not isinstance(a, bool) and not isinstance(b, bool) \
+            and struct.pack('>d', float(a)) == struct.pack('>d', float(b))
+    if isinstance(a, dict) and isinstance(b, dict):
+        return a.keys() == b.keys() and all(_same_bits(a[k], b[k]) for k in a)
+    if isinstance(a, list) and isinstance(b, list):
+        return len(a) == len(b) and all(_same_bits(x, y) for x, y in zip(a, b))
+    return a == b
+
+
+def numerical_standing(mechanics: dict, request_cases: list[str]) -> dict:
+    """Observed standing, reported separately. Missing/unknown values raise."""
+    quality = mechanics['numerical_quality']
+    require(quality['status'] in STANDING_VALUES, 'unknown numerical standing')
+    diagnostics = {row.get('id'): row for row in mechanics['diagnostics']}
+    require(len(diagnostics) == len(mechanics['diagnostics']), 'duplicate diagnostic identity')
+    cases = []
+    for case in quality['cases']:
+        basis = case['basis_ref']
+        require(type(basis) is dict and set(basis) == {'ref_type', 'ref_id'} and basis['ref_type'] == 'load_case', 'numerical case basis invalid')
+        require(case['solve_quality'] in STANDING_VALUES, 'unknown case numerical standing')
+        refs = case['evidence_refs']
+        require(type(refs) is list and refs and len(set(refs)) == len(refs)
+                and all(ref in diagnostics and basis['ref_id'] in diagnostics[ref].get('affected_refs', []) for ref in refs),
+                'numerical standing evidence unavailable or unbound')
+        cases.append({'load_case_id': basis['ref_id'], **{k: case[k] for k in ('solve_quality', 'structural_status', 'model_matrix_fidelity', 'accuracy_evidence')},
+                      'evidence_codes': [diagnostics[ref].get('code') for ref in refs]})
+    ids = [row['load_case_id'] for row in cases]
+    require(len(ids) == len(set(ids)) and set(ids) == set(request_cases), 'numerical standing does not cover every actual load case')
+    passed = quality['status'] == 'checks_passed' and all(
+        row['solve_quality'] == 'checks_passed' and row['structural_status'] == 'passive_model_basis'
+        and row['model_matrix_fidelity'] == 'represented_equations_retained' and row['accuracy_evidence'] == 'not_claimed'
+        and row['evidence_codes'] and all(code == 'NUMERICAL_INTEGRITY_CHECKS_PASSED' for code in row['evidence_codes'])
+        for row in cases)
+    observed = {quality['status']} | {row['solve_quality'] for row in cases}
+    if passed:
+        value = 'checks_passed'
+    elif 'sensitive' in observed and observed <= {'checks_passed', 'sensitive'}:
+        value = 'sensitive'
+    else:
+        value = 'insufficient'
+    return {'standing': value, 'envelope_status': quality['status'], 'load_cases': cases,
+            'scope': 'producer numerical standing; not accuracy evidence and not a comparison outcome'}
+
+
+# --------------------------------------------------------------------------
+# Selector resolution and comparison
+# --------------------------------------------------------------------------
+
+def resolve_row(rows: list[dict], selector: dict) -> float:
+    by_id = [row for row in rows if row.get('id') == selector['id']]
+    require(len(by_id) == 1, 'required result unavailable')
+    matches = [row for row in rows if gate.selector_matches(row, selector)]
+    require(len(matches) == 1 and matches[0] is by_id[0], 'required selector does not resolve exactly once to its row')
+    return gate.finite(by_id[0].get('value'))
+
+
+def _one(items, predicate, label):
+    found = [item for item in items if type(item) is dict and predicate(item)]
+    require(len(found) == 1, label + ' does not resolve exactly once')
+    return found[0]
+
+
+def terminal(mechanics: dict, basis: dict, node: str) -> dict:
+    regions = mechanics['contract_evidence']['pressure']
+    require(type(regions) is list, 'pressure evidence unavailable')
+    terminals = [item for region in regions if type(region) is dict and region.get('load_case_id') == basis['ref_id']
+                 for item in (region.get('terminals') if type(region.get('terminals')) is list else [])]
+    return _one(terminals, lambda item: item.get('node_ref') == node, 'pressure terminal')
+
+
+def resolve_evidence(mechanics: dict, selector: dict) -> float:
+    item = terminal(mechanics, selector['basis_ref'], selector['key']['node_ref'])
+    for name, value in selector['definition'].items():
+        require(type(item.get(name)) is type(value) and item.get(name) == value, 'definition differs: ' + name)
+    vector = item.get(selector['field'])
+    require(vector is not None, 'evidence value unavailable (null is not zero)')
+    require(type(vector) is list and len(vector) == 3, 'terminal field is not a global vector')
+    return gate.finite(vector[AXES.index(selector['component'])])
+
+
+def evaluate(case_ledger: dict, prepared: dict, mechanics: dict, rows: list[dict]) -> bool:
+    """Compare every required selector; return complete exact-once coverage."""
+    required = {row['id']: row for row in case_ledger['assertions']}
+    covered = True
+    for item in prepared['selected']:
+        target = required[item['assertion']['id']]
+        selector = item['assertion']['selector']
+        try:
+            try:
+                actual = resolve_evidence(mechanics, selector) if 'namespace' in selector else resolve_row(rows, selector)
+            except ValueError:
+                covered = False
+                raise
+            expected, rule = item['expected'], item['rule']
+            delta = gate.finite(actual - expected)
+            absolute = gate.finite(abs(delta))
+            gate.finite(gate.finite(rule['relative_tolerance_value']) * max(abs(actual), abs(expected)))
+            classification, basis = gate._classify_delta(absolute, expected, actual, prepared['profile'], rule, selector['unit'])
+            require(classification in ('within_tolerance_profile', 'exceeds_tolerance_profile'), 'required comparison unclassified')
+            within = classification == 'within_tolerance_profile'
+            if item['polarity'] == 'positive':
+                state, reason = ('matched' if within else 'failed'), classification
+            else:
+                state = 'failed' if within else 'matched'
+                reason = 'wrong_result_reproduced' if within else 'wrong_result_excluded'
+            target.update(state=state, reason=reason, observed=actual, expected=expected, absolute_delta=absolute,
+                          unit=selector['unit'], predicate_basis=basis, classification=classification)
+        except (ValueError, KeyError, TypeError, AttributeError, OverflowError) as exc:
+            target.update(state='error', reason=str(exc), observed=None)
+    return covered
+
+
+def structural_checks(mechanics: dict, prepared: dict, mode: str, standing: dict | None, standing_error: str | None,
+                      reader: dict | None, reader_error: str | None, coverage: bool) -> list[dict]:
+    request = prepared['request']
+    model = request['solve']['preview_model']['model']
+    output = []
+
+    def assess(check_id, operation, failure_state='failed'):
+        details = {}
+        try:
+            operation(details)
+            state, reason = 'matched', 'required pressure-2 predicate satisfied'
+        except (ValueError, KeyError, TypeError, AttributeError, OverflowError, IndexError) as exc:
+            state, reason = failure_state, str(exc)
+        output.append({'id': check_id, 'state': state, 'reason': reason, 'details': details})
+
+    def transport(details):
+        details.update(mode=mode, mode_code=MODE_CODES[mode], document_schema_version=MODEL_VERSION,
+                       frozen_document_version=prepared['version'], load_reference_state_group=prepared['load_state'])
+
+    def input_binding(details):
+        evidence = mechanics['contract_evidence']
+        wanted = sorted(prepared['request_cases'])
+        exact = sorted(case.get('load_case_id') for case in evidence['exact_cases'])
+        require(exact == wanted, 'raw load cases differ from the bound input (substitution)')
+        # W-16 slice b (DEL-05-02 exact-combinations.md §6): a combination row names a combination of the
+        # bound input; the document's combination records are exactly the input's combinations.
+        foreign = sorted({row['basis_ref']['ref_id'] for row in mechanics['results']
+                          if 'basis_ref' in row and row['basis_ref'].get('ref_type') != 'combination'} - set(wanted))
+        require(not foreign, 'raw rows carry load cases outside the bound input')
+        combination_binding(mechanics, request['solve']['preview_model']['model'])
+        details.update(model_ref=mechanics['model_ref'], request_id=request['request']['request_id'], load_cases=wanted)
+
+    def contract(details):
+        require(sha256_bytes((PROJECT / TABLE).read_bytes()) == TABLE_SHA256, 'pinned pressure-2 table changed')
+        require(mechanics['producer'] == PRODUCER and mechanics['formulation_basis']['profile_id'] == PROFILE, 'contract/profile differs')
+        details.update(semantic_contract_id=CONTRACT, profile_id=PROFILE, table_sha256=TABLE_SHA256)
+
+    def standing_check(details):
+        require(standing is not None, standing_error or 'numerical standing unavailable')
+        details.update(standing)
+        require(standing['standing'] == 'checks_passed', 'insufficient numerical standing: ' + standing['standing'])
+
+    def records(details):
+        """Each authored pressure region is published once under v3 for its case; the load/reference-state group adds its state records."""
+        evidence = mechanics['contract_evidence']
+        published = sorted((r.get('load_case_id'), r.get('region_id'), r.get('profile_version'), r.get('profile_mode'))
+                           for r in evidence['pressure'])
+        authored = sorted((case['id'], region['id'], PRESSURE_CONTRACT['version'], PRESSURE_CONTRACT['mode'])
+                          for case in model['load_cases'] for region in case.get('pressure_regions', []))
+        require(published == authored, 'published pressure regions differ from the bound input')
+        details['regions'] = [f'{case}/{region}' for case, region, _, _ in published]
+        if not prepared['load_state']:
+            return
+        by_case = {}
+        for record in evidence['load_reference_states']:
+            require(type(record) is dict and record.get('load_case_id') not in by_case, 'duplicate load reference state record')
+            by_case[record.get('load_case_id')] = record
+        require(sorted(by_case) == sorted(prepared['request_cases']), 'load reference state records differ from the bound input')
+        for case in model['load_cases']:
+            record, state = by_case[case['id']], case.get('analysis_state')
+            require(type(state) is dict, 'resolved load state absent from bound input: ' + case['id'])
+            require(record.get('contract') == 'openpipestress.load_reference_state/1.0.0', 'record contract differs')
+            require(record.get('reference_configuration_id') == state.get('reference_configuration_ref'), 'reference configuration differs from input')
+            solve = record.get('solve')
+            require(type(solve) is dict and solve.get('requested_mode') == mode and solve.get('recovery_method') == RECOVERY_METHODS[mode],
+                    'record mode/recovery method differs')
+            require(record.get('source_recovery') == NOT_JOINED, 'joined source recovery is not pressure-2')
+        details['records'] = sorted(by_case)
+
+    def absences(details):
+        rows = mechanics['results']
+        for item in prepared['absences']:
+            if 'row' in item:
+                found = [row['id'] for row in rows if row.get('kind') == item['row']['kind'] and row.get('entity_ref') == item['row']['entity_ref']]
+                require(not found, 'declared absent row published: ' + ', '.join(found))
+            else:
+                evidence = item['evidence']
+                require(terminal(mechanics, evidence['basis_ref'], evidence['key']['node_ref']).get(evidence['field'], 0) is None,
+                        'declared null terminal field is not null: ' + evidence['key']['node_ref'] + ' ' + evidence['field'])
+        details['absences'] = len(prepared['absences'])
+
+    def owned_reader(details):
+        require(reader is not None, 'owned reader observation unavailable: ' + str(reader_error))
+        details.update(verdict=reader['response'].get('verdict'), reason=reader['response'].get('reason'), reader_executable_sha256=reader['reader_executable_sha256'],
+                       binding_sha256=reader['binding_sha256'], scope=reader['scope'])
+        require(reader['response'].get('verdict') == 'consistent', 'owned reader refused the envelope')
+
+    def selector_coverage(details):
+        details['required_selectors'] = len(prepared['selected'])
+        require(coverage, 'required selectors do not all resolve exactly once')
+
+    for check_id, operation, failure in [
+            ('transport_identity_and_mode', transport, 'failed'), ('actual_input_binding', input_binding, 'failed'),
+            ('pressure_contract', contract, 'failed'),
+            ('numerical_standing', standing_check, 'failed' if standing is not None else 'error'),
+            ('pressure_record_binding', records, 'failed'), ('declared_absences', absences, 'failed'),
+            ('owned_reader_consistency', owned_reader, 'failed' if reader is not None else 'error'),
+            ('complete_unique_selector_coverage', selector_coverage, 'failed')]:
+        assess(check_id, operation, failure)
+    return output
+
+
+# --------------------------------------------------------------------------
+# Owned reader binding and isolated observation
+# --------------------------------------------------------------------------
+
+def bounded(path: Path, expected: str, limit: int = LIMIT) -> bytes:
+    with path.open('rb') as stream:
+        data = stream.read(limit + 1)
+    require(len(data) <= limit and sha256_bytes(data) == expected, 'bound bytes differ or exceed limit: ' + str(path))
+    return data
+
+
+def load_binding(project: Path, binding_path: Path, expected_sha256: str, *, require_reviewed: bool = True) -> dict:
+    project = project.resolve()
+    data = bounded(binding_path, expected_sha256)
+    binding = gate.strict_json(data)
+    require(type(binding) is dict and binding.get('format') == BINDING_FORMAT and binding.get('contract_id') == CONTRACT,
+            'unsupported reader binding identity')
+    require(binding.get('entrypoint') == ENTRYPOINT, 'unsupported owned entry')
+    if require_reviewed:
+        require(binding.get('status') == 'reviewed_candidate' and bool(binding.get('review_basis')), 'reviewed candidate/module binding not admitted')
+    files = binding.get('files')
+    require(type(files) is list and len(files) == len(DEPENDENCIES), 'closed dependency inventory required')
+    paths = [row.get('path') if type(row) is dict else None for row in files]
+    require(set(paths) == set(DEPENDENCIES) and len(set(paths)) == len(paths), 'dependency inventory mismatch')
+    content = {}
+    for row in files:
+        require(set(row) == {'path', 'sha256'}, 'unknown dependency fields')
+        require(row['sha256'] == DEPENDENCIES[row['path']], 'unselected owned reader dependency: ' + row['path'])
+        path = (project / row['path']).resolve()
+        require(path.is_relative_to(project), 'dependency leaves selected candidate root')
+        content[row['path']] = bounded(path, row['sha256'])
+    review_bytes = []
+    if require_reviewed:
+        for review in binding['review_basis']:
+            require(type(review) is dict and set(review) == {'path', 'sha256'}, 'review binding shape invalid')
+            path = (project / review['path']).resolve()
+            require(path.is_relative_to(project), 'review origin leaves selected candidate root')
+            review_bytes.append({'path': str(path), 'sha256': review['sha256'], 'bytes': bounded(path, review['sha256'])})
+    table = gate.strict_json(content[TABLE])
+    require(table.get('semantic_contract_id') == CONTRACT and table.get('formulation_profile_id') == PROFILE, 'semantic identity mismatch')
+    return {'source_root': project, 'binding_path': binding_path.resolve(), 'binding_sha256': expected_sha256, 'binding': binding,
+            'semantic_table': table, 'binding_bytes': data, 'dependency_bytes': content, 'review_bytes': review_bytes,
+            'admitted': require_reviewed and binding.get('status') == 'reviewed_candidate'}
+
+
+def consistency_observation(raw: dict, binding: dict, directory: Path, *, input_limit: int = LIMIT,
+                            timeout_seconds: float = 60, model: dict | None = None) -> dict:
+    """Take the Rust product reader's verdict on the parsed snapshot (`openpipestress-runner read pressure`).
+
+    The reader input is a derived parsed snapshot, not the runner's stdout bytes. A
+    refusal is a genuine owned-reader verdict, reported as a failed obligation. The
+    reader executable is identified by its digest only, not as built from the bound sources.
+    """
+    require(raw.get('schema_version') == '0.2.0' and raw.get('producer') == PRODUCER, 'pressure-2 raw/producer dispatch mismatch')
+    # W-16 slice b: with the bound model, the reader also binds the combination records to the input's
+    # combinations and their operands' modulus selections (`exact_combination_evidence::model_checks`).
+    reader_input = {'source': raw} if model is None else {'source': raw, 'model': model}
+    request_bytes = json.dumps(reader_input, ensure_ascii=True, separators=(',', ':'), allow_nan=False).encode()
+    require(type(input_limit) is int and 0 < input_limit <= MAX_OUTPUT_LIMIT and len(request_bytes) <= input_limit, 'reader input limit')
+    require(bounded(binding['binding_path'], binding['binding_sha256']) == binding['binding_bytes'], 'binding changed before reader')
+    for row in binding['binding']['files']:
+        bounded(binding['source_root'] / row['path'], row['sha256'])
+    executable = rust_reader.runner_executable().resolve()
+    executable_sha256 = file_sha256(executable)
+    process = capture(executable, ['read', READER], request_bytes, directory, timeout_seconds=max(60, timeout_seconds),
+                      output_limit_bytes=LIMIT, expected_executable_sha256=executable_sha256)
+    require(file_sha256(executable) == executable_sha256, 'reader executable changed during execution')
+    response_bytes = gate.read_captured_bytes(directory / 'stdout.bin', process['stdout_sha256'], process['stdout_bytes'], LIMIT)
+    verdict, reason, outcome = physics.reader_verdict(process, response_bytes, READER, require)
+    for row in binding['binding']['files']:
+        bounded(binding['source_root'] / row['path'], row['sha256'])
+    response = {'artifact': rust_reader.ARTIFACT, 'reader': READER, 'verdict': verdict, 'reason': reason, 'outcome': outcome,
+                'binding_sha256': binding['binding_sha256'], 'source_bytes_sha256': sha256_bytes(request_bytes),
+                'dependencies': binding['binding']['files'], 'contract_id': CONTRACT}
+    return {'process': process, 'response': response, 'reader_executable_sha256': executable_sha256, 'binding_sha256': binding['binding_sha256'],
+            'binding_admitted': binding['admitted'],
+            'scope': 'internal source consistency of parsed snapshot only; runner provenance and numerical comparison are separate'}
+
+
+# --------------------------------------------------------------------------
+# Run
+# --------------------------------------------------------------------------
+
+def admit_run(run: dict) -> None:
+    require(type(run) is dict and set(run) == RUN_KEYS, 'unknown/missing run selection fields')
+    require(run['format'] == RUN_FORMAT, 'unsupported run selection version')
+    require(run['transport'] == TRANSPORT, 'unsupported transport version')
+    require(run['purpose'] in ('harness_development', 'development_comparison'), 'unsupported run purpose; release qualification not implemented')
+    _text(run['profile_id'], 'profile ID')
+    runner = run['runner']
+    require(type(runner) is dict and set(runner) == RUNNER_KEYS, 'unknown/missing runner binding')
+    require(runner['solver_mode'] in MODES, 'mode not available through selected CLI')
+    require(type(runner['explicit_local_private_intent']) is bool, 'explicit local private intent must be boolean')
+    require(type(runner['candidate_commit']) is str and bool(re.fullmatch('[0-9a-f]{40}', runner['candidate_commit'])), 'exact candidate commit required')
+    require(type(runner['executable_sha256']) is str and bool(re.fullmatch('[0-9a-f]{64}', runner['executable_sha256'])), 'exact executable digest required')
+    for key in ('case_manifest', 'reader_binding'):
+        require(type(run[key]) is dict and set(run[key]) == {'path', 'sha256'}, key + ' binding must be {path, sha256}')
+
+
+def write_summary(path: Path, ledger: dict) -> None:
+    summary = ledger['summary']
+    counts = summary['assertions']
+    lines = ['# exact_pressure_1 qualification development observation', '',
+             f"Outcome: {ledger['outcome']} (transport {TRANSPORT}, mode {ledger['solver_mode']})",
+             f"Required: {summary['required_cases']} cases / {summary['required_assertions']} assertions "
+             f"({sum(summary['assertions_by_polarity']['positive'].values())} positive, "
+             f"{sum(summary['assertions_by_polarity']['negative'].values())} negative) / "
+             f"{summary['required_structural_checks']} structural checks.",
+             'Assertions: ' + ' | '.join(f'{state}: {counts[state]}' for state in STATES),
+             'Structural: ' + ' | '.join(f"{state}: {summary['structural_checks'][state]}" for state in STATES),
+             'Numerical standing (reported separately from outcomes): ' +
+             ', '.join(f'{key}: {value}' for key, value in summary['numerical_standing'].items()), '',
+             'This report does not establish app Current, independent oracle admission, physical validation, professional acceptance or release.', '',
+             '| Case | Outcome | Standing | Assertions matched/required | Structural matched/required |', '|---|---|---|---|---|']
+    for case in ledger['cases']:
+        label = str(case['id']).replace('|', '\\|').replace('\n', ' ')
+        lines.append(f"| {label} | {case['state']} | {case['numerical_standing'].get('standing')} | "
+                     f"{sum(r['state'] == 'matched' for r in case['assertions'])}/{len(case['assertions'])} | "
+                     f"{sum(r['state'] == 'matched' for r in case['structural_checks'])}/{len(case['structural_checks'])} |")
+    path.write_text('\n'.join(lines) + '\n')
+
+
+def publish(ledger, output_dir, global_artifacts, case_artifacts, original_bindings, global_originals):
+    gate.verify_publication_custody(ledger, output_dir, global_artifacts, case_artifacts, original_bindings, global_originals)
+    summarize(ledger)
+    gate.atomic_record(output_dir / 'ledger.json', ledger)
+    write_summary(output_dir / 'summary.md', ledger)
+    return ledger
+
+
+def observe_case(case_ledger, prepared, stdout_bytes, mode, reader_binding, output_dir, prefix, artifacts,
+                 output_limit_bytes, timeout_seconds):
+    """Unwrap, compare, run the owned reader and assess the structural obligations of one completed process."""
+    mechanics, rows = unwrap(stdout_bytes, prepared['request'], mode, limit=output_limit_bytes)
+    case_ledger['observed_result_identity'] = {k: mechanics[k] for k in ('document_kind', 'schema_version', 'run_id', 'model_ref')}
+    try:
+        standing, standing_error = numerical_standing(mechanics, prepared['request_cases']), None
+    except (ValueError, KeyError, TypeError) as exc:
+        standing, standing_error = None, str(exc)
+    case_ledger['numerical_standing'] = standing or {'standing': 'unavailable', 'reason': standing_error}
+    coverage = evaluate(case_ledger, prepared, mechanics, rows)
+    reader, reader_error = None, None
+    try:
+        reader = consistency_observation(mechanics, reader_binding, output_dir / f'{prefix}-reader',
+                                         input_limit=output_limit_bytes, timeout_seconds=timeout_seconds,
+                                         model=prepared['request']['solve']['preview_model']['model'])
+    except (ValueError, KeyError, TypeError, OSError) as exc:
+        reader_error = str(exc)
+    finally:
+        if reader is not None:
+            reader_process = reader['process']
+            for stream_name in ('stdout', 'stderr'):
+                artifacts.append({'role': 'reader_' + stream_name, 'path': f'{prefix}-reader/{stream_name}.bin',
+                                  'sha256': reader_process[stream_name + '_sha256'], 'byte_length': reader_process[stream_name + '_bytes'],
+                                  'byte_limit': reader_process['output_limit_bytes_per_stream']})
+            reader_bytes = gate.read_captured_bytes(output_dir / f'{prefix}-reader' / 'stdin.bin', reader_process['stdin_sha256'],
+                                                    reader_process['stdin_bytes_delivered'], output_limit_bytes)
+            artifacts.append(gate.artifact_binding('reader_input', f'{prefix}-reader/stdin.bin', reader_bytes, output_limit_bytes))
+            case_ledger['reader_consistency'] = {k: reader[k] for k in ('response', 'reader_executable_sha256', 'binding_sha256', 'binding_admitted', 'scope')}
+    checks = structural_checks(mechanics, prepared, mode, standing, standing_error, reader, reader_error, coverage)
+    require([row['id'] for row in checks] == list(REQUIRED_STRUCTURAL_CHECKS), 'structural checker lost required denominator')
+    case_ledger['structural_checks'] = checks
+    states = {row['state'] for row in case_ledger['assertions'] + checks}
+    case_ledger.update(state='matched' if states == {'matched'} else 'error' if 'error' in states else 'failed',
+                       reason='required assertion and structural assessment')
+
+
+def run_selection(run_path: Path, executable: Path, source_root: Path, output_dir: Path,
+                  timeout_seconds: float = 30, output_limit_bytes: int = 8 * 1024 * 1024) -> dict:
+    with run_path.open('rb') as stream:
+        raw_run = stream.read(LIMIT + 1)
+    run = gate.strict_json(raw_run)
+    admit_run(run)
+    mode = run['runner']['solver_mode']
+    project = project_root(source_root)
+    manifest_bytes, manifest_path = gate.read_bound(run['case_manifest'], run_path.parent)
+    manifest = admit_manifest(manifest_bytes)
+    inventories = {case['case_id']: case_inventory(case, project) for case in manifest['cases']}
+    ledger = predeclare(manifest, mode, inventories)
+    ledger.update(profile_id=run['profile_id'], selection_sha256=sha256_bytes(raw_run), case_manifest_sha256=sha256_bytes(manifest_bytes))
+    output_dir.mkdir(parents=True, exist_ok=False)
+    (output_dir / 'selection.json').write_bytes(raw_run)
+    (output_dir / 'case-manifest.json').write_bytes(manifest_bytes)
+    global_artifacts = [gate.artifact_binding('selection', 'selection.json', raw_run),
+                        gate.artifact_binding('case_manifest', 'case-manifest.json', manifest_bytes)]
+    global_originals = [{'path': str(manifest_path), 'sha256': sha256_bytes(manifest_bytes)}]
+    case_artifacts, original_bindings = {}, {}
+    for case in ledger['cases']:
+        refusal = inventories[case['id']]['refusal']
+        if refusal:
+            fail_case(case, 'blocked', refusal)
+    summarize(ledger)
+    gate.atomic_record(output_dir / 'ledger.json', ledger)
+    try:
+        require(math.isfinite(timeout_seconds) and 0 < timeout_seconds <= 3600, 'invalid process time limit')
+        require(type(output_limit_bytes) is int and 0 < output_limit_bytes <= MAX_OUTPUT_LIMIT, 'invalid process output limit')
+        runner = run['runner']
+        require(executable.is_absolute() and executable.is_file(), 'explicit executable required')
+        require(file_sha256(executable) == runner['executable_sha256'], 'executable digest mismatch')
+        actual_commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=source_root, text=True).strip()
+        require(actual_commit == runner['candidate_commit'], 'candidate revision mismatch')
+        status = subprocess.check_output(['git', 'status', '--porcelain=v1'], cwd=source_root, text=True)
+        require(sha256_bytes((PROJECT / TABLE).read_bytes()) == TABLE_SHA256, 'pinned pressure-2 table changed')
+        require(sha256_bytes(gate.CLASSIFIER.read_bytes()) == gate.CLASSIFIER_SHA256, 'existing comparison predicate changed')
+        binding_bytes, binding_path = gate.read_bound(run['reader_binding'], run_path.parent)
+        reader_binding = load_binding(project, binding_path, sha256_bytes(binding_bytes))
+        snapshot_root = output_dir / 'reader-basis'
+        snapshot_root.mkdir()
+        for name, data in reader_binding['dependency_bytes'].items():
+            copied = snapshot_root / name
+            copied.parent.mkdir(parents=True, exist_ok=True)
+            copied.write_bytes(data)
+            global_artifacts.append(gate.artifact_binding('reader_dependency', str(copied.relative_to(output_dir)), data))
+            global_originals.append({'path': str(project / name), 'sha256': sha256_bytes(data)})
+        snapshot_binding = snapshot_root / 'binding.json'
+        snapshot_binding.write_bytes(binding_bytes)
+        global_artifacts.append(gate.artifact_binding('reader_binding', str(snapshot_binding.relative_to(output_dir)), binding_bytes))
+        global_originals.append({'path': str(binding_path), 'sha256': sha256_bytes(binding_bytes)})
+        reader_binding.update(snapshot_root=snapshot_root, snapshot_binding_path=snapshot_binding)
+        for index, review in enumerate(reader_binding['review_bytes']):
+            name = f'reader-basis/review-{index:02}.bin'
+            (output_dir / name).write_bytes(review['bytes'])
+            global_artifacts.append(gate.artifact_binding('reader_review', name, review['bytes']))
+            global_originals.append({'path': review['path'], 'sha256': review['sha256']})
+        ledger['global_artifacts'] = global_artifacts
+        semantics = reader_binding['semantic_table']['rows']
+        ledger['execution_basis'] = {
+            'source_commit': actual_commit, 'dirty_tree': bool(status), 'source_status': status,
+            'executable_sha256': runner['executable_sha256'], 'solver_mode_dispatch': mode + ' explicit CLI flag',
+            'semantic_contract_id': CONTRACT, 'semantic_contract_sha256': TABLE_SHA256, 'profile_id': PROFILE,
+            'reader_dependencies': DEPENDENCIES, 'reader_binding_sha256': reader_binding['binding_sha256'],
+            'reader_binding_admitted': reader_binding['admitted'],
+            'existing_predicate_sha256': gate.CLASSIFIER_SHA256, 'harness_sha256': file_sha256(Path(__file__)),
+            'gate_sha256': file_sha256(Path(gate.__file__)), 'reader_executable_sha256': file_sha256(rust_reader.runner_executable().resolve()),
+            'process_supervisor_sha256': file_sha256(Path(__file__).with_name('qualification_process.py')),
+            'python': sys.version, 'platform': platform.platform(),
+            'source_artifact_association': 'selected checkout and executable identities; not independent build-source attestation',
+            'producer_precision': 'pressure-2 raw0.2 finite binary64 without publication quantization'}
+    except (ValueError, KeyError, TypeError, AttributeError, OSError, subprocess.SubprocessError) as exc:
+        ledger['diagnostics'].append(str(exc))
+        for case in ledger['cases']:
+            fail_case(case, 'blocked', str(exc))
+        return publish(ledger, output_dir, global_artifacts, case_artifacts, original_bindings, global_originals)
+    manifest_cases = {case['case_id']: case for case in manifest['cases']}
+    for index, case_ledger in enumerate(ledger['cases']):
+        if inventories[case_ledger['id']]['refusal']:
+            continue
+        case = manifest_cases[case_ledger['id']]
+        prefix = f'case-{index:04}'
+        try:
+            prepared = prepare_case(case, project, run['purpose'], semantics)
+            case_ledger['bindings'] = prepared['bindings']
+            original_bindings[case_ledger['id']] = prepared['bindings']
+            case_ledger['reference_kind'] = prepared['reference_kind']
+            artifacts = case_artifacts[case_ledger['id']] = []
+            for role, key in (('reference', 'reference_bytes'), ('criterion', 'criterion_bytes'), ('selectors', 'selector_bytes')):
+                name = f'{prefix}.{role}.json'
+                (output_dir / name).write_bytes(prepared[key])
+                artifacts.append(gate.artifact_binding(role, name, prepared[key]))
+            case_ledger['retained_artifacts'] = artifacts
+            case_ledger['reason'] = 'admitted, process pending'
+            gate.atomic_record(output_dir / 'ledger.json', ledger)
+            arguments = ['solve', '--input', '-', '--solver-mode', mode]
+            if runner['explicit_local_private_intent']:
+                arguments.append('--explicit-local-private-intent')
+            case_ledger['runner_input_reauthoring'] = prepared['reauthoring']
+            process = capture(executable, arguments, prepared['runner_input'], output_dir / prefix, timeout_seconds, output_limit_bytes,
+                              expected_executable_sha256=runner['executable_sha256'])
+            case_ledger['process'] = process
+            artifacts.append(gate.artifact_binding('input', f'{prefix}/stdin.bin', prepared['runner_input']))
+            for stream_name in ('stdout', 'stderr'):
+                artifacts.append({'role': stream_name, 'path': f'{prefix}/{stream_name}.bin',
+                                  'sha256': process[stream_name + '_sha256'], 'byte_length': process[stream_name + '_bytes'],
+                                  'byte_limit': process['output_limit_bytes_per_stream']})
+            require(process['executable_sha256_before'] == runner['executable_sha256'], 'executable changed before case')
+            if process['outcome'] != 'completed' or not process['stdin_delivery_complete']:
+                fail_case(case_ledger, 'error', 'process ' + process['outcome'])
+            else:
+                stdout_bytes = gate.read_captured_bytes(output_dir / prefix / 'stdout.bin', process['stdout_sha256'],
+                                                        process['stdout_bytes'], output_limit_bytes)
+                observe_case(case_ledger, prepared, stdout_bytes, mode, reader_binding, output_dir, prefix, artifacts,
+                             output_limit_bytes, timeout_seconds)
+            gate.verify_retained_artifacts(output_dir, artifacts)
+            for binding in prepared['bindings']:
+                require(file_sha256(Path(binding['path']), max_bytes=LIMIT) == binding['sha256'], 'bound input/reference/criterion changed during run')
+            if process['outcome'] == 'interrupted':
+                ledger['diagnostics'].append('supervisor interrupted; subsequent cases remain not_run')
+                break
+        except (ValueError, KeyError, TypeError, AttributeError, OSError, OverflowError, IndexError) as exc:
+            fail_case(case_ledger, 'blocked' if case_ledger['process'] is None else 'error', str(exc))
+        except KeyboardInterrupt:
+            fail_case(case_ledger, 'error', 'interrupted before or after process capture')
+            ledger['diagnostics'].append('interrupted; subsequent cases remain not_run')
+            break
+        finally:
+            summarize(ledger)
+            gate.atomic_record(output_dir / 'ledger.json', ledger)
+    return publish(ledger, output_dir, global_artifacts, case_artifacts, original_bindings, global_originals)
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--selection', type=Path, required=True)
+    parser.add_argument('--executable', type=Path, required=True)
+    parser.add_argument('--source-root', type=Path, required=True)
+    parser.add_argument('--output-dir', type=Path, required=True)
+    parser.add_argument('--timeout-seconds', type=float, default=30)
+    parser.add_argument('--output-limit-bytes', type=int, default=8 * 1024 * 1024)
+    args = parser.parse_args()
+    try:
+        result = run_selection(args.selection.resolve(), args.executable, args.source_root.resolve(), args.output_dir.resolve(),
+                               args.timeout_seconds, args.output_limit_bytes)
+    except (gate.AdmissionError, OSError, ValueError, KeyError, TypeError) as exc:
+        print(json.dumps({'outcome': 'selection_error', 'reason': str(exc), 'qualification': 'not_established_by_this_harness'}))
+        raise SystemExit(2)
+    print(json.dumps({'outcome': result['outcome'], 'summary': result['summary'], 'ledger': str(args.output_dir / 'ledger.json')}))
+    raise SystemExit(0 if result['outcome'] == 'all_required_assertions_matched' else 1)
+
+
+if __name__ == '__main__':
+    main()

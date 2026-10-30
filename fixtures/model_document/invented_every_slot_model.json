@@ -1,0 +1,356 @@
+{
+  "schema_version": "0.8.0",
+  "document_kind": "openpipestress.product_preview.model",
+  "data_boundary": {
+    "content_basis": "invented_example"
+  },
+  "project": {
+    "id": "project:slots",
+    "name": "Invented slots",
+    "description": "Invented every-slot witness",
+    "units": {
+      "length": "m",
+      "force": "N",
+      "angle": "rad",
+      "pressure": "Pa",
+      "temperature": "degC"
+    },
+    "tags": [
+      "tie-in",
+      "rev-B"
+    ],
+    "notes": "Project-level free text."
+  },
+  "analysis_status": {
+    "mechanics": "not_run",
+    "rule_check": "not_run",
+    "professional_acceptance": "not_claimed"
+  },
+  "materials": [
+    {
+      "id": "material:steel",
+      "label": "Invented steel",
+      "elastic_modulus": {
+        "value": 200000000000.0,
+        "unit": "Pa"
+      },
+      "shear_modulus": {
+        "value": 77000000000.0,
+        "unit": "Pa"
+      },
+      "thermal_expansion_coefficient": {
+        "value": 1.2e-05,
+        "unit": "1/degC"
+      },
+      "provenance": "invented_example",
+      "tags": [
+        "carbon"
+      ],
+      "notes": "Invented material.",
+      "provenance_record": {
+        "source_name": "Invented handbook",
+        "source_location": "invented://handbook/table-1",
+        "source_license": "invented-permissive",
+        "contributor": "Invented contributor",
+        "contributor_certification": "invented-attestation",
+        "redistribution_status": "public_permissive",
+        "review_status": "accepted",
+        "reviewed_by": "Invented reviewer",
+        "reviewed_on": "2026-02-28",
+        "verification_note": "Invented check.",
+        "library_ref": {
+          "library_kind": "material",
+          "library_id": "library:invented-materials",
+          "library_version": "1.0.0",
+          "record_id": "steel"
+        }
+      }
+    }
+  ],
+  "sections": [
+    {
+      "id": "section:std",
+      "name": "Invented section",
+      "section_type": "pipe",
+      "properties": {
+        "outside_diameter": {
+          "value": 0.168,
+          "unit": "m"
+        }
+      },
+      "provenance": {
+        "source": "invented"
+      },
+      "tags": [
+        "std"
+      ],
+      "provenance_record": {
+        "source_name": "Invented catalogue",
+        "source_location": "invented://catalogue",
+        "source_license": "invented-permissive",
+        "contributor": "Invented contributor",
+        "contributor_certification": "invented-attestation",
+        "redistribution_status": "public_permissive",
+        "review_status": "pending"
+      }
+    }
+  ],
+  "nodes": [
+    {
+      "id": "node:N-1",
+      "label": "Anchor",
+      "position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "provenance": "invented_example",
+      "tags": [
+        "anchor"
+      ]
+    },
+    {
+      "id": "node:N-2",
+      "label": "Elbow",
+      "position": {
+        "x": 3.2,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "provenance": "invented_example",
+      "notes": "Elbow node."
+    },
+    {
+      "id": "node:N-3",
+      "label": "End",
+      "position": {
+        "x": 3.2,
+        "y": 2.0,
+        "z": 0.0
+      },
+      "provenance": "invented_example"
+    }
+  ],
+  "pipe_segments": [
+    {
+      "id": "pipe:P-1",
+      "label": "Run",
+      "from": "node:N-1",
+      "to": "node:N-2",
+      "section": {
+        "outside_diameter": {
+          "value": 0.168,
+          "unit": "m"
+        },
+        "wall_thickness": {
+          "value": 0.007,
+          "unit": "m"
+        }
+      },
+      "material": "material:steel",
+      "provenance": "invented_example",
+      "tags": [
+        "discharge"
+      ],
+      "notes": "Run note."
+    },
+    {
+      "id": "pipe:P-2",
+      "label": "Riser",
+      "from": "node:N-2",
+      "to": "node:N-3",
+      "section": {
+        "outside_diameter": {
+          "value": 0.168,
+          "unit": "m"
+        },
+        "wall_thickness": {
+          "value": 0.007,
+          "unit": "m"
+        }
+      },
+      "material": "material:steel",
+      "provenance": "invented_example"
+    }
+  ],
+  "supports": [
+    {
+      "id": "support:S-1",
+      "label": "Anchor support",
+      "node": "node:N-1",
+      "restraints": [
+        "UX",
+        "UY",
+        "UZ"
+      ],
+      "provenance": "invented_example",
+      "tags": [
+        "anchor"
+      ],
+      "provenance_record": {
+        "source_name": "Invented vendor sheet",
+        "source_location": "invented://catalogue",
+        "source_license": "invented-permissive",
+        "contributor": "Invented contributor",
+        "contributor_certification": "invented-attestation",
+        "redistribution_status": "public_permissive",
+        "review_status": "pending"
+      }
+    }
+  ],
+  "components": [
+    {
+      "id": "component:C-1",
+      "label": "Bend",
+      "kind": "bend",
+      "node": "node:N-2",
+      "provenance": "invented_example",
+      "notes": "Invented bend.",
+      "provenance_record": {
+        "source_name": "Invented SIF note",
+        "source_location": "invented://catalogue",
+        "source_license": "invented-permissive",
+        "contributor": "Invented contributor",
+        "contributor_certification": "invented-attestation",
+        "redistribution_status": "public_permissive",
+        "review_status": "pending"
+      }
+    }
+  ],
+  "load_cases": [
+    {
+      "id": "load:L-1",
+      "label": "Weight",
+      "kind": "primitive_user_load",
+      "status": "preview_only",
+      "provenance": "invented_example",
+      "tags": [
+        "sustained"
+      ],
+      "notes": "Invented case.",
+      "primitive_loads": [
+        {
+          "id": "load:L-1-Z",
+          "category": "occasional",
+          "target": {
+            "type": "node",
+            "node": "node:N-2"
+          },
+          "direction": "global_z",
+          "magnitude": {
+            "value": -190.0,
+            "unit": "N"
+          },
+          "dimension": "force",
+          "provenance": "invented_example"
+        }
+      ]
+    }
+  ],
+  "combinations": [
+    {
+      "id": "combination:C-OP",
+      "label": "Operating",
+      "basis": "mechanics",
+      "terms": [],
+      "provenance": "invented_example",
+      "tags": [
+        "op"
+      ],
+      "notes": "Invented combination."
+    }
+  ],
+  "lines": [
+    {
+      "id": "line:L-100",
+      "label": "Pump discharge",
+      "pipe_refs": [
+        "pipe:P-1"
+      ],
+      "tags": [],
+      "notes": "Line note.",
+      "provenance": "user_entered"
+    },
+    {
+      "id": "line:L-200",
+      "pipe_refs": []
+    }
+  ],
+  "unresolved_assumptions": [
+    {
+      "assumption_id": "assumption:A-001",
+      "kind": "assumption",
+      "statement": "Nozzle treated as anchor pending invented vendor loads.",
+      "status": "unresolved",
+      "affected_refs": [
+        "support:S-1",
+        "line:L-100"
+      ],
+      "tags": [
+        "vendor"
+      ],
+      "notes": "Invented."
+    },
+    {
+      "assumption_id": "assumption:A-002",
+      "kind": "open_issue",
+      "statement": "Invented open issue.",
+      "status": "resolved",
+      "affected_refs": [],
+      "resolution_note": "Invented resolution."
+    }
+  ],
+  "constraints": [
+    {
+      "constraint_id": "constraint:K-001",
+      "name": "Invented clearance",
+      "constraint_kind": "clearance",
+      "state": "proposed",
+      "target_refs": [
+        "pipe:P-1"
+      ],
+      "statement": "Invented statement.",
+      "tags": [
+        "layout"
+      ],
+      "notes": "Not checked.",
+      "provenance": "user_entered"
+    }
+  ],
+  "equipment_interfaces": [
+    {
+      "id": "equipment-interface:E-001",
+      "label": "Invented pump discharge nozzle",
+      "node_ref": "node:N-1",
+      "equipment_label": "Invented pump P-1",
+      "tags": [],
+      "notes": "Not checked.",
+      "provenance": "user_entered"
+    }
+  ],
+  "rule_pack_refs": [
+    {
+      "rule_pack_id": "invented_demo_rule_pack",
+      "name": "Invented Demonstration Rule Pack",
+      "rule_pack_version": "0.3.0",
+      "checksum": {
+        "algorithm": "sha256",
+        "canonicalization": "JCS",
+        "payload_scope": "rule_pack_payload",
+        "payload_excludes": [
+          "checksums"
+        ],
+        "value": "c96d28d94a1d4eee99ae2f501c3d4d5748fb81bfa7feb034cc8d96d60651e68f"
+      },
+      "redistribution_status": "invented_non_engineering_example",
+      "source_notice": "Invented demonstration data only."
+    }
+  ],
+  "diagnostics": [],
+  "model_settings": {
+    "node_proximity_tolerance": {
+      "value": 2.0,
+      "unit": "mm"
+    }
+  }
+}

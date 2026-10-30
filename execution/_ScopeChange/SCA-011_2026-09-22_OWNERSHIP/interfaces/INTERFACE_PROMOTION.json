@@ -1,0 +1,183 @@
+{
+  "status": "PREPARED_GROUP2_APPLICATION_TRANSFORM_NOT_EXECUTED",
+  "decomposition_candidate_sha256": "0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+  "decomposition_applied_sha256": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+  "basis_manifest": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/evidence/SOURCES_DECOMPOSITION.json",
+  "basis_manifest_sha256_at_read": "46a038bcaf374f89b757c8916562494b3928c2135a576f11559f7223179268a0",
+  "files": [
+    {
+      "target": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/ScopeOfWork.md",
+      "candidate_path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/ScopeOfWork.md",
+      "candidate_sha256": "c3076fe5fd706053505d5797d1f298914f7869661224be0f7ff548a6ba415c1b",
+      "operations": [
+        {
+          "operation": "replace_exact",
+          "old": "decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+          "new": "decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+          "expected_occurrences": 1
+        }
+      ],
+      "applied_sha256": "922a5c64e067ccec6c391a7144c436dc56e5f80cac1630e8b01f263e4e9ea3fe"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-03_Constraint validation engine/ScopeOfWork.md",
+      "candidate_path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-03_Constraint validation engine/ScopeOfWork.md",
+      "candidate_sha256": "e4a581091ac3962e9a6ef0ec6426fa70e2519ec2c963164a9e3be63fb024658b",
+      "operations": [
+        {
+          "operation": "replace_exact",
+          "old": "decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+          "new": "decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+          "expected_occurrences": 1
+        }
+      ],
+      "applied_sha256": "8a273182ca2994682fb61ad36e95f840d367bb925218d4129be38b3497506601"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract/ScopeOfWork.md",
+      "candidate_path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract/ScopeOfWork.md",
+      "candidate_sha256": "f90b953dab3607ada0c29205a446f4e2563880319fe8edb5f307fce34eb2f8f1",
+      "operations": [
+        {
+          "operation": "replace_exact",
+          "old": "decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+          "new": "decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+          "expected_occurrences": 1
+        }
+      ],
+      "applied_sha256": "4c7922a7cffaa3c8b0b8a60e100afacc9c90a1eb7297e88e19356746432fdea0"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-03_Model-state comparison engine/ScopeOfWork.md",
+      "candidate_path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-03_Model-state comparison engine/ScopeOfWork.md",
+      "candidate_sha256": "78092e6c7b662029962f68711ddbd0c73893c56a02e03400ec363b0c8ab3ada0",
+      "operations": [
+        {
+          "operation": "replace_exact",
+          "old": "decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+          "new": "decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+          "expected_occurrences": 1
+        }
+      ],
+      "applied_sha256": "87cc15ec3db1bc6fcd19616d29ed67728c32f8d1c1d3efadec9d5e0150b70d63"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-04_Analysis-run comparison engine/ScopeOfWork.md",
+      "candidate_path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-04_Analysis-run comparison engine/ScopeOfWork.md",
+      "candidate_sha256": "a3c63fbbd862e78b4b828146135d906339bde495d18441bdbb3a81459b6a1771",
+      "operations": [
+        {
+          "operation": "replace_exact",
+          "old": "decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+          "new": "decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+          "expected_occurrences": 1
+        }
+      ],
+      "applied_sha256": "fc0d225c342b848103322ec39926521b959f3d97d9690e7eee3efd4e8e035548"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-05_Comparison mapping, tolerance, and export contracts/ScopeOfWork.md",
+      "candidate_path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-05_Comparison mapping, tolerance, and export contracts/ScopeOfWork.md",
+      "candidate_sha256": "7efc563b2b2aec10dcc0f764ccdd62bbf3456208d81bc8939df091ef367c3a21",
+      "operations": [
+        {
+          "operation": "replace_exact",
+          "old": "decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+          "new": "decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+          "expected_occurrences": 1
+        }
+      ],
+      "applied_sha256": "6c6eed448e62cb01578a96d2cc27a65b2bbd5e035276133b6827f85864eae2f9"
+    }
+  ],
+  "group3_status": "PREPARED_TRANSFORMS_CONDITIONAL_ON_ACTUAL_GROUP3_ACCEPTANCE_NOT_EXECUTED",
+  "decomposition_accepted_sha256": "c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984",
+  "group3_files": [
+    {
+      "target": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/ScopeOfWork.md",
+      "applied_sha256": "922a5c64e067ccec6c391a7144c436dc56e5f80cac1630e8b01f263e4e9ea3fe",
+      "operations": [
+        {
+          "operation": "replace_exact",
+          "old": "decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+          "new": "decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984",
+          "expected_occurrences": 1
+        }
+      ],
+      "accepted_sha256": "0dc98d50be37e8a5660f09fd23ea4bb06b753a90a5e0ab4b1062c5b48e43c303"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-03_Constraint validation engine/ScopeOfWork.md",
+      "applied_sha256": "8a273182ca2994682fb61ad36e95f840d367bb925218d4129be38b3497506601",
+      "operations": [
+        {
+          "operation": "replace_exact",
+          "old": "decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+          "new": "decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984",
+          "expected_occurrences": 1
+        }
+      ],
+      "accepted_sha256": "4ca50c3fbf18e6f3d6f96e3626f717903855b3521b8ea80d4a95b74e140c6332"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract/ScopeOfWork.md",
+      "applied_sha256": "4c7922a7cffaa3c8b0b8a60e100afacc9c90a1eb7297e88e19356746432fdea0",
+      "operations": [
+        {
+          "operation": "replace_exact",
+          "old": "decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+          "new": "decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984",
+          "expected_occurrences": 1
+        }
+      ],
+      "accepted_sha256": "f9e838101d117f51a374450f2555b976dedb415aa97d16331aad338ca2850507"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-03_Model-state comparison engine/ScopeOfWork.md",
+      "applied_sha256": "87cc15ec3db1bc6fcd19616d29ed67728c32f8d1c1d3efadec9d5e0150b70d63",
+      "operations": [
+        {
+          "operation": "replace_exact",
+          "old": "decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+          "new": "decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984",
+          "expected_occurrences": 1
+        }
+      ],
+      "accepted_sha256": "3d886e600451d7befd7d3379b2b011c539295fc3ea5421d9decad9dfc3bfa297"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-04_Analysis-run comparison engine/ScopeOfWork.md",
+      "applied_sha256": "fc0d225c342b848103322ec39926521b959f3d97d9690e7eee3efd4e8e035548",
+      "operations": [
+        {
+          "operation": "replace_exact",
+          "old": "decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+          "new": "decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984",
+          "expected_occurrences": 1
+        }
+      ],
+      "accepted_sha256": "0500b58cb9d2b28a86285b0baf9c48ccd7bbe102dd8f1d7e6f58c317e13d1008"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-05_Comparison mapping, tolerance, and export contracts/ScopeOfWork.md",
+      "applied_sha256": "6c6eed448e62cb01578a96d2cc27a65b2bbd5e035276133b6827f85864eae2f9",
+      "operations": [
+        {
+          "operation": "replace_exact",
+          "old": "decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+          "new": "decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984",
+          "expected_occurrences": 1
+        }
+      ],
+      "accepted_sha256": "cce6e76c745c9bd97874acda9d8d8d8923ba3dfe9333d9ea43020aa9c0e443c1"
+    }
+  ],
+  "group3_basis_manifest_sha256_at_read": "46a038bcaf374f89b757c8916562494b3928c2135a576f11559f7223179268a0",
+  "prior_basis_manifest_reads": [
+    {
+      "basis_manifest_sha256_at_read": "09dce9941a2227a7b275a3d972f3e437de11d1622dcb058c42fecf7b799866f5",
+      "group3_basis_manifest_sha256_at_read": "09dce9941a2227a7b275a3d972f3e437de11d1622dcb058c42fecf7b799866f5"
+    }
+  ],
+  "basis_refresh_note": "Re-read after four gate-neutral _REFERENCES.md control corrections; candidate/applied/accepted decomposition hashes verified unchanged; no transforms altered."
+}

@@ -1,0 +1,230 @@
+id: DEL-14-02
+name: Analysis run records
+needs:
+- from: DEL-00-01
+  condition: 'DEL-14-02 needs DEL-00-01 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-00-02
+  condition: 'DEL-14-02 needs DEL-00-02 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-00-03
+  condition: 'DEL-14-02 needs DEL-00-03 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-00-04
+  condition: 'DEL-14-02 needs DEL-00-04 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-00-06
+  condition: 'DEL-14-02 needs DEL-00-06 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-00-07
+  condition: 'DEL-14-02 needs DEL-00-07 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-00-08
+  condition: 'DEL-14-02 needs DEL-00-08 as a predecessor: Architecture basis remains prerequisite context
+    for sealed downstream work.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-14-01
+  condition: 'DEL-14-02 needs DEL-14-01 as a predecessor: Analysis run records bind to immutable model
+    states.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PERSISTENCE_CONTRACT; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=GRAPH_REVIEW;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-05-04
+  condition: 'DEL-14-02 needs DEL-05-04 as a predecessor: Analysis run records need solve status semantics.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=LOAD_STRESS_PREDECESSOR; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=GRAPH_REVIEW;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-08-02
+  condition: 'DEL-14-02 needs DEL-08-02 as a predecessor: Analysis run records need audit manifest/hash
+    conventions.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=REPORTING_PREDECESSOR; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=GRAPH_REVIEW;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-08-04
+  condition: 'DEL-14-02 needs DEL-08-04 as a predecessor: Analysis run records need structured result
+    export contract.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=REPORTING_PREDECESSOR; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=GRAPH_REVIEW;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-02-05
+  condition: 'DEL-14-02 needs DEL-02-05 as a predecessor: Analysis run records need persistence and round-trip
+    support.
+
+
+    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PERSISTENCE_CONTRACT; legacy_targettype=DELIVERABLE;
+    legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=GRAPH_REVIEW;
+    legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-05-02
+  condition: >-
+    The 0.3.0 record builder and validator take ordinary/base dispatch, reading,
+    semantic-table binding and standing from DEL-05-02's Rust product reader
+    (owner, 2026-10-10: "move to one product reader in Rust"). Python uses
+    `core/analysis_runs/rust_reader.py`; the desktop uses `resultReader.ts`.
+    A refused source, including a stored retired-v2 identity
+    (`SOURCE_EXACT_PRESSURE_V2_RETIRED`), is never recorded.
+  gating: true
+  evidence: execution/PKG-04/DEL-04-08/Design/b7-plan.md
+- from: DEL-04-08
+  condition: >-
+    The record builder and validator consume DEL-04-08's retained-source and
+    retained-successor receipts, tables, row classifications and Rust reader
+    verdicts through those same bindings. Their classification summary and rule
+    binding preserve the method's standing; recording a result grants no output
+    activation and does not re-derive its verification.
+  gating: true
+  evidence: core/analysis_runs/compatibility.py
+code_paths:
+- core/analysis_runs/__init__.py
+- core/analysis_runs/compatibility.py
+- tests/test_analysis_run_compatibility.py
+- tests/test_analysis_run_schema.py
+- schemas/analysis_run.schema.json
+- schemas/analysis_run.v0.3.schema.json
+- schemas/results.schema.yaml
+- apps/desktop/src/services/analysisRunCompatibility.ts
+- apps/desktop/src/services/analysisRunCompatibility.test.ts
+- apps/desktop/src/services/loadReferenceAnalysisRun.test.ts
+- apps/desktop/src/services/retainedPrecisionAnalysisRun.test.ts
+- apps/desktop/src/features/results/analysisResultHashScope.ts
+- apps/desktop/src/features/results/analysisResultHashScope.test.ts
+- apps/desktop/src-tauri/src/analysis_runs.rs
+- apps/desktop/src-tauri/src/stored_read.rs
+- apps/desktop/src/services/analysisRunService.ts
+- apps/desktop/src/services/inputManifestService.ts
+- apps/desktop/src/services/modelRulePackResolution.ts
+- apps/desktop/src/services/rulePackRefDiagnostics.ts
+- fixtures/persistence/transient_run_input.json
+- fixtures/persistence/recorded_run_witness.json
+- fixtures/persistence/transient_run_input_rule_packs.json
+- fixtures/persistence/recorded_run_witness_rule_packs.json
+- fixtures/persistence/s2_unresolved_rule_pack_run.json
+checks:
+- tests/test_analysis_run_compatibility.py
+- tests/test_analysis_run_schema.py
+- apps/desktop/src/services/analysisRunCompatibility.test.ts
+- apps/desktop/src/services/loadReferenceAnalysisRun.test.ts
+- apps/desktop/src/services/retainedPrecisionAnalysisRun.test.ts
+- apps/desktop/src/services/pressureSourceBridge.test.ts
+- apps/desktop/src/features/result-export/exactOutputContractMutations.test.ts
+- tests/test_recorded_run_record.py
+- apps/desktop/src-tauri/src/analysis_runs_tests.rs
+- apps/desktop/src/services/recordedRunParity.test.ts
+- apps/desktop/src/features/results/recordedRunContext.test.ts
+- apps/desktop/src/features/history/recordRun.session.test.tsx
+- apps/desktop/src/services/inputManifestService.test.ts
+- apps/desktop/src/services/modelRulePackResolution.test.tsx
+- apps/desktop/src/features/workspace/solveRulePacks.session.test.tsx

@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "status": "FAIL",
+  "tested_commit": "ab1016e653afd7db6e0d8243b83492c4a54ede31",
+  "command": "{QUALIFIED_PYTHON} tools/release/run_evidence_sweep.py --execute",
+  "passed_surfaces": {
+    "G0_cargo_crate_sweep": "PASS_38_OF_38"
+  },
+  "failed_surface": "G1 python_pytest",
+  "pytest_result": {
+    "passed": 1009,
+    "failed": 3,
+    "exit_code": 1
+  },
+  "failed_tests": [
+    "tests/product_preview/test_product_preview_service.py::test_mechanics_result_keeps_status_boundaries_separate",
+    "tests/test_results_schema.py::test_results_schema_contract",
+    "tests/test_results_schema.py::test_preview_station_metadata_matches_complete_canonical_contract"
+  ],
+  "remaining_surfaces": "not_run",
+  "sweep_exit_code": 1,
+  "summary": "validation/evidence/sweeps/SWEEP_20260909T085517Z_ab1016e653af.json",
+  "raw_log": "execution/_Change/VIEWPORT_ROUTING_20260909/_run_records/DEC025_G1_FAILURE_LOG_V1.base64.json",
+  "disposition": "Preserved without retry or source edit; routed to HELP_HUMAN for bounded diagnosis."
+}

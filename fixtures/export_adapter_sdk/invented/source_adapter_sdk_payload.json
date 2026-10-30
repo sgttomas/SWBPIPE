@@ -1,0 +1,50 @@
+{
+  "sdk_id": "export-adapter-sdk:invented-del-17-09",
+  "target_registry": [
+    {
+      "target_id": "target:invented-neutral-text",
+      "target_ref": {
+        "object_type": "ExportTarget",
+        "ref": "target:invented-neutral-text"
+      },
+      "target_family": "invented_text_export_target",
+      "admission_state": "candidate_non_gating",
+      "target_version_basis": "tbd",
+      "source_basis_refs": [
+        {
+          "object_type": "Deliverable",
+          "ref": "DEL-17-01"
+        },
+        {
+          "object_type": "Deliverable",
+          "ref": "DEL-17-02"
+        },
+        {
+          "object_type": "Fixture",
+          "ref": "fixtures/export_adapter_sdk/invented/source_adapter_sdk_payload.json"
+        }
+      ],
+      "redistribution_status": "invented_public_fixture",
+      "privacy_classification": "public_metadata",
+      "unit_policy": "explicit_unit_policy_required",
+      "coordinate_policy": "explicit_coordinate_policy_required",
+      "stable_id_policy": "canonical_identity_required_or_sidecar_mapped",
+      "loss_report_policy": "mandatory_for_every_target_package",
+      "diagnostics_policy": "blocking_warnings_preserved",
+      "behavior_families": [
+        {
+          "family": "writer_runtime",
+          "disposition": "tbd",
+          "loss_category": "tbd",
+          "reason": "Writer runtime is outside this foundation tranche."
+        },
+        {
+          "family": "target_specific_fields",
+          "disposition": "unsupported",
+          "loss_category": "unsupported",
+          "reason": "No target-specific field behavior is admitted by this invented fixture."
+        }
+      ]
+    }
+  ]
+}

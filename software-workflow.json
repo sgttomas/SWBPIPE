@@ -1,0 +1,193 @@
+{
+  "schema": "chirality-software-workflow/v1",
+  "project_root": ".",
+  "workspace_root": "../..",
+  "checks": {
+    "desktop-build": {
+      "cwd": ".",
+      "command": [
+        "npm",
+        "run",
+        "build:desktop"
+      ]
+    },
+    "desktop-test": {
+      "cwd": ".",
+      "command": [
+        "npm",
+        "run",
+        "test:desktop"
+      ]
+    },
+    "desktop-rust-test": {
+      "cwd": ".",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--manifest-path",
+        "apps/desktop/src-tauri/Cargo.toml"
+      ]
+    },
+    "piping-pytest": {
+      "cwd": ".",
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests",
+        "-n",
+        "auto",
+        "--dist",
+        "loadscope"
+      ]
+    },
+    "harness-pytest": {
+      "cwd": "../..",
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tools/practitioner_harness"
+      ]
+    },
+    "harness-self-check": {
+      "cwd": "../..",
+      "command": [
+        "python3",
+        "tools/practitioner_harness/harness.py",
+        "self-check"
+      ]
+    },
+    "macos-release-sweep": {
+      "cwd": ".",
+      "command": [
+        "python3",
+        "tools/release/run_evidence_sweep.py",
+        "--execute"
+      ]
+    },
+    "agent-host-witness-offline": {
+      "cwd": ".",
+      "command": [
+        "python3",
+        "tools/agent_host_witness_test.py"
+      ]
+    },
+    "agent-catalog-resource": {
+      "cwd": ".",
+      "command": [
+        "python3",
+        "tools/agent_catalog_resource.py",
+        "--check"
+      ]
+    },
+    "agent-supplier-resource-offline": {
+      "cwd": ".",
+      "command": [
+        "python3",
+        "tools/agent_supplier_resource_test.py"
+      ]
+    },
+    "agent-supplier-bundle-offline": {
+      "cwd": ".",
+      "command": [
+        "python3",
+        "tools/agent_supplier_bundle_test.py"
+      ]
+    }
+  },
+  "always_checks": [],
+  "path_rules": [
+    {
+      "paths": [
+        "tools/agent_supplier_resource.py",
+        "tools/agent_supplier_resource_test.py",
+        "apps/desktop/src-tauri/resources/agent-supplier-pins.json",
+        "docs/THIRD_PARTY_NOTICES.md",
+        "docs/third-party/codex-0.160.0-LICENSE.txt",
+        "docs/third-party/codex-0.160.0-NOTICE.txt",
+        "tools/agent_supplier_bundle.py",
+        "tools/agent_supplier_bundle_test.py",
+        "tools/release/build_signed_app.py",
+        "tests/test_release_signed_build_script.py",
+        "software-workflow.json"
+      ],
+      "checks": [
+        "agent-supplier-bundle-offline"
+      ]
+    },
+    {
+      "paths": [
+        "tools/agent_supplier_resource.py",
+        "tools/agent_supplier_resource_test.py",
+        "apps/desktop/src-tauri/resources/agent-supplier-pins.json",
+        "docs/THIRD_PARTY_NOTICES.md",
+        "docs/third-party/codex-0.160.0-LICENSE.txt",
+        "docs/third-party/codex-0.160.0-NOTICE.txt",
+        "software-workflow.json"
+      ],
+      "checks": [
+        "agent-supplier-resource-offline"
+      ]
+    },
+    {
+      "paths": [
+        "execution/PKG-16/DEL-16-06/Design/agent-capability-catalog.json",
+        "apps/desktop/src-tauri/resources/agent-capability-catalog.json",
+        "tools/agent_catalog_resource.py",
+        "software-workflow.json"
+      ],
+      "checks": [
+        "agent-catalog-resource"
+      ]
+    },
+    {
+      "paths": [
+        "tools/agent_host_witness.py",
+        "tools/agent_host_witness_test.py"
+      ],
+      "checks": [
+        "agent-host-witness-offline"
+      ]
+    },
+    {
+      "paths": [
+        "apps/desktop/**"
+      ],
+      "checks": [
+        "desktop-test",
+        "desktop-build"
+      ]
+    },
+    {
+      "paths": [
+        "apps/desktop/src-tauri/**"
+      ],
+      "checks": [
+        "desktop-rust-test"
+      ]
+    },
+    {
+      "paths": [
+        "core/reporting/report_package/tests/common/package_basis.rs",
+        "core/reporting/report_package/src/forwarding_graph_scan.rs"
+      ],
+      "checks": [
+        "desktop-rust-test"
+      ]
+    },
+    {
+      "paths": [
+        "core/**",
+        "validation/**",
+        "tests/**"
+      ],
+      "checks": [
+        "piping-pytest"
+      ]
+    }
+  ]
+}

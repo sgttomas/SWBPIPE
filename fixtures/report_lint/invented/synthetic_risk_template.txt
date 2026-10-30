@@ -1,0 +1,4 @@
+Invented synthetic linter fixture.
+This file is not an engineering example and is not a report template for reliance.
+OPS_SYNTHETIC_PROTECTED_TABLE
+Synthetic prohibited claim line: code compliant.

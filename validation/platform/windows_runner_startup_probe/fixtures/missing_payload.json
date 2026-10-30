@@ -1,0 +1,72 @@
+{
+  "request": {
+    "input_manifest_ref": {
+      "ref_type": "audit_manifest",
+      "ref_id": "manifest:first-static-axial-v1"
+    },
+    "load_basis_refs": [
+      {
+        "ref_type": "load_case",
+        "ref_id": "case"
+      }
+    ],
+    "model_ref": {
+      "ref_type": "model",
+      "ref_id": "project:precision-connected-fixture"
+    },
+    "operation": "solve",
+    "operation_ref": {
+      "ref_id": "solve",
+      "ref_type": "api_operation"
+    },
+    "privacy": {
+      "classification": "public_metadata",
+      "local_only": true,
+      "private_payload_redacted": true,
+      "telemetry_allowed": false
+    },
+    "professional_boundary": {
+      "human_review_required": true,
+      "software_makes_approval_claim": false,
+      "software_makes_authentication_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_compliance_claim": false,
+      "software_makes_sealing_claim": false
+    },
+    "project_ref": {
+      "ref_type": "project",
+      "ref_id": "project:precision-connected-fixture"
+    },
+    "provenance": {
+      "source_name": "Invented headless startup diagnostic input",
+      "source_location": "validation/platform/windows_runner_startup_probe/fixtures",
+      "source_license": "project-original-public-content",
+      "contributor": "OpenPipeStress",
+      "contributor_certification": "Invented non-engineering diagnostic example; no external project, standards or library data",
+      "redistribution_status": "invented_non_engineering_example",
+      "review_status": "pending"
+    },
+    "request_id": "invented-startup-diagnostic",
+    "requested_outputs": [
+      "result_envelope",
+      "audit_manifest",
+      "diagnostics"
+    ],
+    "tbd_decisions": {
+      "ci_provider": "TBD",
+      "external_adapter_formats": "TBD",
+      "filesystem_mutation_policy": "SETTLED_DEC_065",
+      "final_cli_command_syntax": "SETTLED_DEC_065",
+      "network_access": "SETTLED_DEC_065",
+      "package_scripts": "SETTLED_DEC_065",
+      "physical_project_container": "TBD",
+      "process_invocation": "SETTLED_DEC_065",
+      "public_transport_protocol": "TBD",
+      "release_matrix": "TBD"
+    },
+    "unit_system_ref": {
+      "ref_id": "invented-si",
+      "ref_type": "unit_system"
+    }
+  }
+}

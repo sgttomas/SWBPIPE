@@ -1,0 +1,51 @@
+{
+  "bindings": [
+    {
+      "quantity": {
+        "dimension": "force",
+        "unit_ref": "invented_force_unit",
+        "value": 10.0
+      },
+      "source": "rule_pack_required_input",
+      "variable_id": "invented_force_input"
+    }
+  ],
+  "case_id": "case_23_accept_multiply_dimensionless_scaling",
+  "declared_grammar_version": "1.0.0",
+  "description": "Dimensionless scaling preserves the dimensional operand's metadata.",
+  "expected": {
+    "findings": [],
+    "source_variable_ids": [
+      "invented_force_input"
+    ],
+    "statuses": [
+      "mechanics_solved"
+    ],
+    "value": {
+      "dimension": "force",
+      "kind": "quantity",
+      "unit_ref": "invented_force_unit",
+      "value": 20.0
+    }
+  },
+  "expression": {
+    "left": {
+      "node": "literal",
+      "quantity": {
+        "dimension": "dimensionless",
+        "unit_ref": "ratio",
+        "value": 2.0
+      }
+    },
+    "node": "binary",
+    "operator": "multiply",
+    "right": {
+      "node": "variable_ref",
+      "variable_id": "invented_force_input"
+    }
+  },
+  "required_variable_ids": [],
+  "statuses": [
+    "mechanics_solved"
+  ]
+}

@@ -1,0 +1,244 @@
+id: DEL-08-04
+name: Result export format
+needs:
+- from: DEL-00-01
+  condition: 'DEL-08-04 must apply the SCA-001 architecture-basis constraints from AB-00-01.
+
+
+    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-08-04 must apply the SCA-001 architecture-basis constraints from AB-00-02.
+
+
+    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-03
+  condition: 'DEL-08-04 must apply the schema-first command/query/job result-envelope architecture basis
+    from AB-00-03.
+
+
+    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-08/DEL-08-04/ScopeOfWork.md
+- from: DEL-00-04
+  condition: 'DEL-08-04 must preserve canonical JSON and reproducibility metadata compatibility from AB-00-04
+    where JSON payloads are hashed.
+
+
+    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-08-04 must carry structured diagnostics using the PKG-00 baseline fields from AB-00-06.
+
+
+    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-08/DEL-08-04/ScopeOfWork.md
+- from: DEL-00-07
+  condition: 'DEL-08-04 must preserve the no-bypass API and adapter constraints from AB-00-07.
+
+
+    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-08/DEL-08-04/ScopeOfWork.md
+- from: DEL-00-08
+  condition: 'DEL-08-04 implementation must preserve applicable validation, protected-content, and regression
+    gates from AB-00-08.
+
+
+    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-02-01
+  condition: 'DEL-08-04 needs canonical domain model and result object semantics for stable model/result
+    references and object vocabulary.
+
+
+    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-08/DEL-08-04/ScopeOfWork.md
+- from: DEL-02-02
+  condition: 'DEL-08-04 requires the unit system and dimensional-analysis core contract because result
+    exports need unit-aware values and dimensional checks.
+
+
+    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-08/DEL-08-04/ScopeOfWork.md
+- from: doc:execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/staged-contracts/COMPARISON_EXPORT.md
+  condition: 'The general exporter maps the common comparison schema owned by DEL-14-05; that comparison
+    schema first consumes the existing DEL-08-04 base result-envelope contract.
+
+
+    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
+    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
+    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
+    are not inferred from existing code. Contract owner=DEL-14-05; consumer_stage=DEL-08-04::comparison-export-mapping;
+    producer_stage=DEL-14-05::comparison-contract. DAG-002-E0790 retained; DEL-08-04 base envelope precedes
+    comparison schema, which precedes comparison export mapping. OPEN: Name and review a versioned comparison
+    schema and identify the base-envelope version it imports; fixture payloads are not authoritative.
+    DERIVED CANDIDATE JUDGMENT: stage interpretation is proposed and must be reviewed; the candidate artifact
+    exists but is not adopted normative schema or satisfied evidence.; SCA011OriginalDependencyID=SCA011-E083;
+    original_evidence_file=execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/staged-contracts/COMPARISON_EXPORT.md;
+    original_source_ref=Contract stages and readiness / negative witnesses; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
+
+
+    Target description — TargetName: SCA011-IF-COMPARISON-EXPORT; TargetRefID: SCA011-IF-COMPARISON-EXPORT;
+    TargetLocation: execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/staged-contracts/COMPARISON_EXPORT.md'
+  evidence: execution/PKG-08/DEL-08-04/ScopeOfWork.md
+- from: DEL-08-02
+  condition: 'DEL-08-04 should carry or reference run/model manifest and hash metadata from DEL-08-02
+    for reproducible exports.
+
+
+    Notes: New explicit upstream handover extracted under TP-DAG-004 conservative refresh.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=HANDOVER; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-08/DEL-08-04/ScopeOfWork.md
+- from: DEL-06-04
+  condition: 'DEL-08-04 needs rule-pack identity, version, and checksum handling without copying private
+    or protected payloads.
+
+
+    Notes: New explicit upstream interface extracted under TP-DAG-004 conservative refresh.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-08/DEL-08-04/ScopeOfWork.md
+- from: DEL-04-07
+  condition: 'DEL-08-04 consumes the PKG-04 solver result producers without redefining solver behaviour.
+    Its envelope and derivative documents copy the product''s current result statement (raw source, rows,
+    model, request) as received and identify each copied member by the sha256 of its canonical JSON value;
+    DEL-04-07''s product solve supplies those statements under the current preview and exact identities,
+    with stable row identities.'
+  evidence: core/reporting/result_export/src/derivative.rs
+- from: DEL-05-02
+  condition: >-
+    DEL-08-04 classifies derivative rows by DEL-05-02's base semantic-table
+    signatures (category, target dimension, disposition), preserving the reader
+    verdict's kind, unit, component and basis and disclosing unmapped source rows.
+    It consumes the load/stress producers without redefining their behaviour.
+  evidence: core/reporting/result_export/src/derivative.rs
+- from: DEL-04-08
+  condition: >-
+    DEL-08-04 consumes DEL-04-08's retained tables, verified row classes and receipt
+    bindings when copying retained-source or retained-successor results into
+    derivative documents. It preserves those classes and receipts rather than
+    re-deriving verification or granting an output surface.
+  evidence: core/reporting/result_export/src/derivative.rs
+- from: DEL-05-03
+  condition: 'DEL-08-04''s result-export schema carries DEL-05-03''s stress-row conventions: the D-5 section-basis
+    tokens of stress rows and the D-5 `pipe_sections` geometry in `PhysicsGeometry` (DEL-05-03 Design `section-bases-and-timoshenko.md`
+    §2.4).'
+  evidence: schemas/results.v0.3.schema.yaml
+- from: DEL-07-01
+  condition: >-
+    DEL-08-04's CSV and result JSON exports suggest file names by DEL-07-01
+    Design `export-file-names.md`, the shared export file-name convention.
+  evidence: execution/PKG-07/DEL-07-01/Design/export-file-names.md
+code_paths:
+- schemas/results.schema.yaml
+- schemas/results.v0.3.schema.yaml
+- schemas/results_pressure_2.v0.3.schema.json
+- core/reporting/result_export/src/lib.rs
+- core/reporting/result_export/src/derivative.rs
+- core/reporting/result_export/tests/derivative_contract.rs
+- apps/desktop/src/features/result-export/**
+- apps/desktop/src/services/rulePackRefDiagnostics.ts
+- tests/test_results_schema.py
+- tests/test_results_dispatcher_v0_3.py
+- apps/desktop/src-tauri/src/native_result_download.rs
+- core/security/local_first_storage/route_control.py
+- apps/desktop/src/features/redaction-controls/redactionExportControls.ts
+- apps/desktop/src/features/report/reportQuantityDisplay.ts
+- apps/desktop/src/features/results/displacementExtremesCsv.ts
+- apps/desktop/src/features/results/resultRowsCsv.ts
+- apps/desktop/src/features/display-units/index.tsx
+- apps/desktop/src/features/results/stressRatioTableCsv.ts
+- apps/desktop/src/features/results/supportLoadSummaryCsv.ts
+- apps/desktop/src/features/results/weightSummaryCsv.ts
+- apps/desktop/src/features/comparison/runComparisonCsv.ts
+- apps/desktop/src/features/comparison/stateComparisonCsv.ts
+- core/reporting/report_package/src/document_form.rs
+- core/reporting/report_package/src/schema_eval.rs
+- fixtures/results/schema_eval_vectors.json
+checks:
+- tests/test_results_schema.py
+- tests/test_results_dispatcher_v0_3.py
+- core/reporting/result_export/tests/derivative_contract.rs
+- core/reporting/report_package/tests/schema_eval.rs
+- tests/test_schema_eval_parity.py
+- apps/desktop/src/features/result-export/resultExportAdapter.test.ts
+- apps/desktop/src/features/result-export/ResultExportPanel.test.tsx
+- apps/desktop/src/features/result-export/exactOutputTwins.test.tsx
+- apps/desktop/src/features/result-export/exactOutputContractMutations.test.ts
+- apps/desktop/src/features/result-export/nativeResultSave.test.ts
+- apps/desktop/src/features/result-export/csvTable.test.ts
+- apps/desktop/src/features/result-export/csvSave.test.ts
+- apps/desktop/src/features/redaction-controls/redactionExportControls.test.ts
+- tests/security/test_local_first_storage_policy.py
+- apps/desktop/src/features/result-export/csvTables.test.ts
+- apps/desktop/src/features/results/resultRowsCsv.test.tsx
+- apps/desktop/src/features/result-export/csvTableCoverage.test.ts
+- apps/desktop/src/features/result-export/CsvExportControl.test.tsx
+- apps/desktop/src/features/report/reportQuantityDisplay.exact.test.ts
+- apps/desktop/src/features/report/reportQuantityDisplay.parity.test.ts
+- core/reporting/report_package/tests/quantity_display_parity.rs
+- apps/desktop/src/features/result-export/rulePackExclusionDiagnostics.test.ts
+- apps/desktop/src-tauri/src/native_result_download.rs
+- apps/desktop/e2e/result-compatibility.spec.ts

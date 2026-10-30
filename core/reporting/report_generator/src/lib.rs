@@ -1,0 +1,1232 @@
+//! Calculation report assembly support.
+//!
+//! This crate validates bounded in-memory calculation report records, checks
+//! template slots, and prepares deterministic section ordering for neutral test
+//! output. It does not parse project files, call solver internals, render GUI
+//! previews, run CLI/API/adapter workflows, implement protected-content
+//! linting, implement redaction/export controls, access host resources, or
+//! emit professional or code-compliance claims.
+
+use std::collections::{BTreeMap, BTreeSet, HashSet};
+
+const REQUIRED_SECTION_KINDS: [SectionKind; 8] = [
+    SectionKind::ModelInputSummary,
+    SectionKind::LoadCases,
+    SectionKind::Results,
+    SectionKind::WarningsAssumptionsProvenance,
+    SectionKind::AuditManifest,
+    SectionKind::RulePackReferences,
+    SectionKind::Limitations,
+    SectionKind::ProfessionalBoundaryNotice,
+];
+
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[cfg_attr(feature = "serde", serde(rename_all = "SCREAMING_SNAKE_CASE"))]
+pub enum AnalysisStatus {
+    ModelIncomplete,
+    MechanicsSolved,
+    RuleInputsIncomplete,
+    UserRuleChecked,
+    UserRuleFailed,
+    HumanReviewRequired,
+}
+
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", serde(rename_all = "SCREAMING_SNAKE_CASE"))]
+pub enum DiagnosticClass {
+    SolveBlocking,
+    RuleCheckBlocking,
+    ProvenanceWarning,
+    AssumptionWarning,
+    NonlinearWarning,
+    IpBoundaryWarning,
+    UnitWarning,
+    ReportBlocking,
+    TemplateBlocking,
+}
+
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", serde(rename_all = "snake_case"))]
+pub enum DiagnosticSeverity {
+    Info,
+    Warning,
+    Blocking,
+}
+
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[cfg_attr(feature = "serde", serde(rename_all = "snake_case"))]
+pub enum SectionKind {
+    ModelInputSummary,
+    LoadCases,
+    Results,
+    WarningsAssumptionsProvenance,
+    AuditManifest,
+    RulePackReferences,
+    Limitations,
+    ProfessionalBoundaryNotice,
+}
+
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", serde(rename_all = "snake_case"))]
+pub enum PrivacyClassification {
+    PublicMetadata,
+    InventedPublicExample,
+    PrivateProjectData,
+    PrivateRulePackData,
+    PrivateLibraryData,
+    ProtectedSuspected,
+    Redacted,
+}
+
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", serde(rename_all = "snake_case"))]
+pub enum RedistributionStatus {
+    PublicPermissive,
+    PrivateOnly,
+    Unknown,
+    ProtectedSuspected,
+    InventedNonEngineeringExample,
+    #[cfg_attr(feature = "serde", serde(rename = "TBD"))]
+    Tbd,
+}
+
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Reference {
+    pub ref_type: String,
+    pub ref_id: String,
+}
+
+impl Reference {
+    pub fn new(ref_type: impl Into<String>, ref_id: impl Into<String>) -> Self {
+        Self {
+            ref_type: ref_type.into(),
+            ref_id: ref_id.into(),
+        }
+    }
+
+    fn is_complete(&self) -> bool {
+        !self.ref_type.trim().is_empty() && !self.ref_id.trim().is_empty()
+    }
+}
+
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Provenance {
+    pub source_name: String,
+    pub source_location: String,
+    pub source_license: String,
+    pub contributor: String,
+    pub contributor_certification: String,
+    pub redistribution_status: RedistributionStatus,
+    pub review_status: String,
+    pub privacy_classification: PrivacyClassification,
+}
+
+impl Provenance {
+    fn is_complete(&self) -> bool {
+        !self.source_name.trim().is_empty()
+            && !self.source_location.trim().is_empty()
+            && !self.source_license.trim().is_empty()
+            && !self.contributor.trim().is_empty()
+            && !self.contributor_certification.trim().is_empty()
+            && !self.review_status.trim().is_empty()
+    }
+
+    fn has_boundary_gap(&self) -> bool {
+        matches!(
+            self.redistribution_status,
+            RedistributionStatus::Unknown
+                | RedistributionStatus::ProtectedSuspected
+                | RedistributionStatus::Tbd
+        ) || matches!(
+            self.privacy_classification,
+            PrivacyClassification::PrivateProjectData
+                | PrivacyClassification::PrivateRulePackData
+                | PrivacyClassification::PrivateLibraryData
+                | PrivacyClassification::ProtectedSuspected
+        ) || self.review_status.trim().eq_ignore_ascii_case("TBD")
+            || self.review_status.trim().eq_ignore_ascii_case("pending")
+    }
+}
+
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ChecksumRef {
+    pub algorithm: String,
+    pub canonicalization: String,
+    pub payload_ref: Reference,
+    pub value: String,
+}
+
+impl ChecksumRef {
+    fn is_complete(&self) -> bool {
+        !self.algorithm.trim().is_empty()
+            && !self.canonicalization.trim().is_empty()
+            && self.payload_ref.is_complete()
+            && !self.value.trim().is_empty()
+            && !self.value.trim().eq_ignore_ascii_case("TBD")
+    }
+}
+
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ReferencedEnvelope {
+    #[cfg_attr(feature = "serde", serde(rename = "ref"))]
+    pub reference: Reference,
+    pub schema_ref: Reference,
+    pub checksum: ChecksumRef,
+    pub privacy_classification: PrivacyClassification,
+    pub provenance: Provenance,
+}
+
+impl ReferencedEnvelope {
+    fn is_complete(&self) -> bool {
+        self.reference.is_complete()
+            && self.schema_ref.is_complete()
+            && self.checksum.is_complete()
+            && self.provenance.is_complete()
+    }
+
+    fn has_boundary_gap(&self) -> bool {
+        self.provenance.has_boundary_gap()
+            || matches!(
+                self.privacy_classification,
+                PrivacyClassification::PrivateProjectData
+                    | PrivacyClassification::PrivateRulePackData
+                    | PrivacyClassification::PrivateLibraryData
+                    | PrivacyClassification::ProtectedSuspected
+            )
+    }
+}
+
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct UnitDisplaySummary {
+    pub storage_convention: String,
+    pub model_units: BTreeMap<String, String>,
+    pub result_units: Vec<String>,
+    pub quantity_display_policy: String,
+    pub conversion_performed: bool,
+}
+
+impl UnitDisplaySummary {
+    fn is_complete(&self) -> bool {
+        !self.storage_convention.trim().is_empty()
+            && self
+                .model_units
+                .iter()
+                .all(|(dimension, unit)| !dimension.trim().is_empty() && !unit.trim().is_empty())
+            && self.result_units.iter().all(|unit| !unit.trim().is_empty())
+            && !self.quantity_display_policy.trim().is_empty()
+    }
+}
+
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ModelInputSummary {
+    pub project_ref: Reference,
+    pub model_ref: Reference,
+    pub persistence_ref: Reference,
+    pub unit_system_ref: Reference,
+    #[cfg_attr(
+        feature = "serde",
+        serde(default, skip_serializing_if = "Option::is_none")
+    )]
+    pub unit_display_summary: Option<UnitDisplaySummary>,
+    pub model_hash: ChecksumRef,
+    pub input_manifest_ref: Reference,
+    pub provenance: Provenance,
+}
+
+impl ModelInputSummary {
+    fn is_complete(&self) -> bool {
+        self.project_ref.is_complete()
+            && self.model_ref.is_complete()
+            && self.persistence_ref.is_complete()
+            && self.unit_system_ref.is_complete()
+            && self
+                .unit_display_summary
+                .as_ref()
+                .map_or(true, UnitDisplaySummary::is_complete)
+            && self.model_hash.is_complete()
+            && self.input_manifest_ref.is_complete()
+            && self.provenance.is_complete()
+    }
+}
+
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LoadCaseSummary {
+    pub load_ref: Reference,
+    pub label: String,
+    pub basis: String,
+    pub source: Reference,
+    pub provenance: Provenance,
+}
+
+impl LoadCaseSummary {
+    fn is_complete(&self) -> bool {
+        self.load_ref.is_complete()
+            && !self.label.trim().is_empty()
+            && !self.basis.trim().is_empty()
+            && self.source.is_complete()
+            && self.provenance.is_complete()
+    }
+}
+
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RulePackRef {
+    pub rule_pack_id: String,
+    /// Safe display name of the rule pack (PRD §19.2 rule-pack
+    /// name/version/checksum), when the producer records one.
+    #[cfg_attr(
+        feature = "serde",
+        serde(default, skip_serializing_if = "Option::is_none")
+    )]
+    pub name: Option<String>,
+    pub version: String,
+    pub checksum: ChecksumRef,
+    pub source_notice: String,
+    pub redistribution_status: RedistributionStatus,
+    pub completeness_status: String,
+    pub private_payload_redacted: bool,
+}
+
+impl RulePackRef {
+    fn is_safe_reference(&self) -> bool {
+        !self.rule_pack_id.trim().is_empty()
+            && self
+                .name
+                .as_ref()
+                .map_or(true, |name| !name.trim().is_empty())
+            && !self.version.trim().is_empty()
+            && self.checksum.is_complete()
+            && !self.source_notice.trim().is_empty()
+            && !self.completeness_status.trim().is_empty()
+            && self.private_payload_redacted
+    }
+
+    fn has_boundary_gap(&self) -> bool {
+        matches!(
+            self.redistribution_status,
+            RedistributionStatus::Unknown
+                | RedistributionStatus::ProtectedSuspected
+                | RedistributionStatus::Tbd
+        ) || self.completeness_status.trim().eq_ignore_ascii_case("TBD")
+            || self
+                .completeness_status
+                .trim()
+                .eq_ignore_ascii_case("incomplete")
+    }
+}
+
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ProfessionalBoundary {
+    pub human_review_required: bool,
+    pub software_makes_compliance_claim: bool,
+    pub software_makes_certification_claim: bool,
+    pub software_makes_sealing_claim: bool,
+    pub software_makes_approval_claim: bool,
+    pub software_makes_authentication_claim: bool,
+}
+
+impl ProfessionalBoundary {
+    pub fn project_default() -> Self {
+        Self {
+            human_review_required: true,
+            software_makes_compliance_claim: false,
+            software_makes_certification_claim: false,
+            software_makes_sealing_claim: false,
+            software_makes_approval_claim: false,
+            software_makes_authentication_claim: false,
+        }
+    }
+
+    fn preserves_boundary(&self) -> bool {
+        self.human_review_required
+            && !self.software_makes_compliance_claim
+            && !self.software_makes_certification_claim
+            && !self.software_makes_sealing_claim
+            && !self.software_makes_approval_claim
+            && !self.software_makes_authentication_claim
+    }
+}
+
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Diagnostic {
+    pub code: String,
+    pub class: DiagnosticClass,
+    pub severity: DiagnosticSeverity,
+    pub source: Reference,
+    pub affected_object: Reference,
+    pub message: String,
+    pub remediation: String,
+    pub provenance: Provenance,
+}
+
+impl Diagnostic {
+    fn report_blocking(
+        code: impl Into<String>,
+        affected_object: Reference,
+        message: impl Into<String>,
+    ) -> Self {
+        Self {
+            code: code.into(),
+            class: DiagnosticClass::ReportBlocking,
+            severity: DiagnosticSeverity::Blocking,
+            source: Reference::new("report_generator", "DEL-08-01"),
+            affected_object,
+            message: message.into(),
+            remediation:
+                "Provide complete report assembly metadata before relying on this report surface."
+                    .to_string(),
+            provenance: invented_provenance(),
+        }
+    }
+
+    fn template_blocking(
+        code: impl Into<String>,
+        affected_object: Reference,
+        message: impl Into<String>,
+    ) -> Self {
+        Self {
+            code: code.into(),
+            class: DiagnosticClass::TemplateBlocking,
+            severity: DiagnosticSeverity::Blocking,
+            source: Reference::new("report_generator", "DEL-08-01"),
+            affected_object,
+            message: message.into(),
+            remediation: "Provide deterministic template slots and matching sections.".to_string(),
+            provenance: invented_provenance(),
+        }
+    }
+
+    fn boundary_warning(
+        code: impl Into<String>,
+        affected_object: Reference,
+        message: impl Into<String>,
+    ) -> Self {
+        Self {
+            code: code.into(),
+            class: DiagnosticClass::IpBoundaryWarning,
+            severity: DiagnosticSeverity::Warning,
+            source: Reference::new("report_generator", "DEL-08-01"),
+            affected_object,
+            message: message.into(),
+            remediation:
+                "Keep protected-content and private-data review visible before public release or reliance."
+                    .to_string(),
+            provenance: invented_provenance(),
+        }
+    }
+}
+
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TemplateSlot {
+    pub slot_id: String,
+    pub required: bool,
+    pub section_kind: SectionKind,
+    pub source_contract: Reference,
+    pub ordering_index: usize,
+}
+
+impl TemplateSlot {
+    fn is_complete(&self) -> bool {
+        !self.slot_id.trim().is_empty() && self.source_contract.is_complete()
+    }
+}
+
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RenderedSection {
+    pub section_id: String,
+    pub slot_id: String,
+    pub section_kind: SectionKind,
+    pub title: String,
+    pub source_refs: Vec<Reference>,
+    pub content_status: String,
+}
+
+impl RenderedSection {
+    fn is_complete(&self) -> bool {
+        !self.section_id.trim().is_empty()
+            && !self.slot_id.trim().is_empty()
+            && !self.title.trim().is_empty()
+            && !self.content_status.trim().is_empty()
+            && !self.content_status.trim().eq_ignore_ascii_case("TBD")
+            && !self.source_refs.is_empty()
+            && self.source_refs.iter().all(Reference::is_complete)
+    }
+}
+
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct UnresolvedTbd {
+    pub tbd_id: String,
+    pub topic: String,
+    pub affected_scope: Reference,
+    pub description: String,
+    pub review_needed: bool,
+}
+
+impl UnresolvedTbd {
+    fn requires_review(&self) -> bool {
+        !self.tbd_id.trim().is_empty()
+            && !self.topic.trim().is_empty()
+            && self.affected_scope.is_complete()
+            && !self.description.trim().is_empty()
+            && self.review_needed
+    }
+}
+
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CalculationReport {
+    pub report_id: String,
+    pub model_input_summary: ModelInputSummary,
+    pub load_case_summary: Vec<LoadCaseSummary>,
+    pub result_export_refs: Vec<ReferencedEnvelope>,
+    pub audit_manifest_refs: Vec<ReferencedEnvelope>,
+    pub report_section_refs: Vec<ReferencedEnvelope>,
+    pub rule_pack_refs: Vec<RulePackRef>,
+    pub diagnostics: Vec<Diagnostic>,
+    pub template_slots: Vec<TemplateSlot>,
+    pub rendered_sections: Vec<RenderedSection>,
+    pub analysis_status: Vec<AnalysisStatus>,
+    pub professional_boundary: ProfessionalBoundary,
+    pub provenance: Provenance,
+    pub privacy_classification: PrivacyClassification,
+    pub unresolved_runtime_tbds: Vec<UnresolvedTbd>,
+}
+
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ReportValidation {
+    pub diagnostics: Vec<Diagnostic>,
+}
+
+impl ReportValidation {
+    pub fn is_blocked(&self) -> bool {
+        self.diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.severity == DiagnosticSeverity::Blocking)
+    }
+}
+
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct NeutralReportSection {
+    pub ordering_index: usize,
+    pub section_id: String,
+    pub title: String,
+    pub source_count: usize,
+    pub content_status: String,
+}
+
+pub fn validate_report(report: &CalculationReport) -> ReportValidation {
+    let mut diagnostics = Vec::new();
+
+    if report.report_id.trim().is_empty() {
+        diagnostics.push(Diagnostic::report_blocking(
+            "REPORT-MISSING-ID",
+            Reference::new("report", "UNKNOWN"),
+            "calculation report must identify report_id",
+        ));
+    }
+    if !report.model_input_summary.is_complete() {
+        diagnostics.push(Diagnostic::report_blocking(
+            "REPORT-MODEL-SUMMARY-INCOMPLETE",
+            Reference::new("report", &report.report_id),
+            "calculation report requires complete persisted model, unit, manifest, and hash references",
+        ));
+    }
+    if report.load_case_summary.is_empty()
+        || !report
+            .load_case_summary
+            .iter()
+            .all(LoadCaseSummary::is_complete)
+    {
+        diagnostics.push(Diagnostic::report_blocking(
+            "REPORT-LOADS-INCOMPLETE",
+            Reference::new("report", &report.report_id),
+            "calculation report requires explicit load case or combination summaries",
+        ));
+    }
+    check_referenced_envelopes(
+        "REPORT-MISSING-RESULT-EXPORT",
+        "result export envelope references are required",
+        &report.report_id,
+        &report.result_export_refs,
+        &mut diagnostics,
+    );
+    check_referenced_envelopes(
+        "REPORT-MISSING-AUDIT-MANIFEST",
+        "audit manifest references are required",
+        &report.report_id,
+        &report.audit_manifest_refs,
+        &mut diagnostics,
+    );
+    check_referenced_envelopes(
+        "REPORT-MISSING-SECTIONS",
+        "report section envelope references are required",
+        &report.report_id,
+        &report.report_section_refs,
+        &mut diagnostics,
+    );
+    check_checksum_subjects(report, &mut diagnostics);
+    check_reference_boundary_gaps(report, &mut diagnostics);
+    if !report
+        .rule_pack_refs
+        .iter()
+        .all(RulePackRef::is_safe_reference)
+    {
+        diagnostics.push(Diagnostic::report_blocking(
+            "REPORT-RULE-PACK-REF-UNSAFE",
+            Reference::new("report", &report.report_id),
+            "rule-pack references must include identity, version, checksum, source notice, status, and redacted private payload posture",
+        ));
+    }
+    for rule_pack in report
+        .rule_pack_refs
+        .iter()
+        .filter(|rule_pack| rule_pack.has_boundary_gap())
+    {
+        diagnostics.push(Diagnostic::boundary_warning(
+            "REPORT-RULE-PACK-BOUNDARY-REVIEW",
+            Reference::new("rule_pack", &rule_pack.rule_pack_id),
+            "rule-pack reference has incomplete, unknown, protected-suspected, or TBD review metadata",
+        ));
+    }
+    if report
+        .diagnostics
+        .iter()
+        .any(|diagnostic| !diagnostic.is_complete())
+    {
+        diagnostics.push(Diagnostic::report_blocking(
+            "REPORT-DIAGNOSTIC-INCOMPLETE",
+            Reference::new("report", &report.report_id),
+            "incoming report diagnostics must preserve code, class, severity, source, affected object, message, remediation, and provenance",
+        ));
+    }
+    if !report
+        .analysis_status
+        .contains(&AnalysisStatus::HumanReviewRequired)
+    {
+        diagnostics.push(Diagnostic::report_blocking(
+            "REPORT-HUMAN-REVIEW-MISSING",
+            Reference::new("report", &report.report_id),
+            "calculation report must preserve human-review-required status",
+        ));
+    }
+    if !report.professional_boundary.preserves_boundary() {
+        diagnostics.push(Diagnostic::report_blocking(
+            "REPORT-PROFESSIONAL-BOUNDARY",
+            Reference::new("report", &report.report_id),
+            "calculation report must not make compliance, certification, sealing, approval, or authentication claims",
+        ));
+    }
+    if !report.provenance.is_complete() {
+        diagnostics.push(Diagnostic::report_blocking(
+            "REPORT-PROVENANCE-INCOMPLETE",
+            Reference::new("report", &report.report_id),
+            "calculation report requires source, license, contributor, redistribution, review, and privacy metadata",
+        ));
+    }
+    if report
+        .unresolved_runtime_tbds
+        .iter()
+        .any(|tbd| !tbd.requires_review())
+    {
+        diagnostics.push(Diagnostic::report_blocking(
+            "REPORT-TBD-REVIEW-MISSING",
+            Reference::new("report", &report.report_id),
+            "unresolved runtime/reporting TBDs must remain explicit and review-needed",
+        ));
+    }
+
+    validate_template_slots(report, &mut diagnostics);
+
+    ReportValidation { diagnostics }
+}
+
+impl Diagnostic {
+    fn is_complete(&self) -> bool {
+        !self.code.trim().is_empty()
+            && self.source.is_complete()
+            && self.affected_object.is_complete()
+            && !self.message.trim().is_empty()
+            && !self.remediation.trim().is_empty()
+            && self.provenance.is_complete()
+    }
+}
+
+pub fn ordered_sections(report: &CalculationReport) -> Vec<NeutralReportSection> {
+    let mut sections: Vec<_> = report
+        .rendered_sections
+        .iter()
+        .filter_map(|section| {
+            let ordering_index = report
+                .template_slots
+                .iter()
+                .find(|slot| slot.slot_id == section.slot_id)
+                .map(|slot| slot.ordering_index)?;
+            Some(NeutralReportSection {
+                ordering_index,
+                section_id: section.section_id.clone(),
+                title: section.title.clone(),
+                source_count: section.source_refs.len(),
+                content_status: section.content_status.clone(),
+            })
+        })
+        .collect();
+    sections.sort_by(|left, right| {
+        left.ordering_index
+            .cmp(&right.ordering_index)
+            .then_with(|| left.section_id.cmp(&right.section_id))
+    });
+    sections
+}
+
+/// Every checksum names the subject it is attached to (DEL-08-01 Design
+/// `report-package-current-results.md` §2.4, "Checksum subjects"): a
+/// referenced envelope's checksum names that envelope's own reference, a
+/// rule-pack reference's checksum names that pack, and the model hash names
+/// the summary's model.
+fn check_checksum_subjects(report: &CalculationReport, diagnostics: &mut Vec<Diagnostic>) {
+    let mut mismatched: Vec<Reference> = Vec::new();
+    let summary = &report.model_input_summary;
+    if summary.model_hash.payload_ref != summary.model_ref {
+        mismatched.push(summary.model_hash.payload_ref.clone());
+    }
+    for envelope in report
+        .result_export_refs
+        .iter()
+        .chain(&report.audit_manifest_refs)
+        .chain(&report.report_section_refs)
+    {
+        if envelope.checksum.payload_ref != envelope.reference {
+            mismatched.push(envelope.checksum.payload_ref.clone());
+        }
+    }
+    // Type and id: the pack (`rule_pack`) or its loaded document
+    // (`rule_pack_document`, the desktop's undeclared-checksum fallback).
+    for rule_pack in &report.rule_pack_refs {
+        let payload_ref = &rule_pack.checksum.payload_ref;
+        if payload_ref.ref_id != rule_pack.rule_pack_id
+            || !matches!(payload_ref.ref_type.as_str(), "rule_pack" | "rule_pack_document")
+        {
+            mismatched.push(payload_ref.clone());
+        }
+    }
+    for payload_ref in mismatched {
+        diagnostics.push(Diagnostic::report_blocking(
+            "REPORT-CHECKSUM-SUBJECT-MISMATCH",
+            payload_ref,
+            "a checksum must name the subject it is attached to: the referenced envelope, the rule pack, or the summary's model",
+        ));
+    }
+}
+
+fn check_referenced_envelopes(
+    code: &str,
+    message: &str,
+    report_id: &str,
+    refs: &[ReferencedEnvelope],
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    if refs.is_empty() || !refs.iter().all(ReferencedEnvelope::is_complete) {
+        diagnostics.push(Diagnostic::report_blocking(
+            code,
+            Reference::new("report", report_id),
+            message,
+        ));
+    }
+}
+
+fn check_reference_boundary_gaps(report: &CalculationReport, diagnostics: &mut Vec<Diagnostic>) {
+    let refs = report
+        .result_export_refs
+        .iter()
+        .chain(report.audit_manifest_refs.iter())
+        .chain(report.report_section_refs.iter());
+
+    for referenced in refs.filter(|referenced| referenced.has_boundary_gap()) {
+        diagnostics.push(Diagnostic::boundary_warning(
+            "REPORT-REFERENCE-BOUNDARY-REVIEW",
+            referenced.reference.clone(),
+            "referenced report input has private, protected-suspected, unknown, pending, or TBD boundary metadata",
+        ));
+    }
+}
+
+fn validate_template_slots(report: &CalculationReport, diagnostics: &mut Vec<Diagnostic>) {
+    let mut slot_ids = HashSet::new();
+    let mut required_kinds = HashSet::new();
+    let mut slot_orders = BTreeSet::new();
+    let mut slot_kinds = HashSet::new();
+    for slot in &report.template_slots {
+        if !slot.is_complete() {
+            diagnostics.push(Diagnostic::template_blocking(
+                "REPORT-TEMPLATE-SLOT-INCOMPLETE",
+                Reference::new("report", &report.report_id),
+                "template slots require id, source contract, section kind, and deterministic order",
+            ));
+        }
+        if !slot_ids.insert(slot.slot_id.as_str()) {
+            diagnostics.push(Diagnostic::template_blocking(
+                "REPORT-TEMPLATE-SLOT-DUPLICATE",
+                Reference::new("template_slot", &slot.slot_id),
+                "template slot ids must be unique",
+            ));
+        }
+        if !slot_orders.insert(slot.ordering_index) {
+            diagnostics.push(Diagnostic::template_blocking(
+                "REPORT-TEMPLATE-ORDER-DUPLICATE",
+                Reference::new("template_slot", &slot.slot_id),
+                "template slot ordering indexes must be unique for deterministic report assembly",
+            ));
+        }
+        slot_kinds.insert(slot.section_kind);
+        if slot.required {
+            required_kinds.insert(slot.section_kind);
+        }
+    }
+
+    let section_slot_ids: HashSet<_> = report
+        .rendered_sections
+        .iter()
+        .map(|section| section.slot_id.as_str())
+        .collect();
+    let section_kinds: HashSet<_> = report
+        .rendered_sections
+        .iter()
+        .map(|section| section.section_kind)
+        .collect();
+
+    for required_kind in REQUIRED_SECTION_KINDS {
+        if !slot_kinds.contains(&required_kind) {
+            diagnostics.push(Diagnostic::template_blocking(
+                "REPORT-TEMPLATE-KIND-UNDECLARED",
+                Reference::new("report", &report.report_id),
+                "calculation report template must declare every governed section kind",
+            ));
+        }
+        if !section_kinds.contains(&required_kind) {
+            diagnostics.push(Diagnostic::template_blocking(
+                "REPORT-SECTION-KIND-UNRENDERED",
+                Reference::new("report", &report.report_id),
+                "calculation report must render every governed section kind, including audit, warnings/provenance, limitations, and professional-boundary notice sections",
+            ));
+        }
+    }
+
+    for slot in report.template_slots.iter().filter(|slot| slot.required) {
+        if !section_slot_ids.contains(slot.slot_id.as_str()) {
+            diagnostics.push(Diagnostic::template_blocking(
+                "REPORT-TEMPLATE-SLOT-UNFILLED",
+                Reference::new("template_slot", &slot.slot_id),
+                "required template slot has no rendered section",
+            ));
+        }
+    }
+    for required_kind in required_kinds {
+        if !section_kinds.contains(&required_kind) {
+            diagnostics.push(Diagnostic::template_blocking(
+                "REPORT-TEMPLATE-KIND-MISSING",
+                Reference::new("report", &report.report_id),
+                "required section kind has no rendered section",
+            ));
+        }
+    }
+    for section in &report.rendered_sections {
+        if !section.is_complete() {
+            diagnostics.push(Diagnostic::template_blocking(
+                "REPORT-SECTION-INCOMPLETE",
+                Reference::new("section", &section.section_id),
+                "rendered sections require section id, slot id, title, source refs, and content status",
+            ));
+        }
+        if !slot_ids.contains(section.slot_id.as_str()) {
+            diagnostics.push(Diagnostic::template_blocking(
+                "REPORT-SECTION-UNKNOWN-SLOT",
+                Reference::new("section", &section.section_id),
+                "rendered section references an unknown template slot",
+            ));
+        }
+    }
+}
+
+fn invented_provenance() -> Provenance {
+    Provenance {
+        source_name: "OpenPipeStress report generator validator".to_string(),
+        source_location: "core/reporting/report_generator".to_string(),
+        source_license: "project_internal".to_string(),
+        contributor: "OpenPipeStress".to_string(),
+        contributor_certification: "No protected standards data or private payloads.".to_string(),
+        redistribution_status: RedistributionStatus::InventedNonEngineeringExample,
+        review_status: "accepted".to_string(),
+        privacy_classification: PrivacyClassification::PublicMetadata,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn reference(ref_type: &str, ref_id: &str) -> Reference {
+        Reference::new(ref_type, ref_id)
+    }
+
+    fn provenance() -> Provenance {
+        Provenance {
+            source_name: "invented report fixture".to_string(),
+            source_location: "tests/report_generator/invented".to_string(),
+            source_license: "project_fixture".to_string(),
+            contributor: "OpenPipeStress".to_string(),
+            contributor_certification: "Invented non-engineering data only.".to_string(),
+            redistribution_status: RedistributionStatus::InventedNonEngineeringExample,
+            review_status: "accepted".to_string(),
+            privacy_classification: PrivacyClassification::InventedPublicExample,
+        }
+    }
+
+    fn checksum(ref_type: &str, ref_id: &str) -> ChecksumRef {
+        ChecksumRef {
+            algorithm: "sha256".to_string(),
+            canonicalization: "jcs_compatible".to_string(),
+            payload_ref: reference(ref_type, ref_id),
+            value: format!("invented-{ref_id}-hash"),
+        }
+    }
+
+    fn envelope(ref_type: &str, ref_id: &str, schema_id: &str) -> ReferencedEnvelope {
+        ReferencedEnvelope {
+            reference: reference(ref_type, ref_id),
+            schema_ref: reference("schema", schema_id),
+            checksum: checksum(ref_type, ref_id),
+            privacy_classification: PrivacyClassification::InventedPublicExample,
+            provenance: provenance(),
+        }
+    }
+
+    fn slot(slot_id: &str, kind: SectionKind, ordering_index: usize) -> TemplateSlot {
+        TemplateSlot {
+            slot_id: slot_id.to_string(),
+            required: true,
+            section_kind: kind,
+            source_contract: reference("schema", "invented"),
+            ordering_index,
+        }
+    }
+
+    fn section(section_id: &str, slot_id: &str, kind: SectionKind) -> RenderedSection {
+        RenderedSection {
+            section_id: section_id.to_string(),
+            slot_id: slot_id.to_string(),
+            section_kind: kind,
+            title: section_id.to_string(),
+            source_refs: vec![reference("source", section_id)],
+            content_status: "qualified".to_string(),
+        }
+    }
+
+    fn report() -> CalculationReport {
+        let kinds = [
+            SectionKind::ModelInputSummary,
+            SectionKind::LoadCases,
+            SectionKind::Results,
+            SectionKind::WarningsAssumptionsProvenance,
+            SectionKind::AuditManifest,
+            SectionKind::RulePackReferences,
+            SectionKind::Limitations,
+            SectionKind::ProfessionalBoundaryNotice,
+        ];
+        CalculationReport {
+            report_id: "report-1".to_string(),
+            model_input_summary: ModelInputSummary {
+                project_ref: reference("project", "project-1"),
+                model_ref: reference("model", "model-1"),
+                persistence_ref: reference("persistence", "persistence-1"),
+                unit_system_ref: reference("unit_system", "si"),
+                unit_display_summary: Some(UnitDisplaySummary {
+                    storage_convention: "entered_units_preserved".to_string(),
+                    model_units: BTreeMap::from([
+                        ("force".to_string(), "N".to_string()),
+                        ("length".to_string(), "m".to_string()),
+                    ]),
+                    result_units: vec!["MPa".to_string()],
+                    quantity_display_policy: "display result-row values and stress headlines with explicit units; values stored in Pa are shown in MPa (1 MPa = 10^6 Pa, exact); displayed values are rounded to six significant digits; stored values and units are unchanged"
+                        .to_string(),
+                    conversion_performed: false,
+                }),
+                model_hash: checksum("model", "model-1"),
+                input_manifest_ref: reference("audit_manifest", "manifest-1"),
+                provenance: provenance(),
+            },
+            load_case_summary: vec![LoadCaseSummary {
+                load_ref: reference("load_case", "weight"),
+                label: "Invented weight".to_string(),
+                basis: "load_case".to_string(),
+                source: reference("fixture", "invented"),
+                provenance: provenance(),
+            }],
+            result_export_refs: vec![envelope(
+                "result_export",
+                "result-export-1",
+                "schemas/results.schema.yaml",
+            )],
+            audit_manifest_refs: vec![envelope(
+                "audit_manifest",
+                "manifest-1",
+                "core/reporting/audit_manifest",
+            )],
+            report_section_refs: vec![envelope(
+                "report_sections",
+                "report-sections-1",
+                "schemas/report_sections.schema.yaml",
+            )],
+            rule_pack_refs: vec![RulePackRef {
+                rule_pack_id: "invented-rule-pack".to_string(),
+                name: None,
+                version: "0.1.0".to_string(),
+                checksum: checksum("rule_pack", "invented-rule-pack"),
+                source_notice: "Invented non-code example only.".to_string(),
+                redistribution_status: RedistributionStatus::InventedNonEngineeringExample,
+                completeness_status: "not_checked".to_string(),
+                private_payload_redacted: true,
+            }],
+            diagnostics: Vec::new(),
+            template_slots: kinds
+                .iter()
+                .enumerate()
+                .map(|(index, kind)| slot(&format!("slot-{index}"), *kind, index))
+                .collect(),
+            rendered_sections: kinds
+                .iter()
+                .rev()
+                .enumerate()
+                .map(|(index, kind)| {
+                    section(
+                        &format!("section-{index}"),
+                        &format!(
+                            "slot-{}",
+                            kinds.iter().position(|item| item == kind).unwrap()
+                        ),
+                        *kind,
+                    )
+                })
+                .collect(),
+            analysis_status: vec![
+                AnalysisStatus::MechanicsSolved,
+                AnalysisStatus::HumanReviewRequired,
+            ],
+            professional_boundary: ProfessionalBoundary::project_default(),
+            provenance: provenance(),
+            privacy_classification: PrivacyClassification::InventedPublicExample,
+            unresolved_runtime_tbds: vec![UnresolvedTbd {
+                tbd_id: "TBD-REPORT-REDACTION".to_string(),
+                topic: "redaction_export_controls".to_string(),
+                affected_scope: reference("deliverable", "DEL-12-02"),
+                description: "Redaction controls remain downstream.".to_string(),
+                review_needed: true,
+            }],
+        }
+    }
+
+    #[test]
+    fn checksums_must_name_the_subject_they_are_attached_to() {
+        let codes = |report: &CalculationReport| {
+            validate_report(report)
+                .diagnostics
+                .iter()
+                .filter(|diagnostic| diagnostic.code == "REPORT-CHECKSUM-SUBJECT-MISMATCH")
+                .count()
+        };
+        assert_eq!(codes(&report()), 0);
+        let mut section = report();
+        section.report_section_refs[0].checksum.payload_ref.ref_id = "another-section".to_string();
+        assert_eq!(codes(&section), 1);
+        assert!(validate_report(&section).is_blocked());
+        let mut result = report();
+        result.result_export_refs[0].checksum.payload_ref.ref_type = "another_type".to_string();
+        assert_eq!(codes(&result), 1);
+        let mut audit = report();
+        audit.audit_manifest_refs[0].checksum.payload_ref.ref_id = "another-run".to_string();
+        assert_eq!(codes(&audit), 1);
+        let mut pack = report();
+        pack.rule_pack_refs[0].checksum.payload_ref.ref_id = "another-rule-pack".to_string();
+        assert_eq!(codes(&pack), 1);
+        let mut pack_type = report();
+        pack_type.rule_pack_refs[0].checksum.payload_ref.ref_type = "model_payload".to_string();
+        assert_eq!(codes(&pack_type), 1);
+        let mut pack_document = report();
+        pack_document.rule_pack_refs[0].checksum.payload_ref.ref_type = "rule_pack_document".to_string();
+        assert_eq!(codes(&pack_document), 0);
+        for kind in ["section", "result", "audit", "model"] {
+            let mut typed = report();
+            let payload_ref = match kind {
+                "section" => &mut typed.report_section_refs[0].checksum.payload_ref,
+                "result" => &mut typed.result_export_refs[0].checksum.payload_ref,
+                "audit" => &mut typed.audit_manifest_refs[0].checksum.payload_ref,
+                _ => &mut typed.model_input_summary.model_hash.payload_ref,
+            };
+            payload_ref.ref_type = "model_payload".to_string();
+            assert_eq!(codes(&typed), 1, "{kind}: a type change alone is refused");
+        }
+        let mut model = report();
+        model.model_input_summary.model_hash.payload_ref.ref_id = "another-model".to_string();
+        assert_eq!(codes(&model), 1);
+    }
+
+    #[test]
+    fn validates_complete_report_without_blocking_diagnostics() {
+        let validation = validate_report(&report());
+        assert!(!validation.is_blocked());
+    }
+
+    #[test]
+    fn orders_sections_by_template_slot_index() {
+        let ordered = ordered_sections(&report());
+        let indices: Vec<_> = ordered
+            .iter()
+            .map(|section| section.ordering_index)
+            .collect();
+        assert_eq!(indices, (0..8).collect::<Vec<_>>());
+    }
+
+    #[test]
+    fn blocks_when_human_review_status_is_missing() {
+        let mut report = report();
+        report.analysis_status = vec![AnalysisStatus::MechanicsSolved];
+        let validation = validate_report(&report);
+        assert!(validation
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.code == "REPORT-HUMAN-REVIEW-MISSING"));
+    }
+
+    #[test]
+    fn blocks_professional_boundary_violations() {
+        let mut report = report();
+        report.professional_boundary.software_makes_compliance_claim = true;
+        let validation = validate_report(&report);
+        assert!(validation
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.code == "REPORT-PROFESSIONAL-BOUNDARY"));
+    }
+
+    #[test]
+    fn blocks_missing_template_sections() {
+        let mut report = report();
+        report.rendered_sections.clear();
+        let validation = validate_report(&report);
+        assert!(validation
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.code == "REPORT-TEMPLATE-SLOT-UNFILLED"));
+        assert!(validation
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.code == "REPORT-SECTION-KIND-UNRENDERED"));
+    }
+
+    #[test]
+    fn blocks_when_governed_section_kind_is_not_declared() {
+        let mut report = report();
+        report
+            .template_slots
+            .retain(|slot| slot.section_kind != SectionKind::AuditManifest);
+        report
+            .rendered_sections
+            .retain(|section| section.section_kind != SectionKind::AuditManifest);
+
+        let validation = validate_report(&report);
+        assert!(validation.diagnostics.iter().any(|diagnostic| {
+            diagnostic.code == "REPORT-TEMPLATE-KIND-UNDECLARED"
+                && diagnostic.class == DiagnosticClass::TemplateBlocking
+        }));
+        assert!(validation
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.code == "REPORT-SECTION-KIND-UNRENDERED"));
+    }
+
+    #[test]
+    fn blocks_duplicate_template_ordering_indexes() {
+        let mut report = report();
+        report.template_slots[1].ordering_index = report.template_slots[0].ordering_index;
+
+        let validation = validate_report(&report);
+        assert!(validation.diagnostics.iter().any(|diagnostic| {
+            diagnostic.code == "REPORT-TEMPLATE-ORDER-DUPLICATE"
+                && diagnostic.class == DiagnosticClass::TemplateBlocking
+        }));
+    }
+
+    #[test]
+    fn blocks_incomplete_incoming_diagnostics() {
+        let mut report = report();
+        report.diagnostics.push(Diagnostic {
+            code: "UPSTREAM-MISSING-DATA".to_string(),
+            class: DiagnosticClass::RuleCheckBlocking,
+            severity: DiagnosticSeverity::Blocking,
+            source: reference("rule_pack", "invented-rule-pack"),
+            affected_object: reference("report", "report-1"),
+            message: String::new(),
+            remediation: "Supply missing user rule-pack inputs.".to_string(),
+            provenance: provenance(),
+        });
+
+        let validation = validate_report(&report);
+        assert!(validation
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.code == "REPORT-DIAGNOSTIC-INCOMPLETE"));
+    }
+
+    #[test]
+    fn warns_when_referenced_envelopes_carry_boundary_gaps() {
+        let mut report = report();
+        report.audit_manifest_refs[0].privacy_classification =
+            PrivacyClassification::PrivateProjectData;
+        report.audit_manifest_refs[0]
+            .provenance
+            .redistribution_status = RedistributionStatus::Unknown;
+        report.audit_manifest_refs[0].provenance.review_status = "pending".to_string();
+
+        let validation = validate_report(&report);
+        assert!(!validation.is_blocked());
+        assert!(validation.diagnostics.iter().any(|diagnostic| {
+            diagnostic.code == "REPORT-REFERENCE-BOUNDARY-REVIEW"
+                && diagnostic.class == DiagnosticClass::IpBoundaryWarning
+                && diagnostic.severity == DiagnosticSeverity::Warning
+        }));
+    }
+
+    #[test]
+    fn warns_when_rule_pack_review_state_is_incomplete() {
+        let mut report = report();
+        report.rule_pack_refs[0].redistribution_status = RedistributionStatus::Tbd;
+        report.rule_pack_refs[0].completeness_status = "incomplete".to_string();
+
+        let validation = validate_report(&report);
+        assert!(!validation.is_blocked());
+        assert!(validation.diagnostics.iter().any(|diagnostic| {
+            diagnostic.code == "REPORT-RULE-PACK-BOUNDARY-REVIEW"
+                && diagnostic.class == DiagnosticClass::IpBoundaryWarning
+                && diagnostic.severity == DiagnosticSeverity::Warning
+        }));
+    }
+}

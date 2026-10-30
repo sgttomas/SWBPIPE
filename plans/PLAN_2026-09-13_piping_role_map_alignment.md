@@ -1,0 +1,3 @@
+# Piping role-map alignment proposal
+
+Concrete issue: project AGENTS.md still maps retired CHANGE/EVALUATION/REVIEW roles while current root doctrine uses four roles. Propose a separately governed instruction-alignment tranche that verifies current role names and execution relationships, then updates the project mapping and required coordination references under its own authority and review. This issue plan is created under the project issue-plan rule; it authorizes no instruction, root, harness or implementation edits and activates no new task. Current tranche retains its scoped TASK/change workflow attribution.

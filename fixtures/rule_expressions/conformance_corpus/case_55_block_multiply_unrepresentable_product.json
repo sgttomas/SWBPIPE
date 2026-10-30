@@ -1,0 +1,43 @@
+{
+  "bindings": [],
+  "case_id": "case_55_block_multiply_unrepresentable_product",
+  "declared_grammar_version": "1.0.0",
+  "description": "Stress x Stress has no enumerated dimension product and blocks.",
+  "expected": {
+    "findings": [
+      {
+        "code": "unsupported_expression_form",
+        "subject_id": "multiply"
+      }
+    ],
+    "source_variable_ids": [],
+    "statuses": [
+      "mechanics_solved"
+    ],
+    "value": null
+  },
+  "expression": {
+    "left": {
+      "node": "literal",
+      "quantity": {
+        "dimension": "stress",
+        "unit_ref": "invented_stress_unit",
+        "value": 3.0
+      }
+    },
+    "node": "binary",
+    "operator": "multiply",
+    "right": {
+      "node": "literal",
+      "quantity": {
+        "dimension": "stress",
+        "unit_ref": "invented_stress_unit",
+        "value": 4.0
+      }
+    }
+  },
+  "required_variable_ids": [],
+  "statuses": [
+    "mechanics_solved"
+  ]
+}

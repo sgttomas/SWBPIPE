@@ -1,0 +1,3186 @@
+import { CompactSelect } from "../workspace/CompactSelect";
+import { QuantityReadout } from "../display-units";
+import { SupportConfigurationForm } from "../support-configuration/SupportConfigurationForm";
+import { MaterialTemperatureForm } from "../material-temperature/MaterialTemperatureForm";
+import { BendAuthoringForms } from "../bend-authoring/BendAuthoringForms";
+import { JointPressureModelEditor } from "../pressure-authoring/JointPressureModelEditor";
+import { WindExposureForm } from "../wind-exposure/WindExposureForm";
+import { SectionAssignment } from "../toolkit/SectionAssignment";
+import { GuardedRemoval } from "../toolkit/GuardedRemoval";
+import { buildDeleteNodeIntent, buildDeletePipeIntent, buildDeleteSupportIntent } from "./removalIntents";
+import { draftSupportFamily, SUPPORT_FAMILY_OPTIONS, suggestedSupportFamily, supportFamilySuggestionText } from "./supportFamilyDraft";
+import { ModelDataAnnotations } from "../model-data/ModelDataAnnotations";
+import { ModelSettingsSection } from "../model-settings/ModelSettingsSection";
+import { ProjectUnitsSection } from "../project-units/ProjectUnitsSection";
+import { ListPlus, Pencil, PlayCircle, PlusCircle, SearchCheck, Trash2 } from "lucide-react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import type {
+  EditorOperationIntent,
+  EditorOperationObjectType,
+  EntityRef,
+  OperationOutcome,
+  PreviewComponent,
+  PreviewModel
+} from "../../types";
+import {
+  acceptedUnits,
+  describeUnitBasis,
+  loadUnitCatalog,
+  type UnitBasisDisplay,
+  type UnitCatalogEntry,
+  type UnitCatalogRoute
+} from "../../services/unitCatalogService";
+import { entityLabel, selectedProperties, selectedPropertyRows } from "../model-workspace/modelView";
+import {
+  composedDefault,
+  declaredOrComposedDefault,
+  fieldComposedDefault,
+  linearStiffnessFieldDefault,
+  projectTemperatureDefault,
+  rotationalStiffnessFieldDefault,
+  type FieldUnitDefault
+} from "../project-units/projectUnitSelection";
+import { componentDraftMissingUnitNotices, isProjectUnitKey, missingProjectUnitText, projectUnitMissing, type MissingProjectUnitMode } from "../project-units/missingProjectUnit";
+import type { ProjectUnitKey } from "../../services/projectService";
+import { entityRefFromKey, type OrderedSelectionState } from "../workspace/selectionState";
+import { VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
+import { ConnectorDraftFields } from "../component-creation/ConnectorDraftFields";
+import { RigidDraftFields } from "../component-creation/RigidDraftFields";
+import { ECCENTRIC_OFFSET_CONVENTION } from "../component-creation/eccentricOffsetConvention";
+import {
+  buildCreateComponentIntent,
+  CENTER_OF_GRAVITY_CONVENTION,
+  componentDraftForKind,
+  componentDraftForNode,
+  creatableComponentKinds,
+  defaultComponentDraft,
+  isComponentDraftValid,
+  type ComponentDraft,
+  type CreatableComponentKind
+} from "../component-creation/componentIntent";
+
+export function PropertyInspector({
+  getPreparationEpoch,
+  model,
+  onQueueIntent,
+  onValidateIntent,
+  onApplyIntent,
+  operationBusy = false,
+  operationOutcomes = {},
+  queuedIntents = [],
+  projectSessionGeneration = 0,
+  selection,
+  selectionState,
+  taskRequest
+}: {
+  getPreparationEpoch?: () => number;
+  model: PreviewModel;
+  onQueueIntent: (intent: EditorOperationIntent) => void;
+  onValidateIntent?: (intent: EditorOperationIntent) => void;
+  onApplyIntent?: (intent: EditorOperationIntent) => Promise<boolean>;
+  operationBusy?: boolean;
+  operationOutcomes?: Record<string, OperationOutcome>;
+  queuedIntents?: EditorOperationIntent[];
+  projectSessionGeneration?: number;
+  selection: EntityRef;
+  selectionState?: OrderedSelectionState;
+  taskRequest?: Readonly<{ sequence: number; target: EntityRef; view: "properties" | "task"; focusTestId: string; elementId?: string }> | null;
+}) {
+  const [inspectorView, setInspectorView] = useState<"properties" | "task">("properties");
+  const [taskActive, setTaskActive] = useState(false);
+  const taskGenerationRef = useRef(0);
+  const [propertiesTarget, setPropertiesTarget] = useState<EntityRef>(() => ({ ...selection }));
+  const [draftTarget, setDraftTarget] = useState<EntityRef>(() => ({ ...selection }));
+  const properties = selectedProperties(model, propertiesTarget);
+  const [unitCatalogRoute, setUnitCatalogRoute] = useState<UnitCatalogRoute | null>(null);
+  const editableFields = useMemo(() => editorFieldOptions(model, draftTarget, unitCatalogRoute), [draftTarget, model, unitCatalogRoute]);
+  const [selectedFieldPath, setSelectedFieldPath] = useState(editableFields[0]?.fieldPath ?? "");
+  const [proposedValue, setProposedValue] = useState(fieldEntryValue(editableFields[0]));
+  // W-17 slice (c) §7.3: a unit the user picks is kept; until then the field's own
+  // (inherited) default is used, recomputed whenever the field is, so a catalog that
+  // arrives late, or a project-unit change, replaces an inherited default but never a
+  // chosen unit. A stored unit is the field's default and is kept.
+  const [chosenUnit, setChosenUnit] = useState<string | null>(null);
+  const chooseProposedUnit = (unit: string) => setChosenUnit(unit);
+  const [rationale, setRationale] = useState("user_entered_preview_change");
+  const [sectionDraft, setSectionDraft] = useState(() => defaultSectionDraft(model, queuedIntents));
+  const [materialDraftState, setMaterialDraft] = useState(() => defaultMaterialDraft(model, queuedIntents));
+  const [supportDraftState, setSupportDraft] = useState(() => defaultSupportDraft(model, selection, queuedIntents));
+  const [componentDraft, setComponentDraft] = useState(() =>
+    defaultComponentDraft(model, selection, queuedIntents)
+  );
+  const aggregateRefs = selectionState?.orderedKeys.flatMap((key) => {
+    const ref = entityRefFromKey(key);
+    return ref ? [ref] : [];
+  }) ?? [selection];
+  const multiSelection = aggregateRefs.length > 1;
+  // Default-sourced composed units follow the current project's rule on every render
+  // (W-17 §2.4), so a replaced project, a project-unit change or a catalog that arrives
+  // later never leaves an inherited unit in place. Explicit choices are kept.
+  const materialDraft: MaterialDraft = materialDraftState.thermalExpansionUnitSource === "default"
+    ? { ...materialDraftState, thermalExpansionUnit: thermalExpansionUnit(model, unitCatalogRoute) }
+    : materialDraftState;
+  const supportDraft: SupportDraft = supportDraftState.linearStiffnessUnitSource === "default"
+    ? { ...supportDraftState, linearStiffnessUnit: linearStiffnessUnit(model, unitCatalogRoute) }
+    : supportDraftState;
+  const selectedPipe = propertiesTarget.type === "pipe" ? model.pipe_segments.find((pipe) => pipe.id === propertiesTarget.id) : null;
+  // Rich Properties controls follow their own explicit command/live-selection
+  // target. Inline Task mutations remain bound to the frozen Task target until
+  // that task is added, cancelled, or successfully applied.
+  const mutationTarget = inspectorView === "task" && taskActive ? draftTarget : propertiesTarget;
+  const mutationNode =
+    mutationTarget.type === "node" ? model.nodes.find((node) => node.id === mutationTarget.id) : null;
+  const mutationPipe =
+    mutationTarget.type === "pipe" ? model.pipe_segments.find((pipe) => pipe.id === mutationTarget.id) : null;
+  const mutationSupport =
+    mutationTarget.type === "support" ? model.supports.find((support) => support.id === mutationTarget.id) : null;
+  const lengthBasis = describeUnitBasis(unitCatalogRoute, sectionDraft.lengthUnit, "length");
+  const stressBasis = describeUnitBasis(unitCatalogRoute, materialDraft.stressUnit, "stress");
+  const supportStiffnessBasis = describeUnitBasis(
+    unitCatalogRoute,
+    supportDraft.linearStiffnessUnit,
+    "linear_stiffness"
+  );
+  const thermalExpansionBasis = describeUnitBasis(
+    unitCatalogRoute,
+    materialDraft.thermalExpansionUnit,
+    "thermal_expansion_coefficient"
+  );
+  const lengthUnitOptions = unitOptions(unitCatalogRoute, "length", lengthUnit(model));
+  const stressUnitOptions = unitOptions(unitCatalogRoute, "stress", stressUnit(model));
+  const supportStiffnessUnitOptions = unitOptions(unitCatalogRoute, "linear_stiffness", linearStiffnessUnit(model, unitCatalogRoute));
+  const thermalExpansionUnitOptions = unitOptions(
+    unitCatalogRoute,
+    "thermal_expansion_coefficient",
+    thermalExpansionUnit(model, unitCatalogRoute)
+  );
+  // W-17 §2.4: a composed default the catalog lacks leaves the unit unselected, and says why.
+  const supportStiffnessUnitNotice = supportDraft.linearStiffnessUnit === "" ? linearStiffnessUnitNotice(model, unitCatalogRoute) : null;
+  const supportFamilySuggestion = suggestedSupportFamily(supportDraft.restraints, supportDraft.linearStiffness);
+  const thermalExpansionUnitNotice = materialDraft.thermalExpansionUnit === "" ? thermalExpansionUnitNoticeFor(model, unitCatalogRoute) : null;
+  const componentAngleUnitOptions = unitOptions(
+    unitCatalogRoute,
+    "angle",
+    componentDraft.angleUnit || storedProjectUnits(model).angle || "TBD"
+  );
+  const componentForceUnitOptions = unitOptions(
+    unitCatalogRoute,
+    "force",
+    componentDraft.forceUnit || storedProjectUnits(model).force || "TBD"
+  );
+  // W-17 §3: a draft unit left unselected because its project key is absent names the key.
+  const componentUnitNotices = componentDraftMissingUnitNotices(model, componentDraft);
+  const nodeTargetOptions = useMemo(() => model.nodes.map((node) => ({ value: node.id, label: node.label || node.id })), [model.nodes]);
+  const connectedPipeTargetOptions = useMemo(() => model.pipe_segments
+    .filter((pipe) => pipe.from === componentDraft.node || pipe.to === componentDraft.node)
+    .map((pipe) => ({ value: pipe.id, label: pipe.label || pipe.id, keywords: [pipe.from, pipe.to] })),
+  [componentDraft.node, model.pipe_segments]);
+  const selectedField = editableFields.find((field) => field.fieldPath === selectedFieldPath) ?? editableFields[0];
+  const proposedUnit = chosenUnit ?? selectedField?.unit ?? "";
+  const selectedFieldLabel = selectedField ? propertyLabel(selectedField) : "Property";
+  const requiredFlags = requiredFlagsForSelection(model, propertiesTarget, properties);
+  const selectedFieldUnitOptions = selectedField
+    ? unitOptions(unitCatalogRoute, selectedField.dimension, selectedField.unit)
+    : [];
+  const selectedFieldUnitBasis = selectedField
+    ? describeUnitBasis(unitCatalogRoute, proposedUnit || selectedField.unit, selectedField.dimension)
+    : null;
+  const operationIntent = selectedField
+    ? buildOperationIntent({
+        field: selectedField,
+        model,
+        proposedValue,
+        proposedUnit,
+        rationale,
+        selection: draftTarget,
+        unitCatalogRoute
+      })
+    : null;
+  const sectionCreateIntent = isSectionDraftValid(model, sectionDraft)
+    ? buildCreateSectionIntent(sectionDraft, model, unitCatalogRoute)
+    : null;
+  const materialCreateIntent = isMaterialDraftValid(model, materialDraft)
+    ? buildCreateMaterialIntent(materialDraft, model, unitCatalogRoute)
+    : null;
+  const supportCreateIntent = isSupportDraftValid(model, supportDraft)
+    ? buildCreateSupportIntent(supportDraft, model, unitCatalogRoute)
+    : null;
+  const componentCreateIntent = isComponentDraftValid(model, componentDraft, queuedIntents)
+    ? buildCreateComponentIntent({
+        draft: componentDraft,
+        model,
+        sourceRef: "apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+        sourceRole: "gui_editor",
+        unitValidation: componentUnitValidation(componentDraft, unitCatalogRoute)
+      })
+    : null;
+  const nodeDeleteIntent = mutationNode ? buildDeleteNodeIntent(mutationNode, model) : null;
+  const pipeDeleteIntent = mutationPipe ? buildDeletePipeIntent(mutationPipe, model) : null;
+  const supportDeleteIntent = mutationSupport ? buildDeleteSupportIntent(mutationSupport, model) : null;
+  const inlineValidationOutcome = operationIntent
+    ? matchingInlineValidationOutcome(operationOutcomes[operationIntentKey(operationIntent)], operationIntent)
+    : null;
+  const fieldChanged = Boolean(
+    operationIntent &&
+    selectedField &&
+    ((proposedValue.trim() || "TBD") !== (selectedField.initialValue || selectedField.before) ||
+      (selectedField.unitEditable && (proposedUnit.trim() || selectedField.unit) !== selectedField.unit))
+  );
+  const unitRefusal = missingProjectUnitRefusal(model, selectedField, proposedUnit);
+  const currentIntentComplete = Boolean(operationIntent && fieldChanged && !unitRefusal && operationIntentIsComplete(operationIntent));
+
+  useLayoutEffect(() => {
+    taskGenerationRef.current += 1;
+    const nextTarget = { ...selection };
+    const firstField = editorFieldOptions(model, nextTarget, unitCatalogRoute)[0];
+    setDraftTarget(nextTarget);
+    setSelectedFieldPath(firstField?.fieldPath ?? "");
+    setProposedValue(fieldEntryValue(firstField));
+    setChosenUnit(null);
+    setRationale("user_entered_preview_change");
+    setSupportDraft(defaultSupportDraft(model, selection, queuedIntents, unitCatalogRoute));
+    setComponentDraft(defaultComponentDraft(model, selection, queuedIntents));
+    setMaterialDraft(defaultMaterialDraft(model, queuedIntents, unitCatalogRoute));
+    setSectionDraft(defaultSectionDraft(model, queuedIntents));
+    setInspectorView("properties");
+    setTaskActive(false);
+  }, [projectSessionGeneration]);
+
+  useLayoutEffect(() => {
+    if (!multiSelection) setPropertiesTarget({ ...selection });
+  }, [multiSelection, selection.id, selection.type]);
+
+  useLayoutEffect(() => {
+    if (!taskRequest) return;
+    if (taskRequest.view === "task") {
+      taskGenerationRef.current += 1;
+      const nextTarget = { ...taskRequest.target };
+      const firstField = editorFieldOptions(model, nextTarget, unitCatalogRoute)[0];
+      setDraftTarget(nextTarget);
+      setSelectedFieldPath(firstField?.fieldPath ?? "");
+      setProposedValue(fieldEntryValue(firstField));
+      setChosenUnit(null);
+      setRationale("user_entered_preview_change");
+      setTaskActive(true);
+    } else if (!multiSelection) {
+      setPropertiesTarget({ ...taskRequest.target });
+    }
+    setInspectorView(taskRequest.view);
+  }, [taskRequest?.sequence]);
+
+  useLayoutEffect(() => {
+    if (!taskRequest || inspectorView !== taskRequest.view) return;
+    if (taskRequest.view === "task" &&
+        (!taskActive || draftTarget.type !== taskRequest.target.type || draftTarget.id !== taskRequest.target.id)) return;
+    if (taskRequest.view === "properties" &&
+        (propertiesTarget.type !== taskRequest.target.type || propertiesTarget.id !== taskRequest.target.id)) return;
+    const target = taskRequest.elementId
+      ? document.getElementById(taskRequest.elementId)
+      : taskRequest.focusTestId
+        ? document.querySelector<HTMLElement>(`[data-testid="${taskRequest.focusTestId}"]`)
+        : null;
+    for (let parent = target?.parentElement; parent; parent = parent.parentElement) {
+      if (parent instanceof HTMLDetailsElement) parent.open = true;
+    }
+    target?.focus();
+    target?.scrollIntoView?.({ block: "nearest" });
+  }, [draftTarget.id, draftTarget.type, inspectorView, propertiesTarget.id, propertiesTarget.type, taskActive, taskRequest?.sequence]);
+
+  useEffect(() => {
+    let active = true;
+    loadUnitCatalog()
+      .then((route) => {
+        if (active) setUnitCatalogRoute(route);
+      })
+      .catch((error) => {
+        if (!active) return;
+        setUnitCatalogRoute({
+          route: "unavailable_browser_preview",
+          diagnostic: `UNIT-CATALOG-LOAD-FAILED: ${String(error)}`
+        });
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+
+  function handleFieldChange(fieldPath: string) {
+    taskGenerationRef.current += 1;
+    const nextField = editableFields.find((field) => field.fieldPath === fieldPath);
+    setSelectedFieldPath(fieldPath);
+    setProposedValue(fieldEntryValue(nextField));
+    setChosenUnit(null);
+  }
+
+  function beginPropertyTaskFromSelection() {
+    taskGenerationRef.current += 1;
+    const nextTarget = { ...selection };
+    const firstField = editorFieldOptions(model, nextTarget, unitCatalogRoute)[0];
+    setDraftTarget(nextTarget);
+    setSelectedFieldPath(firstField?.fieldPath ?? "");
+    setProposedValue(fieldEntryValue(firstField));
+    setChosenUnit(null);
+    setRationale("user_entered_preview_change");
+    setInspectorView("task");
+    setTaskActive(true);
+  }
+
+  function cancelPropertyTask() {
+    taskGenerationRef.current += 1;
+    const firstField = editorFieldOptions(model, draftTarget, unitCatalogRoute)[0];
+    setSelectedFieldPath(firstField?.fieldPath ?? "");
+    setProposedValue(fieldEntryValue(firstField));
+    setChosenUnit(null);
+    setRationale("user_entered_preview_change");
+    setTaskActive(false);
+  }
+
+  function handleQueueIntent() {
+    if (multiSelection || !operationIntent || !fieldChanged || unitRefusal) return;
+    onQueueIntent(deepFreezeIntent(structuredClone(operationIntent)));
+  }
+
+  async function handleApplyCurrentIntent() {
+    if (multiSelection || !operationIntent || !onApplyIntent || unitRefusal) return;
+    const taskGeneration = taskGenerationRef.current;
+    try {
+      if (await onApplyIntent(operationIntent) && taskGenerationRef.current === taskGeneration) setTaskActive(false);
+    } catch {
+      // The App publishes operation failure detail. Keep this exact frozen
+      // draft active so the user can inspect, revise, or retry it.
+    }
+  }
+
+  function handleQueueSupportIntent() {
+    if (multiSelection || !supportCreateIntent) return;
+    onQueueIntent(supportCreateIntent);
+    setSupportDraft(defaultSupportDraftWithReserved(model, propertiesTarget, [...queuedIntents, supportCreateIntent], unitCatalogRoute));
+  }
+
+  function handleQueueComponentIntent() {
+    if (multiSelection || !componentCreateIntent) return;
+    onQueueIntent(componentCreateIntent);
+    setComponentDraft(
+      defaultComponentDraft(model, propertiesTarget, [...queuedIntents, componentCreateIntent], componentDraft.kind)
+    );
+  }
+
+  function handleQueueDeleteSupportIntent() {
+    if (multiSelection || !supportDeleteIntent) return;
+    onQueueIntent(supportDeleteIntent);
+  }
+
+  function handleQueueDeleteNodeIntent() {
+    if (multiSelection || !nodeDeleteIntent) return;
+    onQueueIntent(nodeDeleteIntent);
+  }
+
+  function handleQueueDeletePipeIntent() {
+    if (multiSelection || !pipeDeleteIntent) return;
+    onQueueIntent(pipeDeleteIntent);
+  }
+
+  function handleQueueMaterialIntent() {
+    if (multiSelection || !materialCreateIntent) return;
+    onQueueIntent(materialCreateIntent);
+    setMaterialDraft(defaultMaterialDraftWithReserved(model, [...queuedIntents, materialCreateIntent], unitCatalogRoute));
+  }
+
+  function handleQueueSectionIntent() {
+    if (multiSelection || !sectionCreateIntent) return;
+    onQueueIntent(sectionCreateIntent);
+    setSectionDraft(defaultSectionDraftWithReserved(model, [...queuedIntents, sectionCreateIntent]));
+  }
+
+  function updateSectionDraft<K extends keyof SectionDraft>(key: K, value: SectionDraft[K]) {
+    setSectionDraft((current) => ({ ...current, [key]: value }));
+  }
+
+  function updateMaterialDraft<K extends keyof MaterialDraft>(key: K, value: MaterialDraft[K]) {
+    setMaterialDraft((current) => ({
+      ...current,
+      [key]: value,
+      ...(key === "thermalExpansionUnit" ? { thermalExpansionUnitSource: "user" as const } : {})
+    }));
+  }
+
+  function updateSupportDraft<K extends keyof SupportDraft>(key: K, value: SupportDraft[K]) {
+    setSupportDraft((current) => ({
+      ...current,
+      [key]: value,
+      ...(key === "linearStiffnessUnit" ? { linearStiffnessUnitSource: "user" as const } : {})
+    }));
+  }
+
+  function updateComponentDraft<K extends keyof ComponentDraft>(key: K, value: ComponentDraft[K]) {
+    setComponentDraft((current) => ({ ...current, [key]: value }));
+  }
+
+  function toggleSupportRestraint(restraint: string) {
+    setSupportDraft((current) => {
+      const present = current.restraints.includes(restraint);
+      return {
+        ...current,
+        restraints: present
+          ? current.restraints.filter((item) => item !== restraint)
+          : [...current.restraints, restraint]
+      };
+    });
+  }
+
+  const aggregateCounts = new Map<EntityRef["type"], number>();
+  for (const ref of aggregateRefs) aggregateCounts.set(ref.type, (aggregateCounts.get(ref.type) ?? 0) + 1);
+  const aggregateProperties = multiSelection && inspectorView === "properties";
+  const inspectorTarget = inspectorView === "task" && taskActive ? draftTarget : propertiesTarget;
+
+  return (
+    <div className="panel inspector" data-testid="property-inspector" role="region" aria-label="Property inspector">
+      <h2>{aggregateProperties ? `${aggregateRefs.length} selected items` : <>{entityLabel(model, inspectorTarget)} <span className="typed-identity">— {inspectorTarget.type}: {inspectorTarget.id}</span></>}</h2>
+      <div className="inspector-view-tabs" role="tablist" aria-label="Inspector views">
+        <button aria-controls="inspector-properties-view" aria-selected={inspectorView === "properties"} onClick={() => setInspectorView("properties")} role="tab" type="button">Properties</button>
+        <button aria-controls="inspector-task-view" aria-selected={inspectorView === "task"} onClick={() => setInspectorView("task")} role="tab" type="button">Task</button>
+      </div>
+      <div hidden={inspectorView !== "properties"} id="inspector-properties-view" role="tabpanel" tabIndex={0}>
+      {aggregateProperties ? <div className="aggregate-inspector" data-testid="aggregate-property-inspector">
+        <p role="status">Aggregate inspection is read-only. Existing Properties drafts remain attached to their typed target.</p>
+        <button disabled type="button" aria-describedby="aggregate-property-task-reason">Start property task</button>
+        <p id="aggregate-property-task-reason">Property mutation is unavailable for multi-selection. Reduce the selection to one typed entity.</p>
+        <dl>
+          {[...aggregateCounts].map(([type, count]) => <div key={type}><dt>{type}</dt><dd>{count}</dd></div>)}
+          <div><dt>Primary</dt><dd>{selection.type}: {selection.id}</dd></div>
+        </dl>
+      </div> : <>
+      <details className="inspector-details">
+        <summary>All properties</summary>
+        <dl>
+        {selectedPropertyRows(model, propertiesTarget).map(([label, value]) => (
+          <div key={label}>
+            <dt>{label}</dt>
+            <dd>{value.quantities ? value.quantities.map((quantity, index) => <span key={index}>{quantity.label ? `${quantity.label}=` : ""}<QuantityReadout quantity={quantity} />{index < value.quantities!.length - 1 ? ", " : ""}</span>) : value.text}</dd>
+          </div>
+        ))}
+        </dl>
+      </details>
+      {selectedPipe ? <p data-testid="pipe-section-basis">{selectedPipe.section_ref ? `Shared section: ${selectedPipe.section_ref}. Edit diameter and wall in Sections.` : "Local pipe section: diameter and wall belong to this pipe."}</p> : null}
+      {selectedPipe && Boolean(selectedPipe.section.insulation_thickness) !== Boolean(selectedPipe.section.insulation_density) ? <p role="status" data-testid="mass-input-completeness">Insulation mass is incomplete: enter both thickness and density before solving. The missing quantity has not been supplied.</p> : null}
+      {requiredFlags.length > 0 ? (
+        <section className="inspector-context-grid" aria-label="Inspector review context">
+          <RequiredFlagList flags={requiredFlags} />
+        </section>
+      ) : null}
+      </>}
+      </div>
+      <section className="editor-intent" aria-label="Editor operation intent" data-testid="editor-intent-panel" hidden={inspectorView !== "task"} id="inspector-task-view" role="tabpanel" tabIndex={0}>
+        {!taskActive ? <div className="inspector-task-empty" data-testid="inspector-task-empty">
+          <p>Current selection: <strong>{selection.type}: {selection.id}</strong></p>
+          <button type="button" data-testid="inspector-start-task" disabled={multiSelection} aria-describedby={multiSelection ? "multi-selection-task-reason" : undefined} onClick={beginPropertyTaskFromSelection}>Start task from current selection</button>
+          {multiSelection ? <p id="multi-selection-task-reason" role="status">Property mutation is unavailable for multi-selection. Reduce the selection to one typed entity before starting a task.</p> : null}
+        </div> : <>
+        <div className="inspector-task-target">
+          <span data-testid="inspector-frozen-task-target">Draft target: {draftTarget.type}: {draftTarget.id}</span>
+        </div>
+        {multiSelection ? <p id="multi-selection-task-reason" role="status">Property mutation is unavailable for multi-selection. The existing frozen draft is retained; reduce the selection to one typed entity before adding, reviewing, or applying it.</p> : null}
+        {operationIntent ? <h3><Pencil size={14} aria-hidden="true" /> Edit {selectedFieldLabel.toLowerCase()}</h3> : null}
+        {operationIntent ? (
+          <>
+            <div className="editor-intent-controls">
+              <label>
+                <span>Property</span>
+                <CompactSelect
+                  aria-label="Property to edit"
+                  data-testid="editor-intent-field"
+                  onValueChange={(value) => handleFieldChange(value)}
+                  value={selectedField?.fieldPath ?? ""}
+                  options={editableFields.map((field) => ({ value: field.fieldPath, label: propertyLabel(field) }))}
+                />
+              </label>
+              {selectedField ? <SelectedFieldValue field={selectedField} basis={selectedFieldUnitBasis} /> : null}
+              <label>
+                <span>
+                  New {selectedFieldLabel.toLowerCase()}
+                  {selectedField?.unitEditable ? ` (${proposedUnit || selectedField.unit})` : ""}
+                </span>
+                <input
+                  aria-label={`New ${selectedFieldLabel.toLowerCase()}`}
+                  data-testid="editor-intent-value"
+                  inputMode={selectedField?.valueKind === "quantity" ? "decimal" : "text"}
+                  onChange={(event) => {
+                    taskGenerationRef.current += 1;
+                    setProposedValue(event.target.value);
+                  }}
+                  value={proposedValue}
+                />
+              </label>
+              {selectedField?.unitEditable ? (
+                <label>
+                  <span>Unit</span>
+                  {selectedField.fieldPath.match(/^section\.(material_density|contents_density|insulation_thickness|insulation_density)\.value$/) ? <input
+                    aria-label="Proposed editor unit" data-testid="editor-intent-unit" list="mass-unit-options" placeholder="Enter a unit"
+                    value={proposedUnit} onChange={(event) => {
+                      taskGenerationRef.current += 1;
+                      chooseProposedUnit(event.target.value);
+                    }}
+                  /> : <CompactSelect
+                    aria-label="Proposed editor unit"
+                    data-testid="editor-intent-unit"
+                    onValueChange={(value) => {
+                      taskGenerationRef.current += 1;
+                      chooseProposedUnit(value);
+                    }}
+                    value={proposedUnit || selectedField.unit}
+                    options={selectedFieldUnitOptions.map((option) => ({ value: option.symbol, label: option.label }))}
+                  />}
+                  <datalist id="mass-unit-options">{selectedFieldUnitOptions.filter((option) => option.symbol && option.symbol !== "TBD").map((option) => <option key={option.symbol} value={option.symbol}>{option.label}</option>)}</datalist>
+                </label>
+              ) : null}
+              {unitRefusal ? <p role={unitRefusal.hardLock ? "alert" : "status"} data-testid="editor-intent-missing-project-unit" data-key={selectedField?.missingProjectUnit?.key}>{unitRefusal.text}</p> : null}
+              <footer className="task-action-footer" aria-label="Task actions" data-testid="task-action-footer">
+                <button
+                  data-testid="queue-editor-intent"
+                  disabled={multiSelection || !fieldChanged || Boolean(unitRefusal)}
+                  onClick={handleQueueIntent}
+                  title="Add this change to the review queue"
+                  type="button"
+                >
+                  <ListPlus size={14} aria-hidden="true" />
+                  Add
+                </button>
+                <button data-testid="cancel-editor-intent" onClick={cancelPropertyTask} type="button">Cancel</button>
+                <button
+                  data-testid="validate-editor-intent-inline"
+                  disabled={multiSelection || !fieldChanged || Boolean(unitRefusal) || operationBusy || !onValidateIntent}
+                  onClick={() => operationIntent && !unitRefusal && onValidateIntent?.(operationIntent)}
+                  title="Validate without applying"
+                  type="button"
+                >
+                  <SearchCheck size={14} aria-hidden="true" />
+                  Review
+                </button>
+                <button
+                  data-testid="apply-editor-intent-inline"
+                  disabled={multiSelection || !currentIntentComplete || operationBusy || !onApplyIntent}
+                  onClick={() => { void handleApplyCurrentIntent(); }}
+                  title="Apply this exact displayed intent through the operation service"
+                  type="button"
+                >
+                  <PlayCircle size={14} aria-hidden="true" />
+                  Apply
+                </button>
+              </footer>
+            </div>
+            <details className="inspector-details">
+              <summary>Operation details</summary>
+              <label>
+                <span>Reason for change</span>
+                <input
+                  aria-label="Editor intent rationale"
+                  data-testid="editor-intent-rationale"
+                  onChange={(event) => {
+                    taskGenerationRef.current += 1;
+                    setRationale(event.target.value);
+                  }}
+                  value={rationale}
+                />
+              </label>
+              <OperationIntentPreview intent={operationIntent} />
+              <IntentQueue intents={queuedIntents} />
+            </details>
+            <InlineValidationPreview intent={operationIntent} outcome={inlineValidationOutcome} />
+          </>
+        ) : (
+          <p className="muted" data-testid="editor-intent-empty">
+            Select a model entity to edit its properties.
+          </p>
+        )}
+        </>}
+      </section>
+      <div key={`rich-properties-session:${projectSessionGeneration}`} hidden={inspectorView !== "properties" || multiSelection}>
+      <details className="inspector-details">
+        <summary>Sources and units</summary>
+        <ProvenanceBlock rows={entityProvenanceRows(model, propertiesTarget)} />
+        <UnitCatalogPanel
+          route={unitCatalogRoute}
+          bases={[lengthBasis, stressBasis, supportStiffnessBasis, thermalExpansionBasis]}
+        />
+      </details>
+      {["support", "node", "project"].includes(propertiesTarget.type) ? (
+        <details className="inspector-details" open={propertiesTarget.type === "support"}>
+          <summary>{propertiesTarget.type === "support" ? "Support configuration" : "New support configuration"}</summary>
+          <SupportConfigurationForm getPreparationEpoch={getPreparationEpoch} key={`support-properties:${projectSessionGeneration}`} model={model} preparationEpoch={selectionState?.preparationEpoch} selection={propertiesTarget} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
+        </details>
+      ) : null}
+      <MaterialTemperatureForm getPreparationEpoch={getPreparationEpoch} model={model} preparationEpoch={selectionState?.preparationEpoch} selection={propertiesTarget} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
+      <BendAuthoringForms getPreparationEpoch={getPreparationEpoch} model={model} preparationEpoch={selectionState?.preparationEpoch} selection={propertiesTarget} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
+      <JointPressureModelEditor getPreparationEpoch={getPreparationEpoch} model={model} preparationEpoch={selectionState?.preparationEpoch} selection={propertiesTarget} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
+      <WindExposureForm getPreparationEpoch={getPreparationEpoch} model={model} preparationEpoch={selectionState?.preparationEpoch} selection={propertiesTarget} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
+      <SectionAssignment model={model} selection={propertiesTarget} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
+      <GuardedRemoval model={model} selection={propertiesTarget} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
+      {propertiesTarget.type === "project" ? (
+        <details className="inspector-details" open data-testid="model-settings-details">
+          <summary>Model settings</summary>
+          <ModelSettingsSection key={`model-settings:${projectSessionGeneration}`} model={model} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} unitCatalogRoute={unitCatalogRoute} />
+        </details>
+      ) : null}
+      {propertiesTarget.type === "project" ? (
+        <details className="inspector-details" open data-testid="project-units-details">
+          <summary>Project units</summary>
+          <ProjectUnitsSection key={`project-units:${projectSessionGeneration}`} model={model} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} unitCatalogRoute={unitCatalogRoute} />
+        </details>
+      ) : null}
+      <details className="inspector-details" data-testid="model-data-annotations-details">
+        <summary>Tags, notes and provenance</summary>
+        <ModelDataAnnotations key={`model-data:${projectSessionGeneration}`} model={model} selection={propertiesTarget} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
+      </details>
+      <details className="inspector-details">
+        <summary>New section</summary>
+        <section className="editor-intent" aria-label="Create section intent" data-testid="create-section-intent-panel">
+        <div className="editor-intent-controls">
+          <label>
+            <span>Section ID</span>
+            <input
+              aria-label="New section ID"
+              data-testid="create-section-id"
+              onChange={(event) => updateSectionDraft("id", event.target.value)}
+              value={sectionDraft.id}
+            />
+          </label>
+          <label>
+            <span>Name</span>
+            <input
+              aria-label="New section name"
+              data-testid="create-section-name"
+              onChange={(event) => updateSectionDraft("name", event.target.value)}
+              value={sectionDraft.name}
+            />
+          </label>
+          <label>
+            <span>Type</span>
+            <CompactSelect
+              aria-label="New section type"
+              data-testid="create-section-type"
+              onValueChange={(value) => updateSectionDraft("sectionType", value)}
+              value={sectionDraft.sectionType}
+              options={[{ value: "pipe", label: "pipe" }]}
+            />
+          </label>
+          <label>
+            <span>Length unit</span>
+            <CompactSelect
+              aria-label="New section length unit"
+              data-testid="create-section-length-unit"
+              onValueChange={(value) => updateSectionDraft("lengthUnit", value)}
+              value={sectionDraft.lengthUnit}
+              options={lengthUnitOptions.map((option) => ({ value: option.symbol, label: option.label }))}
+            />
+          </label>
+          <label>
+            <span>Outside diameter ({lengthBasis.label})</span>
+            <input
+              aria-label="New section outside diameter"
+              data-testid="create-section-od"
+              inputMode="decimal"
+              onChange={(event) => updateSectionDraft("outsideDiameter", event.target.value)}
+              value={sectionDraft.outsideDiameter}
+            />
+          </label>
+          <label>
+            <span>Wall thickness ({lengthBasis.label})</span>
+            <input
+              aria-label="New section wall thickness"
+              data-testid="create-section-wall"
+              inputMode="decimal"
+              onChange={(event) => updateSectionDraft("wallThickness", event.target.value)}
+              value={sectionDraft.wallThickness}
+            />
+          </label>
+          <label>
+            <span>Provenance</span>
+            <input
+              aria-label="New section provenance"
+              data-testid="create-section-provenance"
+              onChange={(event) => updateSectionDraft("provenance", event.target.value)}
+              value={sectionDraft.provenance}
+            />
+          </label>
+          <button
+            data-testid="queue-create-section-intent"
+            disabled={multiSelection || !sectionCreateIntent}
+            onClick={handleQueueSectionIntent}
+            title="Queue section create intent"
+            type="button"
+          >
+            <PlusCircle size={14} aria-hidden="true" />
+            Queue section
+          </button>
+        </div>
+        {sectionCreateIntent ? <OperationIntentPreview intent={sectionCreateIntent} /> : null}
+      </section>
+      </details>
+      <details className="inspector-details">
+        <summary>New material</summary>
+        <section className="editor-intent" aria-label="Create material intent" data-testid="create-material-intent-panel">
+        <div className="editor-intent-controls">
+          <label>
+            <span>Material ID</span>
+            <input
+              aria-label="New material ID"
+              data-testid="create-material-id"
+              onChange={(event) => updateMaterialDraft("id", event.target.value)}
+              value={materialDraft.id}
+            />
+          </label>
+          <label>
+            <span>Label</span>
+            <input
+              aria-label="New material label"
+              data-testid="create-material-label"
+              onChange={(event) => updateMaterialDraft("label", event.target.value)}
+              value={materialDraft.label}
+            />
+          </label>
+          <label>
+            <span>Modulus unit</span>
+            <CompactSelect
+              aria-label="New material modulus unit"
+              data-testid="create-material-stress-unit"
+              onValueChange={(value) => updateMaterialDraft("stressUnit", value)}
+              value={materialDraft.stressUnit}
+              options={stressUnitOptions.map((option) => ({ value: option.symbol, label: option.label }))}
+            />
+          </label>
+          <label>
+            <span>Elastic modulus ({stressBasis.label})</span>
+            <input
+              aria-label="New material elastic modulus"
+              data-testid="create-material-elastic"
+              inputMode="decimal"
+              onChange={(event) => updateMaterialDraft("elasticModulus", event.target.value)}
+              value={materialDraft.elasticModulus}
+            />
+          </label>
+          <label>
+            <span>Shear modulus ({stressBasis.label})</span>
+            <input
+              aria-label="New material shear modulus"
+              data-testid="create-material-shear"
+              inputMode="decimal"
+              onChange={(event) => updateMaterialDraft("shearModulus", event.target.value)}
+              value={materialDraft.shearModulus}
+            />
+          </label>
+          <label>
+            <span>Thermal expansion unit</span>
+            <CompactSelect
+              aria-label="New material thermal expansion unit"
+              data-testid="create-material-thermal-unit"
+              onValueChange={(value) => updateMaterialDraft("thermalExpansionUnit", value)}
+              value={materialDraft.thermalExpansionUnit}
+              options={thermalExpansionUnitOptions.map((option) => ({ value: option.symbol, label: option.label }))}
+            />
+            {thermalExpansionUnitNotice ? <span className="muted" data-testid="create-material-thermal-unit-notice">{thermalExpansionUnitNotice}</span> : null}
+          </label>
+          <label>
+            <span>Thermal expansion ({thermalExpansionBasis.label})</span>
+            <input
+              aria-label="New material thermal expansion"
+              data-testid="create-material-thermal"
+              inputMode="decimal"
+              onChange={(event) => updateMaterialDraft("thermalExpansion", event.target.value)}
+              value={materialDraft.thermalExpansion}
+            />
+          </label>
+          <label>
+            <span>Provenance</span>
+            <input
+              aria-label="New material provenance"
+              data-testid="create-material-provenance"
+              onChange={(event) => updateMaterialDraft("provenance", event.target.value)}
+              value={materialDraft.provenance}
+            />
+          </label>
+          <button
+            data-testid="queue-create-material-intent"
+            disabled={multiSelection || !materialCreateIntent}
+            onClick={handleQueueMaterialIntent}
+            title="Queue material create intent"
+            type="button"
+          >
+            <PlusCircle size={14} aria-hidden="true" />
+            Queue material
+          </button>
+        </div>
+        {materialCreateIntent ? <OperationIntentPreview intent={materialCreateIntent} /> : null}
+      </section>
+      </details>
+      <details className="inspector-details">
+        <summary>New support</summary>
+        <section className="editor-intent" aria-label="Create support intent" data-testid="create-support-intent-panel">
+        <div className="editor-intent-controls">
+          <label>
+            <span>Support ID</span>
+            <input
+              aria-label="New support ID"
+              data-testid="create-support-id"
+              onChange={(event) => updateSupportDraft("id", event.target.value)}
+              value={supportDraft.id}
+            />
+          </label>
+          <label>
+            <span>Label</span>
+            <input
+              aria-label="New support label"
+              data-testid="create-support-label"
+              onChange={(event) => updateSupportDraft("label", event.target.value)}
+              value={supportDraft.label}
+            />
+          </label>
+          <VirtualTargetPicker label="New support node" testId="create-support-node" options={nodeTargetOptions} value={supportDraft.node} onChange={(value) => updateSupportDraft("node", value)} />
+          <div className="editor-intent-checkbox-grid" aria-label="New support restraints">
+            {RESTRAINT_OPTIONS.map((restraint) => (
+              <label key={restraint}>
+                <input
+                  checked={supportDraft.restraints.includes(restraint)}
+                  data-testid={`create-support-restraint-${restraint}`}
+                  onChange={() => toggleSupportRestraint(restraint)}
+                  type="checkbox"
+                />
+                <span>{restraint}</span>
+              </label>
+            ))}
+          </div>
+          <label>
+            <span>Support family</span>
+            <CompactSelect
+              aria-label="New support family"
+              data-testid="create-support-family"
+              onValueChange={(value) => updateSupportDraft("familyChoice", value)}
+              value={draftSupportFamily(supportDraft.familyChoice, supportFamilySuggestion)}
+              options={SUPPORT_FAMILY_OPTIONS}
+            />
+            {supportFamilySuggestion ? (
+              <span className="muted" data-testid="create-support-family-suggestion">
+                {supportFamilySuggestionText(supportFamilySuggestion)}{supportDraft.familyChoice === null ? "; you can change it" : ""}
+              </span>
+            ) : null}
+          </label>
+          <label>
+            <span>Linear stiffness unit</span>
+            <CompactSelect
+              aria-label="New support linear stiffness unit"
+              data-testid="create-support-stiffness-unit"
+              onValueChange={(value) => updateSupportDraft("linearStiffnessUnit", value)}
+              value={supportDraft.linearStiffnessUnit}
+              options={supportStiffnessUnitOptions.map((option) => ({ value: option.symbol, label: option.label }))}
+            />
+            {supportStiffnessUnitNotice ? <span className="muted" data-testid="create-support-stiffness-unit-notice">{supportStiffnessUnitNotice}</span> : null}
+          </label>
+          <label>
+            <span>Linear stiffness ({supportStiffnessBasis.label})</span>
+            <input
+              aria-label="New support linear stiffness"
+              data-testid="create-support-stiffness"
+              inputMode="decimal"
+              onChange={(event) => updateSupportDraft("linearStiffness", event.target.value)}
+              value={supportDraft.linearStiffness}
+            />
+          </label>
+          <label>
+            <span>Provenance</span>
+            <input
+              aria-label="New support provenance"
+              data-testid="create-support-provenance"
+              onChange={(event) => updateSupportDraft("provenance", event.target.value)}
+              value={supportDraft.provenance}
+            />
+          </label>
+          <button
+            data-testid="queue-create-support-intent"
+            disabled={multiSelection || !supportCreateIntent}
+            onClick={handleQueueSupportIntent}
+            title="Queue support create intent"
+            type="button"
+          >
+            <PlusCircle size={14} aria-hidden="true" />
+            Queue support
+          </button>
+        </div>
+        {supportCreateIntent ? <OperationIntentPreview intent={supportCreateIntent} /> : null}
+      </section>
+      </details>
+      <details className="inspector-details">
+        <summary>New component</summary>
+        <section className="editor-intent" aria-label="Create component intent" data-testid="create-component-intent-panel">
+        <div className="editor-intent-controls">
+          <label>
+            <span>Component ID</span>
+            <input
+              aria-label="New component ID"
+              data-testid="create-component-id"
+              onChange={(event) => updateComponentDraft("id", event.target.value)}
+              value={componentDraft.id}
+            />
+          </label>
+          <label>
+            <span>Label</span>
+            <input
+              aria-label="New component label"
+              data-testid="create-component-label"
+              onChange={(event) => updateComponentDraft("label", event.target.value)}
+              value={componentDraft.label}
+            />
+          </label>
+          <label>
+            <span>Kind</span>
+            <CompactSelect
+              aria-label="New component kind"
+              data-testid="create-component-kind"
+              value={componentDraft.kind}
+              onValueChange={(value) =>
+                setComponentDraft((current) =>
+                  componentDraftForKind(model, current, value as CreatableComponentKind)
+                )
+              }
+              options={creatableComponentKinds.map((kind) => ({ value: kind, label: kind }))}
+            />
+          </label>
+          <VirtualTargetPicker label="New component node" testId="create-component-node" options={nodeTargetOptions} value={componentDraft.node} onChange={(value) => setComponentDraft((current) => componentDraftForNode(model, current, value))} />
+          <VirtualTargetPicker label={componentDraft.kind === "tee" ? "New tee header pipe" : "New component realized pipe"} testId="create-component-pipe" options={connectedPipeTargetOptions} value={componentDraft.primaryPipeRef} onChange={(value) => updateComponentDraft("primaryPipeRef", value)} />
+          {componentDraft.kind === "tee" ? (
+            <VirtualTargetPicker label="New tee branch pipe" testId="create-component-secondary-pipe" options={connectedPipeTargetOptions} value={componentDraft.secondaryPipeRef} onChange={(value) => updateComponentDraft("secondaryPipeRef", value)} />
+          ) : null}
+          {componentDraft.kind === "bend" ? (
+            <>
+              <ComponentTextInput label="Radius" testId="create-component-radius" value={componentDraft.bendRadius} onChange={(value) => updateComponentDraft("bendRadius", value)} />
+              <ComponentUnitSelect label="Radius unit" testId="create-component-radius-unit" value={componentDraft.lengthUnit} options={lengthUnitOptions} onChange={(value) => updateComponentDraft("lengthUnit", value)} />
+              <ComponentTextInput label="Angle" testId="create-component-angle" value={componentDraft.bendAngle} onChange={(value) => updateComponentDraft("bendAngle", value)} />
+              <ComponentUnitSelect label="Angle unit" testId="create-component-angle-unit" value={componentDraft.angleUnit} options={componentAngleUnitOptions} onChange={(value) => updateComponentDraft("angleUnit", value)} />
+            </>
+          ) : null}
+          {componentDraft.kind === "tee" ? (
+            <>
+              <ComponentTextInput label="Run size" testId="create-component-run-size" value={componentDraft.branchRunSize} onChange={(value) => updateComponentDraft("branchRunSize", value)} />
+              <ComponentTextInput label="Header size" testId="create-component-header-size" value={componentDraft.branchHeaderSize} onChange={(value) => updateComponentDraft("branchHeaderSize", value)} />
+              <ComponentUnitSelect label="Size unit" testId="create-component-length-unit" value={componentDraft.lengthUnit} options={lengthUnitOptions} onChange={(value) => updateComponentDraft("lengthUnit", value)} />
+              <ComponentTextInput label="Connection angle" testId="create-component-connection-angle" value={componentDraft.branchConnectionAngle} onChange={(value) => updateComponentDraft("branchConnectionAngle", value)} />
+              <ComponentUnitSelect label="Angle unit" testId="create-component-angle-unit" value={componentDraft.angleUnit} options={componentAngleUnitOptions} onChange={(value) => updateComponentDraft("angleUnit", value)} />
+              <ComponentTextInput label="Connection type" testId="create-component-connection-type" value={componentDraft.branchConnectionType} onChange={(value) => updateComponentDraft("branchConnectionType", value)} />
+              <ComponentTextInput label="Reinforcement reference" testId="create-component-reinforcement" value={componentDraft.branchReinforcementReference} onChange={(value) => updateComponentDraft("branchReinforcementReference", value)} />
+            </>
+          ) : null}
+          {componentDraft.kind === "expansion_joint" ? (
+            <ConnectorDraftFields model={model} draft={componentDraft} prefix="create" TextInput={ComponentTextInput} update={(key, value) => updateComponentDraft(key, value)} />
+          ) : null}
+          {componentDraft.kind !== "bend" && componentDraft.kind !== "tee" && componentDraft.kind !== "expansion_joint" ? (
+            <>
+              <ComponentTextInput label="Body length" testId="create-component-body-length" value={componentDraft.rigidBodyLength} onChange={(value) => updateComponentDraft("rigidBodyLength", value)} />
+              <ComponentTextInput label="End A size" testId="create-component-end-a-size" value={componentDraft.endASize} onChange={(value) => updateComponentDraft("endASize", value)} />
+              <ComponentTextInput label="End B size" testId="create-component-end-b-size" value={componentDraft.endBSize} onChange={(value) => updateComponentDraft("endBSize", value)} />
+              <ComponentUnitSelect label="Length unit" testId="create-component-length-unit" value={componentDraft.lengthUnit} options={lengthUnitOptions} onChange={(value) => updateComponentDraft("lengthUnit", value)} />
+              <ComponentTextInput label="Weight" testId="create-component-weight" value={componentDraft.weight} onChange={(value) => updateComponentDraft("weight", value)} />
+              <ComponentUnitSelect label="Weight unit" testId="create-component-force-unit" value={componentDraft.forceUnit} options={componentForceUnitOptions} onChange={(value) => updateComponentDraft("forceUnit", value)} />
+              <ComponentTextInput label="COG X" testId="create-component-cog-x" value={componentDraft.centerOfGravityX} onChange={(value) => updateComponentDraft("centerOfGravityX", value)} />
+              <ComponentTextInput label="COG Y" testId="create-component-cog-y" value={componentDraft.centerOfGravityY} onChange={(value) => updateComponentDraft("centerOfGravityY", value)} />
+              <ComponentTextInput label="COG Z" testId="create-component-cog-z" value={componentDraft.centerOfGravityZ} onChange={(value) => updateComponentDraft("centerOfGravityZ", value)} />
+              <ComponentTextInput label="End A reference" testId="create-component-end-a-ref" value={componentDraft.connectionEndAReference} onChange={(value) => updateComponentDraft("connectionEndAReference", value)} />
+              <ComponentTextInput label="End B reference" testId="create-component-end-b-ref" value={componentDraft.connectionEndBReference} onChange={(value) => updateComponentDraft("connectionEndBReference", value)} />
+              <ComponentTextInput label="Stiffness behavior reference" testId="create-component-stiffness-ref" value={componentDraft.stiffnessBehaviorReference} onChange={(value) => updateComponentDraft("stiffnessBehaviorReference", value)} />
+              <RigidDraftFields draft={componentDraft} prefix="create" TextInput={ComponentTextInput} update={(key, value) => updateComponentDraft(key, value)} />
+            </>
+          ) : null}
+          <label>
+            <span>Geometry source</span>
+            <input
+              aria-label="New component geometry source"
+              data-testid="create-component-source"
+              onChange={(event) => updateComponentDraft("geometrySourceReference", event.target.value)}
+              value={componentDraft.geometrySourceReference}
+            />
+          </label>
+          <label>
+            <span>Provenance</span>
+            <input
+              aria-label="New component provenance"
+              data-testid="create-component-provenance"
+              onChange={(event) => updateComponentDraft("provenance", event.target.value)}
+              value={componentDraft.provenance}
+            />
+          </label>
+          {componentUnitNotices.map(({ key, text }) => (
+            <p key={key} role="status" data-testid={`create-component-missing-project-unit-${key}`}>{text}</p>
+          ))}
+          <button
+            data-testid="queue-create-component-intent"
+            disabled={multiSelection || !componentCreateIntent}
+            onClick={handleQueueComponentIntent}
+            title={`Queue explicit ${componentDraft.kind} component creation intent`}
+            type="button"
+          >
+            <PlusCircle size={14} aria-hidden="true" />
+            Queue {componentDraft.kind}
+          </button>
+        </div>
+        {componentCreateIntent ? <OperationIntentPreview intent={componentCreateIntent} /> : null}
+      </section>
+      </details>
+      {nodeDeleteIntent ? (
+        <section className="editor-intent" aria-label="Delete node intent" data-testid="delete-node-intent-panel">
+          <h3>Delete node</h3>
+          <div className="editor-intent-controls">
+            <button
+              data-testid="queue-delete-node-intent"
+              disabled={multiSelection}
+              onClick={handleQueueDeleteNodeIntent}
+              title="Queue node delete intent"
+              type="button"
+            >
+              <Trash2 size={14} aria-hidden="true" />
+              Queue delete node
+            </button>
+          </div>
+          <OperationIntentPreview intent={nodeDeleteIntent} />
+        </section>
+      ) : null}
+      {pipeDeleteIntent ? (
+        <section className="editor-intent" aria-label="Delete pipe intent" data-testid="delete-pipe-intent-panel">
+          <h3>Delete pipe</h3>
+          <div className="editor-intent-controls">
+            <button
+              data-testid="queue-delete-pipe-intent"
+              disabled={multiSelection}
+              onClick={handleQueueDeletePipeIntent}
+              title="Queue pipe delete intent"
+              type="button"
+            >
+              <Trash2 size={14} aria-hidden="true" />
+              Queue delete pipe
+            </button>
+          </div>
+          <OperationIntentPreview intent={pipeDeleteIntent} />
+        </section>
+      ) : null}
+      {supportDeleteIntent ? (
+        <section className="editor-intent" aria-label="Delete support intent" data-testid="delete-support-intent-panel">
+          <h3>Delete support</h3>
+          <div className="editor-intent-controls">
+            <button
+              data-testid="queue-delete-support-intent"
+              disabled={multiSelection}
+              onClick={handleQueueDeleteSupportIntent}
+              title="Queue support delete intent"
+              type="button"
+            >
+              <Trash2 size={14} aria-hidden="true" />
+              Queue delete support
+            </button>
+          </div>
+          <OperationIntentPreview intent={supportDeleteIntent} />
+        </section>
+      ) : null}
+      </div>
+    </div>
+  );
+}
+
+function InlineValidationPreview({
+  intent,
+  outcome
+}: {
+  intent: EditorOperationIntent;
+  outcome: OperationOutcome | null;
+}) {
+  if (!outcome) {
+    return (
+      <p className="muted editor-inline-validation" data-testid="editor-intent-inline-validation-empty">
+        Validate to check this change before applying it.
+      </p>
+    );
+  }
+
+  return (
+    <article className="editor-inline-validation" data-testid="editor-intent-inline-validation">
+      <strong data-testid="editor-intent-inline-validation-status">
+        {outcome.mode} — application status: {outcome.validation.application_status}; schema:{" "}
+        {outcome.validation.schema_validation}; units: {outcome.validation.unit_validation}; prior state:{" "}
+        {outcome.validation.before_state_validation}
+      </strong>
+      {outcome.diff_preview.map((row) => (
+        <small
+          data-testid="editor-intent-inline-validation-diff"
+          key={`${row.entity_ref}-${row.field_path}-${row.after}`}
+        >
+          diff: {row.entity_ref} {row.field_path} {row.before} to {row.after} [{row.unit}]
+        </small>
+      ))}
+      {outcome.diagnostics.length === 0 ? (
+        <small data-testid="editor-intent-inline-validation-boundary">
+          {intent.operation_id}; validate-only; no accepted model mutation.
+        </small>
+      ) : (
+        outcome.diagnostics.map((diagnostic) => (
+          <small data-testid={`editor-intent-inline-validation-diagnostic-${diagnostic.code}`} key={diagnostic.id}>
+            {diagnostic.severity}: {diagnostic.code} - {diagnostic.message}
+          </small>
+        ))
+      )}
+    </article>
+  );
+}
+
+type EditableField = {
+  label: string;
+  fieldPath: string;
+  before: string;
+  objectType: EditorOperationObjectType;
+  changeKind: "set_field" | "update_load" | "update_support";
+  dimension: string;
+  unit: string;
+  sourceNote: string;
+  unitEditable: boolean;
+  valueKind: "text" | "quantity" | "vector";
+  /** The entry form of the current value where it differs from `before`
+   * (a vector's three components without its unit). */
+  initialValue?: string;
+  /** W-17 §3: the field's default unit is this project key's, which the document lacks. */
+  missingProjectUnit?: { key: ProjectUnitKey; mode: MissingProjectUnitMode };
+  /** W-17 §7.3, §7.6: why a composed default gives no unit (not a catalog unit, or an invalid key). */
+  unitNotice?: string;
+};
+
+/** The value a field's entry starts from. */
+function fieldEntryValue(field: EditableField | undefined): string {
+  return field ? (field.initialValue ?? field.before) : "";
+}
+
+type SupportDraft = {
+  id: string;
+  label: string;
+  node: string;
+  restraints: string[];
+  linearStiffnessUnit: string;
+  /** "default" follows the project's composed default; "user" is an explicit choice. */
+  linearStiffnessUnitSource: "default" | "user";
+  linearStiffness: string;
+  /** null until the user picks a family; then the pick ("" for none), never replaced by the suggestion. */
+  familyChoice: string | null;
+  provenance: string;
+};
+
+type MaterialDraft = {
+  id: string;
+  label: string;
+  stressUnit: string;
+  elasticModulus: string;
+  shearModulus: string;
+  thermalExpansionUnit: string;
+  /** "default" follows the project's composed default; "user" is an explicit choice. */
+  thermalExpansionUnitSource: "default" | "user";
+  thermalExpansion: string;
+  provenance: string;
+};
+
+type SectionDraft = {
+  id: string;
+  name: string;
+  sectionType: string;
+  lengthUnit: string;
+  outsideDiameter: string;
+  wallThickness: string;
+  provenance: string;
+};
+
+type UnitOption = {
+  symbol: string;
+  label: string;
+};
+
+function ComponentTextInput({
+  label,
+  onChange,
+  testId,
+  value
+}: {
+  label: string;
+  onChange: (value: string) => void;
+  testId: string;
+  value: string;
+}) {
+  return (
+    <label>
+      <span>{label}</span>
+      <input
+        aria-label={`New component ${label.toLowerCase()}`}
+        data-testid={testId}
+        onChange={(event) => onChange(event.target.value)}
+        value={value}
+      />
+    </label>
+  );
+}
+
+function ComponentUnitSelect({
+  label,
+  onChange,
+  options,
+  testId,
+  value
+}: {
+  label: string;
+  onChange: (value: string) => void;
+  options: UnitOption[];
+  testId: string;
+  value: string;
+}) {
+  return (
+    <label>
+      <span>{label}</span>
+      <CompactSelect
+        aria-label={`New component ${label.toLowerCase()}`}
+        data-testid={testId}
+        onValueChange={(value) => onChange(value)}
+        value={value}
+        options={[...(value === "" ? [{ value: "", label: "Select unit" }] : []), ...options.map((option) => ({ value: option.symbol, label: option.label }))]}
+      />
+    </label>
+  );
+}
+
+const RESTRAINT_OPTIONS = ["UX", "UY", "UZ", "RX", "RY", "RZ"];
+
+function OperationIntentPreview({ intent }: { intent: EditorOperationIntent }) {
+  return (
+    <article className="editor-intent-preview" data-testid="editor-operation-preview">
+      <div className="editor-intent-meta">
+        <IntentFact
+          label="Operation"
+          value={`${intent.operation_id}; ${intent.operation_kind}; ${intent.operation_status}`}
+        />
+        <IntentFact label="Target" value={`${intent.target.object_type}; ${intent.target.ref}`} />
+        <IntentFact
+          label="Change"
+          value={`${intent.change.change_kind}; ${intent.change.field_label}; ${intent.change.field_path}; before=${intent.change.before}; after=${intent.change.after}`}
+        />
+        <IntentFact
+          label="Unit basis"
+          value={`${intent.change.dimension}; unit=${intent.change.unit}; ${intent.change.source_note}`}
+        />
+        <IntentFact
+          label="Validation"
+          value={`${intent.validation.schema_validation}; ${intent.validation.constraint_validation}; ${intent.validation.unit_validation}; ${intent.validation.diff_preview_status}; ${intent.validation.application_status}`}
+          testId="editor-intent-validation"
+        />
+        <IntentFact
+          label="Audit boundary"
+          value={`Routed through the ${intent.audit_boundary.mutation_route.replaceAll("_", " ")}; ${
+            intent.audit_boundary.direct_model_mutation_allowed
+              ? "allows direct model mutation"
+              : "no direct model mutation"
+          }; ${intent.audit_boundary.requires_user_acceptance ? "requires your acceptance" : "no acceptance required"}; ${
+            intent.audit_boundary.mutates_accepted_model_state
+              ? "changes the accepted model"
+              : "does not change the accepted model until applied"
+          }`}
+          testId="editor-intent-audit-boundary"
+        />
+        <IntentFact
+          label="Professional boundary"
+          value={`${intent.professional_boundary.human_review_required ? "Requires human review" : "No human review flagged"}; ${
+            intent.professional_boundary.software_makes_compliance_claim
+              ? "makes a compliance claim"
+              : "no compliance claim"
+          }; ${intent.professional_boundary.software_makes_approval_claim ? "makes an approval claim" : "no approval claim"}`}
+          testId="editor-intent-professional-boundary"
+        />
+        <IntentFact label="Rationale" value={intent.rationale || "TBD"} />
+      </div>
+    </article>
+  );
+}
+
+function IntentQueue({ intents = [] }: { intents?: EditorOperationIntent[] }) {
+  if (!intents.length) {
+    return (
+      <p className="muted" data-testid="editor-intent-queue-empty">
+        No changes queued.
+      </p>
+    );
+  }
+
+  return (
+    <section className="editor-intent-queue" aria-label="Queued editor intents" data-testid="editor-intent-queue">
+      {intents.map((intent) => (
+        <article key={`${intent.queue_id}-${intent.operation_id}`} data-testid={`queued-${intent.queue_id}`}>
+          <strong>{intent.queue_id}</strong>
+          <span>{intent.operation_id}</span>
+          <small>
+            {intent.change.field_path}: {intent.change.before} to {intent.change.after}; status:{" "}
+            {intent.validation.application_status};{" "}
+            {intent.audit_boundary.mutates_accepted_model_state ? "changes accepted model" : "no accepted model change"}
+          </small>
+        </article>
+      ))}
+    </section>
+  );
+}
+
+function IntentFact({ label, value, testId }: { label: string; value: string; testId?: string }) {
+  return (
+    <div className="editor-intent-fact" data-testid={testId}>
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </div>
+  );
+}
+
+function SelectedFieldValue({ field, basis }: { field: EditableField; basis: UnitBasisDisplay | null }) {
+  if (field.valueKind === "quantity") {
+    return <DualUnitValue value={field.before} unit={field.unit} dimension={field.dimension} basis={basis} />;
+  }
+  return (
+    <section className="inspector-context-card" data-testid="inspector-text-value" aria-label="Current value">
+      <span>Current {propertyLabel(field).toLowerCase()}</span>
+      <strong>{field.before}</strong>
+      {field.valueKind === "vector" ? <small data-testid="inspector-vector-convention">{field.fieldPath === "geometry.eccentric_offset" ? `${ECCENTRIC_OFFSET_CONVENTION}.` : CENTER_OF_GRAVITY_CONVENTION} Enter x, y, z.</small> : null}
+    </section>
+  );
+}
+
+function propertyLabel(field: EditableField): string {
+  return field.label === "Label" ? "Name" : field.label;
+}
+
+function DualUnitValue({ value, unit, dimension, basis }: { value: string; unit: string; dimension: string; basis: UnitBasisDisplay | null }) {
+  const numericValue = value.trim() !== "" && Number.isFinite(Number(value)) ? Number(value) : value;
+  return (
+    <section className="inspector-context-card" data-testid="inspector-dual-unit-display" aria-label="Display quantity">
+      <span>Current value</span>
+      <strong data-testid="inspector-dual-unit-converted"><QuantityReadout quantity={{ value: numericValue, unit, dimension_id: dimension }} /></strong>
+      <small>Entered: {value} {unit}</small>
+      <details>
+        <summary>Unit details</summary>
+        <small>{basis ? `Display basis: ${basis.label}` : "Display basis unavailable"}</small>
+        <small>Display only — storage stays entered-units-preserved.</small>
+      </details>
+    </section>
+  );
+}
+
+function ProvenanceBlock({ rows }: { rows: Array<[string, string]> }) {
+  return (
+    <section className="inspector-context-card" data-testid="inspector-provenance-block" aria-label="Provenance">
+      <span>Provenance</span>
+      {rows.length > 0 ? (
+        <dl>
+          {rows.map(([label, value]) => (
+            <div key={label}>
+              <dt>{label}</dt>
+              <dd>{value}</dd>
+            </div>
+          ))}
+        </dl>
+      ) : (
+        <small>No provenance fields on this selected entity.</small>
+      )}
+    </section>
+  );
+}
+
+function RequiredFlagList({ flags }: { flags: string[] }) {
+  return (
+    <section className="inspector-context-card" data-testid="inspector-required-flags" aria-label="Required flags">
+      <span>Required</span>
+      {flags.length > 0 ? (
+        flags.map((flag) => (
+          <strong className="required-flag" key={flag}>
+            ⚑ {flag}
+          </strong>
+        ))
+      ) : (
+        <small>No missing selected fields detected.</small>
+      )}
+    </section>
+  );
+}
+
+function entityProvenanceRows(model: PreviewModel, selection: EntityRef): Array<[string, string]> {
+  const entity = selectedEntity(model, selection);
+  if (!entity || typeof entity !== "object") return [];
+  const record = entity as Record<string, unknown>;
+  const rows: Array<[string, string]> = [];
+  for (const key of [
+    "source_name",
+    "source_location",
+    "source_license",
+    "contributor",
+    "redistribution_status",
+    "review_status"
+  ]) {
+    const value = record[key];
+    if (typeof value === "string" && value.trim()) rows.push([labelFromKey(key), value]);
+  }
+  const source = record.source ?? record.provenance ?? record.source_ref ?? null;
+  if (source && typeof source === "object") {
+    const sourceRecord = source as Record<string, unknown>;
+    for (const key of ["source_name", "source_ref", "source_license", "review_status"]) {
+      const value = sourceRecord[key];
+      if (typeof value === "string" && value.trim()) rows.push([labelFromKey(key), value]);
+    }
+  } else if (typeof source === "string" && source.trim()) {
+    rows.push(["Source", source]);
+  }
+  if (selection.type === "component") {
+    const component = model.components.find((item) => item.id === selection.id);
+    if (component?.geometry?.bend_geometry_source_reference) {
+      rows.push(["Geometry source", component.geometry.bend_geometry_source_reference]);
+    }
+    if (component?.geometry?.branch_geometry_source_reference) {
+      rows.push(["Geometry source", component.geometry.branch_geometry_source_reference]);
+    }
+    if (component?.geometry?.rigid_component_source_reference) {
+      rows.push(["Geometry source", component.geometry.rigid_component_source_reference]);
+    }
+    if (component?.geometry?.expansion_joint_source_reference) {
+      rows.push(["Geometry source", component.geometry.expansion_joint_source_reference]);
+    }
+    if (component?.geometry?.stiffness_behavior_reference) {
+      rows.push(["Stiffness behavior", component.geometry.stiffness_behavior_reference]);
+    }
+    if (component?.geometry?.pressure_thrust_reference) {
+      rows.push(["Pressure thrust", component.geometry.pressure_thrust_reference]);
+    }
+    if (component?.geometry?.hardware_reference) {
+      rows.push(["Hardware reference", component.geometry.hardware_reference]);
+    }
+    if (component?.geometry?.manufacturer_reference) {
+      rows.push(["Manufacturer reference", component.geometry.manufacturer_reference]);
+    }
+    if (component?.modifiers?.source_reference) {
+      rows.push(["Modifier source", component.modifiers.source_reference]);
+    }
+    if (component?.mechanics_interface?.solver_consumption) {
+      rows.push(["Solver consumption", component.mechanics_interface.solver_consumption]);
+    }
+  }
+  return rows;
+}
+
+function requiredFlagsForSelection(
+  model: PreviewModel,
+  selection: EntityRef,
+  properties: Array<[string, string]>
+): string[] {
+  const flags = properties.filter(([, value]) => value.trim() === "" || value.trim() === "TBD").map(([label]) => label);
+  const entity = selectedEntity(model, selection);
+  if (entity && typeof entity === "object") {
+    const record = entity as Record<string, unknown>;
+    if (!record.provenance && !record.source && !record.source_ref) flags.push("provenance");
+  }
+  if (selection.type === "component") {
+    const component = model.components.find((item) => item.id === selection.id);
+    if (component && isBendComponent(component)) {
+      const geometry = component.geometry;
+      const geometryComplete = Boolean(
+        geometry?.bend_radius &&
+        geometry.bend_angle &&
+        geometry.bend_geometry_source_reference?.trim()
+      );
+      const modifiersComplete = Boolean(
+        component.modifiers?.sif_user_value &&
+        component.modifiers.flexibility_factor_user_value &&
+        component.modifiers.source_reference?.trim()
+      );
+      if (!geometryComplete) flags.push("BEND_GEOMETRY_INCOMPLETE");
+      if (!modifiersComplete) flags.push("BEND_RULE_INPUT_MISSING");
+    }
+    if (component && isBranchComponent(component)) {
+      const geometry = component.geometry;
+      const geometryComplete = Boolean(
+        geometry?.branch_header_pipe_ref?.trim() &&
+        geometry.branch_branch_pipe_ref?.trim() &&
+        geometry.branch_run_size &&
+        geometry.branch_header_size &&
+        geometry.branch_connection_angle &&
+        geometry.branch_connection_type?.trim() &&
+        geometry.branch_reinforcement_reference?.trim() &&
+        geometry.branch_geometry_source_reference?.trim()
+      );
+      const modifiersComplete = Boolean(
+        component.modifiers?.branch_header_sif_user_value &&
+        component.modifiers.branch_branch_sif_user_value &&
+        component.modifiers.flexibility_factor_user_value &&
+        component.modifiers.source_reference?.trim()
+      );
+      if (!geometryComplete) flags.push("BRANCH_GEOMETRY_INCOMPLETE");
+      if (!modifiersComplete) flags.push("BRANCH_RULE_INPUT_MISSING");
+    }
+    if (component && isRigidComponent(component)) {
+      const geometry = component.geometry;
+      const geometryComplete = Boolean(
+        geometry?.rigid_pipe_ref?.trim() &&
+        geometry.rigid_body_length &&
+        geometry.end_a_size &&
+        geometry.end_b_size &&
+        geometry.weight &&
+        geometry.center_of_gravity &&
+        geometry.connection_end_a_reference?.trim() &&
+        geometry.connection_end_b_reference?.trim() &&
+        geometry.stiffness_behavior_reference?.trim() &&
+        geometry.rigid_component_source_reference?.trim()
+      );
+      const modifiersComplete = Boolean(
+        component.modifiers?.stiffness_scaling_user_value &&
+        component.modifiers.linear_stiffness_user_value &&
+        component.modifiers.rotational_stiffness_user_value &&
+        component.modifiers.source_reference?.trim()
+      );
+      if (!geometryComplete) flags.push("RIGID_COMPONENT_GEOMETRY_INCOMPLETE");
+      if (!modifiersComplete) flags.push("RIGID_COMPONENT_STIFFNESS_DATA_MISSING");
+    }
+    if (component && isExpansionJointComponent(component)) {
+      const geometry = component.geometry;
+      const geometryComplete = Boolean(
+        geometry?.expansion_joint_pipe_ref?.trim() &&
+        geometry.effective_area &&
+        geometry.movement_limit &&
+        geometry.hardware_reference?.trim() &&
+        geometry.manufacturer_reference?.trim() &&
+        geometry.pressure_thrust_reference?.trim() &&
+        geometry.expansion_joint_source_reference?.trim()
+      );
+      const modifiersComplete = Boolean(
+        component.modifiers?.axial_stiffness_user_value &&
+        component.modifiers.lateral_stiffness_user_value &&
+        component.modifiers.angular_stiffness_user_value &&
+        component.modifiers.torsional_stiffness_user_value &&
+        component.modifiers.source_reference?.trim()
+      );
+      if (!geometryComplete) flags.push("EXPANSION_JOINT_GEOMETRY_INCOMPLETE");
+      if (!modifiersComplete) flags.push("EXPANSION_JOINT_STIFFNESS_DATA_MISSING");
+    }
+  }
+  return Array.from(new Set(flags)).slice(0, 4);
+}
+
+function selectedEntity(model: PreviewModel, selection: EntityRef): unknown {
+  if (selection.type === "node") return model.nodes.find((item) => item.id === selection.id);
+  if (selection.type === "pipe") return model.pipe_segments.find((item) => item.id === selection.id);
+  if (selection.type === "support") return model.supports.find((item) => item.id === selection.id);
+  if (selection.type === "component") return model.components.find((item) => item.id === selection.id);
+  if (selection.type === "load") return model.load_cases.find((item) => item.id === selection.id);
+  return null;
+}
+
+function labelFromKey(key: string): string {
+  return key.replaceAll("_", " ");
+}
+
+function UnitCatalogPanel({ bases, route }: { bases: UnitBasisDisplay[]; route: UnitCatalogRoute | null }) {
+  return (
+    <section className="editor-intent" aria-label="Unit catalog status" data-testid="property-unit-catalog-panel">
+      <h3>Unit basis</h3>
+      <div className="editor-intent-meta">
+        <IntentFact label="Catalog" value={unitCatalogStatus(route)} testId="property-unit-catalog-status" />
+        <IntentFact
+          label="Field units"
+          value={bases.map((basis) => basis.label).join("; ")}
+          testId="property-unit-basis-summary"
+        />
+      </div>
+    </section>
+  );
+}
+
+function unitOptions(route: UnitCatalogRoute | null, dimensionId: string, fallbackSymbol: string): UnitOption[] {
+  const fallbackBasis = describeUnitBasis(route, fallbackSymbol, dimensionId);
+  // "" is an unselected default (W-17 §2.4): offer a placeholder and the catalog, nothing in its place.
+  const fallback = fallbackSymbol === ""
+    ? { symbol: "", label: "Choose a unit" }
+    : {
+        symbol: fallbackBasis.symbol,
+        label: fallbackBasis.label
+      };
+  if (route?.route !== "tauri_unit_catalog") return [fallback];
+
+  const options = acceptedUnits(route.catalog)
+    .filter((entry) => unitEntryMatchesDimension(entry, dimensionId))
+    .sort((left, right) => Number(right.canonical) - Number(left.canonical) || left.symbol.localeCompare(right.symbol))
+    .map((entry) => {
+      const basis = describeUnitBasis(route, entry.symbol, dimensionId);
+      return {
+        symbol: entry.symbol,
+        label: basis.label
+      };
+    });
+
+  if (!options.some((option) => option.symbol === fallback.symbol)) {
+    options.unshift(fallback);
+  }
+  return options.length ? options : [fallback];
+}
+
+function unitEntryMatchesDimension(entry: UnitCatalogEntry, dimensionId: string): boolean {
+  if (entry.dimension_id === dimensionId) return true;
+  return equivalentUnitDimensions(dimensionId).includes(entry.dimension_id);
+}
+
+function equivalentUnitDimensions(dimensionId: string): string[] {
+  switch (dimensionId) {
+    case "stress":
+      return ["pressure"];
+    case "displacement":
+      return ["length"];
+    case "rotation":
+      return ["angle"];
+    case "linear_stiffness":
+      return ["force_per_length"];
+    case "volume_per_length":
+      return ["area"];
+    default:
+      return [];
+  }
+}
+
+function unitCatalogStatus(route: UnitCatalogRoute | null): string {
+  if (!route) return "loading DEC-018 catalog";
+  if (route.route === "unavailable_browser_preview") return "browser preview uses model metadata; no fallback catalog";
+  return `${route.catalog.decision_basis}; ${route.catalog.entry_count} entries; ${route.catalog.storage_convention}`;
+}
+
+function editorFieldOptions(model: PreviewModel, selection: EntityRef, route: UnitCatalogRoute | null = null): EditableField[] {
+  const units = storedProjectUnits(model);
+  const material = selection.type === "material" ? model.materials?.find((item) => item.id === selection.id) : undefined;
+  if (material) {
+    return [
+      scalarField("Label", "label", material.label, "Material", "dimensionless", "none", "material label only"),
+      quantityField(
+        "Elastic modulus",
+        "elastic_modulus.value",
+        material.elastic_modulus.value,
+        "Material",
+        "stress",
+        material.elastic_modulus.unit,
+        "set_field",
+        true
+      ),
+      quantityField(
+        "Shear modulus",
+        "shear_modulus.value",
+        material.shear_modulus?.value ?? "TBD",
+        "Material",
+        "stress",
+        material.shear_modulus?.unit ?? "TBD",
+        "set_field",
+        true
+      ),
+      quantityField(
+        "Thermal expansion",
+        "thermal_expansion_coefficient.value",
+        material.thermal_expansion_coefficient?.value ?? "TBD",
+        "Material",
+        "thermal_expansion_coefficient",
+        material.thermal_expansion_coefficient?.unit ?? "TBD",
+        "set_field",
+        true
+      ),
+      scalarField(
+        "Provenance",
+        "provenance",
+        material.provenance,
+        "Material",
+        "dimensionless",
+        "none",
+        "public/private source note"
+      )
+    ];
+  }
+
+  const node = selection.type === "node" ? model.nodes.find((item) => item.id === selection.id) : undefined;
+  if (node) {
+    return [
+      scalarField("Label", "label", node.label, "Node", "dimensionless", "none", "node label only"),
+      projectUnitDefault(quantityField(
+        "X position",
+        "position.x",
+        node.position.x,
+        "Node",
+        "length",
+        units.length ?? "",
+        "set_field",
+        true
+      ), "length", "positions"),
+      projectUnitDefault(quantityField(
+        "Y position",
+        "position.y",
+        node.position.y,
+        "Node",
+        "length",
+        units.length ?? "",
+        "set_field",
+        true
+      ), "length", "positions"),
+      projectUnitDefault(quantityField(
+        "Z position",
+        "position.z",
+        node.position.z,
+        "Node",
+        "length",
+        units.length ?? "",
+        "set_field",
+        true
+      ), "length", "positions"),
+      scalarField(
+        "Provenance",
+        "provenance",
+        node.provenance,
+        "Node",
+        "dimensionless",
+        "none",
+        "public/private source note"
+      )
+    ];
+  }
+
+  const pipe = selection.type === "pipe" ? model.pipe_segments.find((item) => item.id === selection.id) : undefined;
+  if (pipe) {
+    return [
+      scalarField("Label", "label", pipe.label, "Element", "dimensionless", "none", "pipe segment label only"),
+      quantityField(
+        "Outside diameter",
+        "section.outside_diameter.value",
+        pipe.section.outside_diameter?.value ?? "TBD",
+        "Element",
+        "length",
+        pipe.section.outside_diameter?.unit ?? "TBD",
+        "set_field",
+        true
+      ),
+      quantityField(
+        "Wall thickness",
+        "section.wall_thickness.value",
+        pipe.section.wall_thickness?.value ?? "TBD",
+        "Element",
+        "length",
+        pipe.section.wall_thickness?.unit ?? "TBD",
+        "set_field",
+        true
+      ),
+      projectUnitDefault(quantityField(
+        "Mill tolerance",
+        "section.mill_tolerance.value",
+        pipe.section.mill_tolerance?.value ?? "TBD",
+        "Element",
+        "length",
+        pipe.section.mill_tolerance?.unit ?? pipe.section.wall_thickness?.unit ?? units.length ?? "",
+        "set_field",
+        true
+      ), "length", "choose"),
+      projectUnitDefault(quantityField(
+        "Corrosion allowance (explicit zero or greater)",
+        "section.corrosion_allowance.value",
+        pipe.section.corrosion_allowance?.value ?? "TBD",
+        "Element",
+        "length",
+        pipe.section.corrosion_allowance?.unit ?? pipe.section.wall_thickness?.unit ?? units.length ?? "",
+        "set_field",
+        true
+      ), "length", "choose"),
+      ...([
+        ["material_density", "Material density (positive)", "density"],
+        ["contents_density", "Contents density (zero or greater)", "density"],
+        ["insulation_thickness", "Insulation thickness (zero or greater)", "length"],
+        ["insulation_density", "Insulation density (zero or greater)", "density"]
+      ] as const).map(([key, label, dimension]) => quantityField(label, `section.${key}.value`, pipe.section[key]?.value ?? "TBD", "Element", dimension, pipe.section[key]?.unit ?? "", "set_field", true)),
+      scalarField("Material", "material", pipe.material, "Element", "dimensionless", "none", "material reference"),
+      scalarField(
+        "Provenance",
+        "provenance",
+        pipe.provenance,
+        "Element",
+        "dimensionless",
+        "none",
+        "public/private source note"
+      )
+    ].filter((field) => !pipe.section_ref || !["section.outside_diameter.value", "section.wall_thickness.value"].includes(field.fieldPath));
+  }
+
+  const support = selection.type === "support" ? model.supports.find((item) => item.id === selection.id) : undefined;
+  if (support) {
+    return [
+      scalarField(
+        "Label",
+        "label",
+        support.label,
+        "Support",
+        "dimensionless",
+        "none",
+        "support label only",
+        "update_support"
+      ),
+      scalarField(
+        "Node",
+        "node",
+        support.node,
+        "Support",
+        "dimensionless",
+        "none",
+        "target node reference",
+        "update_support"
+      ),
+      scalarField(
+        "Restraints",
+        "restraints",
+        support.restraints.join(", "),
+        "Support",
+        "dimensionless",
+        "none",
+        "restraint direction set",
+        "update_support"
+      ),
+      scalarField(
+        "Provenance",
+        "provenance",
+        support.provenance,
+        "Support",
+        "dimensionless",
+        "none",
+        "public/private source note",
+        "update_support"
+      )
+    ];
+  }
+
+  const component = selection.type === "component" ? model.components.find((item) => item.id === selection.id) : undefined;
+  if (component) {
+    const fields: EditableField[] = [
+      scalarField("Label", "label", component.label, "Component", "dimensionless", "none", "component label only"),
+      scalarField("Node", "node", component.node, "Component", "dimensionless", "none", "target node reference"),
+      scalarField(
+        "Provenance",
+        "provenance",
+        component.provenance,
+        "Component",
+        "dimensionless",
+        "none",
+        "public/private source note"
+      )
+    ];
+    if (isBendComponent(component)) {
+      fields.splice(
+        2,
+        0,
+        projectUnitDefault(quantityField(
+          "Bend radius",
+          "geometry.bend_radius.value",
+          component.geometry?.bend_radius?.value ?? "TBD",
+          "Component",
+          "length",
+          component.geometry?.bend_radius?.unit ?? units.length ?? "",
+          "set_field",
+          true
+        ), "length", "choose"),
+        projectUnitDefault(quantityField(
+          "Bend angle",
+          "geometry.bend_angle.value",
+          component.geometry?.bend_angle?.value ?? "TBD",
+          "Component",
+          "angle",
+          component.geometry?.bend_angle?.unit ?? units.angle ?? "",
+          "set_field",
+          true
+        ), "angle", "choose"),
+        scalarField(
+          "Bend pipe",
+          "geometry.bend_pipe_ref",
+          component.geometry?.bend_pipe_ref ?? "TBD",
+          "Component",
+          "dimensionless",
+          "none",
+          "user-entered curved-bend span mapping (DEC-070); no inferred span"
+        ),
+        scalarField(
+          "SIF user value",
+          "modifiers.sif_user_value.value",
+          String(component.modifiers?.sif_user_value?.value ?? "TBD"),
+          "Component",
+          "dimensionless",
+          "none",
+          "user-entered modifier value; no code table default"
+        ),
+        scalarField(
+          "Flexibility user value",
+          "modifiers.flexibility_factor_user_value.value",
+          String(component.modifiers?.flexibility_factor_user_value?.value ?? "TBD"),
+          "Component",
+          "dimensionless",
+          "none",
+          "user-entered modifier value; no code table default"
+        )
+      );
+    }
+    if (isBranchComponent(component)) {
+      fields.splice(
+        2,
+        0,
+        scalarField(
+          "Header pipe",
+          "geometry.branch_header_pipe_ref",
+          component.geometry?.branch_header_pipe_ref ?? "TBD",
+          "Component",
+          "dimensionless",
+          "none",
+          "user-entered header pipe reference"
+        ),
+        scalarField(
+          "Branch pipe",
+          "geometry.branch_branch_pipe_ref",
+          component.geometry?.branch_branch_pipe_ref ?? "TBD",
+          "Component",
+          "dimensionless",
+          "none",
+          "user-entered branch pipe reference"
+        ),
+        projectUnitDefault(quantityField(
+          "Branch run size",
+          "geometry.branch_run_size.value",
+          component.geometry?.branch_run_size?.value ?? "TBD",
+          "Component",
+          "length",
+          component.geometry?.branch_run_size?.unit ?? units.length ?? "",
+          "set_field",
+          true
+        ), "length", "choose"),
+        projectUnitDefault(quantityField(
+          "Branch header size",
+          "geometry.branch_header_size.value",
+          component.geometry?.branch_header_size?.value ?? "TBD",
+          "Component",
+          "length",
+          component.geometry?.branch_header_size?.unit ?? units.length ?? "",
+          "set_field",
+          true
+        ), "length", "choose"),
+        projectUnitDefault(quantityField(
+          "Branch angle",
+          "geometry.branch_connection_angle.value",
+          component.geometry?.branch_connection_angle?.value ?? "TBD",
+          "Component",
+          "angle",
+          component.geometry?.branch_connection_angle?.unit ?? units.angle ?? "",
+          "set_field",
+          true
+        ), "angle", "choose"),
+        scalarField(
+          "Connection type",
+          "geometry.branch_connection_type",
+          component.geometry?.branch_connection_type ?? "TBD",
+          "Component",
+          "dimensionless",
+          "none",
+          "user-entered branch connection type"
+        ),
+        scalarField(
+          "Header SIF user value",
+          "modifiers.branch_header_sif_user_value.value",
+          String(component.modifiers?.branch_header_sif_user_value?.value ?? "TBD"),
+          "Component",
+          "dimensionless",
+          "none",
+          "user-entered modifier value; no code table default"
+        ),
+        scalarField(
+          "Branch SIF user value",
+          "modifiers.branch_branch_sif_user_value.value",
+          String(component.modifiers?.branch_branch_sif_user_value?.value ?? "TBD"),
+          "Component",
+          "dimensionless",
+          "none",
+          "user-entered modifier value; no code table default"
+        ),
+        scalarField(
+          "Flexibility user value",
+          "modifiers.flexibility_factor_user_value.value",
+          String(component.modifiers?.flexibility_factor_user_value?.value ?? "TBD"),
+          "Component",
+          "dimensionless",
+          "none",
+          "user-entered modifier value; no code table default"
+        )
+      );
+    }
+    if (isRigidComponent(component)) {
+      fields.splice(
+        2,
+        0,
+        scalarField(
+          "Mapped pipe",
+          "geometry.rigid_pipe_ref",
+          component.geometry?.rigid_pipe_ref ?? "TBD",
+          "Component",
+          "dimensionless",
+          "none",
+          "generic frame member mapping"
+        ),
+        projectUnitDefault(quantityField(
+          "Rigid body length",
+          "geometry.rigid_body_length.value",
+          component.geometry?.rigid_body_length?.value ?? "TBD",
+          "Component",
+          "length",
+          component.geometry?.rigid_body_length?.unit ?? units.length ?? "",
+          "set_field",
+          true
+        ), "length", "choose"),
+        projectUnitDefault(quantityField(
+          "End A size",
+          "geometry.end_a_size.value",
+          component.geometry?.end_a_size?.value ?? "TBD",
+          "Component",
+          "length",
+          component.geometry?.end_a_size?.unit ?? units.length ?? "",
+          "set_field",
+          true
+        ), "length", "choose"),
+        projectUnitDefault(quantityField(
+          "End B size",
+          "geometry.end_b_size.value",
+          component.geometry?.end_b_size?.value ?? "TBD",
+          "Component",
+          "length",
+          component.geometry?.end_b_size?.unit ?? units.length ?? "",
+          "set_field",
+          true
+        ), "length", "choose"),
+        projectUnitDefault(quantityField(
+          "Weight",
+          "geometry.weight.value",
+          component.geometry?.weight?.value ?? "TBD",
+          "Component",
+          "force",
+          component.geometry?.weight?.unit ?? units.force ?? "",
+          "set_field",
+          true
+        ), "force", "choose"),
+        projectUnitDefault(vectorField(
+          "Center of gravity",
+          "geometry.center_of_gravity",
+          component.geometry?.center_of_gravity,
+          units.length ?? ""
+        ), "length", "required"),
+        // W-15 slice c: a reducer's eccentric offset, optional, under R-c1.
+        ...(component.kind === "reducer"
+          ? [projectUnitDefault(vectorField(
+              "Eccentric offset",
+              "geometry.eccentric_offset",
+              component.geometry?.eccentric_offset,
+              units.length ?? "",
+              ECCENTRIC_OFFSET_CONVENTION
+            ), "length", "choose")]
+          : []),
+        scalarField(
+          "Stiffness behavior",
+          "geometry.stiffness_behavior_reference",
+          component.geometry?.stiffness_behavior_reference ?? "TBD",
+          "Component",
+          "dimensionless",
+          "none",
+          "user-entered semi-rigid behavior reference"
+        ),
+        scalarField(
+          "Stiffness scale",
+          "modifiers.stiffness_scaling_user_value.value",
+          String(component.modifiers?.stiffness_scaling_user_value?.value ?? "TBD"),
+          "Component",
+          "dimensionless",
+          component.modifiers?.stiffness_scaling_user_value?.unit ?? "none",
+          "user-entered rigid stiffness scaling; no catalog default"
+        ),
+        scalarField(
+          "Stiffness scale source",
+          "modifiers.source_reference",
+          component.modifiers?.source_reference ?? "TBD",
+          "Component",
+          "dimensionless",
+          "none",
+          "user-entered source reference of the stiffness scale and the component's other modifiers"
+        ),
+        scalarField(
+          "Solver consumption",
+          "mechanics_interface.solver_consumption",
+          component.mechanics_interface?.solver_consumption ?? "TBD",
+          "Component",
+          "dimensionless",
+          "none",
+          "user-entered token (mechanics_geometry_only | not_solver_consumed); mechanics_geometry_only applies the stiffness scale and the component weight"
+        ),
+        composedUnitDefault(quantityField(
+          "Linear stiffness",
+          "modifiers.linear_stiffness_user_value.value",
+          component.modifiers?.linear_stiffness_user_value?.value ?? "TBD",
+          "Component",
+          "linear_stiffness",
+          component.modifiers?.linear_stiffness_user_value?.unit ?? "",
+          "set_field",
+          true
+        ), linearStiffnessFieldDefault(route, units)),
+        composedUnitDefault(quantityField(
+          "Rotational stiffness",
+          "modifiers.rotational_stiffness_user_value.value",
+          component.modifiers?.rotational_stiffness_user_value?.value ?? "TBD",
+          "Component",
+          "rotational_stiffness",
+          component.modifiers?.rotational_stiffness_user_value?.unit ?? "",
+          "set_field",
+          true
+        ), rotationalStiffnessFieldDefault(route, units))
+      );
+    }
+    if (isExpansionJointComponent(component)) {
+      fields.splice(
+        2,
+        0,
+        scalarField(
+          "Expansion joint pipe",
+          "geometry.expansion_joint_pipe_ref",
+          component.geometry?.expansion_joint_pipe_ref ?? "TBD",
+          "Component",
+          "dimensionless",
+          "none",
+          "expansion-joint frame member mapping"
+        ),
+        composedUnitDefault(quantityField(
+          "Effective pressure area",
+          "geometry.effective_area.value",
+          component.geometry?.effective_area?.value ?? "TBD",
+          "Component",
+          "area",
+          component.geometry?.effective_area?.unit ?? "",
+          "set_field",
+          true
+        ), fieldComposedDefault(route, "area", units)),
+        projectUnitDefault(quantityField(
+          "Movement limit",
+          "geometry.movement_limit.value",
+          component.geometry?.movement_limit?.value ?? "TBD",
+          "Component",
+          "length",
+          component.geometry?.movement_limit?.unit ?? units.length ?? "",
+          "set_field",
+          true
+        ), "length", "choose"),
+        scalarField(
+          "Hardware reference",
+          "geometry.hardware_reference",
+          component.geometry?.hardware_reference ?? "TBD",
+          "Component",
+          "dimensionless",
+          "none",
+          "user-entered expansion-joint hardware reference"
+        ),
+        scalarField(
+          "Manufacturer reference",
+          "geometry.manufacturer_reference",
+          component.geometry?.manufacturer_reference ?? "TBD",
+          "Component",
+          "dimensionless",
+          "none",
+          "user-entered manufacturer provenance reference"
+        ),
+        scalarField(
+          "Pressure thrust reference",
+          "geometry.pressure_thrust_reference",
+          component.geometry?.pressure_thrust_reference ?? "TBD",
+          "Component",
+          "dimensionless",
+          "none",
+          "load-side pressure thrust handling reference"
+        ),
+        composedUnitDefault(quantityField(
+          "Axial stiffness",
+          "modifiers.axial_stiffness_user_value.value",
+          component.modifiers?.axial_stiffness_user_value?.value ?? "TBD",
+          "Component",
+          "linear_stiffness",
+          component.modifiers?.axial_stiffness_user_value?.unit ?? "",
+          "set_field",
+          true
+        ), linearStiffnessFieldDefault(route, units)),
+        composedUnitDefault(quantityField(
+          "Lateral stiffness",
+          "modifiers.lateral_stiffness_user_value.value",
+          component.modifiers?.lateral_stiffness_user_value?.value ?? "TBD",
+          "Component",
+          "linear_stiffness",
+          component.modifiers?.lateral_stiffness_user_value?.unit ?? "",
+          "set_field",
+          true
+        ), linearStiffnessFieldDefault(route, units)),
+        composedUnitDefault(quantityField(
+          "Angular stiffness",
+          "modifiers.angular_stiffness_user_value.value",
+          component.modifiers?.angular_stiffness_user_value?.value ?? "TBD",
+          "Component",
+          "rotational_stiffness",
+          component.modifiers?.angular_stiffness_user_value?.unit ?? "",
+          "set_field",
+          true
+        ), rotationalStiffnessFieldDefault(route, units)),
+        composedUnitDefault(quantityField(
+          "Torsional stiffness",
+          "modifiers.torsional_stiffness_user_value.value",
+          component.modifiers?.torsional_stiffness_user_value?.value ?? "TBD",
+          "Component",
+          "rotational_stiffness",
+          component.modifiers?.torsional_stiffness_user_value?.unit ?? "",
+          "set_field",
+          true
+        ), rotationalStiffnessFieldDefault(route, units))
+      );
+    }
+    return fields;
+  }
+
+  const loadCase = selection.type === "load" ? model.load_cases.find((item) => item.id === selection.id) : undefined;
+  if (loadCase) {
+    const firstLoad = loadCase.primitive_loads?.[0] ?? {};
+    const firstMagnitude = firstLoad.magnitude as { value?: unknown; unit?: unknown } | undefined;
+    return [
+      scalarField(
+        "Label",
+        "label",
+        loadCase.label,
+        "Load",
+        "dimensionless",
+        "none",
+        "load case label only",
+        "update_load"
+      ),
+      scalarField(
+        "Status",
+        "status",
+        loadCase.status,
+        "Load",
+        "dimensionless",
+        "none",
+        "load case status",
+        "update_load"
+      ),
+      scalarField("Kind", "kind", loadCase.kind, "Load", "dimensionless", "none", "load case kind", "update_load"),
+      scalarField(
+        "Modulus basis",
+        "modulus_basis_ref",
+        loadCase.modulus_basis_ref ?? "TBD",
+        "Load",
+        "dimensionless",
+        "none",
+        "user-assigned temperature-point basis id; exact selection; mutually exclusive with solve temperature",
+        "update_load"
+      ),
+      projectUnitDefault(quantityField(
+        "Modulus basis solve temperature",
+        "modulus_basis_temperature.value",
+        loadCase.modulus_basis_temperature?.value ?? "TBD",
+        "Load",
+        "temperature",
+        loadCase.modulus_basis_temperature?.unit ?? projectTemperatureDefault(units),
+        "update_load",
+        true
+      ), "temperature", "choose"),
+      composedUnitDefault(quantityField(
+        "Seismic gravity acceleration",
+        "equivalent_static.seismic.gravity_acceleration.value",
+        loadCase.equivalent_static?.seismic?.gravity_acceleration?.value ?? "TBD",
+        "Load",
+        "acceleration",
+        loadCase.equivalent_static?.seismic?.gravity_acceleration?.unit ?? "",
+        "update_load",
+        true
+      ), fieldComposedDefault(route, "acceleration", units)),
+      scalarField(
+        "Seismic g-factor X",
+        "equivalent_static.seismic.g_factor_x.value",
+        String(loadCase.equivalent_static?.seismic?.g_factor_x?.value ?? "TBD"),
+        "Load",
+        "dimensionless",
+        "none",
+        "user-entered per-axis g-factor; no code coefficient or default",
+        "update_load"
+      ),
+      scalarField(
+        "Seismic g-factor Y",
+        "equivalent_static.seismic.g_factor_y.value",
+        String(loadCase.equivalent_static?.seismic?.g_factor_y?.value ?? "TBD"),
+        "Load",
+        "dimensionless",
+        "none",
+        "user-entered per-axis g-factor; no code coefficient or default",
+        "update_load"
+      ),
+      scalarField(
+        "Seismic g-factor Z",
+        "equivalent_static.seismic.g_factor_z.value",
+        String(loadCase.equivalent_static?.seismic?.g_factor_z?.value ?? "TBD"),
+        "Load",
+        "dimensionless",
+        "none",
+        "user-entered per-axis g-factor; no code coefficient or default",
+        "update_load"
+      ),
+      projectUnitDefault(quantityField(
+        "Wind pressure",
+        "equivalent_static.wind.pressure.value",
+        loadCase.equivalent_static?.wind?.pressure?.value ?? "TBD",
+        "Load",
+        "pressure",
+        loadCase.equivalent_static?.wind?.pressure?.unit ?? units.pressure ?? "",
+        "update_load",
+        true
+      ), "pressure", "choose"),
+      scalarField(
+        "Wind shape factor",
+        "equivalent_static.wind.shape_factor.value",
+        String(loadCase.equivalent_static?.wind?.shape_factor?.value ?? "TBD"),
+        "Load",
+        "dimensionless",
+        "none",
+        "user-entered wind shape parameter; no code coefficient or default",
+        "update_load"
+      ),
+      scalarField(
+        "Wind direction",
+        "equivalent_static.wind.direction",
+        loadCase.equivalent_static?.wind?.direction ?? "TBD",
+        "Load",
+        "dimensionless",
+        "none",
+        "user-entered global axis token (global_x | global_y | global_z)",
+        "update_load"
+      ),
+      scalarField(
+        "Wind exposed spans",
+        "equivalent_static.wind.exposed_pipe_refs",
+        (loadCase.equivalent_static?.wind?.exposed_pipe_refs ?? []).join(", ") || "TBD",
+        "Load",
+        "dimensionless",
+        "none",
+        "user-marked exposed spans by pipe id (comma-separated); no span is marked by default",
+        "update_load"
+      ),
+      quantityField(
+        "First primitive magnitude",
+        "primitive_loads.0.magnitude.value",
+        typeof firstMagnitude?.value === "number" || typeof firstMagnitude?.value === "string"
+          ? firstMagnitude.value
+          : "TBD",
+        "Load",
+        typeof firstLoad.dimension === "string" ? firstLoad.dimension : "TBD",
+        typeof firstMagnitude?.unit === "string" ? firstMagnitude.unit : "TBD",
+        "update_load",
+        true
+      ),
+      scalarField(
+        "Provenance",
+        "provenance",
+        loadCase.provenance,
+        "Load",
+        "dimensionless",
+        "none",
+        "public/private source note",
+        "update_load"
+      )
+    ];
+  }
+
+  const combination = selection.type === "combination" ? model.combinations?.find((item) => item.id === selection.id) : undefined;
+  if (combination) {
+    return [
+      scalarField(
+        "Label",
+        "label",
+        combination.label,
+        "Combination",
+        "dimensionless",
+        "none",
+        "combination label only"
+      ),
+      scalarField(
+        "Basis",
+        "basis",
+        combination.basis,
+        "Combination",
+        "dimensionless",
+        "none",
+        "mechanics or user rule basis"
+      ),
+      scalarField(
+        "Terms",
+        "terms",
+        combination.terms.map((term) => `${term.load_case} x ${term.factor}`).join("; "),
+        "Combination",
+        "dimensionless",
+        "none",
+        "explicit user-defined terms"
+      ),
+      scalarField(
+        "Provenance",
+        "provenance",
+        combination.provenance,
+        "Combination",
+        "dimensionless",
+        "none",
+        "public/private source note"
+      )
+    ];
+  }
+
+  return [];
+}
+
+function scalarField(
+  label: string,
+  fieldPath: string,
+  before: string,
+  objectType: EditorOperationObjectType,
+  dimension: string,
+  unit: string,
+  sourceNote: string,
+  changeKind: EditableField["changeKind"] = "set_field"
+): EditableField {
+  return {
+    label,
+    fieldPath,
+    before,
+    objectType,
+    dimension,
+    unit,
+    sourceNote,
+    changeKind,
+    unitEditable: false,
+    // Dimensionless numeric slots still need quantity diagnostics. Labels,
+    // references and enum tokens must remain text regardless of their content.
+    valueKind: fieldPath.endsWith(".value") ? "quantity" : "text"
+  };
+}
+
+/** W-15 (owner's R10 ruling, 2026-10-24): a `{x, y, z, unit}` vector in
+ * global X/Y/Z from the component's node. `before` is `x, y, z unit` (or
+ * `TBD`); the entry is the three components, with the unit chosen apart. */
+function vectorField(
+  label: string,
+  fieldPath: string,
+  vector: { x: number; y: number; z: number; unit: string } | undefined,
+  defaultUnit: string,
+  sourceNote = "user-entered vector in global X/Y/Z from the component's node (x, y, z)"
+): EditableField {
+  const components = vector ? `${vector.x}, ${vector.y}, ${vector.z}` : "";
+  return {
+    label,
+    fieldPath,
+    before: vector ? `${components} ${vector.unit}` : "TBD",
+    initialValue: components,
+    objectType: "Component",
+    dimension: "length",
+    unit: vector?.unit ?? defaultUnit,
+    sourceNote,
+    changeKind: "set_field",
+    unitEditable: true,
+    valueKind: "vector"
+  };
+}
+
+/** The explicit vector payload of three entered components, or the raw text
+ * (which the operation service refuses) when there are not three numbers. */
+function vectorPayload(raw: string, unit: string): string {
+  const parts = raw.split(/[\s,]+/).filter(Boolean).map(Number);
+  if (parts.length !== 3 || !parts.every(Number.isFinite)) return raw.trim() || "TBD";
+  const [x, y, z] = parts;
+  return JSON.stringify({ x, y, z, unit });
+}
+
+function quantityField(
+  label: string,
+  fieldPath: string,
+  before: number | string,
+  objectType: EditorOperationObjectType,
+  dimension: string,
+  unit: string,
+  changeKind: EditableField["changeKind"] = "set_field",
+  unitEditable = false
+): EditableField {
+  return {
+    label,
+    fieldPath,
+    before: String(before),
+    objectType,
+    dimension,
+    unit,
+    sourceNote: "unit metadata required",
+    changeKind,
+    unitEditable,
+    valueKind: "quantity"
+  };
+}
+
+/** A field whose default unit is a project key's: with the key absent the field has
+ * no unit ("", unselected) and names the key; nothing is assumed (W-17 §3). */
+function projectUnitDefault(field: EditableField, key: ProjectUnitKey, mode: MissingProjectUnitMode): EditableField {
+  return field.unit === "" ? { ...field, missingProjectUnit: { key, mode } } : field;
+}
+
+/** A field whose default unit is composed from project keys (W-17 §7.3, §7.6): a
+ * stored unit is kept; otherwise the composed default, or no unit ("") with the
+ * absent key named or the notice given. The field has its own unit selector, so a
+ * unit picked there lifts the refusal. */
+function composedUnitDefault(field: EditableField, choice: FieldUnitDefault): EditableField {
+  if (field.unit !== "") return field;
+  if (choice.symbol) return { ...field, unit: choice.symbol };
+  if (choice.missingKey && isProjectUnitKey(choice.missingKey)) return { ...field, missingProjectUnit: { key: choice.missingKey, mode: "choose" } };
+  return choice.notice ? { ...field, unitNotice: choice.notice } : field;
+}
+
+/** The refusal for the selected field, or null when it may be edited: a field naming a
+ * missing key is refused until the key is set, except that a field with its own unit
+ * selector (`choose`) may take a unit the user picks there. */
+function missingProjectUnitRefusal(model: PreviewModel, field: EditableField | undefined, proposedUnit: string): { text: string; hardLock: boolean } | null {
+  if (field?.unitNotice && field.unit === "" && proposedUnit.trim() === "") return { text: `${field.unitNotice}.`, hardLock: false };
+  const missing = field?.missingProjectUnit;
+  if (!missing || !projectUnitMissing(model, missing.key)) return null;
+  if (missing.mode === "choose" && proposedUnit.trim() !== "") return null;
+  return { text: missingProjectUnitText(model, missing.key, missing.mode), hardLock: missing.mode === "positions" };
+}
+
+function isBendComponent(component: PreviewComponent): boolean {
+  return component.kind === "bend" || component.kind === "elbow";
+}
+
+function isBranchComponent(component: PreviewComponent): boolean {
+  return component.kind === "branch" || component.kind === "tee" || component.kind === "branch_connection";
+}
+
+function isRigidComponent(component: PreviewComponent): boolean {
+  return ["valve", "flange", "reducer", "rigid", "specialty"].includes(component.kind);
+}
+
+function isExpansionJointComponent(component: PreviewComponent): boolean {
+  return component.kind === "expansion_joint";
+}
+
+function buildOperationIntent({
+  field,
+  model,
+  proposedValue,
+  proposedUnit,
+  rationale,
+  selection,
+  unitCatalogRoute
+}: {
+  field: EditableField;
+  model: PreviewModel;
+  proposedValue: string;
+  proposedUnit: string;
+  rationale: string;
+  selection: EntityRef;
+  unitCatalogRoute: UnitCatalogRoute | null;
+}): EditorOperationIntent {
+  const operationToken = `${selection.type}-${safeToken(selection.id)}-${safeToken(field.fieldPath)}`;
+  const intentUnit = field.unitEditable ? proposedUnit.trim() || field.unit : field.unit;
+  const changeAfter = field.valueKind === "vector"
+    ? vectorPayload(proposedValue, intentUnit)
+    : field.unitEditable
+    ? JSON.stringify({
+        value: parseQuantityPayloadValue(proposedValue),
+        unit: intentUnit
+      })
+    : proposedValue.trim() || "TBD";
+  return {
+    operation_id: `op:editor-intent-${operationToken}`,
+    operation_kind: "modify",
+    operation_status: "proposed",
+    author_type: "user",
+    target: {
+      object_type: field.objectType,
+      ref: selection.id
+    },
+    change: {
+      change_id: `change:${operationToken}`,
+      change_kind: field.changeKind,
+      field_label: field.label,
+      field_path: field.fieldPath,
+      before: field.before,
+      after: changeAfter,
+      unit: intentUnit,
+      dimension: field.dimension,
+      source_note: field.unitEditable ? `${field.sourceNote}; entered unit captured explicitly` : field.sourceNote
+    },
+    validation: {
+      schema_validation: "not_run",
+      constraint_validation: "not_run",
+      unit_validation: field.unitEditable
+        ? propertyUnitValidationStatus(unitCatalogRoute, intentUnit, field.dimension)
+        : "not_required_dimensionless",
+      diff_preview_status: "not_generated",
+      application_status: "not_applied"
+    },
+    audit_boundary: {
+      mutation_route: "structured_operations_only",
+      direct_model_mutation_allowed: false,
+      requires_user_acceptance: true,
+      mutates_accepted_model_state: false
+    },
+    professional_boundary: {
+      human_review_required: true,
+      software_makes_compliance_claim: false,
+      software_makes_certification_claim: false,
+      software_makes_sealing_claim: false,
+      software_makes_approval_claim: false,
+      software_makes_authentication_claim: false
+    },
+    rationale: rationale.trim() || `preview edit intent for ${model.project.id}`
+  };
+}
+
+function parseQuantityPayloadValue(raw: string): number | string {
+  const trimmed = raw.trim();
+  if (!trimmed) return "TBD";
+  const parsed = Number(trimmed);
+  return Number.isFinite(parsed) ? parsed : trimmed;
+}
+
+function materialDraftUnitValidationStatus(draft: MaterialDraft, route: UnitCatalogRoute | null): string {
+  const stressStatus = propertyUnitValidationStatus(route, draft.stressUnit, "stress");
+  const thermalStatus = draft.thermalExpansion.trim()
+    ? propertyUnitValidationStatus(route, draft.thermalExpansionUnit, "thermal_expansion_coefficient")
+    : "not_provided";
+  return `stress=${stressStatus}; thermal_expansion_coefficient=${thermalStatus}`;
+}
+
+function componentUnitValidation(draft: ComponentDraft, route: UnitCatalogRoute | null): string {
+  // The connector's quantities carry their own units, checked by the engine.
+  if (draft.kind === "expansion_joint") return "connector_quantities_carry_explicit_units";
+  const length = propertyUnitValidationStatus(route, draft.lengthUnit, "length");
+  if (draft.kind === "bend" || draft.kind === "tee") {
+    const angle = propertyUnitValidationStatus(route, draft.angleUnit, "angle");
+    return `length=${length}; angle=${angle}`;
+  }
+  const force = propertyUnitValidationStatus(route, draft.forceUnit, "force");
+  return `length=${length}; force=${force}`;
+}
+
+function propertyUnitValidationStatus(route: UnitCatalogRoute | null, unit: string, dimension: string): string {
+  const normalizedUnit = unit.trim();
+  const normalizedDimension = dimension.trim();
+  if (!normalizedUnit || normalizedUnit === "TBD" || !normalizedDimension || normalizedDimension === "TBD") {
+    return "missing_unit_or_dimension";
+  }
+  if (normalizedUnit === "none" || normalizedDimension === "dimensionless") {
+    return "not_required_dimensionless";
+  }
+
+  const basis = describeUnitBasis(route, normalizedUnit, normalizedDimension);
+  switch (basis.source) {
+    case "dec018_catalog_accepted":
+      return "dec018_catalog_dimension_match";
+    case "dec018_catalog_unreviewed":
+      return `dec018_catalog_${basis.review_status ?? "unreviewed"}_dimension_match`;
+    case "dec018_catalog_miss":
+      return "dec018_catalog_dimension_mismatch";
+    case "browser_preview_model_metadata":
+      return "model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview";
+    case "catalog_loading":
+      return "catalog_loading_unit_dimension_declared";
+    default:
+      return "unit_dimension_status_unknown";
+  }
+}
+
+function buildCreateSectionIntent(
+  draft: SectionDraft,
+  model: PreviewModel,
+  unitCatalogRoute: UnitCatalogRoute | null
+): EditorOperationIntent {
+  const sectionId = draft.id.trim();
+  const payload = {
+    id: sectionId,
+    name: draft.name.trim(),
+    section_type: draft.sectionType.trim(),
+    properties: {
+      outside_diameter: {
+        value: Number(draft.outsideDiameter),
+        unit: draft.lengthUnit
+      },
+      wall_thickness: {
+        value: Number(draft.wallThickness),
+        unit: draft.lengthUnit
+      }
+    },
+    provenance: draft.provenance.trim()
+  };
+  return {
+    operation_id: `op:create-section-${safeToken(sectionId)}`,
+    operation_kind: "create",
+    operation_status: "proposed",
+    author_type: "user",
+    source: {
+      source_ref: "apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+      source_channel: "local_desktop_preview",
+      source_role: "gui_editor"
+    },
+    target: {
+      object_type: "Section",
+      ref: sectionId
+    },
+    change: {
+      change_id: `change:create-section:${safeToken(sectionId)}`,
+      change_kind: "create_section",
+      field_label: "Explicit pipe section",
+      field_path: "sections",
+      before: "not_present",
+      after: JSON.stringify(payload),
+      unit: draft.lengthUnit,
+      dimension: "length",
+      source_note: "explicit user-entered pipe section geometry; entered unit preserved"
+    },
+    validation: {
+      schema_validation: "not_run",
+      constraint_validation: "not_run",
+      unit_validation: `length=${propertyUnitValidationStatus(unitCatalogRoute, draft.lengthUnit, "length")}`,
+      diff_preview_status: "not_generated",
+      application_status: "not_applied"
+    },
+    audit_boundary: {
+      mutation_route: "structured_operations_only",
+      direct_model_mutation_allowed: false,
+      requires_user_acceptance: true,
+      mutates_accepted_model_state: false
+    },
+    professional_boundary: {
+      human_review_required: true,
+      software_makes_compliance_claim: false,
+      software_makes_certification_claim: false,
+      software_makes_sealing_claim: false,
+      software_makes_approval_claim: false,
+      software_makes_authentication_claim: false
+    },
+    rationale: `explicit user-entered pipe section for ${model.project.id}; requires service validation before durable model change.`
+  };
+}
+
+function buildCreateMaterialIntent(
+  draft: MaterialDraft,
+  model: PreviewModel,
+  unitCatalogRoute: UnitCatalogRoute | null
+): EditorOperationIntent {
+  const materialId = draft.id.trim();
+  const payload: Record<string, unknown> = {
+    id: materialId,
+    label: draft.label.trim(),
+    elastic_modulus: {
+      value: Number(draft.elasticModulus),
+      unit: draft.stressUnit
+    },
+    shear_modulus: {
+      value: Number(draft.shearModulus),
+      unit: draft.stressUnit
+    },
+    provenance: draft.provenance.trim()
+  };
+  if (draft.thermalExpansion.trim()) {
+    payload.thermal_expansion_coefficient = {
+      value: Number(draft.thermalExpansion),
+      unit: draft.thermalExpansionUnit
+    };
+  }
+  return {
+    operation_id: `op:create-material-${safeToken(materialId)}`,
+    operation_kind: "create",
+    operation_status: "proposed",
+    author_type: "user",
+    source: {
+      source_ref: "apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+      source_channel: "local_desktop_preview",
+      source_role: "gui_editor"
+    },
+    target: {
+      object_type: "Material",
+      ref: materialId
+    },
+    change: {
+      change_id: `change:create-material:${safeToken(materialId)}`,
+      change_kind: "create_material",
+      field_label: "Explicit material",
+      field_path: "materials",
+      before: "not_present",
+      after: JSON.stringify(payload),
+      unit: draft.stressUnit,
+      dimension: "stress",
+      source_note: "explicit user-entered material quantities; entered units preserved"
+    },
+    validation: {
+      schema_validation: "not_run",
+      constraint_validation: "not_run",
+      unit_validation: materialDraftUnitValidationStatus(draft, unitCatalogRoute),
+      diff_preview_status: "not_generated",
+      application_status: "not_applied"
+    },
+    audit_boundary: {
+      mutation_route: "structured_operations_only",
+      direct_model_mutation_allowed: false,
+      requires_user_acceptance: true,
+      mutates_accepted_model_state: false
+    },
+    professional_boundary: {
+      human_review_required: true,
+      software_makes_compliance_claim: false,
+      software_makes_certification_claim: false,
+      software_makes_sealing_claim: false,
+      software_makes_approval_claim: false,
+      software_makes_authentication_claim: false
+    },
+    rationale: `explicit user-entered material for ${model.project.id}; requires service validation before durable model change.`
+  };
+}
+
+function buildCreateSupportIntent(
+  draft: SupportDraft,
+  model: PreviewModel,
+  unitCatalogRoute: UnitCatalogRoute | null
+): EditorOperationIntent {
+  const supportId = draft.id.trim();
+  const stiffnessProvided = draft.linearStiffness.trim() !== "";
+  const payload: Record<string, unknown> = {
+    id: supportId,
+    label: draft.label.trim(),
+    node: draft.node.trim(),
+    restraints: draft.restraints,
+    provenance: draft.provenance.trim()
+  };
+  const family = draftSupportFamily(draft.familyChoice, suggestedSupportFamily(draft.restraints, draft.linearStiffness));
+  if (family) payload.family = family;
+  if (stiffnessProvided) {
+    payload.properties = {
+      linear_stiffness: {
+        value: Number(draft.linearStiffness),
+        unit: draft.linearStiffnessUnit
+      }
+    };
+  }
+  return {
+    operation_id: `op:create-support-${safeToken(supportId)}`,
+    operation_kind: "create",
+    operation_status: "proposed",
+    author_type: "user",
+    source: {
+      source_ref: "apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+      source_channel: "local_desktop_preview",
+      source_role: "gui_editor"
+    },
+    target: {
+      object_type: "Support",
+      ref: supportId
+    },
+    change: {
+      change_id: `change:create-support:${safeToken(supportId)}`,
+      change_kind: "create_support",
+      field_label: "Explicit support",
+      field_path: "supports",
+      before: "not_present",
+      after: JSON.stringify(payload),
+      unit: stiffnessProvided ? draft.linearStiffnessUnit : "none",
+      dimension: stiffnessProvided ? "linear_stiffness" : "dimensionless",
+      source_note: stiffnessProvided
+        ? "explicit user-entered support node, restraint tokens, and linear stiffness; entered unit preserved"
+        : "explicit user-entered support node and restraint tokens"
+    },
+    validation: {
+      schema_validation: "not_run",
+      constraint_validation: "not_run",
+      unit_validation: stiffnessProvided
+        ? `linear_stiffness=${propertyUnitValidationStatus(unitCatalogRoute, draft.linearStiffnessUnit, "linear_stiffness")}`
+        : "not_required_dimensionless",
+      diff_preview_status: "not_generated",
+      application_status: "not_applied"
+    },
+    audit_boundary: {
+      mutation_route: "structured_operations_only",
+      direct_model_mutation_allowed: false,
+      requires_user_acceptance: true,
+      mutates_accepted_model_state: false
+    },
+    professional_boundary: {
+      human_review_required: true,
+      software_makes_compliance_claim: false,
+      software_makes_certification_claim: false,
+      software_makes_sealing_claim: false,
+      software_makes_approval_claim: false,
+      software_makes_authentication_claim: false
+    },
+    rationale: `explicit user-entered support for ${model.project.id}; requires service validation before durable model change.`
+  };
+}
+
+function operationIntentIsComplete(intent: EditorOperationIntent): boolean {
+  if (!intent.target.ref.trim() || !intent.change.after.trim() || intent.change.after === "TBD") return false;
+  if (intent.change.unit === "TBD" || !intent.change.unit.trim()) return false;
+  if (intent.change.dimension === "dimensionless") return true;
+  try {
+    const quantity = JSON.parse(intent.change.after) as { value?: unknown; unit?: unknown; x?: unknown; y?: unknown; z?: unknown };
+    const finite = "x" in quantity
+      ? [quantity.x, quantity.y, quantity.z].every((component) => Number.isFinite(component))
+      : Number.isFinite(quantity.value);
+    return finite && typeof quantity.unit === "string" && quantity.unit.trim().length > 0;
+  } catch {
+    return false;
+  }
+}
+
+function matchingInlineValidationOutcome(
+  outcome: OperationOutcome | undefined,
+  intent: EditorOperationIntent
+): OperationOutcome | null {
+  if (!outcome) return null;
+  if (outcome.operation_id !== intent.operation_id || outcome.change_id !== intent.change.change_id) return null;
+  if (outcome.target_ref !== intent.target.ref || outcome.target_object_type !== intent.target.object_type) return null;
+  if (outcome.change_kind !== intent.change.change_kind) return null;
+  if (outcome.diff_preview.length === 0) {
+    return outcome.validation.application_status === "blocked" ? outcome : null;
+  }
+  return outcome.diff_preview.some(
+    (row) =>
+      row.entity_ref === intent.target.ref &&
+      row.field_path === intent.change.field_path &&
+      row.before === intent.change.before &&
+      row.after === intent.change.after
+  )
+    ? outcome
+    : null;
+}
+
+function operationIntentKey(intent: EditorOperationIntent): string {
+  return intent.queue_id ?? intent.operation_id;
+}
+
+function defaultSectionDraft(model: PreviewModel, queuedIntents: EditorOperationIntent[]): SectionDraft {
+  return defaultSectionDraftWithReserved(model, queuedIntents);
+}
+
+function defaultSectionDraftWithReserved(model: PreviewModel, queuedIntents: EditorOperationIntent[]): SectionDraft {
+  const id = nextSectionId(model, queuedIntents);
+  return {
+    id,
+    name: `Section ${shortEntityToken(id)}`,
+    sectionType: "pipe",
+    lengthUnit: lengthUnit(model),
+    outsideDiameter: "",
+    wallThickness: "",
+    provenance: "user_entered_local_preview"
+  };
+}
+
+function defaultMaterialDraft(model: PreviewModel, queuedIntents: EditorOperationIntent[], route: UnitCatalogRoute | null = null): MaterialDraft {
+  return defaultMaterialDraftWithReserved(model, queuedIntents, route);
+}
+
+function defaultMaterialDraftWithReserved(model: PreviewModel, queuedIntents: EditorOperationIntent[], route: UnitCatalogRoute | null = null): MaterialDraft {
+  const id = nextMaterialId(model, queuedIntents);
+  return {
+    id,
+    label: `Material ${shortEntityToken(id)}`,
+    stressUnit: stressUnit(model),
+    elasticModulus: "",
+    shearModulus: "",
+    thermalExpansionUnit: thermalExpansionUnit(model, route),
+    thermalExpansionUnitSource: "default",
+    thermalExpansion: "",
+    provenance: "user_entered_local_preview"
+  };
+}
+
+function defaultSupportDraft(
+  model: PreviewModel,
+  selection: EntityRef,
+  queuedIntents: EditorOperationIntent[],
+  route: UnitCatalogRoute | null = null
+): SupportDraft {
+  return defaultSupportDraftWithReserved(model, selection, queuedIntents, route);
+}
+
+function defaultSupportDraftWithReserved(
+  model: PreviewModel,
+  selection: EntityRef,
+  queuedIntents: EditorOperationIntent[],
+  route: UnitCatalogRoute | null = null
+): SupportDraft {
+  const id = nextSupportId(model, queuedIntents);
+  const selectedNode =
+    selection.type === "node" && model.nodes.some((node) => node.id === selection.id) ? selection.id : null;
+  const node = selectedNode ?? model.nodes[0]?.id ?? "";
+  return {
+    id,
+    label: `Support ${shortEntityToken(id)}`,
+    node,
+    restraints: ["UX", "UY", "UZ"],
+    linearStiffnessUnit: linearStiffnessUnit(model, route),
+    linearStiffnessUnitSource: "default",
+    linearStiffness: "",
+    familyChoice: null,
+    provenance: "user_entered_local_preview"
+  };
+}
+
+function nextSupportId(model: PreviewModel, queuedIntents: EditorOperationIntent[]): string {
+  const reserved = new Set(model.supports.map((support) => support.id));
+  for (const intent of queuedIntents) {
+    if (intent.change.change_kind === "create_support") {
+      reserved.add(intent.target.ref);
+    }
+  }
+  for (let index = 1; index < 100000; index += 1) {
+    const candidate = `support:S-${index}`;
+    if (!reserved.has(candidate)) return candidate;
+  }
+  return "support:S-TBD";
+}
+
+function nextMaterialId(model: PreviewModel, queuedIntents: EditorOperationIntent[]): string {
+  const reserved = new Set((model.materials ?? []).map((material) => material.id));
+  for (const intent of queuedIntents) {
+    if (intent.change.change_kind === "create_material") {
+      reserved.add(intent.target.ref);
+    }
+  }
+  for (let index = 1; index < 100000; index += 1) {
+    const candidate = `material:M-${index}`;
+    if (!reserved.has(candidate)) return candidate;
+  }
+  return "material:M-TBD";
+}
+
+function nextSectionId(model: PreviewModel, queuedIntents: EditorOperationIntent[]): string {
+  const reserved = new Set((model.sections ?? []).map((section) => section.id));
+  for (const intent of queuedIntents) {
+    if (intent.change.change_kind === "create_section") {
+      reserved.add(intent.target.ref);
+    }
+  }
+  for (let index = 1; index < 100000; index += 1) {
+    const candidate = `section:S-${index}`;
+    if (!reserved.has(candidate)) return candidate;
+  }
+  return "section:S-TBD";
+}
+
+function isSectionDraftValid(model: PreviewModel, draft: SectionDraft): boolean {
+  const outsideDiameter = Number(draft.outsideDiameter);
+  const wallThickness = Number(draft.wallThickness);
+  return (
+    Boolean(draft.id.trim() && draft.name.trim() && draft.provenance.trim()) &&
+    draft.sectionType === "pipe" &&
+    draft.lengthUnit !== "TBD" &&
+    isPositiveInput(draft.outsideDiameter) &&
+    isPositiveInput(draft.wallThickness) &&
+    wallThickness < outsideDiameter / 2 &&
+    !(model.sections ?? []).some((section) => section.id === draft.id.trim())
+  );
+}
+
+function isMaterialDraftValid(model: PreviewModel, draft: MaterialDraft): boolean {
+  const thermalProvided = draft.thermalExpansion.trim() !== "";
+  return (
+    Boolean(draft.id.trim() && draft.label.trim() && draft.provenance.trim()) &&
+    draft.stressUnit !== "TBD" &&
+    isPositiveInput(draft.elasticModulus) &&
+    isPositiveInput(draft.shearModulus) &&
+    (!thermalProvided || (draft.thermalExpansionUnit !== "TBD" && draft.thermalExpansionUnit !== "" && isFiniteInput(draft.thermalExpansion))) &&
+    !(model.materials ?? []).some((material) => material.id === draft.id.trim())
+  );
+}
+
+function isSupportDraftValid(model: PreviewModel, draft: SupportDraft): boolean {
+  const stiffnessProvided = draft.linearStiffness.trim() !== "";
+  return (
+    Boolean(draft.id.trim() && draft.label.trim() && draft.node.trim() && draft.provenance.trim()) &&
+    model.nodes.some((node) => node.id === draft.node.trim()) &&
+    draft.restraints.length > 0 &&
+    draft.restraints.every((restraint) => RESTRAINT_OPTIONS.includes(restraint)) &&
+    (!stiffnessProvided || (draft.linearStiffnessUnit !== "TBD" && draft.linearStiffnessUnit !== "" && isPositiveInput(draft.linearStiffness))) &&
+    !model.supports.some((support) => support.id === draft.id.trim())
+  );
+}
+
+// An opened document may lack some `project.units` keys (W-17 §3): each then
+// reads as absent, shown as missing ("TBD" or unselected) and offered on the
+// Project page, never written or defaulted here. A document without the map is
+// refused at open (MODEL-FILE-SHAPE); an absent map still reads as empty here.
+function storedProjectUnits(model: PreviewModel): Readonly<Partial<Record<string, string>>> {
+  return (model.project.units as PreviewModel["project"]["units"] | undefined) ?? {};
+}
+
+function lengthUnit(model: PreviewModel): string {
+  return storedProjectUnits(model).length ?? "TBD";
+}
+
+function stressUnit(model: PreviewModel): string {
+  return storedProjectUnits(model).pressure ?? "TBD";
+}
+
+// Composed defaults (W-17 §2.4): `1/<temperature>` and `<force>/<length>`, each
+// checked against the loaded catalog. A composition the catalog lacks gives ""
+// (unselected), never a substitute. A declared `linear_stiffness` key is used as is.
+function thermalExpansionUnit(model: PreviewModel, route: UnitCatalogRoute | null = null): string {
+  return composedDefault(route, "thermal_expansion", storedProjectUnits(model)).symbol;
+}
+
+function thermalExpansionUnitNoticeFor(model: PreviewModel, route: UnitCatalogRoute | null): string | null {
+  return composedDefault(route, "thermal_expansion", storedProjectUnits(model)).notice;
+}
+
+// A present `linear_stiffness` key is used as declared (unchecked, as before); a
+// present but invalid one gives no default. Only an absent key composes.
+function linearStiffnessUnit(model: PreviewModel, route: UnitCatalogRoute | null = null): string {
+  return declaredOrComposedDefault(route, "linear_stiffness", "linear_stiffness", storedProjectUnits(model), false).symbol;
+}
+
+function linearStiffnessUnitNotice(model: PreviewModel, route: UnitCatalogRoute | null): string | null {
+  return declaredOrComposedDefault(route, "linear_stiffness", "linear_stiffness", storedProjectUnits(model), false).notice;
+}
+
+function isFiniteInput(value: string): boolean {
+  return value.trim() !== "" && Number.isFinite(Number(value));
+}
+
+function isPositiveInput(value: string): boolean {
+  return isFiniteInput(value) && Number(value) > 0;
+}
+
+function shortEntityToken(value: string): string {
+  const parts = value.split(":");
+  return parts[parts.length - 1] || value;
+}
+
+function safeToken(value: string): string {
+  return value.replace(/[^A-Za-z0-9_.:-]+/g, "-");
+}
+
+function deepFreezeIntent(intent: EditorOperationIntent): EditorOperationIntent {
+  const visit = (value: unknown): unknown => {
+    if (!value || typeof value !== "object" || Object.isFrozen(value)) return value;
+    for (const child of Object.values(value as Record<string, unknown>)) visit(child);
+    return Object.freeze(value);
+  };
+  return visit(intent) as EditorOperationIntent;
+}
+
+/** The inspector's create paths (default drafts and intent builders), for the
+ * desktop emission golden that drives each authoring path (W-13 §5.2). */
+export const inspectorAuthoringPaths = {
+  defaultMaterialDraft,
+  buildCreateMaterialIntent,
+  defaultSectionDraft,
+  buildCreateSectionIntent,
+  defaultSupportDraft,
+  buildCreateSupportIntent,
+  // W-15 slice c (DEL-02-01 Design model-document-0.8.0.md §5): the reducer's
+  // eccentric-offset field and the inspector's edit intent, for the emission golden.
+  eccentricOffsetField: (vector: { x: number; y: number; z: number; unit: string } | undefined, defaultUnit: string) =>
+    vectorField("Eccentric offset", "geometry.eccentric_offset", vector, defaultUnit, ECCENTRIC_OFFSET_CONVENTION),
+  buildOperationIntent
+};

@@ -1,0 +1,27 @@
+{
+  "bindings": [],
+  "case_id": "case_64_block_invalid_empty_reference",
+  "declared_grammar_version": "1.0.0",
+  "description": "A blank variable reference is invalid.",
+  "expected": {
+    "findings": [
+      {
+        "code": "invalid_reference",
+        "subject_id": "variable_ref"
+      }
+    ],
+    "source_variable_ids": [],
+    "statuses": [
+      "mechanics_solved"
+    ],
+    "value": null
+  },
+  "expression": {
+    "node": "variable_ref",
+    "variable_id": " "
+  },
+  "required_variable_ids": [],
+  "statuses": [
+    "mechanics_solved"
+  ]
+}

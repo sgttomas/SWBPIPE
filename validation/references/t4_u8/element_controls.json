@@ -1,0 +1,1145 @@
+{
+ "schema_version": "independent.t4_u8_timoshenko_element_controls/1.0.0",
+ "unit": "T4-U8 element-level controls (frame kernel / straight_pipe tests)",
+ "status": "frozen independent reference; refuted independently on 2026-10-16 with three MINOR findings, two repaired in 5e84d520a7 without a value change; an independent refuter confirmed both repairs on 2026-10-16 and showed that the third finding (an unlisted moved row, TWIN-A Fx) was not a defect: the euler_bernoulli_recovery mutant does not move it, since EA/L is the same in both theories; not product output",
+ "independence": "generators/u8_reference.py imports, reads and runs no product code",
+ "basis": "exact rationals (abstract fixtures) and exact Q(pi) (physical companions); every expected value derived by this generator; text forms: 'p/q', 'r*pi', 'r/pi', '(n0 + n1*pi)/(d0 + d1*pi)'",
+ "conventions": {
+  "plane": "d = [v_i, theta_i, v_j, theta_j]; v = uy, theta = rz in x-y; v = uz, theta = -ry in x-z",
+  "theta": "section rotation, not centreline slope; gamma = v' - theta; V = Ks gamma; M = EI theta'",
+  "end_action": "f_e = [-V(0), -M(0), V(L), M(L)] = K d - feq (node-on-element); feq = -f_e(d = 0, loads)",
+  "root_reaction": "support-on-element at the fixed end = f_e at i"
+ },
+ "S-A": {
+  "fixture": "EI = 1 N*m^2, Ks = 12 N, L = 1 m, phi = 12EI/(Ks L^2) = 1 (an abstract element fixture, not a pipe material); d = [v_i, theta_i, v_j, theta_j] in the x-y plane (v = uy, theta = rz)",
+  "K": [
+   ["6", "3", "-6", "3"],
+   ["3", "5/2", "-3", "1/2"],
+   ["-6", "-3", "6", "-3"],
+   ["3", "1/2", "-3", "5/2"]
+  ],
+  "K_euler_bernoulli_same_EI_L": [
+   ["12", "6", "-12", "6"],
+   ["6", "4", "-6", "2"],
+   ["-12", "-6", "12", "-6"],
+   ["6", "2", "-6", "4"]
+  ],
+  "rigid_modes": {
+   "translation": [1, 0, 1, 0],
+   "rotation": ["0", "1", "L", "1"],
+   "K_times_mode": "0",
+   "rank": 2,
+   "symmetric": true
+  },
+  "cases": {
+   "tip_force": {
+    "load": "+1 N at the free end",
+    "tip_v_m": {"exact": "5/12", "decimal": "0.4166666666666666666666666666666666666667"},
+    "tip_theta_rad": {"exact": "1/2", "decimal": "0.5"},
+    "tip_slope": {"exact": "7/12", "decimal": "0.5833333333333333333333333333333333333333"},
+    "tip_gamma": {"exact": "1/12", "decimal": "0.08333333333333333333333333333333333333333"},
+    "root_Fy_N": {"exact": "-1", "decimal": "-1"},
+    "root_Mz_N_m": {"exact": "-1", "decimal": "-1"},
+    "end_action_f_e": ["-1", "-1", "1", "0"],
+    "strain_energy_J": {"exact": "5/24", "decimal": "0.2083333333333333333333333333333333333333"},
+    "discriminator_theta_equals_slope": {
+     "wrong_tip_theta": {"exact": "7/12", "decimal": "0.5833333333333333333333333333333333333333"}
+    },
+    "discriminator_locked_linear_element": {
+     "K_linear": [
+      ["12", "6", "-12", "6"],
+      ["6", "5", "-6", "1"],
+      ["-12", "-6", "12", "-6"],
+      ["6", "1", "-6", "5"]
+     ],
+     "wrong_tip_v_m": "5/24",
+     "wrong_tip_theta_rad": "1/4",
+     "ratio_to_exact_tip_v": "1/2"
+    }
+   },
+   "tip_couple": {
+    "load": "+1 N*m at the free end",
+    "tip_v_m": {"exact": "1/2", "decimal": "0.5"},
+    "tip_theta_rad": {"exact": "1", "decimal": "1"},
+    "shear_V": "0 everywhere",
+    "root_Fy_N": {"exact": "0", "decimal": "0"},
+    "root_Mz_N_m": {"exact": "-1", "decimal": "-1"},
+    "independent_of_Ks": {
+     "Ks=1": ["1/2", "1"],
+     "Ks=1000": ["1/2", "1"],
+     "euler_bernoulli": ["1/2", "1"]
+    }
+   },
+   "full_span_uniform": {
+    "load": "+1 N/m over [0, L]",
+    "feq": ["1/2", "1/12", "1/2", "-1/12"],
+    "feq_equals_euler_bernoulli": true,
+    "tip_v_m": {"exact": "1/6", "decimal": "0.1666666666666666666666666666666666666667"},
+    "tip_theta_rad": {"exact": "1/6", "decimal": "0.1666666666666666666666666666666666666667"},
+    "closed_form": "v = qL^4/(8EI) + qL^2/(2Ks); theta = qL^3/(6EI)",
+    "root_Fy_N": {"exact": "-1", "decimal": "-1"},
+    "root_Mz_N_m": {"exact": "-1/2", "decimal": "-0.5"},
+    "strain_energy_J": {"exact": "7/180", "decimal": "0.03888888888888888888888888888888888888889"}
+   },
+   "distal_half_uniform": {
+    "load": "+1 N/m over [L/2, L]",
+    "feq_exact_timoshenko": ["7/64", "13/384", "25/64", "-19/384"],
+    "feq_from": "the integrated solution of CONTRACT section 4 (fixed-fixed compatibility); equal to CONTRACT section 4's closed form and to design section 3.4's dV0 relation",
+    "tip_v_m": {"exact": "53/384", "decimal": "0.1380208333333333333333333333333333333333"},
+    "tip_theta_rad": {"exact": "7/48", "decimal": "0.1458333333333333333333333333333333333333"},
+    "root_Fy_N": {"exact": "-1/2", "decimal": "-0.5"},
+    "root_Mz_N_m": {"exact": "-3/8", "decimal": "-0.375"},
+    "tip_v_by_point_force_kernels": {"exact": "53/384", "decimal": "0.1380208333333333333333333333333333333333"},
+    "closed_form": "v = 41qL^4/(384EI) + 3qL^2/(8Ks); theta = 7qL^3/(48EI)",
+    "both_vectors_balance": "force qL/2 and moment 3qL^2/8 about the root",
+    "discriminator_stale_euler_bernoulli_vector": {
+     "feq": ["3/32", "5/192", "13/32", "-11/192"],
+     "wrong_tip_v_m": {"exact": "9/64", "decimal": "0.140625"},
+     "wrong_tip_v_over_384": "54/384",
+     "wrong_tip_theta_rad": {"exact": "7/48", "decimal": "0.1458333333333333333333333333333333333333"},
+     "note": "rotation and global balance alone cannot see it"
+    }
+   },
+   "fixed_guided": {
+    "motion": "v_j = delta = 1 m, v_i = theta_i = theta_j = 0",
+    "end_actions": ["-6", "-3", "6", "-3"],
+    "force": "12 EI delta/(L^3 (1 + phi)) = 6 N",
+    "end_moments": "-3 N*m at i and at j",
+    "balance": "sum F = 0; M_i + M_j + L F_j = 0"
+   }
+  },
+  "distal_half_over_phi": {
+   "EI": "1",
+   "L": "1",
+   "q": "1",
+   "rows": [
+    {
+     "phi": "0",
+     "Ks_N": "inf",
+     "distal_half_feq": ["3/32", "5/192", "13/32", "-11/192"],
+     "distal_half_tip_v_m": "41/384",
+     "distal_half_tip_theta_rad": "7/48"
+    },
+    {
+     "phi": "1/4",
+     "Ks_N": "48",
+     "distal_half_feq": ["1/10", "7/240", "2/5", "-13/240"],
+     "distal_half_tip_v_m": "11/96",
+     "distal_half_tip_theta_rad": "7/48"
+    },
+    {
+     "phi": "1/2",
+     "Ks_N": "24",
+     "distal_half_feq": ["5/48", "1/32", "19/48", "-5/96"],
+     "distal_half_tip_v_m": "47/384",
+     "distal_half_tip_theta_rad": "7/48"
+    },
+    {
+     "phi": "1",
+     "Ks_N": "12",
+     "distal_half_feq": ["7/64", "13/384", "25/64", "-19/384"],
+     "distal_half_tip_v_m": "53/384",
+     "distal_half_tip_theta_rad": "7/48"
+    },
+    {
+     "phi": "2",
+     "Ks_N": "6",
+     "distal_half_feq": ["11/96", "7/192", "37/96", "-3/64"],
+     "distal_half_tip_v_m": "65/384",
+     "distal_half_tip_theta_rad": "7/48"
+    },
+    {
+     "phi": "4",
+     "Ks_N": "3",
+     "distal_half_feq": ["19/160", "37/960", "61/160", "-43/960"],
+     "distal_half_tip_v_m": "89/384",
+     "distal_half_tip_theta_rad": "7/48"
+    },
+    {
+     "phi": "10",
+     "Ks_N": "6/5",
+     "distal_half_feq": ["43/352", "85/2112", "133/352", "-91/2112"],
+     "distal_half_tip_v_m": "161/384",
+     "distal_half_tip_theta_rad": "7/48"
+    }
+   ],
+   "checks": "integrated solution = CONTRACT closed form = design dV0 relation; full-span vector = [1/2, 1/12, 1/2, -1/12] for every phi"
+  },
+  "frame_12x12": {
+   "fixture": "E = 2, G = 1 (nu = 0), A = 24, Iy = Iz = 1/2, J = 1, kappa = 1/2, A_s = 12, Ks = 12, L = 1 (abstract; EI = 1 and Ks = 12 as S-A)",
+   "dof_order": "[ux, uy, uz, rx, ry, rz] at node i, then node j (element-local)",
+   "plane_map": "x-y: (uy, rz) carry the S-A block; x-z: (uz, -ry) carry it, so the (uz, ry) entries change sign where exactly one index is a rotation",
+   "K_local": [
+    ["48", "0", "0", "0", "0", "0", "-48", "0", "0", "0", "0", "0"],
+    ["0", "6", "0", "0", "0", "3", "0", "-6", "0", "0", "0", "3"],
+    ["0", "0", "6", "0", "-3", "0", "0", "0", "-6", "0", "-3", "0"],
+    ["0", "0", "0", "1", "0", "0", "0", "0", "0", "-1", "0", "0"],
+    ["0", "0", "-3", "0", "5/2", "0", "0", "0", "3", "0", "1/2", "0"],
+    ["0", "3", "0", "0", "0", "5/2", "0", "-3", "0", "0", "0", "1/2"],
+    ["-48", "0", "0", "0", "0", "0", "48", "0", "0", "0", "0", "0"],
+    ["0", "-6", "0", "0", "0", "-3", "0", "6", "0", "0", "0", "-3"],
+    ["0", "0", "-6", "0", "3", "0", "0", "0", "6", "0", "3", "0"],
+    ["0", "0", "0", "-1", "0", "0", "0", "0", "0", "1", "0", "0"],
+    ["0", "0", "-3", "0", "1/2", "0", "0", "0", "3", "0", "5/2", "0"],
+    ["0", "3", "0", "0", "0", "1/2", "0", "-3", "0", "0", "0", "5/2"]
+   ],
+   "axial_EA_over_L": "48",
+   "torsion_GJ_over_L": "1",
+   "discriminators": {
+    "shear_area_in_EA": {
+     "entry": [0, 0],
+     "expected": "48",
+     "wrong": "24"
+    },
+    "kappa_on_GJ": {
+     "entry": [3, 3],
+     "expected": "1",
+     "wrong": "1/2"
+    },
+    "swapped_plane_signs": {
+     "entry": [2, 4],
+     "expected": "-3",
+     "wrong": "3"
+    }
+   }
+  }
+ },
+ "S-C": {
+  "coefficient_grid": {
+   "checks": "for every (m, nu): kappa_E (cancellation-free form) = CONTRACT's expanded form = 1/(A int tau^2/V^2 dA) from INDEPENDENT_REFUTATION's Saint-Venant field integrated term by term here; the field's resultant is V and its lateral traction vanishes at both surfaces; kappa_C = -2(1+nu) I^2/(A Jchi); 1/kappa_E = [7 + 20t + (1-4t)(nu/(1+nu))^2]/6 with t = m^2/(1+m^2)^2; 0 < kappa_E <= 1; kappa_E = kappa_C when nu = 0",
+   "rows": [
+    {
+     "m": "0",
+     "nu": "-1/2",
+     "kappa_E": "3/4",
+     "kappa_C": "3/4",
+     "kappa_E_decimal": "0.75",
+     "kappa_C_decimal": "0.75"
+    },
+    {
+     "m": "0",
+     "nu": "0",
+     "kappa_E": "6/7",
+     "kappa_C": "6/7",
+     "kappa_E_decimal": "0.8571428571428571428571428571428571428571",
+     "kappa_C_decimal": "0.8571428571428571428571428571428571428571"
+    },
+    {
+     "m": "0",
+     "nu": "1/4",
+     "kappa_E": "75/88",
+     "kappa_C": "15/17",
+     "kappa_E_decimal": "0.8522727272727272727272727272727272727273",
+     "kappa_C_decimal": "0.8823529411764705882352941176470588235294"
+    },
+    {
+     "m": "0",
+     "nu": "3/10",
+     "kappa_E": "507/596",
+     "kappa_C": "39/44",
+     "kappa_E_decimal": "0.8506711409395973154362416107382550335570",
+     "kappa_C_decimal": "0.8863636363636363636363636363636363636364"
+    },
+    {
+     "m": "0",
+     "nu": "49/100",
+     "kappa_E": "66603/78904",
+     "kappa_C": "447/497",
+     "kappa_E_decimal": "0.8441016931967961066612592517489607624455",
+     "kappa_C_decimal": "0.8993963782696177062374245472837022132797"
+    },
+    {
+     "m": "1/4",
+     "nu": "-1/2",
+     "kappa_E": "289/428",
+     "kappa_C": "289/460",
+     "kappa_E_decimal": "0.6752336448598130841121495327102803738318",
+     "kappa_C_decimal": "0.6282608695652173913043478260869565217391"
+    },
+    {
+     "m": "1/4",
+     "nu": "0",
+     "kappa_E": "578/781",
+     "kappa_C": "578/781",
+     "kappa_E_decimal": "0.7400768245838668373879641485275288092190",
+     "kappa_C_decimal": "0.7400768245838668373879641485275288092190"
+    },
+    {
+     "m": "1/4",
+     "nu": "1/4",
+     "kappa_E": "289/392",
+     "kappa_C": "1445/1883",
+     "kappa_E_decimal": "0.7372448979591836734693877551020408163265",
+     "kappa_C_decimal": "0.7673924588422729686670207116303770578864"
+    },
+    {
+     "m": "1/4",
+     "nu": "3/10",
+     "kappa_E": "48841/66332",
+     "kappa_C": "3757/4868",
+     "kappa_E_decimal": "0.7363112826388470120002412108786106253392",
+     "kappa_C_decimal": "0.7717748562037797863599013968775677896467"
+    },
+    {
+     "m": "1/4",
+     "nu": "49/100",
+     "kappa_E": "6416089/8759528",
+     "kappa_C": "43061/54779",
+     "kappa_E_decimal": "0.7324697175464248758608911347734718126365",
+     "kappa_C_decimal": "0.7860859088336771390496358093429964037314"
+    },
+    {
+     "m": "1/2",
+     "nu": "-1/2",
+     "kappa_E": "25/44",
+     "kappa_C": "25/52",
+     "kappa_E_decimal": "0.5681818181818181818181818181818181818182",
+     "kappa_C_decimal": "0.4807692307692307692307692307692307692308"
+    },
+    {
+     "m": "1/2",
+     "nu": "0",
+     "kappa_E": "10/17",
+     "kappa_C": "10/17",
+     "kappa_E_decimal": "0.5882352941176470588235294117647058823529",
+     "kappa_C_decimal": "0.5882352941176470588235294117647058823529"
+    },
+    {
+     "m": "1/2",
+     "nu": "1/4",
+     "kappa_E": "625/1064",
+     "kappa_C": "125/203",
+     "kappa_E_decimal": "0.5874060150375939849624060150375939849624",
+     "kappa_C_decimal": "0.6157635467980295566502463054187192118227"
+    },
+    {
+     "m": "1/2",
+     "nu": "3/10",
+     "kappa_E": "4225/7196",
+     "kappa_C": "325/524",
+     "kappa_E_decimal": "0.5871317398554752640355753196220122290161",
+     "kappa_C_decimal": "0.6202290076335877862595419847328244274809"
+    },
+    {
+     "m": "1/2",
+     "nu": "49/100",
+     "kappa_E": "555025/947144",
+     "kappa_C": "3725/5867",
+     "kappa_E_decimal": "0.5859985387649607662615188397962717390386",
+     "kappa_C_decimal": "0.6349071075507073461735128685870121015851"
+    },
+    {
+     "m": "9/10",
+     "nu": "-1/2",
+     "kappa_E": "98283/195844",
+     "kappa_C": "98283/244444",
+     "kappa_E_decimal": "0.5018433038540879475500908886664896550316",
+     "kappa_C_decimal": "0.4020675492137258431378966143574806499648"
+    },
+    {
+     "m": "9/10",
+     "nu": "0",
+     "kappa_E": "196566/391327",
+     "kappa_C": "196566/391327",
+     "kappa_E_decimal": "0.5023062553823273119411642948224886092705",
+     "kappa_C_decimal": "0.5023062553823273119411642948224886092705"
+    },
+    {
+     "m": "9/10",
+     "nu": "1/4",
+     "kappa_E": "2457075/4891768",
+     "kappa_C": "491415/929537",
+     "kappa_E_decimal": "0.5022877209221696531806087287868108217724",
+     "kappa_C_decimal": "0.5286664221004650702446486799342038025383"
+    },
+    {
+     "m": "9/10",
+     "nu": "3/10",
+     "kappa_E": "16609827/33068756",
+     "kappa_C": "1277679/2397284",
+     "kappa_E_decimal": "0.5022815796276098199762942397954129269332",
+     "kappa_C_decimal": "0.5329693936972006654196999604552485229118"
+    },
+    {
+     "m": "9/10",
+     "nu": "49/100",
+     "kappa_E": "2181980883/4344358744",
+     "kappa_C": "14644167/26763617",
+     "kappa_E_decimal": "0.5022561467819702690740771844508612707699",
+     "kappa_C_decimal": "0.5471669617750097081422141110448561567743"
+    },
+    {
+     "m": "99/100",
+     "nu": "-1/2",
+     "kappa_E": "1176238803/2352398404",
+     "kappa_C": "1176238803/2940458404",
+     "kappa_E_decimal": "0.5000168343083096225396010768590880237649",
+     "kappa_C_decimal": "0.4000188546792311638495124925426423410137"
+    },
+    {
+     "m": "99/100",
+     "nu": "0",
+     "kappa_E": "2352477606/4704757207",
+     "kappa_C": "2352477606/4704757207",
+     "kappa_E_decimal": "0.5000210430625097292082218175982486995954",
+     "kappa_C_decimal": "0.5000210430625097292082218175982486995954"
+    },
+    {
+     "m": "99/100",
+     "nu": "1/4",
+     "kappa_E": "29405970075/58809484888",
+     "kappa_C": "5881194015/11173813217",
+     "kappa_E_decimal": "0.5000208747109813658057014607463160679538",
+     "kappa_C_decimal": "0.5263372405449078843323213928751320382842"
+    },
+    {
+     "m": "99/100",
+     "nu": "3/10",
+     "kappa_E": "198784357707/397552162196",
+     "kappa_C": "15291104439/28816682444",
+     "kappa_E_decimal": "0.5000208189258845471717661763196091722961",
+     "kappa_C_decimal": "0.5306337559403477597624041055626243552327"
+    },
+    {
+     "m": "99/100",
+     "nu": "49/100",
+     "kappa_E": "26113677665403/52225204917304",
+     "kappa_C": "175259581647/321688501697",
+     "kappa_E_decimal": "0.5000205878895583566615950643465595863377",
+     "kappa_C_decimal": "0.5448114580485623691601958401843636288121"
+    }
+   ]
+  },
+  "limits": {
+   "m_to_0": [
+    {
+     "nu": "0",
+     "kappa_E": "6/7",
+     "kappa_C": "6/7"
+    },
+    {
+     "nu": "1/4",
+     "kappa_E": "75/88",
+     "kappa_C": "15/17"
+    },
+    {
+     "nu": "3/10",
+     "kappa_E": "507/596",
+     "kappa_C": "39/44"
+    },
+    {
+     "nu": "49/100",
+     "kappa_E": "66603/78904",
+     "kappa_C": "447/497"
+    }
+   ],
+   "m_to_1": [
+    {
+     "nu": "0",
+     "kappa_E": "1/2",
+     "kappa_C": "1/2"
+    },
+    {
+     "nu": "1/4",
+     "kappa_E": "1/2",
+     "kappa_C": "10/19"
+    },
+    {
+     "nu": "3/10",
+     "kappa_E": "1/2",
+     "kappa_C": "26/49"
+    },
+    {
+     "nu": "49/100",
+     "kappa_E": "1/2",
+     "kappa_C": "298/547"
+    }
+   ],
+   "approach_to_1_at_nu_0.3": [
+    {
+     "m": "9/10",
+     "kappa_E_minus_half": "0.002281579627609819976294239795412926933205"
+    },
+    {
+     "m": "99/100",
+     "kappa_E_minus_half": "0.00002081892588454717176617631960917229612904"
+    },
+    {
+     "m": "999/1000",
+     "kappa_E_minus_half": "2.063206493822861302233806007843737687566e-7"
+    },
+    {
+     "m": "9999/10000",
+     "kappa_E_minus_half": "2.061350112269487158195004577435557988235e-9"
+    },
+    {
+     "m": "99999/100000",
+     "kappa_E_minus_half": "2.061164595797245065737282698638803909995e-11"
+    },
+    {
+     "m": "999999/1000000",
+     "kappa_E_minus_half": "2.061146045366256468307219714058317142077e-13"
+    }
+   ],
+   "formulas": {
+    "m_to_0": "kappa_E = 6(1+nu)^2/(7+14nu+8nu^2); kappa_C = 6(1+nu)/(7+6nu)",
+    "m_to_1": "kappa_E = 1/2; kappa_C = 2(1+nu)/(4+3nu)"
+   }
+  },
+  "hollow_m_0.9_nu_0.3": {
+   "factors": {
+    "kappa_E (selected)": {
+     "kappa": "16609827/33068756",
+     "kappa_decimal": "0.5022815796276098199762942397954129269332",
+     "S_B_L1_tip_v_m": {"exact": "125917189/6068975250000/pi", "decimal": "0.000006604193368422924236584750333792568466812"},
+     "ratio_to_selected": "1"
+    },
+    "kappa_C": {
+     "kappa": "1277679/2397284",
+     "kappa_decimal": "0.5329693936972006654196999604552485229118",
+     "S_B_L1_tip_v_m": {"exact": "507859/24570750000/pi", "decimal": "0.000006579226946162154051321147232591741919840"},
+     "ratio_to_selected": "0.9962196106522041244106870905448818429389"
+    },
+    "solid_circle_cowper": {
+     "kappa": "39/44",
+     "kappa_decimal": "0.8863636363636363636363636363636363636364",
+     "S_B_L1_tip_v_m": {"exact": "51991/2579250000/pi", "decimal": "0.000006416302914638542523570833181351473642752"},
+     "ratio_to_selected": "0.9715498254968191832808465887846336849213"
+    },
+    "solid_circle_energy": {
+     "kappa": "507/596",
+     "kappa_decimal": "0.8506711409395973154362416107382550335570",
+     "S_B_L1_tip_v_m": {"exact": "676969/33530250000/pi", "decimal": "0.000006426612546579717929936428890719733682398"},
+     "ratio_to_selected": "0.9731108991005191515194958807411115252898"
+    },
+    "five_sixths": {
+     "kappa": "5/6",
+     "kappa_decimal": "0.8333333333333333333333333333333333333333",
+     "S_B_L1_tip_v_m": {"exact": "521177/25792500000/pi", "decimal": "0.000006431939189749325223225320007226668036215"},
+     "ratio_to_selected": "0.9739174537957641351094646815852917428136"
+    },
+    "unit": {
+     "kappa": "1",
+     "kappa_decimal": "1",
+     "S_B_L1_tip_v_m": {"exact": "207059/10317000000/pi", "decimal": "0.000006388380994797859131330678135145769368711"},
+     "ratio_to_selected": "0.9673219178201317693011714230691728672564"
+    }
+   },
+   "note": "nu = 0 alone cannot separate kappa_E from kappa_C; m = 0.9 rejects a solid-circle substitution"
+  },
+  "unit_scaling": {
+   "systems": {
+    "m_N_Pa": {
+     "Ks": "606897525000000/8267189*pi",
+     "tip_v": "125917189/6068975250000/pi",
+     "tip_theta": "1/34390/pi",
+     "root_Mz": "-100",
+     "Ks_in_N": "606897525000000/8267189*pi",
+     "tip_v_in_m": "125917189/6068975250000/pi",
+     "root_Mz_in_N_m": "-100"
+    },
+    "mm_N_MPa": {
+     "Ks": "606897525000000/8267189*pi",
+     "tip_v": "125917189/6068975250/pi",
+     "tip_theta": "1/34390/pi",
+     "root_Mz": "-100000",
+     "Ks_in_N": "606897525000000/8267189*pi",
+     "tip_v_in_m": "125917189/6068975250000/pi",
+     "root_Mz_in_N_m": "-100"
+    },
+    "m_kN_kPa": {
+     "Ks": "606897525000/8267189*pi",
+     "tip_v": "125917189/6068975250000/pi",
+     "tip_theta": "1/34390/pi",
+     "root_Mz": "-1/10",
+     "Ks_in_N": "606897525000000/8267189*pi",
+     "tip_v_in_m": "125917189/6068975250000/pi",
+     "root_Mz_in_N_m": "-100"
+    }
+   },
+   "result": "after normalization the same physical Ks, displacement, rotation and reaction in every system, exactly"
+  },
+  "material_scaling": {
+   "S_B_L1_E_doubled": {
+    "tip_v_ratio": "1/2",
+    "reactions_unchanged": true
+   },
+   "S_E_counterexample_beam_E_doubled_k_fixed": {
+    "R_before": "-7/8",
+    "R_after": "-7/12",
+    "root_force_after": "-5/12",
+    "note": "a fixed spring does not scale with the beam: the reaction redistributes"
+   }
+  },
+  "nu_coherence": {
+   "nu=0.3": {
+    "G_Pa": "1000000000000/13",
+    "kappa_E": "16609827/33068756",
+    "Ks_N": "606897525000000/8267189*pi"
+   },
+   "nu=0.25": {
+    "G_Pa": "80000000000",
+    "kappa_E": "2457075/4891768",
+    "Ks_N": "46684425000000/611471*pi"
+   },
+   "statement": "changing nu changes both G and kappa_E; Ks = kappa_E G A moves by both"
+  }
+ },
+ "S-D": {
+  "slender_limit": {
+   "fixture": "EI = 1, L = 1, tip force 1, Ks = 12/phi",
+   "rows": [
+    {
+     "phi": "1",
+     "Ks_N": "12",
+     "compliance_ratio_timoshenko_over_eb": {"exact": "5/4", "decimal": "1.25"},
+     "equals_1_plus_phi_over_4": true,
+     "locked_linear_over_exact": {"exact": "1/2", "decimal": "0.5"},
+     "equals_phi_over_1_plus_phi": true,
+     "max_abs_K_T_minus_K_EB": "6"
+    },
+    {
+     "phi": "1/100",
+     "Ks_N": "1200",
+     "compliance_ratio_timoshenko_over_eb": {"exact": "401/400", "decimal": "1.0025"},
+     "equals_1_plus_phi_over_4": true,
+     "locked_linear_over_exact": {"exact": "1/101", "decimal": "0.009900990099009900990099009900990099009901"},
+     "equals_phi_over_1_plus_phi": true,
+     "max_abs_K_T_minus_K_EB": "0.1188118811881188118811881188118811881188"
+    },
+    {
+     "phi": "1/1000000",
+     "Ks_N": "12000000",
+     "compliance_ratio_timoshenko_over_eb": {"exact": "4000001/4000000", "decimal": "1.00000025"},
+     "equals_1_plus_phi_over_4": true,
+     "locked_linear_over_exact": {"exact": "1/1000001", "decimal": "9.999990000009999990000009999990000010000e-7"},
+     "equals_phi_over_1_plus_phi": true,
+     "max_abs_K_T_minus_K_EB": "0.00001199998800001199998800001199998800001200"
+    },
+    {
+     "phi": "1/1000000000000",
+     "Ks_N": "12000000000000",
+     "compliance_ratio_timoshenko_over_eb": {"exact": "4000000000001/4000000000000", "decimal": "1.00000000000025"},
+     "equals_1_plus_phi_over_4": true,
+     "locked_linear_over_exact": {"exact": "1/1000000000001", "decimal": "9.999999999990000000000009999999999990000e-13"},
+     "equals_phi_over_1_plus_phi": true,
+     "max_abs_K_T_minus_K_EB": "1.199999999998800000000001199999999998800e-11"
+    }
+   ],
+   "statement": "the exact element approaches Euler-Bernoulli smoothly (K_T - K_EB = O(phi)); the fully integrated linear element locks (ratio phi/(1+phi) -> 0)"
+  },
+  "subdivision_abstract": {
+   "fixture": "EI = 1, Ks = 12, L = 1 meshed into 1, 2, 4, 8 exact elements; the distal half is element-aligned for n >= 2 and a partial span for n = 1",
+   "cases": {
+    "tip_force": {
+     "1": {
+      "retained_nodes_v_theta": {
+       "1": ["5/12", "1/2"]
+      },
+      "root_Fy_Mz": ["-1", "-1"]
+     },
+     "2": {
+      "retained_nodes_v_theta": {
+       "1/2": ["7/48", "3/8"],
+       "1": ["5/12", "1/2"]
+      },
+      "root_Fy_Mz": ["-1", "-1"]
+     },
+     "4": {
+      "retained_nodes_v_theta": {
+       "1/2": ["7/48", "3/8"],
+       "1": ["5/12", "1/2"]
+      },
+      "root_Fy_Mz": ["-1", "-1"]
+     },
+     "8": {
+      "retained_nodes_v_theta": {
+       "1/2": ["7/48", "3/8"],
+       "1": ["5/12", "1/2"]
+      },
+      "root_Fy_Mz": ["-1", "-1"]
+     }
+    },
+    "tip_couple": {
+     "1": {
+      "retained_nodes_v_theta": {
+       "1": ["1/2", "1"]
+      },
+      "root_Fy_Mz": ["0", "-1"]
+     },
+     "2": {
+      "retained_nodes_v_theta": {
+       "1/2": ["1/8", "1/2"],
+       "1": ["1/2", "1"]
+      },
+      "root_Fy_Mz": ["0", "-1"]
+     },
+     "4": {
+      "retained_nodes_v_theta": {
+       "1/2": ["1/8", "1/2"],
+       "1": ["1/2", "1"]
+      },
+      "root_Fy_Mz": ["0", "-1"]
+     },
+     "8": {
+      "retained_nodes_v_theta": {
+       "1/2": ["1/8", "1/2"],
+       "1": ["1/2", "1"]
+      },
+      "root_Fy_Mz": ["0", "-1"]
+     }
+    },
+    "full_span_uniform": {
+     "1": {
+      "retained_nodes_v_theta": {
+       "1": ["1/6", "1/6"]
+      },
+      "root_Fy_Mz": ["-1", "-1/2"]
+     },
+     "2": {
+      "retained_nodes_v_theta": {
+       "1/2": ["29/384", "7/48"],
+       "1": ["1/6", "1/6"]
+      },
+      "root_Fy_Mz": ["-1", "-1/2"]
+     },
+     "4": {
+      "retained_nodes_v_theta": {
+       "1/2": ["29/384", "7/48"],
+       "1": ["1/6", "1/6"]
+      },
+      "root_Fy_Mz": ["-1", "-1/2"]
+     },
+     "8": {
+      "retained_nodes_v_theta": {
+       "1/2": ["29/384", "7/48"],
+       "1": ["1/6", "1/6"]
+      },
+      "root_Fy_Mz": ["-1", "-1/2"]
+     }
+    },
+    "distal_half_uniform": {
+     "1": {
+      "retained_nodes_v_theta": {
+       "1": ["53/384", "7/48"]
+      },
+      "root_Fy_Mz": ["-1/2", "-3/8"]
+     },
+     "2": {
+      "retained_nodes_v_theta": {
+       "1/2": ["11/192", "1/8"],
+       "1": ["53/384", "7/48"]
+      },
+      "root_Fy_Mz": ["-1/2", "-3/8"]
+     },
+     "4": {
+      "retained_nodes_v_theta": {
+       "1/2": ["11/192", "1/8"],
+       "1": ["53/384", "7/48"]
+      },
+      "root_Fy_Mz": ["-1/2", "-3/8"]
+     },
+     "8": {
+      "retained_nodes_v_theta": {
+       "1/2": ["11/192", "1/8"],
+       "1": ["53/384", "7/48"]
+      },
+      "root_Fy_Mz": ["-1/2", "-3/8"]
+     }
+    }
+   },
+   "result": "retained-node v and theta, root reactions identical for every n and equal to the continuous solution, exactly"
+  },
+  "subdivision_physical": {
+   "fixture": "S-B section, L = 2 m, tip force 100 N, n = 1, 2, 4, 8",
+   "tip_v_theta": {
+    "1": ["478867189/3034487625000/pi", "2/17195/pi"],
+    "2": ["478867189/3034487625000/pi", "2/17195/pi"],
+    "4": ["478867189/3034487625000/pi", "2/17195/pi"],
+    "8": ["478867189/3034487625000/pi", "2/17195/pi"]
+   },
+   "result": "identical for every n"
+  },
+  "rigid_modes": {
+   "fixture": "the abstract 12-DOF element (E 2, G 1, A 24, I 1/2, J 1, L 1) rotated by ROT (every axis skew), at phi = 1 and phi = 2",
+   "results": {
+    "phi=1": {
+     "rank": 6,
+     "nullity": 6,
+     "six_rigid_modes_in_null_space": true
+    },
+    "phi=2 ((2 - phi) = 0)": {
+     "rank": 6,
+     "nullity": 6,
+     "six_rigid_modes_in_null_space": true
+    }
+   },
+   "result": "exactly six zero-energy modes (the rigid modes); no extra mode, also where (2 - phi) = 0"
+  },
+  "pure_curvature_patch": {
+   "motion": "d = [0, 0, c L^2/2, c L], c = 1, EI = 1, L = 1",
+   "result": "V0 = 0, M = EI c, end actions [0, -EI c, 0, EI c], energy EI c^2 L/2, independent of Ks",
+   "by_Ks": {
+    "Ks=1": {
+     "end_actions": ["0", "-1", "0", "1"],
+     "energy": "1/2"
+    },
+    "Ks=12": {
+     "end_actions": ["0", "-1", "0", "1"],
+     "energy": "1/2"
+    },
+    "Ks=1000": {
+     "end_actions": ["0", "-1", "0", "1"],
+     "energy": "1/2"
+    },
+    "euler_bernoulli": {
+     "end_actions": ["0", "-1", "0", "1"],
+     "energy": "1/2"
+    }
+   }
+  },
+  "energy_identity": {
+   "fixture": "EI = 1, Ks = 12, L = 1",
+   "statement": "U = 1/2 d^T K d = int M^2/(2EI) + V^2/(2Ks) dx; loaded cases: 1/2 (F v + C theta + int w v dx) = U",
+   "cases": {
+    "homogeneous_d": {
+     "d": ["1/3", "-2/5", "3/7", "5/11"],
+     "half_dT_K_d": "134819/355740",
+     "int_M2_over_2EI_plus_V2_over_2Ks": "134819/355740"
+    },
+    "tip_force": {
+     "external_work_half": "5/24",
+     "internal_energy": "5/24"
+    },
+    "tip_couple": {
+     "external_work_half": "1/2",
+     "internal_energy": "1/2"
+    },
+    "full_span_uniform": {
+     "external_work_half": "7/180",
+     "internal_energy": "7/180"
+    },
+    "distal_half_uniform": {
+     "external_work_half": "71/2880",
+     "internal_energy": "71/2880"
+    }
+   }
+  }
+ },
+ "S-E": {
+  "timoshenko": {
+   "order": "[R, u(a), u(L), theta(L), root force, root moment]",
+   "values": ["-7/8", "7/96", "37/128", "25/64", "-1/8", "-9/16"],
+   "theta_a": "17/64",
+   "assembly_equals_flexibility_closed_form": true,
+   "energy_identity": "1/2 F u(L) = sum int (M^2/2EI + V^2/2Ks) + 1/2 k u(a)^2, exactly",
+   "work_half_F_uL": "37/256",
+   "beam_strain_energy": "173/1536",
+   "spring_energy_half_k_ua2": "49/1536",
+   "discriminator_euler_bernoulli_recovery": {
+    "root_member_end_actions_expected": ["-1/8", "-9/16", "1/8", "1/2"],
+    "root_member_end_actions_wrong": ["-5/8", "-11/16", "5/8", "3/8"]
+   }
+  },
+  "euler_bernoulli": {
+   "order": "[R, u(a), u(L), theta(L), root force, root moment]",
+   "values": ["-5/6", "5/72", "71/288", "19/48", "-1/6", "-7/12"],
+   "theta_a": "13/48",
+   "assembly_equals_flexibility_closed_form": true,
+   "energy_identity": "1/2 F u(L) = sum int (M^2/2EI + V^2/2Ks) + 1/2 k u(a)^2, exactly",
+   "work_half_F_uL": "71/576",
+   "beam_strain_energy": "163/1728",
+   "spring_energy_half_k_ua2": "25/864"
+  },
+  "fixture": "fixed-root cantilever EI = 1, L = 1, linear ground spring k = 12 at a = 1/2, tip force F = 1; Timoshenko Ks = 12; two exact elements assembled and solved here"
+ },
+ "crosscheck": [
+  {
+   "source": "T4-I8 rebuilt_reference_cases.json case 2 case:pressure-half",
+   "quantity": "every row (EB solve): value, unit, zero-scale tag",
+   "source_value": "274 rows",
+   "this_value": "all equal exactly (stress rows on both bases)",
+   "agrees": true
+  },
+  {
+   "source": "T4-I8 rebuilt_reference_cases.json case 2 case:combined",
+   "quantity": "every row (EB solve): value, unit, zero-scale tag",
+   "source_value": "274 rows",
+   "this_value": "all equal exactly (stress rows on both bases)",
+   "agrees": true
+  },
+  {
+   "source": "SOURCE_ODWALL_EXPECTATIONS ordinary",
+   "quantity": "ro, ri binary64 bits (design section 1 order D/2 - t)",
+   "source_value": "3faeb851eb851eb8, 3fa9999999999999",
+   "this_value": "3faeb851eb851eb8, 3fa9999999999999",
+   "agrees": true
+  },
+  {
+   "source": "SOURCE_ODWALL_EXPECTATIONS ordinary",
+   "quantity": "21 frozen values (euler_bernoulli solve)",
+   "source_value": "fixture decimals",
+   "this_value": "equal to 1e-70 relative",
+   "agrees": true
+  },
+  {
+   "source": "SOURCE_ODWALL_EXPECTATIONS ordinary",
+   "quantity": "21 frozen values (timoshenko_annulus_energy_v1 solve)",
+   "source_value": "fixture decimals",
+   "this_value": "equal to 1e-70 relative except tip_bending_y_m",
+   "agrees": true
+  },
+  {
+   "source": "CONTRACT section 5 S-A / reference_arithmetic.stdout",
+   "quantity": "K rows",
+   "source_value": "[[6,3,-6,3],[3,5/2,-3,1/2],[-6,-3,6,-3],[3,1/2,-3,5/2]]",
+   "this_value": "[['6', '3', '-6', '3'], ['3', '5/2', '-3', '1/2'], ['-6', '-3', '6', '-3'], ['3', '1/2', '-3', '5/2']]",
+   "agrees": true
+  },
+  {
+   "source": "CONTRACT section 5 S-A / reference_arithmetic.stdout",
+   "quantity": "tip force: v, theta, slope, root Fy, Mz",
+   "source_value": "5/12, 1/2, 7/12, -1, -1",
+   "this_value": "5/12, 1/2, 7/12, -1, -1",
+   "agrees": true
+  },
+  {
+   "source": "CONTRACT section 5 S-A / reference_arithmetic.stdout",
+   "quantity": "tip couple: v, theta",
+   "source_value": "1/2, 1",
+   "this_value": "1/2, 1",
+   "agrees": true
+  },
+  {
+   "source": "CONTRACT section 5 S-A / reference_arithmetic.stdout",
+   "quantity": "full span: v, theta, root Fy, Mz",
+   "source_value": "1/6, 1/6, -1, -1/2",
+   "this_value": "1/6, 1/6, -1, -1/2",
+   "agrees": true
+  },
+  {
+   "source": "CONTRACT section 5 S-A / reference_arithmetic.stdout",
+   "quantity": "distal half: v, theta, root Fy, Mz",
+   "source_value": "53/384, 7/48, -1/2, -3/8",
+   "this_value": "53/384, 7/48, -1/2, -3/8",
+   "agrees": true
+  },
+  {
+   "source": "CONTRACT section 5 S-A / reference_arithmetic.stdout",
+   "quantity": "distal-half feq",
+   "source_value": "[7/64, 13/384, 25/64, -19/384]",
+   "this_value": "['7/64', '13/384', '25/64', '-19/384']",
+   "agrees": true
+  },
+  {
+   "source": "CONTRACT section 5 S-A / reference_arithmetic.stdout",
+   "quantity": "stale EB vector and its tip v, theta",
+   "source_value": "[3/32, 5/192, 13/32, -11/192] -> 9/64 (54/384), 7/48",
+   "this_value": "['3/32', '5/192', '13/32', '-11/192'] -> 9/64, 7/48",
+   "agrees": true
+  },
+  {
+   "source": "CONTRACT section 5 S-A / reference_arithmetic.stdout",
+   "quantity": "fixed-guided force",
+   "source_value": "6",
+   "this_value": "6",
+   "agrees": true
+  },
+  {
+   "source": "CONTRACT section 5 S-E",
+   "quantity": "Timoshenko [R, u(a), u(L), theta(L), root F, root M]",
+   "source_value": "[-7/8, 7/96, 37/128, 25/64, -1/8, -9/16]",
+   "this_value": "['-7/8', '7/96', '37/128', '25/64', '-1/8', '-9/16']",
+   "agrees": true
+  },
+  {
+   "source": "CONTRACT section 5 S-E",
+   "quantity": "Euler-Bernoulli [R, u(L), theta(L), root F, root M]",
+   "source_value": "[-5/6, 71/288, 19/48, -1/6, -7/12]",
+   "this_value": "['-5/6', '71/288', '19/48', '-1/6', '-7/12']",
+   "agrees": true
+  },
+  {
+   "source": "reference_arithmetic.stdout S-E",
+   "quantity": "Euler-Bernoulli u(a)",
+   "source_value": "5/72",
+   "this_value": "5/72",
+   "agrees": true
+  },
+  {
+   "source": "reference_arithmetic.stdout S-B",
+   "quantity": "A/pi",
+   "source_value": "19/10000",
+   "this_value": "19/10000",
+   "agrees": true
+  },
+  {
+   "source": "reference_arithmetic.stdout S-B",
+   "quantity": "I/pi",
+   "source_value": "3439/400000000",
+   "this_value": "3439/400000000",
+   "agrees": true
+  },
+  {
+   "source": "reference_arithmetic.stdout S-B",
+   "quantity": "G",
+   "source_value": "1000000000000/13",
+   "this_value": "1000000000000/13",
+   "agrees": true
+  },
+  {
+   "source": "reference_arithmetic.stdout S-B",
+   "quantity": "kappa_C",
+   "source_value": "1277679/2397284",
+   "this_value": "1277679/2397284",
+   "agrees": true
+  },
+  {
+   "source": "reference_arithmetic.stdout S-B",
+   "quantity": "kappa_E",
+   "source_value": "16609827/33068756 (= 33.219654/66.137512)",
+   "this_value": "16609827/33068756",
+   "agrees": true
+  },
+  {
+   "source": "reference_arithmetic.stdout S-B",
+   "quantity": "EI/pi",
+   "source_value": "1719500",
+   "this_value": "1719500",
+   "agrees": true
+  },
+  {
+   "source": "reference_arithmetic.stdout S-B",
+   "quantity": "Ks/pi",
+   "source_value": "606897525000000/8267189",
+   "this_value": "606897525000000/8267189",
+   "agrees": true
+  },
+  {
+   "source": "reference_arithmetic.stdout S-B",
+   "quantity": "kappa_E/kappa_C",
+   "source_value": "7791173/8267189",
+   "this_value": "7791173/8267189",
+   "agrees": true
+  },
+  {
+   "source": "reference_arithmetic.stdout S-B",
+   "quantity": "shear compliance C relative to E",
+   "source_value": "-476016/8267189",
+   "this_value": "-476016/8267189",
+   "agrees": true
+  },
+  {
+   "source": "reference_arithmetic.stdout S-B",
+   "quantity": "L=1: phi, v_b, v_s, v_tip, theta, slope, v_s/v_b (F = 100 pi)",
+   "source_value": "('8267189/29412500', '1/51585', '8267189/6068975250000', '125917189/6068975250000', '1/34390', '184742189/6068975250000', '8267189/117650000')",
+   "this_value": "('8267189/29412500', '1/51585', '8267189/6068975250000', '125917189/6068975250000', '1/34390', '184742189/6068975250000', '8267189/117650000')",
+   "agrees": true
+  },
+  {
+   "source": "reference_arithmetic.stdout S-B realistic F = 100 N (binary64 printouts)",
+   "quantity": "L=1: v_b, v_s, v_tip, theta, slope (v_tip and theta from S-B-L1-TIMOSHENKO case:tip-fy rows)",
+   "source_value": "6.170590020040529e-06, 4.336033483823956e-07, 6.604193368422925e-06, 9.255885030060794e-06, 9.689488378443189e-06",
+   "this_value": "exact; worst relative difference 1.156e-16",
+   "agrees": true
+  },
+  {
+   "source": "reference_arithmetic.stdout S-B",
+   "quantity": "L=1: solid-Cowper ratio, locked linear ratio",
+   "source_value": "('122334823/125917189', '8267189/37679689')",
+   "this_value": "('122334823/125917189', '8267189/37679689')",
+   "agrees": true
+  },
+  {
+   "source": "reference_arithmetic.stdout S-B",
+   "quantity": "L=2: phi, v_b, v_s, v_tip, theta, slope, v_s/v_b (F = 100 pi)",
+   "source_value": "('8267189/117650000', '8/51585', '8267189/3034487625000', '478867189/3034487625000', '2/17195', '714167189/6068975250000', '8267189/470600000')",
+   "this_value": "('8267189/117650000', '8/51585', '8267189/3034487625000', '478867189/3034487625000', '2/17195', '714167189/6068975250000', '8267189/470600000')",
+   "agrees": true
+  },
+  {
+   "source": "reference_arithmetic.stdout S-B realistic F = 100 N (binary64 printouts)",
+   "quantity": "L=2: v_b, v_s, v_tip, theta, slope (v_tip and theta from S-B-L2-TIMOSHENKO case:tip-fy rows)",
+   "source_value": "4.936472016032423e-05, 8.672066967647911e-07, 5.023192685708902e-05, 3.702354012024318e-05, 3.745714346862557e-05",
+   "this_value": "exact; worst relative difference 2.152e-16",
+   "agrees": true
+  },
+  {
+   "source": "reference_arithmetic.stdout S-B",
+   "quantity": "L=2: solid-Cowper ratio, locked linear ratio",
+   "source_value": "('475284823/478867189', '8267189/125917189')",
+   "this_value": "('475284823/478867189', '8267189/125917189')",
+   "agrees": true
+  },
+  {
+   "source": "reference_arithmetic.stdout S-B",
+   "quantity": "L=10: phi, v_b, v_s, v_tip, theta, slope, v_s/v_b (F = 100 pi)",
+   "source_value": "('8267189/2941250000', '200/10317', '8267189/606897525000', '11773267189/606897525000', '10/3439', '17655767189/6068975250000', '8267189/11765000000')",
+   "this_value": "('8267189/2941250000', '200/10317', '8267189/606897525000', '11773267189/606897525000', '10/3439', '17655767189/6068975250000', '8267189/11765000000')",
+   "agrees": true
+  },
+  {
+   "source": "reference_arithmetic.stdout S-B realistic F = 100 N (binary64 printouts)",
+   "quantity": "L=10: v_b, v_s, v_tip, theta, slope (v_tip and theta from S-B-L10-TIMOSHENKO case:tip-fy rows)",
+   "source_value": "0.006170590020040529, 4.336033483823956e-06, 0.006174926053524352, 0.0009255885030060794, 0.0009260221063544617",
+   "this_value": "exact; worst relative difference 1.072e-16",
+   "agrees": true
+  },
+  {
+   "source": "reference_arithmetic.stdout S-B",
+   "quantity": "L=10: solid-Cowper ratio, locked linear ratio",
+   "source_value": "('11769684823/11773267189', '8267189/2949517189')",
+   "this_value": "('11769684823/11773267189', '8267189/2949517189')",
+   "agrees": true
+  },
+  {
+   "source": "reference_arithmetic.stdout S-D",
+   "quantity": "phi=1: 1 + phi/4, phi/(1 + phi)",
+   "source_value": "('5/4', '1/2')",
+   "this_value": "('5/4', '1/2')",
+   "agrees": true
+  },
+  {
+   "source": "reference_arithmetic.stdout S-D",
+   "quantity": "phi=1/100: 1 + phi/4, phi/(1 + phi)",
+   "source_value": "('401/400', '1/101')",
+   "this_value": "('401/400', '1/101')",
+   "agrees": true
+  },
+  {
+   "source": "reference_arithmetic.stdout S-D",
+   "quantity": "phi=1/1000000: 1 + phi/4, phi/(1 + phi)",
+   "source_value": "('4000001/4000000', '1/1000001')",
+   "this_value": "('4000001/4000000', '1/1000001')",
+   "agrees": true
+  },
+  {
+   "source": "reference_arithmetic.stdout S-D",
+   "quantity": "phi=1/1000000000000: 1 + phi/4, phi/(1 + phi)",
+   "source_value": "('4000000000001/4000000000000', '1/1000000000001')",
+   "this_value": "('4000000000001/4000000000000', '1/1000000000001')",
+   "agrees": true
+  },
+  {
+   "source": "reference_arithmetic.stdout S-E physical (binary64)",
+   "quantity": "[R, u(a), u(L), theta(L), root F, root M]",
+   "source_value": "['-14.877537081183531', '1.4877537081183531e-05', '4.7872337812249824e-05', '3.564649239270416e-05', '-85.12246291881647', '-185.12246291881647']",
+   "this_value": "exact; worst relative difference 1.264e-16",
+   "agrees": true
+  },
+  {
+   "source": "CONTRACT section 5 S-E physical (presentation decimals)",
+   "quantity": "[R, u(a), u(L), theta(L), root F, root M]",
+   "source_value": "['-14.8775370812', '1.48775370812e-5', '4.78723378122e-5', '3.56464923927e-5', '-85.1224629188', '-185.122462919']",
+   "this_value": "exact values rounded to the same significant digits",
+   "agrees": true
+  },
+  {
+   "source": "T4-RV4 REVIEW S-2",
+   "quantity": "uy(D) shear addition 'about -1.2e-5 m, or 0.3%'",
+   "source_value": "-1.2e-5 m; 0.3 %",
+   "this_value": "-0.00001170729040632468024763660209438489576181 m; 0.002974364",
+   "agrees": true
+  }
+ ]
+}

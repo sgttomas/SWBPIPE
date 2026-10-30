@@ -1,0 +1,66 @@
+{
+  "schema_version": "chirality.change.lane-setup-basis.v1",
+  "recorded_at_utc": "2026-09-09T05:38:51Z",
+  "identity": {
+    "task": "/root/implementation_change",
+    "role": "CHANGE",
+    "agent_type": 1,
+    "parent": "/root",
+    "model": "gpt-5.6-sol",
+    "reasoning": "high",
+    "delegated": false
+  },
+  "lane": {
+    "branch": "codex/piping-viewport-routing-20260909",
+    "base_ref": "origin/main",
+    "base_sha": "533332349a4607eee561d4ef90fb05a62d86519e",
+    "origin_main_sha_after_fetch": "533332349a4607eee561d4ef90fb05a62d86519e",
+    "host_paths_record": "projects/chirality-piping/execution/_Change/VIEWPORT_ROUTING_20260909/_run_records/HOST_PATHS_V1.json",
+    "collision_check": "branch absent and target path absent before creation",
+    "initial_status": "CLEAN"
+  },
+  "upstream_since_prior_merge": {
+    "prior_merge_sha": "533332349a4607eee561d4ef90fb05a62d86519e",
+    "current_origin_main_sha": "533332349a4607eee561d4ef90fb05a62d86519e",
+    "commit_count": 0,
+    "changed_paths": [],
+    "result": "NO_CHANGE"
+  },
+  "instruction_loader": {
+    "selected_plan": "projects/chirality-piping/loop/WORKPLAN_2026-07-18b_piping_loop.md",
+    "selected_tree_mode": "100644",
+    "selected_tree_type": "blob",
+    "selected_blob": "61dbbca25b9be766383aa1e5a743a021ce4d63d1",
+    "committed_bytes_sha256": "82806c43b654a51771f6c4b7eed60ccc620dab6a34cc9f6e5de7949abba9724b",
+    "result": "PASS"
+  },
+  "instruction_hashes": {
+    "AGENTS.md": "377a93c13dc8e727c2fb38b6ace5c0dd62833fff3ec50753ebe58d57937a9fc3",
+    "agents/AGENT_CHANGE.md": "bb2922c5761395687caf120097276806769ec38f4fee8935d9e6c7bbb8506a06",
+    "projects/chirality-piping/AGENTS.md": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b",
+    "projects/chirality-piping/loop/LOOP_INIT.md": "a1ad58ec66928331f25ab36b6829c431fefc6421aa1ec8ccf6ff1ac1ee23989e"
+  },
+  "preservation": {
+    "original_handoff_sha256": "ebbed866266cc961344151519b2792c6cfc5889eb18143a7809be69700c56035",
+    "prior_postpublication_return_sha256": "d09bd50fa272f7387cb265fdab0bf79297af916fecf554be2a7a47dd5a5ace48",
+    "copied_into_new_lane": false
+  },
+  "root_supplied_step0_baseline": {
+    "receipt_validator": "PASS through Receipt-137",
+    "decomposition": "0.12",
+    "scope_change": "SCA-009",
+    "dag": "DAG-010",
+    "stage": "R5",
+    "deliverables": 102,
+    "remaining": 126,
+    "selfcheck": "exit 0; INFO 14; NA 1; REVIEW 4; WARN 55",
+    "qualification": "reported by supervising root; not rerun during setup-only activation"
+  },
+  "limits": [
+    "setup only",
+    "no product source writes",
+    "no tests or builds",
+    "no delegation",
+    "no publication"
+  ]
+}

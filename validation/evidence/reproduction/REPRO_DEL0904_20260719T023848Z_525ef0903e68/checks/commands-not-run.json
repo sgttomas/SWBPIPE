@@ -1,0 +1,25 @@
+{
+  "schema": "chirality.commands_not_run/v1",
+  "status": "BLOCKED",
+  "reason": "Registered prerequisite preflight returned 20 errors; the sealed brief requires termination before reproduction or profile execution.",
+  "commands": [
+    {"id":"mktemp","category":"ephemeral_setup","argv":["mktemp","-d"],"actual_exit_code":null},
+    {"id":"local-clone","category":"checkout","argv":["git","clone","--no-hardlinks","--no-checkout","<REPO_ROOT>","<REPRO_CHECKOUT>"],"actual_exit_code":null},
+    {"id":"detached-checkout","category":"checkout","argv":["git","-C","<REPRO_CHECKOUT>","checkout","--detach","525ef0903e68b536ff5b22f985263ca737a67986"],"actual_exit_code":null},
+    {"id":"clean-checkout-proofs","category":"checkout","argv":["git status/diff checks in temporary checkout"],"actual_exit_code":null},
+    {"id":"fixture-generator","category":"reproduction","argv":["python3","validation/witness/inputs/generate_tp_runner_015_inputs.py"],"expected_exit_code":0,"actual_exit_code":null},
+    {"id":"fixture-byte-diff","category":"reproduction","argv":["git","diff","--exit-code","--","validation/witness/inputs/<three-fixtures>"],"expected_exit_code":0,"actual_exit_code":null},
+    {"id":"solve","category":"reproduction","argv":["cargo","run","--offline","--manifest-path","core/runner/headless/Cargo.toml","--bin","openpipestress-runner","--","solve","--input","validation/witness/inputs/tp_runner_015_final_cli_solve_input.json","--output","<temporary-output>/tp_runner_015_solve.json"],"expected_exit_code":0,"actual_exit_code":null},
+    {"id":"validate-input","category":"reproduction","argv":["cargo","run","--offline","--manifest-path","core/runner/headless/Cargo.toml","--bin","openpipestress-runner","--","validate-input","--input","validation/witness/inputs/tp_runner_015_final_cli_validation_blocking_input.json","--output","<temporary-output>/tp_runner_015_validation_blocking.json"],"expected_exit_code":1,"actual_exit_code":null},
+    {"id":"run-benchmark","category":"reproduction","argv":["cargo","run","--offline","--manifest-path","core/runner/headless/Cargo.toml","--bin","openpipestress-runner","--","run-benchmark","--input","validation/witness/inputs/tp_runner_015_final_cli_benchmark_stub_input.json","--output","<temporary-output>/tp_runner_015_benchmark_stub.json"],"expected_exit_code":1,"actual_exit_code":null},
+    {"id":"cargo-test","category":"review_test","argv":["cargo","test","--offline","--manifest-path","core/runner/headless/Cargo.toml"],"expected_exit_code":0,"actual_exit_code":null},
+    {"id":"contract-test","category":"review_test","argv":["python3","tests/test_headless_runner_contract.py"],"expected_exit_code":0,"actual_exit_code":null},
+    {"id":"post-run-clean-checkout-proofs","category":"checkout","argv":["git status/diff checks in temporary checkout"],"actual_exit_code":null},
+    {"id":"output-predicate-validation","category":"reproduction_validation","argv":["python3","standard JSON predicate checks over three runner outputs"],"actual_exit_code":null},
+    {"id":"piping-pytest","category":"registered_profile_check","argv":["python3","tools/software_workflow/run_registered_checks.py","software-workflow.json","--check","piping-pytest","--output","<bundle>/checks/piping-pytest.json"],"actual_exit_code":null},
+    {"id":"evidence-sweep","category":"registered_profile_check","argv":["python3","tools/software_workflow/run_registered_checks.py","software-workflow.json","--check","evidence-sweep","--output","<bundle>/checks/evidence-sweep.json"],"actual_exit_code":null},
+    {"id":"harness-pytest","category":"registered_profile_check","argv":["python3","tools/software_workflow/run_registered_checks.py","software-workflow.json","--check","harness-pytest","--output","<bundle>/checks/harness-pytest.json"],"actual_exit_code":null},
+    {"id":"harness-self-check","category":"registered_profile_check","argv":["python3","tools/software_workflow/run_registered_checks.py","software-workflow.json","--check","harness-self-check","--output","<bundle>/checks/harness-self-check.json"],"actual_exit_code":null}
+  ],
+  "fabricated_runtime_outputs_created": false
+}

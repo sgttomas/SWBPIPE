@@ -1,0 +1,31 @@
+diff --git a/projects/chirality-piping/execution/_Coordination/_DECISIONS/D-30_RULING_2026-07-04.md b/projects/chirality-piping/execution/_Coordination/_DECISIONS/D-30_RULING_2026-07-04.md
+--- a/projects/chirality-piping/execution/_Coordination/_DECISIONS/D-30_RULING_2026-07-04.md
++++ b/projects/chirality-piping/execution/_Coordination/_DECISIONS/D-30_RULING_2026-07-04.md
+@@ -3,7 +3,7 @@
+ **Status:** RULED
+ **Date:** 2026-07-04
+ **Decision ID:** D-30
+ **RuledBy:** Ryan Tufts (owner) (in-session, 2026-07-04)
+-**Ruling SHA:** TBD at publication commit
++**Ruling SHA:** 712df44816cf5253223b449fec0f10b48abd585c (publication commit, 2026-07-04; verified from Git history and backfilled 2026-07-27 under the D-31 publication-SHA precedent)
+ **Packet:** `execution/_Coordination/_DECISIONS/D-30_harness_contract_consumption.md`
+ **Consumption record:** `execution/_Coordination/_DECISIONS/D-30_HARNESS_CONTRACT_CONSUMPTION_2026-07-04.json`
+ **Structural precedent:** Same-directory decision transcription pattern used by D-21/D-28 ruling sections, with D-30 residual-work routing from DEC-041.
+diff --git a/projects/chirality-piping/execution/_Decomposition/_LATEST.md b/projects/chirality-piping/execution/_Decomposition/_LATEST.md
+--- a/projects/chirality-piping/execution/_Decomposition/_LATEST.md
++++ b/projects/chirality-piping/execution/_Decomposition/_LATEST.md
+@@ -1 +1 @@
+-Latest: execution/_Decomposition/SOFTWARE_DECOMP.md revision 0.6
++Latest: execution/_Decomposition/SOFTWARE_DECOMP.md revision 0.10
+diff --git a/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md b/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md
+--- a/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md
++++ b/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md
+@@ -3,7 +3,7 @@
+ package_role: working_surface
+ doc_kind: decomposition.software
+ status: current_basis
+-revision: 0.9
++revision: 0.10
+ created: 2026-04-30
+ refs:
+   - rel: depends_on

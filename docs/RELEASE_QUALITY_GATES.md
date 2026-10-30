@@ -1,0 +1,196 @@
+---
+doc_id: OPS-RELEASE-QUALITY-GATES
+doc_kind: governance.release_quality_gates
+status: draft
+created: 2026-05-04
+refs:
+  - rel: governed_by
+    to: OPS-CONTRACT
+  - rel: strategy
+    to: OPS-VALIDATION-STRATEGY
+  - rel: implements
+    to: DEL-09-05
+---
+
+# Release Quality Gates
+
+## 1. Purpose
+
+This checklist routes release-impacting changes through software-quality gates.
+It covers solver changes, rule-engine changes, GUI releases, report-template
+releases, and mixed changes.
+
+The checklist is not a professional engineering approval or a
+code-compliance ruling (PRD §21.2); it is not a legal opinion, release
+publication authorization, or CI implementation.
+It defines evidence that maintainers must collect or explicitly waive before a
+release label is considered.
+
+## 2. Gate Routing
+
+Route every release-impacting change to all applicable gate families.
+
+| Change type | Gate family | Examples |
+|---|---|---|
+| Solver mechanics, loads, stress recovery, units, diagnostics, result envelopes | Solver gate | element stiffness, support behavior, load-case algebra, stress output, warning semantics |
+| Rule schema, expression evaluation, completeness, rule-pack lifecycle | Rule-engine gate | required inputs, unit mismatch, sandbox behavior, checksum/provenance |
+| Model editing, solve workflow, warning display, results viewing | GUI gate | missing-data UX, nonlinear warning visibility, result state presentation |
+| Public report templates, export fields, notices, manifest data | Report-template gate | warning inclusion, reproducibility, protected-content lint, provenance disclosure |
+| Any change spanning families | Mixed gate | solver output changing reports, GUI displaying new rule states |
+
+Mixed changes run the union of applicable gates unless the human release
+authority records a waiver and risk disposition.
+
+## 3. Common Required Evidence
+
+Every gate record must include:
+
+- change identifier, scope, affected packages, and owner;
+- commands run and complete pass/fail results;
+- source artifacts and generated outputs reviewed;
+- benchmark source/provenance and redistribution status where examples are
+  public;
+- known limitations, open risks, and unresolved `TBD` items;
+- protected-content, private-data, and real-secret scan disposition;
+- human governance acceptance or waiver record;
+- statement that release evidence is software-quality evidence only.
+
+Commit-bound gate-outcome records for the five gate families are emitted by
+`tools/release/run_release_gate_records.py` into `validation/evidence/gates/`
+from already-governed sources only (`DEC-025` sweep artifacts, the
+`DEC-026`/`DEC-046` governed tolerance records, `DEC-058` scan records,
+`DEC-060` coverage telemetry). Each criterion is recorded as `pass`, `fail`,
+or `TBD`; criteria whose governed thresholds are `TBD` stay `TBD`, and
+human-gated items (acceptance, waivers, wording/provenance review) are
+recorded `TBD` as not evaluable by an agent. A record documents measured gate
+outcomes at a commit; it mints no release label or readiness status
+(PB-TBD-003 remains human-gated) and is not a release claim.
+
+## 4. Solver Gate
+
+Use this gate for changes to solver mechanics, load handling, stress recovery,
+units, diagnostics, or result envelopes.
+
+Required evidence:
+
+- applicable mechanics benchmarks pass;
+- applicable stress-recovery benchmarks pass;
+- applicable nonlinear support regression checks pass;
+- unit/schema checks pass where units or serialization are touched;
+- diagnostics and warning/result-envelope behavior are tested where affected;
+- tolerance source is named, or the tolerance remains `TBD`;
+- numerical warnings, non-convergence, and missing result states remain visible.
+
+Not permitted:
+
+- selecting final public release tolerances without a human governance record;
+- claiming code compliance, certification, or professional acceptance (PRD §21.2);
+- using protected standards examples or commercial benchmark files without
+  documented rights.
+
+## 5. Rule-Engine Gate
+
+Use this gate for rule schemas, expression evaluation, rule-pack completeness,
+rule-pack lifecycle, or rule-result presentation.
+
+Required evidence:
+
+- deterministic evaluator tests pass for invented examples;
+- required-input completeness checks pass;
+- unit-aware rule checks reject or flag incompatible units;
+- sandboxing and arbitrary-code-execution boundaries are verified where touched;
+- rule-pack checksum and provenance fields are preserved;
+- public fixtures use invented or redistributable data only;
+- pass/fail states are described as user-rule computations, not professional
+  authentication.
+
+## 6. GUI Gate
+
+Use this gate for releases that affect model editing, property inspection,
+missing-data behavior, solve execution UX, warning display, or result viewing.
+
+Required evidence:
+
+- missing solve data, missing rule-check data, and missing provenance are
+  visible to users;
+- warnings, assumptions, nonlinear uncertainty, and result-envelope states are
+  not collapsed into generic success states;
+- workflow tests or screenshots are recorded where practical;
+- private data stays local and is not sent to unapproved services;
+- GUI labels avoid compliance, certification, endorsement, and professional approval claims (PRD §21.2).
+
+Final browser/device matrix, accessibility threshold, and screenshot tooling are
+`TBD` until governed by a release-policy decision.
+
+## 7. Report-Template Gate
+
+Use this gate for public report templates, report notices, export fields,
+manifest output, and report-facing wording.
+
+Required evidence:
+
+- report reproducibility checks pass where the generator is touched;
+- audit manifest and checksum fields remain stable or changes are explained;
+- warnings, assumptions, limitations, and rule-pack provenance remain visible;
+- protected-content lint passes for public examples and templates;
+- professional-boundary notices are present;
+- private project data is not introduced into public fixtures or templates.
+
+## 8. Release Labels
+
+The minimum engineering-beta condition in `docs/VALIDATION_STRATEGY.md` remains
+the governing release-label floor: required mechanics benchmarks, stress
+benchmarks, rule-pack missing-input tests, report reproducibility tests, and
+protected-content lint must pass where applicable, and open risks must be listed
+and accepted by human maintainers.
+
+Release labels communicate software maturity and validation evidence. They do
+not approve a real piping calculation, authenticate a user rule pack, or replace
+professional review.
+
+## 9. Waivers And Risk Disposition
+
+A waiver must be explicit. It must name:
+
+- waived gate item;
+- reason the gate cannot or should not run;
+- affected release scope;
+- compensating evidence, if any;
+- known risk and limitation text;
+- human governance decision record.
+
+No waiver may authorize protected-content copying, private-data exposure, or
+certification, code-compliance, or professional-reliance claims (PRD §21.2).
+
+## 10. Open Decisions
+
+- TBD: final numerical tolerance policy for solver, stress, and nonlinear
+  benchmarks.
+- TBD: performance thresholds and permitted variance policy.
+- Ruled 2026-07-04: coverage tooling and telemetry seam (`DEC-060`, basis
+  `execution/_Coordination/_DECISIONS/D-04b_coverage_tooling_floor_promotion.md`
+  Option O-A) — Rust `cargo-llvm-cov` (host-installed), TS Vitest `--coverage`
+  with `@vitest/coverage-v8`, Python `coverage.py`; the opt-in
+  `tools/release/run_coverage_telemetry.py` emits commit-bound telemetry to
+  `validation/evidence/coverage/`, recorded and never blocking, with missing
+  tools recorded as `not_measured`. Numeric coverage floors remain
+  nonexistent (not `TBD`-numbered) until a later human ruling promotes
+  observed baselines — at least five clean-head telemetry artifacts spanning
+  at least two distinct commits per lane — tighten-only thereafter.
+- Development changes use the selected hosted checks aggregated by Root
+  `harness`; the DEC-025 blanket merge sweep is superseded. The local sweep
+  remains available for macOS release candidates whose authenticity record
+  consumes it. DEC-027 retains the sole maintainer and release authority.
+- Ruled 2026-07-04: release matrix, installer format, signing, and
+  attestation posture (`DEC-057`, basis
+  `execution/_Coordination/_DECISIONS/D-06_release_matrix_installers_publication.md`
+  Option O-A) — v0.1 ships macOS Apple Silicon (`aarch64-apple-darwin`)
+  only, as the Tauri `.app` zipped with a published SHA-256 checksum, with
+  the checksum + the commit-bound `DEC-025` sweep artifact + the
+  `docs/BUILD_AND_RELEASE.md` §8 release artifact record binding it to its
+  source revision. Signing re-decided at `D-06b` by the owner on 2026-10-23
+  ("Proceed with signing and notarizing."): v0.1 is Developer ID signed and
+  notarized with a stapled ticket (`docs/BUILD_AND_RELEASE.md` §6.1, §8.2).
+- TBD: exact automation owners, gate owners, waiver approver roles, and command
+  names.
+- TBD: release-note format for known limitations and accepted risks.

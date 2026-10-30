@@ -1,0 +1,15 @@
+K5 RV14-4 subnormal summary (gen_k5_vectors.py)
+source=RV14's tiny-coordinate corpus (tiny_case), seed=1403, plus rv14_h_tiny_free_x
+records=1501 committed_sample=301
+full_sha256=8a2aec8a1931cd89123d13f87d803ec52fd30d85e3c66e7b28f86e882cbcf43b
+sample_sha256=7e41bf9cdf8df85aa2efdcb0d0ed6fa1c346d3bafdfdc547cbe80d44e9410f46
+full expect D 559
+full expect M 127
+full expect N 587
+full expect P 146
+full expect U 82
+sample expect D 102
+sample expect M 25
+sample expect N 135
+sample expect P 24
+sample expect U 15

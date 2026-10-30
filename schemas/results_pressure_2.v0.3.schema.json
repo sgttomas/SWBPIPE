@@ -1,0 +1,2744 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openpipestress.org/schemas/results_pressure_2.v0.3.schema.json",
+  "title": "pressure-2 definitions of the derivative result export 0.3",
+  "description": "pressure-2 (3.0.0/exact_pressure_v3: straight pipe, realized arcs and objective connectors): ResultEnvelope's pressure-2 branch, result sets and contract evidence, referenced by results.v0.3.schema.yaml and stress_neutral_export.v0.3.schema.json and kept apart so that readers of the other semantics do not embed them.",
+  "$defs": {
+    "PressureResultEnvelope": {
+      "description": "ResultEnvelope's pressure-2 branch (results.v0.3.schema.yaml ResultEnvelope.oneOf).",
+      "required": [
+        "contract_evidence"
+      ],
+      "properties": {
+        "producer": {
+          "properties": {
+            "semantic_contract_id": {
+              "const": "openpipestress.result_semantics/0.3.0/pressure-2"
+            }
+          }
+        },
+        "semantic_contract_ref": {
+          "properties": {
+            "ref_id": {
+              "const": "openpipestress.result_semantics/0.3.0/pressure-2"
+            }
+          }
+        },
+        "formulation_basis": {
+          "properties": {
+            "profile_id": {
+              "const": "exact_pressure_v3"
+            }
+          }
+        },
+        "contract_evidence": {
+          "$ref": "#/$defs/PressureContractEvidence"
+        },
+        "result_sets": {
+          "items": {
+            "$ref": "#/$defs/PressureResultSet"
+          }
+        }
+      },
+      "not": {
+        "anyOf": [
+          {
+            "required": [
+              "source_block_recovery"
+            ]
+          }
+        ]
+      },
+      "allOf": [
+        {
+          "not": {
+            "required": [
+              "retained_precision"
+            ]
+          }
+        },
+        {
+          "properties": {
+            "row_disclosures": {
+              "items": {
+                "properties": {
+                  "reason_code": {
+                    "not": {
+                      "enum": [
+                        "retained_precision_absolute_verified",
+                        "retained_precision_not_covered"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "PressureRegion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "load_case_id",
+        "region_id",
+        "profile_mode",
+        "profile_version",
+        "pressure_basis",
+        "p_pa",
+        "external_pressure_increment_pa",
+        "member_pipe_ids",
+        "geometry",
+        "materials",
+        "terminals",
+        "applied_loads",
+        "approximation",
+        "provenance",
+        "geometry_representation_guard",
+        "result_ids"
+      ],
+      "properties": {
+        "load_case_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "region_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "profile_mode": {
+          "const": "exact_pressure_v3"
+        },
+        "profile_version": {
+          "const": "3.0.0"
+        },
+        "pressure_basis": {
+          "const": "internal_differential_zero_external_v1"
+        },
+        "p_pa": {
+          "type": "number"
+        },
+        "external_pressure_increment_pa": {
+          "const": 0
+        },
+        "member_pipe_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "geometry": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "The member's case section (results.v0.3 PhysicsGeometry, D-5) and its traversal flag; a realized arc adds its kind and end tangents and is always Euler-Bernoulli.",
+            "required": [
+              "pipe_id",
+              "geometry_basis",
+              "outside_diameter_m",
+              "ro_m",
+              "wall_thickness_m",
+              "mill_tolerance_m",
+              "corrosion_allowance_m",
+              "nominal_section",
+              "reduced_section",
+              "pressure_bore",
+              "beam_theory",
+              "traversal_forward"
+            ],
+            "properties": {
+              "pipe_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "geometry_basis": {
+                "const": "authored_od_wall_d5_sections_v1"
+              },
+              "outside_diameter_m": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "ro_m": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "wall_thickness_m": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "mill_tolerance_m": {
+                "type": "number",
+                "minimum": 0
+              },
+              "corrosion_allowance_m": {
+                "type": "number",
+                "minimum": 0
+              },
+              "nominal_section": {
+                "$ref": "results.v0.3.schema.yaml#/$defs/PhysicsSectionAnnulus"
+              },
+              "reduced_section": {
+                "$ref": "results.v0.3.schema.yaml#/$defs/PhysicsSectionAnnulus"
+              },
+              "pressure_bore": {
+                "$ref": "results.v0.3.schema.yaml#/$defs/PhysicsPressureBore"
+              },
+              "beam_theory": {
+                "$ref": "results.v0.3.schema.yaml#/$defs/PhysicsBeamTheory"
+              },
+              "traversal_forward": {
+                "type": "boolean"
+              },
+              "member_kind": {
+                "const": "realized_arc"
+              },
+              "arc_end_tangents_global": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "array",
+                  "minItems": 3,
+                  "maxItems": 3,
+                  "items": {
+                    "type": "number"
+                  }
+                }
+              },
+              "bend_radius_m": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              }
+            },
+            "dependentRequired": {
+              "member_kind": [
+                "arc_end_tangents_global",
+                "bend_radius_m"
+              ],
+              "arc_end_tangents_global": [
+                "member_kind"
+              ],
+              "bend_radius_m": [
+                "member_kind"
+              ]
+            },
+            "if": {
+              "required": [
+                "member_kind"
+              ]
+            },
+            "then": {
+              "properties": {
+                "beam_theory": {
+                  "const": {
+                    "model": "euler_bernoulli"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "materials": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "pipe_id",
+              "material_id",
+              "E_pa",
+              "nu",
+              "G_pa",
+              "constitutive_basis",
+              "thermal_consumed",
+              "alpha_per_kelvin",
+              "provenance",
+              "temperature_basis"
+            ],
+            "properties": {
+              "pipe_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "material_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "E_pa": {
+                "type": "number"
+              },
+              "nu": {
+                "type": "number"
+              },
+              "G_pa": {
+                "type": "number"
+              },
+              "constitutive_basis": {
+                "const": "homogeneous_isotropic_E_nu_v1"
+              },
+              "thermal_consumed": {
+                "type": "boolean"
+              },
+              "alpha_per_kelvin": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "provenance": {
+                "type": "string",
+                "minLength": 1
+              },
+              "temperature_basis": {
+                "anyOf": [
+                  {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "selection"
+                        ],
+                        "properties": {
+                          "selection": {
+                            "const": "base_material"
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "selection",
+                          "point_id"
+                        ],
+                        "properties": {
+                          "selection": {
+                            "const": "exact_point"
+                          },
+                          "point_id": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "selection",
+                          "temperature_value",
+                          "temperature_unit"
+                        ],
+                        "properties": {
+                          "selection": {
+                            "const": "interpolation"
+                          },
+                          "temperature_value": {
+                            "type": "number"
+                          },
+                          "temperature_unit": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "const": "resolved_member_state"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "terminals": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "node_ref",
+              "closure_transfer",
+              "provenance",
+              "closure_pressure_load_global_n",
+              "pipe_cap_transfer_global_n",
+              "remote_closure_excluded_from_pipe_solve",
+              "remote_closure_support_reaction_global_n"
+            ],
+            "properties": {
+              "node_ref": {
+                "type": "string",
+                "minLength": 1
+              },
+              "closure_transfer": {
+                "enum": [
+                  "transfers_to_wall",
+                  "separately_supported_or_compensated"
+                ]
+              },
+              "provenance": {
+                "type": "string",
+                "minLength": 1
+              },
+              "closure_pressure_load_global_n": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "pipe_cap_transfer_global_n": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "remote_closure_excluded_from_pipe_solve": {
+                "type": "boolean"
+              },
+              "remote_closure_support_reaction_global_n": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "type": "array",
+                    "minItems": 3,
+                    "maxItems": 3,
+                    "items": {
+                      "type": "number"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "applied_loads": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "pipe_id",
+                  "eigenload_pair_local_n",
+                  "local_x_global",
+                  "mathematical_cap_pair_local_n",
+                  "thermal_included"
+                ],
+                "properties": {
+                  "pipe_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "eigenload_pair_local_n": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "items": {
+                      "type": "number"
+                    }
+                  },
+                  "local_x_global": {
+                    "type": "array",
+                    "minItems": 3,
+                    "maxItems": 3,
+                    "items": {
+                      "type": "number"
+                    }
+                  },
+                  "mathematical_cap_pair_local_n": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "items": {
+                      "type": "number"
+                    }
+                  },
+                  "thermal_included": {
+                    "type": "boolean"
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "pipe_id",
+                  "bend_term",
+                  "arc_pressure_strain",
+                  "arc_pressure_strain_definition",
+                  "mathematical_cap_pair_local_n",
+                  "arc_end_tangents_global",
+                  "bend_cap_pair_removed_global_n",
+                  "thermal_included"
+                ],
+                "properties": {
+                  "pipe_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "bend_term": {
+                    "const": "K_b*u_free(eps_p)-c_b"
+                  },
+                  "arc_pressure_strain": {
+                    "type": "number"
+                  },
+                  "arc_pressure_strain_definition": {
+                    "const": "(1-2nu)pAi/(E As)"
+                  },
+                  "mathematical_cap_pair_local_n": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "items": {
+                      "type": "number"
+                    }
+                  },
+                  "arc_end_tangents_global": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "items": {
+                      "type": "array",
+                      "minItems": 3,
+                      "maxItems": 3,
+                      "items": {
+                        "type": "number"
+                      }
+                    }
+                  },
+                  "bend_cap_pair_removed_global_n": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "items": {
+                      "type": "array",
+                      "minItems": 3,
+                      "maxItems": 3,
+                      "items": {
+                        "type": "number"
+                      }
+                    }
+                  },
+                  "thermal_included": {
+                    "const": false
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "approximation": {
+          "enum": [
+            "long_straight_annulus_small_strain_v2",
+            "straight_lame_annulus_and_realized_arc_member_term_h2_small_strain_v3",
+            "straight_lame_annulus_and_joint_area_difference_h2_small_strain_v3",
+            "straight_lame_annulus_realized_arc_and_joint_area_difference_h2_small_strain_v3"
+          ]
+        },
+        "provenance": {
+          "type": "string",
+          "minLength": 1
+        },
+        "geometry_representation_guard": {
+          "const": {
+            "epsilon_multiplier": 64,
+            "meaning": "arithmetic_representation_only"
+          }
+        },
+        "result_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "tangency_tolerance_rad": {
+          "const": 0.001
+        },
+        "tangency_rule": {
+          "type": "string",
+          "minLength": 1
+        },
+        "bend_adjacent_junctions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "node_ref",
+              "pipe_in",
+              "pipe_out",
+              "t_in_global",
+              "t_out_global",
+              "theta_rad"
+            ],
+            "properties": {
+              "node_ref": {
+                "type": "string",
+                "minLength": 1
+              },
+              "pipe_in": {
+                "type": "string",
+                "minLength": 1
+              },
+              "pipe_out": {
+                "type": "string",
+                "minLength": 1
+              },
+              "t_in_global": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "t_out_global": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "theta_rad": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 0.001
+              }
+            }
+          }
+        },
+        "member_connector_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "joint_edges": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/JointPressureEdge"
+          }
+        },
+        "arc_stress_definitions": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "definition",
+              "statement"
+            ],
+            "properties": {
+              "definition": {
+                "enum": [
+                  "bore_load_transferred_toroidal_membrane_v1",
+                  "local_straight_annulus_on_arc"
+                ]
+              },
+              "statement": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      },
+      "description": "pressure-2 (3.0.0/exact_pressure_v3) pressure region. A region with a realized arc carries the arc keys and the arc approximation; its arc members carry member_kind and their end tangents and the bend-term applied-load record. Closed shape only; cross-binding (traversal, junction tangents, withheld rows, RHS terms) is executable reader validation.",
+      "oneOf": [
+        {
+          "properties": {
+            "approximation": {
+              "const": "long_straight_annulus_small_strain_v2"
+            }
+          },
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "tangency_tolerance_rad"
+                ]
+              },
+              {
+                "required": [
+                  "tangency_rule"
+                ]
+              },
+              {
+                "required": [
+                  "bend_adjacent_junctions"
+                ]
+              },
+              {
+                "required": [
+                  "arc_stress_definitions"
+                ]
+              },
+              {
+                "required": [
+                  "member_connector_ids"
+                ]
+              },
+              {
+                "required": [
+                  "joint_edges"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "properties": {
+            "approximation": {
+              "const": "straight_lame_annulus_and_realized_arc_member_term_h2_small_strain_v3"
+            }
+          },
+          "required": [
+            "tangency_tolerance_rad",
+            "tangency_rule",
+            "bend_adjacent_junctions",
+            "arc_stress_definitions"
+          ],
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "member_connector_ids"
+                ]
+              },
+              {
+                "required": [
+                  "joint_edges"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "properties": {
+            "approximation": {
+              "const": "straight_lame_annulus_and_joint_area_difference_h2_small_strain_v3"
+            }
+          },
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "tangency_tolerance_rad"
+                ]
+              },
+              {
+                "required": [
+                  "tangency_rule"
+                ]
+              },
+              {
+                "required": [
+                  "bend_adjacent_junctions"
+                ]
+              },
+              {
+                "required": [
+                  "arc_stress_definitions"
+                ]
+              }
+            ]
+          },
+          "required": [
+            "member_connector_ids",
+            "joint_edges"
+          ]
+        },
+        {
+          "properties": {
+            "approximation": {
+              "const": "straight_lame_annulus_realized_arc_and_joint_area_difference_h2_small_strain_v3"
+            }
+          },
+          "required": [
+            "tangency_tolerance_rad",
+            "tangency_rule",
+            "bend_adjacent_junctions",
+            "arc_stress_definitions",
+            "member_connector_ids",
+            "joint_edges"
+          ]
+        }
+      ]
+    },
+    "PressureResolvedPipeMaterial": {
+      "description": "pressure-2 resolved per-member material under the load/reference-state group: the same closed shape as load_reference_state.schema.json LoadReferencePipeMaterial, held locally so closed-shape checkers resolve it in this file.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pipe_id",
+        "material_id",
+        "E_pa",
+        "nu",
+        "G_pa",
+        "constitutive_basis",
+        "thermal_consumed",
+        "alpha_per_kelvin",
+        "provenance",
+        "material_selection_kind",
+        "resolved_eigenstrain"
+      ],
+      "properties": {
+        "pipe_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "material_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "E_pa": {
+          "type": "number"
+        },
+        "nu": {
+          "type": "number"
+        },
+        "G_pa": {
+          "type": "number"
+        },
+        "constitutive_basis": {
+          "const": "homogeneous_isotropic_E_nu_v1"
+        },
+        "thermal_consumed": {
+          "type": "boolean"
+        },
+        "alpha_per_kelvin": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "provenance": {
+          "type": "string",
+          "minLength": 1
+        },
+        "material_selection_kind": {
+          "enum": [
+            "explicit_base_properties",
+            "exact_point",
+            "temperature_interpolation"
+          ]
+        },
+        "resolved_eigenstrain": {
+          "type": "number"
+        }
+      }
+    },
+    "PressureExactCase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "load_case_id",
+        "profile_mode",
+        "material_basis",
+        "pipe_materials",
+        "pipe_sections",
+        "pipe_stress_extrema",
+        "stress_maximum_coverage",
+        "pressure_rhs_assembly"
+      ],
+      "properties": {
+        "load_case_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "profile_mode": {
+          "const": "exact_pressure_v3"
+        },
+        "material_basis": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pipe_materials": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "results.v0.3.schema.yaml#/$defs/PhysicsMaterial"
+              },
+              {
+                "$ref": "#/$defs/PressureResolvedPipeMaterial"
+              }
+            ]
+          }
+        },
+        "pipe_sections": {
+          "type": "array",
+          "items": {
+            "$ref": "results.v0.3.schema.yaml#/$defs/PhysicsGeometry"
+          }
+        },
+        "pipe_stress_extrema": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "pipe_id",
+                  "section_basis",
+                  "result_id",
+                  "station_fraction",
+                  "span_index",
+                  "local_fraction",
+                  "value_lower_pa",
+                  "value_upper_pa",
+                  "global_upper_bound_pa",
+                  "certified_gap_pa",
+                  "subdivisions",
+                  "approximation",
+                  "coefficient_basis",
+                  "enclosure_scope"
+                ],
+                "properties": {
+                  "pipe_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "section_basis": {
+                    "enum": [
+                      "nominal_section",
+                      "reduced_section"
+                    ]
+                  },
+                  "result_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "station_fraction": {
+                    "type": "number"
+                  },
+                  "span_index": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "local_fraction": {
+                    "type": "number"
+                  },
+                  "value_lower_pa": {
+                    "type": "number"
+                  },
+                  "value_upper_pa": {
+                    "type": "number"
+                  },
+                  "global_upper_bound_pa": {
+                    "type": "number"
+                  },
+                  "certified_gap_pa": {
+                    "type": "number"
+                  },
+                  "subdivisions": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 131072
+                  },
+                  "approximation": {
+                    "const": "piecewise_quadratic_straight_section_statics"
+                  },
+                  "coefficient_basis": {
+                    "const": "j_side_section_equilibrium_binary64_enclosures"
+                  },
+                  "enclosure_scope": {
+                    "const": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"
+                  },
+                  "component_body": {
+                    "$ref": "#/$defs/ComponentBodyRecord"
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "pipe_id",
+                  "section_basis",
+                  "result_id",
+                  "station_fraction",
+                  "span_index",
+                  "local_fraction",
+                  "value_lower_pa",
+                  "value_upper_pa",
+                  "global_upper_bound_pa",
+                  "certified_gap_pa",
+                  "subdivisions",
+                  "approximation",
+                  "coefficient_basis",
+                  "enclosure_scope"
+                ],
+                "properties": {
+                  "pipe_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "section_basis": {
+                    "enum": [
+                      "nominal_section",
+                      "reduced_section"
+                    ]
+                  },
+                  "result_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "station_fraction": {
+                    "type": "number"
+                  },
+                  "span_index": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "local_fraction": {
+                    "type": "number"
+                  },
+                  "value_lower_pa": {
+                    "type": "number"
+                  },
+                  "value_upper_pa": {
+                    "type": "number"
+                  },
+                  "global_upper_bound_pa": {
+                    "type": "number"
+                  },
+                  "certified_gap_pa": {
+                    "type": "number"
+                  },
+                  "subdivisions": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 131072
+                  },
+                  "approximation": {
+                    "const": "arc_closed_form_section_statics"
+                  },
+                  "coefficient_basis": {
+                    "const": "arc_end_j_force_and_uniform_intensities_binary64_enclosures"
+                  },
+                  "enclosure_scope": {
+                    "const": "published_binary64_end_j_force_and_uniform_intensity_operand_enclosures; solution error is separate"
+                  },
+                  "component_body": {
+                    "$ref": "#/$defs/ComponentBodyRecord"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "stress_maximum_coverage": {
+          "$ref": "results.v0.3.schema.yaml#/$defs/PhysicsStressMaximumCoverage"
+        },
+        "pressure_rhs_assembly": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "load_case_id",
+            "node_order",
+            "dof_order",
+            "dof_units",
+            "assembled_pressure_rhs_global",
+            "rounded_cap_rhs_global",
+            "rounded_poisson_rhs_global",
+            "groups",
+            "rounded_cap_and_eigen_ledgers_are_observational",
+            "cancellation_screen",
+            "screen_limit",
+            "screen_roundoff_multiplier",
+            "screen_is_not_numerical_qualification"
+          ],
+          "properties": {
+            "method": {
+              "const": "source_factor_grouped_pressure_rhs_v1"
+            },
+            "load_case_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "node_order": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "dof_order": {
+              "const": [
+                "Fx",
+                "Fy",
+                "Fz",
+                "Mx",
+                "My",
+                "Mz"
+              ]
+            },
+            "dof_units": {
+              "const": [
+                "N",
+                "N",
+                "N",
+                "N*m",
+                "N*m",
+                "N*m"
+              ]
+            },
+            "assembled_pressure_rhs_global": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            },
+            "rounded_cap_rhs_global": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            },
+            "rounded_poisson_rhs_global": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            },
+            "groups": {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "node_ref",
+                      "component",
+                      "pressure_bits",
+                      "source_inner_radius_hi_bits",
+                      "source_inner_radius_lo_bits",
+                      "direction_component_magnitude",
+                      "coefficient_sum",
+                      "assembled_force_n",
+                      "terms"
+                    ],
+                    "properties": {
+                      "node_ref": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "component": {
+                        "enum": [
+                          "Fx",
+                          "Fy",
+                          "Fz"
+                        ]
+                      },
+                      "pressure_bits": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{16}$"
+                      },
+                      "source_inner_radius_hi_bits": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{16}$"
+                      },
+                      "source_inner_radius_lo_bits": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{16}$"
+                      },
+                      "direction_component_magnitude": {
+                        "type": "number"
+                      },
+                      "coefficient_sum": {
+                        "type": "number"
+                      },
+                      "assembled_force_n": {
+                        "type": "number"
+                      },
+                      "terms": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "coefficient",
+                            "region_id",
+                            "pipe_id",
+                            "kind"
+                          ],
+                          "properties": {
+                            "coefficient": {
+                              "type": "number"
+                            },
+                            "region_id": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "pipe_id": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "kind": {
+                              "enum": [
+                                "bend_cap_removed",
+                                "kink_remainder",
+                                "poisson_eigen",
+                                "terminal_cap",
+                                "joint_face_cap"
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "node_ref",
+                      "component",
+                      "pressure_bits",
+                      "direction_component_magnitude",
+                      "coefficient_sum",
+                      "assembled_force_n",
+                      "terms",
+                      "effective_area_bits"
+                    ],
+                    "properties": {
+                      "node_ref": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "component": {
+                        "enum": [
+                          "Fx",
+                          "Fy",
+                          "Fz"
+                        ]
+                      },
+                      "pressure_bits": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{16}$"
+                      },
+                      "direction_component_magnitude": {
+                        "type": "number"
+                      },
+                      "coefficient_sum": {
+                        "type": "number"
+                      },
+                      "assembled_force_n": {
+                        "type": "number"
+                      },
+                      "terms": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "coefficient",
+                            "region_id",
+                            "connector_id",
+                            "kind"
+                          ],
+                          "properties": {
+                            "coefficient": {
+                              "type": "number"
+                            },
+                            "region_id": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "kind": {
+                              "const": "joint_effective_area"
+                            },
+                            "connector_id": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          }
+                        }
+                      },
+                      "effective_area_bits": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{16}$"
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "rounded_cap_and_eigen_ledgers_are_observational": {
+              "const": true
+            },
+            "cancellation_screen": {
+              "type": "number"
+            },
+            "screen_limit": {
+              "const": 1e-09
+            },
+            "screen_roundoff_multiplier": {
+              "const": 32
+            },
+            "screen_is_not_numerical_qualification": {
+              "const": true
+            }
+          }
+        },
+        "intensified_measures": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "pipe_id",
+                  "result_id",
+                  "location",
+                  "i_in_plane",
+                  "i_out_of_plane",
+                  "section_basis"
+                ],
+                "properties": {
+                  "pipe_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "result_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "location": {
+                    "enum": [
+                      "end_i",
+                      "end_j",
+                      "quarter_1",
+                      "midspan",
+                      "quarter_3"
+                    ]
+                  },
+                  "i_in_plane": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "i_out_of_plane": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "section_basis": {
+                    "enum": [
+                      "nominal_section",
+                      "reduced_section"
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "pipe_id",
+                  "result_id",
+                  "station_fraction",
+                  "span_index",
+                  "local_fraction",
+                  "value_lower_pa",
+                  "value_upper_pa",
+                  "global_upper_bound_pa",
+                  "certified_gap_pa",
+                  "subdivisions",
+                  "approximation",
+                  "coefficient_basis",
+                  "enclosure_scope",
+                  "i_in_plane",
+                  "i_out_of_plane",
+                  "section_basis"
+                ],
+                "properties": {
+                  "pipe_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "result_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "station_fraction": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "span_index": {
+                    "const": 0
+                  },
+                  "local_fraction": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "value_lower_pa": {
+                    "type": "number"
+                  },
+                  "value_upper_pa": {
+                    "type": "number"
+                  },
+                  "global_upper_bound_pa": {
+                    "type": "number"
+                  },
+                  "certified_gap_pa": {
+                    "type": "number"
+                  },
+                  "subdivisions": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 131072
+                  },
+                  "approximation": {
+                    "const": "arc_closed_form_directional_intensified"
+                  },
+                  "coefficient_basis": {
+                    "const": "arc_end_j_force_and_uniform_intensities_binary64_enclosures"
+                  },
+                  "enclosure_scope": {
+                    "const": "published_binary64_end_j_force_and_uniform_intensity_operand_enclosures; solution error is separate"
+                  },
+                  "i_in_plane": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "i_out_of_plane": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "section_basis": {
+                    "enum": [
+                      "nominal_section",
+                      "reduced_section"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "equivalent_static": {
+          "$ref": "#/$defs/PressureExactEquivalentStatic"
+        }
+      },
+      "description": "pressure-2 exact case: the base common E/nu materials, or resolved per-member materials under the load/reference-state group. The RHS terms add the bend's removed caps and the junction remainder."
+    },
+    "PressureExactEquivalentStatic": {
+      "description": "W-16 slice c (DEL-05-01 Design exact-equivalent-static.md section 2): present exactly on a case with equivalent_static generation; the route's D-5 mass method and the ids of the generated primitives, in generation order.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mass_method",
+        "generated_load_ids"
+      ],
+      "properties": {
+        "mass_method": {
+          "const": "source_od_nominal_wall_pressure_bore_areas/v1"
+        },
+        "generated_load_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "PressureExactCombination": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "W-16 slice b (DEL-05-02 Design exact-combinations.md section 6): one model-authored load combination on the exact route, derived from case results: its complete expression, its operands' standing and numerical findings, the gate outcome, the published rows with their operand source rows, the pressure_free_operand_recovery witnesses, the missing sources and the withheld rows with reasons, and the source-recovery exclusion. Closed shape only; the combination pass of the reader re-derives every member.",
+      "required": [
+        "combination_id",
+        "basis",
+        "expression",
+        "operands",
+        "gate",
+        "rows",
+        "recoveries",
+        "missing_sources",
+        "withheld",
+        "standing",
+        "source_recovery"
+      ],
+      "properties": {
+        "combination_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "basis": {
+          "enum": [
+            "mechanics",
+            "result_state_subtraction",
+            "range_envelope"
+          ]
+        },
+        "expression": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "terms"
+              ],
+              "properties": {
+                "terms": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "load_case_id",
+                      "factor"
+                    ],
+                    "properties": {
+                      "load_case_id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "factor": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "minuend_id",
+                "subtrahend_id"
+              ],
+              "properties": {
+                "minuend_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "subtrahend_id": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "operand_ids",
+                "mode"
+              ],
+              "properties": {
+                "operand_ids": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "mode": {
+                  "enum": [
+                    "min",
+                    "max",
+                    "min_abs",
+                    "max_abs"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "operands": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "load_case_id",
+              "modulus_basis_ref",
+              "modulus_basis_temperature",
+              "numerical_quality"
+            ],
+            "properties": {
+              "load_case_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "modulus_basis_ref": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "modulus_basis_temperature": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "value",
+                      "unit"
+                    ],
+                    "properties": {
+                      "value": {
+                        "type": "number"
+                      },
+                      "unit": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "numerical_quality": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "basis_ref",
+                  "structural_status",
+                  "solve_quality",
+                  "model_matrix_fidelity",
+                  "accuracy_evidence",
+                  "evidence_refs"
+                ],
+                "properties": {
+                  "basis_ref": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "ref_type",
+                      "ref_id"
+                    ],
+                    "properties": {
+                      "ref_type": {
+                        "const": "load_case"
+                      },
+                      "ref_id": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  },
+                  "structural_status": {
+                    "enum": [
+                      "passive_model_basis",
+                      "physical_mechanism_witnessed",
+                      "negative_energy_witnessed",
+                      "numerically_unresolved"
+                    ]
+                  },
+                  "solve_quality": {
+                    "enum": [
+                      "not_assessed",
+                      "checks_passed",
+                      "sensitive",
+                      "unresolved",
+                      "failed"
+                    ]
+                  },
+                  "model_matrix_fidelity": {
+                    "enum": [
+                      "represented_equations_retained",
+                      "assembly_loss_detected",
+                      "assembly_uncertainty",
+                      "not_assessed"
+                    ]
+                  },
+                  "accuracy_evidence": {
+                    "enum": [
+                      "not_claimed",
+                      "reference_verified",
+                      "unresolved"
+                    ]
+                  },
+                  "evidence_refs": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "gate": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "withheld",
+                "reason"
+              ],
+              "properties": {
+                "withheld": {
+                  "const": false
+                },
+                "reason": {
+                  "type": "null"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "withheld",
+                "reason"
+              ],
+              "properties": {
+                "withheld": {
+                  "const": true
+                },
+                "reason": {
+                  "enum": [
+                    "COMBINATION_MODULUS_BASIS_MIXED",
+                    "COMBINATION_RESOLVED_STIFFNESS_MIXED",
+                    "COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "result_id",
+              "sources"
+            ],
+            "properties": {
+              "result_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "sources": {
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "load_case_id",
+                        "result_id"
+                      ],
+                      "properties": {
+                        "load_case_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "result_id": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "load_case_id",
+                        "recovery_index"
+                      ],
+                      "properties": {
+                        "load_case_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "recovery_index": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "recoveries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "load_case_id",
+              "pipe_id",
+              "kind",
+              "component",
+              "location",
+              "section_basis",
+              "method",
+              "source_result_id",
+              "sign",
+              "area_m2",
+              "rounding",
+              "value"
+            ],
+            "properties": {
+              "load_case_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "pipe_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "kind": {
+                "enum": [
+                  "pipe_wall_endpoint_action_v2",
+                  "pipe_wall_axial_force_v2",
+                  "pipe_effective_axial_force_v2",
+                  "pipe_axial_membrane_stress_v2",
+                  "pipe_lame_radial_stress_v2",
+                  "pipe_lame_hoop_stress_v2",
+                  "pipe_toroidal_membrane_hoop_stress_v1",
+                  "pipe_toroidal_radial_surface_stress_v1"
+                ]
+              },
+              "component": {
+                "type": "string",
+                "minLength": 1
+              },
+              "location": {
+                "type": "string",
+                "minLength": 1
+              },
+              "section_basis": {
+                "oneOf": [
+                  {
+                    "enum": [
+                      "nominal_section",
+                      "reduced_section"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "method": {
+                "const": "pressure_free_operand_recovery"
+              },
+              "source_result_id": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "sign": {
+                "enum": [
+                  "negated",
+                  "unchanged",
+                  "none"
+                ]
+              },
+              "area_m2": {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "rounding": {
+                "enum": [
+                  "none",
+                  "one_binary64_division"
+                ]
+              },
+              "value": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "missing_sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "source_result_id",
+              "missing_load_case_ids"
+            ],
+            "properties": {
+              "source_result_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "missing_load_case_ids": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          }
+        },
+        "withheld": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "reason"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "reason": {
+                "enum": [
+                  "tie-rod row",
+                  "row missing key fields",
+                  "dimensionless row",
+                  "load-case algebra refused",
+                  "source support row missing in an operand case"
+                ]
+              }
+            }
+          }
+        },
+        "standing": {
+          "const": "derived_from_case_results"
+        },
+        "source_recovery": {
+          "const": "excluded: a document with a load combination attempts no retained-source recovery for any of its cases, primitive cases included; every case publishes ordinary structural recovery"
+        }
+      }
+    },
+    "PressureConnectorRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "One objective connector record (T4-U3, JR section 7). Closed shape only; row binding is executable reader validation.",
+      "required": [
+        "component_id",
+        "topology",
+        "replaced_pipe_id",
+        "node_i",
+        "node_j",
+        "motion_basis",
+        "connector_axes_global",
+        "end_i_node_axes_global",
+        "end_j_node_axes_global",
+        "end_i_offset_local_m",
+        "end_j_offset_local_m",
+        "q_ref",
+        "reference_state",
+        "work_matrix",
+        "calibration",
+        "hardware",
+        "pressure_model",
+        "temperature_applicability",
+        "installed_reference_temperature_k",
+        "provenance"
+      ],
+      "properties": {
+        "component_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "topology": {
+          "const": "replaces_span"
+        },
+        "replaced_pipe_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "node_i": {
+          "type": "string",
+          "minLength": 1
+        },
+        "node_j": {
+          "type": "string",
+          "minLength": 1
+        },
+        "motion_basis": {
+          "const": "symmetric_midpoint_small_rotation_v1"
+        },
+        "connector_axes_global": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "end_i_node_axes_global": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "end_j_node_axes_global": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "end_i_offset_local_m": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "number"
+          }
+        },
+        "end_j_offset_local_m": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "number"
+          }
+        },
+        "q_ref": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 6,
+          "items": {
+            "type": "number"
+          }
+        },
+        "reference_state": {
+          "enum": [
+            "stress_free",
+            "prestressed"
+          ]
+        },
+        "work_matrix": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "representation",
+            "coordinate_order",
+            "translation_scale_m",
+            "rotation_scale_rad",
+            "coefficient_unit",
+            "upper_triangle",
+            "source_reference"
+          ],
+          "properties": {
+            "representation": {
+              "const": "scaled_work_coefficients_v1"
+            },
+            "coordinate_order": {
+              "const": [
+                "tx",
+                "ty",
+                "tz",
+                "rx",
+                "ry",
+                "rz"
+              ]
+            },
+            "translation_scale_m": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "rotation_scale_rad": {
+              "const": 1
+            },
+            "coefficient_unit": {
+              "const": "N*m"
+            },
+            "upper_triangle": {
+              "type": "array",
+              "minItems": 21,
+              "maxItems": 21,
+              "items": {
+                "type": "number"
+              }
+            },
+            "source_reference": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "calibration": {
+          "const": "constant_structural_elasticity_v1"
+        },
+        "hardware": {
+          "enum": [
+            "untied",
+            "explicit_axial_rods_v1"
+          ]
+        },
+        "pressure_model": {
+          "enum": [
+            "unpressurized",
+            "constant_effective_area_reference_v1"
+          ]
+        },
+        "temperature_applicability": {
+          "const": "fixed_installed_parameters_v1"
+        },
+        "installed_reference_temperature_k": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "provenance": {
+          "type": "string",
+          "minLength": 1
+        },
+        "effective_area_m2": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "pressure_basis": {
+          "const": "internal_differential_zero_external_v1"
+        },
+        "pressure_source_reference": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tie_rods": {
+          "type": "array",
+          "minItems": 1,
+          "description": "T4-U5b (DEL-04-07 Design u4b-u5b-implementation.md section 3.3): one entry per explicit elastic tie rod, in authored order. Closed shape only; uniqueness, the axial share and row binding are executable reader validation.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "law",
+              "offset_global_m",
+              "stiffness_n_per_m",
+              "reference_extension_m",
+              "length_m",
+              "direction_global",
+              "axial_share",
+              "source_reference"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "law": {
+                "const": "bilateral_linear"
+              },
+              "offset_global_m": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "array",
+                  "minItems": 3,
+                  "maxItems": 3,
+                  "items": {
+                    "type": "number"
+                  }
+                }
+              },
+              "stiffness_n_per_m": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "reference_extension_m": {
+                "type": "number"
+              },
+              "length_m": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "direction_global": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "axial_share": {
+                "type": "number"
+              },
+              "source_reference": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "pressure_model": {
+              "const": "unpressurized"
+            }
+          },
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "effective_area_m2"
+                ]
+              },
+              {
+                "required": [
+                  "pressure_basis"
+                ]
+              },
+              {
+                "required": [
+                  "pressure_source_reference"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "properties": {
+            "pressure_model": {
+              "const": "constant_effective_area_reference_v1"
+            }
+          },
+          "required": [
+            "effective_area_m2",
+            "pressure_basis",
+            "pressure_source_reference"
+          ]
+        }
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "hardware": {
+                "const": "explicit_axial_rods_v1"
+              }
+            },
+            "required": [
+              "hardware"
+            ]
+          },
+          "then": {
+            "required": [
+              "tie_rods"
+            ]
+          },
+          "else": {
+            "not": {
+              "required": [
+                "tie_rods"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "PressureContractEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Raw producer contract_evidence for pressure-2 (3.0.0/exact_pressure_v3): pressure regions including realized arcs, connector records and exact cases; a model carrying the load/reference-state group also publishes load_reference_states (load_reference_state.schema.json LoadReferenceStateRecord), and a model with a load combination publishes exact_combinations (W-16 slice b; omitted otherwise). Carriers preserve it verbatim. Closed shape only; cross-binding is executable reader validation.",
+      "required": [
+        "pressure",
+        "connector",
+        "exact_cases"
+      ],
+      "properties": {
+        "pressure": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PressureRegion"
+          }
+        },
+        "connector": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PressureConnectorRecord"
+          }
+        },
+        "exact_cases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PressureExactCase"
+          }
+        },
+        "load_reference_states": {
+          "type": "array",
+          "items": {
+            "$ref": "load_reference_state.schema.json#/$defs/LoadReferenceStateRecord"
+          }
+        },
+        "exact_combinations": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/PressureExactCombination"
+          }
+        }
+      }
+    },
+    "PressureResultMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Canonical metadata under the pressure-2 vocabulary: the exact straight-member vocabulary plus the objective connector rows' components, frame (connector_axes_q), location (connector_local) and stable basis; other identities keep ResultMetadata.",
+      "required": [
+        "component",
+        "coordinate_system",
+        "location",
+        "basis",
+        "sign_convention"
+      ],
+      "properties": {
+        "component": {
+          "type": "string",
+          "enum": [
+            "axial_force",
+            "shear_force_y",
+            "shear_force_z",
+            "torsional_moment",
+            "bending_moment_y",
+            "bending_moment_z",
+            "nodal_force_x",
+            "nodal_force_y",
+            "nodal_force_z",
+            "nodal_moment_x",
+            "nodal_moment_y",
+            "nodal_moment_z",
+            "axial_normal_stress",
+            "bending_normal_stress_y",
+            "bending_normal_stress_z",
+            "torsional_shear_stress",
+            "pressure_hoop_stress",
+            "pressure_longitudinal_stress",
+            "section_area",
+            "section_modulus_y",
+            "section_modulus_z",
+            "torsion_constant",
+            "torsion_radius",
+            "TBD",
+            "nodal_displacement_x",
+            "nodal_displacement_y",
+            "nodal_displacement_z",
+            "nodal_rotation_x",
+            "nodal_rotation_y",
+            "nodal_rotation_z",
+            "Fx",
+            "Fy",
+            "Fz",
+            "Mx",
+            "My",
+            "Mz",
+            "force_magnitude",
+            "moment_magnitude",
+            "maximum_absolute_normal_stress",
+            "wall_axial_end_action",
+            "wall_axial_force",
+            "effective_axial_force",
+            "axial_membrane_stress",
+            "lame_inner_radial_stress",
+            "lame_outer_radial_stress",
+            "lame_inner_hoop_stress",
+            "lame_outer_hoop_stress",
+            "qt_x",
+            "qt_y",
+            "qt_z",
+            "qr_x",
+            "qr_y",
+            "qr_z",
+            "gt_x",
+            "gt_y",
+            "gt_z",
+            "gr_x",
+            "gr_y",
+            "gr_z",
+            "pe_x",
+            "s_x",
+            "t_r",
+            "sigma_plus",
+            "sigma_minus",
+            "tau_v_max",
+            "intensified_bending",
+            "intensified_bending_maximum",
+            "toroidal_intrados_hoop_stress",
+            "toroidal_crown_hoop_stress",
+            "toroidal_extrados_hoop_stress",
+            "toroidal_inner_radial_stress",
+            "toroidal_outer_radial_stress"
+          ]
+        },
+        "coordinate_system": {
+          "type": "string",
+          "enum": [
+            "global",
+            "element_local",
+            "pipe_section",
+            "TBD",
+            "connector_axes_q"
+          ]
+        },
+        "location": {
+          "type": "string",
+          "enum": [
+            "end_i",
+            "end_j",
+            "node",
+            "quarter_1",
+            "midspan",
+            "quarter_3",
+            "summary",
+            "TBD",
+            "governing_station",
+            "connector_local",
+            "tie_rod"
+          ]
+        },
+        "basis": {
+          "type": "string",
+          "enum": [
+            "recovered_from_local_element_stiffness",
+            "assembled_solver_load_vector",
+            "solved_from_global_linear_system",
+            "recovered_from_open_mechanics_stress_components",
+            "interpolated_from_endpoint_resultants",
+            "derived_from_user_entered_section_geometry",
+            "explicit_user_linear_combination",
+            "explicit_user_result_state_subtraction",
+            "explicit_user_range_envelope",
+            "stress_recovery_summary",
+            "rule_pack_evaluation",
+            "TBD",
+            "recovered_from_assembled_support_law",
+            "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
+            "recovered_from_local_element_stiffness; section_basis=nominal_section",
+            "recovered_from_local_element_stiffness; section_basis=reduced_section",
+            "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
+            "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+            "recovered_from_tie_rod_extension_v1",
+            "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+            "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+            "saint_venant_annulus_flexure_v1; section_basis=nominal_section",
+            "saint_venant_annulus_flexure_v1; section_basis=reduced_section",
+            "local_straight_annulus_on_arc; section_basis=nominal_section",
+            "local_straight_annulus_on_arc; section_basis=reduced_section",
+            "user_directional_sif_times_tangent_frame_bending_stress_v1; section_basis=nominal_section",
+            "user_directional_sif_times_tangent_frame_bending_stress_v1; section_basis=reduced_section",
+            "bore_load_transferred_toroidal_membrane_v1; section_basis=nominal_section",
+            "bore_load_transferred_toroidal_membrane_v1; section_basis=reduced_section",
+            "rotated_from_published_element_local_end_actions_v1",
+            "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action"
+          ]
+        },
+        "sign_convention": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "PressureQuantityResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "family": {
+                "enum": [
+                  "force",
+                  "moment",
+                  "section_property"
+                ]
+              }
+            },
+            "required": [
+              "family"
+            ]
+          },
+          "then": {
+            "required": [
+              "metadata"
+            ]
+          }
+        }
+      ],
+      "required": [
+        "result_id",
+        "family",
+        "object_ref",
+        "basis_ref",
+        "magnitude",
+        "unit",
+        "dimension",
+        "provenance",
+        "source_kind",
+        "source_row_index",
+        "source_annotation_ref"
+      ],
+      "properties": {
+        "result_id": {
+          "$ref": "results.v0.3.schema.yaml#/$defs/Id"
+        },
+        "family": {
+          "$ref": "results.v0.3.schema.yaml#/$defs/ResultFamily"
+        },
+        "object_ref": {
+          "$ref": "results.v0.3.schema.yaml#/$defs/Reference"
+        },
+        "basis_ref": {
+          "$ref": "results.v0.3.schema.yaml#/$defs/Reference"
+        },
+        "station_ref": {
+          "$ref": "results.v0.3.schema.yaml#/$defs/Reference"
+        },
+        "magnitude": {
+          "type": "number"
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dimension": {
+          "$ref": "results.v0.3.schema.yaml#/$defs/DimensionId"
+        },
+        "provenance": {
+          "$ref": "results.v0.3.schema.yaml#/$defs/Provenance"
+        },
+        "metadata": {
+          "$ref": "#/$defs/PressureResultMetadata"
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "$ref": "results.v0.3.schema.yaml#/$defs/Diagnostic"
+          }
+        },
+        "trace_chain": {
+          "type": "array",
+          "items": {
+            "$ref": "results.v0.3.schema.yaml#/$defs/ResultTraceLink"
+          }
+        },
+        "source_kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_row_index": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "source_annotation_ref": {
+          "$ref": "results.v0.3.schema.yaml#/$defs/Reference"
+        },
+        "component_body": {
+          "$ref": "#/$defs/ComponentBodyRecord"
+        }
+      }
+    },
+    "PressureResultSet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "set_id",
+        "set_type",
+        "basis_ref",
+        "values"
+      ],
+      "properties": {
+        "set_id": {
+          "$ref": "results.v0.3.schema.yaml#/$defs/Id"
+        },
+        "set_type": {
+          "$ref": "results.v0.3.schema.yaml#/$defs/ResultSetType"
+        },
+        "basis_ref": {
+          "$ref": "results.v0.3.schema.yaml#/$defs/Reference"
+        },
+        "values": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PressureQuantityResult"
+          }
+        }
+      }
+    },
+    "JointPressureEdge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "connector_id",
+        "node_i_ref",
+        "node_j_ref",
+        "face_i_pipe_id",
+        "face_j_pipe_id",
+        "p_pa",
+        "effective_area_m2",
+        "face_bore_area_m2",
+        "joint_pressure_force_n",
+        "area_difference_force_n",
+        "attachment_pair_global_n",
+        "representation"
+      ],
+      "properties": {
+        "connector_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "node_i_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "node_j_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "face_i_pipe_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "face_j_pipe_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "p_pa": {
+          "type": "number"
+        },
+        "effective_area_m2": {
+          "type": "number"
+        },
+        "joint_pressure_force_n": {
+          "type": "number"
+        },
+        "face_bore_area_m2": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "number"
+          }
+        },
+        "area_difference_force_n": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "number"
+          }
+        },
+        "attachment_pair_global_n": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "representation": {
+          "const": "B: p(Ae - Ai) at the attachments; joint_effective_area + joint_face_cap"
+        }
+      }
+    },
+    "ComponentBodyRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "W-15 slice d (DEL-03-05 Design rigid-component-stiffness-scaling.md section 5): present only on a component body's stress row, stress extremum and maximum, and on their derivative quantities and source annotations. The row is a stress of the mapped pipe section, a reference section, not of the component body.",
+      "required": [
+        "component_ref",
+        "stiffness_scale",
+        "section_role"
+      ],
+      "properties": {
+        "component_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "stiffness_scale": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "section_role": {
+          "const": "reference_pipe_section"
+        }
+      }
+    }
+  }
+}

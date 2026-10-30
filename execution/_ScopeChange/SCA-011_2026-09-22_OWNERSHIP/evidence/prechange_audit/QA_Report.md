@@ -1,0 +1,9 @@
+# QA and reproduction
+
+Semantic binding used normalized heading text, not positions: Scope Ledger → §9 “Scope ledger summary” (prefix); Packages → §6, Deliverables → §7, Objectives reference → §5 (exact). No ambiguity or failed parse. Parsed 18 packages, 102 production units, 77 ledger rows and 18 objective IDs; scoped 14 packages / 80 units. All counts agree with accepted decomposition telemetry (S=9/M=69/L=24/XL=0 across the whole 102-unit decomposition).
+
+Artifacts: matrix has exactly 80 unique scoped unit rows; source hashes bind reads to accepted commit; issue log distinguishes inherited mapping/discoverability warnings and historical-method/tool observations. 79 SoW validators returned 0, one custom OPEN contract skipped; full code/artifact conformance was not assessed. The local-register validator returned findings and skipped misplaced companion discovery. See the main report for applicability; no “all checks pass” claim is made.
+
+Reproduction: from repository root, run `python3 projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/evidence/prechange_audit/audit_baseline.py` into a new evidence snapshot if rerunning after integration; preserve this original evidence. The script reads sources from the literal accepted commit. Registered commands were `python3 tools/validation/validate_decomposition_registers.py projects/chirality-piping/execution --json <evidence>/register_validation.json --max-per-code 2` and, for each unchanged scoped SoW, `python3 tools/scope_of_work/validate_scope_of_work.py <SoW> --json`.
+
+The helper's initial development invocation encountered a Python syntax error while adding summary fields. It was corrected before the successful final execution; no source mutation occurred. Generated evidence is from the successful execution, not the failed invocation. This is an ad hoc evidence helper, not a new reusable validator or a substitute for registered semantic checks.

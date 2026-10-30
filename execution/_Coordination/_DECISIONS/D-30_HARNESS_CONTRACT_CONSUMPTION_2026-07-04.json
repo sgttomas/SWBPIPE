@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "chirality.piping.harnessContractConsumption.v1",
+  "decisionIds": [
+    "D-30",
+    "D-APP-48",
+    "D-T0-09"
+  ],
+  "mechanism": "D-APP-48 O-A intra-repo SHA-pinned pull",
+  "pullContractPath": "projects/chirality-app-dev/execution/_Coordination/_DECISIONS/D-APP-48_FLOW_A_PULL_CONTRACT_2026-07-04.json",
+  "source": {
+    "repository": "https://github.com/sgttomas/chirality",
+    "commitSha": "ee290e22a8c19d46fb8004114d2ede55b805fba4"
+  },
+  "package": {
+    "name": "@chirality/harness-contract",
+    "version": "0.0.0-private",
+    "private": true,
+    "path": "projects/chirality-app-dev/frontend/packages/harness-contract"
+  },
+  "constants": {
+    "flowAContractVersion": "flow-a.contract.v0.1.0",
+    "claudeAgentSdkPackageVersion": "0.3.150",
+    "harnessToolRegistryVersion": "harness-tools.v6.mutating-mcp"
+  },
+  "validation": {
+    "consumptionValidationCommand": "python3 tools/coordination/validate_harness_contract_pull.py --pull-contract projects/chirality-app-dev/execution/_Coordination/_DECISIONS/D-APP-48_FLOW_A_PULL_CONTRACT_2026-07-04.json --consumption-record projects/chirality-piping/execution/_Coordination/_DECISIONS/D-30_HARNESS_CONTRACT_CONSUMPTION_2026-07-04.json"
+  },
+  "boundaries": {
+    "runtimeDependencyInstalled": false,
+    "protectedPathWrite": false,
+    "liveBindingAuthorized": false,
+    "f3CrossingAuthorized": false,
+    "lifecycleTransitionAuthorized": false,
+    "releaseOrProfessionalClaimAuthorized": false
+  }
+}

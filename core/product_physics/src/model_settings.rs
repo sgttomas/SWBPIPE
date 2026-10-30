@@ -1,0 +1,354 @@
+//! Model-level settings carried by the model document (DEL-02-01 Design
+//! `model-document-0.7.0.md` §3.8): the optional top-level `model_settings`
+//! record. Its one member, `node_proximity_tolerance`, is the length within which
+//! the near-duplicate node check treats two nodes as near duplicates. The owner's
+//! ruling fixes a 5 mm default "and give the user the means to change it"; the
+//! setting lives in the document so the desktop and the headless runner warn
+//! identically. An absent record or member means the default, and the product
+//! never writes the default into a document the user did not author.
+//!
+//! Model document 0.8.0 (DEL-02-01 Design `model-document-0.8.0.md` §1.1; Agent 0's
+//! decision in its §0) adds a second member, `shear_model`: `euler_bernoulli` or
+//! `timoshenko_annulus_energy_v1`, the exact contract's vocabulary. Absent means
+//! Euler–Bernoulli. An explicit user set of `euler_bernoulli` writes the member, as
+//! for the tolerance; the product never writes the default into a document the
+//! user did not author, and clear restores the absent form (MD8 §0, R7-1). It is
+//! refused on a document with `pressure_contract` (that document's choice is
+//! `pressure_contract.shear_model`). `euler_bernoulli` solves exactly as absent: the
+//! same result rows and mechanics, while the model hash differs because the document
+//! differs. `timoshenko_annulus_energy_v1` selects Timoshenko straight members on the
+//! pressure-free route (DEL-05-03 Design `pf-timoshenko.md`; `crate::pf_timoshenko`),
+//! which removed 0.8.0's interim refusal at solve and at authoring.
+//!
+//! The topology check (`topology::append_topology_diagnostics`) reads it through
+//! [`PreviewModel::node_proximity_tolerance_m`]. The solve's validation
+//! (`validation::validate_model_settings`) and the document validator
+//! (`operation_applier::document_validator`) refuse a malformed value with the
+//! same codes and messages as the accessor below.
+use crate::{PreviewModel, Quantity};
+use open_pipe_stress_units::{canonical_unit, convert_for_dimension, unit_by_symbol, Dimension};
+use serde::Deserialize;
+
+/// The default near-duplicate node tolerance, 5 mm, in metres.
+pub const DEFAULT_NODE_PROXIMITY_TOLERANCE_M: f64 = 0.005;
+
+/// The tolerance's unit is not a length unit of the units catalog (unknown or another dimension).
+pub const MODEL_SETTING_TOLERANCE_UNIT_NOT_LENGTH: &str = "MODEL-SETTING-TOLERANCE-UNIT-NOT-LENGTH";
+/// The tolerance's value is zero or negative.
+pub const MODEL_SETTING_TOLERANCE_NOT_POSITIVE: &str = "MODEL-SETTING-TOLERANCE-NOT-POSITIVE";
+/// The tolerance's value is not a finite number.
+pub const MODEL_SETTING_TOLERANCE_NOT_FINITE: &str = "MODEL-SETTING-TOLERANCE-NOT-FINITE";
+
+/// The path of the setting in the document.
+pub const NODE_PROXIMITY_TOLERANCE_PATH: &str = "model_settings.node_proximity_tolerance";
+
+/// The path of the shear-model setting in the document.
+pub const SHEAR_MODEL_PATH: &str = "model_settings.shear_model";
+/// `euler_bernoulli`: the default when absent.
+pub const SHEAR_MODEL_EULER_BERNOULLI: &str = "euler_bernoulli";
+/// `timoshenko_annulus_energy_v1`: Timoshenko straight members on a pressure-free document.
+pub const SHEAR_MODEL_TIMOSHENKO: &str = "timoshenko_annulus_energy_v1";
+/// The value is not one of the two strings (a non-string and `null` included).
+pub const MODEL_SETTING_SHEAR_MODEL_UNKNOWN: &str = "MODEL-SETTING-SHEAR-MODEL-UNKNOWN";
+/// The member is present on a document that declares `pressure_contract`.
+pub const MODEL_SETTING_SHEAR_MODEL_WITH_PRESSURE_CONTRACT: &str = "MODEL-SETTING-SHEAR-MODEL-WITH-PRESSURE-CONTRACT";
+
+/// The authored `model_settings.shear_model`, as decoded: one of the two names, or any other
+/// JSON value (a non-string and `null` included), which is refused by name rather than at decode.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ShearModelSetting {
+    EulerBernoulli,
+    TimoshenkoAnnulusEnergyV1,
+    Unknown,
+}
+
+impl ShearModelSetting {
+    /// The setting a JSON value names.
+    pub fn of(value: &serde_json::Value) -> Self {
+        match value.as_str() {
+            Some(SHEAR_MODEL_EULER_BERNOULLI) => ShearModelSetting::EulerBernoulli,
+            Some(SHEAR_MODEL_TIMOSHENKO) => ShearModelSetting::TimoshenkoAnnulusEnergyV1,
+            _ => ShearModelSetting::Unknown,
+        }
+    }
+}
+
+/// Any present value, `null` included, decoded to its setting (absence is the field default).
+/// The visitor builds no value: a string is matched in place and dropped, and any other value
+/// (an array or object drained as `IgnoredAny`) is `Unknown`, so the decode allocates nothing.
+fn deserialize_shear_model<'de, D: serde::Deserializer<'de>>(deserializer: D) -> Result<Option<ShearModelSetting>, D::Error> {
+    struct ShearModelVisitor;
+    impl<'de> serde::de::Visitor<'de> for ShearModelVisitor {
+        type Value = ShearModelSetting;
+
+        fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+            formatter.write_str("any JSON value")
+        }
+        fn visit_str<E: serde::de::Error>(self, value: &str) -> Result<Self::Value, E> {
+            Ok(match value {
+                SHEAR_MODEL_EULER_BERNOULLI => ShearModelSetting::EulerBernoulli,
+                SHEAR_MODEL_TIMOSHENKO => ShearModelSetting::TimoshenkoAnnulusEnergyV1,
+                _ => ShearModelSetting::Unknown,
+            })
+        }
+        fn visit_bool<E: serde::de::Error>(self, _: bool) -> Result<Self::Value, E> {
+            Ok(ShearModelSetting::Unknown)
+        }
+        fn visit_i64<E: serde::de::Error>(self, _: i64) -> Result<Self::Value, E> {
+            Ok(ShearModelSetting::Unknown)
+        }
+        fn visit_u64<E: serde::de::Error>(self, _: u64) -> Result<Self::Value, E> {
+            Ok(ShearModelSetting::Unknown)
+        }
+        fn visit_f64<E: serde::de::Error>(self, _: f64) -> Result<Self::Value, E> {
+            Ok(ShearModelSetting::Unknown)
+        }
+        fn visit_unit<E: serde::de::Error>(self) -> Result<Self::Value, E> {
+            Ok(ShearModelSetting::Unknown)
+        }
+        fn visit_none<E: serde::de::Error>(self) -> Result<Self::Value, E> {
+            Ok(ShearModelSetting::Unknown)
+        }
+        fn visit_seq<A: serde::de::SeqAccess<'de>>(self, mut seq: A) -> Result<Self::Value, A::Error> {
+            while seq.next_element::<serde::de::IgnoredAny>()?.is_some() {}
+            Ok(ShearModelSetting::Unknown)
+        }
+        fn visit_map<A: serde::de::MapAccess<'de>>(self, mut map: A) -> Result<Self::Value, A::Error> {
+            while map.next_entry::<serde::de::IgnoredAny, serde::de::IgnoredAny>()?.is_some() {}
+            Ok(ShearModelSetting::Unknown)
+        }
+    }
+    deserializer.deserialize_any(ShearModelVisitor).map(Some)
+}
+
+/// The refusal message for a value that is not one of the two names.
+pub fn shear_model_unknown_message() -> String {
+    format!("{SHEAR_MODEL_PATH} must be `{SHEAR_MODEL_EULER_BERNOULLI}` or `{SHEAR_MODEL_TIMOSHENKO}`.")
+}
+
+/// The refusal message for the member on a document that declares `pressure_contract`.
+pub fn shear_model_with_pressure_contract_message() -> String {
+    format!("{SHEAR_MODEL_PATH} is set on a document that declares pressure_contract; that document's shear model is pressure_contract.shear_model, so remove {SHEAR_MODEL_PATH}.")
+}
+
+/// The refusals of an authored setting, at solve, at authoring and in the document
+/// validator alike: a value other than the two names, then the member on a document
+/// that declares `pressure_contract`. Both names are admitted on a pressure-free document.
+pub fn shear_model_refusal(setting: ShearModelSetting, has_pressure_contract: bool) -> Option<ModelSettingError> {
+    if setting == ShearModelSetting::Unknown {
+        return Some(ModelSettingError { code: MODEL_SETTING_SHEAR_MODEL_UNKNOWN, message: shear_model_unknown_message() });
+    }
+    has_pressure_contract.then(|| ModelSettingError {
+        code: MODEL_SETTING_SHEAR_MODEL_WITH_PRESSURE_CONTRACT,
+        message: shear_model_with_pressure_contract_message(),
+    })
+}
+
+/// `model_settings`: a closed record; every member optional.
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ModelSettings {
+    /// The near-duplicate node tolerance, a length quantity. Absent: 5 mm. An authored `null`
+    /// is not absence: it is refused, as for the `model_settings` record itself.
+    #[serde(default, deserialize_with = "crate::deserialize_present_object")]
+    pub node_proximity_tolerance: Option<Quantity>,
+    /// The pressure-free document's beam theory (model document 0.8.0). Absent:
+    /// Euler–Bernoulli. Any present value, `null` included, is kept for its named refusal.
+    #[serde(default, deserialize_with = "deserialize_shear_model")]
+    pub shear_model: Option<ShearModelSetting>,
+}
+
+/// A refused setting: its named code and the message the validator also gives.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ModelSettingError {
+    pub code: &'static str,
+    pub message: String,
+}
+
+/// The refusal message for a non-finite tolerance value.
+pub fn tolerance_not_finite_message(value: impl std::fmt::Display) -> String {
+    format!("{NODE_PROXIMITY_TOLERANCE_PATH}.value is {value}; a finite length greater than zero is required.")
+}
+
+/// The refusal message for a zero or negative tolerance value.
+pub fn tolerance_not_positive_message(value: impl std::fmt::Display) -> String {
+    format!("{NODE_PROXIMITY_TOLERANCE_PATH}.value is {value}; the tolerance must be greater than zero.")
+}
+
+/// The refusal message for a unit that is not a catalog length unit.
+pub fn tolerance_unit_not_length_message(unit: &str) -> String {
+    format!("{NODE_PROXIMITY_TOLERANCE_PATH}.unit `{unit}` is not a length unit of the units catalog.")
+}
+
+/// The refusal message for a positive value that is zero in metres (the conversion underflows).
+pub fn tolerance_zero_in_metres_message(value: f64, unit: &str) -> String {
+    format!("{NODE_PROXIMITY_TOLERANCE_PATH} is {value:?} {unit}, which is zero in metres; the tolerance must be greater than zero.")
+}
+
+/// The refusal message for a finite value that is not finite in metres (the conversion overflows).
+pub fn tolerance_not_finite_in_metres_message(value: f64, unit: &str) -> String {
+    format!("{NODE_PROXIMITY_TOLERANCE_PATH} is {value:?} {unit}, which is not finite in metres; a finite length greater than zero is required.")
+}
+
+/// Whether `unit` is a length unit of the units catalog.
+pub fn is_catalog_length_unit(unit: &str) -> bool {
+    unit_by_symbol(unit, Dimension::Length).is_ok()
+}
+
+/// The effective tolerance in metres of a quantity: finite, then positive, then a catalog length unit,
+/// then finite and greater than zero once converted to metres.
+pub fn node_proximity_tolerance_m(quantity: &Quantity) -> Result<f64, ModelSettingError> {
+    if !quantity.value.is_finite() {
+        return Err(ModelSettingError {
+            code: MODEL_SETTING_TOLERANCE_NOT_FINITE,
+            message: tolerance_not_finite_message(quantity.value),
+        });
+    }
+    if quantity.value <= 0.0 {
+        return Err(ModelSettingError {
+            code: MODEL_SETTING_TOLERANCE_NOT_POSITIVE,
+            message: tolerance_not_positive_message(quantity.value),
+        });
+    }
+    let not_length = || ModelSettingError {
+        code: MODEL_SETTING_TOLERANCE_UNIT_NOT_LENGTH,
+        message: tolerance_unit_not_length_message(&quantity.unit),
+    };
+    let from = unit_by_symbol(&quantity.unit, Dimension::Length).map_err(|_| not_length())?;
+    let to = canonical_unit(Dimension::Length).ok_or_else(not_length)?;
+    let metres = convert_for_dimension(quantity.value, Dimension::Length, from, to).map_err(|_| not_length())?;
+    if !metres.is_finite() {
+        return Err(ModelSettingError {
+            code: MODEL_SETTING_TOLERANCE_NOT_FINITE,
+            message: tolerance_not_finite_in_metres_message(quantity.value, &quantity.unit),
+        });
+    }
+    if metres <= 0.0 {
+        return Err(ModelSettingError {
+            code: MODEL_SETTING_TOLERANCE_NOT_POSITIVE,
+            message: tolerance_zero_in_metres_message(quantity.value, &quantity.unit),
+        });
+    }
+    Ok(metres)
+}
+
+impl PreviewModel {
+    /// The near-duplicate node tolerance in metres: the authored
+    /// `model_settings.node_proximity_tolerance`, else 5 mm.
+    pub fn node_proximity_tolerance_m(&self) -> Result<f64, ModelSettingError> {
+        match self.model_settings.as_ref().and_then(|settings| settings.node_proximity_tolerance.as_ref()) {
+            Some(quantity) => node_proximity_tolerance_m(quantity),
+            None => Ok(DEFAULT_NODE_PROXIMITY_TOLERANCE_M),
+        }
+    }
+
+    /// The effective shear-model choice: the authored `model_settings.shear_model`, else
+    /// Euler–Bernoulli. An unknown value reads as Euler–Bernoulli here and is refused by
+    /// [`shear_model_refusal`]; `crate::pf_timoshenko::selects` consumes the choice.
+    pub fn shear_model(&self) -> ShearModelSetting {
+        match self.model_settings.as_ref().and_then(|settings| settings.shear_model) {
+            Some(ShearModelSetting::TimoshenkoAnnulusEnergyV1) => ShearModelSetting::TimoshenkoAnnulusEnergyV1,
+            _ => ShearModelSetting::EulerBernoulli,
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn parsed(settings: Option<serde_json::Value>) -> Result<PreviewModel, serde_json::Error> {
+        let mut document: serde_json::Value =
+            serde_json::from_str(include_str!("../../../fixtures/product_preview/invented_demo_model.json")).unwrap();
+        match settings {
+            Some(value) => document["model_settings"] = value,
+            None => {
+                document.as_object_mut().unwrap().remove("model_settings");
+            }
+        }
+        serde_json::from_value(document)
+    }
+
+    fn quantity(value: f64, unit: &str) -> Quantity {
+        Quantity { value, unit: unit.into() }
+    }
+
+    #[test]
+    fn absent_settings_use_the_five_millimetre_default() {
+        assert_eq!(parsed(None).unwrap().node_proximity_tolerance_m(), Ok(0.005));
+        let empty = parsed(Some(serde_json::json!({}))).unwrap();
+        assert!(empty.model_settings.is_some());
+        assert_eq!(empty.node_proximity_tolerance_m(), Ok(0.005));
+    }
+
+    #[test]
+    fn an_authored_tolerance_converts_to_metres() {
+        let model = parsed(Some(serde_json::json!({"node_proximity_tolerance": {"value": 2.0, "unit": "mm"}}))).unwrap();
+        assert_eq!(model.node_proximity_tolerance_m(), Ok(0.002));
+        let model = parsed(Some(serde_json::json!({"node_proximity_tolerance": {"value": 0.01, "unit": "m"}}))).unwrap();
+        assert_eq!(model.node_proximity_tolerance_m(), Ok(0.01));
+    }
+
+    #[test]
+    fn the_record_is_closed_and_an_object() {
+        let error = parsed(Some(serde_json::json!({"proximity": 1}))).err().expect("unknown member refused").to_string();
+        assert!(error.contains("unknown field `proximity`"), "{error}");
+        assert!(parsed(Some(serde_json::Value::Null)).is_err(), "null is not an absent record");
+        let error = parsed(Some(serde_json::json!({"node_proximity_tolerance": null})))
+            .err()
+            .expect("an authored null tolerance is not the default")
+            .to_string();
+        assert!(error.contains("an authored object"), "{error}");
+        assert!(parsed(Some(serde_json::json!([]))).is_err());
+    }
+
+    #[test]
+    fn each_refusal_is_named_with_its_message() {
+        assert_eq!(
+            node_proximity_tolerance_m(&quantity(f64::NAN, "mm")),
+            Err(ModelSettingError {
+                code: "MODEL-SETTING-TOLERANCE-NOT-FINITE",
+                message: "model_settings.node_proximity_tolerance.value is NaN; a finite length greater than zero is required.".into(),
+            })
+        );
+        assert_eq!(
+            node_proximity_tolerance_m(&quantity(f64::INFINITY, "mm")),
+            Err(ModelSettingError {
+                code: "MODEL-SETTING-TOLERANCE-NOT-FINITE",
+                message: "model_settings.node_proximity_tolerance.value is inf; a finite length greater than zero is required.".into(),
+            })
+        );
+        assert_eq!(
+            node_proximity_tolerance_m(&quantity(0.0, "mm")),
+            Err(ModelSettingError {
+                code: "MODEL-SETTING-TOLERANCE-NOT-POSITIVE",
+                message: "model_settings.node_proximity_tolerance.value is 0; the tolerance must be greater than zero.".into(),
+            })
+        );
+        assert_eq!(
+            node_proximity_tolerance_m(&quantity(-1.5, "mm")),
+            Err(ModelSettingError {
+                code: "MODEL-SETTING-TOLERANCE-NOT-POSITIVE",
+                message: "model_settings.node_proximity_tolerance.value is -1.5; the tolerance must be greater than zero.".into(),
+            })
+        );
+        for unit in ["N", "rad", "mmm"] {
+            assert_eq!(
+                node_proximity_tolerance_m(&quantity(5.0, unit)),
+                Err(ModelSettingError {
+                    code: "MODEL-SETTING-TOLERANCE-UNIT-NOT-LENGTH",
+                    message: format!("model_settings.node_proximity_tolerance.unit `{unit}` is not a length unit of the units catalog."),
+                })
+            );
+        }
+        assert_eq!(
+            node_proximity_tolerance_m(&quantity(5e-324, "mm")),
+            Err(ModelSettingError {
+                code: "MODEL-SETTING-TOLERANCE-NOT-POSITIVE",
+                message: "model_settings.node_proximity_tolerance is 5e-324 mm, which is zero in metres; the tolerance must be greater than zero.".into(),
+            })
+        );
+        let model = parsed(Some(serde_json::json!({"node_proximity_tolerance": {"value": 5.0, "unit": "N"}}))).unwrap();
+        assert_eq!(model.node_proximity_tolerance_m().unwrap_err().code, MODEL_SETTING_TOLERANCE_UNIT_NOT_LENGTH);
+    }
+}

@@ -1,0 +1,1651 @@
+[
+  {
+    "id": "DEL-01-01",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-01_Project governance baseline",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-01_Project governance baseline",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-01-02",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-02_Copyright and protected-data boundary policy",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-02_Copyright and protected-data boundary policy",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-01-03",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-03_Contributor certification workflow",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-03_Contributor certification workflow",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-01-04",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-04_Professional responsibility and product-claims policy",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-04_Professional responsibility and product-claims policy",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-02-01",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-01_Canonical domain model schema",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-01_Canonical domain model schema",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-02-02",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-02_Unit system and dimensional-analysis core contract",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-02_Unit system and dimensional-analysis core contract",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-02-03",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-03_Code-neutral analysis boundary model",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-03_Code-neutral analysis boundary model",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-02-04",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-04_Plugin and extension domain contracts",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-04_Plugin and extension domain contracts",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-02-05",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-05_Project persistence and round-trip serialization",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-05_Project persistence and round-trip serialization",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-03-01",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-01_Material library schema with provenance",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-01_Material library schema with provenance",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-03-02",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-02_Pipe section and component library schema",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-02_Pipe section and component library schema",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-03-03",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-03_Bend and elbow component model fields",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-03_Bend and elbow component model fields",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-03-04",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-04_Branch connection component model fields",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-04_Branch connection component model fields",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-03-05",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-05_Rigid component models for valves, flanges, reducers, and specialty items",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-05_Rigid component models for valves, flanges, reducers, and specialty items",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-03-06",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-06_Expansion joint component model",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-06_Expansion joint component model",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-03-07",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-03-08",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-08_Pipe section property and mass-property calculator",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-08_Pipe section property and mass-property calculator",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-04-01",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-04-02",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-04-03",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-03_Linear support and restraint models",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-03_Linear support and restraint models",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-04-04",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-04-05",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-05_Sparse solver performance harness",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-05_Sparse solver performance harness",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-04-06",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-05-01",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-05-02",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-02_Load-case algebra engine",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-02_Load-case algebra engine",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-05-03",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-05-04",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-04_Analysis status semantics",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-04_Analysis status semantics",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-05-05",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-05_Concentrated and distributed user load application",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-05_Concentrated and distributed user load application",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-06-01",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-01_Rule-pack schema",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-01_Rule-pack schema",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-06-02",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-02_Sandboxed unit-aware expression evaluator",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-02_Sandboxed unit-aware expression evaluator",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-06-03",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-03_Required-input completeness checker",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-03_Required-input completeness checker",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-06-04",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-04_Private rule-pack lifecycle and checksum handling",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-04_Private rule-pack lifecycle and checksum handling",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-06-05",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-05_Invented non-code example rule pack",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-05_Invented non-code example rule pack",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-07-01",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-07-02",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-07-03",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-07-04",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-07-05",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-07-06",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-07-07",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-08-01",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-01_Calculation report generator",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-01_Calculation report generator",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-08-02",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-02_Audit manifest and model hash",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-02_Audit manifest and model hash",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-08-03",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-03_Warnings, assumptions, and provenance report section",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-03_Warnings, assumptions, and provenance report section",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-08-04",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-08-05",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-05_Report protected-content linter",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-05_Report protected-content linter",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-09-01",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-09-02",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-02_Stress recovery benchmark suite",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-02_Stress recovery benchmark suite",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-09-03",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-09-04",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-09-05",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-05_Release quality gate checklist",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-05_Release quality gate checklist",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-10-01",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-01_Public API and plugin boundary",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-01_Public API and plugin boundary",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-10-02",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-02_Import-export adapter framework",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-02_Import-export adapter framework",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-10-03",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-03_Local FEA handoff data contract",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-03_Local FEA handoff data contract",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-10-04",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-04_Build, packaging, and CI-CD pipeline",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-04_Build, packaging, and CI-CD pipeline",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-10-05",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-05_Headless CLI and structured I-O analysis runner",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-05_Headless CLI and structured I-O analysis runner",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-11-01",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-01_User guide skeleton",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-01_User guide skeleton",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-11-02",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-02_Developer guide for solver and rule packs",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-02_Developer guide for solver and rule packs",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-11-03",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-03_Theory notes- classical to modern centerline analysis",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-03_Theory notes- classical to modern centerline analysis",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-11-04",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-04_Invented educational example models",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-04_Invented educational example models",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-11-05",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-05_Contributor tutorial and onboarding",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-05_Contributor tutorial and onboarding",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-12-01",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-01_Local-first storage and private data paths",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-01_Local-first storage and private data paths",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-12-02",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-02_Private data redaction and export controls",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-02_Private data redaction and export controls",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-12-03",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-03_Telemetry off-by-default design",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-03_Telemetry off-by-default design",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-12-04",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-04_Secret and private-library handling",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-04_Secret and private-library handling",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-12-05",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-05_Security threat model",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-05_Security threat model",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-07-08",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-08-06",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-06_State, comparison, and handoff report sections",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-06_State, comparison, and handoff report sections",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-13-01",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-01_Design knowledge schema and provenance model",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-01_Design knowledge schema and provenance model",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-13-02",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-02_Constraint entity and provenance model",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-02_Constraint entity and provenance model",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-13-03",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-03_Constraint validation engine",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-03_Constraint validation engine",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-13-04",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-14-01",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-01_Immutable model state records",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-01_Immutable model state records",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-14-02",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-14-03",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-03_Model-state comparison engine",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-03_Model-state comparison engine",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-14-04",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-04_Analysis-run comparison engine",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-04_Analysis-run comparison engine",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-14-05",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-05_Comparison mapping, tolerance, and export contracts",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-05_Comparison mapping, tolerance, and export contracts",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-15-01",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-01_Canonical handoff package schema and manifest",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-01_Canonical handoff package schema and manifest",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-15-02",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-02_Target mapping and unsupported-behavior contract",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-02_Target mapping and unsupported-behavior contract",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-15-03",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-03_Downstream modeling export workflow",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-03_Downstream modeling export workflow",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-15-04",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-04_External prover boundary metadata",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-04_External prover boundary metadata",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-16-01",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-01_Structured model operation schema",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-01_Structured model operation schema",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-16-02",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-16-03",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-16-04",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-04_Agent rationale and professional-boundary controls",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-04_Agent rationale and professional-boundary controls",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-17-01",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-01_CAEPIPE and export-format source basis",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-01_CAEPIPE and export-format source basis",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-17-02",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-02_Export package, profile, and stable ID map contracts",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-02_Export package, profile, and stable ID map contracts",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-17-03",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-03_Native open JSON export package",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-03_Native open JSON export package",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-17-04",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-04_CAEPIPE MBF export profile and deterministic writer",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-04_CAEPIPE MBF export profile and deterministic writer",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-17-05",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-05_CAEPIPE external run harness and CSV parser",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-05_CAEPIPE external run harness and CSV parser",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-17-06",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-06_Stress-neutral CSV JSON package",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-06_Stress-neutral CSV JSON package",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-17-07",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-07_Conservative PCF subset exporter",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-07_Conservative PCF subset exporter",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-17-08",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-08_GLB glTF review geometry export",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-08_GLB glTF review geometry export",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-17-09",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-09_Export adapter SDK and additional targets",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-09_Export adapter SDK and additional targets",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-04-07",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-07-11",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-07-12",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace",
+      "valid": true
+    },
+    "stderr": ""
+  },
+  {
+    "id": "DEL-16-06",
+    "command": [
+      "python3",
+      "tools/scope_of_work/validate_scope_of_work.py",
+      "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "format": "SOW_V1",
+      "issues": [],
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application",
+      "valid": true
+    },
+    "stderr": ""
+  }
+]

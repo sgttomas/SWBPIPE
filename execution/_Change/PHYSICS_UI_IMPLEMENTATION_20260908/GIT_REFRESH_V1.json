@@ -1,0 +1,39 @@
+{
+  "record_kind": "change_read_only_git_refresh",
+  "schema_version": "1.0",
+  "recorded_at_utc": "2026-09-08T13:42:44Z",
+  "role": "CHANGE",
+  "actual_task_identity": "/root/implementation_change",
+  "mode": "READ_ONLY_EXCEPT_FETCH",
+  "branch": "codex/piping-physics-ui-implementation-20260908",
+  "head_sha": "55df51ac3201456e0f181823e3aefefef47a73bb",
+  "established_base_sha": "55df51ac3201456e0f181823e3aefefef47a73bb",
+  "origin_main_sha_after_fetch": "55df51ac3201456e0f181823e3aefefef47a73bb",
+  "head_vs_origin_main": {
+    "ahead": 0,
+    "behind": 0
+  },
+  "upstream_since_established_base": {
+    "commits": 0,
+    "changed_paths": [],
+    "piping_changed_paths": [],
+    "affects_source_bindings": false,
+    "affects_control_bindings": false,
+    "result": "NO_UPSTREAM_DRIFT"
+  },
+  "publication_state": {
+    "remote_branch_exists": false,
+    "pull_requests": []
+  },
+  "working_tree_observation": {
+    "clean": false,
+    "classification": "Expected concurrent authorized F4, U7, and C0 implementation/control work is present locally; it is not upstream drift and remains unfrozen.",
+    "source_hashes_bound_by_this_record": false
+  },
+  "preservation": {
+    "original_local_handoff_sha256": "ebbed866266cc961344151519b2792c6cfc5889eb18143a7809be69700c56035",
+    "original_checkout_modified_by_change_agent": false,
+    "rebase_merge_cherry_pick_stage_commit_push_build_performed": false
+  },
+  "result": "PASS_NO_MATERIAL_REMOTE_DRIFT"
+}

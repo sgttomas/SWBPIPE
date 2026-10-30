@@ -1,0 +1,16 @@
+{
+  "schema": "chirality-del0904-not-run/v1",
+  "terminal_trigger": "harness-pytest exit 1",
+  "commands": [
+    {
+      "id": "harness-self-check",
+      "status": "NOT_RUN",
+      "reason": "Mandatory harness-pytest failed; candidate halting rule forbids advancing to the next registered check."
+    },
+    {
+      "id": "receipt-57",
+      "status": "NOT_WRITTEN",
+      "reason": "Receipt 57 is PASS-only and the objective is terminal FAIL."
+    }
+  ]
+}

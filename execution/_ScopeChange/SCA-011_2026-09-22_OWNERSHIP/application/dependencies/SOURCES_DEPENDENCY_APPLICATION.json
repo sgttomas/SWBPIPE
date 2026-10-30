@@ -1,0 +1,320 @@
+{
+  "role": "TASK",
+  "mechanism": "delegated-harness-native collaboration child",
+  "parent": "/root/piping_scope_manager",
+  "executor": "/root/piping_scope_manager/piping_apply_dependencies",
+  "delegation": "none",
+  "model_and_effort": "Inherited host configuration; exact model/effort identifier was not exposed to this executor. No override requested.",
+  "basis_commit": "3e18334eca72509475684cc86786b3eeade83572",
+  "selected_workflow": "bundled:chirality-root/dependency-extract",
+  "workflow_source": "workflows/dependency-extract/WORKFLOW.md",
+  "method_separation": "Deliverable-local two-pass additive backcheck and exact mirrors; separately assigned ad hoc graph assembly, validation and centralized application evidence. No claim that dependency-extract authorizes cross-deliverable synthesis.",
+  "write_scope": "20 GROUP2_DEPENDENCY_TASK targets; new DAG-011 staged snapshot metadata; SCA-011/application/dependencies evidence only. No Git, source/control edits, delegation, pointers or Group-3 transforms.",
+  "host_enforcement": "Shared filesystem, bounded tool working directory and scoped scripts; path/role restrictions are instruction-level, not claimed as isolated per-file sandbox enforcement.",
+  "origins": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "1bb670ca339a990b153cf033dac2d8e29ca71bdea0accee4200e6dd1feed3d57"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d8a1f4380962efcd258571c6fb563722be9e2e89d4fa5898b7f6d24dc61ab879"
+    },
+    {
+      "path": "workflows/dependency-extract/execution.json",
+      "sha256": "ddbd595eeae1ccefff345da02973d876ff1db00d0244d8b40921495315a70a41"
+    },
+    {
+      "path": "workflows/dependency-extract/WORKFLOW.md",
+      "sha256": "b79b011c44f21a311e1ffa49295ef50ea6b3644ca6c52a2aacfbfc393d26b18f"
+    },
+    {
+      "path": "workflows/dependency-extract/resources/checks.md",
+      "sha256": "6801fe2d037b624e7017690eced948c35e334022012e877d2eb456cfdc817256"
+    },
+    {
+      "path": "tools/validation/validate_dependencies_schema.py",
+      "sha256": "75cd74768cc8edf91c6f40b582f0fb570d2427894e6c2236ea2fe7d384291f5f"
+    },
+    {
+      "path": "tools/validation/validate_enum.py",
+      "sha256": "add20ed27e0bb85dad5377b207ffddfb23287f7a79540d0deb6283c6aac6fa2d"
+    },
+    {
+      "path": "tools/validation/validate_id_format.sh",
+      "sha256": "7e128a1d729e35a936b796442329f5a99dd7a14cfb646fc9481a04f28930e5a6"
+    },
+    {
+      "path": "tools/coordination/audit_dag.py",
+      "sha256": "f258bd4899f15d04e40d89fe36d399a5769e75026f92f1e053a9502e601f12c4"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/_LATEST.md",
+      "sha256": "9da625a75f75819fe39a05532d67697fa6de0d7a84982c4e2e1b89c6d3ef80b3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/DAG-010/DependencyEdges.csv",
+      "sha256": "1892d2e7295d936b1dbf57104ab00df149fe17f8afbab4dc8b7e1c8b95082d28"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/DAG-010/DeliverableNodes.csv",
+      "sha256": "18df1de555edd2c0a6231c54d9e9cb9846b060f8320842361e80b4c6f1004132"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/APPLY_MANIFEST.csv",
+      "sha256": "b96c0adc2b588429a1311606072bc22ee9c5f3c303be2c6701422dcdecbcce7a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/DEPENDENCY_SNAPSHOT_MANIFEST.json",
+      "sha256": "b30704cbfcd378c5e6cf8922ff9e1035513e1a01fdf1ac5604acfad457998dd3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/LOCAL_MIRRORS_PROMOTION.json",
+      "sha256": "9eee5351f39e0623446333a79ad63d4d73fd47ee37e30db4afb34955dee217e0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/LOCAL_MIRRORS_MANIFEST.json",
+      "sha256": "9f81bb3aa7075d690584b116f0c758df3ea0cf5409ab02520828c9c5a5bf3230"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/MANIFEST.json",
+      "sha256": "22b4a47e8f3f1842d2f07b77c38c1c75d06e78811a8b07d4b50a88e4e292de39"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/DependencyEdges.additions.csv",
+      "sha256": "8401de3c483c0b6a4d2d904cda5e2bbcbb8dda3e8a2ae939162d789c12f1b524"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/validate_candidate.py",
+      "sha256": "403ab94263c969bd1d308ba5a677e5b674cf803a690f7bdd3aebfc3ca70702cc"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/StagedInterfaces.json",
+      "sha256": "ac91cb9841651cb1a83a011865699c1a79849ee222a1156d9f3ab8be591d1b94"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/STAGED_INTERFACE_RATIONALE.md",
+      "sha256": "a66ba991125e813f5a63135decbd4f3e8f13eb43a3a8df32f71ae84cb32e3998"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/StageGraph.json",
+      "sha256": "1544138f5e80fcd38d7b8f70387423126a2564214ad38b633f070b0e3847c201"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/DECISION_PACKAGE.md",
+      "sha256": "0edfe8ac2341a4f08c18dc6d58be6354e36975844afe784116cc1b3d92111d5b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/staged-contracts/APPLICATION_OUTCOME.md",
+      "sha256": "7308e6ee3e469ac493a3c8cf3b868763895d3e79dcd7bcca376959d91c2dc600"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/staged-contracts/COMPARISON_EXPORT.md",
+      "sha256": "24341aa39bcefa2c2d929fa39ab0f54b112c183b406b3525b8208e4a51806879"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/staged-contracts/PALETTE_ORGANIZATION.md",
+      "sha256": "ad3ddd62ed69b313b829d6e2d66893c7479ec92a41699b5a532827fa4ec05b78"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/checkpoint_snapshots/SCA-011_GROUP-2_2026-09-22/DECISION.md",
+      "sha256": "c025fa2636a03d2284995b8351ff6eee19af2dcf271c5688d3381cad11b9a9d4"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/checkpoint_snapshots/SCA-011_GROUP-2_2026-09-22/ACCEPTED_MANIFEST.csv",
+      "sha256": "5197066ce3ed453c6d93f149c3918a8f7c2f22275a32f9f65d979c412047ece4"
+    }
+  ],
+  "actual_local_sources": [
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+      "sha256": "4ede61127ae6f3f0c8d1d607f8983e533b4b98a6cc8c2286df2a92eed2766fd2",
+      "bytes": 5008,
+      "read_scope": "full bytes; additive claim/identity/reference analysis; no recertification of historical claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_CONTEXT.md",
+      "sha256": "1d23c2e57d3ed8fa8c20d4374ac022d9cbe13cc5abe391ca9874f29a911730f3",
+      "bytes": 2119,
+      "read_scope": "full bytes; additive claim/identity/reference analysis; no recertification of historical claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_REFERENCES.md",
+      "sha256": "008cd4031142eed135a31859a7faff498f97da655ff6f33e000412c17df01dbe",
+      "bytes": 1179,
+      "read_scope": "full bytes; additive claim/identity/reference analysis; no recertification of historical claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/ScopeOfWork.md",
+      "sha256": "f577d714fb911697f58f13d777ea38321150d47fcb93edb59b0fa0174505f080",
+      "bytes": 28349,
+      "read_scope": "full bytes; additive claim/identity/reference analysis; no recertification of historical claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_CONTEXT.md",
+      "sha256": "3c13bcf8b97e7c3d6404446bb784cdd82338e631b16378003b92f226f69db92c",
+      "bytes": 3942,
+      "read_scope": "full bytes; additive claim/identity/reference analysis; no recertification of historical claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_REFERENCES.md",
+      "sha256": "b0501c24fe1ab98263a67f7addf6f051e0c00e7e454c3053d59ce82960e06cd0",
+      "bytes": 1360,
+      "read_scope": "full bytes; additive claim/identity/reference analysis; no recertification of historical claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/ScopeOfWork.md",
+      "sha256": "93fdb46065397d7955612a0352fb0ed93ebb87aa66bdb097d11afb8e614abda0",
+      "bytes": 36796,
+      "read_scope": "full bytes; additive claim/identity/reference analysis; no recertification of historical claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_CONTEXT.md",
+      "sha256": "5002561fb8f4ca434c7a846d6d0f25e71debf3bcf2652321bcbdf328f0c4f144",
+      "bytes": 4470,
+      "read_scope": "full bytes; additive claim/identity/reference analysis; no recertification of historical claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_REFERENCES.md",
+      "sha256": "41687739c2041e93cfc58389deeb5632a3eeba5b612b28a276f78d30f137c598",
+      "bytes": 1369,
+      "read_scope": "full bytes; additive claim/identity/reference analysis; no recertification of historical claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/ScopeOfWork.md",
+      "sha256": "c83c2cb287e9b188f0795621db8c0edac1c668fdebaa7282534ea10e8291f693",
+      "bytes": 27413,
+      "read_scope": "full bytes; additive claim/identity/reference analysis; no recertification of historical claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/_CONTEXT.md",
+      "sha256": "49c9ae1e7005abf4e127c82b9773ccf832ac2ac37d956cb445d7d18ecb901fd2",
+      "bytes": 3973,
+      "read_scope": "full bytes; additive claim/identity/reference analysis; no recertification of historical claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/_REFERENCES.md",
+      "sha256": "dfbb66d5e96fa6148e51dae408966b5367629da24daa9e2f1b9be8be420437e4",
+      "bytes": 1363,
+      "read_scope": "full bytes; additive claim/identity/reference analysis; no recertification of historical claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/ScopeOfWork.md",
+      "sha256": "c70e5d0fcdf37eb794ac448c47692869a81caca8107421f14365b066a605f3f6",
+      "bytes": 28144,
+      "read_scope": "full bytes; additive claim/identity/reference analysis; no recertification of historical claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_CONTEXT.md",
+      "sha256": "ed3517118ef225d30b237031de2259a02f602dcc5bfef547e420a091f42f7aa6",
+      "bytes": 4812,
+      "read_scope": "full bytes; additive claim/identity/reference analysis; no recertification of historical claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_REFERENCES.md",
+      "sha256": "a9fc7cb1d903de708477eb1c02b7c0dc117c2c17ae386c7bc2aa581a64d2ca52",
+      "bytes": 1983,
+      "read_scope": "full bytes; additive claim/identity/reference analysis; no recertification of historical claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md",
+      "sha256": "0511c07f4d741c59b7cffa1fd7c080d754200237bc537bb137882d8b582c79ef",
+      "bytes": 4792,
+      "read_scope": "full bytes; additive claim/identity/reference analysis; no recertification of historical claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_CONTEXT.md",
+      "sha256": "5ab3d03e0f21b48c34f4e616107ee17abf3badd3bb8db370724661738e5d1428",
+      "bytes": 2022,
+      "read_scope": "full bytes; additive claim/identity/reference analysis; no recertification of historical claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_REFERENCES.md",
+      "sha256": "63e893e3c570cb796bef55159322c3b375f6156814e971ff6b2927bc394d1459",
+      "bytes": 1255,
+      "read_scope": "full bytes; additive claim/identity/reference analysis; no recertification of historical claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+      "sha256": "6bf61d042b9064bd1232f5290580d868a005ea8b258e851550eb261dcd4e3f1b",
+      "bytes": 5087,
+      "read_scope": "full bytes; additive claim/identity/reference analysis; no recertification of historical claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_CONTEXT.md",
+      "sha256": "7d0c0e74fb9b68953871a999a3a7d5248f9d4a06b4a6534c0f2a129b056a55d8",
+      "bytes": 2424,
+      "read_scope": "full bytes; additive claim/identity/reference analysis; no recertification of historical claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_REFERENCES.md",
+      "sha256": "7f3f5ef675d9afcfb9765ccc3b71deffda5190ad603f302c5cce09c42c1473ec",
+      "bytes": 1247,
+      "read_scope": "full bytes; additive claim/identity/reference analysis; no recertification of historical claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/ScopeOfWork.md",
+      "sha256": "922a5c64e067ccec6c391a7144c436dc56e5f80cac1630e8b01f263e4e9ea3fe",
+      "bytes": 27389,
+      "read_scope": "full bytes; additive claim/identity/reference analysis; no recertification of historical claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_CONTEXT.md",
+      "sha256": "7659c88a592fc22b2573433228641ca521c541a412aed468331ddb0b62599423",
+      "bytes": 3289,
+      "read_scope": "full bytes; additive claim/identity/reference analysis; no recertification of historical claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_REFERENCES.md",
+      "sha256": "90a9ae22850ba97d732b0843353935be3f257def1f6acc305269262f60c0e93b",
+      "bytes": 1347,
+      "read_scope": "full bytes; additive claim/identity/reference analysis; no recertification of historical claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/ScopeOfWork.md",
+      "sha256": "65008a246f9efe66578ef72a7abe52d49c77ffb667b66f7b4ac1ebc5575dbbbc",
+      "bytes": 34459,
+      "read_scope": "full bytes; additive claim/identity/reference analysis; no recertification of historical claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_CONTEXT.md",
+      "sha256": "09cc5a15c5e78a87fc124039a8fee4d74fa01b3df7d35f4a433544f238cf2640",
+      "bytes": 4434,
+      "read_scope": "full bytes; additive claim/identity/reference analysis; no recertification of historical claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_REFERENCES.md",
+      "sha256": "c43b73e94366b7f529d4d870fe2c04721a6cf6ad7882374275ec5f9528c587f6",
+      "bytes": 1986,
+      "read_scope": "full bytes; additive claim/identity/reference analysis; no recertification of historical claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md",
+      "sha256": "541df636affcd119072051128a2b98b483791a94b181b3ef38e023030287391a",
+      "bytes": 4801,
+      "read_scope": "full bytes; additive claim/identity/reference analysis; no recertification of historical claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_CONTEXT.md",
+      "sha256": "a66bf834f218c877155d9f8faece9be00f8cbae7b97eb8d119439ab01d82cfeb",
+      "bytes": 2063,
+      "read_scope": "full bytes; additive claim/identity/reference analysis; no recertification of historical claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_REFERENCES.md",
+      "sha256": "e4707919fca8b377453f2317529901d9974914a869a543648c557e8ee682818c",
+      "bytes": 1209,
+      "read_scope": "full bytes; additive claim/identity/reference analysis; no recertification of historical claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md",
+      "sha256": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+      "bytes": 280291,
+      "read_scope": "identity, scope/objective trace and architecture-basis resolution"
+    }
+  ]
+}

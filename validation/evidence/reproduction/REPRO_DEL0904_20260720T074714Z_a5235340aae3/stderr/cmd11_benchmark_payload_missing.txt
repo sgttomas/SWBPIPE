@@ -1,0 +1,26 @@
+warning: unused imports: `ElementExposedDiameter`, `ElementMassPerLength`, `EquivalentStaticMechanicsBasis`, `LoadExtent`, `generate_seismic_equivalent_static_loads`, `generate_wind_equivalent_static_loads`, and `prepare_equivalent_static_loads`
+  --> /private/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout/projects/chirality-piping/validation/benchmarks/mechanics/src/lib.rs:18:34
+   |
+18 |     assemble_solver_load_vector, generate_seismic_equivalent_static_loads,
+   |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+19 |     generate_wind_equivalent_static_loads, prepare_equivalent_static_loads, prepare_loads,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+20 |     prepare_lumped_nodal_loads, prepare_straight_pipe_axial_effects, ElementAxialEffectProperties,
+21 |     ElementExposedDiameter, ElementLoadSpan, ElementMassPerLength, EquivalentStaticAxisFactor,
+   |     ^^^^^^^^^^^^^^^^^^^^^^                   ^^^^^^^^^^^^^^^^^^^^
+22 |     EquivalentStaticMechanicsBasis, LoadDimension, LoadDirection, LoadExtent, LoadQuantity,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^                                ^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `cbdfe_close` is never used
+    --> /private/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/checkout/projects/chirality-piping/validation/benchmarks/mechanics/src/lib.rs:2784:4
+     |
+2784 | fn cbdfe_close(actual: f64, expected: f64) -> bool {
+     |    ^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_mechanics_benchmarks` (lib) generated 2 warnings (run `cargo fix --lib -p open_pipe_stress_mechanics_benchmarks` to apply 1 suggestion)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running `/var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/target/debug/openpipestress-runner run-benchmark --input validation/witness/inputs/del1005_payload_binding_benchmark_payload_missing_input.json --output /var/folders/0s/50y7rb796d1bqdxmpcz6qg800000gn/T/tmp.wbOwuYCu56/outputs/del1005_benchmark_payload_missing.json`

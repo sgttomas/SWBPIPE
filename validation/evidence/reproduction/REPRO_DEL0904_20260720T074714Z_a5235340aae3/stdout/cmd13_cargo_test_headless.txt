@@ -1,0 +1,59 @@
+
+running 23 tests
+test tests::analysis_status_for_rule_check_maps_the_runner_vocabulary ... ok
+test result_envelope_binding::tests::mapping_table_is_bounded_and_never_coerces ... ok
+test tests::full_payload_validation_blocks_envelope_ref_mismatch_and_missing_checksum ... ok
+test tests::preview_bridge_blocks_invalid_runner_metadata_before_solve ... ok
+test result_envelope_binding::tests::model_incomplete_solve_attaches_nothing_and_adds_no_diagnostics ... ok
+test tests::preview_bridge_drives_user_rule_checked_into_analysis_status ... ok
+test result_envelope_binding::tests::producer_rejects_missing_envelope_checksum_structurally ... ok
+test tests::preview_bridge_blocks_unrecognized_rule_check_aggregate ... ok
+test tests::privacy_and_professional_boundary_violations_are_blocking ... ok
+test tests::reference_level_validation_still_accepts_without_full_payload ... ok
+test tests::request_requires_load_basis_and_d33_policy ... ok
+test tests::result_requires_human_review_and_result_export_compatibility ... ok
+test tests::result_requires_schema_vocabulary_and_result_envelope_checksum ... ok
+test tests::tp_phys_015_result_envelope_payload_validates_when_supplied ... ok
+test tests::valid_request_has_no_blocking_diagnostics ... ok
+test tests::valid_result_has_no_blocking_diagnostics ... ok
+test result_envelope_binding::tests::structural_failure_appends_blocking_runner_diagnostic ... ok
+test result_envelope_binding::tests::nonlinear_bearing_solve_attaches_validated_envelope_with_context ... ok
+test result_envelope_binding::tests::linear_only_solve_attaches_envelope_without_nonlinear_context ... ok
+test tests::preview_bridge_drives_user_rule_failed_into_envelope_and_analysis_status ... ok
+test result_envelope_binding::tests::preview_runner_output_serialization_excludes_envelope_document ... ok
+test tests::preview_bridge_executes_product_physics_with_deterministic_refs ... ok
+test tests::preview_bridge_incomplete_aggregate_equals_the_no_aggregate_default ... ok
+
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.29s
+
+
+running 1 test
+test tests::provisional_request_is_schema_complete ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 15 tests
+test tests::run_benchmark_blocks_missing_payload_without_executing_cases ... ok
+test tests::run_regression_blocks_missing_payload_without_executing_cases ... ok
+test tests::run_benchmark_rejects_unsupported_suite_names ... ok
+test tests::downstream_operation_verbs_are_stable_but_stubbed ... ok
+test tests::run_benchmark_whole_suite_default_reports_every_case_without_silent_skips ... ok
+test tests::run_regression_executes_full_nonlinear_inventory_and_matches ... ok
+test tests::run_regression_rejects_benchmark_suites ... ok
+test tests::run_benchmark_multi_case_stress_run_matches_recorded_values ... ok
+test tests::run_regression_named_case_reports_recorded_and_observed_outcome ... ok
+test tests::solve_blocks_missing_payload_without_running_solver ... ok
+test tests::stable_verbs_map_to_runner_operations ... ok
+test tests::validate_input_accepts_d33_policy_request ... ok
+test tests::run_benchmark_unknown_case_blocks_with_structured_diagnostic ... ok
+test tests::run_benchmark_executes_named_mechanics_case_and_matches_recorded_values ... ok
+test tests::solve_runs_invented_preview_model_with_stdout_json_contract ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

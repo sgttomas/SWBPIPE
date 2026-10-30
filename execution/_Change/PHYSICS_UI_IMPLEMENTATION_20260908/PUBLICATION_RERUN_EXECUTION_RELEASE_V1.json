@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0",
+  "record_type": "change_publication_rerun_execution_release",
+  "status": "ENTRY_PREFLIGHT_PASS_SOURCE_FREEZE_AUTHORIZED",
+  "recorded_at_utc": "2026-09-09T04:17:38Z",
+  "recorded_by": {
+    "task_identity": "/root/implementation_change",
+    "role": "CHANGE",
+    "model": "gpt-5.6-sol",
+    "reasoning": "high",
+    "delegation": false
+  },
+  "authority": {
+    "publication_plan_v2_sha256": "5d543ec339ca6453c0720583388ce49ce1d3e8a4bc12a307210a04d86ecedcdd",
+    "root_accepted_g2_release_sha256": "9ba85a30a5150174380fedad9faa72f686af92f123f86885c2e72d4e6ec5955b",
+    "source_and_evidence_writers": "STOPPED"
+  },
+  "superseding_source_binding": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/post_g2_accessibility/COMPLETE_BINDING_V2.json",
+    "sha256": "58a94da8227c96734a433f8ddd116fee4558527fa01ab5354c35f0dc48ecb7e9",
+    "members": 17,
+    "aggregate_sha256": "d80b48eaa2c1c60532c17fbace51eddd9f049123396af7d01c66a3a2ab20ca6a",
+    "live_hash_and_byte_equality": "PASS",
+    "only_change_from_v1": {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "sha256": "d284969e4d52e6140625fe48c8ad482a406307917845b99af58338e5f9048eda"
+    }
+  },
+  "review": {
+    "final_manifest_sha256": "4d27198d064761ba9b2532c89e19036855da4e88fd7fd35f45a8c0c1617fa850",
+    "review_sha256": "259ef23216bb6060ee5d7e8e9ea2f00491651e590181d4bd2a62ea923abb351d",
+    "return_sha256": "3e131476524e4ba4ab0c917906c728c2dfe9adc72e9fbaf3914744728e77b19f",
+    "verdict": "PASS"
+  },
+  "entry_checks": {
+    "receipt_validator": "PASS",
+    "validated_cursor": "Receipt-136",
+    "candidate_whitespace": "PASS",
+    "path_anchors": "PASS 4359/0",
+    "candidate_allowlist": "PASS 29/29",
+    "candidate_json": "PASS",
+    "original_local_handoff_sha256": "ebbed866266cc961344151519b2792c6cfc5889eb18143a7809be69700c56035"
+  },
+  "historical_failed_tested_commit": "f67498d4fe8df4f5a7c0d6c279a8e62e1cc77634",
+  "next": "Commit the exact repair and evidence delta, refresh current main, establish a clean tested source commit, then rerun full DEC-025 from G0 and practitioner only after G0-G4 PASS."
+}

@@ -1,0 +1,21 @@
+{
+  "overall_status": "WARNINGS",
+  "checks_failed": [],
+  "issue_counts": {
+    "WARNING": 2,
+    "INFO": 2
+  },
+  "sows_validated": 97,
+  "stock_validator": {
+    "exit_code": 1,
+    "before_errors": 2097,
+    "after_errors": 2265,
+    "unchanged_findings": 2097,
+    "resolved": 0,
+    "skipped": [
+      "XRG family (Deliverables.csv and/or ScopeLedger.csv absent)"
+    ],
+    "limit": "Stock validator excludes docs/_Registers; explicit parity checks above cover canonical companions."
+  },
+  "new_stock_findings": 168
+}

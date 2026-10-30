@@ -1,0 +1,162 @@
+[
+ [
+  "^for diagnostic in array\\(&source\\[\" \"\\]\\)\\?$",
+  "D",
+  "physics_evidence.rs:341: the projection's diagnostics <= D"
+ ],
+ [
+  "^for reference in array\\(&case\\[\" \"\\]\\)\\?$",
+  "D",
+  "physics_evidence.rs:365: a numerical case's evidence_refs name envelope diagnostics <= D"
+ ],
+ [
+  "^for \\(case_id, case\\) in &cases$",
+  "cases",
+  "physics_evidence.rs:385, :810: one entry per load case"
+ ],
+ [
+  "^for s in sections\\.values\\(\\)$",
+  "m",
+  "physics_evidence.rs:424: one section per member"
+ ],
+ [
+  "^for \\(id, row\\) in &rows$",
+  "Pall",
+  "physics_evidence.rs:514, :805: every published row"
+ ],
+ [
+  "^for components in support_components\\.values\\(\\)$",
+  "g",
+  "physics_evidence.rs:564: one entry per support"
+ ],
+ [
+  "^for \\(member, duplicate\\) in duplicates$",
+  "m",
+  "physics_evidence.rs:655 (inside the region loop): per member"
+ ],
+ [
+  "^for item in applied\\.values\\(\\)$",
+  "N",
+  "physics_evidence.rs:676 (inside the region loop): applied loads per DOF"
+ ],
+ [
+  "^for \\(reaction, closure\\) in array\\(&terminal\\[\" \"\\]\\)\\? \\.iter\\(\\) \\.zip\\(array\\(&terminal\\[\" \"\\]\\)\\?\\)$",
+  "3",
+  "physics_evidence.rs:690 (inside the region loop): three axes"
+ ],
+ [
+  "^for id in actual$",
+  "Pall",
+  "physics_evidence.rs:762 (inside the region loop): bound result ids <= rows"
+ ],
+ [
+  "^iter:rows \\.iter\\(\\)\\.filter$",
+  "Pall",
+  "physics_evidence.rs:752 (inside the region loop): every published row"
+ ],
+ [
+  "^for component in components$",
+  "6",
+  "physics_evidence.rs:794 (inside the region loop): <= 2 components per kind; 6 bounds every reached table of this header"
+ ],
+ [
+  "^for station in stations$",
+  "5",
+  "physics_evidence.rs:795: STATIONS (5) or its first 2"
+ ],
+ [
+  "^for \\(i, v\\) in values\\.into_iter\\(\\)\\.enumerate\\(\\)$",
+  "3",
+  "composite.rs:214, physics_source.rs:254: a [f64; 3]"
+ ],
+ [
+  "^for row in actual$",
+  "Pall",
+  "composite.rs:604: a case's published rows <= every row"
+ ],
+ [
+  "^for mut row in expected$",
+  "Pall",
+  "composite.rs:704: expected rows <= every row"
+ ],
+ [
+  "^for id in member_ids$",
+  "m",
+  "composite.rs:780: member ids"
+ ],
+ [
+  "^for \\(group, mut row\\) in generated\\.into_iter\\(\\)\\.skip\\(6\\)\\.enumerate\\(\\)$",
+  "2",
+  "composite.rs:816: append_signed_support_results makes 8 rows; skip(6) leaves the 2 magnitudes"
+ ],
+ [
+  "^for row in actual\\.iter\\(\\)\\.filter\\(\\|r\\| r\\.entity_ref == member\\.member_id\\)$",
+  "Pall",
+  "composite.rs:842: every row"
+ ],
+ [
+  "^iter:\" \":source_recovery::STATIONS\\.iter\\(\\)\\.enumerate\\(\\)\\.map$",
+  "5",
+  "composite.rs:914: STATIONS has 5 entries"
+ ],
+ [
+  "^iter:rows: actual \\.iter\\(\\)\\.map$",
+  "Pall",
+  "composite.rs:966: every row"
+ ],
+ [
+  "^for \\(index, \\(case, physical\\)\\) in cases\\.iter\\(\\)\\.zip\\(physical\\)\\.enumerate\\(\\)$",
+  "cases",
+  "composite.rs:1042: one per case"
+ ],
+ [
+  "^iter:inputs: \\(0\\.\\.3\\)\\.map$",
+  "3",
+  "composite.rs:825: three inputs"
+ ],
+ [
+  "^for item in a$",
+  "Pall",
+  "physics_evidence.rs:62 strings(): an id list (node_order n, pipe ids m, result ids <= rows)"
+ ],
+ [
+  "^for x in array\\(v\\)\\?$",
+  "N",
+  "physics_evidence.rs:98 vector(): length 2, 3 or 6n"
+ ],
+ [
+  "^for k in &GEOMETRY_KEYS\\[2\\.\\.\\]$",
+  "9",
+  "physics_evidence.rs:144: GEOMETRY_KEYS has 11 entries"
+ ],
+ [
+  "^for \\(i, n\\) in array\\(&v\\[values\\]\\)\\?\\.iter\\(\\)\\.enumerate\\(\\)$",
+  "N",
+  "physics_evidence.rs:892: an RHS vector of 6n"
+ ],
+ [
+  "^for group in array\\(&v\\[\" \"\\]\\)\\?$",
+  "0",
+  "physics_evidence.rs:899 assembly(): `groups` holds one entry per pressure source group, made only inside a region (finish_source_groups' group loop); every region list is empty (D1.5-exact)"
+ ],
+ [
+  "^for term in array\\(&group\\[\" \"\\]\\)\\?$",
+  "m",
+  "physics_evidence.rs:951: terms of one group <= members"
+ ],
+ [
+  "^for \\(endpoint, \\(end, claim\\)\\) in ends\\.iter\\(\\)\\.zip\\(claimed\\)\\.enumerate\\(\\)$",
+  "2",
+  "physics_source.rs:375: two endpoints (required at :370-373)"
+ ],
+ [
+  "^for \\(\\(index, id\\), action\\) in array\\(&end\\[\" \"\\]\\)\\? \\.iter\\(\\) \\.zip\\(array\\(&end\\[\" \"\\]\\)\\?\\) \\.zip\\(array\\(&end\\[\" \"\\]\\)\\?\\)$",
+  "3",
+  "physics_source.rs:388: three functionals per endpoint"
+ ],
+ [
+  "^for end in ends$",
+  "2",
+  "physics_source.rs:432: two endpoints"
+ ]
+]

@@ -1,0 +1,4345 @@
+{
+ "document_kind": "openpipestress.rule_interval_cases",
+ "case_file_version": 1,
+ "basis": "T3 D2 revision 5b.3 §4.11.2-§4.11.5 (option C, conservative interval binding)",
+ "notice": "Invented values only; no protected standards content and no professional, certification or code-compliance claim. Inputs and expected enclosures are binary64 bit patterns; formula literals are short decimals that every JSON reader parses exactly. An input binds [next_down(q-b), next_up(q+b)] when b > 0 and the exact point q when b = 0; any other b (negative, NaN, infinite) gives no finite enclosure (enclosure_from_bound returns none). An optional enclosure_bits pair (or null) is an explicit input enclosure that replaces the bound. Truth values: T (every value passes), F (every value fails), U (indeterminate, never a pass). A negative control must never read T.",
+ "consumers": [
+  "core/rules/rule_check_runner/tests/rule_interval_cases.rs",
+  "tests/test_rule_interval.py"
+ ],
+ "cases": [
+  {
+   "case_id": "literal_point",
+   "description": "A literal is an exact point.",
+   "negative_control": false,
+   "formula": {
+    "node": "literal",
+    "quantity": {
+     "value": 2.5,
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit"
+    }
+   },
+   "inputs": [],
+   "expected": {
+    "kind": "quantity",
+    "dimension": "stress",
+    "unit_ref": "invented_stress_unit",
+    "enclosure": [
+     "0x4004000000000000",
+     "0x4004000000000000"
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "variable_zero_bound_point",
+   "description": "b = 0 binds the exact point q.",
+   "negative_control": false,
+   "formula": {
+    "node": "variable_ref",
+    "variable_id": "x"
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x3ff8000000000000",
+     "bound_bits": "0x0000000000000000",
+     "value_text": "1.5",
+     "bound_text": "0.0"
+    }
+   ],
+   "expected": {
+    "kind": "quantity",
+    "dimension": "stress",
+    "unit_ref": "invented_stress_unit",
+    "enclosure": [
+     "0x3ff8000000000000",
+     "0x3ff8000000000000"
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "variable_interval_bound",
+   "description": "b > 0 binds [next_down(q-b), next_up(q+b)].",
+   "negative_control": false,
+   "formula": {
+    "node": "variable_ref",
+    "variable_id": "x"
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x3ff8000000000000",
+     "bound_bits": "0x3fe0000000000000",
+     "value_text": "1.5",
+     "bound_text": "0.5"
+    }
+   ],
+   "expected": {
+    "kind": "quantity",
+    "dimension": "stress",
+    "unit_ref": "invented_stress_unit",
+    "enclosure": [
+     "0x3fefffffffffffff",
+     "0x4000000000000001"
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "variable_subnormal_bound",
+   "description": "A subnormal b needs no special case.",
+   "negative_control": false,
+   "formula": {
+    "node": "variable_ref",
+    "variable_id": "x"
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x0000000000000000",
+     "bound_bits": "0x0000000000000001",
+     "value_text": "0.0",
+     "bound_text": "5e-324"
+    }
+   ],
+   "expected": {
+    "kind": "quantity",
+    "dimension": "stress",
+    "unit_ref": "invented_stress_unit",
+    "enclosure": [
+     "0x8000000000000002",
+     "0x0000000000000002"
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "add_points_steps_outward",
+   "description": "Every floating operation steps outward, even on points.",
+   "negative_control": false,
+   "formula": {
+    "node": "binary",
+    "operator": "add",
+    "left": {
+     "node": "literal",
+     "quantity": {
+      "value": 1.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 2.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [],
+   "expected": {
+    "kind": "quantity",
+    "dimension": "stress",
+    "unit_ref": "invented_stress_unit",
+    "enclosure": [
+     "0x4007ffffffffffff",
+     "0x4008000000000001"
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "add_intervals",
+   "description": "Endpoint sums, outward.",
+   "negative_control": false,
+   "formula": {
+    "node": "binary",
+    "operator": "add",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "variable_ref",
+     "variable_id": "y"
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x3ff8000000000000",
+     "bound_bits": "0x3fe0000000000000",
+     "value_text": "1.5",
+     "bound_text": "0.5"
+    },
+    {
+     "variable_id": "y",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "quantity",
+    "dimension": "stress",
+    "unit_ref": "invented_stress_unit",
+    "enclosure": [
+     "0x4023fffffffffffe",
+     "0x402a000000000002"
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "subtract_intervals",
+   "description": "Crossed endpoint differences, outward.",
+   "negative_control": false,
+   "formula": {
+    "node": "binary",
+    "operator": "subtract",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "variable_ref",
+     "variable_id": "y"
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x3ff8000000000000",
+     "bound_bits": "0x3fe0000000000000",
+     "value_text": "1.5",
+     "bound_text": "0.5"
+    },
+    {
+     "variable_id": "y",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "quantity",
+    "dimension": "stress",
+    "unit_ref": "invented_stress_unit",
+    "enclosure": [
+     "0xc024000000000002",
+     "0xc01bfffffffffffd"
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "multiply_mixed_signs",
+   "description": "Min and max of the four endpoint products.",
+   "negative_control": false,
+   "formula": {
+    "node": "binary",
+    "operator": "multiply",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "z"
+    },
+    "right": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "z",
+     "dimension": "dimensionless",
+     "unit_ref": "ratio",
+     "value_bits": "0xbff0000000000000",
+     "bound_bits": "0x4000000000000000",
+     "value_text": "-1.0",
+     "bound_text": "2.0"
+    },
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4000000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "2.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "quantity",
+    "dimension": "stress",
+    "unit_ref": "invented_stress_unit",
+    "enclosure": [
+     "0xc022000000000003",
+     "0x4008000000000004"
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "multiply_derived_product_unit",
+   "description": "stress x area is force, units joined in byte order.",
+   "negative_control": false,
+   "formula": {
+    "node": "binary",
+    "operator": "multiply",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 2.0,
+      "dimension": "area",
+      "unit_ref": "invented_area_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4008000000000000",
+     "bound_bits": "0x3fd0000000000000",
+     "value_text": "3.0",
+     "bound_text": "0.25"
+    }
+   ],
+   "expected": {
+    "kind": "quantity",
+    "dimension": "force",
+    "unit_ref": "invented_area_unit*invented_stress_unit",
+    "enclosure": [
+     "0x4015fffffffffffe",
+     "0x401a000000000002"
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "divide_positive_divisor",
+   "description": "Min and max of the four endpoint quotients.",
+   "negative_control": false,
+   "formula": {
+    "node": "binary",
+    "operator": "divide",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "variable_ref",
+     "variable_id": "z"
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    },
+    {
+     "variable_id": "z",
+     "dimension": "dimensionless",
+     "unit_ref": "ratio",
+     "value_bits": "0x4000000000000000",
+     "bound_bits": "0x3fe0000000000000",
+     "value_text": "2.0",
+     "bound_text": "0.5"
+    }
+   ],
+   "expected": {
+    "kind": "quantity",
+    "dimension": "stress",
+    "unit_ref": "invented_stress_unit",
+    "enclosure": [
+     "0x400cccccccccccc9",
+     "0x401d555555555559"
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "divide_negative_divisor",
+   "description": "A divisor range wholly below zero.",
+   "negative_control": false,
+   "formula": {
+    "node": "binary",
+    "operator": "divide",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "variable_ref",
+     "variable_id": "z"
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    },
+    {
+     "variable_id": "z",
+     "dimension": "dimensionless",
+     "unit_ref": "ratio",
+     "value_bits": "0xc000000000000000",
+     "bound_bits": "0x3fe0000000000000",
+     "value_text": "-2.0",
+     "bound_text": "0.5"
+    }
+   ],
+   "expected": {
+    "kind": "quantity",
+    "dimension": "stress",
+    "unit_ref": "invented_stress_unit",
+    "enclosure": [
+     "0xc01d555555555559",
+     "0xc00cccccccccccc9"
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "divide_same_dimension_ratio",
+   "description": "stress / stress is a ratio.",
+   "negative_control": false,
+   "formula": {
+    "node": "binary",
+    "operator": "divide",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "variable_ref",
+     "variable_id": "y"
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    },
+    {
+     "variable_id": "y",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4010000000000000",
+     "bound_bits": "0x3fe0000000000000",
+     "value_text": "4.0",
+     "bound_text": "0.5"
+    }
+   ],
+   "expected": {
+    "kind": "quantity",
+    "dimension": "dimensionless",
+    "unit_ref": "ratio",
+    "enclosure": [
+     "0x3ffffffffffffffb",
+     "0x400924924924924c"
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "divide_derived_quotient_unit",
+   "description": "moment / force is length, unit numerator/denominator.",
+   "negative_control": false,
+   "formula": {
+    "node": "binary",
+    "operator": "divide",
+    "left": {
+     "node": "literal",
+     "quantity": {
+      "value": 12.0,
+      "dimension": "moment",
+      "unit_ref": "invented_moment_unit"
+     }
+    },
+    "right": {
+     "node": "variable_ref",
+     "variable_id": "f"
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "f",
+     "dimension": "force",
+     "unit_ref": "invented_force_unit",
+     "value_bits": "0x4010000000000000",
+     "bound_bits": "0x3fe0000000000000",
+     "value_text": "4.0",
+     "bound_text": "0.5"
+    }
+   ],
+   "expected": {
+    "kind": "quantity",
+    "dimension": "length",
+    "unit_ref": "invented_moment_unit/invented_force_unit",
+    "enclosure": [
+     "0x4005555555555553",
+     "0x400b6db6db6db6dd"
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "negate_exact",
+   "description": "Negation is exact: [-hi, -lo].",
+   "negative_control": false,
+   "formula": {
+    "node": "unary",
+    "operator": "negate",
+    "operand": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x3ff8000000000000",
+     "bound_bits": "0x3fe0000000000000",
+     "value_text": "1.5",
+     "bound_text": "0.5"
+    }
+   ],
+   "expected": {
+    "kind": "quantity",
+    "dimension": "stress",
+    "unit_ref": "invented_stress_unit",
+    "enclosure": [
+     "0xc000000000000001",
+     "0xbfefffffffffffff"
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "abs_positive",
+   "description": "abs of a non-negative range is the range.",
+   "negative_control": false,
+   "formula": {
+    "node": "unary",
+    "operator": "abs",
+    "operand": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4014000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "5.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "quantity",
+    "dimension": "stress",
+    "unit_ref": "invented_stress_unit",
+    "enclosure": [
+     "0x400fffffffffffff",
+     "0x4018000000000001"
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "abs_negative",
+   "description": "abs of a non-positive range is [-hi, -lo].",
+   "negative_control": false,
+   "formula": {
+    "node": "unary",
+    "operator": "abs",
+    "operand": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0xc014000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "-5.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "quantity",
+    "dimension": "stress",
+    "unit_ref": "invented_stress_unit",
+    "enclosure": [
+     "0x400fffffffffffff",
+     "0x4018000000000001"
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "abs_straddle",
+   "description": "abs of a straddling range is [0, max(-lo, hi)].",
+   "negative_control": false,
+   "formula": {
+    "node": "unary",
+    "operator": "abs",
+    "operand": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0xbff0000000000000",
+     "bound_bits": "0x4000000000000000",
+     "value_text": "-1.0",
+     "bound_text": "2.0"
+    }
+   ],
+   "expected": {
+    "kind": "quantity",
+    "dimension": "stress",
+    "unit_ref": "invented_stress_unit",
+    "enclosure": [
+     "0x0000000000000000",
+     "0x4008000000000001"
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "min_aggregate",
+   "description": "Endpoint-wise min (exact).",
+   "negative_control": false,
+   "formula": {
+    "node": "aggregate",
+    "function": "min",
+    "operands": [
+     {
+      "node": "variable_ref",
+      "variable_id": "x"
+     },
+     {
+      "node": "variable_ref",
+      "variable_id": "y"
+     }
+    ]
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    },
+    {
+     "variable_id": "y",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4014000000000000",
+     "bound_bits": "0x4024000000000000",
+     "value_text": "5.0",
+     "bound_text": "10.0"
+    }
+   ],
+   "expected": {
+    "kind": "quantity",
+    "dimension": "stress",
+    "unit_ref": "invented_stress_unit",
+    "enclosure": [
+     "0xc014000000000001",
+     "0x4026000000000001"
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "max_aggregate",
+   "description": "Endpoint-wise max (exact).",
+   "negative_control": false,
+   "formula": {
+    "node": "aggregate",
+    "function": "max",
+    "operands": [
+     {
+      "node": "variable_ref",
+      "variable_id": "x"
+     },
+     {
+      "node": "variable_ref",
+      "variable_id": "y"
+     }
+    ]
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    },
+    {
+     "variable_id": "y",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4014000000000000",
+     "bound_bits": "0x4024000000000000",
+     "value_text": "5.0",
+     "bound_text": "10.0"
+    }
+   ],
+   "expected": {
+    "kind": "quantity",
+    "dimension": "stress",
+    "unit_ref": "invented_stress_unit",
+    "enclosure": [
+     "0x4021ffffffffffff",
+     "0x402e000000000001"
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "min_single_operand",
+   "description": "A one-operand min is its operand.",
+   "negative_control": false,
+   "formula": {
+    "node": "aggregate",
+    "function": "min",
+    "operands": [
+     {
+      "node": "variable_ref",
+      "variable_id": "x"
+     }
+    ]
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "quantity",
+    "dimension": "stress",
+    "unit_ref": "invented_stress_unit",
+    "enclosure": [
+     "0x4021ffffffffffff",
+     "0x4026000000000001"
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "rounding_hides_real_excess",
+   "description": "fl(1 + 2^-53) = 1, but the exact sum exceeds 1: never T.",
+   "negative_control": true,
+   "formula": {
+    "node": "compare",
+    "operator": "less_than_or_equal",
+    "left": {
+     "node": "binary",
+     "operator": "add",
+     "left": {
+      "node": "variable_ref",
+      "variable_id": "x"
+     },
+     "right": {
+      "node": "variable_ref",
+      "variable_id": "y"
+     }
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 1.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x3ff0000000000000",
+     "bound_bits": "0x0000000000000000",
+     "value_text": "1.0",
+     "bound_text": "0.0"
+    },
+    {
+     "variable_id": "y",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x3ca0000000000000",
+     "bound_bits": "0x0000000000000000",
+     "value_text": "1.1102230246251565e-16",
+     "bound_text": "0.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "U"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "le_true",
+   "description": "x less_than_or_equal 12.0 with x = 10 +/- 1.",
+   "negative_control": false,
+   "formula": {
+    "node": "compare",
+    "operator": "less_than_or_equal",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 12.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "T"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "le_false",
+   "description": "x less_than_or_equal 8.0 with x = 10 +/- 1.",
+   "negative_control": false,
+   "formula": {
+    "node": "compare",
+    "operator": "less_than_or_equal",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 8.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "F"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "le_straddle",
+   "description": "x less_than_or_equal 10.0 with x = 10 +/- 1.",
+   "negative_control": true,
+   "formula": {
+    "node": "compare",
+    "operator": "less_than_or_equal",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 10.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "U"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "lt_true",
+   "description": "x less_than 12.0 with x = 10 +/- 1.",
+   "negative_control": false,
+   "formula": {
+    "node": "compare",
+    "operator": "less_than",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 12.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "T"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "lt_false",
+   "description": "x less_than 8.0 with x = 10 +/- 1.",
+   "negative_control": false,
+   "formula": {
+    "node": "compare",
+    "operator": "less_than",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 8.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "F"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "ge_straddle",
+   "description": "x greater_than_or_equal 10.0 with x = 10 +/- 1.",
+   "negative_control": true,
+   "formula": {
+    "node": "compare",
+    "operator": "greater_than_or_equal",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 10.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "U"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "ge_false",
+   "description": "x greater_than_or_equal 12.0 with x = 10 +/- 1.",
+   "negative_control": false,
+   "formula": {
+    "node": "compare",
+    "operator": "greater_than_or_equal",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 12.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "F"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "gt_true",
+   "description": "x greater_than 8.0 with x = 10 +/- 1.",
+   "negative_control": false,
+   "formula": {
+    "node": "compare",
+    "operator": "greater_than",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 8.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "T"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "gt_false",
+   "description": "x greater_than 12.0 with x = 10 +/- 1.",
+   "negative_control": false,
+   "formula": {
+    "node": "compare",
+    "operator": "greater_than",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 12.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "F"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "gt_straddle",
+   "description": "x greater_than 10.0 with x = 10 +/- 1.",
+   "negative_control": true,
+   "formula": {
+    "node": "compare",
+    "operator": "greater_than",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 10.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "U"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "equal_overlap",
+   "description": "x equal 10.0 with x = 10 +/- 1.",
+   "negative_control": true,
+   "formula": {
+    "node": "compare",
+    "operator": "equal",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 10.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "U"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "equal_disjoint",
+   "description": "x equal 20.0 with x = 10 +/- 1.",
+   "negative_control": false,
+   "formula": {
+    "node": "compare",
+    "operator": "equal",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 20.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "F"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "not_equal_overlap",
+   "description": "x not_equal 10.0 with x = 10 +/- 1.",
+   "negative_control": true,
+   "formula": {
+    "node": "compare",
+    "operator": "not_equal",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 10.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "U"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "not_equal_disjoint",
+   "description": "x not_equal 20.0 with x = 10 +/- 1.",
+   "negative_control": false,
+   "formula": {
+    "node": "compare",
+    "operator": "not_equal",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 20.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "T"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "lt_shared_end",
+   "description": "x < x.hi: the shared end is not strictly below.",
+   "negative_control": true,
+   "formula": {
+    "node": "compare",
+    "operator": "less_than",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "variable_ref",
+     "variable_id": "y"
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    },
+    {
+     "variable_id": "y",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4026000000000001",
+     "bound_bits": "0x0000000000000000",
+     "value_text": "11.000000000000002",
+     "bound_text": "0.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "U"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "le_shared_end",
+   "description": "x <= x.hi holds at the shared end.",
+   "negative_control": false,
+   "formula": {
+    "node": "compare",
+    "operator": "less_than_or_equal",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "variable_ref",
+     "variable_id": "y"
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    },
+    {
+     "variable_id": "y",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4026000000000001",
+     "bound_bits": "0x0000000000000000",
+     "value_text": "11.000000000000002",
+     "bound_text": "0.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "T"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "gt_shared_end",
+   "description": "x > x.lo: the shared end is not strictly above.",
+   "negative_control": true,
+   "formula": {
+    "node": "compare",
+    "operator": "greater_than",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "variable_ref",
+     "variable_id": "y"
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    },
+    {
+     "variable_id": "y",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4021ffffffffffff",
+     "bound_bits": "0x0000000000000000",
+     "value_text": "8.999999999999998",
+     "bound_text": "0.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "U"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "ge_shared_end",
+   "description": "x >= x.lo holds at the shared end.",
+   "negative_control": false,
+   "formula": {
+    "node": "compare",
+    "operator": "greater_than_or_equal",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "variable_ref",
+     "variable_id": "y"
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    },
+    {
+     "variable_id": "y",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4021ffffffffffff",
+     "bound_bits": "0x0000000000000000",
+     "value_text": "8.999999999999998",
+     "bound_text": "0.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "T"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "equal_points",
+   "description": "= is T for two equal points.",
+   "negative_control": false,
+   "formula": {
+    "node": "compare",
+    "operator": "equal",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 10.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x0000000000000000",
+     "value_text": "10.0",
+     "bound_text": "0.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "T"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "not_equal_points",
+   "description": "!= is F for two equal points.",
+   "negative_control": false,
+   "formula": {
+    "node": "compare",
+    "operator": "not_equal",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 10.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x0000000000000000",
+     "value_text": "10.0",
+     "bound_text": "0.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "F"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "not_straddle",
+   "description": "not(x > c) with x straddling c.",
+   "negative_control": true,
+   "formula": {
+    "node": "unary",
+    "operator": "not",
+    "operand": {
+     "node": "compare",
+     "operator": "greater_than",
+     "left": {
+      "node": "variable_ref",
+      "variable_id": "x"
+     },
+     "right": {
+      "node": "literal",
+      "quantity": {
+       "value": 10.0,
+       "dimension": "stress",
+       "unit_ref": "invented_stress_unit"
+      }
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "U"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "not_true",
+   "description": "not T is F.",
+   "negative_control": false,
+   "formula": {
+    "node": "unary",
+    "operator": "not",
+    "operand": {
+     "node": "compare",
+     "operator": "less_than",
+     "left": {
+      "node": "variable_ref",
+      "variable_id": "x"
+     },
+     "right": {
+      "node": "literal",
+      "quantity": {
+       "value": 12.0,
+       "dimension": "stress",
+       "unit_ref": "invented_stress_unit"
+      }
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "F"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "and_false_dominates",
+   "description": "F and U is F.",
+   "negative_control": false,
+   "formula": {
+    "node": "logical",
+    "operator": "and",
+    "left": {
+     "node": "compare",
+     "operator": "greater_than",
+     "left": {
+      "node": "variable_ref",
+      "variable_id": "x"
+     },
+     "right": {
+      "node": "literal",
+      "quantity": {
+       "value": 12.0,
+       "dimension": "stress",
+       "unit_ref": "invented_stress_unit"
+      }
+     }
+    },
+    "right": {
+     "node": "compare",
+     "operator": "less_than_or_equal",
+     "left": {
+      "node": "variable_ref",
+      "variable_id": "x"
+     },
+     "right": {
+      "node": "literal",
+      "quantity": {
+       "value": 10.0,
+       "dimension": "stress",
+       "unit_ref": "invented_stress_unit"
+      }
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "F"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "and_true_unknown",
+   "description": "T and U is U.",
+   "negative_control": true,
+   "formula": {
+    "node": "logical",
+    "operator": "and",
+    "left": {
+     "node": "compare",
+     "operator": "less_than",
+     "left": {
+      "node": "variable_ref",
+      "variable_id": "x"
+     },
+     "right": {
+      "node": "literal",
+      "quantity": {
+       "value": 12.0,
+       "dimension": "stress",
+       "unit_ref": "invented_stress_unit"
+      }
+     }
+    },
+    "right": {
+     "node": "compare",
+     "operator": "less_than_or_equal",
+     "left": {
+      "node": "variable_ref",
+      "variable_id": "x"
+     },
+     "right": {
+      "node": "literal",
+      "quantity": {
+       "value": 10.0,
+       "dimension": "stress",
+       "unit_ref": "invented_stress_unit"
+      }
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "U"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "or_true_dominates",
+   "description": "T or U is T (U from a straddling comparison).",
+   "negative_control": false,
+   "formula": {
+    "node": "logical",
+    "operator": "or",
+    "left": {
+     "node": "compare",
+     "operator": "less_than",
+     "left": {
+      "node": "variable_ref",
+      "variable_id": "x"
+     },
+     "right": {
+      "node": "literal",
+      "quantity": {
+       "value": 12.0,
+       "dimension": "stress",
+       "unit_ref": "invented_stress_unit"
+      }
+     }
+    },
+    "right": {
+     "node": "compare",
+     "operator": "less_than_or_equal",
+     "left": {
+      "node": "variable_ref",
+      "variable_id": "x"
+     },
+     "right": {
+      "node": "literal",
+      "quantity": {
+       "value": 10.0,
+       "dimension": "stress",
+       "unit_ref": "invented_stress_unit"
+      }
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "T"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "or_false_unknown",
+   "description": "F or U is U.",
+   "negative_control": true,
+   "formula": {
+    "node": "logical",
+    "operator": "or",
+    "left": {
+     "node": "compare",
+     "operator": "greater_than",
+     "left": {
+      "node": "variable_ref",
+      "variable_id": "x"
+     },
+     "right": {
+      "node": "literal",
+      "quantity": {
+       "value": 12.0,
+       "dimension": "stress",
+       "unit_ref": "invented_stress_unit"
+      }
+     }
+    },
+    "right": {
+     "node": "compare",
+     "operator": "less_than_or_equal",
+     "left": {
+      "node": "variable_ref",
+      "variable_id": "x"
+     },
+     "right": {
+      "node": "literal",
+      "quantity": {
+       "value": 10.0,
+       "dimension": "stress",
+       "unit_ref": "invented_stress_unit"
+      }
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "U"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "select_true_takes_then",
+   "description": "Condition T: the then-branch.",
+   "negative_control": false,
+   "formula": {
+    "node": "select",
+    "condition": {
+     "node": "compare",
+     "operator": "less_than",
+     "left": {
+      "node": "variable_ref",
+      "variable_id": "x"
+     },
+     "right": {
+      "node": "literal",
+      "quantity": {
+       "value": 12.0,
+       "dimension": "stress",
+       "unit_ref": "invented_stress_unit"
+      }
+     }
+    },
+    "then": {
+     "node": "literal",
+     "quantity": {
+      "value": 1.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    },
+    "else": {
+     "node": "literal",
+     "quantity": {
+      "value": 2.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "quantity",
+    "dimension": "stress",
+    "unit_ref": "invented_stress_unit",
+    "enclosure": [
+     "0x3ff0000000000000",
+     "0x3ff0000000000000"
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "select_false_takes_else",
+   "description": "Condition F: the else-branch.",
+   "negative_control": false,
+   "formula": {
+    "node": "select",
+    "condition": {
+     "node": "compare",
+     "operator": "greater_than",
+     "left": {
+      "node": "variable_ref",
+      "variable_id": "x"
+     },
+     "right": {
+      "node": "literal",
+      "quantity": {
+       "value": 12.0,
+       "dimension": "stress",
+       "unit_ref": "invented_stress_unit"
+      }
+     }
+    },
+    "then": {
+     "node": "literal",
+     "quantity": {
+      "value": 1.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    },
+    "else": {
+     "node": "literal",
+     "quantity": {
+      "value": 2.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "quantity",
+    "dimension": "stress",
+    "unit_ref": "invented_stress_unit",
+    "enclosure": [
+     "0x4000000000000000",
+     "0x4000000000000000"
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "select_unknown_hull",
+   "description": "Condition U: the hull of both quantity branches.",
+   "negative_control": false,
+   "formula": {
+    "node": "select",
+    "condition": {
+     "node": "compare",
+     "operator": "less_than_or_equal",
+     "left": {
+      "node": "variable_ref",
+      "variable_id": "x"
+     },
+     "right": {
+      "node": "literal",
+      "quantity": {
+       "value": 10.0,
+       "dimension": "stress",
+       "unit_ref": "invented_stress_unit"
+      }
+     }
+    },
+    "then": {
+     "node": "literal",
+     "quantity": {
+      "value": 1.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    },
+    "else": {
+     "node": "literal",
+     "quantity": {
+      "value": 2.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "quantity",
+    "dimension": "stress",
+    "unit_ref": "invented_stress_unit",
+    "enclosure": [
+     "0x3ff0000000000000",
+     "0x4000000000000000"
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "select_unknown_straddle",
+   "description": "A select with a U condition whose branches straddle the limit.",
+   "negative_control": true,
+   "formula": {
+    "node": "compare",
+    "operator": "less_than_or_equal",
+    "left": {
+     "node": "select",
+     "condition": {
+      "node": "compare",
+      "operator": "less_than_or_equal",
+      "left": {
+       "node": "variable_ref",
+       "variable_id": "x"
+      },
+      "right": {
+       "node": "literal",
+       "quantity": {
+        "value": 10.0,
+        "dimension": "stress",
+        "unit_ref": "invented_stress_unit"
+       }
+      }
+     },
+     "then": {
+      "node": "literal",
+      "quantity": {
+       "value": 1.0,
+       "dimension": "stress",
+       "unit_ref": "invented_stress_unit"
+      }
+     },
+     "else": {
+      "node": "literal",
+      "quantity": {
+       "value": 20.0,
+       "dimension": "stress",
+       "unit_ref": "invented_stress_unit"
+      }
+     }
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 5.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "U"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "select_unknown_booleans_agree",
+   "description": "Condition U, both boolean branches T: T.",
+   "negative_control": false,
+   "formula": {
+    "node": "select",
+    "condition": {
+     "node": "compare",
+     "operator": "less_than_or_equal",
+     "left": {
+      "node": "variable_ref",
+      "variable_id": "x"
+     },
+     "right": {
+      "node": "literal",
+      "quantity": {
+       "value": 10.0,
+       "dimension": "stress",
+       "unit_ref": "invented_stress_unit"
+      }
+     }
+    },
+    "then": {
+     "node": "compare",
+     "operator": "less_than",
+     "left": {
+      "node": "variable_ref",
+      "variable_id": "x"
+     },
+     "right": {
+      "node": "literal",
+      "quantity": {
+       "value": 12.0,
+       "dimension": "stress",
+       "unit_ref": "invented_stress_unit"
+      }
+     }
+    },
+    "else": {
+     "node": "compare",
+     "operator": "greater_than",
+     "left": {
+      "node": "variable_ref",
+      "variable_id": "x"
+     },
+     "right": {
+      "node": "literal",
+      "quantity": {
+       "value": 8.0,
+       "dimension": "stress",
+       "unit_ref": "invented_stress_unit"
+      }
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "T"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "select_unknown_booleans_disagree",
+   "description": "Condition U, branches T and F: U.",
+   "negative_control": true,
+   "formula": {
+    "node": "select",
+    "condition": {
+     "node": "compare",
+     "operator": "less_than_or_equal",
+     "left": {
+      "node": "variable_ref",
+      "variable_id": "x"
+     },
+     "right": {
+      "node": "literal",
+      "quantity": {
+       "value": 10.0,
+       "dimension": "stress",
+       "unit_ref": "invented_stress_unit"
+      }
+     }
+    },
+    "then": {
+     "node": "compare",
+     "operator": "less_than",
+     "left": {
+      "node": "variable_ref",
+      "variable_id": "x"
+     },
+     "right": {
+      "node": "literal",
+      "quantity": {
+       "value": 12.0,
+       "dimension": "stress",
+       "unit_ref": "invented_stress_unit"
+      }
+     }
+    },
+    "else": {
+     "node": "compare",
+     "operator": "greater_than",
+     "left": {
+      "node": "variable_ref",
+      "variable_id": "x"
+     },
+     "right": {
+      "node": "literal",
+      "quantity": {
+       "value": 12.0,
+       "dimension": "stress",
+       "unit_ref": "invented_stress_unit"
+      }
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "U"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "abs_straddle_ge",
+   "description": "abs(x) >= c with x straddling 0.",
+   "negative_control": true,
+   "formula": {
+    "node": "compare",
+    "operator": "greater_than_or_equal",
+    "left": {
+     "node": "unary",
+     "operator": "abs",
+     "operand": {
+      "node": "variable_ref",
+      "variable_id": "x"
+     }
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 0.5,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x0000000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "0.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "U"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "square_le",
+   "description": "x*x <= c (ratio z*z) with the square straddling c.",
+   "negative_control": true,
+   "formula": {
+    "node": "compare",
+    "operator": "less_than_or_equal",
+    "left": {
+     "node": "binary",
+     "operator": "multiply",
+     "left": {
+      "node": "variable_ref",
+      "variable_id": "z"
+     },
+     "right": {
+      "node": "variable_ref",
+      "variable_id": "z"
+     }
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 1.0,
+      "dimension": "dimensionless",
+      "unit_ref": "ratio"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "z",
+     "dimension": "dimensionless",
+     "unit_ref": "ratio",
+     "value_bits": "0x0000000000000000",
+     "bound_bits": "0x3ff8000000000000",
+     "value_text": "0.0",
+     "bound_text": "1.5"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "U"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "square_dependency",
+   "description": "The dependency effect widens z*z to [-2.25, 2.25]: U, never a false T or F.",
+   "negative_control": false,
+   "formula": {
+    "node": "compare",
+    "operator": "greater_than_or_equal",
+    "left": {
+     "node": "binary",
+     "operator": "multiply",
+     "left": {
+      "node": "variable_ref",
+      "variable_id": "z"
+     },
+     "right": {
+      "node": "variable_ref",
+      "variable_id": "z"
+     }
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": -0.5,
+      "dimension": "dimensionless",
+      "unit_ref": "ratio"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "z",
+     "dimension": "dimensionless",
+     "unit_ref": "ratio",
+     "value_bits": "0x0000000000000000",
+     "bound_bits": "0x3ff8000000000000",
+     "value_text": "0.0",
+     "bound_text": "1.5"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "U"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "divide_by_zero_range",
+   "description": "Division by a range containing 0.",
+   "negative_control": true,
+   "formula": {
+    "node": "compare",
+    "operator": "less_than_or_equal",
+    "left": {
+     "node": "binary",
+     "operator": "divide",
+     "left": {
+      "node": "literal",
+      "quantity": {
+       "value": 1.0,
+       "dimension": "stress",
+       "unit_ref": "invented_stress_unit"
+      }
+     },
+     "right": {
+      "node": "variable_ref",
+      "variable_id": "z"
+     }
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 1000000000.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "z",
+     "dimension": "dimensionless",
+     "unit_ref": "ratio",
+     "value_bits": "0x0000000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "0.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "U"
+   },
+   "notes": [
+    [
+     "divide_by_zero_range",
+     "divide"
+    ]
+   ]
+  },
+  {
+   "case_id": "divide_by_zero_point",
+   "description": "Division by the exact point 0 also reads U (D2 5b.3; non-pass either way).",
+   "negative_control": true,
+   "formula": {
+    "node": "compare",
+    "operator": "less_than_or_equal",
+    "left": {
+     "node": "binary",
+     "operator": "divide",
+     "left": {
+      "node": "variable_ref",
+      "variable_id": "x"
+     },
+     "right": {
+      "node": "literal",
+      "quantity": {
+       "value": 0.0,
+       "dimension": "dimensionless",
+       "unit_ref": "ratio"
+      }
+     }
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 1.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "U"
+   },
+   "notes": [
+    [
+     "divide_by_zero_range",
+     "divide"
+    ]
+   ]
+  },
+  {
+   "case_id": "two_inputs_interior_extremum",
+   "description": "Two interval inputs, the extremum interior.",
+   "negative_control": true,
+   "formula": {
+    "node": "compare",
+    "operator": "less_than_or_equal",
+    "left": {
+     "node": "binary",
+     "operator": "subtract",
+     "left": {
+      "node": "variable_ref",
+      "variable_id": "x"
+     },
+     "right": {
+      "node": "variable_ref",
+      "variable_id": "y"
+     }
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 5.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    },
+    {
+     "variable_id": "y",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4014000000000000",
+     "bound_bits": "0x4024000000000000",
+     "value_text": "5.0",
+     "bound_text": "10.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "U"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "interpolate_partly_out_of_range",
+   "description": "Interpolation partly out of range: U (part of the range would block).",
+   "negative_control": true,
+   "formula": {
+    "node": "compare",
+    "operator": "less_than_or_equal",
+    "left": {
+     "node": "interpolate",
+     "table": {
+      "table_id": "invented_tent_table",
+      "argument_dimension": "dimensionless",
+      "argument_unit_ref": "ratio",
+      "result_dimension": "stress",
+      "result_unit_ref": "invented_stress_unit",
+      "rows": [
+       {
+        "argument": 0.0,
+        "result": 0.0
+       },
+       {
+        "argument": 1.0,
+        "result": 10.0
+       },
+       {
+        "argument": 2.0,
+        "result": 0.0
+       }
+      ]
+     },
+     "argument": {
+      "node": "variable_ref",
+      "variable_id": "z"
+     }
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 100.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "z",
+     "dimension": "dimensionless",
+     "unit_ref": "ratio",
+     "value_bits": "0x3ffe666666666666",
+     "bound_bits": "0x3fe0000000000000",
+     "value_text": "1.9",
+     "bound_text": "0.5"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "U"
+   },
+   "notes": [
+    [
+     "table_argument_range",
+     "invented_tent_table"
+    ]
+   ]
+  },
+  {
+   "case_id": "interpolate_point_at_row",
+   "description": "A point at a row argument is the row's exact result.",
+   "negative_control": false,
+   "formula": {
+    "node": "interpolate",
+    "table": {
+     "table_id": "invented_tent_table",
+     "argument_dimension": "dimensionless",
+     "argument_unit_ref": "ratio",
+     "result_dimension": "stress",
+     "result_unit_ref": "invented_stress_unit",
+     "rows": [
+      {
+       "argument": 0.0,
+       "result": 0.0
+      },
+      {
+       "argument": 1.0,
+       "result": 10.0
+      },
+      {
+       "argument": 2.0,
+       "result": 0.0
+      }
+     ]
+    },
+    "argument": {
+     "node": "variable_ref",
+     "variable_id": "z"
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "z",
+     "dimension": "dimensionless",
+     "unit_ref": "ratio",
+     "value_bits": "0x3ff0000000000000",
+     "bound_bits": "0x0000000000000000",
+     "value_text": "1.0",
+     "bound_text": "0.0"
+    }
+   ],
+   "expected": {
+    "kind": "quantity",
+    "dimension": "stress",
+    "unit_ref": "invented_stress_unit",
+    "enclosure": [
+     "0x4024000000000000",
+     "0x4024000000000000"
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "interpolate_point_inside_segment",
+   "description": "A point inside a segment: the formula's chain, each step outward.",
+   "negative_control": false,
+   "formula": {
+    "node": "interpolate",
+    "table": {
+     "table_id": "invented_tent_table",
+     "argument_dimension": "dimensionless",
+     "argument_unit_ref": "ratio",
+     "result_dimension": "stress",
+     "result_unit_ref": "invented_stress_unit",
+     "rows": [
+      {
+       "argument": 0.0,
+       "result": 0.0
+      },
+      {
+       "argument": 1.0,
+       "result": 10.0
+      },
+      {
+       "argument": 2.0,
+       "result": 0.0
+      }
+     ]
+    },
+    "argument": {
+     "node": "variable_ref",
+     "variable_id": "z"
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "z",
+     "dimension": "dimensionless",
+     "unit_ref": "ratio",
+     "value_bits": "0x3fd0000000000000",
+     "bound_bits": "0x0000000000000000",
+     "value_text": "0.25",
+     "bound_text": "0.0"
+    }
+   ],
+   "expected": {
+    "kind": "quantity",
+    "dimension": "stress",
+    "unit_ref": "invented_stress_unit",
+    "enclosure": [
+     "0x4003fffffffffffb",
+     "0x4004000000000007"
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "interpolate_range_spanning_row",
+   "description": "A range spanning the peak row: the two segments joined.",
+   "negative_control": false,
+   "formula": {
+    "node": "interpolate",
+    "table": {
+     "table_id": "invented_tent_table",
+     "argument_dimension": "dimensionless",
+     "argument_unit_ref": "ratio",
+     "result_dimension": "stress",
+     "result_unit_ref": "invented_stress_unit",
+     "rows": [
+      {
+       "argument": 0.0,
+       "result": 0.0
+      },
+      {
+       "argument": 1.0,
+       "result": 10.0
+      },
+      {
+       "argument": 2.0,
+       "result": 0.0
+      }
+     ]
+    },
+    "argument": {
+     "node": "variable_ref",
+     "variable_id": "z"
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "z",
+     "dimension": "dimensionless",
+     "unit_ref": "ratio",
+     "value_bits": "0x3ff0000000000000",
+     "bound_bits": "0x3fd0000000000000",
+     "value_text": "1.0",
+     "bound_text": "0.25"
+    }
+   ],
+   "expected": {
+    "kind": "quantity",
+    "dimension": "stress",
+    "unit_ref": "invented_stress_unit",
+    "enclosure": [
+     "0x401dfffffffffff8",
+     "0x4024000000000007"
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "interpolate_rounding_near_row",
+   "description": "The point path rounds to 0.0 just left of the row at 1; the enclosure covers it.",
+   "negative_control": false,
+   "formula": {
+    "node": "interpolate",
+    "table": {
+     "table_id": "invented_steep_table",
+     "argument_dimension": "dimensionless",
+     "argument_unit_ref": "ratio",
+     "result_dimension": "stress",
+     "result_unit_ref": "invented_stress_unit",
+     "rows": [
+      {
+       "argument": -10000000000.0,
+       "result": 1e+20
+      },
+      {
+       "argument": 1.0,
+       "result": 8000.0
+      },
+      {
+       "argument": 2.0,
+       "result": 8000.0
+      }
+     ]
+    },
+    "argument": {
+     "node": "variable_ref",
+     "variable_id": "z"
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "z",
+     "dimension": "dimensionless",
+     "unit_ref": "ratio",
+     "value_bits": "0x3ff3333333333333",
+     "bound_bits": "0x3fe6666666666666",
+     "value_text": "1.2",
+     "bound_text": "0.7"
+    }
+   ],
+   "expected": {
+    "kind": "quantity",
+    "dimension": "stress",
+    "unit_ref": "invented_stress_unit",
+    "enclosure": [
+     "0xc0f8000000000001",
+     "0x41f2a07400000001"
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "interpolate_rounding_near_row_not_true",
+   "description": "D2 5b.3's counterexample: the old hull rule read T here.",
+   "negative_control": true,
+   "formula": {
+    "node": "compare",
+    "operator": "greater_than_or_equal",
+    "left": {
+     "node": "interpolate",
+     "table": {
+      "table_id": "invented_steep_table",
+      "argument_dimension": "dimensionless",
+      "argument_unit_ref": "ratio",
+      "result_dimension": "stress",
+      "result_unit_ref": "invented_stress_unit",
+      "rows": [
+       {
+        "argument": -10000000000.0,
+        "result": 1e+20
+       },
+       {
+        "argument": 1.0,
+        "result": 8000.0
+       },
+       {
+        "argument": 2.0,
+        "result": 8000.0
+       }
+      ]
+     },
+     "argument": {
+      "node": "variable_ref",
+      "variable_id": "z"
+     }
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 4000.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "z",
+     "dimension": "dimensionless",
+     "unit_ref": "ratio",
+     "value_bits": "0x3ff3333333333333",
+     "bound_bits": "0x3fe6666666666666",
+     "value_text": "1.2",
+     "bound_text": "0.7"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "U"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "lookup_step_spanning_rows",
+   "description": "The hull of every row the range spans.",
+   "negative_control": false,
+   "formula": {
+    "node": "lookup",
+    "table": {
+     "table_id": "invented_step_table",
+     "argument_dimension": "dimensionless",
+     "argument_unit_ref": "ratio",
+     "result_dimension": "stress",
+     "result_unit_ref": "invented_stress_unit",
+     "rows": [
+      {
+       "argument": 1.0,
+       "result": 5.0
+      },
+      {
+       "argument": 2.0,
+       "result": 7.0
+      },
+      {
+       "argument": 3.0,
+       "result": 6.0
+      }
+     ]
+    },
+    "mode": "step",
+    "argument": {
+     "node": "variable_ref",
+     "variable_id": "z"
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "z",
+     "dimension": "dimensionless",
+     "unit_ref": "ratio",
+     "value_bits": "0x4000000000000000",
+     "bound_bits": "0x3fe3333333333333",
+     "value_text": "2.0",
+     "bound_text": "0.6"
+    }
+   ],
+   "expected": {
+    "kind": "quantity",
+    "dimension": "stress",
+    "unit_ref": "invented_stress_unit",
+    "enclosure": [
+     "0x4014000000000000",
+     "0x401c000000000000"
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "lookup_step_single_row",
+   "description": "A range inside one step is that row's exact result.",
+   "negative_control": false,
+   "formula": {
+    "node": "lookup",
+    "table": {
+     "table_id": "invented_step_table",
+     "argument_dimension": "dimensionless",
+     "argument_unit_ref": "ratio",
+     "result_dimension": "stress",
+     "result_unit_ref": "invented_stress_unit",
+     "rows": [
+      {
+       "argument": 1.0,
+       "result": 5.0
+      },
+      {
+       "argument": 2.0,
+       "result": 7.0
+      },
+      {
+       "argument": 3.0,
+       "result": 6.0
+      }
+     ]
+    },
+    "mode": "step",
+    "argument": {
+     "node": "variable_ref",
+     "variable_id": "z"
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "z",
+     "dimension": "dimensionless",
+     "unit_ref": "ratio",
+     "value_bits": "0x4004000000000000",
+     "bound_bits": "0x3fd0000000000000",
+     "value_text": "2.5",
+     "bound_text": "0.25"
+    }
+   ],
+   "expected": {
+    "kind": "quantity",
+    "dimension": "stress",
+    "unit_ref": "invented_stress_unit",
+    "enclosure": [
+     "0x401c000000000000",
+     "0x401c000000000000"
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "lookup_step_out_of_range",
+   "description": "A step lookup partly out of range: U.",
+   "negative_control": false,
+   "formula": {
+    "node": "lookup",
+    "table": {
+     "table_id": "invented_step_table",
+     "argument_dimension": "dimensionless",
+     "argument_unit_ref": "ratio",
+     "result_dimension": "stress",
+     "result_unit_ref": "invented_stress_unit",
+     "rows": [
+      {
+       "argument": 1.0,
+       "result": 5.0
+      },
+      {
+       "argument": 2.0,
+       "result": 7.0
+      },
+      {
+       "argument": 3.0,
+       "result": 6.0
+      }
+     ]
+    },
+    "mode": "step",
+    "argument": {
+     "node": "variable_ref",
+     "variable_id": "z"
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "z",
+     "dimension": "dimensionless",
+     "unit_ref": "ratio",
+     "value_bits": "0x4007333333333333",
+     "bound_bits": "0x3fc999999999999a",
+     "value_text": "2.9",
+     "bound_text": "0.2"
+    }
+   ],
+   "expected": {
+    "kind": "quantity",
+    "dimension": "stress",
+    "unit_ref": "invented_stress_unit",
+    "enclosure": null
+   },
+   "notes": [
+    [
+     "table_argument_range",
+     "invented_step_table"
+    ]
+   ]
+  },
+  {
+   "case_id": "lookup_exact_point_hit",
+   "description": "An exact lookup of a point follows the point path.",
+   "negative_control": false,
+   "formula": {
+    "node": "lookup",
+    "table": {
+     "table_id": "invented_step_table",
+     "argument_dimension": "dimensionless",
+     "argument_unit_ref": "ratio",
+     "result_dimension": "stress",
+     "result_unit_ref": "invented_stress_unit",
+     "rows": [
+      {
+       "argument": 1.0,
+       "result": 5.0
+      },
+      {
+       "argument": 2.0,
+       "result": 7.0
+      },
+      {
+       "argument": 3.0,
+       "result": 6.0
+      }
+     ]
+    },
+    "mode": "exact",
+    "argument": {
+     "node": "variable_ref",
+     "variable_id": "z"
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "z",
+     "dimension": "dimensionless",
+     "unit_ref": "ratio",
+     "value_bits": "0x4000000000000000",
+     "bound_bits": "0x0000000000000000",
+     "value_text": "2.0",
+     "bound_text": "0.0"
+    }
+   ],
+   "expected": {
+    "kind": "quantity",
+    "dimension": "stress",
+    "unit_ref": "invented_stress_unit",
+    "enclosure": [
+     "0x401c000000000000",
+     "0x401c000000000000"
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "lookup_exact_range",
+   "description": "An exact lookup over a range: U.",
+   "negative_control": false,
+   "formula": {
+    "node": "lookup",
+    "table": {
+     "table_id": "invented_step_table",
+     "argument_dimension": "dimensionless",
+     "argument_unit_ref": "ratio",
+     "result_dimension": "stress",
+     "result_unit_ref": "invented_stress_unit",
+     "rows": [
+      {
+       "argument": 1.0,
+       "result": 5.0
+      },
+      {
+       "argument": 2.0,
+       "result": 7.0
+      },
+      {
+       "argument": 3.0,
+       "result": 6.0
+      }
+     ]
+    },
+    "mode": "exact",
+    "argument": {
+     "node": "variable_ref",
+     "variable_id": "z"
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "z",
+     "dimension": "dimensionless",
+     "unit_ref": "ratio",
+     "value_bits": "0x4000000000000000",
+     "bound_bits": "0x3fe0000000000000",
+     "value_text": "2.0",
+     "bound_text": "0.5"
+    }
+   ],
+   "expected": {
+    "kind": "quantity",
+    "dimension": "stress",
+    "unit_ref": "invented_stress_unit",
+    "enclosure": null
+   },
+   "notes": [
+    [
+     "exact_lookup_range",
+     "invented_step_table"
+    ]
+   ]
+  },
+  {
+   "case_id": "lookup_exact_point_miss",
+   "description": "A point miss blocks exactly as the point path does.",
+   "negative_control": false,
+   "formula": {
+    "node": "lookup",
+    "table": {
+     "table_id": "invented_step_table",
+     "argument_dimension": "dimensionless",
+     "argument_unit_ref": "ratio",
+     "result_dimension": "stress",
+     "result_unit_ref": "invented_stress_unit",
+     "rows": [
+      {
+       "argument": 1.0,
+       "result": 5.0
+      },
+      {
+       "argument": 2.0,
+       "result": 7.0
+      },
+      {
+       "argument": 3.0,
+       "result": 6.0
+      }
+     ]
+    },
+    "mode": "exact",
+    "argument": {
+     "node": "variable_ref",
+     "variable_id": "z"
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "z",
+     "dimension": "dimensionless",
+     "unit_ref": "ratio",
+     "value_bits": "0x4004000000000000",
+     "bound_bits": "0x0000000000000000",
+     "value_text": "2.5",
+     "bound_text": "0.0"
+    }
+   ],
+   "expected": {
+    "kind": "blocked",
+    "findings": [
+     [
+      "TableKeyNotFound",
+      "invented_step_table"
+     ]
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "eager_u_untaken_branch",
+   "description": "A possible block in an untaken branch still makes the check U.",
+   "negative_control": true,
+   "formula": {
+    "node": "compare",
+    "operator": "less_than_or_equal",
+    "left": {
+     "node": "select",
+     "condition": {
+      "node": "compare",
+      "operator": "greater_than",
+      "left": {
+       "node": "literal",
+       "quantity": {
+        "value": 2.0,
+        "dimension": "stress",
+        "unit_ref": "invented_stress_unit"
+       }
+      },
+      "right": {
+       "node": "literal",
+       "quantity": {
+        "value": 1.0,
+        "dimension": "stress",
+        "unit_ref": "invented_stress_unit"
+       }
+      }
+     },
+     "then": {
+      "node": "literal",
+      "quantity": {
+       "value": 0.0,
+       "dimension": "stress",
+       "unit_ref": "invented_stress_unit"
+      }
+     },
+     "else": {
+      "node": "binary",
+      "operator": "divide",
+      "left": {
+       "node": "variable_ref",
+       "variable_id": "x"
+      },
+      "right": {
+       "node": "variable_ref",
+       "variable_id": "z"
+      }
+     }
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 1.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x0000000000000000",
+     "value_text": "10.0",
+     "bound_text": "0.0"
+    },
+    {
+     "variable_id": "z",
+     "dimension": "dimensionless",
+     "unit_ref": "ratio",
+     "value_bits": "0x0000000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "0.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "U"
+   },
+   "notes": [
+    [
+     "divide_by_zero_range",
+     "divide"
+    ]
+   ]
+  },
+  {
+   "case_id": "eager_u_beside_true_or",
+   "description": "A possible block beside a true or-operand still makes the check U.",
+   "negative_control": true,
+   "formula": {
+    "node": "logical",
+    "operator": "or",
+    "left": {
+     "node": "compare",
+     "operator": "greater_than",
+     "left": {
+      "node": "literal",
+      "quantity": {
+       "value": 2.0,
+       "dimension": "stress",
+       "unit_ref": "invented_stress_unit"
+      }
+     },
+     "right": {
+      "node": "literal",
+      "quantity": {
+       "value": 1.0,
+       "dimension": "stress",
+       "unit_ref": "invented_stress_unit"
+      }
+     }
+    },
+    "right": {
+     "node": "compare",
+     "operator": "greater_than",
+     "left": {
+      "node": "binary",
+      "operator": "divide",
+      "left": {
+       "node": "variable_ref",
+       "variable_id": "x"
+      },
+      "right": {
+       "node": "variable_ref",
+       "variable_id": "z"
+      }
+     },
+     "right": {
+      "node": "literal",
+      "quantity": {
+       "value": 0.0,
+       "dimension": "stress",
+       "unit_ref": "invented_stress_unit"
+      }
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x0000000000000000",
+     "value_text": "10.0",
+     "bound_text": "0.0"
+    },
+    {
+     "variable_id": "z",
+     "dimension": "dimensionless",
+     "unit_ref": "ratio",
+     "value_bits": "0x0000000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "0.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "U"
+   },
+   "notes": [
+    [
+     "divide_by_zero_range",
+     "divide"
+    ]
+   ]
+  },
+  {
+   "case_id": "overflow_non_finite",
+   "description": "An overflowed end: no finite enclosure, U.",
+   "negative_control": true,
+   "formula": {
+    "node": "compare",
+    "operator": "less_than_or_equal",
+    "left": {
+     "node": "binary",
+     "operator": "multiply",
+     "left": {
+      "node": "variable_ref",
+      "variable_id": "z"
+     },
+     "right": {
+      "node": "variable_ref",
+      "variable_id": "x"
+     }
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 1.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "z",
+     "dimension": "dimensionless",
+     "unit_ref": "ratio",
+     "value_bits": "0x4000000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "2.0",
+     "bound_text": "1.0"
+    },
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x7fe1ccf385ebc8a0",
+     "bound_bits": "0x0000000000000000",
+     "value_text": "1e+308",
+     "bound_text": "0.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "U"
+   },
+   "notes": [
+    [
+     "non_finite_enclosure",
+     "multiply"
+    ]
+   ]
+  },
+  {
+   "case_id": "input_without_finite_enclosure",
+   "description": "q + b overflows: the input has no finite enclosure, U.",
+   "negative_control": false,
+   "formula": {
+    "node": "compare",
+    "operator": "less_than_or_equal",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 1.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x7fefffffffffffff",
+     "bound_bits": "0x7fefffffffffffff",
+     "value_text": "1.7976931348623157e+308",
+     "bound_text": "1.7976931348623157e+308"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "U"
+   },
+   "notes": [
+    [
+     "non_finite_enclosure",
+     "x"
+    ]
+   ]
+  },
+  {
+   "case_id": "blocked_dimension_mismatch",
+   "description": "Adding a temperature to a stress.",
+   "negative_control": false,
+   "formula": {
+    "node": "binary",
+    "operator": "add",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 1.0,
+      "dimension": "temperature",
+      "unit_ref": "invented_temperature_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "blocked",
+    "findings": [
+     [
+      "DimensionMismatch",
+      "add_subtract"
+     ]
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "blocked_unit_mismatch",
+   "description": "Adding stresses in different units.",
+   "negative_control": false,
+   "formula": {
+    "node": "binary",
+    "operator": "add",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 1.0,
+      "dimension": "stress",
+      "unit_ref": "other_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "blocked",
+    "findings": [
+     [
+      "UnitMismatch",
+      "add_subtract"
+     ]
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "blocked_type_mismatch",
+   "description": "Comparing a boolean with a quantity.",
+   "negative_control": false,
+   "formula": {
+    "node": "compare",
+    "operator": "equal",
+    "left": {
+     "node": "compare",
+     "operator": "less_than",
+     "left": {
+      "node": "variable_ref",
+      "variable_id": "x"
+     },
+     "right": {
+      "node": "literal",
+      "quantity": {
+       "value": 1.0,
+       "dimension": "stress",
+       "unit_ref": "invented_stress_unit"
+      }
+     }
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 1.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "blocked",
+    "findings": [
+     [
+      "TypeMismatch",
+      "comparison"
+     ]
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "blocked_ambiguous_quotient",
+   "description": "force / area is pressure or stress: ambiguous.",
+   "negative_control": false,
+   "formula": {
+    "node": "binary",
+    "operator": "divide",
+    "left": {
+     "node": "literal",
+     "quantity": {
+      "value": 10.0,
+      "dimension": "force",
+      "unit_ref": "invented_force_unit"
+     }
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 2.0,
+      "dimension": "area",
+      "unit_ref": "invented_area_unit"
+     }
+    }
+   },
+   "inputs": [],
+   "expected": {
+    "kind": "blocked",
+    "findings": [
+     [
+      "UnsupportedExpressionForm",
+      "divide"
+     ]
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "blocked_unsupported_form",
+   "description": "An unsupported form.",
+   "negative_control": false,
+   "formula": {
+    "node": "unsupported_form",
+    "form_id": "power"
+   },
+   "inputs": [],
+   "expected": {
+    "kind": "blocked",
+    "findings": [
+     [
+      "UnsupportedExpressionForm",
+      "power"
+     ]
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "blocked_unsafe_host_access",
+   "description": "Host access.",
+   "negative_control": false,
+   "formula": {
+    "node": "unsafe_host_access",
+    "request": "filesystem"
+   },
+   "inputs": [],
+   "expected": {
+    "kind": "blocked",
+    "findings": [
+     [
+      "UnsafeConstruct",
+      "filesystem"
+     ]
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "blocked_missing_variable",
+   "description": "An unbound variable.",
+   "negative_control": false,
+   "formula": {
+    "node": "variable_ref",
+    "variable_id": "w"
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4024000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "10.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "blocked",
+    "findings": [
+     [
+      "MissingVariable",
+      "w"
+     ]
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "blocked_table_malformed",
+   "description": "Interpolation needs at least two rows.",
+   "negative_control": false,
+   "formula": {
+    "node": "interpolate",
+    "table": {
+     "table_id": "invented_short_table",
+     "argument_dimension": "dimensionless",
+     "argument_unit_ref": "ratio",
+     "result_dimension": "stress",
+     "result_unit_ref": "invented_stress_unit",
+     "rows": [
+      {
+       "argument": 0.0,
+       "result": 1.0
+      }
+     ]
+    },
+    "argument": {
+     "node": "variable_ref",
+     "variable_id": "z"
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "z",
+     "dimension": "dimensionless",
+     "unit_ref": "ratio",
+     "value_bits": "0x3fe0000000000000",
+     "bound_bits": "0x0000000000000000",
+     "value_text": "0.5",
+     "bound_text": "0.0"
+    }
+   ],
+   "expected": {
+    "kind": "blocked",
+    "findings": [
+     [
+      "TableMalformed",
+      "invented_short_table"
+     ]
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "equal_identical_ranges",
+   "description": "x = y with identical non-point ranges: x != y inside the box, so U (RV99 S-1).",
+   "negative_control": true,
+   "formula": {
+    "node": "compare",
+    "operator": "equal",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "variable_ref",
+     "variable_id": "y"
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x3ff0000000000000",
+     "bound_bits": "0x3d70000000000000",
+     "value_text": "1.0",
+     "bound_text": "9.094947017729282e-13"
+    },
+    {
+     "variable_id": "y",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x3ff0000000000000",
+     "bound_bits": "0x3d70000000000000",
+     "value_text": "1.0",
+     "bound_text": "9.094947017729282e-13"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "U"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "not_equal_identical_ranges",
+   "description": "x != y with identical non-point ranges: x = y inside the box, so U (RV99 S-1).",
+   "negative_control": true,
+   "formula": {
+    "node": "compare",
+    "operator": "not_equal",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "variable_ref",
+     "variable_id": "y"
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x3ff0000000000000",
+     "bound_bits": "0x3d70000000000000",
+     "value_text": "1.0",
+     "bound_text": "9.094947017729282e-13"
+    },
+    {
+     "variable_id": "y",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x3ff0000000000000",
+     "bound_bits": "0x3d70000000000000",
+     "value_text": "1.0",
+     "bound_text": "9.094947017729282e-13"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "U"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "divide_by_zero_end_range",
+   "description": "0 / (-abs(z)) <= 1: the divisor [-1, -0] ends at zero, where the point path blocks (RV99 S-2).",
+   "negative_control": true,
+   "formula": {
+    "node": "compare",
+    "operator": "less_than_or_equal",
+    "left": {
+     "node": "binary",
+     "operator": "divide",
+     "left": {
+      "node": "literal",
+      "quantity": {
+       "value": 0.0,
+       "dimension": "stress",
+       "unit_ref": "invented_stress_unit"
+      }
+     },
+     "right": {
+      "node": "unary",
+      "operator": "negate",
+      "operand": {
+       "node": "unary",
+       "operator": "abs",
+       "operand": {
+        "node": "variable_ref",
+        "variable_id": "z"
+       }
+      }
+     }
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 1.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "z",
+     "dimension": "dimensionless",
+     "unit_ref": "ratio",
+     "value_bits": "0x0000000000000000",
+     "bound_bits": "0x3ff0000000000000",
+     "value_text": "0.0",
+     "bound_text": "1.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "U"
+   },
+   "notes": [
+    [
+     "divide_by_zero_range",
+     "divide"
+    ]
+   ]
+  },
+  {
+   "case_id": "invalid_bound_nan",
+   "description": "A bound of nan is not finite and non-negative: enclosure_from_bound gives no enclosure, so U (RV99 S-3).",
+   "negative_control": false,
+   "formula": {
+    "node": "compare",
+    "operator": "less_than_or_equal",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 10.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4023000000000000",
+     "bound_bits": "0x7ff8000000000000",
+     "value_text": "9.5",
+     "bound_text": "nan"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "U"
+   },
+   "notes": [
+    [
+     "non_finite_enclosure",
+     "x"
+    ]
+   ]
+  },
+  {
+   "case_id": "invalid_bound_negative",
+   "description": "A bound of -1.0 is not finite and non-negative: enclosure_from_bound gives no enclosure, so U (RV99 S-3).",
+   "negative_control": false,
+   "formula": {
+    "node": "compare",
+    "operator": "less_than_or_equal",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 10.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4023000000000000",
+     "bound_bits": "0xbff0000000000000",
+     "value_text": "9.5",
+     "bound_text": "-1.0"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "U"
+   },
+   "notes": [
+    [
+     "non_finite_enclosure",
+     "x"
+    ]
+   ]
+  },
+  {
+   "case_id": "invalid_bound_infinite",
+   "description": "A bound of inf is not finite and non-negative: enclosure_from_bound gives no enclosure, so U (RV99 S-3).",
+   "negative_control": false,
+   "formula": {
+    "node": "compare",
+    "operator": "less_than_or_equal",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 10.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4023000000000000",
+     "bound_bits": "0x7ff0000000000000",
+     "value_text": "9.5",
+     "bound_text": "inf"
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "U"
+   },
+   "notes": [
+    [
+     "non_finite_enclosure",
+     "x"
+    ]
+   ]
+  },
+  {
+   "case_id": "enclosure_explicit_valid",
+   "description": "An explicit enclosure [9, 9.75] binds as given.",
+   "negative_control": false,
+   "formula": {
+    "node": "compare",
+    "operator": "less_than_or_equal",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 10.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4023000000000000",
+     "bound_bits": "0x0000000000000000",
+     "value_text": "9.5",
+     "bound_text": "0.0",
+     "enclosure_bits": [
+      "0x4022000000000000",
+      "0x4023800000000000"
+     ]
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "T"
+   },
+   "notes": []
+  },
+  {
+   "case_id": "enclosure_explicit_none",
+   "description": "An explicit input with no finite enclosure: U.",
+   "negative_control": false,
+   "formula": {
+    "node": "compare",
+    "operator": "less_than_or_equal",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 10.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4023000000000000",
+     "bound_bits": "0x0000000000000000",
+     "value_text": "9.5",
+     "bound_text": "0.0",
+     "enclosure_bits": null
+    }
+   ],
+   "expected": {
+    "kind": "truth",
+    "truth": "U"
+   },
+   "notes": [
+    [
+     "non_finite_enclosure",
+     "x"
+    ]
+   ]
+  },
+  {
+   "case_id": "enclosure_inverted",
+   "description": "An inverted enclosure (11, 9) is refused as Rust refuses it (RV99 S-3).",
+   "negative_control": false,
+   "formula": {
+    "node": "compare",
+    "operator": "less_than_or_equal",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 10.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4023000000000000",
+     "bound_bits": "0x0000000000000000",
+     "value_text": "9.5",
+     "bound_text": "0.0",
+     "enclosure_bits": [
+      "0x4026000000000000",
+      "0x4022000000000000"
+     ]
+    }
+   ],
+   "expected": {
+    "kind": "blocked",
+    "findings": [
+     [
+      "InvalidReference",
+      "x"
+     ]
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "enclosure_nan_end",
+   "description": "An enclosure with a NaN end is refused (RV99 S-3).",
+   "negative_control": false,
+   "formula": {
+    "node": "compare",
+    "operator": "less_than_or_equal",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 10.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4023000000000000",
+     "bound_bits": "0x0000000000000000",
+     "value_text": "9.5",
+     "bound_text": "0.0",
+     "enclosure_bits": [
+      "0x7ff8000000000000",
+      "0x3ff0000000000000"
+     ]
+    }
+   ],
+   "expected": {
+    "kind": "blocked",
+    "findings": [
+     [
+      "NonFiniteInput",
+      "x"
+     ]
+    ]
+   },
+   "notes": []
+  },
+  {
+   "case_id": "enclosure_infinite_end",
+   "description": "An enclosure with an infinite end is refused (RV99 S-3).",
+   "negative_control": false,
+   "formula": {
+    "node": "compare",
+    "operator": "less_than_or_equal",
+    "left": {
+     "node": "variable_ref",
+     "variable_id": "x"
+    },
+    "right": {
+     "node": "literal",
+     "quantity": {
+      "value": 10.0,
+      "dimension": "stress",
+      "unit_ref": "invented_stress_unit"
+     }
+    }
+   },
+   "inputs": [
+    {
+     "variable_id": "x",
+     "dimension": "stress",
+     "unit_ref": "invented_stress_unit",
+     "value_bits": "0x4023000000000000",
+     "bound_bits": "0x0000000000000000",
+     "value_text": "9.5",
+     "bound_text": "0.0",
+     "enclosure_bits": [
+      "0xfff0000000000000",
+      "0x0000000000000000"
+     ]
+    }
+   ],
+   "expected": {
+    "kind": "blocked",
+    "findings": [
+     [
+      "NonFiniteInput",
+      "x"
+     ]
+    ]
+   },
+   "notes": []
+  }
+ ]
+}

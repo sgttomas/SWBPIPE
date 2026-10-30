@@ -1,0 +1,1618 @@
+{
+ "by_family": {
+  "RF-CHAIN": {
+   "B_scale_below": 0,
+   "C_scale_below": 0,
+   "D_scale_below": 0,
+   "E_scale_below": 0,
+   "F_scale_below": 0,
+   "F_rec_scale_below": 0
+  },
+  "RF-SKEW": {
+   "B_scale_below": 0,
+   "C_scale_below": 2,
+   "D_scale_below": 2,
+   "E_scale_below": 2,
+   "F_scale_below": 2,
+   "F_rec_scale_below": 0
+  },
+  "RF-WEAK": {
+   "B_scale_below": 43,
+   "C_scale_below": 64,
+   "D_scale_below": 43,
+   "E_scale_below": 46,
+   "F_scale_below": 46,
+   "F_rec_scale_below": 0
+  },
+  "RF-LARGE": {
+   "B_scale_below": 0,
+   "C_scale_below": 0,
+   "D_scale_below": 0,
+   "E_scale_below": 0,
+   "F_scale_below": 0,
+   "F_rec_scale_below": 0
+  },
+  "RF-INVARIANCE": {
+   "B_scale_below": 0,
+   "C_scale_below": 0,
+   "D_scale_below": 0,
+   "E_scale_below": 0,
+   "F_scale_below": 0,
+   "F_rec_scale_below": 0
+  },
+  "RF-RANGE": {
+   "B_scale_below": 0,
+   "C_scale_below": 0,
+   "D_scale_below": 0,
+   "E_scale_below": 0,
+   "F_scale_below": 0,
+   "F_rec_scale_below": 0
+  },
+  "RF-ZERO": {
+   "B_scale_below": 0,
+   "C_scale_below": 0,
+   "D_scale_below": 0,
+   "E_scale_below": 0,
+   "F_scale_below": 0,
+   "F_rec_scale_below": 0
+  },
+  "RF-FINITE": {
+   "B_scale_below": 0,
+   "C_scale_below": 0,
+   "D_scale_below": 0,
+   "E_scale_below": 0,
+   "F_scale_below": 0,
+   "F_rec_scale_below": 0
+  },
+  "RF-MECH": {
+   "B_scale_below": 0,
+   "C_scale_below": 0,
+   "D_scale_below": 0,
+   "E_scale_below": 0,
+   "F_scale_below": 0,
+   "F_rec_scale_below": 0
+  },
+  "RF-CANCEL": {
+   "B_scale_below": 0,
+   "C_scale_below": 0,
+   "D_scale_below": 0,
+   "E_scale_below": 0,
+   "F_scale_below": 0,
+   "F_rec_scale_below": 3
+  }
+ },
+ "cases": {
+  "RF-CHAIN-T-n03-r1e-04": {},
+  "RF-CHAIN-T-n03-r1e-06": {},
+  "RF-CHAIN-T-n03-r1e-08": {},
+  "RF-CHAIN-T-n03-r1e-10": {},
+  "RF-CHAIN-T-n03-r1e-12": {},
+  "RF-CHAIN-T-n05-r1e-04": {},
+  "RF-CHAIN-T-n05-r1e-06": {},
+  "RF-CHAIN-T-n05-r1e-08": {},
+  "RF-CHAIN-T-n05-r1e-10": {},
+  "RF-CHAIN-T-n05-r1e-12": {},
+  "RF-CHAIN-T-n10-r1e-04": {},
+  "RF-CHAIN-T-n10-r1e-06": {},
+  "RF-CHAIN-T-n10-r1e-08": {},
+  "RF-CHAIN-T-n10-r1e-10": {},
+  "RF-CHAIN-T-n10-r1e-12": {},
+  "RF-CHAIN-A-n03-r1e-04": {},
+  "RF-CHAIN-A-n03-r1e-06": {},
+  "RF-CHAIN-A-n03-r1e-08": {},
+  "RF-CHAIN-A-n03-r1e-10": {},
+  "RF-CHAIN-A-n03-r1e-12": {},
+  "RF-CHAIN-A-n05-r1e-04": {},
+  "RF-CHAIN-A-n05-r1e-06": {},
+  "RF-CHAIN-A-n05-r1e-08": {},
+  "RF-CHAIN-A-n05-r1e-10": {},
+  "RF-CHAIN-A-n05-r1e-12": {},
+  "RF-CHAIN-A-n10-r1e-04": {},
+  "RF-CHAIN-A-n10-r1e-06": {},
+  "RF-CHAIN-A-n10-r1e-08": {},
+  "RF-CHAIN-A-n10-r1e-10": {},
+  "RF-CHAIN-A-n10-r1e-12": {},
+  "RF-SKEW-T-PIN-AX-345-r1e-04": {},
+  "RF-SKEW-T-PIN-AX-345-r1e-08": {},
+  "RF-SKEW-T-PIN-AX-345-r1e-12": {},
+  "RF-SKEW-T-PIN-AX-122-r1e-04": {},
+  "RF-SKEW-T-PIN-AX-122-r1e-08": {},
+  "RF-SKEW-T-PIN-AX-122-r1e-12": {},
+  "RF-SKEW-T-PIN-OFF-345-r1e-04": {},
+  "RF-SKEW-T-PIN-OFF-345-r1e-08": {},
+  "RF-SKEW-T-PIN-OFF-345-r1e-12": {},
+  "RF-SKEW-T-PIN-OFF-122-r1e-04": {},
+  "RF-SKEW-T-PIN-OFF-122-r1e-08": {},
+  "RF-SKEW-T-PIN-OFF-122-r1e-12": {},
+  "RF-SKEW-T-CANT-AX-345-r1e-04": {},
+  "RF-SKEW-T-CANT-AX-345-r1e-08": {},
+  "RF-SKEW-T-CANT-AX-345-r1e-12": {
+   "C_scale_below": [
+    [
+     "tw.M1",
+     "twist",
+     "1.73e-12"
+    ]
+   ],
+   "D_scale_below": [
+    [
+     "tw.M1",
+     "twist",
+     "1.73e-12"
+    ]
+   ],
+   "E_scale_below": [
+    [
+     "tw.M1",
+     "twist",
+     "1.73e-12"
+    ]
+   ],
+   "F_scale_below": [
+    [
+     "tw.M1",
+     "twist",
+     "1.73e-12"
+    ]
+   ]
+  },
+  "RF-SKEW-T-CANT-AX-122-r1e-04": {},
+  "RF-SKEW-T-CANT-AX-122-r1e-08": {},
+  "RF-SKEW-T-CANT-AX-122-r1e-12": {
+   "C_scale_below": [
+    [
+     "tw.M1",
+     "twist",
+     "5.33e-12"
+    ]
+   ],
+   "D_scale_below": [
+    [
+     "tw.M1",
+     "twist",
+     "5.33e-12"
+    ]
+   ],
+   "E_scale_below": [
+    [
+     "tw.M1",
+     "twist",
+     "5.33e-12"
+    ]
+   ],
+   "F_scale_below": [
+    [
+     "tw.M1",
+     "twist",
+     "5.33e-12"
+    ]
+   ]
+  },
+  "RF-SKEW-T-CANT-OFF-345-r1e-04": {},
+  "RF-SKEW-T-CANT-OFF-345-r1e-08": {},
+  "RF-SKEW-T-CANT-OFF-345-r1e-12": {},
+  "RF-SKEW-T-CANT-OFF-122-r1e-04": {},
+  "RF-SKEW-T-CANT-OFF-122-r1e-08": {},
+  "RF-SKEW-T-CANT-OFF-122-r1e-12": {},
+  "RF-SKEW-A-CANT-AX-345-r1e-04": {},
+  "RF-SKEW-A-CANT-AX-345-r1e-08": {},
+  "RF-SKEW-A-CANT-AX-345-r1e-12": {},
+  "RF-SKEW-A-CANT-AX-122-r1e-04": {},
+  "RF-SKEW-A-CANT-AX-122-r1e-08": {},
+  "RF-SKEW-A-CANT-AX-122-r1e-12": {},
+  "RF-SKEW-A-CANT-OFF-345-r1e-04": {},
+  "RF-SKEW-A-CANT-OFF-345-r1e-08": {},
+  "RF-SKEW-A-CANT-OFF-345-r1e-12": {},
+  "RF-SKEW-A-CANT-OFF-122-r1e-04": {},
+  "RF-SKEW-A-CANT-OFF-122-r1e-08": {},
+  "RF-SKEW-A-CANT-OFF-122-r1e-12": {},
+  "RF-WEAK-W-AX-rho1e-04": {},
+  "RF-WEAK-W-AX-rho1e-08": {
+   "C_scale_below": [
+    [
+     "tw.B1",
+     "twist@far",
+     "2.00e-18"
+    ],
+    [
+     "ext.B1",
+     "extension@far",
+     "2.00e-16"
+    ],
+    [
+     "tw.B2",
+     "twist@far",
+     "2.00e-18"
+    ],
+    [
+     "ext.B2",
+     "extension@far",
+     "2.00e-16"
+    ]
+   ]
+  },
+  "RF-WEAK-W-AX-rho1e-12": {
+   "B_scale_below": [
+    [
+     "u.N3.UX",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "u.N3.UY",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "u.N3.UZ",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "u.N4.UX",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "u.N4.UY",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "u.N4.UZ",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "u.N5.UX",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "u.N5.UY",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "u.N5.UZ",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "R.N5.UX",
+     "force@far",
+     "4.83e-12"
+    ],
+    [
+     "R.N5.UY",
+     "force@far",
+     "4.83e-12"
+    ],
+    [
+     "R.N5.UZ",
+     "force@far",
+     "4.83e-12"
+    ],
+    [
+     "R.N5.RX",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "R.N5.RY",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "R.N5.RZ",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "N.C",
+     "force@coupling",
+     "2.00e-12"
+    ],
+    [
+     "T.C",
+     "moment@coupling",
+     "4.80e-13"
+    ],
+    [
+     "Mb.C.i",
+     "moment@coupling",
+     "4.80e-13"
+    ],
+    [
+     "Mb.C.mid",
+     "moment@coupling",
+     "4.80e-13"
+    ],
+    [
+     "Mb.C.j",
+     "moment@coupling",
+     "4.80e-13"
+    ],
+    [
+     "N.B1",
+     "force@far",
+     "4.83e-12"
+    ],
+    [
+     "T.B1",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "Mb.B1.i",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "Mb.B1.mid",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "Mb.B1.j",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "tw.B1",
+     "twist@far",
+     "1.00e-12"
+    ],
+    [
+     "ext.B1",
+     "extension@far",
+     "1.00e-12"
+    ],
+    [
+     "N.B2",
+     "force@far",
+     "4.83e-12"
+    ],
+    [
+     "T.B2",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "Mb.B2.i",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "Mb.B2.mid",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "Mb.B2.j",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "tw.B2",
+     "twist@far",
+     "1.00e-12"
+    ],
+    [
+     "ext.B2",
+     "extension@far",
+     "1.00e-12"
+    ]
+   ],
+   "C_scale_below": [
+    [
+     "u.N3.UX",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "u.N3.UY",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "u.N3.UZ",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "u.N4.UX",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "u.N4.UY",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "u.N4.UZ",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "u.N5.UX",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "u.N5.UY",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "u.N5.UZ",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "R.N5.UX",
+     "force@far",
+     "4.83e-12"
+    ],
+    [
+     "R.N5.UY",
+     "force@far",
+     "4.83e-12"
+    ],
+    [
+     "R.N5.UZ",
+     "force@far",
+     "4.83e-12"
+    ],
+    [
+     "R.N5.RX",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "R.N5.RY",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "R.N5.RZ",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "tw.A1",
+     "twist",
+     "1.00e-14"
+    ],
+    [
+     "ext.A1",
+     "extension",
+     "1.00e-12"
+    ],
+    [
+     "tw.A2",
+     "twist",
+     "1.00e-14"
+    ],
+    [
+     "ext.A2",
+     "extension",
+     "1.00e-12"
+    ],
+    [
+     "N.C",
+     "force@coupling",
+     "2.00e-12"
+    ],
+    [
+     "T.C",
+     "moment@coupling",
+     "4.80e-13"
+    ],
+    [
+     "Mb.C.i",
+     "moment@coupling",
+     "4.80e-13"
+    ],
+    [
+     "Mb.C.mid",
+     "moment@coupling",
+     "4.80e-13"
+    ],
+    [
+     "Mb.C.j",
+     "moment@coupling",
+     "4.80e-13"
+    ],
+    [
+     "tw.C",
+     "twist@coupling",
+     "2.00e-14"
+    ],
+    [
+     "ext.C",
+     "extension@coupling",
+     "2.00e-12"
+    ],
+    [
+     "N.B1",
+     "force@far",
+     "4.83e-12"
+    ],
+    [
+     "T.B1",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "Mb.B1.i",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "Mb.B1.mid",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "Mb.B1.j",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "tw.B1",
+     "twist@far",
+     "2.00e-26"
+    ],
+    [
+     "ext.B1",
+     "extension@far",
+     "2.00e-24"
+    ],
+    [
+     "N.B2",
+     "force@far",
+     "4.83e-12"
+    ],
+    [
+     "T.B2",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "Mb.B2.i",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "Mb.B2.mid",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "Mb.B2.j",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "tw.B2",
+     "twist@far",
+     "2.00e-26"
+    ],
+    [
+     "ext.B2",
+     "extension@far",
+     "2.00e-24"
+    ]
+   ],
+   "D_scale_below": [
+    [
+     "u.N3.UX",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "u.N3.UY",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "u.N3.UZ",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "u.N4.UX",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "u.N4.UY",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "u.N4.UZ",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "u.N5.UX",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "u.N5.UY",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "u.N5.UZ",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "R.N5.UX",
+     "force@far",
+     "4.83e-12"
+    ],
+    [
+     "R.N5.UY",
+     "force@far",
+     "4.83e-12"
+    ],
+    [
+     "R.N5.UZ",
+     "force@far",
+     "4.83e-12"
+    ],
+    [
+     "R.N5.RX",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "R.N5.RY",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "R.N5.RZ",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "N.C",
+     "force@coupling",
+     "2.00e-12"
+    ],
+    [
+     "T.C",
+     "moment@coupling",
+     "4.80e-13"
+    ],
+    [
+     "Mb.C.i",
+     "moment@coupling",
+     "4.80e-13"
+    ],
+    [
+     "Mb.C.mid",
+     "moment@coupling",
+     "4.80e-13"
+    ],
+    [
+     "Mb.C.j",
+     "moment@coupling",
+     "4.80e-13"
+    ],
+    [
+     "N.B1",
+     "force@far",
+     "4.83e-12"
+    ],
+    [
+     "T.B1",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "Mb.B1.i",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "Mb.B1.mid",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "Mb.B1.j",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "tw.B1",
+     "twist@far",
+     "2.00e-14"
+    ],
+    [
+     "ext.B1",
+     "extension@far",
+     "1.00e-12"
+    ],
+    [
+     "N.B2",
+     "force@far",
+     "4.83e-12"
+    ],
+    [
+     "T.B2",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "Mb.B2.i",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "Mb.B2.mid",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "Mb.B2.j",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "tw.B2",
+     "twist@far",
+     "2.00e-14"
+    ],
+    [
+     "ext.B2",
+     "extension@far",
+     "1.00e-12"
+    ]
+   ],
+   "E_scale_below": [
+    [
+     "u.N3.UX",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "u.N3.UY",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "u.N3.UZ",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "u.N4.UX",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "u.N4.UY",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "u.N4.UZ",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "u.N5.UX",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "u.N5.UY",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "u.N5.UZ",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "R.N5.UX",
+     "force@far",
+     "4.83e-12"
+    ],
+    [
+     "R.N5.UY",
+     "force@far",
+     "4.83e-12"
+    ],
+    [
+     "R.N5.UZ",
+     "force@far",
+     "4.83e-12"
+    ],
+    [
+     "R.N5.RX",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "R.N5.RY",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "R.N5.RZ",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "N.C",
+     "force@coupling",
+     "2.00e-12"
+    ],
+    [
+     "T.C",
+     "moment@coupling",
+     "4.80e-13"
+    ],
+    [
+     "Mb.C.i",
+     "moment@coupling",
+     "4.80e-13"
+    ],
+    [
+     "Mb.C.mid",
+     "moment@coupling",
+     "4.80e-13"
+    ],
+    [
+     "Mb.C.j",
+     "moment@coupling",
+     "4.80e-13"
+    ],
+    [
+     "tw.C",
+     "twist@coupling",
+     "2.00e-14"
+    ],
+    [
+     "ext.C",
+     "extension@coupling",
+     "2.00e-12"
+    ],
+    [
+     "N.B1",
+     "force@far",
+     "4.83e-12"
+    ],
+    [
+     "T.B1",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "Mb.B1.i",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "Mb.B1.mid",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "Mb.B1.j",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "tw.B1",
+     "twist@far",
+     "2.00e-14"
+    ],
+    [
+     "ext.B1",
+     "extension@far",
+     "1.00e-12"
+    ],
+    [
+     "N.B2",
+     "force@far",
+     "4.83e-12"
+    ],
+    [
+     "T.B2",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "Mb.B2.i",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "Mb.B2.mid",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "Mb.B2.j",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "tw.B2",
+     "twist@far",
+     "2.00e-14"
+    ],
+    [
+     "ext.B2",
+     "extension@far",
+     "1.00e-12"
+    ]
+   ],
+   "F_scale_below": [
+    [
+     "u.N3.UX",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "u.N3.UY",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "u.N3.UZ",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "u.N4.UX",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "u.N4.UY",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "u.N4.UZ",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "u.N5.UX",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "u.N5.UY",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "u.N5.UZ",
+     "translation@far",
+     "1.57e-11"
+    ],
+    [
+     "R.N5.UX",
+     "force@far",
+     "4.83e-12"
+    ],
+    [
+     "R.N5.UY",
+     "force@far",
+     "4.83e-12"
+    ],
+    [
+     "R.N5.UZ",
+     "force@far",
+     "4.83e-12"
+    ],
+    [
+     "R.N5.RX",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "R.N5.RY",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "R.N5.RZ",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "N.C",
+     "force@coupling",
+     "2.00e-12"
+    ],
+    [
+     "T.C",
+     "moment@coupling",
+     "4.80e-13"
+    ],
+    [
+     "Mb.C.i",
+     "moment@coupling",
+     "4.80e-13"
+    ],
+    [
+     "Mb.C.mid",
+     "moment@coupling",
+     "4.80e-13"
+    ],
+    [
+     "Mb.C.j",
+     "moment@coupling",
+     "4.80e-13"
+    ],
+    [
+     "tw.C",
+     "twist@coupling",
+     "2.00e-14"
+    ],
+    [
+     "ext.C",
+     "extension@coupling",
+     "2.00e-12"
+    ],
+    [
+     "N.B1",
+     "force@far",
+     "4.83e-12"
+    ],
+    [
+     "T.B1",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "Mb.B1.i",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "Mb.B1.mid",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "Mb.B1.j",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "tw.B1",
+     "twist@far",
+     "2.00e-14"
+    ],
+    [
+     "ext.B1",
+     "extension@far",
+     "2.00e-12"
+    ],
+    [
+     "N.B2",
+     "force@far",
+     "4.83e-12"
+    ],
+    [
+     "T.B2",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "Mb.B2.i",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "Mb.B2.mid",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "Mb.B2.j",
+     "moment@far",
+     "2.16e-12"
+    ],
+    [
+     "tw.B2",
+     "twist@far",
+     "2.00e-14"
+    ],
+    [
+     "ext.B2",
+     "extension@far",
+     "2.00e-12"
+    ]
+   ]
+  },
+  "RF-WEAK-W-L-r1e-04": {},
+  "RF-WEAK-W-L-r1e-08": {},
+  "RF-WEAK-W-L-r1e-12": {},
+  "RF-WEAK-W-3D-rho1e-04": {},
+  "RF-WEAK-W-3D-rho1e-08": {
+   "C_scale_below": [
+    [
+     "ext.A01",
+     "extension",
+     "1.39e-15"
+    ],
+    [
+     "ext.A12",
+     "extension",
+     "1.39e-15"
+    ],
+    [
+     "tw.C",
+     "twist@coupling",
+     "4.50e-16"
+    ],
+    [
+     "tw.B21",
+     "twist@far",
+     "6.94e-14"
+    ],
+    [
+     "ext.B21",
+     "extension@far",
+     "1.39e-15"
+    ],
+    [
+     "tw.B10",
+     "twist@far",
+     "6.94e-14"
+    ],
+    [
+     "ext.B10",
+     "extension@far",
+     "1.39e-15"
+    ]
+   ],
+   "E_scale_below": [
+    [
+     "tw.C",
+     "twist@coupling",
+     "4.50e-16"
+    ]
+   ],
+   "F_scale_below": [
+    [
+     "tw.C",
+     "twist@coupling",
+     "4.50e-16"
+    ]
+   ]
+  },
+  "RF-WEAK-W-3D-rho1e-12": {
+   "B_scale_below": [
+    [
+     "ext.A01",
+     "extension",
+     "6.67e-15"
+    ],
+    [
+     "ext.A12",
+     "extension",
+     "6.67e-15"
+    ],
+    [
+     "T.C",
+     "moment@coupling",
+     "3.15e-12"
+    ],
+    [
+     "Mb.C.i",
+     "moment@coupling",
+     "3.15e-12"
+    ],
+    [
+     "Mb.C.mid",
+     "moment@coupling",
+     "3.15e-12"
+    ],
+    [
+     "Mb.C.j",
+     "moment@coupling",
+     "3.15e-12"
+    ],
+    [
+     "tw.C",
+     "twist@coupling",
+     "1.08e-11"
+    ],
+    [
+     "ext.B21",
+     "extension@far",
+     "6.67e-15"
+    ],
+    [
+     "ext.B10",
+     "extension@far",
+     "6.67e-15"
+    ]
+   ],
+   "C_scale_below": [
+    [
+     "tw.A01",
+     "twist",
+     "4.17e-13"
+    ],
+    [
+     "ext.A01",
+     "extension",
+     "1.39e-23"
+    ],
+    [
+     "tw.A12",
+     "twist",
+     "4.17e-13"
+    ],
+    [
+     "ext.A12",
+     "extension",
+     "1.39e-23"
+    ],
+    [
+     "T.C",
+     "moment@coupling",
+     "3.15e-12"
+    ],
+    [
+     "Mb.C.i",
+     "moment@coupling",
+     "3.15e-12"
+    ],
+    [
+     "Mb.C.mid",
+     "moment@coupling",
+     "3.15e-12"
+    ],
+    [
+     "Mb.C.j",
+     "moment@coupling",
+     "3.15e-12"
+    ],
+    [
+     "tw.C",
+     "twist@coupling",
+     "4.50e-24"
+    ],
+    [
+     "tw.B21",
+     "twist@far",
+     "6.94e-22"
+    ],
+    [
+     "ext.B21",
+     "extension@far",
+     "1.39e-23"
+    ],
+    [
+     "tw.B10",
+     "twist@far",
+     "6.94e-22"
+    ],
+    [
+     "ext.B10",
+     "extension@far",
+     "1.39e-23"
+    ]
+   ],
+   "D_scale_below": [
+    [
+     "ext.A01",
+     "extension",
+     "6.67e-15"
+    ],
+    [
+     "ext.A12",
+     "extension",
+     "6.67e-15"
+    ],
+    [
+     "T.C",
+     "moment@coupling",
+     "3.15e-12"
+    ],
+    [
+     "Mb.C.i",
+     "moment@coupling",
+     "3.15e-12"
+    ],
+    [
+     "Mb.C.mid",
+     "moment@coupling",
+     "3.15e-12"
+    ],
+    [
+     "Mb.C.j",
+     "moment@coupling",
+     "3.15e-12"
+    ],
+    [
+     "tw.C",
+     "twist@coupling",
+     "4.50e-12"
+    ],
+    [
+     "ext.B21",
+     "extension@far",
+     "6.67e-15"
+    ],
+    [
+     "ext.B10",
+     "extension@far",
+     "6.67e-15"
+    ]
+   ],
+   "E_scale_below": [
+    [
+     "ext.A01",
+     "extension",
+     "6.67e-15"
+    ],
+    [
+     "ext.A12",
+     "extension",
+     "6.67e-15"
+    ],
+    [
+     "T.C",
+     "moment@coupling",
+     "3.15e-12"
+    ],
+    [
+     "Mb.C.i",
+     "moment@coupling",
+     "3.15e-12"
+    ],
+    [
+     "Mb.C.mid",
+     "moment@coupling",
+     "3.15e-12"
+    ],
+    [
+     "Mb.C.j",
+     "moment@coupling",
+     "3.15e-12"
+    ],
+    [
+     "tw.C",
+     "twist@coupling",
+     "4.50e-24"
+    ],
+    [
+     "ext.B21",
+     "extension@far",
+     "6.67e-15"
+    ],
+    [
+     "ext.B10",
+     "extension@far",
+     "6.67e-15"
+    ]
+   ],
+   "F_scale_below": [
+    [
+     "ext.A01",
+     "extension",
+     "1.39e-11"
+    ],
+    [
+     "ext.A12",
+     "extension",
+     "1.39e-11"
+    ],
+    [
+     "T.C",
+     "moment@coupling",
+     "3.15e-12"
+    ],
+    [
+     "Mb.C.i",
+     "moment@coupling",
+     "3.15e-12"
+    ],
+    [
+     "Mb.C.mid",
+     "moment@coupling",
+     "3.15e-12"
+    ],
+    [
+     "Mb.C.j",
+     "moment@coupling",
+     "3.15e-12"
+    ],
+    [
+     "tw.C",
+     "twist@coupling",
+     "4.50e-24"
+    ],
+    [
+     "ext.B21",
+     "extension@far",
+     "1.39e-11"
+    ],
+    [
+     "ext.B10",
+     "extension@far",
+     "1.39e-11"
+    ]
+   ]
+  },
+  "RF-LARGE-CHAIN-n00010-AX": {},
+  "RF-LARGE-CHAIN-n00010-ROT": {},
+  "RF-LARGE-TREE-n00010-AX": {},
+  "RF-LARGE-TREE-n00010-ROT": {},
+  "RF-LARGE-CONT-n00010-AX": {},
+  "RF-LARGE-CONT-n00010-ROT": {},
+  "RF-LARGE-CHAIN-n00100-AX": {},
+  "RF-LARGE-CHAIN-n00100-ROT": {},
+  "RF-LARGE-TREE-n00100-AX": {},
+  "RF-LARGE-TREE-n00100-ROT": {},
+  "RF-LARGE-CONT-n00100-AX": {},
+  "RF-LARGE-CONT-n00100-ROT": {},
+  "RF-LARGE-CHAIN-n01000-AX": {},
+  "RF-LARGE-CHAIN-n01000-ROT": {},
+  "RF-LARGE-TREE-n01000-AX": {},
+  "RF-LARGE-TREE-n01000-ROT": {},
+  "RF-LARGE-CONT-n01000-AX": {},
+  "RF-LARGE-CONT-n01000-ROT": {},
+  "RF-LARGE-CHAIN-n10000-AX": {},
+  "RF-LARGE-CHAIN-n10000-ROT": {},
+  "RF-LARGE-TREE-n10000-AX": {},
+  "RF-LARGE-TREE-n10000-ROT": {},
+  "RF-LARGE-CONT-n10000-AX": {},
+  "RF-LARGE-CONT-n10000-ROT": {},
+  "RF-INVARIANCE-PINTOR-BASE": {},
+  "RF-INVARIANCE-PINTOR-ROT-Q3": {},
+  "RF-INVARIANCE-PINTOR-ROT-Q9": {},
+  "RF-INVARIANCE-PINTOR-OFF-1e3": {},
+  "RF-INVARIANCE-PINTOR-OFF-1e6": {},
+  "RF-INVARIANCE-PINTOR-RELABEL": {},
+  "RF-INVARIANCE-PINTOR-UNITS-mm": {},
+  "RF-INVARIANCE-LFRAME-BASE": {},
+  "RF-INVARIANCE-LFRAME-ROT-Q3": {},
+  "RF-INVARIANCE-LFRAME-ROT-Q9": {},
+  "RF-INVARIANCE-LFRAME-OFF-1e3": {},
+  "RF-INVARIANCE-LFRAME-OFF-1e6": {},
+  "RF-INVARIANCE-LFRAME-RELABEL": {},
+  "RF-INVARIANCE-LFRAME-UNITS-mm": {},
+  "RF-INVARIANCE-CONT4-BASE": {},
+  "RF-INVARIANCE-CONT4-ROT-Q3": {},
+  "RF-INVARIANCE-CONT4-ROT-Q9": {},
+  "RF-INVARIANCE-CONT4-OFF-1e3": {},
+  "RF-INVARIANCE-CONT4-OFF-1e6": {},
+  "RF-INVARIANCE-CONT4-RELABEL": {},
+  "RF-INVARIANCE-CONT4-UNITS-mm": {},
+  "RF-INVARIANCE-TREE100-BASE": {},
+  "RF-INVARIANCE-TREE100-OFF-1e3": {},
+  "RF-INVARIANCE-TREE100-OFF-1e6": {},
+  "RF-INVARIANCE-TREE100-RELABEL": {},
+  "RF-RANGE-CHAIN-L-240": {},
+  "RF-RANGE-CHAIN-L+240": {},
+  "RF-RANGE-CHAIN-E-1000": {},
+  "RF-RANGE-CHAIN-E+960": {},
+  "RF-RANGE-CHAIN-F-960": {},
+  "RF-RANGE-CHAIN-F+960": {},
+  "RF-RANGE-CHAIN-LEF-small": {},
+  "RF-RANGE-CHAIN-LEF-large": {},
+  "RF-RANGE-CHAIN-SIM-a": {},
+  "RF-RANGE-CHAIN-SIM-b": {},
+  "RF-RANGE-SKEW-L-240": {},
+  "RF-RANGE-SKEW-L+240": {},
+  "RF-RANGE-SKEW-E-1000": {},
+  "RF-RANGE-SKEW-E+960": {},
+  "RF-RANGE-SKEW-F-960": {},
+  "RF-RANGE-SKEW-F+960": {},
+  "RF-RANGE-SKEW-LEF-small": {},
+  "RF-RANGE-SKEW-LEF-large": {},
+  "RF-RANGE-SKEW-SIM-a": {},
+  "RF-RANGE-SKEW-SIM-b": {},
+  "RF-RANGE-CONT-L-240": {},
+  "RF-RANGE-CONT-L+240": {},
+  "RF-RANGE-CONT-E-1000": {},
+  "RF-RANGE-CONT-E+960": {},
+  "RF-RANGE-CONT-F-960": {},
+  "RF-RANGE-CONT-F+960": {},
+  "RF-RANGE-CONT-LEF-small": {},
+  "RF-RANGE-CONT-LEF-large": {},
+  "RF-RANGE-CONT-SIM-a": {},
+  "RF-RANGE-CONT-SIM-b": {},
+  "RF-RANGE-THIN-A": {},
+  "RF-RANGE-THIN-B": {},
+  "RF-ZERO-SYM": {},
+  "RF-ZERO-TORSION": {},
+  "RF-ZERO-PLANAR": {},
+  "RF-ZERO-TINY": {},
+  "RF-FINITE-THIRDS-O0": {},
+  "RF-FINITE-THIRDS-O1e3": {},
+  "RF-FINITE-THIRDS-O1e6": {},
+  "RF-FINITE-TENTHS-O1e6": {},
+  "RF-FINITE-THIRTIETHS-O1e6": {},
+  "RF-FINITE-ROT-Q9-NONMULT": {},
+  "RF-MECH-LINE345-RX-COMPANION": {},
+  "RF-CANCEL-F-G1e5-GnG": {},
+  "RF-CANCEL-F-G1e5-GGn": {},
+  "RF-CANCEL-F-G1e5-nGG": {},
+  "RF-CANCEL-F-G1e6-GnG": {},
+  "RF-CANCEL-F-G1e6-GGn": {},
+  "RF-CANCEL-F-G1e6-nGG": {},
+  "RF-CANCEL-F-G1e7-GnG": {},
+  "RF-CANCEL-F-G1e7-GGn": {},
+  "RF-CANCEL-F-G1e7-nGG": {},
+  "RF-CANCEL-F-G1e8-GnG": {},
+  "RF-CANCEL-F-G1e8-GGn": {},
+  "RF-CANCEL-F-G1e8-nGG": {},
+  "RF-CANCEL-F-G1e8-GnG-ORTHO": {},
+  "RF-CANCEL-F-G1e8-GnG-INPLANE": {},
+  "RF-CANCEL-F-G1e80-GnG": {},
+  "RF-CANCEL-F-G1e80-GGn": {},
+  "RF-CANCEL-F-G1e80-nGG": {},
+  "RF-CANCEL-F-G1e80-GnG-ORTHO": {
+   "F_rec_scale_below": [
+    [
+     "u.N1.UY",
+     "translation",
+     "2.08e-11"
+    ]
+   ]
+  },
+  "RF-CANCEL-F-G1e80-GnG-INPLANE": {
+   "F_rec_scale_below": [
+    [
+     "Mb.M2.mid",
+     "moment",
+     "5.00e-11"
+    ]
+   ]
+  },
+  "RF-CANCEL-M-G1e5-GnG": {},
+  "RF-CANCEL-M-G1e5-GGn": {},
+  "RF-CANCEL-M-G1e5-nGG": {},
+  "RF-CANCEL-M-G1e6-GnG": {},
+  "RF-CANCEL-M-G1e6-GGn": {},
+  "RF-CANCEL-M-G1e6-nGG": {},
+  "RF-CANCEL-M-G1e7-GnG": {},
+  "RF-CANCEL-M-G1e7-GGn": {},
+  "RF-CANCEL-M-G1e7-nGG": {},
+  "RF-CANCEL-M-G1e8-GnG": {},
+  "RF-CANCEL-M-G1e8-GGn": {},
+  "RF-CANCEL-M-G1e8-nGG": {},
+  "RF-CANCEL-M-G1e8-GnG-ORTHO": {},
+  "RF-CANCEL-M-G1e8-GnG-INPLANE": {},
+  "RF-CANCEL-M-G1e80-GnG": {},
+  "RF-CANCEL-M-G1e80-GGn": {},
+  "RF-CANCEL-M-G1e80-nGG": {},
+  "RF-CANCEL-M-G1e80-GnG-ORTHO": {
+   "F_rec_scale_below": [
+    [
+     "u.N1.UY",
+     "translation",
+     "2.50e-11"
+    ]
+   ]
+  },
+  "RF-CANCEL-M-G1e80-GnG-INPLANE": {},
+  "RF-CANCEL-UDL-W1e5": {},
+  "RF-CANCEL-UDL-W1e8": {},
+  "RF-CANCEL-UDL-W1e80": {}
+ }
+}

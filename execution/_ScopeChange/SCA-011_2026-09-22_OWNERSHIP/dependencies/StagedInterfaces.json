@@ -1,0 +1,44 @@
+{
+  "status": "PROPOSED_NOT_ADOPTED",
+  "bindings": [
+    {
+      "id": "SCA011-IF-PALETTE-ORGANIZATION",
+      "consumer": "DEL-07-01",
+      "owner": "DEL-07-09",
+      "consumer_stage": "DEL-07-01::palette-implementation",
+      "producer_stage": "DEL-07-09::organization-contract",
+      "typ": "CONSTRAINT",
+      "statement": "Palette implementation conforms to the versioned organization contract owned by DEL-07-09; subsequent DEL-07-09 coverage assessment consumes viewport/tree implementation evidence.",
+      "basis": "DAG-010-DEL-07-09-E002/E003 retained; reverse deliverable prerequisite prohibited.",
+      "needs": "Name and review the organization-contract artifact separately from its later coverage-assessment record.",
+      "edge_id": "SCA011-E082",
+      "candidate_contract_path": "execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/staged-contracts/PALETTE_ORGANIZATION.md"
+    },
+    {
+      "id": "SCA011-IF-COMPARISON-EXPORT",
+      "consumer": "DEL-08-04",
+      "owner": "DEL-14-05",
+      "consumer_stage": "DEL-08-04::comparison-export-mapping",
+      "producer_stage": "DEL-14-05::comparison-contract",
+      "typ": "INTERFACE",
+      "statement": "The general exporter maps the common comparison schema owned by DEL-14-05; that comparison schema first consumes the existing DEL-08-04 base result-envelope contract.",
+      "basis": "DAG-002-E0790 retained; DEL-08-04 base envelope precedes comparison schema, which precedes comparison export mapping.",
+      "needs": "Name and review a versioned comparison schema and identify the base-envelope version it imports; fixture payloads are not authoritative.",
+      "edge_id": "SCA011-E083",
+      "candidate_contract_path": "execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/staged-contracts/COMPARISON_EXPORT.md"
+    },
+    {
+      "id": "SCA011-IF-APPLICATION-OUTCOME",
+      "consumer": "DEL-16-03",
+      "owner": "DEL-16-06",
+      "consumer_stage": "DEL-16-03::final-audit",
+      "producer_stage": "DEL-16-06::application",
+      "typ": "HANDOVER",
+      "statement": "Final operation audit consumes the actual outcome of controlled application; application first consumes the pre-application accepted/rejected decision record, never a final receipt that does not yet exist.",
+      "basis": "DEL-16-06 to DEL-16-03 means pre-application acceptance only; final outcome returns after application.",
+      "needs": "Bind acceptance and outcome record identities/states; validate rejected/stale-basis nonmutation and truthful final outcome linkage.",
+      "edge_id": "SCA011-E084",
+      "candidate_contract_path": "execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/staged-contracts/APPLICATION_OUTCOME.md"
+    }
+  ]
+}

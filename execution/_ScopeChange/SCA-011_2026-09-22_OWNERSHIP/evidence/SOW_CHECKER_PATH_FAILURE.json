@@ -1,0 +1,392 @@
+{
+  "status": "FAIL",
+  "candidate_count": 24,
+  "validator_runs": 48,
+  "checks": [
+    {
+      "target": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-02_Pipe section and component library schema/ScopeOfWork.md",
+      "phase": "candidate",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-02_Pipe section and component library schema/ScopeOfWork.md",
+      "phase": "group2_applied_preview",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker/ScopeOfWork.md",
+      "phase": "candidate",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker/ScopeOfWork.md",
+      "phase": "group2_applied_preview",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-08_Pipe section property and mass-property calculator/ScopeOfWork.md",
+      "phase": "candidate",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-08_Pipe section property and mass-property calculator/ScopeOfWork.md",
+      "phase": "group2_applied_preview",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/ScopeOfWork.md",
+      "phase": "candidate",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/ScopeOfWork.md",
+      "phase": "group2_applied_preview",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/ScopeOfWork.md",
+      "phase": "candidate",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/ScopeOfWork.md",
+      "phase": "group2_applied_preview",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/ScopeOfWork.md",
+      "phase": "candidate",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/ScopeOfWork.md",
+      "phase": "group2_applied_preview",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+      "phase": "candidate",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+      "phase": "group2_applied_preview",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/ScopeOfWork.md",
+      "phase": "candidate",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/ScopeOfWork.md",
+      "phase": "group2_applied_preview",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/ScopeOfWork.md",
+      "phase": "candidate",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/ScopeOfWork.md",
+      "phase": "group2_applied_preview",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/ScopeOfWork.md",
+      "phase": "candidate",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/ScopeOfWork.md",
+      "phase": "group2_applied_preview",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/ScopeOfWork.md",
+      "phase": "candidate",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/ScopeOfWork.md",
+      "phase": "group2_applied_preview",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/ScopeOfWork.md",
+      "phase": "candidate",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/ScopeOfWork.md",
+      "phase": "group2_applied_preview",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/ScopeOfWork.md",
+      "phase": "candidate",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/ScopeOfWork.md",
+      "phase": "group2_applied_preview",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md",
+      "phase": "candidate",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md",
+      "phase": "group2_applied_preview",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+      "phase": "candidate",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+      "phase": "group2_applied_preview",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/ScopeOfWork.md",
+      "phase": "candidate",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/ScopeOfWork.md",
+      "phase": "group2_applied_preview",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-03_Constraint validation engine/ScopeOfWork.md",
+      "phase": "candidate",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-03_Constraint validation engine/ScopeOfWork.md",
+      "phase": "group2_applied_preview",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract/ScopeOfWork.md",
+      "phase": "candidate",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract/ScopeOfWork.md",
+      "phase": "group2_applied_preview",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-03_Model-state comparison engine/ScopeOfWork.md",
+      "phase": "candidate",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-03_Model-state comparison engine/ScopeOfWork.md",
+      "phase": "group2_applied_preview",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-04_Analysis-run comparison engine/ScopeOfWork.md",
+      "phase": "candidate",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-04_Analysis-run comparison engine/ScopeOfWork.md",
+      "phase": "group2_applied_preview",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-05_Comparison mapping, tolerance, and export contracts/ScopeOfWork.md",
+      "phase": "candidate",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-05_Comparison mapping, tolerance, and export contracts/ScopeOfWork.md",
+      "phase": "group2_applied_preview",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/ScopeOfWork.md",
+      "phase": "candidate",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/ScopeOfWork.md",
+      "phase": "group2_applied_preview",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/ScopeOfWork.md",
+      "phase": "candidate",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/ScopeOfWork.md",
+      "phase": "group2_applied_preview",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md",
+      "phase": "candidate",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md",
+      "phase": "group2_applied_preview",
+      "tool": "python3 tools/scope_of_work/validate_scope_of_work.py <isolated ScopeOfWork.md> --json",
+      "exit_code": 2,
+      "report": "",
+      "stderr": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/tools/scope_of_work/validate_scope_of_work.py': [Errno 2] No such file or directory\n"
+    }
+  ],
+  "limit": "SoW format and local reference validity only; no implementation or semantic conformance claim"
+}

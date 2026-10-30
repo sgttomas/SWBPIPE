@@ -1,0 +1,475 @@
+{
+  "format": "openpipestress.first_static_selector_candidate/1",
+  "case_id": "coefficient_definition",
+  "producer_contract": "openpipestress.result_semantics/0.3.0/load-reference-1",
+  "raw_schema_version": "0.2.0",
+  "row_namespace": "payload.mechanics_envelope.results",
+  "assertions": [
+    {
+      "id": "case:datum-length-a.evidence.member.pipe:install-low.thermal_strain",
+      "selector": {
+        "id": "evidence:case:datum-length-a:member:pipe:install-low:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:datum-length-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:install-low"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:coefficient",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "differential_per_datum_length",
+          "expansion_law_id": "law:datum-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/coefficient_definition/variants/generic_reviewed/expected/datum_length_strain_forward",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "datum-length strain over the forward interval (resolved thermal strain lambda_th-1 from installation to state)"
+      }
+    },
+    {
+      "id": "case:datum-length-a.evidence.member.pipe:install-high.thermal_strain",
+      "selector": {
+        "id": "evidence:case:datum-length-a:member:pipe:install-high:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:datum-length-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:install-high"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:coefficient",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "differential_per_datum_length",
+          "expansion_law_id": "law:datum-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/coefficient_definition/variants/generic_reviewed/expected/datum_length_strain_reverse",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "datum-length strain over the reverse interval (resolved thermal strain lambda_th-1 from installation to state)"
+      }
+    },
+    {
+      "id": "case:datum-length-a.evidence.member.pipe:install-mid.thermal_strain",
+      "selector": {
+        "id": "evidence:case:datum-length-a:member:pipe:install-mid:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:datum-length-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:install-mid"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:coefficient",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "differential_per_datum_length",
+          "expansion_law_id": "law:datum-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/coefficient_definition/variants/generic_reviewed/expected/datum_length_strain_second_half",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "datum-length strain over the second_half interval (resolved thermal strain lambda_th-1 from installation to state)"
+      }
+    },
+    {
+      "id": "case:datum-length-b.evidence.member.pipe:install-low.thermal_strain",
+      "selector": {
+        "id": "evidence:case:datum-length-b:member:pipe:install-low:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:datum-length-b"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:install-low"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:coefficient",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "differential_per_datum_length",
+          "expansion_law_id": "law:datum-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/coefficient_definition/variants/generic_reviewed/expected/datum_length_strain_first_half",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "datum-length strain over the first_half interval (resolved thermal strain lambda_th-1 from installation to state)"
+      }
+    },
+    {
+      "id": "case:current-length-a.evidence.member.pipe:install-low.thermal_strain",
+      "selector": {
+        "id": "evidence:case:current-length-a:member:pipe:install-low:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:current-length-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:install-low"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:coefficient",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "logarithmic_per_current_length",
+          "expansion_law_id": "law:current-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/coefficient_definition/variants/generic_reviewed/expected/current_length_strain_forward",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "current-length strain over the forward interval (resolved thermal strain lambda_th-1 from installation to state)"
+      }
+    },
+    {
+      "id": "case:current-length-a.evidence.member.pipe:install-high.thermal_strain",
+      "selector": {
+        "id": "evidence:case:current-length-a:member:pipe:install-high:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:current-length-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:install-high"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:coefficient",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "logarithmic_per_current_length",
+          "expansion_law_id": "law:current-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/coefficient_definition/variants/generic_reviewed/expected/current_length_strain_reverse",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "current-length strain over the reverse interval (resolved thermal strain lambda_th-1 from installation to state)"
+      }
+    },
+    {
+      "id": "case:current-length-a.evidence.member.pipe:install-mid.thermal_strain",
+      "selector": {
+        "id": "evidence:case:current-length-a:member:pipe:install-mid:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:current-length-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:install-mid"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:coefficient",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "logarithmic_per_current_length",
+          "expansion_law_id": "law:current-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/coefficient_definition/variants/generic_reviewed/expected/current_length_strain_second_half",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "current-length strain over the second_half interval (resolved thermal strain lambda_th-1 from installation to state)"
+      }
+    },
+    {
+      "id": "case:current-length-b.evidence.member.pipe:install-low.thermal_strain",
+      "selector": {
+        "id": "evidence:case:current-length-b:member:pipe:install-low:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:current-length-b"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:install-low"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:coefficient",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "logarithmic_per_current_length",
+          "expansion_law_id": "law:current-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/coefficient_definition/variants/generic_reviewed/expected/current_length_strain_first_half",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "current-length strain over the first_half interval (resolved thermal strain lambda_th-1 from installation to state)"
+      }
+    }
+  ],
+  "negative_assertions": [
+    {
+      "id": "case:datum-length-a.evidence.member.pipe:install-low.thermal_strain.not.endpoint_alpha_times_interval",
+      "selector": {
+        "id": "evidence:case:datum-length-a:member:pipe:install-low:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:datum-length-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:install-low"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:coefficient",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "differential_per_datum_length",
+          "expansion_law_id": "law:datum-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "negates_assertion": "case:datum-length-a.evidence.member.pipe:install-low.thermal_strain",
+        "discriminator": "endpoint_alpha_times_interval",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/coefficient_definition/wrong_result_discriminators/endpoint_alpha_times_interval",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "predicate": "observed must fall OUTSIDE this rule around the wrong value: |observed - wrong| > max(absolute, relative*max(|observed|,|wrong|))"
+      }
+    },
+    {
+      "id": "case:datum-length-a.evidence.member.pipe:install-high.thermal_strain.not.reverse_by_negation",
+      "selector": {
+        "id": "evidence:case:datum-length-a:member:pipe:install-high:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:datum-length-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:install-high"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:coefficient",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "differential_per_datum_length",
+          "expansion_law_id": "law:datum-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "negates_assertion": "case:datum-length-a.evidence.member.pipe:install-high.thermal_strain",
+        "discriminator": "reverse_by_negation",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/coefficient_definition/wrong_result_discriminators/reverse_by_negation/wrong_datum_reverse",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "predicate": "observed must fall OUTSIDE this rule around the wrong value: |observed - wrong| > max(absolute, relative*max(|observed|,|wrong|))"
+      }
+    },
+    {
+      "id": "case:current-length-a.evidence.member.pipe:install-low.thermal_strain.not.endpoint_alpha_times_interval",
+      "selector": {
+        "id": "evidence:case:current-length-a:member:pipe:install-low:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:current-length-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:install-low"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:coefficient",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "logarithmic_per_current_length",
+          "expansion_law_id": "law:current-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "negates_assertion": "case:current-length-a.evidence.member.pipe:install-low.thermal_strain",
+        "discriminator": "endpoint_alpha_times_interval",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/coefficient_definition/wrong_result_discriminators/endpoint_alpha_times_interval",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "predicate": "observed must fall OUTSIDE this rule around the wrong value: |observed - wrong| > max(absolute, relative*max(|observed|,|wrong|))"
+      }
+    },
+    {
+      "id": "case:current-length-a.evidence.member.pipe:install-high.thermal_strain.not.reverse_by_negation",
+      "selector": {
+        "id": "evidence:case:current-length-a:member:pipe:install-high:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:current-length-a"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:install-high"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:coefficient",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "temperature_reference",
+          "fit_kind": "none",
+          "thermal_definition": "logarithmic_per_current_length",
+          "expansion_law_id": "law:current-length"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "negates_assertion": "case:current-length-a.evidence.member.pipe:install-high.thermal_strain",
+        "discriminator": "reverse_by_negation",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/coefficient_definition/wrong_result_discriminators/reverse_by_negation/wrong_log_reverse",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "predicate": "observed must fall OUTSIDE this rule around the wrong value: |observed - wrong| > max(absolute, relative*max(|observed|,|wrong|))"
+      }
+    }
+  ],
+  "gaps": [],
+  "scoring_readiness": {
+    "status": "authoring_only_pending_independent_freeze",
+    "reference_case_key": "coefficient_definition",
+    "family": "reference_temperatures",
+    "load_state_decomposition": "four load cases in one request: each definition with (a) forward, reverse and second-half intervals and (b) the first-half interval; each interval is its own member",
+    "limits": [
+      "Strain-only reference: no mechanics companion values exist, so no reaction or member-force assertion is made (the six-reaction rule applies where the reference defines mechanics).",
+      "The 70 degC installation temperature of pipe:install-mid is the midpoint implied by the reference first_half/second_half quantities; it is not a separate reference quantity."
+    ],
+    "identification": "row ids and metadata were identified by running core/product_physics examples/physics_source_connected on this request in both modes; no observed value is used as a reference or criterion and none is committed"
+  }
+}

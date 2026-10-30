@@ -1,0 +1,20 @@
+{
+ "entries": [
+  {
+   "case": "RF-RANGE-THIN-A",
+   "ea_over_12ei_l3": "6.666667e+152",
+   "family": "RF-RANGE",
+   "log2_ea_over_12ei_l3": "507.670",
+   "reason": "W1a's coverage limit: the axial-to-bending stiffness ratio EA/(12EI/L^3) of the PHYS-R4 geometry (OD 4e-77 m, L = 1 m) is about 2^507, beyond the reach of W1a's 512-bit candidate ceiling. 128 and 256 are rejected by the stop rule, 512 by the charge test (d); 1024 verifies and nothing lies above it: Unresolved(Ceiling), honestly, with no rows. K4's generator gives the same schedule."
+  },
+  {
+   "case": "RF-RANGE-THIN-B",
+   "ea_over_12ei_l3": "6.666667e+152",
+   "family": "RF-RANGE",
+   "log2_ea_over_12ei_l3": "507.670",
+   "reason": "W1a's coverage limit: the axial-to-bending stiffness ratio EA/(12EI/L^3) of the PHYS-R4 geometry (OD 4e-77 m, L = 1 m) is about 2^507, beyond the reach of W1a's 512-bit candidate ceiling. 128 and 256 are rejected by the stop rule, 512 by the charge test (d); 1024 verifies and nothing lies above it: Unresolved(Ceiling), honestly, with no rows. K4's generator gives the same schedule."
+  }
+ ],
+ "rule": "a listed case must end Unresolved with no rows; its comparisons are counted separately, never as passes; a case leaving or joining the list fails the gate",
+ "source": "ROOT_RULINGS_V1.md, \"V-K: rulings on I17's A1 stop (THIN-A and THIN-B)\""
+}

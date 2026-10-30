@@ -1,0 +1,10 @@
+{
+  "exit": 2,
+  "findings_by_path": {
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W10/FIELD_MAPPING.csv": 92,
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_UI_PREPARATION_20260907/E1/FINDINGS.csv": 7,
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_UI_PREPARATION_20260907/Q1/READINESS_MATRIX.csv": 108
+  },
+  "cause": "CRLF CSV rows pass untracked candidate scan but Git cached diff whitespace rejects CR-at-EOL without applicable attribute. No commit occurred; scoped files remain staged.",
+  "raw_output_sha256": "326c8b8e846265126b12c7ee9bce88f841f8ddbea413b3abd5bee718fd1df203"
+}

@@ -1,0 +1,180 @@
+{
+  "format": "openpipestress.first_static_selector_candidate/1",
+  "case_id": "constant_alpha_interval",
+  "producer_contract": "openpipestress.result_semantics/0.3.0/load-reference-1",
+  "raw_schema_version": "0.2.0",
+  "row_namespace": "payload.mechanics_envelope.results",
+  "assertions": [
+    {
+      "id": "case:kelvin-interval.evidence.member.pipe:interval.thermal_strain",
+      "selector": {
+        "id": "evidence:case:kelvin-interval:member:pipe:interval:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:kelvin-interval"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:interval"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:interval",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "direct_strain_reference",
+          "fit_kind": "none",
+          "thermal_definition": "constant_alpha_interval"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/constant_alpha_interval/variants/generic_reviewed/expected/thermal_strain",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "alpha*deltaT (resolved thermal strain lambda_th-1 from installation to state)"
+      }
+    },
+    {
+      "id": "case:kelvin-interval.evidence.member.pipe:interval.thermal_stretch",
+      "selector": {
+        "id": "evidence:case:kelvin-interval:member:pipe:interval:thermal_stretch",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:kelvin-interval"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:interval"
+        },
+        "field": "thermal_stretch",
+        "definition": {
+          "material_id": "material:interval",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "direct_strain_reference",
+          "fit_kind": "none",
+          "thermal_definition": "constant_alpha_interval"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/constant_alpha_interval/variants/generic_reviewed/expected/thermal_stretch",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "1+alpha*deltaT (resolved thermal stretch lambda_th)"
+      }
+    },
+    {
+      "id": "case:celsius-interval.evidence.member.pipe:interval.thermal_strain",
+      "selector": {
+        "id": "evidence:case:celsius-interval:member:pipe:interval:thermal_strain",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:celsius-interval"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:interval"
+        },
+        "field": "thermal_strain",
+        "definition": {
+          "material_id": "material:interval",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "direct_strain_reference",
+          "fit_kind": "none",
+          "thermal_definition": "constant_alpha_interval"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/constant_alpha_interval/variants/generic_reviewed/expected/thermal_strain",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "alpha*deltaT (resolved thermal strain lambda_th-1 from installation to state)"
+      }
+    },
+    {
+      "id": "case:celsius-interval.evidence.member.pipe:interval.thermal_stretch",
+      "selector": {
+        "id": "evidence:case:celsius-interval:member:pipe:interval:thermal_stretch",
+        "namespace": "contract_evidence.load_reference_states",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "case:celsius-interval"
+        },
+        "record": "member",
+        "key": {
+          "pipe_id": "pipe:interval"
+        },
+        "field": "thermal_stretch",
+        "definition": {
+          "material_id": "material:interval",
+          "material_selection_kind": "explicit_base_properties",
+          "reference_basis": "direct_strain_reference",
+          "fit_kind": "none",
+          "thermal_definition": "constant_alpha_interval"
+        },
+        "unit": "1",
+        "dimension": "dimensionless"
+      },
+      "criterion_rule_id": "criterion:load_reference_strain:dimensionless:1:relative_1e-9",
+      "selector_origin": {
+        "family": "load_reference_strain",
+        "reference_origin": {
+          "kind": "analytical",
+          "pointer": "/cases/constant_alpha_interval/variants/generic_reviewed/expected/thermal_stretch",
+          "reference_unit": "1",
+          "transform": "identity"
+        },
+        "why_required": "1+alpha*deltaT (resolved thermal stretch lambda_th)"
+      }
+    }
+  ],
+  "negative_assertions": [],
+  "gaps": [
+    {
+      "id": "case:kelvin-interval.invented_ambient_temperature",
+      "kind": "structural_expectation_not_scored",
+      "detail": "Discriminator invented_ambient_temperature: members[pipe:interval].installation_temperature_k, operating_temperature_k, material_selection_temperature_k and coefficient_datum_k must be JSON null (no absolute temperature is required or derivable). Not expressible as a scalar assertion.",
+      "pointer": "/cases/constant_alpha_interval/wrong_result_discriminators/invented_ambient_temperature",
+      "load_case": "case:kelvin-interval"
+    },
+    {
+      "id": "case:celsius-interval.invented_ambient_temperature",
+      "kind": "structural_expectation_not_scored",
+      "detail": "Discriminator invented_ambient_temperature: members[pipe:interval].installation_temperature_k, operating_temperature_k, material_selection_temperature_k and coefficient_datum_k must be JSON null (no absolute temperature is required or derivable). Not expressible as a scalar assertion.",
+      "pointer": "/cases/constant_alpha_interval/wrong_result_discriminators/invented_ambient_temperature",
+      "load_case": "case:celsius-interval"
+    }
+  ],
+  "scoring_readiness": {
+    "status": "authoring_only_pending_independent_freeze",
+    "reference_case_key": "constant_alpha_interval",
+    "family": "reference_temperatures",
+    "load_state_decomposition": "two load cases in one request: the interval authored in K and in degC",
+    "limits": [
+      "Strain-only reference: no mechanics assertion is made. The 1 m cantilever, E and nu are invented carriers only."
+    ],
+    "identification": "row ids and metadata were identified by running core/product_physics examples/physics_source_connected on this request in both modes; no observed value is used as a reference or criterion and none is committed"
+  }
+}

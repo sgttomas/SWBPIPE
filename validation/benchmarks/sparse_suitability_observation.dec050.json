@@ -1,0 +1,62 @@
+{
+  "record_id": "DEC-050-SPARSE-SUITABILITY-OBSERVATION-v1",
+  "record_kind": "sparse_suitability_observation",
+  "tranche_id": "TP-R4-D7-SPARSESUITABILITYOBS-001",
+  "status": "bounded_threshold_policy_accepted",
+  "decision_basis": [
+    "DEC-023",
+    "DEC-050",
+    "DEC-026"
+  ],
+  "observation_surface": "core/solver/performance_harness::run_sparse_suitability_observation_suite",
+  "fixture_family": "invented_planar_grid_frame",
+  "evidence_fixture_ids": [
+    "invented-grid-frame-4x3",
+    "invented-grid-frame-6x8"
+  ],
+  "observed_metrics": [
+    "node_count",
+    "element_count",
+    "total_dofs",
+    "reduced_dofs",
+    "original_profile_entry_count",
+    "ordered_profile_entry_count",
+    "dense_reduced_matrix_value_storage_bytes",
+    "sparse_original_profile_value_storage_bytes",
+    "sparse_ordered_profile_value_storage_bytes",
+    "sparse_ordered_vs_dense_value_storage_ratio",
+    "original_max_half_bandwidth",
+    "ordered_max_half_bandwidth",
+    "dense_solution_scale",
+    "max_abs_sparse_dense_solution_delta",
+    "sparse_dense_relative_delta",
+    "max_abs_sparse_residual",
+    "max_abs_sparse_repeat_solution_delta",
+    "nonpositive_pivot_count",
+    "sparse_pivot_condition_ratio_estimate",
+    "dense_first_solve_elapsed_nanos",
+    "sparse_first_solve_elapsed_nanos"
+  ],
+  "threshold_policy_ref": "DEC-050-SPARSE-SUITABILITY-GENERATED-GRID-THRESHOLD-POLICY-v1",
+  "threshold_policy_tranche_id": "TP-R4-D7-SPARSETHRESHOLDPOLICY-001",
+  "threshold_policy_status": "accepted_for_generated_grid_observation_set",
+  "conditioning_threshold_policy_ref": "DEC-050-SPARSE-GENERATED-GRID-PIVOT-CONDITIONING-POLICY-v1",
+  "conditioning_threshold_policy_tranche_id": "TP-R4-D7-SPARSECONDITIONPOLICY-001",
+  "conditioning_threshold_policy_status": "accepted_for_generated_grid_pivot_ratio_observation_set",
+  "default_sparse_promotion_status": "not_promoted_dense_default",
+  "memory_observation_status": "deterministic_value_storage_observed_threshold_tbd",
+  "memory_observation_basis": "f64 value-storage bytes only; excludes allocator/container overhead, resident-set size, platform memory counters, and hardware normalization",
+  "timing_memory_threshold_status": "tbd",
+  "conditioning_ci_threshold_status": "bounded_pivot_conditioning_policy_accepted_ci_tbd",
+  "hardware_normalization_status": "tbd",
+  "dense_path_role": "default_solver_and_parity_oracle",
+  "boundary": [
+    "generated-grid observations are invented public verification evidence only",
+    "no default sparse promotion is made",
+    "thresholds apply only to dense-vs-sparse relative delta, sparse residual, repeat sparse-solution delta, and nonpositive pivot count for the named generated-grid observation set",
+    "bounded sparse pivot-ratio conditioning thresholds apply only to the named generated-grid observation set",
+    "deterministic value-storage memory observations are recorded for the named generated-grid fixtures only",
+    "no timing, allocator/RSS memory, CI, hardware-normalized, true-condition-number, release, external-validation, professional, or code-compliance threshold is set",
+    "no protected standards content, proprietary benchmark model, private project data, network path, or telemetry feature is introduced"
+  ]
+}

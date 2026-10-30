@@ -1,0 +1,43 @@
+{
+  "fixture_id": "PDU-036-INVENTED-TRACE-GAP-001",
+  "fixture_status": "verification_only_not_independent_validation",
+  "source_model_fixture": "fixtures/domain/invented_physical_source_of_truth_model.json",
+  "component": {
+    "id": "COMP-BEND-PDU036",
+    "component_type": "bend",
+    "name": "Invented unsupported bend trace-gap witness",
+    "geometry": {
+      "bend_centerline_radius": {
+        "value": 1.0,
+        "unit": "m",
+        "dimension": "length",
+        "provenance": {
+          "source_name": "PDU-036 invented trace-gap quantity",
+          "source_location": "fixtures/domain/invented_physical_to_analytical_trace_gap.json",
+          "source_license": "public_permissive",
+          "contributor": "OpenPipeStress agentic development workflow",
+          "contributor_certification": "invented non-engineering verification fixture",
+          "redistribution_status": "public_permissive",
+          "review_status": "pending"
+        }
+      }
+    },
+    "mechanics_modifiers": [],
+    "provenance": {
+      "source_name": "PDU-036 invented unsupported component",
+      "source_location": "fixtures/domain/invented_physical_to_analytical_trace_gap.json",
+      "source_license": "public_permissive",
+      "contributor": "OpenPipeStress agentic development workflow",
+      "contributor_certification": "invented non-engineering verification fixture",
+      "redistribution_status": "public_permissive",
+      "review_status": "pending"
+    }
+  },
+  "expected": {
+    "omitted_component_id": "COMP-BEND-PDU036",
+    "warning_code": "PTA-COMPONENT-TYPE-UNSUPPORTED",
+    "warning_class": "ASSUMPTION_WARNING",
+    "trace_target_type": "Diagnostic",
+    "scalar_trace_gap_required": true
+  }
+}

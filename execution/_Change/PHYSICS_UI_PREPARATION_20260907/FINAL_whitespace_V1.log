@@ -1,0 +1,4 @@
+Untracked text whitespace findings:
+projects/chirality-piping/execution/_Change/PHYSICS_UI_PREPARATION_20260907/FINAL_pytest_V1.log:20: trailing whitespace
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W10/WITNESS.log:20: blank line at end of file
+FAIL: candidate whitespace findings (untracked binary/symlink paths safely skipped: 0).

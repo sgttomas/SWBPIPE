@@ -1,0 +1,40 @@
+{
+  "role": "TASK",
+  "parent": "/root/piping_scope_manager",
+  "executor": "/root/piping_scope_manager/piping_apply_dependencies",
+  "authority": "Manager direction relaying Agent 0 authorization for routine ID/quote correctness repair within accepted ownership; this is not a new owner Group-3 decision.",
+  "manager_direction_excerpt": "Root docs/SPEC.md \u00a76.8 explicitly specifies DEP-{PKG}-{DEL}-{SEQ}; \u00a76.5 quote SHOULD and you now have actual quotable support for84rows. Parent Agent0 authorizes routine quote/ID propagation repair within accepted ownership, preserving precise delta/crosswalk from Group2bytes for Group3 review. Do not change any old1487rows, DEL/SOWIDs, relation endpoints/types/maturity/satisfaction.",
+  "consulted_origins": [
+    {
+      "path": "docs/SPEC.md",
+      "sha256": "2ed0680b458754e4493ad6dc69aa2d883e5fef1434b13bb947bb6aeb0f1485af"
+    },
+    {
+      "path": "tools/validation/validate_decomposition_registers.py",
+      "sha256": "590d9aa368c84230533d84819c53e52b441f48904f602446ec174f68cfe08818"
+    }
+  ],
+  "initial_context": {
+    "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/SOURCES_DEPENDENCY_APPLICATION.json",
+    "sha256": "44a643d256de9663f29338c33ed3799823eab8b9bb5d0a595001e507c15c6cc7"
+  },
+  "repair_inputs": [
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/LOCAL_SOURCE_BACKCHECK.csv",
+      "sha256": "865ca8d1bb5ef2637fee85064bc2a3d04f49111ec7b001122632908ca81f6cab"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/REPAIR_PREIMAGES.json",
+      "sha256": "c7a1ccae41d28b514af98e9fd74c8a500296e08fe2bca12c302106ba32ca9f16"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/ID_CROSSWALK.csv",
+      "sha256": "7cfafd9cc4b84ae06c8dffa61aeaf2042b1e8f566b06df8c79057ea29db2f7b3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/FIELD_LEVEL_DELTA.csv",
+      "sha256": "762f3a9421e4b8761dfa8f32ecb223f711972bf5ab80642e21695f3c25ced3b0"
+    }
+  ],
+  "execution_mechanism": "Existing delegated native child; no further delegation/Git/pointer changes."
+}

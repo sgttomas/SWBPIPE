@@ -1,0 +1,389 @@
+{
+  "description": "Generated input-contract sweep for the DEL-12-02 redaction classifier (docs/security/redaction_export_controls.md, 'Input contract'). Each implementation expands it identically: items in family order labels, flags, claims, alias_items; each item is decided in the twelve contexts in order. Then the alias_projector records, each decided by the generic route projector in the ten projector contexts in order: the decision is that of the record's one leaf. Then the proto_items, each decided in the twelve contexts in order, and the proto_projector records, each decided as the alias_projector records are. Every value is invented; no real private data, secret material or protected content.",
+  "deliverable_id": "DEL-12-02",
+  "absent": "__absent__",
+  "contexts": [
+    [
+      "public_report",
+      false,
+      false
+    ],
+    [
+      "public_report",
+      true,
+      false
+    ],
+    [
+      "public_example",
+      false,
+      false
+    ],
+    [
+      "public_example",
+      true,
+      false
+    ],
+    [
+      "shared_model",
+      false,
+      false
+    ],
+    [
+      "shared_model",
+      true,
+      false
+    ],
+    [
+      "downstream_tool",
+      false,
+      false
+    ],
+    [
+      "downstream_tool",
+      true,
+      false
+    ],
+    [
+      "local_private",
+      false,
+      false
+    ],
+    [
+      "local_private",
+      true,
+      false
+    ],
+    [
+      "user_released_report",
+      false,
+      false
+    ],
+    [
+      "user_released_report",
+      false,
+      true
+    ]
+  ],
+  "labels": {
+    "privacy": [
+      "__absent__",
+      null,
+      "unknown",
+      "public",
+      "private_project_data",
+      "private_material_data",
+      "protected_suspected",
+      5,
+      0,
+      true,
+      false,
+      [],
+      [
+        "public"
+      ],
+      {},
+      {
+        "a": 1
+      }
+    ],
+    "redistribution": [
+      "__absent__",
+      null,
+      "unknown",
+      "public_permissive",
+      "private_only",
+      "protected_suspected",
+      5,
+      true,
+      [],
+      [
+        "public_permissive"
+      ],
+      {}
+    ],
+    "review": [
+      "__absent__",
+      "unknown",
+      "quarantined",
+      5,
+      [],
+      {}
+    ],
+    "placements": [
+      "item",
+      "provenance",
+      "split"
+    ]
+  },
+  "flags": {
+    "keys": [
+      "contains_payload",
+      "payload_present",
+      "secret_material_present",
+      "cloud_or_network_reference",
+      "direct_sql_access",
+      "storage_bypass",
+      "storage_bypass_requested",
+      "direct_storage_bypass",
+      "application_service_bypass",
+      "concrete_path_present",
+      "local_private_intent",
+      "explicit_local_private_intent",
+      "user_intent",
+      "export_policy.local_private_intent",
+      "export_policy.explicit_local_private_intent",
+      "export_policy.user_intent"
+    ],
+    "values": [
+      true,
+      false,
+      null,
+      1,
+      0,
+      -1,
+      0.5,
+      "true",
+      "TRUE",
+      "yes",
+      "present",
+      "no",
+      "false",
+      "",
+      "1",
+      [],
+      [
+        "true"
+      ],
+      {},
+      "\ttrue",
+      "\ntrue",
+      "\u000btrue",
+      "\ftrue",
+      "\rtrue",
+      " true",
+      "\u001ctrue",
+      "\u001ftrue",
+      "\u0085true",
+      "\u00a0true",
+      "\u1680true",
+      "\u2003true",
+      "\u2028true",
+      "\u202ftrue",
+      "\u3000true",
+      "\ufefftrue",
+      "true\t",
+      "true\n",
+      "true\u000b",
+      "true\f",
+      "true\r",
+      "true ",
+      "true\u001c",
+      "true\u001f",
+      "true\u0085",
+      "true\u00a0",
+      "true\u1680",
+      "true\u2003",
+      "true\u2028",
+      "true\u202f",
+      "true\u3000",
+      "true\ufeff"
+    ]
+  },
+  "claims": {
+    "values": [
+      "__absent__",
+      null,
+      false,
+      true,
+      "false",
+      "no",
+      "",
+      "true",
+      "yes",
+      0,
+      1,
+      [],
+      [
+        false
+      ],
+      {},
+      "\ufefftrue"
+    ]
+  },
+  "bases": [
+    {
+      "privacy_classification": "public",
+      "redistribution_status": "public_permissive"
+    },
+    {
+      "privacy_classification": "private_project_data",
+      "redistribution_status": "private_only"
+    },
+    {
+      "privacy_classification": "private_project_data"
+    },
+    {}
+  ],
+  "aliases": {
+    "description": "The `classification` alias of `privacy_classification` (HELP_HUMAN decision 2026-10-27: a null primary label must not let an alias lift a sibling into public_report). alias_items: for each privacy_classification, classification, redistribution and item placement in that order, an item {value: 'x'} carrying the three labels on the item, in its provenance, or on the item over the private provenance. alias_projector: for each privacy_classification, classification, redistribution and projector placement in that order, a record carrying the three labels and the leaf, alone or with the public provenance, projected as {record_key: record} on route_id.",
+    "privacy_classification": [
+      "__absent__",
+      null,
+      "unknown",
+      "public",
+      "private_project_data"
+    ],
+    "classification": [
+      "__absent__",
+      null,
+      "public",
+      "public_metadata",
+      "invented_public_example",
+      "private_project_data",
+      "protected_suspected"
+    ],
+    "redistribution": [
+      "__absent__",
+      "public_permissive",
+      "invented_non_engineering_example",
+      "private_only"
+    ],
+    "item_placements": [
+      "item",
+      "provenance",
+      "item_private_provenance"
+    ],
+    "private_provenance": {
+      "privacy_classification": "private_project_data",
+      "redistribution_status": "private_only"
+    },
+    "projector": {
+      "route_id": "DREP-JSON-002",
+      "record_key": "record",
+      "leaf_key": "note",
+      "leaf_value": "INVENTED",
+      "placements": [
+        "record",
+        "record_public_provenance"
+      ],
+      "public_provenance": {
+        "privacy_classification": "public",
+        "redistribution_status": "public_permissive"
+      },
+      "contexts": [
+        [
+          "public_report",
+          false
+        ],
+        [
+          "public_report",
+          true
+        ],
+        [
+          "public_example",
+          false
+        ],
+        [
+          "public_example",
+          true
+        ],
+        [
+          "shared_model",
+          false
+        ],
+        [
+          "shared_model",
+          true
+        ],
+        [
+          "downstream_tool",
+          false
+        ],
+        [
+          "downstream_tool",
+          true
+        ],
+        [
+          "local_private",
+          false
+        ],
+        [
+          "local_private",
+          true
+        ]
+      ]
+    }
+  },
+  "proto": {
+    "description": "A JSON `__proto__` member is an own member in all three implementations (HELP_HUMAN decision 2026-10-27: \"Parse so that no JSON member can become a prototype\"), and an object carrying one, on itself or its provenance, has no public basis (HELP_HUMAN ruling 2026-10-27, option (b): fail closed on the key itself). For each own privacy_classification, classification and redistribution label, member value and placement in that order: proto_items, an item {value: 'x'} carrying the own labels and the member `__proto__` on the item, or {value: 'x'} with a provenance carrying them; then proto_projector, a record carrying the own labels, the member on the record, the member on the record beside aliases.projector.public_provenance, or that provenance carrying the member, and then the leaf, projected as aliases.projector projects. Each implementation sets the member as an own member, as JSON parsing does.",
+    "member": "__proto__",
+    "privacy_classification": [
+      "__absent__",
+      null,
+      "public",
+      "private_project_data"
+    ],
+    "classification": [
+      "__absent__",
+      "public"
+    ],
+    "redistribution": [
+      "__absent__",
+      "public_permissive",
+      "private_only"
+    ],
+    "member_values": [
+      {},
+      {
+        "redistribution_status": "public_permissive"
+      },
+      {
+        "redistribution_status": "private_only"
+      },
+      {
+        "privacy_classification": "unknown"
+      },
+      {
+        "privacy_classification": "unknown",
+        "redistribution_status": "public_permissive"
+      },
+      {
+        "privacy_classification": "unknown",
+        "redistribution_status": "private_only"
+      },
+      {
+        "privacy_classification": "public"
+      },
+      {
+        "privacy_classification": "public",
+        "redistribution_status": "public_permissive"
+      },
+      {
+        "privacy_classification": "public",
+        "redistribution_status": "private_only"
+      },
+      {
+        "privacy_classification": "private_project_data"
+      },
+      {
+        "privacy_classification": "private_project_data",
+        "redistribution_status": "public_permissive"
+      },
+      {
+        "privacy_classification": "private_project_data",
+        "redistribution_status": "private_only"
+      },
+      null,
+      "INVENTED"
+    ],
+    "item_placements": [
+      "item",
+      "provenance"
+    ],
+    "projector_placements": [
+      "record",
+      "record_public_provenance",
+      "provenance"
+    ]
+  }
+}

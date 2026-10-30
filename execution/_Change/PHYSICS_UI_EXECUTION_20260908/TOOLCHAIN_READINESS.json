@@ -1,0 +1,119 @@
+{
+  "schema": "physics-ui-toolchain-readiness/v1",
+  "status": "READY_WITH_SERIALIZED_NATIVE_BUILD_GATE",
+  "recorded_utc": "2026-09-08T05:25:37Z",
+  "basis": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "portable_controls": {
+    "profile": "projects/chirality-piping/software-workflow.json",
+    "profile_contract": "docs/SOFTWARE_WORKFLOW_PROFILE.md",
+    "node_lockfile": "projects/chirality-piping/package-lock.json",
+    "node_lockfile_git_blob": "490bae945bd016ee6c43b879b36b71c184b8cb67",
+    "node_lockfile_sha256": "0dd1616e1ef3c596d5cdaa8e56994f26127c20943bfde066f26c9f924c65d732",
+    "python_requirements": "projects/chirality-piping/requirements-dev.txt",
+    "tauri_config": "projects/chirality-piping/apps/desktop/src-tauri/tauri.conf.json",
+    "desktop_manifest": "projects/chirality-piping/apps/desktop/package.json"
+  },
+  "node_provision": {
+    "command": [
+      "env",
+      "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1",
+      "npm",
+      "ci"
+    ],
+    "cwd": "projects/chirality-piping",
+    "exit": 0,
+    "added_packages": 206,
+    "audited_packages": 208,
+    "ignored_target": "projects/chirality-piping/node_modules",
+    "tracked_files_changed": false,
+    "audit_findings": {
+      "low": 2,
+      "moderate": 1,
+      "high": 5
+    },
+    "audit_fix_run": false
+  },
+  "versions": {
+    "node": "24.18.0",
+    "npm": "11.16.0",
+    "typescript": "5.9.3",
+    "vite": "7.3.3",
+    "vitest": "4.1.10",
+    "playwright": "1.60.0",
+    "tauri_cli": "2.11.1",
+    "python": "3.13.14",
+    "pyyaml": "6.0.3",
+    "numpy": "2.5.3",
+    "pytest": "9.1.1",
+    "cargo": "1.97.1",
+    "rustc": "1.97.1",
+    "wasm_bindgen": "0.2.123",
+    "xcode": "26.6",
+    "system_chrome": "152.0.7977.83"
+  },
+  "host_local_raw_paths": "_run_records/TOOLCHAIN_HOST_PATHS.json",
+  "rust_native": {
+    "targets": [
+      "aarch64-apple-darwin",
+      "wasm32-unknown-unknown"
+    ],
+    "required_wasm_bindgen": "0.2.123",
+    "f4_compile_slot_owner": null,
+    "native_build_release_owner": "root/U7",
+    "cargo_or_wasm_command_run": false,
+    "native_build_run": false,
+    "application_launched": false,
+    "cargo_cache_preflight": "DEFERRED_TO_SERIALIZED_BUILD_OR_VALIDATION_OWNER"
+  },
+  "generated_artifacts": {
+    "apps/desktop/dist": "ABSENT",
+    "apps/desktop/public/wasm-engine": "ABSENT",
+    "apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Technical Preview.app": "ABSENT",
+    "apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Technical Preview Walkthrough 779dedb8 20260908.app": "ABSENT"
+  },
+  "packaged_tools": {
+    "application_name": "OpenPipeStress Technical Preview",
+    "bundle_identifier": "org.openpipestress.technical-preview",
+    "executable_name": "openpipestress-desktop",
+    "bundle_command": "CARGO_NET_OFFLINE=true npm run tauri -- build --bundles app",
+    "bundle_cwd": "projects/chirality-piping/apps/desktop",
+    "bundle_binary": "projects/chirality-piping/apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Technical Preview.app/Contents/MacOS/openpipestress-desktop",
+    "isolated_backend_witness_argument": "--self-test-saved-edited-load",
+    "isolated_backend_witness_command": "apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Technical Preview.app/Contents/MacOS/openpipestress-desktop --self-test-saved-edited-load",
+    "isolated_backend_store_pattern": "<system temporary directory>/openpipestress-packaged-edited-load-smoke-<pid>-<unix-nanoseconds>/openpipestress-projects.sqlite3",
+    "isolated_backend_cleanup": "remove the complete temporary directory before returning",
+    "automated_packaged_gui_walkthrough_registered": false,
+    "ordinary_gui_direct_store_path_override_supported": false,
+    "ordinary_gui_tauri_config_isolation_supported": true,
+    "ordinary_gui_tauri_overlay": "execution/_Change/PHYSICS_UI_EXECUTION_20260908/_run_records/NATIVE_WALKTHROUGH_TAURI_OVERLAY.json",
+    "ordinary_gui_isolated_identifier": "org.openpipestress.technical-preview.walkthrough-physics-ui-779dedb8-20260908",
+    "ordinary_gui_safe_launch_command": "/usr/bin/open -n \"{WORKING_ROOT}/apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Technical Preview Walkthrough 779dedb8 20260908.app\"",
+    "ordinary_gui_invented_model_store": "{USER_APPLICATION_SUPPORT}/org.openpipestress.technical-preview.walkthrough-physics-ui-779dedb8-20260908/openpipestress-projects.sqlite3",
+    "ordinary_gui_data_constraint": "Build the same source through the recorded Tauri --config flavor, verify the merged CFBundleIdentifier before launch, operate only on an invented project in the unique identifier's app-local store, then apply the guarded cleanup protocol. Do not inspect or access the normal org.openpipestress.technical-preview directory."
+  },
+  "calculator_gate_classification": {
+    "subject": "independent reference calculator .py plus .json under deliverable _run_records",
+    "profile_path_selected_checks": [
+      "harness-pytest",
+      "harness-self-check"
+    ],
+    "code_touching": true,
+    "full_dec025_required": true,
+    "basis": [
+      "committed workplan requires DEC-025 for every code-touching branch",
+      "DEC-025 requires the commit-bound sweep for every parallel-agent development branch",
+      "the workflow profile does not replace project gates"
+    ],
+    "json_exemption": false
+  },
+  "not_run": [
+    "cargo fetch/build/test",
+    "Wasm build",
+    "Tauri build",
+    "Vitest",
+    "Playwright",
+    "production build",
+    "full DEC-025 sweep",
+    "native application launch"
+  ]
+}

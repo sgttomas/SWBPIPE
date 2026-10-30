@@ -1,0 +1,60 @@
+{
+  "artifact": "del0904.vd.measurement_bundle_manifest",
+  "schema_version": "1.0.0",
+  "status": "DERIVATIVE_NON_AUTHORITATIVE_BLOCKED_ON_IGNORED_DRIFT_CLEANUP",
+  "basis_commit": "c05fe2d6fbc3bd3d3b690f50075e2c878af0faf3",
+  "owner_ruling": "V-D",
+  "population": {
+    "suite": "mechanics",
+    "requested": 25,
+    "matched": 11,
+    "mismatched": 0,
+    "blocked": 14,
+    "observed_values": 91,
+    "unobserved_values": 115
+  },
+  "artifacts": [
+    {
+      "path": "CAPTURE_STDERR.txt",
+      "sha256": "f30c75d45854b0062c70e9036f3d955850d75d3bc8897232e7513de45c6980f9",
+      "role": "exact stderr from successful fail-closed capture attempt"
+    },
+    {
+      "path": "COMMAND_ENVIRONMENT_MANIFEST.json",
+      "sha256": "d98182b1644ff5b396fa190474dd787b2bed656ad1064a0e5749f0bf288eb049",
+      "role": "commands, environment, source identities, and side-effect disclosure"
+    },
+    {
+      "path": "CURRENT_25_FIXTURE_RUNNER_OUTPUT.json",
+      "sha256": "e41f8545cf6fc0603cb41a0bdc08d90726f59ce57e13ad6809036589db3ded8f",
+      "role": "exact runner/wrapper output"
+    },
+    {
+      "path": "CURRENT_25_FIXTURE_SUITE_RUN.json",
+      "sha256": "d6ea66202eae4203c841aef589c6fe10f36f450ded79b0ad3e4093ce2375e108",
+      "role": "exact extracted suite_run projection"
+    },
+    {
+      "path": "MEASUREMENT_ANALYSIS.json",
+      "sha256": "fcd440de394dc65187faf78fc66b7a585ec904a218dcbec9671a0eb3423e5bba",
+      "role": "machine-readable kind measurement and current block census"
+    },
+    {
+      "path": "OWNER_VALUE_PACKET.md",
+      "sha256": "4002d68a9a5582956fd969e59f93c60be2af7b9388bd735eefb56ceca6a06ac5",
+      "role": "owner-ready non-authoritative options and recommendation"
+    },
+    {
+      "path": "SPARSE_UNIT_NORMALIZED_DESIGN.md",
+      "sha256": "f136116efdb7aba4794add0476801352eced4ad73979f6b1a4db78b1c0c23e72",
+      "role": "unit-normalized sparse design"
+    }
+  ],
+  "closure": {
+    "scientific_capture_reconciles": true,
+    "public_policy_selected": false,
+    "source_or_fixture_repair_performed": false,
+    "terminal_zero_ignored_drift": false,
+    "blocker": "ignored core/runner/headless/Cargo.lock requires separate exact cleanup authority"
+  }
+}

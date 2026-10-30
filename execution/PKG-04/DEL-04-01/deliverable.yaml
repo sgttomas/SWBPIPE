@@ -1,0 +1,144 @@
+id: DEL-04-01
+name: 3D frame stiffness kernel
+needs:
+- from: DEL-00-01
+  condition: 'DEL-04-01 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
+    forward from DAG-001-E0100 into DAG-002 revision 0.5 proposal; active edge approved for coordination
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; refreshed by
+    TP-DAG-004 conservative update for RECONCILIATION consumer against execution/_Decomposition/SOFTWARE_DECOMP.md
+    revision 0.5; edge set unchanged; legacy_anchortype=TRACES_TO_REQUIREMENT; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-04-01 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
+    forward from DAG-001-E0101 into DAG-002 revision 0.5 proposal; active edge approved for coordination
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; refreshed by
+    TP-DAG-004 conservative update for RECONCILIATION consumer against execution/_Decomposition/SOFTWARE_DECOMP.md
+    revision 0.5; edge set unchanged; legacy_anchortype=TRACES_TO_REQUIREMENT; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-03
+  condition: 'DEL-04-01 requires SCA-001 architecture basis AB-00-03 from DEL-00-03 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
+    forward from DAG-001-E0102 into DAG-002 revision 0.5 proposal; active edge approved for coordination
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; refreshed by
+    TP-DAG-004 conservative update for RECONCILIATION consumer against execution/_Decomposition/SOFTWARE_DECOMP.md
+    revision 0.5; edge set unchanged; legacy_anchortype=TRACES_TO_REQUIREMENT; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-04-01 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
+    forward from DAG-001-E0103 into DAG-002 revision 0.5 proposal; active edge approved for coordination
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; refreshed by
+    TP-DAG-004 conservative update for RECONCILIATION consumer against execution/_Decomposition/SOFTWARE_DECOMP.md
+    revision 0.5; edge set unchanged; legacy_anchortype=TRACES_TO_REQUIREMENT; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-04-01 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
+    execution.
+
+
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
+    forward from DAG-001-E0104 into DAG-002 revision 0.5 proposal; active edge approved for coordination
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; refreshed by
+    TP-DAG-004 conservative update for RECONCILIATION consumer against execution/_Decomposition/SOFTWARE_DECOMP.md
+    revision 0.5; edge set unchanged; legacy_anchortype=TRACES_TO_REQUIREMENT; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-02-01
+  condition: >-
+    DEL-04-01 binds its solver object references to DEL-02-01's canonical model roles through optional
+    `CanonicalModelReference` records; it reads no model document. It needs DEL-02-01's canonical node,
+    element and model-entity identities to stay stable for that binding.
+  gating: true
+  evidence: core/solver/frame_kernel/README.md
+- from: DEL-02-02
+  condition: >-
+    DEL-04-01 takes numeric mechanics quantities that upstream schema and unit layers have already
+    validated; `FrameKernelUnitBasis` records the caller's unit identifiers and converts nothing. It needs
+    DEL-02-02's unit catalog and dimensional checks to supply that validation. Conversion constants and
+    production unit policy remain DEL-02-02's.
+  gating: true
+  evidence: core/solver/frame_kernel/README.md
+- from: DEL-02-03
+  condition: >-
+    DEL-04-01 computes open mechanics quantities only. It needs DEL-02-03's code-neutral analysis boundary
+    so that kernel outputs carry no rule-pack acceptability, compliance or approval meaning.
+  gating: true
+  evidence: core/solver/frame_kernel/README.md
+- from: doc:execution/PKG-05/DEL-05-03/Design/section-bases-and-timoshenko.md
+  when: T4-U8 Timoshenko straight member (D-6)
+  condition: >-
+    DEL-04-01's Timoshenko straight member and its K-D5 extension follow sections 3 and 4 of DEL-05-03's
+    D-6 design: the energy-matched annular shear factor kappa_E (`timoshenko_annulus_energy_v1`) in its
+    fixed binary64 operation order, A_s = kappa_E A, phi = 12EI/(G A_s L^2) and the exact static two-node
+    stiffness, and K-D5's formation of the element from the frame's own leaves with the member-identity
+    frame binding. SHEAR_REFERENCE's frozen controls check it. A change to that definition changes the
+    kernel element with it. The design is named as a document, not as a DEL-05-03 need, because
+    DEL-05-03 depends on this kernel (through DEL-04-02) and DEL-04-01 declares no need on its consumers.
+  gating: true
+code_paths:
+# The frame kernel crate, including the retained kernel and the exact boundary whose methods
+# DEL-04-08's Designs and DEL-05-02's retained-combinations contract govern.
+- core/solver/frame_kernel/**
+- core/solver/curved_bend/**
+- core/solver/sparse_direct/**
+- core/numerics/correct_norm/**
+- core/product_physics/tests/t4_u1_reference.rs
+- validation/references/kd5_member_bound/**
+- validation/references/kd5_nonlinear/**
+- validation/references/t4_i6/**
+- validation/references/t4_i9/**
+- validation/references/t4_o13/**
+# W-7 (Design global-end-actions.md): the readers' checks of the global end rows; the producer is
+# product_physics lib.rs `append_element_global_end_results`.
+- core/reporting/result_export/src/global_end_evidence.rs
+checks:
+- core/solver/frame_kernel/src/lib.rs
+- core/solver/frame_kernel/src/structural/sparse/tests.rs
+- core/solver/frame_kernel/src/structural/formation_check_tests.rs
+- core/solver/frame_kernel/src/structural/certified_recovery_tests.rs
+- core/solver/frame_kernel/tests/timoshenko_element.rs
+- core/solver/frame_kernel/tests/tie_rod_element.rs
+- core/solver/frame_kernel/src/structural/tie_rod_kd5_tests.rs
+- core/solver/frame_kernel/src/structural/absorption_tests.rs
+- core/solver/frame_kernel/src/structural/arc_maximum_tests.rs
+- core/solver/sparse_direct/src/lib.rs
+- core/product_physics/tests/global_end_actions_runtime.rs
+- tests/test_global_end_verifier.py

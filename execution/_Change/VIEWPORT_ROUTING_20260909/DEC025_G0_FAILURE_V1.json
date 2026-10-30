@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "status": "FAIL",
+  "tested_commit": "67f39cd498089dfb38aa61a787fa7fb217acf213",
+  "source_evidence_commit": "c19fddb26756dbba57d117a627c1a57a0f40ab7e",
+  "integrated_origin_main": "33b0f2787cfa3057670df455f5dad8060e908d35",
+  "command": "{QUALIFIED_PYTHON} tools/release/run_evidence_sweep.py --execute",
+  "surface": "G0 cargo_crate_sweep",
+  "failed_check": "cargo test --offline --manifest-path core/runner/headless/Cargo.toml",
+  "failed_test": "result_envelope_binding::tests::straight_station_library_document_metadata_uses_canonical_schema_categories",
+  "crate_result": {
+    "passed": 38,
+    "failed": 1,
+    "exit_code": 101
+  },
+  "sweep_exit_code": 1,
+  "remaining_surfaces": "not_run",
+  "summary": "validation/evidence/sweeps/SWEEP_20260909T083548Z_67f39cd49808.json",
+  "raw_log": "execution/_Change/VIEWPORT_ROUTING_20260909/_run_records/DEC025_G0_FAILURE_LOG_V1.base64.json",
+  "failure": "result:stress:pipe-P-120:quarter-1:pressure-hoop lacks j-side section action: positive pressure membrane hoop stress follows the explicit pipe pressure basis at this station",
+  "disposition": "Preserved without retry or source edit; routed to HELP_HUMAN for bounded diagnosis."
+}

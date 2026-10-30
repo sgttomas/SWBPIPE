@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0",
+  "record_type": "change_final_publication_preflight",
+  "status": "READY_FOR_EVIDENCE_ONLY_COMMIT",
+  "recorded_at_utc": "2026-09-09T04:39:38Z",
+  "recorded_by": {
+    "task_identity": "/root/implementation_change",
+    "role": "CHANGE",
+    "model": "gpt-5.6-sol",
+    "reasoning": "high",
+    "delegation": false
+  },
+  "tested_source_commit": "e6f694877acf524188d0bd0e5006ea78e2864d0d",
+  "source_equality": {
+    "members": 17,
+    "aggregate_sha256": "d80b48eaa2c1c60532c17fbace51eddd9f049123396af7d01c66a3a2ab20ca6a",
+    "live_and_committed_hash_and_byte_equality": "PASS",
+    "tracked_diff_core_apps_fixtures_tests": "EMPTY"
+  },
+  "verification": {
+    "dec025_summary_sha256": "8accd33a0cad0ea58930c39c94423f20ef7eca697f7e5b7ffad65409bd9671cf",
+    "dec025": "G0_G1_G2_G3_G4_PASS",
+    "practitioner": "379_PASS",
+    "clean_result_sha256": "7655458d115dbcb5c767835d53d096bdc224c32b14af52da17e669628dc1dba8"
+  },
+  "receipt_and_snapshot": {
+    "receipt": "Receipt-137",
+    "parent": "Receipt-136",
+    "examined_through": "e6f694877acf524188d0bd0e5006ea78e2864d0d",
+    "receipt_file_sha256": "a385d6652219374690e2a2602cb681fcbc5bd001c08b37def3eee55eb1ddf273",
+    "acceptance_sha256": "9de38fd6e79c6a943f0da813574c7018c86263260fd2f2485acd81b31175ed72",
+    "handoff_sha256": "91fe2e7a6d3fa4934fd11bc2baf0eef2596037da83dea34369bfda75fe37af12"
+  },
+  "final_checks": {
+    "receipt_validator": "PASS",
+    "repository_self_check_exit": 0,
+    "path_anchors": "PASS 4361/0",
+    "candidate_whitespace": "PASS",
+    "candidate_json": "PASS",
+    "allowlist_before_this_record": "PASS 8/8",
+    "original_local_handoff_sha256": "ebbed866266cc961344151519b2792c6cfc5889eb18143a7809be69700c56035"
+  },
+  "publication": {
+    "branch": "codex/piping-physics-ui-implementation-20260908",
+    "target": "main",
+    "last_observed_origin_main": "781b478176db46ca66ebd38991607612e0ce9338",
+    "pull_request_title": "Correct friction coupling and add reviewed route authoring",
+    "body_source": "projects/chirality-piping/execution/_Change/PHYSICS_UI_IMPLEMENTATION_20260908/PR_DRAFT_V1.md",
+    "merge_gate": "All registered CI jobs, including Desktop and protected harness, green for the exact unchanged head; mergeability current; no force or bypass."
+  },
+  "limits": "Evidence-only closeout does not alter the tested source, lifecycle, dependency, DAG, public-schema, engineering-compliance, or professional-reliance state."
+}

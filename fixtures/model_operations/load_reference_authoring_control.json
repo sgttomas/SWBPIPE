@@ -1,0 +1,256 @@
+{
+  "exact_pressure_authoring_model|temperature_points:material:fixture-isotropic:add_incomplete|apply": {
+    "applied": true,
+    "codes": [
+      "OP-RICH-NOT-SOLVE-READY",
+      "OP-RICH-NOT-SOLVE-READY"
+    ],
+    "outcome_sha256": "db1ebd1a32d3450d9092f734a6c35c378ca5f501083ebd63395aada9aa0f85da"
+  },
+  "exact_pressure_authoring_model|temperature_points:material:fixture-isotropic:add_incomplete|validate": {
+    "applied": false,
+    "codes": [
+      "OP-RICH-NOT-SOLVE-READY",
+      "OP-RICH-NOT-SOLVE-READY"
+    ],
+    "outcome_sha256": "d048585e4705448ae493e921d9771c9a7466c86f1e74496db9882ac9d379fc1f"
+  },
+  "exact_pressure_authoring_model|temperature_points:material:fixture-isotropic:author|apply": {
+    "applied": true,
+    "codes": [
+      "OP-RICH-NOT-SOLVE-READY"
+    ],
+    "outcome_sha256": "040e85a0aae72c057332e0dba6c8cd9d486a80e869abf2d4d9cc490393bb57ae"
+  },
+  "exact_pressure_authoring_model|temperature_points:material:fixture-isotropic:author|validate": {
+    "applied": false,
+    "codes": [
+      "OP-RICH-NOT-SOLVE-READY"
+    ],
+    "outcome_sha256": "2ffecd5a81e6e9de96eaa273794d27c3beb01d8ea603d848995008df41689e74"
+  },
+  "exact_pressure_authoring_model|temperature_points:material:fixture-isotropic:empty|apply": {
+    "applied": true,
+    "codes": [],
+    "outcome_sha256": "e296c1110ba86e80b21b2f0fa0833227554d0a1a74095ed6278b5565504c18bc"
+  },
+  "exact_pressure_authoring_model|temperature_points:material:fixture-isotropic:empty|validate": {
+    "applied": false,
+    "codes": [],
+    "outcome_sha256": "427d5493103bcf932638fd32e2e9838d298eea31613fd55a220b87aceba09998"
+  },
+  "exact_pressure_authoring_model|temperature_points:material:fixture-isotropic:remove|apply": {
+    "applied": true,
+    "codes": [
+      "OP-RICH-NOT-SOLVE-READY"
+    ],
+    "outcome_sha256": "1490a1b25249e67d553432b526fa3f8f1552186ec3778657e24983186f2aa707"
+  },
+  "exact_pressure_authoring_model|temperature_points:material:fixture-isotropic:remove|validate": {
+    "applied": false,
+    "codes": [
+      "OP-RICH-NOT-SOLVE-READY"
+    ],
+    "outcome_sha256": "4d8b9fcc1cb2932fc61f6a6f584e90b1fbd5dfa8d3beba9a495937d124e6e4c0"
+  },
+  "exact_pressure_authoring_model|temperature_points:material:fixture-isotropic:rename|apply": {
+    "applied": true,
+    "codes": [
+      "OP-RICH-NOT-SOLVE-READY"
+    ],
+    "outcome_sha256": "243005a77c767f457929f8a14ad7f53d6e0f4348c0f4f32a740d3084b029cafa"
+  },
+  "exact_pressure_authoring_model|temperature_points:material:fixture-isotropic:rename|validate": {
+    "applied": false,
+    "codes": [
+      "OP-RICH-NOT-SOLVE-READY"
+    ],
+    "outcome_sha256": "fb69b490c374085e2017dc62de35e2424f2d1858049487c2b7bd47e30cc11561"
+  },
+  "exact_pressure_authoring_model|temperature_points:material:fixture-isotropic:unchanged|apply": {
+    "applied": true,
+    "codes": [
+      "OP-RICH-NOT-SOLVE-READY"
+    ],
+    "outcome_sha256": "3e0a11cd959409f376e86f9eef60aca1ff499e68ee0e550df8903fd634679ec4"
+  },
+  "exact_pressure_authoring_model|temperature_points:material:fixture-isotropic:unchanged|validate": {
+    "applied": false,
+    "codes": [
+      "OP-RICH-NOT-SOLVE-READY"
+    ],
+    "outcome_sha256": "ecd2449615d44f2e7a7c1f3452d4b66224e284716d4a5b7249514b4095bfd6d9"
+  },
+  "physics_thermal_ui_model|temperature_points:material:fixture-isotropic:add_incomplete|apply": {
+    "applied": true,
+    "codes": [
+      "OP-RICH-NOT-SOLVE-READY",
+      "OP-RICH-NOT-SOLVE-READY"
+    ],
+    "outcome_sha256": "481c88589e55cc9e6b50d6d53001090ee3411b49671864dc4c3da1a4555e530b"
+  },
+  "physics_thermal_ui_model|temperature_points:material:fixture-isotropic:add_incomplete|validate": {
+    "applied": false,
+    "codes": [
+      "OP-RICH-NOT-SOLVE-READY",
+      "OP-RICH-NOT-SOLVE-READY"
+    ],
+    "outcome_sha256": "d0f93e7879b776e9125903266d2aad7dc19bac6fd5506143641738843fa830be"
+  },
+  "physics_thermal_ui_model|temperature_points:material:fixture-isotropic:author|apply": {
+    "applied": true,
+    "codes": [
+      "OP-RICH-NOT-SOLVE-READY"
+    ],
+    "outcome_sha256": "d9dd4267a7be896fae6efac592241d2047218f8989f3db49bea728a4a3419e10"
+  },
+  "physics_thermal_ui_model|temperature_points:material:fixture-isotropic:author|validate": {
+    "applied": false,
+    "codes": [
+      "OP-RICH-NOT-SOLVE-READY"
+    ],
+    "outcome_sha256": "84c1d1373301142cbdb0c67faa3e12dc0635df4d5ca32c8a6c194c94782e198b"
+  },
+  "physics_thermal_ui_model|temperature_points:material:fixture-isotropic:empty|apply": {
+    "applied": true,
+    "codes": [],
+    "outcome_sha256": "52a4fbe45af8af3fe967d94e37adf5d3ccfa04beb0039b110da79a247f8a419d"
+  },
+  "physics_thermal_ui_model|temperature_points:material:fixture-isotropic:empty|validate": {
+    "applied": false,
+    "codes": [],
+    "outcome_sha256": "b12cb27e3e29aba746a58b291fe6b74e2adb64e7669b5a80ab263955d3f7110c"
+  },
+  "physics_thermal_ui_model|temperature_points:material:fixture-isotropic:remove|apply": {
+    "applied": true,
+    "codes": [
+      "OP-RICH-NOT-SOLVE-READY"
+    ],
+    "outcome_sha256": "06f1982b799d821f5b8f4325df0611488ff476329839033240e7203bc5af273d"
+  },
+  "physics_thermal_ui_model|temperature_points:material:fixture-isotropic:remove|validate": {
+    "applied": false,
+    "codes": [
+      "OP-RICH-NOT-SOLVE-READY"
+    ],
+    "outcome_sha256": "d01ea2c577fe15832f57d87ee5c8cba13ba7c6d7b351008a6a380b65623acd39"
+  },
+  "physics_thermal_ui_model|temperature_points:material:fixture-isotropic:rename|apply": {
+    "applied": true,
+    "codes": [
+      "OP-RICH-NOT-SOLVE-READY"
+    ],
+    "outcome_sha256": "a34b8b95a4c4dfa4956d5afc6b05ffff1c1cfb278ca5acf4ff14884c0d0532a0"
+  },
+  "physics_thermal_ui_model|temperature_points:material:fixture-isotropic:rename|validate": {
+    "applied": false,
+    "codes": [
+      "OP-RICH-NOT-SOLVE-READY"
+    ],
+    "outcome_sha256": "eaab2b5abc4e05e8dd82175ecaac7477152a08d67a88fd449bf1751b670c72a5"
+  },
+  "physics_thermal_ui_model|temperature_points:material:fixture-isotropic:unchanged|apply": {
+    "applied": true,
+    "codes": [
+      "OP-RICH-NOT-SOLVE-READY"
+    ],
+    "outcome_sha256": "f4ee581e00dbc08a5ace73af443ad4c268a34eadd804cfb9f608d68e310a27f1"
+  },
+  "physics_thermal_ui_model|temperature_points:material:fixture-isotropic:unchanged|validate": {
+    "applied": false,
+    "codes": [
+      "OP-RICH-NOT-SOLVE-READY"
+    ],
+    "outcome_sha256": "216eec38bc30d73599bf9c2e2eea6a5cd3e36cce0a6ea91643102d98f091b8ac"
+  },
+  "precision_connected_ui_model|temperature_points:material:fixture-isotropic:add_incomplete|apply": {
+    "applied": true,
+    "codes": [
+      "OP-RICH-NOT-SOLVE-READY",
+      "OP-RICH-NOT-SOLVE-READY",
+      "OP-RICH-NOT-SOLVE-READY"
+    ],
+    "outcome_sha256": "8ea21956a0a99f56d7361aaeb4baf9d12fd44ed340504ee4348e3ffca842dcf2"
+  },
+  "precision_connected_ui_model|temperature_points:material:fixture-isotropic:add_incomplete|validate": {
+    "applied": false,
+    "codes": [
+      "OP-RICH-NOT-SOLVE-READY",
+      "OP-RICH-NOT-SOLVE-READY",
+      "OP-RICH-NOT-SOLVE-READY"
+    ],
+    "outcome_sha256": "3be75ebc54185443b6beb2a1f164af6c5215fb65972a8322672d1fb6bd9d9a0f"
+  },
+  "precision_connected_ui_model|temperature_points:material:fixture-isotropic:author|apply": {
+    "applied": true,
+    "codes": [
+      "OP-RICH-NOT-SOLVE-READY",
+      "OP-RICH-NOT-SOLVE-READY"
+    ],
+    "outcome_sha256": "7296d85f608baf2ec1c42df5fe11435d8966f2a58ee7646347aaf77d72db26ef"
+  },
+  "precision_connected_ui_model|temperature_points:material:fixture-isotropic:author|validate": {
+    "applied": false,
+    "codes": [
+      "OP-RICH-NOT-SOLVE-READY",
+      "OP-RICH-NOT-SOLVE-READY"
+    ],
+    "outcome_sha256": "5314d155a638ec559ae21d6712b3fde449c0010b4ea228bd3a8780f64216dfd9"
+  },
+  "precision_connected_ui_model|temperature_points:material:fixture-isotropic:empty|apply": {
+    "applied": true,
+    "codes": [],
+    "outcome_sha256": "008ab5abea0a52545257fd1deb4b3133d6c7d1b005e61f77ee51d4934bedaf55"
+  },
+  "precision_connected_ui_model|temperature_points:material:fixture-isotropic:empty|validate": {
+    "applied": false,
+    "codes": [],
+    "outcome_sha256": "82f77e497abc97d97d6e63432d11b9744b7ebb0cca5cca888813ae5863931075"
+  },
+  "precision_connected_ui_model|temperature_points:material:fixture-isotropic:remove|apply": {
+    "applied": true,
+    "codes": [
+      "OP-RICH-NOT-SOLVE-READY"
+    ],
+    "outcome_sha256": "157152239c7f2f3c53bc3c2a8e03d6461f552ef8bb1b96b6e07045e83c64b850"
+  },
+  "precision_connected_ui_model|temperature_points:material:fixture-isotropic:remove|validate": {
+    "applied": false,
+    "codes": [
+      "OP-RICH-NOT-SOLVE-READY"
+    ],
+    "outcome_sha256": "9ba7bb39144a0ac9eac8ebc0de2e72180e90fc09e4ff2d243a69cce88b793d26"
+  },
+  "precision_connected_ui_model|temperature_points:material:fixture-isotropic:rename|apply": {
+    "applied": true,
+    "codes": [
+      "OP-RICH-NOT-SOLVE-READY",
+      "OP-RICH-NOT-SOLVE-READY"
+    ],
+    "outcome_sha256": "0faeaa7386a12c098bf5a409f4b3b6f66b057dae5541102292c2e9a8195e5fe8"
+  },
+  "precision_connected_ui_model|temperature_points:material:fixture-isotropic:rename|validate": {
+    "applied": false,
+    "codes": [
+      "OP-RICH-NOT-SOLVE-READY",
+      "OP-RICH-NOT-SOLVE-READY"
+    ],
+    "outcome_sha256": "6338dc9da57ccac753ff48e8564f18f9f0fdf672d506feeb74e6dc42b2dd17dd"
+  },
+  "precision_connected_ui_model|temperature_points:material:fixture-isotropic:unchanged|apply": {
+    "applied": true,
+    "codes": [
+      "OP-RICH-NOT-SOLVE-READY",
+      "OP-RICH-NOT-SOLVE-READY"
+    ],
+    "outcome_sha256": "0a9ee8b6c9b4295387b2bf6e424ce3e601825c27dad4add51e80852793137293"
+  },
+  "precision_connected_ui_model|temperature_points:material:fixture-isotropic:unchanged|validate": {
+    "applied": false,
+    "codes": [
+      "OP-RICH-NOT-SOLVE-READY",
+      "OP-RICH-NOT-SOLVE-READY"
+    ],
+    "outcome_sha256": "f92dba47b4bb081f5b8752ec508565c40713203701ead26259afc16a196b124f"
+  }
+}

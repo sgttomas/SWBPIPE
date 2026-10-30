@@ -1,0 +1,246 @@
+{
+  "request": {
+    "input_manifest_ref": {
+      "ref_type": "audit_manifest",
+      "ref_id": "manifest:first-static-bending_torsion-v1"
+    },
+    "load_basis_refs": [
+      {
+        "ref_type": "load_case",
+        "ref_id": "case"
+      }
+    ],
+    "model_ref": {
+      "ref_type": "model",
+      "ref_id": "project:original-static-bending_torsion"
+    },
+    "operation": "solve",
+    "operation_ref": {
+      "ref_id": "solve",
+      "ref_type": "api_operation"
+    },
+    "privacy": {
+      "classification": "public_metadata",
+      "local_only": true,
+      "private_payload_redacted": true,
+      "telemetry_allowed": false
+    },
+    "professional_boundary": {
+      "human_review_required": true,
+      "software_makes_approval_claim": false,
+      "software_makes_authentication_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_compliance_claim": false,
+      "software_makes_sealing_claim": false
+    },
+    "project_ref": {
+      "ref_type": "project",
+      "ref_id": "project:original-static-bending_torsion"
+    },
+    "provenance": {
+      "source_name": "Project-original first static binding bending_torsion",
+      "source_location": "C/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS",
+      "source_license": "project-original-public-content",
+      "contributor": "HELP_HUMAN delegated design /root/load_state_design",
+      "contributor_certification": "Explicitly invented mathematical test inputs; no external project, material library or code data",
+      "redistribution_status": "invented_non_engineering_example",
+      "review_status": "prepared_for_independent_reference_review"
+    },
+    "request_id": "first-static-bending_torsion-v1",
+    "requested_outputs": [
+      "result_envelope",
+      "audit_manifest",
+      "diagnostics"
+    ],
+    "tbd_decisions": {
+      "ci_provider": "TBD",
+      "external_adapter_formats": "TBD",
+      "filesystem_mutation_policy": "SETTLED_DEC_065",
+      "final_cli_command_syntax": "SETTLED_DEC_065",
+      "network_access": "SETTLED_DEC_065",
+      "package_scripts": "SETTLED_DEC_065",
+      "physical_project_container": "TBD",
+      "process_invocation": "SETTLED_DEC_065",
+      "public_transport_protocol": "TBD",
+      "release_matrix": "TBD"
+    },
+    "unit_system_ref": {
+      "ref_id": "invented-si",
+      "ref_type": "unit_system"
+    }
+  },
+  "solve": {
+    "preview_model": {
+      "materials": [],
+      "model": {
+        "schema_version": "0.3.0",
+        "document_kind": "openpipestress.product_preview.model",
+        "data_boundary": {
+          "private_data_policy": "no_private_project_data",
+          "professional_boundary": "technical_preview_requires_human_engineering_review",
+          "protected_source_policy": "no_bundled_protected_owner_or_standards_data",
+          "public_examples_policy": "invented_or_cleared_data_only"
+        },
+        "analysis_status": {
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
+        },
+        "project": {
+          "id": "project:original-static-bending_torsion",
+          "name": "Original static bending_torsion reference candidate",
+          "description": "Invented analytical fixture, explicit linear elastic EB/circular-annulus scope; no libraries or code rules.",
+          "units": {
+            "length": "m",
+            "force": "N",
+            "pressure": "Pa",
+            "stress": "Pa",
+            "angle": "rad",
+            "temperature": "degC"
+          }
+        },
+        "nodes": [
+          {
+            "id": "root",
+            "label": "root",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "provenance": "project_original_static_reference_candidate_no_external_data_no_library_or_code_rules"
+          },
+          {
+            "id": "tip",
+            "label": "tip",
+            "position": {
+              "x": 2,
+              "y": 0,
+              "z": 0
+            },
+            "provenance": "project_original_static_reference_candidate_no_external_data_no_library_or_code_rules"
+          }
+        ],
+        "pipe_segments": [
+          {
+            "id": "pipe",
+            "label": "Original annulus",
+            "from": "root",
+            "to": "tip",
+            "section": {
+              "outside_diameter": {
+                "value": 0.2,
+                "unit": "m"
+              },
+              "wall_thickness": {
+                "value": 0.01,
+                "unit": "m"
+              }
+            },
+            "material": "material",
+            "y_reference": {
+              "x": 0,
+              "y": 1,
+              "z": 0
+            },
+            "provenance": "project_original_static_reference_candidate_no_external_data_no_library_or_code_rules"
+          }
+        ],
+        "materials": [
+          {
+            "id": "material",
+            "label": "Explicit invented E-nu pair",
+            "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+            "elastic_modulus": {
+              "value": 200000000000,
+              "unit": "Pa"
+            },
+            "poisson_ratio": {
+              "value": 0.25,
+              "unit": "1"
+            },
+            "provenance": "project_original_static_reference_candidate_no_external_data_no_library_or_code_rules"
+          }
+        ],
+        "supports": [
+          {
+            "id": "anchor",
+            "label": "Root six-DOF anchor",
+            "node": "root",
+            "family": "anchor",
+            "restraints": [
+              "UX",
+              "UY",
+              "UZ",
+              "RX",
+              "RY",
+              "RZ"
+            ],
+            "provenance": "project_original_static_reference_candidate_no_external_data_no_library_or_code_rules"
+          }
+        ],
+        "components": [],
+        "combinations": [],
+        "load_cases": [
+          {
+            "id": "case",
+            "label": "Original bending_torsion equilibrium case",
+            "primitive_loads": [
+              {
+                "id": "load:global_y",
+                "category": "concentrated_force",
+                "target": {
+                  "type": "node",
+                  "node": "tip"
+                },
+                "direction": "global_y",
+                "magnitude": {
+                  "value": 30,
+                  "unit": "N"
+                },
+                "dimension": "force",
+                "provenance": "project_original_static_reference_candidate_no_external_data_no_library_or_code_rules"
+              },
+              {
+                "id": "load:global_z",
+                "category": "concentrated_force",
+                "target": {
+                  "type": "node",
+                  "node": "tip"
+                },
+                "direction": "global_z",
+                "magnitude": {
+                  "value": -40,
+                  "unit": "N"
+                },
+                "dimension": "force",
+                "provenance": "project_original_static_reference_candidate_no_external_data_no_library_or_code_rules"
+              },
+              {
+                "id": "load:rotation_x",
+                "category": "concentrated_moment",
+                "target": {
+                  "type": "node",
+                  "node": "tip"
+                },
+                "direction": "rotation_x",
+                "magnitude": {
+                  "value": 20,
+                  "unit": "N*m"
+                },
+                "dimension": "moment",
+                "provenance": "project_original_static_reference_candidate_no_external_data_no_library_or_code_rules"
+              }
+            ],
+            "pressure_regions": [],
+            "provenance": "project_original_static_reference_candidate_no_external_data_no_library_or_code_rules"
+          }
+        ],
+        "pressure_contract": {
+          "version": "2.0.0",
+          "mode": "exact_straight_pressure_v2"
+        }
+      }
+    }
+  }
+}

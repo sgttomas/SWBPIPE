@@ -1,0 +1,53 @@
+{
+  "artifact": "openpipestress.benchmark_evidence_bundle",
+  "bundle_id": "BENCHEVID_DEL0901_20260720T062342Z_e315fb8406d4",
+  "generated_at_utc": "2026-07-20T06:23:42Z",
+  "base_commit": "e315fb8406d44dce684cbec091f3174c261efee4",
+  "branch": "claude/piping-r14-pkg09-evidence",
+  "label": "DERIVATIVE EVIDENCE — NON-AUTHORITATIVE",
+  "claim_posture": "DEC-081 regression/verification evidence only: per-case match/fail and test outcomes are regression evidence for current solver behavior against the suite crate's recorded comparison values at the recorded base commit. No validation outcome, acceptance, release-readiness, threshold satisfaction, or professional-reliance claim is made; release thresholds, final tolerance policy, CI gate policy, and verification-to-validation promotion remain TBD and owner-gated.",
+  "upstream_citations": {
+    "base_commit": "e315fb8406d44dce684cbec091f3174c261efee4",
+    "branch": "claude/piping-r14-pkg09-evidence",
+    "dag_pointer": "execution/_DAG/_LATEST.md -> DAG-007 (approved_active_graph_authority)",
+    "deliverable_status": "execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/_STATUS.md (Current State: IN_PROGRESS; four Remaining rows preserved byte-identical by this tranche)",
+    "concordance_rows": "execution/_Reconciliation/DeliverableConcordance/DELIVERABLE_CONCORDANCE_2026-07-11_1305/PROPOSED_DELIVERABLE_UPDATES.csv PDU-037 (AuthorityNeeded=NO evidence refresh) and PDU-013 (AuthorityNeeded=ENGINEERING unit-catalog hold, untouched)",
+    "governing_brief": "execution/_Coordination/CANDIDATE_BRIEF_2026-07-20_T6_DEL-09-01_BENCH_EVIDENCE_SYSTEM.md (CB-2026-07-20-T6-DEL-09-01-BENCH-EVIDENCE-001)",
+    "suite_crate": "validation/benchmarks/mechanics/src/lib.rs (fixture_inventory(), read-only)",
+    "runner": "core/runner/headless/src/bin/openpipestress-runner.rs + core/runner/headless/src/benchmark_binding.rs (run-benchmark, DEC-065 exit policy, read-only)",
+    "inventory_mirrors": [
+      "validation/benchmarks/mechanics/README.md",
+      "validation/hand_calcs/mechanics/README.md"
+    ],
+    "input_shape_model": "validation/witness/inputs/del1005_payload_binding_benchmark_single_case_input.json (committed witness input shape mirrored; witness untouched)"
+  },
+  "capture": {
+    "command": "CARGO_NET_OFFLINE=true cargo run --offline --manifest-path core/runner/headless/Cargo.toml --bin openpipestress-runner -- run-benchmark --input <bundle>/suite_run_mechanics_input.json --output <bundle>/SUITE_RUN_MECHANICS.json",
+    "recorded_exit_code": 1,
+    "exit_code_semantics": "DEC-065: exit 1 records the presence of blocking diagnostics; a whole-suite run containing blocked cases exits 1 as fail-closed regression evidence, recorded exactly as emitted — not a defect record and not a failure of this tranche",
+    "suite": "mechanics",
+    "suite_deliverable": "DEL-09-01",
+    "whole_suite_default_applied": true,
+    "requested_case_count": 24,
+    "executed_and_matched": 11,
+    "executed_and_mismatched": 0,
+    "blocked": 13
+  },
+  "assembly": {
+    "tool": "assemble_index.py (bundle-local, stdlib-only, offline, deterministic)",
+    "rerun_command": "python3 validation/evidence/benchmarks/BENCHEVID_DEL0901_20260720T062342Z_e315fb8406d4/assemble_index.py --generated-at 2026-07-20T06:23:42Z --base-commit e315fb8406d44dce684cbec091f3174c261efee4 --branch claude/piping-r14-pkg09-evidence --capture-exit-code 1",
+    "determinism": "rerunning with the same recorded arguments rebuilds FAMILY_PROVENANCE_INDEX.csv byte-identically; the generated-at timestamp is a recorded argument, not wall-clock"
+  },
+  "standing_statements": {
+    "pdu_037_row": "PDU-037's provenance-index standing Remaining row REMAINS OPEN. This bundle BUILDS the family/provenance/redistribution index as derivative evidence only; row closure is judged at the owner's gate and is not performed or implied here.",
+    "pdu_013_hold": "PDU-013's project-grain unit-catalog hold is untouched: the index records the fixture-local unit basis PKG09-FIXTURE-UNITS-EXPLICIT-N-M-RAD-K exactly as encoded; no project-grain unit-system acceptance act is performed.",
+    "owner_gates": "Acceptance thresholds, runner/release integration, tolerance promotion (DEC-024/DEC-026/DEC-046), verification-to-validation promotion, acceptance/release/label/CI-gate/publication effects (DEC-057/DEC-058/DEC-059, PB-TBD-003), the PKG09-0901-PKG02-001 disposition (PDU-060), and lifecycle/stage acts remain owner-class and are NOT performed by this bundle."
+  },
+  "file_sha256": {
+    "FAMILY_PROVENANCE_INDEX.csv": "fda37181920453b483449eff4e7057af24f40e1c498d4a50c4ee0761e4be7b50",
+    "SUITE_RUN_MECHANICS.json": "d1e8c76b1c7c162fba1d746f57c593c874629e7b6b0175fdbb4f63fd5afbd761",
+    "TEST_REFRESH.md": "0f6ab9762225955ffc422ad787725d5dd06f1009cc0c6bff4dd7bde1d96aaeb9",
+    "assemble_index.py": "17bd421fbf2d1c4af956144d5fa2c76885f22e2daa8afa12f18f63763dc7456c",
+    "suite_run_mechanics_input.json": "5338b502cc9dc5f631bc8d388feae84b337c4b8486f35f39e3c7f0b31c810eae"
+  }
+}

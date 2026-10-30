@@ -1,0 +1,43 @@
+{
+  "bindings": [],
+  "case_id": "case_56_block_divide_ambiguous_quotient",
+  "declared_grammar_version": "1.0.0",
+  "description": "Force / Area is ambiguous (Pressure and Stress both multiply with Area to Force).",
+  "expected": {
+    "findings": [
+      {
+        "code": "unsupported_expression_form",
+        "subject_id": "divide"
+      }
+    ],
+    "source_variable_ids": [],
+    "statuses": [
+      "mechanics_solved"
+    ],
+    "value": null
+  },
+  "expression": {
+    "left": {
+      "node": "literal",
+      "quantity": {
+        "dimension": "force",
+        "unit_ref": "invented_force_unit",
+        "value": 12.0
+      }
+    },
+    "node": "binary",
+    "operator": "divide",
+    "right": {
+      "node": "literal",
+      "quantity": {
+        "dimension": "area",
+        "unit_ref": "invented_area_unit",
+        "value": 3.0
+      }
+    }
+  },
+  "required_variable_ids": [],
+  "statuses": [
+    "mechanics_solved"
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "status": "PROPOSED_NOT_ADOPTED",
+  "accepted_baseline": "DAG-010",
+  "modifications": 0,
+  "retirements": 0,
+  "added_rows": 84,
+  "added_nodes": 4,
+  "preserved_rows": 1487,
+  "preserved_nodes": 102,
+  "existing_relations_reused": 8,
+  "outputs": {
+    "DependencyEdges.csv": {
+      "sha256": "23165358e5e3e75c2fb90beb353714cbb43bc85858cabb9081b2de899cca2464",
+      "baseline_sha256": "1892d2e7295d936b1dbf57104ab00df149fe17f8afbab4dc8b7e1c8b95082d28",
+      "baseline_bytes": 1778370,
+      "baseline_is_exact_byte_prefix": true
+    },
+    "DeliverableNodes.csv": {
+      "sha256": "91eb889930f4e97594a4b8627708d667473f066e9cde7e5fca0bf9a2b053613f",
+      "baseline_sha256": "18df1de555edd2c0a6231c54d9e9cb9846b060f8320842361e80b4c6f1004132",
+      "baseline_bytes": 72958,
+      "baseline_is_exact_byte_prefix": true
+    }
+  },
+  "maturity_policy": "New execution dependencies require proposed SEMANTIC_READY contracts; ProposedMaturity=TBD and SatisfactionStatus=PENDING. Existing rows unchanged are historical satisfaction evidence, not revalidated today.",
+  "canonical_pointer_changed": false,
+  "local_mirrors_changed": false
+}

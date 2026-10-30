@@ -1,0 +1,539 @@
+diff --git a/projects/chirality-piping/core/product_physics/src/formation_guard.rs b/projects/chirality-piping/core/product_physics/src/formation_guard.rs
+index cdc2f636109a894a11beac112c12e7cc8c6165e0..f3fb18d8a5e8bcbeb16039194dfd85990e79c382 100644
+--- a/projects/chirality-piping/core/product_physics/src/formation_guard.rs
++++ b/projects/chirality-piping/core/product_physics/src/formation_guard.rs
+@@ -597,3 +597,53 @@ pub(crate) fn amend_integrity_report(
+         .find(|d| d.id == integrity_id)
+         .is_some_and(|d| demote(d, finding))
+ }
++
++// ------------------------------------------------------- K-D5 census probe
++/// census-probe.patch (test-only; inert unless KD5_PROBE_OUT is set): one
++/// line per recovery decision, with every judged group's B and the operands of
++/// its decision, formed exactly as `recovery_finding` forms them. It only
++/// writes; nothing returns to the product.
++pub(crate) fn probe_groups(
++    records: &[RecoveryRecord],
++    bodies: &Bodies,
++    case_id: &str,
++    bound: Option<&open_pipe_stress_frame_kernel::structural::MemberBoundInputs>,
++    pre_guard_passed: bool,
++    load_row_finding: bool,
++) {
++    use open_pipe_stress_frame_kernel::kd5_probe::{field, labels, last_eval, text, write};
++    let scales = member_scales(records, bodies);
++    let mut groups = Vec::new();
++    for record in records {
++        let body_scales = record.body.and_then(|body| scales.get(&body).copied()).unwrap_or_default();
++        for group in &record.groups {
++            let s_star = if group.moment { body_scales.moment } else { body_scales.force };
++            let (b, fires, unavailable) = match &group.bound {
++                Ok(b) => match member_group_decision(group.q, group.q_hat, *b, s_star) {
++                    Ok(fires) => (field("B", *b), fires.to_string(), "null".to_string()),
++                    Err(reason) => (field("B", *b), "true".into(), text(&format!("member comparison unavailable ({reason})"))),
++                },
++                Err(reason) => ("\"B\":null,\"B_bits\":null".into(), "true".into(), text(&format!("the member bound is unavailable ({reason})"))),
++            };
++            groups.push(format!(
++                "{{\"entity\":{},\"body\":{},\"location\":{},\"kind\":{},\"moment\":{},{},{},{b},{},{},{},\"zero_compatible\":{},\"fires\":{fires},\"unavailable\":{unavailable}}}",
++                text(&record.member),
++                record.body.map_or("null".into(), |b| b.to_string()),
++                text(&group.location), text(&group.kind), group.moment,
++                field("q", group.q), field("q_hat", group.q_hat), field("s_star", s_star),
++                field("absolute_scale", group.absolute_scale), field("published_scale", group.published_scale),
++                group.zero_compatible,
++            ));
++        }
++    }
++    let line = format!(
++        "{{\"record\":\"groups\",{},\"case_id\":{},\"eval\":{},\"pre_guard_passed\":{pre_guard_passed},\"load_row_finding\":{load_row_finding},\"member_bound\":{},{},\"groups\":[{}]}}",
++        labels(), text(case_id), last_eval(), bound.is_some(),
++        match bound {
++            Some(b) => field("lambda_sigma", b.lambda_sigma),
++            None => "\"lambda_sigma\":null,\"lambda_sigma_bits\":null".into(),
++        },
++        groups.join(","),
++    );
++    write(&line);
++}
+diff --git a/projects/chirality-piping/core/product_physics/src/lib.rs b/projects/chirality-piping/core/product_physics/src/lib.rs
+index 29cfeb40d5b0d12fc1f430c35fd55ab957038606..2adc383b9064becec4a7dd9a8014f48bbc88b46d 100644
+--- a/projects/chirality-piping/core/product_physics/src/lib.rs
++++ b/projects/chirality-piping/core/product_physics/src/lib.rs
+@@ -5104,6 +5104,8 @@ fn solve_prepared_load_case(
+     diagnostics: &mut Vec<Diagnostic>,
+     mut product: Option<&mut retained_product::ProductCapture>,
+ ) -> Result<LoadCaseSolve, FrameKernelError> {
++    // K-D5 census probe (census-probe.patch): label this case's evaluations.
++    open_pipe_stress_frame_kernel::kd5_probe::set_case(&load_case.id);
+     let loads = build_load_case_primitive_loads(model, load_case, diagnostics);
+     let load_application = prepare_loads(built.nodes.len(), built.pipes.len(), &loads);
+     for finding in &load_application.findings {
+@@ -7000,6 +7002,10 @@ fn solve_prepared_load_case(
+     append_connector_results(built, exact_pressure.as_ref(), &displacements, &load_case.id, &mut results, diagnostics, &force, member_bound, &formation_bodies, &mut recovery_records);
+     #[cfg(test)]
+     tests::KD5_RECOVERY_PROBE.with(|probe| {if let Some(records)=probe.borrow_mut().as_mut() {records.extend(recovery_records.iter().cloned());}});
++    // K-D5 census probe (census-probe.patch; inert unless KD5_PROBE_OUT is set).
++    if open_pipe_stress_frame_kernel::kd5_probe::enabled() && (!recovery_records.is_empty() || member_bound.is_some()) {
++        formation_guard::probe_groups(&recovery_records, &formation_bodies, &load_case.id, member_bound, pre_guard_passed, load_row_finding.is_some());
++    }
+     if !recovery_records.is_empty() {
+         let scales = formation_guard::member_scales(&recovery_records, &formation_bodies);
+         // The unified member predicate alone decides (DEL-04-01
+diff --git a/projects/chirality-piping/core/solver/frame_kernel/src/kd5_probe.rs b/projects/chirality-piping/core/solver/frame_kernel/src/kd5_probe.rs
+new file mode 100644
+index 0000000000000000000000000000000000000000..725cd7a992517eff22d953bb326345c80955a6e0
+--- /dev/null
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/kd5_probe.rs
+@@ -0,0 +1,94 @@
++//! K-D5 census probe: test-only instrumentation, never part of product source
++//! (pf_timoshenko_m3t/census-probe.patch). Active only when `KD5_PROBE_OUT`
++//! names a file; it then appends one JSON line per K-D5 evaluation and per
++//! recovery decision. It reads values the product has already formed (or forms
++//! ε_E again with the product's own function) and writes them; nothing it
++//! computes is returned to the product. Unset, every entry point is a no-op.
++use std::io::Write;
++use std::sync::atomic::{AtomicU64, Ordering};
++use std::sync::Mutex;
++
++static CASE: Mutex<Option<String>> = Mutex::new(None);
++static EVAL: AtomicU64 = AtomicU64::new(0);
++
++fn path() -> Option<std::ffi::OsString> {
++    std::env::var_os("KD5_PROBE_OUT").filter(|p| !p.is_empty())
++}
++
++pub fn enabled() -> bool {
++    path().is_some()
++}
++
++/// The load case whose solve runs next (set by product_physics).
++pub fn set_case(case: &str) {
++    if enabled() {
++        *CASE.lock().unwrap_or_else(|e| e.into_inner()) = Some(case.to_owned());
++    }
++}
++
++/// A new evaluation's process-wide sequence number (1, 2, ...).
++pub fn next_eval() -> u64 {
++    EVAL.fetch_add(1, Ordering::Relaxed) + 1
++}
++
++/// The last evaluation's sequence number (0 before any).
++pub fn last_eval() -> u64 {
++    EVAL.load(Ordering::Relaxed)
++}
++
++/// A JSON string literal.
++pub fn text(s: &str) -> String {
++    let mut out = String::with_capacity(s.len() + 2);
++    out.push('"');
++    for c in s.chars() {
++        match c {
++            '"' => out.push_str("\\\""),
++            '\\' => out.push_str("\\\\"),
++            c if (c as u32) < 0x20 => out.push_str(&format!("\\u{:04x}", c as u32)),
++            c => out.push(c),
++        }
++    }
++    out.push('"');
++    out
++}
++
++/// A binary64 as a JSON number (shortest round-trip decimal), null if not finite.
++pub fn num(x: f64) -> String {
++    if x.is_finite() {
++        format!("{x:?}")
++    } else {
++        "null".into()
++    }
++}
++
++/// `"name":<decimal>,"name_bits":"<16 hex digits>"`; the bits are always exact.
++pub fn field(name: &str, x: f64) -> String {
++    format!("\"{name}\":{},\"{name}_bits\":\"{:016x}\"", num(x), x.to_bits())
++}
++
++/// The runner's labels and the current load case.
++pub fn labels() -> String {
++    let env = |k: &str| std::env::var(k).ok().map_or("null".into(), |v| text(&v));
++    let case = CASE
++        .lock()
++        .unwrap_or_else(|e| e.into_inner())
++        .as_deref()
++        .map_or("null".into(), text);
++    format!(
++        "\"tag\":{},\"entry\":{},\"mode\":{},\"case\":{case}",
++        env("KD5_ACTIVE_TAG"),
++        env("KD5_ACTIVE_ENTRY"),
++        env("KD5_ACTIVE_MODE")
++    )
++}
++
++/// Appends one line; a write failure is ignored (the probe never fails a run).
++pub fn write(line: &str) {
++    if let Some(p) = path() {
++        if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open(p) {
++            let mut bytes = line.as_bytes().to_vec();
++            bytes.push(b'\n');
++            let _ = f.write_all(&bytes);
++        }
++    }
++}
+diff --git a/projects/chirality-piping/core/solver/frame_kernel/src/lib.rs b/projects/chirality-piping/core/solver/frame_kernel/src/lib.rs
+index f5f58a2b5f2f7f533c3e610a8cc3c4fb7eee892d..8c5b1764037448cad4349b2cbdc20a098a5fd872 100644
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/lib.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/lib.rs
+@@ -10,6 +10,8 @@ pub mod load_ledger;
+ pub mod structural;
+ pub mod rigid_body;
+ pub mod shear;
++// K-D5 census probe (census-probe.patch; test-only, inert unless KD5_PROBE_OUT is set).
++pub mod kd5_probe;
+ 
+ use std::error::Error;
+ use std::fmt;
+diff --git a/projects/chirality-piping/core/solver/frame_kernel/src/structural/formation_check.rs b/projects/chirality-piping/core/solver/frame_kernel/src/structural/formation_check.rs
+index 69147a6484fcdf774c70eb8c11dd9297987db6d1..de76dbb2eeeb52a9d518f1ea8b72e8c61f6f509d 100644
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/formation_check.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/formation_check.rs
+@@ -491,10 +491,16 @@ where
+     A: Fn(usize, usize) -> f64,
+     P: Fn(usize, usize) -> f64,
+ {
++    let probe = crate::kd5_probe::enabled();
+     if let Some(family) = source.unavailable.first() {
++        if probe {
++            probe_line(system, source, scale_exponents, condition, assembled, projected, judged,
++                &ProbeTrace::default(), &format!("fail_closed:{family}"), None);
++        }
+         return (Some(FormationCheck::unavailable(family.clone())), None);
+     }
+-    match evaluate(
++    let mut trace = ProbeTrace::default();
++    let result = match evaluate(
+         system,
+         source,
+         ledger,
+@@ -506,10 +512,24 @@ where
+         solve,
+         judged,
+         epsilon_cache,
++        &mut trace,
+     ) {
+         Ok(result) => result,
+         Err(failure) => (Some(FormationCheck::unavailable(failure.detail())), None),
++    };
++    if probe {
++        let outcome = match &result {
++            (None, Some(_)) => "bound".to_string(),
++            (Some(check), _) => match &check.reason {
++                FormationCheckReason::Estimate => "sensitive:estimate".to_string(),
++                FormationCheckReason::FormationCheckUnavailable { detail } => format!("fail_closed:{detail}"),
++            },
++            (None, None) => "none".to_string(),
++        };
++        probe_line(system, source, scale_exponents, condition, assembled, projected, judged,
++            &trace, &outcome, result.0.as_ref());
+     }
++    result
+ }
+ fn load_closure(
+     source: &FormationSource,
+@@ -819,6 +839,7 @@ fn epsilon_e<A, P>(
+     exponents: &[i32],
+     assembled: &A,
+     projected: &P,
++    mut parts: Option<&mut ProbeParts>,
+ ) -> Result<f64, Failure>
+ where
+     A: Fn(usize, usize) -> f64,
+@@ -835,7 +856,15 @@ where
+         row_sums[r] = add_up(row_sums[r], value);
+         col_sums[c] = add_up(col_sums[c], value);
+     };
++    let mut element = 0usize;
+     intended_stiffness_pass(source, |ni, nj, k| {
++        // Probe: frames come first in the pass, so `element` names the family.
++        let family = match source.frames.get(element) {
++            Some(frame) if frame.section.beam_theory.is_timoshenko() => ProbeParts::TIMOSHENKO,
++            Some(_) => ProbeParts::EULER_BERNOULLI,
++            None => ProbeParts::OTHER,
++        };
++        element += 1;
+         let map = element_dof_map(ni, nj);
+         for r in 0..12 {
+             for c in 0..12 {
+@@ -863,6 +892,10 @@ where
+                     );
+                 }
+                 charge(fr, fc, bound);
++                if let Some(parts) = parts.as_deref_mut() {
++                    parts.charge(ProbeParts::ELEMENTS, fr, fc, bound);
++                    parts.charge(family, fr, fc, bound);
++                }
+             }
+         }
+         Ok(())
+@@ -909,10 +942,192 @@ where
+                 change = add_up(change, f64::from_bits(1));
+             }
+             charge(r, c, add_up(assembly, change));
++            if let Some(parts) = parts.as_deref_mut() {
++                parts.charge(ProbeParts::ASSEMBLY, r, c, assembly);
++                parts.charge(ProbeParts::PROJECTION, r, c, change);
++            }
+         }
+     }
+     Ok(row_sums.into_iter().chain(col_sums).fold(0.0, f64::max))
+ }
++// ------------------------------------------------------- K-D5 census probe
++// census-probe.patch (test-only): what one evaluation formed, written by
++// `check_at` to KD5_PROBE_OUT. Nothing here returns to the product.
++
++/// ε_E's parts, each kept as row and column sums charged with the same upward
++/// values as ε_E itself; a part's norm is the larger of its two sum norms.
++#[derive(Debug, Clone)]
++struct ProbeParts {
++    sums: Vec<(Vec<f64>, Vec<f64>)>,
++}
++impl ProbeParts {
++    const ELEMENTS: usize = 0;
++    const ASSEMBLY: usize = 1;
++    const PROJECTION: usize = 2;
++    const EULER_BERNOULLI: usize = 3;
++    const TIMOSHENKO: usize = 4;
++    const OTHER: usize = 5;
++    fn new(n: usize) -> Self {
++        Self { sums: vec![(vec![0.0; n], vec![0.0; n]); 6] }
++    }
++    fn charge(&mut self, part: usize, r: usize, c: usize, value: f64) {
++        let (rows, cols) = &mut self.sums[part];
++        rows[r] = add_up(rows[r], value);
++        cols[c] = add_up(cols[c], value);
++    }
++    fn norm(&self, part: usize) -> f64 {
++        let (rows, cols) = &self.sums[part];
++        rows.iter().chain(cols).copied().fold(0.0, f64::max)
++    }
++}
++
++#[derive(Debug, Default)]
++struct ProbeTrace {
++    step7: bool,
++    epsilon: Option<f64>,
++    epsilon_source: &'static str,
++    parts: Option<ProbeParts>,
++    sigma: Option<f64>,
++    neumann: Option<f64>,
++    lambda: Option<f64>,
++    lambda_sigma: Option<f64>,
++}
++
++#[allow(clippy::too_many_arguments)]
++fn probe_line<A, P>(
++    system: &StructuralSystem<'_>,
++    source: &FormationSource,
++    scale_exponents: &[i32],
++    condition: (f64, f64, f64),
++    assembled: &A,
++    projected: &P,
++    judged: bool,
++    trace: &ProbeTrace,
++    outcome: &str,
++    check: Option<&FormationCheck>,
++) where
++    A: Fn(usize, usize) -> f64,
++    P: Fn(usize, usize) -> f64,
++{
++    use crate::kd5_probe::{field, labels, next_eval, num, text};
++    let n_free = system.free_dofs.len();
++    let mut epsilon = trace.epsilon;
++    let mut epsilon_source = if epsilon.is_some() { trace.epsilon_source } else { "" };
++    let mut parts = trace.parts.clone();
++    let mut epsilon_error = None;
++    // Before step 7 (or on a cached ε_E) the product formed no parts: form them
++    // with the product's own `epsilon_e` on the same inputs.
++    if parts.is_none() {
++        if source.node_count.checked_mul(DOF_PER_NODE) == Some(system.force.len())
++            && scale_exponents.len() == n_free
++            && system.free_dofs.iter().all(|&i| i < system.force.len())
++        {
++            let mut index = vec![None; system.force.len()];
++            for (r, &i) in system.free_dofs.iter().enumerate() {
++                index[i] = Some(r);
++            }
++            let mut fresh = ProbeParts::new(n_free);
++            let formed = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
++                epsilon_e(system, source, &index, scale_exponents, assembled, projected, Some(&mut fresh))
++            }));
++            match formed {
++                Ok(Ok(value)) => {
++                    if epsilon.is_none() {
++                        epsilon = Some(value);
++                        epsilon_source = "probe";
++                    }
++                    parts = Some(fresh);
++                }
++                Ok(Err(failure)) => epsilon_error = Some(failure.detail()),
++                Err(_) => epsilon_error = Some("probe: epsilon_e panicked".into()),
++            }
++        } else {
++            epsilon_error = Some("probe: DOF map".into());
++        }
++    }
++    let (r_hat, est, norm) = condition;
++    let mut s = format!(
++        "{{\"record\":\"evaluation\",{},\"eval\":{},\"judged\":{judged},\"step7\":{},\"outcome\":{},\"n_free\":{n_free},{},{},{}",
++        labels(), next_eval(), trace.step7, text(outcome),
++        field("r_hat", r_hat), field("est", est), field("norm1_Ks", norm),
++    );
++    match epsilon {
++        Some(e) => {
++            s += &format!(",{},\"epsilon_E_source\":{}", field("epsilon_E", e), text(epsilon_source));
++            let neumann = trace.neumann.unwrap_or_else(|| mul_up(mul_up(1024.0, est), e));
++            s += &format!(",{}", field("neumann_2p10_est_epsE", neumann));
++        }
++        None => s += ",\"epsilon_E\":null,\"epsilon_E_source\":null,\"neumann_2p10_est_epsE\":null",
++    }
++    match &parts {
++        Some(p) => {
++            let three = [ProbeParts::ELEMENTS, ProbeParts::ASSEMBLY, ProbeParts::PROJECTION].map(|k| p.norm(k));
++            s += &format!(
++                ",\"epsilon_E_parts\":[{},{},{}],\"epsilon_E_parts_bits\":[\"{:016x}\",\"{:016x}\",\"{:016x}\"]",
++                num(three[0]), num(three[1]), num(three[2]),
++                three[0].to_bits(), three[1].to_bits(), three[2].to_bits()
++            );
++            s += &format!(
++                ",\"epsilon_E_element_parts\":{{{},{},{}}}",
++                field("euler_bernoulli", p.norm(ProbeParts::EULER_BERNOULLI)),
++                field("timoshenko", p.norm(ProbeParts::TIMOSHENKO)),
++                field("other", p.norm(ProbeParts::OTHER)),
++            );
++        }
++        None => s += ",\"epsilon_E_parts\":null,\"epsilon_E_element_parts\":null",
++    }
++    s += &format!(",\"epsilon_E_error\":{}", epsilon_error.as_deref().map_or("null".into(), text));
++    for (name, value) in [("sigma", trace.sigma), ("lambda", trace.lambda), ("lambda_sigma", trace.lambda_sigma)] {
++        s += &match value {
++            Some(v) => format!(",{}", field(name, v)),
++            None => format!(",\"{name}\":null"),
++        };
++    }
++    s += &match check {
++        Some(c) if c.reason == FormationCheckReason::Estimate => format!(
++            ",\"demotion\":{{\"global_dof\":{},{},{},{}}}",
++            c.global_dof.map_or("null".into(), |d| d.to_string()),
++            field("doubled_correction", c.doubled_correction), field("scale", c.scale), field("ratio", c.ratio),
++        ),
++        _ => ",\"demotion\":null".into(),
++    };
++    s += &format!(
++        ",\"scale_exponents\":[{}]",
++        scale_exponents.iter().map(|e| e.to_string()).collect::<Vec<_>>().join(",")
++    );
++    s += &format!(
++        ",\"elements\":{{\"frames\":{},\"connectors\":{},\"tie_rods\":{},\"curved\":{},\"springs\":{}}}",
++        source.frames.len(), source.connectors.len(),
++        source.connectors.iter().map(|c| c.tie_rods().len()).sum::<usize>(),
++        source.curved.len(), source.springs.len(),
++    );
++    // The resolved section and moduli (Pa, m) each straight member was re-formed with.
++    let frames = source.frames.iter().enumerate().map(|(k, f)| {
++        let x = &f.section;
++        format!(
++            "{{\"member\":{},\"node_i\":{},\"node_j\":{},\"theory\":{},{},{},{},{},{},{},{}}}",
++            source.frame_members.get(k).map_or("null".into(), |m| text(m)),
++            f.node_i.index, f.node_j.index,
++            text(if x.beam_theory.is_timoshenko() { "timoshenko" } else { "euler_bernoulli" }),
++            field("E", x.elastic_modulus), field("G", x.shear_modulus), field("A", x.area),
++            field("Iy", x.second_moment_y), field("Iz", x.second_moment_z), field("J", x.torsion_constant),
++            match x.beam_theory.shear_area() {
++                Some(a) => field("A_s", a),
++                None => "\"A_s\":null".into(),
++            },
++        )
++    });
++    s += &format!(",\"frames\":[{}]", frames.collect::<Vec<_>>().join(","));
++    if n_free <= 160 && scale_exponents.len() == n_free {
++        let rows = (0..n_free).map(|r| {
++            format!("[{}]", (0..n_free).map(|c| num(projected(r, c))).collect::<Vec<_>>().join(","))
++        });
++        s += &format!(",\"Ks\":[{}]", rows.collect::<Vec<_>>().join(","));
++    }
++    s.push('}');
++    crate::kd5_probe::write(&s);
++}
++
+ fn evaluate<F, A, P>(
+     system: &StructuralSystem<'_>,
+     source: &FormationSource,
+@@ -925,6 +1140,7 @@ fn evaluate<F, A, P>(
+     solve: &F,
+     judged: bool,
+     epsilon_cache: Option<&std::cell::Cell<Option<f64>>>,
++    trace: &mut ProbeTrace,
+ ) -> Result<(Option<FormationCheck>, Option<MemberBoundInputs>), Failure>
+ where
+     F: Fn(&[f64]) -> Result<Vec<f64>, StructuralError>,
+@@ -1044,9 +1260,15 @@ where
+         sigma = sigma.max(add_up(magnitude, scale_up(p, e)));
+     }
+     drop(rho);
++    trace.step7 = true;
++    trace.sigma = Some(sigma);
+     let epsilon = match epsilon_cache.and_then(std::cell::Cell::get) {
+-        Some(epsilon) => epsilon,
++        Some(epsilon) => {
++            trace.epsilon_source = "cache";
++            epsilon
++        }
+         None => {
++            let mut parts = crate::kd5_probe::enabled().then(|| ProbeParts::new(free.len()));
+             let epsilon = epsilon_e(
+                 system,
+                 source,
+@@ -1054,16 +1276,21 @@ where
+                 scale_exponents,
+                 assembled,
+                 projected,
++                parts.as_mut(),
+             )?;
++            trace.epsilon_source = "step7";
++            trace.parts = parts;
+             if let Some(cache) = epsilon_cache {
+                 cache.set(Some(epsilon));
+             }
+             epsilon
+         }
+     };
++    trace.epsilon = Some(epsilon);
+     let (_rcond, est, _norm) = condition;
+     let inverse = mul_up(1024.0, est);
+     let neumann = mul_up(inverse, epsilon);
++    trace.neumann = Some(neumann);
+     if !neumann.is_finite() || neumann >= 1.0 {
+         return Err(Failure::Unavailable("Neumann"));
+     }
+@@ -1073,6 +1300,8 @@ where
+     }
+     let lambda = div_up(inverse, denominator);
+     let lambda_sigma = mul_up(lambda, sigma);
++    trace.lambda = Some(lambda);
++    trace.lambda_sigma = Some(lambda_sigma);
+     if !lambda_sigma.is_finite() {
+         return Err(Failure::Unavailable("non-finite Lambda sigma"));
+     }
+diff --git a/projects/chirality-piping/core/solver/frame_kernel/src/structural/formation_check_tests.rs b/projects/chirality-piping/core/solver/frame_kernel/src/structural/formation_check_tests.rs
+index ad7e78a8f2e3b85c81216918409bda6915271cad..9b1de6f15bbf6683311feb9d784e999537e43cae 100644
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/formation_check_tests.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/formation_check_tests.rs
+@@ -1268,7 +1268,7 @@ fn kd5_epsilon_triangle_includes_formation_assembly_projection_and_both_norms()
+                 0.0
+             }
+     };
+-    let eps = epsilon_e(&system, &source, &index, &[0, 0, 0], &assembled, &projected).unwrap();
++    let eps = epsilon_e(&system, &source, &index, &[0, 0, 0], &assembled, &projected, None).unwrap();
+     assert!(eps >= 9.0 && eps < 9.0 + 1e-12, "{eps}");
+ }
+ 

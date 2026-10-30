@@ -1,0 +1,128 @@
+---
+doc_id: OPS-IP-DATA-BOUNDARY
+doc_kind: governance.policy
+status: draft
+created: 2026-04-30
+refs:
+  - rel: governed_by
+    to: OPS-CONTRACT
+---
+
+# IP and Data Boundary Policy
+
+> **Registry:** This document is the policy depth behind the `BS-IP` boundary
+> statement in `docs/claims_registry.md` (D-48 / `DEC-081`).
+
+## 1. Purpose
+
+This policy keeps the public SWBPIPE repository aligned with the project intent: public open mechanics, private/user-supplied code and proprietary data.
+
+This policy is a project governance control, not legal advice, professional engineering approval, certification, sealing, standards-body endorsement, or a code-compliance claim. Human/legal review remains required when redistribution rights or protected-content status are uncertain.
+
+## 1.1 Current authority basis
+
+This draft policy is aligned to
+the accepted `execution/_Decomposition/SOFTWARE_DECOMP.md` and the approved
+graph selected by `execution/_DAG/_LATEST.md`. The project license has been selected as
+`MIT`; contribution-source license and redistribution
+fields still record the source basis for submitted material and do not replace
+the project license notice.
+
+DEC-027 records a quorum of one: the sole human project authority is the sole
+maintainer and release authority. External contribution intake remains closed.
+DEC-079 adopts the D-07b sole-maintainer review and protected-content screening
+skeleton and records “process defined; intake closed”; activation requires a
+future owner decision. The final contributor legal instrument remains `TBD`
+until that activation decision, with legal advice obtained by the owner. No
+legal instrument or release is authorized by this current-basis correction.
+
+Legal-review authority, security contact, release-label vocabulary,
+human-acceptance workflow, and jurisdiction-specific professional-practice
+wording retain their own unresolved decisions and qualified-review routes.
+See DEC-027/DEC-079 in `execution/_Decomposition/SOFTWARE_DECOMP.md` and
+`execution/_Coordination/_DECISIONS/D-07b_contributor_intake_mechanism.md` §10.
+Blank per-contribution fields remain unfilled evidence slots.
+
+## 2. Public repository may contain
+
+- solver algorithms based on open mechanics;
+- geometry, unit, load, stress-recovery, and report schemas;
+- blank templates and private-library import mechanisms;
+- invented example data with clear notices;
+- public-domain or permissively licensed data with documented provenance;
+- validation benchmarks from original, public-domain, or permissively licensed sources;
+- review checklists, manifests, and empty schema slots that help users record private/code-specific data without bundling those values publicly.
+
+## 3. Public repository must not contain
+
+- ASME or other standards-body code text, tables, figures, examples, or commentary;
+- material allowable tables copied from standards;
+- B31J stress-intensification or flexibility-factor content copied from standards;
+- B16/B36/MSS/ISO/EN/CSA dimensional or rating tables copied from standards;
+- proprietary vendor catalogs without redistribution rights;
+- commercial software examples, report templates, or benchmark files without permission;
+- user private rule packs, owner standards, or company design bases;
+- code-specific load combinations, allowables, SIFs, flexibility factors, acceptance criteria, or owner requirements unless they are invented examples or otherwise cleared for public redistribution.
+
+## 4. Required provenance fields
+
+Every public data record must include:
+
+| Field | Meaning |
+|---|---|
+| `source_name` | Human-readable source. |
+| `source_location` | URL/path/document identifier or `TBD`. |
+| `source_license` | Redistribution basis or `TBD`. |
+| `contributor` | Person/org submitting. |
+| `contributor_certification` | Statement that data is not copied from protected source unless licensed. |
+| `redistribution_status` | `public_permissive`, `private_only`, `unknown`, `protected_suspected`. |
+| `review_status` | `pending`, `accepted`, `rejected`, `quarantined`. |
+
+Records with `source_license = TBD`, `redistribution_status = unknown`, or missing contributor certification are not acceptable as public data. They remain pending, private-only, rejected, or quarantined until a maintainer records a review disposition.
+
+## 5. Quarantine rule
+
+If data appears to derive from a protected standard or proprietary source, agents and maintainers must:
+
+1. stop ingestion;
+2. mark the record `protected_suspected`;
+3. move the artifact to `quarantine/protected-content/` or another maintainer-approved non-example quarantine path;
+4. record the issue;
+5. request human/legal review.
+
+Quarantined material must not be used as public fixture data, copied into documentation, summarized into public tables, or converted into public defaults while its status is unresolved.
+
+## 6. Private user data
+
+Private material libraries, rule packs, component catalogs, and owner design bases belong in user-controlled private paths. The public project may provide schemas and importers, but must not assume those files are redistributable.
+
+Importers, examples, reports, telemetry, and issue templates must default to excluding private project, material, component, rule-pack, owner-standard, and company design-basis data unless a user intentionally exports or contributes it with documented redistribution rights.
+
+### 6.1 Runtime residency vs public redistribution (per `D-T0-04` / `DEC-051`)
+
+The default-exclusion rule above governs *public redistribution and committed/exported artifacts* — it is unchanged. It is distinct from *runtime data residency*. Per the owner's tier-0 ruling `D-T0-04` (open residency), an embedded agent worker MAY read the owner's own private model and private Class-B inputs (allowables, SIFs, design basis) at runtime, and once the owner configures a model provider (local, Anthropic, or other) that data MAY be transmitted to it; the app does not enforce privacy/residency on this channel. This is owner-configured runtime handling of the owner's *own* data — it is NOT a public commit, NOT redistribution, and creates NO exception to §3 (public repository must not contain), §5 (quarantine), or the third-party protected-content prohibitions (`OPS-K-IP-1/2/3`). Third-party copyrighted standards content remains barred from the public repository regardless of this ruling; the owner cannot waive third parties' rights by configuration.
+
+### 6.2 CAEPIPE evaluation (owner, 2026-10-26)
+
+<!-- policy-text -->
+<!-- owner-words -->"I want: **interoperate openly, evaluate privately**".<!-- /owner-words --> This rule governs CAEPIPE, the external prover the correlation work uses. Public text (the repository, PRs and commits) may name CAEPIPE and state the file-format and interface facts SWBPIPE's code needs to interoperate with it: record syntax, result-file layout, labels, sign and unit conventions, and how the importer and exporter map records. Each fact is cited to the vendor's public manual where it covers the fact, or otherwise stated plainly as observed format behaviour. Code may contain whatever it needs. Anything that evaluates CAEPIPE stays in the user's private exchange folder and is never committed: result values, differences, agreement counts and classifications, tolerances measured from results; its defects and crashes, trial limits, evaluation stamps and performance; screenshots and survey notes. No public text claims agreement with CAEPIPE. Survey proposals describe features in the project's own words, without attributing them to CAEPIPE. DEL-17-05 `Design/caepipe-correlation-pilot.md` §8 applies this to the correlation pilot.
+<!-- /policy-text -->
+
+## 7. Report boundary
+
+Generated reports may reference a user rule-pack ID, version, checksum, and source note. Public report templates must not embed protected formulas or tables. Users are responsible for private report templates that quote licensed standards.
+
+## 8. Contribution review checklist
+
+Public contributions that add data, examples, report templates, schemas with example payloads, benchmark cases, import fixtures, or documentation excerpts must be reviewed against `governance/CONTRIBUTION_REVIEW_CHECKLIST.md` before acceptance.
+
+The checklist records:
+
+- contribution identity and scope;
+- source, provenance, license, redistribution, and contributor certification evidence;
+- protected-content and private-data risk;
+- test, validation, and documentation evidence;
+- reviewer disposition;
+- quarantine or escalation record when needed.
+
+Maintainers may reject or defer contributions that do not provide enough evidence to satisfy this policy. Acceptance of repository content is project governance only; it is not professional approval of engineering use.

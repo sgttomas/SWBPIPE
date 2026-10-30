@@ -1,0 +1,170 @@
+id: DEL-12-03
+name: Telemetry off-by-default design
+needs:
+- from: DEL-00-01
+  condition: 'DEL-12-03 must apply architecture-basis constraint AB-00-01 from DEL-00-01 when designing
+    telemetry policy.
+
+
+    Notes: Normalized from approved DAG-002 ARCHITECTURE_BASIS mirror row; local evidence only and not
+    PKG-00 issuance authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-02
+  condition: 'DEL-12-03 must apply architecture-basis constraint AB-00-02 from DEL-00-02 for repository
+    and module boundary placement.
+
+
+    Notes: Normalized from approved DAG-002 ARCHITECTURE_BASIS mirror row; local evidence only and not
+    PKG-00 issuance authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-03
+  condition: 'DEL-12-03 must apply architecture-basis constraint AB-00-03 for command query job and result-envelope
+    telemetry boundaries.
+
+
+    Notes: Normalized from approved DAG-002 ARCHITECTURE_BASIS mirror row; local evidence only and not
+    PKG-00 issuance authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-04
+  condition: 'DEL-12-03 must apply architecture-basis constraint AB-00-04 for local configuration default
+    behavior.
+
+
+    Notes: Normalized from approved DAG-002 ARCHITECTURE_BASIS mirror row; local evidence only and not
+    PKG-00 issuance authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-06
+  condition: 'DEL-12-03 must apply architecture-basis constraint AB-00-06 for telemetry diagnostics without
+    private payload content.
+
+
+    Notes: Normalized from approved DAG-002 ARCHITECTURE_BASIS mirror row; local evidence only and not
+    PKG-00 issuance authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-07
+  condition: 'DEL-12-03 must apply architecture-basis constraint AB-00-07 so plugins adapters imports
+    exports reports and private-library paths cannot bypass telemetry controls.
+
+
+    Notes: Normalized from approved DAG-002 ARCHITECTURE_BASIS mirror row; local evidence only and not
+    PKG-00 issuance authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-00-08
+  condition: 'DEL-12-03 must apply architecture-basis constraint AB-00-08 for default-off no-network and
+    payload privacy tests.
+
+
+    Notes: Normalized from approved DAG-002 ARCHITECTURE_BASIS mirror row; local evidence only and not
+    PKG-00 issuance authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+- from: DEL-12-05
+  condition: 'DEL-12-03 needs DEL-12-05 as a predecessor because telemetry policy should follow the privacy
+    threat model.
+
+
+    Notes: Retained from approved DAG-002 SECURITY_PREDECESSOR mirror and normalized to PREREQUISITE;
+    target resolution uses approved DAG-002/decomposition authority; 2026-06-07 readiness alignment: SATISFIED
+    for DEL-12-03 evidence because DEL-12-05 is CHECKING as of 2026-06-06 and local review records PASS
+    for threat-model compatibility; remaining target-specific security controls and release decisions
+    stay owning-deliverable TBDs and do not authorize runtime telemetry.; legacy_anchortype=NOT_APPLICABLE;
+    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
+    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-12/DEL-12-03/Specification.md
+- from: DEL-01-02
+  condition: 'DEL-12-03 needs DEL-01-02 as a protected-content and private-data boundary constraint for
+    telemetry payload design.
+
+
+    Notes: Retained from approved DAG-002 SECURITY_PREDECESSOR mirror and normalized to CONSTRAINT; target
+    resolution uses approved DAG-002/decomposition authority; 2026-06-07 readiness alignment: SATISFIED
+    for current telemetry payload-boundary evidence because DEL-01-02 is CHECKING as of 2026-06-04 and
+    formal review records protected-content and data-boundary coverage PASS_WITH_WARNINGS; external legal
+    contributor and authority items remain non-blocking deferrals and are not legal approval or release
+    approval.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-12/DEL-12-03/Specification.md
+- from: DEL-01-04
+  condition: 'DEL-12-03 needs DEL-01-04 as a professional-claims constraint for telemetry diagnostics
+    and status wording.
+
+
+    Notes: Added by TP-DAG-004 refresh; conservative governance constraint directly supported by TEL-REQ-007
+    and CONTRACT OPS-K-AUTH; 2026-06-07 readiness alignment: SATISFIED for telemetry wording evidence
+    because DEL-01-04 is CHECKING as of 2026-06-04 and formal review found no affirmative prohibited software
+    authority claim; professional legal release and human-acceptance workflow details remain non-blocking
+    deferrals and not acceptance or professional approval.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
+    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-12/DEL-12-03/Specification.md
+- from: DEL-05-04
+  condition: 'DEL-12-03 needs DEL-05-04 as a predecessor for canonical mechanics solved rule-checked and
+    human-approved status distinctions.
+
+
+    Notes: Added by TP-DAG-004 refresh; target resolved through approved DAG-002/decomposition authority;
+    2026-06-07 readiness alignment: SATISFIED for canonical status-separation evidence because DEL-05-04
+    is CHECKING as of 2026-06-05 and review records status semantics tests and no professional/code-compliance
+    claim guards; residual result-envelope non-JSON hash and human-acceptance workflow details remain
+    future TBDs.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
+    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
+    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+
+
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  gating: true
+  evidence: execution/PKG-12/DEL-12-03/Specification.md
+code_paths:
+- apps/desktop/src/features/telemetry
+- apps/desktop/src/features/telemetry/TelemetryBoundaryPanel.tsx
+- apps/desktop/src/services/telemetryPolicyService.ts
+- core/security/telemetry_policy/
+checks:
+- tests/security/test_telemetry_policy.py

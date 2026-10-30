@@ -1,0 +1,47 @@
+{
+  "record_kind": "governed_nonlinear_multisupport_convergence_policy",
+  "record_id": "DEC-046-CV-B-multisupport-active-set-count-validation-v1",
+  "decision_ref": "DEC-046",
+  "decision_option": "CV-B",
+  "status": "accepted_for_public_original_multisupport_validation_fixture_set",
+  "scope": "public_original_multi_dof_multi_support_validation_fixture_set_only",
+  "residual_basis": {
+    "name": "active_set_changed_support_count",
+    "unit": "count",
+    "dimension": "dimensionless",
+    "note": "zero means no nonlinear support state changed in the final assembled-loop iteration"
+  },
+  "change_provenance": {
+    "fixture_local_overrides": "tighten_only",
+    "loosening_rule": "loosening a governed convergence value or raising an iteration cap requires a new governance event"
+  },
+  "entries": [
+    {
+      "nonlinear_class": "multi_support_multi_dof",
+      "relative_residual_tolerance": 0.0,
+      "absolute_residual_floor": 0.0,
+      "max_iterations": 4,
+      "policy_ref": "DEC-046-CV-B-multisupport-active-set-count-validation-v1",
+      "evidence_fixture_ids": [
+        "NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-ACCEPTED-ORIGINAL",
+        "NL-ASSEMBLED-MULTI-DOF-GAP-LIFT-OFF-ACCEPTED-ORIGINAL",
+        "NL-ASSEMBLED-MULTI-DOF-FRICTION-GAP-ACCEPTED-ORIGINAL",
+        "NL-ASSEMBLED-MULTI-DOF-THREE-SUPPORT-ACCEPTED-ORIGINAL",
+        "NL-ASSEMBLED-MULTI-DOF-ROTATIONAL-ACCEPTED-ORIGINAL",
+        "NL-ASSEMBLED-MULTI-DOF-DERIVED-NORMAL-GAP-ACCEPTED-ORIGINAL",
+        "NL-ASSEMBLED-MULTI-DOF-DERIVED-NORMAL-ROTATIONAL-ACCEPTED-ORIGINAL",
+        "NL-ASSEMBLED-MULTI-DOF-CASCADE-GAP-LIFT-OFF-ACCEPTED-ORIGINAL",
+        "NL-ASSEMBLED-MULTI-DOF-NEGATIVE-GAP-ACCEPTED-ORIGINAL",
+        "NL-ASSEMBLED-MULTI-DOF-FOUR-CLASS-ACCEPTED-ORIGINAL",
+        "NL-ASSEMBLED-MULTI-DOF-OPPOSING-GAPS-ACCEPTED-ORIGINAL",
+        "NL-ASSEMBLED-MULTI-DOF-TWO-SPAN-ACCEPTED-ORIGINAL",
+        "NL-ASSEMBLED-MULTI-DOF-TWO-SPAN-OPPOSING-GAPS-ACCEPTED-ORIGINAL"
+      ]
+    }
+  ],
+  "limitations": [
+    "Applies only to the public-original multi-DOF / multi-support validation fixture set and its active-set changed-support-count residual.",
+    "Does not define displacement-delta, reaction-delta, free-DOF work/energy, sparse live-path, product-preview, release, or external validation thresholds."
+  ],
+  "boundary_notice": "Mechanics validation policy evidence only; not a release, reliance, certification, sealing, authentication, or code-compliance claim."
+}

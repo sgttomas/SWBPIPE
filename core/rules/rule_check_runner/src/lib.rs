@@ -1,0 +1,2760 @@
+//! End-to-end rule-check orchestration for user-owned rule packs (completion
+//! plan C4 — "end-to-end rule checks on authored models").
+//!
+//! This crate wires three existing engine crates into one runnable path:
+//! [`open_pipe_stress_completeness_checker`] (are the required inputs present),
+//! [`open_pipe_stress_rule_pack_document`] (decode the frozen-grammar formula
+//! AST), and [`open_pipe_stress_expression_evaluator`] (compute the formula and
+//! the acceptability comparison). It produces, per check, one of the three
+//! automatic rule-check statuses (`RULE_INPUTS_INCOMPLETE`,
+//! `USER_RULE_CHECKED`, `USER_RULE_FAILED`) and aggregates them so that the
+//! pack never headlines pass or fail while any check is incomplete (FR-RULE-003;
+//! DEL-06-03 Design `pack-aggregate-incomplete.md`).
+//!
+//! It does not parse text, execute host-language code, access files, access the
+//! network, spawn processes, load plugins, store private data, embed protected
+//! standards content, or emit professional/certification/sealing/authentication/
+//! approval/code-compliance claims. It is pure in-memory orchestration over a
+//! caller-supplied rule-pack `serde_json::Value` and caller-resolved values.
+//!
+//! ## Acceptability composition (C4-defined; the schema deliberately leaves it
+//! open — see the DEL-06-01 `TP-C2-SCHEMA-001` run record, §"Residuals and
+//! hand-offs", and PRD §12.5 ratio-vs-allowable shape)
+//!
+//! - A check whose formula evaluates to a **boolean** uses that boolean
+//!   directly as the acceptability predicate.
+//! - A check whose formula evaluates to a **quantity** (e.g. a ratio) is
+//!   compared against the single user-supplied limit named by the check's
+//!   `value_slot_refs`, via a synthesized `Compare(formula, <relation>, limit)`
+//!   evaluated through the same evaluator. Before the evaluator boundary, B2/B3
+//!   unit normalization converts compatible DEC-018 catalog units to the
+//!   declaration's unit; exact non-catalog demonstration units remain valid only
+//!   when the entered and declared unit strings match; incompatible or unknown
+//!   unit substitutions block rather than evaluating. The relation is the
+//!   check's optional `acceptability_relation`
+//!   member (`TP-C4-ACCEPTREL-001`; one of the four ordering relations
+//!   less_than / less_than_or_equal / greater_than / greater_than_or_equal),
+//!   defaulting to `less_than_or_equal` when absent (backward compatible). An
+//!   explicit but unrecognized token blocks the check rather than defaulting
+//!   silently. The member is an additive PROPOSAL awaiting human ratification
+//!   (precedent `DEC-038` / `library_value_ref`); equality acceptance is a
+//!   deliberate non-goal of the member.
+//!
+//! ## Bases (rule-pack format 0.5.0; DEL-06-01 Design `rule-pack-0.5.0.md`)
+//!
+//! Each check names a stress category; the category's one load-case mapping
+//! lists the required load cases (model load cases or combinations) the check
+//! is evaluated on, its **bases**. The run yields one [`CheckOutcome`] per
+//! check and basis, in check order and then mapping order (§2.7), each
+//! evaluated with only that basis's solver values, refusals and bounds; a
+//! basis the caller reports unavailable ([`UnavailableBasis`], §2.6) is
+//! incomplete and never evaluated. The pack aggregate keeps its rule
+//! (incomplete above failed above checked) over all outcomes.
+//!
+//! ## Input binding
+//!
+//! The caller resolves each `solver_result` input on each basis from the
+//! pack's own selector (`solver_result_ref`, §2.5) and passes the one matched
+//! row's value as a [`SolverResultBinding`] naming its basis, or a
+//! [`RefusedSolverResult`] when no row, more than one row, or a refused row
+//! matched; user values and limit slots
+//! via [`SuppliedValueBinding`]. `private_library_value` inputs are resolved via
+//! [`LibraryValueBinding`] (C3 rule-pack ↔ library reference wiring): the caller
+//! reads `{value, unit}` from the referenced private library record's value slot
+//! (the rule pack's `library_value_ref` member) in the local store. A
+//! `private_library_value` input with no resolved library binding stays
+//! unsupplied (never a silent pass) with a recorded note. The library value is
+//! resolved at run time and never embedded in the rule pack (IP boundary).
+
+use std::collections::HashMap;
+
+use serde::Serialize;
+use serde_json::Value;
+
+use open_pipe_stress_completeness_checker::{
+    check_completeness, AutomaticAnalysisStatus, CompletenessCheckInput,
+    Dimension as CompletenessDimension, FindingSeverity, QuantityIntent, Readiness, RequiredFor,
+    RequiredInput, SourceKind, SuppliedInput,
+};
+pub use open_pipe_stress_expression_evaluator::AnalysisStatus;
+use open_pipe_stress_expression_evaluator::{
+    enclosure_from_bound, evaluate, evaluate_interval, BindingSource, ComparisonOperator,
+    Dimension as EvalDimension, Enclosure, EvaluationInput, EvaluationValue, Expression,
+    FindingCode, IntervalBinding, IntervalEvaluationResult, IntervalNoteCode, IntervalValue,
+    Quantity, Truth, VariableBinding,
+};
+use open_pipe_stress_rule_pack_document::{
+    decode_dimension, decode_expression, encode_dimension, plan_check_bases,
+};
+/// The load case or combination an outcome is evaluated on (rule-pack format
+/// 0.5.0, DEL-06-01 Design `rule-pack-0.5.0.md` §2.3).
+pub use open_pipe_stress_rule_pack_document::BasisRef;
+use open_pipe_stress_units::{convert_for_dimension, unit_by_symbol, Dimension as UnitDimension};
+
+/// Document kind tag on a serialized run result.
+pub const DOCUMENT_KIND: &str = "openpipestress.rule_check.run";
+
+/// Boundary notice carried on every run result. No professional/code-compliance
+/// claim is made anywhere in this crate.
+pub const PROFESSIONAL_BOUNDARY_NOTICE: &str =
+    "Rule-check results are engineering decision-support information computed from \
+     user-supplied rules and data. Human review remains required.";
+
+/// One solver value the caller resolved from a solved mechanics envelope for a
+/// `solver_result` required input on one basis (design §2.5): the one row the
+/// input's selector matched among the rows whose `basis_ref` is `basis_ref`.
+/// It binds on that basis only.
+#[derive(Debug, Clone)]
+pub struct SolverResultBinding {
+    pub input_id: String,
+    pub basis_ref: BasisRef,
+    /// The matched row's id, reported on the outcome's bound input.
+    pub result_id: String,
+    pub value: f64,
+    pub unit: String,
+}
+
+/// The verified absolute bound `b` of one `solver_result` input (T3 D2
+/// §4.11.2, option C), in the unit of the input's [`SolverResultBinding`]. The
+/// caller copies `b` from a validated receipt's `absolute_verified` row; the
+/// runner never derives it. With `b > 0` the input binds as the outward
+/// enclosure `[next_down(fl(q - b)), next_up(fl(q + b))]` and its check runs in
+/// interval mode; `b == 0` binds the exact point `q`. A bound that is not a
+/// finite non-negative number, or more than one bound for the same input id,
+/// blocks the input (treated as unsupplied).
+///
+/// A bound names its input and its basis and applies to that basis only
+/// (design §2.8); one input's bound never affects another basis. A bound
+/// without a basis (`basis_ref: None`) is refused: its input is treated as
+/// unsupplied on every basis, with a finding, never bound unwidened.
+#[derive(Debug, Clone)]
+pub struct SolverResultBound {
+    pub input_id: String,
+    pub basis_ref: Option<BasisRef>,
+    pub absolute_bound: f64,
+}
+
+/// Interval-mode outcome code (D2 §4.11.5): the check passes for every value
+/// within the verified bounds (`USER_RULE_CHECKED`, info).
+pub const RULE_INTERVAL_ALL_PASS: &str = "RULE_INTERVAL_ALL_PASS";
+/// Interval-mode outcome code (D2 §4.11.5): the check fails for every value
+/// within the verified bounds (`USER_RULE_FAILED`, info).
+pub const RULE_INTERVAL_ALL_FAIL: &str = "RULE_INTERVAL_ALL_FAIL";
+/// Interval-mode outcome code (D2 §4.11.5): the check passes for some values
+/// in the bounds and fails for others, or cannot be enclosed soundly
+/// (`RULE_INPUTS_INCOMPLETE`, warning). Never a pass.
+pub const RULE_RESULT_INDETERMINATE: &str = "RULE_RESULT_INDETERMINATE";
+/// Interval-mode finding (D2 §4.11.3): a divisor range contains zero.
+pub const RULE_INTERVAL_DIVIDE_BY_ZERO_RANGE: &str = "RULE_INTERVAL_DIVIDE_BY_ZERO_RANGE";
+
+/// A `solver_result` input the caller could not bind on one basis, with the
+/// reason code: a row refusal (T0R:
+/// `result_export::semantic_contract::rule_binding_refusal`), or no row or
+/// more than one row matching the input's selector on the basis
+/// (`RULE_SOLVER_RESULT_ROW_MISSING`, `RULE_SOLVER_RESULT_ROW_AMBIGUOUS`;
+/// design §2.5). The runner reports the input as unsupplied on that basis
+/// only, so that outcome is `RULE_INPUTS_INCOMPLETE` with the reason, never a
+/// pass. `message`, when present, replaces the generic refusal message.
+#[derive(Debug, Clone, Serialize)]
+pub struct RefusedSolverResult {
+    pub input_id: String,
+    pub basis_ref: BasisRef,
+    pub reason: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub message: Option<String>,
+}
+
+/// A required load case the run cannot evaluate on (design §2.6): absent from
+/// the model (`RULE_REQUIRED_LOAD_CASE_MISSING`) or present with no rows in
+/// the solved envelope (`RULE_REQUIRED_LOAD_CASE_UNSOLVED`). Every check whose
+/// category maps it is `RULE_INPUTS_INCOMPLETE` on that basis with a finding
+/// naming it, and is never evaluated there; its other bases are unaffected.
+#[derive(Debug, Clone, Serialize)]
+pub struct UnavailableBasis {
+    pub basis_ref: BasisRef,
+    pub required_load_case_id: String,
+    pub code: String,
+    pub message: String,
+}
+
+/// One user-entered value for a `user_supplied_rule_value` required input or a
+/// `value_slot` limit. `dimension` is the snake_case dimension token (e.g.
+/// `"dimensionless"`, `"stress"`).
+#[derive(Debug, Clone)]
+pub struct SuppliedValueBinding {
+    pub ref_id: String,
+    pub value: f64,
+    pub unit: String,
+    pub dimension: String,
+}
+
+/// One value the caller resolved from a saved private library for a
+/// `private_library_value` required input (C3 rule-pack ↔ library reference
+/// wiring). The caller (the desktop command) reads `{value, unit}` from the
+/// referenced library record's value slot in the local private-library store;
+/// the `library_*`/`record_id`/`slot_id` fields are carried for the outcome's
+/// provenance note only. The value is never embedded in the rule pack — it is
+/// resolved at run time and stays in the private library (IP boundary).
+#[derive(Debug, Clone)]
+pub struct LibraryValueBinding {
+    pub input_id: String,
+    pub value: f64,
+    pub unit: String,
+    pub library_kind: String,
+    pub library_id: String,
+    pub record_id: String,
+    pub slot_id: String,
+}
+
+/// Inputs to a rule-check run.
+#[derive(Debug, Clone)]
+pub struct RuleCheckRunInput<'a> {
+    /// The full rule-pack document. The caller is expected to have already run
+    /// document validation; the runner surfaces structural findings (missing
+    /// references) but does not re-validate the checksum or lifecycle.
+    pub rule_pack_document: &'a Value,
+    /// Per-basis solver values (design §2.5); each binds on its basis only.
+    pub solver_results: Vec<SolverResultBinding>,
+    /// Solver-result inputs refused or unmatched on a basis; empty when none were.
+    pub refused_solver_results: Vec<RefusedSolverResult>,
+    /// Required load cases missing from the model or unsolved (design §2.6).
+    pub unavailable_bases: Vec<UnavailableBasis>,
+    pub supplied_values: Vec<SuppliedValueBinding>,
+    /// Values resolved from saved private libraries for `private_library_value`
+    /// required inputs (caller-resolved from the local store).
+    pub library_values: Vec<LibraryValueBinding>,
+    /// Current analysis statuses from the solve (e.g. `[MechanicsSolved]`).
+    pub current_statuses: Vec<AnalysisStatus>,
+}
+
+/// The three automatic rule-check statuses this runner may emit. The wider
+/// status vocabulary (`MODEL_INCOMPLETE`, `MECHANICS_SOLVED`,
+/// `HUMAN_REVIEW_REQUIRED`) and the external `HUMAN_APPROVED_FOR_PROJECT`
+/// record are intentionally not producible here.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+pub enum RuleCheckStatus {
+    #[serde(rename = "RULE_INPUTS_INCOMPLETE")]
+    RuleInputsIncomplete,
+    #[serde(rename = "USER_RULE_CHECKED")]
+    UserRuleChecked,
+    #[serde(rename = "USER_RULE_FAILED")]
+    UserRuleFailed,
+}
+
+impl RuleCheckStatus {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            RuleCheckStatus::RuleInputsIncomplete => "RULE_INPUTS_INCOMPLETE",
+            RuleCheckStatus::UserRuleChecked => "USER_RULE_CHECKED",
+            RuleCheckStatus::UserRuleFailed => "USER_RULE_FAILED",
+        }
+    }
+
+    /// Aggregate precedence: incomplete (2) > failed (1) > checked (0). While
+    /// any check is incomplete the pack aggregate is `RULE_INPUTS_INCOMPLETE`,
+    /// never a pass or fail (FR-RULE-003); failed checks stay visible in the
+    /// per-check outcomes and in [`RuleCheckStatusCounts`].
+    fn aggregate_rank(self) -> u8 {
+        match self {
+            RuleCheckStatus::UserRuleChecked => 0,
+            RuleCheckStatus::UserRuleFailed => 1,
+            RuleCheckStatus::RuleInputsIncomplete => 2,
+        }
+    }
+}
+
+/// A computed or limit quantity surfaced in a check outcome.
+#[derive(Debug, Clone, Serialize)]
+pub struct ComputedQuantity {
+    pub value: f64,
+    pub dimension: String,
+    pub unit_ref: String,
+}
+
+/// What a single rule-pack input resolved to for a check.
+#[derive(Debug, Clone, Serialize)]
+pub struct BoundInput {
+    pub input_id: String,
+    pub source_kind: String,
+    pub supplied: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub value: Option<f64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub unit: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub result_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub note: Option<String>,
+}
+
+/// A finding surfaced from completeness or evaluation, traced to its engine.
+#[derive(Debug, Clone, Serialize)]
+pub struct RunFinding {
+    pub code: String,
+    pub severity: String,
+    pub subject_id: String,
+    pub message: String,
+}
+
+/// The outcome of one `check_definition` on one of its bases (design §2.7).
+/// A check has one outcome per required load case its category maps, in
+/// mapping order; every member is for that basis alone and nothing is merged
+/// across bases. Outcome identity is (`check_id`, `basis_ref.ref_type`,
+/// `basis_ref.ref_id`).
+#[derive(Debug, Clone, Serialize)]
+pub struct CheckOutcome {
+    pub check_id: String,
+    /// The check's stress category (`category_ref.ref_id`).
+    pub category_ref: String,
+    /// The load case or combination this outcome was evaluated on. `None`
+    /// (serialized `null`) only when the pack's structure gives the check no
+    /// basis list, a defect validation blocks before any run (§2.9); that
+    /// outcome is `RULE_INPUTS_INCOMPLETE`, never a pass.
+    pub basis_ref: Option<BasisRef>,
+    pub status: RuleCheckStatus,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub computed_value: Option<ComputedQuantity>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub limit_value: Option<ComputedQuantity>,
+    /// The relation that governed the result: one of the four ordering relations
+    /// for a quantity-vs-limit check (`less_than`, `less_than_or_equal`,
+    /// `greater_than`, `greater_than_or_equal`; the check's `acceptability_relation`,
+    /// defaulting to `less_than_or_equal` when absent), `"formula_predicate"`
+    /// (boolean formula), or `"none"` (blocked before acceptability).
+    pub acceptability_relation: String,
+    pub bound_inputs: Vec<BoundInput>,
+    pub completeness_findings: Vec<RunFinding>,
+    pub evaluator_findings: Vec<RunFinding>,
+    pub diagnostic_codes: Vec<String>,
+}
+
+/// The result of a rule-check run over all of a pack's checks.
+#[derive(Debug, Clone, Serialize)]
+pub struct RuleCheckRunResult {
+    pub document_kind: String,
+    pub rule_pack_id: String,
+    pub grammar_version: String,
+    pub aggregate_status: RuleCheckStatus,
+    pub checks: Vec<CheckOutcome>,
+    pub professional_boundary_notice: String,
+}
+
+/// How many of a run's outcomes ended in each status: the counts behind the
+/// pack headline "INCOMPLETE — n check(s) failed; m check(s) blocked". Since
+/// format 0.5.0 they count outcomes, one per check and basis (design §2.7),
+/// so one check can contribute more than once.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub struct RuleCheckStatusCounts {
+    pub failed: usize,
+    pub incomplete: usize,
+    pub checked: usize,
+}
+
+impl RuleCheckRunResult {
+    pub fn status_counts(&self) -> RuleCheckStatusCounts {
+        let mut counts = RuleCheckStatusCounts::default();
+        for check in &self.checks {
+            match check.status {
+                RuleCheckStatus::UserRuleFailed => counts.failed += 1,
+                RuleCheckStatus::RuleInputsIncomplete => counts.incomplete += 1,
+                RuleCheckStatus::UserRuleChecked => counts.checked += 1,
+            }
+        }
+        counts
+    }
+}
+
+/// Run every `check_definition` in the rule pack on each of its bases against
+/// the caller-resolved values and return one outcome per check and basis plus
+/// the pack aggregate over the outcomes (incomplete if any outcome is
+/// incomplete, else failed if any failed, else checked; FR-RULE-003).
+pub fn run_rule_checks(input: &RuleCheckRunInput) -> RuleCheckRunResult {
+    run_rule_checks_with_bounds(input, &[])
+}
+
+/// [`run_rule_checks`] with verified absolute bounds for some `solver_result`
+/// inputs (T3 D2 §4.11, option C: conservative interval binding).
+///
+/// A check whose formula binds no interval input follows [`run_rule_checks`]'s
+/// point path unchanged. A check with at least one interval input is evaluated
+/// in interval mode, including the synthesized `Compare(formula, relation,
+/// limit)`, and reads three-valued (D2 §4.11.5):
+/// - every value passes: `USER_RULE_CHECKED` with [`RULE_INTERVAL_ALL_PASS`];
+/// - every value fails: `USER_RULE_FAILED` with [`RULE_INTERVAL_ALL_FAIL`];
+/// - otherwise: `RULE_INPUTS_INCOMPLETE` with [`RULE_RESULT_INDETERMINATE`];
+///   never a pass.
+///
+/// With an empty `bounds` slice this is exactly [`run_rule_checks`].
+pub fn run_rule_checks_with_bounds(
+    input: &RuleCheckRunInput,
+    bounds: &[SolverResultBound],
+) -> RuleCheckRunResult {
+    let doc = input.rule_pack_document;
+    let rule_pack_id = doc
+        .pointer("/metadata/rule_pack_id")
+        .and_then(Value::as_str)
+        .unwrap_or_default()
+        .to_string();
+    let grammar_version = doc
+        .pointer("/grammar_version")
+        .and_then(Value::as_str)
+        .unwrap_or_default()
+        .to_string();
+
+    let required_index = index_by(doc, "required_inputs", "input_id");
+    let value_slot_index = index_by(doc, "value_slots", "slot_id");
+    let formula_index = index_by(doc, "formula_declarations", "formula_id");
+    // User-supplied values, value slots and library values are the same for
+    // every basis (design §2.5, last bullet).
+    let supplied_by_ref: HashMap<&str, &SuppliedValueBinding> = input
+        .supplied_values
+        .iter()
+        .map(|b| (b.ref_id.as_str(), b))
+        .collect();
+    let library_by_input: HashMap<&str, &LibraryValueBinding> = input
+        .library_values
+        .iter()
+        .map(|b| (b.input_id.as_str(), b))
+        .collect();
+    let check_definitions: &[Value] = doc
+        .get("check_definitions")
+        .and_then(Value::as_array)
+        .map(Vec::as_slice)
+        .unwrap_or(&[]);
+
+    // Design §2.7: one outcome per check and basis, in check order and then
+    // mapping order. Each basis gets its own context: only the solver values,
+    // refusals and bounds of that basis are visible to it, so nothing binds
+    // or is reported on a basis it did not come from.
+    let mut checks: Vec<CheckOutcome> = Vec::new();
+    for (check, plan) in check_definitions.iter().zip(plan_check_bases(doc)) {
+        let planned: Vec<(Option<&BasisRef>, Option<RunFinding>)> = match &plan.bases {
+            Ok(bases) => bases
+                .iter()
+                .map(|basis| {
+                    // §2.6: a required load case missing from the model or
+                    // unsolved makes this basis incomplete, with a finding
+                    // naming it; the check is never evaluated on it.
+                    let unavailable = input
+                        .unavailable_bases
+                        .iter()
+                        .find(|u| u.basis_ref == basis.basis_ref)
+                        .map(|u| RunFinding {
+                            code: u.code.clone(),
+                            severity: "blocking".to_string(),
+                            subject_id: basis.required_load_case_id.clone(),
+                            message: u.message.clone(),
+                        });
+                    (Some(&basis.basis_ref), unavailable)
+                })
+                .collect(),
+            // The pack gives this check no basis list (a structural defect
+            // validation blocks before any run, §2.9): one incomplete outcome
+            // with no basis, never evaluated and never a pass.
+            Err(message) => vec![(
+                None,
+                Some(RunFinding {
+                    code: open_pipe_stress_rule_pack_document::RULE_PACK_MAPPING_INCOMPLETE
+                        .to_string(),
+                    severity: "blocking".to_string(),
+                    subject_id: plan.check_id.clone(),
+                    message: format!("{message}; the check has no load case to be evaluated on"),
+                }),
+            )],
+        };
+        for (basis, blocking) in planned {
+            let available = blocking.is_none();
+            let on_basis = |b: &BasisRef| available && basis == Some(b);
+            let ctx = RunContext {
+                required_index: required_index.clone(),
+                value_slot_index: value_slot_index.clone(),
+                formula_index: formula_index.clone(),
+                solver_by_input: input
+                    .solver_results
+                    .iter()
+                    .filter(|b| on_basis(&b.basis_ref))
+                    .map(|b| (b.input_id.as_str(), b))
+                    .collect(),
+                refused_by_input: input
+                    .refused_solver_results
+                    .iter()
+                    .filter(|r| on_basis(&r.basis_ref))
+                    .map(|r| (r.input_id.as_str(), r))
+                    .collect(),
+                supplied_by_ref: supplied_by_ref.clone(),
+                library_by_input: library_by_input.clone(),
+                bound_by_input: bounds_on_basis(bounds, basis),
+                basis_findings: blocking.into_iter().collect(),
+                current_statuses: &input.current_statuses,
+                grammar_version: grammar_version.as_str(),
+            };
+            let mut outcome = run_one_check(&ctx, check);
+            outcome.category_ref = plan.category_ref.clone();
+            outcome.basis_ref = basis.cloned();
+            checks.push(outcome);
+        }
+    }
+
+    let aggregate_status = if checks.is_empty() {
+        RuleCheckStatus::RuleInputsIncomplete
+    } else {
+        checks
+            .iter()
+            .map(|c| c.status)
+            .reduce(|acc, next| {
+                if next.aggregate_rank() > acc.aggregate_rank() {
+                    next
+                } else {
+                    acc
+                }
+            })
+            .unwrap_or(RuleCheckStatus::RuleInputsIncomplete)
+    };
+
+    RuleCheckRunResult {
+        document_kind: DOCUMENT_KIND.to_string(),
+        rule_pack_id,
+        grammar_version,
+        aggregate_status,
+        checks,
+        professional_boundary_notice: PROFESSIONAL_BOUNDARY_NOTICE.to_string(),
+    }
+}
+
+struct RunContext<'a> {
+    required_index: HashMap<&'a str, &'a Value>,
+    value_slot_index: HashMap<&'a str, &'a Value>,
+    formula_index: HashMap<&'a str, &'a Value>,
+    solver_by_input: HashMap<&'a str, &'a SolverResultBinding>,
+    refused_by_input: HashMap<&'a str, &'a RefusedSolverResult>,
+    supplied_by_ref: HashMap<&'a str, &'a SuppliedValueBinding>,
+    library_by_input: HashMap<&'a str, &'a LibraryValueBinding>,
+    /// Verified absolute bounds of this basis by `solver_result` input id
+    /// (D2 §4.11.2; design §2.8).
+    bound_by_input: HashMap<&'a str, BoundEntry>,
+    /// Blocking findings that make this basis incomplete before any binding
+    /// (a required load case missing or unsolved, design §2.6). When present
+    /// no solver value is visible to the basis and the check is not evaluated.
+    basis_findings: Vec<RunFinding>,
+    current_statuses: &'a [AnalysisStatus],
+    grammar_version: &'a str,
+}
+
+/// The bound of one input on one basis (design §2.8).
+#[derive(Debug, Clone, Copy)]
+enum BoundEntry {
+    Bound(f64),
+    /// More than one bound for the input on this basis: refused, never
+    /// last-wins.
+    Duplicate,
+    /// A bound for the input that names no basis: refused on every basis.
+    NoBasis,
+}
+
+/// The bounds that apply on `basis` (design §2.8): those naming the basis,
+/// keyed by input. A bound naming no basis refuses its input on every basis;
+/// a bound naming another basis is invisible here.
+fn bounds_on_basis<'a>(
+    bounds: &'a [SolverResultBound],
+    basis: Option<&BasisRef>,
+) -> HashMap<&'a str, BoundEntry> {
+    let mut map: HashMap<&str, BoundEntry> = HashMap::new();
+    for b in bounds.iter().filter(|b| b.basis_ref.as_ref() == basis) {
+        map.entry(b.input_id.as_str())
+            .and_modify(|entry| *entry = BoundEntry::Duplicate)
+            .or_insert(BoundEntry::Bound(b.absolute_bound));
+    }
+    // A basis-less bound wins over any bound of this basis: the input is
+    // refused, never bound with a bound whose basis is unknown.
+    for b in bounds.iter().filter(|b| b.basis_ref.is_none()) {
+        map.insert(b.input_id.as_str(), BoundEntry::NoBasis);
+    }
+    map
+}
+
+/// A value resolved for a required input, ready to bind into the evaluator.
+struct ResolvedValue {
+    /// In the declared unit. A value that is not finite is never bound (N-4).
+    value: f64,
+    unit: String,
+    eval_dimension: Option<EvalDimension>,
+    binding_source: BindingSource,
+    /// `Some` for an interval input (a verified bound `b > 0`): its enclosure
+    /// in the declared unit, or `None` inside when no finite enclosure exists.
+    interval: Option<Option<Enclosure>>,
+}
+
+fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
+    let check_id = check
+        .pointer("/check_id")
+        .and_then(Value::as_str)
+        .unwrap_or_default()
+        .to_string();
+    let result_statuses: Vec<String> = check
+        .get("result_statuses")
+        .and_then(Value::as_array)
+        .map(|a| {
+            a.iter()
+                .filter_map(|v| v.as_str().map(str::to_string))
+                .collect()
+        })
+        .unwrap_or_default();
+    let diagnostic_policy = check.get("diagnostic_policy");
+
+    // A basis the run cannot evaluate on (design §2.6) carries its blocking
+    // finding first; completeness then stops the check before evaluation.
+    let mut completeness_findings: Vec<RunFinding> = ctx.basis_findings.clone();
+    let mut evaluator_findings: Vec<RunFinding> = Vec::new();
+    let mut diagnostic_codes: Vec<String> = Vec::new();
+    let mut bound_inputs: Vec<BoundInput> = Vec::new();
+
+    // --- Resolve the check's required inputs ---------------------------------
+    let mut comp_required: Vec<RequiredInput> = Vec::new();
+    let mut comp_supplied: Vec<SuppliedInput> = Vec::new();
+    let mut resolved: HashMap<String, ResolvedValue> = HashMap::new();
+
+    let input_refs = check
+        .get("required_input_refs")
+        .and_then(Value::as_array)
+        .cloned()
+        .unwrap_or_default();
+
+    for ref_obj in &input_refs {
+        let ref_id = ref_obj
+            .pointer("/ref_id")
+            .and_then(Value::as_str)
+            .unwrap_or_default();
+        if ref_id.is_empty() {
+            continue;
+        }
+        let Some(req) = ctx.required_index.get(ref_id) else {
+            completeness_findings.push(RunFinding {
+                code: "INVALID_REFERENCE".to_string(),
+                severity: "blocking".to_string(),
+                subject_id: ref_id.to_string(),
+                message: "check references an undeclared required input".to_string(),
+            });
+            continue;
+        };
+
+        let source_token = req
+            .pointer("/source_kind")
+            .and_then(Value::as_str)
+            .unwrap_or_default();
+        let dimension_token = req
+            .pointer("/quantity_intent/dimension")
+            .and_then(Value::as_str)
+            .unwrap_or_default();
+        let unit_ref = req
+            .pointer("/quantity_intent/unit_ref")
+            .and_then(Value::as_str)
+            .unwrap_or_default()
+            .to_string();
+        let unit_required = req
+            .pointer("/quantity_intent/unit_required")
+            .and_then(Value::as_bool)
+            .unwrap_or(true);
+        let dimension_check_required = req
+            .pointer("/quantity_intent/dimension_check_required")
+            .and_then(Value::as_bool)
+            .unwrap_or(true);
+        let provenance_required = req
+            .pointer("/provenance_required")
+            .and_then(Value::as_bool)
+            .unwrap_or(true);
+        let redistribution_status_required = req
+            .pointer("/redistribution_status_required")
+            .and_then(Value::as_bool)
+            .unwrap_or(true);
+        let name = req
+            .pointer("/name")
+            .and_then(Value::as_str)
+            .unwrap_or(ref_id)
+            .to_string();
+        let required_for_token = req
+            .pointer("/required_for")
+            .and_then(Value::as_str)
+            .unwrap_or("rule_check");
+
+        let source_kind = source_kind_from_token(source_token);
+        let completeness_dimension = completeness_dimension_from_token(dimension_token);
+        let eval_dimension = decode_dimension(dimension_token);
+
+        comp_required.push(RequiredInput {
+            input_id: ref_id.to_string(),
+            name,
+            source_kind,
+            quantity_intent: QuantityIntent {
+                dimension: completeness_dimension.unwrap_or(CompletenessDimension::Tbd),
+                unit_ref: unit_ref.clone(),
+                unit_required,
+                dimension_check_required,
+            },
+            required_for: required_for_from_token(required_for_token),
+            provenance_required,
+            redistribution_status_required,
+        });
+
+        // Resolve the supplied value per source kind.
+        let refused = match source_kind {
+            SourceKind::SolverResult => ctx.refused_by_input.get(ref_id).copied(),
+            _ => None,
+        };
+        if let Some(refusal) = refused {
+            completeness_findings.push(RunFinding {
+                code: refusal.reason.clone(),
+                severity: "blocking".to_string(),
+                subject_id: ref_id.to_string(),
+                message: refusal.message.clone().unwrap_or_else(|| {
+                    format!(
+                        "solver result refused for rule binding ({}); the input is treated as unsupplied",
+                        refusal.reason
+                    )
+                }),
+            });
+        }
+        let (raw_value, raw_unit, result_id, binding_source, note) = match source_kind {
+            SourceKind::SolverResult if refused.is_some() => (
+                None,
+                None,
+                None,
+                BindingSource::SolverResultField,
+                refused.map(|r| format!("refused: {}", r.reason)),
+            ),
+            SourceKind::SolverResult => match ctx.solver_by_input.get(ref_id) {
+                Some(b) => (
+                    Some(b.value),
+                    Some(b.unit.clone()),
+                    Some(b.result_id.clone()),
+                    BindingSource::SolverResultField,
+                    None,
+                ),
+                None => (None, None, None, BindingSource::SolverResultField, None),
+            },
+            SourceKind::PrivateLibraryValue => match ctx.library_by_input.get(ref_id) {
+                Some(b) => (
+                    Some(b.value),
+                    Some(b.unit.clone()),
+                    None,
+                    BindingSource::RulePackRequiredInput,
+                    Some(format!(
+                        "resolved from private library {}:{} record {} slot {} (value stays in the \
+                         private library; never embedded in the rule pack)",
+                        b.library_kind, b.library_id, b.record_id, b.slot_id
+                    )),
+                ),
+                None => (
+                    None,
+                    None,
+                    None,
+                    BindingSource::RulePackRequiredInput,
+                    Some(
+                        "private_library_value input has no resolved library reference (missing \
+                         library_value_ref, or the referenced library/record/slot was not found in \
+                         the local private-library store); treated as unsupplied"
+                            .to_string(),
+                    ),
+                ),
+            },
+            SourceKind::UserSuppliedRuleValue => match ctx.supplied_by_ref.get(ref_id) {
+                Some(b) => (
+                    Some(b.value),
+                    Some(b.unit.clone()),
+                    None,
+                    BindingSource::UserSuppliedValue,
+                    None,
+                ),
+                None => (None, None, None, BindingSource::UserSuppliedValue, None),
+            },
+            _ => match ctx.supplied_by_ref.get(ref_id) {
+                Some(b) => (
+                    Some(b.value),
+                    Some(b.unit.clone()),
+                    None,
+                    BindingSource::RulePackRequiredInput,
+                    None,
+                ),
+                None => (None, None, None, BindingSource::RulePackRequiredInput, None),
+            },
+        };
+        // D2 §4.11.2: a verified absolute bound for a bound solver result.
+        let bound = match source_kind {
+            SourceKind::SolverResult if raw_value.is_some() => {
+                ctx.bound_by_input.get(ref_id).copied()
+            }
+            _ => None,
+        };
+        let (raw_value, raw_unit, note, interval_source) = match bound {
+            None => (raw_value, raw_unit, note, None),
+            // Design §2.8: a bound without a basis is refused; the input is
+            // unsupplied on every basis rather than bound unwidened.
+            Some(BoundEntry::NoBasis) => {
+                completeness_findings.push(RunFinding {
+                    code: "RULE_EVALUATOR_ERROR".to_string(),
+                    severity: "blocking".to_string(),
+                    subject_id: ref_id.to_string(),
+                    message: "an absolute bound for this solver result names no load case or \
+                              combination; a bound applies to one basis only, so the input is \
+                              treated as unsupplied"
+                        .to_string(),
+                });
+                (
+                    None,
+                    None,
+                    Some("absolute bound without a basis: treated as unsupplied".to_string()),
+                    None,
+                )
+            }
+            Some(BoundEntry::Duplicate) => {
+                completeness_findings.push(RunFinding {
+                    code: "RULE_EVALUATOR_ERROR".to_string(),
+                    severity: "blocking".to_string(),
+                    subject_id: ref_id.to_string(),
+                    message: "more than one absolute bound was supplied for this solver \
+                              result; the input is treated as unsupplied"
+                        .to_string(),
+                });
+                (
+                    None,
+                    None,
+                    Some("duplicate absolute bounds: treated as unsupplied".to_string()),
+                    None,
+                )
+            }
+            Some(BoundEntry::Bound(b)) if !(b.is_finite() && b >= 0.0) => {
+                completeness_findings.push(RunFinding {
+                    code: "RULE_EVALUATOR_ERROR".to_string(),
+                    severity: "blocking".to_string(),
+                    subject_id: ref_id.to_string(),
+                    message: format!(
+                        "the absolute bound {b:e} for this solver result is not a finite \
+                         non-negative number; the input is treated as unsupplied"
+                    ),
+                });
+                (
+                    None,
+                    None,
+                    Some(format!(
+                        "invalid absolute bound {b:e}: treated as unsupplied"
+                    )),
+                    None,
+                )
+            }
+            // b = 0 binds the exact point q, with no widening (D2 §4.11.2).
+            Some(BoundEntry::Bound(b)) if b == 0.0 => (raw_value, raw_unit, note, None),
+            Some(BoundEntry::Bound(b)) => {
+                let source = raw_value.zip(raw_unit.clone()).map(|(q, u)| (q, u, b));
+                (
+                    raw_value,
+                    raw_unit,
+                    Some(format!("interval ±{b:e} from receipt")),
+                    source,
+                )
+            }
+        };
+        // N-4 (T3-SI1c): a supplied value that is not finite (NaN or ±inf),
+        // raw or after unit normalization, is never bound, and a finding
+        // names it. The raw value is tested before normalization, which would
+        // otherwise report a unit mismatch; such a value stays unsupplied, as
+        // before, so completeness still blocks the check.
+        let raw_non_finite_to_convert = matches!(
+            (raw_value, raw_unit.as_deref()),
+            (Some(v), Some(u)) if !v.is_finite() && u.trim() != unit_ref.trim()
+        );
+        let (value, unit) = match (raw_value, raw_unit) {
+            _ if raw_non_finite_to_convert => {
+                evaluator_findings.push(non_finite_input_finding(ref_id));
+                (None, None)
+            }
+            (Some(v), Some(u)) => {
+                match normalize_value_to_declared_unit(v, &u, &unit_ref, dimension_token, ref_id) {
+                    Ok((normalized_value, normalized_unit)) => {
+                        (Some(normalized_value), Some(normalized_unit))
+                    }
+                    Err(finding) => {
+                        evaluator_findings.push(finding);
+                        (None, None)
+                    }
+                }
+            }
+            (value, unit) => (value, unit),
+        };
+        let non_finite = raw_non_finite_to_convert || value.is_some_and(|v| !v.is_finite());
+
+        bound_inputs.push(BoundInput {
+            input_id: ref_id.to_string(),
+            source_kind: source_token.to_string(),
+            supplied: value.is_some(),
+            value: value.filter(|v| v.is_finite()),
+            unit: unit.clone(),
+            result_id,
+            // N-4's note follows any note already there (a library's
+            // provenance, or "interval ±b from receipt"), which says where the
+            // value came from.
+            note: match (non_finite, note) {
+                (false, note) => note,
+                (true, None) => Some(NON_FINITE_INPUT_NOTE.to_string()),
+                (true, Some(existing)) => Some(format!("{existing}; {NON_FINITE_INPUT_NOTE}")),
+            },
+        });
+
+        // A supplied value with a known dimension passes the completeness gates
+        // via the private-reviewed constructor; otherwise the input is left
+        // unsupplied so completeness blocks (never a silent pass).
+        if let (Some(_), Some(u), Some(cd)) = (value, unit.clone(), completeness_dimension) {
+            comp_supplied.push(SuppliedInput::private_reviewed(ref_id.to_string(), cd, u));
+        }
+
+        if let (Some(v), Some(u)) = (value, unit) {
+            // The interval's ends are normalized like the point, each floating
+            // operation of the conversion stepped outward (D2 §4.11.2).
+            let interval = interval_source.map(|(q, entered_unit, b)| {
+                normalize_enclosure_to_declared_unit(
+                    enclosure_from_bound(q, b),
+                    &entered_unit,
+                    &unit_ref,
+                    dimension_token,
+                )
+            });
+            resolved.insert(
+                ref_id.to_string(),
+                ResolvedValue {
+                    value: v,
+                    unit: u,
+                    eval_dimension,
+                    binding_source,
+                    interval,
+                },
+            );
+        }
+    }
+
+    // --- Completeness -------------------------------------------------------
+    let completeness = check_completeness(&CompletenessCheckInput {
+        required_inputs: comp_required,
+        supplied_inputs: comp_supplied,
+        current_statuses: ctx
+            .current_statuses
+            .iter()
+            .map(|s| to_automatic_status(*s))
+            .collect(),
+    });
+    for f in &completeness.findings {
+        completeness_findings.push(RunFinding {
+            code: format!("{:?}", f.code),
+            severity: severity_str(f.severity),
+            subject_id: f.input_id.clone(),
+            message: f.message.clone(),
+        });
+    }
+
+    if completeness.readiness == Readiness::Blocked
+        || completeness_findings
+            .iter()
+            .any(|f| f.severity == "blocking")
+    {
+        push_diagnostic(&mut diagnostic_codes, diagnostic_policy, "missing_input");
+        let status = enforce_declared(
+            RuleCheckStatus::RuleInputsIncomplete,
+            &result_statuses,
+            &mut completeness_findings,
+        );
+        return CheckOutcome {
+            check_id,
+            category_ref: String::new(),
+            basis_ref: None,
+            status,
+            computed_value: None,
+            limit_value: None,
+            acceptability_relation: "none".to_string(),
+            bound_inputs,
+            completeness_findings,
+            evaluator_findings,
+            diagnostic_codes,
+        };
+    }
+
+    // --- Decode + evaluate the formula --------------------------------------
+    let formula_ref_id = check
+        .pointer("/formula_ref/ref_id")
+        .and_then(Value::as_str)
+        .unwrap_or_default();
+    let Some(formula) = ctx.formula_index.get(formula_ref_id) else {
+        evaluator_findings.push(RunFinding {
+            code: "INVALID_REFERENCE".to_string(),
+            severity: "blocking".to_string(),
+            subject_id: formula_ref_id.to_string(),
+            message: "check references an undeclared formula".to_string(),
+        });
+        return blocked_after_completeness(
+            check_id,
+            bound_inputs,
+            completeness_findings,
+            evaluator_findings,
+            &mut diagnostic_codes,
+            diagnostic_policy,
+            &result_statuses,
+        );
+    };
+    let Some(ast) = formula.pointer("/declaration_payload/expression_ast") else {
+        evaluator_findings.push(RunFinding {
+            code: "INVALID_REFERENCE".to_string(),
+            severity: "blocking".to_string(),
+            subject_id: formula_ref_id.to_string(),
+            message: "formula declaration carries no expression_ast payload".to_string(),
+        });
+        return blocked_after_completeness(
+            check_id,
+            bound_inputs,
+            completeness_findings,
+            evaluator_findings,
+            &mut diagnostic_codes,
+            diagnostic_policy,
+            &result_statuses,
+        );
+    };
+    let expression = match decode_expression(ast) {
+        Ok(expr) => expr,
+        Err(err) => {
+            evaluator_findings.push(RunFinding {
+                code: "DECODE_ERROR".to_string(),
+                severity: "blocking".to_string(),
+                subject_id: formula_ref_id.to_string(),
+                message: format!("{err:?}"),
+            });
+            return blocked_after_completeness(
+                check_id,
+                bound_inputs,
+                completeness_findings,
+                evaluator_findings,
+                &mut diagnostic_codes,
+                diagnostic_policy,
+                &result_statuses,
+            );
+        }
+    };
+
+    // Bind the formula's variable references to the resolved values.
+    let formula_input_refs = formula
+        .get("input_refs")
+        .and_then(Value::as_array)
+        .cloned()
+        .unwrap_or_default();
+    let mut bindings: Vec<VariableBinding> = Vec::new();
+    let mut required_variable_ids: Vec<String> = Vec::new();
+    let mut intervals: Vec<IntervalBinding> = Vec::new();
+    let mut non_finite_inputs: Vec<&str> = Vec::new();
+    for fr in &formula_input_refs {
+        let id = fr
+            .pointer("/ref_id")
+            .and_then(Value::as_str)
+            .unwrap_or_default();
+        if id.is_empty() {
+            continue;
+        }
+        required_variable_ids.push(id.to_string());
+        match resolved.get(id) {
+            // N-4: one blocking finding per formula input whose value is not
+            // finite; the evaluator is not called (below).
+            Some(rv) if !rv.value.is_finite() => {
+                if !non_finite_inputs.contains(&id) {
+                    non_finite_inputs.push(id);
+                    evaluator_findings.push(non_finite_input_finding(id));
+                }
+            }
+            Some(rv) => match rv.eval_dimension {
+                Some(dim) => match Quantity::new(rv.value, dim, rv.unit.clone()) {
+                    Ok(q) => {
+                        if let Some(enclosure) = rv.interval {
+                            if !intervals.iter().any(|i| i.variable_id == id) {
+                                intervals.push(IntervalBinding {
+                                    variable_id: id.to_string(),
+                                    enclosure,
+                                });
+                            }
+                        }
+                        bindings.push(VariableBinding::new(id, rv.binding_source, q))
+                    }
+                    Err(_) => bindings.push(VariableBinding::missing(id, rv.binding_source)),
+                },
+                None => bindings.push(VariableBinding::missing(id, rv.binding_source)),
+            },
+            None => bindings.push(VariableBinding::missing(
+                id,
+                BindingSource::RulePackRequiredInput,
+            )),
+        }
+    }
+
+    // N-4: a formula input that is not finite blocks the check in either
+    // mode, before any evaluation (status and diagnostic as for any
+    // evaluator block).
+    if !non_finite_inputs.is_empty() {
+        return blocked_after_completeness(
+            check_id,
+            bound_inputs,
+            completeness_findings,
+            evaluator_findings,
+            &mut diagnostic_codes,
+            diagnostic_policy,
+            &result_statuses,
+        );
+    }
+
+    // A check with at least one interval input runs in interval mode (D2
+    // §4.11.1); every other check follows the point path below, unchanged.
+    if !intervals.is_empty() {
+        let formula_input = EvaluationInput {
+            expression,
+            bindings,
+            required_variable_ids,
+            statuses: ctx.current_statuses.to_vec(),
+            declared_grammar_version: ctx.grammar_version.to_string(),
+        };
+        return run_interval_check(
+            ctx,
+            check,
+            check_id,
+            &formula_input,
+            &intervals,
+            CheckRecords {
+                bound_inputs,
+                completeness_findings,
+                evaluator_findings,
+                diagnostic_codes,
+            },
+            diagnostic_policy,
+            &result_statuses,
+        );
+    }
+
+    let formula_eval = evaluate(&EvaluationInput {
+        expression,
+        bindings,
+        required_variable_ids,
+        statuses: ctx.current_statuses.to_vec(),
+        declared_grammar_version: ctx.grammar_version.to_string(),
+    });
+    for f in &formula_eval.findings {
+        evaluator_findings.push(RunFinding {
+            code: format!("{:?}", f.code),
+            severity: "blocking".to_string(),
+            subject_id: f.subject_id.clone(),
+            message: f.message.clone(),
+        });
+    }
+    if !formula_eval.findings.is_empty() {
+        return blocked_after_completeness(
+            check_id,
+            bound_inputs,
+            completeness_findings,
+            evaluator_findings,
+            &mut diagnostic_codes,
+            diagnostic_policy,
+            &result_statuses,
+        );
+    }
+
+    // --- Acceptability ------------------------------------------------------
+    match formula_eval.value {
+        Some(EvaluationValue::Boolean(passed)) => {
+            let status = if passed {
+                RuleCheckStatus::UserRuleChecked
+            } else {
+                RuleCheckStatus::UserRuleFailed
+            };
+            let status = enforce_declared(status, &result_statuses, &mut evaluator_findings);
+            CheckOutcome {
+                check_id,
+                category_ref: String::new(),
+                basis_ref: None,
+                status,
+                computed_value: None,
+                limit_value: None,
+                acceptability_relation: "formula_predicate".to_string(),
+                bound_inputs,
+                completeness_findings,
+                evaluator_findings,
+                diagnostic_codes,
+            }
+        }
+        Some(EvaluationValue::Quantity(formula_quantity)) => {
+            // The top-level acceptability relation (computed <relation> limit).
+            // Absent => less_than_or_equal (backward compatible); an explicit but
+            // unrecognized token blocks the check rather than defaulting silently.
+            let acceptability_operator = match resolve_acceptability_relation(check) {
+                Ok(operator) => operator,
+                Err(token) => {
+                    evaluator_findings.push(RunFinding {
+                        code: "RULE_EVALUATOR_ERROR".to_string(),
+                        severity: "blocking".to_string(),
+                        subject_id: check_id.clone(),
+                        message: format!(
+                            "check declares an unsupported acceptability_relation '{token}'; \
+                             expected one of less_than, less_than_or_equal, greater_than, \
+                             greater_than_or_equal"
+                        ),
+                    });
+                    push_diagnostic(&mut diagnostic_codes, diagnostic_policy, "evaluator_error");
+                    let status = enforce_declared(
+                        RuleCheckStatus::RuleInputsIncomplete,
+                        &result_statuses,
+                        &mut evaluator_findings,
+                    );
+                    return CheckOutcome {
+                        check_id,
+                        category_ref: String::new(),
+                        basis_ref: None,
+                        status,
+                        computed_value: Some(quantity_to_computed(&formula_quantity)),
+                        limit_value: None,
+                        acceptability_relation: "none".to_string(),
+                        bound_inputs,
+                        completeness_findings,
+                        evaluator_findings,
+                        diagnostic_codes,
+                    };
+                }
+            };
+            let acceptability_label =
+                acceptability_relation_label(&acceptability_operator).to_string();
+
+            let computed_value = Some(quantity_to_computed(&formula_quantity));
+            let limit = match resolve_limit(check, ctx) {
+                Ok(limit) => limit,
+                Err(finding) => {
+                    evaluator_findings.push(finding);
+                    push_diagnostic(&mut diagnostic_codes, diagnostic_policy, "evaluator_error");
+                    let status = enforce_declared(
+                        RuleCheckStatus::RuleInputsIncomplete,
+                        &result_statuses,
+                        &mut evaluator_findings,
+                    );
+                    return CheckOutcome {
+                        check_id,
+                        category_ref: String::new(),
+                        basis_ref: None,
+                        status,
+                        computed_value,
+                        limit_value: None,
+                        acceptability_relation: acceptability_label,
+                        bound_inputs,
+                        completeness_findings,
+                        evaluator_findings,
+                        diagnostic_codes,
+                    };
+                }
+            };
+            let Some((limit_value, limit_unit, limit_dimension)) = limit else {
+                evaluator_findings.push(RunFinding {
+                    code: "RULE_INPUT_MISSING".to_string(),
+                    severity: "blocking".to_string(),
+                    subject_id: check_id.clone(),
+                    message: "no user-supplied value-slot limit available for this check"
+                        .to_string(),
+                });
+                push_diagnostic(&mut diagnostic_codes, diagnostic_policy, "missing_input");
+                let status = enforce_declared(
+                    RuleCheckStatus::RuleInputsIncomplete,
+                    &result_statuses,
+                    &mut evaluator_findings,
+                );
+                return CheckOutcome {
+                    check_id,
+                    category_ref: String::new(),
+                    basis_ref: None,
+                    status,
+                    computed_value,
+                    limit_value: None,
+                    acceptability_relation: acceptability_label,
+                    bound_inputs,
+                    completeness_findings,
+                    evaluator_findings,
+                    diagnostic_codes,
+                };
+            };
+
+            let limit_quantity = match limit_dimension
+                .and_then(|d| Quantity::new(limit_value, d, limit_unit.clone()).ok())
+            {
+                Some(q) => q,
+                None => {
+                    evaluator_findings.push(RunFinding {
+                        code: "RULE_EVALUATOR_ERROR".to_string(),
+                        severity: "blocking".to_string(),
+                        subject_id: check_id.clone(),
+                        message: "value-slot limit has missing or unknown unit/dimension metadata"
+                            .to_string(),
+                    });
+                    push_diagnostic(&mut diagnostic_codes, diagnostic_policy, "evaluator_error");
+                    let status = enforce_declared(
+                        RuleCheckStatus::RuleInputsIncomplete,
+                        &result_statuses,
+                        &mut evaluator_findings,
+                    );
+                    return CheckOutcome {
+                        check_id,
+                        category_ref: String::new(),
+                        basis_ref: None,
+                        status,
+                        computed_value,
+                        limit_value: None,
+                        acceptability_relation: acceptability_label,
+                        bound_inputs,
+                        completeness_findings,
+                        evaluator_findings,
+                        diagnostic_codes,
+                    };
+                }
+            };
+            let limit_computed = Some(quantity_to_computed(&limit_quantity));
+
+            let comparison = evaluate(&EvaluationInput {
+                expression: Expression::Compare {
+                    operator: acceptability_operator,
+                    left: Box::new(Expression::Literal(formula_quantity)),
+                    right: Box::new(Expression::Literal(limit_quantity)),
+                },
+                bindings: Vec::new(),
+                required_variable_ids: Vec::new(),
+                statuses: ctx.current_statuses.to_vec(),
+                declared_grammar_version: ctx.grammar_version.to_string(),
+            });
+            for f in &comparison.findings {
+                evaluator_findings.push(RunFinding {
+                    code: format!("{:?}", f.code),
+                    severity: "blocking".to_string(),
+                    subject_id: f.subject_id.clone(),
+                    message: f.message.clone(),
+                });
+            }
+
+            let status = match comparison.value {
+                Some(EvaluationValue::Boolean(true)) => RuleCheckStatus::UserRuleChecked,
+                Some(EvaluationValue::Boolean(false)) => RuleCheckStatus::UserRuleFailed,
+                _ => {
+                    push_diagnostic(&mut diagnostic_codes, diagnostic_policy, "evaluator_error");
+                    RuleCheckStatus::RuleInputsIncomplete
+                }
+            };
+            let status = enforce_declared(status, &result_statuses, &mut evaluator_findings);
+            CheckOutcome {
+                check_id,
+                category_ref: String::new(),
+                basis_ref: None,
+                status,
+                computed_value,
+                limit_value: limit_computed,
+                acceptability_relation: acceptability_label,
+                bound_inputs,
+                completeness_findings,
+                evaluator_findings,
+                diagnostic_codes,
+            }
+        }
+        None => blocked_after_completeness(
+            check_id,
+            bound_inputs,
+            completeness_findings,
+            evaluator_findings,
+            &mut diagnostic_codes,
+            diagnostic_policy,
+            &result_statuses,
+        ),
+    }
+}
+
+/// Resolve a check's governing limit from the first `value_slot_refs` entry,
+/// taking the numeric value from the caller's supplied-value map (keyed by the
+/// slot id). Returns `(value, unit, eval_dimension)`.
+fn resolve_limit(
+    check: &Value,
+    ctx: &RunContext,
+) -> Result<Option<(f64, String, Option<EvalDimension>)>, RunFinding> {
+    let Some(slot_refs) = check.get("value_slot_refs").and_then(Value::as_array) else {
+        return Ok(None);
+    };
+    for slot_ref in slot_refs {
+        let Some(slot_id) = slot_ref.pointer("/ref_id").and_then(Value::as_str) else {
+            continue;
+        };
+        if let Some(binding) = ctx.supplied_by_ref.get(slot_id) {
+            let declared = ctx.value_slot_index.get(slot_id);
+            let declared_dimension = declared
+                .and_then(|slot| slot.pointer("/quantity_intent/dimension"))
+                .and_then(Value::as_str)
+                .unwrap_or(binding.dimension.as_str());
+            let declared_unit = declared
+                .and_then(|slot| slot.pointer("/quantity_intent/unit_ref"))
+                .and_then(Value::as_str)
+                .unwrap_or(binding.unit.as_str());
+            // N-4 (T3-SI1c): a limit that is not finite, raw (before
+            // normalization) or normalized, blocks with a finding naming the
+            // slot, in both the point and the interval limit blocks.
+            if !binding.value.is_finite() {
+                return Err(non_finite_limit_finding(slot_id));
+            }
+            let (value, unit) = normalize_value_to_declared_unit(
+                binding.value,
+                &binding.unit,
+                declared_unit,
+                declared_dimension,
+                slot_id,
+            )?;
+            if !value.is_finite() {
+                return Err(non_finite_limit_finding(slot_id));
+            }
+            return Ok(Some((value, unit, decode_dimension(declared_dimension))));
+        }
+    }
+    Ok(None)
+}
+
+fn normalize_value_to_declared_unit(
+    value: f64,
+    entered_unit: &str,
+    declared_unit: &str,
+    dimension_token: &str,
+    subject_id: &str,
+) -> Result<(f64, String), RunFinding> {
+    let entered = entered_unit.trim();
+    let declared = declared_unit.trim();
+    if entered == declared {
+        return Ok((value, declared.to_string()));
+    }
+    if entered.is_empty() || declared.is_empty() || declared == "TBD" {
+        return Err(unit_mismatch_finding(
+            subject_id,
+            entered,
+            declared,
+            dimension_token,
+            "missing declared or entered unit metadata",
+        ));
+    }
+
+    let dimension = UnitDimension::from_schema_value(dimension_token).map_err(|err| {
+        unit_mismatch_finding(
+            subject_id,
+            entered,
+            declared,
+            dimension_token,
+            &format!("unknown declared dimension: {err}"),
+        )
+    })?;
+    let from = unit_by_symbol(entered, dimension).map_err(|err| {
+        unit_mismatch_finding(
+            subject_id,
+            entered,
+            declared,
+            dimension_token,
+            &format!("entered unit is not compatible with the declared dimension: {err}"),
+        )
+    })?;
+    let to = unit_by_symbol(declared, dimension).map_err(|err| {
+        unit_mismatch_finding(
+            subject_id,
+            entered,
+            declared,
+            dimension_token,
+            &format!("declared unit is not compatible with the declared dimension: {err}"),
+        )
+    })?;
+    let normalized = convert_for_dimension(value, dimension, from, to).map_err(|err| {
+        unit_mismatch_finding(
+            subject_id,
+            entered,
+            declared,
+            dimension_token,
+            &format!("unit conversion failed: {err}"),
+        )
+    })?;
+    Ok((normalized, declared.to_string()))
+}
+
+/// N-4 (T3-SI1c): the note on a supplied input whose value is not finite,
+/// appended after "; " to a note the input already carries.
+const NON_FINITE_INPUT_NOTE: &str =
+    "non-finite value (NaN or ±inf, after unit normalization): not bound";
+
+/// N-4 (T3-SI1c): a supplied input value that is not finite, raw or after
+/// unit normalization. It names the input; the value is never bound.
+fn non_finite_input_finding(input_id: &str) -> RunFinding {
+    RunFinding {
+        code: format!("{:?}", FindingCode::NonFiniteInput),
+        severity: "blocking".to_string(),
+        subject_id: input_id.to_string(),
+        message: "supplied value must be finite (NaN or ±inf after unit normalization)".to_string(),
+    }
+}
+
+/// N-4 (T3-SI1c): a value-slot limit that is not finite, raw or after unit
+/// normalization. It names the slot.
+fn non_finite_limit_finding(slot_id: &str) -> RunFinding {
+    RunFinding {
+        code: format!("{:?}", FindingCode::NonFiniteInput),
+        severity: "blocking".to_string(),
+        subject_id: slot_id.to_string(),
+        message: "value-slot limit must be finite (NaN or ±inf after unit normalization)"
+            .to_string(),
+    }
+}
+
+fn unit_mismatch_finding(
+    subject_id: &str,
+    entered_unit: &str,
+    declared_unit: &str,
+    dimension_token: &str,
+    reason: &str,
+) -> RunFinding {
+    RunFinding {
+        code: "UnitMismatch".to_string(),
+        severity: "blocking".to_string(),
+        subject_id: subject_id.to_string(),
+        message: format!(
+            "unit '{entered_unit}' cannot be normalized to declared unit '{declared_unit}' for \
+             dimension '{dimension_token}': {reason}"
+        ),
+    }
+}
+
+/// Resolve a check's acceptability relation — the top-level pass/fail comparison
+/// of the computed formula quantity against the user-supplied value-slot limit
+/// (`computed <relation> limit`) — to a frozen-grammar comparison operator.
+///
+/// An absent member resolves to `LessThanOrEqual`, preserving the historical
+/// hard-coded behaviour for packs authored before the additive
+/// `acceptability_relation` member existed (the sole documented default; the
+/// editor authors the member explicitly, so new packs never rely on it). An
+/// explicit but unrecognized token is never silently defaulted — `Err(token)`
+/// is returned so the caller blocks the check (no-silent-defaults, CONTRACT).
+/// The member is restricted to the four ordering relations; equality acceptance
+/// is a deliberate non-goal (a boolean-predicate formula can express equality).
+fn resolve_acceptability_relation(check: &Value) -> Result<ComparisonOperator, String> {
+    match check
+        .pointer("/acceptability_relation")
+        .and_then(Value::as_str)
+    {
+        None => Ok(ComparisonOperator::LessThanOrEqual),
+        Some(token) => match token.trim() {
+            "" => Ok(ComparisonOperator::LessThanOrEqual),
+            "less_than" => Ok(ComparisonOperator::LessThan),
+            "less_than_or_equal" => Ok(ComparisonOperator::LessThanOrEqual),
+            "greater_than" => Ok(ComparisonOperator::GreaterThan),
+            "greater_than_or_equal" => Ok(ComparisonOperator::GreaterThanOrEqual),
+            other => Err(other.to_string()),
+        },
+    }
+}
+
+/// Canonical string label for an acceptability relation operator, reported on
+/// the check outcome so the GUI shows the relation that governed the result.
+fn acceptability_relation_label(operator: &ComparisonOperator) -> &'static str {
+    match operator {
+        ComparisonOperator::LessThan => "less_than",
+        ComparisonOperator::LessThanOrEqual => "less_than_or_equal",
+        ComparisonOperator::GreaterThan => "greater_than",
+        ComparisonOperator::GreaterThanOrEqual => "greater_than_or_equal",
+        ComparisonOperator::Equal => "equal",
+        ComparisonOperator::NotEqual => "not_equal",
+    }
+}
+
+fn quantity_to_computed(quantity: &Quantity) -> ComputedQuantity {
+    ComputedQuantity {
+        value: quantity.value,
+        dimension: encode_dimension(quantity.dimension).to_string(),
+        unit_ref: quantity.unit_ref.clone(),
+    }
+}
+
+#[allow(clippy::too_many_arguments)]
+fn blocked_after_completeness(
+    check_id: String,
+    bound_inputs: Vec<BoundInput>,
+    completeness_findings: Vec<RunFinding>,
+    mut evaluator_findings: Vec<RunFinding>,
+    diagnostic_codes: &mut Vec<String>,
+    diagnostic_policy: Option<&Value>,
+    result_statuses: &[String],
+) -> CheckOutcome {
+    push_diagnostic(diagnostic_codes, diagnostic_policy, "evaluator_error");
+    let status = enforce_declared(
+        RuleCheckStatus::RuleInputsIncomplete,
+        result_statuses,
+        &mut evaluator_findings,
+    );
+    CheckOutcome {
+        check_id,
+        category_ref: String::new(),
+        basis_ref: None,
+        status,
+        computed_value: None,
+        limit_value: None,
+        acceptability_relation: "none".to_string(),
+        bound_inputs,
+        completeness_findings,
+        evaluator_findings,
+        diagnostic_codes: diagnostic_codes.clone(),
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Interval mode (T3 D2 §4.11, option C: conservative interval binding)
+// ---------------------------------------------------------------------------
+
+/// The records an interval-mode check carries to its outcome.
+struct CheckRecords {
+    bound_inputs: Vec<BoundInput>,
+    completeness_findings: Vec<RunFinding>,
+    evaluator_findings: Vec<RunFinding>,
+    diagnostic_codes: Vec<String>,
+}
+
+impl CheckRecords {
+    fn outcome(
+        self,
+        check_id: String,
+        status: RuleCheckStatus,
+        limit_value: Option<ComputedQuantity>,
+        acceptability_relation: String,
+    ) -> CheckOutcome {
+        CheckOutcome {
+            check_id,
+            category_ref: String::new(),
+            basis_ref: None,
+            status,
+            // An interval check computes an enclosure, not one value; the
+            // enclosure is reported in the outcome finding (D2 §4.11.5).
+            computed_value: None,
+            limit_value,
+            acceptability_relation,
+            bound_inputs: self.bound_inputs,
+            completeness_findings: self.completeness_findings,
+            evaluator_findings: self.evaluator_findings,
+            diagnostic_codes: self.diagnostic_codes,
+        }
+    }
+
+    /// Blocking evaluator findings, mapped exactly as the point path maps them.
+    fn push_blocking(&mut self, result: &IntervalEvaluationResult) {
+        for f in &result.findings {
+            self.evaluator_findings.push(RunFinding {
+                code: format!("{:?}", f.code),
+                severity: "blocking".to_string(),
+                subject_id: f.subject_id.clone(),
+                message: f.message.clone(),
+            });
+        }
+    }
+
+    /// An acceptability failure before the comparison: the point path's
+    /// finding and diagnostic, with no computed value.
+    fn blocked(
+        mut self,
+        check_id: String,
+        finding: RunFinding,
+        diagnostic_key: &str,
+        diagnostic_policy: Option<&Value>,
+        result_statuses: &[String],
+        acceptability_relation: String,
+    ) -> CheckOutcome {
+        self.evaluator_findings.push(finding);
+        push_diagnostic(
+            &mut self.diagnostic_codes,
+            diagnostic_policy,
+            diagnostic_key,
+        );
+        let status = enforce_declared(
+            RuleCheckStatus::RuleInputsIncomplete,
+            result_statuses,
+            &mut self.evaluator_findings,
+        );
+        self.outcome(check_id, status, None, acceptability_relation)
+    }
+}
+
+/// The synthetic variable that carries the formula's enclosure into the
+/// synthesized interval-mode `Compare(formula, relation, limit)`.
+const FORMULA_ENCLOSURE_VARIABLE: &str = "interval_formula_value";
+
+/// One check with at least one interval input, evaluated in interval mode
+/// (D2 §4.11.3) and mapped to the three-valued outcome (D2 §4.11.5). Every
+/// structural failure is reported exactly as the point path reports it.
+#[allow(clippy::too_many_arguments)]
+fn run_interval_check(
+    ctx: &RunContext,
+    check: &Value,
+    check_id: String,
+    formula_input: &EvaluationInput,
+    intervals: &[IntervalBinding],
+    mut records: CheckRecords,
+    diagnostic_policy: Option<&Value>,
+    result_statuses: &[String],
+) -> CheckOutcome {
+    let formula_eval = evaluate_interval(formula_input, intervals);
+    records.push_blocking(&formula_eval);
+    if formula_eval.is_blocked() {
+        return blocked_after_completeness(
+            check_id,
+            records.bound_inputs,
+            records.completeness_findings,
+            records.evaluator_findings,
+            &mut records.diagnostic_codes,
+            diagnostic_policy,
+            result_statuses,
+        );
+    }
+
+    let formula = match formula_eval.value {
+        Some(IntervalValue::Boolean(truth)) => {
+            return finish_interval_check(
+                check_id,
+                truth,
+                "enclosure=none unit=none".to_string(),
+                &formula_eval,
+                "formula_predicate".to_string(),
+                None,
+                records,
+                result_statuses,
+            );
+        }
+        Some(IntervalValue::Quantity(ref formula)) => formula.clone(),
+        None => {
+            return blocked_after_completeness(
+                check_id,
+                records.bound_inputs,
+                records.completeness_findings,
+                records.evaluator_findings,
+                &mut records.diagnostic_codes,
+                diagnostic_policy,
+                result_statuses,
+            );
+        }
+    };
+
+    // The acceptability relation and the limit, resolved and reported exactly
+    // as the point path does.
+    let acceptability_operator = match resolve_acceptability_relation(check) {
+        Ok(operator) => operator,
+        Err(token) => {
+            let finding = RunFinding {
+                code: "RULE_EVALUATOR_ERROR".to_string(),
+                severity: "blocking".to_string(),
+                subject_id: check_id.clone(),
+                message: format!(
+                    "check declares an unsupported acceptability_relation '{token}'; \
+                     expected one of less_than, less_than_or_equal, greater_than, \
+                     greater_than_or_equal"
+                ),
+            };
+            return records.blocked(
+                check_id,
+                finding,
+                "evaluator_error",
+                diagnostic_policy,
+                result_statuses,
+                "none".to_string(),
+            );
+        }
+    };
+    let acceptability_label = acceptability_relation_label(&acceptability_operator).to_string();
+    let limit = match resolve_limit(check, ctx) {
+        Ok(limit) => limit,
+        Err(finding) => {
+            return records.blocked(
+                check_id,
+                finding,
+                "evaluator_error",
+                diagnostic_policy,
+                result_statuses,
+                acceptability_label,
+            );
+        }
+    };
+    let Some((limit_value, limit_unit, limit_dimension)) = limit else {
+        let finding = RunFinding {
+            code: "RULE_INPUT_MISSING".to_string(),
+            severity: "blocking".to_string(),
+            subject_id: check_id.clone(),
+            message: "no user-supplied value-slot limit available for this check".to_string(),
+        };
+        return records.blocked(
+            check_id,
+            finding,
+            "missing_input",
+            diagnostic_policy,
+            result_statuses,
+            acceptability_label,
+        );
+    };
+    let Some(limit_quantity) =
+        limit_dimension.and_then(|d| Quantity::new(limit_value, d, limit_unit.clone()).ok())
+    else {
+        let finding = RunFinding {
+            code: "RULE_EVALUATOR_ERROR".to_string(),
+            severity: "blocking".to_string(),
+            subject_id: check_id.clone(),
+            message: "value-slot limit has missing or unknown unit/dimension metadata".to_string(),
+        };
+        return records.blocked(
+            check_id,
+            finding,
+            "evaluator_error",
+            diagnostic_policy,
+            result_statuses,
+            acceptability_label,
+        );
+    };
+    let limit_computed = Some(quantity_to_computed(&limit_quantity));
+
+    // The synthesized Compare(formula, relation, limit), in interval mode. The
+    // formula enters as a variable carrying its enclosure (its point value is
+    // never read); the limit is a user-supplied point.
+    let formula_quantity = Quantity {
+        value: formula.enclosure.map_or(0.0, |e| e.lo),
+        dimension: formula.dimension,
+        unit_ref: formula.unit_ref.clone(),
+        unit_required: true,
+        dimension_check_required: true,
+    };
+    let comparison = evaluate_interval(
+        &EvaluationInput {
+            expression: Expression::Compare {
+                operator: acceptability_operator,
+                left: Box::new(Expression::VariableRef(
+                    FORMULA_ENCLOSURE_VARIABLE.to_string(),
+                )),
+                right: Box::new(Expression::Literal(limit_quantity)),
+            },
+            bindings: vec![VariableBinding::new(
+                FORMULA_ENCLOSURE_VARIABLE,
+                BindingSource::SolverResultField,
+                formula_quantity,
+            )],
+            required_variable_ids: Vec::new(),
+            statuses: ctx.current_statuses.to_vec(),
+            declared_grammar_version: ctx.grammar_version.to_string(),
+        },
+        &[IntervalBinding {
+            variable_id: FORMULA_ENCLOSURE_VARIABLE.to_string(),
+            enclosure: formula.enclosure,
+        }],
+    );
+    records.push_blocking(&comparison);
+    match comparison.value {
+        Some(IntervalValue::Boolean(truth)) if !comparison.is_blocked() => finish_interval_check(
+            check_id,
+            truth,
+            enclosure_message(formula.enclosure, &formula.unit_ref),
+            &formula_eval,
+            acceptability_label,
+            limit_computed,
+            records,
+            result_statuses,
+        ),
+        _ => {
+            push_diagnostic(
+                &mut records.diagnostic_codes,
+                diagnostic_policy,
+                "evaluator_error",
+            );
+            let status = enforce_declared(
+                RuleCheckStatus::RuleInputsIncomplete,
+                result_statuses,
+                &mut records.evaluator_findings,
+            );
+            records.outcome(check_id, status, limit_computed, acceptability_label)
+        }
+    }
+}
+
+/// The fixed enclosure form of D2 §4.11.5: `enclosure=[0x<lo>,0x<hi>] unit=<u>`.
+fn enclosure_message(enclosure: Option<Enclosure>, unit_ref: &str) -> String {
+    match enclosure {
+        Some(enclosure) => format!("enclosure={} unit={unit_ref}", enclosure.bits_text()),
+        None => format!("enclosure=none unit={unit_ref}"),
+    }
+}
+
+/// Maps the predicate's truth to D2 §4.11.5's status, code and finding.
+/// Indeterminate is never a pass.
+#[allow(clippy::too_many_arguments)]
+fn finish_interval_check(
+    check_id: String,
+    truth: Truth,
+    enclosure_text: String,
+    formula_eval: &IntervalEvaluationResult,
+    acceptability_relation: String,
+    limit_value: Option<ComputedQuantity>,
+    mut records: CheckRecords,
+    result_statuses: &[String],
+) -> CheckOutcome {
+    let (status, code, severity) = match truth {
+        Truth::True => (
+            RuleCheckStatus::UserRuleChecked,
+            RULE_INTERVAL_ALL_PASS,
+            "info",
+        ),
+        Truth::False => (
+            RuleCheckStatus::UserRuleFailed,
+            RULE_INTERVAL_ALL_FAIL,
+            "info",
+        ),
+        Truth::Indeterminate => (
+            RuleCheckStatus::RuleInputsIncomplete,
+            RULE_RESULT_INDETERMINATE,
+            "warning",
+        ),
+    };
+    // `enforce_declared` downgrades a pass or fail the pack does not declare
+    // to `RULE_INPUTS_INCOMPLETE`, as on the point path. D2 §4.11.5 pairs the
+    // all-pass and all-fail codes with their own statuses, so a downgraded
+    // check carries neither code nor its finding: it emits what the point path
+    // emits for a downgraded check. (An indeterminate check is already
+    // `RULE_INPUTS_INCOMPLETE` and keeps its code.)
+    let downgraded = status != RuleCheckStatus::RuleInputsIncomplete
+        && !(result_statuses.is_empty() || result_statuses.iter().any(|s| s == status.as_str()));
+    if !downgraded {
+        // Causes of an indeterminate formula, after the fixed enclosure form.
+        let mut causes: Vec<&str> = Vec::new();
+        for note in &formula_eval.notes {
+            if !causes.contains(&note.code.as_str()) {
+                causes.push(note.code.as_str());
+            }
+        }
+        let message = if causes.is_empty() {
+            enclosure_text
+        } else {
+            format!("{enclosure_text}; causes={}", causes.join(","))
+        };
+        records.evaluator_findings.push(RunFinding {
+            code: code.to_string(),
+            severity: severity.to_string(),
+            subject_id: check_id.clone(),
+            message,
+        });
+        if let Some(note) = formula_eval
+            .notes
+            .iter()
+            .find(|note| note.code == IntervalNoteCode::DivideByZeroRange)
+        {
+            records.evaluator_findings.push(RunFinding {
+                code: RULE_INTERVAL_DIVIDE_BY_ZERO_RANGE.to_string(),
+                severity: "warning".to_string(),
+                subject_id: note.subject_id.clone(),
+                message: "a divisor range within the verified bounds contains zero".to_string(),
+            });
+        }
+        if !records.diagnostic_codes.iter().any(|c| c == code) {
+            records.diagnostic_codes.push(code.to_string());
+        }
+    }
+    let status = enforce_declared(status, result_statuses, &mut records.evaluator_findings);
+    records.outcome(check_id, status, limit_value, acceptability_relation)
+}
+
+/// Normalizes an interval input's enclosure to the declared unit (D2
+/// §4.11.2). It mirrors [`normalize_value_to_declared_unit`], which has already
+/// succeeded for the same input's point, and the units crate's conversion
+/// `((x * f_from + o_from) - o_to) / f_to`, with one outward step after each of
+/// those four floating operations. Identical units, or units that resolve to
+/// the same catalog unit, convert exactly, as for the point. `None` (no finite
+/// enclosure) when an end is not finite or a factor is not positive.
+fn normalize_enclosure_to_declared_unit(
+    enclosure: Option<Enclosure>,
+    entered_unit: &str,
+    declared_unit: &str,
+    dimension_token: &str,
+) -> Option<Enclosure> {
+    let enclosure = enclosure?;
+    let (entered, declared) = (entered_unit.trim(), declared_unit.trim());
+    if entered == declared {
+        return Some(enclosure);
+    }
+    let dimension = UnitDimension::from_schema_value(dimension_token).ok()?;
+    let from = unit_by_symbol(entered, dimension).ok()?;
+    let to = unit_by_symbol(declared, dimension).ok()?;
+    if from == to {
+        return Some(enclosure);
+    }
+    let (f, t) = (
+        from.definition().transform_to_canonical,
+        to.definition().transform_to_canonical,
+    );
+    if !(f.factor.is_finite()
+        && f.factor > 0.0
+        && f.offset.is_finite()
+        && t.factor.is_finite()
+        && t.factor > 0.0
+        && t.offset.is_finite())
+    {
+        return None;
+    }
+    // Each step: round to nearest, then one ulp outward; every function here
+    // is non-decreasing in x because both factors are positive.
+    let down = |x: f64| -> Option<f64> {
+        let y = x.next_down();
+        (x.is_finite() && y.is_finite()).then_some(y)
+    };
+    let up = |x: f64| -> Option<f64> {
+        let y = x.next_up();
+        (x.is_finite() && y.is_finite()).then_some(y)
+    };
+    let lo = down(enclosure.lo * f.factor)?;
+    let lo = down(lo + f.offset)?;
+    let lo = down(lo - t.offset)?;
+    let lo = down(lo / t.factor)?;
+    let hi = up(enclosure.hi * f.factor)?;
+    let hi = up(hi + f.offset)?;
+    let hi = up(hi - t.offset)?;
+    let hi = up(hi / t.factor)?;
+    Some(Enclosure { lo, hi })
+}
+
+/// Keep an emitted status inside the check's declared `result_statuses`
+/// envelope. If a status the pack did not declare would be emitted, downgrade
+/// to `RULE_INPUTS_INCOMPLETE` and record why.
+fn enforce_declared(
+    status: RuleCheckStatus,
+    result_statuses: &[String],
+    findings: &mut Vec<RunFinding>,
+) -> RuleCheckStatus {
+    if result_statuses.is_empty() || result_statuses.iter().any(|s| s == status.as_str()) {
+        return status;
+    }
+    findings.push(RunFinding {
+        code: "STATUS_NOT_DECLARED".to_string(),
+        severity: "blocking".to_string(),
+        subject_id: status.as_str().to_string(),
+        message: "computed status is not in the check's declared result_statuses".to_string(),
+    });
+    RuleCheckStatus::RuleInputsIncomplete
+}
+
+fn push_diagnostic(codes: &mut Vec<String>, policy: Option<&Value>, key: &str) {
+    if let Some(code) = policy
+        .and_then(|p| p.get(key))
+        .and_then(Value::as_str)
+        .filter(|c| !c.is_empty())
+    {
+        if !codes.iter().any(|c| c == code) {
+            codes.push(code.to_string());
+        }
+    }
+}
+
+fn index_by<'a>(doc: &'a Value, array_key: &str, id_key: &str) -> HashMap<&'a str, &'a Value> {
+    let mut map = HashMap::new();
+    if let Some(arr) = doc.get(array_key).and_then(Value::as_array) {
+        for item in arr {
+            if let Some(id) = item.get(id_key).and_then(Value::as_str) {
+                map.insert(id, item);
+            }
+        }
+    }
+    map
+}
+
+fn source_kind_from_token(token: &str) -> SourceKind {
+    match token {
+        "solver_result" => SourceKind::SolverResult,
+        "model_input" => SourceKind::ModelInput,
+        "user_supplied_rule_value" => SourceKind::UserSuppliedRuleValue,
+        "private_library_value" => SourceKind::PrivateLibraryValue,
+        "owner_design_basis" => SourceKind::OwnerDesignBasis,
+        _ => SourceKind::Tbd,
+    }
+}
+
+fn required_for_from_token(token: &str) -> RequiredFor {
+    match token {
+        "rule_check" => RequiredFor::RuleCheck,
+        "reporting" => RequiredFor::Reporting,
+        "diagnostic" => RequiredFor::Diagnostic,
+        _ => RequiredFor::Tbd,
+    }
+}
+
+fn severity_str(severity: FindingSeverity) -> String {
+    match severity {
+        FindingSeverity::Info => "info",
+        FindingSeverity::Warning => "warning",
+        FindingSeverity::Blocking => "blocking",
+    }
+    .to_string()
+}
+
+fn to_automatic_status(status: AnalysisStatus) -> AutomaticAnalysisStatus {
+    match status {
+        AnalysisStatus::ModelIncomplete => AutomaticAnalysisStatus::ModelIncomplete,
+        AnalysisStatus::MechanicsSolved => AutomaticAnalysisStatus::MechanicsSolved,
+        AnalysisStatus::RuleInputsIncomplete => AutomaticAnalysisStatus::RuleInputsIncomplete,
+        AnalysisStatus::UserRuleChecked => AutomaticAnalysisStatus::UserRuleChecked,
+        AnalysisStatus::UserRuleFailed => AutomaticAnalysisStatus::UserRuleFailed,
+        AnalysisStatus::HumanReviewRequired => AutomaticAnalysisStatus::HumanReviewRequired,
+        AnalysisStatus::HumanApprovedForProject => AutomaticAnalysisStatus::HumanReviewRequired,
+    }
+}
+
+/// Map a snake_case dimension token to the completeness checker's dimension
+/// enum by routing through the document codec's evaluator-dimension decode
+/// (single source of truth for the token vocabulary).
+fn completeness_dimension_from_token(token: &str) -> Option<CompletenessDimension> {
+    decode_dimension(token).map(eval_dimension_to_completeness)
+}
+
+fn eval_dimension_to_completeness(dimension: EvalDimension) -> CompletenessDimension {
+    match dimension {
+        EvalDimension::Dimensionless => CompletenessDimension::Dimensionless,
+        EvalDimension::Length => CompletenessDimension::Length,
+        EvalDimension::Mass => CompletenessDimension::Mass,
+        EvalDimension::Time => CompletenessDimension::Time,
+        EvalDimension::Temperature => CompletenessDimension::Temperature,
+        EvalDimension::TemperatureInterval => CompletenessDimension::TemperatureInterval,
+        EvalDimension::Angle => CompletenessDimension::Angle,
+        EvalDimension::Rotation => CompletenessDimension::Rotation,
+        EvalDimension::Force => CompletenessDimension::Force,
+        EvalDimension::Moment => CompletenessDimension::Moment,
+        EvalDimension::Pressure => CompletenessDimension::Pressure,
+        EvalDimension::Stress => CompletenessDimension::Stress,
+        EvalDimension::Area => CompletenessDimension::Area,
+        EvalDimension::Volume => CompletenessDimension::Volume,
+        EvalDimension::Density => CompletenessDimension::Density,
+        EvalDimension::LinearStiffness => CompletenessDimension::LinearStiffness,
+        EvalDimension::RotationalStiffness => CompletenessDimension::RotationalStiffness,
+        EvalDimension::Displacement => CompletenessDimension::Displacement,
+        EvalDimension::Velocity => CompletenessDimension::Velocity,
+        EvalDimension::Acceleration => CompletenessDimension::Acceleration,
+        EvalDimension::ThermalConductivity => CompletenessDimension::ThermalConductivity,
+        EvalDimension::SpecificHeat => CompletenessDimension::SpecificHeat,
+        EvalDimension::ThermalExpansionCoefficient => {
+            CompletenessDimension::ThermalExpansionCoefficient
+        }
+        EvalDimension::SecondMomentArea => CompletenessDimension::SecondMomentArea,
+        EvalDimension::SectionModulus => CompletenessDimension::SectionModulus,
+        EvalDimension::MassPerLength => CompletenessDimension::MassPerLength,
+        EvalDimension::VolumePerLength => CompletenessDimension::VolumePerLength,
+        EvalDimension::Slope => CompletenessDimension::Slope,
+        EvalDimension::Tbd => CompletenessDimension::Tbd,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    /// A minimal invented rule pack: one ratio check `actual / limit` against a
+    /// ratio limit value slot. All values are invented non-engineering content.
+    /// The one basis of the single-basis test packs (format 0.5.0).
+    fn basis() -> BasisRef {
+        BasisRef::new("load_case", "load:L-1")
+    }
+
+    fn demo_pack() -> Value {
+        json!({
+            "schema_version": "0.5.0",
+            "grammar_version": "1.0.0",
+            "required_load_cases": [
+                { "required_load_case_id": "rlc:one", "name": "Invented case one",
+                  "basis_ref": { "ref_type": "load_case", "ref_id": "load:L-1" } }
+            ],
+            "stress_categories": [ { "category_id": "cat:A", "name": "Invented category A" } ],
+            "load_case_mappings": [
+                { "mapping_id": "map:A", "category_ref": { "ref_type": "stress_category", "ref_id": "cat:A" },
+                  "required_load_case_refs": [ { "ref_type": "required_load_case", "ref_id": "rlc:one" } ] }
+            ],
+            "metadata": { "rule_pack_id": "test_demo_pack" },
+            "required_inputs": [
+                {
+                    "input_id": "actual",
+                    "name": "actual",
+                    "source_kind": "solver_result",
+                    "required_for": "rule_check",
+                    "provenance_required": true,
+                    "redistribution_status_required": true,
+                    "quantity_intent": {
+                        "dimension": "stress", "unit_ref": "demo_unit",
+                        "unit_required": true, "dimension_check_required": true
+                    }
+                },
+                {
+                    "input_id": "limit",
+                    "name": "limit",
+                    "source_kind": "user_supplied_rule_value",
+                    "required_for": "rule_check",
+                    "provenance_required": true,
+                    "redistribution_status_required": true,
+                    "quantity_intent": {
+                        "dimension": "stress", "unit_ref": "demo_unit",
+                        "unit_required": true, "dimension_check_required": true
+                    }
+                }
+            ],
+            "formula_declarations": [
+                {
+                    "formula_id": "ratio",
+                    "declaration_payload": {
+                        "expression_ast": {
+                            "node": "binary", "operator": "divide",
+                            "left": { "node": "variable_ref", "variable_id": "actual" },
+                            "right": { "node": "variable_ref", "variable_id": "limit" }
+                        }
+                    },
+                    "input_refs": [
+                        { "ref_id": "actual", "ref_type": "required_input" },
+                        { "ref_id": "limit", "ref_type": "required_input" }
+                    ]
+                }
+            ],
+            "value_slots": [
+                {
+                    "slot_id": "ratio_limit", "slot_kind": "ratio_limit",
+                    "quantity_intent": {
+                        "dimension": "dimensionless", "unit_ref": "ratio",
+                        "unit_required": true, "dimension_check_required": true
+                    }
+                }
+            ],
+            "check_definitions": [
+                {
+                    "check_id": "ratio_check",
+                    "category_ref": { "ref_type": "stress_category", "ref_id": "cat:A" },
+                    "required_input_refs": [
+                        { "ref_id": "actual", "ref_type": "required_input" },
+                        { "ref_id": "limit", "ref_type": "required_input" }
+                    ],
+                    "value_slot_refs": [ { "ref_id": "ratio_limit", "ref_type": "value_slot" } ],
+                    "formula_ref": { "ref_id": "ratio", "ref_type": "formula" },
+                    "result_statuses": [
+                        "RULE_INPUTS_INCOMPLETE", "USER_RULE_CHECKED", "USER_RULE_FAILED"
+                    ],
+                    "diagnostic_policy": {
+                        "missing_input": "RULE_INPUT_MISSING",
+                        "evaluator_error": "RULE_EVALUATOR_ERROR"
+                    }
+                }
+            ]
+        })
+    }
+
+    fn solver(input_id: &str, value: f64) -> SolverResultBinding {
+        SolverResultBinding {
+            input_id: input_id.to_string(),
+            basis_ref: basis(),
+            result_id: format!("result:stress:{input_id}"),
+            value,
+            unit: "demo_unit".to_string(),
+        }
+    }
+
+    fn supplied(ref_id: &str, value: f64, unit: &str, dimension: &str) -> SuppliedValueBinding {
+        SuppliedValueBinding {
+            ref_id: ref_id.to_string(),
+            value,
+            unit: unit.to_string(),
+            dimension: dimension.to_string(),
+        }
+    }
+
+    fn run(
+        pack: &Value,
+        solver_results: Vec<SolverResultBinding>,
+        supplied_values: Vec<SuppliedValueBinding>,
+    ) -> RuleCheckRunResult {
+        run_full(pack, solver_results, supplied_values, Vec::new())
+    }
+
+    fn run_full(
+        pack: &Value,
+        solver_results: Vec<SolverResultBinding>,
+        supplied_values: Vec<SuppliedValueBinding>,
+        library_values: Vec<LibraryValueBinding>,
+    ) -> RuleCheckRunResult {
+        run_rule_checks(&RuleCheckRunInput {
+            rule_pack_document: pack,
+            solver_results,
+            refused_solver_results: Vec::new(),
+            unavailable_bases: Vec::new(),
+            supplied_values,
+            library_values,
+            current_statuses: vec![AnalysisStatus::MechanicsSolved],
+        })
+    }
+
+    fn library(input_id: &str, value: f64, unit: &str) -> LibraryValueBinding {
+        LibraryValueBinding {
+            input_id: input_id.to_string(),
+            value,
+            unit: unit.to_string(),
+            library_kind: "material".to_string(),
+            library_id: "lib:demo".to_string(),
+            record_id: "mat:demo".to_string(),
+            slot_id: "allow:demo".to_string(),
+        }
+    }
+
+    #[test]
+    fn passing_check_yields_user_rule_checked() {
+        let pack = demo_pack();
+        let result = run(
+            &pack,
+            vec![solver("actual", 50.0)],
+            vec![
+                supplied("limit", 100.0, "demo_unit", "stress"),
+                supplied("ratio_limit", 1.0, "ratio", "dimensionless"),
+            ],
+        );
+        assert_eq!(result.aggregate_status, RuleCheckStatus::UserRuleChecked);
+        let check = &result.checks[0];
+        assert_eq!(check.status, RuleCheckStatus::UserRuleChecked);
+        assert_eq!(check.acceptability_relation, "less_than_or_equal");
+        let computed = check.computed_value.as_ref().expect("ratio computed");
+        assert_eq!(computed.value, 0.5);
+        assert_eq!(computed.dimension, "dimensionless");
+        assert_eq!(computed.unit_ref, "ratio");
+        assert!(check.evaluator_findings.is_empty());
+        assert!(check.completeness_findings.is_empty());
+    }
+
+    #[test]
+    fn failing_check_yields_user_rule_failed() {
+        let pack = demo_pack();
+        let result = run(
+            &pack,
+            vec![solver("actual", 150.0)],
+            vec![
+                supplied("limit", 100.0, "demo_unit", "stress"),
+                supplied("ratio_limit", 1.0, "ratio", "dimensionless"),
+            ],
+        );
+        assert_eq!(result.aggregate_status, RuleCheckStatus::UserRuleFailed);
+        let check = &result.checks[0];
+        assert_eq!(check.status, RuleCheckStatus::UserRuleFailed);
+        assert_eq!(check.computed_value.as_ref().expect("ratio").value, 1.5);
+    }
+
+    #[test]
+    fn refused_solver_input_reports_incomplete_with_reason_never_a_pass() {
+        let pack = demo_pack();
+        let supplied_values = vec![
+            supplied("limit", 100.0, "demo_unit", "stress"),
+            supplied("ratio_limit", 1.0, "ratio", "dimensionless"),
+        ];
+        // Control: the same binding passes when it is not refused.
+        let control = run(&pack, vec![solver("actual", 50.0)], supplied_values.clone());
+        assert_eq!(control.aggregate_status, RuleCheckStatus::UserRuleChecked);
+        // Even a caller-supplied value cannot rescue a refused input.
+        let result = run_rule_checks(&RuleCheckRunInput {
+            rule_pack_document: &pack,
+            solver_results: vec![solver("actual", 50.0)],
+            refused_solver_results: vec![RefusedSolverResult {
+                input_id: "actual".to_string(),
+                basis_ref: basis(),
+                reason: "RULE_QUANTITY_NOT_COVERED".to_string(),
+                message: None,
+            }],
+            unavailable_bases: Vec::new(),
+            supplied_values,
+            library_values: Vec::new(),
+            current_statuses: vec![AnalysisStatus::MechanicsSolved],
+        });
+        assert_eq!(result.aggregate_status, RuleCheckStatus::RuleInputsIncomplete);
+        let check = &result.checks[0];
+        assert_eq!(check.status, RuleCheckStatus::RuleInputsIncomplete);
+        assert!(check.computed_value.is_none());
+        assert!(check.completeness_findings.iter().any(|f| f.code
+            == "RULE_QUANTITY_NOT_COVERED"
+            && f.severity == "blocking"
+            && f.subject_id == "actual"));
+        let bound = check.bound_inputs.iter().find(|b| b.input_id == "actual").unwrap();
+        assert!(!bound.supplied);
+        assert_eq!(bound.note.as_deref(), Some("refused: RULE_QUANTITY_NOT_COVERED"));
+        let wire = serde_json::to_value(&result).unwrap();
+        assert!(wire.to_string().contains("RULE_QUANTITY_NOT_COVERED"));
+    }
+
+    #[test]
+    fn missing_solver_input_blocks_without_evaluating() {
+        let pack = demo_pack();
+        // No solver binding for `actual`.
+        let result = run(
+            &pack,
+            vec![],
+            vec![
+                supplied("limit", 100.0, "demo_unit", "stress"),
+                supplied("ratio_limit", 1.0, "ratio", "dimensionless"),
+            ],
+        );
+        assert_eq!(
+            result.aggregate_status,
+            RuleCheckStatus::RuleInputsIncomplete
+        );
+        let check = &result.checks[0];
+        assert_eq!(check.status, RuleCheckStatus::RuleInputsIncomplete);
+        // Formula must not have been evaluated.
+        assert!(check.computed_value.is_none());
+        assert_eq!(check.acceptability_relation, "none");
+        assert!(check
+            .diagnostic_codes
+            .iter()
+            .any(|c| c == "RULE_INPUT_MISSING"));
+        assert!(check
+            .bound_inputs
+            .iter()
+            .any(|b| b.input_id == "actual" && !b.supplied));
+    }
+
+    #[test]
+    fn missing_limit_slot_blocks_as_incomplete() {
+        let pack = demo_pack();
+        let result = run(
+            &pack,
+            vec![solver("actual", 50.0)],
+            vec![supplied("limit", 100.0, "demo_unit", "stress")],
+        );
+        let check = &result.checks[0];
+        assert_eq!(check.status, RuleCheckStatus::RuleInputsIncomplete);
+        // Formula evaluated (ratio computed) but no limit to compare against.
+        assert_eq!(check.computed_value.as_ref().expect("ratio").value, 0.5);
+        assert!(check.limit_value.is_none());
+    }
+
+    #[test]
+    fn unit_mismatch_between_ratio_and_limit_blocks() {
+        let pack = demo_pack();
+        // Limit slot declared with a non-ratio unit/dimension -> comparison
+        // against the dimensionless ratio is a blocking evaluator finding.
+        let result = run(
+            &pack,
+            vec![solver("actual", 50.0)],
+            vec![
+                supplied("limit", 100.0, "demo_unit", "stress"),
+                supplied("ratio_limit", 1.0, "demo_unit", "stress"),
+            ],
+        );
+        let check = &result.checks[0];
+        assert_eq!(check.status, RuleCheckStatus::RuleInputsIncomplete);
+        assert!(check
+            .diagnostic_codes
+            .iter()
+            .any(|c| c == "RULE_EVALUATOR_ERROR"));
+    }
+
+    #[test]
+    fn compatible_rule_check_units_normalize_to_declared_units() {
+        let mut pack = demo_pack();
+        pack["required_inputs"][0]["quantity_intent"]["unit_ref"] = json!("Pa");
+        pack["required_inputs"][1]["quantity_intent"]["unit_ref"] = json!("Pa");
+
+        let mut actual = solver("actual", 0.05);
+        actual.unit = "MPa".to_string();
+
+        let result = run(
+            &pack,
+            vec![actual],
+            vec![
+                supplied("limit", 100.0, "kPa", "stress"),
+                supplied("ratio_limit", 1.0, "ratio", "dimensionless"),
+            ],
+        );
+
+        let check = &result.checks[0];
+        assert_eq!(check.status, RuleCheckStatus::UserRuleChecked);
+        assert_eq!(check.computed_value.as_ref().expect("ratio").value, 0.5);
+        assert!(check.evaluator_findings.is_empty());
+        let actual_binding = check
+            .bound_inputs
+            .iter()
+            .find(|input| input.input_id == "actual")
+            .expect("actual binding");
+        assert_eq!(actual_binding.value, Some(50_000.0));
+        assert_eq!(actual_binding.unit.as_deref(), Some("Pa"));
+        let limit_binding = check
+            .bound_inputs
+            .iter()
+            .find(|input| input.input_id == "limit")
+            .expect("limit binding");
+        assert_eq!(limit_binding.value, Some(100_000.0));
+        assert_eq!(limit_binding.unit.as_deref(), Some("Pa"));
+    }
+
+    #[test]
+    fn incompatible_rule_check_units_block_before_evaluation() {
+        let mut pack = demo_pack();
+        pack["required_inputs"][0]["quantity_intent"]["unit_ref"] = json!("Pa");
+        pack["required_inputs"][1]["quantity_intent"]["unit_ref"] = json!("Pa");
+
+        let mut actual = solver("actual", 50.0);
+        actual.unit = "mm".to_string();
+
+        let result = run(
+            &pack,
+            vec![actual],
+            vec![
+                supplied("limit", 100.0, "kPa", "stress"),
+                supplied("ratio_limit", 1.0, "ratio", "dimensionless"),
+            ],
+        );
+
+        let check = &result.checks[0];
+        assert_eq!(check.status, RuleCheckStatus::RuleInputsIncomplete);
+        assert!(check.computed_value.is_none());
+        assert!(check
+            .evaluator_findings
+            .iter()
+            .any(|finding| finding.code == "UnitMismatch"
+                && finding.subject_id == "actual"
+                && finding.message.contains("declared unit 'Pa'")));
+        let actual_binding = check
+            .bound_inputs
+            .iter()
+            .find(|input| input.input_id == "actual")
+            .expect("actual binding");
+        assert!(!actual_binding.supplied);
+        assert_eq!(actual_binding.unit, None);
+    }
+
+    #[test]
+    fn status_outside_declared_result_statuses_is_downgraded() {
+        let mut pack = demo_pack();
+        // Declare only the incomplete status; a computed PASS must downgrade.
+        pack["check_definitions"][0]["result_statuses"] = json!(["RULE_INPUTS_INCOMPLETE"]);
+        let result = run(
+            &pack,
+            vec![solver("actual", 50.0)],
+            vec![
+                supplied("limit", 100.0, "demo_unit", "stress"),
+                supplied("ratio_limit", 1.0, "ratio", "dimensionless"),
+            ],
+        );
+        let check = &result.checks[0];
+        assert_eq!(check.status, RuleCheckStatus::RuleInputsIncomplete);
+        assert!(check
+            .evaluator_findings
+            .iter()
+            .any(|f| f.code == "STATUS_NOT_DECLARED"));
+    }
+
+    #[test]
+    fn aggregate_is_worst_of_across_checks() {
+        let mut pack = demo_pack();
+        // Second value slot with a stricter limit, and a second check that uses
+        // it so the same ratio (0.5) passes the first check and fails the
+        // second — a genuine pass+fail mix.
+        pack["value_slots"].as_array_mut().unwrap().push(json!({
+            "slot_id": "ratio_limit_strict", "slot_kind": "ratio_limit",
+            "quantity_intent": {
+                "dimension": "dimensionless", "unit_ref": "ratio",
+                "unit_required": true, "dimension_check_required": true
+            }
+        }));
+        let mut second = pack["check_definitions"][0].clone();
+        second["check_id"] = json!("ratio_check_strict");
+        second["value_slot_refs"] =
+            json!([{ "ref_id": "ratio_limit_strict", "ref_type": "value_slot" }]);
+        pack["check_definitions"]
+            .as_array_mut()
+            .unwrap()
+            .push(second);
+
+        let result = run(
+            &pack,
+            vec![solver("actual", 50.0)],
+            vec![
+                supplied("limit", 100.0, "demo_unit", "stress"),
+                supplied("ratio_limit", 1.0, "ratio", "dimensionless"),
+                supplied("ratio_limit_strict", 0.25, "ratio", "dimensionless"),
+            ],
+        );
+        assert_eq!(result.checks.len(), 2);
+        assert_eq!(result.checks[0].status, RuleCheckStatus::UserRuleChecked);
+        assert_eq!(result.checks[1].status, RuleCheckStatus::UserRuleFailed);
+        assert_eq!(result.aggregate_status, RuleCheckStatus::UserRuleFailed);
+    }
+
+    /// The demo pack extended with a strict check (fails at ratio 0.5) and a
+    /// check whose limit slot the caller never supplies (incomplete).
+    fn mixed_pack() -> Value {
+        let mut pack = demo_pack();
+        for slot in ["ratio_limit_strict", "ratio_limit_unsupplied"] {
+            pack["value_slots"].as_array_mut().unwrap().push(json!({
+                "slot_id": slot, "slot_kind": "ratio_limit",
+                "quantity_intent": {
+                    "dimension": "dimensionless", "unit_ref": "ratio",
+                    "unit_required": true, "dimension_check_required": true
+                }
+            }));
+        }
+        for (check_id, slot) in [("ratio_check_strict", "ratio_limit_strict"), ("ratio_check_unsupplied", "ratio_limit_unsupplied")] {
+            let mut check = pack["check_definitions"][0].clone();
+            check["check_id"] = json!(check_id);
+            check["value_slot_refs"] = json!([{ "ref_id": slot, "ref_type": "value_slot" }]);
+            pack["check_definitions"].as_array_mut().unwrap().push(check);
+        }
+        pack
+    }
+
+    #[test]
+    fn aggregate_is_incomplete_when_a_check_failed_and_another_is_incomplete() {
+        // FR-RULE-003: the pack never headlines a fail while a check is incomplete.
+        let result = run(
+            &mixed_pack(),
+            vec![solver("actual", 50.0)],
+            vec![
+                supplied("limit", 100.0, "demo_unit", "stress"),
+                supplied("ratio_limit", 1.0, "ratio", "dimensionless"),
+                supplied("ratio_limit_strict", 0.25, "ratio", "dimensionless"),
+            ],
+        );
+        let statuses: Vec<_> = result.checks.iter().map(|c| c.status).collect();
+        assert_eq!(
+            statuses,
+            vec![RuleCheckStatus::UserRuleChecked, RuleCheckStatus::UserRuleFailed, RuleCheckStatus::RuleInputsIncomplete]
+        );
+        assert_eq!(result.aggregate_status, RuleCheckStatus::RuleInputsIncomplete);
+        assert_eq!(result.status_counts(), RuleCheckStatusCounts { failed: 1, incomplete: 1, checked: 1 });
+    }
+
+    #[test]
+    fn aggregate_is_incomplete_when_only_incomplete_and_checked() {
+        let result = run(
+            &mixed_pack(),
+            vec![solver("actual", 50.0)],
+            vec![
+                supplied("limit", 100.0, "demo_unit", "stress"),
+                supplied("ratio_limit", 1.0, "ratio", "dimensionless"),
+                supplied("ratio_limit_strict", 1.0, "ratio", "dimensionless"),
+            ],
+        );
+        assert_eq!(result.aggregate_status, RuleCheckStatus::RuleInputsIncomplete);
+        assert_eq!(result.status_counts(), RuleCheckStatusCounts { failed: 0, incomplete: 1, checked: 2 });
+    }
+
+    #[test]
+    fn aggregate_is_checked_only_when_every_check_is_checked() {
+        let result = run(
+            &mixed_pack(),
+            vec![solver("actual", 50.0)],
+            vec![
+                supplied("limit", 100.0, "demo_unit", "stress"),
+                supplied("ratio_limit", 1.0, "ratio", "dimensionless"),
+                supplied("ratio_limit_strict", 1.0, "ratio", "dimensionless"),
+                supplied("ratio_limit_unsupplied", 1.0, "ratio", "dimensionless"),
+            ],
+        );
+        assert_eq!(result.aggregate_status, RuleCheckStatus::UserRuleChecked);
+        assert_eq!(result.status_counts(), RuleCheckStatusCounts { failed: 0, incomplete: 0, checked: 3 });
+    }
+
+    #[test]
+    fn aggregate_is_failed_when_a_check_failed_and_none_is_incomplete() {
+        let result = run(
+            &mixed_pack(),
+            vec![solver("actual", 50.0)],
+            vec![
+                supplied("limit", 100.0, "demo_unit", "stress"),
+                supplied("ratio_limit", 1.0, "ratio", "dimensionless"),
+                supplied("ratio_limit_strict", 0.25, "ratio", "dimensionless"),
+                supplied("ratio_limit_unsupplied", 1.0, "ratio", "dimensionless"),
+            ],
+        );
+        assert_eq!(result.aggregate_status, RuleCheckStatus::UserRuleFailed);
+        assert_eq!(result.status_counts(), RuleCheckStatusCounts { failed: 1, incomplete: 0, checked: 2 });
+    }
+
+    #[test]
+    fn private_library_value_is_unsupplied_not_silently_passed() {
+        let mut pack = demo_pack();
+        pack["required_inputs"][1]["source_kind"] = json!("private_library_value");
+        // Provide a value under the id anyway; it must be ignored for a
+        // library-sourced input in this slice.
+        let result = run(
+            &pack,
+            vec![solver("actual", 50.0)],
+            vec![
+                supplied("limit", 100.0, "demo_unit", "stress"),
+                supplied("ratio_limit", 1.0, "ratio", "dimensionless"),
+            ],
+        );
+        let check = &result.checks[0];
+        assert_eq!(check.status, RuleCheckStatus::RuleInputsIncomplete);
+        let limit_binding = check
+            .bound_inputs
+            .iter()
+            .find(|b| b.input_id == "limit")
+            .expect("limit bound input present");
+        assert!(!limit_binding.supplied);
+        assert!(limit_binding.note.is_some());
+    }
+
+    #[test]
+    fn private_library_value_resolves_from_library_binding_and_passes() {
+        let mut pack = demo_pack();
+        // `limit` is now sourced from a private library; its value is resolved
+        // by the caller (the desktop command reads the library record's slot)
+        // and passed as a LibraryValueBinding. ratio_limit stays user-supplied.
+        pack["required_inputs"][1]["source_kind"] = json!("private_library_value");
+        let result = run_full(
+            &pack,
+            vec![solver("actual", 50.0)],
+            vec![supplied("ratio_limit", 1.0, "ratio", "dimensionless")],
+            vec![library("limit", 100.0, "demo_unit")],
+        );
+        assert_eq!(result.aggregate_status, RuleCheckStatus::UserRuleChecked);
+        let check = &result.checks[0];
+        assert_eq!(check.status, RuleCheckStatus::UserRuleChecked);
+        assert_eq!(check.computed_value.as_ref().expect("ratio").value, 0.5);
+        let limit_binding = check
+            .bound_inputs
+            .iter()
+            .find(|b| b.input_id == "limit")
+            .expect("limit bound input present");
+        assert!(limit_binding.supplied);
+        let note = limit_binding.note.as_ref().expect("library note");
+        assert!(note.contains("private library"));
+        assert!(note.contains("lib:demo"));
+        assert!(note.contains("never embedded"));
+    }
+
+    #[test]
+    fn private_library_value_with_failing_library_value_reports_failure() {
+        let mut pack = demo_pack();
+        pack["required_inputs"][1]["source_kind"] = json!("private_library_value");
+        // actual/limit = 50/40 = 1.25 > ratio_limit 1.0 -> fail.
+        let result = run_full(
+            &pack,
+            vec![solver("actual", 50.0)],
+            vec![supplied("ratio_limit", 1.0, "ratio", "dimensionless")],
+            vec![library("limit", 40.0, "demo_unit")],
+        );
+        assert_eq!(result.aggregate_status, RuleCheckStatus::UserRuleFailed);
+    }
+
+    #[test]
+    fn emits_only_the_automatic_status_vocabulary() {
+        let pack = demo_pack();
+        let result = run(
+            &pack,
+            vec![solver("actual", 50.0)],
+            vec![
+                supplied("limit", 100.0, "demo_unit", "stress"),
+                supplied("ratio_limit", 1.0, "ratio", "dimensionless"),
+            ],
+        );
+        let serialized = serde_json::to_string(&result).expect("serializes");
+        for forbidden in [
+            "HUMAN_APPROVED_FOR_PROJECT",
+            "Certified",
+            "Sealed",
+            "Approved",
+            "code_compliant",
+        ] {
+            assert!(
+                !serialized.contains(forbidden),
+                "output must not contain {forbidden}"
+            );
+        }
+        assert!(serialized.contains("USER_RULE_CHECKED"));
+    }
+}

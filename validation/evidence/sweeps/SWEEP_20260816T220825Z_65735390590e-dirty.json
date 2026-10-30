@@ -1,0 +1,121 @@
+{
+  "artifact": "openpipestress.evidence_sweep_summary",
+  "schema_version": 2,
+  "decision_basis": "DEC-025",
+  "boundary_note": "Local-only development evidence. Not a release claim, professional approval, certification, sealing, authentication, or code-compliance determination.",
+  "git": {
+    "commit_hash": "65735390590e500dbbea6b63a4a79ba42944bf6d",
+    "branch": "codex/piping-python-runtime-floor",
+    "status_capture_failed": false,
+    "working_tree_dirty": true,
+    "dirty_paths": [
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260816-PYTHON-RUNTIME-FLOOR/",
+      "projects/chirality-piping/requirements-dev.txt",
+      "projects/chirality-piping/tests/test_evidence_sweep.py",
+      "projects/chirality-piping/tools/release/run_evidence_sweep.py"
+    ]
+  },
+  "runtime": {
+    "platform": "macOS-26.6-arm64-arm-64bit-Mach-O",
+    "python": "3.13.14",
+    "node": "v24.18.0",
+    "npm": "11.16.0",
+    "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+    "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)"
+  },
+  "started_utc": "2026-08-16T22:08:25+00:00",
+  "finished_utc": "2026-08-16T22:10:31+00:00",
+  "duration_seconds": 126.492,
+  "surfaces": [
+    {
+      "order": 1,
+      "surface_id": "cargo_crate_sweep",
+      "description": "Rust crate tests across all discovered crate manifests.",
+      "execution_capability": "sandboxed",
+      "commands": [
+        {
+          "argv": [
+            "/private/tmp/chirality-piping-preflight-venv/bin/python",
+            "tools/release/check_release_readiness.py",
+            "--profile",
+            "cargo",
+            "--execute"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 50.486
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "order": 2,
+      "surface_id": "python_pytest",
+      "description": "Repository Python contract, governance, and validation tests.",
+      "execution_capability": "sandboxed",
+      "commands": [
+        {
+          "argv": [
+            "/private/tmp/chirality-piping-preflight-venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "tests"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 15.833
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "order": 3,
+      "surface_id": "desktop_vitest",
+      "description": "Desktop unit/contract tests; wasm engine built first.",
+      "execution_capability": "sandboxed",
+      "commands": [
+        {
+          "argv": [
+            "npm",
+            "run",
+            "build:wasm:desktop"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 6.217
+        },
+        {
+          "argv": [
+            "npm",
+            "run",
+            "test:desktop"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 50.723
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "order": 4,
+      "surface_id": "desktop_production_build",
+      "description": "Desktop production build (tsc -b && vite build).",
+      "execution_capability": "sandboxed",
+      "commands": [
+        {
+          "argv": [
+            "npm",
+            "run",
+            "build:desktop"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 3.232
+        }
+      ],
+      "status": "pass"
+    }
+  ],
+  "overall_status": "pass",
+  "surface_selection": {
+    "only_capability": "sandboxed",
+    "complete_dec025_sweep": false
+  }
+}

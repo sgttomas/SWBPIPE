@@ -1,0 +1,646 @@
+{
+  "files": [
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+      "original_group2_applied_sha256": "33991044b75f09fc40726f271cbce0ba5c6f2678c11eb9e10f3e1a05494ef633",
+      "before_repair_sha256": "33991044b75f09fc40726f271cbce0ba5c6f2678c11eb9e10f3e1a05494ef633",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_DEPENDENCIES.md",
+      "original_group2_applied_sha256": "41fb1fd8582391fab88f4e411647ba6e2581e747cb1b7453f659f765e3790137",
+      "before_repair_sha256": "41fb1fd8582391fab88f4e411647ba6e2581e747cb1b7453f659f765e3790137",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_DEPENDENCIES.md"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/Dependencies.csv",
+      "original_group2_applied_sha256": "96ffe738a7255e2e1473350ae83990bbf158f25a7a2eb74db1909026e7acf675",
+      "before_repair_sha256": "96ffe738a7255e2e1473350ae83990bbf158f25a7a2eb74db1909026e7acf675",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/Dependencies.csv"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_DEPENDENCIES.md",
+      "original_group2_applied_sha256": "aa3259fe8008ebb5d296f493df4ca3db38f2eccd4191788fb59f9924c6b197bb",
+      "before_repair_sha256": "aa3259fe8008ebb5d296f493df4ca3db38f2eccd4191788fb59f9924c6b197bb",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_DEPENDENCIES.md"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/Dependencies.csv",
+      "original_group2_applied_sha256": "235fdd05a69b1ef2dddf4896861a80ba72f79b26cf1267347a8b37d0ab7545da",
+      "before_repair_sha256": "235fdd05a69b1ef2dddf4896861a80ba72f79b26cf1267347a8b37d0ab7545da",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/Dependencies.csv"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_DEPENDENCIES.md",
+      "original_group2_applied_sha256": "3f762c2476601232f60e7d8cfb65823adf6949f4910f3482ff25909a505eb5b0",
+      "before_repair_sha256": "3f762c2476601232f60e7d8cfb65823adf6949f4910f3482ff25909a505eb5b0",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_DEPENDENCIES.md"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/Dependencies.csv",
+      "original_group2_applied_sha256": "b703f15c4b5537b1c1d282c633e6d15f0b401f5afbd9d765fe01049413d6fc0a",
+      "before_repair_sha256": "b703f15c4b5537b1c1d282c633e6d15f0b401f5afbd9d765fe01049413d6fc0a",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/Dependencies.csv"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/_DEPENDENCIES.md",
+      "original_group2_applied_sha256": "ebff060030a7677540715c72dcf3a0cc3eeead13c64456d7828214c00facb07a",
+      "before_repair_sha256": "ebff060030a7677540715c72dcf3a0cc3eeead13c64456d7828214c00facb07a",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/_DEPENDENCIES.md"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/Dependencies.csv",
+      "original_group2_applied_sha256": "f86596be336d47ec64e010d9d0877034e86922f089e50a56317a86b4d96937fc",
+      "before_repair_sha256": "f86596be336d47ec64e010d9d0877034e86922f089e50a56317a86b4d96937fc",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/Dependencies.csv"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_DEPENDENCIES.md",
+      "original_group2_applied_sha256": "b70001828d35be35c361986d25e1eedb18fe7c65761f21de1cdf9da0befd1242",
+      "before_repair_sha256": "b70001828d35be35c361986d25e1eedb18fe7c65761f21de1cdf9da0befd1242",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_DEPENDENCIES.md"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/Dependencies.csv",
+      "original_group2_applied_sha256": "32ab9b56319a60ba1daade4eb6e9b674943b52acecdc1be2f5aa3a8a5c6087e9",
+      "before_repair_sha256": "32ab9b56319a60ba1daade4eb6e9b674943b52acecdc1be2f5aa3a8a5c6087e9",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/Dependencies.csv"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_DEPENDENCIES.md",
+      "original_group2_applied_sha256": "9c48a6692db909a1b89e61db60e88ef414bf63dec5909865df8b38d3057cca01",
+      "before_repair_sha256": "9c48a6692db909a1b89e61db60e88ef414bf63dec5909865df8b38d3057cca01",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_DEPENDENCIES.md"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+      "original_group2_applied_sha256": "fc0913c55445110c0622ba6cf8941dd71d5d0c6ae0910c3af57ee5ee99141112",
+      "before_repair_sha256": "fc0913c55445110c0622ba6cf8941dd71d5d0c6ae0910c3af57ee5ee99141112",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_DEPENDENCIES.md",
+      "original_group2_applied_sha256": "7a7c03dd009217bdec795333a7bed20f45ad7c95002e9f7a378e2ace8c86188b",
+      "before_repair_sha256": "7a7c03dd009217bdec795333a7bed20f45ad7c95002e9f7a378e2ace8c86188b",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_DEPENDENCIES.md"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/Dependencies.csv",
+      "original_group2_applied_sha256": "2c85a3bcec76f691c959e2fd4d97f3f23263f32fd44f7112f764a031cc42c2d4",
+      "before_repair_sha256": "2c85a3bcec76f691c959e2fd4d97f3f23263f32fd44f7112f764a031cc42c2d4",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/Dependencies.csv"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_DEPENDENCIES.md",
+      "original_group2_applied_sha256": "0d483a701df6dc616dd503838236d435e3353851ffd8199944122782d262ffbb",
+      "before_repair_sha256": "0d483a701df6dc616dd503838236d435e3353851ffd8199944122782d262ffbb",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_DEPENDENCIES.md"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/Dependencies.csv",
+      "original_group2_applied_sha256": "52db83caf551c046b66de8380d4fdac9cd08aae3f3b4a2dbaa6b13b4c610af32",
+      "before_repair_sha256": "52db83caf551c046b66de8380d4fdac9cd08aae3f3b4a2dbaa6b13b4c610af32",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/Dependencies.csv"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_DEPENDENCIES.md",
+      "original_group2_applied_sha256": "70668671184a110eb1a5d5f9f44eff34c95c38c703918f2b620ce3fdcce818ae",
+      "before_repair_sha256": "70668671184a110eb1a5d5f9f44eff34c95c38c703918f2b620ce3fdcce818ae",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_DEPENDENCIES.md"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/Dependencies.csv",
+      "original_group2_applied_sha256": "187cc2f09189c80c1ea18ea32e92e2d6fbaae98e4df13bd07daf7179100f94aa",
+      "before_repair_sha256": "187cc2f09189c80c1ea18ea32e92e2d6fbaae98e4df13bd07daf7179100f94aa",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/Dependencies.csv"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_DEPENDENCIES.md",
+      "original_group2_applied_sha256": "7094b81f5372449e25e867fbaa42f123fd422cac5744b67b919868df87b41769",
+      "before_repair_sha256": "7094b81f5372449e25e867fbaa42f123fd422cac5744b67b919868df87b41769",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_DEPENDENCIES.md"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/DAG-011/DependencyEdges.csv",
+      "original_group2_applied_sha256": "23165358e5e3e75c2fb90beb353714cbb43bc85858cabb9081b2de899cca2464",
+      "before_repair_sha256": "23165358e5e3e75c2fb90beb353714cbb43bc85858cabb9081b2de899cca2464",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/_DAG/DAG-011/DependencyEdges.csv"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/DAG-011/PROVENANCE.json",
+      "original_group2_applied_sha256": "NOT_AN_ACCEPTED_POSTIMAGE; initial staged metadata",
+      "before_repair_sha256": "4d2559b9da349bd62d670b046e4dcb4e1f7eefd9884084d14ab9ad54257f8d30",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/_DAG/DAG-011/PROVENANCE.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/DAG-011/APPROVAL_RECORD.md",
+      "original_group2_applied_sha256": "NOT_AN_ACCEPTED_POSTIMAGE; initial staged metadata",
+      "before_repair_sha256": "39fbf98e395e414f76145dc5d6348ea7e8b82baa748502d6954de0a9511a6917",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/_DAG/DAG-011/APPROVAL_RECORD.md"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/DAG-011/HANDOFF.md",
+      "original_group2_applied_sha256": "NOT_AN_ACCEPTED_POSTIMAGE; initial staged metadata",
+      "before_repair_sha256": "94e982f9a429a37793cee32233d4fd1729c1cefb088d6883535c797865d97525",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/_DAG/DAG-011/HANDOFF.md"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/DAG-011/MANIFEST.sha256",
+      "original_group2_applied_sha256": "NOT_AN_ACCEPTED_POSTIMAGE; initial staged metadata",
+      "before_repair_sha256": "f16dd15fc12c1e9156e6d699b40e260f3ce2d7f51f54a0e2fc6bee47fb26ddc9",
+      "before_repair_copy": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/_DAG/DAG-011/MANIFEST.sha256"
+    }
+  ],
+  "allocation_inputs": [
+    {
+      "path": "projects/chirality-piping/execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-01_Project governance baseline/Dependencies.csv",
+      "sha256": "8919f9ca51dc20263e72115d1d4b1fc17ec126db8f5f0d59f5ee3e6372486f02",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-02_Copyright and protected-data boundary policy/Dependencies.csv",
+      "sha256": "1fd5ab4302ea132e5f0faff83e353a298dcb928740c8dc093c30d77440067d1b",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-03_Contributor certification workflow/Dependencies.csv",
+      "sha256": "453e2e28063a9c3fa6b010397914173e50f53ab565cf2780da1de460170375a2",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-04_Professional responsibility and product-claims policy/Dependencies.csv",
+      "sha256": "66b1d3bc2193235f746285b7337456455cbcb32391b180c4119a39989f9f5358",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-01_Canonical domain model schema/Dependencies.csv",
+      "sha256": "5cc23e37a0dc090f0c73cf0a184249ba22c534680f20ca9bc1fde368a2cf12f7",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-02_Unit system and dimensional-analysis core contract/Dependencies.csv",
+      "sha256": "de81d9d66d4897bc2c8ff9895e92f5980bee2e4156ce96d3f29251da96585f41",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-03_Code-neutral analysis boundary model/Dependencies.csv",
+      "sha256": "1f6c5e2421315a9a6b5c52cef40d96e866d5f726c86051e7a00bad0d8cefe704",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-04_Plugin and extension domain contracts/Dependencies.csv",
+      "sha256": "2c20e4c1036b04e81d0bbca4fa15a08cb86764dac4ef19954c2330f117a595c3",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-05_Project persistence and round-trip serialization/Dependencies.csv",
+      "sha256": "d0229fac70080f271dc3f9f14b4d2b5d16d205967812c7df166762f4e5250de1",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-01_Material library schema with provenance/Dependencies.csv",
+      "sha256": "a529a9ff4b9590ec5aec4480e2b176b9280601f3cd25bd90a6c552a8b337bb2e",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-02_Pipe section and component library schema/Dependencies.csv",
+      "sha256": "0610b044e5cdae011bfab43395127ce4f6477978b0d28407a7dcde0a19d2e847",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-03_Bend and elbow component model fields/Dependencies.csv",
+      "sha256": "0ef953c30cc25a5eb8f44890394d6bbd042b08ed6cccaf578eb2e3950701fa31",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-04_Branch connection component model fields/Dependencies.csv",
+      "sha256": "3153754fca9ad8824adeb7b938766da3530847f9263c836234651bc315f845e1",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-05_Rigid component models for valves, flanges, reducers, and specialty items/Dependencies.csv",
+      "sha256": "15efc02e639474d725f5b34b4f26425d9f13d0e503730ee4cda4441e56378cf7",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-06_Expansion joint component model/Dependencies.csv",
+      "sha256": "966c97839e50bf8d27591ca35b2aeda7f3271c9df9af9f65ceb0969122522b41",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker/Dependencies.csv",
+      "sha256": "99787cd4a2399f1eed62d42778f213f35852476bf428af55ccfc7e699a329dd9",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-08_Pipe section property and mass-property calculator/Dependencies.csv",
+      "sha256": "78c9163c1f530a7940cfd1190c78644d8a5af288532963c85be56cd5551077fb",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/Dependencies.csv",
+      "sha256": "c9b779dd0a5a0e7af11fa905be1b146bbe7d4a76367dcb75a1f1cb7e12ae1b51",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element/Dependencies.csv",
+      "sha256": "3c8d2658ecab02326e502c484603342e62afe39a82d0c907b73918544f8ff21b",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-03_Linear support and restraint models/Dependencies.csv",
+      "sha256": "4d3a90aa8d21c9ff621ec4d6169714a153dfa0fa6764be9be3fa9ede0577d85c",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/Dependencies.csv",
+      "sha256": "5d84f9425ab765c404ee355ce1a3d70e9da87681e8d7b8e0e0616e2177d6e03c",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-05_Sparse solver performance harness/Dependencies.csv",
+      "sha256": "338d2a60fb1aff489098dc1c9e5f35ba4f2017ae9eae8df8b6155c0baa2cd7c9",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/Dependencies.csv",
+      "sha256": "b51e705aabfcb6f652273379ee76b036b928f30a15b77a4ff341f93b0f37a05f",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+      "sha256": "33991044b75f09fc40726f271cbce0ba5c6f2678c11eb9e10f3e1a05494ef633",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/Dependencies.csv",
+      "sha256": "b2f1dda5ff797ee37186b7bb9af4a64682a069760c2c4f9481af07893b7ffeba",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-02_Load-case algebra engine/Dependencies.csv",
+      "sha256": "de3567bf415a267ce7c8e9e9c8fdf9c3673c15949f9542b0b45bd3961ec185e7",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/Dependencies.csv",
+      "sha256": "36577cf71e5d25ab4746900b11c75dfc9872f2757c5f019ddefdb265788ba49f",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-04_Analysis status semantics/Dependencies.csv",
+      "sha256": "67ba49d7cdb136c1ff812c0696210aab91c75e943f1b0cce4c66a4b40f05379f",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-05_Concentrated and distributed user load application/Dependencies.csv",
+      "sha256": "b326fa5520ab83da81930b17eea043ac18b6feac5a3a01713557b20c40add9f6",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-01_Rule-pack schema/Dependencies.csv",
+      "sha256": "c2c4259d5468077969cbbc98561875ac40630fef24808cd2ba5dc0677633681d",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-02_Sandboxed unit-aware expression evaluator/Dependencies.csv",
+      "sha256": "59721265c1e740f7d689fb376de6839c9ba897e9e3dcef06ae27e32e6e88bb26",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-03_Required-input completeness checker/Dependencies.csv",
+      "sha256": "7ffca12674d35e875e9329bb3d9c39e8d3cf4e76b26b43afd4070d8b8483591a",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-04_Private rule-pack lifecycle and checksum handling/Dependencies.csv",
+      "sha256": "b7c9b41d279aa464e0708f4e7a14056c463b209d8799727fab2966a131c46e32",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-05_Invented non-code example rule pack/Dependencies.csv",
+      "sha256": "18c22c6565a348a9bb0cd3ccff7635b2f698440eefd1d81af01551fc1ab0e7f5",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/Dependencies.csv",
+      "sha256": "96ffe738a7255e2e1473350ae83990bbf158f25a7a2eb74db1909026e7acf675",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/Dependencies.csv",
+      "sha256": "0a86bb4f7f447ab84d496b7c4390e1c54744764a7a558aa38615504b3a6ff1b6",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/Dependencies.csv",
+      "sha256": "235fdd05a69b1ef2dddf4896861a80ba72f79b26cf1267347a8b37d0ab7545da",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/Dependencies.csv",
+      "sha256": "b703f15c4b5537b1c1d282c633e6d15f0b401f5afbd9d765fe01049413d6fc0a",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/Dependencies.csv",
+      "sha256": "3968848bca64fe50fe5a9901f0d20e95a3323126a52f5a477f36e0a5752d4596",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/Dependencies.csv",
+      "sha256": "34a7fd72702820213dee27eb1e79260c306fd28fa3e054bc587f4f83dfe483c9",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/Dependencies.csv",
+      "sha256": "f28b941100992d1687448e3ad694be4b741efbe839df0a64809b77c61905114e",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/Dependencies.csv",
+      "sha256": "f86596be336d47ec64e010d9d0877034e86922f089e50a56317a86b4d96937fc",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Dependencies.csv",
+      "sha256": "2e586338b9bfba2ea469f016e63d3e3d27d906893116f7a07ef560a04344dae0",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/Dependencies.csv",
+      "sha256": "32ab9b56319a60ba1daade4eb6e9b674943b52acecdc1be2f5aa3a8a5c6087e9",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+      "sha256": "fc0913c55445110c0622ba6cf8941dd71d5d0c6ae0910c3af57ee5ee99141112",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-01_Calculation report generator/Dependencies.csv",
+      "sha256": "14b7e0e281861a0cf1c6001071fb3e9b3378fe613d6b3ef869315b5aa59abc1d",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-02_Audit manifest and model hash/Dependencies.csv",
+      "sha256": "bf4726698c1ca04135f1c48275039772662bb2b7910421acd74bc90e2e1ee625",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-03_Warnings, assumptions, and provenance report section/Dependencies.csv",
+      "sha256": "cacf16ca97c7a5a2f28358e8c30363f03ff89f00067ee38eecf2d8ab232574d4",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/Dependencies.csv",
+      "sha256": "2c85a3bcec76f691c959e2fd4d97f3f23263f32fd44f7112f764a031cc42c2d4",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-05_Report protected-content linter/Dependencies.csv",
+      "sha256": "9b4a09a9f96866feda9f979db1678c8d922550c1654fcecc9c367914162f718c",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-06_State, comparison, and handoff report sections/Dependencies.csv",
+      "sha256": "cdf2bb425b48ea3937124ee2f9e8e74259d080954bb874d8ea084cb5ac493e9c",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/Dependencies.csv",
+      "sha256": "28e5cd04820392fb605ba07b669195685133783450a3c314ff38a7abf743166e",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-02_Stress recovery benchmark suite/Dependencies.csv",
+      "sha256": "42e8d738b9d71404a5cdec0ac4a2a4d3267071658be7714638d0d34db07f6686",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/Dependencies.csv",
+      "sha256": "5e726dd2aed9b89fc67bf3009f32e4b6da276c1a14ff7fabc3a00050ca88f514",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/Dependencies.csv",
+      "sha256": "6423a854450fc4b5fdc96f226e601e49ef4c5e42d788ba8ab81932ee01e5d863",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-05_Release quality gate checklist/Dependencies.csv",
+      "sha256": "29095b3c4c772ef06ee01b69c598d2b0a5023a3d5fa1942284b49f9fd27031ea",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-01_Public API and plugin boundary/Dependencies.csv",
+      "sha256": "07b197c386f13f8273bbf4bda82020ebe815b58802f855ba8a3353d50ec8995a",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-02_Import-export adapter framework/Dependencies.csv",
+      "sha256": "8490bbb35123933ffd25df0df6ba712e4b43780d7bc96a776268ad5c80f861c4",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-03_Local FEA handoff data contract/Dependencies.csv",
+      "sha256": "142f54075e519dfd93d9505f2cd0b229d6024669be253d9a639548a756b7824c",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-04_Build, packaging, and CI-CD pipeline/Dependencies.csv",
+      "sha256": "980337f64447c7800d3b186c5afe267bacca93d900d355a29401070e5a3ac280",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-05_Headless CLI and structured I-O analysis runner/Dependencies.csv",
+      "sha256": "9d2a4e09cf49bb1a37a04e9496e768271eb6adf0fd7152f8c1ce711dd6e2b3ae",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-01_User guide skeleton/Dependencies.csv",
+      "sha256": "59ea841af9504bc07cf47d921c7e229cdefdf7ebc40c9450e31989769414d43f",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-02_Developer guide for solver and rule packs/Dependencies.csv",
+      "sha256": "82fbda955cbe44f5b4007d5fa452917ae6ab6bcdb51979c084180c998b363d08",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-03_Theory notes- classical to modern centerline analysis/Dependencies.csv",
+      "sha256": "627efd11f723fa93b2f001d3ca68567a631922a7c97ad2f45c2fcbf8f20afd28",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-04_Invented educational example models/Dependencies.csv",
+      "sha256": "7b131378a5f68a9bcd4dfab7436f80f760dbb35abeb0731b18e77ba78fc80ae7",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-05_Contributor tutorial and onboarding/Dependencies.csv",
+      "sha256": "47badfd034cd5ba70a31bc02c785f318905c80d99e20a13b45202d56182ddd44",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-01_Local-first storage and private data paths/Dependencies.csv",
+      "sha256": "1d5306fa346fd5f2c690d97edd98ddedc01d0fac2b7f58bd3d480ecfa0b94063",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-02_Private data redaction and export controls/Dependencies.csv",
+      "sha256": "421fd47e0ffbc1bb35374e9c34fd953e920660e858c8734fa3427d735795902b",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-03_Telemetry off-by-default design/Dependencies.csv",
+      "sha256": "8b4c7b5a709c8b48c9dba36806bbb84f66b8ac2159b3b17cb221917f23cdad84",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-04_Secret and private-library handling/Dependencies.csv",
+      "sha256": "579b9eb4b4fb7ce80ca4bffde08aef05031203f87be278767af2d7ee4a2f173d",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-05_Security threat model/Dependencies.csv",
+      "sha256": "460326dafbf0aa34b191af29e3cc8143b1b4022534df8c23b0ae4201675cd376",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-01_Design knowledge schema and provenance model/Dependencies.csv",
+      "sha256": "60e38711932e412bf06b322be815992ed727a2111b605abbc210f90f83ec4992",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-02_Constraint entity and provenance model/Dependencies.csv",
+      "sha256": "5f7649b43d0d8d7d5b82656cde8cecf880c8317a5dfd4c6ae34d2e62ff655f95",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-03_Constraint validation engine/Dependencies.csv",
+      "sha256": "6deb8f9a5186f15dae4cb644fb71e46f66ebef271ad795802211801d1e357776",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract/Dependencies.csv",
+      "sha256": "c0e67df61e5e154999bfbaed2f928f8b7141a61ec43c705a7430c619278fbbe1",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-01_Immutable model state records/Dependencies.csv",
+      "sha256": "0436df9de021f2a373954e24d47e5bf753747748c54c400ecddd92b56d00c055",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records/Dependencies.csv",
+      "sha256": "b30266d95aa573c2172b5342f1db6ad5a58270777e9502b8b7702ec63752c260",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-03_Model-state comparison engine/Dependencies.csv",
+      "sha256": "faa0c0ab66f1acdaa66ffd314427615ec19475ff6bd77a660cebdc750c0f4445",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-04_Analysis-run comparison engine/Dependencies.csv",
+      "sha256": "a4d6b03de6fd3c394883cfb9c0a56df88ad14c27066ae6c2b4c4683154e29055",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-05_Comparison mapping, tolerance, and export contracts/Dependencies.csv",
+      "sha256": "e34677e98b2eb97127d165e2ae7105daa57a2717d5259ac304f146f980c93390",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-01_Canonical handoff package schema and manifest/Dependencies.csv",
+      "sha256": "026352091ab1f46df1a6d161cadb35800bbd3608ec0926c82a9e228794963f5e",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-02_Target mapping and unsupported-behavior contract/Dependencies.csv",
+      "sha256": "6d8ffbd026a669532934e17aadf8428811cd22138d274af53330729cc97c71af",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-03_Downstream modeling export workflow/Dependencies.csv",
+      "sha256": "ad5ba4a9be63e2c6a10faa3e874c3bf1c1e91ca983d684c8f0f7f692789739ec",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-04_External prover boundary metadata/Dependencies.csv",
+      "sha256": "10112e2d0a9d2465767413052cdcb6a73d3b046017346ee220d1e7103e70da9d",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-01_Structured model operation schema/Dependencies.csv",
+      "sha256": "4f85f370ed3352f6d9d701f7ee3ecc49ad712b4d10deedaf0031857f3f9885af",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/Dependencies.csv",
+      "sha256": "32c6177e2912012386cd19de2c0813ac5a22dbd96ba8d5ebb90441e6c6e389a7",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/Dependencies.csv",
+      "sha256": "52db83caf551c046b66de8380d4fdac9cd08aae3f3b4a2dbaa6b13b4c610af32",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-04_Agent rationale and professional-boundary controls/Dependencies.csv",
+      "sha256": "a08285042346d161ecfdf41cd1ea1c1975e6d3f83d023ca71ffde607e2e6d4eb",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/Dependencies.csv",
+      "sha256": "187cc2f09189c80c1ea18ea32e92e2d6fbaae98e4df13bd07daf7179100f94aa",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-01_CAEPIPE and export-format source basis/Dependencies.csv",
+      "sha256": "c4dd99e57e4d2f54cdde83ca9ccc43fd9cb44babada78151072a0adf18262d12",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-02_Export package, profile, and stable ID map contracts/Dependencies.csv",
+      "sha256": "091fad8edb75cc0e83dfa408c633ca3316bf3fe2b6dc11a466181815fbf8af9f",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-03_Native open JSON export package/Dependencies.csv",
+      "sha256": "f5c5a2e1ab27ff9486998f6e0761b96a2a2b9393262844d0963e32cd4d3e1e0a",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-04_CAEPIPE MBF export profile and deterministic writer/Dependencies.csv",
+      "sha256": "298bfc7cdf6efb989b4e8495e98b63adbe145562cb6d175428b2743a639cb323",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-05_CAEPIPE external run harness and CSV parser/Dependencies.csv",
+      "sha256": "d00d707f36bd09e4b4dd8ae823ded590dc4f42d1e255a5bab3357e0dcf9359c8",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-06_Stress-neutral CSV JSON package/Dependencies.csv",
+      "sha256": "da2fae15b498fc51ea4cbd058ab015b624c9bd3f4a4a0ea52774e6b7078b4cbc",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-07_Conservative PCF subset exporter/Dependencies.csv",
+      "sha256": "09b716e72c1aa65f456cfd912124aff2d4dff43c7aa9cb78078456b52f444698",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-08_GLB glTF review geometry export/Dependencies.csv",
+      "sha256": "cc81bd7a4c395abbc08bc2c83bf2ae826ad462b992e464ba8f632a37d6029e30",
+      "scope": "DependencyID cells only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-09_Export adapter SDK and additional targets/Dependencies.csv",
+      "sha256": "3dd33630f660a0c0b0a1f7d413811418c0933a6b041efe5a3e30a684b7a86a81",
+      "scope": "DependencyID cells only"
+    }
+  ]
+}

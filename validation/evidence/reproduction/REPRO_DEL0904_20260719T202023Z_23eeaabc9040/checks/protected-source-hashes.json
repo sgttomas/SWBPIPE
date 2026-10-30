@@ -1,0 +1,17 @@
+{
+  "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260718-DEL0904-EXEC-R3": {
+    "file_count": 7,
+    "aggregate_sha256": "ddbe3c0324efbb9aea1ce2cd387616f105f86fce47a38bc46e085fa3a2258732",
+    "changed_from_HEAD": false
+  },
+  "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260718-DEL0904-CLEAN-REPRO-R8": {
+    "file_count": 8,
+    "aggregate_sha256": "b7449d219903edf55b61e0708a9e472a494908e26a24acb781c2476ae6c7121c",
+    "changed_from_HEAD": false
+  },
+  "projects/chirality-piping/validation/evidence/reproduction/REPRO_DEL0904_20260719T033249Z_89a93d7ca21d": {
+    "file_count": 83,
+    "aggregate_sha256": "28eba703730e98dc49f849aabef3aef7325bbb926e54e9930cde6ffb502ae335",
+    "changed_from_HEAD": false
+  }
+}
