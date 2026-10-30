@@ -488,7 +488,7 @@ The desktop `.mbf` text is not yet a CAEPIPE model: it writes a placeholder
 record subset (`UNIT`, `NODE`, `PIPE`, `SUPPORT`, `LOADCASE` lines) that CAEPIPE
 does not import, so do not hand it to CAEPIPE. A real SI MBF writer for a pilot
 subset exists in `core/handoff/caepipe_mbf/si_writer.py` for the developer
-correlation pilot (DEL-17-05 `Design/caepipe-correlation-pilot.md`); the desktop
+correlation pilot (DEL-17-05 `Work/caepipe-correlation-pilot.md`); the desktop
 export does not use it yet.
 
 Export evidence must not bundle commercial solvers, bypass licenses, reverse

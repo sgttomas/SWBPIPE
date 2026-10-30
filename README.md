@@ -41,7 +41,7 @@ establish an engineering approval or product release.
 
 Enter through the [development loop](loop/LOOP_INIT.md) and locate the affected
 `execution/PKG-nn/DEL-nn-nn/` folder. `ScopeOfWork.md` states commitments and
-acceptance criteria, `Design/` holds technical detail, and `deliverable.yaml`
+acceptance criteria, `Work/` holds technical detail, and `deliverable.yaml`
 states dependency conditions and code/check pointers.
 
 From the Chirality repository root, query the relevant inputs and consumers:

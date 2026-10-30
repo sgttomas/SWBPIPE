@@ -8,7 +8,7 @@ approval check.
 The native walking-skeleton smoke (open a model document, solve, save,
 reopen, export, and save a report package in the real macOS app) is
 `native-smoke/run.mjs`; see
-`execution/PKG-07/DEL-07-11/Design/model-document-open-and-native-smoke.md`.
+`execution/PKG-07/DEL-07-11/Work/model-document-open-and-native-smoke.md`.
 
 > **Historical (note dated 2026-10-23).** The Start and Required Checks
 > sections below were written for the 2026-05 technical-preview browser UI.

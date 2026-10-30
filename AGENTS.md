@@ -33,7 +33,7 @@ not update those inputs or establish product adoption.
 
 ## Work and verification
 
-Use local `execution/PKG-nn/DEL-nn-nn/ScopeOfWork.md`, `Design/` and
+Use local `execution/PKG-nn/DEL-nn-nn/ScopeOfWork.md`, `Work/` and
 `deliverable.yaml`; reconcile changed implementation meaning and dependency
 conditions in the same change. Use `python3 -m tools.deliverables --project .`
 with `check`, `neighborhood`, `impact`, `touches` or `dag-diff`. Preserve unchanged

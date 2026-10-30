@@ -33,7 +33,7 @@ needs:
     keeps the non-retained entry, so retained-precision results reach no desktop solve until B8
     (owner-held).
   gating: true
-  evidence: execution/PKG-04/DEL-04-07/Design/memory-budget-decision.md
+  evidence: execution/PKG-04/DEL-04-07/Work/memory-budget-decision.md
 - from: DEL-05-01
   condition: >-
     W1 captures each authored full-span uniform member load bit for bit from the primitive load
@@ -60,7 +60,7 @@ needs:
     kappa_E and the shear-area leaf), which both retained routes form and the readers rederive, and the
     mill-tolerance and corrosion-allowance fields behind the D-5 bases (O4, `o4-source-extension.md`).
   gating: true
-  evidence: execution/PKG-05/DEL-05-03/Design/section-bases-and-timoshenko.md
+  evidence: execution/PKG-05/DEL-05-03/Work/section-bases-and-timoshenko.md
 - from: DEL-05-02
   condition: >-
     DEL-05-02 supplies the mechanics combination semantics and their withholding gates
@@ -69,7 +69,7 @@ needs:
     also supplies the base-route readers and standing (`reader_verdict`) that G7 applies to each
     successor's projected statement.
   gating: true
-  evidence: execution/PKG-05/DEL-05-02/Design/retained-combinations.md
+  evidence: execution/PKG-05/DEL-05-02/Work/retained-combinations.md
 - from: DEL-02-02
   condition: >-
     DEL-02-02 supplies the unit catalog and conversions (`open_pipe_stress_units`) that the reader's row

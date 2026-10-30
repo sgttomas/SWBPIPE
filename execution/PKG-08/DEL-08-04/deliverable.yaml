@@ -190,7 +190,7 @@ needs:
   condition: >-
     DEL-08-04's CSV and result JSON exports suggest file names by DEL-07-01
     Design `export-file-names.md`, the shared export file-name convention.
-  evidence: execution/PKG-07/DEL-07-01/Design/export-file-names.md
+  evidence: execution/PKG-07/DEL-07-01/Work/export-file-names.md
 code_paths:
 - schemas/results.schema.yaml
 - schemas/results.v0.3.schema.yaml

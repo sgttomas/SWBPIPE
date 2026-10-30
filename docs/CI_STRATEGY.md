@@ -18,7 +18,7 @@ tests and compilation: desktop memory controls, persistence, WebView2, native
 journeys, packaging and retained-memory qualification need their own Windows
 evidence. Parallels Windows on Arm and emulated x64 runs are labelled separately.
 The proposed native-service boundaries and remaining work are in DEL-10-04
-`Design/windows-port.md`.
+`Work/windows-port.md`.
 
 On a relevant PR, desktop coverage is a production build and one Chromium
 project (`chromium-desktop`) running core specs: the R2 smoke and save/reopen

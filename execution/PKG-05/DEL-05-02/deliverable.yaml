@@ -8,7 +8,7 @@ needs:
     including the T4-U4b section quantities, arc maxima and T4-U5b tie-rod rows, for
     its base readers and conformance corpus, and the evaluation
     of model-authored combinations through this deliverable's algebra crate.
-    The exact pressure contract remains DEL-04-07's Design/pressure-contract.md.
+    The exact pressure contract remains DEL-04-07's Work/pressure-contract.md.
     DEL-04-08 declares the retained producer and memory-qualification inputs.
   gating: true
   evidence: core/product_physics/src/lib.rs
@@ -33,15 +33,15 @@ needs:
 - from: DEL-05-03
   condition: >-
     DEL-05-02's base readers need DEL-05-03's D-5 section bases and D-6 Timoshenko
-    straight-member contract (Design/section-bases-and-timoshenko.md sections 1 to 3;
-    Design/section-and-shear-decisions.md). They interpret the section bases and
+    straight-member contract (Work/section-bases-and-timoshenko.md sections 1 to 3;
+    Work/section-and-shear-decisions.md). They interpret the section bases and
     shear model from captured section inputs. They also recompute the T4-U4b section
     quantities bit for bit, independently of the producer, by the normative sequences of
     DEL-05-03's `stress_recovery::section_stress_quantities`. The retained readers
     rederive both bases and the prepared Timoshenko shear-area leaf for O4's retained-source
     and W1-E publications (DEL-04-08 Design o4-source-extension.md).
   gating: true
-  evidence: execution/PKG-05/DEL-05-03/Design/section-bases-and-timoshenko.md
+  evidence: execution/PKG-05/DEL-05-03/Work/section-bases-and-timoshenko.md
 - from: DEL-05-01
   condition: >-
     DEL-05-02 needs DEL-05-01's primitive-load contract (`core/loads/primitive_loads`): the
