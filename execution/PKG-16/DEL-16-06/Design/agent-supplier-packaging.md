@@ -3,8 +3,8 @@
 Standing: RT-E1 source/metadata/tooling implementation, 2026-10-29. Offline check registration and independent packaging/permissions scrutiny are
 complete for this source-preparation slice; its TLS-environment finding is
 repaired. The bundled-loader/canonical-build increment below is implemented in
-source and independently reviewed; actual artifact verification and
-distribution qualification remain required. No
+source and independently reviewed, with the bounded ARM artifact witness below.
+Distribution qualification remains required. No
 supplier was executed for this work. This document supplements
 [embedded-agent-portability.md](embedded-agent-portability.md); it does not
 change ScopeOfWork, needs, acceptance criteria, platform support or release
@@ -163,11 +163,31 @@ passes/19 subtests, plus current-source reach and structural checks. The one new
 consumer condition adds no new strongly connected component to the existing
 graph. No ScopeOfWork/AC or release-matrix change is made.
 
-Actual bundle/copy/signature evidence is pending. The planned automated artifact check is an offline ARM debug bundle with the explicit
-original cache input, no signing identity, supplier/model/GUI execution or
-acquisition. It verifies all actual resource bytes and then the admitted Rust
-copy path. Any ad-hoc seal is local development evidence, not owner Developer ID,
-notarization, supported-platform acceptance or release.
+On source candidate `385bb927424bbef6d7805612c1fa544df56e5123`, the guarded
+ARM debug Tauri build completed offline with the explicit existing stock binary
+and original notice bytes. npm prerequisites were extracted from the existing
+offline cache with install scripts and user/global npm configuration disabled;
+no supplier acquisition occurred. The actual `Contents/Resources` passed the
+same manifest, binary/Mach-O, mode, index and licence/NOTICE checks.
+
+A fresh unexecuted app bundle then received a local ad-hoc hardened-runtime seal,
+without `--deep` signing, entitlements or a Developer ID identity. App
+`codesign --verify --deep --strict`, the supplier's own strict signature check,
+and all post-seal resource digests passed. The original OpenAI-signed supplier
+bytes were unchanged. The gated admitted Rust copy test ran against that actual
+Resources directory: one test passed, preserving the selected original bytes and
+runtime copy mode 0500. Its private test copy was removed on completion.
+Neither app GUI nor supplier/model ran. This is an ARM bundle/copy/signature
+mechanics witness, not owner Developer ID/notarization, Intel/older-OS native
+compatibility, full redistribution review, live native resource binding,
+isolation/cleanup, supported-platform acceptance or release.
+
+The linked tauri-utils 2.9.1 `BundleConfig::to_tokens` emits `resources: None`
+(the source is checksum-pinned through Cargo.lock). Thus private absolute paths
+in the build overlay are not retained as runtime resource configuration. Native
+resource lookup uses the installed app's resource root and compiled pin names;
+this witness does not rely on the cache/build directory existing on another Mac.
+Debug compiler symbols are not a release-artifact privacy qualification.
 
 DEL-10-04 now names DEL-16-06's verified supplier/notice inputs as a gating
 consumer condition for this build route. It is not marked fulfilled by a merge
