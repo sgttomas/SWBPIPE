@@ -21,7 +21,7 @@ expression evaluation, stress recovery, or professional/code-compliance claims.
 - The unit factor-sum rule shared by the combination gates
   (`factor_sum_within_unit_tolerance`): the exact sum of the binary64 factors,
   admitted iff |Σf − 1| ≤ 64ε, compared exactly (DEL-04-07
-  `Work/pressure-contract.md`, "Constant-effort combinations").
+  `Design/pressure-contract.md`, "Constant-effort combinations").
 - Deterministic findings for missing operands, non-finite factors, unsupported
   expression shapes, dimension mismatches, duplicate operands, missing result
   states, and professional-boundary violations.

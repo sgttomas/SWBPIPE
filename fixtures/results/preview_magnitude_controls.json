@@ -1,5 +1,5 @@
 {
-  "basis": "DEL-04-08 Work/b7-plan.md E17; published binary64 components, unchanged 64-epsilon guard",
+  "basis": "DEL-04-08 Design/b7-plan.md E17; published binary64 components, unchanged 64-epsilon guard",
   "controls": [
     {"id":"independent_single_rounding_one_ulp","component_bits":["4008000000000000","4010000000000000","0000000000000000"],"magnitude_bits":"4014000000000001","admitted":true},
     {"id":"fixed_components_plus_81_ulps","component_bits":["4008000000000000","4010000000000000","0000000000000000"],"magnitude_bits":"4014000000000051","admitted":false},

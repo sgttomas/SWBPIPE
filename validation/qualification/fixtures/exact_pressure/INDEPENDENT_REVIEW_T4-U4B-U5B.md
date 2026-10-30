@@ -28,7 +28,7 @@ Paths below are relative to `projects/chirality-piping`.
   SHA-256 `abdcfc659221a1a8b515766256cc5fbab9be878e5e080132dc94d135fc7eda6d`.
   This is unchanged from round 1.
 - Governing design:
-  `execution/PKG-04/DEL-04-07/Work/u4b-u5b-implementation.md`,
+  `execution/PKG-04/DEL-04-07/Design/u4b-u5b-implementation.md`,
   SHA-256 `e4795d7e955a7527de7e91eb8b81024d9dcc058615a374db3e8247f100ce3eb6`.
 - Frozen package inputs:
   - `validation/references/t4_i7/u2_reference_cases.json`:

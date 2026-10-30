@@ -19,7 +19,7 @@ Paths below are relative to `projects/chirality-piping`.
   SHA-256 `9a730af63af17affe669a505a973380181865c647e733a910ae4b875c09d6a89`.
 - Unadmitted `validation/qualification/fixtures/exact_pressure/MANIFEST.json`:
   SHA-256 `90529efd4453334fd285331fd2090d406a797403df0369aad1467405a22ac673`.
-- Governing convention: `execution/PKG-04/DEL-04-07/Work/arc-frames-and-signs.md`
+- Governing convention: `execution/PKG-04/DEL-04-07/Design/arc-frames-and-signs.md`
   sections 2–4, 7 and 10.
 - Frozen basis: `validation/references/t4_i7/u2_reference_cases.json` and
   `u2_document_sketches.json`; `validation/references/t4_i8/rebuilt_reference_cases.json`.
