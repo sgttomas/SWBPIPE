@@ -1,6 +1,10 @@
 id: DEL-10-04
 name: Build, packaging, and CI/CD pipeline
 needs:
+- from: DEL-16-06
+  condition: 'The canonical embedded-agent app build requires the selected stock supplier resource, committed pin manifest and exact licensing payloads; source preparation must verify its explicit input, and the actual app resources must verify before build success. This does not establish native isolation, supported-platform qualification, complete redistribution notices or release acceptance.'
+  gating: true
+  evidence: execution/PKG-16/DEL-16-06/Design/agent-supplier-packaging.md
 - from: DEL-00-01
   condition: 'DEL-10-04 must apply SCA-001 architecture-basis constraint AB-00-01 from DEL-00-01.
 
@@ -98,6 +102,7 @@ needs:
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 code_paths:
+- tools/agent_supplier_bundle.py
 - .gitattributes
 - package.json
 - apps/desktop/package.json
@@ -125,6 +130,7 @@ code_paths:
 - apps/desktop/playwright.webkit.config.ts
 - apps/desktop/vite.config.ts
 checks:
+- tools/agent_supplier_bundle_test.py
 - tests/test_ci_python.py
 - tests/test_ci_numerical.py
 - tests/test_ci_apt_sources.py

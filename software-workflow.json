@@ -90,10 +90,35 @@
         "python3",
         "tools/agent_supplier_resource_test.py"
       ]
+    },
+    "agent-supplier-bundle-offline": {
+      "cwd": ".",
+      "command": [
+        "python3",
+        "tools/agent_supplier_bundle_test.py"
+      ]
     }
   },
   "always_checks": [],
   "path_rules": [
+    {
+      "paths": [
+        "tools/agent_supplier_resource.py",
+        "tools/agent_supplier_resource_test.py",
+        "apps/desktop/src-tauri/resources/agent-supplier-pins.json",
+        "docs/THIRD_PARTY_NOTICES.md",
+        "docs/third-party/codex-0.160.0-LICENSE.txt",
+        "docs/third-party/codex-0.160.0-NOTICE.txt",
+        "tools/agent_supplier_bundle.py",
+        "tools/agent_supplier_bundle_test.py",
+        "tools/release/build_signed_app.py",
+        "tests/test_release_signed_build_script.py",
+        "software-workflow.json"
+      ],
+      "checks": [
+        "agent-supplier-bundle-offline"
+      ]
+    },
     {
       "paths": [
         "tools/agent_supplier_resource.py",

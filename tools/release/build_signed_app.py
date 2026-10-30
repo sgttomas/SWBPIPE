@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Build the Developer ID signed SWBPIPE `.app` (D-06b, owner, 2026-10-23).
 
-Runs `npm run tauri -- build --bundles app` in `apps/desktop` with
+Runs `npm run tauri -- build --bundles app --target aarch64-apple-darwin` in `apps/desktop` with
 `APPLE_SIGNING_IDENTITY="Developer ID Application"`, after confirming that the
 keychain holds exactly one valid Developer ID Application identity. That kind
 then names one identity, so codesign never meets an ambiguous match, whose
@@ -14,6 +14,8 @@ signing identity names, team identifiers and certificate SHA-1 hashes. Only
 counts and exit codes are reported about the keychain. No identity, credential
 or certificate is read into the repository or written to it.
 
+One explicit supplier source is mandatory for execution. A private stock-resource
+overlay survives through the build and post-build bundle verification.
 Local packaging mechanics only; not a release act.
 """
 
@@ -24,13 +26,18 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[2]
 DESKTOP = ROOT / "apps" / "desktop"
+sys.path.insert(0, str(ROOT / "tools"))
+import agent_supplier_bundle as supplier
+
+TARGET = "aarch64-apple-darwin"
 IDENTITY_KIND = "Developer ID Application"
-BUILD_COMMAND = ("npm", "run", "tauri", "--", "build", "--bundles", "app")
+BUILD_COMMAND = ("npm", "run", "tauri", "--", "build", "--bundles", "app", "--target", TARGET)
 # Tauri notarizes when these are set; v0.1 notarizes through a keychain profile instead.
 TAURI_NOTARIZATION_VARIABLES = (
     "APPLE_ID", "APPLE_PASSWORD", "APPLE_TEAM_ID",
@@ -83,15 +90,32 @@ def build_environment(base: dict[str, str]) -> dict[str, str]:
     return env
 
 
+def built_resources(env: dict[str, str]) -> Path:
+    """Tauri runs Cargo from src-tauri; relative CARGO_TARGET_DIR is native."""
+    cargo_root = DESKTOP / "src-tauri"
+    target_dir = Path(env.get("CARGO_TARGET_DIR", "target"))
+    if not target_dir.is_absolute():
+        target_dir = cargo_root / target_dir
+    return target_dir / TARGET / "release/bundle/macos/SWBPIPE.app/Contents/Resources"
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--execute", action="store_true", help="Run the signed build.")
+    source = parser.add_mutually_exclusive_group()
+    source.add_argument("--supplier-archive", type=Path)
+    source.add_argument("--supplier-binary", type=Path)
+    source.add_argument("--supplier-download", action="store_true")
     args = parser.parse_args(sys.argv[1:] if argv is None else argv)
 
-    print(f"build: (apps/desktop) APPLE_SIGNING_IDENTITY=\"{IDENTITY_KIND}\" {' '.join(BUILD_COMMAND)}")
+    print(f'build: (apps/desktop) APPLE_SIGNING_IDENTITY="{IDENTITY_KIND}" {" ".join(BUILD_COMMAND)} --config <private-resource-overlay>')
+    selected = args.supplier_archive is not None or args.supplier_binary is not None or args.supplier_download
     if not args.execute:
-        print("dry run: pass --execute to build and sign")
+        print("dry run: pass --execute and one explicit supplier archive/binary/download choice to build and sign")
         return 0
+    if not selected:
+        print("signed build requires one explicit supplier source; no fallback exists", file=sys.stderr)
+        return 2
     count = keychain_identity_count()
     if count != 1:
         found = "unreadable" if count is None else str(count)
@@ -102,18 +126,40 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 2
     try:
-        process = subprocess.Popen(
-            BUILD_COMMAND, cwd=DESKTOP, env=build_environment(dict(os.environ)),
-            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, errors="replace", bufsize=1,
-        )
-    except OSError as error:
-        print(f"build could not start: {type(error).__name__}", file=sys.stderr)
+        with tempfile.TemporaryDirectory(prefix="swbpipe-supplier-") as temporary:
+            overlay = supplier.prepare(
+                Path(temporary).resolve() / "overlay", TARGET, archive=args.supplier_archive,
+                binary=args.supplier_binary, download=args.supplier_download,
+            )
+            env = build_environment(dict(os.environ))
+            process = subprocess.Popen(
+                (*BUILD_COMMAND, "--config", str(overlay)), cwd=DESKTOP, env=env,
+                stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, errors="replace", bufsize=1,
+            )
+            try:
+                assert process.stdout is not None
+                private_paths = [temporary, str(Path(temporary).resolve()), str(overlay)] + [
+                    str(path) for path in (args.supplier_archive, args.supplier_binary) if path is not None
+                ]
+                for line in process.stdout:
+                    for private in sorted(private_paths, key=len, reverse=True):
+                        line = line.replace(private, "<private-supplier-path>")
+                    sys.stdout.write(redact(line))
+                    sys.stdout.flush()
+            finally:
+                # Even output-forwarding failure must not remove resources from
+                # beneath the original build while it is still running.
+                result = process.wait()
+            if result != 0:
+                return result
+            supplier.verify(built_resources(env), TARGET)
+    except Exception:
+        # OS, acquisition and verification exceptions may contain private paths
+        # or signed URLs; report only a static failure, never a false success.
+        print("signed build failed to prepare, build or verify pinned supplier resources", file=sys.stderr)
         return 2
-    assert process.stdout is not None
-    for line in process.stdout:
-        sys.stdout.write(redact(line))
-        sys.stdout.flush()
-    return process.wait()
+    print("signed build completed; bundled supplier and notice bytes verified")
+    return 0
 
 
 if __name__ == "__main__":

@@ -1,19 +1,17 @@
 //! Explicit-start macOS supplier custody. No initializer, worker reuse or threads.
 //! Parent crash termination and absence of escaped descendants are NOT guaranteed.
-use super::{http_relay::Endpoint, loopback::Loopback, sandbox};
+use super::{http_relay::Endpoint, loopback::Loopback, sandbox, supplier};
 use crate::memory_pool::{Lease, LeasePurpose};
-use sha2::{Digest, Sha256};
 use std::fs::{self, DirBuilder, File, OpenOptions};
 use std::io::{Read, Write};
 use std::os::unix::fs::{symlink, DirBuilderExt, OpenOptionsExt, PermissionsExt};
 use std::os::unix::process::CommandExt;
 use std::path::{Path, PathBuf};
 use std::process::{Child, ChildStdin, ChildStdout, Command, Stdio};
+use std::sync::Arc;
 use std::time::{Duration, Instant};
 
-pub(crate) const STARTUP_BYTES: u64 = 4 * 1024 * 1024;
-const PIN_BYTES: u64 = 241_555_024;
-const PIN_SHA: &str = "112fae7a5a1223e673c8a1791d32338f37df8b527ff1159bb8adac6c4dbf1b4b";
+pub(crate) const STARTUP_BYTES: u64 = supplier::STARTUP_BYTES;
 const CAPABILITY_ENV: &str = "SWBPIPE_AGENT_RELAY_CAPABILITY";
 const CONFIG_BODY: &str = r#"model_provider = "swbpipe_relay"
 model_context_window = 8192
@@ -72,13 +70,14 @@ pub(crate) enum Error {
     InvalidPath,
     StaleScope,
     Prepare,
-    PinMismatch,
+    Supplier(supplier::Error),
     Spawn,
 }
 // The provider credential never enters this module. The child receives only
 // the per-start loopback capability held by the private relay scope.
 pub(crate) struct LaunchConfig {
-    pub binary: PathBuf,
+    /// Trusted native app resource-directory resolution, never webview input.
+    pub resource_dir: PathBuf,
     pub state_dir: PathBuf,
     pub model: String,
     pub relay: Endpoint,
@@ -90,7 +89,7 @@ struct Runtime {
     scope: String,
     // Retain both loopback endpoints through original supplier-group cleanup.
     relay: Endpoint,
-    _lease: Lease,
+    _lease: Arc<Lease>,
 }
 pub(crate) struct Prepared {
     runtime: Option<Runtime>,
@@ -132,40 +131,6 @@ fn readonly_file(path: &Path, data: &[u8]) -> Result<(), Error> {
     file.write_all(data).map_err(prepare_error)?;
     file.sync_all().map_err(prepare_error)?;
     file.set_permissions(fs::Permissions::from_mode(0o400))
-        .map_err(prepare_error)
-}
-fn copy_pin(source: &Path, destination: &Path) -> Result<(), Error> {
-    let mut input = File::open(source).map_err(prepare_error)?;
-    if !input.metadata().map_err(prepare_error)?.is_file() {
-        return Err(Error::PinMismatch);
-    }
-    let mut output = OpenOptions::new()
-        .write(true)
-        .create_new(true)
-        .mode(0o600)
-        .open(destination)
-        .map_err(prepare_error)?;
-    let mut hash = Sha256::new();
-    let mut count = 0u64;
-    let mut buffer = [0u8; 64 * 1024];
-    loop {
-        let n = input.read(&mut buffer).map_err(prepare_error)?;
-        if n == 0 {
-            break;
-        }
-        count = count.checked_add(n as u64).ok_or(Error::PinMismatch)?;
-        if count > PIN_BYTES {
-            return Err(Error::PinMismatch);
-        }
-        hash.update(&buffer[..n]);
-        output.write_all(&buffer[..n]).map_err(prepare_error)?;
-    }
-    if count != PIN_BYTES || format!("{:x}", hash.finalize()) != PIN_SHA {
-        return Err(Error::PinMismatch);
-    }
-    output.sync_all().map_err(prepare_error)?;
-    output
-        .set_permissions(fs::Permissions::from_mode(0o500))
         .map_err(prepare_error)
 }
 fn claim_marker(state: &Path, scope: &str) -> Result<PathBuf, Error> {
@@ -223,6 +188,9 @@ pub(crate) fn prepare(config: LaunchConfig, lease: Lease) -> Result<Prepared, Er
         return Err(Error::InvalidConfiguration);
     }
     let supplier_config = supplier_config(&config.model, config.relay.scope())?;
+    let lease = Arc::new(lease);
+    let source = supplier::BundledSupplier::open(&config.resource_dir, lease.clone())
+        .map_err(Error::Supplier)?;
     let scope = random_scope()?;
     let marker = claim_marker(&config.state_dir, &scope)?;
     // Fixed OS temp avoids inherited TMPDIR and the real home entirely.
@@ -251,7 +219,9 @@ pub(crate) fn prepare(config: LaunchConfig, lease: Lease) -> Result<Prepared, Er
         ] {
             private_dir(&path)?;
         }
-        copy_pin(&config.binary, &root.join("codex"))?;
+        source
+            .copy_to(&root.join("codex"))
+            .map_err(Error::Supplier)?;
         readonly_file(&root.join("config.toml"), supplier_config.as_bytes())?;
         symlink(
             root.join("config.toml"),
@@ -558,7 +528,7 @@ mod tests {
         let lease = registry.acquire_interactive_ingress(STARTUP_BYTES).unwrap();
         let result = prepare(
             LaunchConfig {
-                binary: state.join("never-opened"),
+                resource_dir: state.join("never-opened"),
                 state_dir: state.clone(),
                 model: "bad\nmodel".into(),
                 relay: relay.endpoint().unwrap(),
@@ -580,7 +550,7 @@ mod tests {
         let lease = registry.acquire_interactive_ingress(STARTUP_BYTES).unwrap();
         let result = prepare(
             LaunchConfig {
-                binary: state.join("never-opened"),
+                resource_dir: state.join("never-opened"),
                 state_dir: state.clone(),
                 model: "invented-model".into(),
                 relay: endpoint,
@@ -600,15 +570,27 @@ mod tests {
         fs::remove_dir_all(root).unwrap();
     }
     #[test]
-    fn mismatch_is_refused_before_execution() {
-        let root = fixture();
-        let source = root.join("invented-source");
-        fs::write(&source, b"invented bytes, never executed").unwrap();
-        assert_eq!(
-            copy_pin(&source, &root.join("copy")),
-            Err(Error::PinMismatch)
+    fn missing_bundled_supplier_is_refused_before_marker_creation() {
+        let state = fixture();
+        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let mut relay = ready_relay(&registry);
+        let lease = registry.acquire_interactive_ingress(STARTUP_BYTES).unwrap();
+        let result = prepare(
+            LaunchConfig {
+                resource_dir: state.join("missing-resources"),
+                state_dir: state.clone(),
+                model: "invented-model".into(),
+                relay: relay.endpoint().unwrap(),
+            },
+            lease,
         );
-        fs::remove_dir_all(root).unwrap();
+        assert!(matches!(
+            result,
+            Err(Error::Supplier(supplier::Error::UnavailableResource))
+        ));
+        assert_eq!(fs::read_dir(&state).unwrap().count(), 0);
+        stop_relay(&mut relay);
+        fs::remove_dir_all(state).unwrap();
     }
     #[test]
     fn census_requires_reserved_zombie_and_no_live_members() {
@@ -622,14 +604,15 @@ mod tests {
     #[test]
     #[ignore = "manager-owned pinned supplier/profile probe"]
     fn pinned_supplier_initializes_under_the_profile() {
-        let binary = std::env::var_os("SWBPIPE_CODEX_BINARY").expect("selected binary path");
+        let resources =
+            std::env::var_os("SWBPIPE_CODEX_RESOURCES").expect("selected app resource directory");
         let state = fixture();
         let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
         let lease = registry.acquire_interactive_ingress(STARTUP_BYTES).unwrap();
         let mut relay = ready_relay(&registry);
         let prepared = prepare(
             LaunchConfig {
-                binary: binary.into(),
+                resource_dir: resources.into(),
                 state_dir: state.clone(),
                 model: "invented-native-probe-model".into(),
                 relay: relay.endpoint().unwrap(),
@@ -665,7 +648,7 @@ mod tests {
             .expect("admitted frame");
         assert!(
             frame.is_some(),
-            "isolated no-credential startup diagnostic: {diagnostic}"
+            "isolated no-credential supplier did not initialize"
         );
         let frame = frame.unwrap();
         assert_eq!(frame.value["id"], 1);

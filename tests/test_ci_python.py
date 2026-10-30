@@ -156,3 +156,10 @@ def test_supplier_acquisition_inputs_select_offline_boundaries_and_notice_hashes
         assert ci.AGENT_SUPPLIER_TEST in selected(path), path
     assert ci.AGENT_SUPPLIER_TEST in ci.select(PROJECT, {'event': 'workflow_dispatch'})
     assert ci.AGENT_SUPPLIER_TEST not in selected('core/security/redaction/controls.py')
+
+
+def test_supplier_bundle_inputs_keep_preparation_and_canonical_build_checks():
+    for path in ci.AGENT_SUPPLIER_BUNDLE_INPUTS:
+        assert {ci.AGENT_SUPPLIER_BUNDLE_TEST, 'tests/test_release_signed_build_script.py'} <= set(selected(path)), path
+    assert ci.AGENT_SUPPLIER_BUNDLE_TEST in ci.select(PROJECT, {'event': 'workflow_dispatch'})
+    assert ci.AGENT_SUPPLIER_BUNDLE_TEST not in selected('core/security/redaction/controls.py')

@@ -114,6 +114,15 @@ acquisition tool in `agent-supplier-packaging.md` now pin both architectures;
 Intel's static Mach-O floor is 10.12. These load-command floors do not change
 the app's supported range. Actual bundle/signature/runtime resource resolution,
 older-OS/Intel execution and isolation/cleanup evidence remain unestablished.
+The explicit bundled-resource loader now selects the process architecture from
+that compiled manifest; it accepts only the native app's resource directory,
+opens its one fixed resource with link/nonregular/writable-input refusal, and
+hashes the actual stream copied into a fresh private runtime file before making
+it executable. It retains the admitted startup backing throughout lookup/copy
+and through subsequent original process cleanup. No environment-selected
+binary, resource manifest, home/cache search or cross-architecture fallback is
+provided. Selection/copy establishes byte correspondence, not isolation or an
+expanded supported-platform claim.
 
 Private home/cwd, profile and exact exec path are derived at runtime from
 app-owned locations. Test invented homes/usernames, aliases and unrelated data

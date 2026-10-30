@@ -421,7 +421,9 @@ prevented. The native process owner must still stop/clean up its supplier, and
 actual disablement/OS isolation remains a separate activation proof obligation.
 
 The macOS-only `macos.rs`/`sandbox.rs` launcher is not connected to product
-startup. It verifies/copies the selected arm64 pin and derives private home/cwd
+startup. `supplier.rs` selects the process architecture's stock pin from the
+committed supplier manifest and copies its exact bundled bytes, then the
+launcher derives private home/cwd
 and exact exec paths at runtime. It accepts a validated explicit model identifier
 and a ready endpoint retaining the Rust-owned loopback scope; the sandbox's only network grant
 uses that scope's runtime TCP port. The child's environment contains a fresh relay

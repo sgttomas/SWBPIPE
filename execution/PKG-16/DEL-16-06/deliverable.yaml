@@ -136,6 +136,7 @@ needs:
   gating: true
   evidence: execution/PKG-16/DEL-16-06/ScopeOfWork.md
 code_paths:
+- tools/agent_supplier_bundle.py
 - tools/agent_supplier_resource.py
 - apps/desktop/src-tauri/resources/agent-supplier-pins.json
 - docs/THIRD_PARTY_NOTICES.md
@@ -152,6 +153,8 @@ code_paths:
 - apps/desktop/src/services/operationBatchService.ts
 - apps/desktop/src-tauri/src/lib.rs
 checks:
+- tools/agent_supplier_bundle_test.py
+- apps/desktop/src-tauri/src/embedded_agent/supplier.rs
 - tools/agent_supplier_resource_test.py
 - tools/agent_host_witness_test.py
 - tools/agent_catalog_resource.py

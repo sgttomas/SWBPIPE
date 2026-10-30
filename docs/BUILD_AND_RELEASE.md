@@ -168,10 +168,15 @@ The packaging checklist for a release candidate:
   with:
 
   ```bash
-  python3 tools/release/build_signed_app.py --execute
+  python3 tools/release/build_signed_app.py --execute --supplier-archive <verified-stock-archive>
   ```
 
-  It runs `npm run tauri -- build --bundles app` in `apps/desktop` with
+  It requires one explicit `--supplier-archive`, `--supplier-binary` or
+  `--supplier-download` source. The latter is build-time acquisition only; no
+  runtime or first-use download is selected. A private generated resource
+  overlay carries the original pinned supplier, manifest and licence/NOTICE
+  payloads. The wrapper runs `npm run tauri -- build --bundles app --target
+  aarch64-apple-darwin --config <private-resource-overlay>` in `apps/desktop` with
   `APPLE_SIGNING_IDENTITY="Developer ID Application"`, which names the
   keychain's certificate by its kind. It first refuses unless the keychain
   holds exactly one valid Developer ID Application identity, so codesign never
@@ -180,6 +185,12 @@ The packaging checklist for a release candidate:
   masks identity names, team identifiers and certificate hashes in the output
   it forwards. No identity, team identifier or certificate enters the
   repository. `tauri.conf.json` sets `bundle.macOS.hardenedRuntime: true`. The
+  wrapper retains its private preparation until the original build completes,
+  then verifies actual `Contents/Resources` binary and licensing bytes before
+  returning success. Ordinary `bundle.resources` preserve the supplier's
+  original signature/stock digest; no `externalBin` re-signing or new entitlement
+  is selected. See DEL-16-06 Design `agent-supplier-packaging.md` for this input
+  contract and remaining compatibility/isolation/distribution duties. The
   app needs no entitlements: WebKit runs its web content, including the
   WebAssembly engine, in its own processes. The native smoke's results were
   unchanged against a Developer ID signed, hardened-runtime binary (#1536). Notarize the built bundle

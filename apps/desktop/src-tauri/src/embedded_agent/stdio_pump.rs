@@ -672,9 +672,14 @@ mod tests {
         .unwrap();
         let mut harness = Harness::new(pump, None);
         harness.wait(|s| s.reader_io == Some(IoEnd::Eof));
+        // EOF is published before the worker's final bookkeeping lock. Finish
+        // both finite workers before this custody assertion; try_receive may
+        // legitimately return Busy while either worker still holds that lock.
+        harness.finish();
+        assert_eq!(harness.status().reader_completion, Completion::Joined);
+        assert_eq!(harness.status().writer_completion, Completion::Joined);
         let frame = harness.pump.try_receive().unwrap().unwrap();
         assert_eq!(frame.value["id"], 1);
-        harness.finish();
         let bytes = frame.lease.bytes();
         assert_eq!(registry.pool().reserved_total(), STARTUP_BYTES + bytes);
         drop(harness);
