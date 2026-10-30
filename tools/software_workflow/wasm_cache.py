@@ -48,10 +48,18 @@ def input_paths(root):
             paths.add(name)
     # Config can name an untracked compiler, linker or another config. Rather
     # than infer its meaning, use the ordinary build on configured runners.
-    for parent in (root, *root.parents):
-        for name in ('config', 'config.toml'):
-            if (parent / '.cargo' / name).exists():
-                raise ValueError('Cargo configuration disables engine output reuse')
+    # Cargo reads configuration from its working directory and every parent:
+    # the build runs Cargo from apps/desktop (the npm workspace) and from each
+    # engine crate, so every directory on those chains counts, and so does
+    # any tracked configuration anywhere in the tree.
+    if any('.cargo/config' in '/' + name for name in tracked if name):
+        raise ValueError('Tracked Cargo configuration disables engine output reuse')
+    starts = {root / 'apps/desktop', root / 'apps/desktop/scripts', *(root / crate for crate in crates)}
+    for start in starts:
+        for parent in (start, *start.parents):
+            for name in ('config', 'config.toml'):
+                if (parent / '.cargo' / name).exists():
+                    raise ValueError('Cargo configuration disables engine output reuse')
     for name in ('config', 'config.toml'):
         if (Path(os.environ.get('CARGO_HOME', Path.home() / '.cargo')) / name).exists():
             raise ValueError('Cargo home configuration disables engine output reuse')

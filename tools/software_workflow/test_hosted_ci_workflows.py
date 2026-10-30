@@ -253,5 +253,8 @@ def test_exact_wasm_cache_wiring_and_main_build_only_warmer():
     assert all("inputs.build-only != 'true'" in s['if'] for s in browser)
     warmer = workflow('shared-build-cache.yml')['jobs']['piping-desktop-wasm']
     assert "github.ref == 'refs/heads/main'" in warmer['if']
-    assert warmer['runs-on'] == 'ubuntu-latest'
+    # The key includes the runner image: the warmer must share every consumer's.
+    consumers = {job['runs-on'] for job in workflow('piping-desktop-e2e.yml')['jobs'].values()
+                 if any(step.get('uses') == './.github/actions/setup-piping-e2e' for step in job.get('steps', []))}
+    assert consumers and consumers == {warmer['runs-on']}
     assert warmer['steps'][-1] == {'uses': './.github/actions/setup-piping-e2e', 'with': {'build-only': 'true'}}

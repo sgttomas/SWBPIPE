@@ -53,6 +53,24 @@ def test_input_enumeration_reuses_selection_and_tracks_whole_crates(tmp_path):
             wasm_cache.input_paths(tmp_path)
 
 
+def test_cargo_configuration_on_any_working_directory_chain_disables_reuse(tmp_path):
+    # Review r1: the npm workspace build runs Cargo from apps/desktop, whose
+    # ancestors (not only the repository root's) carry Cargo configuration.
+    for config in ['apps/desktop/.cargo/config.toml', 'apps/.cargo/config', 'crate/.cargo/config.toml',
+                   'crate/src/.cargo/config.toml', '.cargo/config.toml']:
+        files = fixture_tree(tmp_path)
+        tracked = files + ([config] if config.startswith('crate/src/') else [])
+        target = tmp_path / config
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text('[build]\nrustflags = ["-C", "opt-level=0"]\n')
+        with patch.object(wasm_cache, 'wasm_engine_inputs', return_value=({'crate'}, {'schemas/compile.json'})), \
+             patch.object(wasm_cache, 'declared_compiled_reads', return_value={'schemas/compile.json'}), \
+             patch.object(wasm_cache.subprocess, 'check_output', return_value=('\0'.join(tracked) + '\0').encode()):
+            with pytest.raises(ValueError, match='Cargo configuration'):
+                wasm_cache.input_paths(tmp_path)
+        target.unlink()
+
+
 def test_every_missing_or_modified_output_falls_back(tmp_path):
     for name in wasm_cache.expected_outputs():
         path = tmp_path / name

@@ -94,7 +94,9 @@ jobs:
   piping-desktop-wasm:
     name: Warm Piping desktop WASM outputs (no tests)
     if: github.repository == 'sgttomas/SWBPIPE' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+    # The desktop jobs that read this cache run on ubuntu-24.04, and the key
+    # includes the runner image, so the warmer must run on the same image.
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
