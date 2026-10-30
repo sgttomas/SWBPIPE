@@ -1,6 +1,6 @@
 # SWBPIPE documentation
 
-[SWBPIPE thesis](thesis/README.md) develops the reasons for this engineering
+[Chirality thesis](https://github.com/sgttomas/chirality/blob/main/docs/thesis/README.md) develops the reasons for this engineering
 design environment and its place in the Chirality approach. It is explanatory
 research; the PRD and adopted product documents retain their authority.
 

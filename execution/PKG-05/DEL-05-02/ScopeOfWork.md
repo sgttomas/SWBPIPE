@@ -9,7 +9,7 @@ package_objective_refs: [OBJ-003, OBJ-005]
 
 # Scope of Work — DEL-05-02
 
-Reconciliation evidence: the retired D-41 current-declaration snapshots remain retrievable at source `00115c71931bcae79909602d653740d3bb72dfa1`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`. This deliverable's dependency conditions and code and check pointers are in `deliverable.yaml`, and its current technical rulings are in `Design/`. Open obligations remain in this Scope of Work and the owning decisions. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+Reconciliation evidence: the retired D-41 current-declaration snapshots remain retrievable at source `00115c71931bcae79909602d653740d3bb72dfa1`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`. This deliverable's dependency conditions and code and check pointers are in `deliverable.yaml`, and its current technical rulings are in `Work/`. Open obligations remain in this Scope of Work and the owning decisions. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## Purpose and Objective Traceability
 
@@ -74,8 +74,8 @@ This Scope of Work defines `DEL-05-02` in service of project scope [SOW-014] and
 > | Expression tests | Unit tests cover compatible combinations, subtraction, range envelopes, dimension mismatch, missing/duplicate operands, non-finite factors, result boundary metadata, status propagation, and human-approval rejection; S11-K's K6 tests cover exact cancelling combinations. | Implemented in `core/loads/load_case_algebra/src/lib.rs` and `src/s11k_tests.rs` |
 > | Rule-pack handoff | Boundary allows explicit mechanics/result operands while excluding rule-pack expression evaluation, code-specific defaults, protected standard formulas, and professional reliance claims. | Implemented boundary. DEL-06-02's expression evaluator exists (`core/rules/expression_evaluator`); no interface yet supplies rule-pack combinations to the algebra (DEL-05-02:1) |
 > | Diagnostics | Finding vocabulary covers missing operands, empty expressions, non-finite factors, dimension mismatches, duplicate operands, unsupported expression shapes, missing result states, and status-boundary violations. | Implemented finding vocabulary and deterministic blocking behavior |
-> | Product use | The product preview route and the exact pressure route evaluate model-authored `combinations` (bases `mechanics`, `result_state_subtraction` and `range_envelope`) through this crate; on the exact route the rows are derived from the case results (W-16 slice b, `Design/exact-combinations.md`), and the retained exact route refuses a combination by name. On the product preview route, a subtraction or range envelope of a model with nonlinear supports is published with each operand's numerical standing and a notice naming supports whose reported state differs between its operands (`Design/pf-nonlinear-operand-standing.md`). | Implemented in DEL-04-07's `core/product_physics` |
-> | Retained-precision Designs | Held here: `Design/retained-combinations.md` (the W1 retained combination contract). Held in DEL-04-08's `Design/`: `b7-plan.md` (one Rust product result reader, native and in wasm, with test-only Python verifiers and shared conformance corpora, and the current model document version); `rf-source-method-extension.md` and `w1-member-load-certification.md` (retained-source and W1 method extensions); `retained-pricing-rules.md` (the rules behind `tools/retained_pricing`, which generates the registered memory profile). | Technical rulings; DEL-04-08 holds the retained method's commitments and acceptance criteria. This Scope of Work's OUT, REQ and AC entries cover the load-case algebra only |
+> | Product use | The product preview route and the exact pressure route evaluate model-authored `combinations` (bases `mechanics`, `result_state_subtraction` and `range_envelope`) through this crate; on the exact route the rows are derived from the case results (W-16 slice b, `Work/exact-combinations.md`), and the retained exact route refuses a combination by name. On the product preview route, a subtraction or range envelope of a model with nonlinear supports is published with each operand's numerical standing and a notice naming supports whose reported state differs between its operands (`Work/pf-nonlinear-operand-standing.md`). | Implemented in DEL-04-07's `core/product_physics` |
+> | Retained-precision Designs | Held here: `Work/retained-combinations.md` (the W1 retained combination contract). Held in DEL-04-08's `Work/`: `b7-plan.md` (one Rust product result reader, native and in wasm, with test-only Python verifiers and shared conformance corpora, and the current model document version); `rf-source-method-extension.md` and `w1-member-load-certification.md` (retained-source and W1 method extensions); `retained-pricing-rules.md` (the rules behind `tools/retained_pricing`, which generates the registered memory profile). | Technical rulings; DEL-04-08 holds the retained method's commitments and acceptance criteria. This Scope of Work's OUT, REQ and AC entries cover the load-case algebra only |
 >
 
 ### CLM-006 — References
@@ -86,7 +86,7 @@ This Scope of Work defines `DEL-05-02` in service of project scope [SOW-014] and
 > - `docs/CONTRACT.md`
 > - `core/loads/load_case_algebra/README.md`
 > - `deliverable.yaml` (needs, conditions, and code and check pointers)
-> - `Design/` (current technical rulings)
+> - `Work/` (current technical rulings)
 >
 
 ### CLM-007 — Load-case material-selection requirements
@@ -152,7 +152,7 @@ This Scope of Work defines `DEL-05-02` in service of project scope [SOW-014] and
 
 > ##### Documentation
 >
-> Deliverable-local artifacts are `ScopeOfWork.md` (commitments and acceptance criteria), `deliverable.yaml` (needs, conditions, and code and check pointers), and `Design/` (technical rulings). Implementation evidence for the algebra is `core/loads/load_case_algebra/README.md` and `core/loads/load_case_algebra/src/lib.rs`.
+> Deliverable-local artifacts are `ScopeOfWork.md` (commitments and acceptance criteria), `deliverable.yaml` (needs, conditions, and code and check pointers), and `Work/` (technical rulings). Implementation evidence for the algebra is `core/loads/load_case_algebra/README.md` and `core/loads/load_case_algebra/src/lib.rs`.
 
 - **AC-001** — The contract preserves the accepted bounded algebra surface, explicit units and operand compatibility, user-supplied expressions and factors, deterministic ordering and findings, and the DEC-022 grammar boundary and unresolved integration obligations without embedding proprietary code combinations, allowables, silent conversions, or compliance meaning.
 
@@ -174,7 +174,7 @@ This Scope of Work defines `DEL-05-02` in service of project scope [SOW-014] and
 
 > ##### Prerequisites
 >
-> - This Scope of Work, `deliverable.yaml`, and `Design/`.
+> - This Scope of Work, `deliverable.yaml`, and `Work/`.
 > - Governing invariants in `docs/CONTRACT.md`.
 > - Decomposition rows for DEL-05-02, SOW-014, OBJ-003, and OBJ-005.
 > - Implementation evidence in `core/loads/load_case_algebra/README.md` and `core/loads/load_case_algebra/src/lib.rs`.
@@ -190,7 +190,7 @@ This Scope of Work defines `DEL-05-02` in service of project scope [SOW-014] and
 > 3. Maintain the data boundary: code-specific combinations are supplied by user rule packs and remain outside bundled public defaults.
 > 4. Verify deterministic implementation evidence for compatible-unit combinations, incompatible dimensions, missing operands, duplicate operands, missing result states, non-finite factors, subtraction/ranging, result-boundary metadata, status propagation, and human-approval rejection.
 > 5. Apply DEC-022 for expression grammar, and verify through the registered checks and CI policy (`software-workflow.json`, `docs/CI_STRATEGY.md`). Retain unresolved evaluator/interface and result-envelope/persistence integration as explicit delivery tasks with bound evidence; any unselected decision remains `TBD`.
-> 6. Keep commitments in `ScopeOfWork.md`, dependency conditions and code and check pointers in `deliverable.yaml`, and technical rulings in `Design/`; the pull request is the change record.
+> 6. Keep commitments in `ScopeOfWork.md`, dependency conditions and code and check pointers in `deliverable.yaml`, and technical rulings in `Work/`; the pull request is the change record.
 >
 
 ### CLM-018 — Verification
@@ -213,7 +213,7 @@ This Scope of Work defines `DEL-05-02` in service of project scope [SOW-014] and
 >
 > - `ScopeOfWork.md`.
 > - `deliverable.yaml`.
-> - `Design/`.
+> - `Work/`.
 > - The pull request, as the change record.
 
 - **VER-001** — Validate the contract and review source parity, algebra and result-state operations, dimensional compatibility, expression/provenance boundaries, deterministic diagnostics and tests, rule-pack separation, protected-content controls, and all unresolved governed items.

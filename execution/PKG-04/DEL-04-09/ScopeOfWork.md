@@ -9,7 +9,7 @@ package_objective_refs: [OBJ-003]
 
 # Scope of Work — DEL-04-09 Modal analysis
 
-**Basis:** decomposition revision 0.16 (SOW-081, OBJ-003), PRD FR-SOL-016 and §12.9, and SCA-013 (`execution/_ScopeChange/SCA-013_2026-10-27_MODAL_ANALYSIS/DECISION.md`). Agent 0 (HELP_HUMAN) decided this scope on 2026-10-27 under the owner's delegation in `loop/LOOP_INIT.md`. These commitments and acceptance criteria are pending an independent review of their text. Nothing in them is built. They assert no completion, acceptance or release. The governing design is [Design/modal-analysis.md](Design/modal-analysis.md). Paths are relative to `projects/chirality-piping/`. Standard claim fence applies (claims taxonomy per DEC-081).
+**Basis:** decomposition revision 0.16 (SOW-081, OBJ-003), PRD FR-SOL-016 and §12.9, and SCA-013 (`execution/_ScopeChange/SCA-013_2026-10-27_MODAL_ANALYSIS/DECISION.md`). Agent 0 (HELP_HUMAN) decided this scope on 2026-10-27 under the owner's delegation in `loop/LOOP_INIT.md`. These commitments and acceptance criteria are pending an independent review of their text. Nothing in them is built. They assert no completion, acceptance or release. The governing design is [Work/modal-analysis.md](Work/modal-analysis.md). Paths are relative to `projects/chirality-piping/`. Standard claim fence applies (claims taxonomy per DEC-081).
 
 ## Purpose and Objective Traceability
 

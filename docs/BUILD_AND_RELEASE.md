@@ -308,7 +308,7 @@ acceptance remain separate owner decisions.
 ### 7.1 Playwright Browser Provisioning Policy
 
 A future authorized CI job must install dependencies from the committed
-lockfile with `npm ci` in the `projects/chirality-piping` workspace, then
+lockfile with `npm ci` at the repository root, then
 provision the Playwright-managed Chromium that matches the installed
 `@playwright/test` package:
 

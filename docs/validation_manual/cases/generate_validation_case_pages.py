@@ -1107,7 +1107,7 @@ protected standards, commercial software examples, or proprietary data.
 {case.comparison_lead} inside the named suite
 test(s) {test_list}, {software_path}{software_result_detail}
 
-Reproduction (from `projects/chirality-piping`):
+Reproduction (from the repository root):
 
 ```bash
 {test_lines}

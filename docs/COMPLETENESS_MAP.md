@@ -129,8 +129,8 @@ The biggest gaps:
 ## 2. Outcome table
 
 Each row gives the PRD requirement (`docs/PRD.md` line), its priority and
-class, the evidence, and the deliverables. Paths are under
-`projects/chirality-piping/`. "Desktop `lib.rs`" is `apps/desktop/src-tauri/src/lib.rs`;
+class, the evidence, and the deliverables. Paths are relative to the repository
+root. "Desktop `lib.rs`" is `apps/desktop/src-tauri/src/lib.rs`;
 "PP `lib.rs`" is `core/product_physics/src/lib.rs`.
 
 ### 2.1 Model, schema, design knowledge (PRD §10.1, §11.1–11.2, §13)
@@ -178,7 +178,7 @@ class, the evidence, and the deliverables. Paths are under
 | FR-SOL-003 (512) | Must | D | `core/solver/straight_pipe`; `self_weight.rs:505-512`; `STRESS-*` | DEL-04-02, DEL-05-03 | PF Euler–Bernoulli; EX adds Timoshenko. |
 | FR-SOL-004 (513) | Must | P | DEC-045 stiffness scaling of the mapped member on both routes (PP `rigid_component.rs`, `lib.rs` member formation; W-15 a+d, #1604); EX admits valve, flange, rigid and specialty and refuses reducers in pressure regions (`exact_admission.rs`); rigid-link benchmark against independent references (`validation/references/` W-15 package; `tests/w15_rigid_scaling_benchmarks.rs`) | DEL-03-05 | Offsets exist only on connectors and tie rods; the eccentric reducer offset is slice c (with the 0.8.0 document). |
 | FR-SOL-005 (514) | Must | D | `core/solver/linear_supports`; PP `lib.rs:2741`; EX admits linear restraints and springs (`exact_admission.rs:295-305`) | DEL-04-03 | Both routes. |
-| FR-SOL-006 (515) | Must | P | EX applies `boundary_motion` (`exact_admission.rs:106`). PF maps a support-targeted `imposed_displacement` primitive into the same prescribed reduction in both modes (PP `imposed_motion.rs`; DEL-04-03 Design `pf-imposed-displacement.md`). Nozzle movement against `validation/references/w16_imposed_motion` with PF/EX parity (`tests/w16_imposed_motion.rs`); W9-C on both routes. EX refuses the primitive by name (`EXACT_IMPOSED_DISPLACEMENT_PRIMITIVE_UNSUPPORTED`) | DEL-04-03, DEL-04-07, DEL-05-01, DEL-05-05 | Owner (OD-6 row 2): two stages (`DEL-04-07 Design/pressure-contract.md`, "Imposed displacement on the pressure-free route"). Stage 1 is built (W-16 slice a). Stage 2 is open: PF refuses motion in a model with nonlinear supports (`IMPOSED_DISPLACEMENT_WITH_NONLINEAR_SUPPORTS`). |
+| FR-SOL-006 (515) | Must | P | EX applies `boundary_motion` (`exact_admission.rs:106`). PF maps a support-targeted `imposed_displacement` primitive into the same prescribed reduction in both modes (PP `imposed_motion.rs`; DEL-04-03 Design `pf-imposed-displacement.md`). Nozzle movement against `validation/references/w16_imposed_motion` with PF/EX parity (`tests/w16_imposed_motion.rs`); W9-C on both routes. EX refuses the primitive by name (`EXACT_IMPOSED_DISPLACEMENT_PRIMITIVE_UNSUPPORTED`) | DEL-04-03, DEL-04-07, DEL-05-01, DEL-05-05 | Owner (OD-6 row 2): two stages (`DEL-04-07 Work/pressure-contract.md`, "Imposed displacement on the pressure-free route"). Stage 1 is built (W-16 slice a). Stage 2 is open: PF refuses motion in a model with nonlinear supports (`IMPOSED_DISPLACEMENT_WITH_NONLINEAR_SUPPORTS`). |
 | FR-SOL-007 (516) | Must | D | Straight pipes and realized bends publish twelve global end rows per member and case (`element_global_end_force_v1`, `element_global_end_moment_v1`) beside their `element_local` rows on PF and EX, each F = Rᵀ f from the published local end rows (PP `lib.rs:12350` `append_element_global_end_results`, called at `:6551`); the readers check them (`result_export/src/global_end_evidence.rs`); tests `core/product_physics/tests/global_end_actions_runtime.rs` (both routes and modes: rotation, nodal balance, bend ends, EX wall axial, PF combinations, readers) and `tests/test_global_end_verifier.py`. Connectors publish global end actions (`:4511`) | DEL-04-01 | Design `global-end-actions.md` (REQ-004, the transform). Source-recovery publications omit the rows by the named rule `global_end_rows_published`. The dormant retained route carries them as named not-covered rows, re-registered in DEL-04-08 §8.20. |
 | FR-SOL-008 (517) | Must | D | `core/loads/stress_recovery`; `tests/t4_u6_section_bases.rs:270` | DEL-05-03 | Pressure stresses exist where pressure exists (EX). |
 | FR-SOL-009 (518) | Must | P | `core/loads/load_case_algebra`; `preview_physics_runtime.rs:597,682,709` | DEL-05-02 | EX refuses every combination (`pressure_runtime.rs:337-343`; `exact_admission.rs:229`). |
@@ -188,11 +188,11 @@ class, the evidence, and the deliverables. Paths are under
 | FR-SOL-013 (522) | Should | D | `frame_kernel/src/connector.rs`, `tie_rod.rs`, `joint.rs:727`; `tests/connector_pp_paths.rs` | DEL-03-06 | EX only. `movement_limit` is normalized, not enforced (PP `lib.rs:9378`). |
 | FR-SOL-014 (523) | Should | P | `core/solver/nonlinear_supports`; `references/kd5_nonlinear`; the native demo converges | DEL-04-04, DEL-04-07, DEL-09-03 | PF only. Rotational gap and friction refused (`validation.rs:88,100`). |
 | FR-SOL-015 (524) | Must | D | `NUMERICAL_INTEGRITY_*` (PP `lib.rs:1198-1230`); health indicator `operation_applier/src/numerical_health.rs`, `ResultsPanel.tsx:97-130`, status bar and Solve panel, with tests (#1544). Observed natively on both routes (§5) | DEL-04-06, DEL-05-04, DEL-07-05 | |
-| FR-SOL-016 (527) | Should | P | Not built. Scope re-entered by SCA-013 (2026-10-27); governing design DEL-04-09 `Design/modal-analysis.md` | DEL-04-09 | Modal analysis only; response spectrum re-entered scope by SCA-014 (2026-10-28), unassigned and not built; time history stays deferred (DEC-078). Stays P, whatever M1a to M3 deliver, until at least one published piping benchmark with recorded redistribution evidence is compared (DEL-04-09 REQ-010). Row added after the basis. |
+| FR-SOL-016 (527) | Should | P | Not built. Scope re-entered by SCA-013 (2026-10-27); governing design DEL-04-09 `Work/modal-analysis.md` | DEL-04-09 | Modal analysis only; response spectrum re-entered scope by SCA-014 (2026-10-28), unassigned and not built; time history stays deferred (DEC-078). Stays P, whatever M1a to M3 deliver, until at least one published piping benchmark with recorded redistribution evidence is compared (DEL-04-09 REQ-010). Row added after the basis. |
 | §12.3 reducers (no row before) | — | P | No eccentric offset vector in `core/product_physics/src` | DEL-03-05 | Part of W-15. |
 | §12.5 load types (no row before) | — | P | Wind, seismic and hydrotest categories (PP `lib.rs:14333-14335`) | DEL-05-01 | EX refuses `equivalent_static`. Imposed rotations and nozzle movement are built on PF (support-targeted primitives, stage 1, no nonlinear supports) and on EX (`boundary_motion`); see FR-SOL-006. |
 | §12.8 near-duplicate nodes (775) | — | D | W-8 with #1574: `NODE_COINCIDENT`, `NODE_NEAR_DUPLICATE` within an absolute tolerance, 5 mm unless `model_settings.node_proximity_tolerance` sets another (`topology.rs:148,281`; read through `PreviewModel::node_proximity_tolerance_m`); a malformed value is refused by name (`validation.rs` `validate_model_settings`); tests `topology_checks_runtime.rs:143,182,193`. The desktop's Project page sets and resets it (`ModelSettingsSection.tsx`; applier `set_model_setting`/`clear_model_setting`, `model_settings_authoring.rs`); through-solve tests `operation_applier/tests/model_settings_authoring.rs`, src-tauri `a_tolerance_set_through_the_apply_command_changes_which_nodes_warn` | DEL-04-06, DEL-02-01 | REQ-04-06-012 (owner) is met on both routes, and a desktop user can see the effective value ("5 mm (default)") and change it. |
-| §12.8 verified bounds (783) | — | O | Owner, 2026-10-23: "no verified bounds in v0.1; the retained-precision method stays dormant and owner-held." (`DEL-04-08 Design/b7-plan.md:34`; SOW:336, AX-004) | DEL-04-08 | Dormant code is in `product_physics/src/retained_*.rs`. |
+| §12.8 verified bounds (783) | — | O | Owner, 2026-10-23: "no verified bounds in v0.1; the retained-precision method stays dormant and owner-held." (`DEL-04-08 Work/b7-plan.md:34`; SOW:336, AX-004) | DEL-04-08 | Dormant code is in `product_physics/src/retained_*.rs`. |
 | §22.2 benchmarks (1403) | — | P | 14 of 14: tip force, tip moment, fixed-fixed thermal, simply supported under weight (W9-B, both routes), inclined member, L-frame (W9-A, both routes), U-loop, torsion, anchor displacement (W9-C, both routes), spring, gap, friction, branch, rigid link (W-15, both routes, #1604) | DEL-09-01..03 | |
 | §22.3 stress benchmarks (1422) | — | D | `validation/benchmarks/stress/src/lib.rs:489,513,546,570`; pressure hoop and longitudinal stress in the frozen references `validation/references/t4_u6` (EX); t4_u4b; the suite's pressure family `STRESS-PRESSURE-HOOP-LONGITUDINAL-ORIGINAL` (W-20, #1599: Lamé hoop and radial, closed-end, open-end and restrained membrane, on both section bases, through the exact-pressure preview entry) | DEL-09-02 | The headless runner has no binding for the pressure family (its comparison is the suite's relative check), so it fails closed there. |
 
@@ -225,7 +225,7 @@ class, the evidence, and the deliverables. Paths are under
 ### 2.5 States, runs, comparison, V&V (PRD §11.6, §15, §21–22)
 
 FR-CMP-001..004 and -006 are in v0.1 by OD-1 (unit W-12, design
-`DEL-14-01/Design/desktop-states-runs-comparison.md`). FR-CMP-005, -007, -008, -009
+`DEL-14-01/Work/desktop-states-runs-comparison.md`). FR-CMP-005, -007, -008, -009
 and -010 remain in v0.2 R3 under that design and PRD §24. FR-CMP-011 is not an
 MVP requirement (PRD §15.6).
 
@@ -352,16 +352,16 @@ below are what remains or is new at this basis.
 - DEL-12-01 `deliverable.yaml`: `code_paths` add `tauri.conf.json` (the CSP
   setting).
 
-- `DEL-02-01/Design/model-document-0.7.0.md:51-52` said `schemas/model.schema.yaml`
+- `DEL-02-01/Work/model-document-0.7.0.md:51-52` said `schemas/model.schema.yaml`
   "describes an older shape … The bundled demo fails it with 11 errors", stale
   since #1554. It now records that state as before S1a.
-- `DEL-02-02/Design/project-unit-selection.md` §1 "Where things stand" ("Blank
+- `DEL-02-02/Work/project-unit-selection.md` §1 "Where things stand" ("Blank
   projects fix SI", "No `angle` key is written") described the state before
   slice (a). It is now headed as the starting point, with one sentence on what
   slice (a) changed. Without this, the §10.1 row would be R (Codex, §6).
   #1565 and #1566 edit other hunks of these two files.
 
-**Done in #1574** [fix]: `DEL-04-06/Design/model-topology-checks.md` and
+**Done in #1574** [fix]: `DEL-04-06/Work/model-topology-checks.md` and
 REQ-04-06-012's verification row (SOW:189) carry the implemented wording.
 
 **Still open** [fix]:
@@ -390,8 +390,8 @@ scope or acceptance wording. "Rec." is the recommendation.
 
 | # | Location | Old | New | Reason | Rec. |
 |---|---|---|---|---|---|
-| 1 | `apps/desktop/native-smoke/expected.json`, milestone `sparse_interactive.rows` | `98` | `113` | #1461 (T4-U4b/U5b) adds 15 σ±/shear rows per member per case (`DEL-04-07 Design/u4b-u5b-implementation.md:296`); milestone: 1 member × 1 case | Applied (owner, 2026-10-24: "I accept your recommendations for each of these three: G10, W-12, W-18.") Then `113` → `125` with W-7 (#1581: 12 global end rows per member per case; owner, 2026-10-25: "I approve W-7's native-smoke values"). |
-| 2 | same, milestone `dense_scrutiny.rows` | `99` | `113` | #1461 +15; #1387 (B7 E14) deleted the dense parity row, −1 (`DEL-04-08 Design/b7-plan.md:292`) | Applied (owner, 2026-10-24: "I accept your recommendations for each of these three: G10, W-12, W-18.") Then `113` → `125` with W-7 (#1581: 12 global end rows per member per case; owner, 2026-10-25: "I approve W-7's native-smoke values"). |
+| 1 | `apps/desktop/native-smoke/expected.json`, milestone `sparse_interactive.rows` | `98` | `113` | #1461 (T4-U4b/U5b) adds 15 σ±/shear rows per member per case (`DEL-04-07 Work/u4b-u5b-implementation.md:296`); milestone: 1 member × 1 case | Applied (owner, 2026-10-24: "I accept your recommendations for each of these three: G10, W-12, W-18.") Then `113` → `125` with W-7 (#1581: 12 global end rows per member per case; owner, 2026-10-25: "I approve W-7's native-smoke values"). |
+| 2 | same, milestone `dense_scrutiny.rows` | `99` | `113` | #1461 +15; #1387 (B7 E14) deleted the dense parity row, −1 (`DEL-04-08 Work/b7-plan.md:292`) | Applied (owner, 2026-10-24: "I accept your recommendations for each of these three: G10, W-12, W-18.") Then `113` → `125` with W-7 (#1581: 12 global end rows per member per case; owner, 2026-10-25: "I approve W-7's native-smoke values"). |
 | 3 | same, milestone `sparse_interactive.probe_entered` | `"Entered: 0.09426732782247198 mm"` | `"Entered: 0.09426732782247199 mm"` | #1387 (B7 E15): one correctly rounded `norm3` (`b7-plan.md:293`); one unit in the last printed digit. The dense value is unchanged | Applied (owner, 2026-10-24: "I accept your recommendations for each of these three: G10, W-12, W-18.") |
 | 4 | same, demo `sparse_interactive.rows` | `625` | `745` | #1461 +120 (4 members × 2 cases × 15) | Applied (owner, 2026-10-24: "I accept your recommendations for each of these three: G10, W-12, W-18.") Then `745` → `841` with W-7 (#1581: 12 global end rows × 4 members × 2 cases; owner, 2026-10-25: "I approve W-7's native-smoke values"). Then `841` → `837` with the C-120 fix (#1620: its 4 intensified rows removed; owner, 2026-10-25: "Both decisions I approve your recommended options."). |
 | 5 | same, demo `dense_scrutiny.rows` | `627` | `745` | #1461 +120; #1387 −2 parity rows (one per case) | Applied (owner, 2026-10-24: "I accept your recommendations for each of these three: G10, W-12, W-18.") Then `745` → `841` with W-7 (#1581: 12 global end rows × 4 members × 2 cases; owner, 2026-10-25: "I approve W-7's native-smoke values"). Then `841` → `837` with the C-120 fix (#1620: its 4 intensified rows removed; owner, 2026-10-25: "Both decisions I approve your recommended options."). |
@@ -493,7 +493,7 @@ ruled separately (see the OD-6 row).
 
 Also decided on 2026-10-23 and recorded in the governing text: the 5 mm
 node-proximity tolerance, user-settable (REQ-04-06-012); no verified bounds in
-v0.1 (`DEL-04-08 Design/b7-plan.md`); the W-10 reconnect limitation
+v0.1 (`DEL-04-08 Work/b7-plan.md`); the W-10 reconnect limitation
 (DEL-16-06 SOW:79).
 
 Opening exact-route reports and handoff needs no new decision to start. Ruling

@@ -50,7 +50,7 @@ remain distinct declarations. `needs: []` means none declared yet; it is no
 claim that the deliverable has no needs or that the set is complete.
 
 Generic paths use the shared `Work/` convention. Follow the selected project's
-adopted locality spelling, including App v4 and Piping's existing `Design/`.
+adopted locality spelling.
 Queries do not select, detect or migrate between locality folder names.
 
 The consumer states native upstream needs; reverse links are generated. A

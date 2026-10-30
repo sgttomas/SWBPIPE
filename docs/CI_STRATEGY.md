@@ -18,7 +18,7 @@ tests and compilation: desktop memory controls, persistence, WebView2, native
 journeys, packaging and retained-memory qualification need their own Windows
 evidence. Parallels Windows on Arm and emulated x64 runs are labelled separately.
 The proposed native-service boundaries and remaining work are in DEL-10-04
-`Design/windows-port.md`.
+`Work/windows-port.md`.
 
 On a relevant PR, desktop coverage is a production build and one Chromium
 project (`chromium-desktop`) running core specs: the R2 smoke and save/reopen
@@ -50,7 +50,11 @@ engines:
   their `src/` or `build.rs` read by `include*!` or `#[path]`.
 
 Python- or Rust-only diffs outside those inputs do not select it. Docs that
-desktop tests read select it, and with it the product job. An unreadable
+desktop tests read select it, and with it the product job. A Markdown file that
+desktop source only names, as a string outside tests, test-support and lines that
+import, require, fetch, read or open it, and under no named directory, is display
+text: an in-place edit of it (a regular file before and after) selects nothing,
+while adding, deleting, renaming or retyping it still selects the suite. The plan lists such edits as `named_document_edits`. An unreadable
 source tree, crate or compile read selects the suite. The selection's reasons
 are in the plan artifact. The browser reuse key includes whether the suite ran,
 so a pass without it is never reused for a run that needs it. The product job
@@ -119,8 +123,20 @@ unknown paths and shared execution controls select all discovered crates. Existi
 numerical oracles remain unchanged. Python coverage is gated independently.
 
 The standalone required repository job runs the bounded tool/routing suite and
-`tests/test_ci_numerical.py` on every PR, including Rust and Cargo manifest
-additions/removals. This closes the former monorepo's routing-self-test selection
+`tests/test_ci_numerical.py` on every PR and workflow dispatch, including Rust and Cargo manifest
+additions/removals, in parallel (`pytest -n auto`). Its own plan
+(`hosted_ci.py repository`) omits only the seven source-reachability tests named in
+`SOURCE_REACHABILITY_TESTS`, and only for a pull request whose complete diff is
+in-place edits of UTF-8 Markdown regular files outside `.github/`, `tools/` and
+`tests/`. Adding, deleting, renaming or retyping a file keeps every test, since a
+file's existence can itself be a selection input. Those tests read the real
+tree's Rust, TypeScript, manifests and routing, and dominate the step's time; a
+2026-10-30 trace of every file the step opens found that they read no Markdown.
+Any other diff, an unavailable diff or a non-PR run keeps every test. A test that
+reads Markdown must not join that list. When the governance harness calls the product
+workflow (`repository-checks-run: true`), the Python product job leaves that routing suite
+out to avoid running it twice; a direct dispatch keeps it. This closes the former
+monorepo's routing-self-test selection
 gap. The local `tools/tools-test-routing.json` records this bounded estate; it
 does not import unrelated Root tool suites. Numerical inventory/source-digest
 refresh and product-selection failure propagation remain required.
@@ -133,8 +149,11 @@ selects every test importing it directly or through other test modules, read
 from the tests' own imports so no non-test module names the verifiers;
 and a declared byte-pinned fixture selects the tests that pin it;
 full-fallback plans retain the broad Python cohort and directly edited tests.
-Edited tests are run directly; shared CI/input changes expand the selection. Full preview, schema and qualification
-suites remain available on dispatch, alongside the full Cargo suite.
+Edited product tests are run directly; shared CI/input changes expand the selection.
+The Python job retains xdist `--dist loadscope`: the current retained-precision
+corpus uses parametrized items across shard classes, and the O4 envelope checks
+use separate classes so these expensive modules can occupy multiple workers.
+Full preview, schema and qualification suites remain available on dispatch, alongside the full Cargo suite.
 
 Hosted builds are unregistered. The retained-memory profile is registered only
 for the qualification host's exact build identity, so a hosted build reports
@@ -144,8 +163,26 @@ with the unchanged ordinary route otherwise, as `retained_facade_tests.rs`'s
 `registered()` does. When product_physics is selected, the numerical job also runs the six
 retained W1 stack witnesses at the default debug profile, one process each: an
 early warning, since only the qualification host's registered sweep is VER-004's
-record (DEL-04-08 Design `stack-headroom-repair.md`). The hosted numerical job stops at the first failing crate,
-so one failure hides the crates after it. Before pushing a change to retained
+record (DEL-04-08 Design `stack-headroom-repair.md`). The hosted numerical job
+runs three parallel matrix shards, with fail-fast disabled:
+
+| Shard | Selected manifests |
+|---|---|
+| `physics` | `core/product_physics/Cargo.toml`, including all six stack witnesses |
+| `reporting-runner` | `core/reporting/result_export/Cargo.toml`, `core/runner/headless/Cargo.toml` |
+| `other` | Every other selected manifest, including newly discovered crates |
+
+Each shard validates the complete candidate plan before partitioning it. Commands,
+profiles and assertions are unchanged; an empty shard records successful empty
+evidence without invoking Cargo. Each shard uploads its own evidence and keys
+verified-result reuse by its shard identity, full selection and exact commands.
+All shards restore the same main-scoped `piping-numerical` dependency cache;
+the main warmer still compiles the full unsharded plan, including both physics
+profiles. The aggregate requires the selected matrix to succeed; failure,
+cancellation or skipping selected coverage fails the required harness.
+Execution stops at the first failing command within a shard; the other shards
+continue. `--dry-run` validates and records the shard plan without executing
+commands and reports `planned`, never verification success. Before pushing a change to retained
 sources or registration-dependent tests, run the selected numerical suite
 locally in the registered build and in an emulated unregistered build (a
 build-identity-changing flag such as `RUSTFLAGS=--cap-lints=warn`, in its own
@@ -182,3 +219,20 @@ uses an exact key only, and records are saved only after successful execution.
 A hit reports the original run and commit, explicitly saying tests were not
 executed again. Manual runs bypass result reuse. Missing caches run normally;
 this is separate from dependency/build-output caching.
+
+Desktop/browser jobs restore both generated WASM engines under an exact
+`desktop-wasm-v1` content key, without prefix fallback. The key covers every
+tracked file in the engine crates and their transitive path dependencies,
+compile reads discovered by `wasm_engine_inputs`, verified source-bound read
+declarations (including build-script filesystem reads), Cargo manifests/locks and
+toolchain controls, desktop build scripts/helpers, npm manifests/lock,
+`rustc -vV`, wasm-bindgen and Node versions, runner identity and compiler
+environment. The hashed build script supplies target, features, flags and its
+explicit environment settings. Cargo configuration or compiler overrides disable
+reuse. Every generated JS, WASM, declaration and source stamp must be present
+and match the saved content receipt; an absent/invalid receipt, key error or
+incomplete restore builds normally. Before saving, recorded compile reads must
+all belong to the keyed input set and the key must still match. The main-only
+`shared-build-cache.yml` warmer uses the same setup action with `build-only:
+true`, so other PRs can read main-scoped engine outputs without running tests
+or installing browsers in the warmer.

@@ -48,7 +48,7 @@ The measured-vs-reference comparison executes inside the named suite
 test(s) `integrated_straight_pipe_resultants_feed_stress_recovery_fixture`, which run the current in-repo solver path on the fixture
 and assert agreement with the reference expectations.
 
-Reproduction (from `projects/chirality-piping`):
+Reproduction (from the repository root):
 
 ```bash
 cargo test --manifest-path validation/benchmarks/stress/Cargo.toml integrated_straight_pipe_resultants_feed_stress_recovery_fixture

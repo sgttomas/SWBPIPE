@@ -47,7 +47,7 @@ The measured-vs-reference comparison executes inside the named suite
 test(s) `tp_phys_005_oriented_load_to_resultant_fixture_transforms_global_loads`, which run the current in-repo solver path on the fixture
 and assert agreement with the reference expectations.
 
-Reproduction (from `projects/chirality-piping`):
+Reproduction (from the repository root):
 
 ```bash
 cargo test --manifest-path validation/benchmarks/mechanics/Cargo.toml tp_phys_005_oriented_load_to_resultant_fixture_transforms_global_loads

@@ -4,7 +4,7 @@ needs:
 - from: DEL-16-06
   condition: 'The canonical embedded-agent app build requires the selected stock supplier resource, committed pin manifest and exact licensing payloads; source preparation must verify its explicit input, and the actual app resources must verify before build success. This does not establish native isolation, supported-platform qualification, complete redistribution notices or release acceptance.'
   gating: true
-  evidence: execution/PKG-16/DEL-16-06/Design/agent-supplier-packaging.md
+  evidence: execution/PKG-16/DEL-16-06/Work/agent-supplier-packaging.md
 - from: DEL-00-01
   condition: 'DEL-10-04 must apply SCA-001 architecture-basis constraint AB-00-01 from DEL-00-01.
 

@@ -50,7 +50,7 @@ The measured-vs-reference comparison executes inside the named suite
 test(s) `multisupport_acceptance_inventory_uses_narrow_dec_046_policy`, which run the current in-repo solver path on the fixture
 and assert agreement with the reference expectations.
 
-Reproduction (from `projects/chirality-piping`):
+Reproduction (from the repository root):
 
 ```bash
 cargo test --manifest-path validation/benchmarks/nonlinear/Cargo.toml multisupport_acceptance_inventory_uses_narrow_dec_046_policy

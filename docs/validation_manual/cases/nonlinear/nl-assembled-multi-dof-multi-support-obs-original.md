@@ -48,7 +48,7 @@ The measured-vs-reference comparison executes inside the named suite
 test(s) `multisupport_depth_inventory_is_observation_only_and_separate_from_seed`, which run the current in-repo solver path on the fixture
 and assert agreement with the reference expectations.
 
-Reproduction (from `projects/chirality-piping`):
+Reproduction (from the repository root):
 
 ```bash
 cargo test --manifest-path validation/benchmarks/nonlinear/Cargo.toml multisupport_depth_inventory_is_observation_only_and_separate_from_seed

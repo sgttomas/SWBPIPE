@@ -41,7 +41,7 @@ Return deterministic changed-state/result evidence for the accepted change and h
 
 ### CLM-005 — DEL-16-06-REQ-005
 
-Embed a stock Codex app-server client over private stdio using the SWBPIPE-owned catalog in `Design/agent-capability-catalog.json` and the session contract in `Design/embedded-agent-host.md`. Validate and bind calls to the live webview session; all agent changes enter the existing review queue and require the person's explicit action through the sole operation engine. Preserve original agent attribution, current-model basis, bounded reads and truthful rejected, withdrawn, applied or unknown outcomes. Built-in shell, file/patch and web capabilities must be disabled and their actual isolation checked for the selected supplier pin. No direct autonomy, professional acceptance, issuance or release is conferred.
+Embed a stock Codex app-server client over private stdio using the SWBPIPE-owned catalog in `Work/agent-capability-catalog.json` and the session contract in `Work/embedded-agent-host.md`. Validate and bind calls to the live webview session; all agent changes enter the existing review queue and require the person's explicit action through the sole operation engine. Preserve original agent attribution, current-model basis, bounded reads and truthful rejected, withdrawn, applied or unknown outcomes. Built-in shell, file/patch and web capabilities must be disabled and their actual isolation checked for the selected supplier pin. No direct autonomy, professional acceptance, issuance or release is conferred.
 
 ## Completion and Reliance Basis — Epistemology
 
@@ -59,7 +59,7 @@ Each requirement needs named candidate-bound evidence. Existing code, route visi
 - **VER-002** — Compare before/after accepted-state identity for each rejected path and ensure truthful failure/unchanged-state evidence reaches callers.
 - **VER-003** — Run the same supported-operation corpus through native and wasm routes and compare contract-visible outcomes; Python preview tests alone do not establish product application conformance.
 - **VER-004** — Trace operation/accepted-basis/result identity through application, receipt and save/reopen; distinguish pre-application acceptance from actual post-application outcome and retain persistence-policy residuals.
-- **VER-005** — Follow `Design/embedded-agent-host.md`'s verification sequence on the named candidate and supplier/model pins; independently review new Tauri permission surfaces and the ingress-admitted completion command, update pinned reach evidence, and keep unrun or unsupported paths explicit.
+- **VER-005** — Follow `Work/embedded-agent-host.md`'s verification sequence on the named candidate and supplier/model pins; independently review new Tauri permission surfaces and the ingress-admitted completion command, update pinned reach evidence, and keep unrun or unsupported paths explicit.
 
 ## Governing Values and Decisions — Axiology
 
@@ -86,4 +86,4 @@ These clauses retain open delivery duties, owner decisions, and bounded evidence
 - **DEL-16-06:1** — Follow the SCA-011 accepted closure handoff for any explicitly retained derivative obligations; existing product/lifecycle holds remain.
 - **DEL-16-06:2** — Inventory current implementation evidence against the four claim hooks in ScopeOfWork.md; retain missing, partial and unobserved behavior explicitly. No product or native verification was performed by candidate drafting.
 - **DEL-16-06:3** — Preserve all engineering, privacy, professional, lifecycle and release holds named by the accepted instruments.
-- **Declared limitation (W-10, Design `Design/pipe-reconnect.md`):** `reconnect_pipe_run` refuses a pipe named by a component (bend span, tee leg, rigid component, expansion joint, connector span), a pipe with a non-terminal component at its fixed end or at the node it leaves or joins, a pressure-region member, and a move onto a region's internal node; each refusal names its blocker. Membership-preserving reconnect inside a pressure region is not provided in v0.1. `delete_pipe_run` refuses while any record names the pipe and never cascades.
+- **Declared limitation (W-10, Design `Work/pipe-reconnect.md`):** `reconnect_pipe_run` refuses a pipe named by a component (bend span, tee leg, rigid component, expansion joint, connector span), a pipe with a non-terminal component at its fixed end or at the node it leaves or joins, a pressure-region member, and a move onto a region's internal node; each refusal names its blocker. Membership-preserving reconnect inside a pressure region is not provided in v0.1. `delete_pipe_run` refuses while any record names the pipe and never cascades.

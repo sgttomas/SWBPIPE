@@ -611,15 +611,21 @@ def _base_present() -> bool:
 assert _base_present(), "required O4 historical input is missing from this clone"
 
 
-@pytest.mark.parametrize("name", ENVELOPES)
-def test_o4_text_only_envelope_diff(name):
-    check(name)
+# Separate classes let loadscope distribute the expensive checks. Static methods
+# preserve the direct calls used by the planted-mutation checks below.
+class TestEnvelopes:
+    @staticmethod
+    @pytest.mark.parametrize("name", ENVELOPES)
+    def test_o4_text_only_envelope_diff(name):
+        check(name)
 
 
-@pytest.mark.parametrize("name", BINDING_ONLY)
-def test_o4_text_only_envelope_diff_binding_only(name):
-    summary = check(name, allowed_hashes={"value", "publication_sha256", "receipt_sha256"})
-    assert set(summary) == {"hash"}, f"{name}: only the hashes binding the regenerated document move"
+class TestBindingOnly:
+    @staticmethod
+    @pytest.mark.parametrize("name", BINDING_ONLY)
+    def test_o4_text_only_envelope_diff_binding_only(name):
+        summary = check(name, allowed_hashes={"value", "publication_sha256", "receipt_sha256"})
+        assert set(summary) == {"hash"}, f"{name}: only the hashes binding the regenerated document move"
 
 
 def _entries(text, member, key):
@@ -638,78 +644,84 @@ def _pair_id(entry):
     return dict(entry)["id"]
 
 
-def test_o4_text_only_envelope_diff_j2_corpus_entries():
-    """J2: every entry present at the base differs only in limitation text and binding hashes; O4-S1's 24 F1
-    nonzero-allowance tampers differ besides in their expected verdicts only; the 24 entries added by S1's
-    F1 negative-allowance generator are new."""
-    found, base, now = _keyed_diff(J2_CORPUS, "entries", _pair_id)
-    assert (base, now) == (462, 486)
-    retagged = 0
-    for ident, leaves in found.items():
-        other = [path for kind, path in leaves if kind == "other"]
-        if J2_S1_RETAGGED in ident:
-            retagged += 1
-            assert other and all(path.startswith("/expected/") for path in other), (ident, other)
-        else:
-            assert not other, (ident, other[:8])
-    assert retagged == 24
-    assert sum(any(kind == "text" for kind, _ in leaves) for leaves in found.values()) == 462
+class TestJ2CorpusEntries:
+    @staticmethod
+    def test_o4_text_only_envelope_diff_j2_corpus_entries():
+        """J2: every entry present at the base differs only in limitation text and binding hashes; O4-S1's 24 F1
+        nonzero-allowance tampers differ besides in their expected verdicts only; the 24 entries added by S1's
+        F1 negative-allowance generator are new."""
+        found, base, now = _keyed_diff(J2_CORPUS, "entries", _pair_id)
+        assert (base, now) == (462, 486)
+        retagged = 0
+        for ident, leaves in found.items():
+            other = [path for kind, path in leaves if kind == "other"]
+            if J2_S1_RETAGGED in ident:
+                retagged += 1
+                assert other and all(path.startswith("/expected/") for path in other), (ident, other)
+            else:
+                assert not other, (ident, other[:8])
+        assert retagged == 24
+        assert sum(any(kind == "text" for kind, _ in leaves) for leaves in found.values()) == 462
 
 
-def test_o4_text_only_envelope_diff_retained_corpus_route_e_entries():
-    """The retained corpus moves only in its route-E bases (text, binding and DEF-E-bound hashes, and the
-    provenance digests of their regenerated fixtures); every other entry at the base is unchanged."""
-    for member in ("cases", "mutations", "must_pass"):
-        found, _, _ = _keyed_diff(RETAINED_CORPUS, member, _pair_id)
-        moved = {ident for ident, leaves in found.items() if leaves}
-        expected = {f"w1_member_route_e_baseline_{mode}" for mode in ("sparse_interactive", "dense_scrutiny")} if member == "cases" else set()
-        assert moved == expected, (member, sorted(moved))
-        for ident in moved:
-            assert not [path for kind, path in found[ident] if kind == "other"], ident
-            assert any(kind == "text" for kind, _ in found[ident]), ident
+class TestRetainedCorpusRouteEEntries:
+    @staticmethod
+    def test_o4_text_only_envelope_diff_retained_corpus_route_e_entries():
+        """The retained corpus moves only in its route-E bases (text, binding and DEF-E-bound hashes, and the
+        provenance digests of their regenerated fixtures); every other entry at the base is unchanged."""
+        for member in ("cases", "mutations", "must_pass"):
+            found, _, _ = _keyed_diff(RETAINED_CORPUS, member, _pair_id)
+            moved = {ident for ident, leaves in found.items() if leaves}
+            expected = {f"w1_member_route_e_baseline_{mode}" for mode in ("sparse_interactive", "dense_scrutiny")} if member == "cases" else set()
+            assert moved == expected, (member, sorted(moved))
+            for ident in moved:
+                assert not [path for kind, path in found[ident] if kind == "other"], ident
+                assert any(kind == "text" for kind, _ in found[ident]), ident
 
 
-def test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_enumerated(current=None):
-    """The committed retained corpus against corner 1's parent: the same entries in the same
-    order, unchanged except corner 1's enumerated moves, plus exactly its enumerated
-    additions; every other member unchanged. So a later move of any other entry, a
-    route-E base included, fails here (Opus review, round 3)."""
-    name = RETAINED_CORPUS
-    base = subprocess.run(
-        ["git", "show", _source_spec(PROJECT, W1_CORNER1_BASE, name)],
-        cwd=REPOSITORY, check=True, capture_output=True, text=True,
-    ).stdout
-    landed = subprocess.run(
-        ["git", "show", _source_spec(PROJECT, W1_CORNER1, name)],
-        cwd=REPOSITORY, check=True, capture_output=True, text=True,
-    ).stdout
-    # W-8 regenerated the corpus after corner 1; its moves are bound by the W-8 check below.
-    now = landed if current is None else current
-    for member in ("cases", "mutations", "must_pass"):
-        before = _entries(base, member, _pair_id)
-        after = _entries(now, member, _pair_id)
-        known = dict(before)
-        assert [k for k, _ in after if k in known] == [k for k, _ in before], (member, "order or removal")
-        added = [k for k, _ in after if k not in known]
-        assert sorted(added) == sorted(W1_CORNER1_ADDED[member]) and len(added) == len(set(added)), (member, added)
-        # Each addition sits where corner 1 put it: the whole id sequence is corner 1's.
-        landed_entries = _entries(landed, member, _pair_id)
-        landed_ids, after_ids = [k for k, _ in landed_entries], [k for k, _ in after]
-        first = next((pair for pair in zip(landed_ids, after_ids) if pair[0] != pair[1]), None)
-        assert after_ids == landed_ids, (member, "position: corner 1's id, then the committed id", first)
-        pinned = dict(landed_entries)
-        moved = {k for k, entry in after if k in known and classify(known[k], entry)}
-        assert moved == W1_CORNER1_MOVED[member], (member, sorted(moved))
-        # The entries corner 1 moved or added equal its own bytes, so they are bound too
-        # (Opus review, round 4).
-        for key, entry in after:
-            if key in W1_CORNER1_MOVED[member] or key in W1_CORNER1_ADDED[member]:
-                assert not classify(pinned[key], entry), (member, key, "differs from corner 1")
-    before, after = dict(load(base)), dict(load(now))
-    assert list(before) == list(after)
-    for member in before:
-        if member not in ("cases", "mutations", "must_pass"):
-            assert not classify(before[member], after[member]), member
+class TestRetainedCorpusMovesSinceW1Corner1AreEnumerated:
+    @staticmethod
+    def test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_enumerated(current=None):
+        """The committed retained corpus against corner 1's parent: the same entries in the same
+        order, unchanged except corner 1's enumerated moves, plus exactly its enumerated
+        additions; every other member unchanged. So a later move of any other entry, a
+        route-E base included, fails here (Opus review, round 3)."""
+        name = RETAINED_CORPUS
+        base = subprocess.run(
+            ["git", "show", _source_spec(PROJECT, W1_CORNER1_BASE, name)],
+            cwd=REPOSITORY, check=True, capture_output=True, text=True,
+        ).stdout
+        landed = subprocess.run(
+            ["git", "show", _source_spec(PROJECT, W1_CORNER1, name)],
+            cwd=REPOSITORY, check=True, capture_output=True, text=True,
+        ).stdout
+        # W-8 regenerated the corpus after corner 1; its moves are bound by the W-8 check below.
+        now = landed if current is None else current
+        for member in ("cases", "mutations", "must_pass"):
+            before = _entries(base, member, _pair_id)
+            after = _entries(now, member, _pair_id)
+            known = dict(before)
+            assert [k for k, _ in after if k in known] == [k for k, _ in before], (member, "order or removal")
+            added = [k for k, _ in after if k not in known]
+            assert sorted(added) == sorted(W1_CORNER1_ADDED[member]) and len(added) == len(set(added)), (member, added)
+            # Each addition sits where corner 1 put it: the whole id sequence is corner 1's.
+            landed_entries = _entries(landed, member, _pair_id)
+            landed_ids, after_ids = [k for k, _ in landed_entries], [k for k, _ in after]
+            first = next((pair for pair in zip(landed_ids, after_ids) if pair[0] != pair[1]), None)
+            assert after_ids == landed_ids, (member, "position: corner 1's id, then the committed id", first)
+            pinned = dict(landed_entries)
+            moved = {k for k, entry in after if k in known and classify(known[k], entry)}
+            assert moved == W1_CORNER1_MOVED[member], (member, sorted(moved))
+            # The entries corner 1 moved or added equal its own bytes, so they are bound too
+            # (Opus review, round 4).
+            for key, entry in after:
+                if key in W1_CORNER1_MOVED[member] or key in W1_CORNER1_ADDED[member]:
+                    assert not classify(pinned[key], entry), (member, key, "differs from corner 1")
+        before, after = dict(load(base)), dict(load(now))
+        assert list(before) == list(after)
+        for member in before:
+            if member not in ("cases", "mutations", "must_pass"):
+                assert not classify(before[member], after[member]), member
 
 
 def _corner1_corpus() -> str:
@@ -734,82 +746,86 @@ def _without_w8_warning(key, entry):
     raise AssertionError((key, "no diagnostics"))
 
 
-def test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_w8_warnings(current=None):
-    """W-8 (DEL-04-06 Design `model-topology-checks.md`): the committed retained corpus against
-    corner 1's bytes. The same entries in the same order; W-8's enumerated cases differ only by
-    inserted warnings of W-8's codes and the hashes binding them (no number, status, class or work
-    counter), its two enumerated mutations only by the diagnostic index each names, rebased past the
-    inserted warning; every other entry and member unchanged."""
-    landed = _corner1_corpus()
-    now = s1b_base_text(RETAINED_CORPUS) if current is None else current
-    base_cases = dict(_entries(landed, "cases", _pair_id))
-    now_cases = dict(_entries(now, "cases", _pair_id))
-    for member in ("cases", "mutations", "must_pass"):
-        before = _entries(landed, member, _pair_id)
-        after = _entries(now, member, _pair_id)
-        assert [k for k, _ in after] == [k for k, _ in before], (member, "entries or order")
-        known = dict(before)
-        moved = {k for k, entry in after if classify(known[k], entry)}
-        assert moved == W8_MOVED[member], (member, sorted(moved ^ W8_MOVED[member]))
-        for key, entry in after:
-            if key not in moved:
-                continue
-            if member == "cases":
-                _without_w8_warning(key, entry)
-                found = classify(known[key], entry)
-                assert found and all(kind == "hash" for kind, _ in found), (key, [p for k, p in found if k != "hash"][:8])
-            else:
-                found = classify(known[key], entry)
-                assert [path for _, path in found] == ["/edits/*/path/*"], (key, found)
-                old, new = dict(known[key])["edits"][0], dict(entry)["edits"][0]
-                old_path, new_path = dict(old)["path"], dict(new)["path"]
-                index = int(old_path[1])
-                assert old_path[0] == new_path[0] == "diagnostics" and int(new_path[1]) == index + (index >= W8_POSITION), \
-                    (key, old_path, new_path)
-                # The rebased index names, in the committed base, the diagnostic the old index named in
-                # corner 1's: the same identity, code and severity, and the same bytes.
-                named = dict(dict(base_cases[dict(entry)["base"]])["source"])["diagnostics"][index]
-                rebased = dict(dict(now_cases[dict(entry)["base"]])["source"])["diagnostics"][int(new_path[1])]
-                assert [dict(rebased).get(k) for k in ("id", "code", "severity")] == [dict(named).get(k) for k in ("id", "code", "severity")] \
-                    and not classify(named, rebased), (key, "the rebased index names another diagnostic", dict(rebased).get("id"))
-    before, after = dict(load(landed)), dict(load(now))
-    assert list(before) == list(after)
-    for member in before:
-        if member not in ("cases", "mutations", "must_pass"):
-            assert not classify(before[member], after[member]), member
+class TestRetainedCorpusMovesSinceW1Corner1AreW8Warnings:
+    @staticmethod
+    def test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_w8_warnings(current=None):
+        """W-8 (DEL-04-06 Design `model-topology-checks.md`): the committed retained corpus against
+        corner 1's bytes. The same entries in the same order; W-8's enumerated cases differ only by
+        inserted warnings of W-8's codes and the hashes binding them (no number, status, class or work
+        counter), its two enumerated mutations only by the diagnostic index each names, rebased past the
+        inserted warning; every other entry and member unchanged."""
+        landed = _corner1_corpus()
+        now = s1b_base_text(RETAINED_CORPUS) if current is None else current
+        base_cases = dict(_entries(landed, "cases", _pair_id))
+        now_cases = dict(_entries(now, "cases", _pair_id))
+        for member in ("cases", "mutations", "must_pass"):
+            before = _entries(landed, member, _pair_id)
+            after = _entries(now, member, _pair_id)
+            assert [k for k, _ in after] == [k for k, _ in before], (member, "entries or order")
+            known = dict(before)
+            moved = {k for k, entry in after if classify(known[k], entry)}
+            assert moved == W8_MOVED[member], (member, sorted(moved ^ W8_MOVED[member]))
+            for key, entry in after:
+                if key not in moved:
+                    continue
+                if member == "cases":
+                    _without_w8_warning(key, entry)
+                    found = classify(known[key], entry)
+                    assert found and all(kind == "hash" for kind, _ in found), (key, [p for k, p in found if k != "hash"][:8])
+                else:
+                    found = classify(known[key], entry)
+                    assert [path for _, path in found] == ["/edits/*/path/*"], (key, found)
+                    old, new = dict(known[key])["edits"][0], dict(entry)["edits"][0]
+                    old_path, new_path = dict(old)["path"], dict(new)["path"]
+                    index = int(old_path[1])
+                    assert old_path[0] == new_path[0] == "diagnostics" and int(new_path[1]) == index + (index >= W8_POSITION), \
+                        (key, old_path, new_path)
+                    # The rebased index names, in the committed base, the diagnostic the old index named in
+                    # corner 1's: the same identity, code and severity, and the same bytes.
+                    named = dict(dict(base_cases[dict(entry)["base"]])["source"])["diagnostics"][index]
+                    rebased = dict(dict(now_cases[dict(entry)["base"]])["source"])["diagnostics"][int(new_path[1])]
+                    assert [dict(rebased).get(k) for k in ("id", "code", "severity")] == [dict(named).get(k) for k in ("id", "code", "severity")] \
+                        and not classify(named, rebased), (key, "the rebased index names another diagnostic", dict(rebased).get("id"))
+        before, after = dict(load(landed)), dict(load(now))
+        assert list(before) == list(after)
+        for member in before:
+            if member not in ("cases", "mutations", "must_pass"):
+                assert not classify(before[member], after[member]), member
 
 
-def test_o4_text_only_envelope_diff_w8_enumeration_refuses_other_moves():
-    """A value planted in a W-8 case or in an entry W-8 did not move, or a second inserted
-    warning, fails the W-8 enumeration."""
-    from tests.retained_precision_corpus import _STORAGE as storage
-    committed = json.loads(s1b_base_text(RETAINED_CORPUS))
-    for ident in ("w_c2_sparse_interactive", "w1_member_route_e_baseline_sparse_interactive"):
+class TestW8EnumerationRefusesOtherMoves:
+    @staticmethod
+    def test_o4_text_only_envelope_diff_w8_enumeration_refuses_other_moves():
+        """A value planted in a W-8 case or in an entry W-8 did not move, or a second inserted
+        warning, fails the W-8 enumeration."""
+        from tests.retained_precision_corpus import _STORAGE as storage
+        committed = json.loads(s1b_base_text(RETAINED_CORPUS))
+        for ident in ("w_c2_sparse_interactive", "w1_member_route_e_baseline_sparse_interactive"):
+            document = storage.expand(committed)
+            entry = next(e for e in document["cases"] if e.get("id") == ident)
+            assert _plant(entry), ident
+            with pytest.raises(AssertionError, match=ident):
+                TestRetainedCorpusMovesSinceW1Corner1AreW8Warnings.test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_w8_warnings(current=json.dumps(document))
         document = storage.expand(committed)
-        entry = next(e for e in document["cases"] if e.get("id") == ident)
-        assert _plant(entry), ident
-        with pytest.raises(AssertionError, match=ident):
-            test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_w8_warnings(current=json.dumps(document))
-    document = storage.expand(committed)
-    entry = next(e for e in document["cases"] if e.get("id") == "w_cb2_sparse_interactive")
-    entry["source"]["diagnostics"].insert(0, dict(entry["source"]["diagnostics"][0]))
-    with pytest.raises(AssertionError, match="w_cb2_sparse_interactive"):
-        test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_w8_warnings(current=json.dumps(document))
-    # The warning moved to the end (so b2o_m31 would remove it), or made blocking, fails.
-    for ident, change in (
-        ("w_cb1_sparse_interactive", lambda d: d.append(d.pop(W8_POSITION))),
-        ("w_cb1_sparse_interactive", lambda d: d[W8_POSITION].update(severity="blocking")),
-    ):
+        entry = next(e for e in document["cases"] if e.get("id") == "w_cb2_sparse_interactive")
+        entry["source"]["diagnostics"].insert(0, dict(entry["source"]["diagnostics"][0]))
+        with pytest.raises(AssertionError, match="w_cb2_sparse_interactive"):
+            TestRetainedCorpusMovesSinceW1Corner1AreW8Warnings.test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_w8_warnings(current=json.dumps(document))
+        # The warning moved to the end (so b2o_m31 would remove it), or made blocking, fails.
+        for ident, change in (
+            ("w_cb1_sparse_interactive", lambda d: d.append(d.pop(W8_POSITION))),
+            ("w_cb1_sparse_interactive", lambda d: d[W8_POSITION].update(severity="blocking")),
+        ):
+            document = storage.expand(committed)
+            change(next(e for e in document["cases"] if e.get("id") == ident)["source"]["diagnostics"])
+            with pytest.raises(AssertionError, match=ident):
+                TestRetainedCorpusMovesSinceW1Corner1AreW8Warnings.test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_w8_warnings(current=json.dumps(document))
+        # A mutation whose index is not rebased, so it names the warning's successor, fails.
         document = storage.expand(committed)
-        change(next(e for e in document["cases"] if e.get("id") == ident)["source"]["diagnostics"])
-        with pytest.raises(AssertionError, match=ident):
-            test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_w8_warnings(current=json.dumps(document))
-    # A mutation whose index is not rebased, so it names the warning's successor, fails.
-    document = storage.expand(committed)
-    mutation = next(m for m in document["mutations"] if m.get("id") == "b2o_m31_combination_selected_diagnostic_removed")
-    mutation["edits"][0]["path"][1] -= 1
-    with pytest.raises(AssertionError, match="b2o_m31_combination_selected_diagnostic_removed"):
-        test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_w8_warnings(current=json.dumps(document))
+        mutation = next(m for m in document["mutations"] if m.get("id") == "b2o_m31_combination_selected_diagnostic_removed")
+        mutation["edits"][0]["path"][1] -= 1
+        with pytest.raises(AssertionError, match="b2o_m31_combination_selected_diagnostic_removed"):
+            TestRetainedCorpusMovesSinceW1Corner1AreW8Warnings.test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_w8_warnings(current=json.dumps(document))
 
 
 def _at(value, path):
@@ -897,74 +913,80 @@ def _silent_drop_restored(key, entry):
     return replace(entry, "invocation", replace(invocation, "request", request))
 
 
-def test_o4_text_only_envelope_diff_retained_corpus_moves_since_main_are_the_silent_drop_carrier(current=None):
-    """The silent-drop guard: the retained corpus before W-7 (`W7_BASE`; W-7's moves are bound by
-    the W-7 corpus check below) against main's bytes at `SD_BASE`. The same entries in the same
-    order; its three enumerated bases differ, with the request's depth-16 member renamed back, only
-    by binding hashes (no number, status, class or work counter); every other entry and member is
-    unchanged."""
-    base = subprocess.run(
-        ["git", "show", _source_spec(PROJECT, SD_BASE, RETAINED_CORPUS)],
-        cwd=REPOSITORY, check=True, capture_output=True, text=True,
-    ).stdout
-    now = _before_w7(RETAINED_CORPUS) if current is None else current
-    for member in ("cases", "mutations", "must_pass"):
-        before = _entries(base, member, _pair_id)
-        after = _entries(now, member, _pair_id)
-        assert [k for k, _ in after] == [k for k, _ in before], (member, "entries or order")
-        known = dict(before)
-        moved = {k for k, entry in after if classify(known[k], entry)}
-        assert moved == SILENT_DROP_MOVED[member], (member, sorted(moved ^ SILENT_DROP_MOVED[member]))
-        for key, entry in after:
-            if key in moved:
-                leaves = classify(known[key], _silent_drop_restored(key, entry))
-                assert leaves and all(kind == "hash" for kind, _ in leaves), (member, key, "beyond binding hashes", leaves)
-    before, after = dict(load(base)), dict(load(now))
-    assert list(before) == list(after)
-    for member in before:
-        if member not in ("cases", "mutations", "must_pass"):
-            assert not classify(before[member], after[member]), member
+class TestRetainedCorpusMovesSinceMainAreTheSilentDropCarrier:
+    @staticmethod
+    def test_o4_text_only_envelope_diff_retained_corpus_moves_since_main_are_the_silent_drop_carrier(current=None):
+        """The silent-drop guard: the retained corpus before W-7 (`W7_BASE`; W-7's moves are bound by
+        the W-7 corpus check below) against main's bytes at `SD_BASE`. The same entries in the same
+        order; its three enumerated bases differ, with the request's depth-16 member renamed back, only
+        by binding hashes (no number, status, class or work counter); every other entry and member is
+        unchanged."""
+        base = subprocess.run(
+            ["git", "show", _source_spec(PROJECT, SD_BASE, RETAINED_CORPUS)],
+            cwd=REPOSITORY, check=True, capture_output=True, text=True,
+        ).stdout
+        now = _before_w7(RETAINED_CORPUS) if current is None else current
+        for member in ("cases", "mutations", "must_pass"):
+            before = _entries(base, member, _pair_id)
+            after = _entries(now, member, _pair_id)
+            assert [k for k, _ in after] == [k for k, _ in before], (member, "entries or order")
+            known = dict(before)
+            moved = {k for k, entry in after if classify(known[k], entry)}
+            assert moved == SILENT_DROP_MOVED[member], (member, sorted(moved ^ SILENT_DROP_MOVED[member]))
+            for key, entry in after:
+                if key in moved:
+                    leaves = classify(known[key], _silent_drop_restored(key, entry))
+                    assert leaves and all(kind == "hash" for kind, _ in leaves), (member, key, "beyond binding hashes", leaves)
+        before, after = dict(load(base)), dict(load(now))
+        assert list(before) == list(after)
+        for member in before:
+            if member not in ("cases", "mutations", "must_pass"):
+                assert not classify(before[member], after[member]), member
 
 
-def test_o4_text_only_envelope_diff_silent_drop_enumeration_refuses_other_moves():
-    """A value planted in a silent-drop base or in an entry it did not move, or the carrier left under
-    another key, fails the silent-drop enumeration."""
-    from tests.retained_precision_corpus import _STORAGE as storage
-    committed = json.loads(_before_w7(RETAINED_CORPUS))
-    for ident in ("w_cb1_sparse_interactive", "w_cb2_sparse_interactive"):
+class TestSilentDropEnumerationRefusesOtherMoves:
+    @staticmethod
+    def test_o4_text_only_envelope_diff_silent_drop_enumeration_refuses_other_moves():
+        """A value planted in a silent-drop base or in an entry it did not move, or the carrier left under
+        another key, fails the silent-drop enumeration."""
+        from tests.retained_precision_corpus import _STORAGE as storage
+        committed = json.loads(_before_w7(RETAINED_CORPUS))
+        for ident in ("w_cb1_sparse_interactive", "w_cb2_sparse_interactive"):
+            document = storage.expand(committed)
+            entry = next(e for e in document["cases"] if e.get("id") == ident)
+            assert _plant(entry["source"]), ident
+            with pytest.raises(AssertionError, match=ident):
+                TestRetainedCorpusMovesSinceMainAreTheSilentDropCarrier.test_o4_text_only_envelope_diff_retained_corpus_moves_since_main_are_the_silent_drop_carrier(current=json.dumps(document))
         document = storage.expand(committed)
-        entry = next(e for e in document["cases"] if e.get("id") == ident)
-        assert _plant(entry["source"]), ident
+        model = next(e for e in document["cases"] if e.get("id") == "w_cb1_dense_scrutiny")["invocation"]["request"]["model"]
+        model["notes"] = model.pop("diagnostics")
+        with pytest.raises(AssertionError, match="w_cb1_dense_scrutiny"):
+            TestRetainedCorpusMovesSinceMainAreTheSilentDropCarrier.test_o4_text_only_envelope_diff_retained_corpus_moves_since_main_are_the_silent_drop_carrier(current=json.dumps(document))
+
+
+class TestW15IdentityExceptionIsItsOneField:
+    @staticmethod
+    def test_o4_text_only_envelope_diff_w15_identity_exception_is_its_one_field():
+        """W-15's identity exception admits the clause only where it belongs: the clause planted in another
+        limitation of a W-15 base, or moved within the identity field, fails the enumeration (scrutiny of #1604); on W-7 the exception sits in W-7's corpus check."""
+        from tests.retained_precision_corpus import _STORAGE as storage
+        committed = json.loads(_w16_base_corpus())
+        ident = "w1_member_route_e_baseline_sparse_interactive"
+
+        def limitations(document):
+            return next(e for e in document["cases"] if e.get("id") == ident)["source"]["formulation_basis"]["limitations"]
+
+        document = storage.expand(committed)
+        assert limitations(document)[0] == W15_IDENTITY_NEW and len(limitations(document)) > 1
+        # In place of a full stop, as in the identity field: the old exception restored such a clause anywhere.
+        assert ". " in limitations(document)[1]
+        limitations(document)[1] = limitations(document)[1].replace(". ", W15_IDENTITY_CLAUSE + " ", 1)
         with pytest.raises(AssertionError, match=ident):
-            test_o4_text_only_envelope_diff_retained_corpus_moves_since_main_are_the_silent_drop_carrier(current=json.dumps(document))
-    document = storage.expand(committed)
-    model = next(e for e in document["cases"] if e.get("id") == "w_cb1_dense_scrutiny")["invocation"]["request"]["model"]
-    model["notes"] = model.pop("diagnostics")
-    with pytest.raises(AssertionError, match="w_cb1_dense_scrutiny"):
-        test_o4_text_only_envelope_diff_retained_corpus_moves_since_main_are_the_silent_drop_carrier(current=json.dumps(document))
-
-
-def test_o4_text_only_envelope_diff_w15_identity_exception_is_its_one_field():
-    """W-15's identity exception admits the clause only where it belongs: the clause planted in another
-    limitation of a W-15 base, or moved within the identity field, fails the enumeration (scrutiny of #1604); on W-7 the exception sits in W-7's corpus check."""
-    from tests.retained_precision_corpus import _STORAGE as storage
-    committed = json.loads(_w16_base_corpus())
-    ident = "w1_member_route_e_baseline_sparse_interactive"
-
-    def limitations(document):
-        return next(e for e in document["cases"] if e.get("id") == ident)["source"]["formulation_basis"]["limitations"]
-
-    document = storage.expand(committed)
-    assert limitations(document)[0] == W15_IDENTITY_NEW and len(limitations(document)) > 1
-    # In place of a full stop, as in the identity field: the old exception restored such a clause anywhere.
-    assert ". " in limitations(document)[1]
-    limitations(document)[1] = limitations(document)[1].replace(". ", W15_IDENTITY_CLAUSE + " ", 1)
-    with pytest.raises(AssertionError, match=ident):
-        test_o4_text_only_envelope_diff_w7_corpus_moves_only_global_end_rows(current=json.dumps(document))
-    document = storage.expand(committed)
-    limitations(document)[0] = W15_IDENTITY_OLD[:-1] + W15_IDENTITY_CLAUSE
-    with pytest.raises(AssertionError, match=ident):
-        test_o4_text_only_envelope_diff_w7_corpus_moves_only_global_end_rows(current=json.dumps(document))
+            TestW7CorpusMovesOnlyGlobalEndRows.test_o4_text_only_envelope_diff_w7_corpus_moves_only_global_end_rows(current=json.dumps(document))
+        document = storage.expand(committed)
+        limitations(document)[0] = W15_IDENTITY_OLD[:-1] + W15_IDENTITY_CLAUSE
+        with pytest.raises(AssertionError, match=ident):
+            TestW7CorpusMovesOnlyGlobalEndRows.test_o4_text_only_envelope_diff_w7_corpus_moves_only_global_end_rows(current=json.dumps(document))
 
 
 def _w7_corpus_stripped(value):
@@ -981,115 +1003,119 @@ def _w7_row_ids(source):
     return [str(dict(row)["id"]) for row in dict(source)["results"]]
 
 
-def test_o4_text_only_envelope_diff_w7_corpus_moves_only_global_end_rows(current=None):
-    """W-7 in the retained corpus, against its bytes at `W7_BASE`: the same entries in the same order.
-    Each producer base gains twelve not-covered global end rows per member and case (in its results,
-    its cases' not-covered lists and its expected classifications); without them it differs only by
-    binding hashes and `W7_CORPUS_FIGURES`, each figure rising (none falls). A mutation or must-pass
-    entry moves only where an edit's results index is re-targeted to the same row, or
-    (`W7_CORPUS_CARRIED`) where its copy of a base subtree takes the new base's figures and ids; the
-    synthetic bases and every other member are unchanged."""
-    before = dict(load(_before_w7(RETAINED_CORPUS)))
-    # W-16 slice a regenerated the corpus since; its own check binds the committed corpus to these bytes.
-    after = dict(load(_w16_base_corpus() if current is None else current))
-    assert list(before) == list(after)
-    for member in before:
-        if member not in ("cases", "mutations", "must_pass"):
-            assert not classify(before[member], after[member]), member
-    old_cases = {str(dict(c)["id"]): c for c in before["cases"]}
-    new_cases = {str(dict(c)["id"]): c for c in after["cases"]}
-    assert list(old_cases) == list(new_cases), "cases: entries or order"
-    for key, entry in new_cases.items():
-        old = old_cases[key]
-        # W-15 (DEL-03-05) on W-7: the six exact bases also restate the pressure-2 identity, at their one field.
-        if key in W15_IDENTITY_MOVED:
-            entry = _w15_identity_restored(key, old, entry)
-        producer = isinstance(dict(old)["provenance"], Obj)
-        rows = [r for r in _w7_row_ids(dict(entry)["source"]) if "element-global-end" in r]
-        assert not [r for r in _w7_row_ids(dict(old)["source"]) if "element-global-end" in r], (key, "no global end row before W-7")
-        if not producer:
-            assert not classify(old, entry), (key, "a synthetic base moved")
-            continue
-        assert rows and len(rows) % 12 == 0 and all(W7_ROW.match(r) for r in rows), (key, rows[:4])
-        found = classify(_w7_corpus_stripped(old), _w7_corpus_stripped(entry))
-        other = [path for kind, path in found if kind != "hash"]
-        assert all(W7_CORPUS_FIGURES.match(path) for path in other), (key, [p for p in other if not W7_CORPUS_FIGURES.match(p)][:6])
-        old_json = json.loads(_dump(old))["source"]["retained_precision"]["body"]
-        new_json = json.loads(_dump(entry))["source"]["retained_precision"]["body"]
-        for group in ("product_attempts", "operand_preparations"):
-            for a, b in zip(old_json.get(group, []), new_json.get(group, [])):
-                for x, y in zip(a["adapter"]["counts"], b["adapter"]["counts"]):
-                    assert y >= x, (key, group, "an adapter counter fell")
-                if not isinstance(a.get("proof"), dict):
-                    assert a.get("proof") == b.get("proof"), (key, group, "proof")
-                    continue
-                for field in ("capacities", "prepared_capacity_bytes"):
-                    assert all(y >= x for x, y in zip(a["proof"][field], b["proof"][field])), (key, field, "fell")
-                assert b["proof"]["visits"]["value"] >= a["proof"]["visits"]["value"], (key, "visits fell")
-                # A position indexes its run's rows, which gain the global end rows before it.
-                for x, y in zip(a["proof"].get("projection_outcomes", []), b["proof"].get("projection_outcomes", [])):
-                    assert y["row_index"] >= x["row_index"], (key, "a projection moved back")
-    for member in ("mutations", "must_pass"):
-        old_entries = {str(dict(e)["id"]): e for e in before[member]}
-        new_entries = [(str(dict(e)["id"]), e) for e in after[member]]
-        assert [k for k, _ in new_entries] == list(old_entries), (member, "entries or order")
-        for key, entry in new_entries:
-            if key in W7_CORPUS_CARRIED:
-                found = classify(_w7_corpus_stripped(old_entries[key]), _w7_corpus_stripped(entry))
-                # The id lists differ only by W-7's ids; the copies only by the figures W-7 moved.
-                assert all(W7_CARRIED_FIGURES.match(path) for _, path in found), \
-                    (member, key, [p for _, p in found if not W7_CARRIED_FIGURES.match(p)][:4])
+class TestW7CorpusMovesOnlyGlobalEndRows:
+    @staticmethod
+    def test_o4_text_only_envelope_diff_w7_corpus_moves_only_global_end_rows(current=None):
+        """W-7 in the retained corpus, against its bytes at `W7_BASE`: the same entries in the same order.
+        Each producer base gains twelve not-covered global end rows per member and case (in its results,
+        its cases' not-covered lists and its expected classifications); without them it differs only by
+        binding hashes and `W7_CORPUS_FIGURES`, each figure rising (none falls). A mutation or must-pass
+        entry moves only where an edit's results index is re-targeted to the same row, or
+        (`W7_CORPUS_CARRIED`) where its copy of a base subtree takes the new base's figures and ids; the
+        synthetic bases and every other member are unchanged."""
+        before = dict(load(_before_w7(RETAINED_CORPUS)))
+        # W-16 slice a regenerated the corpus since; its own check binds the committed corpus to these bytes.
+        after = dict(load(_w16_base_corpus() if current is None else current))
+        assert list(before) == list(after)
+        for member in before:
+            if member not in ("cases", "mutations", "must_pass"):
+                assert not classify(before[member], after[member]), member
+        old_cases = {str(dict(c)["id"]): c for c in before["cases"]}
+        new_cases = {str(dict(c)["id"]): c for c in after["cases"]}
+        assert list(old_cases) == list(new_cases), "cases: entries or order"
+        for key, entry in new_cases.items():
+            old = old_cases[key]
+            # W-15 (DEL-03-05) on W-7: the six exact bases also restate the pressure-2 identity, at their one field.
+            if key in W15_IDENTITY_MOVED:
+                entry = _w15_identity_restored(key, old, entry)
+            producer = isinstance(dict(old)["provenance"], Obj)
+            rows = [r for r in _w7_row_ids(dict(entry)["source"]) if "element-global-end" in r]
+            assert not [r for r in _w7_row_ids(dict(old)["source"]) if "element-global-end" in r], (key, "no global end row before W-7")
+            if not producer:
+                assert not classify(old, entry), (key, "a synthetic base moved")
                 continue
-            found = classify(old_entries[key], entry)
-            if not found:
-                continue
-            base = str(dict(entry)["base"])
-            old_source = json.loads(_dump(dict(old_cases[base])["source"]))
-            new_source = json.loads(_dump(dict(new_cases[base])["source"]))
-            old_json, new_json = json.loads(_dump(old_entries[key])), json.loads(_dump(entry))
-            assert all(path.startswith("/edits/*/path/") for kind, path in found), (member, key, found[:4])
-            for x, y in zip(old_json["edits"], new_json["edits"]):
-                if x["path"] == y["path"]:
-                    continue
-                assert {k: v for k, v in x.items() if k != "path"} == {k: v for k, v in y.items() if k != "path"}, (member, key)
-                assert len(x["path"]) == len(y["path"]), (member, key, x["path"])
-                # Each moved index is a results position or a combination's result_ids position, and names
-                # the same row in the base before and after W-7.
-                for j, (i, k) in enumerate(zip(x["path"], y["path"])):
-                    if i == k:
+            assert rows and len(rows) % 12 == 0 and all(W7_ROW.match(r) for r in rows), (key, rows[:4])
+            found = classify(_w7_corpus_stripped(old), _w7_corpus_stripped(entry))
+            other = [path for kind, path in found if kind != "hash"]
+            assert all(W7_CORPUS_FIGURES.match(path) for path in other), (key, [p for p in other if not W7_CORPUS_FIGURES.match(p)][:6])
+            old_json = json.loads(_dump(old))["source"]["retained_precision"]["body"]
+            new_json = json.loads(_dump(entry))["source"]["retained_precision"]["body"]
+            for group in ("product_attempts", "operand_preparations"):
+                for a, b in zip(old_json.get(group, []), new_json.get(group, [])):
+                    for x, y in zip(a["adapter"]["counts"], b["adapter"]["counts"]):
+                        assert y >= x, (key, group, "an adapter counter fell")
+                    if not isinstance(a.get("proof"), dict):
+                        assert a.get("proof") == b.get("proof"), (key, group, "proof")
                         continue
-                    assert j > 0 and x["path"][j - 1] in ("results", "result_ids") and x["path"][:j] == y["path"][:j], (member, key, x["path"])
-                    old_list, new_list = old_source, new_source
-                    for step in x["path"][:j]:
-                        old_list, new_list = old_list[step], new_list[step]
-                    name = (lambda v: v["id"]) if x["path"][j - 1] == "results" else (lambda v: v)
-                    assert name(old_list[i]) == name(new_list[k]), (member, key, "re-targeted to another row")
+                    for field in ("capacities", "prepared_capacity_bytes"):
+                        assert all(y >= x for x, y in zip(a["proof"][field], b["proof"][field])), (key, field, "fell")
+                    assert b["proof"]["visits"]["value"] >= a["proof"]["visits"]["value"], (key, "visits fell")
+                    # A position indexes its run's rows, which gain the global end rows before it.
+                    for x, y in zip(a["proof"].get("projection_outcomes", []), b["proof"].get("projection_outcomes", [])):
+                        assert y["row_index"] >= x["row_index"], (key, "a projection moved back")
+        for member in ("mutations", "must_pass"):
+            old_entries = {str(dict(e)["id"]): e for e in before[member]}
+            new_entries = [(str(dict(e)["id"]), e) for e in after[member]]
+            assert [k for k, _ in new_entries] == list(old_entries), (member, "entries or order")
+            for key, entry in new_entries:
+                if key in W7_CORPUS_CARRIED:
+                    found = classify(_w7_corpus_stripped(old_entries[key]), _w7_corpus_stripped(entry))
+                    # The id lists differ only by W-7's ids; the copies only by the figures W-7 moved.
+                    assert all(W7_CARRIED_FIGURES.match(path) for _, path in found), \
+                        (member, key, [p for _, p in found if not W7_CARRIED_FIGURES.match(p)][:4])
+                    continue
+                found = classify(old_entries[key], entry)
+                if not found:
+                    continue
+                base = str(dict(entry)["base"])
+                old_source = json.loads(_dump(dict(old_cases[base])["source"]))
+                new_source = json.loads(_dump(dict(new_cases[base])["source"]))
+                old_json, new_json = json.loads(_dump(old_entries[key])), json.loads(_dump(entry))
+                assert all(path.startswith("/edits/*/path/") for kind, path in found), (member, key, found[:4])
+                for x, y in zip(old_json["edits"], new_json["edits"]):
+                    if x["path"] == y["path"]:
+                        continue
+                    assert {k: v for k, v in x.items() if k != "path"} == {k: v for k, v in y.items() if k != "path"}, (member, key)
+                    assert len(x["path"]) == len(y["path"]), (member, key, x["path"])
+                    # Each moved index is a results position or a combination's result_ids position, and names
+                    # the same row in the base before and after W-7.
+                    for j, (i, k) in enumerate(zip(x["path"], y["path"])):
+                        if i == k:
+                            continue
+                        assert j > 0 and x["path"][j - 1] in ("results", "result_ids") and x["path"][:j] == y["path"][:j], (member, key, x["path"])
+                        old_list, new_list = old_source, new_source
+                        for step in x["path"][:j]:
+                            old_list, new_list = old_list[step], new_list[step]
+                        name = (lambda v: v["id"]) if x["path"][j - 1] == "results" else (lambda v: v)
+                        assert name(old_list[i]) == name(new_list[k]), (member, key, "re-targeted to another row")
 
 
-def test_o4_text_only_envelope_diff_w7_corpus_enumeration_refuses_other_moves():
-    """A changed number in a producer base, a moved synthetic base, or an edit re-targeted to another
-    row fails the W-7 corpus check at that entry."""
-    from tests.retained_precision_corpus import _STORAGE as storage
-    committed = json.loads(_w16_base_corpus())
-    document = storage.expand(committed)
-    entry = next(e for e in document["cases"] if e.get("id") == "w_c2_sparse_interactive")
-    row = next(r for r in entry["source"]["results"] if isinstance(r.get("value"), float) and r["value"] != 0.0)
-    row["value"] = row["value"] * 2.0
-    with pytest.raises(AssertionError, match="w_c2_sparse_interactive"):
-        test_o4_text_only_envelope_diff_w7_corpus_moves_only_global_end_rows(current=json.dumps(document))
-    document = storage.expand(committed)
-    entry = next(e for e in document["cases"] if not isinstance(e["provenance"], dict))
-    entry["source"]["results"][0]["value"] = 12.5
-    with pytest.raises(AssertionError, match=entry["id"]):
-        test_o4_text_only_envelope_diff_w7_corpus_moves_only_global_end_rows(current=json.dumps(document))
-    document = storage.expand(committed)
-    producers = {c["id"] for c in document["cases"] if isinstance(c["provenance"], dict)}
-    mutation = next(m for m in document["mutations"] if m["base"] in producers
-                    and any(e["path"][:1] == ["results"] and isinstance(e["path"][1], int) and e["path"][1] > 0 for e in m["edits"]))
-    edit = next(e for e in mutation["edits"] if e["path"][:1] == ["results"] and isinstance(e["path"][1], int) and e["path"][1] > 0)
-    edit["path"][1] -= 1
-    with pytest.raises(AssertionError, match=mutation["id"]):
-        test_o4_text_only_envelope_diff_w7_corpus_moves_only_global_end_rows(current=json.dumps(document))
+class TestW7CorpusEnumerationRefusesOtherMoves:
+    @staticmethod
+    def test_o4_text_only_envelope_diff_w7_corpus_enumeration_refuses_other_moves():
+        """A changed number in a producer base, a moved synthetic base, or an edit re-targeted to another
+        row fails the W-7 corpus check at that entry."""
+        from tests.retained_precision_corpus import _STORAGE as storage
+        committed = json.loads(_w16_base_corpus())
+        document = storage.expand(committed)
+        entry = next(e for e in document["cases"] if e.get("id") == "w_c2_sparse_interactive")
+        row = next(r for r in entry["source"]["results"] if isinstance(r.get("value"), float) and r["value"] != 0.0)
+        row["value"] = row["value"] * 2.0
+        with pytest.raises(AssertionError, match="w_c2_sparse_interactive"):
+            TestW7CorpusMovesOnlyGlobalEndRows.test_o4_text_only_envelope_diff_w7_corpus_moves_only_global_end_rows(current=json.dumps(document))
+        document = storage.expand(committed)
+        entry = next(e for e in document["cases"] if not isinstance(e["provenance"], dict))
+        entry["source"]["results"][0]["value"] = 12.5
+        with pytest.raises(AssertionError, match=entry["id"]):
+            TestW7CorpusMovesOnlyGlobalEndRows.test_o4_text_only_envelope_diff_w7_corpus_moves_only_global_end_rows(current=json.dumps(document))
+        document = storage.expand(committed)
+        producers = {c["id"] for c in document["cases"] if isinstance(c["provenance"], dict)}
+        mutation = next(m for m in document["mutations"] if m["base"] in producers
+                        and any(e["path"][:1] == ["results"] and isinstance(e["path"][1], int) and e["path"][1] > 0 for e in m["edits"]))
+        edit = next(e for e in mutation["edits"] if e["path"][:1] == ["results"] and isinstance(e["path"][1], int) and e["path"][1] > 0)
+        edit["path"][1] -= 1
+        with pytest.raises(AssertionError, match=mutation["id"]):
+            TestW7CorpusMovesOnlyGlobalEndRows.test_o4_text_only_envelope_diff_w7_corpus_moves_only_global_end_rows(current=json.dumps(document))
 
 
 def _w16_base_corpus() -> str:
@@ -1136,98 +1162,108 @@ def _states_w16b_from(value) -> bool:
     return isinstance(value, str) and value == W16B_IDENTITY_FROM
 
 
-def test_o4_text_only_envelope_diff_retained_corpus_moves_since_main_are_the_w16_limitation(current=None):
-    """W-16 slice a: the committed retained corpus against main's bytes at `W16_BASE`. The same entries
-    in the same order; an entry moves exactly where its base stated the old LIMITATIONS[1] sentence,
-    and with that sentence restated it differs only by binding hashes (no number, status, class, work
-    counter or other text); every other entry and member is unchanged. W-16 slice b: an entry also moves
-    exactly where its base stated W-15's pressure-2 identity (the six route-E exact bases), and with the
-    identity field restated it differs only by binding hashes."""
-    base = _w16_base_corpus()
-    now = w15c_base_text(RETAINED_CORPUS) if current is None else current
-    for member in ("cases", "mutations", "must_pass"):
-        before = _entries(base, member, _pair_id)
-        after = _entries(now, member, _pair_id)
-        assert [k for k, _ in after] == [k for k, _ in before], (member, "entries or order")
-        known = dict(before)
-        moved = {k for k, entry in after if classify(known[k], entry)}
-        stating = {k for k, entry in before if _states_w16_old(entry) or _states_w16b_from(entry)}
-        assert moved == stating, (member, sorted(moved ^ stating))
-        for key, entry in after:
-            if key in moved:
-                leaves = classify(_w16b_restated(_w16_restated(known[key])), entry)
-                assert all(kind == "hash" for kind, _ in leaves), (member, key, "beyond the sentence and binding hashes", leaves)
-    before, after = dict(load(base)), dict(load(now))
-    assert list(before) == list(after)
-    for member in before:
-        if member not in ("cases", "mutations", "must_pass"):
-            assert not classify(before[member], after[member]), member
+class TestRetainedCorpusMovesSinceMainAreTheW16Limitation:
+    @staticmethod
+    def test_o4_text_only_envelope_diff_retained_corpus_moves_since_main_are_the_w16_limitation(current=None):
+        """W-16 slice a: the committed retained corpus against main's bytes at `W16_BASE`. The same entries
+        in the same order; an entry moves exactly where its base stated the old LIMITATIONS[1] sentence,
+        and with that sentence restated it differs only by binding hashes (no number, status, class, work
+        counter or other text); every other entry and member is unchanged. W-16 slice b: an entry also moves
+        exactly where its base stated W-15's pressure-2 identity (the six route-E exact bases), and with the
+        identity field restated it differs only by binding hashes."""
+        base = _w16_base_corpus()
+        now = w15c_base_text(RETAINED_CORPUS) if current is None else current
+        for member in ("cases", "mutations", "must_pass"):
+            before = _entries(base, member, _pair_id)
+            after = _entries(now, member, _pair_id)
+            assert [k for k, _ in after] == [k for k, _ in before], (member, "entries or order")
+            known = dict(before)
+            moved = {k for k, entry in after if classify(known[k], entry)}
+            stating = {k for k, entry in before if _states_w16_old(entry) or _states_w16b_from(entry)}
+            assert moved == stating, (member, sorted(moved ^ stating))
+            for key, entry in after:
+                if key in moved:
+                    leaves = classify(_w16b_restated(_w16_restated(known[key])), entry)
+                    assert all(kind == "hash" for kind, _ in leaves), (member, key, "beyond the sentence and binding hashes", leaves)
+        before, after = dict(load(base)), dict(load(now))
+        assert list(before) == list(after)
+        for member in before:
+            if member not in ("cases", "mutations", "must_pass"):
+                assert not classify(before[member], after[member]), member
 
 
-def test_o4_text_only_envelope_diff_w16_limitation_enumeration_refuses_other_moves():
-    """A value planted in a moved preview base or in an unmoved exact-route base fails the W-16
-    enumeration."""
-    from tests.retained_precision_corpus import _STORAGE as storage
-    committed = json.loads(w15c_base_text(RETAINED_CORPUS))
-    for ident in ("w_cb2_sparse_interactive", "o4_w1e_sparse_interactive"):
+class TestW16LimitationEnumerationRefusesOtherMoves:
+    @staticmethod
+    def test_o4_text_only_envelope_diff_w16_limitation_enumeration_refuses_other_moves():
+        """A value planted in a moved preview base or in an unmoved exact-route base fails the W-16
+        enumeration."""
+        from tests.retained_precision_corpus import _STORAGE as storage
+        committed = json.loads(w15c_base_text(RETAINED_CORPUS))
+        for ident in ("w_cb2_sparse_interactive", "o4_w1e_sparse_interactive"):
+            document = storage.expand(committed)
+            entry = next(e for e in document["cases"] if e.get("id") == ident)
+            assert _plant(entry["source"]), ident
+            with pytest.raises(AssertionError, match=ident):
+                TestRetainedCorpusMovesSinceMainAreTheW16Limitation.test_o4_text_only_envelope_diff_retained_corpus_moves_since_main_are_the_w16_limitation(current=json.dumps(document))
+
+
+class TestCorner1EnumerationRefusesAMovedRouteEBase:
+    @staticmethod
+    def test_o4_text_only_envelope_diff_corner1_enumeration_refuses_a_moved_route_e_base():
+        """A value planted in the committed corpus's route-E base fails the enumeration."""
+        from tests.retained_precision_corpus import _STORAGE as storage
+        document = storage.expand(json.loads(_corner1_corpus()))
+        entry = next(e for e in document["cases"] if e.get("id") == "w1_member_route_e_baseline_sparse_interactive")
+        assert _plant(entry)
+        with pytest.raises(AssertionError, match="w1_member_route_e_baseline_sparse_interactive"):
+            TestRetainedCorpusMovesSinceW1Corner1AreEnumerated.test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_enumerated(current=json.dumps(document))
+
+
+class TestCorner1EnumerationBindsTheEnumeratedEntries:
+    @staticmethod
+    def test_o4_text_only_envelope_diff_corner1_enumeration_binds_the_enumerated_entries():
+        """A value planted in an entry corner 1 moved or added, or a duplicated addition, fails
+        (Opus review, round 4)."""
+        from tests.retained_precision_corpus import _STORAGE as storage
+        committed = json.loads(_corner1_corpus())
+        for member, ident in (
+            ("cases", "w1_member_load_sparse_interactive"),
+            ("cases", "w1_member_hull_d02_sparse_interactive"),
+            ("mutations", "member_exhaustion_diagnostic_reversed"),
+        ):
+            document = storage.expand(committed)
+            entry = next(e for e in document[member] if e.get("id") == ident)
+            if member == "mutations":  # its values are bit strings: change an edit's path
+                entry["edits"][0]["path"] += "/planted"
+            else:
+                assert _plant(entry), ident
+            with pytest.raises(AssertionError, match=ident):
+                TestRetainedCorpusMovesSinceW1Corner1AreEnumerated.test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_enumerated(current=json.dumps(document))
         document = storage.expand(committed)
-        entry = next(e for e in document["cases"] if e.get("id") == ident)
-        assert _plant(entry["source"]), ident
-        with pytest.raises(AssertionError, match=ident):
-            test_o4_text_only_envelope_diff_retained_corpus_moves_since_main_are_the_w16_limitation(current=json.dumps(document))
+        document["cases"].append(next(e for e in document["cases"] if e.get("id") == "w1_member_hull_d02_sparse_interactive"))
+        with pytest.raises(AssertionError, match="w1_member_hull_d02_sparse_interactive"):
+            TestRetainedCorpusMovesSinceW1Corner1AreEnumerated.test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_enumerated(current=json.dumps(document))
 
 
-def test_o4_text_only_envelope_diff_corner1_enumeration_refuses_a_moved_route_e_base():
-    """A value planted in the committed corpus's route-E base fails the enumeration."""
-    from tests.retained_precision_corpus import _STORAGE as storage
-    document = storage.expand(json.loads(_corner1_corpus()))
-    entry = next(e for e in document["cases"] if e.get("id") == "w1_member_route_e_baseline_sparse_interactive")
-    assert _plant(entry)
-    with pytest.raises(AssertionError, match="w1_member_route_e_baseline_sparse_interactive"):
-        test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_enumerated(current=json.dumps(document))
-
-
-def test_o4_text_only_envelope_diff_corner1_enumeration_binds_the_enumerated_entries():
-    """A value planted in an entry corner 1 moved or added, or a duplicated addition, fails
-    (Opus review, round 4)."""
-    from tests.retained_precision_corpus import _STORAGE as storage
-    committed = json.loads(_corner1_corpus())
-    for member, ident in (
-        ("cases", "w1_member_load_sparse_interactive"),
-        ("cases", "w1_member_hull_d02_sparse_interactive"),
-        ("mutations", "member_exhaustion_diagnostic_reversed"),
-    ):
-        document = storage.expand(committed)
-        entry = next(e for e in document[member] if e.get("id") == ident)
-        if member == "mutations":  # its values are bit strings: change an edit's path
-            entry["edits"][0]["path"] += "/planted"
-        else:
-            assert _plant(entry), ident
-        with pytest.raises(AssertionError, match=ident):
-            test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_enumerated(current=json.dumps(document))
-    document = storage.expand(committed)
-    document["cases"].append(next(e for e in document["cases"] if e.get("id") == "w1_member_hull_d02_sparse_interactive"))
-    with pytest.raises(AssertionError, match="w1_member_hull_d02_sparse_interactive"):
-        test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_enumerated(current=json.dumps(document))
-
-
-def test_o4_text_only_envelope_diff_corner1_enumeration_pins_the_added_positions():
-    """An entry corner 1 added, moved to another position with its bytes unchanged, fails:
-    swapped with its sibling, moved to the front, or moved into the middle."""
-    from tests.retained_precision_corpus import _STORAGE as storage
-    committed = json.loads(_corner1_corpus())
-    for member, ident, place in (
-        ("cases", "w1_member_hull_d02_sparse_interactive", "after_sibling"),
-        ("cases", "w1_member_hull_d02_dense_scrutiny", 0),
-        ("must_pass", "w1_member_hull_d02_sparse_interactive_must_pass", 50),
-    ):
-        document = storage.expand(committed)
-        entries = document[member]
-        index = next(i for i, e in enumerate(entries) if e.get("id") == ident)
-        entry = entries.pop(index)
-        entries.insert(index + 1 if place == "after_sibling" else place, entry)
-        with pytest.raises(AssertionError, match=ident):
-            test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_enumerated(current=json.dumps(document))
+class TestCorner1EnumerationPinsTheAddedPositions:
+    @staticmethod
+    def test_o4_text_only_envelope_diff_corner1_enumeration_pins_the_added_positions():
+        """An entry corner 1 added, moved to another position with its bytes unchanged, fails:
+        swapped with its sibling, moved to the front, or moved into the middle."""
+        from tests.retained_precision_corpus import _STORAGE as storage
+        committed = json.loads(_corner1_corpus())
+        for member, ident, place in (
+            ("cases", "w1_member_hull_d02_sparse_interactive", "after_sibling"),
+            ("cases", "w1_member_hull_d02_dense_scrutiny", 0),
+            ("must_pass", "w1_member_hull_d02_sparse_interactive_must_pass", 50),
+        ):
+            document = storage.expand(committed)
+            entries = document[member]
+            index = next(i for i, e in enumerate(entries) if e.get("id") == ident)
+            entry = entries.pop(index)
+            entries.insert(index + 1 if place == "after_sibling" else place, entry)
+            with pytest.raises(AssertionError, match=ident):
+                TestRetainedCorpusMovesSinceW1Corner1AreEnumerated.test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_enumerated(current=json.dumps(document))
 
 
 def _dump(value) -> str:
@@ -1260,21 +1296,23 @@ def _replace_first(value, test, make) -> bool:
     return False
 
 
-def test_o4_text_only_envelope_diff_corner1_enumeration_keeps_tokens_and_containers():
-    """In the committed route-E base, an empty array turned into an empty object, or a
-    number token changed to one that rounds alike, fails (Codex review of this PR, round 4)."""
-    text = _corner1_corpus()
-    # The token-preserving re-serialisation alone passes, so each failure below is the change's.
-    test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_enumerated(current=_dump(load(text)))
-    for test, make in (
-        (lambda v: isinstance(v, list) and not isinstance(v, Obj) and not v, Obj),
-        (lambda v: isinstance(v, Token) and v == "1.0", lambda: Token("1.0000000000000001")),
-    ):
-        document = load(text)
-        entry = next(e for e in dict(document)["cases"] if dict(e).get("id") == "w1_member_route_e_baseline_sparse_interactive")
-        assert _replace_first(entry, test, make)
-        with pytest.raises(AssertionError, match="w1_member_route_e_baseline_sparse_interactive"):
-            test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_enumerated(current=_dump(document))
+class TestCorner1EnumerationKeepsTokensAndContainers:
+    @staticmethod
+    def test_o4_text_only_envelope_diff_corner1_enumeration_keeps_tokens_and_containers():
+        """In the committed route-E base, an empty array turned into an empty object, or a
+        number token changed to one that rounds alike, fails (Codex review of this PR, round 4)."""
+        text = _corner1_corpus()
+        # The token-preserving re-serialisation alone passes, so each failure below is the change's.
+        TestRetainedCorpusMovesSinceW1Corner1AreEnumerated.test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_enumerated(current=_dump(load(text)))
+        for test, make in (
+            (lambda v: isinstance(v, list) and not isinstance(v, Obj) and not v, Obj),
+            (lambda v: isinstance(v, Token) and v == "1.0", lambda: Token("1.0000000000000001")),
+        ):
+            document = load(text)
+            entry = next(e for e in dict(document)["cases"] if dict(e).get("id") == "w1_member_route_e_baseline_sparse_interactive")
+            assert _replace_first(entry, test, make)
+            with pytest.raises(AssertionError, match="w1_member_route_e_baseline_sparse_interactive"):
+                TestRetainedCorpusMovesSinceW1Corner1AreEnumerated.test_o4_text_only_envelope_diff_retained_corpus_moves_since_w1_corner1_are_enumerated(current=_dump(document))
 
 
 def _plant(value):
@@ -1289,24 +1327,28 @@ def _plant(value):
     return False
 
 
-def test_o4_text_only_envelope_diff_route_e_check_refuses_a_planted_value():
-    """The restated route-E check still fails on a changed value in a route-E entry."""
-    from tests.retained_precision_corpus import _STORAGE as storage
-    document = storage.expand(json.loads(current_text(RETAINED_CORPUS)))
-    entry = next(e for e in document["cases"] if e.get("id") == "w1_member_route_e_baseline_sparse_interactive")
+class TestRouteECheckRefusesAPlantedValue:
+    @staticmethod
+    def test_o4_text_only_envelope_diff_route_e_check_refuses_a_planted_value():
+        """The restated route-E check still fails on a changed value in a route-E entry."""
+        from tests.retained_precision_corpus import _STORAGE as storage
+        document = storage.expand(json.loads(current_text(RETAINED_CORPUS)))
+        entry = next(e for e in document["cases"] if e.get("id") == "w1_member_route_e_baseline_sparse_interactive")
 
-    assert _plant(entry)
-    found, _, _ = _keyed_diff(RETAINED_CORPUS, "cases", _pair_id, current=json.dumps(document))
-    assert any(kind == "other" for kind, _ in found["w1_member_route_e_baseline_sparse_interactive"])
+        assert _plant(entry)
+        found, _, _ = _keyed_diff(RETAINED_CORPUS, "cases", _pair_id, current=json.dumps(document))
+        assert any(kind == "other" for kind, _ in found["w1_member_route_e_baseline_sparse_interactive"])
 
 
-def test_o4_text_only_envelope_diff_r1_outcomes_move_only_input_digests():
-    """R1: the native reader's outcome on every corpus input present at the base is unchanged except the
-    digests of the inputs (and receipt digests the readings echo)."""
-    found, _, _ = _keyed_diff(R1_OUTCOMES, "entries", lambda entry: entry[0])
-    assert found
-    for key, leaves in found.items():
-        assert all(kind == "hash" for kind, _ in leaves), (key, leaves[:8])
+class TestR1OutcomesMoveOnlyInputDigests:
+    @staticmethod
+    def test_o4_text_only_envelope_diff_r1_outcomes_move_only_input_digests():
+        """R1: the native reader's outcome on every corpus input present at the base is unchanged except the
+        digests of the inputs (and receipt digests the readings echo)."""
+        found, _, _ = _keyed_diff(R1_OUTCOMES, "entries", lambda entry: entry[0])
+        assert found
+        for key, leaves in found.items():
+            assert all(kind == "hash" for kind, _ in leaves), (key, leaves[:8])
 
 
 def _leaf_paths(before, after, path=""):
@@ -1322,42 +1364,46 @@ def _leaf_paths(before, after, path=""):
     return [] if type(before) is type(after) and before == after else [path]
 
 
-def test_o4_text_only_envelope_diff_diagnostics_repair_moves_only_the_diagnostics(current=None):
-    """Each committed derivative golden against the repair's parent: only each diagnostic's
-    mapped members and the derivative hash move, and every diagnostic now names itself."""
-    # Number tokens stay `Token`s, distinct from JSON strings (Codex review of #1517).
-    exact = lambda text: json.loads(text, parse_float=Token, parse_int=Token)
-    for name in DIAG_GOLDENS:
-        before = exact(subprocess.run(["git", "show", _source_spec(PROJECT, DIAG_BASE, name)],
-                                      cwd=REPOSITORY, check=True, capture_output=True, text=True).stdout)
-        after = exact(s1b_base_text(name) if current is None else current[name])
-        moved = _leaf_paths(before, after)
-        assert moved and all(DIAG_MOVED.match(p) for p in moved), (name, [p for p in moved if not DIAG_MOVED.match(p)][:8])
-        for diagnostic in after["result_envelope"]["diagnostics"]:
-            assert diagnostic["affected_object"]["ref_type"] == "preview_diagnostic", (name, diagnostic)
+class TestDiagnosticsRepairMovesOnlyTheDiagnostics:
+    @staticmethod
+    def test_o4_text_only_envelope_diff_diagnostics_repair_moves_only_the_diagnostics(current=None):
+        """Each committed derivative golden against the repair's parent: only each diagnostic's
+        mapped members and the derivative hash move, and every diagnostic now names itself."""
+        # Number tokens stay `Token`s, distinct from JSON strings (Codex review of #1517).
+        exact = lambda text: json.loads(text, parse_float=Token, parse_int=Token)
+        for name in DIAG_GOLDENS:
+            before = exact(subprocess.run(["git", "show", _source_spec(PROJECT, DIAG_BASE, name)],
+                                          cwd=REPOSITORY, check=True, capture_output=True, text=True).stdout)
+            after = exact(s1b_base_text(name) if current is None else current[name])
+            moved = _leaf_paths(before, after)
+            assert moved and all(DIAG_MOVED.match(p) for p in moved), (name, [p for p in moved if not DIAG_MOVED.match(p)][:8])
+            for diagnostic in after["result_envelope"]["diagnostics"]:
+                assert diagnostic["affected_object"]["ref_type"] == "preview_diagnostic", (name, diagnostic)
 
 
-def test_o4_text_only_envelope_diff_diagnostics_repair_refuses_other_moves():
-    """A changed number outside the diagnostics (the golden's first `"value"`, in the carried
-    receipt), the same number turned into a string, or a dropped diagnostic, in a regenerated
-    golden fails at that path; each mutant keeps every other token."""
-    texts = {name: s1b_base_text(name) for name in DIAG_GOLDENS}
-    name = DIAG_GOLDENS[0]
-    # The token-preserving re-serialisation alone passes, so each failure is the mutation's.
-    test_o4_text_only_envelope_diff_diagnostics_repair_moves_only_the_diagnostics(
-        current=dict(texts, **{name: _dump(load(texts[name]))}))
-    value = re.search(r'"value":(-?[0-9][0-9.eE+-]*)', texts[name])
-    assert value
-    for mutant in (texts[name][: value.start(1)] + "1" + texts[name][value.start(1):],
-                   texts[name][: value.start(1)] + '"' + value.group(1) + '"' + texts[name][value.end(1):]):
-        with pytest.raises(AssertionError, match=re.escape(name)):
-            test_o4_text_only_envelope_diff_diagnostics_repair_moves_only_the_diagnostics(current=dict(texts, **{name: mutant}))
-    document = load(texts[name])
-    diagnostics = dict(dict(document)["result_envelope"])["diagnostics"]
-    assert diagnostics
-    diagnostics.pop()
-    with pytest.raises(AssertionError, match=re.escape(name) + r".*'/result_envelope/diagnostics'"):
-        test_o4_text_only_envelope_diff_diagnostics_repair_moves_only_the_diagnostics(current=dict(texts, **{name: _dump(document)}))
+class TestDiagnosticsRepairRefusesOtherMoves:
+    @staticmethod
+    def test_o4_text_only_envelope_diff_diagnostics_repair_refuses_other_moves():
+        """A changed number outside the diagnostics (the golden's first `"value"`, in the carried
+        receipt), the same number turned into a string, or a dropped diagnostic, in a regenerated
+        golden fails at that path; each mutant keeps every other token."""
+        texts = {name: s1b_base_text(name) for name in DIAG_GOLDENS}
+        name = DIAG_GOLDENS[0]
+        # The token-preserving re-serialisation alone passes, so each failure is the mutation's.
+        TestDiagnosticsRepairMovesOnlyTheDiagnostics.test_o4_text_only_envelope_diff_diagnostics_repair_moves_only_the_diagnostics(
+            current=dict(texts, **{name: _dump(load(texts[name]))}))
+        value = re.search(r'"value":(-?[0-9][0-9.eE+-]*)', texts[name])
+        assert value
+        for mutant in (texts[name][: value.start(1)] + "1" + texts[name][value.start(1):],
+                       texts[name][: value.start(1)] + '"' + value.group(1) + '"' + texts[name][value.end(1):]):
+            with pytest.raises(AssertionError, match=re.escape(name)):
+                TestDiagnosticsRepairMovesOnlyTheDiagnostics.test_o4_text_only_envelope_diff_diagnostics_repair_moves_only_the_diagnostics(current=dict(texts, **{name: mutant}))
+        document = load(texts[name])
+        diagnostics = dict(dict(document)["result_envelope"])["diagnostics"]
+        assert diagnostics
+        diagnostics.pop()
+        with pytest.raises(AssertionError, match=re.escape(name) + r".*'/result_envelope/diagnostics'"):
+            TestDiagnosticsRepairMovesOnlyTheDiagnostics.test_o4_text_only_envelope_diff_diagnostics_repair_moves_only_the_diagnostics(current=dict(texts, **{name: _dump(document)}))
 
 
 def _before_w7(name: str) -> str:
@@ -1374,74 +1420,82 @@ def _sz_code(diagnostic):
     return dict(diagnostic.get("source_annotation", diagnostic)).get("code")
 
 
-def test_o4_text_only_envelope_diff_silent_zero_moves_only_added_diagnostics(current=None):
-    """Each silent-zero regenerated file against the regeneration's parent: the diagnostics list
-    keeps every earlier diagnostic in order and gains only silent-zero warnings, and nothing
-    else moves but the AnalysisRun hashes that bind the received bytes (no number moved)."""
-    for name, pointer in SZ_REGENERATED.items():
-        before = load(subprocess.run(["git", "show", _source_spec(PROJECT, SZ_BASE, name)],
-                                     cwd=REPOSITORY, check=True, capture_output=True, text=True).stdout)
-        after = load(s1b_base_text(name) if current is None else current[name])
-        lists = []
-        for document in (before, after):
-            holder = document
-            for key in pointer.strip("/").split("/")[:-1]:
-                holder = dict(holder)[key]
-            lists.append(dict(holder)[pointer.rsplit("/", 1)[-1]])
-        old, new = lists
-        kept, added = [], []
-        for diagnostic in new:
-            (kept if len(kept) < len(old) and diagnostic == old[len(kept)] else added).append(diagnostic)
-        assert kept == old, (name, "an earlier diagnostic moved")
-        assert added and all(_sz_code(d) in SZ_CODES for d in added), (name, [_sz_code(d) for d in added])
-        new[:] = kept
-        found = classify(before, after)
-        assert all(kind == "hash" and SZ_MOVED.match(path.replace("*", "0")) for kind, path in found), (name, found[:8])
+class TestSilentZeroMovesOnlyAddedDiagnostics:
+    @staticmethod
+    def test_o4_text_only_envelope_diff_silent_zero_moves_only_added_diagnostics(current=None):
+        """Each silent-zero regenerated file against the regeneration's parent: the diagnostics list
+        keeps every earlier diagnostic in order and gains only silent-zero warnings, and nothing
+        else moves but the AnalysisRun hashes that bind the received bytes (no number moved)."""
+        for name, pointer in SZ_REGENERATED.items():
+            before = load(subprocess.run(["git", "show", _source_spec(PROJECT, SZ_BASE, name)],
+                                         cwd=REPOSITORY, check=True, capture_output=True, text=True).stdout)
+            after = load(s1b_base_text(name) if current is None else current[name])
+            lists = []
+            for document in (before, after):
+                holder = document
+                for key in pointer.strip("/").split("/")[:-1]:
+                    holder = dict(holder)[key]
+                lists.append(dict(holder)[pointer.rsplit("/", 1)[-1]])
+            old, new = lists
+            kept, added = [], []
+            for diagnostic in new:
+                (kept if len(kept) < len(old) and diagnostic == old[len(kept)] else added).append(diagnostic)
+            assert kept == old, (name, "an earlier diagnostic moved")
+            assert added and all(_sz_code(d) in SZ_CODES for d in added), (name, [_sz_code(d) for d in added])
+            new[:] = kept
+            found = classify(before, after)
+            assert all(kind == "hash" and SZ_MOVED.match(path.replace("*", "0")) for kind, path in found), (name, found[:8])
 
 
-def test_o4_text_only_envelope_diff_silent_zero_refuses_other_moves():
-    """A changed number, an added diagnostic of another code, or a dropped earlier diagnostic in
-    a silent-zero regenerated file fails at that file."""
-    texts = {name: s1b_base_text(name) for name in SZ_REGENERATED}
-    name = next(iter(SZ_REGENERATED))
-    test_o4_text_only_envelope_diff_silent_zero_moves_only_added_diagnostics(
-        current=dict(texts, **{name: _dump(load(texts[name]))}))
-    value = re.search(r'"value": (-?[0-9][0-9.eE+-]*)', texts[name])
-    assert value
-    mutants = [texts[name][: value.start(1)] + "1" + texts[name][value.start(1):]]
-    for change in ("code", "drop"):
-        document = load(texts[name])
-        diagnostics = dict(document)["diagnostics"]
-        if change == "code":
-            entry = next(d for d in diagnostics if _sz_code(d) == "LOAD_STATE_SOURCE_EXCLUDED")
-            entry[[k for k, _ in entry].index("code")] = ("code", "LOAD_SOURCE_SOMETHING_ELSE")
-        else:
-            diagnostics.pop()
-        mutants.append(_dump(document))
-    for mutant in mutants:
-        with pytest.raises(AssertionError, match=re.escape(name)):
-            test_o4_text_only_envelope_diff_silent_zero_moves_only_added_diagnostics(current=dict(texts, **{name: mutant}))
+class TestSilentZeroRefusesOtherMoves:
+    @staticmethod
+    def test_o4_text_only_envelope_diff_silent_zero_refuses_other_moves():
+        """A changed number, an added diagnostic of another code, or a dropped earlier diagnostic in
+        a silent-zero regenerated file fails at that file."""
+        texts = {name: s1b_base_text(name) for name in SZ_REGENERATED}
+        name = next(iter(SZ_REGENERATED))
+        TestSilentZeroMovesOnlyAddedDiagnostics.test_o4_text_only_envelope_diff_silent_zero_moves_only_added_diagnostics(
+            current=dict(texts, **{name: _dump(load(texts[name]))}))
+        value = re.search(r'"value": (-?[0-9][0-9.eE+-]*)', texts[name])
+        assert value
+        mutants = [texts[name][: value.start(1)] + "1" + texts[name][value.start(1):]]
+        for change in ("code", "drop"):
+            document = load(texts[name])
+            diagnostics = dict(document)["diagnostics"]
+            if change == "code":
+                entry = next(d for d in diagnostics if _sz_code(d) == "LOAD_STATE_SOURCE_EXCLUDED")
+                entry[[k for k, _ in entry].index("code")] = ("code", "LOAD_SOURCE_SOMETHING_ELSE")
+            else:
+                diagnostics.pop()
+            mutants.append(_dump(document))
+        for mutant in mutants:
+            with pytest.raises(AssertionError, match=re.escape(name)):
+                TestSilentZeroMovesOnlyAddedDiagnostics.test_o4_text_only_envelope_diff_silent_zero_moves_only_added_diagnostics(current=dict(texts, **{name: mutant}))
 
 
-def test_o4_text_only_envelope_diff_j7_census_moves_only_envelope_digests():
-    summary = check(J7_CENSUS, allowed_hashes={"envelope_sha256"})
-    assert set(summary) <= {"hash"}
-    assert all(path.endswith("/envelope_sha256") for path in summary.get("hash", {}))
+class TestJ7CensusMovesOnlyEnvelopeDigests:
+    @staticmethod
+    def test_o4_text_only_envelope_diff_j7_census_moves_only_envelope_digests():
+        summary = check(J7_CENSUS, allowed_hashes={"envelope_sha256"})
+        assert set(summary) <= {"hash"}
+        assert all(path.endswith("/envelope_sha256") for path in summary.get("hash", {}))
 
 
-def test_o4_text_only_envelope_diff_refuses_a_changed_number():
-    """The mutant row of §6: one number changed in a regenerated envelope fails."""
-    name = ENVELOPES[0]
-    current = current_text(name)
-    match = re.search(r'"value": ?(-?[0-9][0-9.eE+-]*)', current)
-    assert match
-    token = match.group(1)
-    mutated = current[: match.start(1)] + ("1" + token if not token.startswith("-") else token[1:]) + current[match.end(1):]
-    with pytest.raises(AssertionError, match="differs beyond the limitation text"):
-        check(name, current=mutated)
-    # A changed string other than the restated segments fails too.
-    with pytest.raises(AssertionError, match="differs beyond the limitation text"):
-        check(name, current=current.replace("Other source families are declined by name.", "Other families are declined by name.", 1))
+class TestRefusesAChangedNumber:
+    @staticmethod
+    def test_o4_text_only_envelope_diff_refuses_a_changed_number():
+        """The mutant row of §6: one number changed in a regenerated envelope fails."""
+        name = ENVELOPES[0]
+        current = current_text(name)
+        match = re.search(r'"value": ?(-?[0-9][0-9.eE+-]*)', current)
+        assert match
+        token = match.group(1)
+        mutated = current[: match.start(1)] + ("1" + token if not token.startswith("-") else token[1:]) + current[match.end(1):]
+        with pytest.raises(AssertionError, match="differs beyond the limitation text"):
+            check(name, current=mutated)
+        # A changed string other than the restated segments fails too.
+        with pytest.raises(AssertionError, match="differs beyond the limitation text"):
+            check(name, current=current.replace("Other source families are declined by name.", "Other families are declined by name.", 1))
 
 
 def _w7_row_name(item):
@@ -1494,113 +1548,121 @@ def _without_w7(value, removed, derived):
     return value
 
 
-def test_o4_text_only_envelope_diff_w7_moves_only_added_global_end_rows(current=None):
-    """Each file W-7 regenerated, against its bytes before W-7: without the added global end rows
-    (twelve per member and case: Fx..Mz at end_i and end_j) the envelopes are unchanged; the derived
-    carriers also lose those rows' derived items, and move only positions, row counts and binding
-    hashes; J7 moves only the envelope and results digests of its ordinary pressure-2 entries."""
-    for name in W7_ENVELOPES + W7_DERIVED:
-        before = load(_before_w7(name))
-        after = load(w15c_base_text(name) if current is None or name not in current else current[name])
-        derived = name in W7_DERIVED
-        # W-15 (DEL-03-05) on W-7: the exact envelopes and their carriers also restate the pressure-2 identity, at
-        # each formulation basis's first limitation, exactly old -> new.
-        # W-16 slice b: and again at the same field (combinations and equivalent-static leave the refused list).
-        w16b = []
-        after = _w16b_identity_old(after, w16b)
-        assert bool(w16b) != name.endswith(".analysis_run.json"), (name, "the W-16 slice b identity field")
-        w15 = []
-        after = _w15_identity_old(after, w15)
-        # An AnalysisRun record binds its document by digest and carries no formulation basis.
-        assert bool(w15) != name.endswith(".analysis_run.json"), (name, "the W-15 identity field")
-        # W-16 slice c: the load/reference-state envelopes and their carriers restate the applied-loads
-        # limitation, exactly old -> new.
-        w16c = []
-        after = _w16c_limitation_old(after, w16c)
-        assert bool(w16c) == (name in W16C_MOVED), (name, "the W-16 slice c limitation", w16c[:2])
-        removed_before, removed = [], []
-        before = _without_w7(before, removed_before, derived)
-        after = _without_w7(after, removed, derived)
-        assert not removed_before, (name, "no global end row before W-7")
-        rows = [r for r in removed if r != "csv"]
-        assert rows, (name, "W-7 added global end rows")
-        if not derived:
-            assert len(rows) % 12 == 0 and all(W7_ROW.match(r) for r in rows), (name, rows[:4])
-        found = classify(before, after)
-        assert all(kind == "hash" for kind, _ in found), (name, [p for k, p in found if k != "hash"][:8])
-    before = dict(load(_before_w7(W7_J7)))
-    after = dict(load(w15c_base_text(W7_J7) if current is None or W7_J7 not in current else current[W7_J7]))
-    assert list(before) == list(after), W7_J7
-    for member in before:
-        if member != "entries":
-            assert before[member] == after[member], (W7_J7, member)
-    assert len(before["entries"]) == len(after["entries"]), W7_J7
-    for b, a in zip(before["entries"], after["entries"]):
-        found = classify(b, a)
-        if not found:
-            continue
-        public = dict(dict(b)["public"])
-        # W-16 slice b: the pressure-source-1 identity is restated too, so a source publication's envelope
-        # digest moves (and nothing else of it).
-        if public["identity"].endswith("/pressure-source-1"):
-            assert public["outcome"] == "source_published", (W7_J7, dict(b)["id"])
-            assert {(kind, path) for kind, path in found} <= {("hash", "/public/envelope_sha256")}, (W7_J7, dict(b)["id"], found)
-            continue
-        assert public["identity"].endswith("/pressure-2"), (W7_J7, dict(b)["id"])
-        # W-15 (DEL-03-05) on W-7: every pressure-2 envelope restates the identity, so a refused one's envelope
-        # digest moves too; only an ordinary publication's results digest (W-7's rows) may move with it.
-        allowed = {("hash", "/public/envelope_sha256")}
-        if public["outcome"] == "ordinary_published":
-            allowed |= {("hash", "/public/results_sha256")}
-        else:
-            assert public["outcome"] == "refused_blocking", (W7_J7, dict(b)["id"])
-        assert {(kind, path) for kind, path in found} <= allowed, (W7_J7, dict(b)["id"], found)
+class TestW7MovesOnlyAddedGlobalEndRows:
+    @staticmethod
+    def test_o4_text_only_envelope_diff_w7_moves_only_added_global_end_rows(current=None):
+        """Each file W-7 regenerated, against its bytes before W-7: without the added global end rows
+        (twelve per member and case: Fx..Mz at end_i and end_j) the envelopes are unchanged; the derived
+        carriers also lose those rows' derived items, and move only positions, row counts and binding
+        hashes; J7 moves only the envelope and results digests of its ordinary pressure-2 entries."""
+        for name in W7_ENVELOPES + W7_DERIVED:
+            before = load(_before_w7(name))
+            after = load(w15c_base_text(name) if current is None or name not in current else current[name])
+            derived = name in W7_DERIVED
+            # W-15 (DEL-03-05) on W-7: the exact envelopes and their carriers also restate the pressure-2 identity, at
+            # each formulation basis's first limitation, exactly old -> new.
+            # W-16 slice b: and again at the same field (combinations and equivalent-static leave the refused list).
+            w16b = []
+            after = _w16b_identity_old(after, w16b)
+            assert bool(w16b) != name.endswith(".analysis_run.json"), (name, "the W-16 slice b identity field")
+            w15 = []
+            after = _w15_identity_old(after, w15)
+            # An AnalysisRun record binds its document by digest and carries no formulation basis.
+            assert bool(w15) != name.endswith(".analysis_run.json"), (name, "the W-15 identity field")
+            # W-16 slice c: the load/reference-state envelopes and their carriers restate the applied-loads
+            # limitation, exactly old -> new.
+            w16c = []
+            after = _w16c_limitation_old(after, w16c)
+            assert bool(w16c) == (name in W16C_MOVED), (name, "the W-16 slice c limitation", w16c[:2])
+            removed_before, removed = [], []
+            before = _without_w7(before, removed_before, derived)
+            after = _without_w7(after, removed, derived)
+            assert not removed_before, (name, "no global end row before W-7")
+            rows = [r for r in removed if r != "csv"]
+            assert rows, (name, "W-7 added global end rows")
+            if not derived:
+                assert len(rows) % 12 == 0 and all(W7_ROW.match(r) for r in rows), (name, rows[:4])
+            found = classify(before, after)
+            assert all(kind == "hash" for kind, _ in found), (name, [p for k, p in found if k != "hash"][:8])
+        before = dict(load(_before_w7(W7_J7)))
+        after = dict(load(w15c_base_text(W7_J7) if current is None or W7_J7 not in current else current[W7_J7]))
+        assert list(before) == list(after), W7_J7
+        for member in before:
+            if member != "entries":
+                assert before[member] == after[member], (W7_J7, member)
+        assert len(before["entries"]) == len(after["entries"]), W7_J7
+        for b, a in zip(before["entries"], after["entries"]):
+            found = classify(b, a)
+            if not found:
+                continue
+            public = dict(dict(b)["public"])
+            # W-16 slice b: the pressure-source-1 identity is restated too, so a source publication's envelope
+            # digest moves (and nothing else of it).
+            if public["identity"].endswith("/pressure-source-1"):
+                assert public["outcome"] == "source_published", (W7_J7, dict(b)["id"])
+                assert {(kind, path) for kind, path in found} <= {("hash", "/public/envelope_sha256")}, (W7_J7, dict(b)["id"], found)
+                continue
+            assert public["identity"].endswith("/pressure-2"), (W7_J7, dict(b)["id"])
+            # W-15 (DEL-03-05) on W-7: every pressure-2 envelope restates the identity, so a refused one's envelope
+            # digest moves too; only an ordinary publication's results digest (W-7's rows) may move with it.
+            allowed = {("hash", "/public/envelope_sha256")}
+            if public["outcome"] == "ordinary_published":
+                allowed |= {("hash", "/public/results_sha256")}
+            else:
+                assert public["outcome"] == "refused_blocking", (W7_J7, dict(b)["id"])
+            assert {(kind, path) for kind, path in found} <= allowed, (W7_J7, dict(b)["id"], found)
 
 
-def test_o4_text_only_envelope_diff_w16c_limitation_exception_is_its_one_sentence():
-    """W-16 slice c's exception admits the restated sentence only as a whole formulation-basis limitation: the
-    added sentence planted in another limitation of a moved carrier fails at that file."""
-    name = next(n for n in W7_ENVELOPES if n in W16C_MOVED and n.endswith(".raw.json"))
-    text = (PROJECT / name).read_text()
-    assert W16C_LIMITATION_NEW in text
-    added = W16C_LIMITATION_NEW[len(W16C_LIMITATION_OLD):]
-    history = "History is independent equilibrium only; no installation, contact, friction or predecessor history is represented."
-    assert text.count(json.dumps(history)) == 1
-    mutant = text.replace(json.dumps(history), json.dumps(history + added))
-    with pytest.raises(AssertionError, match=re.escape(name)):
-        test_o4_text_only_envelope_diff_w7_moves_only_added_global_end_rows(current={name: mutant})
-
-
-def test_o4_text_only_envelope_diff_w16b_identity_exception_is_its_one_field():
-    """W-16 slice b's exception admits the restated identity only at a formulation basis's first limitation: the
-    new identity planted as another limitation of a moved carrier fails at that file."""
-    name = next(n for n in W7_ENVELOPES if n.endswith(".raw.json"))
-    text = (PROJECT / name).read_text()
-    assert json.dumps(W16B_IDENTITY_NEW, ensure_ascii=False) in text and W16B_IDENTITY_TAIL_OLD not in text
-    history = "History is independent equilibrium only; no installation, contact, friction or predecessor history is represented."
-    assert text.count(json.dumps(history)) == 1
-    mutant = text.replace(json.dumps(history), json.dumps(W16B_IDENTITY_NEW, ensure_ascii=False))
-    with pytest.raises(AssertionError, match=re.escape(name)):
-        test_o4_text_only_envelope_diff_w7_moves_only_added_global_end_rows(current={name: mutant})
-
-
-def test_o4_text_only_envelope_diff_w7_enumeration_refuses_other_moves():
-    """A changed number in a W-7 regenerated envelope or derived carrier, a moved J7 digest of a
-    source publication, or a malformed added row fails at that file."""
-    for name in (W7_ENVELOPES[0], W7_DERIVED[0]):
-        text = w15c_base_text(name)
-        value = re.search(r'"(value|magnitude)": ?-?([1-9][0-9.eE+-]*)', text)
-        assert value
-        mutant = text[: value.start(2)] + "1" + text[value.start(2):]
+class TestW16cLimitationExceptionIsItsOneSentence:
+    @staticmethod
+    def test_o4_text_only_envelope_diff_w16c_limitation_exception_is_its_one_sentence():
+        """W-16 slice c's exception admits the restated sentence only as a whole formulation-basis limitation: the
+        added sentence planted in another limitation of a moved carrier fails at that file."""
+        name = next(n for n in W7_ENVELOPES if n in W16C_MOVED and n.endswith(".raw.json"))
+        text = (PROJECT / name).read_text()
+        assert W16C_LIMITATION_NEW in text
+        added = W16C_LIMITATION_NEW[len(W16C_LIMITATION_OLD):]
+        history = "History is independent equilibrium only; no installation, contact, friction or predecessor history is represented."
+        assert text.count(json.dumps(history)) == 1
+        mutant = text.replace(json.dumps(history), json.dumps(history + added))
         with pytest.raises(AssertionError, match=re.escape(name)):
-            test_o4_text_only_envelope_diff_w7_moves_only_added_global_end_rows(current={name: mutant})
-    text = w15c_base_text(W7_ENVELOPES[0])
-    mutant = text.replace(":end_i:fx", ":end_k:fx", 1)
-    assert mutant != text
-    with pytest.raises(AssertionError, match=re.escape(W7_ENVELOPES[0])):
-        test_o4_text_only_envelope_diff_w7_moves_only_added_global_end_rows(current={W7_ENVELOPES[0]: mutant})
-    document = json.loads(w15c_base_text(W7_J7))
-    entry = next(e for e in document["entries"] if e["public"].get("outcome") == "source_published")
-    entry["public"]["results_sha256"] = "0" * 64
-    with pytest.raises(AssertionError, match=re.escape(W7_J7)):
-        test_o4_text_only_envelope_diff_w7_moves_only_added_global_end_rows(current={W7_J7: json.dumps(document)})
+            TestW7MovesOnlyAddedGlobalEndRows.test_o4_text_only_envelope_diff_w7_moves_only_added_global_end_rows(current={name: mutant})
+
+
+class TestW16bIdentityExceptionIsItsOneField:
+    @staticmethod
+    def test_o4_text_only_envelope_diff_w16b_identity_exception_is_its_one_field():
+        """W-16 slice b's exception admits the restated identity only at a formulation basis's first limitation: the
+        new identity planted as another limitation of a moved carrier fails at that file."""
+        name = next(n for n in W7_ENVELOPES if n.endswith(".raw.json"))
+        text = (PROJECT / name).read_text()
+        assert json.dumps(W16B_IDENTITY_NEW, ensure_ascii=False) in text and W16B_IDENTITY_TAIL_OLD not in text
+        history = "History is independent equilibrium only; no installation, contact, friction or predecessor history is represented."
+        assert text.count(json.dumps(history)) == 1
+        mutant = text.replace(json.dumps(history), json.dumps(W16B_IDENTITY_NEW, ensure_ascii=False))
+        with pytest.raises(AssertionError, match=re.escape(name)):
+            TestW7MovesOnlyAddedGlobalEndRows.test_o4_text_only_envelope_diff_w7_moves_only_added_global_end_rows(current={name: mutant})
+
+
+class TestW7EnumerationRefusesOtherMoves:
+    @staticmethod
+    def test_o4_text_only_envelope_diff_w7_enumeration_refuses_other_moves():
+        """A changed number in a W-7 regenerated envelope or derived carrier, a moved J7 digest of a
+        source publication, or a malformed added row fails at that file."""
+        for name in (W7_ENVELOPES[0], W7_DERIVED[0]):
+            text = w15c_base_text(name)
+            value = re.search(r'"(value|magnitude)": ?-?([1-9][0-9.eE+-]*)', text)
+            assert value
+            mutant = text[: value.start(2)] + "1" + text[value.start(2):]
+            with pytest.raises(AssertionError, match=re.escape(name)):
+                TestW7MovesOnlyAddedGlobalEndRows.test_o4_text_only_envelope_diff_w7_moves_only_added_global_end_rows(current={name: mutant})
+        text = w15c_base_text(W7_ENVELOPES[0])
+        mutant = text.replace(":end_i:fx", ":end_k:fx", 1)
+        assert mutant != text
+        with pytest.raises(AssertionError, match=re.escape(W7_ENVELOPES[0])):
+            TestW7MovesOnlyAddedGlobalEndRows.test_o4_text_only_envelope_diff_w7_moves_only_added_global_end_rows(current={W7_ENVELOPES[0]: mutant})
+        document = json.loads(w15c_base_text(W7_J7))
+        entry = next(e for e in document["entries"] if e["public"].get("outcome") == "source_published")
+        entry["public"]["results_sha256"] = "0" * 64
+        with pytest.raises(AssertionError, match=re.escape(W7_J7)):
+            TestW7MovesOnlyAddedGlobalEndRows.test_o4_text_only_envelope_diff_w7_moves_only_added_global_end_rows(current={W7_J7: json.dumps(document)})

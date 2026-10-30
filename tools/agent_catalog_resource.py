@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Copy the authoritative Design catalog into its generated build resource.
+"""Copy the authoritative Work catalog into its generated build resource.
 
 The check establishes byte equality only; Rust validates catalog semantics.
 No supplier, network or private input is consumed.
@@ -8,7 +8,7 @@ import argparse
 from pathlib import Path
 
 PROJECT = Path(__file__).resolve().parents[1]
-SOURCE = Path("execution/PKG-16/DEL-16-06/Design/agent-capability-catalog.json")
+SOURCE = Path("execution/PKG-16/DEL-16-06/Work/agent-capability-catalog.json")
 RESOURCE = Path("apps/desktop/src-tauri/resources/agent-capability-catalog.json")
 MAX_BYTES = 256 * 1024
 
@@ -44,7 +44,7 @@ def main() -> int:
     except (OSError, ValueError):
         print("Catalog resource generation/check failed; both regular inputs are required for a check.")
         return 2
-    print("Catalog resource matches the authoritative Design bytes." if args.check else "Catalog resource generated from Design bytes.")
+    print("Catalog resource matches the authoritative Work bytes." if args.check else "Catalog resource generated from Work bytes.")
     return 0
 
 

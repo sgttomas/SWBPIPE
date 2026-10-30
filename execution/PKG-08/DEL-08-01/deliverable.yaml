@@ -305,7 +305,7 @@ needs:
     (DEL-04-09 Design §5.1).
   gating: true
   when: Before the report's modal section ships (DEL-04-09 M3).
-  evidence: execution/PKG-04/DEL-04-09/Design/modal-analysis.md
+  evidence: execution/PKG-04/DEL-04-09/Work/modal-analysis.md
 code_paths:
 - core/reporting/report_generator/
 - core/reporting/report_package/

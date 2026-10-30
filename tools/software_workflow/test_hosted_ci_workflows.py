@@ -227,3 +227,127 @@ def test_repository_checks_run_claims_language_on_its_selection():
     steps = workflow('governance-harness.yml')['jobs']['repository-checks']['steps']
     [step] = [s for s in steps if s.get('run') == 'python3 tools/validation/validate_claims_language.py']
     assert 'if' not in step  # the standalone repository always checks product claims
+
+
+def test_only_the_harness_lets_the_product_job_skip_the_repository_routing_suite():
+    harness = workflow('governance-harness.yml')['jobs']
+    assert harness['piping']['with']['repository-checks-run'] == 'true'
+    assert 'tests/test_ci_numerical.py' in harness['repository-checks']['steps'][
+        [s.get('name') for s in harness['repository-checks']['steps']].index('Bounded shared-tool and routing regressions')]['run']
+    product = workflow('piping-desktop-e2e.yml')
+    assert product['on']['workflow_call']['inputs']['repository-checks-run']['default'] == 'false'
+    assert 'inputs' not in (product['on'].get('workflow_dispatch') or {})
+    [step] = [s for s in product['jobs']['python-product']['steps']
+              if s.get('name') == 'Selected Python product contracts and qualification oracles']
+    assert step['env']['REPOSITORY_CHECKS_RUN'] == '${{ inputs.repository-checks-run }}'
+    assert '--repository-checks-run' in step['run']
+
+
+def test_exact_wasm_cache_wiring_and_main_build_only_warmer():
+    action = yaml.load((ROOT / '.github/actions/setup-piping-e2e/action.yml').read_text(), Loader=yaml.BaseLoader)
+    steps = action['runs']['steps']
+    by_id = {s['id']: s for s in steps if 'id' in s}
+    assert by_id['engine-key']['run'] == 'python3 tools/software_workflow/wasm_cache.py key'
+    assert all(by_id[name]['continue-on-error'] == 'true' for name in ('engine-key', 'engine-verified', 'engine-record'))
+    restore = by_id['engine-cache']
+    assert restore['uses'] == 'actions/cache/restore@v4'
+    assert restore['with']['key'] == '${{ steps.engine-key.outputs.key }}'
+    assert 'restore-keys' not in restore['with']
+    assert restore['continue-on-error'] == 'true'
+    build = next(s for s in steps if s.get('name') == 'Build desktop WASM engine')
+    assert build['if'] == "steps.engine-verified.outputs.valid != 'true'"
+    assert 'rm -rf apps/desktop/public/wasm-engine apps/desktop/public/self-weight-engine' in build['run']
+    assert 'npm run build:wasm:desktop' in build['run']
+    assert 'wasm_cache.py verify --key "$ENGINE_KEY"' in by_id['engine-verified']['run']
+    save = next(s for s in steps if s.get('uses') == 'actions/cache/save@v4')
+    assert "steps.engine-record.outputs.valid == 'true'" in save['if']
+    assert save['with'] == restore['with']
+    assert steps.index(restore) < steps.index(by_id['engine-verified']) < steps.index(build) < steps.index(by_id['engine-record']) < steps.index(save)
+    browser = steps[steps.index(save) + 1:]
+    assert all("inputs.build-only != 'true'" in s['if'] for s in browser)
+    warmer = workflow('shared-build-cache.yml')['jobs']['piping-desktop-wasm']
+    assert "github.ref == 'refs/heads/main'" in warmer['if']
+    # The key includes the runner image: the warmer must share every consumer's.
+    consumers = {job['runs-on'] for job in workflow('piping-desktop-e2e.yml')['jobs'].values()
+                 if any(step.get('uses') == './.github/actions/setup-piping-e2e' for step in job.get('steps', []))}
+    assert consumers and consumers == {warmer['runs-on']}
+    assert warmer['steps'][-1] == {'uses': './.github/actions/setup-piping-e2e', 'with': {'build-only': 'true'}}
+
+
+REGRESSION_TARGETS = ("tools/software_workflow tools/deliverables tools/validation tests/test_ci_numerical.py "
+                      "tests/test_ci_apt_sources.py tests/test_release_members.py tests/test_release_candidate_scan.py "
+                      "tests/test_repository_history.py")
+
+
+def test_repository_regressions_follow_their_own_plan_and_keep_every_target(tmp_path):
+    import os
+    import subprocess
+    steps = workflow('governance-harness.yml')['jobs']['repository-checks']['steps']
+    names = [s.get('name') for s in steps]
+    plan_step = steps[names.index('Select repository regressions')]
+    tests = steps[names.index('Bounded shared-tool and routing regressions')]
+    assert names.index('Select repository regressions') < names.index('Bounded shared-tool and routing regressions')
+    assert 'hosted_ci.py repository' in plan_step['run'] and '--output repository-ci-plan.json' in plan_step['run']
+    assert 'if' not in plan_step and 'if' not in tests
+    assert REGRESSION_TARGETS in tests['run']
+    # The step passes exactly the plan's omissions to pytest, and none when
+    # the plan lists none.
+    stub = tmp_path / 'bin'
+    stub.mkdir()
+    (stub / 'pytest-args').write_text('')
+    python = stub / 'python3'
+    python.write_text('#!/bin/bash\nif [ "$1" = "-m" ]; then printf "%s\\n" "$@" > "$ARGS_OUT"; exit 0; fi\n'
+                      f'exec {__import__("sys").executable} "$@"\n')
+    python.chmod(0o755)
+    for deselect in ([], ['a.py::T::one', 'b.py::T::two']):
+        (tmp_path / 'repository-ci-plan.json').write_text(json.dumps({'deselect': deselect}))
+        out = tmp_path / 'args.txt'
+        subprocess.run(['bash', '-e', '-c', tests['run']], cwd=tmp_path, check=True,
+                       env={**os.environ, 'PATH': f'{stub}:{os.environ["PATH"]}', 'ARGS_OUT': str(out)})
+        args = out.read_text().split('\n')
+        assert [a for a in args if a.startswith('--deselect')] == [f'--deselect={t}' for t in deselect]
+        assert '-n' in args and 'auto' in args
+
+
+def test_numerical_matrix_keeps_all_shards_and_gates_selected_coverage():
+    import os
+    import subprocess
+    import importlib.util
+    spec = importlib.util.spec_from_file_location('workflow_numerical', ROOT / 'tools/ci/numerical_ci.py')
+    numerical = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(numerical)
+    jobs = workflow('piping-desktop-e2e.yml')['jobs']
+    job = jobs['numerical']
+    assert job['strategy']['matrix']['shard'] == list(numerical.SHARDS)
+    assert job['strategy']['fail-fast'] == 'false'
+    assert job['if'] == "needs.selection.outputs.numerical_mode == 'full'"
+    for step in job['steps']:
+        run = step.get('run', '')
+        if 'result_cache.py' in run or 'numerical_ci.py' in run:
+            assert '--shard "${{ matrix.shard }}"' in run
+        if 'verified-numerical' in str(step):
+            assert 'verified-numerical-${{ matrix.shard }}' in str(step)
+    evidence = next(s for s in job['steps'] if s.get('uses') == 'actions/upload-artifact@v4')
+    assert evidence['with']['name'] == 'piping-numerical-evidence-${{ matrix.shard }}'
+    assert 'always()' in evidence['if']
+    restore = next(s for s in job['steps'] if s.get('uses') == './.github/actions/restore-build-cache')
+    assert restore['with']['suite'] == 'piping-numerical'
+    # The unsharded main warmer still compiles the entire plan's profiles.
+    warm = workflow('shared-build-cache.yml')['jobs']['piping-numerical']
+    build = next(s['run'] for s in warm['steps'] if 'numerical_ci.py' in s.get('run', ''))
+    assert '--build-only' in build and '--shard' not in build
+    aggregate = jobs['desktop-e2e']
+    assert aggregate['if'] == 'always()' and 'numerical' in aggregate['needs']
+    step = aggregate['steps'][-1]
+    assert step['env']['NUMERICAL'] == '${{ needs.numerical.result }}'
+    script = '\n'.join(line for line in step['run'].splitlines() if '--suite piping-numerical ' in line)
+    assert script
+    # GitHub reduces the matrix children into needs.numerical.result; only
+    # success passes when selected. No shard-level condition can skip a member.
+    assert not any('matrix.shard' in step.get('if', '') for step in job['steps'])
+    for mode, state, passed in [('full', 'success', True), ('full', 'failure', False),
+                                ('full', 'cancelled', False), ('full', 'skipped', False),
+                                ('not-applicable', 'skipped', True), ('not-applicable', 'success', False)]:
+        env = {**os.environ, 'NUMERICAL_MODE': mode, 'SELECTION': 'success', 'NUMERICAL': state}
+        process = subprocess.run(['bash', '-e', '-c', script], cwd=ROOT, env=env, capture_output=True)
+        assert (process.returncode == 0) == passed, (mode, state)

@@ -44,7 +44,7 @@ The measured-vs-reference comparison executes inside the named suite
 test(s) `cantilever_tip_force_matches_open_mechanics_formula`, which run the current in-repo solver path on the fixture
 and assert agreement with the reference expectations.
 
-Reproduction (from `projects/chirality-piping`):
+Reproduction (from the repository root):
 
 ```bash
 cargo test --manifest-path validation/benchmarks/mechanics/Cargo.toml cantilever_tip_force_matches_open_mechanics_formula

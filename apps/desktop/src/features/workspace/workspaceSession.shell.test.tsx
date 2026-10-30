@@ -32,11 +32,12 @@ afterEach(() => {
   delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
 });
 
-const SLICES = ["model", "selection", "results", "operations", "project", "chrome"] as const;
+const SLICES = ["agent", "model", "selection", "results", "operations", "project", "chrome"] as const;
 
 // Every setter the session hands to the view. The first eleven are the base's;
 // the last is the one chrome setter slice B3 adds (the per-stage view memory).
 const SESSION_SETTERS: Record<(typeof SLICES)[number], string[]> = {
+  agent: [],
   model: [],
   selection: ["setHiddenEntityKeys", "setIsolationSelectionKeys"],
   results: ["setSolverMode", "setReportPackagePrivateIntent"],
@@ -66,7 +67,7 @@ function setterNames(slice: Record<string, unknown>): string[] {
 }
 
 describe("the session's key set", () => {
-  it("has exactly six slices and exposes exactly the named setters", async () => {
+  it("has exactly seven slices and exposes exactly the named setters", async () => {
     const { result } = await readySession();
     const session = result.current;
     expect(Object.keys(session)).toEqual([...SLICES]);

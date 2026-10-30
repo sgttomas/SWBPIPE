@@ -2,6 +2,11 @@ name: Piping Desktop E2E
 
 on:
   workflow_call:
+    inputs:
+      repository-checks-run:
+        description: The caller's Repository checks job runs tests/test_ci_numerical.py
+        type: boolean
+        default: false
   workflow_dispatch:
 
 permissions:
@@ -307,11 +312,15 @@ jobs:
         working-directory: .
 
   numerical:
-    name: Numerical Cargo oracles
+    name: Numerical Cargo oracles (${{ matrix.shard }})
     needs: selection
     if: needs.selection.outputs.numerical_mode == 'full'
     runs-on: ubuntu-latest
     timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [physics, reporting-runner, other]
     env:
       CARGO_INCREMENTAL: '0'
     steps:
@@ -333,19 +342,19 @@ jobs:
           name: piping-ci-selection
       - name: Fingerprint numerical verification inputs
         id: result-key
-        run: python3 tools/software_workflow/result_cache.py key --suite numerical --plan piping-ci-plan.json --record "${{ runner.temp }}/verified-numerical/result.json"
+        run: python3 tools/software_workflow/result_cache.py key --suite numerical --shard "${{ matrix.shard }}" --plan piping-ci-plan.json --record "${{ runner.temp }}/verified-numerical-${{ matrix.shard }}/result.json"
       - name: Restore exact successful verification
         id: verified
         if: github.event_name == 'pull_request'
         uses: actions/cache/restore@v4
         with:
-          path: ${{ runner.temp }}/verified-numerical/result.json
+          path: ${{ runner.temp }}/verified-numerical-${{ matrix.shard }}/result.json
           key: ${{ steps.result-key.outputs.key }}
       - name: Report reused verification
         if: steps.verified.outputs.cache-hit == 'true'
         env:
           RESULT_KEY: ${{ steps.result-key.outputs.key }}
-        run: python3 tools/software_workflow/result_cache.py reuse --suite numerical --record "${{ runner.temp }}/verified-numerical/result.json"
+        run: python3 tools/software_workflow/result_cache.py reuse --suite numerical --shard "${{ matrix.shard }}" --record "${{ runner.temp }}/verified-numerical-${{ matrix.shard }}/result.json"
       - uses: dtolnay/rust-toolchain@1.97.1
         if: steps.verified.outputs.cache-hit != 'true'
       # Shared dependency cache contract: docs/CI_SELECTION.md.
@@ -356,11 +365,11 @@ jobs:
           suite: piping-numerical
       - name: Locked Cargo numerical suite
         if: steps.verified.outputs.cache-hit != 'true'
-        run: python3 tools/ci/numerical_ci.py --plan piping-ci-plan.json --evidence-dir piping-numerical-evidence
+        run: python3 tools/ci/numerical_ci.py --plan piping-ci-plan.json --evidence-dir piping-numerical-evidence --shard "${{ matrix.shard }}"
       - uses: actions/upload-artifact@v4
-        if: failure()
+        if: always() && steps.verified.outputs.cache-hit != 'true'
         with:
-          name: piping-numerical-failure
+          name: piping-numerical-evidence-${{ matrix.shard }}
           path: |
             piping-numerical-evidence/numerical.json
             piping-numerical-evidence/*.log
@@ -372,12 +381,12 @@ jobs:
         if: success() && github.event_name == 'pull_request' && steps.verified.outputs.cache-hit != 'true'
         env:
           RESULT_KEY: ${{ steps.result-key.outputs.key }}
-        run: python3 tools/software_workflow/result_cache.py save --suite numerical --record "${{ runner.temp }}/verified-numerical/result.json"
+        run: python3 tools/software_workflow/result_cache.py save --suite numerical --shard "${{ matrix.shard }}" --record "${{ runner.temp }}/verified-numerical-${{ matrix.shard }}/result.json"
       - name: Save successful verification
         if: success() && github.event_name == 'pull_request' && steps.verified.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
         with:
-          path: ${{ runner.temp }}/verified-numerical/result.json
+          path: ${{ runner.temp }}/verified-numerical-${{ matrix.shard }}/result.json
           key: ${{ steps.result-key.outputs.key }}
 
   python-product:
@@ -409,7 +418,11 @@ jobs:
         with:
           name: piping-ci-selection
       - name: Selected Python product contracts and qualification oracles
-        run: python3 tools/ci/python_ci.py --plan piping-ci-plan.json
+        env:
+          REPOSITORY_CHECKS_RUN: ${{ inputs.repository-checks-run }}
+        run: |
+          if [ "$REPOSITORY_CHECKS_RUN" = true ]; then shared=(--repository-checks-run); else shared=(); fi
+          python3 tools/ci/python_ci.py --plan piping-ci-plan.json "${shared[@]}"
 
   browser-matrix:
     name: Broad browser matrix (${{ matrix.shard }}/4)
