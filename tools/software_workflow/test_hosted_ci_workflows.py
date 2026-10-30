@@ -258,7 +258,6 @@ def test_exact_wasm_cache_wiring_and_main_build_only_warmer():
                  if any(step.get('uses') == './.github/actions/setup-piping-e2e' for step in job.get('steps', []))}
     assert consumers and consumers == {warmer['runs-on']}
     assert warmer['steps'][-1] == {'uses': './.github/actions/setup-piping-e2e', 'with': {'build-only': 'true'}}
-||||||| b8c7e00c8
 
 
 def test_numerical_matrix_keeps_all_shards_and_gates_selected_coverage():
