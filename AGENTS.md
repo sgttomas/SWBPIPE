@@ -31,6 +31,23 @@ fixtures and must not require the Chirality checkout. Product-side agent inputs
 remain source-bound local resources; consulting newer development methods does
 not update those inputs or establish product adoption.
 
+## Coordination between projects
+
+Chirality Root (`sgttomas/chirality`), App v4 (`sgttomas/chirality-app`) and
+SWBPIPE (`sgttomas/SWBPIPE`) each have one top-level Agent 0, working in its own
+T3 Code session. When work here needs Root or App v4, such as a shared interface, a
+library change a consumer will adopt, a defect found in the other project, or a
+shared release gate, this project's Agent 0 messages that project's Agent 0
+directly in T3 Code. Read the recipient's session first to confirm that it is
+that project's current Agent 0; a retired session is not a route.
+
+A message states what is needed, the revision and files it concerns, and
+whether it blocks the sender. The recipient decides and acts within its own
+repository and authority. A message carries no owner authority and changes
+nothing in another repository. Record an agreed decision by editing the
+governing text in the repository that owns it, and take reserved choices to the
+owner. Do not message a project the work does not affect.
+
 ## Work and verification
 
 Use local `execution/PKG-nn/DEL-nn-nn/ScopeOfWork.md`, `Work/` and
