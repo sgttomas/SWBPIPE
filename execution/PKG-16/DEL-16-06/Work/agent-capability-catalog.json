@@ -1791,7 +1791,7 @@
               "type": "string",
               "minLength": 1,
               "maxLength": 2048,
-              "description": "JSON text of the primitive load: id, category (thermal, concentrated_force, distributed_force, concentrated_moment or imposed_displacement), target (for a pipe: {type \"element\", pipe}; for a node: {type \"node\", node}), direction (for example global_x), magnitude {value, unit}, dimension (the same as change.dimension), provenance (non-empty text naming the person's stated source)"
+              "description": "JSON text of the primitive load: id, category, target, direction, magnitude {value, unit} (unit equal to change.unit), dimension (equal to change.dimension), provenance (non-empty text naming the person's stated source). By category: thermal: target {type \"element\", pipe}, direction global_x, global_y or global_z, dimension temperature_interval; distributed_force: target {type \"element\", pipe}, direction global_x|y|z, dimension force_per_length; concentrated_force: target {type \"node\", node}, direction global_x|y|z, dimension force; concentrated_moment: target {type \"node\", node}, direction rotation_x, rotation_y or rotation_z, dimension moment; imposed_displacement: target {type \"support\", support, dof}, direction equal to dof (UX, UY or UZ with dimension displacement; RX, RY or RZ with dimension rotation)."
             },
             "unit": {
               "type": "string",
