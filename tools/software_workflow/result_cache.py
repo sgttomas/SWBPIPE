@@ -33,6 +33,15 @@ def browser_commands(desktop_mode, project, specs):
     return commands
 
 
+def numerical_identity(module, root, plan, shard):
+    if shard not in module.SHARDS:
+        raise SystemExit('Numerical verification key needs a known --shard')
+    selection = plan['piping_numerical_selection']
+    _, commands = module.cargo_plan(root, selection=selection, shard=shard)
+    # Empty shards have identical commands but must never share a pass.
+    return dict(plan=selection, shard=shard), commands
+
+
 def included(path):
     parts = Path(path).parts
     # Match the product jobs' sparse checkout: execution records are unavailable.
@@ -73,6 +82,7 @@ def main():
     parser.add_argument('action', choices=['key', 'save', 'reuse', 'agree'])
     parser.add_argument('--suite', choices=['numerical', 'browser'], required=True)
     parser.add_argument('--plan', type=Path)
+    parser.add_argument('--shard', help='Required numerical partition identity')
     parser.add_argument('--desktop-mode', choices=['full', 'not-applicable'])
     parser.add_argument('--browser-project')
     parser.add_argument('--browser-specs', help='space-separated, in the order the product job runs them')
@@ -103,8 +113,7 @@ def main():
             spec.loader.exec_module(module)
             plan = json.loads(args.plan.read_text())
             module.validate_plan(ROOT, plan)
-            selection = plan['piping_numerical_selection']
-            _, commands = module.cargo_plan(ROOT / '.', selection=selection)
+            selection, commands = numerical_identity(module, ROOT, plan, args.shard)
         environment = {key: os.environ.get(key, '') for key in ['ImageOS', 'ImageVersion', 'RUNNER_OS', 'RUNNER_ARCH']}
         # Missing runner identity cannot establish equivalent execution conditions.
         if not all(environment.values()):

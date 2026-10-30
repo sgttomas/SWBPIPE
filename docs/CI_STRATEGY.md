@@ -148,8 +148,26 @@ with the unchanged ordinary route otherwise, as `retained_facade_tests.rs`'s
 `registered()` does. When product_physics is selected, the numerical job also runs the six
 retained W1 stack witnesses at the default debug profile, one process each: an
 early warning, since only the qualification host's registered sweep is VER-004's
-record (DEL-04-08 Design `stack-headroom-repair.md`). The hosted numerical job stops at the first failing crate,
-so one failure hides the crates after it. Before pushing a change to retained
+record (DEL-04-08 Design `stack-headroom-repair.md`). The hosted numerical job
+runs three parallel matrix shards, with fail-fast disabled:
+
+| Shard | Selected manifests |
+|---|---|
+| `physics` | `core/product_physics/Cargo.toml`, including all six stack witnesses |
+| `reporting-runner` | `core/reporting/result_export/Cargo.toml`, `core/runner/headless/Cargo.toml` |
+| `other` | Every other selected manifest, including newly discovered crates |
+
+Each shard validates the complete candidate plan before partitioning it. Commands,
+profiles and assertions are unchanged; an empty shard records successful empty
+evidence without invoking Cargo. Each shard uploads its own evidence and keys
+verified-result reuse by its shard identity, full selection and exact commands.
+All shards restore the same main-scoped `piping-numerical` dependency cache;
+the main warmer still compiles the full unsharded plan, including both physics
+profiles. The aggregate requires the selected matrix to succeed; failure,
+cancellation or skipping selected coverage fails the required harness.
+Execution stops at the first failing command within a shard; the other shards
+continue. `--dry-run` validates and records the shard plan without executing
+commands and reports `planned`, never verification success. Before pushing a change to retained
 sources or registration-dependent tests, run the selected numerical suite
 locally in the registered build and in an emulated unregistered build (a
 build-identity-changing flag such as `RUSTFLAGS=--cap-lints=warn`, in its own
