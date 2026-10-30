@@ -9,7 +9,8 @@ import type { OperationBatch } from './operationBatchService';
 import { validateOperationBatch } from './operationBatchService';
 import { overlayMayShowRow, type ResultOverlayStanding } from '../features/results/numericalHealth';
 
-export type AgentContext = Readonly<{requestRef:string;threadId:string;turnId:string;callId:string;basis:AgentBasis;assumptions:readonly unknown[]}>;
+export type AgentAssumption=Readonly<{assumptionId:string;statement:string;affectedOperationIds:readonly string[]}>;
+export type AgentContext = Readonly<{requestRef:string;threadId:string;turnId:string;callId:string;basis:AgentBasis;assumptions:readonly AgentAssumption[]}>;
 export type AgentRunReceipt = Readonly<{jobId:string;runId:string;modelHash:ModelHashEvidence;solverMode:string;health:string}>;
 export interface WorkspaceExecution {
  snapshot(): {model:PreviewModel|null;hash:ModelHashEvidence|null;revision:number;generation:number;result:MechanicsResult|null;standing:ResultOverlayStanding|null};
@@ -18,6 +19,7 @@ export interface WorkspaceExecution {
  solve():Promise<AgentRunReceipt|undefined>;
  withdraw(key:string):void;
 }
+export type AgentSessionView=Readonly<{status:string;closed:boolean;turnActive:boolean;turnStatus:string;failure:string|null;messages:readonly {itemId:string;text:string;role?:'user'|'agent'}[];truncated?:boolean}>;
 type Authority=AgentScope&{ownerCapability:string};
 type Invoke=(request:Record<string,unknown>)=>Promise<unknown>;
 type Proposal={basis:AgentBasis;key:string;context:AgentContext};
@@ -40,7 +42,27 @@ export class EmbeddedAgentSession {
  #authority:Authority|null=null;#scope:AgentScope|null=null;#generation=-1;#bridge:EmbeddedAgentBridge|null=null;
  #actual=new Map<string,AgentActual>();#proposals=new Map<string,Proposal>();#runs=new Map<string,Run>();
  #cursors=new Map<string,{tool:string;basis:AgentBasis;offset:number;run?:string}>();
- #interrupted=new Set<string>();#seenTurns=new Set<string>();
+ #interrupted=new Set<string>();
+ #listeners=new Set<(view:AgentSessionView)=>void>();
+ #messages=new Map<string,string>();#roles=new Map<string,'user'|'agent'>();#messageChars=0;#truncated=false;
+ #view:AgentSessionView={status:'closed',closed:true,turnActive:false,turnStatus:'none',failure:null,messages:[]};
+ subscribe(listener:(view:AgentSessionView)=>void):()=>void {this.#listeners.add(listener);try{listener(this.#view);}catch{this.#listeners.delete(listener);}return ()=>{this.#listeners.delete(listener);};}
+ private publish(view:AgentSessionView){this.#view=Object.freeze(view);for(const listener of this.#listeners){try{listener(this.#view);}catch{/* A view callback cannot break session custody. */}}}
+ private boundedViewMessages(){
+  while(this.#messages.size>64||this.#messageChars>65536){const first=this.#messages.keys().next().value!;this.#messageChars-=this.#messages.get(first)!.length;this.#messages.delete(first);this.#roles.delete(first);this.#truncated=true;}
+  return [...this.#messages].map(([itemId,text])=>({itemId,text,role:this.#roles.get(itemId)??'agent' as const}));
+ }
+ private acceptView(frame:Record<string,unknown>){
+  if(Array.isArray(frame.messages))for(const message of frame.messages){
+   if(!plain(message)||typeof message.itemId!=='string'||message.itemId.length>256||typeof message.text!=='string'||message.text.length>65536||!['delta','final'].includes(String(message.kind)))continue;
+   const old=this.#messages.get(message.itemId)??'';const next=message.kind==='final'?message.text:old+message.text;
+   this.#messageChars+=next.length-old.length;this.#messages.set(message.itemId,next);this.#roles.set(message.itemId,'agent');
+   // This is a bounded conversation view, not the actual queue/job ledger.
+   this.boundedViewMessages();
+  }
+  this.publish({status:typeof frame.status==='string'?frame.status:'unavailable',closed:frame.closed===true,turnActive:frame.turnActive===true,turnStatus:typeof frame.turnStatus==='string'?frame.turnStatus:'none',failure:typeof frame.failure==='string'?frame.failure:null,messages:this.boundedViewMessages(),truncated:this.#truncated});
+ }
+
  #starting=false;#inflight=new Set<Promise<unknown>>();
  #timer:ReturnType<typeof setTimeout>|null=null;#closed=true;#polling=false;
  constructor(private readonly owner:WorkspaceExecution,private readonly invoke:Invoke=defaultInvoke){}
@@ -56,6 +78,8 @@ export class EmbeddedAgentSession {
  }
  private async startOwned(providerRevision:string):Promise<unknown>{
   if(this.#authority)await this.close();
+  this.#messages.clear();this.#roles.clear();this.#messageChars=0;this.#truncated=false;this.#cursors.clear();this.#proposals.clear();this.#runs.clear();this.#interrupted.clear();
+  this.publish({...this.#view,messages:[],truncated:false});
   const before=this.owner.snapshot();if(!before.model||!before.hash)throw new Error('AGENT-WORKSPACE-NOT-READY');
   const registered=await this.invoke({kind:'register',basis:{modelRevision:before.revision,modelHash:before.hash,stateId:null,runId:null}});
   if(!plain(registered)||typeof registered.workspaceHandle!=='string'||typeof registered.applicationGeneration!=='number'||typeof registered.ownerCapability!=='string')throw new Error('AGENT-REGISTRATION-REFUSED');
@@ -73,32 +97,33 @@ export class EmbeddedAgentSession {
     return result.delivery as AgentDelivery;
    }
   },{isCurrent:call=>!this.#closed&&this.owner.snapshot().generation===this.#generation&&call.basis.workspaceHandle===this.#scope?.workspaceHandle&&call.basis.applicationGeneration===this.#scope?.applicationGeneration,execute:async call=>{
-   this.#seenTurns.add(call.turnId);let actual:AgentActual;
+   let actual:AgentActual;
    try{actual=await this.execute(call);}catch{actual=this.failure(call,'Outcome unavailable; inspect the retained queue or job record.','execution_error');}
    this.#actual.set(call.requestRef,Object.freeze(actual));return actual;
   }});
   if(this.owner.snapshot().generation!==before.generation||this.owner.snapshot().revision!==before.revision){await this.close();throw new Error('AGENT-WORKSPACE-RETIRED');}
   try {const response=await this.invoke({kind:'start',authority,providerRevision});
-   if(plain(response)&&response.status==='starting')this.schedule();else await this.close();return response;
-  }catch(error){await this.close();throw error;}
+   if(plain(response)&&response.status==='starting'){this.acceptView({status:'starting',closed:false});this.schedule();}else await this.close();return response;
+  }catch(error){try{const frame=await this.invoke({kind:'poll',authority});if(plain(frame))this.acceptView(frame);}catch{/* Preserve the original static refusal. */}await this.close();throw error;}
  }
  private schedule(){if(this.#closed)return;this.#timer=setTimeout(()=>{void this.poll().catch(()=>{void this.close();}).finally(()=>this.schedule());},40);}
  async poll():Promise<unknown>{
   if(!this.#authority||this.#polling)return null;this.#polling=true;
   try{
-   const snap=this.owner.snapshot();if(snap.generation!==this.#generation){await this.close();return null;}
+   const snap=this.owner.snapshot();if(snap.generation!==this.#generation){this.#messages.clear();this.#roles.clear();this.#messageChars=0;this.#truncated=false;this.publish({...this.#view,messages:[],truncated:false});await this.close();return null;}
    if(snap.hash)await this.invoke({kind:'basis',authority:this.#authority,basis:{modelRevision:snap.revision,modelHash:snap.hash,stateId:null,runId:null}});
    const result=await this.invoke({kind:'poll',authority:this.#authority});
    if(plain(result)&&Array.isArray(result.notices))for(const reference of result.notices){
     if(typeof reference==='string'&&this.#bridge){const task=this.#bridge.notify({requestRef:reference});this.#inflight.add(task);void task.finally(()=>this.#inflight.delete(task));}
    }
+   if(plain(result))this.acceptView(result);
    if(plain(result)&&result.closed===true){this.#closed=true;this.#bridge?.close();}
    return result;
   }finally{this.#polling=false;}
  }
- async text(text:string){if(!this.#authority||this.#closed)throw new Error('AGENT-CLOSED');return this.invoke({kind:'text',authority:this.#authority,text});}
- async interrupt(){if(!this.#authority)return;for(const turn of this.#seenTurns)this.#interrupted.add(turn);for(const proposal of this.#proposals.values())this.owner.withdraw(proposal.key);return this.invoke({kind:'interrupt',authority:this.#authority});}
- async close(){this.#closed=true;if(this.#timer)clearTimeout(this.#timer);this.#timer=null;this.#bridge?.close();const response=this.#authority?await this.invoke({kind:'close',authority:this.#authority}):null;await Promise.allSettled([...this.#inflight]);return response;}
+ async text(text:string){if(!this.#authority||this.#closed)throw new Error('AGENT-CLOSED');const result=await this.invoke({kind:'text',authority:this.#authority,text});const id=opaque();this.#messages.set(id,text);this.#roles.set(id,'user');this.#messageChars+=text.length;this.publish({...this.#view,turnActive:true,turnStatus:'starting',messages:this.boundedViewMessages(),truncated:this.#truncated});return result;}
+ async interrupt(){if(!this.#authority)return;const result=await this.invoke({kind:'interrupt',authority:this.#authority});if(plain(result)&&typeof result.turnId==='string'){this.#interrupted.add(result.turnId);for(const proposal of this.#proposals.values())if(proposal.context.turnId===result.turnId)this.owner.withdraw(proposal.key);}return result;}
+ async close(){this.#closed=true;this.publish({...this.#view,status:'stopping',closed:true,turnActive:false});if(this.#timer)clearTimeout(this.#timer);this.#timer=null;this.#bridge?.close();const response=this.#authority?await this.invoke({kind:'close',authority:this.#authority}):null;await Promise.allSettled([...this.#inflight]);return response;}
  actual(reference:string){return this.#actual.get(reference);}
  private current(call:AgentCall){
   const live=this.owner.snapshot();
@@ -138,7 +163,7 @@ export class EmbeddedAgentSession {
   }
   if(call.tool==='swbpipe_propose_operations'){
    if(this.#proposals.size>=64)return this.failure(call,'Proposal retention is full.');
-   const handle=opaque();const context:AgentContext=Object.freeze({requestRef:call.requestRef,threadId:call.threadId,turnId:call.turnId,callId:call.callId,basis:structuredClone(call.basis),assumptions:structuredClone(call.arguments.assumptions as unknown[])});
+   const handle=opaque();const context:AgentContext=Object.freeze({requestRef:call.requestRef,threadId:call.threadId,turnId:call.turnId,callId:call.callId,basis:structuredClone(call.basis),assumptions:structuredClone(call.arguments.assumptions as AgentAssumption[])});
    const operations=(call.arguments.operations as EditorOperationIntent[]).map(operation=>({...structuredClone(operation),author_type:'agent' as const,operation_status:'proposed' as const,queue_id:handle,source:{source_ref:call.requestRef,source_channel:'embedded_agent',source_role:'agent'},validation:{schema_validation:'not_run',constraint_validation:'not_run',unit_validation:'not_run',diff_preview_status:'not_run',application_status:'not_applied'}}));
    const batch:OperationBatch={batch_id:`agent-${handle}`,operations,source_model_hash:snap.hash!.value};
    const validation=await validateOperationBatch(model,batch,snap.hash);if(!this.current(call))return this.failure(call,'Workspace changed during proposal preparation.','stale_basis');

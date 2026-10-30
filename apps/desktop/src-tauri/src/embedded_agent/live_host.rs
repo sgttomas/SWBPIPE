@@ -36,7 +36,8 @@ pub(crate) const NATIVE_QUALIFIED: bool = true;
 pub(crate) const NATIVE_QUALIFIED: bool = false;
 const STATE_BYTES: u64 = 32 * 1024 * 1024;
 const THREAD_BYTES: u64 = 2 * 1024 * 1024;
-const RESPONSE_BYTES: u64 = 512 * 1024;
+// Escaped text plus 128 bounded item IDs, Value storage and serialization.
+const RESPONSE_BYTES: u64 = 1024 * 1024;
 #[derive(Clone, Copy, Debug, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub(crate) enum Error {
@@ -344,7 +345,10 @@ struct Workspace {
     claims: BTreeMap<String, Meta>,
     actual: BTreeMap<String, Actual>,
     notices: Vec<String>,
-    messages: Vec<String>,
+    messages: Vec<Value>,
+    turn_active: bool,
+    turn_id: Option<String>,
+    turn_status: &'static str,
     message_bytes: usize,
     closed: bool,
 }
@@ -362,6 +366,16 @@ impl Workspace {
             && self.handle == auth.workspace_handle
             && self.generation == auth.application_generation
             && self.capability == auth.owner_capability
+    }
+    fn push_message(&mut self, item_id: &str, text: &str, final_message: bool) -> bool {
+        if self.messages.len() >= 128 || self.message_bytes + text.len() > 64 * 1024 {
+            return false;
+        }
+        self.message_bytes += text.len();
+        self.messages.push(
+            json!({"itemId":item_id,"kind":if final_message{"final"}else{"delta"},"text":text}),
+        );
+        true
     }
     fn history(&self, target: &str) -> Option<History<'_>> {
         for record in self.actual.values() {
@@ -416,6 +430,7 @@ impl Owner {
     fn retire_terminal(&mut self, index: usize, end: End) {
         let owner = &mut self.workspaces[index];
         owner.closed = true;
+        owner.turn_active = false;
         owner.bridge.close();
         owner.notices.clear();
         if let Some(reason) = end.failure() {
@@ -524,14 +539,31 @@ impl Owner {
                                 }
                             }
                         }
-                        Event::MessageDelta { text, .. } | Event::MessageFinal { text, .. } => {
-                            if owner.message_bytes + text.len() > 64 * 1024 {
+                        Event::TurnStarted { turn_id, .. } => {
+                            owner.turn_active = true;
+                            owner.turn_id = Some(turn_id.clone());
+                            owner.turn_status = "in_progress";
+                        }
+                        Event::TurnCompleted { status, .. } => {
+                            owner.turn_active = false;
+                            owner.turn_status = match status.as_str() {
+                                "completed" => "completed",
+                                "interrupted" => "interrupted",
+                                _ => "failed",
+                            };
+                        }
+                        Event::MessageDelta { text, item_id }
+                        | Event::MessageFinal { text, item_id } => {
+                            if !owner.push_message(
+                                item_id,
+                                text,
+                                matches!(event, Event::MessageFinal { .. }),
+                            ) {
                                 owner.closed = true;
+                                self.failure = Some("message_limit");
                                 live.stop();
                                 break;
                             }
-                            owner.message_bytes += text.len();
-                            owner.messages.push(text.clone());
                         }
                         _ => {}
                     }
@@ -589,12 +621,18 @@ impl Owner {
                 json!({"available":NATIVE_QUALIFIED,"reason":if NATIVE_QUALIFIED{"qualified_mac_runtime"}else{"native_qualification_pending"}}),
             ),
             Action::Register { basis } => {
-                if self.workspaces.len() >= 4 {
-                    return Err(Error::Capacity);
-                }
                 self.close_live();
                 if !self.closed_clean() {
                     return Err(Error::Busy);
+                }
+                // A closed registration with no claimed work has no possible
+                // domain outcome. Reclaim it for recoverable settings retries;
+                // retain every context that may still own a late actual.
+                self.workspaces.retain(|owner| {
+                    !owner.closed || !owner.claims.is_empty() || !owner.actual.is_empty()
+                });
+                if self.workspaces.len() >= 4 {
+                    return Err(Error::Capacity);
                 }
                 self.generation = self.generation.checked_add(1).ok_or(Error::Capacity)?;
                 let handle = nonce()?;
@@ -618,6 +656,9 @@ impl Owner {
                     actual: BTreeMap::new(),
                     notices: Vec::with_capacity(64),
                     messages: Vec::new(),
+                    turn_active: false,
+                    turn_id: None,
+                    turn_status: "none",
                     message_bytes: 0,
                     closed: false,
                 });
@@ -762,6 +803,9 @@ impl Owner {
                     .ok_or(Error::Session)?
                     .submit_text(&text)
                     .map_err(|_| Error::Session)?;
+                self.workspaces[i].turn_active = true;
+                self.workspaces[i].turn_id = None;
+                self.workspaces[i].turn_status = "starting";
                 Ok(json!({"status":"queued"}))
             }
             Action::Interrupt { authority } => {
@@ -775,7 +819,7 @@ impl Owner {
                     .ok_or(Error::Session)?
                     .interrupt()
                     .map_err(|_| Error::Session)?;
-                Ok(json!({"status":"queued"}))
+                Ok(json!({"status":"queued","turnId":self.workspaces[i].turn_id}))
             }
             Action::Close { authority } => {
                 let i = self.workspace(webview, &authority)?;
@@ -797,7 +841,7 @@ impl Owner {
                     .and_then(Live::driver)
                     .and_then(|driver| driver.last_rejection());
                 Ok(
-                    json!({"status":self.stage,"notices":owner.notices,"messages":messages,"closed":owner.closed,"rejection":rejection,"failure":self.failure}),
+                    json!({"status":self.stage,"notices":owner.notices,"messages":messages,"closed":owner.closed,"rejection":rejection,"failure":self.failure,"turnActive":owner.turn_active,"turnId":owner.turn_id,"turnStatus":owner.turn_status}),
                 )
             }
             Action::Claim {
@@ -842,9 +886,10 @@ impl Owner {
                     return Err(Error::Duplicate);
                 }
                 validate_actual(&self.registry, meta, &outcome, &proof)?;
+                // Native actual, proof and its bounded retained frontend copy.
                 let record_backing = self
                     .registry
-                    .acquire_interactive_ingress(256 * 1024)
+                    .acquire_interactive_ingress(512 * 1024)
                     .map_err(|_| Error::Admission)?;
                 owner.actual.insert(
                     request_ref,
@@ -1349,6 +1394,38 @@ mod tests {
                     .unwrap()["raw"],
                 raw
             );
+        }
+    }
+    #[test]
+    fn empty_deltas_still_hit_the_message_count_bound() {
+        let mut owner = registered();
+        let workspace = &mut owner.workspaces[0];
+        for _ in 0..128 {
+            assert!(workspace.push_message("invented-item", "", false));
+        }
+        assert!(!workspace.push_message("invented-item", "", false));
+        assert_eq!(workspace.messages.len(), 128);
+        assert_eq!(workspace.message_bytes, 0);
+    }
+    #[test]
+    fn unclaimed_closed_registrations_do_not_exhaust_key_reentry_retries() {
+        let mut owner = registered();
+        for _ in 0..8 {
+            let authority = auth(&owner);
+            let backing = lease(&owner);
+            owner
+                .action("main", Action::Close { authority }, paths(), backing)
+                .unwrap();
+            let backing = lease(&owner);
+            owner
+                .action(
+                    "main",
+                    Action::Register { basis: draft() },
+                    paths(),
+                    backing,
+                )
+                .unwrap();
+            assert_eq!(owner.workspaces.len(), 1);
         }
     }
     #[test]

@@ -8,7 +8,7 @@ const hash={algorithm:'sha256',canonicalization:'rfc8785_jcs',payload_scope:'mod
 const basis:AgentBasis={workspaceHandle:'workspace-invented',applicationGeneration:1,modelRevision:1,modelHash:hash,stateId:null,runId:null};
 function deferred<T>(){let resolve!:(v:T)=>void;const promise=new Promise<T>(r=>{resolve=r;});return {resolve,promise};}
 function setup(){
- let revision=1,generation=1,tool='swbpipe_read_model_summary',args:Record<string,unknown>={};
+ let revision=1,generation=1,tool='swbpipe_read_model_summary',args:Record<string,unknown>={},reference='invented-session:1',turn='turn-1';
  const model={project:{id:'invented',units:{length:'m'}},nodes:[{id:'node-1',position:{x:-0,y:1,z:2}}]} as unknown as PreviewModel;
  const owner:WorkspaceExecution={snapshot:()=>({model,hash,revision,generation,result:null,standing:null}),register:vi.fn(async()=> 'batch-key'),proposal:vi.fn(()=>({status:'pending_review' as const,outcomeModelHash:null})),solve:vi.fn(async()=>undefined),withdraw:vi.fn()};
  const sent:Record<string,unknown>[]=[];
@@ -17,15 +17,16 @@ function setup(){
   switch(value.kind){
    case 'register':return {...basis,ownerCapability:'private-owner-capability'};
    case 'start':return {status:'starting'};
-   case 'poll':return {notices:['invented-session:1'],messages:[],closed:false};
-   case 'claim':return {raw:JSON.stringify({requestRef:'invented-session:1',threadId:'thread-1',turnId:'turn-1',callId:'call-1',basis:{...basis,modelHash:Object.fromEntries(Object.entries(hash).reverse())},tool,arguments:args})};
+   case 'poll':return {status:'ready',notices:[reference],messages:[],closed:false,turnActive:false,turnStatus:'none'};
+   case 'claim':return {raw:JSON.stringify({requestRef:reference,threadId:'thread-1',turnId:turn,callId:'call-1',basis:{...basis,modelHash:Object.fromEntries(Object.entries(hash).reverse())},tool,arguments:args})};
+   case 'interrupt':return {status:'queued',turnId:turn};
    case 'publish_actual':return {recorded:true};
    case 'complete':return {delivery:'detached'};
    default:return {};
   }
  });
  const session=new EmbeddedAgentSession(owner,invoke);
- return {session,owner,invoke,sent,edit:()=>{revision++;},retire:()=>{generation++;},call:(name:string,a:Record<string,unknown>={})=>{tool=name;args=a;}};
+ return {session,owner,invoke,sent,edit:()=>{revision++;},retire:()=>{generation++;},call:(name:string,a:Record<string,unknown>={},ref='invented-session:1',turnId='turn-1')=>{tool=name;args=a;reference=ref;turn=turnId;}};
 }
 afterEach(()=>{vi.useRealTimers();vi.clearAllMocks();});
 async function drain(){for(let i=0;i<16;i++)await Promise.resolve();}
@@ -70,4 +71,29 @@ describe('workspace-owned live embedded agent adapter',()=>{
   vi.useFakeTimers();const {session,owner,retire,call}=setup();call('swbpipe_solve');await session.start('revision');await session.poll();await drain();await session.poll();await drain();
   expect(owner.solve).toHaveBeenCalledOnce();retire();await session.poll();await expect(session.text('invented')).rejects.toThrow('AGENT-CLOSED');
  });
+ it('interrupts only the current native turn without withdrawing an older pending proposal',async()=>{
+  vi.useFakeTimers();const {session,owner,call}=setup();mocks.validate.mockResolvedValue({validation:{batch_validation_status:'passed'}});
+  vi.mocked(owner.register).mockResolvedValueOnce('first-key').mockResolvedValueOnce('second-key');
+  call('swbpipe_propose_operations',{operations:[{operation_id:'operation-1'}],assumptions:[]});
+  await session.start('revision');await session.poll();await drain();
+  call('swbpipe_propose_operations',{operations:[{operation_id:'operation-2'}],assumptions:[]},'invented-session:2','turn-2');
+  await session.poll();await drain();await session.interrupt();
+  expect(owner.withdraw).toHaveBeenCalledExactlyOnceWith('second-key');await session.close();
+ });
+
+ it('uses final message standing to replace deltas and keeps transcript eviction separate',async()=>{
+  vi.useFakeTimers();const {session,invoke}=setup();const baseline=invoke.getMockImplementation()!;
+  let frame:Record<string,unknown>={status:'ready',closed:false,notices:[],messages:[]};
+  invoke.mockImplementation(async request=>request.kind==='poll'?frame:baseline(request));
+  let last:import('./embeddedAgentSession').AgentSessionView|undefined;const remove=session.subscribe(view=>{last=view;});
+  await session.start('revision');
+  for(const [kind,text] of [['delta','Hello'],['delta',' model'],['final','Hello model']]){
+   frame={...frame,messages:[{itemId:'answer',kind,text}]};await session.poll();
+  }
+  expect(last!.messages.map(message=>message.text)).toEqual(['Hello model']);
+  frame={...frame,messages:[{itemId:'large',kind:'final',text:'x'.repeat(65000)}]};await session.poll();
+  frame={...frame,messages:[{itemId:'new',kind:'final',text:'y'.repeat(1000)}]};await session.poll();
+  expect(last!.truncated).toBe(true);expect(last!.messages).toHaveLength(1);remove();await session.close();
+ });
+
 });

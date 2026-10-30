@@ -163,6 +163,35 @@ impl Live {
             if observed.invalid.is_some() || observed.exit_observed {
                 return Err(Error::Observation);
             }
+            #[cfg(feature = "native-smoke")]
+            if let Some(gate) = std::env::var_os("SWBPIPE_NATIVE_SMOKE_AGENT_GATE") {
+                use std::io::Read;
+                let (sdk, scope) = process.fixture_identity().ok_or(Error::Observation)?;
+                eprintln!(
+                    "[native-smoke-agent-scope] {}",
+                    serde_json::json!({"appPid":std::process::id(),"sdkPid":sdk,"scope":scope})
+                );
+                // The original SDK Child remains unreaped here, before the
+                // protocol gate. The owned controller establishes its rescue
+                // anchor, then writes one fixed nonsecret readiness record.
+                let deadline = Instant::now() + Duration::from_secs(10);
+                loop {
+                    let mut bytes = Vec::new();
+                    if let Ok(file) = std::fs::File::open(&gate) {
+                        if file.take(8).read_to_end(&mut bytes).is_ok() && bytes == b"READY\n" {
+                            break;
+                        }
+                    }
+                    if cancel.load(Ordering::Acquire) || Instant::now() >= deadline {
+                        return Err(Error::Cancelled);
+                    }
+                    std::thread::sleep(Duration::from_millis(5));
+                }
+                let observed = process.observe_scope();
+                if observed.invalid.is_some() || observed.exit_observed {
+                    return Err(Error::Observation);
+                }
+            }
             let stdout = process.take_stdout().ok_or(Error::Transport)?;
             let stdin = process.take_stdin().ok_or(Error::Transport)?;
             match SessionDriver::start(stdout, stdin, registry.clone(), token, 16, basis) {
