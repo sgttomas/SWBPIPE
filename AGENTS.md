@@ -9,8 +9,9 @@ references, source meaning and unrelated work; initialization alone starts none.
 
 Use the selected Chirality library, `/Users/ryan/dev/chirality` on this workspace
 or an owner-selected checkout of `https://github.com/sgttomas/chirality` elsewhere.
-Resolve shared `agents/`, `workflows/` and `.agents/skills/` paths against that
-library. Load the active role's `agents/AGENT_<ROLE>.md` and other method bodies
+Resolve shared `agents/` and `workflows/` paths against that library. Tool-use
+instructions are repository content kept beside the tool they instruct, not
+harness skills. Load the active role's `agents/AGENT_<ROLE>.md` and other method bodies
 only when needed. HELP_HUMAN retains purpose/alignment; HELPS_HUMANS designs;
 WORKING_ITEMS owns implementation/integration; TASK executes a bounded assignment
 and does not delegate. The owner-facing agent retains Agent 0 responsibilities.
