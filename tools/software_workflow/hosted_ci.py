@@ -531,9 +531,15 @@ def changed_paths(root: Path, merge_base: str, head: str) -> tuple[list[str], fr
         match = RAW_DIFF_HEADER.fullmatch(header)
         if match is None:
             raise ValueError("Malformed raw diff entry")
-        old_mode, new_mode, _, _, status = match.groups()
+        old_mode, new_mode, old_id, new_id, status = match.groups()
+        if path in paths:
+            raise ValueError("Duplicate raw diff path")
+        if len(old_id) != len(new_id):
+            raise ValueError("Mixed object id widths")
         paths.add(path)
-        if status == "M" and old_mode == new_mode and new_mode in REGULAR_FILE_MODES:
+        absent = old_id.strip("0") == "" or new_id.strip("0") == ""
+        if (status == "M" and old_mode == new_mode and new_mode in REGULAR_FILE_MODES
+                and not absent and old_id != new_id):
             edits.add(path)
     return sorted(paths), frozenset(edits)
 

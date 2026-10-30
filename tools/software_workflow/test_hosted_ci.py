@@ -577,7 +577,10 @@ class HostedCITests(unittest.TestCase):
         valid = ":100644 100644 " + "a" * 40 + " " + "b" * 40 + " M\0docs/BUILD_AND_RELEASE.md\0"
         for raw in [":100644 100644 BAD BAD M\0docs/BUILD_AND_RELEASE.md\0", valid[:-1], valid + "extra",
                     valid.replace(" M\0", " M100\0"), valid.replace(":100644", "100644"), "\0" + valid,
-                    valid.replace("docs/BUILD_AND_RELEASE.md", "")]:
+                    valid.replace("docs/BUILD_AND_RELEASE.md", ""),
+                    # Review r3: a duplicated path, or object ids of mixed width.
+                    ":000000 100644 " + "0" * 40 + " " + "b" * 40 + " A\0docs/BUILD_AND_RELEASE.md\0" + valid,
+                    valid.replace("b" * 40, "b" * 64)]:
             with self.subTest(raw=raw):
                 with patch("hosted_ci.git", side_effect=lambda root, *args: raw if args[0] == "diff" else self.git(*args)):
                     with self.assertRaises(ValueError):
@@ -587,6 +590,11 @@ class HostedCITests(unittest.TestCase):
         with patch("hosted_ci.git", side_effect=lambda root, *args: valid if args[0] == "diff" else self.git(*args)):
             self.assertEqual(hosted_ci.changed_paths(self.root, self.base, "HEAD"),
                              (["docs/BUILD_AND_RELEASE.md"], frozenset({"docs/BUILD_AND_RELEASE.md"})))
+        # An M record whose object id is absent or unchanged is not an in-place edit.
+        for raw in [valid.replace("a" * 40, "0" * 40), valid.replace("b" * 40, "0" * 40), valid.replace("b" * 40, "a" * 40)]:
+            with self.subTest(raw=raw):
+                with patch("hosted_ci.git", side_effect=lambda root, *args: raw if args[0] == "diff" else self.git(*args)):
+                    self.assertEqual(hosted_ci.changed_paths(self.root, self.base, "HEAD")[1], frozenset())
 
     def test_symlinked_or_typechanged_markdown_keeps_every_regression(self):
         self.write("docs/target.md", "Prose.\n")
