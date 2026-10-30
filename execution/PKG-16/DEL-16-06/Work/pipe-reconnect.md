@@ -690,7 +690,7 @@ account):
 
 ```
 - **DEL-16-06:3** — Preserve all engineering, privacy, professional, lifecycle and release holds named by the accepted instruments.
-- **Declared limitation (W-10, Design `Work/pipe-reconnect.md`):** `reconnect_pipe_run` refuses a pipe named by a component (bend span, tee leg, rigid component, expansion joint, connector span), a pipe with a non-terminal component at its fixed end or at the node it leaves or joins, a pressure-region member, and a move onto a region's internal node; each refusal names its blocker. Membership-preserving reconnect inside a pressure region is not provided in v0.1. `delete_pipe_run` refuses while any record names the pipe and never cascades.
+- **Declared limitation (W-10, Design `Design/pipe-reconnect.md`):** `reconnect_pipe_run` refuses a pipe named by a component (bend span, tee leg, rigid component, expansion joint, connector span), a pipe with a non-terminal component at its fixed end or at the node it leaves or joins, a pressure-region member, and a move onto a region's internal node; each refusal names its blocker. Membership-preserving reconnect inside a pressure region is not provided in v0.1. `delete_pipe_run` refuses while any record names the pipe and never cascades.
 ```
 
 Then run `python3 -m tools.deliverables --project projects/chirality-piping check`.

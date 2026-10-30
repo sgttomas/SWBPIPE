@@ -2520,7 +2520,7 @@ Old:
 ```text
   - Every report surface refuses exact-route results with
     `PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE` (owner ruling 10A, 2026-10-21;
-    `execution/PKG-04/DEL-04-07/Work/desktop-exact-outputs.md`).
+    `execution/PKG-04/DEL-04-07/Design/desktop-exact-outputs.md`).
 ```
 
 New:
