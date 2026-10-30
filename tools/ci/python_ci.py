@@ -159,7 +159,7 @@ def test_tree_importers(project, changed):
     return importers
 
 
-def select(project, plan):
+def select(project, plan, repository_checks_run=False):
     paths = plan.get('paths', [])
     if plan.get('event') != 'pull_request' or not paths:
         patterns = list(BROAD)
@@ -212,7 +212,12 @@ def select(project, plan):
     if plan.get('piping_numerical_selection', {}).get('classification') == 'full-fallback':
         patterns.extend(BROAD)
     # Resolve globs here so shell expansion cannot silently change selection.
-    selected = sorted({p.relative_to(project).as_posix() for pattern in patterns for p in project.glob(pattern)})
+    selected = {p.relative_to(project).as_posix() for pattern in patterns for p in project.glob(pattern)}
+    if repository_checks_run:
+        # The calling harness's Repository checks job runs this routing suite;
+        # a direct dispatch of the product workflow keeps it here.
+        selected.discard('tests/test_ci_numerical.py')
+    selected = sorted(selected)
     if not selected:
         raise ValueError('Python selection unexpectedly empty')
     return selected
@@ -222,6 +227,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--plan', required=True, type=Path)
     parser.add_argument('--dry-run', action='store_true')
+    parser.add_argument('--repository-checks-run', action='store_true',
+                        help='The caller runs tests/test_ci_numerical.py in Repository checks')
     args = parser.parse_args()
     project = Path(__file__).resolve().parents[2]
     plan = json.loads(args.plan.read_text())
@@ -229,10 +236,10 @@ def main():
     hosted_ci.validate_plan(root, plan)
     if plan.get('modes', {}).get('piping-python') != 'full':
         raise ValueError('Python runner requires explicit selected coverage')
-    selected = select(project, plan)
+    selected = select(project, plan, args.repository_checks_run)
     print(json.dumps({'selected': selected}, indent=2), flush=True)
-    # The full selection runs in parallel, one module per worker as tools/run_affected_tests.py does; the
-    # controller builds the test binaries once before the workers start (tests/conftest.py).
+    # Loadscope groups module functions or class methods on each parallel worker.
+    # The controller builds the test binaries once before workers start (tests/conftest.py).
     # Name each result as it arrives, so a timeout cannot hide failing test identities.
     command = [sys.executable, '-m', 'pytest', '-v', '--tb=short', '--durations=20',
                '-n', 'auto', '--dist', 'loadscope', *selected]

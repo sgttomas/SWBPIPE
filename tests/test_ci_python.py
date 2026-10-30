@@ -163,3 +163,21 @@ def test_supplier_bundle_inputs_keep_preparation_and_canonical_build_checks():
         assert {ci.AGENT_SUPPLIER_BUNDLE_TEST, 'tests/test_release_signed_build_script.py'} <= set(selected(path)), path
     assert ci.AGENT_SUPPLIER_BUNDLE_TEST in ci.select(PROJECT, {'event': 'workflow_dispatch'})
     assert ci.AGENT_SUPPLIER_BUNDLE_TEST not in selected('core/security/redaction/controls.py')
+
+
+def test_repository_numerical_routing_checks_are_not_duplicated_in_product_job():
+    plans = [
+        {'event': 'workflow_dispatch'},
+        {'event': 'pull_request', 'paths': []},
+        *({'event': 'pull_request', 'paths': [path]} for path in (
+            'tools/ci/python_ci.py', 'tests/conftest.py', 'tests/test_ci_numerical.py')),
+        {'event': 'pull_request', 'paths': ['tools/unknown-new-input.py'],
+         'piping_numerical_selection': {'classification': 'full-fallback'}},
+    ]
+    for plan in plans:
+        assert 'tests/test_ci_numerical.py' not in ci.select(PROJECT, plan, repository_checks_run=True), plan
+    # Review r1: without the harness's Repository checks (a direct dispatch of
+    # the product workflow), the routing suite stays wherever it was selected.
+    for path in ('tests/conftest.py', 'tests/test_ci_numerical.py'):
+        assert 'tests/test_ci_numerical.py' in ci.select(PROJECT, {'event': 'pull_request', 'paths': [path]}), path
+    assert 'tests/test_ci_python.py' in selected('tests/test_ci_python.py')
