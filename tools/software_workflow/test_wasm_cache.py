@@ -71,6 +71,32 @@ def test_cargo_configuration_on_any_working_directory_chain_disables_reuse(tmp_p
         target.unlink()
 
 
+def test_npm_configuration_disables_reuse_or_enters_the_key(tmp_path, monkeypatch):
+    # Review r2: a candidate .npmrc can set script-shell to a wrapper that
+    # exports different compiler flags before the build script runs.
+    for npmrc, tracked_extra in [('.npmrc', []), ('apps/desktop/.npmrc', []), ('docs/.npmrc', ['docs/.npmrc'])]:
+        files = fixture_tree(tmp_path)
+        target = tmp_path / npmrc
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text('script-shell=${PWD}/tools/engine-shell.sh\n')
+        with patch.object(wasm_cache, 'wasm_engine_inputs', return_value=({'crate'}, {'schemas/compile.json'})), \
+             patch.object(wasm_cache, 'declared_compiled_reads', return_value={'schemas/compile.json'}), \
+             patch.object(wasm_cache.subprocess, 'check_output', return_value=('\0'.join(files + tracked_extra) + '\0').encode()):
+            with pytest.raises(ValueError, match='npm configuration'):
+                wasm_cache.input_paths(tmp_path)
+        target.unlink()
+    files = fixture_tree(tmp_path)
+    home = tmp_path / 'home'
+    home.mkdir()
+    with patch.object(wasm_cache, 'input_paths', return_value=files):
+        key = lambda env: wasm_cache.cache_key(tmp_path, env, 'rustc 1', 'bindgen 1', 'node 1')[0]
+        original = key({'HOME': str(home)})
+        assert key({'HOME': str(home), 'npm_config_script_shell': '/bin/other'}) != original
+        assert key({'HOME': str(home), 'NODE_OPTIONS': '--require x'}) != original
+        (home / '.npmrc').write_text('node-options=--require x\n')
+        assert key({'HOME': str(home)}) != original
+
+
 def test_every_missing_or_modified_output_falls_back(tmp_path):
     for name in wasm_cache.expected_outputs():
         path = tmp_path / name

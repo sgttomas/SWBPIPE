@@ -63,6 +63,14 @@ def input_paths(root):
     for name in ('config', 'config.toml'):
         if (Path(os.environ.get('CARGO_HOME', Path.home() / '.cargo')) / name).exists():
             raise ValueError('Cargo home configuration disables engine output reuse')
+    # npm configuration can replace the shell or environment the build script
+    # runs under (script-shell, node-options, ...). A candidate can add it
+    # anywhere npm looks: refuse any tracked or present project .npmrc.
+    if any(Path(name).name == '.npmrc' for name in tracked if name):
+        raise ValueError('npm configuration disables engine output reuse')
+    for directory in (root, root / 'apps', root / 'apps/desktop'):
+        if (directory / '.npmrc').exists():
+            raise ValueError('npm configuration disables engine output reuse')
     for name in paths:
         path = root / name
         if not path.is_file() or path.is_symlink() or path.resolve() != root.resolve() / name:
@@ -78,8 +86,17 @@ def cache_key(root, environment, rustc, bindgen, node):
                                         'CARGO_BUILD_RUSTC', 'CARGO_BUILD_RUSTC_WRAPPER')):
         raise ValueError('Compiler override disables engine output reuse')
     context = {k: v for k, v in environment.items()
-               if k.startswith(('CARGO_', 'RUST', 'CC', 'CXX', 'AR_', 'WASM'))
+               if k.startswith(('CARGO_', 'RUST', 'CC', 'CXX', 'AR_', 'WASM', 'npm_config_', 'NPM_CONFIG_', 'NODE_OPTIONS'))
                and k not in ('CARGO_HOME', 'CARGO_MAKEFLAGS')}
+    # Runner-level npm configuration is not candidate-controlled, but it can
+    # change how the build runs, so its content is part of the key.
+    for name in ('NPM_CONFIG_USERCONFIG', 'npm_config_userconfig', 'NPM_CONFIG_GLOBALCONFIG', 'npm_config_globalconfig'):
+        config = environment.get(name)
+        if config and Path(config).is_file():
+            context['npmrc:' + name] = hashlib.sha256(Path(config).read_bytes()).hexdigest()
+    user_npmrc = Path(environment.get('HOME', str(Path.home()))) / '.npmrc'
+    if user_npmrc.is_file():
+        context['npmrc:home'] = hashlib.sha256(user_npmrc.read_bytes()).hexdigest()
     context.update({k: environment.get(k, '') for k in ('RUNNER_OS', 'RUNNER_ARCH', 'ImageOS', 'ImageVersion')})
     context.update(schema=SCHEMA, rustc=rustc, bindgen=bindgen, node=node)
     # Target, features, flags and dedicated environment assignments are also
