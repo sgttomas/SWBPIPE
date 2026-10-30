@@ -65,6 +65,8 @@ export class EmbeddedAgentSession {
 
  #starting=false;#inflight=new Set<Promise<unknown>>();
  #timer:ReturnType<typeof setTimeout>|null=null;#closed=true;#polling=false;
+ // Advanced by close(); a poll answered after Stop or restart is stale and is not published.
+ #lifecycle=0;
  constructor(private readonly owner:WorkspaceExecution,private readonly invoke:Invoke=defaultInvoke){}
  async availability():Promise<unknown>{return this.invoke({kind:'availability'});}
  async provider(request:Record<string,unknown>):Promise<unknown>{
@@ -112,7 +114,9 @@ export class EmbeddedAgentSession {
   try{
    const snap=this.owner.snapshot();if(snap.generation!==this.#generation){this.#messages.clear();this.#roles.clear();this.#messageChars=0;this.#truncated=false;this.publish({...this.#view,messages:[],truncated:false});await this.close();return null;}
    if(snap.hash)await this.invoke({kind:'basis',authority:this.#authority,basis:{modelRevision:snap.revision,modelHash:snap.hash,stateId:null,runId:null}});
+   const lifecycle=this.#lifecycle;
    const result=await this.invoke({kind:'poll',authority:this.#authority});
+   if(lifecycle!==this.#lifecycle)return null;
    if(plain(result)&&Array.isArray(result.notices))for(const reference of result.notices){
     if(typeof reference==='string'&&this.#bridge){const task=this.#bridge.notify({requestRef:reference});this.#inflight.add(task);void task.finally(()=>this.#inflight.delete(task));}
    }
@@ -123,7 +127,7 @@ export class EmbeddedAgentSession {
  }
  async text(text:string){if(!this.#authority||this.#closed)throw new Error('AGENT-CLOSED');const result=await this.invoke({kind:'text',authority:this.#authority,text});const id=opaque();this.#messages.set(id,text);this.#roles.set(id,'user');this.#messageChars+=text.length;this.publish({...this.#view,turnActive:true,turnStatus:'starting',messages:this.boundedViewMessages(),truncated:this.#truncated});return result;}
  async interrupt(){if(!this.#authority)return;const result=await this.invoke({kind:'interrupt',authority:this.#authority});if(plain(result)&&typeof result.turnId==='string'){this.#interrupted.add(result.turnId);for(const proposal of this.#proposals.values())if(proposal.context.turnId===result.turnId)this.owner.withdraw(proposal.key);}return result;}
- async close(){this.#closed=true;this.publish({...this.#view,status:'stopping',closed:true,turnActive:false});if(this.#timer)clearTimeout(this.#timer);this.#timer=null;this.#bridge?.close();const response=this.#authority?await this.invoke({kind:'close',authority:this.#authority}):null;await Promise.allSettled([...this.#inflight]);return response;}
+ async close(){this.#lifecycle++;this.#closed=true;this.publish({...this.#view,status:'stopping',closed:true,turnActive:false});if(this.#timer)clearTimeout(this.#timer);this.#timer=null;this.#bridge?.close();const response=this.#authority?await this.invoke({kind:'close',authority:this.#authority}):null;await Promise.allSettled([...this.#inflight]);return response;}
  actual(reference:string){return this.#actual.get(reference);}
  private current(call:AgentCall){
   const live=this.owner.snapshot();

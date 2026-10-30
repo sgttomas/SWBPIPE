@@ -81,6 +81,20 @@ describe('workspace-owned live embedded agent adapter',()=>{
   expect(owner.withdraw).toHaveBeenCalledExactlyOnceWith('second-key');await session.close();
  });
 
+ it('does not let a poll answered after Stop reopen the closed view',async()=>{
+  vi.useFakeTimers();const {session,invoke}=setup();const baseline=invoke.getMockImplementation()!;
+  const late=deferred<unknown>();
+  invoke.mockImplementation(async request=>request.kind==='poll'?late.promise:baseline(request));
+  let last:import('./embeddedAgentSession').AgentSessionView|undefined;const remove=session.subscribe(view=>{last=view;});
+  await session.start('revision');
+  const pending=session.poll();await drain();
+  await session.close();
+  expect(last).toMatchObject({closed:true,turnActive:false});
+  late.resolve({status:'ready',notices:[],messages:[{itemId:'late',kind:'final',text:'late'}],closed:false,turnActive:true,turnStatus:'in_progress'});
+  expect(await pending).toBeNull();
+  expect(last).toMatchObject({closed:true,turnActive:false});expect(last!.messages).toEqual([]);
+  remove();
+ });
  it('uses final message standing to replace deltas and keeps transcript eviction separate',async()=>{
   vi.useFakeTimers();const {session,invoke}=setup();const baseline=invoke.getMockImplementation()!;
   let frame:Record<string,unknown>={status:'ready',closed:false,notices:[],messages:[]};
