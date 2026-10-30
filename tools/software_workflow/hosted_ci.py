@@ -41,6 +41,25 @@ RELATIVE_PATH = re.compile(r"['\"`]((?:\.\./)+[^\s'\"`$*?#]+)")
 # The selection job passes these to Playwright on its command line.
 BROWSER_PROJECT = re.compile(r"[a-z0-9-]+")
 BROWSER_SPEC = re.compile(r"[A-Za-z0-9_.-]+\.spec\.ts")
+# Desktop test and test-support sources: a path they name may be read.
+DESKTOP_TEST_SOURCE = re.compile(r"(^|/)(__tests__|__mocks__|test-support)/|\.(test|spec)\.[cm]?[jt]sx?$")
+# A source line that may load the path it names rather than display it.
+DESKTOP_READ_LINE = re.compile(r"\b(import|require|fetch|readFile\w*|open\w*)\b|\?(raw|url)\b")
+# Always-on repository regressions that read the real tree's Rust,
+# TypeScript, manifest and routing inputs and dominate the step's time. A
+# 2026-10-30 trace of every file the regression step opens found that they
+# read no Markdown, so a Markdown-only change cannot alter their result.
+SOURCE_REACHABILITY_TESTS = (
+    "tests/test_ci_numerical.py::SourceReadTests::test_repository_cross_crate_examples_select_readers",
+    "tests/test_ci_numerical.py::ReachabilitySafetyTests::test_actual_complete_desktop_pr_diffs_retain_every_reader_and_controls_select_all",
+    "tests/test_ci_numerical.py::NumericalTests::test_real_rust_literal_includes_require_numerical",
+    "tests/test_ci_numerical.py::NumericalTests::test_real_rust_runtime_resource_literals_require_numerical",
+    "tests/test_ci_numerical.py::ReachabilitySafetyTests::test_python_and_browser_checks_are_independent_of_cargo",
+    "tools/software_workflow/test_hosted_ci.py::HostedCITests::test_desktop_resource_table_cannot_hide_new_unknown_fixture",
+    "tools/software_workflow/test_hosted_ci.py::HostedCITests::test_desktop_rust_selection_fails_toward_running_the_tests",
+)
+# Markdown here is tool, test or workflow material, so it keeps every regression.
+MARKDOWN_ONLY_EXCLUDED = (".github/**", "tools/**", "tests/**")
 
 
 def git(root: Path, *args: str) -> str:
@@ -167,29 +186,52 @@ def compiled_crate_inputs(root: Path, roots: tuple[str, ...], root_dev: bool,
 
 
 @functools.lru_cache(maxsize=None)
-def desktop_references(root: Path) -> frozenset[str]:
-    """Project paths, or directory prefixes, that desktop source names."""
+def desktop_reference_sites(root: Path) -> tuple[frozenset[str], frozenset[str]]:
+    """Project paths, or directory prefixes, that desktop source names, and
+    the subset a test, a relative path or a loading line may read."""
     project = (root / PIPING).resolve()
     sources = project / DESKTOP_SOURCES
     if not sources.is_dir():
         raise ValueError("Desktop sources unavailable")
-    references = set()
+    references, reads = set(), set()
     for source in sorted(sources.rglob("*")):
         if source.suffix not in {".ts", ".tsx", ".js", ".mjs"} or not source.is_file():
             continue
-        text = source.read_text()
-        # Prose punctuation after a named path is not part of it.
-        references.update(match.rstrip("/.,;:)") for match in PROJECT_PATH.findall(text))
-        for match in RELATIVE_PATH.findall(text):
-            target = Path(os.path.normpath(source.parent / match))
-            if target.is_relative_to(project):
-                references.add(target.relative_to(project).as_posix())
-    return frozenset(reference for reference in references if reference not in {"", "."})
+        test_source = bool(DESKTOP_TEST_SOURCE.search(source.relative_to(project).as_posix()))
+        for line in source.read_text().splitlines():
+            # Prose punctuation after a named path is not part of it.
+            named = {match.rstrip("/.,;:)") for match in PROJECT_PATH.findall(line)}
+            references.update(named)
+            if test_source or DESKTOP_READ_LINE.search(line):
+                reads.update(named)
+            for match in RELATIVE_PATH.findall(line):
+                target = Path(os.path.normpath(source.parent / match))
+                if target.is_relative_to(project):
+                    references.add(target.relative_to(project).as_posix())
+                    reads.add(target.relative_to(project).as_posix())
+    drop = {"", "."}
+    return frozenset(references - drop), frozenset(reads - drop)
 
 
-def desktop_plan(root: Path, paths: list[str], selection: dict, profile: dict) -> dict:
+def desktop_references(root: Path) -> frozenset[str]:
+    """Project paths, or directory prefixes, that desktop source names."""
+    return desktop_reference_sites(root)[0]
+
+
+def named_only_document(root: Path, relative: str) -> bool:
+    """A Markdown file desktop source names only as text, outside tests and
+    loading lines and under no named directory: editing its content cannot
+    change a desktop test, though adding, deleting or renaming it can."""
+    references, reads = desktop_reference_sites(root)
+    return (relative.endswith(".md") and relative in references and relative not in reads
+            and not any(ref != relative and relative.startswith(ref + "/") for ref in references))
+
+
+def desktop_plan(root: Path, paths: list[str], selection: dict, profile: dict,
+                 content_edits: frozenset[str] = frozenset()) -> dict:
     """Select the full desktop suite unless each changed input is Python or
-    Rust code that the suite neither names nor compiles into its engines."""
+    Rust code that the suite neither names nor compiles into its engines, or
+    an in-place edit of a document desktop source only names."""
     piping_paths = set(selection["reasons"].get("piping", []))
     candidates = sorted(piping_paths | {p for p in paths if p.startswith(PIPING)})
     if not candidates:
@@ -199,14 +241,17 @@ def desktop_plan(root: Path, paths: list[str], selection: dict, profile: dict) -
         references = desktop_references(root)
     except (ValueError, OSError, KeyError, TypeError, AttributeError, ImportError, tomllib.TOMLDecodeError) as exc:
         return {"classification": "full-fallback", "reasons": [], "fallback_reasons": [str(exc)]}
-    reasons = []
+    reasons, named_documents = [], []
     for path in candidates:
         relative = path[len(PIPING):]
+        named_document = path in content_edits and named_only_document(root, relative)
         if shared_input(path):
             kind = "shared-input"
-        elif any(relative == ref or relative.startswith(ref + "/") for ref in references):
+        elif not named_document and any(relative == ref or relative.startswith(ref + "/") for ref in references):
             kind = "desktop-source-reference"
         elif path not in piping_paths:
+            if named_document:
+                named_documents.append(path)
             continue
         elif path in selection.get("unmatched_paths", []):
             kind = "unmatched-input"
@@ -219,7 +264,10 @@ def desktop_plan(root: Path, paths: list[str], selection: dict, profile: dict) -
         else:
             continue
         reasons.append({"path": path, "kind": kind})
-    return {"classification": "reachability" if reasons else "not-applicable", "reasons": reasons, "fallback_reasons": []}
+    plan = {"classification": "reachability" if reasons else "not-applicable", "reasons": reasons, "fallback_reasons": []}
+    if named_documents:
+        plan["named_document_edits"] = named_documents
+    return plan
 
 
 @functools.lru_cache(maxsize=None)
@@ -424,7 +472,8 @@ def route_paths(paths: list[str], profile: dict) -> dict:
     return selection
 
 
-def select_paths(paths: list[str], profile: dict, root: Path = ROOT) -> dict:
+def select_paths(paths: list[str], profile: dict, root: Path = ROOT,
+                 content_edits: frozenset[str] = frozenset()) -> dict:
     selection = route_paths(paths, profile)
     checks = set(selection["checks"])
     if "piping-numerical" in checks or any(p.startswith("") for p in paths):
@@ -440,7 +489,7 @@ def select_paths(paths: list[str], profile: dict, root: Path = ROOT) -> dict:
             checks.discard("piping-numerical")
         selection["piping_numerical_selection"] = numerical
         selection["checks"] = sorted(checks)
-    desktop = desktop_plan(root, paths, selection, profile)
+    desktop = desktop_plan(root, paths, selection, profile, content_edits)
     if desktop["classification"] != "not-applicable":
         # The product job runs the desktop suite, so it is selected too.
         checks.update(("piping", "piping-desktop"))
@@ -457,6 +506,97 @@ def select_paths(paths: list[str], profile: dict, root: Path = ROOT) -> dict:
     selection["checks"] = sorted(checks)
     selection["piping_browser_selection"] = browser_plan(paths, selection, profile)
     return selection
+
+
+REGULAR_FILE_MODES = {"100644", "100755"}
+# One `git diff --raw --no-abbrev -z` header: both modes, both full object
+# ids and a single status letter (no similarity score under --no-renames).
+RAW_DIFF_HEADER = re.compile(r":([0-7]{6}) ([0-7]{6}) ([0-9a-f]{40}|[0-9a-f]{64}) ([0-9a-f]{40}|[0-9a-f]{64}) ([ACDMTUX])")
+
+
+def changed_paths(root: Path, merge_base: str, head: str) -> tuple[list[str], frozenset[str]]:
+    """Every changed path, and those whose content changed in place: a regular
+    file before and after, not added, deleted, renamed, typechanged or a
+    symlink, so its existence and kind are unchanged. --no-renames gives both
+    sides of a rename; NUL delimiters preserve paths. Any malformed record
+    raises, so callers keep full coverage."""
+    raw = git(root, "diff", "--raw", "--no-renames", "--no-abbrev", "-z", merge_base, head, "--")
+    if raw and not raw.endswith("\0"):
+        raise ValueError("Unterminated raw diff")
+    fields = raw[:-1].split("\0") if raw else []
+    if len(fields) % 2 or any(not field for field in fields):
+        raise ValueError("Malformed raw diff")
+    paths, edits = set(), set()
+    for header, path in zip(fields[0::2], fields[1::2]):
+        match = RAW_DIFF_HEADER.fullmatch(header)
+        if match is None:
+            raise ValueError("Malformed raw diff entry")
+        old_mode, new_mode, old_id, new_id, status = match.groups()
+        if path in paths:
+            raise ValueError("Duplicate raw diff path")
+        if len(old_id) != len(new_id):
+            raise ValueError("Mixed object id widths")
+        paths.add(path)
+        absent = old_id.strip("0") == "" or new_id.strip("0") == ""
+        if (status == "M" and old_mode == new_mode and new_mode in REGULAR_FILE_MODES
+                and not absent and old_id != new_id):
+            edits.add(path)
+    return sorted(paths), frozenset(edits)
+
+
+def text_at(root: Path, head: str, path: str) -> bool:
+    """Whether the candidate's blob is UTF-8 text without NUL; a path absent
+    from the candidate (a deletion) counts as text."""
+    process = subprocess.run(["git", "-C", str(root), "cat-file", "blob", f"{head}:{path}"], capture_output=True)
+    if process.returncode:
+        if git(root, "ls-tree", "--name-only", head, "--", path).strip():
+            raise ValueError(f"Unreadable candidate blob: {path}")
+        return True
+    if b"\0" in process.stdout:
+        return False
+    try:
+        process.stdout.decode("utf-8")
+    except UnicodeDecodeError:
+        return False
+    return True
+
+
+def repository_plan(root: Path, event: str, base: str, head: str) -> dict:
+    """Always-on repository regressions: all of them, except that a pull
+    request whose complete diff is in-place edits of Markdown text outside
+    tool, test and workflow trees omits SOURCE_REACHABILITY_TESTS, which read
+    no Markdown. An addition, deletion, rename or typechange keeps them: a
+    file's existence is itself an input."""
+    resolved_head = git(root, "rev-parse", "--verify", head + "^{commit}").strip()
+    plan = {"schema": "chirality-repository-ci/v1", "event": event, "head": resolved_head,
+            "paths": [], "mode": "full", "deselect": [], "reason": "Not a pull request; every regression"}
+    if event != "pull_request":
+        return plan
+    try:
+        if not base:
+            raise ValueError("missing base")
+        merge_base = git(root, "merge-base", base, resolved_head).strip()
+        paths, edits = changed_paths(root, merge_base, resolved_head)
+        plan["paths"] = paths
+        if not paths:
+            plan["reason"] = "Empty diff; every regression"
+            return plan
+        for path in paths:
+            if not path.endswith(".md") or matches(path, MARKDOWN_ONLY_EXCLUDED):
+                plan["reason"] = f"{path} is not Markdown outside tool, test and workflow trees; every regression"
+                return plan
+            if path not in edits:
+                plan["reason"] = f"{path} is added, deleted, renamed or not a regular file; every regression"
+                return plan
+            if not text_at(root, resolved_head, path):
+                plan["reason"] = f"{path} is not UTF-8 text; every regression"
+                return plan
+    except (subprocess.CalledProcessError, UnicodeError, ValueError):
+        plan["reason"] = "Unavailable complete PR diff; every regression"
+        return plan
+    plan.update(mode="markdown-only", deselect=list(SOURCE_REACHABILITY_TESTS),
+                reason="In-place Markdown edits only; source-reachability regressions, which read no Markdown, omitted")
+    return plan
 
 
 def make_plan(root: Path, profile: dict, event: str, base: str, head: str) -> dict:
@@ -477,13 +617,11 @@ def make_plan(root: Path, profile: dict, event: str, base: str, head: str) -> di
         if not base:
             raise ValueError("missing base")
         merge_base = git(root, "merge-base", base, resolved_head).strip()
-        # --no-renames includes both sides of renames; NUL delimiters preserve paths.
-        paths = git(root, "diff", "--name-only", "--no-renames", "-z", merge_base, resolved_head, "--").split("\0")
-        paths = sorted(p for p in paths if p)
+        paths, content_edits = changed_paths(root, merge_base, resolved_head)
     except (subprocess.CalledProcessError, UnicodeError, ValueError):
         plan["selection_reason"] = "Unavailable complete PR diff; full product coverage"
         return plan
-    plan.update(select_paths(paths, profile, root))
+    plan.update(select_paths(paths, profile, root, content_edits))
     if "piping_numerical_selection" not in plan or not any(p.startswith("") for p in paths) and "piping-numerical" not in plan["checks"]:
         plan["piping_numerical_selection"] = {"version": 2, "classification": "not-applicable", "manifests": [], "reasons": [], "fallback_reasons": []}
     plan.update(schema="chirality-hosted-ci/v1", base=merge_base,
@@ -520,6 +658,11 @@ def main() -> int:
     plan_parser.add_argument("--head", default="HEAD")
     plan_parser.add_argument("--suite", choices=SUITES, required=True)
     plan_parser.add_argument("--output", required=True)
+    repository_parser = commands.add_parser("repository")
+    repository_parser.add_argument("--event", required=True)
+    repository_parser.add_argument("--base", default="")
+    repository_parser.add_argument("--head", default="HEAD")
+    repository_parser.add_argument("--output", required=True)
     result_parser = commands.add_parser("aggregate")
     result_parser.add_argument("--suite", choices=SUITES, required=True)
     result_parser.add_argument("--mode", required=True)
@@ -535,6 +678,16 @@ def main() -> int:
         elif not passed and args.product in ("skipped", "", "cancelled"):
             print("Selected coverage did not complete; this is not a pass.")
         return 0 if passed else 1
+    if args.command == "repository":
+        plan = repository_plan(ROOT, args.event, args.base, args.head)
+        if git(ROOT, "rev-parse", "HEAD").strip() != plan["head"]:
+            raise ValueError("Selection checkout differs from requested candidate")
+        Path(args.output).write_text(json.dumps(plan, indent=2, sort_keys=True) + "\n")
+        print(json.dumps(plan, indent=2, sort_keys=True))
+        if os.getenv("GITHUB_STEP_SUMMARY"):
+            with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as stream:
+                stream.write(f"### Repository regressions: {plan['mode']}\n\n{plan['reason']}.\n")
+        return 0
     _, profile = load_profile(PROFILE)
     plan = make_plan(ROOT, profile, args.event, args.base, args.head)
     if git(ROOT, "rev-parse", "HEAD").strip() != plan["head"]:

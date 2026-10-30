@@ -94,7 +94,7 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 >
 > - `core/rules/expression_evaluator/` - current evaluator source and contract.
 > - Evaluator crate tests and golden conformance corpus - candidate-bound verification evidence.
-> - `Design/rule-pack-unit-check.md` (W-17): expression units are also checked statically when a pack is validated (`unit_check` in the validation response); units of solver results and entered values are still checked when the check runs.
+> - `Work/rule-pack-unit-check.md` (W-17): expression units are also checked statically when a pack is validated (`unit_check` in the validation response); units of solver results and entered values are still checked when the check runs.
 >
 
 ### CLM-008 — References
@@ -203,7 +203,7 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 >
 > Required setup artifacts are `ScopeOfWork.md`, `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`, `Dependencies.csv`, `_DEPENDENCIES.md`, `_STATUS.md`, and `_run_records/`.
 >
-> Grammar and text-syntax decisions are D-02/`DEC-022` and D-02b/`DEC-037` in `execution/_Coordination/_DECISIONS/`. STM-007 in `docs/security/threat_model.md` supplies the project-level rule-evaluator threat entry; evaluator-specific threat documentation remains required. Unit and binding decisions are recorded in DEC-018, DEC-022, DEC-031 and CLM-015; current runtime binding and normalization are implemented in `core/rules/rule_check_runner/`. `Design/rule-pack-unit-check.md` documents validation-time unit checking and its remaining limits. Test sources are the evaluator crate tests and `fixtures/rule_expressions/conformance_corpus/`. Unresolved unit-binding contract details, the final diagnostic taxonomy (CLM-015) and applicable verification evidence remain to be added.
+> Grammar and text-syntax decisions are D-02/`DEC-022` and D-02b/`DEC-037` in `execution/_Coordination/_DECISIONS/`. STM-007 in `docs/security/threat_model.md` supplies the project-level rule-evaluator threat entry; evaluator-specific threat documentation remains required. Unit and binding decisions are recorded in DEC-018, DEC-022, DEC-031 and CLM-015; current runtime binding and normalization are implemented in `core/rules/rule_check_runner/`. `Work/rule-pack-unit-check.md` documents validation-time unit checking and its remaining limits. Test sources are the evaluator crate tests and `fixtures/rule_expressions/conformance_corpus/`. Unresolved unit-binding contract details, the final diagnostic taxonomy (CLM-015) and applicable verification evidence remain to be added.
 
 - **AC-001** — The contract preserves the accepted no-arbitrary-code, no-side-effect, unit/provenance, protected-content, private-data, and professional-authority boundaries together with the DEC-022 grammar boundary and remaining integration obligations, without embedding proprietary rules, formulas, allowables, silent conversions, or compliance meaning.
 

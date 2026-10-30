@@ -49,7 +49,7 @@ that value comes from the same solve, the case checks deterministic
 assembly and solution only; it is not a comparison with an independent
 reference.
 
-Reproduction (from `projects/chirality-piping`):
+Reproduction (from the repository root):
 
 ```bash
 cargo test --manifest-path validation/benchmarks/mechanics/Cargo.toml portal_frame_fixture_solves_repeatably

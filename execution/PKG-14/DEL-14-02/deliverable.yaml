@@ -177,7 +177,7 @@ needs:
     A refused source, including a stored retired-v2 identity
     (`SOURCE_EXACT_PRESSURE_V2_RETIRED`), is never recorded.
   gating: true
-  evidence: execution/PKG-04/DEL-04-08/Design/b7-plan.md
+  evidence: execution/PKG-04/DEL-04-08/Work/b7-plan.md
 - from: DEL-04-08
   condition: >-
     The record builder and validator consume DEL-04-08's retained-source and

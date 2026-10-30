@@ -70,7 +70,7 @@ tests named in the reference note exercise the hot-point selection, the
 400 K interpolation with its provenance, and blocking at or outside the
 stored points.
 
-Reproduction (from `projects/chirality-piping`):
+Reproduction (from the repository root):
 
 ```bash
 cargo test --manifest-path validation/benchmarks/stress/Cargo.toml recovers_modulusbasis_range_fixture_with_recorded_bases

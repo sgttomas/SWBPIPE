@@ -102,3 +102,26 @@ def test_record_stands_only_for_a_key_every_verifier_ran_with(tmp_path):
     assert cache.agreed_key(tmp_path, ['product', 'desktop-1', 'desktop-2']) is None
     publish('product', 'verified-v2-numerical-' + 'a' * 64)
     assert cache.agreed_key(tmp_path, ['product']) is None
+
+
+def test_numerical_keys_bind_shards_even_when_empty(tmp_path):
+    import pytest
+    from unittest.mock import Mock, patch
+    module = Mock(SHARDS=('physics', 'reporting-runner', 'other'))
+    module.cargo_plan.return_value = ([], [])
+    plan = {'piping_numerical_selection': {'manifests': [], 'classification': 'reachability'}}
+    identities = []
+    for shard in module.SHARDS:
+        identity, commands = cache.numerical_identity(module, tmp_path, plan, shard)
+        module.cargo_plan.assert_called_with(tmp_path, selection=plan['piping_numerical_selection'], shard=shard)
+        assert commands == []
+        identities.append(json.dumps(identity, sort_keys=True))
+    assert len(set(identities)) == 3
+    with patch.object(cache.subprocess, 'check_output', return_value=b'100644 blob abc\tinput\0'):
+        keys = [cache.fingerprint(tmp_path, 'numerical', [], {'image': 'v1'}, json.loads(value)) for value in identities]
+    assert len(set(keys)) == 3
+    for invalid in (None, 'unknown'):
+        with pytest.raises(SystemExit):
+            cache.numerical_identity(module, tmp_path, plan, invalid)
+    changed = {'piping_numerical_selection': {**plan['piping_numerical_selection'], 'manifests': ['new/Cargo.toml']}}
+    assert cache.numerical_identity(module, tmp_path, changed, 'physics')[0] != json.loads(identities[0])

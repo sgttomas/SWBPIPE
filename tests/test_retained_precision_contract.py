@@ -1977,47 +1977,92 @@ def _current_read(source, invocation, expected, label, *, classes=None, eligibil
         assert result["classifications"] == [], label
 
 
-def test_current_shared_corpus_contract():
+# Keep a case's bound/unbound/transport reads together, but spread the corpus
+# across classes: loadscope schedules classes independently, not parameter rows.
+CURRENT_CORPUS_SHARDS = 16
+CURRENT_CORPUS_ITEMS = tuple(
+    (kind, index) for kind in ("cases", "mutations", "must_pass")
+    for index in range(len(corpus()[kind]))
+)
+
+
+def _current_shared_corpus_contract(kind, index):
     """Current ids and declarations drive both bound and optional unbound/transport checks.
 
     An unstated variant is observed and must remain unqualified if accepted;
     it is not assigned an expected refusal merely from this run's output.
     """
     data = corpus()
+    if kind == "cases":
+        _current_shared_case(data[kind][index])
+    else:
+        _current_shared_entry(kind, data[kind][index])
+
+
+def _current_shared_case(case):
+    label = case["id"]
+    expected = case["expected"]
+    eligibility = expected if "gate" not in expected else None
+    _current_read(case["source"], case["invocation"], expected, label,
+                  classes=case["expected_classifications"] if eligibility else None,
+                  eligibility=eligibility)
+    _current_read(case["source"], None, "pass", label + ":unbound",
+                  classes=case["expected_classifications"], eligibility=NOT_ELIGIBLE)
+    _current_read(case["source"], None, "pass", label + ":transport",
+                  eligibility=NOT_ELIGIBLE, transport=True)
+
+
+def _current_shared_entry(kind, entry):
+    cases = {case["id"]: case for case in corpus()["cases"]}
+    assert entry["rehash"] == "all"
+    case = cases[entry["base"]]
+    source, invocation = apply_entry(case, entry)
+    expected = _current_expected(entry, "bound")
+    classes = entry.get("expected_classifications", case["expected_classifications"])
+    eligibility = entry.get("expected_eligibility")
+    if kind == "must_pass" and expected == "pass":
+        classes, eligibility = _current_must_declarations(entry, case)
+    _current_read(source, invocation, expected, entry["id"] + ":bound",
+                  classes=classes if expected == "pass" else None,
+                  eligibility=eligibility)
+    unbound = _current_variant_expected(entry, "unbound")
+    transport = _current_variant_expected(entry, "transport")
+    _current_read(source, None, unbound, entry["id"] + ":unbound",
+                  classes=classes if kind == "must_pass" else None)
+    _current_read(source, None, transport, entry["id"] + ":transport",
+                  transport=True)
+
+
+for _shard in range(CURRENT_CORPUS_SHARDS):
+    _items = CURRENT_CORPUS_ITEMS[_shard::CURRENT_CORPUS_SHARDS]
+    globals()[f"TestCurrentSharedCorpus{_shard:02d}"] = pytest.mark.parametrize(
+        "kind,index", _items,
+        ids=[f"{kind}:{corpus()[kind][index]['id']}" for kind, index in _items],
+    )(type(f"TestCurrentSharedCorpus{_shard:02d}", (), {
+        "__module__": __name__,
+        "test_current_shared_corpus_contract": staticmethod(_current_shared_corpus_contract),
+    }))
+
+
+def test_current_shared_corpus_items_cover_every_entry_once():
+    from collections import Counter
+
+    data = corpus()
     cases = {case["id"]: case for case in data["cases"]}
     assert len(cases) == len(data["cases"])
     entries = data["mutations"] + data["must_pass"]
     assert len({entry["id"] for entry in entries}) == len(entries)
-    for case in data["cases"]:
-        label = case["id"]
-        expected = case["expected"]
-        eligibility = expected if "gate" not in expected else None
-        _current_read(case["source"], case["invocation"], expected, label,
-                      classes=case["expected_classifications"] if eligibility else None,
-                      eligibility=eligibility)
-        _current_read(case["source"], None, "pass", label + ":unbound",
-                      classes=case["expected_classifications"], eligibility=NOT_ELIGIBLE)
-        _current_read(case["source"], None, "pass", label + ":transport",
-                      eligibility=NOT_ELIGIBLE, transport=True)
-    for kind in ("mutations", "must_pass"):
-        for entry in data[kind]:
-            assert entry["rehash"] == "all"
-            case = cases[entry["base"]]
-            source, invocation = apply_entry(case, entry)
-            expected = _current_expected(entry, "bound")
-            classes = entry.get("expected_classifications", case["expected_classifications"])
-            eligibility = entry.get("expected_eligibility")
-            if kind == "must_pass" and expected == "pass":
-                classes, eligibility = _current_must_declarations(entry, case)
-            _current_read(source, invocation, expected, entry["id"] + ":bound",
-                          classes=classes if expected == "pass" else None,
-                          eligibility=eligibility)
-            unbound = _current_variant_expected(entry, "unbound")
-            transport = _current_variant_expected(entry, "transport")
-            _current_read(source, None, unbound, entry["id"] + ":unbound",
-                          classes=classes if kind == "must_pass" else None)
-            _current_read(source, None, transport, entry["id"] + ":transport",
-                          transport=True)
+    # Inspect the generated classes' actual pytest parameters, not just the
+    # shard input list. This also works when running this check alone with -k.
+    collected = [
+        item
+        for name, cls in globals().items() if name.startswith("TestCurrentSharedCorpus")
+        for mark in cls.pytestmark if mark.name == "parametrize"
+        for item in mark.args[1]
+    ]
+    expected = [(kind, index) for kind in ("cases", "mutations", "must_pass")
+                for index, _ in enumerate(data[kind])]
+    assert Counter(collected) == Counter(expected)
 
 
 def test_w1_interior_corpus_controls_bind_actual_span_maxima():

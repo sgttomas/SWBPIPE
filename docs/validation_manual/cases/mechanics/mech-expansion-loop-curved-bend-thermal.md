@@ -54,7 +54,7 @@ The measured-vs-reference comparison executes inside the named suite
 test(s) `expansion_loop_fixture_matches_witness_reference_table`, `expansion_loop_free_expansion_identity_is_stress_free`, `expansion_loop_t2_x_displacement_is_k_independent_free_shortening`, `expansion_loop_k_sweep_reactions_decrease_strictly_monotonically`, `expansion_loop_reactions_satisfy_whole_body_equilibrium`, `expansion_loop_stiffer_elbow_forces_larger_departure_from_free_growth`, which run the current in-repo solver path on the fixture
 and assert agreement with the reference expectations.
 
-Reproduction (from `projects/chirality-piping`):
+Reproduction (from the repository root):
 
 ```bash
 cargo test --manifest-path validation/benchmarks/mechanics/Cargo.toml expansion_loop_fixture_matches_witness_reference_table

@@ -11,7 +11,7 @@ issuance and release remain the owner's acts (F-PIP-3). SWBPIPE computes mechani
 the user's own rule packs; it does not certify, approve or establish code
 compliance. Standard claim fence applies (claims taxonomy per DEC-081).
 
-Paths are under `projects/chirality-piping/`. **PF** is the pressure-free solve
+Paths are relative to the repository root. **PF** is the pressure-free solve
 route (a model with no `pressure_contract`); **EX** is the exact pressure route
 (`3.0.0/exact_pressure_v3`). Row ids carry the prefix `RT-` so they do not
 collide with survey item or benchmark family ids.
@@ -155,7 +155,7 @@ deliverable; "new" means a scope change assigns it.
 | RT-S2 | Gaps, lift-off, friction | Must | PF only. Friction is static and history-free; rotational gap and rotational friction are refused | RT-A3 / DEL-04-04 |
 | RT-S3 | Variable spring and constant-effort supports | Must | Variable spring = user-stiffness spring; whether the installed load acts as a preload is not yet settled (open work). Constant effort on PF only | RT-A3 / DEL-04-03 |
 | RT-L1 | Weight, pressure, thermal (many cases), user forces including relief thrust, wind | Must | Pressure on EX only; thermal per case; DEC-068 wind | RT-A3, RT-G5 / DEL-05-01, DEL-05-05 |
-| RT-L2 | Bourdon effect (pressure elongation) as an option, off by default and clearly labelled. Pressure-dependent flexibility and SIF corrections are out of scope; users enter their own k and SIF | Should | EX excludes Bourdon opening and pressure stiffening of k/SIF, and discloses it (DEL-04-07 `Design/pressure-contract.md` D-3) | unscheduled / DEL-04-07 |
+| RT-L2 | Bourdon effect (pressure elongation) as an option, off by default and clearly labelled. Pressure-dependent flexibility and SIF corrections are out of scope; users enter their own k and SIF | Should | EX excludes Bourdon opening and pressure stiffening of k/SIF, and discloses it (DEL-04-07 `Work/pressure-contract.md` D-3) | unscheduled / DEL-04-07 |
 
 ### Results, reports, interoperation
 
@@ -187,7 +187,7 @@ deliverable; "new" means a scope change assigns it.
 | RT-V4 | User guide and theory notes for every Must analysis | Must | Statics only (`docs/theory/centerline_analysis.md`) | DEL-11-01, DEL-11-03 |
 | RT-V5 | Claim fence on every surface (notice, GEN-13, release labels) | Must | GEN-13 clean (#1701) and run in hosted CI (#1705) | release labels / DEL-09-05, DEL-16-04 |
 | RT-V6 | Signed, notarized macOS build; MIT licence recorded consistently | Must | Signing decided (D-06b), not executed; MIT in `LICENSE.md` (D-74) and DEL-01-01 | DEL-10-04 |
-| RT-V7 | Windows build | Later (revisited immediately after v1.0) | Release baseline: macOS Apple Silicon only (DEC-057); Windows development authorized alongside macOS v1.0; native x64 desktop unqualified | DEL-10-04 Design/windows-port.md |
+| RT-V7 | Windows build | Later (revisited immediately after v1.0) | Release baseline: macOS Apple Silicon only (DEC-057); Windows development authorized alongside macOS v1.0; native x64 desktop unqualified | DEL-10-04 Work/windows-port.md |
 | RT-V8 | Independent public SWBPIPE repository | Must | Owner created public `sgttomas/SWBPIPE`; migration evidence in `reference/migration/`; unsigned scan findings remain; no signed scan or release acceptance | complete the split; owner-signed D-20/DEC-058 repository scan including full private-term scan and finding dispositions before v1.0 / DEL-10-04 |
 
 ### Embedded agent

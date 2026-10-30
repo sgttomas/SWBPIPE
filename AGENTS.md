@@ -9,8 +9,9 @@ references, source meaning and unrelated work; initialization alone starts none.
 
 Use the selected Chirality library, `/Users/ryan/dev/chirality` on this workspace
 or an owner-selected checkout of `https://github.com/sgttomas/chirality` elsewhere.
-Resolve shared `agents/`, `workflows/` and `.agents/skills/` paths against that
-library. Load the active role's `agents/AGENT_<ROLE>.md` and other method bodies
+Resolve shared `agents/` and `workflows/` paths against that library. Tool-use
+instructions are repository content kept beside the tool they instruct, not
+harness skills. Load the active role's `agents/AGENT_<ROLE>.md` and other method bodies
 only when needed. HELP_HUMAN retains purpose/alignment; HELPS_HUMANS designs;
 WORKING_ITEMS owns implementation/integration; TASK executes a bounded assignment
 and does not delegate. The owner-facing agent retains Agent 0 responsibilities.
@@ -30,9 +31,26 @@ fixtures and must not require the Chirality checkout. Product-side agent inputs
 remain source-bound local resources; consulting newer development methods does
 not update those inputs or establish product adoption.
 
+## Coordination between projects
+
+Chirality Root (`sgttomas/chirality`), App v4 (`sgttomas/chirality-app`) and
+SWBPIPE (`sgttomas/SWBPIPE`) each have one top-level Agent 0, working in its own
+T3 Code session. When work here needs Root or App v4, such as a shared interface, a
+library change a consumer will adopt, a defect found in the other project, or a
+shared release gate, this project's Agent 0 messages that project's Agent 0
+directly in T3 Code. Read the recipient's session first to confirm that it is
+that project's current Agent 0; a retired session is not a route.
+
+A message states what is needed, the revision and files it concerns, and
+whether it blocks the sender. The recipient decides and acts within its own
+repository and authority. A message carries no owner authority and changes
+nothing in another repository. Record an agreed decision by editing the
+governing text in the repository that owns it, and take reserved choices to the
+owner. Do not message a project the work does not affect.
+
 ## Work and verification
 
-Use local `execution/PKG-nn/DEL-nn-nn/ScopeOfWork.md`, `Design/` and
+Use local `execution/PKG-nn/DEL-nn-nn/ScopeOfWork.md`, `Work/` and
 `deliverable.yaml`; reconcile changed implementation meaning and dependency
 conditions in the same change. Use `python3 -m tools.deliverables --project .`
 with `check`, `neighborhood`, `impact`, `touches` or `dag-diff`. Preserve unchanged
@@ -79,7 +97,7 @@ Apply these project conventions while using ordinary Git judgment and the author
 
 - Treat `main` as SWBPIPE's integration branch. Name task branches with a prefix that identifies the authoring agent, such as `codex/` or `claude/`, unless the user or an applicable owning-loop rule specifies otherwise. Integrate a PR with a merge commit (no fast-forward) unless the PR or its owning loop chooses otherwise.
 - Preserve unrelated work and accepted historical evidence. For ordinary changes, use the Git diff/commit and one concise review or PR record identifying the checked revision, results, and remaining limits. Keep additional records only for a concrete consumer, acceptance requirement or recovery need; do not duplicate Git history in chains of source copies, hash manifests, and closeout reports.
-- Use a separate worktree when the user requests isolation or when shared-monorepo risk makes isolation proportionate, such as overlapping writes to governance surfaces, risky refactors, or tool interference. Do not require a worktree for every change. High-risk overlap paths here include `agents/`, `workflows/`, `.agents/`, governance documents under `docs/`, accepted snapshots, generated derivative packages, and shared control roots such as `execution/_Coordination/`; warn when two lanes overlap on them.
+- Use a separate worktree when the user requests isolation or when concurrent sessions make isolation proportionate, such as overlapping writes to governance surfaces, risky refactors, or tool interference. Do not require a worktree for every change. High-risk overlap paths here include `AGENTS.md`, `loop/`, governance documents under `docs/`, accepted snapshots, generated derivative packages, and shared control roots such as `execution/_Coordination/`; warn when two lanes overlap on them.
 - Close authorized work through a PR under [SWBPIPE AGENTS.md's standing Git grant](#standing-git-grant). No separate commit, push, PR or merge approval is needed when its conditions hold. Use the configured authenticated identity and retain truthful authorship; agent review is not personal owner review.
 - Verify in proportion to consequence and confirm required checks pass on the exact head. Obtain independent scrutiny where the grant requires it. Clear blocking findings and reassess affected checks after candidate changes; a passing rerun does not establish that a known defect was repaired. Verify the source HEAD when merging.
 - Git integration, human acceptance and product release remain distinct. Explicit holds and reserved decisions apply. The grant is limited to `sgttomas/SWBPIPE`; it does not authorize protection bypasses, history rewrites, force pushes, permission changes or releases.
@@ -92,7 +110,7 @@ For implementation and closeout in this repository:
 - Keep working summaries revisable until a real review or acceptance boundary. Format authored documents and generate derived files before binding their bytes for review. Preserve raw tool output verbatim when needed; do not make it an editable, style-normalized source artifact. A later correction needs evidence for the affected change, not another full copy of the previous packet.
 - Cosmetic whitespace is not a commit or merge blocker. Use formatting diagnostics only when helpful; preserve intentional Markdown hard breaks and raw evidence rather than creating repair cycles for their appearance.
 - Judge a check by the failure it prevents. Keep behavioral, permission, containment, compatibility, and reproducibility checks. Remove obsolete migration assertions, incidental wording/order assertions, and duplicate evidence checks when they protect no current requirement. When a governing instrument requires such a check, propose the corresponding amendment rather than silently bypassing it or adding another workaround.
-- For changes crossing App, Runtime, or provider adapters, validate the actual connecting path early. Separate component passes do not establish integration. Check the deliverable from committed or explicitly selected files, including its maintained fixtures and resources; untracked local evidence must not supply a hidden dependency.
+- For changes crossing the engine, the desktop app and the embedded agent's provider adapters, validate the actual connecting path early. Separate component passes do not establish integration. Check the deliverable from committed or explicitly selected files, including its maintained fixtures and resources; untracked local evidence must not supply a hidden dependency.
 - Match preflight to the actual candidate and affected CI entrypoints. Scope candidate checks to files being submitted, and run required range checks against the complete PR diff. Re-run affected checks after repairs; repeat broader suites only when the change or an unresolved concern warrants it.
 
 Do not invent approval-token syntax, add fresh approval gates, or infer authority beyond the user's request and the applicable owning-loop rules.

@@ -102,7 +102,7 @@ needs:
     so that kernel outputs carry no rule-pack acceptability, compliance or approval meaning.
   gating: true
   evidence: core/solver/frame_kernel/README.md
-- from: doc:execution/PKG-05/DEL-05-03/Design/section-bases-and-timoshenko.md
+- from: doc:execution/PKG-05/DEL-05-03/Work/section-bases-and-timoshenko.md
   when: T4-U8 Timoshenko straight member (D-6)
   condition: >-
     DEL-04-01's Timoshenko straight member and its K-D5 extension follow sections 3 and 4 of DEL-05-03's

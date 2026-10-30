@@ -47,7 +47,7 @@ The measured-vs-reference comparison executes inside the named suite
 test(s) `fixtures_are_public_original_and_unit_aware`, `active_set_gap_lift_off_and_friction_outcomes_are_deterministic`, which run the current in-repo solver path on the fixture
 and assert agreement with the reference expectations.
 
-Reproduction (from `projects/chirality-piping`):
+Reproduction (from the repository root):
 
 ```bash
 cargo test --manifest-path validation/benchmarks/nonlinear/Cargo.toml fixtures_are_public_original_and_unit_aware

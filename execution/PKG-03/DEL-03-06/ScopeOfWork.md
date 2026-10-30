@@ -48,7 +48,7 @@ This Scope of Work defines `DEL-03-06` in service of project scope [SOW-010] and
 >
 > | Attribute Category | Required Treatment | Source |
 > |---|---|---|
-> | Stiffness values | Implemented as `linear_stiffness` and `rotational_stiffness` component field kinds and accepted quantity dimensions. Public fixture values remain missing and private/user/manufacturer supplied. The solver consumes a joint only as an objective connector with an authored 6×6 work matrix (T4-U3; [Design/joint-replacement.md](Design/joint-replacement.md)), which replaced the DEC-045 user-stiffness macro-element under H-3; legacy rate joints are refused by name. The product implementation is separately evidenced. | `schemas/component.schema.yaml`; `fixtures/component/invented_component_library_valid.json`; `tests/test_component_section_schema.py`; execution/_Decomposition/SOFTWARE_DECOMP.md#SOW-010; docs/CONTRACT.md#OPS-K-DATA-1 |
+> | Stiffness values | Implemented as `linear_stiffness` and `rotational_stiffness` component field kinds and accepted quantity dimensions. Public fixture values remain missing and private/user/manufacturer supplied. The solver consumes a joint only as an objective connector with an authored 6×6 work matrix (T4-U3; [Work/joint-replacement.md](Work/joint-replacement.md)), which replaced the DEC-045 user-stiffness macro-element under H-3; legacy rate joints are refused by name. The product implementation is separately evidenced. | `schemas/component.schema.yaml`; `fixtures/component/invented_component_library_valid.json`; `tests/test_component_section_schema.py`; execution/_Decomposition/SOFTWARE_DECOMP.md#SOW-010; docs/CONTRACT.md#OPS-K-DATA-1 |
 > | Effective area | Implemented as an `effective_area` field kind with provenance and missing-value handling in the invented fixture. Pressure/thrust usage semantics remain downstream solver scope; on the exact route an untied objective connector's authored effective area carries the joint thrust (T4-U5a, DEL-04-07 Design `joint-pressure-thrust.md`). | `schemas/component.schema.yaml`; `fixtures/component/invented_component_library_valid.json`; `tests/test_component_section_schema.py`; execution/_Decomposition/SOFTWARE_DECOMP.md#SOW-010 |
 > | Movement limits | Implemented as a `movement_limit` field kind with explicit missing-value diagnostics. Movement-limit class taxonomy and dimensional validation categories remain `TBD`. | `schemas/component.schema.yaml`; `fixtures/component/invented_component_library_valid.json`; `tests/test_component_section_schema.py`; execution/_Decomposition/SOFTWARE_DECOMP.md#SOW-010; docs/CONTRACT.md#OPS-K-DATA-2 |
 > | Hardware data | Implemented as `hardware_flag`/`hardware_reference` schema slots and fixture contract evidence, with `hardware_reference` present on the invented expansion-joint record. Hardware flag/enumeration taxonomy remains `TBD`. | `schemas/component.schema.yaml`; `fixtures/component/invented_component_library_valid.json`; `tests/test_component_section_schema.py`; execution/_Decomposition/SOFTWARE_DECOMP.md#SOW-010 |
@@ -115,7 +115,7 @@ This Scope of Work defines `DEL-03-06` in service of project scope [SOW-010] and
 
 > ##### Scope
 >
-> DEC-045 fixed user-entered axial/lateral/angular/torsional stiffness and dedicated macro-element consumption; under the T4 rulings D-4 and H-3 that element was deleted and replaced by the objective connector (T4-U3), and legacy joints are refused by name ([Design/joint-replacement.md](Design/joint-replacement.md)). Effective-area pressure thrust belongs on the load side (T4-U5a). Current realization is FK `core/solver/frame_kernel/src/connector.rs` (with its explicit elastic tie rods in `tie_rod.rs`, T4-U5b) and PP `core/product_physics/src/joint.rs`, with applier-gated creation/edits in `core/model_operations/operation_applier/src/lib.rs`. Movement-limit/hardware taxonomy, source acceptance and engineering validation remain separate.
+> DEC-045 fixed user-entered axial/lateral/angular/torsional stiffness and dedicated macro-element consumption; under the T4 rulings D-4 and H-3 that element was deleted and replaced by the objective connector (T4-U3), and legacy joints are refused by name ([Work/joint-replacement.md](Work/joint-replacement.md)). Effective-area pressure thrust belongs on the load side (T4-U5a). Current realization is FK `core/solver/frame_kernel/src/connector.rs` (with its explicit elastic tie rods in `tie_rod.rs`, T4-U5b) and PP `core/product_physics/src/joint.rs`, with applier-gated creation/edits in `core/model_operations/operation_applier/src/lib.rs`. Movement-limit/hardware taxonomy, source acceptance and engineering validation remain separate.
 >
 > This deliverable-local specification covers the implemented backend data-model slice for an expansion joint component model. Schema-layer evidence includes component-library schema slots, an invented public fixture record, completeness rules, diagnostics, and schema tests for manufacturer/user/private-library supplied stiffness, effective area, movement limits, and hardware data.
 >
@@ -151,7 +151,7 @@ This Scope of Work defines `DEL-03-06` in service of project scope [SOW-010] and
 >
 > The implementation evidence technically addresses the stale generic-stiffness concern by using accepted `linear_stiffness` and `rotational_stiffness` dimensions. The following items remain unresolved and must not be treated as closed until human-approved or supported by later authoritative source material:
 >
-> - Solver consumption follows the objective connector ([Design/joint-replacement.md](Design/joint-replacement.md)); values remain user supplied and validation remains separate.
+> - Solver consumption follows the objective connector ([Work/joint-replacement.md](Work/joint-replacement.md)); values remain user supplied and validation remains separate.
 > - `TBD`: release-level required vs optional field classification beyond the current completeness rule.
 > - `TBD`: movement-limit validation classes.
 > - `TBD`: hardware flag/enumeration taxonomy.
@@ -288,7 +288,7 @@ This Scope of Work defines `DEL-03-06` in service of project scope [SOW-010] and
 
 > ##### Considerations
 >
-> Expansion joints can introduce nonlinear, directional, hardware-dependent, or manufacturer-specific behavior. Current evidence implements schema slots, fixture omissions, completeness findings, and diagnostics, but it does not include authoritative product data or design rules. Solver consumption is the objective connector's ([Design/joint-replacement.md](Design/joint-replacement.md)); movement-limit taxonomy and hardware enumerations remain `TBD`.
+> Expansion joints can introduce nonlinear, directional, hardware-dependent, or manufacturer-specific behavior. Current evidence implements schema slots, fixture omissions, completeness findings, and diagnostics, but it does not include authoritative product data or design rules. Solver consumption is the objective connector's ([Work/joint-replacement.md](Work/joint-replacement.md)); movement-limit taxonomy and hardware enumerations remain `TBD`.
 >
 > The Pass 3 lensing register specifically keeps the hardware flag/enumeration taxonomy as `TBD`. Do not convert this into a fixed list without authoritative source material or human ruling.
 >
@@ -334,4 +334,4 @@ These clauses retain open delivery duties, owner decisions, and bounded evidence
 
 ## Current joint boundary
 
-The retired joint element is not converted automatically. The accepted corrected connector requirements and refusal behaviour are in [Design/joint-replacement.md](Design/joint-replacement.md).
+The retired joint element is not converted automatically. The accepted corrected connector requirements and refusal behaviour are in [Work/joint-replacement.md](Work/joint-replacement.md).

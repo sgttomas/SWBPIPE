@@ -47,7 +47,7 @@ The measured-vs-reference comparison executes inside the named suite
 test(s) `station_sweep_stress_fixture_preserves_order_and_recovers_stresses`, which run the current in-repo solver path on the fixture
 and assert agreement with the reference expectations.
 
-Reproduction (from `projects/chirality-piping`):
+Reproduction (from the repository root):
 
 ```bash
 cargo test --manifest-path validation/benchmarks/stress/Cargo.toml station_sweep_stress_fixture_preserves_order_and_recovers_stresses

@@ -77,7 +77,7 @@ needs:
     that makes it, and keeps the AC-004 stack witnesses passing. F1 never enters the retained Direct entry
     or D1. D3 runs join the queue on Agent 0's go.
   gating: true
-  evidence: execution/PKG-04/DEL-04-08/Design/retained-pricing-rules.md
+  evidence: execution/PKG-04/DEL-04-08/Work/retained-pricing-rules.md
 - from: DEL-02-02
   condition: >-
     The extraction cut-off (frequency), the weight-to-mass acceleration and every mass input are

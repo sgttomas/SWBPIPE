@@ -193,7 +193,7 @@ needs:
     A result the reader does not admit is unsupported, historical values only.
     The output policy keys each surface's decision on the reader's returned route.
   gating: true
-  evidence: execution/PKG-04/DEL-04-08/Design/b7-plan.md
+  evidence: execution/PKG-04/DEL-04-08/Work/b7-plan.md
 - from: DEL-04-08
   condition: >-
     The results viewer takes retained-source and retained-successor validation,
@@ -212,7 +212,7 @@ needs:
     pre-fills only the project's last-used value (DEL-04-09 Design §5.1).
   gating: true
   when: Before the modal results view ships (DEL-04-09 M3).
-  evidence: execution/PKG-04/DEL-04-09/Design/modal-analysis.md
+  evidence: execution/PKG-04/DEL-04-09/Work/modal-analysis.md
 - from: DEL-06-03
   condition: >-
     The stress and ratio table (survey item A3) reads the session's rule-check
@@ -227,7 +227,7 @@ needs:
     and station their bound rows or selectors name; an incomplete or withheld
     outcome colours nothing.
   gating: false
-  evidence: execution/PKG-07/DEL-07-05/Design/stress-ratio-table.md
+  evidence: execution/PKG-07/DEL-07-05/Work/stress-ratio-table.md
 - from: DEL-05-01
   condition: >-
     The weight and centre-of-gravity summary (survey item A9) reads the
@@ -240,7 +240,7 @@ needs:
     `center_of_gravity_m`; and the component-weight-not-applied warnings. The
     plan is read, never queued or applied, and the summary computes no mass.
   gating: false
-  evidence: execution/PKG-07/DEL-07-05/Design/weight-cog-summary.md
+  evidence: execution/PKG-07/DEL-07-05/Work/weight-cog-summary.md
 - from: DEL-07-01
   condition: >-
     The results navigator (survey item A1) selects the current row through the
@@ -249,7 +249,7 @@ needs:
     sets from the row's entity, and on the tree and inspector showing it. The
     navigator writes no model data, records no undo entry and moves no camera.
   gating: false
-  evidence: execution/PKG-07/DEL-07-05/Design/results-navigator.md
+  evidence: execution/PKG-07/DEL-07-05/Work/results-navigator.md
 code_paths:
 - apps/desktop/package.json
 - apps/desktop/src/App.test.tsx

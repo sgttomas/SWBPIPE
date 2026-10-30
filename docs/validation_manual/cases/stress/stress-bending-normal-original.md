@@ -44,7 +44,7 @@ The measured-vs-reference comparison executes inside the named suite
 test(s) `recovers_bending_normal_fixture`, which run the current in-repo solver path on the fixture
 and assert agreement with the reference expectations.
 
-Reproduction (from `projects/chirality-piping`):
+Reproduction (from the repository root):
 
 ```bash
 cargo test --manifest-path validation/benchmarks/stress/Cargo.toml recovers_bending_normal_fixture

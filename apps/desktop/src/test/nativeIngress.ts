@@ -7,6 +7,7 @@ import { expect } from "vitest";
 export const INGRESS_HEADER = "x-swbpipe-ingress";
 export const INGRESS_FORMAT = "args-json-v1";
 export const INGRESS_COMMANDS: ReadonlySet<string> = new Set([
+  "embedded_agent_host",
   "render_calculation_report",
   "sample_agent_proposal",
   "validate_model_operation",
