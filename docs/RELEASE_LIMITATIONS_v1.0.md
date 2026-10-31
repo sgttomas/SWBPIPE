@@ -31,4 +31,26 @@ the entry, and the entry names the PR.
 
 ## Entries
 
-None yet.
+### LIM-001 — The embedded agent does not author component modifiers
+
+- **Id:** LIM-001
+- **Rows:** RT-E1
+- **Code:** `OP-BEND-FLEXIBILITY-USER-ENTRY-REQUIRED`, `OP-COMPONENT-MODIFIER-USER-ENTRY-REQUIRED`
+- **What is refused:** the embedded agent cannot write a bend or tee
+  flexibility factor k, a SIF, a stiffness scaling or stiffness, or the
+  modifier source, and cannot realize or insert a bend. Imported proposals
+  cannot write them either.
+- **Why:** the owner ruled that users enter their own k and SIF. The agent
+  proposes a bend as a geometry marker and a tee without modifiers. Until the
+  person realizes a bend, the exact route refuses to solve, and the
+  pressure-free route solves it as a straight chord, and the agent says so: k
+  does not affect the chord's stiffness, a supplied positive scalar SIF applies
+  to the chord, and without one no intensified measure is published.
+- **What the user does instead:** after applying the agent's components, realize
+  each bend with Insert bend at corner and enter k, the SIFs and their source in
+  the component inspector, then let the agent continue.
+- **Basis:** DEL-16-06 `Work/embedded-agent-host.md`, "Catalog version 4" and
+  "Author routes and the trust boundary"; DEL-16-03
+  `Work/operation-authorship.md`. Made standing by PR #27 (catalog v4) with
+  the applier refusal from PR #23.
+- **Status:** owner's acceptance pending.

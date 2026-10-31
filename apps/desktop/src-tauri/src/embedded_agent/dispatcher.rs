@@ -439,7 +439,7 @@ impl Dispatcher {
                 (basis, Some(handle))
             }
             (
-                Tool::Summary | Tool::Nodes | Tool::ProposeOperations | Tool::Solve,
+                Tool::Summary | Tool::Nodes | Tool::ReadRecords | Tool::ProposeOperations | Tool::Solve,
                 History::Live,
             ) => (live_basis, None),
             _ => return Err(Refusal::MissingEvidence),
@@ -509,7 +509,7 @@ impl Dispatcher {
         self.scoped_basis(live_basis)?;
         if matches!(
             record.identity.tool,
-            Tool::Summary | Tool::Nodes | Tool::ProposeOperations | Tool::Solve
+            Tool::Summary | Tool::Nodes | Tool::ReadRecords | Tool::ProposeOperations | Tool::Solve
         ) && !same_basis(&record.identity.basis, live_basis)
         {
             return Err(Refusal::WrongBasis);
@@ -555,7 +555,7 @@ impl Dispatcher {
         let status = value["status"].as_str().ok_or(Refusal::InvalidOutcome)?;
         let mut actual_hash = None;
         match evidence {
-            Evidence::Read if matches!(call.tool, Tool::Summary | Tool::Nodes) => {
+            Evidence::Read if matches!(call.tool, Tool::Summary | Tool::Nodes | Tool::ReadRecords) => {
                 if status == "ok" {
                     let live = current_basis.ok_or(Refusal::WrongBasis)?;
                     self.scoped_basis(live)?;
@@ -795,7 +795,7 @@ mod tests {
         outcome(
             "ok",
             basis(2),
-            json!({"workspaceHandle":"workspace-invented","projectId":"project:invented","schemaVersion":"0.8.0","pressureContract":null,"pressureProfileBefore":"{\"schema_version\":\"0.8.0\"}","projectUnits":{},"objectCounts":{},"admittedOperationKinds":[],"limits":{"argumentBytes":65536,"resultBytes":65536,"pageRows":50,"pendingCalls":16,"proposalOperations":16}}),
+            json!({"workspaceHandle":"workspace-invented","projectId":"project:invented","schemaVersion":"0.8.0","pressureContract":null,"pressureProfileBefore":"{\"schema_version\":\"0.8.0\"}","projectUnits":{},"objectCounts":{},"admittedOperationKinds":[],"componentsAwaitingUserModifiers":{"count":0,"ids":[]},"limits":{"argumentBytes":65536,"resultBytes":65536,"pageRows":50,"pendingCalls":16,"proposalOperations":16}}),
         )
     }
     fn model_hash() -> Value {
