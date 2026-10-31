@@ -1078,7 +1078,7 @@ fn small_bore_and_short_member_models_are_admitted_with_their_full_count() {
 }
 
 /// Review round 2, item 4: K = M = [[2, 1], [1, ½ + 2⁻³⁰]]. Every exact
-/// λ is 1, but K is nearly singular (det 2⁻³⁰), so the reduction and
+/// λ is 1, but K is nearly singular (det 2⁻²⁹), so the reduction and
 /// back-transform carry large errors (the second λ computes as
 /// 1 + 1.2·10⁻⁷). The measured ratio, about
 /// 2.65·10⁻¹², exceeds the withdrawn first-order bound
