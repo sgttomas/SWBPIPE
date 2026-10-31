@@ -1,8 +1,9 @@
 //! M-orthogonality of a set of modes (design §3.4, check 3):
 //! max over i ≠ j of |φᵢᵀMφⱼ| / √(m_i m_j), with m_i = φᵢᵀMφᵢ, in
-//! double-double, with each √m_i kept as a root near 1 and a power of two,
-//! the powers applied to φᵢᵀMφⱼ, so that no intermediate leaves the
-//! binary64 range while the ratio is representable. A ratio that
+//! double-double with an extended exponent (`dd::WideDd`): Mφⱼ, the
+//! bilinear forms, the generalized masses and their roots keep their own
+//! exponent, so no intermediate leaves range while the ratio is
+//! representable. The ratio must be finite, and normal or exactly zero. A ratio that
 //! is not finite is refused. The measure is invariant to the shape
 //! normalization. The tolerance it is judged against belongs to the caller.
 //!
@@ -14,7 +15,7 @@ use std::error::Error;
 use std::fmt;
 
 use crate::admission::{check_dense, PencilMatrix, PencilRangeUnsupported};
-use crate::dd::{Dd, DdAccumulator};
+use crate::dd::WideDd;
 use crate::matrix::SymmetricMatrix;
 use crate::reformation::ReformedPencil;
 
@@ -88,16 +89,14 @@ pub fn m_orthogonality(
     let n = mass.dimension();
     check_dense(PencilMatrix::Mass, mass).map_err(OrthogonalityError::PencilRangeUnsupported)?;
     check_vectors(n, vectors)?;
-    let products: Vec<Vec<Dd>> = vectors
+    let products: Vec<Vec<WideDd>> = vectors
         .iter()
         .map(|v| {
             (0..n)
                 .map(|i| {
-                    let mut row = DdAccumulator::new();
-                    for (j, &vj) in v.iter().enumerate() {
-                        row.add_product(mass.get(i, j), vj);
-                    }
-                    row.value()
+                    v.iter().enumerate().fold(WideDd::ZERO, |row, (j, &vj)| {
+                        row.add(WideDd::from_f64(mass.get(i, j)).mul_f64(vj))
+                    })
                 })
                 .collect()
         })
@@ -105,14 +104,14 @@ pub fn m_orthogonality(
     from_products(vectors, &products)
 }
 
-/// Check 3 on the re-formed M̂: M̂φⱼ element by element in double-double
+/// Check 3 on the re-formed M̂: M̂φⱼ element by element in `WideDd`
 /// (`ReformedPencil::mass_product`), then each φᵢᵀ(M̂φⱼ).
 pub fn m_orthogonality_reformed(
     pencil: &ReformedPencil,
     vectors: &[&[f64]],
 ) -> Result<MOrthogonality, OrthogonalityError> {
     check_vectors(pencil.dimension(), vectors)?;
-    let products: Vec<Vec<Dd>> = vectors.iter().map(|v| pencil.mass_product(v)).collect();
+    let products: Vec<Vec<WideDd>> = vectors.iter().map(|v| pencil.mass_product(v)).collect();
     from_products(vectors, &products)
 }
 
@@ -132,44 +131,42 @@ fn check_vectors(n: usize, vectors: &[&[f64]]) -> Result<(), OrthogonalityError>
     Ok(())
 }
 
+/// The bilinear forms, generalized masses and ratios in `WideDd`, so a
+/// generalized mass below or above the binary64 range is still exact to
+/// double-double and only the ratio is rounded; it must be finite, and
+/// normal or exactly zero.
 fn from_products(
     vectors: &[&[f64]],
-    products: &[Vec<Dd>],
+    products: &[Vec<WideDd>],
 ) -> Result<MOrthogonality, OrthogonalityError> {
-    let bilinear = |i: usize, j: usize| -> Dd {
-        let mut acc = DdAccumulator::new();
-        for (x, mv) in vectors[i].iter().zip(&products[j]) {
-            acc.add_dd(mv.mul_f64(*x));
-        }
-        acc.value()
+    let bilinear = |i: usize, j: usize| -> WideDd {
+        vectors[i]
+            .iter()
+            .zip(&products[j])
+            .fold(WideDd::ZERO, |acc, (&x, mv)| acc.add(mv.mul_f64(x)))
     };
-    let mut generalized = Vec::with_capacity(vectors.len());
+    let mut roots = Vec::with_capacity(vectors.len());
     for mode in 0..vectors.len() {
         let m = bilinear(mode, mode);
-        if !(m.to_f64() > 0.0) {
+        if !m.is_positive() {
             return Err(OrthogonalityError::NonPositiveGeneralizedMass {
                 mode,
                 value: m.to_f64(),
             });
         }
-        generalized.push(scaled_sqrt(m));
+        roots.push(m.sqrt());
     }
     let mut max_ratio = 0.0;
     let mut pair = None;
     for i in 0..vectors.len() {
         for j in i + 1..vectors.len() {
-            let ((root_i, k_i), (root_j, k_j)) = (generalized[i], generalized[j]);
-            let ratio = bilinear(i, j)
-                .abs()
-                .mul_pow2(-(k_i + k_j))
-                .div(root_i.mul(root_j))
-                .to_f64();
-            if !ratio.is_finite() {
+            let exact = bilinear(i, j).abs().div(roots[i].mul(roots[j]));
+            let Some(ratio) = exact.to_normal_or_zero() else {
                 return Err(OrthogonalityError::RatioOutOfRange {
                     pair: (i, j),
-                    value: ratio,
+                    value: exact.to_f64(),
                 });
-            }
+            };
             if pair.is_none() || ratio > max_ratio {
                 max_ratio = ratio;
                 pair = Some((i, j));
@@ -177,19 +174,6 @@ fn from_products(
         }
     }
     Ok(MOrthogonality { max_ratio, pair })
-}
-
-/// √m = 2^k·√(m·2^−2k) for m positive and finite, returned as
-/// (√(m·2^−2k), k) with the even power of two 2^−2k bringing m into
-/// [1, 4). The ratio is formed as (|φᵢᵀMφⱼ|·2^−(k_i+k_j)) / (root_i·root_j),
-/// so no double-double product or quotient meets the ends of the binary64
-/// range unless the ratio itself does.
-fn scaled_sqrt(m: Dd) -> (Dd, i32) {
-    // A subnormal m (biased exponent 0) is taken at 2⁻¹⁰²², so that 2^−2k
-    // stays finite.
-    let exponent = (((m.hi.to_bits() >> 52) & 0x7ff) as i32 - 1023).max(-1022);
-    let k = exponent.div_euclid(2);
-    (m.mul_pow2(-2 * k).sqrt(), k)
 }
 
 #[cfg(test)]
@@ -263,6 +247,22 @@ mod tests {
             m_orthogonality(&indefinite, &[&e1, &e2]).unwrap().max_ratio,
             p2(600)
         );
+    }
+
+    /// Review round 3: the orthogonality witness M = diag(2⁻¹⁰²², 2⁻¹⁰²², 0)
+    /// is outside the admission range. Within it, M = diag(2⁻²⁹⁰, 2⁻²⁹⁰, 0)
+    /// with φ₁ = (1, 0, 0) and φ₂ = 2⁻⁵⁰³·(4, 3, 2⁵⁰³): m₂ = 25·2⁻¹²⁹⁶ lies
+    /// below binary64 (it underflowed in double-double), and the true ratio
+    /// is 4·2⁻⁷⁹³ / (5·2⁻⁷⁹³) = 0.8.
+    #[test]
+    fn an_in_range_ratio_with_a_generalized_mass_below_binary64_is_exact() {
+        let p2 = |e: i32| 2f64.powi(e);
+        let mass = SymmetricMatrix::from_diagonal(&[p2(-290), p2(-290), 0.0]).unwrap();
+        let a = [1.0, 0.0, 0.0];
+        let b = [4.0 * p2(-503), 3.0 * p2(-503), 1.0];
+        let result = m_orthogonality(&mass, &[&a, &b]).unwrap();
+        assert_eq!(result.max_ratio, 0.8);
+        assert_eq!(result.pair, Some((0, 1)));
     }
 
     #[test]

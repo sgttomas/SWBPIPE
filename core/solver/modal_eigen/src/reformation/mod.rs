@@ -54,7 +54,7 @@ use open_pipe_stress_frame_kernel::tie_rod::TieRod;
 use open_pipe_stress_sparse_direct::SymmetricMatrixEntry;
 
 use crate::admission::{check_entry, PencilMatrix, PencilRangeUnsupported};
-use crate::dd::Dd;
+use crate::dd::{max_propagating_nan, Dd, WideDd};
 use mass::{
     arc_lumps, component_mass, straight_mass, ComponentBody, ComponentRangeOperand, GeometryError,
 };
@@ -501,8 +501,8 @@ impl ReformedPencil {
         self.section_difference
     }
 
-    fn product(list: &[Mapped], n: usize, x: &[f64]) -> Vec<Dd> {
-        let mut y = vec![Dd::ZERO; n];
+    fn product(list: &[Mapped], n: usize, x: &[f64]) -> Vec<WideDd> {
+        let mut y = vec![WideDd::ZERO; n];
         for e in list {
             for (a, ra) in e.rows.iter().enumerate() {
                 let Some(ra) = *ra else { continue };
@@ -510,7 +510,7 @@ impl ReformedPencil {
                 for (b, rb) in e.rows.iter().enumerate() {
                     let Some(rb) = *rb else { continue };
                     if x[rb] != 0.0 {
-                        acc = acc.add(e.matrix.get(a, b).mul_f64(x[rb]));
+                        acc = acc.add(WideDd::from_dd(e.matrix.get(a, b)).mul_f64(x[rb]));
                     }
                 }
                 y[ra] = acc;
@@ -519,8 +519,9 @@ impl ReformedPencil {
         y
     }
 
-    /// K̂x in double-double, element by element in operand order.
-    pub fn stiffness_product(&self, x: &[f64]) -> Vec<Dd> {
+    /// K̂x in double-double with an extended exponent (`WideDd`), element by
+    /// element in operand order.
+    pub fn stiffness_product(&self, x: &[f64]) -> Vec<WideDd> {
         assert_eq!(
             x.len(),
             self.dimension,
@@ -529,8 +530,9 @@ impl ReformedPencil {
         Self::product(&self.stiffness, self.dimension, x)
     }
 
-    /// M̂x in double-double, element by element in operand order.
-    pub fn mass_product(&self, x: &[f64]) -> Vec<Dd> {
+    /// M̂x in double-double with an extended exponent (`WideDd`), element by
+    /// element in operand order.
+    pub fn mass_product(&self, x: &[f64]) -> Vec<WideDd> {
         assert_eq!(
             x.len(),
             self.dimension,
@@ -673,15 +675,21 @@ fn formed_lower(
 }
 
 /// The scaled row sums Σ_j |d_i x_ij d_j| over the full symmetric matrix of
-/// a lower-triangle list, and the row of the largest.
+/// a lower-triangle list, in `WideDd`, and the row of the largest. A row sum
+/// that is not finite, or not normal or zero once rounded, refuses
+/// (`quantity` names it); no NaN is passed over by the maximum.
 fn scaled_norm(
     n: usize,
     d: &[Dd],
     entries: impl Iterator<Item = ((usize, usize), Dd)>,
-) -> (f64, usize) {
-    let mut rows = vec![Dd::ZERO; n];
+    quantity: &'static str,
+) -> Result<(f64, usize), FormationError> {
+    let mut rows = vec![WideDd::ZERO; n];
     for ((r, c), v) in entries {
-        let s = d[r].mul(v).mul(d[c]).abs();
+        let s = WideDd::from_dd(d[r])
+            .mul(WideDd::from_dd(v))
+            .mul(WideDd::from_dd(d[c]))
+            .abs();
         rows[r] = rows[r].add(s);
         if r != c {
             rows[c] = rows[c].add(s);
@@ -689,12 +697,14 @@ fn scaled_norm(
     }
     let mut best = (0.0, 0);
     for (i, s) in rows.iter().enumerate() {
-        let s = s.to_f64();
+        let s = s
+            .to_normal_or_zero()
+            .ok_or(FormationError::ResultOutOfRange { quantity })?;
         if s > best.0 {
             best = (s, i);
         }
     }
-    best
+    Ok(best)
 }
 
 fn difference(
@@ -702,7 +712,8 @@ fn difference(
     d: &[Dd],
     formed: &[((usize, usize), f64)],
     reformed: &BTreeMap<(usize, usize), Dd>,
-) -> (MatrixDifference, f64) {
+    names: [&'static str; 2],
+) -> Result<(MatrixDifference, f64), FormationError> {
     // One accumulator per stored formed entry, in the formed order.
     let mut accumulators = vec![Dd::ZERO; formed.len()];
     let mut off_pattern = BTreeMap::new();
@@ -720,16 +731,16 @@ fn difference(
         .zip(&accumulators)
         .map(|(&(key, f), &r)| (key, Dd::from_f64(f).sub(r)))
         .chain(off_pattern.iter().map(|(&key, &v)| (key, v.neg())));
-    let (norm, row) = scaled_norm(n, d, deltas);
-    let (reformed_norm, _) = scaled_norm(n, d, reformed.iter().map(|(&k, &v)| (k, v)));
-    (
+    let (norm, row) = scaled_norm(n, d, deltas, names[0])?;
+    let (reformed_norm, _) = scaled_norm(n, d, reformed.iter().map(|(&k, &v)| (k, v)), names[1])?;
+    Ok((
         MatrixDifference {
             norm,
             row,
             off_pattern: off_pattern.len(),
         },
         reformed_norm,
-    )
+    ))
 }
 
 /// Check 1's formation difference on the assembled matrices (module docs).
@@ -758,9 +769,15 @@ pub fn formation_difference(
         &scaling,
         &k,
         &ReformedPencil::assembled(&pencil.stiffness),
-    );
-    let (mass, reformed_mass_norm) =
-        difference(n, &scaling, &m, &ReformedPencil::assembled(&pencil.mass));
+        ["stiffness formation difference", "re-formed stiffness norm"],
+    )?;
+    let (mass, reformed_mass_norm) = difference(
+        n,
+        &scaling,
+        &m,
+        &ReformedPencil::assembled(&pencil.mass),
+        ["mass formation difference", "re-formed mass norm"],
+    )?;
     Ok(FormationDifference {
         stiffness,
         mass,
@@ -786,6 +803,16 @@ pub enum ResidualError {
     InvalidEigenvalue,
     /// φᵀM̂φ is not positive.
     NonPositiveGeneralizedMass,
+    /// A returned quantity (`quantity`) that is not finite, or not normal or
+    /// exactly zero, or a scaling input that is not.
+    ResultOutOfRange {
+        quantity: &'static str,
+    },
+    /// An error estimate given to `cluster_error_estimates` that is not
+    /// finite and non-negative.
+    InvalidEstimate {
+        index: usize,
+    },
 }
 
 impl fmt::Display for ResidualError {
@@ -836,47 +863,107 @@ pub fn residual_estimate(
     }
     let kx = pencil.stiffness_product(vector);
     let mx = pencil.mass_product(vector);
-    let mut residual = Dd::ZERO;
-    let mut tilde = Dd::ZERO;
-    let mut generalized = Dd::ZERO;
+    // Every square, norm and the generalized mass in WideDd: φ may be scaled
+    // arbitrarily, and η, κ_λ and e_λ do not depend on its scale.
+    let lambda = WideDd::from_f64(eigenvalue);
+    let mut residual = WideDd::ZERO;
+    let mut tilde = WideDd::ZERO;
+    let mut generalized = WideDd::ZERO;
     for i in 0..n {
-        let d = scaling.scaling[i];
-        let r = kx[i].sub(mx[i].mul_f64(eigenvalue)).mul(d);
+        let d = WideDd::from_dd(scaling.scaling[i]);
+        let r = kx[i].sub(mx[i].mul(lambda)).mul(d);
         residual = residual.add(r.mul(r));
-        let t = Dd::from_f64(vector[i]).div(d);
+        let t = WideDd::from_f64(vector[i]).div(d);
         tilde = tilde.add(t.mul(t));
         generalized = generalized.add(mx[i].mul_f64(vector[i]));
     }
-    if !(generalized.to_f64() > 0.0) {
+    let out_of_range = |quantity| ResidualError::ResultOutOfRange { quantity };
+    if !generalized.is_finite() {
+        return Err(out_of_range("generalized_mass"));
+    }
+    if !generalized.is_positive() {
         return Err(ResidualError::NonPositiveGeneralizedMass);
     }
-    let scale = Dd::from_f64(scaling.reformed_stiffness_norm)
-        .add(Dd::product(eigenvalue, scaling.reformed_mass_norm));
+    let (k_norm, m_norm) = (
+        scaling.reformed_stiffness_norm,
+        scaling.reformed_mass_norm,
+    );
+    if !(k_norm.is_finite() && k_norm > 0.0 && m_norm.is_finite() && m_norm >= 0.0) {
+        return Err(out_of_range("scaling norms"));
+    }
+    let scale = WideDd::from_f64(k_norm).add(lambda.mul_f64(m_norm));
     let residual = residual.sqrt();
     let backward = residual.div(scale.mul(tilde.sqrt()));
-    let condition = scale.mul(tilde).div(generalized.mul_f64(eigenvalue));
+    let condition = scale.mul(tilde).div(generalized.mul(lambda));
+    let checked = |quantity, value: WideDd| value.to_normal_or_zero().ok_or(out_of_range(quantity));
     Ok(ResidualEstimate {
-        scaled_residual: residual.to_f64(),
-        backward_error: backward.to_f64(),
-        condition: condition.to_f64(),
-        error_estimate: backward.mul(condition).to_f64(),
-        generalized_mass: generalized.to_f64(),
+        scaled_residual: checked("scaled_residual", residual)?,
+        backward_error: checked("backward_error", backward)?,
+        condition: checked("condition", condition)?,
+        error_estimate: checked("error_estimate", backward.mul(condition))?,
+        generalized_mass: checked("generalized_mass", generalized)?,
     })
 }
 
 /// The cluster-level e_λ: for each cluster id, the largest e_λ over its
 /// members (`estimates[i]` belongs to `cluster_ids[i]`, ids from
-/// `clusters::cluster_ids`).
-pub fn cluster_error_estimates(estimates: &[f64], cluster_ids: &[usize]) -> Vec<f64> {
+/// `clusters::cluster_ids`). An estimate that is not finite and
+/// non-negative refuses (`InvalidEstimate`), so the maximum never passes
+/// over a NaN.
+pub fn cluster_error_estimates(
+    estimates: &[f64],
+    cluster_ids: &[usize],
+) -> Result<Vec<f64>, ResidualError> {
     assert_eq!(
         estimates.len(),
         cluster_ids.len(),
         "one cluster id per estimate"
     );
+    if let Some(index) = estimates
+        .iter()
+        .position(|e| !(e.is_finite() && *e >= 0.0))
+    {
+        return Err(ResidualError::InvalidEstimate { index });
+    }
     let count = cluster_ids.iter().max().map_or(0, |m| m + 1);
     let mut out = vec![0.0f64; count];
     for (&e, &id) in estimates.iter().zip(cluster_ids) {
-        out[id] = out[id].max(e);
+        out[id] = max_propagating_nan(out[id], e);
     }
-    out
+    Ok(out)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Review round 3, item B: a NaN row sum is refused, not passed over by
+    /// the maximum.
+    #[test]
+    fn scaled_norm_refuses_a_nan_row() {
+        let d = [Dd::from_f64(1.0), Dd::from_f64(1.0)];
+        let entries = [
+            ((0, 0), Dd::from_f64(2.0)),
+            ((1, 1), Dd::from_f64(f64::NAN)),
+        ];
+        assert_eq!(
+            scaled_norm(2, &d, entries.into_iter(), "test"),
+            Err(FormationError::ResultOutOfRange { quantity: "test" })
+        );
+        let finite = [((0, 0), Dd::from_f64(2.0)), ((1, 0), Dd::from_f64(-3.0))];
+        assert_eq!(scaled_norm(2, &d, finite.into_iter(), "test"), Ok((5.0, 0)));
+    }
+
+    /// Review round 3, item B: a NaN estimate was dropped by f64::max.
+    #[test]
+    fn cluster_estimates_refuse_a_nan() {
+        assert_eq!(
+            cluster_error_estimates(&[1e-9, f64::NAN, 2e-9], &[0, 0, 1]),
+            Err(ResidualError::InvalidEstimate { index: 1 })
+        );
+        assert_eq!(
+            cluster_error_estimates(&[1e-9, 3e-9, 2e-9], &[0, 0, 1]),
+            Ok(vec![3e-9, 2e-9])
+        );
+    }
 }

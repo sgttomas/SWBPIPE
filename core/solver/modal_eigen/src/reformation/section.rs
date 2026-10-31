@@ -20,7 +20,7 @@
 use std::error::Error;
 use std::fmt;
 
-use crate::dd::Dd;
+use crate::dd::{max_propagating_nan, Dd};
 
 pub const PF_MASS_METHOD: &str = "source_od_effective_wall_areas/v1";
 pub const EX_MASS_METHOD: &str = "source_od_nominal_wall_pressure_bore_areas/v1";
@@ -128,16 +128,20 @@ pub struct SectionDerivationDifference {
 }
 
 impl SectionDerivationDifference {
+    /// The largest component; NaN if any is NaN.
     pub fn max(&self) -> f64 {
-        self.area.max(self.second_moment).max(self.torsion_constant)
+        max_propagating_nan(
+            max_propagating_nan(self.area, self.second_moment),
+            self.torsion_constant,
+        )
     }
 
-    /// The componentwise maximum.
+    /// The componentwise maximum, propagating NaN.
     pub fn combine(self, other: Self) -> Self {
         Self {
-            area: self.area.max(other.area),
-            second_moment: self.second_moment.max(other.second_moment),
-            torsion_constant: self.torsion_constant.max(other.torsion_constant),
+            area: max_propagating_nan(self.area, other.area),
+            second_moment: max_propagating_nan(self.second_moment, other.second_moment),
+            torsion_constant: max_propagating_nan(self.torsion_constant, other.torsion_constant),
         }
     }
 }

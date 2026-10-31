@@ -41,8 +41,8 @@ use open_pipe_stress_modal_eigen::reformation::section::{
 };
 use open_pipe_stress_modal_eigen::reformation::{
     cluster_error_estimates, formation_difference, reform_element_mass, residual_estimate,
-    ArcOperand, ElementOperand, Moduli, ReformationFailure, ReformedPencil, SpringOperand,
-    StraightOperand,
+    ArcOperand, ElementOperand, Moduli, ReformationFailure, ReformedPencil, ResidualError,
+    SpringOperand, StraightOperand,
 };
 use open_pipe_stress_modal_eigen::SymmetricMatrix;
 use open_pipe_stress_sparse_direct::SymmetricMatrixEntry;
@@ -658,7 +658,7 @@ fn reference_pencils_reform_and_their_dense_modes_have_small_residuals() {
             }
         }
         let ids = cluster_ids(&f.solution.eigenvalues, 1e-8).unwrap();
-        let cluster = cluster_error_estimates(&estimates, &ids);
+        let cluster = cluster_error_estimates(&estimates, &ids).unwrap();
         // Each cluster's e_λ is the largest over its members, found here
         // directly.
         assert_eq!(cluster.len(), ids.iter().max().unwrap() + 1);
@@ -953,13 +953,34 @@ fn residual_estimates_match_their_closed_forms() {
         close(r.condition, a.mul_f64(3.0).div(b.mul_f64(2.0)), "κ_λ, λ = 2");
         close(r.error_estimate, a.sqrt().mul_f64(x).div(b.mul_f64(2.0)), "e_λ, λ = 2");
     }
+    // η, κ_λ and e_λ do not depend on φ's scale: at 2^±300 (published
+    // quantities still in range) they are unchanged, ‖Dr‖ scales by s and
+    // φᵀM̂φ by s². Review round 3, item C: the squares are formed in WideDd.
+    let base = residual_estimate(&p, &d.scaling, 1.0, &[1.0, 0.3]).unwrap();
+    for s in [2f64.powi(300), 2f64.powi(-300)] {
+        let r = residual_estimate(&p, &d.scaling, 1.0, &[s, 0.3 * s]).unwrap();
+        close(r.backward_error, c(base.backward_error), "η, scaled");
+        close(r.condition, c(base.condition), "κ_λ, scaled");
+        close(r.error_estimate, c(base.error_estimate), "e_λ, scaled");
+        close(r.scaled_residual, c(base.scaled_residual).mul_f64(s), "‖Dr‖, scaled");
+        close(r.generalized_mass, c(base.generalized_mass).mul_f64(s * s), "φᵀMφ, scaled");
+    }
+    // At 2⁻⁶⁰⁰ φᵀM̂φ = 2⁻¹²⁰⁰·(1 + 2·0.09) is below binary64: refused as out of
+    // range, not published as zero (it underflowed to a refusal as
+    // NonPositiveGeneralizedMass before).
+    assert_eq!(
+        residual_estimate(&p, &d.scaling, 1.0, &[2f64.powi(-600), 0.3 * 2f64.powi(-600)]),
+        Err(ResidualError::ResultOutOfRange {
+            quantity: "generalized_mass"
+        })
+    );
     // The exact pairs have zero residual.
     let exact = residual_estimate(&p, &d.scaling, 2.0, &[0.0, 1.0]).unwrap();
     assert_eq!((exact.backward_error, exact.error_estimate), (0.0, 0.0));
     // A cluster's e_λ is the largest over its members.
     assert_eq!(
         cluster_error_estimates(&[1e-9, 3e-9, 2e-9, 5e-10], &[0, 0, 0, 1]),
-        vec![3e-9, 5e-10]
+        Ok(vec![3e-9, 5e-10])
     );
 }
 

@@ -108,6 +108,12 @@ pub enum DenseError {
         index: usize,
         limit: usize,
     },
+    /// A returned μ or λ that is not a positive normal number, or a mode
+    /// shape component that is not finite (`index` into the flat list).
+    ResultOutOfRange {
+        quantity: &'static str,
+        index: usize,
+    },
 }
 
 impl fmt::Display for DenseError {
@@ -128,6 +134,9 @@ impl fmt::Display for DenseError {
                 f,
                 "implicit QL did not converge for eigenvalue {index} within {limit} iterations"
             ),
+            Self::ResultOutOfRange { quantity, index } => {
+                write!(f, "dense result `{quantity}`[{index}] is out of range")
+            }
         }
     }
 }
@@ -338,7 +347,8 @@ pub fn solve_dense_pencil(
     let established = established_finite_mode_count(mass, pivot_threshold);
     let finite_count_unresolved =
         nonpositive_mu_count + below_threshold_mu_count > 0 || established.is_none();
-    let eigenvalues = d.iter().map(|&mu| 1.0 / mu).collect();
+    let eigenvalues: Vec<f64> = d.iter().map(|&mu| 1.0 / mu).collect();
+    validate_outputs(&d, &eigenvalues, &work)?;
     Ok(DenseEigenSolution {
         dimension: n,
         condensed_dimension: nm,
@@ -358,6 +368,23 @@ pub fn solve_dense_pencil(
         established_finite_mode_count: established,
         finite_count_unresolved,
     })
+}
+
+/// Every returned μ and λ is a positive normal number and every shape
+/// component finite (design §3.2, admission range: no silent zero, no NaN).
+fn validate_outputs(mu: &[f64], eigenvalues: &[f64], vectors: &[f64]) -> Result<(), DenseError> {
+    for (quantity, list) in [("mu", mu), ("eigenvalues", eigenvalues)] {
+        if let Some(index) = list.iter().position(|&x| !(x.is_normal() && x > 0.0)) {
+            return Err(DenseError::ResultOutOfRange { quantity, index });
+        }
+    }
+    if let Some(index) = vectors.iter().position(|x| !x.is_finite()) {
+        return Err(DenseError::ResultOutOfRange {
+            quantity: "vectors",
+            index,
+        });
+    }
+    Ok(())
 }
 
 /// The structurally massless DOFs of M, ascending: those whose row (and so
@@ -940,6 +967,32 @@ mod tests {
                 assert_eq!(value.abs(), if j == dof { 1.0 } else { 0.0 });
             }
         }
+    }
+
+    #[test]
+    fn outputs_are_validated() {
+        assert_eq!(validate_outputs(&[2.0], &[0.5], &[1.0, 0.0]), Ok(()));
+        assert_eq!(
+            validate_outputs(&[2.0, f64::NAN], &[0.5, 1.0], &[]),
+            Err(DenseError::ResultOutOfRange {
+                quantity: "mu",
+                index: 1
+            })
+        );
+        assert_eq!(
+            validate_outputs(&[2.0], &[f64::from_bits(1)], &[]),
+            Err(DenseError::ResultOutOfRange {
+                quantity: "eigenvalues",
+                index: 0
+            })
+        );
+        assert_eq!(
+            validate_outputs(&[2.0], &[0.5], &[1.0, f64::INFINITY]),
+            Err(DenseError::ResultOutOfRange {
+                quantity: "vectors",
+                index: 1
+            })
+        );
     }
 
     #[test]

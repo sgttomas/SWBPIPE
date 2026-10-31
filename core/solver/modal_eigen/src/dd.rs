@@ -316,7 +316,7 @@ impl WideDd {
         }
     }
 
-    fn is_finite(self) -> bool {
+    pub fn is_finite(self) -> bool {
         self.mantissa.hi.is_finite() && self.mantissa.lo.is_finite()
     }
 
@@ -350,8 +350,18 @@ impl WideDd {
         Self::normalize(Dd::from_f64(x), 0)
     }
 
+    /// Exact for a finite double-double; a non-finite one is carried.
+    pub fn from_dd(value: Dd) -> WideDd {
+        Self::normalize(value, 0)
+    }
+
     pub fn is_zero(self) -> bool {
         self.mantissa.is_zero()
+    }
+
+    /// Finite and greater than zero, however small.
+    pub fn is_positive(self) -> bool {
+        self.is_finite() && self.mantissa.hi > 0.0
     }
 
     pub fn mul(self, other: WideDd) -> WideDd {
@@ -434,6 +444,18 @@ impl WideDd {
             self.mantissa.mul_pow2(odd).sqrt(),
             (self.exponent - odd) / 2,
         )
+    }
+
+    /// The binary64 value when it may be published (design §3.2, admission
+    /// range): zero only for an exact zero, otherwise a normal number.
+    /// `None` for a value that overflows, underflows to a subnormal or to
+    /// zero, or is not finite.
+    pub fn to_normal_or_zero(self) -> Option<f64> {
+        if self.is_finite() && self.is_zero() {
+            return Some(0.0);
+        }
+        let value = self.to_f64();
+        value.is_normal().then_some(value)
     }
 
     /// The binary64 value, rounded once to the destination's spacing, ties

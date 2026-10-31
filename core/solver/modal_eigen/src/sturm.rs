@@ -67,7 +67,7 @@ use open_pipe_stress_sparse_direct::{
 };
 
 use crate::admission::{check_entry, PencilMatrix, PencilRangeUnsupported};
-use crate::dd::WideDd;
+use crate::dd::{max_propagating_nan, WideDd};
 use crate::norm_estimate::inverse_one_norm_estimate;
 use crate::matrix::SymmetricMatrix;
 
@@ -417,13 +417,14 @@ impl SturmEvidence {
             .filter(|candidate| candidate.decision == ShiftDecision::Accepted)
     }
 
-    /// The largest growth factor over the factored candidates.
+    /// The largest growth factor over the factored candidates (NaN if any is
+    /// NaN).
     pub fn largest_growth(&self) -> Option<f64> {
         self.candidates
             .iter()
             .filter_map(|candidate| candidate.factored.as_ref().map(|f| f.growth))
             .fold(None, |acc: Option<f64>, g| {
-                Some(acc.map_or(g, |a| a.max(g)))
+                Some(acc.map_or(g, |a| max_propagating_nan(a, g)))
             })
     }
 }
@@ -751,7 +752,10 @@ impl ShiftPencil {
     fn formation_term(&self, sigma: f64) -> f64 {
         let mut largest: f64 = 0.0;
         for i in 0..self.dimension {
-            largest = largest.max(self.stiffness_row_sums[i] + sigma * self.mass_row_sums[i]);
+            largest = max_propagating_nan(
+                largest,
+                self.stiffness_row_sums[i] + sigma * self.mass_row_sums[i],
+            );
         }
         FORMATION_ROUNDING_CONSTANT * U * largest
     }
@@ -944,7 +948,9 @@ fn factor_observations(factorization: &ProfileFactorization, n: usize) -> (f64, 
     for (row, col, l) in factorization.lower_factor_entries() {
         w[row] += l.abs() * v[col];
     }
-    let norm = w.iter().fold(0.0f64, |acc, &x| acc.max(x));
+    // A NaN (0·∞ after an overflowing v) propagates into e_b, whose
+    // comparisons then refuse the shift.
+    let norm = w.iter().fold(0.0f64, |acc, &x| max_propagating_nan(acc, x));
     (norm, max_abs_lower, max_abs_pivot)
 }
 

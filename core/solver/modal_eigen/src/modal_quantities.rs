@@ -102,6 +102,12 @@ pub enum ModalQuantityError {
         mode: usize,
         value: f64,
     },
+    /// A shape component φ_i/φ_ref is not finite, or is not normal while
+    /// φ_i is nonzero (an overflow, or an underflow to a silent zero).
+    ShapeOutOfRange {
+        mode: usize,
+        index: usize,
+    },
     /// A published quantity is not finite: `name`, in direction
     /// `direction` (`None` for the generalized mass).
     QuantityOutOfRange {
@@ -127,6 +133,10 @@ impl fmt::Display for ModalQuantityError {
             Self::NonPositiveGeneralizedMass { mode, value } => {
                 write!(f, "mode {mode} has generalized mass {value:e}")
             }
+            Self::ShapeOutOfRange { mode, index } => write!(
+                f,
+                "mode {mode}: shape component {index} leaves the binary64 normal range"
+            ),
             Self::QuantityOutOfRange {
                 mode,
                 name,
@@ -339,17 +349,24 @@ pub fn normalize_mode(
     let reference = reference.ok_or(ModalQuantityError::ZeroShape { mode })?;
     let pivot = phi[reference];
     let shape: Vec<f64> = phi.iter().map(|&v| v / pivot).collect();
+    if let Some(index) = shape
+        .iter()
+        .zip(phi)
+        .position(|(&s, &v)| !(s.is_finite() && (s.is_normal() || v == 0.0)))
+    {
+        return Err(ModalQuantityError::ShapeOutOfRange { mode, index });
+    }
 
     let m = mass_bilinear(basis.mass, &shape, &shape);
-    let generalized_mass = m.to_f64();
-    // Finiteness first: an overflowing m is out of range, not non-positive.
-    if !generalized_mass.is_finite() {
+    // Range first: an m that cannot be published (an overflow, an underflow
+    // or a NaN) is out of range, not non-positive.
+    let Some(generalized_mass) = m.to_normal_or_zero() else {
         return Err(ModalQuantityError::QuantityOutOfRange {
             mode,
             name: "generalized_mass",
             direction: None,
         });
-    }
+    };
     if !(generalized_mass > 0.0) {
         return Err(ModalQuantityError::NonPositiveGeneralizedMass {
             mode,
@@ -361,26 +378,25 @@ pub fn normalize_mode(
     let mut effective_mass = [0.0; 3];
     let mut effective_mass_fraction = [None; 3];
     for k in 0..3 {
-        let finite = |name: &'static str, value: f64| {
-            if value.is_finite() {
-                Ok(value)
-            } else {
-                Err(ModalQuantityError::QuantityOutOfRange {
+        // Published only when normal or an exact zero (design §3.2,
+        // admission range): no silent zero, no infinity.
+        let finite = |name: &'static str, value: WideDd| {
+            value
+                .to_normal_or_zero()
+                .ok_or(ModalQuantityError::QuantityOutOfRange {
                     mode,
                     name,
                     direction: Some(k),
                 })
-            }
         };
         let q = wide_dot(&shape, basis.excitation[k]);
         let q_squared = q.mul(q);
-        excitation_product[k] = finite("excitation_product", q.to_f64())?;
-        participation[k] = finite("participation", q.div(m).to_f64())?;
-        effective_mass[k] = finite("effective_mass", q_squared.div(m).to_f64())?;
+        excitation_product[k] = finite("excitation_product", q)?;
+        participation[k] = finite("participation", q.div(m))?;
+        effective_mass[k] = finite("effective_mass", q_squared.div(m))?;
         if basis.total_mass[k] > 0.0 {
             let fraction = q_squared.div(m.mul_f64(basis.total_mass[k]));
-            effective_mass_fraction[k] =
-                Some(finite("effective_mass_fraction", fraction.to_f64())?);
+            effective_mass_fraction[k] = Some(finite("effective_mass_fraction", fraction)?);
         }
     }
     Ok(NormalizedMode {
@@ -717,6 +733,27 @@ mod tests {
                 value: 1e308,
             })
         );
+    }
+
+    /// Review round 3, item B: every shape component is validated. With
+    /// τ_t = 0 a mode with any translation is case (a); φ = (2⁶⁰⁰ on Ux,
+    /// 2⁻⁶⁰⁰ on Rz) normalizes Rz to 2⁻¹²⁰⁰, which underflowed to a silent
+    /// zero, and φ = (2⁻⁶⁰⁰, 2⁶⁰⁰) to 2¹²⁰⁰, which overflowed.
+    #[test]
+    fn every_shape_component_is_validated() {
+        let p2 = |e: i32| 2f64.powi(e);
+        let mass = SymmetricMatrix::from_diagonal(&[1.0, 1.0]).unwrap();
+        let dofs = [free(1, Dof::Ux), free(1, Dof::Rz)];
+        let z = [0.0, 0.0];
+        let basis = ModalBasis::new(&mass, &dofs, [&z, &z, &z], [0.0; 3], 1.0, 0.0).unwrap();
+        for phi in [[p2(600), p2(-600)], [p2(-600), p2(600)]] {
+            assert_eq!(
+                normalize_mode(7, &phi, &basis),
+                Err(ModalQuantityError::ShapeOutOfRange { mode: 7, index: 1 })
+            );
+        }
+        // An exactly zero component stays an admitted zero.
+        assert!(normalize_mode(7, &[p2(600), 0.0], &basis).is_ok());
     }
 
     #[test]
