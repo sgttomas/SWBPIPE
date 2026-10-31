@@ -553,6 +553,9 @@ This Scope of Work defines `DEL-07-03` in service of project scope [SOW-021] and
 
 > ##### D-41 R5 T5 PDU-041 guidance
 >
+> Current implementation (G5, RT-G3): the E/ν material create form takes an optional material-level thermal expansion coefficient, written through `create_material`; `Work/authoring-speed.md` §1 records the route and its evidence.
+>
+>
 > SCA-011 supplies the forward ownership binding: DEL-07-03 owns load-case/combination editing and self-weight-plan interaction; DEL-07-02 owns support/restraint creation and editing; DEL-07-09 retains R-005/R-006 coverage accountability. Historical PDU-041 observations remain source-bound evidence, not a continuing absence-of-owner rule. Existing unsupported behavior and unmet verification remain visible.
 
 ### CLM-042 — SCA-011 Load, library and self-weight interaction
