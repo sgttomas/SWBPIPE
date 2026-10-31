@@ -129,6 +129,10 @@ impl<'m> Writer<'m> {
                 "reference configurations are not exported by the pilot writer",
             );
         }
+        // Model document 0.9.0 (DEL-02-01 Design model-document-0.9.0.md §2.4, §3.5): spectra are refused by name.
+        if present(model.get_or_null("spectra")) {
+            self.refuse("MBF-SI-SPECTRUM-UNSUPPORTED", "model.spectra", "response spectra are not exported by the pilot writer");
+        }
         Ok(())
     }
 
@@ -551,7 +555,17 @@ impl<'m> Writer<'m> {
                 self.diag("MBF-SI-REFERENCE-UNRESOLVED", "error", &entity, &message);
                 continue;
             };
-            let family = support.get_or_null("family");
+            let family = support.get_or_null("family").clone();
+            let family = &family;
+            // Model document 0.9.0 (§2.4, §3.5): a snubber is refused by name.
+            if family.as_str() == Some("snubber") {
+                let message = format!("{entity} is a snubber, a dynamic-only restraint the pilot writer does not export");
+                self.refuse("MBF-SI-SNUBBER-UNSUPPORTED", &entity, &message);
+                continue;
+            }
+            let Some(support) = self.axis_aligned(support, &entity)? else {
+                continue;
+            };
             if family.as_str() == Some("spring") && support.get_or_null("hanger").is_null() && support.get_or_null("nonlinear").is_null() {
                 self.read_spring(&support, &id, &entity, &node)?;
                 continue;
@@ -638,6 +652,82 @@ impl<'m> Writer<'m> {
         Ok(())
     }
 
+    /// Model document 0.9.0 (§2.1, §3.5): an exactly axis-aligned `direction` (one nonzero component) is the record
+    /// on that axis, as the solve's lowering reads it: the direction is removed and the record's single DOF token
+    /// (restraint and stiffness) becomes UX, UY or UZ for it. Any other direction is refused by name (None).
+    pub fn axis_aligned(&mut self, support: Value, entity: &str) -> R<Option<Value>> {
+        if !support.has("direction") {
+            return Ok(Some(support));
+        }
+        let direction = support.get_or_null("direction");
+        // `all(isinstance(c, (int, float)) and not isinstance(c, bool) and math.isfinite(c) ...)`, in order.
+        let mut numbers = matches!(direction, Value::Dict(_));
+        if numbers {
+            for axis in ["x", "y", "z"] {
+                if !finite_number(direction.get_or_null(axis))? {
+                    numbers = false;
+                    break;
+                }
+            }
+        }
+        let nonzero: Vec<usize> = if numbers {
+            (0..3)
+                .filter(|&index| match direction.get_or_null(["x", "y", "z"][index]) {
+                    Value::Int(number) => !num_traits::Zero::is_zero(number),
+                    Value::Float(number) => *number != 0.0,
+                    _ => false,
+                })
+                .collect()
+        } else {
+            Vec::new()
+        };
+        let restraints = support.get_or_null("restraints");
+        let stiffness = support.get_or_null("stiffness");
+        // `{_DOF_TOKENS.get(token) for token in restraints}`, else {None}; then the stiffness's dof.
+        let mut tokens: Vec<Option<&'static str>> = Vec::new();
+        let mut add = |token: Option<&'static str>| {
+            if !tokens.contains(&token) {
+                tokens.push(token);
+            }
+        };
+        if let Value::List(items) = restraints {
+            for token in items {
+                hashable(token)?;
+                add(known_dof(token));
+            }
+        } else {
+            add(None);
+        }
+        if let Value::Dict(_) = stiffness {
+            hashable(stiffness.get_or_null("dof"))?;
+            add(known_dof(stiffness.get_or_null("dof")));
+        }
+        let single = tokens.len() == 1 && matches!(tokens[0], Some(token) if DOFS[..3].contains(&token));
+        if !(numbers && nonzero.len() == 1 && single) {
+            let message = format!(
+                "{entity} has a direction that is not exactly along one global axis on a single translational DOF; \
+                 a skewed restraint is not exported"
+            );
+            self.refuse("MBF-SI-SUPPORT-DIRECTION-UNSUPPORTED", entity, &message);
+            return Ok(None);
+        }
+        let token = Value::str(DOFS[nonzero[0]]);
+        let mut lowered = Dict::new();
+        for (key, value) in support.as_dict().expect("a support record").iter() {
+            if key != "direction" {
+                lowered.insert(key.clone(), value.clone());
+            }
+        }
+        let count = restraints.as_list().expect("a list").len();
+        lowered.insert("restraints".into(), Value::List(vec![token.clone(); count]));
+        if let Value::Dict(stiffness) = stiffness {
+            let mut stiffness = stiffness.clone();
+            stiffness.insert("dof".into(), token);
+            lowered.insert("stiffness".into(), Value::Dict(stiffness));
+        }
+        Ok(Some(Value::Dict(lowered)))
+    }
+
     pub fn read_spring(&mut self, support: &Value, id: &str, entity: &str, node: &str) -> R<()> {
         let stiffness = support.get_or_null("stiffness");
         let restraints = support.get_or_null("restraints");
@@ -704,6 +794,18 @@ impl<'m> Writer<'m> {
                 if !case.get_or_null(name).is_null() {
                     self.refuse("MBF-SI-LOAD-CASE-FEATURE-UNSUPPORTED", &entity, &format!("{entity} {name} is not exported"));
                 }
+            }
+            // Model document 0.9.0 (§1.2, §2.4, §3.5): a case's condition use and test condition are refused by name.
+            if case.has("condition_use") {
+                let message =
+                    format!("{entity} uses operating conditions (condition_use), which the pilot writer does not export");
+                self.refuse("MBF-SI-CONDITION-USE-UNSUPPORTED", &entity, &message);
+            }
+            if case.has("test_condition") {
+                let message = format!(
+                    "{entity} is a hydrostatic test condition (test_condition), which the pilot writer does not export"
+                );
+                self.refuse("MBF-SI-TEST-CONDITION-UNSUPPORTED", &entity, &message);
             }
             let loads_value = case.get_or_null("primitive_loads");
             let loads = if loads_value.truthy() { loads_value.clone() } else { Value::List(Vec::new()) };
@@ -807,11 +909,37 @@ impl<'m> Writer<'m> {
         }
         self.case_labels = kinds;
         self.round_sums();
-        for combination in self.list(self.model.get_or_null("combinations"), "model.combinations") {
+        let combinations = self.list(self.model.get_or_null("combinations"), "model.combinations");
+        // `{case.get("id") ...}` and `{item.get("id") ...}`: sets, so each id is hashed, in this order.
+        let mut case_ids: Vec<Value> = Vec::new();
+        if let Value::List(cases) = self.model.get_or_null("load_cases") {
+            for case in cases.iter().filter(|case| matches!(case, Value::Dict(_))) {
+                hashable(case.get_or_null("id"))?;
+                case_ids.push(case.get_or_null("id").clone());
+            }
+        }
+        let mut combination_ids: Vec<Value> = Vec::new();
+        for item in combinations.iter().filter(|item| matches!(item, Value::Dict(_))) {
+            hashable(item.get_or_null("id"))?;
+            combination_ids.push(item.get_or_null("id").clone());
+        }
+        for combination in combinations {
             let identity = match &combination {
                 Value::Dict(_) => combination.get_or_null("id").clone(),
                 _ => Value::Null,
             };
+            let refusal = match &combination {
+                Value::Dict(_) => combination_member_0_9_0(&combination, &case_ids, &combination_ids),
+                _ => None,
+            };
+            if let Some((code, what)) = refusal {
+                let message = format!(
+                    "combination {} carries {what}, which the pilot writer does not export",
+                    repr(&identity)?
+                );
+                self.refuse(code, &format!("combination:{}", text(&identity)?), &message);
+                continue;
+            }
             let message = format!(
                 "combination {} is not exported; the target program forms its own combinations",
                 repr(&identity)?
@@ -1215,4 +1343,29 @@ impl<'m> Writer<'m> {
         }
         Ok(())
     }
+}
+
+/// `_combination_member_0_9_0(combination, case_ids, combination_ids)`: model document 0.9.0's combination members
+/// (§2.2, §2.4, §3.5), the code and what is refused, or None. An operand id names a load case first, and a
+/// combination only when no load case has it.
+fn combination_member_0_9_0(combination: &Value, case_ids: &[Value], combination_ids: &[Value]) -> Option<(&'static str, String)> {
+    if combination.has("difference_basis") {
+        return Some(("MBF-SI-DIFFERENCE-BASIS-UNSUPPORTED", "a difference basis".into()));
+    }
+    if combination.has("subtrahend_support_state") {
+        return Some(("MBF-SI-SUBTRAHEND-SUPPORT-STATE-UNSUPPORTED", "a subtrahend support state".into()));
+    }
+    let basis = combination.get_or_null("basis");
+    if str_in(basis, &["absolute_sum", "srss"]) {
+        return Some(("MBF-SI-COMBINATION-BASIS-UNSUPPORTED", format!("the {} basis", basis.as_str().expect("str"))));
+    }
+    let terms: &[Value] = combination.get_or_null("terms").as_list().map(Vec::as_slice).unwrap_or(&[]);
+    let mut ids: Vec<&Value> = vec![combination.get_or_null("minuend_id"), combination.get_or_null("subtrahend_id")];
+    if let Value::List(operands) = combination.get_or_null("operand_ids") {
+        ids.extend(operands.iter());
+    }
+    let contains = |set: &[Value], item: &Value| set.iter().any(|member| py_eq(member, item));
+    let nested = terms.iter().any(|term| matches!(term, Value::Dict(_)) && term.has("combination"))
+        || ids.iter().any(|item| matches!(item, Value::Str(_)) && !contains(case_ids, item) && contains(combination_ids, item));
+    nested.then(|| ("MBF-SI-COMBINATION-NESTED-UNSUPPORTED", "a combination operand".into()))
 }

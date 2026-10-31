@@ -48,10 +48,10 @@ const PROJECT_UNITS: [(&str, &[&str]); 3] =
     [("length", &["m", "mm", "in"]), ("force", &["N", "lbf"]), ("temperature", &["degC", "degF"])];
 const INVENTED_CERTIFICATION: &str = "invented non-engineering example";
 const USER_SUPPLIED_CERTIFICATION: &str = "user-supplied own source";
-const HANDLED_MEMBERS: [&str; 14] = [
+const HANDLED_MEMBERS: [&str; 15] = [
     "schema_version", "document_kind", "pressure_contract", "project", "materials", "nodes", "pipe_segments",
     "supports", "components", "load_cases", "combinations", "reference_configurations", "model_settings",
-    "shear_model",
+    "shear_model", "spectra",
 ];
 const NOT_CARRIED: &str = "the MBF has no field for it and the sidecar does not carry it";
 const IMPORTED_PROJECT_UNITS: [(&str, &str); 7] = [
@@ -75,7 +75,7 @@ fn handled_fields(path: &str) -> &'static [&'static str] {
             "outside_diameter", "wall_thickness", "corrosion_allowance", "mill_tolerance", "insulation_thickness",
             "material_density", "contents_density", "insulation_density",
         ],
-        "supports" => &["id", "node", "restraints", "family", "stiffness", "hanger", "nonlinear"],
+        "supports" => &["id", "node", "restraints", "family", "stiffness", "hanger", "nonlinear", "direction"],
         "components" => &["id", "kind", "node", "geometry", "modifiers", "mechanics_interface"],
         "components.geometry" => &["bend_pipe_ref", "bend_radius", "bend_angle"],
         "components.modifiers" => {
@@ -84,7 +84,7 @@ fn handled_fields(path: &str) -> &'static [&'static str] {
         "components.mechanics_interface" => &["solver_consumption"],
         "load_cases" => &[
             "id", "primitive_loads", "pressure_regions", "equivalent_static", "modulus_basis_ref",
-            "modulus_basis_temperature", "analysis_state",
+            "modulus_basis_temperature", "analysis_state", "condition_use", "test_condition",
         ],
         "load_cases.primitive_loads" => &["id", "category", "target", "direction", "magnitude", "dimension"],
         "load_cases.pressure_regions" => {
