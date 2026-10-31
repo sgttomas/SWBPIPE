@@ -760,12 +760,34 @@ def test_bend_sifs_the_writer_cannot_write_are_refused_by_name(change, code, fra
     assert_refused(render_caepipe_mbf_si(model, title="B"), code, "component:bend-1", fragment)
 
 
+def library_section(section_id, od=0.1683, wall=0.00711, unit="m"):
+    return {"id": section_id, "name": section_id, "section_type": "pipe",
+            "properties": {"outside_diameter": q(od, unit), "wall_thickness": q(wall, unit)},
+            "provenance": "invented library section"}
+
+
+def sectioned_bent_l():
+    """bent_l continued by a straight S3 from B, every pipe of one OD and wall (Design §15, Format 4): S1 and the bend
+    bind section:A, S2 binds section:B, S3 binds none, and section:unused is bound by no pipe."""
+    model = bent_l()
+    model["nodes"].append(node("C", 4.0, 0.0, 6.0))
+    model["pipe_segments"].append(pipe("S3", "B", "C", 0.1683, 0.00711, "m"))
+    model["sections"] = [library_section("section:A"), library_section("section:B"), library_section("section:unused")]
+    for pipe_id, section_id in (("S1", "section:A"), ("BEND", "section:A"), ("S2", "section:B")):
+        next(item for item in model["pipe_segments"] if item["id"] == pipe_id)["section_ref"] = section_id
+    return model
+
+
 def decorated_bent_l():
     """bent_l with every member and field the MBF does not keep (Design §17.1), each non-empty."""
     model = bent_l_with_sifs()
     meta = {"label": "invented", "provenance": "invented", "tags": ["t"], "notes": "n"}
     record = {"contributor_certification": "invented", "redistribution_status": "public_permissive"}
-    model.update(data_boundary={"public_examples_policy": "invented"}, sections=[{"id": "sec"}],
+    library = {"section_type": "pipe", "properties": {"outside_diameter": q(0.1683, "m"),
+                                                      "wall_thickness": q(0.00711, "m")},
+               **{key: value for key, value in meta.items() if key != "label"}}  # a Section has a name, no label
+    model.update(data_boundary={"public_examples_policy": "invented"},
+                 sections=[{"id": "sec", "name": "S", **library}, {"id": "sec:unused", "name": "U", **library}],
                  diagnostics=[{"code": "X", "severity": "info", "message": "m"}], lines=[{"id": "line"}],
                  unresolved_assumptions=[{"assumption_id": "a"}], rule_pack_refs=[{"rule_pack_id": "r"}],
                  constraints=[{"constraint_id": "c"}], equipment_interfaces=[{"id": "e"}])
@@ -775,7 +797,8 @@ def decorated_bent_l():
     for member in ("nodes", "pipe_segments", "supports", "load_cases"):
         for item in model[member]:
             item.update(meta)
-    model["pipe_segments"][0]["section_ref"] = "sec"
+    for item in model["pipe_segments"]:  # one library section on the bend row's pipes: still one PIPE record
+        item["section_ref"] = "sec"
     model["supports"][0].update(boundary_association={"boundary_id": "b"}, properties={"linear_stiffness": q(1, "N/m")},
                                 provenance_record=record)
     model["load_cases"][0].update(kind="thermal", status="draft")
@@ -789,7 +812,7 @@ def decorated_bent_l():
 
 
 SWEPT = {  # entity -> the model entities its reason names (Design §17.1)
-    **{f"model.{name}": () for name in ("data_boundary", "analysis_status", "sections", "diagnostics", "lines",
+    **{f"model.{name}": () for name in ("data_boundary", "analysis_status", "diagnostics", "lines",
                                         "unresolved_assumptions", "rule_pack_refs", "constraints",
                                         "equipment_interfaces")},
     **{f"model.project.{name}": ("project",) for name in ("id", "name", "description", "tags", "notes")},
@@ -800,7 +823,8 @@ SWEPT = {  # entity -> the model entities its reason names (Design §17.1)
        for name in ("label", "provenance", "tags", "notes")},
     **{f"model.pipe_segments.{name}": ("pipe:S1", "pipe:BEND", "pipe:S2")
        for name in ("label", "provenance", "tags", "notes")},
-    "model.pipe_segments.section_ref": ("pipe:S1",),
+    "model.sections": ("sec:unused",),
+    **{f"model.sections.{name}": ("section:sec", "section:sec:unused") for name in ("name", "provenance", "tags", "notes")},
     **{f"model.supports.{name}": ("support:SA", "support:SB") for name in ("label", "provenance", "tags", "notes")},
     **{f"model.supports.{name}": ("support:SA",) for name in ("boundary_association", "properties",
                                                               "provenance_record")},
@@ -1309,3 +1333,86 @@ def test_an_exact_pressure_section_without_an_allowance_is_refused_not_written_a
     assert_refused(render_caepipe_mbf_si(contract_only, title="P"), "MBF-SI-CORROSION-ALLOWANCE-MISSING")
     plain = cantilever()  # no contract: no allowance needed
     assert render_caepipe_mbf_si(plain, title="P").status == "written"
+
+
+def test_a_spring_at_a_node_no_pipe_reaches_is_refused_by_name():
+    # Regression: the writer raised KeyError for a spring alone at a node no pipe segment reaches. It is refused like
+    # a rigid support there, by name.
+    model = sprung_cantilever()
+    model["nodes"].append(node("N9", 0.0, 5.0))
+    model["supports"].append(spring("spring:N9", "N9", "UY", 1000.0, "N/mm"))
+    assert_refused(render_caepipe_mbf_si(model, title="SPRING"), "MBF-SI-TOPOLOGY-UNSUPPORTED",
+                   "node:N9", "carries a support or load but no pipe segment")
+
+
+# --- sidecar format 4: section identities (Design §15, Format 4) -----------------------------------------------------
+def test_library_sections_get_their_own_pipe_records_and_section_map_entries():
+    # Three pipes of one OD and wall: two library sections and no section are three PIPE records, numbered in layout
+    # order; the sidecar's section_map gives each record's section id, or null. The unbound section is listed.
+    result = render_caepipe_mbf_si(sectioned_bent_l(), title="SECTIONS")
+    assert result.status == "written", result.diagnostics
+    assert "PIPE\r\nP1,168.3,7.11,0,0,0,0,0,0\r\nP2,168.3,7.11,0,0,0,0,0,0\r\nP3,168.3,7.11,0,0,0,0,0,0\r\n" in result.text
+    assert {pipe_id: entry["section"] for pipe_id, entry in result.element_map.items()} == {
+        "S1": "P1", "BEND": "P1", "S2": "P2", "S3": "P3"}
+    sidecar = result.sidecar("0" * 64)
+    assert sidecar["sidecar_format"] == 4
+    assert sidecar["section_map"] == {"P1": {"swbpipe_section": "section:A"}, "P2": {"swbpipe_section": "section:B"},
+                                      "P3": {"swbpipe_section": None}}
+    entities = {item["entity"]: item for item in result.loss_report}
+    assert "section:unused" in entities["model.sections"]["reason"]
+    assert entities["model.sections.name"]["category"] == "omitted"
+    assert "model.pipe_segments.section_ref" not in entities
+    # Without library sections the records are keyed by OD and wall alone, as before: one record.
+    plain = render_caepipe_mbf_si(bent_l(), title="SECTIONS")
+    assert "PIPE\r\nP1,168.3,7.11,0,0,0,0,0,0\r\nLOADS" in plain.text
+    assert plain.sidecar("0" * 64)["section_map"] == {"P1": {"swbpipe_section": None}}
+
+
+def test_a_bend_whose_pipes_differ_only_in_section_ref_is_refused():
+    # Keying records by section_ref can refuse a bend row whose straight and bend pipe differ in section_ref alone
+    # (bend authoring does not produce one: OP-BEND-CORNER-SECTION-MISMATCH).
+    model = sectioned_bent_l()
+    next(item for item in model["pipe_segments"] if item["id"] == "S1").pop("section_ref")
+    assert_refused(render_caepipe_mbf_si(model, title="SECTIONS"), "MBF-SI-BEND-UNSUPPORTED",
+                   "pipe:BEND", "section_ref alone")
+
+
+def _with_section(change):
+    model = sectioned_bent_l()
+    change(model)
+    return render_caepipe_mbf_si(model, title="SECTIONS")
+
+
+def _section(model, section_id):
+    return next(item for item in model["sections"] if item["id"] == section_id)
+
+
+@pytest.mark.parametrize("code, change", [
+    ("MBF-SI-REFERENCE-UNRESOLVED", lambda m: m["pipe_segments"][3].update(section_ref="section:none")),
+    ("MBF-SI-REFERENCE-UNRESOLVED", lambda m: m["pipe_segments"][3].update(section_ref=" 　")),
+    ("MBF-SI-REFERENCE-UNRESOLVED", lambda m: m["pipe_segments"][3].update(section_ref=7)),
+    ("MBF-SI-REFERENCE-UNRESOLVED", lambda m: m["sections"].append(library_section("section:B"))),
+    ("MBF-SI-SECTION-BINDING-UNSUPPORTED", lambda m: _section(m, "section:B").update(section_type="beam")),
+    ("MBF-SI-SECTION-BINDING-UNSUPPORTED",
+     lambda m: _section(m, "section:B")["properties"].update(mill_tolerance=q(0.5, "mm"))),
+    ("MBF-SI-SECTION-BINDING-UNSUPPORTED", lambda m: _section(m, "section:B")["properties"].pop("wall_thickness")),
+    ("MBF-SI-SECTION-BINDING-UNSUPPORTED",
+     lambda m: _section(m, "section:B")["properties"]["wall_thickness"].update(value=True)),
+    ("MBF-SI-SECTION-REFERENCE-STALE",
+     lambda m: _section(m, "section:B")["properties"]["wall_thickness"].update(value=0.008)),
+    ("MBF-SI-SECTION-REFERENCE-STALE",
+     lambda m: _section(m, "section:B")["properties"].update(outside_diameter=q(168.3, "mm"))),
+])
+def test_a_section_ref_the_solve_would_not_bind_is_refused_by_name(code, change):
+    assert_refused(_with_section(change), code, "pipe:S")
+
+
+def test_an_integer_library_value_equal_to_the_inline_float_binds():
+    # The solve compares the values as numbers (270 and 270.0 are one value), and the unit as text.
+    def change(model):
+        for item in model["pipe_segments"]:
+            item["section"]["outside_diameter"] = q(168.0, "mm")
+            item["section"]["wall_thickness"] = q(7.0, "mm")
+        for section in model["sections"]:
+            section["properties"] = {"outside_diameter": q(168, "mm"), "wall_thickness": q(7, "mm")}
+    assert _with_section(change).status == "written"

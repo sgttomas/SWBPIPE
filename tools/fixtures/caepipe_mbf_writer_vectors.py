@@ -308,18 +308,47 @@ def coverage_inputs() -> list[tuple[str, dict, dict]]:
     variant("topology-loop", loop)
     variant("weight-positive-us", lambda m: weight(m, 0.1, "lbf/in"))
     variant("weight-negative-us", lambda m: weight(m, -0.7, "lbf/in"))
-    # Values the Python raises on (the port raises alike): unhashable model values where the writer hashes them, an
-    # integer beyond binary64, and the spring at a node no pipe segment reaches.
+    # Values the Python raises on (the port raises alike): unhashable model values where the writer hashes them and
+    # an integer beyond binary64. The spring at a node no pipe segment reaches raised KeyError and is now refused
+    # by name (MBF-SI-TOPOLOGY-UNSUPPORTED), its regression vector kept.
     variant("raises-unhashable-direction", lambda m: first_load(m).update(direction=["global_y"]))
     variant("raises-unhashable-category", lambda m: first_load(m).update(category=["weight"]))
     variant("raises-unhashable-family", lambda m: m["supports"][0].update(family=["anchor"]))
     variant("raises-unhashable-restraint", lambda m: m["supports"][0].update(restraints=[["UX"]]))
     variant("raises-huge-int-position", lambda m: m["nodes"][-1]["position"].update(x=10 ** 400))
     variant("raises-huge-int-y-reference", lambda m: m["pipe_segments"][0].update(y_reference={"x": 10 ** 400, "y": 1, "z": 0}))
-    variant("raises-spring-unconnected", lambda m: m["supports"].append({
+    variant("spring-unconnected", lambda m: m["supports"].append({
         "id": "support:coverage-spring", "node": free_node(m), "family": "spring", "restraints": ["UY"],
         "stiffness": {"dof": "UY", "value": {"value": 1000.0, "unit": "N/mm"}}}))
     variant("int-position-beyond-2-53", lambda m: m["nodes"][-1]["position"].update(x=2 ** 53 + 1))
+    # Sidecar format 4 (Design §15): the section library and its bindings, one change each where no suite reaches.
+    def library(model: dict, *section_ids: str, bind: int | None = 0) -> None:
+        """Library sections of the first pipe's OD and wall; with `bind`, that pipe binds the first."""
+        section = model["pipe_segments"][0]["section"]
+        model["sections"] = [{"id": section_id, "name": section_id, "section_type": "pipe", "provenance": "invented",
+                              "properties": {"outside_diameter": copy.deepcopy(section["outside_diameter"]),
+                                             "wall_thickness": copy.deepcopy(section["wall_thickness"])}}
+                             for section_id in section_ids]
+        if bind is not None:
+            model["pipe_segments"][bind]["section_ref"] = section_ids[0]
+
+    variant("sections-bound", lambda m: library(m, "section:coverage", "section:coverage-unused"))
+    variant("sections-not-list", lambda m: m.update(sections={"id": "section:coverage"}))
+    variant("section-without-id", lambda m: (library(m, "section:coverage"), m["sections"].append({"name": "x"})))
+    variant("section-not-a-record", lambda m: (library(m, "section:coverage"), m["sections"].append(5)))
+    variant("section-ref-null", lambda m: (library(m, "section:coverage"), m["pipe_segments"][0].update(section_ref=None)))
+    variant("section-ref-list", lambda m: (library(m, "section:coverage"), m["pipe_segments"][0].update(section_ref=["x"])))
+    variant("section-properties-not-object", lambda m: (library(m, "section:coverage"),
+                                                         m["sections"][0].update(properties=[1])))
+    variant("section-property-not-quantity", lambda m: (library(m, "section:coverage"),
+                                                         m["sections"][0]["properties"].update(wall_thickness=7)))
+    variant("section-property-list-value", lambda m: (library(m, "section:coverage"),
+                                                       m["sections"][0]["properties"]["wall_thickness"].update(value=[7])))
+    variant("section-property-unit-not-text", lambda m: (library(m, "section:coverage"),
+                                                          m["sections"][0]["properties"]["wall_thickness"].update(unit=1)))
+    variant("section-stale-unit", lambda m: (library(m, "section:coverage"),
+                                              m["sections"][0]["properties"]["wall_thickness"].update(unit="in")))
+    variant("section-type-absent", lambda m: (library(m, "section:coverage"), m["sections"][0].pop("section_type")))
     # The readers' other refusals and invalid shapes, one change each.
     bent = next(model for model in models if any(item.get("kind") == "bend" for item in model["components"]))
     bend = lambda m: next(item for item in m["components"] if item.get("kind") == "bend")
