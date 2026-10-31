@@ -475,10 +475,15 @@ else, with small counts. That reading is Agent 0's working reading for now (2026
 the criterion text is the owner's, and Agent 0 takes the question to the owner with the
 RT-U2 walkthrough results.
 
-Counts: about 30 run-sheet rows (three chains: from A, from the tee, and the branch),
-and follow-up form entries for the components (eight), the non-rigid supports (seven),
-the pressure contract and regions (one contract, five regions per pressurized case),
-the load cases (eight), the combinations (ten) and the three analysis requests.
+Counts for tranche 1 (`reference-system-run-sheet.md` §5): 26 run-sheet rows (three
+chains: from A, from the tee, and the branch) and about 1,950 follow-up form entries,
+about 1,480 of them the per-member load/reference states and pressure regions of the
+three cases. The run sheet's
+estimate is about 130 minutes, against the provisional 30; it is not a measurement. On
+`main` the sheet cannot carry the fixture's support or bend ids, so all eleven supports
+and the three bends are entered by forms (run sheet §2, §6). The full model adds the
+tee, the reducer, the other non-rigid supports, five more cases with their regions, the
+other eight combinations and the three analysis requests.
 
 **What a fuller run sheet would absorb** (an RT-G2 candidate, Agent 0, 2026-10-31):
 - a component column per row: flange, valve, reducer and tee, with weight and stiffness
