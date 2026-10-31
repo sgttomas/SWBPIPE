@@ -47,7 +47,8 @@ export const SUPPORT_FAMILIES: readonly Readonly<{ value: string; label: string 
   { value: "variable_spring_hanger", label: "Variable spring hanger" },
   { value: "spring_hanger", label: "Spring hanger" },
   { value: "constant_effort_support", label: "Constant-effort support" },
-  { value: "nonlinear", label: "Nonlinear support" }
+  { value: "nonlinear", label: "Nonlinear support" },
+  { value: "snubber", label: "Snubber" }
 ].map((item) => Object.freeze(item)));
 
 const FAMILY_LABEL = new Map(SUPPORT_FAMILIES.map((item) => [item.value, item.label] as const));
