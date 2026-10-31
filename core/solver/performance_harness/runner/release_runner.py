@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """DEL-04-05 release timing runner (RT-U4, release target exit criterion 9): standard library only.
 
-It runs the release timing driver (``core/solver/performance_harness/release``,
+It runs the release timing driver (``core/solver/release_timing``,
 binary ``release_timing``, schema ``release-timing-v1``) on invented rack
 models, one process at a time, each under K6's launch machinery
 (``k6_runner.launch``: ``/usr/bin/time -l``, the 100 ms ``ps`` RSS watchdog, the

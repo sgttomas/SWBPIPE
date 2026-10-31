@@ -17,7 +17,7 @@
 #   sanitized sample reports). Every run is killed when its phys_footprint passes the 12 GiB
 #   budget (the product's measure), or its ps RSS the 16 GiB emergency cap.
 # Prepare first: release_runner.py --generate --models <models_dir> (the rack models and their
-# manifest) and a release build of the driver (core/solver/performance_harness/release).
+# manifest) and a release build of the driver (core/solver/release_timing).
 # Each run's elapsed time is printed as it ends; records, packet.json and window.log go to a new
 # <out_root>/window-<UTC time>/ folder.
 set -u

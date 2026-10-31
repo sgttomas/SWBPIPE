@@ -142,7 +142,7 @@ memory bound.
   is pending, with its interim form and what it waits for. `observations/rack/models_sha256.txt`
   holds the scaling series' hashes; `--hashes` regenerates them. The model version is read from
   `model_format.rs`.
-- **The driver** (`release/`, bin `release_timing`, its own crate and lock) mirrors the
+- **The driver** (`core/solver/release_timing/`, bin `release_timing`, its own crate and lock) mirrors the
   worker's ordinary solve: read, parse, request wrapper, entry, serialize, then the result
   digest's parse-back. It uses serde_json features equal to the desktop's.
   - It prints one `release-timing-v1` JSON line with seconds, `ru_maxrss` and phys_footprint

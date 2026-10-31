@@ -10,7 +10,7 @@ use std::process::Command;
 const BIN: &str = env!("CARGO_BIN_EXE_release_timing");
 
 fn fixture(name: &str) -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../../fixtures/product_preview").join(name)
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../fixtures/product_preview").join(name)
 }
 
 fn scratch(name: &str) -> PathBuf {

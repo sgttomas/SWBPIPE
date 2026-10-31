@@ -97,7 +97,7 @@ packet. Each condition is met, or not, as follows.
 
 1. **Prepare.**
    - Build the driver with `t3_cargo.sh build --release` in
-     `core/solver/performance_harness/release`.
+     `core/solver/release_timing`.
    - Generate the models with
      `release_runner.py --generate --models <dir>`.
 2. **Run.** Run `release_window.sh <models> <out> <release_timing> [subset]` as ONE
