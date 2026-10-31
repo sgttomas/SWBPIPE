@@ -71,8 +71,8 @@ This Scope of Work defines `DEL-04-05` in service of project scope [SOW-035] and
 >
 > | Construction item | Status |
 > |---|---|
-> | Performance tests | Current crate tests in `core/solver/performance_harness/src/lib.rs` and, for the K6/K6b kernel and W1 observations, the crate's `tests/k6*.rs` and `runner/test_k6_runner.py`; for criterion 9's release timing, `release/tests/release_timing.rs`, `runner/test_release_runner.py` and `tests/test_performance_rack_model.py`; results remain candidate-bound. |
-> | Benchmark harness | Current carrier is `core/solver/performance_harness/`; invocation and observation format belong to bound implementation evidence. Criterion 9's engine timing is the `release/` driver (`release_timing`), `runner/release_runner.py` and `runner/release_window.sh` over the invented reference racks of `rack/rack_model.py`; the measured quantity and the base-machine method are `Work/criterion-9-measurement.md`. |
+> | Performance tests | Current crate tests in `core/solver/performance_harness/src/lib.rs` and, for the K6/K6b kernel and W1 observations, the crate's `tests/k6*.rs` and `runner/test_k6_runner.py`; for criterion 9's release timing, `core/solver/release_timing/tests/release_timing.rs`, `runner/test_release_runner.py` and `tests/test_performance_rack_model.py`; results remain candidate-bound. |
+> | Benchmark harness | Current carrier is `core/solver/performance_harness/`; invocation and observation format belong to bound implementation evidence. Criterion 9's engine timing is the `core/solver/release_timing/` driver (`release_timing`), `runner/release_runner.py` and `runner/release_window.sh` over the invented reference racks of `rack/rack_model.py`; the measured quantity and the base-machine method are `Work/criterion-9-measurement.md`. |
 > | Conditioning cases | Required conceptually by SOW-035; concrete matrices/models and acceptable ranges are `TBD`. |
 > | Regression records | Required conceptually for OBJ-008; retention format and comparison policy are `TBD`. |
 > | Diagnostics/result-envelope hooks | Required by AB-00-06; exact codes/classes for harness failures are `TBD`. |

@@ -1,0 +1,244 @@
+{
+  "document_kind": "swbpipe.reference_system.key_results",
+  "results": [
+    {
+      "basis": "verified_solve",
+      "cases": [
+        "every case and combination"
+      ],
+      "description": "Reactions at anchors A, B and C (three forces, three moments)",
+      "expected": null,
+      "id": "KR-01",
+      "spec_basis": "verified solve"
+    },
+    {
+      "basis": "verified_solve",
+      "cases": [
+        "RS-SUS",
+        "RS-OPE",
+        "RS-EXP",
+        "RS-HYD",
+        "RS-OCC-SRSS",
+        "RS-OCC-ABS"
+      ],
+      "description": "Largest translation and its node",
+      "expected": null,
+      "id": "KR-02",
+      "spec_basis": "verified solve"
+    },
+    {
+      "basis": "verified_solve",
+      "cases": [
+        "RS-SUS",
+        "RS-OPE"
+      ],
+      "description": "Spring RS-VS1 and constant-effort RS-CE1 loads",
+      "expected": null,
+      "id": "KR-03",
+      "spec_basis": "verified solve"
+    },
+    {
+      "basis": "verified_solve",
+      "cases": [
+        "RS-OPE",
+        "RS-SUS"
+      ],
+      "description": "Nonlinear support status: RS-LO1 in contact or lifted, RS-G1 open or closed, RS-FR1 sticking or sliding, with RS-FR1's force",
+      "expected": null,
+      "id": "KR-04",
+      "spec_basis": "verified solve; status must match exactly"
+    },
+    {
+      "basis": "verified_solve",
+      "cases": [
+        "RS-SUS",
+        "RS-OPE",
+        "RS-EXP"
+      ],
+      "description": "Tee intensified stress rows at the header (RS-P120) and branch (RS-P210) ends at RS-130, on both section bases",
+      "expected": null,
+      "id": "KR-05",
+      "spec_basis": "presence: identity; values: verified solve"
+    },
+    {
+      "basis": "verified_solve",
+      "cases": [
+        "RS-SUS",
+        "RS-OPE",
+        "RS-HYD"
+      ],
+      "description": "RS-EJ1 tie-rod forces, joint pressure force pAe and effective axial force",
+      "expected": null,
+      "id": "KR-06",
+      "spec_basis": "verified solve"
+    },
+    {
+      "basis": "identity",
+      "cases": [
+        "RS-HYD"
+      ],
+      "description": "Hydrotest marked as a test case, with RS-VS1 and RS-CE1 held",
+      "expected": null,
+      "id": "KR-07",
+      "spec_basis": "identity (published flags)"
+    },
+    {
+      "basis": "verified_solve",
+      "cases": [
+        "modal"
+      ],
+      "description": "Frequencies up to 60 Hz, mass participation per direction",
+      "expected": null,
+      "id": "KR-08",
+      "spec_basis": "verified solve"
+    },
+    {
+      "basis": "verified_solve",
+      "cases": [
+        "spectrum"
+      ],
+      "description": "Spectrum reactions at A, B, C and displacements, per direction and combined",
+      "expected": null,
+      "id": "KR-09",
+      "spec_basis": "verified solve"
+    },
+    {
+      "basis": "verified_solve",
+      "cases": [
+        "hanger sizing"
+      ],
+      "description": "Hanger table: per hanger, the sized load, travel and selected invented record",
+      "expected": null,
+      "id": "KR-10",
+      "spec_basis": "verified solve"
+    },
+    {
+      "basis": "closed_form",
+      "cases": [
+        "RS-SUS",
+        "RS-OPE",
+        "RS-SAM",
+        "RS-HYD"
+      ],
+      "description": "The sum of vertical reactions over all supports, the spring and the constant-effort support included, equals the total weight, in RS-SUS, RS-OPE and RS-SAM, and in RS-HYD (with the test contents) when it lands",
+      "expected": {
+        "basis_record": "validation/references/reference_system/references.json",
+        "cases": [
+          "RS-SUS",
+          "RS-OPE",
+          "RS-SAM"
+        ],
+        "check": "the sum of the global Z reaction components over every support equals W_total",
+        "exact": "(3300) + (66155686593423/5000000000)*pi + (1363190839087/160000000000)*pi*sqrt(257) + (124534361799687/800000000000)*pi^2",
+        "key": "W_total_N",
+        "unit": "N",
+        "value": 46832.31956637544
+      },
+      "id": "EQ-1",
+      "spec_basis": "closed form: the total weight recomputed independently from the inputs (§4, §5) on EX's stated mass bases"
+    },
+    {
+      "basis": "closed_form",
+      "cases": [
+        "RS-SUS",
+        "RS-OPE",
+        "RS-SAM",
+        "RS-HYD"
+      ],
+      "description": "In RS-SUS, RS-OPE and RS-SAM, and in RS-HYD when it lands, the horizontal reaction resultant is zero, and the reaction moment resultant about the origin equals minus the moment of the weight",
+      "expected": {
+        "basis_record": "validation/references/reference_system/references.json",
+        "cases": [
+          "RS-SUS",
+          "RS-OPE",
+          "RS-SAM"
+        ],
+        "check": "the horizontal (X, Y) reaction resultant is zero, and the reaction moment resultant about the origin (sum of r x F + M over every support) equals minus the weight's moment about the origin",
+        "key": "weight_moment_about_origin_N_m",
+        "unit": "N*m",
+        "value": [
+          -444952.3802374701,
+          250652.31673076993,
+          0.0
+        ]
+      },
+      "id": "EQ-2",
+      "spec_basis": "closed form from the inputs"
+    },
+    {
+      "basis": "identity",
+      "cases": [
+        "RS-EXP",
+        "RS-OPE",
+        "RS-SUS"
+      ],
+      "description": "On every published signed component row, RS-EXP equals RS-OPE - RS-SUS; magnitude rows are recomputed from the combined components; withheld rows are excluded",
+      "expected": {
+        "basis_record": "validation/references/reference_system/README.md",
+        "cases": [
+          "RS-EXP",
+          "RS-OPE",
+          "RS-SUS"
+        ],
+        "identity": "on every published signed component row, RS-EXP = RS-OPE - RS-SUS; magnitude rows equal the norm of the combined components; rows the combination withholds are excluded and listed"
+      },
+      "id": "EQ-3",
+      "spec_basis": "exact identity"
+    },
+    {
+      "basis": "identity",
+      "cases": [
+        "RS-EQ-SRSS",
+        "RS-EQ-ABS",
+        "RS-dEQX",
+        "RS-dEQY",
+        "RS-dEQZ"
+      ],
+      "description": "On the same signed component rows, RS-EQ-SRSS equals sqrt(sum dEQ^2) and RS-EQ-ABS equals sum |dEQ| over the operand rows, so SRSS <= ABS on each",
+      "expected": null,
+      "id": "EQ-4",
+      "spec_basis": "exact identity"
+    },
+    {
+      "basis": "identity",
+      "cases": [
+        "RS-dSAM"
+      ],
+      "description": "The RS-dSAM reactions are self-equilibrated (resultant force and moment zero)",
+      "expected": {
+        "basis_record": "validation/references/reference_system/README.md",
+        "cases": [
+          "RS-dSAM"
+        ],
+        "identity": "the RS-dSAM reaction resultant force and its moment about the origin are zero"
+      },
+      "id": "EQ-5",
+      "spec_basis": "exact identity: no load differs between RS-SAM and RS-SUS"
+    },
+    {
+      "basis": "closed_form",
+      "cases": [
+        "RS-dWIN",
+        "RS-dEQX",
+        "RS-dEQY",
+        "RS-dEQZ"
+      ],
+      "description": "The resultant of RS-dWIN reactions equals minus the generated wind resultant, and that of RS-dEQx equals minus the factor times g times the total mass on the generator's stated mass basis",
+      "expected": null,
+      "id": "EQ-6",
+      "spec_basis": "closed form from the inputs"
+    },
+    {
+      "basis": "identity",
+      "cases": [
+        "spectrum"
+      ],
+      "description": "Spectrum directional combination recomputed from the published per-direction results",
+      "expected": null,
+      "id": "EQ-7",
+      "spec_basis": "exact identity"
+    }
+  ],
+  "rule": "an expected value enters only from a closed-form reference with an independent generator, an exact identity or a verified solve, frozen in validation/references/reference_system/ with its basis recorded (spec §1); each expected value here names that record",
+  "specification": "execution/PKG-09/DEL-09-01/Work/reference-system.md"
+}

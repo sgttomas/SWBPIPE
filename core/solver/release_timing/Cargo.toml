@@ -20,7 +20,7 @@ path = "src/main.rs"
 test = false
 
 [dependencies]
-open_pipe_stress_product_physics = { path = "../../../product_physics" }
+open_pipe_stress_product_physics = { path = "../../product_physics" }
 # The desktop declares float_roundtrip and raw_value; its resolved normal build
 # also has alloc (enabled by another dependency; a no-op beside std). The same
 # resolved set here: default, std, alloc, float_roundtrip, raw_value.

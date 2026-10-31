@@ -116,7 +116,7 @@ needs:
     and records its time, memory and published rows. DEL-04-05 needs that entry to stay the
     one the worker calls; it observes it and changes nothing.
   gating: true
-  evidence: core/solver/performance_harness/release/src/main.rs
+  evidence: core/solver/release_timing/src/main.rs
 - from: DEL-07-07
   when: criterion 9 release timing
   condition: >-
@@ -145,7 +145,7 @@ checks:
 - tests/test_performance_harness_runner.py
 - tests/test_sparse_suitability_observation.py
 - tests/test_sparse_default_promotion_observation.py
-- core/solver/performance_harness/release/tests/release_timing.rs
+- core/solver/release_timing/tests/release_timing.rs
 - core/solver/performance_harness/runner/test_release_runner.py
 - tests/test_release_timing_runner.py
 - tests/test_performance_rack_model.py

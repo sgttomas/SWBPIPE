@@ -356,7 +356,8 @@ export function useWorkspaceSession() {
   // verification can complete out of order. This is not a backend commit clock.
   const persistedWriteObservation = useRef(0);
   const latestVerifiedWriteObservation = useRef(0);
-  const modelHashOwner = useRef<{ generation: number; revision: number } | null>(null);
+  // `modelRevision` is the model revision the hash was computed for (`modelRevision.current`).
+  const modelHashOwner = useRef<{ generation: number; revision: number; modelRevision: number } | null>(null);
   const currentHashOwned = modelHashOwner.current?.generation === projectSessionGeneration &&
     modelHashOwner.current?.revision === uiModelRevision;
   const modelEdited = Boolean(model && isLocalModelEdited(savedModelBasis, projectSessionGeneration,
@@ -698,9 +699,10 @@ export function useWorkspaceSession() {
     if (!model) return;
     const generation = projectSessionGenerationRef.current;
     const revision = uiModelRevisionRef.current;
+    const counted = modelRevision.current;
     computeModelHash(model).then((hash) => {
       if (active && currentModel.current === model && generation === projectSessionGenerationRef.current && revision === uiModelRevisionRef.current) {
-        modelHashOwner.current = { generation, revision };
+        modelHashOwner.current = { generation, revision, modelRevision: counted };
         setModelHash(hash);
       }
     }).catch(() => { /* An unavailable current hash cannot prove a clean comparison. */ });
@@ -4023,7 +4025,12 @@ export function useWorkspaceSession() {
   // created until a later explicit panel action requests start/configuration.
   const agentOwnerRef = useRef<import("../../services/embeddedAgentSession").WorkspaceExecution | null>(null);
   agentOwnerRef.current = {
-    snapshot: () => ({ model: currentModel.current, hash: currentHashOwned && uiModelRevision === modelRevision.current && projectSessionGeneration === projectSessionGenerationRef.current ? modelHash : null,
+    // The hash is published only for the model revision it was computed for, read live from
+    // the owner so a closure from an earlier render cannot pair an older hash with a newer
+    // model. (Comparing uiModelRevision with modelRevision.current mixed two counters that
+    // advance on different events; the [model] layout effect also advances the second, so
+    // they differ from the first load on and the agent could never start.)
+    snapshot: () => ({ model: currentModel.current, hash: currentHashOwned && modelHashOwner.current?.modelRevision === modelRevision.current && projectSessionGeneration === projectSessionGenerationRef.current ? modelHash : null,
       revision: modelRevision.current, generation: projectSessionGenerationRef.current,
       result: currentSolvedResultRef.current, standing: { eligible: numericallyEligible, health: numericalHealth } }),
     register: (batch, context) => registerOperationBatch(batch, { agentContext: context }),

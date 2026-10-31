@@ -46,7 +46,8 @@ MODEL_VERSION_LITERAL_ROOTS = (
 )
 BROAD = BASE + [AGENT_SUPPLIER_TEST, AGENT_SUPPLIER_BUNDLE_TEST, MODEL_VERSION_LITERAL_TEST, 'tests/product_preview', 'tests/test_operation_validation_preview.py',
                 'tests/test_analytical_solver_boundary_adapter.py',
-                'tests/test_physical_to_analytical_transform.py'] + sum(FAMILIES.values(), [])
+                'tests/test_physical_to_analytical_transform.py',
+                'tests/test_reference_system_fixture.py'] + sum(FAMILIES.values(), [])
 
 
 HELPER_IMPORTS = {
@@ -90,6 +91,20 @@ SYNTHETIC_BASES_INPUTS = {
     'fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json',
     'fixtures/results/semantic_contract_v0_3_physics_retained_1.json',
     'fixtures/canonical_hash/cases.json',
+}
+
+# The reference-system fixture check (DEL-09-01 Work/reference-system.md): its generator and files, its frozen
+# references (validation/references/reference_system/), and the product inputs its EX solve and self-weight capture
+# read: the runner and its path dependencies (prefixes and exact files). Full runs include it through BROAD.
+REFERENCE_SYSTEM_TEST = 'tests/test_reference_system_fixture.py'
+REFERENCE_SYSTEM_PREFIXES = ('fixtures/reference_system/', 'validation/references/reference_system/',
+                             'core/product_physics/', 'core/runner/', 'core/loads/',
+                             'core/solver/', 'core/units/src/', 'core/units/Cargo', 'core/numerics/', 'core/serialization/',
+                             'core/reporting/', 'validation/benchmarks/mechanics/',
+                             'validation/benchmarks/nonlinear/', 'validation/benchmarks/stress/')
+REFERENCE_SYSTEM_INPUTS = {
+    'schemas/model.schema.yaml',
+    'schemas/load_reference_state.schema.json',
 }
 
 
@@ -190,6 +205,8 @@ def select(project, plan, repository_checks_run=False):
                 patterns.append(J7_RF_CENSUS_TEST)
             if local in SYNTHETIC_BASES_INPUTS:
                 patterns.append(SYNTHETIC_BASES_TEST)
+            if local in REFERENCE_SYSTEM_INPUTS or local.startswith(REFERENCE_SYSTEM_PREFIXES):
+                patterns.append(REFERENCE_SYSTEM_TEST)
             patterns.extend(PINNED_FIXTURE_READERS.get(local, []))
             if local.startswith('core/model_transform/'):
                 patterns.extend(['tests/test_analytical_solver_boundary_adapter.py',

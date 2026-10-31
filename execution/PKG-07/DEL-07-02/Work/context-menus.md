@@ -54,7 +54,7 @@ summary the operation applier compares (`node_delete_display`, `pipe_delete_disp
 support's trimmed label): trimmed labels, and coordinates in the applier's number form, which
 never uses an exponent (1e-7 is `0.0000001`). The formatters in `removalIntents.ts` are the
 one source for every node, pipe and support deletion, including a reconnect's "Also delete
-node O"; any other text is refused as stale (`OP-STALE-BEFORE-VALUE`).
+node O" and the embedded agent's `swbpipe_read_records` (DEL-16-06); any other text is refused as stale (`OP-STALE-BEFORE-VALUE`).
 `removalIntents.test.ts` applies each through the wasm engine with padded labels and
 exponent coordinates.
 

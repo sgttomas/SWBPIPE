@@ -9,6 +9,7 @@ import type { OperationBatch } from './operationBatchService';
 import { validateOperationBatch } from './operationBatchService';
 import { overlayMayShowRow, type ResultOverlayStanding } from '../features/results/numericalHealth';
 import { canonicalJsonString } from './hashService';
+import { nodeDeletionSummary, pipeDeletionSummary, supportDeletionSummary } from '../features/model-tree/removalIntents';
 
 export type AgentAssumption=Readonly<{assumptionId:string;statement:string;affectedOperationIds:readonly string[]}>;
 export type AgentContext = Readonly<{requestRef:string;threadId:string;turnId:string;callId:string;basis:AgentBasis;assumptions:readonly AgentAssumption[]}>;
@@ -28,6 +29,23 @@ type Run={basis:AgentBasis;receipt:AgentRunReceipt};
 type Proof=Record<string,unknown>;
 const LIMITS={argumentBytes:16384,resultBytes:65536,pageRows:50,pendingCalls:16,proposalOperations:16};
 const plain=(x:unknown):x is Record<string,unknown>=>!!x&&typeof x==='object'&&!Array.isArray(x);
+const ENGINE_HASH=/^sha256:[0-9a-f]{64}$/,CATALOG_HASH=/^[0-9a-f]{64}$/;
+/** A workspace hash in the catalog's form. The workspace and the operation engine write
+ * `sha256:` and 64 lowercase hex digits; the catalog's `hash` value is the 64 digits
+ * alone. Every workspace hash the agent sees or returns crosses here, and any other form
+ * is refused by name; the operation batch keeps the engine's form. */
+export function agentHash(hash:ModelHashEvidence|null|undefined):ModelHashEvidence|null{
+ if(!hash)return null;
+ if(typeof hash.value!=='string'||!ENGINE_HASH.test(hash.value))throw new Error('AGENT-ENGINE-HASH-FORM-REFUSED');
+ return {...hash,value:hash.value.slice('sha256:'.length)};
+}
+/** A hash from the agent's side (its basis) compared here is the catalog's form exactly:
+ * 64 lowercase hex digits; any other form is refused by name. */
+export function catalogHash(hash:unknown):unknown{
+ if(hash===null)return null;
+ if(!plain(hash)||typeof hash.value!=='string'||!CATALOG_HASH.test(hash.value))throw new Error('AGENT-CATALOG-HASH-FORM-REFUSED');
+ return hash;
+}
 /** The native kinds swbpipe-catalog/4 admits; the catalog schema is their gate and the applier their authority. */
 export const ADMITTED_OPERATION_KINDS=Object.freeze(['modify/Node/set_field/position','create/Material/create_material','create/Node/create_node','connect/Element/connect_pipe_run','create/Support/create_support','create/Load/create_load_case','create/Load/create_primitive_load','modify/Load/update_load/pressure_regions','modify/Model/set_field/pressure_profile','insert/Component/insert_component_symbol','modify/Component/set_field/objective_connector','modify/Support/update_support/configuration','delete/Component/delete_component','delete/Support/delete_support','delete/Element/delete_pipe_run','delete/Node/delete_node']);
 export const RECORD_FAMILIES=['components','supports','pipe_segments','nodes'] as const;
@@ -59,24 +77,15 @@ export function componentsAwaitingUserModifiers(model:PreviewModel):string[]{
  }
  return awaiting;
 }
-/** The applier's `display_number`: an integral value below 1e15 as an integer,
- * any other in Rust's shortest round-trip decimal, which never uses an exponent. */
-export function engineDisplayNumber(value:number):string{
- if(Number.isInteger(value)&&Math.abs(value)<1e15)return String(value);
- const text=String(value),match=/^(-?)(\d)(?:\.(\d+))?e([+-]\d+)$/.exec(text);if(!match)return text;
- const [,sign,lead,fraction='',exponent]=match,digits=lead+fraction,point=1+Number(exponent);
- if(point<=0)return `${sign}0.${'0'.repeat(-point)}${digits}`;
- return point>=digits.length?sign+digits+'0'.repeat(point-digits.length):`${sign}${digits.slice(0,point)}.${digits.slice(point)}`;
-}
-const trimmed=(value:unknown)=>typeof value==='string'?value.trim():'';
-/** The deletion summaries the applier compares (node_delete_display, pipe_delete_display,
- * the support's trimmed label); empty when the applier would refuse the record's deletion. */
+/** The deletion summary the applier compares, from the same formatters as the
+ * inspector's Delete (removalIntents.ts); empty when the applier would refuse the
+ * record's deletion (a blank label, endpoint or material, or a non-finite coordinate). */
 function deleteText(family:Exclude<RecordFamily,'components'>,record:Record<string,unknown>):string{
- const label=trimmed(record.label);if(!label)return '';
- if(family==='supports')return label;
- if(family==='pipe_segments'){const [from,to,material]=[record.from,record.to,record.material].map(trimmed);return from&&to&&material?`${label}; ${from}->${to}; material=${material}`:'';}
- const position=plain(record.position)?record.position:{},axes=(['x','y','z'] as const).map(axis=>position[axis]);
- return axes.every(value=>typeof value==='number'&&Number.isFinite(value))?`${label}; x=${engineDisplayNumber(axes[0] as number)}; y=${engineDisplayNumber(axes[1] as number)}; z=${engineDisplayNumber(axes[2] as number)}`:'';
+ if(blankText(record.label))return '';
+ if(family==='supports')return supportDeletionSummary(record as unknown as PreviewModel['supports'][number]);
+ if(family==='pipe_segments')return [record.from,record.to,record.material].some(blankText)?'':pipeDeletionSummary(record as unknown as PreviewModel['pipe_segments'][number]);
+ const position=plain(record.position)?record.position:{};
+ return (['x','y','z'] as const).every(axis=>typeof position[axis]==='number'&&Number.isFinite(position[axis]))?nodeDeletionSummary(record as unknown as PreviewModel['nodes'][number]):'';
 }
 /** Bend markers the person has not realized (no curved macro-element yet). */
 export function unrealizedBends(model:PreviewModel):string[]{
@@ -183,7 +192,7 @@ export class EmbeddedAgentSession {
   this.#messages.clear();this.#roles.clear();this.#messageChars=0;this.#truncated=false;this.#cursors.clear();this.#proposals.clear();this.#runs.clear();this.#interrupted.clear();
   this.publish({...this.#view,messages:[],truncated:false});
   const before=this.owner.snapshot();if(!before.model||!before.hash)throw new Error('AGENT-WORKSPACE-NOT-READY');
-  const registered=await this.invoke({kind:'register',basis:{modelRevision:before.revision,modelHash:before.hash,stateId:null,runId:null}});
+  const registered=await this.invoke({kind:'register',basis:{modelRevision:before.revision,modelHash:agentHash(before.hash),stateId:null,runId:null}});
   if(!plain(registered)||typeof registered.workspaceHandle!=='string'||typeof registered.applicationGeneration!=='number'||typeof registered.ownerCapability!=='string')throw new Error('AGENT-REGISTRATION-REFUSED');
   this.#authority={workspaceHandle:registered.workspaceHandle,applicationGeneration:registered.applicationGeneration,ownerCapability:registered.ownerCapability};
   this.#scope={workspaceHandle:registered.workspaceHandle,applicationGeneration:registered.applicationGeneration};this.#generation=before.generation;
@@ -213,7 +222,7 @@ export class EmbeddedAgentSession {
   if(!this.#authority||this.#polling)return null;this.#polling=true;
   try{
    const snap=this.owner.snapshot();if(snap.generation!==this.#generation){this.#messages.clear();this.#roles.clear();this.#messageChars=0;this.#truncated=false;this.publish({...this.#view,messages:[],truncated:false});await this.close();return null;}
-   if(snap.hash)await this.invoke({kind:'basis',authority:this.#authority,basis:{modelRevision:snap.revision,modelHash:snap.hash,stateId:null,runId:null}});
+   if(snap.hash)await this.invoke({kind:'basis',authority:this.#authority,basis:{modelRevision:snap.revision,modelHash:agentHash(snap.hash),stateId:null,runId:null}});
    const lifecycle=this.#lifecycle;
    const result=await this.invoke({kind:'poll',authority:this.#authority});
    if(lifecycle!==this.#lifecycle)return null;
@@ -234,7 +243,7 @@ export class EmbeddedAgentSession {
   if(this.#closed||live.generation!==this.#generation||call.basis.workspaceHandle!==this.#scope?.workspaceHandle||call.basis.applicationGeneration!==this.#scope?.applicationGeneration)return false;
   if(call.tool==='swbpipe_observe_proposal')return same(this.#proposals.get(String(call.arguments.proposalHandle))?.basis,call.basis);
   if(call.tool==='swbpipe_read_results')return same(this.#runs.get(String(call.arguments.runHandle))?.basis,call.basis);
-  return !!live.hash&&call.basis.modelRevision===live.revision&&same(call.basis.modelHash,live.hash);
+  return !!live.hash&&call.basis.modelRevision===live.revision&&same(catalogHash(call.basis.modelHash),agentHash(live.hash));
  }
  private failure(call:AgentCall,message:string,status='unavailable'):AgentActual{return {outcome:small({status,basis:call.basis,message,data:null}),record:{kind:'failure'}};}
  private result(call:AgentCall,status:string,message:string,data:unknown,proof:Proof):AgentActual{return {outcome:small({status,basis:call.basis,message,data}),record:proof};}
@@ -248,7 +257,7 @@ export class EmbeddedAgentSession {
  private async execute(call:AgentCall):Promise<AgentActual>{
   if(call.tool==='swbpipe_observe_proposal'){
    const handle=String(call.arguments.proposalHandle),record=this.#proposals.get(handle);if(!record||!same(record.basis,call.basis))return this.failure(call,'Proposal is unavailable.');
-   const standing=this.owner.proposal(record.key);const status=standing?.status??'unknown';const hash=standing?.outcomeModelHash??null;
+   const standing=this.owner.proposal(record.key);const status=standing?.status??'unknown';const hash=agentHash(standing?.outcomeModelHash);
    return this.result(call,status,'Recorded proposal standing.',{proposalHandle:handle,proposalBasis:record.basis,outcomeModelHash:hash,author_type:'agent',assumptions:record.context.assumptions},{kind:'proposal',handle,basis:record.basis,status,outcomeModelHash:hash});
   }
   if(call.tool==='swbpipe_read_results')return this.readResults(call);
@@ -306,10 +315,10 @@ export class EmbeddedAgentSession {
    // applies to the chord; without one no intensified measure is published.
    const chords=unrealizedBends(model);
    if(chords.length&&(model as unknown as Record<string,unknown>).pressure_contract!==undefined)return this.failure(call,`Not solved: the exact route refuses unrealized bends (${namedIds(chords,300)}). Ask the person to realize each with Insert bend at corner and enter k, the SIFs and their source, then solve.`);
-   const receipt=await this.owner.solve();if(!receipt||!same(receipt.modelHash,call.basis.modelHash))return this.failure(call,'No matching completed native solve is available.');
+   const receipt=await this.owner.solve();if(!receipt||!same(agentHash(receipt.modelHash),catalogHash(call.basis.modelHash)))return this.failure(call,'No matching completed native solve is available.');
    const handle=opaque();this.#runs.set(handle,{basis:structuredClone(call.basis),receipt});
    const solved=chords.length?`Native solve completed. ${chords.length} unrealized bend(s) (${namedIds(chords,300)}) were solved as straight chords; k does not affect chord stiffness. ${chordSifText(model,chords)} Say so when reporting these results. Applicability and professional acceptance remain separate.`:'Native solve completed; applicability and professional acceptance remain separate.';
-   return this.result(call,'completed',solved,{runHandle:handle,runId:receipt.runId,evaluatedModelHash:receipt.modelHash,health:receipt.health,solverMode:receipt.solverMode},{kind:'run',handle,runId:receipt.runId,basis:call.basis,status:'completed',nativeJobId:receipt.jobId});
+   return this.result(call,'completed',solved,{runHandle:handle,runId:receipt.runId,evaluatedModelHash:agentHash(receipt.modelHash),health:receipt.health,solverMode:receipt.solverMode},{kind:'run',handle,runId:receipt.runId,basis:call.basis,status:'completed',nativeJobId:receipt.jobId});
   }
   return this.failure(call,'Tool is unavailable.');
  }
