@@ -47,8 +47,8 @@ acceptance, issuance or release; those are the owner's acts.
   `srss`, combinations taking earlier combinations as inputs (acyclic), the
   hydrotest test-condition member and `subtrahend_support_state` (`own |
   minuend_final`) join 0.9.0 before S1, each refused by name until its slice
-  lands; the dynamics lane's snubber support family joins when it is sent
-  (§2.4). The member list is frozen with the dynamics lane and Agent 0 before S1.
+  lands; the dynamics lane's snubber family and spectra records join (§2.4).
+  Agent 0 froze the list on 2026-10-31.
 - **Brief for this design (Agent 0 through the manager):** all 0.9.0 members in
   one version step; `load_cases[].kind` token `operating` is desktop vocabulary
   with no schema change; the element assignment is preferably stored explicitly.
@@ -687,8 +687,9 @@ document carrying none of them has today's meaning.
   solve in 0.9.0" until DEL-04-10's slice.
 
 The dynamics lane needs no other member (no per-mode mass and no contents
-member; concentrated masses are W-17's, later). With these, the list is
-complete pending its confirmation by the dynamics lane and Agent 0 before S1.
+member; concentrated masses are W-17's, later). **The member list is frozen**
+(SWBPIPE Agent 0, 2026-10-31, at `31bde47a2`, with the dynamics lane's
+confirmation): any further member is a 0.10.0 step, planned as one step.
 
 ## 3. The 0.9.0 version step
 
@@ -1067,8 +1068,8 @@ counted on main `66a83a2b68`: each occurs once.
 ## 8. Coordination
 
 - **0.9.0 members.** C1's members, `direction`, `difference_basis` and the
-  members of §2.4 are the only ones known. The list is frozen once the
-  dynamics lane and Agent 0 confirm it, before S1. Any other lane that needs a member joins through Agent 0
+  members of §2.4 are the whole list, frozen by Agent 0 on 2026-10-31
+  (§2.4). Anything further is one planned 0.10.0 step. Any other lane that needs a member joins through Agent 0
   before S1's ripple; after it, the next member is a 0.10.0 step.
 - **Order.** S1 after #1678 in the pricing queue; the solver lane's 1b and skew
   kernel after S1; S2 after S1; S3a after S1 (it can run beside S2); S3b after
