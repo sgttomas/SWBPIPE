@@ -48,10 +48,11 @@ LN = {
     # W-16 stage 2 D3 (§8.29): +55 (unit_message) and +106 (the three helpers), unchanged text.
     # OP1A (§8.31): all four lib.rs sites +12, unchanged text.
     # RT-A3 increment 1 D3 (§8.33): +12 each (10366/15340/15289/15339 at §8.32), unchanged text.
-    'unit_message': 10378, # lib.rs `message.into()` (9162) [9159]
-    'suffix': 15352,      # lib.rs `id.replace(':', "-")` (13614) [13619]
-    'diag_fn': 15301,     # lib.rs fn diag (13563) [13568]
-    'suffix_fn': 15351,   # lib.rs fn stable_suffix (13613) [13618]
+    # RT-A3 increment 1b D3 (§8.36): +4 each (the case solve's published-row index), unchanged text.
+    'unit_message': 10382, # lib.rs `message.into()` (9162) [9159]
+    'suffix': 15356,      # lib.rs `id.replace(':', "-")` (13614) [13619]
+    'diag_fn': 15305,     # lib.rs fn diag (13563) [13568]
+    'suffix_fn': 15355,   # lib.rs fn stable_suffix (13613) [13618]
     'require': 125,       # physics_source.rs `Err(format!("PHYSICS_SOURCE_{detail}"))` (89; 62 before ccb19ba0bf) [78]
 }
 PR = PP + 'pressure_runtime.rs:'

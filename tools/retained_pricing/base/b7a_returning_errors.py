@@ -53,14 +53,16 @@ SOURCES = {
 # gains a caller.
 # RT-A3 increment 1 D3 (§8.33): every lib.rs owner, site and caller moves with unchanged text (+7 to the case solve,
 # +12 after it); no owner gains a caller.
+# RT-A3 increment 1b D3 (§8.36): every lib.rs owner, site and caller after the case solve moves +4 with unchanged text
+# (the published-row index inside it); no owner gains a caller.
 SITES = [
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 11970,
+    "line": 11974,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:11928:exact_straight_summary_extrema",
-    "short": "lib.rs:11970",
-    "from": "lib.rs:11928:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:11932:exact_straight_summary_extrema",
+    "short": "lib.rs:11974",
+    "from": "lib.rs:11932:exact_straight_summary_extrema",
     "parents": [
       "core/product_physics/src/lib.rs:5129:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
@@ -70,11 +72,11 @@ SITES = [
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 11976,
+    "line": 11980,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:11928:exact_straight_summary_extrema",
-    "short": "lib.rs:11976",
-    "from": "lib.rs:11928:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:11932:exact_straight_summary_extrema",
+    "short": "lib.rs:11980",
+    "from": "lib.rs:11932:exact_straight_summary_extrema",
     "parents": [
       "core/product_physics/src/lib.rs:5129:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
@@ -84,11 +86,11 @@ SITES = [
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 12639,
+    "line": 12643,
     "kind": "to_string",
-    "owner": "core/product_physics/src/lib.rs:12620:recover_curved_bend_local_forces",
-    "short": "lib.rs:12639",
-    "from": "lib.rs:12620:recover_curved_bend_local_forces",
+    "owner": "core/product_physics/src/lib.rs:12624:recover_curved_bend_local_forces",
+    "short": "lib.rs:12643",
+    "from": "lib.rs:12624:recover_curved_bend_local_forces",
     "parents": [
       "core/product_physics/src/lib.rs:5129:solve_prepared_load_case"
     ]

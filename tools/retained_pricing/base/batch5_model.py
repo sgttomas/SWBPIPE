@@ -37,7 +37,10 @@ PINS = {
         # RT-A3 increment 1 D3 (§8.33): on the exact route a straight member's branch-connection rows
         # (u4b_rows::append_branch_intensified, records extended into directional_measures); D1.4 admits no component,
         # so no association, row or record. Carriers, staging and prepared-pressure calls unchanged.
-        "solve_prepared_load_case": "ad463fe666362a2b94252fc012fc19af2d5daf48eea6e09d85c47793d3bec323",
+        # RT-A3 increment 1b D3 (§8.36): the case solve's published-row index (u4b_rows::PublishedScope before the
+        # member loop, its `begin` at each member's start and a MemberRows passed to the station quantities and branch
+        # rows; RTA3B-PS, RTA3B-MR). No `?`, return, record, label, carrier or staging is added. Carriers, staging and prepared-pressure calls unchanged.
+        "solve_prepared_load_case": "0c19c5708e7608a07283561956d922ca2ae42c5852542072507ef443c8e7e34b",
         "append_curved_bend_macro_element_results": "9e9b5010a84aa73268d72fabcf99c5cb2012f6f35ef5a15adb41bb30bf045a4e",
     },
     # B7b: branch E is 0.5.0 with {3.0.0, exact_pressure_v3, euler_bernoulli}; the

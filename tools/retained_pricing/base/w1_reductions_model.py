@@ -76,8 +76,10 @@ RF_PINS = {
 # lib.rs's Timoshenko partial-span formation change no reduction's owner or lifetime; the L5 texts are unchanged.
 # Slice 1a D3 (§8.31): reviewed nonlinear operand producer/reader additions; D1.6 empties the producer
 # records, OP1A-RD retains the reader scans and OP1A-OWN prices its borrowed gate vector.
+# RT-A3 increment 1b D3 (§8.36): lib.rs's published-row index (RTA3B-PS, RTA3B-MR) changes no reduction's owner or
+# lifetime; the L5 texts are unchanged.
 REDUCED_PINS = {
-    "core/product_physics/src/lib.rs": "56ea5ca6cee2fbf3163d0d0840f32b13a8e482c805b9eb7b620ac60a4b6b4f13",
+    "core/product_physics/src/lib.rs": "b374e7cb228202c16d83bc4044c34b2bb35428a9f77735745e97cdb4928b64c2",
     "core/product_physics/src/retained_wire.rs": "b457aff075c67f6eb93000dff2ca0cf4bab43119fe34db1316c78356bf1864b3",
     "core/product_physics/src/certified_publication.rs": "89cdb23e172136b55ff980f7d4a4cd3643e43894fb2a9ad40c92fd3cd4adcf87",
     "core/product_physics/src/certified_loads.rs": "da7d3decc3a0170da65b38670ec215aaebdb9d8d799e3c76e41879a80589bc73",

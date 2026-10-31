@@ -85,7 +85,10 @@ BODY_PINS = {
     # payload keys are unchanged.
     # RT-A3 increment 1 D3 (§8.33): a straight exact member's branch rows (u4b_rows::append_branch_intensified, under
     # `exact && macro_bend.is_none()`; none on D1, D1.4); O4-ID/O4-SR's Timoshenko blocks and maxima are unchanged.
-    (LIB, "solve_prepared_load_case"): "7db25969ad168e94c875f14f781a32b3d77b70d589a755e43efa2a22b4766c9a",
+    # RT-A3 increment 1b D3 (§8.36): the case solve's published-row index (u4b_rows::PublishedScope before the
+    # member loop, its `begin` at each member's start and a MemberRows passed to the station quantities and branch
+    # rows; RTA3B-PS, RTA3B-MR). No `?`, return, record, label, carrier or staging is added. O4-ID/O4-SR's Timoshenko blocks and maxima are unchanged.
+    (LIB, "solve_prepared_load_case"): "1e9343f49b5b53d51db544c5148f38e5fb1839954c5c94f377f9a0716bf45327",
     (SRC, "distinct_reduced_section"): "179e447476ae2a7cf8b01d1e5da22bddd66b9057403453ffc79f9e57747fd100",
     (SRC, "stress_operands"): "de7a26eb0574635be8c808bc42070cdb132f8f8b67fee83542bd79f667cb6050",
     (SRC, "commitment"): "279ce112036664d7802e2952d87a67abe6dd7fe04879a4d498fd2544fe86753d",

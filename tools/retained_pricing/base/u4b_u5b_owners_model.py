@@ -29,7 +29,9 @@ NI = "core/solver/nonlinear_integration/src/structural_adapter.rs"
 BODY_PINS = {
     (LIB, "published_nodal_displacements"): "83648eba3d0101586f558439d1198591659ecd706db07b5447feed75421dbe02",
     (U4B, "member_bases"): "760afaf0e6145df8f837cb75c6976d87afd98b3d20f873789ab4427fd0c8e372",
-    (U4B, "append_station_quantities"): "6780f23ae92ab6bb6aa96675979140f3bda6306d9eb25a3f40beb4d2952fcb5f",
+    # RT-A3 increment 1b D3 (§8.36): append_station_quantities takes the member's MemberRows and its five `published`
+    # lookups and `sigma_n` read through it (RTA3B-MR prices its slots); every allocation priced below is unchanged.
+    (U4B, "append_station_quantities"): "1865cd487cbea499a29ee9dd02f722ebf173eb9bac0a11d9f4a2583bd8effb5b",
     (SPARSE, "sparse_contribution_sums"): "3a7bb0911b4646798f6cbc6f104f0b852ba5beaf3ef439d6535004b06c8f4a7a",
     # W-7 D3 (retained-pricing-rules.md §8.20): failed_manifest adds each member's twelve global end placeholders after
     # its maximum (rows inside FAILED_MEMBER_ROWS = 78, W7-RL; their texts are TEXT sites), and prepared_not_covered
