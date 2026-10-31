@@ -196,6 +196,8 @@ class Rows:
             if case is None:
                 continue
             metadata = row.get("metadata") or {}
+            if row.get("kind") == BRANCH:
+                continue  # RT-A3: bound by its record's id (two tees may name one pipe end), never looked up by slot
             key = (case, row.get("entity_ref"), row.get("kind"), metadata.get("component", ""), metadata.get("location", ""), _basis(row))
             _require(not (key in self.slots and row.get("kind") in KINDS), "duplicate row slot")
             self.slots[key] = row
@@ -469,8 +471,9 @@ def branch_model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) -> 
     ``mechanics_interface.solver_consumption`` is absent or ``mechanics_geometry_only`` associates its header pipe with
     its positive finite ``branch_header_sif_user_value`` and its branch pipe with its ``branch_branch_sif_user_value``,
     at each end of that pipe at the component's node, where the pipe is not a realized arc. In every solved case each
-    association has its record on both bases with the model's component, side and factor bit for bit, and no other
-    branch row or record is published."""
+    association has its record on both bases with the model's component, side, factor (bit for bit) and source reference
+    (``modifiers.source_reference``, or ``source_reference_missing`` when absent or blank), each record once, and no
+    other branch row or record is published."""
     if model.get("components") is None or (source.get("status") or {}).get("mechanics") != "MECHANICS_SOLVED":
         return  # G2's convention: a model without components states nothing about the branch factors
 
@@ -489,8 +492,8 @@ def branch_model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) -> 
     for case in items((source.get("contract_evidence") or {}).get("exact_cases")):
         arcs = {s.get("pipe_id") for s in items(field(case, "pipe_sections"))
                 if isinstance(s, Mapping) and s.get("member_kind") == "realized_arc" and isinstance(s.get("pipe_id"), str)}
-        # (pipe, location, component) -> (role, pipe, factor bits)
-        expected: dict[tuple[str, str, str], tuple[str, str, int]] = {}
+        # (pipe, location, component) -> (role, pipe, factor bits, source reference)
+        expected: dict[tuple[str, str, str], tuple[str, str, int, str]] = {}
         for component in items(model.get("components")):
             consumption = field(component, "mechanics_interface", "solver_consumption")
             consumption = consumption if isinstance(consumption, str) else "mechanics_geometry_only"
@@ -500,6 +503,8 @@ def branch_model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) -> 
             if cid is None or node is None:
                 continue
             header = text(field(component, "geometry", "branch_header_pipe_ref"))
+            reference = text(field(component, "modifiers", "source_reference"))
+            reference = reference if reference is not None and reference.strip() else "source_reference_missing"
             for pipe in pipes:
                 pipe_id = text(field(pipe, "id"))
                 if pipe_id is None:
@@ -514,7 +519,7 @@ def branch_model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) -> 
                     continue
                 for location, end in (("end_i", "from"), ("end_j", "to")):
                     if text(field(pipe, end)) == node:
-                        expected[pipe_id, location, cid] = (role, pipe_id, bits(value))
+                        expected[pipe_id, location, cid] = (role, pipe_id, bits(value), reference)
         case_id = text(field(case, "load_case_id"))
         _require(case_id is not None, "branch model case")
         seen: set[tuple[str, str, str, str]] = set()
@@ -525,8 +530,11 @@ def branch_model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) -> 
             want = expected.get(key)
             _require(want is not None, "branch record outside the model's tee associations")
             sif = record.get("sif")
-            _require(record.get("factor_role") == want[0] and _number(sif) and bits(sif) == want[2], "branch factors differ from the model")
-            seen.add((*key, text(record.get("section_basis")) or ""))
+            _require(record.get("factor_role") == want[0] and _number(sif) and bits(sif) == want[2]
+                     and record.get("sif_source_reference") == want[3], "branch factors differ from the model")
+            slot = (*key, text(record.get("section_basis")) or "")
+            _require(slot not in seen, "duplicate branch record")
+            seen.add(slot)
         for key in expected:
             for basis in ("nominal_section", "reduced_section"):
                 _require((*key, basis) in seen, "branch record coverage")

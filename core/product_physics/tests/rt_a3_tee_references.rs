@@ -382,3 +382,40 @@ fn a_junction_closure_is_admitted_with_its_named_warning_and_unchanged_numbers()
         assert!(warnings(&solve(&single, mode), "EXACT_PRESSURE_JUNCTION_PIPE_OUTSIDE_REGIONS").is_empty(), "{mode:?}");
     }
 }
+
+fn verdict(envelope: &Value, model: &Value) -> Value {
+    open_pipe_stress_result_export::reader_verdict::validate("pressure", envelope, Some(model), None)
+}
+
+/// Independent review (RT-A3 increment 1): the readers bind a branch row by
+/// its record, not by its (member, end, basis) slot, so two tees naming one
+/// pipe end publish two readable rows; and the record's source reference is
+/// the model's, so a forged one is refused with the model.
+#[test]
+fn the_readers_admit_two_tees_on_one_end_and_refuse_a_forged_source_reference() {
+    let references = references();
+    let t5 = references["cases"].as_array().unwrap().iter().find(|c| c["id"] == "T5").unwrap();
+    let mut document = document(&references["material"], t5);
+    // A second tee at T: header pipe:B, branch pipe:C (shared with the first).
+    let mut second = document["model"]["components"][0].clone();
+    second["id"] = json!("component:tee-b");
+    second["geometry"]["branch_header_pipe_ref"] = json!("pipe:B");
+    second["modifiers"]["branch_header_sif_user_value"] = quantity(1.9, "none");
+    second["modifiers"]["branch_branch_sif_user_value"] = quantity(1.3, "none");
+    document["model"]["components"].as_array_mut().unwrap().push(second);
+    for mode in MODES {
+        let envelope = solve(&document, mode);
+        assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{mode:?}");
+        let on_c = envelope["results"].as_array().unwrap().iter()
+            .filter(|r| r["kind"] == BRANCH_KIND && r["entity_ref"] == "pipe:C").count();
+        assert_eq!(on_c, 4, "two tees x two bases on pipe:C's end at T ({mode:?})");
+        assert_eq!(verdict(&envelope, &document["model"]), json!({"ok": true}), "{mode:?}");
+        let mut forged = envelope.clone();
+        for record in forged["contract_evidence"]["exact_cases"][0]["intensified_measures"].as_array_mut().unwrap() {
+            if record["component_id"] == "component:tee" {
+                record["sif_source_reference"] = json!("FORGED_SOURCE");
+            }
+        }
+        assert_ne!(verdict(&forged, &document["model"]), json!({"ok": true}), "{mode:?}");
+    }
+}

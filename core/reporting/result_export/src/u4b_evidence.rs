@@ -180,6 +180,12 @@ impl<'a> Index<'a> {
             let Some(case) = case_of(row) else { continue };
             let md = &row["metadata"];
             let (Some(entity), Some(kind)) = (row["entity_ref"].as_str(), row["kind"].as_str()) else { continue };
+            // RT-A3: a branch row's identity is its component as well as its slot
+            // (two tees may name one pipe end); its record binds it by id
+            // (`branch_records`), and no check looks it up by slot.
+            if kind == BRANCH {
+                continue;
+            }
             let slot = (case, entity, kind, md["component"].as_str().unwrap_or(""), md["location"].as_str().unwrap_or(""), basis_of(row));
             if map.insert(slot, row).is_some() && KINDS.contains(&kind) {
                 return Err(route.fail("ROW_SLOT_DUPLICATE"));
@@ -558,8 +564,10 @@ pub(crate) fn branch_records<'a>(
 /// `branch_branch_sif_user_value`, at each end of that pipe at the
 /// component's node, where the pipe is not a realized arc. In every solved
 /// case each association has its row on both bases, its record carries the
-/// model's component, side and factor bit for bit, and no other branch row
-/// or record is published.
+/// model's component, side, factor (bit for bit) and source reference (the
+/// producer's: `modifiers.source_reference`, or `source_reference_missing`
+/// when absent or blank), each record once, and no other branch row or
+/// record is published.
 pub(crate) fn branch_model_checks(source: &Value, model: &Value) -> Check {
     let route = Route::Exact;
     if model.get("components").is_none_or(Value::is_null) || source["status"]["mechanics"] != "MECHANICS_SOLVED" {
@@ -569,7 +577,7 @@ pub(crate) fn branch_model_checks(source: &Value, model: &Value) -> Check {
         v.as_array().map(Vec::as_slice).unwrap_or(&[])
     }
     let pipes = items(&model["pipe_segments"]);
-    let mut expected: BTreeMap<(String, &str), (&str, &str, u64)> = BTreeMap::new();
+    let mut expected: BTreeMap<(String, &str), (&str, &str, u64, &str)> = BTreeMap::new();
     for case in items(&source["contract_evidence"]["exact_cases"]) {
         let arcs = items(&case["pipe_sections"]).iter()
             .filter(|s| s["member_kind"] == "realized_arc").filter_map(|s| s["pipe_id"].as_str()).collect::<HashSet<_>>();
@@ -582,6 +590,8 @@ pub(crate) fn branch_model_checks(source: &Value, model: &Value) -> Check {
             let geometry = &component["geometry"];
             let modifiers = &component["modifiers"];
             let header = geometry["branch_header_pipe_ref"].as_str();
+            // The producer's `preview_physics::source_reference`.
+            let reference = modifiers["source_reference"].as_str().filter(|r| !r.trim().is_empty()).unwrap_or("source_reference_missing");
             for pipe in pipes {
                 let Some(pipe_id) = pipe["id"].as_str() else { continue };
                 let (role, value) = if header == Some(pipe_id) {
@@ -597,7 +607,7 @@ pub(crate) fn branch_model_checks(source: &Value, model: &Value) -> Check {
                 }
                 for (location, end) in [("end_i", "from"), ("end_j", "to")] {
                     if pipe[end].as_str() == Some(node) {
-                        expected.insert((format!("{pipe_id}\u{0}{location}"), id), (role, pipe_id, sif.to_bits()));
+                        expected.insert((format!("{pipe_id}\u{0}{location}"), id), (role, pipe_id, sif.to_bits(), reference));
                     }
                 }
             }
@@ -610,8 +620,9 @@ pub(crate) fn branch_model_checks(source: &Value, model: &Value) -> Check {
             }
             let key = (format!("{}\u{0}{}", record["pipe_id"].as_str().unwrap_or(""), record["location"].as_str().unwrap_or("")), record["component_id"].as_str().unwrap_or(""));
             let want = expected.get(&(key.0.clone(), key.1)).ok_or_else(|| route.fail("INTENSIFIED_MODEL"))?;
-            route.require(record["factor_role"] == want.0 && record["sif"].as_f64().map(f64::to_bits) == Some(want.2), "INTENSIFIED_MODEL_FACTORS")?;
-            seen.insert((key, record["section_basis"].as_str().unwrap_or("")));
+            route.require(record["factor_role"] == want.0 && record["sif"].as_f64().map(f64::to_bits) == Some(want.2)
+                && record["sif_source_reference"] == want.3, "INTENSIFIED_MODEL_FACTORS")?;
+            route.require(seen.insert((key, record["section_basis"].as_str().unwrap_or(""))), "INTENSIFIED_DUPLICATE")?;
         }
         for (key, _) in &expected {
             for basis in ["nominal_section", "reduced_section"] {
@@ -620,7 +631,7 @@ pub(crate) fn branch_model_checks(source: &Value, model: &Value) -> Check {
         }
         route.require(seen.len() == 2 * expected.len(), "INTENSIFIED_MODEL")?;
         for row in items(&source["results"]).iter().filter(|r| r["kind"] == BRANCH && r["basis_ref"]["ref_id"] == case_id) {
-            route.require(row["entity_ref"].as_str().is_some_and(|p| expected.values().any(|(_, pipe, _)| *pipe == p)), "INTENSIFIED_MODEL")?;
+            route.require(row["entity_ref"].as_str().is_some_and(|p| expected.values().any(|(_, pipe, _, _)| *pipe == p)), "INTENSIFIED_MODEL")?;
         }
         expected.clear();
     }
