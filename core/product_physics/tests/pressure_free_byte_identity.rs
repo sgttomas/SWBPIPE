@@ -63,6 +63,32 @@ fn preview_physics_fixtures_are_byte_identical() {
     }
 }
 
+/// The preview-physics-2 envelopes the readers consume, the raw stdout of
+/// `examples/preview_physics_capture.rs` (`-- <mode> --model <model>`: the
+/// model with no request materials through the public value entry, printed
+/// pretty with one trailing newline). Nothing else re-runs the producer on them.
+#[test]
+fn preview_physics_capture_envelopes_are_current() {
+    const INVENTED: &str = include_str!("fixtures/preview_physics_invented_model.json");
+    let captures: [(&str, &str, PreviewSolverMode, &str); 4] = [
+        ("preview_physics_invented_sparse", INVENTED, PreviewSolverMode::SparseInteractive,
+            include_str!("../../../fixtures/results/preview_physics_invented_sparse.json")),
+        ("preview_physics_invented_dense", INVENTED, PreviewSolverMode::DenseScrutiny,
+            include_str!("../../../fixtures/results/preview_physics_invented_dense.json")),
+        ("preview_physics_range_envelope_sparse", include_str!("fixtures/preview_physics_range_envelope_model.json"),
+            PreviewSolverMode::SparseInteractive, include_str!("../../../fixtures/results/preview_physics_range_envelope_sparse.json")),
+        ("preview_physics_unicode_ids_sparse", include_str!("fixtures/preview_physics_unicode_ids_model.json"),
+            PreviewSolverMode::SparseInteractive, include_str!("../../../fixtures/results/preview_physics_unicode_ids_sparse.json")),
+    ];
+    for (name, model, mode, expected) in captures {
+        let model: serde_json::Value = serde_json::from_str(model).unwrap();
+        let envelope = run_linear_static_preview_value_with_mode(json!({"model": model, "materials": []}), mode).unwrap();
+        let actual = format!("{}\n", serde_json::to_string_pretty(&envelope).unwrap());
+        assert!(actual == expected, "fixtures/results/{name}.json: regenerate with `cargo run --example preview_physics_capture -- {} --model ...`; actual_len={} expected_len={} first_difference={:?}",
+            if mode == PreviewSolverMode::SparseInteractive { "sparse" } else { "dense" }, actual.len(), expected.len(), first_difference(&actual, expected));
+    }
+}
+
 /// The G10 desktop copies: the desktop's solve request `{"model", "materials": []}` through the
 /// public value entry, serialized compactly. `G10_DESKTOP_MILESTONE_WRITE=1` rewrites the two
 /// committed copies from this computation; otherwise they must be current.

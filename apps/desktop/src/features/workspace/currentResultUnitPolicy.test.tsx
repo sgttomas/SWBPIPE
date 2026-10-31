@@ -93,18 +93,18 @@ it("reports a qualified Current result's recorded units, including Pa, N*m and N
   const model = result.current.model.model, currentSolvedResult = result.current.results.currentSolvedResult;
   expect(result.current.results.result).toBe(currentSolvedResult);
   expect(hasNativeMechanicsInvocation(currentSolvedResult, model, "sparse_interactive")).toBe(true);
-  expect(currentSolvedResult!.results).toHaveLength(745);
+  expect(currentSolvedResult!.results).toHaveLength(841);
   expect([...new Set(currentSolvedResult!.results.map((row) => row.unit))].sort().join(",")).toBe(recordedUnits);
   expect(currentSolvedResult).toEqual(sourceFixture); // received producer bytes, unchanged
 
   const { solve, design, line } = renderPanels(result.current);
-  expect(line(solve, "solve-job-unit-policy")).toBe(`${modelUnits}; results=${recordedUnits}; rows=745; conversion=false`);
+  expect(line(solve, "solve-job-unit-policy")).toBe(`${modelUnits}; results=${recordedUnits}; rows=841; conversion=false`);
   expect(within(solve.container).getByTestId("solve-job-summary")).toHaveTextContent("state=completed");
-  expect(within(solve.container).getByTestId("solve-job-summary")).toHaveTextContent("result_rows=745");
+  expect(within(solve.container).getByTestId("solve-job-summary")).toHaveTextContent("result_rows=841");
   // comparison= lists only the units of rows matched between the default comparison bases (load:L-100 vs combination:C-OPER-ALT).
   // T0R: that mechanics combination is withheld (NONLINEAR_COMBINATION_REQUIRES_SOLVE), so no rows are matched.
   expect(line(design, "design-workspace-units"))
     .toBe(`${modelUnits}; results=${recordedUnits}; comparison=none; conversion=false`);
-  expect(within(design.container).getByTestId("design-workspace-current")).toHaveTextContent("result_rows=745");
+  expect(within(design.container).getByTestId("design-workspace-current")).toHaveTextContent("result_rows=841");
   expect(currentSolvedResult).toEqual(sourceFixture);
 });

@@ -186,6 +186,24 @@ function rowText(row: SourceRow): string {
     ? Object.fromEntries(ROW_METADATA.filter(k => Object.hasOwn(metadata, k)).map(k => [k, metadata[k]])) : null;
   return writtenText({ kind: row?.kind, unit: row?.unit, metadata: picked });
 }
+/** The readings of the source's own rows, read in one call with the source read
+ * once (the outcomes a call per row returns), once per source text. Anything that
+ * call does not read (a source that is not JSON, a row outside the source) is
+ * left to the call per row. */
+function readSourceRows(source: MechanicsResult, sourceJson: string): void {
+  cached(sourceJson, "rows\u0000", () => {
+    const texts = new Set<string>();
+    for (const row of Array.isArray(source.results) ? source.results : []) {
+      try { texts.add(rowText(row)); } catch { /* read per row, as before */ }
+    }
+    const rows = [...texts];
+    let outcomes: unknown;
+    try { outcomes = JSON.parse(engine()!.readerRowSemanticsEachJson(`[${rows.join(",")}]`, sourceJson)); } catch { return true; }
+    const read = Array.isArray(outcomes) && outcomes.length === rows.length ? outcomes : null;
+    read?.forEach((outcome, i) => cached(sourceJson, `row\u0000${rows[i]}`, () => freeze(outcome) as Outcome<RowSemantics>));
+    return true;
+  });
+}
 /** The row semantics of this source's table (no source is refused): a
  * function from a row to its signature, complete-metadata flag and canonical metadata.
  * It throws the reader's refusal: a source the dispatch refuses
@@ -200,6 +218,7 @@ export function readerRowSemantics(source?: MechanicsResult | null): (row: Sourc
     let text: string;
     try { text = rowText(row); } catch { throw new ResultReaderError(JSON_PARSE_REJECTED); }
     unavailable();
+    if (source != null && sourceJson !== undefined) readSourceRows(source, sourceJson);
     const outcome = cached(sourceJson ?? "", `row\u0000${text}`,
       () => call<RowSemantics>(e => e.readerRowSemanticsJson(text, sourceJson)));
     if (!outcome.ok) refuse(outcome);
