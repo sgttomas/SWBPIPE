@@ -837,6 +837,12 @@ pub struct ResidualEstimate {
     pub error_estimate: f64,
     /// φᵀM̂φ.
     pub generalized_mass: f64,
+    /// ‖D r̂‖₂ and φᵀM̂φ are published (they scale with φ): each nonzero but
+    /// below the binary64 normal range is published as 0 with its flag
+    /// (design §3.2, admission range). η, κ_λ and e_λ are compared (with
+    /// τ_r and in the Sturm separation) and must be normal or exactly zero.
+    pub scaled_residual_below_normal_range: bool,
+    pub generalized_mass_below_normal_range: bool,
 }
 
 /// r̂ = K̂φ − λM̂φ element by element (each re-formed entry times φ_j and
@@ -895,13 +901,20 @@ pub fn residual_estimate(
     let residual = residual.sqrt();
     let backward = residual.div(scale.mul(tilde.sqrt()));
     let condition = scale.mul(tilde).div(generalized.mul(lambda));
-    let checked = |quantity, value: WideDd| value.to_normal_or_zero().ok_or(out_of_range(quantity));
+    let compared = |quantity, value: WideDd| value.to_normal_or_zero().ok_or(out_of_range(quantity));
+    let published = |quantity, value: WideDd| value.to_published().ok_or(out_of_range(quantity));
+    let (scaled_residual, scaled_residual_below_normal_range) =
+        published("scaled_residual", residual)?;
+    let (generalized_mass, generalized_mass_below_normal_range) =
+        published("generalized_mass", generalized)?;
     Ok(ResidualEstimate {
-        scaled_residual: checked("scaled_residual", residual)?,
-        backward_error: checked("backward_error", backward)?,
-        condition: checked("condition", condition)?,
-        error_estimate: checked("error_estimate", backward.mul(condition))?,
-        generalized_mass: checked("generalized_mass", generalized)?,
+        scaled_residual,
+        backward_error: compared("backward_error", backward)?,
+        condition: compared("condition", condition)?,
+        error_estimate: compared("error_estimate", backward.mul(condition))?,
+        generalized_mass,
+        scaled_residual_below_normal_range,
+        generalized_mass_below_normal_range,
     })
 }
 

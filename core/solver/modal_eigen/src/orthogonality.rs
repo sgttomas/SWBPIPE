@@ -75,9 +75,13 @@ pub struct MOrthogonality {
     /// The largest normalized off-diagonal product; 0 with fewer than two
     /// modes.
     pub max_ratio: f64,
-    /// The pair (i, j), i < j, attaining it; the first in (i, j) order on a
-    /// tie. `None` with fewer than two modes.
+    /// The pair (i, j), i < j, attaining it (compared exactly, before
+    /// rounding); the first in (i, j) order on a tie. `None` with fewer than
+    /// two modes.
     pub pair: Option<(usize, usize)>,
+    /// The largest ratio is nonzero but below the binary64 normal range and
+    /// is published as 0 (design §3.2, admission range).
+    pub max_ratio_below_normal_range: bool,
 }
 
 /// M φⱼ in double-double for every mode (rows ascending, exact products),
@@ -156,24 +160,36 @@ fn from_products(
         }
         roots.push(m.sqrt());
     }
-    let mut max_ratio = 0.0;
+    // The largest ratio is chosen on the exact values, then published: an
+    // overflow or NaN refuses, a value below the normal range is 0, flagged.
+    let mut best = WideDd::ZERO;
     let mut pair = None;
     for i in 0..vectors.len() {
         for j in i + 1..vectors.len() {
             let exact = bilinear(i, j).abs().div(roots[i].mul(roots[j]));
-            let Some(ratio) = exact.to_normal_or_zero() else {
+            if !exact.is_finite() {
                 return Err(OrthogonalityError::RatioOutOfRange {
                     pair: (i, j),
                     value: exact.to_f64(),
                 });
-            };
-            if pair.is_none() || ratio > max_ratio {
-                max_ratio = ratio;
+            }
+            if pair.is_none() || exact.sub(best).is_positive() {
+                best = exact;
                 pair = Some((i, j));
             }
         }
     }
-    Ok(MOrthogonality { max_ratio, pair })
+    let Some((max_ratio, max_ratio_below_normal_range)) = best.to_published() else {
+        return Err(OrthogonalityError::RatioOutOfRange {
+            pair: pair.expect("a ratio was formed"),
+            value: best.to_f64(),
+        });
+    };
+    Ok(MOrthogonality {
+        max_ratio,
+        pair,
+        max_ratio_below_normal_range,
+    })
 }
 
 #[cfg(test)]
@@ -190,7 +206,8 @@ mod tests {
             result,
             MOrthogonality {
                 max_ratio: 0.0,
-                pair: Some((0, 1))
+                pair: Some((0, 1)),
+                max_ratio_below_normal_range: false,
             }
         );
         // With M = I, φ₁ = (1, 0) and φ₂ = (1, 1): 1/√2, which the
@@ -210,7 +227,8 @@ mod tests {
             m_orthogonality(&identity, &[&a]).unwrap(),
             MOrthogonality {
                 max_ratio: 0.0,
-                pair: None
+                pair: None,
+                max_ratio_below_normal_range: false,
             }
         );
     }
@@ -263,6 +281,24 @@ mod tests {
         let result = m_orthogonality(&mass, &[&a, &b]).unwrap();
         assert_eq!(result.max_ratio, 0.8);
         assert_eq!(result.pair, Some((0, 1)));
+    }
+
+    /// The published-value rule: M = I₂, φ₁ = (1, 0), φ₂ = (2⁻¹⁰⁶⁰, 1). The
+    /// largest ratio, 2⁻¹⁰⁶⁰, is nonzero but below the normal range: it was
+    /// refused as out of range and is now published as 0 with its flag.
+    #[test]
+    fn a_ratio_below_the_normal_range_is_a_flagged_zero() {
+        let identity = SymmetricMatrix::from_diagonal(&[1.0, 1.0]).unwrap();
+        let a = [1.0, 0.0];
+        let b = [f64::from_bits(1u64 << 14), 1.0];
+        let result = m_orthogonality(&identity, &[&a, &b]).unwrap();
+        assert_eq!(result.max_ratio, 0.0);
+        assert!(result.max_ratio_below_normal_range);
+        assert_eq!(result.pair, Some((0, 1)));
+        // An exactly orthogonal pair is an unflagged zero.
+        let c = [0.0, 1.0];
+        let exact = m_orthogonality(&identity, &[&a, &c]).unwrap();
+        assert!(!exact.max_ratio_below_normal_range);
     }
 
     #[test]

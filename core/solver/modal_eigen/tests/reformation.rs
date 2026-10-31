@@ -41,7 +41,7 @@ use open_pipe_stress_modal_eigen::reformation::section::{
 };
 use open_pipe_stress_modal_eigen::reformation::{
     cluster_error_estimates, formation_difference, reform_element_mass, residual_estimate,
-    ArcOperand, ElementOperand, Moduli, ReformationFailure, ReformedPencil, ResidualError,
+    ArcOperand, ElementOperand, Moduli, ReformationFailure, ReformedPencil,
     SpringOperand, StraightOperand,
 };
 use open_pipe_stress_modal_eigen::SymmetricMatrix;
@@ -965,15 +965,22 @@ fn residual_estimates_match_their_closed_forms() {
         close(r.scaled_residual, c(base.scaled_residual).mul_f64(s), "‖Dr‖, scaled");
         close(r.generalized_mass, c(base.generalized_mass).mul_f64(s * s), "φᵀMφ, scaled");
     }
-    // At 2⁻⁶⁰⁰ φᵀM̂φ = 2⁻¹²⁰⁰·(1 + 2·0.09) is below binary64: refused as out of
-    // range, not published as zero (it underflowed to a refusal as
-    // NonPositiveGeneralizedMass before).
-    assert_eq!(
-        residual_estimate(&p, &d.scaling, 1.0, &[2f64.powi(-600), 0.3 * 2f64.powi(-600)]),
-        Err(ResidualError::ResultOutOfRange {
-            quantity: "generalized_mass"
-        })
-    );
+    // At 2⁻⁶⁰⁰, φᵀM̂φ = 2⁻¹²⁰⁰·(1 + 2·0.09) is below binary64. It is a
+    // published quantity (evidence, not compared; positivity is decided on
+    // the exact value), so it is published as 0 with its flag (design §3.2,
+    // admission range). It was refused as NonPositiveGeneralizedMass in
+    // double-double, and as out of range under round 3. η, κ_λ and e_λ,
+    // which are compared, are unchanged.
+    let s = 2f64.powi(-600);
+    let r = residual_estimate(&p, &d.scaling, 1.0, &[s, 0.3 * s]).unwrap();
+    assert_eq!(r.generalized_mass, 0.0);
+    assert!(r.generalized_mass_below_normal_range);
+    assert!(!r.scaled_residual_below_normal_range);
+    close(r.backward_error, c(base.backward_error), "η, 2⁻⁶⁰⁰");
+    close(r.condition, c(base.condition), "κ_λ, 2⁻⁶⁰⁰");
+    close(r.error_estimate, c(base.error_estimate), "e_λ, 2⁻⁶⁰⁰");
+    close(r.scaled_residual, c(base.scaled_residual).mul_f64(s), "‖Dr‖, 2⁻⁶⁰⁰");
+    assert!(!base.generalized_mass_below_normal_range);
     // The exact pairs have zero residual.
     let exact = residual_estimate(&p, &d.scaling, 2.0, &[0.0, 1.0]).unwrap();
     assert_eq!((exact.backward_error, exact.error_estimate), (0.0, 0.0));

@@ -102,14 +102,15 @@ pub enum ModalQuantityError {
         mode: usize,
         value: f64,
     },
-    /// A shape component φ_i/φ_ref is not finite, or is not normal while
-    /// φ_i is nonzero (an overflow, or an underflow to a silent zero).
+    /// A shape component φ_i/φ_ref overflows. (One below the normal range is
+    /// published as 0 and flagged.)
     ShapeOutOfRange {
         mode: usize,
         index: usize,
     },
-    /// A published quantity is not finite: `name`, in direction
-    /// `direction` (`None` for the generalized mass).
+    /// A published quantity overflows or is NaN: `name`, in direction
+    /// `direction` (`None` for the generalized mass). One below the normal
+    /// range is published as 0 and flagged instead.
     QuantityOutOfRange {
         mode: usize,
         name: &'static str,
@@ -266,6 +267,22 @@ pub struct NormalizedMode {
     pub effective_mass: [f64; 3],
     /// m_eff,k / T_k; `None` (undefined) where T_k = 0.
     pub effective_mass_fraction: [Option<f64>; 3],
+    /// Which published values are nonzero but below the binary64 normal
+    /// range, and so published as 0 (design §3.2, admission range).
+    pub below_normal_range: BelowNormalRange,
+}
+
+/// The flags of [`NormalizedMode`]'s published values that are nonzero but
+/// below the binary64 normal range: each is published as 0.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct BelowNormalRange {
+    /// Free indices of shape components published as 0.
+    pub shape: Vec<usize>,
+    pub generalized_mass: bool,
+    pub excitation_product: [bool; 3],
+    pub participation: [bool; 3],
+    pub effective_mass: [bool; 3],
+    pub effective_mass_fraction: [bool; 3],
 }
 
 /// xᵀ M y in [`WideDd`]: each row sum Σ_j M_ij y_j, then multiplied by
@@ -348,55 +365,70 @@ pub fn normalize_mode(
     };
     let reference = reference.ok_or(ModalQuantityError::ZeroShape { mode })?;
     let pivot = phi[reference];
-    let shape: Vec<f64> = phi.iter().map(|&v| v / pivot).collect();
-    if let Some(index) = shape
-        .iter()
-        .zip(phi)
-        .position(|(&s, &v)| !(s.is_finite() && (s.is_normal() || v == 0.0)))
-    {
-        return Err(ModalQuantityError::ShapeOutOfRange { mode, index });
+    // Every shape component is published: an overflow refuses, and a
+    // nonzero component below the normal range is published as 0, flagged.
+    // The quantities below are formed from the published shape.
+    let mut below_normal_range = BelowNormalRange::default();
+    let mut shape = Vec::with_capacity(n);
+    for (index, &v) in phi.iter().enumerate() {
+        let s = v / pivot;
+        if !s.is_finite() {
+            return Err(ModalQuantityError::ShapeOutOfRange { mode, index });
+        }
+        if v != 0.0 && !s.is_normal() {
+            below_normal_range.shape.push(index);
+            shape.push(0.0);
+        } else {
+            shape.push(s);
+        }
     }
 
     let m = mass_bilinear(basis.mass, &shape, &shape);
-    // Range first: an m that cannot be published (an overflow, an underflow
-    // or a NaN) is out of range, not non-positive.
-    let Some(generalized_mass) = m.to_normal_or_zero() else {
+    // Range first: an m that overflows or is NaN is out of range, not
+    // non-positive. Positivity is decided on the exact value.
+    let Some((generalized_mass, m_below)) = m.to_published() else {
         return Err(ModalQuantityError::QuantityOutOfRange {
             mode,
             name: "generalized_mass",
             direction: None,
         });
     };
-    if !(generalized_mass > 0.0) {
+    if !m.is_positive() {
         return Err(ModalQuantityError::NonPositiveGeneralizedMass {
             mode,
             value: generalized_mass,
         });
     }
+    below_normal_range.generalized_mass = m_below;
     let mut excitation_product = [0.0; 3];
     let mut participation = [0.0; 3];
     let mut effective_mass = [0.0; 3];
     let mut effective_mass_fraction = [None; 3];
     for k in 0..3 {
-        // Published only when normal or an exact zero (design §3.2,
-        // admission range): no silent zero, no infinity.
-        let finite = |name: &'static str, value: WideDd| {
+        // Published (design §3.2, admission range): an overflow or NaN
+        // refuses; a nonzero value below the normal range is 0, flagged.
+        let published = |name: &'static str, value: WideDd| {
             value
-                .to_normal_or_zero()
+                .to_published()
                 .ok_or(ModalQuantityError::QuantityOutOfRange {
                     mode,
                     name,
                     direction: Some(k),
                 })
         };
+        let flags = &mut below_normal_range;
         let q = wide_dot(&shape, basis.excitation[k]);
         let q_squared = q.mul(q);
-        excitation_product[k] = finite("excitation_product", q)?;
-        participation[k] = finite("participation", q.div(m))?;
-        effective_mass[k] = finite("effective_mass", q_squared.div(m))?;
+        (excitation_product[k], flags.excitation_product[k]) =
+            published("excitation_product", q)?;
+        (participation[k], flags.participation[k]) = published("participation", q.div(m))?;
+        (effective_mass[k], flags.effective_mass[k]) =
+            published("effective_mass", q_squared.div(m))?;
         if basis.total_mass[k] > 0.0 {
             let fraction = q_squared.div(m.mul_f64(basis.total_mass[k]));
-            effective_mass_fraction[k] = Some(finite("effective_mass_fraction", fraction)?);
+            let (value, below) = published("effective_mass_fraction", fraction)?;
+            effective_mass_fraction[k] = Some(value);
+            flags.effective_mass_fraction[k] = below;
         }
     }
     Ok(NormalizedMode {
@@ -410,6 +442,7 @@ pub fn normalize_mode(
         participation,
         effective_mass,
         effective_mass_fraction,
+        below_normal_range,
     })
 }
 
@@ -735,10 +768,12 @@ mod tests {
         );
     }
 
-    /// Review round 3, item B: every shape component is validated. With
-    /// τ_t = 0 a mode with any translation is case (a); φ = (2⁶⁰⁰ on Ux,
-    /// 2⁻⁶⁰⁰ on Rz) normalizes Rz to 2⁻¹²⁰⁰, which underflowed to a silent
-    /// zero, and φ = (2⁻⁶⁰⁰, 2⁶⁰⁰) to 2¹²⁰⁰, which overflowed.
+    /// Review round 3, item B, with the published-value rule (design §3.2,
+    /// admission range): with τ_t = 0 a mode with any translation is case
+    /// (a). φ = (2⁻⁶⁰⁰ on Ux, 2⁶⁰⁰ on Rz) normalizes Rz to 2¹²⁰⁰, an overflow,
+    /// which refuses. φ = (2⁶⁰⁰, 2⁻⁶⁰⁰) normalizes Rz to 2⁻¹²⁰⁰, nonzero but
+    /// below the normal range: it was a silent zero, then a refusal, and is
+    /// now published as 0 with its flag.
     #[test]
     fn every_shape_component_is_validated() {
         let p2 = |e: i32| 2f64.powi(e);
@@ -746,14 +781,42 @@ mod tests {
         let dofs = [free(1, Dof::Ux), free(1, Dof::Rz)];
         let z = [0.0, 0.0];
         let basis = ModalBasis::new(&mass, &dofs, [&z, &z, &z], [0.0; 3], 1.0, 0.0).unwrap();
-        for phi in [[p2(600), p2(-600)], [p2(-600), p2(600)]] {
-            assert_eq!(
-                normalize_mode(7, &phi, &basis),
-                Err(ModalQuantityError::ShapeOutOfRange { mode: 7, index: 1 })
-            );
-        }
-        // An exactly zero component stays an admitted zero.
-        assert!(normalize_mode(7, &[p2(600), 0.0], &basis).is_ok());
+        assert_eq!(
+            normalize_mode(7, &[p2(-600), p2(600)], &basis),
+            Err(ModalQuantityError::ShapeOutOfRange { mode: 7, index: 1 })
+        );
+        let mode = normalize_mode(7, &[p2(600), p2(-600)], &basis).unwrap();
+        assert_eq!(mode.shape, vec![1.0, 0.0]);
+        assert_eq!(mode.below_normal_range.shape, vec![1]);
+        // An exactly zero component is an unflagged zero.
+        let exact = normalize_mode(7, &[p2(600), 0.0], &basis).unwrap();
+        assert_eq!(exact.shape, vec![1.0, 0.0]);
+        assert_eq!(exact.below_normal_range, BelowNormalRange::default());
+    }
+
+    /// The published-value rule: φ = 1, M_ff = 1, p_x = 10⁻¹⁶⁰, T_x = 1. Γ
+    /// and φᵀp are 10⁻¹⁶⁰ (normal), while m_eff and the fraction are about
+    /// 10⁻³²⁰, nonzero but below the normal range: published as 0 with
+    /// their flags, and the mode is not refused.
+    #[test]
+    fn a_fraction_below_the_normal_range_is_a_flagged_zero() {
+        let dofs = [free(1, Dof::Ux)];
+        let zero = [0.0];
+        let mass = SymmetricMatrix::from_diagonal(&[1.0]).unwrap();
+        let p = [1e-160];
+        let basis =
+            ModalBasis::new(&mass, &dofs, [&p, &zero, &zero], [1.0, 0.0, 0.0], 1.0, TAU_T)
+                .unwrap();
+        let mode = normalize_mode(0, &[1.0], &basis).unwrap();
+        assert_eq!(mode.participation[0], 1e-160);
+        assert_eq!(mode.excitation_product[0], 1e-160);
+        assert_eq!(mode.effective_mass[0], 0.0);
+        assert_eq!(mode.effective_mass_fraction[0], Some(0.0));
+        let flags = &mode.below_normal_range;
+        assert_eq!(flags.effective_mass, [true, false, false]);
+        assert_eq!(flags.effective_mass_fraction, [true, false, false]);
+        assert_eq!(flags.participation, [false; 3]);
+        assert!(!flags.generalized_mass && flags.shape.is_empty());
     }
 
     #[test]
@@ -769,6 +832,7 @@ mod tests {
             participation: [0.0; 3],
             effective_mass: [0.0; 3],
             effective_mass_fraction: [Some(fx), Some(0.0), None],
+            below_normal_range: BelowNormalRange::default(),
         };
         let modes = [make(0.5), make(0.25), make(0.125)];
         let cumulative = cumulative_effective_mass_fractions(&modes);

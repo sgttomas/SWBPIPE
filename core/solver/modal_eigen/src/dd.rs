@@ -446,8 +446,29 @@ impl WideDd {
         )
     }
 
-    /// The binary64 value when it may be published (design §3.2, admission
-    /// range): zero only for an exact zero, otherwise a normal number.
+    /// A published value (design §3.2, admission range): `(value, false)`
+    /// for a normal value or an exact zero, `(0, true)` for a nonzero value
+    /// below the binary64 normal range (published as 0, flagged), and
+    /// `None` for a value that overflows or is not finite.
+    pub fn to_published(self) -> Option<(f64, bool)> {
+        if !self.is_finite() {
+            return None;
+        }
+        if self.is_zero() {
+            return Some((0.0, false));
+        }
+        let value = self.to_f64();
+        if value.is_normal() {
+            Some((value, false))
+        } else if value.is_infinite() {
+            None
+        } else {
+            Some((0.0, true))
+        }
+    }
+
+    /// A compared value (design §3.2, admission range): zero only for an
+    /// exact zero, otherwise a normal number.
     /// `None` for a value that overflows, underflows to a subnormal or to
     /// zero, or is not finite.
     pub fn to_normal_or_zero(self) -> Option<f64> {
