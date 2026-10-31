@@ -326,6 +326,10 @@ fn component_apply_checks_family_pair_and_required_members() {
     let mut op = apply_intent(&model, "Component", "components", "component:C-110", &json!({"modifiers.flexibility_factor_user_value":{"value":1.2,"unit":"none"}}));
     op["author_type"] = json!("agent");
     assert!(refused(&model, &op).contains(&"OP-BEND-FLEXIBILITY-USER-ENTRY-REQUIRED".to_string()));
+    // Nor any other modifier member, such as a SIF (RT-E1 M2-D1).
+    let mut op = apply_intent(&model, "Component", "components", "component:C-110", &json!({"modifiers.sif_user_value":{"value":1.5,"unit":"1"}}));
+    op["author_type"] = json!("agent");
+    assert!(refused(&model, &op).contains(&"OP-COMPONENT-MODIFIER-USER-ENTRY-REQUIRED".to_string()));
     // Applying the same values again changes nothing and is refused as such.
     let op = apply_intent(&next, "Component", "components", "component:C-130", &after);
     assert_eq!(refused(&next, &op), vec!["OP-LIBRARY-APPLY-UNCHANGED"]);

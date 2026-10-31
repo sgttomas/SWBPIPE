@@ -784,7 +784,7 @@ mod tests {
         assert_eq!(request["params"]["approvalPolicy"], "never");
         assert_eq!(request["params"]["environments"], json!([]));
         let declarations = request["params"]["dynamicTools"].as_array().unwrap();
-        assert_eq!(declarations.len(), 6);
+        assert_eq!(declarations.len(), 7);
         for declaration in declarations {
             assert_eq!(declaration.as_object().unwrap().len(), 4);
             assert_eq!(declaration["type"], "function");

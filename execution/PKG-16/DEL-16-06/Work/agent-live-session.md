@@ -59,7 +59,9 @@ source units and negative zero. Results use existing numerical overlay policy;
 this initial adapter conservatively withholds retained-precision values rather
 than substituting rounded binary64. Catalog version 3 adds the W9-A build
 discriminators, a host stamp for the constant intent fields and a filter on
-result reads ([host design](embedded-agent-host.md)). Criterion 17's remaining
+result reads ([host design](embedded-agent-host.md)); version 4 adds component,
+support-configuration and deletion intents and a record read with exact before
+texts. Criterion 17's remaining
 discriminators, retained source-value presentation and the actual desktop
 review witness remain open.
 
@@ -68,7 +70,8 @@ review witness remain open.
 Live owns the admitted dual-family loopback relay, private runtime and original
 supplier Child. It starts fixed initialize/thread/start protocol steps and holds
 partial startup custody through cleanup and worker joins. Provider selection
-loads the exact saved revision from the reviewed Store; the secret goes only
+loads the exact saved revision from the reviewed Store, including the person's
+context window, which Start refuses when absent; the secret goes only
 to the host relay. The child receives only a fresh relay capability. No profile,
 credential, persistence format or TLS-trust permission is widened here.
 

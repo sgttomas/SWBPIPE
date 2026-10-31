@@ -30,6 +30,7 @@ use std::{
 struct Config {
     state: PathBuf,
     model: String,
+    context_window: u32,
     endpoint: String,
     key: Option<String>,
     mode: String,
@@ -311,6 +312,7 @@ fn run_inner() -> Result<(), &'static str> {
             state: config.state.clone(),
         },
         config.model,
+        config.context_window,
         provider,
         secret,
         "native-fixture-private-session-token",
@@ -406,7 +408,8 @@ fn run_inner() -> Result<(), &'static str> {
                                 pending = true;
                                 record(start, "tool_pending", json!({"tool":tool.name()}))?;
                             } else {
-                                let value = json!({"status":"ok","basis":basis,"message":"Invented qualification model; no operation applied.","data":{"workspaceHandle":"invented-workspace","projectId":"project:invented","schemaVersion":"0.8.0","pressureContract":null,"pressureProfileBefore":"{\"schema_version\":\"0.8.0\"}","projectUnits":{"length":"m"},"objectCounts":{"nodes":1},"admittedOperationKinds":["modify/Node/set_field/position"],"limits":{"argumentBytes":16384,"resultBytes":65536,"pageRows":50,"pendingCalls":16,"proposalOperations":16}}});
+                                let version = open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION;
+                                let value = json!({"status":"ok","basis":basis,"message":"Invented qualification model; no operation applied.","data":{"workspaceHandle":"invented-workspace","projectId":"project:invented","schemaVersion":version,"pressureContract":null,"pressureProfileBefore":json!({"schema_version":version}).to_string(),"projectUnits":{"length":"m"},"objectCounts":{"nodes":1},"admittedOperationKinds":["modify/Node/set_field/position"],"componentsAwaitingUserModifiers":{"count":0,"ids":[]},"limits":{"argumentBytes":16384,"resultBytes":65536,"pageRows":50,"pendingCalls":16,"proposalOperations":16}}});
                                 let backing = Arc::new(
                                     registry
                                         .acquire_interactive_ingress(2 * 1024 * 1024)

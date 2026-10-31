@@ -17,6 +17,7 @@ const SOURCE: &str = include_str!("../../resources/agent-capability-catalog.json
 pub enum Tool {
     Summary,
     Nodes,
+    ReadRecords,
     ProposeOperations,
     ObserveProposal,
     Solve,
@@ -24,9 +25,10 @@ pub enum Tool {
 }
 
 impl Tool {
-    pub const ALL: [Self; 6] = [
+    pub const ALL: [Self; 7] = [
         Self::Summary,
         Self::Nodes,
+        Self::ReadRecords,
         Self::ProposeOperations,
         Self::ObserveProposal,
         Self::Solve,
@@ -37,6 +39,7 @@ impl Tool {
         match self {
             Self::Summary => "swbpipe_read_model_summary",
             Self::Nodes => "swbpipe_read_nodes",
+            Self::ReadRecords => "swbpipe_read_records",
             Self::ProposeOperations => "swbpipe_propose_operations",
             Self::ObserveProposal => "swbpipe_observe_proposal",
             Self::Solve => "swbpipe_solve",
@@ -81,9 +84,19 @@ struct Descriptor {
     input: Value,
     output: Value,
 }
+/// One admitted native discriminator row. The declared schema closes the
+/// change kinds and field paths; these rows admit only their listed
+/// combinations, with no prompt cost.
+struct Admitted {
+    operation_kind: String,
+    object_type: String,
+    change_kind: String,
+    field_paths: Vec<String>,
+}
 pub struct Catalog {
     limits: Limits,
     tools: HashMap<&'static str, Descriptor>,
+    admitted: Vec<Admitted>,
 }
 
 impl Catalog {
@@ -94,7 +107,7 @@ impl Catalog {
     fn from_source(source: &str) -> Result<Self, Error> {
         let root: Value =
             serde_json::from_str(source).map_err(|_| Error("invalid catalog JSON"))?;
-        if root.get("catalogVersion").and_then(Value::as_str) != Some("swbpipe-catalog/3")
+        if root.get("catalogVersion").and_then(Value::as_str) != Some("swbpipe-catalog/4")
             || root.get("schemaDialect").and_then(Value::as_str)
                 != Some("https://json-schema.org/draft/2020-12/schema")
         {
@@ -190,7 +203,12 @@ impl Catalog {
         if tools.len() != Tool::ALL.len() {
             return Err(Error("missing tool"));
         }
-        Ok(Self { limits, tools })
+        let admitted = admitted_operations(&root, defs)?;
+        Ok(Self {
+            limits,
+            tools,
+            admitted,
+        })
     }
 
     pub fn limits(&self) -> Limits {
@@ -239,6 +257,28 @@ impl Catalog {
         if effective_operation_cap == 0 || operations.len() as u64 > effective_operation_cap {
             return Err(Error("proposal operation limit exceeded"));
         }
+        for op in operations {
+            let field = |path: &[&str]| -> &str {
+                path.iter()
+                    .try_fold(op, |v, k| v.get(*k))
+                    .and_then(Value::as_str)
+                    .unwrap_or("")
+            };
+            let (kind, object, change, path) = (
+                field(&["operation_kind"]),
+                field(&["target", "object_type"]),
+                field(&["change", "change_kind"]),
+                field(&["change", "field_path"]),
+            );
+            if !self.admitted.iter().any(|a| {
+                a.operation_kind == kind
+                    && a.object_type == object
+                    && a.change_kind == change
+                    && a.field_paths.iter().any(|p| p == path)
+            }) {
+                return Err(Error("operation kind is not admitted"));
+            }
+        }
         let ids: HashSet<&str> = operations
             .iter()
             .filter_map(|op| op["operation_id"].as_str())
@@ -265,6 +305,74 @@ impl Catalog {
         }
         Ok(())
     }
+}
+
+/// Load the admitted rows; each value must be one the declared intent schema
+/// itself admits, and no combination may repeat.
+fn admitted_operations(root: &Value, defs: &Map<String, Value>) -> Result<Vec<Admitted>, Error> {
+    let intent = expand(
+        defs.get("operationIntent")
+            .ok_or(Error("missing operation intent"))?,
+        defs,
+        &mut Vec::new(),
+    )?;
+    let declared = |pointer: &str, value: &str| {
+        intent
+            .pointer(pointer)
+            .and_then(Value::as_array)
+            .is_some_and(|values| values.iter().any(|v| v.as_str() == Some(value)))
+    };
+    let rows = root
+        .get("admittedOperations")
+        .and_then(Value::as_array)
+        .filter(|rows| !rows.is_empty())
+        .ok_or(Error("invalid admitted operations"))?;
+    let mut admitted = Vec::with_capacity(rows.len());
+    let mut seen = HashSet::new();
+    for row in rows {
+        let row = row
+            .as_object()
+            .filter(|r| r.len() == 4)
+            .ok_or(Error("invalid admitted operation"))?;
+        let text = |key: &str| {
+            row.get(key)
+                .and_then(Value::as_str)
+                .filter(|s| !s.is_empty())
+                .map(str::to_owned)
+                .ok_or(Error("invalid admitted operation"))
+        };
+        let (operation_kind, object_type, change_kind) =
+            (text("operationKind")?, text("objectType")?, text("changeKind")?);
+        let field_paths: Vec<String> = row
+            .get("fieldPaths")
+            .and_then(Value::as_array)
+            .filter(|paths| !paths.is_empty())
+            .ok_or(Error("invalid admitted operation"))?
+            .iter()
+            .map(|p| p.as_str().map(str::to_owned).ok_or(Error("invalid admitted operation")))
+            .collect::<Result<_, _>>()?;
+        if !declared("/properties/operation_kind/enum", &operation_kind)
+            || !declared("/properties/target/properties/object_type/enum", &object_type)
+            || !declared("/properties/change/properties/change_kind/enum", &change_kind)
+            || !field_paths
+                .iter()
+                .all(|p| declared("/properties/change/properties/field_path/enum", p))
+        {
+            return Err(Error("admitted operation outside the declared schema"));
+        }
+        for path in &field_paths {
+            if !seen.insert((operation_kind.clone(), object_type.clone(), change_kind.clone(), path.clone())) {
+                return Err(Error("duplicate admitted operation"));
+            }
+        }
+        admitted.push(Admitted {
+            operation_kind,
+            object_type,
+            change_kind,
+            field_paths,
+        });
+    }
+    Ok(admitted)
 }
 
 // Expand and validate the controlled subset at load, rejecting unrecognized
@@ -404,7 +512,7 @@ fn expand(
             "description" => {
                 if !value
                     .as_str()
-                    .is_some_and(|s| !s.is_empty() && s.len() <= 2048)
+                    .is_some_and(|s| !s.is_empty() && s.len() <= 4096)
                 {
                     return Err(Error("invalid schema description"));
                 }
@@ -644,7 +752,7 @@ mod tests {
     fn catalog_projection_and_empty_summary() {
         let catalog = Catalog::load().unwrap();
         let declarations = catalog.declarations();
-        assert_eq!(declarations.len(), 6);
+        assert_eq!(declarations.len(), 7);
         fn no_refs(value: &Value) -> bool {
             match value {
                 Value::Object(o) => !o.contains_key("$ref") && o.values().all(no_refs),
@@ -679,16 +787,19 @@ mod tests {
         assert!(catalog
             .validate_input(Tool::ProposeOperations, &valid)
             .is_ok());
+        // Values outside the closed schema, and admitted values recombined
+        // outside the admitted rows.
         for (path, replacement) in [
             ("/operations/0/operation_kind", json!("create")),
             ("/operations/0/target/object_type", json!("Pipe")),
             ("/operations/0/change/field_path", json!("diameter")),
-            ("/operations/0/change/dimension", json!("stress")),
+            ("/operations/0/change/dimension", json!("pressure")),
+            ("/operations/0/target/object_type", json!("Support")),
         ] {
             let mut bad = valid.clone();
             *bad.pointer_mut(path).unwrap() = replacement;
             assert!(catalog
-                .validate_input(Tool::ProposeOperations, &bad)
+                .validate_proposal_context(&bad, 16)
                 .is_err());
         }
         // Host-stamped fields and unknown members are refused, not overwritten.
@@ -719,18 +830,17 @@ mod tests {
         let catalog = Catalog::load().unwrap();
         for route in ["PF", "EX"] {
             let input = w9a(route);
-            assert!(catalog.validate_input(Tool::ProposeOperations, &input).is_ok(), "{route}");
             catalog.validate_proposal_context(&input, catalog.limits().proposal_operations).unwrap();
             // One call carries the whole build within the argument budget.
             assert!(serde_json::to_vec(&input).unwrap().len() as u64 <= catalog.limits().argument_bytes, "{route}");
         }
         let base = w9a("EX")["operations"].as_array().unwrap().clone();
         let find = |kind: &str| base.iter().find(|o| o["change"]["change_kind"] == kind).unwrap().clone();
-        let single = |op: Value| json!({"workspaceHandle":"workspace", "basis":basis(), "claimedModelHash":hash(), "operations":[op], "assumptions":[]});
-        // Native kinds outside the admitted set, or an admitted kind on another
-        // field, never reach the queue through this catalog.
+        let admit = |op: &Value| catalog.validate_proposal_context(&json!({"workspaceHandle":"workspace", "basis":basis(), "claimedModelHash":hash(), "operations":[op], "assumptions":[]}), 16).is_ok();
+        // Kinds outside the closed schema, and admitted kinds on another object
+        // or field, never reach the queue through this catalog.
         let mut refused = Vec::new();
-        for (kind, change_kind) in [("delete", "delete_node"), ("modify", "insert_bend_at_corner"), ("modify", "apply_library_record"), ("insert", "insert_component_symbol"), ("create", "create_combination"), ("modify", "set_model_setting")] {
+        for (kind, change_kind) in [("modify", "insert_bend_at_corner"), ("modify", "apply_library_record"), ("insert", "insert_component_symbol"), ("create", "create_combination"), ("modify", "set_model_setting")] {
             let mut op = find("create_node");
             op["operation_kind"] = json!(kind);
             op["change"]["change_kind"] = json!(change_kind);
@@ -740,24 +850,98 @@ mod tests {
         k["target"]["object_type"] = json!("Component");
         k["change"]["field_path"] = json!("modifiers.flexibility_factor_user_value.value");
         refused.push(k);
-        let mut node_create = find("create_node");
-        node_create["change"]["before"] = json!("present");
-        refused.push(node_create);
-        let mut support_unit = find("create_support");
-        support_unit["change"]["unit"] = json!("m");
-        refused.push(support_unit);
         let mut load = find("create_primitive_load");
         load["change"]["dimension"] = json!("pressure");
         refused.push(load);
         let mut regions = find("update_load");
         regions["change"]["field_path"] = json!("primitive_loads");
         refused.push(regions);
-        for op in refused {
-            assert!(catalog.validate_input(Tool::ProposeOperations, &single(op.clone())).is_err(), "{op}");
+        for op in &refused {
+            assert!(!admit(op), "{op}");
         }
-        for op in base {
-            assert!(catalog.validate_input(Tool::ProposeOperations, &single(op)).is_ok());
+        for op in &base {
+            assert!(admit(op), "{op}");
         }
+    }
+
+    fn agent_op(kind: &str, change_kind: &str, object: &str, path: &str, before: &str, after: &str) -> Value {
+        json!({"operation_id":"op1", "operation_kind":kind, "target":{"object_type":object, "ref":"r1"},
+            "change":{"change_id":"c1", "change_kind":change_kind, "field_label":"l", "field_path":path, "before":before, "after":after, "unit":"none", "dimension":"dimensionless", "source_note":"s"},
+            "rationale":"why"})
+    }
+
+    #[test]
+    fn component_support_and_delete_kinds_are_admitted_and_modifiers_refused() {
+        let catalog = Catalog::load().unwrap();
+        let admit = |op: &Value| catalog.validate_proposal_context(&json!({"workspaceHandle":"workspace", "basis":basis(), "claimedModelHash":hash(), "operations":[op], "assumptions":[]}), 16).is_ok();
+        for op in [
+            agent_op("insert", "insert_component_symbol", "Component", "components", "not_present", "{}"),
+            agent_op("modify", "set_field", "Component", "objective_connector.hardware", "{\"kind\":\"untied\"}", "{}"),
+            agent_op("modify", "set_field", "Component", "objective_connector.pressure_model", "{\"kind\":\"unpressurized\"}", "{}"),
+            agent_op("modify", "update_support", "Support", "configuration", "{}", "{}"),
+            agent_op("delete", "delete_component", "Component", "components", "{}", "deleted"),
+            agent_op("delete", "delete_support", "Support", "supports", "Anchor", "not_present"),
+            agent_op("delete", "delete_pipe_run", "Element", "pipe_segments", "Run; a->b; material=m", "not_present"),
+            agent_op("delete", "delete_node", "Node", "nodes", "A; x=0; y=0; z=0", "not_present"),
+        ] {
+            assert!(admit(&op), "{op}");
+        }
+        // The person enters every k and SIF: no modifiers path, realization,
+        // bend insertion, library record or other component field is admitted,
+        // by the closed schema or by the admitted rows.
+        for (kind, change_kind, object, path) in [
+            ("modify", "set_field", "Component", "modifiers.flexibility_factor_user_value.value"),
+            ("modify", "set_field", "Component", "modifiers.sif_user_value.value"),
+            ("modify", "set_field", "Component", "modifiers.branch_header_sif_user_value.value"),
+            ("modify", "set_field", "Component", "bend_realization"),
+            ("modify", "set_field", "Component", "geometry.eccentric_offset"),
+            ("modify", "insert_bend_at_corner", "Node", "bend_at_corner"),
+            ("modify", "apply_library_record", "Component", "library_record"),
+            ("modify", "update_support", "Support", "nonlinear"),
+            ("delete", "delete_load_case", "Load", "load_cases"),
+            ("insert", "insert_component_symbol", "Component", "modifiers"),
+            ("modify", "set_field", "Component", "position.x"),
+            ("modify", "set_field", "Support", "configuration"),
+            ("modify", "update_load", "Load", "primitive_loads"),
+            ("delete", "delete_component", "Support", "supports"),
+            ("create", "create_node", "Element", "nodes"),
+            ("modify", "set_field", "Model", "configuration"),
+        ] {
+            assert!(!admit(&agent_op(kind, change_kind, object, path, "x", "{}")), "{change_kind} {object} {path}");
+        }
+    }
+
+    #[test]
+    fn admitted_rows_must_lie_inside_the_declared_schema() {
+        let mut root: Value = serde_json::from_str(SOURCE).unwrap();
+        root["admittedOperations"][0]["fieldPaths"] = json!(["modifiers.sif_user_value.value"]);
+        assert!(Catalog::from_source(&root.to_string()).is_err());
+        let mut root: Value = serde_json::from_str(SOURCE).unwrap();
+        let first = root["admittedOperations"][0].clone();
+        root["admittedOperations"].as_array_mut().unwrap().push(first);
+        assert!(Catalog::from_source(&root.to_string()).is_err());
+        let mut root: Value = serde_json::from_str(SOURCE).unwrap();
+        root["admittedOperations"] = json!([]);
+        assert!(Catalog::from_source(&root.to_string()).is_err());
+    }
+
+    #[test]
+    fn read_records_admits_the_four_families_only() {
+        let catalog = Catalog::load().unwrap();
+        assert_eq!(catalog.effect(Tool::ReadRecords), Effect::Read);
+        let mut input = json!({"workspaceHandle":"workspace", "basis":basis(), "family":"components", "page":{"cursor":null, "limit":50}});
+        for family in ["components", "supports", "pipe_segments", "nodes"] {
+            input["family"] = json!(family);
+            assert!(catalog.validate_input(Tool::ReadRecords, &input).is_ok());
+        }
+        for family in ["materials", "load_cases", ""] {
+            input["family"] = json!(family);
+            assert!(catalog.validate_input(Tool::ReadRecords, &input).is_err());
+        }
+        let mut output = json!({"status":"ok", "basis":basis(), "message":"ok", "data":{"family":"supports", "records":[{"id":"s", "recordText":"{}", "before":{"delete":"Anchor", "configuration":"{}"}}], "nextCursor":null}});
+        assert!(catalog.validate_output(Tool::ReadRecords, &output).is_ok());
+        output["data"]["records"][0]["before"]["invented"] = json!(1);
+        assert!(catalog.validate_output(Tool::ReadRecords, &output).is_err());
     }
 
     #[test]
@@ -839,7 +1023,7 @@ mod tests {
             51
         ]);
         assert!(catalog.validate_output(Tool::ReadResults, &output).is_err());
-        let summary = json!({"status":"ok", "basis":basis(), "message":"ok", "data":{"workspaceHandle":"w", "projectId":"project:p", "schemaVersion":"0.8.0", "pressureContract":null, "pressureProfileBefore":"{\"schema_version\":\"0.8.0\"}", "projectUnits":{"length":"m"}, "objectCounts":{}, "admittedOperationKinds":["create/Node/create_node"], "limits":{"argumentBytes":1, "resultBytes":1, "pageRows":1, "pendingCalls":1, "proposalOperations":1}}});
+        let summary = json!({"status":"ok", "basis":basis(), "message":"ok", "data":{"workspaceHandle":"w", "projectId":"project:p", "schemaVersion":"0.8.0", "pressureContract":null, "pressureProfileBefore":"{\"schema_version\":\"0.8.0\"}", "projectUnits":{"length":"m"}, "objectCounts":{}, "admittedOperationKinds":["create/Node/create_node"], "componentsAwaitingUserModifiers":{"count":0, "ids":[]}, "limits":{"argumentBytes":1, "resultBytes":1, "pageRows":1, "pendingCalls":1, "proposalOperations":1}}});
         // Exercise object additionalProperties separately, regardless of other summary fields.
         let d = &catalog.tools[Tool::Summary.name()].output;
         let counts = d
@@ -862,7 +1046,7 @@ mod tests {
         root["definitions"]["summaryInput"]["not"] = json!({});
         assert!(Catalog::from_source(&root.to_string()).is_err());
         root["definitions"]["summaryInput"].as_object_mut().unwrap().remove("not");
-        for bad in [json!(""), json!(1), json!("d".repeat(2049))] {
+        for bad in [json!(""), json!(1), json!("d".repeat(4097))] {
             root["definitions"]["summaryInput"]["description"] = bad;
             assert!(Catalog::from_source(&root.to_string()).is_err());
         }

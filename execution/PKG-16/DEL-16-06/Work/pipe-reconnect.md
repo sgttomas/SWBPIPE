@@ -451,7 +451,8 @@ additive for other batch users; tests that match the whole line text update.
 **Orphan cleanup.** If O would have no pipe and `node_references`
 (`lib.rs:8618-8700`) finds nothing else (pipes, supports, `component.node`,
 region terminals, nodal primitive loads — the only slots it checks), the panel
-offers "Also delete node O" (unchecked), appending `delete_node`, which refuses
+offers "Also delete node O" (unchecked), appending `delete_node` (its `before`
+from the model tree's shared deletion summary, DEL-07-02), which refuses
 on the same `node_references` set (`lib.rs:3486-3500`). Other node references
 (for example an equipment interface after S2) are outside that check.
 

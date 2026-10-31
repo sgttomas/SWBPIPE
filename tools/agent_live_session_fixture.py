@@ -226,7 +226,7 @@ def run_case(args, name, mode, trigger, root, key=None):
                                stderr=subprocess.DEVNULL, env={"PATH": "/usr/bin:/bin"})
         result["app"] = {"pid": app.pid}
         records = Records(app.stdout)
-        config = {"state": str(state), "model": args.model, "endpoint": args.endpoint,
+        config = {"state": str(state), "model": args.model, "contextWindow": args.context_window, "endpoint": args.endpoint,
                   "key": key, "mode": mode, "processProbe": str(args.process_probe),
                   "boundaryProbe": str(args.boundary_probe)}
         app.stdin.write(json.dumps(config).encode() + b"\n")
@@ -382,6 +382,8 @@ def main():
     parser.add_argument("--boundary-probe", type=Path, required=True)
     parser.add_argument("--endpoint", required=True)
     parser.add_argument("--model", required=True)
+    parser.add_argument("--context-window", type=int, required=True,
+                        help="the model's context window in tokens, as the person enters it (8192..131072)")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--cancel-file", type=Path)
     args = parser.parse_args()
