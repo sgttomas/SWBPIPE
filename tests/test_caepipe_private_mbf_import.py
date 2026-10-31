@@ -37,6 +37,9 @@ from typing import Any, Callable, Mapping
 
 import pytest
 
+# Reads its directory scans stand for, for CI selection (tools/ci/python_test_reads.py). Its only scan lists the private exchange folder an environment variable names, outside the project.
+CI_READS = ()
+
 
 ROOT = Path(__file__).resolve().parents[1]
 for extra in (ROOT, ROOT / "tests"):
