@@ -685,7 +685,7 @@ class _Writer:
         # Model document 0.9.0 (DEL-02-01 Design model-document-0.9.0.md §2.4, §3.5): spectra are refused by name.
         if _present(self.model.get("spectra")):
             self.refuse("MBF-SI-SPECTRUM-UNSUPPORTED", "model.spectra",
-                        "response spectra (model document 0.9.0) are not exported by the pilot writer")
+                        "response spectra are not exported by the pilot writer")
 
     def check_project_units(self) -> None:
         project = self.model.get("project")
@@ -1062,7 +1062,7 @@ class _Writer:
             # Model document 0.9.0 (§2.4, §3.5): a snubber is refused by name.
             if family == "snubber":
                 self.refuse("MBF-SI-SNUBBER-UNSUPPORTED", entity,
-                            f"{entity} is a snubber (model document 0.9.0), a dynamic-only restraint the pilot writer "
+                            f"{entity} is a snubber, a dynamic-only restraint the pilot writer "
                             "does not export")
                 continue
             support = self.axis_aligned(support, entity)
@@ -1134,7 +1134,7 @@ class _Writer:
             tokens.add(_DOF_TOKENS.get(stiffness.get("dof")))
         if not (numbers and len(nonzero) == 1 and len(tokens) == 1 and next(iter(tokens)) in DOFS[:3]):
             self.refuse("MBF-SI-SUPPORT-DIRECTION-UNSUPPORTED", entity,
-                        f"{entity} has a direction (model document 0.9.0) that is not exactly along one global axis "
+                        f"{entity} has a direction that is not exactly along one global axis "
                         "on a single translational DOF; a skewed restraint is not exported")
             return None
         token = DOFS[nonzero[0]]
@@ -1202,11 +1202,11 @@ class _Writer:
             # Model document 0.9.0 (§1.2, §2.4, §3.5): a case's condition use and test condition are refused by name.
             if "condition_use" in case:
                 self.refuse("MBF-SI-CONDITION-USE-UNSUPPORTED", entity,
-                            f"{entity} uses operating conditions (condition_use, model document 0.9.0), which the "
+                            f"{entity} uses operating conditions (condition_use), which the "
                             "pilot writer does not export")
             if "test_condition" in case:
                 self.refuse("MBF-SI-TEST-CONDITION-UNSUPPORTED", entity,
-                            f"{entity} is a hydrostatic test condition (test_condition, model document 0.9.0), which "
+                            f"{entity} is a hydrostatic test condition (test_condition), which "
                             "the pilot writer does not export")
             loads = case.get("primitive_loads") or []
             if not isinstance(loads, list):
@@ -1267,7 +1267,7 @@ class _Writer:
             if refusal is not None:
                 code, what = refusal
                 self.refuse(code, f"combination:{identity}",
-                            f"combination {identity!r} carries {what} (model document 0.9.0), which the pilot writer "
+                            f"combination {identity!r} carries {what}, which the pilot writer "
                             "does not export")
                 continue
             self.omit("MBF-SI-COMBINATION-NOT-EXPORTED", f"combination:{identity}",

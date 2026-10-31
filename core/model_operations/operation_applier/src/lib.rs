@@ -4049,7 +4049,7 @@ fn resolve_connect_pipe_run(
         checker.push(
             "OP-CONNECT-PIPE-PAYLOAD-INVALID",
             "blocking",
-            "Connect-pipe payload carries condition_set_ref; a pipe's condition set is assigned by its own operation (model document 0.9.0), not by connect_pipe_run.".into(),
+            "Connect-pipe payload carries condition_set_ref; a pipe's condition set is assigned by its own operation, not by connect_pipe_run.".into(),
             "Connect the pipe without condition_set_ref.",
             vec![target_ref.to_string()],
         );
@@ -5153,7 +5153,7 @@ fn resolve_create_support(
             checker.push(
                 "OP-CREATE-SUPPORT-PAYLOAD-INVALID",
                 "blocking",
-                "A support's direction (model document 0.9.0) is not authored by create_support until the support-direction authoring is built; it is never dropped.".into(),
+                "A support's direction is not authored by create_support until the support-direction authoring is built; it is never dropped.".into(),
                 "Create the support without direction.",
                 vec![target_ref.to_string()],
             );
@@ -5453,12 +5453,12 @@ fn resolve_create_load_case(
     };
     if record.contains_key("condition_use") {
         refuse_interim_member(checker, target_ref, pp_conditions::LOAD_CASE_CONDITION_USE_UNSUPPORTED,
-            "A load case's condition_use (model document 0.9.0) is not authored until the operating-condition operations are built.".into());
+            "A load case's condition_use is not authored until the operating-condition operations are built.".into());
         return None;
     }
     if record.contains_key("test_condition") {
         refuse_interim_member(checker, target_ref, pp_conditions::LOAD_CASE_TEST_CONDITION_UNSUPPORTED,
-            "A load case's hydrostatic test_condition (model document 0.9.0) is not authored until the hydrostatic test is built.".into());
+            "A load case's hydrostatic test_condition is not authored until the hydrostatic test is built.".into());
         return None;
     }
 
@@ -6054,7 +6054,7 @@ use open_pipe_stress_product_physics::operating_conditions as pp_conditions;
 /// Model document 0.9.0: authoring a member whose slice has not landed is refused by its
 /// interim code (DEL-02-01 Design `model-document-0.9.0.md` §2.2, §2.4), never dropped.
 fn refuse_interim_member(checker: &mut Checker, target_ref: &str, code: &'static str, message: String) {
-    checker.push(code, "blocking", message, "Author the record without this model document 0.9.0 member; documents carrying it still open, validate and edit.", vec![target_ref.to_string()]);
+    checker.push(code, "blocking", message, "Author the record without this member; documents carrying it still open, validate and edit.", vec![target_ref.to_string()]);
 }
 
 /// §2.2 and absolute-sum-srss §2: a difference basis, a subtrahend support state, an
@@ -6062,18 +6062,18 @@ fn refuse_interim_member(checker: &mut Checker, target_ref: &str, code: &'static
 fn refuse_unauthored_combination_members(model: &Value, record: &serde_json::Map<String, Value>, target_ref: &str, checker: &mut Checker) -> bool {
     let basis = record.get("basis").and_then(Value::as_str).unwrap_or("").trim();
     let refusal = if record.contains_key("difference_basis") {
-        Some((pp_members::LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED, "A combination's difference_basis (model document 0.9.0) is not authored until its gates are built."))
+        Some((pp_members::LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED, "A combination's difference_basis is not authored until its gates are built."))
     } else if record.contains_key("subtrahend_support_state") {
-        Some((pp_members::LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED, "A combination's subtrahend_support_state (model document 0.9.0) is not authored until its solve is built."))
+        Some((pp_members::LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED, "A combination's subtrahend_support_state is not authored until its solve is built."))
     } else if matches!(basis, "absolute_sum" | "srss") {
-        Some((pp_members::LOAD_COMBINATION_UNSIGNED_BASIS_UNSUPPORTED, "An absolute_sum or srss combination (model document 0.9.0) is not authored until unsigned combinations are built."))
+        Some((pp_members::LOAD_COMBINATION_UNSIGNED_BASIS_UNSUPPORTED, "An absolute_sum or srss combination is not authored until unsigned combinations are built."))
     } else {
         let names_combination = |id: &str| find_entity(model, "load_cases", id).is_none() && find_entity(model, "combinations", id).is_some();
         let terms = record.get("terms").and_then(Value::as_array).into_iter().flatten();
         let ids = ["minuend_id", "subtrahend_id"].iter().filter_map(|key| record.get(*key).and_then(Value::as_str))
             .chain(record.get("operand_ids").and_then(Value::as_array).into_iter().flatten().filter_map(Value::as_str));
         let nested = terms.into_iter().any(|term| term.get("combination").is_some()) || ids.into_iter().any(names_combination);
-        nested.then_some((pp_members::LOAD_COMBINATION_NESTED_UNSUPPORTED, "A combination taking a combination as an operand (model document 0.9.0) is not authored until combinations of combinations are built."))
+        nested.then_some((pp_members::LOAD_COMBINATION_NESTED_UNSUPPORTED, "A combination taking a combination as an operand is not authored until combinations of combinations are built."))
     };
     let Some((code, message)) = refusal else { return false };
     refuse_interim_member(checker, target_ref, code, message.into());
@@ -6638,7 +6638,7 @@ fn resolve_create_combination_term(
     };
     if record.contains_key("combination") {
         refuse_interim_member(checker, target_ref, pp_members::LOAD_COMBINATION_NESTED_UNSUPPORTED,
-            "A combination term naming a combination (model document 0.9.0) is not authored until combinations of combinations are built.".into());
+            "A combination term naming a combination is not authored until combinations of combinations are built.".into());
         return None;
     }
     let load_case = record
