@@ -605,6 +605,28 @@ fn a_refused_parse_lease_allocates_nothing_and_never_reaches_the_projection() {
     assert_eq!(registry.pool().reserved_total(), 0);
 }
 
+/// Per-row combination evidence is counted from the borrowed source, never
+/// cloned into a temporary Value tree while the source parse is held.
+#[test]
+fn combination_evidence_is_filtered_before_it_is_copied() {
+    let source = |payload: &str| json!({
+        "contract_evidence": {"other": {"status": "kept"}, "exact_combinations": [{
+            "combination_id": "comb:1", "status": "kept",
+            "rows": vec![json!({"payload": payload}); 128],
+            "recoveries": vec![json!({"payload": payload}); 128],
+            "missing_sources": vec![json!({"payload": payload}); 128],
+        }]},
+    });
+    let small = source("row");
+    let large = source(&"x".repeat(4096));
+    let expected = envelope(&small);
+    let (projected, allocations) = ingress::counting::measure(|| envelope(&large));
+    assert_eq!(projected, expected);
+    assert_eq!(projected.2[0], json!({"combination_id": "comb:1", "rows": 128, "recoveries": 128, "missing_sources": 128}));
+    assert!(allocations.peak_priced < 64 * 1024, "{allocations:?}");
+    assert_eq!(large["contract_evidence"]["exact_combinations"][0]["rows"][0]["payload"].as_str().unwrap().len(), 4096);
+}
+
 /// The response's lease is asked for its exact length after the counting
 /// pass and before the response is allocated; a refusal allocates nothing
 /// of the planes' size.

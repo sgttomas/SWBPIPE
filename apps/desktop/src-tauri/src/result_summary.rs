@@ -38,6 +38,7 @@
 //!   - the response lease (`acquire_result_parse` again, its own cap) of the
 //!     response's exact length, admitted after the counting pass and before
 //!     the response is allocated; the planes are then written into it in place.
+//!     This lease covers construction and ends when the command returns.
 //! - **Off the executor.** As `native_verdict`: on the async runtime only the
 //!   header check, the copy's reservation and the copy; everything else in a
 //!   blocking task.
@@ -45,7 +46,8 @@
 //!   numerical health's working memory; the tables' and the value table's
 //!   `Value`s and the header text (bounded by entities × sets, not rows); the
 //!   ids the intensified-bending rows name and their rows' ordinals; and
-//!   Tauri's copies of the response after the command returns.
+//!   the returned response buffer and Tauri's copies during delivery after
+//!   the command returns, including concurrent replies.
 use crate::command_ingress::{self, ArgsDecoding, CommandError};
 use crate::ingress;
 use crate::memory_pool::Lease;
@@ -190,19 +192,35 @@ fn envelope(source: &Value) -> (Value, Value, Value) {
             carried.insert(member.into(), value.clone());
             continue;
         }
-        let mut evidence = value.clone();
-        if let Some(Value::Array(records)) = evidence.get_mut("exact_combinations") {
-            for record in records.iter_mut().filter_map(Value::as_object_mut) {
-                let mut count = Map::new();
-                count.insert("combination_id".into(), record.get("combination_id").cloned().unwrap_or(Value::Null));
-                for key in PER_ROW_COMBINATION_EVIDENCE {
-                    if let Some(removed) = record.remove(key) {
-                        count.insert(key.into(), json!(removed.as_array().map_or(0, Vec::len)));
+        // Filter the borrowed evidence before cloning any member. The omitted
+        // per-row arrays must never become a second row-scale Value tree.
+        let evidence = match value.as_object() {
+            Some(members) => Value::Object(members.iter().map(|(name, value)| {
+                let projected = if name == "exact_combinations" {
+                    match value.as_array() {
+                        Some(records) => Value::Array(records.iter().map(|record| {
+                            let Some(fields) = record.as_object() else { return record.clone() };
+                            let mut count = Map::new();
+                            count.insert("combination_id".into(), record.get("combination_id").cloned().unwrap_or(Value::Null));
+                            for key in PER_ROW_COMBINATION_EVIDENCE {
+                                if let Some(rows) = record.get(key) {
+                                    count.insert(key.into(), json!(rows.as_array().map_or(0, Vec::len)));
+                                }
+                            }
+                            counts.push(Value::Object(count));
+                            Value::Object(fields.iter()
+                                .filter(|(key, _)| !PER_ROW_COMBINATION_EVIDENCE.contains(&key.as_str()))
+                                .map(|(key, value)| (key.clone(), value.clone())).collect())
+                        }).collect()),
+                        None => value.clone(),
                     }
-                }
-                counts.push(Value::Object(count));
-            }
-        }
+                } else {
+                    value.clone()
+                };
+                (name.clone(), projected)
+            }).collect()),
+            None => value.clone(),
+        };
         carried.insert(member.into(), evidence);
     }
     let omitted: Vec<&String> = source

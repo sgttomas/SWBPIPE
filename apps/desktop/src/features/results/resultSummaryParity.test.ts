@@ -226,6 +226,27 @@ describe("C1 slice 2: S's layout is read exactly or refused by name", () => {
     refused(long, "the header runs past the end");
   });
 
+  it("refuses extra, unknown and reordered plane descriptors", () => {
+    const patched = (change: (header: Json) => void) => {
+      const good = response();
+      const headerLength = Number(new DataView(good.buffer).getBigUint64(8, true));
+      const oldStart = Math.ceil((16 + headerLength) / 8) * 8;
+      const header = JSON.parse(new TextDecoder().decode(good.subarray(16, 16 + headerLength)));
+      change(header);
+      const encoded = new TextEncoder().encode(JSON.stringify(header));
+      const start = Math.ceil((16 + encoded.length) / 8) * 8;
+      const out = new Uint8Array(start + good.length - oldStart);
+      out.set(good.subarray(0, 8));
+      new DataView(out.buffer).setBigUint64(8, BigInt(encoded.length), true);
+      out.set(encoded, 16);
+      out.set(good.subarray(oldStart), start);
+      return out;
+    };
+    refused(patched((header) => header.planes.push({name: "extra", offset: header.planes_bytes, count: 0})), "plane descriptors do not match the summary schema");
+    refused(patched((header) => { header.planes[0].name = "unknown"; }), "plane descriptors do not match the summary schema");
+    refused(patched((header) => { [header.planes[0], header.planes[1]] = [header.planes[1], header.planes[0]]; }), "plane descriptors do not match the summary schema");
+  });
+
   it("refuses a code, ordinal or offset the header does not admit", () => {
     const good = response();
     const summary = decodeResultSummary(good);

@@ -106,6 +106,8 @@ Each slice lists its files, its checks and the existing tests it moves.
   - `standing` is `null` (no reader standing) or `{eligible, findings}`, the reader standing the
     session holds for the result (`resultsSessionState.ts`). The tables withhold exactly as
     `overlayMayShowRow` and `caseWithheldReason` do with that standing and the health below.
+  - S is a projection under the caller's model and standing, not independent verification of
+    either; slice 4 binds and invalidates it by job, model text and standing.
 - **The response** is binary: the magic `SWBSUMv1`, the header's length as a little-endian u64,
   S's JSON header, zero padding to 8 bytes, then little-endian f64 planes at the offsets and
   counts of the header's descriptors (`planes: [{name, offset, count}]`, `planes_bytes`), with
@@ -153,12 +155,18 @@ groups and ratios and `componentBodyNotices`, which look rows up by id (slice 3)
 and the overlays' drawing for a chosen case, quantity and resolution (reaction arrows,
 deformation, rotation glyphs, colour), which runs on the display planes.
 
+`source_block_recovery` stays omitted as the design requires. Slice 4 must serve its
+`body.status` to `ResultsPanel` and its evidence to `PhysicsSourceEvidencePanel` through
+a native status projection and bounded detail queries, without restoring a full-envelope fetch.
+
 **Tests:**
-- Rust (`result_summary_tests.rs`), 12:
-  - each of the 47 cases of `fixtures/results/result_summary_cases.json` equals its committed
+- Rust (`result_summary_tests.rs`):
+  - each of the 45 cases of `fixtures/results/result_summary_cases.json` equals its committed
     response in `result_summary_outcomes.json`, byte for byte (`RESULT_SUMMARY_OUTCOMES_WRITE=1`
     rewrites it), and each case with a findings standing reads the same through the command on a
     retained job;
+  - per-row combination evidence is counted from the borrowed source before any copy;
+    increasing the omitted payload does not create a row-scale temporary;
   - the planes against the rows, bit for bit; the layout, little-endian; every truncation and
     each malformed layout refused by name;
   - S's JSON part on a scaled invented rack: 12 times the station rows add less than 12 KiB, and
@@ -224,6 +232,9 @@ deformation, rotation glyphs, colour), which runs on the display planes.
     reads again. Disposing the job drops all of its entries.
   - The wasm path stays for saved and historical values until slice 6.
 - Panels and overlays read S. The results table pages (§3).
+  - S's cache key is (job id, model-text SHA-256, exact standing, including findings). An
+    edited model or changed standing invalidates S; disposing the job drops its entries.
+    The header's job id alone does not establish the model or standing binding.
 - **Every C1 surface reads S or a native page, never the full rows** (design §2(3)). That
   includes the row lookups by id or kind (interpretation, Knowledge, Toolkit, the workspace's
   `findResult`) and the embedded agent's current `swbpipe_read_results` pages, through
@@ -453,7 +464,9 @@ They're updated in the slice that changes the flow, never deleted without a repl
    held in the webview.
 3. **Pricing residual.** The prescan prices the `Value` parse only. The readers' working sets
    (id vectors, maps over rows) run under that lease unpriced, as `command_ingress`'s residual
-   already states for command working memory. S's response is leased at its exact length; S's
+   already states for command working memory. S's response construction is leased at its exact
+   length until the command returns. The returned buffer and Tauri's delivery copies, including
+   concurrent replies, remain an explicit slice-7 residual after that return. S's
    other working set is bounded by entities and sets, not rows (the tables' `Value`s, about
    1.4 kB per listed displacement or support value, the value table and the header text), plus
    the ids the intensified-bending rows name. Slice 7 measures them; if they're material, the
@@ -526,7 +539,9 @@ configured, the owner-adopted 12 GiB default. The cap is checked under the pool 
   of `native_verdict::prescan_in_order`; one parse lease of M that covers the numerical health's
   parse of the held text and then S's own parse, one after the other; and a response lease
   (`acquire_result_parse`, its own cap) of the response's exact length, admitted after the
-  counting pass and before the response is allocated. Each is capped as above.
+  counting pass and before the response is allocated. The response lease covers construction
+  and ends when the command returns; it does not cover the returned buffer during delivery.
+  Each is capped as above.
 - **Not priced:** the readers' working memory and S's working set (§7, item 3), and the copies
-  Tauri makes of the body before the command runs and of the response after it returns (as for
-  every command).
+  Tauri makes of the body before the command runs, plus the returned response buffer and
+  Tauri's copies during delivery after return, including concurrent replies (§7, item 3).

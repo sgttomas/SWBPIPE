@@ -32,6 +32,7 @@ export const STRESS_COLUMNS = Object.freeze([
 ] as const);
 const DISPLAY_CODES = DISPLAY_COLUMNS.slice(2);
 const STRESS_CODES = ["stress.case_label", "stress.entity_ref", "stress.station", "stress.component", "stress.section_basis", "stress.unit"] as const;
+const PLANE_NAMES: readonly string[] = [...DISPLAY_COLUMNS, SOURCE_OFFSETS, SOURCE_REFS, ...STRESS_COLUMNS];
 
 export class ResultSummaryMalformed extends Error {
   constructor(reason: string) {
@@ -86,6 +87,9 @@ export function decodeResultSummary(input: ArrayBuffer | Uint8Array): ResultSumm
   const total = count(header.planes_bytes, "planes_bytes");
   if (bytes.length - start !== total) fail("the planes are not the response's remaining bytes");
   if (!Array.isArray(header.planes)) fail("no plane descriptors");
+  if (header.planes.length !== PLANE_NAMES.length || header.planes.some((descriptor: Json, i: number) => descriptor?.name !== PLANE_NAMES[i])) {
+    fail("plane descriptors do not match the summary schema");
+  }
   const planes = new Map<string, Float64Array>();
   let expected = 0;
   for (const descriptor of header.planes as Json[]) {
