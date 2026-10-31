@@ -34,6 +34,21 @@ needs:
     (`imposed_motion.rs`). Constant-effort supports contribute no stiffness and no mass.
   gating: true
   evidence: core/solver/linear_supports
+- from: DEL-04-04
+  condition: >-
+    DEL-04-09 linearizes each nonlinear support at the converged state of a named solved case, read from
+    DEL-04-04's published support states (`nonlinear_support_active_set_state_code` rows): active or
+    sticking restrains the support's DOF with the stiffness the static solve uses in that state, inactive
+    or sliding frees it. An absent, unsolved or unconverged case is refused by name (Design §1.2, D-s).
+  gating: true
+  evidence: core/solver/nonlinear_supports
+- from: DEL-02-01
+  condition: >-
+    Model document 0.9.0 carries the snubber support family (translational restraints or one skew
+    direction, optional single dynamic stiffness). DEL-04-09 includes snubbers in the modal basis when the
+    request includes dynamic-only restraints, and ignores them otherwise, disclosed either way (D-t).
+  gating: true
+  when: Before modal admits models containing snubbers.
 - from: DEL-04-06
   condition: >-
     An unrestrained or mechanism model is refused through DEL-04-06's singular-model detection and
@@ -46,14 +61,17 @@ needs:
     (`run_linear_static_preview_with_mode`). It reads the built PF model (`BuiltModel`) in a separate pass
     that adds no frame to `build_member` or the AC-004 peak chain. It resolves the modulus basis with
     `materials_for_modulus_basis_observed`, chooses its path by `PreviewSolverMode`, and sizes its dense
-    guard against the dense scrutiny ceiling (`DENSE_SCRUTINY_CEILING_BYTES`). The exact route,
-    load/reference-state documents and Timoshenko straights are refused by name (Design §1.2).
+    guard against the dense scrutiny ceiling (`DENSE_SCRUTINY_CEILING_BYTES`). It admits both routes:
+    on EX, the same assembly with the D-5 nominal-wall sections and no load-dependent stiffness, and the
+    families EX admits as RT-A3 extends them. Load/reference-state documents and Timoshenko straights on
+    either route are refused by name (Design §1.2, D-r).
   gating: true
   evidence: core/product_physics/src/lib.rs
 - from: DEL-05-01
   condition: >-
-    The mass basis is the self-weight basis. DEL-04-09 reads DEL-05-01's PF mass per length
-    (`stable_mass_per_length`, `STABLE_MASS_METHOD` `source_od_effective_wall_areas/v1`) and the
+    The mass basis is the self-weight basis on the model's route. DEL-04-09 reads DEL-05-01's mass per
+    length (`stable_mass_per_length`: on PF `STABLE_MASS_METHOD` `source_od_effective_wall_areas/v1`, on EX
+    `EXACT_MASS_METHOD` `source_od_nominal_wall_pressure_bore_areas/v1`) and the
     component eligibility function (`component_weights`), both exposed `pub(crate)` without change of
     meaning. It runs the generator in inspection mode (`generate_operations(…, true)`) for the identity
     check, and reads applied self-weight evidence (`inspect_applied_self_weight`, the component

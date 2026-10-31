@@ -9,11 +9,11 @@ package_objective_refs: [OBJ-003]
 
 # Scope of Work — DEL-04-09 Modal analysis
 
-**Basis:** decomposition revision 0.16 (SOW-081, OBJ-003), PRD FR-SOL-016 and §12.9, and SCA-013 (`execution/_ScopeChange/SCA-013_2026-10-27_MODAL_ANALYSIS/DECISION.md`). Agent 0 (HELP_HUMAN) decided this scope on 2026-10-27 under the owner's delegation in `loop/LOOP_INIT.md`. These commitments and acceptance criteria are pending an independent review of their text. Nothing in them is built. They assert no completion, acceptance or release. The governing design is [Work/modal-analysis.md](Work/modal-analysis.md). Paths are relative to `projects/chirality-piping/`. Standard claim fence applies (claims taxonomy per DEC-081).
+**Basis:** decomposition revision 0.16 (SOW-081, OBJ-003), PRD FR-SOL-016 and §12.9, and SCA-013 (`execution/_ScopeChange/SCA-013_2026-10-27_MODAL_ANALYSIS/DECISION.md`). Agent 0 (HELP_HUMAN) decided this scope on 2026-10-27 under the owner's delegation in `loop/LOOP_INIT.md`, and amended it on 2026-10-31 for v1.0's exit criterion 1 (`docs/RELEASE_TARGET_v1.0.md` RT-A7): the exact route on its own mass basis, nonlinear supports linearized at a named solved case, and snubbers in the modal basis when requested. These commitments and acceptance criteria are pending an independent review of their text. Nothing in them is built. They assert no completion, acceptance or release. The governing design is [Work/modal-analysis.md](Work/modal-analysis.md). Paths are relative to `projects/chirality-piping/`. Standard claim fence applies (claims taxonomy per DEC-081).
 
 ## Purpose and Objective Traceability
 
-This deliverable computes the natural frequencies and mode shapes of the linear pressure-free piping model, on a mass basis identical to its self-weight basis. It checks each extracted set for accuracy and completeness, and refuses by name what it does not admit. It serves OBJ-003 (a robust global centerline/frame solver) through SOW-081.
+This deliverable computes the natural frequencies and mode shapes of the linear piping model, on the pressure-free (PF) and exact pressure (EX) routes, on a mass basis identical to the route's self-weight basis. It checks each extracted set for accuracy and completeness, and refuses by name what it does not admit. It serves OBJ-003 (a robust global centerline/frame solver) through SOW-081.
 
 - **OUT-001** — The mass model: consistent mass on straight members, rigid-body lumps on realized arcs and component bodies, on the self-weight basis, with its weight-basis identity check (REQ-001).
 - **OUT-002** — The modal request: its required extraction bound, modulus basis and weight-to-mass acceleration (REQ-002).
@@ -25,11 +25,11 @@ This deliverable computes the natural frequencies and mode shapes of the linear 
 
 ### CLM-001 — The method
 
-F1 solves the generalized eigenproblem K_ff φ = ω² M_ff φ on the free degrees of freedom of the linear pressure-free (PF) model.
-- K_ff is the restraint-reduced stiffness of the PF static solve, without load-dependent terms.
+F1 solves the generalized eigenproblem K_ff φ = ω² M_ff φ on the free degrees of freedom of the linear model, on the PF route or the EX route.
+- K_ff is the restraint-reduced stiffness of the route's static solve, without load-dependent terms (EX adds none: pressure enters only as loads). Nonlinear supports enter at the state of a named solved case (REQ-006), and dynamic-only restraints when the request includes them.
 - M_ff is the restraint-reduced mass of the mass model (REQ-001).
 
-For each mode it publishes the frequency, circular frequency and period; the shape, normalized to unit maximum translation, or, for a mode with no translation such as pure torsion, to unit maximum rotation (REQ-005), and its generalized mass; and the translational participation factors, effective masses and effective-mass fractions, with their cumulative sums. For each result it publishes the model's mass by category and the free-DOF mass. Response-spectrum, time-history and harmonic analysis are not part of this deliverable (SCA-013).
+For each mode it publishes the frequency, circular frequency and period; the shape, normalized to unit maximum translation, or, for a mode with no translation such as pure torsion, to unit maximum rotation (REQ-005), and its generalized mass; and the translational participation factors, effective masses and effective-mass fractions, with their cumulative sums. For each result it publishes the model's mass by category and the free-DOF mass. Response-spectrum analysis is DEL-04-10's, on this deliverable's modal basis (SCA-014); time-history and harmonic analysis are not part of either (DEC-078).
 
 ### CLM-002 — What this deliverable owns, and what it takes as input
 
@@ -47,9 +47,11 @@ For each mode it publishes the frequency, circular frequency and period; the sha
 - DEL-04-01: kernel assembly, reduction, the curved-bend element, `sparse_direct` with one read-only observation accessor (M1b), and K-D5's element re-formation through one read-only entry (M1b);
 - DEL-04-02: the straight pipe element and its uniform-load vector;
 - DEL-04-03: linear supports and imposed-displacement DOFs;
+- DEL-04-04: the converged support states of a solved case, read for the linearization of nonlinear supports;
+- DEL-02-01: the snubber support family's document shape (model document 0.9.0);
 - DEL-04-06: singular-model detection;
 - DEL-04-07: product solve integration;
-- DEL-05-01: the self-weight generator and its mass per length;
+- DEL-05-01: the self-weight generator and its mass per length on both routes;
 - DEL-03-05: rigid-family components;
 - DEL-04-08: the retained-memory pricing law;
 - DEL-02-02: units, including the unit families for modal quantities (frequency, angular frequency, rotation per length, length per rotation, mass moment of inertia), before M1b;
@@ -63,15 +65,15 @@ These deliverables keep their scope. The two read-only seams are additions to DE
 
 - **Built:** nothing.
 - **Sequence** (Agent 0, 2026-10-27):
-  1. M1a, mass;
-  2. M1b, the dense path, with every integrity check of REQ-003, including the Sturm count's shift placement, its growth limit and the `sparse_direct` observation accessor;
-  3. M2, the sparse path;
-  4. M3, UI.
+  1. M1a, mass on both routes;
+  2. M1b, the dense path, with every integrity check of REQ-003, including the Sturm count's shift placement, its growth limit and the `sparse_direct` observation accessor, and the linearization of nonlinear supports at a named case (formerly M5);
+  3. M3, UI;
+  4. M2, the sparse path (Agent 0, 2026-10-31: after the views and before response-spectrum results, reordered if the dense guard bites earlier).
 
   "The unpivoted-LDLᵀ inertia risk" is "a first-class test target" from M1b, whose counts first use it, through M2. The count infrastructure moved from M2 into M1b after Codex round 2, so that M1b can publish dense results with the full checks.
-- **Start and queue.** The build starts after PF Timoshenko (#1663) is in review. D3 runs join the queue on Agent 0's go.
+- **Start and queue.** PF Timoshenko (#1663) has landed. D3 runs join the queue on Agent 0's go. On EX, the families that EX itself admits only after RT-A3 (DEL-04-07) are admitted by modal when RT-A3 admits them.
 - **FR-SOL-016 stays partial** until REQ-010's published-benchmark comparison is recorded, whatever the state of M1a to M3.
-- **Later slices, outside this deliverable's current commitments:** M4 (Timoshenko mass), M5 (nonlinear supports linearized at a named state) and M6 (the mass-point helper), and a concentrated-mass field (W-17).
+- **Later slices, outside this deliverable's current commitments:** M4 (Timoshenko mass, on either route) and M6 (the mass-point helper), and a concentrated-mass field (W-17).
 
 ## Completion and Reliance Basis — Epistemology
 
@@ -80,7 +82,7 @@ Nothing in these commitments bounds modelling, input or physical error. The inte
 ### Mass
 
 - **REQ-001** — *The mass basis is the self-weight basis.*
-  - **Straight members** carry the Hermitian consistent mass, with linear axial and torsional mass and Rayleigh rotary inertia. Their mass per length is exactly the self-weight generator's PF mass per length (`stable_mass_per_length`: metal, contents and insulation).
+  - **Straight members** carry the Hermitian consistent mass, with linear axial and torsional mass and Rayleigh rotary inertia. Their mass per length is exactly the self-weight generator's mass per length on the model's route (`stable_mass_per_length`): on PF, `source_od_effective_wall_areas/v1` (metal and contents on the wall t − c_m); on EX, `source_od_nominal_wall_pressure_bore_areas/v1` (metal on the nominal wall, contents on the pressure bore); insulation alike on both.
   - **Inertia terms.** Contents are in all three translations and excluded from torsional and rotary inertia, which is disclosed.
   - **Realized arcs** carry two rigid-body half-arc lumps with the half-arcs' exact mass, centroid and second moments.
   - **Components.** An eligible rigid-family component carries a rigid-body lump of mass W/a at its centre of gravity, in place of the member's pipe mass. Eligibility is decided by the same function self-weight uses, called once per member. A component that self-weight does not apply keeps the pipe mass, with the same warning.
@@ -88,8 +90,8 @@ Nothing in these commitments bounds modelling, input or physical error. The inte
   - **Massless families.** Objective connectors, tie rods and constant-effort supports carry no mass, which is disclosed.
   - **Restrained DOFs.** Mass at restrained DOFs is excluded from M_ff and disclosed with the total model mass.
   - **No defaulted mass.** No density, mass or acceleration is defaulted; a missing required input refuses by name.
-  - **Weight-basis identity.** Every result runs a blocking check, the regression "g·M·1 = self-weight" (Agent 0, 2026-10-27). For each global direction k, a·M·r_k on the full mass is compared with the self-weight generator's loads at gravity a along k over all members. The identity holds nodally for straight members, against the consistent uniform-load vector, and on the resultant force and moment for arcs and components, each within a measured tolerance; it is not literal vector equality for every family. The tolerance is measured in M1a on the frozen references, then pinned as a relative and absolute pair and only tightened (DEC-026); until then no modal result is published. A failure refuses with `MODAL_MASS_WEIGHT_BASIS_MISMATCH`, naming the member or component.
-- **AC-001** — On the frozen `f1_modal` mass references, for straights, arcs, an eligible component, a component with an offset centre of gravity, an ineligible component and the massless families:
+  - **Weight-basis identity.** Every result runs a blocking check, the regression "g·M·1 = self-weight" (Agent 0, 2026-10-27). For each global direction k, a·M·r_k on the full mass is compared with the self-weight generator's loads at gravity a along k over all members, on the model's route. The identity holds nodally for straight members, against the consistent uniform-load vector, and on the resultant force and moment for arcs and components, each within a measured tolerance; it is not literal vector equality for every family. The tolerance is measured in M1a on the frozen references, then pinned as a relative and absolute pair and only tightened (DEC-026); until then no modal result is published. A failure refuses with `MODAL_MASS_WEIGHT_BASIS_MISMATCH`, naming the member or component.
+- **AC-001** — On the frozen `f1_modal` mass references, on both routes' mass bases, for straights, arcs, an eligible component, a component with an offset centre of gravity, an ineligible component and the massless families:
   - the product mass matrices, totals by category and free-DOF masses agree with the references within their recorded tolerances;
   - the identity check passes on each reference model, within the tolerance pinned in M1a, whose measurement is recorded;
   - a corrupted formed mass, with the model and its self-weight basis unchanged (a member's formed mass scaled as if its density differed, a component body dropped, a component body on the wrong node), is refused with `MODAL_MASS_WEIGHT_BASIS_MISMATCH`;
@@ -107,12 +109,14 @@ Nothing in these commitments bounds modelling, input or physical error. The inte
     - **Whole spectrum:** if the reported set is the whole finite spectrum, the final shift lies a stated relative offset above its largest eigenvalue, and the separation applies on the lower side only (Design §3.4).
   - **Cut-off sizing.** On the sparse path, a cut-off-only request is sized by a count at a stated relative offset above f_c. That count only sizes the extraction; it is not the completeness count. If the factorization there is singular or rejected by the growth monitor, it is retried at a second, documented offset, which the result records; the offset never changes silently.
   - **Modulus basis.** It uses a load case's vocabulary and the existing resolver.
+  - **Linearization case.** When the model has a nonlinear support, the request names a solved case whose converged support states linearize it (REQ-006). It has no default; a request without it is refused (`MODAL_LINEARIZATION_CASE_REQUIRED`, naming the supports).
+  - **Dynamic-only restraints.** When the model has a snubber, the request states whether dynamic-only restraints are included. It has no default; a request without the choice is refused (`MODAL_DYNAMIC_RESTRAINT_CHOICE_REQUIRED`). A response-spectrum solve includes them (DEL-04-10).
   - **Weight-to-mass acceleration.** `weight_to_mass_acceleration` is a positive acceleration, normalized through the unit catalog.
     - It is required when a component's weight enters the mass; without it the request is refused (`MODAL_WEIGHT_ACCELERATION_REQUIRED`, naming the components).
     - When the model carries a current applied component-weight self-weight primitive, the magnitude of that primitive's recorded acceleration must equal a, bit for bit after normalization. Otherwise the request is refused (`MODAL_WEIGHT_ACCELERATION_MISMATCH`, naming the case and both values).
   - **Recording.** The request is recorded with the result and in the analysis-run record.
 - **AC-002** — Maintained tests show:
-  - each refusal for a request without a bound, without a required acceleration, or with a mismatched acceleration;
+  - each refusal for a request without a bound, without a required acceleration, with a mismatched acceleration, without a required linearization case or without a required dynamic-restraint choice;
   - extraction stopping at the count, at the cut-off, and at whichever comes first when both are given, with the stopping bound stated;
   - a mode exactly at the cut-off included, with the completeness count taken at the final shift above it;
   - on the sparse path, the second sizing offset used and recorded when the first is singular;
@@ -190,15 +194,16 @@ Nothing in these commitments bounds modelling, input or physical error. The inte
 ### Domain, limits and surfaces
 
 - **REQ-006** — *Admitted, disclosed and refused.*
-  - **Admitted:** straight members and tee legs; realized arcs; geometry-only bends as their straight members; rigid-family components; linear supports and springs; constant-effort supports, objective connectors and tie rods, disclosed as massless and, for constant-effort supports, as stiffness-free; annotation-only expansion joints as pipe; imposed-displacement DOFs, kept restrained.
-  - **Ignored and disclosed:** thermal, pressure-region, wind, seismic, nodal and member loads.
+  - **Admitted:** models on the PF route and on the EX route, each on its own section and mass basis, with every family below that the route itself admits; straight members and tee legs; realized arcs; geometry-only bends as their straight members; rigid-family components; linear supports and springs; constant-effort supports, objective connectors and tie rods, disclosed as massless and, for constant-effort supports, as stiffness-free; annotation-only expansion joints as pipe; imposed-displacement DOFs, kept restrained.
+  - **Nonlinear supports, linearized and disclosed.** Each nonlinear support takes its converged state in the named solved case (REQ-002): active or sticking, it restrains its DOF with the stiffness the static solve uses in that state; inactive or sliding, it leaves its DOF free. The result names the case and each support's state. A named case that is absent, unsolved or not converged is refused (`MODAL_LINEARIZATION_CASE_UNAVAILABLE`, naming the case).
+  - **Snubbers.** When dynamic-only restraints are included, each snubber restrains its translational DOFs rigidly or with its stated stiffness; otherwise it is ignored. Either way it is disclosed.
+  - **Ignored and disclosed:** thermal, pressure, pressure-region, wind, seismic, nodal and member loads; on EX, the absence of pressure stiffening, as the EX static limitation states.
   - **Refused by name:**
-    - nonlinear supports (`MODAL_NONLINEAR_SUPPORT_UNSUPPORTED`);
-    - the exact route and load/reference-state documents (`MODAL_EXACT_ROUTE_UNSUPPORTED`);
-    - Timoshenko straights until M4 (`MODAL_TIMOSHENKO_MASS_UNSUPPORTED`);
+    - load/reference-state documents (`MODAL_LOAD_REFERENCE_STATE_UNSUPPORTED`);
+    - Timoshenko straights on either route until M4 (`MODAL_TIMOSHENKO_MASS_UNSUPPORTED`);
     - an unrestrained or mechanism model, through the existing singularity refusal.
   - **Warning.** A member that is too coarsely discretized for the highest reported frequency is warned (`MODAL_MASS_DISCRETIZATION_COARSE`). Its factor is derived by benchmark and stated in the warning.
-- **AC-006** — Each refusal and disclosure in REQ-006 is exercised by a maintained test that asserts its code and named object. The discretization warning's factor is derived from a recorded benchmark.
+- **AC-006** — Each refusal and disclosure in REQ-006 is exercised by a maintained test that asserts its code and named object, on both routes. Maintained tests show a nonlinear support taking each state from its named case, with frequencies equal to those of the matching linear model, and a snubber changing the frequencies only when dynamic-only restraints are included. The discretization warning's factor is derived from a recorded benchmark.
 - **REQ-007** — *Resource limits and the retained route.*
   - **Guards.** Before allocation, the dense path applies a memory guard (its live n²-sized buffers, the Sturm factorization's included, against the provisional 6 GiB ceiling) and a work guard (9n³ plus n³/3 per candidate Sturm shift, at most a stated number of them, against a budget measured in M1b). The sparse path applies a memory guard on its peak live allocation, 32P + 8n(q + b) + 24q² + c·n bytes: four profile value arrays (K, M, the shifted profile and its clone in the factor), the Lanczos workspace, the projected problem and the per-DOF metadata, with c stated by the implementation. It is rechecked whenever q or b grows. A cut-off-only request is sized from REQ-002's sizing count at the cut-off, taken before Lanczos. Each refusal states its formula. A guard refuses; it never truncates the extraction.
   - **Retained route.** F1 never enters the retained Direct entry or D1.
@@ -270,7 +275,7 @@ Each slice also gets the independent review that the Root `AGENTS.md` requires f
 - **AX-003** — *No new numerical dependency* (DEC-023). Both paths are in-house, std only.
 - **AX-004** — *No relaxation.* A check is never loosened to obtain a pass. Tolerances are measured under DEC-026 and only tightened. Frozen references are never altered to make an implementation pass.
 - **AX-005** — *Independent scrutiny.* Numerical changes get targeted regression checks and independent review by a separate agent (Root `AGENTS.md`).
-- **AX-006** — *Scope.* Modal analysis only. Response spectrum re-entered scope by SCA-014 (owner, 2026-10-28) and is not yet assigned to a deliverable; time history stays deferred under DEC-078.
+- **AX-006** — *Scope.* Modal analysis only. Response spectrum re-entered scope by SCA-014 (owner, 2026-10-28) and is DEL-04-10's, on this deliverable's modal basis; time history stays deferred under DEC-078.
 - **AX-007** — *Held by the owner:* release, acceptance and issuance, risk acceptance and holds (F-PIP-3), and the review of any report held for uncertain rights. This deliverable activates nothing beyond its own entry.
 
 ## Output and Evaluation Matrix

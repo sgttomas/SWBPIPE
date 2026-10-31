@@ -1,6 +1,6 @@
 # F1 modal analysis: governing design
 
-**Status.** This is DEL-04-09's governing design for F1, modal analysis (natural frequencies and mode shapes). Scope entered by SCA-013 (`execution/_ScopeChange/SCA-013_2026-10-27_MODAL_ANALYSIS/DECISION.md`). Nothing is built. The decisions below are Agent 0's (HELP_HUMAN) of 2026-10-27, made under the owner's delegation in `loop/LOOP_INIT.md` (#1662). This design makes no acceptance, issuance or lifecycle statement (F-PIP-3). Standard claim fence applies (claims taxonomy per DEC-081).
+**Status.** This is DEL-04-09's governing design for F1, modal analysis (natural frequencies and mode shapes). Scope entered by SCA-013 (`execution/_ScopeChange/SCA-013_2026-10-27_MODAL_ANALYSIS/DECISION.md`). Nothing is built. The decisions below are Agent 0's (HELP_HUMAN) of 2026-10-27, made under the owner's delegation in `loop/LOOP_INIT.md` (#1662), amended by Agent 0's decisions of 2026-10-31 on the dynamics lane's plan for v1.0 (`docs/RELEASE_TARGET_v1.0.md` RT-A7, exit criterion 1): the exact route on its own mass basis (D-r), nonlinear supports linearized at a named solved case (D-s), snubbers in the modal basis when requested (D-t), and the published-fixture review record (D-u). This design makes no acceptance, issuance or lifecycle statement (F-PIP-3). Standard claim fence applies (claims taxonomy per DEC-081).
 
 **Basis.** It was researched against main `0280fd4486`, together with the PF Timoshenko design `execution/PKG-05/DEL-05-03/Work/pf-timoshenko.md` (#1663, in review; not on main at that commit) and the feature survey `execution/_Coordination/PROPOSAL_2026-10-26_FEATURE_SURVEY.md` (#1657, open). Paths are relative to `projects/chirality-piping/` unless they start with `/`. "PP `lib.rs`" is `core/product_physics/src/lib.rs`.
 
@@ -16,7 +16,7 @@
 
 - **[design]** FR-024 (dynamic analysis modules) was explicitly deferred by DEC-078 (D-12, owner 2026-07-15). DEC-078 required that "any future dynamics scope re-enters only through a new governed scope change with its own human decision packet" (`execution/_Decomposition/SOFTWARE_DECOMP.md`, DEC-078).
 - **[decided]** SCA-013 re-enters it for **modal analysis only**: PRD FR-SOL-016 and §12.9, scope item SOW-081, and this deliverable. Agent 0 decided it under the owner's delegation of 2026-10-27; the reason is recorded in the SCA-013 decision.
-- **Out of scope:** response spectrum (F2), time history (F3), harmonic analysis and every other dynamic module. They stay deferred under DEC-078.
+- **Out of scope:** response spectrum (F2), which SCA-014 re-entered and DEL-04-10 owns on this deliverable's modal basis (`execution/PKG-04/DEL-04-10/Work/response-spectrum.md`); time history (F3), harmonic analysis and every other dynamic module, which stay deferred under DEC-078.
 
 ---
 
@@ -28,8 +28,9 @@
 
   K_ff φ = ω² M_ff φ
 
-on the free degrees of freedom of the linear pressure-free (PF) model.
-- K_ff is the assembled, restraint-reduced stiffness that the PF static solve forms. It is the case-independent part of the static K: thermal, pressure, wind and seismic loads do not enter it.
+on the free degrees of freedom of the linear model, on the pressure-free (PF) route or the exact pressure (EX) route (D-r).
+- K_ff is the assembled, restraint-reduced stiffness that the route's static solve forms. It is the case-independent part of the static K: thermal, pressure, wind and seismic loads do not enter it. [code] EX shares PF's assembly (`build_model_for_basis`, `assemble_basis_stiffness`, PP `lib.rs:4316`) with its own D-5 nominal-wall sections, and adds no load-dependent stiffness (`exact_admission.rs:117`: pressure stiffening "Not modelled").
+- Nonlinear supports enter at the converged state of a named solved case (D-s), and snubbers when the request includes dynamic-only restraints (D-t).
 - M_ff is a new mass matrix whose basis is the self-weight basis (§2).
 - The only case-dependent input is the modulus basis (§1.4).
 
@@ -47,9 +48,11 @@ on the free degrees of freedom of the linear pressure-free (PF) model.
 | Objective connectors (expansion joints), tie rods | **Admitted, massless, disclosed** | [code] Linear elastic (`core/solver/frame_kernel/src/connector.rs:1-3`; `tie_rod.rs:1-3`, "bilateral linear elastic"). Self-weight applies no weight to them (`self_weight.rs:569` filters to the rigid family), so massless keeps the two bases identical. |
 | Annotation-only expansion joints | **Admitted as pipe**, with the existing disclosure | [code] `joint.rs:5-6`. |
 | Imposed displacement (W-16) | **Admitted**: the DOF is a rigid support DOF and stays restrained; the motion value does not enter | [design] PF imposed displacement acts only on rigid support DOFs, by partitioned elimination (DEL-04-08 `Work/retained-pricing-rules.md` §8.23). |
-| Nonlinear supports (one-way, gaps, friction) | **Refused by name** (`MODAL_NONLINEAR_SUPPORT_UNSUPPORTED`, naming the support) | [decided] The stiffness depends on contact state. A modal result needs a stated state, and choosing one silently would be an engineering default. A later slice (M5) can linearize at a named static case's converged active set. |
-| Exact route (`pressure_contract` present), load/reference-state documents | **Refused by name** (`MODAL_EXACT_ROUTE_UNSUPPORTED`) | [decided] Different section bases (D-5), the exact mass method (`self_weight.rs:840-845`) and its own integrity checks. A later slice. |
-| Timoshenko straights (`model_settings.shear_model = timoshenko_annulus_energy_v1`) | **Refused by name in M1** (`MODAL_TIMOSHENKO_MASS_UNSUPPORTED`). **M4** admits them with a Timoshenko consistent mass, after the PF Timoshenko unit lands | [design] PF Timoshenko is in review (#1663) and needs model document 0.8.0 (#1649). [decided] Pairing a shear-flexible K with an Euler–Bernoulli mass would be inconsistent, so it is refused rather than mixed. |
+| Nonlinear supports (one-way, gaps, lift-off, friction) | **Admitted, linearized at a named solved case, disclosed** (D-s, formerly M5): active or sticking, the support restrains its DOF with the stiffness the static solve uses in that state; inactive or sliding, its DOF is free. The case is a required request input (`MODAL_LINEARIZATION_CASE_REQUIRED`); an absent, unsolved or unconverged case is refused (`MODAL_LINEARIZATION_CASE_UNAVAILABLE`) | [decided] The stiffness depends on contact state, so a modal result needs a stated state; the user names it, which is not a default. [code] The converged states survive a solve as `nonlinear_support_active_set_state_code` rows (PP `lib.rs:7499-7530`). The result names the case and each support's state. |
+| Exact route (`pressure_contract` present) | **Admitted** on its own section basis (D-5 nominal wall) and mass basis (`EXACT_MASS_METHOD`, §2.1), with every family EX itself admits (more as RT-A3 lands) | [decided] D-r: exit criterion 1 needs modal on EX. EX's stiffness is PF's assembly on its own sections, with no load-dependent term, and its self-weight basis gives the mass, so the identity of §2.5 holds on the route's own basis. Pressure is a load and is ignored, with EX's own disclosure that pressure stiffening is not modelled. |
+| Load/reference-state documents | **Refused by name** (`MODAL_LOAD_REFERENCE_STATE_UNSUPPORTED`) | [decided] Their cases resolve per-case model states; a modal basis on one of them needs a stated case, a later slice. |
+| Snubbers (model document 0.9.0, `SupportFamily` `snubber`) | **Admitted when the request includes dynamic-only restraints** (a required choice when the model has one, `MODAL_DYNAMIC_RESTRAINT_CHOICE_REQUIRED`): rigid in their translational DOFs or skew direction, or a spring of their stated stiffness; otherwise ignored. Disclosed either way | [decided] D-t: snubbers are dynamic-only restraints (SCA-014). A spectrum solve includes them (DEL-04-10). |
+| Timoshenko straights (`model_settings.shear_model` on PF, `pressure_contract.shear_model` on EX, `timoshenko_annulus_energy_v1`) | **Refused by name on either route** (`MODAL_TIMOSHENKO_MASS_UNSUPPORTED`). **M4** admits them with a Timoshenko consistent mass | [design] PF Timoshenko has landed (#1663, model document 0.8.0). Agent 0, 2026-10-31: refused until M4; the v1.0 reference system uses Euler–Bernoulli members. [decided] Pairing a shear-flexible K with an Euler–Bernoulli mass would be inconsistent, so it is refused rather than mixed. |
 | Retained route (route L/E, D1) | **Not entered** | [decided] F1 is a separate entry point with no retained-precision variant (§3.6). |
 | Thermal, pressure-region, wind, seismic, nodal and member loads | **Ignored**: not inputs to a modal solve; disclosed, not refused | [decided] |
 
@@ -77,6 +80,8 @@ on the free degrees of freedom of the linear pressure-free (PF) model.
   - [code] Load cases carry these (PP `lib.rs:815-828`), and `materials_for_modulus_basis_observed` resolves them (PP `lib.rs:10842`, called at `:3161`). F1 reuses that resolver unchanged.
 - **Weight-to-mass acceleration.** `weight_to_mass_acceleration` (a positive acceleration quantity). It is required when a rigid-family component's weight enters the mass, and it is never defaulted (§2.3).
 - **`solver_mode`** chooses the path: `dense_scrutiny` (M1b) or `sparse_interactive` (M2).
+- **`linearization_case`** (D-s): the id of a solved case whose converged support states linearize the nonlinear supports. Required when the model has one, refused when absent; recorded with each support's state.
+- **`include_dynamic_only_restraints`** (D-t): a boolean, required when the model has a snubber, with no default. A response-spectrum solve sets it (DEL-04-10).
 
 ### 1.5 Outputs
 
@@ -128,6 +133,7 @@ Agent 0, 2026-10-27: "consistent mass on straights, rigid-body lumps on arcs and
   - W is the authored force. The acceleration contributes only its sign: `wrench` takes `f = if acceleration > 0.0 { weight } else { -weight }` (`self_weight.rs:507-508`). [design] The W-15 reference states the convention: "The acceleration's magnitude does not scale W: W is the user's force." (`validation/references/w15_component_weight/README.md`, Convention.)
   - The component primitive's evidence records the case's acceleration as `normalized_acceleration_m_per_s2` (`self_weight.rs:707-708`).
   - A component that fails a condition (consumption not geometry-only, missing weight or centre of gravity, mapping conflict) leaves the member its pipe weight, with a warning naming it (`self_weight.rs:600-620`; `COMPONENT_WEIGHT_NOT_APPLIED`, `:473`).
+- **[code] The EX mass basis** (D-r). The same function serves EX with `exact = true` (`self_weight.rs:311`, `:784-798`): `EXACT_MASS_METHOD = "source_od_nominal_wall_pressure_bore_areas/v1"` (`self_weight.rs:855`), metal on the nominal wall t and contents on the pressure bore from t_r = (t − c_m) − c_a, with an explicit `corrosion_allowance` required; insulation as on PF. EX seismic generation uses the same basis (`exact_generation_mass_per_length`, `self_weight.rs:844`). F1 on EX takes its m̄ from this method, and the component-weight path (`component_weights`) is route-independent.
 - **[code] Finding: a second mass basis.** Seismic equivalent-static generation forms its mass with `compute_pipe_mass_per_length` (PP `lib.rs:10293-10420`, called at `:10502`), not with `stable_mass_per_length`.
   - It forms π/4·(OD² − ID²) directly, not through the annulus source-area functions.
   - It loops over every pipe segment and does not substitute component weights for rigid-family members.
@@ -145,8 +151,8 @@ Agent 0, 2026-10-27: "consistent mass on straights, rigid-body lumps on arcs and
 | Rigid-family component body | **Lumped**: one 6×6 rigid-body mass about the component node. Mass m = W/a (§2.3), offset r = the centre of gravity, rotational block m·[r]×ᵀ[r]× (a point mass at the centre of gravity; the body's own inertia about its centre of gravity is not authored, so it is zero, and that is disclosed) |
 
 Per-length quantities on the self-weight section basis:
-- m̄ = metal + contents + insulation, exactly `stable_mass_per_length` (`self_weight.rs:731`).
-- j̄ (polar, per length) = ρ_p·J_metal + ρ_ins·J_ins, with J of an annulus = A(r_o² + r_i²)/2. Contents are excluded (D-e).
+- m̄ = metal + contents + insulation, exactly `stable_mass_per_length` (`self_weight.rs:731`) on the model's route (PF or EX, §2.1).
+- j̄ (polar, per length) = ρ_p·J_metal + ρ_ins·J_ins, with J_metal on the metal wall of the route's mass basis (t − c_m on PF, t on EX), with J of an annulus = A(r_o² + r_i²)/2. Contents are excluded (D-e).
 - ī (bending rotary, per axis, per length) = j̄/2 for the circular sections PF has.
 
 Reasons:
@@ -198,7 +204,7 @@ This basis is settled here and goes to an independent Codex review, as Agent 0 d
 
 Agent 0's regression, "g·M·1 = self-weight", is a **blocking integrity check on every modal result**.
 - For each global direction k, form F_k = a·M_full·r_k on the full (unreduced) mass, with a the request's acceleration, or 1 m/s² when no component weight enters. (With no component, the mass is independent of a; multiplying by 1 is exact in binary64, and the check scale publishes nothing.)
-- Run the self-weight generator in inspection mode over **all** members (`generate_operations(…, true)`), with gravity a along k.
+- Run the self-weight generator in inspection mode over **all** members (`generate_operations(…, true)`), with gravity a along k, on the model's route, so that on EX the exact mass method is compared.
 - Compare. The identity is not literal vector equality for every family: it holds **nodally for straight members**, and **on the resultant force and moment for arcs and components**, each within a measured tolerance.
   1. **Straight members, nodally.** With the Hermitian consistent mass, M_e·r_k is, in real arithmetic, the consistent nodal vector of a uniform load: forces a·m̄L/2 at each end and moments ±a·m̄L²/12. The rotary and torsional terms vanish for a rigid translation. Compare with `straight_pipe`'s uniform-load vector for the generated intensity. [design] The PF Timoshenko design keeps the Euler–Bernoulli vector for full-span uniform loads (`pf-timoshenko.md`, #1663), which M4 relies on.
   2. **Arcs and components, on the resultant.** Total force, and total moment about a fixed point (the node centroid, to limit cancellation). The half-arc lumps do not reproduce the arc's nodal split (§2.4), and a component body is compared as the wrench W·ĝ, r × W·ĝ (§2.1). Straight members also enter the resultant.
@@ -417,7 +423,7 @@ The generator re-derives every formula and root below; they are stated from memo
   | `contributor` | The transcribing role (TASK) and its PR; no personal identity |
   | `contributor_certification` | That only problem inputs and reference values were transcribed, and that no figure, table or text marked as copyrighted or adapted from another source was copied |
   | `redistribution_status` | `public_permissive` only when the report's own evidence supports it; otherwise the report is held and no fixture exists |
-  | `review_status` | `pending` until the maintainer records a disposition (§9, O-2) |
+  | `review_status` | Agent verification, never acceptance (D-u): an independent Type 2 reviewer verifies the transcription against the source and records it as agent verification, naming the reviewer role and the source. If the rights are unclear, the fixture is not committed and the report holds for the owner |
 
   The record also lists what was **excluded** as copyrighted or adapted, with its location in the report, so a reviewer can see the line drawn.
 - **Use.** NUREG/CR frequencies are numerical results of other programs, not exact answers ("NRC and ANSYS outputs retain shared lineage", `capability_inventory.json:2530-2533`). They are class-c comparison evidence at a stated tolerance. A report's participation factors may use another shape normalization, so they are compared through normalization-invariant quantities: effective masses, or Γ·φ.
@@ -451,7 +457,7 @@ The generator re-derives every formula and root below; they are stated from memo
 - **[code]** Result profiles today: `formulation_basis.profile_id` ∈ {`product_preview_mechanics_v1`, `exact_pressure_v3`, `product_preview_retained_w1a_v2`, `exact_straight_retained_w1a_v2`} (`schemas/results.v0.3.schema.yaml:1035-1041`). Semantic tables are identified as at `core/reporting/result_export/src/semantic_contract.rs:126-128` (`…/preview-physics-2`).
 - **[decided] Additions:**
   - **Profile:** `product_preview_modal_v1`, with two fixed limitations.
-    - Limitation 0: "Small-displacement, linear-elastic Euler-Bernoulli frame modal preview about the unloaded configuration, with consistent mass on straight members and lumped rigid-body mass on realized arcs and component bodies; numerical integrity does not establish physical correctness."
+    - Limitation 0: "Small-displacement, linear-elastic Euler-Bernoulli frame modal preview about the unloaded configuration, with any nonlinear supports at the stated state of a named solved case, with consistent mass on straight members and lumped rigid-body mass on realized arcs and component bodies; numerical integrity does not establish physical correctness."
     - Limitation 1: "The integrity checks are numerical estimates under stated premises, not mathematical bounds: each mode's residual is evaluated against a double-double re-formation of the stiffness and mass, its eigenvalue error is a first-order estimate, and the Sturm count is relied on only at shifts separated from the computed eigenvalues by a stated multiple of the estimated backward error of their factorization. They do not bound modelling, discretization or input error."
   - **Table:** `openpipestress.result_semantics/0.3.0/modal-1` (`fixtures/results/semantic_contract_v0_3_modal_1.json`, new, not a reviewed input). Row kinds:
     - `modal_frequency`, `modal_circular_frequency`, `modal_period`;
@@ -476,7 +482,9 @@ Agent 0's sequence, 2026-10-27:
 3. **M2, the sparse path:** shift-invert block Lanczos with full reorthogonalization, locking, breakdown handling and deterministic restarts; spectrum slicing, with its shifts under M1b's separation premise; the sparse guard with its peak count; the inertia-risk tests extended to slicing shifts and to dense-against-sparse agreement, since "the unpivoted-LDLᵀ inertia risk" is "a first-class test target" (§3.3); scale benchmarks timed under `t3_exclusive.sh`. It uses M1b's count infrastructure unchanged, and no D3 is expected (§3.6).
 4. **M3, UI:** the Tauri command and types, the request form with the per-project remembered bound, the modes table, the mode-shape overlay and animation with reduced motion, the report section (Rust and TS), Vitest and a native smoke step.
 
-**Start and queue.** The build starts after PF Timoshenko (#1663) is in review. D3 runs join the queue on Agent 0's go.
+**Order (Agent 0, 2026-10-31).** M1a and M1b cover both routes, and M1b includes the linearization of nonlinear supports (D-s). M3 comes before M2: the sparse path follows the views and precedes response-spectrum results, reordered if the dense guard bites earlier.
+
+**Start and queue.** PF Timoshenko (#1663) has landed. D3 runs join the queue on Agent 0's go.
 
 **Size (estimates, not measurements):**
 
@@ -524,6 +532,10 @@ Agent 0's sequence, 2026-10-27:
 | **D-n** | What the integrity checks establish | Numerical-integrity checks with stated premises, not certified enclosures: per mode, the residual's backward error on the double-double re-formed pencil against a stated threshold, with a first-order error estimate; M-orthogonality; Sturm-count agreement at shifts placed in gaps between computed clusters, relied on only when the separation exceeds κ_s times the estimated backward error (‖K̃‖ + \|σ\|‖M̃‖)·u·g; a shift that cannot be so placed, or whose growth exceeds g_max, refuses the affected set by name (§3.4). No Kato–Temple refinement and no inverse-norm bound; rigorous enclosures are a later option (§9, O-13) | Binary64 inertia counts, a Rayleigh quotient on the formed pencil and one floating-point solve give no enclosure without interval or exact arithmetic; Codex round 2's witnesses (a shift that rounds away on a 32×32 tridiagonal, a re-formed quotient displaced by 0.01 despite isolation, a solve that underestimates xᵀK⁻¹x by 3×). **Changed after Codex round 2** from inertia-certified Kato–Temple gaps |
 | **D-o** | Modal formation check | K and M re-formed independently from their leaves in at least double-double precision (≈106-bit significand), element by element; the formation difference measured and published; each mode's residual evaluated on the re-formed pencil, a mode over the threshold demoted; an uncovered family refuses the set; K-D5's p128 element re-formation reused through a read-only seam, its D5C1 criterion not reused (§3.4) | K-D5 judges a static correction, and a modal run has no static response (Codex round 1). Double-double resolves the formation difference at the 10⁻³¹ relative scale for well-scaled entries, ample against residual thresholds above 10⁻¹², so true quad is not required (Codex round 2) |
 | **D-p** | Units for modal quantities | Frequency (Hz), angular frequency (rad/s), rotation per length, length per rotation and mass moment of inertia added to the unit catalog by DEL-02-02 before M1b; period uses Time (s) (§1.5) | The catalog has no such families today. Codex round 1 |
+| **D-r** | The exact route | Admitted on its own section basis and mass basis (`EXACT_MASS_METHOD`); the weight-basis identity on the route's own generator; pressure ignored with EX's disclosure | Agent 0, 2026-10-31: exit criterion 1 needs modal on EX. EX shares PF's assembly and adds no load-dependent stiffness (§1.1) |
+| **D-s** | Nonlinear supports | Linearized at the converged state of a named solved case, a required input with no default: active or sticking restrains the DOF with the static solve's stiffness in that state, inactive or sliding frees it; the case and each state are disclosed; absent, unsolved or unconverged cases refused | Agent 0, 2026-10-31 (formerly M5): criterion 1's reference system has a gap, lift-off and friction. A named state is the user's statement, not a default |
+| **D-t** | Snubbers | In the modal basis when the request includes dynamic-only restraints, a required choice when the model has one; otherwise ignored; disclosed either way | Agent 0, 2026-10-31; SCA-014 (snubbers as dynamic-only restraints). A spectrum solve includes them |
+| **D-u** | `review_status` of a transcribed published fixture (O-2) | Recorded as agent verification by an independent Type 2 that checked the transcription against the source, naming the reviewer and source; never as accepted; a fixture with unclear rights holds for the owner | Agent 0, 2026-10-31 |
 | **D-q** | Published-benchmark obligation | At least one published piping benchmark with recorded redistribution evidence compared, after M1b, as comparison evidence, before FR-SOL-016 is reported complete; FR-SOL-016 stays partial until then (§4.4) | PRD §12.9 requires the comparison. Codex round 1; Agent 0, 2026-10-27 |
 
 Agent 0 accepted D-c, D-d, D-m, D-n, D-o and D-p as Design decisions on 2026-10-27, subject to the next independent review round. Round 2 (at `d3c54e4f72`) revised D-c, D-d, D-n and D-o, and moved the count infrastructure from M2 into M1b (§6), under the manager's decisions; those revisions go to Agent 0 after the next review.
@@ -543,6 +555,7 @@ Items that reach the product or data boundary are marked **for Agent 0** in §9.
 - **R8, timing claims.** The dense path's cost is cubic and debug builds are much slower. Every timing statement names its build and runs under `t3_exclusive.sh`.
 - **R9, stack.** Mass formation stays out of the frames on the W1 peak chain (§3.5). The AC-004 witnesses are re-run if D3 moves anything.
 - **R10, public benchmarks' lineage.** NUREG/CR modal results are numerical, from other programs, so a match is comparison evidence, not an exact check.
+- **R12, linearized state.** A modal result with nonlinear supports holds only at the named case's support states; a different operating state gives different frequencies. The result names the case and each state, and the limitation text says so.
 - **R11, benchmark rights.** A contractor-authored report may carry rights that prevent transcription. Then no published benchmark may be available, and FR-SOL-016 stays partial (§4.4).
 
 ---
@@ -552,7 +565,7 @@ Items that reach the product or data boundary are marked **for Agent 0** in §9.
 | # | Item | Owner | When |
 |---|---|---|---|
 | O-1 | Independent Codex review of the W/a basis (§2.3), as Agent 0 directed, and of this design. Round 1 (at `a640e10e50`) and round 2 (at `d3c54e4f72`) are answered in this revision; the next round is pending | Manager, then Agent 0 | Before M1a starts |
-| O-2 | **For Agent 0 (data boundary):** who records `review_status` for a transcribed published-benchmark fixture. `docs/IP_AND_DATA_BOUNDARY.md` §4 keeps records pending "until a maintainer records a review disposition", and DEC-027 names the owner as sole maintainer | Agent 0 | Before the first class-c fixture is committed |
+| O-2 | **Settled (D-u, Agent 0, 2026-10-31):** an independent Type 2 verifies a transcription against its source and records agent verification, naming reviewer and source; never acceptance. Unclear rights hold for the owner | — | — |
 | O-3 | **For the owner (data boundary):** the review of each report held for uncertain rights (§4.4; `docs/IP_AND_DATA_BOUNDARY.md`). Nothing is transcribed from a held report | Owner | At acquisition of each report |
 | O-4 | The work budget of the dense guard (§3.2), set by measurement | M1b | M1b |
 | O-5 | The discretization factor c (§2.6), derived by benchmark | M1a | M1a |
@@ -560,7 +573,7 @@ Items that reach the product or data boundary are marked **for Agent 0** in §9.
 | O-7 | Where the desktop keeps the remembered extraction bound per project (project store or desktop settings), and whether that needs a store version under the one-version rule. It is persistence, so it takes targeted checks | M3 | M3 design |
 | O-8 | Adding `product_preview_modal_v1` to `results.v0.3` and the `modal` run kind to `analysis_run.v0.3`: whether they are additions within the current versions or need new versions under the one-version rule (DEL-00-06's contracts) | M1b, with DEL-00-06 | M1b design |
 | O-9 | A concentrated-mass field and component rotary inertia (W-17), entering self-weight and modal together | W-17 lane | After F1's core |
-| O-10 | M4 (Timoshenko mass), M5 (linearized nonlinear supports), M6 (mass-point helper) | Later slices | After F1's core |
+| O-10 | M4 (Timoshenko mass, on either route), M6 (mass-point helper); M5 moved into M1b (D-s) | Later slices | After F1's core |
 | O-11 | One mass basis: PF seismic generation and self-weight (finding R5), with the deferred PF seismic-mass alignment to D-5 | Remaining items (`docs/COMPLETENESS_MAP.md` §4.3) | Not in F1 |
 | O-12 | The unit-catalog families of §1.5 (frequency, angular frequency, rotation per length, length per rotation, mass moment of inertia), with their D3 re-registration | DEL-02-02 | Before M1b |
 | O-13 | **A later option: rigorous eigenvalue enclosures.** The checks of §3.4 are estimates under premises. Enclosures would need interval or exact arithmetic: interval-verified inertia counts (or exact rational LDLᵀ for small models), and then Kato–Temple or Lehmann bounds across a gap that those counts establish, on a pencil whose formation is itself enclosed. Kato–Temple across gaps between *computed* eigenvalues proves nothing if one is missed (K = I, M = diag(1, 2, 3): with μ = 2 missed, the computed vector (cos t, sin t, 0) has a Kato–Temple bound of sin²t·cos²t / (2 − sin²t) against a true error of sin²t). Codex's round-2 witnesses show that the binary64 versions of these steps do not give enclosures. Any such option is a new commitment, outside F1's | Later change | Not in F1 |
