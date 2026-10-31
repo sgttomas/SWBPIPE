@@ -130,8 +130,9 @@ Z = 6.865 m.
 | RS-P225 | 220 → 225 | S170 | Bend B3 (arc) |
 | RS-P230 | 225 → 230 | S170 | |
 
-Pipe `y_reference` (orientation) is left to the authoring default except where a
-component needs one; the generator records what it writes.
+Pipe `y_reference` (orientation): horizontal straights take global +Z and vertical
+straights global +X. Each bend arc takes its incoming direction, as `insert_bend_at_corner`
+sets it.
 
 ## 4. Material and sections
 
@@ -221,7 +222,7 @@ support here needs a skew.
 | RS-C | RS-230 | `anchor` | all six DOF | Nozzle C; seismic anchor movement point |
 | RS-LS1 | RS-060 | `line_stop` | UX | Axial stop on the first run, so thermal growth of the run is directed into the riser |
 | RS-V060 | RS-060 | `vertical_support` | UZ | Carries the valve run |
-| RS-VS1 | RS-080 | `variable_spring_hanger` | UZ; stiffness 180 kN/m (invented) | Riser, where vertical growth rules out a rigid support; sized by hanger sizing (§8.8) |
+| RS-VS1 | RS-080 | `variable_spring_hanger` | UZ; stiffness 180 kN/m; installed and cold load 8.0 kN, hot load 7.4 kN, travel range 50 mm (all invented) | Riser, where vertical growth rules out a rigid support; sized by hanger sizing (§8.8) |
 | RS-CE1 | RS-100 | `constant_effort_support` | UZ; `constant_load` 9.0 kN (invented input) | Near bend B2, where vertical movement is largest; sized by hanger sizing |
 | RS-LO1 | RS-110 | `nonlinear` | `lift_off`, UZ, initial state active, contact on positive reaction | A rack support near the riser, where operating movement can lift the pipe; whether it lifts is a solve result, not claimed |
 | RS-FR1V | RS-120 | `nonlinear` | `one_way`, UZ (resting); interim: a linear `vertical_support` UZ until R-4 stage S7 lands (§10) | Normal-force source for RS-FR1, so criterion 1 exercises a lift-off friction shoe |
@@ -231,12 +232,16 @@ support here needs a skew.
 | RS-G2 | RS-170 | `guide` | UX, UZ | Guides the reduced run ahead of EJ1 |
 | RS-V200 | RS-200 | `vertical_support` | UZ | Carries the run beyond EJ1 |
 | RS-G3 | RS-215 | `guide` | UX, UY | Guides the branch drop |
+| RS-SN1 | RS-110 | `snubber` (0.9.0) | UX, rigid | Dynamic-only lateral restraint on the rack, where no lateral restraint exists; static solves ignore it once DEL-04-10's slice lands (dynamics lane, 2026-10-31) |
 
 The constant-effort force acts along the positive UZ axis, its single translational
-restraint (DEC-049). The spring's installed, cold and hot loads are left absent: entered
-loads are not applied as preload on main (`SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD`),
-and hanger sizing reports its own loads (§8.8). The constant-effort load is an input;
-hanger sizing's sized load is a result and does not overwrite it.
+restraint (DEC-049). A `variable_spring_hanger` must carry entered installed, cold and hot
+loads and a travel range or movement limit (`SPRING_HANGER_LOAD_MISSING`,
+`SPRING_HANGER_TRAVEL_MISSING`), so RS-VS1 carries invented ones. They are review metadata:
+only the stiffness is consumed, and each entered load warns
+`SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD`. Like the constant-effort load, they are inputs;
+hanger sizing reports its own sized loads and travel as results (§8.8) and does not
+overwrite them.
 
 ## 7. Pressure regions
 
@@ -265,7 +270,11 @@ operating temperature 210 °C on every member except the replaced span RS-P180 (
 All are invented. Under 0.9.0 the
 operating condition is one condition set applied to every member
 (`condition_sets[]`, `pipe_segments[].condition_set_ref`, `load_cases[].condition_use`);
-under 0.8.0 it is authored per case.
+under 0.8.0 it is authored per case. The condition set carries temperature, pressure and
+installation temperature only: the operating contents are the sections'
+`contents_density` (§4.2), with no condition contents override, and no case carries
+condition `added_weight`. Only RS-HYD uses `condition_use.contents_density` (§8.3).
+Component weights are rigid-component `weight` at a centre of gravity, not added weight.
 
 With nonlinear supports in the model, every static case is a nonlinear solve with its
 own support status. Occasional effects are therefore cases that include the sustained
@@ -289,7 +298,10 @@ times, so they are differences, not the plain occasional cases (load-cases manag
 | RS-SAM | W + P + anchor RS-C moved UX +15 mm, UY −10 mm | Seismic anchor movement |
 
 W is generated self-weight of every member except RS-P180 (gravity as §2), with component weights at
-their centres of gravity in place of their members' distributed weight (W-15). Wind is
+their centres of gravity in place of their members' distributed weight (W-15). The fixture's W
+is the product's self-weight generator's output for each case (`self_weight.rs`, through
+`core/loads/self_weight_wasm`), captured in `fixtures/reference_system/self_weight_capture.json`;
+the fixture generator copies it and computes no weight. Wind is
 DEC-068's uniform pressure over the marked members (wind on a replaced span is
 refused). On EX, the anchor movement is `analysis_state.support_states[].boundary_motion`
 with meaning `absolute_reference_displacement`; the support-targeted primitive is
@@ -336,9 +348,10 @@ Points: (0.5, 0.12), (2.0, 0.75), (9.0, 0.75), (40.0, 0.30), (100.0, 0.30).
 The spectrum request (DEL-04-10's, beside the model) applies RS-SP1 in X, Y and Z with
 scale factors 1.0, 1.0 and 0.67, uses the modal request of §8.4, and turns on the
 missing-mass correction. The mode and directional combination methods are the dynamics
-lane's to define; the request names them when that design lands. The system has no
-snubber: criterion 1 does not list one, and under 0.9.0 an interim snubber makes every
-static solve refuse (`SNUBBER_DYNAMIC_ONLY_UNSUPPORTED`).
+lane's to define; the request names them when that design lands. One axis snubber,
+RS-SN1 (§6), exercises RT-A8's dynamic-only restraint. It stays pending until DEL-04-10's
+slice replaces the interim refusal: under 0.9.0, every static solve refuses a model with a
+snubber (`SNUBBER_DYNAMIC_ONLY_UNSUPPORTED`).
 
 ### 8.6 Equilibrium checks need no extra case
 
@@ -355,10 +368,13 @@ RS-SAM and RS-WIN/RS-EQx together until #1678 lands (§10).
 ### 8.8 Hanger sizing
 
 Hanger sizing is a request beside the model. It sizes RS-VS1 and RS-CE1 from an invented
-private catalogue (`fixtures/reference_system/`, invented records only, OC-4) and
-produces a hanger table. The procedure, its load cases and its record selection rule
-belong to RT-A11's owner, not yet assigned. The geometry slots and the key results of
-§9.1 are fixed here.
+private catalogue (invented records only, OC-4; forthcoming as
+`fixtures/reference_system/invented_hanger_catalogue.json` with DEL-04-11's engine
+increment) and produces a hanger table. The procedure, its load cases and its record
+selection rule belong to DEL-04-11 (Agent 0's D-1; design
+`execution/PKG-04/DEL-04-11/Work/hanger-sizing.md`). Sizing
+never overwrites RS-VS1's or RS-CE1's entered inputs. The geometry slots and the key
+results of §9.1 are fixed here.
 
 ## 9. Key results
 
@@ -394,8 +410,10 @@ Each closed-form reference is computed by an independent generator in
 
 ## 10. Pending-family ledger
 
-State on `main` at `4d8cb7b0c`. Tranche 1 of the fixture contains every family marked
-"in tranche 1". A pending family keeps its geometry slot and ids; when its row lands, the
+State on `main` at `276e581b3`, as verified by the tranche-1 solve on EX
+(`tests/test_reference_system_fixture.py`, 2026-10-30). Tranche 1 of the fixture contains
+every family marked "in tranche 1", and RS-SUS, RS-OPE and RS-SAM solve on EX with no
+blocking diagnostic. A pending family keeps its geometry slot and ids; when its row lands, the
 generator adds its entities without moving a node. "Expected until then" is the refusal
 or absence a solve of the full model shows today.
 
@@ -422,7 +440,8 @@ or absence a solve of the full model shows today.
 | Operating condition set | pending | RT-G5 / load-cases lane (0.9.0) | authored per case at 0.8.0 |
 | Modal (RS-OPE linearization) | pending | RT-A7 / dynamics lane (DEL-04-09, M5 in scope) | no modal analysis |
 | Response spectrum, RS-SP1 | pending | RT-A8 / dynamics lane (DEL-04-10, proposed) | no spectrum analysis; `spectra[]` not authorable at 0.8.0 |
-| Hanger sizing and table | pending | RT-A11 / owner to be assigned by Agent 0 | no sizing procedure |
+| Hanger sizing and table | pending | RT-A11 / DEL-04-11 | no sizing procedure |
+| Snubber RS-SN1 (RS-110, UX, rigid) | pending | RT-A8 / dynamics lane (DEL-04-10 slice: static solves ignore a snubber) | `SNUBBER_DYNAMIC_ONLY_UNSUPPORTED` on every static solve; not authorable at 0.8.0 |
 
 The generator keeps a pending flag per row of this table, and the fixture test checks
 that the two agree.
@@ -459,10 +478,15 @@ else, with small counts. That reading is Agent 0's working reading for now (2026
 the criterion text is the owner's, and Agent 0 takes the question to the owner with the
 RT-U2 walkthrough results.
 
-Counts: about 30 run-sheet rows (three chains: from A, from the tee, and the branch),
-and follow-up form entries for the components (eight), the non-rigid supports (seven),
-the pressure contract and regions (one contract, five regions per pressurized case),
-the load cases (eight), the combinations (ten) and the three analysis requests.
+Counts for tranche 1 (`reference-system-run-sheet.md` §5): 26 run-sheet rows (three
+chains: from A, from the tee, and the branch) and about 640 follow-up form entries, 168
+of them the per-member load/reference states and pressure regions of the three cases
+since the fills and case copies of #38. The run sheet's estimate is about 75 minutes
+(about 130 before #38), against the provisional 30; it is not a measurement. On
+`main` the sheet cannot carry the fixture's support or bend ids, so all eleven supports
+and the three bends are entered by forms (run sheet §2, §6). The full model adds the
+tee, the reducer, the other non-rigid supports, five more cases with their regions, the
+other eight combinations and the three analysis requests.
 
 **What a fuller run sheet would absorb** (an RT-G2 candidate, Agent 0, 2026-10-31):
 - a component column per row: flange, valve, reducer and tee, with weight and stiffness
@@ -517,3 +541,6 @@ RT-E1 dependency of criterion 17, not a change to the fixture.
   authoring the 0.9.0 members themselves follows here.
 - Geometry, ids and invented inputs change only by an edit to this document first, so
   that every consumer's target moves together.
+- At release, every row still pending here corresponds to a LIM entry in
+  `docs/RELEASE_LIMITATIONS_v1.0.md`, the single criterion 3 list (Agent 0, 2026-10-31).
+  Each ledger update checks that correspondence.
