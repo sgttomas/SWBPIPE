@@ -8,16 +8,17 @@ needs:
     (`curved_bend`, its arc length and `consistent_uniform_nodal_loads` for the arc resultant check). Its
     modal formation check re-forms K, in at least double-double precision, through one new read-only
     frame_kernel entry exposing K-D5's p128 element re-formation (`intended_stiffness_pass`,
-    `formation_check.rs`) without K-D5's D5C1 criterion, which judges a static correction and is not
+    `formation_check.rs`) as a pure function of caller-supplied element geometry, section properties,
+    moduli and stiffness scales (DEL-04-09 supplies its own re-derived ones), without K-D5's D5C1 criterion, which judges a static correction and is not
     reused (M1b), and evaluates residuals with `exact_sum`. Both paths take their Sturm counts from
     `sparse_direct`'s public API (`reverse_cuthill_mckee`, `SymmetricProfileMatrix::from_entries_with_order`,
     `factorize_ldlt` with its `nonpositive_pivot_count` and `first_nonpositive_pivot`, and `solve_ordered`)
-    plus one new read-only accessor on `ProfileFactorization` returning max|L_ij| and the pivot magnitudes,
-    with no mutation and no allocation (M1b, used unchanged by M2's sparse path). Both seams are additions
+    plus one new read-only accessor on `ProfileFactorization` exposing borrowing iterators over the strictly
+    lower factor's stored entries and the pivots, with no mutation and no allocation (M1b, used unchanged by M2's sparse path). Both seams are additions
     to DEL-04-01's code in priced crates, re-registered under D3 in their change. The Sturm count relies
     on `nonpositive_pivot_count` being the number of negative pivots of the unpivoted LDLᵀ, and is relied
-    on only at shifts separated from the computed eigenvalues by a stated multiple of the estimated
-    backward error that the accessor's growth observations feed (Design §3.2, §3.3, §3.4).
+    on only under the conditioning and separation premises, whose backward-error estimate the accessor's
+    factor entries feed (Design §3.2, §3.3, §3.4).
   gating: true
   evidence: core/solver/sparse_direct/src/lib.rs
 - from: DEL-04-02
