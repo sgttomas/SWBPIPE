@@ -146,7 +146,9 @@ memory bound.
   worker's ordinary solve: read, parse, request wrapper, entry, serialize, then the result
   digest's parse-back. It uses serde_json features equal to the desktop's.
   - It prints one `release-timing-v1` JSON line with seconds, `ru_maxrss` and phys_footprint
-    per stage, rows and bytes per kind, case and row class, and diagnostic counts.
+    per stage, rows and bytes per kind, case and row class, and diagnostic counts. After each
+    stage it also writes a `release-timing-stage {json}` progress line to stderr, so a killed
+    run's record shows the last stage it finished and that stage's memory readings.
   - Its `limits` list says what it does not reproduce: the attestation digests, the worker's
     allocator, IPC and the webview.
   - Its tests pin the written bytes to the product entry's own serialization.
@@ -154,10 +156,18 @@ memory bound.
   launch, watchdog and metadata) does four things:
   - `--plan` prints the schedule;
   - `--generate` writes the models and a manifest;
-  - `--run` runs one process at a time under `/usr/bin/time -l`, with a 100 ms RSS watchdog
-    capped at the 12 GiB base-machine budget and a timeout;
+  - `--run` runs one process at a time under `/usr/bin/time -l` and a timeout. Every 100 ms a
+    footprint watchdog reads the driver's phys_footprint and lifetime-maximum phys_footprint
+    (macOS `proc_pid_rusage`). It kills the run above the 12 GiB base-machine budget, which is
+    how the product enforces the budget (`worker_footprint_exceeded`), and the run is classified
+    `exceeds_base_machine_budget`. The `ps` RSS watchdog stays as an emergency cap at 16 GiB,
+    because RSS runs well above the footprint. `--attribute` (and the `-attr` runs) take a
+    `sample` stack snapshot every 2 s, and whenever the footprint has grown by 512 MiB. Each
+    snapshot records the top call paths, reduced to product frames. Its timings are not
+    measurements;
   - `--packet` writes the compact packet.
 
   `runner/release_window.sh` is the single exclusive-window entry, run under the host's
-  exclusive wrapper; its default `window` subset fits 15 minutes. Result bytes are kept only
+  exclusive wrapper; its default `window` subset fits 15 minutes, as does `window2` (linear-ex
+  1000 timed, then its attribution twin). Result bytes are kept only
   with `--write-results`.

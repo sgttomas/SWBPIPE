@@ -4,19 +4,24 @@
 #
 # Usage (run it under the host's exclusive-job wrapper; it builds and generates nothing):
 #   release_window.sh <models_dir> <out_root> <release_timing binary> [subset]
-#     subset: window (default: the runs sized for one window of at most 15 min), all, linear,
-#             nonlinear, nonlinear-pf, nonlinear-ex, criterion,
+#     subset: window (default: the runs sized for one window of at most 15 min), window2
+#             (linear-ex 1000 timed, then its attribution twin -attr), all, linear, nonlinear,
+#             nonlinear-pf, nonlinear-ex, criterion,
 #             or comma-separated run ids (see: release_runner.py --plan --subset <subset>).
 #   Environment: RELEASE_WINDOW_BUDGET_S (default 900: the whole window stays within 15 min;
 #   a run whose estimate exceeds the remaining budget is skipped and logged, and each timeout
 #   is capped at the remaining budget), RELEASE_WINDOW_WRITE_RESULTS=1 (keep result bytes;
-#   about 1.5 GB per 2,000-node result), RELEASE_WINDOW_MODE (sparse, default; or dense).
+#   about 1.5 GB per 2,000-node result), RELEASE_WINDOW_MODE (sparse, default; or dense),
+#   RELEASE_WINDOW_ATTRIBUTE=1 (every selected run as an attribution run: stack snapshots with
+#   macOS sample; its timings are not measurements), RELEASE_WINDOW_KEEP_SAMPLES=1 (keep the raw,
+#   sanitized sample reports). Every run is killed when its phys_footprint passes the 12 GiB
+#   budget (the product's measure), or its ps RSS the 16 GiB emergency cap.
 # Prepare first: release_runner.py --generate --models <models_dir> (the rack models and their
 # manifest) and a release build of the driver (core/solver/performance_harness/release).
 # Each run's elapsed time is printed as it ends; records, packet.json and window.log go to a new
 # <out_root>/window-<UTC time>/ folder.
 set -u
-[ $# -ge 3 ] || { sed -n '2,17p' "$0" >&2; exit 2; }
+[ $# -ge 3 ] || { sed -n '2,22p' "$0" >&2; exit 2; }
 HERE=$(cd "$(dirname "$0")" && pwd)
 MODELS=$1
 ROOT=$2
@@ -31,12 +36,15 @@ mkdir -p "$OUT" || exit 2
 START=$(date +%s)
 log() { echo "$(date -u '+%FT%TZ') +$(( $(date +%s) - START ))s $*" | tee -a "$OUT/window.log"; }
 
-log "START subset=$SUBSET mode=$MODE budget=${BUDGET}s"
-python3 -u "$HERE/release_runner.py" --plan --subset "$SUBSET" --mode "$MODE" --budget-s "$BUDGET" | tee -a "$OUT/window.log"
-WRITE=()
-[ "${RELEASE_WINDOW_WRITE_RESULTS:-0}" = 1 ] && WRITE=(--write-results)
+EXTRA=()
+[ "${RELEASE_WINDOW_ATTRIBUTE:-0}" = 1 ] && EXTRA+=(--attribute)
+log "START subset=$SUBSET mode=$MODE budget=${BUDGET}s ${EXTRA[*]+${EXTRA[*]}}"
+python3 -u "$HERE/release_runner.py" --plan --subset "$SUBSET" --mode "$MODE" --budget-s "$BUDGET" \
+  ${EXTRA[@]+"${EXTRA[@]}"} | tee -a "$OUT/window.log"
+[ "${RELEASE_WINDOW_WRITE_RESULTS:-0}" = 1 ] && EXTRA+=(--write-results)
+[ "${RELEASE_WINDOW_KEEP_SAMPLES:-0}" = 1 ] && EXTRA+=(--keep-samples)
 python3 -u "$HERE/release_runner.py" --run --subset "$SUBSET" --mode "$MODE" --budget-s "$BUDGET" \
-  --models "$MODELS" --out "$OUT" --binary "$BIN" ${WRITE[@]+"${WRITE[@]}"} 2>&1 | tee -a "$OUT/window.log"
+  --models "$MODELS" --out "$OUT" --binary "$BIN" ${EXTRA[@]+"${EXTRA[@]}"} 2>&1 | tee -a "$OUT/window.log"
 RC=${PIPESTATUS[0]}
 log "RUNS DONE rc=$RC"
 python3 -u "$HERE/release_runner.py" --packet --out "$OUT" | tee -a "$OUT/window.log"

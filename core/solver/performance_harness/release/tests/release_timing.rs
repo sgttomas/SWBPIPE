@@ -76,6 +76,34 @@ fn prints_one_release_timing_line_with_the_required_keys() {
 }
 
 #[test]
+fn each_stage_writes_one_progress_line_to_stderr() {
+    let model = fixture("invented_demo_model.json");
+    let output = Command::new(BIN).arg(&model).args(["--repeats", "2"]).output().expect("run release_timing");
+    assert!(output.status.success());
+    let stderr = String::from_utf8(output.stderr).expect("utf-8 stderr");
+    let lines: Vec<Value> = stderr
+        .lines()
+        .filter_map(|line| line.strip_prefix("release-timing-stage "))
+        .map(|json| serde_json::from_str(json).expect("progress JSON"))
+        .collect();
+    let stages = ["read", "parse", "request", "entry", "serialize", "release_envelope", "parse_back"];
+    assert_eq!(lines.len(), 2 * stages.len(), "{stderr}");
+    for (index, line) in lines.iter().enumerate() {
+        assert_eq!(line["repeat"], index / stages.len());
+        assert_eq!(line["stage"], stages[index % stages.len()]);
+        assert!(line["seconds"].as_f64().is_some());
+        for key in ["ru_maxrss_bytes", "phys_footprint_bytes", "lifetime_max_phys_footprint_bytes"] {
+            assert!(line.get(key).is_some(), "{key}: {line}");
+        }
+    }
+    // Stdout keeps its one JSON line, with the same stage seconds as the progress lines.
+    let stdout = String::from_utf8(output.stdout).unwrap();
+    let out: Value = serde_json::from_str(stdout.trim()).unwrap();
+    assert_eq!(stdout.lines().count(), 1);
+    assert_eq!(out["seconds"]["entry"], lines[3]["seconds"]);
+}
+
+#[test]
 fn written_bytes_are_the_products_publication_in_both_modes() {
     let model = fixture("invented_demo_model.json");
     let document: Value = serde_json::from_slice(&std::fs::read(&model).unwrap()).unwrap();

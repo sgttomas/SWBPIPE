@@ -28,6 +28,11 @@
 //! is what the worker reports in its `RSLT` frame and the desktop records as
 //! the job's `worker_peak_footprint_bytes`).
 //!
+//! After each stage it also writes one progress line to stderr,
+//! `release-timing-stage {"repeat", "stage", "seconds", "ru_maxrss_bytes",
+//! "phys_footprint_bytes", "lifetime_max_phys_footprint_bytes"}`, so that a run
+//! killed from outside still shows the last stage it finished.
+//!
 //! Usage: `release_timing <document.json> [--mode sparse|dense] [--write <path>] [--repeats N]`.
 //! The input is a model document (what the desktop opens and sends) or a
 //! request `{"model": ..., "materials": [...]}`, whose model is used. Prints
@@ -123,22 +128,39 @@ fn memory() -> Value {
 
 // ------------------------------------------------------------------ stages
 
+/// The prefix of the progress line written to stderr after each stage.
+const PROGRESS_PREFIX: &str = "release-timing-stage ";
+
 /// One repeat's stage times and memory readings, in stage order.
 #[derive(Default)]
 struct Timeline {
+    repeat: usize,
     seconds: Map<String, Value>,
     memory: Map<String, Value>,
     total: f64,
 }
 
 impl Timeline {
+    fn new(repeat: usize) -> Self {
+        Timeline { repeat, ..Timeline::default() }
+    }
+
+    /// Runs and times one stage, reads memory after it, and writes one progress line to stderr
+    /// (`release-timing-stage {json}`: repeat, stage, seconds and the three memory readings), so
+    /// a run killed later still shows the last stage it finished. Stdout is unchanged.
     fn stage<T>(&mut self, name: &str, work: impl FnOnce() -> T) -> T {
         let started = Instant::now();
         let out = work();
         let elapsed = started.elapsed().as_secs_f64();
         self.total += elapsed;
+        let reading = memory();
+        let mut progress = json!({"repeat": self.repeat, "stage": name, "seconds": elapsed});
+        if let (Value::Object(line), Value::Object(readings)) = (&mut progress, &reading) {
+            line.extend(readings.clone());
+        }
+        eprintln!("{PROGRESS_PREFIX}{progress}");
         self.seconds.insert(name.to_string(), json!(elapsed));
-        self.memory.insert(name.to_string(), memory());
+        self.memory.insert(name.to_string(), reading);
         out
     }
 
@@ -344,7 +366,7 @@ fn main() {
     let mut first_sha: Option<String> = None;
     let mut identical = true;
     for repeat in 0..args.repeats {
-        let mut t = Timeline::default();
+        let mut t = Timeline::new(repeat);
         let raw = match t.stage("read", || std::fs::read(&args.path)) {
             Ok(raw) => raw,
             Err(error) => {
