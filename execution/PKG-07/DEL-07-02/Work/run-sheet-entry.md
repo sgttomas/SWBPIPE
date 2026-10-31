@@ -205,9 +205,12 @@ Common fields:
 ### 3.2 Ids
 
 Ids are entity identity, not order (FR-MOD-003).
-- **Assignment.** A row's number is assigned once, when the row first gets a
-  value, from the sheet's counter. Every row takes one, `F` and `S` rows
-  included; their numbers' ids stay reserved and unused. The end node is
+- **Assignment.** A new P/R/B/V/L row's number is assigned once, when it first
+  gets a value, from the sheet's counter. New `F` and `S` rows take no number
+  and do not advance the counter. An existing assignment is kept, including
+  a numbered row later changed to `F` or `S`; neither its number nor another
+  row's displayed id is changed automatically. The # column remains the row
+  position. Stored model ids are never renumbered on reopen. The end node is
   `⟨nodePrefix⟩⟨n⟩` and the pipe `⟨pipePrefix⟩⟨n⟩`. Defaults: `node:N`,
   `pipe:P`, start 10, step 10, following the model's `node:`/`pipe:` style.
   - **Padding.** `⟨n⟩` is the number's digits, zero-padded to **Pad numbers to
@@ -234,8 +237,12 @@ Ids are entity identity, not order (FR-MOD-003).
     in the sheet's id state, like the row's number, the first time the row
     shows it with a start node. From then on it is the row's pipe id and is
     reserved: inserts, appends, queueing and applying never change it, and no
-    other row takes it, derived or entered, even after the row is deleted or
-    its own id is overwritten. If the row's start
+    other row takes it, derived or entered. Before queue registration, an
+    explicit overwrite or draft-row deletion releases that displayed pipe
+    reservation. Once queued or applied, the pipe id stays reserved to its
+    original row through withdrawal, Undo, overwrite and deletion. Preparing
+    an unregistered or refused batch does not make the reservation permanent.
+    If the row's start
     later changes so that the id no longer fits, the id is kept and its origin
     says it was fixed when first shown; the person may overwrite it. Nothing
     is recorded while a unit conversion is pending, since positions decide
@@ -253,7 +260,8 @@ Ids are entity identity, not order (FR-MOD-003).
   - ids in the model;
   - create, connect and insert targets in pending editor intents and queued
     batches (the rule of `routeDraft.ts:539-575`, widened to queued batches);
-  - ids held by other rows of this sheet.
+  - ids held by other rows of this sheet, and pipe ids retained by successful
+    queue registration or an applied checkpoint.
 - **Stability.**
   - The counter only moves forward, so ids are never renumbered.
   - Inserting a row takes the next number. A deleted draft row's numbers are
@@ -498,7 +506,8 @@ are never deleted by the sheet.
 
   - The chain boundaries are explicit. A deletion never makes a row continue
     from a different node than the stored one, and never re-parents a branch.
-  - A deleted row's ids leave the row but are not reused (§3.2).
+  - Consumed numbers and queued/applied pipe identities are not reused by
+    other rows. A never-queued draft pipe reservation releases as §3.2 states.
 - **Refused in v1.** Any edit, insert or delete touching a realized bend's
   corner, tangent points or adjacent straights. Moving a straight's far node
   would break the bend's tangency, which the generic node edit does not check
@@ -963,7 +972,7 @@ Native assistive-technology verification (VoiceOver on macOS) remains open.
 
 ### 5.2 Single-key codes
 
-Kind codes `R B S F P` (§1.1). Support codes:
+Kind codes `R B S F P V L` (§1.1). Support codes:
 
 | Code | `family` (`rich_authoring.rs:329-339`) |
 |---|---|
@@ -1429,9 +1438,47 @@ covers missing values/units, invalid scales and consumption, inappropriate
 fields and id collisions. Existing run-sheet and component-form tests remain
 maintained evidence. Native verification and the timed walkthrough remain open.
 
-The reference run sheet counts 61 extra sheet entries (57 component fields,
+At the component-row increment, the reference run sheet counted 61 extra sheet entries (57 component fields,
 three Kind codes and the group toggle), replacing 66 form entries. At the
 existing sheet rate, 196 × 8/98 = 16 minutes for §3.4; removing §3.6's six-minute
 valve/flange step gives 664 entries, 29 per-intent cycles and 59.5 minutes,
 before optional G9 batching. The improvement over G6 alone is about one minute
-under that model. These remain estimates, not measurements or acceptance.
+under that model. These are historical estimates, not measurements or acceptance;
+§10 gives the current numbering policy and totals.
+
+
+## 10. F/S numbering and draft pipe reservations
+
+Owner/Agent 0 authorization of 2026-10-31: new F/S rows consume no number,
+with existing displayed identities and document records preserved. The rule
+applies only when a row has no assignment. Kind changes and already-numbered
+legacy rows retain their assignments; historical fixture batches are retained
+without changing their ids or bytes. New blank-sheet and reopen paths have
+separate regressions.
+
+Clearing Kind to blank selects a run and assigns a number if needed, including
+when Fill down copies blank Kind into an unnumbered F/S row. Existing assignments
+still return unchanged; another nonblank edit is not required to unblock Queue.
+
+An explicit pipe-id overwrite or draft deletion releases a recorded pipe id
+only when it has never been queued/applied and the row is not pending or in
+effect. `retainedPipes` is transient sheet bookkeeping populated by the existing
+queue-registration event and applied checkpoint; it retains all owned pipe
+identities to their row. These reservations survive withdrawal, Undo, editing
+and row removal. A failed/refused/unregistered preparation leaves them
+releasable. The counter still advances monotonically and consumes each entity
+number once; releasing a pipe identity does not recycle its number. No model
+member, operation, permission or numerical rule changes.
+
+Evidence: `numberingReservations.test.tsx` checks new F/S assignment, insertion
+and kind-change stability, legacy save/reopen and preservation of old records
+when new rows apply, explicit overwrite/delete release, failed registration,
+and actual workspace registration/withdrawal/Apply/Undo retention. Its reference
+entry-order witness commits cells one at a time, with S in place and geometry
+before id overrides, and matches the reference straight-pipe and final node
+identities. The new count is **10** typed node/pipe ids. The previous optimized
+9 and strict-order 35 remain historical: removing the branch F-row number
+makes B3's temporary corner collide with the final RS-230 unless the corner is
+explicitly named `node:RS-B3-CORNER`. No extra derivation rule is added to chase
+the earlier count. The step model therefore has 665 entries, 29 per-intent
+cycles and the same rounded 59.5 minutes; it is not a timing measurement.

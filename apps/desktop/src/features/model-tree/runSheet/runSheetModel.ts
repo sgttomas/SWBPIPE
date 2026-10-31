@@ -132,6 +132,9 @@ export type RunSheetIdState = {
   assigned: Readonly<Record<string, number>>;
   refused?: Readonly<Record<string, string>>;
   pipes?: Readonly<Record<string, Readonly<{ id: string; rule: string }>>>;
+  /** Pipe identities actually queued or applied, retained to their row even
+   * after withdrawal, Undo, explicit replacement or removal from the sheet. */
+  retainedPipes?: Readonly<Record<string, string>>;
 };
 /** The most numbers one assignment examines before it refuses (§3.2 reservation search). */
 export const MAX_NUMBER_SEARCH = 10_000;
@@ -516,6 +519,7 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
   const claimedPipes = new Set<string>([
     ...input.rows.map((row) => text(row.storedPipeId)).filter(Boolean),
     ...Object.values(fixedPipes).map((fixed) => fixed.id),
+    ...Object.keys(context.idState.retainedPipes ?? {}),
   ]);
   const fallbackPipes: Array<{ row: ResolvedRunSheetRow; own: string; rule: string }> = [];
 
@@ -750,7 +754,7 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
         // The number of the row whose end node is this pipe's start, unless that pipe id is taken.
         const from = start ? numberedNodes.get(start) : undefined;
         const candidate = from ? idsForNumber(numbering, from.number).pipe : undefined;
-        if (from && candidate && !claimedPipes.has(candidate)) {
+        if (from && candidate && (!claimedPipes.has(candidate) || context.idState.retainedPipes?.[candidate] === raw.key)) {
           ids.pipe = candidate;
           claimedPipes.add(candidate);
           pipeIdRule = `the sheet's numbering, by its start node ${start} (row ${from.row})`;
@@ -920,8 +924,12 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
 
   // ---- Rules that need the whole sheet.
   const reservedOutside = new Set<string>([...modelIds(model), ...(context.reservedIds ?? [])]);
-  // A pipe id fixed when first shown stays reserved to its row (§3.2), deleted or overridden.
-  const fixedOwners = new Map(Object.entries(fixedPipes).map(([rowKey, fixed]) => [fixed.id, rowKey]));
+  // A displayed pipe id stays fixed until an explicit draft overwrite/delete;
+  // queued/applied pipe identities stay reserved to their original row (§3.2).
+  const fixedOwners = new Map([
+    ...Object.entries(fixedPipes).map(([rowKey, fixed]) => [fixed.id, rowKey] as const),
+    ...Object.entries(context.idState.retainedPipes ?? {}),
+  ]);
   const holders = new Map<string, number>();
   /** Each id a row creates, with the cell that shows it: node and pipe in Ids, the others in their own cells. */
   const createdIds = (row: ResolvedRunSheetRow): Array<{ id: string; cell: string; column: string }> => {

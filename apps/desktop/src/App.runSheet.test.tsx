@@ -124,10 +124,10 @@ describe("run sheet through the shell", () => {
     await previewAndApply("batch:run-sheet-sheet-1-1");
     expect(statuses("r1", r2, r3)).toEqual(["applied", "applied", "applied"]);
     expect(cursor()).toBe(1);
-    expect(cell(r3, "nodeId")).toHaveTextContent("node:N30");
+    expect(cell(r3, "nodeId")).toHaveTextContent("node:N20");
     fireEvent.click(screen.getByTestId("layout-mode-tree"));
-    expect(treeRow("node", "node:N30")).toBeInTheDocument();
-    expect(treeRow("support", "support:N30")).toBeInTheDocument();
+    expect(treeRow("node", "node:N20")).toBeInTheDocument();
+    expect(treeRow("support", "support:N20")).toBeInTheDocument();
     fireEvent.click(screen.getByTestId("layout-mode-grid"));
     undo();
     await waitFor(() => expect(statuses("r1", r2, r3)).toEqual(["draft", "draft", "draft"]));
@@ -196,15 +196,15 @@ describe("run sheet through the shell", () => {
     await queueRows();
     await previewAndApply("batch:run-sheet-sheet-1-1");
     fireEvent.click(screen.getByTestId("layout-mode-tree"));
-    fireEvent.click(treeRow("support", "support:N30")!);
-    fireEvent.contextMenu(treeRow("support", "support:N30")!);
+    fireEvent.click(treeRow("support", "support:N20")!);
+    fireEvent.contextMenu(treeRow("support", "support:N20")!);
     fireEvent.click(within(await screen.findByRole("menu")).getByTestId("tree-context-menu-item-queue-removal"));
     fireEvent.click(await within(screen.getByTestId("workspace-section-operations")).findByTestId("apply-intent-editor-intent-1"));
-    await waitFor(() => expect(treeRow("support", "support:N30")).toBeNull());
+    await waitFor(() => expect(treeRow("support", "support:N20")).toBeNull());
     toSheet();
     fireEvent.click(screen.getByTestId("layout-mode-grid"));
     expect(status(r3)).toBe("detached");
-    expect(screen.getByTestId(`run-sheet-detached-${r3}`)).toHaveTextContent("Row 3: Changed outside the sheet: support:N30");
+    expect(screen.getByTestId(`run-sheet-detached-${r3}`)).toHaveTextContent("Row 3: Changed outside the sheet: support:N20");
     expect(status(r2)).toBe("applied");
     // Adopt needs every owned entity: the support is gone.
     act(() => cell(r3, "dx").focus());
@@ -215,9 +215,9 @@ describe("run sheet through the shell", () => {
     await waitFor(() => expect(status(r3)).toBe("applied"));
     // A sheet-owned node edited on another surface: Adopt current values, with no operation.
     fireEvent.click(screen.getByTestId("entity-grid-type-nodes"));
-    const y = () => screen.getByTestId("table-cell-node:N30-y");
+    const y = () => screen.getByTestId("table-cell-node:N20-y");
     fireEvent.click(y()); fireEvent.click(y());
-    fireEvent.change(screen.getByRole("textbox", { name: "node:N30 Y [m]" }), { target: { value: "8.5" } });
+    fireEvent.change(screen.getByRole("textbox", { name: "node:N20 Y [m]" }), { target: { value: "8.5" } });
     fireEvent.click(within(screen.getByTestId("engineering-table")).getByRole("button", { name: "Apply" }));
     await waitFor(() => expect(y()).toHaveTextContent("8.5"));
     fireEvent.click(screen.getByTestId("entity-grid-type-run-sheet"));
@@ -234,9 +234,9 @@ describe("run sheet through the shell", () => {
     expect(within(screen.getByRole("menu")).getByText("Delete row").closest("[role='menuitem']")).toHaveAttribute("aria-disabled", "true");
     fireEvent.keyDown(screen.getByRole("menu"), { key: "Escape" });
     fireEvent.click(screen.getByTestId("entity-grid-type-nodes"));
-    const y20 = () => screen.getByTestId("table-cell-node:N20-y");
+    const y20 = () => screen.getByTestId("table-cell-node:N10-y");
     fireEvent.click(y20()); fireEvent.click(y20());
-    fireEvent.change(screen.getByRole("textbox", { name: "node:N20 Y [m]" }), { target: { value: "6.5" } });
+    fireEvent.change(screen.getByRole("textbox", { name: "node:N10 Y [m]" }), { target: { value: "6.5" } });
     fireEvent.click(within(screen.getByTestId("engineering-table")).getByRole("button", { name: "Apply" }));
     await waitFor(() => expect(y20()).toHaveTextContent("6.5"));
     fireEvent.click(screen.getByTestId("entity-grid-type-run-sheet"));
@@ -246,7 +246,7 @@ describe("run sheet through the shell", () => {
     fireEvent.click(within(screen.getByRole("menu")).getByText("Remove from sheet").closest("[role='menuitem']")!);
     expect(screen.queryByTestId(`run-sheet-row-${r2}`)).toBeNull();
     fireEvent.click(screen.getByTestId("layout-mode-tree"));
-    expect(treeRow("pipe", "pipe:P20")).toBeInTheDocument();
+    expect(treeRow("pipe", "pipe:P10")).toBeInTheDocument();
   });
 
   it("an applied row reads stored geometry: after its end node moves outside and Adopt, it shows the stored end and a new row continues from it (Codex r1 P1)", async () => {
@@ -260,9 +260,9 @@ describe("run sheet through the shell", () => {
     expect(cell(r2, "position")).toHaveTextContent("2, 6, 0");
     // The last node moves on another surface from x = 2 to x = 12.
     fireEvent.click(screen.getByTestId("entity-grid-type-nodes"));
-    const x = () => screen.getByTestId("table-cell-node:N20-x");
+    const x = () => screen.getByTestId("table-cell-node:N10-x");
     fireEvent.click(x()); fireEvent.click(x());
-    fireEvent.change(screen.getByRole("textbox", { name: "node:N20 X [m]" }), { target: { value: "12" } });
+    fireEvent.change(screen.getByRole("textbox", { name: "node:N10 X [m]" }), { target: { value: "12" } });
     fireEvent.click(within(screen.getByTestId("engineering-table")).getByRole("button", { name: "Apply" }));
     await waitFor(() => expect(x()).toHaveTextContent("12"));
     fireEvent.click(screen.getByTestId("entity-grid-type-run-sheet"));
@@ -281,7 +281,7 @@ describe("run sheet through the shell", () => {
     await queueRows();
     await previewAndApply("batch:run-sheet-sheet-1-2");
     fireEvent.click(screen.getByTestId("entity-grid-type-nodes"));
-    expect(screen.getByTestId("table-cell-node:N30-x")).toHaveTextContent("13");
+    expect(screen.getByTestId("table-cell-node:N20-x")).toHaveTextContent("13");
   });
 
   it("a model edit on another surface after Queue retires the registration; the rows return to draft marked Requeue needed; Requeue queues a new batch that applies", async () => {
@@ -343,7 +343,7 @@ describe("run sheet through the shell", () => {
     expect(screen.getByTestId("batch-review-summary")).toHaveTextContent("0 queued batches; 0 batches applied this session.");
     toSheet();
     fireEvent.click(screen.getByTestId("layout-mode-tree"));
-    expect(treeRow("node", "node:N20")).toBeNull();
+    expect(treeRow("node", "node:N10")).toBeNull();
   });
 });
 
@@ -407,7 +407,7 @@ describe("run sheet bend rows read stored tangent points (Codex r2 P2)", () => {
     const { r2 } = await appliedBend();
     const f = addRow();
     code(f, "kind", "f");
-    type(f, "node", "node:N20-T1");
+    type(f, "node", "node:N10-T1");
     expect(screen.getByTestId(`run-sheet-row-header-${f}`)).toHaveAccessibleName(/^Row 4, start from node, draft$/);
     const run = addRow();
     type(run, "dz", "2");
@@ -416,7 +416,7 @@ describe("run sheet bend rows read stored tangent points (Codex r2 P2)", () => {
     expect(screen.getByTestId(`run-sheet-row-header-${run}`)).toHaveAccessibleName(/^Row 5, run, draft$/);
     fireEvent.click(menuItem(r2, "Start branch here"));
     const branch = screen.getAllByTestId(/^run-sheet-row-r\d+$/).at(-1)!.dataset.testid!.replace("run-sheet-row-", "");
-    expect(cell(branch, "node")).toHaveTextContent("node:N20-T2");
+    expect(cell(branch, "node")).toHaveTextContent("node:N10-T2");
     expect(screen.getByTestId(`run-sheet-row-header-${branch}`)).toHaveAccessibleName(/start from node, draft$/);
     // A draft bend's corner is replaced on apply: no branch may start there.
     const draftBend = addRow();
@@ -443,9 +443,9 @@ describe("run sheet bend rows read stored tangent points (Codex r2 P2)", () => {
 
   it("a detached bend row: its tangent point moved outside shows the stored position, and the next row's increment follows it", async () => {
     const { r2, r3 } = await appliedBend();
-    await moveNode("node:N20-T2", "y", "1.5");
+    await moveNode("node:N10-T2", "y", "1.5");
     expect(status(r2)).toBe("detached");
-    expect(screen.getByTestId(`run-sheet-detached-${r2}`)).toHaveTextContent("Changed outside the sheet: node:N20-T2");
+    expect(screen.getByTestId(`run-sheet-detached-${r2}`)).toHaveTextContent("Changed outside the sheet: node:N10-T2");
     expect(status(r3)).toBe("applied");
     expect(cell(r3, "dy")).toHaveAccessibleName("Row 3 dY: 8.5 m");
     fireEvent.click(menuItem(r2, "Adopt current values"));
