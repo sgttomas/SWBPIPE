@@ -31,7 +31,7 @@ afterEach(() => {
 });
 
 const TOO_LARGE = { code: "PREVIEW-SOLVE-RESULT-TOO-LARGE", result_bytes: 3_950_000_000, limit_bytes: 67_108_864 };
-const MESSAGE = "The solve finished, but its result is 3.68 GiB, above the desktop's display limit of 64 MiB. The per-station result detail of this model and its load cases is too large for the desktop to display. No result is shown or kept. You can solve fewer load cases or combinations at once, or a smaller model. A summary-first results view is planned. Code: PREVIEW-SOLVE-RESULT-TOO-LARGE (result_bytes=3950000000, limit_bytes=67108864).";
+const MESSAGE = "The solve finished, but its result is 3.68 GiB, above the desktop's display limit of 64 MiB. The per-station result detail of this model and its load cases is too large for the desktop to display. No result is shown or kept. A solve covers every load case and combination in the model, so to come under the limit: remove the load cases and combinations this review does not need (Load Cases section); or solve the cases in smaller groups, each in its own copy of the model document (File > Save Model Document…), with the combinations in a copy holding only the cases they use; or split a large model into parts. Code: PREVIEW-SOLVE-RESULT-TOO-LARGE (result_bytes=3950000000, limit_bytes=67108864).";
 
 let sequence = 0;
 /** The session over the replayed solve of the committed pressure pair; `refuse()` makes later jobs end refused for their size. */

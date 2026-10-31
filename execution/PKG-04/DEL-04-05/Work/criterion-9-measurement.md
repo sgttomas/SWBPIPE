@@ -216,9 +216,14 @@ The desktop therefore refuses a result above `MAX_DISPLAYABLE_RESULT_BYTES` = 64
 (67,108,864 bytes; `apps/desktop/src-tauri/src/solve_jobs.rs`) before any of it is read,
 with `PREVIEW-SOLVE-RESULT-TOO-LARGE`, its size and the limit (DEL-04-07
 `Work/memory-budget-decision.md`). The Solve panel names the cause, the per-station result
-detail of the model and its load cases, and says what can be done now: solve fewer load cases
-or combinations at once, or a smaller model. It also says a summary-first results view is
-planned.
+detail of the model and its load cases, and says what can be done now. A solve covers every
+load case and combination in the model, so the person can remove the cases and combinations
+the review does not need, solve the cases in smaller groups in separate copies of the model
+document (with the combinations in a copy holding only the cases they use), or split a large
+model into parts.
+
+The refusal is interim: the result-volume redesign (C) removes it, so it gets no
+release-limitations (LIM) entry; if C does not land for v1.0, it becomes one.
 
 **Measured basis.** An exclusive window on 2026-10-31 on the development host (Apple M5 Max,
 128 GiB, not the base machine) ran the native-smoke release build `6c2f02d81` with injected

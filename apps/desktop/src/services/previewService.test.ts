@@ -649,7 +649,7 @@ describe("native mechanics failure boundary", () => {
     const failure = await runPreviewMechanics(pair.model, "sparse_interactive", { onStatus: (status) => seen.push(status.resource) }).catch((error: unknown) => error);
     expect(failure).toBeInstanceOf(ResourceUnavailableError);
     expect((failure as ResourceUnavailableError).refusal).toEqual(refusal);
-    expect((failure as Error).message).toBe("RESOURCE_UNAVAILABLE: The solve needed more memory (6 GiB) than could be reserved while it ran: macOS reports memory pressure (warning), so no new solve is admitted until it returns to normal. The memory the solve needs most likely comes from the volume of per-station result detail for this model and its load cases. You can solve fewer load cases or combinations at once, or a smaller model. A summary-first results view is planned.");
+    expect((failure as Error).message).toBe("RESOURCE_UNAVAILABLE: The solve needed more memory (6 GiB) than could be reserved while it ran: macOS reports memory pressure (warning), so no new solve is admitted until it returns to normal. The memory the solve needs most likely comes from the volume of per-station result detail for this model and its load cases. A solve covers every load case and combination in the model, so to need less: remove the load cases and combinations this review does not need (Load Cases section); or solve the cases in smaller groups, each in its own copy of the model document (File > Save Model Document…), with the combinations in a copy holding only the cases they use; or split a large model into parts.");
     expect(seen.at(-1)).toMatchObject({ route_pricing: "ordinary_worker_capped", worker_grant_bytes: null, worker_peak_grant_bytes: 4 * 2 ** 30 });
     expect(invokeMock.mock.calls.some(([command]) => command === "take_preview_mechanics_job_result")).toBe(false);
   });
@@ -676,7 +676,7 @@ describe("native mechanics failure boundary", () => {
 
 describe("a result too large to display (RT-U4)", () => {
   const TOO_LARGE = { code: "PREVIEW-SOLVE-RESULT-TOO-LARGE", result_bytes: 3_950_000_000, limit_bytes: 67_108_864 };
-  const SENTENCE = "The solve finished, but its result is 3.68 GiB, above the desktop's display limit of 64 MiB. The per-station result detail of this model and its load cases is too large for the desktop to display. No result is shown or kept. You can solve fewer load cases or combinations at once, or a smaller model. A summary-first results view is planned.";
+  const SENTENCE = "The solve finished, but its result is 3.68 GiB, above the desktop's display limit of 64 MiB. The per-station result detail of this model and its load cases is too large for the desktop to display. No result is shown or kept. A solve covers every load case and combination in the model, so to come under the limit: remove the load cases and combinations this review does not need (Load Cases section); or solve the cases in smaller groups, each in its own copy of the model document (File > Save Model Document…), with the combinations in a copy holding only the cases they use; or split a large model into parts.";
 
   it("rejects a job refused for its result's size with the plain reason, the sizes and the limit, and takes nothing", async () => {
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};

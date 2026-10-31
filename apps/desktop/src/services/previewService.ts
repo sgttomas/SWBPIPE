@@ -25,7 +25,7 @@ import {
 import { buildAnalysisRunV03, modelLoadBasisRefs } from "./analysisRunCompatibility";
 import type { ExcludedRulePackRef } from "./rulePackRefDiagnostics";
 import { canonicalSha256HexCheckedV1, checkedJsonText } from "./hashService";
-import { formatBytes, nativeInvokeError, parseResourceRefusal, parseSolveResourceGrant, ResourceUnavailableError } from "./memoryPool";
+import { formatBytes, nativeInvokeError, parseResourceRefusal, parseSolveResourceGrant, ResourceUnavailableError, SOLVE_RESULT_REDUCTION_OPTIONS } from "./memoryPool";
 export { configureMemoryPool, describeResourceRefusal, getMemoryPoolStatus, ResourceUnavailableError } from "./memoryPool";
 
 async function invokeOrFixture<T>(
@@ -258,10 +258,10 @@ export function parseResultTooLarge(value: unknown): ResultTooLarge | null {
   return { code, result_bytes, limit_bytes };
 }
 
-/** Plain-language reading of a result-size refusal: the sizes, the cause, what
- * the person can do now and what is planned. */
+/** Plain-language reading of a result-size refusal: the sizes, the cause and
+ * what the person can do now. */
 export function describeResultTooLarge(refusal: ResultTooLarge): string {
-  return `The solve finished, but its result is ${formatBytes(refusal.result_bytes)}, above the desktop's display limit of ${formatBytes(refusal.limit_bytes)}. The per-station result detail of this model and its load cases is too large for the desktop to display. No result is shown or kept. You can solve fewer load cases or combinations at once, or a smaller model. A summary-first results view is planned.`;
+  return `The solve finished, but its result is ${formatBytes(refusal.result_bytes)}, above the desktop's display limit of ${formatBytes(refusal.limit_bytes)}. The per-station result detail of this model and its load cases is too large for the desktop to display. No result is shown or kept. A solve covers every load case and combination in the model, so to come under the limit: ${SOLVE_RESULT_REDUCTION_OPTIONS}`;
 }
 
 /** The refusal's code and exact figures, for example

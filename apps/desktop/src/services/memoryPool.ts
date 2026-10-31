@@ -24,9 +24,13 @@ function formatAge(ms: number): string {
 
 const PRESSURE_LEVELS: readonly MemoryPressureLevel[] = ["normal", "warning", "critical", "unknown"];
 
-/** Appended to a solve worker's memory refusals: the likely cause, what the
- * person can do now and what is planned. The refusal's figures come first. */
-export const SOLVE_WORKER_MEMORY_ADVICE = "The memory the solve needs most likely comes from the volume of per-station result detail for this model and its load cases. You can solve fewer load cases or combinations at once, or a smaller model. A summary-first results view is planned.";
+/** What a person can reduce or split today so a solve publishes less result
+ * detail: a solve covers every load case and combination in the model. */
+export const SOLVE_RESULT_REDUCTION_OPTIONS = "remove the load cases and combinations this review does not need (Load Cases section); or solve the cases in smaller groups, each in its own copy of the model document (File > Save Model Document…), with the combinations in a copy holding only the cases they use; or split a large model into parts.";
+
+/** Appended to a solve worker's memory refusals: the likely cause and what the
+ * person can do now. The refusal's figures come first. */
+export const SOLVE_WORKER_MEMORY_ADVICE = `The memory the solve needs most likely comes from the volume of per-station result detail for this model and its load cases. A solve covers every load case and combination in the model, so to need less: ${SOLVE_RESULT_REDUCTION_OPTIONS}`;
 
 /** Plain-language reason for a native resource refusal. It states what the
  * native host reported; it never promises that a retry or another setting will succeed. */
