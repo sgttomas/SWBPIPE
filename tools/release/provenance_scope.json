@@ -3,7 +3,7 @@
   "members": [
     {
       "path": "apps/desktop/src/test-support/desktop-shaped/desktop_shaped_pressure_plain_connected_dense.stress_neutral.json",
-      "sha256": "415b4d7a0eded80665ff5a349d5ac651831f9e01351674742fbe1c5780ae7731",
+      "sha256": "96a2c50cebd4dd980e7cc859990a15f907e6fca3ab1258cc01fc52fa89e7adfe",
       "labels": [
         [
           "\"invented_non_engineering_example\"",
@@ -18,7 +18,7 @@
     },
     {
       "path": "apps/desktop/src/test-support/desktop-shaped/desktop_shaped_pressure_plain_connected_sparse.stress_neutral.json",
-      "sha256": "d39552b2bc1d6772ccee0d46fdcc51e067cf4562114d27b01f3632f99e7321df",
+      "sha256": "fb26708bd723f7573aa0ef9c17d6e4ebefaa179af6b0086e4161e15f259396bc",
       "labels": [
         [
           "\"invented_non_engineering_example\"",
@@ -33,7 +33,7 @@
     },
     {
       "path": "apps/desktop/src/test-support/desktop-shaped/desktop_shaped_pressure_source_plain_n05_dense.stress_neutral.json",
-      "sha256": "56818245fc088d8ac43996cb6d73677df5d78206ed3a8ac52b73ace980bf9ad6",
+      "sha256": "53efcbd18949d6e1ff37b51f34d683768be9745ca39a6cd80641d778a93700ba",
       "labels": [
         [
           "\"invented_non_engineering_example\"",
@@ -48,7 +48,7 @@
     },
     {
       "path": "apps/desktop/src/test-support/desktop-shaped/desktop_shaped_pressure_source_plain_n05_sparse.stress_neutral.json",
-      "sha256": "3c633b69df4cb41adeca84793a2a8e90183fa5900062b4d2c017c30632e60e0d",
+      "sha256": "147ac71cea7b0ffb4c9c3fed548effaa8ac4c150c50d05e5f8dc192a09254f28",
       "labels": [
         [
           "\"invented_non_engineering_example\"",
@@ -111,7 +111,7 @@
     },
     {
       "path": "fixtures/handoff/invented_witness.swbhandoff/handoff_package.json",
-      "sha256": "b270b9fbc53cc931d6145b6d07394c7778555241d746bc7f0860f4c817626f07",
+      "sha256": "c0c77a431d54f23f67f4c17d61e28a0357edf6b7afaf069675c0e3351fb180e8",
       "labels": [
         [
           "\"invented_non_engineering_example\"",
@@ -130,7 +130,7 @@
     },
     {
       "path": "fixtures/handoff/invented_witness.swbhandoff/model/model.json",
-      "sha256": "da6e52ee7d2c6985b1555ba7f6ba4683583687b3227c84f84cfd31d9a04d4c93",
+      "sha256": "601e987fcffb0b9ebc9a3fe2f0efbd1d4cd76b775a627c81f3416ce8b8a75dd2",
       "labels": [
         [
           "\"invented_non_engineering_example\"",
@@ -209,7 +209,7 @@
     },
     {
       "path": "fixtures/model_document/desktop_emitted.json",
-      "sha256": "6041078b8aca988ba4188a38af9c223ab08fe231a618b3106327503a750097b3",
+      "sha256": "a2815e0d9593086728b1fef780e37f5195eae8e4456401e86691fdd5914826bf",
       "labels": [
         [
           "\"invented_non_engineering_example\"",

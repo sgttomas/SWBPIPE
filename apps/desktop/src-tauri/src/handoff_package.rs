@@ -2464,10 +2464,15 @@ mod tests {
         let ids = entity_ids(&model, "project:slots", "state:x").unwrap();
         assert_eq!(ids["node_ids"], json!(["node:N-1", "node:N-2", "node:N-3"]));
         assert_eq!(ids["element_ids"], json!(["pipe:P-1", "pipe:P-2"]));
-        assert_eq!(ids["load_case_ids"], json!(["combination:C-OP", "load:L-1"]));
+        // Load cases and combinations, sorted; 0.9.0's reviewed every-slot additions are L-2, L-3,
+        // C-EXP, C-ABS and C-SRSS.
+        assert_eq!(
+            ids["load_case_ids"],
+            json!(["combination:C-ABS", "combination:C-EXP", "combination:C-OP", "combination:C-SRSS", "load:L-1", "load:L-2", "load:L-3"])
+        );
         assert_eq!(ids["component_ids"], json!(["component:C-1"]));
         let mapped: Vec<&str> = ids["mapping_id_refs"].as_array().unwrap().iter().map(|item| item["ref"].as_str().unwrap()).collect();
-        for entity in ["support:S-1", "material:steel", "section:std", "line:L-100", "constraint:K-001", "equipment-interface:E-001"] {
+        for entity in ["support:S-1", "support:SN-1", "material:steel", "section:std", "line:L-100", "constraint:K-001", "equipment-interface:E-001"] {
             assert!(mapped.contains(&format!("project:slots#{entity}").as_str()), "{entity}");
         }
         let mut renamed = model.clone();

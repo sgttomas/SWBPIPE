@@ -217,7 +217,7 @@
       "core/reporting/pdf_emitter/Cargo.toml": "bdac876fe00cde0e3ba33a557dafe3e76e96dd462f4a710b63012dada23fca50",
       "core/reporting/protected_content_linter/Cargo.toml": "6a11912d00b5c5c502e1f3d6d3036cf60d3e163078afbc3300005fd496a756ef",
       "core/reporting/report_generator/Cargo.toml": "625a9a604bf91c108cdbd55f650788f319c27c21390ae536d660a0d640d3c81c",
-      "core/reporting/report_package/Cargo.toml": "9d9c27e80be20770884edaad98fc1a183ced4cf58b1c9ddfd8cfc323e42e48a7",
+      "core/reporting/report_package/Cargo.toml": "4763094f697b2201e8f5cdc7745e5cd284941be1bc0b70f48388e3df67459a21",
       "core/reporting/report_renderer/Cargo.toml": "e16d788aa9def79409f139ca48b73f03bde62ce9ff898456aaac697dc00bcb0e",
       "core/reporting/report_sections/Cargo.toml": "44acb66312edbc9bfd77aa2980a898511ac34de67fba0fc773b70007a3aad0f1",
       "core/reporting/result_export/Cargo.toml": "8bfd362f9ad1166bf10da9793d0f74fecbd90cbbe6dc1ffdc8cd8b5a3a02cd88",
@@ -5524,7 +5524,7 @@
             ]
           }
         ],
-        "sha256": "bd21eafec49c7f785fc3cd0f23a864f74c3e6a3e5e1f860ddd4d4bec456ec12c",
+        "sha256": "c8e6e6b9c072c93b4554dcaa48a486d6acda5bfab3a1aaef1af10a47a9281635",
         "source_trees": [
           "core/reporting/report_package/Cargo.toml"
         ]

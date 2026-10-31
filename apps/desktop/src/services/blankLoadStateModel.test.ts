@@ -17,8 +17,9 @@ const AT = new Date("2026-06-12T00:00:00Z");
 // change each time). Re-pinned by W-17 slice (a), which adds project.units.angle
 // = rad and changes nothing else (projectUnitSelection.test.ts checks that the
 // blank without angle still hashes to the previous pin). Model document 0.8.0 re-pinned
-// it by its version token only (the blank at 0.7.0 gives the former pin).
-const BASE_BLANK_SHA256 = "76093a1c58dea3823db425b6e8529b407f8a2d55a736e8c4fcc4af0a7f50cd99";
+// it by its version token only (the blank at 0.7.0 gives the former pin), and so did model
+// document 0.9.0 (the blank at 0.8.0 gives 76093a1c…).
+const BASE_BLANK_SHA256 = "db1df563735f7efdada01a59c2efde767e30a8023ac99cf63b2d8079b7115c07";
 // T4-U8 (D-6/O3): the blank's contract carries the authoring default shear model.
 const CONTRACT = { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "timoshenko_annulus_energy_v1" };
 
