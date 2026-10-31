@@ -29,7 +29,7 @@ acceptance, issuance or release.
 | Member | Type | Required | Meaning |
 |---|---|---|---|
 | `kind` | enum `["hydrostatic"]` | yes | The case is a hydrostatic test. Results and reports mark it as a test case. |
-| `held_supports` | enum `["springs_and_constant_effort", "none"]` | yes | `springs_and_constant_effort`: every spring support (family `spring`, and `variable_spring_hanger` or `spring_hanger` hangers) and every constant-effort support acts in this case as a rigid restraint on the DOF it acts on, and its spring or constant force does not act. `none`: supports act as in every other case. |
+| `held_supports` | enum `["springs_and_constant_effort", "none"]` | yes | `springs_and_constant_effort`: every spring support (family `spring`, and `variable_spring_hanger` or `spring_hanger` hangers) and every constant-effort support acts in this case as a rigid restraint on the DOF it acts on, and neither its stiffness nor any force law acts: no constant force, and no variable-spring preload (DEL-04-11 D-3's F = F_cold − k·u; agreed with DEL-04-11, 2026-10-31). `none`: supports act as in every other case. |
 
 - Nothing is defaulted, and an authored `null` is refused (0.9.0 §1.2's rule).
   `held_supports` is entered, never inferred from `kind`; the desktop's
