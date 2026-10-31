@@ -386,7 +386,11 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // byte of the suffix: the closed `b7a_preview_namespace_tests` module and, after the
             // resume, the closed `w1_member_reader_gate_tests` module's invocation version; no
             // include, path module, static or production entered the suffix.
-            complete_suffix_sha256: "2f8092f354608a6d35f795194be7e1aa0b473d028666336908242b9c94afbc97",
+            // Re-audited for model 0.9.0's retained boundary (model-document-0.9.0.md §3.8): after the
+            // resume, one closed module is added, `model_0_9_0_g8_tests` (its one test builds its
+            // invocation inline; no include), between `t4_u6_g8_tests` and `w1_member_reader_gate_tests`;
+            // no include, path module, static or production entered the suffix.
+            complete_suffix_sha256: "e488f83343d3c52824275c07476e3a576f4892b019249446748183275c709b23",
             // Only the preceding closed test region is excluded. These two
             // trailing public functions are production and remain inspected.
             production_resume: Some("/// The reader's outcome as JSON, for callers outside Rust (the desktop's wasm"),
@@ -409,7 +413,10 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // one test, `a_case_condition_use_is_declined_by_name`, whose two includes are the n05
             // raw source and request fixtures (test-only); nothing else in the suffix changed and it
             // still holds no production.
-            complete_suffix_sha256: "2f2b5795a725275dfa7d090c5dffb626b2d63cd5d7a305a390c776af7ebb4cba",
+            // Re-audited for model 0.9.0's retained boundary (§3.8): the closed module gains one test,
+            // `condition_sets_spectra_and_set_references_are_declined_by_name`, whose two includes are
+            // the same n05 raw source and request fixtures (test-only); it still holds no production.
+            complete_suffix_sha256: "6df0a088632d93f33edee42f6da002e5687cbe1802327c25e1d508b794d946e2",
             production_resume: None,
             trailing_test: None,
         })),
@@ -3378,6 +3385,94 @@ fn b3b_exact_regions_capacity_is_read() {
     assert_eq!(refusal.precondition().as_str(), "resource_admission");
     let control = admitted_typed(exact3(milestone()), |r| r.model.sections.reserve_exact(1));
     assert!(matches!(control.law().domain, Some(AdmissionRefusal::Cap { fact: CapFact::SectionsCapacity, cap: 0, .. })), "{:?}", control.law().domain);
+}
+
+/// Model document 0.9.0's valid condition set and spectrum (they decode, and the lowering finds
+/// nothing in either).
+fn condition_set() -> Value {
+    json!({"id": "cs", "provenance": "user", "conditions": [{"key": "OPE", "temperature": {"value": 20.0, "unit": "degC"}}]})
+}
+fn spectrum() -> Value {
+    json!({"id": "sp", "abscissa": "frequency", "ordinate": "g_multiple", "units": {"abscissa": "Hz"},
+        "g_value": {"value": 9.80665, "unit": "m/s^2"}, "damping_ratio": 0.05,
+        "interpolation": {"abscissa": "log", "ordinate": "log"}, "points": [[1.0, 0.2], [10.0, 0.5]]})
+}
+
+/// Model document 0.9.0 (DEL-02-01 Design `model-document-0.9.0.md` §3.7, §3.8): D1.3 declines a
+/// non-empty `condition_sets` or `spectra`, and any pipe's `condition_set_ref` (an empty string
+/// included), by name, on both branches and for Direct and headless callers alike. An empty
+/// owner is admitted only with typed capacity 0, which an absent member and a parsed `[]` both
+/// have; an empty owner with spare capacity (a typed caller's) refuses with its capacity fact, as
+/// D1.5's empty regions do. The clause reads no content: the typed census's string and capacity
+/// facts are the absent document's whatever the sets, spectra or references hold, and the clause
+/// precedes D1.4 (a request also over the case cap refuses here first). Nothing is removed or
+/// defaulted: the parsed request keeps every authored member.
+#[test]
+fn model_0_9_0_condition_sets_spectra_and_references_are_declined_at_d1_3() {
+    use D1Clause as C;
+    use FamilyFact as F;
+    for (route, base) in [("L", milestone()), ("E", exact3(milestone()))] {
+        let with = |change: &dyn Fn(&mut Value)| {
+            let mut raw = base.clone();
+            change(&mut raw);
+            raw
+        };
+        let absent = admitted(base.clone());
+        assert_eq!(absent.law().domain, None, "{route}: absent members");
+        // A parsed `[]` is the absent member: length 0, capacity 0, admitted.
+        let empty = with(&|r| { r["model"]["condition_sets"] = json!([]); r["model"]["spectra"] = json!([]); });
+        let (parsed, _) = CapturedInvocation::parse(empty.clone(), PreviewSolverMode::SparseInteractive).unwrap();
+        assert_eq!((parsed.model.condition_sets.capacity(), parsed.model.spectra.capacity()), (0, 0), "{route}: a parsed [] has no capacity");
+        assert_eq!(domain(empty), None, "{route}: []");
+        let populated = [
+            (with(&|r| r["model"]["condition_sets"] = json!([condition_set()])), family(C::Namespace, F::ConditionSets)),
+            (with(&|r| r["model"]["spectra"] = json!([spectrum()])), family(C::Namespace, F::Spectra)),
+            (with(&|r| r["model"]["pipe_segments"][0]["condition_set_ref"] = json!("cs")), family(C::Namespace, F::ConditionSetRef)),
+            (with(&|r| r["model"]["pipe_segments"][0]["condition_set_ref"] = json!("")), family(C::Namespace, F::ConditionSetRef)),
+            (with(&|r| { r["model"]["condition_sets"] = json!([condition_set()]); r["model"]["pipe_segments"][0]["condition_set_ref"] = json!("cs"); }),
+                family(C::Namespace, F::ConditionSets)),
+        ];
+        for (raw, expected) in &populated {
+            let report = admitted(raw.clone());
+            assert_eq!(report.law().domain, *expected, "{route}");
+            assert_eq!(report.law().refusal, d1_1_refusal().or(*expected), "{route}");
+            assert_eq!(report.law().nested, absent.law().nested, "{route}: the census reads no set, spectrum or reference");
+            assert_eq!(report.typed, absent.typed, "{route}");
+            // Headless: D1.0 refuses the caller, and the report keeps the same domain fact.
+            let (request, capture) = CapturedInvocation::parse(raw.clone(), PreviewSolverMode::SparseInteractive).unwrap();
+            let (invocation, id) = (json!({"request": raw, "solver_mode": "sparse_interactive"}), String::from("r"));
+            let headless = assess(&capture, &request, Entry::Headless(RetainedHeadlessContext::from_borrowed_roots(raw, &invocation, &id)), RETAINED_LIMIT);
+            assert_eq!(headless.law().domain, *expected, "{route}: headless");
+            assert_eq!(headless.law().refusal, Some(AdmissionRefusal::Caller(RetainedCaller::Headless)), "{route}: headless");
+            // Nothing is dropped or defaulted on the way to admission.
+            assert_eq!(request.model.condition_sets.len(), raw["model"]["condition_sets"].as_array().map_or(0, Vec::len));
+            assert_eq!(request.model.pipe_segments.iter().filter(|p| p.condition_set_ref.is_some()).count(),
+                raw["model"]["pipe_segments"].as_array().unwrap().iter().filter(|p| p.get("condition_set_ref").is_some()).count());
+        }
+        // D1.3 precedes D1.4: a request over the case cap carrying a set refuses with the set.
+        let over = with(&|r| { *r = with_cases(r.clone(), caps::LOAD_CASES + 1); r["model"]["condition_sets"] = json!([condition_set()]); });
+        assert_eq!(domain(over), family(C::Namespace, F::ConditionSets), "{route}");
+        // A typed caller: an empty owner with spare capacity, or a reference set after the parse.
+        for spare in [1, 65_536] {
+            let sets = admitted_typed(base.clone(), |r| r.model.condition_sets = Vec::with_capacity(spare));
+            assert_eq!(sets.law().domain, Some(AdmissionRefusal::Cap { fact: CapFact::ConditionSetsCapacity, observed: spare, cap: 0 }), "{route}");
+            let spectra = admitted_typed(base.clone(), |r| r.model.spectra = Vec::with_capacity(spare));
+            assert_eq!(spectra.law().domain, Some(AdmissionRefusal::Cap { fact: CapFact::SpectraCapacity, observed: spare, cap: 0 }), "{route}");
+        }
+        assert_eq!(admitted_typed(base.clone(), |r| r.model.condition_sets = Vec::new()).law().domain, None, "{route}: Vec::new()");
+        for reference in [String::new(), String::with_capacity(64), "cs".to_owned()] {
+            let report = admitted_typed(base.clone(), |r| r.model.pipe_segments[0].condition_set_ref = Some(reference.clone()));
+            assert_eq!(report.law().domain, family(C::Namespace, F::ConditionSetRef), "{route}: Some({reference:?})");
+        }
+    }
+    for refusal in [AdmissionRefusal::Family(D1Clause::Namespace, FamilyFact::ConditionSets), AdmissionRefusal::Family(D1Clause::Namespace, FamilyFact::Spectra),
+        AdmissionRefusal::Family(D1Clause::Namespace, FamilyFact::ConditionSetRef)] {
+        assert_eq!((refusal.clause(), refusal.precondition().as_str()), (Some(D1Clause::Namespace), "source_family"));
+    }
+    for fact in [CapFact::ConditionSetsCapacity, CapFact::SpectraCapacity] {
+        let refusal = AdmissionRefusal::Cap { fact, observed: 1, cap: 0 };
+        assert_eq!((refusal.clause(), refusal.precondition().as_str()), (Some(D1Clause::Caps), "resource_admission"));
+    }
 }
 
 /// B1 SQ (RV112 N-2): at C = 3 there are two parked slots, so "every parked slot" differs from

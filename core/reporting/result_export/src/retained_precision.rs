@@ -5019,6 +5019,11 @@ fn g8(source: &Value, inv: &Value, route: &Route) -> VResult {
     // settles where the condition lowering sits for the retained routes, this reader
     // declines an invocation whose model carries a case's `condition_use`, by name.
     need(!crate::physics_source::model_uses_conditions(model), "G8", "CONDITION_USE_UNSUPPORTED")?;
+    // §3.8: the condition sets and spectra unless absent or `[]`, and any pipe's
+    // `condition_set_ref`, as the retained admission declines them (D1.3).
+    need(!crate::physics_source::model_carries_condition_sets(model), "G8", "CONDITION_SETS_UNSUPPORTED")?;
+    need(!crate::physics_source::model_carries_spectra(model), "G8", "SPECTRA_UNSUPPORTED")?;
+    need(!crate::physics_source::model_carries_condition_set_ref(model), "G8", "CONDITION_SET_REF_UNSUPPORTED")?;
     need(
         // B7a: the producer's pressure-free branch is the current version
         // without a contract (`model_format::is_pressure_free`); 0.4.0 stays
@@ -7924,6 +7929,46 @@ mod t4_u6_g8_tests {
             changed["pressure_contract"]["shear_model"] = json!(shear);
             assert_eq!(exact_namespace(&changed), admitted, "{shear}");
         }
+    }
+}
+
+#[cfg(test)]
+mod model_0_9_0_g8_tests {
+    use super::*;
+
+    /// Model document 0.9.0 (DEL-02-01 Design `model-document-0.9.0.md` §3.8): G8 declines
+    /// `condition_sets` and `spectra` other than absent or `[]`, and any pipe's
+    /// `condition_set_ref` (an empty string included), by name, after the invocation binding
+    /// and before the namespace, as the retained admission declines them at D1.3. The control
+    /// (absent, or `[]`) passes these checks and stops later, at the namespace its top-level
+    /// `shear_model` leaves.
+    #[test]
+    fn g8_declines_condition_sets_spectra_and_set_references_by_name() {
+        let gate = |change: &dyn Fn(&mut Value)| {
+            // A top-level shear_model puts the control outside both namespaces.
+            let mut model = json!({"schema_version": "0.9.0", "shear_model": "outside", "project": {"id": "p"}, "load_cases": [{"id": "c"}],
+                "nodes": [], "supports": [], "pipe_segments": [{"id": "m0"}, {"id": "m1"}]});
+            change(&mut model);
+            let inv = json!({"request": {"model": model}, "solver_mode": "sparse_interactive"});
+            let value = hash("source_blocks_invocation_v1", &inv, "G8", "INVOCATION_MISMATCH").unwrap();
+            let source = json!({"model_ref": "p", "retained_precision": {"body": {"sources": [], "combinations": [], "invocation": {"value": value}}}});
+            g8(&source, &inv, &PREVIEW).unwrap_err().code
+        };
+        let set = json!({"id": "cs", "provenance": "user"});
+        let spectrum = json!({"id": "sp", "points": [[0.1, 1.0], [1.0, 2.0]]});
+        let control = "RETAINED_PRECISION_INVOCATION_MISMATCH";
+        assert_eq!(gate(&|_| {}), control);
+        assert_eq!(gate(&|m| { m["condition_sets"] = json!([]); m["spectra"] = json!([]); }), control, "[] reads as absence");
+        assert_eq!(gate(&|m| m["condition_sets"] = json!([set])), "RETAINED_PRECISION_CONDITION_SETS_UNSUPPORTED");
+        assert_eq!(gate(&|m| m["condition_sets"] = Value::Null), "RETAINED_PRECISION_CONDITION_SETS_UNSUPPORTED");
+        assert_eq!(gate(&|m| m["spectra"] = json!([spectrum])), "RETAINED_PRECISION_SPECTRA_UNSUPPORTED");
+        for reference in [json!("cs"), json!(""), Value::Null] {
+            assert_eq!(gate(&|m| m["pipe_segments"][1]["condition_set_ref"] = reference.clone()),
+                "RETAINED_PRECISION_CONDITION_SET_REF_UNSUPPORTED", "{reference}");
+        }
+        // A case's condition_use keeps its own name and comes first.
+        assert_eq!(gate(&|m| { m["load_cases"][0]["condition_use"] = json!({"temperature": "OPE"}); m["condition_sets"] = json!([set]); }),
+            "RETAINED_PRECISION_CONDITION_USE_UNSUPPORTED");
     }
 }
 

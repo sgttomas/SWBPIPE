@@ -5092,6 +5092,72 @@ fn w15b_hand_written_nodal_weight_stays_admitted() {
         }
     }
 }
+/// Model document 0.9.0 (DEL-02-01 Design `model-document-0.9.0.md` §3.7, §3.8): a document carrying
+/// condition sets, spectra or a pipe's `condition_set_ref` is declined at D1.3 on the actual Direct
+/// entry, before any charged work: one ordinary run and no G-C consultation, no W1 and no
+/// successor, and the publication is the ordinary route's bytes. The ordinary route keeps its
+/// meaning: a valid set, spectrum and reference are judged and removed by the lowering and the
+/// document solves; an empty reference names no set and is refused there by name. `[]` is
+/// absence on both routes.
+#[test]
+fn model_0_9_0_condition_members_are_declined_at_d1_and_take_the_ordinary_route_unchanged() {
+    use super::retained_memory::{AdmissionRefusal, D1Clause, FamilyFact};
+    let set = json!({"id": "cs", "provenance": "user", "conditions": [{"key": "OPE", "temperature": {"value": 20.0, "unit": "degC"}}]});
+    let spectrum = json!({"id": "sp", "abscissa": "frequency", "ordinate": "g_multiple", "units": {"abscissa": "Hz"},
+        "g_value": {"value": 9.80665, "unit": "m/s^2"}, "damping_ratio": 0.05,
+        "interpolation": {"abscissa": "log", "ordinate": "log"}, "points": [[1.0, 0.2], [10.0, 0.5]]});
+    for (route, base) in [("PF", raw()), ("EX", m3x())] {
+        let with = |change: &dyn Fn(&mut Value)| {
+            let mut raw = base.clone();
+            change(&mut raw);
+            raw
+        };
+        let referenced = |reference: &'static str| {
+            let set = set.clone();
+            with(&move |r| {
+                r["model"]["condition_sets"] = json!([set]);
+                r["model"]["pipe_segments"][0]["condition_set_ref"] = json!(reference);
+            })
+        };
+        let cases = [
+            ("sets", with(&|r| r["model"]["condition_sets"] = json!([set])), FamilyFact::ConditionSets, None),
+            ("spectra", with(&|r| r["model"]["spectra"] = json!([spectrum])), FamilyFact::Spectra, None),
+            ("reference", with(&|r| r["model"]["pipe_segments"][0]["condition_set_ref"] = json!("cs")), FamilyFact::ConditionSetRef,
+                Some(super::operating_conditions::OPERATING_CONDITION_SET_UNRESOLVED)),
+            ("empty reference", with(&|r| r["model"]["pipe_segments"][0]["condition_set_ref"] = json!("")), FamilyFact::ConditionSetRef,
+                Some(super::operating_conditions::OPERATING_CONDITION_SET_UNRESOLVED)),
+            ("set and reference", referenced("cs"), FamilyFact::ConditionSets, None),
+        ];
+        for mode in MODES {
+            let base_envelope: Value = serde_json::from_slice(&plain(mode, &base)).unwrap();
+            for (label, raw, fact, refused) in &cases {
+                let (output, counts) = direct(raw, mode);
+                assert_eq!(output.admission().unwrap().law().domain, Some(AdmissionRefusal::Family(D1Clause::Namespace, *fact)), "{route} {label} {mode:?}");
+                assert_eq!(counts, ONE_RUN, "{route} {label} {mode:?}: the ordinary run only, no G-C");
+                assert!(output.retained().is_none(), "{route} {label} {mode:?}: no W1");
+                assert!(output.successor().is_none(), "{route} {label} {mode:?}: no successor");
+                let ordinary = plain(mode, raw);
+                assert!(published(output) == ordinary, "{route} {label} {mode:?}: the ordinary bytes");
+                let envelope: Value = serde_json::from_slice(&ordinary).unwrap();
+                let codes: Vec<&str> = envelope["diagnostics"].as_array().unwrap().iter().filter_map(|d| d["code"].as_str()).collect();
+                match refused {
+                    None => {
+                        assert_eq!(envelope["status"], base_envelope["status"], "{route} {label} {mode:?}: {codes:?}");
+                        assert_eq!(envelope["results"], base_envelope["results"], "{route} {label} {mode:?}: the lowered document's results");
+                    }
+                    Some(code) => {
+                        assert!(codes.contains(code), "{route} {label} {mode:?}: {codes:?}");
+                        assert_ne!(envelope["status"]["mechanics"], json!("MECHANICS_SOLVED"), "{route} {label} {mode:?}");
+                    }
+                }
+            }
+            let empty = with(&|r| { r["model"]["condition_sets"] = json!([]); r["model"]["spectra"] = json!([]); });
+            let (output, _) = direct(&empty, mode);
+            assert_eq!(output.admission().unwrap().law().domain, None, "{route} [] {mode:?}");
+            assert_eq!(serde_json::from_slice::<Value>(&plain(mode, &empty)).unwrap()["results"], base_envelope["results"], "{route} [] {mode:?}");
+        }
+    }
+}
 /// PF Timoshenko (DEL-05-03 Design `pf-timoshenko.md` §3): a pressure-free document selecting
 /// `timoshenko_annulus_energy_v1` is declined at D1 under `ShearModel`, before any charged work:
 /// no W1 and no successor, and the publication is the ordinary route's bytes, under the

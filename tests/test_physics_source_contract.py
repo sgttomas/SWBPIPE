@@ -452,3 +452,44 @@ def test_source_blocks_1_recipes_are_unknown(recipe):
     row = {"kind": "displacement_magnitude", "unit": "mm", "entity_ref": "norm-owner", "value": 0.0}
     with pytest.raises(ValueError, match="DERIVED_RECIPE"):
         _derived(recipe, row, [], composite.SourceContract.PRESSURE_V3)
+
+
+# Model document 0.9.0 (DEL-02-01 Design model-document-0.9.0.md §3.8): condition_sets and spectra other than absent or
+# [], and any pipe's condition_set_ref (an empty string or null included), are declined by name, as the Rust reader
+# (`condition_sets_spectra_and_set_references_are_declined_by_name`) and the retained admission (D1.3) decline them.
+_SET = {"id": "cs", "provenance": "user", "conditions": [{"key": "OPE"}]}
+_SPECTRUM = {"id": "sp", "points": [[0.1, 1.0], [1.0, 2.0]]}
+
+
+@pytest.mark.parametrize("value,carried", [("absent", False), ([], False), ("one", True), (None, True), ({}, True)])
+def test_model_0_9_0_condition_set_and_spectrum_predicates(value, carried):
+    for member, item, predicate in (("condition_sets", _SET, composite.model_carries_condition_sets),
+                                    ("spectra", _SPECTRUM, composite.model_carries_spectra)):
+        model = {"pipe_segments": [{"id": "p"}]}
+        if value != "absent":
+            model[member] = [item] if value == "one" else value
+        assert predicate(model) is carried, (member, value)
+
+
+@pytest.mark.parametrize("reference,carried", [("absent", False), ("cs", True), ("", True), (None, True)])
+def test_model_0_9_0_condition_set_ref_predicate(reference, carried):
+    model = {"pipe_segments": [{"id": "p"}, {"id": "q"}]}
+    if reference != "absent":
+        model["pipe_segments"][1]["condition_set_ref"] = reference
+    assert composite.model_carries_condition_set_ref(model) is carried
+
+
+@pytest.mark.parametrize("change,detail", [
+    (lambda m: m.update(condition_sets=[], spectra=[]), "INVOCATION_HASH"),
+    (lambda m: m.update(condition_sets=[_SET]), "ACTUAL_CONDITION_SETS"),
+    (lambda m: m.update(spectra=[_SPECTRUM]), "ACTUAL_SPECTRA"),
+    (lambda m: m["pipe_segments"][0].update(condition_set_ref="cs"), "ACTUAL_CONDITION_SET_REF"),
+    (lambda m: m["pipe_segments"][0].update(condition_set_ref=""), "ACTUAL_CONDITION_SET_REF"),
+])
+def test_model_0_9_0_members_are_declined_by_name_through_the_reader(change, detail):
+    source, invocation = actual()
+    assert composite.validate_physics_source(source, invocation)
+    change(invocation["request"]["model"])
+    # `[]` passes the declines and stops later, at the receipt's invocation binding the change breaks.
+    with pytest.raises(ValueError, match=f"_{detail}$"):
+        composite.validate_physics_source(source, invocation)

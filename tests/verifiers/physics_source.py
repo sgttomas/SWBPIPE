@@ -201,6 +201,22 @@ def model_uses_conditions(model: Any) -> bool:
     return isinstance(cases, list) and any(isinstance(case, Mapping) and "condition_use" in case for case in cases)
 
 
+def model_carries_condition_sets(model: Any) -> bool:
+    """Whether the model carries condition_sets other than absent or [] (Rust `model_carries_condition_sets`)."""
+    return isinstance(model, Mapping) and "condition_sets" in model and model["condition_sets"] != []
+
+
+def model_carries_spectra(model: Any) -> bool:
+    """Whether the model carries spectra other than absent or [] (Rust `model_carries_spectra`)."""
+    return isinstance(model, Mapping) and "spectra" in model and model["spectra"] != []
+
+
+def model_carries_condition_set_ref(model: Any) -> bool:
+    """Whether a pipe of the model carries condition_set_ref, any value (Rust `model_carries_condition_set_ref`)."""
+    pipes = model.get("pipe_segments") if isinstance(model, Mapping) else None
+    return isinstance(pipes, list) and any(isinstance(pipe, Mapping) and "condition_set_ref" in pipe for pipe in pipes)
+
+
 def _require(condition: Any, detail: str) -> None:
     if not condition:
         raise ValueError("PHYSICS_SOURCE_" + detail)
@@ -691,6 +707,10 @@ def validate_physics_source(source: Mapping[str, Any], actual_invocation: Mappin
             # Model document 0.9.0 (DEL-02-01 Design model-document-0.9.0.md §3.7): a case's condition_use is
             # declined by name, as the Rust reader does.
             _require(not model_uses_conditions(model), "ACTUAL_CONDITION_USE")
+            # §3.8: non-empty condition sets or spectra, and any pipe's set reference, likewise.
+            _require(not model_carries_condition_sets(model), "ACTUAL_CONDITION_SETS")
+            _require(not model_carries_spectra(model), "ACTUAL_SPECTRA")
+            _require(not model_carries_condition_set_ref(model), "ACTUAL_CONDITION_SET_REF")
             # The load/reference-state group keys on its authored presence, never on a version.
             _require(resolved == model_carries_load_state(model), "ACTUAL_LOAD_REFERENCE_CONTEXT")
         if resolved:

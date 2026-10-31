@@ -683,6 +683,16 @@ pub(super) enum FamilyFact {
     /// Model document 0.9.0: a combination with a difference basis, a subtrahend support
     /// state, an unsigned basis or a combination operand (withheld at solve in S1).
     CombinationMember,
+    /// Model document 0.9.0 (`model-document-0.9.0.md` §3.7, §3.8): a non-empty
+    /// `condition_sets`. The lowering judges every set before the solve, and no D1 bound
+    /// prices its loops, so the retained forms decline it by name until a later slice does.
+    ConditionSets,
+    /// Model document 0.9.0: a non-empty `spectra` (data only; the lowering judges every
+    /// spectrum and its points), declined as `ConditionSets` is.
+    Spectra,
+    /// Model document 0.9.0: a pipe's `condition_set_ref`, any value (an empty string
+    /// included), declined with the sets it names.
+    ConditionSetRef,
 }
 /// The fact a cap row (D1.9, D1.11) bounds.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -721,6 +731,11 @@ pub(super) enum CapFact {
     /// list, whose typed capacity must be 0 like the other empty owners'. Raised by D1.5's exact
     /// clause, not a D1.9 row.
     PressureRegionsCapacity,
+    /// Model document 0.9.0: an empty `condition_sets` or `spectra` owner with spare typed
+    /// capacity, which must be 0 like the other empty owners'. Raised by D1.3's clause, not a
+    /// D1.9 row; a parsed request's empty or absent list always has capacity 0.
+    ConditionSetsCapacity,
+    SpectraCapacity,
     ComponentsCapacity,
     CombinationsCapacity,
     RequestExpansionLawsCapacity,
@@ -928,6 +943,26 @@ fn family_clauses(request: &LinearStaticPreviewRequest) -> Result<(), AdmissionR
     }
     if m.pipe_segments.iter().any(|pipe| pipe.section_ref.is_some()) {
         return refuse(C::Namespace, F::SectionRef);
+    }
+    // Model document 0.9.0 (DEL-02-01 Design `model-document-0.9.0.md` §3.7, §3.8): the
+    // condition sets, the spectra and every pipe's `condition_set_ref` are outside D1 until a
+    // later slice prices the lowering's loops over them. The census reads none of their
+    // contents, and this clause precedes every charged step. An empty owner's typed capacity
+    // must be 0 (RV122 SF-2's rule for the empty regions); a parsed request's always is.
+    if !m.condition_sets.is_empty() {
+        return refuse(C::Namespace, F::ConditionSets);
+    }
+    if m.condition_sets.capacity() != 0 {
+        return Err(AdmissionRefusal::Cap { fact: CapFact::ConditionSetsCapacity, observed: m.condition_sets.capacity(), cap: 0 });
+    }
+    if !m.spectra.is_empty() {
+        return refuse(C::Namespace, F::Spectra);
+    }
+    if m.spectra.capacity() != 0 {
+        return Err(AdmissionRefusal::Cap { fact: CapFact::SpectraCapacity, observed: m.spectra.capacity(), cap: 0 });
+    }
+    if m.pipe_segments.iter().any(|pipe| pipe.condition_set_ref.is_some()) {
+        return refuse(C::Namespace, F::ConditionSetRef);
     }
     // D1.4 (B1 SA; B2-A, B2-C §9): 1 ≤ c ≤ C load cases; combinations of any basis, which
     // D1.9's rows count (z ≤ 2, C_eq = c + z ≤ 3, at most 3 terms and 3 range operands

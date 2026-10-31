@@ -1413,3 +1413,30 @@ def test_b7a_preview_namespace_keys_on_the_contracts_absence_not_the_version():
     for value in [None, "euler_bernoulli", False, 1, [], {}]:
         assert not rp._preview_namespace(model("0.9.0", shear_model=value))
         assert not rp._exact_namespace(model("0.9.0", pressure_contract=exact, shear_model=value))
+
+
+# Model document 0.9.0 (DEL-02-01 Design model-document-0.9.0.md §3.8): G8 declines condition_sets and spectra other than
+# absent or [], and any pipe's condition_set_ref, by name after the invocation binding, as Rust's
+# `g8_declines_condition_sets_spectra_and_set_references_by_name` does; the control stops later, at the namespace.
+@pytest.mark.parametrize("change,code", [
+    (lambda m: None, "INVOCATION_MISMATCH"),
+    (lambda m: m.update(condition_sets=[], spectra=[]), "INVOCATION_MISMATCH"),
+    (lambda m: m.update(condition_sets=[{"id": "cs", "provenance": "user"}]), "CONDITION_SETS_UNSUPPORTED"),
+    (lambda m: m.update(condition_sets=None), "CONDITION_SETS_UNSUPPORTED"),
+    (lambda m: m.update(spectra=[{"id": "sp", "points": [[0.1, 1.0], [1.0, 2.0]]}]), "SPECTRA_UNSUPPORTED"),
+    (lambda m: m["pipe_segments"][1].update(condition_set_ref="cs"), "CONDITION_SET_REF_UNSUPPORTED"),
+    (lambda m: m["pipe_segments"][1].update(condition_set_ref=""), "CONDITION_SET_REF_UNSUPPORTED"),
+    (lambda m: m["pipe_segments"][1].update(condition_set_ref=None), "CONDITION_SET_REF_UNSUPPORTED"),
+    (lambda m: m.update(condition_sets=[{"id": "cs"}], load_cases=[{"id": "c", "condition_use": {"temperature": "OPE"}}]),
+     "CONDITION_USE_UNSUPPORTED"),
+])
+def test_model_0_9_0_g8_declines_condition_sets_spectra_and_set_references(change, code):
+    # A top-level shear_model puts the control outside both namespaces, so it stops at G8's namespace check.
+    model = {"schema_version": "0.9.0", "shear_model": "outside", "project": {"id": "p"}, "load_cases": [{"id": "c"}],
+             "nodes": [], "supports": [], "pipe_segments": [{"id": "m0"}, {"id": "m1"}]}
+    change(model)
+    invocation = {"request": {"model": model}, "solver_mode": "sparse_interactive"}
+    body = {"sources": [], "combinations": [], "invocation": {"value": rp._hash("source_blocks_invocation_v1", invocation)}}
+    with pytest.raises(rp.RetainedPrecisionError) as refused:
+        rp._g8(body, {"model_ref": "p", "retained_precision": {"body": body}}, invocation)
+    assert (refused.value.gate, refused.value.code) == ("G8", "RETAINED_PRECISION_" + code)
