@@ -58,6 +58,17 @@ acceptance, issuance or release.
   self-weight staleness check (`inspect_applied_self_weight`), and the EX
   ledger entry (`analysis_state.load_sources`). EX does not provide
   per-case contents weight today (`exactReportLimitations.ts`).
+  **Planned shape** (to be designed and reviewed here; agreed in outline with
+  the dynamics lane, 2026-10-31, because modal's mass must equal a named
+  state's self-weight basis): one resolver,
+  `case_contents_density(model, case, pipe)`, giving condition key k's density
+  when the case's `condition_use.contents_density` names k, and the section's
+  otherwise. Both mass-per-length functions (`stable_mass_per_length`,
+  `exact_generation_mass_per_length`) read through it, the self-weight
+  dependency projection records the resolved value and its source, and modal
+  calls the same resolver and mass function for its named state, so the two
+  bases cannot drift. A condition's `added_weight` is a `weight` primitive,
+  not self-weight lineage.
 - **PF.** Whether PF admits a pressure-free test case (contents weight and held
   supports only) or refuses `test_condition` by name.
 - **Marking.** The result envelope's case record, the report's load-case
