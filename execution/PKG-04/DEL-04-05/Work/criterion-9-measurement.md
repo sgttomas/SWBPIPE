@@ -233,8 +233,13 @@ linear-ex rack results. Every run reached the reader verdict without a hang or c
 
 A 22.3 MiB run's WebContent process was not identified, so it gives no figure.
 
+The verdict times (14.9, 14.8, 21.3 and 64.5 s) are possibly contended: another lane's job
+ran outside the slot system during the window, with the host's load average up to about 97.
+The WebContent footprints are per-process and stand. The times are re-taken in the next
+exclusive window.
+
 - **Margin.** Interpolated at 64 MiB: about 4.2 GB of WebContent, about 17 s to the verdict
-  and an app peak under 0.5 GB. Beside the OS and the app on a 16 GiB machine that leaves
+  (from the possibly contended times) and an app peak under 0.5 GB. Beside the OS and the app on a 16 GiB machine that leaves
   roughly 1.8× headroom. This is an engineering margin from one host, not a measurement on
   the base machine.
 - **Not host-derived.** The value is fixed in the product; it does not follow the host's

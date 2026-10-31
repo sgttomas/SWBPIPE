@@ -115,7 +115,8 @@ const ABANDONED_AT_PUBLICATION: &str = "abandoned_by_session_reset_result_discar
 /// the webview (WebContent) peak footprint was 3.22 GB at 39.1 MiB (79x),
 /// 3.69 GB at 55.1 MiB (64x), 5.04 GB at 79.0 MiB (61x) and 8.04 GB at
 /// 140.7 MiB (54x). Interpolated at 64 MiB: about 4.2 GB of WebContent, about
-/// 17 s to the verdict and an app peak under 0.5 GB, which beside the OS and
+/// 17 s to the verdict (that window's times are possibly contended and are
+/// re-taken) and an app peak under 0.5 GB, which beside the OS and
 /// the app on a 16 GiB machine leaves roughly 1.8x headroom. That is an
 /// engineering margin from one host, not a measurement on the base machine.
 /// Results of 0.46 GB and more hung or crashed WebContent in an earlier window.
