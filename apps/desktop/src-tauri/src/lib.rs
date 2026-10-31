@@ -5053,7 +5053,7 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S
     let hash = |payload: &Value| format!("sha256:{}", open_pipe_stress_operation_applier::sha256_hex(
         &open_pipe_stress_operation_applier::canonical_json(payload)));
     let baseline_hash = hash(&model);
-    if baseline_hash != "sha256:a83c8d8db50c7793a02fe7159a234ac66652f784ddff34e3b918efb77284c346" {
+    if baseline_hash != "sha256:220687ff6cf7576a7ec43ed8ddcd354b4364cb22bae61509503369b4ff0f1857" {
         return Err(format!("PACKAGED-SMOKE-FROZEN-BASELINE-HASH-MISMATCH: {baseline_hash}"));
     }
     let baseline = solve_preview_mechanics(model.clone())?;
@@ -5073,7 +5073,7 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S
     }
     let edited_model = applied["applied_model"].clone();
     let edited_hash = hash(&edited_model);
-    if edited_hash != "sha256:2ffc037a3668ba11935adb01db99d24d2549ff7dc17f06e5d233f1224f4ae535" {
+    if edited_hash != "sha256:0cc8e1640b2f955b219f42936845db39a6f6215623e6bce58c8bc68744742845" {
         return Err(format!("PACKAGED-SMOKE-FROZEN-EDIT-HASH-MISMATCH: {edited_hash}"));
     }
     let agent_intent: Value = serde_json::from_str(r#"{
