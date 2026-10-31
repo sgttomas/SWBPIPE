@@ -599,6 +599,11 @@ fn build(combination: &PreviewCombination, expression: &CombinationExpression<'_
 
     // Phase 2: publish in key order; a magnitude is the norm of its combined
     // components (outside range envelopes, which select it in phase 1).
+    // Invariant: each magnitude precedes its components in `order`, so it reads
+    // their outcomes before their own places `take()` them. It holds because a
+    // load case publishes every node's `displacement_magnitude` before any
+    // displacement component (`solve_prepared_load_case`), and `order` follows
+    // operand publication order. A component taken first would read as missing.
     for (place, (key, template)) in order.iter().enumerate() {
         if recomputed(key.kind) && !range {
             let components: Vec<Key<'_>> = DISPLACEMENT_COMPONENTS
