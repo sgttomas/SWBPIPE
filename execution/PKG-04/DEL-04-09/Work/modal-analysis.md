@@ -121,7 +121,7 @@ on the free degrees of freedom of the linear model, on the pressure-free (PF) ro
 
 Per result:
 - total model mass by category: pipe metal, contents, insulation and component bodies (this also gives the survey's A9 weight summary);
-- free-DOF mass per direction;
+- free-DOF mass per direction, R_k,fᵀM_ff R_k,f, as a mass summary; it is not the denominator of the effective-mass fractions, which is the total mass T_k = R_kᵀM R_k (§1.5, D-v);
 - the Sturm count, its final shift, that shift's separation ratio and pivot-growth factor, and the premise under which the count is relied on (§3.4, check 4);
 - the extraction bound used, which bound stopped extraction, any cluster extension by count, and, on the sparse path, the sizing shift used for a cut-off with its offset.
 
@@ -423,7 +423,7 @@ The generator re-derives every formula and root below; they are stated from memo
 
 ### 4.3 Rings and arcs
 
-- **Class a.** An L-line, a Z-bend and a U-loop with realized arcs, with flexibility factors of 1 and other than 1, against the generator's own Castigliano arc stiffness and half-arc rigid lumps.
+- **Class a.** An L-line, a Z-bend and a U-loop with realized arcs, with flexibility factors of 1 and other than 1, against the generator's own Castigliano arc stiffness and half-arc rigid lumps. The arc stiffness is the curved-bend energy N²/EA + T²/GJ + k(|M|² − T²)/EI (one k for both bending planes, no shear), as the frozen `t4_u4a` and `t4_i7` references state it.
 - **Class b.** A free complete ring of n_b bend macro-elements: in-plane inextensional ω_n² = (EI/(m̄R⁴))·n²(n² − 1)²/(n² + 1) (Hoppe, 1871); out-of-plane ω_n² = (EI/(m̄R⁴))·n²(n² − 1)²/(n² + EI/GJ) (Love, *Treatise on the Mathematical Theory of Elasticity*). The ring is free, so this is a **kernel-level test** with a negative shift (K − σM SPD for σ < 0), not a product run. It shows lumped arcs converging as n_b grows.
 
 ### 4.4 Piping-system benchmarks and their provenance
