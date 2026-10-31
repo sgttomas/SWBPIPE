@@ -48,16 +48,25 @@ Each slice lists its files, its checks and the existing tests it moves.
   lease).
 
 **The command:**
-1. Its arguments are admitted on the async runtime. Then the arguments, their lease and a
-   registry handle move into a blocking task (`spawn_blocking`), so no read occupies a
-   runtime worker.
-2. The held text, the model text and the invocation text are prescanned, without
-   allocating, in the reader's order. A text the prescan refuses is refused with the
-   reader's own message (§4).
-3. The args lease grows by each argument text's priced parse (`text_parse_bytes`). The
-   held text's `Value` materialization M, from the prescan, is admitted as a pool lease
-   before the parse allocates anything (§8). A refusal is `RESOURCE_UNAVAILABLE`, typed.
-4. It calls `operation_applier::reader_dispatch_json`, the same function the wasm export
+1. On the async runtime it only checks the ingress header, reserves the raw body's copy
+   (the envelope of its length, a lease capped as in §8) and copies it. Tauri lends the
+   body only by reference, so the one input-sized step left there is that memcpy, under
+   its reservation. No prescan, parse or materialization runs there.
+2. The copy, its lease and a registry handle move into a blocking task
+   (`spawn_blocking`). The arguments' admission, the diagnostics and the read all run
+   there, so none of them occupies a runtime worker.
+3. **Admission.** The args are prescanned, and the lease grows by their admission bound
+   before they are parsed (`command_ingress::admit_raw`).
+4. **Prescan of the texts.** The held text, the model text and the invocation text are
+   prescanned, without allocating, in the reader's order.
+   - A text the prescan refuses is refused with the reader's own message (§4).
+   - That message comes from a diagnostic parse of each text up to the refused one. Each
+     runs under a diagnostic lease of its priced allocations, admitted first (§8).
+5. **The parse leases.** The args lease grows by each argument text's priced parse
+   (`text_parse_bytes`). The held text's `Value` materialization M, from the prescan, is
+   admitted as a pool lease before the parse allocates anything (§8). A refusal is
+   `RESOURCE_UNAVAILABLE`, typed.
+6. It calls `operation_applier::reader_dispatch_json`, the same function the wasm export
    `reader_dispatch_json` wraps, on the held text and the argument texts, and returns the
    outcome text unchanged.
 
@@ -68,10 +77,14 @@ Each slice lists its files, its checks and the existing tests it moves.
   - refusal by name when M doesn't fit;
   - the take busy while a reader holds the result, and the bytes and lease released
     together after a dispose during a read;
-  - reads held inside the reader, more than the runtime has workers, while another async
-    command completes (it fails on a read run on the executor);
+  - commands held at admission (each with a 2 MiB model text) and then inside the reader,
+    more than the runtime reports workers, while another async command completes. It
+    fails when the work runs on the executor;
   - a refused parse lease allocates nothing near the parse and never reaches the reader;
-  - the 12 GiB cap;
+  - a refused diagnostic lease comes before any allocation proportional to the texts,
+    and the priced bounds cover the diagnostic parse;
+  - the 12 GiB cap on the parse and diagnostic leases and on the args lease (admission
+    and growth);
   - each parse refusal, and the `RawValue` exception, byte for byte (§4);
   - the differential (§4).
 - vitest (`baseReaderWasmEquivalence.test.ts`): the wasm dispatch text equals the native
@@ -403,23 +416,43 @@ They're updated in the slice that changes the flow, never deleted without a repl
 These are the shared-pool policy of DEL-04-07 `memory-budget-decision.md` (owner-adopted
 2026-10-11) as C1 uses it. C1 adds no budget and changes no pool rule.
 
+**Every lease the verdict command takes is pool-admitted before what it covers is
+allocated.** None exceeds the configured per-invocation budget, nor, whatever budget is
+configured, the owner-adopted 12 GiB default. The cap is checked under the pool lock.
+
+- **The args lease** (`MemoryPool::acquire_interactive_capped`). One interactive lease:
+  - on the executor, reserved for the raw body's copy (the envelope of its length) before
+    the copy;
+  - in the blocking task, grown by the args' admission bound (`command_ingress::lease_bytes`)
+    before they are parsed;
+  - grown again by each argument text's priced parse (`text_parse_bytes`) before the
+    reader parses it.
+
+  The capped budget is kept on the lease, so every growth (`Lease::grow_to`) is refused
+  `ingress_exceeds_budget` above it, under the pool lock.
+- **A diagnostic lease per diagnostic parse** (`MemoryPool::acquire_result_parse`). It is
+  taken only when a text is refused, before each text up to it is parsed to find the
+  reader's message. It is sized from the text before the parse allocates:
+  - for a text the prescan admitted: the prescan's allowances (scratch, the float and
+    error allowances, the array transient and the wrapper);
+  - for the refused text: the same allowances from its length alone, as if the whole text
+    were one escaped string or number.
+
+  A refusal comes before any allocation proportional to the texts.
+- **The verdict's parse lease** (`MemoryPool::acquire_result_parse`). One pool lease of
+  the `Value` materialization M that the allocation-free prescan computes from the held
+  bytes, admitted before the parse allocates anything.
+- **Admission class.** The diagnostic and parse leases are adaptive: the pool, a fresh
+  headroom verdict and normal pressure, re-sampled within the existing window, as result
+  and custody leases are. The args lease is interactive, as every command's is.
 - **The held result's lease.** It is the existing result lease R, admitted when the job
-  publishes, unchanged in size and admission.
+  publishes, unchanged in size and admission, and not taken by this command.
   - C1 only changes who holds it. The record and each native reader in flight share the
     bytes and their lease (`HeldResult`), so they're released together by the last
     holder, and the pool never counts held bytes as released.
   - R stays within the worker's capped grant, which is bounded by the per-invocation
     budget.
-- **The verdict's parse lease.** One pool lease of the `Value` materialization M that the
-  allocation-free ingress prescan computes from the held bytes. It is admitted after the
-  prescan and before the parse allocates anything, so a refusal commits no memory.
-  - **Admission:** the adaptive class: the pool, a fresh headroom verdict and normal
-    pressure, re-sampled within the existing window, as result and custody leases are.
-  - **Cap:** refused `ingress_exceeds_budget` above the configured per-invocation budget,
-    and never above the owner-adopted 12 GiB default, whatever budget is configured. It
-    is checked under the pool lock before each attempt (`MemoryPool::acquire_result_parse`).
-- **The arguments' lease.** The existing interactive ingress lease (`command_ingress`),
-  grown by each argument text's priced parse and bounded by the per-invocation budget.
 - **No new per-invocation budget.** No lease above 12 GiB, and no memory outside the pool.
   A model that would need either is refused by name.
-- **Not priced:** the readers' working memory (§7, item 3).
+- **Not priced:** the readers' working memory (§7, item 3), and the copies Tauri makes of
+  the body before the command runs (as for every command).
