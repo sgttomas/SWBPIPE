@@ -340,7 +340,7 @@ def test_unbound_frozen_inputs_are_live_and_unbound():
     rows = [(relative, document["schema_version"]) for bucket, relative, _, document in classify()
             if bucket == "unbound_frozen"]
     assert {relative for relative, _ in rows} == set(UNBOUND_FROZEN_INPUTS)
-    assert len(UNBOUND_FROZEN_INPUTS) == len(rows) == 39
+    assert len(UNBOUND_FROZEN_INPUTS) == len(rows) == 40
     for relative, version in rows:
         assert version in RETIRED_VERSIONS and recorded_sha256(relative) is None, relative
 
