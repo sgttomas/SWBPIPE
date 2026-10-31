@@ -243,6 +243,9 @@ class FakeApp:
         self.alive, self.killed = alive, False
     def poll(self):
         return None if self.alive else 0
+    @property
+    def returncode(self):
+        return None if self.alive else 0
     def kill(self):
         self.killed, self.alive = True, False
     def wait(self, timeout=None):
@@ -265,6 +268,45 @@ def test_the_gate_is_answered_once(tmp_path):
     assert fixture.answer_gate(gate, b"READY\n") and gate.read_bytes() == b"READY\n"
     assert fixture.answer_gate(gate, b"REFUSE\n") and gate.read_bytes() == b"READY\n"
     assert oct(gate.stat().st_mode & 0o777) == "0o600"
+
+
+def test_gate_io_failure_still_reaches_the_retained_custody_latch(tmp_path, monkeypatch):
+    # A missing gate directory makes os.open fail inside final cleanup, without a launch.
+    latch = tmp_path / "retained"
+    monkeypatch.setattr(fixture, "RETAINED", latch)
+    app, result = FakeApp(), {"passed": False}
+    lines = fixture.Lines.__new__(fixture.Lines)
+    lines.lines = ['[native-smoke-agent-scope] {"sdkPid": 123}']
+    fixture.release_launch(app, None, None, lines, tmp_path / "absent" / "gate", 123,
+                           False, tmp_path / "run", 0, result)
+    assert result["gateAnswerFailed"] and result["failure"] == "gate_answer_failed"
+    assert result["release"] == "retained_original_app_custody" and not app.killed
+    assert json.loads(latch.read_text())["appPid"] == app.pid
+
+
+def test_malformed_scope_evidence_keeps_and_latches_the_app_even_with_an_anchor(tmp_path, monkeypatch):
+    latch = tmp_path / "retained"
+    monkeypatch.setattr(fixture, "RETAINED", latch)
+    app, result = FakeApp(), {"passed": False}
+    lines = fixture.Lines.__new__(fixture.Lines)
+    lines.lines = ["[native-smoke-agent-scope] {broken"]
+    fixture.release_launch(app, object(), None, lines, tmp_path / "gate", 123,
+                           True, tmp_path / "run", 0, result)
+    assert result["release"] == "retained_original_app_custody" and not app.killed
+    assert latch.exists()
+
+
+def test_gate_write_failure_is_refused_without_echo(tmp_path, monkeypatch):
+    class BrokenWrite:
+        def __enter__(self):
+            return self
+        def __exit__(self, *args):
+            pass
+        def write(self, value):
+            raise OSError("invented write refusal")
+    monkeypatch.setattr(fixture.os, "open", lambda *args: 123)
+    monkeypatch.setattr(fixture.os, "fdopen", lambda *args: BrokenWrite())
+    assert fixture.answer_gate(tmp_path / "gate", b"REFUSE\n") is False
 
 
 def test_an_invalid_observation_is_not_evidence_of_exit():

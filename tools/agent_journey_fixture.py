@@ -574,23 +574,7 @@ def run(args, key, root):
         result["failure"] = str(error) if isinstance(error, Refusal) else type(error).__name__
     finally:
         if app and app.poll() is None:
-            # A gate never answered still holds a supplier: refuse it so native cleanup
-            # ends it, then give the app a bounded grace to end itself (the driver always
-            # finishes) before deciding from evidence.
-            if sdk is not None and not answered:
-                answered = answer_gate(gate, b"REFUSE\n")
-            grace = time.monotonic() + args.release_grace
-            while app.poll() is None and time.monotonic() < grace and not (anchor is None and supplier_gone(observer)):
-                time.sleep(.1)
-            single = lines is not None and len(lines.scopes()) <= 1
-            outcome = release_app(app, anchor, supplier_gone(observer), single)
-            result["release"] = outcome
-            if outcome == "retained_original_app_custody":
-                result["rescue"] = outcome
-                result["passed"] = False
-                result["failure"] = result.get("failure") or outcome
-                retain(app, root)
-            result.setdefault("app", {})["status"] = app.returncode
+            release_launch(app, anchor, observer, lines, gate, sdk, answered, root, args.release_grace, result)
         if anchor is not None:
             try:
                 cleanup_anchor(anchor)  # the anchor's own group: the original supplier's.
@@ -624,12 +608,40 @@ RETAINED = Path("/private/tmp") / f"swbpipe-agent-journey-{os.getuid()}.retained
 def answer_gate(gate, answer):
     """The controller's one answer at the native gate (READY or REFUSE), written once."""
     try:
-        descriptor = os.open(gate, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
-    except FileExistsError:
-        return True
-    with os.fdopen(descriptor, "wb") as handle:
-        handle.write(answer)
+        try:
+            descriptor = os.open(gate, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        except FileExistsError:
+            return True
+        with os.fdopen(descriptor, "wb") as handle:
+            handle.write(answer)
+    except OSError:
+        # A failed refusal must not bypass the custody decision and retained-app latch.
+        return False
     return True
+
+
+def release_launch(app, anchor, observer, lines, gate, sdk, answered, root, release_grace, result):
+    """Refuse an unanswered gate, then decide custody even if gate I/O or scope parsing fails."""
+    if sdk is not None and not answered and not answer_gate(gate, b"REFUSE\n"):
+        result["gateAnswerFailed"] = True
+        result["passed"] = False
+        result["failure"] = result.get("failure") or "gate_answer_failed"
+    grace = time.monotonic() + release_grace
+    while app.poll() is None and time.monotonic() < grace and not (anchor is None and supplier_gone(observer)):
+        time.sleep(.1)
+    try:
+        single = lines is not None and len(lines.scopes()) == 1
+    except (ValueError, TypeError):
+        # Malformed identity evidence proves no single-supplier custody; keep the app.
+        single = False
+    outcome = release_app(app, anchor, supplier_gone(observer), single)
+    result["release"] = outcome
+    if outcome == "retained_original_app_custody":
+        result["rescue"] = outcome
+        result["passed"] = False
+        result["failure"] = result.get("failure") or outcome
+        retain(app, root)
+    result.setdefault("app", {})["status"] = app.returncode
 
 
 def supplier_gone(observer):
