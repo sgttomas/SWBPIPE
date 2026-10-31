@@ -192,6 +192,7 @@ code_paths:
 - apps/desktop/src/features/toolkit/BatchReviewPanel.tsx
 checks:
 - apps/desktop/src/features/model-tree/ModelTree.test.tsx
+- apps/desktop/src/features/model-tree/removalIntents.test.ts
 - apps/desktop/src/features/model-tree/typedInspector.test.tsx
 - apps/desktop/src/features/workspace/table/ModelTree.table.test.tsx
 - tests/test_model_tree_property_inspector.py
