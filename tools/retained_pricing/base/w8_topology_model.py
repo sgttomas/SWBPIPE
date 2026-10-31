@@ -30,8 +30,11 @@ TOP_PIN = "cca9abee30dd68b4fe7d47785d92f4805a921d74742c64687cd7e4542f8be0f9"
 # W-15 D3 (§8.21): validate_components' rigid checks are rigid_component::append_scaling_diagnostics (one call per
 # rigid-family component, 0 on D1 by P2) and one append_mapping_conflicts after the loop (its member map is W15-PM,
 # w15_owners_model); the node-degree map (W8-ND) and the branch check are unchanged.
+# §8.33 (DEL-03-03 bend warnings, #25 and the marker disclosure): the bend arm's warnings change only inside the loop
+# over model.components (0 on D1 by P2): BEND_USER_MODIFIER_INPUT_MISSING's realized-only guard and texts, and the new
+# BEND_GEOMETRY_ONLY_SOLVED_AS_CHORD warning; W8-ND's statements and the branch check are unchanged.
 BODY_PINS = {
-    (VAL, "validate_components"): "9d8298d673d6b5e660c38ff8980c7ce94799cf227231757e906598eacb53e33d",
+    (VAL, "validate_components"): "bd72c1222f715f6bd559831a595f37da4c57bc849508dd87f0d9acf777697c96",
     (VAL, "branch_topology_invalid"): "22c8a42d2750e8145c94e009bd9c6fe7f3a5965926aae487a5948b6db34206ae",
 }
 NAMED = 6
