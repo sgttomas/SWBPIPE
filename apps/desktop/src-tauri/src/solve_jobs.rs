@@ -2843,6 +2843,37 @@ mod tests {
         assert_eq!(registry.status(&receipt.job_id).unwrap().result_too_large.map(|r| r.result_bytes), Some(LIMIT + 1));
     }
 
+    /// A refused result's attestation never enters the attestation table; a
+    /// result within the limit still records its own (seam limit 16).
+    #[test]
+    fn a_refused_results_attestation_is_never_recorded() {
+        const LIMIT: u64 = 16;
+        let host = ScriptedHost::normal();
+        let (registry, gate) = gated(&host);
+        let registry = registry.with_result_limit(LIMIT);
+        let mode = PreviewSolverMode::SparseInteractive;
+        let within = "x".repeat(LIMIT as usize);
+        let over = "y".repeat(LIMIT as usize + 1);
+        let within_attestation = crate::solve_worker::tests::scripted_attestation(&within);
+        let over_attestation = crate::solve_worker::tests::scripted_attestation(&over);
+
+        let refused = registry.start(MODEL, Some(mode.as_str())).unwrap();
+        gate.wait_started(1);
+        gate.release(&format!("attested:{over}"));
+        let status = wait_terminal(&registry, &refused.job_id);
+        assert_eq!((status.state, status.result_too_large.map(|r| r.result_bytes)), ("refused", Some(LIMIT + 1)), "{status:?}");
+        assert!(!registry.holds_attested_solve(mode, &over_attestation));
+
+        let accepted = registry.start(MODEL, Some(mode.as_str())).unwrap();
+        gate.wait_started(2);
+        gate.release(&format!("attested:{within}"));
+        assert_eq!(wait_terminal(&registry, &accepted.job_id).state, "completed");
+        assert!(registry.holds_attested_solve(mode, &within_attestation));
+        assert!(!registry.holds_attested_solve(mode, &over_attestation));
+        registry.dispose_all_results();
+        assert_eq!(registry.pool().reserved_total(), 0);
+    }
+
     /// The product limit, refused on the announced length alone: the worker
     /// announces 64 MiB + 1 bytes and then sends none (it sleeps). Reading
     /// them would never finish; the job instead ends refused at once, its
@@ -2902,7 +2933,10 @@ mod tests {
         assert_eq!(registry.pool().reserved_total(), 0);
         let lease = registry.pool().acquire_interactive(4096).unwrap();
         assert_eq!(registry.pool().reserved_total(), 4096);
-        registry.publish(&receipt.job_id, "12345".to_string(), lease, [0; 32], None);
+        // An attested result: its attestation must not enter the table.
+        let attestation = crate::solve_worker::tests::scripted_attestation("12345");
+        registry.publish(&receipt.job_id, "12345".to_string(), lease, [0; 32], Some((PreviewSolverMode::SparseInteractive, attestation)));
+        assert!(!registry.holds_attested_solve(PreviewSolverMode::SparseInteractive, &attestation));
         let status = registry.status(&receipt.job_id).unwrap();
         assert_eq!((status.state, status.result_too_large.map(|r| (r.result_bytes, r.limit_bytes))), ("refused", Some((5, LIMIT))));
         assert_eq!((status.result_available, status.result_bytes), (false, None));
