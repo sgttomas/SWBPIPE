@@ -2,9 +2,10 @@
 
 **Row:** RT-A4 (Must), serving exit criterion 1 ("three-axis static seismic
 with SRSS and absolute-sum combination") and RT-V1. **Basis:** main
-`8cab1b3e5` (2026-10-30). **Status:** revision 2, after Codex review r1 (on
-`bba44aac7`: one P1 and six P2s, each resolved below and marked "r1"); the
-algebra kernel (§3) is the first build slice. Risk class: numerical meaning
+`8cab1b3e5` (2026-10-30). **Status:** revision 3, after Codex reviews r1 (on
+`bba44aac7`: one P1 and six P2s, marked "r1") and r2 (on `95b12033e`: F2-F5
+and F7 resolved; one P1 and seven P2s, marked "r2"; no objection to the OQ-1
+rule); the algebra kernel (§3) is the first build slice. Risk class: numerical meaning
 and persistence, so every slice takes targeted regression checks and
 independent scrutiny (AGENTS.md, Work and verification).
 
@@ -126,7 +127,8 @@ finite), in authored term order:
   S − m², at each neighbouring midpoint m, says it is nearest, ties to even.
   - **Midpoints with finite products.** Each midpoint is m = r + g/2 above r
     or m = r − g′/2 below it, where g and g′ are the upper and lower gaps at r
-    (g′ = g/2 at the bottom of a normal binade), both powers of two, finite,
+    (g′ = g/2 at the bottom of a normal binade, except at the smallest
+    normal 2⁻¹⁰²², where both gaps are 2⁻¹⁰⁷⁴, r2 F1), both powers of two, finite,
     nonzero and representable, including the subnormal gap 2⁻¹⁰⁷⁴ (half of it
     is not representable, so the gap itself is used). Then
     4(S − m²) = 4S − 4r² ∓ 4·r·g − g·g, a sum of products of finite binary64
@@ -140,6 +142,9 @@ finite), in authored term order:
     equality is refused (IEEE 754 rounding to nearest). V-1 tests S just
     below, at and just above the threshold; SRSS(MAX, 1) rounds to MAX and
     SRSS(MAX, MAX) is refused.
+  - **Regression (r2 F1).** Operands 2⁻¹⁰²² − 2⁻¹⁰⁷⁴ and 2⁻¹⁰⁴⁸, unit
+    factors: the candidate 2⁻¹⁰²² is the correctly rounded result, and the
+    adjustment must stop there (a g/2 lower gap would oscillate).
 
   This is the method of `correct_norm::norm3` step 3, carried to n terms on the
   exact accumulator, and lives in LCA beside the factor-sum rule; FK is not
@@ -219,9 +224,25 @@ an exact dyadic rational:
 - `mechanics`: κ = Σᵢ fᵢκᵢ, exact;
 - `result_state_subtraction`: κ = κₘ − κₛ;
 - `range_envelope`: κ is the operands' common κ when all are equal exactly;
-  otherwise κ is mixed;
-- `absolute_sum`, `srss`: κ = 0, which is exact because they are admitted only
-  when every operand's κ is exactly 0 (below).
+  otherwise κ is **undefined**;
+- `absolute_sum`, `srss`: κ = 0 when every operand's κ is exactly 0, and
+  undefined otherwise, **whether or not the model has a fixed-load source**
+  (r2 F3). An unsigned combination with an undefined κ still publishes on its
+  own where no gate applies; it is only refused as an operand of a gated use
+  (below and §5.2).
+
+A combination with an undefined operand has an undefined κ, except a
+subtraction or envelope, which is not gated and propagates it.
+
+**Representation (r2 F2).** κ is held as an exact dyadic rational: a sign, an
+unsigned integer significand of at most 4,096 bits and a binary exponent in
+`i64`, with every operation (a product by a binary64 factor, a sum, a
+difference, a comparison) exact. It is not held in `ExactAccumulator`, whose
+quantum 2⁻²¹⁴⁸ cannot represent nested products such as (2⁻¹⁰⁷⁴)³. A result
+needing more than 4,096 significand bits makes κ undefined and names it
+(`COMBINATION_FIXED_LOAD_COUNT_UNREPRESENTABLE`, info), so no residual is
+discarded; real documents need far fewer bits (each nesting level adds at
+most 53).
 
 Where the model has a fixed-load source (PF: a consuming constant-effort
 support, `consuming_constant_effort`; EX: a nonzero installed reference, and a
@@ -233,7 +254,7 @@ withheld when:
   unchanged for flat combinations. Today EX's gate 3 reads the outer factors
   only; nested, it reads κ, so `mechanics(1·(A − B))` (κ = 0) is withheld, as it
   must be;
-- `absolute_sum`, `srss`: any operand's κ is not exactly 0, or is mixed
+- `absolute_sum`, `srss`: any operand's κ is not exactly 0, or is undefined
   (`CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND` or
   `INSTALLED_REFERENCE_UNSIGNED_COMBINATION_OPERAND`, warning). An unsigned
   combination of states that each carry the fixed load would count it once per
@@ -244,11 +265,11 @@ withheld when:
   given κ = 0, and B plus it would publish the fixed load twice under κ = 1.
   Requiring exact zero makes the reset to κ = 0 true. A difference of two load
   cases, (base + EQx) − base, has κ = 0 exactly;
-- `mechanics`, `absolute_sum` or `srss` naming an operand with a mixed κ
+- `mechanics` naming an operand with an undefined κ
   (`CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED`, warning).
 
 Subtractions and envelopes are not gated, as today. Every κ is propagated
-exactly (dyadic, in the exact accumulator), never rounded, so a scaled operand's
+exactly (the dyadic representation above), never rounded, so a scaled operand's
 residual is carried, not lost; the only tolerance is the unit factor-sum rule's
 64ε at a `mechanics` combination's own κ, by that rule's argument
 (`pressure-contract.md`, "Constant-effort combinations"). It is implemented
@@ -273,9 +294,18 @@ delegation; adopted as recommended).** A rule pack's occasional check wants
 sustained ± E, with E an SRSS or absolute sum of seismic responses, and in a
 nonlinear model such a `mechanics` combination was withheld. In a model with
 nonlinear supports, a `mechanics` combination is admitted exactly when:
-- one term names a solved load case with factor exactly 1, and
-- every other term has κ exactly 0 (§5.1, r1 F1): a difference, an absolute
-  sum or an SRSS, or a combination of those.
+- one term names a solved load case with factor exactly 1,
+- it has at least one other term (r2 F4: a single load case with factor 1 is
+  a flat combination, which stays withheld), and
+- every other term names a combination whose κ is exactly 0 (§5.1, r1 F1): a
+  difference, an absolute sum or an SRSS of κ-zero operands, or a combination
+  of those. An undefined κ does not qualify (r2 F3), so srss(A) of a load case
+  A is not an increment.
+
+κ here is computed whether or not the model has a fixed-load source. The
+precise predicate (at least one other term; combination operands; defined
+κ = 0) carries the adopted rule's stated intent, flat documents unchanged; it
+was reported to Agent 0 with r2.
 
 It is formed from rows, with each operand's standing recorded in slice 1a's
 shape, and its row text reads "a solved state plus derived differences or
@@ -309,6 +339,7 @@ gated combination.
 | `LOAD_COMBINATION_OPERAND_UNKNOWN` | validator, solve | blocking |
 | `LOAD_COMBINATION_UNSIGNED_BASIS_UNSUPPORTED`, `LOAD_COMBINATION_NESTED_UNSUPPORTED` | solve, interim until wiring; the applier refuses authoring | warning, withholds |
 | `LOAD_COMBINATION_OPERAND_WITHHELD` | solve | warning |
+| `COMBINATION_FIXED_LOAD_COUNT_UNREPRESENTABLE` | solve | info |
 | `CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND`, `INSTALLED_REFERENCE_UNSIGNED_COMBINATION_OPERAND`, `CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED` | solve | warning |
 | `NonRepresentable` | row withheld as "load-case algebra refused" | in `LOAD_COMBINATION_ROW_WITHHELD` |
 
@@ -353,7 +384,11 @@ generator (exact `fractions.Fraction`, integer square root, no product code).
   admitted, with its label and operand standing; withheld under
   `NONLINEAR_COMBINATION_REQUIRES_SOLVE` when the load-case term's factor is
   not exactly 1, when two terms name load cases, when a remaining term has
-  κ ≠ 0, and for every flat mechanics combination.
+  κ ≠ 0 or an undefined κ (B + srss(A)), for the singleton mechanics(1·A), and
+  for every flat mechanics combination.
+- **V-10, κ representation.** The r2 chain M₀ = A + tB, Mₙ₊₁ = A + t(Mₙ − A),
+  t = 2⁻¹⁰⁷⁴: κ(M₂ − A) = t³ exactly, not 0, so an unsigned combination of it
+  is withheld; a chain exceeding 4,096 bits is undefined and named.
 - **V-8, flat regression.** Every committed combination fixture and frozen
   reference solves byte for byte as on main (wiring slice).
 

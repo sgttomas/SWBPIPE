@@ -653,6 +653,14 @@ document carrying none of them has today's meaning.
     `direction`.
   - These are document-level (schema, `validate_support_family_tokens`, the
     applier and the solve's validation), blocking.
+  - **Existing support gates (r2 F5).** `validation.rs`
+    `validate_connected_input_contracts` refuses a finite stiffness on any
+    family but spring and variable-spring hanger
+    (`SUPPORT_STIFFNESS_FAMILY_UNSUPPORTED`). S1 admits an explicit `snubber`
+    there, its stiffness being dynamic; null-family inference and the hanger and
+    constant-effort detection are unchanged, and an inferred family is never a
+    snubber. Regression: a valid stiff snubber reaches
+    `SNUBBER_DYNAMIC_ONLY_UNSUPPORTED` and no other code.
   - **Interim:** every static solve on both routes refuses a model containing a
     snubber, blocking, as `SNUBBER_DYNAMIC_ONLY_UNSUPPORTED`, naming the
     support: "snubbers are dynamic-only restraints; the response-spectrum
@@ -662,16 +670,28 @@ document carrying none of them has today's meaning.
     requested) and spectrum restrain with it.
 - **`spectra[]`** (RT-A8; the dynamics lane's text, 2026-10-30): top-level
   records of user-entered spectra, data only, so that a spectrum is entered
-  once. Each is a closed `Spectrum`:
-  - `id` (unique among spectra, `SPECTRUM_ID_DUPLICATE`), `label`, `tags`,
-    `notes`;
+  once. Each is a closed `Spectrum` (r2 F8): required `id`, `abscissa`,
+  `ordinate`, `units`, `damping_ratio`, `interpolation`, `points`, and `g_value`
+  exactly when `ordinate` is `g_multiple`; optional `label` (string), `tags`
+  (`Tags`) and `notes` (`Notes`). An authored `null` is refused for every
+  member, as §1.2 rules, and `units` and `interpolation` require both their
+  members.
+  - `id` (`Id`, unique among spectra, `SPECTRUM_ID_DUPLICATE`; `EMPTY_ID` as
+    for any entity);
   - `abscissa`: `"frequency"` | `"period"`; `ordinate`: `"acceleration"` |
     `"g_multiple"`;
   - `units`: closed `{abscissa, ordinate}`, catalog unit strings: the abscissa
-    unit of the frequency or time family; the ordinate unit of the acceleration
-    family, present exactly when `ordinate` is `acceleration`;
-  - `g_value`: a `Quantity` in acceleration units, required exactly when
-    `ordinate` is `g_multiple`;
+    unit of the frequency family for `frequency` or the time family for
+    `period`; the ordinate unit of the acceleration family, present exactly when
+    `ordinate` is `acceleration`. **The unit catalog has no frequency family
+    today (r2 F6).** DEL-04-09 designs it (Hz canonical) as DEL-02-02's
+    extension of `core/units`, gating its M1b. S1's frequency-spectrum
+    admission needs it: S1 lands after that extension, or carries its frequency
+    family (Hz) itself, agreed with the dynamics lane; `core/units/src` is
+    priced, so whichever carries it re-registers D3;
+  - `g_value`: a `Quantity` in acceleration units with a positive, finite
+    value, required exactly when `ordinate` is `g_multiple` (r2 F7: zero or a
+    negative value is `SPECTRUM_RECORD_INVALID`);
   - `damping_ratio`: dimensionless, required, finite, in [0, 1);
   - `interpolation`: closed `{abscissa, ordinate}`, each `"linear"` | `"log"`,
     both required, no default;
