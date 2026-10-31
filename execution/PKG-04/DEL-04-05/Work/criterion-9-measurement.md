@@ -147,7 +147,34 @@ quiet by K6's test: memorystatus was 76 against ≥ 80, and the load averages we
   watchdog then judged the run by RSS. That judgement is replaced by the footprint watchdog
   above, and the run is repeated with attribution.
 
-### 5.2 Dry runs
+### 5.2 Second exclusive window: 1,000 nodes, with attribution
+
+The second window ran on 2026-10-31 from 10:53:24 to 11:02:22Z under `t3_exclusive.sh`, on the
+same host, with `release_timing` at #31 `82daa118b` (the footprint watchdog). No cargo jobs
+were running; memorystatus was 76 and the 1-minute load about 5.
+
+- **Timed run (linear-ex, 1,000 nodes): ok.**
+  - It published 1,895,142 rows, a 1.84 GB result.
+  - Stage seconds: entry 235.2, serialize 1.2, parse-back 3.5; total 240.4.
+  - Lifetime-maximum footprint: 6.42 GB after the entry, 10.57 GB after the parse-back. That
+    is under the 12 GiB budget, by 2.3 GB.
+  - Peak RSS was 14.7 GB, so the earlier RSS watchdog's kill at 1,000 nodes was not the
+    product's.
+- **Attribution twin** (stack snapshots; its timing is not a measurement).
+  - 0–216 s: the seven cases. The footprint grows from 0.17 to 1.39 GB. Most time is in
+    `u4b_rows::published` (RT-A3 increment 1b); each case also re-forms and refactors the
+    sparse system.
+  - 216–222 s: `exact_combinations` build and append take the footprint from 1.39 to
+    4.14 GB, with a transient lifetime maximum of about 6.4 GB. The causes are the combined
+    rows, the per-row combination evidence (16% of the envelope's bytes on a 128-node rack)
+    and per-operand key indexes.
+  - Then serialization adds the 1.84 GB text, and the attestation parse-back adds about
+    4.2 GB.
+- **What this means for 2,000 nodes.** Extrapolated, the peak is about 21 GB today, and
+  about 13 GB without the parse-back. That is still over the budget, so criterion 9's linear
+  memory needs the result-volume design as well.
+
+### 5.3 Dry runs
 
 These dry runs are not evidence. They were taken on the development host on one shared slot,
 not in an exclusive window, with `release_timing` at `7e061cf2e`, sparse mode.
