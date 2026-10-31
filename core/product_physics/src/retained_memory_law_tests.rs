@@ -1959,9 +1959,11 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 // §8.33 (RT-A3 increment 1, 7e7fef2d4): the readers' branch row-kind arm +38,864,448 B and the v3
 // identity text +2,946 B of TAV_W, the identity text +2,946 B of TAV_X, and the two resident tables'
 // branch signatures +24,406 B of STATICS: W phases +38,891,800 B and X phases +27,352 B in both modes.
+// §8.36 (RT-A3 increment 1b, 4c2a1c05f): the case solve's published-row index, route L's O_base constant
+// (C_eq·(RTA3B-PS 55,342 B + RTA3B-MR 2,176 B)): every phase +172,554 B in both modes.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_598_770_121, 6_940_764_682, 8_894_947_342, 8_683_107_769, 7_761_135_996, 8_607_508_677, 7_338_909_339, 7_012_199_215],
-    [6_657_901_465, 6_999_896_026, 8_954_078_686, 8_742_239_113, 7_820_267_340, 8_666_640_021, 7_398_040_683, 7_071_330_559],
+    [6_598_942_675, 6_940_937_236, 8_895_119_896, 8_683_280_323, 7_761_308_550, 8_607_681_231, 7_339_081_893, 7_012_371_769],
+    [6_658_074_019, 7_000_068_580, 8_954_251_240, 8_742_411_667, 7_820_439_894, 8_666_812_575, 7_398_213_237, 7_071_503_113],
 ];
 
 #[test]
