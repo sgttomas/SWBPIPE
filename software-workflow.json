@@ -97,7 +97,8 @@
         "-m",
         "pytest",
         "-q",
-        "tools/agent_journey_fixture_test.py"
+        "tools/agent_journey_fixture_test.py",
+        "tools/agent_journey_memory_monitor_test.py"
       ]
     },
     "model-version-literals": {
@@ -117,6 +118,8 @@
       "paths": [
         "tools/agent_journey_fixture.py",
         "tools/agent_journey_fixture_test.py",
+        "tools/agent_journey_memory_monitor.py",
+        "tools/agent_journey_memory_monitor_test.py",
         "tools/agent_live_session_fixture.py",
         "apps/desktop/native-smoke/agent-journey.js",
         "fixtures/model_operations/agent_w9a_journey.json",

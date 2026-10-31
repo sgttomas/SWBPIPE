@@ -45,6 +45,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools.agent_live_session_fixture import (  # noqa: E402  (the live-session discipline, reused)
     Records, Refusal, Scope, anchor_start, bounded_wait, cleanup_anchor, pid_live,
 )
+from tools import agent_journey_memory_monitor as memory_monitor  # noqa: E402
 
 PROJECT = Path(__file__).resolve().parents[1]
 FIXTURE = PROJECT / "fixtures" / "model_operations" / "agent_w9a_journey.json"
@@ -391,10 +392,22 @@ def operation_key(operation):
 # The run.
 
 def free_bytes():
-    out = subprocess.run(["/usr/bin/vm_stat"], capture_output=True, text=True, check=True).stdout
-    page = int(re.search(r"page size of (\d+) bytes", out).group(1))
-    pages = lambda name: int(re.search(rf"^{name}:\s+(\d+)\.", out, re.M).group(1))  # noqa: E731
-    return page * (pages("Pages free") + pages("Pages inactive") + pages("Pages speculative"))
+    return memory_monitor.read_free_bytes()
+
+
+def check_memory_monitor(args):
+    """Health loss enters the existing Refusal/finally custody route; never signals a PID."""
+    heartbeat = getattr(args, "memory_heartbeat", None)
+    if heartbeat is None:
+        if args.mode == "live":
+            raise Refusal("memory_monitor_required")
+        return
+    if args.cancel_file is None:
+        raise Refusal("memory_monitor_cancel_required")
+    try:
+        memory_monitor.check_health(heartbeat, args.cancel_file)
+    except memory_monitor.MonitorRefusal as error:
+        raise Refusal("memory_monitor_" + str(error)) from None
 
 
 def sha256(path):
@@ -486,6 +499,7 @@ def run(args, key, root):
     app = anchor = observer = lines = None
     sdk = None
     try:
+        check_memory_monitor(args)
         if stub:
             stub.__enter__()
         plan = {"provider": {"endpoint": stub.endpoint if stub else args.endpoint, "model": args.model,
@@ -508,6 +522,7 @@ def run(args, key, root):
         deadline = time.monotonic() + args.deadline
 
         def safety():
+            check_memory_monitor(args)
             if args.cancel_file and args.cancel_file.exists():
                 raise Refusal("cancelled")
             if lines.error:
@@ -539,10 +554,12 @@ def run(args, key, root):
                     answered = answer_gate(gate, b"REFUSE\n")
                     continue
                 result["anchor"] = {"pid": anchor.pid, "group": sdk}
+                safety()  # Admission can take time: recheck health before allowing any inference.
                 answered = answer_gate(gate, b"READY\n")
             if time.monotonic() >= deadline:
                 raise Refusal("deadline")
             time.sleep(.01)
+        safety()
         result["app"]["status"] = app.returncode
         if app.returncode != 0:
             raise Refusal("app_nonzero")
@@ -569,6 +586,7 @@ def run(args, key, root):
             result["stub"] = {"requests": stub.requests, "captured": stub.script.captured, "failures": stub.script.failures}
             failures += [f"stub: {why}" for why in stub.script.failures]
         result["failures"] = failures
+        safety()
         result["passed"] = not failures
     except Exception as error:  # noqa: BLE001
         result["failure"] = str(error) if isinstance(error, Refusal) else type(error).__name__
@@ -708,6 +726,8 @@ def main():
                         help="seconds a launch that did not end itself is given to end before custody is decided")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--cancel-file", type=Path)
+    parser.add_argument("--memory-heartbeat", type=Path,
+                        help="required live: the external two-second monitor's heartbeat.json")
     args = parser.parse_args()
     # A retained run's latch refuses before anything is read, created or launched.
     if RETAINED.exists():
@@ -718,6 +738,12 @@ def main():
         parser.error("live mode needs --endpoint")
     if args.mode == "stub" and args.key_stdin:
         parser.error("stub mode takes no key")
+    if args.mode == "live" and not args.memory_heartbeat:
+        parser.error("live mode needs --memory-heartbeat and --cancel-file")
+    if args.memory_heartbeat and not args.cancel_file:
+        parser.error("--memory-heartbeat needs --cancel-file")
+    if args.mode == "live" and args.release_grace != 0:
+        parser.error("live monitoring requires --release-grace 0 for prompt owned cancellation")
     # One attempt at a time on this host, whatever the output directory; the retained-run
     # latch is checked again under that lock, before the key is read or run state created.
     lock = open(Path("/private/tmp") / f"swbpipe-agent-journey-{os.getuid()}.lock", "w")
@@ -731,6 +757,7 @@ def main():
               f"normally, confirm no process remains under its output directory, then remove {RETAINED}.", file=sys.stderr)
         return 2
     try:
+        check_memory_monitor(args)  # Refuse unhealthy admission before consuming the single key read.
         key = read_key(sys.stdin.buffer) if args.key_stdin else None
     except Refusal as refusal:
         print(f"refused: {refusal}", file=sys.stderr)
