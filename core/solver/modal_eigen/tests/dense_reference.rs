@@ -42,6 +42,10 @@ const U: f64 = f64::EPSILON / 2.0;
 /// stiff modes lie 5 to 330 times below it (README: an open conflict).
 const RESOLUTION_FLOOR_CONSTANT: f64 = 1.0;
 const RESOLUTION_FLOOR_MULTIPLE: f64 = 10.0;
+/// Test-local c_f of the screen τ_f = c_f·n·u (design §3.2 item 5); the
+/// production value is recorded under DEC-026 (README for the measured
+/// η_f).
+const FORMED_BACKWARD_ERROR_MULTIPLE: f64 = 64.0;
 
 /// The smallest retained μ over κ_μ·δ_μ: how far the resolution floor is
 /// below the retained spectrum (+∞ with a zero floor or no mode).
@@ -58,6 +62,7 @@ fn options() -> DenseOptions {
         mass_pivot_relative_threshold: 1e-12,
         resolution_floor_constant: RESOLUTION_FLOOR_CONSTANT,
         resolution_floor_multiple: RESOLUTION_FLOOR_MULTIPLE,
+        formed_backward_error_multiple: FORMED_BACKWARD_ERROR_MULTIPLE,
         max_ql_iterations_per_eigenvalue: 30,
     }
 }

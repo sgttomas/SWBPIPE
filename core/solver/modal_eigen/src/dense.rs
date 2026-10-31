@@ -27,7 +27,8 @@ use std::error::Error;
 use std::fmt;
 
 use crate::admission::{check_dense, PencilMatrix, PencilRangeUnsupported};
-use crate::dd::max_propagating_nan;
+use crate::dd::{max_propagating_nan, WideDd};
+use crate::exact::ExactSum;
 use crate::matrix::SymmetricMatrix;
 use crate::norm_estimate::inverse_one_norm_estimate;
 
@@ -80,6 +81,10 @@ pub struct DenseOptions {
     /// κ_μ: a retained μ must exceed κ_μ·δ_μ as well as τ_μ·μ_max. Finite
     /// and positive.
     pub resolution_floor_multiple: f64,
+    /// c_f: a μ at or below the classification threshold is retained only
+    /// when its pair's backward error on the formed pencil is at most
+    /// τ_f = c_f·n·u (design §3.2 item 5, the screen). Finite and positive.
+    pub formed_backward_error_multiple: f64,
     /// The most implicit QL iterations allowed for any one eigenvalue.
     pub max_ql_iterations_per_eigenvalue: usize,
 }
@@ -188,12 +193,18 @@ pub struct DenseEigenSolution {
     /// δ_μ = c_μ·n·u·ν(K̃̂)·‖M̃_mm‖_∞, the resolution floor of the reduction,
     /// invariant to a diagonal rescaling of the basis.
     pub resolution_floor: f64,
-    /// max(τ_μ·μ_max, κ_μ·δ_μ): a retained μ exceeds it.
+    /// max(τ_μ·μ_max, κ_μ·δ_μ), the screen: a μ above it is retained; one at
+    /// or below it is retained only when its pair passes η_f ≤ τ_f.
     pub classification_threshold: f64,
+    /// τ_f = c_f·n·u.
+    pub formed_backward_error_threshold: f64,
+    /// Every positive μ at or below the threshold, descending, with its η_f
+    /// and the screen's decision.
+    pub screened: Vec<ScreenedMode>,
     /// Condensed μ ≤ 0: classified infinite, not returned.
     pub nonpositive_mu_count: usize,
-    /// Condensed 0 < μ ≤ the classification threshold: classified infinite,
-    /// not returned.
+    /// Condensed 0 < μ ≤ the classification threshold whose pair failed
+    /// the screen: classified infinite, not returned.
     pub below_threshold_mu_count: usize,
     /// Total implicit QL iterations.
     pub ql_iterations: usize,
@@ -209,8 +220,8 @@ pub struct DenseEigenSolution {
     pub established_finite_mode_count: Option<usize>,
     /// The finite-mode count is unresolved (`MODAL_FINITE_COUNT_UNRESOLVED`
     /// when a request needs the whole finite spectrum), design §3.2 item 5:
-    /// a μ of the condensed pencil is classified infinite (at or below
-    /// max(τ_μ·μ_max, κ_μ·δ_μ), of either sign), or the count is not
+    /// a μ of the condensed pencil is classified infinite (μ ≤ 0, or at or
+    /// below max(τ_μ·μ_max, κ_μ·δ_μ) with η_f > τ_f), or the count is not
     /// established. The condensed pencil has exactly n_m finite eigenvalues
     /// in exact arithmetic, so a μ classified infinite there is a finite
     /// mode lost to rounding or to the threshold, and the resolution floor
@@ -262,6 +273,10 @@ pub fn solve_dense_pencil(
     for (name, value) in [
         ("resolution_floor_constant", options.resolution_floor_constant),
         ("resolution_floor_multiple", options.resolution_floor_multiple),
+        (
+            "formed_backward_error_multiple",
+            options.formed_backward_error_multiple,
+        ),
     ] {
         if !(value.is_finite() && value > 0.0) {
             return Err(DenseError::InvalidOption { name });
@@ -331,34 +346,26 @@ pub fn solve_dense_pencil(
         * condensed_mass_norm;
 
     // d is ascending μ; λ ascending is μ descending. Reverse the rows so the
-    // finite modes come first, then keep those above the threshold.
+    // positive μ come first; μ ≤ 0 is classified infinite.
     let mu_max = d.last().copied().unwrap_or(0.0);
-    let mut nonpositive_mu_count = 0;
-    let mut below_threshold_mu_count = 0;
     let cut = max_propagating_nan(
         threshold * mu_max,
         options.resolution_floor_multiple * resolution_floor,
     );
-    // A NaN threshold classifies every μ as infinite.
+    // A NaN threshold screens every μ.
     let cut = if cut.is_nan() { f64::INFINITY } else { cut };
-    for &mu in &d {
-        if !(mu > 0.0) {
-            nonpositive_mu_count += 1;
-        } else if mu <= cut {
-            below_threshold_mu_count += 1;
-        }
-    }
-    let kept = nm - nonpositive_mu_count - below_threshold_mu_count;
+    let nonpositive_mu_count = d.iter().filter(|&&mu| !(mu > 0.0)).count();
+    let positive = nm - nonpositive_mu_count;
     d.reverse();
     for i in 0..nm / 2 {
         swap_rows(&mut work, nm, i, nm - 1 - i);
     }
-    d.truncate(kept);
-    work.truncate(kept * nm);
+    d.truncate(positive);
+    work.truncate(positive * nm);
     // Rows of n_m to rows of n, last first so no row is overwritten before
     // it moves (within the reserved capacity, no reallocation).
-    work.resize(kept * n, 0.0);
-    for i in (0..kept).rev() {
+    work.resize(positive * n, 0.0);
+    for i in (0..positive).rev() {
         work.copy_within(i * nm..(i + 1) * nm, i * n);
     }
     let mut ordered = vec![0.0; n];
@@ -372,6 +379,48 @@ pub fn solve_dense_pencil(
         }
     }
     drop(r);
+    check_finite("mode shapes", &work)?;
+
+    // The screen (design §3.2 item 5, "screen, not a verdict"): a μ at or
+    // below the threshold is retained only when its recovered pair passes
+    // the a-posteriori backward-error test on the formed, uncondensed
+    // pencil, η_f ≤ τ_f = c_f·n·u.
+    let tau_f = options.formed_backward_error_multiple * n as f64 * (f64::EPSILON / 2.0);
+    let stiffness_norm = infinity_norm(stiffness);
+    let mass_norm = infinity_norm(mass);
+    let mut screened = Vec::new();
+    let mut retained_rows = Vec::with_capacity(positive);
+    for (row, &mu) in d.iter().enumerate() {
+        if mu > cut {
+            retained_rows.push(row);
+            continue;
+        }
+        let eigenvalue = 1.0 / mu;
+        let phi = &work[row * n..(row + 1) * n];
+        let backward_error =
+            formed_backward_error(stiffness, mass, stiffness_norm, mass_norm, eigenvalue, phi);
+        let retained = backward_error.is_some_and(|eta| eta <= tau_f);
+        if retained {
+            retained_rows.push(row);
+        }
+        screened.push(ScreenedMode {
+            mu,
+            eigenvalue,
+            formed_backward_error: backward_error,
+            retained,
+        });
+    }
+    let below_threshold_mu_count = screened.iter().filter(|s| !s.retained).count();
+    // Keep the retained rows, in order (each moves only to an earlier slot).
+    for (slot, &row) in retained_rows.iter().enumerate() {
+        if slot != row {
+            work.copy_within(row * n..(row + 1) * n, slot * n);
+            d[slot] = d[row];
+        }
+    }
+    let kept = retained_rows.len();
+    d.truncate(kept);
+    work.truncate(kept * n);
     // After R is released, so the mass block's factor does not add to the
     // peak n² buffers.
     let established = established_finite_mode_count(mass, pivot_threshold);
@@ -390,6 +439,8 @@ pub fn solve_dense_pencil(
         condensed_mass_norm,
         resolution_floor,
         classification_threshold: cut,
+        formed_backward_error_threshold: tau_f,
+        screened,
         nonpositive_mu_count,
         below_threshold_mu_count,
         ql_iterations,
@@ -398,6 +449,60 @@ pub fn solve_dense_pencil(
         established_finite_mode_count: established,
         finite_count_unresolved,
     })
+}
+
+/// ‖A‖_∞, the largest absolute row sum (admitted entries: finite).
+fn infinity_norm(a: &SymmetricMatrix) -> f64 {
+    let n = a.dimension();
+    (0..n).fold(0.0, |norm, i| {
+        let row: f64 = (0..n).map(|j| a.get(i, j).abs()).sum();
+        max_propagating_nan(norm, row)
+    })
+}
+
+/// η_f = ‖Kφ − λMφ‖₂ / ((‖K‖_∞ + λ‖M‖_∞)·‖φ‖₂) on the formed pencil, each
+/// residual row summed exactly ([`ExactSum`]) and rounded once, the norms in
+/// `WideDd`. `None` when it is not finite, or nonzero below the normal
+/// range (a compared value).
+fn formed_backward_error(
+    stiffness: &SymmetricMatrix,
+    mass: &SymmetricMatrix,
+    stiffness_norm: f64,
+    mass_norm: f64,
+    eigenvalue: f64,
+    phi: &[f64],
+) -> Option<f64> {
+    let n = phi.len();
+    let mut residual = WideDd::ZERO;
+    let mut shape = WideDd::ZERO;
+    for i in 0..n {
+        let mut row = ExactSum::new();
+        for (j, &x) in phi.iter().enumerate() {
+            row.add_product(&[stiffness.get(i, j), x]);
+            row.add_product(&[-eigenvalue, mass.get(i, j), x]);
+        }
+        let r = row.to_wide();
+        residual = residual.add(r.mul(r));
+        let x = WideDd::from_f64(phi[i]);
+        shape = shape.add(x.mul(x));
+    }
+    let scale = WideDd::from_f64(stiffness_norm).add(WideDd::from_f64(eigenvalue).mul_f64(mass_norm));
+    residual
+        .sqrt()
+        .div(scale.mul(shape.sqrt()))
+        .to_normal_or_zero()
+}
+
+/// A μ at or below the classification threshold and its screen (design
+/// §3.2 item 5): retained only when η_f ≤ τ_f.
+#[derive(Debug, Clone, PartialEq)]
+pub struct ScreenedMode {
+    pub mu: f64,
+    pub eigenvalue: f64,
+    /// η_f of the recovered pair on the formed pencil; `None` when it is
+    /// not representable (the pair is not retained).
+    pub formed_backward_error: Option<f64>,
+    pub retained: bool,
 }
 
 fn check_finite(stage: &'static str, values: &[f64]) -> Result<(), DenseError> {
@@ -870,6 +975,7 @@ mod tests {
             mass_pivot_relative_threshold: 1e-12,
             resolution_floor_constant: 1.0,
             resolution_floor_multiple: 1.0,
+            formed_backward_error_multiple: 64.0,
             max_ql_iterations_per_eigenvalue: 30,
         }
     }
