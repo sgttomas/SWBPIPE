@@ -381,7 +381,12 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // after the resume, the closed `w1_member_reader_gate_tests` module's invocation
             // version; no include, path module, static or production entered the suffix, and
             // the two production functions after the resume are byte-identical.
-            complete_suffix_sha256: "cc5e359afd4f725b62a1540cb749b40f3e3e385dea2a100aa2c9b2637e98f805",
+            // Re-audited for model 0.9.0 (DEL-02-01 Design model-document-0.9.0.md §3.5): the same
+            // places changed their version token only (0.8.0 -> 0.9.0, same length), with no other
+            // byte of the suffix: the closed `b7a_preview_namespace_tests` module and, after the
+            // resume, the closed `w1_member_reader_gate_tests` module's invocation version; no
+            // include, path module, static or production entered the suffix.
+            complete_suffix_sha256: "2f8092f354608a6d35f795194be7e1aa0b473d028666336908242b9c94afbc97",
             // Only the preceding closed test region is excluded. These two
             // trailing public functions are production and remain inspected.
             production_resume: Some("/// The reader's outcome as JSON, for callers outside Rust (the desktop's wasm"),
@@ -400,7 +405,11 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // `actual_materials_bind_each_section_beam_theory_to_the_contract_selection`
             // (both admitted contracts and an unknown one; the same request-fixture
             // include); no include, path module, static or production entered the suffix.
-            complete_suffix_sha256: "79dd258fcedcac126713dc385f12e2020908064f64b7435ae8b0fede5d9b82d0",
+            // Re-audited for model 0.9.0 S1 (model-document-0.9.0.md §3.7): the closed module gains
+            // one test, `a_case_condition_use_is_declined_by_name`, whose two includes are the n05
+            // raw source and request fixtures (test-only); nothing else in the suffix changed and it
+            // still holds no production.
+            complete_suffix_sha256: "2f2b5795a725275dfa7d090c5dffb626b2d63cd5d7a305a390c776af7ebb4cba",
             production_resume: None,
             trailing_test: None,
         })),
@@ -476,7 +485,11 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // Re-audited at §8.33 (RT-A3 increment 1, 7e7fef2d4) against main d290563ea's 0d01d7e2…: only
             // the closed `b7b_current_table_tests` module changed (pressure-2's 135 -> 137 rows, with its
             // comment); the inspected production after the resume and E14 are byte-identical.
-            complete_suffix_sha256: "0d4f2d6a73b16098eada396616bdecbc73926ce56e55ca2faa5c56c5c6f44150",
+            // Re-audited for model 0.9.0 (model-document-0.9.0.md §3.5): only the inspected
+            // production's current_header v2 re-author text changed its model version token
+            // (0.8.0 -> 0.9.0, same length); the closed `b7b_current_table_tests` module and E14
+            // are byte-identical.
+            complete_suffix_sha256: "d2c364d0e7497fb02228b2fad34b31491dcf2b4601480e68c6928f1223f2061c",
             production_resume: Some("/// Header dispatch only; canonical envelopes have no raw rows. This does not"),
             trailing_test: Some(SEMANTIC_E14_TEST_ITEM),
         })),

@@ -22,6 +22,11 @@
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewSolverMode};
 use serde_json::{json, Value};
 
+// Model document 0.9.0 (DEL-02-01 Design model-document-0.9.0.md §3.6): the frozen 0.8.0 requests keep their
+// bytes; each parsed copy is re-authored to the current version by its token (common/current_model.rs).
+#[path = "common/current_model.rs"]
+mod current_model;
+
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
 const L: f64 = 4.0;
 const OD: f64 = 0.12;
@@ -342,7 +347,8 @@ fn opposite_slip_senses_differ_in_reported_state() {
 /// ΔMy = -5PL/16. s = s*/2: R = 5P/32, My = -11PL/32; O−S: ΔR = -5P/32,
 /// ΔMy = -5PL/32. Only the lifted difference changes the prop's state.
 fn v2() -> Value {
-    let request: Value = serde_json::from_str(include_str!("../../../validation/references/w16_nonlinear_motion/requests/a1.json")).unwrap();
+    let mut request: Value = serde_json::from_str(include_str!("../../../validation/references/w16_nonlinear_motion/requests/a1.json")).unwrap();
+    current_model::reauthor_model(&mut request["model"]);
     let mut wire = request.clone();
     let loads = &request["model"]["load_cases"][0]["primitive_loads"];
     let point = loads.as_array().unwrap().iter().find(|l| l["category"] == "concentrated_force").unwrap().clone();

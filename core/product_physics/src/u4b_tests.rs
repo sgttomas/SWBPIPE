@@ -19,14 +19,14 @@ const STATIONS: [&str; 5] = ["end_i", "quarter_1", "midspan", "quarter_3", "end_
 
 /// The SHA-256 of each authored request's compact JSON (serde_json order).
 const REQUEST_SHA256: [(&str, &str); 8] = [
-    ("U4B-L90-P", "c6614d1cbfaad12bf1c4141d5260bd13d1fd64512e0c784aa0df6a3a686bde9d"),
-    ("U4B-L90-P-COINCIDENT", "440d62bf8d14b21513fecac0df4a05700ca56be1831a476e32ba27de8ac12f6e"),
-    ("U4B-L90-P-MOVED", "27a7c117f5dde9ef6a6cd69fa84cdafd99c3e06067643d8849375a59d9de5d3a"),
-    ("U4B-ARC106-RADIAL-NEGP", "1d40eea209385275853b2544fc391d4c494a54e225498764a27e7e1775c5ab0b"),
-    ("U4B-ARC90-TIGHT-NSIGN-P", "14bb0a1a5be37770e6328c712f96380f8054dc7981b00fc90d5d0e5395ba8b99"),
-    ("U4B-ARC90-OOP-PREVIEW", "858b5bcdc48e87c700e7ca2c9f10f5493ff0ef3c39d03e553d49ee3a75ff9841"),
-    ("U4B-Z-PREVIEW-REV", "59befe01543ab8bd5c3e207297917d05f8c6344403075bd75771ba337c893331"),
-    ("U4B-RISE74-P-REV", "e4b37e056f6f1f09f70414cab6af482c7e5acfd889e8b7cb4db255f79e70d10b"),
+    ("U4B-L90-P", "23e43af21ffd0ece3259534a1d96d3ec7cf4c2d974a6e512e983310d15c2af3e"),
+    ("U4B-L90-P-COINCIDENT", "48f1a2f7a9336c57939f6beef932f5fb89c63b6fd9f4b14611f654d551600d42"),
+    ("U4B-L90-P-MOVED", "b3b24c9fe3dd29cedcc9000c08979514d9eb2c2a32fa1e4349ebb70ff2e2e2f6"),
+    ("U4B-ARC106-RADIAL-NEGP", "56d33dca1cc7c6c4c0866b4c3977f1fe191ab718f01fc4de5948f21883e0e9df"),
+    ("U4B-ARC90-TIGHT-NSIGN-P", "9c7ebd009b661999f65e3c36ae87656bba204363441ef4b82f70bb3de0515f42"),
+    ("U4B-ARC90-OOP-PREVIEW", "0e3f306337236cf8a63ee813deaa4c95f00af6ac3c8df08320dd5c60be2660a5"),
+    ("U4B-Z-PREVIEW-REV", "2a67d2327fe0cee8f1cc49baf9909d0c3da000dafe07d7bb1864aeac1b4f2d45"),
+    ("U4B-RISE74-P-REV", "fba45c284dbfcc1d8a65edc0b7b3b8de7f995baf54fffddbe93a5e2a12cac684"),
 ];
 
 fn n(v: &Value) -> f64 {

@@ -5591,7 +5591,7 @@ fn b3b_repair03_n2b_physics_code_is_array_ordered_and_stable() {
 /// B7a's one corpus regeneration moved the bases again; the current digests are the ones the
 /// R1 reader-outcomes record (`fixtures/results/retained_precision_reader_outcomes.json`) states.
 /// B7b re-stated the synthetic exact construction and RV120's inputs on the current exact
-/// route (model 0.8.0, the complete v3 contract, a zero corrosion allowance, profile_mode
+/// route (model 0.9.0, the complete v3 contract, a zero corrosion allowance, profile_mode
 /// exact_pressure_v3; W1's `retained_precision_rv120_b3_inputs.json` and m3x successors), so
 /// all eight digests moved; each equals the R1 record's input digest for the same RV120 key.
 /// T4-U6 re-stated the synthetic exact successor on D-5 (both section bases, per-basis

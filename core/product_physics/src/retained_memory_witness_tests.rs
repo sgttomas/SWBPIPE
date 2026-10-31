@@ -229,9 +229,9 @@ fn w2b_input() -> Value {
     raw
 }
 /// The PROBE pins (R/I81/b1_probe_01, `input_sha` lines) of W2b's and W6's PHYS-R4 inputs, each
-/// moved with its version-only re-authoring (T4-S1: 0.6.0; W-13 S1b: 0.7.0; W-15 slice c: 0.8.0; `w6_input` changes nothing else).
-const W2B_INPUT_SHA256: &str = "4bbbe484c3f97a9c067e86658147814888dba3426c2a6b29870bf03066d44a02";
-const W6_PHYS_R4_INPUT_SHA256: &str = "04e737865bb3421ca081dd565b1cead79e553585f2449340b489823602cd8641";
+/// moved with its version-only re-authoring (T4-S1: 0.6.0; W-13 S1b: 0.7.0; W-15 slice c: 0.8.0; the 0.9.0 step: 0.9.0; `w6_input` changes nothing else).
+const W2B_INPUT_SHA256: &str = "2ebb4f3815b480399b668ed1399ac46f72f7425ca7d88a8b16e284e434932efe";
+const W6_PHYS_R4_INPUT_SHA256: &str = "c2aec4e8b6416f3d358cd83199139e68838f9e9565f6314ac799d93f7ce0d589";
 
 per_mode! {
     /// W3: an in-domain request whose legacy exact recovery selects (the X branch: T25's

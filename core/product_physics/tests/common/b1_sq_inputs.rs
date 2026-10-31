@@ -27,16 +27,17 @@ const PROV: &str = "invented_t3_b1_sw_probe_input_no_library_data";
 /// I86's `input_sha` pins (sha256 of `serde_json::to_vec(&value)`). The silent-drop guard
 /// (2026-10-23) moved the stressed inputs' depth-16 value from an unknown root member to the
 /// declared `diagnostics` member (`stressed`), which re-pinned the i3 inputs below. Model
-/// document 0.8.0 (W-15 slice c) re-pinned every pin below with its version-only re-authoring.
-pub const W2B_SHA256: &str = "4bbbe484c3f97a9c067e86658147814888dba3426c2a6b29870bf03066d44a02";
-pub const B2_K1E3_SHA256: &str = "50d130f4407f506565273743d826dc75facd1b8e4a9b1c8f066fbbb0b8ec067f";
-pub const C1_SHA256: &str = "596bb58f7035470d1de4d293b47be75819bda73af5f536d2ac601ff36e48c770";
+/// document 0.8.0 (W-15 slice c) and 0.9.0 (DEL-02-01 Design model-document-0.9.0.md §3.6) re-pinned every pin
+/// below with its version-only re-authoring.
+pub const W2B_SHA256: &str = "2ebb4f3815b480399b668ed1399ac46f72f7425ca7d88a8b16e284e434932efe";
+pub const B2_K1E3_SHA256: &str = "07ef18a2ed1cc2bab70c651d66ed59d046cb74e1f9837641b6821df096935dfb";
+pub const C1_SHA256: &str = "3f661ee6cd16860cb3799f08f86bb7b5ba795923c3d10b3276d2ee4da539448b";
 pub const I3_CASE_SHA256: [(&str, &str); 3] = [
-    ("case:a", "ca9f514e4cec9d1dcfa0810e588a000ec5063f159cad435b5de9625fe311cb96"),
-    ("case:b", "95a7cc286c5563efc2aba7042d039592e495974f3c56f2719a7be57555927748"),
-    ("case:c", "64dadebcd0d8a5e8bcd46cf44e18964a6ad0c51f5828662cad4fb077e699f8c8"),
+    ("case:a", "6803a07b3c2ca5fb639e47b7b77d8da0a98dfd68cbcc684053331613e445bf27"),
+    ("case:b", "452bbfea5e4fa35638ddb0fb8211489cda66a7d815cb7c0836e8e4bc0cd06fa8"),
+    ("case:c", "680d20137ab56546a758763b8109e7ab4d3ad90a5709c4b6f6f90fa08dabf70f"),
 ];
-pub const I3_THREE_CASE_SHA256: &str = "4c1dbffcd73db3cfb1487aeb84c4d6a53d9f2525139ccee59d6b029325769686";
+pub const I3_THREE_CASE_SHA256: &str = "eb744f6c1f39792d60de32f17094a0f11b636b5a27cb2e9e76147f22c656b482";
 
 pub fn milestone() -> Value {
     serde_json::from_str(MILESTONE).unwrap()

@@ -974,8 +974,8 @@ pub(super) fn w_c2_case_c() -> Value {
     raw
 }
 /// PROBE §4's input sha256 of case C, and PROBE §2.3's of two-body case B (`serde_json::to_vec`).
-pub(super) const W_C2_CASE_C_INPUT_SHA256: &str = "80656b336825fabfd6e7fac9bff27e43161f5cc9c68f9f8c294cb405de8099e6";
-const TWO_BODY_B_INPUT_SHA256: &str = "6f31e3ccb206c0e1e997fa48aef7af5934b8af361e37230896a66937ecbbc79e";
+pub(super) const W_C2_CASE_C_INPUT_SHA256: &str = "c327e9a6f78e9247a6330cebb8904c5fa42fa1732f7cb1f55b556b732124bdb0";
+const TWO_BODY_B_INPUT_SHA256: &str = "1819efa75f5739beb23a377f5c7cd059c4e09de9765dca5b6cd52fe46fef9f32";
 /// The L = 0 base (PLAN §1.2): the milestone plus node N2 at (3, 0, 0), which no member
 /// references, with one rigid support restraining all six DOFs (the milestone's rigid-support
 /// shape, no family). Body 1 is a single node: extent 0.
@@ -2518,12 +2518,12 @@ fn b3b_witness_inputs_and_routes() {
     // B7b re-pinned the exact witnesses after their one re-authoring to 0.5.0
     // (v3, Euler-Bernoulli, zero corrosion allowance); `m3l` is a refusal
     // control in its retired form and keeps its pin.
-    assert_eq!(value_sha(&m3x()), "3acbea852d1333419abfb09b65c7f581b7c41e0a61151b45d523e7c1b30f149d", "m3x");
-    assert_eq!(value_sha(&m3x_mix_anchor()), "1b8e7769109f18ab394b327f5add6efae32aed4728444486c3847789a4b6d10d", "m3x_mix_anchor");
+    assert_eq!(value_sha(&m3x()), "157121dc77bd76c071f8da27e04b69713e5e1c6b278616bc8acb4cec786a3b5c", "m3x");
+    assert_eq!(value_sha(&m3x_mix_anchor()), "ba4e2c6cbf69722b5a347f414f01b249e03f227f3623b7c4227d844073bcce76", "m3x_mix_anchor");
     assert_eq!(value_sha(&m3l()), "2f5ff465bfa97005a581d88e02c0a5478ea24da3bdc1c2eb9fcda491803fc0c3", "m3l");
-    for (name, text, file_sha) in [("n05", N05_EXACT, "b19f05c4e18b26ab7fa9deb185f35178ee665d410821a70fbd30b52225d05a93"),
-        ("n06", N06_EXACT, "f0e76211c0d0f40ae339b92f30a2f58e4152c6a75ae0e74a5210ebb1e77904bc"),
-        ("fields", FIELDS_EXACT, "22f5085e243dcbb73cb6732b115780afcabc645a655e8dbb470a59d898600093")] {
+    for (name, text, file_sha) in [("n05", N05_EXACT, "d12f7a404ad3e8d916cdaa86958efdbc8d86c7c16736ae9b11ac1085dcd90d28"),
+        ("n06", N06_EXACT, "4a10d62774d21a21514890fc7a573b8386c4bcaa4d80959a6414699d81f0ae2b"),
+        ("fields", FIELDS_EXACT, "1cd5959a4c3c832d25ad18e62e8d2ead77a20ff93bc0ac0c02373c33606eb58e")] {
         assert_eq!(sha(text.as_bytes()), file_sha, "{name}");
         assert_eq!(w1_route(&model_of(&serde_json::from_str(text).unwrap())), Some(R::Exact), "{name}");
     }
@@ -4430,10 +4430,10 @@ fn combination_document(raw: &Value, mode: PreviewSolverMode, successor: &Value)
 }
 /// W-CB1's and W-CB1z's request Value sha256s (`w_cb1`, `w_cb1z`; JSON-equal to I98's
 /// `r7_cb1_halfb` and `r7_cb1`, checked on the records, apart from the model version: B7a
-/// re-authored the witnesses' model to 0.5.0, T4-S1 to 0.6.0 and W-13 S1b to 0.7.0, each of which moved all four input pins;
+/// re-authored the witnesses' model to 0.5.0, T4-S1 to 0.6.0, W-13 S1b to 0.7.0 and the 0.9.0 step to 0.9.0, each of which moved all four input pins;
 /// the silent-drop guard's `diagnostics` carrier moved W-CB1's and W-CB1z's).
-const W_CB1_INPUT_SHA256: &str = "65dc0048b6cc494520946f8df23867b5ce1bfe271fbf34f361b8db2b6111d7d9";
-const W_CB1Z_INPUT_SHA256: &str = "162d71d020ca4cd590ee3a95a7f8d875c2955220258a630c9906addf4f2b8d77";
+const W_CB1_INPUT_SHA256: &str = "a143ed97e1046af280c4bf9646e14740526cbcf4e0f44ae054cc5ff0e6c49f36";
+const W_CB1Z_INPUT_SHA256: &str = "e346c730ca9377a8aadbe2c41b06c31f93c509482023e3abc0173fbf127b1634";
 /// The B2-P witnesses' inputs: W-CB2 and W-CB3 are I98's `r7_cb2` and `r7_cb3_v1`, W-CB1 and
 /// W-CB1z its `r7_cb1_halfb` and `r7_cb1` (JSON-equal, checked on the records); their Value
 /// sha256s. With `I105_B2P_OUT` set, W-CB1's and W-CB1z's requests are written there.
@@ -4442,8 +4442,8 @@ fn b2p_witness_inputs() {
     let out = std::env::var("I105_B2P_OUT").ok();
     let mut got = Vec::new();
     for (name, raw, expected) in [("w_cb1", w_cb1(), W_CB1_INPUT_SHA256), ("w_cb1z", w_cb1z(), W_CB1Z_INPUT_SHA256),
-        ("w_cb2", w_cb2(), "fcb32d3d88d354e73f37996c5c2fc2b9edcf24f099b79051791ee6f6c8048fd3"),
-        ("w_cb3", w_cb3(), "12077ead49e5c6385ad62ef278ec550875d149e8d45fba1f5cafb78568fb3c61")] {
+        ("w_cb2", w_cb2(), "3b566a41e4f5773d7f6d89e14f0b288eef630a51e61e78f4f8ca6bb07f357b2c"),
+        ("w_cb3", w_cb3(), "e6f70f3902846b174ebf18e1f44000a83d746ca1e33784c3454673129aa16e1f")] {
         let value_sha = sha(&serde_json::to_vec(&raw).unwrap());
         println!("B2P_INPUT {name} value_sha={value_sha}");
         if let (Some(dir), true) = (&out, name.starts_with("w_cb1")) {

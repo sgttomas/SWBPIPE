@@ -39,7 +39,7 @@ PROJECT = Path(__file__).resolve().parents[1]
 CASES_PATH = PROJECT / "core/reporting/result_export/tests/fixtures/load_reference_mutations.json"
 CASES = json.loads(CASES_PATH.read_text())
 FROZEN = {
-    "fixtures/product_preview/pressure/load_reference/connected.request.json": "4d6cf532fc5ab690cf5de700cf1260e16cfa36e00fe8f5ccf2375a075585a79a",
+    "fixtures/product_preview/pressure/load_reference/connected.request.json": "e93410954607b4232fc9fa471343b3b6c0219a3eeb45ef24ff9f8a82f9808db7",
     # T4-U6 (D-5): the regenerated producer envelopes (both section-basis families);
     # O4 (DEL-04-08 `o4-source-extension.md` §3.3): regenerated for limitation [7] only.
     # connected: silent-zero diagnostic added; no number moved (two LOAD_STATE_SOURCE_EXCLUDED warnings).
@@ -52,7 +52,7 @@ FROZEN = {
     # RT-A3 increment 1 (DEL-04-07): regenerated for the pressure-2 identity limitation only (identity bytes only).
     "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json": "b5762e5f468136ee80b0d16bd043376e704d456249dc673ea1e09e9f9d6ed0cb",
     "fixtures/product_preview/pressure/load_reference/connected-dense_scrutiny.raw.json": "ba81526fe2813eb9664661beecd4a05741b8183923e477ceee048b60be52a350",
-    "fixtures/product_preview/pressure/load_reference/pressure.request.json": "8601d78b03bb0f0377c5247fef432cc5cfc3e97c9cfda502587ffca8d805e178",
+    "fixtures/product_preview/pressure/load_reference/pressure.request.json": "36f2b657c948fb9cb3af87d1626b9b1fe0304861e47d64f8bd2a27625247c0d7",
     "fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json": "3ef9c24af2602d055f68a473f27726f556ce4153f5595819e5da5dace509807c",
     "fixtures/product_preview/pressure/load_reference/pressure-dense_scrutiny.raw.json": "2f9dea9f3006169c7cbf6c4c5ac93e5bc740fd156a8871ea4ab20f021e446921",
     "fixtures/results/semantic_contract_v0_3_pressure_2.json": PRESSURE_CONTRACT_SHA256,

@@ -69,7 +69,7 @@ const EIGEN_MOTION_REQUEST: &str = concat!(
 // exact_pressure_v3 contract with euler_bernoulli, corrosion allowance 0 m); every
 // declared witness input read below is unchanged.
 const EIGEN_MOTION_SHA256: &str =
-    "26ecd51a47ba09a28ef0a3165ad16862d7b6ae212179a780cc222d1a0bd6388f";
+    "e90e8b223ceb79dcc4144f85e30f9d8489dcb79baaf0a07ffbb981fc6dc2d1ca";
 
 // ---------------------------------------------------------------------------
 // Maintained analytical reference access
