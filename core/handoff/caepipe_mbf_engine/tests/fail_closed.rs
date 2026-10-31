@@ -22,11 +22,8 @@ fn a_lone_surrogate_in_sidecar_json_is_refused_as_unsupported() {
     }
 }
 
-#[test]
-fn a_bound_current_sidecar_without_a_regenerator_is_checked_by_the_crates_own_writer() {
-    // A format-3 sidecar bound to these bytes passes the self-digest and the parser, then reaches the regeneration
-    // identity: with no regenerator given, the crate's own SI writer regenerates the sidecar (slice 2), exactly as
-    // when the caller passes it.
+/// A format-3 sidecar bound to [`MBF`], with its self-digest.
+fn bound_sidecar() -> Value {
     let data = MBF.as_bytes();
     let sha: String = {
         use sha2::{Digest, Sha256};
@@ -43,8 +40,17 @@ fn a_bound_current_sidecar_without_a_regenerator_is_checked_by_the_crates_own_wr
     let mut sidecar = mbf::parse_sidecar_json(body.as_bytes()).expect("sidecar");
     let digest = mbf::sidecar_self_digest(&sidecar).expect("digest");
     sidecar.as_dict_mut().expect("dict").insert("sidecar_sha256".into(), Value::Str(digest));
+    sidecar
+}
+
+#[test]
+fn a_bound_current_sidecar_without_a_regenerator_is_checked_by_the_crates_own_writer() {
+    // A format-3 sidecar bound to these bytes passes the self-digest and the parser, then reaches the regeneration
+    // identity: with no regenerator given, the crate's own SI writer regenerates the sidecar (slice 2), exactly as
+    // when the caller passes it.
+    let data = MBF.as_bytes();
     let mut options = ImportOptions::new("invented-test");
-    options.sidecar = Some(SidecarInput::Parsed(sidecar));
+    options.sidecar = Some(SidecarInput::Parsed(bound_sidecar()));
     let default = mbf::import(data, &options).expect("a result, not an error");
     options.regenerator = Some(&mbf::SiWriter);
     let explicit = mbf::import(data, &options).expect("a result");
@@ -382,4 +388,42 @@ fn every_walk_at_the_bound_fits_a_wasm_sized_stack() {
         .expect("thread")
         .join()
         .expect("every walk at the bound fits a 1 MiB stack");
+}
+
+/// A caller's regenerator that returns a sidecar with `key` holding `levels` nested lists.
+struct DeepRegenerator {
+    key: &'static str,
+    levels: usize,
+}
+
+impl mbf::SidecarRegenerator for DeepRegenerator {
+    fn regenerate(&self, _: &Value, _: &str, _: &[String], _: mbf::Reference) -> Result<mbf::Regenerated, ImportError> {
+        let mut sidecar = mbf::Dict::new();
+        sidecar.insert(self.key.into(), chain(self.levels));
+        Ok(mbf::Regenerated::Sidecar(Value::Dict(sidecar)))
+    }
+}
+
+#[test]
+fn a_callers_regenerated_sidecar_beyond_the_bound_is_refused_and_dropped_without_recursion() {
+    // Review r3 of #32, P1: the regenerated sidecar was compared, cloned and partly replaced unscreened. Both the
+    // compared member and the one the importer replaces (sidecar_format) are covered; the crate owns the value, so
+    // it must also drop it without recursion.
+    let limit = mbf::value::MAX_VALUE_NESTING;
+    for key in ["node_map", "sidecar_format"] {
+        for levels in [limit, 50_000] {
+            let regenerator = DeepRegenerator { key, levels };
+            let mut options = ImportOptions::new("invented-test");
+            options.sidecar = Some(SidecarInput::Parsed(bound_sidecar()));
+            options.regenerator = Some(&regenerator);
+            unsupported(mbf::import(MBF.as_bytes(), &options));
+        }
+        // At the bound the identity is checked as for any regenerated sidecar: here it differs, so it is refused.
+        let regenerator = DeepRegenerator { key, levels: limit - 1 };
+        let mut options = ImportOptions::new("invented-test");
+        options.sidecar = Some(SidecarInput::Parsed(bound_sidecar()));
+        options.regenerator = Some(&regenerator);
+        let result = mbf::import(MBF.as_bytes(), &options).expect("a result at the bound");
+        assert!(result.diagnostics.iter().any(|item| item.get_or_null("code").as_str() == Some("MBF-IMPORT-SIDECAR-NOT-REPRODUCED")));
+    }
 }

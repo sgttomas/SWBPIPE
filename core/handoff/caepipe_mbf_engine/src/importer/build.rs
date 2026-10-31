@@ -11,7 +11,7 @@ use crate::rational::Q;
 use crate::runtime::{local_y_reference, norm, sub, unit, unit_exact, V3};
 use crate::sidecar::{sidecar_difference, summed_entries};
 use crate::value::{OMap, Value};
-use crate::{Reference, Regenerated};
+use crate::{ImportError, Reference, Regenerated};
 use std::collections::{HashMap, HashSet};
 
 #[derive(Clone, Debug)]
@@ -429,6 +429,15 @@ impl<'a> Importer<'a> {
                 return Ok(());
             }
             Regenerated::Sidecar(mut value) => {
+                // A caller's regenerator is screened like any caller value, before anything clones, compares or
+                // replaces part of it (review r3 of #32); a refused tree is dropped without recursion.
+                if !crate::value::within_bound(&value) {
+                    crate::value::dispose(value);
+                    return Err(Stop::Fail(ImportError::Unsupported(crate::value::unrepresentable(
+                        crate::value::Unrepresentable::TooDeep,
+                        "regenerated sidecar",
+                    ))));
+                }
                 let format = sidecar.get_or_null("sidecar_format").clone();
                 if let Some(dict) = value.as_dict_mut() {
                     dict.insert("sidecar_format".into(), format);

@@ -21,6 +21,11 @@ impl<K: Clone + Eq + Hash, V> Default for OMap<K, V> {
 }
 
 impl<K: Clone + Eq + Hash, V> OMap<K, V> {
+    /// The values in insertion order, consuming the map.
+    pub fn into_values(self) -> Vec<V> {
+        self.vals
+    }
+
     pub fn new() -> Self {
         Self::default()
     }
@@ -318,6 +323,19 @@ pub fn screen(value: &Value) -> Result<(), Unrepresentable> {
 /// [`screen`] for depth alone: Ok unless a value sits inside more than [`MAX_VALUE_NESTING`] containers.
 pub fn within_bound(value: &Value) -> bool {
     !matches!(screen(value), Err(Unrepresentable::TooDeep))
+}
+
+/// Drops `value` without recursion. A value the crate owns and refuses for its depth goes through here: Rust's own
+/// drop would recurse once per level (review r3 of #32).
+pub fn dispose(value: Value) {
+    let mut stack = vec![value];
+    while let Some(item) = stack.pop() {
+        match item {
+            Value::List(items) => stack.extend(items),
+            Value::Dict(dict) => stack.extend(dict.into_values()),
+            _ => {}
+        }
+    }
 }
 
 /// The `Unsupported` reason for an unrepresentable value given as `name`.

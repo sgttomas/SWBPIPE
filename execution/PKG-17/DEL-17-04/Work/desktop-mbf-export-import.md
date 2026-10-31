@@ -540,8 +540,9 @@ needs slices 4 and 5.
     dicts (`MAX_VALUE_NESTING`, counted as the sidecar parser counts its own bound of 64). Every
     public operation that walks a caller's `Value` checks this first, without recursion. That covers the
     writer's model and settings, the regeneration, `import`'s parsed options, `sidecar_self_digest`,
-    `canonical_bytes`, `dumps_sorted` and the `to_dict`, bytes and sidecar methods of both
-    result types, whose fields a caller may set. A deeper value fails closed as `Unsupported`
+    `canonical_bytes`, `dumps_sorted`, the `to_dict`, bytes and sidecar methods of both
+    result types, whose fields a caller may set, and a caller's `SidecarRegenerator` output.
+    A refused value the crate owns is dropped without recursion. A deeper value fails closed as `Unsupported`
     (those methods now return `ImportError`, which keeps the Python's exceptions as
     `ImportError::Python`). Equality (`py_eq`) does not recurse. A test runs every walk at the
     bound on a 1 MiB stack, wasm's default, in debug and release builds. The Python may still
