@@ -42,14 +42,17 @@ BODY_PINS = {
     (EVID, "member_stations"): "422def17cd2b550f2654109416449ee04276fddd13a42175dcfe5606b7f93cad",
     (EVID, "poisson_exempt"): "087720dfa55869d73d7b277affd80e7dffb34a83f2488b85900387caae4f33d4",
     (EVID, "preview_model_checks"): "74fa3f2ea6fb6fd5df859f7c837c7fb2581d6bf9ddfa9519b6c0f8a2abd239b8",
-    (PHYS, "u4b_cases"): "ef840d771fad2b50bef538f1e6b57466bc1902ba4b7c4406de53a9a31b5849ed",
+    # RT-A3 increment 1 D3 (§8.33): u4b_cases also binds the case's branch records (u4b_evidence::branch_records, a
+    # borrowed id set, empty on D1: D1.4 admits no component, so the producer publishes no intensified record) and
+    # requires a branch row to be bound; the Index skips branch rows (one `continue`). U4B-RD's sets are unchanged.
+    (PHYS, "u4b_cases"): "a9b994142735833531ddbeb451ab14b138fe92579bd74e9683a6998961bbc5d1",
     (ROWS, "not_qualified_for"): "c76bc3bdb40be7ca80e348223b7cf3a7373bd7d05f74013f93567020b0abf222",
     (ROWS, "not_qualified_inputs"): "14c9b4d161963de572fe32bcd9fc1c58191eebea441728054a624b998f97e4e3",
 }
 # U5B-AB: FK structural.rs from `pub(crate) struct ElementAbsorption<'g> {` to `fn contribution_differences(`.
 ABSORPTION_PIN = "2acbe81068e36d74474cb2f7014f9dcbf65c0bdde660c783af7ced048534e5f4"
 # U4B-RD: u4b_evidence.rs from `type Slot<'a>` to `/// What a reader states about one member`.
-INDEX_PIN = "174a42fbc8929d9f5bb9cd2b5637ec88eb09d15e7969f1363c13e1e3b83fb865"
+INDEX_PIN = "b0d3074db1d4f7adc515b17a054b843e5079cd6fce0bad16fc629a95cef7d85b"
 
 # Rows of one member that a §4.3 derived treatment can name: σ⁺/σ⁻ at five stations on two bases (20) and τ_v,max at
 # five stations on two bases (10).

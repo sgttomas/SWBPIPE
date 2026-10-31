@@ -3637,7 +3637,7 @@ _OP1A_RE = RE_ + "preview_combination_operands.rs"
 if fnkey("append_operand_standing", _OP1A_PP):
     # Raw pins bind the complete early-return/dataflow and all new owning sites.
     # Existing lib.rs and admission pins separately bind the call and D1.6.
-    _op1a_pins = {'core/product_physics/src/preview_physics.rs': 'bc037bd1c58565d12784948f84decaac8b61d7a4c3782d8ffac4d2e730ee7347', 'core/reporting/result_export/src/preview_combination_operands.rs': 'ba74ebe99e42c932506f0c8dfb4329b3bd0dccdd43ba241e1e7d5922dfc5b3e5', 'core/reporting/result_export/src/preview_physics_evidence.rs': 'a9cca373d01efcd4823ea622974958a677ee4dabe9b3fd0c460fb980740dfbba', 'core/reporting/result_export/src/reader_verdict.rs': 'b43843aa298e56e4fea78f110348d08b4f0827caff3ff090441607caee09e12a'}
+    _op1a_pins = {'core/product_physics/src/preview_physics.rs': '9f94323ee8d377563fdbde1b5ea31cb400cc924244075ad5a472db201467ae06', 'core/reporting/result_export/src/preview_combination_operands.rs': 'ba74ebe99e42c932506f0c8dfb4329b3bd0dccdd43ba241e1e7d5922dfc5b3e5', 'core/reporting/result_export/src/preview_physics_evidence.rs': 'a9cca373d01efcd4823ea622974958a677ee4dabe9b3fd0c460fb980740dfbba', 'core/reporting/result_export/src/reader_verdict.rs': 'b43843aa298e56e4fea78f110348d08b4f0827caff3ff090441607caee09e12a'}
     for _f, _digest in _op1a_pins.items():
         if __import__("hashlib").sha256(_text_of(_f).encode()).hexdigest() != _digest:
             raise SystemExit("OP1A-PF/RD: reviewed source changed: " + _f)
@@ -3751,3 +3751,78 @@ if fnkey("selects", _TIM):
     O10_SITE_SIZE = list(globals().get("O10_SITE_SIZE", [])) + [
         (site("shear_area", _TIM, "let cases = basis.case_ids.join"), 0,
          O10 + "TIM-ID: the joined-case owner stays at multiplicity zero under TIM-PF and TIM-BN")]
+
+# §8.33 (RT-A3 increment 1): the exact route's branch connection (tee) and implicit pressure junctions. D1.4 refuses every
+# model with components, and D1.5 makes every E case's pressure regions explicitly empty (L has none), so each new loop
+# below is reached with nothing to iterate and nothing is pushed. The new texts keep classes in their zero tails.
+_A3_PR = PP_ + "pressure_runtime.rs"
+_A3_U4R = PP_ + "u4b_rows.rs"
+_A3_EV = RE_ + "u4b_evidence.rs"
+_A3_PE = RE_ + "physics_evidence.rs"
+if fnkey("case_junction_closure_warnings", _A3_PR):
+    # RTA3-JW (guard): the entry calls junction_closure_warnings once, beside validate_profile. It returns without an
+    # exact contract (L), and otherwise hands each case's own regions (`if let Some(regions) = &case.pressure_regions`)
+    # to case_junction_closure_warnings, which fills its node map only inside `for region in regions`. With D1.5's
+    # explicitly empty E regions the map is empty, its node loop and the nested `ending` maps run zero times, and neither
+    # warning is formed or pushed.
+    _a3_obs = _fn_text("run_linear_static_preview_observed_inner", _LIB)
+    _a3_jw = _fn_text("junction_closure_warnings", _A3_PR)
+    _a3_cw = _fn_text("case_junction_closure_warnings", _A3_PR)
+    _a3_node = "for (node, ending) in at_node.into_iter().filter(|(_, ending)| ending.len() >= 2) {"
+    _a3_jw_ok = (
+        _a3_obs.count("pressure_runtime::junction_closure_warnings(&model, &mut diagnostics);") == 1,
+        _text_of(_LIB).count("junction_closure_warnings(") == 1,
+        _text_of(_A3_PR).count("case_junction_closure_warnings(") == 2,
+        _a3_jw.count("if exact_contract(model).is_none() {") == 1 and _a3_jw.count("if let Some(regions) = &case.pressure_regions {") == 1
+        and _a3_jw.index("if exact_contract(model).is_none() {") < _a3_jw.index("for case in &model.load_cases {")
+        < _a3_jw.index("case_junction_closure_warnings(model, &case.id, regions, diagnostics);"),
+        _a3_cw.count("let mut at_node: BTreeMap<&str, Vec<&PressureRegionInput>> = BTreeMap::new();") == 1
+        and _a3_cw.count("at_node.entry(") == 1 and _a3_cw.count(_a3_node) == 1
+        and _a3_cw.index("for region in regions {") < _a3_cw.index("at_node.entry(") < _a3_cw.index(_a3_node),
+        _a3_cw.count("warn(diagnostics,") == 2 and _a3_cw.index("warn(diagnostics,") > _a3_cw.index(_a3_node),
+        _a3_cw.count("ending.iter().map(") == 2 and _a3_cw.index("ending.iter().map(") > _a3_cw.index(_a3_node),
+    )
+    if not all(_a3_jw_ok):
+        raise SystemExit(f"RTA3-JW: the junction-warning premise changed; re-review its zero: {_a3_jw_ok}")
+    _A3_JW_WHY = (O10 + "RTA3-JW: the node map is filled only from the case's pressure regions, explicitly empty on E (D1.5) and "
+                  "absent on L, where junction_closure_warnings returns without an exact contract")
+    O10_LOOPS_LAST += [(_a3_node[:-2], "0", _A3_JW_WHY, ["pressure_runtime.rs:case_junction_closure_warnings"]),
+                       ("iter:ending.iter().map", "0", _A3_JW_WHY + "; `ending` holds regions of the case ending at one node",
+                        ["pressure_runtime.rs:case_junction_closure_warnings"])]
+    # RTA3-ID: the unreached warnings' arguments keep classes. An authored pressure is "absent" or scalar_string (the
+    # base f64 class, <= 327 B), a space and its unit (IN128): <= 456 B. The two lists are empty on D1 (D1.5) and are
+    # classed at one entry: one "{id} {authored}" (<= 585 B) and one IN128 region id. The tails are the static
+    # constants, their literal lengths read at the snapshot.
+    _a3_auth = {"bytes": 456, "source": O10 + "RTA3-ID: scalar_string(f64) <= 327, a space and an IN128 unit"}
+    O10_ID_AUDIT += [
+        (site("case_junction_closure_warnings", _A3_PR, 'format!("{} {}", scalar_string(q.value), q.unit)', full=True),
+         {"scalar_string(q.value)": {"bytes": 327, "source": O10 + "RTA3-ID: scalar_string(f64)"},
+          "q.unit": {"bytes": 128, "source": O10 + "RTA3-ID: D1 IN128 unit"}}),
+        (site("case_junction_closure_warnings", _A3_PR, 'format!("{id} {authored}")', full=True), {"authored": _a3_auth}),
+        (site("case_junction_closure_warnings", _A3_PR, "with different pressures ({listed})", full=True, row="format!("),
+         {"listed": {"bytes": 585, "source": O10 + "RTA3-ID: one IN128 region id, a space and one authored pressure; empty on D1 (D1.5)"},
+          "exact_admission::JUNCTION_PRESSURES_DIFFER_TEXT": {"bytes": _c30_const_len(_EA, "JUNCTION_PRESSURES_DIFFER_TEXT"),
+                                                              "source": O10 + "RTA3-ID: &'static str const, literal length at the snapshot"}}),
+        (site("case_junction_closure_warnings", _A3_PR, "of regions {regions} in load case", full=True, row="format!("),
+         {"regions": {"bytes": 128, "source": O10 + "RTA3-ID: region ids at one junction node joined by \", \"; empty on D1 (D1.5), one IN128 id"},
+          "exact_admission::JUNCTION_PIPE_OUTSIDE_REGIONS_TEXT": {"bytes": _c30_const_len(_EA, "JUNCTION_PIPE_OUTSIDE_REGIONS_TEXT"),
+                                                                  "source": O10 + "RTA3-ID: &'static str const, literal length at the snapshot"}}),
+    ]
+if fnkey("append_branch_intensified", _A3_U4R):
+    # RTA3-BB (guard): the case solve appends a straight exact member's branch rows under `if exact &&
+    # macro_bend.is_none()`. Every row, record and basis pass sits inside `for association in associations(...)`, which
+    # iterates model.components (0 by D1.4, the base rule); its nested `for b in bases` walks the member's BasisSection
+    # list, at most two (nominal and reduced, U4B-ST).
+    _a3_bi = _fn_text("append_branch_intensified", _A3_U4R)
+    _a3_assoc = "for association in super::preview_physics::associations(model, node, pipe_id) {"
+    _a3_bb_ok = (
+        _fn_text(_CASE_FN, _LIB).count("if exact && macro_bend.is_none() {") == 1
+        and _text_of(_LIB).count("u4b_rows::append_branch_intensified(") == 1,
+        _a3_bi.count(_a3_assoc) == 1 and _a3_bi.count("for b in bases {") == 1
+        and _a3_bi.index(_a3_assoc) < _a3_bi.index("for b in bases {") < _a3_bi.index("results.push(item);"),
+        _a3_bi.count("records.push(") == 1 and _a3_bi.count("results.push(") == 1,
+    )
+    if not all(_a3_bb_ok):
+        raise SystemExit(f"RTA3-BB: the branch-row premise changed; re-review its bound: {_a3_bb_ok}")
+    O10_LOOPS_LAST += [("for b in bases", "2", O10 + "RTA3-BB: the member's section bases (nominal and reduced, <= 2), "
+                        "inside the association loop over model.components (0 by D1.4)", ["u4b_rows.rs:append_branch_intensified"])]
