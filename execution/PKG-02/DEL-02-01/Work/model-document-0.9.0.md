@@ -674,8 +674,9 @@ document carrying none of them has today's meaning.
   `ordinate`, `units`, `damping_ratio`, `interpolation`, `points`, and `g_value`
   exactly when `ordinate` is `g_multiple`; optional `label` (string), `tags`
   (`Tags`) and `notes` (`Notes`). An authored `null` is refused for every
-  member, as §1.2 rules, and `units` and `interpolation` require both their
-  members.
+  member, as §1.2 rules. `units.abscissa` is always required and
+  `units.ordinate` exactly when `ordinate` is `acceleration` (r3);
+  `interpolation` requires both its members.
   - `id` (`Id`, unique among spectra, `SPECTRUM_ID_DUPLICATE`; `EMPTY_ID` as
     for any entity);
   - `abscissa`: `"frequency"` | `"period"`; `ordinate`: `"acceleration"` |

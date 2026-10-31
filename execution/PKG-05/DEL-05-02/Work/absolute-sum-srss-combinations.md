@@ -5,7 +5,8 @@ with SRSS and absolute-sum combination") and RT-V1. **Basis:** main
 `8cab1b3e5` (2026-10-30). **Status:** revision 3, after Codex reviews r1 (on
 `bba44aac7`: one P1 and six P2s, marked "r1") and r2 (on `95b12033e`: F2-F5
 and F7 resolved; one P1 and seven P2s, marked "r2"; no objection to the OQ-1
-rule); the algebra kernel (§3) is the first build slice. Risk class: numerical meaning
+rule) and r3 (on `d48f93a23`: no P1; two P2s and a P3, marked "r3"); the
+algebra kernel (§3) is the first build slice. Risk class: numerical meaning
 and persistence, so every slice takes targeted regression checks and
 independent scrutiny (AGENTS.md, Work and verification).
 
@@ -241,8 +242,11 @@ difference, a comparison) exact. It is not held in `ExactAccumulator`, whose
 quantum 2⁻²¹⁴⁸ cannot represent nested products such as (2⁻¹⁰⁷⁴)³. A result
 needing more than 4,096 significand bits makes κ undefined and names it
 (`COMBINATION_FIXED_LOAD_COUNT_UNREPRESENTABLE`, info), so no residual is
-discarded; real documents need far fewer bits (each nesting level adds at
-most 53).
+discarded. A product by a factor adds at most 53 significand bits, but a sum
+aligns exponents and can add as many as the exponents differ (r3 P3: the r2
+chain needs 1,075, 2,149, 3,223 and 4,297 bits for M₀ to M₃), so no
+per-level bound is claimed; real documents, with factors of ordinary size,
+need few bits.
 
 Where the model has a fixed-load source (PF: a consuming constant-effort
 support, `consuming_constant_effort`; EX: a nonzero installed reference, and a
@@ -266,7 +270,14 @@ withheld when:
   Requiring exact zero makes the reset to κ = 0 true. A difference of two load
   cases, (base + EQx) − base, has κ = 0 exactly;
 - `mechanics` naming an operand with an undefined κ
-  (`CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED`, warning).
+  (`CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED`, warning);
+- `mechanics` whose own κ is undefined although its operands' are defined,
+  because the exact result exceeds the representation (r3 P2): the unit
+  factor-sum rule cannot be decided, so it is withheld under the source's code
+  (`CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE` or
+  `COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE`), beside the info
+  `COMBINATION_FIXED_LOAD_COUNT_UNREPRESENTABLE`. A gated use never treats an
+  undefined κ as passing.
 
 Subtractions and envelopes are not gated, as today. Every κ is propagated
 exactly (the dyadic representation above), never rounded, so a scaled operand's
@@ -388,7 +399,9 @@ generator (exact `fractions.Fraction`, integer square root, no product code).
   for every flat mechanics combination.
 - **V-10, κ representation.** The r2 chain M₀ = A + tB, Mₙ₊₁ = A + t(Mₙ − A),
   t = 2⁻¹⁰⁷⁴: κ(M₂ − A) = t³ exactly, not 0, so an unsigned combination of it
-  is withheld; a chain exceeding 4,096 bits is undefined and named.
+  is withheld; a chain exceeding 4,096 bits is undefined and named; with a
+  fixed-load source, Q = mechanics(2A + t(M₂ − A)), whose κ = 2 + t⁴ needs
+  4,298 bits, is withheld under the source's code (r3 P2).
 - **V-8, flat regression.** Every committed combination fixture and frozen
   reference solves byte for byte as on main (wiring slice).
 
