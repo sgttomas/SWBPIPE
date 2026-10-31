@@ -55,10 +55,10 @@ test("a painted, recorded and stored run is ok", () => {
   assert.equal(classify(base()).class, "ok");
 });
 
-test("a failed solve is a refusal quoting its message and stage", () => {
-  const result = classify(base({ report: { solve: { ended: "failed", timeline: { failure: { stage: "take_end", message: "RangeError: Out of memory" } }, shown: {} } } }));
+test("a failed solve is a refusal quoting the window's message, with the timeline's code and stage", () => {
+  const result = classify(base({ report: { solve: { ended: "failed", timeline: { failure: { stage: "reader_verdict_end", code: "SOLVE_NATIVE_INVOCATION_BINDING_REQUIRED", error_name: "Error" } }, shown: { error: "SOLVE_NATIVE_INVOCATION_BINDING_REQUIRED: the received result is not bound." } } } }));
   assert.equal(result.class, "refused_with_message");
-  assert.deepEqual(result.findings[0], { class: "refused_with_message", step: "solve", message: "RangeError: Out of memory", stage: "take_end", needs_review: true });
+  assert.deepEqual(result.findings[0], { class: "refused_with_message", step: "solve", message: "SOLVE_NATIVE_INVOCATION_BINDING_REQUIRED: the received result is not bound.", code: "SOLVE_NATIVE_INVOCATION_BINDING_REQUIRED", stage: "reader_verdict_end", needs_review: true });
 });
 
 test("no report: a timeout is a hang, an early exit an app crash, a vanished WebContent a WebContent crash", () => {
@@ -74,7 +74,7 @@ test("a reported save the store does not hold is misleading; a short or unchecke
   assert.equal(classify(base({ store: { quick_check: ["ok"], files: [], projects: [{ project_id: "p", result_type: "text", result_chars: 10 }] } })).class, "half_written_save");
   // A failed solve holds no result: the stored `null` is not a half-written save.
   const unsolved = base({ store: { quick_check: ["ok"], files: [], projects: [{ project_id: "p", result_type: "text", result_chars: 4 }] } });
-  unsolved.report = { ...unsolved.report, solve: { ended: "failed", timeline: { failure: { stage: "reader_verdict_end", message: "SOLVE_NATIVE_INVOCATION_BINDING_REQUIRED" } }, shown: {} }, record_run: { attempted: false, message: "Record Run: RUN-RECORD-NO-RUN: solve the model to record a run." } };
+  unsolved.report = { ...unsolved.report, solve: { ended: "failed", timeline: { failure: { stage: "reader_verdict_end", code: "SOLVE_NATIVE_INVOCATION_BINDING_REQUIRED", error_name: null } }, shown: {} }, record_run: { attempted: false, message: "Record Run: RUN-RECORD-NO-RUN: solve the model to record a run." } };
   assert.deepEqual(classify(unsolved).findings.map((finding) => finding.class), ["refused_with_message", "refused_with_message"]);
   assert.equal(classify(base({ store: { quick_check: ["*** in database main ***"], files: [], projects: [{ project_id: "p", result_type: "text", result_chars: 1000 }] } })).class, "half_written_save");
   assert.equal(classify(base({ store: { quick_check: ["ok"], files: [{ name: "x.sqlite3-journal", bytes: 512 }], projects: [{ project_id: "p", result_type: "text", result_chars: 1000 }] } })).class, "half_written_save");

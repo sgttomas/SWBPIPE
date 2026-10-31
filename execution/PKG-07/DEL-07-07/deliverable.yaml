@@ -234,6 +234,8 @@ code_paths:
 - apps/desktop/src/features/workspace/solveJobAudit.ts
 - apps/desktop/src/features/workspace/solveGates.ts
 - apps/desktop/src/features/diagnostics/**
+- apps/desktop/src-tauri/src/native_smoke_inject.rs
+- apps/desktop/src/services/solveTimeline.ts
 checks:
 - apps/desktop/src/features/solve/SolvePanel.test.tsx
 - apps/desktop/src/features/solve/SolveProgressPanel.test.tsx
@@ -246,3 +248,8 @@ checks:
 - apps/desktop/src-tauri/src/solve_jobs.rs
 - apps/desktop/src-tauri/src/solve_worker.rs
 - tests/test_solve_execution_ux.py
+- apps/desktop/src-tauri/src/native_smoke_inject.rs
+- apps/desktop/src-tauri/src/native_smoke_reach_scan_tests.rs
+- apps/desktop/src/services/solveTimeline.test.ts
+- apps/desktop/src/services/solveTimelineGlobal.gate.test.ts
+- apps/desktop/src/services/solveTimelineGlobal.install.test.ts

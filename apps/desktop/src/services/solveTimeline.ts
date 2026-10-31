@@ -3,21 +3,29 @@
  * it to decide anything, and it changes no behaviour.
  *
  * - Marks: each stage of the latest solve once, at `performance.now()` (a monotonic
- *   clock), with small details (job id, byte counts, outcomes). `solve_requested`
- *   starts a new timeline and drops the previous one.
+ *   clock), with small details (byte and row counts, codes). `solve_requested` starts
+ *   a new timeline and drops the previous one.
  * - Passes: every timed serialization, fingerprint or wasm reader call, aggregated by
  *   kind and by the last stage reached before it ran, so passes after the paint
  *   (Record Run, Save Project) are counted too. A pass whose text is at least half
  *   the received result's (or 1 MiB before it is known) counts as full-envelope.
  *   Nested passes are counted under each kind: a `native_fingerprint` includes one
  *   `checked_json_text`.
- * - Failure: the first error the solve reports, with the last stage reached.
+ * - Failure: the first error the solve reports, with the last stage reached, as its
+ *   leading code and error class only.
  *
- * Kept small: a bounded mark list, one aggregate per (kind, stage), and a WeakRef to
- * the received result (never a copy of it). `readSolveTimeline` returns a fresh copy;
- * `uiDiagnostics.readCurrent()` exposes it as `solveTimeline`. */
+ * Timings, counts and codes only: no model data, path, identifier (job, run, model or
+ * project) or message text is kept for reading. A detail string that is not a code is
+ * dropped (`codeOrNull`). Kept small: a bounded mark list, one aggregate per (kind,
+ * stage), and a WeakRef to the received result (never a copy of it).
+ *
+ * `readSolveTimeline` returns a fresh copy. The read-only global
+ * `globalThis.__openPipeStressSolveTimelineV1` ([`solveTimelineGlobal`]) is installed by
+ * `uiDiagnostics.ts` under the very condition that installs `__openPipeStressUiDiagnosticsV1`,
+ * so it is present exactly where that one is; the diagnostics global itself is unchanged. */
 
 export const SOLVE_TIMELINE_SCHEMA = "swbpipe.solve-timeline/v1" as const;
+export const SOLVE_TIMELINE_GLOBAL = "__openPipeStressSolveTimelineV1" as const;
 
 export type SolveStage =
   | "solve_requested"
@@ -46,6 +54,28 @@ export type SolvePassKind =
 export type SolveOutcome = "running" | "completed" | "failed" | "refused" | "cancelled" | "superseded";
 type Detail = Readonly<Record<string, string | number | boolean | null>>;
 
+// A code: a lower-case token (`sparse_interactive`, `completed`) or an upper-case one with
+// optional hyphenated parts (`SOURCE_PHYSICS_RHS_DIRECTION`, `PREVIEW-SOLVE-RESULT-UTF8-INVALID`).
+const CODE = /^(?:[a-z][a-z0-9_]{0,63}|[A-Z][A-Z0-9_]{0,63}(?:-[A-Z0-9_]{1,63}){0,8})$/;
+/** `value` when it is a code (no path, identifier or message text can match), else null. */
+export function codeOrNull(value: unknown): string | null {
+  return typeof value === "string" && CODE.test(value) ? value : null;
+}
+/** The leading code of an error's message (`CODE: …` or `CODE …`), else null. */
+export function errorCode(error: unknown): string | null {
+  const message = String((error as { message?: unknown })?.message ?? error ?? "");
+  return codeOrNull(message.match(/^([A-Z][A-Z0-9_-]*)(?=[:\s]|$)/)?.[1] ?? null);
+}
+function errorName(error: unknown): string | null {
+  const name = (error as { name?: unknown })?.name;
+  return typeof name === "string" && /^(?:[A-Z][A-Za-z]{0,40})?Error$/.test(name) ? name : null;
+}
+// Numbers and booleans as given; a string only if it is a code.
+function cleanDetail(detail: Detail | null): Detail | null {
+  if (!detail) return null;
+  return Object.fromEntries(Object.entries(detail).map(([key, value]) => [key, typeof value === "string" ? codeOrNull(value) : value]));
+}
+
 export type SolveTimelineMark = Readonly<{ stage: SolveStage; at_ms: number; since_start_ms: number; detail: Detail | null }>;
 export type SolveTimelinePass = Readonly<{
   kind: SolvePassKind;
@@ -62,15 +92,13 @@ export type SolveTimelineSnapshot = Readonly<{
   sequence: number;
   time_origin_ms: number;
   outcome: SolveOutcome;
-  job_id: string | null;
   marks: readonly SolveTimelineMark[];
   passes: readonly SolveTimelinePass[];
   dropped_marks: number;
-  failure: Readonly<{ stage: SolveStage; message: string; at_ms: number }> | null;
+  failure: Readonly<{ stage: SolveStage; code: string | null; error_name: string | null; at_ms: number }> | null;
 }>;
 
 const MAX_MARKS = 64;
-const MAX_FAILURE_CHARS = 2000;
 const FULL_FLOOR_CHARS = 1 << 20;
 
 type PassTotals = { count: number; total_ms: number; max_ms: number; full_count: number; full_ms: number; max_chars: number };
@@ -82,7 +110,7 @@ type Timeline = {
   marks: SolveTimelineMark[];
   dropped: number;
   passes: Map<string, PassTotals>;
-  failure: { stage: SolveStage; message: string; at_ms: number } | null;
+  failure: { stage: SolveStage; code: string | null; error_name: string | null; at_ms: number } | null;
   result: WeakRef<object> | null;
   resultChars: number | null;
 };
@@ -95,6 +123,8 @@ const now = () => performance.now();
  * timeline is still the latest, so a superseded run cannot write into a newer one. */
 export type SolveTimelineHandle = Readonly<{
   mark(stage: SolveStage, detail?: Detail | null): void;
+  /** Marks `job_started` and remembers the job (kept internally, never read out). */
+  jobStarted(jobId: string): void;
   end(outcome: Exclude<SolveOutcome, "running">, error?: unknown): void;
 }>;
 
@@ -106,19 +136,19 @@ export function beginSolveTimeline(detail: Detail | null = null): SolveTimelineH
   pushMark(timeline, "solve_requested", started, detail);
   return {
     mark: (stage, markDetail = null) => { if (current === timeline) markSolveStage(stage, markDetail); },
+    jobStarted: (jobId) => { if (current === timeline) { timeline.jobId = jobId; markSolveStage("job_started"); } },
     end: (outcome, error) => { if (current === timeline) endSolveTimeline(outcome, error); }
   };
 }
 
 function pushMark(timeline: Timeline, stage: SolveStage, at: number, detail: Detail | null): void {
   if (timeline.marks.length >= MAX_MARKS) { timeline.dropped += 1; return; }
-  timeline.marks.push({ stage, at_ms: at, since_start_ms: at - timeline.started, detail });
+  timeline.marks.push({ stage, at_ms: at, since_start_ms: at - timeline.started, detail: cleanDetail(detail) });
 }
 
 /** Marks a stage of the latest solve; nothing without one. */
 export function markSolveStage(stage: SolveStage, detail: Detail | null = null): void {
   if (!current) return;
-  if (stage === "job_started" && typeof detail?.job_id === "string") current.jobId = detail.job_id;
   pushMark(current, stage, now(), detail);
 }
 
@@ -146,9 +176,8 @@ function endSolveTimeline(outcome: Exclude<SolveOutcome, "running">, error?: unk
   if (!current || current.outcome !== "running") return;
   current.outcome = outcome;
   if (outcome === "failed" && error !== undefined && !current.failure) {
-    const message = String((error as { message?: unknown })?.message ?? error).slice(0, MAX_FAILURE_CHARS);
     const stage = current.marks.at(-1)?.stage ?? "solve_requested";
-    current.failure = { stage, message, at_ms: now() };
+    current.failure = { stage, code: errorCode(error), error_name: errorName(error), at_ms: now() };
   }
 }
 
@@ -204,7 +233,6 @@ export function readSolveTimeline(): SolveTimelineSnapshot | null {
     sequence: timeline.sequence,
     time_origin_ms: performance.timeOrigin,
     outcome: timeline.outcome,
-    job_id: timeline.jobId,
     marks: timeline.marks.map((mark) => ({ ...mark, detail: mark.detail ? { ...mark.detail } : null })),
     passes: [...timeline.passes].map(([key, totals]) => {
       const [kind, afterStage] = key.split("\u0000") as [SolvePassKind, SolveStage];
@@ -213,6 +241,32 @@ export function readSolveTimeline(): SolveTimelineSnapshot | null {
     dropped_marks: timeline.dropped,
     failure: timeline.failure ? { ...timeline.failure } : null
   };
+}
+
+function deepFreeze<T>(value: T): T {
+  if (value && typeof value === "object" && !Object.isFrozen(value)) {
+    for (const nested of Object.values(value)) deepFreeze(nested);
+    Object.freeze(value);
+  }
+  return value;
+}
+
+export type SolveTimelineGlobal = Readonly<{
+  schema: typeof SOLVE_TIMELINE_SCHEMA;
+  /** A recursively frozen copy of the latest solve's timeline, or null before any solve. */
+  readCurrent(): SolveTimelineSnapshot | null;
+}>;
+
+/** The value of the read-only global; installed by `uiDiagnostics.ts` (see the header). */
+export const solveTimelineGlobal: SolveTimelineGlobal = deepFreeze({
+  schema: SOLVE_TIMELINE_SCHEMA,
+  readCurrent: () => deepFreeze(readSolveTimeline())
+});
+
+declare global {
+  // RT-U4 (DEL-04-05): read-only timings and counts of the latest solve; installed with
+  // __openPipeStressUiDiagnosticsV1 and under its condition.
+  var __openPipeStressSolveTimelineV1: SolveTimelineGlobal | undefined;
 }
 
 /** Test support only. */

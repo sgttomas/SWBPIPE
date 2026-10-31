@@ -227,7 +227,8 @@ export function classify({ report, exit, timedOut, progress, memory, store, run,
     if (!solve) add(report.error ? "refused_with_message" : "hang", { step: "open", message: report.error ?? null, needs_review: true });
     else if (solve.ended === "first_paint") { /* painted */ }
     else if (solve.ended === "timeout") add("hang", { step: "solve", detail: `no first paint within ${run.paint_ms} ms; last stage ${solve.timeline?.marks?.at(-1)?.stage ?? null}` });
-    else add("refused_with_message", { step: "solve", message: solve.timeline?.failure?.message ?? solve.shown?.refusal ?? solve.shown?.error ?? solve.shown?.summary, stage: solve.timeline?.failure?.stage ?? null, needs_review: true });
+    // The window's text, verbatim (the timeline carries only the failure's code and stage).
+    else add("refused_with_message", { step: "solve", message: solve.shown?.error ?? solve.shown?.refusal ?? solve.shown?.summary ?? null, code: solve.timeline?.failure?.code ?? null, stage: solve.timeline?.failure?.stage ?? null, needs_review: true });
     const record = report.record_run;
     if (record?.timed_out) add("hang", { step: "record_run", detail: `last message: ${record.last_message}` });
     else if (record && record.message && /^(Not recorded|Record Run:)/.test(record.message)) add("refused_with_message", { step: "record_run", message: record.message, needs_review: true });

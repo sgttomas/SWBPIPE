@@ -22,9 +22,9 @@ its stage:
 | Solve and publication | `product_physics::run_linear_static_preview_value_with_mode` | `release_timing` (`entry`) |
 | Serialization of the result | solve worker | `release_timing` (`serialize`) |
 | Result digest parse-back | solve worker (`result_digest`) | `release_timing` (`parse_back`) |
-| Worker protocol, memory-pool leases, IPC take | desktop parent | desktop measurement (P2, pending) |
-| Decode, `JSON.parse`, reader verdict (wasm), state | webview | desktop measurement (P2, pending) |
-| First paint | webview | desktop measurement (P2, pending) |
+| Worker protocol, memory-pool leases, IPC take | desktop parent | desktop measurement (§6) |
+| Decode, `JSON.parse`, reader verdict (wasm), state | webview | desktop measurement (§6) |
+| First paint | webview | desktop measurement (§6) |
 
 "Linear static" is every case and combination of the `linear-ex` rack document. "Nonlinear
 operating" is the OPE case of the `nonlinear-ex` rack.
@@ -61,6 +61,15 @@ its model's sha256.
 - **Field shapes.** These mirror the reference system (DEL-09-01 `Work/reference-system.md`):
   the same material values and section sizes, the `RK-` id prefix and no reference-system
   id. No rack value is a reference for an expected result.
+- **Desktop file shape.** The documents also carry what the desktop's Open Model Document
+  requires and the solve does not read:
+  - a `data_boundary` and an empty `diagnostics` list;
+  - each node's, pipe's, support's and component's `RK-` tag as its label;
+  - load-case `kind` and `status`;
+  - empty `terms` on each subtraction.
+
+  The rows and bytes `release_timing` publishes are unchanged by them. Hashes recorded before
+  these members were added (the windows of §5) are those of the same racks without them.
 - **Model version changes.** The generator reads the model document version from
   `model_format.rs`. When the version moves, `tests/test_performance_rack_model.py` fails and
   names the re-check, and the hashes are regenerated with `--hashes`.
@@ -215,15 +224,20 @@ are in `apps/desktop`:
   - `solve_requested`, `job_started`, then `job_done` (with `result_bytes`,
     `worker_peak_footprint_bytes` and `worker_peak_grant_bytes`);
   - `take_start`, `take_end` (bytes), `decode_end`, `parse_end`;
-  - `reader_verdict_start` and `reader_verdict_end` (registered or not, with the reason);
+  - `reader_verdict_start` and `reader_verdict_end` (registered or not, with the reason code);
   - `analysis_run_built`, `result_set`, `result_committed` (the layout effect), and
     `first_paint` (two animation frames later).
 
   Every pass of `checked_json_text`, `native_fingerprint`, `reader_written_text` and each wasm
   reader call is counted and timed per stage. A pass counts as full-envelope when it reads at
-  least half the result's text. The first failure is recorded with its stage.
-  `__openPipeStressUiDiagnosticsV1.readCurrent().solveTimeline` exposes the timeline once a
-  solve has started; the idle snapshot is unchanged.
+  least half the result's text. The first failure is recorded with its stage, its leading
+  code and its error class.
+
+  The timeline holds timings, counts and codes only: no model data, path, identifier or
+  message text. It is read through its own frozen, read-only global,
+  `__openPipeStressSolveTimelineV1.readCurrent()`. That global is installed under the very
+  condition that installs `__openPipeStressUiDiagnosticsV1` (`uiDiagnostics.ts`), so it is
+  present exactly where that one is. The diagnostics global and its snapshot are unchanged.
 - **Result injection** (`src-tauri/src/native_smoke_inject.rs`), compiled only under the
   `native-smoke` feature. When `SWBPIPE_NATIVE_SMOKE_INJECT_RESULT` names a file, a started job
   skips its worker and publishes the file's bytes. Everything after that is the product's own
@@ -246,33 +260,61 @@ are in `apps/desktop`:
     `proc_pid_rusage`). It then inspects the SQLite store, classifies the run and writes
     `perf-report-<UTC>.json`. The classes are `ok`, `refused_with_message`, `crash` (with the
     process), `hang`, `misleading_message` and `half_written_save`.
-- **Interim adapter** (`native-smoke/perf-model-adapter.mjs`). The desktop's Open Model
-  Document refuses the generator's racks with `MODEL-FILE-SHAPE`. The missing members are
-  `data_boundary`, `diagnostics`, the labels of nodes, pipes, supports and components, load
-  case `kind` and `status`, and `terms` on subtraction combinations. The adapter adds only
-  those absent members. At 82 nodes, `release_timing` publishes the same rows and bytes from
-  the adapted document as from the original. It is retired once the generator emits the
-  desktop shape.
+- **Racks the desktop opens.** The generator writes the desktop's model-file shape (§2):
+  `data_boundary`, `diagnostics`, labels, load-case `kind` and `status`, and subtraction
+  `terms`.
+  - `apps/desktop/src/features/model-file/rackModelOpen.test.ts` passes each profile through
+    Open Model Document's own check (`checkNativeOutcome`).
+  - At 82 nodes, `release_timing` publishes the same rows (153,178) and bytes (147,491,921)
+    with these members as without them.
+  - The window below ran on documents carrying the same members, added by an interim
+    adapter that this change retires.
 
-**Functional run (82 nodes, 2026-10-31, development host, shared slot, not evidence).**
-`linear-ex` at 82 nodes, adapted, gives a 147,491,921-byte result with 153,178 rows. The native
-solve and the injected result end the same way:
+### 6.1 Desktop window
 
-- **Reader.** The result reaches the reader. The wasm dispatch takes 53 s and validation 8 to
-  10 s.
-- **Refusal.** The reader then refuses with `SOURCE_PHYSICS_RHS_DIRECTION`, because seven
+The window ran on 2026-10-31 from 12:43:58 to 12:56:24Z, as one `t3_exclusive.sh` invocation
+(746 s, budget 880 s). It ran on the development host, an Apple M5 Max with 18 cores and
+128 GiB. **That host is not the 16 GiB base machine.** On a 16 GiB machine, the footprints
+below would page or be killed long before these times.
+
+The app was a release build with the `native-smoke` feature, from P2 at `6c2f02d81` (main
+`b33a7d358`). Each run solved `linear-ex` racks in sparse mode, with a timeout per run.
+Footprints are the 200 ms sampler's peaks. Result sizes are the `release_timing --write`
+files; "app" is the app process, not its worker.
+
+| Run | Result | Outcome | Last stage seen | Run (s) | WebContent peak | App peak | Worker peak |
+|---|---|---|---|---|---|---|---|
+| injected, 250 nodes | 0.46 GB | hang | `job_started`, then no progress | killed at 130 | 20.9 GB | 2.4 GB | — |
+| injected, 500 nodes | 0.92 GB | crash (WebContent) | `take_start` | killed at 130 | 36.3 GB, gone at 36 s | 4.8 GB | — |
+| injected, 1,000 nodes | 1.84 GB | crash (WebContent) | `take_start` | killed at 130 | 38.4 GB, gone at 43 s | 9.6 GB | — |
+| injected, 2,000 nodes | 3.68 GB | refused: `PREVIEW-SOLVE-RESULT-UTF8-INVALID` | `take_end` (27.5 s) | 33.5 | 15.5 GB | 19.1 GB | — |
+| native, 250 nodes | about 0.46 GB | hang | `job_started` | killed at 150 | 19.3 GB | 1.1 GB | 1.7 GB, ended at 25 s |
+| native, 500 nodes | about 0.92 GB | crash (WebContent) | `job_started` | killed at 170 | 35.0 GB, gone at 127 s | 2.1 GB | 3.4 GB, ended at 72 s |
+
+- **Where the webview stops.** In every run below 2,000 nodes, the driver's own progress
+  stopped while the webview handled the result. The main thread was busy in the take, decode,
+  parse or reader stages, so it could neither report nor paint. WebContent grew to 19 to 38 GB.
+  At 500 and 1,000 nodes its process ended, and a fresh, idle WebContent replaced it. No run
+  reached `reader_verdict_end`, so none reached first paint, Record Run or Save Project. No
+  store was written.
+- **The 2,000-node run.**
+  - The 3.68 GB result was published.
+  - It was taken in 1.2 s: `take_end` at 27.5 s, after the app computed `d_M` and `d_S`. The
+    app's peak was 19.1 GB, 16.7 GB of it after `job_done`.
+  - It was then refused at decode as "not UTF-8". The bytes are `release_timing`'s own UTF-8
+    output. The likely cause is the webview's limit on one decoded string (JavaScriptCore's
+    string length), so the message probably misstates the cause. That is an inference, not
+    checked here.
+  - Save Local Project then saved the model without a result, which is correct, and Record
+    Run was unavailable (`RUN-RECORD-NO-RUN`).
+- **An earlier refusal.** At 82 nodes, the earlier functional run reached the reader. There
+  the verdict took about 70 s and refused with `SOURCE_PHYSICS_RHS_DIRECTION`, because seven
   pressure groups publish `direction_component_magnitude` = 1.0000000000000002 and the reader
-  requires values ≤ 1.
-- **Status.** The session reports `SOLVE_NATIVE_INVOCATION_BINDING_REQUIRED`, and Record Run
-  is unavailable (`RUN-RECORD-NO-RUN`).
-- **Memory.** WebContent's footprint peaked at 8.1 to 8.2 GB.
+  requires values ≤ 1. Every `linear-ex` rack meets that refusal before first paint, whatever
+  the webview's limits.
 
-Until that producer and reader disagreement is resolved, no `linear-ex` rack gets past the
-reader verdict. The window then measures the stages up to the verdict and the failure modes
-on the way there.
-
-**Window** (≤ 15 min, one `t3_exclusive.sh` invocation; the commands are in the PR record):
-
-- injected results at 250, 500, 1,000 and 2,000 nodes, at most 130 s each;
-- native solves at 250 and 500 nodes, at most 150 s and 170 s;
-- budget 880 s. A run ends at its first failure, its report or its timeout.
+What this means for criterion 9: on today's main, the desktop cannot show a `linear-ex` result
+of 0.46 GB or more. The time and the memory are in the webview's handling of one whole-envelope
+result: the take, decode, `JSON.parse`, the fingerprint and serialization passes, and the wasm
+reader. They are not in the solve. Meeting the criterion needs the result-volume design (§5.2),
+not only a faster solve.

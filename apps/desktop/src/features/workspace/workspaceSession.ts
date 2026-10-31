@@ -1015,7 +1015,7 @@ export function useWorkspaceSession() {
         throw new Error("SOLVE_BACKEND_INVOCATION_REQUIRED: a reference-only receipt cannot publish Current mechanics.");
       }
       unsettledJob = { jobId: startReceipt.job_id, token: startReceipt.backend_cancellation_token, completed: false };
-      timeline.mark("job_started", { job_id: startReceipt.job_id });
+      timeline.jobStarted(startReceipt.job_id);
       const cancellationTombstone = solveCancellationTombstones.current.get(runGeneration);
       if (
         modelRevision.current !== solveModelRevision ||

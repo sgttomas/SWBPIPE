@@ -8,8 +8,8 @@
 // file) and records what it saw, verbatim; `perf.mjs` classifies. Steps:
 //   1. File > Open Model Document… with the plan's model;
 //   2. Analyze > Run (sparse), then wait for the first paint of the result or a
-//      failure, with a timeout, reading the solve timeline from
-//      `__openPipeStressUiDiagnosticsV1.readCurrent().solveTimeline`;
+//      failure, with a timeout, reading the solve timeline (timings, counts and codes)
+//      from `__openPipeStressSolveTimelineV1.readCurrent()`;
 //   3. Record Run… (Project page, Model History), then File > Save Local Project,
 //      each outcome as shown.
 // Progress lines go to the app's stderr as `[native-smoke] perf:{json}` (a crash
@@ -62,7 +62,7 @@
     await menu(`view.section.${section}`);
     await waitFor(`section ${section}`, () => sectionShown(section), timeoutMs);
   }
-  const timeline = () => globalThis.__openPipeStressUiDiagnosticsV1?.readCurrent?.().solveTimeline ?? null;
+  const timeline = () => globalThis.__openPipeStressSolveTimelineV1?.readCurrent?.() ?? null;
   const elapsed = (started) => Math.round(now() - started);
 
   async function openModel(plan, report) {

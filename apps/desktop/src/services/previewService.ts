@@ -26,7 +26,7 @@ import { buildAnalysisRunV03, modelLoadBasisRefs } from "./analysisRunCompatibil
 import type { ExcludedRulePackRef } from "./rulePackRefDiagnostics";
 import { canonicalSha256HexCheckedV1, checkedJsonText } from "./hashService";
 import { nativeInvokeError, parseResourceRefusal, parseSolveResourceGrant, ResourceUnavailableError } from "./memoryPool";
-import { isSolveJob, markSolveStage, noteSolveResult, timedSolvePass } from "./solveTimeline";
+import { errorCode, isSolveJob, markSolveStage, noteSolveResult, timedSolvePass } from "./solveTimeline";
 export { configureMemoryPool, describeResourceRefusal, getMemoryPoolStatus, ResourceUnavailableError } from "./memoryPool";
 
 async function invokeOrFixture<T>(
@@ -163,12 +163,12 @@ function captureNativeInvocation(model: PreviewModel | null | undefined, solverM
     return { invocation, fingerprint: nativeContentFingerprint(invocation), callerModel: model, callerFingerprint: nativeContentFingerprint(model), invalidated: false, terminalClaimed: false };
   } catch { return null; } // Raw native diagnostics remain available; no registration.
 }
-/** Registers the source when its checks pass. Returns null when it registered, else why
- * not (for the RT-U4 timeline only; nothing decides on it). */
+/** Registers the source when its checks pass. Returns null when it registered, else a
+ * code for why not (for the RT-U4 timeline only; nothing decides on it). */
 async function validateCapturedSource(source: MechanicsResult, capture: CapturedNativeInvocation | null): Promise<string | null> {
-  if (!capture || capture.invalidated) return "capture unavailable";
+  if (!capture || capture.invalidated) return "CAPTURE_UNAVAILABLE";
   try {
-    if (source.model_ref !== capture.invocation.request.model.project.id || nativeContentFingerprint(capture.invocation) !== capture.fingerprint || nativeContentFingerprint(capture.callerModel) !== capture.callerFingerprint) return "model_ref or capture mismatch";
+    if (source.model_ref !== capture.invocation.request.model.project.id || nativeContentFingerprint(capture.invocation) !== capture.fingerprint || nativeContentFingerprint(capture.callerModel) !== capture.callerFingerprint) return "CAPTURE_MISMATCH";
     const sourceFingerprint = nativeContentFingerprint(source);
     // Registration is reachable only after actual direct IPC or a completed
     // known job. Method-specific source-block validation composes here when its
@@ -198,12 +198,12 @@ async function validateCapturedSource(source: MechanicsResult, capture: Captured
     // the accepted reader, so its refusal is recorded and no native registration follows.
     if (isRetainedRoute(sourceContract(source)) || isRetainedIdentity(source.producer?.semantic_contract_id)) await registerRetainedPrecision(source, capture.invocation, model => hasNativeMechanicsInvocation(source, model as PreviewModel), receivedResultBytes(source));
     await canonicalSha256HexCheckedV1(source);
-    if (capture.invalidated || nativeContentFingerprint(source) !== sourceFingerprint || nativeContentFingerprint(capture.invocation) !== capture.fingerprint || nativeContentFingerprint(capture.callerModel) !== capture.callerFingerprint) return "changed during validation";
+    if (capture.invalidated || nativeContentFingerprint(source) !== sourceFingerprint || nativeContentFingerprint(capture.invocation) !== capture.fingerprint || nativeContentFingerprint(capture.callerModel) !== capture.callerFingerprint) return "CHANGED_DURING_VALIDATION";
     nativeSourceInvocations.set(source, { capture, sourceFingerprint });
     return null;
   } catch (error) {
     // Preserve received source for inspection, without qualified standing.
-    return String((error as { message?: unknown })?.message ?? error);
+    return errorCode(error) ?? "UNCODED_REFUSAL";
   }
 }
 /** Query only: headers, hashes, clones and saved records cannot mint registration. */
@@ -420,7 +420,7 @@ export async function takePreviewMechanicsJobResult(jobId: string): Promise<Mech
     try {
       if (timed) markSolveStage("reader_verdict_start");
       const unregistered = await validateCapturedSource(result, capture);
-      if (timed) markSolveStage("reader_verdict_end", { registered: unregistered === null, reason: unregistered });
+      if (timed) markSolveStage("reader_verdict_end", { registered: unregistered === null, reason_code: unregistered });
     } finally {
       if (jobInvocations.get(jobId) === capture) jobInvocations.delete(jobId);
     }

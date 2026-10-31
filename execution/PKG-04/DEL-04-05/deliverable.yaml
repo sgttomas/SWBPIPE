@@ -136,9 +136,36 @@ needs:
     test fails until then.
   gating: false
   evidence: core/solver/performance_harness/rack/rack_model.py
+- from: DEL-07-07
+  when: criterion 9 desktop measurement
+  condition: >-
+    The desktop measurement times the product's own solve job path: publication under the
+    result lease, poll, take (2R custody) and the IPC response (`solve_jobs.rs`), and the
+    webview's take, decode, parse and reader registration (`previewService.ts`), which the
+    solve timeline (`solveTimeline.ts`) marks without changing. The native-smoke result
+    injection (`native_smoke_inject.rs`) stands in for the worker with the worker's own
+    attestation functions (`solve_worker.rs` `result_digest`, `solve_attestation.rs`
+    `streamed_digest`). A change to that path or those functions needs the injection and
+    the timeline's marks re-aligned; the reach scan keeps the injection out of product builds.
+  gating: false
+  evidence: apps/desktop/src-tauri/src/native_smoke_inject.rs
+- from: DEL-07-11
+  when: criterion 9 desktop measurement
+  condition: >-
+    The perf driver runs on the native-smoke harness: the `native-smoke` cargo feature, its
+    driver, plan and report commands and the chooser and menu substitutions
+    (`native_smoke.rs`), and the solve timeline's global installed beside
+    `__openPipeStressUiDiagnosticsV1` (`uiDiagnostics.ts`). The rack generator writes the
+    model-file shape Open Model Document checks (`modelDocumentShape.ts`,
+    `checkNativeOutcome`). A change to that harness, that global's installation or that
+    shape needs the driver, runner or generator re-aligned; `rackModelOpen.test.ts` fails
+    on a shape the desktop refuses.
+  gating: false
+  evidence: apps/desktop/native-smoke/perf.mjs
 code_paths:
 - core/solver/performance_harness/**
 - validation/benchmarks/sparse_*.json
+- apps/desktop/native-smoke/perf*
 checks:
 - core/solver/performance_harness/src/lib.rs
 - core/solver/performance_harness/tests/k6*.rs
@@ -149,3 +176,9 @@ checks:
 - core/solver/performance_harness/runner/test_release_runner.py
 - tests/test_release_timing_runner.py
 - tests/test_performance_rack_model.py
+- apps/desktop/native-smoke/perf.test.mjs
+- apps/desktop/src/services/solveTimeline.test.ts
+- apps/desktop/src/services/solveTimelineGlobal.gate.test.ts
+- apps/desktop/src/services/solveTimelineGlobal.install.test.ts
+- apps/desktop/src-tauri/src/native_smoke_reach_scan_tests.rs
+- apps/desktop/src/features/model-file/rackModelOpen.test.ts

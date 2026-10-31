@@ -1,7 +1,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+  SOLVE_TIMELINE_GLOBAL,
   SOLVE_TIMELINE_SCHEMA,
   beginSolveTimeline,
+  codeOrNull,
+  errorCode,
   isSolveJob,
   isSolveResult,
   markSolveCommittedAndPaint,
@@ -21,19 +24,19 @@ afterEach(() => {
 });
 
 describe("the latest solve's timeline (RT-U4)", () => {
-  it("is absent before any solve, and readCurrent() then carries no solveTimeline", () => {
+  it("is absent before any solve", () => {
     expect(readSolveTimeline()).toBeNull();
-    markSolveStage("job_started", { job_id: "j" });
+    expect(globalThis.__openPipeStressSolveTimelineV1?.readCurrent()).toBeNull();
+    markSolveStage("job_started");
     expect(timedSolvePass("checked_json_text", () => "x", (text) => text.length)).toBe("x");
     expect(readSolveTimeline()).toBeNull();
-    expect("solveTimeline" in globalThis.__openPipeStressUiDiagnosticsV1.readCurrent()).toBe(false);
   });
 
   it("records each stage once in order, with monotonic times since the request", () => {
     let clock = 100;
     vi.spyOn(performance, "now").mockImplementation(() => clock);
     const run = beginSolveTimeline({ solver_mode: "sparse_interactive" });
-    clock = 110; run.mark("job_started", { job_id: "backend-solve-job-1" });
+    clock = 110; run.jobStarted("backend-solve-job-1");
     expect(isSolveJob("backend-solve-job-1")).toBe(true);
     expect(isSolveJob("backend-solve-job-2")).toBe(false);
     clock = 150; run.mark("job_done", { state: "completed", result_bytes: 42, worker_peak_footprint_bytes: null });
@@ -46,7 +49,8 @@ describe("the latest solve's timeline (RT-U4)", () => {
     run.end("completed");
     expect(isSolveJob("backend-solve-job-1")).toBe(false);
     const timeline = readSolveTimeline()!;
-    expect(timeline).toMatchObject({ schema: SOLVE_TIMELINE_SCHEMA, sequence: expect.any(Number), outcome: "completed", job_id: "backend-solve-job-1", failure: null, dropped_marks: 0 });
+    expect(timeline).toMatchObject({ schema: SOLVE_TIMELINE_SCHEMA, sequence: expect.any(Number), outcome: "completed", failure: null, dropped_marks: 0 });
+    expect(timeline.marks[1].detail).toBeNull();
     expect(timeline.marks.map((mark) => [mark.stage, mark.since_start_ms])).toEqual([
       ["solve_requested", 0], ["job_started", 10], ["job_done", 50], ["take_start", 51], ["take_end", 60], ["parse_end", 70]
     ]);
@@ -73,25 +77,46 @@ describe("the latest solve's timeline (RT-U4)", () => {
     ]);
   });
 
-  it("records a failure with the last stage reached, once", () => {
+  it("records a failure with the last stage reached, once, as its code and error class only", () => {
     const run = beginSolveTimeline();
-    run.mark("job_started", { job_id: "j" });
+    run.jobStarted("j");
     markSolveStage("take_end", { bytes: 7 });
-    run.end("failed", new RangeError("Out of memory"));
-    run.end("failed", new Error("later"));
+    run.end("failed", new RangeError("Out of memory at /Users/someone/model.json"));
+    run.end("failed", new Error("SOLVE-JOB-IDENTITY-MISMATCH: later"));
     const timeline = readSolveTimeline()!;
     expect(timeline.outcome).toBe("failed");
-    expect(timeline.failure).toMatchObject({ stage: "take_end", message: "Out of memory" });
+    expect(timeline.failure).toEqual({ stage: "take_end", code: null, error_name: "RangeError", at_ms: expect.any(Number) });
+    const second = beginSolveTimeline();
+    second.end("failed", new Error("SOLVE_NATIVE_INVOCATION_BINDING_REQUIRED: the received result is not bound to project:RK-1."));
+    expect(readSolveTimeline()!.failure).toMatchObject({ code: "SOLVE_NATIVE_INVOCATION_BINDING_REQUIRED", error_name: "Error" });
+  });
+
+  it("keeps a detail string only when it is a code: no path, identifier or message text", () => {
+    beginSolveTimeline({ solver_mode: "sparse_interactive" });
+    markSolveStage("reader_verdict_end", { registered: false, reason_code: "SOURCE_PHYSICS_RHS_DIRECTION" });
+    markSolveStage("job_done", { state: "completed", result_bytes: 5, path: "/Users/someone/rack.json" });
+    markSolveStage("take_end", { job: "backend-solve-job-1", project: "project:RK-linear-ex-82", note: "Opened model document a.json" });
+    const details = readSolveTimeline()!.marks.map((mark) => mark.detail);
+    expect(details).toEqual([
+      { solver_mode: "sparse_interactive" },
+      { registered: false, reason_code: "SOURCE_PHYSICS_RHS_DIRECTION" },
+      { state: "completed", result_bytes: 5, path: null },
+      { job: null, project: null, note: null }
+    ]);
+    expect(codeOrNull("PREVIEW-SOLVE-RESULT-UTF8-INVALID")).toBe("PREVIEW-SOLVE-RESULT-UTF8-INVALID");
+    expect(errorCode(new Error("PREVIEW-SOLVE-RESULT-UTF8-INVALID: the bytes"))).toBe("PREVIEW-SOLVE-RESULT-UTF8-INVALID");
+    expect(errorCode(new Error("unknown solve job: backend-solve-job-1"))).toBeNull();
   });
 
   it("ignores a superseded run's marks and end", () => {
     const first = beginSolveTimeline();
     const second = beginSolveTimeline();
-    first.mark("job_started", { job_id: "old" });
+    first.jobStarted("old");
     first.end("failed", new Error("old"));
-    second.mark("job_started", { job_id: "new" });
+    second.jobStarted("new");
     const timeline = readSolveTimeline()!;
-    expect(timeline.job_id).toBe("new");
+    expect(isSolveJob("new")).toBe(true);
+    expect(isSolveJob("old")).toBe(false);
     expect(timeline.outcome).toBe("running");
     expect(timeline.marks.map((mark) => mark.stage)).toEqual(["solve_requested", "job_started"]);
   });
@@ -114,13 +139,39 @@ describe("the latest solve's timeline (RT-U4)", () => {
     expect(frames).toHaveLength(0);
   });
 
-  it("is bounded, and readCurrent() exposes a frozen copy", () => {
+  it("is bounded, and its global reads a recursively frozen copy", () => {
     const run = beginSolveTimeline();
     for (let index = 0; index < 100; index += 1) run.mark("job_done");
-    const snapshot = globalThis.__openPipeStressUiDiagnosticsV1.readCurrent();
-    expect(snapshot.solveTimeline?.marks).toHaveLength(64);
-    expect(snapshot.solveTimeline?.dropped_marks).toBe(37);
-    expect(Object.isFrozen(snapshot.solveTimeline)).toBe(true);
+    const read = globalThis.__openPipeStressSolveTimelineV1!.readCurrent()!;
+    expect(read.marks).toHaveLength(64);
+    expect(read.dropped_marks).toBe(37);
+    expect(Object.isFrozen(read) && Object.isFrozen(read.marks) && Object.isFrozen(read.marks[0])).toBe(true);
     expect(Object.isFrozen(readSolveTimeline())).toBe(false);
+  });
+});
+
+describe("the solve timeline's own global, beside the unchanged diagnostics global", () => {
+  it("is a frozen, non-writable, non-configurable data property with schema and readCurrent only", () => {
+    const descriptor = Object.getOwnPropertyDescriptor(globalThis, SOLVE_TIMELINE_GLOBAL)!;
+    expect(descriptor).toMatchObject({ writable: false, configurable: false, enumerable: false });
+    expect("get" in descriptor || "set" in descriptor).toBe(false);
+    expect(Object.isFrozen(descriptor.value)).toBe(true);
+    expect(Object.keys(descriptor.value).sort()).toEqual(["readCurrent", "schema"]);
+    expect(descriptor.value.schema).toBe(SOLVE_TIMELINE_SCHEMA);
+    expect(() => { (globalThis as Record<string, unknown>)[SOLVE_TIMELINE_GLOBAL] = {}; }).toThrow();
+  });
+
+  it("leaves the diagnostics global's members and every snapshot key as they were, with no solveTimeline", () => {
+    const api = globalThis.__openPipeStressUiDiagnosticsV1;
+    expect(Object.keys(api).sort()).toEqual(["projectAuthoredPoint", "readCurrent", "schema"]);
+    const idle = api.readCurrent();
+    expect(Object.keys(idle).sort()).toEqual(["capturedAt", "model", "schema", "snapshotSequence", "tree", "viewport"]);
+    expect(Object.keys(idle.model).sort()).toEqual(["assignment", "generation", "identityHash", "indexGeneration", "projectId", "projectSessionGeneration"]);
+    const run = beginSolveTimeline();
+    run.jobStarted("j");
+    noteSolveResult({}, 1);
+    const during = api.readCurrent();
+    expect(Object.keys(during).sort()).toEqual(["capturedAt", "model", "schema", "snapshotSequence", "tree", "viewport"]);
+    expect("solveTimeline" in during).toBe(false);
   });
 });
