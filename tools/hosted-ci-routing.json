@@ -1390,6 +1390,7 @@
               "fixtures/results/j7_rf_census_inputs.json",
               "fixtures/results/loadReferenceReaderCases.cases.json",
               "fixtures/results/loadReferenceSourceLedger.cases.json",
+              "fixtures/results/pressure_arc_tangent_above_one_sparse.json",
               "fixtures/results/pressure_connected_mechanics_dense.json",
               "fixtures/results/pressure_connected_mechanics_sparse.json",
               "fixtures/results/pressure_connected_ui_mechanics_dense.json",
@@ -4553,7 +4554,7 @@
         ]
       },
       "core/reporting/result_export/tests/connector_contract.rs": {
-        "sha256": "e99a50c6f943ee0c5fcd53c90a757f98415d5a08d7c852b14a684eb8fecb9ae1",
+        "sha256": "ed4884b1a3d089ee3a7d2391bdd7142ba119ef34f195f89b0f14b807011831f7",
         "source_trees": [
           "core/reporting/result_export/Cargo.toml"
         ],
@@ -4909,6 +4910,7 @@
               "fixtures/results/j7_rf_census_inputs.json",
               "fixtures/results/loadReferenceReaderCases.cases.json",
               "fixtures/results/loadReferenceSourceLedger.cases.json",
+              "fixtures/results/pressure_arc_tangent_above_one_sparse.json",
               "fixtures/results/pressure_connected_mechanics_dense.json",
               "fixtures/results/pressure_connected_mechanics_sparse.json",
               "fixtures/results/pressure_connected_ui_mechanics_dense.json",
