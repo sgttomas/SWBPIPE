@@ -473,7 +473,10 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // same ranges, the closed modules main's byte for byte, the merged suffix #1663's; unchanged.
             // Combined D3 at fc0e6dd877 versus main 7a43b7dde9: rechecked
             // 0d01d7e2… versus 6dc09d33…; only inspected identity dispatch differs.
-            complete_suffix_sha256: "0d01d7e25d89e3214322197da2bbf26e6cd76bdcc09783c4a25a14971343ee79",
+            // Re-audited at §8.33 (RT-A3 increment 1, 7e7fef2d4) against main d290563ea's 0d01d7e2…: only
+            // the closed `b7b_current_table_tests` module changed (pressure-2's 135 -> 137 rows, with its
+            // comment); the inspected production after the resume and E14 are byte-identical.
+            complete_suffix_sha256: "0d4f2d6a73b16098eada396616bdecbc73926ce56e55ca2faa5c56c5c6f44150",
             production_resume: Some("/// Header dispatch only; canonical envelopes have no raw rows. This does not"),
             trailing_test: Some(SEMANTIC_E14_TEST_ITEM),
         })),
