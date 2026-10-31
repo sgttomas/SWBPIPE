@@ -130,8 +130,9 @@ Z = 6.865 m.
 | RS-P225 | 220 → 225 | S170 | Bend B3 (arc) |
 | RS-P230 | 225 → 230 | S170 | |
 
-Pipe `y_reference` (orientation) is left to the authoring default except where a
-component needs one; the generator records what it writes.
+Pipe `y_reference` (orientation): horizontal straights take global +Z and vertical
+straights global +X. Each bend arc takes its incoming direction, as `insert_bend_at_corner`
+sets it.
 
 ## 4. Material and sections
 
@@ -221,7 +222,7 @@ support here needs a skew.
 | RS-C | RS-230 | `anchor` | all six DOF | Nozzle C; seismic anchor movement point |
 | RS-LS1 | RS-060 | `line_stop` | UX | Axial stop on the first run, so thermal growth of the run is directed into the riser |
 | RS-V060 | RS-060 | `vertical_support` | UZ | Carries the valve run |
-| RS-VS1 | RS-080 | `variable_spring_hanger` | UZ; stiffness 180 kN/m (invented) | Riser, where vertical growth rules out a rigid support; sized by hanger sizing (§8.8) |
+| RS-VS1 | RS-080 | `variable_spring_hanger` | UZ; stiffness 180 kN/m; installed and cold load 8.0 kN, hot load 7.4 kN, travel range 50 mm (all invented) | Riser, where vertical growth rules out a rigid support; sized by hanger sizing (§8.8) |
 | RS-CE1 | RS-100 | `constant_effort_support` | UZ; `constant_load` 9.0 kN (invented input) | Near bend B2, where vertical movement is largest; sized by hanger sizing |
 | RS-LO1 | RS-110 | `nonlinear` | `lift_off`, UZ, initial state active, contact on positive reaction | A rack support near the riser, where operating movement can lift the pipe; whether it lifts is a solve result, not claimed |
 | RS-FR1V | RS-120 | `nonlinear` | `one_way`, UZ (resting); interim: a linear `vertical_support` UZ until R-4 stage S7 lands (§10) | Normal-force source for RS-FR1, so criterion 1 exercises a lift-off friction shoe |
@@ -231,14 +232,16 @@ support here needs a skew.
 | RS-G2 | RS-170 | `guide` | UX, UZ | Guides the reduced run ahead of EJ1 |
 | RS-V200 | RS-200 | `vertical_support` | UZ | Carries the run beyond EJ1 |
 | RS-G3 | RS-215 | `guide` | UX, UY | Guides the branch drop |
+| RS-SN1 | RS-110 | `snubber` (0.9.0) | UX, rigid | Dynamic-only lateral restraint on the rack, where no lateral restraint exists; static solves ignore it once DEL-04-10's slice lands (dynamics lane, 2026-10-31) |
 
 The constant-effort force acts along the positive UZ axis, its single translational
-restraint (DEC-049). The spring's installed, cold and hot loads are left absent: entered
-loads are not applied as preload on main (`SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD`),
-and hanger sizing reports its own loads (§8.8). On `main` a `variable_spring_hanger` without
-them, or without a travel range or movement limit, is refused (`SPRING_HANGER_LOAD_MISSING`,
-`SPRING_HANGER_TRAVEL_MISSING`), so RS-VS1 is pending in tranche 1 (§10). The constant-effort load is an input;
-hanger sizing's sized load is a result and does not overwrite it.
+restraint (DEC-049). A `variable_spring_hanger` must carry entered installed, cold and hot
+loads and a travel range or movement limit (`SPRING_HANGER_LOAD_MISSING`,
+`SPRING_HANGER_TRAVEL_MISSING`), so RS-VS1 carries invented ones. They are review metadata:
+only the stiffness is consumed, and each entered load warns
+`SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD`. Like the constant-effort load, they are inputs;
+hanger sizing reports its own sized loads and travel as results (§8.8) and does not
+overwrite them.
 
 ## 7. Pressure regions
 
@@ -267,7 +270,11 @@ operating temperature 210 °C on every member except the replaced span RS-P180 (
 All are invented. Under 0.9.0 the
 operating condition is one condition set applied to every member
 (`condition_sets[]`, `pipe_segments[].condition_set_ref`, `load_cases[].condition_use`);
-under 0.8.0 it is authored per case.
+under 0.8.0 it is authored per case. The condition set carries temperature, pressure and
+installation temperature only: the operating contents are the sections'
+`contents_density` (§4.2), with no condition contents override, and no case carries
+condition `added_weight`. Only RS-HYD uses `condition_use.contents_density` (§8.3).
+Component weights are rigid-component `weight` at a centre of gravity, not added weight.
 
 With nonlinear supports in the model, every static case is a nonlinear solve with its
 own support status. Occasional effects are therefore cases that include the sustained
@@ -341,9 +348,10 @@ Points: (0.5, 0.12), (2.0, 0.75), (9.0, 0.75), (40.0, 0.30), (100.0, 0.30).
 The spectrum request (DEL-04-10's, beside the model) applies RS-SP1 in X, Y and Z with
 scale factors 1.0, 1.0 and 0.67, uses the modal request of §8.4, and turns on the
 missing-mass correction. The mode and directional combination methods are the dynamics
-lane's to define; the request names them when that design lands. The system has no
-snubber: criterion 1 does not list one, and under 0.9.0 an interim snubber makes every
-static solve refuse (`SNUBBER_DYNAMIC_ONLY_UNSUPPORTED`).
+lane's to define; the request names them when that design lands. One axis snubber,
+RS-SN1 (§6), exercises RT-A8's dynamic-only restraint. It stays pending until DEL-04-10's
+slice replaces the interim refusal: under 0.9.0, every static solve refuses a model with a
+snubber (`SNUBBER_DYNAMIC_ONLY_UNSUPPORTED`).
 
 ### 8.6 Equilibrium checks need no extra case
 
@@ -414,7 +422,7 @@ or absence a solve of the full model shows today.
 | Expansion joint with tie rods, pressurized | in tranche 1 | — | — |
 | Pressure (five regions, shared terminals `transfers_to_wall`) | in tranche 1 | — | — |
 | Anchors, guides, line stop, vertical supports | in tranche 1 | — | — |
-| Variable spring as a user-stiffness spring | pending; refused on main for a modelling reason, so RS-VS1 is left out of tranche 1 (tranche-1 TASK, 2026-10-30): main requires installed, cold and hot loads and a travel range or movement limit on a `variable_spring_hanger`, which §6 leaves absent | reference-system manager / Agent 0 (§6 inputs); RT-A11 / RT-S3 (hanger loads) | `SPRING_HANGER_LOAD_MISSING`, `SPRING_HANGER_TRAVEL_MISSING` (blocking) |
+| Variable spring as a user-stiffness spring | in tranche 1 | — | — |
 | Tee RS-T1 with user SIFs | pending; the junction at RS-130 is in tranche 1 without the component | RT-A3 increment 1 (`claude/rt-a3-tee`) | `EXACT_PRESSURE_FAMILY_NOT_ADMITTED` |
 | Eccentric reducer RS-R1 in region RG-R | pending; RS-P150 is in tranche 1 as a plain S270 member in its own region | RT-A3 increment 2 | `EXACT_PRESSURE_REDUCER_IN_REGION` |
 | Constant-effort support RS-CE1 | pending | RT-A3 increment 3 | `EXACT_PRESSURE_FAMILY_NOT_ADMITTED` |
@@ -430,6 +438,7 @@ or absence a solve of the full model shows today.
 | Modal (RS-OPE linearization) | pending | RT-A7 / dynamics lane (DEL-04-09, M5 in scope) | no modal analysis |
 | Response spectrum, RS-SP1 | pending | RT-A8 / dynamics lane (DEL-04-10, proposed) | no spectrum analysis; `spectra[]` not authorable at 0.8.0 |
 | Hanger sizing and table | pending | RT-A11 / owner to be assigned by Agent 0 | no sizing procedure |
+| Snubber RS-SN1 (RS-110, UX, rigid) | pending | RT-A8 / dynamics lane (DEL-04-10 slice: static solves ignore a snubber) | `SNUBBER_DYNAMIC_ONLY_UNSUPPORTED` on every static solve; not authorable at 0.8.0 |
 
 The generator keeps a pending flag per row of this table, and the fixture test checks
 that the two agree.
@@ -524,3 +533,6 @@ RT-E1 dependency of criterion 17, not a change to the fixture.
   authoring the 0.9.0 members themselves follows here.
 - Geometry, ids and invented inputs change only by an edit to this document first, so
   that every consumer's target moves together.
+- At release, every row still pending here corresponds to a LIM entry in
+  `docs/RELEASE_LIMITATIONS_v1.0.md`, the single criterion 3 list (Agent 0, 2026-10-31).
+  Each ledger update checks that correspondence.

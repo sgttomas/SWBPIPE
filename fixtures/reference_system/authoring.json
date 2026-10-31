@@ -1280,6 +1280,26 @@
       "collection": "supports",
       "fields": {
         "family": "agent_authorable",
+        "hanger.cold_load": "agent_authorable",
+        "hanger.hanger_type": "agent_authorable",
+        "hanger.hot_load": "agent_authorable",
+        "hanger.installed_load": "agent_authorable",
+        "hanger.mechanics_consumption": "agent_authorable",
+        "hanger.source_reference": "agent_authorable",
+        "hanger.stiffness.dof": "agent_authorable",
+        "hanger.stiffness.value": "agent_authorable",
+        "hanger.travel_range": "agent_authorable",
+        "label": "agent_authorable",
+        "node": "agent_authorable",
+        "provenance": "agent_authorable",
+        "restraints": "agent_authorable"
+      },
+      "id": "support:RS-VS1"
+    },
+    {
+      "collection": "supports",
+      "fields": {
+        "family": "agent_authorable",
         "label": "agent_authorable",
         "node": "agent_authorable",
         "provenance": "agent_authorable",
@@ -1487,14 +1507,12 @@
       "state": "in tranche 1"
     },
     {
-      "entities": [
-        "support:RS-VS1"
-      ],
-      "expected_until_then": "`SPRING_HANGER_LOAD_MISSING`, `SPRING_HANGER_TRAVEL_MISSING` (blocking)",
+      "entities": [],
+      "expected_until_then": "—",
       "family": "Variable spring as a user-stiffness spring",
-      "in_tranche_1": false,
-      "row_lane": "reference-system manager / Agent 0 (§6 inputs); RT-A11 / RT-S3 (hanger loads)",
-      "state": "pending; refused on main for a modelling reason, so RS-VS1 is left out of tranche 1 (tranche-1 TASK, 2026-10-30): main requires installed, cold and hot loads and a travel range or movement limit on a `variable_spring_hanger`, which §6 leaves absent"
+      "in_tranche_1": true,
+      "row_lane": "—",
+      "state": "in tranche 1"
     },
     {
       "entities": [
@@ -1644,6 +1662,16 @@
       "family": "Hanger sizing and table",
       "in_tranche_1": false,
       "row_lane": "RT-A11 / owner to be assigned by Agent 0",
+      "state": "pending"
+    },
+    {
+      "entities": [
+        "support:RS-SN1"
+      ],
+      "expected_until_then": "`SNUBBER_DYNAMIC_ONLY_UNSUPPORTED` on every static solve; not authorable at 0.8.0",
+      "family": "Snubber RS-SN1 (RS-110, UX, rigid)",
+      "in_tranche_1": false,
+      "row_lane": "RT-A8 / dynamics lane (DEL-04-10 slice: static solves ignore a snubber)",
       "state": "pending"
     }
   ],

@@ -177,8 +177,11 @@ SUPPORTS = [
     ("RS-G3", "RS-215", "guide", ["UX", "UY"], "Branch guide G3"),
 ]
 SPRING_STIFFNESS = 180000.0  # N/m, UZ
+# §6: the spring's entered loads and travel, review metadata only (never applied as preload on main).
+SPRING_LOADS_N = {"installed_load": 8000.0, "cold_load": 8000.0, "hot_load": 7400.0}
+SPRING_TRAVEL_RANGE_MM = 50.0
 # Supports a pending ledger row keeps out of tranche 1 (their slots and ids stay).
-PENDING_SUPPORTS = {"RS-VS1"}
+PENDING_SUPPORTS: set[str] = set()
 
 # -- §7 pressure regions ----------------------------------------------------------------------------------------------
 REGIONS = [
@@ -211,12 +214,7 @@ LEDGER = [
     ("Expansion joint with tie rods, pressurized", "in tranche 1", "—", "—"),
     ("Pressure (five regions, shared terminals `transfers_to_wall`)", "in tranche 1", "—", "—"),
     ("Anchors, guides, line stop, vertical supports", "in tranche 1", "—", "—"),
-    ("Variable spring as a user-stiffness spring",
-     "pending; refused on main for a modelling reason, so RS-VS1 is left out of tranche 1 (tranche-1 TASK, "
-     "2026-10-30): main requires installed, cold and hot loads and a travel range or movement limit on a "
-     "`variable_spring_hanger`, which §6 leaves absent",
-     "reference-system manager / Agent 0 (§6 inputs); RT-A11 / RT-S3 (hanger loads)",
-     "`SPRING_HANGER_LOAD_MISSING`, `SPRING_HANGER_TRAVEL_MISSING` (blocking)"),
+    ("Variable spring as a user-stiffness spring", "in tranche 1", "—", "—"),
     ("Tee RS-T1 with user SIFs", "pending; the junction at RS-130 is in tranche 1 without the component",
      "RT-A3 increment 1 (`claude/rt-a3-tee`)", "`EXACT_PRESSURE_FAMILY_NOT_ADMITTED`"),
     ("Eccentric reducer RS-R1 in region RG-R",
@@ -247,10 +245,12 @@ LEDGER = [
     ("Response spectrum, RS-SP1", "pending", "RT-A8 / dynamics lane (DEL-04-10, proposed)",
      "no spectrum analysis; `spectra[]` not authorable at 0.8.0"),
     ("Hanger sizing and table", "pending", "RT-A11 / owner to be assigned by Agent 0", "no sizing procedure"),
+    ("Snubber RS-SN1 (RS-110, UX, rigid)", "pending",
+     "RT-A8 / dynamics lane (DEL-04-10 slice: static solves ignore a snubber)",
+     "`SNUBBER_DYNAMIC_ONLY_UNSUPPORTED` on every static solve; not authorable at 0.8.0"),
 ]
 # The model entities each tranche-1 row covers, and the entities a pending row will add (ids of spec §2-§8).
 LEDGER_ENTITIES = {
-    "Variable spring as a user-stiffness spring": ["support:RS-VS1"],
     "Tee RS-T1 with user SIFs": ["component:RS-T1"],
     "Eccentric reducer RS-R1 in region RG-R": ["component:RS-R1"],
     "Constant-effort support RS-CE1": ["support:RS-CE1"],
@@ -263,6 +263,7 @@ LEDGER_ENTITIES = {
         ["combination:RS-EQ-SRSS", "combination:RS-EQ-ABS", "combination:RS-OCC-SRSS", "combination:RS-OCC-ABS"],
     "RS-HYD": ["load:RS-HYD"],
     "Response spectrum, RS-SP1": ["spectrum:RS-SP1"],
+    "Snubber RS-SN1 (RS-110, UX, rigid)": ["support:RS-SN1"],
 }
 
 # -- §9 key results -------------------------------------------------------------------------------------------------
@@ -499,6 +500,8 @@ def supports():
         if family == "variable_spring_hanger":
             row["hanger"] = {"hanger_type": "variable_spring_hanger",
                              "stiffness": {"dof": "UZ", "value": q(SPRING_STIFFNESS, "N/m")},
+                             **{name: q(value, "N") for name, value in SPRING_LOADS_N.items()},
+                             "travel_range": q(SPRING_TRAVEL_RANGE_MM, "mm"),
                              "source_reference": SOURCE,
                              "mechanics_consumption": "linear_spring_primitive_user_stiffness"}
         rows.append(row)
