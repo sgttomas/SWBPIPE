@@ -77,16 +77,7 @@ This records what the code does at T4-U2 source `98dba87714262722a78a534ad5921a1
   This departs from R-4 §3.1's proposed `PRESSURE_JUNCTION_PRESSURE_DIFFERS` and `PRESSURE_JUNCTION_MEMBER_UNREGIONED` refusals, which would have refused those closures under an explicit token. `rt_a3_tee_references.rs` checks that each warning appears with its refs, and that the numbers are the closure's (T1's legs by linearity in p: the branch elongation halves at half its pressure and is 0 when dry; the anchor carries 0).
 - The node's angles are not restricted. A two-member node of straight pipes in two regions has exactly the caps' resultant, as on main before this increment. A realized bend's ends inside one region keep their tangency rule (`PRESSURE_REGION_MITRE_UNSUPPORTED`), and a straight–straight kink inside one region stays `PRESSURE_REGION_NONCOLLINEAR`. No mitre flexibility or SIF is modelled.
 
-**Release limitation (for exit criterion 3).** This is a standing refusal in a Must row, listed here in the form of the release limitations list for the owner's acceptance. It is not accepted until the owner says so.
-
-| Field | Entry |
-|---|---|
-| Rows | RT-A3 (one route), RT-K2 (tees), RT-L1 (pressure) |
-| Refusal | `EXACT_PRESSURE_SHARED_TERMINAL_JUNCTION_UNSUPPORTED` (blocking) |
-| What is refused | A pressure junction, meaning a node where terminals of two or more pressure regions of one load case meet, where any of those terminals is declared `separately_supported_or_compensated`. |
-| Why | Under the implicit junction representation (D-1), the junction's pressure load is the sum of its terminals' caps. A compensated terminal removes its member's cap from the pipe solve, so the fitting's load would be analysed incomplete without notice. |
-| What the user does instead | Declare `transfers_to_wall` at every terminal of the node. Where a branch's thrust is truly carried by a separate device, model that device as a connector or support. A compensated terminal at a region's own closure, away from any junction, is admitted. |
-| Status | Refused by name; the owner's acceptance of this limitation is pending. |
+**Release limitation LIM-001 (exit criterion 3).** The compensated-terminal refusal above is a standing refusal in a Must row. It is listed as [LIM-001 in `docs/RELEASE_LIMITATIONS_v1.0.md`](../../../../docs/RELEASE_LIMITATIONS_v1.0.md), with the reasoning here. The owner's acceptance is pending.
 
 **The tee on EX.** `exact_admission::admission` admits the branch family (`branch`, `tee`, `branch_connection`) under `3.0.0/exact_pressure_v3`. As on the pressure-free route, the tee is a record at its node: its members meet as a rigid joint, there is no element, and branch flexibility is not assembled (RT-K2's Should).
 - **Intensified rows.** The user's header and branch SIFs give `branch_intensified_bending_stress_v1` rows, one per section basis, nominal then reduced (`u4b_rows::append_branch_intensified`). They go at the end of the named header pipe and the named branch pipe at the tee's node, by the pressure-free route's association rule (`preview_physics::associations`).
