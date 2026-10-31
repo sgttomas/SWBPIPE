@@ -43,6 +43,13 @@ function ExistingMaterialEditor(props: RichFormProps & { material: NonNullable<R
     <button type="button" onClick={() => void submit()}>Queue constitutive properties</button>
   </fieldset><QueueFeedback {...state} /></section>;
 }
+/** G5: the optional coefficient is absent unless a value or unit was entered;
+ * a half-entered quantity is refused by parseQuantities, never completed. */
+function blankAlphaAbsent(draft: DraftRecord): DraftRecord {
+  const alpha = record(draft.thermal_expansion_coefficient);
+  const blank = (v: unknown) => v === undefined || String(v).trim() === "";
+  return blank(alpha.value) && blank(alpha.unit) ? setMember(draft, "thermal_expansion_coefficient", undefined) : draft;
+}
 function CreateExactMaterial(props: RichFormProps) {
   const [draft, setDraft] = useState<DraftRecord>({});
   const state = useRichQueue({ ...props, onQueueIntent: intent => {
@@ -51,7 +58,7 @@ function CreateExactMaterial(props: RichFormProps) {
   } });
   const update = (k: string, v: unknown) => setDraft(current => setMember(current, k, v));
   async function submit() { try {
-    const after = checkedMaterial(draft);
+    const after = checkedMaterial(blankAlphaAbsent(draft));
     const id = requireText(after.id, "Material ID"); requireText(after.label, "Material label");
     if (props.model.materials?.some(m => m.id === id)) throw new Error("Material ID already exists.");
     await state.queue({ object_type: "Material", ref: id }, "create_material", "materials", undefined, after, "Exact E/nu material", true);
@@ -60,6 +67,8 @@ function CreateExactMaterial(props: RichFormProps) {
     <TextField label="Exact material ID" value={draft.id} onChange={v => update("id", v)} />
     <TextField label="Exact material label" value={draft.label} onChange={v => update("label", v)} />
     <MaterialInputs draft={draft} update={update} />
+    <QuantityField label="Thermal expansion coefficient" dimension="thermal expansion coefficient (1/temperature); optional, absent when left blank" value={draft.thermal_expansion_coefficient} onChange={v => update("thermal_expansion_coefficient", v)} />
+    <p>A material-level coefficient is recorded on the material. Thermal states that name an expansion law or their own coefficient use those instead.</p>
     <button type="button" onClick={() => void submit()}>Queue exact material</button>
   </fieldset><QueueFeedback {...state} /></details>;
 }
