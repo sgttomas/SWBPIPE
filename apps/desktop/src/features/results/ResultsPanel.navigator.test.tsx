@@ -97,7 +97,8 @@ describe("the results navigator", () => {
       // The table shows this case only, and the current row is marked selected and focused.
       expect(screen.getByTestId(`result-row-${expected.id}`)).toHaveAttribute("aria-selected", "true");
       expect(document.activeElement).toBe(screen.getByTestId(`result-row-${expected.id}`));
-      expect(screen.getByTestId("result-filter-summary").textContent).toMatch(/^\d+ of 459 results match filter$/);
+      // 531 rows: the capture's 459 plus W-7's 72 global end-action rows (preview_physics_capture, DEL-03-03 regeneration).
+      expect(screen.getByTestId("result-filter-summary").textContent).toMatch(/^\d+ of 531 results match filter$/);
     }
   });
 
@@ -217,7 +218,8 @@ describe("the results navigator", () => {
     const result = fixture();
     const onSelect = vi.fn();
     render(<Harness result={result} onSelect={onSelect} />);
-    expect(screen.getByTestId("result-page-summary")).toHaveTextContent("page 1 of 10");
+    // 531 rows at 50 per page (W-7's 72 global end-action rows make the eleventh page).
+    expect(screen.getByTestId("result-page-summary")).toHaveTextContent("page 1 of 11");
     // From no position, Previous goes to the last support or element.
     const initiating = button("entity", "previous");
     initiating.focus();
@@ -225,7 +227,7 @@ describe("the results navigator", () => {
     const id = onSelect.mock.lastCall![0] as string;
     const at = result.results.findIndex((row) => row.id === id);
     expect(at).toBeGreaterThanOrEqual(50);
-    expect(screen.getByTestId("result-page-summary")).toHaveTextContent(`page ${Math.floor(at / 50) + 1} of 10`);
+    expect(screen.getByTestId("result-page-summary")).toHaveTextContent(`page ${Math.floor(at / 50) + 1} of 11`);
     const rowElement = screen.getByTestId(`result-row-${id}`);
     expect(scrolled).toEqual([rowElement]);
     // A button step leaves focus on its button.

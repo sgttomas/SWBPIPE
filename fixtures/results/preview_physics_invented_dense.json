@@ -3084,6 +3084,222 @@
       }
     },
     {
+      "id": "result:element-global-end:pipe-P-100:end_i:fx",
+      "kind": "element_global_end_force_v1",
+      "value": 0.0,
+      "unit": "N",
+      "entity_ref": "pipe:P-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "Fx",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-100:end_i:fy",
+      "kind": "element_global_end_force_v1",
+      "value": 0.0,
+      "unit": "N",
+      "entity_ref": "pipe:P-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "Fy",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-100:end_i:fz",
+      "kind": "element_global_end_force_v1",
+      "value": -120.02941414688411,
+      "unit": "N",
+      "entity_ref": "pipe:P-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "Fz",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-100:end_i:mx",
+      "kind": "element_global_end_moment_v1",
+      "value": -162.82837805268488,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "Mx",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-100:end_i:my",
+      "kind": "element_global_end_moment_v1",
+      "value": -226.7444902621995,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "My",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-100:end_i:mz",
+      "kind": "element_global_end_moment_v1",
+      "value": 0.0,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "Mz",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-100:end_j:fx",
+      "kind": "element_global_end_force_v1",
+      "value": 0.0,
+      "unit": "N",
+      "entity_ref": "pipe:P-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "Fx",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-100:end_j:fy",
+      "kind": "element_global_end_force_v1",
+      "value": 0.0,
+      "unit": "N",
+      "entity_ref": "pipe:P-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "Fy",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-100:end_j:fz",
+      "kind": "element_global_end_force_v1",
+      "value": 120.02941414688411,
+      "unit": "N",
+      "entity_ref": "pipe:P-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "Fz",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-100:end_j:mx",
+      "kind": "element_global_end_moment_v1",
+      "value": 162.82837805268488,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "Mx",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-100:end_j:my",
+      "kind": "element_global_end_moment_v1",
+      "value": 610.8386155322287,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "My",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-100:end_j:mz",
+      "kind": "element_global_end_moment_v1",
+      "value": 0.0,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "Mz",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
       "id": "result:stress:pipe-P-100:end-i:sigma-plus",
       "kind": "element_local_normal_stress_extreme",
       "value": 1.657144109726126,
@@ -4272,6 +4488,222 @@
       }
     },
     {
+      "id": "result:element-global-end:pipe-P-110:end_i:fx",
+      "kind": "element_global_end_force_v1",
+      "value": 0.0,
+      "unit": "N",
+      "entity_ref": "pipe:P-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "Fx",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-110:end_i:fy",
+      "kind": "element_global_end_force_v1",
+      "value": 0.0,
+      "unit": "N",
+      "entity_ref": "pipe:P-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "Fy",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-110:end_i:fz",
+      "kind": "element_global_end_force_v1",
+      "value": -120.02941414688411,
+      "unit": "N",
+      "entity_ref": "pipe:P-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "Fz",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-110:end_i:mx",
+      "kind": "element_global_end_moment_v1",
+      "value": -162.82837805268488,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "Mx",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-110:end_i:my",
+      "kind": "element_global_end_moment_v1",
+      "value": -610.8386155322287,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "My",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-110:end_i:mz",
+      "kind": "element_global_end_moment_v1",
+      "value": 0.0,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "Mz",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-110:end_j:fx",
+      "kind": "element_global_end_force_v1",
+      "value": 0.0,
+      "unit": "N",
+      "entity_ref": "pipe:P-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "Fx",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-110:end_j:fy",
+      "kind": "element_global_end_force_v1",
+      "value": 0.0,
+      "unit": "N",
+      "entity_ref": "pipe:P-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "Fy",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-110:end_j:fz",
+      "kind": "element_global_end_force_v1",
+      "value": 120.02941414688411,
+      "unit": "N",
+      "entity_ref": "pipe:P-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "Fz",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-110:end_j:mx",
+      "kind": "element_global_end_moment_v1",
+      "value": -125.24221589983698,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "Mx",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-110:end_j:my",
+      "kind": "element_global_end_moment_v1",
+      "value": 610.8386155322287,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "My",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-110:end_j:mz",
+      "kind": "element_global_end_moment_v1",
+      "value": 0.0,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "Mz",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
       "id": "result:stress:pipe-P-110:end-i:sigma-plus",
       "kind": "element_local_normal_stress_extreme",
       "value": 1.1900182768465217,
@@ -5457,6 +5889,222 @@
         "location": "governing_station",
         "basis": "recovered_from_open_mechanics_stress_components",
         "sign_convention": "nonnegative circumferential maximum |Nw/As|+hypot(My,Mz)/Z; bounded over all straight statics intervals; torsional shear remains separate; no code stress or equivalent stress claim"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-120:end_i:fx",
+      "kind": "element_global_end_force_v1",
+      "value": -1.7120938789828076e-33,
+      "unit": "N",
+      "entity_ref": "pipe:P-120",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "Fx",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-120:end_i:fy",
+      "kind": "element_global_end_force_v1",
+      "value": 0.0,
+      "unit": "N",
+      "entity_ref": "pipe:P-120",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "Fy",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-120:end_i:fz",
+      "kind": "element_global_end_force_v1",
+      "value": 556.8269580755065,
+      "unit": "N",
+      "entity_ref": "pipe:P-120",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "Fz",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-120:end_i:mx",
+      "kind": "element_global_end_moment_v1",
+      "value": 125.24221589983698,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-120",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "Mx",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-120:end_i:my",
+      "kind": "element_global_end_moment_v1",
+      "value": -610.8386155322287,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-120",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "My",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-120:end_i:mz",
+      "kind": "element_global_end_moment_v1",
+      "value": 0.0,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-120",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "Mz",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-120:end_j:fx",
+      "kind": "element_global_end_force_v1",
+      "value": 1.7120938789828076e-33,
+      "unit": "N",
+      "entity_ref": "pipe:P-120",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "Fx",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-120:end_j:fy",
+      "kind": "element_global_end_force_v1",
+      "value": 0.0,
+      "unit": "N",
+      "entity_ref": "pipe:P-120",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "Fy",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-120:end_j:fz",
+      "kind": "element_global_end_force_v1",
+      "value": 279.1730419244934,
+      "unit": "N",
+      "entity_ref": "pipe:P-120",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "Fz",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-120:end_j:mx",
+      "kind": "element_global_end_moment_v1",
+      "value": -125.24221589983698,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-120",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "Mx",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-120:end_j:my",
+      "kind": "element_global_end_moment_v1",
+      "value": -1.2870473358216514e-32,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-120",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "My",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-120:end_j:mz",
+      "kind": "element_global_end_moment_v1",
+      "value": 0.0,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-120",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "Mz",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
       }
     },
     {
@@ -6750,6 +7398,222 @@
         "component_ref": "component:C-130",
         "stiffness_scale": 15.0,
         "section_role": "reference_pipe_section"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-130:end_i:fx",
+      "kind": "element_global_end_force_v1",
+      "value": 2.3458144726441376e-34,
+      "unit": "N",
+      "entity_ref": "pipe:P-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "Fx",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-130:end_i:fy",
+      "kind": "element_global_end_force_v1",
+      "value": -56.92827995447134,
+      "unit": "N",
+      "entity_ref": "pipe:P-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "Fy",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-130:end_i:fz",
+      "kind": "element_global_end_force_v1",
+      "value": -278.6037591249487,
+      "unit": "N",
+      "entity_ref": "pipe:P-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "Fz",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-130:end_i:mx",
+      "kind": "element_global_end_moment_v1",
+      "value": 125.24221589983698,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "Mx",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-130:end_i:my",
+      "kind": "element_global_end_moment_v1",
+      "value": 8.173590601636018e-33,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "My",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-130:end_i:mz",
+      "kind": "element_global_end_moment_v1",
+      "value": 0.0,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "Mz",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-130:end_j:fx",
+      "kind": "element_global_end_force_v1",
+      "value": -2.3458144726441376e-34,
+      "unit": "N",
+      "entity_ref": "pipe:P-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "Fx",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-130:end_j:fy",
+      "kind": "element_global_end_force_v1",
+      "value": 56.92827995447134,
+      "unit": "N",
+      "entity_ref": "pipe:P-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "Fy",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-130:end_j:fz",
+      "kind": "element_global_end_force_v1",
+      "value": 278.6037591249487,
+      "unit": "N",
+      "entity_ref": "pipe:P-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "Fz",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-130:end_j:mx",
+      "kind": "element_global_end_moment_v1",
+      "value": 0.0,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "Mx",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-130:end_j:my",
+      "kind": "element_global_end_moment_v1",
+      "value": -7.659204343022876e-33,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "My",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:element-global-end:pipe-P-130:end_j:mz",
+      "kind": "element_global_end_moment_v1",
+      "value": 0.0,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "Mz",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
       }
     },
     {
@@ -9887,6 +10751,222 @@
       }
     },
     {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-100:end_i:fx",
+      "kind": "element_global_end_force_v1",
+      "value": 0.0,
+      "unit": "N",
+      "entity_ref": "pipe:P-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "Fx",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-100:end_i:fy",
+      "kind": "element_global_end_force_v1",
+      "value": 0.0,
+      "unit": "N",
+      "entity_ref": "pipe:P-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "Fy",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-100:end_i:fz",
+      "kind": "element_global_end_force_v1",
+      "value": -60.014707073442054,
+      "unit": "N",
+      "entity_ref": "pipe:P-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "Fz",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-100:end_i:mx",
+      "kind": "element_global_end_moment_v1",
+      "value": -81.41418902634244,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "Mx",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-100:end_i:my",
+      "kind": "element_global_end_moment_v1",
+      "value": -113.37224513109975,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "My",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-100:end_i:mz",
+      "kind": "element_global_end_moment_v1",
+      "value": 0.0,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "Mz",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-100:end_j:fx",
+      "kind": "element_global_end_force_v1",
+      "value": 0.0,
+      "unit": "N",
+      "entity_ref": "pipe:P-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "Fx",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-100:end_j:fy",
+      "kind": "element_global_end_force_v1",
+      "value": 0.0,
+      "unit": "N",
+      "entity_ref": "pipe:P-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "Fy",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-100:end_j:fz",
+      "kind": "element_global_end_force_v1",
+      "value": 60.014707073442054,
+      "unit": "N",
+      "entity_ref": "pipe:P-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "Fz",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-100:end_j:mx",
+      "kind": "element_global_end_moment_v1",
+      "value": 81.41418902634244,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "Mx",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-100:end_j:my",
+      "kind": "element_global_end_moment_v1",
+      "value": 305.41930776611434,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "My",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-100:end_j:mz",
+      "kind": "element_global_end_moment_v1",
+      "value": 0.0,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "Mz",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
       "id": "result:loadcase:load-L-200:stress:pipe-P-100:end-i:sigma-plus",
       "kind": "element_local_normal_stress_extreme",
       "value": 0.828572054863063,
@@ -11075,6 +12155,222 @@
       }
     },
     {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-110:end_i:fx",
+      "kind": "element_global_end_force_v1",
+      "value": 0.0,
+      "unit": "N",
+      "entity_ref": "pipe:P-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "Fx",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-110:end_i:fy",
+      "kind": "element_global_end_force_v1",
+      "value": 0.0,
+      "unit": "N",
+      "entity_ref": "pipe:P-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "Fy",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-110:end_i:fz",
+      "kind": "element_global_end_force_v1",
+      "value": -60.014707073442054,
+      "unit": "N",
+      "entity_ref": "pipe:P-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "Fz",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-110:end_i:mx",
+      "kind": "element_global_end_moment_v1",
+      "value": -81.41418902634244,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "Mx",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-110:end_i:my",
+      "kind": "element_global_end_moment_v1",
+      "value": -305.41930776611434,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "My",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-110:end_i:mz",
+      "kind": "element_global_end_moment_v1",
+      "value": 0.0,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "Mz",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-110:end_j:fx",
+      "kind": "element_global_end_force_v1",
+      "value": 0.0,
+      "unit": "N",
+      "entity_ref": "pipe:P-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "Fx",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-110:end_j:fy",
+      "kind": "element_global_end_force_v1",
+      "value": 0.0,
+      "unit": "N",
+      "entity_ref": "pipe:P-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "Fy",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-110:end_j:fz",
+      "kind": "element_global_end_force_v1",
+      "value": 60.014707073442054,
+      "unit": "N",
+      "entity_ref": "pipe:P-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "Fz",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-110:end_j:mx",
+      "kind": "element_global_end_moment_v1",
+      "value": -62.62110794991849,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "Mx",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-110:end_j:my",
+      "kind": "element_global_end_moment_v1",
+      "value": 305.41930776611434,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "My",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-110:end_j:mz",
+      "kind": "element_global_end_moment_v1",
+      "value": 0.0,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "Mz",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
       "id": "result:loadcase:load-L-200:stress:pipe-P-110:end-i:sigma-plus",
       "kind": "element_local_normal_stress_extreme",
       "value": 0.5950091384232609,
@@ -12260,6 +13556,222 @@
         "location": "governing_station",
         "basis": "recovered_from_open_mechanics_stress_components",
         "sign_convention": "nonnegative circumferential maximum |Nw/As|+hypot(My,Mz)/Z; bounded over all straight statics intervals; torsional shear remains separate; no code stress or equivalent stress claim"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-120:end_i:fx",
+      "kind": "element_global_end_force_v1",
+      "value": 1.0707044222989208e-33,
+      "unit": "N",
+      "entity_ref": "pipe:P-120",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "Fx",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-120:end_i:fy",
+      "kind": "element_global_end_force_v1",
+      "value": 0.0,
+      "unit": "N",
+      "entity_ref": "pipe:P-120",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "Fy",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-120:end_i:fz",
+      "kind": "element_global_end_force_v1",
+      "value": 278.41347903775323,
+      "unit": "N",
+      "entity_ref": "pipe:P-120",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "Fz",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-120:end_i:mx",
+      "kind": "element_global_end_moment_v1",
+      "value": 62.62110794991849,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-120",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "Mx",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-120:end_i:my",
+      "kind": "element_global_end_moment_v1",
+      "value": -305.41930776611434,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-120",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "My",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-120:end_i:mz",
+      "kind": "element_global_end_moment_v1",
+      "value": 0.0,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-120",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "Mz",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-120:end_j:fx",
+      "kind": "element_global_end_force_v1",
+      "value": -1.0707044222989208e-33,
+      "unit": "N",
+      "entity_ref": "pipe:P-120",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "Fx",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-120:end_j:fy",
+      "kind": "element_global_end_force_v1",
+      "value": 0.0,
+      "unit": "N",
+      "entity_ref": "pipe:P-120",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "Fy",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-120:end_j:fz",
+      "kind": "element_global_end_force_v1",
+      "value": 139.5865209622467,
+      "unit": "N",
+      "entity_ref": "pipe:P-120",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "Fz",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-120:end_j:mx",
+      "kind": "element_global_end_moment_v1",
+      "value": -62.62110794991849,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-120",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "Mx",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-120:end_j:my",
+      "kind": "element_global_end_moment_v1",
+      "value": -6.386168099734315e-33,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-120",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "My",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-120:end_j:mz",
+      "kind": "element_global_end_moment_v1",
+      "value": 0.0,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-120",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "Mz",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
       }
     },
     {
@@ -13556,6 +15068,222 @@
       }
     },
     {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-130:end_i:fx",
+      "kind": "element_global_end_force_v1",
+      "value": 9.791641042678004e-34,
+      "unit": "N",
+      "entity_ref": "pipe:P-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "Fx",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-130:end_i:fy",
+      "kind": "element_global_end_force_v1",
+      "value": -28.46413997723567,
+      "unit": "N",
+      "entity_ref": "pipe:P-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "Fy",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-130:end_i:fz",
+      "kind": "element_global_end_force_v1",
+      "value": -139.30187956247434,
+      "unit": "N",
+      "entity_ref": "pipe:P-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "Fz",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-130:end_i:mx",
+      "kind": "element_global_end_moment_v1",
+      "value": 62.62110794991849,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "Mx",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-130:end_i:my",
+      "kind": "element_global_end_moment_v1",
+      "value": 5.39469226825941e-33,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "My",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-130:end_i:mz",
+      "kind": "element_global_end_moment_v1",
+      "value": 0.0,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "Mz",
+        "coordinate_system": "global",
+        "location": "end_i",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-130:end_j:fx",
+      "kind": "element_global_end_force_v1",
+      "value": -9.791641042678004e-34,
+      "unit": "N",
+      "entity_ref": "pipe:P-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "Fx",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-130:end_j:fy",
+      "kind": "element_global_end_force_v1",
+      "value": 28.46413997723567,
+      "unit": "N",
+      "entity_ref": "pipe:P-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "Fy",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-130:end_j:fz",
+      "kind": "element_global_end_force_v1",
+      "value": 139.30187956247434,
+      "unit": "N",
+      "entity_ref": "pipe:P-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "Fz",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-130:end_j:mx",
+      "kind": "element_global_end_moment_v1",
+      "value": -7.028051733247024e-37,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "Mx",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-130:end_j:my",
+      "kind": "element_global_end_moment_v1",
+      "value": -3.2413777015545325e-33,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "My",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
+      "id": "result:loadcase:load-L-200:element-global-end:pipe-P-130:end_j:mz",
+      "kind": "element_global_end_moment_v1",
+      "value": 0.0,
+      "unit": "N*m",
+      "entity_ref": "pipe:P-130",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "metadata": {
+        "component": "Mz",
+        "coordinate_system": "global",
+        "location": "end_j",
+        "basis": "rotated_from_published_element_local_end_actions_v1",
+        "sign_convention": "global end action on the element at its node (node on element), F = Rᵀ f; the element acts on its node with −F"
+      }
+    },
+    {
       "id": "result:loadcase:load-L-200:stress:pipe-P-130:end-i:sigma-plus",
       "kind": "element_local_normal_stress_extreme",
       "value": 0.4970058206644852,
@@ -14100,6 +15828,39 @@
       ]
     },
     {
+      "id": "diagnostic:spring-hanger:support-SH-140:hanger.installed_load",
+      "code": "SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD",
+      "severity": "warning",
+      "message": "variable spring hanger support:SH-140: its installed load (hanger.installed_load) is not applied as preload; results treat the hanger as a linear spring from zero load, whose force is its stiffness times the displacement at its DOF, and the entered load remains review evidence only",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "support:SH-140",
+        "hanger.installed_load"
+      ]
+    },
+    {
+      "id": "diagnostic:spring-hanger:support-SH-140:hanger.cold_load",
+      "code": "SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD",
+      "severity": "warning",
+      "message": "variable spring hanger support:SH-140: its cold load (hanger.cold_load) is not applied as preload; results treat the hanger as a linear spring from zero load, whose force is its stiffness times the displacement at its DOF, and the entered load remains review evidence only",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "support:SH-140",
+        "hanger.cold_load"
+      ]
+    },
+    {
+      "id": "diagnostic:spring-hanger:support-SH-140:hanger.hot_load",
+      "code": "SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD",
+      "severity": "warning",
+      "message": "variable spring hanger support:SH-140: its hot load (hanger.hot_load) is not applied as preload; results treat the hanger as a linear spring from zero load, whose force is its stiffness times the displacement at its DOF, and the entered load remains review evidence only",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "support:SH-140",
+        "hanger.hot_load"
+      ]
+    },
+    {
       "id": "diagnostic:spring-hanger:support-CE-120:hanger",
       "code": "CONSTANT_EFFORT_USER_DATA_REVIEWED",
       "severity": "info",
@@ -14108,6 +15869,16 @@
       "affected_refs": [
         "support:CE-120",
         "hanger"
+      ]
+    },
+    {
+      "id": "diagnostic:component:component-C-110:bend-geometry-only",
+      "code": "BEND_GEOMETRY_ONLY_SOLVED_AS_CHORD",
+      "severity": "warning",
+      "message": "bend/elbow component is geometry only: it is solved as a straight chord, its flexibility factor k is not applied, and its scalar SIF is applied as equal-factor intensification when the run solves; realize the bend (mechanics_interface.solver_consumption curved_bend_macro_element) to apply k",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "component:C-110"
       ]
     },
     {
