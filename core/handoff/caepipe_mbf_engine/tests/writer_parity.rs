@@ -153,7 +153,8 @@ fn replay_all() -> &'static Replay {
             let row = row.as_list().expect("row");
             let source = sources[mbf::value::small_int(&row[0]).expect("src") as usize].as_str().expect("source");
             let kind = row[1].as_str().expect("kind");
-            let model = inputs.value(&row[2]).expect("model");
+            // The model is a blob: its JSON text (many inputs are deliberately not valid model documents).
+            let model = restore(&parse(&inputs.blob(row[2].as_str().expect("model key"))));
             let settings = inputs.value(&row[3]).expect("settings");
             let expect = &row[4];
             replay.count += 1;

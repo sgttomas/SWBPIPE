@@ -64,7 +64,8 @@ BASE = _load_base()  # the import vectors' lossless JSON forms, value store and 
 Unrepresentable = BASE.Unrepresentable
 
 # A writer vector is a row [src, kind, model, settings, expect]: the index of the test or corpus item that made the
-# call in `sources`; "render" or "regenerate"; the model and the settings (value keys); and the expectation,
+# call in `sources`; "render" or "regenerate"; the model (a blob key: its JSON text, `model_text`) and the settings (a
+# value key); and the expectation,
 # {"digest": 128 bits of SHA-256 over the outputs} (with "status", "text", "to_dict" and "sidecar" text, or
 # "sidecar"/"refused" text for a regeneration, for corpus items) or {"raises": [type, message]}. A render's settings
 # are {title, reference_temperature_c, max_layout_rows, reference_temperature_f, piping_code, preflight} (and
@@ -108,6 +109,16 @@ def writer_codes() -> list[str]:
 # ---------------------------------------------------------------------------
 # recording
 # ---------------------------------------------------------------------------
+def model_text(model: Any) -> str:
+    """A model input as JSON text (insertion order kept), stored as a blob: many inputs are deliberately not valid
+    model documents, so they are kept out of the committed-document checks that find documents in JSON values."""
+    return json.dumps(model, ensure_ascii=True, allow_nan=False)
+
+
+def model_ref(document: dict, key: str, cache: dict) -> Any:
+    return BASE.restore(json.loads(BASE.blob_bytes(document, key, cache).decode("utf-8")))
+
+
 class Recorder:
     """Wraps `_Writer.run` while the suites and the corpus run, keeping each distinct input once."""
 
@@ -162,7 +173,7 @@ class Recorder:
             self.add("render", model, {**settings, "preflight": False})
 
     def add(self, kind: str, model: Any, settings: dict) -> None:
-        model_key, settings_key = self.store.value(model), self.store.value(settings)
+        model_key, settings_key = self.store.blob(model_text(model)), self.store.value(settings)
         identity = f"{kind}|{model_key}|{settings_key}"
         if self.source not in self.sources:
             self.sources[self.source] = len(self.sources)
@@ -625,7 +636,7 @@ def harvest() -> dict:
     caches: tuple[dict, dict] = ({}, {})
     rows, codes = [], set()
     for row in recorder.rows:
-        model = BASE.value_ref(document, row[ROW["model"]], caches[1])
+        model = model_ref(document, row[ROW["model"]], caches[0])
         settings = BASE.value_ref(document, row[ROW["settings"]], caches[1])
         expect, found = expectation(row[ROW["kind"]], model, settings, full=row[ROW["expect"]]["full"])
         codes |= found
@@ -660,7 +671,7 @@ def load() -> dict:
 
 
 def inputs(document: dict, row: list, caches: tuple[dict, dict]) -> tuple[str, Any, dict]:
-    return (row[ROW["kind"]], BASE.value_ref(document, row[ROW["model"]], caches[1]),
+    return (row[ROW["kind"]], model_ref(document, row[ROW["model"]], caches[0]),
             BASE.value_ref(document, row[ROW["settings"]], caches[1]))
 
 
