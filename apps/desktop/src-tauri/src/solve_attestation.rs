@@ -7,9 +7,13 @@
 //! - `d_M`: the SHA-256 of `checked_v1_domain_canonical(`[`SOLVED_MODEL_DOMAIN`]`,
 //!   model)` over the model value it materialized, before the solve;
 //! - `d_S`: the same over [`SOLVED_RESULT_DOMAIN`] and the result value, the
-//!   producer's exact bytes parsed back into a value after the unchanged solve
-//!   (the solver entry returns a typed envelope, not a value), before the
-//!   result frame is sent.
+//!   value the producer's exact bytes parse back into after the unchanged
+//!   solve (the solver entry returns a typed envelope, not a value), before
+//!   the result frame is sent. Since RT-U4 it is computed from the bytes by
+//!   [`crate::result_text_digest::text_digest`] without materializing the
+//!   whole value; its meaning is unchanged: for every text it equals
+//!   [`streamed_digest`] over `serde_json::from_str` of the text, and is
+//!   `None` exactly when that parse fails or the profile refuses.
 //!
 //! Each digest streams the canonical text through `ByteSink` into a hasher, so
 //! no canonical text is held ([`streamed_digest`]). A value the checked profile
@@ -359,10 +363,10 @@ mod tests {
         }
     }
 
-    /// §2.4 and §6, in the worker: the `d_S` pass parses the producer's bytes
-    /// into a value and digests it, so its peak is within the text's
-    /// materialization bound (the ingress prescan's, over the same requested
-    /// sizes) plus the streamed digest's account; the `d_M` pass over the
+    /// §2.4 and §6, in the worker: the `d_S` pass digests the value the
+    /// producer's bytes hold (one bounded piece at a time since RT-U4), so its
+    /// peak is within the text's materialization bound (the ingress prescan's,
+    /// over the same requested sizes) plus the streamed digest's account; the `d_M` pass over the
     /// already materialized model is within the account alone. Checked on each
     /// invented value of the account checks and on the solved demo in both modes.
     #[test]
