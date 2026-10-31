@@ -906,7 +906,7 @@ D3 is touched; AC-004's text is not.
 ## 4. Run sheet and desktop authoring
 
 **Split between lanes (agreed between the load-cases and authoring lanes,
-2026-10-31; placement pending Agent 0).** S3a, the applier operations of §4.2
+2026-10-31; placed by Agent 0, 2026-10-31).** S3a, the applier operations of §4.2
 with their refusals, guards and contract corpus, admitted in atomic
 `apply_operation_batch` batches with per-step refusals, and a wasm export of
 the engine's per-pipe condition resolution for the load manager's preview, is
