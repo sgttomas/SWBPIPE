@@ -9,12 +9,15 @@ needs:
     modal formation check re-forms K, in at least double-double precision, through one new read-only
     frame_kernel entry exposing K-D5's p128 element re-formation (`intended_stiffness_pass`,
     `formation_check.rs`) as a pure function of caller-supplied element geometry, section properties,
-    moduli and stiffness scales (DEL-04-09 supplies its own re-derived ones), without K-D5's D5C1 criterion, which judges a static correction and is not
+    moduli and stiffness scales (DEL-04-09 supplies its own re-derived ones; built in I1 as `structural::element_reformation`, with
+    `frame_matrix` and `curved_matrix` reading their section values through two traits whose binary64
+    implementations are the exact lifts of the existing path, bit-for-bit unchanged), without K-D5's D5C1 criterion, which judges a static correction and is not
     reused (M1b), and evaluates residuals with `exact_sum`. Both paths take their Sturm counts from
     `sparse_direct`'s public API (`reverse_cuthill_mckee`, `SymmetricProfileMatrix::from_entries_with_order`,
     `factorize_ldlt` with its `nonpositive_pivot_count` and `first_nonpositive_pivot`, and `solve_ordered`)
     plus one new read-only accessor on `ProfileFactorization` exposing borrowing iterators over the strictly
-    lower factor's stored entries and the pivots, with no mutation and no allocation (M1b, used unchanged by M2's sparse path). Both seams are additions
+    lower factor's stored entries and the pivots (`lower_factor_entries`, `pivots`; built in I1), with no
+    mutation and no allocation (M1b, used unchanged by M2's sparse path). Both seams are additions
     to DEL-04-01's code in priced crates, re-registered under D3 in their change. The Sturm count relies
     on `nonpositive_pivot_count` being the number of negative pivots of the unpivoted LDLᵀ, and is relied
     on only under the conditioning and separation premises, whose backward-error estimate the accessor's
@@ -158,7 +161,7 @@ needs:
     FR-SOL-016 is reported complete (ScopeOfWork REQ-010).
   gating: false
   when: After M1b, for REQ-010.
-# Planned paths: none of these exists yet (Design §3.5, §5).
+# Paths: core/solver/modal_eigen/** exists (I1); the rest are planned (Design §3.5, §5).
 code_paths:
 - core/solver/modal_eigen/**
 - core/product_physics/src/modal.rs
@@ -174,4 +177,5 @@ code_paths:
 - apps/desktop/src/features/results/ModalResultsPanel*
 - apps/desktop/src/features/viewport/modeShapeOverlay*
 # Planned checks: registered by each slice (ScopeOfWork VER-001 to VER-010).
-checks: []
+checks:
+- modal-eigen-test

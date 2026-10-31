@@ -63,7 +63,7 @@ These deliverables keep their scope. The two read-only seams are additions to DE
 
 ### CLM-003 — Current reach and sequence
 
-- **Built:** nothing.
+- **Built (kernel only, I1):** the `core/solver/modal_eigen` crate (the dense path, the Sturm count with its premises, the finite-mode count, double-double re-formation, residual estimates, participation and M-orthogonality), the read-only `sparse_direct` accessor and the frame_kernel re-formation seam. No product entry, result or surface is built.
 - **Sequence** (Agent 0, 2026-10-27):
   1. M1a, mass on both routes;
   2. M1b, the dense path, with every integrity check of REQ-003, including the Sturm count's shift placement, its growth limit and the `sparse_direct` observation accessor, and the linearization of nonlinear supports at a named case (formerly M5);

@@ -1,0 +1,13 @@
+[package]
+name = "open_pipe_stress_modal_eigen"
+version = "0.1.0"
+edition = "2021"
+description = "Code-neutral in-repo dense eigen core for SWBPIPE modal analysis (F1)"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+open_pipe_stress_frame_kernel = { path = "../frame_kernel" }
+open_pipe_stress_sparse_direct = { path = "../sparse_direct" }
