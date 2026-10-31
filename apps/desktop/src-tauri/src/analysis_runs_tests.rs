@@ -4193,11 +4193,18 @@ fn undisplayable(id: &str, what: &str, bytes: u64, limit: u64) -> String {
 
 /// The recorded-run read (Check record, and each side of a comparison) and the
 /// comparison's admission at limits one byte over, at and one byte under the
-/// length of `column`; returns nothing, asserting the stored run unchanged.
+/// length of `column`; returns nothing, asserting the stored run unchanged, its
+/// stored columns byte for byte.
 fn assert_bounded_by(path: &Path, id: &str, what: &str, length: u64) {
     let read = |limit: u64| read_run_in_store_within(path, PROJECT, id, &UnmeteredReadMemory, limit).and_then(Metered::into_unreserved);
     let admit = |limit: u64| admit_run_comparison_in_store_within(path, PROJECT, &[id.to_string()], Some(0), u64::MAX, &UnmeteredReadMemory, limit);
     let stored = read_run_in_store(path, PROJECT, id).unwrap();
+    let raw = || -> (String, String) {
+        crate::open_project_store(path).unwrap().0
+            .query_row("SELECT result_json, run_record_json FROM analysis_runs WHERE recording_id = ?1", params![id], |row| Ok((row.get(0)?, row.get(1)?)))
+            .unwrap()
+    };
+    let raw_before = raw();
     for limit in [length + 1, length] {
         let read = read(limit).unwrap_or_else(|error| panic!("limit {limit}: {error}"));
         assert_eq!((&read.result_json, &read.record), (&stored.result_json, &stored.record), "limit {limit}");
@@ -4208,6 +4215,7 @@ fn assert_bounded_by(path: &Path, id: &str, what: &str, length: u64) {
     assert_eq!(admit(length - 1).map(|_| ()).unwrap_err(), expected);
     let after = read_run_in_store(path, PROJECT, id).unwrap();
     assert_eq!((after.result_json, after.record), (stored.result_json, stored.record), "the stored run is unchanged");
+    assert!(raw() == raw_before, "the stored columns are byte-for-byte unchanged");
 }
 
 /// RT-U4: a recorded run is refused `STORED-RESULT-TOO-LARGE` by whichever
