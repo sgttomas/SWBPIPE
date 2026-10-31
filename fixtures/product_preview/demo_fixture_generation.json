@@ -134,8 +134,8 @@
     "core/product_physics/src/topology_tests.rs": "56761348206e45ef9b73e817265bd92bcbce0dd659d15bb71c960f89ff113aac",
     "core/product_physics/src/u4a_tests.rs": "b06b96b4ef0f11a886e6cb34f647409bf23683ad00b4c41c4e801a62f4fde628",
     "core/product_physics/src/u4b_rows.rs": "67a966a76741d051a997fabbad001ffc16c035b771ca43c08cf6599a5f0ad50e",
-    "core/product_physics/src/u4b_tests.rs": "f93428ed8df93cac025d07a40e2ff01a15dc1c483038f3f6f8820e1ddecaf991",
-    "core/product_physics/src/validation.rs": "162bee0cae04776acf8361cf6026bdd35c14e450339e709a4f4d94d007f6b44f",
+    "core/product_physics/src/u4b_tests.rs": "98ed1697ef85d45a5321184d20afde97bb751e4640aee8225ab46405e959823a",
+    "core/product_physics/src/validation.rs": "d004816fe273c3965bc15d3eb60c288b7864d320a453fad3b707bde3baf20ae2",
     "core/product_physics/src/validation/model_checks.rs": "1f02da0f047f4efa6674f60b15606ad396b5d2ed8658a362b64b6a4488ea600f",
     "core/product_physics/src/w15_rigid_scaling_tests.rs": "db1fac0cff504b8317728acfd456b02f789325c75dd48319ab543e4faaf94891",
     "core/product_physics/src/w15c_eccentric_offset_tests.rs": "fb6d667a182b483eaff8f427323e7e8e7f89424d6130bb81d23f3b5620a9f97e",
@@ -744,8 +744,8 @@
     "core/product_physics/src/topology_tests.rs": "56761348206e45ef9b73e817265bd92bcbce0dd659d15bb71c960f89ff113aac",
     "core/product_physics/src/u4a_tests.rs": "b06b96b4ef0f11a886e6cb34f647409bf23683ad00b4c41c4e801a62f4fde628",
     "core/product_physics/src/u4b_rows.rs": "67a966a76741d051a997fabbad001ffc16c035b771ca43c08cf6599a5f0ad50e",
-    "core/product_physics/src/u4b_tests.rs": "f93428ed8df93cac025d07a40e2ff01a15dc1c483038f3f6f8820e1ddecaf991",
-    "core/product_physics/src/validation.rs": "162bee0cae04776acf8361cf6026bdd35c14e450339e709a4f4d94d007f6b44f",
+    "core/product_physics/src/u4b_tests.rs": "98ed1697ef85d45a5321184d20afde97bb751e4640aee8225ab46405e959823a",
+    "core/product_physics/src/validation.rs": "d004816fe273c3965bc15d3eb60c288b7864d320a453fad3b707bde3baf20ae2",
     "core/product_physics/src/validation/model_checks.rs": "1f02da0f047f4efa6674f60b15606ad396b5d2ed8658a362b64b6a4488ea600f",
     "core/product_physics/src/w15_rigid_scaling_tests.rs": "db1fac0cff504b8317728acfd456b02f789325c75dd48319ab543e4faaf94891",
     "core/product_physics/src/w15c_eccentric_offset_tests.rs": "fb6d667a182b483eaff8f427323e7e8e7f89424d6130bb81d23f3b5620a9f97e",
@@ -1235,7 +1235,7 @@
     "schemas/viewport_editor.schema.yaml": "d23ce086b82ff6196edec81319257515bf5aa12dee3e2b79ae0c17246a56fcb3",
     "tools/serialization/generate_product_preview_mechanics.mjs": "a5bdbab5b10c4d127574cf91da1693b919bc5fdf6db9801a853608eea4b265a4"
   },
-  "inventory_json_sha256": "ebfa3720660453a0a4dda7468f548915f3c5c990c44a8226de909e113df9ba07",
+  "inventory_json_sha256": "48b68f9cfbe1d1ee3d4f6a275bb6371d96369e1d58880b50347a73f8c8b410bd",
   "dependencies": [
     {
       "name": "block-buffer",
@@ -1453,7 +1453,7 @@
     {
       "mode": "sparse_interactive",
       "path": "fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json",
-      "sha256": "64b3ffca0ad18bae3674e527e350832ea1c888188304a00d168a3517255c4e4f",
+      "sha256": "11ab2cd53b75850f6c0da85a3f3d06b0cc32c3aae729e3d0702e57c24c53fe8d",
       "command": [
         "cargo",
         "run",
@@ -1481,7 +1481,7 @@
     {
       "mode": "dense_scrutiny",
       "path": "fixtures/product_preview/invented_demo_result_preview_physics_1_dense.json",
-      "sha256": "06b7bb71cacf78f8ee34d790fe9def3a9180913c944c93c35dfabdc705e16db7",
+      "sha256": "eeed3029d889203cd3a1929bcd707c57456396bd957f2681991de9b2f1504c7a",
       "command": [
         "cargo",
         "run",

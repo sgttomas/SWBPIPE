@@ -15736,6 +15736,16 @@
       ]
     },
     {
+      "id": "diagnostic:component:component-C-110:bend-geometry-only",
+      "code": "BEND_GEOMETRY_ONLY_SOLVED_AS_CHORD",
+      "severity": "warning",
+      "message": "bend/elbow component is geometry only: it is solved as a straight chord, its flexibility factor k is not applied, and its scalar SIF is applied as equal-factor intensification; realize the bend (mechanics_interface.solver_consumption curved_bend_macro_element) to apply k",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "component:C-110"
+      ]
+    },
+    {
       "id": "diagnostic:constant-effort-support:support-CE-120:not-consumed",
       "code": "SUPPORT_CONSTANT_EFFORT_NOT_CONSUMED",
       "severity": "warning",
