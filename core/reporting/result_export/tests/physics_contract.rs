@@ -332,9 +332,10 @@ fn pressure_table_declares_its_own_signature_counts() {
     // T4-U6 (D-5, §2.4): one stress signature per (recovery token x section basis), 88 -> 106;
     // T4-U5b (DEL-04-07 Design u4b-u5b-implementation.md §3.3): the tie-rod force, 107 over 60 kinds;
     // T4-U4b (§2.2): the new per-basis kinds, 129 signatures over 66 kinds;
-    // W-7 (DEL-04-01 Design global-end-actions.md): the global end actions, 135 over 68.
-    assert_eq!(s::pressure_rows_contract()["source_signature_count"], 135);
-    assert_eq!(s::pressure_rows_contract()["source_kind_count"], 68);
+    // W-7 (DEL-04-01 Design global-end-actions.md): the global end actions, 135 over 68;
+    // RT-A3 increment 1: the branch intensified signatures, 137 over 69.
+    assert_eq!(s::pressure_rows_contract()["source_signature_count"], 137);
+    assert_eq!(s::pressure_rows_contract()["source_kind_count"], 69);
 }
 
 #[test]

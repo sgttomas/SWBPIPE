@@ -1286,10 +1286,12 @@ fn u4b_cases(
         }
         // Directional records: every directional row bound, by key set.
         let records = case.get("intensified_measures").and_then(Value::as_array).map(Vec::as_slice).unwrap_or(&[]);
-        let bound = u::directional_records(route, case_id, records, rows, &index, marked_arcs, true)?;
+        let mut bound = u::directional_records(route, case_id, records, rows, &index, marked_arcs, true)?;
+        // RT-A3 increment 1: the branch records, by their own key set.
+        bound.extend(u::branch_records(case_id, records, rows, &index)?);
         require(bound.len() == records.len(), "INTENSIFIED_SHAPE")?;
         for row in results.iter().filter(|r| r["basis_ref"]["ref_id"] == case_id) {
-            if matches!(row["kind"].as_str(), Some(u::DIRECTIONAL | u::DIRECTIONAL_MAX)) {
+            if matches!(row["kind"].as_str(), Some(u::DIRECTIONAL | u::DIRECTIONAL_MAX | u::BRANCH)) {
                 require(bound.contains(text(&row["id"])?), "INTENSIFIED_ROW_UNBOUND")?;
             }
         }

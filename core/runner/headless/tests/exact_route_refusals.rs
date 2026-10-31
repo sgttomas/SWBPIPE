@@ -64,9 +64,10 @@ fn request(model: &Value) -> RunnerRequest {
 #[test]
 fn exact_route_refusals_are_blocked_without_export_in_both_modes() {
     let base: Value = serde_json::from_str(X0).unwrap();
-    // A still-refused component family (W-15 admits the valve, the earlier sample).
-    let mut tee = base.clone();
-    tee["model"]["components"] = json!([{"id":"component:tee","kind":"tee",
+    // A still-refused component family (W-15 admits the valve and RT-A3 the
+    // tee, the earlier samples).
+    let mut other = base.clone();
+    other["model"]["components"] = json!([{"id":"component:other","kind":"other",
         "node":"node:fixture-tip","provenance":"invented_u0_control"}]);
     let mut combination = base.clone();
     combination["model"]["combinations"] = json!([{"id":"combination:sum","basis":"mechanics",
@@ -91,9 +92,9 @@ fn exact_route_refusals_are_blocked_without_export_in_both_modes() {
     for (name, payload, code, refs) in [
         (
             "A1.1",
-            tee,
+            other,
             "EXACT_PRESSURE_FAMILY_NOT_ADMITTED",
-            json!(["component:tee"]),
+            json!(["component:other"]),
         ),
     ] {
         for mode in MODES {

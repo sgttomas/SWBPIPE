@@ -473,7 +473,10 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // same ranges, the closed modules main's byte for byte, the merged suffix #1663's; unchanged.
             // Combined D3 at fc0e6dd877 versus main 7a43b7dde9: rechecked
             // 0d01d7e2… versus 6dc09d33…; only inspected identity dispatch differs.
-            complete_suffix_sha256: "0d01d7e25d89e3214322197da2bbf26e6cd76bdcc09783c4a25a14971343ee79",
+            // Re-audited at §8.33 (RT-A3 increment 1, 7e7fef2d4) against main d290563ea's 0d01d7e2…: only
+            // the closed `b7b_current_table_tests` module changed (pressure-2's 135 -> 137 rows, with its
+            // comment); the inspected production after the resume and E14 are byte-identical.
+            complete_suffix_sha256: "0d4f2d6a73b16098eada396616bdecbc73926ce56e55ca2faa5c56c5c6f44150",
             production_resume: Some("/// Header dispatch only; canonical envelopes have no raw rows. This does not"),
             trailing_test: Some(SEMANTIC_E14_TEST_ITEM),
         })),
@@ -788,7 +791,7 @@ fn pressure_schema_is_the_only_nonresident_binding() {
     let schema_hash = format!("{:x}", Sha256::digest(schema_bytes));
     // B7b A5: the result schema takes v3 only. T4-U6 (462b777b22): it carries the D-5
     // geometry, per-basis records and limitations (reviewed input #10, re-bound at D3).
-    assert_eq!(schema_hash, "ce085117a3501ecc87e08afa478e187c770cc11057b9d9c637022c8ec3fea9b9");
+    assert_eq!(schema_hash, "258f1840e58a72f42171b4c92a31f057edd698c33ddfd659c3f37ef61a0831a2");
     let compiled = COMPILED_REVIEWED_INPUTS.expect("build.rs sets all current inputs");
     let tokens: Vec<_> = compiled.split(';').collect();
     assert_eq!(tokens.len(), build_identity::REVIEWED_INPUT_COUNT + 1);
@@ -857,10 +860,10 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2",
         "fe371e07cd727154235f3725eeeef393ad0a433f0e8c98656f98468940d9aea2",
         "c7bcf0ceb82372fbf5f9958446ffe3f9c1ca3eb2384c47663514d21f89a885bb",
-        "33cc0c4dc1d7dea07e14c16e07f4ee3f93cc2f84e4dd0494e232397d4e3861c1",
+        "48a969580673b00d25970b472fc28d974f7edc2cc602eb5deb6627a1164e1f41",
         "609a4e92ac19de0f5a1dd067dab64b4abeb7b3b70511e2095455f1d000d28e2c",
-        "ce085117a3501ecc87e08afa478e187c770cc11057b9d9c637022c8ec3fea9b9",
-        "be61c6ea828797ad5664d06a2c835b28deffaff07cc33fec6bb4d48a8fcb0919",
+        "258f1840e58a72f42171b4c92a31f057edd698c33ddfd659c3f37ef61a0831a2",
+        "5451fbf3e10e085c90b523baa7daf5fc723659e0d874d988d23807be7d2fefe6",
         "a7b83c37a4af9bf70f56513f80883003a2a3860387319311ea2e967dd0cf764b",
     ];
     // The same files, read here at compile time (test-only), by the sha2 dependency.
@@ -1953,9 +1956,12 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 /// registration is separate below.
 // §8.32 candidate: independent resident table +322,013 B; source TEXT
 // +12,908 B in W and +13,204 B in X. The AC-004 stack witnesses passed 6/6 at 84824b20f0.
+// §8.33 (RT-A3 increment 1, 7e7fef2d4): the readers' branch row-kind arm +38,864,448 B and the v3
+// identity text +2,946 B of TAV_W, the identity text +2,946 B of TAV_X, and the two resident tables'
+// branch signatures +24,406 B of STATICS: W phases +38,891,800 B and X phases +27,352 B in both modes.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_559_878_321, 6_901_872_882, 8_856_055_542, 8_644_215_969, 7_722_244_196, 8_607_481_325, 7_338_881_987, 7_012_171_863],
-    [6_619_009_665, 6_961_004_226, 8_915_186_886, 8_703_347_313, 7_781_375_540, 8_666_612_669, 7_398_013_331, 7_071_303_207],
+    [6_598_770_121, 6_940_764_682, 8_894_947_342, 8_683_107_769, 7_761_135_996, 8_607_508_677, 7_338_909_339, 7_012_199_215],
+    [6_657_901_465, 6_999_896_026, 8_954_078_686, 8_742_239_113, 7_820_267_340, 8_666_640_021, 7_398_040_683, 7_071_330_559],
 ];
 
 #[test]

@@ -100,14 +100,15 @@ pub const PRESSURE_SOURCE_ID: &str = crate::physics_source::PRESSURE_CONTRACT_ID
 /// T4-U6 (D-5, §2.4): both tables carry one stress signature per (recovery
 /// token × section basis), each with its `source_basis`.
 pub const PRESSURE_SOURCE_TABLE_SHA256: &str = "609a4e92ac19de0f5a1dd067dab64b4abeb7b3b70511e2095455f1d000d28e2c";
-pub const PRESSURE_TABLE_SHA256: &str = "be61c6ea828797ad5664d06a2c835b28deffaff07cc33fec6bb4d48a8fcb0919";
+pub const PRESSURE_TABLE_SHA256: &str = "5451fbf3e10e085c90b523baa7daf5fc723659e0d874d988d23807be7d2fefe6";
 /// The pinned counts, re-derived from the tables (T4-U6: pressure-2 106
 /// signatures over 59 kinds, T4-U5b: plus the tie-rod force, 107 over 60, T4-U4b:
 /// plus 22 section stress, toroidal and directional signatures, 129 over 66,
-/// W-7: plus the six global end-action signatures, 135 over 68;
+/// W-7: plus the six global end-action signatures, 135 over 68, RT-A3 increment
+/// 1: plus the two branch intensified signatures, 137 over 69;
 /// pressure-source-1 88 over 51).
-pub const PRESSURE_SIGNATURE_COUNT: u64 = 135;
-pub const PRESSURE_KIND_COUNT: u64 = 68;
+pub const PRESSURE_SIGNATURE_COUNT: u64 = 137;
+pub const PRESSURE_KIND_COUNT: u64 = 69;
 /// T4-U4b §4.3 (S4): + the straight derived signatures (sigma+, sigma-, tau on both bases), 88 -> 94
 /// over 51 -> 53 kinds.
 pub const PRESSURE_SOURCE_SIGNATURE_COUNT: u64 = 94;
@@ -178,7 +179,7 @@ pub const PHYSICS_RETAINED_ID: &str = crate::retained_precision::EXACT_CONTRACT_
 pub const PHYSICS_RETAINED_PROFILE: &str = crate::retained_precision::EXACT_PROFILE;
 /// T4-U6: its rows, vocabulary and counts follow the inherited pressure-2 table.
 pub const PHYSICS_RETAINED_SHA256: &str =
-    "33cc0c4dc1d7dea07e14c16e07f4ee3f93cc2f84e4dd0494e232397d4e3861c1";
+    "48a969580673b00d25970b472fc28d974f7edc2cc602eb5deb6627a1164e1f41";
 /// A receipt member or a W1 method-token row offered under any other identity
 /// (I66 F-5: the base readers' closed lists do not name `retained_precision`).
 pub const RETAINED_PRECISION_DOWNGRADE_FORBIDDEN: &str = "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN";
@@ -395,8 +396,9 @@ mod b7b_current_table_tests {
         let ordinary = pressure_rows_contract();
         let source = pressure_source_contract();
         // T4-U5b's tie-rod force (107), then T4-U4b's 22 per-basis signatures (129), then
-        // W-7's six global end-action signatures (135).
-        assert_eq!(ordinary["rows"].as_array().unwrap().len(), 135);
+        // W-7's six global end-action signatures (135), then RT-A3's two branch
+        // intensified signatures (137).
+        assert_eq!(ordinary["rows"].as_array().unwrap().len(), 137);
         // T4-U4b §4.3: + six straight derived signatures over two kinds.
         assert_eq!(source["rows"].as_array().unwrap().len(), 94);
         assert_eq!(source["source_kind_count"], 53);
