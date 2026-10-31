@@ -244,7 +244,7 @@ LEDGER = [
      "no modal analysis"),
     ("Response spectrum, RS-SP1", "pending", "RT-A8 / dynamics lane (DEL-04-10, proposed)",
      "no spectrum analysis; `spectra[]` not authorable at 0.8.0"),
-    ("Hanger sizing and table", "pending", "RT-A11 / owner to be assigned by Agent 0", "no sizing procedure"),
+    ("Hanger sizing and table", "pending", "RT-A11 / DEL-04-11 (`Work/hanger-sizing.md`)", "no sizing procedure"),
     ("Snubber RS-SN1 (RS-110, UX, rigid)", "pending",
      "RT-A8 / dynamics lane (DEL-04-10 slice: static solves ignore a snubber)",
      "`SNUBBER_DYNAMIC_ONLY_UNSUPPORTED` on every static solve; not authorable at 0.8.0"),

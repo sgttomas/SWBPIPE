@@ -1661,7 +1661,7 @@
       "expected_until_then": "no sizing procedure",
       "family": "Hanger sizing and table",
       "in_tranche_1": false,
-      "row_lane": "RT-A11 / owner to be assigned by Agent 0",
+      "row_lane": "RT-A11 / DEL-04-11 (`Work/hanger-sizing.md`)",
       "state": "pending"
     },
     {
