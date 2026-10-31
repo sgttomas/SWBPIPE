@@ -8,7 +8,7 @@
  "blank": {
   "createdAt": "2026-10-30T00:00:00Z",
   "model": {
-   "schema_version": "0.8.0",
+   "schema_version": "0.9.0",
    "document_kind": "openpipestress.product_preview.model",
    "data_boundary": {
     "public_examples_policy": "blank_user_created_local_document_no_bundled_engineering_values",
