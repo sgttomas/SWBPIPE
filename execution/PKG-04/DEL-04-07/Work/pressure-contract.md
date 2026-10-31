@@ -122,8 +122,10 @@ The pressure-2 table carries the two signatures (`apply-branch` in `tools/serial
   - the 1 + 2^-52 magnitude, on the arc's groups only;
   - that the Rust reader and the model-bound verdict accept the envelope (on the previous reader it fails with `SOURCE_PHYSICS_RHS_DIRECTION`);
   - that a magnitude one ulp off the arc's tangent component, and 1 + 2^-52 on a straight-only group, are refused.
-- The Python verifier tests are `tests/test_pressure_arc_readers.py` (`test_arc_tangent_magnitude_binds_to_the_published_tangent`, `test_a_straight_group_above_one_is_refused`).
+- The Python verifier tests are `tests/test_pressure_arc_readers.py` (`test_arc_tangent_magnitude_binds_to_the_published_tangent`, `test_a_straight_group_above_one_is_refused`, and `test_an_arc_tangent_component_above_one_is_admitted`). The last reads the maintained sparse envelope `fixtures/results/pressure_arc_tangent_above_one_sparse.json`, which the Rust regression writes with `ARC_TANGENT_WRITE_FIXTURE=1` and otherwise checks for currency.
 - The joint tests are `a_joint_axis_component_just_above_one_binds_exactly`, in Rust `connector_contract.rs` and in Python `test_pressure_connector_readers.py`.
+
+**Review.** Two independent reviews (codex, xhigh) were held. The first refused the 1 + 16u bound (above) and the joint bound of 1. The second found no blocking defect and asked for a positive Python case above 1, which the maintained fixture supplies. Retained pricing at the PR head is coefficient-equal to the registered profile (1,586 equal, prune and resolutions unchanged), so nothing is re-registered.
 
 ## Load cases that apply nothing
 
