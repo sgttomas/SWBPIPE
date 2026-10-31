@@ -9,6 +9,7 @@ const MATERIAL_KEYS: &[&str] = &[
     "elastic_modulus",
     "shear_modulus",
     "poisson_ratio",
+    "thermal_expansion_coefficient",
     "provenance",
 ];
 const PROFILE_KEYS: &[&str] = &["schema_version", "pressure_contract"];
@@ -89,6 +90,26 @@ pub(crate) fn validate_material(v: &Value) -> Result<()> {
         }
     }
     Ok(())
+}
+/// G5b: an existing material's coefficient is added, changed or removed with
+/// its constitutive inputs. As on `create_material`, the project's temperature
+/// unit must be stated and the coefficient must be a finite quantity in an
+/// accepted thermal-expansion unit; its sign is the user's.
+fn validate_material_alpha(model: &Value, alpha: &Value) -> Result<()> {
+    let temperature = model
+        .pointer("/project/units/temperature")
+        .and_then(Value::as_str)
+        .ok_or_else(|| RichError {
+            code: "OP-UNIT-METADATA-MISSING",
+            message: "Project temperature unit metadata is missing; thermal expansion cannot be accepted".into(),
+        })?;
+    if unit_by_symbol(temperature, Dimension::Temperature).is_err() {
+        return Err(RichError {
+            code: "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+            message: format!("Project temperature unit metadata `{temperature}` is not an accepted DEC-018 temperature unit"),
+        });
+    }
+    quantity(alpha, Dimension::ThermalExpansionCoefficient).map(|_| ())
 }
 pub(crate) fn validate_create_material(v: &Value) -> Result<()> {
     object(
@@ -318,6 +339,9 @@ pub(crate) fn resolve(
         "Material" => {
             object(&after, MATERIAL_KEYS)?;
             validate_material(&after)?;
+            if let Some(alpha) = after.get("thermal_expansion_coefficient") {
+                validate_material_alpha(model, alpha)?;
+            }
             MATERIAL_KEYS
                 .iter()
                 .map(|k| (vec![(*k).into()], after.get(*k).cloned()))

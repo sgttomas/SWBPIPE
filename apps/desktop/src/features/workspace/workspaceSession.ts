@@ -1,4 +1,5 @@
 import { EmbeddedAgentSession, type AgentContext, type AgentRunReceipt } from "../../services/embeddedAgentSession";
+import { requeueRetainedRecord, type ImportContext } from "../../services/operationAuthorship";
 import { hasCurrentSourceContract } from "../results/resultReader";
 import type React from "react";
 import {
@@ -354,7 +355,8 @@ export function useWorkspaceSession() {
   // verification can complete out of order. This is not a backend commit clock.
   const persistedWriteObservation = useRef(0);
   const latestVerifiedWriteObservation = useRef(0);
-  const modelHashOwner = useRef<{ generation: number; revision: number } | null>(null);
+  // `modelRevision` is the model revision the hash was computed for (`modelRevision.current`).
+  const modelHashOwner = useRef<{ generation: number; revision: number; modelRevision: number } | null>(null);
   const currentHashOwned = modelHashOwner.current?.generation === projectSessionGeneration &&
     modelHashOwner.current?.revision === uiModelRevision;
   const modelEdited = Boolean(model && isLocalModelEdited(savedModelBasis, projectSessionGeneration,
@@ -696,9 +698,10 @@ export function useWorkspaceSession() {
     if (!model) return;
     const generation = projectSessionGenerationRef.current;
     const revision = uiModelRevisionRef.current;
+    const counted = modelRevision.current;
     computeModelHash(model).then((hash) => {
       if (active && currentModel.current === model && generation === projectSessionGenerationRef.current && revision === uiModelRevisionRef.current) {
-        modelHashOwner.current = { generation, revision };
+        modelHashOwner.current = { generation, revision, modelRevision: counted };
         setModelHash(hash);
       }
     }).catch(() => { /* An unavailable current hash cannot prove a clean comparison. */ });
@@ -1374,13 +1377,22 @@ export function useWorkspaceSession() {
     return () => { retained.status = event.type === "withdrawn" ? "withdrawn" : "unknown"; };
   }), [sessionEvents]);
 
-  async function handleQueueOperationBatch(batch: OperationBatch): Promise<void> {
-    await registerOperationBatch(batch);
+  async function handleQueueOperationBatch(batch: OperationBatch, options: { importContext?: ImportContext } = {}): Promise<void> {
+    await registerOperationBatch(batch, options.importContext ? { importContext: options.importContext } : {});
+  }
+
+  /** Requeue a stored record with its author re-derived host-side (DEL-16-03).
+   * Returns the refusal, if any, for display beside the stored record. */
+  async function handleRequeueRetainedRecord(intent: unknown, index: number): Promise<string | null> {
+    const result = requeueRetainedRecord(intent, index);
+    if ("refused" in result) { setBatchMessage(`Record could not be requeued: ${result.refused}`); return result.refused; }
+    await registerOperationBatch(result.batch);
+    return null;
   }
 
   /** Queue a batch and return its registration key, or null when it was not registered.
    * `reveal: false` (the run sheet, §5.1) leaves the section and focus where they are. */
-  async function registerOperationBatch(batch: OperationBatch, options: { reveal?: boolean; agentContext?: AgentContext } = {}): Promise<string | null> {
+  async function registerOperationBatch(batch: OperationBatch, options: { reveal?: boolean; agentContext?: AgentContext; importContext?: ImportContext } = {}): Promise<string | null> {
     if (!model) return null;
     const revision = modelRevision.current;
     const epoch = requestEpochRef.current;
@@ -1398,7 +1410,8 @@ export function useWorkspaceSession() {
       // The registered submission is immutable: runs resolve it by key and never
       // read a caller's entry contents.
       const registered = deepFreeze({ key, batch: submitted, basisModel, basisHash, basisRevision: revision, requiresPreview,
-        ...(options.agentContext ? { agentContext: structuredClone(options.agentContext) } : {}) });
+        ...(options.agentContext ? { agentContext: structuredClone(options.agentContext) } : {}),
+        ...(options.importContext ? { importContext: structuredClone(options.importContext) } : {}) });
       batchRegistrations.current.set(key, { entry: registered, epoch: queueEpoch });
       if (options.agentContext) agentProposalStandingRef.current.set(key, {status:"pending_review",outcomeModelHash:null});
       setQueuedBatches((current) => [...current, registered]);
@@ -1503,7 +1516,7 @@ export function useWorkspaceSession() {
         model: clonePreviewModel(entry.basisModel),
         selection: selection ?? defaultSelection(entry.basisModel)
       };
-      const batchReceipt = { batch: entry.batch, outcome, ...(entry.agentContext ? {agentContext:entry.agentContext} : {}) };
+      const batchReceipt = { batch: entry.batch, outcome, ...(entry.agentContext ? {agentContext:entry.agentContext} : {}), ...(entry.importContext ? {importContext:entry.importContext} : {}) };
       const reviewContext = structuredClone(entry.batch.operations);
       const appliedReceiptId = `applied-${entry.key}`;
       const appliedFields: Omit<AppliedOperationReceipt, "receipt_id" | "sequence"> = {
@@ -3990,7 +4003,12 @@ export function useWorkspaceSession() {
   // created until a later explicit panel action requests start/configuration.
   const agentOwnerRef = useRef<import("../../services/embeddedAgentSession").WorkspaceExecution | null>(null);
   agentOwnerRef.current = {
-    snapshot: () => ({ model: currentModel.current, hash: currentHashOwned && uiModelRevision === modelRevision.current && projectSessionGeneration === projectSessionGenerationRef.current ? modelHash : null,
+    // The hash is published only for the model revision it was computed for, read live from
+    // the owner so a closure from an earlier render cannot pair an older hash with a newer
+    // model. (Comparing uiModelRevision with modelRevision.current mixed two counters that
+    // advance on different events; the [model] layout effect also advances the second, so
+    // they differ from the first load on and the agent could never start.)
+    snapshot: () => ({ model: currentModel.current, hash: currentHashOwned && modelHashOwner.current?.modelRevision === modelRevision.current && projectSessionGeneration === projectSessionGenerationRef.current ? modelHash : null,
       revision: modelRevision.current, generation: projectSessionGenerationRef.current,
       result: currentSolvedResultRef.current, standing: { eligible: numericallyEligible, health: numericalHealth } }),
     register: (batch, context) => registerOperationBatch(batch, { agentContext: context }),
@@ -4103,6 +4121,7 @@ export function useWorkspaceSession() {
       handleQueueEditorIntent,
       handleClearReviewQueue,
       handleQueueOperationBatch,
+      handleRequeueRetainedRecord,
       registerOperationBatch,
       handleRunOperationBatch,
       handleDismissRetiredBatch,

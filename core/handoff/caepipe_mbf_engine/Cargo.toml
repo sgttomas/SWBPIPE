@@ -2,7 +2,7 @@
 name = "open_pipe_stress_caepipe_mbf"
 version = "0.1.0"
 edition = "2021"
-description = "CAEPIPE MBF engine: a byte-faithful Rust port of the DEL-17-04 MBF importer, for native and wasm use"
+description = "CAEPIPE MBF engine: byte-faithful Rust ports of the DEL-17-04 MBF importer and SI writer, for native and wasm use"
 publish = false
 
 [lib]
