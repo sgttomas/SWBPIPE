@@ -307,16 +307,36 @@ impl WideDd {
         exponent: 0,
     };
 
+    /// A non-finite value is carried with exponent 0, so it reaches
+    /// [`WideDd::to_f64`] unchanged.
+    fn non_finite(hi: f64) -> WideDd {
+        WideDd {
+            mantissa: Dd { hi, lo: hi },
+            exponent: 0,
+        }
+    }
+
+    fn is_finite(self) -> bool {
+        self.mantissa.hi.is_finite() && self.mantissa.lo.is_finite()
+    }
+
+    /// Brings the high word into [1, 2) by a power of two applied with
+    /// [`scale_by_pow2`] (bounded steps), so a value far below or above the
+    /// binary64 range, a cancellation down to a subnormal high word
+    /// included, is rescaled exactly.
     fn normalize(value: Dd, exponent: i32) -> WideDd {
-        if value.hi == 0.0 || !value.hi.is_finite() {
-            return WideDd {
-                mantissa: if value.hi == 0.0 { Dd::ZERO } else { value },
-                exponent: 0,
-            };
+        if !(value.hi.is_finite() && value.lo.is_finite()) {
+            return Self::non_finite(value.hi + value.lo);
+        }
+        if value.hi == 0.0 {
+            return Self::ZERO;
         }
         let shift = binary_exponent(value.hi);
         WideDd {
-            mantissa: value.mul_pow2(-shift),
+            mantissa: Dd {
+                hi: scale_by_pow2(value.hi, -shift),
+                lo: scale_by_pow2(value.lo, -shift),
+            },
             exponent: exponent + shift,
         }
     }
@@ -324,17 +344,10 @@ impl WideDd {
     /// Exact for every finite x (a subnormal included); a non-finite x is
     /// carried to [`WideDd::to_f64`].
     pub fn from_f64(x: f64) -> WideDd {
-        if x == 0.0 || !x.is_finite() {
-            return WideDd {
-                mantissa: Dd::from_f64(if x == 0.0 { 0.0 } else { x }),
-                exponent: 0,
-            };
+        if !x.is_finite() {
+            return Self::non_finite(x);
         }
-        let shift = binary_exponent(x);
-        WideDd {
-            mantissa: Dd::from_f64(scale_by_pow2(x, -shift)),
-            exponent: shift,
-        }
+        Self::normalize(Dd::from_f64(x), 0)
     }
 
     pub fn is_zero(self) -> bool {
@@ -359,7 +372,14 @@ impl WideDd {
         )
     }
 
+    /// A non-finite operand is propagated before any alignment, so it is
+    /// never dropped as the smaller addend.
     pub fn add(self, other: WideDd) -> WideDd {
+        if !(self.is_finite() && other.is_finite()) {
+            return Self::non_finite(
+                self.mantissa.hi + self.mantissa.lo + other.mantissa.hi + other.mantissa.lo,
+            );
+        }
         if other.is_zero() {
             return self;
         }
@@ -375,10 +395,15 @@ impl WideDd {
         if shift < -WIDE_ALIGNMENT_LIMIT {
             return big;
         }
-        Self::normalize(
-            big.mantissa.add(small.mantissa.mul_pow2(shift)),
-            big.exponent,
-        )
+        let aligned = Dd {
+            hi: scale_by_pow2(small.mantissa.hi, shift),
+            lo: scale_by_pow2(small.mantissa.lo, shift),
+        };
+        Self::normalize(big.mantissa.add(aligned), big.exponent)
+    }
+
+    pub fn sub(self, other: WideDd) -> WideDd {
+        self.add(other.neg())
     }
 
     pub fn neg(self) -> WideDd {
@@ -388,11 +413,77 @@ impl WideDd {
         }
     }
 
-    /// The binary64 value: the mantissa rounded once, then scaled. It
-    /// overflows to ±∞, or underflows to a subnormal or zero, only when the
-    /// value itself is outside the binary64 normal range.
+    pub fn abs(self) -> WideDd {
+        WideDd {
+            mantissa: self.mantissa.abs(),
+            exponent: self.exponent,
+        }
+    }
+
+    /// √x: the exponent is made even (the mantissa doubled when it is
+    /// odd) and halved. Zero gives zero; a negative value gives NaN.
+    pub fn sqrt(self) -> WideDd {
+        if !self.is_finite() || self.is_zero() {
+            return self;
+        }
+        if self.mantissa.hi < 0.0 {
+            return Self::non_finite(f64::NAN);
+        }
+        let odd = self.exponent.rem_euclid(2);
+        Self::normalize(
+            self.mantissa.mul_pow2(odd).sqrt(),
+            (self.exponent - odd) / 2,
+        )
+    }
+
+    /// The binary64 value, rounded once to the destination's spacing, ties
+    /// to even. In the normal range the mantissa is rounded to 53 bits and
+    /// scaled exactly; below it the value is rounded directly to a multiple
+    /// of 2⁻¹⁰⁷⁴ (a subnormal, or zero). It is ±∞ only when the value
+    /// rounds beyond the largest finite number.
     pub fn to_f64(self) -> f64 {
-        scale_by_pow2(self.mantissa.to_f64(), self.exponent)
+        if !self.is_finite() {
+            return self.mantissa.hi;
+        }
+        if self.is_zero() {
+            return 0.0;
+        }
+        if self.exponent >= -1022 {
+            return scale_by_pow2(self.mantissa.to_f64(), self.exponent);
+        }
+        // N = |value|/2⁻¹⁰⁷⁴ < 2⁵², as hi + lo.
+        let sign = self.mantissa.hi.signum();
+        let k = self.exponent + 1074;
+        if k < -2 {
+            // Below a quarter of 2⁻¹⁰⁷⁴ (the mantissa is below 2).
+            return sign * 0.0;
+        }
+        let hi = scale_by_pow2(self.mantissa.hi.abs(), k);
+        let lo = scale_by_pow2(self.mantissa.lo * sign, k);
+        // hi < 2⁵², so ulp(hi) ≤ ½: the fraction is a multiple of it, ½ is
+        // too, and |lo| ≤ ulp(hi)/2 ≤ ¼. So lo decides only an exact half,
+        // and a negative lo with a zero fraction still rounds to the floor.
+        let floor = hi.floor();
+        let fraction = hi - floor;
+        let up = if fraction != 0.5 {
+            fraction > 0.5
+        } else if lo != 0.0 {
+            lo > 0.0
+        } else {
+            floor % 2.0 == 1.0
+        };
+        let units = if up { floor + 1.0 } else { floor };
+        sign * scale_by_pow2(units, -1074)
+    }
+}
+
+/// max(a, b), NaN if either is NaN: a reduction that must not discard a
+/// NaN (design §3.2, admission range).
+pub fn max_propagating_nan(a: f64, b: f64) -> f64 {
+    if a.is_nan() || b.is_nan() {
+        f64::NAN
+    } else {
+        a.max(b)
     }
 }
 
@@ -548,5 +639,172 @@ mod tests {
         let a = Dd::from_f64(-two_pow(60)).add_f64(1.0);
         assert_eq!(exact_integer(a.abs()), (1i128 << 60) - 1);
         assert_eq!(exact_integer(a.neg()), (1i128 << 60) - 1);
+    }
+
+    fn w(x: f64) -> WideDd {
+        WideDd::from_f64(x)
+    }
+
+    /// Review round 3: A = W(2¹⁰⁰⁰) + W(1 + 2⁻⁵²) and B = W(2¹⁰⁰⁰) + W(1)
+    /// differ by exactly 2⁻⁵². The difference's high word is the subnormal
+    /// 2⁻¹⁰⁵², which the unbounded rescaling by 2¹⁰⁵² turned into ∞.
+    #[test]
+    fn wide_normalize_rescales_a_subnormal_high_word() {
+        let a = w(two_pow(1000)).add(w(1.0 + two_pow(-52)));
+        let b = w(two_pow(1000)).add(w(1.0));
+        assert_eq!(a.sub(b).to_f64(), two_pow(-52));
+    }
+
+    /// Review round 3: (1 + 2⁻⁵⁴)·2⁻¹⁰⁷⁵ lies just above half of 2⁻¹⁰⁷⁴, so
+    /// it rounds to 2⁻¹⁰⁷⁴; rounding the mantissa to 53 bits first gave
+    /// exactly the half, which rounds to even, 0.
+    #[test]
+    fn wide_to_f64_rounds_once_into_the_subnormals() {
+        let value = WideDd {
+            mantissa: Dd {
+                hi: 1.0,
+                lo: two_pow(-54),
+            },
+            exponent: -1075,
+        };
+        assert_eq!(value.to_f64(), f64::from_bits(1));
+        assert_eq!(value.neg().to_f64(), -f64::from_bits(1));
+        // Exact halves round to even.
+        let half = WideDd {
+            mantissa: Dd::from_f64(1.0),
+            exponent: -1075,
+        };
+        assert_eq!(half.to_f64(), 0.0);
+        let three_halves = WideDd {
+            mantissa: Dd::from_f64(1.5),
+            exponent: -1074,
+        };
+        assert_eq!(three_halves.to_f64(), f64::from_bits(2));
+    }
+
+    #[test]
+    fn wide_add_propagates_a_non_finite_operand() {
+        let nan = w(f64::NAN);
+        assert!(w(two_pow(1000)).add(nan).to_f64().is_nan());
+        assert!(nan.add(w(two_pow(-1000))).to_f64().is_nan());
+        assert_eq!(w(two_pow(-1000)).add(w(f64::INFINITY)).to_f64(), f64::INFINITY);
+        assert!(w(f64::INFINITY).add(w(f64::NEG_INFINITY)).to_f64().is_nan());
+        // √ and its range.
+        assert_eq!(w(two_pow(-1000)).mul(w(two_pow(-1000))).sqrt().to_f64(), two_pow(-1000));
+        assert_eq!(w(8.0).sqrt().mul(w(2.0).sqrt()).to_f64(), 4.0);
+        assert!(w(-1.0).sqrt().to_f64().is_nan());
+        assert!(max_propagating_nan(1.0, f64::NAN).is_nan());
+        assert_eq!(max_propagating_nan(1.0, 2.0), 2.0);
+    }
+
+    /// (integer significand, exponent) of a finite nonzero binary64.
+    fn decompose(x: f64) -> (u128, i32) {
+        let bits = x.abs().to_bits();
+        let field = (bits >> 52) as i32;
+        let fraction = (bits & ((1u64 << 52) - 1)) as u128;
+        if field == 0 {
+            (fraction, -1074)
+        } else {
+            (fraction | (1u128 << 52), field - 1075)
+        }
+    }
+
+    /// m·2^e (m > 0) rounded once to binary64, ties to even, with
+    /// subnormals and overflow, in integer arithmetic.
+    fn round_exact(m: u128, e: i32) -> f64 {
+        let bits = 128 - m.leading_zeros() as i32;
+        let lead = e + bits - 1;
+        // The unit of the destination: 53 significant bits in the normal
+        // range, 2⁻¹⁰⁷⁴ below it.
+        let unit = if lead >= -1022 { lead - 52 } else { -1074 };
+        let shift = unit - e;
+        let mut q = if shift <= 0 {
+            m << (-shift) as u32
+        } else if shift >= 128 {
+            0
+        } else {
+            let q = m >> shift as u32;
+            let rem = m & ((1u128 << shift as u32) - 1);
+            let half = 1u128 << (shift - 1) as u32;
+            if rem > half || (rem == half && q % 2 == 1) {
+                q + 1
+            } else {
+                q
+            }
+        };
+        let mut unit = unit;
+        if q == 1u128 << 53 {
+            q >>= 1;
+            unit += 1;
+        }
+        if unit + 52 > 1023 {
+            return f64::INFINITY;
+        }
+        scale_by_pow2(q as f64, unit)
+    }
+
+    /// WideDd products of two binary64 values are exact (TwoProduct of
+    /// 53-bit significands), so to_f64 must equal the exact product rounded
+    /// once. Deterministic pseudo-random operands, most with products near
+    /// and below the subnormal range, some normal, overflowing or with
+    /// subnormal operands.
+    #[test]
+    fn wide_products_round_like_exact_arithmetic() {
+        let mut state: u64 = 0x9E37_79B9_7F4A_7C15;
+        let mut next = || {
+            state ^= state << 13;
+            state ^= state >> 7;
+            state ^= state << 17;
+            state
+        };
+        let mut checked = [0usize; 4];
+        for i in 0..200_000 {
+            let operand = |exponent_field: u64, r: u64| {
+                let sign = (r >> 63) << 63;
+                f64::from_bits(sign | (exponent_field << 52) | (r & ((1u64 << 52) - 1)))
+            };
+            let (fa, fb) = match i % 4 {
+                // Products from about 2⁻¹¹⁰⁰ to 2⁻¹⁰⁰⁰ (subnormal and zero).
+                0 | 1 => {
+                    let ea = 400 + next() % 200;
+                    let spread = next() % 100;
+                    (ea, 2 * 1023 - 1100 - ea + spread)
+                }
+                // A subnormal operand.
+                2 => (0, 900 + next() % 400),
+                // Anywhere, overflow included.
+                _ => {
+                    let ea = 1 + next() % 2046;
+                    (ea, 1 + next() % 2046)
+                }
+            };
+            let (ra, rb) = (next(), next());
+            let (a, b) = (operand(fa, ra), operand(fb, rb));
+            if a == 0.0 || b == 0.0 {
+                continue;
+            }
+            let (ma, ea) = decompose(a);
+            let (mb, eb) = decompose(b);
+            let sign = if (a < 0.0) != (b < 0.0) { -1.0 } else { 1.0 };
+            let expected = sign * round_exact(ma * mb, ea + eb);
+            let actual = w(a).mul(w(b)).to_f64();
+            assert_eq!(
+                actual.to_bits(),
+                expected.to_bits(),
+                "{a:e} × {b:e}: {actual:e} vs {expected:e}"
+            );
+            let class = if expected == 0.0 {
+                0
+            } else if expected.is_infinite() {
+                3
+            } else if expected.is_normal() {
+                2
+            } else {
+                1
+            };
+            checked[class] += 1;
+        }
+        // Zero, subnormal, normal and overflowing results all occur.
+        assert!(checked.iter().all(|&c| c > 1000), "{checked:?}");
     }
 }
