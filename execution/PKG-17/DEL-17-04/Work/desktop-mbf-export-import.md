@@ -544,8 +544,8 @@ needs slices 4 and 5.
     Every `MBF-SI-*` code is emitted.
   - `tests/parity.rs` now checks each recorded regeneration against the Rust writer's own.
 - **Open.** One Python defect is recorded and ported unchanged. A spring support at a node no
-  pipe segment reaches raises `KeyError` instead of a named refusal. The fix is the CAEPIPE
-  lane's decision, made in both twins.
+  pipe segment reaches raises `KeyError` instead of a named refusal. This lane fixes it in both
+  twins in a later slice, with its vectors regenerated.
 
 ## 7. Boundaries
 
