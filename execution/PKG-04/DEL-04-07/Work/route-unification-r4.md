@@ -863,6 +863,16 @@ H-a is recommended: no new format, and it removes an asymmetry (§6).
 - **H-3, constant-effort.** A locked constant-effort hanger: no constant force, a prescribed
   DOF, and the reaction equal to the rigid-support reaction.
 
+### 4.7a HYDROTEST reference identity
+
+The H-1, H-1b, H-2 and H-3 labels in **this document, §4.7** name the
+HYDROTEST prerequisites. They are distinct from the historical H-1/H-2 rulings
+cited by `pressure-contract.md`. Reference generators, test names and evidence
+must cite `DEL-04-07 Work/route-unification-r4.md §4.7 (HYDROTEST)` in full.
+The frozen reference set must include the active/held contrast and nominal and
+reduced pressure bases; an unchanged reference label does not permit changing
+its mechanics to fit an implementation.
+
 ### 4.8 Size and stage
 
 **Size: M.** It covers:
@@ -874,6 +884,82 @@ H-a is recommended: no new format, and it removes an asymmetry (§6).
 
 **Stage S4.** It comes after S1 (most test systems have tees) and S2. It is independent of the
 nonlinear stages for linear-support models, and models with resting supports wait for S5.
+
+### 4.9 Held-device interface and ownership (Agent 0, 2026-10-31)
+
+**Status: implementation boundary, not built.** Model-document 0.9.0 S1 adds
+only closed/persisted `test_condition {kind: hydrostatic, held_supports: …}`.
+It retains `LOAD_CASE_TEST_CONDITION_UNSUPPORTED` in
+`operating_conditions.rs` and `HYDROTEST_PRESSURE_UNSUPPORTED` for pressure
+primitives. It does not supply hydrotest mechanics, contents resolution,
+authoring operations or result/report markings. This boundary supplements the
+historical outline above; no refusal lifts merely because the shape persists.
+
+**Ownership.** DEL-05-01's load-case implementation owns S2/S4 condition
+resolution and authoring/lowering, the callable per-case contents-density
+resolver and self-weight provenance/staleness, hydrostatic integration and
+results/report test markings, with its references and user/theory guidance.
+RT-A3 owns the EX device, reaction and ledger mechanics described here and
+HYDROTEST §4.7's prerequisite evidence. It supplies no second condition
+lowerer, contents resolver or authoring path. Its mechanics/theory and support
+use guidance must explain the active/held distinction and reaction meaning;
+the user-facing test workflow stays with DEL-05-01.
+
+**Callable mechanics seam to implement.** A product-internal
+`case_devices::resolve_case_devices(model, case, diagnostics)` will return a
+complete `ResolvedCaseDevices` or a named blocking diagnostic. The names here
+are planned Rust seams, not an existing API or a new serialized format. Its
+input is the per-case device participation and entered prescribed positions
+produced by the owning load-case lowering path, using the existing
+load/reference-state contract; it does not interpret condition sets or infer
+water weight. The resolved plan must carry:
+
+- active spring entries and active device force/preload actions;
+- rigid/prescribed DOFs and their entered absolute reference positions;
+- support/node/DOF identities and active/held attribution for recovery and
+  evidence, including which original device laws are suppressed.
+
+For each held spring, variable-spring hanger or constant-effort DOF, the plan
+replaces the device with its rigid/prescribed equivalent and suppresses **both**
+its stiffness and its force/preload law. No parallel spring or constant force
+remains at that held DOF. `held_supports: none` preserves active devices. A
+case's assembly, ledger, solve, support recovery and evidence must consume the
+same resolved plan; a failed resolution supplies no partially usable plan.
+Reaction recovery uses the complete unreduced equations of that replacement
+system and retains the original support identity. A held device cannot also
+publish an active applied-load row for the suppressed law.
+
+**Why the seam is required.** At frozen RT-A3 source `8517ee24`,
+`prepare_boundary` runs before the case loop and `form_basis_stiffness` uses
+that model-level spring list even for resolved cases. The existing
+`case_state::resolve::ResolvedCase` carries prescribed positions but no device
+replacement plan. `add_constant_effort_support_loads` and
+`append_constant_effort_support_results` also consume model-level devices.
+Passing only another prescribed value would retain the spring or force law
+and can misattribute the reaction. Per-case stiffness formation/cache identity
+and both device consumers must therefore be connected before held mechanics
+are usable. This work touches shared `lib.rs` and pricing and follows S1's
+first integration priority; no such implementation is included in 1b.
+
+**Shared-document prerequisite H-a.** Generated equivalent-static loads must
+be admitted and ledgered on the lockable load-state EX document. Hydrotest and
+static seismic must coexist in 0.9.0 through that route; this boundary creates
+no 0.10 format and does not duplicate the load-case generator. Generated-source
+identity, factors, collisions and inclusion evidence remain part of H-a's
+integration design, not an assumption that every stored primitive is applied.
+
+**Unresolved semantics for the mechanics design.** The lowerer's mapping from
+`held_supports` to entered absolute positions must be explicit; neither a
+predecessor position nor an implicit device datum is invented here. Skewed
+held-device directions need their admitted constraint/reaction representation;
+S1's exact-axis lowering does not establish a general skew constraint. The
+interaction of an explicit locked participation record with test-condition
+lowering needs one consistency/refusal rule, never array-order precedence.
+These points require resolution with the owning load-case design before the
+corresponding admission lifts. PF test-condition admission, test-case
+combinations, contents resolution and hydrotest pressure-primitive policy stay
+with the load-case owner. H-1/H-1b/H-2/H-3 are small-case prerequisites; scaling
+or sparse P does not substitute for them.
 
 ---
 
