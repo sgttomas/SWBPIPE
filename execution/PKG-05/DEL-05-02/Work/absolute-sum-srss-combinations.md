@@ -204,15 +204,25 @@ operand's standing recorded in slice 1a's shape (`pf-nonlinear-operand-standing.
 and their row text says "not an equilibrium state". `mechanics` keeps
 `NONLINEAR_COMBINATION_REQUIRES_SOLVE`.
 
-**Open question OQ-1 (Agent 0).** A rule pack's occasional check wants
-sustained ± E, with E an SRSS. In a nonlinear model that is a `mechanics`
-combination and is withheld. Recommendation: in a nonlinear model, admit a
-`mechanics` combination exactly when one term is a load case with factor 1 and
-every other term has κ = 0 (a difference or an unsigned combination), publish
-it from rows with operand standing, and label it "a solved state plus derived
-differences or bounds; not an equilibrium state". It changes the meaning of an
-existing gate for documents that nest, so it is Agent 0's call. Not adopting it
-leaves E published and sustained ± E for the rule pack to form.
+**Decision OQ-1 (SWBPIPE Agent 0, 2026-10-31, under the engineering-judgment
+delegation; adopted as recommended).** A rule pack's occasional check wants
+sustained ± E, with E an SRSS or absolute sum of seismic responses, and in a
+nonlinear model such a `mechanics` combination was withheld. In a model with
+nonlinear supports, a `mechanics` combination is admitted exactly when:
+- one term names a solved load case with factor exactly 1, and
+- every other term has κ = 0 (|κ| ≤ 2⁻⁴⁶ under §5.1's comparison): a
+  difference, an absolute sum or an SRSS, or a combination of those.
+
+It is formed from rows, with each operand's standing recorded in slice 1a's
+shape, and its row text reads "a solved state plus derived differences or
+bounds; not an equilibrium state". Every other `mechanics` combination in a
+nonlinear model keeps `NONLINEAR_COMBINATION_REQUIRES_SOLVE`, so a flat
+document's outcome does not change. **Reason** (Agent 0): response
+superposition of this kind is how occasional cases are formed in practice; the
+product publishes the sum of one solved state and explicitly derived
+increments, and claims no equilibrium state and no certification. Its build
+takes targeted regression tests that a combination outside the rule is still
+withheld (V-9).
 
 ### 5.3 Modulus basis
 
@@ -259,6 +269,11 @@ generator (exact `fractions.Fraction`, integer square root, no product code).
 - **V-7, nesting.** Cycles of length 1, 2 and 3 refused; ambiguity refused; a
   later-declared operand evaluated first; a withheld operand withholding its
   dependants; result order a function of the document.
+- **V-9, OQ-1 rule.** In a nonlinear model: sustained + SRSS of differences
+  admitted, with its label and operand standing; withheld under
+  `NONLINEAR_COMBINATION_REQUIRES_SOLVE` when the load-case term's factor is
+  not exactly 1, when two terms name load cases, when a remaining term has
+  κ ≠ 0, and for every flat mechanics combination.
 - **V-8, flat regression.** Every committed combination fixture and frozen
   reference solves byte for byte as on main (wiring slice).
 
