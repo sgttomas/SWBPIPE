@@ -332,3 +332,6 @@ after the walkthrough.
   - The native-smoke `expected.json` values.
 - **Edits.** Decisions edit the row they govern. This file is not a log; Git
   keeps its history.
+- **Limitations list.** The release limitations that criterion 3 refers to
+  are kept in `docs/RELEASE_LIMITATIONS_v1.0.md`. Lanes draft entries there;
+  accepting one is the owner's act.
