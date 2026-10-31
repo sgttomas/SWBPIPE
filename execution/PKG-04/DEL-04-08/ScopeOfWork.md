@@ -259,7 +259,7 @@ In these commitments, "exact solution" means the exact solution of the recorded 
     - The formation definitions and the tables' formation warrants use "certificate" throughout, as the technical name of the numerical error proof.
   - **The choice.** The texts can keep these words, or the user-facing ones can adopt the nonlinear K-D5 ruling R5's wording ("established", "confirmed"). The choice is the owner's.
   - **Consequences of a change.** The tables and definitions are reviewed inputs: changing their text changes their digests and requires a D3 re-registration. The messages are pinned in committed successor bytes, which would need to be regenerated.
-- **TBD-002** — *A stale reviewed-input sentence.* The `physics-retained-1` table's `accuracy_classification.scope` still reads "model 0.3.0 with the 2.0.0/exact_straight_pressure_v2 contract". DEF-E and the code admit current model 0.8.0 with `3.0.0/exact_pressure_v3`. Correcting the sentence changes a reviewed input and requires D3.
+- **TBD-002** — *A stale reviewed-input sentence.* The `physics-retained-1` table's `accuracy_classification.scope` still reads "model 0.3.0 with the 2.0.0/exact_straight_pressure_v2 contract". DEF-E and the code admit current model 0.9.0 with `3.0.0/exact_pressure_v3`. Correcting the sentence changes a reviewed input and requires D3.
 
 ## Production and Verification Method — Praxeology
 
