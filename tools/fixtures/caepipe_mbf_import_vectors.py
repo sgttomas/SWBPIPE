@@ -11,7 +11,7 @@ This writer records what the Python does, and the two checks hold each side to t
   fixtures and the authored cases (#1702), each imported as the private regression imports it, and each imported
   model written back by the SI writer and imported again bound; and the correlation cases written by the writer and
   imported bound and unbound. Corpus vectors keep their full output text. It records the writer's regenerated
-  sidecar for each bound import (the Rust port takes the writer as an input until slice 2 ports it), the
+  sidecar for each bound import (the Rust port checks its own writer's regeneration against it), the
   correctly rounded trigonometric calls (`correctly_rounded`) and `math.hypot` calls the import made, and numerical
   boundary vectors (float formatting and parsing at rounding boundaries, `math.hypot`, `sum`, the exact norm, the
   90-digit arctangent, the correctly rounded acos/asin/atan2/sin/tan at hard, reduction, special and sampled
