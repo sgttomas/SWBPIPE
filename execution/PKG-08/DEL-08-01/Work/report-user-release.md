@@ -680,7 +680,8 @@ solver produced. There is no rule-check attestation under R.
   so neither is used.) Since RT-U4 the worker computes `d_S` from the bytes
   without parsing them back whole (`result_text_digest.rs`): containers larger
   than 256 KiB are split over the borrowed text, each smaller piece is parsed
-  at its true depth and written by `checked_v1_domain_canonical` itself, and
+  from its own slice (one allocation-free scan of the whole text applies the
+  parse's depth limit) and written by `checked_v1_domain_canonical` itself, and
   the framing follows that writer's key order and escaping. The digest's
   meaning is unchanged: it equals the SHA-256 of
   `checked_v1_domain_canonical` over `serde_json::from_str` of the bytes, and
@@ -744,15 +745,25 @@ user-visible condition is the same; native admission now enforces it.
   `solve_worker.rs:1037-1090`), and
   the protocol text of `solve_worker.rs:10-25`.
 - **DEL-04-07 memory accounting:**
-  - The `d_S` pass holds at most one parsed piece of the delivered result at
-    a time: a piece of at most 256 KiB of text (or one larger scalar or
-    RawValue-token object, which no product result holds), plus the member
-    list of each split object on the open path (40 bytes per member). Until
-    RT-U4 it held one parsed copy of the whole result; both lie within the
-    result text's ingress materialization bound (`ingress::prescan`). On the
+  - Until RT-U4 the `d_S` pass held one parsed copy of the whole delivered
+    result, within the result text's ingress materialization bound
+    (`ingress::prescan`). Since RT-U4 it holds, beside the borrowed text and
+    with no copy of any part of it: one parsed piece (at most 256 KiB of text,
+    or one longer scalar); the member list of each split object on the open
+    path (40 bytes per member, and an escaped key's decoded string); and, per
+    split container on the open path, its parser's frame stack (at most 128
+    bytes priced, once the scan has refused deeper text). For a text the
+    prescan prices, the pass's peak is within that materialization bound plus
+    the streamed digest's account (below) plus 16,256 bytes (127 open split
+    containers at 128 bytes). The prescan refuses a RawValue-token key, so a
+    text holding one has no such bound; the worker's cap still applies, and
+    no product result holds one. Counting-allocator checks hold this bound on
+    raw texts as written, not reserialized (raw whitespace around a nested
+    256 KiB piece, escaped keys on split levels, duplicates, the demo's bytes
+    and a pretty-printed copy). On the
     bundled demo the worker's counted peak went from 3,936,832 to 4,842,992
     bytes with the digest passes (#1664); since RT-U4 the `d_S` pass peaks at
-    373,920 bytes on the demo's 615,264-byte result (3,701,440 before), and
+    275,552 bytes on the demo's 615,264-byte result (3,701,440 before), and
     the counted worker peak is 3,939,200 bytes with or without the digest
     passes, with the grant unchanged.
   - Beyond that copy, the worker's two passes allocate only transient pieces in its counted
@@ -806,7 +817,7 @@ host to parse the result, which needs a new lease and changes the custody
 design. The worker already holds the model value it materialized for the
 solve, and the result bytes it delivers. For `d_S` it digests the value those
 bytes hold, one bounded piece at a time since RT-U4 (one transient copy before
-it), inside the result text's ingress materialization bound (above), and holds
+it), within the bound stated above, and holds
 none of it once the frames are sent. So the host side of
 the solve needs no new parse and no new lease (Codex round 4 at revision 4,
 N3).

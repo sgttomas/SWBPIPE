@@ -40,7 +40,9 @@
 //!   decoded keys, strings escaped as `JSON.stringify`, numbers in shortest
 //!   round-trip form with `-0` as `0`, no whitespace.
 //!
-//! How it is computed (the design): the text is walked over borrowed slices.
+//! How it is computed (the design): one allocation-free scan refuses a text
+//! nesting more than 127 containers ([`nesting_exceeds`]); then the text is
+//! walked over borrowed slices.
 //! A value whose slice is at most [`SPLIT_THRESHOLD_BYTES`] long, or that is
 //! not a container, is a leaf: its slice is parsed into a `Value`, which is
 //! validated and written by the canonical crate's own
@@ -49,9 +51,23 @@
 //! `&RawValue` slices and each element is walked as it arrives (nothing is
 //! collected); a larger object is parsed into its members as (decoded key,
 //! `&RawValue`) pairs, sorted in canonical order, and its kept members are
-//! walked in that order. This writer frames the split containers and the
-//! digest's wrapper itself. The largest value held at once is one leaf, plus
-//! the member list of each split object on the open path.
+//! walked in that order; each key is captured raw and decoded by its own
+//! short-lived parser. This writer frames the split containers and the
+//! digest's wrapper itself.
+//!
+//! What it holds (DEL-04-07, DEL-08-01 §2.4): beside the borrowed text, one
+//! leaf's value (parsed from its own slice, no copy of it), the member list
+//! of each split object on the open path (a key and a slice, 40 bytes per
+//! member, sorted in place; an escaped key's decoded string), the canonical
+//! writer's transients, and, per split container on the open path, its
+//! parser's frame stack (`ignore_value` keeps one byte per nesting level of
+//! the value it skips, at most 127 after the scan, so at most 128 bytes
+//! priced). For a text the ingress prescan prices, the leaf, the member lists
+//! and the decoded keys lie within its materialization bound (each object
+//! member is priced there above 200 bytes; each leaf's value, parse scratch
+//! and array growth are part of what the bound prices for the whole text),
+//! so the pass's peak is within that bound plus the streamed digest's
+//! account plus [`OPEN_SPLIT_SCRATCH_BYTES`].
 //!
 //! The canonical crate is used only through its existing public functions:
 //! its writer is bound by the retained pricing's S6-HS guard (DEL-04-08
@@ -67,7 +83,9 @@
 //!   with the same grammar: the structure of a split container (brackets,
 //!   commas, colons, whitespace, trailing-comma and end-of-input errors) by
 //!   its `SeqAccess`/`MapAccess`, each key by the same string parse a `Value`
-//!   key takes, and each leaf, kept or discarded, by `from_str::<Value>`.
+//!   key takes (the map access requires its opening quote; the captured key
+//!   is then decoded by `deserialize_str`'s string parse, with the same
+//!   validation), and each leaf, kept or discarded, by `from_str::<Value>`.
 //!   Capturing a `&RawValue` only skips a value with a looser check (no depth
 //!   limit, no number range, no surrogate pairing), and the slice it skips is
 //!   then parsed in full, so it rejects nothing the full parse accepts. The
@@ -91,18 +109,22 @@
 //!   whole value validates exactly when every kept leaf does, since the check
 //!   is per number and `f` validates only the kept members. Any refusal
 //!   anywhere gives `None`.
-//! - Depth. A value at nesting `L` (it has `L` enclosing containers) is
-//!   parsed at its true depth: a leaf container's slice is parsed inside `L`
-//!   added `[`…`]` pairs (one-element arrays, unwrapped after), so
-//!   serde_json's own counter applies the text limit with the enclosing
-//!   containers counted, including inside a RawValue-token object (whose
-//!   inner parse is fresh in both). A kept leaf sits at wrapper level `2 + L`
+//! - Depth. The text limit is decided once over the whole text: the scan
+//!   counts what serde_json's counter counts on a valid text (a
+//!   RawValue-token object's `{`, not the text in its string, which a fresh
+//!   parse limits in both), so on a valid text it refuses exactly when `f`'s
+//!   parse does, discarded duplicates included. On an invalid text `f` gives
+//!   `None`, and so does `g`: `g` gives `Some` only when every byte parsed
+//!   (the syntax rule), whatever the scan said. Since only `Some` versus
+//!   `None` matters, which refusal comes first does not. A leaf is then parsed
+//!   from its own slice, whose parser allows at least the nesting the whole
+//!   text has. A kept leaf at nesting `L` (it has `L` enclosing containers)
+//!   sits at wrapper level `2 + L`
 //!   and is refused when it holds a container at level 128 or deeper there,
 //!   exactly when the whole value would be refused (the crate's own call
 //!   counts from level 2, a weaker check this one implies). A split container
 //!   at nesting `L + 1` is refused when it is kept and its level `2 + L`
-//!   reaches 128, or when it is discarded and `L + 1` passes the parse's 127
-//!   containers.
+//!   reaches 128 (a discarded one is within the scan's limit).
 //! - The RawValue token. A split object whose first key is the token is not
 //!   split: it is parsed whole as a leaf, so `f`'s special parse applies to it.
 //!   A leaf's own objects meet the same special parse inside `from_str`.
@@ -129,6 +151,11 @@ pub(crate) const SPLIT_THRESHOLD_BYTES: usize = 256 << 10;
 /// The most containers serde_json's parse nests (its recursion limit refuses
 /// the 128th).
 const PARSE_NESTING_LIMIT: usize = 127;
+
+/// The most the split containers' parsers on the open path hold at once,
+/// priced: up to 127 nested split containers, each parser's frame stack at
+/// most 127 bytes after the nesting scan (a 128-byte allocation).
+pub(crate) const OPEN_SPLIT_SCRATCH_BYTES: u64 = 127 * 128;
 
 /// The nesting level of the payload in `checked_v1_domain_canonical`'s
 /// wrapper (the wrapper object is level 1).
@@ -159,6 +186,10 @@ pub(crate) fn text_digest_split_above(domain: &str, text: &str, threshold: usize
     sink.put("{\"domain\":");
     write_string(domain, &mut sink);
     sink.put(",\"payload\":");
+    // The parse's recursion limit, over the whole text at once.
+    if nesting_exceeds(text, PARSE_NESTING_LIMIT) {
+        return None;
+    }
     Walk { threshold, sink: &mut sink }.value(text, 0, true).ok()?;
     sink.put("}");
     Some(hasher.finalize().into())
@@ -193,7 +224,7 @@ impl<S: CanonicalSink> Walk<'_, S> {
 
     /// A split container's own nesting `depth + 1`: kept, the canonical
     /// writer's level must stay below its refused level; discarded, the parse
-    /// limit applies.
+    /// limit applies (the scan has already enforced it).
     fn container_admitted(depth: usize, keep: bool) -> Result<(), Refused> {
         let admitted = if keep {
             PAYLOAD_LEVEL + depth < REFUSED_LEVEL
@@ -204,7 +235,7 @@ impl<S: CanonicalSink> Walk<'_, S> {
     }
 
     fn leaf(&mut self, text: &str, depth: usize, keep: bool) -> Result<(), Refused> {
-        let value = parse_at_depth(text, depth)?;
+        let value: Value = serde_json::from_str(text).map_err(|_| Refused)?;
         if keep {
             if holds_refused_container(&value, PAYLOAD_LEVEL + depth) {
                 return Err(Refused);
@@ -348,10 +379,43 @@ fn holds_refused_container(value: &Value, level: usize) -> bool {
 /// its value's slice.
 type Member<'t> = (Cow<'t, str>, &'t RawValue);
 
-/// An object's members in text order, parsed by serde_json's `MapAccess` with
-/// keys decoded as a `Value`'s keys are. Sets `token` (and refuses) when the
-/// first key is the RawValue token.
+/// An object's members in text order, parsed by serde_json's `MapAccess`.
+/// Each key is captured as its raw slice and decoded by [`decode_key`], as a
+/// `Value`'s key is decoded, so that this parser's scratch never holds a key.
+/// Sets `token` (and refuses) when the first key is the RawValue token.
 fn members<'t>(text: &'t str, token: &Cell<bool>) -> Result<Vec<Member<'t>>, Refused> {
+    struct Members<'c> {
+        token: &'c Cell<bool>,
+    }
+    impl<'de> Visitor<'de> for Members<'_> {
+        type Value = Vec<Member<'de>>;
+        fn expecting(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            f.write_str("an object")
+        }
+        fn visit_map<A: MapAccess<'de>>(self, mut map: A) -> Result<Self::Value, A::Error> {
+            let mut members = Vec::new();
+            while let Some(raw_key) = map.next_key::<&'de RawValue>()? {
+                let key = decode_key(raw_key.get()).ok_or_else(|| A::Error::custom("invalid key"))?;
+                if members.is_empty() && key == RAW_VALUE_TOKEN {
+                    self.token.set(true);
+                    return Err(A::Error::custom("RawValue token"));
+                }
+                members.push((key, map.next_value::<&'de RawValue>()?));
+            }
+            Ok(members)
+        }
+    }
+    let mut parser = serde_json::Deserializer::from_str(text);
+    let members = parser.deserialize_map(Members { token }).map_err(|_| Refused)?;
+    parser.end().map_err(|_| Refused)?;
+    Ok(members)
+}
+
+/// A key's raw slice (a JSON string with its quotes) decoded by serde_json's
+/// string parse, the parse a `Value`'s map key takes, with its validation
+/// (escapes, surrogate pairs); borrowed when it has no escapes. The parser and
+/// its scratch live only for this key. `None` if it is not a valid string.
+fn decode_key(raw: &str) -> Option<Cow<'_, str>> {
     struct Key;
     impl<'de> Visitor<'de> for Key {
         type Value = Cow<'de, str>;
@@ -368,60 +432,44 @@ fn members<'t>(text: &'t str, token: &Cell<bool>) -> Result<Vec<Member<'t>>, Ref
             Ok(Cow::Owned(key))
         }
     }
-    impl<'de> serde::de::DeserializeSeed<'de> for Key {
-        type Value = Cow<'de, str>;
-        fn deserialize<D: serde::Deserializer<'de>>(self, deserializer: D) -> Result<Self::Value, D::Error> {
-            deserializer.deserialize_str(self)
-        }
-    }
-    struct Members<'c> {
-        token: &'c Cell<bool>,
-    }
-    impl<'de> Visitor<'de> for Members<'_> {
-        type Value = Vec<Member<'de>>;
-        fn expecting(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            f.write_str("an object")
-        }
-        fn visit_map<A: MapAccess<'de>>(self, mut map: A) -> Result<Self::Value, A::Error> {
-            let mut members = Vec::new();
-            while let Some(key) = map.next_key_seed(Key)? {
-                if members.is_empty() && key == RAW_VALUE_TOKEN {
-                    self.token.set(true);
-                    return Err(A::Error::custom("RawValue token"));
-                }
-                members.push((key, map.next_value::<&'de RawValue>()?));
-            }
-            Ok(members)
-        }
-    }
-    let mut parser = serde_json::Deserializer::from_str(text);
-    let members = parser.deserialize_map(Members { token }).map_err(|_| Refused)?;
-    parser.end().map_err(|_| Refused)?;
-    Ok(members)
+    let mut parser = serde_json::Deserializer::from_str(raw);
+    let key = parser.deserialize_str(Key).ok()?;
+    parser.end().ok()?;
+    Some(key)
 }
 
-/// A leaf's slice parsed into a `Value` as `f`'s parse would parse it at
-/// nesting `depth`: a container inside `depth` one-element arrays, so the
-/// parser's recursion limit counts its enclosing containers; a scalar alone
-/// (no depth to count).
-fn parse_at_depth(text: &str, depth: usize) -> Result<Value, Refused> {
-    let container = matches!(text.trim_start_matches([' ', '\n', '\t', '\r']).as_bytes().first(), Some(b'[' | b'{'));
-    if depth == 0 || !container {
-        return serde_json::from_str(text).map_err(|_| Refused);
+/// Whether the text nests more than `limit` containers, counted as
+/// serde_json's parser counts them: each `[` and `{` outside strings (a
+/// RawValue-token object's `{` included, the JSON text in its string not,
+/// which its own fresh parse limits). Exact on a valid JSON text; on an
+/// invalid one any answer serves, since some parse then refuses it anyway.
+/// Allocates nothing.
+fn nesting_exceeds(text: &str, limit: usize) -> bool {
+    let (mut depth, mut in_string, mut escaped) = (0usize, false, false);
+    for &byte in text.as_bytes() {
+        if in_string {
+            if escaped {
+                escaped = false;
+            } else if byte == b'\\' {
+                escaped = true;
+            } else if byte == b'"' {
+                in_string = false;
+            }
+            continue;
+        }
+        match byte {
+            b'"' => in_string = true,
+            b'[' | b'{' => {
+                depth += 1;
+                if depth > limit {
+                    return true;
+                }
+            }
+            b']' | b'}' => depth = depth.saturating_sub(1),
+            _ => {}
+        }
     }
-    let mut padded = String::with_capacity(text.len() + 2 * depth);
-    padded.extend(std::iter::repeat_n('[', depth));
-    padded.push_str(text);
-    padded.extend(std::iter::repeat_n(']', depth));
-    let mut value: Value = serde_json::from_str(&padded).map_err(|_| Refused)?;
-    drop(padded);
-    for _ in 0..depth {
-        value = match value {
-            Value::Array(mut items) if items.len() == 1 => items.pop().expect("one element"),
-            _ => unreachable!("a padded value parses as one-element arrays"),
-        };
-    }
-    Ok(value)
+    false
 }
 
 #[cfg(test)]
@@ -641,6 +689,56 @@ mod tests {
             assert_eq!(same(&discarded), depth <= 127, "discarded depth {depth}");
             let discarded_split = format!("{{\"a\":{},\"a\":0}}", mixed(depth - 1, "0"));
             assert_eq!(same(&discarded_split), depth + 1 <= 127, "discarded split depth {depth}");
+        }
+    }
+
+    /// Nesting 120-131 where every level is split at every threshold (raw
+    /// whitespace inside the innermost container makes each enclosing slice
+    /// longer than the production threshold), and in a discarded duplicate.
+    #[test]
+    fn nesting_at_the_limits_split_at_every_level() {
+        let padded = |leaf: &str| format!("[{}{leaf}]", " ".repeat(SPLIT_THRESHOLD_BYTES));
+        for depth in 120..=131 {
+            // (text, its containers nested)
+            let nested = [
+                (arrays(depth - 1, &padded("0")), depth),
+                (objects(depth - 1, &padded("0")), depth),
+                (arrays(depth - 1, &padded("[]")), depth + 1),
+                (mixed(depth - 1, &padded("{}")), depth + 1),
+                (format!("{{\"a\":{},\"a\":0}}", arrays(depth - 2, &padded("0"))), 0),
+            ];
+            for (index, (text, containers)) in nested.into_iter().enumerate() {
+                let digested = same(&text);
+                if index < 4 {
+                    assert_eq!(digested, containers <= 126, "{containers} containers");
+                } else {
+                    // Discarded: only the text limit applies.
+                    assert_eq!(digested, depth <= 127, "discarded depth {depth}");
+                }
+            }
+        }
+    }
+
+    /// The independent review's input: a nested leaf of exactly the threshold
+    /// (and one byte either side), all raw whitespace, kept, discarded and
+    /// near the depth limits.
+    #[test]
+    fn whitespace_padded_leaves_at_the_threshold() {
+        for len in [SPLIT_THRESHOLD_BYTES - 1, SPLIT_THRESHOLD_BYTES, SPLIT_THRESHOLD_BYTES + 1] {
+            let leaf = format!("[{}]", " ".repeat(len - 2));
+            assert_eq!(leaf.len(), len);
+            for text in [
+                format!("[{leaf}]"),
+                format!("[{leaf},{leaf}]"),
+                format!(" [ 1 ,\n{leaf} ] "),
+                format!("{{\"a\":{leaf},\"a\":[1],\"b\":{leaf}}}"),
+                format!("{{\"k\":{{\"\\u0061\":{leaf}}}}}"),
+            ] {
+                assert!(same(&text), "{}", &text[..20]);
+            }
+            for depth in 124..=128 {
+                assert_eq!(same(&arrays(depth, &leaf)), depth + 1 <= 126, "depth {depth}");
+            }
         }
     }
 
