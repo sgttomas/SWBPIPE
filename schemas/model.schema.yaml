@@ -1056,11 +1056,11 @@
             "combinations": {
               "type": "array",
               "items": {
+                "description": "terms is required except on a result_state_subtraction or range_envelope (model document 0.9.0 §2.4), whose operands are their own members; the desktop shows an absent terms as absent.",
                 "required": [
                   "id",
                   "label",
                   "basis",
-                  "terms",
                   "provenance"
                 ],
                 "properties": {
@@ -1073,6 +1073,26 @@
                   "provenance": {
                     "type": "string"
                   }
+                },
+                "if": {
+                  "not": {
+                    "properties": {
+                      "basis": {
+                        "enum": [
+                          "result_state_subtraction",
+                          "range_envelope"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "basis"
+                    ]
+                  }
+                },
+                "then": {
+                  "required": [
+                    "terms"
+                  ]
                 }
               }
             }

@@ -45,7 +45,18 @@ export use their existing routes unchanged.
   - material `elastic_modulus`, section `properties` and pipe `section`
     quantities (`{value: number, unit: string}`);
   - support `restraints[]` strings;
-  - combination `terms[]` (`load_case`, `factor`);
+  - combination `terms[]`: each term names exactly one operand, `load_case` or
+    (model document 0.9.0, §2.4) `combination`, as a string, with a number
+    `factor`; a term naming neither or both is refused. A
+    `result_state_subtraction` or `range_envelope` may omit `terms` (its
+    operands are its own members), and every other basis carries it. A present,
+    non-null `minuend_id`, `subtrahend_id` or `mode` is a string and
+    `operand_ids` an array of strings (the load manager interpolates and joins
+    them). The views read an absent `terms` as absent: the load manager's row
+    and delete display, the property readout and the inspector show the stored
+    operands, a combination term as "combination <id>", and never an empty sum
+    (S1, #50; `combinationOperands.ts`, `combinationOperands.test.tsx`). The
+    schema's `DesktopDocument` profile states the same `terms` rule;
   - with W-6a (PR #1588), the members adoption and rendering dereference:
     every `project.units` value a string; a present `section_ref` a string; a
     present `components[].completeness` an array of `{diagnostic_code, status}`

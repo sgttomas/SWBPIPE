@@ -227,9 +227,12 @@ def test_desktop_document_is_the_format_plus_the_desktop_shape_check():
             continue
         required = set(overlay["properties"][collection]["items"]["required"])
         expected = set(fields) | {"provenance"} if collection == "sections" else set(fields)
-        if collection == "combinations":
-            expected |= {"terms"}
         assert required == expected, collection
+    # `terms` is required except on the bases the shape check exempts (`TERMLESS_BASES`, model document 0.9.0).
+    termless = re.search(r"TERMLESS_BASES[^=]*= new Set\(\[([^\]]*)\]\)", DESKTOP_SHAPE.read_text(encoding="utf-8"))
+    combination = overlay["properties"]["combinations"]["items"]
+    assert combination["if"] == {"not": {"properties": {"basis": {"enum": re.findall(r'"(\w+)"', termless.group(1))}}, "required": ["basis"]}}
+    assert combination["then"] == {"required": ["terms"]}
     assert required_collections == {"nodes", "pipe_segments", "supports", "components", "load_cases", "diagnostics"}
     root_required = set(schema()["required"])
     assert set(overlay["required"]) | root_required >= required_collections | always
@@ -312,6 +315,24 @@ def test_null_is_refused_elsewhere(slot):
 def test_desktop_profile_still_requires_string_labels_and_provenance():
     for slot in ("node.label", "node.provenance", "pipe.label", "pipe.provenance"):
         rejected(with_change(NULL_ACCEPTED[slot]), DESKTOP_PROFILE)
+
+
+def test_desktop_profile_requires_terms_except_on_a_subtraction_or_envelope():
+    """Model document 0.9.0 (section 2.4): a subtraction or envelope may omit `terms`; another basis may not."""
+    def combination(basis, **members):
+        def change(document):
+            first, second = (case["id"] for case in document["load_cases"][:2])
+            operands = {"result_state_subtraction": {"minuend_id": first, "subtrahend_id": second},
+                        "range_envelope": {"operand_ids": [first, second], "mode": "max"}}.get(basis, {})
+            document["combinations"] = [{"id": "combination:C-NEW", "label": "New", "basis": basis, "provenance": "invented",
+                                         **operands, **members}]
+        return with_change(change)
+    for basis in ("result_state_subtraction", "range_envelope"):
+        accepted(combination(basis), DESKTOP_PROFILE)
+    for basis in ("mechanics", "absolute_sum", "srss"):
+        accepted(combination(basis))
+        rejected(combination(basis), DESKTOP_PROFILE)
+        accepted(combination(basis, terms=[]), DESKTOP_PROFILE)
 
 
 SECTION_NULL_SLOTS = ("mill_tolerance", "material_density", "contents_density", "insulation_thickness",

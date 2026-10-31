@@ -32,6 +32,9 @@ const ENTITY_STRINGS: ReadonlyArray<[member: string, required: ReadonlyArray<str
   ["diagnostics", ["code", "severity", "message"]]
 ];
 
+/** The combination bases whose operands are not terms (`minuend_id`/`subtrahend_id`, `operand_ids`). */
+const TERMLESS_BASES: ReadonlySet<string> = new Set(["result_state_subtraction", "range_envelope"]);
+
 /** The component descriptor members the workspace formats or trims on adoption
  * (the model tree's search text, the rule-check and editor-contract panels), typed
  * as `PreviewComponent` declares them. A present, non-null member must be of its type. */
@@ -148,13 +151,35 @@ export function modelDocumentShapeDiagnostics(document: unknown): ModelFileDiagn
       if (member === "supports" && need(record.restraints, `${at}.restraints`, "array")) {
         (record.restraints as unknown[]).forEach((value, item) => need(value, `${at}.restraints[${item}]`, "string"));
       }
-      if (member === "combinations" && need(record.terms, `${at}.terms`, "array")) {
+      // A term names exactly one operand, a load case or (model document 0.9.0) a
+      // combination, as a string; the views interpolate it with its factor. A
+      // subtraction or range envelope names its operands in its own members and
+      // may omit `terms` (the views show it absent); every other basis carries it.
+      const termsOptional = record.terms === undefined && TERMLESS_BASES.has(record.basis as string);
+      if (member === "combinations" && !termsOptional && need(record.terms, `${at}.terms`, "array")) {
         (record.terms as unknown[]).forEach((term, item) => {
           const termAt = `${at}.terms[${item}]`;
           if (!need(term, termAt, "object")) return;
-          need((term as Record<string, unknown>).load_case, `${termAt}.load_case`, "string");
-          need((term as Record<string, unknown>).factor, `${termAt}.factor`, "number");
+          const operand = term as Record<string, unknown>;
+          const named = (["load_case", "combination"] as const).filter((key) => operand[key] !== undefined);
+          if (named.length === 0) {
+            found.push({ code: MODEL_FILE_SHAPE, path: termAt, message: `${termAt} names neither load_case nor combination (exactly one string required).` });
+          } else if (named.length === 2) {
+            found.push({ code: MODEL_FILE_SHAPE, path: termAt, message: `${termAt} names both load_case and combination (exactly one required).` });
+          }
+          for (const key of named) need(operand[key], `${termAt}.${key}`, "string");
+          need(operand.factor, `${termAt}.factor`, "number");
         });
+      }
+      // The subtraction and envelope operands, interpolated and joined by the load
+      // manager's rows: a present, non-null member is a string, or an array of them.
+      if (member === "combinations") {
+        for (const key of ["minuend_id", "subtrahend_id", "mode"]) {
+          if (record[key] !== undefined && record[key] !== null) need(record[key], `${at}.${key}`, "string");
+        }
+        if (record.operand_ids !== undefined && record.operand_ids !== null && need(record.operand_ids, `${at}.operand_ids`, "array")) {
+          (record.operand_ids as unknown[]).forEach((value, item) => need(value, `${at}.operand_ids[${item}]`, "string"));
+        }
       }
     });
   }

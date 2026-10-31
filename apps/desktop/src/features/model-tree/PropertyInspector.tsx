@@ -10,6 +10,7 @@ import { GuardedRemoval } from "../toolkit/GuardedRemoval";
 import { buildDeleteNodeIntent, buildDeletePipeIntent, buildDeleteSupportIntent } from "./removalIntents";
 import { draftSupportFamily, SUPPORT_FAMILY_OPTIONS, suggestedSupportFamily, supportFamilySuggestionText } from "./supportFamilyDraft";
 import { ModelDataAnnotations } from "../model-data/ModelDataAnnotations";
+import { combinationTermsText } from "../load-cases/combinationOperands";
 import { ModelSettingsSection } from "../model-settings/ModelSettingsSection";
 import { ProjectUnitsSection } from "../project-units/ProjectUnitsSection";
 import { ListPlus, Pencil, PlayCircle, PlusCircle, SearchCheck, Trash2 } from "lucide-react";
@@ -2392,6 +2393,7 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef, route: Un
 
   const combination = selection.type === "combination" ? model.combinations?.find((item) => item.id === selection.id) : undefined;
   if (combination) {
+    const combinationTerms = combinationTermsText(combination);
     return [
       scalarField(
         "Label",
@@ -2411,15 +2413,16 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef, route: Un
         "none",
         "mechanics or user rule basis"
       ),
-      scalarField(
+      // A record without `terms` (a 0.9.0 subtraction or envelope) has no Terms field, never an empty sum.
+      ...(combinationTerms === null ? [] : [scalarField(
         "Terms",
         "terms",
-        combination.terms.map((term) => `${term.load_case} x ${term.factor}`).join("; "),
+        combinationTerms,
         "Combination",
         "dimensionless",
         "none",
         "explicit user-defined terms"
-      ),
+      )]),
       scalarField(
         "Provenance",
         "provenance",

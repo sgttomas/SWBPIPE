@@ -1225,6 +1225,18 @@ version step, R1). D3 and the registration follow as their own slice (§3.7).
 - **Retained law tests.** The audited suffixes of `retained_precision.rs` and
   `semantic_contract.rs` are re-audited for their token edits, and
   `physics_source.rs`'s for S1-core's closed condition-use test.
+- **Desktop open and save (Agent 0's ownership decision, 2026-10-31).** The
+  desktop shape check (`modelDocumentShape.ts` and its native port
+  `model_document_shape.rs`, kept equal by `desktop_shape_cases.json`) admits a
+  term naming exactly one of `load_case` and `combination`, and an absent
+  `terms` on a `result_state_subtraction` or `range_envelope`; it refuses a term
+  naming neither or both, a missing `terms` on any other basis, and a mistyped
+  present `minuend_id`, `subtrahend_id`, `mode` or `operand_ids`. The schema's
+  `DesktopDocument` profile follows. The views that read combinations (the load
+  manager, the property readout and the inspector) read an absent `terms` as
+  absent and name a combination operand as one; nothing is defaulted, and the
+  every-slot model opens, renders, saves and reopens byte for byte. DEL-07-11
+  `Work/model-document-open-and-native-smoke.md` states the rule.
 - **Left for D3:** the registration (`reviewed_inputs`, DEF-E's
   `scope.model_format`, the pressure-source-1 limitation and the pressure-2
   admitted-families sentence, physics-retained-1's inherited digests), the
