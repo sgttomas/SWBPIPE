@@ -41,7 +41,7 @@ RETIRED_EXACT_V2_IDS = (
 )
 SOURCE_EXACT_PRESSURE_V2_RETIRED = "SOURCE_EXACT_PRESSURE_V2_RETIRED"
 # The current model document version this verifier names (b7-plan "Current model format").
-MODEL_VERSION = "0.8.0"
+MODEL_VERSION = "0.9.0"
 SOURCE_EXACT_PRESSURE_V2_RETIRED_TEXT = (f"{SOURCE_EXACT_PRESSURE_V2_RETIRED}: 2.0.0/exact_straight_pressure_v2 results are no longer read; "
                                          f"re-author the model as {MODEL_VERSION} with the current exact pressure contract and re-run the analysis")
 PRESSURE_SOURCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"

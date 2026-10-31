@@ -7,7 +7,7 @@ use open_pipe_stress_units::{canonical_unit, convert_for_dimension, unit_by_symb
 use serde_json::{json, Value};
 
 fn model() -> Value {
-    json!({"schema_version":"0.8.0","document_kind":"openpipestress.product_preview.model","project":{"id":"project:test","units":{"length":"m","force":"N","angle":"rad","pressure":"Pa","temperature":"K"}},"nodes":[{"id":"node:n","label":"Node","position":{"x":0,"y":0,"z":0},"provenance":"user"}],"supports":[],"materials":[],"sections":[],"pipe_segments":[],"components":[],"load_cases":[],"combinations":[]})
+    json!({"schema_version":"0.9.0","document_kind":"openpipestress.product_preview.model","project":{"id":"project:test","units":{"length":"m","force":"N","angle":"rad","pressure":"Pa","temperature":"K"}},"nodes":[{"id":"node:n","label":"Node","position":{"x":0,"y":0,"z":0},"provenance":"user"}],"supports":[],"materials":[],"sections":[],"pipe_segments":[],"components":[],"load_cases":[],"combinations":[]})
 }
 fn q(value: f64, unit: &str) -> Value {
     json!({"value":value,"unit":unit})

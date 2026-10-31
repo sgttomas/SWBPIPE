@@ -56,7 +56,7 @@ FROZEN = {
 }
 MANIFEST = {"object_type": "InputManifest", "ref": "manifest:load-reference-source-reader-test"}
 V2_RETIRED = ("SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; "
-              "re-author the model as 0.8.0 with the current exact pressure contract and re-run the analysis")
+              "re-author the model as 0.9.0 with the current exact pressure contract and re-run the analysis")
 RESULTS: list[dict] = []
 
 

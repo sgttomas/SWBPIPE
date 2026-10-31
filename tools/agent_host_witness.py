@@ -74,8 +74,8 @@ def summary(catalog, nonce, count):
         "basis": {"workspaceHandle": nonce, "applicationGeneration": 1,
                   "modelRevision": 1, "modelHash": None, "stateId": None, "runId": None},
         "message": "Invented witness data; no live SWBPIPE workspace is attached.",
-        "data": {"workspaceHandle": nonce, "projectId": "project:invented-witness", "schemaVersion": "0.8.0",
-                 "pressureContract": None, "pressureProfileBefore": '{"schema_version":"0.8.0"}',
+        "data": {"workspaceHandle": nonce, "projectId": "project:invented-witness", "schemaVersion": "0.9.0",
+                 "pressureContract": None, "pressureProfileBefore": '{"schema_version":"0.9.0"}',
                  "projectUnits": {"length": "m", "force": "N", "temperature": "C"},
                  "objectCounts": {"Node": count}, "admittedOperationKinds": [], "componentsAwaitingUserModifiers": {"count": 0, "ids": []}, "limits": catalog["limits"]},
     }

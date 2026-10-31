@@ -1,5 +1,5 @@
 //! Typed authoring operations for the load/reference-state records (B7b: on the
-//! current model 0.8.0 with the exact pressure contract; first introduced on 0.4.0)
+//! current model 0.9.0 with the exact pressure contract; first introduced on 0.4.0)
 //! (T1 WP3): `Model/reference_configurations`, `Material/expansion_laws` and
 //! `Load/analysis_state`, carried through the common Review/Apply, inverse
 //! (Undo/Redo) and atomic-batch seam.
@@ -663,11 +663,11 @@ fn explicit_null_wrong_version_missing_hash_and_envelope_are_refused() {
             "OP-LOAD-STATE-EXPLICIT-NULL",
         );
 
-        // The model must already be current (B7b: 0.8.0); nothing sets or
+        // The model must already be current (B7b: 0.9.0); nothing sets or
         // changes the version. A retired version is refused by name before
         // any operation is checked (model document 0.8.0, r6), as is an older
         // unlisted one; a missing or non-string version is unsupported (r7).
-        for version in ["0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0"] {
+        for version in ["0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0", "0.8.0"] {
             let mut older = base.clone();
             older["schema_version"] = json!(version);
             refused(&older, &op, "MODEL_SCHEMA_VERSION_RETIRED");
@@ -1435,10 +1435,10 @@ fn codes(model: &Value, op: &Value) -> (bool, Vec<String>) {
 
 #[test]
 fn pressure_profile_keeps_the_current_model_version_and_writes_only_v3() {
-    // B7b: the witness is the current 0.8.0 document with the complete v3
-    // contract; 0.8.0 is the only version authored.
+    // B7b: the witness is the current 0.9.0 document with the complete v3
+    // contract; 0.9.0 is the only version authored.
     let model = connected();
-    assert_eq!(model["schema_version"], "0.8.0");
+    assert_eq!(model["schema_version"], "0.9.0");
     let project = model["project"]["id"].as_str().unwrap().to_string();
     let before = canonical_json(&json!({
         "schema_version": model["schema_version"],
@@ -1452,7 +1452,7 @@ fn pressure_profile_keeps_the_current_model_version_and_writes_only_v3() {
     for (after, refusal) in [
         (json!({"schema_version":"0.3.0","pressure_contract":v3}), code),
         (json!({"schema_version":"0.4.0","pressure_contract":v3}), code),
-        (json!({"schema_version":"0.8.0","pressure_contract":v2}), "OP-PRESSURE-PROFILE-SUCCESSOR-REQUIRED"),
+        (json!({"schema_version":"0.9.0","pressure_contract":v2}), "OP-PRESSURE-PROFILE-SUCCESSOR-REQUIRED"),
     ] {
         let op = intent("Model", &project, "pressure_profile", &before, &after.to_string());
         refused(&model, &op, refusal);
@@ -1466,7 +1466,7 @@ fn pressure_profile_keeps_the_current_model_version_and_writes_only_v3() {
         &project,
         "pressure_profile",
         &free_before,
-        &json!({"schema_version":"0.8.0","pressure_contract":v3}).to_string(),
+        &json!({"schema_version":"0.9.0","pressure_contract":v3}).to_string(),
     );
     let upgraded = apply_operation(&free, &upgrade, Some(&hash(&free))).applied_model.expect("contract-only activation");
     let expected = model.clone();
@@ -1512,7 +1512,7 @@ fn pressure_profile_keeps_the_current_model_version_and_writes_only_v3() {
         applied["validation"]["application_status"], "applied_to_session_model",
         "{applied:#}"
     );
-    assert_eq!(applied["applied_model"]["schema_version"], "0.8.0");
+    assert_eq!(applied["applied_model"]["schema_version"], "0.9.0");
 }
 
 #[test]
@@ -1697,7 +1697,7 @@ fn support_deletion_scans_every_case_not_only_the_first() {
 // ---------------------------------------------------------------------------
 // Addendum 3 (review B backcheck L-1): the F9 relaxation applies only to a
 // document carrying the load/reference-state group (B7b: selected by the
-// group's presence on the current 0.8.0 exact document, not by a version).
+// group's presence on the current 0.9.0 exact document, not by a version).
 // ---------------------------------------------------------------------------
 
 #[test]
@@ -1709,7 +1709,7 @@ fn exact_points_without_the_load_state_group_still_demand_the_expansion_coeffici
         "../../../../fixtures/model_operations/exact_pressure_authoring_model.json"
     ))
     .unwrap();
-    assert_eq!(model["schema_version"], "0.8.0");
+    assert_eq!(model["schema_version"], "0.9.0");
     assert_eq!(model["pressure_contract"]["mode"], "exact_pressure_v3");
     assert!(model.get("reference_configurations").is_none());
     assert!(model["load_cases"].as_array().unwrap().iter().all(|c| c.get("analysis_state").is_none()));

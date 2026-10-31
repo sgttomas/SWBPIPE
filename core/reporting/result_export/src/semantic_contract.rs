@@ -567,7 +567,7 @@ fn current_header(source: &Value) -> Result<(&'static Value, &'static str), Stri
                 return Err(format!("{SOURCE_BLOCKS_1_RETIRED}: source-blocks-1 results are no longer read; re-run the analysis"));
             }
             if RETIRED_EXACT_V2_IDS.iter().any(|id| p["semantic_contract_id"] == *id) {
-                return Err(format!("{SOURCE_EXACT_PRESSURE_V2_RETIRED}: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.8.0 with the current exact pressure contract and re-run the analysis"));
+                return Err(format!("{SOURCE_EXACT_PRESSURE_V2_RETIRED}: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.9.0 with the current exact pressure contract and re-run the analysis"));
             }
             if !matches!(
                 p["semantic_contract_id"].as_str(),

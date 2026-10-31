@@ -38,7 +38,7 @@ fn fixture(text: &str) -> Value {
     let value: Value = serde_json::from_str(text).unwrap();
     value.get("model").cloned().unwrap_or(value)
 }
-/// The load/reference-state witnesses (current 0.8.0) with every
+/// The load/reference-state witnesses (current 0.9.0) with every
 /// load/reference-state record removed.
 fn stripped(text: &str) -> Value {
     let mut model = fixture(text);

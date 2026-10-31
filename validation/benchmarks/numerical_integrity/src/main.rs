@@ -2,7 +2,7 @@
 use open_pipe_stress_product_physics::{run_linear_static_preview_with_mode,LinearStaticPreviewRequest,PreviewSolverMode};
 use serde_json::{json,Value};
 fn model(id:&str,l:f64,torque:f64)->Value {
- json!({"schema_version":"0.8.0","document_kind":"openpipestress.product_preview.model","analysis_status":{"mechanics":"ready_for_preview_diagnostics","rule_check":"not_performed_user_rule_inputs_missing","professional_acceptance":"not_provided"},"project":{"id":format!("reference:{id}"),"units":{"length":"m","force":"N","angle":"rad","pressure":"Pa","temperature":"degC","stress":"Pa"}},
+ json!({"schema_version":"0.9.0","document_kind":"openpipestress.product_preview.model","analysis_status":{"mechanics":"ready_for_preview_diagnostics","rule_check":"not_performed_user_rule_inputs_missing","professional_acceptance":"not_provided"},"project":{"id":format!("reference:{id}"),"units":{"length":"m","force":"N","angle":"rad","pressure":"Pa","temperature":"degC","stress":"Pa"}},
  "nodes":[{"id":"root","position":{"x":0,"y":0,"z":0}},{"id":"tip","position":{"x":l,"y":0,"z":0}}],
  "pipe_segments":[{"id":"pipe","from":"root","to":"tip","material":"material","y_reference":{"x":0,"y":1,"z":0},"section":{"outside_diameter":{"value":0.2,"unit":"m"},"wall_thickness":{"value":0.01,"unit":"m"}}}],
  "materials":[{"id":"material","elastic_modulus":{"value":200e9,"unit":"Pa"},"shear_modulus":{"value":80e9,"unit":"Pa"}}],

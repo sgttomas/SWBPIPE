@@ -74,7 +74,7 @@ fn mechanics(id: &str, a: &str, b: &str) -> Value {
 fn bar(extra: Vec<Value>, cases: Value, combinations: Value) -> Value {
     let mut supports = vec![json!({"id":"support:a","node":"node:a","family":"anchor","restraints":["UX","UY","UZ","RX","RY","RZ"],"provenance":"op1a"})];
     supports.extend(extra);
-    json!({"model":{"schema_version":"0.8.0","document_kind":"openpipestress.product_preview.model",
+    json!({"model":{"schema_version":"0.9.0","document_kind":"openpipestress.product_preview.model",
         "project":{"id":"project:op1a","units":{"length":"m","force":"N","angle":"rad","pressure":"Pa","stress":"Pa","temperature":"degC"}},
         "analysis_status":{"mechanics":"ready_for_preview_diagnostics","rule_check":"not_performed_user_rule_inputs_missing","professional_acceptance":"not_provided"},
         "nodes":[{"id":"node:a","position":{"x":0.0,"y":0.0,"z":0.0},"provenance":"op1a"},{"id":"node:b","position":{"x":L,"y":0.0,"z":0.0},"provenance":"op1a"}],

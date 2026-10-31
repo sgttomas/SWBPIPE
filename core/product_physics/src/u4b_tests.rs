@@ -1,5 +1,5 @@
 //! T4-U4b frozen references (`validation/references/t4_u4b/`): the builder
-//! that authors the eight model 0.8.0 requests from `cases.json` by the
+//! that authors the eight model 0.9.0 requests from `cases.json` by the
 //! README's "Binding" rules, and the PP reference test over both modes and
 //! both entries (DEL-04-07 Design `u4b-u5b-implementation.md` §7.1).
 //!
@@ -49,7 +49,7 @@ pub(crate) fn inputs() -> (Value, Value) {
     (cases, oracle)
 }
 
-/// One model 0.8.0 request from a case description (README "Binding"): bend
+/// One model 0.9.0 request from a case description (README "Binding"): bend
 /// components at the arc's authored from node with R, the binary64 bend angle,
 /// k and the directional pair; primitive loads per nonzero global component;
 /// the pressure region and its terminals; the shear model. The two preview

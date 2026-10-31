@@ -327,7 +327,7 @@ def test_retired_load_reference_identity_is_refused_by_name():
     stored["producer"]["semantic_contract_id"] = "openpipestress.result_semantics/0.3.0/load-reference-1"
     stored["formulation_basis"]["profile_id"] = "resolved_straight_load_state_v1"
     text = ("SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; "
-            "re-author the model as 0.8.0 with the current exact pressure contract and re-run the analysis")
+            "re-author the model as 0.9.0 with the current exact pressure contract and re-run the analysis")
     assert outcome(lambda: _source_contract(stored)) == text
     assert outcome(lambda: verifier._source_contract(stored)) == text
     assert numerical_use_standing(stored, bases(stored)) == "unsupported"

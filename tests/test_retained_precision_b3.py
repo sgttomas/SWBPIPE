@@ -137,11 +137,11 @@ def test_b3a_m3l_mutations(mode, label):
 
 @pytest.mark.parametrize("value", [None, {}, False, [], "", 0, LEGACY])
 def test_b3a_branch_l_admits_only_an_absent_contract(value):
-    """N-4 on the current pressure-free 0.8.0: absent only (B7a/B7b, b7-plan c8d3cf3014: "The optional contract is
+    """N-4 on the current pressure-free 0.9.0: absent only (B7a/B7b, b7-plan c8d3cf3014: "The optional contract is
     absent only when its key is absent"; a present null is refused, as the Rust readers refuse it); every other value,
     including the retired legacy contract, stays refused."""
     source, invocation = milestone("sparse_interactive")
-    for version in ("0.8.0",):
+    for version in ("0.9.0",):
         fine = edited_invocation(invocation, lambda m: (m.update(schema_version=version), m.pop("pressure_contract", None)))
         assert outcome(reseal(source, fine), fine)[0] == "pass"
         bad = edited_invocation(invocation, lambda m: m.update(schema_version=version, pressure_contract=deepcopy(value)))
@@ -167,7 +167,7 @@ def test_b3a_tightening_0_3_0_needs_the_legacy_contract():
 
 # B3a dropped: the one table RS (`b3a_legacy_pressure_contract_namespace_at_g8`), TS (its "B3a (I101)" block) and PY
 # pin alike, entry for entry: invocation edits on the shared corpus bases (07e's rule, `reseal`). Only branch L
-# (current 0.8.0, pressure_contract absent or JSON null) passes. "L3" in the names is B3a's retired contract on 0.3.0,
+# (current 0.9.0, pressure_contract absent or JSON null) passes. "L3" in the names is B3a's retired contract on 0.3.0,
 # refused on every base and before any load is read (the former N-11 entries).
 SHARED = {case["id"]: case for case in load_corpus()["cases"]}
 B3A_DROPPED_BASES = ("ordinary_prepared_synthetic", "ordinary_prepared_dense_synthetic", "two_case_synthetic",
@@ -196,8 +196,8 @@ def _zero_pressure(m):
 B3A_DROPPED_TABLE = [
     *[(f"L3 on {base}", base, [_schema("0.3.0"), _contract(LEGACY)], INVOCATION) for base in B3A_DROPPED_BASES],
     # B7a/B7b: a present null contract is authored presence, outside branch L (Rust "L: 0.8.0, contract null").
-    ("L: 0.8.0, contract null", ORD, [_contract(None)], INVOCATION),
-    ("L: 0.8.0, contract absent", ORD, [_schema("0.8.0"), _no_contract], "pass"),
+    ("L: 0.9.0, contract null", ORD, [_contract(None)], INVOCATION),
+    ("L: 0.9.0, contract absent", ORD, [_schema("0.9.0"), _no_contract], "pass"),
     ("L3: mode exact_straight_pressure_v2, version 1.0.0", ORD, [_schema("0.3.0"), _contract({**LEGACY, "mode": "exact_straight_pressure_v2"})], INVOCATION),
     ("L3: version 1.0.1", ORD, [_schema("0.3.0"), _contract({**LEGACY, "version": "1.0.1"})], INVOCATION),
     ("L3: the exact contract 2.0.0", ORD, [_schema("0.3.0"), _contract({"version": "2.0.0", "mode": "exact_straight_pressure_v2"})], INVOCATION),
@@ -210,14 +210,14 @@ B3A_DROPPED_TABLE = [
     ("L3: version a number", ORD, [_schema("0.3.0"), _contract({**LEGACY, "version": 1.0})], INVOCATION),
     ("L3: mode null", ORD, [_schema("0.3.0"), _contract({**LEGACY, "mode": None})], INVOCATION),
     ("0.3.0, contract {}", ORD, [_schema("0.3.0"), _contract({})], INVOCATION),
-    ("0.8.0 keeping the L3 contract", ORD, [_contract(LEGACY)], INVOCATION),
+    ("0.9.0 keeping the L3 contract", ORD, [_contract(LEGACY)], INVOCATION),
     ("0.1.0 keeping the L3 contract", ORD, [_schema("0.1.0"), _contract(LEGACY)], INVOCATION),
     ("0.4.0 with the L3 contract", ORD, [_schema("0.4.0"), _contract(LEGACY)], INVOCATION),
-    ("N-4: 0.8.0, contract {}", ORD, [_contract({})], INVOCATION),
-    ("N-4: 0.8.0, contract false", ORD, [_contract(False)], INVOCATION),
-    ("N-4: 0.8.0, contract []", ORD, [_contract([])], INVOCATION),
-    ('N-4: 0.8.0, contract ""', ORD, [_contract("")], INVOCATION),
-    ("N-4: 0.8.0, contract 0", ORD, [_contract(0)], INVOCATION),
+    ("N-4: 0.9.0, contract {}", ORD, [_contract({})], INVOCATION),
+    ("N-4: 0.9.0, contract false", ORD, [_contract(False)], INVOCATION),
+    ("N-4: 0.9.0, contract []", ORD, [_contract([])], INVOCATION),
+    ('N-4: 0.9.0, contract ""', ORD, [_contract("")], INVOCATION),
+    ("N-4: 0.9.0, contract 0", ORD, [_contract(0)], INVOCATION),
     ("N-11: L3 with a zero-magnitude element pressure load", ORD, [_schema("0.3.0"), _contract(LEGACY), _zero_pressure], INVOCATION),
     ("N-11: L3 dense with a zero-magnitude element pressure load", DENSE, [_schema("0.3.0"), _contract(LEGACY), _zero_pressure], INVOCATION),
 ]
@@ -237,7 +237,7 @@ def test_b3a_dropped_namespace_table(name, base, changes, expected):
 
 # ---------------------------------------------------------------------------------------------------------------
 # B3b: the `<physics-retained>` branch (B3-D §6 with REVISION_01; RV116's rulings). The synthetic exact base is the
-# milestone successor re-expressed on I99's m3x request (0ffbea35…), B7b's current exact document: model 0.8.0, the
+# milestone successor re-expressed on I99's m3x request (0ffbea35…), B7b's current exact document: model 0.9.0, the
 # current contract {3.0.0, exact_pressure_v3, euler_bernoulli} with an authored zero corrosion_allowance on every pipe
 # section, E and nu = 0.25 (so G_hat = E/2.5 = 80 GPa, the milestone's G, bit for bit), explicitly empty regions; the
 # receipt with derived_e_nu, the exact route and DEF-E (prepared section bits unchanged, B3D-3); pressure-2's
@@ -259,7 +259,7 @@ BASE_G7 = ("G7", "SOURCE_PHYSICS_EVIDENCE_INVALID")
 
 def m3x_invocation(invocation, nu=NU):
     def change(model):
-        model.update(schema_version="0.8.0", pressure_contract=dict(EXACT))
+        model.update(schema_version="0.9.0", pressure_contract=dict(EXACT))
         for pipe in model["pipe_segments"]:
             pipe["section"]["corrosion_allowance"] = dict(ZERO_ALLOWANCE)
         for material in model["materials"]:
@@ -655,7 +655,7 @@ B3B_PASSES = {
 
 # Lane P's producer-solved m3x successors (B3b-P, b2 8d3419b542; PP retained_facade_tests.rs `EXACT_PINNED`):
 # document and receipt sha256, as RS pins them. Every B3b shape is also read on each. B7b's W1 regeneration (the
-# current 0.8.0 exact document; PP retained_facade_tests.rs and RS retained_precision_contract.rs `M3X` pin the same
+# current 0.9.0 exact document; PP retained_facade_tests.rs and RS retained_precision_contract.rs `M3X` pin the same
 # bytes) replaced 5ef83dd9.../57114af4... and ee20a337.../3b92b6ce.... T4-U6's regeneration on the D-5 producer
 # (reduced stress twins, per-basis headlines and evidence) replaced 45e14e68.../f6bb7e7f... and 0f490c22.../0317aed6....
 # O4 (W1-E): DEF-E's revision moved only the DEF-E-bound hashes; it replaced 3cfcde8d.../a5ac8236... and 2e69b43c.../0a357a3a....
@@ -1395,21 +1395,21 @@ def test_repair03_n2b_reads_the_cases_in_array_order(shape):
 
 
 def test_b7a_preview_namespace_keys_on_the_contracts_absence_not_the_version():
-    """B7a (b7-plan "Model format, pressure-free half"): G8's preview namespace is the current model version 0.8.0
-    without a pressure contract. Keying it on the version string alone (a 0.8.0 model with a contract would pass) or
+    """B7a (b7-plan "Model format, pressure-free half"): G8's preview namespace is the current model version 0.9.0
+    without a pressure contract. Keying it on the version string alone (a 0.9.0 model with a contract would pass) or
     on the retired 0.1.0/0.2.0 fails here."""
     def model(version, **extra):
         return {"schema_version": version, "project": {"id": "p"}, **extra}
-    assert rp._preview_namespace(model("0.8.0"))
-    assert not rp._preview_namespace(model("0.8.0", pressure_contract=None))
+    assert rp._preview_namespace(model("0.9.0"))
+    assert not rp._preview_namespace(model("0.9.0", pressure_contract=None))
     for contract in ({"version": "2.0.0", "mode": "exact_straight_pressure_v2"}, {}, False):
-        assert not rp._preview_namespace(model("0.8.0", pressure_contract=contract)), contract
-        assert not rp._exact_namespace(model("0.8.0", pressure_contract=contract)), contract
+        assert not rp._preview_namespace(model("0.9.0", pressure_contract=contract)), contract
+        assert not rp._exact_namespace(model("0.9.0", pressure_contract=contract)), contract
     for version in ("0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.5.1", "0.6.0"):
         assert not rp._preview_namespace(model(version)), version
     assert not rp._preview_namespace({"project": {"id": "p"}})
     exact = {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"}
-    assert rp._exact_namespace(model("0.8.0", pressure_contract=exact))
+    assert rp._exact_namespace(model("0.9.0", pressure_contract=exact))
     for value in [None, "euler_bernoulli", False, 1, [], {}]:
-        assert not rp._preview_namespace(model("0.8.0", shear_model=value))
-        assert not rp._exact_namespace(model("0.8.0", pressure_contract=exact, shear_model=value))
+        assert not rp._preview_namespace(model("0.9.0", shear_model=value))
+        assert not rp._exact_namespace(model("0.9.0", pressure_contract=exact, shear_model=value))

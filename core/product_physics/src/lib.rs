@@ -15727,7 +15727,7 @@ mod tests {
         const CONTROL:&str=include_str!("../../../validation/references/kd5_member_bound/two_body_request.json");
         let oracle:serde_json::Value=serde_json::from_str(include_str!("../../../validation/references/kd5_member_bound/two_body_oracle.json")).unwrap();
         assert_eq!(format!("{:x}",Sha256::digest(CONTROL.as_bytes())),oracle["control_request_sha256"].as_str().unwrap());
-        // B7b: only the copy of the SHA-bound frozen request is re-authored to 0.8.0.
+        // B7b: only the copy of the SHA-bound frozen request is re-authored to 0.9.0.
         let wire:serde_json::Value=crate::b7b_admission_tests::reauthor_current_request(serde_json::from_str(CONTROL).unwrap());
         let mut model:PreviewModel=serde_json::from_value(wire["model"].clone()).unwrap();let mut materials=model.materials.clone();let mut diagnostics=Vec::new();
         normalize_model_units(&mut model,&mut materials,&mut diagnostics);
@@ -15948,7 +15948,7 @@ mod tests {
     fn kd5_authored_uniform_weight_and_nodal_factors_keep_raw_operands() {
         use open_pipe_stress_frame_kernel::structural::{IntensityPrimitive,MassPrimitive};
         // B7b: the load/reference-state group keys on the current exact contract and
-        // the group's presence (0.8.0), never on a version string.
+        // the group's presence (0.9.0), never on a version string.
         let mut model=p5_beam_request().model;model.schema_version=crate::MODEL_SCHEMA_VERSION.into();
         model.pressure_contract=Some(PressureContractInput {version:Some("3.0.0".into()),mode:Some("exact_pressure_v3".into()),shear_model:Some("euler_bernoulli".into())});
         let case_id=model.load_cases[0].id.clone();
@@ -16012,7 +16012,7 @@ mod tests {
         let oracle:serde_json::Value=serde_json::from_str(include_str!("../../../validation/references/kd5_member_bound/oracle.json")).unwrap();
         assert_eq!(format!("{:x}",Sha256::digest(CONTROL.as_bytes())),oracle["control_request_sha256"].as_str().unwrap(),"the independent oracle binds the complete maintained control bytes");
         for mode in [PreviewSolverMode::SparseInteractive,PreviewSolverMode::DenseScrutiny] {
-            // B7b: only the copy of the SHA-bound frozen request is re-authored to 0.8.0.
+            // B7b: only the copy of the SHA-bound frozen request is re-authored to 0.9.0.
             let mut wire:serde_json::Value=crate::b7b_admission_tests::reauthor_current_request(serde_json::from_str(CONTROL).unwrap());
             let mut model:PreviewModel=serde_json::from_value(wire["model"].clone()).unwrap();
             let mut materials=model.materials.clone();let mut diagnostics=Vec::new();
@@ -25179,7 +25179,7 @@ mod tests {
             .solver_consumption = Some("mechanics_geometry_only".to_string());
         for model in [&realized, &geometry_only] {
             assert_eq!(warnings(model), Vec::<String>::new(), "D-B");
-            for schema in ["0.3.0", "0.4.0", "0.1.0", "0.5.0", "0.6.0", "0.7.0", "0.8.0"] {
+            for schema in ["0.3.0", "0.4.0", "0.1.0", "0.5.0", "0.6.0", "0.7.0", "0.8.0", "0.9.0"] {
                 let mut declared = model.clone();
                 v2(&mut declared, schema);
                 assert_eq!(warnings(&declared), Vec::<String>::new(), "no v2 condition at {schema}");

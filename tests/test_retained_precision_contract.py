@@ -754,17 +754,17 @@ def test_integers_by_value_at_every_site_d32():
 
 
 def test_model_schema_versions_d31():
-    """D31, as B7a keys it: G8's preview namespace is the current model version 0.8.0 without a pressure contract; the
+    """D31, as B7a keys it: G8's preview namespace is the current model version 0.9.0 without a pressure contract; the
     retired 0.1.0 and 0.2.0 are refused, and 0.4.0 stays excluded. B3D-10, as ruled: 0.3.0 without a contract is
-    refused. B3a is dropped, so 0.3.0 with the retired legacy_pressure_v1 contract is refused too, and so is 0.8.0 with
+    refused. B3a is dropped, so 0.3.0 with the retired legacy_pressure_v1 contract is refused too, and so is 0.9.0 with
     any contract."""
     expected = _cases()[O_BASE]["expected_classifications"]
     version_edit = lambda version: {"path": ["request", "model", "schema_version"], "op": "set", "value": version}
     legacy = {"path": ["request", "model", "pressure_contract"], "op": "set", "value": {"version": "1.0.0", "mode": "legacy_pressure_v1"}}
-    assert _validate_entry(O_BASE, [], [version_edit("0.8.0")])["classifications"] == expected
+    assert _validate_entry(O_BASE, [], [version_edit("0.9.0")])["classifications"] == expected
     for version in ("0.1.0", "0.2.0"):
         _raises(lambda: _validate_entry(O_BASE, [], [version_edit(version)]), "G8", "INVOCATION_MISMATCH")
-    _raises(lambda: _validate_entry(O_BASE, [], [version_edit("0.8.0"), legacy]), "G8", "INVOCATION_MISMATCH")
+    _raises(lambda: _validate_entry(O_BASE, [], [version_edit("0.9.0"), legacy]), "G8", "INVOCATION_MISMATCH")
     _raises(lambda: _validate_entry(O_BASE, [], [version_edit("0.3.0"), legacy]), "G8", "INVOCATION_MISMATCH")
     _raises(lambda: _validate_entry(O_BASE, [], [version_edit("0.3.0")]), "G8", "INVOCATION_MISMATCH")
     _raises(lambda: _validate_entry(O_BASE, [], [version_edit("0.4.0")]), "G8", "INVOCATION_MISMATCH")
@@ -786,7 +786,7 @@ def test_b3a_legacy_pressure_namespace_29_controls_match_existing_rust_controls(
     entries=[(base,[version("0.3.0"),contract(legacy)],False) for base in
              (O_BASE,"ordinary_prepared_dense_synthetic","two_case_synthetic","u8_l0_isolated_node_sparse_interactive","u8_l0_isolated_node_dense_scrutiny")]
     entries.extend((O_BASE,edits,admitted) for edits,admitted in (
-        ([contract(None)],False),([version("0.8.0"),absent()],True),
+        ([contract(None)],False),([version("0.9.0"),absent()],True),
         ([version("0.3.0"),contract(changed("mode","exact_straight_pressure_v2"))],False),
         ([version("0.3.0"),contract(changed("version","1.0.1"))],False),
         ([version("0.3.0"),contract({"version":"2.0.0","mode":"exact_straight_pressure_v2"})],False),

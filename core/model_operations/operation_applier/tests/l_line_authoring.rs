@@ -9,10 +9,10 @@
 //! The bend operations (realize, insert at corner), the region checks and the
 //! agent refusal of k are covered here as well. All data are invented.
 //!
-//! B7b: the corner document is the current 0.8.0 pressure-free document; the
+//! B7b: the corner document is the current 0.9.0 pressure-free document; the
 //! user enters each member's corrosion allowance (an explicit zero) before
 //! activating the complete `3.0.0/exact_pressure_v3` contract (euler_bernoulli).
-//! T4-I7's frozen 0.3.0 sketch is unchanged; its copy is re-authored to 0.8.0
+//! T4-I7's frozen 0.3.0 sketch is unchanged; its copy is re-authored to 0.9.0
 //! by the one shared rule (`core/product_physics/tests/common/current_model.rs`).
 use open_pipe_stress_operation_applier::{apply_operation, canonical_json, sha256_hex, validate_operation};
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewSolverMode};
@@ -71,7 +71,7 @@ fn codes(model: &Value, intent: &Value) -> Vec<String> {
 }
 
 /// The L line's corner document before any bend or load: A —S1— X —S2— D,
-/// anchored at A and D, pressure-free (current 0.8.0, no pressure contract and
+/// anchored at A and D, pressure-free (current 0.9.0, no pressure contract and
 /// no corrosion allowance yet), with a legacy E/G material.
 fn corner_document() -> Value {
     let mut model = i7_l_line();

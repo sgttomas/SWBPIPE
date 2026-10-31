@@ -5,7 +5,7 @@ ControlledExport wrapper: the T4-I7 L line (``U2-L-ANCH-PTW-K2``) on 0.3.0
 (sparse) and 0.4.0 (dense) and the admitted kink (``U2-L-KINK-ANCH-P-K2``,
 0.3.0, dense) from ``fixtures/results/pressure_v3_arc_reader_corpus.json``,
 whose documents are the package's own generated requests re-authored to model
-0.8.0, as the adapter re-authors each frozen case input it submits. They are scored
+0.9.0, as the adapter re-authors each frozen case input it submits. They are scored
 against the generated package (analytical values from the frozen T4-I7
 references), admitted here with a synthetic test-only stub; no product solver
 or runner binary is executed. The owned reader genuinely runs against the
@@ -356,11 +356,11 @@ class PackageTests(unittest.TestCase):
             record = prepared['reauthoring']
             frozen = json.loads(files[case['runner_input']['path']])
             submitted = json.loads(prepared['runner_input'])
-            frozen['solve']['preview_model']['model']['schema_version'] = '0.8.0'
+            frozen['solve']['preview_model']['model']['schema_version'] = '0.9.0'
             self.assertEqual(submitted, frozen, 'only the version moves')
             self.assertNotEqual(record['frozen_input_sha256'], record['submitted_input_sha256'])
             self.assertEqual(record['frozen_input_sha256'], case['runner_input']['sha256'])
-            self.assertEqual((record['model_schema_version'], record['explicit_zero_corrosion_allowance']), (['0.5.0', '0.8.0'], False))
+            self.assertEqual((record['model_schema_version'], record['explicit_zero_corrosion_allowance']), (['0.5.0', '0.9.0'], False))
             self.assertEqual(record['pressure_contract'][0], record['pressure_contract'][1])
             self.assertEqual(prepared['load_state'], case_id.endswith(('_load_state_group', '_load_state_group_timoshenko')))
         model = json.loads(files[cases['milltol_lame_membrane.free_transferring@0.5.0']['product_request']['path']])['model']
@@ -406,14 +406,14 @@ class CompleteRunTests(unittest.TestCase):
         for case in result['cases']:
             self.assertEqual(case['reader_consistency']['response']['verdict'], 'consistent')
             self.assertEqual(case['process']['command'][1:], ['solve', '--input', '-', '--solver-mode', mode, '--explicit-local-private-intent'])
-            # The runner received the declared re-authored copy (model 0.8.0); the frozen input stays bound.
+            # The runner received the declared re-authored copy (model 0.9.0); the frozen input stays bound.
             reauthoring = case['runner_input_reauthoring']
             self.assertEqual(reauthoring['rule'], physics.REAUTHORING)
             self.assertEqual(case['process']['stdin_sha256'], reauthoring['submitted_input_sha256'])
             frozen = next(b for b in case['bindings'] if b['role'] == 'runner_input')
             self.assertEqual(frozen['sha256'], reauthoring['frozen_input_sha256'])
-            self.assertEqual(reauthoring['model_schema_version'][1], '0.8.0')
-            self.assertEqual(check(case, 'transport_identity_and_mode')['details']['document_schema_version'], '0.8.0')
+            self.assertEqual(reauthoring['model_schema_version'][1], '0.9.0')
+            self.assertEqual(check(case, 'transport_identity_and_mode')['details']['document_schema_version'], '0.9.0')
             self.assertTrue(any(r['id'].startswith('negative:') and r['state'] == 'matched' for r in case['assertions']))
         self.assertEqual(json.loads((output / 'ledger.json').read_text()), result)
         self.assertIn('Outcome: all_required_assertions_matched', (output / 'summary.md').read_text())

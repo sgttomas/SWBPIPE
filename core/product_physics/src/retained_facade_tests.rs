@@ -2460,7 +2460,7 @@ fn b1_sp_constructor_ordinal_is_the_authored_index() {
 /// case. On the milestone this is B3-W's `m3x`. `tests/common/b1_sq_inputs.rs` transcribes it.
 fn exact3(mut raw: Value) -> Value {
     let m = &mut raw["model"];
-    m["schema_version"] = json!("0.8.0");
+    m["schema_version"] = json!("0.9.0");
     m["pressure_contract"] = json!({"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"});
     for material in m["materials"].as_array_mut().unwrap() {
         material.as_object_mut().unwrap().remove("shear_modulus");
@@ -2499,7 +2499,7 @@ fn m3l() -> Value {
 }
 /// The committed physics-source requests: B3b's coexistence pins n05 and n06, and P-2's
 /// selection discriminator `fields` (RR "I99's B3-W verified; …", rulings 1 and 2).
-/// B7b: the current (0.8.0, v3) twins of the deleted v2 originals.
+/// B7b: the current (0.9.0, v3) twins of the deleted v2 originals.
 const N05_EXACT: &str = include_str!("../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json");
 const N06_EXACT: &str = include_str!("../../../fixtures/product_preview/pressure_source/physics_source/n06.request.json");
 const FIELDS_EXACT: &str = include_str!("../../../fixtures/product_preview/pressure_source/physics_source/fields.request.json");
@@ -2535,12 +2535,12 @@ fn b3b_witness_inputs_and_routes() {
     four["model"]["schema_version"] = json!("0.4.0");
     assert_eq!(w1_route(&model_of(&four)), None, "retired 0.4.0: no W1 route");
     // B7b: a present null contract fails decoding, so the contract-absent control omits the
-    // key. Model 0.8.0 keys on what the document carries: without a contract it is
+    // key. Model 0.9.0 keys on what the document carries: without a contract it is
     // pressure-free (`model_format::is_pressure_free`), so its namespace branch is L; the
     // retired 0.3.0 form keeps HEAD's "no branch".
     let mut contractless = m3x();
     contractless["model"].as_object_mut().unwrap().remove("pressure_contract");
-    assert_eq!(w1_route(&model_of(&contractless)), Some(R::Preview), "0.8.0 without a contract: pressure-free, branch L");
+    assert_eq!(w1_route(&model_of(&contractless)), Some(R::Preview), "0.9.0 without a contract: pressure-free, branch L");
     contractless["model"]["schema_version"] = json!("0.3.0");
     assert_eq!(w1_route(&model_of(&contractless)), None, "retired 0.3.0 without a contract: no branch");
     // P-2: the exact route's budget is the ordinary route's.
@@ -2558,7 +2558,7 @@ fn b3b_witness_inputs_and_routes() {
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 /// B7b re-pin (D4 (a)/A6, registered at D3 3ce082a9bb): against the pre-B7b fixtures only the
-/// re-authored request (0.8.0, v3, Euler-Bernoulli, CA 0 m), the pressure-2 base's
+/// re-authored request (0.9.0, v3, Euler-Bernoulli, CA 0 m), the pressure-2 base's
 /// limitations and `profile_mode`, DEF-E's H in the preparation hash, the identity-byte
 /// counter that follows the compared profile text, and the hashes that bind them changed
 /// (B7b evidence `w1/evidence-exact-successors.txt`); every physical and certificate value is
@@ -3134,13 +3134,13 @@ fn b3b_exact_observables_refuse_each_evidence_defect() {
 /// …"): `m3l`, B3a's former witness, is now its refusal witness. G-A refuses it at D1.3 with
 /// `PressureContract`, so it takes the ordinary route: the plain bytes, no W1, one run, in both
 /// modes and every build. B7b: model document 0.3.0 is retired, so the label is carried by
-/// `m3l`'s copy re-authored to 0.8.0 (the legacy label kept; it is not an exact contract, so no
+/// `m3l`'s copy re-authored to 0.9.0 (the legacy label kept; it is not an exact contract, so no
 /// allowance is added); the frozen 0.3.0 `m3l` itself is refused earlier, by `SchemaVersion`.
 #[test]
 fn b3a_dropped_m3l_takes_the_ordinary_route() {
     use super::retained_memory::{AdmissionRefusal, D1Clause, FamilyFact};
     let current = crate::b7b_admission_tests::reauthor_current_request(m3l());
-    assert_eq!(current["model"]["schema_version"], json!("0.8.0"));
+    assert_eq!(current["model"]["schema_version"], json!("0.9.0"));
     assert_eq!(current["model"]["pressure_contract"], json!({"version": "1.0.0", "mode": "legacy_pressure_v1"}));
     for (raw, fact) in [(current, FamilyFact::PressureContract), (m3l(), FamilyFact::SchemaVersion)] {
         for mode in MODES {

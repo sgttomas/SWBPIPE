@@ -1,5 +1,5 @@
-//! T4-U5b: the model 0.8.0 request builder for the frozen references in
-//! `validation/references/t4_u5b/` (its README, "Binding to model 0.8.0").
+//! T4-U5b: the model 0.9.0 request builder for the frozen references in
+//! `validation/references/t4_u5b/` (its README, "Binding to model 0.9.0").
 //!
 //! Each case description names its t4_u5a base request and that request's
 //! SHA-256. The builder checks the oracle's `case_sha256` of the description
@@ -151,7 +151,7 @@ fn by_id<'a>(items: &'a mut Value, id: &str) -> &'a mut Value {
         .unwrap_or_else(|| panic!("no item {id}"))
 }
 
-/// The model 0.8.0 request of oracle case `name`.
+/// The model 0.9.0 request of oracle case `name`.
 pub fn request(name: &str, case: &Value) -> Value {
     let description = description(case);
     assert_eq!(description["id"], name);

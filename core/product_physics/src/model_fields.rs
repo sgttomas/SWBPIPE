@@ -781,7 +781,7 @@ mod tests {
     fn the_key_lists_are_model_document_0_7_0s() {
         let schema = schema();
         assert_eq!(schema["properties"]["schema_version"]["enum"], serde_json::json!([crate::MODEL_SCHEMA_VERSION]));
-        assert_eq!(crate::MODEL_SCHEMA_VERSION, "0.8.0");
+        assert_eq!(crate::MODEL_SCHEMA_VERSION, "0.9.0");
         let fields = record_fields();
         for key in ROOT_0_7_0 {
             assert!(fields.model.contains(&key), "model root declares {key}");

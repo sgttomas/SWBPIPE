@@ -28,7 +28,7 @@ NONLINEAR_INTEGRATION = ROOT / "core" / "solver" / "nonlinear_integration" / "sr
 SIZES = (250, 500, 1000, 1500, 2000)
 # The model document version whose shapes rack_model.py was written against. When the current version moves, the
 # test below fails on purpose: the generator needs a re-check, not only a new version token.
-RACK_SHAPES_VERSION = "0.8.0"
+RACK_SHAPES_VERSION = "0.9.0"
 
 
 def load_generator():

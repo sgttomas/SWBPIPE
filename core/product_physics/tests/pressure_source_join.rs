@@ -5,7 +5,7 @@
 //!
 //! B7b deleted the v2 exact contract (`2.0.0/exact_straight_pressure_v2`) and
 //! its physics-source-1 and load-reference-source-1 publications. The twelve
-//! committed source controls are now the current 0.8.0 documents under
+//! committed source controls are now the current 0.9.0 documents under
 //! `fixtures/product_preview/pressure_source/` (v3, explicit zero corrosion
 //! allowance, Euler-Bernoulli), each re-authored once from its deleted v2
 //! original. The two families stay distinct: without and with the optional
@@ -57,7 +57,7 @@ impl Family {
         assert!(self.names().contains(&name));
         format!("fixtures/product_preview/pressure_source/{}/{name}.request.json", self.name())
     }
-    /// The committed current request: 0.8.0 with the current exact contract.
+    /// The committed current request: 0.9.0 with the current exact contract.
     fn request(self, name: &str) -> Value {
         let request = fixture(&self.request_path(name));
         current_model::assert_current_exact_request(&request, &self.request_path(name));

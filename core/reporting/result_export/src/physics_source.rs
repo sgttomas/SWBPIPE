@@ -21,7 +21,7 @@ impl SourceContract {
     pub const fn pressure(self) -> crate::physics_evidence::PressureContract {
         crate::physics_evidence::PressureContract::PressureV3
     }
-    /// The captured model's contract: a 0.8.0 document whose
+    /// The captured model's contract: a 0.9.0 document whose
     /// `pressure_contract` is exactly `{version "3.0.0", mode
     /// "exact_pressure_v3", shear_model}` with `shear_model` either
     /// `euler_bernoulli` or `timoshenko_annulus_energy_v1` (O4 §3.4), and no
@@ -29,7 +29,7 @@ impl SourceContract {
     pub fn from_invocation(invocation: &Value) -> Result<Self, String> {
         let model = &invocation["request"]["model"];
         let contract = &model["pressure_contract"];
-        if model["schema_version"] == "0.8.0"
+        if model["schema_version"] == "0.9.0"
             && model.get("shear_model").is_none()
             && contract.as_object().is_some_and(|members| members.len() == 3)
             && contract["version"] == "3.0.0"
@@ -849,7 +849,7 @@ pub(crate) fn validate_source_case_in(
     if let Some(invocation) = invocation {
         let model = &invocation["request"]["model"];
         require(
-            model["schema_version"] == "0.8.0"
+            model["schema_version"] == "0.9.0"
                 && SourceContract::from_invocation(invocation).ok() == Some(contract),
             "ACTUAL_EXACT_PROFILE",
         )?;
@@ -1371,7 +1371,7 @@ pub fn validate_in(source: &Value, actual_invocation: Option<&Value>, contract: 
     if contract == SourceContract::PressureV3 {
         if let Some(invocation) = actual_invocation {
             let model = &invocation["request"]["model"];
-            require(model["schema_version"] == "0.8.0", "ACTUAL_MODEL_SCHEMA")?;
+            require(model["schema_version"] == "0.9.0", "ACTUAL_MODEL_SCHEMA")?;
             // Model document 0.9.0 (§3.7): a case's `condition_use` is declined by name.
             require(!model_uses_conditions(model), "ACTUAL_CONDITION_USE")?;
             require(resolved == model_carries_load_state(model), "ACTUAL_LOAD_REFERENCE_CONTEXT")?;

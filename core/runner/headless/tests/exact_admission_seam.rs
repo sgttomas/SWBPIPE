@@ -6,7 +6,7 @@
 //! realized bend, solves under `pressure-2`; since T4-U2 phase 2 both produce
 //! a pressure-2 export document that the exporter's own check admits.
 //! The input is PP's committed invented X0 fixture (B7b: already the current
-//! 0.8.0 exact document) with the current contract stated explicitly.
+//! 0.9.0 exact document) with the current contract stated explicitly.
 use open_pipe_stress_headless_runner::{
     run_preview_model_value_with_mode, PrivacyContext, ProfessionalBoundary, Provenance,
     RedistributionStatus, Reference, RunnerOperation, RunnerRequest, TbdDecisions,

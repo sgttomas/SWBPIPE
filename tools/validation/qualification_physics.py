@@ -1,7 +1,7 @@
 """Closed ordinary pressure-2 adapter support for the first-static cases; physical consistency is not origin.
 
 B7b retired physics-1 (2.0.0/exact_straight_pressure_v2) and the 0.1.0-0.4.0 model documents. The two
-first-static cases are qualified as pressure-2 (3.0.0/exact_pressure_v3 on model document 0.8.0): the frozen,
+first-static cases are qualified as pressure-2 (3.0.0/exact_pressure_v3 on model document 0.9.0): the frozen,
 SHA-bound runner inputs are never edited; the gate verifies their bytes and submits a re-authored copy
 (``reauthor_runner_input``, the product tests' one re-authoring rule) to the selected runner.
 
@@ -64,11 +64,11 @@ DEPENDENCIES = {
 BINDING_FORMAT = 'openpipestress.ordinary_physics_consistency_binding/3'
 ENTRYPOINT = 'validate_pressure_evidence'
 READER = 'pressure'
-# Model document 0.8.0 is the only current version (DEL-04-07 Design u4b-u5b-implementation.md §1.1); its exact
-# contract names the shear model. 0.5.0 and 0.6.0 are retired and re-authored by their version alone (§1.4; DEL-02-01
-# Design model-document-0.7.0.md §2).
-MODEL_VERSION = '0.8.0'
-PREVIOUS_MODEL_VERSIONS = ('0.5.0', '0.6.0', '0.7.0')
+# Model document 0.9.0 is the only current version (DEL-04-07 Design u4b-u5b-implementation.md §1.1); its exact
+# contract names the shear model. 0.5.0, 0.6.0, 0.7.0 and 0.8.0 are retired and re-authored by their version alone
+# (§1.4; DEL-02-01 Design model-document-0.7.0.md §2, model-document-0.9.0.md §3.6).
+MODEL_VERSION = '0.9.0'
+PREVIOUS_MODEL_VERSIONS = ('0.5.0', '0.6.0', '0.7.0', '0.8.0')
 RETIRED_MODEL_VERSIONS = ('0.1.0', '0.2.0', '0.3.0', '0.4.0', *PREVIOUS_MODEL_VERSIONS)
 PRESSURE_CONTRACT = {'version': '3.0.0', 'mode': PROFILE, 'shear_model': 'euler_bernoulli'}
 REAUTHORED_PRESSURE_CONTRACTS = ({'version': '2.0.0', 'mode': 'exact_straight_pressure_v2'}, {'version': '3.0.0', 'mode': PROFILE})
@@ -249,8 +249,8 @@ def reauthor_selectors(assertions: list, values: list) -> tuple[list, list, dict
 
 def reauthor_model(model: dict) -> dict:
     """The one re-authoring of a copied model document (Rust `tests/common/current_model.rs` `reauthor_model`): a
-    0.5.0, 0.6.0 or 0.7.0 document changes its ``schema_version`` to 0.8.0 and nothing else. An older document (B7b's rule): a retired
-    ``schema_version`` -> 0.8.0; a declared v2 or v3 exact contract -> the current contract; and, on a document
+    0.5.0, 0.6.0, 0.7.0 or 0.8.0 document changes its ``schema_version`` to 0.9.0 and nothing else. An older document (B7b's rule): a retired
+    ``schema_version`` -> 0.9.0; a declared v2 or v3 exact contract -> the current contract; and, on a document
     carrying the current contract, an explicit zero ``corrosion_allowance`` on every pipe section that lacks one (the
     retired contracts had no allowance: the authored wall was the effective wall). Nothing else changes: no physical
     or numerical input and no other contract. The caller's object is not modified."""
@@ -289,7 +289,7 @@ def reauthor_runner_input(data: bytes) -> tuple[bytes, dict]:
     original = request['solve']['preview_model']['model']
     request['solve']['preview_model']['model'] = reauthor_model(original)
     submitted = json.dumps(request, ensure_ascii=False, separators=(',', ':'), allow_nan=False).encode()
-    # A 0.5.0, 0.6.0 or 0.7.0 copy moves only its version: its contract and sections are recorded as they stand.
+    # A 0.5.0, 0.6.0, 0.7.0 or 0.8.0 copy moves only its version: its contract and sections are recorded as they stand.
     version_only = original.get('schema_version') in PREVIOUS_MODEL_VERSIONS
     return submitted, {'rule': REAUTHORING, 'frozen_input_sha256': sha256_bytes(data), 'submitted_input_sha256': sha256_bytes(submitted),
                        'model_schema_version': [original.get('schema_version'), MODEL_VERSION],

@@ -8,7 +8,7 @@ B7b (A4/A5): the retained-source composite has one current contract, `pressure-s
 `3.0.0/exact_pressure_v3` (policy PRESSURE-SOURCE-1, case domain `pressure_source_case_evidence_v1`). The retired
 `physics-source-1` (`2.0.0/exact_straight_pressure_v2`) is not read here; a stored v2 result is refused by name at
 the header (`compatibility.py`, `reader_verdict.py`). Actual numerical eligibility additionally requires the
-independently captured full invocation, a current model document 0.8.0 with the exact contract.
+independently captured full invocation, a current model document 0.9.0 with the exact contract.
 
 T4-U6 (DEL-05-03 ``section-bases-and-timoshenko.md`` §2.3, §5) and O4 (DEL-04-08 Design
 ``o4-source-extension.md`` §3.4): the retained-source route admits both shear models
@@ -47,8 +47,8 @@ PRESSURE_PROFILE = "exact_pressure_v3"
 PRESSURE_TABLE_SHA256 = "609a4e92ac19de0f5a1dd067dab64b4abeb7b3b70511e2095455f1d000d28e2c"
 PRESSURE_TABLE_PATH = ROOT / "fixtures/results/semantic_contract_v0_3_pressure_source_1.json"
 # The current model document and the exact contract a captured invocation must author
-# (b7-plan "Current model format"; O4 §3.4): 0.8.0, `pressure_contract` present, either shear model.
-MODEL_VERSION = "0.8.0"
+# (b7-plan "Current model format"; O4 §3.4): 0.9.0, `pressure_contract` present, either shear model.
+MODEL_VERSION = "0.9.0"
 SHEAR_MODELS = (sb.EULER_BERNOULLI, sb.TIMOSHENKO)
 
 
@@ -85,7 +85,7 @@ class SourceContract(Enum):
 
     @classmethod
     def from_invocation(cls, invocation):
-        """The captured model's contract: a current 0.8.0 document with the exact v3 contract and no outer
+        """The captured model's contract: a current 0.9.0 document with the exact v3 contract and no outer
         shear key, as Rust's `from_invocation`; anything else is refused."""
         model = _get(_get(invocation, "request"), "model")
         contract = _get(model, "pressure_contract")

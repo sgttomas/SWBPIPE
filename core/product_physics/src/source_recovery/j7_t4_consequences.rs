@@ -20,7 +20,7 @@ fn j7_t4_i12_genuine_nodal_case_declines_the_connector_family_by_name(){
     let stored=request();
     assert_eq!(sha(serde_json::to_string(&stored).unwrap().as_bytes()),"99401eec19e6f5524fb1fd9e0f534c35fe07e1df384b15ec4ec4e92a0d0c527a");
     // B7b: the stored 0.3.0 control is unchanged; only its copy is re-authored to
-    // the current 0.8.0 exact document. The captured invocation digests below are
+    // the current 0.9.0 exact document. The captured invocation digests below are
     // those of the re-authored copy.
     let raw=crate::b7b_admission_tests::reauthor_current_request(stored);
     assert_eq!(raw["model"]["load_cases"].as_array().unwrap().len(),3);
